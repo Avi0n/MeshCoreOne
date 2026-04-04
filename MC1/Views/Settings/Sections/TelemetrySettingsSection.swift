@@ -134,12 +134,7 @@ struct TelemetrySettingsSection: View {
                     location: location ?? device.telemetryModeLoc,
                     environment: environment ?? device.telemetryModeEnv
                 )
-                _ = try await settingsService.setOtherParamsVerified(
-                    autoAddContacts: !device.manualAddContacts,
-                    telemetryModes: modes,
-                    advertLocationPolicy: AdvertLocationPolicy(rawValue: device.advertLocationPolicy) ?? .none,
-                    multiAcks: device.multiAcks
-                )
+                _ = try await settingsService.setOtherParamsVerified(from: device, telemetryModes: modes)
                 retryAlert.reset()
             } catch let error as SettingsServiceError where error.isRetryable {
                 retryAlert.show(

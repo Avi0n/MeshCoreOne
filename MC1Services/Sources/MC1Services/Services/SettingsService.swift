@@ -681,6 +681,22 @@ public actor SettingsService {
         return selfInfo
     }
 
+    /// Convenience overload: uses the device's current values as defaults, overriding only the supplied parameters.
+    public func setOtherParamsVerified(
+        from device: DeviceDTO,
+        autoAddContacts: Bool? = nil,
+        telemetryModes: TelemetryModes? = nil,
+        advertLocationPolicy: AdvertLocationPolicy? = nil,
+        multiAcks: UInt8? = nil
+    ) async throws -> MeshCore.SelfInfo {
+        try await setOtherParamsVerified(
+            autoAddContacts: autoAddContacts ?? !device.manualAddContacts,
+            telemetryModes: telemetryModes ?? device.telemetryModes,
+            advertLocationPolicy: advertLocationPolicy ?? device.advertLocationPolicyMode,
+            multiAcks: multiAcks ?? device.multiAcks
+        )
+    }
+
     /// Compatibility overload: map boolean sharing to `prefs` policy when enabled.
     @available(*, deprecated, message: "Use advertLocationPolicy overload instead")
     public func setOtherParamsVerified(

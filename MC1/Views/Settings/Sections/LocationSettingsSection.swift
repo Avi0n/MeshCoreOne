@@ -338,16 +338,6 @@ struct LocationSettingsSection: View {
         using device: DeviceDTO,
         settingsService: SettingsService
     ) async throws {
-        let telemetryModes = TelemetryModes(
-            base: device.telemetryModeBase,
-            location: device.telemetryModeLoc,
-            environment: device.telemetryModeEnv
-        )
-        _ = try await settingsService.setOtherParamsVerified(
-            autoAddContacts: !device.manualAddContacts,
-            telemetryModes: telemetryModes,
-            advertLocationPolicy: policy,
-            multiAcks: device.multiAcks
-        )
+        _ = try await settingsService.setOtherParamsVerified(from: device, advertLocationPolicy: policy)
     }
 }

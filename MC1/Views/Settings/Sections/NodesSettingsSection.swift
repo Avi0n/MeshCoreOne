@@ -183,17 +183,7 @@ struct NodesSettingsSection: View {
                 let manualAdd = autoAddMode != .all
 
                 // Save manualAddContacts (works on all firmware versions)
-                let modes = TelemetryModes(
-                    base: device.telemetryModeBase,
-                    location: device.telemetryModeLoc,
-                    environment: device.telemetryModeEnv
-                )
-                _ = try await settingsService.setOtherParamsVerified(
-                    autoAddContacts: !manualAdd,
-                    telemetryModes: modes,
-                    advertLocationPolicy: AdvertLocationPolicy(rawValue: device.advertLocationPolicy) ?? .none,
-                    multiAcks: device.multiAcks
-                )
+                _ = try await settingsService.setOtherParamsVerified(from: device, autoAddContacts: !manualAdd)
 
                 // Save autoAddConfig only on v1.12+ firmware
                 if device.supportsAutoAddConfig {

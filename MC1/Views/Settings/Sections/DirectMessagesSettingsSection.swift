@@ -45,17 +45,7 @@ struct DirectMessagesSettingsSection: View {
         isSaving = true
         Task {
             do {
-                let modes = TelemetryModes(
-                    base: device.telemetryModeBase,
-                    location: device.telemetryModeLoc,
-                    environment: device.telemetryModeEnv
-                )
-                _ = try await settingsService.setOtherParamsVerified(
-                    autoAddContacts: !device.manualAddContacts,
-                    telemetryModes: modes,
-                    advertLocationPolicy: AdvertLocationPolicy(rawValue: device.advertLocationPolicy) ?? .none,
-                    multiAcks: value
-                )
+                _ = try await settingsService.setOtherParamsVerified(from: device, multiAcks: value)
                 retryAlert.reset()
             } catch let error as SettingsServiceError where error.isRetryable {
                 retryAlert.show(

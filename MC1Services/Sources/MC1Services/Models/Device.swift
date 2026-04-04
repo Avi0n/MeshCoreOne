@@ -351,6 +351,11 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable {
         AdvertLocationPolicy(rawValue: advertLocationPolicy) ?? .none
     }
 
+    /// Telemetry modes constructed from raw base/location/environment values.
+    public var telemetryModes: TelemetryModes {
+        TelemetryModes(base: telemetryModeBase, location: telemetryModeLoc, environment: telemetryModeEnv)
+    }
+
     /// Whether location is shared publicly in advertisements.
     public var sharesLocationPublicly: Bool { advertLocationPolicy > 0 }
 
