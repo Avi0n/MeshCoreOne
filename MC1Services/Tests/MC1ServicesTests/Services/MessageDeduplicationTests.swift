@@ -78,6 +78,44 @@ struct MessageDeduplicationTests {
         #expect(key1 != key2)
     }
 
+    // MARK: - Retry Dedup Stability
+
+    @Test("DM retry attempts with same content produce identical dedup keys")
+    func dmRetryAttemptsProduceSameKey() {
+        let contactID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
+        let timestamp: UInt32 = 1704067200
+        let text = "Hello mesh"
+
+        // Simulate two retry attempts: same contact, timestamp, and text
+        let keyAttempt0 = SyncCoordinator.fallbackDeduplicationKey(
+            contactID: contactID, channelIndex: nil,
+            senderNodeName: nil, timestamp: timestamp, content: text
+        )
+        let keyAttempt1 = SyncCoordinator.fallbackDeduplicationKey(
+            contactID: contactID, channelIndex: nil,
+            senderNodeName: nil, timestamp: timestamp, content: text
+        )
+        #expect(keyAttempt0 == keyAttempt1,
+                "Retry attempts with the same content must produce identical dedup keys")
+    }
+
+    @Test("Channel retry attempts with same content produce identical dedup keys")
+    func channelRetryAttemptsProduceSameKey() {
+        let timestamp: UInt32 = 1704067200
+        let text = "Hello channel"
+
+        let keyAttempt0 = SyncCoordinator.fallbackDeduplicationKey(
+            contactID: nil, channelIndex: 2,
+            senderNodeName: "Bob", timestamp: timestamp, content: text
+        )
+        let keyAttempt1 = SyncCoordinator.fallbackDeduplicationKey(
+            contactID: nil, channelIndex: 2,
+            senderNodeName: "Bob", timestamp: timestamp, content: text
+        )
+        #expect(keyAttempt0 == keyAttempt1,
+                "Channel retry attempts with the same content must produce identical dedup keys")
+    }
+
     // MARK: - isDuplicateMessage via MockPersistenceStore
 
     @Test("isDuplicateMessage returns false when no matching key exists")

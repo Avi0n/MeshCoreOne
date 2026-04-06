@@ -79,16 +79,13 @@ extension SyncCoordinator {
                 contactName: contact?.displayName
             )
 
-            // Compute deduplication key from RX log packet hash, falling back to content hash
-            let deduplicationKey: String
-            if let hash = rxResult.packetHash, !hash.isEmpty {
-                deduplicationKey = hash
-            } else {
-                deduplicationKey = Self.fallbackDeduplicationKey(
-                    contactID: contact?.id, channelIndex: nil,
-                    senderNodeName: nil, timestamp: timestamp, content: message.text
-                )
-            }
+            // Use content-based key for dedup (stable across retry attempts).
+            // The RX log packetHash is per-encrypted-packet and differs between
+            // retries with different attempt counters, so it must not drive dedup.
+            let deduplicationKey = Self.fallbackDeduplicationKey(
+                contactID: contact?.id, channelIndex: nil,
+                senderNodeName: nil, timestamp: timestamp, content: message.text
+            )
 
             // Check for self-mention before creating DTO
             let hasSelfMention = !selfNodeName.isEmpty &&
@@ -230,16 +227,11 @@ extension SyncCoordinator {
                 defaultPathLength: message.pathLength
             )
 
-            // Compute deduplication key from RX log packet hash, falling back to content hash
-            let deduplicationKey: String
-            if let hash = rxResult.packetHash, !hash.isEmpty {
-                deduplicationKey = hash
-            } else {
-                deduplicationKey = Self.fallbackDeduplicationKey(
-                    contactID: nil, channelIndex: message.channelIndex,
-                    senderNodeName: senderNodeName, timestamp: timestamp, content: messageText
-                )
-            }
+            // Use content-based key for dedup (stable across retry attempts).
+            let deduplicationKey = Self.fallbackDeduplicationKey(
+                contactID: nil, channelIndex: message.channelIndex,
+                senderNodeName: senderNodeName, timestamp: timestamp, content: messageText
+            )
 
             // Check for self-mention before creating DTO
             // Filter out messages where user mentions themselves
