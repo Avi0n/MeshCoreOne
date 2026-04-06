@@ -279,11 +279,10 @@ extension PacketParser {
                 )
             }
             let code = Data(payload.prefix(PacketSize.ackMinimum))
-            // Room server keep-alive ACKs include unsyncedCount as 5th byte
-            let unsyncedCount: UInt8? = payload.count > PacketSize.ackMinimum
-                ? payload[PacketSize.ackMinimum]
+            let tripTime: UInt32? = payload.count >= PacketSize.ackWithTripTime
+                ? payload.readUInt32LE(at: PacketSize.ackMinimum)
                 : nil
-            return .acknowledgement(code: code, unsyncedCount: unsyncedCount)
+            return .acknowledgement(code: code, tripTime: tripTime)
 
         case .messagesWaiting:
             return .messagesWaiting

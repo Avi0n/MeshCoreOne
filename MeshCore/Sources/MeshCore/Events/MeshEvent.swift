@@ -211,8 +211,8 @@ public enum MeshEvent: Sendable {
     ///
     /// - Parameters:
     ///   - code: The acknowledgement code to match against the expected value.
-    ///   - unsyncedCount: For room server keep-alive ACKs, the number of unsynced messages.
-    case acknowledgement(code: Data, unsyncedCount: UInt8? = nil)
+    ///   - tripTime: Firmware-measured radio round-trip time in milliseconds, if available.
+    case acknowledgement(code: Data, tripTime: UInt32? = nil)
 
     /// Indicates that trace route data was received.
     ///
@@ -1240,9 +1240,9 @@ extension MeshEvent {
                 "channelIndex": msg.channelIndex,
                 "textType": msg.textType
             ]
-        case .acknowledgement(let code, let unsyncedCount):
+        case .acknowledgement(let code, let tripTime):
             var result: [String: AnyHashable] = ["code": code]
-            if let unsyncedCount { result["unsyncedCount"] = unsyncedCount }
+            if let tripTime { result["tripTime"] = tripTime }
             return result
         case .messageSent(let info):
             return [

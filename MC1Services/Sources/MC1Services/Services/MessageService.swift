@@ -236,8 +236,8 @@ public actor MessageService {
                 guard !Task.isCancelled else { break }
 
                 switch event {
-                case .acknowledgement(let code, _):
-                    await handleAcknowledgement(code: code)
+                case .acknowledgement(let code, let tripTime):
+                    await handleAcknowledgement(code: code, tripTime: tripTime)
                 default:
                     break
                 }
@@ -256,7 +256,7 @@ public actor MessageService {
     // MARK: - ACK Handling
 
     /// Processes an acknowledgement from the session event stream
-    private func handleAcknowledgement(code: Data) async {
+    func handleAcknowledgement(code: Data, tripTime: UInt32?) async {
         guard pendingAcks[code] != nil else {
             return
         }
@@ -275,7 +275,7 @@ public actor MessageService {
 
         guard let tracking = pendingAcks[code] else { return }
 
-        let roundTripMs = UInt32(Date().timeIntervalSince(tracking.sentAt) * 1000)
+        let roundTripMs = tripTime ?? UInt32(Date().timeIntervalSince(tracking.sentAt) * 1000)
 
         try? await dataStore.updateMessageByAckCode(
             tracking.ackCodeUInt32,

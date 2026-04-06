@@ -31,6 +31,8 @@ enum PacketSize {
     static let deviceInfoV3Full = 79
     /// Minimum size for acknowledgement packets.
     static let ackMinimum = 4
+    /// Size for acknowledgement packets that include firmware trip time.
+    static let ackWithTripTime = 8
     /// Minimum size for contact synchronization start.
     static let contactsStartMinimum = 4
     /// Minimum size for core system statistics.

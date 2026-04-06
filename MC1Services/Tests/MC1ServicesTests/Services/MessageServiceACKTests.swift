@@ -277,6 +277,73 @@ struct MessageServiceACKTests {
         #expect(msg?.status == .failed)
     }
 
+    // MARK: - Trip Time Preference
+
+    @Test("handleAcknowledgement uses firmware tripTime when provided")
+    func firmwareTripTimePreferred() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+
+        let message = MessageDTO.testDirectMessage(
+            id: messageID,
+            deviceID: testDeviceID,
+            status: .sent,
+            ackCode: 0xDEADBEEF
+        )
+        try await dataStore.saveMessage(message)
+
+        let ackCode = Data([0xEF, 0xBE, 0xAD, 0xDE]) // 0xDEADBEEF LE
+        let pending = PendingAck(
+            messageID: messageID,
+            ackCode: ackCode,
+            sentAt: Date().addingTimeInterval(-10), // 10 seconds ago
+            timeout: 30.0
+        )
+        await service.setPendingAckForTest(ackCode: ackCode, tracking: pending)
+
+        // Provide firmware trip time of 250ms
+        await service.handleAcknowledgement(code: ackCode, tripTime: 250)
+
+        let fetched = try await dataStore.fetchMessage(id: messageID)
+        #expect(fetched?.status == .delivered)
+        #expect(fetched?.roundTripTime == 250,
+                "Should use firmware tripTime (250ms), not Date()-based (~10000ms)")
+    }
+
+    @Test("handleAcknowledgement falls back to Date() calculation when tripTime is nil")
+    func fallbackToDateCalculation() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+
+        let message = MessageDTO.testDirectMessage(
+            id: messageID,
+            deviceID: testDeviceID,
+            status: .sent,
+            ackCode: 0xCAFEBABE
+        )
+        try await dataStore.saveMessage(message)
+
+        let ackCode = Data([0xBE, 0xBA, 0xFE, 0xCA]) // 0xCAFEBABE LE
+        let pending = PendingAck(
+            messageID: messageID,
+            ackCode: ackCode,
+            sentAt: Date().addingTimeInterval(-2), // 2 seconds ago
+            timeout: 30.0
+        )
+        await service.setPendingAckForTest(ackCode: ackCode, tracking: pending)
+
+        // Pass nil tripTime — should fall back to Date()-based calculation
+        await service.handleAcknowledgement(code: ackCode, tripTime: nil)
+
+        let fetched = try await dataStore.fetchMessage(id: messageID)
+        #expect(fetched?.status == .delivered)
+        // Date()-based RTT should be roughly 2000ms (within a reasonable range)
+        if let rtt = fetched?.roundTripTime {
+            #expect(rtt >= 1500 && rtt <= 5000,
+                    "Date()-based RTT should be ~2000ms, got \(rtt)ms")
+        }
+    }
+
     // MARK: - pendingAckCount
 
     @Test("pendingAckCount reflects count correctly")
