@@ -3720,6 +3720,12 @@ public enum L10n {
       public static let contactMessages = L10n.tr("Settings", "notifications.contactMessages", fallback: "Contact Messages")
       /// Label shown when notifications are disabled
       public static let disabled = L10n.tr("Settings", "notifications.disabled", fallback: "Notifications Disabled")
+      /// Toggle label for companion discovery notifications
+      public static let discoveryContact = L10n.tr("Settings", "notifications.discoveryContact", fallback: "Companion")
+      /// Toggle label for repeater discovery notifications
+      public static let discoveryRepeater = L10n.tr("Settings", "notifications.discoveryRepeater", fallback: "Repeater")
+      /// Toggle label for room discovery notifications
+      public static let discoveryRoom = L10n.tr("Settings", "notifications.discoveryRoom", fallback: "Room")
       /// Button to enable notifications
       public static let enable = L10n.tr("Settings", "notifications.enable", fallback: "Enable Notifications")
       /// Footer for notifications navigation row

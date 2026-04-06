@@ -382,7 +382,6 @@ public final class NotificationService: NSObject {
         guard isAuthorized && notificationsEnabled else { return }
 
         // Check granular preference
-        let preferences = NotificationPreferences()
         guard preferences.roomMessagesEnabled else { return }
 
         // Skip system notification if suppressed (during sync window)
@@ -438,8 +437,14 @@ public final class NotificationService: NSObject {
         guard isAuthorized && notificationsEnabled else { return }
 
         // Check granular preference
-        let preferences = NotificationPreferences()
         guard preferences.newContactDiscoveredEnabled else { return }
+
+        // Per-type filtering
+        switch contactType {
+        case .chat:     guard preferences.discoveryContactEnabled else { return }
+        case .repeater: guard preferences.discoveryRepeaterEnabled else { return }
+        case .room:     guard preferences.discoveryRoomEnabled else { return }
+        }
 
         // Get localized title from provider, fallback to English
         let title = stringProvider?.discoveryNotificationTitle(for: contactType)
@@ -545,7 +550,6 @@ public final class NotificationService: NSObject {
     ) async {
         guard isAuthorized else { return }
 
-        let preferences = NotificationPreferences()
         guard preferences.lowBatteryEnabled else { return }
 
         let content = UNMutableNotificationContent()

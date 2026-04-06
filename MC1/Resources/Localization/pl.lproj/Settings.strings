@@ -741,6 +741,15 @@
 /* Toggle label for new contact discovered notifications */
 "notifications.newContactDiscovered" = "Odkryto nowy kontakt";
 
+/* Toggle label for companion discovery notifications */
+"notifications.discoveryContact" = "Companion";
+
+/* Toggle label for repeater discovery notifications */
+"notifications.discoveryRepeater" = "Repeater";
+
+/* Toggle label for room discovery notifications */
+"notifications.discoveryRoom" = "Room";
+
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Ostrzeżenia o niskim stanie baterii";
 
