@@ -1,7 +1,7 @@
-# MeshCore One
+# MeshCore One (MC1)
 
-A MeshCore client built for iOS in Swift.   
-Disclaimer: Built entirely with AI.
+A MeshCore client built for iOS and iPadOS in Swift.   
+Disclaimer: Built mostly with AI.
 
 Join the beta on TestFlight or sideload using unsigned IPA files under [Releases](https://github.com/Avi0n/MeshCoreOne/releases).
 
@@ -34,7 +34,7 @@ Join the beta on TestFlight or sideload using unsigned IPA files under [Releases
 - Room Server connections with guest/participant modes
 - Heard repeats tracking
 - Message reactions (emoji)
-- Quoted replies
+- Path Hops
 - Link previews and inline images
 - @Mentions
 - Per-conversation notification levels
@@ -56,13 +56,13 @@ Join the beta on TestFlight or sideload using unsigned IPA files under [Releases
 - **Line of Sight** - Terrain analysis with Fresnel zone and RF parameters
 - **RX Log** - Live packet capture
 - **Noise Floor Monitor** - Live dBm chart with signal quality stats
-- **CLI Terminal** - Remote command-line access to repeaters
+- **CLI Terminal** - Remote command-line access to repeaters and rooms
 
 ### Remote Node Management
-- Repeater status (battery, uptime, neighbors, telemetry)
-- Remote repeater configuration (radio, behavior, identity, reboot)
+- Node status (telemetry such as battery and uptime. Neighbors for repeaters)
+- Remote repeater/room configuration (radio, behavior, identity, reboot)
 - Telemetry history charts
-- Admin authentication
+- Admin and guest authentication for repeaters/rooms
 
 ### Companion Device
 - Bluetooth and WiFi pairing
