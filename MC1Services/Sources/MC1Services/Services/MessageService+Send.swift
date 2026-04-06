@@ -186,7 +186,7 @@ extension MessageService {
     /// Creates a pending message without sending it.
     ///
     /// Use this when you want to show the message in the UI immediately
-    /// and send it later via `sendExistingMessage`.
+    /// and retry it later via ``retryDirectMessage(messageID:to:)``.
     ///
     /// - Parameters:
     ///   - text: The message text
@@ -218,49 +218,6 @@ extension MessageService {
         try await dataStore.saveMessage(messageDTO)
 
         return messageDTO
-    }
-
-    /// Sends an already-created pending message.
-    ///
-    /// Use this after `createPendingMessage` to send the message.
-    /// This allows showing the message in UI immediately while sending in background.
-    ///
-    /// - Parameters:
-    ///   - messageID: The ID of the pending message to send
-    ///   - contact: The recipient contact
-    ///
-    /// - Returns: The updated message DTO with delivery status
-    public func sendExistingMessage(
-        messageID: UUID,
-        to contact: ContactDTO
-    ) async throws -> MessageDTO {
-        guard let existingMessage = try await dataStore.fetchMessage(id: messageID) else {
-            throw MessageServiceError.sendFailed("Message not found")
-        }
-
-        let initialPathLength = contact.outPathLength
-
-        do {
-            let sentInfo = try await session.sendMessageWithRetry(
-                to: contact.publicKey,
-                text: existingMessage.text,
-                timestamp: Date(timeIntervalSince1970: TimeInterval(existingMessage.timestamp)),
-                maxAttempts: config.maxAttempts,
-                floodAfter: config.floodAfter,
-                maxFloodAttempts: config.maxFloodAttempts
-            )
-
-            return try await finalizeSend(
-                messageID: messageID,
-                contactID: contact.id,
-                deviceID: contact.deviceID,
-                publicKey: contact.publicKey,
-                sentInfo: sentInfo,
-                initialPathLength: initialPathLength
-            )
-        } catch {
-            try await failMessageAndRethrow(error, messageID: messageID)
-        }
     }
 
     /// Retries sending a failed message with automatic retry logic.

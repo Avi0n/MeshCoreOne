@@ -157,21 +157,6 @@ struct MessageServiceSendTests {
         #expect(message.channelIndex == nil)
     }
 
-    // MARK: - sendExistingMessage
-
-    @Test("sendExistingMessage throws when message not found")
-    func sendExistingMessageThrowsWhenNotFound() async throws {
-        let (service, _) = try await MessageService.createForTesting()
-        let contact = ContactDTO.testContact(deviceID: testDeviceID)
-
-        try await #expect {
-            _ = try await service.sendExistingMessage(messageID: UUID(), to: contact)
-        } throws: { error in
-            guard let e = error as? MessageServiceError, case .sendFailed = e else { return false }
-            return true
-        }
-    }
-
     // MARK: - retryDirectMessage
 
     @Test("retryDirectMessage rejects concurrent retry for same messageID")
