@@ -233,8 +233,6 @@
 /* Location: ContactDetailView.swift - Purpose: Share contact error when advert is missing or stale */
 "contacts.detail.shareContactUnavailable" = "Knoten kann nicht geteilt werden. Die Ankündigung des Knotens fehlt möglicherweise oder ist zu alt.";
 
-/* Location: ContactDetailView.swift - Purpose: Ping repeater button */
-"contacts.detail.pingRepeater" = "Repeater anpingen";
 
 /* Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes */
 "contacts.detail.ping" = "Zero-Hop-Ping";

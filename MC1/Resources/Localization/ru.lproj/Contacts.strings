@@ -233,8 +233,6 @@
 /* Location: ContactDetailView.swift - Purpose: Share contact error when advert is missing or stale */
 "contacts.detail.shareContactUnavailable" = "Не удалось поделиться узлом. Объявление узла может отсутствовать или быть устаревшим.";
 
-/* Location: ContactDetailView.swift - Purpose: Ping repeater button */
-"contacts.detail.pingRepeater" = "Пинг ретранслятора";
 
 /* Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes */
 "contacts.detail.ping" = "Zero-Hop Ping";

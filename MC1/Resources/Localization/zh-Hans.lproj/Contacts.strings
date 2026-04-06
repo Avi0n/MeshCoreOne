@@ -233,8 +233,6 @@
 /* Location: ContactDetailView.swift - Purpose: Share contact error when advert is missing or stale */
 "contacts.detail.shareContactUnavailable" = "无法分享节点。该节点的广播可能缺失或已过期。";
 
-/* Location: ContactDetailView.swift - Purpose: Ping repeater button */
-"contacts.detail.pingRepeater" = "Ping 转发节点";
 
 /* Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes */
 "contacts.detail.ping" = "零跳 Ping";

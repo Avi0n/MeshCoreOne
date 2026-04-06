@@ -590,7 +590,7 @@ private struct ContactActionsSection: View {
             case .repeater:
                 NodeActionRows(
                     contact: currentContact,
-                    pingLabel: L10n.Contacts.Contacts.Detail.pingRepeater,
+                    pingLabel: L10n.Contacts.Contacts.Detail.ping,
                     isPinging: isPinging,
                     pingResult: pingResult,
                     connectionState: appState.connectionState,

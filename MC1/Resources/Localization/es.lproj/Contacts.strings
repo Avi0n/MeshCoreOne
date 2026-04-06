@@ -233,8 +233,6 @@
 /* Location: ContactDetailView.swift - Purpose: Share contact error when advert is missing or stale */
 "contacts.detail.shareContactUnavailable" = "No se puede compartir el nodo. El anuncio del nodo puede faltar o ser demasiado antiguo.";
 
-/* Location: ContactDetailView.swift - Purpose: Ping repeater button */
-"contacts.detail.pingRepeater" = "Ping al repetidor";
 
 /* Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes */
 "contacts.detail.ping" = "Ping Zero-Hop";

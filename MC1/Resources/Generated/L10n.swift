@@ -1093,8 +1093,6 @@ public enum L10n {
         }
         /// Location: ContactDetailView.swift - Purpose: Ping no response message
         public static let pingNoResponse = L10n.tr("Contacts", "contacts.detail.pingNoResponse", fallback: "No response")
-        /// Location: ContactDetailView.swift - Purpose: Ping repeater button
-        public static let pingRepeater = L10n.tr("Contacts", "contacts.detail.pingRepeater", fallback: "Ping Repeater")
         /// Location: ContactDetailView.swift - Purpose: Ping success VoiceOver announcement
         public static func pingSuccessAnnouncement(_ p1: Int) -> String {
           return L10n.tr("Contacts", "contacts.detail.pingSuccessAnnouncement", p1, fallback: "Ping successful, %d milliseconds")

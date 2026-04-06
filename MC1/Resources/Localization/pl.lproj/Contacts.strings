@@ -233,8 +233,6 @@
 /* Location: ContactDetailView.swift - Purpose: Share contact error when advert is missing or stale */
 "contacts.detail.shareContactUnavailable" = "Nie można udostępnić węzła. Ogłoszenie węzła może być niedostępne lub zbyt stare.";
 
-/* Location: ContactDetailView.swift - Purpose: Ping repeater button */
-"contacts.detail.pingRepeater" = "Pinguj przekaźnik";
 
 /* Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes */
 "contacts.detail.ping" = "Ping Zero-Hop";
