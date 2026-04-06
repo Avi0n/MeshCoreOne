@@ -140,6 +140,11 @@ extension SyncCoordinator {
         forceFullSync: Bool = false,
         throttling: SyncThrottlingConfig = .none
     ) async -> Bool {
+        #if DEBUG
+        if let override = performResyncOverride {
+            return await override(deviceID, services)
+        }
+        #endif
         logger.info("Attempting resync for device \(deviceID)")
 
         await MainActor.run {

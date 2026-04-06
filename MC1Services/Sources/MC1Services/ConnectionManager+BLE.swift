@@ -273,7 +273,7 @@ extension ConnectionManager {
 
         // Detect stale connection state: app thinks connected but BLE is actually disconnected
         // This happens when iOS terminates the BLE connection while app is suspended
-        if connectionState == .ready || connectionState == .connected {
+        if connectionState.isConnected {
             logger.warning("[BLE] Detected stale connection state on foreground: connectionState=\(String(describing: connectionState)) but BLE disconnected, triggering cleanup")
             await handleConnectionLoss(deviceID: deviceID, error: nil)
         }

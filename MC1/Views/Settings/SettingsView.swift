@@ -70,7 +70,7 @@ private struct SettingsListContent: View {
                         Task {
                             if !newValue {
                                 await appState.liveActivityManager.endActivity()
-                            } else if appState.connectionState == .ready || appState.connectionState == .connected {
+                            } else if appState.connectionState.isConnected {
                                 await appState.wireServicesIfConnected()
                             }
                         }

@@ -975,6 +975,9 @@
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Connecté";
 
+/* Status shown when device is syncing data */
+"bleStatus.status.syncing" = "Synchronisation";
+
 /* Status shown when device is ready */
 "bleStatus.status.ready" = "Prêt";
 

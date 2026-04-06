@@ -150,6 +150,18 @@ public actor SyncCoordinator {
     /// Callback when a reaction is received for a channel message
     var onReactionReceived: (@Sendable (_ messageID: UUID, _ summary: String) async -> Void)?
 
+    // MARK: - Test Seams
+
+    #if DEBUG
+    /// Test override for `performResync`. When set, bypasses the real sync path.
+    var performResyncOverride: ((_ deviceID: UUID, _ services: ServiceContainer) async -> Bool)?
+
+    /// Sets the test override for `performResync`.
+    public func setPerformResyncOverride(_ override: @escaping @Sendable (_ deviceID: UUID, _ services: ServiceContainer) async -> Bool) {
+        performResyncOverride = override
+    }
+    #endif
+
     // MARK: - Initialization
 
     public init() {}

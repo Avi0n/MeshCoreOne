@@ -103,6 +103,7 @@ enum LogExportService {
         case .disconnected: stateString = "disconnected"
         case .connecting: stateString = "connecting"
         case .connected: stateString = "connected"
+        case .syncing: stateString = "syncing"
         case .ready: stateString = "ready"
         }
 

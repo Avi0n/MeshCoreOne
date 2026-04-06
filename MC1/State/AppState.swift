@@ -153,7 +153,7 @@ public final class AppState {
         if connectionUI.syncFailedPillVisible {
             return .failed(message: L10n.Localizable.StatusPill.syncFailed)
         }
-        if connectionUI.syncActivityCount > 0 {
+        if connectionUI.syncActivityCount > 0 || connectionState == .syncing {
             return .syncing
         }
         if connectionUI.showReadyToast {

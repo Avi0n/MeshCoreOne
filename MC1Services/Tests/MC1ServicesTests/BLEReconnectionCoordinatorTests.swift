@@ -131,6 +131,18 @@ struct BLEReconnectionCoordinatorTests {
         #expect(delegate.rebuildSessionCalls.isEmpty, "Should not rebuild when already ready")
     }
 
+    @Test("reconnection complete is ignored when .syncing (session alive, resync running)")
+    func reconnectionCompleteIgnoredWhenSyncing() async {
+        let (coordinator, delegate) = createCoordinator()
+        delegate.connectionIntent = .wantsConnection()
+        delegate.connectionState = .syncing
+
+        await coordinator.handleReconnectionComplete(deviceID: UUID())
+
+        #expect(delegate.connectionState == .syncing, "Should not change state when syncing")
+        #expect(delegate.rebuildSessionCalls.isEmpty, "Should not rebuild when syncing")
+    }
+
     @Test("reconnection complete handles rebuild failure")
     func reconnectionCompleteHandlesRebuildFailure() async {
         let (coordinator, delegate) = createCoordinator()

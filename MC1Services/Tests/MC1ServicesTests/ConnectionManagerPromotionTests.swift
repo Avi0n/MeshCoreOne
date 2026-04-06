@@ -78,10 +78,10 @@ struct ConnectionManagerPromotionTests {
         #expect(manager.connectionState == .disconnected)
     }
 
-    // MARK: - Sync failure still promotes (resync loop needs .ready)
+    // MARK: - Sync failure sets .syncing (resync loop continues from there)
 
-    @Test("promoteToReady sets .ready even when sync failed (resync loop needs it)")
-    func promoteSucceedsOnSyncFailure() async throws {
+    @Test("promoteToReady sets .syncing when sync failed")
+    func promoteSetsSyncingOnFailure() async throws {
         let (manager, _) = try ConnectionManager.createForTesting()
         let services = try await makeTestServices()
 
@@ -94,7 +94,7 @@ struct ConnectionManagerPromotionTests {
         )
 
         #expect(promoted)
-        #expect(manager.connectionState == .ready)
+        #expect(manager.connectionState == .syncing)
     }
 
     // MARK: - Sync failure skips onDeviceSynced
@@ -114,8 +114,63 @@ struct ConnectionManagerPromotionTests {
             transportType: .bluetooth
         )
 
-        #expect(promoted, "Should still promote to .ready for resync loop")
+        #expect(promoted, "Should still promote to .syncing for resync loop")
         #expect(!onDeviceSyncedCalled, "onDeviceSynced should be skipped on sync failure")
+    }
+
+    // MARK: - Sync success sets .ready and fires onDeviceSynced
+
+    @Test("promoteToReady sets .ready when sync succeeded")
+    func promoteReadyOnSuccess() async throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+        let services = try await makeTestServices()
+
+        setupForPromotion(manager: manager, services: services)
+
+        let promoted = await manager.promoteToReady(
+            syncSucceeded: true,
+            expectedServices: services,
+            transportType: .bluetooth
+        )
+
+        #expect(promoted)
+        #expect(manager.connectionState == .ready)
+    }
+
+    @Test("promoteToReady calls onDeviceSynced when sync succeeded")
+    func promoteCallsOnDeviceSyncedOnSuccess() async throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+        let services = try await makeTestServices()
+        var onDeviceSyncedCalled = false
+
+        setupForPromotion(manager: manager, services: services)
+        manager.onDeviceSynced = { onDeviceSyncedCalled = true }
+
+        await manager.promoteToReady(
+            syncSucceeded: true,
+            expectedServices: services,
+            transportType: .bluetooth
+        )
+
+        #expect(onDeviceSyncedCalled)
+    }
+
+    @Test("promoteToReady does NOT call onDeviceSynced when sync failed")
+    func promoteSkipsOnDeviceSyncedOnFailure() async throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+        let services = try await makeTestServices()
+        var onDeviceSyncedCalled = false
+
+        setupForPromotion(manager: manager, services: services)
+        manager.onDeviceSynced = { onDeviceSyncedCalled = true }
+
+        await manager.promoteToReady(
+            syncSucceeded: false,
+            expectedServices: services,
+            transportType: .bluetooth
+        )
+
+        #expect(!onDeviceSyncedCalled)
     }
 
     // MARK: - Happy path

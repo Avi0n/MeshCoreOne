@@ -78,7 +78,7 @@ extension ConnectionManager {
     /// Triggers resync if connected but sync state is failed.
     /// Called when app returns to foreground.
     public func checkSyncHealth() async {
-        guard connectionState == .ready,
+        guard connectionState.isOperational,
               connectionIntent.wantsConnection,
               let services,
               let deviceID = connectedDevice?.id else { return }

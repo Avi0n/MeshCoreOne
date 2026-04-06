@@ -20,7 +20,7 @@ extension ConnectionManager {
 
                 guard let self,
                       self.currentTransportType == .wifi,
-                      self.connectionState == .ready,
+                      self.connectionState.isOperational,
                       let session = self.session else { break }
 
                 // Probe connection with lightweight command
@@ -260,7 +260,7 @@ extension ConnectionManager {
 
         // Case 1: We think we're connected but the transport died while backgrounded
         if currentTransportType == .wifi,
-           connectionState == .ready,
+           connectionState.isOperational,
            let wifiTransport {
             let isConnected = await wifiTransport.isConnected
             if !isConnected {

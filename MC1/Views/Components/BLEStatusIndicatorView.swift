@@ -79,7 +79,7 @@ struct BLEStatusIndicatorView: View {
         switch appState.connectionState {
         case .disconnected:
             "antenna.radiowaves.left.and.right.slash"
-        case .connecting, .connected, .ready:
+        case .connecting, .connected, .syncing, .ready:
             "antenna.radiowaves.left.and.right"
         }
     }
@@ -91,7 +91,7 @@ struct BLEStatusIndicatorView: View {
         switch appState.connectionState {
         case .disconnected:
             return .secondary
-        case .connecting, .connected:
+        case .connecting, .connected, .syncing:
             return AppColors.Radio.connecting
         case .ready:
             return AppColors.Radio.ready
@@ -110,6 +110,8 @@ struct BLEStatusIndicatorView: View {
             L10n.Settings.BleStatus.Status.connecting
         case .connected:
             L10n.Settings.BleStatus.Status.connected
+        case .syncing:
+            L10n.Settings.BleStatus.Status.syncing
         case .ready:
             L10n.Settings.BleStatus.Status.ready
         }

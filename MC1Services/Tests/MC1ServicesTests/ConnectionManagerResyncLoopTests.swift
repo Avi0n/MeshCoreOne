@@ -28,9 +28,9 @@ struct ConnectionManagerResyncLoopTests {
         let device = DeviceDTO.testDevice(id: deviceID)
         try await services.dataStore.saveDevice(device)
 
-        // Set manager to .ready with .wantsConnection — the resync loop's guard requires both
+        // Set manager to .syncing with .wantsConnection — the resync loop's guard requires .isOperational
         manager.setTestState(
-            connectionState: .ready,
+            connectionState: .syncing,
             services: services,
             session: session,
             connectedDevice: DeviceDTO.testDevice(id: deviceID),
@@ -183,5 +183,96 @@ struct ConnectionManagerResyncLoopTests {
         #expect(startCount.callCount == 4, "Expected 1 outer + 3 inner activity starts, got \(startCount.callCount)")
         // 3 inner ends + 1 outer end = 4
         #expect(endCount.callCount == 4, "Expected 3 inner + 1 outer activity ends, got \(endCount.callCount)")
+    }
+
+    // MARK: - Resync Success Promotion
+
+    @Test("Resync success promotes .syncing → .ready",
+          .timeLimit(.minutes(1)))
+    func resyncSuccessPromotesToReady() async throws {
+        let deviceID = UUID()
+        let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+
+        // Override performResync to succeed
+        await services.syncCoordinator.setPerformResyncOverride { _, _ in true }
+
+        let succeededValues = ValueTracker<Bool>()
+        await services.syncCoordinator.setSyncActivityCallbacks(
+            onStarted: { },
+            onEnded: { succeeded in succeededValues.record(succeeded) },
+            onPhaseChanged: { _ in }
+        )
+
+        manager.startResyncLoop(deviceID: deviceID, services: services)
+
+        try await waitUntil(timeout: .seconds(10), "endResyncActivity should fire with success") {
+            succeededValues.values.contains(true)
+        }
+
+        #expect(manager.connectionState == .ready)
+    }
+
+    @Test("Resync success calls onDeviceSynced",
+          .timeLimit(.minutes(1)))
+    func resyncSuccessCallsOnDeviceSynced() async throws {
+        let deviceID = UUID()
+        let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+
+        // Override performResync to succeed
+        await services.syncCoordinator.setPerformResyncOverride { _, _ in true }
+
+        let onDeviceSyncedTracker = CallTracker()
+        manager.onDeviceSynced = { onDeviceSyncedTracker.markCalled() }
+
+        let succeededValues = ValueTracker<Bool>()
+        await services.syncCoordinator.setSyncActivityCallbacks(
+            onStarted: { },
+            onEnded: { succeeded in succeededValues.record(succeeded) },
+            onPhaseChanged: { _ in }
+        )
+
+        manager.startResyncLoop(deviceID: deviceID, services: services)
+
+        try await waitUntil(timeout: .seconds(10), "onDeviceSynced should fire after resync success") {
+            onDeviceSyncedTracker.wasCalled
+        }
+
+        #expect(onDeviceSyncedTracker.wasCalled)
+    }
+
+    // MARK: - Disconnect During Syncing
+
+    @Test("Disconnect during .syncing transitions to .disconnected and closes bracket",
+          .timeLimit(.minutes(1)))
+    func disconnectDuringSyncingClosesBracket() async throws {
+        let deviceID = UUID()
+        let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+
+        let startedTracker = CallTracker()
+        let succeededValues = ValueTracker<Bool>()
+
+        await services.syncCoordinator.setSyncActivityCallbacks(
+            onStarted: { startedTracker.markCalled() },
+            onEnded: { succeeded in succeededValues.record(succeeded) },
+            onPhaseChanged: { _ in }
+        )
+
+        manager.startResyncLoop(deviceID: deviceID, services: services)
+
+        // Wait for the outer bracket to open
+        try await waitUntil("beginResyncActivity should fire") {
+            startedTracker.wasCalled
+        }
+
+        // Disconnect while in .syncing
+        await manager.disconnect(reason: .userInitiated)
+
+        // Wait for bracket to close
+        try await waitUntil("endResyncActivity should fire after disconnect") {
+            !succeededValues.values.isEmpty
+        }
+
+        #expect(manager.connectionState == .disconnected)
+        #expect(succeededValues.values.last == false)
     }
 }

@@ -3051,6 +3051,8 @@ public enum L10n {
         public static let disconnected = L10n.tr("Settings", "bleStatus.status.disconnected", fallback: "Disconnected")
         /// Status shown when device is ready
         public static let ready = L10n.tr("Settings", "bleStatus.status.ready", fallback: "Ready")
+        /// Status shown when device is syncing data
+        public static let syncing = L10n.tr("Settings", "bleStatus.status.syncing", fallback: "Syncing")
       }
     }
     public enum Blocking {

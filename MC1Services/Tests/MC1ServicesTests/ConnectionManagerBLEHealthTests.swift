@@ -214,6 +214,32 @@ struct ConnectionManagerBLEHealthTests {
         #expect(manager.connectionState == .disconnected)
     }
 
+    @Test("detects stale state when connectionState is .syncing but BLE disconnected")
+    func detectsStaleSyncingState() async throws {
+        let (manager, mock) = try ConnectionManager.createForTesting()
+        let deviceID = UUID()
+
+        await mock.setStubbedIsConnected(false)
+        await mock.setStubbedIsAutoReconnecting(false)
+        await mock.setStubbedIsDeviceConnectedToSystem(false)
+
+        manager.setTestState(
+            connectionState: .syncing,
+            services: try await ServiceContainer.forTesting(
+                session: MeshCoreSession(transport: SimulatorMockTransport())
+            ),
+            session: MeshCoreSession(transport: SimulatorMockTransport()),
+            connectedDevice: DeviceDTO.testDevice(id: deviceID),
+            currentTransportType: .bluetooth,
+            connectionIntent: .wantsConnection()
+        )
+        manager.testLastConnectedDeviceID = deviceID
+
+        await manager.checkBLEConnectionHealth()
+
+        #expect(manager.connectionState == .disconnected)
+    }
+
     @Test("does not trigger cleanup when already disconnected")
     func noCleanupWhenAlreadyDisconnected() async throws {
         let (manager, mock) = try ConnectionManager.createForTesting()

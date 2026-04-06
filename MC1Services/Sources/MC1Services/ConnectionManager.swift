@@ -9,7 +9,23 @@ public enum ConnectionState: Sendable {
     case disconnected
     case connecting
     case connected
+    case syncing
     case ready
+
+    /// True when session and services are available and the transport is alive.
+    /// Used by internal infrastructure (resync loop, health checks, heartbeat).
+    /// UI code should check `== .ready` to gate user interactions.
+    public var isOperational: Bool {
+        self == .syncing || self == .ready
+    }
+
+    /// True when a transport link is established (session may or may not be synced).
+    public var isConnected: Bool {
+        switch self {
+        case .connected, .syncing, .ready: true
+        case .disconnected, .connecting: false
+        }
+    }
 }
 
 /// Transport type for the mesh connection
@@ -571,7 +587,7 @@ public final class ConnectionManager {
                 guard !Task.isCancelled else { break }
 
                 guard connectionIntent.wantsConnection,
-                      connectionState == .ready else { break }
+                      connectionState.isOperational else { break }
 
                 resyncAttemptCount += 1
                 logger.info("Resync attempt \(resyncAttemptCount)/\(Self.maxResyncAttempts)")
@@ -601,14 +617,14 @@ public final class ConnectionManager {
                     // reconnect cycle may have torn down the connection.
                     guard !Task.isCancelled,
                           connectionIntent.wantsConnection,
-                          connectionState == .ready,
+                          connectionState.isOperational,
                           self.services === services else { break }
 
                     await syncDeviceTimeIfNeeded()
 
                     guard !Task.isCancelled,
                           connectionIntent.wantsConnection,
-                          connectionState == .ready,
+                          connectionState.isOperational,
                           self.services === services else { break }
 
                     // Re-authenticate room sessions before onDeviceSynced to avoid
@@ -620,7 +636,7 @@ public final class ConnectionManager {
 
                     guard !Task.isCancelled,
                           connectionIntent.wantsConnection,
-                          connectionState == .ready,
+                          connectionState.isOperational,
                           self.services === services else { break }
 
                     // Report success only after confirming the loop is still authoritative.
@@ -632,6 +648,12 @@ public final class ConnectionManager {
                     // Only clear consumed IDs after confirming the loop is still valid.
                     // Any IDs appended during the await (via teardownSessionForReconnect) survive.
                     sessionsAwaitingReauth.subtract(sessionIDs)
+
+                    // Promote from .syncing to .ready now that sync completed.
+                    // Not using promoteToReady() because: (1) its guards (services identity,
+                    // connectionIntent) are already checked above, and (2) it would re-run
+                    // time sync and onDeviceSynced, duplicating the resync loop's own post-sync work.
+                    connectionState = .ready
 
                     await onDeviceSynced?()
 
@@ -882,12 +904,7 @@ public final class ConnectionManager {
         }
 
         currentTransportType = transportType
-        // Known gap: .ready is set even when sync failed. This is inherited from the
-        // pre-refactor code where performInitialSync was fire-and-forget (returned Void)
-        // and callers always fell through to .ready. Changing this requires designing an
-        // intermediate "connected but not synced" state. For now, the resync loop runs
-        // deferred post-sync hooks (time sync, reauth, onDeviceSynced) when it succeeds.
-        connectionState = .ready
+        connectionState = syncSucceeded ? .ready : .syncing
         if syncSucceeded { await onDeviceSynced?() }
         return true
     }
@@ -1036,10 +1053,10 @@ public final class ConnectionManager {
     private func assertStateInvariants() {
         guard !suppressInvariantChecks else { return }
         switch connectionState {
-        case .ready:
-            assert(services != nil, "Invariant: .ready requires services")
-            assert(session != nil, "Invariant: .ready requires session")
-            assert(connectedDevice != nil, "Invariant: .ready requires connectedDevice")
+        case .ready, .syncing:
+            assert(services != nil, "Invariant: \(connectionState) requires services")
+            assert(session != nil, "Invariant: \(connectionState) requires session")
+            assert(connectedDevice != nil, "Invariant: \(connectionState) requires connectedDevice")
         case .connected, .disconnected, .connecting:
             break
         }

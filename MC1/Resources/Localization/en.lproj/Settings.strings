@@ -1024,6 +1024,9 @@
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Connected";
 
+/* Status shown when device is syncing data */
+"bleStatus.status.syncing" = "Syncing";
+
 /* Status shown when device is ready */
 "bleStatus.status.ready" = "Ready";
 
