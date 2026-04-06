@@ -99,8 +99,10 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     private var receiveTask: Task<Void, Never>?
     private var autoMessageFetchTask: Task<Void, Never>?
     private var autoMessageDrainTask: Task<Void, Never>?
+    private var autoContactRefreshTask: Task<Void, Never>?
     private var isAutoFetchingMessages = false
     private var autoMessageDrainRequested = false
+    private var autoContactRefreshRequested = false
     private var isGetMessageInFlight = false
     private var getMessageWaiters: [CheckedContinuation<MessageResult, Error>] = []
 
@@ -226,6 +228,9 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         logger.info("Stopping MeshCore session...")
         isRunning = false
         stopAutoMessageFetching()
+        autoContactRefreshTask?.cancel()
+        autoContactRefreshTask = nil
+        autoContactRefreshRequested = false
         receiveTask?.cancel()
         await dispatcher.finishAllSubscriptions()
         logger.info("Disconnecting transport...")
@@ -405,6 +410,32 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
                 }
             } catch {
                 logger.debug("Auto message fetch error: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    private func requestAutoContactRefresh() {
+        autoContactRefreshRequested = true
+
+        guard autoContactRefreshTask == nil else { return }
+        autoContactRefreshTask = Task { [weak self] in
+            guard let self else { return }
+            await self.runAutoContactRefreshLoop()
+        }
+    }
+
+    private func runAutoContactRefreshLoop() async {
+        defer { autoContactRefreshTask = nil }
+
+        while autoContactRefreshRequested, !Task.isCancelled {
+            autoContactRefreshRequested = false
+
+            do {
+                _ = try await ensureContacts(force: true)
+            } catch is CancellationError {
+                break
+            } catch {
+                logger.warning("Auto contact refresh failed: \(error.localizedDescription)")
             }
         }
     }
@@ -673,60 +704,75 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
     ///           ``MeshCoreError/deviceError(code:)`` if the device returns an error.
     public func getContacts(since lastModified: Date? = nil) async throws -> [MeshContact] {
-        let data = PacketBuilder.getContacts(since: lastModified)
-        let events = await dispatcher.subscribe()
-        try await transport.send(data)
+        let (contacts, modifiedDate): ([MeshContact], Date?) = try await requestResponseSerializer.withSerialization { [self] in
+            let data = PacketBuilder.getContacts(since: lastModified)
+            let (subscriptionID, events) = await dispatcher.subscribeTracked()
 
-        // Manual timeout pattern (not withTimeout) because:
-        // 1. Uses injected clock for testability
-        // 2. Throws MeshCoreError.timeout for consistency with other session methods
-        // 3. Defers contactManager mutations until after the task group
-        //    to avoid actor-isolation issues in the @Sendable closure.
-        let (contacts, modifiedDate): ([MeshContact], Date?) = try await withThrowingTaskGroup(
-            of: ([MeshContact], Date?).self
-        ) { group in
-            group.addTask {
-                var receivedContacts: [MeshContact] = []
-                var finalModifiedDate: Date?
+            do {
+                try await transport.send(data)
 
-                for await event in events {
-                    if Task.isCancelled {
-                        throw CancellationError()
+                // Manual timeout pattern (not withTimeout) because:
+                // 1. Uses injected clock for testability
+                // 2. Throws MeshCoreError.timeout for consistency with other session methods
+                // 3. Defers contactManager mutations until after the serialization closure
+                //    to avoid actor-isolation issues in the @Sendable closure.
+                return try await withThrowingTaskGroup(
+                    of: ([MeshContact], Date?).self
+                ) { group in
+                    group.addTask {
+                        var receivedContacts: [MeshContact] = []
+                        var finalModifiedDate: Date?
+
+                        for await event in events {
+                            if Task.isCancelled {
+                                throw CancellationError()
+                            }
+
+                            switch event {
+                            case .contactsStart(let count):
+                                receivedContacts.reserveCapacity(count)
+                            case .contact(let contact):
+                                receivedContacts.append(contact)
+                            case .contactsEnd(let modifiedDate):
+                                finalModifiedDate = modifiedDate
+                                return (receivedContacts, finalModifiedDate)
+                            case .error(let code):
+                                throw MeshCoreError.deviceError(code: code ?? 0)
+                            default:
+                                continue
+                            }
+                        }
+
+                        throw MeshCoreError.timeout
                     }
 
-                    switch event {
-                    case .contactsStart(let count):
-                        receivedContacts.reserveCapacity(count)
-                    case .contact(let contact):
-                        receivedContacts.append(contact)
-                    case .contactsEnd(let modifiedDate):
-                        finalModifiedDate = modifiedDate
-                        return (receivedContacts, finalModifiedDate)
-                    case .error(let code):
-                        throw MeshCoreError.deviceError(code: code ?? 0)
-                    default:
-                        continue
+                    group.addTask { [clock = self.clock] in
+                        try await clock.sleep(for: .seconds(60))
+                        throw MeshCoreError.timeout
+                    }
+
+                    do {
+                        guard let result = try await group.next() else {
+                            group.cancelAll()
+                            await dispatcher.finishSubscription(id: subscriptionID)
+                            throw MeshCoreError.timeout
+                        }
+                        group.cancelAll()
+                        await dispatcher.finishSubscription(id: subscriptionID)
+                        return result
+                    } catch {
+                        group.cancelAll()
+                        await dispatcher.finishSubscription(id: subscriptionID)
+                        throw error
                     }
                 }
-
-                throw MeshCoreError.timeout
+            } catch {
+                await dispatcher.finishSubscription(id: subscriptionID)
+                throw error
             }
-
-            group.addTask { [clock = self.clock] in
-                try await clock.sleep(for: .seconds(60))
-                throw MeshCoreError.timeout
-            }
-
-            defer { group.cancelAll() }
-
-            guard let result = try await group.next() else {
-                throw MeshCoreError.timeout
-            }
-
-            return result
         }
 
-        // Update contact manager on the actor after the race completes
+        // Update contact manager on the actor after the serialized exchange completes
         for contact in contacts {
             contactManager.store(contact)
         }
@@ -2915,9 +2961,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         if contactManager.isAutoUpdateEnabled && contactManager.needsRefresh {
             switch event {
             case .advertisement, .pathUpdate, .newContact:
-                Task { [weak self] in
-                    try? await self?.ensureContacts(force: true)
-                }
+                requestAutoContactRefresh()
             default:
                 break
             }
