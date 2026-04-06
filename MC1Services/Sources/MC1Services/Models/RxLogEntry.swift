@@ -6,6 +6,10 @@ import SwiftData
 /// SwiftData model for persisted RX log packets.
 @Model
 public final class RxLogEntry {
+    #Index<RxLogEntry>(
+        [\.channelIndex, \.senderTimestamp]
+    )
+
     @Attribute(.unique)
     public var id: UUID
 
