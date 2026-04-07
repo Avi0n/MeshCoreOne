@@ -81,11 +81,8 @@ struct DiscoveryView: View {
             prompt: L10n.Contacts.Contacts.Discovery.searchPrompt
         )
         .onChange(of: searchText) { _, newValue in
-            if !newValue.isEmpty && UIAccessibility.isVoiceOverRunning {
-                UIAccessibility.post(
-                    notification: .announcement,
-                    argument: L10n.Contacts.Contacts.Discovery.searchingAllTypes
-                )
+            if !newValue.isEmpty {
+                AccessibilityNotification.Announcement(L10n.Contacts.Contacts.Discovery.searchingAllTypes).post()
             }
         }
         .task {
@@ -132,12 +129,7 @@ struct DiscoveryView: View {
         guard let deviceID = appState.connectedDevice?.id else { return }
         await viewModel.clearAllDiscoveredNodes(deviceID: deviceID)
 
-        if UIAccessibility.isVoiceOverRunning {
-            UIAccessibility.post(
-                notification: .announcement,
-                argument: L10n.Contacts.Contacts.Discovery.clearedAllNodes
-            )
-        }
+        AccessibilityNotification.Announcement(L10n.Contacts.Contacts.Discovery.clearedAllNodes).post()
     }
 }
 

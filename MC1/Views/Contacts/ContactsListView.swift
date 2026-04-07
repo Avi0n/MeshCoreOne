@@ -129,14 +129,10 @@ struct ContactsListView: View {
     }
 
     private func announceOfflineStateIfNeeded() {
-        guard UIAccessibility.isVoiceOverRunning,
-              appState.connectionState == .disconnected,
+        guard appState.connectionState == .disconnected,
               appState.currentDeviceID != nil else { return }
 
-        UIAccessibility.post(
-            notification: .announcement,
-            argument: L10n.Contacts.Contacts.List.offlineAnnouncement
-        )
+        AccessibilityNotification.Announcement(L10n.Contacts.Contacts.List.offlineAnnouncement).post()
     }
 
     private func syncContacts() async {
