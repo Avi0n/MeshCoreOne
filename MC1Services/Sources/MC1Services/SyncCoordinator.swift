@@ -79,6 +79,11 @@ public actor SyncCoordinator {
 
     let logger = PersistentLogger(subsystem: "com.mc1.services", category: "SyncCoordinator")
 
+    /// Actor-local guard against concurrent sync execution.
+    /// Checked and set synchronously (no `await`) to eliminate the TOCTOU window
+    /// that existed when guarding via the `@MainActor`-isolated `state` property.
+    var isSyncInProgress = false
+
     /// Cached blocked names (contacts + channel senders) for O(1) lookup in message handlers
     private var blockedNames: Set<String> = []
 

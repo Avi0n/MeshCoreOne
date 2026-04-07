@@ -35,12 +35,14 @@ extension SyncCoordinator {
         forceFullSync: Bool = false,
         throttling: SyncThrottlingConfig = .none
     ) async throws {
-        // Prevent concurrent syncs - check before logging to avoid noise
-        let currentState = await state
-        if currentState.isSyncing {
+        // Prevent concurrent syncs — actor-local flag avoids the TOCTOU window
+        // that existed when guarding via `await state.isSyncing`
+        guard !isSyncInProgress else {
             logger.warning("performFullSync called while already syncing, ignoring duplicate")
             return
         }
+        isSyncInProgress = true
+        defer { isSyncInProgress = false }
 
         logger.info("Starting full sync for device \(deviceID)")
         let syncStart = ContinuousClock.now
@@ -212,8 +214,7 @@ extension SyncCoordinator {
         logger.info("Connection established for device \(deviceID)")
 
         // Prevent duplicate sync if already syncing (race condition during rapid auto-reconnect cycles)
-        let currentState = await state
-        if currentState.isSyncing {
+        guard !isSyncInProgress else {
             logger.warning("onConnectionEstablished called while already syncing, ignoring duplicate")
             return
         }
@@ -294,6 +295,12 @@ extension SyncCoordinator {
         logger.warning(
             "[Sync] onDisconnected called - syncState: \(String(describing: currentState)), hasEndedSyncActivity: \(hasEndedSyncActivity)"
         )
+
+        // Safety net: clear sync guard flag on disconnect
+        if isSyncInProgress {
+            logger.warning("isSyncInProgress still true at disconnect — clearing as safety net")
+        }
+        isSyncInProgress = false
 
         // Note: pending reactions are NOT cleared on disconnect - they persist for the app session
         // This handles temporary BLE disconnects without losing queued reactions
