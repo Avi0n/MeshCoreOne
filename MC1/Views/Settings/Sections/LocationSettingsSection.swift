@@ -15,7 +15,7 @@ struct LocationSettingsSection: View {
     @State private var gpsSource: GPSSource = .phone
     @State private var deviceHasGPS = false
     @State private var deviceGPSEnabled = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var showLocationDeniedAlert = false
     @State private var retryAlert = RetryAlertState()
     @State private var isSaving = false
@@ -123,7 +123,7 @@ struct LocationSettingsSection: View {
                 try? await settingsService.refreshDeviceInfo()
             }
         }
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
         .retryAlert(retryAlert)
         .alert(L10n.Onboarding.Permissions.LocationAlert.title, isPresented: $showLocationDeniedAlert) {
             Button(L10n.Onboarding.Permissions.LocationAlert.openSettings) {
@@ -274,7 +274,7 @@ struct LocationSettingsSection: View {
                 )
             } catch {
                 shareLocation = !share
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
             isSaving = false
         }
@@ -318,7 +318,7 @@ struct LocationSettingsSection: View {
             } catch {
                 deviceGPSEnabled = previousEnabled
                 onFailure?()
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
             isSaving = false
         }

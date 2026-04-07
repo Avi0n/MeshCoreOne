@@ -8,7 +8,7 @@ struct DangerZoneSection: View {
     @State private var showingForgetAlert = false
     @State private var showingResetAlert = false
     @State private var isResetting = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var showingRemoveUnfavoritedAlert = false
     @State private var isRemovingUnfavorited = false
     @State private var showRemoveSuccess = false
@@ -90,7 +90,7 @@ struct DangerZoneSection: View {
             Text(removeResult ?? "")
         }
         .onDisappear { removeTask?.cancel() }
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
     }
 
     private func forgetDevice() {
@@ -99,19 +99,19 @@ struct DangerZoneSection: View {
                 try await appState.connectionManager.forgetDevice()
                 dismiss()
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
         }
     }
 
     private func factoryReset() {
         guard let settingsService = appState.services?.settingsService else {
-            showError = L10n.Settings.DangerZone.Error.servicesUnavailable
+            errorMessage = L10n.Settings.DangerZone.Error.servicesUnavailable
             return
         }
 
         guard let deviceID = appState.connectedDevice?.id else {
-            showError = L10n.Settings.DangerZone.Error.servicesUnavailable
+            errorMessage = L10n.Settings.DangerZone.Error.servicesUnavailable
             return
         }
 
@@ -145,7 +145,7 @@ struct DangerZoneSection: View {
                     showingRemoveUnfavoritedAlert = true
                 }
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
         }
     }
@@ -168,7 +168,7 @@ struct DangerZoneSection: View {
                 }
             } catch {
                 if !(error is CancellationError) {
-                    showError = error.localizedDescription
+                    errorMessage = error.localizedDescription
                 }
             }
         }

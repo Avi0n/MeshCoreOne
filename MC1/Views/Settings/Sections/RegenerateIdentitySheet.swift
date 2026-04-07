@@ -11,7 +11,7 @@ struct RegenerateIdentitySheet: View {
     @State private var isImporting = false
     @State private var generatedKey: GeneratedKey?
     @State private var showingReplaceAlert = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var prefixError: String?
     @State private var generateTask: Task<Void, Never>?
     @State private var successTrigger = 0
@@ -48,7 +48,7 @@ struct RegenerateIdentitySheet: View {
             } message: {
                 Text(L10n.Settings.RegenerateIdentity.Alert.Replace.message)
             }
-            .errorAlert($showError)
+            .errorAlert($errorMessage)
             .sensoryFeedback(.success, trigger: successTrigger)
         }
         .onDisappear {
@@ -189,9 +189,9 @@ struct RegenerateIdentitySheet: View {
             } catch is CancellationError {
                 // Sheet dismissed during generation
             } catch let error as KeyGenerationError {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
         }
     }
@@ -211,15 +211,15 @@ struct RegenerateIdentitySheet: View {
             } catch let error as SettingsServiceError {
                 if case .sessionError(let meshError) = error,
                    case .featureDisabled = meshError {
-                    showError = L10n.Settings.RegenerateIdentity.Error.featureDisabled
+                    errorMessage = L10n.Settings.RegenerateIdentity.Error.featureDisabled
                 } else if case .sessionError(let meshError) = error,
                           case .deviceError = meshError {
-                    showError = L10n.Settings.RegenerateIdentity.Error.deviceRejected
+                    errorMessage = L10n.Settings.RegenerateIdentity.Error.deviceRejected
                 } else {
-                    showError = error.localizedDescription
+                    errorMessage = error.localizedDescription
                 }
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
         }
     }

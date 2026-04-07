@@ -9,7 +9,7 @@ struct ImportKeySheet: View {
     @State private var hexInput = ""
     @State private var isImporting = false
     @State private var showingReplaceAlert = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var successTrigger = 0
     @State private var validatedKeyData: Data?
 
@@ -39,7 +39,7 @@ struct ImportKeySheet: View {
             } message: {
                 Text(L10n.Settings.RegenerateIdentity.Alert.Replace.message)
             }
-            .errorAlert($showError)
+            .errorAlert($errorMessage)
             .sensoryFeedback(.success, trigger: successTrigger)
         }
     }
@@ -98,7 +98,7 @@ struct ImportKeySheet: View {
         // Parse hex and validate length
         guard let keyData = Data(hexString: hexInput),
               keyData.count == ProtocolLimits.privateKeySize else {
-            showError = L10n.Settings.ImportKey.Error.invalidHex
+            errorMessage = L10n.Settings.ImportKey.Error.invalidHex
             return
         }
 
@@ -106,7 +106,7 @@ struct ImportKeySheet: View {
         do {
             try KeyGenerationService.validateExpandedKey(keyData)
         } catch {
-            showError = L10n.Settings.ImportKey.Error.invalidKey
+            errorMessage = L10n.Settings.ImportKey.Error.invalidKey
             return
         }
 
@@ -129,15 +129,15 @@ struct ImportKeySheet: View {
             } catch let error as SettingsServiceError {
                 if case .sessionError(let meshError) = error,
                    case .featureDisabled = meshError {
-                    showError = L10n.Settings.RegenerateIdentity.Error.featureDisabled
+                    errorMessage = L10n.Settings.RegenerateIdentity.Error.featureDisabled
                 } else if case .sessionError(let meshError) = error,
                           case .deviceError = meshError {
-                    showError = L10n.Settings.RegenerateIdentity.Error.deviceRejected
+                    errorMessage = L10n.Settings.RegenerateIdentity.Error.deviceRejected
                 } else {
-                    showError = error.localizedDescription
+                    errorMessage = error.localizedDescription
                 }
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
         }
     }

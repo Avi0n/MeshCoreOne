@@ -5,7 +5,7 @@ import MC1Services
 struct TelemetrySettingsSection: View {
     @Environment(\.appState) private var appState
     @Environment(\.dismiss) private var dismiss
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var retryAlert = RetryAlertState()
     @State private var isSaving = false
 
@@ -67,7 +67,7 @@ struct TelemetrySettingsSection: View {
         } footer: {
             Text(L10n.Settings.Telemetry.footer)
         }
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
         .retryAlert(retryAlert)
     }
 
@@ -143,7 +143,7 @@ struct TelemetrySettingsSection: View {
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
             isSaving = false
         }

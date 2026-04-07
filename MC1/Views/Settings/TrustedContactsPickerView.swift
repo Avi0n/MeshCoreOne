@@ -10,7 +10,7 @@ struct TrustedContactsPickerView: View {
     @State private var pendingTrustedIDs: Set<UUID> = []
     @State private var initialTrustedIDs: Set<UUID> = []
     @State private var isApplying = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var successTrigger = 0
 
     private var settingsModified: Bool {
@@ -89,7 +89,7 @@ struct TrustedContactsPickerView: View {
             }
         }
         .sensoryFeedback(.success, trigger: successTrigger)
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
         .task {
             await loadContacts()
         }
@@ -133,7 +133,7 @@ struct TrustedContactsPickerView: View {
                 initialTrustedIDs = pendingTrustedIDs
                 successTrigger += 1
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
             isApplying = false
         }

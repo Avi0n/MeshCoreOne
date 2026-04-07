@@ -56,7 +56,7 @@ extension NoiseFloorView {
 extension NoiseFloorView {
     private var mainContent: some View {
         VStack(spacing: 16) {
-            if let error = viewModel.error {
+            if let error = viewModel.errorMessage {
                 ErrorBanner(message: error)
             }
 

@@ -7,7 +7,7 @@ struct RadioPresetSection: View {
     @Environment(\.dismiss) private var dismiss
     @State private var selectedPresetID: String?
     @State private var isApplying = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var hasInitialized = false
     @State private var retryAlert = RetryAlertState()
     @State private var isRepeatEnabled: Bool = false
@@ -186,7 +186,7 @@ struct RadioPresetSection: View {
                 }
             }
         }
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
         .retryAlert(retryAlert)
         .alert(L10n.Settings.Radio.RepeatMode.Confirm.title, isPresented: $showRepeatConfirmation) {
             Button(L10n.Localizable.Common.cancel, role: .cancel) { }
@@ -229,7 +229,7 @@ struct RadioPresetSection: View {
                         onMaxRetriesExceeded: { dismiss() }
                     )
                 } else {
-                    showError = error.localizedDescription
+                    errorMessage = error.localizedDescription
                 }
             }
             isApplying = false
@@ -293,7 +293,7 @@ struct RadioPresetSection: View {
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
                 isRepeatEnabled = true // Revert
             }
             isApplyingRepeat = false

@@ -7,7 +7,7 @@ struct PathHashModeSection: View {
     @Environment(\.dismiss) private var dismiss
     @State private var selectedMode: UInt8?
     @State private var isApplying = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var retryAlert = RetryAlertState()
 
     var body: some View {
@@ -40,7 +40,7 @@ struct PathHashModeSection: View {
                 selectedMode = newValue
             }
         }
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
         .retryAlert(retryAlert)
     }
 
@@ -61,7 +61,7 @@ struct PathHashModeSection: View {
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
                 selectedMode = appState.connectedDevice?.pathHashMode ?? 0
             }
             isApplying = false

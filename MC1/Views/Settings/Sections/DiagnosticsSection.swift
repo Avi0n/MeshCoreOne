@@ -7,7 +7,7 @@ struct DiagnosticsSection: View {
     @State private var isExporting = false
     @State private var exportedFileURL: URL?
     @State private var showingClearLogsAlert = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
 
     var body: some View {
         Section {
@@ -48,7 +48,7 @@ struct DiagnosticsSection: View {
         } message: {
             Text(L10n.Settings.Diagnostics.Alert.Clear.message)
         }
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
     }
 
     private func exportLogs() {
@@ -63,7 +63,7 @@ struct DiagnosticsSection: View {
             ) {
                 exportedFileURL = url
             } else {
-                showError = L10n.Settings.Diagnostics.Error.exportFailed
+                errorMessage = L10n.Settings.Diagnostics.Error.exportFailed
             }
             isExporting = false
         }
@@ -76,7 +76,7 @@ struct DiagnosticsSection: View {
             do {
                 try await dataStore.clearDebugLogEntries()
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
         }
     }

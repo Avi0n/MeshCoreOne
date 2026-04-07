@@ -5,7 +5,7 @@ import SwiftUI
 struct OfflineMapSettingsView: View {
     @Environment(\.appState) private var appState
     @State private var showingRegionPicker = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
 
     var body: some View {
         Group {
@@ -40,11 +40,11 @@ struct OfflineMapSettingsView: View {
         }
         .onChange(of: appState.offlineMapService.lastPackError) { _, newValue in
             if let newValue {
-                showError = newValue
+                errorMessage = newValue
                 appState.offlineMapService.clearLastPackError()
             }
         }
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
     }
 
 }
@@ -159,7 +159,7 @@ private struct RegionPickerSheet: View {
     @State private var regionName = ""
     @State private var cameraRegion: MKCoordinateRegion?
     @State private var isDownloading = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var mapSize: CGSize = .zero
     @State private var includeTopo = false
     @State private var isStyleLoaded = false
@@ -237,7 +237,7 @@ private struct RegionPickerSheet: View {
                     isNetworkAvailable: appState.offlineMapService.isNetworkAvailable
                 )
             }
-            .errorAlert($showError)
+            .errorAlert($errorMessage)
             .onAppear { refreshAvailableBytes() }
             .onChange(of: debouncedRegion?.center.latitude) { _, _ in refreshAvailableBytes() }
             .onChange(of: debouncedRegion?.center.longitude) { _, _ in refreshAvailableBytes() }
@@ -314,7 +314,7 @@ private struct RegionPickerSheet: View {
                 )
                 dismiss()
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
         }
     }

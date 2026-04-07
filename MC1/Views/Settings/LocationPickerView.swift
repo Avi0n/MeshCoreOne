@@ -21,7 +21,7 @@ struct LocationPickerView: View {
     @State private var cameraRegionVersion = 0
     @State private var selectedCoordinate: CLLocationCoordinate2D?
     @State private var isSaving = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
 
     /// Generic initializer for any location-setting context
     init(
@@ -124,7 +124,7 @@ struct LocationPickerView: View {
                 )
                 cameraRegionVersion += 1
             }
-            .errorAlert($showError)
+            .errorAlert($errorMessage)
         }
     }
 
@@ -191,7 +191,7 @@ struct LocationPickerView: View {
                 try await onSave(coord)
                 dismiss()
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
             isSaving = false
         }

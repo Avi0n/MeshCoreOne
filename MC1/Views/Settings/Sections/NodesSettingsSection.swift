@@ -5,7 +5,7 @@ import MC1Services
 struct NodesSettingsSection: View {
     @Environment(\.appState) private var appState
     @Environment(\.dismiss) private var dismiss
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var retryAlert = RetryAlertState()
     @State private var isApplying = false
     @State private var showSuccess = false
@@ -129,7 +129,7 @@ struct NodesSettingsSection: View {
         .onChange(of: deviceNodeSettingsHash) { _, _ in
             loadFromDevice()
         }
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
         .retryAlert(retryAlert)
     }
 
@@ -226,7 +226,7 @@ struct NodesSettingsSection: View {
                 )
             } catch {
                 loadFromDevice()
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
             isApplying = false
         }

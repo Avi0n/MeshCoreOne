@@ -69,7 +69,7 @@ final class NoiseFloorViewModel {
     var currentReading: NoiseFloorReading?
     var readings: [NoiseFloorReading] = []
     var isPolling = false
-    var error: String?
+    var errorMessage: String?
 
     private let maxReadings = 200
     private let pollingInterval: Duration = .seconds(1.5)
@@ -103,7 +103,7 @@ final class NoiseFloorViewModel {
             readings.removeFirst()
         }
         cachedStatistics = nil
-        error = nil
+        errorMessage = nil
     }
 
     func startPolling(appState: AppState) {
@@ -132,7 +132,7 @@ final class NoiseFloorViewModel {
 
     private func fetchReading() async {
         guard let session = appState?.services?.session else {
-            error = L10n.Tools.Tools.NoiseFloor.Error.disconnected
+            errorMessage = L10n.Tools.Tools.NoiseFloor.Error.disconnected
             return
         }
 
@@ -147,7 +147,7 @@ final class NoiseFloorViewModel {
             )
             appendReading(reading)
         } catch {
-            self.error = L10n.Tools.Tools.NoiseFloor.Error.unableToRead
+            self.errorMessage = L10n.Tools.Tools.NoiseFloor.Error.unableToRead
         }
     }
 }

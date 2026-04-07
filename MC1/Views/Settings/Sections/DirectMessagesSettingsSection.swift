@@ -5,7 +5,7 @@ import MC1Services
 struct DirectMessagesSettingsSection: View {
     @Environment(\.appState) private var appState
     @Environment(\.dismiss) private var dismiss
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var retryAlert = RetryAlertState()
     @State private var isSaving = false
 
@@ -24,7 +24,7 @@ struct DirectMessagesSettingsSection: View {
         } footer: {
             Text(L10n.Settings.DirectMessages.footer)
         }
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
         .retryAlert(retryAlert)
     }
 
@@ -54,7 +54,7 @@ struct DirectMessagesSettingsSection: View {
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
             isSaving = false
         }

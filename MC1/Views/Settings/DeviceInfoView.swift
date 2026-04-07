@@ -13,7 +13,7 @@ struct DeviceInfoView: View {
 
     @State private var nodeName: String = ""
     @State private var isEditingName = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var retryAlert = RetryAlertState()
     @State private var isSaving = false
 
@@ -199,7 +199,7 @@ struct DeviceInfoView: View {
             }
         }
         .navigationTitle(L10n.Settings.DeviceInfo.title)
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
         .retryAlert(retryAlert)
         .refreshable {
             await appState.batteryMonitor.fetchDeviceBattery(services: appState.services, device: appState.connectedDevice)
@@ -240,7 +240,7 @@ struct DeviceInfoView: View {
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
             isSaving = false
         }
