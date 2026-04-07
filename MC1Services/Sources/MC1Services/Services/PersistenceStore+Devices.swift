@@ -68,6 +68,7 @@ extension PersistenceStore {
                 longitude: dto.longitude,
                 blePin: dto.blePin,
                 clientRepeat: dto.clientRepeat,
+                pathHashMode: dto.pathHashMode,
                 preRepeatFrequency: dto.preRepeatFrequency,
                 preRepeatBandwidth: dto.preRepeatBandwidth,
                 preRepeatSpreadingFactor: dto.preRepeatSpreadingFactor,
