@@ -6,6 +6,11 @@ import SwiftData
 /// Each repeat is an observation of the message being re-broadcast by a repeater.
 @Model
 public final class MessageRepeat {
+    #Index<MessageRepeat>(
+        [\.messageID, \.receivedAt],
+        [\.rxLogEntryID]
+    )
+
     @Attribute(.unique)
     public var id: UUID
 

@@ -5,6 +5,11 @@ import SwiftData
 /// Represents a message in a room server conversation.
 @Model
 public final class RoomMessage {
+    #Index<RoomMessage>(
+        [\.sessionID, \.timestamp],
+        [\.sessionID, \.deduplicationKey]
+    )
+
     /// Unique message identifier
     @Attribute(.unique)
     public var id: UUID

@@ -6,6 +6,11 @@ import SwiftData
 /// Separate from Contact - this is ephemeral, app-only, capped at 1000 per device.
 @Model
 public final class DiscoveredNode {
+    #Index<DiscoveredNode>(
+        [\.deviceID, \.publicKey],
+        [\.deviceID, \.lastHeard]
+    )
+
     @Attribute(.unique)
     public var id: UUID
 
