@@ -170,14 +170,6 @@ public actor PendingRequests {
         return binaryRequestIndex[key] != nil
     }
 
-    /// Cleans up all expired pending requests.
-    public func cleanupExpired() {
-        let now = Date()
-        for (tag, context) in metadata where context.expiresAt < now {
-            timeout(tag: tag)
-        }
-    }
-
     /// Retrieves metadata for a pending binary request by its tag.
     ///
     /// - Parameter tag: The tag of the request.

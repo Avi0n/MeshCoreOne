@@ -15,12 +15,11 @@ struct StatusPillStateTests {
 
     @Test("Syncing takes priority over connecting")
     @MainActor
-    func syncingOverConnecting() async {
+    func syncingOverConnecting() {
         let appState = AppState()
-        // Simulate sync activity
-        await appState.connectionUI.withSyncActivity {
-            #expect(appState.statusPillState == .syncing)
-        }
+        appState.connectionUI.simulateSyncStarted()
+        #expect(appState.statusPillState == .syncing)
+        appState.connectionUI.simulateSyncEnded()
     }
 
     @Test("Ready state shows when toast is active")

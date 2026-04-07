@@ -71,12 +71,6 @@ The central state management object for the application.
 | `contactsVersion` | `Int` | Incremented to trigger contact list updates |
 | `conversationsVersion` | `Int` | Incremented to trigger conversation list updates |
 
-### Sync Coordination
-
-| Method | Description |
-|--------|-------------|
-| `withSyncActivity(_:)` | Executes an async operation with sync UI state management |
-
 ---
 
 ## MessageEventBroadcaster (public, @MainActor, @Observable class)

@@ -67,9 +67,6 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
     /// Captured CLI message handler (set via setCLIMessageHandler)
     public private(set) var capturedCLIMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
 
-    /// Captured acknowledgement handler (set via setAcknowledgementHandler)
-    public private(set) var capturedAcknowledgementHandler: (@Sendable (Data) async -> Void)?
-
     // MARK: - Handler Setter Methods (matching MessagePollingService)
 
     public func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {
@@ -88,10 +85,6 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
         capturedCLIMessageHandler = handler
     }
 
-    public func setAcknowledgementHandler(_ handler: @escaping @Sendable (Data) async -> Void) {
-        capturedAcknowledgementHandler = handler
-    }
-
     // MARK: - Test Helpers
 
     /// Resets all recorded invocations and captured handlers
@@ -102,6 +95,5 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
         capturedChannelMessageHandler = nil
         capturedSignedMessageHandler = nil
         capturedCLIMessageHandler = nil
-        capturedAcknowledgementHandler = nil
     }
 }

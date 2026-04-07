@@ -185,28 +185,17 @@ struct ConnectionUIStateTests {
         #expect(appState.canRunSettingsStartupReads == false)
     }
 
-    // MARK: - withSyncActivity
+    // MARK: - Sync Activity Tracking
 
-    @Test("withSyncActivity shows syncing during operation")
-    func withSyncActivity() async {
+    @Test("Sync activity shows syncing pill while active")
+    func syncActivityShowsSyncing() {
         let appState = AppState()
 
-        await appState.connectionUI.withSyncActivity {
-            #expect(appState.statusPillState == .syncing)
-        }
+        appState.connectionUI.simulateSyncStarted()
+        #expect(appState.statusPillState == .syncing)
 
+        appState.connectionUI.simulateSyncEnded()
         #expect(appState.statusPillState != .syncing)
-    }
-
-    @Test("withSyncActivity propagates return value")
-    func withSyncActivityReturnValue() async {
-        let appState = AppState()
-
-        let result = await appState.connectionUI.withSyncActivity {
-            return 42
-        }
-
-        #expect(result == 42)
     }
 
     // MARK: - UI State Defaults

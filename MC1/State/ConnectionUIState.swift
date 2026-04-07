@@ -143,13 +143,6 @@ public final class ConnectionUIState {
 
     // MARK: - Activity Tracking
 
-    /// Execute an operation while tracking it as sync activity (shows pill)
-    func withSyncActivity<T>(_ operation: () async throws -> T) async rethrows -> T {
-        syncActivityCount += 1
-        defer { syncActivityCount -= 1 }
-        return try await operation()
-    }
-
 #if DEBUG
     /// Test helper: Simulates sync activity started callback
     func simulateSyncStarted() {

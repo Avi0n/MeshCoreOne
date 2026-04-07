@@ -21,9 +21,6 @@ public enum MC1ServicesVersion {
 
 // MARK: - Type Aliases
 
-/// Convenient alias for MeshCoreSession
-public typealias MeshSession = MeshCoreSession
-
 /// Alias for PersistenceStore (backwards compatibility)
 public typealias DataStore = PersistenceStore
 

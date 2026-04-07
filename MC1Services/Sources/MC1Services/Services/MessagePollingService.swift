@@ -45,9 +45,6 @@ public actor MessagePollingService {
     /// Handler for CLI responses (textType = 0x01)
     private var cliMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
 
-    /// Handler for acknowledgements (message delivery confirmations)
-    private var acknowledgementHandler: (@Sendable (Data) async -> Void)?
-
     /// Event monitoring task
     private var eventMonitorTask: Task<Void, Never>?
 
@@ -101,11 +98,6 @@ public actor MessagePollingService {
     /// Set handler for CLI responses (textType = 0x01)
     public func setCLIMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {
         cliMessageHandler = handler
-    }
-
-    /// Set handler for acknowledgements
-    public func setAcknowledgementHandler(_ handler: @escaping @Sendable (Data) async -> Void) {
-        acknowledgementHandler = handler
     }
 
     // MARK: - Event Monitoring
@@ -287,9 +279,6 @@ public actor MessagePollingService {
             pendingHandlerCount += 1
             defer { pendingHandlerCount -= 1 }
             await handleChannelMessage(message)
-
-        case .acknowledgement(let code, _):
-            await acknowledgementHandler?(code)
 
         default:
             break
