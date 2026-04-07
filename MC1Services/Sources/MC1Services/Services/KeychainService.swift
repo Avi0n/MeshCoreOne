@@ -2,20 +2,11 @@ import Foundation
 import os
 import Security
 
-// MARK: - KeychainService Protocol
-
-public protocol KeychainServiceProtocol: Actor {
-    func storePassword(_ password: String, forNodeKey publicKey: Data) async throws
-    func retrievePassword(forNodeKey publicKey: Data) async throws -> String?
-    func deletePassword(forNodeKey publicKey: Data) async throws
-    func hasPassword(forNodeKey publicKey: Data) async -> Bool
-}
-
 // MARK: - KeychainService
 
 /// Secure password storage for remote node authentication.
 /// Passwords are stored device-only (not synced to iCloud).
-public actor KeychainService: KeychainServiceProtocol {
+public actor KeychainService {
     public static let shared = KeychainService()
 
     private let service = "com.pocketmesh.nodepasswords"
