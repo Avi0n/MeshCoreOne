@@ -214,7 +214,7 @@ struct MessageText: View {
 
             guard let attrRange = Range(matchRange, in: attributedString),
                   let url = URL(string: String(currentString[matchRange])),
-                  url.host() == "contact" else { continue }
+                  url.host() == "contact" || url.host() == "channel" else { continue }
 
             attributedString[attrRange].link = url
             attributedString[attrRange].foregroundColor = baseColor

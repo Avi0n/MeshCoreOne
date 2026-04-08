@@ -7,9 +7,11 @@ enum MeshCoreURLParser {
     static let scheme = "meshcore"
 
     /// Parsed channel data from a meshcore://channel/add URL
-    struct ChannelResult {
+    struct ChannelResult: Identifiable {
         let name: String
         let secret: Data
+
+        var id: String { secret.hexString() }
     }
 
     /// Parsed contact data from a meshcore://contact/add URL

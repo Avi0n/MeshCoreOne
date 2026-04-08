@@ -29,6 +29,7 @@ struct ChatsView: View {
     @State private var pendingChannel: ChannelDTO?
     @State private var hashtagToJoin: HashtagJoinRequest?
     @State private var pendingContactLink: MeshCoreURLParser.ContactResult?
+    @State private var pendingChannelLink: MeshCoreURLParser.ChannelResult?
     private var shouldUseSplitView: Bool {
         horizontalSizeClass == .regular
     }
@@ -139,6 +140,15 @@ struct ChatsView: View {
                 pendingContactLink = nil
                 if let addedContact {
                     appState.navigation.navigateToContactDetail(addedContact)
+                }
+            }
+            .presentationDetents([.medium, .large])
+        }
+        .sheet(item: $pendingChannelLink) { result in
+            JoinChannelConfirmationSheet(channelResult: result) { newChannel in
+                pendingChannelLink = nil
+                if let newChannel {
+                    navigate(to: .channel(newChannel))
                 }
             }
             .presentationDetents([.medium, .large])
@@ -384,12 +394,19 @@ struct ChatsView: View {
     }
 
     private func handleMeshCoreLink(_ url: URL) {
-        Task {
-            guard let result = MeshCoreURLParser.parseContactURL(url.absoluteString) else {
-                chatsViewLogger.error("Failed to parse meshcore URL: \(url.absoluteString, privacy: .public)")
-                return
-            }
+        let urlString = url.absoluteString
 
+        if let contactResult = MeshCoreURLParser.parseContactURL(urlString) {
+            handleContactLink(contactResult)
+        } else if let channelResult = MeshCoreURLParser.parseChannelURL(urlString) {
+            handleChannelLink(channelResult)
+        } else {
+            chatsViewLogger.error("Failed to parse meshcore URL: \(urlString, privacy: .public)")
+        }
+    }
+
+    private func handleContactLink(_ result: MeshCoreURLParser.ContactResult) {
+        Task {
             if result.publicKey == appState.connectedDevice?.publicKey {
                 return
             }
@@ -402,6 +419,18 @@ struct ChatsView: View {
                 appState.navigation.navigateToContactDetail(existingContact)
             } else {
                 pendingContactLink = result
+            }
+        }
+    }
+
+    private func handleChannelLink(_ result: MeshCoreURLParser.ChannelResult) {
+        Task {
+            if let deviceID = appState.currentDeviceID,
+               let channels = try? await appState.offlineDataStore?.fetchChannels(deviceID: deviceID),
+               let existingChannel = channels.first(where: { $0.secret == result.secret }) {
+                navigate(to: .channel(existingChannel))
+            } else {
+                pendingChannelLink = result
             }
         }
     }
