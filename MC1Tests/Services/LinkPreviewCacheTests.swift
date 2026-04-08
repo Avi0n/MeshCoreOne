@@ -334,7 +334,7 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func fetchContactPublicKeysByPrefix(deviceID: UUID) async throws -> [UInt8: [Data]] { [:] }
 
     // RxLogEntry Lookup
-    func findRxLogEntry(channelIndex: UInt8?, senderTimestamp: UInt32, withinSeconds: Double, contactName: String?) async throws -> RxLogEntryDTO? { nil }
+    func findRxLogEntry(channelIndex: UInt8?, senderTimestamp: UInt32, withinSeconds: Double) async throws -> RxLogEntryDTO? { nil }
 
     // Room Message Operations
     func saveRoomMessage(_ dto: RoomMessageDTO) async throws {}

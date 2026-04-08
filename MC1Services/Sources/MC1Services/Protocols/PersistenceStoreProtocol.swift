@@ -313,12 +313,11 @@ public protocol PersistenceStoreProtocol: Actor {
     /// Find RxLogEntry matching an incoming message for path correlation.
     ///
     /// For channel messages: Correlates by channel index and sender timestamp.
-    /// For direct messages: Correlates by recent receivedAt, payload type, and optional contact name.
+    /// For direct messages: Correlates by sender timestamp and payload type.
     func findRxLogEntry(
         channelIndex: UInt8?,
         senderTimestamp: UInt32,
-        withinSeconds: Double,
-        contactName: String?
+        withinSeconds: Double
     ) async throws -> RxLogEntryDTO?
 
     // MARK: - Room Session State

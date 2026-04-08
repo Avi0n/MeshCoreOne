@@ -1003,21 +1003,17 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     public func findRxLogEntry(
         channelIndex: UInt8?,
         senderTimestamp: UInt32,
-        withinSeconds: Double,
-        contactName: String? = nil
+        withinSeconds: Double
     ) throws -> RxLogEntryDTO? {
         if let channelIndex {
-            // Channel message: match by channelIndex and senderTimestamp
             return mockRxLogEntries.first { entry in
                 entry.channelIndex == channelIndex &&
                 entry.senderTimestamp == senderTimestamp
             }
         } else {
-            // Direct message: match by senderTimestamp (now stored via decryption)
             return mockRxLogEntries.first { entry in
                 entry.senderTimestamp == senderTimestamp &&
-                entry.channelIndex == nil &&
-                (contactName == nil || entry.fromContactName == contactName)
+                entry.channelIndex == nil
             }
         }
     }

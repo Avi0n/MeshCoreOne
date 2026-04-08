@@ -75,8 +75,7 @@ extension SyncCoordinator {
                 services: services,
                 channelIndex: nil,
                 senderTimestamp: timestamp,
-                defaultPathLength: message.pathLength,
-                contactName: contact?.displayName
+                defaultPathLength: message.pathLength
             )
 
             // Use content-based key for dedup (stable across retry attempts).
@@ -461,8 +460,7 @@ extension SyncCoordinator {
         services: ServiceContainer,
         channelIndex: UInt8?,
         senderTimestamp: UInt32,
-        defaultPathLength: UInt8,
-        contactName: String? = nil
+        defaultPathLength: UInt8
     ) async -> RxLogLookupResult {
         if let channelIndex {
             logger.debug("Looking up RxLogEntry for channel \(channelIndex) with senderTimestamp: \(senderTimestamp)")
@@ -472,8 +470,7 @@ extension SyncCoordinator {
             if let rxEntry = try await services.dataStore.findRxLogEntry(
                 channelIndex: channelIndex,
                 senderTimestamp: senderTimestamp,
-                withinSeconds: 10,
-                contactName: contactName
+                withinSeconds: 10
             ) {
                 let pathLength = rxEntry.pathLength
                 let pathNodes = rxEntry.pathNodes
@@ -487,7 +484,7 @@ extension SyncCoordinator {
                 if channelIndex != nil {
                     logger.warning("No RxLogEntry found for channel \(channelIndex!), senderTimestamp: \(senderTimestamp)")
                 } else {
-                    logger.debug("No RxLogEntry found for direct message from \(contactName ?? "unknown")")
+                    logger.debug("No RxLogEntry found for direct message, senderTimestamp: \(senderTimestamp)")
                 }
             }
         } catch {

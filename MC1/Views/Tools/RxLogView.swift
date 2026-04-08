@@ -442,7 +442,7 @@ struct RxLogRowView: View {
 
             // Channel message: show channel info
             if entry.decryptStatus == .success {
-                if let channelHashByte = entry.packetPayload.first {
+                if entry.channelIndex != nil, let channelHashByte = entry.packetPayload.first {
                     DetailRow(label: L10n.Tools.Tools.RxLog.channelHashLabel, value: String(format: "%02x", channelHashByte))
                 }
                 if let channelName = entry.channelName {

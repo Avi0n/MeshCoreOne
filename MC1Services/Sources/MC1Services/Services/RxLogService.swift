@@ -32,8 +32,9 @@ public actor RxLogService {
     // Heard repeats processing
     private var heardRepeatsService: HeardRepeatsService?
 
-    // Reentrancy guard for reprocessing
-    private var isReprocessing = false
+    // Reentrancy guards for reprocessing (separate to avoid mutual blocking)
+    private var isReprocessingChannels = false
+    private var isReprocessingDMs = false
 
     public init(session: MeshCoreSession, dataStore: PersistenceStore) {
         self.session = session
@@ -82,7 +83,7 @@ public actor RxLogService {
         }
     }
 
-    /// Load channel secrets from database to enable decryption before sync completes.
+    /// Load channel secrets and contact public keys from database to enable decryption before sync completes.
     private func loadSecretsFromDatabase(deviceID: UUID) async {
         do {
             let channels = try await dataStore.fetchChannels(deviceID: deviceID)
@@ -93,6 +94,16 @@ public actor RxLogService {
             }
         } catch {
             logger.error("Failed to load channel secrets: \(error.localizedDescription)")
+        }
+
+        do {
+            let publicKeys = try await dataStore.fetchContactPublicKeysByPrefix(deviceID: deviceID)
+            if !publicKeys.isEmpty {
+                contactPublicKeysByPrefix = Self.convertPublicKeysToX25519(publicKeys)
+                logger.info("Loaded \(publicKeys.count) contact public key prefixes from database")
+            }
+        } catch {
+            logger.error("Failed to load contact public keys: \(error.localizedDescription)")
         }
     }
 
@@ -139,17 +150,18 @@ public actor RxLogService {
     /// Re-process recent entries that failed decryption due to missing keys.
     /// Uses a reentrancy guard to prevent overlapping reprocessing.
     private func reprocessNoMatchingKeyEntries() async {
-        guard !isReprocessing else { return }
-        isReprocessing = true
-        defer { isReprocessing = false }
+        guard !isReprocessingChannels else { return }
+        isReprocessingChannels = true
+        defer { isReprocessingChannels = false }
 
         guard let deviceID else { return }
 
         let cutoff = Date().addingTimeInterval(-60)
 
         do {
-            let entries = try await dataStore.fetchRecentNoMatchingKeyEntries(
+            let entries = try await dataStore.fetchRecentEntriesByDecryptStatus(
                 deviceID: deviceID,
+                status: .noMatchingKey,
                 since: cutoff
             )
 
@@ -194,20 +206,106 @@ public actor RxLogService {
         }
     }
 
+    /// Re-process recent DM entries that failed decryption due to missing keys.
+    /// Called when contact public keys or the device private key become available.
+    private func reprocessDMEntries() async {
+        guard !isReprocessingDMs else { return }
+        isReprocessingDMs = true
+        defer { isReprocessingDMs = false }
+
+        guard let deviceID, let myPrivateKey else { return }
+        guard !contactPublicKeysByPrefix.isEmpty else { return }
+
+        let cutoff = Date().addingTimeInterval(-60)
+
+        do {
+            let entries = try await dataStore.fetchRecentEntriesByDecryptStatus(
+                deviceID: deviceID,
+                status: .dmNoMatchingKey,
+                since: cutoff
+            )
+
+            guard !entries.isEmpty else { return }
+            logger.info("Re-processing \(entries.count) DM entries for timestamp extraction")
+
+            var updates: [(id: UUID, channelIndex: UInt8?, channelName: String?, senderTimestamp: UInt32?)] = []
+
+            for entry in entries {
+                guard !Task.isCancelled else { break }
+
+                // Extract sender prefix from packetPayload: [destHash:1][srcHash:1]...
+                let payloadHashSize = 1
+                guard entry.packetPayload.count >= payloadHashSize * 2,
+                      entry.routeType == .direct || entry.routeType == .tcDirect else {
+                    continue
+                }
+                let senderPrefix = entry.packetPayload[payloadHashSize]
+
+                guard let candidateKeys = contactPublicKeysByPrefix[senderPrefix] else {
+                    continue
+                }
+
+                for senderPublicKey in candidateKeys {
+                    if let timestamp = DirectMessageCrypto.extractTimestamp(
+                        payload: entry.packetPayload,
+                        myPrivateKey: myPrivateKey,
+                        senderPublicKey: senderPublicKey
+                    ) {
+                        updates.append((
+                            id: entry.id,
+                            channelIndex: nil,
+                            channelName: nil,
+                            senderTimestamp: timestamp
+                        ))
+                        break
+                    }
+                }
+            }
+
+            if !updates.isEmpty {
+                try await dataStore.batchUpdateRxLogDecryption(updates)
+                logger.info("Successfully re-processed \(updates.count) DM entries")
+            }
+        } catch {
+            logger.error("Failed to re-process DM entries: \(error.localizedDescription)")
+        }
+    }
+
     /// Update contact names cache.
     public func updateContactNames(_ names: [Data: String]) {
         contactNames = names
     }
 
     /// Update device private key for direct message decryption.
-    public func updatePrivateKey(_ key: Data?) {
-        myPrivateKey = key
+    /// The exported key is 64 bytes: `[expanded_scalar:32][nonce:32]`.
+    /// DirectMessageCrypto needs the 32-byte Curve25519 scalar (first half).
+    public func updatePrivateKey(_ key: Data?) async {
+        myPrivateKey = key.flatMap { $0.count >= 32 ? Data($0.prefix(32)) : nil }
+        if myPrivateKey != nil {
+            await reprocessDMEntries()
+        }
     }
 
     /// Update contact public keys for direct message decryption.
-    /// Called when contacts sync completes.
-    public func updateContactPublicKeys(_ keys: [UInt8: [Data]]) {
-        contactPublicKeysByPrefix = keys
+    /// Called when contacts sync completes. Re-processes any recent DM entries.
+    /// Input keys are Ed25519 public keys; converted to Curve25519 for ECDH.
+    public func updateContactPublicKeys(_ keys: [UInt8: [Data]]) async {
+        contactPublicKeysByPrefix = Self.convertPublicKeysToX25519(keys)
+        if !contactPublicKeysByPrefix.isEmpty {
+            await reprocessDMEntries()
+        }
+    }
+
+    /// Convert Ed25519 contact public keys to Curve25519 for DirectMessageCrypto.
+    private static func convertPublicKeysToX25519(_ keys: [UInt8: [Data]]) -> [UInt8: [Data]] {
+        var converted: [UInt8: [Data]] = [:]
+        for (prefix, publicKeys) in keys {
+            let x25519Keys = publicKeys.compactMap { Ed25519ToX25519.convertPublicKey($0) }
+            if !x25519Keys.isEmpty {
+                converted[prefix] = x25519Keys
+            }
+        }
+        return converted
     }
 
     /// Process a parsed RX log event.
@@ -252,28 +350,31 @@ public actor RxLogService {
             }
         }
 
-        // Decrypt direct messages to extract senderTimestamp
-        // Try all contacts with matching prefix byte (1-byte hash has collision risk)
-        if parsed.payloadType == .textMessage || parsed.payloadType == .response,
-           parsed.routeType == .direct || parsed.routeType == .tcDirect,
-           let senderPrefix = parsed.senderPubkeyPrefix?.first,
-           let candidateKeys = contactPublicKeysByPrefix[senderPrefix],
-           let myPrivateKey = self.myPrivateKey {
+        // Decrypt direct text messages to extract senderTimestamp
+        if parsed.payloadType == .textMessage,
+           parsed.routeType == .direct || parsed.routeType == .tcDirect {
 
-            for senderPublicKey in candidateKeys {
-                if let timestamp = DirectMessageCrypto.extractTimestamp(
-                    payload: parsed.packetPayload,
-                    myPrivateKey: myPrivateKey,
-                    senderPublicKey: senderPublicKey
-                ) {
-                    senderTimestamp = timestamp
-                    logger.debug("Decrypted direct message senderTimestamp: \(timestamp)")
-                    break
+            if let senderPrefix = parsed.senderPubkeyPrefix?.first,
+               let candidateKeys = contactPublicKeysByPrefix[senderPrefix],
+               let myPrivateKey = self.myPrivateKey {
+
+                for senderPublicKey in candidateKeys {
+                    if let timestamp = DirectMessageCrypto.extractTimestamp(
+                        payload: parsed.packetPayload,
+                        myPrivateKey: myPrivateKey,
+                        senderPublicKey: senderPublicKey
+                    ) {
+                        senderTimestamp = timestamp
+                        decryptStatus = .success
+                        logger.debug("Decrypted direct message senderTimestamp: \(timestamp)")
+                        break
+                    }
                 }
             }
 
             if senderTimestamp == nil {
-                logger.debug("Failed to decrypt direct message (tried \(candidateKeys.count) candidate keys)")
+                decryptStatus = .dmNoMatchingKey
+                logger.debug("DM decryption failed, marking as dmNoMatchingKey for reprocessing")
             }
         }
 

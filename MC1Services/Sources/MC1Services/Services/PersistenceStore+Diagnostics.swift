@@ -208,19 +208,12 @@ extension PersistenceStore {
 
     /// Find RxLogEntry matching an incoming message for path correlation.
     ///
-    /// For channel messages: Correlates by channel index and sender timestamp (stored in RxLogEntry).
-    /// For direct messages: Correlates by sender timestamp (now stored via decryption), payload type, and optional contact name.
-    ///
-    /// - Parameters:
-    ///   - channelIndex: Channel index for channel messages, nil for direct messages
-    ///   - senderTimestamp: The sender's timestamp from the message
-    ///   - withinSeconds: Time window for correlation (unused, kept for API compatibility)
-    ///   - contactName: For direct messages, the sender's contact name for additional filtering
+    /// For channel messages: Correlates by channel index and sender timestamp.
+    /// For direct messages: Correlates by sender timestamp and payload type.
     public func findRxLogEntry(
         channelIndex: UInt8?,
         senderTimestamp: UInt32,
-        withinSeconds: Double,
-        contactName: String? = nil
+        withinSeconds: Double
     ) throws -> RxLogEntryDTO? {
         let targetTimestamp = Int(senderTimestamp)
 
@@ -240,23 +233,13 @@ extension PersistenceStore {
             let results = try modelContext.fetch(descriptor)
             return results.first.map { RxLogEntryDTO(from: $0) }
         } else {
-            // Direct message: match on senderTimestamp (now stored via decryption)
+            // Direct message: match on senderTimestamp
             let textMessageType = Int(PayloadType.textMessage.rawValue)
 
-            let predicate: Predicate<RxLogEntry>
-            if let contactName {
-                predicate = #Predicate<RxLogEntry> { entry in
-                    entry.senderTimestamp == targetTimestamp &&
-                    entry.channelIndex == nil &&
-                    entry.payloadType == textMessageType &&
-                    entry.fromContactName == contactName
-                }
-            } else {
-                predicate = #Predicate<RxLogEntry> { entry in
-                    entry.senderTimestamp == targetTimestamp &&
-                    entry.channelIndex == nil &&
-                    entry.payloadType == textMessageType
-                }
+            let predicate = #Predicate<RxLogEntry> { entry in
+                entry.senderTimestamp == targetTimestamp &&
+                entry.channelIndex == nil &&
+                entry.payloadType == textMessageType
             }
 
             var descriptor = FetchDescriptor<RxLogEntry>(predicate: predicate)
@@ -268,10 +251,10 @@ extension PersistenceStore {
         }
     }
 
-    /// Fetch recent RX log entries that failed decryption due to missing keys.
-    public func fetchRecentNoMatchingKeyEntries(deviceID: UUID, since: Date) throws -> [RxLogEntryDTO] {
+    /// Fetch recent RX log entries with a given decrypt status.
+    public func fetchRecentEntriesByDecryptStatus(deviceID: UUID, status: DecryptStatus, since: Date) throws -> [RxLogEntryDTO] {
         let targetDeviceID = deviceID
-        let targetStatus = DecryptStatus.noMatchingKey.rawValue
+        let targetStatus = status.rawValue
         let cutoff = since
         let descriptor = FetchDescriptor<RxLogEntry>(
             predicate: #Predicate {

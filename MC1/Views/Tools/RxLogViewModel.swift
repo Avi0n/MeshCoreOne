@@ -73,7 +73,8 @@ final class RxLogViewModel {
             case .failed:
                 guard entry.decryptStatus == .hmacFailed
                     || entry.decryptStatus == .decryptFailed
-                    || entry.decryptStatus == .noMatchingKey else { return false }
+                    || entry.decryptStatus == .noMatchingKey
+                    || entry.decryptStatus == .dmNoMatchingKey else { return false }
             }
 
             return true

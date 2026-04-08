@@ -1,14 +1,15 @@
 // MC1Services/Sources/MC1Services/Models/DecryptStatus.swift
 import Foundation
 
-/// Decryption outcome for channel messages.
+/// Decryption outcome for channel and direct messages.
 public enum DecryptStatus: Int, Codable, Sendable, CaseIterable {
     case notApplicable = 0   // Not a channel message (e.g., direct, advert)
-    case noMatchingKey = 1   // No stored channel matches channelIndex
+    case noMatchingKey = 1   // Channel: no stored channel matches
     case hmacFailed = 2      // Key found but HMAC validation failed
     case decryptFailed = 3   // HMAC passed but AES decrypt failed
     case success = 4         // Decrypted successfully
     case pending = 5         // Key found but decryption not yet implemented
+    case dmNoMatchingKey = 6 // DM: missing private key or contact public key
 
     /// Human-readable description for UI display.
     public var displayName: String {
@@ -19,6 +20,7 @@ public enum DecryptStatus: Int, Codable, Sendable, CaseIterable {
         case .decryptFailed: return "Decrypt Failed"
         case .success: return "Decrypted"
         case .pending: return "Has Key"
+        case .dmNoMatchingKey: return "No DM Key"
         }
     }
 
@@ -31,6 +33,7 @@ public enum DecryptStatus: Int, Codable, Sendable, CaseIterable {
         case .decryptFailed: return "lock.slash"
         case .success: return "checkmark.seal"
         case .pending: return "key"
+        case .dmNoMatchingKey: return "key.slash"
         }
     }
 }
