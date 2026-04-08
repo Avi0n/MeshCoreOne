@@ -174,54 +174,117 @@ extension PersistenceStore {
         try modelContext.save()
     }
 
-    /// Delete a device and all its associated data
+    /// Delete all data associated with a device.
+    /// Deletes: reactions, room messages, remote node sessions, blocked channel senders,
+    /// RX log entries, discovered nodes, contacts, messages, channels, and saved trace paths.
+    /// Does NOT delete the Device record itself.
+    public func deleteDeviceData(id: UUID) throws {
+        try _deleteAllDeviceData(id: id)
+        try modelContext.save()
+    }
+
+    /// Delete a device record only. Does NOT delete associated data.
     public func deleteDevice(id: UUID) throws {
         let targetID = id
-
-        // Delete associated contacts
-        let contactPredicate = #Predicate<Contact> { contact in
-            contact.deviceID == targetID
-        }
-        let contacts = try modelContext.fetch(FetchDescriptor(predicate: contactPredicate))
-        for contact in contacts {
-            modelContext.delete(contact)
-        }
-
-        // Delete associated messages
-        let messagePredicate = #Predicate<Message> { message in
-            message.deviceID == targetID
-        }
-        let messages = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate))
-        for message in messages {
-            modelContext.delete(message)
-        }
-
-        // Delete associated channels
-        let channelPredicate = #Predicate<Channel> { channel in
-            channel.deviceID == targetID
-        }
-        let channels = try modelContext.fetch(FetchDescriptor(predicate: channelPredicate))
-        for channel in channels {
-            modelContext.delete(channel)
-        }
-
-        // Delete associated saved trace paths (runs cascade automatically)
-        let pathPredicate = #Predicate<SavedTracePath> { path in
-            path.deviceID == targetID
-        }
-        let paths = try modelContext.fetch(FetchDescriptor(predicate: pathPredicate))
-        for path in paths {
-            modelContext.delete(path)
-        }
-
-        // Delete the device
         let devicePredicate = #Predicate<Device> { device in
             device.id == targetID
         }
         if let device = try modelContext.fetch(FetchDescriptor(predicate: devicePredicate)).first {
             modelContext.delete(device)
         }
-
         try modelContext.save()
+    }
+
+    /// Delete a device and all its associated data atomically (single save).
+    /// Use for factory reset and explicit "delete all data" user action.
+    public func deleteDeviceAndData(id: UUID) throws {
+        try _deleteAllDeviceData(id: id)
+
+        let targetID = id
+        let devicePredicate = #Predicate<Device> { device in
+            device.id == targetID
+        }
+        if let device = try modelContext.fetch(FetchDescriptor(predicate: devicePredicate)).first {
+            modelContext.delete(device)
+        }
+        try modelContext.save()
+    }
+
+    /// Stages deletion of all device-scoped data without calling save().
+    /// Used by both `deleteDeviceData` and `deleteDeviceAndData` to compose
+    /// operations while maintaining single-save atomicity.
+    private func _deleteAllDeviceData(id: UUID) throws {
+        let targetID = id
+
+        // Delete reactions (references messages via messageID)
+        let reactionPredicate = #Predicate<Reaction> { reaction in
+            reaction.deviceID == targetID
+        }
+        let reactions = try modelContext.fetch(FetchDescriptor(predicate: reactionPredicate))
+        for reaction in reactions { modelContext.delete(reaction) }
+
+        // Delete room messages via their sessions
+        let sessionPredicate = #Predicate<RemoteNodeSession> { session in
+            session.deviceID == targetID
+        }
+        let sessions = try modelContext.fetch(FetchDescriptor(predicate: sessionPredicate))
+        for session in sessions {
+            let sessionID = session.id
+            let roomMessagePredicate = #Predicate<RoomMessage> { message in
+                message.sessionID == sessionID
+            }
+            let roomMessages = try modelContext.fetch(FetchDescriptor(predicate: roomMessagePredicate))
+            for roomMessage in roomMessages { modelContext.delete(roomMessage) }
+            modelContext.delete(session)
+        }
+
+        // Delete blocked channel senders
+        let blockedPredicate = #Predicate<BlockedChannelSender> { blocked in
+            blocked.deviceID == targetID
+        }
+        let blockedSenders = try modelContext.fetch(FetchDescriptor(predicate: blockedPredicate))
+        for blocked in blockedSenders { modelContext.delete(blocked) }
+
+        // Delete RX log entries
+        let rxLogPredicate = #Predicate<RxLogEntry> { entry in
+            entry.deviceID == targetID
+        }
+        let rxLogEntries = try modelContext.fetch(FetchDescriptor(predicate: rxLogPredicate))
+        for entry in rxLogEntries { modelContext.delete(entry) }
+
+        // Delete discovered nodes
+        let discoveredPredicate = #Predicate<DiscoveredNode> { node in
+            node.deviceID == targetID
+        }
+        let discoveredNodes = try modelContext.fetch(FetchDescriptor(predicate: discoveredPredicate))
+        for node in discoveredNodes { modelContext.delete(node) }
+
+        // Delete contacts
+        let contactPredicate = #Predicate<Contact> { contact in
+            contact.deviceID == targetID
+        }
+        let contacts = try modelContext.fetch(FetchDescriptor(predicate: contactPredicate))
+        for contact in contacts { modelContext.delete(contact) }
+
+        // Delete messages
+        let messagePredicate = #Predicate<Message> { message in
+            message.deviceID == targetID
+        }
+        let messages = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate))
+        for message in messages { modelContext.delete(message) }
+
+        // Delete channels
+        let channelPredicate = #Predicate<Channel> { channel in
+            channel.deviceID == targetID
+        }
+        let channels = try modelContext.fetch(FetchDescriptor(predicate: channelPredicate))
+        for channel in channels { modelContext.delete(channel) }
+
+        // Delete saved trace paths
+        let pathPredicate = #Predicate<SavedTracePath> { path in
+            path.deviceID == targetID
+        }
+        let paths = try modelContext.fetch(FetchDescriptor(predicate: pathPredicate))
+        for path in paths { modelContext.delete(path) }
     }
 }

@@ -41,6 +41,7 @@ extension ConnectionManager {
 
     /// Removes a device that failed to connect after pairing.
     /// Call this when user explicitly chooses to remove and retry.
+    /// No data cascade — fresh pairings have no associated data.
     /// - Parameter deviceID: The device ID from `PairingError.connectionFailed`
     public func removeFailedPairing(deviceID: UUID) async {
         logger.info("Removing failed pairing for device: \(deviceID)")
@@ -55,7 +56,7 @@ extension ConnectionManager {
             }
         }
 
-        // Clean up SwiftData (may not exist for fresh pairing)
+        // Delete device record only — no data exists for a failed pairing
         let dataStore = PersistenceStore(modelContainer: modelContainer)
         try? await dataStore.deleteDevice(id: deviceID)
 
@@ -138,8 +139,9 @@ extension ConnectionManager {
     // MARK: - Forget Device
 
     /// Forgets the device, removing it from paired accessories and local storage.
-    /// - Throws: `ConnectionError.deviceNotFound` if no device is connected
-    public func forgetDevice() async throws {
+    /// - Parameter deleteData: If `true`, also deletes all associated data (contacts, messages, channels, trace paths).
+    /// - Throws: `ConnectionError.notConnected` if no device is connected
+    public func forgetDevice(deleteData: Bool) async throws {
         guard let deviceID = connectedDevice?.id else {
             throw ConnectionError.notConnected
         }
@@ -148,33 +150,33 @@ extension ConnectionManager {
             throw ConnectionError.deviceNotFound
         }
 
-        logger.info("Forgetting device: \(deviceID)")
+        logger.info("Forgetting device: \(deviceID), deleteData: \(deleteData)")
 
-        // Remove from paired accessories first (most important operation)
         try await accessorySetupKit.removeAccessory(accessory)
 
-        // Disconnect
         await disconnect(reason: .forgetDevice)
 
-        // Delete from SwiftData (cascades to contacts, messages, channels, trace paths)
         let dataStore = PersistenceStore(modelContainer: modelContainer)
         do {
-            try await dataStore.deleteDevice(id: deviceID)
+            if deleteData {
+                try await dataStore.deleteDeviceAndData(id: deviceID)
+            } else {
+                try await dataStore.deleteDevice(id: deviceID)
+            }
         } catch {
-            // Log but don't fail - ASK removal succeeded, data cleanup is best-effort
             logger.warning("Failed to delete device data from SwiftData: \(error.localizedDescription)")
         }
 
+        clearPersistedConnection()
         logger.info("Device forgotten")
     }
 
     /// Forgets a device by ID, removing it from paired accessories and local storage.
-    /// Best-effort cleanup — does not throw. Use after factory reset when the device
-    /// may have already disconnected.
+    /// Deletes both the device record and all associated data (factory reset path).
+    /// Best-effort cleanup — does not throw.
     public func forgetDevice(id: UUID) async {
         logger.info("Forgetting device by ID: \(id)")
 
-        // Remove from paired accessories (most important — without this, re-pairing fails)
         if let accessory = accessorySetupKit.accessory(for: id) {
             do {
                 try await accessorySetupKit.removeAccessory(accessory)
@@ -183,14 +185,11 @@ extension ConnectionManager {
             }
         }
 
-        // Always disconnect — even if BLE already dropped, this cancels any pending
-        // auto-reconnect, sets connectionIntent, and cleans up state.
         await disconnect(reason: .factoryReset)
 
-        // Delete from SwiftData
         let dataStore = PersistenceStore(modelContainer: modelContainer)
         do {
-            try await dataStore.deleteDevice(id: id)
+            try await dataStore.deleteDeviceAndData(id: id)
         } catch {
             logger.warning("Failed to delete device data from SwiftData: \(error.localizedDescription)")
         }
@@ -415,7 +414,8 @@ extension ConnectionManager {
         return devices
     }
 
-    /// Deletes a previously paired device and all its associated data.
+    /// Deletes a previously paired device record from storage.
+    /// Does not delete associated data — the user may re-pair to recover it.
     /// - Parameter id: The device UUID to delete
     public func deleteDevice(id: UUID) async throws {
         logger.info("deleteDevice called for device: \(id)")
@@ -455,21 +455,19 @@ extension ConnectionManager: AccessorySetupKitServiceDelegate {
         _ service: AccessorySetupKitService,
         didRemoveAccessoryWithID bluetoothID: UUID
     ) {
-        // Handle device removed from Settings > Accessories
         logger.info("Device removed from ASK: \(bluetoothID)")
 
         Task {
-            // Disconnect if this was the connected device
             if connectedDevice?.id == bluetoothID {
                 await disconnect(reason: .deviceRemovedFromSettings)
             }
 
-            // Delete from SwiftData (cascades to contacts, messages, channels, trace paths)
+            // Delete device record only — preserve user data for re-pairing
             let dataStore = PersistenceStore(modelContainer: modelContainer)
             do {
                 try await dataStore.deleteDevice(id: bluetoothID)
             } catch {
-                logger.warning("Failed to delete device data from SwiftData: \(error.localizedDescription)")
+                logger.warning("Failed to delete device record from SwiftData: \(error.localizedDescription)")
             }
         }
 
@@ -483,24 +481,22 @@ extension ConnectionManager: AccessorySetupKitServiceDelegate {
         _ service: AccessorySetupKitService,
         didFailPairingForAccessoryWithID bluetoothID: UUID
     ) {
-        // Handle pairing failure (e.g., wrong PIN)
-        // Clean up any existing device data so the device can appear in picker again
+        // Clean up device record so the device can appear in picker again.
+        // No data cascade — failed pairings have no associated data.
         logger.info("Pairing failed for device: \(bluetoothID)")
 
         Task {
-            // Disconnect if this was somehow the connected device
             if connectedDevice?.id == bluetoothID {
                 await disconnect(reason: .pairingFailed)
             }
 
-            // Delete from SwiftData (may not exist if this was a fresh pairing attempt)
+            // Delete device record only — no data exists for a failed pairing
             let dataStore = PersistenceStore(modelContainer: modelContainer)
             do {
                 try await dataStore.deleteDevice(id: bluetoothID)
-                logger.info("Deleted device data after failed pairing")
+                logger.info("Deleted device record after failed pairing")
             } catch {
-                // Expected if device wasn't previously saved
-                logger.info("No device data to delete: \(error.localizedDescription)")
+                logger.info("No device record to delete: \(error.localizedDescription)")
             }
         }
 

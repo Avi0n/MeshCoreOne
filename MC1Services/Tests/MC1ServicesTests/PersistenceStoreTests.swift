@@ -100,49 +100,196 @@ struct PersistenceStoreTests {
         #expect(device1Fetched?.isActive == false)
     }
 
-    @Test("Delete device cascades to contacts and messages")
-    func deleteDeviceCascade() async throws {
-        let store = try await createTestStore()
-        let device = createTestDevice()
+    /// Seeds all entity types for a device and returns IDs needed for verification.
+    private func seedAllEntityTypes(store: PersistenceStore, deviceID: UUID) async throws -> (
+        contactID: UUID, messageID: UUID, channelID: UUID, sessionID: UUID
+    ) {
+        let contactFrame = createTestContactFrame(name: "TestContact")
+        let contactID = try await store.saveContact(deviceID: deviceID, from: contactFrame)
 
-        try await store.saveDevice(device)
-
-        // Add a contact
-        let contactFrame = createTestContactFrame()
-        let contactID = try await store.saveContact(deviceID: device.id, from: contactFrame)
-
-        // Add a message
         let message = MessageDTO(from: Message(
-            deviceID: device.id,
+            deviceID: deviceID,
             contactID: contactID,
             text: "Hello!",
             timestamp: UInt32(Date().timeIntervalSince1970)
         ))
         try await store.saveMessage(message)
 
-        // Add a channel
         let channelInfo = ChannelInfo(index: 1, name: "Private", secret: Data(repeating: 0x42, count: 16))
-        _ = try await store.saveChannel(deviceID: device.id, from: channelInfo)
+        let channelID = try await store.saveChannel(deviceID: deviceID, from: channelInfo)
 
-        // Verify data exists
-        var contacts = try await store.fetchContacts(deviceID: device.id)
-        #expect(contacts.count == 1)
+        let reaction = ReactionDTO(
+            messageID: message.id,
+            emoji: "👍",
+            senderName: "Reactor",
+            messageHash: "AABBCCDD",
+            rawText: "👍",
+            deviceID: deviceID
+        )
+        try await store.saveReaction(reaction)
 
-        var channels = try await store.fetchChannels(deviceID: device.id)
-        #expect(channels.count == 1)
+        let session = createTestRoomSession(deviceID: deviceID)
+        try await store.saveRemoteNodeSessionDTO(session)
 
-        // Delete device
+        let roomMessage = RoomMessageDTO(
+            sessionID: session.id,
+            authorKeyPrefix: Data([0x01, 0x02, 0x03, 0x04]),
+            authorName: "Author",
+            text: "Room message",
+            timestamp: UInt32(Date().timeIntervalSince1970)
+        )
+        try await store.saveRoomMessage(roomMessage)
+
+        let blocked = BlockedChannelSenderDTO(name: "Spammer", deviceID: deviceID)
+        try await store.saveBlockedChannelSender(blocked)
+
+        let rxLog = createTestRxLogEntryDTO(deviceID: deviceID, senderTimestamp: 12345)
+        try await store.saveRxLogEntry(rxLog)
+
+        let discoveredFrame = createTestContactFrame(name: "Discovered")
+        _ = try await store.upsertDiscoveredNode(deviceID: deviceID, from: discoveredFrame)
+
+        return (contactID, message.id, channelID, session.id)
+    }
+
+    /// Asserts all entity types for a device are present.
+    private func assertAllDataExists(
+        store: PersistenceStore, deviceID: UUID, sessionID: UUID, messageID: UUID
+    ) async throws {
+        let contacts = try await store.fetchContacts(deviceID: deviceID)
+        #expect(contacts.count == 1, "Expected 1 contact")
+        let channels = try await store.fetchChannels(deviceID: deviceID)
+        #expect(channels.count == 1, "Expected 1 channel")
+        let reactions = try await store.fetchReactions(for: messageID)
+        #expect(reactions.count == 1, "Expected 1 reaction")
+        let sessions = try await store.fetchRemoteNodeSessions(deviceID: deviceID)
+        #expect(sessions.count == 1, "Expected 1 session")
+        let roomMessages = try await store.fetchRoomMessages(sessionID: sessionID)
+        #expect(roomMessages.count == 1, "Expected 1 room message")
+        let blockedSenders = try await store.fetchBlockedChannelSenders(deviceID: deviceID)
+        #expect(blockedSenders.count == 1, "Expected 1 blocked sender")
+        let rxEntries = try await store.fetchRxLogEntries(deviceID: deviceID)
+        #expect(rxEntries.count == 1, "Expected 1 RX log entry")
+        let discoveredNodes = try await store.fetchDiscoveredNodes(deviceID: deviceID)
+        #expect(discoveredNodes.count == 1, "Expected 1 discovered node")
+    }
+
+    /// Asserts all entity types for a device have been deleted.
+    private func assertAllDataDeleted(
+        store: PersistenceStore, deviceID: UUID, sessionID: UUID, messageID: UUID
+    ) async throws {
+        let contacts = try await store.fetchContacts(deviceID: deviceID)
+        #expect(contacts.isEmpty, "Expected no contacts")
+        let channels = try await store.fetchChannels(deviceID: deviceID)
+        #expect(channels.isEmpty, "Expected no channels")
+        let reactions = try await store.fetchReactions(for: messageID)
+        #expect(reactions.isEmpty, "Expected no reactions")
+        let sessions = try await store.fetchRemoteNodeSessions(deviceID: deviceID)
+        #expect(sessions.isEmpty, "Expected no sessions")
+        let roomMessages = try await store.fetchRoomMessages(sessionID: sessionID)
+        #expect(roomMessages.isEmpty, "Expected no room messages")
+        let blockedSenders = try await store.fetchBlockedChannelSenders(deviceID: deviceID)
+        #expect(blockedSenders.isEmpty, "Expected no blocked senders")
+        let rxEntries = try await store.fetchRxLogEntries(deviceID: deviceID)
+        #expect(rxEntries.isEmpty, "Expected no RX log entries")
+        let discoveredNodes = try await store.fetchDiscoveredNodes(deviceID: deviceID)
+        #expect(discoveredNodes.isEmpty, "Expected no discovered nodes")
+    }
+
+    @Test("deleteDevice removes only device record, preserves all associated data")
+    func deleteDevicePreservesData() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let ids = try await seedAllEntityTypes(store: store, deviceID: device.id)
+
         try await store.deleteDevice(id: device.id)
 
-        // Verify all data is gone
-        contacts = try await store.fetchContacts(deviceID: device.id)
-        #expect(contacts.isEmpty)
+        let fetchedDevice = try await store.fetchDevice(id: device.id)
+        #expect(fetchedDevice == nil, "Device record should be deleted")
 
-        channels = try await store.fetchChannels(deviceID: device.id)
-        #expect(channels.isEmpty)
+        try await assertAllDataExists(
+            store: store, deviceID: device.id,
+            sessionID: ids.sessionID, messageID: ids.messageID
+        )
+    }
 
-        let deletedDevice = try await store.fetchDevice(id: device.id)
-        #expect(deletedDevice == nil)
+    @Test("deleteDeviceData removes all associated data but not device record")
+    func deleteDeviceDataPreservesDevice() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let ids = try await seedAllEntityTypes(store: store, deviceID: device.id)
+
+        try await store.deleteDeviceData(id: device.id)
+
+        let fetchedDevice = try await store.fetchDevice(id: device.id)
+        #expect(fetchedDevice != nil, "Device record should be preserved")
+
+        try await assertAllDataDeleted(
+            store: store, deviceID: device.id,
+            sessionID: ids.sessionID, messageID: ids.messageID
+        )
+    }
+
+    @Test("deleteDeviceAndData removes device and all data atomically")
+    func deleteDeviceAndDataRemovesAll() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let ids = try await seedAllEntityTypes(store: store, deviceID: device.id)
+
+        try await store.deleteDeviceAndData(id: device.id)
+
+        let fetchedDevice = try await store.fetchDevice(id: device.id)
+        #expect(fetchedDevice == nil, "Device record should be deleted")
+
+        try await assertAllDataDeleted(
+            store: store, deviceID: device.id,
+            sessionID: ids.sessionID, messageID: ids.messageID
+        )
+    }
+
+    @Test("deleteDeviceData for non-existent device does not throw")
+    func deleteDeviceDataNonExistent() async throws {
+        let store = try await createTestStore()
+        try await store.deleteDeviceData(id: UUID())
+    }
+
+    @Test("deleteDeviceAndData for non-existent device does not throw")
+    func deleteDeviceAndDataNonExistent() async throws {
+        let store = try await createTestStore()
+        try await store.deleteDeviceAndData(id: UUID())
+    }
+
+    @Test("Re-pair after device deletion re-associates orphaned data")
+    func rePairReassociatesOrphanedData() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let contactFrame = createTestContactFrame(name: "Survivor")
+        _ = try await store.saveContact(deviceID: device.id, from: contactFrame)
+
+        let channelInfo = ChannelInfo(index: 0, name: "General", secret: Data(repeating: 0, count: 16))
+        _ = try await store.saveChannel(deviceID: device.id, from: channelInfo)
+
+        // Simulate ASK removal: delete device record only
+        try await store.deleteDevice(id: device.id)
+
+        // Simulate re-pair: saveDevice upserts with same ID
+        try await store.saveDevice(device)
+
+        let contacts = try await store.fetchContacts(deviceID: device.id)
+        #expect(contacts.count == 1)
+        #expect(contacts.first?.name == "Survivor")
+
+        let channels = try await store.fetchChannels(deviceID: device.id)
+        #expect(channels.count == 1)
+        #expect(channels.first?.name == "General")
     }
 
     // MARK: - Contact Tests
