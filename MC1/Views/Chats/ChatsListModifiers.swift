@@ -78,5 +78,13 @@ struct ChatsListModifiers: ViewModifier {
                     await onLoadConversations()
                 }
             }
+            .onChange(of: appState.connectionState) { _, newState in
+                if newState == .disconnected {
+                    reloadTask?.cancel()
+                    reloadTask = Task {
+                        await onLoadConversations()
+                    }
+                }
+            }
     }
 }

@@ -233,7 +233,10 @@ struct ChatsView: View {
     }
 
     private func loadConversations() async {
-        guard let deviceID = appState.currentDeviceID else { return }
+        guard let deviceID = appState.currentDeviceID else {
+            viewModel.clearConversations()
+            return
+        }
         viewModel.configure(appState: appState)
         await viewModel.loadAllConversations(deviceID: deviceID)
 

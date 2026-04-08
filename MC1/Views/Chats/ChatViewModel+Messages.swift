@@ -155,6 +155,21 @@ extension ChatViewModel {
 
     // MARK: - Conversation List
 
+    /// Clears all conversation data from the view model.
+    /// Called when the device is forgotten or removed so the list doesn't show stale entries.
+    func clearConversations() {
+        conversations = []
+        channels = []
+        roomSessions = []
+        allContacts = []
+        channelSenders = []
+        channelSenderNames = []
+        channelSenderOrder = [:]
+        contactNameSet = []
+        lastMessageCache = [:]
+        invalidateConversationCache()
+    }
+
     /// Removes a conversation from local arrays for optimistic UI update.
     func removeConversation(_ conversation: Conversation) {
         invalidateConversationCache()
