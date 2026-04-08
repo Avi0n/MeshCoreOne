@@ -163,7 +163,7 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
 
     // MARK: - RxLogEntry Lookup (stubs)
 
-    func findRxLogEntry(channelIndex: UInt8?, senderTimestamp: UInt32, withinSeconds: Double) async throws -> RxLogEntryDTO? { nil }
+    func findRxLogEntry(channelIndex: UInt8?, senderTimestamp: UInt32) async throws -> RxLogEntryDTO? { nil }
 
     // MARK: - Room Message Operations (stubs)
 

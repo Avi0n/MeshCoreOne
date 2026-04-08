@@ -212,8 +212,7 @@ extension PersistenceStore {
     /// For direct messages: Correlates by sender timestamp and payload type.
     public func findRxLogEntry(
         channelIndex: UInt8?,
-        senderTimestamp: UInt32,
-        withinSeconds: Double
+        senderTimestamp: UInt32
     ) throws -> RxLogEntryDTO? {
         let targetTimestamp = Int(senderTimestamp)
 

@@ -469,8 +469,7 @@ extension SyncCoordinator {
         do {
             if let rxEntry = try await services.dataStore.findRxLogEntry(
                 channelIndex: channelIndex,
-                senderTimestamp: senderTimestamp,
-                withinSeconds: 10
+                senderTimestamp: senderTimestamp
             ) {
                 let pathLength = rxEntry.pathLength
                 let pathNodes = rxEntry.pathNodes

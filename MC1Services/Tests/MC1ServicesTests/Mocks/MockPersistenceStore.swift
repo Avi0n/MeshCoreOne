@@ -1002,8 +1002,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
     public func findRxLogEntry(
         channelIndex: UInt8?,
-        senderTimestamp: UInt32,
-        withinSeconds: Double
+        senderTimestamp: UInt32
     ) throws -> RxLogEntryDTO? {
         if let channelIndex {
             return mockRxLogEntries.first { entry in

@@ -316,8 +316,7 @@ public protocol PersistenceStoreProtocol: Actor {
     /// For direct messages: Correlates by sender timestamp and payload type.
     func findRxLogEntry(
         channelIndex: UInt8?,
-        senderTimestamp: UInt32,
-        withinSeconds: Double
+        senderTimestamp: UInt32
     ) async throws -> RxLogEntryDTO?
 
     // MARK: - Room Session State
