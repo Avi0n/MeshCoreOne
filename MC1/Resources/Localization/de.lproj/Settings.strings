@@ -591,14 +591,17 @@
 /* Footer explaining factory reset */
 "dangerZone.footer" = "Werksreset löscht alle Kontakte, Nachrichten und Einstellungen auf dem Gerät.";
 
-/* Alert title for forget device confirmation */
-"dangerZone.alert.forget.title" = "Gerät vergessen";
+/* Confirmation dialog title for forget device */
+"dangerZone.dialog.forget.title" = "Gerät vergessen";
 
-/* Button to confirm forget */
-"dangerZone.alert.forget.confirm" = "Vergessen";
+/* Confirmation dialog message for forget device */
+"dangerZone.dialog.forget.message" = "Your device will be unpaired. You can choose to keep or delete your messages, contacts, and channels.";
 
-/* Alert message for forget device */
-"dangerZone.alert.forget.message" = "Das Gerät wird aus deinen gekoppelten Geräten entfernt. Du kannst es später erneut koppeln.";
+/* Button to forget device but keep data */
+"dangerZone.dialog.forget.keepData" = "Gerät vergessen";
+
+/* Button to forget device and delete all associated data */
+"dangerZone.dialog.forget.deleteAll" = "Forget Device & Delete Data";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "Werkseinstellungen";

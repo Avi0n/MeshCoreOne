@@ -578,14 +578,17 @@
 /* Footer explaining factory reset */
 "dangerZone.footer" = "恢复出厂设置将擦除设备上的所有联系人、消息和设置。";
 
-/* Alert title for forget device confirmation */
-"dangerZone.alert.forget.title" = "忘记设备";
+/* Confirmation dialog title for forget device */
+"dangerZone.dialog.forget.title" = "忘记设备";
 
-/* Button to confirm forget */
-"dangerZone.alert.forget.confirm" = "忘记";
+/* Confirmation dialog message for forget device */
+"dangerZone.dialog.forget.message" = "Your device will be unpaired. You can choose to keep or delete your messages, contacts, and channels.";
 
-/* Alert message for forget device */
-"dangerZone.alert.forget.message" = "这将从您的配对设备中移除该设备。您可以稍后重新配对。";
+/* Button to forget device but keep data */
+"dangerZone.dialog.forget.keepData" = "忘记设备";
+
+/* Button to forget device and delete all associated data */
+"dangerZone.dialog.forget.deleteAll" = "Forget Device & Delete Data";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "恢复出厂设置";

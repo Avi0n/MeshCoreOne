@@ -591,14 +591,17 @@
 /* Footer explaining factory reset */
 "dangerZone.footer" = "Factory reset erases all contacts, messages, and settings on the device.";
 
-/* Alert title for forget device confirmation */
-"dangerZone.alert.forget.title" = "Forget Device";
+/* Confirmation dialog title for forget device */
+"dangerZone.dialog.forget.title" = "Forget Device";
 
-/* Button to confirm forget */
-"dangerZone.alert.forget.confirm" = "Forget";
+/* Confirmation dialog message for forget device */
+"dangerZone.dialog.forget.message" = "Your device will be unpaired. You can choose to keep or delete your messages, contacts, and channels.";
 
-/* Alert message for forget device */
-"dangerZone.alert.forget.message" = "This will remove the device from your paired devices. You can pair it again later.";
+/* Button to forget device but keep data */
+"dangerZone.dialog.forget.keepData" = "Forget Device";
+
+/* Button to forget device and delete all associated data */
+"dangerZone.dialog.forget.deleteAll" = "Forget Device & Delete Data";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "Factory Reset";

@@ -591,14 +591,17 @@
 /* Footer explaining factory reset */
 "dangerZone.footer" = "El restablecimiento de fábrica borra todos los contactos, mensajes y ajustes del dispositivo.";
 
-/* Alert title for forget device confirmation */
-"dangerZone.alert.forget.title" = "Olvidar dispositivo";
+/* Confirmation dialog title for forget device */
+"dangerZone.dialog.forget.title" = "Olvidar dispositivo";
 
-/* Button to confirm forget */
-"dangerZone.alert.forget.confirm" = "Olvidar";
+/* Confirmation dialog message for forget device */
+"dangerZone.dialog.forget.message" = "Your device will be unpaired. You can choose to keep or delete your messages, contacts, and channels.";
 
-/* Alert message for forget device */
-"dangerZone.alert.forget.message" = "Esto eliminará el dispositivo de tus dispositivos emparejados. Puedes volver a emparejarlo más tarde.";
+/* Button to forget device but keep data */
+"dangerZone.dialog.forget.keepData" = "Olvidar dispositivo";
+
+/* Button to forget device and delete all associated data */
+"dangerZone.dialog.forget.deleteAll" = "Forget Device & Delete Data";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "Restablecimiento de fábrica";

@@ -3299,14 +3299,6 @@ public enum L10n {
       /// Text shown while resetting
       public static let resetting = L10n.tr("Settings", "dangerZone.resetting", fallback: "Resetting...")
       public enum Alert {
-        public enum Forget {
-          /// Button to confirm forget
-          public static let confirm = L10n.tr("Settings", "dangerZone.alert.forget.confirm", fallback: "Forget")
-          /// Alert message for forget device
-          public static let message = L10n.tr("Settings", "dangerZone.alert.forget.message", fallback: "This will remove the device from your paired devices. You can pair it again later.")
-          /// Alert title for forget device confirmation
-          public static let title = L10n.tr("Settings", "dangerZone.alert.forget.title", fallback: "Forget Device")
-        }
         public enum RemoveUnfavorited {
           /// Button to confirm removal
           public static let confirm = L10n.tr("Settings", "dangerZone.alert.removeUnfavorited.confirm", fallback: "Remove Nodes")
@@ -3332,6 +3324,18 @@ public enum L10n {
           public static let message = L10n.tr("Settings", "dangerZone.alert.reset.message", fallback: "This will erase all device data including contacts, messages, and settings. Tap Remove when prompted to unpair the device.")
           /// Alert title for factory reset confirmation
           public static let title = L10n.tr("Settings", "dangerZone.alert.reset.title", fallback: "Factory Reset")
+        }
+      }
+      public enum Dialog {
+        public enum Forget {
+          /// Button to forget device and delete all associated data
+          public static let deleteAll = L10n.tr("Settings", "dangerZone.dialog.forget.deleteAll", fallback: "Forget Device & Delete Data")
+          /// Button to forget device but keep data
+          public static let keepData = L10n.tr("Settings", "dangerZone.dialog.forget.keepData", fallback: "Forget Device")
+          /// Confirmation dialog message for forget device
+          public static let message = L10n.tr("Settings", "dangerZone.dialog.forget.message", fallback: "Your device will be unpaired. You can choose to keep or delete your messages, contacts, and channels.")
+          /// Confirmation dialog title for forget device
+          public static let title = L10n.tr("Settings", "dangerZone.dialog.forget.title", fallback: "Forget Device")
         }
       }
       public enum Error {

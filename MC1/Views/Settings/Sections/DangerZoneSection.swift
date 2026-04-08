@@ -5,7 +5,7 @@ import MC1Services
 struct DangerZoneSection: View {
     @Environment(\.appState) private var appState
     @Environment(\.dismiss) private var dismiss
-    @State private var showingForgetAlert = false
+    @State private var showingForgetConfirmation = false
     @State private var showingResetAlert = false
     @State private var isResetting = false
     @State private var errorMessage: String?
@@ -37,7 +37,7 @@ struct DangerZoneSection: View {
             .radioDisabled(for: appState.connectionState, or: isRemovingUnfavorited || showRemoveSuccess)
 
             Button(role: .destructive) {
-                showingForgetAlert = true
+                showingForgetConfirmation = true
             } label: {
                 Label(L10n.Settings.DangerZone.forgetDevice, systemImage: "trash")
             }
@@ -60,13 +60,20 @@ struct DangerZoneSection: View {
         } footer: {
             Text(L10n.Settings.DangerZone.footer)
         }
-        .alert(L10n.Settings.DangerZone.Alert.Forget.title, isPresented: $showingForgetAlert) {
-            Button(L10n.Localizable.Common.cancel, role: .cancel) { }
-            Button(L10n.Settings.DangerZone.Alert.Forget.confirm, role: .destructive) {
-                forgetDevice()
+        .confirmationDialog(
+            L10n.Settings.DangerZone.Dialog.Forget.title,
+            isPresented: $showingForgetConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button(L10n.Settings.DangerZone.Dialog.Forget.keepData, role: .destructive) {
+                forgetDevice(deleteData: false)
             }
+            Button(L10n.Settings.DangerZone.Dialog.Forget.deleteAll, role: .destructive) {
+                forgetDevice(deleteData: true)
+            }
+            Button(L10n.Localizable.Common.cancel, role: .cancel) { }
         } message: {
-            Text(L10n.Settings.DangerZone.Alert.Forget.message)
+            Text(L10n.Settings.DangerZone.Dialog.Forget.message)
         }
         .alert(L10n.Settings.DangerZone.Alert.Reset.title, isPresented: $showingResetAlert) {
             Button(L10n.Localizable.Common.cancel, role: .cancel) { }
@@ -93,10 +100,10 @@ struct DangerZoneSection: View {
         .errorAlert($errorMessage)
     }
 
-    private func forgetDevice() {
+    private func forgetDevice(deleteData: Bool) {
         Task {
             do {
-                try await appState.connectionManager.forgetDevice()
+                try await appState.connectionManager.forgetDevice(deleteData: deleteData)
                 dismiss()
             } catch {
                 errorMessage = error.localizedDescription

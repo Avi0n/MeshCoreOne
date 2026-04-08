@@ -591,14 +591,17 @@
 /* Footer explaining factory reset */
 "dangerZone.footer" = "Скидання до заводських налаштувань видаляє всі контакти, повідомлення та налаштування на пристрої.";
 
-/* Alert title for forget device confirmation */
-"dangerZone.alert.forget.title" = "Забути пристрій";
+/* Confirmation dialog title for forget device */
+"dangerZone.dialog.forget.title" = "Забути пристрій";
 
-/* Button to confirm forget */
-"dangerZone.alert.forget.confirm" = "Забути";
+/* Confirmation dialog message for forget device */
+"dangerZone.dialog.forget.message" = "Your device will be unpaired. You can choose to keep or delete your messages, contacts, and channels.";
 
-/* Alert message for forget device */
-"dangerZone.alert.forget.message" = "Це видалить пристрій зі списку сполучених. Ви можете сполучити його знову пізніше.";
+/* Button to forget device but keep data */
+"dangerZone.dialog.forget.keepData" = "Забути пристрій";
+
+/* Button to forget device and delete all associated data */
+"dangerZone.dialog.forget.deleteAll" = "Forget Device & Delete Data";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "Скидання до заводських налаштувань";

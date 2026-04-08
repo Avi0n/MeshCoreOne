@@ -591,14 +591,17 @@
 /* Footer explaining factory reset */
 "dangerZone.footer" = "Сброс до заводских настроек удаляет все контакты, сообщения и настройки на устройстве.";
 
-/* Alert title for forget device confirmation */
-"dangerZone.alert.forget.title" = "Забыть устройство";
+/* Confirmation dialog title for forget device */
+"dangerZone.dialog.forget.title" = "Забыть устройство";
 
-/* Button to confirm forget */
-"dangerZone.alert.forget.confirm" = "Забыть";
+/* Confirmation dialog message for forget device */
+"dangerZone.dialog.forget.message" = "Your device will be unpaired. You can choose to keep or delete your messages, contacts, and channels.";
 
-/* Alert message for forget device */
-"dangerZone.alert.forget.message" = "Это удалит устройство из списка сопряжённых. Вы можете сопрячь его снова позже.";
+/* Button to forget device but keep data */
+"dangerZone.dialog.forget.keepData" = "Забыть устройство";
+
+/* Button to forget device and delete all associated data */
+"dangerZone.dialog.forget.deleteAll" = "Forget Device & Delete Data";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "Сброс до заводских настроек";
