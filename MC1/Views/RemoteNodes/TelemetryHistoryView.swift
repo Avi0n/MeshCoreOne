@@ -51,7 +51,7 @@ struct TelemetryHistoryView: View {
             unit: chart.sensorType?.localizedUnitSymbol ?? "",
             dataPoints: chart.dataPoints,
             accentColor: chart.sensorType?.chartColor ?? .cyan,
-            yAxisDomain: chart.sensorType == .voltage ? ocvArray.voltageChartDomain() : nil
+            yAxisDomain: chart.sensorType == .voltage ? ocvArray.voltageChartDomain(dataPoints: chart.dataPoints) : nil
         )
     }
 

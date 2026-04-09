@@ -20,12 +20,15 @@ struct NodeStatusHistoryView: View {
         List {
             HistoryTimeRangePicker(selection: $timeRange)
 
+            let batteryPoints = filtered.compactMap { s in
+                s.batteryMillivolts.map {
+                    MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0) / 1000.0)
+                }
+            }
             metricSection(
                 title: L10n.RemoteNodes.RemoteNodes.History.battery, unit: "V", color: .mint,
-                dataPoints: filtered.compactMap { s in
-                    s.batteryMillivolts.map { .init(id: s.id, date: s.timestamp, value: Double($0) / 1000.0) }
-                },
-                yAxisDomain: ocvArray.voltageChartDomain()
+                dataPoints: batteryPoints,
+                yAxisDomain: ocvArray.voltageChartDomain(dataPoints: batteryPoints)
             )
 
             metricSection(

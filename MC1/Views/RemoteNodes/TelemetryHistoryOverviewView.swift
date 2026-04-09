@@ -74,15 +74,16 @@ struct TelemetryHistoryOverviewView: View {
                     L10n.RemoteNodes.RemoteNodes.History.radioSection,
                     isExpanded: $radioExpanded
                 ) {
+                    let batteryPoints = filtered.compactMap { s in
+                        s.batteryMillivolts.map {
+                            MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0) / 1000.0)
+                        }
+                    }
                     metricChart(
                         title: L10n.RemoteNodes.RemoteNodes.History.battery,
                         unit: "V", color: .mint,
-                        dataPoints: filtered.compactMap { s in
-                            s.batteryMillivolts.map {
-                                .init(id: s.id, date: s.timestamp, value: Double($0) / 1000.0)
-                            }
-                        },
-                        yAxisDomain: viewModel.ocvArray.voltageChartDomain()
+                        dataPoints: batteryPoints,
+                        yAxisDomain: viewModel.ocvArray.voltageChartDomain(dataPoints: batteryPoints)
                     )
 
                     metricChart(
@@ -245,7 +246,7 @@ struct TelemetryHistoryOverviewView: View {
             unit: chart.sensorType?.localizedUnitSymbol ?? "",
             dataPoints: chart.dataPoints,
             accentColor: chart.sensorType?.chartColor ?? .cyan,
-            yAxisDomain: chart.sensorType == .voltage ? viewModel.ocvArray.voltageChartDomain() : nil
+            yAxisDomain: chart.sensorType == .voltage ? viewModel.ocvArray.voltageChartDomain(dataPoints: chart.dataPoints) : nil
         )
     }
 

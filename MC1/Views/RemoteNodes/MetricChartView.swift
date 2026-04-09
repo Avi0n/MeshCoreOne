@@ -139,9 +139,19 @@ private struct MetricChartContent: View {
 
 extension Array where Element == Int {
     /// Computes a chart Y-axis domain in volts from millivolt OCV values, with a ±buffer.
-    func voltageChartDomain(bufferMV: Int = 500) -> ClosedRange<Double>? {
-        guard let min = self.min(), let max = self.max() else { return nil }
-        return Double(min - bufferMV) / 1000.0 ... Double(max + bufferMV) / 1000.0
+    /// Unions the OCV range with actual data points so outliers are never clipped.
+    func voltageChartDomain(
+        dataPoints: [MetricChartView.DataPoint] = [],
+        bufferMV: Int = 500
+    ) -> ClosedRange<Double>? {
+        guard let ocvMin = self.min(), let ocvMax = self.max() else { return nil }
+        var lo = Double(ocvMin) / 1000.0
+        var hi = Double(ocvMax) / 1000.0
+        let values = dataPoints.map(\.value)
+        if let dataMin = values.min() { lo = Swift.min(lo, dataMin) }
+        if let dataMax = values.max() { hi = Swift.max(hi, dataMax) }
+        let buffer = Double(bufferMV) / 1000.0
+        return Swift.max(0, lo - buffer) ... hi + buffer
     }
 }
 
