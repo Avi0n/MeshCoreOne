@@ -43,14 +43,15 @@ final class TelemetryHistoryOverviewViewModel {
         for item in allEntries {
             let channel = item.entry.channel
             let type = item.entry.type
+            let sensorType = LPPSensorType(name: type)
             let point = MetricChartView.DataPoint(
                 id: item.snapshot.id,
                 date: item.snapshot.timestamp,
-                value: item.entry.value
+                value: sensorType?.convertedValue(item.entry.value) ?? item.entry.value
             )
 
             channelTypeGroups[channel, default: [:]][type, default: TelemetryChartGroup(
-                key: "\(channel)-\(type)", title: type, sensorType: LPPSensorType(name: type), dataPoints: []
+                key: "\(channel)-\(type)", title: type, sensorType: sensorType, dataPoints: []
             )].dataPoints.append(point)
         }
 

@@ -278,16 +278,24 @@ extension LPPDataPoint {
     public var formattedValue: String {
         switch (type, value) {
         case (.voltage, .float(let v)): return "\(v.formatted(.number.precision(.fractionLength(3)))) V"
-        case (.temperature, .float(let t)): return "\(t.formatted(.number.precision(.fractionLength(1))))\u{00B0}C"
+        case (.temperature, .float(let t)):
+            let v = type.convertedValue(t)
+            return "\(v.formatted(.number.precision(.fractionLength(type.convertedFractionLength)))) \(type.localizedUnitSymbol)"
         case (.humidity, .float(let h)): return "\(h.formatted(.number.precision(.fractionLength(1))))%"
-        case (.barometer, .float(let p)): return "\(p.formatted(.number.precision(.fractionLength(1)))) hPa"
+        case (.barometer, .float(let p)):
+            let v = type.convertedValue(p)
+            return "\(v.formatted(.number.precision(.fractionLength(type.convertedFractionLength)))) \(type.localizedUnitSymbol)"
         case (.illuminance, .integer(let i)): return "\(i) lux"
         case (.percentage, .integer(let p)): return "\(p)%"
         case (.current, .float(let c)): return "\(c.formatted(.number.precision(.fractionLength(3)))) A"
         case (.power, .float(let p)): return "\(p.formatted(.number.precision(.fractionLength(1)))) W"
         case (.frequency, .float(let f)): return "\(f.formatted(.number.precision(.fractionLength(1)))) Hz"
-        case (.altitude, .float(let a)): return "\(a.formatted(.number.precision(.fractionLength(1)))) m"
-        case (.distance, .float(let d)): return "\(d.formatted(.number.precision(.fractionLength(3)))) m"
+        case (.altitude, .float(let a)):
+            let v = type.convertedValue(a)
+            return "\(v.formatted(.number.precision(.fractionLength(type.convertedFractionLength)))) \(type.localizedUnitSymbol)"
+        case (.distance, .float(let d)):
+            let v = type.convertedValue(d)
+            return "\(v.formatted(.number.precision(.fractionLength(type.convertedFractionLength)))) \(type.localizedUnitSymbol)"
         case (.energy, .float(let e)): return "\(e.formatted(.number.precision(.fractionLength(3)))) kWh"
         case (.direction, .float(let d)): return "\(d.formatted(.number.precision(.fractionLength(0))))\u{00B0}"
         case (_, .digital(let b)): return b ? "On" : "Off"

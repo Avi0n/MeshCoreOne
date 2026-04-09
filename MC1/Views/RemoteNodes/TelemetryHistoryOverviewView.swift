@@ -242,7 +242,7 @@ struct TelemetryHistoryOverviewView: View {
     private func chartView(for chart: TelemetryChartGroup) -> MetricChartView {
         MetricChartView(
             title: chart.title,
-            unit: chart.sensorType?.unit ?? "",
+            unit: chart.sensorType?.localizedUnitSymbol ?? "",
             dataPoints: chart.dataPoints,
             accentColor: chart.sensorType?.chartColor ?? .cyan,
             yAxisDomain: chart.sensorType == .voltage ? viewModel.ocvArray.voltageChartDomain() : nil

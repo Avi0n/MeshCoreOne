@@ -80,10 +80,45 @@ struct LPPDataPointDisplayTests {
         #expect(dataPoint.formattedValue == "\(3.85.formatted(.number.precision(.fractionLength(3)))) V")
     }
 
-    @Test("Temperature formatted value includes degree symbol")
-    func temperatureFormattedValueIncludesDegree() {
+    @Test("Temperature formatted value uses locale-appropriate unit")
+    func temperatureFormattedValueUsesLocaleUnit() {
         let dataPoint = LPPDataPoint(channel: 0, type: .temperature, value: .float(25.5))
+        let sensorType = LPPSensorType.temperature
+        let converted = sensorType.convertedValue(25.5)
+        let precision = sensorType.convertedFractionLength
+        let expected = "\(converted.formatted(.number.precision(.fractionLength(precision)))) \(sensorType.localizedUnitSymbol)"
 
-        #expect(dataPoint.formattedValue == "\(25.5.formatted(.number.precision(.fractionLength(1))))\u{00B0}C")
+        #expect(dataPoint.formattedValue == expected)
+    }
+
+    // MARK: - Locale Conversion Tests
+
+    @Test("Temperature conversion from Celsius to Fahrenheit")
+    func temperatureConversion() {
+        let celsius = 25.0
+        let converted = LPPSensorType.temperature.convertedValue(celsius)
+        if Locale.current.measurementSystem == .metric {
+            #expect(converted == celsius)
+        } else {
+            #expect(abs(converted - 77.0) < 0.01)
+        }
+    }
+
+    @Test("Voltage is not locale-sensitive")
+    func voltageNotLocaleSensitive() {
+        let volts = 3.85
+        let converted = LPPSensorType.voltage.convertedValue(volts)
+        #expect(converted == volts)
+        #expect(LPPSensorType.voltage.localizedUnitSymbol == "V")
+    }
+
+    @Test("Altitude uses locale-appropriate unit symbol")
+    func altitudeLocalizedUnit() {
+        let symbol = LPPSensorType.altitude.localizedUnitSymbol
+        if Locale.current.measurementSystem == .metric {
+            #expect(symbol == "m")
+        } else {
+            #expect(symbol == "ft")
+        }
     }
 }
