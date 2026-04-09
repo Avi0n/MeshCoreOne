@@ -6,6 +6,7 @@ import MC1Services
 struct WiFiEditSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appState) private var appState
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     /// Optional initial values for editing a saved (non-connected) device
     var initialHost: String?
@@ -47,22 +48,31 @@ struct WiFiEditSheet: View {
         return ipAddress != host || port != String(currentPort)
     }
 
+    private var usesFullKeyboardInput: Bool {
+        horizontalSizeClass == .regular
+    }
+
     var body: some View {
         NavigationStack {
             Form {
                 Section {
                     HStack {
                         TextField(L10n.Settings.WifiEdit.ipPlaceholder, text: $ipAddress)
-                            .keyboardType(.decimalPad)
+                            .keyboardType(usesFullKeyboardInput ? .numbersAndPunctuation : .decimalPad)
                             .environment(\.locale, Locale(identifier: "en_US"))
                             .textContentType(.none)
+                            .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                            .submitLabel(.next)
                             .focused($focusedField, equals: .ipAddress)
                             .onChange(of: ipAddress) { _, newValue in
                                 let replaced = newValue.replacing(",", with: ".")
                                 if replaced != newValue {
                                     ipAddress = replaced
                                 }
+                            }
+                            .onSubmit {
+                                focusedField = .port
                             }
 
                         if !ipAddress.isEmpty {
@@ -79,8 +89,12 @@ struct WiFiEditSheet: View {
 
                     HStack {
                         TextField(L10n.Settings.WifiEdit.portPlaceholder, text: $port)
-                            .keyboardType(.numberPad)
+                            .keyboardType(usesFullKeyboardInput ? .numbersAndPunctuation : .numberPad)
+                            .submitLabel(.done)
                             .focused($focusedField, equals: .port)
+                            .onSubmit {
+                                saveChanges()
+                            }
 
                         if !port.isEmpty {
                             Button {
@@ -130,14 +144,24 @@ struct WiFiEditSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(L10n.Localizable.Common.cancel) {
+                        focusedField = nil
                         dismiss()
                     }
                     .disabled(isReconnecting)
                 }
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button(L10n.Localizable.Common.done) {
-                        focusedField = nil
+                ToolbarItem(placement: .topBarTrailing) {
+                    if usesFullKeyboardInput, focusedField != nil {
+                        Button(L10n.Localizable.Common.done) {
+                            focusedField = nil
+                        }
+                    }
+                }
+                if !usesFullKeyboardInput {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button(L10n.Localizable.Common.done) {
+                            focusedField = nil
+                        }
                     }
                 }
             }
@@ -159,6 +183,8 @@ struct WiFiEditSheet: View {
     }
 
     private func saveChanges() {
+        focusedField = nil
+
         guard let portNumber = UInt16(port) else {
             errorMessage = L10n.Settings.WifiEdit.Error.invalidPort
             return

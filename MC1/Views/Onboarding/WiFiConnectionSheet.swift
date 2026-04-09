@@ -72,6 +72,7 @@ private func ipv6AddressesOfBroadcastCapableInterfaces() -> [sockaddr_in6] {
 struct WiFiConnectionSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appState) private var appState
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @State private var ipAddress = ""
     @State private var port = "5000"
@@ -88,22 +89,31 @@ struct WiFiConnectionSheet: View {
         isValidIPAddress(ipAddress) && isValidPort(port)
     }
 
+    private var usesFullKeyboardInput: Bool {
+        horizontalSizeClass == .regular
+    }
+
     var body: some View {
         NavigationStack {
             Form {
                 Section {
                     HStack {
                         TextField(L10n.Onboarding.WifiConnection.IpAddress.placeholder, text: $ipAddress)
-                            .keyboardType(.decimalPad)
+                            .keyboardType(usesFullKeyboardInput ? .numbersAndPunctuation : .decimalPad)
                             .environment(\.locale, Locale(identifier: "en_US"))
                             .textContentType(.none)
+                            .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                            .submitLabel(.next)
                             .focused($focusedField, equals: .ip)
                             .onChange(of: ipAddress) { _, newValue in
                                 let replaced = newValue.replacing(",", with: ".")
                                 if replaced != newValue {
                                     ipAddress = replaced
                                 }
+                            }
+                            .onSubmit {
+                                focusedField = .port
                             }
 
                         if !ipAddress.isEmpty {
@@ -120,8 +130,12 @@ struct WiFiConnectionSheet: View {
 
                     HStack {
                         TextField(L10n.Onboarding.WifiConnection.Port.placeholder, text: $port)
-                            .keyboardType(.numberPad)
+                            .keyboardType(usesFullKeyboardInput ? .numbersAndPunctuation : .numberPad)
+                            .submitLabel(.done)
                             .focused($focusedField, equals: .port)
+                            .onSubmit {
+                                connect()
+                            }
 
                         if !port.isEmpty {
                             Button {
@@ -171,20 +185,32 @@ struct WiFiConnectionSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(L10n.Localizable.Common.cancel) {
+                        focusedField = nil
                         dismiss()
                     }
                     .disabled(isConnecting)
                 }
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button(L10n.Localizable.Common.done) {
-                        focusedField = nil
+                ToolbarItem(placement: .topBarTrailing) {
+                    if usesFullKeyboardInput, focusedField != nil {
+                        Button(L10n.Localizable.Common.done) {
+                            focusedField = nil
+                        }
+                    }
+                }
+                if !usesFullKeyboardInput {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button(L10n.Localizable.Common.done) {
+                            focusedField = nil
+                        }
                     }
                 }
             }
             .interactiveDismissDisabled(isConnecting)
             .onAppear {
-                focusedField = .ip
+                if !usesFullKeyboardInput {
+                    focusedField = .ip
+                }
                 triggerLocalNetworkPrivacyAlert()
             }
         }
@@ -192,6 +218,8 @@ struct WiFiConnectionSheet: View {
     }
 
     private func connect() {
+        focusedField = nil
+
         guard let portNumber = UInt16(port) else {
             errorMessage = L10n.Onboarding.WifiConnection.Error.invalidPort
             return
