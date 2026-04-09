@@ -46,7 +46,8 @@ extension ConnectionManager {
     public func removeFailedPairing(deviceID: UUID) async {
         logger.info("Removing failed pairing for device: \(deviceID)")
 
-        // Remove from ASK
+        await transport.disconnect()
+
         if let accessory = accessorySetupKit.accessory(for: deviceID) {
             do {
                 try await accessorySetupKit.removeAccessory(accessory)
@@ -56,11 +57,9 @@ extension ConnectionManager {
             }
         }
 
-        // Delete device record only — no data exists for a failed pairing
         let dataStore = PersistenceStore(modelContainer: modelContainer)
         try? await dataStore.deleteDevice(id: deviceID)
 
-        // Clear persisted connection if needed
         if lastConnectedDeviceID == deviceID {
             clearPersistedConnection()
         }
@@ -152,9 +151,8 @@ extension ConnectionManager {
 
         logger.info("Forgetting device: \(deviceID), deleteData: \(deleteData)")
 
-        try await accessorySetupKit.removeAccessory(accessory)
-
         await disconnect(reason: .forgetDevice)
+        try await accessorySetupKit.removeAccessory(accessory)
 
         let dataStore = PersistenceStore(modelContainer: modelContainer)
         do {
@@ -177,6 +175,8 @@ extension ConnectionManager {
     public func forgetDevice(id: UUID) async {
         logger.info("Forgetting device by ID: \(id)")
 
+        await disconnect(reason: .factoryReset)
+
         if let accessory = accessorySetupKit.accessory(for: id) {
             do {
                 try await accessorySetupKit.removeAccessory(accessory)
@@ -184,8 +184,6 @@ extension ConnectionManager {
                 logger.warning("Failed to remove accessory from ASK: \(error.localizedDescription)")
             }
         }
-
-        await disconnect(reason: .factoryReset)
 
         let dataStore = PersistenceStore(modelContainer: modelContainer)
         do {
