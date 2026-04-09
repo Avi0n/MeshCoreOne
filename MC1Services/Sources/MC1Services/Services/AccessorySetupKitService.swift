@@ -49,6 +49,10 @@ public final class AccessorySetupKitService {
     /// Pending activation continuation
     private var activationContinuation: CheckedContinuation<Void, Error>?
 
+    /// Accumulated discovered display items for the iOS 26.1+ filtered picker flow.
+    /// Each physical device gets its own entry with its real BLE-advertised name.
+    private var discoveredDisplayItems: [Any] = []
+
     public init() {}
 
     // MARK: - Continuation Safety
@@ -137,12 +141,17 @@ public final class AccessorySetupKitService {
             pairedAccessories = session?.accessories ?? []
             logger.info("Accessory changed")
 
+        case .accessoryDiscovered:
+            if #available(iOS 26.1, *) {
+                handleAccessoryDiscovered(event)
+            }
+
         case .pickerDidPresent:
             logger.info("Picker presented")
 
         case .pickerDidDismiss:
             logger.info("Picker dismissed")
-            // If we still have a pending continuation, user cancelled
+            discoveredDisplayItems = []
             resumePickerContinuation(with: .failure(AccessorySetupKitError.pickerDismissed))
 
         case .pickerSetupBridging:
@@ -155,12 +164,12 @@ public final class AccessorySetupKitService {
             if let error = event.error {
                 logger.error("Pairing failed: \(error.localizedDescription)")
 
-                // Clean up failed accessory so it can appear in picker again
                 if let accessory = event.accessory,
                    let bluetoothID = accessory.bluetoothIdentifier {
                     logger.info("Cleaning up failed pairing for \(accessory.displayName)")
 
-                    // Remove from ASK if it's in pairedAccessories
+                    delegate?.accessorySetupKitService(self, didFailPairingForAccessoryWithID: bluetoothID)
+
                     if pairedAccessories.contains(where: { $0.bluetoothIdentifier == bluetoothID }) {
                         Task {
                             do {
@@ -171,9 +180,6 @@ public final class AccessorySetupKitService {
                             }
                         }
                     }
-
-                    // Notify delegate to clean up SwiftData
-                    delegate?.accessorySetupKitService(self, didFailPairingForAccessoryWithID: bluetoothID)
                 }
 
                 resumePickerContinuation(with: .failure(AccessorySetupKitError.pairingFailed(error.localizedDescription)))
@@ -206,16 +212,19 @@ public final class AccessorySetupKitService {
             throw AccessorySetupKitError.pickerAlreadyActive
         }
 
-        // Configure picker display settings (iOS 26+ only)
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.1, *) {
+            let settings = ASPickerDisplaySettings()
+            settings.options = .filterDiscoveryResults
+            settings.discoveryTimeout = .long
+            session.pickerDisplaySettings = settings
+        } else if #available(iOS 26.0, *) {
             if session.pickerDisplaySettings == nil {
                 session.pickerDisplaySettings = ASPickerDisplaySettings()
             }
         }
 
-        // Single display item filtered by service UUID only.
-        // Supported device names are declared in Info.plist (NSAccessorySetupBluetoothNames)
-        // for system-level authorization; the picker deduplicates by device.
+        discoveredDisplayItems = []
+
         let productImage = createGenericProductImage()
         let descriptor = ASDiscoveryDescriptor()
         descriptor.bluetoothServiceUUID = CBUUID(string: BLEServiceUUID.nordicUART)
@@ -307,6 +316,42 @@ public final class AccessorySetupKitService {
         session = nil
         isSessionActive = false
         pairedAccessories = []
+    }
+
+    // MARK: - Filtered Discovery (iOS 26.1+)
+
+    /// Handles a discovered accessory event by extracting its BLE name and pushing
+    /// a per-device display item into the picker.
+    @available(iOS 26.1, *)
+    private func handleAccessoryDiscovered(_ event: ASAccessoryEvent) {
+        guard let discovered = event.accessory as? ASDiscoveredAccessory else {
+            logger.warning("accessoryDiscovered event missing ASDiscoveredAccessory")
+            return
+        }
+
+        let advData = discovered.bluetoothAdvertisementData as? [String: Any]
+
+        // ASK only exposes ADV_IND data; device names in SCAN_RSP are not available
+        let askName = advData?[CBAdvertisementDataLocalNameKey] as? String
+        let deviceIndex = discoveredDisplayItems.count + 1
+        let deviceName = askName ?? "MeshCore Device \(deviceIndex)"
+        let rssi = discovered.bluetoothRSSI
+
+        logger.info("Discovered device: \(deviceName) (RSSI: \(String(describing: rssi)))")
+
+        let item = ASDiscoveredDisplayItem(
+            name: deviceName,
+            productImage: createGenericProductImage(),
+            accessory: discovered
+        )
+        discoveredDisplayItems.append(item)
+
+        let allItems = discoveredDisplayItems.compactMap { $0 as? ASDiscoveredDisplayItem }
+        session?.updatePicker(showing: allItems) { [weak self] error in
+            if let error {
+                self?.logger.warning("updatePicker failed: \(error.localizedDescription)")
+            }
+        }
     }
 
     // MARK: - Private Helpers
