@@ -337,28 +337,16 @@ public enum Parsers {
                 offset += 20
             }
 
-            // v9+: client_repeat byte after version string
+            // v9+: client_repeat byte after version string (tolerant — defaults to false if missing)
             var clientRepeat = false
-            if fwVer >= 9 {
-                guard data.count > offset else {
-                    return .parseFailure(
-                        data: data,
-                        reason: "DeviceInfo v\(fwVer) missing client_repeat byte"
-                    )
-                }
+            if fwVer >= 9 && offset >= PacketSize.deviceInfoV3Full && data.count > offset {
                 clientRepeat = data[offset] != 0
                 offset += 1
             }
 
-            // v10+: path_hash_mode byte after client_repeat
+            // v10+: path_hash_mode byte after client_repeat (tolerant — defaults to 0 if missing)
             var pathHashMode: UInt8 = 0
-            if fwVer >= 10 {
-                guard data.count > offset else {
-                    return .parseFailure(
-                        data: data,
-                        reason: "DeviceInfo v\(fwVer) missing pathHashMode byte"
-                    )
-                }
+            if fwVer >= 10 && offset >= PacketSize.deviceInfoV3Full && data.count > offset {
                 pathHashMode = data[offset]
             }
 

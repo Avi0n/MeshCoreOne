@@ -719,8 +719,8 @@ struct RoundTripTests {
         #expect(caps.pathHashMode == 2, "pathHashMode should be 2 (3-byte hashes)")
     }
 
-    @Test("DeviceInfo v10 rejects truncated payload before pathHashMode")
-    func deviceInfoV10RejectsTruncatedPayloadBeforePathHashMode() {
+    @Test("DeviceInfo v10 tolerates missing pathHashMode byte")
+    func deviceInfoV10ToleratesMissingPathHashMode() {
         var data = Data()
         data.append(10)  // fwVer
         data.append(50)  // maxContacts
@@ -729,16 +729,19 @@ struct RoundTripTests {
         data.append(contentsOf: withUnsafeBytes(of: blePin.littleEndian) { Data($0) })
         data.append(Data(repeating: 0, count: 12 + 40 + 20))
         data.append(1)   // client_repeat present
-        #expect(data.count == 80, "v10 payload missing pathHashMode byte should be truncated")
+        #expect(data.count == 80, "v10 payload missing pathHashMode byte")
 
         let event = Parsers.DeviceInfo.parse(data)
 
-        guard case .parseFailure(_, let reason) = event else {
-            Issue.record("Expected .parseFailure event, got \(event)")
+        guard case .deviceInfo(let caps) = event else {
+            Issue.record("Expected .deviceInfo event, got \(event)")
             return
         }
 
-        #expect(reason.contains("missing pathHashMode byte"))
+        #expect(caps.firmwareVersion == 10)
+        #expect(caps.maxContacts == 100)
+        #expect(caps.clientRepeat == true, "client_repeat should be parsed from base block")
+        #expect(caps.pathHashMode == 0, "Missing pathHashMode should default to 0")
     }
 
     @Test("DeviceInfo v9 defaults pathHashMode to 0")
