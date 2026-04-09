@@ -363,6 +363,21 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
         decodePathLen(outPathLength)?.byteLength ?? 0
     }
 
+    /// Each hop's hash as a hex string, e.g. `["A3", "7F", "42"]`.
+    public var pathNodesHex: [String] {
+        let size = pathHashSize
+        let relevantPath = outPath.prefix(pathByteLength)
+        return stride(from: 0, to: relevantPath.count, by: size).compactMap { start in
+            let end = min(start + size, relevantPath.count)
+            return relevantPath[start..<end].hexString()
+        }
+    }
+
+    /// Human-readable path string with arrow separators, e.g. `"A3 → 7F → 42"`.
+    public var pathString: String {
+        pathNodesHex.joined(separator: " \u{2192} ")
+    }
+
     public var hasLocation: Bool {
         let hasNonZero = latitude != 0 || longitude != 0
         guard hasNonZero else { return false }
