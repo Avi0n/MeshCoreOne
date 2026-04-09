@@ -56,6 +56,21 @@
 /* Location: NodeAuthenticationSheet.swift - Connect button */
 "remoteNodes.auth.connect" = "Підключитися";
 
+/* Location: NodeAuthenticationSheet.swift - Path section header */
+"remoteNodes.auth.path" = "Маршрут";
+
+/* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
+"remoteNodes.auth.floodRouting" = "Flood-маршрутизація";
+
+/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
+"remoteNodes.auth.pathFooter" = "Використовуйте відомий маршрут до цього вузла або перемкніться на flood-маршрутизацію, щоб мережа знайшла шлях.";
+
+/* Location: NodeAuthenticationSheet.swift - Label when no route is set */
+"remoteNodes.auth.noRouteSet" = "Маршрут не встановлено";
+
+/* Location: NodeAuthenticationSheet.swift - Path section footer when no route is set */
+"remoteNodes.auth.noRouteFooter" = "Немає відомого маршруту до цього вузла. Мережа автоматично знайде шлях.";
+
 /* Location: NodeAuthenticationSheet.swift - Accessibility announcement for countdown */
 "remoteNodes.auth.secondsRemainingAnnouncement" = "Залишилося %d секунд";
 

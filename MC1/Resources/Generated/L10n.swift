@@ -2355,6 +2355,8 @@ public enum L10n {
         public static func errorPrefix(_ p1: Any) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.auth.errorPrefix", String(describing: p1), fallback: "Error: %@")
         }
+        /// Location: NodeAuthenticationSheet.swift - Flood routing toggle
+        public static let floodRouting = L10n.tr("RemoteNodes", "remoteNodes.auth.floodRouting", fallback: "Flood Routing")
         /// Location: NodeAuthenticationSheet.swift - Navigation title for room authentication
         public static let joinRoom = L10n.tr("RemoteNodes", "remoteNodes.auth.joinRoom", fallback: "Join Room")
         /// Location: NodeAuthenticationSheet.swift - Navigation title for repeater management
@@ -2363,6 +2365,10 @@ public enum L10n {
         public static let name = L10n.tr("RemoteNodes", "remoteNodes.auth.name", fallback: "Name")
         /// Location: NodeAuthenticationSheet.swift - Node details section header
         public static let nodeDetails = L10n.tr("RemoteNodes", "remoteNodes.auth.nodeDetails", fallback: "Node Details")
+        /// Location: NodeAuthenticationSheet.swift - Path section footer when no route is set
+        public static let noRouteFooter = L10n.tr("RemoteNodes", "remoteNodes.auth.noRouteFooter", fallback: "No known route to this node. The network will find a path automatically.")
+        /// Location: NodeAuthenticationSheet.swift - Label when no route is set
+        public static let noRouteSet = L10n.tr("RemoteNodes", "remoteNodes.auth.noRouteSet", fallback: "No route set")
         /// Location: NodeAuthenticationSheet.swift - Password field placeholder
         public static let password = L10n.tr("RemoteNodes", "remoteNodes.auth.password", fallback: "Password")
         /// Location: NodeAuthenticationSheet.swift - Password too long warning for repeaters
@@ -2373,6 +2379,10 @@ public enum L10n {
         public static func passwordTooLongRooms(_ p1: Int) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.auth.passwordTooLongRooms", p1, fallback: "MeshCore rooms only accept passwords up to %d characters. Extra characters will be ignored.")
         }
+        /// Location: NodeAuthenticationSheet.swift - Path section header
+        public static let path = L10n.tr("RemoteNodes", "remoteNodes.auth.path", fallback: "Path")
+        /// Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists
+        public static let pathFooter = L10n.tr("RemoteNodes", "remoteNodes.auth.pathFooter", fallback: "Use the known route to this node, or switch to flood routing to let the network find a path.")
         /// Location: NodeAuthenticationSheet.swift - Remember password toggle
         public static let rememberPassword = L10n.tr("RemoteNodes", "remoteNodes.auth.rememberPassword", fallback: "Remember Password")
         /// Location: NodeAuthenticationSheet.swift - Countdown text showing seconds remaining

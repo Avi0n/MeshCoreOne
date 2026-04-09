@@ -19,6 +19,8 @@ struct NodeAuthenticationSheet: View {
 
     @State private var password: String = ""
     @State private var rememberPassword = true
+    @State private var useFloodRouting: Bool
+    @State private var didResetPath = false
     @State private var isAuthenticating = false
     @State private var errorMessage: String?
     @State private var hasSavedPassword = false
@@ -44,6 +46,7 @@ struct NodeAuthenticationSheet: View {
         self.hideNodeDetails = hideNodeDetails
         self.customTitle = customTitle
         self.onSuccess = onSuccess
+        self._useFloodRouting = State(initialValue: contact.isFloodRouted)
     }
 
     var body: some View {
@@ -53,6 +56,7 @@ struct NodeAuthenticationSheet: View {
                     makeNodeDetailsSection()
                 }
                 makeAuthenticationSection()
+                makePathSection()
                 makeConnectButton()
             }
             .navigationTitle(customTitle ?? (role == .roomServer ? L10n.RemoteNodes.RemoteNodes.Auth.joinRoom : L10n.RemoteNodes.RemoteNodes.Auth.management))
@@ -99,6 +103,13 @@ struct NodeAuthenticationSheet: View {
         )
     }
 
+    private func makePathSection() -> some View {
+        PathSection(
+            contact: contact,
+            useFloodRouting: $useFloodRouting
+        )
+    }
+
     private func makeConnectButton() -> some View {
         ConnectButton(
             role: role,
@@ -126,8 +137,21 @@ struct NodeAuthenticationSheet: View {
                     throw RemoteNodeError.notConnected
                 }
 
-                // Determine path length from contact for timeout calculation
-                let pathLength = contact.outPathLength
+                // Reset the firmware's stored path so the login packet is flood-routed.
+                // Only needed once per session — subsequent retries skip the BLE round-trip.
+                let pathLength: UInt8
+                if useFloodRouting && !contact.isFloodRouted && !didResetPath {
+                    try await services.contactService.resetPath(
+                        deviceID: device.id,
+                        publicKey: contact.publicKey
+                    )
+                    didResetPath = true
+                    pathLength = 0xFF
+                } else if useFloodRouting {
+                    pathLength = 0xFF
+                } else {
+                    pathLength = contact.outPathLength
+                }
 
                 let session: RemoteNodeSessionDTO
                 // MeshCore repeaters and rooms only support 15-character passwords, truncate if needed
@@ -292,6 +316,74 @@ private struct AuthenticationSection: View {
                 AccessibilityNotification.Announcement(L10n.RemoteNodes.RemoteNodes.Auth.secondsRemainingAnnouncement(remaining)).post()
             }
         }
+    }
+}
+
+// MARK: - Path Section
+
+private struct PathSection: View {
+    let contact: ContactDTO
+    @Binding var useFloodRouting: Bool
+
+    private var hasStoredPath: Bool {
+        !contact.isFloodRouted
+    }
+
+    private var pathDisplayText: String {
+        if contact.pathHopCount == 0 {
+            return L10n.Contacts.Contacts.Route.direct
+        } else {
+            return contact.pathString
+        }
+    }
+
+    private var pathAccessibilityLabel: String {
+        if contact.pathHopCount == 0 {
+            return L10n.Contacts.Contacts.Detail.routeDirect
+        } else {
+            return L10n.Contacts.Contacts.Detail.routePrefix(pathDisplayText)
+        }
+    }
+
+    var body: some View {
+        Section {
+            if hasStoredPath && !useFloodRouting {
+                Label {
+                    Text(pathDisplayText)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.primary)
+                        .lineLimit(nil)
+                } icon: {
+                    Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
+                        .foregroundStyle(.secondary)
+                        .accessibilityHidden(true)
+                }
+                .accessibilityLabel(pathAccessibilityLabel)
+            } else if !hasStoredPath {
+                Label {
+                    Text(L10n.RemoteNodes.RemoteNodes.Auth.noRouteSet)
+                        .foregroundStyle(.secondary)
+                } icon: {
+                    Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
+                        .foregroundStyle(.secondary)
+                        .accessibilityHidden(true)
+                }
+                .accessibilityHidden(true)
+            }
+
+            Toggle(L10n.RemoteNodes.RemoteNodes.Auth.floodRouting, isOn: $useFloodRouting)
+                .disabled(!hasStoredPath)
+                .accessibilityHint(hasStoredPath ? "" : L10n.RemoteNodes.RemoteNodes.Auth.noRouteFooter)
+        } header: {
+            Text(L10n.RemoteNodes.RemoteNodes.Auth.path)
+        } footer: {
+            if hasStoredPath {
+                Text(L10n.RemoteNodes.RemoteNodes.Auth.pathFooter)
+            } else {
+                Text(L10n.RemoteNodes.RemoteNodes.Auth.noRouteFooter)
+            }
+        }
+        .animation(.default, value: useFloodRouting)
     }
 }
 
