@@ -1,4 +1,3 @@
-import Charts
 import MC1Services
 import SwiftUI
 
@@ -19,11 +18,11 @@ struct TelemetryHistoryView: View {
         List {
             HistoryTimeRangePicker(selection: $timeRange)
 
-            let groups = channelGroups
+            let groups = ChannelGroup.groups(from: filteredSnapshots)
             if groups.count > 1 {
                 ForEach(groups) { channelGroup in
                     Section {
-                        ForEach(channelGroup.charts, id: \.key) { chart in
+                        ForEach(channelGroup.charts) { chart in
                             chartView(for: chart)
                         }
                     } header: {
@@ -31,7 +30,7 @@ struct TelemetryHistoryView: View {
                     }
                 }
             } else if let singleGroup = groups.first {
-                ForEach(singleGroup.charts, id: \.key) { chart in
+                ForEach(singleGroup.charts) { chart in
                     Section {
                         chartView(for: chart)
                     }
@@ -55,38 +54,4 @@ struct TelemetryHistoryView: View {
         )
     }
 
-    private var channelGroups: [ChannelGroup] {
-        let allEntries = filteredSnapshots.flatMap { snapshot in
-            (snapshot.telemetryEntries ?? []).map { (snapshot: snapshot, entry: $0) }
-        }
-
-        guard !allEntries.isEmpty else { return [] }
-
-        var channelTypeGroups: [Int: [String: TelemetryChartGroup]] = [:]
-
-        for item in allEntries {
-            let channel = item.entry.channel
-            let type = item.entry.type
-            let sensorType = LPPSensorType(name: type)
-            let point = MetricChartView.DataPoint(
-                id: item.snapshot.id,
-                date: item.snapshot.timestamp,
-                value: sensorType?.convertedValue(item.entry.value) ?? item.entry.value
-            )
-
-            channelTypeGroups[channel, default: [:]][type, default: TelemetryChartGroup(
-                key: "\(channel)-\(type)", title: type, sensorType: sensorType, dataPoints: []
-            )].dataPoints.append(point)
-        }
-
-        return channelTypeGroups.keys.sorted().map { channel in
-            let charts = channelTypeGroups[channel]!.values.sorted { lhs, rhs in
-                let lhsPriority = lhs.sensorType?.chartSortPriority ?? 1
-                let rhsPriority = rhs.sensorType?.chartSortPriority ?? 1
-                if lhsPriority != rhsPriority { return lhsPriority < rhsPriority }
-                return lhs.title.localizedStandardCompare(rhs.title) == .orderedAscending
-            }
-            return ChannelGroup(channel: channel, charts: charts)
-        }
-    }
 }

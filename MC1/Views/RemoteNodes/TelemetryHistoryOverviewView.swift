@@ -21,15 +21,16 @@ struct TelemetryHistoryOverviewView: View {
     }
 
     var body: some View {
+        let filtered = viewModel.filteredSnapshots
         List {
             if !viewModel.hasSnapshots {
                 emptyState
             } else {
                 HistoryTimeRangePicker(selection: $viewModel.timeRange)
-                radioSection
-                sensorsSection
+                radioSection(filtered: filtered)
+                sensorsSection(filtered: filtered)
                 if showNeighbors {
-                    neighborsSection
+                    neighborsSection(filtered: filtered)
                 }
                 retentionFooter
             }
@@ -58,8 +59,7 @@ struct TelemetryHistoryOverviewView: View {
     // MARK: - Radio Section
 
     @ViewBuilder
-    private var radioSection: some View {
-        let filtered = viewModel.filteredSnapshots
+    private func radioSection(filtered: [NodeStatusSnapshotDTO]) -> some View {
         let hasRadioData = filtered.contains {
             $0.batteryMillivolts != nil || $0.lastSNR != nil ||
             $0.lastRSSI != nil || $0.noiseFloor != nil ||
@@ -157,9 +157,9 @@ struct TelemetryHistoryOverviewView: View {
     // MARK: - Sensors Section
 
     @ViewBuilder
-    private var sensorsSection: some View {
-        if viewModel.hasTelemetryData {
-            let groups = viewModel.channelGroups
+    private func sensorsSection(filtered: [NodeStatusSnapshotDTO]) -> some View {
+        if viewModel.hasTelemetryData(in: filtered) {
+            let groups = ChannelGroup.groups(from: filtered)
             Section {
                 DisclosureGroup(
                     L10n.RemoteNodes.RemoteNodes.History.sensorsSection,
@@ -194,9 +194,9 @@ struct TelemetryHistoryOverviewView: View {
     // MARK: - Neighbors Section
 
     @ViewBuilder
-    private var neighborsSection: some View {
-        if viewModel.hasNeighborData {
-            let neighborCharts = buildNeighborCharts()
+    private func neighborsSection(filtered: [NodeStatusSnapshotDTO]) -> some View {
+        if viewModel.hasNeighborData(in: filtered) {
+            let neighborCharts = buildNeighborCharts(from: filtered)
             Section {
                 DisclosureGroup(
                     L10n.RemoteNodes.RemoteNodes.History.neighborsSection,
@@ -250,9 +250,9 @@ struct TelemetryHistoryOverviewView: View {
         )
     }
 
-    private func buildNeighborCharts() -> [NeighborChart] {
+    private func buildNeighborCharts(from filtered: [NodeStatusSnapshotDTO]) -> [NeighborChart] {
         var charts: [Data: NeighborChart] = [:]
-        for snapshot in viewModel.filteredSnapshots {
+        for snapshot in filtered {
             for neighbor in snapshot.neighborSnapshots ?? [] {
                 let point = MetricChartView.DataPoint(
                     id: snapshot.id, date: snapshot.timestamp, value: neighbor.snr
