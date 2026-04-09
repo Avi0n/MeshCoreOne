@@ -95,6 +95,13 @@ public actor WiFiTransport: MeshTransport {
     /// Establishes a TCP connection to the configured host and port.
     /// Call `setConnectionInfo(host:port:)` first.
     public func connect() async throws {
+        // Idempotent: skip if already connected. Without this guard,
+        // session.start() orphans the TCP connection the caller already established.
+        if _isConnected {
+            logger.info("Already connected, skipping redundant connect()")
+            return
+        }
+
         guard let host = configuredHost, let port = configuredPort else {
             throw WiFiTransportError.notConfigured
         }

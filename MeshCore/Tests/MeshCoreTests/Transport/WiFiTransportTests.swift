@@ -1,5 +1,7 @@
 import Testing
 import Foundation
+import Network
+import os
 import MeshCoreTestSupport
 @testable import MeshCore
 
@@ -131,5 +133,68 @@ struct WiFiTransportTests {
         try? await Task.sleep(for: .milliseconds(100))
 
         #expect(!callTracker.wasCalled, "Handler should not be called on initial connect failure")
+    }
+
+    @Test("connect() is idempotent — second call does not create new TCP connection")
+    func connectIsIdempotent() async throws {
+        let listener = try NWListener(using: .tcp)
+        let acceptCount = OSAllocatedUnfairLock(initialState: 0)
+        let acceptedConnections = OSAllocatedUnfairLock<[NWConnection]>(initialState: [])
+
+        listener.newConnectionHandler = { conn in
+            acceptCount.withLock { $0 += 1 }
+            acceptedConnections.withLock { $0.append(conn) }
+            conn.start(queue: .global())
+        }
+
+        let listenerReady = AsyncStream<NWListener.State>.makeStream()
+        listener.stateUpdateHandler = { state in
+            listenerReady.continuation.yield(state)
+        }
+        listener.start(queue: .global(qos: .userInitiated))
+
+        for await state in listenerReady.stream {
+            if state == .ready { break }
+            if case .failed = state { Issue.record("Listener failed to start"); return }
+        }
+        listenerReady.continuation.finish()
+
+        guard let port = listener.port?.rawValue else {
+            Issue.record("Listener has no port")
+            return
+        }
+
+        let transport = WiFiTransport()
+        await transport.setConnectionInfo(host: "127.0.0.1", port: port)
+
+        // First connect — should establish TCP connection
+        try await transport.connect()
+        let connected = await transport.isConnected
+        #expect(connected, "Transport should be connected after first connect()")
+
+        // Wait for the accept to register
+        try await waitUntil(timeout: .seconds(2), "First connection should be accepted") {
+            acceptCount.withLock { $0 } >= 1
+        }
+
+        // Second connect — should be a no-op
+        try await transport.connect()
+        let stillConnected = await transport.isConnected
+        #expect(stillConnected, "Transport should still be connected after second connect()")
+
+        // Give time for any spurious second accept to arrive.
+        // A fixed sleep is correct here: we're waiting for something that should NOT
+        // happen, so there's no condition to poll for.
+        try await Task.sleep(for: .milliseconds(500))
+
+        let finalCount = acceptCount.withLock { $0 }
+        #expect(finalCount == 1, "Expected 1 TCP accept, got \(finalCount) — second connect() should be a no-op")
+
+        // Cleanup
+        await transport.disconnect()
+        acceptedConnections.withLock { conns in
+            for conn in conns { conn.cancel() }
+        }
+        listener.cancel()
     }
 }
