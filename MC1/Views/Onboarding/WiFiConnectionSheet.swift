@@ -79,14 +79,10 @@ struct WiFiConnectionSheet: View {
     @State private var isConnecting = false
     @State private var errorMessage: String?
 
-    @FocusState private var focusedField: Field?
-
-    enum Field {
-        case ip, port
-    }
+    @FocusState private var focusedField: WiFiField?
 
     private var isValidInput: Bool {
-        isValidIPAddress(ipAddress) && isValidPort(port)
+        WiFiAddressFields.isValidIPAddress(ipAddress) && WiFiAddressFields.isValidPort(port)
     }
 
     private var usesFullKeyboardInput: Bool {
@@ -96,63 +92,14 @@ struct WiFiConnectionSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    HStack {
-                        TextField(L10n.Onboarding.WifiConnection.IpAddress.placeholder, text: $ipAddress)
-                            .keyboardType(usesFullKeyboardInput ? .numbersAndPunctuation : .decimalPad)
-                            .environment(\.locale, Locale(identifier: "en_US"))
-                            .textContentType(.none)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .submitLabel(.next)
-                            .focused($focusedField, equals: .ip)
-                            .onChange(of: ipAddress) { _, newValue in
-                                let replaced = newValue.replacing(",", with: ".")
-                                if replaced != newValue {
-                                    ipAddress = replaced
-                                }
-                            }
-                            .onSubmit {
-                                focusedField = .port
-                            }
-
-                        if !ipAddress.isEmpty {
-                            Button {
-                                ipAddress = ""
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(.secondary)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel(L10n.Onboarding.WifiConnection.IpAddress.clearAccessibility)
-                        }
-                    }
-
-                    HStack {
-                        TextField(L10n.Onboarding.WifiConnection.Port.placeholder, text: $port)
-                            .keyboardType(usesFullKeyboardInput ? .numbersAndPunctuation : .numberPad)
-                            .submitLabel(.done)
-                            .focused($focusedField, equals: .port)
-                            .onSubmit {
-                                connect()
-                            }
-
-                        if !port.isEmpty {
-                            Button {
-                                port = ""
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(.secondary)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel(L10n.Onboarding.WifiConnection.Port.clearAccessibility)
-                        }
-                    }
-                } header: {
-                    Text(L10n.Onboarding.WifiConnection.ConnectionDetails.header)
-                } footer: {
-                    Text(L10n.Onboarding.WifiConnection.ConnectionDetails.footer)
-                }
+                WiFiAddressFields(
+                    ipAddress: $ipAddress,
+                    port: $port,
+                    focusedField: $focusedField,
+                    sectionHeader: L10n.Onboarding.WifiConnection.ConnectionDetails.header,
+                    sectionFooter: L10n.Onboarding.WifiConnection.ConnectionDetails.footer,
+                    onPortSubmit: { connect() }
+                )
 
                 if let errorMessage {
                     Section {
@@ -182,34 +129,11 @@ struct WiFiConnectionSheet: View {
             }
             .navigationTitle(L10n.Onboarding.WifiConnection.title)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.Localizable.Common.cancel) {
-                        focusedField = nil
-                        dismiss()
-                    }
-                    .disabled(isConnecting)
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    if usesFullKeyboardInput, focusedField != nil {
-                        Button(L10n.Localizable.Common.done) {
-                            focusedField = nil
-                        }
-                    }
-                }
-                if !usesFullKeyboardInput {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        Spacer()
-                        Button(L10n.Localizable.Common.done) {
-                            focusedField = nil
-                        }
-                    }
-                }
-            }
+            .wifiSheetToolbar(focusedField: $focusedField, isProcessing: isConnecting)
             .interactiveDismissDisabled(isConnecting)
             .onAppear {
                 if !usesFullKeyboardInput {
-                    focusedField = .ip
+                    focusedField = .ipAddress
                 }
                 triggerLocalNetworkPrivacyAlert()
             }
@@ -242,19 +166,6 @@ struct WiFiConnectionSheet: View {
         }
     }
 
-    private func isValidIPAddress(_ ip: String) -> Bool {
-        let parts = ip.split(separator: ".")
-        guard parts.count == 4 else { return false }
-        return parts.allSatisfy { part in
-            guard let num = Int(part) else { return false }
-            return num >= 0 && num <= 255
-        }
-    }
-
-    private func isValidPort(_ port: String) -> Bool {
-        guard let num = UInt16(port) else { return false }
-        return num > 0
-    }
 }
 
 #Preview {
