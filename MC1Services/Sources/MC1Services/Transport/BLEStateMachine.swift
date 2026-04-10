@@ -80,6 +80,10 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     /// Delay between write operations for ESP32 compatibility (0 = no pacing)
     private var writePacingDelay: TimeInterval = 0
 
+    /// Next write blocked until this instant. Checked in claimWriteSlot
+    /// so both queued and sequential writes are paced.
+    private var earliestNextWrite: ContinuousClock.Instant = .now
+
     /// Tracks consecutive queued writes for diagnostic logging
     private var consecutiveQueuedWrites = 0
     private let queuePressureThreshold = 3
@@ -513,7 +517,21 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     /// Serializes concurrent writes by waiting for any pending write to complete,
     /// then claims the write slot and issues the BLE write.
     private func claimWriteSlot(data: Data) async throws {
+        let myGeneration = connectionGeneration
         while true {
+            guard connectionGeneration == myGeneration else {
+                throw BLEError.notConnected
+            }
+
+            // Pacing: wait until earliestNextWrite.
+            if writePacingDelay > 0, ContinuousClock.now < earliestNextWrite {
+                try await Task.sleep(until: earliestNextWrite, clock: .continuous)
+                try Task.checkCancellation()
+                guard connectionGeneration == myGeneration else {
+                    throw BLEError.notConnected
+                }
+            }
+
             try Task.checkCancellation()
 
             guard case .connected(let peripheral, _, _, _) = phase else {
@@ -571,6 +589,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
                         self.consecutiveQueuedWrites = 0
                         pending.resume(throwing: BLEError.operationTimeout)
                         self.writeTimeoutTask = nil
+                        self.earliestNextWrite = ContinuousClock.now.advanced(by: .seconds(self.writePacingDelay))
                         self.resumeNextWriteWaiter()
                     }
                 }
@@ -579,23 +598,12 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
         }
     }
 
-    /// Resumes the next task waiting to write after applying pacing delay.
-    /// - Parameter applyPacing: Whether to apply write pacing delay (default true)
-    private func resumeNextWriteWaiter(applyPacing: Bool = true) {
+    /// Resumes the next task waiting to write.
+    /// Pacing is enforced in claimWriteSlot via earliestNextWrite.
+    private func resumeNextWriteWaiter() {
         guard !writeWaiters.isEmpty else { return }
-
         let waiter = writeWaiters.removeFirst()
-
-        if applyPacing && writePacingDelay > 0 {
-            Task { [writePacingDelay] in
-                try? await Task.sleep(for: .seconds(writePacingDelay))
-                // Always resume the waiter, even if the state machine was deallocated.
-                // The waiter will check connection state and fail appropriately.
-                waiter.resume()
-            }
-        } else {
-            waiter.resume()
-        }
+        waiter.resume()
     }
 
     /// Gracefully shuts down the state machine, resuming all pending operations with cancellation.
@@ -706,6 +714,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
 
         // Reset queue tracking
         consecutiveQueuedWrites = 0
+        earliestNextWrite = .now
 
         // Cancel pending write
         if let pending = pendingWriteContinuation {
@@ -1396,7 +1405,7 @@ extension BLEStateMachine {
             continuation.resume()
         }
 
-        // Resume next task waiting to write (with pacing delay for ESP32 compatibility)
+        earliestNextWrite = ContinuousClock.now.advanced(by: .seconds(writePacingDelay))
         resumeNextWriteWaiter()
     }
 
@@ -1500,6 +1509,7 @@ extension BLEStateMachine {
         writeTimeoutTask?.cancel()
         writeTimeoutTask = nil
         consecutiveQueuedWrites = 0
+        earliestNextWrite = .now
 
         if let pending = pendingWriteContinuation {
             pendingWriteContinuation = nil
