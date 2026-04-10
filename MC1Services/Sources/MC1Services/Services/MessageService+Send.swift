@@ -263,15 +263,23 @@ extension MessageService {
             throw MessageServiceError.sendFailed("Message not found")
         }
 
+        // Use a fresh timestamp so the packet differs from the original send.
+        // Mesh repeaters deduplicate by packet content; reusing the original
+        // timestamp produces identical packets that get silently dropped.
+        let retryTimestamp = Date()
+        let retryTimestampRaw = UInt32(retryTimestamp.timeIntervalSince1970)
+
         // Run app-layer retry loop with UI notifications
         do {
+            try await dataStore.updateMessageTimestamp(id: messageID, timestamp: retryTimestampRaw)
+
             let sentInfo = try await sendDirectMessageWithRetryLoop(
                 messageID: messageID,
                 contactID: contact.id,
                 deviceID: contact.deviceID,
                 publicKey: contact.publicKey,
                 text: existingMessage.text,
-                timestamp: Date(timeIntervalSince1970: TimeInterval(existingMessage.timestamp)),
+                timestamp: retryTimestamp,
                 timeout: nil
             )
 
