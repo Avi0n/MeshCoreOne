@@ -18,8 +18,8 @@ struct MessageActionAvailability {
         canBlockSender = message.isChannelMessage && !message.isOutgoing && message.senderNodeName != nil
         canShowRepeatDetails = message.isOutgoing && message.heardRepeats > 0
         canViewPath = !message.isOutgoing
-            && message.pathNodes != nil
-            && !message.isDirect
+            && message.isFloodRouted
+            && !(message.pathNodes?.isEmpty ?? true)
         canDelete = true
     }
 }

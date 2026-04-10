@@ -7,11 +7,11 @@ import Testing
 struct MessagePathFormatterTests {
     // MARK: - Direct Path Tests
 
-    @Test("pathLength 0 returns Direct")
-    func directPathLengthZero() {
+    @Test("pathLength 0 with no pathNodes returns Flood (zero-hop flood)")
+    func floodPathLengthZero() {
         let message = createMessage(pathLength: 0, pathNodes: nil)
         let result = MessagePathFormatter.format(message)
-        #expect(result == L10n.Chats.Chats.Message.Path.direct)
+        #expect(result == L10n.Chats.Chats.Message.Path.flood)
     }
 
     @Test("pathLength 0xFF returns Direct")
@@ -104,11 +104,11 @@ struct MessagePathFormatterTests {
 
     // MARK: - Fallback Tests
 
-    @Test("Missing pathNodes returns Unavailable")
-    func fallbackToUnavailable() {
+    @Test("Missing pathNodes on flood-routed returns Flood")
+    func fallbackToFlood() {
         let message = createMessage(pathLength: 3, pathNodes: nil)
         let result = MessagePathFormatter.format(message)
-        #expect(result == L10n.Chats.Chats.Message.Path.unavailable)
+        #expect(result == L10n.Chats.Chats.Message.Path.flood)
     }
 
     // MARK: - Edge Case Tests

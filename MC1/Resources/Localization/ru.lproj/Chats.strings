@@ -791,6 +791,7 @@
 
 /* Direct message path (no hops) */
 "chats.message.path.direct" = "Напрямую";
+"chats.message.path.flood" = "Flood";
 
 /* Message path hop count */
 "chats.message.path.hops" = "%d переходов";

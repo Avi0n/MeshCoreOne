@@ -457,7 +457,7 @@ private struct ActionsIncomingDetailsRows: View {
     }
 
     private func hopCountFormatted(_ message: MessageDTO) -> String {
-        if message.isDirect {
+        if message.isDirectRouted {
             return L10n.Chats.Chats.Message.Hops.direct
         }
         return "\(message.hopCount)"

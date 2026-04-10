@@ -138,6 +138,9 @@ public final class Message {
     /// Format: "👍:3,❤️:2,😂:1" (emoji:count pairs, ordered by count desc)
     public var reactionSummary: String?
 
+    /// Route type from RxLog correlation (-1 = unknown/uncorrelated)
+    public var routeTypeRawValue: Int = -1
+
     /// Heard repeats for this message (cascade delete)
     @Relationship(deleteRule: .cascade, inverse: \MessageRepeat.message)
     public var repeats: [MessageRepeat]?
@@ -176,7 +179,8 @@ public final class Message {
         mentionSeen: Bool = false,
         timestampCorrected: Bool = false,
         senderTimestamp: UInt32? = nil,
-        reactionSummary: String? = nil
+        reactionSummary: String? = nil,
+        routeTypeRawValue: Int = -1
     ) {
         self.id = id
         self.deviceID = deviceID
@@ -212,6 +216,7 @@ public final class Message {
         self.timestampCorrected = timestampCorrected
         self.senderTimestamp = senderTimestamp
         self.reactionSummary = reactionSummary
+        self.routeTypeRawValue = routeTypeRawValue
     }
 }
 
@@ -294,6 +299,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable {
     public var timestampCorrected: Bool
     public var senderTimestamp: UInt32?
     public var reactionSummary: String?
+    public var routeType: RouteType?
 
     public init(from message: Message) {
         self.id = message.id
@@ -330,6 +336,8 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable {
         self.timestampCorrected = message.timestampCorrected
         self.senderTimestamp = message.senderTimestamp
         self.reactionSummary = message.reactionSummary
+        self.routeType = UInt8(exactly: message.routeTypeRawValue)
+            .flatMap(RouteType.init(rawValue:))
     }
 
     /// Memberwise initializer for creating DTOs directly
@@ -367,7 +375,8 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable {
         mentionSeen: Bool = false,
         timestampCorrected: Bool = false,
         senderTimestamp: UInt32? = nil,
-        reactionSummary: String? = nil
+        reactionSummary: String? = nil,
+        routeType: RouteType? = nil
     ) {
         self.id = id
         self.deviceID = deviceID
@@ -403,6 +412,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable {
         self.timestampCorrected = timestampCorrected
         self.senderTimestamp = senderTimestamp
         self.reactionSummary = reactionSummary
+        self.routeType = routeType
     }
 
     public var isOutgoing: Bool {
@@ -450,9 +460,17 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable {
         decodePathLen(pathLength)?.hopCount ?? Int(pathLength & 63)
     }
 
-    /// Whether this message was received directly (0 hops) or via flood routing
-    public var isDirect: Bool {
-        pathLength == 0xFF || hopCount == 0
+    /// Whether this message was flood-routed (broadcast).
+    /// Priority: channelIndex (channels are always flood) → routeType from RxLog → pathLength inference.
+    public var isFloodRouted: Bool {
+        if channelIndex != nil { return true }
+        if let routeType { return routeType == .flood || routeType == .tcFlood }
+        return pathLength != 0xFF
+    }
+
+    /// Whether this message was direct-routed (pre-built path, hops consumed in transit).
+    public var isDirectRouted: Bool {
+        !isFloodRouted
     }
 
     /// Hash size per hop in bytes (1, 2, or 3), derived from pathLength upper 2 bits

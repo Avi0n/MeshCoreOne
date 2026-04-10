@@ -663,6 +663,7 @@
 
 /* Location: UnifiedMessageBubble.swift - Path footer for direct messages (no hops) */
 "chats.message.path.direct" = "直连";
+"chats.message.path.flood" = "Flood";
 
 /* Location: UnifiedMessageBubble.swift - Fallback path showing hop count - %d is number */
 "chats.message.path.hops" = "%d 跳";

@@ -574,6 +574,8 @@ public enum L10n {
           }
           /// Location: UnifiedMessageBubble.swift - Path footer for direct messages (no hops)
           public static let direct = L10n.tr("Chats", "chats.message.path.direct", fallback: "Direct")
+          /// Flood
+          public static let flood = L10n.tr("Chats", "chats.message.path.flood", fallback: "Flood")
           /// Location: UnifiedMessageBubble.swift - Fallback path showing hop count - %d is number
           public static func hops(_ p1: Int) -> String {
             return L10n.tr("Chats", "chats.message.path.hops", p1, fallback: "%d hops")

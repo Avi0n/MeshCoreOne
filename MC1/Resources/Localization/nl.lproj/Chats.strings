@@ -800,6 +800,7 @@
 
 /* Direct message path (no hops) */
 "chats.message.path.direct" = "Direct";
+"chats.message.path.flood" = "Flood";
 
 /* Message path hop count */
 "chats.message.path.hops" = "%d hops";
