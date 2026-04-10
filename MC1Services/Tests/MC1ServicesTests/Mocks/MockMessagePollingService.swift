@@ -15,13 +15,7 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
 
     // MARK: - Recorded Invocations
 
-    public struct PollAllMessagesInvocation: Sendable {
-        public let messageDelay: Duration
-        public let breathingInterval: Int
-        public let breathingDuration: Duration
-    }
-
-    public private(set) var pollAllMessagesInvocations: [PollAllMessagesInvocation] = []
+    public private(set) var pollAllMessagesCallCount: Int = 0
     public private(set) var waitForPendingHandlersInvocations: Int = 0
 
     // MARK: - Initialization
@@ -30,16 +24,8 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
 
     // MARK: - Protocol Methods
 
-    public func pollAllMessages(
-        messageDelay: Duration = .zero,
-        breathingInterval: Int = 0,
-        breathingDuration: Duration = .zero
-    ) async throws -> Int {
-        pollAllMessagesInvocations.append(PollAllMessagesInvocation(
-            messageDelay: messageDelay,
-            breathingInterval: breathingInterval,
-            breathingDuration: breathingDuration
-        ))
+    public func pollAllMessages() async throws -> Int {
+        pollAllMessagesCallCount += 1
         switch stubbedPollAllMessagesResult {
         case .success(let count):
             return count
@@ -89,7 +75,7 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
 
     /// Resets all recorded invocations and captured handlers
     public func reset() {
-        pollAllMessagesInvocations = []
+        pollAllMessagesCallCount = 0
         waitForPendingHandlersInvocations = 0
         capturedContactMessageHandler = nil
         capturedChannelMessageHandler = nil

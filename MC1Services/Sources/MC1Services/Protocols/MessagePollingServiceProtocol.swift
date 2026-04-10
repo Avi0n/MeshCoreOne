@@ -22,16 +22,8 @@ public protocol MessagePollingServiceProtocol: Actor {
     // MARK: - Message Polling
 
     /// Poll all waiting messages from the device.
-    /// - Parameters:
-    ///   - messageDelay: Sleep duration after each message to avoid BLE saturation.
-    ///   - breathingInterval: Insert a longer pause every N messages (0 disables).
-    ///   - breathingDuration: Duration of the breathing pause.
     /// - Returns: Count of messages retrieved
-    func pollAllMessages(
-        messageDelay: Duration,
-        breathingInterval: Int,
-        breathingDuration: Duration
-    ) async throws -> Int
+    func pollAllMessages() async throws -> Int
 
     /// Wait for all pending message handlers to complete.
     /// Call this after pollAllMessages() to ensure all messages are fully processed.

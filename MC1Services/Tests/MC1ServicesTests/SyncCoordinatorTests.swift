@@ -696,11 +696,7 @@ actor OrderTrackingMessagePollingService: MessagePollingServiceProtocol {
 
     // MARK: - MessagePollingServiceProtocol
 
-    func pollAllMessages(
-        messageDelay: Duration,
-        breathingInterval: Int,
-        breathingDuration: Duration
-    ) async throws -> Int {
+    func pollAllMessages() async throws -> Int {
         messagePollTime = Date()
         return 0
     }

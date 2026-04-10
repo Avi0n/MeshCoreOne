@@ -33,7 +33,8 @@ extension SyncCoordinator {
         rxLogService: RxLogService? = nil,
         notificationService: NotificationService? = nil,
         forceFullSync: Bool = false,
-        throttling: SyncThrottlingConfig = .none
+        channelSyncConfig: ChannelSyncConfig = .none,
+        platformName: String = "unknown"
     ) async throws {
         // Prevent concurrent syncs — actor-local flag avoids the TOCTOU window
         // that existed when guarding via `await state.isSyncing`
@@ -65,8 +66,8 @@ extension SyncCoordinator {
                     appStateProvider: appStateProvider,
                     rxLogService: rxLogService,
                     forceFullSync: forceFullSync,
-                    channelSyncSkipWindow: throttling.channelSyncSkipWindow,
-                    lastCleanChannelSync: throttling.lastCleanChannelSync
+                    channelSyncSkipWindow: channelSyncConfig.channelSyncSkipWindow,
+                    lastCleanChannelSync: channelSyncConfig.lastCleanChannelSync
                 )
             } catch {
                 // End sync activity on error during contacts/channels phase
@@ -85,11 +86,7 @@ extension SyncCoordinator {
             logger.info("[Sync] State → .syncing(.messages)")
             await setState(.syncing(progress: SyncProgress(phase: .messages, current: 0, total: 0)))
             let messageStart = ContinuousClock.now
-            let messageCount = try await messagePollingService.pollAllMessages(
-                messageDelay: throttling.messageDelay,
-                breathingInterval: throttling.breathingInterval,
-                breathingDuration: throttling.breathingDuration
-            )
+            let messageCount = try await messagePollingService.pollAllMessages()
             let messageElapsed = ContinuousClock.now - messageStart
             logger.info("[Sync] Phase end: messages - \(messageCount) polled in \(messageElapsed)")
 
@@ -111,7 +108,7 @@ extension SyncCoordinator {
             await setLastSyncDate(Date())
 
             let elapsed = ContinuousClock.now - syncStart
-            logger.info("Full sync complete in \(elapsed)")
+            logger.info("[Sync] Complete: platform=\(platformName), messages=\(messageCount), duration=\(elapsed)")
         } catch let error as CancellationError {
             // Defensive: ensure activity count is decremented even if cancellation
             // occurs outside the contacts/channels error path.
@@ -134,13 +131,15 @@ extension SyncCoordinator {
     ///   - deviceID: The connected device UUID
     ///   - services: The ServiceContainer with all services
     ///   - forceFullSync: When true, forces a full contact sync instead of incremental.
-    ///   - throttling: Sync throttling parameters (message delay, breathing, channel skip).
+    ///   - channelSyncConfig: Channel sync skip configuration.
+    ///   - platformName: Platform name for instrumentation logging.
     /// - Returns: `true` if sync succeeded, `false` if it failed
     public func performResync(
         deviceID: UUID,
         services: ServiceContainer,
         forceFullSync: Bool = false,
-        throttling: SyncThrottlingConfig = .none
+        channelSyncConfig: ChannelSyncConfig = .none,
+        platformName: String = "unknown"
     ) async -> Bool {
         #if DEBUG
         if let override = performResyncOverride {
@@ -168,7 +167,8 @@ extension SyncCoordinator {
                 rxLogService: services.rxLogService,
                 notificationService: services.notificationService,
                 forceFullSync: forceFullSync,
-                throttling: throttling
+                channelSyncConfig: channelSyncConfig,
+                platformName: platformName
             )
 
             await wireDiscoveryHandlers(services: services, deviceID: deviceID)
@@ -204,12 +204,14 @@ extension SyncCoordinator {
     ///   - deviceID: The connected device UUID
     ///   - services: The ServiceContainer with all services
     ///   - forceFullSync: When true, forces a full contact sync instead of incremental.
-    ///   - throttling: Sync throttling parameters (message delay, breathing, channel skip).
+    ///   - channelSyncConfig: Channel sync skip configuration.
+    ///   - platformName: Platform name for instrumentation logging.
     public func onConnectionEstablished(
         deviceID: UUID,
         services: ServiceContainer,
         forceFullSync: Bool = false,
-        throttling: SyncThrottlingConfig = .none
+        channelSyncConfig: ChannelSyncConfig = .none,
+        platformName: String = "unknown"
     ) async throws {
         logger.info("Connection established for device \(deviceID)")
 
@@ -261,7 +263,8 @@ extension SyncCoordinator {
                 rxLogService: services.rxLogService,
                 notificationService: services.notificationService,
                 forceFullSync: forceFullSync,
-                throttling: throttling
+                channelSyncConfig: channelSyncConfig,
+                platformName: platformName
             )
 
             // 5. Wire discovery handlers (for ongoing contact discovery)

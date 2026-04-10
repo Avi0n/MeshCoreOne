@@ -38,7 +38,7 @@ struct SyncCoordinatorChannelSkipTests {
             contactService: mockContactService,
             channelService: mockChannelService,
             messagePollingService: mockMessagePollingService,
-            throttling: SyncThrottlingConfig(channelSyncSkipWindow: .seconds(30), lastCleanChannelSync: Date())
+            channelSyncConfig: ChannelSyncConfig(channelSyncSkipWindow: .seconds(30), lastCleanChannelSync: Date())
         )
 
         let channelInvocations = await mockChannelService.syncChannelsInvocations
@@ -61,7 +61,7 @@ struct SyncCoordinatorChannelSkipTests {
             contactService: mockContactService,
             channelService: mockChannelService,
             messagePollingService: mockMessagePollingService,
-            throttling: SyncThrottlingConfig(channelSyncSkipWindow: .seconds(30))
+            channelSyncConfig: ChannelSyncConfig(channelSyncSkipWindow: .seconds(30))
         )
 
         let channelInvocations = await mockChannelService.syncChannelsInvocations
@@ -86,7 +86,7 @@ struct SyncCoordinatorChannelSkipTests {
             contactService: mockContactService,
             channelService: mockChannelService,
             messagePollingService: mockMessagePollingService,
-            throttling: SyncThrottlingConfig(channelSyncSkipWindow: .seconds(30), lastCleanChannelSync: expiredDate)
+            channelSyncConfig: ChannelSyncConfig(channelSyncSkipWindow: .seconds(30), lastCleanChannelSync: expiredDate)
         )
 
         let channelInvocations = await mockChannelService.syncChannelsInvocations
@@ -110,7 +110,7 @@ struct SyncCoordinatorChannelSkipTests {
             channelService: mockChannelService,
             messagePollingService: mockMessagePollingService,
             forceFullSync: true,
-            throttling: SyncThrottlingConfig(channelSyncSkipWindow: .seconds(30), lastCleanChannelSync: Date())
+            channelSyncConfig: ChannelSyncConfig(channelSyncSkipWindow: .seconds(30), lastCleanChannelSync: Date())
         )
 
         let channelInvocations = await mockChannelService.syncChannelsInvocations
@@ -133,7 +133,7 @@ struct SyncCoordinatorChannelSkipTests {
             contactService: mockContactService,
             channelService: mockChannelService,
             messagePollingService: mockMessagePollingService,
-            throttling: SyncThrottlingConfig(lastCleanChannelSync: Date())
+            channelSyncConfig: ChannelSyncConfig(lastCleanChannelSync: Date())
         )
 
         let channelInvocations = await mockChannelService.syncChannelsInvocations
@@ -305,7 +305,7 @@ struct SyncCoordinatorChannelSkipTests {
             contactService: mockContactService,
             channelService: mockChannelService,
             messagePollingService: mockMessagePollingService,
-            throttling: SyncThrottlingConfig(channelSyncSkipWindow: .seconds(30), lastCleanChannelSync: Date())
+            channelSyncConfig: ChannelSyncConfig(channelSyncSkipWindow: .seconds(30), lastCleanChannelSync: Date())
         )
 
         #expect(!callbackTracker.wasCalled, "onCleanChannelSync should not fire when channels are skipped")
@@ -360,7 +360,7 @@ struct SyncCoordinatorChannelSkipTests {
             contactService: mockContactService,
             channelService: mockChannelService,
             messagePollingService: mockMessagePollingService,
-            throttling: SyncThrottlingConfig(channelSyncSkipWindow: .seconds(30), lastCleanChannelSync: Date())
+            channelSyncConfig: ChannelSyncConfig(channelSyncSkipWindow: .seconds(30), lastCleanChannelSync: Date())
         )
 
         let channelInvocations = await mockChannelService.syncChannelsInvocations
@@ -370,39 +370,6 @@ struct SyncCoordinatorChannelSkipTests {
         #expect(coordinator.state == .synced, "Sync should complete successfully when channels are skipped")
     }
 
-    // MARK: - Throttling Config Forwarding
-
-    @Test("Throttling config message params forwarded to pollAllMessages")
-    @MainActor
-    func throttlingConfigForwardedToPollAllMessages() async throws {
-        let coordinator = SyncCoordinator()
-        let mockContactService = MockContactService()
-        let mockChannelService = MockChannelService()
-        let mockMessagePollingService = MockMessagePollingService()
-        let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
-
-        let throttling = SyncThrottlingConfig(
-            messageDelay: .milliseconds(100),
-            breathingInterval: 20,
-            breathingDuration: .milliseconds(500)
-        )
-
-        try await coordinator.performFullSync(
-            deviceID: testDeviceID,
-            dataStore: dataStore,
-            contactService: mockContactService,
-            channelService: mockChannelService,
-            messagePollingService: mockMessagePollingService,
-            throttling: throttling
-        )
-
-        let invocations = await mockMessagePollingService.pollAllMessagesInvocations
-        #expect(invocations.count == 1, "pollAllMessages should be called once")
-        #expect(invocations[0].messageDelay == .milliseconds(100))
-        #expect(invocations[0].breathingInterval == 20)
-        #expect(invocations[0].breathingDuration == .milliseconds(500))
-    }
 }
 
 // MARK: - Mock Helper Extensions

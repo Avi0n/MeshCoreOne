@@ -1,17 +1,8 @@
 import Foundation
 
-/// Groups sync throttling parameters that travel together through the sync pipeline.
+/// Controls whether channel re-sync is skipped on resync.
 /// Computed from `DevicePlatform` and `lastCleanChannelSync` state at sync start.
-public struct SyncThrottlingConfig: Sendable {
-    /// Delay between individual getMessage() calls during sync catch-up.
-    public let messageDelay: Duration
-
-    /// Number of messages polled before inserting a breathing pause. 0 disables.
-    public let breathingInterval: Int
-
-    /// Duration of the breathing pause inserted every `breathingInterval` messages.
-    public let breathingDuration: Duration
-
+public struct ChannelSyncConfig: Sendable {
     /// If channels were synced more recently than this window, skip channel re-sync.
     public let channelSyncSkipWindow: Duration
 
@@ -19,19 +10,13 @@ public struct SyncThrottlingConfig: Sendable {
     public let lastCleanChannelSync: Date?
 
     public init(
-        messageDelay: Duration = .zero,
-        breathingInterval: Int = 0,
-        breathingDuration: Duration = .zero,
         channelSyncSkipWindow: Duration = .zero,
         lastCleanChannelSync: Date? = nil
     ) {
-        self.messageDelay = messageDelay
-        self.breathingInterval = breathingInterval
-        self.breathingDuration = breathingDuration
         self.channelSyncSkipWindow = channelSyncSkipWindow
         self.lastCleanChannelSync = lastCleanChannelSync
     }
 
-    /// No throttling — used for WiFi connections.
-    public static let none = SyncThrottlingConfig()
+    /// No skip — used for WiFi connections.
+    public static let none = ChannelSyncConfig()
 }
