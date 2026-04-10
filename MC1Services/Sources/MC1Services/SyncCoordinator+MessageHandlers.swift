@@ -75,6 +75,7 @@ extension SyncCoordinator {
                 services: services,
                 channelIndex: nil,
                 senderTimestamp: timestamp,
+                senderPublicKeyPrefix: message.senderPublicKeyPrefix,
                 defaultPathLength: message.pathLength
             )
 
@@ -223,6 +224,7 @@ extension SyncCoordinator {
                 services: services,
                 channelIndex: message.channelIndex,
                 senderTimestamp: timestamp,
+                senderPublicKeyPrefix: nil,
                 defaultPathLength: message.pathLength
             )
 
@@ -460,6 +462,7 @@ extension SyncCoordinator {
         services: ServiceContainer,
         channelIndex: UInt8?,
         senderTimestamp: UInt32,
+        senderPublicKeyPrefix: Data?,
         defaultPathLength: UInt8
     ) async -> RxLogLookupResult {
         if let channelIndex {
@@ -479,12 +482,26 @@ extension SyncCoordinator {
                     logger.debug("Correlated incoming direct message to RxLogEntry, pathLength: \(pathLength), pathNodes: \(pathNodes.count) bytes")
                 }
                 return RxLogLookupResult(pathNodes: pathNodes, pathLength: pathLength, packetHash: rxEntry.packetHash)
-            } else {
-                if channelIndex != nil {
-                    logger.warning("No RxLogEntry found for channel \(channelIndex!), senderTimestamp: \(senderTimestamp)")
-                } else {
-                    logger.debug("No RxLogEntry found for direct message, senderTimestamp: \(senderTimestamp)")
+            }
+
+            // Fallback for DMs: if timestamp-based lookup failed (e.g., RxLog decryption
+            // hadn't extracted the timestamp yet), try matching by sender prefix byte
+            // in the raw packet payload within a recent time window.
+            if channelIndex == nil,
+               let prefixByte = senderPublicKeyPrefix?.first {
+                let lookbackWindow = Date().addingTimeInterval(-30)
+                if let rxEntry = try await services.dataStore.findRxLogEntryBySenderPrefix(
+                    senderPrefixByte: prefixByte,
+                    receivedSince: lookbackWindow
+                ) {
+                    logger.debug("Correlated DM to RxLogEntry via sender prefix fallback, pathLength: \(rxEntry.pathLength)")
+                    return RxLogLookupResult(pathNodes: rxEntry.pathNodes, pathLength: rxEntry.pathLength, packetHash: rxEntry.packetHash)
                 }
+                logger.debug("No RxLogEntry found for direct message (primary + fallback), senderTimestamp: \(senderTimestamp)")
+            } else if let channelIndex {
+                logger.warning("No RxLogEntry found for channel \(channelIndex), senderTimestamp: \(senderTimestamp)")
+            } else {
+                logger.debug("No RxLogEntry found for direct message, senderTimestamp: \(senderTimestamp)")
             }
         } catch {
             if channelIndex != nil {

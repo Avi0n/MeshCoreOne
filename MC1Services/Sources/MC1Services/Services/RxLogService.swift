@@ -350,26 +350,20 @@ public actor RxLogService {
             }
         }
 
-        // Decrypt direct text messages to extract senderTimestamp
+        // Decrypt direct text messages to extract senderTimestamp and text
         if parsed.payloadType == .textMessage,
            parsed.routeType == .direct || parsed.routeType == .tcDirect {
 
-            if let senderPrefix = parsed.senderPubkeyPrefix?.first,
-               let candidateKeys = contactPublicKeysByPrefix[senderPrefix],
-               let myPrivateKey = self.myPrivateKey {
-
-                for senderPublicKey in candidateKeys {
-                    if let timestamp = DirectMessageCrypto.extractTimestamp(
-                        payload: parsed.packetPayload,
-                        myPrivateKey: myPrivateKey,
-                        senderPublicKey: senderPublicKey
-                    ) {
-                        senderTimestamp = timestamp
-                        decryptStatus = .success
-                        logger.debug("Decrypted direct message senderTimestamp: \(timestamp)")
-                        break
-                    }
-                }
+            if let myPrivateKey = self.myPrivateKey,
+               let dmResult = Self.tryDecryptDM(
+                   payload: parsed.packetPayload,
+                   myPrivateKey: myPrivateKey,
+                   contactPublicKeysByPrefix: contactPublicKeysByPrefix
+               ) {
+                senderTimestamp = dmResult.timestamp
+                decodedText = dmResult.text
+                decryptStatus = .success
+                logger.debug("Decrypted direct message senderTimestamp: \(dmResult.timestamp)")
             }
 
             if senderTimestamp == nil {
@@ -442,6 +436,21 @@ public actor RxLogService {
     public func decryptEntry(_ entry: RxLogEntryDTO) -> RxLogEntryDTO {
         var result = entry
 
+        // Attempt DM decryption for direct text messages
+        if entry.payloadType == .textMessage,
+           entry.routeType == .direct || entry.routeType == .tcDirect {
+            if let myPrivateKey = self.myPrivateKey,
+               let dmResult = Self.tryDecryptDM(
+                   payload: entry.packetPayload,
+                   myPrivateKey: myPrivateKey,
+                   contactPublicKeysByPrefix: contactPublicKeysByPrefix
+               ) {
+                result.senderTimestamp = dmResult.timestamp
+                result.decodedText = dmResult.text
+            }
+            return result
+        }
+
         // Only attempt decryption for channel messages
         guard entry.payloadType == .groupText || entry.payloadType == .groupData else {
             return result
@@ -484,11 +493,18 @@ public actor RxLogService {
     public func decryptEntries(_ entries: [RxLogEntryDTO]) async -> [RxLogEntryDTO] {
         // Capture secrets for concurrent access
         let secrets = channelSecrets
+        let privateKey = myPrivateKey
+        let contactKeys = contactPublicKeysByPrefix
 
         return await withTaskGroup(of: (Int, RxLogEntryDTO).self) { group in
             for (index, entry) in entries.enumerated() {
                 group.addTask {
-                    let decrypted = Self.decryptEntry(entry, secrets: secrets)
+                    let decrypted = Self.decryptEntry(
+                        entry,
+                        secrets: secrets,
+                        myPrivateKey: privateKey,
+                        contactPublicKeysByPrefix: contactKeys
+                    )
                     return (index, decrypted)
                 }
             }
@@ -502,8 +518,28 @@ public actor RxLogService {
     }
 
     /// Static decryption for concurrent use (no actor isolation).
-    private static func decryptEntry(_ entry: RxLogEntryDTO, secrets: [UInt8: Data]) -> RxLogEntryDTO {
+    private static func decryptEntry(
+        _ entry: RxLogEntryDTO,
+        secrets: [UInt8: Data],
+        myPrivateKey: Data?,
+        contactPublicKeysByPrefix: [UInt8: [Data]]
+    ) -> RxLogEntryDTO {
         var result = entry
+
+        // Attempt DM decryption for direct text messages
+        if entry.payloadType == .textMessage,
+           entry.routeType == .direct || entry.routeType == .tcDirect {
+            if let myPrivateKey,
+               let dmResult = tryDecryptDM(
+                   payload: entry.packetPayload,
+                   myPrivateKey: myPrivateKey,
+                   contactPublicKeysByPrefix: contactPublicKeysByPrefix
+               ) {
+                result.senderTimestamp = dmResult.timestamp
+                result.decodedText = dmResult.text
+            }
+            return result
+        }
 
         guard entry.payloadType == .groupText || entry.payloadType == .groupData else {
             return result
@@ -537,6 +573,31 @@ public actor RxLogService {
         }
 
         return result
+    }
+
+    /// Try decrypting a DM payload by iterating candidate keys for the sender prefix byte.
+    /// Returns the decrypted timestamp and text, or nil if no key matched.
+    private static func tryDecryptDM(
+        payload: Data,
+        myPrivateKey: Data,
+        contactPublicKeysByPrefix: [UInt8: [Data]]
+    ) -> (timestamp: UInt32, text: String?)? {
+        guard payload.count >= DirectMessageCrypto.minPacketSize else { return nil }
+        // DM payload: [destHash:1][srcHash:1][MAC:2][ciphertext:N]
+        let payloadHashSize = 1
+        let senderPrefix = payload[payloadHashSize]
+        guard let candidateKeys = contactPublicKeysByPrefix[senderPrefix] else { return nil }
+
+        for senderPublicKey in candidateKeys {
+            if case .success(let timestamp, _, let text) = DirectMessageCrypto.decrypt(
+                payload: payload,
+                myPrivateKey: myPrivateKey,
+                senderPublicKey: senderPublicKey
+            ) {
+                return (timestamp, text)
+            }
+        }
+        return nil
     }
 
     /// Clear all entries.

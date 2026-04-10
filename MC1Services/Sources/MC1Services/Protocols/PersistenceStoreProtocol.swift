@@ -319,6 +319,13 @@ public protocol PersistenceStoreProtocol: Actor {
         senderTimestamp: UInt32
     ) async throws -> RxLogEntryDTO?
 
+    /// Find a DM RxLogEntry by matching the sender prefix byte in the packet payload.
+    /// Fallback for when the primary timestamp-based lookup fails.
+    func findRxLogEntryBySenderPrefix(
+        senderPrefixByte: UInt8,
+        receivedSince: Date
+    ) async throws -> RxLogEntryDTO?
+
     // MARK: - Room Session State
 
     /// Mark a session as disconnected without changing permission level.

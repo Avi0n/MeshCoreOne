@@ -250,6 +250,38 @@ extension PersistenceStore {
         }
     }
 
+    /// Find a DM RxLogEntry by matching the sender prefix byte in the packet payload.
+    ///
+    /// Fallback for when the primary `findRxLogEntry(senderTimestamp:)` fails because
+    /// DM decryption hadn't succeeded yet (senderTimestamp was nil). Matches on the
+    /// unencrypted srcHash byte at `packetPayload[1]` and a receive-time window.
+    public func findRxLogEntryBySenderPrefix(
+        senderPrefixByte: UInt8,
+        receivedSince: Date
+    ) throws -> RxLogEntryDTO? {
+        let textMessageType = Int(PayloadType.textMessage.rawValue)
+        let cutoff = receivedSince
+
+        let predicate = #Predicate<RxLogEntry> { entry in
+            entry.channelIndex == nil &&
+            entry.payloadType == textMessageType &&
+            entry.receivedAt >= cutoff
+        }
+
+        var descriptor = FetchDescriptor<RxLogEntry>(predicate: predicate)
+        descriptor.sortBy = [SortDescriptor(\.receivedAt, order: .reverse)]
+        descriptor.fetchLimit = 20
+
+        let candidates = try modelContext.fetch(descriptor)
+
+        // Filter in-memory: match sender prefix byte at packetPayload[1]
+        let match = candidates.first { entry in
+            entry.packetPayload.count >= 2 && entry.packetPayload[1] == senderPrefixByte
+        }
+
+        return match.map { RxLogEntryDTO(from: $0) }
+    }
+
     /// Fetch recent RX log entries with a given decrypt status.
     public func fetchRecentEntriesByDecryptStatus(deviceID: UUID, status: DecryptStatus, since: Date) throws -> [RxLogEntryDTO] {
         let targetDeviceID = deviceID
