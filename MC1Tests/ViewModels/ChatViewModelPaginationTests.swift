@@ -340,6 +340,7 @@ actor PaginationTestDataStore: PersistenceStoreProtocol {
         channelIndex: UInt8?,
         senderTimestamp: UInt32
     ) async throws -> RxLogEntryDTO? { nil }
+    func findRxLogEntryBySenderPrefix(senderPrefixByte: UInt8, receivedSince: Date) async throws -> RxLogEntryDTO? { nil }
 
     // MARK: - Discovered Nodes
 

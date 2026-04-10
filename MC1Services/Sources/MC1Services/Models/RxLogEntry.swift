@@ -213,17 +213,17 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     /// Sender public key prefix for direct text messages.
     public var senderPrefix: Data? {
         guard !isFlood, payloadType == .textMessage else { return nil }
-        let hs = pathHashSize
-        guard packetPayload.count >= hs * 2 else { return nil }
-        return Data(packetPayload[hs..<hs * 2])
+        let dmPrefixSize = 1
+        guard packetPayload.count >= dmPrefixSize * 2 else { return nil }
+        return Data(packetPayload[dmPrefixSize..<dmPrefixSize * 2])
     }
 
     /// Recipient public key prefix for direct text messages.
     public var recipientPrefix: Data? {
         guard !isFlood, payloadType == .textMessage else { return nil }
-        let hs = pathHashSize
-        guard packetPayload.count >= hs * 2 else { return nil }
-        return Data(packetPayload[0..<hs])
+        let dmPrefixSize = 1
+        guard packetPayload.count >= dmPrefixSize * 2 else { return nil }
+        return Data(packetPayload[0..<dmPrefixSize])
     }
 
     /// Whether this is a flood-type route.
