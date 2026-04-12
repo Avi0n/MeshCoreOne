@@ -49,9 +49,8 @@ public final class AccessorySetupKitService {
     /// Pending activation continuation
     private var activationContinuation: CheckedContinuation<Void, Error>?
 
-    /// Accumulated discovered display items for the iOS 26.1+ filtered picker flow.
-    /// Each physical device gets its own entry with its real BLE-advertised name.
-    private var discoveredDisplayItems: [Any] = []
+    private var pickerPresentedAt: Date?
+    private var pickerOutcome = "cancelled"
 
     public init() {}
 
@@ -119,7 +118,15 @@ public final class AccessorySetupKitService {
         case .accessoryAdded:
             if let accessory = event.accessory {
                 pairedAccessories = session?.accessories ?? []
+                pickerOutcome = "selected"
                 logger.info("Accessory added: \(accessory.displayName)")
+                logger.info(
+                    AccessorySetupKitLogFormatter.selectionMessage(
+                        accessoryName: accessory.displayName,
+                        bluetoothID: accessory.bluetoothIdentifier,
+                        elapsed: pickerElapsedTime
+                    )
+                )
 
                 if let bluetoothID = accessory.bluetoothIdentifier {
                     resumePickerContinuation(with: .success(bluetoothID))
@@ -142,16 +149,23 @@ public final class AccessorySetupKitService {
             logger.info("Accessory changed")
 
         case .accessoryDiscovered:
-            if #available(iOS 26.1, *) {
-                handleAccessoryDiscovered(event)
-            }
+            // Default ASK picker flow handles discovery UI itself.
+            break
 
         case .pickerDidPresent:
             logger.info("Picker presented")
 
         case .pickerDidDismiss:
-            logger.info("Picker dismissed")
-            discoveredDisplayItems = []
+            logger.info(
+                AccessorySetupKitLogFormatter.dismissalMessage(
+                    outcome: pickerOutcome,
+                    pairedCount: pairedAccessories.count,
+                    elapsed: pickerElapsedTime,
+                    filteredDiscovery: AccessorySetupKitDiscoveryCriteria.usesFilteredDiscovery
+                )
+            )
+            pickerPresentedAt = nil
+            pickerOutcome = "cancelled"
             resumePickerContinuation(with: .failure(AccessorySetupKitError.pickerDismissed))
 
         case .pickerSetupBridging:
@@ -162,6 +176,7 @@ public final class AccessorySetupKitService {
 
         case .pickerSetupFailed:
             if let error = event.error {
+                pickerOutcome = "pairingFailed"
                 logger.error("Pairing failed: \(error.localizedDescription)")
 
                 if let accessory = event.accessory,
@@ -212,29 +227,19 @@ public final class AccessorySetupKitService {
             throw AccessorySetupKitError.pickerAlreadyActive
         }
 
-        if #available(iOS 26.1, *) {
-            let settings = ASPickerDisplaySettings()
-            settings.options = .filterDiscoveryResults
-            settings.discoveryTimeout = .long
-            session.pickerDisplaySettings = settings
-        } else if #available(iOS 26.0, *) {
+        if #available(iOS 26.0, *) {
             if session.pickerDisplaySettings == nil {
                 session.pickerDisplaySettings = ASPickerDisplaySettings()
             }
         }
 
-        discoveredDisplayItems = []
-
         let productImage = createGenericProductImage()
-        let descriptor = ASDiscoveryDescriptor()
-        descriptor.bluetoothServiceUUID = CBUUID(string: BLEServiceUUID.nordicUART)
-        let displayItems = [
-            ASPickerDisplayItem(
-                name: "MeshCore Device",
-                productImage: productImage,
-                descriptor: descriptor
-            )
-        ]
+        let displayItems = makePickerDisplayItems(productImage: productImage)
+        pickerPresentedAt = Date()
+        pickerOutcome = "presented"
+        logger.info(
+            "[ASK] Presenting picker on iOS \(currentOSVersion), sessionActive: \(isSessionActive), pairedCount: \(pairedAccessories.count), displayItems: \(displayItems.count), filteredDiscovery: \(AccessorySetupKitDiscoveryCriteria.usesFilteredDiscovery), criteria: \(AccessorySetupKitLogFormatter.criteriaSummary(AccessorySetupKitDiscoveryCriteria.supportedBluetoothCriteria))"
+        )
 
         return try await withCheckedThrowingContinuation { continuation in
             self.pickerContinuation = continuation
@@ -248,16 +253,21 @@ public final class AccessorySetupKitService {
 
                         switch error.code {
                         case .pickerRestricted:
+                            self.pickerOutcome = "pickerRestricted"
                             self.resumePickerContinuation(with: .failure(AccessorySetupKitError.pickerRestricted))
                         case .pickerAlreadyActive:
+                            self.pickerOutcome = "pickerAlreadyActive"
                             self.resumePickerContinuation(with: .failure(AccessorySetupKitError.pickerAlreadyActive))
                         case .userCancelled:
+                            self.pickerOutcome = "cancelled"
                             // User explicitly cancelled (error code 700) - not an error condition
                             // Will be handled by pickerDidDismiss event
                             return
                         case .discoveryTimeout:
+                            self.pickerOutcome = "discoveryTimeout"
                             self.resumePickerContinuation(with: .failure(AccessorySetupKitError.discoveryTimeout))
                         case .connectionFailed:
+                            self.pickerOutcome = "connectionFailed"
                             self.resumePickerContinuation(with: .failure(AccessorySetupKitError.connectionFailed))
                         default:
                             self.logger.error("Unexpected picker error code: \(error.code.rawValue)")
@@ -318,43 +328,30 @@ public final class AccessorySetupKitService {
         pairedAccessories = []
     }
 
-    // MARK: - Filtered Discovery (iOS 26.1+)
+    // MARK: - Private Helpers
 
-    /// Handles a discovered accessory event by extracting its BLE name and pushing
-    /// a per-device display item into the picker.
-    @available(iOS 26.1, *)
-    private func handleAccessoryDiscovered(_ event: ASAccessoryEvent) {
-        guard let discovered = event.accessory as? ASDiscoveredAccessory else {
-            logger.warning("accessoryDiscovered event missing ASDiscoveredAccessory")
-            return
-        }
-
-        let advData = discovered.bluetoothAdvertisementData as? [String: Any]
-
-        // ASK only exposes ADV_IND data; device names in SCAN_RSP are not available
-        let askName = advData?[CBAdvertisementDataLocalNameKey] as? String
-        let deviceIndex = discoveredDisplayItems.count + 1
-        let deviceName = askName ?? "MeshCore Device \(deviceIndex)"
-        let rssi = discovered.bluetoothRSSI
-
-        logger.info("Discovered device: \(deviceName) (RSSI: \(String(describing: rssi)))")
-
-        let item = ASDiscoveredDisplayItem(
-            name: deviceName,
-            productImage: createGenericProductImage(),
-            accessory: discovered
-        )
-        discoveredDisplayItems.append(item)
-
-        let allItems = discoveredDisplayItems.compactMap { $0 as? ASDiscoveredDisplayItem }
-        session?.updatePicker(showing: allItems) { [weak self] error in
-            if let error {
-                self?.logger.warning("updatePicker failed: \(error.localizedDescription)")
-            }
-        }
+    private var currentOSVersion: String {
+        let version = ProcessInfo.processInfo.operatingSystemVersion
+        return "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
     }
 
-    // MARK: - Private Helpers
+    private var pickerElapsedTime: TimeInterval? {
+        pickerPresentedAt.map { Date().timeIntervalSince($0) }
+    }
+
+    private func makePickerDisplayItems(productImage: UIImage) -> [ASPickerDisplayItem] {
+        AccessorySetupKitDiscoveryCriteria.supportedBluetoothCriteria.map { criterion in
+            let descriptor = ASDiscoveryDescriptor()
+            descriptor.bluetoothServiceUUID = CBUUID(string: criterion.bluetoothServiceUUID)
+            descriptor.bluetoothNameSubstring = criterion.bluetoothNameSubstring
+
+            return ASPickerDisplayItem(
+                name: "MeshCore Device",
+                productImage: productImage,
+                descriptor: descriptor
+            )
+        }
+    }
 
     /// Creates a generic product image for the ASK picker
     /// Per Apple docs: Container size should be 180x120 points with transparent background

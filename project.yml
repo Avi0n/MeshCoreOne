@@ -76,10 +76,27 @@ targets:
         NSBluetoothAlwaysUsageDescription: "MeshCore One uses Bluetooth to maintain connections with MeshCore radios, even in the background, so you can send and receive messages without opening the app."
         NSBluetoothPeripheralUsageDescription: "MeshCore One uses Bluetooth to connect to MeshCore radios."
         NSLocationWhenInUseUsageDescription: "MeshCore One can share your location with contacts on the mesh network."
+        NSAccessorySetupSupports:
+          - Bluetooth
         NSAccessorySetupKitSupports:
           - Bluetooth
         NSAccessorySetupBluetoothServices:
           - "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
+        NSAccessorySetupBluetoothNames:
+          - "MeshCore-"
+          - "Whisper-"
+          - "WisCore"
+          - "XIAO"
+          - "elecrow"
+          - "HT-n5262"
+          - "Seeed"
+          - "BQ"
+          - "ProMicro"
+          - "Keepteen"
+          - "Meshtiny"
+          - "T1000-E-BOOT"
+          - "me25ls01-BOOT"
+          - "NRF52 DK"
       configs:
         Debug:
           INFOPLIST_FILE: MC1/Info-Debug.plist

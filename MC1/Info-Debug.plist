@@ -26,6 +26,27 @@
 	<array>
 		<string>6E400001-B5A3-F393-E0A9-E50E24DCCA9E</string>
 	</array>
+	<key>NSAccessorySetupBluetoothNames</key>
+	<array>
+		<string>MeshCore-</string>
+		<string>Whisper-</string>
+		<string>WisCore</string>
+		<string>XIAO</string>
+		<string>elecrow</string>
+		<string>HT-n5262</string>
+		<string>Seeed</string>
+		<string>BQ</string>
+		<string>ProMicro</string>
+		<string>Keepteen</string>
+		<string>Meshtiny</string>
+		<string>T1000-E-BOOT</string>
+		<string>me25ls01-BOOT</string>
+		<string>NRF52 DK</string>
+	</array>
+	<key>NSAccessorySetupSupports</key>
+	<array>
+		<string>Bluetooth</string>
+	</array>
 	<key>NSAccessorySetupKitSupports</key>
 	<array>
 		<string>Bluetooth</string>
