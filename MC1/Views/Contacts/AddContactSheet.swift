@@ -99,7 +99,7 @@ struct AddContactSheet: View {
             return
         }
 
-        let deviceID = device.id
+        let radioID = device.radioID
         let maxContacts = device.maxContacts
 
         guard let publicKeyData = Data(hexString: normalizedPublicKeyHex) else {
@@ -134,7 +134,7 @@ struct AddContactSheet: View {
             )
 
             logger.info("Adding contact: \(contactName) (\(publicKeyData.hex))")
-            try await services.contactService.addOrUpdateContact(deviceID: deviceID, contact: contactFrame)
+            try await services.contactService.addOrUpdateContact(radioID: radioID, contact: contactFrame)
             logger.info("Contact added successfully")
 
             dismiss()

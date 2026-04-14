@@ -130,7 +130,7 @@ struct MessageDeduplicationTests {
         let store = MockPersistenceStore()
         let dto = MessageDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             contactID: nil,
             channelIndex: 0,
             text: "Hello",

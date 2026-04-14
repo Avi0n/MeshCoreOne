@@ -5,14 +5,15 @@ import SwiftData
 /// Used for both room servers and repeater admin connections.
 @Model
 public final class RemoteNodeSession {
-    #Index<RemoteNodeSession>([\.deviceID])
+    #Index<RemoteNodeSession>([\.radioID])
 
     /// Unique session identifier
     @Attribute(.unique)
     public var id: UUID
 
     /// The companion radio used to access this node
-    public var deviceID: UUID
+    @Attribute(originalName: "deviceID")
+    public var radioID: UUID
 
     /// 32-byte remote node's public key
     public var publicKey: Data
@@ -95,7 +96,7 @@ public final class RemoteNodeSession {
 
     public init(
         id: UUID = UUID(),
-        deviceID: UUID,
+        radioID: UUID,
         publicKey: Data,
         name: String,
         role: RemoteNodeRole,
@@ -116,7 +117,7 @@ public final class RemoteNodeSession {
         lastMessageDate: Date? = nil
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.publicKey = publicKey
         self.name = name
         self.roleRawValue = role.rawValue
@@ -139,7 +140,7 @@ public final class RemoteNodeSession {
 
     /// Applies all mutable fields from a DTO to this model instance.
     func apply(_ dto: RemoteNodeSessionDTO) {
-        deviceID = dto.deviceID
+        radioID = dto.radioID
         publicKey = dto.publicKey
         name = dto.name
         roleRawValue = dto.role.rawValue
@@ -201,7 +202,7 @@ public extension RemoteNodeSession {
 /// A sendable snapshot of RemoteNodeSession for cross-actor transfers
 public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable {
     public let id: UUID
-    public let deviceID: UUID
+    public var radioID: UUID
     public let publicKey: Data
     public let name: String
     public let role: RemoteNodeRole
@@ -226,7 +227,7 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable 
 
     public init(from model: RemoteNodeSession) {
         self.id = model.id
-        self.deviceID = model.deviceID
+        self.radioID = model.radioID
         self.publicKey = model.publicKey
         self.name = model.name
         self.role = model.role
@@ -254,7 +255,7 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable 
     /// Memberwise initializer for creating DTOs directly
     public init(
         id: UUID = UUID(),
-        deviceID: UUID,
+        radioID: UUID,
         publicKey: Data,
         name: String,
         role: RemoteNodeRole,
@@ -275,7 +276,7 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable 
         lastMessageDate: Date? = nil
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.publicKey = publicKey
         self.name = name
         self.role = role
@@ -299,7 +300,7 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable 
     /// Returns a copy with only `notificationLevel` changed.
     public func with(notificationLevel: NotificationLevel) -> RemoteNodeSessionDTO {
         RemoteNodeSessionDTO(
-            id: id, deviceID: deviceID, publicKey: publicKey, name: name,
+            id: id, radioID: radioID, publicKey: publicKey, name: name,
             role: role, latitude: latitude, longitude: longitude,
             isConnected: isConnected, permissionLevel: permissionLevel,
             lastConnectedDate: lastConnectedDate,
@@ -315,7 +316,7 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable 
     /// Returns a copy with only `isFavorite` changed.
     public func with(isFavorite: Bool) -> RemoteNodeSessionDTO {
         RemoteNodeSessionDTO(
-            id: id, deviceID: deviceID, publicKey: publicKey, name: name,
+            id: id, radioID: radioID, publicKey: publicKey, name: name,
             role: role, latitude: latitude, longitude: longitude,
             isConnected: isConnected, permissionLevel: permissionLevel,
             lastConnectedDate: lastConnectedDate,

@@ -4,7 +4,7 @@ import SwiftUI
 /// Offline-accessible overview of all historical telemetry charts for a repeater.
 struct TelemetryHistoryOverviewView: View {
     let publicKey: Data
-    let deviceID: UUID
+    let radioID: UUID
     let showNeighbors: Bool
 
     @Environment(\.appState) private var appState
@@ -13,9 +13,9 @@ struct TelemetryHistoryOverviewView: View {
     @State private var sensorsExpanded: Bool
     @State private var neighborsExpanded = false
 
-    init(publicKey: Data, deviceID: UUID, showNeighbors: Bool = true) {
+    init(publicKey: Data, radioID: UUID, showNeighbors: Bool = true) {
         self.publicKey = publicKey
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.showNeighbors = showNeighbors
         self._sensorsExpanded = State(initialValue: !showNeighbors)
     }
@@ -41,7 +41,7 @@ struct TelemetryHistoryOverviewView: View {
         .task {
             guard let store = appState.offlineDataStore else { return }
             await viewModel.loadData(
-                dataStore: store, publicKey: publicKey, deviceID: deviceID
+                dataStore: store, publicKey: publicKey, radioID: radioID
             )
         }
     }

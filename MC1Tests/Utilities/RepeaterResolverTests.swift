@@ -17,7 +17,7 @@ struct RepeaterResolverTests {
     ) -> ContactDTO {
         ContactDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data([prefix, secondByte] + Array(repeating: UInt8(0), count: 30)),
             name: name,
             typeRawValue: ContactType.repeater.rawValue,
@@ -149,7 +149,7 @@ struct RepeaterResolverTests {
     ) -> DiscoveredNodeDTO {
         DiscoveredNodeDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data([prefix, secondByte] + Array(repeating: UInt8(0), count: 30)),
             name: name,
             typeRawValue: ContactType.repeater.rawValue,

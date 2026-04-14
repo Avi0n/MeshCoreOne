@@ -8,7 +8,8 @@ public final class SavedTracePath {
     public var id: UUID
 
     /// The device this path belongs to
-    public var deviceID: UUID
+    @Attribute(originalName: "deviceID")
+    public var radioID: UUID
 
     /// User-editable name (e.g., "Tower → Barn → Ridge")
     public var name: String
@@ -28,14 +29,14 @@ public final class SavedTracePath {
 
     public init(
         id: UUID = UUID(),
-        deviceID: UUID,
+        radioID: UUID,
         name: String,
         pathBytes: Data,
         hashSize: Int = 1,
         createdDate: Date = Date()
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.name = name
         self.pathBytes = pathBytes
         self.hashSize = hashSize
@@ -121,7 +122,7 @@ public extension TracePathRun {
 /// Sendable snapshot of SavedTracePath for cross-actor transfers
 public struct SavedTracePathDTO: Sendable, Identifiable, Equatable, Hashable {
     public let id: UUID
-    public let deviceID: UUID
+    public var radioID: UUID
     public let name: String
     public let pathBytes: Data
     public let hashSize: Int
@@ -130,7 +131,7 @@ public struct SavedTracePathDTO: Sendable, Identifiable, Equatable, Hashable {
 
     public init(from model: SavedTracePath) {
         self.id = model.id
-        self.deviceID = model.deviceID
+        self.radioID = model.radioID
         self.name = model.name
         self.pathBytes = model.pathBytes
         self.hashSize = model.hashSize
@@ -140,7 +141,7 @@ public struct SavedTracePathDTO: Sendable, Identifiable, Equatable, Hashable {
 
     public init(
         id: UUID,
-        deviceID: UUID,
+        radioID: UUID,
         name: String,
         pathBytes: Data,
         hashSize: Int = 1,
@@ -148,7 +149,7 @@ public struct SavedTracePathDTO: Sendable, Identifiable, Equatable, Hashable {
         runs: [TracePathRunDTO]
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.name = name
         self.pathBytes = pathBytes
         self.hashSize = hashSize

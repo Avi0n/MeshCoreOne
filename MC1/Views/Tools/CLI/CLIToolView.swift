@@ -63,7 +63,7 @@ private struct CLIToolContent: View {
                 repeaterAdminService: appState.services?.repeaterAdminService,
                 remoteNodeService: appState.services?.remoteNodeService,
                 dataStore: appState.services?.dataStore,
-                deviceID: appState.connectedDevice?.id,
+                radioID: appState.connectedDevice?.radioID,
                 localDeviceName: appState.connectedDevice?.nodeName ?? L10n.Tools.Tools.Cli.defaultDevice
             )
         }

@@ -118,15 +118,15 @@ struct MessageActionsSheet: View {
             guard let services = appState.services else { return }
             if availability.canShowRepeatDetails {
                 do {
-                    contacts = try await services.dataStore.fetchContacts(deviceID: message.deviceID)
-                    discoveredNodes = try await services.dataStore.fetchDiscoveredNodes(deviceID: message.deviceID)
+                    contacts = try await services.dataStore.fetchContacts(radioID: message.radioID)
+                    discoveredNodes = try await services.dataStore.fetchDiscoveredNodes(radioID: message.radioID)
                 } catch {
                     contacts = []
                     discoveredNodes = []
                 }
                 repeats = await services.heardRepeatsService.refreshRepeats(for: message.id)
             } else if availability.canViewPath {
-                await pathViewModel.loadContacts(services: services, deviceID: message.deviceID)
+                await pathViewModel.loadContacts(services: services, radioID: message.radioID)
             }
         }
     }
@@ -507,7 +507,7 @@ private struct ActionInfoRow: View {
 
 #Preview("Outgoing Message") {
     let message = Message(
-        deviceID: UUID(),
+        radioID: UUID(),
         contactID: UUID(),
         text: "Hello world!",
         directionRawValue: MessageDirection.outgoing.rawValue,
@@ -526,7 +526,7 @@ private struct ActionInfoRow: View {
 
 #Preview("Incoming Message") {
     let message = Message(
-        deviceID: UUID(),
+        radioID: UUID(),
         contactID: UUID(),
         text: "Hey, can you meet me at the coffee shop downtown later today? I have something important to discuss.",
         directionRawValue: MessageDirection.incoming.rawValue,

@@ -113,7 +113,7 @@ final class NodeConfigImportViewModel {
         guard !isApplying else { return }
         guard let config = importedConfig,
               let service = appState.services?.nodeConfigService,
-              let deviceID = appState.connectedDevice?.id else { return }
+              let radioID = appState.connectedDevice?.radioID else { return }
 
         isApplying = true
         applyProgress = 0
@@ -125,7 +125,7 @@ final class NodeConfigImportViewModel {
                 try await service.importConfig(
                     config,
                     sections: sections,
-                    deviceID: deviceID
+                    radioID: radioID
                 ) { progress in
                     Task { @MainActor in
                         self.applyProgress = Double(progress.current) / Double(max(1, progress.total))

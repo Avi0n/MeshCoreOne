@@ -38,19 +38,19 @@ public protocol PersistenceStoreProtocol: Actor {
     func fetchMessages(contactID: UUID, limit: Int, offset: Int) async throws -> [MessageDTO]
 
     /// Fetch messages for a channel
-    func fetchMessages(deviceID: UUID, channelIndex: UInt8, limit: Int, offset: Int) async throws -> [MessageDTO]
+    func fetchMessages(radioID: UUID, channelIndex: UInt8, limit: Int, offset: Int) async throws -> [MessageDTO]
 
     /// Batch fetch last messages for multiple contacts in a single actor call.
     /// Avoids N actor hops when loading message previews for the conversation list.
     func fetchLastMessages(contactIDs: [UUID], limit: Int) throws -> [UUID: [MessageDTO]]
 
     /// Batch fetch last messages for multiple channels in a single actor call.
-    /// Each tuple contains (deviceID, channelIndex, id) where id is used as the dictionary key.
-    func fetchLastChannelMessages(channels: [(deviceID: UUID, channelIndex: UInt8, id: UUID)], limit: Int) throws -> [UUID: [MessageDTO]]
+    /// Each tuple contains (radioID, channelIndex, id) where id is used as the dictionary key.
+    func fetchLastChannelMessages(channels: [(radioID: UUID, channelIndex: UInt8, id: UUID)], limit: Int) throws -> [UUID: [MessageDTO]]
 
     /// Finds a channel message matching a parsed reaction within a timestamp window
     func findChannelMessageForReaction(
-        deviceID: UUID,
+        radioID: UUID,
         channelIndex: UInt8,
         parsedReaction: ParsedReaction,
         localNodeName: String?,
@@ -60,7 +60,7 @@ public protocol PersistenceStoreProtocol: Actor {
 
     /// Fetches channel message candidates for meshcore-open reaction matching
     func fetchChannelMessageCandidates(
-        deviceID: UUID,
+        radioID: UUID,
         channelIndex: UInt8,
         timestampWindow: ClosedRange<UInt32>,
         limit: Int
@@ -68,7 +68,7 @@ public protocol PersistenceStoreProtocol: Actor {
 
     /// Fetches DM message candidates for meshcore-open reaction matching
     func fetchDMMessageCandidates(
-        deviceID: UUID,
+        radioID: UUID,
         contactID: UUID,
         timestampWindow: ClosedRange<UInt32>,
         limit: Int
@@ -76,7 +76,7 @@ public protocol PersistenceStoreProtocol: Actor {
 
     /// Finds a DM message matching a reaction by hash within a timestamp window
     func findDMMessageForReaction(
-        deviceID: UUID,
+        radioID: UUID,
         contactID: UUID,
         messageHash: String,
         timestampWindow: ClosedRange<UInt32>,
@@ -114,28 +114,28 @@ public protocol PersistenceStoreProtocol: Actor {
     // MARK: - Contact Operations
 
     /// Fetch all confirmed contacts for a device
-    func fetchContacts(deviceID: UUID) async throws -> [ContactDTO]
+    func fetchContacts(radioID: UUID) async throws -> [ContactDTO]
 
     /// Fetch contacts with recent messages
-    func fetchConversations(deviceID: UUID) async throws -> [ContactDTO]
+    func fetchConversations(radioID: UUID) async throws -> [ContactDTO]
 
     /// Fetch a contact by ID
     func fetchContact(id: UUID) async throws -> ContactDTO?
 
     /// Fetch a contact by public key
-    func fetchContact(deviceID: UUID, publicKey: Data) async throws -> ContactDTO?
+    func fetchContact(radioID: UUID, publicKey: Data) async throws -> ContactDTO?
 
     /// Fetch a contact by public key prefix
-    func fetchContact(deviceID: UUID, publicKeyPrefix: Data) async throws -> ContactDTO?
+    func fetchContact(radioID: UUID, publicKeyPrefix: Data) async throws -> ContactDTO?
 
     /// Fetch all contacts with their public keys for crypto operations.
     /// Returns dictionary mapping 1-byte public key prefix to array of full 32-byte public keys.
     /// Multiple contacts may share the same prefix byte, so we store all of them.
-    func fetchContactPublicKeysByPrefix(deviceID: UUID) async throws -> [UInt8: [Data]]
+    func fetchContactPublicKeysByPrefix(radioID: UUID) async throws -> [UInt8: [Data]]
 
     /// Save or update a contact from a ContactFrame
     @discardableResult
-    func saveContact(deviceID: UUID, from frame: ContactFrame) async throws -> UUID
+    func saveContact(radioID: UUID, from frame: ContactFrame) async throws -> UUID
 
     /// Save or update a contact from DTO
     func saveContact(_ dto: ContactDTO) async throws
@@ -179,16 +179,16 @@ public protocol PersistenceStoreProtocol: Actor {
     func fetchUnseenMentionIDs(contactID: UUID) async throws -> [UUID]
 
     /// Fetch unseen mention message IDs for a channel, ordered oldest-first
-    func fetchUnseenChannelMentionIDs(deviceID: UUID, channelIndex: UInt8) async throws -> [UUID]
+    func fetchUnseenChannelMentionIDs(radioID: UUID, channelIndex: UInt8) async throws -> [UUID]
 
     /// Delete all messages for a contact
     func deleteMessagesForContact(contactID: UUID) async throws
 
     /// Delete all channel messages from a specific sender for a device
-    func deleteChannelMessages(fromSender senderName: String, deviceID: UUID) async throws
+    func deleteChannelMessages(fromSender senderName: String, radioID: UUID) async throws
 
     /// Fetch blocked contacts for a device
-    func fetchBlockedContacts(deviceID: UUID) async throws -> [ContactDTO]
+    func fetchBlockedContacts(radioID: UUID) async throws -> [ContactDTO]
 
     // MARK: - Blocked Channel Senders
 
@@ -196,25 +196,25 @@ public protocol PersistenceStoreProtocol: Actor {
     func saveBlockedChannelSender(_ dto: BlockedChannelSenderDTO) async throws
 
     /// Delete a blocked channel sender by device and name
-    func deleteBlockedChannelSender(deviceID: UUID, name: String) async throws
+    func deleteBlockedChannelSender(radioID: UUID, name: String) async throws
 
     /// Fetch all blocked channel senders for a device
-    func fetchBlockedChannelSenders(deviceID: UUID) async throws -> [BlockedChannelSenderDTO]
+    func fetchBlockedChannelSenders(radioID: UUID) async throws -> [BlockedChannelSenderDTO]
 
     // MARK: - Channel Operations
 
     /// Fetch all channels for a device
-    func fetchChannels(deviceID: UUID) async throws -> [ChannelDTO]
+    func fetchChannels(radioID: UUID) async throws -> [ChannelDTO]
 
     /// Fetch a channel by index
-    func fetchChannel(deviceID: UUID, index: UInt8) async throws -> ChannelDTO?
+    func fetchChannel(radioID: UUID, index: UInt8) async throws -> ChannelDTO?
 
     /// Fetch a channel by ID
     func fetchChannel(id: UUID) async throws -> ChannelDTO?
 
     /// Save or update a channel from ChannelInfo
     @discardableResult
-    func saveChannel(deviceID: UUID, from info: ChannelInfo) async throws -> UUID
+    func saveChannel(radioID: UUID, from info: ChannelInfo) async throws -> UUID
 
     /// Save or update a channel from DTO
     func saveChannel(_ dto: ChannelDTO) async throws
@@ -223,7 +223,7 @@ public protocol PersistenceStoreProtocol: Actor {
     func deleteChannel(id: UUID) async throws
 
     /// Delete all messages for a channel
-    func deleteMessagesForChannel(deviceID: UUID, channelIndex: UInt8) async throws
+    func deleteMessagesForChannel(radioID: UUID, channelIndex: UInt8) async throws
 
     /// Update channel's last message info (nil clears the date)
     func updateChannelLastMessage(channelID: UUID, date: Date?) async throws
@@ -243,13 +243,13 @@ public protocol PersistenceStoreProtocol: Actor {
     // MARK: - Saved Trace Paths
 
     /// Fetch all saved trace paths for a device
-    func fetchSavedTracePaths(deviceID: UUID) async throws -> [SavedTracePathDTO]
+    func fetchSavedTracePaths(radioID: UUID) async throws -> [SavedTracePathDTO]
 
     /// Fetch a single saved trace path by ID
     func fetchSavedTracePath(id: UUID) async throws -> SavedTracePathDTO?
 
     /// Create a new saved trace path
-    func createSavedTracePath(deviceID: UUID, name: String, pathBytes: Data, hashSize: Int, initialRun: TracePathRunDTO?) async throws -> SavedTracePathDTO
+    func createSavedTracePath(radioID: UUID, name: String, pathBytes: Data, hashSize: Int, initialRun: TracePathRunDTO?) async throws -> SavedTracePathDTO
 
     /// Update a saved trace path's name
     func updateSavedTracePathName(id: UUID, name: String) async throws
@@ -263,7 +263,7 @@ public protocol PersistenceStoreProtocol: Actor {
     // MARK: - Heard Repeats
 
     /// Find a sent channel message matching criteria within a time window
-    func findSentChannelMessage(deviceID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String, withinSeconds: Int) async throws -> MessageDTO?
+    func findSentChannelMessage(radioID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String, withinSeconds: Int) async throws -> MessageDTO?
 
     /// Save a message repeat entry
     func saveMessageRepeat(_ dto: MessageRepeatDTO) async throws
@@ -374,20 +374,20 @@ public protocol PersistenceStoreProtocol: Actor {
     /// Insert or update a discovered node from an advertisement frame.
     /// Updates lastHeard timestamp if node already exists.
     /// - Returns: Tuple of (DiscoveredNodeDTO, isNew) where isNew is true only if node was newly created
-    func upsertDiscoveredNode(deviceID: UUID, from frame: ContactFrame) async throws -> (node: DiscoveredNodeDTO, isNew: Bool)
+    func upsertDiscoveredNode(radioID: UUID, from frame: ContactFrame) async throws -> (node: DiscoveredNodeDTO, isNew: Bool)
 
     /// Fetch all discovered nodes for a device.
-    func fetchDiscoveredNodes(deviceID: UUID) async throws -> [DiscoveredNodeDTO]
+    func fetchDiscoveredNodes(radioID: UUID) async throws -> [DiscoveredNodeDTO]
 
     /// Delete a discovered node by ID.
     func deleteDiscoveredNode(id: UUID) async throws
 
     /// Clear all discovered nodes for a device.
-    func clearDiscoveredNodes(deviceID: UUID) async throws
+    func clearDiscoveredNodes(radioID: UUID) async throws
 
     /// Batch fetch all contact public keys for efficient "added" state lookup.
     /// Returns public keys of confirmed (non-discovered) contacts only.
-    func fetchContactPublicKeys(deviceID: UUID) async throws -> Set<Data>
+    func fetchContactPublicKeys(radioID: UUID) async throws -> Set<Data>
 
     // MARK: - Reactions
 

@@ -8,12 +8,12 @@ extension PersistenceStore {
     /// Efficiently calculate total unread counts for badge display
     /// Returns tuple of (contactUnread, channelUnread, roomUnread) for preference-aware calculation
     /// Optimization: Only fetches entities with unread > 0 to minimize memory usage
-    public func getTotalUnreadCounts(deviceID: UUID) throws -> (contacts: Int, channels: Int, rooms: Int) {
-        let targetDeviceID = deviceID
+    public func getTotalUnreadCounts(radioID: UUID) throws -> (contacts: Int, channels: Int, rooms: Int) {
+        let targetRadioID = radioID
 
         // Only fetch non-blocked, non-muted contacts with unread messages for this device
         let contactPredicate = #Predicate<Contact> {
-            $0.deviceID == targetDeviceID && $0.unreadCount > 0 && !$0.isMuted && !$0.isBlocked
+            $0.radioID == targetRadioID && $0.unreadCount > 0 && !$0.isMuted && !$0.isBlocked
         }
         let contactDescriptor = FetchDescriptor<Contact>(predicate: contactPredicate)
         let contactsWithUnread = try modelContext.fetch(contactDescriptor)
@@ -22,7 +22,7 @@ extension PersistenceStore {
         // Channels: exclude muted, include if unreadCount > 0 OR unreadMentionCount > 0
         let mutedRawValue = NotificationLevel.muted.rawValue
         let channelPredicate = #Predicate<Channel> {
-            $0.deviceID == targetDeviceID &&
+            $0.radioID == targetRadioID &&
             $0.notificationLevelRawValue != mutedRawValue &&
             ($0.unreadCount > 0 || $0.unreadMentionCount > 0)
         }
@@ -37,7 +37,7 @@ extension PersistenceStore {
 
         // Rooms: exclude muted (no mention tracking for rooms)
         let roomPredicate = #Predicate<RemoteNodeSession> {
-            $0.deviceID == targetDeviceID &&
+            $0.radioID == targetRadioID &&
             $0.notificationLevelRawValue != mutedRawValue &&
             $0.unreadCount > 0
         }

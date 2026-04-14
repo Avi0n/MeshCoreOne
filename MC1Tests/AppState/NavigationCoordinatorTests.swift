@@ -11,12 +11,12 @@ struct NavigationCoordinatorNotificationTests {
 
     private static func makeContact(
         id: UUID = UUID(),
-        deviceID: UUID = UUID(),
+        radioID: UUID = UUID(),
         name: String = "TestContact"
     ) -> ContactDTO {
         ContactDTO(
             id: id,
-            deviceID: deviceID,
+            radioID: radioID,
             publicKey: Data(repeating: 0xAA, count: 32),
             name: name,
             typeRawValue: 0x01,
@@ -41,13 +41,13 @@ struct NavigationCoordinatorNotificationTests {
 
     private static func makeChannel(
         id: UUID = UUID(),
-        deviceID: UUID = UUID(),
+        radioID: UUID = UUID(),
         name: String = "TestChannel",
         index: UInt8 = 0
     ) -> ChannelDTO {
         ChannelDTO(
             id: id,
-            deviceID: deviceID,
+            radioID: radioID,
             index: index,
             name: name,
             secret: Data(),
@@ -184,9 +184,9 @@ struct NavigationCoordinatorNotificationTests {
 
     @Test("Channel notification tap navigates to channel")
     func channelNotificationTapNavigatesToChannel() async throws {
-        let deviceID = UUID()
+        let radioID = UUID()
         let channelIndex: UInt8 = 3
-        let channel = Self.makeChannel(deviceID: deviceID, index: channelIndex)
+        let channel = Self.makeChannel(radioID: radioID, index: channelIndex)
         let dataStore = try await Self.makeSeededDataStore(
             contact: Self.makeContact(),
             channel: channel
@@ -200,7 +200,7 @@ struct NavigationCoordinatorNotificationTests {
             connectedDevice: { nil }
         )
 
-        await notificationService.onChannelNotificationTapped?(deviceID, channelIndex)
+        await notificationService.onChannelNotificationTapped?(radioID, channelIndex)
 
         #expect(coordinator.pendingChannel?.id == channel.id)
         #expect(coordinator.chatsSelectedRoute == .channel(channel))
@@ -235,9 +235,9 @@ struct NavigationCoordinatorNotificationTests {
 
     @Test("Reaction notification on channel navigates to channel with scrollToMessageID")
     func reactionOnChannelNavigatesToChannelWithScroll() async throws {
-        let deviceID = UUID()
+        let radioID = UUID()
         let channelIndex: UInt8 = 1
-        let channel = Self.makeChannel(deviceID: deviceID, index: channelIndex)
+        let channel = Self.makeChannel(radioID: radioID, index: channelIndex)
         let messageID = UUID()
         let dataStore = try await Self.makeSeededDataStore(
             contact: Self.makeContact(),
@@ -253,7 +253,7 @@ struct NavigationCoordinatorNotificationTests {
         )
 
         // contactID is nil → falls through to channel branch
-        await notificationService.onReactionNotificationTapped?(nil, channelIndex, deviceID, messageID)
+        await notificationService.onReactionNotificationTapped?(nil, channelIndex, radioID, messageID)
 
         #expect(coordinator.pendingChannel?.id == channel.id)
         #expect(coordinator.pendingScrollToMessageID == messageID)

@@ -10,7 +10,7 @@ struct ChannelRegionScopeTests {
     private func makeDTO(regionScope: String? = nil) -> ChannelDTO {
         ChannelDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             index: 1,
             name: "Test",
             secret: Data(repeating: 0, count: 16),
@@ -105,7 +105,7 @@ struct ChannelRegionScopeTests {
         let updated = dto.with(regionScope: "UK")
 
         #expect(updated.id == dto.id)
-        #expect(updated.deviceID == dto.deviceID)
+        #expect(updated.radioID == dto.radioID)
         #expect(updated.index == dto.index)
         #expect(updated.name == dto.name)
         #expect(updated.secret == dto.secret)

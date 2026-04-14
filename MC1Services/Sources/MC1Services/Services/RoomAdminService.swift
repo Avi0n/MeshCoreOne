@@ -74,8 +74,8 @@ public actor RoomAdminService {
     // MARK: - Session Queries
 
     /// Fetch all room admin sessions for a device.
-    public func fetchRoomAdminSessions(deviceID: UUID) async throws -> [RemoteNodeSessionDTO] {
-        let sessions = try await dataStore.fetchRemoteNodeSessions(deviceID: deviceID)
+    public func fetchRoomAdminSessions(radioID: UUID) async throws -> [RemoteNodeSessionDTO] {
+        let sessions = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
         return sessions.filter { $0.isRoom }
     }
 

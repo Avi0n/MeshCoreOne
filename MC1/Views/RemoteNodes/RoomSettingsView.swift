@@ -262,7 +262,7 @@ private struct RoomBehaviorSection: View {
         RoomSettingsView(
             session: RemoteNodeSessionDTO(
                 id: UUID(),
-                deviceID: UUID(),
+                radioID: UUID(),
                 publicKey: Data(repeating: 0x42, count: 32),
                 name: "Community Room",
                 role: .roomServer,

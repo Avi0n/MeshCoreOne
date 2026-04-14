@@ -22,7 +22,7 @@ import MeshCore
 /// await container.wireServices()
 ///
 /// // Start event monitoring when device is connected
-/// await container.startEventMonitoring(deviceID: deviceUUID)
+/// await container.startEventMonitoring(radioID: radioUUID)
 /// ```
 ///
 /// ## Service Dependencies
@@ -223,11 +223,11 @@ public final class ServiceContainer {
                 if let contact = try? await self.dataStore.fetchContact(id: contactID) {
                     if reason == .blocked {
                         try? await self.dataStore.deleteChannelMessages(
-                            fromSender: contact.name, deviceID: contact.deviceID
+                            fromSender: contact.name, radioID: contact.radioID
                         )
                     }
                     await self.syncCoordinator.refreshBlockedContactsCache(
-                        deviceID: contact.deviceID, dataStore: self.dataStore
+                        radioID: contact.radioID, dataStore: self.dataStore
                     )
                     await self.syncCoordinator.notifyConversationsChanged()
                 }
@@ -276,11 +276,11 @@ public final class ServiceContainer {
     /// from the MeshCoreSession.
     ///
     /// - Parameters:
-    ///   - deviceID: The connected device's UUID
+    ///   - radioID: The connected device's radio ID for data scoping
     ///   - enableAutoFetch: Whether to start message auto-fetch immediately (default true)
     ///   - enableAdvertisementMonitoring: Whether to start advertisement monitoring immediately (default true)
     public func startEventMonitoring(
-        deviceID: UUID,
+        radioID: UUID,
         enableAutoFetch: Bool = true,
         enableAdvertisementMonitoring: Bool = true
     ) async {
@@ -290,9 +290,9 @@ public final class ServiceContainer {
 
         // Configure HeardRepeatsService with device info
         do {
-            if let device = try await dataStore.fetchDevice(id: deviceID) {
+            if let device = try await dataStore.fetchDevice(radioID: radioID) {
                 await heardRepeatsService.configure(
-                    deviceID: deviceID,
+                    radioID: radioID,
                     localNodeName: device.nodeName
                 )
             } else {
@@ -304,16 +304,16 @@ public final class ServiceContainer {
 
         // Start event monitoring for services that need it
         if enableAdvertisementMonitoring {
-            await advertisementService.startEventMonitoring(deviceID: deviceID)
+            await advertisementService.startEventMonitoring(radioID: radioID)
         }
-        await rxLogService.startEventMonitoring(deviceID: deviceID)
+        await rxLogService.startEventMonitoring(radioID: radioID)
         await messageService.startEventMonitoring()
         await remoteNodeService.startEventMonitoring()
 
         // Always start message event monitoring so handlers are ready for polled messages
-        await messagePollingService.startMessageEventMonitoring(deviceID: deviceID)
+        await messagePollingService.startMessageEventMonitoring(radioID: radioID)
         if enableAutoFetch {
-            await messagePollingService.startAutoFetch(deviceID: deviceID)
+            await messagePollingService.startAutoFetch(radioID: radioID)
         }
 
         // Prune debug logs on connection
@@ -355,15 +355,15 @@ public final class ServiceContainer {
     /// This method checks for task cancellation between sync operations.
     /// Call after connection is established to ensure device data is current.
     ///
-    /// - Parameter deviceID: The connected device's UUID
-    public func performInitialSync(deviceID: UUID) async {
+    /// - Parameter radioID: The connected device's radio ID for data scoping
+    public func performInitialSync(radioID: UUID) async {
         let logger = Logger(subsystem: "com.mc1.services", category: "ServiceContainer")
 
         // Migrate app favorites to device BEFORE sync (one-time on upgrade)
         // Must run first because sync overwrites isFavorite with device flags
         guard !Task.isCancelled else { return }
         do {
-            let migrated = try await contactService.migrateAppFavoritesToDevice(deviceID: deviceID)
+            let migrated = try await contactService.migrateAppFavoritesToDevice(radioID: radioID)
             if migrated > 0 {
                 logger.info("Initial sync: \(migrated) favorites migrated to device")
             }
@@ -374,7 +374,7 @@ public final class ServiceContainer {
         // Sync contacts from device
         guard !Task.isCancelled else { return }
         do {
-            let result = try await contactService.syncContacts(deviceID: deviceID)
+            let result = try await contactService.syncContacts(radioID: radioID)
             if result.contactsReceived > 0 {
                 logger.info("Initial sync: \(result.contactsReceived) contacts synced")
             }
@@ -386,27 +386,27 @@ public final class ServiceContainer {
         guard !Task.isCancelled else { return }
         do {
             // Fetch device to get maxChannels
-            guard let device = try await dataStore.fetchDevice(id: deviceID) else {
+            guard let device = try await dataStore.fetchDevice(radioID: radioID) else {
                 logger.warning("Initial sync: device not found for channel sync")
                 return
             }
 
-            let result = try await channelService.syncChannels(deviceID: deviceID, maxChannels: device.maxChannels)
+            let result = try await channelService.syncChannels(radioID: radioID, maxChannels: device.maxChannels)
             if result.channelsSynced > 0 {
                 logger.info("Initial sync: \(result.channelsSynced) channels synced")
             }
 
             // Update RxLogService with channel data for decryption
-            await updateRxLogChannels(deviceID: deviceID)
+            await updateRxLogChannels(radioID: radioID)
         } catch {
             logger.warning("Initial sync: channel sync failed: \(error)")
         }
     }
 
     /// Updates RxLogService with current channel data for message decryption.
-    private func updateRxLogChannels(deviceID: UUID) async {
+    private func updateRxLogChannels(radioID: UUID) async {
         do {
-            let channels = try await dataStore.fetchChannels(deviceID: deviceID)
+            let channels = try await dataStore.fetchChannels(radioID: radioID)
             let secrets: [UInt8: Data] = Dictionary(
                 uniqueKeysWithValues: channels.map { ($0.index, $0.secret) }
             )

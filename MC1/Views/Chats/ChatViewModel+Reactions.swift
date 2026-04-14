@@ -82,7 +82,7 @@ extension ChatViewModel {
             _ = try await messageService.sendChannelMessage(
                 text: reactionText,
                 channelIndex: channelIndex,
-                deviceID: message.deviceID
+                radioID: message.radioID
             )
 
             // Optimistic local update
@@ -97,7 +97,7 @@ extension ChatViewModel {
                 messageHash: messageHash,
                 rawText: reactionText,
                 channelIndex: channelIndex,
-                deviceID: message.deviceID
+                radioID: message.radioID
             )
             if let result = await reactionService.persistReactionAndUpdateSummary(
                 reactionDTO,
@@ -151,7 +151,7 @@ extension ChatViewModel {
                 messageHash: messageHash,
                 rawText: reactionText,
                 contactID: contactID,
-                deviceID: message.deviceID
+                radioID: message.radioID
             )
             if let result = await reactionService.persistReactionAndUpdateSummary(
                 reactionDTO,

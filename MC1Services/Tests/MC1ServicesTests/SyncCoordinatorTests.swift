@@ -9,12 +9,12 @@ import MeshCoreTestSupport
 struct SyncCoordinatorTests {
 
     private func createTestDataStore(
-        deviceID: UUID,
+        radioID: UUID,
         maxChannels: UInt8 = 8,
         lastContactSync: UInt32 = 0
     ) async throws -> PersistenceStore {
         try await PersistenceStore.createTestDataStore(
-            deviceID: deviceID,
+            radioID: radioID,
             maxChannels: maxChannels,
             lastContactSync: lastContactSync
         )
@@ -100,7 +100,7 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         let startedTracker = CallTracker()
         let endedTracker = CallTracker()
@@ -112,7 +112,7 @@ struct SyncCoordinatorTests {
         )
 
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: mockContactService,
             channelService: mockChannelService,
@@ -131,7 +131,7 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         let endedTracker = CallTracker()
 
@@ -146,7 +146,7 @@ struct SyncCoordinatorTests {
 
         do {
             try await coordinator.performFullSync(
-                deviceID: testDeviceID,
+                radioID: testDeviceID,
                 dataStore: dataStore,
                 contactService: mockContactService,
                 channelService: mockChannelService,
@@ -168,7 +168,7 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let orderTracker = OrderTrackingMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         await coordinator.setSyncActivityCallbacks(
             onStarted: { },
@@ -180,7 +180,7 @@ struct SyncCoordinatorTests {
         )
 
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: mockContactService,
             channelService: mockChannelService,
@@ -238,7 +238,7 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         // Create a test ServiceContainer
         let mockTransport = SimulatorMockTransport()
@@ -257,7 +257,7 @@ struct SyncCoordinatorTests {
         // Start sync in background task - it will block during contacts phase
         let syncTask = Task {
             try await coordinator.performFullSync(
-                deviceID: testDeviceID,
+                radioID: testDeviceID,
                 dataStore: dataStore,
                 contactService: delayingContactService,
                 channelService: mockChannelService,
@@ -291,10 +291,10 @@ struct SyncCoordinatorTests {
         let mockMessagePollingService = MockMessagePollingService()
         let mockAppStateProvider = MockAppStateProvider(isInForeground: false)
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: mockContactService,
             channelService: mockChannelService,
@@ -320,10 +320,10 @@ struct SyncCoordinatorTests {
         let mockMessagePollingService = MockMessagePollingService()
         let mockAppStateProvider = MockAppStateProvider(isInForeground: true)
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: mockContactService,
             channelService: mockChannelService,
@@ -348,10 +348,10 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: mockContactService,
             channelService: mockChannelService,
@@ -376,7 +376,7 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         let startedTracker = CallTracker()
 
@@ -389,7 +389,7 @@ struct SyncCoordinatorTests {
         // Start first sync in background - it will block during contacts phase
         let firstSyncTask = Task {
             try await coordinator.performFullSync(
-                deviceID: testDeviceID,
+                radioID: testDeviceID,
                 dataStore: dataStore,
                 contactService: delayingContactService,
                 channelService: mockChannelService,
@@ -404,7 +404,7 @@ struct SyncCoordinatorTests {
 
         // Try to start a second sync while first is still running
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: delayingContactService,
             channelService: mockChannelService,
@@ -427,7 +427,7 @@ struct SyncCoordinatorTests {
         let delayingChannelService = DelayingChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         let endedTracker = CallTracker()
 
@@ -439,7 +439,7 @@ struct SyncCoordinatorTests {
 
         let syncTask = Task {
             try await coordinator.performFullSync(
-                deviceID: testDeviceID,
+                radioID: testDeviceID,
                 dataStore: dataStore,
                 contactService: mockContactService,
                 channelService: delayingChannelService,
@@ -471,7 +471,7 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         let mockTransport = SimulatorMockTransport()
         let session = MeshCoreSession(transport: mockTransport)
@@ -482,7 +482,7 @@ struct SyncCoordinatorTests {
         #expect(services.notificationService.isSuppressingNotifications == true)
 
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: mockContactService,
             channelService: mockChannelService,
@@ -506,12 +506,12 @@ struct SyncCoordinatorTests {
         // Create device with a lastContactSync timestamp
         let lastSyncTimestamp: UInt32 = 1704067200 // 2024-01-01 00:00:00 UTC
         let dataStore = try await createTestDataStore(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             lastContactSync: lastSyncTimestamp
         )
 
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: mockContactService,
             channelService: mockChannelService,
@@ -540,7 +540,7 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         let succeededValues = ValueTracker<Bool>()
 
@@ -551,7 +551,7 @@ struct SyncCoordinatorTests {
         )
 
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: mockContactService,
             channelService: mockChannelService,
@@ -569,7 +569,7 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         let succeededValues = ValueTracker<Bool>()
 
@@ -583,7 +583,7 @@ struct SyncCoordinatorTests {
 
         do {
             try await coordinator.performFullSync(
-                deviceID: testDeviceID,
+                radioID: testDeviceID,
                 dataStore: dataStore,
                 contactService: mockContactService,
                 channelService: mockChannelService,
@@ -723,7 +723,7 @@ actor DelayingContactService: ContactServiceProtocol {
         continuation = nil
     }
 
-    func syncContacts(deviceID: UUID, since: Date?) async throws -> ContactSyncResult {
+    func syncContacts(radioID: UUID, since: Date?) async throws -> ContactSyncResult {
         // Signal that sync has started, then wait to be resumed
         await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
             Task {
@@ -748,7 +748,7 @@ actor DelayingChannelService: ChannelServiceProtocol {
         }
     }
 
-    func syncChannels(deviceID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
+    func syncChannels(radioID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
         hasStarted = true
         while !startWaiters.isEmpty {
             startWaiters.removeFirst().resume()
@@ -760,7 +760,7 @@ actor DelayingChannelService: ChannelServiceProtocol {
         }
     }
 
-    func retryFailedChannels(deviceID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult {
+    func retryFailedChannels(radioID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult {
         ChannelSyncResult(channelsSynced: 0, errors: [])
     }
 }

@@ -59,17 +59,17 @@ final class DiscoveryViewModel {
 
     // MARK: - Load Nodes
 
-    func loadDiscoveredNodes(deviceID: UUID) async {
+    func loadDiscoveredNodes(radioID: UUID) async {
         guard let dataStore else { return }
 
         isLoading = true
         errorMessage = nil
 
         do {
-            let nodes = try await dataStore.fetchDiscoveredNodes(deviceID: deviceID)
+            let nodes = try await dataStore.fetchDiscoveredNodes(radioID: radioID)
 
             // Single batch query for all contact public keys (O(1) vs O(N))
-            let addedKeys = try await dataStore.fetchContactPublicKeys(deviceID: deviceID)
+            let addedKeys = try await dataStore.fetchContactPublicKeys(radioID: radioID)
 
             discoveredNodes = nodes
             addedPublicKeys = addedKeys
@@ -103,11 +103,11 @@ final class DiscoveryViewModel {
         }
     }
 
-    func clearAllDiscoveredNodes(deviceID: UUID) async {
+    func clearAllDiscoveredNodes(radioID: UUID) async {
         guard let dataStore else { return }
 
         do {
-            try await dataStore.clearDiscoveredNodes(deviceID: deviceID)
+            try await dataStore.clearDiscoveredNodes(radioID: radioID)
             discoveredNodes = []
         } catch {
             errorMessage = error.localizedDescription

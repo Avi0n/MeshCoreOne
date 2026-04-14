@@ -13,7 +13,7 @@ final class MessagePathViewModel {
 
     private let logger = Logger(subsystem: "com.mc1", category: "MessagePathViewModel")
 
-    func loadContacts(services: ServiceContainer?, deviceID: UUID) async {
+    func loadContacts(services: ServiceContainer?, radioID: UUID) async {
         isLoading = true
         guard let services else {
             isLoading = false
@@ -21,10 +21,10 @@ final class MessagePathViewModel {
         }
 
         do {
-            let fetched = try await services.dataStore.fetchContacts(deviceID: deviceID)
+            let fetched = try await services.dataStore.fetchContacts(radioID: radioID)
             contacts = fetched
             repeaters = fetched.filter { $0.type == .repeater }
-            let nodes = try await services.dataStore.fetchDiscoveredNodes(deviceID: deviceID)
+            let nodes = try await services.dataStore.fetchDiscoveredNodes(radioID: radioID)
             discoveredRepeaters = nodes.filter { $0.nodeType == .repeater }
         } catch {
             logger.error("Failed to load contacts: \(error.localizedDescription)")

@@ -134,20 +134,20 @@ public final class NavigationCoordinator {
         }
 
         // Channel notification tap
-        notificationService.onChannelNotificationTapped = { [weak self] deviceID, channelIndex in
+        notificationService.onChannelNotificationTapped = { [weak self] radioID, channelIndex in
             guard let self else { return }
-            guard let channel = try? await dataStore.fetchChannel(deviceID: deviceID, index: channelIndex) else { return }
+            guard let channel = try? await dataStore.fetchChannel(radioID: radioID, index: channelIndex) else { return }
             self.navigateToChannel(with: channel)
         }
 
         // Reaction notification tap
-        notificationService.onReactionNotificationTapped = { [weak self] contactID, channelIndex, deviceID, messageID in
+        notificationService.onReactionNotificationTapped = { [weak self] contactID, channelIndex, radioID, messageID in
             guard let self else { return }
             if let contactID,
                let contact = try? await dataStore.fetchContact(id: contactID) {
                 self.navigateToChat(with: contact, scrollToMessageID: messageID)
-            } else if let channelIndex, let deviceID,
-                      let channel = try? await dataStore.fetchChannel(deviceID: deviceID, index: channelIndex) {
+            } else if let channelIndex, let radioID,
+                      let channel = try? await dataStore.fetchChannel(radioID: radioID, index: channelIndex) {
                 self.navigateToChannel(with: channel, scrollToMessageID: messageID)
             }
         }

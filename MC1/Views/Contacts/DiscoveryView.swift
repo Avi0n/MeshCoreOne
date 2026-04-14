@@ -120,14 +120,14 @@ struct DiscoveryView: View {
     }
 
     private func loadDiscoveredNodes() async {
-        guard let deviceID = appState.connectedDevice?.id else { return }
+        guard let radioID = appState.connectedDevice?.radioID else { return }
         viewModel.configure(appState: appState)
-        await viewModel.loadDiscoveredNodes(deviceID: deviceID)
+        await viewModel.loadDiscoveredNodes(radioID: radioID)
     }
 
     private func clearAllDiscoveredNodes() async {
-        guard let deviceID = appState.connectedDevice?.id else { return }
-        await viewModel.clearAllDiscoveredNodes(deviceID: deviceID)
+        guard let radioID = appState.connectedDevice?.radioID else { return }
+        await viewModel.clearAllDiscoveredNodes(radioID: radioID)
 
         AccessibilityNotification.Announcement(L10n.Contacts.Contacts.Discovery.clearedAllNodes).post()
     }
@@ -234,8 +234,8 @@ private struct DiscoveryNodesList: View {
                     longitude: node.longitude,
                     lastModified: 0
                 )
-                try await contactService.addOrUpdateContact(deviceID: node.deviceID, contact: frame)
-                await viewModel.loadDiscoveredNodes(deviceID: node.deviceID)
+                try await contactService.addOrUpdateContact(radioID: node.radioID, contact: frame)
+                await viewModel.loadDiscoveredNodes(radioID: node.radioID)
             } catch ContactServiceError.contactTableFull {
                 let maxContacts = appState.connectedDevice?.maxContacts
                 if let maxContacts {

@@ -7,8 +7,8 @@ import SwiftData
 @Model
 public final class Contact {
     #Index<Contact>(
-        [\.deviceID],
-        [\.deviceID, \.publicKey]
+        [\.radioID],
+        [\.radioID, \.publicKey]
     )
 
     /// Unique identifier (derived from public key hash)
@@ -16,7 +16,8 @@ public final class Contact {
     public var id: UUID
 
     /// The device this contact belongs to
-    public var deviceID: UUID
+    @Attribute(originalName: "deviceID")
+    public var radioID: UUID
 
     /// The 32-byte public key of the contact
     public var publicKey: Data
@@ -77,7 +78,7 @@ public final class Contact {
 
     public init(
         id: UUID = UUID(),
-        deviceID: UUID,
+        radioID: UUID,
         publicKey: Data,
         name: String,
         typeRawValue: UInt8 = 0,
@@ -99,7 +100,7 @@ public final class Contact {
         customOCVArrayString: String? = nil
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.publicKey = publicKey
         self.name = name
         self.typeRawValue = typeRawValue
@@ -144,9 +145,9 @@ public final class Contact {
     }
 
     /// Creates a Contact from a protocol ContactFrame
-    public convenience init(deviceID: UUID, from frame: ContactFrame) {
+    public convenience init(radioID: UUID, from frame: ContactFrame) {
         self.init(
-            deviceID: deviceID,
+            radioID: radioID,
             publicKey: frame.publicKey,
             name: frame.name,
             typeRawValue: frame.type.rawValue,
@@ -240,7 +241,7 @@ public extension Contact {
 /// A sendable snapshot of Contact for cross-actor transfers
 public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterResolvable {
     public let id: UUID
-    public let deviceID: UUID
+    public var radioID: UUID
     public let publicKey: Data
     public let name: String
     public let typeRawValue: UInt8
@@ -263,7 +264,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
 
     public init(from contact: Contact) {
         self.id = contact.id
-        self.deviceID = contact.deviceID
+        self.radioID = contact.radioID
         self.publicKey = contact.publicKey
         self.name = contact.name
         self.typeRawValue = contact.typeRawValue
@@ -288,7 +289,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
     /// Memberwise initializer for creating DTOs directly
     public init(
         id: UUID,
-        deviceID: UUID,
+        radioID: UUID,
         publicKey: Data,
         name: String,
         typeRawValue: UInt8,
@@ -310,7 +311,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
         customOCVArrayString: String? = nil
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.publicKey = publicKey
         self.name = name
         self.typeRawValue = typeRawValue
@@ -393,7 +394,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
     /// Returns a copy with only `isMuted` changed.
     public func with(isMuted: Bool) -> ContactDTO {
         ContactDTO(
-            id: id, deviceID: deviceID, publicKey: publicKey, name: name,
+            id: id, radioID: radioID, publicKey: publicKey, name: name,
             typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
             outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
             latitude: latitude, longitude: longitude, lastModified: lastModified,
@@ -407,7 +408,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
     /// Returns a copy with only `isFavorite` changed.
     public func with(isFavorite: Bool) -> ContactDTO {
         ContactDTO(
-            id: id, deviceID: deviceID, publicKey: publicKey, name: name,
+            id: id, radioID: radioID, publicKey: publicKey, name: name,
             typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
             outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
             latitude: latitude, longitude: longitude, lastModified: lastModified,

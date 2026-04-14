@@ -233,12 +233,12 @@ struct ChatsView: View {
     }
 
     private func loadConversations() async {
-        guard let deviceID = appState.currentDeviceID else {
+        guard let deviceID = appState.currentRadioID else {
             viewModel.clearConversations()
             return
         }
         viewModel.configure(appState: appState)
-        await viewModel.loadAllConversations(deviceID: deviceID)
+        await viewModel.loadAllConversations(radioID: deviceID)
 
         // If we're in the middle of deleting an item, ensure it stays removed
         // This handles race conditions where a reload happens before DB delete completes
@@ -266,7 +266,7 @@ struct ChatsView: View {
 
     private func announceOfflineStateIfNeeded() {
         guard appState.connectionState == .disconnected,
-              appState.currentDeviceID != nil else { return }
+              appState.currentRadioID != nil else { return }
 
         AccessibilityNotification.Announcement(L10n.Chats.Chats.Accessibility.offlineAnnouncement).post()
     }
@@ -338,7 +338,7 @@ struct ChatsView: View {
             )
 
             try await appState.services?.contactService.removeContact(
-                deviceID: session.deviceID,
+                radioID: session.radioID,
                 publicKey: session.publicKey
             )
 
@@ -356,12 +356,12 @@ struct ChatsView: View {
             throw ChannelDeleteError.servicesUnavailable
         }
         try await channelService.clearChannel(
-            deviceID: channel.deviceID,
+            radioID: channel.radioID,
             index: channel.index
         )
         await appState.services?.notificationService.removeDeliveredNotifications(
             forChannelIndex: channel.index,
-            deviceID: channel.deviceID
+            radioID: channel.radioID
         )
         await appState.services?.notificationService.updateBadgeCount()
     }
@@ -414,9 +414,9 @@ struct ChatsView: View {
                 return
             }
 
-            if let deviceID = appState.currentDeviceID,
+            if let deviceID = appState.currentRadioID,
                let existingContact = try? await appState.offlineDataStore?.fetchContact(
-                   deviceID: deviceID,
+                   radioID: deviceID,
                    publicKey: result.publicKey
                ) {
                 appState.navigation.navigateToContactDetail(existingContact)
@@ -428,8 +428,8 @@ struct ChatsView: View {
 
     private func handleChannelLink(_ result: MeshCoreURLParser.ChannelResult) {
         Task {
-            if let deviceID = appState.currentDeviceID,
-               let channels = try? await appState.offlineDataStore?.fetchChannels(deviceID: deviceID),
+            if let deviceID = appState.currentRadioID,
+               let channels = try? await appState.offlineDataStore?.fetchChannels(radioID: deviceID),
                let existingChannel = channels.first(where: { $0.secret == result.secret }) {
                 navigate(to: .channel(existingChannel))
             } else {
@@ -445,7 +445,7 @@ struct ChatsView: View {
                 return
             }
 
-            guard let deviceID = appState.currentDeviceID else {
+            guard let deviceID = appState.currentRadioID else {
                 hashtagToJoin = HashtagJoinRequest(id: fullName)
                 return
             }
@@ -453,9 +453,9 @@ struct ChatsView: View {
             do {
                 if let channel = try await HashtagDeeplinkSupport.findChannelByName(
                     fullName,
-                    deviceID: deviceID,
+                    radioID: deviceID,
                     fetchChannels: { deviceID in
-                        try await appState.offlineDataStore?.fetchChannels(deviceID: deviceID) ?? []
+                        try await appState.offlineDataStore?.fetchChannels(radioID: deviceID) ?? []
                     }
                 ) {
                     navigate(to: .channel(channel))

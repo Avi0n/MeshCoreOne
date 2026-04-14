@@ -81,7 +81,7 @@ extension ConnectionManager {
         guard connectionState.isOperational,
               connectionIntent.wantsConnection,
               let services,
-              let deviceID = connectedDevice?.id else { return }
+              let radioID = connectedDevice?.radioID else { return }
 
         let syncCoordinator = services.syncCoordinator
         let syncState = syncCoordinator.state
@@ -93,7 +93,7 @@ extension ConnectionManager {
         }
 
         logger.info("Foreground return: sync state is failed, starting resync loop")
-        startResyncLoop(deviceID: deviceID, services: services, transportType: currentTransportType ?? .bluetooth)
+        startResyncLoop(radioID: radioID, services: services, transportType: currentTransportType ?? .bluetooth)
     }
 
     // MARK: - Activation
@@ -114,6 +114,13 @@ extension ConnectionManager {
         // Reset stale room session connections from previous app launch
         let resetStore = createStandalonePersistenceStore()
         try? await resetStore.resetAllRemoteNodeSessionConnections()
+
+        // Populate radioID on existing devices and backfill deduplication keys (one-time migration)
+        do {
+            try await resetStore.performRadioIDMigration()
+        } catch {
+            logger.error("radioID migration failed: \(error)")
+        }
 
         #if targetEnvironment(simulator)
         // Skip auto-reconnect if user explicitly disconnected
@@ -557,6 +564,7 @@ extension ConnectionManager {
             // Persist for auto-reconnect
             persistConnection(
                 deviceID: MockDataProvider.simulatorDeviceID,
+                radioID: MockDataProvider.simulatorDeviceID,
                 deviceName: "MeshCore One Sim"
             )
 
@@ -634,11 +642,12 @@ extension ConnectionManager {
         )
 
         // Persist connection for auto-reconnect
-        persistConnection(deviceID: deviceID, deviceName: meshCoreSelfInfo.name)
+        let radioID = connectedDevice!.radioID
+        persistConnection(deviceID: deviceID, radioID: radioID, deviceName: meshCoreSelfInfo.name)
 
         // Notify observers BEFORE sync starts so they can wire callbacks
         await onConnectionReady?()
-        let syncSucceeded = await performInitialSync(deviceID: deviceID, services: newServices, context: "Device switch", forceFullSync: true)
+        let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, context: "Device switch", forceFullSync: true)
 
         guard await promoteToReady(syncSucceeded: syncSucceeded, expectedServices: newServices, transportType: .bluetooth) else { return }
 

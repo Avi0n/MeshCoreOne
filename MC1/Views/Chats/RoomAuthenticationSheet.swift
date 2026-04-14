@@ -32,7 +32,7 @@ struct RoomAuthenticationSheet: View {
         }
         .task {
             contact = try? await appState.services?.dataStore.fetchContact(
-                deviceID: session.deviceID,
+                radioID: session.radioID,
                 publicKey: session.publicKey
             )
             isLoading = false

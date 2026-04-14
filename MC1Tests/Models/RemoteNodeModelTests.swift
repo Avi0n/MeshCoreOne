@@ -17,7 +17,7 @@ struct RemoteNodeModelTests {
 
         // Create room session
         let roomSession = RemoteNodeSessionDTO(
-            deviceID: deviceID,
+            radioID: deviceID,
             publicKey: publicKey,
             name: "TestRoom",
             role: .roomServer
@@ -40,7 +40,7 @@ struct RemoteNodeModelTests {
         let publicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
 
         let repeaterSession = RemoteNodeSessionDTO(
-            deviceID: deviceID,
+            radioID: deviceID,
             publicKey: publicKey,
             name: "TestRepeater",
             role: .repeater
@@ -61,7 +61,7 @@ struct RemoteNodeModelTests {
         let publicKey = Data([0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF] + Array(repeating: UInt8(0), count: 26))
 
         let session = RemoteNodeSessionDTO(
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: publicKey,
             name: "Test",
             role: .roomServer,
@@ -89,7 +89,7 @@ struct RemoteNodeModelTests {
     func remoteNodeSessionDTOCanPostRequirements() {
         // Room + guest = can't post
         let guestRoom = RemoteNodeSessionDTO(
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0, count: 32),
             name: "Test",
             role: .roomServer,
@@ -99,7 +99,7 @@ struct RemoteNodeModelTests {
 
         // Repeater + admin = can't post (not a room)
         let adminRepeater = RemoteNodeSessionDTO(
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0, count: 32),
             name: "Test",
             role: .repeater,
@@ -109,7 +109,7 @@ struct RemoteNodeModelTests {
 
         // Room + admin = can post
         let adminRoom = RemoteNodeSessionDTO(
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0, count: 32),
             name: "Test",
             role: .roomServer,

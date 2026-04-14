@@ -363,7 +363,7 @@ private struct RegionsSection: View {
         RepeaterSettingsView(
             session: RemoteNodeSessionDTO(
                 id: UUID(),
-                deviceID: UUID(),
+                radioID: UUID(),
                 publicKey: Data(repeating: 0x42, count: 32),
                 name: "Mountain Peak Repeater",
                 role: .repeater,

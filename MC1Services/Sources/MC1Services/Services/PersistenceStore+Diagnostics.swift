@@ -6,10 +6,10 @@ extension PersistenceStore {
 
     // MARK: - Saved Trace Path Operations
 
-    public func fetchSavedTracePaths(deviceID: UUID) throws -> [SavedTracePathDTO] {
-        let targetDeviceID = deviceID
+    public func fetchSavedTracePaths(radioID: UUID) throws -> [SavedTracePathDTO] {
+        let targetRadioID = radioID
         let descriptor = FetchDescriptor<SavedTracePath>(
-            predicate: #Predicate { $0.deviceID == targetDeviceID },
+            predicate: #Predicate { $0.radioID == targetRadioID },
             sortBy: [SortDescriptor(\.createdDate, order: .reverse)]
         )
         let paths = try modelContext.fetch(descriptor)
@@ -26,14 +26,14 @@ extension PersistenceStore {
     }
 
     public func createSavedTracePath(
-        deviceID: UUID,
+        radioID: UUID,
         name: String,
         pathBytes: Data,
         hashSize: Int = 1,
         initialRun: TracePathRunDTO?
     ) throws -> SavedTracePathDTO {
         let path = SavedTracePath(
-            deviceID: deviceID,
+            radioID: radioID,
             name: name,
             pathBytes: pathBytes,
             hashSize: hashSize
@@ -107,7 +107,7 @@ extension PersistenceStore {
     public func saveRxLogEntry(_ dto: RxLogEntryDTO) throws {
         let entry = RxLogEntry(
             id: dto.id,
-            deviceID: dto.deviceID,
+            radioID: dto.radioID,
             receivedAt: dto.receivedAt,
             snr: dto.snr,
             rssi: dto.rssi,
@@ -129,14 +129,14 @@ extension PersistenceStore {
         )
         modelContext.insert(entry)
         try modelContext.save()
-        rxLogEntryCountsByDevice[dto.deviceID, default: 0] += 1
+        rxLogEntryCountsByDevice[dto.radioID, default: 0] += 1
     }
 
     /// Fetch RX log entries for a device, most recent first.
-    public func fetchRxLogEntries(deviceID: UUID, limit: Int = 500) throws -> [RxLogEntryDTO] {
-        let targetDeviceID = deviceID
+    public func fetchRxLogEntries(radioID: UUID, limit: Int = 500) throws -> [RxLogEntryDTO] {
+        let targetRadioID = radioID
         var descriptor = FetchDescriptor<RxLogEntry>(
-            predicate: #Predicate { $0.deviceID == targetDeviceID },
+            predicate: #Predicate { $0.radioID == targetRadioID },
             sortBy: [SortDescriptor(\.receivedAt, order: .reverse)]
         )
         descriptor.fetchLimit = limit
@@ -145,10 +145,10 @@ extension PersistenceStore {
     }
 
     /// Count RX log entries for a device.
-    public func countRxLogEntries(deviceID: UUID) throws -> Int {
-        let targetDeviceID = deviceID
+    public func countRxLogEntries(radioID: UUID) throws -> Int {
+        let targetRadioID = radioID
         let descriptor = FetchDescriptor<RxLogEntry>(
-            predicate: #Predicate { $0.deviceID == targetDeviceID }
+            predicate: #Predicate { $0.radioID == targetRadioID }
         )
         return try modelContext.fetchCount(descriptor)
     }
@@ -158,18 +158,18 @@ extension PersistenceStore {
     /// This avoids repeated count/fetch/delete maintenance on every RX packet while keeping
     /// retention bounded to `keepCount + pruneThreshold` entries between prune passes.
     public func pruneRxLogEntries(
-        deviceID: UUID,
+        radioID: UUID,
         keepCount: Int = 1000,
         pruneThreshold: Int = 100
     ) throws {
-        let count = try cachedRxLogEntryCount(deviceID: deviceID)
+        let count = try cachedRxLogEntryCount(radioID: radioID)
         guard count > keepCount + pruneThreshold else { return }
 
         let deleteCount = count - keepCount
-        let targetDeviceID = deviceID
+        let targetRadioID = radioID
 
         var descriptor = FetchDescriptor<RxLogEntry>(
-            predicate: #Predicate { $0.deviceID == targetDeviceID },
+            predicate: #Predicate { $0.radioID == targetRadioID },
             sortBy: [SortDescriptor(\.receivedAt, order: .forward)]  // Oldest first
         )
         descriptor.fetchLimit = deleteCount
@@ -179,30 +179,30 @@ extension PersistenceStore {
             modelContext.delete(entry)
         }
         try modelContext.save()
-        rxLogEntryCountsByDevice[deviceID] = keepCount
+        rxLogEntryCountsByDevice[radioID] = keepCount
     }
 
     /// Clear all RX log entries for a device.
-    public func clearRxLogEntries(deviceID: UUID) throws {
-        let targetDeviceID = deviceID
+    public func clearRxLogEntries(radioID: UUID) throws {
+        let targetRadioID = radioID
         let descriptor = FetchDescriptor<RxLogEntry>(
-            predicate: #Predicate { $0.deviceID == targetDeviceID }
+            predicate: #Predicate { $0.radioID == targetRadioID }
         )
         let entries = try modelContext.fetch(descriptor)
         for entry in entries {
             modelContext.delete(entry)
         }
         try modelContext.save()
-        rxLogEntryCountsByDevice[deviceID] = 0
+        rxLogEntryCountsByDevice[radioID] = 0
     }
 
-    private func cachedRxLogEntryCount(deviceID: UUID) throws -> Int {
-        if let cached = rxLogEntryCountsByDevice[deviceID] {
+    private func cachedRxLogEntryCount(radioID: UUID) throws -> Int {
+        if let cached = rxLogEntryCountsByDevice[radioID] {
             return cached
         }
 
-        let count = try countRxLogEntries(deviceID: deviceID)
-        rxLogEntryCountsByDevice[deviceID] = count
+        let count = try countRxLogEntries(radioID: radioID)
+        rxLogEntryCountsByDevice[radioID] = count
         return count
     }
 
@@ -283,13 +283,13 @@ extension PersistenceStore {
     }
 
     /// Fetch recent RX log entries with a given decrypt status.
-    public func fetchRecentEntriesByDecryptStatus(deviceID: UUID, status: DecryptStatus, since: Date) throws -> [RxLogEntryDTO] {
-        let targetDeviceID = deviceID
+    public func fetchRecentEntriesByDecryptStatus(radioID: UUID, status: DecryptStatus, since: Date) throws -> [RxLogEntryDTO] {
+        let targetRadioID = radioID
         let targetStatus = status.rawValue
         let cutoff = since
         let descriptor = FetchDescriptor<RxLogEntry>(
             predicate: #Predicate {
-                $0.deviceID == targetDeviceID &&
+                $0.radioID == targetRadioID &&
                 $0.decryptStatus == targetStatus &&
                 $0.receivedAt >= cutoff
             },

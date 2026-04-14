@@ -65,7 +65,7 @@ struct JoinPublicChannelView: View {
     }
 
     private func joinPublicChannel() async {
-        guard let deviceID = appState.connectedDevice?.id else {
+        guard let radioID = appState.connectedDevice?.radioID else {
             errorMessage = L10n.Chats.Chats.Error.noDeviceConnected
             return
         }
@@ -78,11 +78,11 @@ struct JoinPublicChannelView: View {
                 errorMessage = L10n.Chats.Chats.Error.servicesUnavailable
                 return
             }
-            try await channelService.setupPublicChannel(deviceID: deviceID)
+            try await channelService.setupPublicChannel(radioID: radioID)
 
             // Fetch the public channel (slot 0) to return it
             var publicChannel: ChannelDTO?
-            if let channels = try? await appState.services?.dataStore.fetchChannels(deviceID: deviceID) {
+            if let channels = try? await appState.services?.dataStore.fetchChannels(radioID: radioID) {
                 publicChannel = channels.first { $0.index == 0 }
             }
             onComplete(publicChannel)

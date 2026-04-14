@@ -23,12 +23,12 @@ public actor MockChannelService: ChannelServiceProtocol {
     // MARK: - Recorded Invocations
 
     public struct SyncChannelsInvocation: Sendable, Equatable {
-        public let deviceID: UUID
+        public let radioID: UUID
         public let maxChannels: UInt8
     }
 
     public struct RetryInvocation: Sendable, Equatable {
-        public let deviceID: UUID
+        public let radioID: UUID
         public let indices: [UInt8]
     }
 
@@ -41,8 +41,8 @@ public actor MockChannelService: ChannelServiceProtocol {
 
     // MARK: - Protocol Methods
 
-    public func syncChannels(deviceID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
-        syncChannelsInvocations.append(SyncChannelsInvocation(deviceID: deviceID, maxChannels: maxChannels))
+    public func syncChannels(radioID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
+        syncChannelsInvocations.append(SyncChannelsInvocation(radioID: radioID, maxChannels: maxChannels))
         switch stubbedSyncChannelsResult {
         case .success(let result):
             return result
@@ -51,8 +51,8 @@ public actor MockChannelService: ChannelServiceProtocol {
         }
     }
 
-    public func retryFailedChannels(deviceID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult {
-        retryInvocations.append(RetryInvocation(deviceID: deviceID, indices: indices))
+    public func retryFailedChannels(radioID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult {
+        retryInvocations.append(RetryInvocation(radioID: radioID, indices: indices))
         switch stubbedRetryResult {
         case .success(let result):
             return result

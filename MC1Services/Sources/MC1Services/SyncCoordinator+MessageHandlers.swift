@@ -37,18 +37,18 @@ extension SyncCoordinator {
         return true
     }
 
-    func wireMessageHandlers(services: ServiceContainer, deviceID: UUID) async {
-        logger.info("Wiring message handlers for device \(deviceID)")
+    func wireMessageHandlers(services: ServiceContainer, radioID: UUID) async {
+        logger.info("Wiring message handlers for device \(radioID)")
 
         // Populate blocked contacts cache
-        await refreshBlockedContactsCache(deviceID: deviceID, dataStore: services.dataStore)
+        await refreshBlockedContactsCache(radioID: radioID, dataStore: services.dataStore)
 
         // Cache device node name for self-mention detection
-        let device = try? await services.dataStore.fetchDevice(id: deviceID)
+        let device = try? await services.dataStore.fetchDevice(radioID: radioID)
         let selfNodeName = device?.nodeName ?? ""
 
-        await wireContactMessageHandler(services: services, deviceID: deviceID, selfNodeName: selfNodeName)
-        await wireChannelMessageHandler(services: services, deviceID: deviceID, selfNodeName: selfNodeName)
+        await wireContactMessageHandler(services: services, radioID: radioID, selfNodeName: selfNodeName)
+        await wireChannelMessageHandler(services: services, radioID: radioID, selfNodeName: selfNodeName)
         await wireSignedMessageHandler(services: services)
         await wireCLIMessageHandler(services: services)
 
@@ -57,7 +57,7 @@ extension SyncCoordinator {
 
     // MARK: - Contact Message Handler
 
-    private func wireContactMessageHandler(services: ServiceContainer, deviceID: UUID, selfNodeName: String) async {
+    private func wireContactMessageHandler(services: ServiceContainer, radioID: UUID, selfNodeName: String) async {
         await services.messagePollingService.setContactMessageHandler { [weak self] message, contact in
             guard let self else { return }
 
@@ -93,7 +93,7 @@ extension SyncCoordinator {
 
             let messageDTO = MessageDTO(
                 id: UUID(),
-                deviceID: deviceID,
+                radioID: radioID,
                 contactID: contact?.id,
                 channelIndex: nil,
                 text: message.text,
@@ -137,7 +137,7 @@ extension SyncCoordinator {
                await self.handleDMReaction(
                    text: message.text,
                    contact: contact,
-                   deviceID: deviceID,
+                   radioID: radioID,
                    services: services
                ) {
                 return
@@ -164,7 +164,7 @@ extension SyncCoordinator {
                             messageHash: pending.parsed.messageHash,
                             rawText: pending.rawText,
                             contactID: contact.id,
-                            deviceID: deviceID
+                            radioID: radioID
                         )
                         if await self.persistReactionIfNew(reactionDTO, services: services) {
                             self.logger.debug("Processed pending DM reaction \(pending.parsed.emoji)")
@@ -204,7 +204,7 @@ extension SyncCoordinator {
 
     // MARK: - Channel Message Handler
 
-    private func wireChannelMessageHandler(services: ServiceContainer, deviceID: UUID, selfNodeName: String) async {
+    private func wireChannelMessageHandler(services: ServiceContainer, radioID: UUID, selfNodeName: String) async {
         await services.messagePollingService.setChannelMessageHandler { [weak self] message, channel in
             guard let self else { return }
 
@@ -243,7 +243,7 @@ extension SyncCoordinator {
 
             let messageDTO = MessageDTO(
                 id: UUID(),
-                deviceID: deviceID,
+                radioID: radioID,
                 contactID: nil,
                 channelIndex: message.channelIndex,
                 text: messageText,
@@ -294,7 +294,7 @@ extension SyncCoordinator {
                 senderNodeName: senderNodeName,
                 selfNodeName: selfNodeName,
                 receiveTime: receiveTime,
-                deviceID: deviceID,
+                radioID: radioID,
                 services: services
             ) {
                 return
@@ -323,7 +323,7 @@ extension SyncCoordinator {
                             messageHash: pending.parsed.messageHash,
                             rawText: pending.rawText,
                             channelIndex: pending.channelIndex,
-                            deviceID: pending.deviceID
+                            radioID: pending.radioID
                         )
                         await self.persistReactionIfNew(reactionDTO, services: services)
                     }
@@ -344,7 +344,7 @@ extension SyncCoordinator {
                         messageText: messageText,
                         timestamp: timestamp,
                         hasSelfMention: hasSelfMention,
-                        deviceID: deviceID,
+                        radioID: radioID,
                         services: services
                     )
                 }
@@ -423,8 +423,8 @@ extension SyncCoordinator {
 
     // MARK: - Discovery Handler Wiring
 
-    func wireDiscoveryHandlers(services: ServiceContainer, deviceID: UUID) async {
-        logger.info("Wiring discovery handlers for device \(deviceID)")
+    func wireDiscoveryHandlers(services: ServiceContainer, radioID: UUID) async {
+        logger.info("Wiring discovery handlers for device \(radioID)")
 
         // New contact discovered handler (manual-add mode)
         // Posts notification when a new contact is discovered via advertisement
@@ -523,7 +523,7 @@ extension SyncCoordinator {
     private func handleDMReaction(
         text: String,
         contact: ContactDTO,
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer
     ) async -> Bool {
         // Try meshcore-open v3 format
@@ -532,7 +532,7 @@ extension SyncCoordinator {
                 mcoReaction,
                 rawText: text,
                 contact: contact,
-                deviceID: deviceID,
+                radioID: radioID,
                 services: services
             )
         }
@@ -543,7 +543,7 @@ extension SyncCoordinator {
                 v1Reaction,
                 rawText: text,
                 contact: contact,
-                deviceID: deviceID,
+                radioID: radioID,
                 services: services
             )
         }
@@ -562,7 +562,7 @@ extension SyncCoordinator {
                 messageHash: parsed.messageHash,
                 rawText: text,
                 contactID: contact.id,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 logger.debug("Saved DM reaction \(parsed.emoji) to message \(targetMessageID)")
@@ -575,7 +575,7 @@ extension SyncCoordinator {
         let timestampWindow = reactionTimestampWindow()
 
         if let targetMessage = try? await services.dataStore.findDMMessageForReaction(
-            deviceID: deviceID,
+            radioID: radioID,
             contactID: contact.id,
             messageHash: parsed.messageHash,
             timestampWindow: timestampWindow,
@@ -588,7 +588,7 @@ extension SyncCoordinator {
                 messageHash: parsed.messageHash,
                 rawText: text,
                 contactID: contact.id,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 logger.debug("Saved DM reaction \(parsed.emoji) to message \(targetMessage.id) (from DB)")
@@ -603,7 +603,7 @@ extension SyncCoordinator {
             contactID: contact.id,
             senderName: contact.displayName,
             rawText: text,
-            deviceID: deviceID
+            radioID: radioID
         )
 
         logger.debug("Queued pending DM reaction \(parsed.emoji)")
@@ -619,7 +619,7 @@ extension SyncCoordinator {
         senderNodeName: String?,
         selfNodeName: String,
         receiveTime: Date,
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer
     ) async -> Bool {
         // Try meshcore-open v3 format
@@ -631,7 +631,7 @@ extension SyncCoordinator {
                 senderNodeName: senderNodeName,
                 selfNodeName: selfNodeName,
                 receiveTime: receiveTime,
-                deviceID: deviceID,
+                radioID: radioID,
                 services: services
             )
         }
@@ -644,7 +644,7 @@ extension SyncCoordinator {
                 channelIndex: channelIndex,
                 senderNodeName: senderNodeName,
                 selfNodeName: selfNodeName,
-                deviceID: deviceID,
+                radioID: radioID,
                 services: services
             )
         }
@@ -664,7 +664,7 @@ extension SyncCoordinator {
                 messageHash: parsed.messageHash,
                 rawText: text,
                 channelIndex: channelIndex,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 logger.debug("Saved reaction \(parsed.emoji) to message \(targetMessageID)")
@@ -678,7 +678,7 @@ extension SyncCoordinator {
         logger.debug("DB lookup: selfNodeName='\(selfNodeName)', targetSender=\(parsed.targetSender), hash=\(parsed.messageHash)")
 
         if let targetMessage = try? await services.dataStore.findChannelMessageForReaction(
-            deviceID: deviceID,
+            radioID: radioID,
             channelIndex: channelIndex,
             parsedReaction: parsed,
             localNodeName: selfNodeName.isEmpty ? nil : selfNodeName,
@@ -693,7 +693,7 @@ extension SyncCoordinator {
                 messageHash: parsed.messageHash,
                 rawText: text,
                 channelIndex: channelIndex,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 let targetSenderName: String?
@@ -727,7 +727,7 @@ extension SyncCoordinator {
             channelIndex: channelIndex,
             senderNodeName: senderName,
             rawText: text,
-            deviceID: deviceID
+            radioID: radioID
         )
         return true
     }
@@ -771,14 +771,14 @@ extension SyncCoordinator {
         messageText: String,
         timestamp: UInt32,
         hasSelfMention: Bool,
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer
     ) async throws {
         if let channelID = channel?.id {
             // Only increment unread if user is NOT currently viewing this channel
             let activeIndex = await services.notificationService.activeChannelIndex
-            let activeDeviceID = await services.notificationService.activeChannelDeviceID
-            let isViewingChannel = activeIndex == channel?.index && activeDeviceID == channel?.deviceID
+            let activeRadioID = await services.notificationService.activeChannelRadioID
+            let isViewingChannel = activeIndex == channel?.index && activeRadioID == channel?.radioID
             if !isViewingChannel {
                 try await services.dataStore.incrementChannelUnreadCount(channelID: channelID)
 
@@ -791,7 +791,7 @@ extension SyncCoordinator {
         if channel == nil {
             recordUnresolvedChannelNotification(
                 channelIndex: channelIndex,
-                deviceID: deviceID,
+                radioID: radioID,
                 senderTimestamp: timestamp
             )
         }
@@ -799,7 +799,7 @@ extension SyncCoordinator {
         await services.notificationService.postChannelMessageNotification(
             channelName: channel?.name ?? "Channel \(channelIndex)",
             channelIndex: channelIndex,
-            deviceID: deviceID,
+            radioID: radioID,
             senderName: senderNodeName,
             messageText: messageText,
             messageID: messageDTO.id,
@@ -814,12 +814,12 @@ extension SyncCoordinator {
 
     private func recordUnresolvedChannelNotification(
         channelIndex: UInt8,
-        deviceID: UUID,
+        radioID: UUID,
         senderTimestamp: UInt32
     ) {
         let isNewIndex = unresolvedChannelIndices.insert(channelIndex).inserted
         logger.warning(
-            "Posting notification for unresolved channel \(channelIndex) on device \(deviceID), senderTimestamp: \(senderTimestamp)"
+            "Posting notification for unresolved channel \(channelIndex) on device \(radioID), senderTimestamp: \(senderTimestamp)"
         )
 
         let now = Date()
@@ -860,13 +860,13 @@ extension SyncCoordinator {
         _ mcoReaction: ParsedMCOReaction,
         rawText: String,
         contact: ContactDTO,
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer
     ) async -> Bool {
         let timestampWindow = reactionTimestampWindow()
 
         guard let candidates = try? await services.dataStore.fetchDMMessageCandidates(
-            deviceID: deviceID,
+            radioID: radioID,
             contactID: contact.id,
             timestampWindow: timestampWindow,
             limit: 200
@@ -894,7 +894,7 @@ extension SyncCoordinator {
                 messageHash: mcoReaction.dartHash,
                 rawText: rawText,
                 contactID: contact.id,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 logger.debug("Saved MCO DM reaction \(mcoReaction.emoji) to message \(candidate.id)")
@@ -916,14 +916,14 @@ extension SyncCoordinator {
         senderNodeName: String?,
         selfNodeName: String,
         receiveTime: Date,
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer
     ) async -> Bool {
         let senderName = senderNodeName ?? "Unknown"
         let timestampWindow = reactionTimestampWindow(at: receiveTime)
 
         guard let candidates = try? await services.dataStore.fetchChannelMessageCandidates(
-            deviceID: deviceID,
+            radioID: radioID,
             channelIndex: channelIndex,
             timestampWindow: timestampWindow,
             limit: 200
@@ -959,7 +959,7 @@ extension SyncCoordinator {
                 messageHash: mcoReaction.dartHash,
                 rawText: rawText,
                 channelIndex: channelIndex,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 logger.debug("Saved MCO channel reaction \(mcoReaction.emoji) to message \(candidate.id)")
@@ -978,7 +978,7 @@ extension SyncCoordinator {
         _ v1Reaction: ParsedMCOReactionV1,
         rawText: String,
         contact: ContactDTO,
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer
     ) async -> Bool {
         let timestampWindow = reactionTimestampWindow(
@@ -986,7 +986,7 @@ extension SyncCoordinator {
         )
 
         guard let candidates = try? await services.dataStore.fetchDMMessageCandidates(
-            deviceID: deviceID,
+            radioID: radioID,
             contactID: contact.id,
             timestampWindow: timestampWindow,
             limit: 200
@@ -1008,7 +1008,7 @@ extension SyncCoordinator {
                 messageHash: v1Reaction.messageIdHash,
                 rawText: rawText,
                 contactID: contact.id,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 logger.debug("Saved MCO v1 DM reaction \(v1Reaction.emoji) to message \(candidate.id)")
@@ -1027,7 +1027,7 @@ extension SyncCoordinator {
         channelIndex: UInt8,
         senderNodeName: String?,
         selfNodeName: String,
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer
     ) async -> Bool {
         let senderName = senderNodeName ?? "Unknown"
@@ -1036,7 +1036,7 @@ extension SyncCoordinator {
         )
 
         guard let candidates = try? await services.dataStore.fetchChannelMessageCandidates(
-            deviceID: deviceID,
+            radioID: radioID,
             channelIndex: channelIndex,
             timestampWindow: timestampWindow,
             limit: 200
@@ -1072,7 +1072,7 @@ extension SyncCoordinator {
                 messageHash: v1Reaction.messageIdHash,
                 rawText: rawText,
                 channelIndex: channelIndex,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 logger.debug("Saved MCO v1 channel reaction \(v1Reaction.emoji) to message \(candidate.id)")

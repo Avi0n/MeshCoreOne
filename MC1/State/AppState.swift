@@ -65,9 +65,9 @@ public final class AppState {
     /// Cached standalone persistence store for offline browsing
     private var cachedOfflineStore: PersistenceStore?
 
-    /// Device ID for data access - returns connected device or last-connected device for offline browsing
-    public var currentDeviceID: UUID? {
-        connectedDevice?.id ?? connectionManager.lastConnectedDeviceID
+    /// Radio ID for data access - returns connected device's radio ID or last-connected radio ID for offline browsing
+    public var currentRadioID: UUID? {
+        connectedDevice?.radioID ?? connectionManager.lastConnectedRadioID
     }
 
     /// Data store that works regardless of connection state - uses services when connected,
@@ -274,12 +274,12 @@ public final class AppState {
 
         // Configure badge count callback
         services.notificationService.getBadgeCount = { [weak self, dataStore = services.dataStore] in
-            let deviceID = await MainActor.run { self?.currentDeviceID }
-            guard let deviceID else {
+            let radioID = await MainActor.run { self?.currentRadioID }
+            guard let radioID else {
                 return (contacts: 0, channels: 0, rooms: 0)
             }
             do {
-                return try await dataStore.getTotalUnreadCounts(deviceID: deviceID)
+                return try await dataStore.getTotalUnreadCounts(radioID: radioID)
             } catch {
                 return (contacts: 0, channels: 0, rooms: 0)
             }
@@ -427,8 +427,8 @@ public final class AppState {
     }
 
     private func totalUnreadCount(from services: ServiceContainer) async -> Int {
-        guard let deviceID = currentDeviceID else { return 0 }
-        let counts = (try? await services.dataStore.getTotalUnreadCounts(deviceID: deviceID))
+        guard let radioID = currentRadioID else { return 0 }
+        let counts = (try? await services.dataStore.getTotalUnreadCounts(radioID: radioID))
             ?? (contacts: 0, channels: 0, rooms: 0)
         return counts.contacts + counts.channels + counts.rooms
     }
@@ -699,9 +699,9 @@ public final class AppState {
             await self.handleQuickReply(services: services, contactID: contactID, text: text)
         }
 
-        services.notificationService.onChannelQuickReply = { [weak self] deviceID, channelIndex, text in
+        services.notificationService.onChannelQuickReply = { [weak self] radioID, channelIndex, text in
             guard let self else { return }
-            await self.handleChannelQuickReply(services: services, deviceID: deviceID, channelIndex: channelIndex, text: text)
+            await self.handleChannelQuickReply(services: services, radioID: radioID, channelIndex: channelIndex, text: text)
         }
 
         services.notificationService.onMarkAsRead = { [weak self] contactID, messageID in
@@ -709,9 +709,9 @@ public final class AppState {
             await self.handleMarkAsRead(services: services, contactID: contactID, messageID: messageID)
         }
 
-        services.notificationService.onChannelMarkAsRead = { [weak self] deviceID, channelIndex, messageID in
+        services.notificationService.onChannelMarkAsRead = { [weak self] radioID, channelIndex, messageID in
             guard let self else { return }
-            await self.handleChannelMarkAsRead(services: services, deviceID: deviceID, channelIndex: channelIndex, messageID: messageID)
+            await self.handleChannelMarkAsRead(services: services, radioID: radioID, channelIndex: channelIndex, messageID: messageID)
         }
     }
 
@@ -740,15 +740,15 @@ public final class AppState {
         )
     }
 
-    private func handleChannelQuickReply(services: ServiceContainer, deviceID: UUID, channelIndex: UInt8, text: String) async {
+    private func handleChannelQuickReply(services: ServiceContainer, radioID: UUID, channelIndex: UInt8, text: String) async {
         // Fetch channel for display name in failure notification
-        let channel = try? await services.dataStore.fetchChannel(deviceID: deviceID, index: channelIndex)
+        let channel = try? await services.dataStore.fetchChannel(radioID: radioID, index: channelIndex)
         let channelName = channel?.name ?? "Channel \(channelIndex)"
 
         guard connectionState == .ready else {
             await services.notificationService.postChannelQuickReplyFailedNotification(
                 channelName: channelName,
-                deviceID: deviceID,
+                radioID: radioID,
                 channelIndex: channelIndex
             )
             return
@@ -758,21 +758,21 @@ public final class AppState {
             _ = try await services.messageService.sendChannelMessage(
                 text: text,
                 channelIndex: channelIndex,
-                deviceID: deviceID
+                radioID: radioID
             )
 
             // Clear unread state - user replied so they've seen the channel
-            try? await services.dataStore.clearChannelUnreadCount(deviceID: deviceID, index: channelIndex)
+            try? await services.dataStore.clearChannelUnreadCount(radioID: radioID, index: channelIndex)
             await services.notificationService.removeDeliveredNotifications(
                 forChannelIndex: channelIndex,
-                deviceID: deviceID
+                radioID: radioID
             )
             await services.notificationService.updateBadgeCount()
             syncCoordinator?.notifyConversationsChanged()
         } catch {
             await services.notificationService.postChannelQuickReplyFailedNotification(
                 channelName: channelName,
-                deviceID: deviceID,
+                radioID: radioID,
                 channelIndex: channelIndex
             )
         }
@@ -790,10 +790,10 @@ public final class AppState {
         }
     }
 
-    private func handleChannelMarkAsRead(services: ServiceContainer, deviceID: UUID, channelIndex: UInt8, messageID: UUID) async {
+    private func handleChannelMarkAsRead(services: ServiceContainer, radioID: UUID, channelIndex: UInt8, messageID: UUID) async {
         do {
             try await services.dataStore.markMessageAsRead(id: messageID)
-            try await services.dataStore.clearChannelUnreadCount(deviceID: deviceID, index: channelIndex)
+            try await services.dataStore.clearChannelUnreadCount(radioID: radioID, index: channelIndex)
             services.notificationService.removeDeliveredNotification(messageID: messageID)
             await services.notificationService.updateBadgeCount()
             syncCoordinator?.notifyConversationsChanged()
@@ -830,7 +830,7 @@ public final class AppState {
             let contact = try? await services.dataStore.fetchContact(id: contactID)
             isMuted = contact?.isMuted ?? false
         } else if let channelIndex = message.channelIndex {
-            let channel = try? await services.dataStore.fetchChannel(deviceID: message.deviceID, index: channelIndex)
+            let channel = try? await services.dataStore.fetchChannel(radioID: message.radioID, index: channelIndex)
             isMuted = channel?.isMuted ?? false
         } else {
             isMuted = false
@@ -850,7 +850,7 @@ public final class AppState {
             messageID: messageID,
             contactID: message.contactID,
             channelIndex: message.channelIndex,
-            deviceID: message.channelIndex != nil ? message.deviceID : nil
+            radioID: message.channelIndex != nil ? message.radioID : nil
         )
     }
 }

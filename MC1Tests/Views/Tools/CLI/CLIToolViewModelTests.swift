@@ -16,7 +16,7 @@ struct CLIToolViewModelTests {
             repeaterAdminService: nil,
             remoteNodeService: nil,
             dataStore: nil,
-            deviceID: nil,
+            radioID: nil,
             localDeviceName: "TestDevice"
         )
         return viewModel
@@ -31,7 +31,7 @@ struct CLIToolViewModelTests {
             repeaterAdminService: nil,
             remoteNodeService: nil,
             dataStore: nil,
-            deviceID: nil,
+            radioID: nil,
             localDeviceName: "Test"
         )
         #expect(viewModel.promptText.contains("disconnected"))
@@ -46,7 +46,7 @@ struct CLIToolViewModelTests {
             repeaterAdminService: nil,
             remoteNodeService: nil,
             dataStore: nil,
-            deviceID: nil,
+            radioID: nil,
             localDeviceName: "TestDevice"
         )
 

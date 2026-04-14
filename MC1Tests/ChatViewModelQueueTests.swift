@@ -101,7 +101,7 @@ struct ChatViewModelQueueTests {
         let device = try #require(devices.first)
 
         let contact = Contact(
-            deviceID: device.id,
+            radioID: device.id,
             publicKey: Data(repeating: keyByte, count: 32),
             name: name
         )

@@ -15,7 +15,7 @@ import Testing
     ) -> ContactDTO {
         ContactDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0, count: 32),
             name: name,
             typeRawValue: ContactType.chat.rawValue,
@@ -43,7 +43,7 @@ import Testing
     ) -> ChannelDTO {
         ChannelDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             index: 1,
             name: name,
             secret: Data(repeating: 0, count: 16),
@@ -63,7 +63,7 @@ import Testing
     ) -> RemoteNodeSessionDTO {
         RemoteNodeSessionDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0, count: 32),
             name: name,
             role: .roomServer,

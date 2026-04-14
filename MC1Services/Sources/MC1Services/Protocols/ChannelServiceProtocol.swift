@@ -24,15 +24,15 @@ public protocol ChannelServiceProtocol: Actor {
 
     /// Fetches all channels for a device from the remote device.
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - maxChannels: Maximum number of channels to fetch (from device capacity)
     /// - Returns: Sync result with number of channels synced
-    func syncChannels(deviceID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult
+    func syncChannels(radioID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult
 
     /// Retries syncing only the channels that previously failed.
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - indices: Channel indices to retry
     /// - Returns: Sync result for the retried channels
-    func retryFailedChannels(deviceID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult
+    func retryFailedChannels(radioID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult
 }

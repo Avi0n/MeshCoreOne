@@ -112,10 +112,10 @@ public actor SyncCoordinator {
 
     /// Called when channel sync completes with zero errors (including retries).
     /// Used by ConnectionManager to track clean channel completions for smart resync.
-    var onCleanChannelSync: (@Sendable (_ deviceID: UUID) async -> Void)?
+    var onCleanChannelSync: (@Sendable (_ radioID: UUID) async -> Void)?
 
     /// Sets the callback for clean channel sync completion.
-    public func setCleanChannelSyncCallback(_ callback: @escaping @Sendable (_ deviceID: UUID) async -> Void) {
+    public func setCleanChannelSyncCallback(_ callback: @escaping @Sendable (_ radioID: UUID) async -> Void) {
         onCleanChannelSync = callback
     }
 
@@ -159,10 +159,10 @@ public actor SyncCoordinator {
 
     #if DEBUG
     /// Test override for `performResync`. When set, bypasses the real sync path.
-    var performResyncOverride: ((_ deviceID: UUID, _ services: ServiceContainer) async -> Bool)?
+    var performResyncOverride: ((_ radioID: UUID, _ services: ServiceContainer) async -> Bool)?
 
     /// Sets the test override for `performResync`.
-    public func setPerformResyncOverride(_ override: @escaping @Sendable (_ deviceID: UUID, _ services: ServiceContainer) async -> Bool) {
+    public func setPerformResyncOverride(_ override: @escaping @Sendable (_ radioID: UUID, _ services: ServiceContainer) async -> Bool) {
         performResyncOverride = override
     }
     #endif
@@ -288,10 +288,10 @@ public actor SyncCoordinator {
     // MARK: - Blocked Contacts Cache
 
     /// Refresh the blocked names cache from the data store (contacts + channel senders)
-    public func refreshBlockedContactsCache(deviceID: UUID, dataStore: any PersistenceStoreProtocol) async {
+    public func refreshBlockedContactsCache(radioID: UUID, dataStore: any PersistenceStoreProtocol) async {
         do {
-            let blockedContacts = try await dataStore.fetchBlockedContacts(deviceID: deviceID)
-            let blockedSenders = try await dataStore.fetchBlockedChannelSenders(deviceID: deviceID)
+            let blockedContacts = try await dataStore.fetchBlockedContacts(radioID: radioID)
+            let blockedSenders = try await dataStore.fetchBlockedChannelSenders(radioID: radioID)
             blockedNames = Set(blockedContacts.map(\.name))
                 .union(Set(blockedSenders.map(\.name)))
             logger.debug("Refreshed blocked names cache: \(self.blockedNames.count) entries")
@@ -316,12 +316,12 @@ public actor SyncCoordinator {
     /// Runs on every connection. After the first pass, delete queries match zero rows
     /// and are effectively free (indexed predicate, no mutations). This handles legacy
     /// data from app versions that filtered at read time instead of deleting at block time.
-    func deleteBlockedSenderMessages(deviceID: UUID, dataStore: any PersistenceStoreProtocol) async {
+    func deleteBlockedSenderMessages(radioID: UUID, dataStore: any PersistenceStoreProtocol) async {
         let names = blockedNames
         guard !names.isEmpty else { return }
 
         for name in names {
-            try? await dataStore.deleteChannelMessages(fromSender: name, deviceID: deviceID)
+            try? await dataStore.deleteChannelMessages(fromSender: name, radioID: radioID)
         }
     }
 

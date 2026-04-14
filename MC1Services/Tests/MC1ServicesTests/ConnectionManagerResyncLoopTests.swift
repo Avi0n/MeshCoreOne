@@ -57,7 +57,7 @@ struct ConnectionManagerResyncLoopTests {
             onPhaseChanged: { _ in }
         )
 
-        manager.startResyncLoop(deviceID: deviceID, services: services)
+        manager.startResyncLoop(radioID: deviceID, services: services)
 
         // Wait for the outer bracket to open
         try await waitUntil("beginResyncActivity should fire") {
@@ -93,7 +93,7 @@ struct ConnectionManagerResyncLoopTests {
             onPhaseChanged: { _ in }
         )
 
-        manager.startResyncLoop(deviceID: deviceID, services: services)
+        manager.startResyncLoop(radioID: deviceID, services: services)
 
         // Wait for the outer bracket to open
         try await waitUntil("beginResyncActivity should fire") {
@@ -135,7 +135,7 @@ struct ConnectionManagerResyncLoopTests {
             onPhaseChanged: { _ in }
         )
 
-        manager.startResyncLoop(deviceID: deviceID, services: services)
+        manager.startResyncLoop(radioID: deviceID, services: services)
 
         // Wait for max attempts to be exhausted (3 attempts × 2s intervals)
         try await waitUntil(timeout: .seconds(15), "onResyncFailed should fire after max attempts") {
@@ -172,7 +172,7 @@ struct ConnectionManagerResyncLoopTests {
         let resyncFailedTracker = CallTracker()
         manager.onResyncFailed = { resyncFailedTracker.markCalled() }
 
-        manager.startResyncLoop(deviceID: deviceID, services: services)
+        manager.startResyncLoop(radioID: deviceID, services: services)
 
         // Wait for loop to exhaust
         try await waitUntil(timeout: .seconds(15), "resync loop should exhaust") {
@@ -203,7 +203,7 @@ struct ConnectionManagerResyncLoopTests {
             onPhaseChanged: { _ in }
         )
 
-        manager.startResyncLoop(deviceID: deviceID, services: services)
+        manager.startResyncLoop(radioID: deviceID, services: services)
 
         try await waitUntil(timeout: .seconds(10), "endResyncActivity should fire with success") {
             succeededValues.values.contains(true)
@@ -231,7 +231,7 @@ struct ConnectionManagerResyncLoopTests {
             onPhaseChanged: { _ in }
         )
 
-        manager.startResyncLoop(deviceID: deviceID, services: services)
+        manager.startResyncLoop(radioID: deviceID, services: services)
 
         try await waitUntil(timeout: .seconds(10), "onDeviceSynced should fire after resync success") {
             onDeviceSyncedTracker.wasCalled
@@ -257,7 +257,7 @@ struct ConnectionManagerResyncLoopTests {
             onPhaseChanged: { _ in }
         )
 
-        manager.startResyncLoop(deviceID: deviceID, services: services)
+        manager.startResyncLoop(radioID: deviceID, services: services)
 
         // Wait for the outer bracket to open
         try await waitUntil("beginResyncActivity should fire") {

@@ -51,7 +51,7 @@ public actor MessagePollingService {
     private var isAutoFetchEnabled = false
 
     /// Device ID for contact lookups
-    private var currentDeviceID: UUID?
+    private var currentRadioID: UUID?
 
     /// Count of message handlers currently executing
     /// Used to wait for sync-time handlers to complete before resuming notifications
@@ -101,11 +101,11 @@ public actor MessagePollingService {
 
     /// Start event monitoring for message handlers without enabling auto-fetch.
     /// Call this before sync to ensure handlers are ready for polled messages.
-    /// - Parameter deviceID: The device ID for contact lookups
-    public func startMessageEventMonitoring(deviceID: UUID) {
-        currentDeviceID = deviceID
+    /// - Parameter radioID: The radio ID for contact lookups
+    public func startMessageEventMonitoring(radioID: UUID) {
+        currentRadioID = radioID
         startEventMonitoring()
-        logger.info("Message event monitoring started for device \(deviceID)")
+        logger.info("Message event monitoring started for radio \(radioID)")
     }
 
     /// Stop event monitoring (also stops auto-fetch if running)
@@ -114,7 +114,7 @@ public actor MessagePollingService {
             await stopAutoFetch()
         } else {
             stopEventMonitoring()
-            currentDeviceID = nil
+            currentRadioID = nil
         }
     }
 
@@ -122,11 +122,11 @@ public actor MessagePollingService {
 
     /// Start automatic message fetching for a device.
     /// This enables the session's auto-fetch feature and monitors for incoming messages.
-    /// - Parameter deviceID: The device ID for contact lookups
-    public func startAutoFetch(deviceID: UUID) async {
+    /// - Parameter radioID: The radio ID for contact lookups
+    public func startAutoFetch(radioID: UUID) async {
         guard !isAutoFetchEnabled else { return }
 
-        currentDeviceID = deviceID
+        currentRadioID = radioID
         isAutoFetchEnabled = true
 
         // Start event monitoring if not already running
@@ -135,7 +135,7 @@ public actor MessagePollingService {
         }
         await session.startAutoMessageFetching()
 
-        logger.info("Auto-fetch started for device \(deviceID)")
+        logger.info("Auto-fetch started for radio \(radioID)")
     }
 
     /// Stop automatic message fetching
@@ -269,15 +269,15 @@ public actor MessagePollingService {
 
     /// Handle incoming contact message
     private func handleContactMessage(_ message: ContactMessage) async {
-        guard let deviceID = currentDeviceID else {
-            logger.warning("Received message but no device ID set")
+        guard let radioID = currentRadioID else {
+            logger.warning("Received message but no radio ID set")
             await contactMessageHandler?(message, nil)
             return
         }
 
         // Look up the sender contact
         let contact = try? await dataStore.fetchContact(
-            deviceID: deviceID,
+            radioID: radioID,
             publicKeyPrefix: message.senderPublicKeyPrefix
         )
 
@@ -297,14 +297,14 @@ public actor MessagePollingService {
 
     /// Handle incoming channel message
     private func handleChannelMessage(_ message: ChannelMessage) async {
-        guard let deviceID = currentDeviceID else {
-            logger.warning("Received channel message but no device ID set")
+        guard let radioID = currentRadioID else {
+            logger.warning("Received channel message but no radio ID set")
             await channelMessageHandler?(message, nil)
             return
         }
 
         // Look up the channel
-        let channel = try? await dataStore.fetchChannel(deviceID: deviceID, index: message.channelIndex)
+        let channel = try? await dataStore.fetchChannel(radioID: radioID, index: message.channelIndex)
 
         await channelMessageHandler?(message, channel)
     }

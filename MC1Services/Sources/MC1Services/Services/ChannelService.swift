@@ -148,12 +148,12 @@ public actor ChannelService {
 
     /// Fetches all channels for a device from the remote device.
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - maxChannels: Maximum number of channels to fetch (from device capacity)
     /// - Returns: Sync result with number of channels synced
     /// - Throws: `syncAlreadyInProgress` if another sync is running,
     ///           `circuitBreakerOpen` if too many consecutive timeouts
-    public func syncChannels(deviceID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
+    public func syncChannels(radioID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
         // Concurrency guard
         guard !isSyncing else {
             logger.warning("Channel sync already in progress, rejecting concurrent request")
@@ -190,7 +190,7 @@ public actor ChannelService {
 
             do {
                 if let channelInfo = try await fetchChannel(index: index) {
-                    _ = try await dataStore.saveChannel(deviceID: deviceID, from: channelInfo)
+                    _ = try await dataStore.saveChannel(radioID: radioID, from: channelInfo)
                     syncedCount += 1
                     consecutiveTimeouts = 0  // Reset on success
                     if channelInfo.name.isEmpty {
@@ -198,14 +198,14 @@ public actor ChannelService {
                     }
 
                     // Fetch the saved channel DTO
-                    if let dto = try await dataStore.fetchChannel(deviceID: deviceID, index: index) {
+                    if let dto = try await dataStore.fetchChannel(radioID: radioID, index: index) {
                         channels.append(dto)
                     }
                 } else {
                     // Channel not configured on device - delete any stale local entry
                     consecutiveTimeouts = 0  // Not-found is not a timeout
                     unconfiguredCount += 1
-                    if let staleChannel = try await dataStore.fetchChannel(deviceID: deviceID, index: index) {
+                    if let staleChannel = try await dataStore.fetchChannel(radioID: radioID, index: index) {
                         try await dataStore.deleteChannel(id: staleChannel.id)
                     }
                 }
@@ -230,7 +230,7 @@ public actor ChannelService {
         // Clean up orphaned channels (index >= maxChannels)
         // This handles the case where device capacity decreased
         do {
-            let allLocalChannels = try await dataStore.fetchChannels(deviceID: deviceID)
+            let allLocalChannels = try await dataStore.fetchChannels(radioID: radioID)
             for channel in allLocalChannels where channel.index >= maxChannels {
                 logger.info("Removing orphaned channel \(channel.index) (maxChannels=\(maxChannels))")
                 try await dataStore.deleteChannel(id: channel.id)
@@ -257,10 +257,10 @@ public actor ChannelService {
 
     /// Retries syncing only the channels that previously failed.
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - indices: Channel indices to retry
     /// - Returns: Sync result for the retried channels
-    public func retryFailedChannels(deviceID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult {
+    public func retryFailedChannels(radioID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult {
         guard !isSyncing else {
             throw ChannelServiceError.syncAlreadyInProgress
         }
@@ -303,11 +303,11 @@ public actor ChannelService {
 
             do {
                 if let channelInfo = try await fetchChannel(index: index) {
-                    _ = try await dataStore.saveChannel(deviceID: deviceID, from: channelInfo)
+                    _ = try await dataStore.saveChannel(radioID: radioID, from: channelInfo)
                     syncedCount += 1
                     consecutiveTimeouts = 0  // Reset on success
 
-                    if let dto = try await dataStore.fetchChannel(deviceID: deviceID, index: index) {
+                    if let dto = try await dataStore.fetchChannel(radioID: radioID, index: index) {
                         channels.append(dto)
                     }
                     logger.info("Retry succeeded for channel \(index)")
@@ -329,7 +329,7 @@ public actor ChannelService {
 
         // Notify handler if we recovered any channels
         if !channels.isEmpty {
-            let allChannels = try await dataStore.fetchChannels(deviceID: deviceID)
+            let allChannels = try await dataStore.fetchChannels(radioID: radioID)
             channelUpdateHandler?(allChannels)
         }
 
@@ -403,12 +403,12 @@ public actor ChannelService {
 
     /// Sets (creates or updates) a channel on the device.
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - index: The channel index 
     ///   - name: The channel name
     ///   - passphrase: The passphrase to hash into a secret
     public func setChannel(
-        deviceID: UUID,
+        radioID: UUID,
         index: UInt8,
         name: String,
         passphrase: String
@@ -421,10 +421,10 @@ public actor ChannelService {
 
             // Save to local database
             let channelInfo = ChannelInfo(index: index, name: truncatedName, secret: secret)
-            _ = try await dataStore.saveChannel(deviceID: deviceID, from: channelInfo)
+            _ = try await dataStore.saveChannel(radioID: radioID, from: channelInfo)
 
             // Notify handler of update
-            let channels = try await dataStore.fetchChannels(deviceID: deviceID)
+            let channels = try await dataStore.fetchChannels(radioID: radioID)
             channelUpdateHandler?(channels)
         } catch let error as MeshCoreError {
             throw ChannelServiceError.sessionError(error)
@@ -433,12 +433,12 @@ public actor ChannelService {
 
     /// Sets a channel with a pre-computed secret (for advanced use cases).
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - index: The channel index 
     ///   - name: The channel name
     ///   - secret: The 16-byte secret (must be exactly 16 bytes)
     public func setChannelWithSecret(
-        deviceID: UUID,
+        radioID: UUID,
         index: UInt8,
         name: String,
         secret: Data
@@ -454,10 +454,10 @@ public actor ChannelService {
 
             // Save to local database
             let channelInfo = ChannelInfo(index: index, name: truncatedName, secret: secret)
-            _ = try await dataStore.saveChannel(deviceID: deviceID, from: channelInfo)
+            _ = try await dataStore.saveChannel(radioID: radioID, from: channelInfo)
 
             // Notify handler of update
-            let channels = try await dataStore.fetchChannels(deviceID: deviceID)
+            let channels = try await dataStore.fetchChannels(radioID: radioID)
             channelUpdateHandler?(channels)
         } catch let error as MeshCoreError {
             throw ChannelServiceError.sessionError(error)
@@ -466,12 +466,12 @@ public actor ChannelService {
 
     /// Clears a channel by setting it to empty name and zero secret.
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - index: The channel index
-    public func clearChannel(deviceID: UUID, index: UInt8) async throws {
+    public func clearChannel(radioID: UUID, index: UInt8) async throws {
         // Get channel ID before clearing, so we can reliably delete it
         // (fetching after setChannelWithSecret may not find the empty-named channel)
-        let channelToDelete = try await dataStore.fetchChannel(deviceID: deviceID, index: index)
+        let channelToDelete = try await dataStore.fetchChannel(radioID: radioID, index: index)
 
         // Set empty name and zero secret to clear on device
         do {
@@ -485,7 +485,7 @@ public actor ChannelService {
         }
 
         // Delete messages for this channel first
-        try await dataStore.deleteMessagesForChannel(deviceID: deviceID, channelIndex: index)
+        try await dataStore.deleteMessagesForChannel(radioID: radioID, channelIndex: index)
 
         // Delete channel from local database using the ID we captured earlier
         if let channel = channelToDelete {
@@ -493,20 +493,20 @@ public actor ChannelService {
         }
 
         // Notify handler that channels changed
-        let channels = try await dataStore.fetchChannels(deviceID: deviceID)
+        let channels = try await dataStore.fetchChannels(radioID: radioID)
         channelUpdateHandler?(channels)
     }
 
     /// Clears all messages for a channel without deleting the channel itself.
     /// Use this for a "Clear Messages" feature that keeps the channel active.
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - channelIndex: The channel index (0-7)
-    public func clearChannelMessages(deviceID: UUID, channelIndex: UInt8) async throws {
-        try await dataStore.deleteMessagesForChannel(deviceID: deviceID, channelIndex: channelIndex)
+    public func clearChannelMessages(radioID: UUID, channelIndex: UInt8) async throws {
+        try await dataStore.deleteMessagesForChannel(radioID: radioID, channelIndex: channelIndex)
 
         // Clear the last message date so the channel doesn't show a preview
-        if let channel = try await dataStore.fetchChannel(deviceID: deviceID, index: channelIndex) {
+        if let channel = try await dataStore.fetchChannel(radioID: radioID, index: channelIndex) {
             try await dataStore.updateChannelLastMessage(channelID: channel.id, date: nil)
         }
     }
@@ -514,26 +514,26 @@ public actor ChannelService {
     // MARK: - Local Database Operations
 
     /// Gets all channels from local database for a device.
-    /// - Parameter deviceID: The device UUID
+    /// - Parameter radioID: The device UUID
     /// - Returns: Array of channel DTOs
-    public func getChannels(deviceID: UUID) async throws -> [ChannelDTO] {
-        try await dataStore.fetchChannels(deviceID: deviceID)
+    public func getChannels(radioID: UUID) async throws -> [ChannelDTO] {
+        try await dataStore.fetchChannels(radioID: radioID)
     }
 
     /// Gets a specific channel from local database.
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - index: The channel index
     /// - Returns: Channel DTO if found
-    public func getChannel(deviceID: UUID, index: UInt8) async throws -> ChannelDTO? {
-        try await dataStore.fetchChannel(deviceID: deviceID, index: index)
+    public func getChannel(radioID: UUID, index: UInt8) async throws -> ChannelDTO? {
+        try await dataStore.fetchChannel(radioID: radioID, index: index)
     }
 
     /// Gets channels that have messages (for chat list).
-    /// - Parameter deviceID: The device UUID
+    /// - Parameter radioID: The device UUID
     /// - Returns: Array of channel DTOs with lastMessageDate set
-    public func getActiveChannels(deviceID: UUID) async throws -> [ChannelDTO] {
-        let channels = try await dataStore.fetchChannels(deviceID: deviceID)
+    public func getActiveChannels(radioID: UUID) async throws -> [ChannelDTO] {
+        let channels = try await dataStore.fetchChannels(radioID: radioID)
         return channels.filter { $0.lastMessageDate != nil }
     }
 
@@ -545,10 +545,10 @@ public actor ChannelService {
     ])
 
     /// Creates or resets the public channel (slot 0).
-    /// - Parameter deviceID: The device UUID
-    public func setupPublicChannel(deviceID: UUID) async throws {
+    /// - Parameter radioID: The device UUID
+    public func setupPublicChannel(radioID: UUID) async throws {
         try await setChannelWithSecret(
-            deviceID: deviceID,
+            radioID: radioID,
             index: 0,
             name: "Public",
             secret: Self.publicChannelSecret
@@ -556,10 +556,10 @@ public actor ChannelService {
     }
 
     /// Checks if the public channel exists locally.
-    /// - Parameter deviceID: The device UUID
+    /// - Parameter radioID: The device UUID
     /// - Returns: True if public channel exists
-    public func hasPublicChannel(deviceID: UUID) async throws -> Bool {
-        let channel = try await dataStore.fetchChannel(deviceID: deviceID, index: 0)
+    public func hasPublicChannel(radioID: UUID) async throws -> Bool {
+        let channel = try await dataStore.fetchChannel(radioID: radioID, index: 0)
         return channel != nil
     }
 
@@ -627,5 +627,5 @@ public actor ChannelService {
 // MARK: - ChannelServiceProtocol Conformance
 
 extension ChannelService: ChannelServiceProtocol {
-    // Already implements syncChannels(deviceID:maxChannels:) -> ChannelSyncResult
+    // Already implements syncChannels(radioID:maxChannels:) -> ChannelSyncResult
 }

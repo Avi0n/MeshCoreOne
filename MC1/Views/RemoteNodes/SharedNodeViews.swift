@@ -220,7 +220,7 @@ struct NodeBatteryCurveDisclosureSection: View {
             .onChange(of: helper.isBatteryCurveExpanded) { _, isExpanded in
                 if isExpanded, let deviceID = connectedDeviceID {
                     Task {
-                        await helper.loadOCVSettings(publicKey: session.publicKey, deviceID: deviceID)
+                        await helper.loadOCVSettings(publicKey: session.publicKey, radioID: deviceID)
                     }
                 }
             }

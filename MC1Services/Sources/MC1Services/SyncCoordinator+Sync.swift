@@ -13,7 +13,7 @@ extension SyncCoordinator {
     /// It syncs in order: contacts → channels → messages.
     ///
     /// - Parameters:
-    ///   - deviceID: The connected device UUID
+    ///   - radioID: The connected device UUID
     ///   - dataStore: Persistence store for data operations
     ///   - contactService: Service for contact sync
     ///   - channelService: Service for channel sync
@@ -24,7 +24,7 @@ extension SyncCoordinator {
     ///   - rxLogService: Optional service for updating contact public keys after sync.
     ///   - forceFullSync: When true, ignores lastContactSync watermark and fetches all contacts.
     public func performFullSync(
-        deviceID: UUID,
+        radioID: UUID,
         dataStore: PersistenceStore,
         contactService: some ContactServiceProtocol,
         channelService: some ChannelServiceProtocol,
@@ -45,7 +45,7 @@ extension SyncCoordinator {
         isSyncInProgress = true
         defer { isSyncInProgress = false }
 
-        logger.info("Starting full sync for device \(deviceID)")
+        logger.info("Starting full sync for device \(radioID)")
         let syncStart = ContinuousClock.now
 
         do {
@@ -59,7 +59,7 @@ extension SyncCoordinator {
             // Perform contacts and channels sync (activity should show pill)
             do {
                 try await syncContactsAndChannels(
-                    deviceID: deviceID,
+                    radioID: radioID,
                     dataStore: dataStore,
                     contactService: contactService,
                     channelService: channelService,
@@ -128,14 +128,14 @@ extension SyncCoordinator {
     /// Attempts to resync data after a previous sync failure.
     /// Unlike onConnectionEstablished, does NOT rewire handlers or restart event monitoring.
     /// - Parameters:
-    ///   - deviceID: The connected device UUID
+    ///   - radioID: The connected device UUID
     ///   - services: The ServiceContainer with all services
     ///   - forceFullSync: When true, forces a full contact sync instead of incremental.
     ///   - channelSyncConfig: Channel sync skip configuration.
     ///   - platformName: Platform name for instrumentation logging.
     /// - Returns: `true` if sync succeeded, `false` if it failed
     public func performResync(
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer,
         forceFullSync: Bool = false,
         channelSyncConfig: ChannelSyncConfig = .none,
@@ -143,10 +143,10 @@ extension SyncCoordinator {
     ) async -> Bool {
         #if DEBUG
         if let override = performResyncOverride {
-            return await override(deviceID, services)
+            return await override(radioID, services)
         }
         #endif
-        logger.info("Attempting resync for device \(deviceID)")
+        logger.info("Attempting resync for device \(radioID)")
 
         await MainActor.run {
             logger.info("Suppressing message notifications during resync")
@@ -158,7 +158,7 @@ extension SyncCoordinator {
 
         do {
             try await performFullSync(
-                deviceID: deviceID,
+                radioID: radioID,
                 dataStore: services.dataStore,
                 contactService: services.contactService,
                 channelService: services.channelService,
@@ -171,7 +171,7 @@ extension SyncCoordinator {
                 platformName: platformName
             )
 
-            await wireDiscoveryHandlers(services: services, deviceID: deviceID)
+            await wireDiscoveryHandlers(services: services, radioID: radioID)
 
             await drainHandlersAndResumeNotifications(services: services, context: "resync complete")
             logger.info("[Sync] Resuming auto-fetch after resync")
@@ -201,19 +201,19 @@ extension SyncCoordinator {
     /// 4. Wire discovery handlers (for ongoing contact discovery)
     ///
     /// - Parameters:
-    ///   - deviceID: The connected device UUID
+    ///   - radioID: The connected device UUID
     ///   - services: The ServiceContainer with all services
     ///   - forceFullSync: When true, forces a full contact sync instead of incremental.
     ///   - channelSyncConfig: Channel sync skip configuration.
     ///   - platformName: Platform name for instrumentation logging.
     public func onConnectionEstablished(
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer,
         forceFullSync: Bool = false,
         channelSyncConfig: ChannelSyncConfig = .none,
         platformName: String = "unknown"
     ) async throws {
-        logger.info("Connection established for device \(deviceID)")
+        logger.info("Connection established for device \(radioID)")
 
         // Prevent duplicate sync if already syncing (race condition during rapid auto-reconnect cycles)
         guard !isSyncInProgress else {
@@ -234,14 +234,14 @@ extension SyncCoordinator {
             await services.advertisementService.setSyncingContacts(true)
 
             // 1. Wire message handlers FIRST (before events can arrive)
-            await wireMessageHandlers(services: services, deviceID: deviceID)
+            await wireMessageHandlers(services: services, radioID: radioID)
 
             // Clean up legacy blocked sender messages still in DB from older app versions
-            await deleteBlockedSenderMessages(deviceID: deviceID, dataStore: services.dataStore)
+            await deleteBlockedSenderMessages(radioID: radioID, dataStore: services.dataStore)
 
             // 2. NOW start event monitoring (handlers are ready), but delay auto-fetch and advert monitoring until after sync
-            logger.info("[Sync] Starting event monitoring for device \(deviceID.uuidString.prefix(8))")
-            await services.startEventMonitoring(deviceID: deviceID, enableAutoFetch: false)
+            logger.info("[Sync] Starting event monitoring for device \(radioID.uuidString.prefix(8))")
+            await services.startEventMonitoring(radioID: radioID, enableAutoFetch: false)
 
             // 3. Export device private key for direct message decryption
             do {
@@ -254,7 +254,7 @@ extension SyncCoordinator {
 
             // 4. Perform full sync
             try await performFullSync(
-                deviceID: deviceID,
+                radioID: radioID,
                 dataStore: services.dataStore,
                 contactService: services.contactService,
                 channelService: services.channelService,
@@ -268,7 +268,7 @@ extension SyncCoordinator {
             )
 
             // 5. Wire discovery handlers (for ongoing contact discovery)
-            await wireDiscoveryHandlers(services: services, deviceID: deviceID)
+            await wireDiscoveryHandlers(services: services, radioID: radioID)
 
             // 6. Flush deferred advert-driven contact fetches now that handlers are wired
             await services.advertisementService.setSyncingContacts(false)
@@ -277,10 +277,10 @@ extension SyncCoordinator {
             await drainHandlersAndResumeNotifications(services: services, context: "sync complete")
 
             // 8. Start auto-fetch after suppression is cleared to avoid notification spam
-            logger.info("[Sync] Starting auto-fetch for device \(deviceID.uuidString.prefix(8))")
-            await services.messagePollingService.startAutoFetch(deviceID: deviceID)
+            logger.info("[Sync] Starting auto-fetch for device \(radioID.uuidString.prefix(8))")
+            await services.messagePollingService.startAutoFetch(radioID: radioID)
 
-            logger.info("Connection setup complete for device \(deviceID)")
+            logger.info("Connection setup complete for device \(radioID)")
         } catch {
             // Drain pending message handlers and resume notifications
             await drainHandlersAndResumeNotifications(services: services, context: "sync failed")
@@ -333,7 +333,7 @@ extension SyncCoordinator {
 
     /// Syncs contacts and channels from the device (phases 1 and 2 of full sync).
     private func syncContactsAndChannels(
-        deviceID: UUID,
+        radioID: UUID,
         dataStore: PersistenceStore,
         contactService: some ContactServiceProtocol,
         channelService: some ChannelServiceProtocol,
@@ -344,7 +344,7 @@ extension SyncCoordinator {
         lastCleanChannelSync: Date? = nil
     ) async throws {
         // Fetch device once for both contacts (lastContactSync) and channels (maxChannels)
-        let device = try await dataStore.fetchDevice(id: deviceID)
+        let device = try await dataStore.fetchDevice(radioID: radioID)
 
         // Phase 1: Contacts (incremental unless forced full)
         let lastContactSync: Date? = forceFullSync ? nil : {
@@ -359,7 +359,7 @@ extension SyncCoordinator {
         }
 
         let contactStart = ContinuousClock.now
-        let contactResult = try await contactService.syncContacts(deviceID: deviceID, since: lastContactSync)
+        let contactResult = try await contactService.syncContacts(radioID: radioID, since: lastContactSync)
         let contactElapsed = ContinuousClock.now - contactStart
         let syncType = contactResult.isIncremental ? "incremental" : "full"
         let forced = forceFullSync ? ", forced" : ""
@@ -369,7 +369,7 @@ extension SyncCoordinator {
         // Update lastContactSync watermark for future incremental syncs
         if contactResult.lastSyncTimestamp > 0 {
             try await dataStore.updateDeviceLastContactSync(
-                deviceID: deviceID,
+                radioID: radioID,
                 timestamp: contactResult.lastSyncTimestamp
             )
         }
@@ -377,7 +377,7 @@ extension SyncCoordinator {
         // Update RxLogService with contact public keys for direct message decryption
         if let rxLogService {
             do {
-                let publicKeys = try await dataStore.fetchContactPublicKeysByPrefix(deviceID: deviceID)
+                let publicKeys = try await dataStore.fetchContactPublicKeysByPrefix(radioID: radioID)
                 await rxLogService.updateContactPublicKeys(publicKeys)
                 logger.debug("Updated \(publicKeys.count) contact public keys for direct message decryption")
             } catch {
@@ -413,7 +413,7 @@ extension SyncCoordinator {
                 let maxChannels = device?.maxChannels ?? 0
 
                 let channelStart = ContinuousClock.now
-                let channelResult = try await channelService.syncChannels(deviceID: deviceID, maxChannels: maxChannels)
+                let channelResult = try await channelService.syncChannels(radioID: radioID, maxChannels: maxChannels)
                 let channelElapsed = ContinuousClock.now - channelStart
                 logger.info("[Sync] Phase end: channels - \(channelResult.channelsSynced) synced (device capacity: \(maxChannels)) in \(channelElapsed)")
 
@@ -426,7 +426,7 @@ extension SyncCoordinator {
                     if !retryableIndices.isEmpty {
                         logger.info("Retrying \(retryableIndices.count) failed channels")
                         let retryResult = try await channelService.retryFailedChannels(
-                            deviceID: deviceID,
+                            radioID: radioID,
                             indices: retryableIndices
                         )
 
@@ -444,13 +444,13 @@ extension SyncCoordinator {
                 }
 
                 if channelPhaseClean {
-                    await onCleanChannelSync?(deviceID)
+                    await onCleanChannelSync?(radioID)
                 }
             }
 
-            await logPostSyncChannelDiagnostics(deviceID: deviceID, dataStore: dataStore)
+            await logPostSyncChannelDiagnostics(radioID: radioID, dataStore: dataStore)
             if let rxLogService {
-                await refreshRxLogChannels(deviceID: deviceID, dataStore: dataStore, rxLogService: rxLogService)
+                await refreshRxLogChannels(radioID: radioID, dataStore: dataStore, rxLogService: rxLogService)
             }
         } else {
             logger.info("Skipping channel sync (app in background)")
@@ -475,9 +475,9 @@ extension SyncCoordinator {
         }
     }
 
-    private func logPostSyncChannelDiagnostics(deviceID: UUID, dataStore: PersistenceStore) async {
+    private func logPostSyncChannelDiagnostics(radioID: UUID, dataStore: PersistenceStore) async {
         do {
-            let channels = try await dataStore.fetchChannels(deviceID: deviceID)
+            let channels = try await dataStore.fetchChannels(radioID: radioID)
             let emptyNameWithSecretIndices = channels
                 .filter { $0.name.isEmpty && $0.hasSecret }
                 .map(\.index)
@@ -496,12 +496,12 @@ extension SyncCoordinator {
     }
 
     private func refreshRxLogChannels(
-        deviceID: UUID,
+        radioID: UUID,
         dataStore: PersistenceStore,
         rxLogService: RxLogService
     ) async {
         do {
-            let channels = try await dataStore.fetchChannels(deviceID: deviceID)
+            let channels = try await dataStore.fetchChannels(radioID: radioID)
             let secrets = Dictionary(uniqueKeysWithValues: channels.map { ($0.index, $0.secret) })
             let names = Dictionary(uniqueKeysWithValues: channels.map { ($0.index, $0.name) })
             await rxLogService.updateChannels(secrets: secrets, names: names)

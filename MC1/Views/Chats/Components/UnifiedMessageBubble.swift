@@ -452,7 +452,7 @@ private extension View {
 
 #Preview("Direct - Outgoing Sent") {
     let message = Message(
-        deviceID: UUID(),
+        radioID: UUID(),
         contactID: UUID(),
         text: "Hello! How are you doing today?",
         directionRawValue: MessageDirection.outgoing.rawValue,
@@ -468,7 +468,7 @@ private extension View {
 
 #Preview("Direct - Outgoing Delivered") {
     let message = Message(
-        deviceID: UUID(),
+        radioID: UUID(),
         contactID: UUID(),
         text: "This message was delivered successfully!",
         directionRawValue: MessageDirection.outgoing.rawValue,
@@ -486,7 +486,7 @@ private extension View {
 
 #Preview("Direct - Outgoing Failed") {
     let message = Message(
-        deviceID: UUID(),
+        radioID: UUID(),
         contactID: UUID(),
         text: "This message failed to send",
         directionRawValue: MessageDirection.outgoing.rawValue,
@@ -503,7 +503,7 @@ private extension View {
 
 #Preview("Channel - Public Incoming") {
     let message = Message(
-        deviceID: UUID(),
+        radioID: UUID(),
         channelIndex: 1,
         text: "Hello from the public channel!",
         directionRawValue: MessageDirection.incoming.rawValue,
@@ -520,7 +520,7 @@ private extension View {
 
 #Preview("Channel - Private Outgoing") {
     let message = Message(
-        deviceID: UUID(),
+        radioID: UUID(),
         channelIndex: 2,
         text: "Private channel message",
         directionRawValue: MessageDirection.outgoing.rawValue,
@@ -536,7 +536,7 @@ private extension View {
 
 #Preview("Incoming - Direct Path") {
     let message = Message(
-        deviceID: UUID(),
+        radioID: UUID(),
         contactID: UUID(),
         text: "This came directly!",
         directionRawValue: MessageDirection.incoming.rawValue,
@@ -552,7 +552,7 @@ private extension View {
 
 #Preview("Incoming - 3 Hop Path") {
     let message = Message(
-        deviceID: UUID(),
+        radioID: UUID(),
         contactID: UUID(),
         text: "Routed through 3 nodes",
         directionRawValue: MessageDirection.incoming.rawValue,
@@ -569,7 +569,7 @@ private extension View {
 
 #Preview("Incoming - 6 Hop Truncated") {
     let message = Message(
-        deviceID: UUID(),
+        radioID: UUID(),
         contactID: UUID(),
         text: "Long path message",
         directionRawValue: MessageDirection.incoming.rawValue,

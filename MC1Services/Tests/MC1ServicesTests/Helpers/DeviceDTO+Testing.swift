@@ -12,6 +12,7 @@ extension DeviceDTO {
     /// ```
     static func testDevice(
         id: UUID = UUID(),
+        radioID: UUID = UUID(),
         publicKey: Data = Data(repeating: 0x01, count: 32),
         nodeName: String = "TestDevice",
         firmwareVersion: UInt8 = 9,
@@ -32,6 +33,7 @@ extension DeviceDTO {
     ) -> DeviceDTO {
         DeviceDTO(
             id: id,
+            radioID: radioID,
             publicKey: publicKey,
             nodeName: nodeName,
             firmwareVersion: firmwareVersion,

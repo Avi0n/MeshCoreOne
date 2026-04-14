@@ -136,7 +136,7 @@ struct ChatConversationView: View {
                     guard case .channel(let channel) = conversationType else { return }
                     await chatViewModel.loadChannelMessages(for: channel)
                     if let parent = parentViewModel {
-                        await parent.loadChannels(deviceID: channel.deviceID)
+                        await parent.loadChannels(radioID: channel.radioID)
                         await parent.loadLastMessagePreviews()
                     }
                 },
@@ -152,12 +152,12 @@ struct ChatConversationView: View {
         .sheet(item: $blockSenderContext) { context in
             BlockSenderSheet(
                 senderName: context.senderName,
-                deviceID: context.deviceID
+                radioID: context.radioID
             ) { blockedContactIDs in
                 Task {
                     await performBlock(
                         senderName: context.senderName,
-                        deviceID: context.deviceID,
+                        radioID: context.radioID,
                         contactIDs: blockedContactIDs
                     )
                 }
@@ -210,15 +210,15 @@ struct ChatConversationView: View {
         switch conversationType {
         case .dm(let contact):
             await chatViewModel.loadMessages(for: contact)
-            await chatViewModel.loadConversations(deviceID: contact.deviceID)
-            await chatViewModel.loadAllContacts(deviceID: contact.deviceID)
+            await chatViewModel.loadConversations(radioID: contact.radioID)
+            await chatViewModel.loadAllContacts(radioID: contact.radioID)
             chatViewModel.loadDraftIfExists()
 
         case .channel(let channel):
             // Load contacts first so contactNameSet is populated before buildChannelSenders runs
-            await chatViewModel.loadAllContacts(deviceID: channel.deviceID)
+            await chatViewModel.loadAllContacts(radioID: channel.radioID)
             await chatViewModel.loadChannelMessages(for: channel)
-            await chatViewModel.loadConversations(deviceID: channel.deviceID)
+            await chatViewModel.loadConversations(radioID: channel.radioID)
         }
 
         await loadUnseenMentions()
@@ -242,16 +242,16 @@ struct ChatConversationView: View {
             appState.services?.notificationService.activeContactID = nil
         case .channel:
             appState.services?.notificationService.activeChannelIndex = nil
-            appState.services?.notificationService.activeChannelDeviceID = nil
+            appState.services?.notificationService.activeChannelRadioID = nil
         }
 
         // Refresh parent conversation list when leaving
         if let parent = parentViewModel {
             Task {
-                guard let deviceID = appState.connectedDevice?.id else { return }
-                await parent.loadConversations(deviceID: deviceID)
+                guard let radioID = appState.connectedDevice?.radioID else { return }
+                await parent.loadConversations(radioID: radioID)
                 if case .channel = conversationType {
-                    await parent.loadChannels(deviceID: deviceID)
+                    await parent.loadChannels(radioID: radioID)
                 }
                 await parent.loadLastMessagePreviews()
             }
@@ -345,7 +345,7 @@ struct ChatConversationView: View {
         for event in events {
             switch event {
             case .channelMessageReceived(let message, let channelIndex)
-                where channelIndex == channel.index && message.deviceID == channel.deviceID:
+                where channelIndex == channel.index && message.radioID == channel.radioID:
                 chatViewModel.appendMessageIfNew(message)
                 handleIncomingMentionIfNeeded(message)
             case .messageStatusUpdated:
@@ -402,7 +402,7 @@ struct ChatConversationView: View {
             guard let services = appState.services else { return }
             do {
                 let allIDs = try await services.dataStore.fetchUnseenChannelMentionIDs(
-                    deviceID: channel.deviceID,
+                    radioID: channel.radioID,
                     channelIndex: channel.index
                 )
 
@@ -450,13 +450,13 @@ struct ChatConversationView: View {
             switch conversationType {
             case .dm(let contact):
                 try await dataStore.decrementUnreadMentionCount(contactID: contact.id)
-                if let parent = parentViewModel, let deviceID = appState.connectedDevice?.id {
-                    await parent.loadConversations(deviceID: deviceID)
+                if let parent = parentViewModel, let radioID = appState.connectedDevice?.radioID {
+                    await parent.loadConversations(radioID: radioID)
                 }
             case .channel(let channel):
                 try await dataStore.decrementChannelUnreadMentionCount(channelID: channel.id)
-                if let parent = parentViewModel, let deviceID = appState.connectedDevice?.id {
-                    await parent.loadChannels(deviceID: deviceID)
+                if let parent = parentViewModel, let radioID = appState.connectedDevice?.radioID {
+                    await parent.loadChannels(radioID: radioID)
                 }
             }
             return true
@@ -596,7 +596,7 @@ struct ChatConversationView: View {
             guard case .channel(let channel) = conversationType, let name = message.senderNodeName else { return }
             Task {
                 try? await Task.sleep(for: .milliseconds(300))
-                blockSenderContext = BlockSenderContext(senderName: name, deviceID: channel.deviceID)
+                blockSenderContext = BlockSenderContext(senderName: name, radioID: channel.radioID)
             }
         case .delete:
             Task { await chatViewModel.deleteMessage(message) }
@@ -617,10 +617,10 @@ struct ChatConversationView: View {
 
     // MARK: - Blocking (Channel only)
 
-    private func performBlock(senderName: String, deviceID: UUID, contactIDs: Set<UUID>) async {
+    private func performBlock(senderName: String, radioID: UUID, contactIDs: Set<UUID>) async {
         guard let services = appState.services else { return }
 
-        let dto = BlockedChannelSenderDTO(name: senderName, deviceID: deviceID)
+        let dto = BlockedChannelSenderDTO(name: senderName, radioID: radioID)
         do {
             try await services.dataStore.saveBlockedChannelSender(dto)
         } catch {
@@ -629,7 +629,7 @@ struct ChatConversationView: View {
         }
 
         // Delete existing channel messages from the blocked sender
-        try? await services.dataStore.deleteChannelMessages(fromSender: senderName, deviceID: deviceID)
+        try? await services.dataStore.deleteChannelMessages(fromSender: senderName, radioID: radioID)
 
         for contactID in contactIDs {
             do {
@@ -643,7 +643,7 @@ struct ChatConversationView: View {
         }
 
         await services.syncCoordinator.refreshBlockedContactsCache(
-            deviceID: deviceID,
+            radioID: radioID,
             dataStore: services.dataStore
         )
 
@@ -664,7 +664,7 @@ struct ChatConversationView: View {
     NavigationStack {
         ChatConversationView(
             conversationType: .dm(ContactDTO(from: Contact(
-                deviceID: UUID(),
+                radioID: UUID(),
                 publicKey: Data(repeating: 0x42, count: 32),
                 name: "Alice"
             )))
@@ -677,7 +677,7 @@ struct ChatConversationView: View {
     NavigationStack {
         ChatConversationView(
             conversationType: .channel(ChannelDTO(from: Channel(
-                deviceID: UUID(),
+                radioID: UUID(),
                 index: 1,
                 name: "General"
             )))

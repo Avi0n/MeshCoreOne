@@ -421,7 +421,8 @@ extension ConnectionManager {
         )
 
         // Persist connection for auto-reconnect
-        persistConnection(deviceID: deviceID, deviceName: meshCoreSelfInfo.name)
+        let radioID = connectedDevice!.radioID
+        persistConnection(deviceID: deviceID, radioID: radioID, deviceName: meshCoreSelfInfo.name)
 
         // Notify observers BEFORE sync starts so they can wire callbacks
         // (e.g., AppState needs to set sync activity callbacks for the syncing pill)
@@ -433,7 +434,7 @@ extension ConnectionManager {
         } else {
             shouldForceFullSync = false
         }
-        let syncSucceeded = await performInitialSync(deviceID: deviceID, services: newServices, forceFullSync: shouldForceFullSync)
+        let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, forceFullSync: shouldForceFullSync)
 
         guard await promoteToReady(syncSucceeded: syncSucceeded, expectedServices: newServices, transportType: .bluetooth) else {
             await newSession.stop()

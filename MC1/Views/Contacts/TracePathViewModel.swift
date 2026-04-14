@@ -160,8 +160,8 @@ final class TracePathViewModel {
             .receive(on: RunLoop.main)
             .sink { [weak self] notification in
                 guard let traceInfo = notification.userInfo?["traceInfo"] as? TraceInfo else { return }
-                let deviceID = notification.userInfo?["deviceID"] as? UUID
-                self?.handleTraceResponse(traceInfo, deviceID: deviceID)
+                let radioID = notification.userInfo?["radioID"] as? UUID
+                self?.handleTraceResponse(traceInfo, radioID: radioID)
             }
             .store(in: &cancellables)
     }
@@ -348,15 +348,15 @@ final class TracePathViewModel {
     // MARK: - Data Loading
 
     /// Load contacts for name resolution and available repeaters
-    func loadContacts(deviceID: UUID) async {
+    func loadContacts(radioID: UUID) async {
         guard let appState,
               let dataStore = appState.services?.dataStore else { return }
         do {
-            let contacts = try await dataStore.fetchContacts(deviceID: deviceID)
+            let contacts = try await dataStore.fetchContacts(radioID: radioID)
             allContacts = contacts
             availableRepeaters = contacts.filter { $0.type == .repeater }
             availableRooms = contacts.filter { $0.type == .room }
-            let nodes = try await dataStore.fetchDiscoveredNodes(deviceID: deviceID)
+            let nodes = try await dataStore.fetchDiscoveredNodes(radioID: radioID)
             discoveredRepeaters = nodes.filter { $0.nodeType == .repeater }
         } catch {
             logger.error("Failed to load contacts: \(error.localizedDescription)")
@@ -498,7 +498,7 @@ final class TracePathViewModel {
     @discardableResult
     func savePath(name: String) async -> Bool {
         guard let appState,
-              let deviceID = appState.connectedDevice?.id,
+              let radioID = appState.connectedDevice?.radioID,
               let dataStore = appState.services?.dataStore else { return false }
 
         // For batch mode, save all completed results
@@ -516,7 +516,7 @@ final class TracePathViewModel {
 
             do {
                 let savedPath = try await dataStore.createSavedTracePath(
-                    deviceID: deviceID,
+                    radioID: radioID,
                     name: name,
                     pathBytes: Data(firstSuccess.tracedPathBytes),
                     hashSize: hashSize,
@@ -563,7 +563,7 @@ final class TracePathViewModel {
 
         do {
             let savedPath = try await dataStore.createSavedTracePath(
-                deviceID: deviceID,
+                radioID: radioID,
                 name: name,
                 pathBytes: Data(result.tracedPathBytes),
                 hashSize: hashSize,
@@ -632,14 +632,14 @@ final class TracePathViewModel {
     /// Returns the most recently used match if multiple exist
     private func findMatchingSavedPath() async -> SavedTracePathDTO? {
         guard let appState,
-              let deviceID = appState.connectedDevice?.id,
+              let radioID = appState.connectedDevice?.radioID,
               let dataStore = appState.services?.dataStore else { return nil }
 
         let pathBytes = fullPathBytes
         guard !pathBytes.isEmpty else { return nil }
 
         do {
-            let savedPaths = try await dataStore.fetchSavedTracePaths(deviceID: deviceID)
+            let savedPaths = try await dataStore.fetchSavedTracePaths(radioID: radioID)
             let matches = savedPaths.filter { $0.pathHashBytes == pathBytes }
 
             // Return most recently used (by latest run date)
@@ -684,7 +684,7 @@ final class TracePathViewModel {
         // Generate random tag for correlation
         let tag = UInt32.random(in: 0...UInt32.max)
         pendingTag = tag
-        pendingDeviceID = appState.connectedDevice?.id  // Capture device
+        pendingDeviceID = appState.connectedDevice?.radioID  // Capture device
         traceStartTime = Date()
 
         // Build path data
@@ -853,7 +853,7 @@ final class TracePathViewModel {
         // Generate random tag for correlation
         let tag = UInt32.random(in: 0...UInt32.max)
         pendingTag = tag
-        pendingDeviceID = appState.connectedDevice?.id
+        pendingDeviceID = appState.connectedDevice?.radioID
         traceStartTime = Date()
 
         let pathData = Data(fullPathBytes)
@@ -965,14 +965,14 @@ final class TracePathViewModel {
     }
 
     /// Handle trace response from event stream
-    func handleTraceResponse(_ traceInfo: TraceInfo, deviceID: UUID?) {
+    func handleTraceResponse(_ traceInfo: TraceInfo, radioID: UUID?) {
         guard traceInfo.tag == pendingTag else {
             logger.debug("Ignoring trace response with non-matching tag \(traceInfo.tag)")
             return
         }
 
         // Validate device ID if both are available; skip if either is nil
-        if let pending = pendingDeviceID, let received = deviceID, pending != received {
+        if let pending = pendingDeviceID, let received = radioID, pending != received {
             logger.warning("Ignoring trace response from different device")
             return
         }
@@ -1126,8 +1126,8 @@ final class TracePathViewModel {
     }
 
     /// Test helper to set pending device ID
-    func setPendingDeviceIDForTesting(_ deviceID: UUID?) {
-        pendingDeviceID = deviceID
+    func setPendingDeviceIDForTesting(_ radioID: UUID?) {
+        pendingDeviceID = radioID
     }
 
     /// Test helper to set pending path hash

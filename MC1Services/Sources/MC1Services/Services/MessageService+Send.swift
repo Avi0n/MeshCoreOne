@@ -45,7 +45,7 @@ extension MessageService {
         // Save message to store as pending first
         let messageDTO = createOutgoingMessage(
             id: messageID,
-            deviceID: contact.deviceID,
+            radioID: contact.radioID,
             contactID: contact.id,
             text: text,
             timestamp: timestamp,
@@ -143,7 +143,7 @@ extension MessageService {
         // Save message to store as pending first
         let messageDTO = createOutgoingMessage(
             id: messageID,
-            deviceID: contact.deviceID,
+            radioID: contact.radioID,
             contactID: contact.id,
             text: text,
             timestamp: timestamp,
@@ -163,7 +163,7 @@ extension MessageService {
             let sentInfo = try await sendDirectMessageWithRetryLoop(
                 messageID: messageID,
                 contactID: contact.id,
-                deviceID: contact.deviceID,
+                radioID: contact.radioID,
                 publicKey: contact.publicKey,
                 text: text,
                 timestamp: Date(timeIntervalSince1970: TimeInterval(timestamp)),
@@ -173,7 +173,7 @@ extension MessageService {
             return try await finalizeSend(
                 messageID: messageID,
                 contactID: contact.id,
-                deviceID: contact.deviceID,
+                radioID: contact.radioID,
                 publicKey: contact.publicKey,
                 sentInfo: sentInfo,
                 initialPathLength: initialPathLength
@@ -208,7 +208,7 @@ extension MessageService {
 
         let messageDTO = createOutgoingMessage(
             id: messageID,
-            deviceID: contact.deviceID,
+            radioID: contact.radioID,
             contactID: contact.id,
             text: text,
             timestamp: timestamp,
@@ -276,7 +276,7 @@ extension MessageService {
             let sentInfo = try await sendDirectMessageWithRetryLoop(
                 messageID: messageID,
                 contactID: contact.id,
-                deviceID: contact.deviceID,
+                radioID: contact.radioID,
                 publicKey: contact.publicKey,
                 text: existingMessage.text,
                 timestamp: retryTimestamp,
@@ -286,7 +286,7 @@ extension MessageService {
             return try await finalizeSend(
                 messageID: messageID,
                 contactID: contact.id,
-                deviceID: contact.deviceID,
+                radioID: contact.radioID,
                 publicKey: contact.publicKey,
                 sentInfo: sentInfo,
                 initialPathLength: initialPathLength
@@ -310,7 +310,7 @@ extension MessageService {
     /// - Parameters:
     ///   - messageID: The message ID for status updates
     ///   - contactID: The contact ID for routing change notifications
-    ///   - deviceID: The device ID for saving contact updates
+    ///   - radioID: The device ID for saving contact updates
     ///   - publicKey: The full 32-byte destination public key
     ///   - text: The message text
     ///   - timestamp: The message timestamp (must remain constant across retries)
@@ -321,7 +321,7 @@ extension MessageService {
     private func sendDirectMessageWithRetryLoop(
         messageID: UUID,
         contactID: UUID,
-        deviceID: UUID,
+        radioID: UUID,
         publicKey: Data,
         text: String,
         timestamp: Date,
@@ -357,7 +357,7 @@ extension MessageService {
 
                     // Notify UI of routing change and save updated contact
                     if let updatedContact = try await session.getContact(publicKey: publicKey) {
-                        _ = try await dataStore.saveContact(deviceID: deviceID, from: updatedContact.toContactFrame())
+                        _ = try await dataStore.saveContact(radioID: radioID, from: updatedContact.toContactFrame())
                     }
                     await routingChangedHandler?(contactID, true)
                 } catch {
@@ -420,7 +420,7 @@ extension MessageService {
     private func checkAndNotifyRoutingChange(
         publicKey: Data,
         contactID: UUID,
-        deviceID: UUID,
+        radioID: UUID,
         initialPathLength: UInt8
     ) async {
         do {
@@ -436,7 +436,7 @@ extension MessageService {
                 logger.info("Routing changed for contact \(contactID): \(initialPathLength) -> \(newPathLength)")
 
                 // Save updated contact to database
-                _ = try await dataStore.saveContact(deviceID: deviceID, from: updatedContact.toContactFrame())
+                _ = try await dataStore.saveContact(radioID: radioID, from: updatedContact.toContactFrame())
 
                 // Notify UI of routing change
                 let isNowFlood = newPathLength == 0xFF
@@ -457,7 +457,7 @@ extension MessageService {
     /// - Parameters:
     ///   - text: The message text to broadcast (max 200 characters)
     ///   - channelIndex: The channel index (0-7)
-    ///   - deviceID: The local device ID
+    ///   - radioID: The local device ID
     ///   - textType: The text encoding type (defaults to `.plain`)
     ///
     /// - Returns: The ID of the created message
@@ -473,13 +473,13 @@ extension MessageService {
     /// let messageID = try await messageService.sendChannelMessage(
     ///     text: "Hello channel!",
     ///     channelIndex: 0,
-    ///     deviceID: device.id
+    ///     radioID: device.id
     /// )
     /// ```
     public func sendChannelMessage(
         text: String,
         channelIndex: UInt8,
-        deviceID: UUID,
+        radioID: UUID,
         textType: TextType = .plain
     ) async throws -> (id: UUID, timestamp: UInt32) {
         // Validate message length (byte count matches firmware buffer limits)
@@ -493,7 +493,7 @@ extension MessageService {
         // Save message to store as pending first
         let messageDTO = createOutgoingChannelMessage(
             id: messageID,
-            deviceID: deviceID,
+            radioID: radioID,
             channelIndex: channelIndex,
             text: text,
             timestamp: timestamp,
@@ -516,7 +516,7 @@ extension MessageService {
         // .failed since the broadcast already went out.
         try await dataStore.updateMessageStatus(id: messageID, status: .sent)
 
-        if let channel = try await dataStore.fetchChannel(deviceID: deviceID, index: channelIndex) {
+        if let channel = try await dataStore.fetchChannel(radioID: radioID, index: channelIndex) {
             try await dataStore.updateChannelLastMessage(channelID: channel.id, date: Date())
         }
 
@@ -527,19 +527,19 @@ extension MessageService {
     ///
     /// Use this for optimistic UI — the message is saved immediately and can be
     /// displayed in the conversation while the actual send happens in the background
-    /// via ``sendPendingChannelMessage(messageID:channelIndex:deviceID:)``.
+    /// via ``sendPendingChannelMessage(messageID:channelIndex:radioID:)``.
     ///
     /// - Parameters:
     ///   - text: The message text
     ///   - channelIndex: The channel index to send on
-    ///   - deviceID: The device ID
+    ///   - radioID: The device ID
     ///   - textType: The text type (defaults to `.plain`)
     ///
     /// - Returns: The created message DTO with pending status
     public func createPendingChannelMessage(
         text: String,
         channelIndex: UInt8,
-        deviceID: UUID,
+        radioID: UUID,
         textType: TextType = .plain
     ) async throws -> MessageDTO {
         guard text.utf8.count <= ProtocolLimits.maxChannelMessageTotalLength else {
@@ -551,7 +551,7 @@ extension MessageService {
 
         let messageDTO = createOutgoingChannelMessage(
             id: messageID,
-            deviceID: deviceID,
+            radioID: radioID,
             channelIndex: channelIndex,
             text: text,
             timestamp: timestamp,
@@ -564,7 +564,7 @@ extension MessageService {
 
     /// Sends an already-created pending channel message.
     ///
-    /// Use this after ``createPendingChannelMessage(text:channelIndex:deviceID:textType:)``
+    /// Use this after ``createPendingChannelMessage(text:channelIndex:radioID:textType:)``
     /// to transmit the message over the mesh. Updates the message status to `.sent` on
     /// success or `.failed` on error.
     ///
@@ -589,7 +589,7 @@ extension MessageService {
 
         try await dataStore.updateMessageStatus(id: messageID, status: .sent)
 
-        if let channel = try await dataStore.fetchChannel(deviceID: message.deviceID, index: channelIndex) {
+        if let channel = try await dataStore.fetchChannel(radioID: message.radioID, index: channelIndex) {
             try await dataStore.updateChannelLastMessage(channelID: channel.id, date: Date())
         }
     }
@@ -656,7 +656,7 @@ extension MessageService {
     private func finalizeSend(
         messageID: UUID,
         contactID: UUID,
-        deviceID: UUID,
+        radioID: UUID,
         publicKey: Data,
         sentInfo: MessageSentInfo?,
         initialPathLength: UInt8
@@ -674,7 +674,7 @@ extension MessageService {
         await checkAndNotifyRoutingChange(
             publicKey: publicKey,
             contactID: contactID,
-            deviceID: deviceID,
+            radioID: radioID,
             initialPathLength: initialPathLength
         )
         guard let message = try await dataStore.fetchMessage(id: messageID) else {
@@ -685,7 +685,7 @@ extension MessageService {
 
     private func createOutgoingMessage(
         id: UUID,
-        deviceID: UUID,
+        radioID: UUID,
         contactID: UUID,
         text: String,
         timestamp: UInt32,
@@ -694,7 +694,7 @@ extension MessageService {
     ) -> MessageDTO {
         let message = Message(
             id: id,
-            deviceID: deviceID,
+            radioID: radioID,
             contactID: contactID,
             text: text,
             timestamp: timestamp,
@@ -708,7 +708,7 @@ extension MessageService {
 
     private func createOutgoingChannelMessage(
         id: UUID,
-        deviceID: UUID,
+        radioID: UUID,
         channelIndex: UInt8,
         text: String,
         timestamp: UInt32,
@@ -716,7 +716,7 @@ extension MessageService {
     ) -> MessageDTO {
         let message = Message(
             id: id,
-            deviceID: deviceID,
+            radioID: radioID,
             channelIndex: channelIndex,
             text: text,
             timestamp: timestamp,

@@ -20,7 +20,7 @@ struct RepeaterStatusViewModelTests {
 
     private func createTestSession() -> RemoteNodeSessionDTO {
         RemoteNodeSessionDTO(
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: testPublicKey,
             name: "Test Repeater",
             role: .repeater,

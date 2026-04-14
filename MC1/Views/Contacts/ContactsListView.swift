@@ -123,21 +123,21 @@ struct ContactsListView: View {
     // MARK: - Actions
 
     private func loadContacts() async {
-        guard let deviceID = appState.currentDeviceID else { return }
+        guard let deviceID = appState.currentRadioID else { return }
         viewModel.configure(appState: appState)
-        await viewModel.loadContacts(deviceID: deviceID)
+        await viewModel.loadContacts(radioID: deviceID)
     }
 
     private func announceOfflineStateIfNeeded() {
         guard appState.connectionState == .disconnected,
-              appState.currentDeviceID != nil else { return }
+              appState.currentRadioID != nil else { return }
 
         AccessibilityNotification.Announcement(L10n.Contacts.Contacts.List.offlineAnnouncement).post()
     }
 
     private func syncContacts() async {
-        guard let deviceID = appState.currentDeviceID else { return }
-        await viewModel.syncContacts(deviceID: deviceID)
+        guard let deviceID = appState.currentRadioID else { return }
+        await viewModel.syncContacts(radioID: deviceID)
         syncSuccessTrigger.toggle()
     }
 }

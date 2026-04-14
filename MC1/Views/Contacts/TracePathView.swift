@@ -118,8 +118,8 @@ struct TracePathView: View {
         .task {
             viewModel.configure(appState: appState)
             viewModel.startListening()
-            if let deviceID = appState.connectedDevice?.id {
-                await viewModel.loadContacts(deviceID: deviceID)
+            if let radioID = appState.connectedDevice?.radioID {
+                await viewModel.loadContacts(radioID: radioID)
             }
         }
         .onDisappear {

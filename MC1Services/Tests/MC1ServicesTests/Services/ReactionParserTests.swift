@@ -235,7 +235,7 @@ struct ReactionParserTests {
     @Test("ReactionDTO can be created with contactID for DMs")
     func reactionDTOWithContactID() {
         let contactID = UUID()
-        let deviceID = UUID()
+        let radioID = UUID()
         let messageID = UUID()
 
         let dto = ReactionDTO(
@@ -245,7 +245,7 @@ struct ReactionParserTests {
             messageHash: "a1b2c3d4",
             rawText: "👍@[TestNode]\na1b2c3d4",
             contactID: contactID,
-            deviceID: deviceID
+            radioID: radioID
         )
 
         #expect(dto.contactID == contactID)
@@ -254,7 +254,7 @@ struct ReactionParserTests {
 
     @Test("ReactionDTO can be created with channelIndex for channels")
     func reactionDTOWithChannelIndex() {
-        let deviceID = UUID()
+        let radioID = UUID()
         let messageID = UUID()
 
         let dto = ReactionDTO(
@@ -264,7 +264,7 @@ struct ReactionParserTests {
             messageHash: "a1b2c3d4",
             rawText: "👍@[TestNode]\na1b2c3d4",
             channelIndex: 5,
-            deviceID: deviceID
+            radioID: radioID
         )
 
         #expect(dto.channelIndex == 5)

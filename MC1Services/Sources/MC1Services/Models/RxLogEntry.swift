@@ -13,7 +13,8 @@ public final class RxLogEntry {
     @Attribute(.unique)
     public var id: UUID
 
-    public var deviceID: UUID
+    @Attribute(originalName: "deviceID")
+    public var radioID: UUID
 
     public var receivedAt: Date
 
@@ -50,7 +51,7 @@ public final class RxLogEntry {
 
     public init(
         id: UUID = UUID(),
-        deviceID: UUID,
+        radioID: UUID,
         receivedAt: Date = Date(),
         snr: Double? = nil,
         rssi: Int? = nil,
@@ -71,7 +72,7 @@ public final class RxLogEntry {
         senderTimestamp: Int? = nil
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.receivedAt = receivedAt
         self.snr = snr
         self.rssi = rssi
@@ -96,7 +97,7 @@ public final class RxLogEntry {
 /// Sendable DTO for cross-actor transfer of RxLogEntry data.
 public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     public let id: UUID
-    public let deviceID: UUID
+    public var radioID: UUID
     public let receivedAt: Date
     public let snr: Double?
     public let rssi: Int?
@@ -126,7 +127,7 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     /// Initialize from SwiftData model.
     public init(from model: RxLogEntry) {
         self.id = model.id
-        self.deviceID = model.deviceID
+        self.radioID = model.radioID
         self.receivedAt = model.receivedAt
         self.snr = model.snr
         self.rssi = model.rssi
@@ -151,7 +152,7 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     /// Initialize from ParsedRxLogData (for new entries).
     public init(
         id: UUID = UUID(),
-        deviceID: UUID,
+        radioID: UUID,
         receivedAt: Date = Date(),
         from parsed: ParsedRxLogData,
         channelIndex: UInt8? = nil,
@@ -163,7 +164,7 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
         decodedText: String? = nil
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.receivedAt = receivedAt
         self.snr = parsed.snr
         self.rssi = parsed.rssi

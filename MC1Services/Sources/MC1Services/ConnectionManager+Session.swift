@@ -141,7 +141,8 @@ extension ConnectionManager: BLEReconnectionDelegate {
 
         // Notify observers BEFORE sync starts so they can wire callbacks
         await onConnectionReady?()
-        let syncSucceeded = await performInitialSync(deviceID: deviceID, services: newServices, context: "[BLE] iOS auto-reconnect")
+        let radioID = connectedDevice!.radioID
+        let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, context: "[BLE] iOS auto-reconnect")
 
         // Caller-specific guard: generation check for superseded reconnects
         guard connectionIntent.wantsConnection,

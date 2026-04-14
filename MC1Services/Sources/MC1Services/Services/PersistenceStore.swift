@@ -92,11 +92,11 @@ public actor PersistenceStore: PersistenceStoreProtocol {
 
     private let maxDiscoveredNodes = 1000
 
-    public func upsertDiscoveredNode(deviceID: UUID, from frame: ContactFrame) throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
-        let targetDeviceID = deviceID
+    public func upsertDiscoveredNode(radioID: UUID, from frame: ContactFrame) throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
+        let targetRadioID = radioID
         let publicKey = frame.publicKey
         let predicate = #Predicate<DiscoveredNode> { node in
-            node.deviceID == targetDeviceID && node.publicKey == publicKey
+            node.radioID == targetRadioID && node.publicKey == publicKey
         }
         var descriptor = FetchDescriptor<DiscoveredNode>(predicate: predicate)
         descriptor.fetchLimit = 1
@@ -117,7 +117,7 @@ public actor PersistenceStore: PersistenceStoreProtocol {
             isNew = false
         } else {
             node = DiscoveredNode(
-                deviceID: deviceID,
+                radioID: radioID,
                 publicKey: frame.publicKey,
                 name: frame.name,
                 typeRawValue: frame.type.rawValue,
@@ -130,16 +130,16 @@ public actor PersistenceStore: PersistenceStoreProtocol {
             modelContext.insert(node)
             isNew = true
 
-            try enforceDiscoveredNodeCap(deviceID: deviceID)
+            try enforceDiscoveredNodeCap(radioID: radioID)
         }
 
         try modelContext.save()
         return (node: DiscoveredNodeDTO(from: node), isNew: isNew)
     }
 
-    private func enforceDiscoveredNodeCap(deviceID: UUID) throws {
-        let targetDeviceID = deviceID
-        let countPredicate = #Predicate<DiscoveredNode> { $0.deviceID == targetDeviceID }
+    private func enforceDiscoveredNodeCap(radioID: UUID) throws {
+        let targetRadioID = radioID
+        let countPredicate = #Predicate<DiscoveredNode> { $0.radioID == targetRadioID }
         let countDescriptor = FetchDescriptor<DiscoveredNode>(predicate: countPredicate)
         let count = try modelContext.fetchCount(countDescriptor)
 
@@ -158,9 +158,9 @@ public actor PersistenceStore: PersistenceStoreProtocol {
         }
     }
 
-    public func fetchDiscoveredNodes(deviceID: UUID) throws -> [DiscoveredNodeDTO] {
-        let targetDeviceID = deviceID
-        let predicate = #Predicate<DiscoveredNode> { $0.deviceID == targetDeviceID }
+    public func fetchDiscoveredNodes(radioID: UUID) throws -> [DiscoveredNodeDTO] {
+        let targetRadioID = radioID
+        let predicate = #Predicate<DiscoveredNode> { $0.radioID == targetRadioID }
         let descriptor = FetchDescriptor<DiscoveredNode>(predicate: predicate)
         let nodes = try modelContext.fetch(descriptor)
         return nodes.map { DiscoveredNodeDTO(from: $0) }
@@ -177,9 +177,9 @@ public actor PersistenceStore: PersistenceStoreProtocol {
         }
     }
 
-    public func clearDiscoveredNodes(deviceID: UUID) throws {
-        let targetDeviceID = deviceID
-        let predicate = #Predicate<DiscoveredNode> { $0.deviceID == targetDeviceID }
+    public func clearDiscoveredNodes(radioID: UUID) throws {
+        let targetRadioID = radioID
+        let predicate = #Predicate<DiscoveredNode> { $0.radioID == targetRadioID }
         let descriptor = FetchDescriptor<DiscoveredNode>(predicate: predicate)
         let nodes = try modelContext.fetch(descriptor)
         for node in nodes {

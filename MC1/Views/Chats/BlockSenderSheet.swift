@@ -12,7 +12,7 @@ struct BlockSenderSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     let senderName: String
-    let deviceID: UUID
+    let radioID: UUID
     let onBlock: (_ blockedContactIDs: Set<UUID>) -> Void
 
     @State private var matchingContacts: [ContactDTO] = []
@@ -67,7 +67,7 @@ struct BlockSenderSheet: View {
         }
 
         do {
-            let allContacts = try await store.fetchContacts(deviceID: deviceID)
+            let allContacts = try await store.fetchContacts(radioID: radioID)
             matchingContacts = allContacts.filter { contact in
                 !contact.isBlocked
                     && contact.name.localizedCaseInsensitiveCompare(senderName) == .orderedSame

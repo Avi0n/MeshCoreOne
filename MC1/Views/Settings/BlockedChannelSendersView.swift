@@ -49,13 +49,13 @@ struct BlockedChannelSendersView: View {
 
     private func loadBlockedSenders() async {
         guard let services = appState.services,
-              let deviceID = appState.connectedDevice?.id else { return }
+              let radioID = appState.connectedDevice?.radioID else { return }
         isLoading = true
         defer { isLoading = false }
 
         do {
             blockedSenders = try await services.dataStore.fetchBlockedChannelSenders(
-                deviceID: deviceID
+                radioID: radioID
             )
         } catch {
             logger.error("Failed to load blocked channel senders: \(error)")
@@ -69,12 +69,12 @@ struct BlockedChannelSendersView: View {
 
         Task {
             guard let services = appState.services,
-                  let deviceID = appState.connectedDevice?.id else { return }
+                  let radioID = appState.connectedDevice?.radioID else { return }
 
             for sender in sendersToUnblock {
                 do {
                     try await services.dataStore.deleteBlockedChannelSender(
-                        deviceID: deviceID,
+                        radioID: radioID,
                         name: sender.name
                     )
                 } catch {
@@ -83,7 +83,7 @@ struct BlockedChannelSendersView: View {
             }
 
             await services.syncCoordinator.refreshBlockedContactsCache(
-                deviceID: deviceID,
+                radioID: radioID,
                 dataStore: services.dataStore
             )
             services.syncCoordinator.notifyConversationsChanged()

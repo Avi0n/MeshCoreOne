@@ -391,7 +391,7 @@ private extension MessageDTO {
     ) -> MessageDTO {
         MessageDTO(
             id: id,
-            deviceID: UUID(),
+            radioID: UUID(),
             contactID: nil,
             channelIndex: nil,
             text: text,
@@ -422,7 +422,7 @@ private extension ContactDTO {
     ) -> ContactDTO {
         ContactDTO(
             id: id,
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0xAA, count: ProtocolLimits.publicKeySize),
             name: name,
             typeRawValue: 0,

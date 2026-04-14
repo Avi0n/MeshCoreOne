@@ -125,7 +125,7 @@ struct MessagePathFormatterTests {
 
     private func createMessage(pathLength: UInt8, pathNodes: Data?) -> MessageDTO {
         let message = Message(
-            deviceID: UUID(),
+            radioID: UUID(),
             contactID: UUID(),
             text: "Test",
             directionRawValue: MessageDirection.incoming.rawValue,

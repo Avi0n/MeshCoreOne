@@ -179,7 +179,7 @@ private struct ChannelEmptyMessagesView: View {
     NavigationStack {
         ChatConversationMessagesContent(
             conversationType: .dm(ContactDTO(from: Contact(
-                deviceID: UUID(),
+                radioID: UUID(),
                 publicKey: Data(repeating: 0x42, count: 32),
                 name: "Alice"
             ))),
@@ -213,7 +213,7 @@ private struct ChannelEmptyMessagesView: View {
     NavigationStack {
         ChatConversationMessagesContent(
             conversationType: .channel(ChannelDTO(from: Channel(
-                deviceID: UUID(),
+                radioID: UUID(),
                 index: 1,
                 name: "General"
             ))),

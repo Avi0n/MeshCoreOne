@@ -75,7 +75,7 @@ struct NotificationServiceTests {
             messageID: UUID(),
             contactID: UUID(),
             channelIndex: nil,
-            deviceID: nil
+            radioID: nil
         )
 
         #expect(true)
@@ -93,7 +93,7 @@ struct NotificationServiceTests {
             messageID: UUID(),
             contactID: nil,
             channelIndex: 3,
-            deviceID: UUID()
+            radioID: UUID()
         )
 
         #expect(true)
@@ -131,10 +131,10 @@ struct NotificationServiceTests {
         var receivedDeviceID: UUID?
         var receivedMessageID: UUID?
 
-        service.onReactionNotificationTapped = { contactID, channelIndex, deviceID, messageID in
+        service.onReactionNotificationTapped = { contactID, channelIndex, radioID, messageID in
             receivedContactID = contactID
             receivedChannelIndex = channelIndex
-            receivedDeviceID = deviceID
+            receivedDeviceID = radioID
             receivedMessageID = messageID
         }
 

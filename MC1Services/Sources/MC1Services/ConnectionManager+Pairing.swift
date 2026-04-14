@@ -203,12 +203,12 @@ extension ConnectionManager {
 
     /// Returns the number of non-favorite contacts for the current device.
     public func unfavoritedNodeCount() async throws -> Int {
-        guard let deviceID = connectedDevice?.id else {
+        guard let radioID = connectedDevice?.radioID else {
             throw ConnectionError.notConnected
         }
 
         let dataStore = PersistenceStore(modelContainer: modelContainer)
-        let allContacts = try await dataStore.fetchContacts(deviceID: deviceID)
+        let allContacts = try await dataStore.fetchContacts(radioID: radioID)
         return allContacts.filter { !$0.isFavorite }.count
     }
 
@@ -241,7 +241,7 @@ extension ConnectionManager {
         matching predicate: (ContactDTO) -> Bool,
         onRemove: ((_ contact: ContactDTO) -> Void)? = nil
     ) async throws -> RemoveUnfavoritedResult {
-        guard let deviceID = connectedDevice?.id else {
+        guard let radioID = connectedDevice?.radioID else {
             throw ConnectionError.notConnected
         }
 
@@ -250,7 +250,7 @@ extension ConnectionManager {
         }
 
         let dataStore = PersistenceStore(modelContainer: modelContainer)
-        let allContacts = try await dataStore.fetchContacts(deviceID: deviceID)
+        let allContacts = try await dataStore.fetchContacts(radioID: radioID)
         let targets = allContacts.filter(predicate)
 
         if targets.isEmpty {
@@ -264,7 +264,7 @@ extension ConnectionManager {
 
             do {
                 try await services.contactService.removeContact(
-                    deviceID: deviceID,
+                    radioID: radioID,
                     publicKey: contact.publicKey
                 )
                 removedCount += 1

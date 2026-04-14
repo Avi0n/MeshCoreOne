@@ -60,8 +60,8 @@ struct RoomStatusView: View {
                 }
 
                 // Pre-load OCV settings
-                if let deviceID = appState.connectedDevice?.id {
-                    await viewModel.helper.loadOCVSettings(publicKey: session.publicKey, deviceID: deviceID)
+                if let radioID = appState.connectedDevice?.radioID {
+                    await viewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
                 }
             }
             .refreshable {
@@ -96,7 +96,7 @@ struct RoomStatusView: View {
             helper: viewModel.helper,
             session: session,
             connectionState: appState.connectionState,
-            connectedDeviceID: appState.connectedDevice?.id
+            connectedDeviceID: appState.connectedDevice?.radioID
         )
     }
 
@@ -140,7 +140,7 @@ private struct RoomStatusRows: View {
 #Preview {
     RoomStatusView(
         session: RemoteNodeSessionDTO(
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0x42, count: 32),
             name: "Test Room",
             role: .roomServer,

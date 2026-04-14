@@ -13,21 +13,21 @@ struct BlockedChannelSenderPersistenceTests {
         return PersistenceStore(modelContainer: container)
     }
 
-    private let deviceID = UUID()
+    private let radioID = UUID()
 
     // MARK: - Save & Fetch
 
     @Test("Save and fetch round-trip returns the blocked sender")
     func saveAndFetchRoundTrip() async throws {
         let store = try await createTestStore()
-        let dto = BlockedChannelSenderDTO(name: "Spammer", deviceID: deviceID)
+        let dto = BlockedChannelSenderDTO(name: "Spammer", radioID: radioID)
 
         try await store.saveBlockedChannelSender(dto)
-        let fetched = try await store.fetchBlockedChannelSenders(deviceID: deviceID)
+        let fetched = try await store.fetchBlockedChannelSenders(radioID: radioID)
 
         #expect(fetched.count == 1)
         #expect(fetched.first?.name == "Spammer")
-        #expect(fetched.first?.deviceID == deviceID)
+        #expect(fetched.first?.radioID == radioID)
     }
 
     // MARK: - Upsert
@@ -38,13 +38,13 @@ struct BlockedChannelSenderPersistenceTests {
         let earlier = Date.distantPast
         let later = Date.now
 
-        let first = BlockedChannelSenderDTO(name: "Troll", deviceID: deviceID, dateBlocked: earlier)
+        let first = BlockedChannelSenderDTO(name: "Troll", radioID: radioID, dateBlocked: earlier)
         try await store.saveBlockedChannelSender(first)
 
-        let second = BlockedChannelSenderDTO(name: "Troll", deviceID: deviceID, dateBlocked: later)
+        let second = BlockedChannelSenderDTO(name: "Troll", radioID: radioID, dateBlocked: later)
         try await store.saveBlockedChannelSender(second)
 
-        let fetched = try await store.fetchBlockedChannelSenders(deviceID: deviceID)
+        let fetched = try await store.fetchBlockedChannelSenders(radioID: radioID)
         #expect(fetched.count == 1)
         #expect(fetched.first?.dateBlocked == later)
     }
@@ -54,11 +54,11 @@ struct BlockedChannelSenderPersistenceTests {
     @Test("Delete removes the blocked sender entry")
     func deleteRemovesEntry() async throws {
         let store = try await createTestStore()
-        let dto = BlockedChannelSenderDTO(name: "BadGuy", deviceID: deviceID)
+        let dto = BlockedChannelSenderDTO(name: "BadGuy", radioID: radioID)
         try await store.saveBlockedChannelSender(dto)
 
-        try await store.deleteBlockedChannelSender(deviceID: deviceID, name: "BadGuy")
-        let fetched = try await store.fetchBlockedChannelSenders(deviceID: deviceID)
+        try await store.deleteBlockedChannelSender(radioID: radioID, name: "BadGuy")
+        let fetched = try await store.fetchBlockedChannelSenders(radioID: radioID)
 
         #expect(fetched.isEmpty)
     }
@@ -71,14 +71,14 @@ struct BlockedChannelSenderPersistenceTests {
         let otherDeviceID = UUID()
 
         try await store.saveBlockedChannelSender(
-            BlockedChannelSenderDTO(name: "Alice", deviceID: deviceID)
+            BlockedChannelSenderDTO(name: "Alice", radioID: radioID)
         )
         try await store.saveBlockedChannelSender(
-            BlockedChannelSenderDTO(name: "Bob", deviceID: otherDeviceID)
+            BlockedChannelSenderDTO(name: "Bob", radioID: otherDeviceID)
         )
 
-        let device1Results = try await store.fetchBlockedChannelSenders(deviceID: deviceID)
-        let device2Results = try await store.fetchBlockedChannelSenders(deviceID: otherDeviceID)
+        let device1Results = try await store.fetchBlockedChannelSenders(radioID: radioID)
+        let device2Results = try await store.fetchBlockedChannelSenders(radioID: otherDeviceID)
 
         #expect(device1Results.count == 1)
         #expect(device1Results.first?.name == "Alice")
@@ -91,10 +91,10 @@ struct BlockedChannelSenderPersistenceTests {
     @Test("Name preserves original casing for display")
     func namePreservesOriginalCasing() async throws {
         let store = try await createTestStore()
-        let dto = BlockedChannelSenderDTO(name: "Alice", deviceID: deviceID)
+        let dto = BlockedChannelSenderDTO(name: "Alice", radioID: radioID)
         try await store.saveBlockedChannelSender(dto)
 
-        let fetched = try await store.fetchBlockedChannelSenders(deviceID: deviceID)
+        let fetched = try await store.fetchBlockedChannelSenders(radioID: radioID)
         #expect(fetched.first?.name == "Alice")
     }
 
@@ -103,13 +103,13 @@ struct BlockedChannelSenderPersistenceTests {
         let store = try await createTestStore()
 
         try await store.saveBlockedChannelSender(
-            BlockedChannelSenderDTO(name: "Alice", deviceID: deviceID, dateBlocked: .distantPast)
+            BlockedChannelSenderDTO(name: "Alice", radioID: radioID, dateBlocked: .distantPast)
         )
         try await store.saveBlockedChannelSender(
-            BlockedChannelSenderDTO(name: "ALICE", deviceID: deviceID, dateBlocked: .now)
+            BlockedChannelSenderDTO(name: "ALICE", radioID: radioID, dateBlocked: .now)
         )
 
-        let fetched = try await store.fetchBlockedChannelSenders(deviceID: deviceID)
+        let fetched = try await store.fetchBlockedChannelSenders(radioID: radioID)
         #expect(fetched.count == 2)
     }
 
@@ -117,11 +117,11 @@ struct BlockedChannelSenderPersistenceTests {
     func caseSensitiveDelete() async throws {
         let store = try await createTestStore()
         try await store.saveBlockedChannelSender(
-            BlockedChannelSenderDTO(name: "Alice", deviceID: deviceID)
+            BlockedChannelSenderDTO(name: "Alice", radioID: radioID)
         )
 
-        try await store.deleteBlockedChannelSender(deviceID: deviceID, name: "ALICE")
-        let fetched = try await store.fetchBlockedChannelSenders(deviceID: deviceID)
+        try await store.deleteBlockedChannelSender(radioID: radioID, name: "ALICE")
+        let fetched = try await store.fetchBlockedChannelSenders(radioID: radioID)
 
         #expect(fetched.count == 1)
         #expect(fetched.first?.name == "Alice")
@@ -137,16 +137,16 @@ struct BlockedChannelSenderPersistenceTests {
         let newest = Date(timeIntervalSince1970: 3_000_000)
 
         try await store.saveBlockedChannelSender(
-            BlockedChannelSenderDTO(name: "first", deviceID: deviceID, dateBlocked: oldest)
+            BlockedChannelSenderDTO(name: "first", radioID: radioID, dateBlocked: oldest)
         )
         try await store.saveBlockedChannelSender(
-            BlockedChannelSenderDTO(name: "second", deviceID: deviceID, dateBlocked: newest)
+            BlockedChannelSenderDTO(name: "second", radioID: radioID, dateBlocked: newest)
         )
         try await store.saveBlockedChannelSender(
-            BlockedChannelSenderDTO(name: "third", deviceID: deviceID, dateBlocked: middle)
+            BlockedChannelSenderDTO(name: "third", radioID: radioID, dateBlocked: middle)
         )
 
-        let fetched = try await store.fetchBlockedChannelSenders(deviceID: deviceID)
+        let fetched = try await store.fetchBlockedChannelSenders(radioID: radioID)
         #expect(fetched.map(\.name) == ["second", "third", "first"])
     }
 }

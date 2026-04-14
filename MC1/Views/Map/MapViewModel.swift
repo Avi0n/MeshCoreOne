@@ -36,7 +36,7 @@ final class MapViewModel {
     // MARK: - Dependencies
 
     private var dataStore: PersistenceStore?
-    private var deviceID: UUID?
+    private var radioID: UUID?
 
     // MARK: - Initialization
 
@@ -45,26 +45,26 @@ final class MapViewModel {
     /// Configure with services from AppState
     func configure(appState: AppState) {
         self.dataStore = appState.offlineDataStore
-        self.deviceID = appState.currentDeviceID
+        self.radioID = appState.currentRadioID
     }
 
     /// Configure with services (for testing)
-    func configure(dataStore: PersistenceStore, deviceID: UUID?) {
+    func configure(dataStore: PersistenceStore, radioID: UUID?) {
         self.dataStore = dataStore
-        self.deviceID = deviceID
+        self.radioID = radioID
     }
 
     // MARK: - Load Contacts
 
     /// Load contacts with valid locations from the database
     func loadContactsWithLocation() async {
-        guard let dataStore, let deviceID else { return }
+        guard let dataStore, let radioID else { return }
 
         isLoading = true
         errorMessage = nil
 
         do {
-            let allContacts = try await dataStore.fetchContacts(deviceID: deviceID)
+            let allContacts = try await dataStore.fetchContacts(radioID: radioID)
             contactsWithLocation = allContacts.filter(\.hasLocation)
             rebuildMapPoints()
         } catch {

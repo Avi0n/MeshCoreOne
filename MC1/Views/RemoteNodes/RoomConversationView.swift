@@ -307,7 +307,7 @@ private struct RoomStatusBanner: View {
     NavigationStack {
         RoomConversationView(
             session: RemoteNodeSessionDTO(
-                deviceID: UUID(),
+                radioID: UUID(),
                 publicKey: Data(repeating: 0x42, count: 32),
                 name: "Test Room",
                 role: .roomServer,

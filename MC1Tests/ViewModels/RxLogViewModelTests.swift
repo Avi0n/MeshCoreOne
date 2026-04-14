@@ -244,7 +244,7 @@ struct RxLogViewModelTests {
             pathNodes: pathNodes,
             packetPayload: packetPayload
         )
-        return RxLogEntryDTO(deviceID: UUID(), from: parsed)
+        return RxLogEntryDTO(radioID: UUID(), from: parsed)
     }
 
     private func makeContact(
@@ -254,7 +254,7 @@ struct RxLogViewModelTests {
     ) -> ContactDTO {
         ContactDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: publicKey,
             name: name,
             typeRawValue: 0,

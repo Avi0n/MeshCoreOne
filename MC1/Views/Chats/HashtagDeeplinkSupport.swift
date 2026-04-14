@@ -23,10 +23,10 @@ enum HashtagDeeplinkSupport {
 
     static func findChannelByName(
         _ name: String,
-        deviceID: UUID,
+        radioID: UUID,
         fetchChannels: @Sendable (UUID) async throws -> [ChannelDTO]
     ) async throws -> ChannelDTO? {
-        let channels = try await fetchChannels(deviceID)
+        let channels = try await fetchChannels(radioID)
         return channels.first(where: { channel in
             channel.name.localizedCaseInsensitiveCompare(name) == .orderedSame
         })

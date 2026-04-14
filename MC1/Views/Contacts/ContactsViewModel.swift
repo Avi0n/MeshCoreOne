@@ -94,14 +94,14 @@ final class ContactsViewModel {
     // MARK: - Load Contacts
 
     /// Load contacts from local database
-    func loadContacts(deviceID: UUID) async {
+    func loadContacts(radioID: UUID) async {
         guard let dataStore else { return }
 
         isLoading = true
         errorMessage = nil
 
         do {
-            contacts = try await dataStore.fetchContacts(deviceID: deviceID)
+            contacts = try await dataStore.fetchContacts(radioID: radioID)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -113,7 +113,7 @@ final class ContactsViewModel {
     // MARK: - Sync Contacts
 
     /// Sync contacts from device
-    func syncContacts(deviceID: UUID) async {
+    func syncContacts(radioID: UUID) async {
         guard let contactService else { return }
 
         isSyncing = true
@@ -137,10 +137,10 @@ final class ContactsViewModel {
         }
 
         do {
-            _ = try await contactService.syncContacts(deviceID: deviceID)
+            _ = try await contactService.syncContacts(radioID: radioID)
 
             // Reload from database
-            await loadContacts(deviceID: deviceID)
+            await loadContacts(radioID: radioID)
 
             // Clear sync progress
             syncProgress = nil
@@ -165,7 +165,7 @@ final class ContactsViewModel {
 
             // Reload to get updated state
             if contacts.contains(where: { $0.id == contact.id }) {
-                await loadContacts(deviceID: contact.deviceID)
+                await loadContacts(radioID: contact.radioID)
             }
         } catch {
             errorMessage = error.localizedDescription
@@ -183,7 +183,7 @@ final class ContactsViewModel {
             )
 
             // Update local list
-            await loadContacts(deviceID: contact.deviceID)
+            await loadContacts(radioID: contact.radioID)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -200,7 +200,7 @@ final class ContactsViewModel {
             )
 
             // Update local list
-            await loadContacts(deviceID: contact.deviceID)
+            await loadContacts(radioID: contact.radioID)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -219,7 +219,7 @@ final class ContactsViewModel {
 
         do {
             try await contactService.removeContact(
-                deviceID: contact.deviceID,
+                radioID: contact.radioID,
                 publicKey: contact.publicKey
             )
         } catch {

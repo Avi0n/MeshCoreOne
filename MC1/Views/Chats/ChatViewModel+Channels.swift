@@ -7,7 +7,7 @@ extension ChatViewModel {
 
     /// Load messages for a channel
     func loadChannelMessages(for channel: ChannelDTO) async {
-        logger.info("loadChannelMessages: start channel=\(channel.index) deviceID=\(channel.deviceID)")
+        logger.info("loadChannelMessages: start channel=\(channel.index) radioID=\(channel.radioID)")
 
         guard let dataStore else {
             logger.info("loadChannelMessages: dataStore is nil, returning early")
@@ -28,7 +28,7 @@ extension ChatViewModel {
         // Track active channel for notification suppression
         notificationService?.activeContactID = nil
         notificationService?.activeChannelIndex = channel.index
-        notificationService?.activeChannelDeviceID = channel.deviceID
+        notificationService?.activeChannelRadioID = channel.radioID
 
         // Set flood scope on device when channel or region changes
         if lastSetRegionScope == .unknown || lastSetRegionScope != .set(channel.regionScope) {
@@ -53,7 +53,7 @@ extension ChatViewModel {
         totalFetchedCount = 0
 
         do {
-            var fetchedMessages = try await dataStore.fetchMessages(deviceID: channel.deviceID, channelIndex: channel.index, limit: pageSize, offset: 0)
+            var fetchedMessages = try await dataStore.fetchMessages(radioID: channel.radioID, channelIndex: channel.index, limit: pageSize, offset: 0)
             let unfilteredCount = fetchedMessages.count
             totalFetchedCount = unfilteredCount
             logger.info("loadChannelMessages: fetched \(unfilteredCount) messages")
@@ -68,13 +68,13 @@ extension ChatViewModel {
             hasMoreMessages = unfilteredCount == pageSize
             messages = fetchedMessages
 
-            buildChannelSenders(deviceID: channel.deviceID)
+            buildChannelSenders(radioID: channel.radioID)
             buildDisplayItems()
 
             // Index loaded messages for reaction matching and process any pending reactions
             if let reactionService = appState?.services?.reactionService {
                 let localNodeName = appState?.connectedDevice?.nodeName
-                let deviceID = appState?.connectedDevice?.id ?? UUID()
+                let radioID = appState?.connectedDevice?.radioID ?? UUID()
                 for message in fetchedMessages {
                     let senderName: String?
                     if message.isOutgoing {
@@ -107,7 +107,7 @@ extension ChatViewModel {
                                     messageHash: pending.parsed.messageHash,
                                     rawText: pending.rawText,
                                     channelIndex: pending.channelIndex,
-                                    deviceID: deviceID
+                                    radioID: radioID
                                 )
                                 if let result = await reactionService.persistReactionAndUpdateSummary(
                                     reactionDTO,
@@ -154,7 +154,7 @@ extension ChatViewModel {
             let message = try await messageService.createPendingChannelMessage(
                 text: text,
                 channelIndex: channel.index,
-                deviceID: channel.deviceID
+                radioID: channel.radioID
             )
             appendMessageIfNew(message)
 
@@ -209,7 +209,7 @@ extension ChatViewModel {
             // Reload after queue drains — syncs statuses and conversation list
             if let channel {
                 await loadChannelMessages(for: channel)
-                await loadChannels(deviceID: channel.deviceID)
+                await loadChannels(radioID: channel.radioID)
             }
         } while !channelSendQueue.isEmpty
     }
@@ -237,7 +237,7 @@ extension ChatViewModel {
         }
 
         await loadChannelMessages(for: channel)
-        await loadChannels(deviceID: channel.deviceID)
+        await loadChannels(radioID: channel.radioID)
     }
 
     // MARK: - In-Place Updates
@@ -252,7 +252,7 @@ extension ChatViewModel {
     /// Build synthetic contacts from channel message senders not in contacts.
     /// Called after loading channel messages to populate mention picker.
     /// Builds into local collections first to avoid multiple @Observable updates.
-    private func buildChannelSenders(deviceID: UUID) {
+    private func buildChannelSenders(radioID: UUID) {
         var localNames: Set<String> = []
         var localSenders: [ContactDTO] = []
         var localOrder: [String: UInt32] = [:]
@@ -270,7 +270,7 @@ extension ChatViewModel {
                       !localNames.contains(trimmed) else { continue }
 
                 localNames.insert(trimmed)
-                localSenders.append(makeSyntheticContact(name: trimmed, deviceID: deviceID))
+                localSenders.append(makeSyntheticContact(name: trimmed, radioID: radioID))
             }
         }
 
@@ -284,7 +284,7 @@ extension ChatViewModel {
 
     /// Add a channel sender as a synthetic contact if not already tracked.
     /// Used for incremental additions when new messages arrive.
-    func addChannelSenderIfNew(_ name: String, deviceID: UUID) {
+    func addChannelSenderIfNew(_ name: String, radioID: UUID) {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty,
               trimmed.count <= 128,
@@ -292,14 +292,14 @@ extension ChatViewModel {
               !channelSenderNames.contains(trimmed) else { return }
 
         channelSenderNames.insert(trimmed)
-        channelSenders.append(makeSyntheticContact(name: trimmed, deviceID: deviceID))
+        channelSenders.append(makeSyntheticContact(name: trimmed, radioID: radioID))
     }
 
     /// Create a synthetic ContactDTO for a channel sender not in contacts.
-    private func makeSyntheticContact(name: String, deviceID: UUID) -> ContactDTO {
+    private func makeSyntheticContact(name: String, radioID: UUID) -> ContactDTO {
         ContactDTO(
             id: name.stableUUID,
-            deviceID: deviceID,
+            radioID: radioID,
             publicKey: Data(),
             name: name,
             typeRawValue: ContactType.chat.rawValue,

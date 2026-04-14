@@ -49,7 +49,7 @@ struct MessageServiceACKTests {
         // Save a message so updateMessageStatus can find it
         let message = MessageDTO.testDirectMessage(
             id: messageID,
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             status: .sent
         )
         try await dataStore.saveMessage(message)
@@ -181,10 +181,10 @@ struct MessageServiceACKTests {
 
         // Save messages
         try await dataStore.saveMessage(
-            MessageDTO.testDirectMessage(id: messageID1, deviceID: testDeviceID, status: .sent)
+            MessageDTO.testDirectMessage(id: messageID1, radioID: testDeviceID, status: .sent)
         )
         try await dataStore.saveMessage(
-            MessageDTO.testDirectMessage(id: messageID2, deviceID: testDeviceID, status: .sent)
+            MessageDTO.testDirectMessage(id: messageID2, radioID: testDeviceID, status: .sent)
         )
 
         // Track handler calls
@@ -227,7 +227,7 @@ struct MessageServiceACKTests {
         let pendingID = UUID()
 
         try await dataStore.saveMessage(
-            MessageDTO.testDirectMessage(id: pendingID, deviceID: testDeviceID, status: .sent)
+            MessageDTO.testDirectMessage(id: pendingID, radioID: testDeviceID, status: .sent)
         )
 
         // Delivered ACK
@@ -258,7 +258,7 @@ struct MessageServiceACKTests {
         let messageID = UUID()
 
         try await dataStore.saveMessage(
-            MessageDTO.testDirectMessage(id: messageID, deviceID: testDeviceID, status: .sent)
+            MessageDTO.testDirectMessage(id: messageID, radioID: testDeviceID, status: .sent)
         )
 
         await service.startAckExpiryChecking()
@@ -286,7 +286,7 @@ struct MessageServiceACKTests {
 
         let message = MessageDTO.testDirectMessage(
             id: messageID,
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             status: .sent,
             ackCode: 0xDEADBEEF
         )
@@ -317,7 +317,7 @@ struct MessageServiceACKTests {
 
         let message = MessageDTO.testDirectMessage(
             id: messageID,
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             status: .sent,
             ackCode: 0xCAFEBABE
         )

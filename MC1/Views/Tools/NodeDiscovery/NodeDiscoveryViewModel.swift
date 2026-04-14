@@ -79,7 +79,7 @@ final class NodeDiscoveryViewModel {
 
     private var session: MeshCoreSession?
     private var dataStore: PersistenceStore?
-    private var deviceID: UUID?
+    private var radioID: UUID?
     private var contactService: ContactService?
     private var maxContacts: UInt16?
 
@@ -97,7 +97,7 @@ final class NodeDiscoveryViewModel {
     func configure(appState: AppState) {
         self.session = appState.services?.session
         self.dataStore = appState.offlineDataStore
-        self.deviceID = appState.connectedDevice?.id
+        self.radioID = appState.connectedDevice?.radioID
         self.contactService = appState.services?.contactService
         self.maxContacts = appState.connectedDevice?.maxContacts
     }
@@ -110,7 +110,7 @@ final class NodeDiscoveryViewModel {
             return
         }
 
-        guard let deviceID else { return }
+        guard let radioID else { return }
 
         stopScan()
         results.removeAll { $0.scanFilter == filter }
@@ -123,7 +123,7 @@ final class NodeDiscoveryViewModel {
 
             do {
                 // Pre-load name resolution data and existing contact keys
-                await self.loadNameResolutionData(deviceID: deviceID)
+                await self.loadNameResolutionData(radioID: radioID)
 
                 // Send discovery request
                 let tag = try await session.sendNodeDiscoverRequest(
@@ -183,16 +183,16 @@ final class NodeDiscoveryViewModel {
 
     // MARK: - Private
 
-    private func loadNameResolutionData(deviceID: UUID) async {
+    private func loadNameResolutionData(radioID: UUID) async {
         guard let dataStore else { return }
         do {
             // Load discovered nodes first, then contacts — contacts take priority
-            let nodes = try await dataStore.fetchDiscoveredNodes(deviceID: deviceID)
+            let nodes = try await dataStore.fetchDiscoveredNodes(radioID: radioID)
             namesByKey = Dictionary(
                 nodes.map { ($0.publicKey, $0.name) },
                 uniquingKeysWith: { first, _ in first }
             )
-            let contacts = try await dataStore.fetchContacts(deviceID: deviceID)
+            let contacts = try await dataStore.fetchContacts(radioID: radioID)
             for contact in contacts {
                 namesByKey[contact.publicKey] = contact.name
             }
@@ -244,7 +244,7 @@ final class NodeDiscoveryViewModel {
     }
 
     func addNode(_ result: NodeDiscoveryResult) {
-        guard let contactService, let deviceID else { return }
+        guard let contactService, let radioID else { return }
 
         addingPublicKey = result.publicKey
         Task { [weak self] in
@@ -261,7 +261,7 @@ final class NodeDiscoveryViewModel {
                     longitude: 0,
                     lastModified: 0
                 )
-                try await contactService.addOrUpdateContact(deviceID: deviceID, contact: contact)
+                try await contactService.addOrUpdateContact(radioID: radioID, contact: contact)
                 self?.addedPublicKeys.insert(result.publicKey)
                 self?.addSuccessHapticTrigger += 1
             } catch ContactServiceError.contactTableFull {

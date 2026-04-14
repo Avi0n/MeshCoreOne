@@ -124,7 +124,7 @@ struct MessageActionAvailabilityTests {
     ) -> MessageDTO {
         MessageDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             contactID: contactID,
             channelIndex: channelIndex,
             text: "Test",

@@ -77,13 +77,13 @@ struct JoinChannelConfirmationSheet: View {
     // MARK: - Private Methods
 
     private func loadAvailableSlots() async {
-        guard let deviceID = appState.connectedDevice?.id else {
+        guard let radioID = appState.connectedDevice?.radioID else {
             isLoading = false
             return
         }
 
         do {
-            let existingChannels = try await appState.services?.dataStore.fetchChannels(deviceID: deviceID) ?? []
+            let existingChannels = try await appState.services?.dataStore.fetchChannels(radioID: radioID) ?? []
             let usedSlots = Set(existingChannels.map(\.index))
 
             let maxChannels = appState.connectedDevice?.maxChannels ?? 0
@@ -98,7 +98,7 @@ struct JoinChannelConfirmationSheet: View {
     }
 
     private func joinChannel() async {
-        guard let deviceID = appState.connectedDevice?.id else { return }
+        guard let radioID = appState.connectedDevice?.radioID else { return }
 
         guard let channelService = appState.services?.channelService,
               let dataStore = appState.services?.dataStore else {
@@ -116,13 +116,13 @@ struct JoinChannelConfirmationSheet: View {
 
         do {
             try await channelService.setChannelWithSecret(
-                deviceID: deviceID,
+                radioID: radioID,
                 index: selectedSlot,
                 name: channelResult.name,
                 secret: channelResult.secret
             )
 
-            if let newChannel = try await dataStore.fetchChannel(deviceID: deviceID, index: selectedSlot) {
+            if let newChannel = try await dataStore.fetchChannel(radioID: radioID, index: selectedSlot) {
                 successTrigger += 1
                 onComplete(newChannel)
                 dismiss()

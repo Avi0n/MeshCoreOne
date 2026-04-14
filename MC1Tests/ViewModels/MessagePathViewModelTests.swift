@@ -10,7 +10,7 @@ struct MessagePathViewModelTests {
     private func createContact(prefix: [UInt8], name: String, type: ContactType = .chat) -> ContactDTO {
         ContactDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(prefix + Array(repeating: UInt8(0), count: 32 - prefix.count)),
             name: name,
             typeRawValue: type.rawValue,
@@ -33,7 +33,7 @@ struct MessagePathViewModelTests {
     private func createMessage(senderKeyPrefix: Data?, senderNodeName: String? = nil, channelIndex: UInt8? = nil) -> MessageDTO {
         MessageDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             contactID: channelIndex == nil ? UUID() : nil,
             channelIndex: channelIndex,
             text: "Test",
@@ -138,7 +138,7 @@ struct MessagePathViewModelTests {
         let viewModel = MessagePathViewModel()
         #expect(viewModel.isLoading == true)
 
-        await viewModel.loadContacts(services: nil, deviceID: UUID())
+        await viewModel.loadContacts(services: nil, radioID: UUID())
 
         #expect(viewModel.isLoading == false)
         #expect(viewModel.contacts.isEmpty)

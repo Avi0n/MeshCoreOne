@@ -354,14 +354,14 @@ public actor RemoteNodeService {
 
     /// Create a session DTO for a contact, optionally preserving data from an existing session.
     private func makeSessionDTO(
-        deviceID: UUID,
+        radioID: UUID,
         contact: ContactDTO,
         role: RemoteNodeRole,
         preserving existing: RemoteNodeSessionDTO? = nil
     ) -> RemoteNodeSessionDTO {
         RemoteNodeSessionDTO(
             id: existing?.id ?? UUID(),
-            deviceID: deviceID,
+            radioID: radioID,
             publicKey: contact.publicKey,
             name: contact.displayName,
             role: role,
@@ -384,7 +384,7 @@ public actor RemoteNodeService {
 
     /// Create a new session for a remote node.
     public func createSession(
-        deviceID: UUID,
+        radioID: UUID,
         contact: ContactDTO,
         password: String?,
         rememberPassword: Bool = true
@@ -408,7 +408,7 @@ public actor RemoteNodeService {
             logger.info("createSession: creating new session for \(pubKeyHex)")
         }
 
-        let dto = makeSessionDTO(deviceID: deviceID, contact: contact, role: role, preserving: existing)
+        let dto = makeSessionDTO(radioID: radioID, contact: contact, role: role, preserving: existing)
 
         try await dataStore.saveRemoteNodeSessionDTO(dto)
 
@@ -670,13 +670,13 @@ public actor RemoteNodeService {
 
     /// Send keep-alive only if the session has a direct routing path.
     private func sendKeepAliveIfDirectRouted(sessionID: UUID, publicKey: Data) async throws {
-        // Fetch session to get deviceID
+        // Fetch session to get radioID
         guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
             throw RemoteNodeError.sessionNotFound
         }
 
         // Check contact's routing status
-        guard let contact = try await dataStore.fetchContact(deviceID: remoteSession.deviceID, publicKey: publicKey) else {
+        guard let contact = try await dataStore.fetchContact(radioID: remoteSession.radioID, publicKey: publicKey) else {
             throw RemoteNodeError.contactNotFound
         }
 
@@ -728,7 +728,7 @@ public actor RemoteNodeService {
         }
 
         // Check for direct route
-        guard let contact = try await dataStore.fetchContact(deviceID: remoteSession.deviceID, publicKey: remoteSession.publicKey) else {
+        guard let contact = try await dataStore.fetchContact(radioID: remoteSession.radioID, publicKey: remoteSession.publicKey) else {
             throw RemoteNodeError.contactNotFound
         }
 

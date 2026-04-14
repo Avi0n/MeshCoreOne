@@ -6,8 +6,8 @@ import SwiftData
 @Model
 public final class Channel {
     #Index<Channel>(
-        [\.deviceID],
-        [\.deviceID, \.index]
+        [\.radioID],
+        [\.radioID, \.index]
     )
 
     /// Unique identifier
@@ -15,7 +15,8 @@ public final class Channel {
     public var id: UUID
 
     /// The device this channel belongs to
-    public var deviceID: UUID
+    @Attribute(originalName: "deviceID")
+    public var radioID: UUID
 
     /// Channel slot index
     public var index: UInt8
@@ -70,7 +71,7 @@ public final class Channel {
 
     public init(
         id: UUID = UUID(),
-        deviceID: UUID,
+        radioID: UUID,
         index: UInt8,
         name: String,
         secret: Data = Data(repeating: 0, count: 16),
@@ -83,7 +84,7 @@ public final class Channel {
         regionScope: String? = nil
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.index = index
         self.name = name
         self.secret = secret
@@ -110,9 +111,9 @@ public final class Channel {
     }
 
     /// Creates a Channel from a protocol ChannelInfo
-    public convenience init(deviceID: UUID, from info: ChannelInfo) {
+    public convenience init(radioID: UUID, from info: ChannelInfo) {
         self.init(
-            deviceID: deviceID,
+            radioID: radioID,
             index: info.index,
             name: info.name,
             secret: info.secret
@@ -156,7 +157,7 @@ public extension Channel {
 /// A sendable snapshot of Channel for cross-actor transfers
 public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable {
     public let id: UUID
-    public let deviceID: UUID
+    public var radioID: UUID
     public let index: UInt8
     public let name: String
     public let secret: Data
@@ -173,7 +174,7 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable {
 
     public init(from channel: Channel) {
         self.id = channel.id
-        self.deviceID = channel.deviceID
+        self.radioID = channel.radioID
         self.index = channel.index
         self.name = channel.name
         self.secret = channel.secret
@@ -189,7 +190,7 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable {
     /// Memberwise initializer for creating DTOs directly
     public init(
         id: UUID,
-        deviceID: UUID,
+        radioID: UUID,
         index: UInt8,
         name: String,
         secret: Data,
@@ -202,7 +203,7 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable {
         regionScope: String? = nil
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.index = index
         self.name = name
         self.secret = secret
@@ -218,7 +219,7 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable {
     /// Returns a copy with only `notificationLevel` changed.
     public func with(notificationLevel: NotificationLevel) -> ChannelDTO {
         ChannelDTO(
-            id: id, deviceID: deviceID, index: index, name: name,
+            id: id, radioID: radioID, index: index, name: name,
             secret: secret, isEnabled: isEnabled, lastMessageDate: lastMessageDate,
             unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
             notificationLevel: notificationLevel, isFavorite: isFavorite,
@@ -229,7 +230,7 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable {
     /// Returns a copy with only `isFavorite` changed.
     public func with(isFavorite: Bool) -> ChannelDTO {
         ChannelDTO(
-            id: id, deviceID: deviceID, index: index, name: name,
+            id: id, radioID: radioID, index: index, name: name,
             secret: secret, isEnabled: isEnabled, lastMessageDate: lastMessageDate,
             unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
             notificationLevel: notificationLevel, isFavorite: isFavorite,
@@ -240,7 +241,7 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable {
     /// Returns a copy with only `regionScope` changed.
     public func with(regionScope: String?) -> ChannelDTO {
         ChannelDTO(
-            id: id, deviceID: deviceID, index: index, name: name,
+            id: id, radioID: radioID, index: index, name: name,
             secret: secret, isEnabled: isEnabled, lastMessageDate: lastMessageDate,
             unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
             notificationLevel: notificationLevel, isFavorite: isFavorite,

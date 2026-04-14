@@ -6,7 +6,7 @@ import SwiftData
 public final class Reaction {
     #Index<Reaction>(
         [\.messageID],
-        [\.deviceID, \.contactID, \.messageID],
+        [\.radioID, \.contactID, \.messageID],
         [\.messageID, \.senderName, \.emoji]
     )
 
@@ -38,7 +38,8 @@ public final class Reaction {
     public var contactID: UUID?
 
     /// Device ID this belongs to
-    public var deviceID: UUID
+    @Attribute(originalName: "deviceID")
+    public var radioID: UUID
 
     public init(
         id: UUID = UUID(),
@@ -50,7 +51,7 @@ public final class Reaction {
         receivedAt: Date = Date(),
         channelIndex: UInt8? = nil,
         contactID: UUID? = nil,
-        deviceID: UUID
+        radioID: UUID
     ) {
         self.id = id
         self.messageID = messageID
@@ -61,7 +62,7 @@ public final class Reaction {
         self.receivedAt = receivedAt
         self.channelIndex = channelIndex
         self.contactID = contactID
-        self.deviceID = deviceID
+        self.radioID = radioID
     }
 }
 
@@ -77,7 +78,7 @@ public struct ReactionDTO: Sendable, Equatable, Hashable, Identifiable {
     public let receivedAt: Date
     public let channelIndex: UInt8?
     public let contactID: UUID?
-    public let deviceID: UUID
+    public var radioID: UUID
 
     public init(from reaction: Reaction) {
         self.id = reaction.id
@@ -89,7 +90,7 @@ public struct ReactionDTO: Sendable, Equatable, Hashable, Identifiable {
         self.receivedAt = reaction.receivedAt
         self.channelIndex = reaction.channelIndex
         self.contactID = reaction.contactID
-        self.deviceID = reaction.deviceID
+        self.radioID = reaction.radioID
     }
 
     public init(
@@ -102,7 +103,7 @@ public struct ReactionDTO: Sendable, Equatable, Hashable, Identifiable {
         receivedAt: Date = Date(),
         channelIndex: UInt8? = nil,
         contactID: UUID? = nil,
-        deviceID: UUID
+        radioID: UUID
     ) {
         self.id = id
         self.messageID = messageID
@@ -113,7 +114,7 @@ public struct ReactionDTO: Sendable, Equatable, Hashable, Identifiable {
         self.receivedAt = receivedAt
         self.channelIndex = channelIndex
         self.contactID = contactID
-        self.deviceID = deviceID
+        self.radioID = radioID
     }
 
 }

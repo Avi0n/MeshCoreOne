@@ -61,7 +61,7 @@ struct ContactCalloutContent: View {
     ContactCalloutContent(
         contact: ContactDTO(
             from: Contact(
-                deviceID: UUID(),
+                radioID: UUID(),
                 publicKey: Data(repeating: 0x01, count: 32),
                 name: "Alice",
                 typeRawValue: 0,

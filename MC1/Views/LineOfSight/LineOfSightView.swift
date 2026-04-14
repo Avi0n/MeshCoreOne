@@ -615,7 +615,7 @@ private struct AnalyzeButton: View {
 #Preview("With Contact") {
     let contact = ContactDTO(
         id: UUID(),
-        deviceID: UUID(),
+        radioID: UUID(),
         publicKey: Data(repeating: 0x01, count: 32),
         name: "Test Contact",
         typeRawValue: 0,

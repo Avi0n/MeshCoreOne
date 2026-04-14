@@ -212,12 +212,12 @@ struct ContactDetailView: View {
                     await refreshContact()
                 }
             }
-            await pathViewModel.loadContacts(deviceID: currentContact.deviceID)
+            await pathViewModel.loadContacts(radioID: currentContact.radioID)
 
             // Fetch fresh contact data from device to catch external changes
             // (e.g., user modified path in official MeshCore app)
             if let freshContact = try? await appState.services?.contactService.getContact(
-                deviceID: currentContact.deviceID,
+                radioID: currentContact.radioID,
                 publicKey: currentContact.publicKey
             ) {
                 currentContact = freshContact
@@ -363,7 +363,7 @@ struct ContactDetailView: View {
     private func deleteContact() async {
         do {
             try await appState.services?.contactService.removeContact(
-                deviceID: currentContact.deviceID,
+                radioID: currentContact.radioID,
                 publicKey: currentContact.publicKey
             )
             dismiss()
@@ -618,7 +618,7 @@ private struct ContactActionsSection: View {
                 NavigationLink {
                     TelemetryHistoryOverviewView(
                         publicKey: currentContact.publicKey,
-                        deviceID: currentContact.deviceID,
+                        radioID: currentContact.radioID,
                         showNeighbors: false
                     )
                 } label: {
@@ -682,7 +682,7 @@ private struct NodeActionRows: View {
         NavigationLink {
             TelemetryHistoryOverviewView(
                 publicKey: contact.publicKey,
-                deviceID: contact.deviceID
+                radioID: contact.radioID
             )
         } label: {
             Label(L10n.Contacts.Contacts.Detail.savedHistory, systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
@@ -983,7 +983,7 @@ private struct ContactNetworkPathSection: View {
             // Edit Path button (secondary)
             Button {
                 Task {
-                    await pathViewModel.loadContacts(deviceID: currentContact.deviceID)
+                    await pathViewModel.loadContacts(radioID: currentContact.radioID)
                     pathViewModel.initializeEditablePath(from: currentContact)
                     pathViewModel.showingPathEditor = true
                 }
@@ -1079,7 +1079,7 @@ private struct ContactDangerSection: View {
 #Preview("Default") {
     NavigationStack {
         ContactDetailView(contact: ContactDTO(from: Contact(
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0x42, count: 32),
             name: "Alice",
             latitude: 37.7749,
@@ -1094,7 +1094,7 @@ private struct ContactDangerSection: View {
     NavigationStack {
         ContactDetailView(
             contact: ContactDTO(from: Contact(
-                deviceID: UUID(),
+                radioID: UUID(),
                 publicKey: Data(repeating: 0x42, count: 32),
                 name: "Alice",
                 latitude: 37.7749,

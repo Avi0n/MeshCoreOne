@@ -40,10 +40,10 @@ struct NodeTelemetryView: View {
 
                 viewModel.helper.telemetryExpanded = true
 
-                if let deviceID = appState.connectedDevice?.id {
+                if let radioID = appState.connectedDevice?.radioID {
                     await viewModel.helper.loadOCVSettings(
                         publicKey: contact.publicKey,
-                        deviceID: deviceID
+                        radioID: radioID
                     )
                 }
             }

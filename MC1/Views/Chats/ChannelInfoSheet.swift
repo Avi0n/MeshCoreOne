@@ -168,7 +168,7 @@ struct ChannelInfoSheet: View {
             .task {
                 guard !hasLoadedRegions else { return }
                 hasLoadedRegions = true
-                if let device = try? await appState.offlineDataStore?.fetchDevice(id: channel.deviceID) {
+                if let device = try? await appState.offlineDataStore?.fetchDevice(radioID: channel.radioID) {
                     knownRegions = device.knownRegions
                 }
             }
@@ -206,16 +206,16 @@ struct ChannelInfoSheet: View {
 
     // MARK: - Private Methods
 
-    private func clearNotificationsForChannel(deviceID: UUID) async {
+    private func clearNotificationsForChannel(radioID: UUID) async {
         await appState.services?.notificationService.removeDeliveredNotifications(
             forChannelIndex: channel.index,
-            deviceID: deviceID
+            radioID: radioID
         )
         await appState.services?.notificationService.updateBadgeCount()
     }
 
     private func deleteChannel() async {
-        guard let deviceID = appState.connectedDevice?.id else {
+        guard let radioID = appState.connectedDevice?.radioID else {
             errorMessage = L10n.Chats.Chats.Error.noDeviceConnected
             return
         }
@@ -232,11 +232,11 @@ struct ChannelInfoSheet: View {
             // Clear channel on device (sends empty name + zero secret via BLE)
             // and deletes from local database
             try await channelService.clearChannel(
-                deviceID: deviceID,
+                radioID: radioID,
                 index: channel.index
             )
 
-            await clearNotificationsForChannel(deviceID: deviceID)
+            await clearNotificationsForChannel(radioID: radioID)
 
             dismiss()
             onDelete()
@@ -247,7 +247,7 @@ struct ChannelInfoSheet: View {
     }
 
     private func clearMessages() async {
-        guard let deviceID = appState.connectedDevice?.id else {
+        guard let radioID = appState.connectedDevice?.radioID else {
             errorMessage = L10n.Chats.Chats.Error.noDeviceConnected
             return
         }
@@ -262,11 +262,11 @@ struct ChannelInfoSheet: View {
 
         do {
             try await channelService.clearChannelMessages(
-                deviceID: deviceID,
+                radioID: radioID,
                 channelIndex: channel.index
             )
 
-            await clearNotificationsForChannel(deviceID: deviceID)
+            await clearNotificationsForChannel(radioID: radioID)
 
             onClearMessages()
             dismiss()
@@ -295,7 +295,7 @@ struct ChannelInfoSheet: View {
 
     private func removeRegion(_ region: String) async {
         do {
-            try await appState.offlineDataStore?.removeDeviceKnownRegion(deviceID: channel.deviceID, region: region)
+            try await appState.offlineDataStore?.removeDeviceKnownRegion(radioID: channel.radioID, region: region)
             knownRegions.removeAll { $0 == region }
         } catch {
             logger.error("Failed to remove region: \(error.localizedDescription)")
@@ -304,7 +304,7 @@ struct ChannelInfoSheet: View {
 
     private func addRegion(_ region: String) async {
         do {
-            try await appState.offlineDataStore?.addDeviceKnownRegion(deviceID: channel.deviceID, region: region)
+            try await appState.offlineDataStore?.addDeviceKnownRegion(radioID: channel.radioID, region: region)
             if !knownRegions.contains(region) {
                 knownRegions.append(region)
             }
@@ -341,7 +341,7 @@ struct ChannelInfoSheet: View {
               let contactService = appState.services?.contactService else {
             return []
         }
-        let deviceID = channel.deviceID
+        let radioID = channel.radioID
 
         // Phase 1: Broadcast DISCOVER_REQ to find nearby repeaters (~3s)
         let discoveredPubkeys: Set<Data>
@@ -382,7 +382,7 @@ struct ChannelInfoSheet: View {
         // Phase 2: Query only responding repeaters for their regions
         let repeaters: [ContactDTO]
         do {
-            repeaters = try await contactService.getContacts(deviceID: deviceID)
+            repeaters = try await contactService.getContacts(radioID: radioID)
                 .filter { $0.type == .repeater && discoveredPubkeys.contains($0.publicKey) }
         } catch {
             return []
@@ -767,7 +767,7 @@ private struct ChannelInfoRegionPickerContent: View {
 #Preview {
     ChannelInfoSheet(
         channel: ChannelDTO(from: Channel(
-            deviceID: UUID(),
+            radioID: UUID(),
             index: 1,
             name: "General",
             secret: Data(repeating: 0xAB, count: 16)

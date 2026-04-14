@@ -25,6 +25,28 @@ extension PersistenceStore {
         return try modelContext.fetch(descriptor).first.map { DeviceDTO(from: $0) }
     }
 
+    /// Fetch a device by radio ID
+    public func fetchDevice(radioID: UUID) throws -> DeviceDTO? {
+        let targetRadioID = radioID
+        let predicate = #Predicate<Device> { device in
+            device.radioID == targetRadioID
+        }
+        var descriptor = FetchDescriptor(predicate: predicate)
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first.map { DeviceDTO(from: $0) }
+    }
+
+    /// Fetch a device by public key
+    public func fetchDevice(publicKey: Data) throws -> DeviceDTO? {
+        let targetKey = publicKey
+        let predicate = #Predicate<Device> { device in
+            device.publicKey == targetKey
+        }
+        var descriptor = FetchDescriptor(predicate: predicate)
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first.map { DeviceDTO(from: $0) }
+    }
+
     /// Fetch the active device
     public func fetchActiveDevice() throws -> DeviceDTO? {
         let predicate = #Predicate<Device> { device in
@@ -50,6 +72,7 @@ extension PersistenceStore {
             // Create new
             let device = Device(
                 id: dto.id,
+                radioID: dto.radioID,
                 publicKey: dto.publicKey,
                 nodeName: dto.nodeName,
                 firmwareVersion: dto.firmwareVersion,
@@ -121,10 +144,10 @@ extension PersistenceStore {
 
     /// Update the lastContactSync timestamp for a device.
     /// Used to track incremental sync progress.
-    public func updateDeviceLastContactSync(deviceID: UUID, timestamp: UInt32) throws {
-        let targetID = deviceID
+    public func updateDeviceLastContactSync(radioID: UUID, timestamp: UInt32) throws {
+        let targetRadioID = radioID
         let predicate = #Predicate<Device> { device in
-            device.id == targetID
+            device.radioID == targetRadioID
         }
         var descriptor = FetchDescriptor(predicate: predicate)
         descriptor.fetchLimit = 1
@@ -137,9 +160,9 @@ extension PersistenceStore {
     }
 
     /// Adds a known region to a device if not already present
-    public func addDeviceKnownRegion(deviceID: UUID, region: String) throws {
-        let targetDeviceID = deviceID
-        let devicePredicate = #Predicate<Device> { $0.id == targetDeviceID }
+    public func addDeviceKnownRegion(radioID: UUID, region: String) throws {
+        let targetRadioID = radioID
+        let devicePredicate = #Predicate<Device> { $0.radioID == targetRadioID }
         var deviceDescriptor = FetchDescriptor<Device>(predicate: devicePredicate)
         deviceDescriptor.fetchLimit = 1
 
@@ -153,9 +176,9 @@ extension PersistenceStore {
     }
 
     /// Removes a known region from a device and clears regionScope on affected channels
-    public func removeDeviceKnownRegion(deviceID: UUID, region: String) throws {
-        let targetDeviceID = deviceID
-        let devicePredicate = #Predicate<Device> { $0.id == targetDeviceID }
+    public func removeDeviceKnownRegion(radioID: UUID, region: String) throws {
+        let targetRadioID = radioID
+        let devicePredicate = #Predicate<Device> { $0.radioID == targetRadioID }
         var deviceDescriptor = FetchDescriptor<Device>(predicate: devicePredicate)
         deviceDescriptor.fetchLimit = 1
 
@@ -165,7 +188,7 @@ extension PersistenceStore {
 
         device.knownRegions.removeAll { $0 == region }
 
-        let channelPredicate = #Predicate<Channel> { $0.deviceID == targetDeviceID }
+        let channelPredicate = #Predicate<Channel> { $0.radioID == targetRadioID }
         let channels = try modelContext.fetch(FetchDescriptor<Channel>(predicate: channelPredicate))
         for channel in channels where channel.regionScope == region {
             channel.regionScope = nil
@@ -214,20 +237,32 @@ extension PersistenceStore {
     /// Used by both `deleteDeviceData` and `deleteDeviceAndData` to compose
     /// operations while maintaining single-save atomicity.
     private func _deleteAllDeviceData(id: UUID) throws {
-        let targetID = id
+        // Look up the Device's radioID since child records are keyed by radioID, not BLE UUID
+        let targetBLEID = id
+        let devicePredicate = #Predicate<Device> { device in
+            device.id == targetBLEID
+        }
+        guard let device = try modelContext.fetch(FetchDescriptor(predicate: devicePredicate)).first else {
+            return
+        }
+        let targetRadioID = device.radioID
 
         // Delete reactions (references messages via messageID)
         let reactionPredicate = #Predicate<Reaction> { reaction in
-            reaction.deviceID == targetID
+            reaction.radioID == targetRadioID
         }
         let reactions = try modelContext.fetch(FetchDescriptor(predicate: reactionPredicate))
         for reaction in reactions { modelContext.delete(reaction) }
 
-        // Delete room messages via their sessions
+        // Delete room messages via their sessions, then clean up NodeStatusSnapshots
         let sessionPredicate = #Predicate<RemoteNodeSession> { session in
-            session.deviceID == targetID
+            session.radioID == targetRadioID
         }
         let sessions = try modelContext.fetch(FetchDescriptor(predicate: sessionPredicate))
+
+        // Collect publicKeys before deleting sessions for NodeStatusSnapshot cleanup
+        let sessionPublicKeys = sessions.map { $0.publicKey }
+
         for session in sessions {
             let sessionID = session.id
             let roomMessagePredicate = #Predicate<RoomMessage> { message in
@@ -238,51 +273,66 @@ extension PersistenceStore {
             modelContext.delete(session)
         }
 
+        // Delete NodeStatusSnapshots only when no other session references that node
+        for pubKey in sessionPublicKeys {
+            let remainingPredicate = #Predicate<RemoteNodeSession> { session in
+                session.publicKey == pubKey
+            }
+            let remainingCount = try modelContext.fetchCount(FetchDescriptor(predicate: remainingPredicate))
+            guard remainingCount == 0 else { continue }
+
+            let snapshotPredicate = #Predicate<NodeStatusSnapshot> { snapshot in
+                snapshot.nodePublicKey == pubKey
+            }
+            let snapshots = try modelContext.fetch(FetchDescriptor(predicate: snapshotPredicate))
+            for snapshot in snapshots { modelContext.delete(snapshot) }
+        }
+
         // Delete blocked channel senders
         let blockedPredicate = #Predicate<BlockedChannelSender> { blocked in
-            blocked.deviceID == targetID
+            blocked.radioID == targetRadioID
         }
         let blockedSenders = try modelContext.fetch(FetchDescriptor(predicate: blockedPredicate))
         for blocked in blockedSenders { modelContext.delete(blocked) }
 
         // Delete RX log entries
         let rxLogPredicate = #Predicate<RxLogEntry> { entry in
-            entry.deviceID == targetID
+            entry.radioID == targetRadioID
         }
         let rxLogEntries = try modelContext.fetch(FetchDescriptor(predicate: rxLogPredicate))
         for entry in rxLogEntries { modelContext.delete(entry) }
 
         // Delete discovered nodes
         let discoveredPredicate = #Predicate<DiscoveredNode> { node in
-            node.deviceID == targetID
+            node.radioID == targetRadioID
         }
         let discoveredNodes = try modelContext.fetch(FetchDescriptor(predicate: discoveredPredicate))
         for node in discoveredNodes { modelContext.delete(node) }
 
         // Delete contacts
         let contactPredicate = #Predicate<Contact> { contact in
-            contact.deviceID == targetID
+            contact.radioID == targetRadioID
         }
         let contacts = try modelContext.fetch(FetchDescriptor(predicate: contactPredicate))
         for contact in contacts { modelContext.delete(contact) }
 
         // Delete messages
         let messagePredicate = #Predicate<Message> { message in
-            message.deviceID == targetID
+            message.radioID == targetRadioID
         }
         let messages = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate))
         for message in messages { modelContext.delete(message) }
 
         // Delete channels
         let channelPredicate = #Predicate<Channel> { channel in
-            channel.deviceID == targetID
+            channel.radioID == targetRadioID
         }
         let channels = try modelContext.fetch(FetchDescriptor(predicate: channelPredicate))
         for channel in channels { modelContext.delete(channel) }
 
         // Delete saved trace paths
         let pathPredicate = #Predicate<SavedTracePath> { path in
-            path.deviceID == targetID
+            path.radioID == targetRadioID
         }
         let paths = try modelContext.fetch(FetchDescriptor(predicate: pathPredicate))
         for path in paths { modelContext.delete(path) }

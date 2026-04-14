@@ -7,15 +7,16 @@ import SwiftData
 @Model
 public final class DiscoveredNode {
     #Index<DiscoveredNode>(
-        [\.deviceID, \.publicKey],
-        [\.deviceID, \.lastHeard]
+        [\.radioID, \.publicKey],
+        [\.radioID, \.lastHeard]
     )
 
     @Attribute(.unique)
     public var id: UUID
 
     /// Parent device ID
-    public var deviceID: UUID
+    @Attribute(originalName: "deviceID")
+    public var radioID: UUID
 
     /// 32-byte public key identifier
     public var publicKey: Data
@@ -46,7 +47,7 @@ public final class DiscoveredNode {
 
     public init(
         id: UUID = UUID(),
-        deviceID: UUID,
+        radioID: UUID,
         publicKey: Data,
         name: String,
         typeRawValue: UInt8,
@@ -58,7 +59,7 @@ public final class DiscoveredNode {
         outPath: Data = Data()
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.publicKey = publicKey
         self.name = name
         self.typeRawValue = typeRawValue
@@ -76,7 +77,7 @@ public final class DiscoveredNode {
 /// A sendable snapshot of DiscoveredNode for cross-actor transfers
 public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterResolvable {
     public let id: UUID
-    public let deviceID: UUID
+    public let radioID: UUID
     public let publicKey: Data
     public let name: String
     public let typeRawValue: UInt8
@@ -125,7 +126,7 @@ public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterReso
 
     public init(
         id: UUID,
-        deviceID: UUID,
+        radioID: UUID,
         publicKey: Data,
         name: String,
         typeRawValue: UInt8,
@@ -137,7 +138,7 @@ public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterReso
         outPath: Data
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.publicKey = publicKey
         self.name = name
         self.typeRawValue = typeRawValue
@@ -151,7 +152,7 @@ public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterReso
 
     public init(from node: DiscoveredNode) {
         self.id = node.id
-        self.deviceID = node.deviceID
+        self.radioID = node.radioID
         self.publicKey = node.publicKey
         self.name = node.name
         self.typeRawValue = node.typeRawValue

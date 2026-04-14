@@ -216,7 +216,8 @@ extension ConnectionManager {
         }
 
         await onConnectionReady?()
-        let syncSucceeded = await performInitialSync(deviceID: deviceID, services: newServices, transportType: .wifi, context: "WiFi reconnect")
+        let radioID = connectedDevice!.radioID
+        let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, transportType: .wifi, context: "WiFi reconnect")
 
         guard await promoteToReady(syncSucceeded: syncSucceeded, expectedServices: newServices, transportType: .wifi) else { return }
 
@@ -317,10 +318,11 @@ extension ConnectionManager {
             )
 
             // Persist connection for potential future use
-            persistConnection(deviceID: deviceID, deviceName: meshCoreSelfInfo.name)
+            let radioID = connectedDevice!.radioID
+            persistConnection(deviceID: deviceID, radioID: radioID, deviceName: meshCoreSelfInfo.name)
 
             await onConnectionReady?()
-            let syncSucceeded = await performInitialSync(deviceID: deviceID, services: newServices, transportType: .wifi, forceFullSync: forceFullSync)
+            let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, transportType: .wifi, forceFullSync: forceFullSync)
 
             // Wire disconnection handler before promotion — needed even if promotion fails
             await newWiFiTransport.setDisconnectionHandler { [weak self] error in

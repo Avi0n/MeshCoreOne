@@ -80,7 +80,7 @@ struct JoinHashtagFromMessageView: View {
     // MARK: - Private Methods
 
     private func loadAvailableSlots() async {
-        guard let deviceID = appState.connectedDevice?.id else {
+        guard let radioID = appState.connectedDevice?.radioID else {
             isMissingDevice = true
             isLoading = false
             return
@@ -89,7 +89,7 @@ struct JoinHashtagFromMessageView: View {
         isMissingDevice = false
 
         do {
-            let existingChannels = try await appState.services?.dataStore.fetchChannels(deviceID: deviceID) ?? []
+            let existingChannels = try await appState.services?.dataStore.fetchChannels(radioID: radioID) ?? []
             let usedSlots = Set(existingChannels.map(\.index))
 
             let maxChannels = appState.connectedDevice?.maxChannels ?? 0
@@ -104,7 +104,7 @@ struct JoinHashtagFromMessageView: View {
     }
 
     private func joinChannel() async {
-        guard let deviceID = appState.connectedDevice?.id else {
+        guard let radioID = appState.connectedDevice?.radioID else {
             errorMessage = L10n.Chats.Chats.Error.noDeviceConnected
             return
         }
@@ -129,13 +129,13 @@ struct JoinHashtagFromMessageView: View {
 
         do {
             try await channelService.setChannel(
-                deviceID: deviceID,
+                radioID: radioID,
                 index: selectedSlot,
                 name: fullChannelName,
                 passphrase: fullChannelName
             )
 
-            if let newChannel = try await appState.services?.dataStore.fetchChannel(deviceID: deviceID, index: selectedSlot) {
+            if let newChannel = try await appState.services?.dataStore.fetchChannel(radioID: radioID, index: selectedSlot) {
                 successTrigger += 1
                 onComplete(newChannel)
                 dismiss()

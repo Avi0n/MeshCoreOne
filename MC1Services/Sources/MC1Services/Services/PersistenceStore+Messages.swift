@@ -34,11 +34,11 @@ extension PersistenceStore {
 
     /// Batch fetch last messages for multiple channels in a single actor-isolated call.
     /// Runs N fetches with zero suspension points between them, avoiding N actor hops.
-    public func fetchLastChannelMessages(channels: [(deviceID: UUID, channelIndex: UInt8, id: UUID)], limit: Int) throws -> [UUID: [MessageDTO]] {
+    public func fetchLastChannelMessages(channels: [(radioID: UUID, channelIndex: UInt8, id: UUID)], limit: Int) throws -> [UUID: [MessageDTO]] {
         var result: [UUID: [MessageDTO]] = [:]
         result.reserveCapacity(channels.count)
         for channel in channels {
-            result[channel.id] = try fetchMessages(deviceID: channel.deviceID, channelIndex: channel.channelIndex, limit: limit)
+            result[channel.id] = try fetchMessages(radioID: channel.radioID, channelIndex: channel.channelIndex, limit: limit)
         }
         return result
     }
@@ -65,11 +65,11 @@ extension PersistenceStore {
     }
 
     /// Fetch messages for a channel
-    public func fetchMessages(deviceID: UUID, channelIndex: UInt8, limit: Int = 50, offset: Int = 0) throws -> [MessageDTO] {
-        let targetDeviceID = deviceID
+    public func fetchMessages(radioID: UUID, channelIndex: UInt8, limit: Int = 50, offset: Int = 0) throws -> [MessageDTO] {
+        let targetRadioID = radioID
         let targetChannelIndex: UInt8? = channelIndex
         let predicate = #Predicate<Message> { message in
-            message.deviceID == targetDeviceID && message.channelIndex == targetChannelIndex
+            message.radioID == targetRadioID && message.channelIndex == targetChannelIndex
         }
         var descriptor = FetchDescriptor(
             predicate: predicate,
@@ -88,7 +88,7 @@ extension PersistenceStore {
 
     /// Finds a channel message matching a parsed reaction within a timestamp window.
     public func findChannelMessageForReaction(
-        deviceID: UUID,
+        radioID: UUID,
         channelIndex: UInt8,
         parsedReaction: ParsedReaction,
         localNodeName: String?,
@@ -100,7 +100,7 @@ extension PersistenceStore {
         logger.debug("[REACTION-MATCH] Looking for message: targetSender=\(parsedReaction.targetSender), hash=\(parsedReaction.messageHash), localNodeName=\(localNodeName ?? "nil"), window=\(timestampWindow.lowerBound)...\(timestampWindow.upperBound)")
 
         let candidates = try fetchChannelMessageCandidates(
-            deviceID: deviceID,
+            radioID: radioID,
             channelIndex: channelIndex,
             timestampWindow: timestampWindow,
             limit: limit
@@ -142,18 +142,18 @@ extension PersistenceStore {
     ///
     /// Returns raw candidates without hash matching — the caller performs Dart hash comparison.
     public func fetchChannelMessageCandidates(
-        deviceID: UUID,
+        radioID: UUID,
         channelIndex: UInt8,
         timestampWindow: ClosedRange<UInt32>,
         limit: Int
     ) throws -> [MessageDTO] {
-        let targetDeviceID = deviceID
+        let targetRadioID = radioID
         let targetChannelIndex: UInt8? = channelIndex
         let start = timestampWindow.lowerBound
         let end = timestampWindow.upperBound
 
         let predicate = #Predicate<Message> { message in
-            message.deviceID == targetDeviceID &&
+            message.radioID == targetRadioID &&
             message.channelIndex == targetChannelIndex &&
             message.timestamp >= start &&
             message.timestamp <= end
@@ -175,18 +175,18 @@ extension PersistenceStore {
     ///
     /// Returns raw candidates without hash matching — the caller performs Dart hash comparison.
     public func fetchDMMessageCandidates(
-        deviceID: UUID,
+        radioID: UUID,
         contactID: UUID,
         timestampWindow: ClosedRange<UInt32>,
         limit: Int
     ) throws -> [MessageDTO] {
-        let targetDeviceID = deviceID
+        let targetRadioID = radioID
         let targetContactID: UUID? = contactID
         let start = timestampWindow.lowerBound
         let end = timestampWindow.upperBound
 
         let predicate = #Predicate<Message> { message in
-            message.deviceID == targetDeviceID &&
+            message.radioID == targetRadioID &&
             message.contactID == targetContactID &&
             message.timestamp >= start &&
             message.timestamp <= end
@@ -206,7 +206,7 @@ extension PersistenceStore {
 
     /// Finds a DM message matching a reaction by hash within a timestamp window.
     public func findDMMessageForReaction(
-        deviceID: UUID,
+        radioID: UUID,
         contactID: UUID,
         messageHash: String,
         timestampWindow: ClosedRange<UInt32>,
@@ -216,7 +216,7 @@ extension PersistenceStore {
         logger.debug("[DM-REACTION-MATCH] Looking for DM: hash=\(messageHash), contactID=\(contactID)")
 
         let candidates = try fetchDMMessageCandidates(
-            deviceID: deviceID,
+            radioID: radioID,
             contactID: contactID,
             timestampWindow: timestampWindow,
             limit: limit
@@ -280,7 +280,7 @@ extension PersistenceStore {
     public func saveMessage(_ dto: MessageDTO) throws {
         let message = Message(
             id: dto.id,
-            deviceID: dto.deviceID,
+            radioID: dto.radioID,
             contactID: dto.contactID,
             channelIndex: dto.channelIndex,
             text: dto.text,
@@ -469,11 +469,11 @@ extension PersistenceStore {
     /// Delete all channel messages from a specific sender for a device.
     /// Only deletes messages with a non-nil channelIndex (channel messages), preserving DMs.
     /// Also deletes any reactions associated with the deleted messages.
-    public func deleteChannelMessages(fromSender senderName: String, deviceID: UUID) throws {
-        let targetDeviceID = deviceID
+    public func deleteChannelMessages(fromSender senderName: String, radioID: UUID) throws {
+        let targetRadioID = radioID
         let targetSenderName: String? = senderName
         let messagePredicate = #Predicate<Message> { message in
-            message.deviceID == targetDeviceID &&
+            message.radioID == targetRadioID &&
             message.senderNodeName == targetSenderName &&
             message.channelIndex != nil
         }
@@ -492,12 +492,12 @@ extension PersistenceStore {
     }
 
     /// Count pending messages for a device
-    public func countPendingMessages(deviceID: UUID) throws -> Int {
-        let targetDeviceID = deviceID
+    public func countPendingMessages(radioID: UUID) throws -> Int {
+        let targetRadioID = radioID
         let pendingStatus = MessageStatus.pending.rawValue
         let sendingStatus = MessageStatus.sending.rawValue
         let predicate = #Predicate<Message> { message in
-            message.deviceID == targetDeviceID &&
+            message.radioID == targetRadioID &&
             (message.statusRawValue == pendingStatus ||
              message.statusRawValue == sendingStatus)
         }
@@ -510,20 +510,20 @@ extension PersistenceStore {
     /// Used for correlating RX log entries to sent messages.
     ///
     /// - Parameters:
-    ///   - deviceID: The device that sent the message
+    ///   - radioID: The radio that sent the message
     ///   - channelIndex: Channel the message was sent on
     ///   - timestamp: Sender timestamp from the message
     ///   - text: Message text to match
     ///   - withinSeconds: Time window to search (default 10 seconds)
     /// - Returns: MessageDTO if found, nil otherwise
     public func findSentChannelMessage(
-        deviceID: UUID,
+        radioID: UUID,
         channelIndex: UInt8,
         timestamp: UInt32,
         text: String,
         withinSeconds: Int = 10
     ) throws -> MessageDTO? {
-        let targetDeviceID = deviceID
+        let targetRadioID = radioID
         let targetChannelIndex: UInt8? = channelIndex
         let targetTimestamp = timestamp
         let outgoingDirection = MessageDirection.outgoing.rawValue
@@ -534,7 +534,7 @@ extension PersistenceStore {
         let windowStartTimestamp = UInt32(windowStart.timeIntervalSince1970)
 
         let predicate = #Predicate<Message> { message in
-            message.deviceID == targetDeviceID &&
+            message.radioID == targetRadioID &&
             message.channelIndex == targetChannelIndex &&
             message.timestamp == targetTimestamp &&
             message.directionRawValue == outgoingDirection &&
@@ -670,7 +670,7 @@ extension PersistenceStore {
             receivedAt: dto.receivedAt,
             channelIndex: dto.channelIndex,
             contactID: dto.contactID,
-            deviceID: dto.deviceID
+            radioID: dto.radioID
         )
         modelContext.insert(reaction)
         try modelContext.save()

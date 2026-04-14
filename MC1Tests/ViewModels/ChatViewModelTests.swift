@@ -6,14 +6,14 @@ import Foundation
 // MARK: - Test Helpers
 
 private func createTestContact(
-    deviceID: UUID = UUID(),
+    radioID: UUID = UUID(),
     name: String = "TestContact",
     type: ContactType = .chat,
     isBlocked: Bool = false
 ) -> ContactDTO {
     let contact = Contact(
         id: UUID(),
-        deviceID: deviceID,
+        radioID: radioID,
         publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) }),
         name: name,
         typeRawValue: type.rawValue,
@@ -37,7 +37,7 @@ private func createTestMessage(
     let resolvedCreatedAt = createdAt ?? Date(timeIntervalSince1970: TimeInterval(timestamp))
     let message = Message(
         id: UUID(),
-        deviceID: UUID(),
+        radioID: UUID(),
         contactID: UUID(),
         text: text,
         timestamp: timestamp,
@@ -57,7 +57,7 @@ private func createChannelMessage(
 ) -> MessageDTO {
     MessageDTO(
         id: UUID(),
-        deviceID: UUID(),
+        radioID: UUID(),
         contactID: nil,  // nil = channel message
         channelIndex: 0,
         text: text,
@@ -235,13 +235,13 @@ struct ChatViewModelTests {
     @Test("allConversations excludes repeaters")
     func allConversationsExcludesRepeaters() {
         let viewModel = ChatViewModel()
-        let deviceID = UUID()
+        let radioID = UUID()
 
         // Create a mix of contact types
-        let chatContact = createTestContact(deviceID: deviceID, name: "Alice", type: .chat)
-        let chatContact2 = createTestContact(deviceID: deviceID, name: "Bob", type: .chat)
-        let repeaterContact = createTestContact(deviceID: deviceID, name: "Repeater 1", type: .repeater)
-        let anotherRepeater = createTestContact(deviceID: deviceID, name: "Repeater 2", type: .repeater)
+        let chatContact = createTestContact(radioID: radioID, name: "Alice", type: .chat)
+        let chatContact2 = createTestContact(radioID: radioID, name: "Bob", type: .chat)
+        let repeaterContact = createTestContact(radioID: radioID, name: "Repeater 1", type: .repeater)
+        let anotherRepeater = createTestContact(radioID: radioID, name: "Repeater 2", type: .repeater)
 
         // Set conversations to include repeaters
         viewModel.conversations = [chatContact, chatContact2, repeaterContact, anotherRepeater]
@@ -266,12 +266,12 @@ struct ChatViewModelTests {
     @Test("allConversations returns empty when only repeaters exist")
     func allConversationsReturnsEmptyWhenOnlyRepeatersExist() {
         let viewModel = ChatViewModel()
-        let deviceID = UUID()
+        let radioID = UUID()
 
         // Only repeaters in conversations
         viewModel.conversations = [
-            createTestContact(deviceID: deviceID, name: "Repeater 1", type: .repeater),
-            createTestContact(deviceID: deviceID, name: "Repeater 2", type: .repeater)
+            createTestContact(radioID: radioID, name: "Repeater 1", type: .repeater),
+            createTestContact(radioID: radioID, name: "Repeater 2", type: .repeater)
         ]
 
         let conversations = viewModel.allConversations
@@ -302,18 +302,18 @@ struct BlockedContactFilteringTests {
 
     @Test("Blocked contacts are excluded from allConversations")
     func blockedContactsExcludedFromConversations() {
-        let deviceID = UUID()
+        let radioID = UUID()
         let viewModel = ChatViewModel()
 
         // Create contacts - one blocked, one not
         let normalContact = createTestContact(
-            deviceID: deviceID,
+            radioID: radioID,
             name: "Normal",
             type: .chat,
             isBlocked: false
         )
         let blockedContact = createTestContact(
-            deviceID: deviceID,
+            radioID: radioID,
             name: "Blocked",
             type: .chat,
             isBlocked: true
@@ -332,12 +332,12 @@ struct BlockedContactFilteringTests {
 
     @Test("allConversations returns empty when all contacts are blocked")
     func allConversationsEmptyWhenAllBlocked() {
-        let deviceID = UUID()
+        let radioID = UUID()
         let viewModel = ChatViewModel()
 
         viewModel.conversations = [
-            createTestContact(deviceID: deviceID, name: "Blocked1", type: .chat, isBlocked: true),
-            createTestContact(deviceID: deviceID, name: "Blocked2", type: .chat, isBlocked: true)
+            createTestContact(radioID: radioID, name: "Blocked1", type: .chat, isBlocked: true),
+            createTestContact(radioID: radioID, name: "Blocked2", type: .chat, isBlocked: true)
         ]
 
         let conversations = viewModel.allConversations
@@ -346,15 +346,15 @@ struct BlockedContactFilteringTests {
 
     @Test("Blocked repeaters are also excluded")
     func blockedRepeatersAlsoExcluded() {
-        let deviceID = UUID()
+        let radioID = UUID()
         let viewModel = ChatViewModel()
 
         // Mix of blocked chat, normal chat, and repeater (blocked or not)
         viewModel.conversations = [
-            createTestContact(deviceID: deviceID, name: "Normal", type: .chat, isBlocked: false),
-            createTestContact(deviceID: deviceID, name: "BlockedChat", type: .chat, isBlocked: true),
-            createTestContact(deviceID: deviceID, name: "Repeater", type: .repeater, isBlocked: false),
-            createTestContact(deviceID: deviceID, name: "BlockedRepeater", type: .repeater, isBlocked: true)
+            createTestContact(radioID: radioID, name: "Normal", type: .chat, isBlocked: false),
+            createTestContact(radioID: radioID, name: "BlockedChat", type: .chat, isBlocked: true),
+            createTestContact(radioID: radioID, name: "Repeater", type: .repeater, isBlocked: false),
+            createTestContact(radioID: radioID, name: "BlockedRepeater", type: .repeater, isBlocked: true)
         ]
 
         let conversations = viewModel.allConversations
@@ -373,7 +373,7 @@ struct BlockedContactFilteringTests {
         let messages = [
             MessageDTO(
                 id: UUID(),
-                deviceID: UUID(),
+                radioID: UUID(),
                 contactID: nil,
                 channelIndex: 0,
                 text: "Hello",
@@ -396,7 +396,7 @@ struct BlockedContactFilteringTests {
             ),
             MessageDTO(
                 id: UUID(),
-                deviceID: UUID(),
+                radioID: UUID(),
                 contactID: nil,
                 channelIndex: 0,
                 text: "Blocked message",
@@ -419,7 +419,7 @@ struct BlockedContactFilteringTests {
             ),
             MessageDTO(
                 id: UUID(),
-                deviceID: UUID(),
+                radioID: UUID(),
                 contactID: nil,
                 channelIndex: 0,
                 text: "My message",
@@ -567,7 +567,7 @@ struct DisplayFlagsTests {
         // Direct messages have contactID set
         let message = Message(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             contactID: UUID(),  // non-nil = direct message
             text: "Test",
             timestamp: 1000,

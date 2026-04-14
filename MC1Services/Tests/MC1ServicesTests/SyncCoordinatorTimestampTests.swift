@@ -234,7 +234,7 @@ struct SameSenderReorderingTests {
     ) -> MessageDTO {
         MessageDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             contactID: UUID(),
             channelIndex: nil,
             text: "msg-\(timestamp)",
@@ -265,7 +265,7 @@ struct SameSenderReorderingTests {
     ) -> MessageDTO {
         MessageDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             contactID: nil,
             channelIndex: 0,
             text: "msg-\(timestamp)",

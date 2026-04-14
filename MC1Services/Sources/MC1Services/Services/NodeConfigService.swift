@@ -118,12 +118,12 @@ public actor NodeConfigService {
     /// - Parameters:
     ///   - config: The config to import.
     ///   - sections: Which sections to actually apply.
-    ///   - deviceID: The connected device UUID (needed for channel writes).
+    ///   - radioID: The connected device UUID (needed for channel writes).
     ///   - onProgress: Optional callback for UI progress updates.
     public func importConfig(
         _ config: MeshCoreNodeConfig,
         sections: ConfigSections,
-        deviceID: UUID,
+        radioID: UUID,
         onProgress: (@Sendable (ImportProgress) -> Void)? = nil
     ) async throws {
         let totalSteps = countImportSteps(config: config, sections: sections)
@@ -164,7 +164,7 @@ public actor NodeConfigService {
         // Step 5: Channels
         if sections.channels, let channels = config.channels {
             try await importChannels(
-                channels, deviceID: deviceID,
+                channels, radioID: radioID,
                 checkCancellation: checkCancellation, progress: progress
             )
         }
@@ -172,7 +172,7 @@ public actor NodeConfigService {
         // Step 6: Contacts
         if sections.contacts, let contacts = config.contacts {
             try await importContacts(
-                contacts, deviceID: deviceID,
+                contacts, radioID: radioID,
                 checkCancellation: checkCancellation, progress: progress
             )
             await syncCoordinator?.notifyContactsChanged()
@@ -253,7 +253,7 @@ public actor NodeConfigService {
     /// or secret (non-hashtag), updating in-place or adding to empty slots.
     private func importChannels(
         _ channels: [MeshCoreNodeConfig.ChannelConfig],
-        deviceID: UUID,
+        radioID: UUID,
         checkCancellation: () throws -> Void,
         progress: (String) -> Void
     ) async throws {
@@ -305,7 +305,7 @@ public actor NodeConfigService {
 
             progress("Importing channel: \(channel.name)")
             try await channelService.setChannelWithSecret(
-                deviceID: deviceID,
+                radioID: radioID,
                 index: targetIndex,
                 name: channel.name,
                 secret: secretData
@@ -317,7 +317,7 @@ public actor NodeConfigService {
     /// Imports contacts to the device and local database, validating public keys.
     private func importContacts(
         _ contacts: [MeshCoreNodeConfig.ContactConfig],
-        deviceID: UUID,
+        radioID: UUID,
         checkCancellation: () throws -> Void,
         progress: (String) -> Void
     ) async throws {
@@ -365,7 +365,7 @@ public actor NodeConfigService {
             )
             try await session.addContact(meshContact)
             let frame = meshContact.toContactFrame()
-            _ = try await dataStore.saveContact(deviceID: deviceID, from: frame)
+            _ = try await dataStore.saveContact(radioID: radioID, from: frame)
             logger.info("Imported contact: \(contact.name)")
         }
     }

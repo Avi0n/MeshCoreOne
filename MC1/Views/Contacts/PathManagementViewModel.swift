@@ -147,7 +147,7 @@ final class PathManagementViewModel {
 
     /// Load all contacts for name resolution and filter repeaters for adding
     /// Skips fetch if contacts are already loaded for the same device
-    func loadContacts(deviceID: UUID, forceReload: Bool = false) async {
+    func loadContacts(radioID: UUID, forceReload: Bool = false) async {
         guard let appState,
               let dataStore = appState.services?.dataStore else { return }
 
@@ -157,11 +157,11 @@ final class PathManagementViewModel {
         }
 
         do {
-            let contacts = try await dataStore.fetchContacts(deviceID: deviceID)
+            let contacts = try await dataStore.fetchContacts(radioID: radioID)
             allContacts = contacts
             availableRepeaters = contacts.filter { $0.type == .repeater }
             availableRooms = contacts.filter { $0.type == .room }
-            let nodes = try await dataStore.fetchDiscoveredNodes(deviceID: deviceID)
+            let nodes = try await dataStore.fetchDiscoveredNodes(radioID: radioID)
             discoveredNodes = nodes
         } catch {
             allContacts = []
@@ -214,7 +214,7 @@ final class PathManagementViewModel {
             let hashSize = editablePath.first?.hashBytes.count ?? 1 // empty path encodes as direct (outPathLength == 0)
             let pathLength = encodePathLen(hashSize: hashSize, hopCount: editablePath.count)
             try await contactService.setPath(
-                deviceID: contact.deviceID,
+                radioID: contact.radioID,
                 publicKey: contact.publicKey,
                 path: pathData,
                 pathLength: pathLength
@@ -258,7 +258,7 @@ final class PathManagementViewModel {
         discoveryTask = Task { @MainActor in
             do {
                 let sentResponse = try await contactService.sendPathDiscovery(
-                    deviceID: contact.deviceID,
+                    radioID: contact.radioID,
                     publicKey: contact.publicKey
                 )
 
@@ -367,7 +367,7 @@ final class PathManagementViewModel {
 
         do {
             try await contactService.resetPath(
-                deviceID: contact.deviceID,
+                radioID: contact.radioID,
                 publicKey: contact.publicKey
             )
             onContactNeedsRefresh?()
@@ -389,7 +389,7 @@ final class PathManagementViewModel {
 
         do {
             try await contactService.setPath(
-                deviceID: contact.deviceID,
+                radioID: contact.radioID,
                 publicKey: contact.publicKey,
                 path: path,
                 pathLength: pathLength

@@ -64,11 +64,11 @@ struct RepeaterStatusView: View {
                 }
 
                 // Pre-load OCV settings and contacts for neighbor matching
-                if let deviceID = appState.connectedDevice?.id {
-                    await viewModel.helper.loadOCVSettings(publicKey: session.publicKey, deviceID: deviceID)
+                if let radioID = appState.connectedDevice?.radioID {
+                    await viewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
                     if let dataStore = appState.services?.dataStore {
-                        contacts = (try? await dataStore.fetchContacts(deviceID: deviceID)) ?? []
-                        discoveredNodes = (try? await dataStore.fetchDiscoveredNodes(deviceID: deviceID)) ?? []
+                        contacts = (try? await dataStore.fetchContacts(radioID: radioID)) ?? []
+                        discoveredNodes = (try? await dataStore.fetchDiscoveredNodes(radioID: radioID)) ?? []
                     }
                 }
             }
@@ -123,7 +123,7 @@ struct RepeaterStatusView: View {
             helper: viewModel.helper,
             session: session,
             connectionState: appState.connectionState,
-            connectedDeviceID: appState.connectedDevice?.id
+            connectedDeviceID: appState.connectedDevice?.radioID
         )
     }
 
@@ -480,7 +480,7 @@ private struct DisappearedNeighborRow: View {
 #Preview {
     RepeaterStatusView(
         session: RemoteNodeSessionDTO(
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0x42, count: 32),
             name: "Test Repeater",
             role: .repeater,

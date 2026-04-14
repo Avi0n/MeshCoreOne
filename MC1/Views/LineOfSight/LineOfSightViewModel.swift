@@ -294,7 +294,7 @@ final class LineOfSightViewModel {
 
     private let elevationService: ElevationServiceProtocol
     private var dataStore: (any PersistenceStoreProtocol)?
-    private var deviceID: UUID?
+    private var radioID: UUID?
 
     // MARK: - Computed Properties
 
@@ -497,7 +497,7 @@ final class LineOfSightViewModel {
     func configure(appState: AppState) {
         // Use offline-capable data store and device ID to support browsing cached data when disconnected
         self.dataStore = appState.offlineDataStore
-        self.deviceID = appState.currentDeviceID
+        self.radioID = appState.currentRadioID
 
         // Initialize frequency from connected device (stored in kHz, convert to MHz)
         if let deviceFrequencyKHz = appState.connectedDevice?.frequency {
@@ -505,18 +505,18 @@ final class LineOfSightViewModel {
         }
     }
 
-    func configure(dataStore: any PersistenceStoreProtocol, deviceID: UUID?) {
+    func configure(dataStore: any PersistenceStoreProtocol, radioID: UUID?) {
         self.dataStore = dataStore
-        self.deviceID = deviceID
+        self.radioID = radioID
     }
 
     // MARK: - Load Repeaters
 
     func loadRepeaters() async {
-        guard let dataStore, let deviceID else { return }
+        guard let dataStore, let radioID else { return }
 
         do {
-            let allContacts = try await dataStore.fetchContacts(deviceID: deviceID)
+            let allContacts = try await dataStore.fetchContacts(radioID: radioID)
             repeatersWithLocation = allContacts.filter { $0.hasLocation && $0.type == .repeater }
         } catch {
             logger.error("Failed to load repeaters: \(error.localizedDescription)")

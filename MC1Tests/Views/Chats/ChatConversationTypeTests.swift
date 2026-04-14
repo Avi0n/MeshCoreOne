@@ -15,7 +15,7 @@ struct ChatConversationTypeTests {
     ) -> ContactDTO {
         ContactDTO(
             id: id,
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(),
             name: name,
             typeRawValue: 0,
@@ -44,7 +44,7 @@ struct ChatConversationTypeTests {
     ) -> ChannelDTO {
         ChannelDTO(
             id: id,
-            deviceID: UUID(),
+            radioID: UUID(),
             index: index,
             name: name,
             secret: Data(repeating: 0, count: 16),

@@ -47,10 +47,10 @@ extension PersistenceStore {
     }
 
     /// Fetch all remote node sessions for a device
-    public func fetchRemoteNodeSessions(deviceID: UUID) throws -> [RemoteNodeSessionDTO] {
-        let targetDeviceID = deviceID
+    public func fetchRemoteNodeSessions(radioID: UUID) throws -> [RemoteNodeSessionDTO] {
+        let targetRadioID = radioID
         let predicate = #Predicate<RemoteNodeSession> { session in
-            session.deviceID == targetDeviceID
+            session.radioID == targetRadioID
         }
         let descriptor = FetchDescriptor(
             predicate: predicate,
@@ -83,7 +83,7 @@ extension PersistenceStore {
             // Create new
             let session = RemoteNodeSession(
                 id: dto.id,
-                deviceID: dto.deviceID,
+                radioID: dto.radioID,
                 publicKey: dto.publicKey,
                 name: dto.name,
                 role: dto.role,

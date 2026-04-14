@@ -10,6 +10,9 @@ public final class Device {
     @Attribute(.unique)
     public var id: UUID
 
+    /// New column (not renamed from deviceID), so no @Attribute(originalName:) unlike child models.
+    public var radioID: UUID = UUID()
+
     /// The 32-byte public key of the device
     public var publicKey: Data
 
@@ -121,6 +124,7 @@ public final class Device {
 
     public init(
         id: UUID = UUID(),
+        radioID: UUID = UUID(),
         publicKey: Data,
         nodeName: String,
         firmwareVersion: UInt8 = 0,
@@ -161,6 +165,7 @@ public final class Device {
         knownRegions: [String] = []
     ) {
         self.id = id
+        self.radioID = radioID
         self.publicKey = publicKey
         self.nodeName = nodeName
         self.firmwareVersion = firmwareVersion
@@ -203,6 +208,7 @@ public final class Device {
 
     /// Applies all mutable fields from a DTO to this model instance.
     func apply(_ dto: DeviceDTO) {
+        radioID = dto.radioID
         publicKey = dto.publicKey
         nodeName = dto.nodeName
         firmwareVersion = dto.firmwareVersion
@@ -249,6 +255,7 @@ public final class Device {
 /// A sendable snapshot of Device for cross-actor transfers
 public struct DeviceDTO: Sendable, Equatable, Identifiable {
     public var id: UUID
+    public var radioID: UUID
     public var publicKey: Data
     public var nodeName: String
     public var firmwareVersion: UInt8
@@ -367,6 +374,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable {
 
     public init(
         id: UUID,
+        radioID: UUID = UUID(),
         publicKey: Data,
         nodeName: String,
         firmwareVersion: UInt8,
@@ -407,6 +415,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable {
         knownRegions: [String] = []
     ) {
         self.id = id
+        self.radioID = radioID
         self.publicKey = publicKey
         self.nodeName = nodeName
         self.firmwareVersion = firmwareVersion
@@ -449,6 +458,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable {
 
     public init(from device: Device) {
         self.id = device.id
+        self.radioID = device.radioID
         self.publicKey = device.publicKey
         self.nodeName = device.nodeName
         self.firmwareVersion = device.firmwareVersion

@@ -73,10 +73,10 @@ struct NewChatView: View {
     }
 
     private func loadContacts() async {
-        guard let deviceID = appState.connectedDevice?.id else { return }
+        guard let radioID = appState.connectedDevice?.radioID else { return }
 
         isLoading = true
-        contacts = (try? await appState.services?.dataStore.fetchContacts(deviceID: deviceID)) ?? []
+        contacts = (try? await appState.services?.dataStore.fetchContacts(radioID: radioID)) ?? []
         isLoading = false
     }
 

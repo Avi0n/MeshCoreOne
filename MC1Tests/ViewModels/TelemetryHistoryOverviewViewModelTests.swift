@@ -20,7 +20,7 @@ struct TelemetryHistoryOverviewViewModelTests {
     private func createContactDTO(ocvPreset: String? = nil) -> ContactDTO {
         ContactDTO(
             id: UUID(),
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             publicKey: testPublicKey,
             name: "Test Repeater",
             typeRawValue: ContactType.repeater.rawValue,
@@ -62,7 +62,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
 
         #expect(viewModel.snapshots.count == 2)
@@ -74,7 +74,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
 
         #expect(viewModel.snapshots.isEmpty)
@@ -91,7 +91,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
 
         #expect(viewModel.ocvArray == OCVPreset.liFePO4.ocvArray)
@@ -103,7 +103,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
 
         #expect(viewModel.ocvArray == OCVPreset.liIon.ocvArray)
@@ -124,7 +124,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
         viewModel.timeRange = .all
 
@@ -155,7 +155,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
         viewModel.timeRange = .week
 
@@ -179,7 +179,7 @@ struct TelemetryHistoryOverviewViewModelTests {
         )
 
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
         #expect(viewModel.hasSnapshots)
     }
@@ -198,7 +198,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
         #expect(!viewModel.hasTelemetryData, "Should be false with no telemetry entries")
 
@@ -209,7 +209,7 @@ struct TelemetryHistoryOverviewViewModelTests {
         )
 
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
         #expect(viewModel.hasTelemetryData, "Should be true after adding telemetry entries")
     }
@@ -228,7 +228,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
         #expect(!viewModel.hasNeighborData, "Should be false with no neighbor snapshots")
 
@@ -239,7 +239,7 @@ struct TelemetryHistoryOverviewViewModelTests {
         )
 
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
         #expect(viewModel.hasNeighborData, "Should be true after adding neighbor snapshots")
     }
@@ -271,7 +271,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
 
         let groups = viewModel.channelGroups

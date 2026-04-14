@@ -159,7 +159,7 @@ struct ScanContactQRView: View {
             return
         }
 
-        let deviceID = device.id
+        let radioID = device.radioID
         let maxContacts = device.maxContacts
 
         isImporting = true
@@ -182,7 +182,7 @@ struct ScanContactQRView: View {
             )
 
             logger.info("Importing contact: \(contact.name) (\(contact.publicKey.hexString()))")
-            try await services.contactService.addOrUpdateContact(deviceID: deviceID, contact: contactFrame)
+            try await services.contactService.addOrUpdateContact(radioID: radioID, contact: contactFrame)
             logger.info("Contact imported successfully")
 
             // Reset state and dismiss before calling completion handler

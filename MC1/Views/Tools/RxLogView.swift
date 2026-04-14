@@ -235,8 +235,8 @@ struct RxLogView: View {
 
     private func loadNodeNames() async {
         guard let dataStore = appState.services?.dataStore,
-              let deviceID = appState.currentDeviceID else { return }
-        await viewModel.loadNodeNames(from: dataStore, deviceID: deviceID)
+              let deviceID = appState.currentRadioID else { return }
+        await viewModel.loadNodeNames(from: dataStore, radioID: deviceID)
     }
 }
 

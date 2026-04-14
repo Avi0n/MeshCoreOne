@@ -240,7 +240,7 @@ public final class ConnectionManager {
     /// Records the last fully-clean channel sync, keyed by device.
     /// Only set when channel sync completes with zero errors (including retries).
     /// Survives transient disconnects; cleared on explicit disconnect or device change.
-    var lastCleanChannelSync: (deviceID: UUID, completedAt: Date)?
+    var lastCleanChannelSync: (radioID: UUID, completedAt: Date)?
 
     /// The user's connection intent. Replaces shouldBeConnected, userExplicitlyDisconnected, and pendingForceFullSync.
     var connectionIntent: ConnectionIntent = .none
@@ -416,6 +416,7 @@ public final class ConnectionManager {
 
     private let lastDeviceIDKey = "com.pocketmesh.lastConnectedDeviceID"
     private let lastDeviceNameKey = "com.pocketmesh.lastConnectedDeviceName"
+    private let lastRadioIDKey = "com.pocketmesh.lastConnectedRadioID"
     private let lastDisconnectDiagnosticKey = "com.pocketmesh.lastDisconnectDiagnostic"
 
     // MARK: - Simulator Support
@@ -455,15 +456,25 @@ public final class ConnectionManager {
         return UUID(uuidString: uuidString)
     }
 
+    /// The last connected radio ID (for offline data scoping)
+    public var lastConnectedRadioID: UUID? {
+        guard let uuidString = defaults.string(forKey: lastRadioIDKey) else {
+            return nil
+        }
+        return UUID(uuidString: uuidString)
+    }
+
     /// Records a successful connection for future restoration
-    func persistConnection(deviceID: UUID, deviceName: String) {
+    func persistConnection(deviceID: UUID, radioID: UUID, deviceName: String) {
         defaults.set(deviceID.uuidString, forKey: lastDeviceIDKey)
+        defaults.set(radioID.uuidString, forKey: lastRadioIDKey)
         defaults.set(deviceName, forKey: lastDeviceNameKey)
     }
 
     /// Clears the persisted connection
     func clearPersistedConnection() {
         defaults.removeObject(forKey: lastDeviceIDKey)
+        defaults.removeObject(forKey: lastRadioIDKey)
         defaults.removeObject(forKey: lastDeviceNameKey)
     }
 
@@ -523,23 +534,23 @@ public final class ConnectionManager {
     /// Performs initial sync with automatic resync loop on failure.
     /// Returns `true` if sync completed successfully, `false` if it failed and a resync loop was started.
     /// - Parameters:
-    ///   - deviceID: The device ID to sync
+    ///   - radioID: The radio ID for data scoping
     ///   - services: The service container
     ///   - transportType: The transport being used (determines whether BLE throttling applies)
     ///   - context: Optional context string for logging (e.g., "WiFi reconnect")
     ///   - forceFullSync: When true, forces complete data exchange regardless of sync state
     func performInitialSync(
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer,
         transportType: TransportType = .bluetooth,
         context: String = "",
         forceFullSync: Bool = false
     ) async -> Bool {
-        let channelSyncConfig = currentChannelSyncConfig(for: deviceID, transportType: transportType)
+        let channelSyncConfig = currentChannelSyncConfig(for: radioID, transportType: transportType)
         do {
             try await withTimeout(.seconds(120), operationName: "performInitialSync") {
                 try await services.syncCoordinator.onConnectionEstablished(
-                    deviceID: deviceID,
+                    radioID: radioID,
                     services: services,
                     forceFullSync: forceFullSync,
                     channelSyncConfig: channelSyncConfig,
@@ -552,7 +563,7 @@ public final class ConnectionManager {
             guard connectionIntent.wantsConnection else { return false }
             let prefix = context.isEmpty ? "" : "\(context): "
             logger.warning("\(prefix)Initial sync failed, starting resync loop: \(error.localizedDescription)")
-            startResyncLoop(deviceID: deviceID, services: services, transportType: transportType, forceFullSync: forceFullSync)
+            startResyncLoop(radioID: radioID, services: services, transportType: transportType, forceFullSync: forceFullSync)
             return false
         }
     }
@@ -561,11 +572,11 @@ public final class ConnectionManager {
     /// Retries every 2 seconds, shows "Sync Failed" pill and disconnects after 3 failures.
     /// Holds a sync activity bracket so the "Syncing" pill stays visible across retries.
     /// - Parameters:
-    ///   - deviceID: The connected device UUID
+    ///   - radioID: The radio ID for data scoping
     ///   - services: The ServiceContainer with all services
     ///   - forceFullSync: When true, forces complete data exchange regardless of sync state
     func startResyncLoop(
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer,
         transportType: TransportType = .bluetooth,
         forceFullSync: Bool = false
@@ -593,12 +604,12 @@ public final class ConnectionManager {
                 resyncAttemptCount += 1
                 logger.info("Resync attempt \(resyncAttemptCount)/\(Self.maxResyncAttempts)")
 
-                let channelSyncConfig = self.currentChannelSyncConfig(for: deviceID, transportType: transportType)
+                let channelSyncConfig = self.currentChannelSyncConfig(for: radioID, transportType: transportType)
                 let success: Bool
                 do {
                     success = try await withTimeout(.seconds(60), operationName: "performResync") {
                         await services.syncCoordinator.performResync(
-                            deviceID: deviceID,
+                            radioID: radioID,
                             services: services,
                             forceFullSync: forceFullSync,
                             channelSyncConfig: channelSyncConfig,
@@ -836,9 +847,9 @@ public final class ConnectionManager {
     /// `lastCleanChannelSync` is updated when a channel phase completes without errors.
     /// Called from every path that creates a new ServiceContainer.
     func wireCleanChannelSyncCallback(on services: ServiceContainer) async {
-        await services.syncCoordinator.setCleanChannelSyncCallback { [weak self] deviceID in
+        await services.syncCoordinator.setCleanChannelSyncCallback { [weak self] radioID in
             await MainActor.run {
-                self?.lastCleanChannelSync = (deviceID: deviceID, completedAt: Date())
+                self?.lastCleanChannelSync = (radioID: radioID, completedAt: Date())
             }
         }
     }
@@ -874,6 +885,15 @@ public final class ConnectionManager {
         let existingDevice = try? await existingDeviceResult
         let autoAddConfig = (try? await autoAddConfigResult) ?? MeshCore.AutoAddConfig(bitmask: 0)
 
+        // If no device found by BLE UUID, check by publicKey (backup import scenario)
+        let deviceByPublicKey: DeviceDTO?
+        if existingDevice == nil {
+            deviceByPublicKey = try? await newServices.dataStore.fetchDevice(publicKey: selfInfo.publicKey)
+        } else {
+            deviceByPublicKey = nil
+        }
+        let effectiveExisting = existingDevice ?? deviceByPublicKey
+
         let repeatFreqRanges: [MeshCore.FrequencyRange] = capabilities.clientRepeat
             ? (try? await session.getRepeatFreq()) ?? []
             : []
@@ -883,12 +903,18 @@ public final class ConnectionManager {
             selfInfo: selfInfo,
             capabilities: capabilities,
             autoAddConfig: autoAddConfig,
-            existingDevice: existingDevice,
+            existingDevice: effectiveExisting,
             connectionMethods: connectionMethods
         )
 
         let deviceDTO = DeviceDTO(from: device)
         try await newServices.dataStore.saveDevice(deviceDTO)
+
+        // Clean up orphaned Device row from backup import
+        if let oldDevice = deviceByPublicKey, oldDevice.id != deviceID {
+            try? await newServices.dataStore.deleteDevice(id: oldDevice.id)
+        }
+
         self.connectedDevice = deviceDTO
         self.allowedRepeatFreqRanges = repeatFreqRanges
 
@@ -899,10 +925,10 @@ public final class ConnectionManager {
 
     /// Builds a channel sync config for the current device and transport.
     /// WiFi connections skip channel-sync gating; BLE connections use platform-specific values.
-    private func currentChannelSyncConfig(for deviceID: UUID, transportType: TransportType) -> ChannelSyncConfig {
+    private func currentChannelSyncConfig(for radioID: UUID, transportType: TransportType) -> ChannelSyncConfig {
         guard transportType != .wifi else { return .none }
         return detectedPlatform.channelSyncConfig(
-            lastCleanChannelSync: lastCleanChannelSync?.deviceID == deviceID
+            lastCleanChannelSync: lastCleanChannelSync?.radioID == radioID
                 ? lastCleanChannelSync?.completedAt : nil
         )
     }
@@ -1008,6 +1034,7 @@ public final class ConnectionManager {
 
         let device = Device(
             id: deviceID,
+            radioID: existingDevice?.radioID ?? UUID(),
             publicKey: selfInfo.publicKey,
             nodeName: selfInfo.name,
             firmwareVersion: capabilities.firmwareVersion,

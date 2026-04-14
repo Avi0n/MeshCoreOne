@@ -9,7 +9,7 @@ struct ContactOCVTests {
     func activeOCVArrayReturnsLiIonByDefault() {
         let contact = ContactDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0x42, count: 32),
             name: "Test",
             typeRawValue: ContactType.repeater.rawValue,
@@ -37,7 +37,7 @@ struct ContactOCVTests {
     func activeOCVArrayReturnsPresetWhenSet() {
         let contact = ContactDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0x42, count: 32),
             name: "Test",
             typeRawValue: ContactType.repeater.rawValue,
@@ -68,7 +68,7 @@ struct ContactOCVTests {
 
         let contact = ContactDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0x42, count: 32),
             name: "Test",
             typeRawValue: ContactType.repeater.rawValue,
@@ -96,7 +96,7 @@ struct ContactOCVTests {
     func activeOCVArrayFallsBackForInvalidCustom() {
         let contact = ContactDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0x42, count: 32),
             name: "Test",
             typeRawValue: ContactType.repeater.rawValue,

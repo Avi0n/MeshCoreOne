@@ -41,13 +41,13 @@ struct BlockedContactsView: View {
 
     private func loadBlockedContacts() async {
         guard let services = appState.services,
-              let deviceID = appState.connectedDevice?.id else { return }
+              let radioID = appState.connectedDevice?.radioID else { return }
         isLoading = true
         defer { isLoading = false }
 
         do {
             contacts = try await services.dataStore.fetchBlockedContacts(
-                deviceID: deviceID
+                radioID: radioID
             )
         } catch {
             contacts = []

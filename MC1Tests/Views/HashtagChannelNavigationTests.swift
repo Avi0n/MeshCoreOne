@@ -105,7 +105,7 @@ struct HashtagChannelNavigationTests {
     private func makeChannel(name: String, index: UInt8) -> ChannelDTO {
         ChannelDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             index: index,
             name: name,
             secret: Data(repeating: 0, count: 16),

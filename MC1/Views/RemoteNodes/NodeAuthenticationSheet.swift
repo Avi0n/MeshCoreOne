@@ -142,7 +142,7 @@ struct NodeAuthenticationSheet: View {
                 let pathLength: UInt8
                 if useFloodRouting && !contact.isFloodRouted && !didResetPath {
                     try await services.contactService.resetPath(
-                        deviceID: device.id,
+                        radioID: device.radioID,
                         publicKey: contact.publicKey
                     )
                     didResetPath = true
@@ -171,7 +171,7 @@ struct NodeAuthenticationSheet: View {
 
                 if role == .roomServer {
                     session = try await services.roomServerService.joinRoom(
-                        deviceID: device.id,
+                        radioID: device.radioID,
                         contact: contact,
                         password: passwordToUse,
                         rememberPassword: rememberPassword,
@@ -180,7 +180,7 @@ struct NodeAuthenticationSheet: View {
                     )
                 } else {
                     session = try await services.repeaterAdminService.connectAsAdmin(
-                        deviceID: device.id,
+                        radioID: device.radioID,
                         contact: contact,
                         password: passwordToUse,
                         rememberPassword: rememberPassword,
@@ -419,7 +419,7 @@ private struct ConnectButton: View {
 #Preview {
     NodeAuthenticationSheet(
         contact: ContactDTO(from: Contact(
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0x42, count: 32),
             name: "Test Room",
             typeRawValue: ContactType.room.rawValue

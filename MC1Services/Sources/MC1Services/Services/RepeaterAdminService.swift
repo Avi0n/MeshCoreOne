@@ -58,7 +58,7 @@ public actor RepeaterAdminService {
     /// Connect to a repeater as admin by creating a session and authenticating.
     /// - Parameter onTimeoutKnown: Optional callback invoked with timeout in seconds once firmware responds.
     public func connectAsAdmin(
-        deviceID: UUID,
+        radioID: UUID,
         contact: ContactDTO,
         password: String?,
         rememberPassword: Bool = true,
@@ -66,7 +66,7 @@ public actor RepeaterAdminService {
         onTimeoutKnown: (@Sendable (Int) async -> Void)? = nil
     ) async throws -> RemoteNodeSessionDTO {
         let remoteSession = try await remoteNodeService.createSession(
-            deviceID: deviceID,
+            radioID: radioID,
             contact: contact,
             password: password,
             rememberPassword: rememberPassword
@@ -210,8 +210,8 @@ public actor RepeaterAdminService {
     // MARK: - Session Queries
 
     /// Fetch all repeater sessions for a device.
-    public func fetchRepeaterSessions(deviceID: UUID) async throws -> [RemoteNodeSessionDTO] {
-        let sessions = try await dataStore.fetchRemoteNodeSessions(deviceID: deviceID)
+    public func fetchRepeaterSessions(radioID: UUID) async throws -> [RemoteNodeSessionDTO] {
+        let sessions = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
         return sessions.filter { $0.isRepeater }
     }
 

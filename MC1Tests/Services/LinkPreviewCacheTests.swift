@@ -250,9 +250,9 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func fetchMessage(id: UUID) async throws -> MessageDTO? { nil }
     func fetchMessage(ackCode: UInt32) async throws -> MessageDTO? { nil }
     func fetchMessages(contactID: UUID, limit: Int, offset: Int) async throws -> [MessageDTO] { [] }
-    func fetchMessages(deviceID: UUID, channelIndex: UInt8, limit: Int, offset: Int) async throws -> [MessageDTO] { [] }
+    func fetchMessages(radioID: UUID, channelIndex: UInt8, limit: Int, offset: Int) async throws -> [MessageDTO] { [] }
     func fetchLastMessages(contactIDs: [UUID], limit: Int) throws -> [UUID: [MessageDTO]] { [:] }
-    func fetchLastChannelMessages(channels: [(deviceID: UUID, channelIndex: UInt8, id: UUID)], limit: Int) throws -> [UUID: [MessageDTO]] { [:] }
+    func fetchLastChannelMessages(channels: [(radioID: UUID, channelIndex: UInt8, id: UUID)], limit: Int) throws -> [UUID: [MessageDTO]] { [:] }
     func updateMessageStatus(id: UUID, status: MessageStatus) async throws {}
     func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {}
     func updateMessageByAckCode(_ ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {}
@@ -261,12 +261,12 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func updateMessageLinkPreview(id: UUID, url: String?, title: String?, imageData: Data?, iconData: Data?, fetched: Bool) throws {}
 
     // Contact Operations
-    func fetchContacts(deviceID: UUID) async throws -> [ContactDTO] { [] }
-    func fetchConversations(deviceID: UUID) async throws -> [ContactDTO] { [] }
+    func fetchContacts(radioID: UUID) async throws -> [ContactDTO] { [] }
+    func fetchConversations(radioID: UUID) async throws -> [ContactDTO] { [] }
     func fetchContact(id: UUID) async throws -> ContactDTO? { nil }
-    func fetchContact(deviceID: UUID, publicKey: Data) async throws -> ContactDTO? { nil }
-    func fetchContact(deviceID: UUID, publicKeyPrefix: Data) async throws -> ContactDTO? { nil }
-    @discardableResult func saveContact(deviceID: UUID, from frame: ContactFrame) async throws -> UUID { UUID() }
+    func fetchContact(radioID: UUID, publicKey: Data) async throws -> ContactDTO? { nil }
+    func fetchContact(radioID: UUID, publicKeyPrefix: Data) async throws -> ContactDTO? { nil }
+    @discardableResult func saveContact(radioID: UUID, from frame: ContactFrame) async throws -> UUID { UUID() }
     func saveContact(_ dto: ContactDTO) async throws {}
     func deleteContact(id: UUID) async throws {}
     func updateContactLastMessage(contactID: UUID, date: Date?) async throws {}
@@ -282,21 +282,21 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func decrementChannelUnreadMentionCount(channelID: UUID) async throws {}
     func clearChannelUnreadMentionCount(channelID: UUID) async throws {}
     func fetchUnseenMentionIDs(contactID: UUID) async throws -> [UUID] { [] }
-    func fetchUnseenChannelMentionIDs(deviceID: UUID, channelIndex: UInt8) async throws -> [UUID] { [] }
+    func fetchUnseenChannelMentionIDs(radioID: UUID, channelIndex: UInt8) async throws -> [UUID] { [] }
     func deleteMessagesForContact(contactID: UUID) async throws {}
-    func fetchBlockedContacts(deviceID: UUID) async throws -> [ContactDTO] { [] }
+    func fetchBlockedContacts(radioID: UUID) async throws -> [ContactDTO] { [] }
 
     // Blocked Channel Senders
     func saveBlockedChannelSender(_ dto: BlockedChannelSenderDTO) async throws {}
-    func deleteBlockedChannelSender(deviceID: UUID, name: String) async throws {}
-    func deleteChannelMessages(fromSender senderName: String, deviceID: UUID) async throws {}
-    func fetchBlockedChannelSenders(deviceID: UUID) async throws -> [BlockedChannelSenderDTO] { [] }
+    func deleteBlockedChannelSender(radioID: UUID, name: String) async throws {}
+    func deleteChannelMessages(fromSender senderName: String, radioID: UUID) async throws {}
+    func fetchBlockedChannelSenders(radioID: UUID) async throws -> [BlockedChannelSenderDTO] { [] }
 
     // Channel Operations
-    func fetchChannels(deviceID: UUID) async throws -> [ChannelDTO] { [] }
-    func fetchChannel(deviceID: UUID, index: UInt8) async throws -> ChannelDTO? { nil }
+    func fetchChannels(radioID: UUID) async throws -> [ChannelDTO] { [] }
+    func fetchChannel(radioID: UUID, index: UInt8) async throws -> ChannelDTO? { nil }
     func fetchChannel(id: UUID) async throws -> ChannelDTO? { nil }
-    @discardableResult func saveChannel(deviceID: UUID, from info: ChannelInfo) async throws -> UUID { UUID() }
+    @discardableResult func saveChannel(radioID: UUID, from info: ChannelInfo) async throws -> UUID { UUID() }
     func saveChannel(_ dto: ChannelDTO) async throws {}
     func deleteChannel(id: UUID) async throws {}
     func updateChannelLastMessage(channelID: UUID, date: Date?) async throws {}
@@ -304,17 +304,17 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func clearChannelUnreadCount(channelID: UUID) async throws {}
 
     // Saved Trace Paths
-    func fetchSavedTracePaths(deviceID: UUID) async throws -> [SavedTracePathDTO] { [] }
+    func fetchSavedTracePaths(radioID: UUID) async throws -> [SavedTracePathDTO] { [] }
     func fetchSavedTracePath(id: UUID) async throws -> SavedTracePathDTO? { nil }
-    func createSavedTracePath(deviceID: UUID, name: String, pathBytes: Data, hashSize: Int, initialRun: TracePathRunDTO?) async throws -> SavedTracePathDTO {
-        SavedTracePathDTO(id: UUID(), deviceID: deviceID, name: name, pathBytes: pathBytes, hashSize: hashSize, createdDate: Date(), runs: [])
+    func createSavedTracePath(radioID: UUID, name: String, pathBytes: Data, hashSize: Int, initialRun: TracePathRunDTO?) async throws -> SavedTracePathDTO {
+        SavedTracePathDTO(id: UUID(), radioID: radioID, name: name, pathBytes: pathBytes, hashSize: hashSize, createdDate: Date(), runs: [])
     }
     func updateSavedTracePathName(id: UUID, name: String) async throws {}
     func deleteSavedTracePath(id: UUID) async throws {}
     func appendTracePathRun(pathID: UUID, run: TracePathRunDTO) async throws {}
 
     // Heard Repeats
-    func findSentChannelMessage(deviceID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String, withinSeconds: Int) async throws -> MessageDTO? { nil }
+    func findSentChannelMessage(radioID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String, withinSeconds: Int) async throws -> MessageDTO? { nil }
     func saveMessageRepeat(_ dto: MessageRepeatDTO) async throws {}
     func fetchMessageRepeats(messageID: UUID) async throws -> [MessageRepeatDTO] { [] }
     func messageRepeatExists(rxLogEntryID: UUID) async throws -> Bool { false }
@@ -331,7 +331,7 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func clearDebugLogEntries() async throws {}
 
     // Contact Public Keys
-    func fetchContactPublicKeysByPrefix(deviceID: UUID) async throws -> [UInt8: [Data]] { [:] }
+    func fetchContactPublicKeysByPrefix(radioID: UUID) async throws -> [UInt8: [Data]] { [:] }
 
     // RxLogEntry Lookup
     func findRxLogEntry(channelIndex: UInt8?, senderTimestamp: UInt32) async throws -> RxLogEntryDTO? { nil }
@@ -348,13 +348,13 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func updateRoomActivity(_ sessionID: UUID, syncTimestamp: UInt32?) async throws {}
 
     // Discovered Nodes
-    func upsertDiscoveredNode(deviceID: UUID, from frame: ContactFrame) async throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
+    func upsertDiscoveredNode(radioID: UUID, from frame: ContactFrame) async throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
         fatalError("Not implemented")
     }
-    func fetchDiscoveredNodes(deviceID: UUID) async throws -> [DiscoveredNodeDTO] { [] }
+    func fetchDiscoveredNodes(radioID: UUID) async throws -> [DiscoveredNodeDTO] { [] }
     func deleteDiscoveredNode(id: UUID) async throws {}
-    func clearDiscoveredNodes(deviceID: UUID) async throws {}
-    func fetchContactPublicKeys(deviceID: UUID) async throws -> Set<Data> { Set() }
+    func clearDiscoveredNodes(radioID: UUID) async throws {}
+    func fetchContactPublicKeys(radioID: UUID) async throws -> Set<Data> { Set() }
 
     // Reactions
     func fetchReactions(for messageID: UUID, limit: Int) async throws -> [ReactionDTO] { [] }
@@ -362,10 +362,10 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func reactionExists(messageID: UUID, senderName: String, emoji: String) async throws -> Bool { false }
     func updateMessageReactionSummary(messageID: UUID, summary: String?) async throws {}
     func deleteReactionsForMessage(messageID: UUID) async throws {}
-    func findChannelMessageForReaction(deviceID: UUID, channelIndex: UInt8, parsedReaction: ParsedReaction, localNodeName: String?, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> MessageDTO? { nil }
-    func fetchChannelMessageCandidates(deviceID: UUID, channelIndex: UInt8, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> [MessageDTO] { [] }
-    func fetchDMMessageCandidates(deviceID: UUID, contactID: UUID, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> [MessageDTO] { [] }
-    func findDMMessageForReaction(deviceID: UUID, contactID: UUID, messageHash: String, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> MessageDTO? { nil }
+    func findChannelMessageForReaction(radioID: UUID, channelIndex: UInt8, parsedReaction: ParsedReaction, localNodeName: String?, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> MessageDTO? { nil }
+    func fetchChannelMessageCandidates(radioID: UUID, channelIndex: UInt8, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> [MessageDTO] { [] }
+    func fetchDMMessageCandidates(radioID: UUID, contactID: UUID, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> [MessageDTO] { [] }
+    func findDMMessageForReaction(radioID: UUID, contactID: UUID, messageHash: String, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> MessageDTO? { nil }
 
     // Notification Level
     func setChannelNotificationLevel(_ channelID: UUID, level: NotificationLevel) async throws {}
@@ -374,7 +374,7 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func markRoomSessionConnected(_ sessionID: UUID) async throws -> Bool { false }
 
     // Channel Message Deletion
-    func deleteMessagesForChannel(deviceID: UUID, channelIndex: UInt8) async throws {}
+    func deleteMessagesForChannel(radioID: UUID, channelIndex: UInt8) async throws {}
 
     // Node Status Snapshots
     // swiftlint:disable:next line_length

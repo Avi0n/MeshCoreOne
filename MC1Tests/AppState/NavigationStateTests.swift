@@ -15,7 +15,7 @@ struct NavigationStateTests {
     ) -> ContactDTO {
         ContactDTO(
             id: id,
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0xAA, count: 32),
             name: name,
             typeRawValue: 0x01,
@@ -45,7 +45,7 @@ struct NavigationStateTests {
     ) -> ChannelDTO {
         ChannelDTO(
             id: id,
-            deviceID: UUID(),
+            radioID: UUID(),
             index: index,
             name: name,
             secret: Data(),
@@ -64,7 +64,7 @@ struct NavigationStateTests {
     ) -> RemoteNodeSessionDTO {
         RemoteNodeSessionDTO(
             id: id,
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0xBB, count: 32),
             name: name,
             role: .roomServer,

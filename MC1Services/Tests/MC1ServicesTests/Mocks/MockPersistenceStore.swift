@@ -36,8 +36,8 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     public private(set) var deletedContactIDs: [UUID] = []
     public private(set) var deletedChannelIDs: [UUID] = []
     public private(set) var deletedMessagesForContactIDs: [UUID] = []
-    public private(set) var deletedMessagesForChannelCalls: [(deviceID: UUID, channelIndex: UInt8)] = []
-    public private(set) var deletedChannelMessagesFromSenderCalls: [(senderName: String, deviceID: UUID)] = []
+    public private(set) var deletedMessagesForChannelCalls: [(radioID: UUID, channelIndex: UInt8)] = []
+    public private(set) var deletedChannelMessagesFromSenderCalls: [(senderName: String, radioID: UUID)] = []
     public private(set) var updatedMessageStatuses: [(id: UUID, status: MessageStatus)] = []
     public private(set) var updatedMessageAcks: [(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?)] = []
 
@@ -84,11 +84,11 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         return result
     }
 
-    public func fetchLastChannelMessages(channels: [(deviceID: UUID, channelIndex: UInt8, id: UUID)], limit: Int) throws -> [UUID: [MessageDTO]] {
+    public func fetchLastChannelMessages(channels: [(radioID: UUID, channelIndex: UInt8, id: UUID)], limit: Int) throws -> [UUID: [MessageDTO]] {
         if let error = stubbedFetchMessageError { throw error }
         var result: [UUID: [MessageDTO]] = [:]
         for channel in channels {
-            let filtered = messages.values.filter { $0.deviceID == channel.deviceID && $0.channelIndex == channel.channelIndex }
+            let filtered = messages.values.filter { $0.radioID == channel.radioID && $0.channelIndex == channel.channelIndex }
                 .sorted { $0.timestamp < $1.timestamp }
             result[channel.id] = Array(filtered.prefix(limit))
         }
@@ -104,17 +104,17 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         return Array(filtered.dropFirst(offset).prefix(limit))
     }
 
-    public func fetchMessages(deviceID: UUID, channelIndex: UInt8, limit: Int, offset: Int) async throws -> [MessageDTO] {
+    public func fetchMessages(radioID: UUID, channelIndex: UInt8, limit: Int, offset: Int) async throws -> [MessageDTO] {
         if let error = stubbedFetchMessageError {
             throw error
         }
-        let filtered = messages.values.filter { $0.deviceID == deviceID && $0.channelIndex == channelIndex }
+        let filtered = messages.values.filter { $0.radioID == radioID && $0.channelIndex == channelIndex }
             .sorted { $0.timestamp < $1.timestamp }
         return Array(filtered.dropFirst(offset).prefix(limit))
     }
 
     public func findChannelMessageForReaction(
-        deviceID: UUID,
+        radioID: UUID,
         channelIndex: UInt8,
         parsedReaction: ParsedReaction,
         localNodeName: String?,
@@ -122,7 +122,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         limit: Int
     ) async throws -> MessageDTO? {
         let candidates = try await fetchChannelMessageCandidates(
-            deviceID: deviceID,
+            radioID: radioID,
             channelIndex: channelIndex,
             timestampWindow: timestampWindow,
             limit: limit
@@ -152,7 +152,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
 
     public func fetchChannelMessageCandidates(
-        deviceID: UUID,
+        radioID: UUID,
         channelIndex: UInt8,
         timestampWindow: ClosedRange<UInt32>,
         limit: Int
@@ -162,7 +162,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         }
 
         return messages.values.filter {
-            $0.deviceID == deviceID &&
+            $0.radioID == radioID &&
             $0.channelIndex == channelIndex &&
             timestampWindow.contains($0.timestamp)
         }
@@ -175,7 +175,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
 
     public func fetchDMMessageCandidates(
-        deviceID: UUID,
+        radioID: UUID,
         contactID: UUID,
         timestampWindow: ClosedRange<UInt32>,
         limit: Int
@@ -185,7 +185,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         }
 
         return messages.values.filter {
-            $0.deviceID == deviceID &&
+            $0.radioID == radioID &&
             $0.contactID == contactID &&
             timestampWindow.contains($0.timestamp)
         }
@@ -198,14 +198,14 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
 
     public func findDMMessageForReaction(
-        deviceID: UUID,
+        radioID: UUID,
         contactID: UUID,
         messageHash: String,
         timestampWindow: ClosedRange<UInt32>,
         limit: Int
     ) async throws -> MessageDTO? {
         let candidates = try await fetchDMMessageCandidates(
-            deviceID: deviceID,
+            radioID: radioID,
             contactID: contactID,
             timestampWindow: timestampWindow,
             limit: limit
@@ -235,7 +235,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if var message = messages[id] {
             messages[id] = MessageDTO(
                 id: message.id,
-                deviceID: message.deviceID,
+                radioID: message.radioID,
                 contactID: message.contactID,
                 channelIndex: message.channelIndex,
                 text: message.text,
@@ -267,7 +267,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if var message = messages[id] {
             messages[id] = MessageDTO(
                 id: message.id,
-                deviceID: message.deviceID,
+                radioID: message.radioID,
                 contactID: message.contactID,
                 channelIndex: message.channelIndex,
                 text: message.text,
@@ -304,7 +304,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let message = messages[id] {
             messages[id] = MessageDTO(
                 id: message.id,
-                deviceID: message.deviceID,
+                radioID: message.radioID,
                 contactID: message.contactID,
                 channelIndex: message.channelIndex,
                 text: message.text,
@@ -333,7 +333,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let message = messages[id] {
             messages[id] = MessageDTO(
                 id: message.id,
-                deviceID: message.deviceID,
+                radioID: message.radioID,
                 contactID: message.contactID,
                 channelIndex: message.channelIndex,
                 text: message.text,
@@ -362,7 +362,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let message = messages[id] {
             messages[id] = MessageDTO(
                 id: message.id,
-                deviceID: message.deviceID,
+                radioID: message.radioID,
                 contactID: message.contactID,
                 channelIndex: message.channelIndex,
                 text: message.text,
@@ -397,7 +397,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let message = messages[id] {
             messages[id] = MessageDTO(
                 id: message.id,
-                deviceID: message.deviceID,
+                radioID: message.radioID,
                 contactID: message.contactID,
                 channelIndex: message.channelIndex,
                 text: message.text,
@@ -428,19 +428,19 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
     // MARK: - Contact Operations
 
-    public func fetchContacts(deviceID: UUID) async throws -> [ContactDTO] {
+    public func fetchContacts(radioID: UUID) async throws -> [ContactDTO] {
         if let error = stubbedFetchContactError {
             throw error
         }
-        return Array(contacts.values.filter { $0.deviceID == deviceID })
+        return Array(contacts.values.filter { $0.radioID == radioID })
     }
 
-    public func fetchConversations(deviceID: UUID) async throws -> [ContactDTO] {
+    public func fetchConversations(radioID: UUID) async throws -> [ContactDTO] {
         if let error = stubbedFetchContactError {
             throw error
         }
         return contacts.values
-            .filter { $0.deviceID == deviceID && $0.lastMessageDate != nil }
+            .filter { $0.radioID == radioID && $0.lastMessageDate != nil }
             .sorted { ($0.lastMessageDate ?? .distantPast) > ($1.lastMessageDate ?? .distantPast) }
     }
 
@@ -451,27 +451,27 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         return contacts[id]
     }
 
-    public func fetchContact(deviceID: UUID, publicKey: Data) async throws -> ContactDTO? {
+    public func fetchContact(radioID: UUID, publicKey: Data) async throws -> ContactDTO? {
         if let error = stubbedFetchContactError {
             throw error
         }
-        return contacts.values.first { $0.deviceID == deviceID && $0.publicKey == publicKey }
+        return contacts.values.first { $0.radioID == radioID && $0.publicKey == publicKey }
     }
 
-    public func fetchContact(deviceID: UUID, publicKeyPrefix: Data) async throws -> ContactDTO? {
+    public func fetchContact(radioID: UUID, publicKeyPrefix: Data) async throws -> ContactDTO? {
         if let error = stubbedFetchContactError {
             throw error
         }
-        return contacts.values.first { $0.deviceID == deviceID && $0.publicKey.prefix(6) == publicKeyPrefix }
+        return contacts.values.first { $0.radioID == radioID && $0.publicKey.prefix(6) == publicKeyPrefix }
     }
 
-    public func fetchContactPublicKeysByPrefix(deviceID: UUID) async throws -> [UInt8: [Data]] {
+    public func fetchContactPublicKeysByPrefix(radioID: UUID) async throws -> [UInt8: [Data]] {
         if let error = stubbedFetchContactError {
             throw error
         }
         var result: [UInt8: [Data]] = [:]
         for contact in contacts.values {
-            guard contact.deviceID == deviceID, contact.publicKey.count >= 1 else { continue }
+            guard contact.radioID == radioID, contact.publicKey.count >= 1 else { continue }
             let prefix = contact.publicKey[0]
             result[prefix, default: []].append(contact.publicKey)
         }
@@ -479,18 +479,18 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
 
     @discardableResult
-    public func saveContact(deviceID: UUID, from frame: ContactFrame) async throws -> UUID {
+    public func saveContact(radioID: UUID, from frame: ContactFrame) async throws -> UUID {
         if let error = stubbedSaveContactError {
             throw error
         }
         // Check if contact already exists
-        if let existing = contacts.values.first(where: { $0.deviceID == deviceID && $0.publicKey == frame.publicKey }) {
+        if let existing = contacts.values.first(where: { $0.radioID == radioID && $0.publicKey == frame.publicKey }) {
             return existing.id
         }
         let id = UUID()
         let dto = ContactDTO(
             id: id,
-            deviceID: deviceID,
+            radioID: radioID,
             publicKey: frame.publicKey,
             name: frame.name,
             typeRawValue: frame.type.rawValue,
@@ -533,7 +533,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let contact = contacts[contactID] {
             contacts[contactID] = ContactDTO(
                 id: contact.id,
-                deviceID: contact.deviceID,
+                radioID: contact.radioID,
                 publicKey: contact.publicKey,
                 name: contact.name,
                 typeRawValue: contact.typeRawValue,
@@ -559,7 +559,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let contact = contacts[contactID] {
             contacts[contactID] = ContactDTO(
                 id: contact.id,
-                deviceID: contact.deviceID,
+                radioID: contact.radioID,
                 publicKey: contact.publicKey,
                 name: contact.name,
                 typeRawValue: contact.typeRawValue,
@@ -585,7 +585,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let contact = contacts[contactID] {
             contacts[contactID] = ContactDTO(
                 id: contact.id,
-                deviceID: contact.deviceID,
+                radioID: contact.radioID,
                 publicKey: contact.publicKey,
                 name: contact.name,
                 typeRawValue: contact.typeRawValue,
@@ -613,7 +613,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let message = messages[messageID] {
             messages[messageID] = MessageDTO(
                 id: message.id,
-                deviceID: message.deviceID,
+                radioID: message.radioID,
                 contactID: message.contactID,
                 channelIndex: message.channelIndex,
                 text: message.text,
@@ -649,7 +649,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let contact = contacts[contactID] {
             contacts[contactID] = ContactDTO(
                 id: contact.id,
-                deviceID: contact.deviceID,
+                radioID: contact.radioID,
                 publicKey: contact.publicKey,
                 name: contact.name,
                 typeRawValue: contact.typeRawValue,
@@ -675,7 +675,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let contact = contacts[contactID] {
             contacts[contactID] = ContactDTO(
                 id: contact.id,
-                deviceID: contact.deviceID,
+                radioID: contact.radioID,
                 publicKey: contact.publicKey,
                 name: contact.name,
                 typeRawValue: contact.typeRawValue,
@@ -701,7 +701,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let contact = contacts[contactID] {
             contacts[contactID] = ContactDTO(
                 id: contact.id,
-                deviceID: contact.deviceID,
+                radioID: contact.radioID,
                 publicKey: contact.publicKey,
                 name: contact.name,
                 typeRawValue: contact.typeRawValue,
@@ -727,7 +727,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let channel = channels[channelID] {
             channels[channelID] = ChannelDTO(
                 id: channel.id,
-                deviceID: channel.deviceID,
+                radioID: channel.radioID,
                 index: channel.index,
                 name: channel.name,
                 secret: channel.secret,
@@ -745,7 +745,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let channel = channels[channelID] {
             channels[channelID] = ChannelDTO(
                 id: channel.id,
-                deviceID: channel.deviceID,
+                radioID: channel.radioID,
                 index: channel.index,
                 name: channel.name,
                 secret: channel.secret,
@@ -763,7 +763,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let channel = channels[channelID] {
             channels[channelID] = ChannelDTO(
                 id: channel.id,
-                deviceID: channel.deviceID,
+                radioID: channel.radioID,
                 index: channel.index,
                 name: channel.name,
                 secret: channel.secret,
@@ -784,9 +784,9 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
             .map(\.id)
     }
 
-    public func fetchUnseenChannelMentionIDs(deviceID: UUID, channelIndex: UInt8) async throws -> [UUID] {
+    public func fetchUnseenChannelMentionIDs(radioID: UUID, channelIndex: UInt8) async throws -> [UUID] {
         messages.values
-            .filter { $0.deviceID == deviceID && $0.channelIndex == channelIndex && $0.containsSelfMention && !$0.mentionSeen }
+            .filter { $0.radioID == radioID && $0.channelIndex == channelIndex && $0.containsSelfMention && !$0.mentionSeen }
             .sorted { $0.timestamp < $1.timestamp }
             .map(\.id)
     }
@@ -796,47 +796,47 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         messages = messages.filter { $0.value.contactID != contactID }
     }
 
-    public func fetchBlockedContacts(deviceID: UUID) async throws -> [ContactDTO] {
+    public func fetchBlockedContacts(radioID: UUID) async throws -> [ContactDTO] {
         if let error = stubbedFetchContactError {
             throw error
         }
-        return Array(contacts.values.filter { $0.deviceID == deviceID && $0.isBlocked })
+        return Array(contacts.values.filter { $0.radioID == radioID && $0.isBlocked })
     }
 
     // MARK: - Blocked Channel Senders
 
     public var blockedChannelSenders: [String: BlockedChannelSenderDTO] = [:]
     public private(set) var savedBlockedChannelSenders: [BlockedChannelSenderDTO] = []
-    public private(set) var deletedBlockedChannelSenderNames: [(deviceID: UUID, name: String)] = []
+    public private(set) var deletedBlockedChannelSenderNames: [(radioID: UUID, name: String)] = []
 
     public func saveBlockedChannelSender(_ dto: BlockedChannelSenderDTO) async throws {
         savedBlockedChannelSenders.append(dto)
-        blockedChannelSenders["\(dto.deviceID)-\(dto.name)"] = dto
+        blockedChannelSenders["\(dto.radioID)-\(dto.name)"] = dto
     }
 
-    public func deleteBlockedChannelSender(deviceID: UUID, name: String) async throws {
-        deletedBlockedChannelSenderNames.append((deviceID: deviceID, name: name))
-        blockedChannelSenders.removeValue(forKey: "\(deviceID)-\(name)")
+    public func deleteBlockedChannelSender(radioID: UUID, name: String) async throws {
+        deletedBlockedChannelSenderNames.append((radioID: radioID, name: name))
+        blockedChannelSenders.removeValue(forKey: "\(radioID)-\(name)")
     }
 
-    public func fetchBlockedChannelSenders(deviceID: UUID) async throws -> [BlockedChannelSenderDTO] {
-        Array(blockedChannelSenders.values.filter { $0.deviceID == deviceID })
+    public func fetchBlockedChannelSenders(radioID: UUID) async throws -> [BlockedChannelSenderDTO] {
+        Array(blockedChannelSenders.values.filter { $0.radioID == radioID })
     }
 
     // MARK: - Channel Operations
 
-    public func fetchChannels(deviceID: UUID) async throws -> [ChannelDTO] {
+    public func fetchChannels(radioID: UUID) async throws -> [ChannelDTO] {
         if let error = stubbedFetchChannelError {
             throw error
         }
-        return channels.values.filter { $0.deviceID == deviceID }.sorted { $0.index < $1.index }
+        return channels.values.filter { $0.radioID == radioID }.sorted { $0.index < $1.index }
     }
 
-    public func fetchChannel(deviceID: UUID, index: UInt8) async throws -> ChannelDTO? {
+    public func fetchChannel(radioID: UUID, index: UInt8) async throws -> ChannelDTO? {
         if let error = stubbedFetchChannelError {
             throw error
         }
-        return channels.values.first { $0.deviceID == deviceID && $0.index == index }
+        return channels.values.first { $0.radioID == radioID && $0.index == index }
     }
 
     public func fetchChannel(id: UUID) async throws -> ChannelDTO? {
@@ -847,16 +847,16 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
 
     @discardableResult
-    public func saveChannel(deviceID: UUID, from info: ChannelInfo) async throws -> UUID {
+    public func saveChannel(radioID: UUID, from info: ChannelInfo) async throws -> UUID {
         if let error = stubbedSaveChannelError {
             throw error
         }
         // Check if channel already exists
-        if let existing = channels.values.first(where: { $0.deviceID == deviceID && $0.index == info.index }) {
+        if let existing = channels.values.first(where: { $0.radioID == radioID && $0.index == info.index }) {
             // Update existing
             channels[existing.id] = ChannelDTO(
                 id: existing.id,
-                deviceID: deviceID,
+                radioID: radioID,
                 index: info.index,
                 name: info.name,
                 secret: info.secret,
@@ -872,7 +872,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         let id = UUID()
         let dto = ChannelDTO(
             id: id,
-            deviceID: deviceID,
+            radioID: radioID,
             index: info.index,
             name: info.name,
             secret: info.secret,
@@ -904,15 +904,15 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         channels.removeValue(forKey: id)
     }
 
-    public func deleteMessagesForChannel(deviceID: UUID, channelIndex: UInt8) async throws {
-        deletedMessagesForChannelCalls.append((deviceID: deviceID, channelIndex: channelIndex))
-        messages = messages.filter { $0.value.deviceID != deviceID || $0.value.channelIndex != channelIndex }
+    public func deleteMessagesForChannel(radioID: UUID, channelIndex: UInt8) async throws {
+        deletedMessagesForChannelCalls.append((radioID: radioID, channelIndex: channelIndex))
+        messages = messages.filter { $0.value.radioID != radioID || $0.value.channelIndex != channelIndex }
     }
 
-    public func deleteChannelMessages(fromSender senderName: String, deviceID: UUID) async throws {
-        deletedChannelMessagesFromSenderCalls.append((senderName: senderName, deviceID: deviceID))
+    public func deleteChannelMessages(fromSender senderName: String, radioID: UUID) async throws {
+        deletedChannelMessagesFromSenderCalls.append((senderName: senderName, radioID: radioID))
         messages = messages.filter { _, msg in
-            !(msg.senderNodeName == senderName && msg.deviceID == deviceID && msg.channelIndex != nil)
+            !(msg.senderNodeName == senderName && msg.radioID == radioID && msg.channelIndex != nil)
         }
     }
 
@@ -920,7 +920,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let channel = channels[channelID] {
             channels[channelID] = ChannelDTO(
                 id: channel.id,
-                deviceID: channel.deviceID,
+                radioID: channel.radioID,
                 index: channel.index,
                 name: channel.name,
                 secret: channel.secret,
@@ -938,7 +938,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let channel = channels[channelID] {
             channels[channelID] = ChannelDTO(
                 id: channel.id,
-                deviceID: channel.deviceID,
+                radioID: channel.radioID,
                 index: channel.index,
                 name: channel.name,
                 secret: channel.secret,
@@ -956,7 +956,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let channel = channels[channelID] {
             channels[channelID] = ChannelDTO(
                 id: channel.id,
-                deviceID: channel.deviceID,
+                radioID: channel.radioID,
                 index: channel.index,
                 name: channel.name,
                 secret: channel.secret,
@@ -974,7 +974,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let channel = channels[channelID] {
             channels[channelID] = ChannelDTO(
                 id: channel.id,
-                deviceID: channel.deviceID,
+                radioID: channel.radioID,
                 index: channel.index,
                 name: channel.name,
                 secret: channel.secret,
@@ -1034,20 +1034,20 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
     public var savedTracePaths: [UUID: SavedTracePathDTO] = [:]
 
-    public func fetchSavedTracePaths(deviceID: UUID) async throws -> [SavedTracePathDTO] {
-        savedTracePaths.values.filter { $0.deviceID == deviceID }.sorted(by: { $0.createdDate > $1.createdDate })
+    public func fetchSavedTracePaths(radioID: UUID) async throws -> [SavedTracePathDTO] {
+        savedTracePaths.values.filter { $0.radioID == radioID }.sorted(by: { $0.createdDate > $1.createdDate })
     }
 
     public func fetchSavedTracePath(id: UUID) async throws -> SavedTracePathDTO? {
         savedTracePaths[id]
     }
 
-    public func createSavedTracePath(deviceID: UUID, name: String, pathBytes: Data, hashSize: Int, initialRun: TracePathRunDTO?) async throws -> SavedTracePathDTO {
+    public func createSavedTracePath(radioID: UUID, name: String, pathBytes: Data, hashSize: Int, initialRun: TracePathRunDTO?) async throws -> SavedTracePathDTO {
         let id = UUID()
         let runs = initialRun.map { [$0] } ?? []
         let dto = SavedTracePathDTO(
             id: id,
-            deviceID: deviceID,
+            radioID: radioID,
             name: name,
             pathBytes: pathBytes,
             hashSize: hashSize,
@@ -1062,7 +1062,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let path = savedTracePaths[id] {
             savedTracePaths[id] = SavedTracePathDTO(
                 id: path.id,
-                deviceID: path.deviceID,
+                radioID: path.radioID,
                 name: name,
                 pathBytes: path.pathBytes,
                 hashSize: path.hashSize,
@@ -1082,7 +1082,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
             runs.append(run)
             savedTracePaths[pathID] = SavedTracePathDTO(
                 id: path.id,
-                deviceID: path.deviceID,
+                radioID: path.radioID,
                 name: path.name,
                 pathBytes: path.pathBytes,
                 hashSize: path.hashSize,
@@ -1094,7 +1094,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
     // MARK: - Heard Repeats
 
-    public func findSentChannelMessage(deviceID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String, withinSeconds: Int) async throws -> MessageDTO? {
+    public func findSentChannelMessage(radioID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String, withinSeconds: Int) async throws -> MessageDTO? {
         return nil // Stub
     }
 
@@ -1123,7 +1123,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
             let newCount = message.sendCount + 1
             messages[id] = MessageDTO(
                 id: message.id,
-                deviceID: message.deviceID,
+                radioID: message.radioID,
                 contactID: message.contactID,
                 channelIndex: message.channelIndex,
                 text: message.text,
@@ -1312,11 +1312,11 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
     public var discoveredNodes: [UUID: DiscoveredNodeDTO] = [:]
 
-    public func upsertDiscoveredNode(deviceID: UUID, from frame: ContactFrame) async throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
-        if let existing = discoveredNodes.values.first(where: { $0.deviceID == deviceID && $0.publicKey == frame.publicKey }) {
+    public func upsertDiscoveredNode(radioID: UUID, from frame: ContactFrame) async throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
+        if let existing = discoveredNodes.values.first(where: { $0.radioID == radioID && $0.publicKey == frame.publicKey }) {
             let updated = DiscoveredNodeDTO(
                 id: existing.id,
-                deviceID: deviceID,
+                radioID: radioID,
                 publicKey: frame.publicKey,
                 name: frame.name,
                 typeRawValue: frame.type.rawValue,
@@ -1334,7 +1334,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         let id = UUID()
         let dto = DiscoveredNodeDTO(
             id: id,
-            deviceID: deviceID,
+            radioID: radioID,
             publicKey: frame.publicKey,
             name: frame.name,
             typeRawValue: frame.type.rawValue,
@@ -1349,28 +1349,28 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         return (node: dto, isNew: true)
     }
 
-    public func fetchDiscoveredNodes(deviceID: UUID) async throws -> [DiscoveredNodeDTO] {
-        discoveredNodes.values.filter { $0.deviceID == deviceID }
+    public func fetchDiscoveredNodes(radioID: UUID) async throws -> [DiscoveredNodeDTO] {
+        discoveredNodes.values.filter { $0.radioID == radioID }
     }
 
     public func deleteDiscoveredNode(id: UUID) async throws {
         discoveredNodes.removeValue(forKey: id)
     }
 
-    public func clearDiscoveredNodes(deviceID: UUID) async throws {
+    public func clearDiscoveredNodes(radioID: UUID) async throws {
         let keysToRemove = discoveredNodes.values
-            .filter { $0.deviceID == deviceID }
+            .filter { $0.radioID == radioID }
             .map(\.id)
         for key in keysToRemove {
             discoveredNodes.removeValue(forKey: key)
         }
     }
 
-    public func fetchContactPublicKeys(deviceID: UUID) async throws -> Set<Data> {
+    public func fetchContactPublicKeys(radioID: UUID) async throws -> Set<Data> {
         if let error = stubbedFetchContactError {
             throw error
         }
-        return Set(contacts.values.filter { $0.deviceID == deviceID }.map(\.publicKey))
+        return Set(contacts.values.filter { $0.radioID == radioID }.map(\.publicKey))
     }
 
     // MARK: - Reactions
@@ -1398,7 +1398,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let message = messages[messageID] {
             messages[messageID] = MessageDTO(
                 id: message.id,
-                deviceID: message.deviceID,
+                radioID: message.radioID,
                 contactID: message.contactID,
                 channelIndex: message.channelIndex,
                 text: message.text,

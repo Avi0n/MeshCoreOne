@@ -184,14 +184,14 @@ extension ChatViewModel {
     }
 
     /// Load conversations for a device
-    func loadConversations(deviceID: UUID) async {
+    func loadConversations(radioID: UUID) async {
         guard let dataStore else { return }
 
         isLoading = true
         errorMessage = nil
 
         do {
-            conversations = try await dataStore.fetchConversations(deviceID: deviceID)
+            conversations = try await dataStore.fetchConversations(radioID: radioID)
             invalidateConversationCache()
         } catch {
             errorMessage = error.localizedDescription
@@ -202,11 +202,11 @@ extension ChatViewModel {
     }
 
     /// Load all contacts for mention autocomplete
-    func loadAllContacts(deviceID: UUID) async {
+    func loadAllContacts(radioID: UUID) async {
         guard let dataStore else { return }
 
         do {
-            allContacts = try await dataStore.fetchContacts(deviceID: deviceID)
+            allContacts = try await dataStore.fetchContacts(radioID: radioID)
             contactNameSet = Set(allContacts.map(\.name))
         } catch {
             logger.warning("Failed to load contacts for mentions: \(error.localizedDescription)")
@@ -214,11 +214,11 @@ extension ChatViewModel {
     }
 
     /// Load channels for a device
-    func loadChannels(deviceID: UUID) async {
+    func loadChannels(radioID: UUID) async {
         guard let dataStore else { return }
 
         do {
-            channels = try await dataStore.fetchChannels(deviceID: deviceID)
+            channels = try await dataStore.fetchChannels(radioID: radioID)
             invalidateConversationCache()
         } catch {
             // Silently handle - channels are optional
@@ -228,7 +228,7 @@ extension ChatViewModel {
     /// Load all conversations (contacts + channels + rooms) for unified display.
     /// Fetches into local variables first, then applies all mutations in a single
     /// synchronous block so SwiftUI sees one consistent state update.
-    func loadAllConversations(deviceID: UUID) async {
+    func loadAllConversations(radioID: UUID) async {
         guard let dataStore else { return }
 
         isLoading = true
@@ -240,19 +240,19 @@ extension ChatViewModel {
         var fetchedRoomSessions: [RemoteNodeSessionDTO]?
 
         do {
-            fetchedConversations = try await dataStore.fetchConversations(deviceID: deviceID)
+            fetchedConversations = try await dataStore.fetchConversations(radioID: radioID)
         } catch {
             errorMessage = error.localizedDescription
         }
 
         do {
-            fetchedChannels = try await dataStore.fetchChannels(deviceID: deviceID)
+            fetchedChannels = try await dataStore.fetchChannels(radioID: radioID)
         } catch {
             // Silently handle — channels are optional
         }
 
         do {
-            let sessions = try await dataStore.fetchRemoteNodeSessions(deviceID: deviceID)
+            let sessions = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
             fetchedRoomSessions = sessions.filter { $0.isRoom }
         } catch {
             // Silently handle — rooms are optional
@@ -339,7 +339,7 @@ extension ChatViewModel {
                                 messageHash: pending.parsed.messageHash,
                                 rawText: pending.rawText,
                                 contactID: contact.id,
-                                deviceID: contact.deviceID
+                                radioID: contact.radioID
                             )
                             if let result = await reactionService.persistReactionAndUpdateSummary(
                                 reactionDTO,
@@ -411,8 +411,8 @@ extension ChatViewModel {
 
         // Add sender to channelSenders if new (for channel messages)
         if let senderName = message.senderNodeName,
-           let deviceID = currentChannel?.deviceID {
-            addChannelSenderIfNew(senderName, deviceID: deviceID)
+           let radioID = currentChannel?.radioID {
+            addChannelSenderIfNew(senderName, radioID: radioID)
         }
     }
 
@@ -522,7 +522,7 @@ extension ChatViewModel {
                 )
             } else if let channel {
                 olderMessages = try await dataStore.fetchMessages(
-                    deviceID: channel.deviceID,
+                    radioID: channel.radioID,
                     channelIndex: channel.index,
                     limit: pageSize,
                     offset: currentOffset
@@ -566,7 +566,7 @@ extension ChatViewModel {
             if let channel,
                let reactionService = appState?.services?.reactionService {
                 let localNodeName = appState?.connectedDevice?.nodeName
-                let deviceID = appState?.connectedDevice?.id ?? UUID()
+                let radioID = appState?.connectedDevice?.radioID ?? UUID()
                 for message in olderMessages {
                     let senderName: String?
                     if message.isOutgoing {
@@ -599,7 +599,7 @@ extension ChatViewModel {
                                     messageHash: pending.parsed.messageHash,
                                     rawText: pending.rawText,
                                     channelIndex: pending.channelIndex,
-                                    deviceID: deviceID
+                                    radioID: radioID
                                 )
                                 if let result = await reactionService.persistReactionAndUpdateSummary(
                                     reactionDTO,
@@ -640,7 +640,7 @@ extension ChatViewModel {
                                 messageHash: pending.parsed.messageHash,
                                 rawText: pending.rawText,
                                 contactID: contact.id,
-                                deviceID: contact.deviceID
+                                radioID: contact.radioID
                             )
                             if let result = await reactionService.persistReactionAndUpdateSummary(
                                 reactionDTO,
@@ -703,7 +703,7 @@ extension ChatViewModel {
         // Batch fetch channel message previews (single actor hop)
         if !channels.isEmpty {
             do {
-                let channelParams = channels.map { (deviceID: $0.deviceID, channelIndex: $0.index, id: $0.id) }
+                let channelParams = channels.map { (radioID: $0.radioID, channelIndex: $0.index, id: $0.id) }
                 let channelMessages = try await dataStore.fetchLastChannelMessages(channels: channelParams, limit: 20)
                 for channel in channels {
                     guard let messages = channelMessages[channel.id] else { continue }
@@ -947,7 +947,7 @@ extension ChatViewModel {
 
         // Snapshot before suspensions — currentContact can change if user switches conversations
         let contact = currentContact
-        var lastDeviceID: UUID?
+        var lastRadioID: UUID?
 
         // Process messages with re-check after reload to catch any that arrived during reload
         repeat {
@@ -961,7 +961,7 @@ extension ChatViewModel {
                     continue
                 }
 
-                lastDeviceID = contact.deviceID
+                lastRadioID = contact.radioID
 
                 do {
                     _ = try await messageService.retryDirectMessage(
@@ -977,8 +977,8 @@ extension ChatViewModel {
             if let contact {
                 await loadMessages(for: contact)
             }
-            if let deviceID = lastDeviceID {
-                await loadConversations(deviceID: deviceID)
+            if let radioID = lastRadioID {
+                await loadConversations(radioID: radioID)
             }
         } while !sendQueue.isEmpty
     }

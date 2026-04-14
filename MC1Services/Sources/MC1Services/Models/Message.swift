@@ -22,11 +22,11 @@ public enum MessageDirection: Int, Sendable, Codable {
 @Model
 public final class Message {
     #Index<Message>(
-        [\.deviceID, \.channelIndex, \.createdAt],
-        [\.deviceID, \.channelIndex, \.timestamp],
+        [\.radioID, \.channelIndex, \.createdAt],
+        [\.radioID, \.channelIndex, \.timestamp],
         [\.contactID, \.createdAt],
         [\.contactID, \.containsSelfMention, \.mentionSeen],
-        [\.deviceID, \.channelIndex, \.containsSelfMention, \.mentionSeen],
+        [\.radioID, \.channelIndex, \.containsSelfMention, \.mentionSeen],
         [\.deduplicationKey]
     )
 
@@ -35,7 +35,8 @@ public final class Message {
     public var id: UUID
 
     /// The device this message belongs to
-    public var deviceID: UUID
+    @Attribute(originalName: "deviceID")
+    public var radioID: UUID
 
     /// Contact ID for direct messages (nil for channel messages)
     public var contactID: UUID?
@@ -147,7 +148,7 @@ public final class Message {
 
     public init(
         id: UUID = UUID(),
-        deviceID: UUID,
+        radioID: UUID,
         contactID: UUID? = nil,
         channelIndex: UInt8? = nil,
         text: String,
@@ -183,7 +184,7 @@ public final class Message {
         routeTypeRawValue: Int = -1
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.contactID = contactID
         self.channelIndex = channelIndex
         self.text = text
@@ -266,7 +267,7 @@ public extension Message {
 /// A sendable snapshot of Message for cross-actor transfers
 public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable {
     public var id: UUID
-    public var deviceID: UUID
+    public var radioID: UUID
     public var contactID: UUID?
     public var channelIndex: UInt8?
     public var text: String
@@ -303,7 +304,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable {
 
     public init(from message: Message) {
         self.id = message.id
-        self.deviceID = message.deviceID
+        self.radioID = message.radioID
         self.contactID = message.contactID
         self.channelIndex = message.channelIndex
         self.text = message.text
@@ -343,7 +344,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable {
     /// Memberwise initializer for creating DTOs directly
     public init(
         id: UUID,
-        deviceID: UUID,
+        radioID: UUID,
         contactID: UUID?,
         channelIndex: UInt8?,
         text: String,
@@ -379,7 +380,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable {
         routeType: RouteType? = nil
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.contactID = contactID
         self.channelIndex = channelIndex
         self.text = text

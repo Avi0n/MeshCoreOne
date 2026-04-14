@@ -9,10 +9,10 @@ struct SyncCoordinatorMessageHandlerTests {
 
     // MARK: - Test Helpers
 
-    private func createTestDataStore(deviceID: UUID) async throws -> PersistenceStore {
+    private func createTestDataStore(radioID: UUID) async throws -> PersistenceStore {
         let container = try PersistenceStore.createContainer(inMemory: true)
         let store = PersistenceStore(modelContainer: container)
-        let device = DeviceDTO.testDevice(id: deviceID, nodeName: "TestNode")
+        let device = DeviceDTO.testDevice(id: radioID, nodeName: "TestNode")
         try await store.saveDevice(device)
         return store
     }
@@ -108,17 +108,17 @@ struct SyncCoordinatorMessageHandlerTests {
     @Test("refreshBlockedContactsCache loads blocked contacts by name")
     func refreshBlockedCacheLoads() async throws {
         let coordinator = SyncCoordinator()
-        let deviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: deviceID)
+        let radioID = UUID()
+        let dataStore = try await createTestDataStore(radioID: radioID)
 
         let blockedContact = ContactDTO.testContact(
-            deviceID: deviceID,
+            radioID: radioID,
             name: "BlockedPerson",
             isBlocked: true
         )
         try await dataStore.saveContact(blockedContact)
 
-        await coordinator.refreshBlockedContactsCache(deviceID: deviceID, dataStore: dataStore)
+        await coordinator.refreshBlockedContactsCache(radioID: radioID, dataStore: dataStore)
 
         let result = await coordinator.isBlockedSender("BlockedPerson")
         #expect(result, "Blocked contact name should be in cache")
@@ -127,17 +127,17 @@ struct SyncCoordinatorMessageHandlerTests {
     @Test("refreshBlockedContactsCache does not cache non-blocked contacts")
     func refreshBlockedCacheIgnoresUnblocked() async throws {
         let coordinator = SyncCoordinator()
-        let deviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: deviceID)
+        let radioID = UUID()
+        let dataStore = try await createTestDataStore(radioID: radioID)
 
         let normalContact = ContactDTO.testContact(
-            deviceID: deviceID,
+            radioID: radioID,
             name: "NormalPerson",
             isBlocked: false
         )
         try await dataStore.saveContact(normalContact)
 
-        await coordinator.refreshBlockedContactsCache(deviceID: deviceID, dataStore: dataStore)
+        await coordinator.refreshBlockedContactsCache(radioID: radioID, dataStore: dataStore)
 
         let result = await coordinator.isBlockedSender("NormalPerson")
         #expect(!result, "Non-blocked contact name should not be in cache")
@@ -146,23 +146,23 @@ struct SyncCoordinatorMessageHandlerTests {
     @Test("refreshBlockedContactsCache replaces previous cache")
     func refreshBlockedCacheReplaces() async throws {
         let coordinator = SyncCoordinator()
-        let deviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: deviceID)
+        let radioID = UUID()
+        let dataStore = try await createTestDataStore(radioID: radioID)
 
         // First: add a blocked contact
         let contact = ContactDTO.testContact(
             id: UUID(),
-            deviceID: deviceID,
+            radioID: radioID,
             name: "WasBlocked",
             isBlocked: true
         )
         try await dataStore.saveContact(contact)
-        await coordinator.refreshBlockedContactsCache(deviceID: deviceID, dataStore: dataStore)
+        await coordinator.refreshBlockedContactsCache(radioID: radioID, dataStore: dataStore)
         #expect(await coordinator.isBlockedSender("WasBlocked"))
 
         // Delete the contact and refresh — cache should be empty
         try await dataStore.deleteContact(id: contact.id)
-        await coordinator.refreshBlockedContactsCache(deviceID: deviceID, dataStore: dataStore)
+        await coordinator.refreshBlockedContactsCache(radioID: radioID, dataStore: dataStore)
         #expect(await !coordinator.isBlockedSender("WasBlocked"))
     }
 
@@ -176,15 +176,15 @@ struct SyncCoordinatorMessageHandlerTests {
     @Test("blockedSenderNames returns snapshot of cached names")
     func blockedSenderNamesReturnsSnapshot() async throws {
         let coordinator = SyncCoordinator()
-        let deviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: deviceID)
+        let radioID = UUID()
+        let dataStore = try await createTestDataStore(radioID: radioID)
 
-        let blocked1 = ContactDTO.testContact(deviceID: deviceID, name: "Blocked1", isBlocked: true)
-        let blocked2 = ContactDTO.testContact(deviceID: deviceID, name: "Blocked2", isBlocked: true)
+        let blocked1 = ContactDTO.testContact(radioID: radioID, name: "Blocked1", isBlocked: true)
+        let blocked2 = ContactDTO.testContact(radioID: radioID, name: "Blocked2", isBlocked: true)
         try await dataStore.saveContact(blocked1)
         try await dataStore.saveContact(blocked2)
 
-        await coordinator.refreshBlockedContactsCache(deviceID: deviceID, dataStore: dataStore)
+        await coordinator.refreshBlockedContactsCache(radioID: radioID, dataStore: dataStore)
 
         let names = await coordinator.blockedSenderNames()
         #expect(names.contains("Blocked1"))
@@ -196,20 +196,20 @@ struct SyncCoordinatorMessageHandlerTests {
     @Test("wireMessageHandlers completes without error")
     func wireMessageHandlersSmoke() async throws {
         let coordinator = SyncCoordinator()
-        let deviceID = UUID()
+        let radioID = UUID()
         let (_, services) = try await createTestServices()
-        try await services.dataStore.saveDevice(DeviceDTO.testDevice(id: deviceID, nodeName: "TestNode"))
+        try await services.dataStore.saveDevice(DeviceDTO.testDevice(id: radioID, nodeName: "TestNode"))
 
-        await coordinator.wireMessageHandlers(services: services, deviceID: deviceID)
+        await coordinator.wireMessageHandlers(services: services, radioID: radioID)
     }
 
     @Test("wireDiscoveryHandlers completes without error")
     func wireDiscoveryHandlersSmoke() async throws {
         let coordinator = SyncCoordinator()
-        let deviceID = UUID()
+        let radioID = UUID()
         let (_, services) = try await createTestServices()
 
-        await coordinator.wireDiscoveryHandlers(services: services, deviceID: deviceID)
+        await coordinator.wireDiscoveryHandlers(services: services, radioID: radioID)
     }
 
 }

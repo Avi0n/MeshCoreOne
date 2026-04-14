@@ -16,7 +16,7 @@ struct ChatViewModelConversationTests {
     ) -> ContactDTO {
         ContactDTO(
             id: id,
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(),
             name: name,
             typeRawValue: 0,

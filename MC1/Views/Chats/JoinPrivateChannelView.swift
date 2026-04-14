@@ -86,7 +86,7 @@ struct JoinPrivateChannelView: View {
     }
 
     private func joinChannel() async {
-        guard let deviceID = appState.connectedDevice?.id else {
+        guard let radioID = appState.connectedDevice?.radioID else {
             errorMessage = L10n.Chats.Chats.Error.noDeviceConnected
             return
         }
@@ -106,7 +106,7 @@ struct JoinPrivateChannelView: View {
                 return
             }
             try await channelService.setChannelWithSecret(
-                deviceID: deviceID,
+                radioID: radioID,
                 index: selectedSlot,
                 name: channelName,
                 secret: secret
@@ -114,7 +114,7 @@ struct JoinPrivateChannelView: View {
 
             // Fetch the joined channel to return it
             var joinedChannel: ChannelDTO?
-            if let channels = try? await appState.services?.dataStore.fetchChannels(deviceID: deviceID) {
+            if let channels = try? await appState.services?.dataStore.fetchChannels(radioID: radioID) {
                 joinedChannel = channels.first { $0.index == selectedSlot }
             }
             onComplete(joinedChannel)

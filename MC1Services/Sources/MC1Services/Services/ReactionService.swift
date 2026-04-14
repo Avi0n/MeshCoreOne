@@ -8,7 +8,7 @@ public struct PendingReaction: Sendable {
     public let channelIndex: UInt8
     public let senderNodeName: String
     public let rawText: String
-    public let deviceID: UUID
+    public let radioID: UUID
     public let receivedAt: Date
 }
 
@@ -18,7 +18,7 @@ public struct PendingDMReaction: Sendable {
     public let contactID: UUID
     public let senderName: String
     public let rawText: String
-    public let deviceID: UUID
+    public let radioID: UUID
     public let receivedAt: Date
 }
 
@@ -141,7 +141,7 @@ public actor ReactionService {
         channelIndex: UInt8,
         senderNodeName: String,
         rawText: String,
-        deviceID: UUID
+        radioID: UUID
     ) {
         let key = PendingReactionKey(
             channelIndex: channelIndex,
@@ -153,7 +153,7 @@ public actor ReactionService {
             channelIndex: channelIndex,
             senderNodeName: senderNodeName,
             rawText: rawText,
-            deviceID: deviceID,
+            radioID: radioID,
             receivedAt: Date()
         )
 
@@ -258,7 +258,7 @@ public actor ReactionService {
         contactID: UUID,
         senderName: String,
         rawText: String,
-        deviceID: UUID
+        radioID: UUID
     ) {
         let key = PendingDMReactionKey(contactID: contactID, messageHash: parsed.messageHash)
         let pending = PendingDMReaction(
@@ -266,7 +266,7 @@ public actor ReactionService {
             contactID: contactID,
             senderName: senderName,
             rawText: rawText,
-            deviceID: deviceID,
+            radioID: radioID,
             receivedAt: Date()
         )
 

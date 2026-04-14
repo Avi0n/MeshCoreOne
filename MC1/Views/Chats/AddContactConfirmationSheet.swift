@@ -61,7 +61,7 @@ struct AddContactConfirmationSheet: View {
     // MARK: - Private Methods
 
     private func addContact() async {
-        guard let deviceID = appState.connectedDevice?.id else { return }
+        guard let radioID = appState.connectedDevice?.radioID else { return }
 
         guard let contactService = appState.services?.contactService,
               let dataStore = appState.services?.dataStore else {
@@ -87,12 +87,12 @@ struct AddContactConfirmationSheet: View {
             )
 
             try await contactService.addOrUpdateContact(
-                deviceID: deviceID,
+                radioID: radioID,
                 contact: contact
             )
 
             if let addedContact = try await dataStore.fetchContact(
-                deviceID: deviceID,
+                radioID: radioID,
                 publicKey: contactResult.publicKey
             ) {
                 successTrigger += 1

@@ -387,12 +387,12 @@ final class NodeStatusHelper {
     // MARK: - OCV Settings
 
     /// Load OCV settings for a contact by public key. Skips reload if already loaded.
-    func loadOCVSettings(publicKey: Data, deviceID: UUID) async {
+    func loadOCVSettings(publicKey: Data, radioID: UUID) async {
         guard contactID == nil else { return }
         guard let contactService else { return }
 
         do {
-            if let contact = try await contactService.getContact(deviceID: deviceID, publicKey: publicKey) {
+            if let contact = try await contactService.getContact(radioID: radioID, publicKey: publicKey) {
                 contactID = contact.id
 
                 if let presetName = contact.ocvPreset {

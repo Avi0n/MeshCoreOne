@@ -13,7 +13,7 @@ public actor HeardRepeatsService {
     private let logger = PersistentLogger(subsystem: "MC1", category: "HeardRepeatsService")
 
     /// Device ID for the current session
-    private var deviceID: UUID?
+    private var radioID: UUID?
 
     /// Local node name for matching sender in decrypted messages
     private var localNodeName: String?
@@ -33,10 +33,10 @@ public actor HeardRepeatsService {
     /// Configure the service with device context.
     /// Must be called once before processing any RX log entries.
     /// Thread-safe due to actor isolation.
-    public func configure(deviceID: UUID, localNodeName: String) {
-        self.deviceID = deviceID
+    public func configure(radioID: UUID, localNodeName: String) {
+        self.radioID = radioID
         self.localNodeName = localNodeName
-        logger.info("Configured with deviceID: \(deviceID), nodeName: \(localNodeName)")
+        logger.info("Configured with radioID: \(radioID), nodeName: \(localNodeName)")
     }
 
     /// Checks if a repeat has already been recorded for this RX log entry.
@@ -64,7 +64,7 @@ public actor HeardRepeatsService {
         guard let decodedText = entry.decodedText else { return nil }
         guard let channelIndex = entry.channelIndex else { return nil }
         guard let senderTimestamp = entry.senderTimestamp else { return nil }
-        guard let deviceID = self.deviceID else { return nil }
+        guard let radioID = self.radioID else { return nil }
         guard let localNodeName = self.localNodeName else { return nil }
 
         // Parse "NodeName: MessageText" format using shared utility
@@ -85,7 +85,7 @@ public actor HeardRepeatsService {
         // Find matching sent message
         do {
             guard let message = try await dataStore.findSentChannelMessage(
-                deviceID: deviceID,
+                radioID: radioID,
                 channelIndex: channelIndex,
                 timestamp: senderTimestamp,
                 text: messageText,

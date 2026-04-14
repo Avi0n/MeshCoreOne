@@ -30,6 +30,7 @@ public enum MockDataProvider {
     public static var simulatorDevice: DeviceDTO {
         DeviceDTO(
             id: simulatorDeviceID,
+            radioID: simulatorDeviceID,
             publicKey: mockPublicKey(seed: 1),
             nodeName: "Simulator Node",
             firmwareVersion: 8,
@@ -71,7 +72,7 @@ public enum MockDataProvider {
             // Alice Chen - chat, normal, 3 unread, 2 hops
             ContactDTO(
                 id: aliceChenID,
-                deviceID: simulatorDeviceID,
+                radioID: simulatorDeviceID,
                 publicKey: mockPublicKey(seed: 10),
                 name: "Alice Chen",
                 typeRawValue: ContactType.chat.rawValue,
@@ -93,7 +94,7 @@ public enum MockDataProvider {
             // Bob Martinez - chat, favorite, 1 hop (direct)
             ContactDTO(
                 id: bobMartinezID,
-                deviceID: simulatorDeviceID,
+                radioID: simulatorDeviceID,
                 publicKey: mockPublicKey(seed: 20),
                 name: "Bob Martinez",
                 typeRawValue: ContactType.chat.rawValue,
@@ -115,7 +116,7 @@ public enum MockDataProvider {
             // Charlie Node - repeater, 0 hops (self)
             ContactDTO(
                 id: charlieNodeID,
-                deviceID: simulatorDeviceID,
+                radioID: simulatorDeviceID,
                 publicKey: mockPublicKey(seed: 30),
                 name: "Charlie Node",
                 typeRawValue: ContactType.repeater.rawValue,
@@ -137,7 +138,7 @@ public enum MockDataProvider {
             // Diana's Room - room, 3 hops
             ContactDTO(
                 id: dianasRoomID,
-                deviceID: simulatorDeviceID,
+                radioID: simulatorDeviceID,
                 publicKey: mockPublicKey(seed: 40),
                 name: "Diana's Room",
                 typeRawValue: ContactType.room.rawValue,
@@ -159,7 +160,7 @@ public enum MockDataProvider {
             // Eve Thompson - chat, blocked, 4 hops
             ContactDTO(
                 id: eveThompsonID,
-                deviceID: simulatorDeviceID,
+                radioID: simulatorDeviceID,
                 publicKey: mockPublicKey(seed: 50),
                 name: "Eve Thompson",
                 typeRawValue: ContactType.chat.rawValue,
@@ -181,7 +182,7 @@ public enum MockDataProvider {
             // Frank Wilson - chat, nickname "Dad", 2 hops
             ContactDTO(
                 id: frankWilsonID,
-                deviceID: simulatorDeviceID,
+                radioID: simulatorDeviceID,
                 publicKey: mockPublicKey(seed: 60),
                 name: "Frank Wilson",
                 typeRawValue: ContactType.chat.rawValue,
@@ -203,7 +204,7 @@ public enum MockDataProvider {
             // Ghost Node - repeater, no recent contact, 5 hops
             ContactDTO(
                 id: ghostNodeID,
-                deviceID: simulatorDeviceID,
+                radioID: simulatorDeviceID,
                 publicKey: mockPublicKey(seed: 70),
                 name: "Ghost Node",
                 typeRawValue: ContactType.repeater.rawValue,
@@ -225,7 +226,7 @@ public enum MockDataProvider {
             // Hannah Lee - chat, new/discovered, 1 hop
             ContactDTO(
                 id: hannahLeeID,
-                deviceID: simulatorDeviceID,
+                radioID: simulatorDeviceID,
                 publicKey: mockPublicKey(seed: 80),
                 name: "Hannah Lee",
                 typeRawValue: ContactType.chat.rawValue,
@@ -252,7 +253,7 @@ public enum MockDataProvider {
     /// Generate mock messages for a specific contact
     public static func messages(for contactID: UUID) -> [MessageDTO] {
         let now = Date()
-        let deviceID = simulatorDeviceID
+        let radioID = simulatorDeviceID
 
         switch contactID {
         case aliceChenID:
@@ -261,7 +262,7 @@ public enum MockDataProvider {
                 // Older delivered message (outgoing)
                 MessageDTO(
                     id: UUID(uuidString: "10000000-0000-0000-0000-000000000001")!,
-                    deviceID: deviceID,
+                    radioID: radioID,
                     contactID: contactID,
                     channelIndex: nil,
                     text: "Hey Alice, are you free this weekend?",
@@ -286,7 +287,7 @@ public enum MockDataProvider {
                 // Reply (incoming)
                 MessageDTO(
                     id: UUID(uuidString: "10000000-0000-0000-0000-000000000002")!,
-                    deviceID: deviceID,
+                    radioID: radioID,
                     contactID: contactID,
                     channelIndex: nil,
                     text: "Yeah! Want to go hiking?",
@@ -311,7 +312,7 @@ public enum MockDataProvider {
                 // Sent waiting for ack (outgoing)
                 MessageDTO(
                     id: UUID(uuidString: "10000000-0000-0000-0000-000000000003")!,
-                    deviceID: deviceID,
+                    radioID: radioID,
                     contactID: contactID,
                     channelIndex: nil,
                     text: "Perfect! I know a great trail.",
@@ -336,7 +337,7 @@ public enum MockDataProvider {
                 // Unread message 1 (incoming)
                 MessageDTO(
                     id: UUID(uuidString: "10000000-0000-0000-0000-000000000004")!,
-                    deviceID: deviceID,
+                    radioID: radioID,
                     contactID: contactID,
                     channelIndex: nil,
                     text: "Awesome! What time works for you?",
@@ -361,7 +362,7 @@ public enum MockDataProvider {
                 // Unread message 2 (incoming)
                 MessageDTO(
                     id: UUID(uuidString: "10000000-0000-0000-0000-000000000005")!,
-                    deviceID: deviceID,
+                    radioID: radioID,
                     contactID: contactID,
                     channelIndex: nil,
                     text: "How about 9am?",
@@ -386,7 +387,7 @@ public enum MockDataProvider {
                 // Unread message 3 (incoming)
                 MessageDTO(
                     id: UUID(uuidString: "10000000-0000-0000-0000-000000000006")!,
-                    deviceID: deviceID,
+                    radioID: radioID,
                     contactID: contactID,
                     channelIndex: nil,
                     text: "Let me know soon!",
@@ -415,7 +416,7 @@ public enum MockDataProvider {
                 // Old delivered message (outgoing)
                 MessageDTO(
                     id: UUID(uuidString: "20000000-0000-0000-0000-000000000001")!,
-                    deviceID: deviceID,
+                    radioID: radioID,
                     contactID: contactID,
                     channelIndex: nil,
                     text: "Bob, can you check the weather?",
@@ -440,7 +441,7 @@ public enum MockDataProvider {
                 // Failed message (retries exhausted)
                 MessageDTO(
                     id: UUID(uuidString: "20000000-0000-0000-0000-000000000002")!,
-                    deviceID: deviceID,
+                    radioID: radioID,
                     contactID: contactID,
                     channelIndex: nil,
                     text: "This message failed to send",
@@ -465,7 +466,7 @@ public enum MockDataProvider {
                 // Retrying message
                 MessageDTO(
                     id: UUID(uuidString: "20000000-0000-0000-0000-000000000003")!,
-                    deviceID: deviceID,
+                    radioID: radioID,
                     contactID: contactID,
                     channelIndex: nil,
                     text: "Retrying this one...",
@@ -490,7 +491,7 @@ public enum MockDataProvider {
                 // Pending message
                 MessageDTO(
                     id: UUID(uuidString: "20000000-0000-0000-0000-000000000004")!,
-                    deviceID: deviceID,
+                    radioID: radioID,
                     contactID: contactID,
                     channelIndex: nil,
                     text: "Are you there?",
@@ -515,7 +516,7 @@ public enum MockDataProvider {
                 // Sending message
                 MessageDTO(
                     id: UUID(uuidString: "20000000-0000-0000-0000-000000000005")!,
-                    deviceID: deviceID,
+                    radioID: radioID,
                     contactID: contactID,
                     channelIndex: nil,
                     text: "Testing connection...",
@@ -540,7 +541,7 @@ public enum MockDataProvider {
                 // Incoming reply
                 MessageDTO(
                     id: UUID(uuidString: "20000000-0000-0000-0000-000000000006")!,
-                    deviceID: deviceID,
+                    radioID: radioID,
                     contactID: contactID,
                     channelIndex: nil,
                     text: "Yeah, I'm here!",
@@ -569,7 +570,7 @@ public enum MockDataProvider {
                 // Incoming with weak SNR
                 MessageDTO(
                     id: UUID(uuidString: "60000000-0000-0000-0000-000000000001")!,
-                    deviceID: deviceID,
+                    radioID: radioID,
                     contactID: contactID,
                     channelIndex: nil,
                     text: "Hey kiddo, how are you?",
@@ -594,7 +595,7 @@ public enum MockDataProvider {
                 // Outgoing reply
                 MessageDTO(
                     id: UUID(uuidString: "60000000-0000-0000-0000-000000000002")!,
-                    deviceID: deviceID,
+                    radioID: radioID,
                     contactID: contactID,
                     channelIndex: nil,
                     text: "Doing great Dad! How about you?",
@@ -619,7 +620,7 @@ public enum MockDataProvider {
                 // Another incoming with very weak SNR
                 MessageDTO(
                     id: UUID(uuidString: "60000000-0000-0000-0000-000000000003")!,
-                    deviceID: deviceID,
+                    radioID: radioID,
                     contactID: contactID,
                     channelIndex: nil,
                     text: "Good! Talk soon.",

@@ -96,10 +96,10 @@ struct TrustedContactsPickerView: View {
     }
 
     private func loadContacts() async {
-        guard let deviceID = appState.connectedDevice?.id,
+        guard let radioID = appState.connectedDevice?.radioID,
               let contactService = appState.services?.contactService else { return }
         do {
-            contacts = try await contactService.getContacts(deviceID: deviceID)
+            contacts = try await contactService.getContacts(radioID: radioID)
                 .filter { $0.type == .chat }
             let trusted = Set(
                 contacts

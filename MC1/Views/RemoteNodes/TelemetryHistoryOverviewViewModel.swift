@@ -45,7 +45,7 @@ final class TelemetryHistoryOverviewViewModel {
 
     // MARK: - Loading
 
-    func loadData(dataStore: PersistenceStore, publicKey: Data, deviceID: UUID) async {
+    func loadData(dataStore: PersistenceStore, publicKey: Data, radioID: UUID) async {
         do {
             snapshots = try await dataStore.fetchNodeStatusSnapshots(
                 nodePublicKey: publicKey, since: nil
@@ -56,7 +56,7 @@ final class TelemetryHistoryOverviewViewModel {
 
         do {
             if let contact = try await dataStore.fetchContact(
-                deviceID: deviceID, publicKey: publicKey
+                radioID: radioID, publicKey: publicKey
             ) {
                 ocvArray = contact.activeOCVArray
             }
@@ -64,8 +64,8 @@ final class TelemetryHistoryOverviewViewModel {
             // Keep default liIon
         }
 
-        contacts = (try? await dataStore.fetchContacts(deviceID: deviceID)) ?? []
-        discoveredNodes = (try? await dataStore.fetchDiscoveredNodes(deviceID: deviceID)) ?? []
+        contacts = (try? await dataStore.fetchContacts(radioID: radioID)) ?? []
+        discoveredNodes = (try? await dataStore.fetchDiscoveredNodes(radioID: radioID)) ?? []
     }
 
     func resolveNeighborName(prefix: Data) -> String? {
