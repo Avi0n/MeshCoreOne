@@ -144,8 +144,7 @@ private struct BubbleContent: View {
                     .padding(.horizontal, 12)
             }
 
-            Text(message.text)
-                .foregroundStyle(textColor)
+            MessageText(message.text, baseColor: textColor, isOutgoing: isFromSelf)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(bubbleBackground)
