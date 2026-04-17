@@ -61,6 +61,10 @@ struct ContactDetailSheet: View {
                             ConversationTimestamp(date: Date(timeIntervalSince1970: TimeInterval(contact.lastAdvertTimestamp)), font: .body)
                         }
                     }
+
+                    LabeledContent(L10n.Map.Map.Detail.lastHeard) {
+                        ConversationTimestamp(date: Date(timeIntervalSince1970: TimeInterval(contact.effectiveLastHeard)), font: .body)
+                    }
                 }
 
                 // Location section

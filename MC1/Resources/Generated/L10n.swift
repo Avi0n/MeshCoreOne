@@ -1069,8 +1069,10 @@ public enum L10n {
         public static let info = L10n.tr("Contacts", "contacts.detail.info", fallback: "Info")
         /// Location: ContactDetailView.swift - Purpose: Join room button
         public static let joinRoom = L10n.tr("Contacts", "contacts.detail.joinRoom", fallback: "Join Room")
-        /// Location: ContactDetailView.swift - Purpose: Last advert label
-        public static let lastAdvert = L10n.tr("Contacts", "contacts.detail.lastAdvert", fallback: "Last Advert")
+        /// Location: ContactDetailView.swift - Purpose: Node time sent label (device-reported timestamp)
+        public static let lastAdvert = L10n.tr("Contacts", "contacts.detail.lastAdvert", fallback: "Node Time Sent")
+        /// Location: ContactDetailView.swift - Purpose: Last heard label (when we received the node's advertisement)
+        public static let lastHeard = L10n.tr("Contacts", "contacts.detail.lastHeard", fallback: "Last Heard")
         /// Location: ContactDetailView.swift - Purpose: Location section header
         public static let location = L10n.tr("Contacts", "contacts.detail.location", fallback: "Location")
         /// Location: ContactDetailView.swift - Purpose: Management button
@@ -2075,8 +2077,10 @@ public enum L10n {
         }
         /// Location: MapView.swift ContactDetailSheet - Purpose: Path length value for single hop
         public static let hopSingular = L10n.tr("Map", "map.detail.hopSingular", fallback: "1 hop")
-        /// Location: MapView.swift ContactDetailSheet - Purpose: Label for last advertisement timestamp
-        public static let lastAdvert = L10n.tr("Map", "map.detail.lastAdvert", fallback: "Last Advert")
+        /// Location: MapView.swift ContactDetailSheet - Purpose: Label for node-reported timestamp
+        public static let lastAdvert = L10n.tr("Map", "map.detail.lastAdvert", fallback: "Node Time Sent")
+        /// Location: MapView.swift ContactDetailSheet - Purpose: Label for when we last heard the node
+        public static let lastHeard = L10n.tr("Map", "map.detail.lastHeard", fallback: "Last Heard")
         /// Location: MapView.swift ContactDetailSheet - Purpose: Label for latitude coordinate
         public static let latitude = L10n.tr("Map", "map.detail.latitude", fallback: "Latitude")
         /// Location: MapView.swift ContactDetailSheet - Purpose: Label for longitude coordinate

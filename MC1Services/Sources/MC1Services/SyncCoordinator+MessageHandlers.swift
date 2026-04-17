@@ -175,6 +175,12 @@ extension SyncCoordinator {
                 // Update contact's last message date
                 if let contactID = contact?.id {
                     try await services.dataStore.updateContactLastMessage(contactID: contactID, date: Date())
+
+                    // Receiving a DM confirms the node is alive
+                    try? await services.dataStore.updateContactLastHeard(
+                        contactID: contactID,
+                        timestamp: UInt32(Date().timeIntervalSince1970)
+                    )
                 }
 
                 // Only increment unread count, post notification, and update badge for non-blocked contacts

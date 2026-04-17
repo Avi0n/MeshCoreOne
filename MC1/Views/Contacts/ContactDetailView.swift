@@ -441,6 +441,13 @@ struct ContactDetailView: View {
             let latencyMs = Int(elapsed / .milliseconds(1))
 
             pingResult = .success(latencyMs: latencyMs, snrThere: snrThere, snrBack: snrBack)
+
+            // Ping response confirms the node is alive
+            try? await appState.services?.dataStore.updateContactLastHeard(
+                contactID: currentContact.id,
+                timestamp: UInt32(Date().timeIntervalSince1970)
+            )
+
             let announcement = L10n.Contacts.Contacts.Detail.pingSuccessAnnouncement(latencyMs)
             AccessibilityNotification.Announcement(announcement).post()
         } catch {
@@ -758,13 +765,20 @@ private struct ContactInfoSection: View {
                     .foregroundStyle(.secondary)
             }
 
-            // Last advert
+            // Node time sent (device-reported timestamp)
             if currentContact.lastAdvertTimestamp > 0 {
                 HStack {
                     Text(L10n.Contacts.Contacts.Detail.lastAdvert)
                     Spacer()
                     ConversationTimestamp(date: Date(timeIntervalSince1970: TimeInterval(currentContact.lastAdvertTimestamp)), font: .body)
                 }
+            }
+
+            // Last heard (when we actually received the advertisement)
+            HStack {
+                Text(L10n.Contacts.Contacts.Detail.lastHeard)
+                Spacer()
+                ConversationTimestamp(date: Date(timeIntervalSince1970: TimeInterval(currentContact.effectiveLastHeard)), font: .body)
             }
 
             // Unread count
