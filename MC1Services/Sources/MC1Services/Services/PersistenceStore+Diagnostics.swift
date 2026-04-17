@@ -40,13 +40,7 @@ extension PersistenceStore {
         )
 
         if let runDTO = initialRun {
-            let run = TracePathRun(
-                id: runDTO.id,
-                date: runDTO.date,
-                success: runDTO.success,
-                roundTripMs: runDTO.roundTripMs,
-                hopsData: (try? JSONEncoder().encode(runDTO.hopsSNR)) ?? Data()
-            )
+            let run = try TracePathRun(dto: runDTO)
             run.savedPath = path
             path.runs.append(run)
             modelContext.insert(run)
@@ -88,13 +82,7 @@ extension PersistenceStore {
             throw PersistenceStoreError.fetchFailed("SavedTracePath not found")
         }
 
-        let run = TracePathRun(
-            id: runDTO.id,
-            date: runDTO.date,
-            success: runDTO.success,
-            roundTripMs: runDTO.roundTripMs,
-            hopsData: (try? JSONEncoder().encode(runDTO.hopsSNR)) ?? Data()
-        )
+        let run = try TracePathRun(dto: runDTO)
         run.savedPath = path
         path.runs.append(run)
         modelContext.insert(run)

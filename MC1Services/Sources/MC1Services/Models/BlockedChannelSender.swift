@@ -31,12 +31,17 @@ public final class BlockedChannelSender {
         self.radioID = radioID
         self.dateBlocked = dateBlocked
     }
+
+    /// Builds a model instance directly from a DTO.
+    public convenience init(dto: BlockedChannelSenderDTO) {
+        self.init(id: dto.id, name: dto.name, radioID: dto.radioID, dateBlocked: dto.dateBlocked)
+    }
 }
 
 // MARK: - Sendable DTO
 
 /// A sendable snapshot of BlockedChannelSender for cross-actor transfers.
-public struct BlockedChannelSenderDTO: Sendable, Equatable, Identifiable {
+public struct BlockedChannelSenderDTO: Sendable, Equatable, Identifiable, Codable {
     public let id: UUID
     public let name: String
     public var radioID: UUID

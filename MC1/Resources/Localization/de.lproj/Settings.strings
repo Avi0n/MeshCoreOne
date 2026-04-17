@@ -1385,3 +1385,168 @@
 
 /* Storage section footer */
 "offlineMaps.storageFooter" = "Umfasst Kartendaten und interne Indizes. Der Gesamtspeicher kann größer sein als die Summe der einzelnen Downloads.";
+
+
+// MARK: - Backup & Restore
+
+/* Navigation title for backup & restore screen */
+"settings.backup.title" = "Sicherung & Wiederherstellung";
+
+/* Section header for file backup */
+"settings.backup.file_backup.header" = "Dateisicherung";
+
+/* Section footer for file backup */
+"settings.backup.file_backup.footer" = "Nachrichten, Kontakte, Kanäle, gespeicherte Pfade und Einstellungen exportieren oder wiederherstellen. Die Funkkonfiguration wird bei jeder Verbindung vom Gerät gelesen.";
+
+/* Export row title */
+"settings.backup.export.title" = "App-Daten exportieren";
+
+/* Export row subtitle */
+"settings.backup.export.subtitle" = "Als .mc1backup-Datei speichern";
+
+/* Import row title */
+"settings.backup.import.title" = "App-Daten importieren";
+
+/* Import row subtitle */
+"settings.backup.import.subtitle" = "Aus einer .mc1backup-Datei wiederherstellen";
+
+/* Export confirmation alert title */
+"settings.backup.export.alert.title" = "Sicherheitshinweis";
+
+/* Export confirmation alert message */
+"settings.backup.export.alert.message" = "Diese Sicherung enthält Kanal-Verschlüsselungsschlüssel, den Nachrichtenverlauf und deine Kontaktliste. Bewahre die exportierte Datei sicher auf.";
+
+/* Export confirmation alert export button */
+"settings.backup.export.alert.export" = "Exportieren";
+
+/* Export confirmation alert cancel button */
+"settings.backup.export.alert.cancel" = "Abbrechen";
+
+/* Export progress label */
+"settings.backup.export.progress" = "Sicherung wird vorbereitet …";
+
+/* Import preview navigation title */
+"settings.backup.import.preview.title" = "Importvorschau";
+
+/* Import preview section header: backup details */
+"settings.backup.import.preview.details" = "Sicherungsdetails";
+
+/* Import preview label: export date */
+"settings.backup.import.preview.exported" = "Exportdatum";
+
+/* Import preview label: app version */
+"settings.backup.import.preview.app_version" = "App-Version";
+
+/* Import preview section header: contents */
+"settings.backup.import.preview.contents" = "Inhalte";
+
+/* Import preview manifest label: messages */
+"settings.backup.import.preview.messages" = "Nachrichten";
+
+/* Import preview manifest label: contacts */
+"settings.backup.import.preview.contacts" = "Kontakte";
+
+/* Import preview manifest label: channels */
+"settings.backup.import.preview.channels" = "Kanäle";
+
+/* Import preview manifest label: devices */
+"settings.backup.import.preview.devices" = "Geräte";
+
+/* Import preview manifest label: room messages */
+"settings.backup.import.preview.room_messages" = "Raumnachrichten";
+
+/* Import preview manifest label: reactions */
+"settings.backup.import.preview.reactions" = "Reaktionen";
+
+/* Import preview manifest label: saved paths */
+"settings.backup.import.preview.saved_paths" = "Gespeicherte Pfade";
+
+/* Import preview manifest label: remote node sessions */
+"settings.backup.import.preview.remote_node_sessions" = "Remote-Knoten-Sitzungen";
+
+/* Import preview info text */
+"settings.backup.import.preview.info" = "Nur neue Daten werden hinzugefügt; vorhandene Einträge werden nicht überschrieben. Nach dem Erstellen dieser Sicherung gelöschte Kontakte erscheinen wieder, und Sperr-, Stumm- oder Favoritenmarkierungen aus der Sicherung werden erneut angewendet.";
+
+/* Import preview import button */
+"settings.backup.import.preview.button" = "Daten importieren";
+
+/* Import progress label */
+"settings.backup.import.progress" = "Daten werden importiert …";
+/* Import parsing label */
+"settings.backup.import.parsing" = "Backup wird gelesen …";
+/* Import cancelling label shown after the user taps Cancel during an active import */
+"settings.backup.import.cancelling" = "Wird abgebrochen …";
+/* Import preview cancel / dismiss toolbar button */
+"settings.backup.import.preview.cancel" = "Abbrechen";
+
+/* Import success title */
+"settings.backup.import.success.title" = "Import erfolgreich";
+
+/* Import success section header: imported */
+"settings.backup.import.success.imported" = "Importiert";
+
+/* Import success skipped count - %d is items skipped */
+"settings.backup.import.success.skipped %d" = "%d bereits vorhandene Einträge wurden übersprungen.";
+
+/* Import success done button */
+"settings.backup.import.success.done" = "Fertig";
+
+/* Import failure title */
+"settings.backup.import.error.title" = "Import fehlgeschlagen";
+
+/* Import error dismiss button */
+"settings.backup.import.error.dismiss" = "Schließen";
+
+/* Import cancelled title shown after user cancels an import before it commits */
+"settings.backup.import.cancelled.title" = "Import abgebrochen";
+
+/* Import cancelled message — rollback ran and nothing on device was changed */
+"settings.backup.import.cancelled.message" = "Es wurden keine Daten geändert.";
+
+/* File access error */
+"settings.backup.import.file_access_error" = "Auf die ausgewählte Datei konnte nicht zugegriffen werden.";
+
+/* Import preview manifest label: blocked senders */
+"settings.backup.import.preview.blocked_senders" = "Blockierte Absender";
+
+/* Import preview manifest label: node status snapshots */
+"settings.backup.import.preview.node_status_snapshots" = "Knoten-Momentaufnahmen";
+
+/* Import preview manifest label: message repeats */
+"settings.backup.import.preview.message_repeats" = "Nachrichtenwiederholungen";
+
+/* Import success: all records already exist */
+"settings.backup.import.success.all_skipped" = "Alle Einträge sind bereits auf diesem Gerät vorhanden.";
+
+/* Import header title when the backup had nothing new to add (every record was skipped) */
+"settings.backup.import.nothing_to_import.title" = "Nichts zu importieren";
+
+/* Backup tip title */
+"settings.backup.tip.title" = "App wechseln?";
+
+/* Backup tip message */
+"settings.backup.tip.message" = "Sichere deine Daten vor der Installation einer neuen Version, um deine Nachrichten, Kontakte und Einstellungen zu behalten.";
+
+/* Default filename for an exported backup; %@ is an ISO-style timestamp */
+"settings.backup.export.default_filename" = "MC1 Sicherung %@.mc1backup";
+
+/* Backup error: file is corrupt or unreadable */
+"settings.backup.error.invalid_file" = "Die Sicherungsdatei ist ungültig oder konnte nicht gelesen werden.";
+
+/* Backup error: file exceeds parser size cap; %1$d actual MB, %2$d max MB */
+"settings.backup.error.file_too_large" = "Die Sicherungsdatei ist zu groß zum Importieren (%1$d MB; Limit ist %2$d MB).";
+
+/* Backup error: decompressed size exceeds safety cap; %d is max MB uncompressed */
+"settings.backup.error.decompressed_too_large" = "Die Sicherungsdatei überschreitet nach dem Entpacken die sichere Größenbegrenzung (%d MB unkomprimiert).";
+
+/* Backup error: file version too new; %1$d found, %2$d max supported */
+"settings.backup.error.unsupported_version" = "Diese Sicherung wurde mit einem neueren Format erstellt (Version %1$d). Diese App unterstützt bis zu Version %2$d. Bitte aktualisiere die App und versuche es erneut.";
+
+/* Backup error: manifest counts do not match arrays */
+"settings.backup.error.corrupted_manifest" = "Die Sicherungsdatei scheint beschädigt zu sein. Die angegebenen Eintragszahlen stimmen nicht mit den tatsächlichen Daten überein.";
+
+/* Backup error: export failed; %@ is underlying error */
+"settings.backup.error.export_failed" = "Sicherung konnte nicht erstellt werden: %@";
+
+/* Backup error: import failed; %@ is underlying error */
+"settings.backup.error.import_failed" = "Sicherung konnte nicht importiert werden: %@";

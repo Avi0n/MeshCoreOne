@@ -78,6 +78,20 @@ public final class TracePathRun {
         self.roundTripMs = roundTripMs
         self.hopsData = hopsData
     }
+
+    /// Builds a model instance directly from a DTO, re-encoding `hopsSNR` to
+    /// the JSON-array format used by `hopsData` storage. Shared by the
+    /// diagnostics and backup insert paths so the encoding stays consistent.
+    public convenience init(dto: TracePathRunDTO) throws {
+        let hopsData = try JSONEncoder().encode(dto.hopsSNR)
+        self.init(
+            id: dto.id,
+            date: dto.date,
+            success: dto.success,
+            roundTripMs: dto.roundTripMs,
+            hopsData: hopsData
+        )
+    }
 }
 
 // MARK: - Computed Properties
@@ -120,7 +134,7 @@ public extension TracePathRun {
 // MARK: - DTOs
 
 /// Sendable snapshot of SavedTracePath for cross-actor transfers
-public struct SavedTracePathDTO: Sendable, Identifiable, Equatable, Hashable {
+public struct SavedTracePathDTO: Sendable, Identifiable, Equatable, Hashable, Codable {
     public let id: UUID
     public var radioID: UUID
     public let name: String
@@ -192,7 +206,7 @@ public struct SavedTracePathDTO: Sendable, Identifiable, Equatable, Hashable {
 }
 
 /// Sendable snapshot of TracePathRun
-public struct TracePathRunDTO: Sendable, Identifiable, Equatable, Hashable {
+public struct TracePathRunDTO: Sendable, Identifiable, Equatable, Hashable, Codable {
     public let id: UUID
     public let date: Date
     public let success: Bool

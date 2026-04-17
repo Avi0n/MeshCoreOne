@@ -78,8 +78,8 @@ enum LogExportService {
 
     @MainActor
     private static func generateHeader() -> String {
-        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
-        let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
+        let appVersion = Bundle.main.appVersion
+        let buildNumber = Bundle.main.appBuild
         let deviceModel = UIDevice.current.model
         let systemVersion = UIDevice.current.systemVersion
 

@@ -12,7 +12,7 @@ extension DeviceDTO {
     /// ```
     static func testDevice(
         id: UUID = UUID(),
-        radioID: UUID = UUID(),
+        radioID: UUID? = nil,
         publicKey: Data = Data(repeating: 0x01, count: 32),
         nodeName: String = "TestDevice",
         firmwareVersion: UInt8 = 9,
@@ -31,9 +31,10 @@ extension DeviceDTO {
         lastContactSync: UInt32 = 0,
         isActive: Bool = true
     ) -> DeviceDTO {
-        DeviceDTO(
+        let resolvedRadioID = radioID ?? id
+        return DeviceDTO(
             id: id,
-            radioID: radioID,
+            radioID: resolvedRadioID,
             publicKey: publicKey,
             nodeName: nodeName,
             firmwareVersion: firmwareVersion,

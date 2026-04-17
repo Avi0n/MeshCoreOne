@@ -55,6 +55,15 @@ struct DeviceDTOClientRepeatTests {
         }
     }
 
+    @Test("test helper defaults radioID to id")
+    func testHelper_defaultsRadioIDToID() {
+        let id = UUID()
+        let device = DeviceDTO.testDevice(id: id)
+
+        #expect(device.id == id)
+        #expect(device.radioID == id)
+    }
+
     // MARK: - supportsClientRepeat
 
     @Test("supportsClientRepeat returns true for firmware v9")

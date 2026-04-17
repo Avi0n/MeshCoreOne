@@ -1385,3 +1385,168 @@
 
 /* Storage section footer */
 "offlineMaps.storageFooter" = "Включає дані карти та внутрішні індекси. Загальний обсяг може перевищувати суму окремих завантажень.";
+
+
+// MARK: - Backup & Restore
+
+/* Navigation title for backup & restore screen */
+"settings.backup.title" = "Резервне копіювання";
+
+/* Section header for file backup */
+"settings.backup.file_backup.header" = "Резервна копія";
+
+/* Section footer for file backup */
+"settings.backup.file_backup.footer" = "Експортуйте або відновіть повідомлення, контакти, канали, збережені маршрути та налаштування. Конфігурація радіо зчитуєт��ся з пристрою при кожному з'єднанні.";
+
+/* Export row title */
+"settings.backup.export.title" = "Експорт даних застосунку";
+
+/* Export row subtitle */
+"settings.backup.export.subtitle" = "Зберегти як файл .mc1backup";
+
+/* Import row title */
+"settings.backup.import.title" = "Імпорт даних застосунку";
+
+/* Import row subtitle */
+"settings.backup.import.subtitle" = "Відновити з файлу .mc1backup";
+
+/* Export confirmation alert title */
+"settings.backup.export.alert.title" = "Попередження про безпеку";
+
+/* Export confirmation alert message */
+"settings.backup.export.alert.message" = "Ця резервна копія містить ключі шифрування каналів, історію повідомлень і список контактів. Зберігайте експортований файл у безпечному місці.";
+
+/* Export confirmation alert export button */
+"settings.backup.export.alert.export" = "Експортувати";
+
+/* Export confirmation alert cancel button */
+"settings.backup.export.alert.cancel" = "Скасувати";
+
+/* Export progress label */
+"settings.backup.export.progress" = "Підготовка резервної копії…";
+
+/* Import preview navigation title */
+"settings.backup.import.preview.title" = "Попередній перегляд імпорту";
+
+/* Import preview section header: backup details */
+"settings.backup.import.preview.details" = "Відомості про копію";
+
+/* Import preview label: export date */
+"settings.backup.import.preview.exported" = "Дата експорту";
+
+/* Import preview label: app version */
+"settings.backup.import.preview.app_version" = "Версія застосунку";
+
+/* Import preview section header: contents */
+"settings.backup.import.preview.contents" = "Вміст";
+
+/* Import preview manifest label: messages */
+"settings.backup.import.preview.messages" = "Повідомлення";
+
+/* Import preview manifest label: contacts */
+"settings.backup.import.preview.contacts" = "Контакти";
+
+/* Import preview manifest label: channels */
+"settings.backup.import.preview.channels" = "Канали";
+
+/* Import preview manifest label: devices */
+"settings.backup.import.preview.devices" = "Пристрої";
+
+/* Import preview manifest label: room messages */
+"settings.backup.import.preview.room_messages" = "Повідомлення кімнат";
+
+/* Import preview manifest label: reactions */
+"settings.backup.import.preview.reactions" = "Реакції";
+
+/* Import preview manifest label: saved paths */
+"settings.backup.import.preview.saved_paths" = "Збережені маршрути";
+
+/* Import preview manifest label: remote node sessions */
+"settings.backup.import.preview.remote_node_sessions" = "Сеанси віддалених вузлів";
+
+/* Import preview info text */
+"settings.backup.import.preview.info" = "Додаються лише нові дані; наявні записи не перезаписуються. Контакти, видалені після створення цієї резервної копії, з'являться знову, а позначки блокування, приглушення або обраного з копії будуть застосовані повторно.";
+
+/* Import preview import button */
+"settings.backup.import.preview.button" = "Імпортувати дані";
+
+/* Import progress label */
+"settings.backup.import.progress" = "Імпорт даних…";
+/* Import parsing label */
+"settings.backup.import.parsing" = "Читання резервної копії…";
+/* Import cancelling label shown after the user taps Cancel during an active import */
+"settings.backup.import.cancelling" = "Скасування…";
+/* Import preview cancel / dismiss toolbar button */
+"settings.backup.import.preview.cancel" = "Скасувати";
+
+/* Import success title */
+"settings.backup.import.success.title" = "Імпорт завершено";
+
+/* Import success section header: imported */
+"settings.backup.import.success.imported" = "Імпортовано";
+
+/* Import success skipped count - %d is items skipped */
+"settings.backup.import.success.skipped %d" = "Пропущено %d вже наявних записів.";
+
+/* Import success done button */
+"settings.backup.import.success.done" = "Готово";
+
+/* Import failure title */
+"settings.backup.import.error.title" = "Помилка імпорту";
+
+/* Import error dismiss button */
+"settings.backup.import.error.dismiss" = "Закрити";
+
+/* Import cancelled title shown after user cancels an import before it commits */
+"settings.backup.import.cancelled.title" = "Імпорт скасовано";
+
+/* Import cancelled message — rollback ran and nothing on device was changed */
+"settings.backup.import.cancelled.message" = "Дані не було змінено.";
+
+/* File access error */
+"settings.backup.import.file_access_error" = "Не вдалося отримати доступ до вибраного файлу.";
+
+/* Import preview manifest label: blocked senders */
+"settings.backup.import.preview.blocked_senders" = "Заблоковані відправники";
+
+/* Import preview manifest label: node status snapshots */
+"settings.backup.import.preview.node_status_snapshots" = "Знімки стану вузлів";
+
+/* Import preview manifest label: message repeats */
+"settings.backup.import.preview.message_repeats" = "Повтори повідомлень";
+
+/* Import success: all records already exist */
+"settings.backup.import.success.all_skipped" = "Усі записи вже наявні на цьому пристрої.";
+
+/* Import header title when the backup had nothing new to add (every record was skipped) */
+"settings.backup.import.nothing_to_import.title" = "Нічого імпортувати";
+
+/* Backup tip title */
+"settings.backup.tip.title" = "Змінюєте застосунок?";
+
+/* Backup tip message */
+"settings.backup.tip.message" = "Створіть резервну копію даних перед встановленням нової версії, щоб зберегти повідомлення, контакти та налаштування.";
+
+/* Default filename for an exported backup; %@ is an ISO-style timestamp */
+"settings.backup.export.default_filename" = "Резервна копія MC1 %@.mc1backup";
+
+/* Backup error: file is corrupt or unreadable */
+"settings.backup.error.invalid_file" = "Файл резервної копії недійсний або не може бути прочитаний.";
+
+/* Backup error: file exceeds parser size cap; %1$d actual MB, %2$d max MB */
+"settings.backup.error.file_too_large" = "Файл резервної копії завеликий для імпорту (%1$d МБ; ліміт — %2$d МБ).";
+
+/* Backup error: decompressed size exceeds safety cap; %d is max MB uncompressed */
+"settings.backup.error.decompressed_too_large" = "Після розпакування файл резервної копії перевищує безпечний ліміт розміру (%d МБ без стиснення).";
+
+/* Backup error: file version too new; %1$d found, %2$d max supported */
+"settings.backup.error.unsupported_version" = "Цю резервну копію створено в новішому форматі (версія %1$d). Цей застосунок підтримує до версії %2$d. Оновіть застосунок і спробуйте знову.";
+
+/* Backup error: manifest counts do not match arrays */
+"settings.backup.error.corrupted_manifest" = "Файл резервної копії пошкоджено. Заявлена кількість записів не збігається з фактичними даними.";
+
+/* Backup error: export failed; %@ is underlying error */
+"settings.backup.error.export_failed" = "Не вдалося створити резервну копію: %@";
+
+/* Backup error: import failed; %@ is underlying error */
+"settings.backup.error.import_failed" = "Не вдалося імпортувати резервну копію: %@";

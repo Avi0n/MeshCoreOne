@@ -138,6 +138,33 @@ public final class RemoteNodeSession {
         self.lastMessageDate = lastMessageDate
     }
 
+    /// Builds a model instance directly from a DTO. Shared by backup batch-insert
+    /// paths so model and DTO can't drift on field coverage.
+    public convenience init(dto: RemoteNodeSessionDTO) {
+        self.init(
+            id: dto.id,
+            radioID: dto.radioID,
+            publicKey: dto.publicKey,
+            name: dto.name,
+            role: dto.role,
+            latitude: dto.latitude,
+            longitude: dto.longitude,
+            isConnected: dto.isConnected,
+            permissionLevel: dto.permissionLevel,
+            lastConnectedDate: dto.lastConnectedDate,
+            lastBatteryMillivolts: dto.lastBatteryMillivolts,
+            lastUptimeSeconds: dto.lastUptimeSeconds,
+            lastNoiseFloor: dto.lastNoiseFloor,
+            unreadCount: dto.unreadCount,
+            notificationLevel: dto.notificationLevel,
+            isFavorite: dto.isFavorite,
+            lastRxAirtimeSeconds: dto.lastRxAirtimeSeconds,
+            neighborCount: dto.neighborCount,
+            lastSyncTimestamp: dto.lastSyncTimestamp,
+            lastMessageDate: dto.lastMessageDate
+        )
+    }
+
     /// Applies all mutable fields from a DTO to this model instance.
     func apply(_ dto: RemoteNodeSessionDTO) {
         radioID = dto.radioID
@@ -200,7 +227,7 @@ public extension RemoteNodeSession {
 // MARK: - Sendable DTO
 
 /// A sendable snapshot of RemoteNodeSession for cross-actor transfers
-public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable {
+public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
     public let id: UUID
     public var radioID: UUID
     public let publicKey: Data

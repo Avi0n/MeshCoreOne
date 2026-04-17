@@ -206,6 +206,53 @@ public final class Device {
         self.knownRegions = knownRegions
     }
 
+    /// Builds a model instance directly from a DTO. Shared by sync and backup
+    /// batch-insert paths so they can't drift on field coverage.
+    public convenience init(dto: DeviceDTO) {
+        self.init(
+            id: dto.id,
+            radioID: dto.radioID,
+            publicKey: dto.publicKey,
+            nodeName: dto.nodeName,
+            firmwareVersion: dto.firmwareVersion,
+            firmwareVersionString: dto.firmwareVersionString,
+            manufacturerName: dto.manufacturerName,
+            buildDate: dto.buildDate,
+            maxContacts: dto.maxContacts,
+            maxChannels: dto.maxChannels,
+            frequency: dto.frequency,
+            bandwidth: dto.bandwidth,
+            spreadingFactor: dto.spreadingFactor,
+            codingRate: dto.codingRate,
+            txPower: dto.txPower,
+            maxTxPower: dto.maxTxPower,
+            latitude: dto.latitude,
+            longitude: dto.longitude,
+            blePin: dto.blePin,
+            clientRepeat: dto.clientRepeat,
+            pathHashMode: dto.pathHashMode,
+            preRepeatFrequency: dto.preRepeatFrequency,
+            preRepeatBandwidth: dto.preRepeatBandwidth,
+            preRepeatSpreadingFactor: dto.preRepeatSpreadingFactor,
+            preRepeatCodingRate: dto.preRepeatCodingRate,
+            manualAddContacts: dto.manualAddContacts,
+            autoAddConfig: dto.autoAddConfig,
+            autoAddMaxHops: dto.autoAddMaxHops,
+            multiAcks: dto.multiAcks,
+            telemetryModeBase: dto.telemetryModeBase,
+            telemetryModeLoc: dto.telemetryModeLoc,
+            telemetryModeEnv: dto.telemetryModeEnv,
+            advertLocationPolicy: dto.advertLocationPolicy,
+            lastConnected: dto.lastConnected,
+            lastContactSync: dto.lastContactSync,
+            isActive: dto.isActive,
+            ocvPreset: dto.ocvPreset,
+            customOCVArrayString: dto.customOCVArrayString,
+            connectionMethods: dto.connectionMethods,
+            knownRegions: dto.knownRegions
+        )
+    }
+
     /// Applies all mutable fields from a DTO to this model instance.
     func apply(_ dto: DeviceDTO) {
         radioID = dto.radioID
@@ -253,7 +300,7 @@ public final class Device {
 // MARK: - Sendable DTO
 
 /// A sendable snapshot of Device for cross-actor transfers
-public struct DeviceDTO: Sendable, Equatable, Identifiable {
+public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
     public var id: UUID
     public var radioID: UUID
     public var publicKey: Data
@@ -570,6 +617,53 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable {
             $0.preRepeatBandwidth = nil
             $0.preRepeatSpreadingFactor = nil
             $0.preRepeatCodingRate = nil
+        }
+    }
+
+    /// Returns a copy with `isActive` cleared and any Bluetooth connection
+    /// methods stripped. Used on backup import so a restored device isn't
+    /// mistaken for the currently-connected radio, and so legacy backups
+    /// that shipped stale `CBPeripheral.identifier` values don't produce a
+    /// permanently-disabled row in `DeviceSelectionSheet`.
+    public func cleanedForImport() -> DeviceDTO {
+        copy {
+            $0.isActive = false
+            $0.connectionMethods = connectionMethods.filter { !$0.isBluetooth }
+        }
+    }
+
+    /// Returns a copy with radio configuration fields reset to safe defaults
+    /// and any Bluetooth connection methods removed. Used during backup
+    /// export to avoid exposing BLE PIN, frequency, or the source phone's
+    /// `CBPeripheral.identifier` in the .mc1backup file — peripheral UUIDs
+    /// are only meaningful on the phone that paired the radio and are not
+    /// portable across installs.
+    public func redactedForBackup() -> DeviceDTO {
+        copy {
+            $0.frequency = 915_000
+            $0.bandwidth = 250_000
+            $0.spreadingFactor = 10
+            $0.codingRate = 5
+            $0.txPower = 20
+            $0.maxTxPower = 20
+            $0.latitude = 0
+            $0.longitude = 0
+            $0.blePin = 0
+            $0.clientRepeat = false
+            $0.pathHashMode = 0
+            $0.preRepeatFrequency = nil
+            $0.preRepeatBandwidth = nil
+            $0.preRepeatSpreadingFactor = nil
+            $0.preRepeatCodingRate = nil
+            $0.manualAddContacts = false
+            $0.autoAddConfig = 0
+            $0.autoAddMaxHops = 0
+            $0.multiAcks = 2
+            $0.telemetryModeBase = 2
+            $0.telemetryModeLoc = 0
+            $0.telemetryModeEnv = 0
+            $0.advertLocationPolicy = 0
+            $0.connectionMethods = connectionMethods.filter { !$0.isBluetooth }
         }
     }
 }

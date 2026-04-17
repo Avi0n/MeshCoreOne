@@ -120,28 +120,7 @@ extension PersistenceStore {
         if let existing = try modelContext.fetch(descriptor).first {
             existing.apply(dto)
         } else {
-            let contact = Contact(
-                id: dto.id,
-                radioID: dto.radioID,
-                publicKey: dto.publicKey,
-                name: dto.name,
-                typeRawValue: dto.typeRawValue,
-                flags: dto.flags,
-                outPathLength: dto.outPathLength,
-                outPath: dto.outPath,
-                lastAdvertTimestamp: dto.lastAdvertTimestamp,
-                latitude: dto.latitude,
-                longitude: dto.longitude,
-                lastModified: dto.lastModified,
-                nickname: dto.nickname,
-                isBlocked: dto.isBlocked,
-                isFavorite: dto.isFavorite,
-                lastMessageDate: dto.lastMessageDate,
-                unreadCount: dto.unreadCount,
-                ocvPreset: dto.ocvPreset,
-                customOCVArrayString: dto.customOCVArrayString
-            )
-            modelContext.insert(contact)
+            modelContext.insert(Contact(dto: dto))
         }
 
         try modelContext.save()

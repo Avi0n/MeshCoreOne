@@ -64,20 +64,36 @@ public final class Reaction {
         self.contactID = contactID
         self.radioID = radioID
     }
+
+    /// Builds a model instance directly from a DTO.
+    public convenience init(dto: ReactionDTO) {
+        self.init(
+            id: dto.id,
+            messageID: dto.messageID,
+            emoji: dto.emoji,
+            senderName: dto.senderName,
+            messageHash: dto.messageHash,
+            rawText: dto.rawText,
+            receivedAt: dto.receivedAt,
+            channelIndex: dto.channelIndex,
+            contactID: dto.contactID,
+            radioID: dto.radioID
+        )
+    }
 }
 
 // MARK: - Sendable DTO
 
-public struct ReactionDTO: Sendable, Equatable, Hashable, Identifiable {
+public struct ReactionDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     public let id: UUID
-    public let messageID: UUID
+    public var messageID: UUID
     public let emoji: String
     public let senderName: String
     public let messageHash: String
     public let rawText: String
     public let receivedAt: Date
     public let channelIndex: UInt8?
-    public let contactID: UUID?
+    public var contactID: UUID?
     public var radioID: UUID
 
     public init(from reaction: Reaction) {

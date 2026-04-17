@@ -1359,3 +1359,168 @@
 
 /* Storage section footer */
 "offlineMaps.storageFooter" = "包括地图数据和内部索引。总大小可能超过各项下载的总和。";
+
+
+// MARK: - Backup & Restore
+
+/* Navigation title for backup & restore screen */
+"settings.backup.title" = "备份与恢复";
+
+/* Section header for file backup */
+"settings.backup.file_backup.header" = "文件备份";
+
+/* Section footer for file backup */
+"settings.backup.file_backup.footer" = "导出或恢复消息、联系人、频道、保存的路径和设置。无线电配置在每次连接时从设备读取。";
+
+/* Export row title */
+"settings.backup.export.title" = "导出应用数据";
+
+/* Export row subtitle */
+"settings.backup.export.subtitle" = "保存为 .mc1backup 文件";
+
+/* Import row title */
+"settings.backup.import.title" = "导入应用数据";
+
+/* Import row subtitle */
+"settings.backup.import.subtitle" = "从 .mc1backup 文件恢复";
+
+/* Export confirmation alert title */
+"settings.backup.export.alert.title" = "安全提示";
+
+/* Export confirmation alert message */
+"settings.backup.export.alert.message" = "此备份包含频道加密密钥、消息历史和联系人列表。请妥善保管导出的文件。";
+
+/* Export confirmation alert export button */
+"settings.backup.export.alert.export" = "导出";
+
+/* Export confirmation alert cancel button */
+"settings.backup.export.alert.cancel" = "取消";
+
+/* Export progress label */
+"settings.backup.export.progress" = "正在准备备份…";
+
+/* Import preview navigation title */
+"settings.backup.import.preview.title" = "导入预览";
+
+/* Import preview section header: backup details */
+"settings.backup.import.preview.details" = "备份详情";
+
+/* Import preview label: export date */
+"settings.backup.import.preview.exported" = "导出日期";
+
+/* Import preview label: app version */
+"settings.backup.import.preview.app_version" = "应用版本";
+
+/* Import preview section header: contents */
+"settings.backup.import.preview.contents" = "内容";
+
+/* Import preview manifest label: messages */
+"settings.backup.import.preview.messages" = "消息";
+
+/* Import preview manifest label: contacts */
+"settings.backup.import.preview.contacts" = "联系人";
+
+/* Import preview manifest label: channels */
+"settings.backup.import.preview.channels" = "频道";
+
+/* Import preview manifest label: devices */
+"settings.backup.import.preview.devices" = "设备";
+
+/* Import preview manifest label: room messages */
+"settings.backup.import.preview.room_messages" = "房间消息";
+
+/* Import preview manifest label: reactions */
+"settings.backup.import.preview.reactions" = "表情回应";
+
+/* Import preview manifest label: saved paths */
+"settings.backup.import.preview.saved_paths" = "保存的路径";
+
+/* Import preview manifest label: remote node sessions */
+"settings.backup.import.preview.remote_node_sessions" = "远程节点会话";
+
+/* Import preview info text */
+"settings.backup.import.preview.info" = "只添加新数据，不会覆盖已有记录。在创建此备份之后删除的联系人会重新出现，备份中设置的屏蔽、静音或收藏标记会再次应用。";
+
+/* Import preview import button */
+"settings.backup.import.preview.button" = "导入数据";
+
+/* Import progress label */
+"settings.backup.import.progress" = "正在导入数据…";
+/* Import parsing label */
+"settings.backup.import.parsing" = "正在读取备份…";
+/* Import cancelling label shown after the user taps Cancel during an active import */
+"settings.backup.import.cancelling" = "正在取消…";
+/* Import preview cancel / dismiss toolbar button */
+"settings.backup.import.preview.cancel" = "取消";
+
+/* Import success title */
+"settings.backup.import.success.title" = "导入成功";
+
+/* Import success section header: imported */
+"settings.backup.import.success.imported" = "已导入";
+
+/* Import success skipped count - %d is items skipped */
+"settings.backup.import.success.skipped %d" = "已跳过 %d 条已存在的记录。";
+
+/* Import success done button */
+"settings.backup.import.success.done" = "完成";
+
+/* Import failure title */
+"settings.backup.import.error.title" = "导入失败";
+
+/* Import error dismiss button */
+"settings.backup.import.error.dismiss" = "关闭";
+
+/* Import cancelled title shown after user cancels an import before it commits */
+"settings.backup.import.cancelled.title" = "导入已取消";
+
+/* Import cancelled message — rollback ran and nothing on device was changed */
+"settings.backup.import.cancelled.message" = "未更改任何数据。";
+
+/* File access error */
+"settings.backup.import.file_access_error" = "无法访问所选文件。";
+
+/* Import preview manifest label: blocked senders */
+"settings.backup.import.preview.blocked_senders" = "已屏蔽的发送者";
+
+/* Import preview manifest label: node status snapshots */
+"settings.backup.import.preview.node_status_snapshots" = "节点快照";
+
+/* Import preview manifest label: message repeats */
+"settings.backup.import.preview.message_repeats" = "消息转发次数";
+
+/* Import success: all records already exist */
+"settings.backup.import.success.all_skipped" = "所有记录已存在于此设备上。";
+
+/* Import header title when the backup had nothing new to add (every record was skipped) */
+"settings.backup.import.nothing_to_import.title" = "无可导入";
+
+/* Backup tip title */
+"settings.backup.tip.title" = "要切换应用？";
+
+/* Backup tip message */
+"settings.backup.tip.message" = "安装新版本前请先备份数据，以保留您的消息、联系人和设置。";
+
+/* Default filename for an exported backup; %@ is an ISO-style timestamp */
+"settings.backup.export.default_filename" = "MC1 备份 %@.mc1backup";
+
+/* Backup error: file is corrupt or unreadable */
+"settings.backup.error.invalid_file" = "备份文件无效或无法读取。";
+
+/* Backup error: file exceeds parser size cap; %1$d actual MB, %2$d max MB */
+"settings.backup.error.file_too_large" = "备份文件过大，无法导入（%1$d MB；上限为 %2$d MB）。";
+
+/* Backup error: decompressed size exceeds safety cap; %d is max MB uncompressed */
+"settings.backup.error.decompressed_too_large" = "备份文件解压后超过安全大小上限（%d MB 未压缩）。";
+
+/* Backup error: file version too new; %1$d found, %2$d max supported */
+"settings.backup.error.unsupported_version" = "此备份是用更新的格式创建的（版本 %1$d）。此应用支持的最高版本为 %2$d。请更新应用后重试。";
+
+/* Backup error: manifest counts do not match arrays */
+"settings.backup.error.corrupted_manifest" = "备份文件似乎已损坏。声明的条目数量与实际数据不符。";
+
+/* Backup error: export failed; %@ is underlying error */
+"settings.backup.error.export_failed" = "创建备份失败：%@";
+
+/* Backup error: import failed; %@ is underlying error */
+"settings.backup.error.import_failed" = "导入备份失败：%@";

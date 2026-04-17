@@ -1390,3 +1390,168 @@
 
 /* Storage section footer */
 "offlineMaps.storageFooter" = "Includes map data and internal indexes. Total may be larger than the sum of individual downloads.";
+
+
+// MARK: - Backup & Restore
+
+/* Navigation title for backup & restore screen */
+"settings.backup.title" = "Backup & Restore";
+
+/* Section header for file backup */
+"settings.backup.file_backup.header" = "File Backup";
+
+/* Section footer for file backup */
+"settings.backup.file_backup.footer" = "Export or restore messages, contacts, channels, saved paths, and settings. Radio configuration is read from the device on each connection.";
+
+/* Export row title */
+"settings.backup.export.title" = "Export App Data";
+
+/* Export row subtitle */
+"settings.backup.export.subtitle" = "Save to a .mc1backup file";
+
+/* Import row title */
+"settings.backup.import.title" = "Import App Data";
+
+/* Import row subtitle */
+"settings.backup.import.subtitle" = "Restore from a .mc1backup file";
+
+/* Export confirmation alert title */
+"settings.backup.export.alert.title" = "Security Notice";
+
+/* Export confirmation alert message */
+"settings.backup.export.alert.message" = "This backup includes channel encryption keys, message history, and your contact list. Store the exported file securely.";
+
+/* Export confirmation alert export button */
+"settings.backup.export.alert.export" = "Export";
+
+/* Export confirmation alert cancel button */
+"settings.backup.export.alert.cancel" = "Cancel";
+
+/* Export progress label */
+"settings.backup.export.progress" = "Preparing backup…";
+
+/* Import preview navigation title */
+"settings.backup.import.preview.title" = "Import Preview";
+
+/* Import preview section header: backup details */
+"settings.backup.import.preview.details" = "Backup Details";
+
+/* Import preview label: export date */
+"settings.backup.import.preview.exported" = "Export Date";
+
+/* Import preview label: app version */
+"settings.backup.import.preview.app_version" = "App Version";
+
+/* Import preview section header: contents */
+"settings.backup.import.preview.contents" = "Contents";
+
+/* Import preview manifest label: messages */
+"settings.backup.import.preview.messages" = "Messages";
+
+/* Import preview manifest label: contacts */
+"settings.backup.import.preview.contacts" = "Contacts";
+
+/* Import preview manifest label: channels */
+"settings.backup.import.preview.channels" = "Channels";
+
+/* Import preview manifest label: devices */
+"settings.backup.import.preview.devices" = "Devices";
+
+/* Import preview manifest label: room messages */
+"settings.backup.import.preview.room_messages" = "Room Messages";
+
+/* Import preview manifest label: reactions */
+"settings.backup.import.preview.reactions" = "Reactions";
+
+/* Import preview manifest label: saved paths */
+"settings.backup.import.preview.saved_paths" = "Saved Paths";
+
+/* Import preview manifest label: remote node sessions */
+"settings.backup.import.preview.remote_node_sessions" = "Remote Node Sessions";
+
+/* Import preview info text */
+"settings.backup.import.preview.info" = "Only new data is added; existing records aren't overwritten. Contacts you deleted after this backup was made will reappear, and any block, mute, or favorite flags from the backup will be re-applied.";
+
+/* Import preview import button */
+"settings.backup.import.preview.button" = "Import Data";
+
+/* Import progress label */
+"settings.backup.import.progress" = "Importing data…";
+/* Import parsing label */
+"settings.backup.import.parsing" = "Reading backup…";
+/* Import cancelling label shown after the user taps Cancel during an active import */
+"settings.backup.import.cancelling" = "Cancelling…";
+/* Import preview cancel / dismiss toolbar button */
+"settings.backup.import.preview.cancel" = "Cancel";
+
+/* Import success title */
+"settings.backup.import.success.title" = "Import Successful";
+
+/* Import success section header: imported */
+"settings.backup.import.success.imported" = "Imported";
+
+/* Import success skipped count - %d is items skipped */
+"settings.backup.import.success.skipped %d" = "%d existing records were skipped.";
+
+/* Import success done button */
+"settings.backup.import.success.done" = "Done";
+
+/* Import failure title */
+"settings.backup.import.error.title" = "Import Failed";
+
+/* Import error dismiss button */
+"settings.backup.import.error.dismiss" = "Dismiss";
+
+/* Import cancelled title shown after user cancels an import before it commits */
+"settings.backup.import.cancelled.title" = "Import Cancelled";
+
+/* Import cancelled message — rollback ran and nothing on device was changed */
+"settings.backup.import.cancelled.message" = "No data was changed.";
+
+/* File access error */
+"settings.backup.import.file_access_error" = "Could not access the selected file.";
+
+/* Import preview manifest label: blocked senders */
+"settings.backup.import.preview.blocked_senders" = "Blocked Senders";
+
+/* Import preview manifest label: node status snapshots */
+"settings.backup.import.preview.node_status_snapshots" = "Node Snapshots";
+
+/* Import preview manifest label: message repeats */
+"settings.backup.import.preview.message_repeats" = "Message Repeats";
+
+/* Import success: all records already exist */
+"settings.backup.import.success.all_skipped" = "All records already exist on this device.";
+
+/* Import header title when the backup had nothing new to add (every record was skipped) */
+"settings.backup.import.nothing_to_import.title" = "Nothing to Import";
+
+/* Backup tip title */
+"settings.backup.tip.title" = "Switching apps?";
+
+/* Backup tip message */
+"settings.backup.tip.message" = "Back up your data before installing a new version to keep your messages, contacts, and settings.";
+
+/* Default filename for an exported backup; %@ is an ISO-style timestamp */
+"settings.backup.export.default_filename" = "MC1 Backup %@.mc1backup";
+
+/* Backup error: file is corrupt or unreadable */
+"settings.backup.error.invalid_file" = "The backup file is invalid or could not be read.";
+
+/* Backup error: file exceeds parser size cap; %1$d actual MB, %2$d max MB */
+"settings.backup.error.file_too_large" = "The backup file is too large to import (%1$d MB; limit is %2$d MB).";
+
+/* Backup error: decompressed size exceeds safety cap; %d is max MB uncompressed */
+"settings.backup.error.decompressed_too_large" = "The backup file expands past the safe size limit (%d MB uncompressed).";
+
+/* Backup error: file version too new; %1$d found, %2$d max supported */
+"settings.backup.error.unsupported_version" = "This backup was created with a newer format (version %1$d). This app supports up to version %2$d. Please update the app and try again.";
+
+/* Backup error: manifest counts do not match arrays */
+"settings.backup.error.corrupted_manifest" = "The backup file appears to be corrupted. The declared item counts do not match the actual data.";
+
+/* Backup error: export failed; %@ is underlying error */
+"settings.backup.error.export_failed" = "Failed to create backup: %@";
+
+/* Backup error: import failed; %@ is underlying error */
+"settings.backup.error.import_failed" = "Failed to import backup: %@";

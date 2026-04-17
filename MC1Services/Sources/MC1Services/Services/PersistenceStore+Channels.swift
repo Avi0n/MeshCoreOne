@@ -186,21 +186,7 @@ extension PersistenceStore {
         if let existing = try modelContext.fetch(descriptor).first {
             existing.apply(dto)
         } else {
-            let channel = Channel(
-                id: dto.id,
-                radioID: dto.radioID,
-                index: dto.index,
-                name: dto.name,
-                secret: dto.secret,
-                isEnabled: dto.isEnabled,
-                lastMessageDate: dto.lastMessageDate,
-                unreadCount: dto.unreadCount,
-                unreadMentionCount: dto.unreadMentionCount,
-                notificationLevel: dto.notificationLevel,
-                isFavorite: dto.isFavorite,
-                regionScope: dto.regionScope
-            )
-            modelContext.insert(channel)
+            modelContext.insert(Channel(dto: dto))
         }
 
         try modelContext.save()

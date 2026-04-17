@@ -38,6 +38,19 @@ extension PersistenceStoreError: LocalizedError {
 public actor PersistenceStore: PersistenceStoreProtocol {
     var rxLogEntryCountsByDevice: [UUID: Int] = [:]
 
+    #if DEBUG
+    /// Test-only fault-injection hook fired immediately before `modelContext.save()`
+    /// in `importBackupDatabase`. Debug-only so the production API stays clean.
+    /// SwiftData upserts on unique-constraint conflicts, so there is no reliable
+    /// in-band way to provoke a save failure from a well-formed envelope.
+    var backupImportFaultInjection: (@Sendable () throws -> Void)?
+
+    /// Test-only hook fired after `modelContext.save()` succeeds and the
+    /// transaction is committed. Tests use it to cancel the outer task so
+    /// they can assert post-commit behaviour of `importBackup`.
+    var backupImportPostCommitHook: (@Sendable () -> Void)?
+    #endif
+
     /// Shared schema for MeshCore One models
     public static let schema = Schema([
         Device.self,

@@ -289,6 +289,8 @@ extension PersistenceStore {
             isFromSelf: dto.isFromSelf,
             status: dto.status
         )
+        message.createdAt = dto.createdAt
+        message.deduplicationKey = dto.deduplicationKey
         message.ackCode = dto.ackCode
         message.roundTripTime = dto.roundTripTime
         message.retryAttempt = dto.retryAttempt

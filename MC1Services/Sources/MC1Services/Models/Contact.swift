@@ -122,6 +122,34 @@ public final class Contact {
         self.customOCVArrayString = customOCVArrayString
     }
 
+    /// Builds a model instance directly from a DTO. Shared by `saveContact` and
+    /// backup batch-insert paths so they can't drift on field coverage.
+    public convenience init(dto: ContactDTO) {
+        self.init(
+            id: dto.id,
+            radioID: dto.radioID,
+            publicKey: dto.publicKey,
+            name: dto.name,
+            typeRawValue: dto.typeRawValue,
+            flags: dto.flags,
+            outPathLength: dto.outPathLength,
+            outPath: dto.outPath,
+            lastAdvertTimestamp: dto.lastAdvertTimestamp,
+            latitude: dto.latitude,
+            longitude: dto.longitude,
+            lastModified: dto.lastModified,
+            nickname: dto.nickname,
+            isBlocked: dto.isBlocked,
+            isMuted: dto.isMuted,
+            isFavorite: dto.isFavorite,
+            lastMessageDate: dto.lastMessageDate,
+            unreadCount: dto.unreadCount,
+            unreadMentionCount: dto.unreadMentionCount,
+            ocvPreset: dto.ocvPreset,
+            customOCVArrayString: dto.customOCVArrayString
+        )
+    }
+
     /// Applies all mutable fields from a DTO to this model instance.
     func apply(_ dto: ContactDTO) {
         name = dto.name
@@ -239,7 +267,7 @@ public extension Contact {
 // MARK: - Sendable DTO
 
 /// A sendable snapshot of Contact for cross-actor transfers
-public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterResolvable {
+public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, RepeaterResolvable {
     public let id: UUID
     public var radioID: UUID
     public let publicKey: Data

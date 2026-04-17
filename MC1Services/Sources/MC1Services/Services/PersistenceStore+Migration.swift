@@ -1,4 +1,3 @@
-import CryptoKit
 import Foundation
 import os
 import SwiftData
@@ -70,15 +69,13 @@ extension PersistenceStore {
         let messagesNeedingKeys = try modelContext.fetch(FetchDescriptor(predicate: nilKeyPredicate))
 
         for message in messagesNeedingKeys {
-            let contentHash = SHA256.hash(data: Data(message.text.utf8))
-            let hashPrefix = contentHash.prefix(4).map { String(format: "%02X", $0) }.joined()
-
-            if let channelIndex = message.channelIndex {
-                message.deduplicationKey = "ch-\(channelIndex)-\(message.timestamp)-\(message.senderNodeName ?? "")-\(hashPrefix)"
-            } else {
-                let contactIDStr = message.contactID?.uuidString ?? "unknown"
-                message.deduplicationKey = "dm-\(contactIDStr)-\(message.timestamp)-\(hashPrefix)"
-            }
+            message.deduplicationKey = DeduplicationKey.contentBased(
+                contactID: message.contactID,
+                channelIndex: message.channelIndex,
+                senderNodeName: message.senderNodeName,
+                timestamp: message.timestamp,
+                content: message.text
+            )
         }
 
         try modelContext.save()

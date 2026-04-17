@@ -126,7 +126,6 @@ public actor KeychainService {
 
 public enum KeychainError: Error, LocalizedError, Sendable {
     case encodingFailed
-    case unexpectedPasswordData
     case storageFailed(OSStatus)
     case retrievalFailed(OSStatus)
     case deletionFailed(OSStatus)
@@ -135,8 +134,6 @@ public enum KeychainError: Error, LocalizedError, Sendable {
         switch self {
         case .encodingFailed:
             return "Failed to encode password"
-        case .unexpectedPasswordData:
-            return "Password data was in unexpected format"
         case .storageFailed(let status):
             return "Failed to store password (error \(status))"
         case .retrievalFailed(let status):

@@ -219,6 +219,48 @@ public final class Message {
         self.reactionSummary = reactionSummary
         self.routeTypeRawValue = routeTypeRawValue
     }
+
+    /// Builds a model instance directly from a DTO. Shared by backup batch-insert
+    /// paths so schema changes don't require touching a 30-argument call site.
+    public convenience init(dto: MessageDTO) {
+        self.init(
+            id: dto.id,
+            radioID: dto.radioID,
+            contactID: dto.contactID,
+            channelIndex: dto.channelIndex,
+            text: dto.text,
+            timestamp: dto.timestamp,
+            createdAt: dto.createdAt,
+            directionRawValue: dto.direction.rawValue,
+            statusRawValue: dto.status.rawValue,
+            textTypeRawValue: dto.textType.rawValue,
+            ackCode: dto.ackCode,
+            pathLength: dto.pathLength,
+            snr: dto.snr,
+            pathNodes: dto.pathNodes,
+            senderKeyPrefix: dto.senderKeyPrefix,
+            senderNodeName: dto.senderNodeName,
+            isRead: dto.isRead,
+            replyToID: dto.replyToID,
+            roundTripTime: dto.roundTripTime,
+            heardRepeats: dto.heardRepeats,
+            sendCount: dto.sendCount,
+            retryAttempt: dto.retryAttempt,
+            maxRetryAttempts: dto.maxRetryAttempts,
+            deduplicationKey: dto.deduplicationKey,
+            linkPreviewURL: dto.linkPreviewURL,
+            linkPreviewTitle: dto.linkPreviewTitle,
+            linkPreviewImageData: nil,
+            linkPreviewIconData: nil,
+            linkPreviewFetched: false,
+            containsSelfMention: dto.containsSelfMention,
+            mentionSeen: dto.mentionSeen,
+            timestampCorrected: dto.timestampCorrected,
+            senderTimestamp: dto.senderTimestamp,
+            reactionSummary: dto.reactionSummary,
+            routeTypeRawValue: dto.routeType.map { Int($0.rawValue) } ?? -1
+        )
+    }
 }
 
 // MARK: - Computed Properties
@@ -265,7 +307,7 @@ public extension Message {
 // MARK: - Sendable DTO
 
 /// A sendable snapshot of Message for cross-actor transfers
-public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable {
+public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     public var id: UUID
     public var radioID: UUID
     public var contactID: UUID?
@@ -302,7 +344,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable {
     public var reactionSummary: String?
     public var routeType: RouteType?
 
-    public init(from message: Message) {
+    public init(from message: Message, includeLinkPreviewBlobs: Bool = true) {
         self.id = message.id
         self.radioID = message.radioID
         self.contactID = message.contactID
@@ -329,9 +371,18 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable {
         self.deduplicationKey = message.deduplicationKey
         self.linkPreviewURL = message.linkPreviewURL
         self.linkPreviewTitle = message.linkPreviewTitle
-        self.linkPreviewImageData = message.linkPreviewImageData
-        self.linkPreviewIconData = message.linkPreviewIconData
-        self.linkPreviewFetched = message.linkPreviewFetched
+        // External-storage blobs (linkPreviewImageData/IconData) are only faulted when
+        // accessed. Backup export skips them to avoid loading every preview image into
+        // memory just to discard it.
+        if includeLinkPreviewBlobs {
+            self.linkPreviewImageData = message.linkPreviewImageData
+            self.linkPreviewIconData = message.linkPreviewIconData
+            self.linkPreviewFetched = message.linkPreviewFetched
+        } else {
+            self.linkPreviewImageData = nil
+            self.linkPreviewIconData = nil
+            self.linkPreviewFetched = false
+        }
         self.containsSelfMention = message.containsSelfMention
         self.mentionSeen = message.mentionSeen
         self.timestampCorrected = message.timestampCorrected

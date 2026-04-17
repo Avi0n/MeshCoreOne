@@ -3,7 +3,7 @@ import Foundation
 
 /// Route type extracted from header byte bits 0-1.
 /// All 4 possible 2-bit values are valid (cannot be unknown).
-public enum RouteType: UInt8, Sendable, CaseIterable {
+public enum RouteType: UInt8, Sendable, Codable, CaseIterable {
     case tcFlood = 0
     case flood = 1
     case direct = 2

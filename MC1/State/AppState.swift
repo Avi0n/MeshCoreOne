@@ -93,6 +93,15 @@ public final class AppState {
     /// Incremented when conversations data changes. Views observe this to reload chat lists.
     public private(set) var conversationsVersion: Int = 0
 
+    /// Signals views observing `contactsVersion` / `conversationsVersion` to reload after
+    /// a backup restore writes directly to the persistence store. The normal sync-path
+    /// callbacks don't fire for batch imports, so without this bump any currently-mounted
+    /// tabs keep showing their pre-restore snapshot until reconnect or relaunch.
+    public func notifyDataRestored() {
+        contactsVersion += 1
+        conversationsVersion += 1
+    }
+
     // MARK: - Connection UI State
 
     /// Connection UI state (status pills, sync activity, alerts, pairing)

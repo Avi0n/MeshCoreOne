@@ -3963,6 +3963,156 @@ public enum L10n {
       /// Reply with Quote
       public static let toggle = L10n.tr("Settings", "replyWithQuote.toggle", fallback: "Reply with Quote")
     }
+    public enum Settings {
+      public enum Backup {
+        /// Navigation title for backup & restore screen
+        public static let title = L10n.tr("Settings", "settings.backup.title", fallback: "Backup & Restore")
+        public enum Error {
+          /// Backup error: manifest counts do not match arrays
+          public static let corruptedManifest = L10n.tr("Settings", "settings.backup.error.corrupted_manifest", fallback: "The backup file appears to be corrupted. The declared item counts do not match the actual data.")
+          /// Backup error: decompressed size exceeds safety cap; %d is max MB uncompressed
+          public static func decompressedTooLarge(_ p1: Int) -> String {
+            return L10n.tr("Settings", "settings.backup.error.decompressed_too_large", p1, fallback: "The backup file expands past the safe size limit (%d MB uncompressed).")
+          }
+          /// Backup error: export failed; %@ is underlying error
+          public static func exportFailed(_ p1: Any) -> String {
+            return L10n.tr("Settings", "settings.backup.error.export_failed", String(describing: p1), fallback: "Failed to create backup: %@")
+          }
+          /// Backup error: file exceeds parser size cap; %1$d actual MB, %2$d max MB
+          public static func fileTooLarge(_ p1: Int, _ p2: Int) -> String {
+            return L10n.tr("Settings", "settings.backup.error.file_too_large", p1, p2, fallback: "The backup file is too large to import (%1$d MB; limit is %2$d MB).")
+          }
+          /// Backup error: import failed; %@ is underlying error
+          public static func importFailed(_ p1: Any) -> String {
+            return L10n.tr("Settings", "settings.backup.error.import_failed", String(describing: p1), fallback: "Failed to import backup: %@")
+          }
+          /// Backup error: file is corrupt or unreadable
+          public static let invalidFile = L10n.tr("Settings", "settings.backup.error.invalid_file", fallback: "The backup file is invalid or could not be read.")
+          /// Backup error: file version too new; %1$d found, %2$d max supported
+          public static func unsupportedVersion(_ p1: Int, _ p2: Int) -> String {
+            return L10n.tr("Settings", "settings.backup.error.unsupported_version", p1, p2, fallback: "This backup was created with a newer format (version %1$d). This app supports up to version %2$d. Please update the app and try again.")
+          }
+        }
+        public enum Export {
+          /// Default filename for an exported backup; %@ is an ISO-style timestamp
+          public static func defaultFilename(_ p1: Any) -> String {
+            return L10n.tr("Settings", "settings.backup.export.default_filename", String(describing: p1), fallback: "MC1 Backup %@.mc1backup")
+          }
+          /// Export progress label
+          public static let progress = L10n.tr("Settings", "settings.backup.export.progress", fallback: "Preparing backup…")
+          /// Export row subtitle
+          public static let subtitle = L10n.tr("Settings", "settings.backup.export.subtitle", fallback: "Save to a .mc1backup file")
+          /// Export row title
+          public static let title = L10n.tr("Settings", "settings.backup.export.title", fallback: "Export App Data")
+          public enum Alert {
+            /// Export confirmation alert cancel button
+            public static let cancel = L10n.tr("Settings", "settings.backup.export.alert.cancel", fallback: "Cancel")
+            /// Export confirmation alert export button
+            public static let export = L10n.tr("Settings", "settings.backup.export.alert.export", fallback: "Export")
+            /// Export confirmation alert message
+            public static let message = L10n.tr("Settings", "settings.backup.export.alert.message", fallback: "This backup includes channel encryption keys, message history, and your contact list. Store the exported file securely.")
+            /// Export confirmation alert title
+            public static let title = L10n.tr("Settings", "settings.backup.export.alert.title", fallback: "Security Notice")
+          }
+        }
+        public enum FileBackup {
+          /// Section footer for file backup
+          public static let footer = L10n.tr("Settings", "settings.backup.file_backup.footer", fallback: "Export or restore messages, contacts, channels, saved paths, and settings. Radio configuration is read from the device on each connection.")
+          /// Section header for file backup
+          public static let header = L10n.tr("Settings", "settings.backup.file_backup.header", fallback: "File Backup")
+        }
+        public enum Import {
+          /// Import cancelling label shown after the user taps Cancel during an active import
+          public static let cancelling = L10n.tr("Settings", "settings.backup.import.cancelling", fallback: "Cancelling…")
+          /// File access error
+          public static let fileAccessError = L10n.tr("Settings", "settings.backup.import.file_access_error", fallback: "Could not access the selected file.")
+          /// Import parsing label
+          public static let parsing = L10n.tr("Settings", "settings.backup.import.parsing", fallback: "Reading backup…")
+          /// Import progress label
+          public static let progress = L10n.tr("Settings", "settings.backup.import.progress", fallback: "Importing data…")
+          /// Import row subtitle
+          public static let subtitle = L10n.tr("Settings", "settings.backup.import.subtitle", fallback: "Restore from a .mc1backup file")
+          /// Import row title
+          public static let title = L10n.tr("Settings", "settings.backup.import.title", fallback: "Import App Data")
+          public enum Cancelled {
+            /// Import cancelled message — rollback ran and nothing on device was changed
+            public static let message = L10n.tr("Settings", "settings.backup.import.cancelled.message", fallback: "No data was changed.")
+            /// Import cancelled title shown after user cancels an import before it commits
+            public static let title = L10n.tr("Settings", "settings.backup.import.cancelled.title", fallback: "Import Cancelled")
+          }
+          public enum Error {
+            /// Import error dismiss button
+            public static let dismiss = L10n.tr("Settings", "settings.backup.import.error.dismiss", fallback: "Dismiss")
+            /// Import failure title
+            public static let title = L10n.tr("Settings", "settings.backup.import.error.title", fallback: "Import Failed")
+          }
+          public enum NothingToImport {
+            /// Import header title when the backup had nothing new to add (every record was skipped)
+            public static let title = L10n.tr("Settings", "settings.backup.import.nothing_to_import.title", fallback: "Nothing to Import")
+          }
+          public enum Preview {
+            /// Import preview label: app version
+            public static let appVersion = L10n.tr("Settings", "settings.backup.import.preview.app_version", fallback: "App Version")
+            /// Import preview manifest label: blocked senders
+            public static let blockedSenders = L10n.tr("Settings", "settings.backup.import.preview.blocked_senders", fallback: "Blocked Senders")
+            /// Import preview import button
+            public static let button = L10n.tr("Settings", "settings.backup.import.preview.button", fallback: "Import Data")
+            /// Import preview cancel / dismiss toolbar button
+            public static let cancel = L10n.tr("Settings", "settings.backup.import.preview.cancel", fallback: "Cancel")
+            /// Import preview manifest label: channels
+            public static let channels = L10n.tr("Settings", "settings.backup.import.preview.channels", fallback: "Channels")
+            /// Import preview manifest label: contacts
+            public static let contacts = L10n.tr("Settings", "settings.backup.import.preview.contacts", fallback: "Contacts")
+            /// Import preview section header: contents
+            public static let contents = L10n.tr("Settings", "settings.backup.import.preview.contents", fallback: "Contents")
+            /// Import preview section header: backup details
+            public static let details = L10n.tr("Settings", "settings.backup.import.preview.details", fallback: "Backup Details")
+            /// Import preview manifest label: devices
+            public static let devices = L10n.tr("Settings", "settings.backup.import.preview.devices", fallback: "Devices")
+            /// Import preview label: export date
+            public static let exported = L10n.tr("Settings", "settings.backup.import.preview.exported", fallback: "Export Date")
+            /// Import preview info text
+            public static let info = L10n.tr("Settings", "settings.backup.import.preview.info", fallback: "Only new data is added; existing records aren't overwritten. Contacts you deleted after this backup was made will reappear, and any block, mute, or favorite flags from the backup will be re-applied.")
+            /// Import preview manifest label: message repeats
+            public static let messageRepeats = L10n.tr("Settings", "settings.backup.import.preview.message_repeats", fallback: "Message Repeats")
+            /// Import preview manifest label: messages
+            public static let messages = L10n.tr("Settings", "settings.backup.import.preview.messages", fallback: "Messages")
+            /// Import preview manifest label: node status snapshots
+            public static let nodeStatusSnapshots = L10n.tr("Settings", "settings.backup.import.preview.node_status_snapshots", fallback: "Node Snapshots")
+            /// Import preview manifest label: reactions
+            public static let reactions = L10n.tr("Settings", "settings.backup.import.preview.reactions", fallback: "Reactions")
+            /// Import preview manifest label: remote node sessions
+            public static let remoteNodeSessions = L10n.tr("Settings", "settings.backup.import.preview.remote_node_sessions", fallback: "Remote Node Sessions")
+            /// Import preview manifest label: room messages
+            public static let roomMessages = L10n.tr("Settings", "settings.backup.import.preview.room_messages", fallback: "Room Messages")
+            /// Import preview manifest label: saved paths
+            public static let savedPaths = L10n.tr("Settings", "settings.backup.import.preview.saved_paths", fallback: "Saved Paths")
+            /// Import preview navigation title
+            public static let title = L10n.tr("Settings", "settings.backup.import.preview.title", fallback: "Import Preview")
+          }
+          public enum Success {
+            /// Import success: all records already exist
+            public static let allSkipped = L10n.tr("Settings", "settings.backup.import.success.all_skipped", fallback: "All records already exist on this device.")
+            /// Import success done button
+            public static let done = L10n.tr("Settings", "settings.backup.import.success.done", fallback: "Done")
+            /// Import success section header: imported
+            public static let imported = L10n.tr("Settings", "settings.backup.import.success.imported", fallback: "Imported")
+            /// Import success skipped count - %d is items skipped
+            public static func skippedD(_ p1: Int) -> String {
+              return L10n.tr("Settings", "settings.backup.import.success.skipped %d", p1, fallback: "%d existing records were skipped.")
+            }
+            /// Import success title
+            public static let title = L10n.tr("Settings", "settings.backup.import.success.title", fallback: "Import Successful")
+          }
+        }
+        public enum Tip {
+          /// Backup tip message
+          public static let message = L10n.tr("Settings", "settings.backup.tip.message", fallback: "Back up your data before installing a new version to keep your messages, contacts, and settings.")
+          /// Backup tip title
+          public static let title = L10n.tr("Settings", "settings.backup.tip.title", fallback: "Switching apps?")
+        }
+      }
+    }
     public enum Telemetry {
       /// Toggle label for allowing telemetry requests
       public static let allowRequests = L10n.tr("Settings", "telemetry.allowRequests", fallback: "Allow Telemetry Requests")

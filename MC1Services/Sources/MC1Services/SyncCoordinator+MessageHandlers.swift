@@ -1091,12 +1091,13 @@ extension SyncCoordinator {
         timestamp: UInt32,
         content: String
     ) -> String {
-        let contentHash = SHA256.hash(data: Data(content.utf8))
-        let hashPrefix = contentHash.prefix(4).map { String(format: "%02X", $0) }.joined()
-        if let channelIndex {
-            return "ch-\(channelIndex)-\(timestamp)-\(senderNodeName ?? "")-\(hashPrefix)"
-        }
-        return "dm-\(contactID?.uuidString ?? "unknown")-\(timestamp)-\(hashPrefix)"
+        DeduplicationKey.contentBased(
+            contactID: contactID,
+            channelIndex: channelIndex,
+            senderNodeName: senderNodeName,
+            timestamp: timestamp,
+            content: content
+        )
     }
 
     nonisolated static func parseChannelMessage(_ text: String) -> (senderNodeName: String?, messageText: String) {

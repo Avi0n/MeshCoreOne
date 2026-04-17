@@ -39,6 +39,7 @@ private struct SettingsListContent: View {
     @Binding var showingDeviceSelection: Bool
     @Bindable var demoModeManager: DemoModeManager
     private let liveActivityTip = LiveActivityTip()
+    private let backupTip = BackupTip()
 
     var body: some View {
         List {
@@ -96,6 +97,17 @@ private struct SettingsListContent: View {
                 } label: {
                     TintedLabel(L10n.Settings.OfflineMaps.title, systemImage: "map.fill")
                 }
+
+                TipView(backupTip, arrowEdge: .bottom)
+
+                NavigationLink {
+                    BackupRestoreView(
+                        connectionManager: appState.connectionManager,
+                        onImportRestoredData: { [appState] in appState.notifyDataRestored() }
+                    )
+                } label: {
+                    TintedLabel(L10n.Settings.Settings.Backup.title, systemImage: "archivebox.fill")
+                }
             } header: {
                 Text(L10n.Settings.AppSettings.header)
             }
@@ -128,8 +140,8 @@ private struct SettingsListContent: View {
 
             Section {
             } footer: {
-                let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
-                let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+                let version = Bundle.main.appVersion
+                let build = Bundle.main.appBuild
                 VStack {
                     Text(L10n.Settings.version(version))
                     Text(L10n.Settings.build(build))

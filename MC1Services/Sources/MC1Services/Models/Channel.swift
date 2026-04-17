@@ -97,6 +97,25 @@ public final class Channel {
         self.regionScope = regionScope
     }
 
+    /// Builds a model instance directly from a DTO. Shared by `saveChannel` and
+    /// backup batch-insert paths so they can't drift on field coverage.
+    public convenience init(dto: ChannelDTO) {
+        self.init(
+            id: dto.id,
+            radioID: dto.radioID,
+            index: dto.index,
+            name: dto.name,
+            secret: dto.secret,
+            isEnabled: dto.isEnabled,
+            lastMessageDate: dto.lastMessageDate,
+            unreadCount: dto.unreadCount,
+            unreadMentionCount: dto.unreadMentionCount,
+            notificationLevel: dto.notificationLevel,
+            isFavorite: dto.isFavorite,
+            regionScope: dto.regionScope
+        )
+    }
+
     /// Applies all mutable fields from a DTO to this model instance.
     func apply(_ dto: ChannelDTO) {
         name = dto.name
@@ -155,7 +174,7 @@ public extension Channel {
 // MARK: - Sendable DTO
 
 /// A sendable snapshot of Channel for cross-actor transfers
-public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable {
+public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
     public let id: UUID
     public var radioID: UUID
     public let index: UInt8

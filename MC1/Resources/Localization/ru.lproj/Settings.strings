@@ -1385,3 +1385,168 @@
 
 /* Storage section footer */
 "offlineMaps.storageFooter" = "Включает данные карты и внутренние индексы. Общий объём может превышать сумму отдельных загрузок.";
+
+
+// MARK: - Backup & Restore
+
+/* Navigation title for backup & restore screen */
+"settings.backup.title" = "Резервное копирование";
+
+/* Section header for file backup */
+"settings.backup.file_backup.header" = "Резервная копия";
+
+/* Section footer for file backup */
+"settings.backup.file_backup.footer" = "Экспорт или восстановление сообщений, контактов, каналов, сохранённых маршрутов и настроек. Конфигурация радио считывается с устройства при каждом подключении.";
+
+/* Export row title */
+"settings.backup.export.title" = "Экспорт данных приложения";
+
+/* Export row subtitle */
+"settings.backup.export.subtitle" = "Сохранить как файл .mc1backup";
+
+/* Import row title */
+"settings.backup.import.title" = "Импорт данных приложения";
+
+/* Import row subtitle */
+"settings.backup.import.subtitle" = "Восстановить из файла .mc1backup";
+
+/* Export confirmation alert title */
+"settings.backup.export.alert.title" = "Предупреждение о безопасности";
+
+/* Export confirmation alert message */
+"settings.backup.export.alert.message" = "Эта резервная копия содержит ключи шифрования каналов, историю сообщений и список контактов. Храните экспортированный файл в надёжном месте.";
+
+/* Export confirmation alert export button */
+"settings.backup.export.alert.export" = "Экспортировать";
+
+/* Export confirmation alert cancel button */
+"settings.backup.export.alert.cancel" = "Отмена";
+
+/* Export progress label */
+"settings.backup.export.progress" = "Подготовка резервной копии…";
+
+/* Import preview navigation title */
+"settings.backup.import.preview.title" = "Предпросмотр импорта";
+
+/* Import preview section header: backup details */
+"settings.backup.import.preview.details" = "Сведения о копии";
+
+/* Import preview label: export date */
+"settings.backup.import.preview.exported" = "Дата экспорта";
+
+/* Import preview label: app version */
+"settings.backup.import.preview.app_version" = "Версия приложения";
+
+/* Import preview section header: contents */
+"settings.backup.import.preview.contents" = "Содержимое";
+
+/* Import preview manifest label: messages */
+"settings.backup.import.preview.messages" = "Сообщения";
+
+/* Import preview manifest label: contacts */
+"settings.backup.import.preview.contacts" = "Контакты";
+
+/* Import preview manifest label: channels */
+"settings.backup.import.preview.channels" = "Каналы";
+
+/* Import preview manifest label: devices */
+"settings.backup.import.preview.devices" = "Устройства";
+
+/* Import preview manifest label: room messages */
+"settings.backup.import.preview.room_messages" = "Сообщения комнат";
+
+/* Import preview manifest label: reactions */
+"settings.backup.import.preview.reactions" = "Реакции";
+
+/* Import preview manifest label: saved paths */
+"settings.backup.import.preview.saved_paths" = "Сохранённые маршруты";
+
+/* Import preview manifest label: remote node sessions */
+"settings.backup.import.preview.remote_node_sessions" = "Сеансы удалённых узлов";
+
+/* Import preview info text */
+"settings.backup.import.preview.info" = "Добавляются только новые данные; существующие записи не перезаписываются. Контакты, удалённые после создания этой резервной копии, появятся снова, а отметки блокировки, отключения звука или избранного из копии будут применены повторно.";
+
+/* Import preview import button */
+"settings.backup.import.preview.button" = "Импортировать данные";
+
+/* Import progress label */
+"settings.backup.import.progress" = "Импорт данных…";
+/* Import parsing label */
+"settings.backup.import.parsing" = "Чтение резервной копии…";
+/* Import cancelling label shown after the user taps Cancel during an active import */
+"settings.backup.import.cancelling" = "Отмена…";
+/* Import preview cancel / dismiss toolbar button */
+"settings.backup.import.preview.cancel" = "Отмена";
+
+/* Import success title */
+"settings.backup.import.success.title" = "Импорт завершён";
+
+/* Import success section header: imported */
+"settings.backup.import.success.imported" = "Импортировано";
+
+/* Import success skipped count - %d is items skipped */
+"settings.backup.import.success.skipped %d" = "Пропущено %d уже существующих записей.";
+
+/* Import success done button */
+"settings.backup.import.success.done" = "Готово";
+
+/* Import failure title */
+"settings.backup.import.error.title" = "Ошибка импорта";
+
+/* Import error dismiss button */
+"settings.backup.import.error.dismiss" = "Закрыть";
+
+/* Import cancelled title shown after user cancels an import before it commits */
+"settings.backup.import.cancelled.title" = "Импорт отменён";
+
+/* Import cancelled message — rollback ran and nothing on device was changed */
+"settings.backup.import.cancelled.message" = "Данные не были изменены.";
+
+/* File access error */
+"settings.backup.import.file_access_error" = "Не удалось получить доступ к выбранному файлу.";
+
+/* Import preview manifest label: blocked senders */
+"settings.backup.import.preview.blocked_senders" = "Заблокированные отправители";
+
+/* Import preview manifest label: node status snapshots */
+"settings.backup.import.preview.node_status_snapshots" = "Снимки состояния узлов";
+
+/* Import preview manifest label: message repeats */
+"settings.backup.import.preview.message_repeats" = "Повторы сообщений";
+
+/* Import success: all records already exist */
+"settings.backup.import.success.all_skipped" = "Все записи уже существуют на этом устройстве.";
+
+/* Import header title when the backup had nothing new to add (every record was skipped) */
+"settings.backup.import.nothing_to_import.title" = "Нечего импортировать";
+
+/* Backup tip title */
+"settings.backup.tip.title" = "Меняете приложение?";
+
+/* Backup tip message */
+"settings.backup.tip.message" = "Сделайте резервную копию данных перед установкой новой версии, чтобы сохранить сообщения, контакты и настройки.";
+
+/* Default filename for an exported backup; %@ is an ISO-style timestamp */
+"settings.backup.export.default_filename" = "Резервная копия MC1 %@.mc1backup";
+
+/* Backup error: file is corrupt or unreadable */
+"settings.backup.error.invalid_file" = "Файл резервной копии недействителен или не может быть прочитан.";
+
+/* Backup error: file exceeds parser size cap; %1$d actual MB, %2$d max MB */
+"settings.backup.error.file_too_large" = "Файл резервной копии слишком большой для импорта (%1$d МБ; лимит — %2$d МБ).";
+
+/* Backup error: decompressed size exceeds safety cap; %d is max MB uncompressed */
+"settings.backup.error.decompressed_too_large" = "После распаковки файл резервной копии превышает безопасный предел размера (%d МБ без сжатия).";
+
+/* Backup error: file version too new; %1$d found, %2$d max supported */
+"settings.backup.error.unsupported_version" = "Эта резервная копия создана в более новом формате (версия %1$d). Это приложение поддерживает версии до %2$d. Обновите приложение и попробуйте снова.";
+
+/* Backup error: manifest counts do not match arrays */
+"settings.backup.error.corrupted_manifest" = "Файл резервной копии повреждён. Заявленное количество записей не совпадает с фактическими данными.";
+
+/* Backup error: export failed; %@ is underlying error */
+"settings.backup.error.export_failed" = "Не удалось создать резервную копию: %@";
+
+/* Backup error: import failed; %@ is underlying error */
+"settings.backup.error.import_failed" = "Не удалось импортировать резервную копию: %@";

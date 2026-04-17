@@ -103,11 +103,33 @@ public final class NodeStatusSnapshot {
         self.neighborSnapshots = neighborSnapshots
         self.telemetryEntries = telemetryEntries
     }
+
+    /// Builds a model instance directly from a DTO.
+    public convenience init(dto: NodeStatusSnapshotDTO) {
+        self.init(
+            id: dto.id,
+            timestamp: dto.timestamp,
+            nodePublicKey: dto.nodePublicKey,
+            batteryMillivolts: dto.batteryMillivolts,
+            lastSNR: dto.lastSNR,
+            lastRSSI: dto.lastRSSI,
+            noiseFloor: dto.noiseFloor,
+            uptimeSeconds: dto.uptimeSeconds,
+            rxAirtimeSeconds: dto.rxAirtimeSeconds,
+            packetsSent: dto.packetsSent,
+            packetsReceived: dto.packetsReceived,
+            receiveErrors: dto.receiveErrors,
+            postedCount: dto.postedCount,
+            postPushCount: dto.postPushCount,
+            neighborSnapshots: dto.neighborSnapshots,
+            telemetryEntries: dto.telemetryEntries
+        )
+    }
 }
 
 // MARK: - Sendable DTO
 
-public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable {
+public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable {
     public let id: UUID
     public let timestamp: Date
     public let nodePublicKey: Data
