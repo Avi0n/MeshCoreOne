@@ -284,7 +284,10 @@ public actor AdvertisementService {
                     longitude: contact.longitude,
                     lastModified: UInt32(Date().timeIntervalSince1970)
                 )
-                _ = try await dataStore.saveContact(deviceID: deviceID, from: frame)
+                let contactID = try await dataStore.saveContact(deviceID: deviceID, from: frame)
+
+                // Mark the actual time we heard this node over radio
+                try? await dataStore.updateContactLastHeard(contactID: contactID, timestamp: timestamp)
 
                 // Also track in DiscoveredNode for Discover page visibility
                 _ = try? await dataStore.upsertDiscoveredNode(deviceID: deviceID, from: frame)
@@ -305,6 +308,9 @@ public actor AdvertisementService {
                         if let meshContact = try await session.getContact(publicKey: publicKey) {
                             let frame = meshContact.toContactFrame()
                             let contactID = try await dataStore.saveContact(deviceID: deviceID, from: frame)
+
+                            // Mark the actual time we heard this node over radio
+                            try? await dataStore.updateContactLastHeard(contactID: contactID, timestamp: timestamp)
 
                             // Also track in DiscoveredNode for Discover page visibility
                             _ = try? await dataStore.upsertDiscoveredNode(deviceID: deviceID, from: frame)
@@ -342,6 +348,12 @@ public actor AdvertisementService {
                 if let meshContact = try await session.getContact(publicKey: publicKey) {
                     let frame = meshContact.toContactFrame()
                     let contactID = try await dataStore.saveContact(deviceID: deviceID, from: frame)
+
+                    // These contacts were heard over radio during sync
+                    try? await dataStore.updateContactLastHeard(
+                        contactID: contactID,
+                        timestamp: UInt32(Date().timeIntervalSince1970)
+                    )
 
                     // Also track in DiscoveredNode for Discover page visibility
                     _ = try? await dataStore.upsertDiscoveredNode(deviceID: deviceID, from: frame)
@@ -445,6 +457,12 @@ public actor AdvertisementService {
                     lastModified: UInt32(Date().timeIntervalSince1970)
                 )
                 _ = try await dataStore.saveContact(deviceID: deviceID, from: frame)
+
+                // Path discovery response confirms the node is reachable
+                try? await dataStore.updateContactLastHeard(
+                    contactID: contact.id,
+                    timestamp: UInt32(Date().timeIntervalSince1970)
+                )
 
                 // Path discovery success = we have a direct route now (not flood)
                 let isNowFlood = false

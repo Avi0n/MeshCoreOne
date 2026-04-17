@@ -133,6 +133,7 @@ extension PersistenceStore {
                 latitude: dto.latitude,
                 longitude: dto.longitude,
                 lastModified: dto.lastModified,
+                lastHeardTimestamp: dto.lastHeardTimestamp,
                 nickname: dto.nickname,
                 isBlocked: dto.isBlocked,
                 isFavorite: dto.isFavorite,
@@ -184,6 +185,21 @@ extension PersistenceStore {
 
         if let contact = try modelContext.fetch(descriptor).first {
             contact.lastMessageDate = date
+            try modelContext.save()
+        }
+    }
+
+    /// Update the timestamp when we actually heard a node over radio
+    public func updateContactLastHeard(contactID: UUID, timestamp: UInt32) throws {
+        let targetID = contactID
+        let predicate = #Predicate<Contact> { contact in
+            contact.id == targetID
+        }
+        var descriptor = FetchDescriptor(predicate: predicate)
+        descriptor.fetchLimit = 1
+
+        if let contact = try modelContext.fetch(descriptor).first {
+            contact.lastHeardTimestamp = timestamp
             try modelContext.save()
         }
     }

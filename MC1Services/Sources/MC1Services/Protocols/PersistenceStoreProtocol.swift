@@ -146,6 +146,9 @@ public protocol PersistenceStoreProtocol: Actor {
     /// Update contact's last message info (nil clears the date, removing from conversations list)
     func updateContactLastMessage(contactID: UUID, date: Date?) async throws
 
+    /// Update the timestamp when we actually heard a node over radio
+    func updateContactLastHeard(contactID: UUID, timestamp: UInt32) async throws
+
     /// Increment unread count for a contact
     func incrementUnreadCount(contactID: UUID) async throws
 

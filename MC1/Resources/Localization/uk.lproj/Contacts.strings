@@ -266,8 +266,11 @@
 /* Location: ContactDetailView.swift - Purpose: Name label */
 "contacts.detail.name" = "Ім'я";
 
-/* Location: ContactDetailView.swift - Purpose: Last advert label */
-"contacts.detail.lastAdvert" = "Останнє оголошення";
+/* Location: ContactDetailView.swift - Purpose: Node time sent label (device-reported timestamp) */
+"contacts.detail.lastAdvert" = "Час відправки вузла";
+
+/* Location: ContactDetailView.swift - Purpose: Last heard label */
+"contacts.detail.lastHeard" = "Останній прийом";
 
 /* Location: ContactDetailView.swift - Purpose: Unread messages label */
 "contacts.detail.unreadMessages" = "Непрочитані повідомлення";

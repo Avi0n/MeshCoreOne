@@ -544,11 +544,39 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
                 latitude: contact.latitude,
                 longitude: contact.longitude,
                 lastModified: contact.lastModified,
+                lastHeardTimestamp: contact.lastHeardTimestamp,
                 nickname: contact.nickname,
                 isBlocked: contact.isBlocked,
                 isMuted: contact.isMuted,
                 isFavorite: contact.isFavorite,
                 lastMessageDate: date,
+                unreadCount: contact.unreadCount,
+                unreadMentionCount: contact.unreadMentionCount
+            )
+        }
+    }
+
+    public func updateContactLastHeard(contactID: UUID, timestamp: UInt32) async throws {
+        if let contact = contacts[contactID] {
+            contacts[contactID] = ContactDTO(
+                id: contact.id,
+                deviceID: contact.deviceID,
+                publicKey: contact.publicKey,
+                name: contact.name,
+                typeRawValue: contact.typeRawValue,
+                flags: contact.flags,
+                outPathLength: contact.outPathLength,
+                outPath: contact.outPath,
+                lastAdvertTimestamp: contact.lastAdvertTimestamp,
+                latitude: contact.latitude,
+                longitude: contact.longitude,
+                lastModified: contact.lastModified,
+                lastHeardTimestamp: timestamp,
+                nickname: contact.nickname,
+                isBlocked: contact.isBlocked,
+                isMuted: contact.isMuted,
+                isFavorite: contact.isFavorite,
+                lastMessageDate: contact.lastMessageDate,
                 unreadCount: contact.unreadCount,
                 unreadMentionCount: contact.unreadMentionCount
             )
@@ -570,6 +598,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
                 latitude: contact.latitude,
                 longitude: contact.longitude,
                 lastModified: contact.lastModified,
+                lastHeardTimestamp: contact.lastHeardTimestamp,
                 nickname: contact.nickname,
                 isBlocked: contact.isBlocked,
                 isMuted: contact.isMuted,
@@ -596,6 +625,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
                 latitude: contact.latitude,
                 longitude: contact.longitude,
                 lastModified: contact.lastModified,
+                lastHeardTimestamp: contact.lastHeardTimestamp,
                 nickname: contact.nickname,
                 isBlocked: contact.isBlocked,
                 isMuted: contact.isMuted,
@@ -660,6 +690,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
                 latitude: contact.latitude,
                 longitude: contact.longitude,
                 lastModified: contact.lastModified,
+                lastHeardTimestamp: contact.lastHeardTimestamp,
                 nickname: contact.nickname,
                 isBlocked: contact.isBlocked,
                 isMuted: contact.isMuted,
@@ -686,6 +717,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
                 latitude: contact.latitude,
                 longitude: contact.longitude,
                 lastModified: contact.lastModified,
+                lastHeardTimestamp: contact.lastHeardTimestamp,
                 nickname: contact.nickname,
                 isBlocked: contact.isBlocked,
                 isMuted: contact.isMuted,
@@ -712,6 +744,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
                 latitude: contact.latitude,
                 longitude: contact.longitude,
                 lastModified: contact.lastModified,
+                lastHeardTimestamp: contact.lastHeardTimestamp,
                 nickname: contact.nickname,
                 isBlocked: contact.isBlocked,
                 isMuted: contact.isMuted,

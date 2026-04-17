@@ -48,6 +48,9 @@ public final class Contact {
     /// Last modification timestamp (for sync watermarking)
     public var lastModified: UInt32
 
+    /// Timestamp when we actually received an advertisement from this node (our local clock)
+    public var lastHeardTimestamp: UInt32 = 0
+
     /// Local nickname override (optional)
     public var nickname: String?
 
@@ -88,6 +91,7 @@ public final class Contact {
         latitude: Double = 0,
         longitude: Double = 0,
         lastModified: UInt32 = 0,
+        lastHeardTimestamp: UInt32 = 0,
         nickname: String? = nil,
         isBlocked: Bool = false,
         isMuted: Bool = false,
@@ -110,6 +114,7 @@ public final class Contact {
         self.latitude = latitude
         self.longitude = longitude
         self.lastModified = lastModified
+        self.lastHeardTimestamp = lastHeardTimestamp
         self.nickname = nickname
         self.isBlocked = isBlocked
         self.isMuted = isMuted
@@ -132,6 +137,7 @@ public final class Contact {
         latitude = dto.latitude
         longitude = dto.longitude
         lastModified = dto.lastModified
+        lastHeardTimestamp = dto.lastHeardTimestamp
         nickname = dto.nickname
         isBlocked = dto.isBlocked
         isMuted = dto.isMuted
@@ -251,6 +257,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
     public let latitude: Double
     public let longitude: Double
     public let lastModified: UInt32
+    public let lastHeardTimestamp: UInt32
     public let nickname: String?
     public let isBlocked: Bool
     public let isMuted: Bool
@@ -274,6 +281,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
         self.latitude = contact.latitude
         self.longitude = contact.longitude
         self.lastModified = contact.lastModified
+        self.lastHeardTimestamp = contact.lastHeardTimestamp
         self.nickname = contact.nickname
         self.isBlocked = contact.isBlocked
         self.isMuted = contact.isMuted
@@ -299,6 +307,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
         latitude: Double,
         longitude: Double,
         lastModified: UInt32,
+        lastHeardTimestamp: UInt32 = 0,
         nickname: String?,
         isBlocked: Bool,
         isMuted: Bool,
@@ -321,6 +330,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
         self.latitude = latitude
         self.longitude = longitude
         self.lastModified = lastModified
+        self.lastHeardTimestamp = lastHeardTimestamp
         self.nickname = nickname
         self.isBlocked = isBlocked
         self.isMuted = isMuted
@@ -397,6 +407,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
             typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
             outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
             latitude: latitude, longitude: longitude, lastModified: lastModified,
+            lastHeardTimestamp: lastHeardTimestamp,
             nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
             isFavorite: isFavorite, lastMessageDate: lastMessageDate,
             unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
@@ -411,11 +422,18 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
             typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
             outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
             latitude: latitude, longitude: longitude, lastModified: lastModified,
+            lastHeardTimestamp: lastHeardTimestamp,
             nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
             isFavorite: isFavorite, lastMessageDate: lastMessageDate,
             unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
             ocvPreset: ocvPreset, customOCVArrayString: customOCVArrayString
         )
+    }
+
+    /// The best "last heard" timestamp available.
+    /// Uses `lastHeardTimestamp` when set, otherwise falls back to `lastModified`.
+    public var effectiveLastHeard: UInt32 {
+        lastHeardTimestamp > 0 ? lastHeardTimestamp : lastModified
     }
 
     /// The active OCV array for this contact (preset or custom)

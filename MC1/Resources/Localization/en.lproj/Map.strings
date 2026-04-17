@@ -75,8 +75,11 @@
 /* Location: MapView.swift ContactDetailSheet - Purpose: Value showing contact is favorited */
 "map.detail.favorite" = "Favorite";
 
-/* Location: MapView.swift ContactDetailSheet - Purpose: Label for last advertisement timestamp */
-"map.detail.lastAdvert" = "Last Advert";
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for node-reported timestamp */
+"map.detail.lastAdvert" = "Node Time Sent";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for when we last heard the node */
+"map.detail.lastHeard" = "Last Heard";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Section header for location coordinates */
 "map.detail.section.location" = "Location";

@@ -272,7 +272,7 @@ final class ContactsViewModel {
     ) -> [ContactDTO] {
         switch order {
         case .lastHeard:
-            return contacts.sorted { $0.lastModified > $1.lastModified }
+            return contacts.sorted { $0.effectiveLastHeard > $1.effectiveLastHeard }
         case .name:
             return contacts.sorted {
                 $0.displayName.localizedCompare($1.displayName) == .orderedAscending

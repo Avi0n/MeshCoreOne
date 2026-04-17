@@ -99,6 +99,7 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
     func saveContact(_ dto: ContactDTO) async throws {}
     func deleteContact(id: UUID) async throws {}
     func updateContactLastMessage(contactID: UUID, date: Date?) async throws {}
+    func updateContactLastHeard(contactID: UUID, timestamp: UInt32) async throws {}
     func incrementUnreadCount(contactID: UUID) async throws {}
     func clearUnreadCount(contactID: UUID) async throws {}
     func markMentionSeen(messageID: UUID) async throws {}
