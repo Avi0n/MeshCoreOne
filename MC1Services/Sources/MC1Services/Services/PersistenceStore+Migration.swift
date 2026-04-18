@@ -17,7 +17,7 @@ extension PersistenceStore {
         // radioID for each Device and propagate to all children.
         let devices = try modelContext.fetch(FetchDescriptor<Device>())
 
-        let lastDeviceIDString = UserDefaults.standard.string(forKey: "com.pocketmesh.lastConnectedDeviceID")
+        let lastDeviceIDString = UserDefaults.standard.string(forKey: PersistenceKeys.lastConnectedDeviceID)
         let lastDeviceID = lastDeviceIDString.flatMap(UUID.init)
         var mappedRadioID: UUID?
 
@@ -81,7 +81,7 @@ extension PersistenceStore {
         try modelContext.save()
 
         if let mappedRadioID {
-            UserDefaults.standard.set(mappedRadioID.uuidString, forKey: "com.pocketmesh.lastConnectedRadioID")
+            UserDefaults.standard.set(mappedRadioID.uuidString, forKey: PersistenceKeys.lastConnectedRadioID)
         } else if lastDeviceID != nil {
             Self.migrationLogger.warning("lastConnectedDeviceID did not match any stored device; lastConnectedRadioID not backfilled")
         }

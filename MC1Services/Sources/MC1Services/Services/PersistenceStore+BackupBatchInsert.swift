@@ -189,9 +189,12 @@ extension PersistenceStore {
         existingIDs: Set<UUID>,
         existingMessageIDs: Set<UUID>
     ) throws -> (inserted: Int, skipped: Int, affectedMessageIDs: Set<UUID>) {
-        // Bulk-fetch parent messages for relationship linking (includes pending inserts)
-        let messageIDArray = Array(existingMessageIDs)
-        let parentMessages = try fetchInChunks(keys: messageIDArray) { chunk in
+        // Only pre-fetch parents that actually appear as a MessageRepeat.messageID;
+        // on a large import the repeat set is orders of magnitude smaller than
+        // the full envelope message set, so loading every message into the
+        // context just to key a relationship map is wasted work.
+        let referencedParentIDs = Set(dtos.map(\.messageID)).intersection(existingMessageIDs)
+        let parentMessages = try fetchInChunks(keys: Array(referencedParentIDs)) { chunk in
             let predicate = #Predicate<Message> { chunk.contains($0.id) }
             return try modelContext.fetch(FetchDescriptor(predicate: predicate))
         }

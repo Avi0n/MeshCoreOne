@@ -17,8 +17,8 @@ enum ImportState {
     case cancelled
 }
 
-@MainActor
 @Observable
+@MainActor
 final class AppBackupViewModel {
     // MARK: - Export state
 

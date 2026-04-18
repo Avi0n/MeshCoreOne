@@ -108,7 +108,7 @@ struct MC1App: App {
         // Persist simulator device ID for auto-reconnect
         UserDefaults.standard.set(
             MockDataProvider.simulatorDeviceID.uuidString,
-            forKey: "com.pocketmesh.lastConnectedDeviceID"
+            forKey: PersistenceKeys.lastConnectedDeviceID
         )
 
         // Initialize app (will auto-connect to simulator device)

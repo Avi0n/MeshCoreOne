@@ -280,6 +280,7 @@ extension PersistenceStore {
 
         try reconcileLastMessageDates(
             messages: messages,
+            roomMessages: roomMessages,
             affectedRoomSessionIDs: roomMsgResult.affectedSessionIDs
         )
 
@@ -454,20 +455,51 @@ extension PersistenceStore {
 
     /// Refreshes `lastMessageDate` on contacts, channels, and remote-node
     /// sessions that received new rows during this import.
+    ///
+    /// The max date per target is computed from the imported DTOs in-memory,
+    /// so the store only fetches the contact/channel/session rows it needs
+    /// to mutate. Duplicates in the envelope are harmless: their timestamps
+    /// are already reflected in the pre-existing `lastMessageDate`, and the
+    /// max-vs-current check filters them out.
     fileprivate func reconcileLastMessageDates(
         messages: [MessageDTO],
+        roomMessages: [RoomMessageDTO],
         affectedRoomSessionIDs: Set<UUID>
     ) throws {
-        let affectedContactIDs = Set(messages.compactMap(\.contactID))
-        if !affectedContactIDs.isEmpty {
-            try refreshContactLastMessageDates(contactIDs: affectedContactIDs)
+        var contactMaxDates: [UUID: Date] = [:]
+        var channelMaxDates: [UUID: [UInt8: Date]] = [:]
+        for message in messages {
+            if let contactID = message.contactID {
+                let existing = contactMaxDates[contactID]
+                if existing == nil || existing! < message.createdAt {
+                    contactMaxDates[contactID] = message.createdAt
+                }
+            }
+            if let index = message.channelIndex {
+                let existing = channelMaxDates[message.radioID]?[index]
+                if existing == nil || existing! < message.createdAt {
+                    channelMaxDates[message.radioID, default: [:]][index] = message.createdAt
+                }
+            }
         }
-        let affectedChannelRadioIDs = Set(messages.lazy.compactMap { $0.channelIndex != nil ? $0.radioID : nil })
-        if !affectedChannelRadioIDs.isEmpty {
-            try refreshChannelLastMessageDates(radioIDs: affectedChannelRadioIDs)
+
+        if !contactMaxDates.isEmpty {
+            try applyLastMessageDatesToContacts(contactMaxDates)
         }
-        if !affectedRoomSessionIDs.isEmpty {
-            try refreshRemoteNodeSessionLastMessageDates(sessionIDs: affectedRoomSessionIDs)
+        if !channelMaxDates.isEmpty {
+            try applyLastMessageDatesToChannels(channelMaxDates)
+        }
+
+        guard !affectedRoomSessionIDs.isEmpty else { return }
+        var sessionMaxDates: [UUID: Date] = [:]
+        for roomMessage in roomMessages where affectedRoomSessionIDs.contains(roomMessage.sessionID) {
+            let existing = sessionMaxDates[roomMessage.sessionID]
+            if existing == nil || existing! < roomMessage.createdAt {
+                sessionMaxDates[roomMessage.sessionID] = roomMessage.createdAt
+            }
+        }
+        if !sessionMaxDates.isEmpty {
+            try applyLastMessageDatesToRemoteNodeSessions(sessionMaxDates)
         }
     }
 }
@@ -529,102 +561,46 @@ extension PersistenceStore {
         }
     }
 
-    /// Refreshes lastMessageDate on contacts by querying the actual Message table,
-    /// so both pre-existing and newly imported messages are considered.
-    public func refreshContactLastMessageDates(contactIDs: Set<UUID>) throws {
-        guard !contactIDs.isEmpty else { return }
+    /// Advances `Contact.lastMessageDate` toward the per-contact max timestamp
+    /// from the just-imported messages. Existing values are preserved when
+    /// they're already newer (e.g., a DTO imported out of order).
+    fileprivate func applyLastMessageDatesToContacts(_ maxDates: [UUID: Date]) throws {
         try Task.checkCancellation()
-
-        let idArray = Array(contactIDs)
-        let contactPredicate = #Predicate<Contact> { idArray.contains($0.id) }
-        let contacts = try modelContext.fetch(FetchDescriptor(predicate: contactPredicate))
-
-        let messagePredicate = #Predicate<Message> { msg in
-            if let cid = msg.contactID {
-                return idArray.contains(cid)
-            } else {
-                return false
-            }
-        }
-        let messages = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate))
-
-        var latestByContactID: [UUID: Date] = [:]
-        for (offset, message) in messages.enumerated() {
-            if offset % cancellationCheckStride == 0 {
-                try Task.checkCancellation()
-            }
-            guard let cid = message.contactID else { continue }
-            if let existing = latestByContactID[cid], existing >= message.createdAt { continue }
-            latestByContactID[cid] = message.createdAt
-        }
-
+        let idArray = Array(maxDates.keys)
+        let predicate = #Predicate<Contact> { idArray.contains($0.id) }
+        let contacts = try modelContext.fetch(FetchDescriptor(predicate: predicate))
         for contact in contacts {
-            guard let latest = latestByContactID[contact.id] else { continue }
+            guard let latest = maxDates[contact.id] else { continue }
             if contact.lastMessageDate == nil || contact.lastMessageDate! < latest {
                 contact.lastMessageDate = latest
             }
         }
     }
 
-    /// Refreshes lastMessageDate on channels by querying the actual Message table,
-    /// so both pre-existing and newly imported messages are considered.
-    public func refreshChannelLastMessageDates(radioIDs: Set<UUID>) throws {
-        guard !radioIDs.isEmpty else { return }
+    /// Advances `Channel.lastMessageDate` using max timestamps keyed by
+    /// `(radioID, channelIndex)`.
+    fileprivate func applyLastMessageDatesToChannels(_ maxDates: [UUID: [UInt8: Date]]) throws {
         try Task.checkCancellation()
-
-        let radioIDArray = Array(radioIDs)
-        let channelPredicate = #Predicate<Channel> { radioIDArray.contains($0.radioID) }
-        let channels = try modelContext.fetch(FetchDescriptor(predicate: channelPredicate))
-
-        let messagePredicate = #Predicate<Message> { msg in
-            radioIDArray.contains(msg.radioID) && msg.channelIndex != nil
-        }
-        let messages = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate))
-
-        var latestByChannelKey: [String: Date] = [:]
-        for (offset, message) in messages.enumerated() {
-            if offset % cancellationCheckStride == 0 {
-                try Task.checkCancellation()
-            }
-            guard let idx = message.channelIndex else { continue }
-            let key = channelKey(radioID: message.radioID, index: idx)
-            if let existing = latestByChannelKey[key], existing >= message.createdAt { continue }
-            latestByChannelKey[key] = message.createdAt
-        }
-
+        let radioIDArray = Array(maxDates.keys)
+        let predicate = #Predicate<Channel> { radioIDArray.contains($0.radioID) }
+        let channels = try modelContext.fetch(FetchDescriptor(predicate: predicate))
         for channel in channels {
-            let key = channelKey(radioID: channel.radioID, index: channel.index)
-            guard let latest = latestByChannelKey[key] else { continue }
+            guard let latest = maxDates[channel.radioID]?[channel.index] else { continue }
             if channel.lastMessageDate == nil || channel.lastMessageDate! < latest {
                 channel.lastMessageDate = latest
             }
         }
     }
 
-    /// Refreshes lastMessageDate on room sessions by querying the actual RoomMessage table,
-    /// so both pre-existing and newly imported room messages are considered.
-    public func refreshRemoteNodeSessionLastMessageDates(sessionIDs: Set<UUID>) throws {
-        guard !sessionIDs.isEmpty else { return }
+    /// Advances `RemoteNodeSession.lastMessageDate` using max timestamps
+    /// keyed by session ID.
+    fileprivate func applyLastMessageDatesToRemoteNodeSessions(_ maxDates: [UUID: Date]) throws {
         try Task.checkCancellation()
-
-        let idArray = Array(sessionIDs)
-        let sessionPredicate = #Predicate<RemoteNodeSession> { idArray.contains($0.id) }
-        let sessions = try modelContext.fetch(FetchDescriptor(predicate: sessionPredicate))
-
-        let messagePredicate = #Predicate<RoomMessage> { idArray.contains($0.sessionID) }
-        let messages = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate))
-
-        var latestBySessionID: [UUID: Date] = [:]
-        for (offset, message) in messages.enumerated() {
-            if offset % cancellationCheckStride == 0 {
-                try Task.checkCancellation()
-            }
-            if let existing = latestBySessionID[message.sessionID], existing >= message.createdAt { continue }
-            latestBySessionID[message.sessionID] = message.createdAt
-        }
-
+        let idArray = Array(maxDates.keys)
+        let predicate = #Predicate<RemoteNodeSession> { idArray.contains($0.id) }
+        let sessions = try modelContext.fetch(FetchDescriptor(predicate: predicate))
         for session in sessions {
-            guard let latest = latestBySessionID[session.id] else { continue }
+            guard let latest = maxDates[session.id] else { continue }
             if session.lastMessageDate == nil || session.lastMessageDate! < latest {
                 session.lastMessageDate = latest
             }

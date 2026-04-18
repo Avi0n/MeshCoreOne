@@ -133,29 +133,29 @@ public final class Device {
         buildDate: String = "",
         maxContacts: UInt16 = 100,
         maxChannels: UInt8 = 8,
-        frequency: UInt32 = 915_000,
-        bandwidth: UInt32 = 250_000,
-        spreadingFactor: UInt8 = 10,
-        codingRate: UInt8 = 5,
-        txPower: Int8 = 20,
-        maxTxPower: Int8 = 20,
-        latitude: Double = 0,
-        longitude: Double = 0,
-        blePin: UInt32 = 0,
-        clientRepeat: Bool = false,
-        pathHashMode: UInt8 = 0,
-        preRepeatFrequency: UInt32? = nil,
-        preRepeatBandwidth: UInt32? = nil,
-        preRepeatSpreadingFactor: UInt8? = nil,
-        preRepeatCodingRate: UInt8? = nil,
-        manualAddContacts: Bool = false,
-        autoAddConfig: UInt8 = 0,
-        autoAddMaxHops: UInt8 = 0,
-        multiAcks: UInt8 = 2,
-        telemetryModeBase: UInt8 = 2,
-        telemetryModeLoc: UInt8 = 0,
-        telemetryModeEnv: UInt8 = 0,
-        advertLocationPolicy: UInt8 = 0,
+        frequency: UInt32 = Device.Defaults.frequency,
+        bandwidth: UInt32 = Device.Defaults.bandwidth,
+        spreadingFactor: UInt8 = Device.Defaults.spreadingFactor,
+        codingRate: UInt8 = Device.Defaults.codingRate,
+        txPower: Int8 = Device.Defaults.txPower,
+        maxTxPower: Int8 = Device.Defaults.maxTxPower,
+        latitude: Double = Device.Defaults.latitude,
+        longitude: Double = Device.Defaults.longitude,
+        blePin: UInt32 = Device.Defaults.blePin,
+        clientRepeat: Bool = Device.Defaults.clientRepeat,
+        pathHashMode: UInt8 = Device.Defaults.pathHashMode,
+        preRepeatFrequency: UInt32? = Device.Defaults.preRepeatFrequency,
+        preRepeatBandwidth: UInt32? = Device.Defaults.preRepeatBandwidth,
+        preRepeatSpreadingFactor: UInt8? = Device.Defaults.preRepeatSpreadingFactor,
+        preRepeatCodingRate: UInt8? = Device.Defaults.preRepeatCodingRate,
+        manualAddContacts: Bool = Device.Defaults.manualAddContacts,
+        autoAddConfig: UInt8 = Device.Defaults.autoAddConfig,
+        autoAddMaxHops: UInt8 = Device.Defaults.autoAddMaxHops,
+        multiAcks: UInt8 = Device.Defaults.multiAcks,
+        telemetryModeBase: UInt8 = Device.Defaults.telemetryModeBase,
+        telemetryModeLoc: UInt8 = Device.Defaults.telemetryModeLoc,
+        telemetryModeEnv: UInt8 = Device.Defaults.telemetryModeEnv,
+        advertLocationPolicy: UInt8 = Device.Defaults.advertLocationPolicy,
         lastConnected: Date = Date(),
         lastContactSync: UInt32 = 0,
         isActive: Bool = false,
@@ -640,31 +640,65 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
     /// portable across installs.
     public func redactedForBackup() -> DeviceDTO {
         copy {
-            $0.frequency = 915_000
-            $0.bandwidth = 250_000
-            $0.spreadingFactor = 10
-            $0.codingRate = 5
-            $0.txPower = 20
-            $0.maxTxPower = 20
-            $0.latitude = 0
-            $0.longitude = 0
-            $0.blePin = 0
-            $0.clientRepeat = false
-            $0.pathHashMode = 0
-            $0.preRepeatFrequency = nil
-            $0.preRepeatBandwidth = nil
-            $0.preRepeatSpreadingFactor = nil
-            $0.preRepeatCodingRate = nil
-            $0.manualAddContacts = false
-            $0.autoAddConfig = 0
-            $0.autoAddMaxHops = 0
-            $0.multiAcks = 2
-            $0.telemetryModeBase = 2
-            $0.telemetryModeLoc = 0
-            $0.telemetryModeEnv = 0
-            $0.advertLocationPolicy = 0
+            $0.frequency = Device.Defaults.frequency
+            $0.bandwidth = Device.Defaults.bandwidth
+            $0.spreadingFactor = Device.Defaults.spreadingFactor
+            $0.codingRate = Device.Defaults.codingRate
+            $0.txPower = Device.Defaults.txPower
+            $0.maxTxPower = Device.Defaults.maxTxPower
+            $0.latitude = Device.Defaults.latitude
+            $0.longitude = Device.Defaults.longitude
+            $0.blePin = Device.Defaults.blePin
+            $0.clientRepeat = Device.Defaults.clientRepeat
+            $0.pathHashMode = Device.Defaults.pathHashMode
+            $0.preRepeatFrequency = Device.Defaults.preRepeatFrequency
+            $0.preRepeatBandwidth = Device.Defaults.preRepeatBandwidth
+            $0.preRepeatSpreadingFactor = Device.Defaults.preRepeatSpreadingFactor
+            $0.preRepeatCodingRate = Device.Defaults.preRepeatCodingRate
+            $0.manualAddContacts = Device.Defaults.manualAddContacts
+            $0.autoAddConfig = Device.Defaults.autoAddConfig
+            $0.autoAddMaxHops = Device.Defaults.autoAddMaxHops
+            $0.multiAcks = Device.Defaults.multiAcks
+            $0.telemetryModeBase = Device.Defaults.telemetryModeBase
+            $0.telemetryModeLoc = Device.Defaults.telemetryModeLoc
+            $0.telemetryModeEnv = Device.Defaults.telemetryModeEnv
+            $0.advertLocationPolicy = Device.Defaults.advertLocationPolicy
             $0.connectionMethods = connectionMethods.filter { !$0.isBluetooth }
         }
+    }
+}
+
+// MARK: - Shared Defaults
+
+extension Device {
+    /// Radio and location defaults used by `Device.init` and by
+    /// `DeviceDTO.redactedForBackup()`. One source of truth keeps the two
+    /// paths from drifting — a future default change will flow through
+    /// exported backups automatically.
+    public enum Defaults {
+        public static let frequency: UInt32 = 915_000
+        public static let bandwidth: UInt32 = 250_000
+        public static let spreadingFactor: UInt8 = 10
+        public static let codingRate: UInt8 = 5
+        public static let txPower: Int8 = 20
+        public static let maxTxPower: Int8 = 20
+        public static let latitude: Double = 0
+        public static let longitude: Double = 0
+        public static let blePin: UInt32 = 0
+        public static let clientRepeat: Bool = false
+        public static let pathHashMode: UInt8 = 0
+        public static let preRepeatFrequency: UInt32? = nil
+        public static let preRepeatBandwidth: UInt32? = nil
+        public static let preRepeatSpreadingFactor: UInt8? = nil
+        public static let preRepeatCodingRate: UInt8? = nil
+        public static let manualAddContacts: Bool = false
+        public static let autoAddConfig: UInt8 = 0
+        public static let autoAddMaxHops: UInt8 = 0
+        public static let multiAcks: UInt8 = 2
+        public static let telemetryModeBase: UInt8 = 2
+        public static let telemetryModeLoc: UInt8 = 0
+        public static let telemetryModeEnv: UInt8 = 0
+        public static let advertLocationPolicy: UInt8 = 0
     }
 }
 
