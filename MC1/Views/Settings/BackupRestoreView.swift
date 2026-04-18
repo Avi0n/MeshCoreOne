@@ -3,6 +3,7 @@ import MC1Services
 import TipKit
 
 struct BackupRestoreView: View {
+    @Environment(\.appState) private var appState
     @State private var viewModel: AppBackupViewModel
     @State private var showExportConfirmation = false
     @State private var showFileImporter = false
@@ -25,7 +26,12 @@ struct BackupRestoreView: View {
             } header: {
                 Text(L10n.Settings.Settings.Backup.FileBackup.header)
             } footer: {
-                Text(L10n.Settings.Settings.Backup.FileBackup.footer)
+                VStack(alignment: .leading, spacing: 8) {
+                    if appState.connectionState.isConnected {
+                        Text(L10n.Settings.Settings.Backup.Import.disabledWhenConnected)
+                    }
+                    Text(L10n.Settings.Settings.Backup.FileBackup.footer)
+                }
             }
         }
         .navigationTitle(L10n.Settings.Settings.Backup.title)
@@ -88,8 +94,11 @@ struct BackupRestoreView: View {
         .disabled(viewModel.isExporting || viewModel.isImporting || viewModel.isParsing)
     }
 
+    @ViewBuilder
     private var importRow: some View {
-        Button {
+        let isRadioConnected = appState.connectionState.isConnected
+        let isBusy = viewModel.isExporting || viewModel.isImporting || viewModel.isParsing
+        let content = Button {
             showFileImporter = true
         } label: {
             HStack {
@@ -105,7 +114,14 @@ struct BackupRestoreView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .disabled(viewModel.isExporting || viewModel.isImporting || viewModel.isParsing)
+        if isRadioConnected {
+            content
+                .disabled(true)
+                .foregroundStyle(.secondary)
+                .accessibilityHint("Disconnect radio first")
+        } else {
+            content.disabled(isBusy)
+        }
     }
 
     // MARK: - Helpers

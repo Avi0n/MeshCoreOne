@@ -1384,6 +1384,9 @@
 /* Import row subtitle */
 "settings.backup.import.subtitle" = "从 .mc1backup 文件恢复";
 
+/* Footer shown above the backup section when a radio is connected, explaining why import is disabled */
+"settings.backup.import.disabled_when_connected" = "导入备份前请先断开无线电连接。";
+
 /* Export confirmation alert title */
 "settings.backup.export.alert.title" = "安全提示";
 

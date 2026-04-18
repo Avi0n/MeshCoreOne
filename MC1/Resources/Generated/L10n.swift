@@ -4024,6 +4024,8 @@ public enum L10n {
         public enum Import {
           /// Import cancelling label shown after the user taps Cancel during an active import
           public static let cancelling = L10n.tr("Settings", "settings.backup.import.cancelling", fallback: "Cancelling…")
+          /// Footer shown above the backup section when a radio is connected, explaining why import is disabled
+          public static let disabledWhenConnected = L10n.tr("Settings", "settings.backup.import.disabled_when_connected", fallback: "Disconnect from your radio before importing a backup.")
           /// File access error
           public static let fileAccessError = L10n.tr("Settings", "settings.backup.import.file_access_error", fallback: "Could not access the selected file.")
           /// Import parsing label

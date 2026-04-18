@@ -1410,6 +1410,9 @@
 /* Import row subtitle */
 "settings.backup.import.subtitle" = "Aus einer .mc1backup-Datei wiederherstellen";
 
+/* Footer shown above the backup section when a radio is connected, explaining why import is disabled */
+"settings.backup.import.disabled_when_connected" = "Trenne die Verbindung zum Funkgerät, bevor du ein Backup importierst.";
+
 /* Export confirmation alert title */
 "settings.backup.export.alert.title" = "Sicherheitshinweis";
 

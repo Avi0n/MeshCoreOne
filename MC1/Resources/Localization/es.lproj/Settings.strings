@@ -1410,6 +1410,9 @@
 /* Import row subtitle */
 "settings.backup.import.subtitle" = "Restaurar desde un archivo .mc1backup";
 
+/* Footer shown above the backup section when a radio is connected, explaining why import is disabled */
+"settings.backup.import.disabled_when_connected" = "Desconéctate de la radio antes de importar una copia de seguridad.";
+
 /* Export confirmation alert title */
 "settings.backup.export.alert.title" = "Aviso de seguridad";
 
