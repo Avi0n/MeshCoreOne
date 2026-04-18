@@ -98,6 +98,26 @@ struct AppBackupEnvelopeTests {
         }
     }
 
+    @Test("parseBackup throws invalidFile for truncated zlib payloads")
+    func parseBackupTruncatedPayload() throws {
+        let envelope = makeTestEnvelope(radioID: UUID())
+        let json = try makeBackupJSONEncoder().encode(envelope)
+        let compressed = try json.zlibCompressed()
+        // Valid zlib header, missing trailer + tail of deflate stream — matches
+        // what a truncated download or interrupted file-copy would produce.
+        let truncated = Data(compressed.prefix(max(compressed.count / 2, 4)))
+
+        #expect {
+            try parseBackup(data: truncated)
+        } throws: { error in
+            guard let backupError = error as? AppBackupError,
+                  case .invalidFile = backupError else {
+                return false
+            }
+            return true
+        }
+    }
+
     @Test("parseBackup rejects files larger than the size cap")
     func parseBackupRejectsOversizedFile() {
         let oversized = Data(count: maxBackupCompressedBytes + 1)

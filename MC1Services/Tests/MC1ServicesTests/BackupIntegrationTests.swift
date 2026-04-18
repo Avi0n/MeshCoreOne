@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 import Testing
 @testable import MC1Services
 
@@ -1085,6 +1086,115 @@ struct BackupIntegrationTests {
         let contacts = try await destStore.fetchAllContacts(radioID: radioID)
         #expect(contacts.count == 1)
         #expect(contacts.first?.name == "Recovered Contact")
+    }
+
+    @Test("Disk-backed container has zero partial state after faulted import is abandoned")
+    func faultedImport_LeavesNoPartialStateOnDiskAfterReopen() async throws {
+        let storeURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("backup-crash-\(UUID().uuidString).store")
+        defer {
+            let fm = FileManager.default
+            try? fm.removeItem(at: storeURL)
+            try? fm.removeItem(at: storeURL.appendingPathExtension("shm"))
+            try? fm.removeItem(at: storeURL.appendingPathExtension("wal"))
+        }
+
+        let radioID = UUID()
+        let envelope = AppBackupEnvelope.test(
+            devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+            contacts: [
+                ContactDTO.testContact(
+                    radioID: radioID,
+                    publicKey: Data(repeating: 0x42, count: 32),
+                    name: "Should not survive"
+                )
+            ]
+        )
+
+        // Throw before save() to exercise the error path. With autosaveEnabled = false
+        // and save() never reached, nothing was flushed to SQLite — the defer's
+        // rollback() just clears the in-memory context. This is the error path, not a
+        // crash path: Swift's defer runs on throw, so a true bypassed-defer scenario
+        // would require a child process that exits mid-import.
+        do {
+            let cfg = ModelConfiguration(schema: PersistenceStore.schema, url: storeURL)
+            let container = try ModelContainer(for: PersistenceStore.schema, configurations: [cfg])
+            let store = PersistenceStore(modelContainer: container)
+            await store.setBackupImportFaultInjection { throw InjectedImportFailure.simulated }
+            await #expect(throws: InjectedImportFailure.simulated) {
+                try await store.importBackupDatabase(envelope)
+            }
+        }
+
+        let cfg = ModelConfiguration(schema: PersistenceStore.schema, url: storeURL)
+        let reopened = try ModelContainer(for: PersistenceStore.schema, configurations: [cfg])
+        let freshStore = PersistenceStore(modelContainer: reopened)
+
+        #expect(try await freshStore.fetchAllDevices().isEmpty)
+        #expect(try await freshStore.fetchAllContacts(radioID: radioID).isEmpty)
+    }
+
+    @Test("Concurrent live-store writer during import preserves both datasets")
+    func concurrentLiveWrite_DuringImport_PreservesBoth() async throws {
+        // Two @ModelActor instances on the same ModelContainer simulate a radio
+        // connecting mid-import: the backup flow resolved a standalone
+        // PersistenceStore at T=0, then ConnectionManager stood up a second
+        // PersistenceStore on the same container to service the live link.
+        let sharedContainer = try PersistenceStore.createContainer(inMemory: true)
+        let backupStore = PersistenceStore(modelContainer: sharedContainer)
+        let liveStore = PersistenceStore(modelContainer: sharedContainer)
+
+        let backupRadioID = UUID()
+        let liveRadioID = UUID()
+        let backupDevicePublicKey = Data(repeating: 0xB0, count: 32)
+        let liveDevicePublicKey = Data(repeating: 0xC0, count: 32)
+
+        let backupContact = ContactDTO.testContact(
+            radioID: backupRadioID,
+            publicKey: Data(repeating: 0xB1, count: 32),
+            name: "From backup"
+        )
+        let envelope = AppBackupEnvelope.test(
+            devices: [
+                DeviceDTO.testDevice(
+                    id: backupRadioID,
+                    radioID: backupRadioID,
+                    publicKey: backupDevicePublicKey
+                )
+            ],
+            contacts: [backupContact]
+        )
+
+        try await liveStore.saveDevice(
+            DeviceDTO.testDevice(
+                id: liveRadioID,
+                radioID: liveRadioID,
+                publicKey: liveDevicePublicKey
+            )
+        )
+        let liveContact = ContactDTO.testContact(
+            radioID: liveRadioID,
+            publicKey: Data(repeating: 0xC1, count: 32),
+            name: "From connect"
+        )
+
+        async let importResult: ImportResult = backupStore.importBackupDatabase(envelope)
+        async let liveWrite: Void = liveStore.saveContact(liveContact)
+
+        _ = try await importResult
+        try await liveWrite
+
+        // A third actor guarantees we read through the persistent store rather than
+        // either writer's context cache — `fetchAllContacts` on the writers can miss
+        // the other actor's commits until the cache invalidates.
+        let verifier = PersistenceStore(modelContainer: sharedContainer)
+        let liveContacts = try await verifier.fetchAllContacts(radioID: liveRadioID)
+        #expect(liveContacts.contains { $0.publicKey == liveContact.publicKey })
+        let backupContacts = try await verifier.fetchAllContacts(radioID: backupRadioID)
+        #expect(backupContacts.contains { $0.publicKey == backupContact.publicKey })
+
+        let allDevices = try await verifier.fetchAllDevices()
+        #expect(allDevices.count == 2)
     }
 
     // MARK: - Test 18: Export assigns content-based keys to nil-keyed messages
