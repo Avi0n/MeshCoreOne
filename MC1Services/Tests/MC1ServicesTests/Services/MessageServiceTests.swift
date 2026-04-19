@@ -11,8 +11,6 @@ struct MessageServiceTests {
     private let testTimeout: TimeInterval = 30.0
     private let expiredTimeOffset: TimeInterval = -31.0
     private let validAckCode = Data([0x01, 0x02, 0x03, 0x04])
-    private let expectedAckCodeUInt32: UInt32 = 0x04030201  // Little-endian
-    private let shortAckCode = Data([0x01, 0x02])
 
     // MARK: - PendingAck Tests
 
@@ -20,7 +18,8 @@ struct MessageServiceTests {
     func pendingAckNotExpiredWithinTimeout() {
         let ack = PendingAck(
             messageID: UUID(),
-            ackCode: validAckCode,
+            contactID: UUID(),
+            ackCodes: [validAckCode],
             sentAt: Date(),
             timeout: testTimeout
         )
@@ -31,7 +30,8 @@ struct MessageServiceTests {
     func pendingAckExpiredAfterTimeout() {
         let ack = PendingAck(
             messageID: UUID(),
-            ackCode: validAckCode,
+            contactID: UUID(),
+            ackCodes: [validAckCode],
             sentAt: Date().addingTimeInterval(expiredTimeOffset),
             timeout: testTimeout
         )
@@ -42,34 +42,13 @@ struct MessageServiceTests {
     func pendingAckNotExpiredWhenDelivered() {
         var ack = PendingAck(
             messageID: UUID(),
-            ackCode: validAckCode,
+            contactID: UUID(),
+            ackCodes: [validAckCode],
             sentAt: Date().addingTimeInterval(expiredTimeOffset),
             timeout: testTimeout
         )
         ack.isDelivered = true
         #expect(!ack.isExpired)
-    }
-
-    @Test("PendingAck ackCodeUInt32 converts correctly")
-    func pendingAckCodeConversion() {
-        let ack = PendingAck(
-            messageID: UUID(),
-            ackCode: validAckCode,
-            sentAt: Date(),
-            timeout: testTimeout
-        )
-        #expect(ack.ackCodeUInt32 == expectedAckCodeUInt32)
-    }
-
-    @Test("PendingAck ackCodeUInt32 handles short data")
-    func pendingAckCodeHandlesShortData() {
-        let ack = PendingAck(
-            messageID: UUID(),
-            ackCode: shortAckCode,
-            sentAt: Date(),
-            timeout: testTimeout
-        )
-        #expect(ack.ackCodeUInt32 == 0)
     }
 
     // MARK: - MessageServiceConfig Tests

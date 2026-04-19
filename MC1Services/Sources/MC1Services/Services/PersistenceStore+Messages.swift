@@ -258,17 +258,6 @@ extension PersistenceStore {
         return try modelContext.fetch(descriptor).first.map { MessageDTO(from: $0) }
     }
 
-    /// Fetch a message by ACK code
-    public func fetchMessage(ackCode: UInt32) throws -> MessageDTO? {
-        let targetAckCode: UInt32? = ackCode
-        let predicate = #Predicate<Message> { message in
-            message.ackCode == targetAckCode
-        }
-        var descriptor = FetchDescriptor(predicate: predicate)
-        descriptor.fetchLimit = 1
-        return try modelContext.fetch(descriptor).first.map { MessageDTO(from: $0) }
-    }
-
     /// Check if a message with this deduplication key already exists
     public func isDuplicateMessage(deduplicationKey: String) throws -> Bool {
         let targetKey = deduplicationKey
@@ -375,22 +364,6 @@ extension PersistenceStore {
 
         if let message = try modelContext.fetch(descriptor).first {
             message.ackCode = ackCode
-            message.status = status
-            message.roundTripTime = roundTripTime
-            try modelContext.save()
-        }
-    }
-
-    /// Update message status by ACK code
-    public func updateMessageByAckCode(_ ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32? = nil) throws {
-        let targetAckCode: UInt32? = ackCode
-        let predicate = #Predicate<Message> { message in
-            message.ackCode == targetAckCode
-        }
-        var descriptor = FetchDescriptor(predicate: predicate)
-        descriptor.fetchLimit = 1
-
-        if let message = try modelContext.fetch(descriptor).first {
             message.status = status
             message.roundTripTime = roundTripTime
             try modelContext.save()

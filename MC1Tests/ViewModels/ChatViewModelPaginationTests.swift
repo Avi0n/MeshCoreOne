@@ -142,10 +142,6 @@ actor PaginationTestDataStore: PersistenceStoreProtocol {
         messages[id]
     }
 
-    func fetchMessage(ackCode: UInt32) async throws -> MessageDTO? {
-        messages.values.first { $0.ackCode == ackCode }
-    }
-
     func fetchLastMessages(contactIDs: [UUID], limit: Int) throws -> [UUID: [MessageDTO]] {
         var result: [UUID: [MessageDTO]] = [:]
         for contactID in contactIDs {
@@ -188,7 +184,6 @@ actor PaginationTestDataStore: PersistenceStoreProtocol {
 
     func updateMessageStatus(id: UUID, status: MessageStatus) async throws {}
     func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {}
-    func updateMessageByAckCode(_ ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {}
     func updateMessageRetryStatus(
         id: UUID,
         status: MessageStatus,

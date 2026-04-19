@@ -8,6 +8,24 @@ struct MessageServiceACKTests {
 
     private let testDeviceID = UUID()
 
+    private func makePending(
+        messageID: UUID = UUID(),
+        contactID: UUID = UUID(),
+        ackCodes: Set<Data>,
+        sentAt: Date = Date(),
+        timeout: TimeInterval = 30.0,
+        isDelivered: Bool = false
+    ) -> PendingAck {
+        PendingAck(
+            messageID: messageID,
+            contactID: contactID,
+            ackCodes: ackCodes,
+            sentAt: sentAt,
+            timeout: timeout,
+            isDelivered: isDelivered
+        )
+    }
+
     // MARK: - ACK Expiry Checking Toggle
 
     @Test("isAckExpiryCheckingActive toggles correctly")
@@ -33,7 +51,6 @@ struct MessageServiceACKTests {
         await service.stopAckExpiryChecking()
         #expect(await !service.isAckExpiryCheckingActive)
 
-        // Start again to verify it works after stop
         await service.startAckExpiryChecking()
         #expect(await service.isAckExpiryCheckingActive)
         await service.stopAckExpiryChecking()
@@ -41,12 +58,11 @@ struct MessageServiceACKTests {
 
     // MARK: - checkExpiredAcks
 
-    @Test("checkExpiredAcks marks expired non-retry-managed ACK as failed")
+    @Test("checkExpiredAcks marks expired ACK as failed")
     func expiredAckMarkedFailed() async throws {
         let (service, dataStore) = try await MessageService.createForTesting()
         let messageID = UUID()
 
-        // Save a message so updateMessageStatus can find it
         let message = MessageDTO.testDirectMessage(
             id: messageID,
             radioID: testDeviceID,
@@ -54,29 +70,26 @@ struct MessageServiceACKTests {
         )
         try await dataStore.saveMessage(message)
 
-        // Track handler calls
         let tracker = FailedMessageTracker()
         await service.setMessageFailedHandlerForTest { id in
             await tracker.record(id)
         }
 
-        // Add an expired pending ACK
         let ackCode = Data([0x01, 0x02, 0x03, 0x04])
-        let expired = PendingAck(
-            messageID: messageID,
-            ackCode: ackCode,
-            sentAt: Date().addingTimeInterval(-60),
-            timeout: 30.0
+        await service.setPendingAckForTest(
+            makePending(
+                messageID: messageID,
+                ackCodes: [ackCode],
+                sentAt: Date().addingTimeInterval(-60),
+                timeout: 30.0
+            )
         )
-        await service.setPendingAckForTest(ackCode: ackCode, tracking: expired)
 
         try await service.checkExpiredAcks()
 
-        // Verify message status updated to failed
         let fetched = try await dataStore.fetchMessage(id: messageID)
         #expect(fetched?.status == .failed)
 
-        // Verify handler called
         let failedIDs = await tracker.failedIDs
         #expect(failedIDs.contains(messageID))
     }
@@ -86,36 +99,13 @@ struct MessageServiceACKTests {
         let (service, _) = try await MessageService.createForTesting()
 
         let ackCode = Data([0x05, 0x06, 0x07, 0x08])
-        let fresh = PendingAck(
-            messageID: UUID(),
-            ackCode: ackCode,
-            sentAt: Date(), // just now — not expired
-            timeout: 30.0
+        await service.setPendingAckForTest(
+            makePending(ackCodes: [ackCode], sentAt: Date(), timeout: 30.0)
         )
-        await service.setPendingAckForTest(ackCode: ackCode, tracking: fresh)
 
         try await service.checkExpiredAcks()
 
         #expect(await service.pendingAckCount == 1, "Non-expired ACK should survive")
-    }
-
-    @Test("checkExpiredAcks skips retry-managed ACK")
-    func retryManagedAckSkipped() async throws {
-        let (service, _) = try await MessageService.createForTesting()
-
-        let ackCode = Data([0x09, 0x0A, 0x0B, 0x0C])
-        let retryManaged = PendingAck(
-            messageID: UUID(),
-            ackCode: ackCode,
-            sentAt: Date().addingTimeInterval(-60),
-            timeout: 30.0,
-            isRetryManaged: true
-        )
-        await service.setPendingAckForTest(ackCode: ackCode, tracking: retryManaged)
-
-        try await service.checkExpiredAcks()
-
-        #expect(await service.pendingAckCount == 1, "Retry-managed ACK should not be expired")
     }
 
     @Test("checkExpiredAcks skips already-delivered ACK")
@@ -123,52 +113,18 @@ struct MessageServiceACKTests {
         let (service, _) = try await MessageService.createForTesting()
 
         let ackCode = Data([0x0D, 0x0E, 0x0F, 0x10])
-        var delivered = PendingAck(
-            messageID: UUID(),
-            ackCode: ackCode,
-            sentAt: Date().addingTimeInterval(-60),
-            timeout: 30.0
+        await service.setPendingAckForTest(
+            makePending(
+                ackCodes: [ackCode],
+                sentAt: Date().addingTimeInterval(-60),
+                timeout: 30.0,
+                isDelivered: true
+            )
         )
-        delivered.isDelivered = true
-        await service.setPendingAckForTest(ackCode: ackCode, tracking: delivered)
 
         try await service.checkExpiredAcks()
 
         #expect(await service.pendingAckCount == 1, "Delivered ACK should not be expired")
-    }
-
-    // MARK: - cleanupDeliveredAcks
-
-    @Test("cleanupDeliveredAcks removes delivered entries and preserves non-delivered")
-    func cleanupRemovesDelivered() async throws {
-        let (service, _) = try await MessageService.createForTesting()
-
-        // Add a delivered ACK
-        let deliveredCode = Data([0x01, 0x02, 0x03, 0x04])
-        var deliveredAck = PendingAck(
-            messageID: UUID(),
-            ackCode: deliveredCode,
-            sentAt: Date(),
-            timeout: 30.0
-        )
-        deliveredAck.isDelivered = true
-        await service.setPendingAckForTest(ackCode: deliveredCode, tracking: deliveredAck)
-
-        // Add a non-delivered ACK
-        let pendingCode = Data([0x05, 0x06, 0x07, 0x08])
-        let pendingAck = PendingAck(
-            messageID: UUID(),
-            ackCode: pendingCode,
-            sentAt: Date(),
-            timeout: 30.0
-        )
-        await service.setPendingAckForTest(ackCode: pendingCode, tracking: pendingAck)
-
-        #expect(await service.pendingAckCount == 2)
-
-        await service.cleanupDeliveredAcks()
-
-        #expect(await service.pendingAckCount == 1, "Only non-delivered ACK should remain")
     }
 
     // MARK: - failAllPendingMessages
@@ -179,7 +135,6 @@ struct MessageServiceACKTests {
         let messageID1 = UUID()
         let messageID2 = UUID()
 
-        // Save messages
         try await dataStore.saveMessage(
             MessageDTO.testDirectMessage(id: messageID1, radioID: testDeviceID, status: .sent)
         )
@@ -187,33 +142,25 @@ struct MessageServiceACKTests {
             MessageDTO.testDirectMessage(id: messageID2, radioID: testDeviceID, status: .sent)
         )
 
-        // Track handler calls
         let tracker = FailedMessageTracker()
         await service.setMessageFailedHandlerForTest { id in
             await tracker.record(id)
         }
 
-        // Add pending ACKs
-        let code1 = Data([0x01, 0x02, 0x03, 0x04])
         await service.setPendingAckForTest(
-            ackCode: code1,
-            tracking: PendingAck(messageID: messageID1, ackCode: code1, sentAt: Date(), timeout: 30.0)
+            makePending(messageID: messageID1, ackCodes: [Data([0x01, 0x02, 0x03, 0x04])])
         )
-        let code2 = Data([0x05, 0x06, 0x07, 0x08])
         await service.setPendingAckForTest(
-            ackCode: code2,
-            tracking: PendingAck(messageID: messageID2, ackCode: code2, sentAt: Date(), timeout: 30.0)
+            makePending(messageID: messageID2, ackCodes: [Data([0x05, 0x06, 0x07, 0x08])])
         )
 
         try await service.failAllPendingMessages()
 
-        // Verify statuses
         let msg1 = try await dataStore.fetchMessage(id: messageID1)
         let msg2 = try await dataStore.fetchMessage(id: messageID2)
         #expect(msg1?.status == .failed)
         #expect(msg2?.status == .failed)
 
-        // Verify handler called for both
         let failedIDs = await tracker.failedIDs
         #expect(failedIDs.count == 2)
         #expect(failedIDs.contains(messageID1))
@@ -230,22 +177,19 @@ struct MessageServiceACKTests {
             MessageDTO.testDirectMessage(id: pendingID, radioID: testDeviceID, status: .sent)
         )
 
-        // Delivered ACK
-        let dCode = Data([0x01, 0x02, 0x03, 0x04])
-        var dAck = PendingAck(messageID: deliveredID, ackCode: dCode, sentAt: Date(), timeout: 30.0)
-        dAck.isDelivered = true
-        await service.setPendingAckForTest(ackCode: dCode, tracking: dAck)
-
-        // Pending ACK
-        let pCode = Data([0x05, 0x06, 0x07, 0x08])
         await service.setPendingAckForTest(
-            ackCode: pCode,
-            tracking: PendingAck(messageID: pendingID, ackCode: pCode, sentAt: Date(), timeout: 30.0)
+            makePending(
+                messageID: deliveredID,
+                ackCodes: [Data([0x01, 0x02, 0x03, 0x04])],
+                isDelivered: true
+            )
+        )
+        await service.setPendingAckForTest(
+            makePending(messageID: pendingID, ackCodes: [Data([0x05, 0x06, 0x07, 0x08])])
         )
 
         try await service.failAllPendingMessages()
 
-        // Only the pending one should be failed
         let msg = try await dataStore.fetchMessage(id: pendingID)
         #expect(msg?.status == .failed)
     }
@@ -264,10 +208,8 @@ struct MessageServiceACKTests {
         await service.startAckExpiryChecking()
         #expect(await service.isAckExpiryCheckingActive)
 
-        let code = Data([0x01, 0x02, 0x03, 0x04])
         await service.setPendingAckForTest(
-            ackCode: code,
-            tracking: PendingAck(messageID: messageID, ackCode: code, sentAt: Date(), timeout: 30.0)
+            makePending(messageID: messageID, ackCodes: [Data([0x01, 0x02, 0x03, 0x04])])
         )
 
         try await service.stopAndFailAllPending()
@@ -293,15 +235,14 @@ struct MessageServiceACKTests {
         try await dataStore.saveMessage(message)
 
         let ackCode = Data([0xEF, 0xBE, 0xAD, 0xDE]) // 0xDEADBEEF LE
-        let pending = PendingAck(
-            messageID: messageID,
-            ackCode: ackCode,
-            sentAt: Date().addingTimeInterval(-10), // 10 seconds ago
-            timeout: 30.0
+        await service.setPendingAckForTest(
+            makePending(
+                messageID: messageID,
+                ackCodes: [ackCode],
+                sentAt: Date().addingTimeInterval(-10)
+            )
         )
-        await service.setPendingAckForTest(ackCode: ackCode, tracking: pending)
 
-        // Provide firmware trip time of 250ms
         await service.handleAcknowledgement(code: ackCode, tripTime: 250)
 
         let fetched = try await dataStore.fetchMessage(id: messageID)
@@ -324,24 +265,254 @@ struct MessageServiceACKTests {
         try await dataStore.saveMessage(message)
 
         let ackCode = Data([0xBE, 0xBA, 0xFE, 0xCA]) // 0xCAFEBABE LE
-        let pending = PendingAck(
-            messageID: messageID,
-            ackCode: ackCode,
-            sentAt: Date().addingTimeInterval(-2), // 2 seconds ago
-            timeout: 30.0
+        await service.setPendingAckForTest(
+            makePending(
+                messageID: messageID,
+                ackCodes: [ackCode],
+                sentAt: Date().addingTimeInterval(-2)
+            )
         )
-        await service.setPendingAckForTest(ackCode: ackCode, tracking: pending)
 
-        // Pass nil tripTime — should fall back to Date()-based calculation
         await service.handleAcknowledgement(code: ackCode, tripTime: nil)
 
         let fetched = try await dataStore.fetchMessage(id: messageID)
         #expect(fetched?.status == .delivered)
-        // Date()-based RTT should be roughly 2000ms (within a reasonable range)
         if let rtt = fetched?.roundTripTime {
             #expect(rtt >= 1500 && rtt <= 5000,
                     "Date()-based RTT should be ~2000ms, got \(rtt)ms")
         }
+    }
+
+    // MARK: - Multi-attempt (Issue #283)
+
+    @Test("handleAcknowledgement matches any CRC accumulated across retry attempts")
+    func multiAttemptLateAckDelivers() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+
+        let message = MessageDTO.testDirectMessage(
+            id: messageID,
+            radioID: testDeviceID,
+            status: .pending
+        )
+        try await dataStore.saveMessage(message)
+
+        // Simulate three retry attempts, each producing a different CRC
+        // (firmware hashes attempt index into the ack code).
+        let attempt0 = Data([0xAA, 0xAA, 0xAA, 0xAA])
+        let attempt1 = Data([0xBB, 0xBB, 0xBB, 0xBB])
+        let attempt2 = Data([0xCC, 0xCC, 0xCC, 0xCC])
+        await service.setPendingAckForTest(
+            makePending(messageID: messageID, ackCodes: [attempt0, attempt1, attempt2])
+        )
+
+        // A late ACK for attempt 0's CRC arrives after the retry loop has moved
+        // on to attempt 2 — must still deliver.
+        await service.handleAcknowledgement(code: attempt0, tripTime: 500)
+
+        let fetched = try await dataStore.fetchMessage(id: messageID)
+        #expect(fetched?.status == .delivered,
+                "Late ACK from an earlier attempt must still mark delivered")
+        #expect(fetched?.roundTripTime == 500)
+        #expect(await service.pendingAckCount == 0,
+                "Entry should be removed after delivery (no sibling accumulation)")
+    }
+
+    @Test("handleAcknowledgement updates contact lastMessageDate on late ACK")
+    func lateAckUpdatesContactLastMessage() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let radioID = testDeviceID
+        try await dataStore.saveDevice(DeviceDTO.testDevice(id: radioID, radioID: radioID))
+
+        let frame = ContactFrame(
+            publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) }),
+            type: .chat,
+            flags: 0,
+            outPathLength: 2,
+            outPath: Data([0x01, 0x02]),
+            name: "LateAckContact",
+            lastAdvertTimestamp: UInt32(Date().timeIntervalSince1970),
+            latitude: 0,
+            longitude: 0,
+            lastModified: UInt32(Date().timeIntervalSince1970)
+        )
+        let contactID = try await dataStore.saveContact(radioID: radioID, from: frame)
+
+        let messageID = UUID()
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(
+                id: messageID,
+                radioID: radioID,
+                contactID: contactID,
+                status: .pending
+            )
+        )
+
+        let ackCode = Data([0x11, 0x22, 0x33, 0x44])
+        await service.setPendingAckForTest(
+            makePending(messageID: messageID, contactID: contactID, ackCodes: [ackCode])
+        )
+
+        let before = Date()
+        await service.handleAcknowledgement(code: ackCode, tripTime: 500)
+
+        let contact = try await dataStore.fetchContact(id: contactID)
+        #expect(contact?.lastMessageDate != nil,
+                "Late ACK path must update contact lastMessageDate")
+        if let date = contact?.lastMessageDate {
+            #expect(date >= before,
+                    "Contact lastMessageDate should be updated to approximately now")
+        }
+    }
+
+    @Test("trackPendingAck on retry resets sentAt so checkExpiredAcks preserves a retrying message")
+    func retryTrackingResetsSentAt() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        let contactID = UUID()
+
+        let message = MessageDTO.testDirectMessage(
+            id: messageID,
+            radioID: testDeviceID,
+            status: .sent
+        )
+        try await dataStore.saveMessage(message)
+
+        // Seed attempt 0 with sentAt well past its timeout window.
+        let ancient = Date().addingTimeInterval(-60)
+        await service.setPendingAckForTest(
+            makePending(
+                messageID: messageID,
+                contactID: contactID,
+                ackCodes: [Data([0xAA, 0xAA, 0xAA, 0xAA])],
+                sentAt: ancient,
+                timeout: 30.0
+            )
+        )
+
+        // Retry attempt 1 registers a new ackCode and a fresh timeout window.
+        // sentAt must also advance, otherwise checkExpiredAcks will fail the
+        // entry immediately even though the retry is actively in flight.
+        await service.trackPendingAck(
+            messageID: messageID,
+            contactID: contactID,
+            ackCode: Data([0xBB, 0xBB, 0xBB, 0xBB]),
+            timeout: 30.0
+        )
+
+        try await service.checkExpiredAcks()
+
+        #expect(await service.pendingAckCount == 1,
+                "Retry attempt must preserve the entry, not expire it")
+        let fetched = try await dataStore.fetchMessage(id: messageID)
+        #expect(fetched?.status != .failed,
+                "Retry must not flicker to .failed while in flight")
+    }
+
+    @Test("finalizeSend preserves roundTripTime after listener-won delivery")
+    func finalizeSendPreservesListenerRTT() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        let contactID = UUID()
+        let radioID = testDeviceID
+        let publicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
+        let ackCode = Data([0xAA, 0xBB, 0xCC, 0xDD])
+
+        let message = MessageDTO.testDirectMessage(
+            id: messageID,
+            radioID: radioID,
+            contactID: contactID,
+            status: .sent
+        )
+        try await dataStore.saveMessage(message)
+
+        await service.setPendingAckForTest(
+            makePending(
+                messageID: messageID,
+                contactID: contactID,
+                ackCodes: [ackCode]
+            )
+        )
+
+        // Listener path fires first: writes .delivered + RTT=500 and removes the entry.
+        await service.handleAcknowledgement(code: ackCode, tripTime: 500)
+
+        let afterListener = try await dataStore.fetchMessage(id: messageID)
+        #expect(afterListener?.roundTripTime == 500,
+                "Listener should have written RTT=500 before finalizeSend runs")
+
+        // Retry loop's waitForEvent matched the same ACK, so finalizeSend runs
+        // with sentInfo != nil. It must NOT clobber the listener-written RTT.
+        let sentInfo = MessageSentInfo(
+            type: 0,
+            expectedAck: ackCode,
+            suggestedTimeoutMs: 5000
+        )
+        _ = try await service.finalizeSend(
+            messageID: messageID,
+            contactID: contactID,
+            radioID: radioID,
+            publicKey: publicKey,
+            sentInfo: sentInfo,
+            initialPathLength: 0
+        )
+
+        let final = try await dataStore.fetchMessage(id: messageID)
+        #expect(final?.status == .delivered)
+        #expect(final?.roundTripTime == 500,
+                "finalizeSend must not clobber listener-written RTT with nil")
+    }
+
+    @Test("handleAcknowledgement is a no-op when no entry matches the ackCode")
+    func unmatchedAckIsNoOp() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+
+        let message = MessageDTO.testDirectMessage(
+            id: messageID,
+            radioID: testDeviceID,
+            status: .sent
+        )
+        try await dataStore.saveMessage(message)
+
+        await service.handleAcknowledgement(code: Data([0xDE, 0xAD, 0xBE, 0xEF]), tripTime: 100)
+
+        let fetched = try await dataStore.fetchMessage(id: messageID)
+        #expect(fetched?.status == .sent,
+                "Unmatched ACK must not change message status")
+        #expect(await service.pendingAckCount == 0)
+    }
+
+    // MARK: - failMessageAndRethrow cleanup
+
+    @Test("failMessageAndRethrow removes pendingAcks entry and rethrows")
+    func failMessageRemovesPendingAck() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+
+        let message = MessageDTO.testDirectMessage(
+            id: messageID,
+            radioID: testDeviceID,
+            status: .pending
+        )
+        try await dataStore.saveMessage(message)
+
+        await service.setPendingAckForTest(
+            makePending(messageID: messageID, ackCodes: [Data([0x01, 0x02, 0x03, 0x04])])
+        )
+        #expect(await service.pendingAckCount == 1)
+
+        await #expect(throws: MessageServiceError.self) {
+            try await service.failMessageAndRethrow(
+                MeshCoreError.notConnected,
+                messageID: messageID
+            )
+        }
+
+        #expect(await service.pendingAckCount == 0,
+                "Throw path must remove pendingAcks entry to prevent leaks")
+        let fetched = try await dataStore.fetchMessage(id: messageID)
+        #expect(fetched?.status == .failed)
     }
 
     // MARK: - pendingAckCount
@@ -352,17 +523,13 @@ struct MessageServiceACKTests {
 
         #expect(await service.pendingAckCount == 0)
 
-        let code1 = Data([0x01, 0x02, 0x03, 0x04])
         await service.setPendingAckForTest(
-            ackCode: code1,
-            tracking: PendingAck(messageID: UUID(), ackCode: code1, sentAt: Date(), timeout: 30.0)
+            makePending(ackCodes: [Data([0x01, 0x02, 0x03, 0x04])])
         )
         #expect(await service.pendingAckCount == 1)
 
-        let code2 = Data([0x05, 0x06, 0x07, 0x08])
         await service.setPendingAckForTest(
-            ackCode: code2,
-            tracking: PendingAck(messageID: UUID(), ackCode: code2, sentAt: Date(), timeout: 30.0)
+            makePending(ackCodes: [Data([0x05, 0x06, 0x07, 0x08])])
         )
         #expect(await service.pendingAckCount == 2)
     }

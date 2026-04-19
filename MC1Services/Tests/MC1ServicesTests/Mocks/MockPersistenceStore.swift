@@ -66,13 +66,6 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         return messages[id]
     }
 
-    public func fetchMessage(ackCode: UInt32) async throws -> MessageDTO? {
-        if let error = stubbedFetchMessageError {
-            throw error
-        }
-        return messages.values.first { $0.ackCode == ackCode }
-    }
-
     public func fetchLastMessages(contactIDs: [UUID], limit: Int) throws -> [UUID: [MessageDTO]] {
         if let error = stubbedFetchMessageError { throw error }
         var result: [UUID: [MessageDTO]] = [:]
@@ -288,12 +281,6 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
                 retryAttempt: message.retryAttempt,
                 maxRetryAttempts: message.maxRetryAttempts
             )
-        }
-    }
-
-    public func updateMessageByAckCode(_ ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {
-        if let message = messages.values.first(where: { $0.ackCode == ackCode }) {
-            try await updateMessageAck(id: message.id, ackCode: ackCode, status: status, roundTripTime: roundTripTime)
         }
     }
 

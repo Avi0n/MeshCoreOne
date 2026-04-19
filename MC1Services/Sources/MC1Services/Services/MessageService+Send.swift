@@ -73,7 +73,12 @@ extension MessageService {
 
             // Track pending ACK
             let timeout = TimeInterval(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
-            trackPendingAck(messageID: messageID, ackCode: sentInfo.expectedAck, timeout: timeout)
+            trackPendingAck(
+                messageID: messageID,
+                contactID: contact.id,
+                ackCode: sentInfo.expectedAck,
+                timeout: timeout
+            )
 
             // Update contact's last message date
             try await dataStore.updateContactLastMessage(contactID: contact.id, date: Date())
@@ -385,6 +390,17 @@ extension MessageService {
                 Double(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
             )
 
+            // Register this attempt's expected ACK so the persistent event
+            // listener can mark the message delivered even if it arrives after
+            // `waitForEvent` times out or during a later attempt whose predicate
+            // rejects the prior attempt's CRC.
+            trackPendingAck(
+                messageID: messageID,
+                contactID: contactID,
+                ackCode: sentInfo.expectedAck,
+                timeout: ackTimeout
+            )
+
             let ackEvent = await session.waitForEvent(
                 matching: { event in
                     if case .acknowledgement(let code, _) = event {
@@ -630,14 +646,27 @@ extension MessageService {
 
     // MARK: - Private Helpers
 
-    private func trackPendingAck(messageID: UUID, ackCode: Data, timeout: TimeInterval) {
-        let pending = PendingAck(
-            messageID: messageID,
-            ackCode: ackCode,
-            sentAt: Date(),
-            timeout: timeout
-        )
-        pendingAcks[ackCode] = pending
+    /// Records a new expected-ACK code for a message awaiting delivery.
+    ///
+    /// On the first call for a given `messageID` this creates the entry; on
+    /// subsequent retry attempts it adds the new `ackCode` to the same entry's
+    /// `ackCodes` set and resets both `sentAt` and the timeout window to the
+    /// latest attempt so `checkExpiredAcks` does not fail the in-flight retry.
+    func trackPendingAck(messageID: UUID, contactID: UUID, ackCode: Data, timeout: TimeInterval) {
+        if var existing = pendingAcks[messageID] {
+            existing.ackCodes.insert(ackCode)
+            existing.sentAt = Date()
+            existing.timeout = timeout
+            pendingAcks[messageID] = existing
+        } else {
+            pendingAcks[messageID] = PendingAck(
+                messageID: messageID,
+                contactID: contactID,
+                ackCodes: [ackCode],
+                sentAt: Date(),
+                timeout: timeout
+            )
+        }
     }
 
     private func validateDirectMessage(text: String, to contact: ContactDTO) throws {
@@ -645,7 +674,8 @@ extension MessageService {
         guard text.utf8.count <= ProtocolLimits.maxDirectMessageLength else { throw MessageServiceError.messageTooLong }
     }
 
-    private func failMessageAndRethrow(_ error: Error, messageID: UUID) async throws -> Never {
+    func failMessageAndRethrow(_ error: Error, messageID: UUID) async throws -> Never {
+        pendingAcks.removeValue(forKey: messageID)
         try await dataStore.updateMessageStatus(id: messageID, status: .failed)
         if let meshError = error as? MeshCoreError {
             throw MessageServiceError.sessionError(meshError)
@@ -653,7 +683,7 @@ extension MessageService {
         throw error
     }
 
-    private func finalizeSend(
+    func finalizeSend(
         messageID: UUID,
         contactID: UUID,
         radioID: UUID,
@@ -661,15 +691,25 @@ extension MessageService {
         sentInfo: MessageSentInfo?,
         initialPathLength: UInt8
     ) async throws -> MessageDTO {
-        if let sentInfo {
-            try await dataStore.updateMessageAck(
-                id: messageID,
-                ackCode: sentInfo.expectedAck.ackCodeUInt32,
-                status: .delivered
-            )
-            try await dataStore.updateContactLastMessage(contactID: contactID, date: Date())
-        } else {
-            try await dataStore.updateMessageStatus(id: messageID, status: .failed)
+        // Atomically take ownership of the pendingAcks entry. A missing entry
+        // means `handleAcknowledgement` already processed the ACK (it removes
+        // the entry on delivery); an `isDelivered == true` entry means the
+        // listener marked it mid-flight. In both cases the listener owns the
+        // `.delivered` write (including `roundTripTime`) and we skip the DB
+        // update here to avoid clobbering it with a nil RTT.
+        let tracking = pendingAcks.removeValue(forKey: messageID)
+
+        if tracking?.isDelivered == false {
+            if let sentInfo {
+                try await dataStore.updateMessageAck(
+                    id: messageID,
+                    ackCode: sentInfo.expectedAck.ackCodeUInt32,
+                    status: .delivered
+                )
+                try await dataStore.updateContactLastMessage(contactID: contactID, date: Date())
+            } else {
+                try await dataStore.updateMessageStatus(id: messageID, status: .failed)
+            }
         }
         await checkAndNotifyRoutingChange(
             publicKey: publicKey,

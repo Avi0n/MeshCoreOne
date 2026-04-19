@@ -649,32 +649,6 @@ struct PersistenceStoreTests {
         #expect(fetched?.status == .sent)
     }
 
-    @Test("Update message by ACK code")
-    func updateMessageByAckCode() async throws {
-        let store = try await createTestStore()
-        let device = createTestDevice()
-        try await store.saveDevice(device)
-
-        let frame = createTestContactFrame()
-        let contactID = try await store.saveContact(radioID: device.id, from: frame)
-
-        let message = MessageDTO(from: Message(
-            radioID: device.id,
-            contactID: contactID,
-            text: "Test",
-            statusRawValue: MessageStatus.sending.rawValue,
-            ackCode: 12345
-        ))
-        try await store.saveMessage(message)
-
-        // Simulate ACK received
-        try await store.updateMessageByAckCode(12345, status: .delivered, roundTripTime: 250)
-
-        let fetched = try await store.fetchMessage(id: message.id)
-        #expect(fetched?.status == .delivered)
-        #expect(fetched?.roundTripTime == 250)
-    }
-
     // MARK: - Channel Tests
 
     @Test("Save and fetch channels")

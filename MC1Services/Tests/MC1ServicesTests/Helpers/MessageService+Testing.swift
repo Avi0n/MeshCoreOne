@@ -16,8 +16,8 @@ extension MessageService {
         inFlightRetries.insert(messageID)
     }
 
-    func setPendingAckForTest(ackCode: Data, tracking: PendingAck) {
-        pendingAcks[ackCode] = tracking
+    func setPendingAckForTest(_ tracking: PendingAck) {
+        pendingAcks[tracking.messageID] = tracking
     }
 
     func setMessageFailedHandlerForTest(_ handler: @escaping @Sendable (UUID) async -> Void) {

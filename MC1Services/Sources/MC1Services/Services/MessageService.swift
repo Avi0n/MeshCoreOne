@@ -81,33 +81,39 @@ public struct MessageServiceConfig: Sendable {
 
 // MARK: - Pending ACK Tracker
 
-/// Tracks pending ACKs for message delivery confirmation
+/// Tracks pending ACKs for a single outgoing direct message across retry attempts.
+///
+/// The firmware hashes the retry attempt index into the expected-ACK CRC, so a
+/// single logical message can produce multiple `ackCodes` (one per attempt).
+/// All attempts for the same message share one `PendingAck` entry.
+///
+/// DM-only: channel/room broadcasts do not generate ACKs and are not tracked here.
 public struct PendingAck: Sendable {
     public let messageID: UUID
-    public let ackCode: Data
-    public let sentAt: Date
-    public let timeout: TimeInterval
+    public let contactID: UUID
+    public var ackCodes: Set<Data>
+    public var sentAt: Date
+    public var timeout: TimeInterval
     public var isDelivered: Bool = false
 
-    /// When true, `checkExpiredAcks` will skip this ACK (retry loop manages expiry)
-    public var isRetryManaged: Bool = false
-
-    public init(messageID: UUID, ackCode: Data, sentAt: Date, timeout: TimeInterval, isRetryManaged: Bool = false) {
+    public init(
+        messageID: UUID,
+        contactID: UUID,
+        ackCodes: Set<Data>,
+        sentAt: Date,
+        timeout: TimeInterval,
+        isDelivered: Bool = false
+    ) {
         self.messageID = messageID
-        self.ackCode = ackCode
+        self.contactID = contactID
+        self.ackCodes = ackCodes
         self.sentAt = sentAt
         self.timeout = timeout
-        self.isRetryManaged = isRetryManaged
+        self.isDelivered = isDelivered
     }
 
     public var isExpired: Bool {
         !isDelivered && Date().timeIntervalSince(sentAt) > timeout
-    }
-
-    /// Convert Data ack code to UInt32 for storage
-    public var ackCodeUInt32: UInt32 {
-        guard ackCode.count >= 4 else { return 0 }
-        return ackCode.prefix(4).withUnsafeBytes { $0.load(as: UInt32.self).littleEndian }
     }
 }
 
@@ -156,11 +162,12 @@ public actor MessageService {
     /// Contact service for path management (optional - retry with reset requires this)
     private var contactService: ContactService?
 
-    /// Currently tracked pending ACKs (keyed by Data for MeshCore compatibility)
-    var pendingAcks: [Data: PendingAck] = [:]
-
-    /// Continuations waiting for specific ACK codes (for retry loop)
-    private var ackContinuations: [Data: CheckedContinuation<Bool, Never>] = [:]
+    /// In-flight messages awaiting ACK, keyed by messageID.
+    ///
+    /// One entry per message. Each entry carries the full set of expected-ACK
+    /// CRCs accumulated across retry attempts, so a late ACK from any attempt
+    /// can still mark the message delivered.
+    var pendingAcks: [UUID: PendingAck] = [:]
 
     /// ACK confirmation callback (ackCode, roundTripTime)
     private var ackConfirmationHandler: (@Sendable (UInt32, UInt32) -> Void)?
@@ -255,35 +262,44 @@ public actor MessageService {
 
     // MARK: - ACK Handling
 
-    /// Processes an acknowledgement from the session event stream
+    /// Processes an acknowledgement from the session event stream.
+    ///
+    /// Finds the in-flight message whose accumulated `ackCodes` contains this
+    /// CRC, marks it delivered, writes the delivery status + round-trip time
+    /// to the database, and removes the entry. This is the sole DB writer for
+    /// delivered status on the late-ACK path.
     func handleAcknowledgement(code: Data, tripTime: UInt32?) async {
-        guard pendingAcks[code] != nil else {
+        guard let (messageID, tracking) = pendingAcks.first(where: {
+            $0.value.ackCodes.contains(code) && !$0.value.isDelivered
+        }) else {
             return
         }
 
-        guard pendingAcks[code]?.isDelivered == false else {
-            // Already delivered, ignore duplicate
-            return
-        }
-
-        pendingAcks[code]?.isDelivered = true
-
-        // Resume any waiting continuation
-        if let continuation = ackContinuations.removeValue(forKey: code) {
-            continuation.resume(returning: true)
-        }
-
-        guard let tracking = pendingAcks[code] else { return }
+        pendingAcks[messageID]?.isDelivered = true
 
         let roundTripMs = tripTime ?? UInt32(Date().timeIntervalSince(tracking.sentAt) * 1000)
+        let ackCodeUInt32 = code.ackCodeUInt32
 
-        try? await dataStore.updateMessageByAckCode(
-            tracking.ackCodeUInt32,
-            status: .delivered,
-            roundTripTime: roundTripMs
-        )
+        do {
+            try await dataStore.updateMessageAck(
+                id: messageID,
+                ackCode: ackCodeUInt32,
+                status: .delivered,
+                roundTripTime: roundTripMs
+            )
+        } catch {
+            logger.error("Failed to write delivered status: \(error.localizedDescription)")
+        }
 
-        ackConfirmationHandler?(tracking.ackCodeUInt32, roundTripMs)
+        do {
+            try await dataStore.updateContactLastMessage(contactID: tracking.contactID, date: Date())
+        } catch {
+            logger.error("Failed to update contact lastMessageDate: \(error.localizedDescription)")
+        }
+
+        pendingAcks.removeValue(forKey: messageID)
+
+        ackConfirmationHandler?(ackCodeUInt32, roundTripMs)
 
         logger.info("ACK received")
     }

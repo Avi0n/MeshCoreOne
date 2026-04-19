@@ -31,9 +31,6 @@ public protocol PersistenceStoreProtocol: Actor {
     /// Fetch a message by ID
     func fetchMessage(id: UUID) async throws -> MessageDTO?
 
-    /// Fetch a message by ACK code
-    func fetchMessage(ackCode: UInt32) async throws -> MessageDTO?
-
     /// Fetch messages for a contact
     func fetchMessages(contactID: UUID, limit: Int, offset: Int) async throws -> [MessageDTO]
 
@@ -88,9 +85,6 @@ public protocol PersistenceStoreProtocol: Actor {
 
     /// Update message ACK info
     func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws
-
-    /// Update message status by ACK code
-    func updateMessageByAckCode(_ ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws
 
     /// Update message retry status
     func updateMessageRetryStatus(id: UUID, status: MessageStatus, retryAttempt: Int, maxRetryAttempts: Int) async throws

@@ -30,7 +30,6 @@ extension MessageService {
                 guard !Task.isCancelled else { break }
 
                 try? await self.checkExpiredAcks()
-                await self.cleanupDeliveredAcks()
             }
         }
     }
@@ -52,33 +51,16 @@ extension MessageService {
     public func checkExpiredAcks() async throws {
         let now = Date()
 
-        let expiredCodes = pendingAcks.filter { _, tracking in
-            !tracking.isRetryManaged &&
+        let expiredIDs = pendingAcks.filter { _, tracking in
             !tracking.isDelivered &&
             now.timeIntervalSince(tracking.sentAt) > tracking.timeout
         }.keys
 
-        for ackCode in expiredCodes {
-            if let tracking = pendingAcks.removeValue(forKey: ackCode) {
-                try await dataStore.updateMessageStatus(id: tracking.messageID, status: .failed)
-                logger.warning("Message failed - timeout exceeded")
-
-                await messageFailedHandler?(tracking.messageID)
-            }
-        }
-    }
-
-    /// Cleans up delivered ACK tracking entries.
-    ///
-    /// Removes ACK tracking data for messages that were delivered.
-    /// This prevents unbounded memory growth.
-    public func cleanupDeliveredAcks() {
-        let deliveredCodes = pendingAcks.filter { _, tracking in
-            tracking.isDelivered
-        }.keys
-
-        for ackCode in deliveredCodes {
-            pendingAcks.removeValue(forKey: ackCode)
+        for messageID in expiredIDs {
+            guard pendingAcks.removeValue(forKey: messageID) != nil else { continue }
+            try await dataStore.updateMessageStatus(id: messageID, status: .failed)
+            logger.warning("Message failed - timeout exceeded")
+            await messageFailedHandler?(messageID)
         }
     }
 
@@ -88,15 +70,12 @@ extension MessageService {
     ///
     /// - Throws: Database errors when updating message status
     public func failAllPendingMessages() async throws {
-        let pendingCodes = pendingAcks.filter { _, tracking in
-            !tracking.isDelivered
-        }.keys
+        let pendingIDs = pendingAcks.filter { !$0.value.isDelivered }.keys
+        pendingAcks.removeAll()
 
-        for ackCode in pendingCodes {
-            if let tracking = pendingAcks.removeValue(forKey: ackCode) {
-                try await dataStore.updateMessageStatus(id: tracking.messageID, status: .failed)
-                await messageFailedHandler?(tracking.messageID)
-            }
+        for messageID in pendingIDs {
+            try await dataStore.updateMessageStatus(id: messageID, status: .failed)
+            await messageFailedHandler?(messageID)
         }
     }
 

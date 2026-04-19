@@ -79,7 +79,6 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
 
     func saveMessage(_ dto: MessageDTO) async throws {}
     func fetchMessage(id: UUID) async throws -> MessageDTO? { nil }
-    func fetchMessage(ackCode: UInt32) async throws -> MessageDTO? { nil }
     func fetchMessages(contactID: UUID, limit: Int, offset: Int) async throws -> [MessageDTO] { [] }
     func fetchMessages(radioID: UUID, channelIndex: UInt8, limit: Int, offset: Int) async throws -> [MessageDTO] { [] }
     func fetchLastMessages(contactIDs: [UUID], limit: Int) throws -> [UUID: [MessageDTO]] { [:] }
@@ -87,7 +86,6 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
     func deleteMessagesForContact(contactID: UUID) async throws {}
     func updateMessageStatus(id: UUID, status: MessageStatus) async throws {}
     func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {}
-    func updateMessageByAckCode(_ ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {}
     func updateMessageRetryStatus(id: UUID, status: MessageStatus, retryAttempt: Int, maxRetryAttempts: Int) async throws {}
     func updateMessageHeardRepeats(id: UUID, heardRepeats: Int) async throws {}
     func updateMessageLinkPreview(id: UUID, url: String?, title: String?, imageData: Data?, iconData: Data?, fetched: Bool) throws {}
