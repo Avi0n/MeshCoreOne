@@ -327,7 +327,9 @@ struct ChannelInfoSheet: View {
             }
 
             if newRegions.isEmpty {
-                discoveryMessage = L10n.Chats.Chats.ChannelInfo.Region.noNewRegions
+                if discoveryMessage == nil {
+                    discoveryMessage = L10n.Chats.Chats.ChannelInfo.Region.noNewRegions
+                }
             } else {
                 await onNewRegions(newRegions)
             }
@@ -343,7 +345,7 @@ struct ChannelInfoSheet: View {
         }
         let radioID = channel.radioID
 
-        // Phase 1: Broadcast DISCOVER_REQ to find nearby repeaters (~3s)
+        // Broadcast a DISCOVER_REQ and collect the public keys of repeaters that respond
         let discoveredPubkeys: Set<Data>
         do {
             let tag = try await session.sendNodeDiscoverRequest(
@@ -352,11 +354,10 @@ struct ChannelInfoSheet: View {
             )
             let tagData = withUnsafeBytes(of: tag.littleEndian) { Data($0) }
 
+            let (subscriptionID, events) = await session.eventsTracked()
             let listenTask = Task { () -> Set<Data> in
                 var keys = Set<Data>()
-                let events = await session.events()
                 for await event in events {
-                    guard !Task.isCancelled else { break }
                     if case .discoverResponse(let response) = event,
                        response.tag == tagData {
                         keys.insert(response.publicKey)
@@ -365,8 +366,8 @@ struct ChannelInfoSheet: View {
                 return keys
             }
 
-            try? await Task.sleep(for: .seconds(3))
-            listenTask.cancel()
+            try? await Task.sleep(for: Self.regionDiscoveryListenDuration)
+            await session.finishEvents(id: subscriptionID)
             discoveredPubkeys = await listenTask.value
         } catch {
             return []
@@ -379,37 +380,108 @@ struct ChannelInfoSheet: View {
             return []
         }
 
-        // Phase 2: Query only responding repeaters for their regions
-        let repeaters: [ContactDTO]
+        // Build the query pool from both contacts and the discovered-nodes table
+        // so we can query repeaters the user hasn't added as contacts yet.
+        let queryTargets: [MeshContact]
         do {
-            repeaters = try await contactService.getContacts(radioID: radioID)
-                .filter { $0.type == .repeater && discoveredPubkeys.contains($0.publicKey) }
+            let contacts = try await contactService.getContacts(radioID: radioID)
+            let discoveredNodes = (try? await appState.offlineDataStore?.fetchDiscoveredNodes(radioID: radioID)) ?? []
+            queryTargets = Self.buildRegionQueryTargets(
+                responders: discoveredPubkeys,
+                contacts: contacts,
+                discoveredNodes: discoveredNodes
+            )
         } catch {
+            discoveryMessage = L10n.Chats.Chats.ChannelInfo.Region.errLoadingRepeaters
             return []
         }
 
-        if repeaters.isEmpty {
+        if queryTargets.isEmpty {
             discoveryMessage = L10n.Chats.Chats.ChannelInfo.Region.noRepeatersResponded
             return []
         }
 
         var allRegions = Set<String>()
+        var anyTableFull = false
+        let tableFullCode = Self.firmwareTableFullErrorCode
 
-        await withTaskGroup(of: [String].self) { group in
-            for contact in repeaters {
+        await withTaskGroup(of: RegionQueryOutcome.self) { group in
+            for meshContact in queryTargets {
                 guard !Task.isCancelled else { break }
-                let meshContact = contact.toContactFrame().toMeshContact()
                 group.addTask {
-                    (try? await session.requestRegions(from: meshContact)) ?? []
+                    do {
+                        let regions = try await session.requestRegions(from: meshContact)
+                        return .regions(regions)
+                    } catch let MeshCoreError.deviceError(code) where code == tableFullCode {
+                        return .tableFull
+                    } catch {
+                        return .otherFailure
+                    }
                 }
             }
-            for await regions in group {
-                allRegions.formUnion(regions)
+            for await outcome in group {
+                switch outcome {
+                case .regions(let regions):
+                    allRegions.formUnion(regions)
+                case .tableFull:
+                    anyTableFull = true
+                case .otherFailure:
+                    break
+                }
             }
         }
 
         let knownSet = Set(knownRegions)
-        return allRegions.subtracting(knownSet).sorted()
+        let newRegions = allRegions.subtracting(knownSet).sorted()
+        if newRegions.isEmpty && anyTableFull {
+            discoveryMessage = L10n.Chats.Chats.ChannelInfo.Region.errRadioContactsFull
+        }
+        return newRegions
+    }
+
+    private enum RegionQueryOutcome: Sendable {
+        case regions([String])
+        case tableFull
+        case otherFailure
+    }
+
+    // Firmware error code for "contact table full" responses (`ERR_CODE_TABLE_FULL`).
+    private static let firmwareTableFullErrorCode: UInt8 = 3
+
+    // Matches NodeDiscoveryViewModel.scanDuration so flood-routed responses from distant
+    // mesh nodes have time to arrive.
+    private static let regionDiscoveryListenDuration: Duration = .seconds(15)
+
+    /// Builds the `MeshContact` query pool used to fetch regions from each responder.
+    /// Prefers contact records (they carry direct routing data when available) and fills
+    /// in from the discovered-nodes table for responders the user has not added as contacts.
+    static func buildRegionQueryTargets(
+        responders: Set<Data>,
+        contacts: [ContactDTO],
+        discoveredNodes: [DiscoveredNodeDTO]
+    ) -> [MeshContact] {
+        var byKey: [Data: MeshContact] = [:]
+        for contact in contacts where contact.type == .repeater && responders.contains(contact.publicKey) {
+            byKey[contact.publicKey] = contact.toContactFrame().toMeshContact()
+        }
+        for node in discoveredNodes where node.nodeType == .repeater
+            && responders.contains(node.publicKey)
+            && byKey[node.publicKey] == nil {
+            let frame = ContactFrame(
+                publicKey: node.publicKey,
+                type: node.nodeType,
+                flags: 0,
+                outPathLength: node.outPathLength,
+                outPath: node.outPath,
+                name: node.name,
+                lastAdvertTimestamp: node.lastAdvertTimestamp,
+                latitude: node.latitude,
+                longitude: node.longitude,
+                lastModified: 0
+            )
+            byKey[node.publicKey] = frame.toMeshContact()
+        }
+        return Array(byKey.values)
     }
 }
 

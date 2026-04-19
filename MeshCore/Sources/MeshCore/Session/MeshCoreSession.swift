@@ -250,6 +250,23 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         await dispatcher.subscribe()
     }
 
+    /// Subscribes to all events with an explicit teardown handle.
+    ///
+    /// Use this when the listener has a bounded lifetime (e.g., a timed scan) and needs the
+    /// `for await` loop to exit promptly when the work is done. Pair with ``finishEvents(id:)``.
+    ///
+    /// - Returns: A tuple of the subscription id (pass to ``finishEvents(id:)``) and the event stream.
+    public func eventsTracked() async -> (id: UUID, stream: AsyncStream<MeshEvent>) {
+        await dispatcher.subscribeTracked()
+    }
+
+    /// Finishes a subscription created via ``eventsTracked()``.
+    ///
+    /// Causes the corresponding `for await` loop to exit. Safe to call with an unknown id.
+    public func finishEvents(id: UUID) async {
+        await dispatcher.finishSubscription(id: id)
+    }
+
     // MARK: - Contact Management
 
     /// Returns the currently cached contacts.

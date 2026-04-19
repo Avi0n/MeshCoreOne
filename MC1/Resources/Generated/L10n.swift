@@ -144,6 +144,10 @@ public enum L10n {
           public static let discovering = L10n.tr("Chats", "chats.channelInfo.region.discovering", fallback: "Discovering…")
           /// Location: AddRegionView.swift - Purpose: Duplicate error
           public static let duplicate = L10n.tr("Chats", "chats.channelInfo.region.duplicate", fallback: "This region is already in your list.")
+          /// Location: ChannelInfoSheet.swift - Purpose: Couldn't load nearby repeater list
+          public static let errLoadingRepeaters = L10n.tr("Chats", "chats.channelInfo.region.errLoadingRepeaters", fallback: "Couldn't load nearby repeaters")
+          /// Location: ChannelInfoSheet.swift - Purpose: Some queries failed because radio contact list is full
+          public static let errRadioContactsFull = L10n.tr("Chats", "chats.channelInfo.region.errRadioContactsFull", fallback: "Radio contact list is full — some repeaters could not be queried")
           /// Location: ChannelInfoSheet.swift - Purpose: Explanation shown when no regions exist
           public static let explanation = L10n.tr("Chats", "chats.channelInfo.region.explanation", fallback: "Limit messages to a geographic area")
           /// Location: AddRegionView.swift - Purpose: Validation error
