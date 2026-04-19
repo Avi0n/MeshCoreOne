@@ -169,8 +169,13 @@ public actor MessageService {
     /// can still mark the message delivered.
     var pendingAcks: [UUID: PendingAck] = [:]
 
-    /// ACK confirmation callback (ackCode, roundTripTime)
-    private var ackConfirmationHandler: (@Sendable (UInt32, UInt32) -> Void)?
+    /// ACK confirmation callback (ackCode, roundTripTime).
+    ///
+    /// `roundTripTime` is `nil` when firmware did not supply a `round_trip`
+    /// value on the `PUSH_CODE_SEND_CONFIRMED` push (older firmware, truncated
+    /// payloads). Callers must handle the nil case rather than substitute a
+    /// fabricated value.
+    private var ackConfirmationHandler: (@Sendable (UInt32, UInt32?) -> Void)?
 
     /// Message failure callback (messageID)
     var messageFailedHandler: (@Sendable (UUID) async -> Void)?
@@ -277,7 +282,10 @@ public actor MessageService {
 
         pendingAcks[messageID]?.isDelivered = true
 
-        let roundTripMs = tripTime ?? UInt32(Date().timeIntervalSince(tracking.sentAt) * 1000)
+        // Persist `tripTime` only when firmware supplied it. Date()-based
+        // fallbacks against `tracking.sentAt` would be wrong in either
+        // direction once retries reset the timestamp, so we prefer a nil
+        // `roundTripTime` over a fabricated value.
         let ackCodeUInt32 = code.ackCodeUInt32
 
         do {
@@ -285,7 +293,7 @@ public actor MessageService {
                 id: messageID,
                 ackCode: ackCodeUInt32,
                 status: .delivered,
-                roundTripTime: roundTripMs
+                roundTripTime: tripTime
             )
         } catch {
             logger.error("Failed to write delivered status: \(error.localizedDescription)")
@@ -299,7 +307,7 @@ public actor MessageService {
 
         pendingAcks.removeValue(forKey: messageID)
 
-        ackConfirmationHandler?(ackCodeUInt32, roundTripMs)
+        ackConfirmationHandler?(ackCodeUInt32, tripTime)
 
         logger.info("ACK received")
     }
@@ -307,7 +315,7 @@ public actor MessageService {
     /// Sets a callback to be invoked when an ACK is received.
     ///
     /// - Parameter handler: Callback receiving (ackCode, roundTripTimeMs)
-    public func setAckConfirmationHandler(_ handler: @escaping @Sendable (UInt32, UInt32) -> Void) {
+    public func setAckConfirmationHandler(_ handler: @escaping @Sendable (UInt32, UInt32?) -> Void) {
         ackConfirmationHandler = handler
     }
 

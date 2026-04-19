@@ -251,8 +251,8 @@ struct MessageServiceACKTests {
                 "Should use firmware tripTime (250ms), not Date()-based (~10000ms)")
     }
 
-    @Test("handleAcknowledgement falls back to Date() calculation when tripTime is nil")
-    func fallbackToDateCalculation() async throws {
+    @Test("handleAcknowledgement leaves roundTripTime nil when firmware does not supply tripTime")
+    func nilTripTimeLeavesRoundTripTimeNil() async throws {
         let (service, dataStore) = try await MessageService.createForTesting()
         let messageID = UUID()
 
@@ -277,10 +277,8 @@ struct MessageServiceACKTests {
 
         let fetched = try await dataStore.fetchMessage(id: messageID)
         #expect(fetched?.status == .delivered)
-        if let rtt = fetched?.roundTripTime {
-            #expect(rtt >= 1500 && rtt <= 5000,
-                    "Date()-based RTT should be ~2000ms, got \(rtt)ms")
-        }
+        #expect(fetched?.roundTripTime == nil,
+                "nil tripTime must not be replaced by a fabricated Date()-based RTT")
     }
 
     // MARK: - Multi-attempt (Issue #283)
