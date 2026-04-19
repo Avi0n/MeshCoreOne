@@ -1483,13 +1483,28 @@
 "settings.backup.import.preview.cancel" = "Annuler";
 
 /* Import success title */
-"settings.backup.import.success.title" = "Importation réussie";
+"settings.backup.import.success.title" = "Importation terminée";
 
-/* Import success section header: imported */
-"settings.backup.import.success.imported" = "Importé";
+/* Import success section header: items that were newly added to this device */
+"settings.backup.import.success.added_section" = "Ajouté à cet appareil";
 
-/* Import success skipped count - %d is items skipped */
-"settings.backup.import.success.skipped %d" = "%d enregistrements déjà existants ont été ignorés.";
+/* Import success section header: items in the backup that were already on this device */
+"settings.backup.import.success.already_here_section" = "Déjà sur cet appareil";
+
+/* Import success section footer: always visible under the "Already on this iPhone" section */
+"settings.backup.import.success.already_here_footer" = "Les données existantes de cet appareil ont été conservées telles quelles ; rien n'a été écrasé.";
+
+/* Import success hero subtitle when new items were added (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_added" = "%d éléments ajoutés.";
+
+/* Import success hero subtitle when only existing items were refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_refreshed" = "%d éléments existants actualisés.";
+
+/* Import success disclosure row summary for the "Already on this iPhone" section (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_summary" = "%d éléments déjà présents";
+
+/* Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_refreshed" = "%d d'entre eux ont été actualisés avec des informations plus récentes de la sauvegarde.";
 
 /* Import success done button */
 "settings.backup.import.success.done" = "Terminé";
@@ -1518,11 +1533,11 @@
 /* Import preview manifest label: message repeats */
 "settings.backup.import.preview.message_repeats" = "Répétitions de messages";
 
-/* Import success: all records already exist */
-"settings.backup.import.success.all_skipped" = "Tous les enregistrements existent déjà sur cet appareil.";
-
 /* Import header title when the backup had nothing new to add (every record was skipped) */
-"settings.backup.import.nothing_to_import.title" = "Rien à importer";
+"settings.backup.import.nothing_to_import.title" = "Tout est déjà présent";
+
+/* Import subtitle when the backup had nothing new to add */
+"settings.backup.import.nothing_to_import.subtitle" = "Le contenu de cette sauvegarde est déjà sur cet appareil.";
 
 /* Backup tip title */
 "settings.backup.tip.title" = "Vous changez d'app ?";

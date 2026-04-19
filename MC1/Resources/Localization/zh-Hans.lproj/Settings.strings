@@ -1457,13 +1457,28 @@
 "settings.backup.import.preview.cancel" = "取消";
 
 /* Import success title */
-"settings.backup.import.success.title" = "导入成功";
+"settings.backup.import.success.title" = "导入完成";
 
-/* Import success section header: imported */
-"settings.backup.import.success.imported" = "已导入";
+/* Import success section header: items that were newly added to this device */
+"settings.backup.import.success.added_section" = "已添加到此设备";
 
-/* Import success skipped count - %d is items skipped */
-"settings.backup.import.success.skipped %d" = "已跳过 %d 条已存在的记录。";
+/* Import success section header: items in the backup that were already on this device */
+"settings.backup.import.success.already_here_section" = "已在此设备上";
+
+/* Import success section footer: always visible under the "Already on this iPhone" section */
+"settings.backup.import.success.already_here_footer" = "此设备上的现有数据保持不变；未覆盖任何内容。";
+
+/* Import success hero subtitle when new items were added (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_added" = "已添加 %d 项。";
+
+/* Import success hero subtitle when only existing items were refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_refreshed" = "已更新 %d 项现有内容。";
+
+/* Import success disclosure row summary for the "Already on this iPhone" section (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_summary" = "%d 项已在此";
+
+/* Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_refreshed" = "其中 %d 项已用备份中的较新信息更新。";
 
 /* Import success done button */
 "settings.backup.import.success.done" = "完成";
@@ -1492,11 +1507,11 @@
 /* Import preview manifest label: message repeats */
 "settings.backup.import.preview.message_repeats" = "消息转发次数";
 
-/* Import success: all records already exist */
-"settings.backup.import.success.all_skipped" = "所有记录已存在于此设备上。";
-
 /* Import header title when the backup had nothing new to add (every record was skipped) */
-"settings.backup.import.nothing_to_import.title" = "无可导入";
+"settings.backup.import.nothing_to_import.title" = "所有内容均已在此";
+
+/* Import subtitle when the backup had nothing new to add */
+"settings.backup.import.nothing_to_import.subtitle" = "此备份的内容已在此设备上。";
 
 /* Backup tip title */
 "settings.backup.tip.title" = "要切换应用？";

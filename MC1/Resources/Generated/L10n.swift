@@ -4049,8 +4049,10 @@ public enum L10n {
             public static let title = L10n.tr("Settings", "settings.backup.import.error.title", fallback: "Import Failed")
           }
           public enum NothingToImport {
+            /// Import subtitle when the backup had nothing new to add
+            public static let subtitle = L10n.tr("Settings", "settings.backup.import.nothing_to_import.subtitle", fallback: "This backup's contents are already on this device.")
             /// Import header title when the backup had nothing new to add (every record was skipped)
-            public static let title = L10n.tr("Settings", "settings.backup.import.nothing_to_import.title", fallback: "Nothing to Import")
+            public static let title = L10n.tr("Settings", "settings.backup.import.nothing_to_import.title", fallback: "Everything is already here")
           }
           public enum Preview {
             /// Import preview label: app version
@@ -4093,18 +4095,32 @@ public enum L10n {
             public static let title = L10n.tr("Settings", "settings.backup.import.preview.title", fallback: "Import Preview")
           }
           public enum Success {
-            /// Import success: all records already exist
-            public static let allSkipped = L10n.tr("Settings", "settings.backup.import.success.all_skipped", fallback: "All records already exist on this device.")
+            /// Import success section header: items that were newly added to this device
+            public static let addedSection = L10n.tr("Settings", "settings.backup.import.success.added_section", fallback: "Added to this device")
+            /// Import success section footer: always visible under the "Already on this device" section
+            public static let alreadyHereFooter = L10n.tr("Settings", "settings.backup.import.success.already_here_footer", fallback: "Your device's existing data was kept as-is; nothing was overwritten.")
+            /// Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict)
+            public static func alreadyHereRefreshed(_ p1: Int) -> String {
+              return L10n.tr("Settings", "settings.backup.import.success.already_here_refreshed", p1, fallback: "%d of these were refreshed with newer info from the backup.")
+            }
+            /// Import success section header: items in the backup that were already on this device
+            public static let alreadyHereSection = L10n.tr("Settings", "settings.backup.import.success.already_here_section", fallback: "Already on this device")
+            /// Import success disclosure row summary for the "Already on this device" section (pluralized in .stringsdict)
+            public static func alreadyHereSummary(_ p1: Int) -> String {
+              return L10n.tr("Settings", "settings.backup.import.success.already_here_summary", p1, fallback: "%d items already here")
+            }
             /// Import success done button
             public static let done = L10n.tr("Settings", "settings.backup.import.success.done", fallback: "Done")
-            /// Import success section header: imported
-            public static let imported = L10n.tr("Settings", "settings.backup.import.success.imported", fallback: "Imported")
-            /// Import success skipped count - %d is items skipped
-            public static func skippedD(_ p1: Int) -> String {
-              return L10n.tr("Settings", "settings.backup.import.success.skipped %d", p1, fallback: "%d existing records were skipped.")
+            /// Import success hero subtitle when new items were added (pluralized in .stringsdict)
+            public static func subtitleAdded(_ p1: Int) -> String {
+              return L10n.tr("Settings", "settings.backup.import.success.subtitle_added", p1, fallback: "%d items added.")
+            }
+            /// Import success hero subtitle when only existing items were refreshed (pluralized in .stringsdict)
+            public static func subtitleRefreshed(_ p1: Int) -> String {
+              return L10n.tr("Settings", "settings.backup.import.success.subtitle_refreshed", p1, fallback: "%d existing items refreshed.")
             }
             /// Import success title
-            public static let title = L10n.tr("Settings", "settings.backup.import.success.title", fallback: "Import Successful")
+            public static let title = L10n.tr("Settings", "settings.backup.import.success.title", fallback: "Import Complete")
           }
         }
         public enum Tip {

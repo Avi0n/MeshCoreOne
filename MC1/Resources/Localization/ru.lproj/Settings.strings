@@ -1485,11 +1485,26 @@
 /* Import success title */
 "settings.backup.import.success.title" = "Импорт завершён";
 
-/* Import success section header: imported */
-"settings.backup.import.success.imported" = "Импортировано";
+/* Import success section header: items that were newly added to this device */
+"settings.backup.import.success.added_section" = "Добавлено на это устройство";
 
-/* Import success skipped count - %d is items skipped */
-"settings.backup.import.success.skipped %d" = "Пропущено %d уже существующих записей.";
+/* Import success section header: items in the backup that were already on this device */
+"settings.backup.import.success.already_here_section" = "Уже на этом устройстве";
+
+/* Import success section footer: always visible under the "Already on this iPhone" section */
+"settings.backup.import.success.already_here_footer" = "Существующие данные на устройстве сохранены без изменений; ничего не было перезаписано.";
+
+/* Import success hero subtitle when new items were added (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_added" = "Добавлено %d элементов.";
+
+/* Import success hero subtitle when only existing items were refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_refreshed" = "Обновлено %d существующих элементов.";
+
+/* Import success disclosure row summary for the "Already on this iPhone" section (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_summary" = "%d элементов уже здесь";
+
+/* Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_refreshed" = "%d из них было обновлено новой информацией из резервной копии.";
 
 /* Import success done button */
 "settings.backup.import.success.done" = "Готово";
@@ -1518,11 +1533,11 @@
 /* Import preview manifest label: message repeats */
 "settings.backup.import.preview.message_repeats" = "Повторы сообщений";
 
-/* Import success: all records already exist */
-"settings.backup.import.success.all_skipped" = "Все записи уже существуют на этом устройстве.";
-
 /* Import header title when the backup had nothing new to add (every record was skipped) */
-"settings.backup.import.nothing_to_import.title" = "Нечего импортировать";
+"settings.backup.import.nothing_to_import.title" = "Всё уже здесь";
+
+/* Import subtitle when the backup had nothing new to add */
+"settings.backup.import.nothing_to_import.subtitle" = "Содержимое этой резервной копии уже есть на этом устройстве.";
 
 /* Backup tip title */
 "settings.backup.tip.title" = "Меняете приложение?";

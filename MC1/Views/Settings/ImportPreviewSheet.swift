@@ -10,7 +10,7 @@ struct ImportPreviewSheet: View {
                 if viewModel.isImporting {
                     importingView
                 } else if let result = viewModel.importResult {
-                    successView(result: result)
+                    ImportSuccessContent(viewModel: viewModel, result: result)
                 } else if let error = viewModel.sheetErrorMessage {
                     errorView(message: error)
                 } else if viewModel.isCancelled {
@@ -34,7 +34,10 @@ struct ImportPreviewSheet: View {
                 }
             }
             .interactiveDismissDisabled(viewModel.isImporting)
-            .sensoryFeedback(.success, trigger: viewModel.importResult) { _, newValue in newValue != nil }
+            .sensoryFeedback(trigger: viewModel.importResult) { _, newValue in
+                guard let result = newValue else { return nil }
+                return result.hasRestoredChanges ? .success : nil
+            }
             .sensoryFeedback(.error, trigger: viewModel.sheetErrorMessage) { _, newValue in newValue != nil }
         }
     }
@@ -90,64 +93,6 @@ struct ImportPreviewSheet: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             AccessibilityNotification.Announcement(L10n.Settings.Settings.Backup.Import.progress).post()
-        }
-    }
-
-    // MARK: - Success
-
-    private func successView(result: ImportResult) -> some View {
-        let didRestore = result.hasRestoredChanges
-        let headerTitle = didRestore
-            ? L10n.Settings.Settings.Backup.Import.Success.title
-            : L10n.Settings.Settings.Backup.Import.NothingToImport.title
-        return List {
-            Section {
-                VStack(spacing: 12) {
-                    Image(systemName: didRestore ? "checkmark.circle.fill" : "info.circle.fill")
-                        .font(.system(.largeTitle))
-                        .imageScale(.large)
-                        .foregroundStyle(didRestore ? Color.green : Color.secondary)
-                        .accessibilityHidden(true)
-                    Text(headerTitle)
-                        .font(.headline)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-            }
-
-            if result.totalRestoredRecordCount > 0 {
-                Section(L10n.Settings.Settings.Backup.Import.Success.imported) {
-                    importCountRows(result: result)
-                }
-            }
-
-            if result.totalSkipped > 0 {
-                Section {
-                    if didRestore {
-                        Text(L10n.Settings.Settings.Backup.Import.Success.skippedD(result.totalSkipped))
-                            .foregroundStyle(.secondary)
-                    } else {
-                        Text(L10n.Settings.Settings.Backup.Import.Success.allSkipped)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-
-            Section {
-                Button {
-                    viewModel.dismissImportSheet()
-                } label: {
-                    HStack {
-                        Spacer()
-                        Text(L10n.Settings.Settings.Backup.Import.Success.done)
-                            .bold()
-                        Spacer()
-                    }
-                }
-            }
-        }
-        .onAppear {
-            AccessibilityNotification.Announcement(headerTitle).post()
         }
     }
 
@@ -237,14 +182,6 @@ struct ImportPreviewSheet: View {
     private func manifestRows(_ manifest: BackupManifest) -> some View {
         ForEach(BackupModelKind.allCases, id: \.self) { kind in
             manifestRow(label(for: kind), count: manifest.count(for: kind))
-        }
-    }
-
-    @ViewBuilder
-    private func importCountRows(result: ImportResult) -> some View {
-        ForEach(BackupModelKind.allCases, id: \.self) { kind in
-            let counts = result.counts[kind] ?? .zero
-            manifestRow(label(for: kind), count: counts.inserted + counts.merged)
         }
     }
 
