@@ -150,25 +150,28 @@ final class AppBackupViewModel {
                 try Task.checkCancellation()
                 let envelope = try parseBackup(data: data)
                 try Task.checkCancellation()
-                await MainActor.run {
-                    guard self?.currentParseID == taskID else { return }
-                    self?.importState = .preview(envelope)
-                    self?.errorMessage = nil
-                }
+                await self?.applyParseSuccess(envelope, for: taskID)
             } catch is CancellationError {
                 // The new invocation owns importState; don't clobber it
                 return
             } catch {
-                let message = error.backupUserFacingMessage
-                await MainActor.run {
-                    guard self?.currentParseID == taskID else { return }
-                    // Parse failure happens before the sheet opens, so surface
-                    // via the top-level alert, not the in-sheet error view.
-                    self?.importState = .idle
-                    self?.errorMessage = message
-                }
+                await self?.applyParseFailure(error.backupUserFacingMessage, for: taskID)
             }
         }
+    }
+
+    private func applyParseSuccess(_ envelope: AppBackupEnvelope, for taskID: UUID) {
+        guard currentParseID == taskID else { return }
+        importState = .preview(envelope)
+        errorMessage = nil
+    }
+
+    /// Parse failure happens before the sheet opens, so surface via the top-level
+    /// alert, not the in-sheet error view.
+    private func applyParseFailure(_ message: String, for taskID: UUID) {
+        guard currentParseID == taskID else { return }
+        importState = .idle
+        errorMessage = message
     }
 
     func performImport() {
