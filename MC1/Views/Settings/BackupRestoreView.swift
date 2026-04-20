@@ -6,6 +6,7 @@ struct BackupRestoreView: View {
     @State private var viewModel: AppBackupViewModel
     @State private var showExportConfirmation = false
     @State private var showFileImporter = false
+    @State private var showFileExporter = false
 
     init(
         connectionManager: ConnectionManager,
@@ -42,11 +43,15 @@ struct BackupRestoreView: View {
         } message: {
             Text(L10n.Settings.Settings.Backup.Export.Alert.message)
         }
+        // Drive `.fileExporter` via a local `@State` Bool rather than binding
+        // directly to `pendingExport != nil`. A `Binding(get:set:)` setter clears
+        // `pendingExport` before `handleExportResult` can read it, producing a nil
+        // document and a missed success sheet.
+        .onChange(of: viewModel.pendingExport != nil) { _, hasPendingExport in
+            showFileExporter = hasPendingExport
+        }
         .fileExporter(
-            isPresented: Binding(
-                get: { viewModel.exportedData != nil },
-                set: { if !$0 { viewModel.exportedData = nil } }
-            ),
+            isPresented: $showFileExporter,
             document: exportDocument,
             contentType: .mc1Backup,
             defaultFilename: viewModel.defaultExportFilename
@@ -64,6 +69,11 @@ struct BackupRestoreView: View {
             set: { if !$0 { viewModel.dismissImportSheet() } }
         )) {
             ImportPreviewSheet(viewModel: viewModel)
+        }
+        .sheet(item: $viewModel.exportSummary) { summary in
+            NavigationStack {
+                ExportSuccessContent(summary: summary, onDismiss: viewModel.dismissExportSuccess)
+            }
         }
         .errorAlert($viewModel.errorMessage)
     }
@@ -123,7 +133,7 @@ struct BackupRestoreView: View {
     // MARK: - Helpers
 
     private var exportDocument: AppBackupDocument? {
-        guard let data = viewModel.exportedData else { return nil }
+        guard let data = viewModel.pendingExport?.data else { return nil }
         return AppBackupDocument(data: data)
     }
 }

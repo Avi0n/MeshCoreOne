@@ -4018,6 +4018,18 @@ public enum L10n {
             /// Export confirmation alert title
             public static let title = L10n.tr("Settings", "settings.backup.export.alert.title", fallback: "Security Notice")
           }
+          public enum Success {
+            /// VoiceOver announcement when the export success sheet appears; %@ is the filename
+            public static func announcement(_ p1: Any) -> String {
+              return L10n.tr("Settings", "settings.backup.export.success.announcement", String(describing: p1), fallback: "Backup saved as %@")
+            }
+            /// Primary button on the export success sheet
+            public static let done = L10n.tr("Settings", "settings.backup.export.success.done", fallback: "Done")
+            /// Section header listing record counts included in the export
+            public static let includedSection = L10n.tr("Settings", "settings.backup.export.success.included_section", fallback: "Included in backup")
+            /// Hero title on the backup export success sheet
+            public static let title = L10n.tr("Settings", "settings.backup.export.success.title", fallback: "Backup saved")
+          }
         }
         public enum FileBackup {
           /// Section footer for file backup

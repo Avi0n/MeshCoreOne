@@ -1562,3 +1562,17 @@
 
 /* Backup error: import failed; %@ is underlying error */
 "settings.backup.error.import_failed" = "Не вдалося імпортувати резервну копію: %@";
+
+// MARK: - Export success
+
+/* Hero title on the backup export success sheet */
+"settings.backup.export.success.title" = "Резервну копію збережено";
+
+/* Section header listing record counts included in the export */
+"settings.backup.export.success.included_section" = "Вміст резервної копії";
+
+/* Primary button on the export success sheet */
+"settings.backup.export.success.done" = "Готово";
+
+/* VoiceOver announcement when the export success sheet appears; %@ is the filename */
+"settings.backup.export.success.announcement" = "Резервну копію збережено як %@";

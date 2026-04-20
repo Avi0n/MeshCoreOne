@@ -1562,3 +1562,17 @@
 
 /* Backup error: import failed; %@ is underlying error */
 "settings.backup.error.import_failed" = "Sicherung konnte nicht importiert werden: %@";
+
+// MARK: - Export success
+
+/* Hero title on the backup export success sheet */
+"settings.backup.export.success.title" = "Sicherung gespeichert";
+
+/* Section header listing record counts included in the export */
+"settings.backup.export.success.included_section" = "In der Sicherung enthalten";
+
+/* Primary button on the export success sheet */
+"settings.backup.export.success.done" = "Fertig";
+
+/* VoiceOver announcement when the export success sheet appears; %@ is the filename */
+"settings.backup.export.success.announcement" = "Sicherung gespeichert als %@";

@@ -74,7 +74,7 @@ struct ImportSuccessContent: View {
             ForEach(BackupModelKind.allCases, id: \.self) { kind in
                 let inserted = result.counts[kind]?.inserted ?? 0
                 if inserted > 0 {
-                    LabeledContent(label(for: kind), value: "\(inserted)")
+                    LabeledContent(kind.label, value: "\(inserted)")
                 }
             }
         }
@@ -86,7 +86,7 @@ struct ImportSuccessContent: View {
                 ForEach(BackupModelKind.allCases, id: \.self) { kind in
                     let skipped = result.counts[kind]?.skipped ?? 0
                     if skipped > 0 {
-                        LabeledContent(label(for: kind), value: "\(skipped)")
+                        LabeledContent(kind.label, value: "\(skipped)")
                     }
                 }
             } label: {
@@ -126,22 +126,6 @@ struct ImportSuccessContent: View {
         } label: {
             Text(L10n.Settings.Settings.Backup.Import.Success.done)
                 .frame(maxWidth: .infinity)
-        }
-    }
-
-    private func label(for kind: BackupModelKind) -> String {
-        switch kind {
-        case .messages: L10n.Settings.Settings.Backup.Import.Preview.messages
-        case .contacts: L10n.Settings.Settings.Backup.Import.Preview.contacts
-        case .channels: L10n.Settings.Settings.Backup.Import.Preview.channels
-        case .devices: L10n.Settings.Settings.Backup.Import.Preview.devices
-        case .roomMessages: L10n.Settings.Settings.Backup.Import.Preview.roomMessages
-        case .reactions: L10n.Settings.Settings.Backup.Import.Preview.reactions
-        case .messageRepeats: L10n.Settings.Settings.Backup.Import.Preview.messageRepeats
-        case .savedTracePaths: L10n.Settings.Settings.Backup.Import.Preview.savedPaths
-        case .remoteNodeSessions: L10n.Settings.Settings.Backup.Import.Preview.remoteNodeSessions
-        case .blockedChannelSenders: L10n.Settings.Settings.Backup.Import.Preview.blockedSenders
-        case .nodeStatusSnapshots: L10n.Settings.Settings.Backup.Import.Preview.nodeStatusSnapshots
         }
     }
 }

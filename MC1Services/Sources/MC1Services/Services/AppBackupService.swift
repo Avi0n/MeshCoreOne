@@ -1,5 +1,16 @@
 import Foundation
 
+/// Result of a successful backup export.
+public struct ExportResult: Sendable {
+    public let data: Data
+    public let manifest: BackupManifest
+
+    public init(data: Data, manifest: BackupManifest) {
+        self.data = data
+        self.manifest = manifest
+    }
+}
+
 /// Exports all app data to a compressed backup file.
 public actor AppBackupService {
 
@@ -11,11 +22,11 @@ public actor AppBackupService {
 
     /// Export all app data to a compressed backup.
     /// - Parameter persistenceStore: The store to fetch records from.
-    /// - Returns: Compressed backup data.
+    /// - Returns: An `ExportResult` containing the compressed data and manifest.
     /// - Throws: `AppBackupError.exportFailed` on failure.
     public func export(
         persistenceStore: PersistenceStore
-    ) async throws -> Data {
+    ) async throws -> ExportResult {
         do {
             let snapshot = try await persistenceStore.fetchBackupExportSnapshot()
 
@@ -48,7 +59,7 @@ public actor AppBackupService {
 
             let compressed = try jsonData.zlibCompressed()
             logger.info("Backup exported: \(jsonData.count) bytes JSON → \(compressed.count) bytes compressed")
-            return compressed
+            return ExportResult(data: compressed, manifest: envelope.manifest)
 
         } catch let error as AppBackupError {
             throw error

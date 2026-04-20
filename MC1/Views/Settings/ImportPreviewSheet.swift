@@ -181,7 +181,7 @@ struct ImportPreviewSheet: View {
     @ViewBuilder
     private func manifestRows(_ manifest: BackupManifest) -> some View {
         ForEach(BackupModelKind.allCases, id: \.self) { kind in
-            manifestRow(label(for: kind), count: manifest.count(for: kind))
+            manifestRow(kind.label, count: manifest.count(for: kind))
         }
     }
 
@@ -189,22 +189,6 @@ struct ImportPreviewSheet: View {
     private func manifestRow(_ label: String, count: Int) -> some View {
         if count > 0 {
             LabeledContent(label, value: "\(count)")
-        }
-    }
-
-    private func label(for kind: BackupModelKind) -> String {
-        switch kind {
-        case .messages: L10n.Settings.Settings.Backup.Import.Preview.messages
-        case .contacts: L10n.Settings.Settings.Backup.Import.Preview.contacts
-        case .channels: L10n.Settings.Settings.Backup.Import.Preview.channels
-        case .devices: L10n.Settings.Settings.Backup.Import.Preview.devices
-        case .roomMessages: L10n.Settings.Settings.Backup.Import.Preview.roomMessages
-        case .reactions: L10n.Settings.Settings.Backup.Import.Preview.reactions
-        case .messageRepeats: L10n.Settings.Settings.Backup.Import.Preview.messageRepeats
-        case .savedTracePaths: L10n.Settings.Settings.Backup.Import.Preview.savedPaths
-        case .remoteNodeSessions: L10n.Settings.Settings.Backup.Import.Preview.remoteNodeSessions
-        case .blockedChannelSenders: L10n.Settings.Settings.Backup.Import.Preview.blockedSenders
-        case .nodeStatusSnapshots: L10n.Settings.Settings.Backup.Import.Preview.nodeStatusSnapshots
         }
     }
 }

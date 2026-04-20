@@ -1562,3 +1562,17 @@
 
 /* Backup error: import failed; %@ is underlying error */
 "settings.backup.error.import_failed" = "Nie udało się zaimportować kopii zapasowej: %@";
+
+// MARK: - Export success
+
+/* Hero title on the backup export success sheet */
+"settings.backup.export.success.title" = "Kopia zapasowa zapisana";
+
+/* Section header listing record counts included in the export */
+"settings.backup.export.success.included_section" = "Zawartość kopii zapasowej";
+
+/* Primary button on the export success sheet */
+"settings.backup.export.success.done" = "Gotowe";
+
+/* VoiceOver announcement when the export success sheet appears; %@ is the filename */
+"settings.backup.export.success.announcement" = "Kopia zapasowa zapisana jako %@";

@@ -19,10 +19,26 @@ enum ImportState {
 @Observable
 @MainActor
 final class AppBackupViewModel {
+    // MARK: - Nested types
+
+    /// Snapshot of an in-flight export waiting for the system save picker to return.
+    struct PendingExport {
+        let data: Data
+        let manifest: BackupManifest
+    }
+
+    struct ExportSuccessSummary: Identifiable, Equatable {
+        let id = UUID()
+        let filename: String
+        let byteCount: Int
+        let manifest: BackupManifest
+    }
+
     // MARK: - Export state
 
     var isExporting = false
-    var exportedData: Data?  // when set, triggers fileExporter
+    var pendingExport: PendingExport?
+    var exportSummary: ExportSuccessSummary?
     var errorMessage: String?
 
     // MARK: - Import state
@@ -98,9 +114,10 @@ final class AppBackupViewModel {
         Task {
             defer { isExporting = false }
             do {
-                exportedData = try await backupService.export(
+                let result = try await backupService.export(
                     persistenceStore: preferredPersistenceStore()
                 )
+                pendingExport = PendingExport(data: result.data, manifest: result.manifest)
             } catch {
                 errorMessage = error.backupUserFacingMessage
                 logger.error("Export failed: \(error.localizedDescription)")
@@ -109,12 +126,25 @@ final class AppBackupViewModel {
     }
 
     func handleExportResult(_ result: Result<URL, Error>) {
-        defer { exportedData = nil }
+        let pending = pendingExport
+        pendingExport = nil
 
-        if case .failure(let error) = result {
+        switch result {
+        case .success(let url):
+            guard let pending else { return }
+            exportSummary = ExportSuccessSummary(
+                filename: url.lastPathComponent,
+                byteCount: pending.data.count,
+                manifest: pending.manifest
+            )
+        case .failure(let error):
             guard !isUserCancelled(error) else { return }
             errorMessage = error.backupUserFacingMessage
         }
+    }
+
+    func dismissExportSuccess() {
+        exportSummary = nil
     }
 
     // MARK: - Import
