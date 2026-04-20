@@ -50,7 +50,8 @@ enum PathDiscoveryResult: Equatable {
     }
 }
 
-@MainActor @Observable
+@Observable
+@MainActor
 final class PathManagementViewModel {
     private enum DiscoveryTimeout {
         static let minimumSeconds = 5.0
