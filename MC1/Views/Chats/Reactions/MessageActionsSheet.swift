@@ -232,12 +232,6 @@ private struct ActionsButtonsSection: View {
             )
         }
 
-        ActionButton(
-            title: L10n.Chats.Chats.Message.Action.copy,
-            icon: "doc.on.doc",
-            action: { onSelectAction(.copy) }
-        )
-
         if availability.canSendDM {
             ActionButton(
                 title: L10n.Chats.Chats.Message.Action.sendDM,
@@ -245,6 +239,12 @@ private struct ActionsButtonsSection: View {
                 action: { onSelectAction(.sendDM) }
             )
         }
+
+        ActionButton(
+            title: L10n.Chats.Chats.Message.Action.copy,
+            icon: "doc.on.doc",
+            action: { onSelectAction(.copy) }
+        )
 
         if availability.canSendAgain {
             ActionButton(
