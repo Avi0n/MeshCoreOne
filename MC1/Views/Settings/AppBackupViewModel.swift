@@ -16,6 +16,16 @@ enum ImportState {
     case cancelled
 }
 
+/// Export flow state. Single owner of the export lifecycle so the
+/// `.fileExporter` binding can be a pure read of the current case and
+/// `handleExportResult` is the only code that transitions state.
+enum ExportState {
+    case idle
+    case exporting
+    case pending(AppBackupViewModel.PendingExport)
+    case success(AppBackupViewModel.ExportSuccessSummary)
+}
+
 @Observable
 @MainActor
 final class AppBackupViewModel {
@@ -36,10 +46,20 @@ final class AppBackupViewModel {
 
     // MARK: - Export state
 
-    var isExporting = false
-    var pendingExport: PendingExport?
-    var exportSummary: ExportSuccessSummary?
+    var exportState: ExportState = .idle
     var errorMessage: String?
+
+    var isExporting: Bool {
+        if case .exporting = exportState { true } else { false }
+    }
+
+    var pendingExport: PendingExport? {
+        if case .pending(let pending) = exportState { pending } else { nil }
+    }
+
+    var exportSummary: ExportSuccessSummary? {
+        if case .success(let summary) = exportState { summary } else { nil }
+    }
 
     // MARK: - Import state
 
@@ -107,18 +127,18 @@ final class AppBackupViewModel {
     // MARK: - Export
 
     func performExport() {
-        guard !isExporting else { return }
-        isExporting = true
+        guard case .idle = exportState else { return }
+        exportState = .exporting
         errorMessage = nil
 
         Task {
-            defer { isExporting = false }
             do {
                 let result = try await backupService.export(
                     persistenceStore: preferredPersistenceStore()
                 )
-                pendingExport = PendingExport(data: result.data, manifest: result.manifest)
+                exportState = .pending(PendingExport(data: result.data, manifest: result.manifest))
             } catch {
+                exportState = .idle
                 errorMessage = error.backupUserFacingMessage
                 logger.error("Export failed: \(error.localizedDescription)")
             }
@@ -126,25 +146,25 @@ final class AppBackupViewModel {
     }
 
     func handleExportResult(_ result: Result<URL, Error>) {
-        let pending = pendingExport
-        pendingExport = nil
+        guard case .pending(let pending) = exportState else { return }
 
         switch result {
         case .success(let url):
-            guard let pending else { return }
-            exportSummary = ExportSuccessSummary(
+            exportState = .success(ExportSuccessSummary(
                 filename: url.lastPathComponent,
                 byteCount: pending.data.count,
                 manifest: pending.manifest
-            )
+            ))
         case .failure(let error):
+            exportState = .idle
             guard !isUserCancelled(error) else { return }
             errorMessage = error.backupUserFacingMessage
         }
     }
 
     func dismissExportSuccess() {
-        exportSummary = nil
+        guard case .success = exportState else { return }
+        exportState = .idle
     }
 
     // MARK: - Import

@@ -6,7 +6,6 @@ struct BackupRestoreView: View {
     @State private var viewModel: AppBackupViewModel
     @State private var showExportConfirmation = false
     @State private var showFileImporter = false
-    @State private var showFileExporter = false
 
     init(
         connectionManager: ConnectionManager,
@@ -43,15 +42,11 @@ struct BackupRestoreView: View {
         } message: {
             Text(L10n.Settings.Settings.Backup.Export.Alert.message)
         }
-        // Drive `.fileExporter` via a local `@State` Bool rather than binding
-        // directly to `pendingExport != nil`. A `Binding(get:set:)` setter clears
-        // `pendingExport` before `handleExportResult` can read it, producing a nil
-        // document and a missed success sheet.
-        .onChange(of: viewModel.pendingExport != nil) { _, hasPendingExport in
-            showFileExporter = hasPendingExport
-        }
         .fileExporter(
-            isPresented: $showFileExporter,
+            isPresented: Binding(
+                get: { viewModel.pendingExport != nil },
+                set: { _ in }
+            ),
             document: exportDocument,
             contentType: .mc1Backup,
             defaultFilename: viewModel.defaultExportFilename
@@ -70,7 +65,10 @@ struct BackupRestoreView: View {
         )) {
             ImportPreviewSheet(viewModel: viewModel)
         }
-        .sheet(item: $viewModel.exportSummary) { summary in
+        .sheet(item: Binding(
+            get: { viewModel.exportSummary },
+            set: { if $0 == nil { viewModel.dismissExportSuccess() } }
+        )) { summary in
             NavigationStack {
                 ExportSuccessContent(summary: summary, onDismiss: viewModel.dismissExportSuccess)
             }

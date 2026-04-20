@@ -18,14 +18,14 @@ struct AppBackupViewModelExportTests {
         BackupManifest(contactCount: contacts, messageCount: messages)
     }
 
-    @Test("handleExportResult(.success) promotes pendingExport to exportSummary")
+    @Test("handleExportResult(.success) promotes pending to success")
     func successPromotesToSummary() throws {
         let vm = try makeViewModel()
         let manifest = sampleManifest()
-        vm.pendingExport = AppBackupViewModel.PendingExport(
+        vm.exportState = .pending(AppBackupViewModel.PendingExport(
             data: Data(repeating: 0xAB, count: 128),
             manifest: manifest
-        )
+        ))
 
         let saveURL = URL(fileURLWithPath: "/tmp/MC1-backup-2026-04-19.mc1backup")
         vm.handleExportResult(.success(saveURL))
@@ -39,13 +39,13 @@ struct AppBackupViewModelExportTests {
         #expect(vm.errorMessage == nil)
     }
 
-    @Test("handleExportResult(.failure(userCancelled)) clears pendingExport without errorMessage")
+    @Test("handleExportResult(.failure(userCancelled)) returns to idle without errorMessage")
     func userCancelIsSilent() throws {
         let vm = try makeViewModel()
-        vm.pendingExport = AppBackupViewModel.PendingExport(
+        vm.exportState = .pending(AppBackupViewModel.PendingExport(
             data: Data([0x01]),
             manifest: sampleManifest()
-        )
+        ))
         vm.handleExportResult(.failure(CocoaError(.userCancelled)))
 
         #expect(vm.pendingExport == nil)
@@ -56,10 +56,10 @@ struct AppBackupViewModelExportTests {
     @Test("handleExportResult(.failure(other)) surfaces errorMessage")
     func genericFailureSurfacesErrorMessage() throws {
         let vm = try makeViewModel()
-        vm.pendingExport = AppBackupViewModel.PendingExport(
+        vm.exportState = .pending(AppBackupViewModel.PendingExport(
             data: Data([0x01]),
             manifest: sampleManifest()
-        )
+        ))
         let saveError = NSError(domain: NSPOSIXErrorDomain, code: 28) // ENOSPC
 
         vm.handleExportResult(.failure(saveError))
@@ -69,7 +69,7 @@ struct AppBackupViewModelExportTests {
         #expect(vm.errorMessage != nil)
     }
 
-    @Test("handleExportResult(.success) with no pendingExport is a no-op")
+    @Test("handleExportResult(.success) with no pending export is a no-op")
     func successWithoutPendingIsNoOp() throws {
         let vm = try makeViewModel()
         #expect(vm.pendingExport == nil)
@@ -83,11 +83,11 @@ struct AppBackupViewModelExportTests {
     @Test("dismissExportSuccess clears the summary")
     func dismissClearsSummary() throws {
         let vm = try makeViewModel()
-        vm.exportSummary = AppBackupViewModel.ExportSuccessSummary(
+        vm.exportState = .success(AppBackupViewModel.ExportSuccessSummary(
             filename: "x.mc1backup",
             byteCount: 1,
             manifest: sampleManifest()
-        )
+        ))
 
         vm.dismissExportSuccess()
 
