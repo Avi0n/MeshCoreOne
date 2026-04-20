@@ -64,6 +64,7 @@ private struct CLIToolContent: View {
                 remoteNodeService: appState.services?.remoteNodeService,
                 dataStore: appState.services?.dataStore,
                 deviceID: appState.connectedDevice?.id,
+                localDevicePublicKey: appState.connectedDevice?.publicKey,
                 localDeviceName: appState.connectedDevice?.nodeName ?? L10n.Tools.Tools.Cli.defaultDevice
             )
         }

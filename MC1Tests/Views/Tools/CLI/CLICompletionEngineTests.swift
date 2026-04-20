@@ -49,6 +49,18 @@ struct CLICompletionEngineTests {
         #expect(suggestions.contains("ver"))
     }
 
+    @Test("Repeater commands can be included in local session when passthrough is enabled")
+    func repeaterCommandsInLocalWithPassthrough() {
+        let engine = createEngine()
+        let suggestions = engine.completions(
+            for: "v",
+            isLocal: true,
+            includeRepeaterCommandsInLocal: true
+        )
+
+        #expect(suggestions.contains("ver"))
+    }
+
     @Test("Login not available in remote session")
     func loginNotAvailableInRemoteSession() {
         let engine = createEngine()

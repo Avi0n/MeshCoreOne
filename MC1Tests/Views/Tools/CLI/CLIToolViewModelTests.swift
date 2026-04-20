@@ -123,6 +123,27 @@ struct CLIToolViewModelTests {
         }
     }
 
+    @Test("Clear with arguments is not treated as local terminal clear")
+    func clearWithArgumentsDoesNotClearOutput() async throws {
+        let viewModel = createConfiguredViewModel()
+        viewModel.activeSession = .local(deviceName: "TestDevice")
+
+        viewModel.executeCommand("help")
+        try await waitUntil("help output should appear") {
+            !viewModel.outputLines.isEmpty
+        }
+        let countAfterHelp = viewModel.outputLines.count
+
+        viewModel.executeCommand("clear stats")
+        try await waitUntil("clear stats should produce output without clearing terminal") {
+            viewModel.outputLines.count > countAfterHelp
+        }
+
+        let output = viewModel.outputLines.map(\.text).joined(separator: "\n")
+        #expect(output.contains(L10n.Tools.Tools.Cli.unknownCommand))
+        #expect(!viewModel.outputLines.isEmpty)
+    }
+
     @Test("Help command shows available commands")
     func helpCommandShowsAvailableCommands() async throws {
         let viewModel = createConfiguredViewModel()

@@ -47,6 +47,7 @@ final class CLIToolViewModel {
     var remoteNodeService: RemoteNodeService?
     var dataStore: PersistenceStoreProtocol?
     var deviceID: UUID?
+    var localDevicePublicKey: Data?
     var localDeviceName: String = ""
 
     // MARK: - Prompt
@@ -82,12 +83,14 @@ final class CLIToolViewModel {
         remoteNodeService: RemoteNodeService?,
         dataStore: PersistenceStoreProtocol?,
         deviceID: UUID?,
+        localDevicePublicKey: Data? = nil,
         localDeviceName: String
     ) {
         self.localDeviceName = localDeviceName
         self.remoteNodeService = remoteNodeService
         self.dataStore = dataStore
         self.deviceID = deviceID
+        self.localDevicePublicKey = localDevicePublicKey
 
         // Only reset if service instance changed
         if self.repeaterAdminService !== repeaterAdminService {
@@ -234,7 +237,7 @@ final class CLIToolViewModel {
 
         switch cmd {
         case "help": showHelp()
-        case "clear" where activeSession?.isLocal == true || args.isEmpty: clearOutput()
+        case "clear" where args.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty: clearOutput()
         case "session": handleSessionCommand(args)
         case "login": await handleLogin(args)
         case "logout": await handleLogout()
@@ -251,7 +254,11 @@ final class CLIToolViewModel {
 
     private func handleUnknownCommand(_ cmd: String, raw: String) async {
         if activeSession?.isLocal == true {
-            appendOutput("\(L10n.Tools.Tools.Cli.unknownCommand) \(cmd)", type: .error)
+            if supportsLocalPassthrough {
+                await sendLocalCommand(raw)
+            } else {
+                appendOutput("\(L10n.Tools.Tools.Cli.unknownCommand) \(cmd)", type: .error)
+            }
         } else if activeSession != nil {
             await sendRemoteCommand(raw)
         } else {
@@ -275,6 +282,14 @@ final class CLIToolViewModel {
         if activeSession?.isLocal == true {
             appendOutput(L10n.Tools.Tools.Cli.helpNodes, type: .response)
             appendOutput(L10n.Tools.Tools.Cli.helpChannels, type: .response)
+            if supportsLocalPassthrough {
+                appendOutput("", type: .response)
+                appendOutput(L10n.Tools.Tools.Cli.helpRepeaterHeader, type: .response)
+                appendOutput(L10n.Tools.Tools.Cli.helpRepeaterList1, type: .response)
+                appendOutput(L10n.Tools.Tools.Cli.helpRepeaterList2, type: .response)
+                appendOutput(L10n.Tools.Tools.Cli.helpRepeaterList3, type: .response)
+                appendOutput(L10n.Tools.Tools.Cli.helpRepeaterList4, type: .response)
+            }
         } else if activeSession != nil {
             appendOutput("", type: .response)
             appendOutput(L10n.Tools.Tools.Cli.helpRepeaterHeader, type: .response)
@@ -287,6 +302,42 @@ final class CLIToolViewModel {
 
     private func clearOutput() {
         outputLines.removeAll()
+    }
+
+    var supportsLocalPassthrough: Bool {
+        localDevicePublicKey != nil && repeaterAdminService != nil
+    }
+
+    private func sendLocalCommand(_ command: String) async {
+        guard let service = repeaterAdminService,
+              let localDevicePublicKey else {
+            appendOutput("\(L10n.Tools.Tools.Cli.unknownCommand) \(command.split(separator: " ").first.map(String.init) ?? command)", type: .error)
+            return
+        }
+
+        isWaitingForResponse = true
+        defer { isWaitingForResponse = false }
+
+        do {
+            let response = try await service.sendRawCommand(
+                publicKey: localDevicePublicKey,
+                command: command
+            )
+
+            guard !Task.isCancelled else { return }
+
+            appendOutput(response, type: .response)
+        } catch is CancellationError {
+            // Already handled by cancelCurrentCommand
+        } catch let error as RemoteNodeError {
+            if case .timeout = error {
+                appendOutput(L10n.Tools.Tools.Cli.commandTimeout, type: .error)
+            } else {
+                appendOutput("\(error.localizedDescription)", type: .error)
+            }
+        } catch {
+            appendOutput("\(error.localizedDescription)", type: .error)
+        }
     }
 
     // MARK: - History Navigation

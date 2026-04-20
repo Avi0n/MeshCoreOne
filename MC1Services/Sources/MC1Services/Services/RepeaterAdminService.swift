@@ -207,6 +207,20 @@ public actor RepeaterAdminService {
         )
     }
 
+    /// Send a raw CLI command to the currently connected repeater using its public key.
+    /// Used by the local CLI session when the app is connected directly to a device.
+    public func sendRawCommand(
+        publicKey: Data,
+        command: String,
+        timeout: Duration = .seconds(10)
+    ) async throws -> String {
+        try await remoteNodeService.sendRawCLICommand(
+            publicKey: publicKey,
+            command: command,
+            timeout: timeout
+        )
+    }
+
     // MARK: - Session Queries
 
     /// Fetch all repeater sessions for a device.

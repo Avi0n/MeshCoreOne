@@ -942,10 +942,28 @@ public actor RemoteNodeService {
             throw RemoteNodeError.permissionDenied
         }
 
-        // Log CLI command (with password redaction)
-        await auditLogger.logCLICommand(publicKey: remoteSession.publicKey, command: command)
+        let response = try await sendRawCLICommand(
+            publicKey: remoteSession.publicKey,
+            command: command,
+            timeout: timeout
+        )
 
-        let destinationPrefix = Data(remoteSession.publicKey.prefix(6))
+        // Clear stored password after admin password change
+        await handlePasswordChangeIfNeeded(command: command, sessionID: sessionID)
+
+        return response
+    }
+
+    /// Send a raw CLI command directly to a known public key.
+    /// This bypasses session lookup and is used by the local CLI session.
+    public func sendRawCLICommand(
+        publicKey: Data,
+        command: String,
+        timeout: Duration = .seconds(10)
+    ) async throws -> String {
+        await auditLogger.logCLICommand(publicKey: publicKey, command: command)
+
+        let destinationPrefix = Data(publicKey.prefix(6))
 
         // Only one raw CLI request per sender at a time (FIFO matching)
         guard pendingRawCLIRequests[destinationPrefix] == nil else {
@@ -962,7 +980,7 @@ public actor RemoteNodeService {
                     // Send CLI command
                     let sentInfo: MessageSentInfo
                     do {
-                        sentInfo = try await session.sendCommand(to: remoteSession.publicKey, command: command)
+                        sentInfo = try await session.sendCommand(to: publicKey, command: command)
                     } catch {
                         // Send failed - remove pending request and resume with error
                         if let pending = pendingRawCLIRequests.removeValue(forKey: destinationPrefix) {
@@ -1007,9 +1025,6 @@ public actor RemoteNodeService {
                 await self?.cancelPendingRawCLIRequest(for: destinationPrefix)
             }
         }
-
-        // Clear stored password after admin password change
-        await handlePasswordChangeIfNeeded(command: command, sessionID: sessionID)
 
         return response
     }
