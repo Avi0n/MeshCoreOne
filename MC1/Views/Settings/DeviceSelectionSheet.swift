@@ -46,6 +46,21 @@ private enum SelectableDevice: Identifiable, Equatable {
     }
 }
 
+/// Filters saved `Device` rows to those the user can actually reach from this phone.
+///
+/// A backup restore inserts "shadow" `Device` rows: their Bluetooth connection methods
+/// were stripped by `cleanedForImport()` and their `id` is a fresh `UUID` that isn't
+/// registered with AccessorySetupKit on this phone. Those rows stay in SwiftData so
+/// `ConnectionManager.buildServicesAndSaveDevice` can reconcile them by `publicKey`
+/// when the user later pairs the radio, but they must not appear in the picker until
+/// then — they look like saved devices but no tap can connect them.
+enum DeviceSelectionFilter {
+    static func isConnectable(_ device: DeviceDTO, pairedAccessoryIDs: Set<UUID>) -> Bool {
+        device.connectionMethods.contains(where: \.isWiFi)
+            || pairedAccessoryIDs.contains(device.id)
+    }
+}
+
 /// Sheet for selecting and reconnecting to previously paired devices
 struct DeviceSelectionSheet: View {
     @Environment(\.appState) private var appState
@@ -144,14 +159,18 @@ struct DeviceSelectionSheet: View {
 
     private func loadDevices() async {
         // Try to load from SwiftData first
+        let pairedAccessoryIDs = Set(appState.connectionManager.pairedAccessoryInfos.map(\.id))
         do {
             let savedDevices = try await appState.connectionManager.fetchSavedDevices()
-            if !savedDevices.isEmpty {
-                devices = savedDevices.map { .saved($0) }
+            let connectableDevices = savedDevices.filter {
+                DeviceSelectionFilter.isConnectable($0, pairedAccessoryIDs: pairedAccessoryIDs)
+            }
+            if !connectableDevices.isEmpty {
+                devices = connectableDevices.map { .saved($0) }
 
                 // Check which devices are connected elsewhere (BLE only)
                 var connectedElsewhere: Set<UUID> = []
-                for device in savedDevices {
+                for device in connectableDevices {
                     // Skip WiFi-only devices
                     let hasBluetooth = device.connectionMethods.isEmpty ||
                         device.connectionMethods.contains { !$0.isWiFi }
@@ -168,7 +187,7 @@ struct DeviceSelectionSheet: View {
             logger.error("Failed to load devices: \(error)")
         }
 
-        // Fall back to ASK accessories when database is empty
+        // Fall back to ASK accessories when the filter drops every saved row (or the DB is empty)
         let accessories = appState.connectionManager.pairedAccessoryInfos
         devices = accessories.map { .accessory(id: $0.id, name: $0.name) }
 
