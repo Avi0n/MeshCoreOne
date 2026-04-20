@@ -40,6 +40,18 @@ struct OCVPresetTests {
         #expect(OCVPreset.wisMeshTag.ocvArray == expected)
     }
 
+    @Test("LilyGo T-Beam 1W preset has expected values")
+    func lilyGoTBeam1WPresetValues() {
+        let expected = [7950, 7850, 7750, 7580, 7440, 7310, 7150, 7005, 6860, 6685, 6000]
+        #expect(OCVPreset.lilyGoTBeam1W.ocvArray == expected)
+    }
+
+    @Test("ThinkNode M6 preset has expected values")
+    func thinkNodeM6PresetValues() {
+        let expected = [4080, 3990, 3935, 3880, 3825, 3770, 3715, 3660, 3605, 3550, 3450]
+        #expect(OCVPreset.thinkNodeM6.ocvArray == expected)
+    }
+
     // MARK: - Category Tests
 
     @Test("Battery chemistry presets include only chemistry types")
@@ -99,6 +111,16 @@ struct OCVPresetTests {
     @Test("RAK WisMesh Tag maps to wisMeshTag preset")
     func rakWisMeshTagMapsCorrectly() {
         #expect(OCVPreset.preset(forManufacturer: "RAK WisMesh Tag") == .wisMeshTag)
+    }
+
+    @Test("LilyGo T-Beam 1W maps to lilyGoTBeam1W preset")
+    func lilyGoTBeam1WMapsCorrectly() {
+        #expect(OCVPreset.preset(forManufacturer: "LilyGo T-Beam 1W") == .lilyGoTBeam1W)
+    }
+
+    @Test("Elecrow ThinkNode M6 maps to thinkNodeM6 preset")
+    func elecrowThinkNodeM6MapsCorrectly() {
+        #expect(OCVPreset.preset(forManufacturer: "Elecrow ThinkNode M6") == .thinkNodeM6)
     }
 
     @Test("Unknown manufacturer returns nil")

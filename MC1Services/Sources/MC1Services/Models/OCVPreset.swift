@@ -26,6 +26,8 @@ public enum OCVPreset: String, CaseIterable, Codable, Sendable {
     case seeedSolarNode
     case r1Neo
     case wisMeshTag
+    case lilyGoTBeam1W
+    case thinkNodeM6
     case custom
 
     /// The 11-point OCV array in millivolts (100% to 0% in 10% steps)
@@ -57,6 +59,10 @@ public enum OCVPreset: String, CaseIterable, Codable, Sendable {
             [4120, 4020, 4000, 3940, 3870, 3820, 3750, 3630, 3550, 3450, 3100]
         case .wisMeshTag:
             [4240, 4112, 4029, 3970, 3906, 3846, 3824, 3802, 3776, 3650, 3072]
+        case .lilyGoTBeam1W:
+            [7950, 7850, 7750, 7580, 7440, 7310, 7150, 7005, 6860, 6685, 6000]
+        case .thinkNodeM6:
+            [4080, 3990, 3935, 3880, 3825, 3770, 3715, 3660, 3605, 3550, 3450]
         case .custom:
             OCVPreset.liIon.ocvArray  // Fallback, actual custom values stored separately
         }
@@ -78,6 +84,8 @@ public enum OCVPreset: String, CaseIterable, Codable, Sendable {
         case .seeedSolarNode: "Seeed Solar Node"
         case .r1Neo: "R1 Neo"
         case .wisMeshTag: "WisMesh Tag"
+        case .lilyGoTBeam1W: "LilyGo T-Beam 1W"
+        case .thinkNodeM6: "ThinkNode M6"
         case .custom: "Custom"
         }
     }
@@ -88,7 +96,8 @@ public enum OCVPreset: String, CaseIterable, Codable, Sendable {
         case .liIon, .liFePO4, .leadAcid, .alkaline, .niMH, .lto:
             .batteryChemistry
         case .trackerT1000E, .heltecPocket5000, .heltecPocket10000,
-             .seeedWioTracker, .seeedSolarNode, .r1Neo, .wisMeshTag, .custom:
+             .seeedWioTracker, .seeedSolarNode, .r1Neo, .wisMeshTag,
+             .lilyGoTBeam1W, .thinkNodeM6, .custom:
             .deviceSpecific
         }
     }
@@ -124,6 +133,8 @@ public enum OCVPreset: String, CaseIterable, Codable, Sendable {
         case "Seeed Wio Tracker L1": .seeedWioTracker
         case "Seeed SenseCap Solar": .seeedSolarNode
         case "RAK WisMesh Tag": .wisMeshTag
+        case "LilyGo T-Beam 1W": .lilyGoTBeam1W
+        case "Elecrow ThinkNode M6": .thinkNodeM6
         default: nil
         }
         if preset == nil && !name.isEmpty {
