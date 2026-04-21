@@ -110,6 +110,12 @@ public enum MeshEvent: Sendable {
     /// Emitted in response to ``MeshCoreSession/getAutoAddConfig()``.
     case autoAddConfig(AutoAddConfig)
 
+    /// Contains the persisted default flood scope.
+    ///
+    /// Firmware v11+ (MeshCore v1.15.0+). `nil` means no default scope is persisted.
+    /// Emitted in response to ``MeshCoreSession/getDefaultFloodScope()``.
+    case defaultFloodScope(DefaultFloodScope?)
+
     /// Indicates that allowed repeat frequency ranges were received.
     ///
     /// Emitted in response to ``MeshCoreSession/getRepeatFreq()`` (v9+ firmware).
@@ -175,6 +181,13 @@ public enum MeshEvent: Sendable {
     ///
     /// Emitted when a message is received on a subscribed channel.
     case channelMessageReceived(ChannelMessage)
+
+    /// Indicates that a binary datagram was received on a channel.
+    ///
+    /// Firmware v11+ (MeshCore v1.15.0+). Emitted when a `PAYLOAD_TYPE_GRP_DATA`
+    /// packet is received. The payload is the raw (encrypted) ciphertext bytes —
+    /// higher layers decrypt with the channel's shared key.
+    case channelDataReceived(ChannelDatagram)
 
     /// Indicates that no more messages are waiting.
     ///
@@ -473,6 +486,63 @@ public struct ChannelMessage: Sendable, Equatable {
         self.senderTimestamp = senderTimestamp
         self.text = text
         self.snr = snr
+    }
+}
+
+/// Represents a binary datagram received on a broadcast channel.
+///
+/// Channel datagrams carry arbitrary application data (`data_type` namespaces
+/// the schema) rather than plain text. Firmware v11+ (MeshCore v1.15.0+).
+public struct ChannelDatagram: Sendable, Equatable {
+    /// The index of the channel on which the datagram was received.
+    public let channelIndex: UInt8
+    /// Encoded path-length byte from the RF packet header.
+    ///
+    /// - `0xFF`: the datagram arrived via direct route; upstream path is unknown to firmware.
+    /// - Otherwise: flood-accumulated path encoding. Upper 2 bits = hash size (1, 2, or 3 bytes
+    ///   per hop); lower 6 bits = hop count. Decode with ``decodePathLen(_:)`` into a
+    ///   ``PathLenDecoded`` for inspecting hops.
+    public let pathLength: UInt8
+    /// Application data-type namespace (see firmware `number_allocations.md`).
+    public let dataType: UInt16
+    /// The raw binary payload (up to 163 bytes).
+    public let data: Data
+    /// The signal-to-noise ratio of the received packet in dB.
+    ///
+    /// `RESP_CODE_CHANNEL_DATA_RECV` always carries SNR at offset 0, so this value
+    /// is always present (unlike ``ChannelMessage/snr`` which is optional because
+    /// v1-era push codes omitted it).
+    public let snr: Double
+
+    /// Initializes a new channel datagram.
+    public init(
+        channelIndex: UInt8,
+        pathLength: UInt8,
+        dataType: UInt16,
+        data: Data,
+        snr: Double
+    ) {
+        self.channelIndex = channelIndex
+        self.pathLength = pathLength
+        self.dataType = dataType
+        self.data = data
+        self.snr = snr
+    }
+}
+
+/// Represents the device's persisted default flood scope.
+///
+/// Firmware v11+ (MeshCore v1.15.0+). The default scope is applied automatically
+/// when sending flood packets if no session-scoped key has been set.
+public struct DefaultFloodScope: Sendable, Equatable {
+    /// Display name (up to 30 UTF-8 bytes on-device).
+    public let name: String
+    /// The 16-byte scope key.
+    public let scopeKey: Data
+
+    public init(name: String, scopeKey: Data) {
+        self.name = name
+        self.scopeKey = scopeKey
     }
 }
 

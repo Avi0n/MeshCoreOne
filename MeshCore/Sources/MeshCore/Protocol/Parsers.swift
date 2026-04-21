@@ -72,6 +72,15 @@ enum PacketSize {
     static let binaryResponseStatusWithRxAirtime = 52
     /// Minimum size for binary response status payload with receiveErrors field (56 bytes).
     static let binaryResponseStatusWithReceiveErrors = 56
+    /// Minimum size for channel datagram payload (header fields before data).
+    /// Format: `[snr:1][rsv:2][channel:1][path_len:1][data_type:2][data_len:1]` = 8 bytes.
+    static let channelDatagramMinimum = 8
+    /// Default-scope name-field width on the wire (zero-padded, null-terminated).
+    static let defaultFloodScopeNameField = 31
+    /// Default-scope key width on the wire.
+    static let defaultFloodScopeKeyBytes = 16
+    /// Size for populated default flood scope response (name field + key).
+    static let defaultFloodScopeSet = defaultFloodScopeNameField + defaultFloodScopeKeyBytes
 }
 
 // MARK: - Parser Logger
@@ -505,6 +514,102 @@ public enum Parsers {
                 text: text,
                 snr: snr
             ))
+        }
+    }
+
+    // MARK: - ChannelDatagram
+
+    /// Parser for incoming channel binary datagrams. Firmware v11+ (MeshCore v1.15.0+).
+    enum ChannelDatagram {
+        /// Parses a channel datagram.
+        ///
+        /// ### Binary Format (offsets exclude the `0x1B` opcode byte, stripped by ``PacketParser``)
+        /// - Offset 0 (1 byte): SNR scaled by 4 (Int8)
+        /// - Offset 1 (2 bytes): Reserved
+        /// - Offset 3 (1 byte): Channel Index
+        /// - Offset 4 (1 byte): Path Length — `0xFF` = direct route; otherwise flood-accumulated path encoding
+        /// - Offset 5 (2 bytes): Data Type (UInt16 LE)
+        /// - Offset 7 (1 byte): Data Length
+        /// - Offset 8+: Binary payload (length = data_len, clamped to remaining bytes)
+        static func parse(_ data: Data) -> MeshEvent {
+            guard data.count >= PacketSize.channelDatagramMinimum else {
+                return .parseFailure(
+                    data: data,
+                    reason: "ChannelDatagram response too short: \(data.count) < \(PacketSize.channelDatagramMinimum)"
+                )
+            }
+
+            // `PacketParser.parse` already normalises payloads via `Data(data.dropFirst())`,
+            // so `data.startIndex == 0` here; offset-based subscripting is slice-safe.
+            // Matches the convention used by `Parsers.ChannelMessage.parse`.
+            var offset = 0
+            let snr = Double(Int8(bitPattern: data[offset])) / 4.0
+            offset += 1
+            offset += 2 // reserved
+            let channelIndex = data[offset]; offset += 1
+            let pathLen = data[offset]; offset += 1
+            let dataType = data.readUInt16LE(at: offset); offset += 2
+            let declared = Int(data[offset]); offset += 1
+
+            let remaining = data.count - offset
+            let length = min(declared, remaining)
+            let payload = Data(data[offset..<offset + length])
+
+            return .channelDataReceived(MeshCore.ChannelDatagram(
+                channelIndex: channelIndex,
+                pathLength: pathLen,
+                dataType: dataType,
+                data: payload,
+                snr: snr
+            ))
+        }
+    }
+
+    // MARK: - DefaultFloodScope
+
+    /// Parser for the persisted default flood scope. Firmware v11+ (MeshCore v1.15.0+).
+    enum DefaultFloodScope {
+        /// Parses the default flood scope response.
+        ///
+        /// ### Binary Format (offsets exclude the `0x1C` opcode byte, stripped by ``PacketParser``)
+        /// - Empty payload (0 bytes): No default scope configured, emits `.defaultFloodScope(nil)`.
+        /// - Populated (exactly 47 bytes): `[name:31 zero-padded UTF-8][key:16]`.
+        ///
+        /// Firmware emits exactly 0 or 47 bytes (`MyMesh.cpp:1915-1917`); other lengths
+        /// indicate protocol drift and fall through to `parseFailure`.
+        static func parse(_ data: Data) -> MeshEvent {
+            if data.isEmpty {
+                return .defaultFloodScope(nil)
+            }
+            guard data.count == PacketSize.defaultFloodScopeSet else {
+                return .parseFailure(
+                    data: data,
+                    reason: "DefaultFloodScope response wrong size: \(data.count), expected 0 or \(PacketSize.defaultFloodScopeSet)"
+                )
+            }
+
+            // `PacketParser.parse` zero-aligns the payload; use `data` directly,
+            // matching the sibling `Parsers.ChannelMessage.parse` convention.
+            var offset = 0
+            let nameField = Data(data[offset..<(offset + PacketSize.defaultFloodScopeNameField)])
+            offset += PacketSize.defaultFloodScopeNameField
+            let nullIdx = nameField.firstIndex(of: 0) ?? nameField.endIndex
+            let nameBytes = Data(nameField[..<nullIdx])
+
+            // Mirror `ContactMessage` / `ChannelMessage` lossy-UTF-8 handling so a corrupt
+            // name doesn't silently misclassify a populated scope as null — the scope itself
+            // is set, only the display name is garbled.
+            let name: String
+            if let decoded = String(data: nameBytes, encoding: .utf8) {
+                name = decoded
+            } else {
+                parserLogger.warning("DefaultFloodScope: Invalid UTF-8 in name field, using lossy conversion")
+                name = String(decoding: nameBytes, as: UTF8.self)
+            }
+
+            let key = Data(data[offset..<(offset + PacketSize.defaultFloodScopeKeyBytes)])
+
+            return .defaultFloodScope(MeshCore.DefaultFloodScope(name: name, scopeKey: key))
         }
     }
 

@@ -39,6 +39,17 @@ public enum PacketBuilder: Sendable {
     static let publicKeySize = 32
     static let rawDataMaxPathBytes = 64
     static let rawDataMaxPayloadBytes = 184
+    /// Flood sentinel for `path_len` fields: firmware treats `0xFF` as "route via flood".
+    @usableFromInline static let floodPathSentinel: UInt8 = 0xFF
+    /// Maximum payload bytes for `CMD_SEND_CHANNEL_DATA` (`MAX_FRAME_SIZE - 9` per firmware).
+    static let channelDataMaxPayloadBytes = 163
+    /// Default-scope name-field width on the wire (31 bytes, zero-padded).
+    static let defaultScopeNameField = 31
+    /// Default-scope name maximum UTF-8 length (30 bytes; byte 31 is the null terminator
+    /// firmware's `strlen` relies on at `MyMesh.cpp:1895`).
+    static let defaultScopeMaxNameBytes = 30
+    /// Default-scope key width on the wire (16 bytes).
+    static let defaultScopeKeyBytes = 16
 
     private static func encodePublicKey(_ publicKey: Data) -> Data {
         if publicKey.count >= publicKeySize {
@@ -787,6 +798,127 @@ public enum PacketBuilder: Sendable {
         var data = Data([CommandCode.setFloodScope.rawValue, 0x00])
         data.append(scopeKey.prefix(16))
         return data
+    }
+
+    /// Builds a `sendChannelData` command for sending a binary datagram to a channel.
+    ///
+    /// Requires firmware v11+ (MeshCore v1.15.0+).
+    ///
+    /// Wire format:
+    /// - Offset 0 (1 byte): Command code `0x3E`
+    /// - Offset 1 (1 byte): Channel index (0–255)
+    /// - Offset 2 (1 byte): Encoded `pathLength` byte (`0xFF` = flood)
+    /// - Offset 3 (pathBytes.count bytes, absent if flood): Path bytes, caller-supplied verbatim
+    /// - Next (2 bytes): `dataType` (little-endian `UInt16`)
+    /// - Remaining: Payload bytes (clamped to 163 bytes)
+    ///
+    /// `pathLength` is the **encoded** path-length byte used by firmware's packet format
+    /// (see `Packet::isValidPathLen` at `MeshCore-references/MeshCore/src/Packet.cpp:13-18`):
+    /// - Upper 2 bits (6–7): hash size mode (0 = 1 byte, 1 = 2 bytes, 2 = 3 bytes, 3 = reserved).
+    /// - Lower 6 bits (0–5): hop count (0–63).
+    /// - Special value `0xFF`: flood routing (no path bytes follow).
+    ///
+    /// The number of bytes consumed from `pathBytes` by firmware is
+    /// `hash_count * hash_size` — NOT `pathBytes.count`. The builder passes both
+    /// `pathLength` and `pathBytes` through verbatim; callers are responsible for
+    /// keeping them consistent. Callers that already have a ``MeshContact`` can pass
+    /// `contact.outPathLength` and `contact.outPath` directly.
+    ///
+    /// - Note: Upstream `companion_protocol.md` §6 documents an incorrect wire format
+    ///   (wrong field order, missing `path_len`) as of v1.15.0. `MyMesh.cpp` is canonical.
+    ///
+    /// - Parameters:
+    ///   - channelIndex: The channel slot index.
+    ///   - dataType: Application data-type namespace. At runtime, firmware rejects only
+    ///     `0x0000` with `ERR_CODE_ILLEGAL_ARG` (see `MyMesh.cpp:1153-1154`). Values
+    ///     `0x0001–0x00FF` are reserved by convention in `number_allocations.md` but are
+    ///     not enforced by firmware; `0xFF00–0xFFFF` is the developer/testing namespace.
+    ///     Custom apps should request an allocation in `0x0100–0xFEFF`.
+    ///   - payload: Binary payload, clamped to ``channelDataMaxPayloadBytes`` (163).
+    ///   - pathLength: Encoded `path_len` byte. Defaults to ``floodPathSentinel`` (`0xFF`).
+    ///     When set to a non-flood value it must satisfy `Packet::isValidPathLen`.
+    ///   - pathBytes: Path bytes, written verbatim after `pathLength`. Pass `Data()` (the
+    ///     default) for flood; firmware ignores any bytes when `pathLength == 0xFF` so the
+    ///     builder omits them.
+    /// - Returns: The command packet bytes.
+    public static func sendChannelData(
+        channelIndex: UInt8,
+        dataType: UInt16,
+        payload: Data,
+        pathLength: UInt8 = floodPathSentinel,
+        pathBytes: Data = Data()
+    ) -> Data {
+        var data = Data([CommandCode.sendChannelData.rawValue, channelIndex, pathLength])
+
+        if pathLength != floodPathSentinel {
+            data.append(pathBytes)
+        }
+
+        data.append(contentsOf: withUnsafeBytes(of: dataType.littleEndian) { Array($0) })
+        data.append(payload.prefix(channelDataMaxPayloadBytes))
+        return data
+    }
+
+    /// Builds a `setDefaultFloodScope` command to persist the device's default flood scope.
+    ///
+    /// The device uses this scope for flood sends when no session-scoped key has been set.
+    /// Passing an empty name clears the persisted scope. Firmware's name-field parse at
+    /// `MyMesh.cpp:1896` accepts only `0 < strlen(name) < 31`, so both empty and 31-plus-byte
+    /// names are rejected with `ERR_CODE_ILLEGAL_ARG`. The builder defends against both:
+    /// empty-name normalises to the single-byte clear form, and the 30-byte UTF-8 cap plus
+    /// zero-padding to 31 guarantees `strlen < 31` for any non-empty input.
+    ///
+    /// Requires firmware v11+ (MeshCore v1.15.0+).
+    ///
+    /// Wire format:
+    /// - `[0x3F]` (1 byte) to clear the default scope.
+    /// - `[0x3F][name:31 zero-padded UTF-8][key:16]` (48 bytes) to set it.
+    ///
+    /// - Parameters:
+    ///   - name: Display name. Encoded to at most 30 UTF-8 bytes; byte 31 is always zero so
+    ///     firmware's `strlen`-based parse terminates. Truncation happens at grapheme-cluster
+    ///     boundaries via ``Swift/String/utf8Prefix(maxBytes:)`` so invalid UTF-8 is never
+    ///     emitted. Passing an empty name clears the scope.
+    ///   - scopeKey: 16-byte scope key. Shorter keys are right-padded with zeros.
+    /// - Returns: The command packet bytes.
+    public static func setDefaultFloodScope(name: String, scopeKey: Data) -> Data {
+        // Firmware rejects n == 0 — normalise empty name to clear, ignoring any key.
+        if name.isEmpty {
+            return Data([CommandCode.setDefaultFloodScope.rawValue])
+        }
+
+        var data = Data([CommandCode.setDefaultFloodScope.rawValue])
+
+        // Cap UTF-8 at 30 bytes (grapheme-cluster safe) then zero-pad to 31. Zero-padding
+        // guarantees at least one null byte in the 31-byte field for firmware's strlen.
+        let truncated = name.utf8Prefix(maxBytes: defaultScopeMaxNameBytes)
+        data.append(Data(truncated.utf8).paddedOrTruncated(to: defaultScopeNameField))
+
+        data.append(scopeKey.paddedOrTruncated(to: defaultScopeKeyBytes))
+
+        return data
+    }
+
+    /// Convenience overload that derives the 16-byte key from a ``FloodScope``.
+    ///
+    /// - Parameters:
+    ///   - name: Display name for the scope (stored on-device).
+    ///   - scope: Any ``FloodScope`` case; `.disabled` clears the scope.
+    /// - Returns: The command packet bytes.
+    public static func setDefaultFloodScope(name: String, scope: FloodScope) -> Data {
+        if case .disabled = scope {
+            return setDefaultFloodScope(name: "", scopeKey: Data())
+        }
+        return setDefaultFloodScope(name: name, scopeKey: scope.scopeKey())
+    }
+
+    /// Builds a getDefaultFloodScope command.
+    ///
+    /// Requires firmware v11+ (MeshCore v1.15.0+).
+    ///
+    /// - Returns: A single-byte command packet.
+    public static func getDefaultFloodScope() -> Data {
+        Data([CommandCode.getDefaultFloodScope.rawValue])
     }
 
     /// Builds a command to send an anonymous request to a remote node.

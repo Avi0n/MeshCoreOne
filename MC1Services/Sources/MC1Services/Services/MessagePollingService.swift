@@ -199,6 +199,10 @@ public actor MessagePollingService {
             case .channelMessage(let msg):
                 count += 1
                 await handleChannelMessage(msg)
+            case .channelDatagram:
+                // Datagrams are not user-visible messages; drain queue without counting.
+                // A follow-up plan will add a dedicated MC1Services listener for them.
+                break
             case .noMoreMessages:
                 return count
             }

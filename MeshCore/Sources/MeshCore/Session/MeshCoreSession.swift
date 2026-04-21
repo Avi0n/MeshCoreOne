@@ -1727,7 +1727,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ///
     /// - Parameter timeout: Optional timeout override in seconds. Uses `configuration.defaultTimeout` when `nil`.
     /// - Returns: A ``MessageResult`` containing either a contact message, channel message,
-    ///            or indication that no more messages are waiting.
+    ///            channel datagram (firmware v11+), or ``MessageResult/noMoreMessages``.
     /// - Throws: ``MeshCoreError`` if the fetch fails.
     public func getMessage(timeout: TimeInterval? = nil) async throws -> MessageResult {
         if isGetMessageInFlight {
@@ -1754,7 +1754,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
         let stream = await dispatcher.subscribe { event in
             switch event {
-            case .contactMessageReceived, .channelMessageReceived, .noMoreMessages, .error:
+            case .contactMessageReceived, .channelMessageReceived, .channelDataReceived,
+                 .noMoreMessages, .error:
                 return true
             default:
                 return false
@@ -1776,6 +1777,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
                         return .contactMessage(msg)
                     case .channelMessageReceived(let msg):
                         return .channelMessage(msg)
+                    case .channelDataReceived(let dg):
+                        return .channelDatagram(dg)
                     case .noMoreMessages:
                         return .noMoreMessages
                     case .error(let code):
@@ -1857,6 +1860,39 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         timestamp: Date = Date()
     ) async throws {
         try await sendSimpleCommand(PacketBuilder.sendChannelMessage(channel: channel, text: text, timestamp: timestamp))
+    }
+
+    /// Sends a binary datagram to a channel.
+    ///
+    /// Requires firmware v11+ (MeshCore v1.15.0+).
+    ///
+    /// - Parameters:
+    ///   - channelIndex: Channel slot index.
+    ///   - dataType: Application data-type namespace. `0x0000` is reserved and rejected by
+    ///     firmware; `0xFFFF` is the developer namespace.
+    ///   - payload: Binary payload (clamped to 163 bytes by ``PacketBuilder/sendChannelData(channelIndex:dataType:payload:pathLength:pathBytes:)``).
+    ///   - pathLength: Encoded `path_len` byte. Defaults to ``PacketBuilder/floodPathSentinel``
+    ///     (`0xFF` = flood). Non-flood values must satisfy firmware's `Packet::isValidPathLen`;
+    ///     callers working from a ``MeshContact`` can pass `contact.outPathLength` directly.
+    ///   - pathBytes: Path bytes written verbatim. Ignored when `pathLength == 0xFF`. Callers
+    ///     working from a ``MeshContact`` can pass `contact.outPath` directly.
+    /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
+    public func sendChannelData(
+        channelIndex: UInt8,
+        dataType: UInt16,
+        payload: Data,
+        pathLength: UInt8 = PacketBuilder.floodPathSentinel,
+        pathBytes: Data = Data()
+    ) async throws {
+        try await sendSimpleCommand(
+            PacketBuilder.sendChannelData(
+                channelIndex: channelIndex,
+                dataType: dataType,
+                payload: payload,
+                pathLength: pathLength,
+                pathBytes: pathBytes
+            )
+        )
     }
 
     /// Sends a login request to a remote node.
@@ -1997,6 +2033,60 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
     public func setFloodScope(_ scope: FloodScope) async throws {
         try await setFloodScope(scopeKey: scope.scopeKey())
+    }
+
+    /// Persists the device's default flood scope.
+    ///
+    /// The default scope is applied by the device when sending flood packets if
+    /// no session-scoped key has been set. Passing an empty name clears the persisted
+    /// scope; the `scopeKey` argument is ignored in that case.
+    ///
+    /// Requires firmware v11+ (MeshCore v1.15.0+).
+    ///
+    /// - Parameters:
+    ///   - name: Display name (up to 30 UTF-8 bytes; longer names are truncated). An empty
+    ///     name clears the persisted scope regardless of the `scopeKey` value.
+    ///   - scopeKey: 16-byte scope key (shorter keys are zero-padded). Ignored when `name`
+    ///     is empty.
+    /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
+    public func setDefaultFloodScope(name: String, scopeKey: Data) async throws {
+        try await sendSimpleCommand(
+            PacketBuilder.setDefaultFloodScope(name: name, scopeKey: scopeKey)
+        )
+    }
+
+    /// Persists the device's default flood scope from a ``FloodScope``.
+    ///
+    /// - Parameters:
+    ///   - name: Display name stored on the device.
+    ///   - scope: The scope to persist. Passing ``FloodScope/disabled`` clears the scope.
+    /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
+    public func setDefaultFloodScope(name: String, scope: FloodScope) async throws {
+        try await sendSimpleCommand(
+            PacketBuilder.setDefaultFloodScope(name: name, scope: scope)
+        )
+    }
+
+    /// Fetches the device's persisted default flood scope.
+    ///
+    /// Requires firmware v11+ (MeshCore v1.15.0+). Older firmware will surface the unknown
+    /// opcode as ``MeshCoreError/deviceError(code:)``.
+    ///
+    /// - Returns: The persisted scope, or `nil` if none is configured.
+    /// - Throws: ``MeshCoreError/timeout`` if no response arrives;
+    ///           ``MeshCoreError/deviceError(code:)`` if the device rejected the command.
+    public func getDefaultFloodScope() async throws -> DefaultFloodScope? {
+        let data = PacketBuilder.getDefaultFloodScope()
+        return try await sendAndMatch(data) { event in
+            switch event {
+            case .defaultFloodScope(let scope):
+                return .success(scope)
+            case .error(let code):
+                return .failure(MeshCoreError.deviceError(code: code ?? 0))
+            default:
+                return .ignore
+            }
+        }
     }
 
     /// Sets the path hash mode on the device.

@@ -87,6 +87,9 @@ public enum MessageResult: Sendable {
     /// A message from a channel.
     case channelMessage(ChannelMessage)
 
+    /// A binary datagram received on a channel (firmware v11+).
+    case channelDatagram(ChannelDatagram)
+
     /// No more messages are available in the device queue.
     case noMoreMessages
 }

@@ -40,6 +40,7 @@ MeshCore provides a modern Swift API for controlling MeshCore devices from iOS a
 
 ### Communication
 
+- ``ChannelDatagram``
 - ``ContactMessage``
 - ``ChannelMessage``
 - ``MessageSentInfo``
@@ -96,6 +97,7 @@ MeshCore provides a modern Swift API for controlling MeshCore devices from iOS a
 
 - ``ChannelInfo``
 - ``ChannelSecret``
+- ``DefaultFloodScope``
 - ``FloodScope``
 
 ### Protocol Internals

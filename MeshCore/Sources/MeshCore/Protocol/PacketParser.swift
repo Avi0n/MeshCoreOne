@@ -162,6 +162,9 @@ extension PacketParser {
         case .allowedRepeatFreq:
             return Parsers.AllowedRepeatFreq.parse(payload)
 
+        case .defaultFloodScope:
+            return Parsers.DefaultFloodScope.parse(payload)
+
         default:
             return .parseFailure(data: payload, reason: "Unexpected code in device response: \(code)")
         }
@@ -252,6 +255,9 @@ extension PacketParser {
 
         case .channelMessageReceivedV3:
             return Parsers.ChannelMessage.parse(payload, version: .v3)
+
+        case .channelDataReceived:
+            return Parsers.ChannelDatagram.parse(payload)
 
         default:
             return .parseFailure(data: payload, reason: "Unexpected code in message response: \(code)")
