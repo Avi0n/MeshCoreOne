@@ -342,6 +342,24 @@
 "pathHashMode.footer" = "较大的哈希值可减少路由冲突，但会限制每条路径的最大跳数。固件版本低于 1.14.0 的中继器不会转发哈希大小超过 1 字节的消息。";
 
 
+// MARK: - Default Flood Scope Section
+
+/* Section header for default flood scope picker */
+"defaultFloodScope.header" = "默认泛洪范围";
+
+/* Footer explaining default flood scope */
+"defaultFloodScope.footer" = "设置后，设备会将此范围应用于泛洪发送，直到被特定频道的范围覆盖。该范围会保存在设备上，重启后仍然有效。";
+
+/* Option to clear the persisted default flood scope */
+"defaultFloodScope.disabled" = "禁用";
+
+/* Placeholder for custom region name field */
+"defaultFloodScope.customPlaceholder" = "自定义区域名称";
+
+/* Button to apply a custom region name */
+"defaultFloodScope.apply" = "添加";
+
+
 // MARK: - Battery Curve Section
 
 /* Accessibility label for voltage text field - %d is percentage level */

@@ -70,6 +70,11 @@ public final class Device {
     /// Path hash mode (0=1-byte, 1=2-byte, 2=3-byte hashes). Firmware v10+.
     public var pathHashMode: UInt8 = 0
 
+    /// Name of the device's persisted default flood scope, or `nil` when cleared. Firmware v11+.
+    /// The scope key is derived from this name on-demand via ``MeshCore/FloodScope/region(_:)``;
+    /// only the name is cached here because the user-facing flow selects regions by name.
+    public var defaultFloodScopeName: String?
+
     /// Cached radio settings from before repeat mode was enabled, for restoration on disable.
     /// All 4 fields are set together when enabling repeat mode, and cleared together when disabling.
     public var preRepeatFrequency: UInt32?
@@ -144,6 +149,7 @@ public final class Device {
         blePin: UInt32 = Device.Defaults.blePin,
         clientRepeat: Bool = Device.Defaults.clientRepeat,
         pathHashMode: UInt8 = Device.Defaults.pathHashMode,
+        defaultFloodScopeName: String? = Device.Defaults.defaultFloodScopeName,
         preRepeatFrequency: UInt32? = Device.Defaults.preRepeatFrequency,
         preRepeatBandwidth: UInt32? = Device.Defaults.preRepeatBandwidth,
         preRepeatSpreadingFactor: UInt8? = Device.Defaults.preRepeatSpreadingFactor,
@@ -185,6 +191,7 @@ public final class Device {
         self.blePin = blePin
         self.clientRepeat = clientRepeat
         self.pathHashMode = pathHashMode
+        self.defaultFloodScopeName = defaultFloodScopeName
         self.preRepeatFrequency = preRepeatFrequency
         self.preRepeatBandwidth = preRepeatBandwidth
         self.preRepeatSpreadingFactor = preRepeatSpreadingFactor
@@ -231,6 +238,7 @@ public final class Device {
             blePin: dto.blePin,
             clientRepeat: dto.clientRepeat,
             pathHashMode: dto.pathHashMode,
+            defaultFloodScopeName: dto.defaultFloodScopeName,
             preRepeatFrequency: dto.preRepeatFrequency,
             preRepeatBandwidth: dto.preRepeatBandwidth,
             preRepeatSpreadingFactor: dto.preRepeatSpreadingFactor,
@@ -275,6 +283,7 @@ public final class Device {
         blePin = dto.blePin
         clientRepeat = dto.clientRepeat
         pathHashMode = dto.pathHashMode
+        defaultFloodScopeName = dto.defaultFloodScopeName
         preRepeatFrequency = dto.preRepeatFrequency
         preRepeatBandwidth = dto.preRepeatBandwidth
         preRepeatSpreadingFactor = dto.preRepeatSpreadingFactor
@@ -322,6 +331,9 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
     public var blePin: UInt32
     public var clientRepeat: Bool
     public var pathHashMode: UInt8
+
+    /// Name of the device's persisted default flood scope, or `nil` when cleared. Firmware v11+.
+    public var defaultFloodScopeName: String?
 
     /// The hash size per hop in bytes (1, 2, or 3), derived from ``pathHashMode``.
     public var hashSize: Int { Int(pathHashMode) + 1 }
@@ -400,6 +412,9 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
     /// Whether this device supports path hash mode configuration (firmware v10+)
     public var supportsPathHashMode: Bool { firmwareVersion >= 10 }
 
+    /// Whether this device supports the persisted default flood scope (firmware v11+).
+    public var supportsDefaultFloodScope: Bool { firmwareVersion >= 11 }
+
     /// Advertisement location policy interpreted from raw value.
     public var advertLocationPolicyMode: AdvertLocationPolicy {
         AdvertLocationPolicy(rawValue: advertLocationPolicy) ?? .none
@@ -441,6 +456,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
         blePin: UInt32,
         clientRepeat: Bool = false,
         pathHashMode: UInt8 = 0,
+        defaultFloodScopeName: String? = nil,
         preRepeatFrequency: UInt32? = nil,
         preRepeatBandwidth: UInt32? = nil,
         preRepeatSpreadingFactor: UInt8? = nil,
@@ -482,6 +498,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
         self.blePin = blePin
         self.clientRepeat = clientRepeat
         self.pathHashMode = pathHashMode
+        self.defaultFloodScopeName = defaultFloodScopeName
         self.preRepeatFrequency = preRepeatFrequency
         self.preRepeatBandwidth = preRepeatBandwidth
         self.preRepeatSpreadingFactor = preRepeatSpreadingFactor
@@ -525,6 +542,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
         self.blePin = device.blePin
         self.clientRepeat = device.clientRepeat
         self.pathHashMode = device.pathHashMode
+        self.defaultFloodScopeName = device.defaultFloodScopeName
         self.preRepeatFrequency = device.preRepeatFrequency
         self.preRepeatBandwidth = device.preRepeatBandwidth
         self.preRepeatSpreadingFactor = device.preRepeatSpreadingFactor
@@ -687,6 +705,7 @@ extension Device {
         public static let blePin: UInt32 = 0
         public static let clientRepeat: Bool = false
         public static let pathHashMode: UInt8 = 0
+        public static let defaultFloodScopeName: String? = nil
         public static let preRepeatFrequency: UInt32? = nil
         public static let preRepeatBandwidth: UInt32? = nil
         public static let preRepeatSpreadingFactor: UInt8? = nil

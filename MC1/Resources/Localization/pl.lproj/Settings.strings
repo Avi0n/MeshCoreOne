@@ -352,6 +352,24 @@
 "pathHashMode.footer" = "Większe hashe zmniejszają kolizje routingu, ale ograniczają maksymalną liczbę skoków na ścieżce. Repeatery z firmware starszym niż 1.14.0 nie będą przekazywać wiadomości z rozmiarem hasha większym niż 1 bajt.";
 
 
+// MARK: - Default Flood Scope Section
+
+/* Section header for default flood scope picker */
+"defaultFloodScope.header" = "Domyślny zakres flood";
+
+/* Footer explaining default flood scope */
+"defaultFloodScope.footer" = "Po ustawieniu urządzenie stosuje ten zakres do wysyłek flood, dopóki nie zastąpi go zakres specyficzny dla kanału. Zakres jest zapisywany w urządzeniu i zachowywany po restarcie.";
+
+/* Option to clear the persisted default flood scope */
+"defaultFloodScope.disabled" = "Wyłączone";
+
+/* Placeholder for custom region name field */
+"defaultFloodScope.customPlaceholder" = "Niestandardowa nazwa regionu";
+
+/* Button to apply a custom region name */
+"defaultFloodScope.apply" = "Dodaj";
+
+
 // MARK: - Battery Curve Section
 
 /* Accessibility label for voltage text field - %d is the percentage level */

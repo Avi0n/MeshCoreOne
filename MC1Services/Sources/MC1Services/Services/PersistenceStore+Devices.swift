@@ -92,6 +92,7 @@ extension PersistenceStore {
                 blePin: dto.blePin,
                 clientRepeat: dto.clientRepeat,
                 pathHashMode: dto.pathHashMode,
+                defaultFloodScopeName: dto.defaultFloodScopeName,
                 preRepeatFrequency: dto.preRepeatFrequency,
                 preRepeatBandwidth: dto.preRepeatBandwidth,
                 preRepeatSpreadingFactor: dto.preRepeatSpreadingFactor,

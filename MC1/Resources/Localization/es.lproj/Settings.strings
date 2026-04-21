@@ -352,6 +352,24 @@
 "pathHashMode.footer" = "Los hashes más grandes reducen las colisiones de enrutamiento, pero limitan el número máximo de saltos por ruta. Los repetidores con firmware anterior a 1.14.0 no repetirán mensajes con un tamaño de hash superior a 1 byte.";
 
 
+// MARK: - Default Flood Scope Section
+
+/* Section header for default flood scope picker */
+"defaultFloodScope.header" = "Alcance de flood predeterminado";
+
+/* Footer explaining default flood scope */
+"defaultFloodScope.footer" = "Cuando está definido, el dispositivo aplica este alcance a los envíos flood hasta que un alcance específico del canal lo reemplace. El alcance se guarda en el dispositivo y se conserva tras reiniciar.";
+
+/* Option to clear the persisted default flood scope */
+"defaultFloodScope.disabled" = "Desactivado";
+
+/* Placeholder for custom region name field */
+"defaultFloodScope.customPlaceholder" = "Nombre de región personalizado";
+
+/* Button to apply a custom region name */
+"defaultFloodScope.apply" = "Agregar";
+
+
 // MARK: - Battery Curve Section
 
 /* Accessibility label for voltage text field - %d is the percentage level */

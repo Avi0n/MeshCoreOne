@@ -1054,6 +1054,7 @@ public final class ConnectionManager {
             blePin: capabilities.blePin,
             clientRepeat: capabilities.clientRepeat,
             pathHashMode: capabilities.pathHashMode,
+            defaultFloodScopeName: existingDevice?.defaultFloodScopeName,
             preRepeatFrequency: existingDevice?.preRepeatFrequency,
             preRepeatBandwidth: existingDevice?.preRepeatBandwidth,
             preRepeatSpreadingFactor: existingDevice?.preRepeatSpreadingFactor,

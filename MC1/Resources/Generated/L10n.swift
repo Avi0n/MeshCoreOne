@@ -3469,6 +3469,18 @@ public enum L10n {
         public static let servicesUnavailable = L10n.tr("Settings", "dangerZone.error.servicesUnavailable", fallback: "Services not available")
       }
     }
+    public enum DefaultFloodScope {
+      /// Button to apply a custom region name
+      public static let apply = L10n.tr("Settings", "defaultFloodScope.apply", fallback: "Add")
+      /// Placeholder for custom region name field
+      public static let customPlaceholder = L10n.tr("Settings", "defaultFloodScope.customPlaceholder", fallback: "Custom region name")
+      /// Option to clear the persisted default flood scope
+      public static let disabled = L10n.tr("Settings", "defaultFloodScope.disabled", fallback: "Disabled")
+      /// Footer explaining default flood scope
+      public static let footer = L10n.tr("Settings", "defaultFloodScope.footer", fallback: "When set, the device applies this scope to flood sends until a channel-specific scope overrides it. The scope is saved on the device and survives reboots.")
+      /// Section header for default flood scope picker
+      public static let header = L10n.tr("Settings", "defaultFloodScope.header", fallback: "Default Flood Scope")
+    }
     public enum DemoMode {
       /// Toggle label to enable demo mode
       public static let enabled = L10n.tr("Settings", "demoMode.enabled", fallback: "Enabled")

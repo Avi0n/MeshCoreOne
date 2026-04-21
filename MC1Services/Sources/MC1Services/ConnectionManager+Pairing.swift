@@ -374,6 +374,18 @@ extension ConnectionManager {
         }
     }
 
+    /// Updates the connected device's cached default flood scope name.
+    /// Called by SettingsService after a `getDefaultFloodScope` read or a successful write.
+    public func updateDefaultFloodScopeName(_ name: String?) {
+        guard let device = connectedDevice else { return }
+        let updated = device.copy { $0.defaultFloodScopeName = name }
+        connectedDevice = updated
+
+        Task {
+            do { try await services?.dataStore.saveDevice(updated) } catch { logger.error("Failed to persist default flood scope: \(error)") }
+        }
+    }
+
     /// Saves the connected device's current radio settings as pre-repeat settings.
     /// Called before enabling repeat mode so settings can be restored later.
     public func savePreRepeatSettings() {

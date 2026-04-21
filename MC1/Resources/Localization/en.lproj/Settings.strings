@@ -352,6 +352,24 @@
 "pathHashMode.footer" = "Larger hashes reduce routing collisions but limit the maximum number of hops per path. Repeaters running firmware older than 1.14.0 will not repeat messages with a hash size greater than 1 byte.";
 
 
+// MARK: - Default Flood Scope Section
+
+/* Section header for default flood scope picker */
+"defaultFloodScope.header" = "Default Flood Scope";
+
+/* Footer explaining default flood scope */
+"defaultFloodScope.footer" = "When set, the device applies this scope to flood sends until a channel-specific scope overrides it. The scope is saved on the device and survives reboots.";
+
+/* Option to clear the persisted default flood scope */
+"defaultFloodScope.disabled" = "Disabled";
+
+/* Placeholder for custom region name field */
+"defaultFloodScope.customPlaceholder" = "Custom region name";
+
+/* Button to apply a custom region name */
+"defaultFloodScope.apply" = "Add";
+
+
 // MARK: - Battery Curve Section
 
 /* Accessibility label for voltage text field - %d is the percentage level */

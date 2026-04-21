@@ -354,6 +354,10 @@ public final class AppState {
                     await MainActor.run {
                         self.connectionManager.allowedRepeatFreqRanges = ranges
                     }
+                case .defaultFloodScopeUpdated(let name):
+                    await MainActor.run {
+                        self.connectionManager.updateDefaultFloodScopeName(name)
+                    }
                 }
             }
         }

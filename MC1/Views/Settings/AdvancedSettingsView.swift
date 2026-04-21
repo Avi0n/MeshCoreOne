@@ -21,6 +21,11 @@ struct AdvancedSettingsView: View {
                 PathHashModeSection()
             }
 
+            // Default Flood Scope (firmware v11+)
+            if appState.connectedDevice?.supportsDefaultFloodScope == true {
+                DefaultFloodScopeSection()
+            }
+
             // Nodes Settings
             NodesSettingsSection()
 
@@ -113,6 +118,10 @@ struct AdvancedSettingsView: View {
         // Only refresh autoAddConfig on v1.12+ firmware
         if appState.connectedDevice?.supportsAutoAddConfig == true {
             try? await settingsService.refreshAutoAddConfig()
+        }
+
+        if appState.connectedDevice?.supportsDefaultFloodScope == true {
+            _ = try? await settingsService.getDefaultFloodScope()
         }
     }
 

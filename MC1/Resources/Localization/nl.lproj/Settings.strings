@@ -361,6 +361,24 @@
 "pathHashMode.footer" = "Grotere hashes verminderen routeringscollisies, maar beperken het maximale aantal hops per pad. Repeaters met firmware ouder dan 1.14.0 herhalen geen berichten met een hashgrootte groter dan 1 byte.";
 
 
+// MARK: - Default Flood Scope Section
+
+/* Section header for default flood scope picker */
+"defaultFloodScope.header" = "Standaard flood-bereik";
+
+/* Footer explaining default flood scope */
+"defaultFloodScope.footer" = "Wanneer ingesteld past het apparaat dit bereik toe op flood-verzendingen totdat een kanaalspecifiek bereik dit overschrijft. Het bereik wordt op het apparaat opgeslagen en blijft behouden na herstart.";
+
+/* Option to clear the persisted default flood scope */
+"defaultFloodScope.disabled" = "Uitgeschakeld";
+
+/* Placeholder for custom region name field */
+"defaultFloodScope.customPlaceholder" = "Aangepaste regionaam";
+
+/* Button to apply a custom region name */
+"defaultFloodScope.apply" = "Toevoegen";
+
+
 // MARK: - Battery Curve Section
 
 /* Section header for battery curve */

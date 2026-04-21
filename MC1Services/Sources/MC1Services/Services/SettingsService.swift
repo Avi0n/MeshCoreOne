@@ -292,6 +292,7 @@ public enum SettingsEvent: Sendable {
     case clientRepeatUpdated(Bool)
     case pathHashModeUpdated(UInt8)
     case allowedRepeatFreqUpdated([MeshCore.FrequencyRange])
+    case defaultFloodScopeUpdated(String?)
 }
 
 // MARK: - Settings Service
@@ -811,6 +812,54 @@ public actor SettingsService {
 
         eventContinuation?.yield(.pathHashModeUpdated(mode))
         return mode
+    }
+
+    // MARK: - Default Flood Scope
+
+    /// Fetches the device's persisted default flood scope.
+    ///
+    /// Requires firmware v11+; older firmware rejects the opcode and surfaces
+    /// ``SettingsServiceError/sessionError(_:)`` with `MeshCoreError.deviceError`.
+    ///
+    /// - Returns: The persisted scope name, or `nil` when none is configured.
+    public func getDefaultFloodScope() async throws -> String? {
+        do {
+            let scope = try await session.getDefaultFloodScope()
+            let name = scope?.name
+            eventContinuation?.yield(.defaultFloodScopeUpdated(name))
+            return name
+        } catch let error as MeshCoreError {
+            throw SettingsServiceError.sessionError(error)
+        }
+    }
+
+    /// Persists the device's default flood scope and verifies via a follow-up read.
+    ///
+    /// Passing `nil` for `name` clears the persisted scope. Non-nil names are sent as
+    /// ``MeshCore/FloodScope/region(_:)`` — firmware derives the key and stores both.
+    ///
+    /// - Parameter name: Region name to persist, or `nil` to clear.
+    /// - Returns: The verified name read back from the device.
+    public func setDefaultFloodScopeVerified(name: String?) async throws -> String? {
+        let expected = (name?.isEmpty == false) ? name : nil
+        do {
+            if let expected {
+                try await session.setDefaultFloodScope(name: expected, scope: .region(expected))
+            } else {
+                try await session.setDefaultFloodScope(name: "", scope: .disabled)
+            }
+        } catch let error as MeshCoreError {
+            throw SettingsServiceError.sessionError(error)
+        }
+
+        let actual = try await getDefaultFloodScope()
+        guard actual == expected else {
+            throw SettingsServiceError.verificationFailed(
+                expected: expected ?? "(cleared)",
+                actual: actual ?? "(cleared)"
+            )
+        }
+        return actual
     }
 
     // MARK: - Stats

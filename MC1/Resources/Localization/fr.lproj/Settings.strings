@@ -361,6 +361,24 @@
 "pathHashMode.footer" = "Des hashes plus grands réduisent les collisions de routage, mais limitent le nombre maximum de sauts par chemin. Les répéteurs avec un firmware antérieur à 1.14.0 ne relayeront pas les messages dont la taille de hash dépasse 1 octet.";
 
 
+// MARK: - Default Flood Scope Section
+
+/* Section header for default flood scope picker */
+"defaultFloodScope.header" = "Portée de flood par défaut";
+
+/* Footer explaining default flood scope */
+"defaultFloodScope.footer" = "Lorsqu'elle est définie, l'appareil applique cette portée aux envois flood jusqu'à ce qu'une portée spécifique au canal la remplace. La portée est enregistrée sur l'appareil et persiste après redémarrage.";
+
+/* Option to clear the persisted default flood scope */
+"defaultFloodScope.disabled" = "Désactivé";
+
+/* Placeholder for custom region name field */
+"defaultFloodScope.customPlaceholder" = "Nom de région personnalisé";
+
+/* Button to apply a custom region name */
+"defaultFloodScope.apply" = "Ajouter";
+
+
 // MARK: - Battery Curve Section
 
 /* Section header for battery curve */

@@ -352,6 +352,24 @@
 "pathHashMode.footer" = "Більші хеші зменшують колізії маршрутизації, але обмежують максимальну кількість переходів на шляху. Ретранслятори з прошивкою старшою за 1.14.0 не будуть повторювати повідомлення з розміром хешу більше 1 байта.";
 
 
+// MARK: - Default Flood Scope Section
+
+/* Section header for default flood scope picker */
+"defaultFloodScope.header" = "Область flood за замовчуванням";
+
+/* Footer explaining default flood scope */
+"defaultFloodScope.footer" = "Коли задано, пристрій застосовує цю область до flood-надсилань, поки її не перевизначить область, прив'язана до каналу. Область зберігається на пристрої та не втрачається після перезавантаження.";
+
+/* Option to clear the persisted default flood scope */
+"defaultFloodScope.disabled" = "Вимкнено";
+
+/* Placeholder for custom region name field */
+"defaultFloodScope.customPlaceholder" = "Назва власного регіону";
+
+/* Button to apply a custom region name */
+"defaultFloodScope.apply" = "Додати";
+
+
 // MARK: - Battery Curve Section
 
 /* Accessibility label for voltage text field - %d is the percentage level */
