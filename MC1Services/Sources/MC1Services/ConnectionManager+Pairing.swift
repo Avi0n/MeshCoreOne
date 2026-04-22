@@ -386,6 +386,30 @@ extension ConnectionManager {
         }
     }
 
+    /// Appends a region to the connected device's known-regions list and persists.
+    /// No-ops if the region is already present.
+    public func addKnownRegion(_ region: String) {
+        guard let device = connectedDevice,
+              !device.knownRegions.contains(region) else { return }
+        let updated = device.copy { $0.knownRegions.append(region) }
+        connectedDevice = updated
+        Task {
+            do { try await services?.dataStore.addDeviceKnownRegion(radioID: updated.radioID, region: region) }
+            catch { logger.error("Failed to add known region: \(error)") }
+        }
+    }
+
+    /// Removes a region from the connected device's known-regions list and persists.
+    public func removeKnownRegion(_ region: String) {
+        guard let device = connectedDevice else { return }
+        let updated = device.copy { $0.knownRegions.removeAll { $0 == region } }
+        connectedDevice = updated
+        Task {
+            do { try await services?.dataStore.removeDeviceKnownRegion(radioID: updated.radioID, region: region) }
+            catch { logger.error("Failed to remove known region: \(error)") }
+        }
+    }
+
     /// Saves the connected device's current radio settings as pre-repeat settings.
     /// Called before enabling repeat mode so settings can be restored later.
     public func savePreRepeatSettings() {

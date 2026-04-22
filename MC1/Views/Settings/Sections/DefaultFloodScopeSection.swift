@@ -132,11 +132,8 @@ struct DefaultFloodScopeSection: View {
                 }
                 _ = try await settingsService.setDefaultFloodScopeVerified(name: name)
 
-                if addToKnownRegions,
-                   let name,
-                   let radioID = appState.connectedDevice?.radioID,
-                   appState.connectedDevice?.knownRegions.contains(name) == false {
-                    try? await appState.offlineDataStore?.addDeviceKnownRegion(radioID: radioID, region: name)
+                if addToKnownRegions, let name {
+                    appState.connectionManager.addKnownRegion(name)
                 }
 
                 retryAlert.reset()
