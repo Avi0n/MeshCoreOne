@@ -225,7 +225,7 @@ struct ContactDetailView: View {
             // Wire up path discovery response handler to receive push notifications
             await appState.services?.advertisementService.setPathDiscoveryHandler { [weak pathViewModel] response in
                 Task { @MainActor in
-                    pathViewModel?.handleDiscoveryResponse(hopCount: response.outPath.count)
+                    pathViewModel?.handleDiscoveryResponse(hopCount: response.outHopCount ?? 0)
                 }
             }
         }

@@ -428,15 +428,15 @@ public actor AdvertisementService {
         do {
             // Update contact with discovered outbound path (inbound is handled by firmware)
             if let contact = try await dataStore.fetchContact(radioID: radioID, publicKeyPrefix: result.publicKeyPrefix) {
-                let wasFlood = contact.isFloodRouted  // Capture BEFORE database write
+                let wasFlood = contact.isFloodRouted  // Capture before database write
 
-                let hopCount = result.outPath.count / deviceHashSize
-                let pathLength = encodePathLen(hashSize: deviceHashSize, hopCount: hopCount)
+                // Trust the wire's self-describing length byte over the device's
+                // cached hashSize — the response's own encoding is authoritative.
                 let frame = ContactFrame(
                     publicKey: contact.publicKey,
                     type: contact.type,
                     flags: contact.flags,
-                    outPathLength: pathLength,
+                    outPathLength: result.outPathLength,
                     outPath: result.outPath,
                     name: contact.name,
                     lastAdvertTimestamp: contact.lastAdvertTimestamp,

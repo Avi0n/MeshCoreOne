@@ -886,20 +886,46 @@ public struct TraceNode: Sendable, Equatable {
 public struct PathInfo: Sendable, Equatable {
     /// The public key prefix of the node for which the path was discovered.
     public let publicKeyPrefix: Data
+    /// Raw outbound `path_len` byte as received on the wire. Upper 2 bits encode
+    /// the hash mode, lower 6 bits encode the hop count.
+    public let outPathLength: UInt8
     /// The outbound path data.
     public let outPath: Data
+    /// Raw inbound `path_len` byte as received on the wire.
+    public let inPathLength: UInt8
     /// The inbound path data.
     public let inPath: Data
 
+    /// Hop count decoded from ``outPathLength``. Returns `nil` for reserved mode
+    /// encodings (e.g., the `0xFF` flood sentinel) so callers can fall back.
+    public var outHopCount: Int? {
+        decodePathLen(outPathLength)?.hopCount
+    }
+
+    /// Hop count decoded from ``inPathLength``.
+    public var inHopCount: Int? {
+        decodePathLen(inPathLength)?.hopCount
+    }
+
     /// Initializes a new path information object.
-    /// 
+    ///
     /// - Parameters:
     ///   - publicKeyPrefix: The node's public key prefix.
-    ///   - outPath: The outbound path.
-    ///   - inPath: The inbound path.
-    public init(publicKeyPrefix: Data, outPath: Data, inPath: Data) {
+    ///   - outPathLength: Raw `out_path_len` byte from the wire.
+    ///   - outPath: The outbound path bytes (size must match ``outPathLength``).
+    ///   - inPathLength: Raw `in_path_len` byte from the wire.
+    ///   - inPath: The inbound path bytes.
+    public init(
+        publicKeyPrefix: Data,
+        outPathLength: UInt8,
+        outPath: Data,
+        inPathLength: UInt8,
+        inPath: Data
+    ) {
         self.publicKeyPrefix = publicKeyPrefix
+        self.outPathLength = outPathLength
         self.outPath = outPath
+        self.inPathLength = inPathLength
         self.inPath = inPath
     }
 }

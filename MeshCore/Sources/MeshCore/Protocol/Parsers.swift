@@ -1036,14 +1036,18 @@ public enum Parsers {
             let pubkeyPrefix = Data(data[1..<7])
             var offset = 7
 
+            var outPathLength: UInt8 = 0
             var outPath = Data()
+            var inPathLength: UInt8 = 0
             var inPath = Data()
 
-            // Parse outbound path (multibyte encoded)
+            // Parse outbound path (multibyte encoded). Preserve the raw length
+            // byte so the UI can display an accurate hop count without needing
+            // the device's cached `hashSize`.
             if data.count > offset {
-                let rawLen = data[offset]
+                outPathLength = data[offset]
                 offset += 1
-                if let decoded = decodePathLen(rawLen), decoded.byteLength > 0,
+                if let decoded = decodePathLen(outPathLength), decoded.byteLength > 0,
                    data.count >= offset + decoded.byteLength {
                     outPath = Data(data[offset..<offset + decoded.byteLength])
                     offset += decoded.byteLength
@@ -1052,9 +1056,9 @@ public enum Parsers {
 
             // Parse inbound path (multibyte encoded)
             if data.count > offset {
-                let rawLen = data[offset]
+                inPathLength = data[offset]
                 offset += 1
-                if let decoded = decodePathLen(rawLen), decoded.byteLength > 0,
+                if let decoded = decodePathLen(inPathLength), decoded.byteLength > 0,
                    data.count >= offset + decoded.byteLength {
                     inPath = Data(data[offset..<offset + decoded.byteLength])
                 }
@@ -1062,7 +1066,9 @@ public enum Parsers {
 
             return .pathResponse(PathInfo(
                 publicKeyPrefix: pubkeyPrefix,
+                outPathLength: outPathLength,
                 outPath: outPath,
+                inPathLength: inPathLength,
                 inPath: inPath
             ))
         }
