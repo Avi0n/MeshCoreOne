@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Form-based view for managing known regions with add/delete functionality
 struct RegionManagementView: View {
-    @Binding var knownRegions: [String]
+    let knownRegions: [String]
     @Binding var isDiscovering: Bool
     @Binding var discoveryMessage: String?
 
@@ -71,6 +71,7 @@ struct RegionManagementView: View {
         switch error {
         case .empty: nil
         case .invalidCharacters: L10n.Chats.Chats.ChannelInfo.Region.invalidName
+        case .tooLong(let maxBytes): L10n.Chats.Chats.ChannelInfo.Region.nameTooLong(maxBytes)
         case .duplicate: L10n.Chats.Chats.ChannelInfo.Region.duplicate
         }
     }

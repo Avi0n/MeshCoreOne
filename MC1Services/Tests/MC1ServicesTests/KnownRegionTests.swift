@@ -69,7 +69,7 @@ struct KnownRegionTests {
             isEnabled: true,
             lastMessageDate: nil,
             unreadCount: 0,
-            regionScope: "US915"
+            floodScope: .region("US915")
         )
         try await store.saveChannel(channelDTO)
 
@@ -81,7 +81,7 @@ struct KnownRegionTests {
 
         let channels = try await store.fetchChannels(radioID: radioID)
         let channel = channels.first
-        #expect(channel?.regionScope == nil)
+        #expect(channel?.floodScope == .inherit)
     }
 
     @Test("removeDeviceKnownRegion leaves unrelated channel regionScope intact")
@@ -103,7 +103,7 @@ struct KnownRegionTests {
             isEnabled: true,
             lastMessageDate: nil,
             unreadCount: 0,
-            regionScope: "US915"
+            floodScope: .region("US915")
         )
         let channel2 = ChannelDTO(
             id: UUID(),
@@ -114,7 +114,7 @@ struct KnownRegionTests {
             isEnabled: true,
             lastMessageDate: nil,
             unreadCount: 0,
-            regionScope: "EU868"
+            floodScope: .region("EU868")
         )
         try await store.saveChannel(channel1)
         try await store.saveChannel(channel2)
@@ -122,8 +122,8 @@ struct KnownRegionTests {
         try await store.removeDeviceKnownRegion(radioID: radioID, region: "US915")
 
         let channels = try await store.fetchChannels(radioID: radioID)
-        let scopes = channels.sorted(by: { $0.index < $1.index }).map(\.regionScope)
-        #expect(scopes == [nil, "EU868"])
+        let scopes = channels.sorted(by: { $0.index < $1.index }).map(\.floodScope)
+        #expect(scopes == [.inherit, .region("EU868")])
     }
 
     @Test("removeDeviceKnownRegion throws when device not found")

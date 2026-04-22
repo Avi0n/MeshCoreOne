@@ -1,8 +1,8 @@
 import Foundation
-import MC1Services
 import MeshCore
 import Testing
 @testable import MC1
+@testable import MC1Services
 
 @Suite("ChannelInfoSheet region query targets")
 struct ChannelInfoRegionQueryTargetsTests {
@@ -17,7 +17,7 @@ struct ChannelInfoRegionQueryTargetsTests {
     @Test("queries responders present only in the discovered-nodes table")
     func includesDiscoveredNodeResponders() {
         let responders: Set<Data> = [Self.keyA]
-        let targets = ChannelInfoSheet.buildRegionQueryTargets(
+        let targets = RegionDiscoveryService.buildRegionQueryTargets(
             responders: responders,
             contacts: [],
             discoveredNodes: [Self.makeDiscoveredNode(publicKey: Self.keyA, type: .repeater)]
@@ -30,7 +30,7 @@ struct ChannelInfoRegionQueryTargetsTests {
     @Test("prefers contact record when both sources have the responder")
     func prefersContactOverDiscoveredNode() {
         let responders: Set<Data> = [Self.keyA]
-        let targets = ChannelInfoSheet.buildRegionQueryTargets(
+        let targets = RegionDiscoveryService.buildRegionQueryTargets(
             responders: responders,
             contacts: [Self.makeContact(publicKey: Self.keyA, type: .repeater, name: "from-contact")],
             discoveredNodes: [Self.makeDiscoveredNode(publicKey: Self.keyA, type: .repeater, name: "from-discovery")]
@@ -43,7 +43,7 @@ struct ChannelInfoRegionQueryTargetsTests {
     @Test("unions contacts and discovered nodes without duplication")
     func unionsBothPoolsDeduped() {
         let responders: Set<Data> = [Self.keyA, Self.keyB, Self.keyC]
-        let targets = ChannelInfoSheet.buildRegionQueryTargets(
+        let targets = RegionDiscoveryService.buildRegionQueryTargets(
             responders: responders,
             contacts: [Self.makeContact(publicKey: Self.keyA, type: .repeater)],
             discoveredNodes: [
@@ -60,7 +60,7 @@ struct ChannelInfoRegionQueryTargetsTests {
     @Test("excludes non-repeater types from both pools")
     func excludesNonRepeaters() {
         let responders: Set<Data> = [Self.keyA, Self.keyB, Self.keyC, Self.keyD]
-        let targets = ChannelInfoSheet.buildRegionQueryTargets(
+        let targets = RegionDiscoveryService.buildRegionQueryTargets(
             responders: responders,
             contacts: [
                 Self.makeContact(publicKey: Self.keyA, type: .chat),
@@ -79,7 +79,7 @@ struct ChannelInfoRegionQueryTargetsTests {
     @Test("drops responders that are in neither pool")
     func dropsUnknownResponders() {
         let responders: Set<Data> = [Self.keyA, Self.keyE]
-        let targets = ChannelInfoSheet.buildRegionQueryTargets(
+        let targets = RegionDiscoveryService.buildRegionQueryTargets(
             responders: responders,
             contacts: [Self.makeContact(publicKey: Self.keyA, type: .repeater)],
             discoveredNodes: []
@@ -91,7 +91,7 @@ struct ChannelInfoRegionQueryTargetsTests {
     @Test("drops non-responders even if they are repeater contacts")
     func dropsNonResponders() {
         let responders: Set<Data> = [Self.keyA]
-        let targets = ChannelInfoSheet.buildRegionQueryTargets(
+        let targets = RegionDiscoveryService.buildRegionQueryTargets(
             responders: responders,
             contacts: [
                 Self.makeContact(publicKey: Self.keyA, type: .repeater),
@@ -107,7 +107,7 @@ struct ChannelInfoRegionQueryTargetsTests {
     func forwardsContactRoutingData() {
         let contactPath = Data([0x11, 0x22, 0x33])
         let responders: Set<Data> = [Self.keyA]
-        let targets = ChannelInfoSheet.buildRegionQueryTargets(
+        let targets = RegionDiscoveryService.buildRegionQueryTargets(
             responders: responders,
             contacts: [
                 Self.makeContact(
@@ -128,7 +128,7 @@ struct ChannelInfoRegionQueryTargetsTests {
     func forwardsDiscoveredNodeRoutingData() {
         let nodePath = Data([0xAA, 0xBB])
         let responders: Set<Data> = [Self.keyA]
-        let targets = ChannelInfoSheet.buildRegionQueryTargets(
+        let targets = RegionDiscoveryService.buildRegionQueryTargets(
             responders: responders,
             contacts: [],
             discoveredNodes: [
@@ -150,7 +150,7 @@ struct ChannelInfoRegionQueryTargetsTests {
         let contactPath = Data([0x11, 0x22, 0x33])
         let nodePath = Data([0xAA, 0xBB])
         let responders: Set<Data> = [Self.keyA]
-        let targets = ChannelInfoSheet.buildRegionQueryTargets(
+        let targets = RegionDiscoveryService.buildRegionQueryTargets(
             responders: responders,
             contacts: [
                 Self.makeContact(

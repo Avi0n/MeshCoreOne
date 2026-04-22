@@ -122,6 +122,14 @@ extension ConnectionManager {
             logger.error("radioID migration failed: \(error)")
         }
 
+        // Promote legacy per-channel region overrides to `.specific` mode so the
+        // corrective flood-scope semantics don't reinterpret them as `.inherit`.
+        do {
+            try await resetStore.performChannelFloodScopeMigration()
+        } catch {
+            logger.error("channel flood-scope migration failed: \(error)")
+        }
+
         #if targetEnvironment(simulator)
         // Skip auto-reconnect if user explicitly disconnected
         if connectionIntent.isUserDisconnected {

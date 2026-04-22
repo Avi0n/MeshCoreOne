@@ -112,8 +112,12 @@ struct ChatConversationView: View {
         }
         .navigationHeader(
             title: conversationType.navigationTitle,
-            subtitle: conversationType.navigationSubtitle,
-            subtitleAccessibilityLabel: conversationType.navigationSubtitleAccessibilityLabel
+            subtitle: conversationType.navigationSubtitle(
+                deviceDefaultFloodScopeName: appState.connectedDevice?.defaultFloodScopeName
+            ),
+            subtitleAccessibilityLabel: conversationType.navigationSubtitleAccessibilityLabel(
+                deviceDefaultFloodScopeName: appState.connectedDevice?.defaultFloodScopeName
+            )
         )
         .toolbar {
             ToolbarItem(placement: .primaryAction) {

@@ -18,7 +18,7 @@ enum ChatConversationType: Sendable {
         }
     }
 
-    var navigationSubtitle: String {
+    func navigationSubtitle(deviceDefaultFloodScopeName: String?) -> String {
         switch self {
         case .dm(let contact):
             if contact.isFloodRouted {
@@ -28,7 +28,7 @@ enum ChatConversationType: Sendable {
             }
         case .channel(let channel):
             let base = channelTypeSubtitle(for: channel)
-            if let region = channel.regionScope {
+            if let region = effectiveRegionName(for: channel, deviceDefaultFloodScopeName: deviceDefaultFloodScopeName) {
                 return "\(base) \u{00B7} \(region)"
             }
             return base
@@ -37,12 +37,14 @@ enum ChatConversationType: Sendable {
 
     /// Accessibility label for the subtitle, providing a VoiceOver-friendly description
     /// when a region scope is active (the middle dot separator may be read literally).
-    var navigationSubtitleAccessibilityLabel: String? {
+    func navigationSubtitleAccessibilityLabel(deviceDefaultFloodScopeName: String?) -> String? {
         switch self {
         case .dm:
             return nil
         case .channel(let channel):
-            guard let region = channel.regionScope else { return nil }
+            guard let region = effectiveRegionName(for: channel, deviceDefaultFloodScopeName: deviceDefaultFloodScopeName) else {
+                return nil
+            }
             return L10n.Chats.Chats.ChannelInfo.Region.scopedAccessibility(
                 channelTypeSubtitle(for: channel), region
             )
@@ -59,6 +61,21 @@ enum ChatConversationType: Sendable {
         } else {
             L10n.Chats.Chats.Channel.typePrivate
         }
+    }
+
+    /// Resolves the region name to display alongside the channel subtitle. Delegates to
+    /// ``ChannelFloodScopeResolver`` so the banner stays in sync with the FloodScope
+    /// actually pushed to the radio.
+    private func effectiveRegionName(
+        for channel: ChannelDTO,
+        deviceDefaultFloodScopeName: String?
+    ) -> String? {
+        let resolved = ChannelFloodScopeResolver.resolve(
+            channelFloodScope: channel.floodScope,
+            deviceDefaultFloodScopeName: deviceDefaultFloodScopeName
+        )
+        if case .region(let name) = resolved { return name }
+        return nil
     }
 
     var conversationID: UUID {

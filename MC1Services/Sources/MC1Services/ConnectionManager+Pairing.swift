@@ -400,13 +400,32 @@ extension ConnectionManager {
     }
 
     /// Removes a region from the connected device's known-regions list and persists.
+    /// If the removed region is the device's current default flood scope, also clears
+    /// the scope on the radio so firmware state doesn't dangle on a deleted name.
     public func removeKnownRegion(_ region: String) {
         guard let device = connectedDevice else { return }
-        let updated = device.copy { $0.knownRegions.removeAll { $0 == region } }
+        let wasDefaultFloodScope = device.defaultFloodScopeName == region
+        let updated = device.copy {
+            $0.knownRegions.removeAll { $0 == region }
+            if wasDefaultFloodScope {
+                $0.defaultFloodScopeName = nil
+            }
+        }
         connectedDevice = updated
         Task {
-            do { try await services?.dataStore.removeDeviceKnownRegion(radioID: updated.radioID, region: region) }
-            catch { logger.error("Failed to remove known region: \(error)") }
+            do {
+                try await services?.dataStore.removeDeviceKnownRegion(radioID: updated.radioID, region: region)
+            } catch {
+                logger.error("Failed to remove known region: \(error)")
+            }
+
+            if wasDefaultFloodScope, let settingsService = services?.settingsService {
+                do {
+                    _ = try await settingsService.setDefaultFloodScopeVerified(name: nil)
+                } catch {
+                    logger.error("Failed to clear default flood scope after region removal: \(error)")
+                }
+            }
         }
     }
 

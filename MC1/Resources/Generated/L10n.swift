@@ -146,6 +146,10 @@ public enum L10n {
           public static let manage = L10n.tr("Chats", "chats.channelInfo.region.manage", fallback: "Regions")
           /// Location: RegionManagementView.swift - Purpose: Manage regions link
           public static let manageRegions = L10n.tr("Chats", "chats.channelInfo.region.manageRegions", fallback: "Manage Regions")
+          /// Location: RegionManagementView.swift - Purpose: Validation error when a region name exceeds the firmware byte cap
+          public static func nameTooLong(_ p1: Int) -> String {
+            return L10n.tr("Chats", "chats.channelInfo.region.nameTooLong", p1, fallback: "Region names are limited to %d bytes.")
+          }
           /// Location: RegionDiscoveryResultsView.swift - Purpose: No new regions found
           public static let noNewRegions = L10n.tr("Chats", "chats.channelInfo.region.noNewRegions", fallback: "No new regions found")
           /// Location: RegionManagementView.swift - Purpose: Empty state title
@@ -161,6 +165,10 @@ public enum L10n {
           /// Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle
           public static func scopedAccessibility(_ p1: Any, _ p2: Any) -> String {
             return L10n.tr("Chats", "chats.channelInfo.region.scopedAccessibility", String(describing: p1), String(describing: p2), fallback: "%@, scoped to %@")
+          }
+          /// Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope
+          public static func useDefaultFormat(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.channelInfo.region.useDefaultFormat", String(describing: p1), fallback: "Default (%@)")
           }
         }
       }
@@ -3470,20 +3478,12 @@ public enum L10n {
       }
     }
     public enum DefaultFloodScope {
-      /// Button to apply a custom region name as the active flood scope
-      public static let apply = L10n.tr("Settings", "defaultFloodScope.apply", fallback: "Apply")
-      /// Placeholder for custom region name field
-      public static let customPlaceholder = L10n.tr("Settings", "defaultFloodScope.customPlaceholder", fallback: "Custom region name")
       /// Option to clear the persisted default flood scope
       public static let disabled = L10n.tr("Settings", "defaultFloodScope.disabled", fallback: "None")
-      /// Validation error when the custom region name already exists on the device
-      public static let duplicate = L10n.tr("Settings", "defaultFloodScope.duplicate", fallback: "This region is already in your list.")
       /// Footer explaining default flood scope
       public static let footer = L10n.tr("Settings", "defaultFloodScope.footer", fallback: "When set, the device applies this scope to flood sends unless a channel-specific scope overrides it. The scope is saved on the device and survives reboots.")
       /// Section header for default flood scope picker
       public static let header = L10n.tr("Settings", "defaultFloodScope.header", fallback: "Default Flood Scope")
-      /// Validation error when a custom region name contains unsupported characters
-      public static let invalidName = L10n.tr("Settings", "defaultFloodScope.invalidName", fallback: "Region names can only contain letters, numbers, and hyphens.")
     }
     public enum DemoMode {
       /// Toggle label to enable demo mode

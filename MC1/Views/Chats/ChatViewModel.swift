@@ -8,10 +8,12 @@ import OSLog
 @MainActor
 final class ChatViewModel {
 
-    /// Tracks whether the device's flood scope has been configured this session.
+    /// Tracks the last flood scope we pushed to the device for the current channel.
+    /// Keyed by the input pair (per-channel preference, device default) so that a
+    /// change in either triggers a fresh push next time `loadChannelMessages` runs.
     enum RegionScopeState: Equatable {
         case unknown
-        case set(String?)
+        case pushed(ChannelFloodScope, deviceDefault: String?)
     }
 
     // MARK: - Properties

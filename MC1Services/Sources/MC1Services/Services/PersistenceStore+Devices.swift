@@ -176,7 +176,8 @@ extension PersistenceStore {
         try modelContext.save()
     }
 
-    /// Removes a known region from a device and clears regionScope on affected channels
+    /// Removes a known region from a device and resets channels that had been scoped
+    /// to the removed region back to ``ChannelFloodScope/inherit``.
     public func removeDeviceKnownRegion(radioID: UUID, region: String) throws {
         let targetRadioID = radioID
         let devicePredicate = #Predicate<Device> { $0.radioID == targetRadioID }
@@ -191,8 +192,8 @@ extension PersistenceStore {
 
         let channelPredicate = #Predicate<Channel> { $0.radioID == targetRadioID }
         let channels = try modelContext.fetch(FetchDescriptor<Channel>(predicate: channelPredicate))
-        for channel in channels where channel.regionScope == region {
-            channel.regionScope = nil
+        for channel in channels where channel.floodScope == .region(region) {
+            channel.floodScope = .inherit
         }
 
         try modelContext.save()

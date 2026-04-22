@@ -30,16 +30,24 @@ extension ChatViewModel {
         notificationService?.activeChannelIndex = channel.index
         notificationService?.activeChannelRadioID = channel.radioID
 
-        // Set flood scope on device when channel or region changes
-        if lastSetRegionScope == .unknown || lastSetRegionScope != .set(channel.regionScope) {
-            if let session = appState?.services?.session {
-                let scope: FloodScope = channel.regionScope.map { .region($0) } ?? .disabled
-                do {
-                    try await session.setFloodScope(scope)
-                    lastSetRegionScope = .set(channel.regionScope)
-                } catch {
-                    logger.error("Failed to set flood scope: \(error.localizedDescription)")
-                }
+        // Sync the device's session-scoped flood key with the effective scope for this
+        // channel. The effective scope combines the per-channel preference with the
+        // device-level default — `.inherit` means "fall through to the default".
+        let deviceDefault = appState?.connectedDevice?.defaultFloodScopeName
+        let desiredState: ChatViewModel.RegionScopeState = .pushed(
+            channel.floodScope,
+            deviceDefault: deviceDefault
+        )
+        if lastSetRegionScope != desiredState, let session = appState?.services?.session {
+            let scope = ChannelFloodScopeResolver.resolve(
+                channelFloodScope: channel.floodScope,
+                deviceDefaultFloodScopeName: deviceDefault
+            )
+            do {
+                try await session.setFloodScope(scope)
+                lastSetRegionScope = desiredState
+            } catch {
+                logger.error("Failed to set flood scope: \(error.localizedDescription)")
             }
         }
 

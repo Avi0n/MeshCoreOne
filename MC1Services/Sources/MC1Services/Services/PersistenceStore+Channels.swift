@@ -322,8 +322,10 @@ extension PersistenceStore {
         try modelContext.save()
     }
 
-    /// Sets the region scope for a channel
-    public func setChannelRegionScope(_ channelID: UUID, regionScope: String?) throws {
+    /// Atomically updates the per-channel flood-scope preference. Writes both backing
+    /// storage fields (`floodScopeModeRawValue` and `regionScope`) in one step so
+    /// callers cannot persist a malformed combination.
+    public func setChannelFloodScope(_ channelID: UUID, floodScope: ChannelFloodScope) throws {
         let targetID = channelID
         let predicate = #Predicate<Channel> { $0.id == targetID }
         var descriptor = FetchDescriptor<Channel>(predicate: predicate)
@@ -333,7 +335,7 @@ extension PersistenceStore {
             throw PersistenceStoreError.channelNotFound
         }
 
-        channel.regionScope = regionScope
+        channel.floodScope = floodScope
         try modelContext.save()
     }
 }

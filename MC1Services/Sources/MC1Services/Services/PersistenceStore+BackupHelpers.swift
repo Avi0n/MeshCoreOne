@@ -226,8 +226,8 @@ extension PersistenceStore {
             channel.isFavorite = true
             changed = true
         }
-        if channel.regionScope == nil, let backupScope = dto.regionScope {
-            channel.regionScope = backupScope
+        if channel.floodScope == .inherit, dto.floodScope != .inherit {
+            channel.floodScope = dto.floodScope
             changed = true
         }
         return changed

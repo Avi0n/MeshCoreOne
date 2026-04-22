@@ -353,18 +353,6 @@
 /* Option to clear the persisted default flood scope */
 "defaultFloodScope.disabled" = "无";
 
-/* Placeholder for custom region name field */
-"defaultFloodScope.customPlaceholder" = "自定义区域名称";
-
-/* Button to apply a custom region name as the active flood scope */
-"defaultFloodScope.apply" = "应用";
-
-/* Validation error when a custom region name contains unsupported characters */
-"defaultFloodScope.invalidName" = "区域名称只能包含字母、数字和连字符。";
-
-/* Validation error when the custom region name already exists on the device */
-"defaultFloodScope.duplicate" = "该区域已在您的列表中。";
-
 
 // MARK: - Battery Curve Section
 

@@ -95,4 +95,44 @@ extension PersistenceStore {
     public func resetRadioIDMigrationFlag() {
         UserDefaults.standard.removeObject(forKey: Self.migrationKey)
     }
+
+    // MARK: - Channel flood scope corrective migration
+
+    private static let floodScopeMigrationKey = "hasMigratedChannelFloodScope"
+    private static let floodScopeMigrationLogger = Logger(
+        subsystem: "com.pocketmesh.mc1services",
+        category: "ChannelFloodScopeMigration"
+    )
+
+    /// One-time migration: pre-existing rows were persisted before the flood-scope mode
+    /// column existed and all come up with the default `.inherit` value, even when they
+    /// had a per-channel `regionScope` override. Promote those to `.specific` so the
+    /// user's prior choice keeps working. Rows whose `regionScope` was nil keep
+    /// `.inherit` — corrective semantics, so the device default applies.
+    public func performChannelFloodScopeMigration() throws {
+        guard !UserDefaults.standard.bool(forKey: Self.floodScopeMigrationKey) else { return }
+
+        let inheritRaw = ChannelFloodScopeStorage.Mode.inherit.rawValue
+        let specificRaw = ChannelFloodScopeStorage.Mode.specific.rawValue
+
+        let predicate = #Predicate<Channel> { channel in
+            channel.regionScope != nil && channel.floodScopeModeRawValue == inheritRaw
+        }
+        let channels = try modelContext.fetch(FetchDescriptor(predicate: predicate))
+        for channel in channels {
+            channel.floodScopeModeRawValue = specificRaw
+        }
+        try modelContext.save()
+
+        UserDefaults.standard.set(true, forKey: Self.floodScopeMigrationKey)
+
+        Self.floodScopeMigrationLogger.info(
+            "channel flood-scope migration complete: \(channels.count) rows promoted to .specific"
+        )
+    }
+
+    /// Resets the migration flag (for testing only).
+    public func resetChannelFloodScopeMigrationFlag() {
+        UserDefaults.standard.removeObject(forKey: Self.floodScopeMigrationKey)
+    }
 }

@@ -704,7 +704,7 @@ struct BackupIntegrationTests {
             unreadMentionCount: 0,
             notificationLevel: .all,
             isFavorite: false,
-            regionScope: nil
+            floodScope: .inherit
         )
         try await destStore.saveChannel(existingChannel)
 
@@ -719,7 +719,7 @@ struct BackupIntegrationTests {
             unreadMentionCount: 4,
             notificationLevel: .mentionsOnly,
             isFavorite: true,
-            regionScope: "US"
+            floodScope: .region("US")
         )
 
         let envelope = AppBackupEnvelope.test(

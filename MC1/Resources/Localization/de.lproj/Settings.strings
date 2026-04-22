@@ -363,18 +363,6 @@
 /* Option to clear the persisted default flood scope */
 "defaultFloodScope.disabled" = "Keine";
 
-/* Placeholder for custom region name field */
-"defaultFloodScope.customPlaceholder" = "Eigener Regionsname";
-
-/* Button to apply a custom region name as the active flood scope */
-"defaultFloodScope.apply" = "Anwenden";
-
-/* Validation error when a custom region name contains unsupported characters */
-"defaultFloodScope.invalidName" = "Regionsnamen dürfen nur Buchstaben, Zahlen und Bindestriche enthalten.";
-
-/* Validation error when the custom region name already exists on the device */
-"defaultFloodScope.duplicate" = "Diese Region ist bereits in deiner Liste.";
-
 
 // MARK: - Battery Curve Section
 

@@ -412,7 +412,7 @@ final class RepeaterSettingsViewModel {
         if let validationError = RegionNameValidator.validate(trimmed, existingRegions: regions.map(\.name)) {
             switch validationError {
             case .empty: return
-            case .invalidCharacters, .duplicate:
+            case .invalidCharacters, .tooLong, .duplicate:
                 helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.addFailed
             }
             return

@@ -837,11 +837,16 @@ public actor SettingsService {
     ///
     /// Passing `nil` for `name` clears the persisted scope. Non-nil names are sent as
     /// ``MeshCore/FloodScope/region(_:)`` — firmware derives the key and stores both.
+    /// Names are truncated to ``ProtocolLimits/maxDefaultFloodScopeNameBytes`` UTF-8 bytes
+    /// before both key derivation and send, so the stored display and derived scope key
+    /// agree on the same byte sequence.
     ///
     /// - Parameter name: Region name to persist, or `nil` to clear.
     /// - Returns: The verified name read back from the device.
     public func setDefaultFloodScopeVerified(name: String?) async throws -> String? {
-        let expected = (name?.isEmpty == false) ? name : nil
+        let expected: String? = (name?.isEmpty == false)
+            ? name?.utf8Prefix(maxBytes: ProtocolLimits.maxDefaultFloodScopeNameBytes)
+            : nil
         do {
             if let expected {
                 try await session.setDefaultFloodScope(name: expected, scope: .region(expected))

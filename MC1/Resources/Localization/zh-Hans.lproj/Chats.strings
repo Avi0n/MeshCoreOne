@@ -1008,6 +1008,9 @@
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set */
 "chats.channelInfo.region.allRegions" = "All Regions";
 
+/* Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope */
+"chats.channelInfo.region.useDefaultFormat" = "Default (%@)";
+
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no regions configured */
 "chats.channelInfo.region.notConfigured" = "Not configured";
 
@@ -1058,6 +1061,9 @@
 
 /* Location: AddRegionView.swift - Purpose: Validation error */
 "chats.channelInfo.region.invalidName" = "Region names can only contain letters, numbers, and hyphens.";
+
+/* Location: RegionManagementView.swift - Purpose: Validation error when a region name exceeds the firmware byte cap */
+"chats.channelInfo.region.nameTooLong" = "Region names are limited to %d bytes.";
 
 /* Location: AddRegionView.swift - Purpose: Duplicate error */
 "chats.channelInfo.region.duplicate" = "This region is already in your list.";
