@@ -259,16 +259,52 @@ final class PathManagementViewModel {
     /// Initialize editable path from contact's current path with name resolution.
     /// Resets `insertionIntent` so a stale value from a prior sheet presentation
     /// can't auto-push the Add Hop picker on open.
+    ///
+    /// Hops are normalized to the device's current ``hashSize`` so the editor
+    /// never shows mixed-width hops after a `pathHashMode` change between edits.
+    /// Resolvable hops re-slice from their full `publicKey`; unresolvable wider
+    /// hops narrow via truncation; unresolvable narrower hops are left as-is so
+    /// ``saveRejection`` can flag them on save.
     func initializeEditablePath(from contact: ContactDTO) {
         insertionIntent = nil
         let byteLength = contact.pathByteLength
-        let hashSize = contact.pathHashSize
+        let storedHashSize = contact.pathHashSize
         let pathData = contact.outPath.prefix(byteLength)
-        editablePath = stride(from: 0, to: pathData.count, by: hashSize).map { start in
-            let end = min(start + hashSize, pathData.count)
+        let targetHashSize = hashSize
+        editablePath = stride(from: 0, to: pathData.count, by: storedHashSize).map { start in
+            let end = min(start + storedHashSize, pathData.count)
             let bytes = Data(pathData[start..<end])
-            return createPathHop(from: bytes)
+            let hop = createPathHop(from: bytes)
+            return Self.normalizeHop(hop, targetHashSize: targetHashSize)
         }
+    }
+
+    /// Normalize a hop loaded from storage so its `hashBytes` width matches the
+    /// device's current hash size. Three branches:
+    ///
+    /// 1. **Resolved** → re-slice from the full `publicKey` at the target width.
+    /// 2. **Unresolved, wider than target** → truncate stored `hashBytes`.
+    /// 3. **Unresolved, narrower than target** → leave as-is. ``saveRejection``
+    ///    catches this case since we can't safely widen an unknown prefix.
+    ///
+    /// - Precondition: `targetHashSize` is 1, 2, or 3.
+    nonisolated static func normalizeHop(_ hop: PathHop, targetHashSize: Int) -> PathHop {
+        precondition(1...3 ~= targetHashSize, "targetHashSize must be 1, 2, or 3")
+        if let publicKey = hop.publicKey {
+            return PathHop(
+                hashBytes: Data(publicKey.prefix(targetHashSize)),
+                publicKey: publicKey,
+                resolvedName: hop.resolvedName
+            )
+        }
+        if hop.hashBytes.count > targetHashSize {
+            return PathHop(
+                hashBytes: Data(hop.hashBytes.prefix(targetHashSize)),
+                publicKey: nil,
+                resolvedName: hop.resolvedName
+            )
+        }
+        return hop
     }
 
     /// Append a node to the path. No-op when `isPathFull`. Records the pubkey

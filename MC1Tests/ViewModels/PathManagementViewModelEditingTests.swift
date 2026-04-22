@@ -218,6 +218,115 @@ struct PathManagementViewModelEditingTests {
         #expect(encoded.length == 0x42)
     }
 
+    // MARK: - normalizeHop (Bug B: mixed-width editablePath after pathHashMode change)
+
+    @Test("normalizeHop widens via publicKey when target grew")
+    func normalizeHopWidensViaPublicKey() {
+        // Stored at hashSize=1 (1 byte), device now reports hashSize=3 (3 bytes).
+        // A resolved hop can widen by slicing the full 32-byte key.
+        let pk = Data([0xA1, 0xB2, 0xC3] + Array(repeating: 0x00, count: 29))
+        let hop = PathHop(hashBytes: Data([0xA1]), publicKey: pk, resolvedName: "H1")
+        let normalized = PathManagementViewModel.normalizeHop(hop, targetHashSize: 3)
+        #expect(normalized.hashBytes == Data([0xA1, 0xB2, 0xC3]))
+        #expect(normalized.publicKey == pk)
+        #expect(normalized.resolvedName == "H1")
+    }
+
+    @Test("normalizeHop narrows via publicKey when target shrank")
+    func normalizeHopNarrowsViaPublicKey() {
+        let pk = Data([0xA1, 0xB2, 0xC3] + Array(repeating: 0x00, count: 29))
+        let hop = PathHop(hashBytes: Data([0xA1, 0xB2, 0xC3]), publicKey: pk, resolvedName: "H1")
+        let normalized = PathManagementViewModel.normalizeHop(hop, targetHashSize: 1)
+        #expect(normalized.hashBytes == Data([0xA1]))
+        #expect(normalized.publicKey == pk)
+    }
+
+    @Test("normalizeHop narrows via hashBytes when publicKey unresolved")
+    func normalizeHopNarrowsViaHashBytesWhenUnresolved() {
+        // Unresolved hop wider than the target — truncate from the stored bytes.
+        let hop = PathHop(
+            hashBytes: Data([0xA1, 0xB2, 0xC3]),
+            publicKey: nil,
+            resolvedName: nil
+        )
+        let normalized = PathManagementViewModel.normalizeHop(hop, targetHashSize: 1)
+        #expect(normalized.hashBytes == Data([0xA1]))
+        #expect(normalized.publicKey == nil)
+    }
+
+    @Test("normalizeHop leaves narrower unresolved hop unchanged")
+    func normalizeHopLeavesNarrowerUnresolvedHopAlone() {
+        // Unresolved, narrower than target — can't widen, saveRejection will block.
+        let hop = PathHop(hashBytes: Data([0xA1]), publicKey: nil, resolvedName: nil)
+        let normalized = PathManagementViewModel.normalizeHop(hop, targetHashSize: 3)
+        #expect(normalized.hashBytes == Data([0xA1]),
+            "Narrower unresolved hops remain short so saveRejection can catch them")
+        #expect(normalized.publicKey == nil)
+    }
+
+    @Test("normalizeHop widens via publicKey even when stored is already at target width")
+    func normalizeHopResolvedSameSize() {
+        // Defensive: resolved hop at the correct width — normalize is idempotent.
+        let pk = Data([0xA1, 0xB2] + Array(repeating: 0x00, count: 30))
+        let hop = PathHop(hashBytes: Data([0xA1, 0xB2]), publicKey: pk, resolvedName: "H1")
+        let normalized = PathManagementViewModel.normalizeHop(hop, targetHashSize: 2)
+        #expect(normalized.hashBytes == Data([0xA1, 0xB2]))
+    }
+
+    // MARK: - initializeEditablePath normalization (integration)
+
+    @Test("initializeEditablePath narrows wider stored hops when resolution fails")
+    @MainActor
+    func initializeEditablePathNarrowsStoredWiderThanDevice() {
+        // Default device hashSize=1 (no AppState). Stored mode=1 (2B/hop), unresolvable hop.
+        // After load, hashBytes should be truncated to 1 byte so encodeEditablePath
+        // emits a width-consistent buffer.
+        let vm = PathManagementViewModel(defaults: makeSuiteDefaults())
+        vm.allContacts = []  // nothing resolves
+
+        // pathLength = (1 << 6) | 1 = 0x41 (mode 1, 1 hop) → 2 bytes on wire.
+        let contact = ContactDTO.fixture(
+            name: "Target",
+            outPathLength: 0x41,
+            outPath: Data([0xA1, 0xB2])
+        )
+        vm.initializeEditablePath(from: contact)
+        #expect(vm.editablePath.count == 1)
+        #expect(vm.editablePath[0].hashBytes == Data([0xA1]),
+            "Wider stored hops should narrow to the device's hashSize on load")
+        #expect(vm.editablePath[0].publicKey == nil)
+    }
+
+    @Test("initializeEditablePath resliced resolved hop to device hashSize")
+    @MainActor
+    func initializeEditablePathReslicesResolvedHopToDeviceWidth() {
+        // Default device hashSize=1. Stored mode=1 (2B/hop), resolvable hop.
+        // hashBytes should collapse to publicKey.prefix(1) — width matches the device.
+        let vm = PathManagementViewModel(defaults: makeSuiteDefaults())
+        let radioID = UUID()
+        let fullKey = Data([0xA1, 0xB2, 0xC3] + Array(repeating: 0x00, count: 29))
+        vm.allContacts = [
+            ContactDTO.fixture(
+                name: "Hop1",
+                publicKey: fullKey,
+                type: .repeater,
+                radioID: radioID
+            )
+        ]
+        let contact = ContactDTO.fixture(
+            name: "Target",
+            publicKey: Data(repeating: 0xFE, count: 32),
+            radioID: radioID,
+            outPathLength: 0x41,  // mode 1, 1 hop
+            outPath: Data([0xA1, 0xB2])
+        )
+        vm.initializeEditablePath(from: contact)
+        #expect(vm.editablePath.count == 1)
+        #expect(vm.editablePath[0].publicKey == fullKey)
+        #expect(vm.editablePath[0].hashBytes == Data([0xA1]),
+            "Resolved hop should be re-sliced to the device's hashSize")
+    }
+
     // MARK: - Max-hop guard
 
     @Test("isPathFull is false with no hops at hashSize=1")
