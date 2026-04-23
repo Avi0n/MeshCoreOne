@@ -531,4 +531,61 @@ struct MessageServiceACKTests {
         )
         #expect(await service.pendingAckCount == 2)
     }
+
+    // MARK: - Late-ACK Grace Window
+
+    @Test("late ACK within grace window reconciles .failed → .delivered")
+    func lateAckWithinGraceReconciles() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        let contactID = UUID()
+        let ackCode = Data([0xDE, 0xAD, 0xBE, 0xEF])
+
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(
+                id: messageID,
+                contactID: contactID,
+                status: .sent,
+                ackCode: ackCode.ackCodeUInt32
+            )
+        )
+        await service.setPendingAckForTest(
+            PendingAck(
+                messageID: messageID,
+                contactID: contactID,
+                ackCodes: [ackCode],
+                sentAt: Date(timeIntervalSinceNow: -60),
+                timeout: 30
+            )
+        )
+
+        try await service.checkExpiredAcks()
+        let afterFailure = try await dataStore.fetchMessage(id: messageID)
+        #expect(afterFailure?.status == .failed)
+
+        await service.handleAcknowledgement(code: ackCode, tripTime: 99)
+
+        let stored = try await dataStore.fetchMessage(id: messageID)
+        #expect(stored?.status == .delivered)
+    }
+
+    @Test("late ACK for a message that was never in the ring stays .failed")
+    func lateAckWithoutRingEntryNoOp() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        let ackCode = Data([0xCA, 0xFE, 0xBA, 0xBE])
+
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(
+                id: messageID,
+                status: .failed,
+                ackCode: ackCode.ackCodeUInt32
+            )
+        )
+
+        await service.handleAcknowledgement(code: ackCode, tripTime: 99)
+
+        let stored = try await dataStore.fetchMessage(id: messageID)
+        #expect(stored?.status == .failed)
+    }
 }
