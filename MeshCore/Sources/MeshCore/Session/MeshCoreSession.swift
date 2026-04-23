@@ -3152,6 +3152,14 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     func dispatchForTesting(_ event: MeshEvent) async {
         await dispatcher.dispatch(event)
     }
+
+    /// Returns the dispatcher's active subscription count. For tests only.
+    ///
+    /// Integration tests use this to synchronize with a listener task's
+    /// subscribe call before dispatching events, avoiding the dispatch-vs-subscribe race.
+    var subscriberCountForTest: Int {
+        get async { await dispatcher.subscriberCountForTest }
+    }
 }
 
 // MARK: - Configuration Types

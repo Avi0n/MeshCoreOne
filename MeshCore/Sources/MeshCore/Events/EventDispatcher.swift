@@ -129,4 +129,13 @@ public actor EventDispatcher {
     private func removeSubscription(id: UUID) {
         subscriptions.removeValue(forKey: id)
     }
+
+    /// Returns the count of active subscriptions. For tests only.
+    ///
+    /// Used by integration tests to synchronize with a listener task's
+    /// `subscribe(filter:)` call before dispatching events — without this,
+    /// a dispatch can race the subscribe and silently vanish.
+    var subscriberCountForTest: Int {
+        subscriptions.count
+    }
 }
