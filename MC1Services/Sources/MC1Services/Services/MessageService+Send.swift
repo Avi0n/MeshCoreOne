@@ -418,9 +418,10 @@ extension MessageService {
                     attempt: UInt8(attempts)
                 )
             } catch {
-                // Roll back our speculative entry on hard send failure so a stale
-                // predictedAck can't sit in pendingAcks.
-                pendingAcks[messageID]?.ackCodes.remove(predictedAck)
+                // Drop the whole speculative entry on send failure. A partial
+                // remove would leave an empty-codes PendingAck visible to
+                // checkExpiredAcks if failMessageAndRethrow is ever bypassed.
+                pendingAcks.removeValue(forKey: messageID)
                 throw error
             }
 
