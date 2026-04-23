@@ -16,6 +16,7 @@ private let logger = Logger(subsystem: "com.mc1", category: "MapPins")
 /// Upstream issue: https://github.com/maplibre/maplibre-native/issues/3214
 private enum MetalLayerScaleFix {
 
+    @MainActor
     static func apply(to mapView: MLNMapView) {
         guard let metalView = findMetalView(in: mapView) else { return }
 
@@ -39,6 +40,7 @@ private enum MetalLayerScaleFix {
         object_setClass(metalView, fixedClass)
     }
 
+    @MainActor
     private static func findMetalView(in view: UIView) -> UIView? {
         for subview in view.subviews where subview.layer is CAMetalLayer {
             return subview
@@ -46,6 +48,7 @@ private enum MetalLayerScaleFix {
         return nil
     }
 
+    @MainActor
     private static func findMapView(from metalView: UIView) -> MLNMapView? {
         var parent: UIView? = metalView.superview
         while let v = parent, !(v is MLNMapView) { parent = v.superview }
@@ -59,31 +62,33 @@ private enum MetalLayerScaleFix {
         let selector = NSSelectorFromString("setDrawableSize:")
         guard let original = class_getInstanceMethod(originalClass, selector) else { return }
         let originalIMP = method_getImplementation(original)
-        typealias SetDrawableSizeFn = @convention(c) (AnyObject, Selector, CGSize) -> Void
+        typealias SetDrawableSizeFn = @convention(c) @Sendable (AnyObject, Selector, CGSize) -> Void
         let callOriginal = unsafeBitCast(originalIMP, to: SetDrawableSizeFn.self)
 
         let block: @convention(block) (UIView, CGSize) -> Void = { metalView, proposedSize in
-            guard let mapView = findMapView(from: metalView),
-                  mapView.bounds.size.width > 0,
-                  mapView.bounds.size.height > 0,
-                  let screen = mapView.window?.screen else {
-                callOriginal(metalView, selector, proposedSize)
-                return
+            dispatchPrecondition(condition: .onQueue(.main))
+            MainActor.assumeIsolated {
+                guard let mapView = findMapView(from: metalView),
+                      mapView.bounds.size.width > 0,
+                      mapView.bounds.size.height > 0,
+                      let screen = mapView.window?.screen else {
+                    callOriginal(metalView, selector, proposedSize)
+                    return
+                }
+
+                let correctScale = screen.nativeScale
+                let correctSize = CGSize(
+                    width: mapView.bounds.width * correctScale,
+                    height: mapView.bounds.height * correctScale
+                )
+
+                if let layer = metalView.layer as? CAMetalLayer,
+                   layer.drawableSize == correctSize {
+                    return
+                }
+
+                callOriginal(metalView, selector, correctSize)
             }
-
-            let correctScale = screen.nativeScale
-            let correctSize = CGSize(
-                width: mapView.bounds.width * correctScale,
-                height: mapView.bounds.height * correctScale
-            )
-
-            // Avoid redundant drawable reallocation and layout loops.
-            if let layer = metalView.layer as? CAMetalLayer,
-               layer.drawableSize == correctSize {
-                return
-            }
-
-            callOriginal(metalView, selector, correctSize)
         }
 
         let imp = imp_implementationWithBlock(block)
@@ -97,21 +102,24 @@ private enum MetalLayerScaleFix {
         let selector = NSSelectorFromString("setContentScaleFactor:")
         guard let original = class_getInstanceMethod(originalClass, selector) else { return }
         let originalIMP = method_getImplementation(original)
-        typealias SetScaleFn = @convention(c) (AnyObject, Selector, CGFloat) -> Void
+        typealias SetScaleFn = @convention(c) @Sendable (AnyObject, Selector, CGFloat) -> Void
         let callOriginal = unsafeBitCast(originalIMP, to: SetScaleFn.self)
 
         let block: @convention(block) (UIView, CGFloat) -> Void = { metalView, _ in
-            guard let mapView = findMapView(from: metalView),
-                  let screen = mapView.window?.screen else {
-                return
-            }
+            dispatchPrecondition(condition: .onQueue(.main))
+            MainActor.assumeIsolated {
+                guard let mapView = findMapView(from: metalView),
+                      let screen = mapView.window?.screen else {
+                    return
+                }
 
-            let correctScale = screen.nativeScale
-            if metalView.contentScaleFactor == correctScale {
-                return
-            }
+                let correctScale = screen.nativeScale
+                if metalView.contentScaleFactor == correctScale {
+                    return
+                }
 
-            callOriginal(metalView, selector, correctScale)
+                callOriginal(metalView, selector, correctScale)
+            }
         }
 
         let imp = imp_implementationWithBlock(block)
@@ -328,7 +336,12 @@ struct MC1MapView: UIViewRepresentable {
 
             mapView.setCenter(center, zoomLevel: targetZoom, animated: false)
         } else {
-            mapView.setVisibleCoordinateBounds(bounds, edgePadding: padding, animated: animated)
+            mapView.setVisibleCoordinateBounds(
+                bounds,
+                edgePadding: padding,
+                animated: animated,
+                completionHandler: nil
+            )
         }
     }
 }
