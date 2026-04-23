@@ -150,76 +150,70 @@ The UI shows:
 ```swift
 public struct PendingAck: Sendable {
     let messageID: UUID
-    let ackCode: Data        // 4-byte ACK code
-    let sentAt: Date
-    let timeout: TimeInterval
-    var heardRepeats: Int    // Count of duplicate ACKs
+    let contactID: UUID
+    var ackCodes: Set<Data>     // One per retry attempt
+    var sentAt: Date
+    var timeout: TimeInterval
     var isDelivered: Bool
-    var isRetryManaged: Bool // Skip expiry check if retry manages it
 }
 ```
+
+Keyed on `messageID`, not `ackCode`, so a late ACK from any retry attempt can still resolve the message. The `MessageService` persistent listener subscribes via `session.events(filter: .anyAcknowledgement)` (commit `977b8aa1`) so the dispatcher's 100-slot ring buffer only holds matching events.
 
 ### ACK Flow
 
 ```
 Message sent
     │
-    ▼ ACK code generated (4 bytes)
-PendingAck created
+    ▼ ACK code predicted + PendingAck tracked
     │
-    ├───── ACK received ─────► Mark delivered, update UI
+    ├───── ACK received ─────────► handleAcknowledgement — mark .delivered
     │
-    └───── Timeout (5s check) ─► Mark failed (if not retry-managed)
+    ├───── Timeout (5s check) ───► checkExpiredAcks — mark .failed
+    │                                + push codes into recentlyFailedAcks ring
+    │
+    └───── Late ACK after fail ──► reconcileLateAck — promote .failed → .delivered
+                                    (within 30s grace)
 ```
 
 **ACK Timeout:**
 The actual ACK timeout used is 1.2x the device-suggested timeout to provide a safety margin:
 
 ```swift
-// From MeshCoreSession.swift
+// From MessageService+Send.swift
 let ackTimeout = timeout ?? (Double(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2)
 ```
 
-This multiplier accounts for potential timing variations in the mesh network.
-
 ### ACK Expiry Checking
 
-Background task runs every 5 seconds:
+Wired on connect via `ServiceContainer.startEventMonitoring` (runs every 5 seconds) and torn down on disconnect via `stopAndFailAllPending`, which cancels the periodic task and writes `.failed` for any remaining in-flight rows:
 
 ```swift
-// MessageService.startAckExpiryChecking()
 ackCheckTask = Task {
     while !Task.isCancelled {
         try await Task.sleep(for: .seconds(5))
-        try? await checkExpiredAcks()
-        await cleanupDeliveredAcks()
+        do {
+            try await checkExpiredAcks()
+        } catch {
+            logger.error("ACK expiry check failed: \(error.localizedDescription)")
+        }
     }
 }
 ```
 
 **checkExpiredAcks:**
 - Finds ACKs where `now - sentAt > timeout`
-- Excludes retry-managed ACKs (those handled by retry loop)
 - Marks corresponding messages as `.failed`
+- Pushes each row's ACK codes into `recentlyFailedAcks` (`[Data: (messageID, failedAt)]`, capped at 64 entries)
 
-**cleanupDeliveredAcks:**
-- Removes delivered ACKs after grace period (60 seconds)
-- Grace period allows counting repeat ACKs for mesh analysis
+**Late-ACK grace window:**
+- `reconcileLateAck(code:tripTime:)` runs from `handleAcknowledgement` when no in-memory `PendingAck` matches
+- Promotes `.failed → .delivered` via `updateMessageAck` if the code is still in the ring and its `failedAt` is within 30 seconds
+- Does not touch `updateContactLastMessage` — the contact row's last-message signal doesn't need to bump on a late promotion
 
 ### Repeat ACKs
 
-When the same ACK is received multiple times:
-
-```swift
-pendingAcks[code]?.heardRepeats += 1
-
-try? await dataStore.updateMessageHeardRepeats(
-    id: tracking.messageID,
-    heardRepeats: repeatCount
-)
-```
-
-Repeat ACKs indicate the message was heard by multiple nodes - useful for mesh debugging.
+Heard-repeat tracking lives on `HeardRepeatsService` + the `MessageRepeat` model, not on `PendingAck` — duplicate ACKs are recorded there and surfaced via the `heardRepeats` count on `MessageDTO`.
 
 ## Message Deduplication
 
