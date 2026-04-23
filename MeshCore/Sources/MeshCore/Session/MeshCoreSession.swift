@@ -250,6 +250,20 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         await dispatcher.subscribe()
     }
 
+    /// Subscribes to events passing the given filter.
+    ///
+    /// Prefer this over ``events()`` when the consumer only cares about a
+    /// narrow slice of events. The filter is evaluated at dispatch time,
+    /// so non-matching events never enter the subscription's 100-slot
+    /// bounded buffer (`.bufferingNewest`) — unrelated traffic cannot
+    /// evict matching events even if the consumer is slow to drain the stream.
+    ///
+    /// - Parameter filter: The ``EventFilter`` that determines which events reach the stream.
+    /// - Returns: An async stream yielding only events that pass `filter`.
+    public func events(filter: EventFilter) async -> AsyncStream<MeshEvent> {
+        await dispatcher.subscribe(filter: filter.matches)
+    }
+
     /// Subscribes to all events with an explicit teardown handle.
     ///
     /// Use this when the listener has a bounded lifetime (e.g., a timed scan) and needs the
@@ -3130,6 +3144,13 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         guard publicKey.count == PacketBuilder.publicKeySize else {
             throw MeshCoreError.invalidInput("Full \(PacketBuilder.publicKeySize)-byte public key required for \(operation)")
         }
+    }
+
+    /// Dispatches an event directly to subscribers, bypassing the transport and parser.
+    ///
+    /// For tests only — use to verify subscriber behavior without crafting wire bytes.
+    func dispatchForTesting(_ event: MeshEvent) async {
+        await dispatcher.dispatch(event)
     }
 }
 

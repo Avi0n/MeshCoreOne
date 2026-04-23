@@ -244,14 +244,11 @@ public actor MessageService {
         eventListenerTask = Task { [weak self] in
             guard let self else { return }
 
-            for await event in await session.events() {
+            for await event in await session.events(filter: .anyAcknowledgement) {
                 guard !Task.isCancelled else { break }
 
-                switch event {
-                case .acknowledgement(let code, let tripTime):
+                if case .acknowledgement(let code, let tripTime) = event {
                     await handleAcknowledgement(code: code, tripTime: tripTime)
-                default:
-                    break
                 }
             }
         }

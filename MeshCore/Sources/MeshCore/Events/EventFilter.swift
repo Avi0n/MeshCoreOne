@@ -51,6 +51,18 @@ public struct EventFilter: Sendable {
 
     // MARK: - Acknowledgement Filters
 
+    /// Matches any acknowledgement event regardless of code.
+    ///
+    /// Use for persistent listeners that must see every incoming ACK. Because
+    /// the filter is evaluated at dispatch time, unrelated events never enter
+    /// the subscription's bounded buffer and cannot evict an ACK.
+    public static var anyAcknowledgement: EventFilter {
+        EventFilter { event in
+            if case .acknowledgement = event { return true }
+            return false
+        }
+    }
+
     /// Creates a filter for acknowledgement events with a specific code.
     ///
     /// - Parameter code: The exact acknowledgement code to match.

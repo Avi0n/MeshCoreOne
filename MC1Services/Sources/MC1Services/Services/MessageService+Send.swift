@@ -402,12 +402,7 @@ extension MessageService {
             )
 
             let ackEvent = await session.waitForEvent(
-                matching: { event in
-                    if case .acknowledgement(let code, _) = event {
-                        return code == sentInfo.expectedAck
-                    }
-                    return false
-                },
+                filter: .acknowledgement(code: sentInfo.expectedAck),
                 timeout: ackTimeout
             )
 
