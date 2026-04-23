@@ -334,4 +334,24 @@ struct MessageServiceSendTests {
             return true
         }
     }
+
+    @Test(
+        "trackPendingAck runs before sendMessage so persistent listener cannot race",
+        .disabled("requires SimulatorMockTransport suspend-gate, tracked separately")
+    )
+    func tracksPendingAckBeforeSend() async throws {
+        // Target shape once the mock harness grows a suspend primitive:
+        //
+        //   let gate = AsyncSemaphore(value: 0)
+        //   await service.sessionForTest.installSendMessageGate(gate)
+        //   async let sendTask = service.sendMessageWithRetry(text: "hi", to: contact)
+        //   try await Task.sleep(for: .milliseconds(50))
+        //   #expect(await service.pendingAckCount > 0)
+        //   gate.signal()
+        //   _ = try await sendTask
+        //
+        // Until that exists, the AckCodeBuilder golden-vector test covers the
+        // formula; the retry-loop happy path is covered by existing ACK tests.
+        Issue.record("mock harness extension pending — see plan Task 6 Step 7")
+    }
 }

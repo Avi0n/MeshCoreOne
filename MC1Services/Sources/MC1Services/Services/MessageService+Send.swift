@@ -172,6 +172,7 @@ extension MessageService {
                 publicKey: contact.publicKey,
                 text: text,
                 timestamp: Date(timeIntervalSince1970: TimeInterval(timestamp)),
+                timestampRaw: timestamp,
                 timeout: timeout > 0 ? timeout : nil
             )
 
@@ -285,6 +286,7 @@ extension MessageService {
                 publicKey: contact.publicKey,
                 text: existingMessage.text,
                 timestamp: retryTimestamp,
+                timestampRaw: retryTimestampRaw,
                 timeout: nil
             )
 
@@ -319,6 +321,11 @@ extension MessageService {
     ///   - publicKey: The full 32-byte destination public key
     ///   - text: The message text
     ///   - timestamp: The message timestamp (must remain constant across retries)
+    ///   - timestampRaw: The same timestamp as a `UInt32` epoch-seconds value. The
+    ///     caller MUST pass the same integer it used to build `timestamp: Date` —
+    ///     resampling inside the loop would break expected-ACK precomputation,
+    ///     since the firmware hash is keyed off the exact `UInt32` that ends up
+    ///     on the wire.
     ///   - timeout: Optional custom timeout per attempt (nil = use device suggested)
     ///
     /// - Returns: `MessageSentInfo` if ACK received, `nil` if all attempts exhausted
@@ -330,6 +337,7 @@ extension MessageService {
         publicKey: Data,
         text: String,
         timestamp: Date,
+        timestampRaw: UInt32,
         timeout: TimeInterval?
     ) async throws -> MessageSentInfo? {
         var attempts = 0
@@ -376,30 +384,67 @@ extension MessageService {
                 logger.info("Retry sending message: attempt \(attempts + 1)/\(config.maxAttempts)")
             }
 
-            // Send the message
-            let sentInfo = try await session.sendMessage(
-                to: publicKey.prefix(6),
+            // Precompute the expected ACK CRC before the send so the persistent
+            // ACK listener cannot race ahead of trackPendingAck on short direct links.
+            guard let senderPublicKey = await session.currentSelfInfo?.publicKey else {
+                throw MessageServiceError.notConnected
+            }
+
+            let predictedAck = AckCodeBuilder.expectedAck(
+                timestamp: timestampRaw,
+                attempt: UInt8(attempts),
                 text: text,
-                timestamp: timestamp,
-                attempt: UInt8(attempts)
+                senderPublicKey: senderPublicKey
             )
 
-            // Wait for ACK with timeout
+            // Pre-send floor must outlive one checkExpiredAcks tick; otherwise a
+            // BLE round-trip > 1s could let the checker expire the speculative
+            // entry before sendMessage returns and we overwrite the timeout with
+            // the authoritative sentInfo-derived value.
+            let preSendTimeout = max(timeout ?? config.minTimeout, checkInterval)
+            trackPendingAck(
+                messageID: messageID,
+                contactID: contactID,
+                ackCode: predictedAck,
+                timeout: preSendTimeout
+            )
+
+            let sentInfo: MessageSentInfo
+            do {
+                sentInfo = try await session.sendMessage(
+                    to: publicKey.prefix(6),
+                    text: text,
+                    timestamp: timestamp,
+                    attempt: UInt8(attempts)
+                )
+            } catch {
+                // Roll back our speculative entry on hard send failure so a stale
+                // predictedAck can't sit in pendingAcks.
+                pendingAcks[messageID]?.ackCodes.remove(predictedAck)
+                throw error
+            }
+
             let ackTimeout = timeout ?? max(
                 config.minTimeout,
                 Double(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
             )
 
-            // Register this attempt's expected ACK so the persistent event
-            // listener can mark the message delivered even if it arrives after
-            // `waitForEvent` times out or during a later attempt whose predicate
-            // rejects the prior attempt's CRC.
-            trackPendingAck(
-                messageID: messageID,
-                contactID: contactID,
-                ackCode: sentInfo.expectedAck,
-                timeout: ackTimeout
-            )
+            if sentInfo.expectedAck != predictedAck {
+                logger.warning(
+                    "expectedAck mismatch for \(messageID) attempt \(attempts): predicted \(predictedAck.hexString()) vs firmware \(sentInfo.expectedAck.hexString()); merging firmware code"
+                )
+                trackPendingAck(
+                    messageID: messageID,
+                    contactID: contactID,
+                    ackCode: sentInfo.expectedAck,
+                    timeout: ackTimeout
+                )
+            } else {
+                // Re-stamp sentAt so checkExpiredAcks measures timeout from
+                // send-return, not from the speculative insert.
+                pendingAcks[messageID]?.timeout = ackTimeout
+                pendingAcks[messageID]?.sentAt = Date()
+            }
 
             let ackEvent = await session.waitForEvent(
                 filter: .acknowledgement(code: sentInfo.expectedAck),
