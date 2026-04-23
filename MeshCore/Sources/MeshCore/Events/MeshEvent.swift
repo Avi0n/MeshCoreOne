@@ -1379,3 +1379,21 @@ extension MeshEvent {
         }
     }
 }
+
+extension MeshEvent {
+    /// Stable, low-cardinality string identifier for the case (no associated values).
+    /// Used for observability output where dumping the full payload would balloon
+    /// log/signpost storage.
+    ///
+    /// For `.acknowledgement(code:, tripTime:)` this yields `"acknowledgement"`;
+    /// for `.contactsFull` it yields `"contactsFull"`. Stays correct as
+    /// `MeshEvent` evolves — adding a new case won't fall through to
+    /// `"unknown"` the way a manual switch would.
+    public var caseName: String {
+        let full = String(describing: self)
+        if let paren = full.firstIndex(of: "(") {
+            return String(full[..<paren])
+        }
+        return full
+    }
+}
