@@ -169,10 +169,6 @@ public actor MessageService {
     /// can still mark the message delivered.
     var pendingAcks: [UUID: PendingAck] = [:]
 
-    /// Upper bound on in-memory retention of recently-failed ACK codes for the
-    /// late-ACK grace window.
-    let recentlyFailedAcksMaxSize = 64
-
     /// Ackcode → (messageID that owned it, moment we wrote `.failed`).
     /// Populated by `checkExpiredAcks` when it flips a row to `.failed`, consumed
     /// by `handleAcknowledgement` when no in-memory `pendingAcks` entry matches.

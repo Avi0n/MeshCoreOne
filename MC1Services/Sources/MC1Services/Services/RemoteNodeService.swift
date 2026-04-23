@@ -274,8 +274,7 @@ public actor RemoteNodeService {
             }
 
         case .contactMessageReceived(let message):
-            // Check if this is a CLI response (textType == 0x01)
-            if message.textType == 0x01 {
+            if message.textType == cliResponseTextType {
                 handleCLIResponse(message)
             }
 

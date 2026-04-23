@@ -4,6 +4,10 @@ import Foundation
 /// promote it back to `.delivered`.
 private let lateAckGraceWindow: TimeInterval = 30
 
+/// Upper bound on in-memory retention of recently-failed ACK codes for the
+/// late-ACK grace window.
+private let recentlyFailedAcksMaxSize = 64
+
 // MARK: - Periodic ACK Checking
 
 extension MessageService {
