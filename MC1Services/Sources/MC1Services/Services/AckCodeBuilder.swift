@@ -11,6 +11,24 @@ private let ackCodeByteCount = 4
 ///
 /// Used to populate `pendingAcks` *before* the send round-trip so the
 /// persistent ACK listener cannot race ahead of `trackPendingAck`.
+///
+/// # Firmware contract invariants
+///
+/// - **Recipient is not in the hash.** Same sender + same text + same UInt32
+///   timestamp + same `attempt & 0x03` produces an identical ACK code across
+///   *every* contact. Currently unreachable through the UI because each
+///   `ChatConversationView` owns its own serialized `sendQueue`, so two sends
+///   cannot finish in the same wall-clock second from the same conversation,
+///   and parallel conversations cannot share text + timestamp. Any future
+///   feature that dispatches identical-text sends in parallel (bulk send,
+///   broadcast-to-many, scripted sends) must either serialize with ≥1s
+///   spacing or replace `pendingAcks`'s ackCode lookup with a
+///   `[Data: Set<UUID>]` index in `MessageService.handleAcknowledgement`.
+/// - **Attempt index is masked to two bits.** Firmware applies `& 0x03`, so
+///   only four distinct ACK codes exist for a given (text, timestamp, sender)
+///   tuple. Attempt 4 collides with attempt 0, attempt 5 with attempt 1, etc.
+///   `expectedAck` rejects `attempt >= 4` outright; `MessageServiceConfig`
+///   must keep `maxAttempts <= 4`.
 enum AckCodeBuilder {
     static func expectedAck(
         timestamp: UInt32,
@@ -18,6 +36,10 @@ enum AckCodeBuilder {
         text: String,
         senderPublicKey: Data
     ) -> Data {
+        precondition(
+            attempt < 4,
+            "firmware masks attempt & 0x03; attempt \(attempt) would collide with attempt \(attempt & attemptMask)"
+        )
         var input = Data()
         var le = timestamp.littleEndian
         withUnsafeBytes(of: &le) { input.append(contentsOf: $0) }

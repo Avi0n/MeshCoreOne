@@ -34,14 +34,6 @@ struct AckCodeBuilderTests {
         #expect(code == expected)
     }
 
-    @Test("attempt is masked to two bits")
-    func attemptMasked() {
-        let pubkey = Data(repeating: 0x01, count: 32)
-        let a = AckCodeBuilder.expectedAck(timestamp: 0, attempt: 0x83, text: "x", senderPublicKey: pubkey)
-        let b = AckCodeBuilder.expectedAck(timestamp: 0, attempt: 0x03, text: "x", senderPublicKey: pubkey)
-        #expect(a == b)
-    }
-
     @Test("different texts produce different codes")
     func differentTextDifferentCode() {
         let pubkey = Data(repeating: 0x01, count: 32)
