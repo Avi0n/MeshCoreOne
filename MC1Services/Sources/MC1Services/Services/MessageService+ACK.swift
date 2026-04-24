@@ -1,8 +1,8 @@
 import Foundation
 
-/// How long after a message is marked `.failed` a late-arriving ACK can still
-/// promote it back to `.delivered`.
-private let lateAckGraceWindow: TimeInterval = 30
+/// How long an ACK can still arrive after its timeout before the message is
+/// marked `.failed`.
+private let lateAckGraceWindow: TimeInterval = 5
 
 /// Upper bound on in-memory retention of recently-failed ACK codes for the
 /// late-ACK grace window.
@@ -15,7 +15,8 @@ extension MessageService {
     /// Starts periodic checking for expired ACKs.
     ///
     /// This method runs a background task that periodically checks for messages
-    /// that have exceeded their ACK timeout and marks them as failed.
+    /// that have exceeded their ACK timeout, moves them through a short
+    /// retrying grace window, then marks them failed if no ACK arrives.
     ///
     /// - Parameter interval: How often to check for expired ACKs (defaults to 5 seconds)
     ///
@@ -54,10 +55,11 @@ extension MessageService {
         ackCheckTask = nil
     }
 
-    /// Checks for expired ACKs and marks their messages as failed.
+    /// Checks for expired ACKs and advances their delivery state.
     ///
     /// This is called automatically by the periodic checker. You can also call it
-    /// manually to force an immediate check.
+    /// manually to force an immediate check. A message is only marked failed
+    /// after both its ACK timeout and the late-ACK grace window have elapsed.
     ///
     /// - Throws: Database errors when updating message status
     public func checkExpiredAcks() async throws {
@@ -69,12 +71,23 @@ extension MessageService {
         }
 
         for (messageID, tracking) in expiredEntries {
-            guard pendingAcks.removeValue(forKey: messageID) != nil else { continue }
-            try await dataStore.updateMessageStatus(id: messageID, status: .failed)
+            let elapsed = now.timeIntervalSince(tracking.sentAt)
+            if elapsed <= tracking.timeout + lateAckGraceWindow {
+                guard var current = pendingAcks[messageID],
+                      !current.isDelivered,
+                      !current.isInAckGracePeriod else { continue }
 
-            for ackCode in tracking.ackCodes {
-                recentlyFailedAcks[ackCode] = (messageID, now)
+                current.isInAckGracePeriod = true
+                pendingAcks[messageID] = current
+
+                try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .retrying)
+                guard pendingAcks[messageID]?.isInAckGracePeriod == true else { continue }
+                await retryStatusHandler?(messageID, 0, 0)
+                continue
             }
+
+            guard pendingAcks.removeValue(forKey: messageID) != nil else { continue }
+            try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
 
             logger.warning("Message failed - timeout exceeded")
             await messageFailedHandler?(messageID)
@@ -128,8 +141,8 @@ extension MessageService {
 
     /// The current number of pending ACKs being tracked.
     ///
-    /// This includes both undelivered messages and recently delivered messages
-    /// still in the grace period for tracking repeats.
+    /// This includes undelivered messages that are still inside their retrying
+    /// grace window.
     public var pendingAckCount: Int {
         pendingAcks.count
     }
@@ -150,13 +163,15 @@ extension MessageService {
               now.timeIntervalSince(entry.failedAt) <= lateAckGraceWindow else {
             return
         }
+        let ackCodeUInt32 = code.ackCodeUInt32
         do {
             try await dataStore.updateMessageAck(
                 id: entry.messageID,
-                ackCode: code.ackCodeUInt32,
+                ackCode: ackCodeUInt32,
                 status: .delivered,
                 roundTripTime: tripTime
             )
+            notifyAckConfirmation(ackCode: ackCodeUInt32, tripTime: tripTime)
             logger.notice("late ACK reconciled: message promoted .failed → .delivered")
         } catch {
             logger.error("late ACK reconciliation failed: \(error.localizedDescription)")

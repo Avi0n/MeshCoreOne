@@ -95,6 +95,7 @@ public struct PendingAck: Sendable {
     public var sentAt: Date
     public var timeout: TimeInterval
     public var isDelivered: Bool = false
+    public var isInAckGracePeriod: Bool = false
 
     public init(
         messageID: UUID,
@@ -102,7 +103,8 @@ public struct PendingAck: Sendable {
         ackCodes: Set<Data>,
         sentAt: Date,
         timeout: TimeInterval,
-        isDelivered: Bool = false
+        isDelivered: Bool = false,
+        isInAckGracePeriod: Bool = false
     ) {
         self.messageID = messageID
         self.contactID = contactID
@@ -110,6 +112,7 @@ public struct PendingAck: Sendable {
         self.sentAt = sentAt
         self.timeout = timeout
         self.isDelivered = isDelivered
+        self.isInAckGracePeriod = isInAckGracePeriod
     }
 
     public var isExpired: Bool {
@@ -170,8 +173,8 @@ public actor MessageService {
     var pendingAcks: [UUID: PendingAck] = [:]
 
     /// Ackcode → (messageID that owned it, moment we wrote `.failed`).
-    /// Populated by `checkExpiredAcks` when it flips a row to `.failed`, consumed
-    /// by `handleAcknowledgement` when no in-memory `pendingAcks` entry matches.
+    /// Consumed by `handleAcknowledgement` when no in-memory `pendingAcks`
+    /// entry matches.
     var recentlyFailedAcks: [Data: (messageID: UUID, failedAt: Date)] = [:]
 
     /// ACK confirmation callback (ackCode, roundTripTime).
@@ -320,6 +323,10 @@ public actor MessageService {
     /// - Parameter handler: Callback receiving (ackCode, roundTripTimeMs)
     public func setAckConfirmationHandler(_ handler: @escaping @Sendable (UInt32, UInt32?) -> Void) {
         ackConfirmationHandler = handler
+    }
+
+    func notifyAckConfirmation(ackCode: UInt32, tripTime: UInt32?) {
+        ackConfirmationHandler?(ackCode, tripTime)
     }
 
     /// Sets a callback to be invoked when a message fails after all retries.

@@ -22,6 +22,10 @@ extension MessageService {
         pendingAcks[tracking.messageID] = tracking
     }
 
+    func setRecentlyFailedAckForTest(code: Data, messageID: UUID, failedAt: Date) {
+        recentlyFailedAcks[code] = (messageID, failedAt)
+    }
+
     func setMessageFailedHandlerForTest(_ handler: @escaping @Sendable (UUID) async -> Void) {
         messageFailedHandler = handler
     }
@@ -58,4 +62,34 @@ extension MessageService {
 actor FailedMessageTracker {
     var failedIDs: [UUID] = []
     func record(_ id: UUID) { failedIDs.append(id) }
+}
+
+actor RetryStatusTracker {
+    var updates: [(messageID: UUID, attempt: Int, maxAttempts: Int)] = []
+
+    func record(messageID: UUID, attempt: Int, maxAttempts: Int) {
+        updates.append((messageID, attempt, maxAttempts))
+    }
+}
+
+actor AckConfirmationTracker {
+    var confirmations: [(ackCode: UInt32, roundTripTime: UInt32?)] = []
+
+    func record(ackCode: UInt32, roundTripTime: UInt32?) {
+        confirmations.append((ackCode, roundTripTime))
+    }
+
+    func waitForConfirmationCount(
+        _ expectedCount: Int,
+        timeout: Duration = .milliseconds(500)
+    ) async {
+        let deadline = ContinuousClock.now.advanced(by: timeout)
+        while ContinuousClock.now < deadline {
+            if confirmations.count == expectedCount {
+                return
+            }
+            await Task.yield()
+        }
+        Issue.record("confirmation count did not reach \(expectedCount) within \(timeout)")
+    }
 }

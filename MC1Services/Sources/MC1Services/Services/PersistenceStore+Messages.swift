@@ -316,6 +316,21 @@ extension PersistenceStore {
         }
     }
 
+    /// Update message status unless delivery has already won the race.
+    public func updateMessageStatusUnlessDelivered(id: UUID, status: MessageStatus) throws {
+        let targetID = id
+        let predicate = #Predicate<Message> { message in
+            message.id == targetID
+        }
+        var descriptor = FetchDescriptor(predicate: predicate)
+        descriptor.fetchLimit = 1
+
+        if let message = try modelContext.fetch(descriptor).first, message.status != .delivered {
+            message.status = status
+            try modelContext.save()
+        }
+    }
+
     /// Update message status with retry attempt information
     public func updateMessageRetryStatus(
         id: UUID,

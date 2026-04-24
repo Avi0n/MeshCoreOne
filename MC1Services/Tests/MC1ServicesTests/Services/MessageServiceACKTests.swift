@@ -94,6 +94,54 @@ struct MessageServiceACKTests {
         #expect(failedIDs.contains(messageID))
     }
 
+    @Test("ACK timeout enters retrying grace window before failure")
+    func ackTimeoutEntersRetryingGraceWindowBeforeFailure() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+
+        let message = MessageDTO.testDirectMessage(
+            id: messageID,
+            radioID: testDeviceID,
+            status: .sent
+        )
+        try await dataStore.saveMessage(message)
+
+        let tracker = FailedMessageTracker()
+        let retryTracker = RetryStatusTracker()
+        await service.setMessageFailedHandlerForTest { id in
+            await tracker.record(id)
+        }
+        await service.setRetryStatusHandler { messageID, attempt, maxAttempts in
+            await retryTracker.record(
+                messageID: messageID,
+                attempt: attempt,
+                maxAttempts: maxAttempts
+            )
+        }
+
+        let ackCode = Data([0x11, 0x22, 0x33, 0x44])
+        await service.setPendingAckForTest(
+            makePending(
+                messageID: messageID,
+                ackCodes: [ackCode],
+                sentAt: Date().addingTimeInterval(-31),
+                timeout: 30.0
+            )
+        )
+
+        try await service.checkExpiredAcks()
+
+        let fetched = try await dataStore.fetchMessage(id: messageID)
+        #expect(fetched?.status == .retrying)
+        #expect(await service.pendingAckCount == 1)
+
+        let failedIDs = await tracker.failedIDs
+        #expect(!failedIDs.contains(messageID))
+        let retryUpdates = await retryTracker.updates
+        #expect(retryUpdates.count == 1)
+        #expect(retryUpdates.first?.messageID == messageID)
+    }
+
     @Test("checkExpiredAcks preserves non-expired ACK")
     func nonExpiredAckSurvives() async throws {
         let (service, _) = try await MessageService.createForTesting()
@@ -534,8 +582,8 @@ struct MessageServiceACKTests {
 
     // MARK: - Late-ACK Grace Window
 
-    @Test("late ACK within grace window reconciles .failed → .delivered")
-    func lateAckWithinGraceReconciles() async throws {
+    @Test("ACK within grace window reconciles .retrying → .delivered")
+    func ackWithinGraceReconciles() async throws {
         let (service, dataStore) = try await MessageService.createForTesting()
         let messageID = UUID()
         let contactID = UUID()
@@ -554,19 +602,80 @@ struct MessageServiceACKTests {
                 messageID: messageID,
                 contactID: contactID,
                 ackCodes: [ackCode],
-                sentAt: Date(timeIntervalSinceNow: -60),
+                sentAt: Date(timeIntervalSinceNow: -31),
                 timeout: 30
             )
         )
 
         try await service.checkExpiredAcks()
-        let afterFailure = try await dataStore.fetchMessage(id: messageID)
-        #expect(afterFailure?.status == .failed)
+        let afterTimeout = try await dataStore.fetchMessage(id: messageID)
+        #expect(afterTimeout?.status == .retrying)
 
         await service.handleAcknowledgement(code: ackCode, tripTime: 99)
 
         let stored = try await dataStore.fetchMessage(id: messageID)
         #expect(stored?.status == .delivered)
+    }
+
+    @Test("late ACK after five-second grace window stays .failed")
+    func lateAckAfterFiveSecondGraceWindowStaysFailed() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        let ackCode = Data([0x01, 0x23, 0x45, 0x67])
+
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(
+                id: messageID,
+                status: .failed,
+                ackCode: ackCode.ackCodeUInt32
+            )
+        )
+        await service.setRecentlyFailedAckForTest(
+            code: ackCode,
+            messageID: messageID,
+            failedAt: Date(timeIntervalSinceNow: -6)
+        )
+
+        await service.handleAcknowledgement(code: ackCode, tripTime: 99)
+
+        let stored = try await dataStore.fetchMessage(id: messageID)
+        #expect(stored?.status == .failed)
+    }
+
+    @Test("late ACK reconciliation notifies ACK confirmation handler")
+    func lateAckReconciliationNotifiesAckConfirmationHandler() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        let ackCode = Data([0x10, 0x32, 0x54, 0x76])
+        let tracker = AckConfirmationTracker()
+
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(
+                id: messageID,
+                status: .failed,
+                ackCode: ackCode.ackCodeUInt32
+            )
+        )
+        await service.setRecentlyFailedAckForTest(
+            code: ackCode,
+            messageID: messageID,
+            failedAt: Date()
+        )
+        await service.setAckConfirmationHandler { ackCode, roundTripTime in
+            Task {
+                await tracker.record(ackCode: ackCode, roundTripTime: roundTripTime)
+            }
+        }
+
+        await service.handleAcknowledgement(code: ackCode, tripTime: 99)
+        await tracker.waitForConfirmationCount(1)
+
+        let stored = try await dataStore.fetchMessage(id: messageID)
+        #expect(stored?.status == .delivered)
+        let confirmations = await tracker.confirmations
+        #expect(confirmations.count == 1)
+        #expect(confirmations.first?.ackCode == ackCode.ackCodeUInt32)
+        #expect(confirmations.first?.roundTripTime == 99)
     }
 
     @Test("late ACK for a message that was never in the ring stays .failed")

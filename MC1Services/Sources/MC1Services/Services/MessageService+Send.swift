@@ -698,6 +698,7 @@ extension MessageService {
             existing.ackCodes.insert(ackCode)
             existing.sentAt = Date()
             existing.timeout = timeout
+            existing.isInAckGracePeriod = false
             pendingAcks[messageID] = existing
         } else {
             pendingAcks[messageID] = PendingAck(
