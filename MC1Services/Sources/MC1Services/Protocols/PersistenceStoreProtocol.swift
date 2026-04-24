@@ -22,8 +22,13 @@ public protocol PersistenceStoreProtocol: Actor {
 
     // MARK: - Message Operations
 
-    /// Check if a message with this deduplication key already exists
-    func isDuplicateMessage(deduplicationKey: String) async throws -> Bool
+    /// Check if a message with this deduplication key already exists for the given radio.
+    ///
+    /// Dedup is scoped per-radio because the content-based key is radio-agnostic, and two
+    /// companion radios in the same area can receive the same over-the-air packet. Without
+    /// the `radioID` filter the second radio's sync would be suppressed, leaving nothing to
+    /// display when the user switches devices.
+    func isDuplicateMessage(deduplicationKey: String, radioID: UUID) async throws -> Bool
 
     /// Save a new message
     func saveMessage(_ dto: MessageDTO) async throws

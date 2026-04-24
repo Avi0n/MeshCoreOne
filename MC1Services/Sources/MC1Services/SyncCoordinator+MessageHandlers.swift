@@ -124,7 +124,7 @@ extension SyncCoordinator {
 
             // Check for duplicate before saving
             do {
-                if try await services.dataStore.isDuplicateMessage(deduplicationKey: deduplicationKey) {
+                if try await services.dataStore.isDuplicateMessage(deduplicationKey: deduplicationKey, radioID: radioID) {
                     self.logger.info("Skipping duplicate direct message")
                     return
                 }
@@ -274,7 +274,7 @@ extension SyncCoordinator {
 
             // Check for duplicate before saving
             do {
-                if try await services.dataStore.isDuplicateMessage(deduplicationKey: deduplicationKey) {
+                if try await services.dataStore.isDuplicateMessage(deduplicationKey: deduplicationKey, radioID: radioID) {
                     self.logger.info("Skipping duplicate channel message")
                     return
                 }

@@ -258,10 +258,13 @@ extension PersistenceStore {
         return try modelContext.fetch(descriptor).first.map { MessageDTO(from: $0) }
     }
 
-    /// Check if a message with this deduplication key already exists
-    public func isDuplicateMessage(deduplicationKey: String) throws -> Bool {
+    /// Check if a message with this deduplication key already exists for the given radio.
+    public func isDuplicateMessage(deduplicationKey: String, radioID: UUID) throws -> Bool {
         let targetKey = deduplicationKey
-        let predicate = #Predicate<Message> { $0.deduplicationKey == targetKey }
+        let targetRadioID = radioID
+        let predicate = #Predicate<Message> {
+            $0.deduplicationKey == targetKey && $0.radioID == targetRadioID
+        }
         return try modelContext.fetchCount(FetchDescriptor(predicate: predicate)) > 0
     }
 

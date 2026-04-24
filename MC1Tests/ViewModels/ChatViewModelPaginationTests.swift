@@ -372,7 +372,7 @@ actor PaginationTestDataStore: PersistenceStoreProtocol {
     func saveRoomMessage(_ dto: RoomMessageDTO) async throws {}
     func fetchRoomMessage(id: UUID) async throws -> RoomMessageDTO? { nil }
     func fetchRoomMessages(sessionID: UUID, limit: Int?, offset: Int?) async throws -> [RoomMessageDTO] { [] }
-    func isDuplicateMessage(deduplicationKey: String) async throws -> Bool { false }
+    func isDuplicateMessage(deduplicationKey: String, radioID: UUID) async throws -> Bool { false }
     func isDuplicateRoomMessage(sessionID: UUID, deduplicationKey: String) async throws -> Bool { false }
     func updateRoomMessageStatus(id: UUID, status: MessageStatus, ackCode: UInt32?, roundTripTime: UInt32?) async throws {}
     func updateRoomMessageRetryStatus(id: UUID, status: MessageStatus, retryAttempt: Int, maxRetryAttempts: Int) async throws {}
