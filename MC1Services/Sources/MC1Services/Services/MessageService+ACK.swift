@@ -86,8 +86,9 @@ extension MessageService {
                 continue
             }
 
-            guard pendingAcks.removeValue(forKey: messageID) != nil else { continue }
             try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
+            guard let removed = pendingAcks.removeValue(forKey: messageID),
+                  !removed.isDelivered else { continue }
 
             logger.warning("Message failed - timeout exceeded")
             await messageFailedHandler?(messageID)

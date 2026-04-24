@@ -425,6 +425,15 @@ extension MessageService {
                 throw error
             }
 
+            // If the persistent ACK listener consumed our predicted ACK during
+            // sendMessage's cross-actor suspension, the entry is already
+            // removed or marked delivered. Short-circuit before waitForEvent
+            // so the retry loop doesn't clobber .delivered via
+            // updateMessageRetryStatus and broadcast a duplicate DM.
+            guard let tracked = pendingAcks[messageID], !tracked.isDelivered else {
+                return sentInfo
+            }
+
             let ackTimeout = timeout ?? max(
                 config.minTimeout,
                 Double(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
