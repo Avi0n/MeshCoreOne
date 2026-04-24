@@ -15,8 +15,13 @@ extension MessageService {
     ///
     /// - Parameter interval: How often to check for expired ACKs (defaults to 5 seconds)
     ///
-    /// # Important
-    /// This should be started when the connection is established and stopped when disconnecting.
+    /// # Lifecycle scope
+    ///
+    /// Independent from `startEventMonitoring()`. Counterparts are
+    /// `stopAckExpiryChecking()` (stop the checker only) and
+    /// `stopAndFailAllPending()` (stop the checker and fail every in-flight
+    /// DM — the disconnect-teardown variant). `stopEventMonitoring()` does
+    /// **not** stop this task.
     public func startAckExpiryChecking(interval: TimeInterval = 5.0) {
         self.checkInterval = interval
         ackCheckTask?.cancel()
@@ -44,7 +49,9 @@ extension MessageService {
 
     /// Stops the periodic ACK expiry checking.
     ///
-    /// Call this when disconnecting from the device.
+    /// Cancels `ackCheckTask` only. Does not stop the session event listener
+    /// (`stopEventMonitoring()`) and does not fail in-flight DMs
+    /// (`stopAndFailAllPending()` does both).
     public func stopAckExpiryChecking() {
         ackCheckTask?.cancel()
         ackCheckTask = nil

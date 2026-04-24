@@ -114,14 +114,20 @@ public actor MessageService {
 
     // MARK: - Event Listening
 
-    /// Starts listening for session events to process message acknowledgements.
+    /// Starts the session ACK event listener.
     ///
-    /// Call this method after connection is established to begin processing ACKs.
-    /// The service will automatically update message delivery status when ACKs are received.
+    /// Subscribes to `.anyAcknowledgement` events on the session and routes
+    /// each one through `handleAcknowledgement`. Call after the connection is
+    /// established; without this the listener never runs and pending DMs stay
+    /// `.sent` even when ACKs arrive.
     ///
-    /// # Important
-    /// This must be called for ACK tracking to work. Without event monitoring,
-    /// messages will remain in "sent" status even if ACKs are received.
+    /// # Lifecycle scope
+    ///
+    /// This method's counterpart is `stopEventMonitoring()`. It does **not**
+    /// start the periodic ACK expiry checker — that's `startAckExpiryChecking()`,
+    /// which has its own `stopAckExpiryChecking()` / `stopAndFailAllPending()`
+    /// counterparts. `ServiceContainer` pairs both lifecycles together; direct
+    /// callers must do the same.
     public func startEventMonitoring() {
         eventListenerTask?.cancel()
 
@@ -138,9 +144,12 @@ public actor MessageService {
         }
     }
 
-    /// Stops monitoring session events.
+    /// Stops the session ACK event listener.
     ///
-    /// Call this when disconnecting from the device.
+    /// Cancels `eventListenerTask` only. Does **not** cancel the periodic ACK
+    /// expiry checker — for that, call `stopAckExpiryChecking()` (just stop
+    /// the checker) or `stopAndFailAllPending()` (stop the checker and fail
+    /// every in-flight DM, used during disconnect teardown).
     public func stopEventMonitoring() {
         eventListenerTask?.cancel()
         eventListenerTask = nil
