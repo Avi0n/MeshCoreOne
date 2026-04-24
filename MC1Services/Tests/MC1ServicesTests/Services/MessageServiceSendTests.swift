@@ -394,4 +394,84 @@ struct MessageServiceSendTests {
         sendTask.cancel()
         _ = await sendTask.value
     }
+
+    @Test("failMessageAndRethrow does not downgrade a delivered DB row")
+    func failMessageAndRethrowDoesNotDowngradeDelivered() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        let ackCode = Data([0xDD, 0x11, 0x22, 0x33])
+
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(
+                id: messageID,
+                radioID: testDeviceID,
+                status: .delivered,
+                ackCode: ackCode.ackCodeUInt32
+            )
+        )
+        await service.setPendingAckForTest(
+            PendingAck(
+                messageID: messageID,
+                contactID: UUID(),
+                ackCodes: [ackCode],
+                sentAt: Date(),
+                timeout: 30,
+                isDelivered: true
+            )
+        )
+
+        await #expect(throws: MessageServiceError.self) {
+            try await service.failMessageAndRethrow(
+                MeshCoreError.notConnected,
+                messageID: messageID
+            )
+        }
+
+        let stored = try await dataStore.fetchMessage(id: messageID)
+        #expect(stored?.status == .delivered,
+                "failMessageAndRethrow must not downgrade a delivered row")
+    }
+
+    @Test("finalizeSend exhaustion does not downgrade a delivered DB row")
+    func finalizeSendExhaustionDoesNotDowngradeDelivered() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        let contactID = UUID()
+        let radioID = testDeviceID
+        let publicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
+        let ackCode = Data([0xFE, 0xED, 0xFA, 0xCE])
+
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(
+                id: messageID,
+                radioID: radioID,
+                contactID: contactID,
+                status: .delivered,
+                ackCode: ackCode.ackCodeUInt32
+            )
+        )
+        await service.setPendingAckForTest(
+            PendingAck(
+                messageID: messageID,
+                contactID: contactID,
+                ackCodes: [ackCode],
+                sentAt: Date(),
+                timeout: 30,
+                isDelivered: false
+            )
+        )
+
+        _ = try await service.finalizeSend(
+            messageID: messageID,
+            contactID: contactID,
+            radioID: radioID,
+            publicKey: publicKey,
+            sentInfo: nil,
+            initialPathLength: 0
+        )
+
+        let stored = try await dataStore.fetchMessage(id: messageID)
+        #expect(stored?.status == .delivered,
+                "finalizeSend exhaustion path must not downgrade a delivered row")
+    }
 }

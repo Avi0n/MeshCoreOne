@@ -317,7 +317,13 @@ extension PersistenceStore {
     }
 
     /// Update message status unless delivery has already won the race.
-    public func updateMessageStatusUnlessDelivered(id: UUID, status: MessageStatus) throws {
+    ///
+    /// - Returns: `true` if the row's status was changed, `false` if no row was
+    ///   updated (either the row is already `.delivered`, or no row exists for
+    ///   the given `id`). Callers must gate failure side effects (e.g.,
+    ///   `messageFailedHandler`, UI toasts) on the return value so they do not
+    ///   surface a `.failed` event for a delivered or absent row.
+    public func updateMessageStatusUnlessDelivered(id: UUID, status: MessageStatus) throws -> Bool {
         let targetID = id
         let predicate = #Predicate<Message> { message in
             message.id == targetID
@@ -325,10 +331,12 @@ extension PersistenceStore {
         var descriptor = FetchDescriptor(predicate: predicate)
         descriptor.fetchLimit = 1
 
-        if let message = try modelContext.fetch(descriptor).first, message.status != .delivered {
-            message.status = status
-            try modelContext.save()
+        guard let message = try modelContext.fetch(descriptor).first, message.status != .delivered else {
+            return false
         }
+        message.status = status
+        try modelContext.save()
+        return true
     }
 
     /// Update message status with retry attempt information.

@@ -68,9 +68,9 @@ extension MessageService {
         }
 
         for (messageID, _) in expiredEntries {
-            try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
+            let didFail = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
             guard let removed = pendingAcks.removeValue(forKey: messageID),
-                  !removed.isDelivered else { continue }
+                  !removed.isDelivered, didFail else { continue }
 
             logger.warning("Message failed - timeout exceeded")
             await messageFailedHandler?(messageID)
@@ -87,8 +87,10 @@ extension MessageService {
         pendingAcks.removeAll()
 
         for (messageID, _) in pending {
-            try await dataStore.updateMessageStatus(id: messageID, status: .failed)
-            await messageFailedHandler?(messageID)
+            let didFail = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
+            if didFail {
+                await messageFailedHandler?(messageID)
+            }
         }
     }
 

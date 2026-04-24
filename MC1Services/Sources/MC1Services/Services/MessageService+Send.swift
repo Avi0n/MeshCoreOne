@@ -767,7 +767,12 @@ extension MessageService {
 
     func failMessageAndRethrow(_ error: Error, messageID: UUID) async throws -> Never {
         pendingAcks.removeValue(forKey: messageID)
-        try await dataStore.updateMessageStatus(id: messageID, status: .failed)
+        // Persistence layer absorbs `.delivered`: if the listener won the race
+        // before the throw path runs, the row stays delivered. Same invariant as
+        // updateMessageRetryStatus and updateMessageAck. The Bool return is
+        // intentionally discarded — caller observes the failure via the
+        // rethrown error, not via messageFailedHandler.
+        _ = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
         if let meshError = error as? MeshCoreError {
             throw MessageServiceError.sessionError(meshError)
         }
@@ -799,7 +804,10 @@ extension MessageService {
                 )
                 try await dataStore.updateContactLastMessage(contactID: contactID, date: Date())
             } else {
-                try await dataStore.updateMessageStatus(id: messageID, status: .failed)
+                // Caller fetches the row to observe the result; no handler
+                // fires from this branch, so the Bool return is intentionally
+                // discarded.
+                _ = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
             }
         }
         await checkAndNotifyRoutingChange(

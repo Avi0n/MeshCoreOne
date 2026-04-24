@@ -176,6 +176,43 @@ struct MessageServiceACKTests {
         #expect(await service.pendingAckCount == 1, "Delivered ACK should not be expired")
     }
 
+    @Test("checkExpiredAcks does not fire failure handler when DB stays delivered")
+    func checkExpiredAcksDoesNotFireHandlerOnDeliveredRow() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        let ackCode = Data([0xCE, 0xEC, 0xAC, 0xCE])
+
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(
+                id: messageID,
+                radioID: testDeviceID,
+                status: .delivered,
+                ackCode: ackCode.ackCodeUInt32
+            )
+        )
+        let tracker = FailedMessageTracker()
+        await service.setMessageFailedHandlerForTest { id in
+            await tracker.record(id)
+        }
+        await service.setPendingAckForTest(
+            makePending(
+                messageID: messageID,
+                ackCodes: [ackCode],
+                sentAt: Date().addingTimeInterval(-60),
+                timeout: 30
+            )
+        )
+
+        try await service.checkExpiredAcks()
+
+        let stored = try await dataStore.fetchMessage(id: messageID)
+        #expect(stored?.status == .delivered,
+                "DB layer must absorb .delivered against the .failed write")
+        let failed = await tracker.failedIDs
+        #expect(!failed.contains(messageID),
+                "messageFailedHandler must not fire when the DB write is a no-op")
+    }
+
     // MARK: - failAllPendingMessages
 
     @Test("failAllPendingMessages fails all non-delivered and calls handler")
@@ -241,6 +278,38 @@ struct MessageServiceACKTests {
 
         let msg = try await dataStore.fetchMessage(id: pendingID)
         #expect(msg?.status == .failed)
+    }
+
+    @Test("failAllPendingMessages does not downgrade or notify on a delivered DB row")
+    func failAllPendingDoesNotDowngradeOrNotifyDelivered() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        let ackCode = Data([0xFA, 0x11, 0x77, 0x33])
+
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(
+                id: messageID,
+                radioID: testDeviceID,
+                status: .delivered,
+                ackCode: ackCode.ackCodeUInt32
+            )
+        )
+        let tracker = FailedMessageTracker()
+        await service.setMessageFailedHandlerForTest { id in
+            await tracker.record(id)
+        }
+        await service.setPendingAckForTest(
+            makePending(messageID: messageID, ackCodes: [ackCode], isDelivered: false)
+        )
+
+        try await service.failAllPendingMessages()
+
+        let stored = try await dataStore.fetchMessage(id: messageID)
+        #expect(stored?.status == .delivered,
+                "failAllPendingMessages must not downgrade a delivered row")
+        let failed = await tracker.failedIDs
+        #expect(!failed.contains(messageID),
+                "messageFailedHandler must not fire when the DB write is a no-op")
     }
 
     // MARK: - stopAndFailAllPending
