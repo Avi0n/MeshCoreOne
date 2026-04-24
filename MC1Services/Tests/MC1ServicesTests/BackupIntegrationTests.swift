@@ -1769,6 +1769,79 @@ struct BackupIntegrationTests {
         let restoredReply = try #require(destMessages.first { $0.id == reply.id })
         #expect(restoredReply.replyToID == existingParent.id)
     }
+
+    // MARK: - Cross-radio channel message preservation
+
+    /// Two companion radios often receive the same over-the-air channel packet. The stored
+    /// live-sync deduplicationKey is radio-agnostic by construction, so the backup-reconciliation
+    /// key must be scoped by radioID. Otherwise the import path collapses both rows into one
+    /// and the second companion's channel view renders blank after restore — the same failure
+    /// mode fixed in live sync (issue #288) leaking back through backup/restore.
+    @Test("Backup restores the same channel packet under each companion radio that received it")
+    func crossRadioChannelMessagesBothSurviveImport() async throws {
+        let radioA = UUID()
+        let radioB = UUID()
+        let deviceA = DeviceDTO.testDevice(
+            id: radioA,
+            radioID: radioA,
+            publicKey: Data(repeating: 0xAA, count: 32),
+            nodeName: "CompanionA"
+        )
+        let deviceB = DeviceDTO.testDevice(
+            id: radioB,
+            radioID: radioB,
+            publicKey: Data(repeating: 0xBB, count: 32),
+            nodeName: "CompanionB"
+        )
+        let channelA = ChannelDTO.testChannel(radioID: radioA, index: 0, name: "General")
+        let channelB = ChannelDTO.testChannel(radioID: radioB, index: 0, name: "General")
+
+        // Same wire packet — identical content-based dedup key — seen by both companions.
+        let sharedDedupKey = "ch-0-1700000000-Alice-A1B2C3D4"
+        var msgFromA = MessageDTO.testChannelMessage(
+            radioID: radioA,
+            channelIndex: 0,
+            text: "aaaaa",
+            timestamp: 1_700_000_000,
+            direction: .incoming,
+            status: .delivered,
+            senderNodeName: "Alice"
+        )
+        msgFromA.deduplicationKey = sharedDedupKey
+
+        var msgFromB = MessageDTO.testChannelMessage(
+            radioID: radioB,
+            channelIndex: 0,
+            text: "aaaaa",
+            timestamp: 1_700_000_000,
+            direction: .incoming,
+            status: .delivered,
+            senderNodeName: "Alice"
+        )
+        msgFromB.deduplicationKey = sharedDedupKey
+
+        let envelope = AppBackupEnvelope.test(
+            devices: [deviceA, deviceB],
+            channels: [channelA, channelB],
+            messages: [msgFromA, msgFromB]
+        )
+
+        let destContainer = try PersistenceStore.createContainer(inMemory: true)
+        let destStore = PersistenceStore(modelContainer: destContainer)
+        let service = AppBackupService()
+        let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+        #expect(result.messagesInserted == 2,
+                "Both companions' copies of the same channel packet must be restored — otherwise the second companion's channel view goes blank post-restore")
+        #expect(result.messagesSkipped == 0)
+
+        let messagesForA = try await destStore.fetchAllMessages(radioID: radioA)
+        let messagesForB = try await destStore.fetchAllMessages(radioID: radioB)
+        #expect(messagesForA.count == 1)
+        #expect(messagesForB.count == 1)
+        #expect(messagesForA.first?.text == "aaaaa")
+        #expect(messagesForB.first?.text == "aaaaa")
+    }
 }
 
 private enum InjectedImportFailure: Error {

@@ -49,31 +49,35 @@ extension PersistenceStore {
     /// Outgoing messages key on their UUID so two intentional sends with identical
     /// text/timestamp/recipient do not collapse on restore. Incoming messages fall
     /// back to their stored live-sync dedup key (or a content-based derivation when
-    /// the field was never populated — e.g. pre-schema rows).
+    /// the field was never populated — e.g. pre-schema rows), scoped by `radioID`
+    /// so two companion radios that both received the same wire packet restore as
+    /// two rows rather than collapsing into one under a single radio.
     func messageBackupKey(for dto: MessageDTO) -> String {
         if dto.direction == .outgoing {
             return "\(DeduplicationKey.outgoingIdentityPrefix)\(dto.id.uuidString)"
         }
-        return dto.deduplicationKey ?? DeduplicationKey.contentBased(
+        let base = dto.deduplicationKey ?? DeduplicationKey.contentBased(
             contactID: dto.contactID,
             channelIndex: dto.channelIndex,
             senderNodeName: dto.senderNodeName,
             timestamp: dto.timestamp,
             content: dto.text
         )
+        return "\(dto.radioID.uuidString)-\(base)"
     }
 
     func messageBackupKey(for message: Message) -> String {
         if message.direction == .outgoing {
             return "\(DeduplicationKey.outgoingIdentityPrefix)\(message.id.uuidString)"
         }
-        return message.deduplicationKey ?? DeduplicationKey.contentBased(
+        let base = message.deduplicationKey ?? DeduplicationKey.contentBased(
             contactID: message.contactID,
             channelIndex: message.channelIndex,
             senderNodeName: message.senderNodeName,
             timestamp: message.timestamp,
             content: message.text
         )
+        return "\(message.radioID.uuidString)-\(base)"
     }
 
     func reactionKey(messageID: UUID, senderName: String, emoji: String) -> String {
