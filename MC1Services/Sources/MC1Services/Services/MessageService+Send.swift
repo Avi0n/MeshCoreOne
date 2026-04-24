@@ -42,7 +42,6 @@ extension MessageService {
         let messageID = UUID()
         let timestamp = UInt32(Date().timeIntervalSince1970)
 
-        // Save message to store as pending first
         let messageDTO = createOutgoingMessage(
             id: messageID,
             radioID: contact.radioID,
@@ -54,33 +53,68 @@ extension MessageService {
         )
         try await dataStore.saveMessage(messageDTO)
 
-        // Single send attempt
         do {
-            let sentInfo = try await session.sendMessage(
-                to: contact.publicKey,
+            // Precompute the expected ACK before the send so the persistent
+            // listener cannot race trackPendingAck on short direct links (same
+            // pattern used by the retry loop). Reactions and quick replies
+            // flow through this path and otherwise lose ACKs on fast links.
+            guard let senderPublicKey = await session.currentSelfInfo?.publicKey else {
+                throw MessageServiceError.notConnected
+            }
+            let predictedAck = AckCodeBuilder.expectedAck(
+                timestamp: timestamp,
+                attempt: 0,
                 text: text,
-                timestamp: Date(timeIntervalSince1970: TimeInterval(timestamp))
+                senderPublicKey: senderPublicKey
+            )
+            // Pre-send floor must outlive one checkExpiredAcks tick, otherwise
+            // a slow BLE round-trip could let the checker expire the
+            // speculative entry before the authoritative timeout lands.
+            trackPendingAck(
+                messageID: messageID,
+                contactID: contact.id,
+                ackCode: predictedAck,
+                timeout: checkInterval
             )
 
-            let ackCodeUInt32 = sentInfo.expectedAck.ackCodeUInt32
+            let sentInfo: MessageSentInfo
+            do {
+                sentInfo = try await session.sendMessage(
+                    to: contact.publicKey,
+                    text: text,
+                    timestamp: Date(timeIntervalSince1970: TimeInterval(timestamp))
+                )
+            } catch {
+                pendingAcks.removeValue(forKey: messageID)
+                throw error
+            }
 
-            // Update message with ACK code
+            let ackTimeout = TimeInterval(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
+
+            if sentInfo.expectedAck != predictedAck {
+                logger.warning(
+                    "expectedAck mismatch for \(messageID) attempt 0: predicted \(predictedAck.hexString()) vs firmware \(sentInfo.expectedAck.hexString()); merging firmware code"
+                )
+                trackPendingAck(
+                    messageID: messageID,
+                    contactID: contact.id,
+                    ackCode: sentInfo.expectedAck,
+                    timeout: ackTimeout
+                )
+            } else {
+                pendingAcks[messageID]?.timeout = ackTimeout
+                pendingAcks[messageID]?.sentAt = Date()
+            }
+
+            // updateMessageAck preserves `.delivered`, so writing `.sent` here
+            // is a no-op when the listener already won the race.
+            let ackCodeUInt32 = sentInfo.expectedAck.ackCodeUInt32
             try await dataStore.updateMessageAck(
                 id: messageID,
                 ackCode: ackCodeUInt32,
                 status: .sent
             )
 
-            // Track pending ACK
-            let timeout = TimeInterval(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
-            trackPendingAck(
-                messageID: messageID,
-                contactID: contact.id,
-                ackCode: sentInfo.expectedAck,
-                timeout: timeout
-            )
-
-            // Update contact's last message date
             try await dataStore.updateContactLastMessage(contactID: contact.id, date: Date())
 
             guard let message = try await dataStore.fetchMessage(id: messageID) else {
@@ -466,6 +500,13 @@ extension MessageService {
                 return sentInfo
             }
 
+            // Listener may have consumed the ACK between the pre-send guard
+            // and waitForEvent's subscription becoming active; re-check before
+            // retrying so we don't resend a DM the firmware already delivered.
+            if pendingAcks[messageID]?.isDelivered != false {
+                return sentInfo
+            }
+
             // ACK timeout - increment counters and retry
             attempts += 1
             if isFloodMode {
@@ -707,7 +748,6 @@ extension MessageService {
             existing.ackCodes.insert(ackCode)
             existing.sentAt = Date()
             existing.timeout = timeout
-            existing.isInAckGracePeriod = false
             pendingAcks[messageID] = existing
         } else {
             pendingAcks[messageID] = PendingAck(

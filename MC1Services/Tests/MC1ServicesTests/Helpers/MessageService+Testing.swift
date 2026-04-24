@@ -5,11 +5,20 @@ import Testing
 @testable import MeshCore
 
 extension MessageService {
-    static func createForTesting() async throws -> (MessageService, PersistenceStore) {
+    static func createForTesting(
+        defaultTimeout: TimeInterval = 5.0,
+        connectTransport: Bool = false
+    ) async throws -> (MessageService, PersistenceStore) {
         let container = try PersistenceStore.createContainer(inMemory: true)
         let dataStore = PersistenceStore(modelContainer: container)
         let transport = SimulatorMockTransport()
-        let session = MeshCoreSession(transport: transport)
+        if connectTransport {
+            try await transport.connect()
+        }
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: defaultTimeout)
+        )
         let service = MessageService(session: session, dataStore: dataStore)
         return (service, dataStore)
     }
@@ -22,15 +31,15 @@ extension MessageService {
         pendingAcks[tracking.messageID] = tracking
     }
 
-    func setRecentlyFailedAckForTest(code: Data, messageID: UUID, failedAt: Date) {
-        recentlyFailedAcks[code] = (messageID, failedAt)
-    }
-
     func setMessageFailedHandlerForTest(_ handler: @escaping @Sendable (UUID) async -> Void) {
         messageFailedHandler = handler
     }
 
     var sessionForTest: MeshCoreSession { session }
+
+    func installSelfInfoForTest(publicKey: Data = Data(repeating: 0xAB, count: 32)) async {
+        await session.installSelfInfoForTest(.testSelfInfo(publicKey: publicKey))
+    }
 
     /// Waits until the session's dispatcher holds exactly `expectedCount`
     /// subscriptions, polling `subscriberCountForTest` without sleeping in
@@ -59,6 +68,30 @@ extension MessageService {
     }
 }
 
+extension SelfInfo {
+    static func testSelfInfo(publicKey: Data = Data(repeating: 0xAB, count: 32)) -> SelfInfo {
+        SelfInfo(
+            advertisementType: 0,
+            txPower: 20,
+            maxTxPower: 20,
+            publicKey: publicKey,
+            latitude: 0,
+            longitude: 0,
+            multiAcks: 2,
+            advertisementLocationPolicy: 0,
+            telemetryModeEnvironment: 0,
+            telemetryModeLocation: 0,
+            telemetryModeBase: 2,
+            manualAddContacts: false,
+            radioFrequency: 915.0,
+            radioBandwidth: 250.0,
+            radioSpreadingFactor: 10,
+            radioCodingRate: 5,
+            name: "TestNode"
+        )
+    }
+}
+
 actor FailedMessageTracker {
     var failedIDs: [UUID] = []
     func record(_ id: UUID) { failedIDs.append(id) }
@@ -69,27 +102,5 @@ actor RetryStatusTracker {
 
     func record(messageID: UUID, attempt: Int, maxAttempts: Int) {
         updates.append((messageID, attempt, maxAttempts))
-    }
-}
-
-actor AckConfirmationTracker {
-    var confirmations: [(ackCode: UInt32, roundTripTime: UInt32?)] = []
-
-    func record(ackCode: UInt32, roundTripTime: UInt32?) {
-        confirmations.append((ackCode, roundTripTime))
-    }
-
-    func waitForConfirmationCount(
-        _ expectedCount: Int,
-        timeout: Duration = .milliseconds(500)
-    ) async {
-        let deadline = ContinuousClock.now.advanced(by: timeout)
-        while ContinuousClock.now < deadline {
-            if confirmations.count == expectedCount {
-                return
-            }
-            await Task.yield()
-        }
-        Issue.record("confirmation count did not reach \(expectedCount) within \(timeout)")
     }
 }

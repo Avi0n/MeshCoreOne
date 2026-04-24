@@ -331,7 +331,11 @@ extension PersistenceStore {
         }
     }
 
-    /// Update message status with retry attempt information
+    /// Update message status with retry attempt information.
+    ///
+    /// Skips the write when the message is already `.delivered` so a stale
+    /// retry iteration (e.g., one racing the persistent ACK listener) cannot
+    /// clobber a winning ACK.
     public func updateMessageRetryStatus(
         id: UUID,
         status: MessageStatus,
@@ -345,7 +349,7 @@ extension PersistenceStore {
         var descriptor = FetchDescriptor(predicate: predicate)
         descriptor.fetchLimit = 1
 
-        if let message = try modelContext.fetch(descriptor).first {
+        if let message = try modelContext.fetch(descriptor).first, message.status != .delivered {
             message.status = status
             message.retryAttempt = retryAttempt
             message.maxRetryAttempts = maxRetryAttempts
@@ -368,7 +372,12 @@ extension PersistenceStore {
         }
     }
 
-    /// Update message ACK info
+    /// Update message ACK info.
+    ///
+    /// Never downgrades a `.delivered` message to a lower status: once the
+    /// listener (or `finalizeSend`) writes `.delivered` + `roundTripTime`, a
+    /// later `.sent` write from the send-return path is skipped so the
+    /// authoritative delivery state is preserved.
     public func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32? = nil) throws {
         let targetID = id
         let predicate = #Predicate<Message> { message in
@@ -378,6 +387,7 @@ extension PersistenceStore {
         descriptor.fetchLimit = 1
 
         if let message = try modelContext.fetch(descriptor).first {
+            if message.status == .delivered && status != .delivered { return }
             message.ackCode = ackCode
             message.status = status
             message.roundTripTime = roundTripTime

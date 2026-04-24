@@ -335,23 +335,63 @@ struct MessageServiceSendTests {
         }
     }
 
-    @Test(
-        "trackPendingAck runs before sendMessage so persistent listener cannot race",
-        .disabled("requires SimulatorMockTransport suspend-gate, tracked separately")
-    )
-    func tracksPendingAckBeforeSend() async throws {
-        // Target shape once the mock harness grows a suspend primitive:
-        //
-        //   let gate = AsyncSemaphore(value: 0)
-        //   await service.sessionForTest.installSendMessageGate(gate)
-        //   async let sendTask = service.sendMessageWithRetry(text: "hi", to: contact)
-        //   try await Task.sleep(for: .milliseconds(50))
-        //   #expect(await service.pendingAckCount > 0)
-        //   gate.signal()
-        //   _ = try await sendTask
-        //
-        // Until that exists, the AckCodeBuilder golden-vector test covers the
-        // formula; the retry-loop happy path is covered by existing ACK tests.
-        Issue.record("mock harness extension pending — see plan Task 6 Step 7")
+    @Test("sendDirectMessage tracks pending ACK before session.sendMessage so the listener cannot race")
+    func sendDirectMessageTracksPendingAckBeforeSend() async throws {
+        let (service, _) = try await MessageService.createForTesting(defaultTimeout: 0.5, connectTransport: true)
+
+        // Seed selfInfo so the precompute step can read currentSelfInfo.publicKey
+        // without simulating an APP_START round-trip.
+        await service.installSelfInfoForTest(publicKey: Data(repeating: 0xFE, count: 32))
+
+        let contact = ContactDTO.testContact()
+
+        // The mock transport never emits a messageSent event, so sendDirectMessage
+        // will suspend inside session.sendMessage and fail with `.timeout` after
+        // the short defaultTimeout. That gives us a stable observation window in
+        // which pendingAckCount should already reflect the speculative entry.
+        let sendTask = Task {
+            try? await service.sendDirectMessage(text: "hi", to: contact)
+        }
+
+        let deadline = ContinuousClock.now.advanced(by: .milliseconds(200))
+        var observed = 0
+        while ContinuousClock.now < deadline {
+            observed = await service.pendingAckCount
+            if observed > 0 { break }
+            await Task.yield()
+        }
+
+        #expect(observed > 0,
+                "trackPendingAck must run before session.sendMessage so a listener ACK cannot race the tracker")
+
+        sendTask.cancel()
+        _ = await sendTask.value
+    }
+
+    @Test("sendMessageWithRetry tracks pending ACK before session.sendMessage")
+    func sendMessageWithRetryTracksPendingAckBeforeSend() async throws {
+        let (service, _) = try await MessageService.createForTesting(defaultTimeout: 0.5, connectTransport: true)
+
+        await service.installSelfInfoForTest(publicKey: Data(repeating: 0xFE, count: 32))
+
+        let contact = ContactDTO.testContact()
+
+        let sendTask = Task {
+            try? await service.sendMessageWithRetry(text: "hi", to: contact)
+        }
+
+        let deadline = ContinuousClock.now.advanced(by: .milliseconds(200))
+        var observed = 0
+        while ContinuousClock.now < deadline {
+            observed = await service.pendingAckCount
+            if observed > 0 { break }
+            await Task.yield()
+        }
+
+        #expect(observed > 0,
+                "retry-loop precompute must track before session.sendMessage on every attempt")
+
+        sendTask.cancel()
+        _ = await sendTask.value
     }
 }

@@ -3153,6 +3153,13 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         await dispatcher.dispatch(event)
     }
 
+    /// Seeds `selfInfo` for tests so callers that depend on
+    /// ``currentSelfInfo`` (e.g. ACK precompute) can run without simulating
+    /// an `APP_START` round-trip.
+    func installSelfInfoForTest(_ info: SelfInfo) {
+        selfInfo = info
+    }
+
     /// Returns the dispatcher's active subscription count. For tests only.
     ///
     /// Integration tests use this to synchronize with a listener task's
