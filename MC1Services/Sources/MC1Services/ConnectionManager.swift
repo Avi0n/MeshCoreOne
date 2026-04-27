@@ -81,14 +81,14 @@ public enum PairingError: LocalizedError {
         }
     }
 
-    /// True when the underlying CoreBluetooth failure looks like a PIN/encryption error.
-    /// CoreBluetooth has no typed auth-failure case, so we match on the localized
-    /// description string — brittle to iOS releases that localize CB error text.
+    /// True when the underlying BLE failure is an auth/encryption error.
+    /// Detection is locale-independent: BLEStateMachine maps CBATTError auth
+    /// codes (5/8/12/15) and CBError.encryptionTimedOut to BLEError.authenticationFailed
+    /// at the throw site.
     public var isAuthenticationFailure: Bool {
-        guard case .connectionFailed(_, let underlying) = self,
-              case BLEError.connectionFailed(let msg) = underlying else { return false }
-        return msg.localizedCaseInsensitiveContains("authentication")
-            || msg.localizedCaseInsensitiveContains("encryption")
+        guard case .connectionFailed(_, let underlying) = self else { return false }
+        if case BLEError.authenticationFailed = underlying { return true }
+        return false
     }
 }
 

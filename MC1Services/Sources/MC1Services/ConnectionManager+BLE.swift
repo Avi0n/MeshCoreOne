@@ -479,9 +479,6 @@ extension ConnectionManager {
         if case BLEError.authenticationFailed = error { return true }
         if case BLEError.authenticationRequired = error { return true }
         if case BLEError.pairingCancelled = error { return true }
-        if case BLEError.connectionFailed(let msg) = error,
-           msg.localizedCaseInsensitiveContains("authentication") ||
-           msg.localizedCaseInsensitiveContains("encryption") { return true }
         return false
     }
 

@@ -1031,7 +1031,31 @@ extension BLEStateMachine {
 
         timeoutTask.cancel()
         transition(to: .idle)
-        continuation.resume(throwing: BLEError.connectionFailed(error?.localizedDescription ?? "Unknown error"))
+        continuation.resume(throwing: Self.makeConnectionError(error))
+    }
+
+    /// Maps a CoreBluetooth error to a typed BLEError. Auth/encryption codes
+    /// from CBATTError or CBError get the typed `.authenticationFailed` case so
+    /// detection survives iOS localizing the error description in any locale.
+    static func makeConnectionError(_ error: Error?, fallback: String = "Unknown error") -> BLEError {
+        if let nsError = error as NSError? {
+            if nsError.domain == CBATTErrorDomain {
+                switch nsError.code {
+                case CBATTError.insufficientAuthentication.rawValue,
+                     CBATTError.insufficientAuthorization.rawValue,
+                     CBATTError.insufficientEncryption.rawValue,
+                     CBATTError.insufficientEncryptionKeySize.rawValue:
+                    return .authenticationFailed
+                default:
+                    break
+                }
+            }
+            if nsError.domain == CBErrorDomain,
+               nsError.code == CBError.encryptionTimedOut.rawValue {
+                return .authenticationFailed
+            }
+        }
+        return .connectionFailed(error?.localizedDescription ?? fallback)
     }
 
     func handleDidDisconnect(_ peripheral: CBPeripheral, timestamp: CFAbsoluteTime, isReconnecting: Bool, error: Error?) {
@@ -1153,7 +1177,7 @@ extension BLEStateMachine {
 
         default:
             // Disconnection during connection attempt
-            cancelCurrentOperation(with: BLEError.connectionFailed("Disconnected during setup"))
+            cancelCurrentOperation(with: Self.makeConnectionError(error, fallback: "Disconnected during setup"))
         }
     }
 
@@ -1192,7 +1216,7 @@ extension BLEStateMachine {
 
         if let error {
             transition(to: .idle)
-            continuation.resume(throwing: BLEError.connectionFailed(error.localizedDescription))
+            continuation.resume(throwing: Self.makeConnectionError(error))
             return
         }
 
@@ -1254,7 +1278,7 @@ extension BLEStateMachine {
 
         if let error {
             transition(to: .idle)
-            continuation.resume(throwing: BLEError.connectionFailed(error.localizedDescription))
+            continuation.resume(throwing: Self.makeConnectionError(error))
             return
         }
 
@@ -1291,7 +1315,7 @@ extension BLEStateMachine {
         if let error {
             centralManager.cancelPeripheralConnection(expected)
             transition(to: .idle)
-            continuation.resume(throwing: BLEError.connectionFailed(error.localizedDescription))
+            continuation.resume(throwing: Self.makeConnectionError(error))
             return
         }
 
