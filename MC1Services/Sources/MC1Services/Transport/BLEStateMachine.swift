@@ -1117,15 +1117,22 @@ extension BLEStateMachine {
         let deviceID = peripheral.identifier
 
         if isReconnecting {
-            handleAutoReconnectDisconnect(peripheral: peripheral, errorInfo: errorInfo)
+            handleAutoReconnectDisconnect(peripheral: peripheral, error: error)
         } else {
             handleFullDisconnect(deviceID: deviceID, error: error)
         }
     }
 
     /// Handles a disconnect where iOS is auto-reconnecting the peripheral.
-    private func handleAutoReconnectDisconnect(peripheral: CBPeripheral, errorInfo: String) {
+    /// Setup-phase continuations route through makeConnectionError so a CBATT
+    /// auth/encryption code arriving before the bond is established still maps
+    /// to the typed BLEError.authenticationFailed.
+    private func handleAutoReconnectDisconnect(peripheral: CBPeripheral, error: Error?) {
         let deviceID = peripheral.identifier
+        var errorInfo = "none"
+        if let nsError = error as NSError? {
+            errorInfo = "domain=\(nsError.domain), code=\(nsError.code), desc=\(nsError.localizedDescription)"
+        }
         logger.info("[BLE] iOS auto-reconnect started: \(deviceID.uuidString.prefix(8)), will attempt automatic reconnection")
 
         // Clean up pending operations before transitioning.
@@ -1137,16 +1144,17 @@ extension BLEStateMachine {
         // transition() handles dataContinuation cleanup when leaving .connected.
         // Note: We handle phase continuations manually below since cancelCurrentOperation
         // would transition to .idle, but we need to go to .autoReconnecting.
+        let setupError = Self.makeConnectionError(error, fallback: "Disconnected during setup")
         switch phase {
         case .connecting(_, let continuation, let timeoutTask):
             timeoutTask.cancel()
-            continuation.resume(throwing: BLEError.connectionFailed("Disconnected during setup"))
+            continuation.resume(throwing: setupError)
         case .discoveringServices(_, let continuation):
-            continuation.resume(throwing: BLEError.connectionFailed("Disconnected during setup"))
+            continuation.resume(throwing: setupError)
         case .discoveringCharacteristics(_, _, let continuation):
-            continuation.resume(throwing: BLEError.connectionFailed("Disconnected during setup"))
+            continuation.resume(throwing: setupError)
         case .subscribingToNotifications(_, _, _, let continuation):
-            continuation.resume(throwing: BLEError.connectionFailed("Disconnected during setup"))
+            continuation.resume(throwing: setupError)
         default:
             break
         }
