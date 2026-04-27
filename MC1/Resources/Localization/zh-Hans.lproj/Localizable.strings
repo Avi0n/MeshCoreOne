@@ -100,6 +100,9 @@
 /* Alert title when connection cannot be established */
 "alert.couldNotConnect.title" = "无法连接";
 
+/* Alert title when device pairing fails (e.g., wrong PIN) */
+"alert.pairingFailed.title" = "配对失败";
+
 /* Default message when device connection fails */
 "alert.connectionFailed.defaultMessage" = "无法连接到设备";
 

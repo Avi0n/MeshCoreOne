@@ -21,7 +21,10 @@ struct ContentView: View {
                 appState.handleBecameActive()
             }
         }
-        .alert(L10n.Localizable.Alert.ConnectionFailed.title, isPresented: $connectionUI.showingConnectionFailedAlert) {
+        .alert(
+            connectionUI.connectionFailedTitle ?? L10n.Localizable.Alert.ConnectionFailed.title,
+            isPresented: $connectionUI.showingConnectionFailedAlert
+        ) {
             if appState.connectionUI.failedPairingDeviceID != nil {
                 // Wrong PIN scenario - offer to remove and retry
                 Button(L10n.Localizable.Alert.ConnectionFailed.removeAndRetry) {

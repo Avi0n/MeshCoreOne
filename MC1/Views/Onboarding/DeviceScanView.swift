@@ -227,23 +227,18 @@ struct DeviceScanView: View {
                 await appState.wireServicesIfConnected()
                 pairingSuccessTrigger.toggle()
                 appState.onboarding.onboardingPath.append(.radioPreset)
-            } catch PairingError.deviceConnectedToOtherApp(let deviceID) {
-                otherAppDeviceID = deviceID
-                appState.connectionUI.otherAppWarningDeviceID = deviceID
             } catch AccessorySetupKitError.pickerDismissed {
                 // User cancelled - no error to show
             } catch AccessorySetupKitError.pickerAlreadyActive {
                 // Picker is already showing - ignore
             } catch let pairingError as PairingError {
-                // ASK pairing succeeded but BLE connection failed (e.g., wrong PIN)
-                // Use AppState's alert mechanism for consistent UX
-                appState.connectionUI.failedPairingDeviceID = pairingError.deviceID
-                appState.connectionUI.connectionFailedMessage = L10n.Onboarding.DeviceScan.Error.authenticationFailed
-                appState.connectionUI.showingConnectionFailedAlert = true
+                if case .deviceConnectedToOtherApp(let deviceID) = pairingError {
+                    otherAppDeviceID = deviceID
+                }
+                appState.connectionUI.presentPairingFailure(pairingError)
             } catch {
                 // Other errors - show via AppState's alert
-                appState.connectionUI.connectionFailedMessage = error.localizedDescription
-                appState.connectionUI.showingConnectionFailedAlert = true
+                appState.connectionUI.presentConnectionFailure(message: error.localizedDescription)
             }
         }
     }
@@ -262,8 +257,7 @@ struct DeviceScanView: View {
             } catch BLEError.deviceConnectedToOtherApp {
                 appState.connectionUI.otherAppWarningDeviceID = deviceID
             } catch {
-                appState.connectionUI.connectionFailedMessage = error.localizedDescription
-                appState.connectionUI.showingConnectionFailedAlert = true
+                appState.connectionUI.presentConnectionFailure(message: error.localizedDescription)
             }
         }
     }
@@ -281,8 +275,7 @@ struct DeviceScanView: View {
                 pairingSuccessTrigger.toggle()
                 appState.onboarding.onboardingPath.append(.radioPreset)
             } catch {
-                appState.connectionUI.connectionFailedMessage = "Simulator connection failed: \(error.localizedDescription)"
-                appState.connectionUI.showingConnectionFailedAlert = true
+                appState.connectionUI.presentConnectionFailure(message: "Simulator connection failed: \(error.localizedDescription)")
             }
         }
     }

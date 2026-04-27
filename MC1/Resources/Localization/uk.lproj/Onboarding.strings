@@ -132,8 +132,9 @@
 /* Location: DeviceScanView.swift - Alert message for demo mode */
 "deviceScan.demoModeAlert.message" = "Тепер ви можете продовжити без пристрою. Вимкніть демо-режим у будь-який час у Налаштуваннях.";
 
-/* Location: DeviceScanView.swift - Authentication failed alert message */
-"deviceScan.error.authenticationFailed" = "Authentication failed. The device was added but couldn't connect — this usually means the wrong PIN was entered.";
+/* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
+"deviceScan.error.authenticationFailed" = "Не вдалося спарувати пристрій. Перевірте PIN-код, потім видаліть пристрій і спробуйте ще раз.";
+"deviceScan.error.connectionFailed" = "Не вдалося підключитися до пристрою. Видаліть його та спробуйте ще раз або натисніть «Скасувати», щоб повторити пізніше.";
 
 // MARK: - Troubleshooting Sheet
 

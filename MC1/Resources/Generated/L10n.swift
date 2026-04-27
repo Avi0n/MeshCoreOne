@@ -2018,6 +2018,10 @@ public enum L10n {
         /// Alert title when connection cannot be established
         public static let title = L10n.tr("Localizable", "alert.couldNotConnect.title", fallback: "Could Not Connect")
       }
+      public enum PairingFailed {
+        /// Alert title when device pairing fails (e.g., wrong PIN)
+        public static let title = L10n.tr("Localizable", "alert.pairingFailed.title", fallback: "Couldn't Pair")
+      }
     }
     public enum Common {
       /// Standard cancel button for dialogs and sheets
@@ -2297,8 +2301,10 @@ public enum L10n {
         public static let title = L10n.tr("Onboarding", "deviceScan.demoModeAlert.title", fallback: "Demo Mode Unlocked")
       }
       public enum Error {
-        /// Location: DeviceScanView.swift - Authentication failed alert message
-        public static let authenticationFailed = L10n.tr("Onboarding", "deviceScan.error.authenticationFailed", fallback: "Authentication failed. The device was added but couldn't connect — this usually means the wrong PIN was entered.")
+        /// Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages
+        public static let authenticationFailed = L10n.tr("Onboarding", "deviceScan.error.authenticationFailed", fallback: "Couldn't pair the device. Check the PIN, then remove the device and try again.")
+        /// Couldn't connect to the device. Remove it and try again, or tap Cancel to retry later.
+        public static let connectionFailed = L10n.tr("Onboarding", "deviceScan.error.connectionFailed", fallback: "Couldn't connect to the device. Remove it and try again, or tap Cancel to retry later.")
       }
       public enum Instruction {
         /// Location: DeviceScanView.swift - Instruction step 4

@@ -97,6 +97,9 @@
 /* Alert title when connection cannot be established */
 "alert.couldNotConnect.title" = "Не удалось подключиться";
 
+/* Alert title when device pairing fails (e.g., wrong PIN) */
+"alert.pairingFailed.title" = "Сбой сопряжения";
+
 /* Default message when device connection fails */
 "alert.connectionFailed.defaultMessage" = "Не удалось подключиться к устройству.";
 

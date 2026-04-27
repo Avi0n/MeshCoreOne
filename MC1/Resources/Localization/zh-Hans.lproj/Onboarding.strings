@@ -130,8 +130,9 @@
 /* Location: DeviceScanView.swift - Alert message for demo mode */
 "deviceScan.demoModeAlert.message" = "您现在可以无需设备继续。随时在设置中切换演示模式。";
 
-/* Location: DeviceScanView.swift - Authentication failed alert message */
-"deviceScan.error.authenticationFailed" = "Authentication failed. The device was added but couldn't connect — this usually means the wrong PIN was entered.";
+/* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
+"deviceScan.error.authenticationFailed" = "无法配对设备。请检查 PIN 码，然后移除设备并重试。";
+"deviceScan.error.connectionFailed" = "无法连接到设备。请移除后重试，或点按\"取消\"以稍后再试。";
 
 // MARK: - Troubleshooting Sheet
 

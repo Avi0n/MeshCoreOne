@@ -96,6 +96,9 @@
 /* Alert title when connection cannot be established */
 "alert.couldNotConnect.title" = "Nie można połączyć";
 
+/* Alert title when device pairing fails (e.g., wrong PIN) */
+"alert.pairingFailed.title" = "Parowanie nieudane";
+
 /* Default message when device connection fails */
 "alert.connectionFailed.defaultMessage" = "Nie można połączyć z urządzeniem.";
 

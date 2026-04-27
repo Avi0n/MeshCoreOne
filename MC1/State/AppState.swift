@@ -505,14 +505,9 @@ public final class AppState {
             } catch AccessorySetupKitError.pickerAlreadyActive {
                 // Picker is already showing - ignore
             } catch let pairingError as PairingError {
-                // ASK pairing succeeded but BLE connection failed (e.g., wrong PIN)
-                // Store device ID for recovery UI instead of showing generic alert
-                connectionUI.failedPairingDeviceID = pairingError.deviceID
-                connectionUI.connectionFailedMessage = "Authentication failed. The device was added but couldn't connect — this usually means the wrong PIN was entered."
-                connectionUI.showingConnectionFailedAlert = true
+                connectionUI.presentPairingFailure(pairingError)
             } catch {
-                connectionUI.connectionFailedMessage = error.localizedDescription
-                connectionUI.showingConnectionFailedAlert = true
+                connectionUI.presentConnectionFailure(message: error.localizedDescription)
             }
         }
     }

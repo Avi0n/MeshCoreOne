@@ -241,8 +241,7 @@ struct DeviceSelectionSheet: View {
             } catch BLEError.deviceConnectedToOtherApp {
                 appState.connectionUI.otherAppWarningDeviceID = device.id
             } catch {
-                appState.connectionUI.connectionFailedMessage = error.localizedDescription
-                appState.connectionUI.showingConnectionFailedAlert = true
+                appState.connectionUI.presentConnectionFailure(message: error.localizedDescription)
             }
         }
     }

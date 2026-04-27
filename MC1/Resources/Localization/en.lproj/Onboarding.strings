@@ -132,8 +132,9 @@
 /* Location: DeviceScanView.swift - Alert message for demo mode */
 "deviceScan.demoModeAlert.message" = "You can now continue without a device. Toggle demo mode in Settings anytime.";
 
-/* Location: DeviceScanView.swift - Authentication failed alert message */
-"deviceScan.error.authenticationFailed" = "Authentication failed. The device was added but couldn't connect — this usually means the wrong PIN was entered.";
+/* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
+"deviceScan.error.authenticationFailed" = "Couldn't pair the device. Check the PIN, then remove the device and try again.";
+"deviceScan.error.connectionFailed" = "Couldn't connect to the device. Remove it and try again, or tap Cancel to retry later.";
 
 // MARK: - Troubleshooting Sheet
 

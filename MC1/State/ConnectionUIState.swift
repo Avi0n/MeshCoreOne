@@ -48,6 +48,10 @@ public final class ConnectionUIState {
     /// Message for connection failure alert
     var connectionFailedMessage: String?
 
+    /// Optional override for the connection-failed alert title. nil falls back
+    /// to L10n.Localizable.Alert.ConnectionFailed.title ("Connection Failed").
+    var connectionFailedTitle: String?
+
     /// Device ID that failed pairing (wrong PIN) - for recovery UI
     var failedPairingDeviceID: UUID?
 
@@ -235,5 +239,37 @@ public final class ConnectionUIState {
     /// Posts a VoiceOver announcement for connection state changes
     func announceConnectionState(_ message: String) {
         AccessibilityNotification.Announcement(message).post()
+    }
+
+    // MARK: - Connection Failure Routing
+
+    /// Routes a generic (non-pairing) connection failure. Clears
+    /// `connectionFailedTitle` so a prior `presentPairingFailure` can't leak
+    /// a stale title onto an unrelated failure.
+    func presentConnectionFailure(message: String?) {
+        connectionFailedTitle = nil
+        connectionFailedMessage = message
+        showingConnectionFailedAlert = true
+    }
+
+    /// Routes a PairingError to the correct alert so every catch site produces
+    /// identical UX across the three pairing-failure paths.
+    func presentPairingFailure(_ error: PairingError) {
+        switch error {
+        case .deviceConnectedToOtherApp(let deviceID):
+            // Routes through the separate "Could Not Connect" alert binding.
+            otherAppWarningDeviceID = deviceID
+
+        case .connectionFailed(let deviceID, _):
+            failedPairingDeviceID = deviceID
+            if error.isAuthenticationFailure {
+                connectionFailedTitle = L10n.Localizable.Alert.PairingFailed.title
+                connectionFailedMessage = L10n.Onboarding.DeviceScan.Error.authenticationFailed
+            } else {
+                connectionFailedTitle = nil
+                connectionFailedMessage = L10n.Onboarding.DeviceScan.Error.connectionFailed
+            }
+            showingConnectionFailedAlert = true
+        }
     }
 }
