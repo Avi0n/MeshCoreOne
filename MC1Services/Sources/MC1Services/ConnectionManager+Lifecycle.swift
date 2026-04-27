@@ -64,6 +64,11 @@ extension ConnectionManager {
         guard currentTransportType == nil || currentTransportType == .bluetooth else { return }
         guard connectionIntent.wantsConnection, connectionState == .disconnected else { return }
 
+        if shouldDeferOpportunisticReconnect {
+            logger.debug("[BLE] ConnectionManager: not re-arming watchdog on foreground (pairing in progress)")
+            return
+        }
+
         if await stateMachine.isAutoReconnecting {
             logger.info("[BLE] ConnectionManager: not re-arming watchdog on foreground (iOS auto-reconnect in progress)")
             return

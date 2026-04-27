@@ -232,6 +232,11 @@ extension ConnectionManager {
         // Only check BLE connections
         guard currentTransportType == nil || currentTransportType == .bluetooth else { return }
 
+        if shouldDeferOpportunisticReconnect {
+            logger.debug("[BLE] Foreground health check standing down: pairing in progress")
+            return
+        }
+
         let deviceShort = lastConnectedDeviceID?.uuidString.prefix(8) ?? "none"
         let bleState = await stateMachine.centralManagerStateName
         let blePhase = await stateMachine.currentPhaseName

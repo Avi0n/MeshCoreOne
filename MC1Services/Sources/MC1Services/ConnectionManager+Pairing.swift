@@ -10,6 +10,13 @@ extension ConnectionManager {
     /// - Throws: `PairingError` with device ID if connection fails after ASK pairing succeeds
     public func pairNewDevice() async throws {
         logger.info("Starting device pairing")
+        // Reject re-entry — an inner call's defer would clear the flag while
+        // the outer call is still suspended in showPicker.
+        guard !isPairingInProgress else {
+            throw AccessorySetupKitError.pickerAlreadyActive
+        }
+        isPairingInProgress = true
+        defer { isPairingInProgress = false }
 
         // Clear intentional disconnect flag - user is explicitly pairing
         connectionIntent = .wantsConnection()

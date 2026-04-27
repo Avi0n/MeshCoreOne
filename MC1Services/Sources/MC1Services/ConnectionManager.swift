@@ -80,6 +80,16 @@ public enum PairingError: LocalizedError {
             return deviceID
         }
     }
+
+    /// True when the underlying CoreBluetooth failure looks like a PIN/encryption error.
+    /// CoreBluetooth has no typed auth-failure case, so we match on the localized
+    /// description string — brittle to iOS releases that localize CB error text.
+    public var isAuthenticationFailure: Bool {
+        guard case .connectionFailed(_, let underlying) = self,
+              case BLEError.connectionFailed(let msg) = underlying else { return false }
+        return msg.localizedCaseInsensitiveContains("authentication")
+            || msg.localizedCaseInsensitiveContains("encryption")
+    }
 }
 
 /// Reasons for disconnecting from a device (for debugging)
@@ -252,6 +262,18 @@ public final class ConnectionManager {
     /// The device whose MeshCore session is currently being rebuilt after a BLE auto-reconnect.
     /// Used to suppress duplicate reconnect attempts while session startup is still in flight.
     var sessionRebuildDeviceID: UUID?
+
+    /// True for the duration of pairNewDevice() — suppresses opportunistic
+    /// reconnect paths so they can't race connectAfterPairing for the BLE
+    /// state machine's single in-flight connect slot.
+    var isPairingInProgress = false
+
+    /// Single source of truth for "stand down, an explicit connect flow is running."
+    /// Opportunistic reconnect call sites consult this; OR new conditions in here
+    /// when the next contention class shows up, so every site picks them up.
+    var shouldDeferOpportunisticReconnect: Bool {
+        isPairingInProgress
+    }
 
     // MARK: - Callbacks
 
@@ -781,6 +803,11 @@ public final class ConnectionManager {
                           self.connectionState == .disconnected,
                           let deviceID = self.lastConnectedDeviceID else { return }
 
+                    if self.shouldDeferOpportunisticReconnect {
+                        self.logger.debug("[BLE] Bluetooth powered on: standing down (pairing in progress)")
+                        return
+                    }
+
                     let blePhase = await self.stateMachine.currentPhaseName
                     let bleConnectedDeviceID = await self.stateMachine.connectedDeviceID
                     if blePhase != "idle" || bleConnectedDeviceID == deviceID {
@@ -1161,7 +1188,8 @@ public final class ConnectionManager {
         currentTransportType: TransportType?? = nil,
         connectionIntent: ConnectionIntent? = nil,
         connectingDeviceID: UUID?? = nil,
-        sessionRebuildDeviceID: UUID?? = nil
+        sessionRebuildDeviceID: UUID?? = nil,
+        isPairingInProgress: Bool? = nil
     ) {
         suppressInvariantChecks = true
         defer { suppressInvariantChecks = false }
@@ -1189,6 +1217,9 @@ public final class ConnectionManager {
         }
         if let deviceID = sessionRebuildDeviceID {
             self.sessionRebuildDeviceID = deviceID
+        }
+        if let pairing = isPairingInProgress {
+            self.isPairingInProgress = pairing
         }
     }
     #endif

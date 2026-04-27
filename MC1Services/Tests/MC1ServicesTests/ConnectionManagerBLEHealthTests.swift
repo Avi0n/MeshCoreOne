@@ -101,6 +101,27 @@ struct ConnectionManagerBLEHealthTests {
         #expect(manager.connectionState == .connecting)
     }
 
+    @Test("skips foreground reconnect while pairing is in progress")
+    func skipsWhenPairingInProgress() async throws {
+        let (manager, mock) = try ConnectionManager.createForTesting()
+
+        await mock.setStubbedIsConnected(false)
+        await mock.setStubbedIsAutoReconnecting(false)
+
+        manager.setTestState(
+            connectionState: .disconnected,
+            currentTransportType: .bluetooth,
+            connectionIntent: .wantsConnection(),
+            isPairingInProgress: true
+        )
+        manager.testLastConnectedDeviceID = UUID()
+
+        await manager.checkBLEConnectionHealth()
+
+        // Gate fires before connect(to:) — connectionState stays .disconnected
+        #expect(manager.connectionState == .disconnected)
+    }
+
     @Test("skips reconnect while session rebuild is in progress")
     func skipsWhenSessionRebuildInProgress() async throws {
         let (manager, mock) = try ConnectionManager.createForTesting()

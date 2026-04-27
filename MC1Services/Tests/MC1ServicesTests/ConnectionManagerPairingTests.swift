@@ -58,6 +58,25 @@ struct ConnectionManagerPairingTests {
         }
     }
 
+    @Test("pairNewDevice rejects re-entry without clearing the outer call's flag")
+    func pairNewDeviceRejectsReEntry() async throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+
+        // Simulate the outer call having already entered pairNewDevice and
+        // suspended in showPicker.
+        manager.setTestState(isPairingInProgress: true)
+
+        try await #expect {
+            try await manager.pairNewDevice()
+        } throws: { error in
+            guard let e = error as? AccessorySetupKitError, case .pickerAlreadyActive = e else { return false }
+            return true
+        }
+
+        // The inner call's defer must not unwind the outer call's state.
+        #expect(manager.isPairingInProgress == true)
+    }
+
     // MARK: - Device Update Tests
 
     @Test("updateDevice(with:) updates connectedDevice")
