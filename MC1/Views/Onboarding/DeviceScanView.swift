@@ -89,7 +89,7 @@ struct DeviceScanView: View {
                         connectSimulator()
                     } label: {
                         HStack(spacing: 8) {
-                            if appState.connectionUI.isPairing {
+                            if appState.connectionUI.isBusy {
                                 ProgressView()
                                     .controlSize(.small)
                                 Text(L10n.Onboarding.DeviceScan.connecting)
@@ -103,7 +103,7 @@ struct DeviceScanView: View {
                         .padding()
                     }
                     .liquidGlassProminentButtonStyle()
-                    .disabled(appState.connectionUI.isPairing)
+                    .disabled(appState.connectionUI.isBusy)
                     #else
                     // Device build - show demo mode button if enabled, otherwise Add Device
                     if demoModeManager.isEnabled {
@@ -111,7 +111,7 @@ struct DeviceScanView: View {
                             connectSimulator()
                         } label: {
                             HStack(spacing: 8) {
-                                if appState.connectionUI.isPairing {
+                                if appState.connectionUI.isBusy {
                                     ProgressView()
                                         .controlSize(.small)
                                     Text(L10n.Onboarding.DeviceScan.connecting)
@@ -125,13 +125,13 @@ struct DeviceScanView: View {
                             .padding()
                         }
                         .liquidGlassProminentButtonStyle()
-                        .disabled(appState.connectionUI.isPairing)
+                        .disabled(appState.connectionUI.isBusy)
                     } else if let deviceID = otherAppDeviceID {
                         Button {
                             retryConnection(deviceID: deviceID)
                         } label: {
                             HStack(spacing: 8) {
-                                if appState.connectionUI.isPairing {
+                                if appState.connectionUI.isBusy {
                                     ProgressView()
                                         .controlSize(.small)
                                     Text(L10n.Onboarding.DeviceScan.connecting)
@@ -145,13 +145,13 @@ struct DeviceScanView: View {
                             .padding()
                         }
                         .liquidGlassProminentButtonStyle()
-                        .disabled(appState.connectionUI.isPairing)
+                        .disabled(appState.connectionUI.isBusy)
                     } else {
                         Button {
                             startPairing()
                         } label: {
                             HStack(spacing: 8) {
-                                if appState.connectionUI.isPairing {
+                                if appState.connectionUI.isBusy {
                                     ProgressView()
                                         .controlSize(.small)
                                     Text(L10n.Onboarding.DeviceScan.connecting)
@@ -165,7 +165,7 @@ struct DeviceScanView: View {
                             .padding()
                         }
                         .liquidGlassProminentButtonStyle()
-                        .disabled(appState.connectionUI.isPairing)
+                        .disabled(appState.connectionUI.isBusy)
                     }
                     #endif
 
@@ -214,13 +214,13 @@ struct DeviceScanView: View {
     }
 
     private func startPairing() {
-        appState.connectionUI.isPairing = true
+        appState.connectionUI.isBusy = true
         didInitiatePairing = true
         // Clear any previous pairing failure state
         appState.connectionUI.failedPairingDeviceID = nil
 
         Task { @MainActor in
-            defer { appState.connectionUI.isPairing = false }
+            defer { appState.connectionUI.isBusy = false }
 
             do {
                 try await appState.connectionManager.pairNewDevice()
@@ -244,10 +244,10 @@ struct DeviceScanView: View {
     }
 
     private func retryConnection(deviceID: UUID) {
-        appState.connectionUI.isPairing = true
+        appState.connectionUI.isBusy = true
 
         Task { @MainActor in
-            defer { appState.connectionUI.isPairing = false }
+            defer { appState.connectionUI.isBusy = false }
 
             do {
                 try await appState.connectionManager.connect(to: deviceID)
@@ -263,11 +263,11 @@ struct DeviceScanView: View {
     }
 
     private func connectSimulator() {
-        appState.connectionUI.isPairing = true
+        appState.connectionUI.isBusy = true
         didInitiatePairing = true
 
         Task {
-            defer { appState.connectionUI.isPairing = false }
+            defer { appState.connectionUI.isBusy = false }
 
             do {
                 try await appState.connectionManager.simulatorConnect()

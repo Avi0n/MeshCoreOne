@@ -486,10 +486,10 @@ public final class AppState {
         connectionUI.hideDisconnectedPill()
         // Clear any previous pairing failure state
         connectionUI.failedPairingDeviceID = nil
-        connectionUI.isPairing = true
+        connectionUI.isBusy = true
 
         Task {
-            defer { connectionUI.isPairing = false }
+            defer { connectionUI.isBusy = false }
 
             do {
                 // pairNewDevice() triggers onConnectionReady callback on success

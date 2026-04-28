@@ -58,8 +58,11 @@ public final class ConnectionUIState {
     /// Device ID that triggered "connected to other app" warning - alert shown when non-nil
     var otherAppWarningDeviceID: UUID?
 
-    /// Whether device pairing is in progress (ASK picker or connecting after selection)
-    var isPairing = false
+    /// Whether any user-initiated connection attempt is in flight — pairing, retrying after
+    /// "connected to other app", or simulator connect. Drives spinners and disabled buttons in
+    /// `DeviceScanView`. Distinct from `ConnectionManager.isPairingInProgress`, which is narrowly
+    /// scoped to the `pairNewDevice` flow and is consulted by the BLE-layer reconnect gate.
+    var isBusy = false
 
     /// Whether the device's node storage is full (set by 0x90 push, cleared on delete/overwrite)
     var isNodeStorageFull = false

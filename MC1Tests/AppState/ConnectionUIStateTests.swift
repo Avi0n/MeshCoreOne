@@ -207,7 +207,7 @@ struct ConnectionUIStateTests {
         #expect(appState.connectionUI.connectionFailedMessage == nil)
 #expect(appState.connectionUI.failedPairingDeviceID == nil)
         #expect(appState.connectionUI.otherAppWarningDeviceID == nil)
-        #expect(appState.connectionUI.isPairing == false)
+        #expect(appState.connectionUI.isBusy == false)
         #expect(appState.connectionUI.isNodeStorageFull == false)
     }
 
