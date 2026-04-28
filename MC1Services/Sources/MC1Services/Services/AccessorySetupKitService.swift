@@ -52,6 +52,13 @@ public final class AccessorySetupKitService {
     private var pickerPresentedAt: Date?
     private var pickerOutcome = "cancelled"
 
+    /// Set when `showPicker`'s awaiting Task is cancelled but the system picker
+    /// is still presented. ASK doesn't expose a programmatic dismiss surface
+    /// short of `session.invalidate()`, so the next `accessoryAdded` event from
+    /// a user-completed pairing has no caller — the flag instructs the event
+    /// handler to remove the orphaned accessory immediately.
+    private var pickerWasCancelled = false
+
     public init() {}
 
     // MARK: - Continuation Safety
@@ -118,6 +125,22 @@ public final class AccessorySetupKitService {
         case .accessoryAdded:
             if let accessory = event.accessory {
                 pairedAccessories = session?.accessories ?? []
+
+                if pickerWasCancelled {
+                    pickerWasCancelled = false
+                    pickerOutcome = "orphanedAfterCancellation"
+                    logger.info("[ASK] Removing orphaned accessory after picker cancellation: \(accessory.displayName)")
+                    Task { [weak self] in
+                        guard let self else { return }
+                        do {
+                            try await self.removeAccessory(accessory)
+                        } catch {
+                            self.logger.warning("[ASK] Failed to remove orphaned accessory: \(error.localizedDescription)")
+                        }
+                    }
+                    return
+                }
+
                 pickerOutcome = "selected"
                 logger.info("Accessory added: \(accessory.displayName)")
                 logger.info(
@@ -237,47 +260,66 @@ public final class AccessorySetupKitService {
         let displayItems = makePickerDisplayItems(productImage: productImage)
         pickerPresentedAt = Date()
         pickerOutcome = "presented"
+        pickerWasCancelled = false
         logger.info(
             "[ASK] Presenting picker on iOS \(currentOSVersion), sessionActive: \(isSessionActive), pairedCount: \(pairedAccessories.count), displayItems: \(displayItems.count), filteredDiscovery: \(AccessorySetupKitDiscoveryCriteria.usesFilteredDiscovery), criteria: \(AccessorySetupKitLogFormatter.criteriaSummary(AccessorySetupKitDiscoveryCriteria.supportedBluetoothCriteria))"
         )
 
-        return try await withCheckedThrowingContinuation { continuation in
-            self.pickerContinuation = continuation
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                self.pickerContinuation = continuation
 
-            session.showPicker(for: displayItems) { [weak self] error in
-                guard let self else { return }
+                session.showPicker(for: displayItems) { [weak self] error in
+                    guard let self else { return }
 
-                Task { @MainActor in
-                    if let error = error as? ASError {
-                        self.logger.error("Picker error: \(error.localizedDescription)")
+                    Task { @MainActor in
+                        if let error = error as? ASError {
+                            self.logger.error("Picker error: \(error.localizedDescription)")
 
-                        switch error.code {
-                        case .pickerRestricted:
-                            self.pickerOutcome = "pickerRestricted"
-                            self.resumePickerContinuation(with: .failure(AccessorySetupKitError.pickerRestricted))
-                        case .pickerAlreadyActive:
-                            self.pickerOutcome = "pickerAlreadyActive"
-                            self.resumePickerContinuation(with: .failure(AccessorySetupKitError.pickerAlreadyActive))
-                        case .userCancelled:
-                            self.pickerOutcome = "cancelled"
-                            // User explicitly cancelled (error code 700) - not an error condition
-                            // Will be handled by pickerDidDismiss event
-                            return
-                        case .discoveryTimeout:
-                            self.pickerOutcome = "discoveryTimeout"
-                            self.resumePickerContinuation(with: .failure(AccessorySetupKitError.discoveryTimeout))
-                        case .connectionFailed:
-                            self.pickerOutcome = "connectionFailed"
-                            self.resumePickerContinuation(with: .failure(AccessorySetupKitError.connectionFailed))
-                        default:
-                            self.logger.error("Unexpected picker error code: \(error.code.rawValue)")
+                            switch error.code {
+                            case .pickerRestricted:
+                                self.pickerOutcome = "pickerRestricted"
+                                self.resumePickerContinuation(with: .failure(AccessorySetupKitError.pickerRestricted))
+                            case .pickerAlreadyActive:
+                                self.pickerOutcome = "pickerAlreadyActive"
+                                self.resumePickerContinuation(with: .failure(AccessorySetupKitError.pickerAlreadyActive))
+                            case .userCancelled:
+                                self.pickerOutcome = "cancelled"
+                                // User explicitly cancelled (error code 700) - not an error condition
+                                // Will be handled by pickerDidDismiss event
+                                return
+                            case .discoveryTimeout:
+                                self.pickerOutcome = "discoveryTimeout"
+                                self.resumePickerContinuation(with: .failure(AccessorySetupKitError.discoveryTimeout))
+                            case .connectionFailed:
+                                self.pickerOutcome = "connectionFailed"
+                                self.resumePickerContinuation(with: .failure(AccessorySetupKitError.connectionFailed))
+                            default:
+                                self.logger.error("Unexpected picker error code: \(error.code.rawValue)")
+                            }
+                        } else if let error {
+                            self.logger.error("Picker error: \(error.localizedDescription)")
                         }
-                    } else if let error {
-                        self.logger.error("Picker error: \(error.localizedDescription)")
                     }
                 }
             }
+        } onCancel: { [weak self] in
+            Task { @MainActor in
+                self?.handlePickerCancellation()
+            }
         }
+    }
+
+    /// Surfaces task cancellation as a `CancellationError` on the awaiting `showPicker`.
+    /// ASK doesn't expose a programmatic picker-dismiss surface short of
+    /// `session.invalidate()`, so the system picker may stay visible after this fires.
+    /// If the user completes pairing in the orphaned picker, `accessoryAdded` will
+    /// observe `pickerWasCancelled` and remove the orphaned bond.
+    @MainActor
+    private func handlePickerCancellation() {
+        pickerWasCancelled = true
+        resumePickerContinuation(with: .failure(CancellationError()))
+        logger.warning("[ASK] Picker cancelled programmatically; awaiting Task unwound")
     }
 
     /// Remove an accessory from the system
