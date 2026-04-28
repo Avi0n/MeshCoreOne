@@ -134,7 +134,7 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "Kan apparaat niet koppelen. Controleer de pincode, verwijder vervolgens het apparaat en probeer het opnieuw.";
-"deviceScan.error.connectionFailed" = "Kan geen verbinding maken met het apparaat. Verwijder het en probeer het opnieuw, of tik op Annuleer om het later opnieuw te proberen.";
+"deviceScan.error.connectionFailed" = "Kan geen verbinding maken met het apparaat. Probeer het opnieuw, of verwijder het als het probleem aanhoudt.";
 
 // MARK: - Troubleshooting Sheet
 

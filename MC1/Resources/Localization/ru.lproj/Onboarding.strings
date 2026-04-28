@@ -134,7 +134,7 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "Не удалось выполнить сопряжение с устройством. Проверьте PIN-код, затем удалите устройство и повторите попытку.";
-"deviceScan.error.connectionFailed" = "Не удалось подключиться к устройству. Удалите его и повторите попытку или нажмите «Отмена», чтобы повторить позже.";
+"deviceScan.error.connectionFailed" = "Не удалось подключиться к устройству. Попробуйте снова или удалите его, если проблема сохраняется.";
 
 // MARK: - Troubleshooting Sheet
 

@@ -134,7 +134,7 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "No se pudo enlazar el dispositivo. Comprueba el PIN, luego elimina el dispositivo e inténtalo de nuevo.";
-"deviceScan.error.connectionFailed" = "No se pudo conectar al dispositivo. Elimínalo e inténtalo de nuevo, o toca Cancelar para reintentar más tarde.";
+"deviceScan.error.connectionFailed" = "No se pudo conectar al dispositivo. Inténtalo de nuevo, o elimínalo si el problema persiste.";
 
 // MARK: - Troubleshooting Sheet
 

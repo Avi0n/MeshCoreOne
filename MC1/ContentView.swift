@@ -26,12 +26,25 @@ struct ContentView: View {
             isPresented: $connectionUI.showingConnectionFailedAlert
         ) {
             if appState.connectionUI.failedPairingDeviceID != nil {
-                // Wrong PIN scenario - offer to remove and retry
-                Button(L10n.Localizable.Alert.ConnectionFailed.removeAndRetry) {
-                    appState.removeFailedPairingAndRetry()
-                }
-                Button(L10n.Localizable.Common.cancel, role: .cancel) {
-                    appState.connectionUI.failedPairingDeviceID = nil
+                if appState.connectionUI.connectionFailedTitle != nil {
+                    // Auth-failure variant — bond is bad, destructive remove is the recovery
+                    Button(L10n.Localizable.Alert.ConnectionFailed.removeAndRetry, role: .destructive) {
+                        appState.removeFailedPairingAndRetry()
+                    }
+                    Button(L10n.Localizable.Common.cancel, role: .cancel) {
+                        appState.connectionUI.failedPairingDeviceID = nil
+                    }
+                } else {
+                    // Transient variant — bond is still good, prefer non-destructive retry
+                    Button(L10n.Localizable.Common.tryAgain) {
+                        Task { await appState.retryFailedPairingConnect() }
+                    }
+                    Button(L10n.Localizable.Alert.ConnectionFailed.removeAndRetry, role: .destructive) {
+                        appState.removeFailedPairingAndRetry()
+                    }
+                    Button(L10n.Localizable.Common.cancel, role: .cancel) {
+                        appState.connectionUI.failedPairingDeviceID = nil
+                    }
                 }
             } else {
                 Button(L10n.Localizable.Common.ok, role: .cancel) { }

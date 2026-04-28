@@ -524,6 +524,26 @@ public final class AppState {
         }
     }
 
+    /// Retry connecting to the device that just failed without removing the bond.
+    /// Used for transient pairing failures where the bond is still good — radio out of range,
+    /// brief BLE flap, etc. Auth-failure paths route through `removeFailedPairingAndRetry`
+    /// because the bond itself needs to be torn down before retrying.
+    func retryFailedPairingConnect() async {
+        guard let deviceID = connectionUI.failedPairingDeviceID else { return }
+        connectionUI.failedPairingDeviceID = nil
+        connectionUI.isBusy = true
+        defer { connectionUI.isBusy = false }
+
+        do {
+            try await connectionManager.connect(to: deviceID)
+            await wireServicesIfConnected()
+        } catch BLEError.deviceConnectedToOtherApp {
+            connectionUI.otherAppWarningDeviceID = deviceID
+        } catch {
+            connectionUI.presentConnectionFailure(message: error.localizedDescription)
+        }
+    }
+
     /// Called by View when scenePhase becomes active and shouldShowPickerOnForeground is true
     func handleBecameActive() {
         if connectionUI.shouldShowPickerOnForeground {

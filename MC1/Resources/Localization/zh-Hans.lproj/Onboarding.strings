@@ -132,7 +132,7 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "无法配对设备。请检查 PIN 码，然后移除设备并重试。";
-"deviceScan.error.connectionFailed" = "无法连接到设备。请移除后重试，或点按\"取消\"以稍后再试。";
+"deviceScan.error.connectionFailed" = "无法连接到设备。请重试，或在问题持续时移除设备。";
 
 // MARK: - Troubleshooting Sheet
 

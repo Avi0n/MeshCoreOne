@@ -2303,8 +2303,8 @@ public enum L10n {
       public enum Error {
         /// Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages
         public static let authenticationFailed = L10n.tr("Onboarding", "deviceScan.error.authenticationFailed", fallback: "Couldn't pair the device. Check the PIN, then remove the device and try again.")
-        /// Couldn't connect to the device. Remove it and try again, or tap Cancel to retry later.
-        public static let connectionFailed = L10n.tr("Onboarding", "deviceScan.error.connectionFailed", fallback: "Couldn't connect to the device. Remove it and try again, or tap Cancel to retry later.")
+        /// Couldn't connect to the device. Try again, or remove it if the problem continues.
+        public static let connectionFailed = L10n.tr("Onboarding", "deviceScan.error.connectionFailed", fallback: "Couldn't connect to the device. Try again, or remove it if the problem continues.")
       }
       public enum Instruction {
         /// Location: DeviceScanView.swift - Instruction step 4

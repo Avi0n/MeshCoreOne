@@ -134,7 +134,7 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "Impossible de jumeler l'appareil. Vérifiez le code PIN, puis supprimez l'appareil et réessayez.";
-"deviceScan.error.connectionFailed" = "Impossible de se connecter à l'appareil. Supprimez-le et réessayez, ou touchez Annuler pour réessayer plus tard.";
+"deviceScan.error.connectionFailed" = "Impossible de se connecter à l'appareil. Réessayez, ou supprimez-le si le problème persiste.";
 
 // MARK: - Troubleshooting Sheet
 
