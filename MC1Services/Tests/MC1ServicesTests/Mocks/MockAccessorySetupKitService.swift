@@ -11,7 +11,7 @@ import Foundation
 public final class MockAccessorySetupKitService: AccessorySetupKitServicing {
     public var pairedAccessories: [ASAccessory] = []
     public var isSessionActive: Bool = true
-    public var delegate: AccessorySetupKitServiceDelegate?
+    public weak var delegate: AccessorySetupKitServiceDelegate?
 
     public private(set) var removeAccessoryCallCount = 0
     public private(set) var lastRemovedDeviceID: UUID?
