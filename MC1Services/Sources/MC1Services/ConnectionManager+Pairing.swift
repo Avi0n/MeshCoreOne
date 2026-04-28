@@ -79,6 +79,15 @@ extension ConnectionManager {
     /// - Parameter deviceID: The UUID of the newly paired device
     /// - Returns: `true` if the device was detected as connected to another app
     func waitForOtherAppReconnection(_ deviceID: UUID) async -> Bool {
+        #if DEBUG
+        if let strategy = otherAppWaitStrategyOverride {
+            return await strategy(deviceID)
+        }
+        #endif
+        return await defaultWaitForOtherAppReconnection(deviceID)
+    }
+
+    private func defaultWaitForOtherAppReconnection(_ deviceID: UUID) async -> Bool {
         let maxChecks = 6
         let interval: Duration = .milliseconds(400)
 

@@ -485,6 +485,13 @@ public final class ConnectionManager {
     internal var isReconnectionWatchdogRunning: Bool {
         reconnectionWatchdogTask != nil
     }
+
+    /// Strategy injection for `waitForOtherAppReconnection`. Tests use this to
+    /// signal when pairing is suspended in the wait so they can drive racers
+    /// deterministically before releasing the wait.
+    typealias OtherAppWaitStrategy = @Sendable (UUID) async -> Bool
+
+    internal var otherAppWaitStrategyOverride: OtherAppWaitStrategy?
     #endif
 
     /// The last connected device ID (for auto-reconnect)
