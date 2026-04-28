@@ -26,7 +26,8 @@ struct ContentView: View {
             isPresented: $connectionUI.showingConnectionFailedAlert
         ) {
             if appState.connectionUI.failedPairingDeviceID != nil {
-                if appState.connectionUI.connectionFailedTitle != nil {
+                switch appState.connectionUI.pairingFailureKind {
+                case .authentication:
                     // Auth-failure variant — bond is bad, destructive remove is the recovery
                     Button(L10n.Localizable.Alert.ConnectionFailed.removeAndRetry, role: .destructive) {
                         appState.removeFailedPairingAndRetry()
@@ -34,8 +35,11 @@ struct ContentView: View {
                     Button(L10n.Localizable.Common.cancel, role: .cancel) {
                         appState.connectionUI.failedPairingDeviceID = nil
                     }
-                } else {
-                    // Transient variant — bond is still good, prefer non-destructive retry
+                case .transient, .none:
+                    // Transient variant — bond is still good, prefer non-destructive retry.
+                    // `.none` falls here as a defensive default: the only way to set
+                    // `failedPairingDeviceID` without a kind is a programming error,
+                    // and the safer recovery is the non-destructive path.
                     Button(L10n.Localizable.Common.tryAgain) {
                         Task { await appState.retryFailedPairingConnect() }
                     }
