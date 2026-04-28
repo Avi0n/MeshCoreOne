@@ -16,4 +16,25 @@ extension ConnectionManager {
         }
         return (manager, mock)
     }
+
+    @MainActor
+    static func createForPairingTesting(
+        defaults: UserDefaults? = nil,
+        transport: MockMeshTransport? = nil,
+        accessorySetupKit: MockAccessorySetupKitService? = nil
+    ) throws -> (ConnectionManager, MockBLEStateMachine, MockMeshTransport, MockAccessorySetupKitService) {
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let stateMachine = MockBLEStateMachine()
+        let mockTransport = transport ?? MockMeshTransport()
+        let mockASK = accessorySetupKit ?? MockAccessorySetupKitService()
+        let resolvedDefaults = defaults ?? .standard
+        let manager = ConnectionManager(
+            modelContainer: container,
+            defaults: resolvedDefaults,
+            stateMachine: stateMachine,
+            transport: mockTransport,
+            accessorySetupKit: mockASK
+        )
+        return (manager, stateMachine, mockTransport, mockASK)
+    }
 }

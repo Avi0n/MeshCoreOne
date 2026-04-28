@@ -469,9 +469,13 @@ public enum AccessorySetupKitError: LocalizedError, Sendable {
 // macOS stubs for compilation
 import Foundation
 
-public struct ASAccessory {
-    public var bluetoothIdentifier: UUID? { nil }
-    public var displayName: String { "" }
+public struct ASAccessory: Sendable {
+    public var bluetoothIdentifier: UUID?
+    public var displayName: String
+    public init(bluetoothIdentifier: UUID? = nil, displayName: String = "") {
+        self.bluetoothIdentifier = bluetoothIdentifier
+        self.displayName = displayName
+    }
 }
 
 @MainActor
