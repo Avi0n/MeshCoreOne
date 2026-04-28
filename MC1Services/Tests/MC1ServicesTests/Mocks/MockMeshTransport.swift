@@ -59,4 +59,17 @@ public actor MockMeshTransport: iOSMeshTransport {
     public func setReconnectionHandler(_ handler: @escaping @Sendable (UUID) -> Void) {
         self.reconnectionHandler = handler
     }
+
+    // MARK: - Test Helpers
+
+    /// Indicates whether `setReconnectionHandler` was wired up during init.
+    /// Tests poll this before invoking `simulateReconnection` to avoid races.
+    public var hasReconnectionHandler: Bool { reconnectionHandler != nil }
+
+    /// Invokes the registered reconnection handler as if iOS auto-reconnect completed
+    /// for `deviceID`. Mirrors `MockBLEStateMachine.simulateAutoReconnecting` for the
+    /// completion side of the auto-reconnect lifecycle.
+    public func simulateReconnection(deviceID: UUID) {
+        reconnectionHandler?(deviceID)
+    }
 }

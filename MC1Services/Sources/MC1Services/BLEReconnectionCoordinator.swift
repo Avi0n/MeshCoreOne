@@ -14,8 +14,10 @@ final class BLEReconnectionCoordinator {
 
     weak var delegate: BLEReconnectionDelegate?
 
-    /// The device ID currently being auto-reconnected, used to reject completions
-    /// for a stale device when the user has manually connected to a different one.
+    /// The device ID for the reconnect cycle currently claimed by
+    /// `handleEnteringAutoReconnect`. Completions are accepted only when this matches
+    /// the completing device. A nil value (entry suppressed, or manually superseded)
+    /// rejects late completions to prevent them from racing a new flow.
     private(set) var reconnectingDeviceID: UUID?
 
     private var timeoutTask: Task<Void, Never>?
@@ -86,10 +88,15 @@ final class BLEReconnectionCoordinator {
             return
         }
 
-        // Reject stale device completions without canceling the active timeout,
-        // so the current reconnect retains its timeout fallback
-        if let expectedID = reconnectingDeviceID, expectedID != deviceID {
-            logger.warning("[BLE] Ignoring auto-reconnect completion for \(deviceID.uuidString.prefix(8)): expecting \(expectedID.uuidString.prefix(8))")
+        // Only accept completions for a reconnect cycle we explicitly claimed via
+        // handleEnteringAutoReconnect. A nil claim means the entry was suppressed
+        // (e.g., during pairing, by shouldDeferOpportunisticReconnect) or cleared
+        // by a manual connect that superseded auto-reconnect. In either case, an
+        // orphaned completion would race the new flow.
+        // Don't cancel the active timeout — the current reconnect retains its fallback.
+        guard reconnectingDeviceID == deviceID else {
+            let claim = reconnectingDeviceID?.uuidString.prefix(8) ?? "no claim"
+            logger.warning("[BLE] Ignoring auto-reconnect completion for \(deviceID.uuidString.prefix(8)): \(claim)")
             return
         }
 
