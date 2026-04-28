@@ -17,12 +17,14 @@ extension ConnectionManager {
     ///   session); if the user completes pairing in the orphaned picker,
     ///   `accessoryAdded` removes the bond immediately. ASK has not added the
     ///   device when this point is reached, so no cleanup needed here.
-    /// - `waitForOtherAppReconnection` — uses `try? await Task.sleep`, which
-    ///   swallows cancellation per-iteration. The loop iterates rapidly through the
-    ///   remaining checks (each sleep returns immediately) and then returns `false`.
-    ///   The subsequent `try await connect(to:)` surfaces the cancellation.
-    /// - `connect(to:)` — propagates `CancellationError` normally; we catch it
-    ///   explicitly and re-throw without re-wrapping so the UI alert path stays quiet.
+    /// - `waitForOtherAppReconnection` — checks `Task.isCancelled` at the top of
+    ///   each iteration and short-circuits to `false`. The subsequent
+    ///   `try await connect(to:)` then surfaces the cancellation via its
+    ///   entry-point `Task.checkCancellation()`.
+    /// - `connect(to:)` — runs `Task.checkCancellation()` before any state mutation
+    ///   so a cancelled task cannot drive a real BLE connect through to success.
+    ///   Propagates `CancellationError` normally; we catch it explicitly and
+    ///   re-throw without re-wrapping so the UI alert path stays quiet.
     ///
     /// Hard quit: process death; defer doesn't fire; the in-memory flag resets to
     /// `false` on next launch. No persistent state corruption.
@@ -137,6 +139,13 @@ extension ConnectionManager {
         let interval: Duration = .milliseconds(400)
 
         for check in 1...maxChecks {
+            // Short-circuit on cancellation so the caller's `connect(to:)` checkpoint
+            // surfaces the CancellationError without grinding through every iteration.
+            if Task.isCancelled {
+                logger.info("[OtherAppCheck] Cancelled at check \(check)/\(maxChecks)")
+                return false
+            }
+
             let connected = await stateMachine.isDeviceConnectedToSystem(deviceID)
             if connected {
                 logger.info("[OtherAppCheck] Detected other-app connection on check \(check)/\(maxChecks)")

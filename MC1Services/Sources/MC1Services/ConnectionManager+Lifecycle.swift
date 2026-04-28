@@ -285,6 +285,11 @@ extension ConnectionManager {
     ///   - forceReconnect: When `true`, bypasses the circuit breaker (user-initiated)
     /// - Throws: Connection errors
     public func connect(to deviceID: UUID, forceFullSync: Bool = false, forceReconnect: Bool = false) async throws {
+        // Honor cancellation before any state mutation. Without this checkpoint
+        // a cancelled `pairNewDevice` task whose preceding awaits all swallowed
+        // cancellation would still drive a real BLE connect to completion.
+        try Task.checkCancellation()
+
         // Circuit breaker: prevent rapid reconnection loops after repeated failures
         guard shouldAllowConnection(force: forceReconnect) else {
             logger.info("[BLE] Circuit breaker open, rejecting connection to \(deviceID.uuidString.prefix(8))")
