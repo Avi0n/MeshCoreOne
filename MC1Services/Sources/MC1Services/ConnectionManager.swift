@@ -823,7 +823,14 @@ public final class ConnectionManager {
                     )
 
                     if self.shouldDeferOpportunisticReconnect {
-                        self.logger.info("[BLE] Auto-reconnect entry suppressed for \(deviceID.uuidString.prefix(8)) (pairing in progress)")
+                        self.logger.info(
+                            "[BLE] Auto-reconnect entry suppressed for \(deviceID.uuidString.prefix(8)) (pairing in progress) — tearing down stale session"
+                        )
+                        // Skip the reconnect-cycle claim and UI timeout (pairing's
+                        // connect(to:) ceremony owns the next state transitions),
+                        // but tear down the OLD session so a pairing early-exit
+                        // path doesn't strand the UI on stale `.ready` state.
+                        await self.handleConnectionLoss(deviceID: deviceID, error: nil)
                         return
                     }
 

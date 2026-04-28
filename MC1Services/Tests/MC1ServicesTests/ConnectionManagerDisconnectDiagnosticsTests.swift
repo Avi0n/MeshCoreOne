@@ -46,13 +46,14 @@ struct ConnectionManagerDisconnectDiagnosticsTests {
         #expect(manager.connectionState == .connecting)
     }
 
-    @Test("auto-reconnect entry suppressed while pairing is in progress")
+    @Test("auto-reconnect entry skips the claim but tears down the stale OLD session during pairing")
     func autoReconnectSuppressedDuringPairing() async throws {
         let (manager, mock) = try ConnectionManager.createForTesting(defaults: defaults)
         let oldDeviceID = UUID()
 
         manager.setTestState(
             connectionState: .ready,
+            connectedDevice: DeviceDTO.testDevice(id: oldDeviceID),
             currentTransportType: .bluetooth,
             connectionIntent: .wantsConnection(),
             isPairingInProgress: true
@@ -64,16 +65,23 @@ struct ConnectionManagerDisconnectDiagnosticsTests {
 
         await mock.simulateAutoReconnecting(deviceID: oldDeviceID)
 
-        // Diagnostic write happens before the gate, so we use it to confirm the
-        // handler ran before asserting on the state it should have left untouched.
-        try await waitUntil("handler should write diagnostic before suppressing") {
-            manager.lastDisconnectDiagnostic?.localizedStandardContains(
-                "source=bleStateMachine.autoReconnectingHandler"
-            ) ?? false
+        // Wait for the gate's teardown path to run. handleConnectionLoss transitions
+        // state to .disconnected and clears connectedDevice; observing both confirms
+        // teardown completed without claiming a reconnect cycle.
+        try await waitUntil("suppression branch should tear down OLD session") {
+            manager.connectionState == .disconnected && manager.connectedDevice == nil
         }
 
-        #expect(manager.activeReconnectDeviceID == nil)
-        #expect(manager.connectionState == .ready)
+        #expect(manager.activeReconnectDeviceID == nil, "Claim must remain unset so pairing's connect(to:) is not preempted")
+        #expect(manager.connectionState == .disconnected, "OLD session is dead — UI must not stay on .ready")
+        #expect(manager.connectedDevice == nil, "Stale connectedDevice must be cleared so message sends fail loudly instead of silently")
+
+        // The handler's preamble persists a `bleStateMachine.autoReconnectingHandler`
+        // diagnostic before reaching the gate, but `handleConnectionLoss` then writes
+        // its own diagnostic that overwrites the prior key. The teardown's diagnostic
+        // is the observable proof the suppression branch took the loss path.
+        let diagnostic = manager.lastDisconnectDiagnostic ?? ""
+        #expect(diagnostic.localizedStandardContains("source=handleConnectionLoss"))
     }
 
     @Test("health check preserves intent and persists diagnostic when other app is connected")

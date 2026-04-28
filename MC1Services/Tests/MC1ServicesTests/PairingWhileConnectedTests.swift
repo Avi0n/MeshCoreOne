@@ -8,15 +8,16 @@ struct PairingWhileConnectedTests {
 
     /// iOS auto-reconnect for the previously-connected radio can fire 0–~3 seconds
     /// after ASK severance, landing during pairNewDevice's waitForOtherAppReconnection
-    /// poll. Without the auto-reconnect-handler gate (A7), that handler would claim
-    /// the state machine via `reconnectionCoordinator.handleEnteringAutoReconnect`
-    /// and starve the pairing's subsequent `connect(to: newDeviceID)`.
+    /// poll. Without the auto-reconnect-handler gate, that handler would claim the
+    /// state machine via `reconnectionCoordinator.handleEnteringAutoReconnect` and
+    /// starve the pairing's subsequent `connect(to: newDeviceID)`.
     ///
     /// This test starts a real pairNewDevice flow, pins it in the wait override,
     /// then simulates iOS auto-reconnect for the old device firing. The handler
-    /// must observe shouldDeferOpportunisticReconnect, write the diagnostic, and
-    /// return without claiming the coordinator.
-    @Test("auto-reconnect during waitForOtherAppReconnection does not claim coordinator")
+    /// must observe `shouldDeferOpportunisticReconnect`, run the OLD session
+    /// teardown via `handleConnectionLoss`, and return without claiming the
+    /// coordinator.
+    @Test("auto-reconnect during waitForOtherAppReconnection tears down OLD session without claiming coordinator")
     func autoReconnectDuringWaitDoesNotClaimCoordinator() async throws {
         let env = try ConnectionManager.createForPairingTesting()
         defer { env.cleanup() }
@@ -31,6 +32,7 @@ struct PairingWhileConnectedTests {
         manager.testLastConnectedDeviceID = oldDeviceID
         manager.setTestState(
             connectionState: .ready,
+            connectedDevice: DeviceDTO.testDevice(id: oldDeviceID),
             currentTransportType: .bluetooth,
             connectionIntent: .wantsConnection()
         )
@@ -54,13 +56,15 @@ struct PairingWhileConnectedTests {
 
         await stateMachine.simulateAutoReconnecting(deviceID: oldDeviceID)
 
-        try await waitUntil("handler should write diagnostic before suppressing") {
-            manager.lastDisconnectDiagnostic?.localizedStandardContains(
-                "source=bleStateMachine.autoReconnectingHandler"
-            ) ?? false
+        // The suppression branch routes through handleConnectionLoss to clear the
+        // stale OLD session. Observing the state transition and connectedDevice
+        // clear is the proof the handler ran without claiming the coordinator.
+        try await waitUntil("suppression branch should tear down OLD session") {
+            manager.connectionState == .disconnected && manager.connectedDevice == nil
         }
 
         #expect(manager.activeReconnectDeviceID == nil)
+        #expect(manager.connectedDevice == nil)
 
         releaseWait.continuation.finish()
         pairTask.cancel()
