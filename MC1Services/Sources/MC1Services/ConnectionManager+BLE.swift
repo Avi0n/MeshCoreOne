@@ -346,8 +346,14 @@ extension ConnectionManager {
                 // intervene; four sequential auth failures just delays the recovery alert.
                 if let bleError = error as? BLEError {
                     switch bleError {
-                    case .bluetoothPoweredOff, .bluetoothUnavailable, .bluetoothUnauthorized,
-                         .authenticationFailed:
+                    case .bluetoothPoweredOff, .bluetoothUnavailable, .bluetoothUnauthorized:
+                        throw error
+                    case .authenticationFailed:
+                        // The peripheral connected before auth failed, leaving the
+                        // BLE state machine in a non-idle phase. Tear down before
+                        // bypassing retries so subsequent connects start fresh.
+                        await cleanupResources()
+                        await transport.disconnect()
                         throw error
                     default:
                         break
