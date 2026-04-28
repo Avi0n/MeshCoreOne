@@ -540,6 +540,10 @@ public final class AppState {
         } catch BLEError.deviceConnectedToOtherApp {
             connectionUI.otherAppWarningDeviceID = deviceID
         } catch {
+            // Restore the device id so the alert routes back into the transient
+            // (Try Again) variant — without this, presentConnectionFailure leaves
+            // failedPairingDeviceID nil and the user is stranded with only OK.
+            connectionUI.failedPairingDeviceID = deviceID
             connectionUI.presentConnectionFailure(message: error.localizedDescription)
         }
     }
