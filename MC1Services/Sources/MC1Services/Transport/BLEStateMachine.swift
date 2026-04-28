@@ -149,6 +149,13 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     /// Note: The MeshCore session is invalid at this point and will be rebuilt upon successful reconnection.
     private var onAutoReconnecting: (@Sendable (UUID, String) -> Void)?
 
+    /// Distinguishes the call site driving `handleRestoredPeripheral` so the function
+    /// fires `onAutoReconnecting` only when no upstream caller has already claimed the cycle.
+    private enum RestoredPeripheralSource {
+        case stateRestoration
+        case adoption
+    }
+
     // MARK: - Initialization
 
     /// Creates a new BLE state machine.
@@ -332,7 +339,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
 
         let pState = peripheralStateString(peripheral.state)
         logger.info("[BLE] Adopting system-connected peripheral: \(deviceID.uuidString.prefix(8)), state: \(pState)")
-        handleRestoredPeripheral(peripheral)
+        handleRestoredPeripheral(peripheral, source: .adoption)
         return true
     }
 
@@ -917,9 +924,9 @@ extension BLEStateMachine {
         }
     }
 
-    private func handleRestoredPeripheral(_ peripheral: CBPeripheral) {
+    private func handleRestoredPeripheral(_ peripheral: CBPeripheral, source: RestoredPeripheralSource = .stateRestoration) {
         let pState = peripheralStateString(peripheral.state)
-        logger.info("[BLE] Processing restored peripheral: \(peripheral.identifier.uuidString.prefix(8)), state: \(pState)")
+        logger.info("[BLE] Processing restored peripheral: \(peripheral.identifier.uuidString.prefix(8)), state: \(pState), source: \(source)")
 
         peripheral.delegate = delegateHandler
 
@@ -930,6 +937,14 @@ extension BLEStateMachine {
         armAutoReconnectDiscoveryTimeout(for: peripheral, generation: connectionGeneration)
 
         transition(to: .autoReconnecting(peripheral: peripheral, tx: nil, rx: nil))
+
+        // State-restoration paths claim the reconnect cycle here so the coordinator's
+        // strict completion guard accepts the eventual onReconnection. The adoption
+        // path already claimed via startAdoptingLastSystemConnectedPeripheralIfAvailable
+        // and passes .adoption to skip and avoid double-claiming.
+        if source == .stateRestoration {
+            onAutoReconnecting?(peripheral.identifier, "state-restoration")
+        }
 
         if peripheral.state == .connected {
             // Already connected, just need to rediscover services
