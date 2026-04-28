@@ -18,7 +18,11 @@ struct PairingWhileConnectedTests {
     /// return without claiming the coordinator.
     @Test("auto-reconnect during waitForOtherAppReconnection does not claim coordinator")
     func autoReconnectDuringWaitDoesNotClaimCoordinator() async throws {
-        let (manager, stateMachine, _, mockASK) = try ConnectionManager.createForPairingTesting()
+        let env = try ConnectionManager.createForPairingTesting()
+        defer { env.cleanup() }
+        let manager = env.manager
+        let stateMachine = env.stateMachine
+        let mockASK = env.accessorySetupKit
         let oldDeviceID = UUID()
         let newDeviceID = UUID()
 
@@ -70,7 +74,11 @@ struct PairingWhileConnectedTests {
     /// reading NEW's traffic against OLD's identity.
     @Test("auto-reconnect completion during pair-wait does not run rebuildSession")
     func autoReconnectCompletionDuringWaitDoesNotRebuild() async throws {
-        let (manager, _, mockTransport, mockASK) = try ConnectionManager.createForPairingTesting()
+        let env = try ConnectionManager.createForPairingTesting()
+        defer { env.cleanup() }
+        let manager = env.manager
+        let mockTransport = env.transport
+        let mockASK = env.accessorySetupKit
         let oldDeviceID = UUID()
         let newDeviceID = UUID()
 
@@ -107,8 +115,11 @@ struct PairingWhileConnectedTests {
         // guard this would set state to .connecting and call rebuildSession(OLD).
         await mockTransport.simulateReconnection(deviceID: oldDeviceID)
 
-        // Allow the dispatched @MainActor Task to run and the guard to reject.
-        try await Task.sleep(for: .milliseconds(50))
+        // Drain the dispatched @MainActor Task. With the claim guard the path returns
+        // synchronously after the guard check, so a few yields are sufficient.
+        // Without the guard the buggy path sets state to .connecting before its first
+        // await, which is also visible after the same yields.
+        for _ in 0..<5 { await Task.yield() }
 
         #expect(manager.connectionState == .disconnected, "Late completion must not transition state")
 

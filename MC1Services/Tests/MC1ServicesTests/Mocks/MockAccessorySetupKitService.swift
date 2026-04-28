@@ -27,6 +27,11 @@ public final class MockAccessorySetupKitService: AccessorySetupKitServicing {
     /// before returning `pickerResult`. Used to pin the awaiting Task in suspension.
     public var pickerGate: AsyncStream<Void>?
 
+    /// Optional signal: when non-nil, `showPicker` yields to this continuation as
+    /// soon as it enters, before awaiting `pickerGate`. Tests await this signal to
+    /// know deterministically that the pair task has reached the picker await.
+    public var pickerEnteredSignal: AsyncStream<Void>.Continuation?
+
     public init() {}
 
     public func setPickerResult(_ result: Result<UUID, Error>) {
@@ -42,6 +47,7 @@ public final class MockAccessorySetupKitService: AccessorySetupKitServicing {
     }
 
     public func showPicker() async throws -> UUID {
+        pickerEnteredSignal?.yield()
         if let gate = pickerGate {
             for await _ in gate { break }
         }

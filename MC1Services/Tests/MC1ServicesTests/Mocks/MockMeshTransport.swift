@@ -18,6 +18,11 @@ public actor MockMeshTransport: iOSMeshTransport {
     private var disconnectionHandler: (@Sendable (UUID, Error?) -> Void)?
     private var reconnectionHandler: (@Sendable (UUID) -> Void)?
     private let dataStream: AsyncStream<Data>
+    /// Retains the stream's continuation so it stays open. Tests don't yield bytes;
+    /// the stalled stream models a transport that connected at the BLE layer but
+    /// never delivers session data, letting cancellation/teardown tests run without
+    /// driving a full session lifecycle. Without this property the continuation
+    /// would deinit and the stream would finish, ending consumer awaits prematurely.
     private let dataContinuation: AsyncStream<Data>.Continuation
     private var connected = false
 

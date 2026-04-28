@@ -18,7 +18,11 @@ struct PairingRaceIntegrationTests {
     /// for the previously-connected device.
     @Test("opportunistic reconnect to old device is gated while pairing is suspended in waitForOtherAppReconnection")
     func opportunisticReconnectGatedDuringPairingWait() async throws {
-        let (manager, _, mockTransport, mockASK) = try ConnectionManager.createForPairingTesting()
+        let env = try ConnectionManager.createForPairingTesting()
+        defer { env.cleanup() }
+        let manager = env.manager
+        let mockTransport = env.transport
+        let mockASK = env.accessorySetupKit
         let oldDeviceID = UUID()
         let newDeviceID = UUID()
 
