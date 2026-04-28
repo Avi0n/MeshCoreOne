@@ -346,9 +346,12 @@ extension ConnectionManager {
                 // BLE precondition failures won't resolve between retries.
                 // Exit without retrying or tripping the circuit breaker so that
                 // onBluetoothPoweredOn can reconnect cleanly when BLE comes back.
+                // Auth failures also bypass retry — the bond is bad, the user has to
+                // intervene; four sequential auth failures just delays the recovery alert.
                 if let bleError = error as? BLEError {
                     switch bleError {
-                    case .bluetoothPoweredOff, .bluetoothUnavailable, .bluetoothUnauthorized:
+                    case .bluetoothPoweredOff, .bluetoothUnavailable, .bluetoothUnauthorized,
+                         .authenticationFailed:
                         throw error
                     default:
                         break
@@ -472,14 +475,6 @@ extension ConnectionManager {
     func isDeviceNotFoundError(_ error: Error) -> Bool {
         if case ConnectionError.deviceNotFound = error { return true }
         if case BLEError.deviceNotFound = error { return true }
-        return false
-    }
-
-    /// Detects auth/encryption failures arriving from `BLEStateMachine.makeConnectionError`,
-    /// which maps `CBATTError` codes 5/8/12/15 and `CBError.encryptionTimedOut` to this case.
-    /// Mirrors `PairingError.isAuthenticationFailure`.
-    func isAuthenticationError(_ error: Error) -> Bool {
-        if case BLEError.authenticationFailed = error { return true }
         return false
     }
 

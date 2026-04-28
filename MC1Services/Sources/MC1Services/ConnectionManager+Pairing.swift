@@ -5,43 +5,42 @@ import MeshCore
 
 extension ConnectionManager {
 
-    /// Pairs a new device using AccessorySetupKit picker.
-    /// - Returns: The device ID if pairing succeeds but connection fails (for recovery UI)
-    /// - Throws: `PairingError` with device ID if connection fails after ASK pairing succeeds
+    /// Pairs a new device using AccessorySetupKit picker, then connects through the
+    /// shared `connect(to:)` ceremony. The connect path coordinates with in-flight
+    /// auto-reconnects, switch-device handling, and the circuit breaker, which
+    /// `connectAfterPairing`'s direct `performConnection` call used to bypass.
+    /// - Throws:
+    ///   - `AccessorySetupKitError.pickerAlreadyActive` on re-entry.
+    ///   - `PairingError.deviceConnectedToOtherApp` when another app holds the radio.
+    ///   - `PairingError.connectionFailed` for any other connection failure (auth,
+    ///     timeout, transport error). The wrapped `underlying` is checked by
+    ///     `PairingError.isAuthenticationFailure` so the auth alert path keeps working.
+    ///   - `CancellationError` if the surrounding task is cancelled mid-flight.
     public func pairNewDevice() async throws {
         logger.info("Starting device pairing")
-        // Reject re-entry — an inner call's defer would clear the flag while
-        // the outer call is still suspended in showPicker.
         guard !isPairingInProgress else {
             throw AccessorySetupKitError.pickerAlreadyActive
         }
         isPairingInProgress = true
         defer { isPairingInProgress = false }
 
-        // Clear intentional disconnect flag - user is explicitly pairing
         connectionIntent = .wantsConnection()
         persistIntent()
 
-        // Show AccessorySetupKit picker
         let deviceID = try await accessorySetupKit.showPicker()
 
-        // Poll for other-app reconnection — ASK pairing severs existing BLE connections,
-        // so the other app needs time to auto-reconnect before we can detect it
         if await waitForOtherAppReconnection(deviceID) {
             throw PairingError.deviceConnectedToOtherApp(deviceID: deviceID)
         }
 
-        // Set connecting state for immediate UI feedback
-        connectionState = .connecting
-
-        // Connect to the newly paired device
         do {
-            try await connectAfterPairing(deviceID: deviceID)
+            try await connect(to: deviceID, forceFullSync: true)
+        } catch BLEError.deviceConnectedToOtherApp {
+            throw PairingError.deviceConnectedToOtherApp(deviceID: deviceID)
+        } catch is CancellationError {
+            throw CancellationError()
         } catch {
-            // Connection failed (e.g., wrong PIN causes "Authentication is insufficient")
-            // Don't auto-remove - throw error with device ID so UI can offer recovery
             logger.error("Connection after pairing failed: \(error.localizedDescription)")
-            connectionState = .disconnected
             throw PairingError.connectionFailed(deviceID: deviceID, underlying: error)
         }
     }
@@ -70,53 +69,6 @@ extension ConnectionManager {
         if lastConnectedDeviceID == deviceID {
             clearPersistedConnection()
         }
-    }
-
-    /// Connects to a device immediately after ASK pairing with retry logic
-    private func connectAfterPairing(deviceID: UUID, maxAttempts: Int = 4) async throws {
-        logger.info("[BLE] connectAfterPairing: device=\(deviceID.uuidString.prefix(8)), maxAttempts=\(maxAttempts)")
-        var lastError: Error = ConnectionError.connectionFailed("Unknown error")
-
-        for attempt in 1...maxAttempts {
-            // Allow ASK/CoreBluetooth bond to register on first attempt
-            if attempt == 1 {
-                try await Task.sleep(for: .milliseconds(100))
-            }
-
-            do {
-                try await performConnection(deviceID: deviceID)
-
-                if attempt > 1 {
-                    logger.info("Connection succeeded on attempt \(attempt)")
-                }
-                return
-
-            } catch {
-                lastError = error
-                logger.warning("Connection attempt \(attempt) failed: \(error.localizedDescription)")
-
-                if isDeviceNotFoundError(error) {
-                    await logDeviceNotFoundDiagnostics(deviceID: deviceID, context: "connectAfterPairing attempt \(attempt)")
-                }
-
-                await cleanupResources()
-                await transport.disconnect()
-
-                if isAuthenticationError(error) {
-                    logger.info("Authentication/encryption error — skipping retries")
-                    break
-                }
-
-                if attempt < maxAttempts {
-                    let baseDelay = 0.3 * pow(2.0, Double(attempt - 1))
-                    let jitter = Double.random(in: 0...0.1) * baseDelay
-                    try await Task.sleep(for: .seconds(baseDelay + jitter))
-                }
-            }
-        }
-
-        // All retries exhausted - caller's catch block sets .disconnected
-        throw lastError
     }
 
     // MARK: - Other-App Detection
