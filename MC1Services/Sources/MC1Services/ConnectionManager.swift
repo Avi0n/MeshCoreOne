@@ -306,10 +306,10 @@ public final class ConnectionManager {
 
     let modelContainer: ModelContainer
     private let defaults: UserDefaults
-    let transport: iOSBLETransport
+    let transport: any iOSMeshTransport
     var wifiTransport: WiFiTransport?
     var session: MeshCoreSession?
-    let accessorySetupKit = AccessorySetupKitService()
+    let accessorySetupKit: any AccessorySetupKitServicing
 
     /// Shared BLE state machine to manage connection lifecycle.
     /// This prevents state restoration race conditions that cause "API MISUSE" errors.
@@ -726,7 +726,15 @@ public final class ConnectionManager {
     /// - Parameters:
     ///   - modelContainer: The SwiftData model container for persistence
     ///   - stateMachine: Optional BLE state machine for testing. If nil, creates a real BLEStateMachine.
-    public init(modelContainer: ModelContainer, defaults: UserDefaults = .standard, stateMachine: (any BLEStateMachineProtocol)? = nil) {
+    ///   - transport: Optional iOS mesh transport for testing. If nil, creates an `iOSBLETransport` against the chosen state machine.
+    ///   - accessorySetupKit: Optional ASK picker service for testing. If nil, creates a real `AccessorySetupKitService`.
+    public init(
+        modelContainer: ModelContainer,
+        defaults: UserDefaults = .standard,
+        stateMachine: (any BLEStateMachineProtocol)? = nil,
+        transport: (any iOSMeshTransport)? = nil,
+        accessorySetupKit: (any AccessorySetupKitServicing)? = nil
+    ) {
         self.modelContainer = modelContainer
         self.defaults = defaults
         self.connectionIntent = .restored(from: defaults)
@@ -735,19 +743,22 @@ public final class ConnectionManager {
         let bleStateMachine = stateMachine ?? BLEStateMachine()
         self.stateMachine = bleStateMachine
 
-        // Transport requires concrete BLEStateMachine
-        if let concrete = bleStateMachine as? BLEStateMachine {
+        if let injected = transport {
+            self.transport = injected
+        } else if let concrete = bleStateMachine as? BLEStateMachine {
             self.transport = iOSBLETransport(stateMachine: concrete)
         } else {
-            // Test mode: create a dummy transport (won't be used when mocking BLE)
+            // Test mode without an injected transport: create a dummy (unused when mocking BLE)
             self.transport = iOSBLETransport(stateMachine: BLEStateMachine())
         }
 
-        accessorySetupKit.delegate = self
+        self.accessorySetupKit = accessorySetupKit ?? AccessorySetupKitService()
+
+        self.accessorySetupKit.delegate = self
         reconnectionCoordinator.delegate = self
 
         // Wire up transport handlers
-        Task { [stateMachine = self.stateMachine] in
+        Task { [stateMachine = self.stateMachine, transport = self.transport] in
             // Handle disconnection events
             await transport.setDisconnectionHandler { [weak self] deviceID, error in
                 Task { @MainActor in
