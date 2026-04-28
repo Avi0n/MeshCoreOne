@@ -264,8 +264,8 @@ public final class ConnectionManager {
     var sessionRebuildDeviceID: UUID?
 
     /// True for the duration of pairNewDevice() — suppresses opportunistic
-    /// reconnect paths so they can't race connectAfterPairing for the BLE
-    /// state machine's single in-flight connect slot.
+    /// reconnect paths so they can't race the pairing's `connect(to:)` for the
+    /// BLE state machine's single in-flight connect slot.
     var isPairingInProgress = false
 
     /// Single source of truth for "stand down, an explicit connect flow is running."

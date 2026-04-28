@@ -54,6 +54,9 @@ extension ConnectionManager {
         do {
             try await connect(to: deviceID, forceFullSync: true, forceReconnect: true)
         } catch BLEError.deviceConnectedToOtherApp {
+            // No `cleanupPartialPairing` here — the bond is good; the user retries
+            // after dismissing the other app via the otherAppWarningDeviceID alert.
+            // Removing the bond would force a fresh pair instead.
             throw PairingError.deviceConnectedToOtherApp(deviceID: deviceID)
         } catch is CancellationError {
             await cleanupPartialPairing(deviceID: deviceID)
@@ -81,6 +84,9 @@ extension ConnectionManager {
         if let accessory = accessorySetupKit.accessory(for: deviceID) {
             try? await accessorySetupKit.removeAccessory(accessory)
         }
+        // Defensive write: redundant for the connectWithRetry cancellation path
+        // (its catch arm at +Lifecycle:418 already set .disconnected) but necessary
+        // for the switchDevice path, which propagates throws without resetting state.
         connectionState = .disconnected
     }
 

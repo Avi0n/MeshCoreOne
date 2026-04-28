@@ -128,6 +128,10 @@ public final class AccessorySetupKitService {
 
                 if pickerWasCancelled {
                     pickerWasCancelled = false
+                    // Set to "orphanedAfterCancellation" so the next pickerDidDismiss
+                    // log doesn't read "selected" — without this, the success branch
+                    // below would mark outcome as "selected" even though the awaiting
+                    // Task was already cancelled.
                     pickerOutcome = "orphanedAfterCancellation"
                     logger.info("[ASK] Removing orphaned accessory after picker cancellation: \(accessory.displayName)")
                     Task { [weak self] in
@@ -189,6 +193,10 @@ public final class AccessorySetupKitService {
             )
             pickerPresentedAt = nil
             pickerOutcome = "cancelled"
+            // Reset the cancel sentinel for tidiness. ASK doesn't normally fire
+            // accessoryAdded after dismiss, but keeping the flag clean here means
+            // a subsequent showPicker doesn't depend on its own reset at line 263.
+            pickerWasCancelled = false
             resumePickerContinuation(with: .failure(AccessorySetupKitError.pickerDismissed))
 
         case .pickerSetupBridging:
@@ -318,6 +326,13 @@ public final class AccessorySetupKitService {
     @MainActor
     private func handlePickerCancellation() {
         pickerWasCancelled = true
+        // In Race-B (accessoryAdded ran first, then cancellation), the success branch
+        // already set pickerOutcome to "selected". Refine it so the dismissal log
+        // reflects what actually happened: a user-completed selection that the
+        // awaiting Task no longer cared about.
+        if pickerOutcome == "selected" {
+            pickerOutcome = "cancelledAfterSelection"
+        }
         resumePickerContinuation(with: .failure(CancellationError()))
         logger.warning("[ASK] Picker cancelled programmatically; awaiting Task unwound")
     }
