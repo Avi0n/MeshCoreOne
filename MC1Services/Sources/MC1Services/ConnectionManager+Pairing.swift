@@ -9,6 +9,24 @@ extension ConnectionManager {
     /// shared `connect(to:)` ceremony. The connect path coordinates with in-flight
     /// auto-reconnects, switch-device handling, and the circuit breaker, which
     /// `connectAfterPairing`'s direct `performConnection` call used to bypass.
+    ///
+    /// **Cancellation behavior** (per `await`):
+    /// - `accessorySetupKit.showPicker()` — `withTaskCancellationHandler` resumes the
+    ///   continuation with `CancellationError`. The system picker may stay visible
+    ///   (no public ASK API to dismiss programmatically without invalidating the
+    ///   session); if the user completes pairing in the orphaned picker,
+    ///   `accessoryAdded` removes the bond immediately. ASK has not added the
+    ///   device when this point is reached, so no cleanup needed here.
+    /// - `waitForOtherAppReconnection` — uses `try? await Task.sleep`, which
+    ///   swallows cancellation per-iteration. The loop iterates rapidly through the
+    ///   remaining checks (each sleep returns immediately) and then returns `false`.
+    ///   The subsequent `try await connect(to:)` surfaces the cancellation.
+    /// - `connect(to:)` — propagates `CancellationError` normally; we catch it
+    ///   explicitly and re-throw without re-wrapping so the UI alert path stays quiet.
+    ///
+    /// Hard quit: process death; defer doesn't fire; the in-memory flag resets to
+    /// `false` on next launch. No persistent state corruption.
+    ///
     /// - Throws:
     ///   - `AccessorySetupKitError.pickerAlreadyActive` on re-entry.
     ///   - `PairingError.deviceConnectedToOtherApp` when another app holds the radio.
@@ -38,11 +56,32 @@ extension ConnectionManager {
         } catch BLEError.deviceConnectedToOtherApp {
             throw PairingError.deviceConnectedToOtherApp(deviceID: deviceID)
         } catch is CancellationError {
+            await cleanupPartialPairing(deviceID: deviceID)
             throw CancellationError()
         } catch {
+            // Edge case: a domain error bubbled up while the surrounding task was
+            // also cancelled. Without this guard the user sees "Couldn't connect"
+            // instead of silent cancellation. Re-throw as CancellationError so the
+            // alert path doesn't fire.
+            if Task.isCancelled {
+                await cleanupPartialPairing(deviceID: deviceID)
+                throw CancellationError()
+            }
             logger.error("Connection after pairing failed: \(error.localizedDescription)")
             throw PairingError.connectionFailed(deviceID: deviceID, underlying: error)
         }
+    }
+
+    /// Removes a partially-paired device from ASK after `connect(to:)` was cancelled
+    /// mid-flight. ASK has the device; we don't. Without this cleanup, iOS retains
+    /// a paired bond with no app-level state, surfacing as a phantom device in
+    /// Settings → Bluetooth that won't show up in the picker again.
+    private func cleanupPartialPairing(deviceID: UUID) async {
+        logger.info("Pairing cancelled — removing device \(deviceID.uuidString.prefix(8)) from ASK")
+        if let accessory = accessorySetupKit.accessory(for: deviceID) {
+            try? await accessorySetupKit.removeAccessory(accessory)
+        }
+        connectionState = .disconnected
     }
 
     /// Removes a device that failed to connect after pairing.
