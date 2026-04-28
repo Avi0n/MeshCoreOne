@@ -314,11 +314,7 @@ extension ConnectionManager {
         }
 
         logger.info("[BLE] Attempting foreground reconnection to \(deviceID.uuidString.prefix(8))")
-        do {
-            try await connect(to: deviceID)
-        } catch {
-            logger.warning("[BLE] Foreground reconnection failed: \(error.localizedDescription)")
-        }
+        await attemptOpportunisticReconnect(deviceID: deviceID, reason: "foreground health check")
     }
 
     // MARK: - BLE Connection

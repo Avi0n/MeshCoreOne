@@ -275,6 +275,28 @@ public final class ConnectionManager {
         isPairingInProgress
     }
 
+    /// Single chokepoint for opportunistic reconnect attempts. Consults the defer
+    /// predicate and dispatches to `connect(to:)`. New opportunistic-reconnect
+    /// sites must route through this helper rather than duplicating the gate logic.
+    /// The auto-reconnect-handler closure (`setAutoReconnectingHandler`) operates
+    /// on `.autoReconnecting` phases rather than initiating a `.connecting`, so it
+    /// applies the same gate predicate at its own call site instead.
+    /// - Parameters:
+    ///   - deviceID: device to reconnect to. The caller is responsible for
+    ///     vetting that the user wants this device connected before invoking.
+    ///   - reason: short string for log correlation across call sites.
+    func attemptOpportunisticReconnect(deviceID: UUID, reason: String) async {
+        guard !shouldDeferOpportunisticReconnect else {
+            logger.info("[BLE] Opportunistic reconnect skipped (\(reason)): pairing in progress")
+            return
+        }
+        do {
+            try await connect(to: deviceID)
+        } catch {
+            logger.warning("[BLE] Opportunistic reconnect (\(reason)) failed: \(error.localizedDescription)")
+        }
+    }
+
     // MARK: - Callbacks
 
     /// Called when connection is ready and services are available.
@@ -841,7 +863,7 @@ public final class ConnectionManager {
                     }
 
                     self.logger.info("[BLE] Bluetooth powered on: attempting reconnection to \(deviceID.uuidString.prefix(8))")
-                    try? await self.connect(to: deviceID)
+                    await self.attemptOpportunisticReconnect(deviceID: deviceID, reason: "Bluetooth powered on")
                 }
             }
 
