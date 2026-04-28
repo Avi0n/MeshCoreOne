@@ -65,7 +65,7 @@ extension ConnectionManager {
         guard connectionIntent.wantsConnection, connectionState == .disconnected else { return }
 
         if shouldDeferOpportunisticReconnect {
-            logger.debug("[BLE] ConnectionManager: not re-arming watchdog on foreground (pairing in progress)")
+            logger.info("[BLE] ConnectionManager: not re-arming watchdog on foreground (pairing in progress)")
             return
         }
 

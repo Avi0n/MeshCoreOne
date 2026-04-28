@@ -108,7 +108,7 @@
 "alert.couldNotConnect.otherAppMessage" = "Stelle sicher, dass keine andere App mit dem Gerät verbunden ist, und versuche es erneut.";
 
 /* Button to remove failed pairing and retry connection */
-"alert.connectionFailed.removeAndRetry" = "Entfernen & Erneut versuchen";
+"alert.connectionFailed.removeAndRetry" = "Entfernen und erneut versuchen";
 
 
 // MARK: - Accessibility

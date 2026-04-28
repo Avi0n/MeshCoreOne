@@ -46,6 +46,36 @@ struct ConnectionManagerDisconnectDiagnosticsTests {
         #expect(manager.connectionState == .connecting)
     }
 
+    @Test("auto-reconnect entry suppressed while pairing is in progress")
+    func autoReconnectSuppressedDuringPairing() async throws {
+        let (manager, mock) = try ConnectionManager.createForTesting(defaults: defaults)
+        let oldDeviceID = UUID()
+
+        manager.setTestState(
+            connectionState: .ready,
+            currentTransportType: .bluetooth,
+            connectionIntent: .wantsConnection(),
+            isPairingInProgress: true
+        )
+
+        try await waitUntil("auto-reconnect handler should be installed") {
+            await mock.hasAutoReconnectingHandler
+        }
+
+        await mock.simulateAutoReconnecting(deviceID: oldDeviceID)
+
+        // Diagnostic write happens before the gate, so we use it to confirm the
+        // handler ran before asserting on the state it should have left untouched.
+        try await waitUntil("handler should write diagnostic before suppressing") {
+            manager.lastDisconnectDiagnostic?.localizedStandardContains(
+                "source=bleStateMachine.autoReconnectingHandler"
+            ) ?? false
+        }
+
+        #expect(manager.activeReconnectDeviceID == nil)
+        #expect(manager.connectionState == .ready)
+    }
+
     @Test("health check preserves intent and persists diagnostic when other app is connected")
     func healthCheckPersistsDiagnosticWhenOtherAppConnected() async throws {
         let (manager, mock) = try ConnectionManager.createForTesting(defaults: defaults)

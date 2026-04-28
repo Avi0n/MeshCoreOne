@@ -2008,7 +2008,7 @@ public enum L10n {
         /// Default message when device connection fails
         public static let defaultMessage = L10n.tr("Localizable", "alert.connectionFailed.defaultMessage", fallback: "Unable to connect to device.")
         /// Button to remove failed pairing and retry connection
-        public static let removeAndRetry = L10n.tr("Localizable", "alert.connectionFailed.removeAndRetry", fallback: "Remove & Try Again")
+        public static let removeAndRetry = L10n.tr("Localizable", "alert.connectionFailed.removeAndRetry", fallback: "Remove and Try Again")
         /// Alert title when device connection fails
         public static let title = L10n.tr("Localizable", "alert.connectionFailed.title", fallback: "Connection Failed")
       }

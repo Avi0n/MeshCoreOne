@@ -233,7 +233,7 @@ extension ConnectionManager {
         guard currentTransportType == nil || currentTransportType == .bluetooth else { return }
 
         if shouldDeferOpportunisticReconnect {
-            logger.debug("[BLE] Foreground health check standing down: pairing in progress")
+            logger.info("[BLE] Foreground health check standing down: pairing in progress")
             return
         }
 
@@ -475,10 +475,11 @@ extension ConnectionManager {
         return false
     }
 
+    /// Detects auth/encryption failures arriving from `BLEStateMachine.makeConnectionError`,
+    /// which maps `CBATTError` codes 5/8/12/15 and `CBError.encryptionTimedOut` to this case.
+    /// Mirrors `PairingError.isAuthenticationFailure`.
     func isAuthenticationError(_ error: Error) -> Bool {
         if case BLEError.authenticationFailed = error { return true }
-        if case BLEError.authenticationRequired = error { return true }
-        if case BLEError.pairingCancelled = error { return true }
         return false
     }
 

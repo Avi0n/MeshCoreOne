@@ -781,6 +781,12 @@ public final class ConnectionManager {
                         "error=\(errorInfo), " +
                         "intent=\(self.connectionIntent)"
                     )
+
+                    if self.shouldDeferOpportunisticReconnect {
+                        self.logger.info("[BLE] Auto-reconnect entry suppressed for \(deviceID.uuidString.prefix(8)) (pairing in progress)")
+                        return
+                    }
+
                     await self.reconnectionCoordinator.handleEnteringAutoReconnect(deviceID: deviceID)
                 }
             }
@@ -804,7 +810,7 @@ public final class ConnectionManager {
                           let deviceID = self.lastConnectedDeviceID else { return }
 
                     if self.shouldDeferOpportunisticReconnect {
-                        self.logger.debug("[BLE] Bluetooth powered on: standing down (pairing in progress)")
+                        self.logger.info("[BLE] Bluetooth powered on: standing down (pairing in progress)")
                         return
                     }
 
