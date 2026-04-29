@@ -28,6 +28,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     public var frequentEmojis: [String]?
     public var recentEmojis: [String]?
     public var hasSeenRepeaterDragHint: Bool?
+    public var regionSelection: RegionSelection?
 
     // MARK: - Notification preferences
 
@@ -50,6 +51,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     private static let autoDeleteStaleNodesDaysKey = "autoDeleteStaleNodesDays"
     private static let frequentEmojisKey = "frequentEmojis"
     private static let recentReactionEmojisKey = "recentReactionEmojis"
+    private static let regionSelectionKey = "userPrefs.region"
 
     // MARK: - UserDefaults key mapping
 
@@ -128,6 +130,11 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
 
         result.recentEmojis = defaults.stringArray(forKey: Self.recentReactionEmojisKey)
 
+        if let data = defaults.data(forKey: Self.regionSelectionKey),
+           let decoded = try? JSONDecoder().decode(RegionSelection.self, from: data) {
+            result.regionSelection = decoded
+        }
+
         return result
     }
 
@@ -171,6 +178,13 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
         if let emojis = recentEmojis, defaults.object(forKey: Self.recentReactionEmojisKey) == nil {
             defaults.set(emojis, forKey: Self.recentReactionEmojisKey)
             setKeys.append(Self.recentReactionEmojisKey)
+        }
+
+        if let region = regionSelection,
+           defaults.object(forKey: Self.regionSelectionKey) == nil,
+           let data = try? JSONEncoder().encode(region) {
+            defaults.set(data, forKey: Self.regionSelectionKey)
+            setKeys.append(Self.regionSelectionKey)
         }
 
         return setKeys

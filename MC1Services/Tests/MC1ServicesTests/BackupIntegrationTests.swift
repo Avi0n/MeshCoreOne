@@ -1842,6 +1842,68 @@ struct BackupIntegrationTests {
         #expect(messagesForA.first?.text == "aaaaa")
         #expect(messagesForB.first?.text == "aaaaa")
     }
+
+    // MARK: - regionSelection backup contract
+
+    @Test("regionSelection round-trips through encode/decode")
+    func regionSelectionRoundTrips() throws {
+        var prefs = BackupUserDefaults()
+        prefs.regionSelection = RegionSelection(
+            countryCode: "US",
+            administrativeAreaCode: "US-CA",
+            countyKey: "los angeles",
+            source: .location
+        )
+        let data = try JSONEncoder().encode(prefs)
+        let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+        #expect(decoded.regionSelection == prefs.regionSelection)
+    }
+
+    @Test("Legacy envelope without regionSelection decodes as nil")
+    func legacyEnvelopeDecodesRegionAsNil() throws {
+        let legacyJSON = """
+        {
+            "hasCompletedOnboarding": true,
+            "mapStyleSelection": "topo"
+        }
+        """.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
+        #expect(decoded.regionSelection == nil)
+        #expect(decoded.hasCompletedOnboarding == true)
+    }
+
+    @Test("restore writes regionSelection only when local key is missing")
+    func restoreRespectsExistingValue() throws {
+        let defaults = UserDefaults(suiteName: "test.\(UUID().uuidString)")!
+        let local = RegionSelection(countryCode: "DE", source: .manual)
+        defaults.set(try JSONEncoder().encode(local), forKey: "userPrefs.region")
+
+        var prefs = BackupUserDefaults()
+        prefs.regionSelection = RegionSelection(countryCode: "US", source: .location)
+        let setKeys = prefs.restore(to: defaults)
+        #expect(!setKeys.contains("userPrefs.region"))
+
+        let stillThere = try JSONDecoder().decode(
+            RegionSelection.self,
+            from: defaults.data(forKey: "userPrefs.region")!
+        )
+        #expect(stillThere == local)
+    }
+
+    @Test("restore writes regionSelection when local is missing (fresh install)")
+    func restoreWritesWhenMissing() throws {
+        let defaults = UserDefaults(suiteName: "test.\(UUID().uuidString)")!
+        var prefs = BackupUserDefaults()
+        prefs.regionSelection = RegionSelection(countryCode: "US", source: .location)
+        let setKeys = prefs.restore(to: defaults)
+
+        #expect(setKeys.contains("userPrefs.region"))
+        let restored = try JSONDecoder().decode(
+            RegionSelection.self,
+            from: defaults.data(forKey: "userPrefs.region")!
+        )
+        #expect(restored == prefs.regionSelection)
+    }
 }
 
 private enum InjectedImportFailure: Error {

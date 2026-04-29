@@ -13,19 +13,7 @@
 "welcome.title" = "MeshCore One";
 
 /* Location: WelcomeView.swift - Subtitle describing the app */
-"welcome.subtitle" = "Apple 设备的 MeshCore 客户端";
-
-/* Location: WelcomeView.swift - Feature title for multi-hop routing */
-"welcome.feature.multiHop.title" = "多跳路由";
-
-/* Location: WelcomeView.swift - Feature description for multi-hop routing */
-"welcome.feature.multiHop.description" = "您的消息在Mesh网络中找到路径";
-
-/* Location: WelcomeView.swift - Feature title for community network */
-"welcome.feature.community.title" = "社区网络";
-
-/* Location: WelcomeView.swift - Feature description for community network */
-"welcome.feature.community.description" = "由像您这样的用户建立的网络";
+"welcome.subtitle" = "无需手机信号。您的消息通过社区无线电网络传递。";
 
 /* Location: WelcomeView.swift - Button to proceed to next onboarding step */
 "welcome.getStarted" = "开始使用";
@@ -33,31 +21,25 @@
 // MARK: - Permissions View
 
 /* Location: PermissionsView.swift - Screen title for permissions */
-"permissions.title" = "权限";
+"permissions.title" = "需要几项权限";
 
 /* Location: PermissionsView.swift - Subtitle encouraging notification permission */
-"permissions.subtitle" = "允许通知以获得最佳体验";
+"permissions.subtitle" = "两项均为可选。您可以随时在设置中更改。";
 
 /* Location: PermissionsView.swift - Permission card title for notifications */
 "permissions.notifications.title" = "通知";
 
 /* Location: PermissionsView.swift - Permission card description for notifications */
-"permissions.notifications.description" = "接收新消息的警报";
+"permissions.notifications.description" = "接收消息、反应和低电量提醒——即使应用未打开。";
 
 /* Location: PermissionsView.swift - Permission card title for location */
 "permissions.location.title" = "位置";
 
 /* Location: PermissionsView.swift - Permission card description for location */
-"permissions.location.description" = "在地图上查看您的位置";
+"permissions.location.description" = "为您所在地区推荐无线电预设、在地图上显示您的位置，并按距离排列联系人。";
 
 /* Location: PermissionsView.swift - Button when all permissions granted */
 "permissions.continue" = "继续";
-
-/* Location: PermissionsView.swift - Button when some permissions skipped */
-"permissions.skipForNow" = "暂时跳过";
-
-/* Location: PermissionsView.swift - Button to go back */
-"permissions.back" = "返回";
 
 /* Location: PermissionsView.swift - Badge shown for optional permissions */
 "permissions.optional" = "可选";
@@ -83,22 +65,13 @@
 "deviceScan.title" = "配对您的设备";
 
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
-"deviceScan.subtitle" = "确保您的 MeshCore 设备已开机并在附近";
+"deviceScan.subtitle" = "开启设备，然后点击「添加设备」。";
 
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "您的设备已配对";
 
-/* Location: DeviceScanView.swift - Instruction step 1 */
-"deviceScan.instruction.powerOn" = "打开您的 MeshCore 设备";
-
-/* Location: DeviceScanView.swift - Instruction step 2 */
-"deviceScan.instruction.tapAdd" = "点击下方的\"添加设备\"";
-
-/* Location: DeviceScanView.swift - Instruction step 3 */
-"deviceScan.instruction.selectDevice" = "从列表中选择您的设备";
-
-/* Location: DeviceScanView.swift - Instruction step 4 */
-"deviceScan.instruction.enterPin" = "出现提示时输入 PIN";
+/* Location: DeviceScanView.swift - "I don't have a device yet" tertiary */
+"deviceScan.noDeviceYet" = "我还没有设备";
 
 /* Location: DeviceScanView.swift - Button to continue after pairing */
 "deviceScan.continue" = "继续";
@@ -119,7 +92,7 @@
 "deviceScan.retryConnection" = "重试连接";
 
 /* Location: DeviceScanView.swift - Button for troubleshooting */
-"deviceScan.deviceNotAppearing" = "设备未显示？";
+"deviceScan.deviceNotAppearing" = "帮助";
 
 /* Location: DeviceScanView.swift - Button to connect via WiFi */
 "deviceScan.connectViaWifi" = "通过 WiFi 连接";
@@ -183,28 +156,50 @@
 /* Location: MeshAnimationView.swift - Accessibility label for mesh visualization */
 "meshAnimation.accessibilityLabel" = "网络可视化";
 
-// MARK: - Radio Preset Onboarding View
 
-/* Location: RadioPresetOnboardingView.swift - Screen title for radio settings */
-"radioPreset.title" = "无线电设置";
+// MARK: - No Device Sheet
 
-/* Location: RadioPresetOnboardingView.swift - Subtitle with instructions and Discord link */
-"radioPreset.subtitle" = "您可以随时在 MeshCore One 设置中更改这些设置。如果您不确定使用哪个预设，请在 [MeshCore Discord](https://meshcore.co.uk/contact.html) 中询问。";
+/* Location: NoDeviceSheet.swift - Sheet title */
+"noDevice.sheet.title" = "四处看看";
 
-/* Location: RadioPresetOnboardingView.swift - Button label while applying preset */
-"radioPreset.applying" = "正在应用...";
+/* Location: NoDeviceSheet.swift - Sheet body */
+"noDevice.sheet.body" = "您需要配对的无线电才能发送和接收消息。先浏览应用，随时可以在设置中配对。";
 
-/* Location: RadioPresetOnboardingView.swift - Button to apply selected preset */
-"radioPreset.apply" = "应用";
+/* Location: NoDeviceSheet.swift - Primary CTA */
+"noDevice.sheet.confirm" = "继续";
 
-/* Location: RadioPresetOnboardingView.swift - Button to continue */
-"radioPreset.continue" = "继续";
+/* Location: NoDeviceSheet.swift - Secondary CTA */
+"noDevice.sheet.cancel" = "取消";
 
-/* Location: RadioPresetOnboardingView.swift - Button to skip radio setup */
-"radioPreset.skip" = "跳过";
 
-/* Location: RadioPresetOnboardingView.swift - Label for custom (non-preset) radio settings */
-"radioPreset.custom" = "自定义";
+// MARK: - Preset Step View
+
+/* Location: PresetStepView.swift - Title */
+"preset.title" = "选择预设";
+
+/* Location: PresetStepView.swift - Subtitle when recommendation exists */
+"preset.subtitle.recommended" = "为 %@ 推荐";
+
+/* Location: PresetStepView.swift - Subtitle for empty-region fallback */
+"preset.subtitle.locale" = "为您的无线电选择预设。";
+
+/* Location: PresetStepView.swift - "Recommended" tag */
+"preset.recommendedTag" = "推荐";
+
+/* Location: PresetStepView.swift - Apply CTA "Use %@" */
+"preset.use" = "使用 %@";
+
+/* Location: PresetStepView.swift - Already-configured title */
+"preset.alreadyConfigured.title" = "已配置";
+
+/* Location: PresetStepView.swift - Already-configured subtitle */
+"preset.alreadyConfigured.subtitle" = "您的无线电已在 %@，这是 %@ 的推荐预设。";
+
+/* Location: PresetStepView.swift - Already-configured primary CTA */
+"preset.alreadyConfigured.done" = "完成";
+
+/* Location: PresetStepView.swift - Already-configured secondary link */
+"preset.alreadyConfigured.choose" = "选择其他预设";
 
 // MARK: - WiFi Connection Sheet
 
@@ -237,3 +232,42 @@
 
 /* Location: WiFiConnectionSheet.swift - Error message for invalid port */
 "wifiConnection.error.invalidPort" = "无效的端口号";
+
+
+// MARK: - Region Picker View
+
+/* Location: RegionPickerView.swift - Country picker label */
+"region.country" = "国家";
+
+/* Location: RegionPickerView.swift - State/Province picker label */
+"region.administrativeArea" = "省 / 州";
+
+/* Location: RegionPickerView.swift - Continue CTA in manual picker */
+"region.continue" = "继续";
+
+/* Location: RegionStepView.swift - Title (both states) */
+"region.title" = "选择您的地区";
+
+/* Location: RegionStepView.swift - Subtitle in detected state */
+"region.subtitle.detected" = "我们将显示适合您所在地区的预设。";
+
+/* Location: RegionStepView.swift - Subtitle in manual state */
+"region.subtitle.manual" = "我们将显示适合您所在地区的预设。";
+
+/* Location: RegionStepView.swift - "Detected" tag */
+"region.detected.tag" = "已检测";
+
+/* Location: RegionStepView.swift - Caption "From your location" */
+"region.detected.source" = "来自您的位置";
+
+/* Location: RegionStepView.swift - Primary CTA in detected state */
+"region.useThisRegion" = "使用此地区";
+
+/* Location: RegionStepView.swift - "Choose another" link */
+"region.chooseAnother" = "选择其他";
+
+/* Location: RegionStepView.swift - "Use my location" link in manual state */
+"region.useMyLocation" = "使用我的位置";
+
+/* Location: RegionStepView.swift - "Finding your region…" */
+"region.resolving" = "正在查找您的地区…";

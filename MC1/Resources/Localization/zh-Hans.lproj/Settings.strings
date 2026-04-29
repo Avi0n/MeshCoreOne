@@ -833,6 +833,12 @@
 /* Confirmation dialog enable button */
 "radio.repeatMode.confirm.enable" = "启用";
 
+/* Location: RadioPresetSection.swift - Footer line listing the user's region */
+"radio.regionFooter" = "正在显示 %@ 的推荐预设。";
+
+/* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
+"radio.mismatchHint" = "您的无线电当前使用 %@，而非 %@ 的推荐预设。";
+
 // MARK: - Telemetry Settings Section
 
 /* Section header for telemetry settings */
@@ -1170,6 +1176,21 @@
 
 /* Location: SettingsView.swift - Purpose: Language row title */
 "language.title" = "语言";
+
+
+// MARK: - Region
+
+/* Location: RegionSettingsView.swift - Title */
+"region.title" = "地区";
+
+/* Location: SettingsView.swift - Detail row when region is unset */
+"region.notSet" = "未设置";
+
+/* Location: SettingsView.swift - Caption when region was auto-detected */
+"region.source.location" = "自动检测";
+
+/* Location: SettingsView.swift - Caption when region was manually set */
+"region.source.manual" = "手动设置";
 
 
 
