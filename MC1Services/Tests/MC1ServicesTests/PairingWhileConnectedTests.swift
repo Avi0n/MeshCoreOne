@@ -14,10 +14,10 @@ struct PairingWhileConnectedTests {
     ///
     /// This test starts a real pairNewDevice flow, pins it in the wait override,
     /// then simulates iOS auto-reconnect for the old device firing. The handler
-    /// must observe `shouldDeferOpportunisticReconnect`, run the OLD session
-    /// teardown via `handleConnectionLoss`, and return without claiming the
-    /// coordinator.
-    @Test("auto-reconnect during waitForOtherAppReconnection tears down OLD session without claiming coordinator")
+    /// must observe `shouldDeferOpportunisticReconnect`, run the old-device
+    /// session teardown via `handleConnectionLoss`, and return without claiming
+    /// the coordinator.
+    @Test("auto-reconnect during waitForOtherAppReconnection tears down old-device session without claiming coordinator")
     func autoReconnectDuringWaitDoesNotClaimCoordinator() async throws {
         let env = try ConnectionManager.createForPairingTesting()
         defer { env.cleanup() }
@@ -57,9 +57,9 @@ struct PairingWhileConnectedTests {
         await stateMachine.simulateAutoReconnecting(deviceID: oldDeviceID)
 
         // The suppression branch routes through handleConnectionLoss to clear the
-        // stale OLD session. Observing the state transition and connectedDevice
+        // stale old-device session. Observing the state transition and connectedDevice
         // clear is the proof the handler ran without claiming the coordinator.
-        try await waitUntil("suppression branch should tear down OLD session") {
+        try await waitUntil("suppression branch should tear down old-device session") {
             manager.connectionState == .disconnected && manager.connectedDevice == nil
         }
 
@@ -74,8 +74,8 @@ struct PairingWhileConnectedTests {
     /// Companion to the entry-suppression test above. The entry handler being
     /// suppressed leaves `reconnectingDeviceID` as nil. A late completion for the
     /// old device must be rejected by the coordinator's claim guard — otherwise
-    /// `rebuildSession(OLD)` would race the new pairing's `connect(to: NEW)`,
-    /// reading NEW's traffic against OLD's identity.
+    /// `rebuildSession(oldDeviceID)` would race the new pairing's `connect(to: newDeviceID)`,
+    /// reading the new device's traffic against the old device's identity.
     @Test("auto-reconnect completion during pair-wait does not run rebuildSession")
     func autoReconnectCompletionDuringWaitDoesNotRebuild() async throws {
         let env = try ConnectionManager.createForPairingTesting()
@@ -88,9 +88,9 @@ struct PairingWhileConnectedTests {
 
         mockASK.setPickerResult(.success(newDeviceID))
 
-        // Pre-pairing: previously connected to OLD; entry was suppressed during
-        // ASK pairing severance, so connectionState is .disconnected and no claim
-        // exists in the coordinator.
+        // Pre-pairing: previously connected to the old device; entry was suppressed
+        // during ASK pairing severance, so connectionState is .disconnected and no
+        // claim exists in the coordinator.
         manager.testLastConnectedDeviceID = oldDeviceID
         manager.setTestState(
             connectionState: .disconnected,
@@ -115,8 +115,9 @@ struct PairingWhileConnectedTests {
         await Task.yield()
         for await _ in waitStarted.stream { break }
 
-        // iOS auto-reconnect for OLD completes during the wait. Without the claim
-        // guard this would set state to .connecting and call rebuildSession(OLD).
+        // iOS auto-reconnect for the old device completes during the wait. Without
+        // the claim guard this would set state to .connecting and call
+        // rebuildSession(oldDeviceID).
         await mockTransport.simulateReconnection(deviceID: oldDeviceID)
 
         // Drain the dispatched @MainActor Task. With the claim guard the path returns

@@ -807,7 +807,7 @@ public final class ConnectionManager {
                         )
                         // Skip the reconnect-cycle claim and UI timeout (pairing's
                         // connect(to:) ceremony owns the next state transitions),
-                        // but tear down the OLD session so a pairing early-exit
+                        // but tear down the prior session so a pairing early-exit
                         // path doesn't strand the UI on stale `.ready` state.
                         await self.handleConnectionLoss(deviceID: deviceID, error: nil)
                         return
