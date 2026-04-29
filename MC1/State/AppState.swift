@@ -530,21 +530,18 @@ public final class AppState {
     /// because the bond itself needs to be torn down before retrying.
     func retryFailedPairingConnect() async {
         guard let deviceID = connectionUI.failedPairingDeviceID else { return }
-        connectionUI.failedPairingDeviceID = nil
         connectionUI.isBusy = true
         defer { connectionUI.isBusy = false }
 
         do {
             try await connectionManager.connect(to: deviceID, forceReconnect: true)
+            connectionUI.failedPairingDeviceID = nil
             await wireServicesIfConnected()
         } catch BLEError.deviceConnectedToOtherApp {
-            connectionUI.otherAppWarningDeviceID = deviceID
+            connectionUI.failedPairingDeviceID = nil
+            connectionUI.presentPairingFailure(.deviceConnectedToOtherApp(deviceID: deviceID))
         } catch {
-            // Restore the device id so the alert routes back into the transient
-            // (Try Again) variant — without this, presentConnectionFailure leaves
-            // failedPairingDeviceID nil and the user is stranded with only OK.
-            connectionUI.failedPairingDeviceID = deviceID
-            connectionUI.presentConnectionFailure(message: error.localizedDescription)
+            connectionUI.presentPairingFailure(.connectionFailed(deviceID: deviceID, underlying: error))
         }
     }
 

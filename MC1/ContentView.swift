@@ -37,9 +37,10 @@ struct ContentView: View {
                     }
                 case .transient, .none:
                     // Transient variant — bond is still good, prefer non-destructive retry.
-                    // `.none` falls here as a defensive default: the only way to set
-                    // `failedPairingDeviceID` without a kind is a programming error,
-                    // and the safer recovery is the non-destructive path.
+                    // `.none` is unreachable in practice (every pairing-failure path routes
+                    // through `presentPairingFailure`, which always sets the kind). Folding
+                    // it into the safer branch ensures a missing kind can't promote a working
+                    // bond into the destructive recovery.
                     Button(L10n.Localizable.Common.tryAgain) {
                         Task { await appState.retryFailedPairingConnect() }
                     }
