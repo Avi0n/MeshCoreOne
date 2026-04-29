@@ -76,10 +76,9 @@ struct ConnectionManagerDisconnectDiagnosticsTests {
         #expect(manager.connectionState == .disconnected, "OLD session is dead — UI must not stay on .ready")
         #expect(manager.connectedDevice == nil, "Stale connectedDevice must be cleared so message sends fail loudly instead of silently")
 
-        // The handler's preamble persists a `bleStateMachine.autoReconnectingHandler`
-        // diagnostic before reaching the gate, but `handleConnectionLoss` then writes
-        // its own diagnostic that overwrites the prior key. The teardown's diagnostic
-        // is the observable proof the suppression branch took the loss path.
+        // The suppression gate runs before the diagnostic preamble, so
+        // `handleConnectionLoss`'s diagnostic is the only writer for this branch
+        // and is the observable proof the suppression branch took the loss path.
         let diagnostic = manager.lastDisconnectDiagnostic ?? ""
         #expect(diagnostic.localizedStandardContains("source=handleConnectionLoss"))
     }
