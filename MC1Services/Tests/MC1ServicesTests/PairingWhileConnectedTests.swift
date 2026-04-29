@@ -132,4 +132,44 @@ struct PairingWhileConnectedTests {
         pairTask.cancel()
         _ = await pairTask.value
     }
+
+    /// pairNewDevice routes through `connect(to:)`'s switch-device branch when an
+    /// old radio is still connected. Without the catch in `switchDevice`, a mid-
+    /// switch throw propagates without resetting `connectionState`, `connectedDevice`,
+    /// or `services` — leaving the UI on `.ready` pointing at the old device while
+    /// the failure-alert recovery actions act on stale state.
+    ///
+    /// The mock ASK starts with empty `pairedAccessories`, so `switchDevice`'s ASK
+    /// validation throws `ConnectionError.deviceNotFound` for the new device. That
+    /// throw must drive a clean teardown.
+    @Test("pair-while-connected with switchDevice throw leaves state .disconnected")
+    func switchDeviceFailureLeavesCleanState() async throws {
+        let env = try ConnectionManager.createForPairingTesting()
+        defer { env.cleanup() }
+        let manager = env.manager
+        let mockASK = env.accessorySetupKit
+        let oldDeviceID = UUID()
+        let newDeviceID = UUID()
+
+        mockASK.setPickerResult(.success(newDeviceID))
+
+        // Skip the polling wait so the test exercises the connect/switch path directly.
+        manager.otherAppWaitStrategyOverride = { _ in false }
+
+        manager.testLastConnectedDeviceID = oldDeviceID
+        manager.setTestState(
+            connectionState: .ready,
+            connectedDevice: DeviceDTO.testDevice(id: oldDeviceID),
+            currentTransportType: .bluetooth,
+            connectionIntent: .wantsConnection()
+        )
+
+        await #expect(throws: PairingError.self) {
+            try await manager.pairNewDevice()
+        }
+
+        #expect(manager.connectionState == .disconnected, "switchDevice catch must reset state")
+        #expect(manager.connectedDevice == nil, "switchDevice catch must clear stale device")
+        #expect(manager.services == nil, "switchDevice catch must clear stale services")
+    }
 }
