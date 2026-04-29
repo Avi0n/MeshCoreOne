@@ -91,10 +91,12 @@ struct OnboardingView: View {
                         WelcomeView()
                     case .permissions:
                         PermissionsView()
-                    case .deviceScan:
+                    case .pair:
                         DeviceScanView()
-                    case .radioPreset:
-                        RadioPresetOnboardingView()
+                    case .region:
+                        RegionStepView()
+                    case .preset:
+                        PresetStepView()
                     }
                 }
         }

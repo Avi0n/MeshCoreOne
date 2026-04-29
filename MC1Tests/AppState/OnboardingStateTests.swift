@@ -152,4 +152,35 @@ struct OnboardingStateTests {
         onboarding.hasCompletedOnboarding = false
         #expect(defaults.bool(forKey: "hasCompletedOnboarding") == false)
     }
+
+    // MARK: - suggestedStartingPath
+
+    @Suite("suggestedStartingPath")
+    @MainActor
+    struct SuggestedStartingPathTests {
+        @Test("Returns empty when onboarding is already complete")
+        func emptyWhenCompleted() async {
+            let testDefaults = UserDefaults(suiteName: "test.\(UUID().uuidString)")!
+            let onboarding = OnboardingState(defaults: testDefaults)
+            onboarding.hasCompletedOnboarding = true
+            let appState = AppState()
+            let path = await onboarding.suggestedStartingPath(
+                connectionManager: appState.connectionManager,
+                locationAuthorizationStatus: .notDetermined
+            )
+            #expect(path.isEmpty)
+        }
+
+        @Test("Returns empty when no paired device")
+        func emptyWithNoPairing() async {
+            let testDefaults = UserDefaults(suiteName: "test.\(UUID().uuidString)")!
+            let onboarding = OnboardingState(defaults: testDefaults)
+            let appState = AppState()
+            let path = await onboarding.suggestedStartingPath(
+                connectionManager: appState.connectionManager,
+                locationAuthorizationStatus: .notDetermined
+            )
+            #expect(path.isEmpty)
+        }
+    }
 }

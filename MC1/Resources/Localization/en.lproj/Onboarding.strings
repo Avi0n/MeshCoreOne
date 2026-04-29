@@ -13,19 +13,7 @@
 "welcome.title" = "MeshCore One";
 
 /* Location: WelcomeView.swift - Subtitle describing the app */
-"welcome.subtitle" = "A MeshCore client for Apple devices";
-
-/* Location: WelcomeView.swift - Feature title for multi-hop routing */
-"welcome.feature.multiHop.title" = "Multi-Hop Routing";
-
-/* Location: WelcomeView.swift - Feature description for multi-hop routing */
-"welcome.feature.multiHop.description" = "Your message finds a path across the mesh";
-
-/* Location: WelcomeView.swift - Feature title for community network */
-"welcome.feature.community.title" = "Community Network";
-
-/* Location: WelcomeView.swift - Feature description for community network */
-"welcome.feature.community.description" = "Network built by users like you";
+"welcome.subtitle" = "No cell service needed. Your messages travel through a community radio network.";
 
 /* Location: WelcomeView.swift - Button to proceed to next onboarding step */
 "welcome.getStarted" = "Get Started";
@@ -34,31 +22,25 @@
 // MARK: - Permissions View
 
 /* Location: PermissionsView.swift - Screen title for permissions */
-"permissions.title" = "Permissions";
+"permissions.title" = "A couple of permissions";
 
 /* Location: PermissionsView.swift - Subtitle encouraging notification permission */
-"permissions.subtitle" = "Allow Notifications for the best experience";
+"permissions.subtitle" = "Both optional. You can change your mind in Settings anytime.";
 
 /* Location: PermissionsView.swift - Permission card title for notifications */
 "permissions.notifications.title" = "Notifications";
 
 /* Location: PermissionsView.swift - Permission card description for notifications */
-"permissions.notifications.description" = "Receive alerts for new messages";
+"permissions.notifications.description" = "Get notified about messages, reactions, and low-battery alerts — even when the app isn't open.";
 
 /* Location: PermissionsView.swift - Permission card title for location */
 "permissions.location.title" = "Location";
 
 /* Location: PermissionsView.swift - Permission card description for location */
-"permissions.location.description" = "See your location on the map";
+"permissions.location.description" = "Suggest a recommended radio preset for your area, show your position on maps, and sort contacts by distance.";
 
-/* Location: PermissionsView.swift - Button when all permissions granted */
+/* Location: PermissionsView.swift - Button to proceed to next step */
 "permissions.continue" = "Continue";
-
-/* Location: PermissionsView.swift - Button when some permissions skipped */
-"permissions.skipForNow" = "Skip for Now";
-
-/* Location: PermissionsView.swift - Button to go back */
-"permissions.back" = "Back";
 
 /* Location: PermissionsView.swift - Badge shown for optional permissions */
 "permissions.optional" = "Optional";
@@ -82,25 +64,16 @@
 // MARK: - Device Scan View
 
 /* Location: DeviceScanView.swift - Screen title for device pairing */
-"deviceScan.title" = "Pair Your Device";
+"deviceScan.title" = "Pair your device";
 
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
-"deviceScan.subtitle" = "Make sure your MeshCore device is powered on and nearby";
+"deviceScan.subtitle" = "Power it on, then tap Add Device.";
 
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "Your device is already paired";
 
-/* Location: DeviceScanView.swift - Instruction step 1 */
-"deviceScan.instruction.powerOn" = "Power on your MeshCore device";
-
-/* Location: DeviceScanView.swift - Instruction step 2 */
-"deviceScan.instruction.tapAdd" = "Tap \"Add Device\" below";
-
-/* Location: DeviceScanView.swift - Instruction step 3 */
-"deviceScan.instruction.selectDevice" = "Select your device from the list";
-
-/* Location: DeviceScanView.swift - Instruction step 4 */
-"deviceScan.instruction.enterPin" = "Enter the PIN when prompted";
+/* Location: DeviceScanView.swift - "I don't have a device yet" tertiary */
+"deviceScan.noDeviceYet" = "I don't have a device yet";
 
 /* Location: DeviceScanView.swift - Button to continue after pairing */
 "deviceScan.continue" = "Continue";
@@ -121,7 +94,7 @@
 "deviceScan.retryConnection" = "Retry Connection";
 
 /* Location: DeviceScanView.swift - Button for troubleshooting */
-"deviceScan.deviceNotAppearing" = "Device not appearing?";
+"deviceScan.deviceNotAppearing" = "Help";
 
 /* Location: DeviceScanView.swift - Button to connect via WiFi */
 "deviceScan.connectViaWifi" = "Connect via WiFi";
@@ -187,29 +160,49 @@
 "meshAnimation.accessibilityLabel" = "Mesh network visualization";
 
 
-// MARK: - Radio Preset Onboarding View
+// MARK: - No Device Sheet
 
-/* Location: RadioPresetOnboardingView.swift - Screen title for radio settings */
-"radioPreset.title" = "Radio Settings";
+/* Location: NoDeviceSheet.swift - Sheet title */
+"noDevice.sheet.title" = "Take a look around";
 
-/* Location: RadioPresetOnboardingView.swift - Subtitle with instructions and Discord link */
-"radioPreset.subtitle" = "You can change these settings at any time in MeshCore One's Settings. If you're not sure which preset to use, ask in the [MeshCore Discord](https://meshcore.co.uk/contact.html)";
+/* Location: NoDeviceSheet.swift - Sheet body */
+"noDevice.sheet.body" = "You'll need a paired radio to send and receive messages. Explore the app for now and pair anytime from Settings.";
 
-/* Location: RadioPresetOnboardingView.swift - Button label while applying preset */
-"radioPreset.applying" = "Applying...";
+/* Location: NoDeviceSheet.swift - Primary CTA */
+"noDevice.sheet.confirm" = "Continue";
 
-/* Location: RadioPresetOnboardingView.swift - Button to apply selected preset */
-"radioPreset.apply" = "Apply";
+/* Location: NoDeviceSheet.swift - Secondary CTA */
+"noDevice.sheet.cancel" = "Cancel";
 
-/* Location: RadioPresetOnboardingView.swift - Button to continue */
-"radioPreset.continue" = "Continue";
 
-/* Location: RadioPresetOnboardingView.swift - Button to skip radio setup */
-"radioPreset.skip" = "Skip";
+// MARK: - Preset Step View
 
-/* Location: RadioPresetOnboardingView.swift - Label for custom (non-preset) radio settings */
-"radioPreset.custom" = "Custom";
+/* Location: PresetStepView.swift - Title */
+"preset.title" = "Pick a preset";
 
+/* Location: PresetStepView.swift - Subtitle when recommendation exists */
+"preset.subtitle.recommended" = "Recommended for %@";
+
+/* Location: PresetStepView.swift - Subtitle for empty-region fallback */
+"preset.subtitle.locale" = "Pick a preset for your radio.";
+
+/* Location: PresetStepView.swift - "Recommended" tag */
+"preset.recommendedTag" = "Recommended";
+
+/* Location: PresetStepView.swift - Apply CTA "Use %@" */
+"preset.use" = "Use %@";
+
+/* Location: PresetStepView.swift - Already-configured title */
+"preset.alreadyConfigured.title" = "Already configured";
+
+/* Location: PresetStepView.swift - Already-configured subtitle */
+"preset.alreadyConfigured.subtitle" = "Your radio is already on %@, the recommended preset for %@.";
+
+/* Location: PresetStepView.swift - Already-configured primary CTA */
+"preset.alreadyConfigured.done" = "Done";
+
+/* Location: PresetStepView.swift - Already-configured secondary link */
+"preset.alreadyConfigured.choose" = "Choose a different preset";
 
 // MARK: - WiFi Connection Sheet
 
@@ -254,3 +247,30 @@
 
 /* Location: RegionPickerView.swift - Continue CTA in manual picker */
 "region.continue" = "Continue";
+
+/* Location: RegionStepView.swift - Title (both states) */
+"region.title" = "Choose your region";
+
+/* Location: RegionStepView.swift - Subtitle in detected state */
+"region.subtitle.detected" = "We'll show presets that work in your area.";
+
+/* Location: RegionStepView.swift - Subtitle in manual state */
+"region.subtitle.manual" = "We'll show presets that work in your area.";
+
+/* Location: RegionStepView.swift - "Detected" tag */
+"region.detected.tag" = "Detected";
+
+/* Location: RegionStepView.swift - Caption "From your location" */
+"region.detected.source" = "From your location";
+
+/* Location: RegionStepView.swift - Primary CTA in detected state */
+"region.useThisRegion" = "Use this region";
+
+/* Location: RegionStepView.swift - "Choose another" link */
+"region.chooseAnother" = "Choose another";
+
+/* Location: RegionStepView.swift - "Use my location" link in manual state */
+"region.useMyLocation" = "Use my location";
+
+/* Location: RegionStepView.swift - "Finding your region…" */
+"region.resolving" = "Finding your region…";

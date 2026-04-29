@@ -1,15 +1,14 @@
 import SwiftUI
 import MC1Services
-import os
 
-/// Third screen of onboarding - pairs MeshCore device via AccessorySetupKit
 struct DeviceScanView: View {
     @Environment(\.appState) private var appState
     @State private var showTroubleshooting = false
     @State private var showingWiFiConnection = false
+    @State private var showingNoDeviceSheet = false
     @State private var pairingSuccessTrigger = false
-    @State private var demoModeUnlockTrigger = false
     @State private var failureHapticTrigger = false
+    @State private var demoModeUnlockTrigger = false
     @State private var didInitiatePairing = false
     @State private var tapTimes: [Date] = []
     @State private var showDemoModeAlert = false
@@ -22,12 +21,8 @@ struct DeviceScanView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            // Header
             VStack(spacing: 12) {
-                Image(systemName: "antenna.radiowaves.left.and.right")
-                    .font(.system(size: 50))
-                    .foregroundStyle(.tint)
-                    .frame(height: 120)
+                PulsingAntenna()
 
                 Button {
                     handleTitleTap()
@@ -35,6 +30,7 @@ struct DeviceScanView: View {
                     Text(L10n.Onboarding.DeviceScan.title)
                         .font(.largeTitle)
                         .bold()
+                        .accessibilityHeading(.h1)
                 }
                 .buttonStyle(.plain)
 
@@ -56,26 +52,14 @@ struct DeviceScanView: View {
                         .multilineTextAlignment(.center)
                 }
                 .padding()
-            } else if !hasConnectedDevice {
-                // Instructions
-                VStack(alignment: .leading, spacing: 16) {
-                    instructionRow(number: 1, text: L10n.Onboarding.DeviceScan.Instruction.powerOn)
-                    instructionRow(number: 2, text: L10n.Onboarding.DeviceScan.Instruction.tapAdd)
-                    instructionRow(number: 3, text: L10n.Onboarding.DeviceScan.Instruction.selectDevice)
-                    instructionRow(number: 4, text: L10n.Onboarding.DeviceScan.Instruction.enterPin)
-                }
-                .padding()
-                .liquidGlass(in: .rect(cornerRadius: 12))
-                .padding(.horizontal)
             }
 
             Spacer()
 
-            // Action buttons
             VStack(spacing: 12) {
                 if hasConnectedDevice {
                     Button {
-                        appState.onboarding.onboardingPath.append(.radioPreset)
+                        appState.onboarding.onboardingPath.append(.region)
                     } label: {
                         Text(L10n.Onboarding.DeviceScan.continue)
                             .font(.headline)
@@ -84,103 +68,25 @@ struct DeviceScanView: View {
                     }
                     .liquidGlassProminentButtonStyle()
                 } else {
-                    #if targetEnvironment(simulator)
-                    // Simulator build - always show Connect Simulator
-                    Button {
-                        connectSimulator()
-                    } label: {
-                        HStack(spacing: 8) {
-                            if appState.connectionUI.isBusy {
-                                ProgressView()
-                                    .controlSize(.small)
-                                Text(L10n.Onboarding.DeviceScan.connecting)
-                            } else {
-                                Image(systemName: "laptopcomputer.and.iphone")
-                                Text(L10n.Onboarding.DeviceScan.connectSimulator)
-                            }
-                        }
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                    }
-                    .liquidGlassProminentButtonStyle()
-                    .disabled(appState.connectionUI.isBusy)
-                    #else
-                    // Device build - show demo mode button if enabled, otherwise Add Device
-                    if demoModeManager.isEnabled {
-                        Button {
-                            connectSimulator()
-                        } label: {
-                            HStack(spacing: 8) {
-                                if appState.connectionUI.isBusy {
-                                    ProgressView()
-                                        .controlSize(.small)
-                                    Text(L10n.Onboarding.DeviceScan.connecting)
-                                } else {
-                                    Image(systemName: "play.circle.fill")
-                                    Text(L10n.Onboarding.DeviceScan.continueDemo)
-                                }
-                            }
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                        }
-                        .liquidGlassProminentButtonStyle()
-                        .disabled(appState.connectionUI.isBusy)
-                    } else if let deviceID = otherAppDeviceID {
-                        Button {
-                            retryConnection(deviceID: deviceID)
-                        } label: {
-                            HStack(spacing: 8) {
-                                if appState.connectionUI.isBusy {
-                                    ProgressView()
-                                        .controlSize(.small)
-                                    Text(L10n.Onboarding.DeviceScan.connecting)
-                                } else {
-                                    Image(systemName: "arrow.clockwise.circle.fill")
-                                    Text(L10n.Onboarding.DeviceScan.retryConnection)
-                                }
-                            }
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                        }
-                        .liquidGlassProminentButtonStyle()
-                        .disabled(appState.connectionUI.isBusy)
-                    } else {
-                        Button {
-                            startPairing()
-                        } label: {
-                            HStack(spacing: 8) {
-                                if appState.connectionUI.isBusy {
-                                    ProgressView()
-                                        .controlSize(.small)
-                                    Text(L10n.Onboarding.DeviceScan.connecting)
-                                } else {
-                                    Image(systemName: "plus.circle.fill")
-                                    Text(L10n.Onboarding.DeviceScan.addDevice)
-                                }
-                            }
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                        }
-                        .liquidGlassProminentButtonStyle()
-                        .disabled(appState.connectionUI.isBusy)
-                    }
-                    #endif
+                    primaryCTA
 
-                    Button(L10n.Onboarding.DeviceScan.deviceNotAppearing) {
-                        showTroubleshooting = true
+                    ViewThatFits {
+                        HStack(spacing: 24) {
+                            secondaryButtons
+                        }
+                        VStack(spacing: 12) {
+                            secondaryButtons
+                        }
+                    }
+                    .frame(minHeight: OnboardingMetrics.minHitTarget)
+
+                    Button(L10n.Onboarding.DeviceScan.noDeviceYet) {
+                        showingNoDeviceSheet = true
                     }
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
-                    Button(L10n.Onboarding.DeviceScan.connectViaWifi) {
-                        showingWiFiConnection = true
-                    }
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.tertiary)
+                    .padding(.vertical, 8)
+                    .frame(minHeight: OnboardingMetrics.minHitTarget)
                 }
             }
             .padding(.horizontal)
@@ -189,20 +95,14 @@ struct DeviceScanView: View {
         .sensoryFeedback(.success, trigger: pairingSuccessTrigger)
         .sensoryFeedback(.success, trigger: demoModeUnlockTrigger)
         .sensoryFeedback(.error, trigger: failureHapticTrigger)
-        .onChange(of: appState.connectionUI.otherAppWarningDeviceID) { _, newValue in
-            // retryFailedPairingConnect surfaces other-app failures via the
-            // ConnectionUI alert without going through startPairing's local
-            // catch, so we rely on this observer to keep the recovery button
-            // pinned to "Retry connection" after the warning is dismissed.
-            if let newValue {
-                otherAppDeviceID = newValue
-            }
-        }
         .sheet(isPresented: $showTroubleshooting) {
             TroubleshootingSheet()
         }
         .sheet(isPresented: $showingWiFiConnection) {
             WiFiConnectionSheet()
+        }
+        .sheet(isPresented: $showingNoDeviceSheet) {
+            NoDeviceSheet()
         }
         .alert(L10n.Onboarding.DeviceScan.DemoModeAlert.title, isPresented: $showDemoModeAlert) {
             Button(L10n.Localizable.Common.ok) { }
@@ -211,37 +111,74 @@ struct DeviceScanView: View {
         }
     }
 
-    private func instructionRow(number: Int, text: String) -> some View {
-        HStack(spacing: 12) {
-            Text("\(number)")
-                .font(.caption.bold())
-                .foregroundStyle(.white)
-                .frame(width: 24, height: 24)
-                .background(.tint, in: .circle)
-
-            Text(text)
-                .font(.subheadline)
+    @ViewBuilder
+    private var primaryCTA: some View {
+        #if targetEnvironment(simulator)
+        Button { connectSimulator() } label: { ctaLabel(systemImage: "laptopcomputer.and.iphone",
+                                                        text: L10n.Onboarding.DeviceScan.connectSimulator) }
+            .liquidGlassProminentButtonStyle()
+            .disabled(appState.connectionUI.isBusy)
+        #else
+        if demoModeManager.isEnabled {
+            Button { connectSimulator() } label: { ctaLabel(systemImage: "play.circle.fill",
+                                                            text: L10n.Onboarding.DeviceScan.continueDemo) }
+                .liquidGlassProminentButtonStyle()
+                .disabled(appState.connectionUI.isBusy)
+        } else if let deviceID = otherAppDeviceID {
+            Button { retryConnection(deviceID: deviceID) } label: { ctaLabel(systemImage: "arrow.clockwise.circle.fill",
+                                                                              text: L10n.Onboarding.DeviceScan.retryConnection) }
+                .liquidGlassProminentButtonStyle()
+                .disabled(appState.connectionUI.isBusy)
+        } else {
+            Button { startPairing() } label: { ctaLabel(systemImage: "plus.circle.fill",
+                                                        text: L10n.Onboarding.DeviceScan.addDevice) }
+                .liquidGlassProminentButtonStyle()
+                .disabled(appState.connectionUI.isBusy)
         }
+        #endif
+    }
+
+    @ViewBuilder
+    private var secondaryButtons: some View {
+        Button(L10n.Onboarding.DeviceScan.connectViaWifi) { showingWiFiConnection = true }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+
+        Button(L10n.Onboarding.DeviceScan.deviceNotAppearing) { showTroubleshooting = true }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+    }
+
+    @ViewBuilder
+    private func ctaLabel(systemImage: String, text: String) -> some View {
+        HStack(spacing: 8) {
+            if appState.connectionUI.isBusy {
+                ProgressView().controlSize(.small)
+                Text(L10n.Onboarding.DeviceScan.connecting)
+            } else {
+                Image(systemName: systemImage)
+                Text(text)
+            }
+        }
+        .font(.headline)
+        .frame(maxWidth: .infinity)
+        .padding()
     }
 
     private func startPairing() {
         appState.connectionUI.isBusy = true
         didInitiatePairing = true
-        // Clear any previous pairing failure state
         appState.connectionUI.failedPairingDeviceID = nil
 
         Task { @MainActor in
             defer { appState.connectionUI.isBusy = false }
-
             do {
                 try await appState.connectionManager.pairNewDevice()
                 await appState.wireServicesIfConnected()
                 pairingSuccessTrigger.toggle()
-                appState.onboarding.onboardingPath.append(.radioPreset)
+                appState.onboarding.onboardingPath.append(.region)
             } catch AccessorySetupKitError.pickerDismissed {
-                // User cancelled - no error to show
             } catch AccessorySetupKitError.pickerAlreadyActive {
-                // Picker is already showing - ignore
             } catch let pairingError as PairingError {
                 if case .deviceConnectedToOtherApp(let deviceID) = pairingError {
                     otherAppDeviceID = deviceID
@@ -249,7 +186,6 @@ struct DeviceScanView: View {
                 failureHapticTrigger.toggle()
                 appState.connectionUI.presentPairingFailure(pairingError)
             } catch {
-                // Other errors - show via AppState's alert
                 appState.connectionUI.presentConnectionFailure(message: error.localizedDescription)
             }
         }
@@ -257,15 +193,13 @@ struct DeviceScanView: View {
 
     private func retryConnection(deviceID: UUID) {
         appState.connectionUI.isBusy = true
-
         Task { @MainActor in
             defer { appState.connectionUI.isBusy = false }
-
             do {
                 try await appState.connectionManager.connect(to: deviceID, forceReconnect: true)
                 await appState.wireServicesIfConnected()
                 pairingSuccessTrigger.toggle()
-                appState.onboarding.onboardingPath.append(.radioPreset)
+                appState.onboarding.onboardingPath.append(.region)
             } catch BLEError.deviceConnectedToOtherApp {
                 appState.connectionUI.otherAppWarningDeviceID = deviceID
             } catch {
@@ -277,127 +211,29 @@ struct DeviceScanView: View {
     private func connectSimulator() {
         appState.connectionUI.isBusy = true
         didInitiatePairing = true
-
-        Task {
+        Task { @MainActor in
             defer { appState.connectionUI.isBusy = false }
-
             do {
                 try await appState.connectionManager.simulatorConnect()
                 await appState.wireServicesIfConnected()
                 pairingSuccessTrigger.toggle()
-                appState.onboarding.onboardingPath.append(.radioPreset)
+                appState.onboarding.onboardingPath.append(.region)
             } catch {
-                appState.connectionUI.presentConnectionFailure(message: "Simulator connection failed: \(error.localizedDescription)")
+                appState.connectionUI.presentConnectionFailure(message: error.localizedDescription)
             }
         }
     }
 
+    /// 3-tap easter egg for App Store reviewers — preserved verbatim per CLAUDE.md `demo-mode-is-for-app-store-reviewers`.
     private func handleTitleTap() {
         let now = Date()
         tapTimes.append(now)
-
-        // Keep only taps within last 1 second
         tapTimes = tapTimes.filter { now.timeIntervalSince($0) <= 1.0 }
-
-        // Check if we have 3 taps within 1 second
         if tapTimes.count >= 3 {
             tapTimes.removeAll()
             demoModeManager.unlock()
             demoModeUnlockTrigger.toggle()
             showDemoModeAlert = true
-        }
-    }
-}
-
-/// Troubleshooting sheet for when devices don't appear in the ASK picker
-/// Per Apple Developer Forums: Factory-reset devices won't appear until the stale
-/// system pairing is removed via removeAccessory()
-private struct TroubleshootingSheet: View {
-    @Environment(\.appState) private var appState
-    @Environment(\.dismiss) private var dismiss
-    @State private var isClearing = false
-
-    var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    Label(L10n.Onboarding.Troubleshooting.BasicChecks.powerOn, systemImage: "power")
-                    Label(L10n.Onboarding.Troubleshooting.BasicChecks.moveCloser, systemImage: "iphone.radiowaves.left.and.right")
-                    Label(L10n.Onboarding.Troubleshooting.BasicChecks.restart, systemImage: "arrow.clockwise")
-                } header: {
-                    Text(L10n.Onboarding.Troubleshooting.BasicChecks.header)
-                }
-
-                Section {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(L10n.Onboarding.Troubleshooting.FactoryReset.explanation)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-
-                        Text(L10n.Onboarding.Troubleshooting.FactoryReset.confirmationNote)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-
-                        Button {
-                            clearStalePairings()
-                        } label: {
-                            HStack {
-                                if isClearing {
-                                    ProgressView()
-                                        .controlSize(.small)
-                                } else {
-                                    Image(systemName: "trash")
-                                }
-                                Text(L10n.Onboarding.Troubleshooting.FactoryReset.clearPairing)
-                            }
-                        }
-                        .disabled(isClearing || appState.connectionManager.pairedAccessoriesCount == 0)
-                    }
-                } header: {
-                    Text(L10n.Onboarding.Troubleshooting.FactoryReset.header)
-                } footer: {
-                    if appState.connectionManager.pairedAccessoriesCount == 0 {
-                        Text(L10n.Onboarding.Troubleshooting.FactoryReset.noPairings)
-                    } else {
-                        Text(L10n.Onboarding.Troubleshooting.FactoryReset.pairingsFound(appState.connectionManager.pairedAccessoriesCount))
-                    }
-                }
-
-                Section {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(L10n.Onboarding.Troubleshooting.SystemSettings.manageAccessories)
-                            .font(.subheadline)
-                        Text(L10n.Onboarding.Troubleshooting.SystemSettings.path)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                } header: {
-                    Text(L10n.Onboarding.Troubleshooting.SystemSettings.header)
-                }
-            }
-            .navigationTitle(L10n.Onboarding.Troubleshooting.title)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.Localizable.Common.done) {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-
-    private func clearStalePairings() {
-        isClearing = true
-
-        Task {
-            defer { isClearing = false }
-
-            // Remove all stale pairings via ConnectionManager
-            // Note: iOS 26 shows a confirmation dialog for each removal
-            await appState.connectionManager.clearStalePairings()
-
-            dismiss()
         }
     }
 }

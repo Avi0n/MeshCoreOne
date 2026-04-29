@@ -2293,13 +2293,15 @@ public enum L10n {
       /// Location: DeviceScanView.swift - Button to continue in demo mode
       public static let continueDemo = L10n.tr("Onboarding", "deviceScan.continueDemo", fallback: "Continue in Demo Mode")
       /// Location: DeviceScanView.swift - Button for troubleshooting
-      public static let deviceNotAppearing = L10n.tr("Onboarding", "deviceScan.deviceNotAppearing", fallback: "Device not appearing?")
+      public static let deviceNotAppearing = L10n.tr("Onboarding", "deviceScan.deviceNotAppearing", fallback: "Help")
+      /// Location: DeviceScanView.swift - "I don't have a device yet" tertiary
+      public static let noDeviceYet = L10n.tr("Onboarding", "deviceScan.noDeviceYet", fallback: "I don't have a device yet")
       /// Location: DeviceScanView.swift - Button to retry connection after other-app conflict
       public static let retryConnection = L10n.tr("Onboarding", "deviceScan.retryConnection", fallback: "Retry Connection")
       /// Location: DeviceScanView.swift - Subtitle with pairing instructions
-      public static let subtitle = L10n.tr("Onboarding", "deviceScan.subtitle", fallback: "Make sure your MeshCore device is powered on and nearby")
+      public static let subtitle = L10n.tr("Onboarding", "deviceScan.subtitle", fallback: "Power it on, then tap Add Device.")
       /// Location: DeviceScanView.swift - Screen title for device pairing
-      public static let title = L10n.tr("Onboarding", "deviceScan.title", fallback: "Pair Your Device")
+      public static let title = L10n.tr("Onboarding", "deviceScan.title", fallback: "Pair your device")
       public enum DemoModeAlert {
         /// Location: DeviceScanView.swift - Alert message for demo mode
         public static let message = L10n.tr("Onboarding", "deviceScan.demoModeAlert.message", fallback: "You can now continue without a device. Toggle demo mode in Settings anytime.")
@@ -2312,41 +2314,39 @@ public enum L10n {
         /// Couldn't connect to the device. Try again, or remove it if the problem continues.
         public static let connectionFailed = L10n.tr("Onboarding", "deviceScan.error.connectionFailed", fallback: "Couldn't connect to the device. Try again, or remove it if the problem continues.")
       }
-      public enum Instruction {
-        /// Location: DeviceScanView.swift - Instruction step 4
-        public static let enterPin = L10n.tr("Onboarding", "deviceScan.instruction.enterPin", fallback: "Enter the PIN when prompted")
-        /// Location: DeviceScanView.swift - Instruction step 1
-        public static let powerOn = L10n.tr("Onboarding", "deviceScan.instruction.powerOn", fallback: "Power on your MeshCore device")
-        /// Location: DeviceScanView.swift - Instruction step 3
-        public static let selectDevice = L10n.tr("Onboarding", "deviceScan.instruction.selectDevice", fallback: "Select your device from the list")
-        /// Location: DeviceScanView.swift - Instruction step 2
-        public static let tapAdd = L10n.tr("Onboarding", "deviceScan.instruction.tapAdd", fallback: "Tap \"Add Device\" below")
-      }
     }
     public enum MeshAnimation {
       /// Location: MeshAnimationView.swift - Accessibility label for mesh visualization
       public static let accessibilityLabel = L10n.tr("Onboarding", "meshAnimation.accessibilityLabel", fallback: "Mesh network visualization")
     }
+    public enum NoDevice {
+      public enum Sheet {
+        /// Location: NoDeviceSheet.swift - Sheet body
+        public static let body = L10n.tr("Onboarding", "noDevice.sheet.body", fallback: "You'll need a paired radio to send and receive messages. Explore the app for now and pair anytime from Settings.")
+        /// Location: NoDeviceSheet.swift - Secondary CTA
+        public static let cancel = L10n.tr("Onboarding", "noDevice.sheet.cancel", fallback: "Cancel")
+        /// Location: NoDeviceSheet.swift - Primary CTA
+        public static let confirm = L10n.tr("Onboarding", "noDevice.sheet.confirm", fallback: "Continue")
+        /// Location: NoDeviceSheet.swift - Sheet title
+        public static let title = L10n.tr("Onboarding", "noDevice.sheet.title", fallback: "Take a look around")
+      }
+    }
     public enum Permissions {
       /// Location: PermissionsView.swift - Button to allow a permission
       public static let allow = L10n.tr("Onboarding", "permissions.allow", fallback: "Allow")
-      /// Location: PermissionsView.swift - Button to go back
-      public static let back = L10n.tr("Onboarding", "permissions.back", fallback: "Back")
-      /// Location: PermissionsView.swift - Button when all permissions granted
+      /// Location: PermissionsView.swift - Button to proceed to next step
       public static let `continue` = L10n.tr("Onboarding", "permissions.continue", fallback: "Continue")
       /// Location: PermissionsView.swift - Button to open system settings
       public static let openSettings = L10n.tr("Onboarding", "permissions.openSettings", fallback: "Settings")
       /// Location: PermissionsView.swift - Badge shown for optional permissions
       public static let `optional` = L10n.tr("Onboarding", "permissions.optional", fallback: "Optional")
-      /// Location: PermissionsView.swift - Button when some permissions skipped
-      public static let skipForNow = L10n.tr("Onboarding", "permissions.skipForNow", fallback: "Skip for Now")
       /// Location: PermissionsView.swift - Subtitle encouraging notification permission
-      public static let subtitle = L10n.tr("Onboarding", "permissions.subtitle", fallback: "Allow Notifications for the best experience")
+      public static let subtitle = L10n.tr("Onboarding", "permissions.subtitle", fallback: "Both optional. You can change your mind in Settings anytime.")
       /// Location: PermissionsView.swift - Screen title for permissions
-      public static let title = L10n.tr("Onboarding", "permissions.title", fallback: "Permissions")
+      public static let title = L10n.tr("Onboarding", "permissions.title", fallback: "A couple of permissions")
       public enum Location {
         /// Location: PermissionsView.swift - Permission card description for location
-        public static let description = L10n.tr("Onboarding", "permissions.location.description", fallback: "See your location on the map")
+        public static let description = L10n.tr("Onboarding", "permissions.location.description", fallback: "Suggest a recommended radio preset for your area, show your position on maps, and sort contacts by distance.")
         /// Location: PermissionsView.swift - Permission card title for location
         public static let title = L10n.tr("Onboarding", "permissions.location.title", fallback: "Location")
       }
@@ -2360,34 +2360,70 @@ public enum L10n {
       }
       public enum Notifications {
         /// Location: PermissionsView.swift - Permission card description for notifications
-        public static let description = L10n.tr("Onboarding", "permissions.notifications.description", fallback: "Receive alerts for new messages")
+        public static let description = L10n.tr("Onboarding", "permissions.notifications.description", fallback: "Get notified about messages, reactions, and low-battery alerts — even when the app isn't open.")
         /// Location: PermissionsView.swift - Permission card title for notifications
         public static let title = L10n.tr("Onboarding", "permissions.notifications.title", fallback: "Notifications")
       }
     }
-    public enum RadioPreset {
-      /// Location: RadioPresetOnboardingView.swift - Button to apply selected preset
-      public static let apply = L10n.tr("Onboarding", "radioPreset.apply", fallback: "Apply")
-      /// Location: RadioPresetOnboardingView.swift - Button label while applying preset
-      public static let applying = L10n.tr("Onboarding", "radioPreset.applying", fallback: "Applying...")
-      /// Location: RadioPresetOnboardingView.swift - Button to continue
-      public static let `continue` = L10n.tr("Onboarding", "radioPreset.continue", fallback: "Continue")
-      /// Location: RadioPresetOnboardingView.swift - Label for custom (non-preset) radio settings
-      public static let custom = L10n.tr("Onboarding", "radioPreset.custom", fallback: "Custom")
-      /// Location: RadioPresetOnboardingView.swift - Button to skip radio setup
-      public static let skip = L10n.tr("Onboarding", "radioPreset.skip", fallback: "Skip")
-      /// Location: RadioPresetOnboardingView.swift - Subtitle with instructions and Discord link
-      public static let subtitle = L10n.tr("Onboarding", "radioPreset.subtitle", fallback: "You can change these settings at any time in MeshCore One's Settings. If you're not sure which preset to use, ask in the [MeshCore Discord](https://meshcore.co.uk/contact.html)")
-      /// Location: RadioPresetOnboardingView.swift - Screen title for radio settings
-      public static let title = L10n.tr("Onboarding", "radioPreset.title", fallback: "Radio Settings")
+    public enum Preset {
+      /// Location: PresetStepView.swift - "Recommended" tag
+      public static let recommendedTag = L10n.tr("Onboarding", "preset.recommendedTag", fallback: "Recommended")
+      /// Location: PresetStepView.swift - Title
+      public static let title = L10n.tr("Onboarding", "preset.title", fallback: "Pick a preset")
+      /// Location: PresetStepView.swift - Apply CTA "Use %@"
+      public static func use(_ p1: Any) -> String {
+        return L10n.tr("Onboarding", "preset.use", String(describing: p1), fallback: "Use %@")
+      }
+      public enum AlreadyConfigured {
+        /// Location: PresetStepView.swift - Already-configured secondary link
+        public static let choose = L10n.tr("Onboarding", "preset.alreadyConfigured.choose", fallback: "Choose a different preset")
+        /// Location: PresetStepView.swift - Already-configured primary CTA
+        public static let done = L10n.tr("Onboarding", "preset.alreadyConfigured.done", fallback: "Done")
+        /// Location: PresetStepView.swift - Already-configured subtitle
+        public static func subtitle(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Onboarding", "preset.alreadyConfigured.subtitle", String(describing: p1), String(describing: p2), fallback: "Your radio is already on %@, the recommended preset for %@.")
+        }
+        /// Location: PresetStepView.swift - Already-configured title
+        public static let title = L10n.tr("Onboarding", "preset.alreadyConfigured.title", fallback: "Already configured")
+      }
+      public enum Subtitle {
+        /// Location: PresetStepView.swift - Subtitle for empty-region fallback
+        public static let locale = L10n.tr("Onboarding", "preset.subtitle.locale", fallback: "Pick a preset for your radio.")
+        /// Location: PresetStepView.swift - Subtitle when recommendation exists
+        public static func recommended(_ p1: Any) -> String {
+          return L10n.tr("Onboarding", "preset.subtitle.recommended", String(describing: p1), fallback: "Recommended for %@")
+        }
+      }
     }
     public enum Region {
       /// Location: RegionPickerView.swift - State/Province picker label
       public static let administrativeArea = L10n.tr("Onboarding", "region.administrativeArea", fallback: "State / Province")
+      /// Location: RegionStepView.swift - "Choose another" link
+      public static let chooseAnother = L10n.tr("Onboarding", "region.chooseAnother", fallback: "Choose another")
       /// Location: RegionPickerView.swift - Continue CTA in manual picker
       public static let `continue` = L10n.tr("Onboarding", "region.continue", fallback: "Continue")
       /// Location: RegionPickerView.swift - Country picker label
       public static let country = L10n.tr("Onboarding", "region.country", fallback: "Country")
+      /// Location: RegionStepView.swift - "Finding your region…"
+      public static let resolving = L10n.tr("Onboarding", "region.resolving", fallback: "Finding your region…")
+      /// Location: RegionStepView.swift - Title (both states)
+      public static let title = L10n.tr("Onboarding", "region.title", fallback: "Choose your region")
+      /// Location: RegionStepView.swift - "Use my location" link in manual state
+      public static let useMyLocation = L10n.tr("Onboarding", "region.useMyLocation", fallback: "Use my location")
+      /// Location: RegionStepView.swift - Primary CTA in detected state
+      public static let useThisRegion = L10n.tr("Onboarding", "region.useThisRegion", fallback: "Use this region")
+      public enum Detected {
+        /// Location: RegionStepView.swift - Caption "From your location"
+        public static let source = L10n.tr("Onboarding", "region.detected.source", fallback: "From your location")
+        /// Location: RegionStepView.swift - "Detected" tag
+        public static let tag = L10n.tr("Onboarding", "region.detected.tag", fallback: "Detected")
+      }
+      public enum Subtitle {
+        /// Location: RegionStepView.swift - Subtitle in detected state
+        public static let detected = L10n.tr("Onboarding", "region.subtitle.detected", fallback: "We'll show presets that work in your area.")
+        /// Location: RegionStepView.swift - Subtitle in manual state
+        public static let manual = L10n.tr("Onboarding", "region.subtitle.manual", fallback: "We'll show presets that work in your area.")
+      }
     }
     public enum Troubleshooting {
       /// Location: DeviceScanView.swift - Navigation title for troubleshooting sheet
@@ -2431,23 +2467,9 @@ public enum L10n {
       /// Location: WelcomeView.swift - Button to proceed to next onboarding step
       public static let getStarted = L10n.tr("Onboarding", "welcome.getStarted", fallback: "Get Started")
       /// Location: WelcomeView.swift - Subtitle describing the app
-      public static let subtitle = L10n.tr("Onboarding", "welcome.subtitle", fallback: "A MeshCore client for Apple devices")
+      public static let subtitle = L10n.tr("Onboarding", "welcome.subtitle", fallback: "No cell service needed. Your messages travel through a community radio network.")
       /// Location: WelcomeView.swift - App title displayed on welcome screen
       public static let title = L10n.tr("Onboarding", "welcome.title", fallback: "MeshCore One")
-      public enum Feature {
-        public enum Community {
-          /// Location: WelcomeView.swift - Feature description for community network
-          public static let description = L10n.tr("Onboarding", "welcome.feature.community.description", fallback: "Network built by users like you")
-          /// Location: WelcomeView.swift - Feature title for community network
-          public static let title = L10n.tr("Onboarding", "welcome.feature.community.title", fallback: "Community Network")
-        }
-        public enum MultiHop {
-          /// Location: WelcomeView.swift - Feature description for multi-hop routing
-          public static let description = L10n.tr("Onboarding", "welcome.feature.multiHop.description", fallback: "Your message finds a path across the mesh")
-          /// Location: WelcomeView.swift - Feature title for multi-hop routing
-          public static let title = L10n.tr("Onboarding", "welcome.feature.multiHop.title", fallback: "Multi-Hop Routing")
-        }
-      }
     }
     public enum WifiConnection {
       /// Location: WiFiConnectionSheet.swift - Button to initiate connection

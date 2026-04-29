@@ -247,6 +247,16 @@ public final class AppState {
         }
 
         loadPersistedRegionSelection()
+
+        Task {
+            let suggested = await onboarding.suggestedStartingPath(
+                connectionManager: connectionManager,
+                locationAuthorizationStatus: locationService.authorizationStatus
+            )
+            if !suggested.isEmpty {
+                onboarding.onboardingPath = suggested
+            }
+        }
     }
 
     // MARK: - Lifecycle
@@ -533,9 +543,9 @@ public final class AppState {
                 try await connectionManager.pairNewDevice()
                 await wireServicesIfConnected()
 
-                // If still in onboarding, navigate to radio preset; otherwise mark complete
+                // If still in onboarding, navigate to region step; otherwise mark complete
                 if !onboarding.hasCompletedOnboarding {
-                    onboarding.onboardingPath.append(.radioPreset)
+                    onboarding.onboardingPath.append(.region)
                 }
             } catch AccessorySetupKitError.pickerDismissed {
                 // User cancelled - no error

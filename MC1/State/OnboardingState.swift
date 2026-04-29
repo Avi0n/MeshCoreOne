@@ -1,10 +1,14 @@
+import CoreLocation
 import Foundation
+import MC1Services
+import UserNotifications
 
-enum OnboardingStep: Int, CaseIterable, Hashable {
+enum OnboardingStep: String, CaseIterable, Hashable, Codable {
     case welcome
     case permissions
-    case deviceScan
-    case radioPreset
+    case pair
+    case region
+    case preset
 }
 
 /// Manages onboarding completion flag and navigation path.
@@ -38,5 +42,33 @@ public final class OnboardingState {
     func resetOnboarding() {
         hasCompletedOnboarding = false
         onboardingPath = []
+    }
+}
+
+extension OnboardingState {
+    /// Computes the `NavigationStack` starting path. The view at the top of the
+    /// path is what the user lands on; `WelcomeView()` is the root, so any
+    /// returned path is pushed *above* it.
+    ///
+    /// Reads notification authorization directly from `UNUserNotificationCenter`
+    /// rather than `PermissionsCoordinator` (view-scoped, async-init).
+    func suggestedStartingPath(
+        connectionManager: ConnectionManager,
+        locationAuthorizationStatus: CLAuthorizationStatus
+    ) async -> [OnboardingStep] {
+        guard !hasCompletedOnboarding else { return [] }
+        guard connectionManager.pairedAccessoriesCount > 0 else { return [] }
+
+        let notificationStatus = await UNUserNotificationCenter.current()
+            .notificationSettings().authorizationStatus
+
+        let permissionsHandled = locationAuthorizationStatus != .notDetermined
+                              && notificationStatus != .notDetermined
+
+        if permissionsHandled {
+            return [.permissions, .pair, .region]
+        } else {
+            return [.permissions]
+        }
     }
 }

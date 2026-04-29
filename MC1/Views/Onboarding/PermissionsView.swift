@@ -1,17 +1,16 @@
 import SwiftUI
 import CoreLocation
 
-/// Second screen of onboarding - requests necessary permissions
 struct PermissionsView: View {
     @Environment(\.appState) private var appState
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openURL) private var openURL
     @State private var coordinator = PermissionsCoordinator()
     @State private var showingLocationAlert = false
+    @State private var permissionGrantTrigger = false
 
     var body: some View {
         VStack(spacing: 32) {
-            // Header
             VStack(spacing: 12) {
                 Image(systemName: "checkmark.shield.fill")
                     .font(.system(size: 60))
@@ -20,6 +19,7 @@ struct PermissionsView: View {
                 Text(L10n.Onboarding.Permissions.title)
                     .font(.largeTitle)
                     .bold()
+                    .accessibilityHeading(.h1)
 
                 Text(L10n.Onboarding.Permissions.subtitle)
                     .font(.body)
@@ -31,7 +31,6 @@ struct PermissionsView: View {
 
             Spacer()
 
-            // Permission cards
             LiquidGlassContainer(spacing: 20) {
                 VStack(spacing: 16) {
                     PermissionCard(
@@ -47,7 +46,8 @@ struct PermissionsView: View {
                         icon: "location.fill",
                         title: L10n.Onboarding.Permissions.Location.title,
                         description: L10n.Onboarding.Permissions.Location.description,
-                        isGranted: coordinator.locationAuthorization == .authorizedWhenInUse || coordinator.locationAuthorization == .authorizedAlways,
+                        isGranted: coordinator.locationAuthorization == .authorizedWhenInUse
+                                  || coordinator.locationAuthorization == .authorizedAlways,
                         isDenied: coordinator.locationAuthorization == .denied,
                         action: {
                             if coordinator.locationAuthorization == .denied {
@@ -63,29 +63,28 @@ struct PermissionsView: View {
 
             Spacer()
 
-            // Navigation buttons
-            VStack(spacing: 12) {
-                Button {
-                    appState.onboarding.onboardingPath.append(.deviceScan)
-                } label: {
-                    Text(allPermissionsGranted ? L10n.Onboarding.Permissions.continue : L10n.Onboarding.Permissions.skipForNow)
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                }
-                .liquidGlassProminentButtonStyle()
-
-                Button {
-                    appState.onboarding.onboardingPath.removeLast()
-                } label: {
-                    Text(L10n.Onboarding.Permissions.back)
-                        .font(.subheadline)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
+            Button {
+                appState.onboarding.onboardingPath.append(.pair)
+            } label: {
+                Text(L10n.Onboarding.Permissions.continue)
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
             }
+            .liquidGlassProminentButtonStyle()
             .padding(.horizontal)
             .padding(.bottom)
+        }
+        .sensoryFeedback(.success, trigger: permissionGrantTrigger)
+        .onChange(of: coordinator.locationAuthorization) { _, new in
+            if new == .authorizedWhenInUse || new == .authorizedAlways {
+                permissionGrantTrigger.toggle()
+            }
+        }
+        .onChange(of: coordinator.notificationAuthorization) { _, new in
+            if new == .authorized {
+                permissionGrantTrigger.toggle()
+            }
         }
         .onChange(of: scenePhase) {
             if scenePhase == .active {
@@ -102,12 +101,6 @@ struct PermissionsView: View {
         } message: {
             Text(L10n.Onboarding.Permissions.LocationAlert.message)
         }
-    }
-
-    private var allPermissionsGranted: Bool {
-        let notificationsGranted = coordinator.notificationAuthorization == .authorized
-        let locationGranted = coordinator.locationAuthorization == .authorizedWhenInUse || coordinator.locationAuthorization == .authorizedAlways
-        return notificationsGranted && locationGranted
     }
 }
 

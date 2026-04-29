@@ -1,12 +1,12 @@
 import Foundation
 import MeshCore
 
-/// Broadcasts a repeater DISCOVER_REQ over the mesh, then queries each responder
-/// for its list of known regions. Returns regions the caller does not already know.
+/// Discovers and tracks *firmware-mesh regions* — named flood-routing scopes
+/// advertised by repeaters via `DISCOVER_REQ` / 0x04 filter.
 ///
-/// Callers supply already-known regions so the helper can subtract them and return
-/// only *new* names. UI feedback (progress text, error messages) is the caller's
-/// responsibility — the helper exposes outcomes via ``Outcome``.
+/// Vocabulary note: `RegionalAreas` and `RegionResolver` (introduced in the
+/// onboarding redesign) use "region" to mean *user geographic location*. These
+/// two concepts share a word but no semantic overlap.
 public enum RegionDiscoveryService {
 
     /// Filter value for DISCOVER_REQ that requests only repeaters.
