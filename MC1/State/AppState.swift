@@ -40,6 +40,41 @@ public final class AppState {
         return CLLocation(latitude: device.latitude, longitude: device.longitude)
     }
 
+    // MARK: - Region preference
+
+    private static let regionKey = "userPrefs.region"
+
+    private var _regionResolver: RegionResolver?
+    public var regionResolver: RegionResolver {
+        if let existing = _regionResolver { return existing }
+        let resolver = RegionResolver(location: locationService)
+        _regionResolver = resolver
+        return resolver
+    }
+
+    public var regionSelection: RegionSelection? {
+        didSet { persistRegionSelection() }
+    }
+
+    private func persistRegionSelection() {
+        if let regionSelection,
+           let data = try? JSONEncoder().encode(regionSelection) {
+            UserDefaults.standard.set(data, forKey: Self.regionKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: Self.regionKey)
+        }
+    }
+
+    private func loadPersistedRegionSelection() {
+        guard let data = UserDefaults.standard.data(forKey: Self.regionKey) else { return }
+        guard let decoded = try? JSONDecoder().decode(RegionSelection.self, from: data) else {
+            logger.warning("Failed to decode persisted region selection — clearing key")
+            UserDefaults.standard.removeObject(forKey: Self.regionKey)
+            return
+        }
+        self.regionSelection = decoded
+    }
+
     // MARK: - Connection (via ConnectionManager)
 
     /// The connection manager for device lifecycle
@@ -210,6 +245,8 @@ public final class AppState {
         connectionManager.onDeviceSynced = { [weak self] in
             self?.performStaleNodeCleanup()
         }
+
+        loadPersistedRegionSelection()
     }
 
     // MARK: - Lifecycle

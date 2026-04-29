@@ -242,3 +242,15 @@
 
 /* Location: WiFiConnectionSheet.swift - Error message for invalid port */
 "wifiConnection.error.invalidPort" = "Invalid port number";
+
+
+// MARK: - Region Picker View
+
+/* Location: RegionPickerView.swift - Country picker label */
+"region.country" = "Country";
+
+/* Location: RegionPickerView.swift - State/Province picker label */
+"region.administrativeArea" = "State / Province";
+
+/* Location: RegionPickerView.swift - Continue CTA in manual picker */
+"region.continue" = "Continue";

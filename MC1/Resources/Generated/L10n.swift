@@ -2381,6 +2381,14 @@ public enum L10n {
       /// Location: RadioPresetOnboardingView.swift - Screen title for radio settings
       public static let title = L10n.tr("Onboarding", "radioPreset.title", fallback: "Radio Settings")
     }
+    public enum Region {
+      /// Location: RegionPickerView.swift - State/Province picker label
+      public static let administrativeArea = L10n.tr("Onboarding", "region.administrativeArea", fallback: "State / Province")
+      /// Location: RegionPickerView.swift - Continue CTA in manual picker
+      public static let `continue` = L10n.tr("Onboarding", "region.continue", fallback: "Continue")
+      /// Location: RegionPickerView.swift - Country picker label
+      public static let country = L10n.tr("Onboarding", "region.country", fallback: "Country")
+    }
     public enum Troubleshooting {
       /// Location: DeviceScanView.swift - Navigation title for troubleshooting sheet
       public static let title = L10n.tr("Onboarding", "troubleshooting.title", fallback: "Troubleshooting")
@@ -4028,8 +4036,16 @@ public enum L10n {
       public static let footer = L10n.tr("Settings", "radio.footer", fallback: "Choose a preset matching your region. MeshCore devices must use the same radio settings in order to communicate.")
       /// Section header for radio settings
       public static let header = L10n.tr("Settings", "radio.header", fallback: "Radio")
+      /// Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region
+      public static func mismatchHint(_ p1: Any, _ p2: Any) -> String {
+        return L10n.tr("Settings", "radio.mismatchHint", String(describing: p1), String(describing: p2), fallback: "Your radio is on %@, not the recommended preset for %@.")
+      }
       /// Label for radio preset picker
       public static let preset = L10n.tr("Settings", "radio.preset", fallback: "Radio Preset")
+      /// Location: RadioPresetSection.swift - Footer line listing the user's region
+      public static func regionFooter(_ p1: Any) -> String {
+        return L10n.tr("Settings", "radio.regionFooter", String(describing: p1), fallback: "Showing recommended presets for %@.")
+      }
       /// Toggle label for repeat mode
       public static let repeatMode = L10n.tr("Settings", "radio.repeatMode", fallback: "Repeat Mode")
       public enum RepeatMode {
@@ -4097,6 +4113,18 @@ public enum L10n {
         public static let explanation = L10n.tr("Settings", "regenerateIdentity.sheet.explanation", fallback: "Generate a new Ed25519 keypair to replace your device's current identity. All contacts will need to re-discover your device.")
         /// Navigation title for the regenerate identity sheet
         public static let title = L10n.tr("Settings", "regenerateIdentity.sheet.title", fallback: "Regenerate Key")
+      }
+    }
+    public enum Region {
+      /// Location: SettingsView.swift - Detail row when region is unset
+      public static let notSet = L10n.tr("Settings", "region.notSet", fallback: "Not set")
+      /// Location: RegionSettingsView.swift - Title
+      public static let title = L10n.tr("Settings", "region.title", fallback: "Region")
+      public enum Source {
+        /// Location: SettingsView.swift - Caption when region was auto-detected
+        public static let location = L10n.tr("Settings", "region.source.location", fallback: "Auto-detected")
+        /// Location: SettingsView.swift - Caption when region was manually set
+        public static let manual = L10n.tr("Settings", "region.source.manual", fallback: "Manually set")
       }
     }
     public enum ReplyWithQuote {

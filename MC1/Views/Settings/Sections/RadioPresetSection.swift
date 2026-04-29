@@ -58,6 +58,16 @@ struct RadioPresetSection: View {
         )
     }
 
+    private var mismatchHint: String? {
+        guard let region = appState.regionSelection,
+              let current = currentPreset else { return nil }
+        let regionPresets = RadioPresets.presets(for: region).map(\.id)
+        guard !regionPresets.contains(current.id) else { return nil }
+        return L10n.Settings.Radio.mismatchHint(
+            current.name, RegionalAreas.displayName(for: region)
+        )
+    }
+
     private var currentMatchingPresetID: String? {
         isRepeatEnabled ? currentRepeatPreset?.id : currentPreset?.id
     }
@@ -142,7 +152,16 @@ struct RadioPresetSection: View {
         } header: {
             Text(L10n.Settings.Radio.header)
         } footer: {
-            Text(L10n.Settings.Radio.footer)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(L10n.Settings.Radio.footer)
+                if let region = appState.regionSelection {
+                    Text(L10n.Settings.Radio.regionFooter(RegionalAreas.displayName(for: region)))
+                }
+                if let mismatch = mismatchHint {
+                    Text(mismatch)
+                        .foregroundStyle(.orange)
+                }
+            }
         }
         .onAppear {
             isRepeatEnabled = appState.connectedDevice?.clientRepeat ?? false

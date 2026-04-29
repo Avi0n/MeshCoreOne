@@ -865,6 +865,12 @@
 /* Confirmation dialog enable button */
 "radio.repeatMode.confirm.enable" = "Enable";
 
+/* Location: RadioPresetSection.swift - Footer line listing the user's region */
+"radio.regionFooter" = "Showing recommended presets for %@.";
+
+/* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
+"radio.mismatchHint" = "Your radio is on %@, not the recommended preset for %@.";
+
 
 // MARK: - Telemetry Settings Section
 
@@ -1201,6 +1207,21 @@
 
 /* Location: SettingsView.swift - Purpose: Language row title */
 "language.title" = "Language";
+
+
+// MARK: - Region
+
+/* Location: RegionSettingsView.swift - Title */
+"region.title" = "Region";
+
+/* Location: SettingsView.swift - Detail row when region is unset */
+"region.notSet" = "Not set";
+
+/* Location: SettingsView.swift - Caption when region was auto-detected */
+"region.source.location" = "Auto-detected";
+
+/* Location: SettingsView.swift - Caption when region was manually set */
+"region.source.manual" = "Manually set";
 
 
 
