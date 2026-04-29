@@ -101,7 +101,7 @@
 "tools.rxLog.rssiLabel" = "RSSI：";
 
 /* Location: RxLogView.swift - SNR label */
-"tools.rxLog.snrLabel"  = "信噪比：";
+"tools.rxLog.snrLabel" = "信噪比：";
 
 /* Location: RxLogView.swift - Type label */
 "tools.rxLog.typeLabel" = "类型：";
@@ -424,6 +424,9 @@
 
 /* Location: LineOfSightView.swift - Repeater location map item name */
 "tools.lineOfSight.repeaterLocation" = "转发节点位置";
+
+/* Location: LineOfSightViewModel.swift - Dropped pin display name */
+"tools.lineOfSight.droppedPin" = "已放置的图钉";
 
 /* Location: LOSRepeaterPinView.swift - Accessibility hint for repeater pins */
 "tools.lineOfSight.repeaterPin.accessibilityHint" = "双击以选择为分析点";

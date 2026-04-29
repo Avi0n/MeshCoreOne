@@ -13,7 +13,7 @@
 "welcome.title" = "MeshCore One";
 
 /* Location: WelcomeView.swift - Subtitle describing the app */
-"welcome.subtitle" = "Мобильная связь не нужна. Ваши сообщения передаются через сообщественную радиосеть.";
+"welcome.subtitle" = "Мобильная связь не нужна. Ваши сообщения передаются через общественную радиосеть.";
 
 /* Location: WelcomeView.swift - Button to proceed to next onboarding step */
 "welcome.getStarted" = "Начать";
@@ -37,7 +37,7 @@
 "permissions.location.title" = "Местоположение";
 
 /* Location: PermissionsView.swift - Permission card description for location */
-"permissions.location.description" = "Предлагает рекомендуемый пресет радио для вашего района, отображает вашу позицию на картах и сортирует контакты по расстоянию.";
+"permissions.location.description" = "Предлагает рекомендуемую предустановку радио для вашего района, отображает вашу позицию на картах и сортирует контакты по расстоянию.";
 
 /* Location: PermissionsView.swift - Button to proceed to next step */
 "permissions.continue" = "Продолжить";
@@ -178,13 +178,13 @@
 // MARK: - Preset Step View
 
 /* Location: PresetStepView.swift - Title */
-"preset.title" = "Выберите пресет";
+"preset.title" = "Выберите предустановку";
 
 /* Location: PresetStepView.swift - Subtitle when recommendation exists */
 "preset.subtitle.recommended" = "Рекомендуется для %@";
 
 /* Location: PresetStepView.swift - Subtitle for empty-region fallback */
-"preset.subtitle.locale" = "Выберите пресет для своего радио.";
+"preset.subtitle.locale" = "Выберите предустановку для своего радио.";
 
 /* Location: PresetStepView.swift - "Recommended" tag */
 "preset.recommendedTag" = "Рекомендуется";
@@ -196,13 +196,13 @@
 "preset.alreadyConfigured.title" = "Уже настроено";
 
 /* Location: PresetStepView.swift - Already-configured subtitle */
-"preset.alreadyConfigured.subtitle" = "Ваше радио уже настроено на %@, рекомендуемый пресет для %@.";
+"preset.alreadyConfigured.subtitle" = "Ваше радио уже настроено на %@, рекомендуемую предустановку для %@.";
 
 /* Location: PresetStepView.swift - Already-configured primary CTA */
 "preset.alreadyConfigured.done" = "Готово";
 
 /* Location: PresetStepView.swift - Already-configured secondary link */
-"preset.alreadyConfigured.choose" = "Выбрать другой пресет";
+"preset.alreadyConfigured.choose" = "Выбрать другую предустановку";
 
 // MARK: - WiFi Connection Sheet
 
@@ -252,10 +252,10 @@
 "region.title" = "Выберите регион";
 
 /* Location: RegionStepView.swift - Subtitle in detected state */
-"region.subtitle.detected" = "Мы покажем пресеты, которые работают в вашем районе.";
+"region.subtitle.detected" = "Мы покажем предустановки, которые работают в вашем районе.";
 
 /* Location: RegionStepView.swift - Subtitle in manual state */
-"region.subtitle.manual" = "Мы покажем пресеты, которые работают в вашем районе.";
+"region.subtitle.manual" = "Мы покажем предустановки, которые работают в вашем районе.";
 
 /* Location: RegionStepView.swift - "Detected" tag */
 "region.detected.tag" = "Определено";

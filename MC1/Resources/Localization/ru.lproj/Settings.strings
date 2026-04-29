@@ -382,7 +382,7 @@
 "batteryCurve.footer" = "Настройте кривую напряжение-процент для батареи вашего устройства.";
 
 /* Label for preset picker */
-"batteryCurve.preset" = "Пресет";
+"batteryCurve.preset" = "Предустановка";
 
 /* Option for custom battery curve */
 "batteryCurve.custom" = "Пользовательский";
@@ -793,10 +793,10 @@
 "radio.header" = "Радио";
 
 /* Label for radio preset picker */
-"radio.preset" = "Пресет радио";
+"radio.preset" = "Предустановка радио";
 
 /* Footer explaining radio presets */
-"radio.footer" = "Выберите пресет, соответствующий вашему региону. Устройства MeshCore должны использовать одинаковые настройки радио для связи.";
+"radio.footer" = "Выберите предустановку, соответствующую вашему региону. Устройства MeshCore должны использовать одинаковые настройки радио для связи.";
 
 /* Toggle label for repeat mode */
 "radio.repeatMode" = "Режим ретранслятора";
@@ -817,10 +817,10 @@
 "radio.repeatMode.confirm.enable" = "Включить";
 
 /* Location: RadioPresetSection.swift - Footer line listing the user's region */
-"radio.regionFooter" = "Отображение рекомендуемых пресетов для %@.";
+"radio.regionFooter" = "Отображение рекомендуемых предустановок для %@.";
 
 /* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
-"radio.mismatchHint" = "Ваше радио настроено на %@, а не на рекомендуемый пресет для %@.";
+"radio.mismatchHint" = "Ваше радио настроено на %@, а не на рекомендуемую предустановку для %@.";
 
 
 // MARK: - Telemetry Settings Section
