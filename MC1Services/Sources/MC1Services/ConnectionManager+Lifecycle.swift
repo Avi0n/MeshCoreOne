@@ -613,63 +613,74 @@ extension ConnectionManager {
         connectionIntent = .wantsConnection()
         persistIntent()
 
-        // Validate device is registered with ASK
-        if accessorySetupKit.isSessionActive {
-            let isRegistered = accessorySetupKit.pairedAccessories.contains {
-                $0.bluetoothIdentifier == deviceID
+        do {
+            // Validate device is registered with ASK
+            if accessorySetupKit.isSessionActive {
+                let isRegistered = accessorySetupKit.pairedAccessories.contains {
+                    $0.bluetoothIdentifier == deviceID
+                }
+                if !isRegistered {
+                    await logDeviceNotFoundDiagnostics(deviceID: deviceID, context: "switchDevice ASK paired accessories mismatch")
+                    throw ConnectionError.deviceNotFound
+                }
             }
-            if !isRegistered {
-                await logDeviceNotFoundDiagnostics(deviceID: deviceID, context: "switchDevice ASK paired accessories mismatch")
-                throw ConnectionError.deviceNotFound
+
+            // Cancel any resync loop from the old device before teardown
+            cancelResyncLoop()
+
+            // Reset sync state before destroying services to prevent stuck "Syncing" pill
+            if let services {
+                await services.syncCoordinator.onDisconnected(services: services)
             }
+
+            // Stop current services
+            await services?.stopEventMonitoring()
+            await session?.stop()
+
+            // Switch transport
+            logger.info("[BLE] switchDevice: state → .connecting for device: \(deviceID.uuidString.prefix(8))")
+            connectionState = .connecting
+            try await transport.switchDevice(to: deviceID)
+            logger.info("[BLE] switchDevice: state → .connected for device: \(deviceID.uuidString.prefix(8))")
+            connectionState = .connected
+
+            // Re-create session with existing transport
+            let newSession = MeshCoreSession(transport: transport)
+            self.session = newSession
+
+            let (meshCoreSelfInfo, deviceCapabilities) = try await initializeSession(newSession)
+
+            // Configure BLE write pacing based on device platform
+            await configureBLEPacing(for: deviceCapabilities)
+
+            let newServices = try await buildServicesAndSaveDevice(
+                deviceID: deviceID,
+                session: newSession,
+                selfInfo: meshCoreSelfInfo,
+                capabilities: deviceCapabilities
+            )
+
+            // Persist connection for auto-reconnect
+            let radioID = connectedDevice!.radioID
+            persistConnection(deviceID: deviceID, radioID: radioID, deviceName: meshCoreSelfInfo.name)
+
+            // Notify observers BEFORE sync starts so they can wire callbacks
+            await onConnectionReady?()
+            let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, context: "Device switch", forceFullSync: true)
+
+            guard await promoteToReady(syncSucceeded: syncSucceeded, expectedServices: newServices, transportType: .bluetooth) else { return }
+
+            stopReconnectionWatchdog()
+            logger.info("Device switch complete - device ready")
+        } catch {
+            // Without this, a partial switch would leave services, session, and
+            // connectedDevice pointing at the old device with state stuck on
+            // .connecting or .connected. pairNewDevice routes through here when
+            // an old radio is still connected, so the failure alert's recovery
+            // actions need clean state.
+            await cleanupConnection()
+            await transport.disconnect()
+            throw error
         }
-
-        // Cancel any resync loop from the old device before teardown
-        cancelResyncLoop()
-
-        // Reset sync state before destroying services to prevent stuck "Syncing" pill
-        if let services {
-            await services.syncCoordinator.onDisconnected(services: services)
-        }
-
-        // Stop current services
-        await services?.stopEventMonitoring()
-        await session?.stop()
-
-        // Switch transport
-        logger.info("[BLE] switchDevice: state → .connecting for device: \(deviceID.uuidString.prefix(8))")
-        connectionState = .connecting
-        try await transport.switchDevice(to: deviceID)
-        logger.info("[BLE] switchDevice: state → .connected for device: \(deviceID.uuidString.prefix(8))")
-        connectionState = .connected
-
-        // Re-create session with existing transport
-        let newSession = MeshCoreSession(transport: transport)
-        self.session = newSession
-
-        let (meshCoreSelfInfo, deviceCapabilities) = try await initializeSession(newSession)
-
-        // Configure BLE write pacing based on device platform
-        await configureBLEPacing(for: deviceCapabilities)
-
-        let newServices = try await buildServicesAndSaveDevice(
-            deviceID: deviceID,
-            session: newSession,
-            selfInfo: meshCoreSelfInfo,
-            capabilities: deviceCapabilities
-        )
-
-        // Persist connection for auto-reconnect
-        let radioID = connectedDevice!.radioID
-        persistConnection(deviceID: deviceID, radioID: radioID, deviceName: meshCoreSelfInfo.name)
-
-        // Notify observers BEFORE sync starts so they can wire callbacks
-        await onConnectionReady?()
-        let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, context: "Device switch", forceFullSync: true)
-
-        guard await promoteToReady(syncSucceeded: syncSucceeded, expectedServices: newServices, transportType: .bluetooth) else { return }
-
-        stopReconnectionWatchdog()
-        logger.info("Device switch complete - device ready")
     }
 }
