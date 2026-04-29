@@ -86,9 +86,9 @@ extension ConnectionManager {
         if let accessory = accessorySetupKit.accessory(for: deviceID) {
             try? await accessorySetupKit.removeAccessory(accessory)
         }
-        // Defensive write: redundant for the connectWithRetry cancellation path
-        // (its catch arm at +Lifecycle:418 already set .disconnected) but necessary
-        // for the switchDevice path, which propagates throws without resetting state.
+        // Defensive write: connectWithRetry's failure path already sets
+        // .disconnected, but switchDevice propagates throws without resetting
+        // state, so this assignment is required for that path.
         connectionState = .disconnected
     }
 

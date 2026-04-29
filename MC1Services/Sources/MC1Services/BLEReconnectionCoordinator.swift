@@ -88,12 +88,9 @@ final class BLEReconnectionCoordinator {
             return
         }
 
-        // Only accept completions for a reconnect cycle we explicitly claimed via
-        // handleEnteringAutoReconnect. A nil claim means the entry was suppressed
-        // (e.g., during pairing, by shouldDeferOpportunisticReconnect) or cleared
-        // by a manual connect that superseded auto-reconnect. In either case, an
-        // orphaned completion would race the new flow.
-        // Don't cancel the active timeout — the current reconnect retains its fallback.
+        // Reject completions for cycles we didn't claim — an orphaned completion
+        // would race the new flow. Don't cancel the active timeout — the current
+        // reconnect retains its fallback.
         guard reconnectingDeviceID == deviceID else {
             let claim = reconnectingDeviceID?.uuidString.prefix(8) ?? "no claim"
             logger.warning("[BLE] Ignoring auto-reconnect completion for \(deviceID.uuidString.prefix(8)): \(claim)")

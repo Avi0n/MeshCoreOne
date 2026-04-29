@@ -124,8 +124,6 @@ public final class AccessorySetupKitService {
             pickerContinuation = nil
         case .accessoryAdded:
             if let accessory = event.accessory {
-                pairedAccessories = session?.accessories ?? []
-
                 if pickerWasCancelled {
                     pickerWasCancelled = false
                     // Set to "orphanedAfterCancellation" so the next pickerDidDismiss
@@ -142,9 +140,12 @@ public final class AccessorySetupKitService {
                             self.logger.warning("[ASK] Failed to remove orphaned accessory: \(error.localizedDescription)")
                         }
                     }
+                    // Skip the post-add `pairedAccessories` write — `removeAccessory`'s
+                    // own write is the correct final state for the cancelled branch.
                     return
                 }
 
+                pairedAccessories = session?.accessories ?? []
                 pickerOutcome = "selected"
                 logger.info("Accessory added: \(accessory.displayName)")
                 logger.info(
@@ -193,9 +194,7 @@ public final class AccessorySetupKitService {
             )
             pickerPresentedAt = nil
             pickerOutcome = "cancelled"
-            // Reset the cancel sentinel for tidiness. ASK doesn't normally fire
-            // accessoryAdded after dismiss, but keeping the flag clean here means
-            // a subsequent showPicker doesn't depend on its own reset at line 263.
+            // Defense-in-depth: don't rely on `showPicker` to clear the flag.
             pickerWasCancelled = false
             resumePickerContinuation(with: .failure(AccessorySetupKitError.pickerDismissed))
 
