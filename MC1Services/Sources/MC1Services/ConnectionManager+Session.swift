@@ -28,21 +28,24 @@ extension ConnectionManager: BLEReconnectionDelegate {
     }
 
     func teardownSessionForReconnect() async {
-        // Mark room sessions disconnected before tearing down services.
-        let remoteNodeService = services?.remoteNodeService
-        if let remoteNodeService {
-            sessionsAwaitingReauth = await remoteNodeService.handleBLEDisconnection()
-        }
-
-        await services?.stopEventMonitoring()
-        cancelResyncLoop()
-
-        // Reset sync state before destroying services to prevent stuck "Syncing" pill
-        if let services {
-            await services.syncCoordinator.onDisconnected(services: services)
-        }
+        // Capture and clear synchronously so a concurrent rebuildSession can
+        // assume nil-and-rebuild without racing the terminal writes that used
+        // to land at the end of this method. Subsequent awaits operate on the
+        // captured local — they no longer touch self.services / self.session.
+        let oldServices = services
         services = nil
         session = nil
+
+        if let oldServices {
+            sessionsAwaitingReauth = await oldServices.remoteNodeService.handleBLEDisconnection()
+            await oldServices.stopEventMonitoring()
+        }
+        cancelResyncLoop()
+
+        // Reset sync state on the captured services to prevent stuck "Syncing" pill
+        if let oldServices {
+            await oldServices.syncCoordinator.onDisconnected(services: oldServices)
+        }
     }
 
     // Background execution note: iOS provides ~10s of background execution time.

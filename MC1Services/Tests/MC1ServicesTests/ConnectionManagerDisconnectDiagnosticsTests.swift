@@ -33,15 +33,17 @@ struct ConnectionManagerDisconnectDiagnosticsTests {
             errorInfo: "domain=CBErrorDomain, code=15, desc=Failed to encrypt"
         )
 
-        // Wait for auto-reconnect handler to propagate state
-        try await waitUntil("connectionState should transition to .connecting") {
+        // Wait for both the .connecting state transition and the diagnostic write —
+        // the handler claims the cycle (sync) before running the state-machine
+        // queries that feed the diagnostic, so observing only the state can race
+        // ahead of the persistDisconnectDiagnostic call.
+        try await waitUntil("connectionState should transition to .connecting and diagnostic should be persisted") {
             manager.connectionState == .connecting
+            && (manager.lastDisconnectDiagnostic ?? "")
+                .localizedStandardContains("source=bleStateMachine.autoReconnectingHandler")
         }
 
         let diagnostic = manager.lastDisconnectDiagnostic ?? ""
-        #expect(
-            diagnostic.localizedStandardContains("source=bleStateMachine.autoReconnectingHandler")
-        )
         #expect(diagnostic.localizedStandardContains("code=15"))
         #expect(manager.connectionState == .connecting)
     }

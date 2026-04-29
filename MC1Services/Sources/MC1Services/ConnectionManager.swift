@@ -813,12 +813,22 @@ public final class ConnectionManager {
                         return
                     }
 
+                    // Snapshot pre-claim state before entering — handleEnteringAutoReconnect
+                    // mutates connectionState to .connecting before its first await.
                     let initialState = String(describing: self.connectionState)
                     let transportName = switch self.currentTransportType {
                     case .bluetooth: "bluetooth"
                     case .wifi: "wifi"
                     case nil: "none"
                     }
+
+                    // Claim before the state-machine queries below. Without this,
+                    // a state-restoration adoption where iOS callbacks land within
+                    // microseconds of each other can fire onReconnection while these
+                    // awaits are still queued, and the strict completion guard would
+                    // drop the completion since reconnectingDeviceID is still nil.
+                    await self.reconnectionCoordinator.handleEnteringAutoReconnect(deviceID: deviceID)
+
                     let bleState = await self.stateMachine.centralManagerStateName
                     let blePhase = await self.stateMachine.currentPhaseName
                     let blePeripheralState = await self.stateMachine.currentPeripheralState ?? "none"
@@ -834,8 +844,6 @@ public final class ConnectionManager {
                         "error=\(errorInfo), " +
                         "intent=\(self.connectionIntent)"
                     )
-
-                    await self.reconnectionCoordinator.handleEnteringAutoReconnect(deviceID: deviceID)
                 }
             }
 
