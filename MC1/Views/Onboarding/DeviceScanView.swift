@@ -189,6 +189,15 @@ struct DeviceScanView: View {
         .sensoryFeedback(.success, trigger: pairingSuccessTrigger)
         .sensoryFeedback(.success, trigger: demoModeUnlockTrigger)
         .sensoryFeedback(.error, trigger: failureHapticTrigger)
+        .onChange(of: appState.connectionUI.otherAppWarningDeviceID) { _, newValue in
+            // retryFailedPairingConnect surfaces other-app failures via the
+            // ConnectionUI alert without going through startPairing's local
+            // catch, so we rely on this observer to keep the recovery button
+            // pinned to "Retry connection" after the warning is dismissed.
+            if let newValue {
+                otherAppDeviceID = newValue
+            }
+        }
         .sheet(isPresented: $showTroubleshooting) {
             TroubleshootingSheet()
         }
