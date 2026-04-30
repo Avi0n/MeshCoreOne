@@ -269,15 +269,19 @@ public enum RadioPresets {
         }
     }
 
+    /// Stable recommendation order, computed once. `recommendationPriority` is a
+    /// compile-time constant on each preset so the sort output never changes.
+    private static let recommendationOrder: [RadioPreset] = all.sorted {
+        $0.recommendationPriority != $1.recommendationPriority
+            ? $0.recommendationPriority > $1.recommendationPriority
+            : $0.id < $1.id
+    }
+
     /// Returns the most-specific community-curated preset for `region`.
     /// Tier 0 (county) → Tier 1 (sub-region) → Tier 2 (country) → Tier 3 (continent).
     /// Returns nil for regions not covered by any tier (e.g. Bermuda).
     public static func recommended(for region: RegionSelection) -> RadioPreset? {
-        let stable = all.sorted {
-            $0.recommendationPriority != $1.recommendationPriority
-                ? $0.recommendationPriority > $1.recommendationPriority
-                : $0.id < $1.id
-        }
+        let stable = recommendationOrder
 
         // Tier 0: counties
         if let adminCode = region.administrativeAreaCode,

@@ -19,8 +19,8 @@ struct DeviceScanView: View {
     }
 
     var body: some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 12) {
+        VStack(spacing: OnboardingMetrics.largeSpacing) {
+            VStack(spacing: OnboardingMetrics.mediumSpacing) {
                 PulsingAntenna()
 
                 Text(L10n.Onboarding.DeviceScan.title)
@@ -43,7 +43,7 @@ struct DeviceScanView: View {
             Spacer()
 
             if hasConnectedDevice && !didInitiatePairing {
-                VStack(spacing: 12) {
+                VStack(spacing: OnboardingMetrics.mediumSpacing) {
                     Text(L10n.Onboarding.DeviceScan.alreadyPaired)
                         .font(.title2)
                         .multilineTextAlignment(.center)
@@ -53,7 +53,7 @@ struct DeviceScanView: View {
 
             Spacer()
 
-            VStack(spacing: 12) {
+            VStack(spacing: OnboardingMetrics.mediumSpacing) {
                 if hasConnectedDevice {
                     Button {
                         appState.onboarding.onboardingPath.append(.region)
@@ -68,10 +68,10 @@ struct DeviceScanView: View {
                     primaryCTA
 
                     ViewThatFits {
-                        HStack(spacing: 24) {
+                        HStack(spacing: OnboardingMetrics.largeSpacing) {
                             secondaryButtons
                         }
-                        VStack(spacing: 12) {
+                        VStack(spacing: OnboardingMetrics.mediumSpacing) {
                             secondaryButtons
                         }
                     }

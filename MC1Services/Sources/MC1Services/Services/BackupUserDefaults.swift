@@ -54,6 +54,27 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     /// Public so `AppState` (and tests) can persist via the same key without a duplicated literal.
     public static let regionSelectionKey = "userPrefs.region"
 
+    // MARK: - Region selection persistence
+
+    /// Single source of truth for the encoder/decoder used by `regionSelection`.
+    /// Both `BackupUserDefaults.snapshot`/`restore` and `AppState`'s live persistence
+    /// path go through these helpers, so the on-disk format cannot drift.
+    public static func loadRegionSelection(from defaults: UserDefaults = .standard) -> RegionSelection? {
+        guard let data = defaults.data(forKey: regionSelectionKey) else { return nil }
+        return try? JSONDecoder().decode(RegionSelection.self, from: data)
+    }
+
+    public static func persistRegionSelection(
+        _ region: RegionSelection?,
+        to defaults: UserDefaults = .standard
+    ) {
+        if let region, let data = try? JSONEncoder().encode(region) {
+            defaults.set(data, forKey: regionSelectionKey)
+        } else {
+            defaults.removeObject(forKey: regionSelectionKey)
+        }
+    }
+
     // MARK: - UserDefaults key mapping
 
     /// Mapping from struct keyPaths to their UserDefaults key strings.
@@ -131,10 +152,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
 
         result.recentEmojis = defaults.stringArray(forKey: Self.recentReactionEmojisKey)
 
-        if let data = defaults.data(forKey: Self.regionSelectionKey),
-           let decoded = try? JSONDecoder().decode(RegionSelection.self, from: data) {
-            result.regionSelection = decoded
-        }
+        result.regionSelection = Self.loadRegionSelection(from: defaults)
 
         return result
     }
@@ -182,9 +200,8 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
         }
 
         if let region = regionSelection,
-           defaults.object(forKey: Self.regionSelectionKey) == nil,
-           let data = try? JSONEncoder().encode(region) {
-            defaults.set(data, forKey: Self.regionSelectionKey)
+           defaults.object(forKey: Self.regionSelectionKey) == nil {
+            Self.persistRegionSelection(region, to: defaults)
             setKeys.append(Self.regionSelectionKey)
         }
 

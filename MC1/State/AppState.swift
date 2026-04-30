@@ -42,13 +42,7 @@ public final class AppState {
 
     // MARK: - Region preference
 
-    private var _regionResolver: RegionResolver?
-    public var regionResolver: RegionResolver {
-        if let existing = _regionResolver { return existing }
-        let resolver = RegionResolver(location: locationService)
-        _regionResolver = resolver
-        return resolver
-    }
+    @ObservationIgnored lazy var regionResolver = RegionResolver(location: locationService)
 
     /// Suppresses the `regionSelection` `didSet` write-back during cold-start load. Without
     /// this, `loadPersistedRegionSelection()` would re-encode the just-read JSON and rewrite
@@ -63,17 +57,12 @@ public final class AppState {
     }
 
     private func persistRegionSelection() {
-        if let regionSelection,
-           let data = try? JSONEncoder().encode(regionSelection) {
-            UserDefaults.standard.set(data, forKey: BackupUserDefaults.regionSelectionKey)
-        } else {
-            UserDefaults.standard.removeObject(forKey: BackupUserDefaults.regionSelectionKey)
-        }
+        BackupUserDefaults.persistRegionSelection(regionSelection)
     }
 
     private func loadPersistedRegionSelection() {
-        guard let data = UserDefaults.standard.data(forKey: BackupUserDefaults.regionSelectionKey) else { return }
-        guard let decoded = try? JSONDecoder().decode(RegionSelection.self, from: data) else {
+        guard UserDefaults.standard.data(forKey: BackupUserDefaults.regionSelectionKey) != nil else { return }
+        guard let decoded = BackupUserDefaults.loadRegionSelection() else {
             logger.warning("Failed to decode persisted region selection — clearing key")
             UserDefaults.standard.removeObject(forKey: BackupUserDefaults.regionSelectionKey)
             return

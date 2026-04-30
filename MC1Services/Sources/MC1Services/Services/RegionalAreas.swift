@@ -66,6 +66,13 @@ public enum RegionalAreas {
         "PH": .asia, "ID": .asia, "JP": .asia, "KR": .asia,
     ]
 
+    /// `countries` sorted by `localizedName` once at first access. The order freezes for
+    /// the process lifetime — acceptable because iOS app-language changes require relaunch,
+    /// so the user never sees a stale order in practice.
+    public static let countriesSortedByLocalizedName: [Country] = countries.sorted {
+        $0.localizedName < $1.localizedName
+    }
+
     public static let countries: [Country] = [
         Country(id: "US", subdivisions: usSubdivisions),
         Country(id: "CA", subdivisions: nil),
@@ -109,6 +116,14 @@ public enum RegionalAreas {
             "ventura", "imperial", "kern", "santa barbara", "san luis obispo",
         ],
     ]
+
+    /// Returns the subdivisions catalog for an ISO α-2 country code, or an empty array
+    /// when the country has no sub-region presets (or the code is unknown).
+    public static func subdivisions(for country: String?) -> [Subdivision] {
+        guard let country,
+              let entry = countries.first(where: { $0.id == country }) else { return [] }
+        return entry.subdivisions ?? []
+    }
 
     /// Returns the ISO 3166-2 subdivision code matching a normalized administrative area name.
     /// Matches against `Subdivision.normalizedNames`, which contains both the English long form

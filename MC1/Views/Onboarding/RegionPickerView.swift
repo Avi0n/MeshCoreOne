@@ -20,9 +20,7 @@ struct RegionPickerView: View {
     private var subdivision: String? { selection?.administrativeAreaCode }
 
     private var availableSubdivisions: [RegionalAreas.Subdivision] {
-        guard let country,
-              let entry = RegionalAreas.countries.first(where: { $0.id == country }) else { return [] }
-        return entry.subdivisions ?? []
+        RegionalAreas.subdivisions(for: country)
     }
 
     var body: some View {
@@ -98,7 +96,7 @@ private struct CountryPickerSheet: View {
     @State private var search = ""
 
     private var filtered: [RegionalAreas.Country] {
-        let all = RegionalAreas.countries.sorted { $0.localizedName < $1.localizedName }
+        let all = RegionalAreas.countriesSortedByLocalizedName
         guard !search.isEmpty else { return all }
         return all.filter { $0.localizedName.localizedStandardContains(search) }
     }
@@ -130,9 +128,7 @@ private struct SubdivisionPickerSheet: View {
     let onSelect: (String) -> Void
 
     private var rows: [RegionalAreas.Subdivision] {
-        guard let country,
-              let entry = RegionalAreas.countries.first(where: { $0.id == country }) else { return [] }
-        return entry.subdivisions ?? []
+        RegionalAreas.subdivisions(for: country)
     }
 
     var body: some View {

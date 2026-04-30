@@ -180,7 +180,7 @@ struct PresetStepView: View {
                 }
                 Text(preset.name)
                     .font(.title3.weight(.semibold))
-                Text("\(preset.frequencyMHz, format: .number.precision(.fractionLength(3))) MHz · SF\(preset.spreadingFactor)")
+                Text("\(preset.frequencyMHz, format: .number.precision(.fractionLength(3)).locale(.posix)) MHz · SF\(preset.spreadingFactor)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -205,7 +205,7 @@ struct PresetStepView: View {
                 VStack(alignment: .leading, spacing: OnboardingMetrics.compactSpacing) {
                     Text(preset.name)
                         .font(.body)
-                    Text("\(preset.frequencyMHz, format: .number.precision(.fractionLength(3))) MHz")
+                    Text("\(preset.frequencyMHz, format: .number.precision(.fractionLength(3)).locale(.posix)) MHz")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
