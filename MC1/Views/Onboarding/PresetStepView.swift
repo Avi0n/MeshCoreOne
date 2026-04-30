@@ -189,8 +189,9 @@ struct PresetStepView: View {
             .liquidGlass(in: .rect(cornerRadius: OnboardingMetrics.cardCornerRadius))
             .overlay(
                 RoundedRectangle(cornerRadius: OnboardingMetrics.cardCornerRadius)
-                    .stroke(selectedID == preset.id ? Color.accentColor : .clear, lineWidth: 2)
+                    .strokeBorder(selectedID == preset.id ? Color.accentColor : .clear, lineWidth: 2)
             )
+            .contentShape(.rect(cornerRadius: OnboardingMetrics.cardCornerRadius))
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
@@ -216,7 +217,8 @@ struct PresetStepView: View {
                 }
             }
             .padding()
-            .frame(minHeight: OnboardingMetrics.minHitTarget)
+            .frame(maxWidth: .infinity, minHeight: OnboardingMetrics.minHitTarget)
+            .contentShape(.rect)
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
