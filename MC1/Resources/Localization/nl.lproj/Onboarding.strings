@@ -260,11 +260,8 @@
 /* Location: RegionStepView.swift - Title (both states) */
 "region.title" = "Kies je regio";
 
-/* Location: RegionStepView.swift - Subtitle in detected state */
-"region.subtitle.detected" = "We tonen presets die werken in jouw omgeving.";
-
-/* Location: RegionStepView.swift - Subtitle in manual state */
-"region.subtitle.manual" = "We tonen presets die werken in jouw omgeving.";
+/* Location: RegionStepView.swift - Subtitle for the region step */
+"region.subtitle" = "We tonen presets die werken in jouw omgeving.";
 
 /* Location: RegionStepView.swift - "Detected" tag */
 "region.detected.tag" = "Gevonden";

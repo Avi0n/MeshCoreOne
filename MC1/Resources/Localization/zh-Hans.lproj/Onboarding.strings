@@ -257,11 +257,8 @@
 /* Location: RegionStepView.swift - Title (both states) */
 "region.title" = "选择您的地区";
 
-/* Location: RegionStepView.swift - Subtitle in detected state */
-"region.subtitle.detected" = "我们将显示适合您所在地区的预设。";
-
-/* Location: RegionStepView.swift - Subtitle in manual state */
-"region.subtitle.manual" = "我们将显示适合您所在地区的预设。";
+/* Location: RegionStepView.swift - Subtitle for the region step */
+"region.subtitle" = "我们将显示适合您所在地区的预设。";
 
 /* Location: RegionStepView.swift - "Detected" tag */
 "region.detected.tag" = "已检测";

@@ -260,11 +260,8 @@
 /* Location: RegionStepView.swift - Title (both states) */
 "region.title" = "Виберіть регіон";
 
-/* Location: RegionStepView.swift - Subtitle in detected state */
-"region.subtitle.detected" = "Ми покажемо пресети, які працюють у вашому районі.";
-
-/* Location: RegionStepView.swift - Subtitle in manual state */
-"region.subtitle.manual" = "Ми покажемо пресети, які працюють у вашому районі.";
+/* Location: RegionStepView.swift - Subtitle for the region step */
+"region.subtitle" = "Ми покажемо пресети, які працюють у вашому районі.";
 
 /* Location: RegionStepView.swift - "Detected" tag */
 "region.detected.tag" = "Визначено";

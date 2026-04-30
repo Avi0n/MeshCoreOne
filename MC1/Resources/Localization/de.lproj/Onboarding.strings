@@ -260,11 +260,8 @@
 /* Location: RegionStepView.swift - Title (both states) */
 "region.title" = "Region auswählen";
 
-/* Location: RegionStepView.swift - Subtitle in detected state */
-"region.subtitle.detected" = "Wir zeigen Presets, die in deiner Region funktionieren.";
-
-/* Location: RegionStepView.swift - Subtitle in manual state */
-"region.subtitle.manual" = "Wir zeigen Presets, die in deiner Region funktionieren.";
+/* Location: RegionStepView.swift - Subtitle for the region step */
+"region.subtitle" = "Wir zeigen Presets, die in deiner Region funktionieren.";
 
 /* Location: RegionStepView.swift - "Detected" tag */
 "region.detected.tag" = "Erkannt";

@@ -263,11 +263,8 @@
 /* Location: RegionStepView.swift - Title (both states) */
 "region.title" = "Choose your region";
 
-/* Location: RegionStepView.swift - Subtitle in detected state */
-"region.subtitle.detected" = "We'll show presets that work in your area.";
-
-/* Location: RegionStepView.swift - Subtitle in manual state */
-"region.subtitle.manual" = "We'll show presets that work in your area.";
+/* Location: RegionStepView.swift - Subtitle for the region step */
+"region.subtitle" = "We'll show presets that work in your area.";
 
 /* Location: RegionStepView.swift - "Detected" tag */
 "region.detected.tag" = "Detected";

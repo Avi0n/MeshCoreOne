@@ -2416,6 +2416,8 @@ public enum L10n {
       public static let country = L10n.tr("Onboarding", "region.country", fallback: "Country")
       /// Location: RegionStepView.swift - "Finding your region…"
       public static let resolving = L10n.tr("Onboarding", "region.resolving", fallback: "Finding your region…")
+      /// Location: RegionStepView.swift - Subtitle for the region step
+      public static let subtitle = L10n.tr("Onboarding", "region.subtitle", fallback: "We'll show presets that work in your area.")
       /// Location: RegionStepView.swift - Title (both states)
       public static let title = L10n.tr("Onboarding", "region.title", fallback: "Choose your region")
       /// Location: RegionStepView.swift - "Use my location" link in manual state
@@ -2427,12 +2429,6 @@ public enum L10n {
         public static let source = L10n.tr("Onboarding", "region.detected.source", fallback: "From your location")
         /// Location: RegionStepView.swift - "Detected" tag
         public static let tag = L10n.tr("Onboarding", "region.detected.tag", fallback: "Detected")
-      }
-      public enum Subtitle {
-        /// Location: RegionStepView.swift - Subtitle in detected state
-        public static let detected = L10n.tr("Onboarding", "region.subtitle.detected", fallback: "We'll show presets that work in your area.")
-        /// Location: RegionStepView.swift - Subtitle in manual state
-        public static let manual = L10n.tr("Onboarding", "region.subtitle.manual", fallback: "We'll show presets that work in your area.")
       }
       public enum UseMyLocation {
         /// Location: RegionStepView.swift - Error shown when user-initiated retry of "Use my location" cannot resolve a region
@@ -4158,12 +4154,6 @@ public enum L10n {
       public static let notSet = L10n.tr("Settings", "region.notSet", fallback: "Not set")
       /// Location: RegionSettingsView.swift - Title
       public static let title = L10n.tr("Settings", "region.title", fallback: "Region")
-      public enum Source {
-        /// Location: SettingsView.swift - Caption when region was auto-detected
-        public static let location = L10n.tr("Settings", "region.source.location", fallback: "Auto-detected")
-        /// Location: SettingsView.swift - Caption when region was manually set
-        public static let manual = L10n.tr("Settings", "region.source.manual", fallback: "Manually set")
-      }
       public enum Subdivision {
         /// Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name
         public static let auQld = L10n.tr("Settings", "region.subdivision.AU-QLD", fallback: "Queensland")

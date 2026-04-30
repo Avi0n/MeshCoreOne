@@ -260,11 +260,8 @@
 /* Location: RegionStepView.swift - Title (both states) */
 "region.title" = "Choisissez votre région";
 
-/* Location: RegionStepView.swift - Subtitle in detected state */
-"region.subtitle.detected" = "Nous afficherons les préréglages qui fonctionnent dans votre zone.";
-
-/* Location: RegionStepView.swift - Subtitle in manual state */
-"region.subtitle.manual" = "Nous afficherons les préréglages qui fonctionnent dans votre zone.";
+/* Location: RegionStepView.swift - Subtitle for the region step */
+"region.subtitle" = "Nous afficherons les préréglages qui fonctionnent dans votre zone.";
 
 /* Location: RegionStepView.swift - "Detected" tag */
 "region.detected.tag" = "Détectée";

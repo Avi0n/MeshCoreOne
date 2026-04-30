@@ -1212,14 +1212,6 @@
 /* Location: SettingsView.swift - Detail row when region is unset */
 "region.notSet" = "Не задан";
 
-/* Location: SettingsView.swift - Caption when region was auto-detected */
-"region.source.location" = "Определён автоматически";
-
-/* Location: SettingsView.swift - Caption when region was manually set */
-"region.source.manual" = "Задан вручную";
-
-
-
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
@@ -1230,7 +1222,6 @@
 
 /* Message for the Live Activity tip */
 "liveActivity.tip.message" = "Подключение, батарея и сообщения остаются видимыми — даже без открытия приложения.";
-
 
 // MARK: - Regenerate Identity
 
@@ -1291,7 +1282,6 @@
 /* Error when device rejects the key */
 "regenerateIdentity.error.deviceRejected" = "Устройство отклонило ключ. Пожалуйста, попробуйте снова.";
 
-
 // MARK: - Import Key
 
 /* Button label to open import key sheet */
@@ -1338,7 +1328,6 @@
 
 /* Button to download a new offline region */
 "offlineMaps.downloadRegion" = "Скачать регион";
-
 
 /* Section header for storage info */
 "offlineMaps.storage" = "Хранилище";
@@ -1418,7 +1407,6 @@
 
 /* Storage section footer */
 "offlineMaps.storageFooter" = "Включает данные карты и внутренние индексы. Общий объём может превышать сумму отдельных загрузок.";
-
 
 // MARK: - Backup & Restore
 

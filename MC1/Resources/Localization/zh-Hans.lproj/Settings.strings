@@ -1186,14 +1186,6 @@
 /* Location: SettingsView.swift - Detail row when region is unset */
 "region.notSet" = "未设置";
 
-/* Location: SettingsView.swift - Caption when region was auto-detected */
-"region.source.location" = "自动检测";
-
-/* Location: SettingsView.swift - Caption when region was manually set */
-"region.source.manual" = "手动设置";
-
-
-
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
@@ -1204,7 +1196,6 @@
 
 /* Message for the Live Activity tip */
 "liveActivity.tip.message" = "即使不打开应用，您的连接、电池和消息也清晰可见。";
-
 
 // MARK: - Regenerate Identity
 
@@ -1265,7 +1256,6 @@
 /* Error when device rejects the key */
 "regenerateIdentity.error.deviceRejected" = "设备拒绝了密钥，请重试。";
 
-
 // MARK: - Import Key
 
 /* Button label to open import key sheet */
@@ -1312,7 +1302,6 @@
 
 /* Button to download a new offline region */
 "offlineMaps.downloadRegion" = "下载区域";
-
 
 /* Section header for storage info */
 "offlineMaps.storage" = "存储空间";
@@ -1392,7 +1381,6 @@
 
 /* Storage section footer */
 "offlineMaps.storageFooter" = "包括地图数据和内部索引。总大小可能超过各项下载的总和。";
-
 
 // MARK: - Backup & Restore
 

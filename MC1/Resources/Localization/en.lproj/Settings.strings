@@ -1217,12 +1217,6 @@
 /* Location: SettingsView.swift - Detail row when region is unset */
 "region.notSet" = "Not set";
 
-/* Location: SettingsView.swift - Caption when region was auto-detected */
-"region.source.location" = "Auto-detected";
-
-/* Location: SettingsView.swift - Caption when region was manually set */
-"region.source.manual" = "Manually set";
-
 /* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
 "region.subdivision.US-CA" = "California";
 
@@ -1235,8 +1229,6 @@
 /* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
 "region.subdivision.AU-WA" = "Western Australia";
 
-
-
 // MARK: - Live Activity
 
 /* Label for the Live Activity toggle in App Settings */
@@ -1247,7 +1239,6 @@
 
 /* Message for the Live Activity tip */
 "liveActivity.tip.message" = "Your connection, battery, and messages stay visible — even without opening the app.";
-
 
 // MARK: - Regenerate Identity
 
@@ -1308,7 +1299,6 @@
 /* Error when device rejects the key */
 "regenerateIdentity.error.deviceRejected" = "The device rejected the key. Please try again.";
 
-
 // MARK: - Import Key
 
 /* Button label to open import key sheet */
@@ -1355,7 +1345,6 @@
 
 /* Button to download a new offline region */
 "offlineMaps.downloadRegion" = "Download Region";
-
 
 /* Section header for storage info */
 "offlineMaps.storage" = "Storage";
@@ -1435,7 +1424,6 @@
 
 /* Storage section footer */
 "offlineMaps.storageFooter" = "Includes map data and internal indexes. Total may be larger than the sum of individual downloads.";
-
 
 // MARK: - Backup & Restore
 
