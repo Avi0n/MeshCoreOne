@@ -33,7 +33,8 @@ struct RegionPickerView: View {
                         Text(countryDisplay)
                     }
                 }
-                if !availableSubdivisions.isEmpty {
+                // Hide single-entry pickers — a "pick" with one option is dead-end UX.
+                if availableSubdivisions.count > 1 {
                     Button {
                         showingSubdivisionSheet = true
                     } label: {
