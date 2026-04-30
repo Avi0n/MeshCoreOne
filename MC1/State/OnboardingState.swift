@@ -52,9 +52,14 @@ extension OnboardingState {
     ///
     /// Reads notification authorization directly from `UNUserNotificationCenter`
     /// rather than `PermissionsCoordinator` (view-scoped, async-init).
+    ///
+    /// `regionAlreadySet` lets a returning user skip past the region step when
+    /// `AppState.regionSelection` is already populated — without it, partially
+    /// onboarded users land on `.region` even though they answered it last time.
     func suggestedStartingPath(
         connectionManager: ConnectionManager,
-        locationAuthorizationStatus: CLAuthorizationStatus
+        locationAuthorizationStatus: CLAuthorizationStatus,
+        regionAlreadySet: Bool
     ) async -> [OnboardingStep] {
         guard !hasCompletedOnboarding else { return [] }
         guard connectionManager.pairedAccessoriesCount > 0 else { return [] }
@@ -65,10 +70,11 @@ extension OnboardingState {
         let permissionsHandled = locationAuthorizationStatus != .notDetermined
                               && notificationStatus != .notDetermined
 
-        if permissionsHandled {
-            return [.permissions, .pair, .region]
-        } else {
-            return [.permissions]
+        guard permissionsHandled else { return [.permissions] }
+
+        if regionAlreadySet {
+            return [.permissions, .pair, .preset]
         }
+        return [.permissions, .pair, .region]
     }
 }

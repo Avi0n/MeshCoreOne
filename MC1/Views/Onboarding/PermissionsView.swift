@@ -10,10 +10,10 @@ struct PermissionsView: View {
     @State private var permissionGrantTrigger = false
 
     var body: some View {
-        VStack(spacing: 32) {
-            VStack(spacing: 12) {
+        VStack(spacing: OnboardingMetrics.sheetTopPadding) {
+            VStack(spacing: OnboardingMetrics.mediumSpacing) {
                 Image(systemName: "checkmark.shield.fill")
-                    .font(.system(size: 60))
+                    .font(.system(size: OnboardingMetrics.iconSize))
                     .foregroundStyle(.tint)
 
                 Text(L10n.Onboarding.Permissions.title)
@@ -27,12 +27,12 @@ struct PermissionsView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
-            .padding(.top, 40)
+            .padding(.top, OnboardingMetrics.headerTopPadding)
 
             Spacer()
 
-            LiquidGlassContainer(spacing: 20) {
-                VStack(spacing: 16) {
+            LiquidGlassContainer(spacing: OnboardingMetrics.contentPadding) {
+                VStack(spacing: OnboardingMetrics.cardSpacing) {
                     PermissionCard(
                         icon: "bell.fill",
                         title: L10n.Onboarding.Permissions.Notifications.title,

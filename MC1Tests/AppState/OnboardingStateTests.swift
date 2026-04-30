@@ -166,7 +166,8 @@ struct OnboardingStateTests {
             let appState = AppState()
             let path = await onboarding.suggestedStartingPath(
                 connectionManager: appState.connectionManager,
-                locationAuthorizationStatus: .notDetermined
+                locationAuthorizationStatus: .notDetermined,
+                regionAlreadySet: false
             )
             #expect(path.isEmpty)
         }
@@ -178,7 +179,8 @@ struct OnboardingStateTests {
             let appState = AppState()
             let path = await onboarding.suggestedStartingPath(
                 connectionManager: appState.connectionManager,
-                locationAuthorizationStatus: .notDetermined
+                locationAuthorizationStatus: .notDetermined,
+                regionAlreadySet: false
             )
             #expect(path.isEmpty)
         }

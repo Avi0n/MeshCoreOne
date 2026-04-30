@@ -10,12 +10,12 @@ struct NoDeviceSheet: View {
     @State private var dismissTrigger = false
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: OnboardingMetrics.largeSpacing) {
             Text(L10n.Onboarding.NoDevice.Sheet.title)
                 .font(.title2)
                 .bold()
                 .accessibilityHeading(.h1)
-                .padding(.top, 32)
+                .padding(.top, OnboardingMetrics.sheetTopPadding)
 
             Text(L10n.Onboarding.NoDevice.Sheet.body)
                 .font(.body)
@@ -25,7 +25,7 @@ struct NoDeviceSheet: View {
 
             Spacer()
 
-            VStack(spacing: 12) {
+            VStack(spacing: OnboardingMetrics.mediumSpacing) {
                 Button {
                     dismissTrigger.toggle()
                     appState.completeOnboarding()
@@ -42,12 +42,12 @@ struct NoDeviceSheet: View {
                 Button(L10n.Onboarding.NoDevice.Sheet.cancel) {
                     dismiss()
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
+                .buttonStyle(.bordered)
+                .tint(.secondary)
                 .frame(minHeight: OnboardingMetrics.minHitTarget)
             }
             .padding(.horizontal)
-            .padding(.bottom, 24)
+            .padding(.bottom, OnboardingMetrics.largeSpacing)
         }
         .sensoryFeedback(.selection, trigger: dismissTrigger)
         .presentationDetents(dynamicTypeSize.isAccessibilitySize ? [.large] : [.medium])

@@ -1,5 +1,6 @@
 import SwiftUI
 import MC1Services
+import UIKit
 
 /// Troubleshooting sheet for when devices don't appear in the ASK picker
 /// Per Apple Developer Forums: Factory-reset devices won't appear until the stale
@@ -7,6 +8,7 @@ import MC1Services
 struct TroubleshootingSheet: View {
     @Environment(\.appState) private var appState
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
     @State private var isClearing = false
 
     var body: some View {
@@ -21,7 +23,7 @@ struct TroubleshootingSheet: View {
                 }
 
                 Section {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: OnboardingMetrics.titleStackSpacing) {
                         Text(L10n.Onboarding.Troubleshooting.FactoryReset.explanation)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
@@ -56,12 +58,22 @@ struct TroubleshootingSheet: View {
                 }
 
                 Section {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: OnboardingMetrics.titleStackSpacing) {
                         Text(L10n.Onboarding.Troubleshooting.SystemSettings.manageAccessories)
                             .font(.subheadline)
                         Text(L10n.Onboarding.Troubleshooting.SystemSettings.path)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
+                        Button {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                openURL(url)
+                            }
+                        } label: {
+                            Label(
+                                L10n.Onboarding.Troubleshooting.SystemSettings.openSettings,
+                                systemImage: "gear"
+                            )
+                        }
                     }
                 } header: {
                     Text(L10n.Onboarding.Troubleshooting.SystemSettings.header)

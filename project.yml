@@ -75,7 +75,7 @@ targets:
           - bluetooth-central
         NSBluetoothAlwaysUsageDescription: "MeshCore One uses Bluetooth to maintain connections with MeshCore radios, even in the background, so you can send and receive messages without opening the app."
         NSBluetoothPeripheralUsageDescription: "MeshCore One uses Bluetooth to connect to MeshCore radios."
-        NSLocationWhenInUseUsageDescription: "MeshCore One uses your location to suggest a recommended radio preset for your area, show your position on maps, and sort contacts by distance."
+        NSLocationWhenInUseUsageDescription: "MeshCore One uses your location to suggest a recommended radio preset for your area, show your position on maps, and sort contacts by distance. When you enable location sharing, MeshCore One also advertises your location to your mesh contacts."
         NSAccessorySetupSupports:
           - Bluetooth
         NSAccessorySetupKitSupports:

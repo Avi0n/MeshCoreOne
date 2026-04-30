@@ -140,9 +140,13 @@ public final class AppState {
     /// a backup restore writes directly to the persistence store. The normal sync-path
     /// callbacks don't fire for batch imports, so without this bump any currently-mounted
     /// tabs keep showing their pre-restore snapshot until reconnect or relaunch.
+    /// Also re-reads the persisted region selection — the import wrote it to UserDefaults,
+    /// but `regionSelection` is only loaded once during `init`, so Settings → Region and
+    /// the radio-preset views would otherwise show pre-import data until next launch.
     public func notifyDataRestored() {
         contactsVersion += 1
         conversationsVersion += 1
+        loadPersistedRegionSelection()
     }
 
     // MARK: - Connection UI State
@@ -256,10 +260,11 @@ public final class AppState {
 
         loadPersistedRegionSelection()
 
-        Task {
+        Task { [regionAlreadySet = regionSelection != nil] in
             let suggested = await onboarding.suggestedStartingPath(
                 connectionManager: connectionManager,
-                locationAuthorizationStatus: locationService.authorizationStatus
+                locationAuthorizationStatus: locationService.authorizationStatus,
+                regionAlreadySet: regionAlreadySet
             )
             if !suggested.isEmpty {
                 onboarding.onboardingPath = suggested

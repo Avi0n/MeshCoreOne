@@ -14,6 +14,8 @@ struct RegionPickerView: View {
     @State private var showingCountrySheet = false
     @State private var showingSubdivisionSheet = false
 
+    private static let emptyValue = "—"
+
     private var country: String? { selection?.countryCode }
     private var subdivision: String? { selection?.administrativeAreaCode }
 
@@ -57,12 +59,12 @@ struct RegionPickerView: View {
     }
 
     private var countryDisplay: String {
-        guard let country else { return "—" }
+        guard let country else { return Self.emptyValue }
         return Locale.current.localizedString(forRegionCode: country) ?? country
     }
 
     private var subdivisionDisplay: String {
-        guard let subdivision else { return "—" }
+        guard let subdivision else { return Self.emptyValue }
         return RegionalAreas.subdivisionDisplayName(subdivision) ?? subdivision
     }
 
@@ -98,7 +100,7 @@ private struct CountryPickerSheet: View {
     private var filtered: [RegionalAreas.Country] {
         let all = RegionalAreas.countries.sorted { $0.localizedName < $1.localizedName }
         guard !search.isEmpty else { return all }
-        return all.filter { $0.localizedName.localizedCaseInsensitiveContains(search) }
+        return all.filter { $0.localizedName.localizedStandardContains(search) }
     }
 
     var body: some View {

@@ -448,7 +448,16 @@ public actor SettingsService {
         )
     }
 
-    /// Set radio parameters manually
+    /// Set radio parameters manually.
+    ///
+    /// Both numeric parameters are integer values that get divided by 1000 before being
+    /// forwarded to `session.setRadio`. Pass values in the same scaled-integer form that
+    /// `RadioPreset.frequencyKHz` and `RadioPreset.bandwidthHz` use:
+    /// - `frequencyKHz`: frequency expressed in kHz (e.g. `869618` → 869.618 MHz on the wire)
+    /// - `bandwidthKHz`: bandwidth expressed in Hz (e.g. `62500` → 62.5 kHz on the wire)
+    ///
+    /// The `bandwidthKHz` name is preserved for source compatibility despite the value
+    /// actually being in Hz; do not pass `Int(62.5)` here.
     public func setRadioParams(
         frequencyKHz: UInt32,
         bandwidthKHz: UInt32,
@@ -672,7 +681,11 @@ public actor SettingsService {
         return try await setLocationVerified(latitude: latitude, longitude: longitude)
     }
 
-    /// Set radio parameters with verification
+    /// Set radio parameters with verification.
+    ///
+    /// Same unit conventions as `setRadioParams(frequencyKHz:bandwidthKHz:...)` —
+    /// `frequencyKHz` is in kHz (869618 → 869.618 MHz) and `bandwidthKHz` is in Hz
+    /// (62500 → 62.5 kHz) despite the suffix. See that method for the full rationale.
     public func setRadioParamsVerified(
         frequencyKHz: UInt32,
         bandwidthKHz: UInt32,

@@ -64,7 +64,7 @@ struct PresetStepView: View {
         VStack(spacing: OnboardingMetrics.cardSpacing) {
             Spacer()
             Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 60))
+                .font(.system(size: OnboardingMetrics.iconSize))
                 .foregroundStyle(.tint)
             Text(L10n.Onboarding.Preset.AlreadyConfigured.title)
                 .font(.largeTitle)
@@ -81,7 +81,7 @@ struct PresetStepView: View {
 
             Spacer()
 
-            VStack(spacing: 12) {
+            VStack(spacing: OnboardingMetrics.mediumSpacing) {
                 Button {
                     commitTrigger.toggle()
                     appState.completeOnboarding()
@@ -96,8 +96,9 @@ struct PresetStepView: View {
                 Button(L10n.Onboarding.Preset.AlreadyConfigured.choose) {
                     forceShowPicker = true
                 }
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .buttonStyle(.bordered)
+                .tint(.accentColor)
+                .frame(minHeight: OnboardingMetrics.minHitTarget)
             }
             .padding(.horizontal)
             .padding(.bottom)
@@ -124,7 +125,7 @@ struct PresetStepView: View {
             .padding(.top, OnboardingMetrics.headerTopPadding)
 
             ScrollView {
-                VStack(spacing: 12) {
+                VStack(spacing: OnboardingMetrics.mediumSpacing) {
                     if let recommended {
                         prominentCard(recommended)
                     }
@@ -156,7 +157,7 @@ struct PresetStepView: View {
 
     private var applyCTAText: String {
         guard let preset = alternatives.first(where: { $0.id == selectedID }) ?? recommended else {
-            return ""
+            return L10n.Onboarding.Preset.continue
         }
         return L10n.Onboarding.Preset.use(preset.name)
     }
@@ -192,6 +193,8 @@ struct PresetStepView: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityHint(L10n.Onboarding.Preset.Row.accessibilityHint)
     }
 
     private func rowCard(_ preset: RadioPreset) -> some View {
@@ -199,7 +202,7 @@ struct PresetStepView: View {
             selectedID = preset.id
         } label: {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: OnboardingMetrics.compactSpacing) {
                     Text(preset.name)
                         .font(.body)
                     Text("\(preset.frequencyMHz, format: .number.precision(.fractionLength(3))) MHz")
@@ -216,6 +219,8 @@ struct PresetStepView: View {
             .frame(minHeight: OnboardingMetrics.minHitTarget)
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityHint(L10n.Onboarding.Preset.Row.accessibilityHint)
     }
 
     private func apply(id: String) {

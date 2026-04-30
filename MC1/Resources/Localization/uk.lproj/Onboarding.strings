@@ -153,6 +153,9 @@
 /* Location: DeviceScanView.swift - Path to accessories in settings */
 "troubleshooting.systemSettings.path" = "Налаштування → Конфіденційність та безпека → Аксесуари";
 
+/* Location: TroubleshootingSheet.swift - Button that opens iOS Settings */
+"troubleshooting.systemSettings.openSettings" = "Відкрити Налаштування";
+
 
 // MARK: - Mesh Animation View
 
@@ -203,6 +206,12 @@
 
 /* Location: PresetStepView.swift - Already-configured secondary link */
 "preset.alreadyConfigured.choose" = "Вибрати інший пресет";
+
+/* Location: PresetStepView.swift - Generic Continue label used when no preset is selected */
+"preset.continue" = "Продовжити";
+
+/* Location: PresetStepView.swift - VoiceOver hint for tapping a preset card */
+"preset.row.accessibilityHint" = "Вибирає цей пресет.";
 
 // MARK: - WiFi Connection Sheet
 
@@ -274,3 +283,6 @@
 
 /* Location: RegionStepView.swift - "Finding your region…" */
 "region.resolving" = "Визначення регіону…";
+
+/* Location: RegionStepView.swift - Error shown when user-initiated retry of "Use my location" cannot resolve a region */
+"region.useMyLocation.failure" = "Пошук за місцезнаходженням не повернув регіон. Виберіть вручну нижче.";

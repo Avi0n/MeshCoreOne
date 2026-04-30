@@ -153,6 +153,9 @@
 /* Location: DeviceScanView.swift - Path to accessories in settings */
 "troubleshooting.systemSettings.path" = "Settings → Privacy & Security → Accessories";
 
+/* Location: TroubleshootingSheet.swift - Button that opens iOS Settings */
+"troubleshooting.systemSettings.openSettings" = "Open Settings";
+
 
 // MARK: - Mesh Animation View
 
@@ -206,6 +209,12 @@
 
 /* Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring */
 "preset.error.notConnected" = "Connect to your device to apply this preset.";
+
+/* Location: PresetStepView.swift - Generic Continue label used when no preset is selected */
+"preset.continue" = "Continue";
+
+/* Location: PresetStepView.swift - VoiceOver hint for tapping a preset card */
+"preset.row.accessibilityHint" = "Selects this preset.";
 
 // MARK: - WiFi Connection Sheet
 
@@ -277,3 +286,6 @@
 
 /* Location: RegionStepView.swift - "Finding your region…" */
 "region.resolving" = "Finding your region…";
+
+/* Location: RegionStepView.swift - Error shown when user-initiated retry of "Use my location" cannot resolve a region */
+"region.useMyLocation.failure" = "Location lookup didn't return a region. Pick manually below.";

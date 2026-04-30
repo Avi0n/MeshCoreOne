@@ -5,7 +5,6 @@ import MC1Services
 /// silently to the manual picker on any failure (denied, timeout, no network).
 struct RegionStepView: View {
     @Environment(\.appState) private var appState
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var resolved: RegionSelection?
     @State private var isResolving = true
@@ -13,6 +12,8 @@ struct RegionStepView: View {
     @State private var manualSelection: RegionSelection?
     @State private var commitTrigger = false
     @State private var resolveAttempt = 0
+    @State private var pendingUserRetry = false
+    @State private var errorMessage: String?
 
     private var locationGranted: Bool {
         appState.locationService.isAuthorized
@@ -33,6 +34,7 @@ struct RegionStepView: View {
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .sensoryFeedback(.success, trigger: commitTrigger)
+        .errorAlert($errorMessage)
         .task(id: resolveAttempt) {
             guard locationGranted, !showManualPicker else {
                 isResolving = false
@@ -41,7 +43,12 @@ struct RegionStepView: View {
             isResolving = true
             resolved = await appState.regionResolver.resolve()
             isResolving = false
+            let wasUserRetry = pendingUserRetry
+            pendingUserRetry = false
             if resolved == nil {
+                if wasUserRetry {
+                    errorMessage = L10n.Onboarding.Region.UseMyLocation.failure
+                }
                 showManualPicker = true
             }
         }
@@ -54,9 +61,7 @@ struct RegionStepView: View {
     private var resolvingState: some View {
         VStack(spacing: OnboardingMetrics.cardSpacing) {
             Spacer()
-            if !reduceMotion {
-                ProgressView().controlSize(.large)
-            }
+            ProgressView().controlSize(.large)
             Text(L10n.Onboarding.Region.resolving)
                 .font(.body)
                 .foregroundStyle(.secondary)
@@ -147,6 +152,7 @@ struct RegionStepView: View {
                     resolved = nil
                     showManualPicker = false
                     isResolving = true
+                    pendingUserRetry = true
                     resolveAttempt += 1
                 }
                 .font(.subheadline)

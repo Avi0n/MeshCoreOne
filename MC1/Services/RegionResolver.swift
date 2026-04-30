@@ -11,7 +11,8 @@ import OSLog
 @MainActor
 public final class RegionResolver {
 
-    public static let resolveTimeout: Duration = .seconds(5)
+    public static let locationTimeout: Duration = .seconds(5)
+    public static let geocodeTimeout: Duration = .seconds(5)
     public static let cacheTTL: TimeInterval = 24 * 60 * 60
 
     private static let geocodingLocale = Locale(identifier: "en_US")
@@ -33,15 +34,11 @@ public final class RegionResolver {
     public func resolve() async -> RegionSelection? {
         guard location.isAuthorized else { return nil }
         do {
-            let loc = try await location.requestCurrentLocation(timeout: Self.resolveTimeout)
+            let loc = try await location.requestCurrentLocation(timeout: Self.locationTimeout)
             let key = CacheKey(loc)
             if let cached = cache[key], cached.isFresh { return cached.value }
 
-            let result = try await withTaskCancellationHandler {
-                try await geocoder.reverseGeocode(loc, preferredLocale: Self.geocodingLocale)
-            } onCancel: { [geocoder] in
-                geocoder.cancelGeocode()
-            }
+            let result = try await reverseGeocodeWithTimeout(loc)
 
             guard let countryCode = result?.countryCode else { return nil }
 
@@ -73,6 +70,30 @@ public final class RegionResolver {
         } catch {
             logger.debug("Region resolution failed: \(error)")
             return nil
+        }
+    }
+
+    /// Races the geocoder against `geocodeTimeout`. The location request already has its
+    /// own timeout via `LocationService`; without a separate bound here, a slow geocode
+    /// (offline, throttled CLGeocoder) would leave the user staring at the resolving
+    /// screen indefinitely. On timeout the geocoder is cancelled and `CancellationError`
+    /// surfaces to `resolve()`'s catch, which returns nil and falls through to the manual
+    /// picker — matching the behavior of every other failure mode in this resolver.
+    private func reverseGeocodeWithTimeout(_ loc: CLLocation) async throws -> GeocodeResult? {
+        try await withThrowingTaskGroup(of: GeocodeResult?.self) { group in
+            group.addTask { [geocoder] in
+                try await withTaskCancellationHandler {
+                    try await geocoder.reverseGeocode(loc, preferredLocale: Self.geocodingLocale)
+                } onCancel: {
+                    geocoder.cancelGeocode()
+                }
+            }
+            group.addTask {
+                try await Task.sleep(for: Self.geocodeTimeout)
+                throw CancellationError()
+            }
+            defer { group.cancelAll() }
+            return try await group.next() ?? nil
         }
     }
 

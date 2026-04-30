@@ -2366,6 +2366,8 @@ public enum L10n {
       }
     }
     public enum Preset {
+      /// Location: PresetStepView.swift - Generic Continue label used when no preset is selected
+      public static let `continue` = L10n.tr("Onboarding", "preset.continue", fallback: "Continue")
       /// Location: PresetStepView.swift - "Recommended" tag
       public static let recommendedTag = L10n.tr("Onboarding", "preset.recommendedTag", fallback: "Recommended")
       /// Location: PresetStepView.swift - Title
@@ -2389,6 +2391,10 @@ public enum L10n {
       public enum Error {
         /// Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring
         public static let notConnected = L10n.tr("Onboarding", "preset.error.notConnected", fallback: "Connect to your device to apply this preset.")
+      }
+      public enum Row {
+        /// Location: PresetStepView.swift - VoiceOver hint for tapping a preset card
+        public static let accessibilityHint = L10n.tr("Onboarding", "preset.row.accessibilityHint", fallback: "Selects this preset.")
       }
       public enum Subtitle {
         /// Location: PresetStepView.swift - Subtitle for empty-region fallback
@@ -2428,6 +2434,10 @@ public enum L10n {
         /// Location: RegionStepView.swift - Subtitle in manual state
         public static let manual = L10n.tr("Onboarding", "region.subtitle.manual", fallback: "We'll show presets that work in your area.")
       }
+      public enum UseMyLocation {
+        /// Location: RegionStepView.swift - Error shown when user-initiated retry of "Use my location" cannot resolve a region
+        public static let failure = L10n.tr("Onboarding", "region.useMyLocation.failure", fallback: "Location lookup didn't return a region. Pick manually below.")
+      }
     }
     public enum Troubleshooting {
       /// Location: DeviceScanView.swift - Navigation title for troubleshooting sheet
@@ -2463,6 +2473,8 @@ public enum L10n {
         public static let header = L10n.tr("Onboarding", "troubleshooting.systemSettings.header", fallback: "System Settings")
         /// Location: DeviceScanView.swift - Info about managing accessories
         public static let manageAccessories = L10n.tr("Onboarding", "troubleshooting.systemSettings.manageAccessories", fallback: "You can also manage Bluetooth accessories in:")
+        /// Location: TroubleshootingSheet.swift - Button that opens iOS Settings
+        public static let openSettings = L10n.tr("Onboarding", "troubleshooting.systemSettings.openSettings", fallback: "Open Settings")
         /// Location: DeviceScanView.swift - Path to accessories in settings
         public static let path = L10n.tr("Onboarding", "troubleshooting.systemSettings.path", fallback: "Settings → Privacy & Security → Accessories")
       }
