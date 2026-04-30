@@ -187,10 +187,10 @@ extension ConnectionManager {
             if deleteData {
                 try await dataStore.deleteDeviceAndData(id: deviceID)
             } else {
-                try await dataStore.deleteDevice(id: deviceID)
+                try await dataStore.demoteDeviceToGhost(id: deviceID)
             }
         } catch {
-            logger.warning("Failed to delete device data from SwiftData: \(error.localizedDescription)")
+            logger.warning("Failed to demote device in SwiftData: \(error.localizedDescription)")
         }
 
         clearPersistedConnection()
@@ -496,12 +496,12 @@ extension ConnectionManager {
     }
 
     /// Deletes a previously paired device record from storage.
-    /// Does not delete associated data — the user may re-pair to recover it.
-    /// - Parameter id: The device UUID to delete
+    /// Demotes to ghost record — preserves publicKey ↔ radioID bridge for data recovery on re-pair.
+    /// - Parameter id: The device UUID to demote
     public func deleteDevice(id: UUID) async throws {
         logger.info("deleteDevice called for device: \(id)")
         let dataStore = PersistenceStore(modelContainer: modelContainer)
-        try await dataStore.deleteDevice(id: id)
+        try await dataStore.demoteDeviceToGhost(id: id)
         logger.info("deleteDevice completed for device: \(id)")
     }
 
@@ -543,12 +543,12 @@ extension ConnectionManager: AccessorySetupKitServiceDelegate {
                 await disconnect(reason: .deviceRemovedFromSettings)
             }
 
-            // Delete device record only — preserve user data for re-pairing
+            // Demote to ghost — preserve publicKey ↔ radioID bridge
             let dataStore = PersistenceStore(modelContainer: modelContainer)
             do {
-                try await dataStore.deleteDevice(id: bluetoothID)
+                try await dataStore.demoteDeviceToGhost(id: bluetoothID)
             } catch {
-                logger.warning("Failed to delete device record from SwiftData: \(error.localizedDescription)")
+                logger.warning("Failed to demote device in SwiftData: \(error.localizedDescription)")
             }
         }
 

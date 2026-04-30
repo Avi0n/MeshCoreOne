@@ -338,6 +338,24 @@ struct PersistenceStoreTests {
         #expect(devices.isEmpty)
     }
 
+    @Test("Removing a paired device preserves child contacts via radioID")
+    func demoteRetainsChildLinkageByRadioID() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let contactFrame = createTestContactFrame(name: "Alice")
+        _ = try await store.saveContact(radioID: device.radioID, from: contactFrame)
+
+        try await store.demoteDeviceToGhost(id: device.id)
+
+        let ghost = try await store.fetchDevice(publicKey: device.publicKey)
+        #expect(ghost?.radioID == device.radioID)
+        let contacts = try await store.fetchContacts(radioID: device.radioID)
+        #expect(contacts.count == 1)
+        #expect(contacts.first?.name == "Alice")
+    }
+
     // MARK: - Contact Tests
 
     @Test("Save and fetch contact from frame")
