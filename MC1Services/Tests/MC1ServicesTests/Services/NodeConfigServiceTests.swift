@@ -537,6 +537,63 @@ struct NodeConfigServiceTests {
         #expect(progress.total == 10)
     }
 
+    // MARK: - Post-Identity Resolution Seam
+
+    @Test("resolveEffectiveRadioID returns callback result when private key was imported")
+    func resolveReturnsCallbackResult() async throws {
+        let original = UUID()
+        let reconciled = UUID()
+        let result = try await resolveEffectiveRadioID(
+            original: original,
+            didImportPrivateKey: true,
+            callback: { @Sendable in reconciled }
+        )
+        #expect(result == reconciled)
+    }
+
+    @Test("resolveEffectiveRadioID skips callback when no private key was imported")
+    func resolveSkipsCallbackWhenNoPrivateKey() async throws {
+        actor CallTracker {
+            var calls = 0
+            func bump() { calls += 1 }
+        }
+        let tracker = CallTracker()
+        let original = UUID()
+        let result = try await resolveEffectiveRadioID(
+            original: original,
+            didImportPrivateKey: false,
+            callback: { @Sendable in
+                await tracker.bump()
+                return UUID()
+            }
+        )
+        #expect(result == original)
+        #expect(await tracker.calls == 0,
+                "Callback must not fire when no private key was imported")
+    }
+
+    @Test("resolveEffectiveRadioID returns original when callback returns nil")
+    func resolveReturnsOriginalWhenCallbackReturnsNil() async throws {
+        let original = UUID()
+        let result = try await resolveEffectiveRadioID(
+            original: original,
+            didImportPrivateKey: true,
+            callback: { @Sendable in nil }
+        )
+        #expect(result == original)
+    }
+
+    @Test("resolveEffectiveRadioID handles nil callback gracefully")
+    func resolveHandlesNilCallback() async throws {
+        let original = UUID()
+        let result = try await resolveEffectiveRadioID(
+            original: original,
+            didImportPrivateKey: true,
+            callback: nil
+        )
+        #expect(result == original)
+    }
+
     // MARK: - Helpers
 
     /// Creates a NodeConfigService that can only be used for non-session operations.

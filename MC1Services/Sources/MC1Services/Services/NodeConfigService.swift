@@ -47,6 +47,7 @@ public actor NodeConfigService {
     private let dataStore: any PersistenceStoreProtocol
     private weak var syncCoordinator: SyncCoordinator?
     private let logger = Logger(subsystem: "com.mc1", category: "NodeConfigService")
+    private var onPostIdentityImport: (@Sendable () async throws -> UUID?)?
 
     public init(
         session: MeshCoreSession,
@@ -62,6 +63,17 @@ public actor NodeConfigService {
 
     public func setSyncCoordinator(_ coordinator: SyncCoordinator) {
         self.syncCoordinator = coordinator
+    }
+
+    /// Wires a late-bound callback that fires after `importIdentity` succeeds.
+    /// The callback is responsible for reconciling the radio's restored
+    /// `publicKey` with any ghost `Device` row left by a prior "remove from MC1".
+    /// Its return value, when non-nil, replaces the `radioID` used by all
+    /// subsequent steps in `importConfig` (channels, contacts).
+    public func setOnPostIdentityImport(
+        _ callback: (@Sendable () async throws -> UUID?)?
+    ) {
+        self.onPostIdentityImport = callback
     }
 
     /// Whether a sync coordinator has been wired via `setSyncCoordinator`.
@@ -139,8 +151,17 @@ public actor NodeConfigService {
         }
 
         // Steps 1-2: Node identity (private key + name)
+        var effectiveRadioID = radioID
         if sections.nodeIdentity {
             try await importIdentity(config, checkCancellation: checkCancellation, progress: progress)
+            effectiveRadioID = try await resolveEffectiveRadioID(
+                original: radioID,
+                didImportPrivateKey: config.privateKey != nil,
+                callback: onPostIdentityImport
+            )
+            if effectiveRadioID != radioID {
+                logger.info("Post-identity reconciliation reassigned radioID to \(effectiveRadioID)")
+            }
         }
 
         // Step 3: Position
@@ -164,7 +185,7 @@ public actor NodeConfigService {
         // Step 5: Channels
         if sections.channels, let channels = config.channels {
             try await importChannels(
-                channels, radioID: radioID,
+                channels, radioID: effectiveRadioID,
                 checkCancellation: checkCancellation, progress: progress
             )
         }
@@ -172,7 +193,7 @@ public actor NodeConfigService {
         // Step 6: Contacts
         if sections.contacts, let contacts = config.contacts {
             try await importContacts(
-                contacts, radioID: radioID,
+                contacts, radioID: effectiveRadioID,
                 checkCancellation: checkCancellation, progress: progress
             )
             await syncCoordinator?.notifyContactsChanged()
@@ -404,6 +425,28 @@ public actor NodeConfigService {
         return count
     }
 
+}
+
+// MARK: - Post-Identity Resolution (testable seam)
+
+/// Resolves the `radioID` that subsequent `importConfig` steps should use,
+/// given whether `importIdentity` actually pushed a private key to the radio
+/// and the late-bound reconciliation callback.
+///
+/// Extracted as a free function so it can be unit-tested without constructing
+/// a real `NodeConfigService` (which would require a live `MeshCoreSession`).
+internal func resolveEffectiveRadioID(
+    original: UUID,
+    didImportPrivateKey: Bool,
+    callback: (@Sendable () async throws -> UUID?)?
+) async throws -> UUID {
+    guard didImportPrivateKey, let cb = callback else {
+        return original
+    }
+    if let reconciled = try await cb() {
+        return reconciled
+    }
+    return original
 }
 
 // MARK: - Static Builders (testable without actor)
