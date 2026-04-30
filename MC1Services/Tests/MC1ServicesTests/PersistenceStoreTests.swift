@@ -292,6 +292,52 @@ struct PersistenceStoreTests {
         #expect(channels.first?.name == "General")
     }
 
+    @Test("Demote device to ghost preserves publicKey and radioID with fresh id")
+    func demoteDeviceToGhostPreservesIdentity() async throws {
+        let store = try await createTestStore()
+        let original = createTestDevice().copy {
+            $0.isActive = true
+        }
+        try await store.saveDevice(original)
+
+        try await store.demoteDeviceToGhost(id: original.id)
+
+        let originalLookup = try await store.fetchDevice(id: original.id)
+        #expect(originalLookup == nil, "Original BLE id should no longer resolve")
+
+        let ghost = try await store.fetchDevice(publicKey: original.publicKey)
+        #expect(ghost != nil)
+        #expect(ghost?.id != original.id, "Ghost must have a fresh id")
+        #expect(ghost?.publicKey == original.publicKey)
+        #expect(ghost?.radioID == original.radioID)
+        #expect(ghost?.isActive == false)
+    }
+
+    @Test("Demote device strips all connection methods so it stays hidden")
+    func demoteDeviceToGhostStripsAllConnectionMethods() async throws {
+        let store = try await createTestStore()
+        let wifi = ConnectionMethod.wifi(host: "10.0.0.5", port: 5000, displayName: nil)
+        let bluetooth = ConnectionMethod.bluetooth(peripheralUUID: UUID(), displayName: nil)
+        let original = createTestDevice().copy {
+            $0.connectionMethods = [wifi, bluetooth]
+        }
+        try await store.saveDevice(original)
+
+        try await store.demoteDeviceToGhost(id: original.id)
+
+        let ghost = try await store.fetchDevice(publicKey: original.publicKey)
+        #expect(ghost?.connectionMethods.isEmpty == true,
+                "Demoted ghost must have no connection methods so DeviceSelectionFilter hides it")
+    }
+
+    @Test("Demote device with unknown id is a no-op")
+    func demoteDeviceToGhostUnknownIDNoOp() async throws {
+        let store = try await createTestStore()
+        try await store.demoteDeviceToGhost(id: UUID())
+        let devices = try await store.fetchDevices()
+        #expect(devices.isEmpty)
+    }
+
     // MARK: - Contact Tests
 
     @Test("Save and fetch contact from frame")

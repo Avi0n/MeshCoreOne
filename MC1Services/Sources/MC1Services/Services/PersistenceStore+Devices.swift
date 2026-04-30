@@ -220,6 +220,40 @@ extension PersistenceStore {
         try modelContext.save()
     }
 
+    /// Demotes a device row to a "ghost": preserves `publicKey` and `radioID` so the
+    /// publicKey ↔ radioID bridge survives, but assigns a fresh `id`, clears `isActive`,
+    /// and strips ALL connection methods so the row is hidden from
+    /// `DeviceSelectionSheet`. Used in place of `deleteDevice(id:)` whenever the user
+    /// removes a device but keeps their data — the next time the same physical radio
+    /// is re-paired (or its keypair is restored via config import), reconciliation can
+    /// rejoin the orphaned children to the new pairing.
+    ///
+    /// Distinct from `DeviceDTO.cleanedForImport()`, which strips only Bluetooth and
+    /// keeps WiFi (so a `.mc1backup`-restored radio stays reachable over WiFi without
+    /// re-pairing). Demote-on-remove is the user saying "make this go away"; preserving
+    /// any connection method would leave the row showing in `DeviceSelectionSheet`
+    /// because `DeviceSelectionFilter.isConnectable` matches any WiFi method.
+    public func demoteDeviceToGhost(id: UUID) throws {
+        let targetID = id
+        let predicate = #Predicate<Device> { device in
+            device.id == targetID
+        }
+        var descriptor = FetchDescriptor(predicate: predicate)
+        descriptor.fetchLimit = 1
+        guard let existing = try modelContext.fetch(descriptor).first else { return }
+
+        let ghostDTO = DeviceDTO(from: existing).copy {
+            $0.id = UUID()
+            $0.isActive = false
+            $0.connectionMethods = []
+        }
+
+        modelContext.delete(existing)
+        let ghost = Device(dto: ghostDTO)
+        modelContext.insert(ghost)
+        try modelContext.save()
+    }
+
     /// Delete a device and all its associated data atomically (single save).
     /// Use for factory reset and explicit "delete all data" user action.
     public func deleteDeviceAndData(id: UUID) throws {
