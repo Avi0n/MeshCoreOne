@@ -269,6 +269,59 @@ extension PersistenceStore {
         try modelContext.save()
     }
 
+    /// Looks for a ghost `Device` row whose `publicKey` matches `newPublicKey`
+    /// (left by a prior remove-from-MC1, or a `.mc1backup` shadow row). If found,
+    /// rewrites the current device's `radioID` and `publicKey` to the ghost's values
+    /// and deletes the ghost. All child rows (Contact, Message, Channel, etc.) keyed
+    /// by the ghost's `radioID` are now linked to the current device for free.
+    ///
+    /// The predicate filters by `isActive == false`, but that alone isn't a ghost
+    /// marker — `setActiveDevice(id:)` deactivates every other Device row, so a
+    /// saved-but-not-currently-active real device also has `isActive == false`. To
+    /// avoid ever deleting a real device row (defense against an upstream publicKey-dedup
+    /// violation), we additionally require the matched row to have **no Bluetooth
+    /// connection methods**: demoted ghosts strip all methods, `.mc1backup` shadow rows
+    /// strip BLE via `cleanedForImport()`, and a real saved device retains its BLE
+    /// `ConnectionMethod`. SwiftData `#Predicate` cannot reliably introspect array
+    /// elements, so the BLE check happens post-fetch in code.
+    ///
+    /// - Parameters:
+    ///   - currentDeviceID: The BLE peripheral UUID of the live, currently-paired device.
+    ///   - newPublicKey: The radio's `selfInfo.publicKey` after `importPrivateKey`.
+    /// - Returns: The new `radioID` if reconciliation occurred, otherwise `nil`.
+    public func reconcileGhostIdentity(currentDeviceID: UUID, newPublicKey: Data) throws -> UUID? {
+        let lookupKey = newPublicKey
+        let lookupID = currentDeviceID
+        let ghostPredicate = #Predicate<Device> { device in
+            device.publicKey == lookupKey && device.id != lookupID && device.isActive == false
+        }
+        var ghostDescriptor = FetchDescriptor(predicate: ghostPredicate)
+        ghostDescriptor.fetchLimit = 1
+        guard let ghost = try modelContext.fetch(ghostDescriptor).first else { return nil }
+
+        // Defensive: refuse to delete a row that still carries a Bluetooth method.
+        // It's a real saved-but-inactive device (per `setActiveDevice` semantics),
+        // not a ghost. Returning nil here is safe — no reconciliation, no data loss.
+        if ghost.connectionMethods.contains(where: { $0.isBluetooth }) {
+            return nil
+        }
+
+        let currentPredicate = #Predicate<Device> { device in
+            device.id == lookupID
+        }
+        var currentDescriptor = FetchDescriptor(predicate: currentPredicate)
+        currentDescriptor.fetchLimit = 1
+        guard let current = try modelContext.fetch(currentDescriptor).first else { return nil }
+
+        let newRadioID = ghost.radioID
+        current.radioID = newRadioID
+        current.publicKey = newPublicKey
+
+        modelContext.delete(ghost)
+        try modelContext.save()
+        return newRadioID
+    }
+
     /// Stages deletion of all device-scoped data without calling save().
     /// Used by both `deleteDeviceData` and `deleteDeviceAndData` to compose
     /// operations while maintaining single-save atomicity.

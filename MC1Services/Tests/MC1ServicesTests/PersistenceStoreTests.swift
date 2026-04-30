@@ -1430,4 +1430,150 @@ struct PersistenceStoreTests {
         counts = try await store.getTotalUnreadCounts(radioID: device.id)
         #expect(counts.channels == 1)
     }
+
+    // MARK: - Ghost Identity Reconciliation Tests
+
+    @Test("reconcileGhostIdentity rewrites current device when ghost matches publicKey")
+    func reconcileGhostIdentityHappyPath() async throws {
+        let store = try await createTestStore()
+
+        let oldPublicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
+        let newPublicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
+
+        let ghostRadioID = UUID()
+        let originalDeviceID = UUID()
+        let ghost = createTestDevice(id: originalDeviceID).copy {
+            $0.publicKey = oldPublicKey
+            $0.radioID = ghostRadioID
+            $0.isActive = false
+            $0.connectionMethods = []
+        }
+        try await store.saveDevice(ghost)
+
+        let currentRadioID = UUID()
+        let currentDeviceID = UUID()
+        let current = createTestDevice(id: currentDeviceID).copy {
+            $0.publicKey = newPublicKey
+            $0.radioID = currentRadioID
+            $0.isActive = true
+        }
+        try await store.saveDevice(current)
+
+        let result = try await store.reconcileGhostIdentity(
+            currentDeviceID: currentDeviceID,
+            newPublicKey: oldPublicKey
+        )
+
+        #expect(result == ghostRadioID, "Expected the ghost's radioID to be returned")
+
+        let updated = try await store.fetchDevice(id: currentDeviceID)
+        #expect(updated?.radioID == ghostRadioID)
+        #expect(updated?.publicKey == oldPublicKey)
+
+        let ghostLookup = try await store.fetchDevice(id: originalDeviceID)
+        #expect(ghostLookup == nil, "Ghost row should be deleted after reconciliation")
+    }
+
+    @Test("reconcileGhostIdentity is a no-op when current device already owns the publicKey")
+    func reconcileGhostIdentityIdempotent() async throws {
+        let store = try await createTestStore()
+        let publicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
+        let device = createTestDevice().copy { $0.publicKey = publicKey }
+        try await store.saveDevice(device)
+
+        let result = try await store.reconcileGhostIdentity(
+            currentDeviceID: device.id,
+            newPublicKey: publicKey
+        )
+
+        #expect(result == nil)
+        let unchanged = try await store.fetchDevice(id: device.id)
+        #expect(unchanged?.radioID == device.radioID)
+    }
+
+    @Test("reconcileGhostIdentity returns nil when no ghost matches")
+    func reconcileGhostIdentityNoMatch() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+        let unrelatedKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
+
+        let result = try await store.reconcileGhostIdentity(
+            currentDeviceID: device.id,
+            newPublicKey: unrelatedKey
+        )
+        #expect(result == nil)
+
+        let unchanged = try await store.fetchDevice(id: device.id)
+        #expect(unchanged?.publicKey == device.publicKey)
+        #expect(unchanged?.radioID == device.radioID)
+    }
+
+    @Test("reconcileGhostIdentity refuses to delete a saved-but-inactive device with BLE methods")
+    func reconcileGhostIdentityRefusesNonGhostInactive() async throws {
+        let store = try await createTestStore()
+
+        let sharedPublicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
+
+        let inactiveBLE = createTestDevice().copy {
+            $0.publicKey = sharedPublicKey
+            $0.isActive = false
+            $0.connectionMethods = [
+                .bluetooth(peripheralUUID: UUID(), displayName: nil)
+            ]
+        }
+        try await store.saveDevice(inactiveBLE)
+
+        let current = createTestDevice().copy {
+            $0.publicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
+            $0.isActive = true
+        }
+        try await store.saveDevice(current)
+
+        let result = try await store.reconcileGhostIdentity(
+            currentDeviceID: current.id,
+            newPublicKey: sharedPublicKey
+        )
+        #expect(result == nil, "Must not match a non-ghost inactive device")
+
+        let stillThere = try await store.fetchDevice(id: inactiveBLE.id)
+        #expect(stillThere != nil, "Saved-but-inactive device must not be deleted")
+        #expect(stillThere?.connectionMethods.contains(where: \.isBluetooth) == true)
+    }
+
+    @Test("reconcileGhostIdentity finds ghost even when current device's publicKey already matches")
+    func reconcileGhostIdentityRetryAfterPublicKeyDrift() async throws {
+        let store = try await createTestStore()
+
+        let restoredPublicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
+
+        let ghostRadioID = UUID()
+        let ghost = createTestDevice().copy {
+            $0.publicKey = restoredPublicKey
+            $0.radioID = ghostRadioID
+            $0.isActive = false
+            $0.connectionMethods = []
+        }
+        try await store.saveDevice(ghost)
+
+        let staleRadioID = UUID()
+        let current = createTestDevice().copy {
+            $0.publicKey = restoredPublicKey
+            $0.radioID = staleRadioID
+            $0.isActive = true
+        }
+        try await store.saveDevice(current)
+
+        let result = try await store.reconcileGhostIdentity(
+            currentDeviceID: current.id,
+            newPublicKey: restoredPublicKey
+        )
+        #expect(result == ghostRadioID, "Reconciliation must find the ghost on retry")
+
+        let updated = try await store.fetchDevice(id: current.id)
+        #expect(updated?.radioID == ghostRadioID)
+
+        let ghostLookup = try await store.fetchDevice(id: ghost.id)
+        #expect(ghostLookup == nil)
+    }
 }
