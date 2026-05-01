@@ -32,18 +32,27 @@ where Filter.AllCases: RandomAccessCollection {
 
     @available(iOS 26.0, *)
     private var glassPills: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            GlassEffectContainer(spacing: pillSpacing) {
-                HStack(spacing: pillSpacing) {
-                    ForEach(Filter.allCases, id: \.self) { filter in
-                        pill(for: filter)
-                    }
-                }
-                .padding(.horizontal, barHorizontalPadding)
-                .padding(.vertical, barVerticalPadding)
+        ViewThatFits(in: .horizontal) {
+            pillsRow
+            ScrollView(.horizontal, showsIndicators: false) {
+                pillsRow
             }
+            .scrollClipDisabled()
         }
-        .scrollClipDisabled()
+        .frame(maxWidth: .infinity)
+    }
+
+    @available(iOS 26.0, *)
+    private var pillsRow: some View {
+        GlassEffectContainer(spacing: pillSpacing) {
+            HStack(spacing: pillSpacing) {
+                ForEach(Filter.allCases, id: \.self) { filter in
+                    pill(for: filter)
+                }
+            }
+            .padding(.horizontal, barHorizontalPadding)
+            .padding(.vertical, barVerticalPadding)
+        }
     }
 
     @available(iOS 26.0, *)
