@@ -1,6 +1,4 @@
-import Accessibility
 import MapKit
-import os
 import MC1Services
 import SwiftUI
 
@@ -8,11 +6,6 @@ import SwiftUI
 enum PingResult {
     case success(latencyMs: Int, snrThere: Double, snrBack: Double)
     case error(String)
-}
-
-private enum PingError: Error {
-    case notConnected
-    case timeout
 }
 
 /// Displays ping result with latency and bidirectional SNR
@@ -95,8 +88,6 @@ struct ContactDetailView: View {
     @State private var pingResult: PingResult?
     @State private var isSharing = false
     @State private var showShareSuccess = false
-
-    private let pingLogger = Logger(subsystem: "com.mc1", category: "Ping")
 
     init(contact: ContactDTO, showFromDirectChat: Bool = false) {
         self.contact = contact
@@ -401,63 +392,7 @@ struct ContactDetailView: View {
         guard !isPinging else { return }
         isPinging = true
         pingResult = nil
-
-        let startTime = ContinuousClock.now
-        let tag = UInt32.random(in: 0..<UInt32.max)
-
-        do {
-            guard let services = appState.services else {
-                throw PingError.notConnected
-            }
-
-            let device = appState.connectedDevice
-            let pathData = Data(currentContact.publicKey.prefix(device?.traceHashSize ?? 1))
-
-            // Task group: listener starts BEFORE sendTrace to avoid race with fast responses
-            let (snrThere, snrBack) = try await withThrowingTaskGroup(
-                of: (snrThere: Double, snrBack: Double).self
-            ) { group in
-                // Listen for 0x88 rxLogData trace response (arrives before 0x89 traceData)
-                group.addTask {
-                    for await notification in NotificationCenter.default.notifications(named: .rxLogTraceReceived) {
-                        if let notifTag = notification.userInfo?["tag"] as? UInt32, notifTag == tag {
-                            let localSnr = notification.userInfo?["localSnr"] as? Double
-                            let remoteSnr = notification.userInfo?["remoteSnr"] as? Double
-                            return (snrThere: remoteSnr ?? 0, snrBack: localSnr ?? 0)
-                        }
-                    }
-                    throw CancellationError()
-                }
-
-                // Send trace (listeners are already active above)
-                let sentInfo = try await services.binaryProtocolService.sendTrace(tag: tag, flags: device?.pathHashMode ?? 0, path: pathData)
-
-                // Timeout using actual suggested timeout from device
-                group.addTask {
-                    try await Task.sleep(for: .milliseconds(sentInfo.suggestedTimeoutMs))
-                    throw PingError.timeout
-                }
-
-                guard let result = try await group.next() else {
-                    throw PingError.timeout
-                }
-                group.cancelAll()
-                return result
-            }
-
-            let elapsed = ContinuousClock.now - startTime
-            let latencyMs = Int(elapsed / .milliseconds(1))
-
-            pingResult = .success(latencyMs: latencyMs, snrThere: snrThere, snrBack: snrBack)
-            let announcement = L10n.Contacts.Contacts.Detail.pingSuccessAnnouncement(latencyMs)
-            AccessibilityNotification.Announcement(announcement).post()
-        } catch {
-            pingLogger.error("Ping failed: \(error.localizedDescription)")
-            pingResult = .error(L10n.Contacts.Contacts.Detail.pingNoResponse)
-            let announcement = L10n.Contacts.Contacts.Detail.pingFailureAnnouncement
-            AccessibilityNotification.Announcement(announcement).post()
-        }
-
+        pingResult = await PingHelper.zeroHopPing(contact: currentContact, appState: appState)
         isPinging = false
     }
 

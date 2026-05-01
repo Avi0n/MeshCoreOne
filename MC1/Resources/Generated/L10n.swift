@@ -2239,6 +2239,8 @@ public enum L10n {
         public static let name = L10n.tr("Map", "map.detail.name", fallback: "Name")
         /// Location: MapView.swift ContactDetailSheet - Purpose: Label for path length
         public static let pathLength = L10n.tr("Map", "map.detail.pathLength", fallback: "Path Length")
+        /// Location: MapView.swift ContactDetailSheet - Purpose: Label for full public key identifier
+        public static let publicKey = L10n.tr("Map", "map.detail.publicKey", fallback: "Public Key")
         /// Location: MapView.swift ContactDetailSheet - Purpose: Label for routing type
         public static let routing = L10n.tr("Map", "map.detail.routing", fallback: "Routing")
         /// Location: MapView.swift ContactDetailSheet - Purpose: Flood routing type value

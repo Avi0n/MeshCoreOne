@@ -30,6 +30,8 @@ struct ContactDetailSheet: View {
 
     @State private var activeSheet: ActiveSheet?
     @State private var pendingSheet: ActiveSheet?
+    @State private var isPinging = false
+    @State private var pingResult: PingResult?
 
     var body: some View {
         NavigationStack {
@@ -60,6 +62,15 @@ struct ContactDetailSheet: View {
                         LabeledContent(L10n.Map.Map.Detail.lastAdvert) {
                             ConversationTimestamp(date: Date(timeIntervalSince1970: TimeInterval(contact.lastAdvertTimestamp)), font: .body)
                         }
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(L10n.Map.Map.Detail.publicKey)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(contact.publicKey.hexString(separator: " "))
+                            .font(.system(.caption, design: .monospaced))
+                            .textSelection(.enabled)
                     }
                 }
 
@@ -102,6 +113,8 @@ struct ContactDetailSheet: View {
                         }
                         .radioDisabled(for: appState.connectionState)
 
+                        pingButton
+
                     case .room:
                         Button {
                             activeSheet = .roomJoin
@@ -109,6 +122,8 @@ struct ContactDetailSheet: View {
                             Label(L10n.Map.Map.Detail.Action.joinRoom, systemImage: "door.left.hand.open")
                         }
                         .radioDisabled(for: appState.connectionState)
+
+                        pingButton
 
                     case .chat:
                         Button {
@@ -182,6 +197,37 @@ struct ContactDetailSheet: View {
                 }
             }
         }
+    }
+
+    // MARK: - Ping
+
+    @ViewBuilder
+    private var pingButton: some View {
+        Button {
+            Task { await pingContact() }
+        } label: {
+            HStack {
+                Label(L10n.Contacts.Contacts.Detail.ping, systemImage: "wave.3.right")
+                if isPinging {
+                    Spacer()
+                    ProgressView()
+                }
+            }
+        }
+        .disabled(isPinging)
+        .radioDisabled(for: appState.connectionState)
+
+        if let result = pingResult {
+            PingResultRow(result: result)
+        }
+    }
+
+    private func pingContact() async {
+        guard !isPinging else { return }
+        isPinging = true
+        pingResult = nil
+        pingResult = await PingHelper.zeroHopPing(contact: contact, appState: appState)
+        isPinging = false
     }
 
     // MARK: - Sheet Management

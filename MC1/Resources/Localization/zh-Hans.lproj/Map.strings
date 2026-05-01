@@ -78,6 +78,9 @@
 /* Location: MapView.swift ContactDetailSheet - Purpose: Label for last advertisement timestamp */
 "map.detail.lastAdvert" = "最后广播";
 
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for full public key identifier */
+"map.detail.publicKey" = "公钥";
+
 /* Location: MapView.swift ContactDetailSheet - Purpose: Section header for location coordinates */
 "map.detail.section.location" = "位置";
 

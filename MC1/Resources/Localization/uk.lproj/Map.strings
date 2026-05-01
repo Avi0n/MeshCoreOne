@@ -78,6 +78,9 @@
 /* Location: MapView.swift ContactDetailSheet - Purpose: Label for last advertisement timestamp */
 "map.detail.lastAdvert" = "Останнє оголошення";
 
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for full public key identifier */
+"map.detail.publicKey" = "Публічний ключ";
+
 /* Location: MapView.swift ContactDetailSheet - Purpose: Section header for location coordinates */
 "map.detail.section.location" = "Місцезнаходження";
 
