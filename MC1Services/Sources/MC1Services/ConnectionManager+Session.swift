@@ -215,6 +215,12 @@ extension ConnectionManager: BLEReconnectionDelegate {
         connectedDevice = nil
         allowedRepeatFreqRanges = []
 
+        // Same callback contract as handleConnectionLoss and the UI-timeout
+        // path in BLEReconnectionCoordinator: route through notifyConnectionLost()
+        // so AppState tears down its observers and the Live Activity transitions
+        // to disconnected. Without this the LA stays in stale "connected" state.
+        await notifyConnectionLost()
+
         // Start watchdog to periodically retry if user still wants connection
         if connectionIntent.wantsConnection {
             startReconnectionWatchdog()

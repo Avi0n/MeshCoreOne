@@ -164,4 +164,32 @@ struct ConnectionManagerSessionTests {
 
         #expect(manager.connectionState == .ready)
     }
+
+    @Test("handleReconnectionFailure notifies onConnectionLost so UI can react")
+    func handleReconnectionFailureNotifiesConnectionLost() async throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+        manager.updateDevice(with: DeviceDTO.testDevice())
+        manager.setTestState(
+            connectionState: .connected,
+            connectionIntent: ConnectionIntent.none
+        )
+
+        let tracker = ReconnectionFailureLostTracker()
+        manager.onConnectionLost = { await tracker.markConnectionLost() }
+
+        await manager.handleReconnectionFailure()
+
+        let wasCalled = await tracker.connectionLostCalled
+        #expect(wasCalled, "onConnectionLost must fire so AppState can update the Live Activity to disconnected")
+    }
+}
+
+// MARK: - Test Helpers
+
+private actor ReconnectionFailureLostTracker {
+    var connectionLostCalled = false
+
+    func markConnectionLost() {
+        connectionLostCalled = true
+    }
 }

@@ -229,6 +229,17 @@ public final class AppState {
 
         self.connectionManager = ConnectionManager(modelContainer: modelContainer)
 
+        // Provide LiveActivityManager with current radio connection state so
+        // its restart/recovery/stale paths consult ground truth instead of
+        // the LA's last cached `isConnected`. Read from connectionState (a
+        // transport-link predicate) rather than connectedDevice: during iOS
+        // auto-reconnect connectedDevice is intentionally retained while the
+        // transport link is down, and using identity as a liveness signal
+        // would resurrect a "Connected" LA mid-reconnect.
+        liveActivityManager.connectionStateProvider = { [weak self] in
+            self?.connectionState.isConnected ?? false
+        }
+
         // Wire app state provider for incremental sync support
         connectionManager.appStateProvider = AppStateProviderImpl()
 
@@ -700,20 +711,21 @@ public final class AppState {
         // Room keepalives are managed by RoomConversationView lifecycle
         // (started on view appear, stopped on disappear, restarted via scenePhase)
 
-        // Restart decay timer and flush any buffered live activity state
-        liveActivityManager.handleReturnToForeground()
+        // Reconcile transport state first (WiFi check + BLE lifecycle transition,
+        // which internally fires checkBLEConnectionHealth) so any stale "connected"
+        // state gets cleaned up via
+        // handleConnectionLoss → onConnectionLost → liveActivityManager.handleConnectionLost
+        // before the Live Activity tries to validate or restart.
+        await connectionManager.checkWiFiConnectionHealth()
+        await enqueueBLELifecycleTransition(.becomeActive).value
 
-        // Validate live activity is still alive (may have ended while suspended)
+        liveActivityManager.handleReturnToForeground()
         await liveActivityManager.validateActivityState()
 
         // Check for expired ACKs
         if connectionState == .ready {
             try? await services?.messageService.checkExpiredAcks()
         }
-
-        // Check connection health (may have died while backgrounded)
-        await connectionManager.checkWiFiConnectionHealth()
-        await enqueueBLELifecycleTransition(.becomeActive).value
 
         // Trigger resync if sync failed while connected
         await connectionManager.checkSyncHealth()

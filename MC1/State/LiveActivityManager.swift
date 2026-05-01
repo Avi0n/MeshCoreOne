@@ -12,6 +12,10 @@ public final class LiveActivityManager {
 
     private let logger = Logger(subsystem: "com.mc1", category: "LiveActivityManager")
 
+    /// Returns whether BLE is currently connected at the radio layer. Defaults
+    /// to `false` so a missing wiring fails closed.
+    var connectionStateProvider: (@MainActor () -> Bool)?
+
     private var currentActivity: Activity<MeshStatusAttributes>?
     private var decayTimer: Task<Void, Never>?
     private var disconnectTimer: Task<Void, Never>?
@@ -170,22 +174,43 @@ public final class LiveActivityManager {
     // MARK: - App relaunch recovery
 
     func recoverExistingActivity() async {
-        // Clean up ended/dismissed activities lingering in the collection
-        for activity in Activity<MeshStatusAttributes>.activities where
+        let allActivities = Activity<MeshStatusAttributes>.activities
+
+        // Clean up ended/dismissed activities still visible per their dismissal policy.
+        for activity in allActivities where
             activity.activityState == .ended || activity.activityState == .dismissed {
             await activity.end(nil, dismissalPolicy: .immediate)
         }
 
-        currentActivity = Activity<MeshStatusAttributes>.activities.first(where: {
+        // Adopt the first active/stale activity; immediately end any extras as
+        // orphans so the user never sees two LAs at once.
+        let activeOrStale = allActivities.filter {
             $0.activityState == .active || $0.activityState == .stale
-        })
+        }
+        for orphan in activeOrStale.dropFirst() {
+            logger.warning("Ending duplicate orphan Live Activity on recovery")
+            await orphan.end(nil, dismissalPolicy: .immediate)
+        }
 
+        currentActivity = activeOrStale.first
         guard let activity = currentActivity else { return }
 
         startObservingActivityState()
 
-        guard !activity.content.state.isConnected,
-              let disconnectedDate = activity.content.state.disconnectedDate else {
+        // If the LA is cached as connected, force re-validation. The radio may
+        // actually be disconnected (prior session crashed mid-connection, app
+        // was killed during a drop, etc.). handleConnectionReady's same-device
+        // branch will restore connected state once auto-reconnect lands.
+        if activity.content.state.isConnected {
+            logger.info("Recovered Live Activity in cached connected state — forcing re-validation as disconnected")
+            await handleConnectionLost()
+            return
+        }
+
+        // Already disconnected — re-arm the grace timer using the persisted
+        // disconnectedDate. If it's missing or already expired, end now.
+        guard let disconnectedDate = activity.content.state.disconnectedDate else {
+            await endActivity()
             return
         }
 
@@ -227,6 +252,17 @@ public final class LiveActivityManager {
         currentActivity = nil
         stateObservationTask?.cancel()
         stateObservationTask = nil
+        // Everything else here is bound to the activity's lifetime: timers
+        // that would mutate it, throttled updates queued for it, packet
+        // timestamps used to compute its rate. If any of these survive the
+        // reference being cleared, they can leak onto the next activity (a
+        // stale disconnect timer ending a fresh LA, a queued flush applying
+        // old battery/rate, packet-rate carry-over).
+        disconnectTimer?.cancel()
+        disconnectTimer = nil
+        stopDecayTimer()
+        clearPendingUpdate()
+        recentPacketTimestamps = []
     }
 
     private func startActivity(
@@ -286,12 +322,27 @@ public final class LiveActivityManager {
                 case .ended:
                     let lastState = activity.content.state
                     let deviceName = activity.attributes.deviceName
+
+                    // Clear the field synchronously before any await so a
+                    // re-entrant @MainActor caller (e.g. handleConnectionReady)
+                    // can't reassign currentActivity to a replacement and have
+                    // it nulled out when we return.
                     self.clearActivityReference()
 
-                    if lastState.isConnected {
-                        logger.info("System ended active Live Activity, restarting")
+                    // Dismiss the captured (now-detached) activity immediately
+                    // so it doesn't linger on screen alongside any replacement
+                    // (system-ended activities default to ~4h visible dismissal).
+                    await activity.end(nil, dismissalPolicy: .immediate)
+
+                    // Don't resurrect a "connected" LA from cached state —
+                    // only restart when the radio is actually connected.
+                    let isCurrentlyConnected = self.connectionStateProvider?() ?? false
+                    if isCurrentlyConnected {
+                        logger.info("System ended Live Activity, restarting (radio still connected)")
                         await self.startActivity(deviceName: deviceName, unreadCount: lastState.unreadCount)
                         self.startDecayTimer()
+                    } else {
+                        logger.info("System ended Live Activity, not restarting (radio disconnected)")
                     }
                     return
 
@@ -302,7 +353,15 @@ public final class LiveActivityManager {
 
                 case .stale:
                     let currentState = activity.content.state
-                    if currentState.isConnected && currentState.packetsPerMinute > 0 {
+                    let isCurrentlyConnected = self.connectionStateProvider?() ?? false
+
+                    if currentState.isConnected && !isCurrentlyConnected {
+                        // LA cached as connected, but the radio is actually
+                        // disconnected (we missed a notification somewhere).
+                        // Force the disconnect path instead of refreshing.
+                        logger.warning("Stale Live Activity cached connected but radio disconnected — forcing handleConnectionLost")
+                        await self.handleConnectionLost()
+                    } else if currentState.isConnected && currentState.packetsPerMinute > 0 {
                         logger.debug("Live Activity stale with active rate, resetting to 0")
                         self.recentPacketTimestamps = []
                         self.clearPendingUpdate()
@@ -416,11 +475,20 @@ public final class LiveActivityManager {
         case .ended:
             let lastState = activity.content.state
             let deviceName = activity.attributes.deviceName
+
+            // Clear the field synchronously before the await so a re-entrant
+            // main-actor caller can't have its replacement currentActivity
+            // nulled out when we resume.
             clearActivityReference()
-            if lastState.isConnected {
-                logger.info("Detected ended Live Activity on foreground, restarting")
+            await activity.end(nil, dismissalPolicy: .immediate)
+
+            let isCurrentlyConnected = connectionStateProvider?() ?? false
+            if isCurrentlyConnected {
+                logger.info("Detected ended Live Activity on foreground, restarting (radio still connected)")
                 await startActivity(deviceName: deviceName, unreadCount: lastState.unreadCount)
                 startDecayTimer()
+            } else {
+                logger.info("Detected ended Live Activity on foreground, not restarting (radio disconnected)")
             }
         case .dismissed:
             clearActivityReference()
