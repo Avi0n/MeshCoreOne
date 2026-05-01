@@ -644,7 +644,7 @@
 "contacts.pathEdit.positionAppend" = "作为第 %d 跳添加";
 
 /* Location: AddHopPickerView.swift - Purpose: Search field placeholder */
-"contacts.pathEdit.searchPrompt" = "按名称或十六进制搜索";
+"contacts.pathEdit.searchPrompt" = "按名称或 ID 搜索";
 
 /* Location: PathEditingSheet.swift - Purpose: Section footer hint */
 "contacts.pathEdit.reorderHint" = "拖动排序 · 滑动删除";

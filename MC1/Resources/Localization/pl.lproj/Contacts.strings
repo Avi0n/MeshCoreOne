@@ -644,7 +644,7 @@
 "contacts.pathEdit.positionAppend" = "Dodawanie jako skok %d";
 
 /* Location: AddHopPickerView.swift - Purpose: Search field placeholder */
-"contacts.pathEdit.searchPrompt" = "Szukaj po nazwie lub hex";
+"contacts.pathEdit.searchPrompt" = "Szukaj po nazwie lub ID";
 
 /* Location: PathEditingSheet.swift - Purpose: Section footer hint */
 "contacts.pathEdit.reorderHint" = "Przeciągnij aby uporządkować · Przesuń aby usunąć";

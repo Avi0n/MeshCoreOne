@@ -661,7 +661,7 @@
 "contacts.pathEdit.positionAppend" = "Добавление как узел %d";
 
 /* Location: AddHopPickerView.swift - Purpose: Search field placeholder */
-"contacts.pathEdit.searchPrompt" = "Поиск по имени или hex";
+"contacts.pathEdit.searchPrompt" = "Поиск по имени или ID";
 
 /* Location: PathEditingSheet.swift - Purpose: Section footer hint */
 "contacts.pathEdit.reorderHint" = "Перетащите для сортировки · Смахните для удаления";

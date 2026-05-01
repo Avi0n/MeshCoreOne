@@ -661,7 +661,7 @@
 "contacts.pathEdit.positionAppend" = "Додавання як вузол %d";
 
 /* Location: AddHopPickerView.swift - Purpose: Search field placeholder */
-"contacts.pathEdit.searchPrompt" = "Пошук за ім'ям або hex";
+"contacts.pathEdit.searchPrompt" = "Пошук за ім'ям або ID";
 
 /* Location: PathEditingSheet.swift - Purpose: Section footer hint */
 "contacts.pathEdit.reorderHint" = "Перетягніть для впорядкування · Проведіть для видалення";

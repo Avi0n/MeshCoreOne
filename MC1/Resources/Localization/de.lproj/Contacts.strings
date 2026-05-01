@@ -644,7 +644,7 @@
 "contacts.pathEdit.positionAppend" = "Hinzufügen als Hop %d";
 
 /* Location: AddHopPickerView.swift - Purpose: Search field placeholder */
-"contacts.pathEdit.searchPrompt" = "Nach Name oder Hex suchen";
+"contacts.pathEdit.searchPrompt" = "Nach Name oder ID suchen";
 
 /* Location: PathEditingSheet.swift - Purpose: Section footer hint */
 "contacts.pathEdit.reorderHint" = "Ziehen zum Ordnen · Wischen zum Entfernen";

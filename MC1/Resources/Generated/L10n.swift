@@ -1448,7 +1448,7 @@ public enum L10n {
         /// Location: PathEditingSheet.swift - Purpose: Section footer hint
         public static let reorderHint = L10n.tr("Contacts", "contacts.pathEdit.reorderHint", fallback: "Drag to reorder · Swipe left to remove")
         /// Location: AddHopPickerView.swift - Purpose: Search field placeholder
-        public static let searchPrompt = L10n.tr("Contacts", "contacts.pathEdit.searchPrompt", fallback: "Search by name or hex")
+        public static let searchPrompt = L10n.tr("Contacts", "contacts.pathEdit.searchPrompt", fallback: "Search by name or ID")
         /// Location: PathEditingSheet.swift - Purpose: Navigation title
         public static let title = L10n.tr("Contacts", "contacts.pathEdit.title", fallback: "Edit Path")
         /// Location: PathEditingSheet.swift - Purpose: Use-direct-routing empty-state button
