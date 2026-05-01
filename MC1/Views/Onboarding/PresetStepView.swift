@@ -227,6 +227,12 @@ struct PresetStepView: View {
 
     private func apply(id: String) {
         guard let preset = alternatives.first(where: { $0.id == id }) ?? recommended else { return }
+        // Mock device has no radio to configure.
+        if appState.connectedDevice?.id == MockDataProvider.simulatorDeviceID {
+            commitTrigger.toggle()
+            appState.completeOnboarding()
+            return
+        }
         guard let settingsService = appState.services?.settingsService else {
             // Defensive: CTA is disabled when services is nil, but if reconnect ends mid-tap
             // we surface the error rather than swallowing it silently.
