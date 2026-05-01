@@ -117,9 +117,10 @@ struct PathEditingSheet: View {
     }
 
     /// Ordered hops with drag-to-reorder and swipe-to-delete.
-    /// Uses `.swipeActions` (not `.onDelete`) under `.editMode == .active` to
-    /// avoid rendering both a red minus-circle and a swipe action on the same
-    /// row — the old behavior was triple-redundant.
+    /// Uses `.onDelete` (not `.swipeActions`) because the list is in
+    /// `.editMode == .active` for the always-visible drag handles, and
+    /// active edit mode suppresses `.swipeActions`. `.onDelete` provides
+    /// both the leading minus-circle and the trailing swipe gesture.
     private var currentPathSection: some View {
         Section {
             ForEach(Array(viewModel.editablePath.enumerated()), id: \.element.id) { index, hop in
@@ -128,18 +129,16 @@ struct PathEditingSheet: View {
                     index: index,
                     totalCount: viewModel.editablePath.count
                 )
-                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                    Button(role: .destructive) {
-                        deleteHapticTrigger += 1
-                        viewModel.removeRepeater(at: index)
-                    } label: {
-                        Label(L10n.Contacts.Contacts.Common.delete, systemImage: "trash")
-                    }
-                }
             }
             .onMove { source, destination in
                 dragHapticTrigger += 1
                 viewModel.moveRepeater(from: source, to: destination)
+            }
+            .onDelete { indexSet in
+                deleteHapticTrigger += 1
+                for index in indexSet.sorted().reversed() {
+                    viewModel.removeRepeater(at: index)
+                }
             }
         } header: {
             Text(L10n.Contacts.Contacts.PathEdit.currentPath)
@@ -269,25 +268,15 @@ private struct PathHopRow: View {
     let index: Int
     let totalCount: Int
 
-    @ScaledMetric(relativeTo: .body) private var indexDiameter: CGFloat = 26
-
     var body: some View {
-        HStack(spacing: PathEditMetrics.rowContentSpacing) {
-            Text("\(index + 1)")
-                .font(.caption.weight(.bold).monospacedDigit())
-                .foregroundStyle(.white)
-                .frame(minWidth: indexDiameter, minHeight: indexDiameter)
-                .padding(.horizontal, 4)
-                .background(Color.accentColor, in: Capsule())
-            VStack(alignment: .leading, spacing: 2) {
-                if let name = hop.resolvedName {
-                    Text(name).font(.body)
-                    Text(hop.hashHex)
-                        .font(.caption.monospaced())
-                        .foregroundStyle(.secondary)
-                } else {
-                    Text(hop.hashHex).font(.body.monospaced())
-                }
+        VStack(alignment: .leading, spacing: 2) {
+            if let name = hop.resolvedName {
+                Text(name).font(.body)
+                Text(hop.hashHex)
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.secondary)
+            } else {
+                Text(hop.hashHex).font(.body.monospaced())
             }
         }
         .frame(minHeight: PathEditMetrics.tapTarget)
