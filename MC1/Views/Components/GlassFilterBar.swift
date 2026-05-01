@@ -2,7 +2,8 @@ import SwiftUI
 
 private let pillSpacing: CGFloat = 8
 private let barHorizontalPadding: CGFloat = 16
-private let barVerticalPadding: CGFloat = 8
+private let barTopPadding: CGFloat = -4
+private let barBottomPadding: CGFloat = 8
 private let dimmedOpacity: Double = 0.5
 
 /// Pinned filter bar that renders as Liquid Glass capsule pills on iOS 26 and
@@ -51,7 +52,8 @@ where Filter.AllCases: RandomAccessCollection {
                 }
             }
             .padding(.horizontal, barHorizontalPadding)
-            .padding(.vertical, barVerticalPadding)
+            .padding(.top, barTopPadding)
+            .padding(.bottom, barBottomPadding)
         }
     }
 
@@ -77,7 +79,8 @@ where Filter.AllCases: RandomAccessCollection {
         }
         .pickerStyle(.segmented)
         .padding(.horizontal, barHorizontalPadding)
-        .padding(.vertical, barVerticalPadding)
+        .padding(.top, barTopPadding)
+        .padding(.bottom, barBottomPadding)
     }
 }
 
