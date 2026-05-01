@@ -3,14 +3,19 @@ import MC1Services
 
 /// SwiftUI content displayed in a popover callout when a map pin is tapped
 struct ContactCalloutContent: View {
+    @Environment(\.appState) private var appState
     let contact: ContactDTO
     let onDetail: () -> Void
     let onMessage: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(contact.displayName)
+            (Text(idPrefixHex)
+                .monospaced()
+                .foregroundStyle(.secondary)
+                + Text(" \(contact.displayName)"))
                 .font(.headline)
+                .accessibilityLabel(contact.displayName)
 
             HStack(spacing: 6) {
                 Image(systemName: contact.type.iconSystemName)
@@ -42,6 +47,11 @@ struct ContactCalloutContent: View {
     }
 
     // MARK: - Computed Properties
+
+    private var idPrefixHex: String {
+        let hashSize = appState.connectedDevice?.hashSize ?? 1
+        return contact.publicKey.prefix(hashSize).hexString()
+    }
 
     private var typeDisplayName: String {
         switch contact.type {
