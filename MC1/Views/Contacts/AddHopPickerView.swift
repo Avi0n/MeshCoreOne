@@ -12,7 +12,6 @@ struct AddHopPickerView: View {
     @State private var searchText = ""
     @State private var filter: AddHopFilter = .all
     @State private var addHapticTrigger = 0
-    @AccessibilityFocusState private var bannerFocused: Bool
 
     var body: some View {
         List {
@@ -27,21 +26,19 @@ struct AddHopPickerView: View {
         }
         .listStyle(.insetGrouped)
         .environment(\.editMode, .constant(.inactive))  // override parent's .active
-        .navigationTitle(L10n.Contacts.Contacts.PathEdit.addHop)
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationHeader(
+            title: L10n.Contacts.Contacts.PathEdit.addHop,
+            subtitle: viewModel.isPathFull ? "" : bannerText
+        )
         .searchable(
             text: $searchText,
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: L10n.Contacts.Contacts.PathEdit.searchPrompt
         )
         .safeAreaInset(edge: .top, spacing: 0) {
-            VStack(spacing: 0) {
-                bannerView
-                AddHopSegmentPicker(selection: $filter)
-            }
+            AddHopSegmentPicker(selection: $filter)
         }
         .sensoryFeedback(.impact(weight: .light), trigger: addHapticTrigger)
-        .onAppear { bannerFocused = true }
     }
 
     @ViewBuilder
@@ -76,26 +73,14 @@ struct AddHopPickerView: View {
         }
     }
 
-    // MARK: - Banner
-
-    private var bannerView: some View {
-        Text(bannerText)
-            .font(.subheadline.weight(.medium))
-            .foregroundStyle(.primary)
-            .lineLimit(2)
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, PathEditMetrics.rowVerticalPadding)
-            .padding(.horizontal, PathEditMetrics.rowInset)
-            .accessibilityFocused($bannerFocused)
-    }
+    // MARK: - Subtitle text
 
     private var bannerText: String {
         Self.bannerText(for: viewModel, intent: intent)
     }
 
-    /// Shared banner-text source so the row-tap announcement (posted from
-    /// `PickerRowView.handleTap`) reads the same string users see on screen.
+    /// Shared text source so the navigation subtitle and the row-tap
+    /// announcement (posted from `PickerRowView.handleTap`) read identically.
     @MainActor
     static func bannerText(for viewModel: PathManagementViewModel, intent: AddHopIntent) -> String {
         if viewModel.isPathFull {
