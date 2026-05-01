@@ -15,7 +15,7 @@ struct AboutSection: View {
             }
             .foregroundStyle(.primary)
 
-            Link(destination: URL(string: "https://map.meshcore.dev")!) {
+            Link(destination: URL(string: "https://map.meshcore.io/")!) {
                 HStack {
                     TintedLabel(L10n.Settings.About.onlineMap, systemImage: "map")
                     Spacer()
