@@ -23,7 +23,7 @@ packages:
     from: 1.5.0
   MapLibre:
     url: https://github.com/maplibre/maplibre-gl-native-distribution
-    from: 6.23.0
+    exactVersion: 6.25.1
 
 targets:
   MC1:
