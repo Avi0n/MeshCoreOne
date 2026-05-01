@@ -31,6 +31,9 @@
 /* Location: ChatsView.swift - Filter option for channels */
 "chats.filter.channels" = "Каналы";
 
+/* Location: ChatsView.swift - Filter option for rooms */
+"chats.filter.rooms" = "Комнаты";
+
 // MARK: - Compose Menu
 
 /* Location: ChatsView.swift - Button to start a new direct chat */
@@ -67,6 +70,12 @@
 
 /* Location: ChatsView.swift - Description when no channels */
 "chats.emptyState.noChannels.description" = "Присоединись к каналу или создай новый";
+
+/* Location: ChatsView.swift - Title when no rooms exist */
+"chats.emptyState.noRooms.title" = "Нет комнат";
+
+/* Location: ChatsView.swift - Description when no rooms exist */
+"chats.emptyState.noRooms.description" = "Присоединись к комнате из «Контактов»";
 
 /* Location: ChatsView.swift - Split view placeholder when no conversation selected */
 "chats.emptyState.selectConversation" = "Выбери разговор";

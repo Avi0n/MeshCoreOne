@@ -32,6 +32,9 @@
 /* Location: ChatsView.swift - Filter option for channels */
 "chats.filter.channels" = "频道";
 
+/* Location: ChatsView.swift - Filter option for rooms */
+"chats.filter.rooms" = "房间";
+
 // MARK: - Compose Menu
 
 /* Location: ChatsView.swift - Button to start a new direct chat */
@@ -68,6 +71,12 @@
 
 /* Location: ChatsView.swift - Description when no channels */
 "chats.emptyState.noChannels.description" = "加入或创建频道";
+
+/* Location: ChatsView.swift - Title when no rooms exist */
+"chats.emptyState.noRooms.title" = "无房间";
+
+/* Location: ChatsView.swift - Description when no rooms exist */
+"chats.emptyState.noRooms.description" = "从联系人加入房间";
 
 /* Location: ChatsView.swift - Split view placeholder when no conversation selected */
 "chats.emptyState.selectConversation" = "选择对话";

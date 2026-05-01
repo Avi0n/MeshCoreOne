@@ -8,17 +8,9 @@ struct ContactsCompactList: View {
     let filteredContacts: [ContactDTO]
     let isSearching: Bool
     let viewModel: ContactsViewModel
-    @Binding var selectedSegment: NodeSegment
 
     var body: some View {
         List {
-            Section {
-                NodeSegmentPicker(selection: $selectedSegment, isSearching: isSearching)
-            }
-            .listRowInsets(EdgeInsets())
-            .listRowBackground(Color.clear)
-            .listSectionSeparator(.hidden)
-
             ForEach(Array(filteredContacts.enumerated()), id: \.element.id) { index, contact in
                 NavigationLink(value: contact) {
                     ContactRowView(

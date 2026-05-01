@@ -32,6 +32,9 @@
 /* Location: ChatsView.swift - Filter option for channels */
 "chats.filter.channels" = "Canaux";
 
+/* Location: ChatsView.swift - Filter option for rooms */
+"chats.filter.rooms" = "Salons";
+
 // MARK: - Compose Menu
 
 /* Location: ChatsView.swift - Button to start a new direct chat */
@@ -68,6 +71,12 @@
 
 /* Location: ChatsView.swift - Description when no channels */
 "chats.emptyState.noChannels.description" = "Rejoignez ou créez un canal";
+
+/* Location: ChatsView.swift - Title when no rooms exist */
+"chats.emptyState.noRooms.title" = "Aucun salon";
+
+/* Location: ChatsView.swift - Description when no rooms exist */
+"chats.emptyState.noRooms.description" = "Rejoignez un salon depuis les Contacts";
 
 /* Location: ChatsView.swift - Split view placeholder when no conversation selected */
 "chats.emptyState.selectConversation" = "Sélectionnez une conversation";

@@ -311,6 +311,12 @@ public enum L10n {
           /// Location: ChatsView.swift - Title when no direct messages
           public static let title = L10n.tr("Chats", "chats.emptyState.noDirectMessages.title", fallback: "No Direct Messages")
         }
+        public enum NoRooms {
+          /// Location: ChatsView.swift - Description when no rooms exist
+          public static let description = L10n.tr("Chats", "chats.emptyState.noRooms.description", fallback: "Join a room from Contacts")
+          /// Location: ChatsView.swift - Title when no rooms exist
+          public static let title = L10n.tr("Chats", "chats.emptyState.noRooms.title", fallback: "No Rooms")
+        }
         public enum NoUnread {
           /// Location: ChatsView.swift - Description when no unread messages
           public static let description = L10n.tr("Chats", "chats.emptyState.noUnread.description", fallback: "You're all caught up")
@@ -337,6 +343,8 @@ public enum L10n {
         public static let clear = L10n.tr("Chats", "chats.filter.clear", fallback: "Clear Filter")
         /// Location: ChatsView.swift - Filter option for direct messages
         public static let directMessages = L10n.tr("Chats", "chats.filter.directMessages", fallback: "DMs")
+        /// Location: ChatsView.swift - Filter option for rooms
+        public static let rooms = L10n.tr("Chats", "chats.filter.rooms", fallback: "Rooms")
         /// Location: ChatsView.swift - Filter menu title
         public static let title = L10n.tr("Chats", "chats.filter.title", fallback: "Filter")
         /// Location: ChatsView.swift - Filter option for unread conversations
@@ -1260,8 +1268,12 @@ public enum L10n {
           public static let all = L10n.tr("Contacts", "contacts.discovery.segment.all", fallback: "All")
           /// Location: DiscoveryView.swift - Purpose: Segment filter: Contacts
           public static let contacts = L10n.tr("Contacts", "contacts.discovery.segment.contacts", fallback: "Contacts")
-          /// Location: DiscoveryView.swift - Purpose: Segment filter: Network
-          public static let network = L10n.tr("Contacts", "contacts.discovery.segment.network", fallback: "Network")
+          /// Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback)
+          public static let pickerLabel = L10n.tr("Contacts", "contacts.discovery.segment.pickerLabel", fallback: "Filter discovered nodes")
+          /// Location: DiscoveryView.swift - Purpose: Segment filter: Repeaters
+          public static let repeaters = L10n.tr("Contacts", "contacts.discovery.segment.repeaters", fallback: "Repeaters")
+          /// Location: DiscoveryView.swift - Purpose: Segment filter: Rooms
+          public static let rooms = L10n.tr("Contacts", "contacts.discovery.segment.rooms", fallback: "Rooms")
         }
       }
       public enum List {
@@ -1314,11 +1326,17 @@ public enum L10n {
             /// Location: ContactsListView.swift - Purpose: No favorites empty title
             public static let title = L10n.tr("Contacts", "contacts.list.empty.favorites.title", fallback: "No Favorites Yet")
           }
-          public enum Network {
-            /// Location: ContactsListView.swift - Purpose: No network nodes empty description
-            public static let description = L10n.tr("Contacts", "contacts.list.empty.network.description", fallback: "Repeaters and room servers will appear when discovered on the mesh.")
-            /// Location: ContactsListView.swift - Purpose: No network nodes empty title
-            public static let title = L10n.tr("Contacts", "contacts.list.empty.network.title", fallback: "No Network Nodes")
+          public enum Repeaters {
+            /// Location: ContactsListView.swift - Purpose: No repeaters empty description
+            public static let description = L10n.tr("Contacts", "contacts.list.empty.repeaters.description", fallback: "Repeaters extend your mesh range. They'll appear here when discovered.")
+            /// Location: ContactsListView.swift - Purpose: No repeaters empty title
+            public static let title = L10n.tr("Contacts", "contacts.list.empty.repeaters.title", fallback: "No Repeaters")
+          }
+          public enum Rooms {
+            /// Location: ContactsListView.swift - Purpose: No rooms empty description
+            public static let description = L10n.tr("Contacts", "contacts.list.empty.rooms.description", fallback: "Rooms are public chat servers on the mesh. They'll appear here when discovered.")
+            /// Location: ContactsListView.swift - Purpose: No rooms empty title
+            public static let title = L10n.tr("Contacts", "contacts.list.empty.rooms.title", fallback: "No Rooms")
           }
           public enum Search {
             /// Location: ContactsListView.swift - Purpose: No search results description
@@ -1783,8 +1801,12 @@ public enum L10n {
         public static let contacts = L10n.tr("Contacts", "contacts.segment.contacts", fallback: "Contacts")
         /// Location: ContactsViewModel.swift - Purpose: Favorites segment
         public static let favorites = L10n.tr("Contacts", "contacts.segment.favorites", fallback: "Favorites")
-        /// Location: ContactsViewModel.swift - Purpose: Network segment
-        public static let network = L10n.tr("Contacts", "contacts.segment.network", fallback: "Network")
+        /// Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback)
+        public static let pickerLabel = L10n.tr("Contacts", "contacts.segment.pickerLabel", fallback: "Filter nodes")
+        /// Location: ContactsViewModel.swift - Purpose: Repeaters segment
+        public static let repeaters = L10n.tr("Contacts", "contacts.segment.repeaters", fallback: "Repeaters")
+        /// Location: ContactsViewModel.swift - Purpose: Rooms segment
+        public static let rooms = L10n.tr("Contacts", "contacts.segment.rooms", fallback: "Rooms")
       }
       public enum Share {
         /// Location: ContactQRShareSheet.swift - Purpose: Contact label in share text, %@ is contact name

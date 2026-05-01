@@ -119,7 +119,7 @@ import Testing
         })
     }
 
-    @Test func filterByChannelsIncludesRooms() {
+    @Test func filterByChannelsExcludesRooms() {
         let conversations: [Conversation] = [
             .direct(makeContact(name: "Alice")),
             .channel(makeChannel(name: "General")),
@@ -128,9 +128,25 @@ import Testing
 
         let result = conversations.filtered(by: .channels, searchText: "")
 
-        #expect(result.count == 2)
+        #expect(result.count == 1)
         #expect(result.allSatisfy {
             if case .channel = $0 { return true }
+            return false
+        })
+    }
+
+    @Test func filterByRoomsExcludesChannels() {
+        let conversations: [Conversation] = [
+            .direct(makeContact(name: "Alice")),
+            .channel(makeChannel(name: "General")),
+            .room(makeRoom(name: "Room1")),
+            .room(makeRoom(name: "Room2"))
+        ]
+
+        let result = conversations.filtered(by: .rooms, searchText: "")
+
+        #expect(result.count == 2)
+        #expect(result.allSatisfy {
             if case .room = $0 { return true }
             return false
         })

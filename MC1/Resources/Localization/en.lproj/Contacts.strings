@@ -71,8 +71,14 @@
 /* Location: ContactsViewModel.swift - Purpose: Contacts segment */
 "contacts.segment.contacts" = "Contacts";
 
-/* Location: ContactsViewModel.swift - Purpose: Network segment */
-"contacts.segment.network" = "Network";
+/* Location: ContactsViewModel.swift - Purpose: Repeaters segment */
+"contacts.segment.repeaters" = "Repeaters";
+
+/* Location: ContactsViewModel.swift - Purpose: Rooms segment */
+"contacts.segment.rooms" = "Rooms";
+
+/* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
+"contacts.segment.pickerLabel" = "Filter nodes";
 
 // MARK: - Sort Order
 
@@ -152,11 +158,17 @@
 /* Location: ContactsListView.swift - Purpose: No contacts empty description */
 "contacts.list.empty.contacts.description" = "Contacts appear when discovered on the mesh network. If auto-add contacts is off, check Discovery in the top right menu.";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty title */
-"contacts.list.empty.network.title" = "No Network Nodes";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty title */
+"contacts.list.empty.repeaters.title" = "No Repeaters";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty description */
-"contacts.list.empty.network.description" = "Repeaters and room servers will appear when discovered on the mesh.";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty description */
+"contacts.list.empty.repeaters.description" = "Repeaters extend your mesh range. They'll appear here when discovered.";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty title */
+"contacts.list.empty.rooms.title" = "No Rooms";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty description */
+"contacts.list.empty.rooms.description" = "Rooms are public chat servers on the mesh. They'll appear here when discovered.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "No Results";
@@ -530,8 +542,14 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter: Contacts */
 "contacts.discovery.segment.contacts" = "Contacts";
 
-/* Location: DiscoveryView.swift - Purpose: Segment filter: Network */
-"contacts.discovery.segment.network" = "Network";
+/* Location: DiscoveryView.swift - Purpose: Segment filter: Repeaters */
+"contacts.discovery.segment.repeaters" = "Repeaters";
+
+/* Location: DiscoveryView.swift - Purpose: Segment filter: Rooms */
+"contacts.discovery.segment.rooms" = "Rooms";
+
+/* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
+"contacts.discovery.segment.pickerLabel" = "Filter discovered nodes";
 
 /* Location: DiscoveryView.swift - Purpose: Search prompt */
 "contacts.discovery.searchPrompt" = "Search discovered";

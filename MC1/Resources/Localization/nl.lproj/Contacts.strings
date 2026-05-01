@@ -71,8 +71,14 @@
 /* Location: ContactsViewModel.swift - Purpose: Contacts segment */
 "contacts.segment.contacts" = "Contacten";
 
-/* Location: ContactsViewModel.swift - Purpose: Network segment */
-"contacts.segment.network" = "Netwerk";
+/* Location: ContactsViewModel.swift - Purpose: Repeaters segment */
+"contacts.segment.repeaters" = "Repeaters";
+
+/* Location: ContactsViewModel.swift - Purpose: Rooms segment */
+"contacts.segment.rooms" = "Kamers";
+
+/* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
+"contacts.segment.pickerLabel" = "Nodes filteren";
 
 // MARK: - Sort Order
 
@@ -152,11 +158,17 @@
 /* Location: ContactsListView.swift - Purpose: No contacts empty description */
 "contacts.list.empty.contacts.description" = "Contacten verschijnen wanneer ze worden ontdekt op het mesh-netwerk. Als automatisch toevoegen uit staat, controleer Ontdekken in het menu rechtsboven.";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty title */
-"contacts.list.empty.network.title" = "Geen netwerknodes";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty title */
+"contacts.list.empty.repeaters.title" = "Geen repeaters";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty description */
-"contacts.list.empty.network.description" = "Repeaters en kamerservers verschijnen wanneer ze worden ontdekt op het mesh.";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty description */
+"contacts.list.empty.repeaters.description" = "Repeaters vergroten het bereik van je mesh-netwerk. Ze verschijnen hier zodra ze worden ontdekt.";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty title */
+"contacts.list.empty.rooms.title" = "Geen kamers";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty description */
+"contacts.list.empty.rooms.description" = "Kamers zijn openbare chatservers op het mesh-netwerk. Ze verschijnen hier zodra ze worden ontdekt.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "Geen resultaten";
@@ -530,8 +542,14 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter - Contacts */
 "contacts.discovery.segment.contacts" = "Contacten";
 
-/* Location: DiscoveryView.swift - Purpose: Segment filter - Network */
-"contacts.discovery.segment.network" = "Netwerk";
+/* Location: DiscoveryView.swift - Purpose: Segment filter - Repeaters */
+"contacts.discovery.segment.repeaters" = "Repeaters";
+
+/* Location: DiscoveryView.swift - Purpose: Segment filter - Rooms */
+"contacts.discovery.segment.rooms" = "Kamers";
+
+/* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
+"contacts.discovery.segment.pickerLabel" = "Ontdekte nodes filteren";
 
 /* Location: DiscoveryView.swift - Purpose: Search field placeholder */
 "contacts.discovery.searchPrompt" = "Zoek ontdekte";

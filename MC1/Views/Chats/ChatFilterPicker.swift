@@ -1,19 +1,17 @@
 import SwiftUI
 
+/// Pinned glass filter bar for the Chats tab. On iOS 26 renders as Liquid
+/// Glass capsule pills; on iOS 18 falls back to a segmented `Picker`.
 struct ChatFilterPicker: View {
     @Binding var selection: ChatFilter
     @Environment(\.isSearching) private var isSearching
 
     var body: some View {
-        Picker(L10n.Chats.Chats.Filter.title, selection: $selection) {
-            ForEach(ChatFilter.allCases, id: \.self) { filter in
-                Text(filter.localizedName).tag(filter)
-            }
-        }
-        .pickerStyle(.segmented)
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .opacity(isSearching ? 0.5 : 1.0)
-        .disabled(isSearching)
+        GlassFilterBar(
+            selection: $selection,
+            isSearching: isSearching,
+            pickerLabel: L10n.Chats.Chats.Filter.title,
+            title: { $0.localizedName }
+        )
     }
 }

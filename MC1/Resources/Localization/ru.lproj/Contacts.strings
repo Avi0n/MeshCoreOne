@@ -71,8 +71,14 @@
 /* Location: ContactsViewModel.swift - Purpose: Contacts segment */
 "contacts.segment.contacts" = "Контакты";
 
-/* Location: ContactsViewModel.swift - Purpose: Network segment */
-"contacts.segment.network" = "Сеть";
+/* Location: ContactsViewModel.swift - Purpose: Repeaters segment */
+"contacts.segment.repeaters" = "Ретрансляторы";
+
+/* Location: ContactsViewModel.swift - Purpose: Rooms segment */
+"contacts.segment.rooms" = "Комнаты";
+
+/* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
+"contacts.segment.pickerLabel" = "Фильтр узлов";
 
 // MARK: - Sort Order
 
@@ -152,11 +158,17 @@
 /* Location: ContactsListView.swift - Purpose: No contacts empty description */
 "contacts.list.empty.contacts.description" = "Контакты появляются при обнаружении в сети mesh. Если автодобавление контактов отключено, проверь пункт «Обнаружение» в меню справа вверху.";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty title */
-"contacts.list.empty.network.title" = "Нет сетевых узлов";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty title */
+"contacts.list.empty.repeaters.title" = "Нет ретрансляторов";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty description */
-"contacts.list.empty.network.description" = "Ретрансляторы и серверы комнат появятся при обнаружении в сети mesh.";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty description */
+"contacts.list.empty.repeaters.description" = "Ретрансляторы расширяют диапазон сети mesh. Они появятся здесь после обнаружения.";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty title */
+"contacts.list.empty.rooms.title" = "Нет комнат";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty description */
+"contacts.list.empty.rooms.description" = "Комнаты — это публичные чат-серверы в сети mesh. Они появятся здесь после обнаружения.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "Нет результатов";
@@ -530,8 +542,14 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter - Contacts */
 "contacts.discovery.segment.contacts" = "Контакты";
 
-/* Location: DiscoveryView.swift - Purpose: Segment filter - Network */
-"contacts.discovery.segment.network" = "Сеть";
+/* Location: DiscoveryView.swift - Purpose: Segment filter - Repeaters */
+"contacts.discovery.segment.repeaters" = "Ретрансляторы";
+
+/* Location: DiscoveryView.swift - Purpose: Segment filter - Rooms */
+"contacts.discovery.segment.rooms" = "Комнаты";
+
+/* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
+"contacts.discovery.segment.pickerLabel" = "Фильтр обнаруженных узлов";
 
 /* Location: DiscoveryView.swift - Purpose: Search field placeholder */
 "contacts.discovery.searchPrompt" = "Поиск обнаруженных";

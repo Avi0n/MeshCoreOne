@@ -1,19 +1,16 @@
 import SwiftUI
 
+/// Pinned glass filter bar for the Nodes tab.
 struct NodeSegmentPicker: View {
     @Binding var selection: NodeSegment
     let isSearching: Bool
 
     var body: some View {
-        Picker(L10n.Contacts.Contacts.Segment.contacts, selection: $selection) {
-            ForEach(NodeSegment.allCases, id: \.self) { segment in
-                Text(segment.localizedTitle).tag(segment)
-            }
-        }
-        .pickerStyle(.segmented)
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .opacity(isSearching ? 0.5 : 1.0)
-        .disabled(isSearching)
+        GlassFilterBar(
+            selection: $selection,
+            isSearching: isSearching,
+            pickerLabel: L10n.Contacts.Contacts.Segment.pickerLabel,
+            title: { $0.localizedTitle }
+        )
     }
 }

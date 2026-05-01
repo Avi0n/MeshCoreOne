@@ -6,13 +6,15 @@ import MC1Services
 enum DiscoverSegment: String, CaseIterable {
     case all
     case contacts
-    case network
+    case repeaters
+    case rooms
 
     var localizedTitle: String {
         switch self {
         case .all: L10n.Contacts.Contacts.Discovery.Segment.all
         case .contacts: L10n.Contacts.Contacts.Discovery.Segment.contacts
-        case .network: L10n.Contacts.Contacts.Discovery.Segment.network
+        case .repeaters: L10n.Contacts.Contacts.Discovery.Segment.repeaters
+        case .rooms: L10n.Contacts.Contacts.Discovery.Segment.rooms
         }
     }
 }
@@ -130,8 +132,10 @@ final class DiscoveryViewModel {
                 break
             case .contacts:
                 result = result.filter { $0.nodeType == .chat }
-            case .network:
-                result = result.filter { $0.nodeType == .repeater || $0.nodeType == .room }
+            case .repeaters:
+                result = result.filter { $0.nodeType == .repeater }
+            case .rooms:
+                result = result.filter { $0.nodeType == .room }
             }
         } else {
             result = result.filter { node in

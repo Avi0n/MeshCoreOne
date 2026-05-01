@@ -71,8 +71,14 @@
 /* Location: ContactsViewModel.swift - Purpose: Contacts segment */
 "contacts.segment.contacts" = "Контакти";
 
-/* Location: ContactsViewModel.swift - Purpose: Network segment */
-"contacts.segment.network" = "Мережа";
+/* Location: ContactsViewModel.swift - Purpose: Repeaters segment */
+"contacts.segment.repeaters" = "Ретранслятори";
+
+/* Location: ContactsViewModel.swift - Purpose: Rooms segment */
+"contacts.segment.rooms" = "Кімнати";
+
+/* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
+"contacts.segment.pickerLabel" = "Фільтр вузлів";
 
 // MARK: - Sort Order
 
@@ -152,11 +158,17 @@
 /* Location: ContactsListView.swift - Purpose: No contacts empty description */
 "contacts.list.empty.contacts.description" = "Контакти з'являються при виявленні в mesh-мережі. Якщо автоматичне додавання контактів вимкнено, перевір розділ Виявлення у меню праворуч вгорі.";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty title */
-"contacts.list.empty.network.title" = "Немає мережевих вузлів";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty title */
+"contacts.list.empty.repeaters.title" = "Немає ретрансляторів";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty description */
-"contacts.list.empty.network.description" = "Ретранслятори та сервери кімнат з'являться при виявленні в mesh-мережі.";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty description */
+"contacts.list.empty.repeaters.description" = "Ретранслятори збільшують діапазон mesh-мережі. Вони з'являться тут після виявлення.";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty title */
+"contacts.list.empty.rooms.title" = "Немає кімнат";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty description */
+"contacts.list.empty.rooms.description" = "Кімнати — це публічні чат-сервери в mesh-мережі. Вони з'являться тут після виявлення.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "Немає результатів";
@@ -530,8 +542,14 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter - Contacts */
 "contacts.discovery.segment.contacts" = "Контакти";
 
-/* Location: DiscoveryView.swift - Purpose: Segment filter - Network */
-"contacts.discovery.segment.network" = "Мережа";
+/* Location: DiscoveryView.swift - Purpose: Segment filter - Repeaters */
+"contacts.discovery.segment.repeaters" = "Ретранслятори";
+
+/* Location: DiscoveryView.swift - Purpose: Segment filter - Rooms */
+"contacts.discovery.segment.rooms" = "Кімнати";
+
+/* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
+"contacts.discovery.segment.pickerLabel" = "Фільтр виявлених вузлів";
 
 /* Location: DiscoveryView.swift - Purpose: Search field placeholder */
 "contacts.discovery.searchPrompt" = "Шукати виявлені";

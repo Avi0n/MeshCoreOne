@@ -71,8 +71,14 @@
 /* Location: ContactsViewModel.swift - Purpose: Contacts segment */
 "contacts.segment.contacts" = "Kontakty";
 
-/* Location: ContactsViewModel.swift - Purpose: Network segment */
-"contacts.segment.network" = "Sieć";
+/* Location: ContactsViewModel.swift - Purpose: Repeaters segment */
+"contacts.segment.repeaters" = "Przekaźniki";
+
+/* Location: ContactsViewModel.swift - Purpose: Rooms segment */
+"contacts.segment.rooms" = "Pokoje";
+
+/* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
+"contacts.segment.pickerLabel" = "Filtruj węzły";
 
 // MARK: - Sort Order
 
@@ -152,11 +158,17 @@
 /* Location: ContactsListView.swift - Purpose: No contacts empty description */
 "contacts.list.empty.contacts.description" = "Kontakty pojawiają się po wykryciu w sieci mesh. Jeśli automatyczne dodawanie kontaktów jest wyłączone, sprawdź Odkrycie w menu w prawym górnym rogu.";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty title */
-"contacts.list.empty.network.title" = "Brak węzłów sieciowych";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty title */
+"contacts.list.empty.repeaters.title" = "Brak przekaźników";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty description */
-"contacts.list.empty.network.description" = "Przekaźniki i serwery pokojów pojawią się po wykryciu w sieci mesh.";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty description */
+"contacts.list.empty.repeaters.description" = "Przekaźniki zwiększają zasięg sieci mesh. Pojawią się tutaj po wykryciu.";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty title */
+"contacts.list.empty.rooms.title" = "Brak pokoi";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty description */
+"contacts.list.empty.rooms.description" = "Pokoje to publiczne serwery czatu w sieci mesh. Pojawią się tutaj po wykryciu.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "Brak wyników";
@@ -530,8 +542,14 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter - Contacts */
 "contacts.discovery.segment.contacts" = "Kontakty";
 
-/* Location: DiscoveryView.swift - Purpose: Segment filter - Network */
-"contacts.discovery.segment.network" = "Sieć";
+/* Location: DiscoveryView.swift - Purpose: Segment filter - Repeaters */
+"contacts.discovery.segment.repeaters" = "Przekaźniki";
+
+/* Location: DiscoveryView.swift - Purpose: Segment filter - Rooms */
+"contacts.discovery.segment.rooms" = "Pokoje";
+
+/* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
+"contacts.discovery.segment.pickerLabel" = "Filtruj odkryte węzły";
 
 /* Location: DiscoveryView.swift - Purpose: Search field placeholder */
 "contacts.discovery.searchPrompt" = "Szukaj odkrytych";

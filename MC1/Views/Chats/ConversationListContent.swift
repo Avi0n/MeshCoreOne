@@ -58,28 +58,33 @@ struct ConversationListContent: View {
     }
 
     var body: some View {
-        if !hasLoadedOnce {
-            ProgressView()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else {
-            TimelineView(.everyMinute) { context in
-                listContent(referenceDate: context.date)
-                    .overlay {
-                        if favoriteConversations.isEmpty && otherConversations.isEmpty {
-                            ContentUnavailableView {
-                                Label(emptyStateMessage.title, systemImage: emptyStateMessage.systemImage)
-                            } description: {
-                                Text(emptyStateMessage.description)
-                            } actions: {
-                                if selectedFilter != .all {
-                                    Button(L10n.Chats.Chats.Filter.clear) {
-                                        selectedFilter = .all
+        Group {
+            if !hasLoadedOnce {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                TimelineView(.everyMinute) { context in
+                    listContent(referenceDate: context.date)
+                        .overlay {
+                            if favoriteConversations.isEmpty && otherConversations.isEmpty {
+                                ContentUnavailableView {
+                                    Label(emptyStateMessage.title, systemImage: emptyStateMessage.systemImage)
+                                } description: {
+                                    Text(emptyStateMessage.description)
+                                } actions: {
+                                    if selectedFilter != .all {
+                                        Button(L10n.Chats.Chats.Filter.clear) {
+                                            selectedFilter = .all
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
+                }
             }
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            ChatFilterPicker(selection: $selectedFilter)
         }
     }
 
@@ -88,8 +93,6 @@ struct ConversationListContent: View {
         switch mode {
         case .selection(let selection):
             List(selection: selection) {
-                ConversationFilterSection(selection: $selectedFilter)
-
                 Section {
                     ForEach(favoriteConversations) { conversation in
                         ConversationSelectionRow(
@@ -120,8 +123,6 @@ struct ConversationListContent: View {
 
         case .navigation(let onNavigate, let onRequestRoomAuth):
             List {
-                ConversationFilterSection(selection: $selectedFilter)
-
                 Section {
                     ForEach(favoriteConversations) { conversation in
                         ConversationNavigationRow(
@@ -158,19 +159,6 @@ struct ConversationListContent: View {
 }
 
 // MARK: - Extracted Views
-
-private struct ConversationFilterSection: View {
-    @Binding var selection: ChatFilter
-
-    var body: some View {
-        Section {
-            ChatFilterPicker(selection: $selection)
-        }
-        .listRowInsets(EdgeInsets())
-        .listRowBackground(Color.clear)
-        .listSectionSeparator(.hidden)
-    }
-}
 
 private struct ConversationSelectionRow: View {
     let conversation: Conversation

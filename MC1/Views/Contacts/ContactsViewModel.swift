@@ -6,13 +6,15 @@ import MC1Services
 enum NodeSegment: String, CaseIterable {
     case favorites
     case contacts
-    case network
+    case repeaters
+    case rooms
 
     var localizedTitle: String {
         switch self {
         case .favorites: L10n.Contacts.Contacts.Segment.favorites
         case .contacts: L10n.Contacts.Contacts.Segment.contacts
-        case .network: L10n.Contacts.Contacts.Segment.network
+        case .repeaters: L10n.Contacts.Contacts.Segment.repeaters
+        case .rooms: L10n.Contacts.Contacts.Segment.rooms
         }
     }
 }
@@ -247,8 +249,10 @@ final class ContactsViewModel {
                 result = result.filter(\.isFavorite)
             case .contacts:
                 result = result.filter { $0.type == .chat }
-            case .network:
-                result = result.filter { $0.type == .repeater || $0.type == .room }
+            case .repeaters:
+                result = result.filter { $0.type == .repeater }
+            case .rooms:
+                result = result.filter { $0.type == .room }
             }
         } else {
             // Filter by search text only

@@ -143,27 +143,48 @@ struct ContactsViewModelTests {
         #expect(result.first?.name == "Alice")
     }
 
-    @Test("filteredContacts network segment returns repeaters and rooms")
-    func filteredContactsNetworkSegment() {
+    @Test("filteredContacts repeaters segment returns only repeater type")
+    func filteredContactsRepeatersSegment() {
         let viewModel = ContactsViewModel()
         let deviceID = UUID()
         viewModel.contacts = [
             createContact(radioID: deviceID, name: "Alice", type: .chat),
             createContact(radioID: deviceID, name: "Relay1", type: .repeater),
+            createContact(radioID: deviceID, name: "Relay2", type: .repeater),
             createContact(radioID: deviceID, name: "Room1", type: .room)
         ]
 
         let result = viewModel.filteredContacts(
             searchText: "",
-            segment: .network,
+            segment: .repeaters,
             sortOrder: .name,
             userLocation: nil
         )
 
         #expect(result.count == 2)
-        let names = result.map(\.name)
-        #expect(names.contains("Relay1"))
-        #expect(names.contains("Room1"))
+        #expect(result.allSatisfy { $0.type == .repeater })
+    }
+
+    @Test("filteredContacts rooms segment returns only room type")
+    func filteredContactsRoomsSegment() {
+        let viewModel = ContactsViewModel()
+        let deviceID = UUID()
+        viewModel.contacts = [
+            createContact(radioID: deviceID, name: "Alice", type: .chat),
+            createContact(radioID: deviceID, name: "Relay1", type: .repeater),
+            createContact(radioID: deviceID, name: "Room1", type: .room),
+            createContact(radioID: deviceID, name: "Room2", type: .room)
+        ]
+
+        let result = viewModel.filteredContacts(
+            searchText: "",
+            segment: .rooms,
+            sortOrder: .name,
+            userLocation: nil
+        )
+
+        #expect(result.count == 2)
+        #expect(result.allSatisfy { $0.type == .room })
     }
 
     // MARK: - Filtering by Search Text

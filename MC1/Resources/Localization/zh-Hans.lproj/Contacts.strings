@@ -71,8 +71,14 @@
 /* Location: ContactsViewModel.swift - Purpose: Contacts segment */
 "contacts.segment.contacts" = "联系人";
 
-/* Location: ContactsViewModel.swift - Purpose: Network segment */
-"contacts.segment.network" = "网络";
+/* Location: ContactsViewModel.swift - Purpose: Repeaters segment */
+"contacts.segment.repeaters" = "转发节点";
+
+/* Location: ContactsViewModel.swift - Purpose: Rooms segment */
+"contacts.segment.rooms" = "房间";
+
+/* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
+"contacts.segment.pickerLabel" = "筛选节点";
 
 // MARK: - Sort Order
 
@@ -152,11 +158,17 @@
 /* Location: ContactsListView.swift - Purpose: No contacts empty description */
 "contacts.list.empty.contacts.description" = "成功发现 Mesh 网络上的联系人后，他们会显示在这里，如果未自动添加，请前往右上角菜单手动开启发现功能。";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty title */
-"contacts.list.empty.network.title" = "无网络节点";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty title */
+"contacts.list.empty.repeaters.title" = "无转发节点";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty description */
-"contacts.list.empty.network.description" = "转发节点和房间服务器在 Mesh 网络中被发现后，会在此处列出。";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty description */
+"contacts.list.empty.repeaters.description" = "转发节点可扩展 Mesh 网络的覆盖范围。发现后会显示在这里。";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty title */
+"contacts.list.empty.rooms.title" = "无房间";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty description */
+"contacts.list.empty.rooms.description" = "房间是 Mesh 网络上的公共聊天服务器。发现后会显示在这里。";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "无结果";
@@ -530,8 +542,14 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter: Contacts */
 "contacts.discovery.segment.contacts" = "联系人";
 
-/* Location: DiscoveryView.swift - Purpose: Segment filter: Network */
-"contacts.discovery.segment.network" = "网络";
+/* Location: DiscoveryView.swift - Purpose: Segment filter: Repeaters */
+"contacts.discovery.segment.repeaters" = "转发节点";
+
+/* Location: DiscoveryView.swift - Purpose: Segment filter: Rooms */
+"contacts.discovery.segment.rooms" = "房间";
+
+/* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
+"contacts.discovery.segment.pickerLabel" = "筛选发现的节点";
 
 /* Location: DiscoveryView.swift - Purpose: Search prompt */
 "contacts.discovery.searchPrompt" = "搜索发现";

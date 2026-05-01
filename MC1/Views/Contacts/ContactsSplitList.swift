@@ -8,18 +8,10 @@ struct ContactsSplitList: View {
     let filteredContacts: [ContactDTO]
     let isSearching: Bool
     let viewModel: ContactsViewModel
-    @Binding var selectedSegment: NodeSegment
     @Binding var selectedContact: ContactDTO?
 
     var body: some View {
         List(selection: $selectedContact) {
-            Section {
-                NodeSegmentPicker(selection: $selectedSegment, isSearching: isSearching)
-            }
-            .listRowInsets(EdgeInsets())
-            .listRowBackground(Color.clear)
-            .listSectionSeparator(.hidden)
-
             ForEach(Array(filteredContacts.enumerated()), id: \.element.id) { index, contact in
                 ContactRowView(
                     contact: contact,

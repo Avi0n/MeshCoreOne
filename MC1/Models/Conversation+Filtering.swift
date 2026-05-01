@@ -27,6 +27,10 @@ extension Array where Element == Conversation {
         case .channels:
             return self.filter {
                 if case .channel = $0 { return true }
+                return false
+            }
+        case .rooms:
+            return self.filter {
                 if case .room = $0 { return true }
                 return false
             }
