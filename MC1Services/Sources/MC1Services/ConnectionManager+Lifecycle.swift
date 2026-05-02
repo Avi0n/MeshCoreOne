@@ -135,6 +135,14 @@ extension ConnectionManager {
             logger.error("channel flood-scope migration failed: \(error)")
         }
 
+        // Zero accumulated unread counts on repeater-type contacts and repeater-role
+        // sessions so the badge stops including invisible records.
+        do {
+            try await resetStore.performRepeaterUnreadCountMigration()
+        } catch {
+            logger.error("repeater unread-count migration failed: \(error)")
+        }
+
         #if targetEnvironment(simulator)
         // Skip auto-reconnect if user explicitly disconnected
         if connectionIntent.isUserDisconnected {

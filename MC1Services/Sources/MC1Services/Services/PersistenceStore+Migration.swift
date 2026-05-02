@@ -135,4 +135,55 @@ extension PersistenceStore {
     public func resetChannelFloodScopeMigrationFlag() {
         UserDefaults.standard.removeObject(forKey: Self.floodScopeMigrationKey)
     }
+
+    // MARK: - Repeater unread-count corrective migration
+
+    private static let repeaterUnreadMigrationKey = "hasMigratedRepeaterUnreadCounts"
+    private static let repeaterUnreadMigrationLogger = Logger(
+        subsystem: "com.pocketmesh.mc1services",
+        category: "RepeaterUnreadMigration"
+    )
+
+    /// One-time migration: prior versions counted unread on repeater-type contacts and
+    /// repeater-role node sessions toward the OS badge, even though those records are
+    /// filtered out of the chats list and so unreachable to the user. Zero out any
+    /// accumulated counters so the badge drops to a sane number on first launch after
+    /// upgrading. The predicate fix in `getTotalUnreadCounts` prevents new accumulation
+    /// from inflating the badge; this sweep clears the historical residue.
+    public func performRepeaterUnreadCountMigration() throws {
+        guard !UserDefaults.standard.bool(forKey: Self.repeaterUnreadMigrationKey) else { return }
+
+        let repeaterContactRaw = ContactType.repeater.rawValue
+        let contactPredicate = #Predicate<Contact> { contact in
+            contact.typeRawValue == repeaterContactRaw &&
+            (contact.unreadCount > 0 || contact.unreadMentionCount > 0)
+        }
+        let contacts = try modelContext.fetch(FetchDescriptor(predicate: contactPredicate))
+        for contact in contacts {
+            contact.unreadCount = 0
+            contact.unreadMentionCount = 0
+        }
+
+        let repeaterRoleRaw = RemoteNodeRole.repeater.rawValue
+        let sessionPredicate = #Predicate<RemoteNodeSession> { session in
+            session.roleRawValue == repeaterRoleRaw && session.unreadCount > 0
+        }
+        let sessions = try modelContext.fetch(FetchDescriptor(predicate: sessionPredicate))
+        for session in sessions {
+            session.unreadCount = 0
+        }
+
+        try modelContext.save()
+
+        UserDefaults.standard.set(true, forKey: Self.repeaterUnreadMigrationKey)
+
+        Self.repeaterUnreadMigrationLogger.info(
+            "repeater unread migration complete: \(contacts.count) contacts, \(sessions.count) sessions cleared"
+        )
+    }
+
+    /// Resets the migration flag (for testing only).
+    public func resetRepeaterUnreadMigrationFlag() {
+        UserDefaults.standard.removeObject(forKey: Self.repeaterUnreadMigrationKey)
+    }
 }
