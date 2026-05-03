@@ -91,6 +91,8 @@ extension SyncCoordinator {
             let hasSelfMention = !selfNodeName.isEmpty &&
                 MentionUtilities.containsSelfMention(in: message.text, selfName: selfNodeName)
 
+            // regionScope is incoming-only by data-pipeline design — outgoing
+            // messages do not flow through 0x88 / RxLogEntry correlation.
             let messageDTO = MessageDTO(
                 id: UUID(),
                 radioID: radioID,
@@ -119,7 +121,8 @@ extension SyncCoordinator {
                 mentionSeen: false,
                 timestampCorrected: timestampCorrected,
                 senderTimestamp: timestampCorrected ? timestamp : nil,
-                routeType: rxResult.routeType
+                routeType: rxResult.routeType,
+                regionScope: rxResult.regionScope
             )
 
             // Check for duplicate before saving
@@ -269,7 +272,8 @@ extension SyncCoordinator {
                 mentionSeen: false,
                 timestampCorrected: timestampCorrected,
                 senderTimestamp: timestampCorrected ? timestamp : nil,
-                routeType: rxResult.routeType
+                routeType: rxResult.routeType,
+                regionScope: rxResult.regionScope
             )
 
             // Check for duplicate before saving
@@ -458,6 +462,7 @@ extension SyncCoordinator {
         let pathLength: UInt8
         let packetHash: String?
         let routeType: RouteType?
+        let regionScope: String?
     }
 
     /// Looks up path data from an RxLogEntry to correlate with an incoming message.
@@ -484,7 +489,7 @@ extension SyncCoordinator {
                 } else {
                     logger.debug("Correlated incoming direct message to RxLogEntry, pathLength: \(pathLength), pathNodes: \(pathNodes.count) bytes")
                 }
-                return RxLogLookupResult(pathNodes: pathNodes, pathLength: pathLength, packetHash: rxEntry.packetHash, routeType: rxEntry.routeType)
+                return RxLogLookupResult(pathNodes: pathNodes, pathLength: pathLength, packetHash: rxEntry.packetHash, routeType: rxEntry.routeType, regionScope: rxEntry.regionScope)
             }
 
             // Fallback for DMs: if timestamp-based lookup failed (e.g., RxLog decryption
@@ -498,7 +503,7 @@ extension SyncCoordinator {
                     receivedSince: lookbackWindow
                 ) {
                     logger.debug("Correlated DM to RxLogEntry via sender prefix fallback, pathLength: \(rxEntry.pathLength)")
-                    return RxLogLookupResult(pathNodes: rxEntry.pathNodes, pathLength: rxEntry.pathLength, packetHash: rxEntry.packetHash, routeType: rxEntry.routeType)
+                    return RxLogLookupResult(pathNodes: rxEntry.pathNodes, pathLength: rxEntry.pathLength, packetHash: rxEntry.packetHash, routeType: rxEntry.routeType, regionScope: rxEntry.regionScope)
                 }
                 logger.debug("No RxLogEntry found for direct message (primary + fallback), senderTimestamp: \(senderTimestamp)")
             } else if let channelIndex {
@@ -514,7 +519,7 @@ extension SyncCoordinator {
             }
         }
 
-        return RxLogLookupResult(pathNodes: nil, pathLength: defaultPathLength, packetHash: nil, routeType: nil)
+        return RxLogLookupResult(pathNodes: nil, pathLength: defaultPathLength, packetHash: nil, routeType: nil, regionScope: nil)
     }
 
     /// Handles an incoming DM reaction by looking up the target message and persisting the reaction.

@@ -420,6 +420,7 @@ extension ConnectionManager {
         Task {
             do { try await services?.dataStore.addDeviceKnownRegion(radioID: updated.radioID, region: region) }
             catch { logger.error("Failed to add known region: \(error)") }
+            await services?.rxLogService.updateKnownRegions(updated.knownRegions)
         }
     }
 
@@ -450,6 +451,8 @@ extension ConnectionManager {
                     logger.error("Failed to clear default flood scope after region removal: \(error)")
                 }
             }
+
+            await services?.rxLogService.updateKnownRegions(updated.knownRegions)
         }
     }
 

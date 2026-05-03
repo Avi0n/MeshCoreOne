@@ -45,6 +45,16 @@ public final class RxLogEntry {
     /// Only available for successfully decrypted channel messages.
     public var senderTimestamp: Int?
 
+    /// Resolved flood region the sender transmitted under, derived from
+    /// `transport_codes[0]` at receive time. Nil when no known region matches.
+    /// Local-only: not part of any backup envelope.
+    public var regionScope: String?
+
+    /// Raw 4-bit payload-type nibble from the wire header. Persisted so the
+    /// region resolver can replay the exact firmware HMAC input on back-fill,
+    /// even for header values that map to `PayloadType.unknown`.
+    public var payloadTypeBits: Int = 0
+
     // Privacy: Never persisted — decrypted on demand
     @Transient
     public var decodedText: String?
@@ -69,7 +79,9 @@ public final class RxLogEntry {
         decryptStatus: Int = DecryptStatus.notApplicable.rawValue,
         fromContactName: String? = nil,
         toContactName: String? = nil,
-        senderTimestamp: Int? = nil
+        senderTimestamp: Int? = nil,
+        regionScope: String? = nil,
+        payloadTypeBits: Int = 0
     ) {
         self.id = id
         self.radioID = radioID
@@ -91,6 +103,8 @@ public final class RxLogEntry {
         self.fromContactName = fromContactName
         self.toContactName = toContactName
         self.senderTimestamp = senderTimestamp
+        self.regionScope = regionScope
+        self.payloadTypeBits = payloadTypeBits
     }
 }
 
@@ -121,6 +135,13 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     /// Mutable to allow updating during re-decryption of older entries.
     public var senderTimestamp: UInt32?
 
+    /// Resolved flood region the sender transmitted under. Local-only.
+    public let regionScope: String?
+
+    /// Raw 4-bit payload-type nibble from the wire header (matches firmware
+    /// HMAC input). Persisted alongside `regionScope` for back-fill replay.
+    public let payloadTypeBits: UInt8
+
     // Transient - set by UI layer after decryption
     public var decodedText: String?
 
@@ -146,6 +167,8 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
         self.fromContactName = model.fromContactName
         self.toContactName = model.toContactName
         self.senderTimestamp = model.senderTimestamp.map { UInt32($0) }
+        self.regionScope = model.regionScope
+        self.payloadTypeBits = UInt8(model.payloadTypeBits & 0x0F)
         self.decodedText = model.decodedText
     }
 
@@ -161,6 +184,7 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
         fromContactName: String? = nil,
         toContactName: String? = nil,
         senderTimestamp: UInt32? = nil,
+        regionScope: String? = nil,
         decodedText: String? = nil
     ) {
         self.id = id
@@ -183,6 +207,8 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
         self.fromContactName = fromContactName
         self.toContactName = toContactName
         self.senderTimestamp = senderTimestamp
+        self.regionScope = regionScope
+        self.payloadTypeBits = parsed.payloadTypeBits
         self.decodedText = decodedText
     }
 

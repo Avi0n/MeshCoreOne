@@ -113,7 +113,9 @@ extension PersistenceStore {
             decryptStatus: dto.decryptStatus.rawValue,
             fromContactName: dto.fromContactName,
             toContactName: dto.toContactName,
-            senderTimestamp: dto.senderTimestamp.map { Int($0) }
+            senderTimestamp: dto.senderTimestamp.map { Int($0) },
+            regionScope: dto.regionScope,
+            payloadTypeBits: Int(dto.payloadTypeBits)
         )
         modelContext.insert(entry)
         try modelContext.save()
@@ -303,6 +305,104 @@ extension PersistenceStore {
             entry.channelName = update.channelName
             entry.decryptStatus = DecryptStatus.success.rawValue
             entry.senderTimestamp = update.senderTimestamp.map { Int($0) }
+        }
+        try modelContext.save()
+    }
+
+    /// Fetch recent RX log entries that have a transport code but no resolved
+    /// region yet — the back-fill candidate set.
+    public func fetchRecentEntriesWithMissingRegion(radioID: UUID, since: Date) throws -> [RxLogEntryDTO] {
+        let targetRadioID = radioID
+        let cutoff = since
+        let descriptor = FetchDescriptor<RxLogEntry>(
+            predicate: #Predicate {
+                $0.radioID == targetRadioID &&
+                $0.transportCode != nil &&
+                $0.regionScope == nil &&
+                $0.receivedAt >= cutoff
+            },
+            sortBy: [SortDescriptor(\.receivedAt, order: .forward)]
+        )
+        let entries = try modelContext.fetch(descriptor)
+        return entries.map { RxLogEntryDTO(from: $0) }
+    }
+
+    /// Batch update `regionScope` on RX log entries by id.
+    public func batchUpdateRxLogRegion(
+        updates: [(id: UUID, regionScope: String?)]
+    ) throws {
+        for update in updates {
+            let targetID = update.id
+            let descriptor = FetchDescriptor<RxLogEntry>(
+                predicate: #Predicate { $0.id == targetID }
+            )
+            guard let entry = try modelContext.fetch(descriptor).first else { continue }
+            entry.regionScope = update.regionScope
+        }
+        try modelContext.save()
+    }
+
+    /// Batch update `regionScope` on incoming **channel** `Message` rows
+    /// correlated by `(channelIndex, senderTimestamp)`. The wire timestamp
+    /// fallback is required because `Message.senderTimestamp` is only
+    /// populated for the rare timestamp-corrected case; the normal case puts
+    /// the wire timestamp on `Message.timestamp`.
+    public func batchUpdateChannelMessageRegion(
+        radioID: UUID,
+        updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)]
+    ) throws {
+        let targetRadioID = radioID
+        let incoming = MessageDirection.incoming.rawValue
+        for update in updates {
+            let targetIndex: UInt8? = update.channelIndex
+            let targetSenderTimestamp: UInt32? = update.senderTimestamp
+            let targetWireTimestamp: UInt32 = update.senderTimestamp
+            let descriptor = FetchDescriptor<Message>(
+                predicate: #Predicate {
+                    $0.radioID == targetRadioID &&
+                    $0.channelIndex == targetIndex &&
+                    $0.directionRawValue == incoming &&
+                    ($0.senderTimestamp == targetSenderTimestamp ||
+                     ($0.senderTimestamp == nil && $0.timestamp == targetWireTimestamp))
+                }
+            )
+            for message in try modelContext.fetch(descriptor) {
+                message.regionScope = update.regionScope
+            }
+        }
+        try modelContext.save()
+    }
+
+    /// Batch update `regionScope` on incoming **DM** `Message` rows. DMs
+    /// carry the sender prefix byte at `RxLogEntry.packetPayload[1]` but
+    /// the Message side stores the full multi-byte `senderKeyPrefix`, so
+    /// the predicate fetches by timestamp + DM channel and an in-memory
+    /// pass disambiguates by first-byte equality. Mirrors the correlation
+    /// key used by `findRxLogEntryBySenderPrefix`.
+    public func batchUpdateDMMessageRegion(
+        radioID: UUID,
+        updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)]
+    ) throws {
+        let targetRadioID = radioID
+        let nilChannel: UInt8? = nil
+        let incoming = MessageDirection.incoming.rawValue
+        for update in updates {
+            let targetSenderTimestamp: UInt32? = update.senderTimestamp
+            let targetWireTimestamp: UInt32 = update.senderTimestamp
+            let descriptor = FetchDescriptor<Message>(
+                predicate: #Predicate {
+                    $0.radioID == targetRadioID &&
+                    $0.channelIndex == nilChannel &&
+                    $0.directionRawValue == incoming &&
+                    ($0.senderTimestamp == targetSenderTimestamp ||
+                     ($0.senderTimestamp == nil && $0.timestamp == targetWireTimestamp))
+                }
+            )
+            let prefixByte = update.senderPrefixByte
+            let candidates = try modelContext.fetch(descriptor)
+            for message in candidates where message.senderKeyPrefix?.first == prefixByte {
+                message.regionScope = update.regionScope
+            }
         }
         try modelContext.save()
     }

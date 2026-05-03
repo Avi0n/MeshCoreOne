@@ -239,6 +239,7 @@ struct RxLogViewModelTests {
             routeType: routeType,
             payloadType: payloadType,
             payloadVersion: 0,
+            payloadTypeBits: payloadType.rawValue & 0x0F,
             transportCode: nil,
             pathLength: pathLength,
             pathNodes: pathNodes,

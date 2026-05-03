@@ -66,6 +66,7 @@ public enum RxLogParser {
             routeType: routeType,
             payloadType: payloadType,
             payloadVersion: payloadVersion,
+            payloadTypeBits: payloadTypeBits,
             transportCode: transportCode,
             pathLength: pathLength,
             pathNodes: pathNodes,

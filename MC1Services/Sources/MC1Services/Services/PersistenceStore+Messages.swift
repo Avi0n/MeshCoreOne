@@ -298,7 +298,8 @@ extension PersistenceStore {
             mentionSeen: dto.mentionSeen,
             timestampCorrected: dto.timestampCorrected,
             senderTimestamp: dto.senderTimestamp,
-            routeTypeRawValue: dto.routeType.map { Int($0.rawValue) } ?? -1
+            routeTypeRawValue: dto.routeType.map { Int($0.rawValue) } ?? -1,
+            regionScope: dto.regionScope
         )
         modelContext.insert(message)
         try modelContext.save()

@@ -8,8 +8,8 @@ private let logger = PersistentLogger(subsystem: "com.mc1.services", category: "
 /// Actor that processes RX log events, decodes channel messages, and persists to database.
 public actor RxLogService {
     private let session: MeshCoreSession
-    private let dataStore: PersistenceStore
-    private var radioID: UUID?
+    let dataStore: PersistenceStore
+    var radioID: UUID?
 
     // Caches for fast lookup
     private var channelSecrets: [UInt8: Data] = [:]  // channelIndex -> secret
@@ -35,6 +35,17 @@ public actor RxLogService {
     // Reentrancy guards for reprocessing (separate to avoid mutual blocking)
     private var isReprocessingChannels = false
     private var isReprocessingDMs = false
+    var isReprocessingRegions = false
+
+    // Region resolution state
+    var knownRegions: [String] = []
+    var scopeKeyCache: [(name: String, key: Data)] = []
+    var lastRegionMissLogTime: Date?
+
+    /// Set when a region back-fill request arrives while one is already in
+    /// flight. The in-flight pass re-runs after it completes so rapid
+    /// `addKnownRegion` / `removeKnownRegion` sequences do not lose work.
+    var regionReprocessDirty = false
 
     public init(session: MeshCoreSession, dataStore: PersistenceStore) {
         self.session = session
@@ -104,6 +115,13 @@ public actor RxLogService {
             }
         } catch {
             logger.error("Failed to load contact public keys: \(error.localizedDescription)")
+        }
+
+        let device = try? await dataStore.fetchDevice(radioID: radioID)
+        knownRegions = device?.knownRegions ?? []
+        scopeKeyCache = Self.buildScopeKeyCache(from: knownRegions)
+        if !knownRegions.isEmpty {
+            logger.info("Loaded \(knownRegions.count) known regions from database (\(scopeKeyCache.count) resolvable)")
         }
     }
 
@@ -379,6 +397,8 @@ public actor RxLogService {
             }?.value
         }
 
+        let regionScope = resolveRegionScope(for: parsed)
+
         // Create DTO
         let dto = RxLogEntryDTO(
             radioID: radioID,
@@ -388,6 +408,7 @@ public actor RxLogService {
             decryptStatus: decryptStatus,
             fromContactName: fromContactName,
             senderTimestamp: senderTimestamp,
+            regionScope: regionScope,
             decodedText: decodedText
         )
 

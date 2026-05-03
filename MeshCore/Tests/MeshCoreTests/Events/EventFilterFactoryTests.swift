@@ -17,6 +17,7 @@ struct EventFilterFactoryTests {
             routeType: .flood,
             payloadType: .textMessage,
             payloadVersion: 0,
+            payloadTypeBits: 2,
             transportCode: nil,
             pathLength: 0,
             pathNodes: [],

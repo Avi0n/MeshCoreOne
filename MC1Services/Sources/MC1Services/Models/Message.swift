@@ -142,6 +142,12 @@ public final class Message {
     /// Route type from RxLog correlation (-1 = unknown/uncorrelated)
     public var routeTypeRawValue: Int = -1
 
+    /// Resolved flood region the sender transmitted under, derived from
+    /// `transport_codes[0]` at receive time via the RxLog correlation. Incoming
+    /// messages only; nil when the sender's region was not in the local
+    /// known-regions list at receive time (back-filled by `updateKnownRegions`).
+    public var regionScope: String?
+
     /// Heard repeats for this message (cascade delete)
     @Relationship(deleteRule: .cascade, inverse: \MessageRepeat.message)
     public var repeats: [MessageRepeat]?
@@ -181,7 +187,8 @@ public final class Message {
         timestampCorrected: Bool = false,
         senderTimestamp: UInt32? = nil,
         reactionSummary: String? = nil,
-        routeTypeRawValue: Int = -1
+        routeTypeRawValue: Int = -1,
+        regionScope: String? = nil
     ) {
         self.id = id
         self.radioID = radioID
@@ -218,6 +225,7 @@ public final class Message {
         self.senderTimestamp = senderTimestamp
         self.reactionSummary = reactionSummary
         self.routeTypeRawValue = routeTypeRawValue
+        self.regionScope = regionScope
     }
 
     /// Builds a model instance directly from a DTO. Shared by backup batch-insert
@@ -258,7 +266,8 @@ public final class Message {
             timestampCorrected: dto.timestampCorrected,
             senderTimestamp: dto.senderTimestamp,
             reactionSummary: dto.reactionSummary,
-            routeTypeRawValue: dto.routeType.map { Int($0.rawValue) } ?? -1
+            routeTypeRawValue: dto.routeType.map { Int($0.rawValue) } ?? -1,
+            regionScope: dto.regionScope
         )
     }
 }
@@ -343,6 +352,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     public var senderTimestamp: UInt32?
     public var reactionSummary: String?
     public var routeType: RouteType?
+    public var regionScope: String?
 
     public init(from message: Message, includeLinkPreviewBlobs: Bool = true) {
         self.id = message.id
@@ -390,6 +400,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
         self.reactionSummary = message.reactionSummary
         self.routeType = UInt8(exactly: message.routeTypeRawValue)
             .flatMap(RouteType.init(rawValue:))
+        self.regionScope = message.regionScope
     }
 
     /// Memberwise initializer for creating DTOs directly
@@ -428,7 +439,8 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
         timestampCorrected: Bool = false,
         senderTimestamp: UInt32? = nil,
         reactionSummary: String? = nil,
-        routeType: RouteType? = nil
+        routeType: RouteType? = nil,
+        regionScope: String? = nil
     ) {
         self.id = id
         self.radioID = radioID
@@ -465,6 +477,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
         self.senderTimestamp = senderTimestamp
         self.reactionSummary = reactionSummary
         self.routeType = routeType
+        self.regionScope = regionScope
     }
 
     public var isOutgoing: Bool {

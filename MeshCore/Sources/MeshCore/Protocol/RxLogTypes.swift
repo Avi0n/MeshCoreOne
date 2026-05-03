@@ -81,6 +81,12 @@ public struct ParsedRxLogData: Sendable, Equatable {
     public let payloadType: PayloadType
     public let payloadVersion: UInt8
 
+    /// Raw 4-bit payload-type bits from the header, before mapping to `PayloadType`.
+    /// Required by `TransportCodeRegionResolver`, which must hash the wire-format
+    /// nibble (firmware bits 12-14 currently map to `PayloadType.unknown = 255`,
+    /// which would corrupt the HMAC input).
+    public let payloadTypeBits: UInt8
+
     // Conditional on route type
     public let transportCode: Data?
 
@@ -107,6 +113,7 @@ public struct ParsedRxLogData: Sendable, Equatable {
         routeType: RouteType,
         payloadType: PayloadType,
         payloadVersion: UInt8,
+        payloadTypeBits: UInt8,
         transportCode: Data?,
         pathLength: UInt8,
         pathNodes: [UInt8],
@@ -120,6 +127,7 @@ public struct ParsedRxLogData: Sendable, Equatable {
         self.routeType = routeType
         self.payloadType = payloadType
         self.payloadVersion = payloadVersion
+        self.payloadTypeBits = payloadTypeBits
         self.transportCode = transportCode
         self.pathLength = pathLength
         self.pathNodes = pathNodes

@@ -1904,6 +1904,73 @@ struct BackupIntegrationTests {
         )
         #expect(restored == prefs.regionSelection)
     }
+
+    // MARK: - Message.regionScope round-trip
+
+    @Test("Message.regionScope round-trips through full export/import")
+    func messageRegionScopeRoundTrip() async throws {
+        let radioID = UUID()
+        let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+        let contact = ContactDTO.testContact(
+            radioID: radioID,
+            publicKey: Data(repeating: 0xAB, count: 32),
+            name: "Alice"
+        )
+        try await sourceStore.saveContact(contact)
+
+        var msg = MessageDTO.testDirectMessage(radioID: radioID, contactID: contact.id, text: "Greetings")
+        msg.regionScope = "Germany"
+        msg.deduplicationKey = "region-scope-roundtrip-\(UUID())"
+        try await sourceStore.saveMessage(msg)
+
+        let service = AppBackupService()
+        let exportResult = try await service.export(persistenceStore: sourceStore)
+        let envelope = try parseBackup(data: exportResult.data)
+
+        let destContainer = try PersistenceStore.createContainer(inMemory: true)
+        let destStore = PersistenceStore(modelContainer: destContainer)
+        _ = try await service.importBackup(envelope: envelope, into: destStore)
+
+        let restored = try await destStore.fetchAllMessages(radioID: radioID)
+        #expect(restored.count == 1)
+        #expect(restored.first?.regionScope == "Germany")
+    }
+
+    @Test("MessageDTO Codable: regionScope set decodes round-trip")
+    func messageDTORegionScopeCodableRoundTrip() throws {
+        var dto = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Test")
+        dto.regionScope = "Bavaria"
+
+        let encoded = try JSONEncoder().encode(dto)
+        let decoded = try JSONDecoder().decode(MessageDTO.self, from: encoded)
+        #expect(decoded.regionScope == "Bavaria")
+    }
+
+    @Test("Legacy MessageDTO envelope without regionScope decodes as nil")
+    func messageDTOLegacyEnvelopeMissingRegionScope() throws {
+        let baseDTO = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Legacy")
+        let encoded = try JSONEncoder().encode(baseDTO)
+        var json = try #require(try JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        json.removeValue(forKey: "regionScope")
+
+        let stripped = try JSONSerialization.data(withJSONObject: json)
+        let decoded = try JSONDecoder().decode(MessageDTO.self, from: stripped)
+        #expect(decoded.regionScope == nil)
+    }
+
+    @Test("Message(dto:) forwards regionScope verbatim through DTO to model")
+    func messageInitFromDTOForwardsRegionScope() {
+        var dto = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Forward")
+        dto.regionScope = "USA"
+        let model = Message(dto: dto)
+        #expect(model.regionScope == "USA")
+
+        var nilDTO = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "NilCase")
+        nilDTO.regionScope = nil
+        let nilModel = Message(dto: nilDTO)
+        #expect(nilModel.regionScope == nil)
+    }
 }
 
 private enum InjectedImportFailure: Error {

@@ -1283,7 +1283,12 @@ struct PersistenceStoreTests {
 
     private func createTestRxLogEntryDTO(
         radioID: UUID,
-        senderTimestamp: UInt32? = nil
+        senderTimestamp: UInt32? = nil,
+        regionScope: String? = nil,
+        payloadTypeBits: UInt8 = 5,
+        transportCode: Data? = nil,
+        channelIndex: UInt8? = 1,
+        packetPayload: Data = Data([0xAB, 0xCD, 0xEF])
     ) -> RxLogEntryDTO {
         // Create minimal ParsedRxLogData for the DTO
         let parsed = ParsedRxLogData(
@@ -1293,19 +1298,21 @@ struct PersistenceStoreTests {
             routeType: .flood,
             payloadType: .groupText,
             payloadVersion: 0,
-            transportCode: nil,
+            payloadTypeBits: payloadTypeBits,
+            transportCode: transportCode,
             pathLength: 1,
             pathNodes: [0x42],
-            packetPayload: Data([0xAB, 0xCD, 0xEF])
+            packetPayload: packetPayload
         )
 
         return RxLogEntryDTO(
             radioID: radioID,
             from: parsed,
-            channelIndex: 1,
+            channelIndex: channelIndex,
             channelName: "TestChannel",
             decryptStatus: .success,
             senderTimestamp: senderTimestamp,
+            regionScope: regionScope,
             decodedText: "Hello mesh!"
         )
     }
@@ -1415,6 +1422,191 @@ struct PersistenceStoreTests {
         let entries = try await store.fetchRxLogEntries(radioID: device.id)
         #expect(entries.count == 1)
         #expect(entries.first?.senderTimestamp == 42)
+    }
+
+    // MARK: - Region Scope Tests
+
+    @Test("saveRxLogEntry forwards regionScope to the persisted model")
+    func saveRxLogEntryForwardsRegionScope() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let dto = createTestRxLogEntryDTO(
+            radioID: device.id,
+            senderTimestamp: 1_703_000_000,
+            regionScope: "Germany"
+        )
+        try await store.saveRxLogEntry(dto)
+
+        let entries = try await store.fetchRxLogEntries(radioID: device.id)
+        #expect(entries.first?.regionScope == "Germany")
+    }
+
+    @Test("saveRxLogEntry preserves payloadTypeBits including unknown nibbles")
+    func saveRxLogEntryPreservesPayloadTypeBits() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let dto = createTestRxLogEntryDTO(
+            radioID: device.id,
+            senderTimestamp: 1_703_000_001,
+            payloadTypeBits: 0x0C
+        )
+        try await store.saveRxLogEntry(dto)
+
+        let entries = try await store.fetchRxLogEntries(radioID: device.id)
+        #expect(entries.first?.payloadTypeBits == 0x0C)
+    }
+
+    @Test("batchUpdateChannelMessageRegion back-fills normal-case message via timestamp fallback")
+    func batchUpdateChannelMessageRegionBackfillsNormalCase() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let wireTimestamp: UInt32 = 1_703_111_111
+        // Normal case: senderTimestamp stays nil, wire timestamp lives on `timestamp`.
+        let dto = MessageDTO.testChannelMessage(
+            radioID: device.id,
+            channelIndex: 0,
+            timestamp: wireTimestamp,
+            direction: .incoming,
+            status: .delivered
+        )
+        try await store.saveMessage(dto)
+
+        try await store.batchUpdateChannelMessageRegion(
+            radioID: device.id,
+            updates: [(channelIndex: 0, senderTimestamp: wireTimestamp, regionScope: "Germany")]
+        )
+
+        let saved = try await store.fetchMessages(radioID: device.id, channelIndex: 0)
+        #expect(saved.first?.regionScope == "Germany")
+    }
+
+    @Test("batchUpdateChannelMessageRegion back-fills timestamp-corrected message")
+    func batchUpdateChannelMessageRegionBackfillsCorrectedCase() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let originalWire: UInt32 = 1_703_222_222
+        var dto = MessageDTO.testChannelMessage(
+            radioID: device.id,
+            channelIndex: 1,
+            timestamp: UInt32(Date().timeIntervalSince1970),
+            direction: .incoming,
+            status: .delivered
+        )
+        dto.senderTimestamp = originalWire
+        try await store.saveMessage(dto)
+
+        try await store.batchUpdateChannelMessageRegion(
+            radioID: device.id,
+            updates: [(channelIndex: 1, senderTimestamp: originalWire, regionScope: "USA")]
+        )
+
+        let saved = try await store.fetchMessages(radioID: device.id, channelIndex: 1)
+        #expect(saved.first?.regionScope == "USA")
+    }
+
+    @Test("batchUpdateChannelMessageRegion skips outgoing messages")
+    func batchUpdateChannelMessageRegionSkipsOutgoing() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let wireTimestamp: UInt32 = 1_703_333_333
+        let dto = MessageDTO.testChannelMessage(
+            radioID: device.id,
+            channelIndex: 2,
+            timestamp: wireTimestamp,
+            direction: .outgoing,
+            status: .sent
+        )
+        try await store.saveMessage(dto)
+
+        try await store.batchUpdateChannelMessageRegion(
+            radioID: device.id,
+            updates: [(channelIndex: 2, senderTimestamp: wireTimestamp, regionScope: "France")]
+        )
+
+        let saved = try await store.fetchMessages(radioID: device.id, channelIndex: 2)
+        #expect(saved.first?.regionScope == nil)
+    }
+
+    @Test("batchUpdateDMMessageRegion back-fills DM by sender prefix byte")
+    func batchUpdateDMMessageRegionBackfillsByPrefix() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let wireTimestamp: UInt32 = 1_703_444_444
+        let senderKey = Data([0xAB, 0xCD, 0xEF, 0x01, 0x02, 0x03])
+        let contactID = UUID()
+        let dto = MessageDTO.testDirectMessage(
+            radioID: device.id,
+            contactID: contactID,
+            timestamp: wireTimestamp,
+            direction: .incoming,
+            status: .delivered,
+            senderKeyPrefix: senderKey
+        )
+        try await store.saveMessage(dto)
+
+        try await store.batchUpdateDMMessageRegion(
+            radioID: device.id,
+            updates: [(senderPrefixByte: 0xAB, senderTimestamp: wireTimestamp, regionScope: "Germany")]
+        )
+
+        let saved = try await store.fetchMessages(contactID: contactID)
+        #expect(saved.first?.regionScope == "Germany")
+    }
+
+    @Test("batchUpdateDMMessageRegion ignores DMs from other senders at same timestamp")
+    func batchUpdateDMMessageRegionIgnoresOtherSenders() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let wireTimestamp: UInt32 = 1_703_555_555
+        let aliceKey = Data([0xAA, 0x11, 0x22, 0x33, 0x44, 0x55])
+        let bobKey = Data([0xBB, 0x66, 0x77, 0x88, 0x99, 0x00])
+        let aliceContact = UUID()
+        let bobContact = UUID()
+
+        let alice = MessageDTO.testDirectMessage(
+            radioID: device.id,
+            contactID: aliceContact,
+            text: "From Alice",
+            timestamp: wireTimestamp,
+            direction: .incoming,
+            status: .delivered,
+            senderKeyPrefix: aliceKey
+        )
+        let bob = MessageDTO.testDirectMessage(
+            radioID: device.id,
+            contactID: bobContact,
+            text: "From Bob",
+            timestamp: wireTimestamp,
+            direction: .incoming,
+            status: .delivered,
+            senderKeyPrefix: bobKey
+        )
+        try await store.saveMessage(alice)
+        try await store.saveMessage(bob)
+
+        try await store.batchUpdateDMMessageRegion(
+            radioID: device.id,
+            updates: [(senderPrefixByte: 0xAA, senderTimestamp: wireTimestamp, regionScope: "Germany")]
+        )
+
+        let aliceSaved = try await store.fetchMessages(contactID: aliceContact)
+        let bobSaved = try await store.fetchMessages(contactID: bobContact)
+        #expect(aliceSaved.first?.regionScope == "Germany")
+        #expect(bobSaved.first?.regionScope == nil)
     }
 
     // MARK: - Mute Tests
