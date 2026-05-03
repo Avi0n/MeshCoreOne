@@ -1011,7 +1011,7 @@
 "chats.channelInfo.region.allRegions" = "All Regions";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope */
-"chats.channelInfo.region.useDefaultFormat" = "Default (%@)";
+"chats.channelInfo.region.useDefaultFormat" = "%@ (default)";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no regions configured */
 "chats.channelInfo.region.notConfigured" = "Not configured";
@@ -1075,3 +1075,9 @@
 
 /* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle */
 "chats.channelInfo.region.scopedAccessibility" = "%@, scoped to %@";
+
+/* Location: ChatConversationType.swift - Purpose: Subtitle suffix when channel region matches the device default flood scope */
+"chats.channelInfo.region.scopedDefault" = "%@ (default)";
+
+/* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle when region matches the device default */
+"chats.channelInfo.region.defaultScopedAccessibility" = "%@, scoped to %@ (default)";

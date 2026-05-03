@@ -132,11 +132,21 @@ struct ChatConversationTypeTests {
         #expect(sut.navigationSubtitle(deviceDefaultFloodScopeName: "Spain") == expected)
     }
 
-    @Test("Channel subtitle inherits device default when no per-channel override")
+    @Test("Channel subtitle inherits device default and appends (default) suffix")
     func channelSubtitleInheritsDefault() {
         let channel = makeChannel(index: 3, name: "Ops", floodScope: .inherit)
         let sut = ChatConversationType.channel(channel)
-        let expected = "\(L10n.Chats.Chats.Channel.typePrivate) \u{00B7} Spain"
+        let suffixed = L10n.Chats.Chats.ChannelInfo.Region.scopedDefault("Spain")
+        let expected = "\(L10n.Chats.Chats.Channel.typePrivate) \u{00B7} \(suffixed)"
+        #expect(sut.navigationSubtitle(deviceDefaultFloodScopeName: "Spain") == expected)
+    }
+
+    @Test("Channel subtitle appends (default) suffix when explicit region matches device default")
+    func channelSubtitleExplicitOverrideMatchingDefault() {
+        let channel = makeChannel(index: 3, name: "Ops", floodScope: .region("Spain"))
+        let sut = ChatConversationType.channel(channel)
+        let suffixed = L10n.Chats.Chats.ChannelInfo.Region.scopedDefault("Spain")
+        let expected = "\(L10n.Chats.Chats.Channel.typePrivate) \u{00B7} \(suffixed)"
         #expect(sut.navigationSubtitle(deviceDefaultFloodScopeName: "Spain") == expected)
     }
 
@@ -170,11 +180,21 @@ struct ChatConversationTypeTests {
         #expect(sut.navigationSubtitleAccessibilityLabel(deviceDefaultFloodScopeName: nil) == nil)
     }
 
-    @Test("Accessibility label uses inherited device default")
+    @Test("Accessibility label uses default-scoped variant when inheriting device default")
     func accessibilityUsesInheritedDefault() {
         let channel = makeChannel(index: 3, name: "Ops", floodScope: .inherit)
         let sut = ChatConversationType.channel(channel)
-        let expected = L10n.Chats.Chats.ChannelInfo.Region.scopedAccessibility(
+        let expected = L10n.Chats.Chats.ChannelInfo.Region.defaultScopedAccessibility(
+            L10n.Chats.Chats.Channel.typePrivate, "Spain"
+        )
+        #expect(sut.navigationSubtitleAccessibilityLabel(deviceDefaultFloodScopeName: "Spain") == expected)
+    }
+
+    @Test("Accessibility label uses default-scoped variant when explicit region matches device default")
+    func accessibilityUsesExplicitOverrideMatchingDefault() {
+        let channel = makeChannel(index: 3, name: "Ops", floodScope: .region("Spain"))
+        let sut = ChatConversationType.channel(channel)
+        let expected = L10n.Chats.Chats.ChannelInfo.Region.defaultScopedAccessibility(
             L10n.Chats.Chats.Channel.typePrivate, "Spain"
         )
         #expect(sut.navigationSubtitleAccessibilityLabel(deviceDefaultFloodScopeName: "Spain") == expected)

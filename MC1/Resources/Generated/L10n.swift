@@ -128,6 +128,10 @@ public enum L10n {
           public static let addSelected = L10n.tr("Chats", "chats.channelInfo.region.addSelected", fallback: "Add")
           /// Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set
           public static let allRegions = L10n.tr("Chats", "chats.channelInfo.region.allRegions", fallback: "All Regions")
+          /// Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle when region matches the device default
+          public static func defaultScopedAccessibility(_ p1: Any, _ p2: Any) -> String {
+            return L10n.tr("Chats", "chats.channelInfo.region.defaultScopedAccessibility", String(describing: p1), String(describing: p2), fallback: "%@, scoped to %@ (default)")
+          }
           /// Location: ChannelInfoSheet.swift - Purpose: Discover button
           public static let discover = L10n.tr("Chats", "chats.channelInfo.region.discover", fallback: "Discover Nearby Regions")
           /// Location: ChannelInfoSheet.swift - Purpose: Discover button loading state
@@ -166,9 +170,13 @@ public enum L10n {
           public static func scopedAccessibility(_ p1: Any, _ p2: Any) -> String {
             return L10n.tr("Chats", "chats.channelInfo.region.scopedAccessibility", String(describing: p1), String(describing: p2), fallback: "%@, scoped to %@")
           }
+          /// Location: ChatConversationType.swift - Purpose: Subtitle suffix when channel region matches the device default flood scope
+          public static func scopedDefault(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.channelInfo.region.scopedDefault", String(describing: p1), fallback: "%@ (default)")
+          }
           /// Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope
           public static func useDefaultFormat(_ p1: Any) -> String {
-            return L10n.tr("Chats", "chats.channelInfo.region.useDefaultFormat", String(describing: p1), fallback: "Default (%@)")
+            return L10n.tr("Chats", "chats.channelInfo.region.useDefaultFormat", String(describing: p1), fallback: "%@ (default)")
           }
         }
       }

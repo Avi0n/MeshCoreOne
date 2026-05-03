@@ -29,7 +29,10 @@ enum ChatConversationType: Sendable {
         case .channel(let channel):
             let base = channelTypeSubtitle(for: channel)
             if let region = effectiveRegionName(for: channel, deviceDefaultFloodScopeName: deviceDefaultFloodScopeName) {
-                return "\(base) \u{00B7} \(region)"
+                let regionDisplay = (region == deviceDefaultFloodScopeName)
+                    ? L10n.Chats.Chats.ChannelInfo.Region.scopedDefault(region)
+                    : region
+                return "\(base) \u{00B7} \(regionDisplay)"
             }
             return base
         }
@@ -45,9 +48,11 @@ enum ChatConversationType: Sendable {
             guard let region = effectiveRegionName(for: channel, deviceDefaultFloodScopeName: deviceDefaultFloodScopeName) else {
                 return nil
             }
-            return L10n.Chats.Chats.ChannelInfo.Region.scopedAccessibility(
-                channelTypeSubtitle(for: channel), region
-            )
+            let typeSubtitle = channelTypeSubtitle(for: channel)
+            if region == deviceDefaultFloodScopeName {
+                return L10n.Chats.Chats.ChannelInfo.Region.defaultScopedAccessibility(typeSubtitle, region)
+            }
+            return L10n.Chats.Chats.ChannelInfo.Region.scopedAccessibility(typeSubtitle, region)
         }
     }
 
