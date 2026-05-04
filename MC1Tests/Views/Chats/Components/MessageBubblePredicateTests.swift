@@ -23,6 +23,51 @@ struct MessageBubblePredicateTests {
         #expect(predicates.showHop == expected)
     }
 
+    @Test("regionToShow: nil unless flag AND isFloodRouted AND scope present", arguments: [
+        // (showFlag, routeType, scope, expected)
+        (true,  RouteType.flood,    "United States" as String?, "United States" as String?),  // happy path
+        (true,  RouteType.tcFlood,  "United States" as String?, "United States" as String?),  // tcFlood is flood
+        (true,  RouteType.flood,    nil,                        nil),                          // no scope to show
+        // Direct-routed messages must hide region even when flag is on and scope is populated.
+        // This is the regression row for the previously-shipped bug where regionToShow lacked
+        // the isFloodRouted gate that its sibling showHop already had.
+        (true,  RouteType.direct,   "United States" as String?, nil),
+        (true,  RouteType.tcDirect, "United States" as String?, nil),                          // tcDirect is direct
+        (false, RouteType.flood,    "United States" as String?, nil),                          // user setting off
+        (false, RouteType.direct,   "United States" as String?, nil),
+        (true,  RouteType.direct,   nil,                        nil),
+    ])
+    func regionToShow(showFlag: Bool, routeType: RouteType, scope: String?, expected: String?) {
+        let predicates = MessageBubblePredicates(
+            message: makeMessage(routeType: routeType, regionScope: scope),
+            displayState: makeState(showIncomingRegion: showFlag)
+        )
+        #expect(predicates.regionToShow == expected)
+    }
+
+    @Test("regionToShow: channel messages render region regardless of routeType")
+    func regionToShow_channelOverridesDirect() {
+        // channelIndex != nil makes isFloodRouted always true (channels are always flood),
+        // so the direct routeType is ignored. Verifies the channel-override path through
+        // MessageDTO.isFloodRouted that the parameterized matrix doesn't otherwise exercise.
+        let predicates = MessageBubblePredicates(
+            message: makeMessage(channelIndex: 0, routeType: .direct, regionScope: "United States"),
+            displayState: makeState(showIncomingRegion: true)
+        )
+        #expect(predicates.regionToShow == "United States")
+    }
+
+    @Test("regionToShow: legacy radio with no routeType respects pathLength 0xFF as direct")
+    func regionToShow_legacyRadioPathLengthFF() {
+        // Older radios may not populate routeType. In that case isFloodRouted falls back to
+        // pathLength != 0xFF. A 0xFF marker means direct-routed, so region must hide.
+        let predicates = MessageBubblePredicates(
+            message: makeMessage(pathLength: 0xFF, routeType: nil, regionScope: "United States"),
+            displayState: makeState(showIncomingRegion: true)
+        )
+        #expect(predicates.regionToShow == nil)
+    }
+
     // MARK: - Helpers
 
     private func makeMessage(

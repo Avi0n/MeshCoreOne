@@ -15,4 +15,10 @@ struct MessageBubblePredicates {
     var showHop: Bool {
         displayState.showIncomingHopCount && message.isFloodRouted
     }
+
+    /// The region label to render in the footer, or nil if it should not show.
+    var regionToShow: String? {
+        guard displayState.showIncomingRegion, message.isFloodRouted else { return nil }
+        return message.regionScope
+    }
 }
