@@ -20,6 +20,7 @@ struct ChatConversationMessagesContent: View {
     let autoPlayGIFs: Bool
     let showIncomingPath: Bool
     let showIncomingHopCount: Bool
+    let showIncomingRegion: Bool
 
     // MARK: - Scroll State Bindings
 
@@ -67,6 +68,7 @@ struct ChatConversationMessagesContent: View {
                     autoPlayGIFs: autoPlayGIFs,
                     showIncomingPath: showIncomingPath,
                     showIncomingHopCount: showIncomingHopCount,
+                    showIncomingRegion: showIncomingRegion,
                     isAtBottom: $isAtBottom,
                     unreadCount: $unreadCount,
                     scrollToBottomRequest: $scrollToBottomRequest,
@@ -190,6 +192,7 @@ private struct ChannelEmptyMessagesView: View {
             autoPlayGIFs: true,
             showIncomingPath: false,
             showIncomingHopCount: false,
+            showIncomingRegion: false,
             isAtBottom: .constant(true),
             unreadCount: .constant(0),
             scrollToBottomRequest: .constant(0),
@@ -224,6 +227,7 @@ private struct ChannelEmptyMessagesView: View {
             autoPlayGIFs: true,
             showIncomingPath: false,
             showIncomingHopCount: false,
+            showIncomingRegion: false,
             isAtBottom: .constant(true),
             unreadCount: .constant(0),
             scrollToBottomRequest: .constant(0),

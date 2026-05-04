@@ -51,6 +51,7 @@ struct ChatConversationView: View {
     @AppStorage("autoPlayGIFs") private var autoPlayGIFs = true
     @AppStorage("showIncomingPath") private var showIncomingPath = false
     @AppStorage("showIncomingHopCount") private var showIncomingHopCount = false
+    @AppStorage("showIncomingRegion") private var showIncomingRegion = false
     @AppStorage("replyWithQuote") private var replyWithQuote = false
 
     // MARK: - Init
@@ -72,6 +73,7 @@ struct ChatConversationView: View {
             autoPlayGIFs: autoPlayGIFs,
             showIncomingPath: showIncomingPath,
             showIncomingHopCount: showIncomingHopCount,
+            showIncomingRegion: showIncomingRegion,
             isAtBottom: $isAtBottom,
             unreadCount: $unreadCount,
             scrollToBottomRequest: $scrollToBottomRequest,

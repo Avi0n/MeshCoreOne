@@ -957,6 +957,9 @@
 /* Toggle label for showing hop count on incoming messages */
 "messages.showIncomingHopCount" = "Pokaż liczbę skoków przychodzących";
 
+/* Toggle label for showing the radio region an incoming message was flooded under */
+"messages.showIncomingRegion" = "Show Incoming Region";
+
 /* Footer explaining what the message display options show */
 "messages.footer" = "Wyświetlaj informacje o trasowaniu w dymkach wiadomości przychodzących.";
 

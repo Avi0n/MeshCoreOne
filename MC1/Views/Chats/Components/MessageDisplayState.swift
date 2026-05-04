@@ -18,7 +18,8 @@ struct MessageDisplayState {
     var isGIF: Bool = false
     var showInlineImages: Bool = false
     var autoPlayGIFs: Bool = true
-    var showIncomingPath: Bool = false
     var showIncomingHopCount: Bool = false
+    var showIncomingRegion: Bool = false
+    var formattedPath: String?
     var formattedText: AttributedString?
 }

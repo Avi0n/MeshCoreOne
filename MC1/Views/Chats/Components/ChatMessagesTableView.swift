@@ -12,6 +12,7 @@ struct ChatMessagesTableView: View {
     let autoPlayGIFs: Bool
     let showIncomingPath: Bool
     let showIncomingHopCount: Bool
+    let showIncomingRegion: Bool
 
     @Binding var isAtBottom: Bool
     @Binding var unreadCount: Int
@@ -51,6 +52,7 @@ struct ChatMessagesTableView: View {
                     autoPlayGIFs: autoPlayGIFs,
                     showIncomingPath: showIncomingPath,
                     showIncomingHopCount: showIncomingHopCount,
+                    showIncomingRegion: showIncomingRegion,
                     selectedMessageForActions: $selectedMessageForActions,
                     imageViewerData: $imageViewerData,
                     onRetryMessage: onRetryMessage

@@ -13,6 +13,7 @@ struct MessageBubbleView: View {
     let autoPlayGIFs: Bool
     let showIncomingPath: Bool
     let showIncomingHopCount: Bool
+    let showIncomingRegion: Bool
     @Binding var selectedMessageForActions: MessageDTO?
     @Binding var imageViewerData: ImageViewerData?
     let onRetryMessage: (MessageDTO) -> Void
@@ -41,8 +42,11 @@ struct MessageBubbleView: View {
                     isGIF: viewModel.isGIFImage(for: message.id),
                     showInlineImages: showInlineImages,
                     autoPlayGIFs: autoPlayGIFs,
-                    showIncomingPath: showIncomingPath,
                     showIncomingHopCount: showIncomingHopCount,
+                    showIncomingRegion: showIncomingRegion,
+                    formattedPath: (showIncomingPath && !message.isOutgoing)
+                        ? MessagePathFormatter.format(message)
+                        : nil,
                     formattedText: viewModel.formattedText(
                         for: message.id,
                         text: message.text,

@@ -15,6 +15,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     public var autoPlayGIFs: Bool?
     public var showIncomingPath: Bool?
     public var showIncomingHopCount: Bool?
+    public var showIncomingRegion: Bool?
     public var autoDeleteStaleNodesDays: Int?
     public var discoverySortOrder: String?
     public var nodesSortOrder: String?
@@ -93,6 +94,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
         (\.autoPlayGIFs, "autoPlayGIFs"),
         (\.showIncomingPath, "showIncomingPath"),
         (\.showIncomingHopCount, "showIncomingHopCount"),
+        (\.showIncomingRegion, "showIncomingRegion"),
         (\.tracePathShowOnlyFavorites, "tracePathShowOnlyFavorites"),
         (\.tracePathIncludeRooms, "tracePathIncludeRooms"),
         (\.tracePathIncludeDiscovered, "tracePathIncludeDiscovered"),

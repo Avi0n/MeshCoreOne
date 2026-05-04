@@ -447,6 +447,13 @@ private struct ActionsIncomingDetailsRows: View {
             icon: "arrowshape.bounce.right"
         )
 
+        if let region = message.regionScope, message.isFloodRouted {
+            ActionInfoRow(
+                text: L10n.Chats.Chats.Message.Info.floodedUnder(region),
+                icon: "globe"
+            )
+        }
+
         let sentText = L10n.Chats.Chats.Message.Info.sent(
             message.senderDate.formatted(date: .abbreviated, time: .shortened))
         let adjusted = message.timestampCorrected ? " " + L10n.Chats.Chats.Message.Info.adjusted : ""
@@ -511,6 +518,8 @@ private struct ActionInfoRow: View {
         .foregroundStyle(.secondary)
         .padding(.horizontal)
         .padding(.vertical, 6)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(text)
     }
 }
 

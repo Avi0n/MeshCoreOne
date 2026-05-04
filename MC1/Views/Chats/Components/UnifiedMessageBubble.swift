@@ -153,6 +153,17 @@ struct UnifiedMessageBubble: View {
         if message.isOutgoing {
             label += ", \(BubbleStatusRow.statusText(for: message))"
         }
+        if !message.isOutgoing {
+            if displayState.showIncomingHopCount, message.isFloodRouted {
+                label += ", \(L10n.Chats.Chats.Message.HopCount.accessibilityLabel(message.hopCount))"
+            }
+            if let formattedPath = displayState.formattedPath {
+                label += ", \(L10n.Chats.Chats.Message.Path.accessibilityLabel(formattedPath))"
+            }
+            if displayState.showIncomingRegion, message.isFloodRouted, let region = message.regionScope {
+                label += ", \(L10n.Chats.Chats.Message.Region.accessibilityLabel(region))"
+            }
+        }
         return label
     }
 
@@ -167,6 +178,8 @@ private struct BubbleContent: View {
     let deviceName: String
     let displayState: MessageDisplayState
     let callbacks: MessageBubbleCallbacks
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private var textColor: Color {
         message.isOutgoing ? .white : .primary
@@ -184,18 +197,45 @@ private struct BubbleContent: View {
         message.isFloodRouted
     }
 
+    private var showHop: Bool {
+        displayState.showIncomingHopCount && isFloodRouted
+    }
+
+    private var regionToShow: String? {
+        guard displayState.showIncomingRegion, message.isFloodRouted else { return nil }
+        return message.regionScope
+    }
+
+    private var hasFooter: Bool {
+        showHop || displayState.formattedPath != nil || regionToShow != nil
+    }
+
+    @ViewBuilder
+    private func footerContent(allowsWrap: Bool) -> some View {
+        if showHop {
+            BubbleHopCountFooter(hopCount: message.hopCount)
+        }
+        if let formattedPath = displayState.formattedPath {
+            BubblePathFooter(formattedPath: formattedPath)
+        }
+        if let region = regionToShow {
+            BubbleRegionFooter(regionName: region, allowsWrap: allowsWrap)
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
                 MessageText(message.text, baseColor: textColor, isOutgoing: message.isOutgoing, currentUserName: deviceName, precomputedText: displayState.formattedText)
 
-                if !message.isOutgoing && (displayState.showIncomingHopCount && isFloodRouted || displayState.showIncomingPath) {
-                    HStack(spacing: 4) {
-                        if displayState.showIncomingHopCount && isFloodRouted {
-                            BubbleHopCountFooter(hopCount: message.hopCount)
+                if !message.isOutgoing && hasFooter {
+                    if dynamicTypeSize.isAccessibilitySize {
+                        VStack(alignment: .leading, spacing: 2) {
+                            footerContent(allowsWrap: true)
                         }
-                        if displayState.showIncomingPath {
-                            BubblePathFooter(message: message)
+                    } else {
+                        HStack(spacing: 4) {
+                            footerContent(allowsWrap: false)
                         }
                     }
                 }
@@ -409,10 +449,9 @@ private struct BubbleStatusRow: View {
 }
 
 private struct BubblePathFooter: View {
-    let message: MessageDTO
+    let formattedPath: String
 
     var body: some View {
-        let formattedPath = MessagePathFormatter.format(message)
         HStack(spacing: 4) {
             Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
             Text(formattedPath)
@@ -436,6 +475,23 @@ private struct BubbleHopCountFooter: View {
         .foregroundStyle(.secondary)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(L10n.Chats.Chats.Message.HopCount.accessibilityLabel(hopCount))
+    }
+}
+
+private struct BubbleRegionFooter: View {
+    let regionName: String
+    let allowsWrap: Bool
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "globe")
+            Text(regionName)
+                .lineLimit(allowsWrap ? nil : 1)
+        }
+        .font(.caption2)
+        .foregroundStyle(.secondary)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(L10n.Chats.Chats.Message.Region.accessibilityLabel(regionName))
     }
 }
 

@@ -574,6 +574,10 @@ public enum L10n {
           public static let adjustedAccessibility = L10n.tr("Chats", "chats.message.info.adjustedAccessibility", fallback: "Sent time adjusted due to sender clock error")
           /// Location: UnifiedMessageBubble.swift - Accessibility hint for adjusted timestamp
           public static let adjustedHint = L10n.tr("Chats", "chats.message.info.adjustedHint", fallback: "Sender's clock was incorrect")
+          /// Location: MessageActionsSheet.swift - Context menu text showing the radio region the message was flooded under - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region.
+          public static func floodedUnder(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.info.floodedUnder", String(describing: p1), fallback: "Flooded under: %@")
+          }
           /// Location: UnifiedMessageBubble.swift - Context menu text showing heard repeats - %d is count, second %@ is "repeat" or "repeats"
           public static func heardRepeats(_ p1: Int, _ p2: Any) -> String {
             return L10n.tr("Chats", "chats.message.info.heardRepeats", p1, String(describing: p2), fallback: "Heard: %d %@")
@@ -614,6 +618,12 @@ public enum L10n {
           }
           /// Location: MessagePathFormatter.swift - Fallback when path nodes unavailable
           public static let unavailable = L10n.tr("Chats", "chats.message.path.unavailable", fallback: "Unavailable")
+        }
+        public enum Region {
+          /// Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region.
+          public static func accessibilityLabel(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.region.accessibilityLabel", String(describing: p1), fallback: "Flooded under %@")
+          }
         }
         public enum Repeat {
           /// Location: UnifiedMessageBubble.swift - Plural form of repeats
@@ -3852,6 +3862,8 @@ public enum L10n {
       public static let showIncomingHopCount = L10n.tr("Settings", "messages.showIncomingHopCount", fallback: "Show Incoming Hop Count")
       /// Toggle label for showing routing path on incoming messages
       public static let showIncomingPath = L10n.tr("Settings", "messages.showIncomingPath", fallback: "Show Incoming Path")
+      /// Toggle label for showing the radio region an incoming message was flooded under
+      public static let showIncomingRegion = L10n.tr("Settings", "messages.showIncomingRegion", fallback: "Show Incoming Region")
     }
     public enum MyDevice {
       /// Section header for device-specific settings

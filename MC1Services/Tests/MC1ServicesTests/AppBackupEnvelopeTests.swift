@@ -238,11 +238,13 @@ struct AppBackupEnvelopeTests {
         prefs.recentEmojis = ["😂", "😮"]
         prefs.notifyContactMessages = false
         prefs.linkPreviewsEnabled = true
+        prefs.showIncomingRegion = true
 
         let data = try JSONEncoder().encode(prefs)
         let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
 
         #expect(decoded == prefs)
+        #expect(decoded.showIncomingRegion == true)
     }
 
     // MARK: - AppBackupError descriptions
