@@ -958,7 +958,7 @@
 "messages.showIncomingHopCount" = "Afficher le nombre de sauts entrant";
 
 /* Toggle label for showing the radio region an incoming message was flooded under */
-"messages.showIncomingRegion" = "Show Incoming Region";
+"messages.showIncomingRegion" = "Afficher la région entrante";
 
 /* Footer explaining what the message display options show */
 "messages.footer" = "Afficher les informations de routage dans les bulles de messages entrants.";

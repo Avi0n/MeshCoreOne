@@ -574,9 +574,9 @@ public enum L10n {
           public static let adjustedAccessibility = L10n.tr("Chats", "chats.message.info.adjustedAccessibility", fallback: "Sent time adjusted due to sender clock error")
           /// Location: UnifiedMessageBubble.swift - Accessibility hint for adjusted timestamp
           public static let adjustedHint = L10n.tr("Chats", "chats.message.info.adjustedHint", fallback: "Sender's clock was incorrect")
-          /// Location: MessageActionsSheet.swift - Context menu text showing the radio region the message was flooded under - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region.
+          /// Location: MessageActionsSheet.swift - Details row showing the radio region a flood-routed message was broadcast under - %@ is region name
           public static func floodedUnder(_ p1: Any) -> String {
-            return L10n.tr("Chats", "chats.message.info.floodedUnder", String(describing: p1), fallback: "Flooded under: %@")
+            return L10n.tr("Chats", "chats.message.info.floodedUnder", String(describing: p1), fallback: "Broadcast region: %@")
           }
           /// Location: UnifiedMessageBubble.swift - Context menu text showing heard repeats - %d is count, second %@ is "repeat" or "repeats"
           public static func heardRepeats(_ p1: Int, _ p2: Any) -> String {
@@ -620,9 +620,9 @@ public enum L10n {
           public static let unavailable = L10n.tr("Chats", "chats.message.path.unavailable", fallback: "Unavailable")
         }
         public enum Region {
-          /// Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region.
+          /// Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name
           public static func accessibilityLabel(_ p1: Any) -> String {
-            return L10n.tr("Chats", "chats.message.region.accessibilityLabel", String(describing: p1), fallback: "Flooded under %@")
+            return L10n.tr("Chats", "chats.message.region.accessibilityLabel", String(describing: p1), fallback: "Broadcast region %@")
           }
         }
         public enum Repeat {

@@ -968,7 +968,7 @@
 "messages.showIncomingHopCount" = "显示传入跳数";
 
 /* Toggle label for showing the radio region an incoming message was flooded under */
-"messages.showIncomingRegion" = "Show Incoming Region";
+"messages.showIncomingRegion" = "显示传入区域";
 
 /* Footer explaining what message display options show */
 "messages.footer" = "在传入消息气泡内显示路由信息。";

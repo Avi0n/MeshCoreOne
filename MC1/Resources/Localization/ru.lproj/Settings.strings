@@ -958,7 +958,7 @@
 "messages.showIncomingHopCount" = "Показывать входящее количество переходов";
 
 /* Toggle label for showing the radio region an incoming message was flooded under */
-"messages.showIncomingRegion" = "Show Incoming Region";
+"messages.showIncomingRegion" = "Показывать входящий регион";
 
 /* Footer explaining what the message display options show */
 "messages.footer" = "Показывать информацию о маршрутизации во входящих сообщениях.";

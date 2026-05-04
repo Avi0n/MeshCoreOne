@@ -609,7 +609,7 @@
 "chats.message.info.snr" = "SNR: %@";
 
 /* Location: MessageActionsSheet.swift - Context menu text showing the radio region the message was flooded under - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
-"chats.message.info.floodedUnder" = "Flooded under: %@";
+"chats.message.info.floodedUnder" = "Uitzendregio: %@";
 
 /* Location: UnifiedMessageBubble.swift - Context menu submenu label */
 "chats.message.action.details" = "Details";
@@ -830,7 +830,7 @@
 "chats.message.hopCount.accessibilityLabel" = "Aantal hops: %d";
 
 /* Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
-"chats.message.region.accessibilityLabel" = "Flooded under %@";
+"chats.message.region.accessibilityLabel" = "Uitzendregio %@";
 
 // MARK: - Reaction Details Sheet
 
@@ -1023,7 +1023,7 @@
 "chats.channelInfo.region.allRegions" = "All Regions";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope */
-"chats.channelInfo.region.useDefaultFormat" = "%@ (default)";
+"chats.channelInfo.region.useDefaultFormat" = "%@ (standaard)";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no regions configured */
 "chats.channelInfo.region.notConfigured" = "Not configured";
@@ -1089,7 +1089,7 @@
 "chats.channelInfo.region.scopedAccessibility" = "%@, scoped to %@";
 
 /* Location: ChatConversationType.swift - Purpose: Subtitle suffix when channel region matches the device default flood scope */
-"chats.channelInfo.region.scopedDefault" = "%@ (default)";
+"chats.channelInfo.region.scopedDefault" = "%@ (standaard)";
 
 /* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle when region matches the device default */
-"chats.channelInfo.region.defaultScopedAccessibility" = "%@, scoped to %@ (default)";
+"chats.channelInfo.region.defaultScopedAccessibility" = "%@, beperkt tot %@ (standaard)";
