@@ -193,32 +193,20 @@ private struct BubbleContent: View {
         }
     }
 
-    private var isFloodRouted: Bool {
-        message.isFloodRouted
-    }
-
-    private var showHop: Bool {
-        displayState.showIncomingHopCount && isFloodRouted
-    }
-
-    private var regionToShow: String? {
-        guard displayState.showIncomingRegion, message.isFloodRouted else { return nil }
-        return message.regionScope
-    }
-
-    private var hasFooter: Bool {
-        showHop || displayState.formattedPath != nil || regionToShow != nil
+    private var predicates: MessageBubblePredicates {
+        MessageBubblePredicates(message: message, displayState: displayState)
     }
 
     @ViewBuilder
     private func footerContent(allowsWrap: Bool) -> some View {
-        if showHop {
+        let p = predicates
+        if p.showHop {
             BubbleHopCountFooter(hopCount: message.hopCount)
         }
         if let formattedPath = displayState.formattedPath {
             BubblePathFooter(formattedPath: formattedPath)
         }
-        if let region = regionToShow {
+        if let region = p.regionToShow {
             BubbleRegionFooter(regionName: region, allowsWrap: allowsWrap)
         }
     }
@@ -228,7 +216,7 @@ private struct BubbleContent: View {
             VStack(alignment: .leading, spacing: 4) {
                 MessageText(message.text, baseColor: textColor, isOutgoing: message.isOutgoing, currentUserName: deviceName, precomputedText: displayState.formattedText)
 
-                if !message.isOutgoing && hasFooter {
+                if !message.isOutgoing && predicates.hasFooter {
                     if dynamicTypeSize.isAccessibilitySize {
                         VStack(alignment: .leading, spacing: 2) {
                             footerContent(allowsWrap: true)
