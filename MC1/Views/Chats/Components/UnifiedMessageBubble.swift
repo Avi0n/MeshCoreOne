@@ -143,7 +143,7 @@ struct UnifiedMessageBubble: View {
         AppColors.NameColor.color(for: senderName, highContrast: colorSchemeContrast == .increased)
     }
 
-    private var accessibilityMessageLabel: String {
+    var accessibilityMessageLabel: String {
         var label = ""
         // Always include sender name for screen readers, even when visually hidden
         if !message.isOutgoing && configuration.showSenderName {
@@ -154,13 +154,14 @@ struct UnifiedMessageBubble: View {
             label += ", \(BubbleStatusRow.statusText(for: message))"
         }
         if !message.isOutgoing {
-            if displayState.showIncomingHopCount, message.isFloodRouted {
+            let p = MessageBubblePredicates(message: message, displayState: displayState)
+            if p.showHop {
                 label += ", \(L10n.Chats.Chats.Message.HopCount.accessibilityLabel(message.hopCount))"
             }
             if let formattedPath = displayState.formattedPath {
                 label += ", \(L10n.Chats.Chats.Message.Path.accessibilityLabel(formattedPath))"
             }
-            if displayState.showIncomingRegion, message.isFloodRouted, let region = message.regionScope {
+            if let region = p.regionToShow {
                 label += ", \(L10n.Chats.Chats.Message.Region.accessibilityLabel(region))"
             }
         }

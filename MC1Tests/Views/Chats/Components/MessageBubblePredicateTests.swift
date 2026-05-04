@@ -8,12 +8,12 @@ struct MessageBubblePredicateTests {
 
     @Test("showHop: gated by both flag AND isFloodRouted", arguments: [
         // (showFlag, routeType, expected)
-        (true,  RouteType.flood,    true),    // gate open
-        (true,  RouteType.tcFlood,  true),    // tcFlood is treated as flood
-        (true,  RouteType.direct,   false),   // direct-routed must suppress hop even with flag on
-        (true,  RouteType.tcDirect, false),   // tcDirect is treated as direct
-        (false, RouteType.flood,    false),   // flag off
-        (false, RouteType.direct,   false),
+        (true, RouteType.flood, true), // gate open
+        (true, RouteType.tcFlood, true), // tcFlood is treated as flood
+        (true, RouteType.direct, false), // direct-routed must suppress hop even with flag on
+        (true, RouteType.tcDirect, false), // tcDirect is treated as direct
+        (false, RouteType.flood, false), // flag off
+        (false, RouteType.direct, false),
     ])
     func showHop(showFlag: Bool, routeType: RouteType, expected: Bool) {
         let predicates = MessageBubblePredicates(
@@ -25,17 +25,17 @@ struct MessageBubblePredicateTests {
 
     @Test("regionToShow: nil unless flag AND isFloodRouted AND scope present", arguments: [
         // (showFlag, routeType, scope, expected)
-        (true,  RouteType.flood,    "United States" as String?, "United States" as String?),  // happy path
-        (true,  RouteType.tcFlood,  "United States" as String?, "United States" as String?),  // tcFlood is flood
-        (true,  RouteType.flood,    nil,                        nil),                          // no scope to show
+        (true, RouteType.flood, "United States" as String?, "United States" as String?), // happy path
+        (true, RouteType.tcFlood, "United States" as String?, "United States" as String?), // tcFlood is flood
+        (true, RouteType.flood, nil, nil), // no scope to show
         // Direct-routed messages must hide region even when flag is on and scope is populated.
         // This is the regression row for the previously-shipped bug where regionToShow lacked
         // the isFloodRouted gate that its sibling showHop already had.
-        (true,  RouteType.direct,   "United States" as String?, nil),
-        (true,  RouteType.tcDirect, "United States" as String?, nil),                          // tcDirect is direct
-        (false, RouteType.flood,    "United States" as String?, nil),                          // user setting off
-        (false, RouteType.direct,   "United States" as String?, nil),
-        (true,  RouteType.direct,   nil,                        nil),
+        (true, RouteType.direct, "United States" as String?, nil),
+        (true, RouteType.tcDirect, "United States" as String?, nil), // tcDirect is direct
+        (false, RouteType.flood, "United States" as String?, nil), // user setting off
+        (false, RouteType.direct, "United States" as String?, nil),
+        (true, RouteType.direct, nil, nil),
     ])
     func regionToShow(showFlag: Bool, routeType: RouteType, scope: String?, expected: String?) {
         let predicates = MessageBubblePredicates(
@@ -88,25 +88,25 @@ struct MessageBubblePredicateTests {
         HasFooterCase(showHopFlag: false, showRegionFlag: false, routeType: .direct,
                       regionScope: nil, formattedPath: nil, expected: false),
         // Hop only contributes
-        HasFooterCase(showHopFlag: true,  showRegionFlag: false, routeType: .flood,
+        HasFooterCase(showHopFlag: true, showRegionFlag: false, routeType: .flood,
                       regionScope: nil, formattedPath: nil, expected: true),
         // Path only contributes (path is direction-blind in hasFooter; gate lives upstream)
         HasFooterCase(showHopFlag: false, showRegionFlag: false, routeType: .direct,
                       regionScope: nil, formattedPath: "A3,7F", expected: true),
         // Region only contributes
-        HasFooterCase(showHopFlag: false, showRegionFlag: true,  routeType: .flood,
+        HasFooterCase(showHopFlag: false, showRegionFlag: true, routeType: .flood,
                       regionScope: "US", formattedPath: nil, expected: true),
         // Region flag on but direct-routed must NOT contribute (regression row for the
         // previously-shipped missing-isFloodRouted-gate bug, expressed in OR composition).
-        HasFooterCase(showHopFlag: false, showRegionFlag: true,  routeType: .direct,
+        HasFooterCase(showHopFlag: false, showRegionFlag: true, routeType: .direct,
                       regionScope: "US", formattedPath: nil, expected: false),
         // Region + path on with hop off: isolates the case where region is the only
         // gate-sensitive contributor. Catches a future regression where regionToShow
         // loses its gate but a co-contributing axis (hop) would otherwise mask it.
-        HasFooterCase(showHopFlag: false, showRegionFlag: true,  routeType: .flood,
+        HasFooterCase(showHopFlag: false, showRegionFlag: true, routeType: .flood,
                       regionScope: "US", formattedPath: "A3,7F", expected: true),
         // All three on
-        HasFooterCase(showHopFlag: true,  showRegionFlag: true,  routeType: .flood,
+        HasFooterCase(showHopFlag: true, showRegionFlag: true, routeType: .flood,
                       regionScope: "US", formattedPath: "A3,7F", expected: true),
     ])
     func hasFooter(testCase: HasFooterCase) {
@@ -119,6 +119,48 @@ struct MessageBubblePredicateTests {
             )
         )
         #expect(predicates.hasFooter == testCase.expected)
+    }
+
+    // MARK: - Consumer-site accessibility label coverage
+
+    @Test("accessibilityMessageLabel: direct-routed message must not include region fragment")
+    @MainActor
+    func accessibilityLabel_directRoutedSuppressesRegion() {
+        // Mirrors the predicate-level regression row at the consumer site: even with
+        // showIncomingRegion=true and a populated regionScope, a direct-routed message
+        // must not assemble the region accessibility fragment into the screen-reader label.
+        let message = makeMessage(routeType: .direct, regionScope: "United States")
+        var state = MessageDisplayState()
+        state.showIncomingHopCount = true
+        state.showIncomingRegion = true
+
+        let bubble = UnifiedMessageBubble(
+            message: message,
+            contactName: "Alice",
+            configuration: .directMessage,
+            displayState: state
+        )
+        let regionFragment = L10n.Chats.Chats.Message.Region.accessibilityLabel("United States")
+
+        #expect(bubble.accessibilityMessageLabel.contains(regionFragment) == false)
+    }
+
+    @Test("accessibilityMessageLabel: flood-routed message includes region fragment")
+    @MainActor
+    func accessibilityLabel_floodRoutedIncludesRegion() {
+        let message = makeMessage(routeType: .flood, regionScope: "United States")
+        var state = MessageDisplayState()
+        state.showIncomingRegion = true
+
+        let bubble = UnifiedMessageBubble(
+            message: message,
+            contactName: "Alice",
+            configuration: .directMessage,
+            displayState: state
+        )
+        let regionFragment = L10n.Chats.Chats.Message.Region.accessibilityLabel("United States")
+
+        #expect(bubble.accessibilityMessageLabel.contains(regionFragment) == true)
     }
 
     // MARK: - Helpers
