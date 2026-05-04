@@ -49,9 +49,9 @@ struct ChatConversationView: View {
 
     @AppStorage("showInlineImages") private var showInlineImages = true
     @AppStorage("autoPlayGIFs") private var autoPlayGIFs = true
-    @AppStorage("showIncomingPath") private var showIncomingPath = false
-    @AppStorage("showIncomingHopCount") private var showIncomingHopCount = false
-    @AppStorage("showIncomingRegion") private var showIncomingRegion = false
+    @AppStorage(AppStorageKey.showIncomingPath.rawValue) private var showIncomingPath = false
+    @AppStorage(AppStorageKey.showIncomingHopCount.rawValue) private var showIncomingHopCount = false
+    @AppStorage(AppStorageKey.showIncomingRegion.rawValue) private var showIncomingRegion = false
     @AppStorage("replyWithQuote") private var replyWithQuote = false
 
     // MARK: - Init

@@ -1,10 +1,11 @@
+import MC1Services
 import SwiftUI
 
 /// Settings section for message display preferences
 struct MessagesSettingsSection: View {
-    @AppStorage("showIncomingPath") private var showIncomingPath = false
-    @AppStorage("showIncomingHopCount") private var showIncomingHopCount = false
-    @AppStorage("showIncomingRegion") private var showIncomingRegion = false
+    @AppStorage(AppStorageKey.showIncomingPath.rawValue) private var showIncomingPath = false
+    @AppStorage(AppStorageKey.showIncomingHopCount.rawValue) private var showIncomingHopCount = false
+    @AppStorage(AppStorageKey.showIncomingRegion.rawValue) private var showIncomingRegion = false
 
     var body: some View {
         Section {
