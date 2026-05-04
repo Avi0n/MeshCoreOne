@@ -21,4 +21,9 @@ struct MessageBubblePredicates {
         guard displayState.showIncomingRegion, message.isFloodRouted else { return nil }
         return message.regionScope
     }
+
+    /// True when any of the three footer slots (hop, path, region) should render.
+    var hasFooter: Bool {
+        showHop || displayState.formattedPath != nil || regionToShow != nil
+    }
 }

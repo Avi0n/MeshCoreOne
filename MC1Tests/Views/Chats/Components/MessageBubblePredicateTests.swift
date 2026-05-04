@@ -68,6 +68,59 @@ struct MessageBubblePredicateTests {
         #expect(predicates.regionToShow == nil)
     }
 
+    struct HasFooterCase: Sendable, CustomTestStringConvertible {
+        let showHopFlag: Bool
+        let showRegionFlag: Bool
+        let routeType: RouteType
+        let regionScope: String?
+        let formattedPath: String?
+        let expected: Bool
+
+        var testDescription: String {
+            "hop=\(showHopFlag) region=\(showRegionFlag) "
+                + "route=\(routeType) scope=\(regionScope ?? "nil") "
+                + "path=\(formattedPath ?? "nil") -> \(expected)"
+        }
+    }
+
+    @Test("hasFooter true iff any of hop/path/region contributes", arguments: [
+        // All off: no footer
+        HasFooterCase(showHopFlag: false, showRegionFlag: false, routeType: .direct,
+                      regionScope: nil, formattedPath: nil, expected: false),
+        // Hop only contributes
+        HasFooterCase(showHopFlag: true,  showRegionFlag: false, routeType: .flood,
+                      regionScope: nil, formattedPath: nil, expected: true),
+        // Path only contributes (path is direction-blind in hasFooter; gate lives upstream)
+        HasFooterCase(showHopFlag: false, showRegionFlag: false, routeType: .direct,
+                      regionScope: nil, formattedPath: "A3,7F", expected: true),
+        // Region only contributes
+        HasFooterCase(showHopFlag: false, showRegionFlag: true,  routeType: .flood,
+                      regionScope: "US", formattedPath: nil, expected: true),
+        // Region flag on but direct-routed must NOT contribute (regression row for the
+        // previously-shipped missing-isFloodRouted-gate bug, expressed in OR composition).
+        HasFooterCase(showHopFlag: false, showRegionFlag: true,  routeType: .direct,
+                      regionScope: "US", formattedPath: nil, expected: false),
+        // Region + path on with hop off: isolates the case where region is the only
+        // gate-sensitive contributor. Catches a future regression where regionToShow
+        // loses its gate but a co-contributing axis (hop) would otherwise mask it.
+        HasFooterCase(showHopFlag: false, showRegionFlag: true,  routeType: .flood,
+                      regionScope: "US", formattedPath: "A3,7F", expected: true),
+        // All three on
+        HasFooterCase(showHopFlag: true,  showRegionFlag: true,  routeType: .flood,
+                      regionScope: "US", formattedPath: "A3,7F", expected: true),
+    ])
+    func hasFooter(testCase: HasFooterCase) {
+        let predicates = MessageBubblePredicates(
+            message: makeMessage(routeType: testCase.routeType, regionScope: testCase.regionScope),
+            displayState: makeState(
+                showIncomingHopCount: testCase.showHopFlag,
+                showIncomingRegion: testCase.showRegionFlag,
+                formattedPath: testCase.formattedPath
+            )
+        )
+        #expect(predicates.hasFooter == testCase.expected)
+    }
+
     // MARK: - Helpers
 
     private func makeMessage(
