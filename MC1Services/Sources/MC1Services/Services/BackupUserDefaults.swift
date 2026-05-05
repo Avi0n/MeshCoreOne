@@ -55,6 +55,16 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     /// Public so `AppState` (and tests) can persist via the same key without a duplicated literal.
     public static let regionSelectionKey = "userPrefs.region"
 
+    /// Property names handled by hand-rolled branches in `snapshot`/`restore`
+    /// rather than the bool/string mappings. Internal solely for testability —
+    /// do not consume from non-test code.
+    internal static let specialCasedPropertyNames: Set<String> = [
+        "autoDeleteStaleNodesDays",
+        "frequentEmojis",
+        "recentEmojis",
+        "regionSelection"
+    ]
+
     // MARK: - Region selection persistence
 
     /// Single source of truth for the encoder/decoder used by `regionSelection`.
@@ -115,6 +125,12 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
         (\.notifyLowBattery, "notifyLowBattery"),
     ]
 
+    /// Key strings used by `boolMappings`. Internal solely for testability —
+    /// do not consume from non-test code.
+    internal static var boolMappingKeys: Set<String> {
+        Set(boolMappings.map { $0.1 })
+    }
+
     /// See `boolMappings` for the `nonisolated(unsafe)` rationale.
     nonisolated(unsafe) private static let stringMappings: [(WritableKeyPath<BackupUserDefaults, String?>, String)] = [
         (\.mapStyleSelection, "mapStyleSelection"),
@@ -122,6 +138,12 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
         (\.nodesSortOrder, "nodesSortOrder"),
         (\.tracePathViewMode, "tracePathViewMode"),
     ]
+
+    /// Key strings used by `stringMappings`. Internal solely for testability —
+    /// do not consume from non-test code.
+    internal static var stringMappingKeys: Set<String> {
+        Set(stringMappings.map { $0.1 })
+    }
 
     // MARK: - Read from UserDefaults
 
