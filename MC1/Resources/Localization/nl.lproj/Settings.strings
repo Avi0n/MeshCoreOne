@@ -952,13 +952,13 @@
 "messages.header" = "Berichtinfo";
 
 /* Toggle label for showing routing path on incoming messages */
-"messages.showIncomingPath" = "Inkomend pad tonen";
+"messages.showIncomingPath" = "Inkomend pad";
 
 /* Toggle label for showing hop count on incoming messages */
-"messages.showIncomingHopCount" = "Inkomend aantal hops tonen";
+"messages.showIncomingHopCount" = "Inkomend aantal hops";
 
 /* Toggle label for showing the radio region an incoming message was flooded under */
-"messages.showIncomingRegion" = "Inkomende regio tonen";
+"messages.showIncomingRegion" = "Inkomende regio";
 
 /* Footer explaining what the message display options show */
 "messages.footer" = "Routeringsinformatie weergeven in inkomende berichtballonnen.";

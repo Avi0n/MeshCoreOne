@@ -962,13 +962,13 @@
 "messages.header" = "消息信息";
 
 /* Toggle label for showing routing path on incoming messages */
-"messages.showIncomingPath" = "显示传入路径";
+"messages.showIncomingPath" = "传入路径";
 
 /* Toggle label for showing hop count on incoming messages */
-"messages.showIncomingHopCount" = "显示传入跳数";
+"messages.showIncomingHopCount" = "传入跳数";
 
 /* Toggle label for showing the radio region an incoming message was flooded under */
-"messages.showIncomingRegion" = "显示传入区域";
+"messages.showIncomingRegion" = "传入区域";
 
 /* Footer explaining what message display options show */
 "messages.footer" = "在传入消息气泡内显示路由信息。";

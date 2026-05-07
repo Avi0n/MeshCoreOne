@@ -952,13 +952,13 @@
 "messages.header" = "Инфо сообщения";
 
 /* Toggle label for showing routing path on incoming messages */
-"messages.showIncomingPath" = "Показывать входящий путь";
+"messages.showIncomingPath" = "Входящий путь";
 
 /* Toggle label for showing hop count on incoming messages */
-"messages.showIncomingHopCount" = "Показывать входящее количество переходов";
+"messages.showIncomingHopCount" = "Входящее количество переходов";
 
 /* Toggle label for showing the radio region an incoming message was flooded under */
-"messages.showIncomingRegion" = "Показывать входящий регион";
+"messages.showIncomingRegion" = "Входящий регион";
 
 /* Footer explaining what the message display options show */
 "messages.footer" = "Показывать информацию о маршрутизации во входящих сообщениях.";

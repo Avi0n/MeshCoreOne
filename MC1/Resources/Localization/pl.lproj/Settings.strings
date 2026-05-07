@@ -952,13 +952,13 @@
 "messages.header" = "Info o wiadomości";
 
 /* Toggle label for showing routing path on incoming messages */
-"messages.showIncomingPath" = "Pokaż ścieżkę przychodzącą";
+"messages.showIncomingPath" = "Ścieżka przychodząca";
 
 /* Toggle label for showing hop count on incoming messages */
-"messages.showIncomingHopCount" = "Pokaż liczbę skoków przychodzących";
+"messages.showIncomingHopCount" = "Liczba skoków przychodzących";
 
 /* Toggle label for showing the radio region an incoming message was flooded under */
-"messages.showIncomingRegion" = "Pokaż region przychodzący";
+"messages.showIncomingRegion" = "Region przychodzący";
 
 /* Footer explaining what the message display options show */
 "messages.footer" = "Wyświetlaj informacje o trasowaniu w dymkach wiadomości przychodzących.";
