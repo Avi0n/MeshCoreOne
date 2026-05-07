@@ -948,8 +948,8 @@
 
 // MARK: - Messages Settings Section
 
-/* Section header for Messages settings */
-"messages.header" = "Berichten";
+/* Section header for message info settings in chats */
+"messages.header" = "Berichtinfo";
 
 /* Toggle label for showing routing path on incoming messages */
 "messages.showIncomingPath" = "Inkomend pad tonen";

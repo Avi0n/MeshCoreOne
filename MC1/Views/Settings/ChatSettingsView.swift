@@ -14,6 +14,7 @@ struct ChatSettingsView: View {
             }
 
             LinkPreviewSettingsSection()
+            MessagesSettingsSection()
             BlockingSection()
         }
         .navigationTitle(L10n.Settings.ChatSettings.title)

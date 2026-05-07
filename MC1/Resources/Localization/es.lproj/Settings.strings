@@ -948,8 +948,8 @@
 
 // MARK: - Messages Settings Section
 
-/* Section header for Messages settings */
-"messages.header" = "Mensajes";
+/* Section header for message info settings in chats */
+"messages.header" = "Info del mensaje";
 
 /* Toggle label for showing routing path on incoming messages */
 "messages.showIncomingPath" = "Mostrar ruta entrante";

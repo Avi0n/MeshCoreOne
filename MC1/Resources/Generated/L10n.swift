@@ -3856,8 +3856,8 @@ public enum L10n {
     public enum Messages {
       /// Footer explaining what the message display options show
       public static let footer = L10n.tr("Settings", "messages.footer", fallback: "Display routing information inside incoming message bubbles.")
-      /// Section header for messages settings in advanced
-      public static let header = L10n.tr("Settings", "messages.header", fallback: "Messages")
+      /// Section header for message info settings in chats
+      public static let header = L10n.tr("Settings", "messages.header", fallback: "Message Info")
       /// Toggle label for showing hop count on incoming messages
       public static let showIncomingHopCount = L10n.tr("Settings", "messages.showIncomingHopCount", fallback: "Show Incoming Hop Count")
       /// Toggle label for showing routing path on incoming messages

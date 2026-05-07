@@ -35,9 +35,6 @@ struct AdvancedSettingsView: View {
             // Telemetry Settings
             TelemetrySettingsSection()
 
-            // Messages Settings
-            MessagesSettingsSection()
-
             // Direct Messages Settings
             DirectMessagesSettingsSection()
 

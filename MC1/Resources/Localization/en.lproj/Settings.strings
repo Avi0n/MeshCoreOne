@@ -997,8 +997,8 @@
 
 // MARK: - Messages Settings Section
 
-/* Section header for messages settings in advanced */
-"messages.header" = "Messages";
+/* Section header for message info settings in chats */
+"messages.header" = "Message Info";
 
 /* Toggle label for showing routing path on incoming messages */
 "messages.showIncomingPath" = "Show Incoming Path";

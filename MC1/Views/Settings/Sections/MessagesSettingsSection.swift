@@ -1,7 +1,7 @@
 import MC1Services
 import SwiftUI
 
-/// Settings section for message display preferences
+/// Chat settings section for incoming message routing info display
 struct MessagesSettingsSection: View {
     @AppStorage(AppStorageKey.showIncomingPath.rawValue) private var showIncomingPath = false
     @AppStorage(AppStorageKey.showIncomingHopCount.rawValue) private var showIncomingHopCount = false
