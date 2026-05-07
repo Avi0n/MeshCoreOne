@@ -307,7 +307,9 @@ extension ConnectionManager {
         if activeReconnectDeviceID == deviceID {
             connectionIntent = .wantsConnection(forceFullSync: forceFullSync)
             persistIntent()
-            reconnectionCoordinator.restartTimeout(deviceID: deviceID)
+            if sessionRebuildDeviceID != deviceID {
+                reconnectionCoordinator.restartTimeout(deviceID: deviceID)
+            }
             logger.info("[BLE] Reconnect already in progress for \(deviceID.uuidString.prefix(8)), deferring duplicate connect request")
             return
         }

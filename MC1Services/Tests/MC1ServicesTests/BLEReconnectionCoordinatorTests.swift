@@ -313,6 +313,96 @@ struct BLEReconnectionCoordinatorTests {
         #expect(delegate.notifyConnectionLostCallCount == 1)
     }
 
+    @Test("same-device completion is accepted after UI timeout while transport auto-reconnects")
+    func sameDeviceCompletionAcceptedAfterUITimeoutWhileAutoReconnecting() async throws {
+        let deviceID = UUID()
+        let (coordinator, delegate) = createCoordinator(
+            uiTimeoutDuration: 0.05,
+            maxConnectingUIWindow: 0.15
+        )
+        delegate.connectionIntent = .wantsConnection()
+        delegate.connectionState = .ready
+        delegate.stubbedBLEPhaseIsAutoReconnecting = true
+
+        await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
+
+        try await waitUntil("UI timeout should transition presentation to disconnected") {
+            delegate.connectionState == .disconnected
+        }
+
+        await coordinator.handleReconnectionComplete(deviceID: deviceID)
+
+        #expect(delegate.rebuildSessionCalls == [deviceID])
+        #expect(delegate.connectionState == .connecting)
+    }
+
+    @Test("UI timeout clears cycle when transport stops auto-reconnecting")
+    func uiTimeoutClearsCycleWhenTransportStopsAutoReconnecting() async throws {
+        let deviceID = UUID()
+        let (coordinator, delegate) = createCoordinator(uiTimeoutDuration: 0.05)
+        delegate.connectionIntent = .wantsConnection()
+        delegate.connectionState = .ready
+        delegate.stubbedBLEPhaseIsAutoReconnecting = false
+
+        await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
+
+        try await waitUntil("UI timeout should transition to disconnected") {
+            delegate.connectionState == .disconnected
+        }
+
+        await coordinator.handleReconnectionComplete(deviceID: deviceID)
+
+        #expect(delegate.rebuildSessionCalls.isEmpty)
+    }
+
+    @Test("different-device completion is rejected after UI timeout")
+    func differentDeviceCompletionRejectedAfterUITimeout() async throws {
+        let activeDeviceID = UUID()
+        let staleDeviceID = UUID()
+        let (coordinator, delegate) = createCoordinator(
+            uiTimeoutDuration: 0.05,
+            maxConnectingUIWindow: 0.15
+        )
+        delegate.connectionIntent = .wantsConnection()
+        delegate.connectionState = .ready
+        delegate.stubbedBLEPhaseIsAutoReconnecting = true
+
+        await coordinator.handleEnteringAutoReconnect(deviceID: activeDeviceID)
+
+        try await waitUntil("UI timeout should transition presentation to disconnected") {
+            delegate.connectionState == .disconnected
+        }
+
+        await coordinator.handleReconnectionComplete(deviceID: staleDeviceID)
+
+        #expect(delegate.rebuildSessionCalls.isEmpty)
+        #expect(delegate.connectionState == .disconnected)
+    }
+
+    @Test("user-disconnected completion after UI timeout remains rejected")
+    func userDisconnectedCompletionAfterUITimeoutRejected() async throws {
+        let deviceID = UUID()
+        let (coordinator, delegate) = createCoordinator(
+            uiTimeoutDuration: 0.05,
+            maxConnectingUIWindow: 0.15
+        )
+        delegate.connectionIntent = .wantsConnection()
+        delegate.connectionState = .ready
+        delegate.stubbedBLEPhaseIsAutoReconnecting = true
+
+        await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
+
+        try await waitUntil("UI timeout should transition presentation to disconnected") {
+            delegate.connectionState == .disconnected
+        }
+
+        delegate.connectionIntent = .userDisconnected
+        await coordinator.handleReconnectionComplete(deviceID: deviceID)
+
+        #expect(delegate.rebuildSessionCalls.isEmpty)
+        #expect(delegate.disconnectTransportCallCount == 1)
+    }
+
     // MARK: - cancelTimeout Tests
 
     @Test("UI timeout re-arms if BLE is still auto-reconnecting")
