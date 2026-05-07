@@ -492,6 +492,10 @@ public final class ConnectionManager {
     typealias OtherAppWaitStrategy = @Sendable (UUID) async -> Bool
 
     internal var otherAppWaitStrategyOverride: OtherAppWaitStrategy?
+
+    typealias HealthCheckSessionRebuildOverride = @MainActor (UUID) async throws -> Void
+
+    internal var rebuildSessionForHealthCheckOverride: HealthCheckSessionRebuildOverride?
     #endif
 
     /// The last connected device ID (for auto-reconnect)

@@ -128,6 +128,11 @@ public final class ServiceContainer {
     /// Whether event monitoring is active
     private var isMonitoringEvents = false
 
+    /// Whether service event listeners are currently active.
+    public var isEventMonitoringActive: Bool {
+        isMonitoringEvents
+    }
+
     // MARK: - Initialization
 
     /// Creates a new service container.

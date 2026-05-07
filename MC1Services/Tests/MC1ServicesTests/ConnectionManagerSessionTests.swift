@@ -96,6 +96,7 @@ struct ConnectionManagerSessionTests {
         #expect(manager.connectionState == .disconnected)
         #expect(manager.sessionRebuildDeviceID == deviceID)
         #expect(manager.connectionIntent == .wantsConnection())
+        #expect(manager.reconnectionCoordinator.reconnectingDeviceID == nil)
     }
 
     // MARK: - handleReconnectionFailure Tests

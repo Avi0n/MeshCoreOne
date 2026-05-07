@@ -13,13 +13,30 @@ extension ConnectionManager {
         let isConnected = await stateMachine.isConnected
         let isAutoReconnecting = await stateMachine.isAutoReconnecting
         let connectedDeviceShort = await stateMachine.connectedDeviceID?.uuidString.prefix(8) ?? "none"
+        let sessionPresent = session != nil
+        let servicesPresent = services != nil
+        let eventMonitoringActive = services?.isEventMonitoringActive ?? false
+        let autoFetchActive: Bool
+        if let services {
+            autoFetchActive = await services.messagePollingService.isAutoFetching
+        } else {
+            autoFetchActive = false
+        }
+        let activeReconnectDeviceShort = reconnectionCoordinator.reconnectingDeviceID?.uuidString.prefix(8) ?? "none"
+        let sessionRebuildDeviceShort = sessionRebuildDeviceID?.uuidString.prefix(8) ?? "none"
         return
             "BLE: state=\(bleState), " +
             "phase=\(blePhase), " +
             "peripheralState=\(blePeripheralState), " +
             "isConnected=\(isConnected), " +
             "isAutoReconnecting=\(isAutoReconnecting), " +
-            "connectedDevice=\(connectedDeviceShort)"
+            "connectedDevice=\(connectedDeviceShort), " +
+            "sessionPresent=\(sessionPresent), " +
+            "servicesPresent=\(servicesPresent), " +
+            "eventMonitoringActive=\(eventMonitoringActive), " +
+            "autoFetchActive=\(autoFetchActive), " +
+            "activeReconnectDevice=\(activeReconnectDeviceShort), " +
+            "sessionRebuildDevice=\(sessionRebuildDeviceShort)"
     }
 
     // MARK: - BLE Device Checks
@@ -258,9 +275,11 @@ extension ConnectionManager {
             return
         }
 
-        // Check actual BLE state - if connected at BLE level, no action needed
+        // Check actual BLE state. A live BLE transport is only healthy if the
+        // MC1 session, services, and listeners are alive too.
         let bleConnected = await stateMachine.isConnected
         if bleConnected {
+            await reconcileConnectedBLEAppStack(deviceID: deviceID)
             return
         }
 
@@ -315,6 +334,86 @@ extension ConnectionManager {
 
         logger.info("[BLE] Attempting foreground reconnection to \(deviceID.uuidString.prefix(8))")
         await attemptOpportunisticReconnect(deviceID: deviceID, reason: "foreground health check")
+    }
+
+    private func reconcileConnectedBLEAppStack(deviceID: UUID) async {
+        if await stateMachine.isAutoReconnecting {
+            logger.info("[BLE] Skipping connected-transport recovery: iOS auto-reconnect still in progress")
+            return
+        }
+
+        let bleConnectedDeviceID = await stateMachine.connectedDeviceID
+        if let bleConnectedDeviceID, bleConnectedDeviceID != deviceID {
+            logger.warning(
+                "[BLE] Connected transport belongs to \(bleConnectedDeviceID.uuidString.prefix(8)); expected \(deviceID.uuidString.prefix(8))"
+            )
+            return
+        }
+
+        guard let services,
+              session != nil,
+              let connectedDevice,
+              connectedDevice.id == deviceID else {
+            await rebuildConnectedBLEAppStack(deviceID: deviceID)
+            return
+        }
+
+        guard connectionState.isOperational else {
+            logger.info(
+                "[BLE] Connected transport app stack present while state is \(String(describing: connectionState)); leaving active connection flow in place"
+            )
+            return
+        }
+
+        await reconcileConnectedBLEListeners(
+            services: services,
+            radioID: connectedDevice.radioID
+        )
+    }
+
+    private func rebuildConnectedBLEAppStack(deviceID: UUID) async {
+        logger.warning(
+            "[BLE] Connected BLE transport has missing app stack; rebuilding session for \(deviceID.uuidString.prefix(8))"
+        )
+        connectionState = .connecting
+
+        do {
+            try await rebuildSessionForHealthCheck(deviceID: deviceID)
+        } catch {
+            logger.warning("[BLE] Connected-transport session rebuild failed: \(error.localizedDescription)")
+            await handleReconnectionFailure()
+        }
+    }
+
+    private func rebuildSessionForHealthCheck(deviceID: UUID) async throws {
+        #if DEBUG
+        if let rebuildSessionForHealthCheckOverride {
+            try await rebuildSessionForHealthCheckOverride(deviceID)
+            return
+        }
+        #endif
+
+        try await rebuildSession(deviceID: deviceID)
+    }
+
+    private func reconcileConnectedBLEListeners(
+        services: ServiceContainer,
+        radioID: UUID
+    ) async {
+        let eventMonitoringActive = services.isEventMonitoringActive
+        let autoFetchActive = await services.messagePollingService.isAutoFetching
+
+        guard !eventMonitoringActive || !autoFetchActive else { return }
+
+        logger.warning(
+            "[BLE] Connected BLE app stack missing listeners; restarting event pipeline for \(radioID.uuidString.prefix(8))"
+        )
+
+        if !eventMonitoringActive {
+            await services.startEventMonitoring(radioID: radioID)
+        } else {
+            await services.messagePollingService.startAutoFetch(radioID: radioID)
+        }
     }
 
     // MARK: - BLE Connection
