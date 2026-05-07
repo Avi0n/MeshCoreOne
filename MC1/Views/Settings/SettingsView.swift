@@ -92,16 +92,6 @@ private struct SettingsListContent: View {
                 }
 
                 NavigationLink {
-                    RegionSettingsView()
-                } label: {
-                    SettingsRow(
-                        L10n.Settings.Region.title,
-                        systemImage: "location.fill",
-                        detail: regionDetailText
-                    )
-                }
-
-                NavigationLink {
                     OfflineMapSettingsView()
                 } label: {
                     TintedLabel(L10n.Settings.OfflineMaps.title, systemImage: "map.fill")
@@ -176,12 +166,6 @@ private struct SettingsListContent: View {
         return Locale.current.localizedString(forLanguageCode: code) ?? code
     }
 
-    private var regionDetailText: String {
-        guard let region = appState.regionSelection else {
-            return L10n.Settings.Region.notSet
-        }
-        return RegionalAreas.displayName(for: region)
-    }
 }
 
 // MARK: - My Device Section
