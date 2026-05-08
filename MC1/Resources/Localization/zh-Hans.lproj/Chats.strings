@@ -812,6 +812,15 @@
 /* Location: PathHopRowView.swift - Unknown signal quality */
 "chats.path.hop.signalUnknown" = "未知";
 
+/* Location: FallbackMatchIndicatorView.swift - Accessibility label for possible match indicator */
+"chats.path.hop.possibleMatch" = "可能匹配，通过短前缀匹配";
+
+/* Location: FallbackMatchIndicatorView.swift - Title for possible match explanation popover */
+"chats.path.hop.possibleMatchTitle" = "可能匹配";
+
+/* Location: FallbackMatchIndicatorView.swift - Explanation of what a possible match means */
+"chats.path.hop.possibleMatchExplanation" = "多个节点共享此前缀。显示的名称可能不正确。";
+
 /* Location: PathHopRowView.swift - Label for receiver (your device) */
 "chats.path.receiver.label" = "接收者";
 

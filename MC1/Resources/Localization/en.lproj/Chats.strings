@@ -811,7 +811,7 @@
 "chats.path.hop.possibleMatchTitle" = "Possible Match";
 
 /* Location: FallbackMatchIndicatorView.swift - Explanation of what a possible match means */
-"chats.path.hop.possibleMatchExplanation" = "This name was matched using only a short prefix of the node's ID. Multiple nodes share this prefix, so the displayed name may not be correct.";
+"chats.path.hop.possibleMatchExplanation" = "Multiple nodes share this prefix. The displayed name may not be correct.";
 
 /* Location: PathHopRowView.swift - Label for sender (first hop) */
 "chats.path.hop.sender" = "Sender";

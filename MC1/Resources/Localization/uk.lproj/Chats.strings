@@ -736,6 +736,15 @@
 /* Location: PathHopRowView.swift - Unknown signal quality */
 "chats.path.hop.signalUnknown" = "Невідомо";
 
+/* Location: FallbackMatchIndicatorView.swift - Accessibility label for possible match indicator */
+"chats.path.hop.possibleMatch" = "Можливий збіг, визначено за коротким префіксом";
+
+/* Location: FallbackMatchIndicatorView.swift - Title for possible match explanation popover */
+"chats.path.hop.possibleMatchTitle" = "Можливий Збіг";
+
+/* Location: FallbackMatchIndicatorView.swift - Explanation of what a possible match means */
+"chats.path.hop.possibleMatchExplanation" = "Кілька вузлів мають цей префікс. Відображене ім'я може бути невірним.";
+
 /* Location: PathHopRowView.swift - Label for receiver (your device) */
 "chats.path.receiver.label" = "Отримувач";
 

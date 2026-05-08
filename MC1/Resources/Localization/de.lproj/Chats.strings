@@ -742,6 +742,15 @@
 /* Location: PathHopRowView.swift - Unknown signal quality */
 "chats.path.hop.signalUnknown" = "Unbekannt";
 
+/* Location: FallbackMatchIndicatorView.swift - Accessibility label for possible match indicator */
+"chats.path.hop.possibleMatch" = "Möglicher Treffer, abgeglichen über kurzes Präfix";
+
+/* Location: FallbackMatchIndicatorView.swift - Title for possible match explanation popover */
+"chats.path.hop.possibleMatchTitle" = "Möglicher Treffer";
+
+/* Location: FallbackMatchIndicatorView.swift - Explanation of what a possible match means */
+"chats.path.hop.possibleMatchExplanation" = "Mehrere Knoten teilen sich dieses Präfix. Der angezeigte Name ist möglicherweise nicht korrekt.";
+
 /* Location: PathHopRowView.swift - Label for receiver (your device) */
 "chats.path.receiver.label" = "Empfänger";
 

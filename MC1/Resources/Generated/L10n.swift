@@ -715,7 +715,7 @@ public enum L10n {
           /// Location: PathHopRowView.swift - Accessibility text for path hop names resolved from a short prefix
           public static let possibleMatch = L10n.tr("Chats", "chats.path.hop.possibleMatch", fallback: "Possible match, matched by short prefix")
           /// Location: FallbackMatchIndicatorView.swift - Explanation of what a possible match means
-          public static let possibleMatchExplanation = L10n.tr("Chats", "chats.path.hop.possibleMatchExplanation", fallback: "This name was matched using only a short prefix of the node's ID. Multiple nodes share this prefix, so the displayed name may not be correct.")
+          public static let possibleMatchExplanation = L10n.tr("Chats", "chats.path.hop.possibleMatchExplanation", fallback: "Multiple nodes share this prefix. The displayed name may not be correct.")
           /// Location: FallbackMatchIndicatorView.swift - Title for possible match explanation popover
           public static let possibleMatchTitle = L10n.tr("Chats", "chats.path.hop.possibleMatchTitle", fallback: "Possible Match")
           /// Location: PathHopRowView.swift - Label for sender (first hop)
@@ -3094,7 +3094,7 @@ public enum L10n {
         /// Location: RepeaterStatusView.swift - Accessibility label for possible match indicator
         public static let possibleMatch = L10n.tr("RemoteNodes", "remoteNodes.status.possibleMatch", fallback: "Possible match, matched by short prefix")
         /// Location: RepeaterStatusView.swift - Explanation of what a possible match means
-        public static let possibleMatchExplanation = L10n.tr("RemoteNodes", "remoteNodes.status.possibleMatchExplanation", fallback: "This name was matched using only a short prefix of the node's ID. Multiple nodes share this prefix, so the displayed name may not be correct.")
+        public static let possibleMatchExplanation = L10n.tr("RemoteNodes", "remoteNodes.status.possibleMatchExplanation", fallback: "Multiple nodes share this prefix. The displayed name may not be correct.")
         /// Location: RepeaterStatusView.swift - Title for possible match explanation popover
         public static let possibleMatchTitle = L10n.tr("RemoteNodes", "remoteNodes.status.possibleMatchTitle", fallback: "Possible Match")
         /// Location: RepeaterStatusView.swift - Receive errors label
