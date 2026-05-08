@@ -145,6 +145,18 @@ private struct MetricChartContent: View {
     }
 }
 
+// MARK: - Shared Packet-Count Domain
+
+extension [MetricChartView.DataPoint] {
+    /// Returns a common Y-axis domain spanning `0 ... max * 1.05` across all given arrays,
+    /// or `nil` when there is no positive max (empty or all-zero data).
+    static func sharedDomain(for arrays: [[MetricChartView.DataPoint]]) -> ClosedRange<Double>? {
+        let maxVal = arrays.flatMap(\.self).map(\.value).max()
+        guard let maxVal, maxVal > 0 else { return nil }
+        return 0 ... maxVal * 1.05
+    }
+}
+
 // MARK: - OCV Chart Domain
 
 extension Array where Element == Int {

@@ -52,39 +52,49 @@ struct NodeStatusHistoryView: View {
                 }
             )
 
+            let packetsSentPoints = filtered.compactMap { s in
+                s.packetsSent.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
+            }
+            let packetsReceivedPoints = filtered.compactMap { s in
+                s.packetsReceived.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
+            }
+            let receiveErrorPoints = filtered.compactMap { s in
+                s.receiveErrors.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
+            }
+            let postsReceivedPoints = filtered.compactMap { s in
+                s.postedCount.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
+            }
+            let postsPushedPoints = filtered.compactMap { s in
+                s.postPushCount.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
+            }
+            let packetDomain = [MetricChartView.DataPoint].sharedDomain(for: [
+                packetsSentPoints, packetsReceivedPoints, receiveErrorPoints,
+                postsReceivedPoints, postsPushedPoints
+            ])
+
             metricSection(
                 title: L10n.RemoteNodes.RemoteNodes.History.packetsSent, unit: "", color: .green,
-                dataPoints: filtered.compactMap { s in
-                    s.packetsSent.map { .init(id: s.id, date: s.timestamp, value: Double($0)) }
-                }
+                dataPoints: packetsSentPoints, yAxisDomain: packetDomain
             )
 
             metricSection(
                 title: L10n.RemoteNodes.RemoteNodes.History.packetsReceived, unit: "", color: .orange,
-                dataPoints: filtered.compactMap { s in
-                    s.packetsReceived.map { .init(id: s.id, date: s.timestamp, value: Double($0)) }
-                }
+                dataPoints: packetsReceivedPoints, yAxisDomain: packetDomain
             )
 
             metricSection(
                 title: L10n.RemoteNodes.RemoteNodes.History.receiveErrors, unit: "", color: .red,
-                dataPoints: filtered.compactMap { s in
-                    s.receiveErrors.map { .init(id: s.id, date: s.timestamp, value: Double($0)) }
-                }
+                dataPoints: receiveErrorPoints, yAxisDomain: packetDomain
             )
 
             metricSection(
                 title: L10n.RemoteNodes.RemoteNodes.RoomStatus.postsReceived, unit: "", color: .purple,
-                dataPoints: filtered.compactMap { s in
-                    s.postedCount.map { .init(id: s.id, date: s.timestamp, value: Double($0)) }
-                }
+                dataPoints: postsReceivedPoints, yAxisDomain: packetDomain
             )
 
             metricSection(
                 title: L10n.RemoteNodes.RemoteNodes.RoomStatus.postsPushed, unit: "", color: .mint,
-                dataPoints: filtered.compactMap { s in
-                    s.postPushCount.map { .init(id: s.id, date: s.timestamp, value: Double($0)) }
-                }
+                dataPoints: postsPushedPoints, yAxisDomain: packetDomain
             )
 
             Section {
