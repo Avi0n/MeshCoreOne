@@ -2,15 +2,6 @@
 import SwiftUI
 import MC1Services
 
-struct FallbackMatchIndicatorView: View {
-    var body: some View {
-        Image(systemName: "questionmark.circle")
-            .imageScale(.small)
-            .foregroundStyle(.secondary)
-            .accessibilityHidden(true)
-    }
-}
-
 /// Type of hop in the message path.
 enum PathHopType {
     case sender
@@ -103,9 +94,6 @@ struct PathHopRowView: View {
         }
         if let nodeID {
             values.append(L10n.Chats.Chats.Path.Hop.nodeId(nodeID))
-        }
-        if matchKind == .fallback {
-            values.append(L10n.Chats.Chats.Path.Hop.possibleMatch)
         }
         return values.joined(separator: ", ")
     }

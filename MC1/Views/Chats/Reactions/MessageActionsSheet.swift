@@ -187,7 +187,6 @@ private struct ActionsPreviewHeader: View {
         }
         .padding()
         .accessibilityElement(children: .combine)
-        .accessibilityValue(senderMatchKind == .fallback ? L10n.Chats.Chats.Message.Sender.possibleMatch : "")
     }
 
     private var senderLabel: some View {
