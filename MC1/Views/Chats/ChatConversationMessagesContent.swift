@@ -113,7 +113,7 @@ struct ChatConversationMessagesContent: View {
         case .channel:
             .channel(
                 isPublic: conversationType.isPublicStyleChannel,
-                contacts: viewModel.conversations
+                contacts: viewModel.allContacts
             )
         }
     }

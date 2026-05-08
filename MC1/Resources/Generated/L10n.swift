@@ -634,6 +634,8 @@ public enum L10n {
           public static let singular = L10n.tr("Chats", "chats.message.repeat.singular", fallback: "repeat")
         }
         public enum Sender {
+          /// Location: UnifiedMessageBubble.swift - Accessibility text for sender names resolved from a short prefix
+          public static let possibleMatch = L10n.tr("Chats", "chats.message.sender.possibleMatch", fallback: "Possible match, matched by short prefix")
           /// Location: UnifiedMessageBubble.swift - Fallback sender name
           public static let unknown = L10n.tr("Chats", "chats.message.sender.unknown", fallback: "Unknown")
         }
@@ -710,6 +712,8 @@ public enum L10n {
           public static func number(_ p1: Int) -> String {
             return L10n.tr("Chats", "chats.path.hop.number", p1, fallback: "Hop %d")
           }
+          /// Location: PathHopRowView.swift - Accessibility text for path hop names resolved from a short prefix
+          public static let possibleMatch = L10n.tr("Chats", "chats.path.hop.possibleMatch", fallback: "Possible match, matched by short prefix")
           /// Location: PathHopRowView.swift - Label for sender (first hop)
           public static let sender = L10n.tr("Chats", "chats.path.hop.sender", fallback: "Sender")
           /// Location: PathHopRowView.swift - Accessibility value format for last hop - %@ is quality, %@ is SNR

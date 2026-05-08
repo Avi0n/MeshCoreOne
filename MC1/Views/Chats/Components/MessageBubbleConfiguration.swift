@@ -6,7 +6,7 @@ struct MessageBubbleConfiguration: Sendable {
     let accentColor: Color
     let showSenderName: Bool
     let isChannel: Bool
-    let senderNameResolver: (@Sendable (MessageDTO) -> String)?
+    let senderNameResolver: (@Sendable (MessageDTO) -> NodeNameResolution)?
 
     static let directMessage = MessageBubbleConfiguration(
         accentColor: .blue,
@@ -26,29 +26,37 @@ struct MessageBubbleConfiguration: Sendable {
         )
     }
 
-    private static func resolveSenderName(for message: MessageDTO, contacts: [ContactDTO]) -> String {
+    private static func resolveSenderName(for message: MessageDTO, contacts: [ContactDTO]) -> NodeNameResolution {
         // First, try parsed sender name from channel message
         if let senderName = message.senderNodeName, !senderName.isEmpty {
-            return senderName
+            return NodeNameResolution(displayName: senderName, matchKind: .exact)
         }
 
         // Fallback: key prefix lookup
         guard let prefix = message.senderKeyPrefix else {
-            return L10n.Chats.Chats.Message.Sender.unknown
+            return NodeNameResolution(
+                displayName: L10n.Chats.Chats.Message.Sender.unknown,
+                matchKind: .unresolved
+            )
         }
 
         // Try to find matching contact
-        if let contact = contacts.first(where: { contact in
-            contact.publicKey.count >= prefix.count &&
-            Array(contact.publicKey.prefix(prefix.count)) == Array(prefix)
-        }) {
-            return contact.displayName
+        if let result = NeighborNameResolver.resolve(
+            for: prefix,
+            contacts: contacts,
+            discoveredNodes: [],
+            userLocation: nil
+        ) {
+            return result
         }
 
         // Fallback to hex representation
         if prefix.count >= 2 {
-            return prefix.prefix(2).map { String(format: "%02X", $0) }.joined()
+            return NodeNameResolution(displayName: prefix.prefix(2).hexString(), matchKind: .unresolved)
         }
-        return L10n.Chats.Chats.Message.Sender.unknown
+        return NodeNameResolution(
+            displayName: L10n.Chats.Chats.Message.Sender.unknown,
+            matchKind: .unresolved
+        )
     }
 }

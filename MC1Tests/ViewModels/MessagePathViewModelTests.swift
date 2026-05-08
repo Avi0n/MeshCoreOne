@@ -7,7 +7,12 @@ import Testing
 @MainActor
 struct MessagePathViewModelTests {
 
-    private func createContact(prefix: [UInt8], name: String, type: ContactType = .chat) -> ContactDTO {
+    private func createContact(
+        prefix: [UInt8],
+        name: String,
+        type: ContactType = .chat,
+        lastAdvertTimestamp: UInt32 = 0
+    ) -> ContactDTO {
         ContactDTO(
             id: UUID(),
             radioID: UUID(),
@@ -17,7 +22,7 @@ struct MessagePathViewModelTests {
             flags: 0,
             outPathLength: 0,
             outPath: Data(),
-            lastAdvertTimestamp: 0,
+            lastAdvertTimestamp: lastAdvertTimestamp,
             latitude: 0,
             longitude: 0,
             lastModified: 0,
@@ -70,6 +75,46 @@ struct MessagePathViewModelTests {
         let message = createMessage(senderKeyPrefix: contactB.publicKeyPrefix)
 
         #expect(viewModel.senderName(for: message) == "Bravo")
+    }
+
+    @Test("sender resolution marks short prefix match as fallback")
+    func senderResolutionMarksShortPrefixMatchAsFallback() {
+        let viewModel = MessagePathViewModel()
+        let older = createContact(prefix: [0xAA, 0x01], name: "Older", lastAdvertTimestamp: 100)
+        let newer = createContact(prefix: [0xAA, 0x02], name: "Newer", lastAdvertTimestamp: 200)
+        viewModel.contacts = [older, newer]
+
+        let message = createMessage(senderKeyPrefix: Data([0xAA]))
+        let result = viewModel.senderResolution(for: message)
+
+        #expect(result.displayName == "Newer")
+        #expect(result.matchKind == .fallback)
+    }
+
+    @Test("sender resolution marks unique short prefix match as exact")
+    func senderResolutionMarksUniqueShortPrefixMatchAsExact() {
+        let viewModel = MessagePathViewModel()
+        let contact = createContact(prefix: [0xAA, 0x01], name: "Alpha")
+        viewModel.contacts = [contact]
+
+        let message = createMessage(senderKeyPrefix: Data([0xAA]))
+        let result = viewModel.senderResolution(for: message)
+
+        #expect(result.displayName == "Alpha")
+        #expect(result.matchKind == .exact)
+    }
+
+    @Test("sender resolution marks full prefix match as exact")
+    func senderResolutionMarksFullPrefixMatchAsExact() {
+        let viewModel = MessagePathViewModel()
+        let contact = createContact(prefix: [0xAA, 0x01], name: "Alpha")
+        viewModel.contacts = [contact]
+
+        let message = createMessage(senderKeyPrefix: contact.publicKeyPrefix)
+        let result = viewModel.senderResolution(for: message)
+
+        #expect(result.displayName == "Alpha")
+        #expect(result.matchKind == .exact)
     }
 
     @Test("sender name returns channel sender node name for channel messages")

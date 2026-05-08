@@ -568,6 +568,9 @@
 /* Location: UnifiedMessageBubble.swift - Fallback sender name */
 "chats.message.sender.unknown" = "Unknown";
 
+/* Location: UnifiedMessageBubble.swift - Accessibility text for sender names resolved from a short prefix */
+"chats.message.sender.possibleMatch" = "Possible match, matched by short prefix";
+
 /* Location: UnifiedMessageBubble.swift - Context menu action to reply */
 "chats.message.action.reply" = "Reply";
 
@@ -800,6 +803,9 @@
 
 /* Location: PathHopRowView.swift - Unknown node name */
 "chats.path.hop.unknown" = "<unknown>";
+
+/* Location: PathHopRowView.swift - Accessibility text for path hop names resolved from a short prefix */
+"chats.path.hop.possibleMatch" = "Possible match, matched by short prefix";
 
 /* Location: PathHopRowView.swift - Label for sender (first hop) */
 "chats.path.hop.sender" = "Sender";

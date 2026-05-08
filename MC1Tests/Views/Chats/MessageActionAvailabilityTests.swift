@@ -135,6 +135,28 @@ struct MessageActionAvailabilityTests {
         #expect(availability.canSendDM == false)
     }
 
+    @Test("channel incoming prefix-only message cannot send DM")
+    func canSendDM_prefixOnlySenderReturnsFalse() {
+        let message = makeMessage(
+            channelIndex: 0,
+            direction: .incoming,
+            senderKeyPrefix: Data([0xAA])
+        )
+        let availability = MessageActionAvailability(message: message)
+        #expect(availability.canSendDM == false)
+    }
+
+    @Test("channel incoming prefix-only message cannot block sender")
+    func canBlockSender_prefixOnlySenderReturnsFalse() {
+        let message = makeMessage(
+            channelIndex: 0,
+            direction: .incoming,
+            senderKeyPrefix: Data([0xAA])
+        )
+        let availability = MessageActionAvailability(message: message)
+        #expect(availability.canBlockSender == false)
+    }
+
     // MARK: - Helper
 
     private func makeMessage(
@@ -143,7 +165,8 @@ struct MessageActionAvailabilityTests {
         pathLength: UInt8 = 0x02,
         pathNodes: Data? = Data([0xA3, 0x7F]),
         direction: MessageDirection = .incoming,
-        routeType: RouteType? = nil
+        routeType: RouteType? = nil,
+        senderKeyPrefix: Data? = nil
     ) -> MessageDTO {
         MessageDTO(
             id: UUID(),
@@ -160,8 +183,8 @@ struct MessageActionAvailabilityTests {
             pathLength: pathLength,
             snr: nil,
             pathNodes: pathNodes,
-            senderKeyPrefix: nil,
-            senderNodeName: channelIndex != nil ? "RemoteNode" : nil,
+            senderKeyPrefix: senderKeyPrefix,
+            senderNodeName: senderKeyPrefix == nil && channelIndex != nil ? "RemoteNode" : nil,
             isRead: true,
             replyToID: nil,
             roundTripTime: nil,

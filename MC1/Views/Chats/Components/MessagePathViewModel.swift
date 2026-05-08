@@ -36,17 +36,29 @@ final class MessagePathViewModel {
         isLoading = false
     }
 
-    func senderName(for message: MessageDTO) -> String {
+    func senderResolution(for message: MessageDTO) -> NodeNameResolution {
         if message.isChannelMessage, let nodeName = message.senderNodeName {
-            return nodeName
+            return NodeNameResolution(displayName: nodeName, matchKind: .exact)
         }
 
         if let keyPrefix = message.senderKeyPrefix,
-           let match = contacts.first(where: { $0.publicKeyPrefix == keyPrefix }) {
-            return match.displayName
+           let result = NeighborNameResolver.resolve(
+            for: keyPrefix,
+            contacts: contacts,
+            discoveredNodes: [],
+            userLocation: nil
+           ) {
+            return result
         }
 
-        return L10n.Chats.Chats.Path.Hop.unknown
+        return NodeNameResolution(
+            displayName: L10n.Chats.Chats.Path.Hop.unknown,
+            matchKind: .unresolved
+        )
+    }
+
+    func senderName(for message: MessageDTO) -> String {
+        senderResolution(for: message).displayName
     }
 
     func senderNodeID(for message: MessageDTO) -> String? {
@@ -55,13 +67,19 @@ final class MessagePathViewModel {
         return String(format: "%02X", firstByte)
     }
 
+    func repeaterResolution(for hashBytes: Data, userLocation: CLLocation?) -> NodeNameResolution {
+        NeighborNameResolver.resolve(
+            for: hashBytes,
+            contacts: repeaters,
+            discoveredNodes: discoveredRepeaters,
+            userLocation: userLocation
+        ) ?? NodeNameResolution(
+            displayName: L10n.Chats.Chats.Path.Hop.unknown,
+            matchKind: .unresolved
+        )
+    }
+
     func repeaterName(for hashBytes: Data, userLocation: CLLocation?) -> String {
-        if let match = RepeaterResolver.bestMatch(for: hashBytes, in: repeaters, userLocation: userLocation) {
-            return match.resolvableName
-        }
-        if let match = RepeaterResolver.bestMatch(for: hashBytes, in: discoveredRepeaters, userLocation: userLocation) {
-            return match.resolvableName
-        }
-        return L10n.Chats.Chats.Path.Hop.unknown
+        repeaterResolution(for: hashBytes, userLocation: userLocation).displayName
     }
 }

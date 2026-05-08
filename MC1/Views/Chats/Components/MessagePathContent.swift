@@ -36,24 +36,29 @@ struct MessagePathContent: View {
                 description: Text(L10n.Chats.Chats.Path.Unavailable.description)
             )
         } else {
+            let senderResolution = viewModel.senderResolution(for: message)
+
             // Sender
             PathHopRowView(
                 hopType: .sender,
-                nodeName: viewModel.senderName(for: message),
+                nodeName: senderResolution.displayName,
                 nodeID: viewModel.senderNodeID(for: message),
-                snr: nil
+                snr: nil,
+                matchKind: senderResolution.matchKind
             )
 
             // Intermediate hops
             ForEach(Array(pathHops.enumerated()), id: \.offset) { index, hop in
+                let repeaterResolution = viewModel.repeaterResolution(
+                    for: hop.data,
+                    userLocation: userLocation
+                )
                 PathHopRowView(
                     hopType: .intermediate(index + 1),
-                    nodeName: viewModel.repeaterName(
-                        for: hop.data,
-                        userLocation: userLocation
-                    ),
+                    nodeName: repeaterResolution.displayName,
                     nodeID: hop.hex,
-                    snr: nil
+                    snr: nil,
+                    matchKind: repeaterResolution.matchKind
                 )
             }
 

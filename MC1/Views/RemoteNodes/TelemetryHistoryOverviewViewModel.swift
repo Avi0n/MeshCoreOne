@@ -69,12 +69,11 @@ final class TelemetryHistoryOverviewViewModel {
     }
 
     func resolveNeighborName(prefix: Data) -> String? {
-        if let contact = contacts.first(where: { $0.publicKeyPrefix.starts(with: prefix) }) {
-            return contact.displayName
-        }
-        if let node = discoveredNodes.first(where: { $0.publicKey.prefix(6).starts(with: prefix) }) {
-            return node.name
-        }
-        return nil
+        NeighborNameResolver.resolveName(
+            for: prefix,
+            contacts: contacts,
+            discoveredNodes: discoveredNodes,
+            userLocation: nil
+        )
     }
 }

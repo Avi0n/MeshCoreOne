@@ -21,6 +21,7 @@ struct MessageActionsSheet: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let message: MessageDTO
     let senderName: String
+    let senderMatchKind: NodeNameMatchKind
     let recentEmojis: [String]
     let onAction: (MessageAction) -> Void
 
@@ -55,7 +56,8 @@ struct MessageActionsSheet: View {
         VStack(spacing: 0) {
             ActionsPreviewHeader(
                 message: message,
-                senderName: senderName
+                senderName: senderName,
+                senderMatchKind: senderMatchKind
             )
 
             Divider()
@@ -138,6 +140,7 @@ struct MessageActionsSheet: View {
 private struct ActionsPreviewHeader: View {
     let message: MessageDTO
     let senderName: String
+    let senderMatchKind: NodeNameMatchKind
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -158,9 +161,7 @@ private struct ActionsPreviewHeader: View {
                             .foregroundStyle(.secondary)
                             .monospaced()
                     }
-                    Text(senderName)
-                        .font(.subheadline)
-                        .bold()
+                    senderLabel
                     Spacer()
                     ActionsTimestampLabel(message: message)
                 }
@@ -173,9 +174,7 @@ private struct ActionsPreviewHeader: View {
                                 .foregroundStyle(.secondary)
                                 .monospaced()
                         }
-                        Text(senderName)
-                            .font(.subheadline)
-                            .bold()
+                        senderLabel
                     }
                     ActionsTimestampLabel(message: message)
                 }
@@ -187,6 +186,20 @@ private struct ActionsPreviewHeader: View {
                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
         }
         .padding()
+        .accessibilityElement(children: .combine)
+        .accessibilityValue(senderMatchKind == .fallback ? L10n.Chats.Chats.Message.Sender.possibleMatch : "")
+    }
+
+    private var senderLabel: some View {
+        HStack(spacing: 4) {
+            Text(senderName)
+                .font(.subheadline)
+                .bold()
+
+            if senderMatchKind == .fallback {
+                FallbackMatchIndicatorView()
+            }
+        }
     }
 }
 
@@ -537,6 +550,7 @@ private struct ActionInfoRow: View {
     return MessageActionsSheet(
         message: MessageDTO(from: message),
         senderName: "My Device",
+        senderMatchKind: .exact,
         recentEmojis: RecentEmojisStore.defaultEmojis,
 
         onAction: { print("Action: \($0)") }
@@ -557,6 +571,7 @@ private struct ActionInfoRow: View {
     return MessageActionsSheet(
         message: MessageDTO(from: message),
         senderName: "Alice",
+        senderMatchKind: .exact,
         recentEmojis: RecentEmojisStore.defaultEmojis,
 
         onAction: { print("Action: \($0)") }

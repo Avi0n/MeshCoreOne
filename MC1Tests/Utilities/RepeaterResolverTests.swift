@@ -262,4 +262,227 @@ struct RepeaterResolverTests {
 
         #expect(match?.displayName == "Newer")
     }
+
+    @Test("neighbor name resolver uses discovered node when contact is absent")
+    func neighborNameResolverUsesDiscoveredNode() {
+        let node = DiscoveredNodeDTO(
+            id: UUID(),
+            radioID: UUID(),
+            publicKey: Data([0xAB, 0xCD, 0xEF] + Array(repeating: UInt8(0), count: 29)),
+            name: "Ridge Repeater",
+            typeRawValue: ContactType.repeater.rawValue,
+            lastHeard: Date(),
+            lastAdvertTimestamp: 100,
+            latitude: 0,
+            longitude: 0,
+            outPathLength: 0,
+            outPath: Data()
+        )
+
+        let name = NeighborNameResolver.resolveName(
+            for: Data([0xAB, 0xCD]),
+            contacts: [],
+            discoveredNodes: [node],
+            userLocation: nil
+        )
+
+        #expect(name == "Ridge Repeater")
+    }
+
+    @Test("neighbor name resolver marks unique short discovered prefix as exact")
+    func neighborNameResolverMarksUniqueShortDiscoveredPrefixAsExact() {
+        let node = DiscoveredNodeDTO(
+            id: UUID(),
+            radioID: UUID(),
+            publicKey: Data([0xAB, 0xCD, 0xEF] + Array(repeating: UInt8(0), count: 29)),
+            name: "Ridge Repeater",
+            typeRawValue: ContactType.repeater.rawValue,
+            lastHeard: Date(),
+            lastAdvertTimestamp: 100,
+            latitude: 0,
+            longitude: 0,
+            outPathLength: 0,
+            outPath: Data()
+        )
+
+        let result = NeighborNameResolver.resolve(
+            for: Data([0xAB, 0xCD]),
+            contacts: [],
+            discoveredNodes: [node],
+            userLocation: nil
+        )
+
+        #expect(result?.displayName == "Ridge Repeater")
+        #expect(result?.matchKind == .exact)
+    }
+
+    @Test("neighbor name resolver marks full prefix contact match as exact")
+    func neighborNameResolverMarksFullPrefixContactMatchAsExact() {
+        let contact = createRepeater(
+            prefix: 0xAB,
+            secondByte: 0xCD,
+            name: "Saved Repeater",
+            lastAdvertTimestamp: 10,
+            latitude: 0,
+            longitude: 0
+        )
+
+        let result = NeighborNameResolver.resolve(
+            for: contact.publicKeyPrefix,
+            contacts: [contact],
+            discoveredNodes: [],
+            userLocation: nil
+        )
+
+        #expect(result?.displayName == "Saved Repeater")
+        #expect(result?.matchKind == .exact)
+    }
+
+    @Test("neighbor name resolver prefers contacts over discovered nodes")
+    func neighborNameResolverPrefersContacts() {
+        let contact = createRepeater(
+            prefix: 0xAB,
+            secondByte: 0xCD,
+            name: "Saved Repeater",
+            lastAdvertTimestamp: 10,
+            latitude: 0,
+            longitude: 0
+        )
+        let node = DiscoveredNodeDTO(
+            id: UUID(),
+            radioID: UUID(),
+            publicKey: contact.publicKey,
+            name: "Advert Repeater",
+            typeRawValue: ContactType.repeater.rawValue,
+            lastHeard: Date(),
+            lastAdvertTimestamp: 200,
+            latitude: 0,
+            longitude: 0,
+            outPathLength: 0,
+            outPath: Data()
+        )
+
+        let name = NeighborNameResolver.resolveName(
+            for: Data([0xAB, 0xCD]),
+            contacts: [contact],
+            discoveredNodes: [node],
+            userLocation: nil
+        )
+
+        #expect(name == "Saved Repeater")
+    }
+
+    @Test("neighbor name resolver marks cross-source short prefix ambiguity as fallback")
+    func neighborNameResolverMarksCrossSourceShortPrefixAmbiguityAsFallback() {
+        let contact = createRepeater(
+            prefix: 0xAB,
+            secondByte: 0xCD,
+            name: "Saved Repeater",
+            lastAdvertTimestamp: 10,
+            latitude: 0,
+            longitude: 0
+        )
+        let node = DiscoveredNodeDTO(
+            id: UUID(),
+            radioID: UUID(),
+            publicKey: Data([0xAB, 0xEF] + Array(repeating: UInt8(0), count: 30)),
+            name: "Advert Repeater",
+            typeRawValue: ContactType.repeater.rawValue,
+            lastHeard: Date(),
+            lastAdvertTimestamp: 200,
+            latitude: 0,
+            longitude: 0,
+            outPathLength: 0,
+            outPath: Data()
+        )
+
+        let result = NeighborNameResolver.resolve(
+            for: Data([0xAB]),
+            contacts: [contact],
+            discoveredNodes: [node],
+            userLocation: nil
+        )
+
+        #expect(result?.displayName == "Saved Repeater")
+        #expect(result?.matchKind == .fallback)
+    }
+
+    @Test("neighbor name resolver disambiguates short discovered prefixes by recency")
+    func neighborNameResolverDisambiguatesShortPrefixesByRecency() {
+        let older = DiscoveredNodeDTO(
+            id: UUID(),
+            radioID: UUID(),
+            publicKey: Data([0xAB, 0xCD, 0x01] + Array(repeating: UInt8(0), count: 29)),
+            name: "Older Repeater",
+            typeRawValue: ContactType.repeater.rawValue,
+            lastHeard: Date(timeIntervalSince1970: 1_000),
+            lastAdvertTimestamp: 100,
+            latitude: 0,
+            longitude: 0,
+            outPathLength: 0,
+            outPath: Data()
+        )
+        let newer = DiscoveredNodeDTO(
+            id: UUID(),
+            radioID: UUID(),
+            publicKey: Data([0xAB, 0xCD, 0x02] + Array(repeating: UInt8(0), count: 29)),
+            name: "Newer Repeater",
+            typeRawValue: ContactType.repeater.rawValue,
+            lastHeard: Date(timeIntervalSince1970: 2_000),
+            lastAdvertTimestamp: 200,
+            latitude: 0,
+            longitude: 0,
+            outPathLength: 0,
+            outPath: Data()
+        )
+
+        let name = NeighborNameResolver.resolveName(
+            for: Data([0xAB, 0xCD]),
+            contacts: [],
+            discoveredNodes: [older, newer],
+            userLocation: nil
+        )
+
+        #expect(name == "Newer Repeater")
+    }
+
+    @Test("neighbor name resolver marks ambiguous short discovered prefix as fallback")
+    func neighborNameResolverMarksAmbiguousShortDiscoveredPrefixAsFallback() {
+        let older = DiscoveredNodeDTO(
+            id: UUID(),
+            radioID: UUID(),
+            publicKey: Data([0xAB, 0xCD, 0x01] + Array(repeating: UInt8(0), count: 29)),
+            name: "Older Repeater",
+            typeRawValue: ContactType.repeater.rawValue,
+            lastHeard: Date(timeIntervalSince1970: 1_000),
+            lastAdvertTimestamp: 100,
+            latitude: 0,
+            longitude: 0,
+            outPathLength: 0,
+            outPath: Data()
+        )
+        let newer = DiscoveredNodeDTO(
+            id: UUID(),
+            radioID: UUID(),
+            publicKey: Data([0xAB, 0xCD, 0x02] + Array(repeating: UInt8(0), count: 29)),
+            name: "Newer Repeater",
+            typeRawValue: ContactType.repeater.rawValue,
+            lastHeard: Date(timeIntervalSince1970: 2_000),
+            lastAdvertTimestamp: 200,
+            latitude: 0,
+            longitude: 0,
+            outPathLength: 0,
+            outPath: Data()
+        )
+
+        let result = NeighborNameResolver.resolve(
+            for: Data([0xAB, 0xCD]),
+            contacts: [],
+            discoveredNodes: [older, newer],
+            userLocation: nil
+        )
+
+        #expect(result?.displayName == "Newer Repeater")
+        #expect(result?.matchKind == .fallback)
+    }
 }

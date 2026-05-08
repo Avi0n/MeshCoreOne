@@ -1,3 +1,4 @@
+import CoreLocation
 import MC1Services
 import SwiftUI
 
@@ -114,6 +115,7 @@ struct RepeaterStatusView: View {
             session: session,
             contacts: contacts,
             discoveredNodes: discoveredNodes,
+            userLocation: appState.bestAvailableLocation,
             connectionState: appState.connectionState
         )
     }
@@ -225,6 +227,7 @@ private struct NeighborsSection: View {
     let session: RemoteNodeSessionDTO
     let contacts: [ContactDTO]
     let discoveredNodes: [DiscoveredNodeDTO]
+    let userLocation: CLLocation?
     let connectionState: ConnectionState
 
     var body: some View {
@@ -241,9 +244,12 @@ private struct NeighborsSection: View {
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(viewModel.neighbors, id: \.publicKeyPrefix) { neighbor in
-                        let contact = contacts.first { $0.publicKeyPrefix.starts(with: neighbor.publicKeyPrefix) }
-                        let resolvedName = contact?.displayName
-                            ?? discoveredNodes.first(where: { $0.publicKey.prefix(6).starts(with: neighbor.publicKeyPrefix) })?.name
+                        let resolvedName = NeighborNameResolver.resolveName(
+                            for: neighbor.publicKeyPrefix,
+                            contacts: contacts,
+                            discoveredNodes: discoveredNodes,
+                            userLocation: userLocation
+                        )
                         NavigationLink {
                             NeighborSNRChartView(
                                 name: resolvedName ?? L10n.RemoteNodes.RemoteNodes.Status.unknown,
@@ -253,7 +259,7 @@ private struct NeighborsSection: View {
                         } label: {
                             NeighborRow(
                                 neighbor: neighbor,
-                                contact: contact,
+                                displayName: resolvedName ?? L10n.RemoteNodes.RemoteNodes.Status.unknown,
                                 previousNeighbor: viewModel.helper.previousSnapshot?.neighborSnapshots?.first {
                                     $0.publicKeyPrefix == neighbor.publicKeyPrefix
                                 },
@@ -266,10 +272,15 @@ private struct NeighborsSection: View {
                         let currentPrefixes = Set(viewModel.neighbors.map(\.publicKeyPrefix))
                         let disappeared = previousNeighbors.filter { !currentPrefixes.contains($0.publicKeyPrefix) }
                         ForEach(disappeared, id: \.publicKeyPrefix) { old in
+                            let resolvedName = NeighborNameResolver.resolveName(
+                                for: old.publicKeyPrefix,
+                                contacts: contacts,
+                                discoveredNodes: discoveredNodes,
+                                userLocation: userLocation
+                            )
                             DisappearedNeighborRow(
                                 neighbor: old,
-                                contact: contacts.first { $0.publicKeyPrefix.starts(with: old.publicKeyPrefix) },
-                                discoveredName: discoveredNodes.first(where: { $0.publicKey.prefix(6).starts(with: old.publicKeyPrefix) })?.name
+                                displayName: resolvedName ?? NeighborNameResolver.fallbackName(for: old.publicKeyPrefix)
                             )
                         }
                     }
@@ -364,18 +375,18 @@ private struct NeighborSNRChartView: View {
 
 private struct NeighborRow: View {
     let neighbor: NeighbourInfo
-    let contact: ContactDTO?
+    let displayName: String
     let previousNeighbor: NeighborSnapshotEntry?
     let hasPreviousSnapshot: Bool
 
     init(
         neighbor: NeighbourInfo,
-        contact: ContactDTO?,
+        displayName: String,
         previousNeighbor: NeighborSnapshotEntry? = nil,
         hasPreviousSnapshot: Bool = false
     ) {
         self.neighbor = neighbor
-        self.contact = contact
+        self.displayName = displayName
         self.previousNeighbor = previousNeighbor
         self.hasPreviousSnapshot = hasPreviousSnapshot
     }
@@ -424,10 +435,6 @@ private struct NeighborRow: View {
         }
     }
 
-    private var displayName: String {
-        contact?.displayName ?? L10n.RemoteNodes.RemoteNodes.Status.unknown
-    }
-
     private var firstKeyByte: String {
         guard let firstByte = neighbor.publicKeyPrefix.first else { return "" }
         return Data([firstByte]).hexString()
@@ -453,8 +460,7 @@ private struct NeighborRow: View {
 
 private struct DisappearedNeighborRow: View {
     let neighbor: NeighborSnapshotEntry
-    let contact: ContactDTO?
-    var discoveredName: String?
+    let displayName: String
 
     var body: some View {
         HStack {
@@ -468,12 +474,6 @@ private struct DisappearedNeighborRow: View {
                 .font(.caption)
         }
         .foregroundStyle(.tertiary)
-    }
-
-    private var displayName: String {
-        contact?.displayName
-            ?? discoveredName
-            ?? Data(neighbor.publicKeyPrefix.prefix(4)).hexString()
     }
 }
 

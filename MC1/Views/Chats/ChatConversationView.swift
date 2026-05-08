@@ -561,21 +561,37 @@ struct ChatConversationView: View {
     // MARK: - Message Actions Sheet
 
     private func messageActionsSheet(for message: MessageDTO) -> some View {
-        let senderName: String = {
+        let senderResolution: NodeNameResolution = {
             if message.isOutgoing {
-                return appState.localNodeName
+                return NodeNameResolution(displayName: appState.localNodeName, matchKind: .exact)
             }
             switch conversationType {
             case .dm(let contact):
-                return contact.displayName
+                return NodeNameResolution(displayName: contact.displayName, matchKind: .exact)
             case .channel:
-                return message.senderNodeName ?? L10n.Chats.Chats.Message.Sender.unknown
+                if let senderName = message.senderNodeName, !senderName.isEmpty {
+                    return NodeNameResolution(displayName: senderName, matchKind: .exact)
+                }
+                if let prefix = message.senderKeyPrefix,
+                   let result = NeighborNameResolver.resolve(
+                    for: prefix,
+                    contacts: chatViewModel.allContacts,
+                    discoveredNodes: [],
+                    userLocation: nil
+                   ) {
+                    return result
+                }
+                return NodeNameResolution(
+                    displayName: L10n.Chats.Chats.Message.Sender.unknown,
+                    matchKind: .unresolved
+                )
             }
         }()
 
         return MessageActionsSheet(
             message: message,
-            senderName: senderName,
+            senderName: senderResolution.displayName,
+            senderMatchKind: senderResolution.matchKind,
             recentEmojis: recentEmojisStore.recentEmojis,
             onAction: { action in
                 handleMessageAction(action, for: message)
@@ -624,7 +640,6 @@ struct ChatConversationView: View {
             Task { await chatViewModel.deleteMessage(message) }
         }
     }
-
 
     private func retryMessage(_ message: MessageDTO) {
         Task {

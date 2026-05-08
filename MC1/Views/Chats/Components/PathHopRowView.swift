@@ -2,6 +2,15 @@
 import SwiftUI
 import MC1Services
 
+struct FallbackMatchIndicatorView: View {
+    var body: some View {
+        Image(systemName: "questionmark.circle")
+            .imageScale(.small)
+            .foregroundStyle(.secondary)
+            .accessibilityHidden(true)
+    }
+}
+
 /// Type of hop in the message path.
 enum PathHopType {
     case sender
@@ -15,6 +24,21 @@ struct PathHopRowView: View {
     let nodeName: String
     let nodeID: String?
     let snr: Double?
+    let matchKind: NodeNameMatchKind
+
+    init(
+        hopType: PathHopType,
+        nodeName: String,
+        nodeID: String?,
+        snr: Double?,
+        matchKind: NodeNameMatchKind = .exact
+    ) {
+        self.hopType = hopType
+        self.nodeName = nodeName
+        self.nodeID = nodeID
+        self.snr = snr
+        self.matchKind = matchKind
+    }
 
     var body: some View {
         HStack(alignment: .top) {
@@ -29,6 +53,10 @@ struct PathHopRowView: View {
 
                     Text(nodeName)
                         .font(.body)
+
+                    if matchKind == .fallback {
+                        FallbackMatchIndicatorView()
+                    }
                 }
 
                 Text(hopLabel)
@@ -68,14 +96,18 @@ struct PathHopRowView: View {
     }
 
     private var accessibilityValueText: String {
+        var values: [String] = []
         if case .receiver = hopType, let snr {
             let snrText = snr.formatted(.number.precision(.fractionLength(1)))
-            return L10n.Chats.Chats.Path.Hop.signalQuality(signalQualityText, snrText)
+            values.append(L10n.Chats.Chats.Path.Hop.signalQuality(signalQualityText, snrText))
         }
         if let nodeID {
-            return L10n.Chats.Chats.Path.Hop.nodeId(nodeID)
+            values.append(L10n.Chats.Chats.Path.Hop.nodeId(nodeID))
         }
-        return ""
+        if matchKind == .fallback {
+            values.append(L10n.Chats.Chats.Path.Hop.possibleMatch)
+        }
+        return values.joined(separator: ", ")
     }
 
     private var snrQuality: SNRQuality { SNRQuality(snr: snr) }

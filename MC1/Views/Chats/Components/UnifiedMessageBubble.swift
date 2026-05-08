@@ -53,10 +53,16 @@ struct UnifiedMessageBubble: View {
                 VStack(alignment: message.isOutgoing ? .trailing : .leading, spacing: 0) {
                     // Sender name for incoming channel messages (hidden for continuation messages in a group)
                     if !message.isOutgoing && configuration.showSenderName && displayState.showSenderName {
-                        Text(senderName)
-                            .font(.footnote)
-                            .bold()
-                            .foregroundStyle(senderColor)
+                        HStack(spacing: 4) {
+                            Text(senderName)
+                                .font(.footnote)
+                                .bold()
+                                .foregroundStyle(senderColor)
+
+                            if senderResolution.isFallback {
+                                FallbackMatchIndicatorView()
+                            }
+                        }
                     }
 
                     // Message bubble with text and optional routing footer
@@ -136,7 +142,14 @@ struct UnifiedMessageBubble: View {
     // MARK: - Computed Properties
 
     private var senderName: String {
-        configuration.senderNameResolver?(message) ?? L10n.Chats.Chats.Message.Sender.unknown
+        senderResolution.displayName
+    }
+
+    private var senderResolution: NodeNameResolution {
+        configuration.senderNameResolver?(message) ?? NodeNameResolution(
+            displayName: L10n.Chats.Chats.Message.Sender.unknown,
+            matchKind: .unresolved
+        )
     }
 
     private var senderColor: Color {
@@ -148,6 +161,9 @@ struct UnifiedMessageBubble: View {
         // Always include sender name for screen readers, even when visually hidden
         if !message.isOutgoing && configuration.showSenderName {
             label = "\(senderName): "
+            if senderResolution.isFallback {
+                label += "\(L10n.Chats.Chats.Message.Sender.possibleMatch), "
+            }
         }
         label += message.text
         if message.isOutgoing {
