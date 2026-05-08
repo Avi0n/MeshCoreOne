@@ -6,7 +6,6 @@ private let logger = PersistentLogger(subsystem: "com.mc1.services", category: "
 
 extension RxLogService {
 
-    private static let reprocessLookbackSeconds: TimeInterval = -60
     private static let missLogThrottleSeconds: TimeInterval = 60
 
     /// Offset of the unencrypted sender prefix byte in a DM `packetPayload`,
@@ -56,13 +55,13 @@ extension RxLogService {
         }
     }
 
-    /// Re-resolve recent entries with non-nil `transportCode` and nil
+    /// Re-resolve all entries with non-nil `transportCode` and nil
     /// `regionScope` against the current scope-key cache, and back-fill the
     /// resolved region onto both `RxLogEntry` rows and any correlated
     /// `Message` rows (keyed by `(channelIndex, senderTimestamp)`).
     ///
     /// This is the explicit mitigation for two races:
-    ///   1. Discovery-time race: regions discover seconds after first
+    ///   1. Discovery-time race: regions discovered seconds after first
     ///      connection while messages are already arriving.
     ///   2. `addKnownRegion` / `removeKnownRegion` suspension-window race:
     ///      packets that arrive between the synchronous `connectedDevice`
@@ -85,12 +84,9 @@ extension RxLogService {
     }
 
     private func runReprocessPass(radioID: UUID) async {
-        let cutoff = Date().addingTimeInterval(Self.reprocessLookbackSeconds)
-
         do {
-            let entries = try await dataStore.fetchRecentEntriesWithMissingRegion(
-                radioID: radioID,
-                since: cutoff
+            let entries = try await dataStore.fetchEntriesWithMissingRegion(
+                radioID: radioID
             )
 
             guard !entries.isEmpty else { return }

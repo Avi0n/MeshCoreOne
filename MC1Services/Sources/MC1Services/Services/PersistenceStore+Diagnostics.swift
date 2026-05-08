@@ -309,17 +309,15 @@ extension PersistenceStore {
         try modelContext.save()
     }
 
-    /// Fetch recent RX log entries that have a transport code but no resolved
+    /// Fetch RX log entries that have a transport code but no resolved
     /// region yet — the back-fill candidate set.
-    public func fetchRecentEntriesWithMissingRegion(radioID: UUID, since: Date) throws -> [RxLogEntryDTO] {
+    public func fetchEntriesWithMissingRegion(radioID: UUID) throws -> [RxLogEntryDTO] {
         let targetRadioID = radioID
-        let cutoff = since
         let descriptor = FetchDescriptor<RxLogEntry>(
             predicate: #Predicate {
                 $0.radioID == targetRadioID &&
                 $0.transportCode != nil &&
-                $0.regionScope == nil &&
-                $0.receivedAt >= cutoff
+                $0.regionScope == nil
             },
             sortBy: [SortDescriptor(\.receivedAt, order: .forward)]
         )

@@ -3859,11 +3859,11 @@ public enum L10n {
       /// Section header for message info settings in chats
       public static let header = L10n.tr("Settings", "messages.header", fallback: "Message Info")
       /// Toggle label for showing hop count on incoming messages
-      public static let showIncomingHopCount = L10n.tr("Settings", "messages.showIncomingHopCount", fallback: "Show Incoming Hop Count")
+      public static let showIncomingHopCount = L10n.tr("Settings", "messages.showIncomingHopCount", fallback: "Incoming Hop Count")
       /// Toggle label for showing routing path on incoming messages
-      public static let showIncomingPath = L10n.tr("Settings", "messages.showIncomingPath", fallback: "Show Incoming Path")
+      public static let showIncomingPath = L10n.tr("Settings", "messages.showIncomingPath", fallback: "Incoming Path")
       /// Toggle label for showing the radio region an incoming message was flooded under
-      public static let showIncomingRegion = L10n.tr("Settings", "messages.showIncomingRegion", fallback: "Show Incoming Region")
+      public static let showIncomingRegion = L10n.tr("Settings", "messages.showIncomingRegion", fallback: "Incoming Region")
     }
     public enum MyDevice {
       /// Section header for device-specific settings
