@@ -483,6 +483,7 @@ extension ConnectionManager {
         stopReconnectionWatchdog()
 
         cancelResyncLoop()
+        cancelChannelRetry()
 
         // Only clear user intent and clean-channel state for explicit disconnects.
         // Transient reasons preserve both so the next reconnect can skip redundant channel sync.
@@ -491,6 +492,7 @@ extension ConnectionManager {
             connectionIntent = .userDisconnected
             persistIntent()
             lastCleanChannelSync = nil
+            lastAttemptedChannelSync = nil
         case .resyncFailed, .wifiAddressChange, .wifiReconnectPrep, .pairingFailed:
             // Preserve .wantsConnection so health check can retry
             break
@@ -618,6 +620,7 @@ extension ConnectionManager {
     public func switchDevice(to deviceID: UUID) async throws {
         logger.info("Switching to device: \(deviceID)")
         lastCleanChannelSync = nil
+        lastAttemptedChannelSync = nil
 
         // Update intent
         connectionIntent = .wantsConnection()

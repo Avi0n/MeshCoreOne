@@ -1,6 +1,27 @@
 import Foundation
 import os
 
+private actor ContactStreamProgressTracker {
+    struct Snapshot: Sendable {
+        let generation: Int
+        let elapsed: TimeInterval
+    }
+
+    private var generation = 0
+    private let startedAt = Date()
+
+    func markProgress() {
+        generation += 1
+    }
+
+    func snapshot() -> Snapshot {
+        Snapshot(
+            generation: generation,
+            elapsed: Date().timeIntervalSince(startedAt)
+        )
+    }
+}
+
 /// Main session actor for MeshCore device communication.
 ///
 /// `MeshCoreSession` coordinates all communication with a MeshCore mesh networking device
@@ -750,6 +771,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
                 return try await withThrowingTaskGroup(
                     of: ([MeshContact], Date?).self
                 ) { group in
+                    let progressTracker = ContactStreamProgressTracker()
                     group.addTask {
                         var receivedContacts: [MeshContact] = []
                         var finalModifiedDate: Date?
@@ -761,10 +783,13 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
                             switch event {
                             case .contactsStart(let count):
+                                await progressTracker.markProgress()
                                 receivedContacts.reserveCapacity(count)
                             case .contact(let contact):
+                                await progressTracker.markProgress()
                                 receivedContacts.append(contact)
                             case .contactsEnd(let modifiedDate):
+                                await progressTracker.markProgress()
                                 finalModifiedDate = modifiedDate
                                 return (receivedContacts, finalModifiedDate)
                             case .error(let code):
@@ -777,9 +802,25 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
                         throw MeshCoreError.timeout
                     }
 
-                    group.addTask { [clock = self.clock] in
-                        try await clock.sleep(for: .seconds(60))
-                        throw MeshCoreError.timeout
+                    let inactivityTimeout = configuration.contactStreamInactivityTimeout
+                    let hardTimeout = configuration.contactStreamHardTimeout
+                    let sessionClock = clock
+                    group.addTask { [sessionClock, inactivityTimeout, hardTimeout] in
+                        while true {
+                            let beforeSleep = await progressTracker.snapshot()
+                            if beforeSleep.elapsed >= hardTimeout {
+                                throw MeshCoreError.timeout
+                            }
+
+                            let remainingHardTimeout = max(0.001, hardTimeout - beforeSleep.elapsed)
+                            let sleepDuration = min(inactivityTimeout, remainingHardTimeout)
+                            try await sessionClock.sleep(for: .seconds(sleepDuration))
+
+                            let afterSleep = await progressTracker.snapshot()
+                            if afterSleep.elapsed >= hardTimeout || afterSleep.generation == beforeSleep.generation {
+                                throw MeshCoreError.timeout
+                            }
+                        }
                     }
 
                     do {

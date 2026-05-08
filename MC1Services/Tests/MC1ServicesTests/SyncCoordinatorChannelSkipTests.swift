@@ -68,6 +68,32 @@ struct SyncCoordinatorChannelSkipTests {
         #expect(channelInvocations.count == 1, "Channel sync should run when lastCleanChannelSync is nil")
     }
 
+    @Test("Channels skipped when last attempted channel sync is recent")
+    @MainActor
+    func channelsSkippedWhenRecentAttemptedSync() async throws {
+        let coordinator = SyncCoordinator()
+        let mockContactService = MockContactService()
+        let mockChannelService = MockChannelService()
+        let mockMessagePollingService = MockMessagePollingService()
+        let testDeviceID = UUID()
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
+
+        try await coordinator.performFullSync(
+            radioID: testDeviceID,
+            dataStore: dataStore,
+            contactService: mockContactService,
+            channelService: mockChannelService,
+            messagePollingService: mockMessagePollingService,
+            channelSyncConfig: ChannelSyncConfig(
+                channelSyncSkipWindow: .seconds(30),
+                lastAttemptedChannelSync: Date()
+            )
+        )
+
+        let channelInvocations = await mockChannelService.syncChannelsInvocations
+        #expect(channelInvocations.isEmpty, "Channel sync should be skipped after a recent partial attempt")
+    }
+
     @Test("Channels sync when lastCleanChannelSync is expired (outside window)")
     @MainActor
     func channelsSyncWhenExpired() async throws {

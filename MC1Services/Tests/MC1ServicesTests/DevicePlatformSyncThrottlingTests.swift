@@ -22,4 +22,32 @@ struct DevicePlatformChannelSyncConfigTests {
         let platform = DevicePlatform.unknown
         #expect(platform.channelSyncSkipWindow == .zero)
     }
+
+    @Test("WiFi uses ESP32 channel sync cooldown")
+    @MainActor
+    func wifiUsesESP32ChannelSyncCooldown() throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+        let radioID = UUID()
+        let attemptedAt = Date()
+
+        manager.setTestState(
+            detectedPlatform: .esp32,
+            lastAttemptedChannelSync: (radioID: radioID, attemptedAt: attemptedAt)
+        )
+
+        let config = manager.currentChannelSyncConfig(for: radioID, transportType: .wifi)
+
+        #expect(config.channelSyncSkipWindow == .seconds(30))
+        #expect(config.lastAttemptedChannelSync == attemptedAt)
+    }
+
+    @Test("Heartbeat pauses while syncing")
+    @MainActor
+    func heartbeatPausesWhileSyncing() throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+
+        manager.setTestState(connectionState: .syncing)
+
+        #expect(manager.shouldPauseWiFiHeartbeatProbe)
+    }
 }

@@ -4,6 +4,11 @@ import Foundation
 // MARK: - Full Sync & Connection Lifecycle
 
 extension SyncCoordinator {
+    private struct ContactChannelSyncResult: Sendable {
+        let contacts: SyncPhaseStatus
+        let channels: SyncPhaseStatus
+        let channelRetryIndices: [UInt8]
+    }
 
     // MARK: - Full Sync
 
@@ -23,6 +28,7 @@ extension SyncCoordinator {
     ///     channel sync is skipped to reduce BLE traffic.
     ///   - rxLogService: Optional service for updating contact public keys after sync.
     ///   - forceFullSync: When true, ignores lastContactSync watermark and fetches all contacts.
+    @discardableResult
     public func performFullSync(
         radioID: UUID,
         dataStore: PersistenceStore,
@@ -35,12 +41,12 @@ extension SyncCoordinator {
         forceFullSync: Bool = false,
         channelSyncConfig: ChannelSyncConfig = .none,
         platformName: String = "unknown"
-    ) async throws {
+    ) async throws -> FullSyncResult {
         // Prevent concurrent syncs — actor-local flag avoids the TOCTOU window
         // that existed when guarding via `await state.isSyncing`
         guard !isSyncInProgress else {
             logger.warning("performFullSync called while already syncing, ignoring duplicate")
-            return
+            return .skipped
         }
         isSyncInProgress = true
         defer { isSyncInProgress = false }
@@ -56,24 +62,22 @@ extension SyncCoordinator {
             logger.info("[Sync] Calling onSyncActivityStarted")
             await onSyncActivityStarted?()
 
-            // Perform contacts and channels sync (activity should show pill)
-            do {
-                try await syncContactsAndChannels(
-                    radioID: radioID,
-                    dataStore: dataStore,
-                    contactService: contactService,
-                    channelService: channelService,
-                    appStateProvider: appStateProvider,
-                    rxLogService: rxLogService,
-                    forceFullSync: forceFullSync,
-                    channelSyncSkipWindow: channelSyncConfig.channelSyncSkipWindow,
-                    lastCleanChannelSync: channelSyncConfig.lastCleanChannelSync
-                )
-            } catch {
-                // End sync activity on error during contacts/channels phase
-                await endSyncActivityOnce()
-                throw error
-            }
+            // Perform contacts and channels sync (activity should show pill).
+            // Contacts remain connection-critical. Channel errors are degraded
+            // state: keep existing local channels and let the caller schedule a
+            // channel-only retry instead of replaying contacts.
+            let contactChannelResult = try await syncContactsAndChannels(
+                radioID: radioID,
+                dataStore: dataStore,
+                contactService: contactService,
+                channelService: channelService,
+                appStateProvider: appStateProvider,
+                rxLogService: rxLogService,
+                forceFullSync: forceFullSync,
+                channelSyncSkipWindow: channelSyncConfig.channelSyncSkipWindow,
+                lastCleanChannelSync: channelSyncConfig.lastCleanChannelSync,
+                lastAttemptedChannelSync: channelSyncConfig.lastAttemptedChannelSync
+            )
 
             // End sync activity before messages phase (pill should hide).
             // During resync, the outer bracket (beginResyncActivity) holds syncActivityCount >= 1,
@@ -86,7 +90,18 @@ extension SyncCoordinator {
             logger.info("[Sync] State → .syncing(.messages)")
             await setState(.syncing(progress: SyncProgress(phase: .messages, current: 0, total: 0)))
             let messageStart = ContinuousClock.now
-            let messageCount = try await messagePollingService.pollAllMessages()
+            let messageCount: Int
+            let messageStatus: SyncPhaseStatus
+            do {
+                messageCount = try await messagePollingService.pollAllMessages()
+                messageStatus = .clean
+            } catch let error as CancellationError {
+                throw error
+            } catch {
+                messageCount = 0
+                messageStatus = .failed(error.localizedDescription)
+                logger.warning("[Sync] Message polling failed after contacts/channels: \(error.localizedDescription)")
+            }
             let messageElapsed = ContinuousClock.now - messageStart
             logger.info("[Sync] Phase end: messages - \(messageCount) polled in \(messageElapsed)")
 
@@ -109,6 +124,12 @@ extension SyncCoordinator {
 
             let elapsed = ContinuousClock.now - syncStart
             logger.info("[Sync] Complete: platform=\(platformName), messages=\(messageCount), duration=\(elapsed)")
+            return FullSyncResult(
+                contacts: contactChannelResult.contacts,
+                channels: contactChannelResult.channels,
+                messages: messageStatus,
+                channelRetryIndices: contactChannelResult.channelRetryIndices
+            )
         } catch let error as CancellationError {
             // Defensive: ensure activity count is decremented even if cancellation
             // occurs outside the contacts/channels error path.
@@ -157,7 +178,7 @@ extension SyncCoordinator {
         await services.messagePollingService.pauseAutoFetch()
 
         do {
-            try await performFullSync(
+            let result = try await performFullSync(
                 radioID: radioID,
                 dataStore: services.dataStore,
                 contactService: services.contactService,
@@ -177,8 +198,13 @@ extension SyncCoordinator {
             logger.info("[Sync] Resuming auto-fetch after resync")
             await services.messagePollingService.resumeAutoFetch()
 
-            logger.info("Resync succeeded")
-            return true
+            if result.isConnectionUsable {
+                logger.info("Resync succeeded")
+                return true
+            }
+
+            logger.warning("Resync completed without usable contacts")
+            return false
         } catch {
             await drainHandlersAndResumeNotifications(services: services, context: "resync failed")
             await services.messagePollingService.resumeAutoFetch()
@@ -206,19 +232,20 @@ extension SyncCoordinator {
     ///   - forceFullSync: When true, forces a full contact sync instead of incremental.
     ///   - channelSyncConfig: Channel sync skip configuration.
     ///   - platformName: Platform name for instrumentation logging.
+    @discardableResult
     public func onConnectionEstablished(
         radioID: UUID,
         services: ServiceContainer,
         forceFullSync: Bool = false,
         channelSyncConfig: ChannelSyncConfig = .none,
         platformName: String = "unknown"
-    ) async throws {
+    ) async throws -> FullSyncResult {
         logger.info("Connection established for device \(radioID)")
 
         // Prevent duplicate sync if already syncing (race condition during rapid auto-reconnect cycles)
         guard !isSyncInProgress else {
             logger.warning("onConnectionEstablished called while already syncing, ignoring duplicate")
-            return
+            return .skipped
         }
 
         // Suppress message notifications during sync to avoid flooding user on reconnect
@@ -253,7 +280,7 @@ extension SyncCoordinator {
             }
 
             // 4. Perform full sync
-            try await performFullSync(
+            let syncResult = try await performFullSync(
                 radioID: radioID,
                 dataStore: services.dataStore,
                 contactService: services.contactService,
@@ -281,6 +308,7 @@ extension SyncCoordinator {
             await services.messagePollingService.startAutoFetch(radioID: radioID)
 
             logger.info("Connection setup complete for device \(radioID)")
+            return syncResult
         } catch {
             // Drain pending message handlers and resume notifications
             await drainHandlersAndResumeNotifications(services: services, context: "sync failed")
@@ -341,8 +369,9 @@ extension SyncCoordinator {
         rxLogService: RxLogService?,
         forceFullSync: Bool,
         channelSyncSkipWindow: Duration = .zero,
-        lastCleanChannelSync: Date? = nil
-    ) async throws {
+        lastCleanChannelSync: Date? = nil,
+        lastAttemptedChannelSync: Date? = nil
+    ) async throws -> ContactChannelSyncResult {
         // Fetch device once for both contacts (lastContactSync) and channels (maxChannels)
         let device = try await dataStore.fetchDevice(radioID: radioID)
 
@@ -386,6 +415,8 @@ extension SyncCoordinator {
         }
 
         // Phase 2: Channels (foreground only)
+        var channelStatus: SyncPhaseStatus = .skipped
+        var channelRetryIndices: [UInt8] = []
         logger.debug("About to check foreground state, provider exists: \(appStateProvider != nil)")
         let shouldSyncChannels: Bool
         if let provider = appStateProvider {
@@ -400,40 +431,91 @@ extension SyncCoordinator {
         if shouldSyncChannels {
             let shouldSkipChannels: Bool = {
                 guard !forceFullSync,
-                      channelSyncSkipWindow > .zero,
-                      let lastSync = lastCleanChannelSync else { return false }
-                return Date().timeIntervalSince(lastSync) < Double(channelSyncSkipWindow.components.seconds)
+                      channelSyncSkipWindow > .zero else { return false }
+                let now = Date()
+                if let lastSync = lastCleanChannelSync,
+                   now.timeIntervalSince(lastSync) < Double(channelSyncSkipWindow.components.seconds) {
+                    return true
+                }
+                if let lastAttempt = lastAttemptedChannelSync,
+                   now.timeIntervalSince(lastAttempt) < Double(channelSyncSkipWindow.components.seconds) {
+                    return true
+                }
+                return false
             }()
 
             if shouldSkipChannels {
-                logger.info("[Sync] Skipping channel sync (clean sync completed recently)")
+                channelStatus = .skipped
+                logger.info("[Sync] Skipping channel sync (recent clean or attempted sync)")
             } else {
                 logger.info("[Sync] State → .syncing(.channels)")
                 await setState(.syncing(progress: SyncProgress(phase: .channels, current: 0, total: 0)))
                 let maxChannels = device?.maxChannels ?? 0
+                await onChannelSyncAttempted?(radioID)
 
                 let channelStart = ContinuousClock.now
-                let channelResult = try await channelService.syncChannels(radioID: radioID, maxChannels: maxChannels)
+                let channelResult: ChannelSyncResult
+                do {
+                    channelResult = try await channelService.syncChannels(radioID: radioID, maxChannels: maxChannels)
+                } catch let error as CancellationError {
+                    throw error
+                } catch {
+                    let channelElapsed = ContinuousClock.now - channelStart
+                    channelStatus = .partial
+                    logger.warning(
+                        "[Sync] Phase end: channels partial after thrown error in \(channelElapsed): \(error.localizedDescription)"
+                    )
+                    await logPostSyncChannelDiagnostics(radioID: radioID, dataStore: dataStore)
+                    if let rxLogService {
+                        await refreshRxLogChannels(radioID: radioID, dataStore: dataStore, rxLogService: rxLogService)
+                    }
+                    return ContactChannelSyncResult(
+                        contacts: .clean,
+                        channels: channelStatus,
+                        channelRetryIndices: channelRetryIndices
+                    )
+                }
                 let channelElapsed = ContinuousClock.now - channelStart
                 logger.info("[Sync] Phase end: channels - \(channelResult.channelsSynced) synced (device capacity: \(maxChannels)) in \(channelElapsed)")
 
                 var channelPhaseClean = channelResult.isComplete
                 let hasNonRetryableErrors = channelResult.errors.count > channelResult.retryableIndices.count
+                var remainingRetryableIndices = channelResult.retryableIndices
 
                 // Retry failed channels once if there are retryable errors
                 if !channelResult.isComplete {
                     let retryableIndices = channelResult.retryableIndices
                     if !retryableIndices.isEmpty {
                         logger.info("Retrying \(retryableIndices.count) failed channels")
-                        let retryResult = try await channelService.retryFailedChannels(
-                            radioID: radioID,
-                            indices: retryableIndices
-                        )
+                        let retryResult: ChannelSyncResult
+                        do {
+                            retryResult = try await channelService.retryFailedChannels(
+                                radioID: radioID,
+                                indices: retryableIndices
+                            )
+                        } catch let error as CancellationError {
+                            throw error
+                        } catch {
+                            logger.warning("Channel retry failed: \(error.localizedDescription)")
+                            channelPhaseClean = false
+                            remainingRetryableIndices = retryableIndices
+                            retryResult = ChannelSyncResult(
+                                channelsSynced: 0,
+                                errors: retryableIndices.map {
+                                    ChannelSyncError(
+                                        index: $0,
+                                        errorType: .timeout,
+                                        description: error.localizedDescription
+                                    )
+                                }
+                            )
+                        }
 
                         if retryResult.isComplete && !hasNonRetryableErrors {
                             logger.info("Retry recovered \(retryResult.channelsSynced) channels")
                             channelPhaseClean = true
                         } else {
+                            remainingRetryableIndices = retryResult.retryableIndices
                             if hasNonRetryableErrors {
                                 logger.warning("Channels have non-retryable errors, phase not clean")
                             }
@@ -444,7 +526,11 @@ extension SyncCoordinator {
                 }
 
                 if channelPhaseClean {
+                    channelStatus = .clean
                     await onCleanChannelSync?(radioID)
+                } else {
+                    channelStatus = .partial
+                    channelRetryIndices = remainingRetryableIndices
                 }
             }
 
@@ -453,8 +539,81 @@ extension SyncCoordinator {
                 await refreshRxLogChannels(radioID: radioID, dataStore: dataStore, rxLogService: rxLogService)
             }
         } else {
+            channelStatus = .skipped
             logger.info("Skipping channel sync (app in background)")
         }
+
+        return ContactChannelSyncResult(
+            contacts: .clean,
+            channels: channelStatus,
+            channelRetryIndices: channelRetryIndices
+        )
+    }
+
+    /// Retries only unresolved channel indices without replaying contacts/messages.
+    @discardableResult
+    public func retryChannels(
+        radioID: UUID,
+        channelService: some ChannelServiceProtocol,
+        indices: [UInt8]
+    ) async -> ChannelSyncResult {
+        guard !indices.isEmpty else {
+            return ChannelSyncResult(channelsSynced: 0, errors: [])
+        }
+
+        guard !isSyncInProgress else {
+            logger.info("Channel-only retry skipped because sync is already active")
+            return ChannelSyncResult(
+                channelsSynced: 0,
+                errors: indices.map {
+                    ChannelSyncError(
+                        index: $0,
+                        errorType: .circuitBreaker,
+                        description: "Skipped because sync is already active"
+                    )
+                }
+            )
+        }
+
+        isSyncInProgress = true
+        defer { isSyncInProgress = false }
+
+        logger.info("[Sync] State → .syncing(.channels) (channel-only retry)")
+        await setState(.syncing(progress: SyncProgress(phase: .channels, current: 0, total: indices.count)))
+        await onSyncActivityStarted?()
+        await onChannelSyncAttempted?(radioID)
+
+        let result: ChannelSyncResult
+        do {
+            result = try await channelService.retryFailedChannels(radioID: radioID, indices: indices)
+        } catch is CancellationError {
+            await onSyncActivityEnded?(false)
+            await setState(.idle)
+            return ChannelSyncResult(
+                channelsSynced: 0,
+                errors: indices.map {
+                    ChannelSyncError(index: $0, errorType: .transportError, description: "Retry cancelled")
+                }
+            )
+        } catch {
+            logger.warning("Channel-only retry failed: \(error.localizedDescription)")
+            await onSyncActivityEnded?(false)
+            await setState(.synced)
+            return ChannelSyncResult(
+                channelsSynced: 0,
+                errors: indices.map {
+                    ChannelSyncError(index: $0, errorType: .transportError, description: error.localizedDescription)
+                }
+            )
+        }
+
+        if result.isComplete {
+            await onCleanChannelSync?(radioID)
+        }
+
+        await onSyncActivityEnded?(result.isComplete)
+        await setState(.synced)
+        return result
     }
 
     /// Cancels the suppression watchdog, resumes notifications, then waits for pending

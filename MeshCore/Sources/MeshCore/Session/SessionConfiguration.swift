@@ -8,17 +8,29 @@ public struct SessionConfiguration: Sendable {
     /// The client identifier sent to the device during session startup.
     public let clientIdentifier: String
 
+    /// Maximum idle gap allowed between contact stream events.
+    public let contactStreamInactivityTimeout: TimeInterval
+
+    /// Maximum total duration allowed for a contact stream.
+    public let contactStreamHardTimeout: TimeInterval
+
     /// Initializes a new session configuration.
     ///
     /// - Parameters:
     ///   - defaultTimeout: The timeout for operations. Defaults to 5.0 seconds.
     ///   - clientIdentifier: The identifier for this client. Defaults to "MeshCore-Swift".
+    ///   - contactStreamInactivityTimeout: The idle timeout for contact list progress.
+    ///   - contactStreamHardTimeout: The total timeout for a contact list response.
     public init(
         defaultTimeout: TimeInterval = 5.0,
-        clientIdentifier: String = "MeshCore-Swift"
+        clientIdentifier: String = "MeshCore-Swift",
+        contactStreamInactivityTimeout: TimeInterval = 15.0,
+        contactStreamHardTimeout: TimeInterval = 180.0
     ) {
         self.defaultTimeout = defaultTimeout
         self.clientIdentifier = clientIdentifier
+        self.contactStreamInactivityTimeout = contactStreamInactivityTimeout
+        self.contactStreamHardTimeout = contactStreamHardTimeout
     }
 
     /// The default configuration instance.

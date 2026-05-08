@@ -82,4 +82,8 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
         capturedSignedMessageHandler = nil
         capturedCLIMessageHandler = nil
     }
+
+    public func setStubbedPollAllMessagesResult(_ result: Result<Int, Error>) {
+        stubbedPollAllMessagesResult = result
+    }
 }

@@ -47,6 +47,48 @@ public enum SyncPhase: Sendable, Equatable {
     case messages
 }
 
+/// Phase-level sync outcome.
+public enum SyncPhaseStatus: Sendable, Equatable {
+    case clean
+    case partial
+    case skipped
+    case failed(String)
+
+    public var isClean: Bool {
+        self == .clean
+    }
+}
+
+/// Structured result for an initial or full sync.
+public struct FullSyncResult: Sendable, Equatable {
+    public let contacts: SyncPhaseStatus
+    public let channels: SyncPhaseStatus
+    public let messages: SyncPhaseStatus
+    public let channelRetryIndices: [UInt8]
+
+    public var isConnectionUsable: Bool {
+        contacts == .clean
+    }
+
+    public init(
+        contacts: SyncPhaseStatus,
+        channels: SyncPhaseStatus,
+        messages: SyncPhaseStatus,
+        channelRetryIndices: [UInt8] = []
+    ) {
+        self.contacts = contacts
+        self.channels = channels
+        self.messages = messages
+        self.channelRetryIndices = channelRetryIndices
+    }
+
+    public static let skipped = FullSyncResult(
+        contacts: .skipped,
+        channels: .skipped,
+        messages: .skipped
+    )
+}
+
 /// Errors from SyncCoordinator operations
 public enum SyncCoordinatorError: Error, Sendable {
     case notConnected
@@ -114,16 +156,25 @@ public actor SyncCoordinator {
     /// Used by ConnectionManager to track clean channel completions for smart resync.
     var onCleanChannelSync: (@Sendable (_ radioID: UUID) async -> Void)?
 
+    /// Called when a channel sync attempt starts, clean or partial.
+    /// Used by ConnectionManager to cool down immediate channel retry loops.
+    var onChannelSyncAttempted: (@Sendable (_ radioID: UUID) async -> Void)?
+
     /// Sets the callback for clean channel sync completion.
     public func setCleanChannelSyncCallback(_ callback: @escaping @Sendable (_ radioID: UUID) async -> Void) {
         onCleanChannelSync = callback
+    }
+
+    /// Sets the callback for any channel sync attempt.
+    public func setChannelSyncAttemptedCallback(_ callback: @escaping @Sendable (_ radioID: UUID) async -> Void) {
+        onChannelSyncAttempted = callback
     }
 
     /// Callback when non-message sync activity starts
     var onSyncActivityStarted: (@Sendable () async -> Void)?
 
     /// Callback when non-message sync activity ends
-    private var onSyncActivityEnded: (@Sendable (_ succeeded: Bool) async -> Void)?
+    var onSyncActivityEnded: (@Sendable (_ succeeded: Bool) async -> Void)?
 
     /// Tracks whether onSyncActivityEnded has been called for the current sync cycle.
     /// Prevents double-callback when disconnect occurs mid-sync (both onDisconnected

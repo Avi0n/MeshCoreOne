@@ -252,6 +252,10 @@ public final class ConnectionManager {
     /// Survives transient disconnects; cleared on explicit disconnect or device change.
     var lastCleanChannelSync: (radioID: UUID, completedAt: Date)?
 
+    /// Records the last attempted channel sync, including partial/failed attempts.
+    /// Used to cool down immediate channel-only retry loops.
+    var lastAttemptedChannelSync: (radioID: UUID, attemptedAt: Date)?
+
     /// The user's connection intent. Replaces shouldBeConnected, userExplicitlyDisconnected, and pendingForceFullSync.
     var connectionIntent: ConnectionIntent = .none
 
@@ -384,6 +388,12 @@ public final class ConnectionManager {
 
     /// Task managing the resync retry loop
     var resyncTask: Task<Void, Never>?
+
+    /// Task managing delayed channel-only retry after a partial channel phase.
+    var channelRetryTask: Task<Void, Never>?
+
+    private static let maxChannelRetryAttempts = 2
+    private static let channelRetryInitialDelay: Duration = .seconds(2)
 
     /// Callback when resync fails after all attempts (triggers "Sync Failed" pill)
     /// Note: @Sendable @MainActor ensures safe cross-isolation callback
@@ -584,6 +594,11 @@ public final class ConnectionManager {
         resyncAttemptCount = 0
     }
 
+    func cancelChannelRetry() {
+        channelRetryTask?.cancel()
+        channelRetryTask = nil
+    }
+
     // MARK: - Initial Sync
 
     /// Performs initial sync with automatic resync loop on failure.
@@ -603,16 +618,31 @@ public final class ConnectionManager {
     ) async -> Bool {
         let channelSyncConfig = currentChannelSyncConfig(for: radioID, transportType: transportType)
         do {
-            try await withTimeout(.seconds(120), operationName: "performInitialSync") {
-                try await services.syncCoordinator.onConnectionEstablished(
+            let result = try await services.syncCoordinator.onConnectionEstablished(
+                radioID: radioID,
+                services: services,
+                forceFullSync: forceFullSync,
+                channelSyncConfig: channelSyncConfig,
+                platformName: "\(self.detectedPlatform)"
+            )
+
+            if !result.channelRetryIndices.isEmpty {
+                scheduleChannelOnlyRetry(
                     radioID: radioID,
                     services: services,
-                    forceFullSync: forceFullSync,
-                    channelSyncConfig: channelSyncConfig,
-                    platformName: "\(self.detectedPlatform)"
+                    indices: result.channelRetryIndices
                 )
             }
-            return true
+
+            if result.isConnectionUsable {
+                return true
+            }
+
+            guard connectionIntent.wantsConnection else { return false }
+            let prefix = context.isEmpty ? "" : "\(context): "
+            logger.warning("\(prefix)Initial sync did not produce usable contacts, starting resync loop")
+            startResyncLoop(radioID: radioID, services: services, transportType: transportType, forceFullSync: forceFullSync)
+            return false
         } catch {
             // Don't start resync if user disconnected while sync was in progress
             guard connectionIntent.wantsConnection else { return false }
@@ -660,21 +690,13 @@ public final class ConnectionManager {
                 logger.info("Resync attempt \(resyncAttemptCount)/\(Self.maxResyncAttempts)")
 
                 let channelSyncConfig = self.currentChannelSyncConfig(for: radioID, transportType: transportType)
-                let success: Bool
-                do {
-                    success = try await withTimeout(.seconds(60), operationName: "performResync") {
-                        await services.syncCoordinator.performResync(
-                            radioID: radioID,
-                            services: services,
-                            forceFullSync: forceFullSync,
-                            channelSyncConfig: channelSyncConfig,
-                            platformName: "\(self.detectedPlatform)"
-                        )
-                    }
-                } catch {
-                    logger.warning("Resync timed out: \(error.localizedDescription)")
-                    success = false
-                }
+                let success = await services.syncCoordinator.performResync(
+                    radioID: radioID,
+                    services: services,
+                    forceFullSync: forceFullSync,
+                    channelSyncConfig: channelSyncConfig,
+                    platformName: "\(self.detectedPlatform)"
+                )
 
                 if success {
                     logger.info("Resync succeeded")
@@ -749,6 +771,65 @@ public final class ConnectionManager {
             // would destroy the replacement.
             if !Task.isCancelled {
                 resyncTask = nil
+            }
+        }
+    }
+
+    /// Schedules a bounded channel-only retry after a partial channel phase.
+    /// This keeps contacts/messages out of the retry path when the connection is otherwise usable.
+    func scheduleChannelOnlyRetry(
+        radioID: UUID,
+        services: ServiceContainer,
+        indices: [UInt8]
+    ) {
+        let initialIndices = Array(Set(indices)).sorted()
+        guard !initialIndices.isEmpty else { return }
+
+        channelRetryTask?.cancel()
+
+        channelRetryTask = Task {
+            var pendingIndices = initialIndices
+
+            for attempt in 1...Self.maxChannelRetryAttempts {
+                guard !Task.isCancelled else { break }
+
+                let delaySeconds = 2 << (attempt - 1)
+                let delay = max(Self.channelRetryInitialDelay, .seconds(delaySeconds))
+                do {
+                    try await Task.sleep(for: delay)
+                } catch {
+                    break
+                }
+
+                guard connectionIntent.wantsConnection,
+                      connectionState.isOperational,
+                      self.services === services else { break }
+
+                logger.info("Channel-only retry \(attempt)/\(Self.maxChannelRetryAttempts) for \(pendingIndices.count) channel(s)")
+                let result = await services.syncCoordinator.retryChannels(
+                    radioID: radioID,
+                    channelService: services.channelService,
+                    indices: pendingIndices
+                )
+
+                if result.isComplete {
+                    logger.info("Channel-only retry recovered all pending channels")
+                    pendingIndices = []
+                    break
+                }
+
+                pendingIndices = result.retryableIndices
+                guard !pendingIndices.isEmpty else {
+                    logger.warning("Channel-only retry stopped with non-retryable channel errors")
+                    break
+                }
+            }
+
+            if !Task.isCancelled {
+                if !pendingIndices.isEmpty {
+                    logger.warning("Channel-only retry exhausted with \(pendingIndices.count) retryable channel(s) still pending")
+                }
+                channelRetryTask = nil
             }
         }
     }
@@ -945,6 +1026,11 @@ public final class ConnectionManager {
                 self?.lastCleanChannelSync = (radioID: radioID, completedAt: Date())
             }
         }
+        await services.syncCoordinator.setChannelSyncAttemptedCallback { [weak self] radioID in
+            await MainActor.run {
+                self?.lastAttemptedChannelSync = (radioID: radioID, attemptedAt: Date())
+            }
+        }
     }
 
     // MARK: - Connection Ceremony
@@ -1021,12 +1107,13 @@ public final class ConnectionManager {
     // MARK: - Channel Sync Configuration
 
     /// Builds a channel sync config for the current device and transport.
-    /// WiFi connections skip channel-sync gating; BLE connections use platform-specific values.
-    private func currentChannelSyncConfig(for radioID: UUID, transportType: TransportType) -> ChannelSyncConfig {
-        guard transportType != .wifi else { return .none }
+    /// BLE and WiFi both use platform-specific values because ESP32 radios can saturate either transport.
+    func currentChannelSyncConfig(for radioID: UUID, transportType _: TransportType) -> ChannelSyncConfig {
         return detectedPlatform.channelSyncConfig(
             lastCleanChannelSync: lastCleanChannelSync?.radioID == radioID
-                ? lastCleanChannelSync?.completedAt : nil
+                ? lastCleanChannelSync?.completedAt : nil,
+            lastAttemptedChannelSync: lastAttemptedChannelSync?.radioID == radioID
+                ? lastAttemptedChannelSync?.attemptedAt : nil
         )
     }
 
@@ -1355,7 +1442,10 @@ public final class ConnectionManager {
         connectionIntent: ConnectionIntent? = nil,
         connectingDeviceID: UUID?? = nil,
         sessionRebuildDeviceID: UUID?? = nil,
-        isPairingInProgress: Bool? = nil
+        isPairingInProgress: Bool? = nil,
+        detectedPlatform: DevicePlatform? = nil,
+        lastCleanChannelSync: (radioID: UUID, completedAt: Date)?? = nil,
+        lastAttemptedChannelSync: (radioID: UUID, attemptedAt: Date)?? = nil
     ) {
         suppressInvariantChecks = true
         defer { suppressInvariantChecks = false }
@@ -1386,6 +1476,15 @@ public final class ConnectionManager {
         }
         if let pairing = isPairingInProgress {
             self.isPairingInProgress = pairing
+        }
+        if let platform = detectedPlatform {
+            self.detectedPlatform = platform
+        }
+        if let cleanSync = lastCleanChannelSync {
+            self.lastCleanChannelSync = cleanSync
+        }
+        if let attemptedSync = lastAttemptedChannelSync {
+            self.lastAttemptedChannelSync = attemptedSync
         }
     }
     #endif

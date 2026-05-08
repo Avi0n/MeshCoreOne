@@ -9,12 +9,17 @@ public struct ChannelSyncConfig: Sendable {
     /// Timestamp of the last fully-clean channel sync for the current device.
     public let lastCleanChannelSync: Date?
 
+    /// Timestamp of the last attempted channel sync, even if it was partial.
+    public let lastAttemptedChannelSync: Date?
+
     public init(
         channelSyncSkipWindow: Duration = .zero,
-        lastCleanChannelSync: Date? = nil
+        lastCleanChannelSync: Date? = nil,
+        lastAttemptedChannelSync: Date? = nil
     ) {
         self.channelSyncSkipWindow = channelSyncSkipWindow
         self.lastCleanChannelSync = lastCleanChannelSync
+        self.lastAttemptedChannelSync = lastAttemptedChannelSync
     }
 
     /// No skip — used for WiFi connections.

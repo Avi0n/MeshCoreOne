@@ -223,6 +223,82 @@ struct MeshCoreSessionCommandCorrelationTests {
         await session.stop()
     }
 
+    @Test("getContacts succeeds when slow stream keeps making progress")
+    func getContactsSucceedsWhenSlowStreamKeepsMakingProgress() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(
+                defaultTimeout: 0.2,
+                clientIdentifier: "MCTst",
+                contactStreamInactivityTimeout: 0.12,
+                contactStreamHardTimeout: 1.0
+            )
+        )
+
+        try await startSession(session, transport: transport)
+
+        let contactsTask = Task {
+            try await session.getContacts()
+        }
+
+        try await waitUntil("getContacts should be sent") {
+            await transport.sentData.count == 2
+        }
+
+        await transport.simulateReceive(makeContactsStartPacket(count: 3))
+        for index in 0..<3 {
+            try await Task.sleep(for: .milliseconds(70))
+            await transport.simulateReceive(
+                makeContactPacket(publicKey: Data(repeating: UInt8(index + 1), count: 32), name: "Node \(index)")
+            )
+        }
+        try await Task.sleep(for: .milliseconds(70))
+        await transport.simulateReceive(makeContactsEndPacket(lastModified: 1_704_067_200))
+
+        let contacts = try await contactsTask.value
+        #expect(contacts.count == 3)
+        await session.stop()
+    }
+
+    @Test("getContacts times out after inactivity before contactsEnd")
+    func getContactsTimesOutAfterInactivityBeforeEnd() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(
+                defaultTimeout: 0.2,
+                clientIdentifier: "MCTst",
+                contactStreamInactivityTimeout: 0.08,
+                contactStreamHardTimeout: 1.0
+            )
+        )
+
+        try await startSession(session, transport: transport)
+
+        let contactsTask = Task {
+            try await session.getContacts()
+        }
+
+        try await waitUntil("getContacts should be sent") {
+            await transport.sentData.count == 2
+        }
+
+        await transport.simulateReceive(makeContactsStartPacket(count: 1))
+        try await Task.sleep(for: .milliseconds(140))
+
+        let error = await #expect(throws: MeshCoreError.self) {
+            try await contactsTask.value
+        }
+        guard case .timeout? = error else {
+            Issue.record("Expected timeout after contact stream inactivity, got \(String(describing: error))")
+            await session.stop()
+            return
+        }
+
+        await session.stop()
+    }
+
     @Test("getContact ignores responses for other public keys")
     func getContactIgnoresResponsesForOtherPublicKeys() async throws {
         let transport = MockTransport()
@@ -830,6 +906,18 @@ private func makeChannelInfoPacket(index: UInt8, name: String, secret: Data) -> 
         packet.append(Data(repeating: 0, count: 31 - nameBytes.count))
     }
     packet.append(secret)
+    return packet
+}
+
+private func makeContactsStartPacket(count: UInt32) -> Data {
+    var packet = Data([ResponseCode.contactStart.rawValue])
+    packet.append(contentsOf: withUnsafeBytes(of: count.littleEndian) { Array($0) })
+    return packet
+}
+
+private func makeContactsEndPacket(lastModified: UInt32) -> Data {
+    var packet = Data([ResponseCode.contactEnd.rawValue])
+    packet.append(contentsOf: withUnsafeBytes(of: lastModified.littleEndian) { Array($0) })
     return packet
 }
 

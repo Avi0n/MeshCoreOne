@@ -123,6 +123,69 @@ struct SyncCoordinatorTests {
         #expect(endedTracker.wasCalled, "onSyncActivityEnded should have been called")
     }
 
+    @Test("Channel phase failure is partial and keeps connection usable")
+    @MainActor
+    func channelFailureIsPartialAndConnectionUsable() async throws {
+        let coordinator = SyncCoordinator()
+        let mockContactService = MockContactService()
+        let mockChannelService = MockChannelService()
+        let mockMessagePollingService = MockMessagePollingService()
+        let testDeviceID = UUID()
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
+
+        await mockChannelService.setStubbedSyncChannelsResult(.failure(
+            ChannelServiceError.circuitBreakerOpen(consecutiveFailures: 3)
+        ))
+
+        let result = try await coordinator.performFullSync(
+            radioID: testDeviceID,
+            dataStore: dataStore,
+            contactService: mockContactService,
+            channelService: mockChannelService,
+            messagePollingService: mockMessagePollingService
+        )
+
+        #expect(result.contacts == .clean)
+        #expect(result.channels == .partial)
+        #expect(result.messages == .clean)
+        #expect(result.isConnectionUsable)
+        #expect(coordinator.state == .synced)
+        #expect(await mockMessagePollingService.pollAllMessagesCallCount == 1)
+    }
+
+    @Test("Message polling failure does not fail contacts and channels")
+    @MainActor
+    func messagePollingFailureDoesNotFailContactsAndChannels() async throws {
+        let coordinator = SyncCoordinator()
+        let mockContactService = MockContactService()
+        let mockChannelService = MockChannelService()
+        let mockMessagePollingService = MockMessagePollingService()
+        let testDeviceID = UUID()
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
+
+        await mockMessagePollingService.setStubbedPollAllMessagesResult(.failure(
+            SyncCoordinatorError.syncFailed("messages saturated")
+        ))
+
+        let result = try await coordinator.performFullSync(
+            radioID: testDeviceID,
+            dataStore: dataStore,
+            contactService: mockContactService,
+            channelService: mockChannelService,
+            messagePollingService: mockMessagePollingService
+        )
+
+        #expect(result.contacts == .clean)
+        #expect(result.channels == .clean)
+        guard case .failed(let reason) = result.messages else {
+            Issue.record("Expected failed message phase, got \(result.messages)")
+            return
+        }
+        #expect(reason.localizedStandardContains("messages saturated"))
+        #expect(result.isConnectionUsable)
+        #expect(coordinator.state == .synced)
+    }
+
     @Test("Sync activity callbacks not double called on error")
     @MainActor
     func syncActivityCallbacksNotDoubleCalledOnError() async throws {

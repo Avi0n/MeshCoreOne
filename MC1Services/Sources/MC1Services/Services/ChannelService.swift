@@ -43,6 +43,9 @@ public struct ChannelSyncError: Sendable, Equatable {
 
     public enum ErrorType: Sendable, Equatable {
         case timeout
+        case sendTimeout
+        case transportError
+        case circuitBreaker
         case deviceError(code: UInt8)
         case databaseError
         case unknown
@@ -57,9 +60,18 @@ public struct ChannelSyncError: Sendable, Equatable {
     /// Whether this error type is potentially recoverable with retry
     public var isRetryable: Bool {
         switch errorType {
-        case .timeout:
+        case .timeout, .sendTimeout:
             return true
-        case .deviceError, .databaseError, .unknown:
+        case .transportError, .circuitBreaker, .deviceError, .databaseError, .unknown:
+            return false
+        }
+    }
+
+    var countsTowardCircuitBreaker: Bool {
+        switch errorType {
+        case .timeout, .sendTimeout, .transportError:
+            return true
+        case .circuitBreaker, .deviceError, .databaseError, .unknown:
             return false
         }
     }
@@ -73,6 +85,18 @@ public struct ChannelSyncResult: Sendable, Equatable {
 
     /// Whether sync completed without errors
     public var isComplete: Bool { errors.isEmpty }
+
+    public var requestTimeoutCount: Int {
+        errors.filter { $0.errorType == .timeout }.count
+    }
+
+    public var sendTimeoutCount: Int {
+        errors.filter { $0.errorType == .sendTimeout }.count
+    }
+
+    public var circuitBreakerAborted: Bool {
+        errors.contains { $0.errorType == .circuitBreaker }
+    }
 
     /// Indices of channels that failed with retryable errors
     public var retryableIndices: [UInt8] {
@@ -181,11 +205,11 @@ public actor ChannelService {
                 for remaining in index..<maxChannels {
                     syncErrors.append(ChannelSyncError(
                         index: remaining,
-                        errorType: .timeout,
+                        errorType: .circuitBreaker,
                         description: "Skipped due to circuit breaker"
                     ))
                 }
-                throw ChannelServiceError.circuitBreakerOpen(consecutiveFailures: consecutiveTimeouts)
+                break
             }
 
             do {
@@ -210,18 +234,19 @@ public actor ChannelService {
                     }
                 }
             } catch let error as ChannelServiceError {
-                // Track consecutive timeouts for circuit breaker
-                if case .sessionError(let meshError) = error, case .timeout = meshError {
-                    consecutiveTimeouts += 1
-                } else {
-                    consecutiveTimeouts = 0
-                }
                 let syncError = classifyError(error, forIndex: index)
+                consecutiveTimeouts = nextConsecutiveFailureCount(
+                    after: syncError,
+                    currentCount: consecutiveTimeouts
+                )
                 logger.warning("Failed to sync channel \(index): \(syncError.description)")
                 syncErrors.append(syncError)
             } catch {
-                consecutiveTimeouts = 0
                 let syncError = classifyError(error, forIndex: index)
+                consecutiveTimeouts = nextConsecutiveFailureCount(
+                    after: syncError,
+                    currentCount: consecutiveTimeouts
+                )
                 logger.warning("Failed to sync channel \(index): \(syncError.description)")
                 syncErrors.append(syncError)
             }
@@ -294,7 +319,7 @@ public actor ChannelService {
                 for remaining in remainingIndices {
                     syncErrors.append(ChannelSyncError(
                         index: remaining,
-                        errorType: .timeout,
+                        errorType: .circuitBreaker,
                         description: "Skipped due to retry circuit breaker"
                     ))
                 }
@@ -316,12 +341,10 @@ public actor ChannelService {
                 }
             } catch {
                 let syncError = classifyError(error, forIndex: index)
-                // Track consecutive timeouts for circuit breaker
-                if case .timeout = syncError.errorType {
-                    consecutiveTimeouts += 1
-                } else {
-                    consecutiveTimeouts = 0
-                }
+                consecutiveTimeouts = nextConsecutiveFailureCount(
+                    after: syncError,
+                    currentCount: consecutiveTimeouts
+                )
                 logger.warning("Retry failed for channel \(index): \(syncError.description)")
                 syncErrors.append(syncError)
             }
@@ -583,6 +606,12 @@ public actor ChannelService {
     private func classifyError(_ error: Error, forIndex index: UInt8) -> ChannelSyncError {
         if let channelError = error as? ChannelServiceError {
             switch channelError {
+            case .circuitBreakerOpen:
+                return ChannelSyncError(
+                    index: index,
+                    errorType: .circuitBreaker,
+                    description: channelError.localizedDescription
+                )
             case .sessionError(let meshError):
                 switch meshError {
                 case .timeout:
@@ -619,11 +648,58 @@ public actor ChannelService {
             }
         }
 
+        if let transportError = error as? WiFiTransportError {
+            switch transportError {
+            case .sendTimeout:
+                return ChannelSyncError(
+                    index: index,
+                    errorType: .sendTimeout,
+                    description: "Send timed out"
+                )
+            case .notConnected, .connectionFailed, .connectionTimeout, .sendFailed:
+                return ChannelSyncError(
+                    index: index,
+                    errorType: .transportError,
+                    description: transportError.localizedDescription
+                )
+            case .invalidHost, .invalidPort, .notConfigured:
+                return ChannelSyncError(
+                    index: index,
+                    errorType: .unknown,
+                    description: transportError.localizedDescription
+                )
+            }
+        }
+
+        if let transportError = error as? MeshTransportError {
+            switch transportError {
+            case .sendFailed:
+                return ChannelSyncError(
+                    index: index,
+                    errorType: .transportError,
+                    description: transportError.localizedDescription
+                )
+            case .notConnected, .connectionFailed, .deviceNotFound, .serviceNotFound, .characteristicNotFound:
+                return ChannelSyncError(
+                    index: index,
+                    errorType: .transportError,
+                    description: transportError.localizedDescription
+                )
+            }
+        }
+
         return ChannelSyncError(
             index: index,
             errorType: .unknown,
             description: error.localizedDescription
         )
+    }
+
+    private func nextConsecutiveFailureCount(
+        after error: ChannelSyncError,
+        currentCount: Int
+    ) -> Int {
+        error.countsTowardCircuitBreaker ? currentCount + 1 : 0
     }
 
 }

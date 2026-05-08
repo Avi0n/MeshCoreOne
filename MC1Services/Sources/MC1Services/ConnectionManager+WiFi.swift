@@ -23,16 +23,29 @@ extension ConnectionManager {
                       self.connectionState.isOperational,
                       let session = self.session else { break }
 
+                if self.shouldPauseWiFiHeartbeatProbe {
+                    self.logger.info("WiFi heartbeat skipped while sync activity is active")
+                    continue
+                }
+
                 // Probe connection with lightweight command
                 do {
                     _ = try await session.getTime()
                 } catch {
+                    if self.shouldPauseWiFiHeartbeatProbe {
+                        self.logger.info("WiFi heartbeat timeout during sync activity treated as inconclusive")
+                        continue
+                    }
                     self.logger.warning("WiFi heartbeat failed: \(error.localizedDescription)")
                     await self.handleWiFiDisconnection(error: error)
                     break
                 }
             }
         }
+    }
+
+    var shouldPauseWiFiHeartbeatProbe: Bool {
+        connectionState == .syncing || resyncTask != nil || channelRetryTask != nil
     }
 
     /// Stops the WiFi heartbeat loop
@@ -68,6 +81,7 @@ extension ConnectionManager {
         stopWiFiHeartbeat()
 
         cancelResyncLoop()
+        cancelChannelRetry()
 
         // Mark room sessions disconnected before tearing down services
         let remoteNodeService = services?.remoteNodeService
@@ -222,7 +236,9 @@ extension ConnectionManager {
         guard await promoteToReady(syncSucceeded: syncSucceeded, expectedServices: newServices, transportType: .wifi) else { return }
 
         stopReconnectionWatchdog()
-        startWiFiHeartbeat()
+        if connectionState == .ready {
+            startWiFiHeartbeat()
+        }
     }
 
     // MARK: - WiFi Connection Health
@@ -334,7 +350,9 @@ extension ConnectionManager {
             guard await promoteToReady(syncSucceeded: syncSucceeded, expectedServices: newServices, transportType: .wifi) else { return }
 
             stopReconnectionWatchdog()
-            startWiFiHeartbeat()
+            if connectionState == .ready {
+                startWiFiHeartbeat()
+            }
             logger.info("WiFi connection complete - device ready")
 
         } catch {
