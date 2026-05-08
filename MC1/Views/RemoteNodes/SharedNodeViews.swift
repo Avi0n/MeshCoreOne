@@ -700,7 +700,7 @@ struct NodeActionsSection: View {
 
             if let error = settings.errorMessage {
                 Text(error)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.primary)
                     .font(.caption)
             }
         }
