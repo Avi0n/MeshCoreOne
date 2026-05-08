@@ -125,6 +125,7 @@ final class NodeSettingsHelper {
     var identityApplySuccess = false
     var contactInfoApplySuccess = false
     var changePasswordSuccess = false
+    var isSendingAdvert = false
 
     // MARK: - Service Closures
 
@@ -524,6 +525,8 @@ final class NodeSettingsHelper {
     }
 
     func forceAdvert() async {
+        isSendingAdvert = true
+        defer { isSendingAdvert = false }
         do {
             _ = try await sendAndWait("advert")
             successMessage = L10n.RemoteNodes.RemoteNodes.Settings.advertSent

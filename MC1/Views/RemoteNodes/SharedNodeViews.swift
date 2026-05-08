@@ -659,9 +659,18 @@ struct NodeActionsSection: View {
 
     var body: some View {
         Section(L10n.RemoteNodes.RemoteNodes.Settings.deviceActions) {
-            Button(L10n.RemoteNodes.RemoteNodes.Settings.sendAdvert) {
+            Button {
                 Task { await settings.forceAdvert() }
+            } label: {
+                HStack {
+                    Text(L10n.RemoteNodes.RemoteNodes.Settings.sendAdvert)
+                    if settings.isSendingAdvert {
+                        Spacer()
+                        ProgressView()
+                    }
+                }
             }
+            .disabled(settings.isSendingAdvert)
 
             Button(L10n.RemoteNodes.RemoteNodes.Settings.syncTime) {
                 Task { await settings.syncTime() }
