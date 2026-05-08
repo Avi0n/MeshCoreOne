@@ -195,9 +195,9 @@ final class TracePathViewModel {
         Array(fullPathData)
     }
 
-    /// Current hash size from device configuration (1, 2, or 3 bytes per hop)
+    /// Trace hash size from device configuration (1, 2, or 4 bytes per hop)
     var hashSize: Int {
-        appState?.connectedDevice?.hashSize ?? 1
+        appState?.connectedDevice?.traceHashSize ?? 1
     }
 
     /// Comma-separated path string for display/copy, chunked by hash size
