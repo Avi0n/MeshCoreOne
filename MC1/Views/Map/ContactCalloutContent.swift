@@ -4,6 +4,7 @@ import MC1Services
 /// SwiftUI content displayed in a popover callout when a map pin is tapped
 struct ContactCalloutContent: View {
     @Environment(\.appState) private var appState
+    @Environment(\.dismiss) private var dismiss
     let contact: ContactDTO
     let onDetail: () -> Void
     let onMessage: () -> Void
@@ -34,10 +35,15 @@ struct ContactCalloutContent: View {
                     .buttonStyle(.bordered)
                     .accessibilityHint(contact.displayName)
 
-                if contact.type == .chat || contact.type == .room {
-                    Button(L10n.Map.Map.Callout.message, systemImage: "message.fill", action: onMessage)
-                        .buttonStyle(.bordered)
-                        .accessibilityHint(contact.displayName)
+                if contact.type == .chat {
+                    Button {
+                        dismiss()
+                        onMessage()
+                    } label: {
+                        Label(L10n.Map.Map.Callout.message, systemImage: "message.fill")
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityHint(contact.displayName)
                 }
             }
             .frame(maxWidth: .infinity)
