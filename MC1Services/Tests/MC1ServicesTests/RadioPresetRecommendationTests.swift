@@ -60,6 +60,12 @@ struct RadioPresetRecommendationTests {
         #expect(RadioPresets.recommended(for: region)?.id == "pt-868")
     }
 
+    @Test("Vietnam → vn-narrow (priority 110 beats deprecated vn)")
+    func vietnamGetsVNNarrow() {
+        let region = RegionSelection(countryCode: "VN", source: .location)
+        #expect(RadioPresets.recommended(for: region)?.id == "vn-narrow")
+    }
+
     // MARK: - Tier 3 (continent)
 
     @Test("Berlin (DE) → eu-narrow (priority 110 beats eu-lr)")
@@ -103,5 +109,13 @@ struct RadioPresetRecommendationTests {
         #expect(ids.contains("pt-868"))
         #expect(ids.contains("pt-433"))
         #expect(!ids.contains("eu-narrow"))
+    }
+
+    @Test("presets(for: VN) includes both vn-narrow and vn")
+    func presetsForVNIncludesBoth() {
+        let region = RegionSelection(countryCode: "VN", source: .location)
+        let ids = RadioPresets.presets(for: region).map(\.id)
+        #expect(ids.contains("vn-narrow"))
+        #expect(ids.contains("vn"))
     }
 }
