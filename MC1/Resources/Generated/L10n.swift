@@ -2420,8 +2420,8 @@ public enum L10n {
     public enum Preset {
       /// Location: PresetStepView.swift - Generic Continue label used when no preset is selected
       public static let `continue` = L10n.tr("Onboarding", "preset.continue", fallback: "Continue")
-      /// Location: PresetStepView.swift - "Recommended" tag
-      public static let recommendedTag = L10n.tr("Onboarding", "preset.recommendedTag", fallback: "Recommended")
+      /// Location: PresetStepView.swift - Footer help line pointing users to the MeshCore Discord
+      public static let discordHelp = L10n.tr("Onboarding", "preset.discordHelp", fallback: "Not sure which preset to pick? Join the official MeshCore Discord and ask! [https://meshcore.gg](https://meshcore.gg)")
       /// Location: PresetStepView.swift - Title
       public static let title = L10n.tr("Onboarding", "preset.title", fallback: "Pick a preset")
       /// Location: PresetStepView.swift - Apply CTA "Use %@"

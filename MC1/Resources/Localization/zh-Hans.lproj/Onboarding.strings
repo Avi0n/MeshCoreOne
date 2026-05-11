@@ -196,8 +196,8 @@
 /* Location: PresetStepView.swift - Subtitle for empty-region fallback */
 "preset.subtitle.locale" = "为您的无线电选择预设。";
 
-/* Location: PresetStepView.swift - "Recommended" tag */
-"preset.recommendedTag" = "推荐";
+/* Location: PresetStepView.swift - Footer help line pointing users to the MeshCore Discord */
+"preset.discordHelp" = "Not sure which preset to pick? Join the official MeshCore Discord and ask! [https://meshcore.gg](https://meshcore.gg)";
 
 /* Location: PresetStepView.swift - Apply CTA "Use %@" */
 "preset.use" = "使用 %@";

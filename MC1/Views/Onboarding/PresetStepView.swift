@@ -27,6 +27,15 @@ struct PresetStepView: View {
         return presets.sorted { $0.name < $1.name }
     }
 
+    private var visiblePresets: [RadioPreset] {
+        var result: [RadioPreset] = []
+        if let recommended {
+            result.append(recommended)
+        }
+        result.append(contentsOf: alternatives.filter { $0.id != recommended?.id })
+        return result
+    }
+
     private var currentDevicePreset: RadioPreset? {
         guard let device = appState.connectedDevice else { return nil }
         return RadioPresets.matchingPreset(
@@ -126,11 +135,18 @@ struct PresetStepView: View {
 
             ScrollView {
                 VStack(spacing: OnboardingMetrics.mediumSpacing) {
-                    if let recommended {
-                        prominentCard(recommended)
-                    }
-                    ForEach(alternatives.filter { $0.id != recommended?.id }) { preset in
+                    ForEach(visiblePresets) { preset in
                         rowCard(preset)
+                    }
+                    if visiblePresets.count > 1 {
+                        Text(
+                            (try? AttributedString(markdown: L10n.Onboarding.Preset.discordHelp))
+                                ?? AttributedString(L10n.Onboarding.Preset.discordHelp)
+                        )
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, OnboardingMetrics.mediumSpacing)
                     }
                 }
                 .padding(.horizontal)
@@ -160,42 +176,6 @@ struct PresetStepView: View {
             return L10n.Onboarding.Preset.continue
         }
         return L10n.Onboarding.Preset.use(preset.name)
-    }
-
-    private func prominentCard(_ preset: RadioPreset) -> some View {
-        Button {
-            selectedID = preset.id
-        } label: {
-            VStack(alignment: .leading, spacing: OnboardingMetrics.titleStackSpacing) {
-                HStack {
-                    Text(L10n.Onboarding.Preset.recommendedTag)
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.tint)
-                    Spacer()
-                    if selectedID == preset.id {
-                        Image(systemName: "checkmark")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.tint)
-                    }
-                }
-                Text(preset.name)
-                    .font(.title3.weight(.semibold))
-                Text("\(preset.frequencyMHz, format: .number.precision(.fractionLength(3)).locale(.posix)) MHz · SF\(preset.spreadingFactor)")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            .padding(OnboardingMetrics.contentPadding)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .liquidGlass(in: .rect(cornerRadius: OnboardingMetrics.cardCornerRadius))
-            .overlay(
-                RoundedRectangle(cornerRadius: OnboardingMetrics.cardCornerRadius)
-                    .strokeBorder(selectedID == preset.id ? Color.accentColor : .clear, lineWidth: 2)
-            )
-            .contentShape(.rect(cornerRadius: OnboardingMetrics.cardCornerRadius))
-        }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
-        .accessibilityHint(L10n.Onboarding.Preset.Row.accessibilityHint)
     }
 
     private func rowCard(_ preset: RadioPreset) -> some View {

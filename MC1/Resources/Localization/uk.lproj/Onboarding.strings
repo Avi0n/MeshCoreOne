@@ -199,8 +199,8 @@
 /* Location: PresetStepView.swift - Subtitle for empty-region fallback */
 "preset.subtitle.locale" = "Виберіть пресет для вашого радіо.";
 
-/* Location: PresetStepView.swift - "Recommended" tag */
-"preset.recommendedTag" = "Рекомендовано";
+/* Location: PresetStepView.swift - Footer help line pointing users to the MeshCore Discord */
+"preset.discordHelp" = "Not sure which preset to pick? Join the official MeshCore Discord and ask! [https://meshcore.gg](https://meshcore.gg)";
 
 /* Location: PresetStepView.swift - Apply CTA "Use %@" */
 "preset.use" = "Використати %@";
