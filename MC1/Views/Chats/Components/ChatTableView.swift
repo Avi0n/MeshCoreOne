@@ -15,6 +15,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     private struct SnapshotApplyRequest {
         var snapshot: NSDiffableDataSourceSnapshot<Section, Item.ID>
         var animatingDifferences: Bool
+        var completion: (() -> Void)?
     }
 
     // MARK: - Properties
@@ -41,11 +42,16 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     /// Callback when scroll state changes
     var onScrollStateChanged: ((Bool, Int) -> Void)?
 
-    /// Callback when user scrolls near the top (oldest messages)
-    var onNearTop: (() -> Void)?
+    /// Callback when user scrolls near the top (oldest messages). The closure receives a release
+    /// callback the consumer must invoke when pagination work completes (success OR short-circuit)
+    /// so the request latch clears even when the view model's isLoadingOlder never visibly flips.
+    var onNearTop: ((@escaping @MainActor () -> Void) -> Void)?
 
     /// Whether pagination is in progress (skip auto-scroll during pagination)
     var isLoadingOlderMessages = false
+
+    /// Suppresses duplicate onNearTop fires while the view model's isLoadingOlder propagates back through SwiftUI
+    private var isNearTopRequestInFlight = false
 
     /// Callback when a mention becomes visible
     var onMentionBecameVisible: ((Item.ID) -> Void)?
@@ -75,6 +81,11 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     private var pendingScrollTask: Task<Void, Never>?
     private var isUserInteracting = false
     private var isScrollingToTarget = false
+    /// Set when an auto-scroll-to-bottom was suppressed because the user was interacting;
+    /// fired on drag end so messages arriving mid-drag aren't silently dropped
+    private(set) var deferredScrollToBottomPending = false
+    /// Count of messages deferred while user is interacting; counted as unread if they release scrolled away
+    private(set) var deferredScrollMessageCount = 0
 
     // MARK: - Lifecycle
 
@@ -211,9 +222,14 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     private func applySnapshot(
         _ snapshot: NSDiffableDataSourceSnapshot<Section, Item.ID>,
-        animatingDifferences: Bool
+        animatingDifferences: Bool,
+        completion: (() -> Void)? = nil
     ) {
-        let request = SnapshotApplyRequest(snapshot: snapshot, animatingDifferences: animatingDifferences)
+        let request = SnapshotApplyRequest(
+            snapshot: snapshot,
+            animatingDifferences: animatingDifferences,
+            completion: completion
+        )
 
         if isApplyingSnapshot {
             pendingSnapshotApplies.append(request)
@@ -236,11 +252,13 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         if shouldAnimate {
             dataSource.apply(request.snapshot, animatingDifferences: true) { [weak self] in
                 Task { @MainActor [weak self] in
+                    request.completion?()
                     self?.drainSnapshotQueue()
                 }
             }
         } else {
             dataSource.apply(request.snapshot, animatingDifferences: false)
+            request.completion?()
             drainSnapshotQueue()
         }
     }
@@ -252,6 +270,40 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         applySnapshotRequest(nextRequest)
     }
 
+    private struct PrependAnchor {
+        let itemID: Item.ID
+        /// rect.minY - contentOffset.y at capture time (viewport-relative position)
+        let distanceFromContentOffset: CGFloat
+    }
+
+    private func capturePrependAnchor(in oldItems: [Item]) -> PrependAnchor? {
+        guard let visibleRows = tableView.indexPathsForVisibleRows, !visibleRows.isEmpty else {
+            return nil
+        }
+        let midIndexPath = visibleRows[visibleRows.count / 2]
+        let chronologicalIndex = oldItems.count - 1 - midIndexPath.row
+        guard chronologicalIndex >= 0, chronologicalIndex < oldItems.count else { return nil }
+        let rect = tableView.rectForRow(at: midIndexPath)
+        return PrependAnchor(
+            itemID: oldItems[chronologicalIndex].id,
+            distanceFromContentOffset: rect.minY - tableView.contentOffset.y
+        )
+    }
+
+    private func restorePrependAnchor(_ anchor: PrependAnchor) {
+        // Read the row from the data source's current snapshot, not the controller's mutable items,
+        // because a newer updateItems call may have overwritten items/itemIndexByID while the
+        // queued prepend apply (whose completion fires here) was waiting to drain.
+        guard let dataSource,
+              let indexPath = dataSource.indexPath(for: anchor.itemID) else { return }
+        tableView.layoutIfNeeded()
+        let newRect = tableView.rectForRow(at: indexPath)
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        tableView.contentOffset.y = newRect.minY - anchor.distanceFromContentOffset
+        CATransaction.commit()
+    }
+
     func updateItems(_ newItems: [Item], animated: Bool = true) {
         let previousCount = items.count
         let wasAtBottom = isAtBottom
@@ -261,6 +313,14 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         // Build O(1) lookup dictionaries
         itemsByID = Dictionary(uniqueKeysWithValues: newItems.map { ($0.id, $0) })
         itemIndexByID = Dictionary(uniqueKeysWithValues: newItems.enumerated().map { ($0.element.id, $0.offset) })
+
+        // Detect prepend (pagination) vs append (new messages): prepend changes first item ID
+        let hasNewItems = newItems.count > previousCount
+        let wasPrepend = previousCount > 0 && hasNewItems && oldItems.first?.id != newItems.first?.id
+
+        // For prepends, capture a measured anchor row so we can restore the visible
+        // content's screen position after estimatedRowHeight reconciliation shifts contentSize.
+        let prependAnchor = wasPrepend ? capturePrependAnchor(in: oldItems) : nil
 
         // Apply snapshot with REVERSED order: newest-first for flipped table
         // Row 0 = newest message → appears at visual bottom after flip
@@ -277,45 +337,53 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         }
 
         // Two-phase apply to handle structural changes and content updates differently:
-        // 1. Structural changes (new/deleted items) - animate for smooth UX
+        // 1. Structural changes (new/deleted items) - animate for smooth UX, except prepends
         // 2. Content updates (status changes) - no animation to prevent flash
         let hasStructuralChanges = newItems.count != oldItems.count ||
             Set(newItems.map(\.id)) != Set(oldItems.map(\.id))
 
-        if hasStructuralChanges {
-            // Apply structural changes with animation
-            applySnapshot(snapshot, animatingDifferences: animated && previousCount > 0)
+        // Prepends apply non-animated so anchor restoration in the apply completion runs
+        // against the post-apply layout, not against a coalesced animation in flight
+        let restoreClosure: (() -> Void)? = prependAnchor.map { anchor in
+            { [weak self] in self?.restorePrependAnchor(anchor) }
+        }
 
-            // Then reload changed items without animation (separate apply)
+        if hasStructuralChanges {
+            let animateStructural = animated && previousCount > 0 && !wasPrepend
+            let structuralIsLastApply = changedIDs.isEmpty
+            applySnapshot(
+                snapshot,
+                animatingDifferences: animateStructural,
+                completion: structuralIsLastApply ? restoreClosure : nil
+            )
+
             if !changedIDs.isEmpty {
                 var reloadSnapshot = snapshot
                 reloadSnapshot.reloadItems(changedIDs)
-                applySnapshot(reloadSnapshot, animatingDifferences: false)
+                applySnapshot(reloadSnapshot, animatingDifferences: false, completion: restoreClosure)
             }
         } else if !changedIDs.isEmpty {
-            // No structural changes, just content updates - reload without animation
             snapshot.reloadItems(changedIDs)
-            applySnapshot(snapshot, animatingDifferences: false)
+            applySnapshot(snapshot, animatingDifferences: false, completion: restoreClosure)
         } else {
-            // No changes at all, but still apply to sync state
-            applySnapshot(snapshot, animatingDifferences: false)
+            applySnapshot(snapshot, animatingDifferences: false, completion: restoreClosure)
         }
 
         // Handle unread tracking
-        let hasNewItems = newItems.count > previousCount
-        // Detect prepend (pagination) vs append (new messages): prepend changes first item ID
-        let wasPrepend = previousCount > 0 && hasNewItems && oldItems.first?.id != newItems.first?.id
-
         if !wasAtBottom && previousCount > 0 && hasNewItems && !wasPrepend {
             // New messages arrived while scrolled up (not pagination)
             let newMessageCount = newItems.count - previousCount
             unreadCount += newMessageCount
             onScrollStateChanged?(isAtBottom, unreadCount)
         } else if wasAtBottom && hasNewItems && !skipAutoScroll && !isScrollingToBottom && !wasPrepend {
-            // At bottom with NEW items, auto-scroll to newest
-            // Only scroll if there are actually new items (not just SwiftUI re-renders)
             lastSeenItemID = newItems.last?.id
-            scrollToBottom(animated: animated && previousCount > 0)
+            if isUserInteracting {
+                // Defer until drag ends — scrolling mid-drag fights the gesture and bounces
+                deferredScrollToBottomPending = true
+                deferredScrollMessageCount += newItems.count - previousCount
+            } else {
+                scrollToBottom(animated: animated && previousCount > 0)
+            }
         }
 
         // Check for visible mentions after layout settles (handles mentions visible on load)
@@ -336,6 +404,8 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     func prepareForUserSend() {
         isAtBottom = true
         unreadCount = 0
+        deferredScrollToBottomPending = false
+        deferredScrollMessageCount = 0
         skipAutoScroll = true  // Prevent updateItems from calling scrollToBottom (we'll do it explicitly)
     }
 
@@ -510,15 +580,29 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
             isUserInteracting = false
-        }
-        if !decelerate {
             finalizeScrollPosition()
+            fireDeferredScrollIfNeeded()
         }
     }
 
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         isUserInteracting = false
         finalizeScrollPosition()
+        fireDeferredScrollIfNeeded()
+    }
+
+    private func fireDeferredScrollIfNeeded() {
+        guard deferredScrollToBottomPending else { return }
+        let deferredCount = deferredScrollMessageCount
+        deferredScrollToBottomPending = false
+        deferredScrollMessageCount = 0
+        if isAtBottom {
+            scrollToBottom(animated: true)
+        } else {
+            // User dragged away mid-message — the messages they didn't see become unread
+            unreadCount += deferredCount
+            onScrollStateChanged?(isAtBottom, unreadCount)
+        }
     }
 
     override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
@@ -575,7 +659,8 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     /// Check if user has scrolled near the top (oldest messages) and trigger callback
     private func checkNearTop() {
-        if isScrollingToBottom || isScrollingToTarget || scrollTargetItemID != nil {
+        if isScrollingToBottom || isScrollingToTarget || scrollTargetItemID != nil
+            || isLoadingOlderMessages || isNearTopRequestInFlight {
             return
         }
         guard let visibleRows = tableView.indexPathsForVisibleRows,
@@ -586,7 +671,10 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
         // Trigger when within 10 messages of the oldest
         if distanceFromTop <= 10 {
-            onNearTop?()
+            isNearTopRequestInFlight = true
+            onNearTop? { @MainActor [weak self] in
+                self?.isNearTopRequestInFlight = false
+            }
         }
     }
 
@@ -615,7 +703,7 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
     @Binding var scrollToDividerRequest: Int
     var dividerItemID: Item.ID?
     @Binding var isDividerVisible: Bool
-    var onNearTop: (() -> Void)?
+    var onNearTop: ((@escaping @MainActor () -> Void) -> Void)?
     var isLoadingOlderMessages: Bool = false
 
     func makeUIViewController(context: Context) -> ChatTableViewController<Item, Content> {

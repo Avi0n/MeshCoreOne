@@ -74,9 +74,10 @@ struct ChatMessagesTableView: View {
             scrollToDividerRequest: $scrollToDividerRequest,
             dividerItemID: newMessagesDividerMessageID,
             isDividerVisible: $isDividerVisible,
-            onNearTop: {
-                Task {
+            onNearTop: { release in
+                Task { @MainActor in
                     await viewModel.loadOlderMessages()
+                    release()
                 }
             },
             isLoadingOlderMessages: viewModel.isLoadingOlder
