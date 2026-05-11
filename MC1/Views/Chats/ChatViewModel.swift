@@ -69,6 +69,8 @@ final class ChatViewModel {
     @ObservationIgnored private var cachedNonFavoriteConversations: [Conversation] = []
     @ObservationIgnored private var conversationCacheValid = false
     @ObservationIgnored var urlDetectionTask: Task<Void, Never>?
+    /// Bumped on every buildDisplayItems rebuild; URL detection writes check this before mutating displayItems
+    @ObservationIgnored var urlDetectionGeneration: UInt64 = 0
     // Stored for lifecycle tracking; queue drains independently of conversation
     @ObservationIgnored var queueProcessorTask: Task<Void, Never>?
     @ObservationIgnored var channelQueueTask: Task<Void, Never>?

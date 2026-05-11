@@ -401,12 +401,13 @@ extension ChatViewModel {
         displayItems.append(newItem)
         displayItemIndexByID[message.id] = displayItems.count - 1
 
-        // Async URL detection for this message only
-        // Capture messageID (not index) to handle concurrent buildDisplayItems() calls
+        // Capture current generation; the write site re-checks so a buildDisplayItems rebuild bails this task
         let messageID = message.id
         let text = message.text
-        Task {
-            await updateURLForDisplayItem(messageID: messageID, text: text)
+        let generation = urlDetectionGeneration
+        Task { [weak self] in
+            guard let self else { return }
+            await self.updateURLForDisplayItem(messageID: messageID, text: text, generation: generation)
         }
 
         // Add sender to channelSenders if new (for channel messages)
@@ -418,10 +419,13 @@ extension ChatViewModel {
 
     /// Update URL detection for a single display item by message ID.
     /// Uses O(1) dictionary lookup to handle concurrent array modifications.
-    private func updateURLForDisplayItem(messageID: UUID, text: String) async {
+    private func updateURLForDisplayItem(messageID: UUID, text: String, generation: UInt64) async {
         let detectedURL = await Task.detached(priority: .userInitiated) {
             LinkPreviewService.extractFirstURL(from: text)
         }.value
+
+        // Drop stale writes after a buildDisplayItems rebuild — Task.cancel only kills the latest chain link
+        guard urlDetectionGeneration == generation else { return }
 
         cachedURLs[messageID] = detectedURL
 
@@ -854,6 +858,7 @@ extension ChatViewModel {
     /// Uses cached URL results for previously processed messages and defers
     /// async detection for new messages to avoid blocking the main actor.
     func buildDisplayItems() {
+        urlDetectionGeneration &+= 1
         messagesByID = Dictionary(uniqueKeysWithValues: messages.map { ($0.id, $0) })
 
         var uncachedMessageIDs: [(UUID, String)] = []
@@ -902,11 +907,13 @@ extension ChatViewModel {
         // Async URL detection for messages without cached results
         if !uncachedMessageIDs.isEmpty {
             let messagesToDetect = uncachedMessageIDs
+            let generation = urlDetectionGeneration
             urlDetectionTask?.cancel()
-            urlDetectionTask = Task {
+            urlDetectionTask = Task { [weak self] in
+                guard let self else { return }
                 for (messageID, text) in messagesToDetect {
-                    guard !Task.isCancelled else { return }
-                    await updateURLForDisplayItem(messageID: messageID, text: text)
+                    guard !Task.isCancelled, self.urlDetectionGeneration == generation else { return }
+                    await self.updateURLForDisplayItem(messageID: messageID, text: text, generation: generation)
                 }
             }
         }
