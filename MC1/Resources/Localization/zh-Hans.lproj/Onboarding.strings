@@ -121,6 +121,9 @@
 /* Location: DeviceScanView.swift - Check to move device closer */
 "troubleshooting.basicChecks.moveCloser" = "将设备移近您的手机";
 
+/* Location: TroubleshootingSheet.swift - Check that radio isn't connected elsewhere */
+"troubleshooting.basicChecks.notConnectedElsewhere" = "确保您的电台未连接到其他手机或应用";
+
 /* Location: DeviceScanView.swift - Check to restart device */
 "troubleshooting.basicChecks.restart" = "重启 MeshCore 设备";
 
@@ -153,6 +156,13 @@
 
 /* Location: TroubleshootingSheet.swift - Button that opens iOS Settings */
 "troubleshooting.systemSettings.openSettings" = "打开设置";
+
+/* Location: TroubleshootingSheet.swift - Section header for last-resort flashing steps */
+"troubleshooting.stillNotAppearing.header" = "仍然无法发现设备？";
+
+/* Location: TroubleshootingSheet.swift - Body text explaining backup and reflash steps */
+"troubleshooting.stillNotAppearing.body" = "如果您已尝试以上所有方法，请在 Liam Cottle 的 MeshCore 应用中备份您电台的配置，然后在电脑上通过 https://flasher.meshcore.io 擦除并重新刷写";
+
 
 // MARK: - Mesh Animation View
 

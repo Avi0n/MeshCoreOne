@@ -2495,6 +2495,8 @@ public enum L10n {
         public static let header = L10n.tr("Onboarding", "troubleshooting.basicChecks.header", fallback: "Basic Checks")
         /// Location: DeviceScanView.swift - Check to move device closer
         public static let moveCloser = L10n.tr("Onboarding", "troubleshooting.basicChecks.moveCloser", fallback: "Move the device closer to your phone")
+        /// Location: TroubleshootingSheet.swift - Check that radio isn't connected elsewhere
+        public static let notConnectedElsewhere = L10n.tr("Onboarding", "troubleshooting.basicChecks.notConnectedElsewhere", fallback: "Make sure your radio isn't connected to another phone or app")
         /// Location: DeviceScanView.swift - Check to ensure device is powered on
         public static let powerOn = L10n.tr("Onboarding", "troubleshooting.basicChecks.powerOn", fallback: "Make sure your device is powered on")
         /// Location: DeviceScanView.swift - Check to restart the device
@@ -2515,6 +2517,12 @@ public enum L10n {
         public static func pairingsFound(_ p1: Int) -> String {
           return L10n.tr("Onboarding", "troubleshooting.factoryReset.pairingsFound", p1, fallback: "Found %d previous pairing(s).")
         }
+      }
+      public enum StillNotAppearing {
+        /// Location: TroubleshootingSheet.swift - Body text explaining backup and reflash steps
+        public static let body = L10n.tr("Onboarding", "troubleshooting.stillNotAppearing.body", fallback: "If you've tried everything above, back up your radio's configuration in Liam Cottle's MeshCore app, then erase and reflash it on your computer at https://flasher.meshcore.io")
+        /// Location: TroubleshootingSheet.swift - Section header for last-resort flashing steps
+        public static let header = L10n.tr("Onboarding", "troubleshooting.stillNotAppearing.header", fallback: "Still Not Appearing?")
       }
       public enum SystemSettings {
         /// Location: DeviceScanView.swift - Section header for system settings info

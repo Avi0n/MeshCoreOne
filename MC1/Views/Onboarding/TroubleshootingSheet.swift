@@ -17,6 +17,7 @@ struct TroubleshootingSheet: View {
                 Section {
                     Label(L10n.Onboarding.Troubleshooting.BasicChecks.powerOn, systemImage: "power")
                     Label(L10n.Onboarding.Troubleshooting.BasicChecks.moveCloser, systemImage: "iphone.radiowaves.left.and.right")
+                    Label(L10n.Onboarding.Troubleshooting.BasicChecks.notConnectedElsewhere, systemImage: "app.dashed")
                     Label(L10n.Onboarding.Troubleshooting.BasicChecks.restart, systemImage: "arrow.clockwise")
                 } header: {
                     Text(L10n.Onboarding.Troubleshooting.BasicChecks.header)
@@ -77,6 +78,14 @@ struct TroubleshootingSheet: View {
                     }
                 } header: {
                     Text(L10n.Onboarding.Troubleshooting.SystemSettings.header)
+                }
+
+                Section {
+                    Text(L10n.Onboarding.Troubleshooting.StillNotAppearing.body)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } header: {
+                    Text(L10n.Onboarding.Troubleshooting.StillNotAppearing.header)
                 }
             }
             .navigationTitle(L10n.Onboarding.Troubleshooting.title)

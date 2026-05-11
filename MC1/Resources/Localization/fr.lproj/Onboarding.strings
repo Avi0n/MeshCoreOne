@@ -123,6 +123,9 @@
 /* Location: DeviceScanView.swift - Check to move device closer */
 "troubleshooting.basicChecks.moveCloser" = "Rapprochez l'appareil de votre téléphone";
 
+/* Location: TroubleshootingSheet.swift - Check that radio isn't connected elsewhere */
+"troubleshooting.basicChecks.notConnectedElsewhere" = "Assurez-vous que votre radio n'est pas connectée à un autre téléphone ou une autre application";
+
 /* Location: DeviceScanView.swift - Check to restart the device */
 "troubleshooting.basicChecks.restart" = "Redémarrez l'appareil MeshCore";
 
@@ -155,6 +158,13 @@
 
 /* Location: TroubleshootingSheet.swift - Button that opens iOS Settings */
 "troubleshooting.systemSettings.openSettings" = "Ouvrir Réglages";
+
+/* Location: TroubleshootingSheet.swift - Section header for last-resort flashing steps */
+"troubleshooting.stillNotAppearing.header" = "Toujours pas visible ?";
+
+/* Location: TroubleshootingSheet.swift - Body text explaining backup and reflash steps */
+"troubleshooting.stillNotAppearing.body" = "Si vous avez essayé tout ce qui précède, sauvegardez la configuration de votre radio dans l'application MeshCore de Liam Cottle, puis effacez-la et reflashez-la sur votre ordinateur à l'adresse https://flasher.meshcore.io";
+
 
 
 // MARK: - Mesh Animation View
