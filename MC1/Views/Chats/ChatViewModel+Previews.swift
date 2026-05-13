@@ -138,11 +138,12 @@ extension ChatViewModel {
 
     /// Rebuild a single display item with current preview state (O(1) lookup)
     func rebuildDisplayItem(for messageID: UUID) {
-        guard let index = displayItemIndexByID[messageID] else { return }
-        let item = displayItems[index]
+        guard let index = renderState.itemIndexByID[messageID] else { return }
+        let item = renderState.items[index]
         let message = messagesByID[messageID]
 
-        displayItems[index] = MessageDisplayItem(
+        var items = renderState.items
+        items[index] = MessageDisplayItem(
             messageID: item.messageID,
             showTimestamp: item.showTimestamp,
             showDirectionGap: item.showDirectionGap,
@@ -161,6 +162,7 @@ extension ChatViewModel {
             previewState: previewStates[messageID] ?? .idle,
             loadedPreview: loadedPreviews[messageID]
         )
+        renderState = renderState.with(items: items)
     }
 
     /// Cancel preview fetch for a message (called when cell scrolls away)

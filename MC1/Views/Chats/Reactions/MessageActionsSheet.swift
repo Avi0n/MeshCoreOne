@@ -233,7 +233,7 @@ private struct ActionsEmojiSection: View {
 private struct ActionsButtonsSection: View {
     let availability: MessageActionAvailability
     let onSelectAction: (MessageAction) -> Void
-    @AppStorage("replyWithQuote") private var replyWithQuote = false
+    @AppStorage(AppStorageKey.replyWithQuote.rawValue) private var replyWithQuote = false
 
     var body: some View {
         if availability.canReply {

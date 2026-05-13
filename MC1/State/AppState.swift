@@ -125,6 +125,42 @@ public final class AppState {
     /// Incremented when conversations data changes. Views observe this to reload chat lists.
     public private(set) var conversationsVersion: Int = 0
 
+    /// Incremented when a remote-node session changes connection state.
+    /// `RoomConversationView` observes this counter to refresh its
+    /// session DTO. The counter alone is sufficient — the original
+    /// `handleSessionStateChanged(sessionID:isConnected:)` discarded both
+    /// parameters and just bumped the int.
+    public private(set) var sessionStateChangeCount: Int = 0
+
+    /// Bumps `sessionStateChangeCount`. Called from
+    /// `setSessionStateChangedHandler` / `setConnectionRecoveryHandler`
+    /// service callbacks.
+    private func recordSessionStateChange() {
+        sessionStateChangeCount += 1
+    }
+
+    /// Called by `MessageEventDispatcher` when a remote-node session changes
+    /// connection state. Bundles refreshing conversations and recording the
+    /// state change so the dispatcher only needs one entry point.
+    func handleSessionStateChange() {
+        refreshConversations()
+        recordSessionStateChange()
+    }
+
+    /// Bumps `conversationsVersion` and drives
+    /// `liveActivityManager.handleUnreadCountChanged`. Used by both data-change
+    /// callbacks (sync coordinator) and session-state callbacks
+    /// (`setSessionStateChangedHandler` / `setConnectionRecoveryHandler`) to
+    /// keep the conversations list and unread badge in lockstep.
+    private func refreshConversations() {
+        conversationsVersion += 1
+        Task { @MainActor [weak self] in
+            guard let self, let services = self.services else { return }
+            let total = await self.totalUnreadCount(from: services)
+            await self.liveActivityManager.handleUnreadCountChanged(unreadCount: total)
+        }
+    }
+
     /// Signals views observing `contactsVersion` / `conversationsVersion` to reload after
     /// a backup restore writes directly to the persistence store. The normal sync-path
     /// callbacks don't fire for batch imports, so without this bump any currently-mounted
@@ -179,8 +215,17 @@ public final class AppState {
 
     // MARK: - UI Coordination
 
-    /// Message event broadcaster for UI updates
-    let messageEventBroadcaster = MessageEventBroadcaster()
+    /// AsyncStream-based distribution of `MessageEvent` to chat and room
+    /// consumers. Fed by service callbacks wired in `wireMessageEvents`.
+    let messageEventStream = MessageEventStream()
+
+    /// Routes service callbacks to `messageEventStream` and the session-state
+    /// counter. Lazy because it captures `self` and `messageEventStream`.
+    @ObservationIgnored
+    private lazy var messageEventDispatcher = MessageEventDispatcher(
+        appState: self,
+        stream: messageEventStream
+    )
 
     // MARK: - CLI Tool
 
@@ -289,7 +334,7 @@ public final class AppState {
         )
     }
 
-    /// Wire services to message event broadcaster
+    /// Wire services-dependent callbacks after a successful connection.
     func wireServicesIfConnected() async {
         guard let services else {
             settingsEventsTask?.cancel()
@@ -330,7 +375,7 @@ public final class AppState {
         await wireDataChangeCallbacks(services: services)
         wireSettingsEventStream(services: services)
         await wireDeviceUpdateCallbacks(services: services)
-        await wireMessageBroadcasting(services: services)
+        await wireMessageEvents(services: services)
         await wireLiveActivityCallbacks(services: services)
 
         // Increment version to trigger UI refresh in views observing this
@@ -372,12 +417,7 @@ public final class AppState {
                 self?.contactsVersion += 1
             },
             onConversationsChanged: { @MainActor [weak self] in
-                self?.conversationsVersion += 1
-                Task { @MainActor [weak self] in
-                    guard let self, let services = self.services else { return }
-                    let total = await self.totalUnreadCount(from: services)
-                    await self.liveActivityManager.handleUnreadCountChanged(unreadCount: total)
-                }
+                self?.refreshConversations()
             }
         )
     }
@@ -448,22 +488,11 @@ public final class AppState {
         }
     }
 
-    /// Wire message event broadcaster callbacks for conversation and reaction updates.
-    private func wireMessageBroadcasting(services: ServiceContainer) async {
-        await messageEventBroadcaster.wireServices(
-            services,
-            onConversationsChanged: { [weak self] in
-                self?.conversationsVersion += 1
-                Task { @MainActor [weak self] in
-                    guard let self, let services = self.services else { return }
-                    let total = await self.totalUnreadCount(from: services)
-                    await self.liveActivityManager.handleUnreadCountChanged(unreadCount: total)
-                }
-            },
-            onReactionReceived: { [weak self] messageID in
-                await self?.handleReactionNotification(messageID: messageID)
-            }
-        )
+    /// Wire all message event service callbacks. Delegates to
+    /// `MessageEventDispatcher`, which fans the nine service callbacks out to
+    /// `messageEventStream` and bumps `sessionStateChangeCount`.
+    private func wireMessageEvents(services: ServiceContainer) async {
+        await messageEventDispatcher.wire(services: services)
     }
 
     /// Wire Live Activity callbacks for RX freshness, battery, and connection lifecycle.
@@ -893,7 +922,7 @@ public final class AppState {
     }
 
     /// Handle posting a notification when someone reacts to the user's message
-    private func handleReactionNotification(messageID: UUID) async {
+    func handleReactionNotification(messageID: UUID) async {
         guard let services else { return }
 
         // Fetch the message to check if it's outgoing

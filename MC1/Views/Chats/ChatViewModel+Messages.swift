@@ -293,14 +293,12 @@ extension ChatViewModel {
         errorMessage = nil
 
         // Reset pagination state for new conversation
-        hasMoreMessages = true
-        isLoadingOlder = false
-        totalFetchedCount = 0
+        renderState = renderState.with(hasMoreMessages: true, isLoadingOlder: false, totalFetchedCount: 0)
 
         do {
             var fetchedMessages = try await dataStore.fetchMessages(contactID: contact.id, limit: pageSize, offset: 0)
             let unfilteredCount = fetchedMessages.count
-            totalFetchedCount = unfilteredCount
+            renderState = renderState.with(totalFetchedCount: unfilteredCount)
 
             // Compute divider position before filtering, using unfiltered array
             computeDividerPosition(from: fetchedMessages, unreadCount: contact.unreadCount)
@@ -309,7 +307,7 @@ extension ChatViewModel {
             fetchedMessages = filterOutgoingReactionMessages(fetchedMessages, isDM: true)
 
             messages = fetchedMessages
-            hasMoreMessages = unfilteredCount == pageSize
+            renderState = renderState.with(hasMoreMessages: unfilteredCount == pageSize)
 
             buildDisplayItems()
 
@@ -371,11 +369,10 @@ extension ChatViewModel {
     /// Called synchronously before async reload to ensure ChatTableView
     /// sees the new count immediately for unread tracking.
     func appendMessageIfNew(_ message: MessageDTO) {
-        guard !messages.contains(where: { $0.id == message.id }) else { return }
+        guard renderState.itemIndexByID[message.id] == nil else { return }
         let previous = messages.last
         messages.append(message)
         messagesByID[message.id] = message
-        totalFetchedCount += 1
 
         // Build display item synchronously for immediate consistency
         let flags = Self.computeDisplayFlags(for: message, previous: previous)
@@ -398,8 +395,15 @@ extension ChatViewModel {
             previewState: .idle,
             loadedPreview: nil
         )
-        displayItems.append(newItem)
-        displayItemIndexByID[message.id] = displayItems.count - 1
+        var items = renderState.items
+        items.append(newItem)
+        var indexByID = renderState.itemIndexByID
+        indexByID[message.id] = items.count - 1
+        renderState = renderState.with(
+            items: items,
+            itemIndexByID: indexByID,
+            totalFetchedCount: renderState.totalFetchedCount + 1
+        )
 
         // Capture current generation; the write site re-checks so a buildDisplayItems rebuild bails this task
         let messageID = message.id
@@ -429,9 +433,10 @@ extension ChatViewModel {
 
         cachedURLs[messageID] = detectedURL
 
-        guard let index = displayItemIndexByID[messageID] else { return }
-        let item = displayItems[index]
-        displayItems[index] = MessageDisplayItem(
+        guard let index = renderState.itemIndexByID[messageID] else { return }
+        let item = renderState.items[index]
+        var items = renderState.items
+        items[index] = MessageDisplayItem(
             messageID: item.messageID,
             showTimestamp: item.showTimestamp,
             showDirectionGap: item.showDirectionGap,
@@ -450,6 +455,7 @@ extension ChatViewModel {
             previewState: previewStates[messageID] ?? .idle,
             loadedPreview: loadedPreviews[messageID]
         )
+        renderState = renderState.with(items: items)
     }
 
     /// Load any saved draft for the current contact
@@ -462,6 +468,74 @@ extension ChatViewModel {
             return
         }
         composingText = draft
+    }
+
+    func makeDMSendQueue() -> SendQueue<DirectMessageEnvelope> {
+        let sendContext = self.sendContext
+        let logger = self.logger
+        return SendQueue<DirectMessageEnvelope>(
+            send: { envelope in
+                let services = await MainActor.run {
+                    (dataStore: sendContext.dataStore, messageService: sendContext.messageService)
+                }
+                // Mark the row failed before throwing so the UI bubble
+                // surfaces the failure rather than spinning in "sending"
+                // forever. The queue only ever holds .pending / .sending
+                // envelopes, so plain updateMessageStatus is correct here.
+                guard let messageService = services.messageService else {
+                    if let dataStore = services.dataStore {
+                        try? await dataStore.updateMessageStatus(
+                            id: envelope.messageID,
+                            status: .failed
+                        )
+                    }
+                    throw ChatSendQueueError.servicesUnavailable
+                }
+                guard let dataStore = services.dataStore else {
+                    throw ChatSendQueueError.servicesUnavailable
+                }
+                guard let contact = try? await dataStore.fetchContact(id: envelope.contactID) else {
+                    logger.info("Skipping queued message - contact \(envelope.contactID) was deleted")
+                    return
+                }
+                _ = try await messageService.retryDirectMessage(
+                    messageID: envelope.messageID,
+                    to: contact
+                )
+            },
+            onError: { _, _ in
+                // Error reporting deferred to onDrain so the post-drain
+                // loadMessages reset of errorMessage = nil does not clobber
+                // sendErrorMessage either.
+            },
+            onDrain: { [weak self] lastError in
+                await self?.handleDMQueueDrain(lastError: lastError)
+            }
+        )
+    }
+
+    /// Called after the DM send queue empties. Reloads the current
+    /// conversation and conversations list so optimistic UI catches up
+    /// with server state, then surfaces the most recent send-side error
+    /// (if any) into `sendErrorMessage` after the reloads — `loadMessages`
+    /// and `loadConversations` both clear `errorMessage = nil` at their
+    /// top, but neither touches `sendErrorMessage`.
+    private func handleDMQueueDrain(lastError: Error?) async {
+        let contact = currentContact
+        if let contact {
+            await loadMessages(for: contact)
+        }
+        if let radioID = contact?.radioID {
+            await loadConversations(radioID: radioID)
+        }
+        if let lastError {
+            // The localized template body is what the user sees. The
+            // specific error stays in the log for developers — most
+            // underlying errors here are MeshCoreError, which is
+            // English-only via its retroactive LocalizedError conformance.
+            sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
+            logger.error("DM send queue drain ended with error: \(String(describing: lastError))")
+        }
     }
 
     /// Send a message to the current contact
@@ -481,12 +555,8 @@ extension ChatViewModel {
             appendMessageIfNew(message)
 
             // Queue for sending
-            sendQueue.append(QueuedMessage(messageID: message.id, contactID: contact.id))
-
-            // Start processor if not already running
-            if !isProcessingQueue {
-                queueProcessorTask = Task { await processQueue() }
-            }
+            let envelope = DirectMessageEnvelope(messageID: message.id, contactID: contact.id)
+            await dmSendQueue?.enqueue(envelope)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -506,8 +576,8 @@ extension ChatViewModel {
         guard !isLoadingOlder, hasMoreMessages else { return }
         guard let dataStore else { return }
 
-        isLoadingOlder = true
-        defer { isLoadingOlder = false }
+        renderState = renderState.with(isLoadingOlder: true)
+        defer { renderState = renderState.with(isLoadingOlder: false) }
 
         // Snapshot conversation context before any await — actor reentrancy
         // means currentContact/currentChannel can change during suspensions
@@ -537,10 +607,10 @@ extension ChatViewModel {
 
             // Use unfiltered count to determine if more messages exist
             let unfilteredCount = olderMessages.count
-            totalFetchedCount += unfilteredCount
-            if unfilteredCount < pageSize {
-                hasMoreMessages = false
-            }
+            renderState = renderState.with(
+                hasMoreMessages: unfilteredCount < pageSize ? false : renderState.hasMoreMessages,
+                totalFetchedCount: renderState.totalFetchedCount + unfilteredCount
+            )
 
             // Hide sent reaction messages (unless failed)
             let isDM = contact != nil
@@ -758,6 +828,10 @@ extension ChatViewModel {
             return
         }
 
+        guard !isRetryingMessage else { return }
+        isRetryingMessage = true
+        defer { isRetryingMessage = false }
+
         logger.info("retryMessage: starting retry for contact \(contact.displayName)")
 
         errorMessage = nil
@@ -776,28 +850,31 @@ extension ChatViewModel {
             await loadMessages(for: contact)
         } catch {
             logger.error("retryMessage: error - \(error)")
-            errorMessage = error.localizedDescription
-            showRetryError = true
-            // Reload to show the failed status
+            // Reload first so the bubble shows the failed status. loadMessages
+            // resets errorMessage = nil at its top, so we set the alert text
+            // after the reload to keep it visible through the next render.
             await loadMessages(for: contact)
+            sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
         }
     }
 
     /// Resend a channel message in place, or copy text for direct messages.
     /// Used for "Send Again" context menu action.
     func sendAgain(_ message: MessageDTO) async {
-        if message.channelIndex != nil {
-            // Channel messages: resend in place (increments send count)
-            guard let messageService else { return }
-            do {
-                try await messageService.resendChannelMessage(messageID: message.id)
-                // Reload to show updated send count
-                if let channel = currentChannel {
-                    await loadChannelMessages(for: channel)
-                }
-            } catch {
-                logger.error("Failed to resend message: \(error)")
-            }
+        if let channelIndex = message.channelIndex {
+            // Channel messages: enqueue with isResend: true so the queue drain
+            // refreshes the mesh timestamp via resendChannelMessage. Reusing the
+            // original timestamp would hash identically to the failed packet and
+            // be dropped by the 128-slot cyclic dedup table at every neighbor.
+            let envelope = ChannelMessageEnvelope(
+                messageID: message.id,
+                channelIndex: channelIndex,
+                isResend: true,
+                messageText: message.text,
+                messageTimestamp: message.timestamp,
+                localNodeName: appState?.connectedDevice?.nodeName
+            )
+            await channelSendQueue?.enqueue(envelope)
         } else {
             // Direct messages: send the failed message text directly
             await sendMessage(text: message.text)
@@ -815,9 +892,11 @@ extension ChatViewModel {
             // Remove from all local collections
             messages.removeAll { $0.id == message.id }
             messagesByID.removeValue(forKey: message.id)
-            displayItems.removeAll { $0.messageID == message.id }
+            var items = renderState.items
+            items.removeAll { $0.messageID == message.id }
             // Rebuild index dictionary after removal (indices shift)
-            displayItemIndexByID = Dictionary(uniqueKeysWithValues: displayItems.enumerated().map { ($0.element.messageID, $0.offset) })
+            let indexByID = Dictionary(uniqueKeysWithValues: items.enumerated().map { ($0.element.messageID, $0.offset) })
+            renderState = renderState.with(items: items, itemIndexByID: indexByID)
 
             // Clean up preview state for deleted message
             cleanupPreviewState(for: message.id)
@@ -863,7 +942,7 @@ extension ChatViewModel {
 
         var uncachedMessageIDs: [(UUID, String)] = []
 
-        displayItems = messages.enumerated().map { index, message in
+        let items: [MessageDisplayItem] = messages.enumerated().map { index, message in
             // Compute all display flags in single pass to avoid redundant array lookups
             let previous: MessageDTO? = index > 0 ? messages[index - 1] : nil
             let flags = Self.computeDisplayFlags(for: message, previous: previous)
@@ -902,7 +981,8 @@ extension ChatViewModel {
         }
 
         // Build O(1) index lookup
-        displayItemIndexByID = Dictionary(uniqueKeysWithValues: displayItems.enumerated().map { ($0.element.messageID, $0.offset) })
+        let indexByID = Dictionary(uniqueKeysWithValues: items.enumerated().map { ($0.element.messageID, $0.offset) })
+        renderState = renderState.with(items: items, itemIndexByID: indexByID)
 
         // Async URL detection for messages without cached results
         if !uncachedMessageIDs.isEmpty {
@@ -932,61 +1012,4 @@ extension ChatViewModel {
         return message
     }
 
-    // MARK: - Message Queue
-
-    /// Add a message to the send queue (for testing)
-    func enqueueMessage(_ messageID: UUID, contactID: UUID) {
-        sendQueue.append(QueuedMessage(messageID: messageID, contactID: contactID))
-    }
-
-    /// Process the queue (exposed for testing)
-    func processQueueForTesting() async {
-        await processQueue()
-    }
-
-    /// Process queued messages serially
-    private func processQueue() async {
-        guard let messageService,
-              let dataStore else { return }
-
-        isProcessingQueue = true
-        defer { isProcessingQueue = false }
-
-        // Snapshot before suspensions — currentContact can change if user switches conversations
-        let contact = currentContact
-        var lastRadioID: UUID?
-
-        // Process messages with re-check after reload to catch any that arrived during reload
-        repeat {
-            while !sendQueue.isEmpty {
-                let queued = sendQueue.removeFirst()
-
-                // Fetch the target contact by ID - it may differ from currentContact
-                guard let contact = try? await dataStore.fetchContact(id: queued.contactID) else {
-                    // Contact was deleted, skip this message
-                    logger.info("Skipping queued message - contact \(queued.contactID) was deleted")
-                    continue
-                }
-
-                lastRadioID = contact.radioID
-
-                do {
-                    _ = try await messageService.retryDirectMessage(
-                        messageID: queued.messageID,
-                        to: contact
-                    )
-                } catch {
-                    errorMessage = error.localizedDescription
-                }
-            }
-
-            // Reload after queue drains - syncs statuses and conversation list
-            if let contact {
-                await loadMessages(for: contact)
-            }
-            if let radioID = lastRadioID {
-                await loadConversations(radioID: radioID)
-            }
-        } while !sendQueue.isEmpty
-    }
 }

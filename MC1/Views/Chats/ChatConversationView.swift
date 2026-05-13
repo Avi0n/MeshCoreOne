@@ -42,17 +42,16 @@ struct ChatConversationView: View {
 
     @State private var recentEmojisStore = RecentEmojisStore()
     @State private var mentionSenderOrder: [String: UInt32]?
-    @State private var eventCursor: Int?
     @FocusState private var isInputFocused: Bool
 
     // MARK: - AppStorage
 
-    @AppStorage("showInlineImages") private var showInlineImages = true
-    @AppStorage("autoPlayGIFs") private var autoPlayGIFs = true
+    @AppStorage(AppStorageKey.showInlineImages.rawValue) private var showInlineImages = true
+    @AppStorage(AppStorageKey.autoPlayGIFs.rawValue) private var autoPlayGIFs = true
     @AppStorage(AppStorageKey.showIncomingPath.rawValue) private var showIncomingPath = false
     @AppStorage(AppStorageKey.showIncomingHopCount.rawValue) private var showIncomingHopCount = false
     @AppStorage(AppStorageKey.showIncomingRegion.rawValue) private var showIncomingRegion = false
-    @AppStorage("replyWithQuote") private var replyWithQuote = false
+    @AppStorage(AppStorageKey.replyWithQuote.rawValue) private var replyWithQuote = false
 
     // MARK: - Init
 
@@ -123,7 +122,7 @@ struct ChatConversationView: View {
         )
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("Info", systemImage: "info.circle") {
+                Button(L10n.Chats.Chats.Common.info, systemImage: "info.circle") {
                     showingInfo = true
                 }
             }
@@ -182,9 +181,6 @@ struct ChatConversationView: View {
         .fullScreenCover(item: $imageViewerData) { data in
             FullScreenImageViewer(data: data)
         }
-        .onAppear {
-            eventCursor = appState.messageEventBroadcaster.currentEventSequence
-        }
         .task(id: appState.servicesVersion) {
             await performInitialLoad()
         }
@@ -198,14 +194,22 @@ struct ChatConversationView: View {
                 mentionSenderOrder = nil
             }
         }
-        .onChange(of: appState.messageEventBroadcaster.newMessageCount) { _, _ in
-            drainEvents()
+        .task {
+            for await event in appState.messageEventStream.events() {
+                chatViewModel.handle(event)
+            }
         }
-        .alert(L10n.Chats.Chats.Alert.UnableToSend.title, isPresented: $chatViewModel.showRetryError) {
-            Button(L10n.Chats.Chats.Common.ok, role: .cancel) { }
-        } message: {
-            Text(L10n.Chats.Chats.Alert.UnableToSend.message)
+        .onChange(of: chatViewModel.reloadSignal) { _, _ in
+            Task { await chatViewModel.coalescedReload(for: conversationType) }
         }
+        .onChange(of: chatViewModel.contactRefreshSignal) { _, _ in
+            Task { await refreshContact() }
+        }
+        .onChange(of: chatViewModel.lastIncomingMention) { _, newMention in
+            guard let mention = newMention else { return }
+            handleIncomingMentionIfNeeded(mention.messageID)
+        }
+        .chatErrorAlerts(chatViewModel: chatViewModel)
     }
 
     // MARK: - Initial Load (.task)
@@ -274,115 +278,17 @@ struct ChatConversationView: View {
         }
     }
 
-    // MARK: - Event Draining
-
-    private func drainEvents() {
-        guard let cursor = eventCursor else { return }
-        let (events, newCursor, droppedEvents) = appState.messageEventBroadcaster.events(after: cursor)
-        eventCursor = newCursor
-        var needsReload = droppedEvents
-        var needsContactRefresh = false
-
-        switch conversationType {
-        case .dm(let contact):
-            (needsReload, needsContactRefresh) = drainDMEvents(
-                events, contact: contact, needsReload: needsReload
-            )
-        case .channel(let channel):
-            needsReload = drainChannelEvents(events, channel: channel, needsReload: needsReload)
-        }
-
-        if needsReload {
-            reloadMessages()
-        }
-        if case .dm = conversationType, needsContactRefresh || droppedEvents {
-            Task { await refreshContact() }
-        }
-        if droppedEvents {
-            Task { await loadUnseenMentions() }
-        }
-    }
-
-    private func reloadMessages() {
-        Task {
-            switch conversationType {
-            case .dm(let contact):
-                await chatViewModel.loadMessages(for: contact)
-            case .channel(let channel):
-                await chatViewModel.loadChannelMessages(for: channel)
-            }
-        }
-    }
-
-    private func handleIncomingMentionIfNeeded(_ message: MessageDTO) {
-        guard message.containsSelfMention else { return }
+    private func handleIncomingMentionIfNeeded(_ messageID: UUID) {
+        // Self-mention gating happens upstream in
+        // `ChatViewModel.recordIncomingMentionIfNeeded`, which only assigns
+        // `lastIncomingMention` when `containsSelfMention` is true.
         Task {
             if isAtBottom {
-                await markNewArrivalMentionSeen(messageID: message.id)
+                await markNewArrivalMentionSeen(messageID: messageID)
             } else {
                 await loadUnseenMentions()
             }
         }
-    }
-
-    private func drainDMEvents(
-        _ events: [MessageEvent], contact: ContactDTO, needsReload: Bool
-    ) -> (needsReload: Bool, needsContactRefresh: Bool) {
-        var needsReload = needsReload
-        var needsContactRefresh = false
-        for event in events {
-            switch event {
-            case .directMessageReceived(let message, _) where message.contactID == contact.id:
-                chatViewModel.appendMessageIfNew(message)
-                handleIncomingMentionIfNeeded(message)
-            case .messageStatusUpdated, .messageRetrying:
-                needsReload = true
-            case .messageFailed(let messageID):
-                if chatViewModel.messages.contains(where: { $0.id == messageID }) {
-                    needsReload = true
-                }
-            case .routingChanged(let contactID, _) where contactID == contact.id:
-                needsContactRefresh = true
-            case .reactionReceived(let messageID, let summary):
-                if chatViewModel.messages.contains(where: { $0.id == messageID }) {
-                    chatViewModel.updateReactionSummary(for: messageID, summary: summary)
-                }
-            default:
-                break
-            }
-        }
-        return (needsReload, needsContactRefresh)
-    }
-
-    private func drainChannelEvents(
-        _ events: [MessageEvent], channel: ChannelDTO, needsReload: Bool
-    ) -> Bool {
-        var needsReload = needsReload
-        for event in events {
-            switch event {
-            case .channelMessageReceived(let message, let channelIndex)
-                where channelIndex == channel.index && message.radioID == channel.radioID:
-                chatViewModel.appendMessageIfNew(message)
-                handleIncomingMentionIfNeeded(message)
-            case .messageStatusUpdated:
-                needsReload = true
-            case .messageFailed(let messageID):
-                if chatViewModel.messages.contains(where: { $0.id == messageID }) {
-                    needsReload = true
-                }
-            case .heardRepeatRecorded(let messageID, let count):
-                if chatViewModel.messages.contains(where: { $0.id == messageID }) {
-                    chatViewModel.updateHeardRepeats(for: messageID, count: count)
-                }
-            case .reactionReceived(let messageID, let summary):
-                if chatViewModel.messages.contains(where: { $0.id == messageID }) {
-                    chatViewModel.updateReactionSummary(for: messageID, summary: summary)
-                }
-            default:
-                break
-            }
-        }
-        return needsReload
     }
 
     // MARK: - Conversation Refresh
@@ -692,6 +598,21 @@ struct ChatConversationView: View {
             await chatViewModel.loadChannelMessages(for: channel)
         }
         services.syncCoordinator.notifyConversationsChanged()
+    }
+}
+
+// MARK: - Error Alerts
+
+private extension View {
+    /// Applies both chat error alerts in one modifier so the conversation view
+    /// body stays within the type-checker's expression budget. The first slot
+    /// is the generic "Error" alert (load failures); the second is the
+    /// "Unable to Send" alert (queue drain failures).
+    func chatErrorAlerts(chatViewModel: ChatViewModel) -> some View {
+        @Bindable var vm = chatViewModel
+        return self
+            .errorAlert($vm.errorMessage)
+            .errorAlert($vm.sendErrorMessage, title: L10n.Chats.Chats.Alert.UnableToSend.title)
     }
 }
 

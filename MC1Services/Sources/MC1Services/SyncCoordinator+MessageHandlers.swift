@@ -195,7 +195,7 @@ extension SyncCoordinator {
                 // Notify UI via SyncCoordinator
                 await self.notifyConversationsChanged()
 
-                // Notify MessageEventBroadcaster for real-time chat updates
+                // Forward to MessageEventStream consumers for real-time chat updates
                 if let contact {
                     await self.onDirectMessageReceived?(messageDTO, contact)
                 }
@@ -813,7 +813,7 @@ extension SyncCoordinator {
         )
         await services.notificationService.updateBadgeCount()
 
-        // Notify MessageEventBroadcaster for real-time chat updates
+        // Forward to MessageEventStream consumers for real-time chat updates
         await onChannelMessageReceived?(messageDTO, channelIndex)
     }
 

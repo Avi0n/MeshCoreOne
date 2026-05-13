@@ -56,14 +56,12 @@ extension ChatViewModel {
         errorMessage = nil
 
         // Reset pagination state for new conversation
-        hasMoreMessages = true
-        isLoadingOlder = false
-        totalFetchedCount = 0
+        renderState = renderState.with(hasMoreMessages: true, isLoadingOlder: false, totalFetchedCount: 0)
 
         do {
             var fetchedMessages = try await dataStore.fetchMessages(radioID: channel.radioID, channelIndex: channel.index, limit: pageSize, offset: 0)
             let unfilteredCount = fetchedMessages.count
-            totalFetchedCount = unfilteredCount
+            renderState = renderState.with(totalFetchedCount: unfilteredCount)
             logger.info("loadChannelMessages: fetched \(unfilteredCount) messages")
 
             // Compute divider position before filtering, using unfiltered array
@@ -73,7 +71,7 @@ extension ChatViewModel {
             fetchedMessages = filterOutgoingReactionMessages(fetchedMessages, isDM: false)
 
             // Use unfiltered count to determine if more messages exist
-            hasMoreMessages = unfilteredCount == pageSize
+            renderState = renderState.with(hasMoreMessages: unfilteredCount == pageSize)
             messages = fetchedMessages
 
             buildChannelSenders(radioID: channel.radioID)
@@ -166,67 +164,110 @@ extension ChatViewModel {
             )
             appendMessageIfNew(message)
 
-            channelSendQueue.append(QueuedChannelMessage(messageID: message.id))
-
-            if !isProcessingChannelQueue {
-                channelQueueTask?.cancel()
-                channelQueueTask = Task { await processChannelQueue() }
-            }
+            let envelope = ChannelMessageEnvelope(
+                messageID: message.id,
+                channelIndex: channel.index,
+                isResend: false,
+                messageText: message.text,
+                messageTimestamp: message.timestamp,
+                localNodeName: appState?.connectedDevice?.nodeName
+            )
+            await channelSendQueue?.enqueue(envelope)
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
-    /// Process queued channel messages serially
-    private func processChannelQueue() async {
-        guard let messageService else { return }
-
-        isProcessingChannelQueue = true
-        defer { isProcessingChannelQueue = false }
-
-        let channel = currentChannel
-
-        repeat {
-            while !channelSendQueue.isEmpty {
-                let queued = channelSendQueue.removeFirst()
-
-                do {
-                    try await messageService.sendPendingChannelMessage(messageID: queued.messageID)
-
-                    // Index for reaction matching after successful send
-                    if let message = messagesByID[queued.messageID],
-                       let channelIndex = message.channelIndex,
-                       let reactionService = appState?.services?.reactionService,
-                       let localNodeName = appState?.connectedDevice?.nodeName {
-                        _ = await reactionService.indexMessage(
-                            id: queued.messageID,
-                            channelIndex: channelIndex,
-                            senderName: localNodeName,
-                            text: message.text,
-                            timestamp: message.timestamp
+    func makeChannelSendQueue() -> SendQueue<ChannelMessageEnvelope> {
+        let sendContext = self.sendContext
+        return SendQueue<ChannelMessageEnvelope>(
+            send: { envelope in
+                let services = await MainActor.run {
+                    (
+                        dataStore: sendContext.dataStore,
+                        messageService: sendContext.messageService,
+                        reactionService: sendContext.reactionService
+                    )
+                }
+                guard let messageService = services.messageService else {
+                    if let dataStore = services.dataStore {
+                        try? await dataStore.updateMessageStatus(
+                            id: envelope.messageID,
+                            status: .failed
                         )
                     }
-                } catch is CancellationError {
-                    channelSendQueue.insert(queued, at: 0)
-                    return
-                } catch {
-                    errorMessage = error.localizedDescription
+                    throw ChatSendQueueError.servicesUnavailable
                 }
-            }
 
-            // Reload after queue drains — syncs statuses and conversation list
-            if let channel {
-                await loadChannelMessages(for: channel)
-                await loadChannels(radioID: channel.radioID)
+                if envelope.isResend {
+                    // Resend stamps a fresh timestamp so the retry packet hashes
+                    // differently from the original. The mesh dedup table is a
+                    // 128-slot cyclic ring with no time-based eviction; reusing
+                    // the original timestamp would be silently dropped at every
+                    // neighbor until the slot rotates out.
+                    try await messageService.resendChannelMessage(messageID: envelope.messageID)
+                } else {
+                    try await messageService.sendPendingChannelMessage(messageID: envelope.messageID)
+                }
+
+                // Reaction indexing is best-effort post-send. Missing
+                // reactionService or localNodeName (test config, anonymous
+                // send) is a soft state — leave silent rather than throwing.
+                // localNodeName comes from the envelope so a rename between
+                // enqueue and drain still tags the message with the name
+                // the user had at the moment they hit Send.
+                if let reactionService = services.reactionService,
+                   let nodeName = envelope.localNodeName {
+                    _ = await reactionService.indexMessage(
+                        id: envelope.messageID,
+                        channelIndex: envelope.channelIndex,
+                        senderName: nodeName,
+                        text: envelope.messageText,
+                        timestamp: envelope.messageTimestamp
+                    )
+                }
+            },
+            onError: { _, _ in
+                // Error reporting deferred to onDrain so the post-drain
+                // loadChannelMessages reset of errorMessage = nil does not
+                // clobber sendErrorMessage either.
+            },
+            onDrain: { [weak self] lastError in
+                await self?.handleChannelQueueDrain(lastError: lastError)
             }
-        } while !channelSendQueue.isEmpty
+        )
     }
 
-    /// Retry sending a failed channel message in place.
+    /// Called after the channel send queue empties. Reloads the current
+    /// channel and channels list so optimistic UI catches up with server
+    /// state, then surfaces the most recent send-side error (if any) into
+    /// sendErrorMessage after the reloads — loadChannelMessages and
+    /// loadChannels both clear errorMessage = nil at their top, but
+    /// neither touches sendErrorMessage.
+    private func handleChannelQueueDrain(lastError: Error?) async {
+        let channel = currentChannel
+        if let channel {
+            await loadChannelMessages(for: channel)
+            await loadChannels(radioID: channel.radioID)
+        }
+        if let lastError {
+            sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
+            logger.error("Channel send queue drain ended with error: \(String(describing: lastError))")
+        }
+    }
+
+    /// Retry sending a failed channel message in place. Enqueues the existing
+    /// MessageDTO onto the channel send queue with isResend: false — preserves
+    /// stored timestamp, no sendCount bump, no heardRepeats wipe. The
+    /// isRetryingChannelMessage guard prevents reentrant double-tap during
+    /// the synchronous status-update + reload + enqueue window. Once status
+    /// flips to .pending, the bubble's retry button hides (UI gate), so a
+    /// fresh tap can't enqueue again until the channel send later fails and
+    /// the row returns to .failed.
     func retryChannelMessage(_ message: MessageDTO) async {
-        guard let messageService,
+        guard messageService != nil,
               let channel = currentChannel,
-              message.channelIndex != nil,
+              let channelIndex = message.channelIndex,
               !isRetryingChannelMessage else { return }
 
         isRetryingChannelMessage = true
@@ -235,17 +276,15 @@ extension ChatViewModel {
         try? await dataStore?.updateMessageStatus(id: message.id, status: .pending)
         await loadChannelMessages(for: channel)
 
-        do {
-            try await messageService.sendPendingChannelMessage(messageID: message.id)
-        } catch is CancellationError {
-            // Fall through to reload so UI reflects current state
-        } catch {
-            errorMessage = error.localizedDescription
-            showRetryError = true
-        }
-
-        await loadChannelMessages(for: channel)
-        await loadChannels(radioID: channel.radioID)
+        let envelope = ChannelMessageEnvelope(
+            messageID: message.id,
+            channelIndex: channelIndex,
+            isResend: false,
+            messageText: message.text,
+            messageTimestamp: message.timestamp,
+            localNodeName: appState?.connectedDevice?.nodeName
+        )
+        await channelSendQueue?.enqueue(envelope)
     }
 
     // MARK: - In-Place Updates

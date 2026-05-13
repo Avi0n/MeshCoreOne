@@ -10,7 +10,7 @@ struct UnifiedMessageBubble: View {
     let displayState: MessageDisplayState
     let callbacks: MessageBubbleCallbacks
 
-    @AppStorage("linkPreviewsEnabled") private var previewsEnabled = false
+    @AppStorage(AppStorageKey.linkPreviewsEnabled.rawValue) private var previewsEnabled = false
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     @State private var showingReactionDetails = false

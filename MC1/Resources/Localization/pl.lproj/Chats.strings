@@ -1099,3 +1099,8 @@
 
 /* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle when region matches the device default */
 "chats.channelInfo.region.defaultScopedAccessibility" = "%@, ograniczony do %@ (domyślny)";
+
+// MARK: - Common
+
+/* Location: ChatConversationView.swift - Conversation toolbar Info button */
+"chats.common.info" = "Informacje";

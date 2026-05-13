@@ -71,9 +71,6 @@ final class ChatViewModel {
     @ObservationIgnored var urlDetectionTask: Task<Void, Never>?
     /// Bumped on every buildDisplayItems rebuild; URL detection writes check this before mutating displayItems
     @ObservationIgnored var urlDetectionGeneration: UInt64 = 0
-    // Stored for lifecycle tracking; queue drains independently of conversation
-    @ObservationIgnored var queueProcessorTask: Task<Void, Never>?
-    @ObservationIgnored var channelQueueTask: Task<Void, Never>?
     /// Tracks the last region scope sent to the device via setFloodScope.
     @ObservationIgnored var lastSetRegionScope: RegionScopeState = .unknown
 
@@ -120,14 +117,40 @@ final class ChatViewModel {
     /// Messages for the current conversation
     var messages: [MessageDTO] = []
 
+    /// Immutable snapshot of the timeline as the view sees it.
+    /// Rebuilt on every load or mutation via `renderState = renderState.with(...)`;
+    /// views read through the computed accessors below.
+    var renderState: ChatRenderState = .empty
+
+    /// Monotonic counter bumped when an incoming `MessageEvent` indicates the
+    /// timeline needs a reload from the data store. Observed by
+    /// `ChatConversationView` via `.onChange`; the chase-the-counter pattern in
+    /// `coalescedReload(for:)` debounces racing reloads during event bursts.
+    var reloadSignal: UInt64 = 0
+
+    /// Monotonic counter bumped when a `MessageEvent` indicates the current
+    /// contact (route, profile) should be re-fetched. Observed by the view.
+    var contactRefreshSignal: UInt64 = 0
+
+    /// Most recent incoming self-mention, with a per-mention sequence number
+    /// so consecutive mentions of the same message still fire `.onChange`.
+    var lastIncomingMention: MentionEvent?
+
+    /// Internal mention counter; never observed by the view, so it stays out
+    /// of the `@Observable` graph.
+    @ObservationIgnored var mentionSequence: UInt64 = 0
+
+    /// Latch for the chase-the-counter reload coalescer in `coalescedReload(for:)`.
+    @ObservationIgnored var reloadInFlight = false
+
     /// Pre-computed display items for efficient cell rendering
-    var displayItems: [MessageDisplayItem] = []
+    var displayItems: [MessageDisplayItem] { renderState.items }
 
     /// O(1) message lookup by ID (used by views to get full DTO when needed)
     var messagesByID: [UUID: MessageDTO] = [:]
 
     /// O(1) display item index lookup by message ID
-    var displayItemIndexByID: [UUID: Int] = [:]
+    var displayItemIndexByID: [UUID: Int] { renderState.itemIndexByID }
 
     /// Current contact being chatted with
     var currentContact: ContactDTO?
@@ -144,29 +167,42 @@ final class ChatViewModel {
     /// Error message if any
     var errorMessage: String?
 
-    /// Whether to show retry error alert
-    var showRetryError = false
+    /// Error state for send-only failures (queue drains, retry call site).
+    /// Separate from `errorMessage`, which surfaces load and fetch errors
+    /// with the generic "Error" alert title. `sendErrorMessage` surfaces
+    /// with the "Unable to Send" title so retry-context errors read as
+    /// user-actionable rather than generic.
+    ///
+    /// Routing:
+    /// - Send-queue drain errors are assigned post-`loadMessages` so the
+    ///   load reset of `errorMessage = nil` does not clobber the alert.
+    /// - Load errors continue to flow to `errorMessage`.
+    var sendErrorMessage: String?
 
     /// Message text being composed
     var composingText = ""
 
-    /// Queue of message IDs waiting to be sent
-    var sendQueue: [QueuedMessage] = []
+    /// Shared service box the chat send queues read on each drain step.
+    /// Lives for the view-model's lifetime; `configure*()` mutates fields
+    /// in place so a BLE reconnect rebinds services without recreating
+    /// the queues. The send closures capture this by reference.
+    @ObservationIgnored let sendContext = ChatSendContext()
 
-    /// Whether the queue processor is running
-    var isProcessingQueue = false
+    /// Serial drain for outgoing DMs. Constructed on first `configure*()`
+    /// and reused thereafter — never recreated across reconnects because
+    /// it captures `sendContext` (which is mutated in place instead).
+    @ObservationIgnored var dmSendQueue: SendQueue<DirectMessageEnvelope>?
 
-    /// Queue of channel messages waiting to be sent
-    @ObservationIgnored var channelSendQueue: [QueuedChannelMessage] = []
-
-    /// Whether the channel queue processor is running
-    @ObservationIgnored var isProcessingChannelQueue = false
+    /// Serial drain for outgoing channel messages. Constructed on first
+    /// `configure*()` and reused thereafter — see `dmSendQueue` for the
+    /// rebind-across-reconnect rationale.
+    @ObservationIgnored var channelSendQueue: SendQueue<ChannelMessageEnvelope>?
 
     /// Whether a channel message retry is in progress
     @ObservationIgnored var isRetryingChannelMessage = false
 
-    /// Number of messages in the send queue (for testing)
-    var sendQueueCount: Int { sendQueue.count }
+    /// Whether a DM retry is in progress (prevents double-tap reentry)
+    @ObservationIgnored var isRetryingMessage = false
 
     /// Last message previews cache
     var lastMessageCache: [UUID: MessageDTO] = [:]
@@ -230,16 +266,16 @@ final class ChatViewModel {
     // MARK: - Pagination State
 
     /// Whether currently fetching older messages (exposed for UI binding)
-    var isLoadingOlder = false
+    var isLoadingOlder: Bool { renderState.isLoadingOlder }
 
     /// Whether more messages exist beyond what's loaded
-    var hasMoreMessages = true
+    var hasMoreMessages: Bool { renderState.hasMoreMessages }
 
     /// Number of messages to fetch per page
     let pageSize = 50
 
     /// Total messages fetched from database (unfiltered, for accurate offset calculation)
-    var totalFetchedCount = 0
+    var totalFetchedCount: Int { renderState.totalFetchedCount }
 
     /// Message ID that should show the "New Messages" divider above it
     var newMessagesDividerMessageID: UUID?
@@ -292,6 +328,11 @@ final class ChatViewModel {
         self.syncCoordinator = appState.syncCoordinator
         self.linkPreviewCache = linkPreviewCache
         self.lastSetRegionScope = .unknown
+        rebindSendContext(
+            dataStore: appState.offlineDataStore,
+            messageService: appState.services?.messageService,
+            reactionService: appState.services?.reactionService
+        )
     }
 
     /// Configure with services from AppState (for conversation list views that don't show previews)
@@ -305,6 +346,11 @@ final class ChatViewModel {
         self.contactService = appState.services?.contactService
         self.syncCoordinator = appState.syncCoordinator
         self.lastSetRegionScope = .unknown
+        rebindSendContext(
+            dataStore: appState.offlineDataStore,
+            messageService: appState.services?.messageService,
+            reactionService: appState.services?.reactionService
+        )
     }
 
     /// Configure with services (for testing)
@@ -312,55 +358,34 @@ final class ChatViewModel {
         self.dataStore = dataStore
         self.messageService = messageService
         self.linkPreviewCache = linkPreviewCache
+        rebindSendContext(
+            dataStore: dataStore,
+            messageService: messageService,
+            reactionService: nil
+        )
     }
 
-    // MARK: - Timestamp Helpers
+    /// Rebind the send-queue service references and lazily construct the
+    /// queues on first configure. The queues themselves persist across
+    /// reconnects because they capture `sendContext` by reference — only
+    /// the fields mutate, not the queue instances.
+    private func rebindSendContext(
+        dataStore: DataStore?,
+        messageService: MessageService?,
+        reactionService: ReactionService?
+    ) {
+        sendContext.dataStore = dataStore
+        sendContext.messageService = messageService
+        sendContext.reactionService = reactionService
 
-    /// Time gap (in seconds) that breaks message grouping for timestamps and sender names.
-    static let messageGroupingGapSeconds = 300
-
-    /// Pre-computed display flags for a single message
-    struct DisplayFlags {
-        let showTimestamp: Bool
-        let showDirectionGap: Bool
-        let showSenderName: Bool
-    }
-
-    /// Computes all display flags in a single pass to avoid redundant message lookups.
-    /// Used by buildDisplayItems() for O(n) performance instead of O(3n).
-    static func computeDisplayFlags(for message: MessageDTO, previous: MessageDTO?) -> DisplayFlags {
-        guard let previous else {
-            // First message: show timestamp, no direction gap, show sender name
-            return DisplayFlags(showTimestamp: true, showDirectionGap: false, showSenderName: true)
+        if dmSendQueue == nil {
+            dmSendQueue = makeDMSendQueue()
         }
-
-        // Time gap calculation based on receive time (consistent with sort order)
-        let timeGap = abs(Int(message.createdAt.timeIntervalSince(previous.createdAt)))
-
-        // Timestamp: gap > 5 minutes
-        let showTimestamp = timeGap > messageGroupingGapSeconds
-
-        // Direction gap: direction changed from previous
-        let showDirectionGap = message.direction != previous.direction
-
-        // Sender name grouping (channel messages only)
-        let showSenderName: Bool
-        if message.contactID != nil || message.isOutgoing {
-            // Direct messages or outgoing: always true (UI ignores for direct messages anyway)
-            showSenderName = true
-        } else if previous.isOutgoing || timeGap > messageGroupingGapSeconds {
-            // Direction change or time gap breaks group
-            showSenderName = true
-        } else if let currentName = message.senderNodeName, let previousName = previous.senderNodeName {
-            // Same sender continues group
-            showSenderName = currentName != previousName
-        } else {
-            // Malformed message: show name to be safe
-            showSenderName = true
+        if channelSendQueue == nil {
+            channelSendQueue = makeChannelSendQueue()
         }
-
-        return DisplayFlags(showTimestamp: showTimestamp, showDirectionGap: showDirectionGap, showSenderName: showSenderName)
     }
+
 }
 
 // MARK: - Environment Key

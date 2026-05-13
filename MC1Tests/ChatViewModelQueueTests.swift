@@ -112,25 +112,40 @@ struct ChatViewModelQueueTests {
         return (contact, dto)
     }
 
-    @Test("Queue starts empty")
-    func queueStartsEmpty() {
-        let viewModel = ChatViewModel()
-        #expect(viewModel.sendQueueCount == 0)
-        #expect(viewModel.isProcessingQueue == false)
+    private static func enqueue(
+        on viewModel: ChatViewModel,
+        messageID: UUID,
+        contactID: UUID
+    ) async {
+        let envelope = DirectMessageEnvelope(messageID: messageID, contactID: contactID)
+        await viewModel.dmSendQueue?.enqueue(envelope)
     }
 
-    @Test("Send message queues the message")
-    func sendMessageQueuesMessage() async throws {
+    @Test("Queue starts empty")
+    func queueStartsEmpty() async {
+        let viewModel = ChatViewModel()
+        let count = await viewModel.dmSendQueue?.count ?? 0
+        #expect(count == 0)
+    }
+
+    @Test("Send message persists a pending row")
+    func sendMessagePersistsPendingRow() async throws {
         let ctx = try await Self.makeTestContext()
         let viewModel = ChatViewModel()
         viewModel.configure(dataStore: ctx.dataStore, messageService: ctx.messageService, linkPreviewCache: ctx.linkPreviewCache)
+        #expect(viewModel.dmSendQueue != nil)
 
-        let (_, contactDTO) = try await Self.makeContact(context: ctx)
+        let (contact, contactDTO) = try await Self.makeContact(context: ctx)
         viewModel.currentContact = contactDTO
 
         await viewModel.sendMessage(text: "Hello world")
 
-        #expect(viewModel.sendQueueCount == 1)
+        // Race-safe assertion: the queue may already have drained by the time we
+        // observe (SendQueue drain runs in the actor's own Task). Verify the
+        // user-visible side effect — a pending DB row.
+        let messages = try await ctx.dataStore.fetchMessages(contactID: contact.id)
+        #expect(messages.count == 1, "sendMessage must persist a pending row")
+        #expect(messages[0].text == "Hello world")
     }
 
     @Test("Process queue sends messages in order")
@@ -138,6 +153,7 @@ struct ChatViewModelQueueTests {
         let ctx = try await Self.makeTestContext()
         let viewModel = ChatViewModel()
         viewModel.configure(dataStore: ctx.dataStore, messageService: ctx.messageService, linkPreviewCache: ctx.linkPreviewCache)
+        #expect(viewModel.dmSendQueue != nil)
 
         let (contact, contactDTO) = try await Self.makeContact(context: ctx)
         viewModel.currentContact = contactDTO
@@ -146,16 +162,14 @@ struct ChatViewModelQueueTests {
         let msg2 = try await ctx.messageService.createPendingMessage(text: "Second", to: contactDTO)
         let msg3 = try await ctx.messageService.createPendingMessage(text: "Third", to: contactDTO)
 
-        viewModel.enqueueMessage(msg1.id, contactID: contact.id)
-        viewModel.enqueueMessage(msg2.id, contactID: contact.id)
-        viewModel.enqueueMessage(msg3.id, contactID: contact.id)
+        await Self.enqueue(on: viewModel, messageID: msg1.id, contactID: contact.id)
+        await Self.enqueue(on: viewModel, messageID: msg2.id, contactID: contact.id)
+        await Self.enqueue(on: viewModel, messageID: msg3.id, contactID: contact.id)
 
-        #expect(viewModel.sendQueueCount == 3)
+        await viewModel.dmSendQueue?.awaitDrainCompletion()
 
-        await viewModel.processQueueForTesting()
-
-        #expect(viewModel.sendQueueCount == 0)
-        #expect(viewModel.isProcessingQueue == false)
+        let finalCount = await viewModel.dmSendQueue?.count ?? -1
+        #expect(finalCount == 0)
 
         let messages = try await ctx.dataStore.fetchMessages(contactID: contact.id)
         #expect(messages.count == 3)
@@ -169,6 +183,7 @@ struct ChatViewModelQueueTests {
         let ctx = try await Self.makeTestContext()
         let viewModel = ChatViewModel()
         viewModel.configure(dataStore: ctx.dataStore, messageService: ctx.messageService, linkPreviewCache: ctx.linkPreviewCache)
+        #expect(viewModel.dmSendQueue != nil)
 
         let (contact, contactDTO) = try await Self.makeContact(context: ctx)
         viewModel.currentContact = contactDTO
@@ -177,14 +192,14 @@ struct ChatViewModelQueueTests {
         let msg2 = try await ctx.messageService.createPendingMessage(text: "Second", to: contactDTO)
         let msg3 = try await ctx.messageService.createPendingMessage(text: "Third", to: contactDTO)
 
-        viewModel.enqueueMessage(msg1.id, contactID: contact.id)
-        viewModel.enqueueMessage(msg2.id, contactID: contact.id)
-        viewModel.enqueueMessage(msg3.id, contactID: contact.id)
+        await Self.enqueue(on: viewModel, messageID: msg1.id, contactID: contact.id)
+        await Self.enqueue(on: viewModel, messageID: msg2.id, contactID: contact.id)
+        await Self.enqueue(on: viewModel, messageID: msg3.id, contactID: contact.id)
 
-        await viewModel.processQueueForTesting()
+        await viewModel.dmSendQueue?.awaitDrainCompletion()
 
-        #expect(viewModel.sendQueueCount == 0)
-        #expect(viewModel.isProcessingQueue == false)
+        let finalCount = await viewModel.dmSendQueue?.count ?? -1
+        #expect(finalCount == 0)
     }
 
     @Test("Messages go to correct contact even after navigating away")
@@ -192,6 +207,7 @@ struct ChatViewModelQueueTests {
         let ctx = try await Self.makeTestContext()
         let viewModel = ChatViewModel()
         viewModel.configure(dataStore: ctx.dataStore, messageService: ctx.messageService, linkPreviewCache: ctx.linkPreviewCache)
+        #expect(viewModel.dmSendQueue != nil)
 
         let (alice, aliceDTO) = try await Self.makeContact(context: ctx, name: "Alice", keyByte: 2)
         let (bob, _) = try await Self.makeContact(context: ctx, name: "Bob", keyByte: 3)
@@ -202,13 +218,13 @@ struct ChatViewModelQueueTests {
         let msg1 = try await ctx.messageService.createPendingMessage(text: "Hello Alice", to: aliceDTO)
         let msg2 = try await ctx.messageService.createPendingMessage(text: "How are you?", to: aliceDTO)
 
-        viewModel.enqueueMessage(msg1.id, contactID: alice.id)
-        viewModel.enqueueMessage(msg2.id, contactID: alice.id)
+        await Self.enqueue(on: viewModel, messageID: msg1.id, contactID: alice.id)
+        await Self.enqueue(on: viewModel, messageID: msg2.id, contactID: alice.id)
 
         // User navigates to Bob's chat before queue finishes
         viewModel.currentContact = bobDTO
 
-        await viewModel.processQueueForTesting()
+        await viewModel.dmSendQueue?.awaitDrainCompletion()
 
         let aliceMessages = try await ctx.dataStore.fetchMessages(contactID: alice.id)
         let bobMessages = try await ctx.dataStore.fetchMessages(contactID: bob.id)

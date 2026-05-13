@@ -233,6 +233,8 @@ public enum L10n {
         public static let cancel = L10n.tr("Chats", "chats.common.cancel", fallback: "Cancel")
         /// Location: Various - Done button (use L10n.Localizable.Common.done)
         public static let done = L10n.tr("Chats", "chats.common.done", fallback: "Done")
+        /// Location: ChatConversationView.swift - Conversation toolbar Info button
+        public static let info = L10n.tr("Chats", "chats.common.info", fallback: "Info")
         /// Location: Various - OK button (use L10n.Localizable.Common.ok)
         public static let ok = L10n.tr("Chats", "chats.common.ok", fallback: "OK")
       }

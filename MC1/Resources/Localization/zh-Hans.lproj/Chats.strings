@@ -134,7 +134,7 @@
 "chats.alert.unableToSend.title" = "无法发送";
 
 /* Location: ChatConversationView.swift - Alert message when message send fails */
-"chats.alert.unableToSend.message" = "请确保您的设备已连接并重试";
+"chats.alert.unableToSend.message" = "请确保您的设备已连接并重试。";
 
 /* Location: ChatConversationView.swift - Connection status for flood routed contacts */
 "chats.connectionStatus.floodRouting" = "泛洪路由";
@@ -1106,3 +1106,8 @@
 
 /* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle when region matches the device default */
 "chats.channelInfo.region.defaultScopedAccessibility" = "%@，限定为 %@（默认）";
+
+// MARK: - Common
+
+/* Location: ChatConversationView.swift - Conversation toolbar Info button */
+"chats.common.info" = "信息";

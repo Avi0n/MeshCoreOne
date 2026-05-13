@@ -15,7 +15,6 @@ struct RoomConversationView: View {
     @State private var isAtBottom = true
     @State private var unreadCount = 0
     @State private var scrollToBottomRequest = 0
-    @State private var eventCursor: Int?
     @FocusState private var isInputFocused: Bool
 
     init(session: RemoteNodeSessionDTO) {
@@ -53,41 +52,17 @@ struct RoomConversationView: View {
                 }
                 .presentationSizing(.page)
             }
-            .onAppear {
-                eventCursor = appState.messageEventBroadcaster.currentEventSequence
-            }
             .task {
                 viewModel.configure(appState: appState)
                 chatViewModel.configure(appState: appState)
                 await viewModel.loadMessages(for: session)
             }
-            .onChange(of: appState.messageEventBroadcaster.newMessageCount) { _, _ in
-                guard let cursor = eventCursor else { return }
-                let (events, newCursor, droppedEvents) = appState.messageEventBroadcaster.events(after: cursor)
-                eventCursor = newCursor
-                var needsReload = droppedEvents
-                for event in events {
-                    switch event {
-                    case .roomMessageReceived(let message, let sessionID) where sessionID == session.id:
-                        viewModel.appendMessageIfNew(message)
-                        needsReload = true
-                    case .roomMessageStatusUpdated(let messageID):
-                        if viewModel.messages.contains(where: { $0.id == messageID }) {
-                            needsReload = true
-                        }
-                    case .roomMessageFailed(let messageID):
-                        if viewModel.messages.contains(where: { $0.id == messageID }) {
-                            needsReload = true
-                        }
-                    default:
-                        break
-                    }
-                }
-                if needsReload {
-                    Task { await viewModel.loadMessages(for: session) }
+            .task {
+                for await event in appState.messageEventStream.events() {
+                    await viewModel.handleEvent(event)
                 }
             }
-            .onChange(of: appState.messageEventBroadcaster.sessionStateChangeCount) { _, _ in
+            .onChange(of: appState.sessionStateChangeCount) { _, _ in
                 Task {
                     await viewModel.refreshSession()
                     if let updated = viewModel.session {

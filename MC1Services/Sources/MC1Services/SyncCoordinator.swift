@@ -194,13 +194,13 @@ public actor SyncCoordinator {
     /// Callback when conversations data changes (for SwiftUI observation).
     @MainActor private var onConversationsChanged: (@Sendable @MainActor () -> Void)?
 
-    /// Callback when a direct message is received (for MessageEventBroadcaster)
+    /// Callback when a direct message is received (forwarded to `MessageEventStream` consumers).
     var onDirectMessageReceived: (@Sendable (_ message: MessageDTO, _ contact: ContactDTO) async -> Void)?
 
-    /// Callback when a channel message is received (for MessageEventBroadcaster)
+    /// Callback when a channel message is received (forwarded to `MessageEventStream` consumers).
     var onChannelMessageReceived: (@Sendable (_ message: MessageDTO, _ channelIndex: UInt8) async -> Void)?
 
-    /// Callback when a room message is received (for MessageEventBroadcaster)
+    /// Callback when a room message is received (forwarded to `MessageEventStream` consumers).
     var onRoomMessageReceived: (@Sendable (_ message: RoomMessageDTO) async -> Void)?
 
     /// Callback when a reaction is received for a channel message
@@ -262,7 +262,7 @@ public actor SyncCoordinator {
         }
     }
 
-    /// Sets callbacks for message events (used by AppState for MessageEventBroadcaster)
+    /// Sets callbacks for message events (used by AppState to feed `MessageEventStream`).
     public func setMessageEventCallbacks(
         onDirectMessageReceived: @escaping @Sendable (_ message: MessageDTO, _ contact: ContactDTO) async -> Void,
         onChannelMessageReceived: @escaping @Sendable (_ message: MessageDTO, _ channelIndex: UInt8) async -> Void,

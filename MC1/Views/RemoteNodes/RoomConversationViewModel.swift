@@ -120,11 +120,22 @@ final class RoomConversationViewModel {
         }
     }
 
-    /// Handle message event and update if relevant to current session
+    /// Fold a `MessageEvent` from `MessageEventStream` into view-model state.
+    /// Called on the main actor from a SwiftUI `.task` consumer in
+    /// `RoomConversationView`. The exhaustive switch is deliberate — a new
+    /// `MessageEvent` case becomes a compile error rather than a silent skip.
     func handleEvent(_ event: MessageEvent) async {
         guard let session else { return }
 
         switch event {
+        case .roomMessageReceived(let message, let sessionID):
+            // Optimistic append first so the ChatTableView sees the new count
+            // immediately for unread tracking, then reload to sync any
+            // server-side state that arrived in between.
+            guard sessionID == session.id else { return }
+            appendMessageIfNew(message)
+            await loadMessages(for: session)
+
         case .roomMessageStatusUpdated(let messageID):
             if messages.contains(where: { $0.id == messageID }) {
                 await loadMessages(for: session)
@@ -135,7 +146,12 @@ final class RoomConversationViewModel {
                 await loadMessages(for: session)
             }
 
-        default:
+        case .directMessageReceived, .channelMessageReceived,
+             .messageStatusUpdated, .messageFailed, .messageRetrying,
+             .heardRepeatRecorded, .reactionReceived, .routingChanged:
+            // Non-Room events are not Room-scoped. Enumerated explicitly so
+            // adding a new MessageEvent case surfaces as a non-exhaustive
+            // switch compile error rather than a silent skip.
             break
         }
     }

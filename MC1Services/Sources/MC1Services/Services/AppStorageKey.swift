@@ -16,4 +16,8 @@ public enum AppStorageKey: String {
     case showIncomingPath
     case showIncomingHopCount
     case showIncomingRegion
+    case linkPreviewsEnabled
+    case showInlineImages
+    case autoPlayGIFs
+    case replyWithQuote
 }
