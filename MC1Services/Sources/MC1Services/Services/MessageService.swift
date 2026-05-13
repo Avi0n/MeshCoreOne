@@ -53,13 +53,14 @@ public actor MessageService {
     /// can still mark the message delivered.
     var pendingAcks: [UUID: PendingAck] = [:]
 
-    /// ACK confirmation callback (ackCode, roundTripTime).
+    /// ACK confirmation callback (messageID).
     ///
-    /// `roundTripTime` is `nil` when firmware did not supply a `round_trip`
-    /// value on the `PUSH_CODE_SEND_CONFIRMED` push (older firmware, truncated
-    /// payloads). Callers must handle the nil case rather than substitute a
-    /// fabricated value.
-    private var ackConfirmationHandler: (@Sendable (UInt32, UInt32?) -> Void)?
+    /// The handler receives the resolved messageID rather than the raw ackCode,
+    /// so consumers can gate on conversation membership without re-walking
+    /// `pendingAcks`. Round-trip time is persisted to the data store via
+    /// `updateMessageAck` and read back through the DTO; passing it through
+    /// the callback would duplicate that path.
+    private var ackConfirmationHandler: (@Sendable (UUID) -> Void)?
 
     /// Message failure callback (messageID)
     var messageFailedHandler: (@Sendable (UUID) async -> Void)?
@@ -197,15 +198,15 @@ public actor MessageService {
 
         pendingAcks.removeValue(forKey: messageID)
 
-        ackConfirmationHandler?(ackCodeUInt32, tripTime)
+        ackConfirmationHandler?(messageID)
 
         logger.info("ACK received")
     }
 
     /// Sets a callback to be invoked when an ACK is received.
     ///
-    /// - Parameter handler: Callback receiving (ackCode, roundTripTimeMs)
-    public func setAckConfirmationHandler(_ handler: @escaping @Sendable (UInt32, UInt32?) -> Void) {
+    /// - Parameter handler: Callback receiving the resolved messageID.
+    public func setAckConfirmationHandler(_ handler: @escaping @Sendable (UUID) -> Void) {
         ackConfirmationHandler = handler
     }
 

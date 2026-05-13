@@ -8,11 +8,7 @@ struct ChatMessagesTableView: View {
     let deviceName: String
     let configuration: MessageBubbleConfiguration
     let recentEmojisStore: RecentEmojisStore
-    let showInlineImages: Bool
-    let autoPlayGIFs: Bool
-    let showIncomingPath: Bool
-    let showIncomingHopCount: Bool
-    let showIncomingRegion: Bool
+    let envInputs: EnvInputs
 
     @Binding var isAtBottom: Bool
     @Binding var unreadCount: Int
@@ -39,7 +35,7 @@ struct ChatMessagesTableView: View {
     var body: some View {
         let mentionIDSet = Set(unseenMentionIDs)
         ChatTableView(
-            items: viewModel.displayItems,
+            items: viewModel.items,
             cellContent: { item in
                 MessageBubbleView(
                     item: item,
@@ -48,11 +44,6 @@ struct ChatMessagesTableView: View {
                     configuration: configuration,
                     viewModel: viewModel,
                     recentEmojisStore: recentEmojisStore,
-                    showInlineImages: showInlineImages,
-                    autoPlayGIFs: autoPlayGIFs,
-                    showIncomingPath: showIncomingPath,
-                    showIncomingHopCount: showIncomingHopCount,
-                    showIncomingRegion: showIncomingRegion,
                     selectedMessageForActions: $selectedMessageForActions,
                     imageViewerData: $imageViewerData,
                     onRetryMessage: onRetryMessage
@@ -63,7 +54,9 @@ struct ChatMessagesTableView: View {
             scrollToBottomRequest: $scrollToBottomRequest,
             scrollToMentionRequest: $scrollToMentionRequest,
             isUnseenMention: { item in
-                item.containsSelfMention && !item.mentionSeen && mentionIDSet.contains(item.id)
+                item.envelope.containsSelfMention
+                    && !item.envelope.mentionSeen
+                    && mentionIDSet.contains(item.id)
             },
             onMentionBecameVisible: { id in
                 Task {
@@ -115,6 +108,9 @@ struct ChatMessagesTableView: View {
         }
         .onChange(of: newMessagesDividerMessageID) { _, _ in
             hasDismissedDividerFAB = false
+        }
+        .onChange(of: envInputs) { _, new in
+            viewModel.applyEnvInputs(new)
         }
     }
 }

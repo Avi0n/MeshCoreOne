@@ -16,7 +16,7 @@ extension ChatViewModel {
     }
 
     /// Computes all display flags in a single pass to avoid redundant message lookups.
-    /// Used by buildDisplayItems() for O(n) performance instead of O(3n).
+    /// Used by buildItems() for O(n) performance instead of O(3n).
     static func computeDisplayFlags(for message: MessageDTO, previous: MessageDTO?) -> DisplayFlags {
         guard let previous else {
             return DisplayFlags(showTimestamp: true, showDirectionGap: false, showSenderName: true)

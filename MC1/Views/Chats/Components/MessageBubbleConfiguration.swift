@@ -1,4 +1,3 @@
-import SwiftUI
 import MC1Services
 
 /// Configuration for message bubble appearance and behavior
@@ -26,7 +25,7 @@ struct MessageBubbleConfiguration: Sendable {
         )
     }
 
-    private static func resolveSenderName(for message: MessageDTO, contacts: [ContactDTO]) -> NodeNameResolution {
+    static func resolveSenderName(for message: MessageDTO, contacts: [ContactDTO]) -> NodeNameResolution {
         // First, try parsed sender name from channel message
         if let senderName = message.senderNodeName, !senderName.isEmpty {
             return NodeNameResolution(displayName: senderName, matchKind: .exact)

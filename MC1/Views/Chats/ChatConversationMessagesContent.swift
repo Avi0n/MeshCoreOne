@@ -16,11 +16,7 @@ struct ChatConversationMessagesContent: View {
 
     // MARK: - Display Preferences
 
-    let showInlineImages: Bool
-    let autoPlayGIFs: Bool
-    let showIncomingPath: Bool
-    let showIncomingHopCount: Bool
-    let showIncomingRegion: Bool
+    let envInputs: EnvInputs
 
     // MARK: - Scroll State Bindings
 
@@ -64,11 +60,7 @@ struct ChatConversationMessagesContent: View {
                     deviceName: deviceName,
                     configuration: bubbleConfiguration,
                     recentEmojisStore: recentEmojisStore,
-                    showInlineImages: showInlineImages,
-                    autoPlayGIFs: autoPlayGIFs,
-                    showIncomingPath: showIncomingPath,
-                    showIncomingHopCount: showIncomingHopCount,
-                    showIncomingRegion: showIncomingRegion,
+                    envInputs: envInputs,
                     isAtBottom: $isAtBottom,
                     unreadCount: $unreadCount,
                     scrollToBottomRequest: $scrollToBottomRequest,
@@ -188,11 +180,7 @@ private struct ChannelEmptyMessagesView: View {
             viewModel: ChatViewModel(),
             deviceName: "My Device",
             recentEmojisStore: RecentEmojisStore(),
-            showInlineImages: true,
-            autoPlayGIFs: true,
-            showIncomingPath: false,
-            showIncomingHopCount: false,
-            showIncomingRegion: false,
+            envInputs: .default,
             isAtBottom: .constant(true),
             unreadCount: .constant(0),
             scrollToBottomRequest: .constant(0),
@@ -223,11 +211,7 @@ private struct ChannelEmptyMessagesView: View {
             viewModel: ChatViewModel(),
             deviceName: "My Device",
             recentEmojisStore: RecentEmojisStore(),
-            showInlineImages: true,
-            autoPlayGIFs: true,
-            showIncomingPath: false,
-            showIncomingHopCount: false,
-            showIncomingRegion: false,
+            envInputs: .default,
             isAtBottom: .constant(true),
             unreadCount: .constant(0),
             scrollToBottomRequest: .constant(0),

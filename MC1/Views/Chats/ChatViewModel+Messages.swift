@@ -307,9 +307,10 @@ extension ChatViewModel {
             fetchedMessages = filterOutgoingReactionMessages(fetchedMessages, isDM: true)
 
             messages = fetchedMessages
+            bumpBuildGeneration()
             renderState = renderState.with(hasMoreMessages: unfilteredCount == pageSize)
 
-            buildDisplayItems()
+            buildItems()
 
             // Index loaded messages for reaction matching and process any pending reactions
             if let reactionService = appState?.services?.reactionService {
@@ -365,99 +366,6 @@ extension ChatViewModel {
         isLoading = false
     }
 
-    /// Optimistically append a message if not already present.
-    /// Called synchronously before async reload to ensure ChatTableView
-    /// sees the new count immediately for unread tracking.
-    func appendMessageIfNew(_ message: MessageDTO) {
-        guard renderState.itemIndexByID[message.id] == nil else { return }
-        let previous = messages.last
-        messages.append(message)
-        messagesByID[message.id] = message
-
-        // Build display item synchronously for immediate consistency
-        let flags = Self.computeDisplayFlags(for: message, previous: previous)
-        let newItem = MessageDisplayItem(
-            messageID: message.id,
-            showTimestamp: flags.showTimestamp,
-            showDirectionGap: flags.showDirectionGap,
-            showSenderName: flags.showSenderName,
-            showNewMessagesDivider: false,
-            detectedURL: nil,  // URL detection deferred to avoid main thread blocking
-            isImageURL: false,
-            isOutgoing: message.isOutgoing,
-            status: message.status,
-            containsSelfMention: message.containsSelfMention,
-            mentionSeen: message.mentionSeen,
-            heardRepeats: message.heardRepeats,
-            retryAttempt: message.retryAttempt,
-            maxRetryAttempts: message.maxRetryAttempts,
-            reactionSummary: message.reactionSummary,
-            previewState: .idle,
-            loadedPreview: nil
-        )
-        var items = renderState.items
-        items.append(newItem)
-        var indexByID = renderState.itemIndexByID
-        indexByID[message.id] = items.count - 1
-        renderState = renderState.with(
-            items: items,
-            itemIndexByID: indexByID,
-            totalFetchedCount: renderState.totalFetchedCount + 1
-        )
-
-        // Capture current generation; the write site re-checks so a buildDisplayItems rebuild bails this task
-        let messageID = message.id
-        let text = message.text
-        let generation = urlDetectionGeneration
-        Task { [weak self] in
-            guard let self else { return }
-            await self.updateURLForDisplayItem(messageID: messageID, text: text, generation: generation)
-        }
-
-        // Add sender to channelSenders if new (for channel messages)
-        if let senderName = message.senderNodeName,
-           let radioID = currentChannel?.radioID {
-            addChannelSenderIfNew(senderName, radioID: radioID)
-        }
-    }
-
-    /// Update URL detection for a single display item by message ID.
-    /// Uses O(1) dictionary lookup to handle concurrent array modifications.
-    private func updateURLForDisplayItem(messageID: UUID, text: String, generation: UInt64) async {
-        let detectedURL = await Task.detached(priority: .userInitiated) {
-            LinkPreviewService.extractFirstURL(from: text)
-        }.value
-
-        // Drop stale writes after a buildDisplayItems rebuild — Task.cancel only kills the latest chain link
-        guard urlDetectionGeneration == generation else { return }
-
-        cachedURLs[messageID] = detectedURL
-
-        guard let index = renderState.itemIndexByID[messageID] else { return }
-        let item = renderState.items[index]
-        var items = renderState.items
-        items[index] = MessageDisplayItem(
-            messageID: item.messageID,
-            showTimestamp: item.showTimestamp,
-            showDirectionGap: item.showDirectionGap,
-            showSenderName: item.showSenderName,
-            showNewMessagesDivider: item.showNewMessagesDivider,
-            detectedURL: detectedURL,
-            isImageURL: detectedURL.map { ImageURLDetector.isImageURL($0) } ?? false,
-            isOutgoing: item.isOutgoing,
-            status: item.status,
-            containsSelfMention: item.containsSelfMention,
-            mentionSeen: item.mentionSeen,
-            heardRepeats: item.heardRepeats,
-            retryAttempt: item.retryAttempt,
-            maxRetryAttempts: item.maxRetryAttempts,
-            reactionSummary: item.reactionSummary,
-            previewState: previewStates[messageID] ?? .idle,
-            loadedPreview: loadedPreviews[messageID]
-        )
-        renderState = renderState.with(items: items)
-    }
-
     /// Load any saved draft for the current contact
     /// Drafts are consumed (removed) after loading to prevent re-display
     /// If no draft exists, this method does nothing
@@ -468,74 +376,6 @@ extension ChatViewModel {
             return
         }
         composingText = draft
-    }
-
-    func makeDMSendQueue() -> SendQueue<DirectMessageEnvelope> {
-        let sendContext = self.sendContext
-        let logger = self.logger
-        return SendQueue<DirectMessageEnvelope>(
-            send: { envelope in
-                let services = await MainActor.run {
-                    (dataStore: sendContext.dataStore, messageService: sendContext.messageService)
-                }
-                // Mark the row failed before throwing so the UI bubble
-                // surfaces the failure rather than spinning in "sending"
-                // forever. The queue only ever holds .pending / .sending
-                // envelopes, so plain updateMessageStatus is correct here.
-                guard let messageService = services.messageService else {
-                    if let dataStore = services.dataStore {
-                        try? await dataStore.updateMessageStatus(
-                            id: envelope.messageID,
-                            status: .failed
-                        )
-                    }
-                    throw ChatSendQueueError.servicesUnavailable
-                }
-                guard let dataStore = services.dataStore else {
-                    throw ChatSendQueueError.servicesUnavailable
-                }
-                guard let contact = try? await dataStore.fetchContact(id: envelope.contactID) else {
-                    logger.info("Skipping queued message - contact \(envelope.contactID) was deleted")
-                    return
-                }
-                _ = try await messageService.retryDirectMessage(
-                    messageID: envelope.messageID,
-                    to: contact
-                )
-            },
-            onError: { _, _ in
-                // Error reporting deferred to onDrain so the post-drain
-                // loadMessages reset of errorMessage = nil does not clobber
-                // sendErrorMessage either.
-            },
-            onDrain: { [weak self] lastError in
-                await self?.handleDMQueueDrain(lastError: lastError)
-            }
-        )
-    }
-
-    /// Called after the DM send queue empties. Reloads the current
-    /// conversation and conversations list so optimistic UI catches up
-    /// with server state, then surfaces the most recent send-side error
-    /// (if any) into `sendErrorMessage` after the reloads — `loadMessages`
-    /// and `loadConversations` both clear `errorMessage = nil` at their
-    /// top, but neither touches `sendErrorMessage`.
-    private func handleDMQueueDrain(lastError: Error?) async {
-        let contact = currentContact
-        if let contact {
-            await loadMessages(for: contact)
-        }
-        if let radioID = contact?.radioID {
-            await loadConversations(radioID: radioID)
-        }
-        if let lastError {
-            // The localized template body is what the user sees. The
-            // specific error stays in the log for developers — most
-            // underlying errors here are MeshCoreError, which is
-            // English-only via its retroactive LocalizedError conformance.
-            sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
-            logger.error("DM send queue drain ended with error: \(String(describing: lastError))")
-        }
     }
 
     /// Send a message to the current contact
@@ -627,14 +467,14 @@ extension ChatViewModel {
             // Re-run same-sender reordering across the page boundary to handle
             // clusters that were split between the existing and newly loaded pages
             messages = MessageDTO.reorderSameSenderClusters(messages)
+            bumpBuildGeneration()
 
             // Update lookup dictionary
             for message in olderMessages {
                 messagesByID[message.id] = message
             }
 
-            // Rebuild display items with new messages
-            buildDisplayItems()
+            buildItems()
 
             // Index older channel messages for reaction matching and process pending reactions
             if let channel,
@@ -891,12 +731,9 @@ extension ChatViewModel {
 
             // Remove from all local collections
             messages.removeAll { $0.id == message.id }
+            bumpBuildGeneration()
             messagesByID.removeValue(forKey: message.id)
-            var items = renderState.items
-            items.removeAll { $0.messageID == message.id }
-            // Rebuild index dictionary after removal (indices shift)
-            let indexByID = Dictionary(uniqueKeysWithValues: items.enumerated().map { ($0.element.messageID, $0.offset) })
-            renderState = renderState.with(items: items, itemIndexByID: indexByID)
+            renderState = renderState.removingItem(id: message.id)
 
             // Clean up preview state for deleted message
             cleanupPreviewState(for: message.id)
@@ -933,80 +770,11 @@ extension ChatViewModel {
 
     // MARK: - Display Items
 
-    /// Build display items with pre-computed properties.
-    /// Uses cached URL results for previously processed messages and defers
-    /// async detection for new messages to avoid blocking the main actor.
-    func buildDisplayItems() {
-        urlDetectionGeneration &+= 1
-        messagesByID = Dictionary(uniqueKeysWithValues: messages.map { ($0.id, $0) })
-
-        var uncachedMessageIDs: [(UUID, String)] = []
-
-        let items: [MessageDisplayItem] = messages.enumerated().map { index, message in
-            // Compute all display flags in single pass to avoid redundant array lookups
-            let previous: MessageDTO? = index > 0 ? messages[index - 1] : nil
-            let flags = Self.computeDisplayFlags(for: message, previous: previous)
-
-            // Use cached URL if available, otherwise nil (async detection below)
-            let url: URL?
-            if let cached = cachedURLs[message.id] {
-                url = cached
-            } else if previewStates[message.id] != nil || loadedPreviews[message.id] != nil {
-                // Message already had a preview fetched — URL was already detected
-                url = nil
-            } else {
-                url = nil
-                uncachedMessageIDs.append((message.id, message.text))
-            }
-
-            return MessageDisplayItem(
-                messageID: message.id,
-                showTimestamp: flags.showTimestamp,
-                showDirectionGap: flags.showDirectionGap,
-                showSenderName: flags.showSenderName,
-                showNewMessagesDivider: message.id == newMessagesDividerMessageID,
-                detectedURL: url,
-                isImageURL: url.map { ImageURLDetector.isImageURL($0) } ?? false,
-                isOutgoing: message.isOutgoing,
-                status: message.status,
-                containsSelfMention: message.containsSelfMention,
-                mentionSeen: message.mentionSeen,
-                heardRepeats: message.heardRepeats,
-                retryAttempt: message.retryAttempt,
-                maxRetryAttempts: message.maxRetryAttempts,
-                reactionSummary: message.reactionSummary,
-                previewState: previewStates[message.id] ?? .idle,
-                loadedPreview: loadedPreviews[message.id]
-            )
-        }
-
-        // Build O(1) index lookup
-        let indexByID = Dictionary(uniqueKeysWithValues: items.enumerated().map { ($0.element.messageID, $0.offset) })
-        renderState = renderState.with(items: items, itemIndexByID: indexByID)
-
-        // Async URL detection for messages without cached results
-        if !uncachedMessageIDs.isEmpty {
-            let messagesToDetect = uncachedMessageIDs
-            let generation = urlDetectionGeneration
-            urlDetectionTask?.cancel()
-            urlDetectionTask = Task { [weak self] in
-                guard let self else { return }
-                for (messageID, text) in messagesToDetect {
-                    guard !Task.isCancelled, self.urlDetectionGeneration == generation else { return }
-                    await self.updateURLForDisplayItem(messageID: messageID, text: text, generation: generation)
-                }
-            }
-        }
-
-        // Pre-decode legacy preview images off the main thread
-        decodeLegacyPreviewImages()
-    }
-
-    /// Get full message DTO for a display item.
+    /// Get full message DTO for a MessageItem.
     /// Logs a warning if lookup fails (indicates data inconsistency).
-    func message(for displayItem: MessageDisplayItem) -> MessageDTO? {
-        guard let message = messagesByID[displayItem.messageID] else {
-            logger.warning("Message lookup failed for displayItem id=\(displayItem.messageID)")
+    func message(for item: MessageItem) -> MessageDTO? {
+        guard let message = messagesByID[item.id] else {
+            logger.warning("Message lookup failed for item id=\(item.id)")
             return nil
         }
         return message

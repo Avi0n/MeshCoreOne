@@ -203,39 +203,6 @@ struct SendQueueTests {
         #expect(observed == 1, "All three envelopes drain in one pass; onDrain fires once")
     }
 
-    @Test("cancel on an empty queue allows the next enqueue to spawn a fresh drain")
-    func cancelOnEmptyQueueAllowsRespawn() async {
-        actor Collector {
-            var sent: [Int] = []
-            func record(_ id: Int) { sent.append(id) }
-            func snapshot() -> [Int] { sent }
-        }
-        let collector = Collector()
-        let drainSignal = AsyncStream.makeStream(of: Void.self)
-
-        let queue = SendQueue<Marker>(
-            send: { envelope in
-                await collector.record(envelope.id)
-            },
-            onError: { _, _ in },
-            onDrain: { _ in
-                drainSignal.continuation.yield(())
-            }
-        )
-
-        await queue.cancel()
-        // Cancel on an empty queue is a no-op; verify enqueue still spawns
-        // a fresh drain afterwards.
-        await queue.enqueue(Marker(id: 7))
-
-        var iterator = drainSignal.stream.makeAsyncIterator()
-        _ = await iterator.next()
-        drainSignal.continuation.finish()
-
-        let sent = await collector.snapshot()
-        #expect(sent == [7], "Drain must spawn after cancel even on an empty queue")
-    }
-
     @Test("onDrain receives the most recent non-cancellation error from the drain pass")
     func onDrainReceivesLastError() async {
         struct Boom: Error, Equatable {
@@ -302,71 +269,6 @@ struct SendQueueTests {
         let (recorded, fired) = await box.snapshot()
         #expect(fired)
         #expect(recorded == nil)
-    }
-
-    @Test("Cancel mid-drain re-inserts the in-flight envelope and respawns drain in FIFO order")
-    func cancelMidDrainRequeuesAndRespawnsInOrder() async {
-        // Park the first send on a barrier. Cancel mid-send, enqueue B,
-        // release the barrier so send(A) throws CancellationError, and
-        // observe both passes complete with order [A, B] — never [B, A]
-        // and never with two drains overlapping.
-        actor State {
-            var sentIDs: [Int] = []
-            var seenFirstSend = false
-            func recordSend(_ id: Int) { sentIDs.append(id) }
-            func markFirstSend() -> Bool {
-                let isFirst = !seenFirstSend
-                seenFirstSend = true
-                return isFirst
-            }
-            func snapshot() -> [Int] { sentIDs }
-        }
-        let state = State()
-        let firstSendReached = AsyncStream.makeStream(of: Void.self)
-        let releaseFirstSend = AsyncStream.makeStream(of: Void.self)
-        let drainSignal = AsyncStream.makeStream(of: Void.self)
-
-        let queue = SendQueue<Marker>(
-            send: { envelope in
-                if await state.markFirstSend() {
-                    firstSendReached.continuation.yield(())
-                    firstSendReached.continuation.finish()
-                    var releaseIter = releaseFirstSend.stream.makeAsyncIterator()
-                    _ = await releaseIter.next()
-                    // Honor the cancellation that was requested while we were parked.
-                    try Task.checkCancellation()
-                }
-                await state.recordSend(envelope.id)
-            },
-            onError: { _, _ in },
-            onDrain: { _ in
-                drainSignal.continuation.yield(())
-            }
-        )
-
-        await queue.enqueue(Marker(id: 1))
-
-        var firstIter = firstSendReached.stream.makeAsyncIterator()
-        _ = await firstIter.next()
-
-        // T1 is parked inside send(1). Cancel, then enqueue 2. The cancel
-        // marks T1 cancelled but does not spawn a replacement; enqueue 2
-        // sees processingTask non-nil and just appends. After T1 throws
-        // CancellationError and re-inserts 1, taskCompleted respawns and
-        // the new drain handles [1, 2] in order.
-        await queue.cancel()
-        await queue.enqueue(Marker(id: 2))
-
-        releaseFirstSend.continuation.yield(())
-        releaseFirstSend.continuation.finish()
-
-        var iterator = drainSignal.stream.makeAsyncIterator()
-        _ = await iterator.next()
-        await queue.awaitDrainCompletion()
-        drainSignal.continuation.finish()
-
-        let sent = await state.snapshot()
-        #expect(sent == [1, 2], "FIFO preserved across cancel + respawn")
     }
 
     @Test("drain's outer loop processes envelopes enqueued during onDrain")

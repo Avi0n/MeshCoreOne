@@ -163,15 +163,16 @@ struct ChatViewModelTests {
         #expect(ChatViewModel.computeDisplayFlags(for: messages[5], previous: messages[4]).showTimestamp == false)
     }
 
-    @Test("buildDisplayItems with empty messages produces empty output")
-    func buildDisplayItemsEmptyMessages() {
+    @Test("buildItems with empty messages produces empty output")
+    func buildItemsEmptyMessages() async {
         let viewModel = ChatViewModel()
         viewModel.messages = []
-        viewModel.buildDisplayItems()
+        viewModel.buildItems()
+        await viewModel.buildItemsTask?.value
 
-        #expect(viewModel.displayItems.isEmpty)
+        #expect(viewModel.items.isEmpty)
         #expect(viewModel.messagesByID.isEmpty)
-        #expect(viewModel.displayItemIndexByID.isEmpty)
+        #expect(viewModel.itemIndexByID.isEmpty)
     }
 
     @Test("computeDisplayFlags with same timestamp messages")

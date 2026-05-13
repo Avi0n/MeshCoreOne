@@ -46,12 +46,33 @@ struct ChatConversationView: View {
 
     // MARK: - AppStorage
 
-    @AppStorage(AppStorageKey.showInlineImages.rawValue) private var showInlineImages = true
-    @AppStorage(AppStorageKey.autoPlayGIFs.rawValue) private var autoPlayGIFs = true
-    @AppStorage(AppStorageKey.showIncomingPath.rawValue) private var showIncomingPath = false
-    @AppStorage(AppStorageKey.showIncomingHopCount.rawValue) private var showIncomingHopCount = false
-    @AppStorage(AppStorageKey.showIncomingRegion.rawValue) private var showIncomingRegion = false
-    @AppStorage(AppStorageKey.replyWithQuote.rawValue) private var replyWithQuote = false
+    @AppStorage(AppStorageKey.showInlineImages.rawValue) private var showInlineImages = AppStorageKey.defaultShowInlineImages
+    @AppStorage(AppStorageKey.autoPlayGIFs.rawValue) private var autoPlayGIFs = AppStorageKey.defaultAutoPlayGIFs
+    @AppStorage(AppStorageKey.showIncomingPath.rawValue) private var showIncomingPath = AppStorageKey.defaultShowIncomingPath
+    @AppStorage(AppStorageKey.showIncomingHopCount.rawValue) private var showIncomingHopCount = AppStorageKey.defaultShowIncomingHopCount
+    @AppStorage(AppStorageKey.showIncomingRegion.rawValue) private var showIncomingRegion = AppStorageKey.defaultShowIncomingRegion
+    @AppStorage(AppStorageKey.linkPreviewsEnabled.rawValue) private var previewsEnabled = AppStorageKey.defaultLinkPreviewsEnabled
+    @AppStorage(AppStorageKey.replyWithQuote.rawValue) private var replyWithQuote = AppStorageKey.defaultReplyWithQuote
+
+    // MARK: - Environment
+
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+
+    /// Snapshot of env-derived inputs the view model needs to construct
+    /// MessageItems at write time. Recomputed on every render — Equatable
+    /// drives `.onChange(of: envInputs)` in ChatMessagesTableView.
+    private var currentEnvInputs: EnvInputs {
+        EnvInputs(
+            showInlineImages: showInlineImages,
+            autoPlayGIFs: autoPlayGIFs,
+            showIncomingPath: showIncomingPath,
+            showIncomingHopCount: showIncomingHopCount,
+            showIncomingRegion: showIncomingRegion,
+            previewsEnabled: previewsEnabled,
+            isHighContrast: colorSchemeContrast == .increased,
+            currentUserName: appState.localNodeName
+        )
+    }
 
     // MARK: - Init
 
@@ -68,11 +89,7 @@ struct ChatConversationView: View {
             viewModel: chatViewModel,
             deviceName: appState.localNodeName,
             recentEmojisStore: recentEmojisStore,
-            showInlineImages: showInlineImages,
-            autoPlayGIFs: autoPlayGIFs,
-            showIncomingPath: showIncomingPath,
-            showIncomingHopCount: showIncomingHopCount,
-            showIncomingRegion: showIncomingRegion,
+            envInputs: currentEnvInputs,
             isAtBottom: $isAtBottom,
             unreadCount: $unreadCount,
             scrollToBottomRequest: $scrollToBottomRequest,
@@ -226,6 +243,7 @@ struct ChatConversationView: View {
         }
 
         chatViewModel.configure(appState: appState, linkPreviewCache: linkPreviewCache)
+        chatViewModel.applyEnvInputs(currentEnvInputs)
 
         switch conversationType {
         case .dm(let contact):
@@ -393,7 +411,7 @@ struct ChatConversationView: View {
     private func scrollToNextMention() {
         guard let targetID = unseenMentionIDs.first else { return }
 
-        if chatViewModel.displayItems.contains(where: { $0.id == targetID }) {
+        if chatViewModel.items.contains(where: { $0.id == targetID }) {
             scrollToTargetID = targetID
             scrollToMentionRequest += 1
             return
@@ -403,7 +421,7 @@ struct ChatConversationView: View {
         mentionScrollTask = Task {
             do {
                 let deadline = ContinuousClock.now + .seconds(10)
-                while !chatViewModel.displayItems.contains(where: { $0.id == targetID }) {
+                while !chatViewModel.items.contains(where: { $0.id == targetID }) {
                     guard chatViewModel.hasMoreMessages else {
                         logger.warning("Mention \(targetID) not found after exhausting history, removing")
                         if let dataStore = appState.services?.dataStore {
@@ -424,7 +442,7 @@ struct ChatConversationView: View {
                     await chatViewModel.loadOlderMessages()
                     try Task.checkCancellation()
                 }
-                if chatViewModel.displayItems.contains(where: { $0.id == targetID }) {
+                if chatViewModel.items.contains(where: { $0.id == targetID }) {
                     scrollToTargetID = targetID
                     scrollToMentionRequest += 1
                 }
@@ -500,51 +518,90 @@ struct ChatConversationView: View {
             senderMatchKind: senderResolution.matchKind,
             recentEmojis: recentEmojisStore.recentEmojis,
             onAction: { action in
-                handleMessageAction(action, for: message)
+                dispatch(action, for: message)
             }
         )
     }
 
     // MARK: - Message Action Handling
 
-    private func handleMessageAction(_ action: MessageAction, for message: MessageDTO) {
+    /// Dispatches a MessageAction by routing to the appropriate handler. The
+    /// `switch action` body preserves compile-time exhaustiveness — adding a new
+    /// MessageAction case forces this method to handle it. Each case calls an
+    /// extracted private method that captures the view-local context it needs
+    /// (focus state, AppStorage flags, sheet-presentation contexts).
+    private func dispatch(_ action: MessageAction, for message: MessageDTO) {
         switch action {
         case .react(let emoji):
-            recentEmojisStore.recordUsage(emoji)
-            Task { await chatViewModel.sendReaction(emoji: emoji, to: message) }
+            handleReact(emoji: emoji, for: message)
         case .reply:
-            let mentionName: String
-            switch conversationType {
-            case .dm(let contact):
-                mentionName = contact.name
-            case .channel:
-                mentionName = message.senderNodeName ?? L10n.Chats.Chats.Message.Sender.unknown
-            }
-            if replyWithQuote {
-                chatViewModel.composingText = MentionUtilities.buildReplyText(mentionName: mentionName, messageText: message.text)
-            } else {
-                chatViewModel.composingText = MentionUtilities.createMention(for: mentionName) + " "
-            }
-            isInputFocused = true
+            handleReply(for: message)
         case .copy:
-            UIPasteboard.general.string = message.text
+            handleCopy(for: message)
         case .sendAgain:
-            Task { await chatViewModel.sendAgain(message) }
+            handleSendAgain(for: message)
         case .blockSender:
-            guard case .channel(let channel) = conversationType, let name = message.senderNodeName else { return }
-            Task {
-                try? await Task.sleep(for: messageActionSheetPresentationDelay)
-                blockSenderContext = BlockSenderContext(senderName: name, radioID: channel.radioID)
-            }
+            handleBlockSender(for: message)
         case .sendDM:
-            guard case .channel(let channel) = conversationType, let name = message.senderNodeName else { return }
-            Task {
-                try? await Task.sleep(for: messageActionSheetPresentationDelay)
-                sendDMContext = SendDMContext(senderName: name, radioID: channel.radioID)
-            }
+            handleSendDM(for: message)
         case .delete:
-            Task { await chatViewModel.deleteMessage(message) }
+            handleDelete(for: message)
         }
+    }
+
+    private func handleReact(emoji: String, for message: MessageDTO) {
+        recentEmojisStore.recordUsage(emoji)
+        Task { await chatViewModel.sendReaction(emoji: emoji, to: message) }
+    }
+
+    private func handleReply(for message: MessageDTO) {
+        let mentionName: String
+        switch conversationType {
+        case .dm(let contact):
+            mentionName = contact.name
+        case .channel:
+            mentionName = message.senderNodeName ?? L10n.Chats.Chats.Message.Sender.unknown
+        }
+        if replyWithQuote {
+            chatViewModel.composingText = MentionUtilities.buildReplyText(mentionName: mentionName, messageText: message.text)
+        } else {
+            chatViewModel.composingText = MentionUtilities.createMention(for: mentionName) + " "
+        }
+        isInputFocused = true
+    }
+
+    private func handleCopy(for message: MessageDTO) {
+        UIPasteboard.general.string = message.text
+    }
+
+    private func handleSendAgain(for message: MessageDTO) {
+        Task { await chatViewModel.sendAgain(message) }
+    }
+
+    private func handleBlockSender(for message: MessageDTO) {
+        guard case .channel(let channel) = conversationType,
+              let name = message.senderNodeName else { return }
+        Task {
+            // iPad: allow the action sheet's dismiss animation to complete before
+            // presenting the next sheet — otherwise UIKit cancels the new
+            // presentation and the user sees nothing.
+            try? await Task.sleep(for: messageActionSheetPresentationDelay)
+            blockSenderContext = BlockSenderContext(senderName: name, radioID: channel.radioID)
+        }
+    }
+
+    private func handleSendDM(for message: MessageDTO) {
+        guard case .channel(let channel) = conversationType,
+              let name = message.senderNodeName else { return }
+        Task {
+            // iPad: see comment in handleBlockSender.
+            try? await Task.sleep(for: messageActionSheetPresentationDelay)
+            sendDMContext = SendDMContext(senderName: name, radioID: channel.radioID)
+        }
+    }
+
+    private func handleDelete(for message: MessageDTO) {
+        Task { await chatViewModel.deleteMessage(message) }
     }
 
     private func retryMessage(_ message: MessageDTO) {

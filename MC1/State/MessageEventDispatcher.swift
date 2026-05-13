@@ -89,9 +89,9 @@ final class MessageEventDispatcher {
 
     private func wireMessageService(_ messageService: MessageService) async {
         // Sync callback contract — cannot await. Hop to MainActor via Task.
-        await messageService.setAckConfirmationHandler { [stream] ackCode, _ in
+        await messageService.setAckConfirmationHandler { [stream] messageID in
             Task { @MainActor in
-                stream.send(.messageStatusUpdated(ackCode: ackCode))
+                stream.send(.messageStatusResolved(messageID: messageID))
             }
         }
         await messageService.setRetryStatusHandler { [stream] messageID, attempt, maxAttempts in

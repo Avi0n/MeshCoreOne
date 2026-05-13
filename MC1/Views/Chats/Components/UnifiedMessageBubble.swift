@@ -7,10 +7,10 @@ struct UnifiedMessageBubble: View {
     let contactName: String
     let deviceName: String
     let configuration: MessageBubbleConfiguration
-    let displayState: MessageDisplayState
+    let item: MessageItem
+    let imageResolver: (ImageReference) -> UIImage?
     let callbacks: MessageBubbleCallbacks
 
-    @AppStorage(AppStorageKey.linkPreviewsEnabled.rawValue) private var previewsEnabled = false
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     @State private var showingReactionDetails = false
@@ -21,56 +21,55 @@ struct UnifiedMessageBubble: View {
         contactName: String,
         deviceName: String = "Me",
         configuration: MessageBubbleConfiguration,
-        displayState: MessageDisplayState = .init(),
+        item: MessageItem,
+        imageResolver: @escaping (ImageReference) -> UIImage? = { _ in nil },
         callbacks: MessageBubbleCallbacks = .init()
     ) {
         self.message = message
         self.contactName = contactName
         self.deviceName = deviceName
         self.configuration = configuration
-        self.displayState = displayState
+        self.item = item
+        self.imageResolver = imageResolver
         self.callbacks = callbacks
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            if displayState.showNewMessagesDivider {
+            if item.grouping.showNewMessagesDivider {
                 NewMessagesDividerView()
                     .padding(.bottom, 4)
             }
 
-            // Centered timestamp (iMessage-style)
-            if displayState.showTimestamp {
-                MessageTimestampView(date: message.date)
+            if item.grouping.showTimestamp {
+                MessageTimestampView(date: item.envelope.date)
             }
 
-            // Bubble content (aligned based on direction)
             HStack(alignment: .bottom, spacing: 4) {
-                if message.isOutgoing {
+                if item.envelope.isOutgoing {
                     Spacer(minLength: 40)
                 }
 
-                VStack(alignment: message.isOutgoing ? .trailing : .leading, spacing: 0) {
-                    // Sender name for incoming channel messages (hidden for continuation messages in a group)
-                    if !message.isOutgoing && configuration.showSenderName && displayState.showSenderName {
+                VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 0) {
+                    if !item.envelope.isOutgoing
+                        && configuration.showSenderName
+                        && item.grouping.showSenderName {
                         HStack(spacing: 4) {
-                            Text(senderName)
+                            Text(item.envelope.senderName)
                                 .font(.footnote)
                                 .bold()
                                 .foregroundStyle(senderColor)
 
-                            if senderResolution.isFallback {
+                            if item.envelope.senderResolution.isFallback {
                                 FallbackMatchIndicatorView()
                             }
                         }
                     }
 
-                    // Message bubble with text and optional routing footer
-                    BubbleContent(
-                        message: message,
-                        deviceName: deviceName,
-                        displayState: displayState,
-                        callbacks: callbacks
+                    BubbleFragmentStack(
+                        item: item,
+                        callbacks: callbacks,
+                        imageResolver: imageResolver
                     )
                     .onLongPressGesture(minimumDuration: 0.3) {
                         longPressTriggered.toggle()
@@ -78,59 +77,27 @@ struct UnifiedMessageBubble: View {
                     }
                     .sensoryFeedback(.impact(weight: .medium), trigger: longPressTriggered)
 
-                    // Reaction badges (for messages with reactions)
-                    if let summary = message.reactionSummary, !summary.isEmpty {
-                        ReactionBadgesView(
-                            summary: summary,
-                            onTapReaction: { emoji in
-                                callbacks.onReaction?(emoji)
-                            },
-                            onLongPress: {
-                                showingReactionDetails = true
-                            }
-                        )
-                        .offset(y: -6)
-                        .padding(.bottom, -6)
+                    ForEach(Array(item.content.enumerated()), id: \.offset) { _, fragment in
+                        siblingFragmentView(fragment)
                     }
 
-                    // Malware warning (always shown, regardless of preview settings)
-                    if displayState.previewState == .malwareWarning,
-                       let url = displayState.detectedURL {
-                        MalwareWarningCard(url: url)
-                    }
-
-                    // Link preview (if applicable, skip for image URLs shown in bubble)
-                    if previewsEnabled && !(displayState.isImageURL && displayState.showInlineImages) {
-                        BubbleLinkPreviewContent(
-                            message: message,
-                            displayState: displayState,
-                            onManualPreviewFetch: callbacks.onManualPreviewFetch
-                        )
-                    }
-
-                    // Status row for outgoing messages
-                    if message.isOutgoing {
-                        BubbleStatusRow(
-                            message: message,
-                            onRetry: callbacks.onRetry
-                        )
+                    if item.footer.showStatusRow {
+                        BubbleStatusRow(message: message, onRetry: callbacks.onRetry)
                     }
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel(accessibilityMessageLabel)
 
-                if !message.isOutgoing {
+                if !item.envelope.isOutgoing {
                     Spacer(minLength: 40)
                 }
             }
         }
         .padding(.horizontal, 12)
-        .padding(.top, displayState.showDirectionGap ? 6 : (displayState.showSenderName ? 4 : (message.isOutgoing ? 1 : 2)))
+        .padding(.top, paddingTop(item: item))
         .padding(.bottom, 0)
         .onAppear {
-            // Request preview/image fetch when cell becomes visible
-            // ViewModel handles deduplication and cancellation
-            if displayState.previewState == .idle && displayState.detectedURL != nil && message.linkPreviewURL == nil {
+            if item.shouldRequestPreviewFetch {
                 callbacks.onRequestPreviewFetch?()
             }
         }
@@ -139,119 +106,140 @@ struct UnifiedMessageBubble: View {
         }
     }
 
-    // MARK: - Computed Properties
-
-    private var senderName: String {
-        senderResolution.displayName
+    /// Renders the sibling fragments that live below the colored bubble box:
+    /// reactions, malware warning, link preview. Inline image fragments are
+    /// rendered inside `BubbleFragmentStack` (attached to the bubble box) and
+    /// are skipped here; the text fragment is also rendered inside the box.
+    @ViewBuilder
+    private func siblingFragmentView(_ fragment: MessageFragment) -> some View {
+        switch fragment {
+        case .reactionSummary(let summary):
+            ReactionsFragmentView(
+                summary: summary,
+                onTapReaction: { emoji in callbacks.onReaction?(emoji) },
+                onLongPress: { showingReactionDetails = true }
+            )
+        case .malwareWarning(let url):
+            MalwareWarningFragmentView(url: url)
+        case .linkPreview(let state):
+            LinkPreviewFragmentView(
+                state: state,
+                imageResolver: imageResolver,
+                onManualPreviewFetch: callbacks.onManualPreviewFetch
+            )
+        case .text, .inlineImage:
+            EmptyView()
+        }
     }
 
-    private var senderResolution: NodeNameResolution {
-        configuration.senderNameResolver?(message) ?? NodeNameResolution(
-            displayName: L10n.Chats.Chats.Message.Sender.unknown,
-            matchKind: .unresolved
+    // MARK: - Computed Properties
+
+    private var senderColor: Color {
+        AppColors.NameColor.color(
+            for: item.envelope.senderName,
+            highContrast: colorSchemeContrast == .increased
         )
     }
 
-    private var senderColor: Color {
-        AppColors.NameColor.color(for: senderName, highContrast: colorSchemeContrast == .increased)
+    private func paddingTop(item: MessageItem) -> CGFloat {
+        if item.grouping.showDirectionGap { return 6 }
+        if item.grouping.showSenderName { return 4 }
+        return item.envelope.isOutgoing ? 1 : 2
     }
 
     var accessibilityMessageLabel: String {
         var label = ""
-        // Always include sender name for screen readers, even when visually hidden
-        if !message.isOutgoing && configuration.showSenderName {
-            label = "\(senderName): "
-            if senderResolution.isFallback {
+        if !item.envelope.isOutgoing && configuration.showSenderName {
+            label = "\(item.envelope.senderName): "
+            if item.envelope.senderResolution.isFallback {
                 label += "\(L10n.Chats.Chats.Message.Sender.possibleMatch), "
             }
         }
         label += message.text
-        if message.isOutgoing {
+        if item.envelope.isOutgoing {
             label += ", \(BubbleStatusRow.statusText(for: message))"
         }
-        if !message.isOutgoing {
-            let p = MessageBubblePredicates(message: message, displayState: displayState)
-            if p.showHop {
-                label += ", \(L10n.Chats.Chats.Message.HopCount.accessibilityLabel(message.hopCount))"
+        if !item.envelope.isOutgoing {
+            if item.footer.showHop {
+                label += ", \(L10n.Chats.Chats.Message.HopCount.accessibilityLabel(item.footer.hopCount))"
             }
-            if let formattedPath = displayState.formattedPath {
+            if let formattedPath = item.footer.formattedPath {
                 label += ", \(L10n.Chats.Chats.Message.Path.accessibilityLabel(formattedPath))"
             }
-            if let region = p.regionToShow {
+            if let region = item.footer.regionToShow {
                 label += ", \(L10n.Chats.Chats.Message.Region.accessibilityLabel(region))"
             }
         }
         return label
     }
-
-    // MARK: - Helpers
-
 }
 
 // MARK: - Extracted Views
 
-private struct BubbleContent: View {
-    let message: MessageDTO
-    let deviceName: String
-    let displayState: MessageDisplayState
+/// The colored, clipped bubble box: text, optional footer, and optional inline
+/// image. Reactions, malware warnings, and link previews are emitted as
+/// siblings by `UnifiedMessageBubble.body` so they sit below the bubble box.
+private struct BubbleFragmentStack: View {
+    let item: MessageItem
     let callbacks: MessageBubbleCallbacks
+    let imageResolver: (ImageReference) -> UIImage?
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
-    private var textColor: Color {
-        message.isOutgoing ? .white : .primary
-    }
-
     private var bubbleColor: Color {
-        if message.isOutgoing {
-            return message.hasFailed ? AppColors.Message.outgoingBubbleFailed : AppColors.Message.outgoingBubble
+        if item.envelope.isOutgoing {
+            return item.envelope.hasFailed
+                ? AppColors.Message.outgoingBubbleFailed
+                : AppColors.Message.outgoingBubble
         } else {
             return AppColors.Message.incomingBubble
         }
     }
 
-    private var predicates: MessageBubblePredicates {
-        MessageBubblePredicates(message: message, displayState: displayState)
+    private var hasFooter: Bool {
+        item.footer.showHop
+            || item.footer.formattedPath != nil
+            || item.footer.regionToShow != nil
     }
 
-    @ViewBuilder
-    private func footerContent(allowsWrap: Bool) -> some View {
-        let p = predicates
-        if p.showHop {
-            BubbleHopCountFooter(hopCount: message.hopCount)
+    private var inlineImageFragment: InlineImage? {
+        for fragment in item.content {
+            if case .inlineImage(let inlineImage) = fragment {
+                return inlineImage
+            }
         }
-        if let formattedPath = displayState.formattedPath {
-            BubblePathFooter(formattedPath: formattedPath)
+        return nil
+    }
+
+    private var textPayload: MessageTextPayload? {
+        for fragment in item.content {
+            if case .text(let payload) = fragment {
+                return payload
+            }
         }
-        if let region = p.regionToShow {
-            BubbleRegionFooter(regionName: region, allowsWrap: allowsWrap)
-        }
+        return nil
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
-                MessageText(message.text, baseColor: textColor, isOutgoing: message.isOutgoing, currentUserName: deviceName, precomputedText: displayState.formattedText)
+                if let textPayload {
+                    MessageTextView(text: textPayload)
+                }
 
-                if !message.isOutgoing && predicates.hasFooter {
-                    if dynamicTypeSize.isAccessibilitySize {
-                        VStack(alignment: .leading, spacing: 2) {
-                            footerContent(allowsWrap: true)
-                        }
-                    } else {
-                        HStack(spacing: 4) {
-                            footerContent(allowsWrap: false)
-                        }
-                    }
+                if !item.envelope.isOutgoing && hasFooter {
+                    BubbleFooterRow(footer: item.footer, dynamicTypeSize: dynamicTypeSize)
                 }
             }
             .bubbleContentPadding()
 
-            if displayState.isImageURL && displayState.showInlineImages {
-                BubbleEmbeddedImageContent(
-                    message: message,
-                    displayState: displayState,
-                    callbacks: callbacks
+            if let inlineImage = inlineImageFragment {
+                InlineImageFragmentView(
+                    inlineImage: inlineImage,
+                    isOutgoing: item.envelope.isOutgoing,
+                    imageResolver: imageResolver,
+                    onTap: { callbacks.onImageTap?() },
+                    onRetry: { callbacks.onRetryImageFetch?() }
                 )
             }
         }
@@ -260,118 +248,39 @@ private struct BubbleContent: View {
     }
 }
 
-private struct BubbleEmbeddedImageContent: View {
-    let message: MessageDTO
-    let displayState: MessageDisplayState
-    let callbacks: MessageBubbleCallbacks
+/// Renders the hop / path / region trio from a `MessageFooter`. HStack at
+/// standard dynamic type sizes; VStack when `dynamicTypeSize.isAccessibilitySize`
+/// is true. Each sub-row carries its own `.accessibilityLabel(...)`; the
+/// container uses `.accessibilityElement(children: .combine)` so VoiceOver
+/// surfaces the trio as a single rotor stop.
+private struct BubbleFooterRow: View {
+    let footer: MessageFooter
+    let dynamicTypeSize: DynamicTypeSize
 
     var body: some View {
-        switch displayState.previewState {
-        case .loaded:
-            if let image = displayState.decodedImage {
-                InlineImageView(
-                    image: image,
-                    isGIF: displayState.isGIF,
-                    autoPlayGIFs: displayState.autoPlayGIFs,
-                    isEmbedded: true,
-                    onTap: { callbacks.onImageTap?() }
-                )
-                .frame(maxWidth: .infinity)
+        if dynamicTypeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: 2) {
+                footerContents(allowsWrap: true)
             }
-
-        case .loading, .idle:
-            if displayState.detectedURL != nil {
-                HStack(spacing: 8) {
-                    ProgressView()
-                        .controlSize(.small)
-                        .tint(message.isOutgoing ? .white.opacity(0.7) : nil)
-                    Text(L10n.Chats.Chats.Preview.loading)
-                        .font(.subheadline)
-                        .foregroundStyle(message.isOutgoing ? .white.opacity(0.7) : .secondary)
-                }
-                .bubbleContentPadding()
+            .accessibilityElement(children: .combine)
+        } else {
+            HStack(spacing: 4) {
+                footerContents(allowsWrap: false)
             }
-
-        case .noPreview, .disabled:
-            if displayState.isImageURL && displayState.showInlineImages && displayState.previewState == .noPreview {
-                Button(action: { callbacks.onRetryImageFetch?() }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "arrow.clockwise")
-                            .foregroundStyle(message.isOutgoing ? .white.opacity(0.7) : .secondary)
-                        Text(L10n.Chats.Chats.InlineImage.tapToRetry)
-                            .font(.subheadline)
-                            .foregroundStyle(message.isOutgoing ? .white.opacity(0.7) : .secondary)
-                    }
-                    .bubbleContentPadding()
-                }
-                .buttonStyle(.plain)
-                .accessibilityHint(L10n.Chats.Chats.InlineImage.retryHint)
-            }
-
-        case .malwareWarning:
-            EmptyView()
+            .accessibilityElement(children: .combine)
         }
     }
-}
 
-private struct BubbleLinkPreviewContent: View {
-    let message: MessageDTO
-    let displayState: MessageDisplayState
-    let onManualPreviewFetch: (() -> Void)?
-
-    @Environment(\.openURL) private var openURL
-
-    var body: some View {
-        switch displayState.previewState {
-        case .loaded:
-            if let preview = displayState.loadedPreview,
-               let url = URL(string: preview.url) {
-                LinkPreviewCard(
-                    url: url,
-                    title: preview.title,
-                    image: displayState.decodedPreviewImage,
-                    icon: displayState.decodedPreviewIcon,
-                    onTap: { openURL(url) }
-                )
-            }
-
-        case .loading:
-            if let url = displayState.detectedURL {
-                LinkPreviewLoadingCard(url: url)
-            }
-
-        case .noPreview:
-            EmptyView()
-
-        case .disabled:
-            if let url = displayState.detectedURL {
-                TapToLoadPreview(
-                    url: url,
-                    isLoading: false,
-                    onTap: {
-                        onManualPreviewFetch?()
-                    }
-                )
-            }
-
-        case .idle:
-            // Check for legacy message data
-            if let urlString = message.linkPreviewURL,
-               let url = URL(string: urlString) {
-                LinkPreviewCard(
-                    url: url,
-                    title: message.linkPreviewTitle,
-                    image: displayState.decodedPreviewImage,
-                    icon: displayState.decodedPreviewIcon,
-                    onTap: { openURL(url) }
-                )
-            } else if let url = displayState.detectedURL {
-                // URL detected, waiting for fetch - show loading
-                LinkPreviewLoadingCard(url: url)
-            }
-
-        case .malwareWarning:
-            EmptyView()
+    @ViewBuilder
+    private func footerContents(allowsWrap: Bool) -> some View {
+        if footer.showHop {
+            BubbleHopCountFooter(hopCount: footer.hopCount)
+        }
+        if let formattedPath = footer.formattedPath {
+            BubblePathFooter(formattedPath: formattedPath)
+        }
+        if let region = footer.regionToShow {
+            BubbleRegionFooter(regionName: region, allowsWrap: allowsWrap)
         }
     }
 }
@@ -382,7 +291,6 @@ private struct BubbleStatusRow: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            // Only show retry button for failed messages (not retrying)
             if message.status == .failed, let onRetry {
                 Button {
                     onRetry()
@@ -397,7 +305,6 @@ private struct BubbleStatusRow: View {
                 .foregroundStyle(.blue)
             }
 
-            // Only show icon for failed status
             if message.status == .failed {
                 Image(systemName: "exclamationmark.circle")
                     .font(.caption2)
@@ -416,7 +323,6 @@ private struct BubbleStatusRow: View {
         case .pending, .sending:
             return L10n.Chats.Chats.Message.Status.sending
         case .sent:
-            // Build status parts: repeats, send count, sent
             var parts: [String] = []
             if message.heardRepeats > 0 {
                 let repeatWord = message.heardRepeats == 1
@@ -442,7 +348,6 @@ private struct BubbleStatusRow: View {
         case .failed:
             return L10n.Chats.Chats.Message.Status.failed
         case .retrying:
-            // Show attempt count: "Retrying 1/4" (1-indexed for user display)
             let displayAttempt = message.retryAttempt + 1
             let maxAttempts = message.maxRetryAttempts
             if maxAttempts > 0 {
@@ -476,7 +381,7 @@ private struct BubbleHopCountFooter: View {
             Image(systemName: "arrowshape.bounce.right")
             Text("\(hopCount)")
         }
-        .font(.caption2)  // Not monospaced - only hex paths need alignment
+        .font(.caption2)
         .foregroundStyle(.secondary)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(L10n.Chats.Chats.Message.HopCount.accessibilityLabel(hopCount))
@@ -502,145 +407,9 @@ private struct BubbleRegionFooter: View {
 
 // MARK: - Helpers
 
-private extension View {
+extension View {
     func bubbleContentPadding() -> some View {
         padding(.horizontal, 10)
             .padding(.vertical, 8)
     }
-}
-
-// MARK: - Previews
-
-#Preview("Direct - Outgoing Sent") {
-    let message = Message(
-        radioID: UUID(),
-        contactID: UUID(),
-        text: "Hello! How are you doing today?",
-        directionRawValue: MessageDirection.outgoing.rawValue,
-        statusRawValue: MessageStatus.sent.rawValue
-    )
-    return UnifiedMessageBubble(
-        message: MessageDTO(from: message),
-        contactName: "Alice",
-        deviceName: "My Device",
-        configuration: .directMessage
-    )
-}
-
-#Preview("Direct - Outgoing Delivered") {
-    let message = Message(
-        radioID: UUID(),
-        contactID: UUID(),
-        text: "This message was delivered successfully!",
-        directionRawValue: MessageDirection.outgoing.rawValue,
-        statusRawValue: MessageStatus.delivered.rawValue,
-        roundTripTime: 1234,
-        heardRepeats: 2
-    )
-    return UnifiedMessageBubble(
-        message: MessageDTO(from: message),
-        contactName: "Bob",
-        deviceName: "My Device",
-        configuration: .directMessage
-    )
-}
-
-#Preview("Direct - Outgoing Failed") {
-    let message = Message(
-        radioID: UUID(),
-        contactID: UUID(),
-        text: "This message failed to send",
-        directionRawValue: MessageDirection.outgoing.rawValue,
-        statusRawValue: MessageStatus.failed.rawValue
-    )
-    return UnifiedMessageBubble(
-        message: MessageDTO(from: message),
-        contactName: "Charlie",
-        deviceName: "My Device",
-        configuration: .directMessage,
-        callbacks: MessageBubbleCallbacks(onRetry: { })
-    )
-}
-
-#Preview("Channel - Public Incoming") {
-    let message = Message(
-        radioID: UUID(),
-        channelIndex: 1,
-        text: "Hello from the public channel!",
-        directionRawValue: MessageDirection.incoming.rawValue,
-        statusRawValue: MessageStatus.delivered.rawValue,
-        senderNodeName: "RemoteNode"
-    )
-    return UnifiedMessageBubble(
-        message: MessageDTO(from: message),
-        contactName: "General",
-        deviceName: "My Device",
-        configuration: .channel(isPublic: true, contacts: [])
-    )
-}
-
-#Preview("Channel - Private Outgoing") {
-    let message = Message(
-        radioID: UUID(),
-        channelIndex: 2,
-        text: "Private channel message",
-        directionRawValue: MessageDirection.outgoing.rawValue,
-        statusRawValue: MessageStatus.sent.rawValue
-    )
-    return UnifiedMessageBubble(
-        message: MessageDTO(from: message),
-        contactName: "Private Group",
-        deviceName: "My Device",
-        configuration: .channel(isPublic: false, contacts: [])
-    )
-}
-
-#Preview("Incoming - Direct Path") {
-    let message = Message(
-        radioID: UUID(),
-        contactID: UUID(),
-        text: "This came directly!",
-        directionRawValue: MessageDirection.incoming.rawValue,
-        statusRawValue: MessageStatus.delivered.rawValue,
-        pathLength: 0
-    )
-    return UnifiedMessageBubble(
-        message: MessageDTO(from: message),
-        contactName: "Alice",
-        configuration: .directMessage
-    )
-}
-
-#Preview("Incoming - 3 Hop Path") {
-    let message = Message(
-        radioID: UUID(),
-        contactID: UUID(),
-        text: "Routed through 3 nodes",
-        directionRawValue: MessageDirection.incoming.rawValue,
-        statusRawValue: MessageStatus.delivered.rawValue,
-        pathLength: 3
-    )
-    message.pathNodes = Data([0xA3, 0x7F, 0x42])
-    return UnifiedMessageBubble(
-        message: MessageDTO(from: message),
-        contactName: "Bob",
-        configuration: .directMessage
-    )
-}
-
-#Preview("Incoming - 6 Hop Truncated") {
-    let message = Message(
-        radioID: UUID(),
-        contactID: UUID(),
-        text: "Long path message",
-        directionRawValue: MessageDirection.incoming.rawValue,
-        statusRawValue: MessageStatus.delivered.rawValue,
-        pathLength: 6
-    )
-    message.pathNodes = Data([0xA3, 0x7F, 0x42, 0xB2, 0xC1, 0xD4])
-    return UnifiedMessageBubble(
-        message: MessageDTO(from: message),
-        contactName: "Charlie",
-        configuration: .directMessage
-    )
 }

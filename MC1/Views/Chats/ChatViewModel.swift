@@ -69,10 +69,33 @@ final class ChatViewModel {
     @ObservationIgnored private var cachedNonFavoriteConversations: [Conversation] = []
     @ObservationIgnored private var conversationCacheValid = false
     @ObservationIgnored var urlDetectionTask: Task<Void, Never>?
-    /// Bumped on every buildDisplayItems rebuild; URL detection writes check this before mutating displayItems
+    /// Bumped on every buildItems rebuild. Only the URL-detection writer
+    /// checks this before mutating cachedURLs; single-row rebuilds via
+    /// rebuildDisplayItem do not write cachedURLs and do not need gating.
     @ObservationIgnored var urlDetectionGeneration: UInt64 = 0
+    /// Monotonic counter bumped on every mutation of `messages` and every
+    /// single-row write to `renderState`. Captured at `buildItems()` entry
+    /// and re-checked inside the off-main apply step so a stale batch build
+    /// does not clobber fresher state. Bump via `bumpBuildGeneration()`.
+    @ObservationIgnored private var buildGeneration: UInt64 = 0
+    /// In-flight off-main batch build. Cancelled before each new
+    /// `buildItems()` call so successive rebuilds do not pile up concurrent
+    /// work. Mirrors the `urlDetectionTask` cancel-and-reassign pattern.
+    @ObservationIgnored var buildItemsTask: Task<Void, Never>?
     /// Tracks the last region scope sent to the device via setFloodScope.
     @ObservationIgnored var lastSetRegionScope: RegionScopeState = .unknown
+
+    /// Bump the build generation. Call from every site that mutates
+    /// `messages` or writes a single-row update into `renderState`.
+    func bumpBuildGeneration() {
+        buildGeneration &+= 1
+    }
+
+    /// Current build generation. Captured at `buildItems()` entry and
+    /// validated inside `MainActor.run` before the off-main apply.
+    func currentBuildGeneration() -> UInt64 {
+        buildGeneration
+    }
 
     /// Fallback date for conversations with no messages, used to sort them to the end.
     private static let noMessageSentinel = Date.distantPast
@@ -122,6 +145,21 @@ final class ChatViewModel {
     /// views read through the computed accessors below.
     var renderState: ChatRenderState = .empty
 
+    /// Environment-derived inputs (six `@AppStorage` toggles, contrast,
+    /// current user name) that feed `MessageItem` construction.
+    /// `ChatConversationView` pushes via `applyEnvInputs(_:)` before
+    /// `loadMessages` and on subsequent toggle changes.
+    var envInputs: EnvInputs = .default
+
+    /// Update env-derived inputs and trigger a full rebuild when the value
+    /// changes and there are messages to rebuild. Idempotent on no-change.
+    func applyEnvInputs(_ new: EnvInputs) {
+        guard envInputs != new else { return }
+        envInputs = new
+        guard !messages.isEmpty else { return }
+        buildItems()
+    }
+
     /// Monotonic counter bumped when an incoming `MessageEvent` indicates the
     /// timeline needs a reload from the data store. Observed by
     /// `ChatConversationView` via `.onChange`; the chase-the-counter pattern in
@@ -143,14 +181,15 @@ final class ChatViewModel {
     /// Latch for the chase-the-counter reload coalescer in `coalescedReload(for:)`.
     @ObservationIgnored var reloadInFlight = false
 
-    /// Pre-computed display items for efficient cell rendering
-    var displayItems: [MessageDisplayItem] { renderState.items }
+    /// Stored timeline rows. The cell-content closure consumes this directly;
+    /// the bubble view reads `MessageItem` fields without any per-render rebuild.
+    var items: [MessageItem] { renderState.items }
+
+    /// O(1) item-index lookup by message ID, forwarded from the render state.
+    var itemIndexByID: [UUID: Int] { renderState.itemIndexByID }
 
     /// O(1) message lookup by ID (used by views to get full DTO when needed)
     var messagesByID: [UUID: MessageDTO] = [:]
-
-    /// O(1) display item index lookup by message ID
-    var displayItemIndexByID: [UUID: Int] { renderState.itemIndexByID }
 
     /// Current contact being chatted with
     var currentContact: ContactDTO?
@@ -240,28 +279,6 @@ final class ChatViewModel {
 
     /// Cached URL detection results to avoid re-running NSDataDetector on rebuilds
     var cachedURLs: [UUID: URL?] = [:]
-
-    /// Cached formatted text per message (avoids rebuilding AttributedString on every render)
-    @ObservationIgnored var formattedTexts: [UUID: AttributedString] = [:]
-
-    /// Returns cached formatted text for a message, building and caching on first access
-    func formattedText(
-        for messageID: UUID,
-        text: String,
-        isOutgoing: Bool,
-        currentUserName: String?,
-        isHighContrast: Bool
-    ) -> AttributedString {
-        if let cached = formattedTexts[messageID] { return cached }
-        let result = MessageText.buildFormattedText(
-            text: text,
-            isOutgoing: isOutgoing,
-            currentUserName: currentUserName,
-            isHighContrast: isHighContrast
-        )
-        formattedTexts[messageID] = result
-        return result
-    }
 
     // MARK: - Pagination State
 

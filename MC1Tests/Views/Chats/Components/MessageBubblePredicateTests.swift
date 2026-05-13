@@ -16,9 +16,13 @@ struct MessageBubblePredicateTests {
         (false, RouteType.direct, false),
     ])
     func showHop(showFlag: Bool, routeType: RouteType, expected: Bool) {
+        let message = makeMessage(routeType: routeType)
         let predicates = MessageBubblePredicates(
-            message: makeMessage(routeType: routeType),
-            displayState: makeState(showIncomingHopCount: showFlag)
+            isFloodRouted: message.isFloodRouted,
+            regionScope: message.regionScope,
+            showIncomingHopCount: showFlag,
+            showIncomingRegion: false,
+            formattedPath: nil
         )
         #expect(predicates.showHop == expected)
     }
@@ -38,9 +42,13 @@ struct MessageBubblePredicateTests {
         (true, RouteType.direct, nil, nil),
     ])
     func regionToShow(showFlag: Bool, routeType: RouteType, scope: String?, expected: String?) {
+        let message = makeMessage(routeType: routeType, regionScope: scope)
         let predicates = MessageBubblePredicates(
-            message: makeMessage(routeType: routeType, regionScope: scope),
-            displayState: makeState(showIncomingRegion: showFlag)
+            isFloodRouted: message.isFloodRouted,
+            regionScope: message.regionScope,
+            showIncomingHopCount: false,
+            showIncomingRegion: showFlag,
+            formattedPath: nil
         )
         #expect(predicates.regionToShow == expected)
     }
@@ -50,9 +58,13 @@ struct MessageBubblePredicateTests {
         // channelIndex != nil makes isFloodRouted always true (channels are always flood),
         // so the direct routeType is ignored. Verifies the channel-override path through
         // MessageDTO.isFloodRouted that the parameterized matrix doesn't otherwise exercise.
+        let message = makeMessage(channelIndex: 0, routeType: .direct, regionScope: "United States")
         let predicates = MessageBubblePredicates(
-            message: makeMessage(channelIndex: 0, routeType: .direct, regionScope: "United States"),
-            displayState: makeState(showIncomingRegion: true)
+            isFloodRouted: message.isFloodRouted,
+            regionScope: message.regionScope,
+            showIncomingHopCount: false,
+            showIncomingRegion: true,
+            formattedPath: nil
         )
         #expect(predicates.regionToShow == "United States")
     }
@@ -61,9 +73,13 @@ struct MessageBubblePredicateTests {
     func regionToShow_legacyRadioPathLengthFF() {
         // Older radios may not populate routeType. In that case isFloodRouted falls back to
         // pathLength != 0xFF. A 0xFF marker means direct-routed, so region must hide.
+        let message = makeMessage(pathLength: 0xFF, routeType: nil, regionScope: "United States")
         let predicates = MessageBubblePredicates(
-            message: makeMessage(pathLength: 0xFF, routeType: nil, regionScope: "United States"),
-            displayState: makeState(showIncomingRegion: true)
+            isFloodRouted: message.isFloodRouted,
+            regionScope: message.regionScope,
+            showIncomingHopCount: false,
+            showIncomingRegion: true,
+            formattedPath: nil
         )
         #expect(predicates.regionToShow == nil)
     }
@@ -110,13 +126,13 @@ struct MessageBubblePredicateTests {
                       regionScope: "US", formattedPath: "A3,7F", expected: true),
     ])
     func hasFooter(testCase: HasFooterCase) {
+        let message = makeMessage(routeType: testCase.routeType, regionScope: testCase.regionScope)
         let predicates = MessageBubblePredicates(
-            message: makeMessage(routeType: testCase.routeType, regionScope: testCase.regionScope),
-            displayState: makeState(
-                showIncomingHopCount: testCase.showHopFlag,
-                showIncomingRegion: testCase.showRegionFlag,
-                formattedPath: testCase.formattedPath
-            )
+            isFloodRouted: message.isFloodRouted,
+            regionScope: message.regionScope,
+            showIncomingHopCount: testCase.showHopFlag,
+            showIncomingRegion: testCase.showRegionFlag,
+            formattedPath: testCase.formattedPath
         )
         #expect(predicates.hasFooter == testCase.expected)
     }
@@ -130,15 +146,17 @@ struct MessageBubblePredicateTests {
         // showIncomingRegion=true and a populated regionScope, a direct-routed message
         // must not assemble the region accessibility fragment into the screen-reader label.
         let message = makeMessage(routeType: .direct, regionScope: "United States")
-        var state = MessageDisplayState()
-        state.showIncomingHopCount = true
-        state.showIncomingRegion = true
-
+        let bundle = MessageBubbleTestData.messageItem(
+            message: message,
+            showIncomingHopCount: true,
+            showIncomingRegion: true
+        )
         let bubble = UnifiedMessageBubble(
             message: message,
             contactName: "Alice",
             configuration: .directMessage,
-            displayState: state
+            item: bundle.item,
+            imageResolver: bundle.imageResolver
         )
         let regionFragment = L10n.Chats.Chats.Message.Region.accessibilityLabel("United States")
 
@@ -149,14 +167,16 @@ struct MessageBubblePredicateTests {
     @MainActor
     func accessibilityLabel_floodRoutedIncludesRegion() {
         let message = makeMessage(routeType: .flood, regionScope: "United States")
-        var state = MessageDisplayState()
-        state.showIncomingRegion = true
-
+        let bundle = MessageBubbleTestData.messageItem(
+            message: message,
+            showIncomingRegion: true
+        )
         let bubble = UnifiedMessageBubble(
             message: message,
             contactName: "Alice",
             configuration: .directMessage,
-            displayState: state
+            item: bundle.item,
+            imageResolver: bundle.imageResolver
         )
         let regionFragment = L10n.Chats.Chats.Message.Region.accessibilityLabel("United States")
 
@@ -199,17 +219,5 @@ struct MessageBubblePredicateTests {
             routeType: routeType,
             regionScope: regionScope
         )
-    }
-
-    private func makeState(
-        showIncomingHopCount: Bool = false,
-        showIncomingRegion: Bool = false,
-        formattedPath: String? = nil
-    ) -> MessageDisplayState {
-        var state = MessageDisplayState()
-        state.showIncomingHopCount = showIncomingHopCount
-        state.showIncomingRegion = showIncomingRegion
-        state.formattedPath = formattedPath
-        return state
     }
 }

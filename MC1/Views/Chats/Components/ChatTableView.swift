@@ -4,7 +4,7 @@ import SwiftUI
 /// UIKit table view controller with flipped orientation for chat-style scrolling
 /// Newest messages appear at visual bottom, keyboard handling via native UIKit
 @MainActor
-final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, CellContent: View>: UITableViewController where Item.ID: Sendable {
+final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, CellContent: View>: UITableViewController where Item.ID == UUID {
 
     // MARK: - Types
 
@@ -27,8 +27,10 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     private var itemIndexByID: [Item.ID: Int] = [:]
     private var cellContentProvider: ((Item) -> CellContent)?
     private var dataSource: UITableViewDiffableDataSource<Section, Item.ID>?
-    private var isApplyingSnapshot = false
     private var pendingSnapshotApplies: [SnapshotApplyRequest] = []
+
+    /// Bundled interaction/intent/apply/deferred axes for the scroll surface.
+    private(set) var scrollState: ChatScrollState = .idle
 
     /// Tracks scroll position relative to bottom
     private(set) var isAtBottom: Bool = true
@@ -71,21 +73,25 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     /// Tracks mention IDs that have already been reported as visible (prevents duplicate callbacks)
     private var markedMentionIDs: Set<Item.ID> = []
 
-    /// Flag to prevent scroll delegate from overriding isAtBottom during programmatic scroll
-    private(set) var isScrollingToBottom = false
-
-    /// Target item ID for programmatic scroll (used to reload cell after scroll completes)
-    private var scrollTargetItemID: Item.ID?
-
     private var pendingScrollTargetID: Item.ID?
     private var pendingScrollTask: Task<Void, Never>?
-    private var isUserInteracting = false
-    private var isScrollingToTarget = false
-    /// Set when an auto-scroll-to-bottom was suppressed because the user was interacting;
-    /// fired on drag end so messages arriving mid-drag aren't silently dropped
-    private(set) var deferredScrollToBottomPending = false
-    /// Count of messages deferred while user is interacting; counted as unread if they release scrolled away
-    private(set) var deferredScrollMessageCount = 0
+
+    /// Target item ID for programmatic scroll, derived from the active scroll intent.
+    private var scrollTargetItemID: Item.ID? {
+        switch scrollState.intent {
+        case .toTarget(let id), .toMention(let id):
+            return id
+        case .none, .toBottom, .toDivider:
+            return nil
+        }
+    }
+
+    /// True when an auto-scroll-to-bottom was suppressed because the user was interacting.
+    /// Fired on drag end so messages arriving mid-drag aren't silently dropped.
+    var deferredScrollToBottomPending: Bool { scrollState.deferredScroll != nil }
+
+    /// Count of messages deferred while user is interacting; counted as unread if they release scrolled away.
+    var deferredScrollMessageCount: Int { scrollState.deferredScroll?.targetMessageCount ?? 0 }
 
     // MARK: - Lifecycle
 
@@ -157,10 +163,10 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         // SwiftUI handles frame changes for keyboard, so we don't add content inset.
         // Just scroll to bottom after layout settles if we were at bottom.
         if wasAtBottom {
-            // Set guard flag now to prevent scroll delegate from reacting to contentOffset
+            // Set intent now to prevent scroll delegate from reacting to contentOffset
             // oscillations during keyboard animation. Critical when content is shorter
             // than visible area - the bouncing would otherwise cause isAtBottom to flip.
-            isScrollingToBottom = true
+            scrollState.startIntent(.toBottom)
 
             // Delay to let SwiftUI complete its layout pass
             Task { @MainActor [weak self] in
@@ -231,7 +237,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
             completion: completion
         )
 
-        if isApplyingSnapshot {
+        if scrollState.isApplyingSnapshot {
             pendingSnapshotApplies.append(request)
             return
         }
@@ -242,11 +248,11 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     private func applySnapshotRequest(_ request: SnapshotApplyRequest) {
         guard let dataSource else {
             pendingSnapshotApplies.removeAll()
-            isApplyingSnapshot = false
+            scrollState.endApplying()
             return
         }
 
-        isApplyingSnapshot = true
+        scrollState.startApplying()
         let shouldAnimate = request.animatingDifferences && view.window != nil
 
         if shouldAnimate {
@@ -264,7 +270,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     }
 
     private func drainSnapshotQueue() {
-        isApplyingSnapshot = false
+        scrollState.endApplying()
         guard !pendingSnapshotApplies.isEmpty else { return }
         let nextRequest = pendingSnapshotApplies.removeFirst()
         applySnapshotRequest(nextRequest)
@@ -375,12 +381,14 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
             let newMessageCount = newItems.count - previousCount
             unreadCount += newMessageCount
             onScrollStateChanged?(isAtBottom, unreadCount)
-        } else if wasAtBottom && hasNewItems && !skipAutoScroll && !isScrollingToBottom && !wasPrepend {
+        } else if wasAtBottom && hasNewItems && !skipAutoScroll && scrollState.intent != .toBottom && !wasPrepend {
             lastSeenItemID = newItems.last?.id
-            if isUserInteracting {
+            if scrollState.isUserDriven {
                 // Defer until drag ends — scrolling mid-drag fights the gesture and bounces
-                deferredScrollToBottomPending = true
-                deferredScrollMessageCount += newItems.count - previousCount
+                let accumulatedCount = (scrollState.deferredScroll?.targetMessageCount ?? 0) + (newItems.count - previousCount)
+                scrollState.scheduleDeferredScroll(
+                    DeferredScroll(targetMessageCount: accumulatedCount, createdAt: Date())
+                )
             } else {
                 scrollToBottom(animated: animated && previousCount > 0)
             }
@@ -404,8 +412,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     func prepareForUserSend() {
         isAtBottom = true
         unreadCount = 0
-        deferredScrollToBottomPending = false
-        deferredScrollMessageCount = 0
+        _ = scrollState.consumeDeferredScroll()
         skipAutoScroll = true  // Prevent updateItems from calling scrollToBottom (we'll do it explicitly)
     }
 
@@ -423,15 +430,15 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         // In a flipped table view with short content, scrollToRow miscalculates
         // the target position and over-scrolls, pushing messages off screen.
         if alreadyAtBottom {
-            isScrollingToBottom = false
+            scrollState.clearIntent()
             onScrollStateChanged?(isAtBottom, unreadCount)
             skipAutoScroll = false
             return
         }
 
-        // Only update isScrollingToBottom if not already set (keyboardWillShow may have set it)
-        if !isScrollingToBottom {
-            isScrollingToBottom = animated
+        // Only update intent if not already toBottom (keyboardWillShow may have set it)
+        if scrollState.intent != .toBottom && animated {
+            scrollState.startIntent(.toBottom)
         }
 
         // In flipped table with reversed data: row 0 = newest message
@@ -439,7 +446,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: animated)
 
         if !animated {
-            isScrollingToBottom = false
+            scrollState.clearIntent()
         }
 
         onScrollStateChanged?(isAtBottom, unreadCount)
@@ -452,8 +459,9 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         // Use O(1) dictionary lookup instead of O(n) firstIndex
         guard itemIndexByID[id] != nil else { return }
 
-        // Track target for post-scroll reload (fixes UIHostingConfiguration layout timing)
-        scrollTargetItemID = id
+        // Set target intent so the computed scrollTargetItemID picks up the post-scroll reload target
+        // and so checkNearTop blocks pagination during the scroll-to-target animation.
+        scrollState.startIntent(.toTarget(id: id))
         pendingScrollTargetID = id
 
         pendingScrollTask?.cancel()
@@ -484,7 +492,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     /// Reloads the scroll target cell to fix UIHostingConfiguration layout timing issues
     private func reloadTargetCell() {
         guard let targetID = scrollTargetItemID else { return }
-        scrollTargetItemID = nil
+        scrollState.clearIntent()
 
         // Force cell reconfiguration via snapshot reload
         var snapshot = dataSource?.snapshot() ?? NSDiffableDataSourceSnapshot<Section, Item.ID>()
@@ -499,15 +507,8 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         let rowIndex = items.count - 1 - itemIndex
         let indexPath = IndexPath(row: rowIndex, section: 0)
         tableView.layoutIfNeeded()
-        isScrollingToTarget = true
+        // Intent is already .toTarget(id:) from scrollToItem; no need to set again here.
         tableView.scrollToRow(at: indexPath, at: .middle, animated: animated)
-
-        if !animated {
-            Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .milliseconds(100))
-                self?.isScrollingToTarget = false
-            }
-        }
     }
 
     private func schedulePendingScroll(for id: Item.ID, delay: Duration) {
@@ -515,7 +516,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         pendingScrollTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: delay)
             guard let self, !Task.isCancelled else { return }
-            guard self.pendingScrollTargetID == id, !self.isUserInteracting else { return }
+            guard self.pendingScrollTargetID == id, !self.scrollState.isUserDriven else { return }
             self.pendingScrollTargetID = nil
             self.centerItem(id: id, animated: true)
             self.pendingScrollTask = nil
@@ -579,39 +580,38 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
-            isUserInteracting = false
+            scrollState.endDragging()
             finalizeScrollPosition()
             fireDeferredScrollIfNeeded()
         }
     }
 
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        isUserInteracting = false
+        scrollState.endDragging()
         finalizeScrollPosition()
         fireDeferredScrollIfNeeded()
     }
 
     private func fireDeferredScrollIfNeeded() {
-        guard deferredScrollToBottomPending else { return }
-        let deferredCount = deferredScrollMessageCount
-        deferredScrollToBottomPending = false
-        deferredScrollMessageCount = 0
+        guard let deferred = scrollState.consumeDeferredScroll() else { return }
         if isAtBottom {
             scrollToBottom(animated: true)
         } else {
             // User dragged away mid-message — the messages they didn't see become unread
-            unreadCount += deferredCount
+            unreadCount += deferred.targetMessageCount
             onScrollStateChanged?(isAtBottom, unreadCount)
         }
     }
 
     override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        // Clear flag when programmatic scroll animation completes
-        let wasScrollingToBottom = isScrollingToBottom
-        isScrollingToBottom = false
-        isScrollingToTarget = false
+        // Capture whether the completed animation was a scroll-to-bottom before mutating intent.
+        let wasScrollingToBottom = scrollState.intent == .toBottom
+        if wasScrollingToBottom {
+            scrollState.clearIntent()
+        }
 
-        // Reload target cell after scroll completes to fix UIHostingConfiguration layout timing
+        // Reload target cell after scroll completes to fix UIHostingConfiguration layout timing.
+        // reloadTargetCell clears any .toTarget / .toMention intent.
         reloadTargetCell()
 
         if wasScrollingToBottom {
@@ -634,7 +634,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     private func updateIsAtBottom() {
         // Don't override isAtBottom during programmatic scroll-to-bottom animation
         // This prevents the FAB from flickering when user sends a message
-        if isScrollingToBottom {
+        if scrollState.intent == .toBottom {
             return
         }
 
@@ -659,8 +659,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     /// Check if user has scrolled near the top (oldest messages) and trigger callback
     private func checkNearTop() {
-        if isScrollingToBottom || isScrollingToTarget || scrollTargetItemID != nil
-            || isLoadingOlderMessages || isNearTopRequestInFlight {
+        if scrollState.intent != .none || isLoadingOlderMessages || isNearTopRequestInFlight {
             return
         }
         guard let visibleRows = tableView.indexPathsForVisibleRows,
@@ -679,7 +678,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     }
 
     override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        isUserInteracting = true
+        scrollState.enterDragging()
         pendingScrollTargetID = nil
         pendingScrollTask?.cancel()
         pendingScrollTask = nil
@@ -689,7 +688,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 // MARK: - SwiftUI Wrapper
 
 /// SwiftUI wrapper for ChatTableViewController
-struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: UIViewControllerRepresentable where Item.ID: Sendable {
+struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: UIViewControllerRepresentable where Item.ID == UUID {
 
     let items: [Item]
     let cellContent: (Item) -> Content

@@ -10,7 +10,7 @@ struct MessageEventStreamTests {
     @Test("Single consumer receives an event sent via send(_:)")
     func singleConsumerReceivesEvent() async {
         let stream = MessageEventStream()
-        let event = MessageEvent.messageStatusUpdated(ackCode: 0xDEAD_BEEF)
+        let event = MessageEvent.messageStatusResolved(messageID: UUID())
 
         // Subscribe and pull one event. `events()` registers the continuation
         // synchronously, so by the time the child task suspends on next(), the
@@ -105,8 +105,8 @@ struct MessageEventStreamTests {
     @Test("Subscribers added after a send do not receive prior events")
     func subscribersAreNotReplayed() async {
         let stream = MessageEventStream()
-        let earlyEvent = MessageEvent.messageStatusUpdated(ackCode: 1)
-        let lateEvent = MessageEvent.messageStatusUpdated(ackCode: 2)
+        let earlyEvent = MessageEvent.messageStatusResolved(messageID: UUID())
+        let lateEvent = MessageEvent.messageStatusResolved(messageID: UUID())
 
         // No subscriber — this send goes to nobody.
         stream.send(earlyEvent)

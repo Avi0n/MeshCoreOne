@@ -4,8 +4,8 @@ import MC1Services
 @testable import MC1
 
 /// Value-type builders for `UnifiedMessageBubble` snapshot tests. Pure
-/// constructors — `MessageDisplayState` already stores pre-decoded
-/// images and `AttributedString`s, so no service layer is involved.
+/// constructors — `MessageItem` carries fragments with `ImageReference` handles;
+/// the in-memory image map below resolves those handles back to UIImages.
 enum MessageBubbleTestData {
 
     // MARK: - Stable identifiers
@@ -170,10 +170,25 @@ enum MessageBubbleTestData {
         )
     }
 
-    // MARK: - MessageDisplayState
+    // MARK: - MessageItem + imageResolver
 
-    static func displayState(
+    /// Bundle returned by `messageItem` for tests that need both the structural
+    /// `MessageItem` and a synchronous image resolver for fragment rendering.
+    struct ItemBundle {
+        let item: MessageItem
+        let imageResolver: (ImageReference) -> UIImage?
+    }
+
+    /// Build a `MessageItem` via the production `MessageFragmentBuilder` from
+    /// test inputs that mirror today's `displayState(...)` factory signature.
+    /// Decoded UIImages provided here are stashed in an in-memory map keyed by
+    /// `(message.id, role)` so the returned `imageResolver` closure resolves
+    /// fragment-side `ImageReference` handles back to the supplied UIImages.
+    @MainActor
+    static func messageItem(
+        message: MessageDTO,
         showTimestamp: Bool = false,
+        showDirectionGap: Bool = false,
         showSenderName: Bool = true,
         showNewMessagesDivider: Bool = false,
         previewState: PreviewLoadState = .idle,
@@ -187,30 +202,53 @@ enum MessageBubbleTestData {
         isGIF: Bool = false,
         showInlineImages: Bool = false,
         autoPlayGIFs: Bool = true,
+        previewsEnabled: Bool = true,
+        currentUserName: String = "Me",
         formattedPath: String? = nil,
         showIncomingHopCount: Bool = false,
-        showIncomingRegion: Bool = false
-    ) -> MessageDisplayState {
-        MessageDisplayState(
-            showTimestamp: showTimestamp,
-            showDirectionGap: false,
-            showSenderName: showSenderName,
-            showNewMessagesDivider: showNewMessagesDivider,
-            detectedURL: detectedURL,
+        showIncomingRegion: Bool = false,
+        configurationShowSenderName: Bool = true,
+        senderResolution: NodeNameResolution = NodeNameResolution(displayName: "Unknown", matchKind: .unresolved)
+    ) -> ItemBundle {
+        let inputs = MessageBuildInputs(
+            messageID: message.id,
             previewState: previewState,
             loadedPreview: loadedPreview,
-            isImageURL: isImageURL,
-            decodedImage: decodedImage,
-            decodedPreviewImage: decodedPreviewImage,
-            decodedPreviewIcon: decodedPreviewIcon,
-            isGIF: isGIF,
+            cachedURL: detectedURL,
+            hasInlineImageRef: decodedImage != nil,
+            hasPreviewImageRef: decodedPreviewImage != nil,
+            hasPreviewIconRef: decodedPreviewIcon != nil,
+            imageIsGIF: isGIF,
+            formattedText: formattedText,
+            baseColor: message.isOutgoing ? .white : .primary,
+            formattedPath: formattedPath,
+            senderResolution: senderResolution,
+            showTimestamp: showTimestamp,
+            showDirectionGap: showDirectionGap,
+            showSenderName: showSenderName,
+            showNewMessagesDivider: showNewMessagesDivider
+        )
+        let envInputs = EnvInputs(
             showInlineImages: showInlineImages,
             autoPlayGIFs: autoPlayGIFs,
+            showIncomingPath: formattedPath != nil,
             showIncomingHopCount: showIncomingHopCount,
             showIncomingRegion: showIncomingRegion,
-            formattedPath: formattedPath,
-            formattedText: formattedText
+            previewsEnabled: previewsEnabled,
+            isHighContrast: false,
+            currentUserName: currentUserName
         )
+        let item = MessageFragmentBuilder.makeItem(for: message, inputs: inputs, envInputs: envInputs)
+
+        let resolver: (ImageReference) -> UIImage? = { ref in
+            guard ref.cacheKey == message.id else { return nil }
+            switch ref.role {
+            case .inline: return decodedImage
+            case .linkPreviewImage: return decodedPreviewImage
+            case .linkPreviewIcon: return decodedPreviewIcon
+            }
+        }
+        return ItemBundle(item: item, imageResolver: resolver)
     }
 
     // MARK: - MessageBubbleConfiguration

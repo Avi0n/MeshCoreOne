@@ -30,10 +30,11 @@ extension ChatViewModel {
             appendMessageIfNew(message)
             recordIncomingMentionIfNeeded(message)
 
-        case .messageStatusUpdated:
-            // ackCode→messageID resolution happens outside the broadcaster,
-            // so we cannot gate on timeline membership here; trigger a full
-            // reload so SwiftData reports whatever state changed.
+        case .messageStatusResolved(let messageID):
+            // O(1) timeline-membership check — ACKs for messages outside the
+            // current conversation skip the reload entirely. Mirrors the
+            // .messageRetrying / .messageFailed gating below.
+            guard renderState.itemIndexByID[messageID] != nil else { return }
             requestReload()
 
         case .messageRetrying(let messageID, _, _):

@@ -2,13 +2,13 @@ import CoreLocation
 import Foundation
 import MC1Services
 
-enum NodeNameMatchKind: Sendable, Equatable {
+enum NodeNameMatchKind: Sendable, Equatable, Hashable {
     case exact
     case fallback
     case unresolved
 }
 
-struct NodeNameResolution: Sendable, Equatable {
+struct NodeNameResolution: Sendable, Equatable, Hashable {
     let displayName: String
     let matchKind: NodeNameMatchKind
 

@@ -1,24 +1,18 @@
 import SwiftUI
 import MC1Services
 
-/// Constructs a UnifiedMessageBubble for a given display item, resolving message data from the view model
+/// Renders a UnifiedMessageBubble for a stored MessageItem.
+/// Reads the message DTO from the view model and wires callbacks.
 struct MessageBubbleView: View {
-    let item: MessageDisplayItem
+    let item: MessageItem
     let contactName: String
     let deviceName: String
     let configuration: MessageBubbleConfiguration
     @Bindable var viewModel: ChatViewModel
     let recentEmojisStore: RecentEmojisStore
-    let showInlineImages: Bool
-    let autoPlayGIFs: Bool
-    let showIncomingPath: Bool
-    let showIncomingHopCount: Bool
-    let showIncomingRegion: Bool
     @Binding var selectedMessageForActions: MessageDTO?
     @Binding var imageViewerData: ImageViewerData?
     let onRetryMessage: (MessageDTO) -> Void
-
-    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     var body: some View {
         if let message = viewModel.message(for: item) {
@@ -27,34 +21,17 @@ struct MessageBubbleView: View {
                 contactName: contactName,
                 deviceName: deviceName,
                 configuration: configuration,
-                displayState: MessageDisplayState(
-                    showTimestamp: item.showTimestamp,
-                    showDirectionGap: item.showDirectionGap,
-                    showSenderName: item.showSenderName,
-                    showNewMessagesDivider: item.showNewMessagesDivider,
-                    detectedURL: item.detectedURL,
-                    previewState: item.previewState,
-                    loadedPreview: item.loadedPreview,
-                    isImageURL: item.isImageURL,
-                    decodedImage: viewModel.decodedImage(for: message.id),
-                    decodedPreviewImage: viewModel.decodedPreviewImage(for: message.id),
-                    decodedPreviewIcon: viewModel.decodedPreviewIcon(for: message.id),
-                    isGIF: viewModel.isGIFImage(for: message.id),
-                    showInlineImages: showInlineImages,
-                    autoPlayGIFs: autoPlayGIFs,
-                    showIncomingHopCount: showIncomingHopCount,
-                    showIncomingRegion: showIncomingRegion,
-                    formattedPath: (showIncomingPath && !message.isOutgoing)
-                        ? MessagePathFormatter.format(message)
-                        : nil,
-                    formattedText: viewModel.formattedText(
-                        for: message.id,
-                        text: message.text,
-                        isOutgoing: message.isOutgoing,
-                        currentUserName: deviceName,
-                        isHighContrast: colorSchemeContrast == .increased
-                    )
-                ),
+                item: item,
+                imageResolver: { ref in
+                    switch ref.role {
+                    case .inline:
+                        return viewModel.decodedImage(for: ref.cacheKey)
+                    case .linkPreviewImage:
+                        return viewModel.decodedPreviewImage(for: ref.cacheKey)
+                    case .linkPreviewIcon:
+                        return viewModel.decodedPreviewIcon(for: ref.cacheKey)
+                    }
+                },
                 callbacks: MessageBubbleCallbacks(
                     onRetry: { onRetryMessage(message) },
                     onReaction: { emoji in
@@ -74,8 +51,8 @@ struct MessageBubbleView: View {
                         Task { await viewModel.retryImageFetch(for: message.id) }
                     },
                     onRequestPreviewFetch: {
-                        if item.isImageURL && showInlineImages {
-                            viewModel.requestImageFetch(for: message.id, showInlineImages: showInlineImages)
+                        if viewModel.shouldRequestImageFetch(for: message.id) {
+                            viewModel.requestImageFetch(for: message.id)
                         } else {
                             viewModel.requestPreviewFetch(for: message.id)
                         }

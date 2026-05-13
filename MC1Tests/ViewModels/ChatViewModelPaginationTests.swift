@@ -693,9 +693,10 @@ struct ChatViewModelDisplayItemsPaginationTests {
         }
 
         viewModel.messages = messages
-        await viewModel.buildDisplayItems()
+        await viewModel.buildItems()
+        await viewModel.buildItemsTask?.value
 
-        #expect(viewModel.displayItems.count == 5)
+        #expect(viewModel.items.count == 5)
 
         // Add more messages (simulating loadOlderMessages prepend)
         let olderMessages = (0..<3).map { index in
@@ -707,9 +708,10 @@ struct ChatViewModelDisplayItemsPaginationTests {
         }
 
         viewModel.messages.insert(contentsOf: olderMessages, at: 0)
-        await viewModel.buildDisplayItems()
+        await viewModel.buildItems()
+        await viewModel.buildItemsTask?.value
 
-        #expect(viewModel.displayItems.count == 8)
+        #expect(viewModel.items.count == 8)
     }
 
     @Test("Message lookup by ID works after pagination")
@@ -722,11 +724,12 @@ struct ChatViewModelDisplayItemsPaginationTests {
         let message2 = createTestMessage(contactID: contactID, radioID: radioID, timestamp: 1001)
 
         viewModel.messages = [message1, message2]
-        await viewModel.buildDisplayItems()
+        await viewModel.buildItems()
+        await viewModel.buildItemsTask?.value
 
         // Lookup should work
-        #expect(viewModel.displayItems.count == 2)
-        let foundMessage = viewModel.message(for: viewModel.displayItems[0])
+        #expect(viewModel.items.count == 2)
+        let foundMessage = viewModel.message(for: viewModel.items[0])
         #expect(foundMessage?.id == message1.id)
     }
 }
