@@ -540,12 +540,16 @@ public enum L10n {
         public enum Action {
           /// Location: MessageActionsSheet.swift - Purpose: Block sender action
           public static let blockSender = L10n.tr("Chats", "chats.message.action.blockSender", fallback: "Block Sender")
+          /// Location: ActionsDetailsSection.swift - Accessibility value when the details row is collapsed
+          public static let collapsed = L10n.tr("Chats", "chats.message.action.collapsed", fallback: "Collapsed")
           /// Location: UnifiedMessageBubble.swift - Context menu action to copy
           public static let copy = L10n.tr("Chats", "chats.message.action.copy", fallback: "Copy")
           /// Location: UnifiedMessageBubble.swift - Context menu action to delete
           public static let delete = L10n.tr("Chats", "chats.message.action.delete", fallback: "Delete")
           /// Location: UnifiedMessageBubble.swift - Context menu submenu label
           public static let details = L10n.tr("Chats", "chats.message.action.details", fallback: "Details")
+          /// Location: ActionsDetailsSection.swift - Accessibility value when the details row is expanded
+          public static let expanded = L10n.tr("Chats", "chats.message.action.expanded", fallback: "Expanded")
           /// Location: MessageActionsSheet.swift - Context menu action to mention
           public static let mention = L10n.tr("Chats", "chats.message.action.mention", fallback: "Mention")
           /// Location: UnifiedMessageBubble.swift - Context menu action to view repeat details

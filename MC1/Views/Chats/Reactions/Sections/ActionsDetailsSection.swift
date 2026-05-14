@@ -77,7 +77,11 @@ private struct ActionsExpandableDetailRow: View {
                 .contentShape(.rect)
             }
             .foregroundStyle(.primary)
-            .accessibilityValue(isDetailExpanded ? "expanded" : "collapsed")
+            .accessibilityValue(
+                isDetailExpanded
+                    ? L10n.Chats.Chats.Message.Action.expanded
+                    : L10n.Chats.Chats.Message.Action.collapsed
+            )
 
             if isDetailExpanded {
                 Divider()

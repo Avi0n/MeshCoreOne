@@ -289,6 +289,8 @@ private struct BubbleStatusRow: View {
     let message: MessageDTO
     let onRetry: (() -> Void)?
 
+    private static let minimumTapTargetHeight: CGFloat = 44
+
     var body: some View {
         HStack(spacing: 4) {
             if message.status == .failed, let onRetry {
@@ -300,6 +302,8 @@ private struct BubbleStatusRow: View {
                         Text(L10n.Chats.Chats.Message.Status.retry)
                     }
                     .font(.caption2)
+                    .frame(minHeight: Self.minimumTapTargetHeight)
+                    .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.blue)

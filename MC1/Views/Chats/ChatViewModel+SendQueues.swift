@@ -3,6 +3,113 @@ import MC1Services
 
 extension ChatViewModel {
 
+    // MARK: - Persist + Enqueue Wrappers
+
+    /// Persist + enqueue a DM envelope. The persist step writes a
+    /// `PendingSend` row keyed by `radioID`; the enqueue step appends to
+    /// the in-memory `SendQueue`. On send success or non-cancellation
+    /// failure the wrapper inside `makeDMSendQueue()` removes the row.
+    func enqueueDM(_ envelope: DirectMessageEnvelope) async {
+        await persistDM(envelope)
+        await dmSendQueue?.enqueue(envelope)
+    }
+
+    /// Persist + enqueue a channel envelope. See `enqueueDM` for shape notes.
+    func enqueueChannel(_ envelope: ChannelMessageEnvelope) async {
+        await persistChannel(envelope)
+        await channelSendQueue?.enqueue(envelope)
+    }
+
+    private func persistDM(_ envelope: DirectMessageEnvelope) async {
+        guard let dataStore = sendContext.dataStore,
+              let radioID = currentRadioID else { return }
+        do {
+            let dto = PendingSendDTO(envelope: envelope, radioID: radioID)
+            _ = try await dataStore.insertPendingSendAssigningSequence(dto)
+        } catch {
+            logger.error("Persisting DM envelope failed: \(String(describing: error))")
+        }
+    }
+
+    private func persistChannel(_ envelope: ChannelMessageEnvelope) async {
+        guard let dataStore = sendContext.dataStore,
+              let radioID = currentRadioID else { return }
+        do {
+            let dto = PendingSendDTO(envelope: envelope, radioID: radioID)
+            _ = try await dataStore.insertPendingSendAssigningSequence(dto)
+        } catch {
+            logger.error("Persisting channel envelope failed: \(String(describing: error))")
+        }
+    }
+
+    // MARK: - Teardown
+
+    /// Cancel any in-flight drain on the DM and channel queues plus the
+    /// hydration and build tasks. Intended for test teardown so a
+    /// suspending send closure does not keep the SendQueue actor alive
+    /// past the view-model's intended lifetime.
+    func cancelPendingDrain() async {
+        await dmSendQueue?.cancelDrain()
+        await channelSendQueue?.cancelDrain()
+        hydrationTask?.cancel()
+        buildItemsTask?.cancel()
+    }
+
+    // MARK: - Hydration
+
+    /// Replay persisted pending sends back into the in-memory queues for
+    /// the given radio. Called once per radioID per view-model lifetime
+    /// so reconnect or process restart drains messages enqueued during a
+    /// previous session — without ever replaying the same row twice.
+    ///
+    /// Idempotence: `hydratedRadios` guards against double hydration when
+    /// `configure(...)` fires twice for the same radio. The check is cheap;
+    /// the fetch is the expensive part. If hydration does not run to
+    /// completion (cancellation mid-loop, fetch failure, missing data
+    /// store) the radioID is removed from `hydratedRadios` so a follow-up
+    /// configure on the same radio re-attempts.
+    ///
+    /// Enqueues bypass the persist step (rows are already in DB) by
+    /// invoking the SendQueue actor directly rather than going through
+    /// enqueueDM / enqueueChannel.
+    func hydrateSendQueues(radioID: UUID) {
+        guard hydratedRadios.insert(radioID).inserted else { return }
+        guard let dataStore = sendContext.dataStore else {
+            hydratedRadios.remove(radioID)
+            return
+        }
+        hydrationTask?.cancel()
+        hydrationTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                let rows = try await dataStore.fetchPendingSends(radioID: radioID)
+                for dto in rows {
+                    if Task.isCancelled {
+                        await MainActor.run { self.hydratedRadios.remove(radioID) }
+                        return
+                    }
+                    switch dto.kind {
+                    case .dm:
+                        if let envelope = dto.directMessageEnvelope() {
+                            await self.dmSendQueue?.enqueue(envelope)
+                        }
+                    case .channel:
+                        if let envelope = dto.channelMessageEnvelope() {
+                            await self.channelSendQueue?.enqueue(envelope)
+                        }
+                    }
+                }
+            } catch is CancellationError {
+                await MainActor.run { self.hydratedRadios.remove(radioID) }
+            } catch {
+                await MainActor.run {
+                    self.logger.error("Hydrating send queues failed: \(String(describing: error))")
+                    self.hydratedRadios.remove(radioID)
+                }
+            }
+        }
+    }
+
     // MARK: - DM Send Queue
 
     func makeDMSendQueue() -> SendQueue<DirectMessageEnvelope> {
@@ -13,35 +120,32 @@ extension ChatViewModel {
                 let services = await MainActor.run {
                     (dataStore: sendContext.dataStore, messageService: sendContext.messageService)
                 }
-                // Mark the row failed before throwing so the UI bubble
-                // surfaces the failure rather than spinning in "sending"
-                // forever. The queue only ever holds .pending / .sending
-                // envelopes, so plain updateMessageStatus is correct here.
                 guard let messageService = services.messageService else {
-                    if let dataStore = services.dataStore {
-                        try? await dataStore.updateMessageStatus(
-                            id: envelope.messageID,
-                            status: .failed
-                        )
-                    }
-                    throw ChatSendQueueError.servicesUnavailable
+                    // A queued message awaiting a radio reconnect is `.pending`,
+                    // not `.failed`. Throw a transient error so `onError`
+                    // preserves the row for a future drain.
+                    throw ChatSendQueueError.transientUnavailable
                 }
                 guard let dataStore = services.dataStore else {
                     throw ChatSendQueueError.servicesUnavailable
                 }
                 guard let contact = try? await dataStore.fetchContact(id: envelope.contactID) else {
                     logger.info("Skipping queued message - contact \(envelope.contactID) was deleted")
+                    try? await dataStore.deletePendingSendsForMessage(messageID: envelope.messageID)
                     return
                 }
                 _ = try await messageService.retryDirectMessage(
                     messageID: envelope.messageID,
                     to: contact
                 )
+                try? await dataStore.deletePendingSendsForMessage(messageID: envelope.messageID)
             },
-            onError: { _, _ in
-                // Error reporting deferred to onDrain so the post-drain
-                // loadMessages reset of errorMessage = nil does not clobber
-                // sendErrorMessage either.
+            onError: { error, envelope in
+                let dataStore = await MainActor.run { sendContext.dataStore }
+                if let chatError = error as? ChatSendQueueError, chatError.isTransient {
+                    return
+                }
+                try? await dataStore?.deletePendingSendsForMessage(messageID: envelope.messageID)
             },
             onDrain: { [weak self] lastError in
                 await self?.handleDMQueueDrain(lastError: lastError)
@@ -87,13 +191,10 @@ extension ChatViewModel {
                     )
                 }
                 guard let messageService = services.messageService else {
-                    if let dataStore = services.dataStore {
-                        try? await dataStore.updateMessageStatus(
-                            id: envelope.messageID,
-                            status: .failed
-                        )
-                    }
-                    throw ChatSendQueueError.servicesUnavailable
+                    // A queued message awaiting a radio reconnect is `.pending`,
+                    // not `.failed`. Throw a transient error so `onError`
+                    // preserves the row for a future drain.
+                    throw ChatSendQueueError.transientUnavailable
                 }
 
                 if envelope.isResend {
@@ -123,11 +224,15 @@ extension ChatViewModel {
                         timestamp: envelope.messageTimestamp
                     )
                 }
+
+                try? await services.dataStore?.deletePendingSendsForMessage(messageID: envelope.messageID)
             },
-            onError: { _, _ in
-                // Error reporting deferred to onDrain so the post-drain
-                // loadChannelMessages reset of errorMessage = nil does not
-                // clobber sendErrorMessage either.
+            onError: { error, envelope in
+                let dataStore = await MainActor.run { sendContext.dataStore }
+                if let chatError = error as? ChatSendQueueError, chatError.isTransient {
+                    return
+                }
+                try? await dataStore?.deletePendingSendsForMessage(messageID: envelope.messageID)
             },
             onDrain: { [weak self] lastError in
                 await self?.handleChannelQueueDrain(lastError: lastError)

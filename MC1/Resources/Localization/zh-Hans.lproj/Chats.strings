@@ -628,6 +628,12 @@
 /* Location: UnifiedMessageBubble.swift - Context menu submenu label */
 "chats.message.action.details" = "详情";
 
+/* Location: ActionsDetailsSection.swift - Accessibility value when the details row is expanded */
+"chats.message.action.expanded" = "已展开";
+
+/* Location: ActionsDetailsSection.swift - Accessibility value when the details row is collapsed */
+"chats.message.action.collapsed" = "已折叠";
+
 /* Location: UnifiedMessageBubble.swift - Context menu action to delete */
 "chats.message.action.delete" = "删除";
 

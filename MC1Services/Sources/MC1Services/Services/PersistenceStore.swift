@@ -68,7 +68,8 @@ public actor PersistenceStore: PersistenceStoreProtocol {
         LinkPreviewData.self,
         DiscoveredNode.self,
         NodeStatusSnapshot.self,
-        BlockedChannelSender.self
+        BlockedChannelSender.self,
+        PendingSend.self
     ])
 
     /// Creates a ModelContainer for the app.
@@ -78,6 +79,7 @@ public actor PersistenceStore: PersistenceStoreProtocol {
     ///          (SQLite INTEGER is identical for both; bit pattern -1 == 0xFF).
     ///          Added MessageRepeat.pathLength (UInt8, default 0).
     ///          Added SavedTracePath.hashSize (Int, default 1).
+    /// - v2→v3: Added PendingSend (new table; no migration impact on existing rows).
     public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
         if !inMemory {
             let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!

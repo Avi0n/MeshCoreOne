@@ -1535,6 +1535,49 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         nodeStatusSnapshots.removeAll { $0.timestamp < date }
     }
 
+    // MARK: - Pending Sends
+
+    public var pendingSends: [UUID: PendingSendDTO] = [:]
+
+    public func upsertPendingSend(_ dto: PendingSendDTO) async throws {
+        pendingSends[dto.id] = dto
+    }
+
+    public func insertPendingSendAssigningSequence(_ dto: PendingSendDTO) async throws -> Int {
+        let nextSequence = (pendingSends.values.filter { $0.radioID == dto.radioID }.map(\.sequence).max() ?? 0) + 1
+        let assigned = PendingSendDTO(
+            id: dto.id,
+            radioID: dto.radioID,
+            messageID: dto.messageID,
+            kind: dto.kind,
+            contactID: dto.contactID,
+            channelIndex: dto.channelIndex,
+            isResend: dto.isResend,
+            messageText: dto.messageText,
+            messageTimestamp: dto.messageTimestamp,
+            localNodeName: dto.localNodeName,
+            sequence: nextSequence,
+            enqueuedAt: dto.enqueuedAt
+        )
+        pendingSends[dto.id] = assigned
+        return nextSequence
+    }
+
+    public func fetchPendingSends(radioID: UUID) async throws -> [PendingSendDTO] {
+        pendingSends.values.filter { $0.radioID == radioID }.sorted { $0.sequence < $1.sequence }
+    }
+
+    public func deletePendingSend(id: UUID) async throws {
+        pendingSends.removeValue(forKey: id)
+    }
+
+    public func deletePendingSendsForMessage(messageID: UUID) async throws {
+        let matchingIDs = pendingSends.values.filter { $0.messageID == messageID }.map(\.id)
+        for id in matchingIDs {
+            pendingSends.removeValue(forKey: id)
+        }
+    }
+
     // MARK: - Test Helpers
 
     /// Resets all storage and recorded invocations

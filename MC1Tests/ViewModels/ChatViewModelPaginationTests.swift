@@ -367,6 +367,14 @@ actor PaginationTestDataStore: PersistenceStoreProtocol {
 
     func deleteMessagesForChannel(radioID: UUID, channelIndex: UInt8) async throws {}
 
+    // MARK: - Pending Sends
+
+    func upsertPendingSend(_ dto: PendingSendDTO) async throws {}
+    func insertPendingSendAssigningSequence(_ dto: PendingSendDTO) async throws -> Int { 0 }
+    func fetchPendingSends(radioID: UUID) async throws -> [PendingSendDTO] { [] }
+    func deletePendingSend(id: UUID) async throws {}
+    func deletePendingSendsForMessage(messageID: UUID) async throws {}
+
     // MARK: - Room Messages
 
     func saveRoomMessage(_ dto: RoomMessageDTO) async throws {}
@@ -380,7 +388,7 @@ actor PaginationTestDataStore: PersistenceStoreProtocol {
 
     // MARK: - Node Status Snapshots
 
-    // swiftlint:disable:next line_length
+    // swiftlint:disable:next line_length function_parameter_count
     func saveNodeStatusSnapshot(nodePublicKey: Data, batteryMillivolts: UInt16?, lastSNR: Double?, lastRSSI: Int16?, noiseFloor: Int16?, uptimeSeconds: UInt32?, rxAirtimeSeconds: UInt32?, packetsSent: UInt32?, packetsReceived: UInt32?, receiveErrors: UInt32?, postedCount: UInt16?, postPushCount: UInt16?) async throws -> UUID { UUID() }
     func fetchLatestNodeStatusSnapshot(nodePublicKey: Data) async throws -> NodeStatusSnapshotDTO? { nil }
     func fetchNodeStatusSnapshots(nodePublicKey: Data, since: Date?) async throws -> [NodeStatusSnapshotDTO] { [] }

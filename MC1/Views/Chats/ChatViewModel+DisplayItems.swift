@@ -9,7 +9,7 @@ extension ChatViewModel {
     /// Called synchronously before async reload to ensure ChatTableView
     /// sees the new count immediately for unread tracking.
     func appendMessageIfNew(_ message: MessageDTO) {
-        guard renderState.itemIndexByID[message.id] == nil else { return }
+        guard messagesByID[message.id] == nil else { return }
         let previous = messages.last
         messages.append(message)
         bumpBuildGeneration()
@@ -69,7 +69,10 @@ extension ChatViewModel {
         urlDetectionGeneration &+= 1
         let urlGeneration = urlDetectionGeneration
 
-        messagesByID = Dictionary(uniqueKeysWithValues: messages.map { ($0.id, $0) })
+        messagesByID = Dictionary(messages.map { ($0.id, $0) }, uniquingKeysWith: { _, new in
+            logger.warning("buildItems saw duplicate message id; keeping latest")
+            return new
+        })
 
         var uncachedMessageIDs: [(UUID, String)] = []
         let messagesSnapshot = messages

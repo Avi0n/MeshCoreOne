@@ -173,20 +173,23 @@ extension ChatViewModel {
                 messageTimestamp: message.timestamp,
                 localNodeName: appState?.connectedDevice?.nodeName
             )
-            await channelSendQueue?.enqueue(envelope)
+            await enqueueChannel(envelope)
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
-    /// Retry sending a failed channel message in place. Enqueues the existing
-    /// MessageDTO onto the channel send queue with isResend: false — preserves
-    /// stored timestamp, no sendCount bump, no heardRepeats wipe. The
-    /// isRetryingChannelMessage guard prevents reentrant double-tap during
-    /// the synchronous status-update + reload + enqueue window. Once status
-    /// flips to .pending, the bubble's retry button hides (UI gate), so a
-    /// fresh tap can't enqueue again until the channel send later fails and
-    /// the row returns to .failed.
+    /// Retry sending a failed channel message in place. The drain stamps a
+    /// fresh timestamp via `resendChannelMessage` so the retry packet hashes
+    /// differently from the original — the mesh dedup table is a 128-slot
+    /// cyclic ring with no time-based eviction, so reusing the original
+    /// timestamp would be silently dropped at every neighbour until 127
+    /// unrelated packets evict the slot. The `isRetryingChannelMessage`
+    /// guard prevents reentrant double-tap during the synchronous status-
+    /// update + reload + enqueue window. Once status flips to `.pending`,
+    /// the bubble's retry button hides (UI gate), so a fresh tap cannot
+    /// enqueue again until the channel send later fails and the row
+    /// returns to `.failed`.
     func retryChannelMessage(_ message: MessageDTO) async {
         guard messageService != nil,
               let channel = currentChannel,
@@ -202,12 +205,12 @@ extension ChatViewModel {
         let envelope = ChannelMessageEnvelope(
             messageID: message.id,
             channelIndex: channelIndex,
-            isResend: false,
+            isResend: true,
             messageText: message.text,
             messageTimestamp: message.timestamp,
             localNodeName: appState?.connectedDevice?.nodeName
         )
-        await channelSendQueue?.enqueue(envelope)
+        await enqueueChannel(envelope)
     }
 
     // MARK: - In-Place Updates

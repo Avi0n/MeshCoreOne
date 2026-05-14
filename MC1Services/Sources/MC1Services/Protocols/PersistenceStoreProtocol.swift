@@ -110,6 +110,25 @@ public protocol PersistenceStoreProtocol: Actor {
         fetched: Bool
     ) throws
 
+    // MARK: - Pending Sends
+
+    /// Insert (or update if `dto.id` already exists) a pending send row using the sequence value from the DTO.
+    func upsertPendingSend(_ dto: PendingSendDTO) async throws
+
+    /// Insert a new pending send row, atomically assigning the next sequence number for the row's radio.
+    /// Returns the assigned sequence number.
+    func insertPendingSendAssigningSequence(_ dto: PendingSendDTO) async throws -> Int
+
+    /// Fetch all pending sends for a given radio, ordered by sequence ascending.
+    func fetchPendingSends(radioID: UUID) async throws -> [PendingSendDTO]
+
+    /// Delete a pending send by row id. No-op if the id is not present.
+    func deletePendingSend(id: UUID) async throws
+
+    /// Delete every pending send row whose `messageID` matches. No-op if no rows match.
+    /// Radio is intentionally not part of the predicate (see implementation).
+    func deletePendingSendsForMessage(messageID: UUID) async throws
+
     // MARK: - Contact Operations
 
     /// Fetch all confirmed contacts for a device

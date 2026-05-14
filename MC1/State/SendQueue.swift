@@ -67,6 +67,22 @@ actor SendQueue<Envelope: Sendable> {
         await processingTask?.value
     }
 
+    /// Cancel the in-flight drain task and suppress the auto-respawn that
+    /// would otherwise follow a `CancellationError` re-insertion. The
+    /// current send closure's next `await` propagates `CancellationError`,
+    /// which the `catch is CancellationError` branch handles by
+    /// re-inserting the envelope; `taskCompleted` then observes
+    /// `Task.isCancelled` and skips its respawn so the queue goes
+    /// dormant. A subsequent `enqueue(_:)` schedules a fresh drain task
+    /// because `processingTask` is back to `nil`.
+    ///
+    /// Provided so test teardown can release a SendQueue whose send
+    /// closure suspends, and so a future production teardown does not
+    /// leak the actor through an unbounded respawn cycle.
+    func cancelDrain() {
+        processingTask?.cancel()
+    }
+
     private func ensureDraining() {
         // Only one task in flight at a time. A draining task that requeued
         // via CancellationError but hasn't yet completed still holds the
@@ -89,6 +105,11 @@ actor SendQueue<Envelope: Sendable> {
         // With the actor's serialised enqueue/respawn this should not happen.
         guard generation == processingTaskGeneration else { return }
         processingTask = nil
+        // If the completing task was cancelled (via cancelDrain or an
+        // upstream cancellation), treat it as an intentional halt — leave
+        // the queue dormant. A later enqueue still schedules a fresh
+        // drain task because processingTask is back to nil.
+        if Task.isCancelled { return }
         // A send-closure CancellationError may have re-inserted an envelope
         // before this task returned; respawn so that envelope drains.
         if !pending.isEmpty {

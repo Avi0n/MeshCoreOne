@@ -24,6 +24,7 @@ struct InlineImageFragmentView: View {
                     onTap: onTap
                 )
                 .frame(maxWidth: .infinity)
+                .accessibilityLabel(L10n.Chats.Chats.InlineImage.imageAccessibility)
             }
 
         case .loading, .idle:

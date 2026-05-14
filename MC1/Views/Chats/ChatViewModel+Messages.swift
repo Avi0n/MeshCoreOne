@@ -396,7 +396,7 @@ extension ChatViewModel {
 
             // Queue for sending
             let envelope = DirectMessageEnvelope(messageID: message.id, contactID: contact.id)
-            await dmSendQueue?.enqueue(envelope)
+            await enqueueDM(envelope)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -714,7 +714,7 @@ extension ChatViewModel {
                 messageTimestamp: message.timestamp,
                 localNodeName: appState?.connectedDevice?.nodeName
             )
-            await channelSendQueue?.enqueue(envelope)
+            await enqueueChannel(envelope)
         } else {
             // Direct messages: send the failed message text directly
             await sendMessage(text: message.text)

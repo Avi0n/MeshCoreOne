@@ -30,6 +30,7 @@ public struct MessageServiceConfig: Sendable {
         minTimeout: TimeInterval = 0,
         triggerPathDiscoveryAfterFlood: Bool = true
     ) {
+        precondition(maxAttempts <= 4, "firmware AckCodeBuilder masks attempt & 0x03 — values > 4 produce ambiguous ACKs")
         self.floodFallbackOnRetry = floodFallbackOnRetry
         self.maxAttempts = maxAttempts
         self.maxFloodAttempts = maxFloodAttempts

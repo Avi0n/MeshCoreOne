@@ -197,6 +197,14 @@ final class ChatViewModel {
     /// Current channel being viewed
     var currentChannel: ChannelDTO?
 
+    /// Radio ID currently in scope for persisted pending sends. Prefers the
+    /// currently selected conversation's radio; falls back to AppState's
+    /// current radio so resends fire correctly even between conversation
+    /// switches.
+    var currentRadioID: UUID? {
+        currentContact?.radioID ?? currentChannel?.radioID ?? appState?.currentRadioID
+    }
+
     /// Loading state
     var isLoading = false
 
@@ -242,6 +250,18 @@ final class ChatViewModel {
 
     /// Whether a DM retry is in progress (prevents double-tap reentry)
     @ObservationIgnored var isRetryingMessage = false
+
+    /// Set of `radioID`s already hydrated since the view model was created.
+    /// `hydrateSendQueues(radioID:)` consults this set and short-circuits if
+    /// the radio has already been hydrated — prevents double-replay across
+    /// repeated `configure(...)` calls (e.g., reconnect to the same radio
+    /// while the previous drain is still in flight).
+    @ObservationIgnored var hydratedRadios: Set<UUID> = []
+
+    /// In-flight hydration `Task`. Stored so tests can `await
+    /// vm.hydrationTask?.value` instead of `Task.sleep(...)` and so a future
+    /// teardown path can cancel hydration cleanly.
+    @ObservationIgnored var hydrationTask: Task<Void, Never>?
 
     /// Last message previews cache
     var lastMessageCache: [UUID: MessageDTO] = [:]
@@ -350,6 +370,9 @@ final class ChatViewModel {
             messageService: appState.services?.messageService,
             reactionService: appState.services?.reactionService
         )
+        if let radioID = appState.currentRadioID {
+            hydrateSendQueues(radioID: radioID)
+        }
     }
 
     /// Configure with services from AppState (for conversation list views that don't show previews)
@@ -368,10 +391,18 @@ final class ChatViewModel {
             messageService: appState.services?.messageService,
             reactionService: appState.services?.reactionService
         )
+        if let radioID = appState.currentRadioID {
+            hydrateSendQueues(radioID: radioID)
+        }
     }
 
     /// Configure with services (for testing)
-    func configure(dataStore: DataStore, messageService: MessageService, linkPreviewCache: any LinkPreviewCaching) {
+    func configure(
+        dataStore: DataStore,
+        messageService: MessageService,
+        linkPreviewCache: any LinkPreviewCaching,
+        activeRadioID: UUID? = nil
+    ) {
         self.dataStore = dataStore
         self.messageService = messageService
         self.linkPreviewCache = linkPreviewCache
@@ -380,6 +411,9 @@ final class ChatViewModel {
             messageService: messageService,
             reactionService: nil
         )
+        if let activeRadioID {
+            hydrateSendQueues(radioID: activeRadioID)
+        }
     }
 
     /// Rebind the send-queue service references and lazily construct the

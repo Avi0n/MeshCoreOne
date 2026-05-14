@@ -611,6 +611,12 @@
 /* Location: UnifiedMessageBubble.swift - Context menu submenu label */
 "chats.message.action.details" = "Подробнее";
 
+/* Location: ActionsDetailsSection.swift - Accessibility value when the details row is expanded */
+"chats.message.action.expanded" = "Развёрнуто";
+
+/* Location: ActionsDetailsSection.swift - Accessibility value when the details row is collapsed */
+"chats.message.action.collapsed" = "Свёрнуто";
+
 /* Location: UnifiedMessageBubble.swift - Context menu action to delete */
 "chats.message.action.delete" = "Удалить";
 

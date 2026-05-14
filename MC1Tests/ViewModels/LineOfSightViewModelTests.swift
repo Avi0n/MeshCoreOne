@@ -210,7 +210,7 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
 
     // MARK: - Node Status Snapshots (stubs)
 
-    // swiftlint:disable:next line_length
+    // swiftlint:disable:next line_length function_parameter_count
     func saveNodeStatusSnapshot(nodePublicKey: Data, batteryMillivolts: UInt16?, lastSNR: Double?, lastRSSI: Int16?, noiseFloor: Int16?, uptimeSeconds: UInt32?, rxAirtimeSeconds: UInt32?, packetsSent: UInt32?, packetsReceived: UInt32?, receiveErrors: UInt32?, postedCount: UInt16?, postPushCount: UInt16?) async throws -> UUID { UUID() }
     func fetchLatestNodeStatusSnapshot(nodePublicKey: Data) async throws -> NodeStatusSnapshotDTO? { nil }
     func fetchNodeStatusSnapshots(nodePublicKey: Data, since: Date?) async throws -> [NodeStatusSnapshotDTO] { [] }
@@ -219,6 +219,14 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
     func updateSnapshotTelemetry(id: UUID, telemetry: [TelemetrySnapshotEntry]) async throws {}
     func saveTelemetryOnlySnapshot(nodePublicKey: Data, telemetryEntries: [TelemetrySnapshotEntry]) async throws -> UUID { UUID() }
     func deleteOldNodeStatusSnapshots(olderThan date: Date) async throws {}
+
+    // MARK: - Pending Sends (stubs)
+
+    func upsertPendingSend(_ dto: PendingSendDTO) async throws {}
+    func insertPendingSendAssigningSequence(_ dto: PendingSendDTO) async throws -> Int { 0 }
+    func fetchPendingSends(radioID: UUID) async throws -> [PendingSendDTO] { [] }
+    func deletePendingSend(id: UUID) async throws {}
+    func deletePendingSendsForMessage(messageID: UUID) async throws {}
 }
 
 // MARK: - Test Helpers

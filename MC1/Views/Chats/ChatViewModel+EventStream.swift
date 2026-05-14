@@ -32,21 +32,22 @@ extension ChatViewModel {
 
         case .messageStatusResolved(let messageID):
             // O(1) timeline-membership check — ACKs for messages outside the
-            // current conversation skip the reload entirely. Mirrors the
-            // .messageRetrying / .messageFailed gating below.
-            guard renderState.itemIndexByID[messageID] != nil else { return }
+            // current conversation skip the reload entirely. Reads
+            // `messagesByID` so events landing mid off-main `buildItems()`
+            // (before the new row is folded into `renderState`) still match.
+            guard messagesByID[messageID] != nil else { return }
             requestReload()
 
         case .messageRetrying(let messageID, _, _):
             // O(1) timeline-membership check — avoids churning the data store
             // for retries on conversations the user is not currently viewing.
-            guard renderState.itemIndexByID[messageID] != nil else { return }
+            guard messagesByID[messageID] != nil else { return }
             requestReload()
 
         case .messageFailed(let messageID):
-            // O(1) timeline-membership check via the renderState index avoids
-            // a `messages.contains(where:)` scan under bursts of fail events.
-            guard renderState.itemIndexByID[messageID] != nil else { return }
+            // O(1) timeline-membership check via `messagesByID` avoids a
+            // `messages.contains(where:)` scan under bursts of fail events.
+            guard messagesByID[messageID] != nil else { return }
             requestReload()
 
         case .routingChanged(let contactID, _):
@@ -54,11 +55,11 @@ extension ChatViewModel {
             requestContactRefresh()
 
         case .heardRepeatRecorded(let messageID, let count):
-            guard renderState.itemIndexByID[messageID] != nil else { return }
+            guard messagesByID[messageID] != nil else { return }
             updateHeardRepeats(for: messageID, count: count)
 
         case .reactionReceived(let messageID, let summary):
-            guard renderState.itemIndexByID[messageID] != nil else { return }
+            guard messagesByID[messageID] != nil else { return }
             updateReactionSummary(for: messageID, summary: summary)
 
         case .roomMessageReceived, .roomMessageStatusUpdated, .roomMessageFailed:
