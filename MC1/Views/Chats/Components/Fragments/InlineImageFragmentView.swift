@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import MC1Services
 
 /// Fragment-level view that renders the inline-image slot of a message bubble.
 /// Driven by a typed `InlineImage` payload plus a closure-based image resolver
@@ -24,7 +25,6 @@ struct InlineImageFragmentView: View {
                     onTap: onTap
                 )
                 .frame(maxWidth: .infinity)
-                .accessibilityLabel(L10n.Chats.Chats.InlineImage.imageAccessibility)
             }
 
         case .loading, .idle:
@@ -32,11 +32,13 @@ struct InlineImageFragmentView: View {
                 ProgressView()
                     .controlSize(.small)
                     .tint(isOutgoing ? .white.opacity(0.7) : nil)
-                Text(L10n.Chats.Chats.Preview.loading)
+                Text(L10n.Chats.Chats.InlineImage.loading)
                     .font(.subheadline)
                     .foregroundStyle(isOutgoing ? .white.opacity(0.7) : .secondary)
             }
             .bubbleContentPadding()
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(L10n.Chats.Chats.InlineImage.loading)
 
         case .failed:
             Button(action: onRetry) {
@@ -50,6 +52,7 @@ struct InlineImageFragmentView: View {
                 .bubbleContentPadding()
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(L10n.Chats.Chats.InlineImage.tapToRetry)
             .accessibilityHint(L10n.Chats.Chats.InlineImage.retryHint)
         }
     }

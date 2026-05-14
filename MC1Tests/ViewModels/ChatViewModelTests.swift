@@ -166,9 +166,11 @@ struct ChatViewModelTests {
     @Test("buildItems with empty messages produces empty output")
     func buildItemsEmptyMessages() async {
         let viewModel = ChatViewModel()
-        viewModel.messages = []
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
+        coordinator.replaceAll([])
         viewModel.buildItems()
-        await viewModel.buildItemsTask?.value
+        await coordinator.buildItemsTask?.value
 
         #expect(viewModel.items.isEmpty)
         #expect(viewModel.messagesByID.isEmpty)

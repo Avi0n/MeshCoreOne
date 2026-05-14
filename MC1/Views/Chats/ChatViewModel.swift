@@ -16,6 +16,15 @@ final class ChatViewModel {
         case pushed(ChannelFloodScope, deviceDefault: String?)
     }
 
+    /// Identifies an incoming self-mention with a per-mention sequence number so
+    /// `.onChange(of:)` fires for consecutive mentions of the same message.
+    /// `Equatable` is auto-synthesised from `UUID` + `UInt64`; adding a non-Equatable
+    /// field would break `.onChange` propagation.
+    struct MentionEvent: Equatable, Sendable {
+        let messageID: UUID
+        let sequence: UInt64
+    }
+
     // MARK: - Properties
 
     let logger = Logger(subsystem: "com.mc1", category: "ChatViewModel")
@@ -44,106 +53,37 @@ final class ChatViewModel {
     /// Current room sessions
     var roomSessions: [RemoteNodeSessionDTO] = []
 
-    /// Combined conversations (contacts + channels + rooms) - favorites first
-    var allConversations: [Conversation] {
-        favoriteConversations + nonFavoriteConversations
-    }
+    // MARK: - Conversation Cache Storage
 
-    /// Favorite conversations sorted by last message date
-    var favoriteConversations: [Conversation] {
-        rebuildConversationCacheIfNeeded()
-        touchObservationDependencies()
-        return cachedFavoriteConversations
-    }
-
-    /// Non-favorite conversations sorted by last message date
-    var nonFavoriteConversations: [Conversation] {
-        rebuildConversationCacheIfNeeded()
-        touchObservationDependencies()
-        return cachedNonFavoriteConversations
-    }
-
-    // MARK: - Conversation Cache
-
-    @ObservationIgnored private var cachedFavoriteConversations: [Conversation] = []
-    @ObservationIgnored private var cachedNonFavoriteConversations: [Conversation] = []
-    @ObservationIgnored private var conversationCacheValid = false
+    /// Stored backing for the conversation-cache layer. Methods live in a
+    /// dedicated extension; storage stays here because Swift requires
+    /// stored properties on the type, not in extensions.
+    @ObservationIgnored var cachedFavoriteConversations: [Conversation] = []
+    @ObservationIgnored var cachedNonFavoriteConversations: [Conversation] = []
+    @ObservationIgnored var conversationCacheValid = false
     @ObservationIgnored var urlDetectionTask: Task<Void, Never>?
     /// Bumped on every buildItems rebuild. Only the URL-detection writer
     /// checks this before mutating cachedURLs; single-row rebuilds via
     /// rebuildDisplayItem do not write cachedURLs and do not need gating.
     @ObservationIgnored var urlDetectionGeneration: UInt64 = 0
-    /// Monotonic counter bumped on every mutation of `messages` and every
-    /// single-row write to `renderState`. Captured at `buildItems()` entry
-    /// and re-checked inside the off-main apply step so a stale batch build
-    /// does not clobber fresher state. Bump via `bumpBuildGeneration()`.
-    @ObservationIgnored private var buildGeneration: UInt64 = 0
-    /// In-flight off-main batch build. Cancelled before each new
-    /// `buildItems()` call so successive rebuilds do not pile up concurrent
-    /// work. Mirrors the `urlDetectionTask` cancel-and-reassign pattern.
-    @ObservationIgnored var buildItemsTask: Task<Void, Never>?
     /// Tracks the last region scope sent to the device via setFloodScope.
     @ObservationIgnored var lastSetRegionScope: RegionScopeState = .unknown
 
-    /// Bump the build generation. Call from every site that mutates
-    /// `messages` or writes a single-row update into `renderState`.
-    func bumpBuildGeneration() {
-        buildGeneration &+= 1
-    }
+    /// Per-(radio, conversation) coordinator that owns the canonical chat
+    /// state for this view model. Bound by `configure(...)` once the
+    /// conversation identity is known. Two `ChatViewModel`s on the same
+    /// conversation share one coordinator via the registry, so an update
+    /// applied from one view is visible to the other.
+    var coordinator: ChatCoordinator?
 
-    /// Current build generation. Captured at `buildItems()` entry and
-    /// validated inside `MainActor.run` before the off-main apply.
-    func currentBuildGeneration() -> UInt64 {
-        buildGeneration
-    }
+    /// Messages for the current conversation. Forwards to the bound
+    /// coordinator; empty when no coordinator is bound (e.g., conversation
+    /// list views).
+    var messages: [MessageDTO] { coordinator?.messages ?? [] }
 
-    /// Fallback date for conversations with no messages, used to sort them to the end.
-    private static let noMessageSentinel = Date.distantPast
-
-    /// Invalidates the conversation cache, forcing rebuild on next access
-    func invalidateConversationCache() {
-        conversationCacheValid = false
-    }
-
-    /// Touch source arrays to maintain observation dependencies even when cache is valid.
-    /// Without this, SwiftUI won't track changes after initial render because
-    /// @ObservationIgnored cache properties don't register dependencies.
-    private func touchObservationDependencies() {
-        _ = conversations.count
-        _ = channels.count
-        _ = roomSessions.count
-    }
-
-    private func rebuildConversationCacheIfNeeded() {
-        guard !conversationCacheValid else { return }
-
-        let contactConversations = conversations
-            .filter { $0.type != .repeater && !$0.isBlocked }
-            .map { Conversation.direct($0) }
-        let channelConversations = channels
-            .filter { !$0.name.isEmpty || $0.hasSecret }
-            .map { Conversation.channel($0) }
-        let roomConversations = roomSessions.map { Conversation.room($0) }
-        let all = contactConversations + channelConversations + roomConversations
-
-        cachedFavoriteConversations = sortedByLastMessage(all.filter { $0.isFavorite })
-        cachedNonFavoriteConversations = sortedByLastMessage(all.filter { !$0.isFavorite })
-
-        conversationCacheValid = true
-    }
-
-    /// Sorts conversations by last message date, most recent first.
-    private func sortedByLastMessage(_ items: [Conversation]) -> [Conversation] {
-        items.sorted { ($0.lastMessageDate ?? Self.noMessageSentinel) > ($1.lastMessageDate ?? Self.noMessageSentinel) }
-    }
-
-    /// Messages for the current conversation
-    var messages: [MessageDTO] = []
-
-    /// Immutable snapshot of the timeline as the view sees it.
-    /// Rebuilt on every load or mutation via `renderState = renderState.with(...)`;
-    /// views read through the computed accessors below.
-    var renderState: ChatRenderState = .empty
+    /// Immutable snapshot of the timeline as the view sees it. Forwards
+    /// to the bound coordinator.
+    var renderState: ChatRenderState { coordinator?.renderState ?? .empty }
 
     /// Environment-derived inputs (six `@AppStorage` toggles, contrast,
     /// current user name) that feed `MessageItem` construction.
@@ -160,12 +100,6 @@ final class ChatViewModel {
         buildItems()
     }
 
-    /// Monotonic counter bumped when an incoming `MessageEvent` indicates the
-    /// timeline needs a reload from the data store. Observed by
-    /// `ChatConversationView` via `.onChange`; the chase-the-counter pattern in
-    /// `coalescedReload(for:)` debounces racing reloads during event bursts.
-    var reloadSignal: UInt64 = 0
-
     /// Monotonic counter bumped when a `MessageEvent` indicates the current
     /// contact (route, profile) should be re-fetched. Observed by the view.
     var contactRefreshSignal: UInt64 = 0
@@ -178,9 +112,6 @@ final class ChatViewModel {
     /// of the `@Observable` graph.
     @ObservationIgnored var mentionSequence: UInt64 = 0
 
-    /// Latch for the chase-the-counter reload coalescer in `coalescedReload(for:)`.
-    @ObservationIgnored var reloadInFlight = false
-
     /// Stored timeline rows. The cell-content closure consumes this directly;
     /// the bubble view reads `MessageItem` fields without any per-render rebuild.
     var items: [MessageItem] { renderState.items }
@@ -188,22 +119,15 @@ final class ChatViewModel {
     /// O(1) item-index lookup by message ID, forwarded from the render state.
     var itemIndexByID: [UUID: Int] { renderState.itemIndexByID }
 
-    /// O(1) message lookup by ID (used by views to get full DTO when needed)
-    var messagesByID: [UUID: MessageDTO] = [:]
+    /// O(1) message lookup by ID (used by views to get full DTO when needed).
+    /// Forwards to the bound coordinator.
+    var messagesByID: [UUID: MessageDTO] { coordinator?.messagesByID ?? [:] }
 
     /// Current contact being chatted with
     var currentContact: ContactDTO?
 
     /// Current channel being viewed
     var currentChannel: ChannelDTO?
-
-    /// Radio ID currently in scope for persisted pending sends. Prefers the
-    /// currently selected conversation's radio; falls back to AppState's
-    /// current radio so resends fire correctly even between conversation
-    /// switches.
-    var currentRadioID: UUID? {
-        currentContact?.radioID ?? currentChannel?.radioID ?? appState?.currentRadioID
-    }
 
     /// Loading state
     var isLoading = false
@@ -229,42 +153,21 @@ final class ChatViewModel {
     /// Message text being composed
     var composingText = ""
 
-    /// Shared service box the chat send queues read on each drain step.
-    /// Lives for the view-model's lifetime; `configure*()` mutates fields
-    /// in place so a BLE reconnect rebinds services without recreating
-    /// the queues. The send closures capture this by reference.
-    @ObservationIgnored let sendContext = ChatSendContext()
-
-    /// Serial drain for outgoing DMs. Constructed on first `configure*()`
-    /// and reused thereafter — never recreated across reconnects because
-    /// it captures `sendContext` (which is mutated in place instead).
-    @ObservationIgnored var dmSendQueue: SendQueue<DirectMessageEnvelope>?
-
-    /// Serial drain for outgoing channel messages. Constructed on first
-    /// `configure*()` and reused thereafter — see `dmSendQueue` for the
-    /// rebind-across-reconnect rationale.
-    @ObservationIgnored var channelSendQueue: SendQueue<ChannelMessageEnvelope>?
-
-    /// Whether a channel message retry is in progress
-    @ObservationIgnored var isRetryingChannelMessage = false
-
-    /// Whether a DM retry is in progress (prevents double-tap reentry)
-    @ObservationIgnored var isRetryingMessage = false
-
-    /// Set of `radioID`s already hydrated since the view model was created.
-    /// `hydrateSendQueues(radioID:)` consults this set and short-circuits if
-    /// the radio has already been hydrated — prevents double-replay across
-    /// repeated `configure(...)` calls (e.g., reconnect to the same radio
-    /// while the previous drain is still in flight).
-    @ObservationIgnored var hydratedRadios: Set<UUID> = []
-
-    /// In-flight hydration `Task`. Stored so tests can `await
-    /// vm.hydrationTask?.value` instead of `Task.sleep(...)` and so a future
-    /// teardown path can cancel hydration cleanly.
-    @ObservationIgnored var hydrationTask: Task<Void, Never>?
+    /// Reentry guard for retry actions. A single `ChatViewModel` is bound to one
+    /// conversation at a time (`currentChannel` xor `currentContact`), so this
+    /// flag covers both DM and channel retry paths — they can never overlap.
+    @ObservationIgnored var retryInFlight = false
 
     /// Last message previews cache
     var lastMessageCache: [UUID: MessageDTO] = [:]
+
+    // The preview-cache block below (`previewStates`, `cachedURLs`,
+    // `decodedImages`, `loadedImageData`) is per-VM state, not shared
+    // across multiple VMs binding to the same `ChatCoordinator`. On iPad
+    // split view each VM rebuilds its own cache; the two views can
+    // diverge until the next rebuild on each side. See
+    // `ChatCoordinatorRegistry.coordinator(for:)` for the accepted
+    // trade-off context.
 
     /// Preview state per message (keyed by message ID)
     var previewStates: [UUID: PreviewLoadState] = [:]
@@ -308,9 +211,6 @@ final class ChatViewModel {
     /// Whether more messages exist beyond what's loaded
     var hasMoreMessages: Bool { renderState.hasMoreMessages }
 
-    /// Number of messages to fetch per page
-    let pageSize = 50
-
     /// Total messages fetched from database (unfiltered, for accurate offset calculation)
     var totalFetchedCount: Int { renderState.totalFetchedCount }
 
@@ -353,8 +253,16 @@ final class ChatViewModel {
 
     init() {}
 
-    /// Configure with services from AppState (with link preview cache for message views)
-    func configure(appState: AppState, linkPreviewCache: any LinkPreviewCaching) {
+    /// Conversation-aware configure. Resolves the per-conversation
+    /// `ChatCoordinator` from the registry before the first view body
+    /// evaluates so the bound coordinator is observed by SwiftUI from
+    /// frame zero. Pass `nil` for views that do not render a single
+    /// conversation (chat list, info sheet).
+    func configure(
+        appState: AppState,
+        linkPreviewCache: any LinkPreviewCaching,
+        conversation: ChatConversationType?
+    ) {
         self.appState = appState
         self.dataStore = appState.offlineDataStore
         self.messageService = appState.services?.messageService
@@ -365,14 +273,7 @@ final class ChatViewModel {
         self.syncCoordinator = appState.syncCoordinator
         self.linkPreviewCache = linkPreviewCache
         self.lastSetRegionScope = .unknown
-        rebindSendContext(
-            dataStore: appState.offlineDataStore,
-            messageService: appState.services?.messageService,
-            reactionService: appState.services?.reactionService
-        )
-        if let radioID = appState.currentRadioID {
-            hydrateSendQueues(radioID: radioID)
-        }
+        bindCoordinator(appState: appState, conversation: conversation)
     }
 
     /// Configure with services from AppState (for conversation list views that don't show previews)
@@ -386,55 +287,47 @@ final class ChatViewModel {
         self.contactService = appState.services?.contactService
         self.syncCoordinator = appState.syncCoordinator
         self.lastSetRegionScope = .unknown
-        rebindSendContext(
-            dataStore: appState.offlineDataStore,
-            messageService: appState.services?.messageService,
-            reactionService: appState.services?.reactionService
-        )
-        if let radioID = appState.currentRadioID {
-            hydrateSendQueues(radioID: radioID)
-        }
+        bindCoordinator(appState: appState, conversation: nil)
     }
 
-    /// Configure with services (for testing)
-    func configure(
-        dataStore: DataStore,
-        messageService: MessageService,
-        linkPreviewCache: any LinkPreviewCaching,
-        activeRadioID: UUID? = nil
-    ) {
-        self.dataStore = dataStore
-        self.messageService = messageService
-        self.linkPreviewCache = linkPreviewCache
-        rebindSendContext(
-            dataStore: dataStore,
-            messageService: messageService,
-            reactionService: nil
-        )
-        if let activeRadioID {
-            hydrateSendQueues(radioID: activeRadioID)
+    private func bindCoordinator(appState: AppState, conversation: ChatConversationType?) {
+        guard let registry = appState.services?.chatCoordinatorRegistry,
+              let conversation else {
+            return
         }
+        let id: ChatConversationID
+        switch conversation {
+        case .dm(let contact):
+            id = .dm(radioID: contact.radioID, contactID: contact.id)
+        case .channel(let channel):
+            id = .channel(radioID: channel.radioID, channelIndex: channel.index)
+        }
+        let resolved = registry.coordinator(for: id)
+        // The most recently bound view model owns the per-ID rebuild hook
+        // the coordinator invokes after `applyReloadedIDs`. With two view
+        // models on the same conversation (iPad split view) the rendered
+        // state stays consistent because both observe the shared
+        // coordinator's `renderState` — only the per-view-model snapshot
+        // inputs (preview state, decoded images) come from the bound
+        // rebuilder.
+        resolved.renderItemRebuilder = { [weak self] messageID in
+            self?.rebuildDisplayItem(for: messageID)
+        }
+        resolved.renderStateInvalidated = { [weak self] in
+            self?.handleRenderStateInvalidated()
+        }
+        coordinator = resolved
     }
 
-    /// Rebind the send-queue service references and lazily construct the
-    /// queues on first configure. The queues themselves persist across
-    /// reconnects because they capture `sendContext` by reference — only
-    /// the fields mutate, not the queue instances.
-    private func rebindSendContext(
-        dataStore: DataStore?,
-        messageService: MessageService?,
-        reactionService: ReactionService?
-    ) {
-        sendContext.dataStore = dataStore
-        sendContext.messageService = messageService
-        sendContext.reactionService = reactionService
+    private func handleRenderStateInvalidated() {
+        buildItems()
+    }
 
-        if dmSendQueue == nil {
-            dmSendQueue = makeDMSendQueue()
+    static func copyForEnqueueFailure(_ error: Error) -> String {
+        if case ChatSendQueueServiceError.notConnected = error {
+            return L10n.Chats.Chats.Alert.UnableToSend.message
         }
-        if channelSendQueue == nil {
-            channelSendQueue = makeChannelSendQueue()
-        }
+        return L10n.Chats.Chats.Error.sendQueuePersistFailed
     }
 
 }

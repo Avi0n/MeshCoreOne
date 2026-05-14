@@ -225,6 +225,14 @@ public final class ConnectionManager {
     /// Current connection state
     public internal(set) var connectionState: ConnectionState = .disconnected {
         didSet {
+            // Edge trigger: fire only when crossing from disconnected to
+            // connected (.connected / .syncing / .ready). The normal
+            // .connected → .syncing → .ready ramp during a reconnect
+            // already satisfies `oldValue.isConnected == true` after the
+            // first step, so this fires exactly once per connection.
+            if !oldValue.isConnected && connectionState.isConnected {
+                services?.chatSendQueueService.transportDidOpen()
+            }
             #if DEBUG
             assertStateInvariants()
             #endif
@@ -1050,9 +1058,30 @@ public final class ConnectionManager {
         capabilities: DeviceCapabilities,
         connectionMethods: [ConnectionMethod] = []
     ) async throws -> ServiceContainer {
+        // Kick off `getAutoAddConfig` up-front so the BLE roundtrip overlaps
+        // with the local DB fetches and container wiring below.
+        async let autoAddConfigResult = session.getAutoAddConfig()
+
+        // Resolve the radio before constructing the container so the
+        // chat send queue can scope its `PendingSend` hydration to the
+        // right radio from frame zero. Falls back to publicKey lookup
+        // (backup import) and finally to a fresh UUID for first-time
+        // pairings.
+        let standaloneStore = PersistenceStore(modelContainer: modelContainer)
+        let existingDevice = try? await standaloneStore.fetchDevice(id: deviceID)
+        let deviceByPublicKey: DeviceDTO?
+        if existingDevice == nil {
+            deviceByPublicKey = try? await standaloneStore.fetchDevice(publicKey: selfInfo.publicKey)
+        } else {
+            deviceByPublicKey = nil
+        }
+        let effectiveExisting = existingDevice ?? deviceByPublicKey
+        let resolvedRadioID = effectiveExisting?.radioID ?? UUID()
+
         let newServices = ServiceContainer(
             session: session,
             modelContainer: modelContainer,
+            radioID: resolvedRadioID,
             appStateProvider: appStateProvider
         )
         await newServices.wireServices()
@@ -1061,21 +1090,8 @@ public final class ConnectionManager {
             guard let self, let services = newServices else { return nil }
             return try await self.reconcileIdentity(expectedServices: services, deviceID: deviceID)
         }
-        self.services = newServices
 
-        async let existingDeviceResult = newServices.dataStore.fetchDevice(id: deviceID)
-        async let autoAddConfigResult = session.getAutoAddConfig()
-        let existingDevice = try? await existingDeviceResult
         let autoAddConfig = (try? await autoAddConfigResult) ?? MeshCore.AutoAddConfig(bitmask: 0)
-
-        // If no device found by BLE UUID, check by publicKey (backup import scenario)
-        let deviceByPublicKey: DeviceDTO?
-        if existingDevice == nil {
-            deviceByPublicKey = try? await newServices.dataStore.fetchDevice(publicKey: selfInfo.publicKey)
-        } else {
-            deviceByPublicKey = nil
-        }
-        let effectiveExisting = existingDevice ?? deviceByPublicKey
 
         let repeatFreqRanges: [MeshCore.FrequencyRange] = capabilities.clientRepeat
             ? (try? await session.getRepeatFreq()) ?? []
@@ -1083,6 +1099,7 @@ public final class ConnectionManager {
 
         let device = createDevice(
             deviceID: deviceID,
+            radioID: resolvedRadioID,
             selfInfo: selfInfo,
             capabilities: capabilities,
             autoAddConfig: autoAddConfig,
@@ -1091,12 +1108,38 @@ public final class ConnectionManager {
         )
 
         let deviceDTO = DeviceDTO(from: device)
+        // Persist before warmUp so purgeOrphanPendingSends sees the in-progress
+        // radio's Device row and does not classify its PendingSends as orphans.
         try await newServices.dataStore.saveDevice(deviceDTO)
 
         // Clean up orphaned Device row from backup import
         if let oldDevice = deviceByPublicKey, oldDevice.id != deviceID {
             try? await newServices.dataStore.deleteDevice(id: oldDevice.id)
         }
+
+        // Run startup-time DB hygiene before hydrating the send queue.
+        // warmUp's inner operations (purgeOrphanPendingSends + the Phase-2
+        // attemptCount backfill) are best-effort; failure is non-fatal.
+        do {
+            try await newServices.warmUp()
+        } catch {
+            logger.warning("ServiceContainer.warmUp failed: \(error.localizedDescription)")
+        }
+
+        // Hydrate the chat send queue before exposing the container so
+        // view-model `configure` calls see a hydrated service from the
+        // first read.
+        await newServices.chatSendQueueService.hydrate()
+        self.services = newServices
+
+        // BLE/WiFi connect paths set `connectionState = .connected` before
+        // calling here, so the `connectionState` didSet's edge trigger fired
+        // while `services` was still nil and short-circuited. Fire the
+        // transport-open trigger explicitly now that services are wired so
+        // any drain task suspended on `withCooperativeTimeout` (queued before
+        // disconnect, hydrated above) wakes immediately instead of waiting
+        // up to `transportWaitTimeout` for the bound to expire.
+        newServices.chatSendQueueService.transportDidOpen()
 
         self.connectedDevice = deviceDTO
         self.allowedRepeatFreqRanges = repeatFreqRanges
@@ -1293,8 +1336,16 @@ public final class ConnectionManager {
     }
 
     /// Creates a Device from MeshCore types
+    ///
+    /// `radioID` is the resolved partition UUID for this device. Callers in
+    /// the connect path must pass the same UUID they used to construct
+    /// `ServiceContainer(radioID:)` so the chat send queue's `PendingSend`
+    /// scope and the persisted `Device.radioID` cannot diverge on first pair.
+    /// A bare `?? UUID()` fallback here would mint a second UUID that the
+    /// container would never see.
     func createDevice(
         deviceID: UUID,
+        radioID: UUID,
         selfInfo: MeshCore.SelfInfo,
         capabilities: MeshCore.DeviceCapabilities,
         autoAddConfig: MeshCore.AutoAddConfig,
@@ -1314,7 +1365,7 @@ public final class ConnectionManager {
 
         let device = Device(
             id: deviceID,
-            radioID: existingDevice?.radioID ?? UUID(),
+            radioID: radioID,
             publicKey: selfInfo.publicKey,
             nodeName: selfInfo.name,
             firmwareVersion: capabilities.firmwareVersion,
@@ -1385,6 +1436,7 @@ public final class ConnectionManager {
     /// Cleans up session and services without changing connection state (used during retries)
     func cleanupResources() async {
         await session?.stop()
+        await services?.tearDown()
         session = nil
         services = nil
     }

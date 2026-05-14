@@ -35,6 +35,10 @@ extension MessageService {
         messageFailedHandler = handler
     }
 
+    func setAckConfirmationHandlerForTest(_ handler: @escaping @Sendable (UUID, MessageStatus, UInt32?) async -> Void) {
+        ackConfirmationHandler = handler
+    }
+
     var sessionForTest: MeshCoreSession { session }
 
     func installSelfInfoForTest(publicKey: Data = Data(repeating: 0xAB, count: 32)) async {
@@ -90,6 +94,16 @@ extension SelfInfo {
             name: "TestNode"
         )
     }
+}
+
+actor AckConfirmationTracker {
+    var confirmedIDs: [UUID] = []
+    func record(_ id: UUID) { confirmedIDs.append(id) }
+}
+
+actor MessageResentTracker {
+    var resentIDs: [UUID] = []
+    func record(_ id: UUID) { resentIDs.append(id) }
 }
 
 actor FailedMessageTracker {

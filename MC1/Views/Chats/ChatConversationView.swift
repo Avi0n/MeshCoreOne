@@ -4,6 +4,10 @@ import MC1Services
 import OSLog
 
 private let logger = Logger(subsystem: "com.mc1", category: "ChatConversationView")
+
+/// iPad: lets the action sheet's dismiss animation finish before presenting the
+/// next sheet — otherwise UIKit cancels the new presentation and the user sees
+/// nothing.
 private let messageActionSheetPresentationDelay: Duration = .milliseconds(300)
 
 /// Unified chat conversation view supporting both DMs and Channels.
@@ -216,9 +220,6 @@ struct ChatConversationView: View {
                 chatViewModel.handle(event)
             }
         }
-        .onChange(of: chatViewModel.reloadSignal) { _, _ in
-            Task { await chatViewModel.coalescedReload(for: conversationType) }
-        }
         .onChange(of: chatViewModel.contactRefreshSignal) { _, _ in
             Task { await refreshContact() }
         }
@@ -242,7 +243,11 @@ struct ChatConversationView: View {
             appState.navigation.clearPendingScrollToMessage()
         }
 
-        chatViewModel.configure(appState: appState, linkPreviewCache: linkPreviewCache)
+        chatViewModel.configure(
+            appState: appState,
+            linkPreviewCache: linkPreviewCache,
+            conversation: conversationType
+        )
         chatViewModel.applyEnvInputs(currentEnvInputs)
 
         switch conversationType {
@@ -582,9 +587,6 @@ struct ChatConversationView: View {
         guard case .channel(let channel) = conversationType,
               let name = message.senderNodeName else { return }
         Task {
-            // iPad: allow the action sheet's dismiss animation to complete before
-            // presenting the next sheet — otherwise UIKit cancels the new
-            // presentation and the user sees nothing.
             try? await Task.sleep(for: messageActionSheetPresentationDelay)
             blockSenderContext = BlockSenderContext(senderName: name, radioID: channel.radioID)
         }
@@ -594,7 +596,6 @@ struct ChatConversationView: View {
         guard case .channel(let channel) = conversationType,
               let name = message.senderNodeName else { return }
         Task {
-            // iPad: see comment in handleBlockSender.
             try? await Task.sleep(for: messageActionSheetPresentationDelay)
             sendDMContext = SendDMContext(senderName: name, radioID: channel.radioID)
         }

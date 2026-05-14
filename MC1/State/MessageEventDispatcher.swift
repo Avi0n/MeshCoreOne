@@ -1,12 +1,18 @@
 import Foundation
 import MC1Services
 
-/// Owns the nine service-callback registrations that feed `MessageEventStream`
+/// Owns the service-callback registrations that feed `MessageEventStream`
 /// and the session-state counter on `AppState`. Extracted from
 /// `AppState.wireMessageEvents` to keep `AppState` focused on app-level state.
 ///
 /// Holds `AppState` weakly to avoid extending its lifetime; the stream is held
 /// strongly because the dispatcher is the sole producer.
+///
+/// Each callback wraps `stream.send(.foo)` in `await MainActor.run { ... }`.
+/// The hop is correct because callbacks are `@Sendable` closures stored on
+/// producer actors (`SyncCoordinator`, `MessageService`, etc.) and invoked from
+/// that actor's isolation; `MainActor.assumeIsolated` would only be safe if
+/// the callsite were provably on Main.
 @MainActor
 final class MessageEventDispatcher {
     private weak var appState: AppState?
@@ -88,10 +94,19 @@ final class MessageEventDispatcher {
     }
 
     private func wireMessageService(_ messageService: MessageService) async {
-        // Sync callback contract — cannot await. Hop to MainActor via Task.
-        await messageService.setAckConfirmationHandler { [stream] messageID in
-            Task { @MainActor in
-                stream.send(.messageStatusResolved(messageID: messageID))
+        await messageService.setAckConfirmationHandler { [stream] messageID, status, roundTripTime in
+            await MainActor.run {
+                stream.send(.messageStatusResolved(messageID: messageID, status: status, roundTripTime: roundTripTime))
+            }
+        }
+        await messageService.setMessageSentHandler { [stream] messageID, status, roundTripTime in
+            await MainActor.run {
+                stream.send(.messageStatusResolved(messageID: messageID, status: status, roundTripTime: roundTripTime))
+            }
+        }
+        await messageService.setMessageResentHandler { [stream] messageID in
+            await MainActor.run {
+                stream.send(.messageResent(messageID: messageID))
             }
         }
         await messageService.setRetryStatusHandler { [stream] messageID, attempt, maxAttempts in

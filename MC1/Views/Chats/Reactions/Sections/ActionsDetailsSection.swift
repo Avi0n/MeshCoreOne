@@ -41,7 +41,7 @@ struct ActionsDetailsSection: View {
 }
 
 private struct ActionsExpandableDetailRow: View {
-    @Environment(\.appState) private var appState
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let message: MessageDTO
     let availability: MessageActionAvailability
@@ -54,7 +54,7 @@ private struct ActionsExpandableDetailRow: View {
     var body: some View {
         VStack(spacing: 0) {
             Button {
-                withAnimation {
+                withAnimation(reduceMotion ? nil : .default) {
                     isDetailExpanded.toggle()
                 }
             } label: {
@@ -72,6 +72,7 @@ private struct ActionsExpandableDetailRow: View {
                         .rotationEffect(.degrees(isDetailExpanded ? 90 : 0))
                         .foregroundStyle(.secondary)
                         .font(.caption)
+                        .accessibilityHidden(true)
                 }
                 .padding()
                 .contentShape(.rect)

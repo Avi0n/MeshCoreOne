@@ -36,7 +36,7 @@ struct ConversationRow: View {
                 }
 
                 HStack {
-                    Text(viewModel.lastMessagePreview(for: contact) ?? L10n.Chats.Chats.Row.noMessages)
+                    Text(viewModel.lastMessagePreview(id: contact.id) ?? L10n.Chats.Chats.Row.noMessages)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)

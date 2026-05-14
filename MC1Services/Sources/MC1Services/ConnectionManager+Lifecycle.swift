@@ -505,8 +505,7 @@ extension ConnectionManager {
             sessionsAwaitingReauth = []
         }
 
-        // Stop event monitoring
-        await services?.stopEventMonitoring()
+        await services?.tearDown()
 
         // Reset sync state and clear notification suppression (safety net)
         if let services {
@@ -579,11 +578,13 @@ extension ConnectionManager {
             let newServices = ServiceContainer(
                 session: session,
                 modelContainer: modelContainer,
+                radioID: MockDataProvider.simulatorDeviceID,
                 appStateProvider: appStateProvider
             )
             await newServices.wireServices()
             await wireCleanChannelSyncCallback(on: newServices)
-                self.services = newServices
+            await newServices.chatSendQueueService.hydrate()
+            self.services = newServices
 
             // Seed mock data
             try await simulatorMode.seedDataStore(newServices.dataStore)
@@ -647,7 +648,15 @@ extension ConnectionManager {
             }
 
             // Stop current services
-            await services?.stopEventMonitoring()
+            await services?.tearDown()
+            // Drop the torn-down container so the .connected edge below
+            // short-circuits the didSet's `services?.chatSendQueueService.
+            // transportDidOpen()` instead of firing it against a dead
+            // container. The load-bearing wake of parked drains comes from
+            // the explicit `transportDidOpen()` call inside
+            // `buildServicesAndSaveDevice` after the freshly-built container
+            // is installed; this nil keeps the intermediate didSet honest.
+            self.services = nil
             await session?.stop()
 
             // Switch transport

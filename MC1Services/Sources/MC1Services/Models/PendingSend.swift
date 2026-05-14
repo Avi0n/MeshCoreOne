@@ -13,7 +13,7 @@ import SwiftData
 /// time. `fetchPendingSends` orders by `sequence` ascending so drain order
 /// across process death matches the original enqueue order.
 ///
-/// Storage type choices align with `Message.swift` (UInt32 timestamp,
+/// Storage type choices align with `Message` (UInt32 timestamp,
 /// UInt8? channelIndex) so future readers don't pay an `Int` conversion
 /// hop on every read/write.
 ///
@@ -58,6 +58,36 @@ public final class PendingSend {
     public var sequence: Int
     public var enqueuedAt: Date
 
+    /// Number of drain attempts the send queue has progressed past the
+    /// `hasPendingSend` gate for this row. Bumped at the top of each drain
+    /// attempt, before any wire-affecting work. Three distinguishable states:
+    ///
+    /// - `nil`     — pre-plan-build row (lightweight-migrated from a build
+    ///               that did not have this column). The prior build's queue
+    ///               drained these rows without recording attempts; treat as
+    ///               "drain history unknown — may have sent on the wire."
+    ///               The warmUp backfill promotes these to `1`, and the
+    ///               first post-rehydrate drain bumps to `2` so
+    ///               `preserveTimestamp = postBumpCount > 1` returns true,
+    ///               protecting mesh dedup against a duplicate landing.
+    /// - `0`       — current-build row that has been persisted but has NOT
+    ///               yet progressed past the top-of-drain bump (either fresh
+    ///               enqueue in flight, or process death between persist and
+    ///               bump). The recipient cannot have seen this packet, so
+    ///               the next drain stamps a fresh wire timestamp
+    ///               (`preserveTimestamp = false`).
+    /// - positive  — at least one drain attempt has run. A wire send may
+    ///               already have happened, so auto-retries must preserve the
+    ///               original wire timestamp via `postBumpCount > 1`.
+    ///
+    /// PendingSendDTO is `Sendable, Hashable, Identifiable` only — intentionally
+    /// not Codable, intentionally excluded from AppBackupEnvelope — so there
+    /// is no on-disk wire format to defend against. The only "legacy" data is
+    /// live SwiftData rows persisted by a build that predates this field,
+    /// which lightweight migration maps to `nil` and the warmUp backfill
+    /// promotes to `1`.
+    public var attemptCount: Int?
+
     public init(
         id: UUID,
         radioID: UUID,
@@ -70,7 +100,8 @@ public final class PendingSend {
         messageTimestamp: UInt32,
         localNodeName: String?,
         sequence: Int,
-        enqueuedAt: Date
+        enqueuedAt: Date,
+        attemptCount: Int? = nil
     ) {
         self.id = id
         self.radioID = radioID
@@ -84,6 +115,7 @@ public final class PendingSend {
         self.localNodeName = localNodeName
         self.sequence = sequence
         self.enqueuedAt = enqueuedAt
+        self.attemptCount = attemptCount
     }
 
     public var kind: PendingSendKind {
@@ -123,6 +155,11 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
     public let localNodeName: String?
     public let sequence: Int
     public let enqueuedAt: Date
+    /// See `PendingSend.attemptCount` for the three-state semantics. The DTO
+    /// memberwise init defaults this to `0` (current-build sentinel) so
+    /// new envelopes enter disk distinguishable from pre-plan rows that
+    /// lightweight-migrate to `nil`.
+    public let attemptCount: Int?
 
     public init(
         id: UUID,
@@ -136,7 +173,8 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
         messageTimestamp: UInt32,
         localNodeName: String?,
         sequence: Int,
-        enqueuedAt: Date
+        enqueuedAt: Date,
+        attemptCount: Int? = 0
     ) {
         self.id = id
         self.radioID = radioID
@@ -150,6 +188,7 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
         self.localNodeName = localNodeName
         self.sequence = sequence
         self.enqueuedAt = enqueuedAt
+        self.attemptCount = attemptCount
     }
 }
 
@@ -167,7 +206,8 @@ public extension PendingSend {
             messageTimestamp: dto.messageTimestamp,
             localNodeName: dto.localNodeName,
             sequence: dto.sequence,
-            enqueuedAt: dto.enqueuedAt
+            enqueuedAt: dto.enqueuedAt,
+            attemptCount: dto.attemptCount
         )
     }
 
@@ -184,7 +224,8 @@ public extension PendingSend {
             messageTimestamp: messageTimestamp,
             localNodeName: localNodeName,
             sequence: sequence,
-            enqueuedAt: enqueuedAt
+            enqueuedAt: enqueuedAt,
+            attemptCount: attemptCount
         )
     }
 }

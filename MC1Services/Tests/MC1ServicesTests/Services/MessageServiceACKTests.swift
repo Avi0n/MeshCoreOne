@@ -579,6 +579,56 @@ struct MessageServiceACKTests {
                 "finalizeSend must not clobber listener-written RTT with nil")
     }
 
+    @Test("finalizeSend fires ackConfirmationHandler when in-loop waitForEvent wins the ACK race")
+    func finalizeSendFiresAckConfirmationHandler() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        let contactID = UUID()
+        let radioID = testDeviceID
+        let publicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
+        let ackCode = Data([0x11, 0x22, 0x33, 0x44])
+
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(
+                id: messageID,
+                radioID: radioID,
+                contactID: contactID,
+                status: .sent
+            )
+        )
+
+        let tracker = AckConfirmationTracker()
+        await service.setAckConfirmationHandlerForTest { id, _, _ in
+            await tracker.record(id)
+        }
+
+        // Seed a non-delivered pendingAcks entry so finalizeSend's `if let sentInfo`
+        // branch is taken (isDelivered == false, sentInfo != nil).
+        await service.setPendingAckForTest(
+            makePending(messageID: messageID, contactID: contactID, ackCodes: [ackCode])
+        )
+
+        let sentInfo = MessageSentInfo(
+            type: 0,
+            expectedAck: ackCode,
+            suggestedTimeoutMs: 5000
+        )
+        _ = try await service.finalizeSend(
+            messageID: messageID,
+            contactID: contactID,
+            radioID: radioID,
+            publicKey: publicKey,
+            sentInfo: sentInfo,
+            initialPathLength: 0
+        )
+
+        let confirmedIDs = await tracker.confirmedIDs
+        #expect(confirmedIDs.count == 1,
+                "ackConfirmationHandler must fire exactly once when finalizeSend wins the ACK")
+        #expect(confirmedIDs.contains(messageID),
+                "ackConfirmationHandler must receive the correct message ID")
+    }
+
     @Test("handleAcknowledgement is a no-op when no entry matches the ackCode")
     func unmatchedAckIsNoOp() async throws {
         let (service, dataStore) = try await MessageService.createForTesting()

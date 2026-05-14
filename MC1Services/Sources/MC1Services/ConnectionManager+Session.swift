@@ -38,7 +38,7 @@ extension ConnectionManager: BLEReconnectionDelegate {
 
         if let oldServices {
             sessionsAwaitingReauth = await oldServices.remoteNodeService.handleBLEDisconnection()
-            await oldServices.stopEventMonitoring()
+            await oldServices.tearDown()
         }
         cancelResyncLoop()
 
@@ -127,6 +127,7 @@ extension ConnectionManager: BLEReconnectionDelegate {
         guard connectionIntent.wantsConnection else {
             logger.info("User disconnected during service wiring")
             await newSession.stop()
+            await newServices.tearDown()
             services = nil
             connectedDevice = nil
             allowedRepeatFreqRanges = []
@@ -136,6 +137,7 @@ extension ConnectionManager: BLEReconnectionDelegate {
         guard reconnectionCoordinator.reconnectGeneration == expectedGeneration else {
             logger.info("[BLE] rebuildSession superseded by new reconnect cycle during service wiring")
             await newSession.stop()
+            await newServices.tearDown()
             services = nil
             connectedDevice = nil
             allowedRepeatFreqRanges = []
@@ -208,6 +210,7 @@ extension ConnectionManager: BLEReconnectionDelegate {
     func handleReconnectionFailure() async {
         logger.error("[BLE] Auto-reconnect session rebuild failed")
         await session?.stop()
+        await services?.tearDown()
         session = nil
         services = nil
         await transport.disconnect()

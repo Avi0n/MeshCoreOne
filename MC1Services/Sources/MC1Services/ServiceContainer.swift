@@ -114,6 +114,28 @@ public final class ServiceContainer {
     /// Sync coordinator for managing sync lifecycle
     public let syncCoordinator: SyncCoordinator
 
+    // MARK: - Chat Coordinators
+
+    /// Per-conversation coordinator registry. Owns `ChatCoordinator`
+    /// instances for the lifetime of the container; iPad split-view
+    /// consumers that resolve the same `ChatConversationID` share one
+    /// coordinator.
+    public let chatCoordinatorRegistry: ChatCoordinatorRegistry
+
+    // MARK: - Chat Send Queue
+
+    /// Service-layer outbound chat queue. Replaces the per-view-model
+    /// `dmSendQueue` / `channelSendQueue` instances. Hydrates from
+    /// `PendingSend` on construction; drain gated on `ConnectionManager`
+    /// transport state via `BLETransportOpenedSignal`.
+    ///
+    /// Constructed eagerly in `ServiceContainer.init` because `radioID`
+    /// is known at container-build time (`buildServicesAndSaveDevice`
+    /// resolves the device record before instantiating the container).
+    /// Eager construction closes the visibility window where the
+    /// container exists but the service is `nil`.
+    public let chatSendQueueService: ChatSendQueueService
+
     // MARK: - App State
 
     /// Provider for checking app foreground/background state
@@ -140,10 +162,14 @@ public final class ServiceContainer {
     /// - Parameters:
     ///   - session: The MeshCoreSession for device communication
     ///   - modelContainer: The SwiftData model container for persistence
+    ///   - radioID: The connected device's radio ID. Used to scope the
+    ///     chat send queue's pending-send rows so two radios cannot share
+    ///     drain state across reconnects.
     ///   - appStateProvider: Optional provider for app foreground/background state
     public init(
         session: MeshCoreSession,
         modelContainer: ModelContainer,
+        radioID: UUID,
         appStateProvider: AppStateProvider? = nil
     ) {
         self.session = session
@@ -199,6 +225,16 @@ public final class ServiceContainer {
 
         // Sync coordinator (no dependencies on other services)
         self.syncCoordinator = SyncCoordinator()
+
+        self.chatCoordinatorRegistry = ChatCoordinatorRegistry(dataStore: dataStore)
+
+        self.chatSendQueueService = ChatSendQueueService(
+            radioID: radioID,
+            dataStore: dataStore,
+            messageService: messageService,
+            channelService: channelService,
+            reactionService: reactionService
+        )
     }
 
     // MARK: - Service Wiring
@@ -360,6 +396,16 @@ public final class ServiceContainer {
         isMonitoringEvents = false
     }
 
+    /// Full container teardown. Must be awaited before nulling the container
+    /// so chat send queue drains and chat coordinator off-main builds release
+    /// the strong references they hold on `MessageService` and `dataStore`.
+    /// `stopEventMonitoring()` alone does not cover those.
+    public func tearDown() async {
+        await stopEventMonitoring()
+        await chatSendQueueService.shutdown()
+        chatCoordinatorRegistry.tearDown()
+    }
+
     // MARK: - Initial Sync
 
     /// Performs initial sync of contacts and channels from the device.
@@ -461,10 +507,19 @@ extension ServiceContainer {
     /// - Parameters:
     ///   - session: The MeshCoreSession for device communication
     ///   - wired: Whether to call `wireServices()` after creation (default `true`)
+    ///   - radioID: Radio ID to scope the chat send queue (default: synthesized `UUID()`)
     /// - Returns: A configured ServiceContainer with in-memory storage
-    public static func forTesting(session: MeshCoreSession, wired: Bool = true) async throws -> ServiceContainer {
+    public static func forTesting(
+        session: MeshCoreSession,
+        wired: Bool = true,
+        radioID: UUID = UUID()
+    ) async throws -> ServiceContainer {
         let container = try PersistenceStore.createContainer(inMemory: true)
-        let services = ServiceContainer(session: session, modelContainer: container)
+        let services = ServiceContainer(
+            session: session,
+            modelContainer: container,
+            radioID: radioID
+        )
         if wired {
             await services.wireServices()
         }

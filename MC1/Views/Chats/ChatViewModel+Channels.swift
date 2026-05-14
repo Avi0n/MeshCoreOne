@@ -56,12 +56,12 @@ extension ChatViewModel {
         errorMessage = nil
 
         // Reset pagination state for new conversation
-        renderState = renderState.with(hasMoreMessages: true, isLoadingOlder: false, totalFetchedCount: 0)
+        coordinator?.updateRenderState { $0.with(hasMoreMessages: true, isLoadingOlder: false, totalFetchedCount: 0) }
 
         do {
-            var fetchedMessages = try await dataStore.fetchMessages(radioID: channel.radioID, channelIndex: channel.index, limit: pageSize, offset: 0)
+            var fetchedMessages = try await dataStore.fetchMessages(radioID: channel.radioID, channelIndex: channel.index, limit: ChatCoordinator.pageSize, offset: 0)
             let unfilteredCount = fetchedMessages.count
-            renderState = renderState.with(totalFetchedCount: unfilteredCount)
+            coordinator?.updateRenderState { $0.with(totalFetchedCount: unfilteredCount) }
             logger.info("loadChannelMessages: fetched \(unfilteredCount) messages")
 
             // Compute divider position before filtering, using unfiltered array
@@ -71,9 +71,8 @@ extension ChatViewModel {
             fetchedMessages = filterOutgoingReactionMessages(fetchedMessages, isDM: false)
 
             // Use unfiltered count to determine if more messages exist
-            renderState = renderState.with(hasMoreMessages: unfilteredCount == pageSize)
-            messages = fetchedMessages
-            bumpBuildGeneration()
+            coordinator?.updateRenderState { $0.with(hasMoreMessages: unfilteredCount == ChatCoordinator.pageSize) }
+            coordinator?.replaceAll(fetchedMessages)
 
             buildChannelSenders(radioID: channel.radioID)
             buildItems()
@@ -157,25 +156,34 @@ extension ChatViewModel {
 
         errorMessage = nil
 
+        let message: MessageDTO
         do {
-            let message = try await messageService.createPendingChannelMessage(
+            message = try await messageService.createPendingChannelMessage(
                 text: text,
                 channelIndex: channel.index,
                 radioID: channel.radioID
             )
             appendMessageIfNew(message)
-
-            let envelope = ChannelMessageEnvelope(
-                messageID: message.id,
-                channelIndex: channel.index,
-                isResend: false,
-                messageText: message.text,
-                messageTimestamp: message.timestamp,
-                localNodeName: appState?.connectedDevice?.nodeName
-            )
-            await enqueueChannel(envelope)
         } catch {
             errorMessage = error.localizedDescription
+            return
+        }
+
+        let envelope = ChannelMessageEnvelope(
+            messageID: message.id,
+            channelIndex: channel.index,
+            isResend: false,
+            messageText: message.text,
+            messageTimestamp: message.timestamp,
+            localNodeName: appState?.connectedDevice?.nodeName
+        )
+        do {
+            try await enqueueChannel(envelope)
+        } catch {
+            logger.error("enqueueChannel failed for messageID=\(message.id, privacy: .public): \(String(describing: error))")
+            _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .failed)
+            coordinator?.applyStatusUpdate(messageID: message.id, status: .failed)
+            sendErrorMessage = Self.copyForEnqueueFailure(error)
         }
     }
 
@@ -184,23 +192,41 @@ extension ChatViewModel {
     /// differently from the original — the mesh dedup table is a 128-slot
     /// cyclic ring with no time-based eviction, so reusing the original
     /// timestamp would be silently dropped at every neighbour until 127
-    /// unrelated packets evict the slot. The `isRetryingChannelMessage`
-    /// guard prevents reentrant double-tap during the synchronous status-
-    /// update + reload + enqueue window. Once status flips to `.pending`,
-    /// the bubble's retry button hides (UI gate), so a fresh tap cannot
-    /// enqueue again until the channel send later fails and the row
-    /// returns to `.failed`.
+    /// unrelated packets evict the slot. The `retryInFlight` guard prevents
+    /// reentrant double-tap during the synchronous status-update + reload +
+    /// enqueue window. Once status flips to `.pending`, the bubble's retry
+    /// button hides (UI gate), so a fresh tap cannot enqueue again until the
+    /// channel send later fails and the row returns to `.failed`.
     func retryChannelMessage(_ message: MessageDTO) async {
         guard messageService != nil,
               let channel = currentChannel,
               let channelIndex = message.channelIndex,
-              !isRetryingChannelMessage else { return }
+              !retryInFlight else { return }
 
-        isRetryingChannelMessage = true
-        defer { isRetryingChannelMessage = false }
+        retryInFlight = true
+        defer { retryInFlight = false }
 
-        try? await dataStore?.updateMessageStatus(id: message.id, status: .pending)
-        await loadChannelMessages(for: channel)
+        // Stand in for the surfaces loadChannelMessages would have reset.
+        errorMessage = nil
+        errorBannerMessage = nil
+
+        // Release any prior queue ownership before enqueuing a fresh
+        // envelope. Channel sends never reach `.delivered` (no end-to-end
+        // ACK), so the `.delivered` clobber risk that motivates the DM
+        // guard doesn't apply here — but the queue's `hasPendingSend` gate
+        // and the symmetric call shape with `retryMessage` are worth the
+        // extra delete. Best-effort; the gate self-corrects.
+        try? await dataStore?.deletePendingSendsForMessage(messageID: message.id)
+
+        // Flip the row in place for instant "Sending" feedback rather than a
+        // full loadChannelMessages refetch, which would also reset paging
+        // state. The coordinator's applyStatusUpdate guards against
+        // downgrading a row that resolved concurrently. Swap to the
+        // unless-delivered variant for shape symmetry with `retryMessage`
+        // and so a stray ACK landing doesn't get clobbered if a future
+        // refactor introduces channel-side delivery.
+        _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .pending)
+        coordinator?.applyStatusUpdate(messageID: message.id, status: .pending, userInitiated: true)
 
         let envelope = ChannelMessageEnvelope(
             messageID: message.id,
@@ -210,7 +236,14 @@ extension ChatViewModel {
             messageTimestamp: message.timestamp,
             localNodeName: appState?.connectedDevice?.nodeName
         )
-        await enqueueChannel(envelope)
+        do {
+            try await enqueueChannel(envelope)
+        } catch {
+            logger.error("enqueueChannel retry failed for messageID=\(message.id, privacy: .public): \(String(describing: error))")
+            _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .failed)
+            coordinator?.applyStatusUpdate(messageID: message.id, status: .failed)
+            sendErrorMessage = Self.copyForEnqueueFailure(error)
+        }
     }
 
     // MARK: - In-Place Updates
@@ -255,13 +288,17 @@ extension ChatViewModel {
         logger.info("Built \(self.channelSenders.count) synthetic contacts from channel senders")
     }
 
-    /// Add a channel sender as a synthetic contact if not already tracked.
-    /// Used for incremental additions when new messages arrive.
-    func addChannelSenderIfNew(_ name: String, radioID: UUID) {
+    /// Register a channel sender for the mention picker. Always max-merges the
+    /// timestamp into `channelSenderOrder` so older messages contribute to
+    /// recency ranking; inserts a synthetic contact only when the sender is
+    /// neither a known contact nor already tracked.
+    func addChannelSenderIfNew(_ name: String, radioID: UUID, timestamp: UInt32) {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty,
-              trimmed.count <= 128,
-              !contactNameSet.contains(trimmed),
+        guard !trimmed.isEmpty, trimmed.count <= 128 else { return }
+
+        channelSenderOrder[trimmed] = max(timestamp, channelSenderOrder[trimmed] ?? 0)
+
+        guard !contactNameSet.contains(trimmed),
               !channelSenderNames.contains(trimmed) else { return }
 
         channelSenderNames.insert(trimmed)

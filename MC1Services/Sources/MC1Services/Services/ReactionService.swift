@@ -35,7 +35,7 @@ public actor ReactionService {
 
     private static let maxPendingReactions = 100
 
-    // Pending reactions queue (Element X pattern: no TTL, session lifetime)
+    // Pending reactions queue: no TTL, session lifetime.
     private var pendingReactions: [PendingReactionKey: [PendingReaction]] = [:]
     private var pendingOrder: [PendingReactionKey] = []
 

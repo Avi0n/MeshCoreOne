@@ -267,15 +267,35 @@ extension PersistenceStore {
         try modelContext.save()
     }
 
-    /// Delete all messages and reactions for a contact using batch delete
+    /// Delete all messages, reactions, message repeats, and pending sends for a contact
+    /// in a single transactional save.
     public func deleteMessagesForContact(contactID: UUID) throws {
         let targetContactID: UUID? = contactID
+        let messagePredicate = #Predicate<Message> { message in
+            message.contactID == targetContactID
+        }
+
+        let messageIDs = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate)).map(\.id)
+
+        try _deletePendingSendsForMessageIDsWithoutSaving(messageIDs: messageIDs)
+
+        // Reaction is keyed by contactID directly here (single-value predicate) —
+        // no SQLITE_MAX_VARIABLE_NUMBER risk, no chunking needed.
         try modelContext.delete(model: Reaction.self, where: #Predicate {
             $0.contactID == targetContactID
         })
-        try modelContext.delete(model: Message.self, where: #Predicate {
-            $0.contactID == targetContactID
-        })
+        // Cascade MessageRepeat — no contactID column, so key by messageIDs.
+        // Chunk to stay under SQLITE_MAX_VARIABLE_NUMBER (32766 on iOS 18+).
+        if !messageIDs.isEmpty {
+            let chunkSize = 500
+            for start in stride(from: 0, to: messageIDs.count, by: chunkSize) {
+                let chunk = Array(messageIDs[start..<min(start + chunkSize, messageIDs.count)])
+                try modelContext.delete(model: MessageRepeat.self, where: #Predicate {
+                    chunk.contains($0.messageID)
+                })
+            }
+        }
+        try modelContext.delete(model: Message.self, where: messagePredicate)
         try modelContext.save()
     }
 

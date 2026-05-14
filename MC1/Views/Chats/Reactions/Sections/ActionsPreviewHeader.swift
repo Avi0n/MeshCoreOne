@@ -19,12 +19,7 @@ struct ActionsPreviewHeader: View {
         VStack(alignment: .leading, spacing: 4) {
             ViewThatFits(in: .horizontal) {
                 HStack {
-                    if let senderNodeID {
-                        Text(senderNodeID)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .monospaced()
-                    }
+                    senderNodeIDLabel
                     senderLabel
                     Spacer()
                     ActionsTimestampLabel(message: message)
@@ -32,12 +27,7 @@ struct ActionsPreviewHeader: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
-                        if let senderNodeID {
-                            Text(senderNodeID)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                                .monospaced()
-                        }
+                        senderNodeIDLabel
                         senderLabel
                     }
                     ActionsTimestampLabel(message: message)
@@ -50,7 +40,17 @@ struct ActionsPreviewHeader: View {
                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
         }
         .padding()
-        .accessibilityElement(children: .combine)
+    }
+
+    @ViewBuilder
+    private var senderNodeIDLabel: some View {
+        if let senderNodeID {
+            Text(senderNodeID)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .monospaced()
+                .accessibilityHidden(true)
+        }
     }
 
     private var senderLabel: some View {

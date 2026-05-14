@@ -3,7 +3,8 @@ import Foundation
 @testable import MC1
 @testable import MC1Services
 
-@Suite("MessageBubblePredicates")
+@MainActor
+@Suite("MessageFooter footer-slot algebra")
 struct MessageBubblePredicateTests {
 
     @Test("showHop: gated by both flag AND isFloodRouted", arguments: [
@@ -17,14 +18,11 @@ struct MessageBubblePredicateTests {
     ])
     func showHop(showFlag: Bool, routeType: RouteType, expected: Bool) {
         let message = makeMessage(routeType: routeType)
-        let predicates = MessageBubblePredicates(
-            isFloodRouted: message.isFloodRouted,
-            regionScope: message.regionScope,
-            showIncomingHopCount: showFlag,
-            showIncomingRegion: false,
-            formattedPath: nil
+        let bundle = MessageBubbleTestData.messageItem(
+            message: message,
+            showIncomingHopCount: showFlag
         )
-        #expect(predicates.showHop == expected)
+        #expect(bundle.item.footer.showHop == expected)
     }
 
     @Test("regionToShow: nil unless flag AND isFloodRouted AND scope present", arguments: [
@@ -43,14 +41,11 @@ struct MessageBubblePredicateTests {
     ])
     func regionToShow(showFlag: Bool, routeType: RouteType, scope: String?, expected: String?) {
         let message = makeMessage(routeType: routeType, regionScope: scope)
-        let predicates = MessageBubblePredicates(
-            isFloodRouted: message.isFloodRouted,
-            regionScope: message.regionScope,
-            showIncomingHopCount: false,
-            showIncomingRegion: showFlag,
-            formattedPath: nil
+        let bundle = MessageBubbleTestData.messageItem(
+            message: message,
+            showIncomingRegion: showFlag
         )
-        #expect(predicates.regionToShow == expected)
+        #expect(bundle.item.footer.regionToShow == expected)
     }
 
     @Test("regionToShow: channel messages render region regardless of routeType")
@@ -59,14 +54,11 @@ struct MessageBubblePredicateTests {
         // so the direct routeType is ignored. Verifies the channel-override path through
         // MessageDTO.isFloodRouted that the parameterized matrix doesn't otherwise exercise.
         let message = makeMessage(channelIndex: 0, routeType: .direct, regionScope: "United States")
-        let predicates = MessageBubblePredicates(
-            isFloodRouted: message.isFloodRouted,
-            regionScope: message.regionScope,
-            showIncomingHopCount: false,
-            showIncomingRegion: true,
-            formattedPath: nil
+        let bundle = MessageBubbleTestData.messageItem(
+            message: message,
+            showIncomingRegion: true
         )
-        #expect(predicates.regionToShow == "United States")
+        #expect(bundle.item.footer.regionToShow == "United States")
     }
 
     @Test("regionToShow: legacy radio with no routeType respects pathLength 0xFF as direct")
@@ -74,14 +66,11 @@ struct MessageBubblePredicateTests {
         // Older radios may not populate routeType. In that case isFloodRouted falls back to
         // pathLength != 0xFF. A 0xFF marker means direct-routed, so region must hide.
         let message = makeMessage(pathLength: 0xFF, routeType: nil, regionScope: "United States")
-        let predicates = MessageBubblePredicates(
-            isFloodRouted: message.isFloodRouted,
-            regionScope: message.regionScope,
-            showIncomingHopCount: false,
-            showIncomingRegion: true,
-            formattedPath: nil
+        let bundle = MessageBubbleTestData.messageItem(
+            message: message,
+            showIncomingRegion: true
         )
-        #expect(predicates.regionToShow == nil)
+        #expect(bundle.item.footer.regionToShow == nil)
     }
 
     struct HasFooterCase: Sendable, CustomTestStringConvertible {
@@ -127,20 +116,20 @@ struct MessageBubblePredicateTests {
     ])
     func hasFooter(testCase: HasFooterCase) {
         let message = makeMessage(routeType: testCase.routeType, regionScope: testCase.regionScope)
-        let predicates = MessageBubblePredicates(
-            isFloodRouted: message.isFloodRouted,
-            regionScope: message.regionScope,
+        let bundle = MessageBubbleTestData.messageItem(
+            message: message,
+            formattedPath: testCase.formattedPath,
             showIncomingHopCount: testCase.showHopFlag,
-            showIncomingRegion: testCase.showRegionFlag,
-            formattedPath: testCase.formattedPath
+            showIncomingRegion: testCase.showRegionFlag
         )
-        #expect(predicates.hasFooter == testCase.expected)
+        let footer = bundle.item.footer
+        let hasFooter = footer.showHop || footer.formattedPath != nil || footer.regionToShow != nil
+        #expect(hasFooter == testCase.expected)
     }
 
     // MARK: - Consumer-site accessibility label coverage
 
     @Test("accessibilityMessageLabel: direct-routed message must not include region fragment")
-    @MainActor
     func accessibilityLabel_directRoutedSuppressesRegion() {
         // Mirrors the predicate-level regression row at the consumer site: even with
         // showIncomingRegion=true and a populated regionScope, a direct-routed message
@@ -164,7 +153,6 @@ struct MessageBubblePredicateTests {
     }
 
     @Test("accessibilityMessageLabel: flood-routed message includes region fragment")
-    @MainActor
     func accessibilityLabel_floodRoutedIncludesRegion() {
         let message = makeMessage(routeType: .flood, regionScope: "United States")
         let bundle = MessageBubbleTestData.messageItem(

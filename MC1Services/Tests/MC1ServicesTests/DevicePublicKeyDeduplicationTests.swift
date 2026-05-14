@@ -89,6 +89,7 @@ struct DevicePublicKeyDeduplicationTests {
 
         let device = cm.createDevice(
             deviceID: newBLEUUID,
+            radioID: existingRadioID,
             selfInfo: Self.makeSelfInfo(),
             capabilities: Self.testCapabilities,
             autoAddConfig: AutoAddConfig(bitmask: 0),
@@ -99,20 +100,22 @@ struct DevicePublicKeyDeduplicationTests {
         #expect(device.radioID == existingRadioID)
     }
 
-    @Test("createDevice generates new radioID when no existing device")
+    @Test("createDevice uses the provided radioID for new pairings")
     @MainActor
-    func createDeviceGeneratesNewRadioID() throws {
+    func createDeviceUsesProvidedRadioID() throws {
         let (cm, _) = try ConnectionManager.createForTesting()
         let bleUUID = UUID()
+        let freshRadioID = UUID()
 
         let device = cm.createDevice(
             deviceID: bleUUID,
+            radioID: freshRadioID,
             selfInfo: Self.makeSelfInfo(),
             capabilities: Self.testCapabilities,
             autoAddConfig: AutoAddConfig(bitmask: 0)
         )
 
         #expect(device.id == bleUUID)
-        #expect(device.radioID != bleUUID)
+        #expect(device.radioID == freshRadioID)
     }
 }

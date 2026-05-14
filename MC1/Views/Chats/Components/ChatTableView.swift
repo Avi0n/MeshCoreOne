@@ -78,12 +78,8 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     /// Target item ID for programmatic scroll, derived from the active scroll intent.
     private var scrollTargetItemID: Item.ID? {
-        switch scrollState.intent {
-        case .toTarget(let id), .toMention(let id):
-            return id
-        case .none, .toBottom, .toDivider:
-            return nil
-        }
+        if case .toTarget(let id) = scrollState.intent { return id }
+        return nil
     }
 
     /// True when an auto-scroll-to-bottom was suppressed because the user was interacting.
@@ -151,6 +147,50 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
             object: nil
         )
     }
+
+    // MARK: - Scroll Coalescing
+
+    /// Creates the `CADisplayLink` that drains coalesced scroll observations.
+    /// The link retains its target (the proxy), not the controller, so the
+    /// `deinit` path stays clean. Starts paused; `scrollViewDidScroll` unpauses.
+    private func setupScrollDisplayLink() {
+        scrollDisplayLinkProxy.onTick = { [weak self] in
+            self?.coalescedScrollTick()
+        }
+        let link = CADisplayLink(
+            target: scrollDisplayLinkProxy,
+            selector: #selector(ChatScrollDisplayLinkProxy.tick(_:))
+        )
+        link.add(to: .main, forMode: .common)
+        link.isPaused = true
+        scrollDisplayLink = link
+    }
+
+    /// Drains pending scroll observations once per display frame. If a callback
+    /// re-arms the flag during processing, the link stays unpaused so the next
+    /// frame picks it up; otherwise the link pauses to avoid waking the run loop.
+    private func coalescedScrollTick() {
+        let hadWork = hasPendingScrollObservation
+        hasPendingScrollObservation = false
+        if hadWork {
+            updateIsAtBottom()
+            checkVisibleMentions()
+            checkDividerVisibility()
+            checkNearTop()
+        }
+        if !hasPendingScrollObservation {
+            scrollDisplayLink?.isPaused = true
+        }
+    }
+
+    #if DEBUG
+    /// Drains pending scroll observations synchronously. Production code
+    /// relies on the display link; this entry point lets unit tests verify
+    /// scroll callbacks without waiting for a real frame tick.
+    func flushScrollObservationsForTests() {
+        coalescedScrollTick()
+    }
+    #endif
 
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
@@ -611,7 +651,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         }
 
         // Reload target cell after scroll completes to fix UIHostingConfiguration layout timing.
-        // reloadTargetCell clears any .toTarget / .toMention intent.
+        // reloadTargetCell clears any .toTarget intent.
         reloadTargetCell()
 
         if wasScrollingToBottom {

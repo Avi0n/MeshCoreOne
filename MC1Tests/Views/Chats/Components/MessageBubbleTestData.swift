@@ -3,9 +3,10 @@ import UIKit
 import MC1Services
 @testable import MC1
 
-/// Value-type builders for `UnifiedMessageBubble` snapshot tests. Pure
-/// constructors — `MessageItem` carries fragments with `ImageReference` handles;
-/// the in-memory image map below resolves those handles back to UIImages.
+/// Shared fixtures for `UnifiedMessageBubble` tests. Pure constructors —
+/// `MessageItem` carries fragments with `ImageReference` handles; the
+/// resolver closure returned by `messageItem` resolves those handles back to
+/// the UIImages supplied at construction.
 enum MessageBubbleTestData {
 
     // MARK: - Stable identifiers
@@ -54,79 +55,6 @@ enum MessageBubbleTestData {
             sendCount: sendCount,
             retryAttempt: retryAttempt,
             maxRetryAttempts: maxRetryAttempts,
-            reactionSummary: reactionSummary
-        )
-    }
-
-    static func outgoingChannel(
-        text: String = "Hello channel",
-        channelIndex: UInt8 = 1,
-        status: MessageStatus = .sent,
-        heardRepeats: Int = 0,
-        sendCount: Int = 1,
-        retryAttempt: Int = 0,
-        maxRetryAttempts: Int = 0,
-        reactionSummary: String? = nil
-    ) -> MessageDTO {
-        MessageDTO(
-            id: outgoingMessageID,
-            radioID: radioID,
-            contactID: nil,
-            channelIndex: channelIndex,
-            text: text,
-            timestamp: UInt32(referenceDate.timeIntervalSince1970),
-            createdAt: referenceDate,
-            direction: .outgoing,
-            status: status,
-            textType: .plain,
-            ackCode: nil,
-            pathLength: 0,
-            snr: nil,
-            senderKeyPrefix: nil,
-            senderNodeName: nil,
-            isRead: true,
-            replyToID: nil,
-            roundTripTime: nil,
-            heardRepeats: heardRepeats,
-            sendCount: sendCount,
-            retryAttempt: retryAttempt,
-            maxRetryAttempts: maxRetryAttempts,
-            reactionSummary: reactionSummary
-        )
-    }
-
-    static func incomingDM(
-        text: String = "Hi there",
-        senderKeyPrefix: Data? = defaultSenderKeyPrefix,
-        pathLength: UInt8 = 0xFF,
-        pathNodes: Data? = nil,
-        containsSelfMention: Bool = false,
-        reactionSummary: String? = nil
-    ) -> MessageDTO {
-        MessageDTO(
-            id: incomingMessageID,
-            radioID: radioID,
-            contactID: contactID,
-            channelIndex: nil,
-            text: text,
-            timestamp: UInt32(referenceDate.timeIntervalSince1970),
-            createdAt: referenceDate,
-            direction: .incoming,
-            status: .delivered,
-            textType: .plain,
-            ackCode: nil,
-            pathLength: pathLength,
-            snr: nil,
-            pathNodes: pathNodes,
-            senderKeyPrefix: senderKeyPrefix,
-            senderNodeName: nil,
-            isRead: true,
-            replyToID: nil,
-            roundTripTime: nil,
-            heardRepeats: 0,
-            retryAttempt: 0,
-            maxRetryAttempts: 0,
-            containsSelfMention: containsSelfMention,
             reactionSummary: reactionSummary
         )
     }
@@ -194,7 +122,6 @@ enum MessageBubbleTestData {
         previewState: PreviewLoadState = .idle,
         loadedPreview: LinkPreviewDataDTO? = nil,
         detectedURL: URL? = nil,
-        isImageURL: Bool = false,
         formattedText: AttributedString? = nil,
         decodedImage: UIImage? = nil,
         decodedPreviewImage: UIImage? = nil,
@@ -207,7 +134,6 @@ enum MessageBubbleTestData {
         formattedPath: String? = nil,
         showIncomingHopCount: Bool = false,
         showIncomingRegion: Bool = false,
-        configurationShowSenderName: Bool = true,
         senderResolution: NodeNameResolution = NodeNameResolution(displayName: "Unknown", matchKind: .unresolved)
     ) -> ItemBundle {
         let inputs = MessageBuildInputs(
@@ -220,7 +146,7 @@ enum MessageBubbleTestData {
             hasPreviewIconRef: decodedPreviewIcon != nil,
             imageIsGIF: isGIF,
             formattedText: formattedText,
-            baseColor: message.isOutgoing ? .white : .primary,
+            baseColor: message.isOutgoing ? .outgoing : .incoming,
             formattedPath: formattedPath,
             senderResolution: senderResolution,
             showTimestamp: showTimestamp,
@@ -251,35 +177,4 @@ enum MessageBubbleTestData {
         return ItemBundle(item: item, imageResolver: resolver)
     }
 
-    // MARK: - MessageBubbleConfiguration
-
-    static func directMessageConfig() -> MessageBubbleConfiguration {
-        .directMessage
-    }
-
-    static func channelConfig(
-        isPublic: Bool = true,
-        accentColor: Color? = nil
-    ) -> MessageBubbleConfiguration {
-        MessageBubbleConfiguration(
-            accentColor: accentColor ?? (isPublic ? .green : .blue),
-            showSenderName: true,
-            isChannel: true,
-            senderNameResolver: nil
-        )
-    }
-
-    // MARK: - UIImage
-
-    /// Deterministic flat-color image for snapshots that exercise image rendering.
-    static func solidImage(
-        _ color: UIColor,
-        size: CGSize = CGSize(width: 16, height: 16)
-    ) -> UIImage {
-        let renderer = UIGraphicsImageRenderer(size: size)
-        return renderer.image { ctx in
-            color.setFill()
-            ctx.fill(CGRect(origin: .zero, size: size))
-        }
-    }
 }

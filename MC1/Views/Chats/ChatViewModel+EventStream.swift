@@ -1,14 +1,6 @@
 import Foundation
 import MC1Services
-
-/// Identifies an incoming self-mention with a per-mention sequence number so
-/// `.onChange(of:)` fires for consecutive mentions of the same message.
-/// `Equatable` is auto-synthesised from `UUID` + `UInt64`; adding a non-Equatable
-/// field would break `.onChange` propagation.
-struct MentionEvent: Equatable, Sendable {
-    let messageID: UUID
-    let sequence: UInt64
-}
+import SwiftUI
 
 extension ChatViewModel {
 
@@ -30,37 +22,35 @@ extension ChatViewModel {
             appendMessageIfNew(message)
             recordIncomingMentionIfNeeded(message)
 
-        case .messageStatusResolved(let messageID):
-            // O(1) timeline-membership check — ACKs for messages outside the
-            // current conversation skip the reload entirely. Reads
-            // `messagesByID` so events landing mid off-main `buildItems()`
-            // (before the new row is folded into `renderState`) still match.
-            guard messagesByID[messageID] != nil else { return }
-            requestReload()
+        case let .messageStatusResolved(messageID, status, roundTripTime):
+            // Status-only resolution: apply in place so the bubble's status
+            // footer crossfades from "Sent" to "Delivered" rather than
+            // restarting on a fresh item identity. No DB fetch — the
+            // dispatcher writes the DB row before firing this case.
+            withAnimation {
+                coordinator?.applyStatusUpdate(
+                    messageID: messageID,
+                    status: status,
+                    roundTripTime: roundTripTime
+                )
+            }
 
         case .messageRetrying(let messageID, _, _):
-            // O(1) timeline-membership check — avoids churning the data store
-            // for retries on conversations the user is not currently viewing.
-            guard messagesByID[messageID] != nil else { return }
-            requestReload()
+            // Payload-bearing variant routed straight to the reload chokepoint;
+            // not coalescer-eligible because attempt/maxAttempts are per-event.
+            coordinator?.enqueueReload(messageID: messageID)
 
-        case .messageFailed(let messageID):
-            // O(1) timeline-membership check via `messagesByID` avoids a
-            // `messages.contains(where:)` scan under bursts of fail events.
-            guard messagesByID[messageID] != nil else { return }
-            requestReload()
+        case .messageResent(let messageID),
+             .messageFailed(let messageID):
+            coordinator?.enqueueReload(messageID: messageID)
+
+        case .heardRepeatRecorded(let messageID, _),
+             .reactionReceived(let messageID, _):
+            coordinator?.enqueueReload(messageID: messageID)
 
         case .routingChanged(let contactID, _):
             guard let current = currentContact, current.id == contactID else { return }
             requestContactRefresh()
-
-        case .heardRepeatRecorded(let messageID, let count):
-            guard messagesByID[messageID] != nil else { return }
-            updateHeardRepeats(for: messageID, count: count)
-
-        case .reactionReceived(let messageID, let summary):
-            guard messagesByID[messageID] != nil else { return }
-            updateReactionSummary(for: messageID, summary: summary)
 
         case .roomMessageReceived, .roomMessageStatusUpdated, .roomMessageFailed:
             // Room events go to RemoteNodes via MessageEventStream subscription
@@ -69,32 +59,6 @@ extension ChatViewModel {
             // error rather than a silent skip.
             break
         }
-    }
-
-    /// Chase-the-counter reload coalescer. While a reload is in flight,
-    /// additional `.onChange` fires do not spawn new tasks; the running task
-    /// re-checks `reloadSignal` after its fetch completes and loops if the
-    /// counter has advanced. Worst case under a burst: one extra iteration
-    /// after the burst ends.
-    func coalescedReload(for conversationType: ChatConversationType) async {
-        guard !reloadInFlight else { return }
-        reloadInFlight = true
-        defer { reloadInFlight = false }
-
-        var lastValue: UInt64 = .max
-        while reloadSignal != lastValue {
-            lastValue = reloadSignal
-            switch conversationType {
-            case .dm(let contact):
-                await loadMessages(for: contact)
-            case .channel(let channel):
-                await loadChannelMessages(for: channel)
-            }
-        }
-    }
-
-    private func requestReload() {
-        reloadSignal &+= 1
     }
 
     private func requestContactRefresh() {

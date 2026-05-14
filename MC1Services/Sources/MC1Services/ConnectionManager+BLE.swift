@@ -611,7 +611,7 @@ extension ConnectionManager {
             _ = await remoteNodeService.handleBLEDisconnection()
         }
 
-        await services?.stopEventMonitoring()
+        await services?.tearDown()
 
         // Reset sync state before destroying services to prevent stuck "Syncing" pill
         if let services {

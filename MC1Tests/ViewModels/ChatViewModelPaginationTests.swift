@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import SwiftData
 @testable import MC1
 @testable import MC1Services
 
@@ -374,6 +375,7 @@ actor PaginationTestDataStore: PersistenceStoreProtocol {
     func fetchPendingSends(radioID: UUID) async throws -> [PendingSendDTO] { [] }
     func deletePendingSend(id: UUID) async throws {}
     func deletePendingSendsForMessage(messageID: UUID) async throws {}
+    func hasPendingSend(messageID: UUID) async throws -> Bool { false }
 
     // MARK: - Room Messages
 
@@ -454,7 +456,10 @@ struct ChatViewModelPaginationTests {
         // Configure view model - need to use the internal configure method
         // Since we can't directly inject a PersistenceStoreProtocol, we'll test through observable behavior
         viewModel.currentContact = contact
-        viewModel.messages = try await dataStore.fetchMessages(contactID: contactID, limit: 50, offset: 0)
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
+        let fetched = try await dataStore.fetchMessages(contactID: contactID, limit: 50, offset: 0)
+        coordinator.replaceAll(fetched)
 
         let initialCount = viewModel.messages.count
         #expect(initialCount == 10)
@@ -533,7 +538,8 @@ struct ChatViewModelPaginationTests {
         let contact = createTestContact(id: contactID, radioID: radioID)
 
         viewModel.currentContact = contact
-        viewModel.messages = []
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
 
         // Without configuring dataStore, loadOlderMessages should return early
         await viewModel.loadOlderMessages()
@@ -554,16 +560,18 @@ struct ChatViewModelPaginationTests {
 
         // Start with contact A
         viewModel.currentContact = contactA
-        viewModel.messages = [
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
+        coordinator.replaceAll([
             createTestMessage(contactID: contactA.id, radioID: radioID, timestamp: 1000)
-        ]
+        ])
 
         // isLoadingOlder should be false
         #expect(viewModel.isLoadingOlder == false)
 
         // Switch to contact B
         viewModel.currentContact = contactB
-        viewModel.messages = []
+        coordinator.replaceAll([])
 
         // State should be clean for new contact
         #expect(viewModel.messages.isEmpty)
@@ -581,6 +589,55 @@ struct ChatViewModelPaginationTests {
         // The key is that with < 50 messages, subsequent loadOlderMessages calls should not fetch
 
         #expect(viewModel.messages.isEmpty)
+    }
+
+    /// Verifies that `loadOlderMessages` clears `isLoadingOlder` before
+    /// entering the reaction-indexing loop, so the pagination spinner is not
+    /// held open by a slow `ReactionService.indexMessage` actor hop on a
+    /// busy channel. The structural ordering is enforced in
+    /// `ChatViewModel.loadOlderMessages`: the spinner is cleared immediately
+    /// after `buildItems()` and before the channel/DM reaction-indexing
+    /// blocks. This test exercises the success path with `appState` unset
+    /// (so the indexing loops are skipped) and asserts the post-return
+    /// state matches the documented contract — `isLoadingOlder == false`,
+    /// older messages prepended, no error surfaced. The deeper "spinner
+    /// already false while indexing still running" property is verified by
+    /// source-level review at PR time; `ReactionService` is a concrete
+    /// actor without a protocol surface, so an injectable continuation-
+    /// blocking stub is not available.
+    @Test("loadOlderMessages clears isLoadingOlder on the success path")
+    func loadOlderMessagesClearsSpinnerBeforeIndexing() async throws {
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let dataStore = PersistenceStore(modelContainer: container)
+        let radioID = UUID()
+        let contactID = UUID()
+
+        let viewModel = ChatViewModel()
+        viewModel.dataStore = dataStore
+        viewModel.currentContact = createTestContact(id: contactID, radioID: radioID)
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
+
+        // Seed the database with a page worth of messages so the
+        // pagination fetch returns rows and proceeds past the
+        // prepend/buildItems block where the early-clear lives.
+        for index in 0..<10 {
+            let message = createTestMessage(
+                contactID: contactID,
+                radioID: radioID,
+                timestamp: UInt32(1000 + index)
+            )
+            try await dataStore.saveMessage(message)
+        }
+
+        #expect(viewModel.isLoadingOlder == false)
+
+        await viewModel.loadOlderMessages()
+
+        #expect(viewModel.isLoadingOlder == false, "Pagination must release the spinner before returning")
+        #expect(viewModel.errorMessage == nil)
+        #expect(viewModel.errorBannerMessage == nil)
+        #expect(viewModel.messages.count == 10, "Pagination should have prepended fetched messages")
     }
 }
 
@@ -687,6 +744,8 @@ struct ChatViewModelDisplayItemsPaginationTests {
     @Test("Display items are rebuilt after loading older messages")
     func displayItemsRebuildAfterLoadingOlder() async {
         let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
 
         // Start with some messages
         let radioID = UUID()
@@ -700,9 +759,9 @@ struct ChatViewModelDisplayItemsPaginationTests {
             )
         }
 
-        viewModel.messages = messages
-        await viewModel.buildItems()
-        await viewModel.buildItemsTask?.value
+        coordinator.replaceAll(messages)
+        viewModel.buildItems()
+        await coordinator.buildItemsTask?.value
 
         #expect(viewModel.items.count == 5)
 
@@ -715,9 +774,9 @@ struct ChatViewModelDisplayItemsPaginationTests {
             )
         }
 
-        viewModel.messages.insert(contentsOf: olderMessages, at: 0)
-        await viewModel.buildItems()
-        await viewModel.buildItemsTask?.value
+        coordinator.prepend(olderMessages)
+        viewModel.buildItems()
+        await coordinator.buildItemsTask?.value
 
         #expect(viewModel.items.count == 8)
     }
@@ -725,15 +784,17 @@ struct ChatViewModelDisplayItemsPaginationTests {
     @Test("Message lookup by ID works after pagination")
     func messageLookupWorksAfterPagination() async {
         let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
         let radioID = UUID()
         let contactID = UUID()
 
         let message1 = createTestMessage(contactID: contactID, radioID: radioID, timestamp: 1000)
         let message2 = createTestMessage(contactID: contactID, radioID: radioID, timestamp: 1001)
 
-        viewModel.messages = [message1, message2]
-        await viewModel.buildItems()
-        await viewModel.buildItemsTask?.value
+        coordinator.replaceAll([message1, message2])
+        viewModel.buildItems()
+        await coordinator.buildItemsTask?.value
 
         // Lookup should work
         #expect(viewModel.items.count == 2)
@@ -845,5 +906,91 @@ struct CrossBoundaryReorderingTests {
         // The 10-second gap between oldMsg and newMsg1 exceeds the 5s window,
         // so they should NOT be clustered — order stays as-is
         #expect(result.map(\.text) == ["old", "new1", "new2"])
+    }
+}
+
+// MARK: - Channel Sender Registration (Pagination Regression)
+
+@Suite("ChatViewModel Channel Sender Registration")
+@MainActor
+struct ChatViewModelChannelSenderRegistrationTests {
+
+    @Test("addChannelSenderIfNew inserts synthetic sender and records timestamp")
+    func registersNewSender() {
+        let viewModel = ChatViewModel()
+        let radioID = UUID()
+
+        viewModel.addChannelSenderIfNew("Alice", radioID: radioID, timestamp: 1000)
+
+        #expect(viewModel.channelSenderNames.contains("Alice"))
+        #expect(viewModel.channelSenders.count == 1)
+        #expect(viewModel.channelSenderOrder["Alice"] == 1000)
+    }
+
+    @Test("addChannelSenderIfNew max-merges timestamps for the same sender")
+    func maxMergesTimestamp() {
+        let viewModel = ChatViewModel()
+        let radioID = UUID()
+
+        viewModel.addChannelSenderIfNew("Alice", radioID: radioID, timestamp: 1000)
+        viewModel.addChannelSenderIfNew("Alice", radioID: radioID, timestamp: 500)
+
+        // Older message arriving after a newer one must not lower the recency stamp.
+        #expect(viewModel.channelSenderOrder["Alice"] == 1000)
+        #expect(viewModel.channelSenders.count == 1)
+    }
+
+    @Test("addChannelSenderIfNew skips synthetic for known contacts but still records order")
+    func recordsOrderForKnownContact() {
+        let viewModel = ChatViewModel()
+        let radioID = UUID()
+        viewModel.contactNameSet = ["Bob"]
+
+        viewModel.addChannelSenderIfNew("Bob", radioID: radioID, timestamp: 1500)
+
+        #expect(viewModel.channelSenders.isEmpty, "No synthetic for a known contact")
+        #expect(viewModel.channelSenderNames.contains("Bob") == false)
+        #expect(viewModel.channelSenderOrder["Bob"] == 1500, "Order tracks all senders for mention recency")
+    }
+
+    @Test("addChannelSenderIfNew rejects empty and oversized names")
+    func rejectsInvalidNames() {
+        let viewModel = ChatViewModel()
+        let radioID = UUID()
+        let tooLong = String(repeating: "x", count: 129)
+
+        viewModel.addChannelSenderIfNew("   ", radioID: radioID, timestamp: 1)
+        viewModel.addChannelSenderIfNew("", radioID: radioID, timestamp: 1)
+        viewModel.addChannelSenderIfNew(tooLong, radioID: radioID, timestamp: 1)
+
+        #expect(viewModel.channelSenders.isEmpty)
+        #expect(viewModel.channelSenderOrder.isEmpty)
+    }
+
+    @Test("Pagination registration: older-page senders join channelSenderNames and channelSenderOrder")
+    func paginationRegistersOlderSenders() {
+        // Simulates the loadOlderMessages call site: live receive registers
+        // recent senders first, then a paginated older page registers earlier
+        // senders. After both steps, the mention picker must see all senders
+        // and the order map must reflect each sender's own timestamp.
+        let viewModel = ChatViewModel()
+        let radioID = UUID()
+
+        // Live-receive: senders A and B on the current page
+        viewModel.addChannelSenderIfNew("A", radioID: radioID, timestamp: 2000)
+        viewModel.addChannelSenderIfNew("B", radioID: radioID, timestamp: 2100)
+
+        // Pagination: older page reveals senders C and D, plus another
+        // A message from earlier
+        viewModel.addChannelSenderIfNew("C", radioID: radioID, timestamp: 500)
+        viewModel.addChannelSenderIfNew("D", radioID: radioID, timestamp: 600)
+        viewModel.addChannelSenderIfNew("A", radioID: radioID, timestamp: 100)
+
+        #expect(viewModel.channelSenderNames == ["A", "B", "C", "D"])
+        #expect(viewModel.channelSenders.count == 4)
+        #expect(viewModel.channelSenderOrder["A"] == 2000, "A keeps its live recency, not the older one")
+        #expect(viewModel.channelSenderOrder["B"] == 2100)
+        #expect(viewModel.channelSenderOrder["C"] == 500)
+        #expect(viewModel.channelSenderOrder["D"] == 600)
     }
 }

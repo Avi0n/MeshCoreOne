@@ -204,13 +204,37 @@ extension PersistenceStore {
         }
     }
 
-    /// Delete all messages for a channel
+    /// Delete all messages for a channel.
+    /// Cascades PendingSend, MessageRepeat, and Reaction rows associated with the deleted
+    /// messages within a single save.
     public func deleteMessagesForChannel(radioID: UUID, channelIndex: UInt8) throws {
         let targetRadioID = radioID
         let targetChannelIndex: UInt8? = channelIndex
-        try modelContext.delete(model: Message.self, where: #Predicate {
-            $0.radioID == targetRadioID && $0.channelIndex == targetChannelIndex
-        })
+        let messagePredicate = #Predicate<Message> { message in
+            message.radioID == targetRadioID && message.channelIndex == targetChannelIndex
+        }
+
+        let messageIDs = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate)).map(\.id)
+
+        if !messageIDs.isEmpty {
+            try _deletePendingSendsForMessageIDsWithoutSaving(messageIDs: messageIDs)
+            // Cascade MessageRepeat alongside Reaction. Bulk `delete(model:where:)`
+            // bypasses the `@Relationship(deleteRule: .cascade)` declared on
+            // `Message → MessageRepeat`. Chunk both predicates to stay under
+            // SQLITE_MAX_VARIABLE_NUMBER (32766 on iOS 18+).
+            let chunkSize = 500
+            for start in stride(from: 0, to: messageIDs.count, by: chunkSize) {
+                let chunk = Array(messageIDs[start..<min(start + chunkSize, messageIDs.count)])
+                try modelContext.delete(model: Reaction.self, where: #Predicate {
+                    chunk.contains($0.messageID)
+                })
+                try modelContext.delete(model: MessageRepeat.self, where: #Predicate {
+                    chunk.contains($0.messageID)
+                })
+            }
+        }
+
+        try modelContext.delete(model: Message.self, where: messagePredicate)
         try modelContext.save()
     }
 

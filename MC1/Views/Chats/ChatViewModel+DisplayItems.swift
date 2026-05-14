@@ -5,18 +5,16 @@ extension ChatViewModel {
 
     // MARK: - Display Items
 
-    /// Optimistically append a message if not already present.
-    /// Called synchronously before async reload to ensure ChatTableView
-    /// sees the new count immediately for unread tracking.
+    /// Optimistically append a message if not already present. Called
+    /// synchronously before async reload to ensure `ChatTableView` sees
+    /// the new count immediately for unread tracking.
     func appendMessageIfNew(_ message: MessageDTO) {
-        guard messagesByID[message.id] == nil else { return }
+        guard let coordinator else { return }
         let previous = messages.last
-        messages.append(message)
-        bumpBuildGeneration()
-        messagesByID[message.id] = message
+        guard coordinator.append(message) else { return }
 
         let newItem = makeItem(for: message, previous: previous)
-        renderState = renderState.appendingItem(newItem)
+        coordinator.appendRenderItem(newItem)
 
         let messageID = message.id
         let text = message.text
@@ -28,7 +26,7 @@ extension ChatViewModel {
 
         if let senderName = message.senderNodeName,
            let radioID = currentChannel?.radioID {
-            addChannelSenderIfNew(senderName, radioID: radioID)
+            addChannelSenderIfNew(senderName, radioID: radioID, timestamp: message.timestamp)
         }
     }
 
@@ -46,37 +44,28 @@ extension ChatViewModel {
 
         cachedURLs[messageID] = detectedURL
 
-        guard let message = messagesByID[messageID] else {
+        guard let coordinator,
+              let message = coordinator.messagesByID[messageID] else {
             logger.warning("URL update for missing message id \(messageID)")
             return
         }
         let previous = previousMessage(for: messageID)
-        renderState = renderState.updatingItem(id: messageID) { _ in
+        coordinator.updateRenderItem(id: messageID) { _ in
             makeItem(for: message, previous: previous)
         }
-        bumpBuildGeneration()
     }
 
-    /// Build MessageItems with pre-computed properties.
-    /// Snapshots view-model state on the main actor, runs the per-message
-    /// builder loop off-actor inside a `Task { @concurrent in }` hop, and
-    /// applies the result back on main only when the captured `buildGeneration`
-    /// still matches — guarding against races where a fresher mutation lands
-    /// while an older build is still in flight.
+    /// Build MessageItems with pre-computed properties. Snapshots view-model
+    /// state on the main actor and delegates the per-message builder loop to
+    /// `ChatCoordinator.rebuildItems`, which performs the off-actor hop and
+    /// applies on main only when the captured `renderStateID` still matches.
     func buildItems() {
-        bumpBuildGeneration()
-        let myGeneration = currentBuildGeneration()
+        guard let coordinator else { return }
         urlDetectionGeneration &+= 1
         let urlGeneration = urlDetectionGeneration
 
-        messagesByID = Dictionary(messages.map { ($0.id, $0) }, uniquingKeysWith: { _, new in
-            logger.warning("buildItems saw duplicate message id; keeping latest")
-            return new
-        })
-
         var uncachedMessageIDs: [(UUID, String)] = []
-        let messagesSnapshot = messages
-        let envInputsSnapshot = envInputs
+        let messagesSnapshot = coordinator.messages
 
         let inputs: [(MessageDTO, MessageBuildInputs)] = messagesSnapshot.enumerated().map { index, message in
             let previous: MessageDTO? = index > 0 ? messagesSnapshot[index - 1] : nil
@@ -92,50 +81,29 @@ extension ChatViewModel {
 
         let messagesToDetect = uncachedMessageIDs
 
-        buildItemsTask?.cancel()
-        buildItemsTask = Task(priority: .userInitiated) { @concurrent [weak self] in
-            var builtItems: [MessageItem] = []
-            builtItems.reserveCapacity(inputs.count)
-            for (message, perMessageInputs) in inputs {
-                if Task.isCancelled { return }
-                builtItems.append(
-                    MessageFragmentBuilder.makeItem(
-                        for: message,
-                        inputs: perMessageInputs,
-                        envInputs: envInputsSnapshot
-                    )
-                )
-            }
-
-            await MainActor.run {
-                guard let self else { return }
-                guard self.currentBuildGeneration() == myGeneration else {
-                    // A fresher mutation landed while this build was off-main.
-                    // Schedule another build so renderState eventually reflects
-                    // the current state — without this, single-row updates that
-                    // landed in the gap (and no-op'd because items weren't yet
-                    // applied) would leave renderState stale until the next
-                    // unrelated trigger.
-                    self.buildItems()
-                    return
-                }
-                let indexByID = Dictionary(uniqueKeysWithValues:
-                    builtItems.enumerated().map { ($0.element.id, $0.offset) })
-                self.renderState = self.renderState.with(items: builtItems, itemIndexByID: indexByID)
-
-                if !messagesToDetect.isEmpty {
-                    self.urlDetectionTask?.cancel()
-                    self.urlDetectionTask = Task { [weak self] in
-                        guard let self else { return }
-                        for (messageID, text) in messagesToDetect {
-                            guard !Task.isCancelled, self.urlDetectionGeneration == urlGeneration else { return }
-                            await self.updateURLForDisplayItem(messageID: messageID, text: text, generation: urlGeneration)
-                        }
+        coordinator.rebuildItems(inputs: inputs, envInputs: envInputs) { [weak self] in
+            guard let self else { return }
+            if !messagesToDetect.isEmpty {
+                self.urlDetectionTask?.cancel()
+                self.urlDetectionTask = Task { [weak self] in
+                    guard let self else { return }
+                    for (messageID, text) in messagesToDetect {
+                        guard !Task.isCancelled, self.urlDetectionGeneration == urlGeneration else { return }
+                        await self.updateURLForDisplayItem(messageID: messageID, text: text, generation: urlGeneration)
                     }
                 }
-
-                self.decodeLegacyPreviewImages()
             }
+            self.decodeLegacyPreviewImages()
         }
+    }
+
+    /// Get full message DTO for a MessageItem.
+    /// Logs a warning if lookup fails (indicates data inconsistency).
+    func message(for item: MessageItem) -> MessageDTO? {
+        guard let message = messagesByID[item.id] else {
+            logger.warning("Message lookup failed for item id=\(item.id)")
+            return nil
+        }
+        return message
     }
 }

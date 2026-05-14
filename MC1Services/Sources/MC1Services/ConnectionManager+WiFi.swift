@@ -95,7 +95,7 @@ extension ConnectionManager {
         }
 
         // Tear down session (invalid now)
-        await services?.stopEventMonitoring()
+        await services?.tearDown()
         services = nil
         session = nil
 

@@ -121,27 +121,24 @@ extension ChatViewModel {
 
     /// Update a message in place and rebuild its display item.
     func updateMessage(id: UUID, mutation: (inout MessageDTO) -> Void) {
-        guard let index = messages.firstIndex(where: { $0.id == id }),
-              let existing = messagesByID[id] else { return }
-        let updated = existing.copy(mutation)
-        messages[index] = updated
-        bumpBuildGeneration()
-        messagesByID[id] = updated
+        guard let coordinator,
+              coordinator.messagesByID[id] != nil else { return }
+        coordinator.update(messageID: id, mutation)
         rebuildDisplayItem(for: id)
     }
 
     /// Rebuild a single MessageItem with current preview, image, and message
     /// state. No-ops when the message is no longer present.
     func rebuildDisplayItem(for messageID: UUID) {
-        guard let message = messagesByID[messageID] else {
+        guard let coordinator,
+              let message = coordinator.messagesByID[messageID] else {
             logger.warning("rebuild requested for missing message id \(messageID)")
             return
         }
         let previous = previousMessage(for: messageID)
-        renderState = renderState.updatingItem(id: messageID) { _ in
+        coordinator.updateRenderItem(id: messageID) { _ in
             makeItem(for: message, previous: previous)
         }
-        bumpBuildGeneration()
     }
 
     /// Cancel preview fetch for a message (called when cell scrolls away)
@@ -239,7 +236,7 @@ extension ChatViewModel {
         guard previewStates[messageID] != .malwareWarning else { return }
         guard let url = cachedURLs[messageID].flatMap({ $0 }) else { return }
 
-        let directURL = ImageURLDetector.directImageURL(for: url)
+        let directURL = ImageURLClassifier.directImageURL(for: url)
         await InlineImageCache.shared.clearFailure(for: directURL)
 
         previewStates[messageID] = .idle
@@ -256,7 +253,7 @@ extension ChatViewModel {
               let url = cachedURLs[messageID].flatMap({ $0 }) else {
             return false
         }
-        return ImageURLDetector.isImageURL(url)
+        return ImageURLClassifier.isImageURL(url)
     }
 
     /// Request inline image fetch for a message (called when cell becomes visible)
@@ -264,7 +261,7 @@ extension ChatViewModel {
         guard envInputs.showInlineImages else { return }
         guard previewStates[messageID] == nil || previewStates[messageID] == .idle else { return }
         guard let url = cachedURLs[messageID].flatMap({ $0 }),
-              ImageURLDetector.isImageURL(url) else { return }
+              ImageURLClassifier.isImageURL(url) else { return }
 
         imageFetchTasks[messageID] = Task {
             await fetchInlineImage(for: messageID, url: url)
@@ -273,7 +270,7 @@ extension ChatViewModel {
 
     /// Fetch inline image data and update state
     private func fetchInlineImage(for messageID: UUID, url: URL) async {
-        let directURL = ImageURLDetector.directImageURL(for: url)
+        let directURL = ImageURLClassifier.directImageURL(for: url)
 
         // Check malware domain blocklist before fetching
         if let host = directURL.host(), await MalwareDomainFilter.shared.isBlocked(host) {

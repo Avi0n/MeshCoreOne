@@ -1,6 +1,7 @@
 import Testing
 import Foundation
 @testable import MC1
+@testable import MC1Services
 
 @Suite("SendQueue")
 struct SendQueueTests {

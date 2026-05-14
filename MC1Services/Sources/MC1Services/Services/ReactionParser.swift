@@ -215,7 +215,7 @@ public enum ReactionParser {
             .joined(separator: ",")
     }
 
-    /// Builds summary string from reaction DTOs using Element X-style ordering.
+    /// Builds summary string from reaction DTOs.
     /// Sorts by count descending, then by earliest timestamp ascending for tie-breaker.
     public static func buildSummary(from reactions: [ReactionDTO]) -> String {
         let grouped = Dictionary(grouping: reactions, by: \.emoji)

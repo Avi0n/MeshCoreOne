@@ -36,6 +36,16 @@ final class RoomConversationViewModel {
     private var syncCoordinator: SyncCoordinator?
     private var notificationService: NotificationService?
 
+    /// Pending coalesced reload spawned by `handleEvent`. Non-nil while a reload
+    /// is scheduled but not yet fired, so a burst of room events triggers a
+    /// single `loadMessages` instead of one per event.
+    private var reloadTask: Task<Void, Never>?
+
+    /// Debounce window before a coalesced reload fires. Long enough to batch
+    /// the typical LoRa-paced room event burst, short enough that user-visible
+    /// state still feels fresh.
+    private static let reloadDebounce: Duration = .milliseconds(50)
+
     // MARK: - Initialization
 
     init() {}
@@ -130,29 +140,43 @@ final class RoomConversationViewModel {
         switch event {
         case .roomMessageReceived(let message, let sessionID):
             // Optimistic append first so the ChatTableView sees the new count
-            // immediately for unread tracking, then reload to sync any
-            // server-side state that arrived in between.
+            // immediately for unread tracking, then coalesce the reload so a
+            // burst of incoming room messages triggers one DB sync, not N.
             guard sessionID == session.id else { return }
             appendMessageIfNew(message)
-            await loadMessages(for: session)
+            scheduleCoalescedReload()
 
         case .roomMessageStatusUpdated(let messageID):
             if messages.contains(where: { $0.id == messageID }) {
-                await loadMessages(for: session)
+                scheduleCoalescedReload()
             }
 
         case .roomMessageFailed(let messageID):
             if messages.contains(where: { $0.id == messageID }) {
-                await loadMessages(for: session)
+                scheduleCoalescedReload()
             }
 
         case .directMessageReceived, .channelMessageReceived,
-             .messageStatusResolved, .messageFailed, .messageRetrying,
+             .messageStatusResolved, .messageResent, .messageFailed, .messageRetrying,
              .heardRepeatRecorded, .reactionReceived, .routingChanged:
             // Non-Room events are not Room-scoped. Enumerated explicitly so
             // adding a new MessageEvent case surfaces as a non-exhaustive
             // switch compile error rather than a silent skip.
             break
+        }
+    }
+
+    /// Schedules a debounced reload so bursts of room events trigger one
+    /// `loadMessages` instead of one per event. No-ops if a reload is
+    /// already pending.
+    private func scheduleCoalescedReload() {
+        guard reloadTask == nil else { return }
+        reloadTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: Self.reloadDebounce)
+            guard let self else { return }
+            self.reloadTask = nil
+            guard let session = self.session else { return }
+            await self.loadMessages(for: session)
         }
     }
 

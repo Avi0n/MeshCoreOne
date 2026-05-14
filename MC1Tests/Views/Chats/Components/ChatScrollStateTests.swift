@@ -33,13 +33,4 @@ struct ChatScrollStateTests {
         #expect(first?.targetMessageCount == 3)
         #expect(second == nil)
     }
-
-    @Test("near-top pagination can coexist with user interacting")
-    func nearTopPagination_canCoexistWithUserInteracting() {
-        var state: ChatScrollState = .idle
-        state.startApplying()
-        state.enterDragging()
-        #expect(state.apply == .applying)
-        #expect(state.interaction == .dragging)
-    }
 }

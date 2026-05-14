@@ -126,8 +126,12 @@ public protocol PersistenceStoreProtocol: Actor {
     func deletePendingSend(id: UUID) async throws
 
     /// Delete every pending send row whose `messageID` matches. No-op if no rows match.
-    /// Radio is intentionally not part of the predicate (see implementation).
+    /// `messageID` is globally unique across all radios, so scoping by radio would be
+    /// redundant and could miss stale rows from prior pairings.
     func deletePendingSendsForMessage(messageID: UUID) async throws
+
+    /// `messageID` is globally unique.
+    func hasPendingSend(messageID: UUID) async throws -> Bool
 
     // MARK: - Contact Operations
 

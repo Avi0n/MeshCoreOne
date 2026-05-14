@@ -1279,6 +1279,406 @@ struct PersistenceStoreTests {
         try await store.warmUp()
     }
 
+    // MARK: - PendingSend attemptCount Tests
+
+    private func makePendingSendDTO(
+        messageID: UUID = UUID(),
+        radioID: UUID = UUID(),
+        attemptCount: Int? = 0,
+        sequence: Int = 1
+    ) -> PendingSendDTO {
+        PendingSendDTO(
+            id: UUID(),
+            radioID: radioID,
+            messageID: messageID,
+            kind: .dm,
+            contactID: UUID(),
+            channelIndex: nil,
+            isResend: false,
+            messageText: "",
+            messageTimestamp: 0,
+            localNodeName: nil,
+            sequence: sequence,
+            enqueuedAt: Date(),
+            attemptCount: attemptCount
+        )
+    }
+
+    @Test("incrementPendingSendAttemptCount from 0 bumps to 1")
+    func testIncrementPendingSendAttemptCount_FromZero_BumpsToOne() async throws {
+        let store = try await createTestStore()
+        let messageID = UUID()
+        let dto = makePendingSendDTO(messageID: messageID, attemptCount: 0)
+        try await store.upsertPendingSend(dto)
+
+        let result = try await store.incrementPendingSendAttemptCount(messageID: messageID)
+        #expect(result == 1, "first drain attempt should bump 0 → 1")
+
+        let persisted = try await store.fetchPendingSends(radioID: dto.radioID).first
+        #expect(persisted?.attemptCount == 1, "persisted attemptCount should match return value")
+    }
+
+    @Test("incrementPendingSendAttemptCount from nil logs fault and sets to 2")
+    func testIncrementPendingSendAttemptCount_FromNil_LogsFaultAndSetsToTwo() async throws {
+        let store = try await createTestStore()
+        let messageID = UUID()
+        // Simulate a pre-plan row that escaped the warmUp backfill.
+        let dto = makePendingSendDTO(messageID: messageID, attemptCount: nil)
+        try await store.upsertPendingSend(dto)
+
+        let result = try await store.incrementPendingSendAttemptCount(messageID: messageID)
+        #expect(result == 2,
+                "nil-handling: treat prior value as 1 so bump produces 2, preserving wire timestamp via postBumpCount > 1")
+
+        let persisted = try await store.fetchPendingSends(radioID: dto.radioID).first
+        #expect(persisted?.attemptCount == 2, "persisted attemptCount should match return value")
+    }
+
+    @Test("incrementPendingSendAttemptCount returns nil when no row matches")
+    func testIncrementPendingSendAttemptCount_NoRow_ReturnsNil() async throws {
+        let store = try await createTestStore()
+        let messageID = UUID()
+
+        let result = try await store.incrementPendingSendAttemptCount(messageID: messageID)
+        #expect(result == nil, "missing-row case is terminal — return nil instead of creating a new row")
+    }
+
+    @Test("backfillPendingSendAttemptCounts promotes only legacy nil rows")
+    func testBackfillPendingSendAttemptCounts_PromotesLegacyNilRowsOnly() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let legacyDTO = makePendingSendDTO(messageID: UUID(), radioID: radioID, attemptCount: nil, sequence: 1)
+        let raceDTO = makePendingSendDTO(messageID: UUID(), radioID: radioID, attemptCount: 0, sequence: 2)
+        let drainedDTO = makePendingSendDTO(messageID: UUID(), radioID: radioID, attemptCount: 3, sequence: 3)
+        try await store.upsertPendingSend(legacyDTO)
+        try await store.upsertPendingSend(raceDTO)
+        try await store.upsertPendingSend(drainedDTO)
+
+        let promoted = try await store.backfillPendingSendAttemptCounts()
+        #expect(promoted == 1, "only the single nil-valued row should be promoted")
+
+        let rows = try await store.fetchPendingSends(radioID: radioID)
+        let byMessageID = Dictionary(uniqueKeysWithValues: rows.map { ($0.messageID, $0.attemptCount) })
+        #expect(byMessageID[legacyDTO.messageID] == 1, "legacy nil row → 1")
+        #expect(byMessageID[raceDTO.messageID] == 0, "race-window 0 row stays at 0")
+        #expect(byMessageID[drainedDTO.messageID] == 3, "already-drained row stays untouched")
+    }
+
+    @Test("backfillPendingSendAttemptCounts is idempotent")
+    func testBackfillPendingSendAttemptCounts_IsIdempotent() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let dto = makePendingSendDTO(messageID: UUID(), radioID: radioID, attemptCount: nil)
+        try await store.upsertPendingSend(dto)
+
+        let firstPromoted = try await store.backfillPendingSendAttemptCounts()
+        let secondPromoted = try await store.backfillPendingSendAttemptCounts()
+        #expect(firstPromoted == 1, "first call promotes the legacy row")
+        #expect(secondPromoted == 0,
+                "second call: predicate matches nothing — monotonically idempotent (nil → 1 cannot reverse)")
+    }
+
+    @Test("warmUp runs both purgeOrphanPendingSends and backfillPendingSendAttemptCounts")
+    func testWarmUp_RunsPurgeAndBackfill() async throws {
+        let store = try await createTestStore()
+        let radioWithDevice = UUID()
+        let radioWithoutDevice = UUID()
+
+        // Device for one of the two radios — the other's PendingSends are orphans.
+        let scopedDevice = DeviceDTO.testDevice(id: radioWithDevice, radioID: radioWithDevice)
+        try await store.saveDevice(scopedDevice)
+
+        let legacyOnDeviceRadio = makePendingSendDTO(
+            messageID: UUID(), radioID: radioWithDevice, attemptCount: nil, sequence: 1
+        )
+        let orphanOnUnknownRadio = makePendingSendDTO(
+            messageID: UUID(), radioID: radioWithoutDevice, attemptCount: nil, sequence: 1
+        )
+        try await store.upsertPendingSend(legacyOnDeviceRadio)
+        try await store.upsertPendingSend(orphanOnUnknownRadio)
+
+        try await store.warmUp()
+
+        let survivingForDevice = try await store.fetchPendingSends(radioID: radioWithDevice)
+        let survivingForUnknown = try await store.fetchPendingSends(radioID: radioWithoutDevice)
+        #expect(survivingForDevice.count == 1,
+                "row attached to a paired device must survive purge")
+        #expect(survivingForDevice.first?.attemptCount == 1,
+                "warmUp must run backfill alongside purge: nil → 1")
+        #expect(survivingForUnknown.isEmpty,
+                "row attached to no-device radio must be purged")
+    }
+
+    @Test("deletePendingSendsForMessage public API saves on return")
+    func testDeletePendingSendsForMessage_PublicAPISavesOnReturn() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let messageID = UUID()
+        try await store.upsertPendingSend(makePendingSendDTO(
+            messageID: messageID, radioID: radioID, attemptCount: 1, sequence: 1
+        ))
+
+        try await store.deletePendingSendsForMessage(messageID: messageID)
+
+        // No explicit save from the test — visibility of the deletion to a
+        // subsequent fetch confirms the public method saved on return,
+        // matching the contract expected by ChatSendQueueService callers.
+        let hasPending = try await store.hasPendingSend(messageID: messageID)
+        #expect(hasPending == false,
+                "public deletePendingSendsForMessage must save before returning")
+    }
+
+    // MARK: - PendingSend Cascade Tests
+
+    @Test("deleteMessage cascades the matching PendingSend in a single transaction")
+    func testDeleteMessage_CascadesPendingSends() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let messageID = UUID()
+        let message = MessageDTO(from: Message(
+            id: messageID,
+            radioID: device.id,
+            contactID: nil,
+            channelIndex: 0,
+            text: "hello",
+            timestamp: UInt32(Date().timeIntervalSince1970)
+        ))
+        try await store.saveMessage(message)
+
+        let pending = makePendingSendDTO(messageID: messageID, radioID: device.id, attemptCount: 0)
+        try await store.upsertPendingSend(pending)
+
+        try await store.deleteMessage(id: messageID)
+
+        let remainingPending = try await store.fetchPendingSends(radioID: device.id)
+        #expect(remainingPending.isEmpty,
+                "deleteMessage must cascade the PendingSend row keyed by the deleted messageID")
+        let remainingMessages = try await store.fetchAllMessages(radioID: device.id)
+        #expect(remainingMessages.isEmpty,
+                "deleteMessage must still remove the Message row")
+    }
+
+    @Test("deleteMessage reaps an orphan PendingSend even when no Message row exists")
+    func testDeleteMessage_NoMatchingMessage_StillReapsOrphanPendingSend() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        // An orphan PendingSend with no corresponding Message — can arise from
+        // a same-millisecond race between deleteMessage and upsertPendingSend.
+        let orphanMessageID = UUID()
+        let pending = makePendingSendDTO(
+            messageID: orphanMessageID, radioID: device.id, attemptCount: 0
+        )
+        try await store.upsertPendingSend(pending)
+
+        try await store.deleteMessage(id: orphanMessageID)
+
+        let remainingPending = try await store.fetchPendingSends(radioID: device.id)
+        #expect(remainingPending.isEmpty,
+                "deleteMessage must reap orphan PendingSends even without a matching Message row")
+    }
+
+    @Test("deleteDeviceData reaps radio-scoped orphan PendingSends and preserves the Device row")
+    func testDeleteDeviceData_ReapsRadioOrphanPendingSends() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        // Message + matching PendingSend (messageID cascade reaches this row).
+        let matchedMessageID = UUID()
+        let matchedMessage = MessageDTO(from: Message(
+            id: matchedMessageID,
+            radioID: device.id,
+            contactID: nil,
+            channelIndex: 0,
+            text: "matched",
+            timestamp: UInt32(Date().timeIntervalSince1970)
+        ))
+        try await store.saveMessage(matchedMessage)
+        try await store.upsertPendingSend(makePendingSendDTO(
+            messageID: matchedMessageID, radioID: device.id, attemptCount: 0, sequence: 1
+        ))
+
+        // PendingSend whose messageID does NOT correspond to any saved Message.
+        // The messageIDs-keyed cascade cannot see it; the radioID-keyed defensive
+        // delete must reap it.
+        try await store.upsertPendingSend(makePendingSendDTO(
+            messageID: UUID(), radioID: device.id, attemptCount: 0, sequence: 2
+        ))
+
+        try await store.deleteDeviceData(id: device.id)
+
+        let surviving = try await store.fetchPendingSends(radioID: device.id)
+        #expect(surviving.isEmpty,
+                "deleteDeviceData must reap both Message-matched and orphan PendingSends for the radio")
+
+        let fetchedDevice = try await store.fetchDevice(id: device.id)
+        #expect(fetchedDevice != nil,
+                "deleteDeviceData must preserve the Device row")
+    }
+
+    @Test("deleteMessagesForContact cascades PendingSends and spares unrelated contacts")
+    func testDeleteMessagesForContact_CascadesPendingSends() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let frame1 = createTestContactFrame(name: "Contact1")
+        let contact1ID = try await store.saveContact(radioID: device.id, from: frame1)
+        let frame2 = createTestContactFrame(name: "Contact2")
+        let contact2ID = try await store.saveContact(radioID: device.id, from: frame2)
+
+        var contact1MessageIDs: [UUID] = []
+        for i in 0..<3 {
+            let messageID = UUID()
+            contact1MessageIDs.append(messageID)
+            let message = MessageDTO(from: Message(
+                id: messageID,
+                radioID: device.id,
+                contactID: contact1ID,
+                text: "C1 \(i)",
+                timestamp: UInt32(Date().timeIntervalSince1970) + UInt32(i)
+            ))
+            try await store.saveMessage(message)
+            try await store.upsertPendingSend(makePendingSendDTO(
+                messageID: messageID, radioID: device.id, attemptCount: 0, sequence: i + 1
+            ))
+        }
+
+        let contact2MessageID = UUID()
+        let contact2Message = MessageDTO(from: Message(
+            id: contact2MessageID,
+            radioID: device.id,
+            contactID: contact2ID,
+            text: "C2 keep",
+            timestamp: UInt32(Date().timeIntervalSince1970) + 100
+        ))
+        try await store.saveMessage(contact2Message)
+        try await store.upsertPendingSend(makePendingSendDTO(
+            messageID: contact2MessageID, radioID: device.id, attemptCount: 0, sequence: 99
+        ))
+
+        try await store.deleteMessagesForContact(contactID: contact1ID)
+
+        let remaining = try await store.fetchPendingSends(radioID: device.id)
+        #expect(remaining.count == 1,
+                "only the unrelated contact's PendingSend should survive")
+        #expect(remaining.first?.messageID == contact2MessageID,
+                "surviving PendingSend must belong to the untouched contact")
+
+        let contact2Messages = try await store.fetchMessages(contactID: contact2ID)
+        #expect(contact2Messages.count == 1,
+                "unrelated contact's Message row must be preserved")
+    }
+
+    @Test("deleteMessagesForChannel cascades PendingSends and spares other channels")
+    func testDeleteMessagesForChannel_CascadesPendingSends() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let targetChannel: UInt8 = 0
+        let untouchedChannel: UInt8 = 1
+
+        for i in 0..<3 {
+            let messageID = UUID()
+            let message = MessageDTO(from: Message(
+                id: messageID,
+                radioID: device.id,
+                contactID: nil,
+                channelIndex: targetChannel,
+                text: "Ch0 \(i)",
+                timestamp: UInt32(Date().timeIntervalSince1970) + UInt32(i)
+            ))
+            try await store.saveMessage(message)
+            try await store.upsertPendingSend(makePendingSendDTO(
+                messageID: messageID, radioID: device.id, attemptCount: 0, sequence: i + 1
+            ))
+        }
+
+        let untouchedMessageID = UUID()
+        let untouchedMessage = MessageDTO(from: Message(
+            id: untouchedMessageID,
+            radioID: device.id,
+            contactID: nil,
+            channelIndex: untouchedChannel,
+            text: "Ch1 keep",
+            timestamp: UInt32(Date().timeIntervalSince1970) + 100
+        ))
+        try await store.saveMessage(untouchedMessage)
+        try await store.upsertPendingSend(makePendingSendDTO(
+            messageID: untouchedMessageID, radioID: device.id, attemptCount: 0, sequence: 99
+        ))
+
+        try await store.deleteMessagesForChannel(radioID: device.id, channelIndex: targetChannel)
+
+        let remaining = try await store.fetchPendingSends(radioID: device.id)
+        #expect(remaining.count == 1,
+                "only the untouched channel's PendingSend should survive")
+        #expect(remaining.first?.messageID == untouchedMessageID,
+                "surviving PendingSend must belong to the untouched channel")
+
+        let untouchedChannelMessages = try await store.fetchMessages(
+            radioID: device.id, channelIndex: untouchedChannel
+        )
+        #expect(untouchedChannelMessages.count == 1,
+                "unrelated channel's Message row must be preserved")
+    }
+
+    @Test("deleteChannelMessages(fromSender:) cascades PendingSends and spares other senders")
+    func testDeleteChannelMessagesFromSender_CascadesPendingSends() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let channelIndex: UInt8 = 0
+        let targetSender = "Spammer"
+        let untouchedSender = "Friend"
+
+        for i in 0..<3 {
+            let messageID = UUID()
+            let message = MessageDTO(from: Message(
+                id: messageID,
+                radioID: device.id,
+                contactID: nil,
+                channelIndex: channelIndex,
+                text: "spam \(i)",
+                timestamp: UInt32(Date().timeIntervalSince1970) + UInt32(i),
+                senderNodeName: targetSender
+            ))
+            try await store.saveMessage(message)
+            try await store.upsertPendingSend(makePendingSendDTO(
+                messageID: messageID, radioID: device.id, attemptCount: 0, sequence: i + 1
+            ))
+        }
+
+        let untouchedMessageID = UUID()
+        let untouchedMessage = MessageDTO(from: Message(
+            id: untouchedMessageID,
+            radioID: device.id,
+            contactID: nil,
+            channelIndex: channelIndex,
+            text: "friend",
+            timestamp: UInt32(Date().timeIntervalSince1970) + 100,
+            senderNodeName: untouchedSender
+        ))
+        try await store.saveMessage(untouchedMessage)
+        try await store.upsertPendingSend(makePendingSendDTO(
+            messageID: untouchedMessageID, radioID: device.id, attemptCount: 0, sequence: 99
+        ))
+
+        try await store.deleteChannelMessages(fromSender: targetSender, radioID: device.id)
+
+        let remaining = try await store.fetchPendingSends(radioID: device.id)
+        #expect(remaining.count == 1,
+                "only the other sender's PendingSend should survive")
+        #expect(remaining.first?.messageID == untouchedMessageID,
+                "surviving PendingSend must belong to the untouched sender")
+    }
+
     // MARK: - RxLogEntry Tests
 
     private func createTestRxLogEntryDTO(

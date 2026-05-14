@@ -335,14 +335,14 @@ public enum L10n {
         }
       }
       public enum Error {
+        /// Location: ChatConversationView.swift - Error when loading older messages fails
+        public static let loadOlderMessagesFailed = L10n.tr("Chats", "chats.error.loadOlderMessagesFailed", fallback: "Failed to load older messages")
         /// Location: ChannelInfoSheet.swift - Error when device not connected
         public static let noDeviceConnected = L10n.tr("Chats", "chats.error.noDeviceConnected", fallback: "No device connected")
+        /// Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error)
+        public static let sendQueuePersistFailed = L10n.tr("Chats", "chats.error.sendQueuePersistFailed", fallback: "Couldn't queue your message. Try again.")
         /// Location: ChannelInfoSheet.swift - Error when services unavailable
         public static let servicesUnavailable = L10n.tr("Chats", "chats.error.servicesUnavailable", fallback: "Services not available")
-      }
-      public enum Errors {
-        /// Location: ChatConversationView.swift - Error when loading older messages fails
-        public static let loadOlderMessagesFailed = L10n.tr("Chats", "chats.errors.loadOlderMessagesFailed", fallback: "Failed to load older messages")
       }
       public enum Filter {
         /// Location: ChatsView.swift - Filter option for all conversations
@@ -371,6 +371,8 @@ public enum L10n {
         public static let animatedAccessibility = L10n.tr("Chats", "chats.inlineImage.animatedAccessibility", fallback: "Animated image")
         /// Location: InlineImageView.swift - Accessibility label for static image
         public static let imageAccessibility = L10n.tr("Chats", "chats.inlineImage.imageAccessibility", fallback: "Image")
+        /// Location: InlineImageFragmentView.swift - Accessibility label for loading state
+        public static let loading = L10n.tr("Chats", "chats.inlineImage.loading", fallback: "Loading image")
         /// Location: UnifiedMessageBubble.swift - Accessibility hint for retry button
         public static let retryHint = L10n.tr("Chats", "chats.inlineImage.retryHint", fallback: "Double tap to retry loading image")
         /// Location: InlineImageView.swift - Accessibility hint for tap to view full screen
@@ -618,7 +620,7 @@ public enum L10n {
           }
           /// Location: UnifiedMessageBubble.swift - Path footer for direct messages (no hops)
           public static let direct = L10n.tr("Chats", "chats.message.path.direct", fallback: "Direct")
-          /// Flood
+          /// Routing strategy where the radio rebroadcasts the message to every neighbor (no specific path). UI displays this as a label in the per-message details sheet. Prefer a localized term over the English loanword if one exists in your locale's networking terminology.
           public static let flood = L10n.tr("Chats", "chats.message.path.flood", fallback: "Flood")
           /// Location: UnifiedMessageBubble.swift - Fallback path showing hop count - %d is number
           public static func hops(_ p1: Int) -> String {

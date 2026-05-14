@@ -12,12 +12,11 @@ enum MessageAction: Equatable {
     case delete
 }
 
-/// Sheet-based message actions UI (ElementX style)
-/// Replaces native context menus for unified experience across channel and direct messages
 struct MessageActionsSheet: View {
     @Environment(\.appState) private var appState
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let message: MessageDTO
     let senderName: String
@@ -30,6 +29,9 @@ struct MessageActionsSheet: View {
     }
 
     private func performAction(_ action: MessageAction) {
+        if action == .delete || action == .blockSender {
+            destructiveHapticTrigger += 1
+        }
         onAction(action)
         dismiss()
     }
@@ -45,6 +47,7 @@ struct MessageActionsSheet: View {
     }
 
     @State private var longPressHapticTrigger = 0
+    @State private var destructiveHapticTrigger = 0
     @State private var showEmojiPicker = false
     @State private var isDetailExpanded = false
     @State private var repeats: [MessageRepeatDTO]?
@@ -99,7 +102,7 @@ struct MessageActionsSheet: View {
                 }
                 .onChange(of: isDetailExpanded) { _, expanded in
                     if expanded {
-                        withAnimation {
+                        withAnimation(reduceMotion ? nil : .default) {
                             proxy.scrollTo("expandedContent", anchor: .top)
                         }
                     }
@@ -117,6 +120,7 @@ struct MessageActionsSheet: View {
             longPressHapticTrigger += 1
         }
         .sensoryFeedback(.impact(flexibility: .solid), trigger: longPressHapticTrigger)
+        .sensoryFeedback(.warning, trigger: destructiveHapticTrigger)
         .task {
             guard let services = appState.services else { return }
             if availability.canShowRepeatDetails {

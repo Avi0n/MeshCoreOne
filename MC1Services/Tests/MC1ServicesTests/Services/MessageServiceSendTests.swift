@@ -2,6 +2,7 @@ import Testing
 import Foundation
 import MeshCoreTestSupport
 @testable import MC1Services
+@testable import MeshCore
 
 @Suite("MessageService Send Tests")
 struct MessageServiceSendTests {
@@ -333,6 +334,87 @@ struct MessageServiceSendTests {
             guard let e = error as? MessageServiceError, case .sendFailed = e else { return false }
             return true
         }
+    }
+
+    @Test("resendChannelMessage writes .sent before firing messageResentHandler and refreshes counts")
+    @MainActor
+    func resendChannelMessageFiresResentHandlerAfterDBWrite() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(transport: transport)
+        let startTask = Task { try await session.start() }
+        try await waitUntil("session should send app start") {
+            await transport.sentData.count == 1
+        }
+        await transport.simulateReceive(makeSelfInfoPacket())
+        try await startTask.value
+        defer { Task { await session.stop() } }
+
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let dataStore = PersistenceStore(modelContainer: container)
+        let service = MessageService(session: session, dataStore: dataStore)
+
+        let messageID = UUID()
+        let failed = MessageDTO.testChannelMessage(
+            id: messageID,
+            radioID: testDeviceID,
+            channelIndex: 0,
+            status: .failed,
+            heardRepeats: 3,
+            sendCount: 1
+        )
+        try await dataStore.saveMessage(failed)
+
+        let tracker = MessageResentTracker()
+        await service.setMessageResentHandler { id in
+            await tracker.record(id)
+        }
+
+        let resendTask = Task { try await service.resendChannelMessage(messageID: messageID) }
+
+        try await waitUntil("resend should send CMD_SEND_CHANNEL_MSG") {
+            await transport.sentData.count == 2
+        }
+        await transport.simulateOK()
+
+        _ = try await resendTask.value
+
+        let recorded = await tracker.resentIDs
+        #expect(recorded == [messageID], "messageResentHandler must fire exactly once with the resent ID")
+
+        let stored = try await dataStore.fetchMessage(id: messageID)
+        #expect(stored?.status == .sent, "resend must write .sent to the DB before firing the handler")
+        #expect(stored?.heardRepeats == 0, "resend must reset heardRepeats to 0")
+        #expect(stored?.sendCount == 2, "resend must increment sendCount from 1 to 2")
+    }
+
+    private func makeSelfInfoPacket() -> Data {
+        var payload = Data()
+        payload.append(1)
+        payload.append(22)
+        payload.append(22)
+        payload.append(Data(repeating: 0x01, count: 32))
+        payload.append(int32Bytes(0))
+        payload.append(int32Bytes(0))
+        payload.append(0)
+        payload.append(0)
+        payload.append(0)
+        payload.append(uint32Bytes(915_000))
+        payload.append(uint32Bytes(125_000))
+        payload.append(7)
+        payload.append(5)
+        payload.append(contentsOf: "Test".utf8)
+
+        var packet = Data([ResponseCode.selfInfo.rawValue])
+        packet.append(payload)
+        return packet
+    }
+
+    private func int32Bytes(_ value: Double) -> Data {
+        withUnsafeBytes(of: Int32(value.rounded()).littleEndian) { Data($0) }
+    }
+
+    private func uint32Bytes(_ value: UInt32) -> Data {
+        withUnsafeBytes(of: value.littleEndian) { Data($0) }
     }
 
     @Test("sendDirectMessage tracks pending ACK before session.sendMessage so the listener cannot race")

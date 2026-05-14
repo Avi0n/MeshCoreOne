@@ -34,7 +34,7 @@ struct ChannelConversationRow: View {
                 }
 
                 HStack {
-                    Text(viewModel.lastMessagePreview(for: channel) ?? Strings.noMessages)
+                    Text(viewModel.lastMessagePreview(id: channel.id) ?? Strings.noMessages)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)

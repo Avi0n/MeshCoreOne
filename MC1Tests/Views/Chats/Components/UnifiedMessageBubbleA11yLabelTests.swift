@@ -28,7 +28,6 @@ struct UnifiedMessageBubbleA11yLabelTests {
             formattedPath: "A to B to C",
             showIncomingHopCount: true,
             showIncomingRegion: true,
-            configurationShowSenderName: true,
             senderResolution: NodeNameResolution(displayName: "Alice", matchKind: .exact)
         )
         let bubble = UnifiedMessageBubble(
@@ -77,7 +76,6 @@ struct UnifiedMessageBubbleA11yLabelTests {
         )
         let bundle = MessageBubbleTestData.messageItem(
             message: message,
-            configurationShowSenderName: true,
             senderResolution: NodeNameResolution(displayName: "Alice", matchKind: .fallback)
         )
         let bubble = UnifiedMessageBubble(

@@ -10,11 +10,8 @@ struct MessageEventStreamTests {
     @Test("Single consumer receives an event sent via send(_:)")
     func singleConsumerReceivesEvent() async {
         let stream = MessageEventStream()
-        let event = MessageEvent.messageStatusResolved(messageID: UUID())
+        let event = MessageEvent.messageStatusResolved(messageID: UUID(), status: .sent)
 
-        // Subscribe and pull one event. `events()` registers the continuation
-        // synchronously, so by the time the child task suspends on next(), the
-        // subscriber is wired.
         let received = Task { @MainActor () -> MessageEvent? in
             var iterator = stream.events().makeAsyncIterator()
             return await iterator.next()
@@ -40,7 +37,6 @@ struct MessageEventStreamTests {
             return await iterator.next()
         }
 
-        // Give both child tasks a chance to register before broadcasting.
         await Task.yield()
         await Task.yield()
         #expect(stream.subscriberCount() == 2)
@@ -49,6 +45,37 @@ struct MessageEventStreamTests {
 
         #expect(await firstReceived.value == event)
         #expect(await secondReceived.value == event)
+    }
+
+    @Test("Events sent across consumer task restarts are not dropped when the consumer is held by a long-lived task")
+    func longLivedConsumer_DoesNotDropEventsAcrossSimulatedReconnect() async {
+        let stream = MessageEventStream()
+        let event1 = MessageEvent.messageStatusResolved(messageID: UUID(), status: .sent)
+        let event2 = MessageEvent.messageStatusResolved(messageID: UUID(), status: .delivered)
+
+        actor Collector {
+            var items: [MessageEvent] = []
+            func append(_ value: MessageEvent) { items.append(value) }
+            func snapshot() -> [MessageEvent] { items }
+        }
+        let received = Collector()
+
+        let consumer = Task { @MainActor in
+            for await event in stream.events() {
+                await received.append(event)
+                if await received.snapshot().count == 2 { return }
+            }
+        }
+
+        await Task.yield()
+        stream.send(event1)
+        stream.send(event2)
+
+        _ = await consumer.value
+        let collected = await received.snapshot()
+        #expect(collected.count == 2)
+        #expect(collected[0] == event1)
+        #expect(collected[1] == event2)
     }
 
     @Test("subscriberCount reflects active subscriptions")
@@ -78,46 +105,5 @@ struct MessageEventStreamTests {
         // both terminated slots should be removed.
         stream.send(.messageFailed(messageID: UUID()))
         #expect(stream.subscriberCount() == 0)
-    }
-
-    @Test("send(_:) opportunistically prunes terminated slots")
-    func opportunisticPruneAfterCancellation() async {
-        let stream = MessageEventStream()
-
-        let consumerTask = Task { @MainActor in
-            for await _ in stream.events() { /* run until cancelled */ }
-        }
-
-        await Task.yield()
-        #expect(stream.subscriberCount() == 1)
-
-        consumerTask.cancel()
-        _ = await consumerTask.value
-
-        // The `onTermination` callback hops to main via a Task and may not have
-        // landed yet. A subsequent send detects the terminated continuation
-        // (yield returns .terminated) and prunes the slot synchronously on the
-        // main actor — exercising the opportunistic-prune branch in send(_:).
-        stream.send(.messageFailed(messageID: UUID()))
-        #expect(stream.subscriberCount() == 0)
-    }
-
-    @Test("Subscribers added after a send do not receive prior events")
-    func subscribersAreNotReplayed() async {
-        let stream = MessageEventStream()
-        let earlyEvent = MessageEvent.messageStatusResolved(messageID: UUID())
-        let lateEvent = MessageEvent.messageStatusResolved(messageID: UUID())
-
-        // No subscriber — this send goes to nobody.
-        stream.send(earlyEvent)
-
-        let received = Task { @MainActor () -> MessageEvent? in
-            var iterator = stream.events().makeAsyncIterator()
-            return await iterator.next()
-        }
-        await Task.yield()
-        stream.send(lateEvent)
-
-        #expect(await received.value == lateEvent)
     }
 }

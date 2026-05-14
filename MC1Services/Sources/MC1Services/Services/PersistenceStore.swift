@@ -49,6 +49,13 @@ public actor PersistenceStore: PersistenceStoreProtocol {
     /// transaction is committed. Tests use it to cancel the outer task so
     /// they can assert post-commit behaviour of `importBackup`.
     var backupImportPostCommitHook: (@Sendable () -> Void)?
+
+    /// Test-only fault injection fired at the top of
+    /// `incrementPendingSendAttemptCount`. Tests use it to verify the
+    /// bump-failure park-and-requeue path in `ChatSendQueueService`'s drain
+    /// closures — a real SwiftData save failure here is otherwise hard to
+    /// provoke from a well-formed row.
+    var incrementPendingSendAttemptCountFaultInjection: (@Sendable () throws -> Void)?
     #endif
 
     /// Shared schema for MeshCore One models
@@ -80,6 +87,9 @@ public actor PersistenceStore: PersistenceStoreProtocol {
     ///          Added MessageRepeat.pathLength (UInt8, default 0).
     ///          Added SavedTracePath.hashSize (Int, default 1).
     /// - v2→v3: Added PendingSend (new table; no migration impact on existing rows).
+    /// - v3→v4: Added PendingSend.attemptCount (Int?, default nil). Existing rows
+    ///          lightweight-migrate to NULL; PersistenceStore.warmUp() runs
+    ///          backfillPendingSendAttemptCounts() on connect to promote nil → 1.
     public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
         if !inMemory {
             let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
@@ -101,6 +111,26 @@ public actor PersistenceStore: PersistenceStoreProtocol {
     public func warmUp() throws {
         // Perform a simple fetch to trigger modelContext initialization
         _ = try modelContext.fetchCount(FetchDescriptor<Device>())
+
+        // Both inner operations are idempotent under their own predicates:
+        // purgeOrphanPendingSends filters by absence of a matching
+        // Device.radioID and returns an empty row set once Device rows catch
+        // up; backfillPendingSendAttemptCounts filters by `attemptCount == nil`
+        // and returns empty after the first promotion across the lifetime of
+        // the storage. Running both on every connect costs an empty fetch and
+        // self-heals the "erase device then re-pair" path — a process-level
+        // latch would suppress that recovery.
+        let logger = Logger(subsystem: "MC1Services", category: "PersistenceStore.warmUp")
+        do {
+            try purgeOrphanPendingSends()
+        } catch {
+            logger.warning("purgeOrphanPendingSends failed: \(error.localizedDescription, privacy: .public)")
+        }
+        do {
+            try backfillPendingSendAttemptCounts()
+        } catch {
+            logger.warning("backfillPendingSendAttemptCounts failed: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     // MARK: - Discovered Nodes

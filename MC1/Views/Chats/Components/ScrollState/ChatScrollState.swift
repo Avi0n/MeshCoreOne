@@ -11,8 +11,6 @@ enum ScrollIntent: Equatable, Sendable {
     case none
     case toBottom
     case toTarget(id: UUID)
-    case toMention(id: UUID)
-    case toDivider
 }
 
 /// Whether a snapshot apply is in flight.
@@ -55,7 +53,6 @@ struct ChatScrollState: Equatable, Sendable {
 extension ChatScrollState {
     mutating func enterDragging() { interaction = .dragging }
 
-    /// Caller resolves deferredScroll if non-nil after this call returns.
     mutating func endDragging() {
         interaction = .idle
     }
@@ -69,8 +66,6 @@ extension ChatScrollState {
     mutating func clearIntent() { intent = .none }
 
     /// Stores a scroll request to replay once the user stops dragging.
-    /// Named `scheduleDeferredScroll` rather than `defer` because `defer` is a
-    /// Swift statement keyword that cannot be used as a method identifier.
     mutating func scheduleDeferredScroll(_ scroll: DeferredScroll) {
         deferredScroll = scroll
     }

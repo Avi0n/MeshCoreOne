@@ -3,11 +3,9 @@ import Testing
 @testable import MC1
 @testable import MC1Services
 
-/// Wiring tests for `MessageBubbleView`. The 45-baseline
-/// `UnifiedMessageBubbleSnapshotTests` exercise the bubble visuals directly
-/// with pre-built items; these tests cover the wrapper layer (cell-content
-/// closure: item lookup, callback construction, fallback gating) that the
-/// snapshot tests bypass.
+/// Tests that `MessageBubbleView`'s cell-content closure resolves the message
+/// for its stored item through `ChatViewModel.message(for:)` and that retry
+/// state surfaces through `item.envelope` / `item.footer`.
 @Suite("MessageBubbleView wiring")
 @MainActor
 struct MessageBubbleViewTests {
@@ -19,10 +17,12 @@ struct MessageBubbleViewTests {
     @Test("DM bubble path: viewModel resolves the message for its stored item")
     func dmBubble_resolvesMessageForItem() async throws {
         let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
         let message = makeMessage(text: "hello dm")
-        viewModel.messages = [message]
+        coordinator.replaceAll([message])
         viewModel.buildItems()
-        await viewModel.buildItemsTask?.value
+        await coordinator.buildItemsTask?.value
 
         let item = try #require(viewModel.items.first)
         #expect(item.id == message.id)
@@ -36,6 +36,8 @@ struct MessageBubbleViewTests {
     @Test("Channel bubble path: viewModel resolves the message for its stored item")
     func channelBubble_resolvesMessageForItem() async throws {
         let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
         let channel = ChannelDTO(
             from: Channel(
                 radioID: Self.radioID,
@@ -45,9 +47,9 @@ struct MessageBubbleViewTests {
         )
         viewModel.currentChannel = channel
         let message = makeMessage(text: "hello channel", senderKeyPrefix: Data([0xDE, 0xAD]))
-        viewModel.messages = [message]
+        coordinator.replaceAll([message])
         viewModel.buildItems()
-        await viewModel.buildItemsTask?.value
+        await coordinator.buildItemsTask?.value
 
         let item = try #require(viewModel.items.first)
         let resolved = viewModel.message(for: item)
@@ -58,15 +60,17 @@ struct MessageBubbleViewTests {
     @Test("Retry/failed bubble: envelope and footer capture retry state")
     func retryBubble_envelopeAndFooterCaptureFailure() async throws {
         let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
         let message = makeMessage(
             text: "retry me",
             status: .failed,
             retryAttempt: 2,
             maxRetryAttempts: 3
         )
-        viewModel.messages = [message]
+        coordinator.replaceAll([message])
         viewModel.buildItems()
-        await viewModel.buildItemsTask?.value
+        await coordinator.buildItemsTask?.value
 
         let item = try #require(viewModel.items.first)
         #expect(viewModel.message(for: item) != nil)

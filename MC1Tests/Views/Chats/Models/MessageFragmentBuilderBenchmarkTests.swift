@@ -13,9 +13,9 @@ struct MessageFragmentBuilderBenchmarkTests {
     /// `print()` would be swallowed by Swift Testing's per-test capture.
     @Test("Baseline: build 1000 items on main actor")
     func baseline_buildOnMainActor() async {
-        let messages = (0..<1000).map { i in makePlainTextMessage(index: i) }
+        let messages = (0..<1000).map { i in MessageFragmentBuilderFixtures.makePlainTextMessage(index: i) }
         let envInputs = EnvInputs.default
-        let inputs = messages.map { makeMinimalInputs(messageID: $0.id) }
+        let inputs = messages.map { MessageFragmentBuilderFixtures.makeMinimalInputs(messageID: $0.id) }
 
         let start = ContinuousClock.now
         var items: [MessageItem] = []
@@ -37,57 +37,4 @@ struct MessageFragmentBuilderBenchmarkTests {
         subsystem: "com.meshcoreone.tests",
         category: "MessageFragmentBuilderBenchmark"
     )
-
-    // MARK: - Fixtures
-
-    private static let radioID = UUID(uuidString: "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA")!
-    private static let contactID = UUID(uuidString: "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB")!
-    private static let referenceDate = Date(timeIntervalSince1970: 1_700_000_000)
-
-    private func makePlainTextMessage(index: Int) -> MessageDTO {
-        MessageDTO(
-            id: UUID(),
-            radioID: Self.radioID,
-            contactID: Self.contactID,
-            channelIndex: nil,
-            text: "Message \(index)",
-            timestamp: UInt32(Self.referenceDate.timeIntervalSince1970),
-            createdAt: Self.referenceDate,
-            direction: .outgoing,
-            status: .sent,
-            textType: .plain,
-            ackCode: nil,
-            pathLength: 0,
-            snr: nil,
-            senderKeyPrefix: nil,
-            senderNodeName: nil,
-            isRead: true,
-            replyToID: nil,
-            roundTripTime: nil,
-            heardRepeats: 0,
-            retryAttempt: 0,
-            maxRetryAttempts: 0
-        )
-    }
-
-    private func makeMinimalInputs(messageID: UUID) -> MessageBuildInputs {
-        MessageBuildInputs(
-            messageID: messageID,
-            previewState: .idle,
-            loadedPreview: nil,
-            cachedURL: nil,
-            hasInlineImageRef: false,
-            hasPreviewImageRef: false,
-            hasPreviewIconRef: false,
-            imageIsGIF: false,
-            formattedText: nil,
-            baseColor: .primary,
-            formattedPath: nil,
-            senderResolution: NodeNameResolution(displayName: "Sender", matchKind: .exact),
-            showTimestamp: false,
-            showDirectionGap: false,
-            showSenderName: false,
-            showNewMessagesDivider: false
-        )
-    }
 }

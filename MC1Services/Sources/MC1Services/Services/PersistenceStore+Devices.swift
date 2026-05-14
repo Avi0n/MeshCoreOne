@@ -410,11 +410,33 @@ extension PersistenceStore {
         let contacts = try modelContext.fetch(FetchDescriptor(predicate: contactPredicate))
         for contact in contacts { modelContext.delete(contact) }
 
-        // Delete messages
+        // Delete messages — cascade PendingSend and MessageRepeat first.
+        // Bulk `delete(model:where:)` bypasses `@Relationship(deleteRule: .cascade)`,
+        // and `purgeOrphanPendingSends` cannot reap radio-scoped PendingSends
+        // while the Device row survives (deleteDeviceData preserves it).
         let messagePredicate = #Predicate<Message> { message in
             message.radioID == targetRadioID
         }
         let messages = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate))
+        let messageIDs = messages.map(\.id)
+        try _deletePendingSendsForMessageIDsWithoutSaving(messageIDs: messageIDs)
+        if !messageIDs.isEmpty {
+            let chunkSize = 500
+            for start in stride(from: 0, to: messageIDs.count, by: chunkSize) {
+                let chunk = Array(messageIDs[start..<min(start + chunkSize, messageIDs.count)])
+                try modelContext.delete(model: MessageRepeat.self, where: #Predicate {
+                    chunk.contains($0.messageID)
+                })
+            }
+        }
+        // Defensive: reap PendingSend rows for this radio that have no matching
+        // Message (e.g. from a same-millisecond race between deleteMessage and
+        // upsertPendingSend, or historical bugs). The messageIDs cascade above
+        // does not see them; purgeOrphanPendingSends does not see them while
+        // the Device row survives.
+        try modelContext.delete(model: PendingSend.self, where: #Predicate<PendingSend> { row in
+            row.radioID == targetRadioID
+        })
         for message in messages { modelContext.delete(message) }
 
         // Delete channels

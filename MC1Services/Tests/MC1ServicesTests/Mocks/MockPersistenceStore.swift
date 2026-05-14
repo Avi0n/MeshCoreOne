@@ -1557,7 +1557,8 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
             messageTimestamp: dto.messageTimestamp,
             localNodeName: dto.localNodeName,
             sequence: nextSequence,
-            enqueuedAt: dto.enqueuedAt
+            enqueuedAt: dto.enqueuedAt,
+            attemptCount: dto.attemptCount
         )
         pendingSends[dto.id] = assigned
         return nextSequence
@@ -1578,6 +1579,10 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         }
     }
 
+    public func hasPendingSend(messageID: UUID) async throws -> Bool {
+        pendingSends.values.contains { $0.messageID == messageID }
+    }
+
     // MARK: - Test Helpers
 
     /// Resets all storage and recorded invocations
@@ -1585,13 +1590,16 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         messages = [:]
         contacts = [:]
         channels = [:]
+        blockedChannelSenders = [:]
         debugLogEntries = []
         mockRxLogEntries = []
         linkPreviews = [:]
+        pendingSends = [:]
         roomMessages = [:]
         discoveredNodes = [:]
         reactions = [:]
         nodeStatusSnapshots = []
+        savedTracePaths = [:]
         savedMessages = []
         savedContacts = []
         savedChannels = []

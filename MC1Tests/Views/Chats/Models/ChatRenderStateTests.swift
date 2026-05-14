@@ -34,9 +34,14 @@ private func makeMessage(id: UUID = UUID(), index: Int) -> MessageDTO {
 @MainActor
 struct ChatRenderStateTests {
 
-    @Test("empty equals empty")
-    func emptyEquality() {
-        #expect(ChatRenderState.empty == ChatRenderState.empty)
+    @Test("empty has expected field defaults")
+    func emptyFieldDefaults() {
+        let empty = ChatRenderState.empty
+        #expect(empty.items.isEmpty)
+        #expect(empty.itemIndexByID.isEmpty)
+        #expect(empty.hasMoreMessages == true)
+        #expect(empty.isLoadingOlder == false)
+        #expect(empty.totalFetchedCount == 0)
     }
 
     @Test("with(...) replaces only specified fields")
@@ -52,14 +57,10 @@ struct ChatRenderStateTests {
 
     @Test("itemIndexByID matches items after buildItems")
     func indexByIDMatchesItems() async {
-        let viewModel = ChatViewModel()
-        let messages = (0..<5).map { makeMessage(index: $0) }
-        viewModel.messages = messages
-        viewModel.buildItems()
-        await viewModel.buildItemsTask?.value
+        let (viewModel, _) = await makeChatSetup(messageCount: 5)
 
         let state = viewModel.renderState
-        #expect(state.items.count == messages.count)
+        #expect(state.items.count == 5)
         for (index, item) in state.items.enumerated() {
             #expect(state.itemIndexByID[item.id] == index)
         }
@@ -70,26 +71,15 @@ struct ChatRenderStateTests {
         let ids = (0..<3).map { _ in UUID() }
         let inputs = ids.enumerated().map { makeMessage(id: $1, index: $0) }
 
-        let viewModel1 = ChatViewModel()
-        viewModel1.messages = inputs
-        viewModel1.buildItems()
-        await viewModel1.buildItemsTask?.value
-
-        let viewModel2 = ChatViewModel()
-        viewModel2.messages = inputs
-        viewModel2.buildItems()
-        await viewModel2.buildItemsTask?.value
+        let (viewModel1, _) = await makeChatSetup(messages: inputs)
+        let (viewModel2, _) = await makeChatSetup(messages: inputs)
 
         #expect(viewModel1.renderState == viewModel2.renderState)
     }
 
     @Test("ChatViewModel accessors mirror renderState field-for-field")
     func viewModelAccessorParity() async {
-        let viewModel = ChatViewModel()
-        let messages = (0..<3).map { makeMessage(index: $0) }
-        viewModel.messages = messages
-        viewModel.buildItems()
-        await viewModel.buildItemsTask?.value
+        let (viewModel, _) = await makeChatSetup(messageCount: 3)
 
         let state = viewModel.renderState
         #expect(viewModel.items.count == state.items.count)
@@ -101,11 +91,7 @@ struct ChatRenderStateTests {
 
     @Test("updatingItem replaces a single row, leaves others untouched")
     func updatingItem_replacesNamedRow() async {
-        let viewModel = ChatViewModel()
-        let messages = (0..<3).map { makeMessage(index: $0) }
-        viewModel.messages = messages
-        viewModel.buildItems()
-        await viewModel.buildItemsTask?.value
+        let (viewModel, _) = await makeChatSetup(messageCount: 3)
 
         let target = viewModel.renderState.items[1]
         let replaced = makeFakeMessageItem(id: target.id, senderName: "replaced")
@@ -119,10 +105,7 @@ struct ChatRenderStateTests {
 
     @Test("updatingItem no-ops on missing ID")
     func updatingItem_noOpOnMissingID() async {
-        let viewModel = ChatViewModel()
-        viewModel.messages = (0..<2).map { makeMessage(index: $0) }
-        viewModel.buildItems()
-        await viewModel.buildItemsTask?.value
+        let (viewModel, _) = await makeChatSetup(messageCount: 2)
 
         let before = viewModel.renderState
         let after = before.updatingItem(id: UUID()) { _ in
@@ -133,11 +116,8 @@ struct ChatRenderStateTests {
 
     @Test("removingItem removes the row and rebuilds the index")
     func removingItem_removesRowAndRebuildsIndex() async {
-        let viewModel = ChatViewModel()
         let messages = (0..<3).map { makeMessage(index: $0) }
-        viewModel.messages = messages
-        viewModel.buildItems()
-        await viewModel.buildItemsTask?.value
+        let (viewModel, _) = await makeChatSetup(messages: messages)
 
         let removedID = messages[0].id
         let after = viewModel.renderState.removingItem(id: removedID)
@@ -151,10 +131,7 @@ struct ChatRenderStateTests {
 
     @Test("removingItem no-ops on missing ID")
     func removingItem_noOpOnMissingID() async {
-        let viewModel = ChatViewModel()
-        viewModel.messages = (0..<2).map { makeMessage(index: $0) }
-        viewModel.buildItems()
-        await viewModel.buildItemsTask?.value
+        let (viewModel, _) = await makeChatSetup(messageCount: 2)
 
         let before = viewModel.renderState
         let after = before.removingItem(id: UUID())
@@ -172,6 +149,22 @@ struct ChatRenderStateTests {
         #expect(after.itemIndexByID[item.id] == 0)
         #expect(after.totalFetchedCount == initial.totalFetchedCount + 1)
     }
+}
+
+@MainActor
+private func makeChatSetup(messageCount: Int) async -> (ChatViewModel, ChatCoordinator) {
+    await makeChatSetup(messages: (0..<messageCount).map { makeMessage(index: $0) })
+}
+
+@MainActor
+private func makeChatSetup(messages: [MessageDTO]) async -> (ChatViewModel, ChatCoordinator) {
+    let viewModel = ChatViewModel()
+    let coordinator = ChatCoordinator.makeForTesting()
+    viewModel.coordinator = coordinator
+    coordinator.replaceAll(messages)
+    viewModel.buildItems()
+    await coordinator.buildItemsTask?.value
+    return (viewModel, coordinator)
 }
 
 @MainActor

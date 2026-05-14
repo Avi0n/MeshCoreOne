@@ -239,112 +239,66 @@ struct MessageFragmentBuilderTests {
         #expect(a.hashValue != b.hashValue)
     }
 
-    @Test("heardRepeats change flips the item hash")
-    func heardRepeatsChange_flipsHash() {
+    @Test("MessageDTO field change flips the item hash", arguments: hashFlipScenarios)
+    func messageFieldChange_flipsHash(scenario: HashFlipScenario) {
         let messageID = UUID()
         let inputs = makeInputs(messageID: messageID)
         let env = makeEnvInputs()
         let a = MessageFragmentBuilder.makeItem(
-            for: makeMessage(id: messageID, heardRepeats: 0),
+            for: makeMessageVariant(id: messageID, factor: scenario.factorA),
             inputs: inputs,
             envInputs: env
         )
         let b = MessageFragmentBuilder.makeItem(
-            for: makeMessage(id: messageID, heardRepeats: 3),
+            for: makeMessageVariant(id: messageID, factor: scenario.factorB),
             inputs: inputs,
             envInputs: env
         )
-        #expect(a.hashValue != b.hashValue)
+        #expect(a.hashValue != b.hashValue, "\(scenario.name) change must flip the item hash")
     }
 
-    @Test("retryAttempt change flips the item hash")
-    func retryAttemptChange_flipsHash() {
-        let messageID = UUID()
-        let inputs = makeInputs(messageID: messageID)
-        let env = makeEnvInputs()
-        let a = MessageFragmentBuilder.makeItem(
-            for: makeMessage(id: messageID, retryAttempt: 0),
-            inputs: inputs,
-            envInputs: env
-        )
-        let b = MessageFragmentBuilder.makeItem(
-            for: makeMessage(id: messageID, retryAttempt: 1),
-            inputs: inputs,
-            envInputs: env
-        )
-        #expect(a.hashValue != b.hashValue)
+    nonisolated static let hashFlipScenarios: [HashFlipScenario] = [
+        HashFlipScenario(name: "heardRepeats", factorA: .heardRepeats(0), factorB: .heardRepeats(3)),
+        HashFlipScenario(name: "retryAttempt", factorA: .retryAttempt(0), factorB: .retryAttempt(1)),
+        HashFlipScenario(name: "maxRetryAttempts", factorA: .maxRetryAttempts(3), factorB: .maxRetryAttempts(5)),
+        HashFlipScenario(name: "status", factorA: .status(.sent), factorB: .status(.delivered)),
+        HashFlipScenario(name: "containsSelfMention", factorA: .containsSelfMention(false), factorB: .containsSelfMention(true)),
+        HashFlipScenario(name: "mentionSeen", factorA: .mentionSeen(false), factorB: .mentionSeen(true)),
+    ]
+
+    struct HashFlipScenario: Sendable, CustomStringConvertible {
+        let name: String
+        let factorA: HashFlipFactor
+        let factorB: HashFlipFactor
+        var description: String { name }
     }
 
-    @Test("maxRetryAttempts change flips the item hash")
-    func maxRetryAttemptsChange_flipsHash() {
-        let messageID = UUID()
-        let inputs = makeInputs(messageID: messageID)
-        let env = makeEnvInputs()
-        let a = MessageFragmentBuilder.makeItem(
-            for: makeMessage(id: messageID, maxRetryAttempts: 3),
-            inputs: inputs,
-            envInputs: env
-        )
-        let b = MessageFragmentBuilder.makeItem(
-            for: makeMessage(id: messageID, maxRetryAttempts: 5),
-            inputs: inputs,
-            envInputs: env
-        )
-        #expect(a.hashValue != b.hashValue)
+    enum HashFlipFactor: Sendable {
+        case heardRepeats(Int)
+        case retryAttempt(Int)
+        case maxRetryAttempts(Int)
+        case status(MessageStatus)
+        case containsSelfMention(Bool)
+        /// Implies `containsSelfMention: true` so the hash distinction is the
+        /// `mentionSeen` flag alone.
+        case mentionSeen(Bool)
     }
 
-    @Test("status change flips the item hash")
-    func statusChange_flipsHash() {
-        let messageID = UUID()
-        let inputs = makeInputs(messageID: messageID)
-        let env = makeEnvInputs()
-        let a = MessageFragmentBuilder.makeItem(
-            for: makeMessage(id: messageID, status: .sent),
-            inputs: inputs,
-            envInputs: env
-        )
-        let b = MessageFragmentBuilder.makeItem(
-            for: makeMessage(id: messageID, status: .delivered),
-            inputs: inputs,
-            envInputs: env
-        )
-        #expect(a.hashValue != b.hashValue)
-    }
-
-    @Test("containsSelfMention change flips the item hash")
-    func containsSelfMentionChange_flipsHash() {
-        let messageID = UUID()
-        let inputs = makeInputs(messageID: messageID)
-        let env = makeEnvInputs()
-        let a = MessageFragmentBuilder.makeItem(
-            for: makeMessage(id: messageID, containsSelfMention: false),
-            inputs: inputs,
-            envInputs: env
-        )
-        let b = MessageFragmentBuilder.makeItem(
-            for: makeMessage(id: messageID, containsSelfMention: true),
-            inputs: inputs,
-            envInputs: env
-        )
-        #expect(a.hashValue != b.hashValue)
-    }
-
-    @Test("mentionSeen change flips the item hash")
-    func mentionSeenChange_flipsHash() {
-        let messageID = UUID()
-        let inputs = makeInputs(messageID: messageID)
-        let env = makeEnvInputs()
-        let a = MessageFragmentBuilder.makeItem(
-            for: makeMessage(id: messageID, containsSelfMention: true, mentionSeen: false),
-            inputs: inputs,
-            envInputs: env
-        )
-        let b = MessageFragmentBuilder.makeItem(
-            for: makeMessage(id: messageID, containsSelfMention: true, mentionSeen: true),
-            inputs: inputs,
-            envInputs: env
-        )
-        #expect(a.hashValue != b.hashValue)
+    private func makeMessageVariant(id: UUID, factor: HashFlipFactor) -> MessageDTO {
+        switch factor {
+        case .heardRepeats(let value):
+            return makeMessage(id: id, heardRepeats: value)
+        case .retryAttempt(let value):
+            return makeMessage(id: id, retryAttempt: value)
+        case .maxRetryAttempts(let value):
+            return makeMessage(id: id, maxRetryAttempts: value)
+        case .status(let value):
+            return makeMessage(id: id, status: value)
+        case .containsSelfMention(let value):
+            return makeMessage(id: id, containsSelfMention: value)
+        case .mentionSeen(let value):
+            return makeMessage(id: id, containsSelfMention: true, mentionSeen: value)
+        }
     }
 
     // MARK: - Helpers
@@ -433,7 +387,7 @@ struct MessageFragmentBuilderTests {
         autoPlayGIFs: Bool = true,
         previewsEnabled: Bool = false,
         currentUserName: String = "Me",
-        baseColor: Color = .primary,
+        baseColor: BaseColorSlot = .incoming,
         formattedPath: String? = nil,
         showIncomingHopCount: Bool = false,
         showIncomingRegion: Bool = false,

@@ -2,21 +2,6 @@ import CoreLocation
 import Foundation
 import MC1Services
 
-enum NodeNameMatchKind: Sendable, Equatable, Hashable {
-    case exact
-    case fallback
-    case unresolved
-}
-
-struct NodeNameResolution: Sendable, Equatable, Hashable {
-    let displayName: String
-    let matchKind: NodeNameMatchKind
-
-    var isFallback: Bool {
-        matchKind == .fallback
-    }
-}
-
 struct ResolvedNode<T: RepeaterResolvable>: Sendable {
     let node: T
     let matchKind: NodeNameMatchKind

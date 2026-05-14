@@ -3,19 +3,21 @@ import Foundation
 @testable import MC1
 @testable import MC1Services
 
-/// Reproduces the stale-read crash on `appendMessageIfNew` where the guard
-/// read `renderState.itemIndexByID` — a snapshot that lags `messages` by one
-/// off-main `buildItems()` cycle. When an event fires between mutating
-/// `messages` and the build's main-actor apply step, the guard sees an empty
-/// index, appends the same message again, and the next batch build's
-/// `Dictionary(uniqueKeysWithValues:)` traps on a duplicate key.
+/// Guards `appendMessageIfNew` against a stale-read crash. The dedup
+/// guard reads through the coordinator's `messagesByID`, which is updated
+/// synchronously with `messages`, so an event arriving during an off-main
+/// `buildItems()` cycle still matches. Reading `renderState.itemIndexByID`
+/// instead would lag by one cycle and silently append a duplicate, which
+/// then traps the next batch build on a unique-keys dictionary build.
 @Suite("ChatViewModel append-race guard")
 @MainActor
 struct ChatViewModelAppendRaceTests {
 
-    @Test("appendMessageIfNew skips a message already present in messages even if renderState is empty")
+    @Test("appendMessageIfNew skips a message already present in messagesByID")
     func appendSkipsWhenMessagesByIDAlreadyHolds() {
         let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
 
         let message = MessageDTO(
             id: UUID(),
@@ -41,14 +43,12 @@ struct ChatViewModelAppendRaceTests {
             maxRetryAttempts: 0
         )
 
-        viewModel.messages = [message]
-        viewModel.messagesByID = [message.id: message]
-        viewModel.renderState = .empty
+        _ = coordinator.append(message)
 
         viewModel.appendMessageIfNew(message)
 
         #expect(viewModel.messages.count == 1,
-                "appendMessageIfNew must not duplicate when messagesByID already holds the id, even if renderState lags")
+                "appendMessageIfNew must not duplicate when messagesByID already holds the id")
         #expect(viewModel.messagesByID.count == 1)
     }
 }

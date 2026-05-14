@@ -391,4 +391,5 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func fetchPendingSends(radioID: UUID) async throws -> [PendingSendDTO] { [] }
     func deletePendingSend(id: UUID) async throws {}
     func deletePendingSendsForMessage(messageID: UUID) async throws {}
+    func hasPendingSend(messageID: UUID) async throws -> Bool { false }
 }

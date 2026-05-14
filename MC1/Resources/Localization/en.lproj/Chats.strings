@@ -246,7 +246,13 @@
 "chats.error.servicesUnavailable" = "Services not available";
 
 /* Location: ChatConversationView.swift - Error when loading older messages fails */
-"chats.errors.loadOlderMessagesFailed" = "Failed to load older messages";
+"chats.error.loadOlderMessagesFailed" = "Failed to load older messages";
+
+/* Location: ErrorBannerModifier.swift - Accessibility hint announcing that tapping the banner dismisses it */
+"chats.error.banner.dismissAccessibilityHint" = "Tap to dismiss";
+
+/* Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error) */
+"chats.error.sendQueuePersistFailed" = "Couldn't queue your message. Try again.";
 
 // MARK: - Channel Options Sheet
 
@@ -690,6 +696,7 @@
 
 /* Location: UnifiedMessageBubble.swift - Path footer for direct messages (no hops) */
 "chats.message.path.direct" = "Direct";
+/* Routing strategy where the radio rebroadcasts the message to every neighbor (no specific path). UI displays this as a label in the per-message details sheet. Prefer a localized term over the English loanword if one exists in your locale's networking terminology. */
 "chats.message.path.flood" = "Flood";
 
 /* Location: UnifiedMessageBubble.swift - Fallback path showing hop count - %d is number */
@@ -900,6 +907,9 @@
 
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Image";
+
+/* Location: InlineImageFragmentView.swift - Accessibility label for loading state */
+"chats.inlineImage.loading" = "Loading image";
 
 /* Location: InlineImageView.swift - Accessibility label for animated image */
 "chats.inlineImage.animatedAccessibility" = "Animated image";

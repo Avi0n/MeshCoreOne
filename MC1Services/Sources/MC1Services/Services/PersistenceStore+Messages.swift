@@ -466,19 +466,41 @@ extension PersistenceStore {
     /// Delete a message and its reactions
     public func deleteMessage(id: UUID) throws {
         let targetID = id
+
+        // Cascade PendingSend outside the `if let message` guard. An orphan
+        // PendingSend (no matching Message row) can exist via several paths:
+        // the queue's success-path `deletePendingSends` racing a deleteMessage
+        // from another path; same-millisecond user delete + queue upsert;
+        // historical bugs; tests. Reaping the PendingSend unconditionally on
+        // deleteMessage is strictly stronger than gating on the Message
+        // existing — there is no Message left to be "consistent" with, and
+        // orphan PendingSends otherwise survive until the next purge cycle.
+        let pendingPredicate = #Predicate<PendingSend> { row in
+            row.messageID == targetID
+        }
+        for row in try modelContext.fetch(FetchDescriptor(predicate: pendingPredicate)) {
+            modelContext.delete(row)
+        }
+
         let predicate = #Predicate<Message> { message in
             message.id == targetID
         }
         if let message = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first {
-            try deleteReactionsForMessage(messageID: id)
+            // Inlined Reaction cascade — only meaningful when the Message
+            // exists. Reactions are anchored to the Message row, so an
+            // orphan-Message reaction is its own cleanup problem.
+            try modelContext.delete(model: Reaction.self, where: #Predicate<Reaction> { reaction in
+                reaction.messageID == targetID
+            })
             modelContext.delete(message)
-            try modelContext.save()
         }
+        try modelContext.save()
     }
 
     /// Delete all channel messages from a specific sender for a device.
     /// Only deletes messages with a non-nil channelIndex (channel messages), preserving DMs.
-    /// Also deletes any reactions associated with the deleted messages.
+    /// Cascades PendingSend, MessageRepeat, and Reaction rows associated with the deleted
+    /// messages within a single save.
     public func deleteChannelMessages(fromSender senderName: String, radioID: UUID) throws {
         let targetRadioID = radioID
         let targetSenderName: String? = senderName
@@ -488,13 +510,25 @@ extension PersistenceStore {
             message.channelIndex != nil
         }
 
-        // Fetch message IDs to clean up associated reactions
         let messageIDs = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate)).map(\.id)
 
         if !messageIDs.isEmpty {
-            try modelContext.delete(model: Reaction.self, where: #Predicate {
-                messageIDs.contains($0.messageID)
-            })
+            try _deletePendingSendsForMessageIDsWithoutSaving(messageIDs: messageIDs)
+            // Cascade MessageRepeat alongside Reaction. Bulk `delete(model:where:)`
+            // bypasses the `@Relationship(deleteRule: .cascade)` declared on
+            // `Message → MessageRepeat`, so the cascade has to be explicit.
+            // Chunk both predicates to stay under SQLITE_MAX_VARIABLE_NUMBER
+            // (32766 on iOS 18+).
+            let chunkSize = 500
+            for start in stride(from: 0, to: messageIDs.count, by: chunkSize) {
+                let chunk = Array(messageIDs[start..<min(start + chunkSize, messageIDs.count)])
+                try modelContext.delete(model: Reaction.self, where: #Predicate {
+                    chunk.contains($0.messageID)
+                })
+                try modelContext.delete(model: MessageRepeat.self, where: #Predicate {
+                    chunk.contains($0.messageID)
+                })
+            }
         }
 
         try modelContext.delete(model: Message.self, where: messagePredicate)

@@ -126,25 +126,16 @@ public final class AppState {
     public private(set) var conversationsVersion: Int = 0
 
     /// Incremented when a remote-node session changes connection state.
-    /// `RoomConversationView` observes this counter to refresh its
-    /// session DTO. The counter alone is sufficient — the original
-    /// `handleSessionStateChanged(sessionID:isConnected:)` discarded both
-    /// parameters and just bumped the int.
+    /// `RoomConversationView` observes this counter via `.onChange` to refresh
+    /// its session DTO when re-authentication completes.
     public private(set) var sessionStateChangeCount: Int = 0
 
-    /// Bumps `sessionStateChangeCount`. Called from
-    /// `setSessionStateChangedHandler` / `setConnectionRecoveryHandler`
-    /// service callbacks.
-    private func recordSessionStateChange() {
-        sessionStateChangeCount += 1
-    }
-
     /// Called by `MessageEventDispatcher` when a remote-node session changes
-    /// connection state. Bundles refreshing conversations and recording the
-    /// state change so the dispatcher only needs one entry point.
+    /// connection state. Bundles refreshing conversations and bumping the
+    /// state-change counter so the dispatcher only needs one entry point.
     func handleSessionStateChange() {
         refreshConversations()
-        recordSessionStateChange()
+        sessionStateChangeCount += 1
     }
 
     /// Bumps `conversationsVersion` and drives

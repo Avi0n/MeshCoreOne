@@ -36,6 +36,7 @@ extension PersistenceStore {
             existing.localNodeName = dto.localNodeName
             existing.sequence = dto.sequence
             existing.enqueuedAt = dto.enqueuedAt
+            existing.attemptCount = dto.attemptCount
         } else {
             modelContext.insert(PendingSend(dto: dto))
         }
@@ -44,7 +45,7 @@ extension PersistenceStore {
 
     /// Insert a new pending send row, atomically computing and assigning
     /// the next sequence number for the row's radio. The `dto.sequence`
-    /// field is IGNORED — the assigned value is the one that lands on
+    /// field is ignored — the assigned value is the one that lands on
     /// disk, and it is also the return value.
     ///
     /// Atomicity: the read of `max(sequence)` and the insert both run on
@@ -68,6 +69,67 @@ extension PersistenceStore {
         let inserted = PendingSend(dto: dto)
         inserted.sequence = assignedSequence
         modelContext.insert(inserted)
+        try modelContext.save()
+        return assignedSequence
+    }
+
+    /// Atomically replaces any existing `PendingSend` rows for the given
+    /// `messageID`, flips the matching `Message.status` to `.pending`
+    /// (unless already `.delivered`), and inserts the new `PendingSendDTO`.
+    /// All three operations land in a single `modelContext.save()` so a
+    /// crash mid-call cannot leave the row at `.pending` with no
+    /// `PendingSend` available for replay. The manual DM retry path uses
+    /// this to keep the queue authoritative for retries while the prior
+    /// multi-await sequence (delete + status flip + enqueue) had crash
+    /// windows that stranded `.pending` rows.
+    ///
+    /// `.delivered` is intentionally preserved — a late-arriving ACK that
+    /// landed while the user was reaching for the retry button must not be
+    /// clobbered. The `PendingSend` row is still inserted; the queue's
+    /// drain-time `hasPendingSend` gate notices the row but `MessageService`
+    /// short-circuits the wire send for an already-delivered message.
+    ///
+    /// Returns the assigned per-radio sequence number, matching the
+    /// `insertPendingSendAssigningSequence(_:)` contract.
+    public func replacePendingSendForRetry(
+        messageID: UUID,
+        dto: PendingSendDTO
+    ) async throws -> Int {
+        let scopedMessageID = messageID
+        let pendingPredicate = #Predicate<PendingSend> { row in
+            row.messageID == scopedMessageID
+        }
+        let existing = try modelContext.fetch(FetchDescriptor<PendingSend>(predicate: pendingPredicate))
+        for row in existing {
+            modelContext.delete(row)
+        }
+
+        let messagePredicate = #Predicate<Message> { message in
+            message.id == scopedMessageID
+        }
+        var messageDescriptor = FetchDescriptor<Message>(predicate: messagePredicate)
+        messageDescriptor.fetchLimit = 1
+        if let message = try modelContext.fetch(messageDescriptor).first,
+           message.status != .delivered {
+            message.status = .pending
+        }
+
+        let scopedRadioID = dto.radioID
+        let radioPredicate = #Predicate<PendingSend> { row in
+            row.radioID == scopedRadioID
+        }
+        var seqDescriptor = FetchDescriptor<PendingSend>(
+            predicate: radioPredicate,
+            sortBy: [SortDescriptor(\.sequence, order: .reverse)]
+        )
+        seqDescriptor.fetchLimit = 1
+        let latest = try modelContext.fetch(seqDescriptor).first
+        let assignedSequence = (latest?.sequence ?? 0) + 1
+
+        let inserted = PendingSend(dto: dto)
+        inserted.sequence = assignedSequence
+        modelContext.insert(inserted)
+
         try modelContext.save()
         return assignedSequence
     }
@@ -112,6 +174,35 @@ extension PersistenceStore {
         }
     }
 
+    /// Delete every `PendingSend` row whose `radioID` does not match any
+    /// known `Device` row. Returns the number of rows deleted. An orphan row
+    /// can never drain (`fetchPendingSends(radioID:)` filters by radio and
+    /// the radio is gone), so leaving it on disk only wastes space.
+    ///
+    /// **Precondition (callers must satisfy):** every paired Device row,
+    /// including the one currently being constructed, must already be
+    /// persisted before this runs. The production wiring at
+    /// `ConnectionManager.buildServicesAndSaveDevice` saves the Device row
+    /// before invoking warmUp, so this precondition holds for the in-progress
+    /// radio as well as every previously-paired one. The doc-comment exists
+    /// to head off future refactors that might invoke warmUp ahead of the
+    /// Device save — in that order, an in-flight new-pair Device whose row
+    /// hasn't been flushed yet would have its enqueued PendingSends wrongly
+    /// classified as orphans.
+    @discardableResult
+    public func purgeOrphanPendingSends() throws -> Int {
+        let knownRadioIDs = try Set(modelContext.fetch(FetchDescriptor<Device>()).map(\.radioID))
+        let allRows = try modelContext.fetch(FetchDescriptor<PendingSend>())
+        let orphans = allRows.filter { !knownRadioIDs.contains($0.radioID) }
+        guard !orphans.isEmpty else { return 0 }
+        for row in orphans {
+            modelContext.delete(row)
+        }
+        try modelContext.save()
+        Self.pendingSendLogger.info("Purged \(orphans.count, privacy: .public) orphan PendingSend rows")
+        return orphans.count
+    }
+
     /// Delete every pending send row whose `messageID` matches. No-op if no
     /// rows match. Used at drain time when only the envelope's `messageID`
     /// is available; the radio is intentionally NOT part of the predicate
@@ -132,4 +223,158 @@ extension PersistenceStore {
         }
         try modelContext.save()
     }
+
+    /// Bulk non-saving cascade helper. Caller owns the single transactional
+    /// save. Issues one `delete(model:where:)` per chunk so wiping thousands
+    /// of messages costs O(chunks) bulk ops rather than O(n) fetches.
+    ///
+    /// **Cascade atomicity:** the cascade is serial within `@ModelActor`
+    /// (`PersistenceStore`'s actor isolation serialises awaits), not
+    /// transactional in the SQL sense. A crash mid-cascade leaves a
+    /// partially-deleted state on disk; the next `purgeOrphanPendingSends`
+    /// + hydrate cycle reconciles. Callers requiring strict atomicity stage
+    /// every delete in this function and call `save()` exactly once at the
+    /// end (the convention every cascade site in this codebase follows).
+    ///
+    /// **Chunking:** SwiftData translates `contains` predicates to SQL
+    /// `IN (?, ?, …)`. SQLite's default `SQLITE_MAX_VARIABLE_NUMBER` on
+    /// iOS 18+ is 32766, so wiping a radio with >32k messages would hit
+    /// the ceiling unchunked. 500 keeps headroom and keeps the predicate
+    /// compact for SwiftData's compile-time validation.
+    ///
+    /// **`@Relationship` cascade bypass:** bulk `delete(model:where:)`
+    /// skips the SwiftData change-tracking pipeline, so
+    /// `@Relationship(deleteRule: .cascade)` declarations do NOT fire on
+    /// these paths. Any future cascade-by-relationship added to `Message`
+    /// must be mirrored explicitly in every cascade site that bulk-deletes
+    /// messages.
+    internal func _deletePendingSendsForMessageIDsWithoutSaving(messageIDs: [UUID]) throws {
+        guard !messageIDs.isEmpty else { return }
+        let chunkSize = 500
+        for start in stride(from: 0, to: messageIDs.count, by: chunkSize) {
+            let chunk = Array(messageIDs[start..<min(start + chunkSize, messageIDs.count)])
+            let scopedIDs = chunk
+            try modelContext.delete(model: PendingSend.self, where: #Predicate { row in
+                scopedIDs.contains(row.messageID)
+            })
+        }
+    }
+
+    public func hasPendingSend(messageID: UUID) throws -> Bool {
+        let scopedMessageID = messageID
+        let predicate = #Predicate<PendingSend> { row in
+            row.messageID == scopedMessageID
+        }
+        var descriptor = FetchDescriptor<PendingSend>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        return try !modelContext.fetch(descriptor).isEmpty
+    }
+
+    /// Fetch every `PendingSend` row that matches a given message ID, ordered
+    /// by sequence ascending. Returns DTOs for cross-actor safety. Rows whose
+    /// `kindRawValue` does not resolve to a known `PendingSendKind` case are
+    /// skipped, matching the contract of `fetchPendingSends(radioID:)`.
+    ///
+    /// Symmetric with `deletePendingSendsForMessage(messageID:)` — both ignore
+    /// the radio because the user can switch radios between enqueue and
+    /// observation, and a UUID `messageID` makes cross-radio collision
+    /// effectively zero.
+    public func fetchPendingSendsForMessage(messageID: UUID) throws -> [PendingSendDTO] {
+        let scopedMessageID = messageID
+        let predicate = #Predicate<PendingSend> { row in
+            row.messageID == scopedMessageID
+        }
+        let descriptor = FetchDescriptor<PendingSend>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.sequence, order: .forward)]
+        )
+        return try modelContext.fetch(descriptor).compactMap { row in
+            guard PendingSendKind(rawValue: row.kindRawValue) != nil else { return nil }
+            return row.toDTO()
+        }
+    }
+
+    /// One-shot backfill: promote `attemptCount` from `nil` to `1` for rows
+    /// that were persisted by a build that predates the field. Those rows had
+    /// at least one drain attempt under the old code (the persist-then-drain
+    /// flow runs within milliseconds under normal conditions) but the old
+    /// build had no field to record the attempt.
+    ///
+    /// Three states distinguished:
+    /// - `nil`     — pre-plan row (lightweight-migrated from no column) →
+    ///               promote to 1 (treat as "may have sent on the wire").
+    /// - `0`       — current-build row past `persist(...)` but not past the
+    ///               top-of-drain bump → leave alone. The recipient cannot
+    ///               have seen this packet yet (no wire send happened), so
+    ///               the next drain stamps a fresh timestamp via
+    ///               `preserveTimestamp = (postBumpCount > 1) = false`.
+    /// - positive  — already drained at least once → leave alone. The next
+    ///               drain bumps to `postBumpCount > 1` and preserves the
+    ///               wire timestamp.
+    ///
+    /// Monotonically idempotent: the `nil → 1` transition cannot reverse, so
+    /// re-running the predicate on every connect costs only an empty fetch
+    /// after the first call promotes pre-plan rows. Called from
+    /// `PersistenceStore.warmUp()` which runs on every connect via
+    /// `ConnectionManager.buildServicesAndSaveDevice`.
+    @discardableResult
+    public func backfillPendingSendAttemptCounts() throws -> Int {
+        let nilPredicate = #Predicate<PendingSend> { row in
+            row.attemptCount == nil
+        }
+        let rows = try modelContext.fetch(FetchDescriptor<PendingSend>(predicate: nilPredicate))
+        guard !rows.isEmpty else { return 0 }
+        for row in rows { row.attemptCount = 1 }
+        try modelContext.save()
+        Self.pendingSendLogger.info(
+            "Backfilled attemptCount nil → 1 on \(rows.count, privacy: .public) pre-plan PendingSend rows"
+        )
+        return rows.count
+    }
+
+    /// Increments the `attemptCount` for the `PendingSend` row matching
+    /// `messageID`. Returns the new count, or `nil` if no row matched.
+    /// Throws on SwiftData read/write failure — callers must treat a thrown
+    /// error as transient (park + retry) and `nil` as terminal (deleted row).
+    ///
+    /// Defensive nil handling: the warmUp backfill promotes pre-plan
+    /// `nil` rows to `1` before hydrate enqueues them, so a drain attempt
+    /// against a `nil`-valued row indicates a violated invariant (backfill
+    /// threw and was swallowed, or a future refactor reordered warmUp after
+    /// hydrate). We log `.fault` and apply the same "drain history unknown,
+    /// may have sent on the wire" semantic the backfill itself uses: treat
+    /// the prior value as `1` so the bump produces `postBumpCount = 2` and
+    /// `preserveTimestamp = (2 > 1) = true`. Mesh dedup then catches a
+    /// duplicate landing if the prior build did send on the wire.
+    @discardableResult
+    public func incrementPendingSendAttemptCount(messageID: UUID) throws -> Int? {
+        #if DEBUG
+        try incrementPendingSendAttemptCountFaultInjection?()
+        #endif
+        let scopedMessageID = messageID
+        let predicate = #Predicate<PendingSend> { row in
+            row.messageID == scopedMessageID
+        }
+        var descriptor = FetchDescriptor<PendingSend>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        guard let row = try modelContext.fetch(descriptor).first else { return nil }
+        let nextCount: Int
+        if row.attemptCount == nil {
+            Self.pendingSendLogger.fault(
+                "PendingSend row \(messageID, privacy: .public) reached drain with attemptCount=nil; warmUp backfill did not run before hydrate"
+            )
+            nextCount = 2
+        } else {
+            nextCount = (row.attemptCount ?? 0) + 1
+        }
+        row.attemptCount = nextCount
+        try modelContext.save()
+        return nextCount
+    }
+
+    #if DEBUG
+    public func setIncrementPendingSendAttemptCountFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+        incrementPendingSendAttemptCountFaultInjection = hook
+    }
+    #endif
 }

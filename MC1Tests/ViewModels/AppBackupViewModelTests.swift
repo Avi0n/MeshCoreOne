@@ -127,11 +127,12 @@ struct AppBackupViewModelTests {
     @Test("Export uses the active services store when one is available")
     func performExport_PrefersActiveServicesStore() async throws {
         let manager = ConnectionManager(modelContainer: try PersistenceStore.createContainer(inMemory: true))
+        let radioID = UUID()
         let services = ServiceContainer(
             session: MeshCoreSession(transport: MockTransport()),
-            modelContainer: try PersistenceStore.createContainer(inMemory: true)
+            modelContainer: try PersistenceStore.createContainer(inMemory: true),
+            radioID: radioID
         )
-        let radioID = UUID()
         try await services.dataStore.saveContact(
             ContactDTO(
                 id: UUID(),

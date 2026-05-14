@@ -60,10 +60,39 @@ public actor MessageService {
     /// `pendingAcks`. Round-trip time is persisted to the data store via
     /// `updateMessageAck` and read back through the DTO; passing it through
     /// the callback would duplicate that path.
-    private var ackConfirmationHandler: (@Sendable (UUID) -> Void)?
+    ///
+    /// The handler is `async` so `MessageEventDispatcher` can hop to the
+    /// main actor via `await MainActor.run { ... }`, matching the other
+    /// service callbacks and giving FIFO order across multi-ACK bursts.
+    ///
+    /// Status and round-trip time are passed alongside the messageID so the
+    /// UI dispatcher can fold both into the in-place bubble update without
+    /// re-reading the DTO.
+    var ackConfirmationHandler: (@Sendable (UUID, MessageStatus, UInt32?) async -> Void)?
 
     /// Message failure callback (messageID)
     var messageFailedHandler: (@Sendable (UUID) async -> Void)?
+
+    /// Send-success callback (messageID, status, roundTripTime). Fired after
+    /// `updateMessageStatus(.sent)` succeeds in the DM send and original
+    /// channel send paths. Used by the UI event stream to update the rendered
+    /// bubble in place. Channel resends use the separate `messageResentHandler`
+    /// because they mutate `heardRepeats` and `sendCount` and need a full
+    /// DTO refresh.
+    ///
+    /// Distinct from `ackConfirmationHandler`, which fires only on end-to-end
+    /// ACK (DM `.delivered`). Channel broadcasts on LoRa have no recipient,
+    /// so they never raise an ACK — conflating the two handlers would mean
+    /// "the radio queued the broadcast" and "the peer confirmed receipt" both
+    /// arrive on the same wire.
+    var messageSentHandler: (@Sendable (UUID, MessageStatus, UInt32?) async -> Void)?
+
+    /// Channel-resend completion callback (messageID). Fires after
+    /// `resendChannelMessage` writes `.sent` to the DB. Carries no status
+    /// payload because the resend path also mutates `heardRepeats` and
+    /// `sendCount`; consumers must refresh the entire DTO rather than
+    /// applying a status-only in-place update.
+    var messageResentHandler: (@Sendable (UUID) async -> Void)?
 
     /// Event broadcaster for retry status updates (messageID, attempt, maxAttempts)
     var retryStatusHandler: (@Sendable (UUID, Int, Int) async -> Void)?
@@ -198,15 +227,20 @@ public actor MessageService {
 
         pendingAcks.removeValue(forKey: messageID)
 
-        ackConfirmationHandler?(messageID)
+        await ackConfirmationHandler?(messageID, .delivered, tripTime)
 
         logger.info("ACK received")
     }
 
     /// Sets a callback to be invoked when an ACK is received.
     ///
-    /// - Parameter handler: Callback receiving the resolved messageID.
-    public func setAckConfirmationHandler(_ handler: @escaping @Sendable (UUID) -> Void) {
+    /// - Parameter handler: Callback receiving the resolved messageID. The
+    ///   handler is awaited inside `handleAcknowledgement`, so consumers
+    ///   that hop to another actor preserve submission order across
+    ///   multi-ACK bursts (each `await MainActor.run { ... }` is a
+    ///   continuation-resume onto the main queue and arrives in
+    ///   submission order).
+    public func setAckConfirmationHandler(_ handler: @escaping @Sendable (UUID, MessageStatus, UInt32?) async -> Void) {
         ackConfirmationHandler = handler
     }
 
@@ -215,6 +249,34 @@ public actor MessageService {
     /// - Parameter handler: Callback receiving the failed message ID
     public func setMessageFailedHandler(_ handler: @escaping @Sendable (UUID) async -> Void) {
         messageFailedHandler = handler
+    }
+
+    /// Fire `messageFailedHandler` from outside the actor. Sole purpose: the
+    /// queue-side terminal catch in `ChatSendQueueService` runs off-actor and
+    /// needs to invoke the handler. Do not grow other callers — the inline
+    /// send paths fire the handler directly because they own the catch.
+    public func notifyMessageFailed(messageID: UUID) async {
+        await messageFailedHandler?(messageID)
+    }
+
+    /// Sets a callback to be invoked after a message reaches `.sent` status.
+    ///
+    /// Fires for both DM and original channel sends once the persistence write
+    /// succeeds. Consumers use it to refresh the rendered bubble for channel
+    /// broadcasts, which have no end-to-end ACK and therefore never fire
+    /// `ackConfirmationHandler`. Channel resends use `messageResentHandler`
+    /// instead because they additionally mutate `heardRepeats` and `sendCount`.
+    ///
+    /// - Parameter handler: Callback receiving messageID, status, and (for ACKs) roundTripTime
+    public func setMessageSentHandler(_ handler: @escaping @Sendable (UUID, MessageStatus, UInt32?) async -> Void) {
+        messageSentHandler = handler
+    }
+
+    /// Sets a callback to be invoked after a channel-message resend completes.
+    ///
+    /// - Parameter handler: Callback receiving the resent message ID
+    public func setMessageResentHandler(_ handler: @escaping @Sendable (UUID) async -> Void) {
+        messageResentHandler = handler
     }
 
     /// Sets a callback to be invoked during retry attempts.

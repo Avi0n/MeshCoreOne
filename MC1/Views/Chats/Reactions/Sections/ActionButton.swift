@@ -7,7 +7,7 @@ struct ActionButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button(role: isDestructive ? .destructive : nil, action: action) {
             HStack {
                 Label(title, systemImage: icon)
                 Spacer()
