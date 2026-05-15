@@ -190,4 +190,16 @@ struct ChatViewModelConversationTests {
         #expect(favorites[0].displayName == "HasDate")
         #expect(favorites[1].displayName == "NoDate")
     }
+
+    // MARK: - errorBannerMessage Tests
+
+    @Test("errorBannerMessage round-trips through setting and clearing")
+    func errorBannerMessageRoundTrip() {
+        let viewModel = ChatViewModel()
+        #expect(viewModel.errorBannerMessage == nil)
+        viewModel.errorBannerMessage = "Test banner"
+        #expect(viewModel.errorBannerMessage == "Test banner")
+        viewModel.errorBannerMessage = nil
+        #expect(viewModel.errorBannerMessage == nil)
+    }
 }

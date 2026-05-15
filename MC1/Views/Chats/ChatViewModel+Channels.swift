@@ -53,7 +53,10 @@ extension ChatViewModel {
 
         logger.info("loadChannelMessages: setting isLoading=true, current messages.count=\(self.messages.count)")
         isLoading = true
+        // Dual-reset: this function is shared between passive load and user-initiated
+        // retry paths, so both surfaces must clear at entry to avoid stale state.
         errorMessage = nil
+        errorBannerMessage = nil
 
         // Reset pagination state for new conversation
         coordinator?.updateRenderState { $0.with(hasMoreMessages: true, isLoadingOlder: false, totalFetchedCount: 0) }

@@ -188,13 +188,14 @@ extension ChatViewModel {
         guard let dataStore else { return }
 
         isLoading = true
-        errorMessage = nil
+        errorBannerMessage = nil
 
         do {
             conversations = try await dataStore.fetchConversations(radioID: radioID)
             invalidateConversationCache()
         } catch {
-            errorMessage = error.localizedDescription
+            errorBannerMessage = L10n.Chats.Chats.Error.loadConversationsFailed
+            logger.error("loadConversations failed: \(error.localizedDescription)")
         }
 
         hasLoadedOnce = true
@@ -232,7 +233,7 @@ extension ChatViewModel {
         guard let dataStore else { return }
 
         isLoading = true
-        errorMessage = nil
+        errorBannerMessage = nil
 
         // Fetch into locals — no @Observable mutations between awaits.
         var fetchedConversations: [ContactDTO]?
@@ -242,7 +243,8 @@ extension ChatViewModel {
         do {
             fetchedConversations = try await dataStore.fetchConversations(radioID: radioID)
         } catch {
-            errorMessage = error.localizedDescription
+            errorBannerMessage = L10n.Chats.Chats.Error.loadConversationsFailed
+            logger.error("loadAllConversations failed: \(error.localizedDescription)")
         }
 
         fetchedChannels = try? await dataStore.fetchChannels(radioID: radioID)
@@ -281,7 +283,10 @@ extension ChatViewModel {
         notificationService?.activeContactID = contact.id
 
         isLoading = true
+        // Dual-reset: this function is shared between passive load and user-initiated
+        // retry paths, so both surfaces must clear at entry to avoid stale state.
         errorMessage = nil
+        errorBannerMessage = nil
 
         // Reset pagination state for new conversation
         coordinator?.updateRenderState { $0.with(hasMoreMessages: true, isLoadingOlder: false, totalFetchedCount: 0) }

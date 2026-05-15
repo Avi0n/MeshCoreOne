@@ -335,6 +335,8 @@ public enum L10n {
         }
       }
       public enum Error {
+        /// Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails
+        public static let loadConversationsFailed = L10n.tr("Chats", "chats.error.loadConversationsFailed", fallback: "Couldn't load conversations. Pull to retry.")
         /// Location: ChatConversationView.swift - Error when loading older messages fails
         public static let loadOlderMessagesFailed = L10n.tr("Chats", "chats.error.loadOlderMessagesFailed", fallback: "Failed to load older messages")
         /// Location: ChannelInfoSheet.swift - Error when device not connected
@@ -343,6 +345,10 @@ public enum L10n {
         public static let sendQueuePersistFailed = L10n.tr("Chats", "chats.error.sendQueuePersistFailed", fallback: "Couldn't queue your message. Try again.")
         /// Location: ChannelInfoSheet.swift - Error when services unavailable
         public static let servicesUnavailable = L10n.tr("Chats", "chats.error.servicesUnavailable", fallback: "Services not available")
+        public enum Banner {
+          /// Location: ErrorBannerModifier.swift - Accessibility hint announcing that tapping the banner dismisses it
+          public static let dismissAccessibilityHint = L10n.tr("Chats", "chats.error.banner.dismissAccessibilityHint", fallback: "Tap to dismiss")
+        }
       }
       public enum Filter {
         /// Location: ChatsView.swift - Filter option for all conversations

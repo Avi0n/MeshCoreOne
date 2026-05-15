@@ -48,10 +48,7 @@ struct ChatConversationMessagesContent: View {
 
     var body: some View {
         Group {
-            if !viewModel.hasLoadedOnce {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.messages.isEmpty {
+            if viewModel.messages.isEmpty {
                 emptyState
             } else {
                 ChatMessagesTableView(

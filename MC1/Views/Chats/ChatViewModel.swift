@@ -148,7 +148,18 @@ final class ChatViewModel {
     /// - Send-queue drain errors are assigned post-`loadMessages` so the
     ///   load reset of `errorMessage = nil` does not clobber the alert.
     /// - Load errors continue to flow to `errorMessage`.
+    /// - Passive load and prefetch failures route to `errorBannerMessage` for
+    ///   the non-modal banner surface.
     var sendErrorMessage: String?
+
+    /// Error message for passive failure surfaces. Driven by `errorBanner(_:)`
+    /// and rendered as a tap-to-dismiss strip between the message list and the
+    /// input bar. Use this instead of `errorMessage` for failures the user did
+    /// not initiate (prefetch, scroll-triggered pagination). User-initiated
+    /// failures and initial-open load failures continue to surface via
+    /// `errorMessage` (modal "Error" alert) or `sendErrorMessage` (modal
+    /// "Unable to Send" alert).
+    var errorBannerMessage: String?
 
     /// Message text being composed
     var composingText = ""

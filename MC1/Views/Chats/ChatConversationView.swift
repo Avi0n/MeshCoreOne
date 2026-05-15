@@ -109,6 +109,10 @@ struct ChatConversationView: View {
             onScrollToMention: { scrollToNextMention() },
             onRetryMessage: { retryMessage($0) }
         )
+        // Banner is applied innermost so its safe-area inset stacks above the
+        // input bar inset that follows, placing the strip between content and
+        // the input bar (and lifting it with the keyboard).
+        .chatErrorBanner(chatViewModel: chatViewModel)
         .safeAreaInset(edge: .bottom, spacing: 8) {
             ChatConversationInputBar(
                 conversationType: conversationType,
@@ -662,15 +666,26 @@ struct ChatConversationView: View {
 // MARK: - Error Alerts
 
 private extension View {
-    /// Applies both chat error alerts in one modifier so the conversation view
-    /// body stays within the type-checker's expression budget. The first slot
-    /// is the generic "Error" alert (load failures); the second is the
-    /// "Unable to Send" alert (queue drain failures).
+    /// Applies the chat modal-alert surfaces in one modifier so the conversation
+    /// view body stays within the type-checker's expression budget. Two modal
+    /// alerts: generic "Error" for open-conversation load failures (so a
+    /// re-open failure cannot be missed), and "Unable to Send" for queue drain
+    /// failures. The passive banner for pagination failures is mounted
+    /// separately via `chatErrorBanner` so it can sit above the input bar.
     func chatErrorAlerts(chatViewModel: ChatViewModel) -> some View {
         @Bindable var vm = chatViewModel
         return self
             .errorAlert($vm.errorMessage)
             .errorAlert($vm.sendErrorMessage, title: L10n.Chats.Chats.Alert.UnableToSend.title)
+    }
+
+    /// Mounts the passive error banner used for background failures (e.g.
+    /// older-message pagination). Applied before the input-bar safe-area inset
+    /// so the banner appears between the message list and the input bar, and
+    /// rises with the keyboard alongside the input bar.
+    func chatErrorBanner(chatViewModel: ChatViewModel) -> some View {
+        @Bindable var vm = chatViewModel
+        return errorBanner($vm.errorBannerMessage)
     }
 }
 
