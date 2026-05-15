@@ -250,8 +250,8 @@
 /* Location: ErrorBannerModifier.swift - Accessibility hint announcing that tapping the banner dismisses it */
 "chats.error.banner.dismissAccessibilityHint" = "Натисніть, щоб закрити";
 
-/* TODO: translate - Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error) */
-"chats.error.sendQueuePersistFailed" = "Couldn't queue your message. Try again.";
+/* Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error) */
+"chats.error.sendQueuePersistFailed" = "Не вдалося поставити повідомлення в чергу. Спробуйте ще раз.";
 
 /* TODO: translate - Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
 "chats.error.loadConversationsFailed" = "Couldn't load conversations. Pull to retry.";
@@ -560,6 +560,9 @@
 /* Location: UnifiedMessageBubble.swift - Fallback sender name */
 "chats.message.sender.unknown" = "Невідомо";
 
+/* Location: UnifiedMessageBubble.swift - Accessibility text for sender names resolved from a short prefix */
+"chats.message.sender.possibleMatch" = "Можливий збіг, визначено за коротким префіксом";
+
 /* Location: UnifiedMessageBubble.swift - Context menu action to reply */
 "chats.message.action.reply" = "Відповісти";
 
@@ -634,6 +637,21 @@
 
 /* Location: MessageActionsSheet.swift - Purpose: Action to start a DM with the channel sender */
 "chats.message.action.sendDM" = "Надіслати ОП";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed send */
+"chats.message.action.retry" = "Повторити";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the reactions detail sheet */
+"chats.message.action.viewReactions" = "Показати реакції";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL */
+"chats.message.action.openLink" = "Відкрити посилання";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen */
+"chats.message.action.viewImage" = "Показати зображення";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed image download */
+"chats.message.action.retryImage" = "Спробувати знову";
 
 /* Location: UnifiedMessageBubble.swift - Status row retry button */
 "chats.message.status.retry" = "Повторити";
@@ -927,6 +945,9 @@
 
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for retry button */
 "chats.inlineImage.retryHint" = "Double tap to retry loading image";
+
+/* Location: InlineImageFragmentView.swift - VoiceOver identity for a failed inline image */
+"chats.inlineImage.failedLabel" = "Не вдалося завантажити зображення";
 
 /* Location: FullScreenImageViewer.swift - Close button label */
 "chats.imageViewer.close" = "Закрити";

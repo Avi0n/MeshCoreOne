@@ -52,11 +52,6 @@ extension ChatViewModel {
             await decodeAndStorePreviewImages(from: dto, for: messageID)
             previewStates[messageID] = .loaded
             loadedPreviews[messageID] = dto
-            // VoiceOver announcement for dynamic content
-            if let title = dto.title {
-                AccessibilityNotification.Announcement("Preview loaded: \(title)")
-                    .post()
-            }
 
         case .loading:
             // Still loading (duplicate request), keep current state
@@ -89,11 +84,6 @@ extension ChatViewModel {
             await decodeAndStorePreviewImages(from: dto, for: messageID)
             previewStates[messageID] = .loaded
             loadedPreviews[messageID] = dto
-            // VoiceOver announcement for dynamic content
-            if let title = dto.title {
-                AccessibilityNotification.Announcement("Preview loaded: \(title)")
-                    .post()
-            }
         case .loading:
             break
         case .noPreviewAvailable, .failed, .disabled:

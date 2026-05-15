@@ -9,12 +9,15 @@ struct BubbleStatusRow: View {
     let item: MessageItem
     let onRetry: (() -> Void)?
 
+    @State private var retryInvocationCounter: Int = 0
+
     private static let minimumTapTargetHeight: CGFloat = 44
 
     var body: some View {
         HStack(spacing: 4) {
             if item.footer.status == .failed, let onRetry {
                 Button {
+                    retryInvocationCounter &+= 1
                     onRetry()
                 } label: {
                     HStack(spacing: 2) {
@@ -27,6 +30,7 @@ struct BubbleStatusRow: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.blue)
+                .sensoryFeedback(.selection, trigger: retryInvocationCounter)
             }
 
             if item.footer.status == .failed {

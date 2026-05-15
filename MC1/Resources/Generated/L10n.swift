@@ -375,6 +375,8 @@ public enum L10n {
       public enum InlineImage {
         /// Location: InlineImageView.swift - Accessibility label for animated image
         public static let animatedAccessibility = L10n.tr("Chats", "chats.inlineImage.animatedAccessibility", fallback: "Animated image")
+        /// Location: InlineImageFragmentView.swift - VoiceOver identity for a failed inline image
+        public static let failedLabel = L10n.tr("Chats", "chats.inlineImage.failedLabel", fallback: "Image failed to load")
         /// Location: InlineImageView.swift - Accessibility label for static image
         public static let imageAccessibility = L10n.tr("Chats", "chats.inlineImage.imageAccessibility", fallback: "Image")
         /// Location: InlineImageFragmentView.swift - Accessibility label for loading state
@@ -560,16 +562,26 @@ public enum L10n {
           public static let expanded = L10n.tr("Chats", "chats.message.action.expanded", fallback: "Expanded")
           /// Location: MessageActionsSheet.swift - Context menu action to mention
           public static let mention = L10n.tr("Chats", "chats.message.action.mention", fallback: "Mention")
+          /// Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL
+          public static let openLink = L10n.tr("Chats", "chats.message.action.openLink", fallback: "Open Link")
           /// Location: UnifiedMessageBubble.swift - Context menu action to view repeat details
           public static let repeatDetails = L10n.tr("Chats", "chats.message.action.repeatDetails", fallback: "Repeat Details")
           /// Location: UnifiedMessageBubble.swift - Context menu action to reply
           public static let reply = L10n.tr("Chats", "chats.message.action.reply", fallback: "Reply")
+          /// Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed send
+          public static let retry = L10n.tr("Chats", "chats.message.action.retry", fallback: "Retry")
+          /// Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed image download
+          public static let retryImage = L10n.tr("Chats", "chats.message.action.retryImage", fallback: "Retry Image")
           /// Location: UnifiedMessageBubble.swift - Context menu action to send again
           public static let sendAgain = L10n.tr("Chats", "chats.message.action.sendAgain", fallback: "Send Again")
           /// Location: MessageActionsSheet.swift - Purpose: Action to start a DM with the channel sender
           public static let sendDM = L10n.tr("Chats", "chats.message.action.sendDM", fallback: "Send DM")
+          /// Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen
+          public static let viewImage = L10n.tr("Chats", "chats.message.action.viewImage", fallback: "View Image")
           /// Location: UnifiedMessageBubble.swift - Context menu action to view path
           public static let viewPath = L10n.tr("Chats", "chats.message.action.viewPath", fallback: "View Path")
+          /// Location: UnifiedMessageBubble.swift - VoiceOver action to open the reactions detail sheet
+          public static let viewReactions = L10n.tr("Chats", "chats.message.action.viewReactions", fallback: "View Reactions")
         }
         public enum HopCount {
           /// Location: UnifiedMessageBubble.swift - Accessibility label for hop count display - %d is count

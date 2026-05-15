@@ -18,18 +18,21 @@ struct ErrorBannerModifier: ViewModifier {
                             .foregroundStyle(.red)
                         Text(message)
                             .font(.footnote)
+                            .foregroundStyle(.primary)
                             .multilineTextAlignment(.leading)
                         Spacer(minLength: 0)
                     }
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                     .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
                     .contentShape(.rect)
                     .background(
-                        AppColors.Message.outgoingBubbleFailed.opacity(0.18),
+                        Color(.systemRed).opacity(0.12),
                         in: .rect(cornerRadius: 12)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(.systemRed).opacity(0.25), lineWidth: 1)
                     )
                 }
                 .buttonStyle(.plain)

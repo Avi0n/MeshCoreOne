@@ -40,6 +40,12 @@ struct ActionsPreviewHeader: View {
                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
         }
         .padding()
+        // Only collapse to a single rotor stop when there is no interactive
+        // descendant. The fallback-match indicator (inside senderLabel) is a
+        // Button with its own label/hint/popover; .combine would destroy that
+        // affordance. .contain preserves the indicator and adds a parent
+        // container that VoiceOver users can land on.
+        .accessibilityElement(children: senderMatchKind == .fallback ? .contain : .combine)
     }
 
     @ViewBuilder

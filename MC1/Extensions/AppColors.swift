@@ -111,7 +111,13 @@ enum AppColors {
     /// Colors for message bubbles and related UI.
     enum Message {
         static let outgoingBubble = Color(hex: 0x2463EB)
-        static let outgoingBubbleFailed = Color.red.opacity(0.8)
         static let incomingBubble = Color(.systemGray5)
+
+        /// Failed-bubble background. `highContrast: true` returns the
+        /// system-adaptive `.systemRed`; `false` keeps the legacy translucent
+        /// red. Matches the `NameColor.color(for:highContrast:)` shape.
+        static func outgoingBubbleFailed(highContrast: Bool) -> Color {
+            highContrast ? Color(.systemRed) : Color.red.opacity(0.8)
+        }
     }
 }

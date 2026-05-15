@@ -14,46 +14,47 @@ struct InlineImageFragmentView: View {
     let onRetry: () -> Void
 
     var body: some View {
-        switch inlineImage.state {
-        case .loaded(let ref, let isGIF):
-            if let image = imageResolver(ref) {
-                InlineImageView(
-                    image: image,
-                    isGIF: isGIF,
-                    autoPlayGIFs: inlineImage.autoPlayGIFs,
-                    isEmbedded: true,
-                    onTap: onTap
-                )
-                .frame(maxWidth: .infinity)
-            }
+        Group {
+            switch inlineImage.state {
+            case .loaded(let ref, let isGIF):
+                if let image = imageResolver(ref) {
+                    InlineImageView(
+                        image: image,
+                        isGIF: isGIF,
+                        autoPlayGIFs: inlineImage.autoPlayGIFs,
+                        isEmbedded: true,
+                        onTap: onTap
+                    )
+                    .frame(maxWidth: .infinity)
+                }
 
-        case .loading, .idle:
-            HStack(spacing: 8) {
-                ProgressView()
-                    .controlSize(.small)
-                    .tint(isOutgoing ? .white.opacity(0.7) : nil)
-                Text(L10n.Chats.Chats.InlineImage.loading)
-                    .font(.subheadline)
-                    .foregroundStyle(isOutgoing ? .white.opacity(0.7) : .secondary)
-            }
-            .bubbleContentPadding()
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel(L10n.Chats.Chats.InlineImage.loading)
-
-        case .failed:
-            Button(action: onRetry) {
+            case .loading, .idle:
                 HStack(spacing: 8) {
-                    Image(systemName: "arrow.clockwise")
-                        .foregroundStyle(isOutgoing ? .white.opacity(0.7) : .secondary)
-                    Text(L10n.Chats.Chats.InlineImage.tapToRetry)
+                    ProgressView()
+                        .controlSize(.small)
+                        .tint(isOutgoing ? .white.opacity(0.7) : nil)
+                    Text(L10n.Chats.Chats.InlineImage.loading)
                         .font(.subheadline)
                         .foregroundStyle(isOutgoing ? .white.opacity(0.7) : .secondary)
                 }
                 .bubbleContentPadding()
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(L10n.Chats.Chats.InlineImage.loading)
+
+            case .failed:
+                Button(action: onRetry) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "arrow.clockwise")
+                            .foregroundStyle(isOutgoing ? .white.opacity(0.7) : .secondary)
+                        Text(L10n.Chats.Chats.InlineImage.tapToRetry)
+                            .font(.subheadline)
+                            .foregroundStyle(isOutgoing ? .white.opacity(0.7) : .secondary)
+                    }
+                    .bubbleContentPadding()
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(L10n.Chats.Chats.InlineImage.failedLabel)
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(L10n.Chats.Chats.InlineImage.tapToRetry)
-            .accessibilityHint(L10n.Chats.Chats.InlineImage.retryHint)
         }
     }
 }

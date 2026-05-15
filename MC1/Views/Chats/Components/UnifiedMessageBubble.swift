@@ -18,9 +18,9 @@ struct UnifiedMessageBubble: View, Equatable {
     let callbacks: MessageBubbleCallbacks
 
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.openURL) private var openURL
 
     @State private var showingReactionDetails = false
-    @State private var longPressTriggered = false
 
     nonisolated static func == (lhs: UnifiedMessageBubble, rhs: UnifiedMessageBubble) -> Bool {
         lhs.item == rhs.item
@@ -78,14 +78,13 @@ struct UnifiedMessageBubble: View, Equatable {
 
                     BubbleFragmentStack(
                         item: item,
+                        bubbleColor: resolvedBubbleColor,
                         callbacks: callbacks,
                         imageResolver: imageResolver
                     )
                     .onLongPressGesture(minimumDuration: 0.3) {
-                        longPressTriggered.toggle()
                         callbacks.onLongPress?()
                     }
-                    .sensoryFeedback(.impact(weight: .medium), trigger: longPressTriggered)
 
                     ForEach(Array(item.content.enumerated()), id: \.offset) { _, fragment in
                         siblingFragmentView(fragment)
@@ -97,6 +96,40 @@ struct UnifiedMessageBubble: View, Equatable {
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel(accessibilityMessageLabel)
+                .accessibilityAction {
+                    callbacks.onLongPress?()
+                }
+                .accessibilityActions {
+                    if item.footer.showStatusRow,
+                       item.footer.status == .failed,
+                       let onRetry = callbacks.onRetry {
+                        Button(L10n.Chats.Chats.Message.Action.retry) { onRetry() }
+                    }
+                    if hasReactionSummary {
+                        Button(L10n.Chats.Chats.Message.Action.viewReactions) {
+                            showingReactionDetails = true
+                        }
+                    }
+                    if let url = linkPreviewURL {
+                        Button(L10n.Chats.Chats.Message.Action.openLink) {
+                            openURL(url)
+                        }
+                    }
+                    if let inline = inlineImage {
+                        switch inline.state {
+                        case .loaded:
+                            if let onImageTap = callbacks.onImageTap {
+                                Button(L10n.Chats.Chats.Message.Action.viewImage) { onImageTap() }
+                            }
+                        case .failed:
+                            if let onRetryImageFetch = callbacks.onRetryImageFetch {
+                                Button(L10n.Chats.Chats.Message.Action.retryImage) { onRetryImageFetch() }
+                            }
+                        case .loading, .idle:
+                            EmptyView()
+                        }
+                    }
+                }
 
                 if !item.envelope.isOutgoing {
                     Spacer(minLength: 40)
@@ -144,6 +177,18 @@ struct UnifiedMessageBubble: View, Equatable {
 
     // MARK: - Computed Properties
 
+    private var resolvedBubbleColor: Color {
+        if item.envelope.isOutgoing {
+            if item.envelope.hasFailed {
+                return AppColors.Message.outgoingBubbleFailed(
+                    highContrast: colorSchemeContrast == .increased
+                )
+            }
+            return AppColors.Message.outgoingBubble
+        }
+        return AppColors.Message.incomingBubble
+    }
+
     private var senderColor: Color {
         AppColors.NameColor.color(
             for: item.envelope.senderName,
@@ -181,5 +226,37 @@ struct UnifiedMessageBubble: View, Equatable {
             }
         }
         return label
+    }
+}
+
+private extension UnifiedMessageBubble {
+    var inlineImage: InlineImage? {
+        for fragment in item.content {
+            if case .inlineImage(let inline) = fragment { return inline }
+        }
+        return nil
+    }
+
+    var hasReactionSummary: Bool {
+        for fragment in item.content {
+            if case .reactionSummary = fragment { return true }
+        }
+        return false
+    }
+
+    var linkPreviewURL: URL? {
+        for fragment in item.content {
+            if case .linkPreview(let state) = fragment {
+                switch state.mode {
+                case .loaded(let dto, _, _):
+                    return URL(string: dto.url)
+                case .legacy(let url, _, _, _):
+                    return url
+                case .idle, .loading, .noPreview, .disabled:
+                    return nil
+                }
+            }
+        }
+        return nil
     }
 }

@@ -5,27 +5,20 @@ import MC1Services
 /// image. Reactions, malware warnings, and link previews are emitted as
 /// siblings by `UnifiedMessageBubble.body` so they sit below the bubble box.
 ///
-/// Conforms to `Equatable` on `item` alone — closures and dynamic-type
+/// Conforms to `Equatable` on `item` and `bubbleColor` — the parent resolves
+/// the contrast-aware color and passes it in so the env read doesn't
+/// invalidate body on every visible cell. Closures and dynamic-type
 /// environment changes propagate through the parent rebody path.
 struct BubbleFragmentStack: View, Equatable {
     let item: MessageItem
+    let bubbleColor: Color
     let callbacks: MessageBubbleCallbacks
     let imageResolver: (ImageReference) -> UIImage?
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     nonisolated static func == (lhs: BubbleFragmentStack, rhs: BubbleFragmentStack) -> Bool {
-        lhs.item == rhs.item
-    }
-
-    private var bubbleColor: Color {
-        if item.envelope.isOutgoing {
-            return item.envelope.hasFailed
-                ? AppColors.Message.outgoingBubbleFailed
-                : AppColors.Message.outgoingBubble
-        } else {
-            return AppColors.Message.incomingBubble
-        }
+        lhs.item == rhs.item && lhs.bubbleColor == rhs.bubbleColor
     }
 
     private var hasFooter: Bool {

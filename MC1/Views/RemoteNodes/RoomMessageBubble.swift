@@ -59,20 +59,6 @@ struct RoomMessageBubble: View {
         )
     }
 
-    private var bubbleBackground: Color {
-        if isFromSelf {
-            return message.status == .failed
-                ? AppColors.Message.outgoingBubbleFailed
-                : AppColors.Message.outgoingBubble
-        } else {
-            return AppColors.Message.incomingBubble
-        }
-    }
-
-    private var textColor: Color {
-        isFromSelf ? .white : .primary
-    }
-
     private var statusText: String {
         switch message.status {
         case .pending, .sending:
@@ -122,12 +108,12 @@ private struct BubbleContent: View {
 
     private var bubbleBackground: Color {
         if isFromSelf {
-            return message.status == .failed
-                ? AppColors.Message.outgoingBubbleFailed
-                : AppColors.Message.outgoingBubble
-        } else {
-            return AppColors.Message.incomingBubble
+            if message.status == .failed {
+                return AppColors.Message.outgoingBubbleFailed(highContrast: highContrast)
+            }
+            return AppColors.Message.outgoingBubble
         }
+        return AppColors.Message.incomingBubble
     }
 
     private var textColor: Color {

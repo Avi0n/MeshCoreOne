@@ -13,6 +13,7 @@ struct ChatInputBar: View {
     let onSend: (String) -> Void
 
     @State private var isCoolingDown = false
+    @State private var sendInvocationCounter: Int = 0
 
     private var byteCount: Int {
         text.utf8.count
@@ -44,6 +45,7 @@ struct ChatInputBar: View {
         .padding(.horizontal)
         .padding(.vertical, 8)
         .inputBarBackground()
+        .sensoryFeedback(.start, trigger: sendInvocationCounter)
     }
 
     private var sendAccessibilityLabel: String {
@@ -77,6 +79,7 @@ struct ChatInputBar: View {
         guard !captured.isEmpty else { return }
         isCoolingDown = true
         text = ""
+        sendInvocationCounter &+= 1
         onSend(captured)
         Task {
             try? await Task.sleep(for: .seconds(1))

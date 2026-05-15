@@ -655,6 +655,21 @@
 /* Location: MessageActionsSheet.swift - Purpose: Action to start a DM with the channel sender */
 "chats.message.action.sendDM" = "Send DM";
 
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed send */
+"chats.message.action.retry" = "Retry";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the reactions detail sheet */
+"chats.message.action.viewReactions" = "View Reactions";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL */
+"chats.message.action.openLink" = "Open Link";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen */
+"chats.message.action.viewImage" = "View Image";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed image download */
+"chats.message.action.retryImage" = "Retry Image";
+
 /* Location: UnifiedMessageBubble.swift - Status row retry button */
 "chats.message.status.retry" = "Retry";
 
@@ -925,6 +940,9 @@
 
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for retry button */
 "chats.inlineImage.retryHint" = "Double tap to retry loading image";
+
+/* Location: InlineImageFragmentView.swift - VoiceOver identity for a failed inline image */
+"chats.inlineImage.failedLabel" = "Image failed to load";
 
 // MARK: - Image Viewer
 

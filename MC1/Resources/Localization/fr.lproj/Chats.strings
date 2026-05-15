@@ -251,8 +251,8 @@
 /* Location: ErrorBannerModifier.swift - Accessibility hint announcing that tapping the banner dismisses it */
 "chats.error.banner.dismissAccessibilityHint" = "Appuyez pour ignorer";
 
-/* TODO: translate - Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error) */
-"chats.error.sendQueuePersistFailed" = "Couldn't queue your message. Try again.";
+/* Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error) */
+"chats.error.sendQueuePersistFailed" = "Impossible de mettre votre message en file d'attente. Réessayez.";
 
 /* TODO: translate - Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
 "chats.error.loadConversationsFailed" = "Couldn't load conversations. Pull to retry.";
@@ -566,6 +566,9 @@
 /* Location: UnifiedMessageBubble.swift - Fallback sender name */
 "chats.message.sender.unknown" = "Inconnu";
 
+/* Location: UnifiedMessageBubble.swift - Accessibility text for sender names resolved from a short prefix */
+"chats.message.sender.possibleMatch" = "Correspondance possible, identifiée par un préfixe court";
+
 /* Location: UnifiedMessageBubble.swift - Context menu action to reply */
 "chats.message.action.reply" = "Répondre";
 
@@ -640,6 +643,21 @@
 
 /* Location: MessageActionsSheet.swift - Purpose: Action to start a DM with the channel sender */
 "chats.message.action.sendDM" = "Envoyer un DM";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed send */
+"chats.message.action.retry" = "Réessayer";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the reactions detail sheet */
+"chats.message.action.viewReactions" = "Voir les réactions";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL */
+"chats.message.action.openLink" = "Ouvrir le lien";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen */
+"chats.message.action.viewImage" = "Voir l'image";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed image download */
+"chats.message.action.retryImage" = "Recharger l'image";
 
 /* Location: UnifiedMessageBubble.swift - Status row retry button */
 "chats.message.status.retry" = "Réessayer";
@@ -936,6 +954,9 @@
 
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for retry button */
 "chats.inlineImage.retryHint" = "Double tap to retry loading image";
+
+/* Location: InlineImageFragmentView.swift - VoiceOver identity for a failed inline image */
+"chats.inlineImage.failedLabel" = "Échec du chargement de l'image";
 
 /* Location: FullScreenImageViewer.swift - Close button label */
 "chats.imageViewer.close" = "Fermer";
