@@ -192,7 +192,8 @@ private func makeFakeMessageItem(id: UUID, senderName: String) -> MessageItem {
             status: .sent,
             heardRepeats: 0,
             retryAttempt: 0,
-            maxRetryAttempts: 0
+            maxRetryAttempts: 0,
+            sendCount: 0
         ),
         grouping: GroupingFlags(
             showTimestamp: false,

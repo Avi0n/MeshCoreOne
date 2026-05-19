@@ -1,8 +1,14 @@
 import SwiftUI
 import MC1Services
 
-/// Unified message bubble for both direct and channel messages
-struct UnifiedMessageBubble: View {
+/// Unified message bubble for both direct and channel messages.
+///
+/// Conforms to `Equatable` with comparison on `item` alone. Closures
+/// (`imageResolver`, `callbacks`) and constant chrome (`contactName`,
+/// `deviceName`, `configuration`) are intentionally excluded; every
+/// render-affecting input is encoded into `MessageItem` during
+/// `rebuildDisplayItem`.
+struct UnifiedMessageBubble: View, Equatable {
     let message: MessageDTO
     let contactName: String
     let deviceName: String
@@ -15,6 +21,10 @@ struct UnifiedMessageBubble: View {
 
     @State private var showingReactionDetails = false
     @State private var longPressTriggered = false
+
+    nonisolated static func == (lhs: UnifiedMessageBubble, rhs: UnifiedMessageBubble) -> Bool {
+        lhs.item == rhs.item
+    }
 
     init(
         message: MessageDTO,
@@ -82,7 +92,7 @@ struct UnifiedMessageBubble: View {
                     }
 
                     if item.footer.showStatusRow {
-                        BubbleStatusRow(message: message, onRetry: callbacks.onRetry)
+                        BubbleStatusRow(item: item, onRetry: callbacks.onRetry)
                     }
                 }
                 .accessibilityElement(children: .combine)
@@ -157,7 +167,7 @@ struct UnifiedMessageBubble: View {
         }
         label += message.text
         if item.envelope.isOutgoing {
-            label += ", \(BubbleStatusRow.statusText(for: message))"
+            label += ", \(BubbleStatusRow.statusText(for: item))"
         }
         if !item.envelope.isOutgoing {
             if item.footer.showHop {

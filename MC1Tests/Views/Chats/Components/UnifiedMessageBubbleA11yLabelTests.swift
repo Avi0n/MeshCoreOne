@@ -14,14 +14,8 @@ struct UnifiedMessageBubbleA11yLabelTests {
             pathNodes: nil,
             regionScope: "NORTHWEST"
         )
-        let resolver: @Sendable (MessageDTO) -> NodeNameResolution = { _ in
-            NodeNameResolution(displayName: "Alice", matchKind: .exact)
-        }
         let configuration = MessageBubbleConfiguration(
-            accentColor: .green,
-            showSenderName: true,
-            isChannel: true,
-            senderNameResolver: resolver
+            showSenderName: true
         )
         let bundle = MessageBubbleTestData.messageItem(
             message: message,
@@ -65,14 +59,8 @@ struct UnifiedMessageBubbleA11yLabelTests {
     @Test("fallback sender label includes possible-match disclosure")
     func fallbackSender_labelIncludesPossibleMatch() {
         let message = MessageBubbleTestData.incomingChannel(text: "hi", senderNodeName: nil)
-        let resolver: @Sendable (MessageDTO) -> NodeNameResolution = { _ in
-            NodeNameResolution(displayName: "Alice", matchKind: .fallback)
-        }
         let configuration = MessageBubbleConfiguration(
-            accentColor: .green,
-            showSenderName: true,
-            isChannel: true,
-            senderNameResolver: resolver
+            showSenderName: true
         )
         let bundle = MessageBubbleTestData.messageItem(
             message: message,

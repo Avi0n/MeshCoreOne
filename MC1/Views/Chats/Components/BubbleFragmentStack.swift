@@ -4,12 +4,19 @@ import MC1Services
 /// The colored, clipped bubble box: text, optional footer, and optional inline
 /// image. Reactions, malware warnings, and link previews are emitted as
 /// siblings by `UnifiedMessageBubble.body` so they sit below the bubble box.
-struct BubbleFragmentStack: View {
+///
+/// Conforms to `Equatable` on `item` alone — closures and dynamic-type
+/// environment changes propagate through the parent rebody path.
+struct BubbleFragmentStack: View, Equatable {
     let item: MessageItem
     let callbacks: MessageBubbleCallbacks
     let imageResolver: (ImageReference) -> UIImage?
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    nonisolated static func == (lhs: BubbleFragmentStack, rhs: BubbleFragmentStack) -> Bool {
+        lhs.item == rhs.item
+    }
 
     private var bubbleColor: Color {
         if item.envelope.isOutgoing {
@@ -72,4 +79,3 @@ struct BubbleFragmentStack: View {
         .clipShape(.rect(cornerRadius: 16))
     }
 }
-

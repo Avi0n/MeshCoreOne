@@ -20,6 +20,7 @@ public struct MessageFooter: Sendable, Hashable {
     public let heardRepeats: Int
     public let retryAttempt: Int
     public let maxRetryAttempts: Int
+    public let sendCount: Int
 
     public init(
         showHop: Bool,
@@ -30,7 +31,8 @@ public struct MessageFooter: Sendable, Hashable {
         status: MessageStatus,
         heardRepeats: Int,
         retryAttempt: Int,
-        maxRetryAttempts: Int
+        maxRetryAttempts: Int,
+        sendCount: Int
     ) {
         self.showHop = showHop
         self.hopCount = hopCount
@@ -41,9 +43,10 @@ public struct MessageFooter: Sendable, Hashable {
         self.heardRepeats = heardRepeats
         self.retryAttempt = retryAttempt
         self.maxRetryAttempts = maxRetryAttempts
+        self.sendCount = sendCount
     }
 
-    /// Returns a new footer with `status` overridden. Eliminates the 9-field
+    /// Returns a new footer with `status` overridden. Eliminates the 10-field
     /// rebuild at status-flip sites.
     public func with(status: MessageStatus) -> MessageFooter {
         MessageFooter(
@@ -55,7 +58,8 @@ public struct MessageFooter: Sendable, Hashable {
             status: status,
             heardRepeats: heardRepeats,
             retryAttempt: retryAttempt,
-            maxRetryAttempts: maxRetryAttempts
+            maxRetryAttempts: maxRetryAttempts,
+            sendCount: sendCount
         )
     }
 }

@@ -4,6 +4,18 @@ import Foundation
 /// plus current render state plus per-message build inputs. `Sendable` so it can
 /// flow across the UIKit-table cell-config boundary without copy-on-write
 /// concerns.
+///
+/// Equatable invariant: bubble views (`MessageBubbleView`, `UnifiedMessageBubble`,
+/// `BubbleFragmentStack`) conform to `Equatable` with `==` defined on this
+/// struct alone, so SwiftUI can skip rebodies when the row identity and content
+/// are unchanged. This is safe only because every input that affects bubble
+/// rendering is encoded into this struct by `rebuildDisplayItem`: preview state
+/// (via `shouldRequestPreviewFetch` and link-preview fragments), reactions,
+/// inline images, footer status, and grouping flags. If a future refactor moves
+/// any of those fields out of `MessageItem` (for example onto a side-channel
+/// store on `ChatCoordinator`), the bubble Equatable check would silently
+/// return stale renders. Verify the rebuild path still writes the full set of
+/// inputs before changing this invariant.
 public struct MessageItem: Identifiable, Sendable, Hashable {
     public let id: UUID
     public let envelope: MessageEnvelope

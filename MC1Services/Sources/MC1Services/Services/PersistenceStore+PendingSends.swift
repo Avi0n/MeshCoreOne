@@ -205,7 +205,7 @@ extension PersistenceStore {
 
     /// Delete every pending send row whose `messageID` matches. No-op if no
     /// rows match. Used at drain time when only the envelope's `messageID`
-    /// is available; the radio is intentionally NOT part of the predicate
+    /// is available; the radio is intentionally not part of the predicate
     /// because the user can switch conversations (and therefore the radio
     /// in scope) between enqueue and drain, and the same `messageID` may
     /// be enqueued more than once on the resend path. `messageID` is a
@@ -244,7 +244,7 @@ extension PersistenceStore {
     ///
     /// **`@Relationship` cascade bypass:** bulk `delete(model:where:)`
     /// skips the SwiftData change-tracking pipeline, so
-    /// `@Relationship(deleteRule: .cascade)` declarations do NOT fire on
+    /// `@Relationship(deleteRule: .cascade)` declarations do not fire on
     /// these paths. Any future cascade-by-relationship added to `Message`
     /// must be mirrored explicitly in every cascade site that bulk-deletes
     /// messages.
@@ -301,12 +301,12 @@ extension PersistenceStore {
     /// build had no field to record the attempt.
     ///
     /// Three states distinguished:
-    /// - `nil`     — pre-plan row (lightweight-migrated from no column) →
+    /// - `nil`     — pre-migration row (lightweight-migrated from no column) →
     ///               promote to 1 (treat as "may have sent on the wire").
-    /// - `0`       — current-build row past `persist(...)` but not past the
-    ///               top-of-drain bump → leave alone. The recipient cannot
-    ///               have seen this packet yet (no wire send happened), so
-    ///               the next drain stamps a fresh timestamp via
+    /// - `0`       — row past `persist(...)` but not past the top-of-drain
+    ///               bump → leave alone. The recipient cannot have seen this
+    ///               packet yet (no wire send happened), so the next drain
+    ///               stamps a fresh timestamp via
     ///               `preserveTimestamp = (postBumpCount > 1) = false`.
     /// - positive  — already drained at least once → leave alone. The next
     ///               drain bumps to `postBumpCount > 1` and preserves the
@@ -314,7 +314,7 @@ extension PersistenceStore {
     ///
     /// Monotonically idempotent: the `nil → 1` transition cannot reverse, so
     /// re-running the predicate on every connect costs only an empty fetch
-    /// after the first call promotes pre-plan rows. Called from
+    /// after the first call promotes pre-migration rows. Called from
     /// `PersistenceStore.warmUp()` which runs on every connect via
     /// `ConnectionManager.buildServicesAndSaveDevice`.
     @discardableResult
@@ -327,7 +327,7 @@ extension PersistenceStore {
         for row in rows { row.attemptCount = 1 }
         try modelContext.save()
         Self.pendingSendLogger.info(
-            "Backfilled attemptCount nil → 1 on \(rows.count, privacy: .public) pre-plan PendingSend rows"
+            "Backfilled attemptCount nil → 1 on \(rows.count, privacy: .public) pre-migration PendingSend rows"
         )
         return rows.count
     }
@@ -337,7 +337,7 @@ extension PersistenceStore {
     /// Throws on SwiftData read/write failure — callers must treat a thrown
     /// error as transient (park + retry) and `nil` as terminal (deleted row).
     ///
-    /// Defensive nil handling: the warmUp backfill promotes pre-plan
+    /// Defensive nil handling: the warmUp backfill promotes pre-migration
     /// `nil` rows to `1` before hydrate enqueues them, so a drain attempt
     /// against a `nil`-valued row indicates a violated invariant (backfill
     /// threw and was swallowed, or a future refactor reordered warmUp after

@@ -4,14 +4,14 @@ import Foundation
 @testable import MeshCore
 import MeshCoreTestSupport
 
-/// Phase 1 acceptance suite for the persistent `PendingSend.attemptCount`
-/// surface. Covers the four cases the plan calls out:
+/// Acceptance suite for the persistent `PendingSend.attemptCount` surface.
+/// Covers four cases:
 /// 1. Fresh send: enqueue then drain bumps 0 → 1, `preserveTimestamp == false`.
 /// 2. Process restart: a row left at `attemptCount = 1` on disk (prior process
 ///    bumped then died before deleting the row) rehydrates, drains, bumps to
 ///    `2`, and uses `preserveTimestamp == true` so the recipient's mesh dedup
 ///    catches a duplicate landing.
-/// 3. Legacy nil backfill: a pre-plan row with `attemptCount == nil` is
+/// 3. Legacy nil backfill: a pre-migration row with `attemptCount == nil` is
 ///    promoted to `1` by `PersistenceStore.warmUp`; the first drain bumps to
 ///    `2` and preserves the wire timestamp.
 /// 4. Bump failure: `incrementPendingSendAttemptCount` is forced to throw, the
@@ -24,7 +24,7 @@ struct ChatSendQueueServiceAttemptCountTests {
     /// Helper: build a Device + Contact + Message + PendingSend with the
     /// requested attemptCount, returning the service, the store it shares,
     /// the messageID, the radioID, and the message's original wire timestamp.
-    /// The service is NOT hydrated — the caller decides whether to hydrate or
+    /// The service is not hydrated — the caller decides whether to hydrate or
     /// to first run `store.warmUp()`.
     ///
     /// The message's `timestamp` is pinned to one hour ago so a "fresh wire
@@ -159,9 +159,9 @@ struct ChatSendQueueServiceAttemptCountTests {
         await harness.service.shutdown()
     }
 
-    /// Case 3 / Legacy nil backfill: a pre-plan row (attemptCount=nil) must
-    /// be backfilled to 1 by warmUp before hydrate enqueues it, so the first
-    /// post-rehydrate drain bumps to 2 and preserveTimestamp is true.
+    /// Case 3 / Legacy nil backfill: a pre-migration row (attemptCount=nil)
+    /// must be backfilled to 1 by warmUp before hydrate enqueues it, so the
+    /// first post-rehydrate drain bumps to 2 and preserveTimestamp is true.
     @Test("legacy nil row: warmUp backfills then drain preserves timestamp")
     func legacyNilRowBackfilledThenPreservesTimestamp() async throws {
         let harness = try await Self.setupQueueWithRow(attemptCount: nil)
@@ -188,7 +188,7 @@ struct ChatSendQueueServiceAttemptCountTests {
     /// Case 4 / Bump failure: when `incrementPendingSendAttemptCount` throws,
     /// the drain closure must park the envelope on the transport-open trigger
     /// (status reverts to `.pending`), leave the PendingSend row intact, and
-    /// NOT call `retryDirectMessage`. Without this guarantee a SwiftData
+    /// must not call `retryDirectMessage`. Without this guarantee a SwiftData
     /// failure during the bump could either drop the envelope silently or
     /// double-send on retry.
     @Test("bump failure parks envelope, preserves row, does not call retryDirectMessage")
@@ -209,7 +209,7 @@ struct ChatSendQueueServiceAttemptCountTests {
         #expect(rows.count == 1,
                 "PendingSend row must survive the bump-failure park so the next transport-open can retry")
         #expect(rows.first?.attemptCount == 0,
-                "attemptCount must NOT advance when the bump throws — the next drain bumps to the same target")
+                "attemptCount must not advance when the bump throws — the next drain bumps to the same target")
 
         let postDrainMessage = try await harness.store.fetchMessage(id: harness.messageID)
         #expect(postDrainMessage?.timestamp == harness.originalTimestamp,

@@ -178,7 +178,7 @@ public final class ChatSendQueueService {
                     // Explicit do/catch (not try?) so failures log. The helper
                     // returns Int?: nil means terminal (row deleted), thrown
                     // error means transient (park + retry — the persisted count
-                    // did NOT advance, so the next bump on the follow-up drain
+                    // did not advance, so the next bump on the follow-up drain
                     // produces the same postBumpCount the failed attempt would
                     // have).
                     let postBumpCount: Int
@@ -625,7 +625,7 @@ public final class ChatSendQueueService {
     /// The nullable-attemptCount scheme stores legacy-vs-current-build
     /// distinction in the column itself; `PersistenceStore.warmUp()` runs
     /// the `backfillPendingSendAttemptCounts` step before hydrate (wired in
-    /// `ConnectionManager.buildServicesAndSaveDevice`) so pre-plan `nil`
+    /// `ConnectionManager.buildServicesAndSaveDevice`) so pre-migration `nil`
     /// rows are promoted to `1`. The first post-rehydrate drain bumps to
     /// `2` and `postBumpCount > 1` (= true) preserves the wire timestamp.
     /// Race-window rows (persist succeeded, drain bump didn't run) sit at

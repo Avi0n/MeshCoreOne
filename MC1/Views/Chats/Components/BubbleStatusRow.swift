@@ -6,14 +6,14 @@ import MC1Services
 /// `UnifiedMessageBubble.accessibilityMessageLabel` so VoiceOver surfaces the
 /// same text as the visual row.
 struct BubbleStatusRow: View {
-    let message: MessageDTO
+    let item: MessageItem
     let onRetry: (() -> Void)?
 
     private static let minimumTapTargetHeight: CGFloat = 44
 
     var body: some View {
         HStack(spacing: 4) {
-            if message.status == .failed, let onRetry {
+            if item.footer.status == .failed, let onRetry {
                 Button {
                     onRetry()
                 } label: {
@@ -29,13 +29,13 @@ struct BubbleStatusRow: View {
                 .foregroundStyle(.blue)
             }
 
-            if message.status == .failed {
+            if item.footer.status == .failed {
                 Image(systemName: "exclamationmark.circle")
                     .font(.caption2)
                     .foregroundStyle(.red)
             }
 
-            Text(Self.statusText(for: message))
+            Text(Self.statusText(for: item))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .contentTransition(.opacity)
@@ -43,38 +43,38 @@ struct BubbleStatusRow: View {
         .padding(.trailing, 4)
     }
 
-    static func statusText(for message: MessageDTO) -> String {
-        switch message.status {
+    static func statusText(for item: MessageItem) -> String {
+        switch item.footer.status {
         case .pending, .sending:
             return L10n.Chats.Chats.Message.Status.sending
         case .sent:
             var parts: [String] = []
-            if message.heardRepeats > 0 {
-                let repeatWord = message.heardRepeats == 1
+            if item.footer.heardRepeats > 0 {
+                let repeatWord = item.footer.heardRepeats == 1
                     ? L10n.Chats.Chats.Message.Repeat.singular
                     : L10n.Chats.Chats.Message.Repeat.plural
-                parts.append("\(message.heardRepeats) \(repeatWord)")
+                parts.append("\(item.footer.heardRepeats) \(repeatWord)")
             }
-            if message.sendCount > 1 {
-                parts.append(L10n.Chats.Chats.Message.Status.sentMultiple(message.sendCount))
+            if item.footer.sendCount > 1 {
+                parts.append(L10n.Chats.Chats.Message.Status.sentMultiple(item.footer.sendCount))
             } else {
                 parts.append(L10n.Chats.Chats.Message.Status.sent)
             }
             return parts.joined(separator: " • ")
         case .delivered:
-            if message.heardRepeats > 0 {
-                let repeatWord = message.heardRepeats == 1
+            if item.footer.heardRepeats > 0 {
+                let repeatWord = item.footer.heardRepeats == 1
                     ? L10n.Chats.Chats.Message.Repeat.singular
                     : L10n.Chats.Chats.Message.Repeat.plural
-                let repeatText = "\(message.heardRepeats) \(repeatWord)"
+                let repeatText = "\(item.footer.heardRepeats) \(repeatWord)"
                 return "\(repeatText) • \(L10n.Chats.Chats.Message.Status.delivered)"
             }
             return L10n.Chats.Chats.Message.Status.delivered
         case .failed:
             return L10n.Chats.Chats.Message.Status.failed
         case .retrying:
-            let displayAttempt = message.retryAttempt + 1
-            let maxAttempts = message.maxRetryAttempts
+            let displayAttempt = item.footer.retryAttempt + 1
+            let maxAttempts = item.footer.maxRetryAttempts
             if maxAttempts > 0 {
                 return L10n.Chats.Chats.Message.Status.retryingAttempt(displayAttempt, maxAttempts)
             }

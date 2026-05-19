@@ -57,4 +57,56 @@ enum MessageFragmentBuilderFixtures {
             showNewMessagesDivider: false
         )
     }
+
+    static func makeMessage(
+        id: UUID = UUID(),
+        text: String = "hello",
+        status: MessageStatus = .sent,
+        heardRepeats: Int = 0,
+        sendCount: Int = 1,
+        retryAttempt: Int = 0,
+        maxRetryAttempts: Int = 0
+    ) -> MessageDTO {
+        MessageDTO(
+            id: id,
+            radioID: radioID,
+            contactID: contactID,
+            channelIndex: nil,
+            text: text,
+            timestamp: UInt32(referenceDate.timeIntervalSince1970),
+            createdAt: referenceDate,
+            direction: .outgoing,
+            status: status,
+            textType: .plain,
+            ackCode: nil,
+            pathLength: 0,
+            snr: nil,
+            senderKeyPrefix: nil,
+            senderNodeName: nil,
+            isRead: true,
+            replyToID: nil,
+            roundTripTime: nil,
+            heardRepeats: heardRepeats,
+            sendCount: sendCount,
+            retryAttempt: retryAttempt,
+            maxRetryAttempts: maxRetryAttempts
+        )
+    }
+
+    static func makeInputs(messageID: UUID) -> MessageBuildInputs {
+        makeMinimalInputs(messageID: messageID)
+    }
+
+    static func makeEnvInputs(isOutgoing: Bool = true) -> EnvInputs {
+        EnvInputs(
+            showInlineImages: true,
+            autoPlayGIFs: true,
+            showIncomingPath: false,
+            showIncomingHopCount: false,
+            showIncomingRegion: false,
+            previewsEnabled: false,
+            isHighContrast: false,
+            currentUserName: isOutgoing ? "Me" : "Sender"
+        )
+    }
 }

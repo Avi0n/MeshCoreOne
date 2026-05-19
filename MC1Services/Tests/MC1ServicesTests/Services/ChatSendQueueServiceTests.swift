@@ -264,17 +264,17 @@ struct ChatSendQueueServiceTests {
         #expect(ChatSendQueueService.isChannelMessageNotFound(timeout) == false)
     }
 
-    /// Phase 1 §3 end-to-end. A channel envelope with `attemptCount = 7`
-    /// pre-loaded on its PendingSend row reaches `postBumpCount = 8` on its
-    /// next drain. When the channel send throws `deviceError(channelMessageNotFound)`
-    /// the cap branch fires: the catch re-throws (rather than parking), the
-    /// SendQueue's `onError` deletes the PendingSend row, and the message
-    /// stays `.failed` (the `.failed` write made by `failMessageAndRethrow`
-    /// is NOT remapped back to `.pending`).
+    /// End-to-end channel-cap behaviour on a high-attempt envelope. A channel
+    /// envelope with `attemptCount = 7` pre-loaded on its PendingSend row
+    /// reaches `postBumpCount = 8` on its next drain. When the channel send
+    /// throws `deviceError(channelMessageNotFound)` the cap branch fires: the
+    /// catch re-throws (rather than parking), the SendQueue's `onError` deletes
+    /// the PendingSend row, and the message stays `.failed` (the `.failed`
+    /// write made by `failMessageAndRethrow` is not remapped back to `.pending`).
     ///
     /// Drives the channel-send failure by dispatching `.error(code: 2)` events
     /// in a tight loop so every `withPoolBackoff` retry sees the firmware
-    /// NOT_FOUND signal. Pool backoff exhausts after 3 in-loop attempts and
+    /// `NOT_FOUND` signal. Pool backoff exhausts after 3 in-loop attempts and
     /// re-throws as `MessageServiceError.sessionError(.deviceError(2))`, which
     /// reaches the queue catch.
     @Test(
@@ -306,11 +306,12 @@ struct ChatSendQueueServiceTests {
         await harness.queueService.shutdown()
     }
 
-    /// Phase 1 §3 negative case. A channel envelope with `attemptCount = 0`
-    /// reaches `postBumpCount = 1` on its first drain. Even with the same
-    /// `deviceError(channelMessageNotFound)` failure the disambiguation does
-    /// NOT fire (1 < disambiguateAfterAttempts). The transient branch
-    /// instead remaps the status back to `.pending` and parks the envelope.
+    /// Negative case for the disambiguation gate. A channel envelope with
+    /// `attemptCount = 0` reaches `postBumpCount = 1` on its first drain. Even
+    /// with the same `deviceError(channelMessageNotFound)` failure the
+    /// disambiguation does not fire (1 < disambiguateAfterAttempts). The
+    /// transient branch instead remaps the status back to `.pending` and parks
+    /// the envelope.
     @Test("channel drain parks deviceError(2) below disambiguateAfterAttempts")
     func testChannelDrain_PoolExhaustion_ChannelStillExists_ParksEnvelope() async throws {
         let harness = try await Self.setUpChannelCapHarness(attemptCount: 0)
@@ -345,14 +346,14 @@ struct ChatSendQueueServiceTests {
     /// counter must not strand a value that causes the next envelope's
     /// first disambiguate-path throw to immediately exceed the cap.
     ///
-    /// Before the fix: `channelFetchFailureCounter` is a single service-wide
-    /// `FailureCounter`. Envelope A leaves it at the cap, then envelope B's
+    /// With a service-wide `channelFetchFailureCounter` (single
+    /// `FailureCounter`), envelope A leaves it at the cap, then envelope B's
     /// first drain enters disambiguate (postBumpCount >= 3), fetchChannel
     /// throws, counter bumps past the cap, `failures >= cap` is true → B
     /// terminal-fails on its first attempt.
     ///
-    /// After the fix: the counter is per-messageID. Envelope B starts at 0,
-    /// bumps to 1 on its first throw, well below the cap → B parks.
+    /// With a per-messageID counter, envelope B starts at 0, bumps to 1 on its
+    /// first throw, well below the cap → B parks.
     ///
     /// The harness uses a shrunk cap and tight pool-backoff to keep runtime
     /// bounded; the behaviour under test is per-envelope counter scoping,
@@ -430,10 +431,10 @@ struct ChatSendQueueServiceTests {
         #expect(statusA == .failed,
                 "Envelope A should be terminal-failed after persistent fetchChannel throws (cap reached)")
 
-        // Envelope B should park (.pending) after the fix lands; before the fix
-        // it terminal-fails on its first drain because the counter is stranded
-        // at the cap. Wait long enough for at least one full B drain cycle to
-        // elapse so steady-state is observable.
+        // Envelope B should park (.pending) under the per-envelope counter; a
+        // service-wide counter would terminal-fail it on its first drain
+        // because the value is stranded at the cap. Wait long enough for at
+        // least one full B drain cycle to elapse so steady-state is observable.
         try await Task.sleep(for: .seconds(3))
 
         let statusB = try await harness.store.fetchMessage(id: harness.envelopeB.messageID)?.status
@@ -450,12 +451,12 @@ struct ChatSendQueueServiceTests {
         await harness.queueService.shutdown()
     }
 
-    /// Phase 4 §2 — when the transport-open trigger never fires, the drain
-    /// must time out via `transportWaitTimeout` rather than waiting forever.
-    /// Verifies the message stays `.pending` and the PendingSend row survives
-    /// across the wait. Disabled by default because the production constant
-    /// is 30 seconds — exercise locally by uncommenting `.enabled` or by
-    /// reducing the timeout via a `#if DEBUG` hook.
+    /// When the transport-open trigger never fires, the drain must time out
+    /// via `transportWaitTimeout` rather than waiting forever. Verifies the
+    /// message stays `.pending` and the PendingSend row survives across the
+    /// wait. Disabled by default because the production constant is 30 seconds
+    /// — exercise locally by uncommenting `.enabled` or by reducing the
+    /// timeout via a `#if DEBUG` hook.
     @Test(
         "drain bounded wait re-attempts after transportWaitTimeout expires",
         .disabled("Real-time test depends on the 30s transportWaitTimeout default; enable when reducing the constant via a #if DEBUG hook.")
@@ -489,7 +490,7 @@ struct ChatSendQueueServiceTests {
     /// without churn.
     ///
     /// `envelopeA` is the channel envelope persisted by `setUpChannelCapHarness`.
-    /// `envelopeB` is a second envelope, NOT yet enqueued — callers that need
+    /// `envelopeB` is a second envelope, not yet enqueued — callers that need
     /// to exercise multi-envelope scenarios call `harness.queue.enqueueChannel(harness.envelopeB)`
     /// themselves so each test controls its own drain ordering.
     @MainActor
@@ -796,12 +797,12 @@ struct ChatSendQueueServiceTests {
 
     /// Regression: when a DM send fails with a transient firmware code
     /// (e.g. `directMessageTableFull`), `failMessageAndRethrow` writes
-    /// `.failed` and fires `messageFailedHandler` BEFORE the queue's
+    /// `.failed` and fires `messageFailedHandler` before the queue's
     /// catch reclassifies the error and remaps the status back to
     /// `.pending`. The handler fire propagates an in-memory `.failed`
     /// snapshot to the UI even though the persisted state is `.pending`,
     /// causing the bubble to flicker "Failed" while the queue is parked.
-    /// Transient errors must NOT fire the failure handler at all.
+    /// Transient errors must not fire the failure handler at all.
     @Test("Transient DM send error must not fire messageFailedHandler")
     func transientDMError_DoesNotFireFailedHandler() async throws {
         // Tight pool-backoff so the failure surfaces fast. The invariant

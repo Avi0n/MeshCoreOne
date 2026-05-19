@@ -1322,7 +1322,7 @@ struct PersistenceStoreTests {
     func testIncrementPendingSendAttemptCount_FromNil_LogsFaultAndSetsToTwo() async throws {
         let store = try await createTestStore()
         let messageID = UUID()
-        // Simulate a pre-plan row that escaped the warmUp backfill.
+        // Simulate a pre-migration row that escaped the warmUp backfill.
         let dto = makePendingSendDTO(messageID: messageID, attemptCount: nil)
         try await store.upsertPendingSend(dto)
 
@@ -1502,7 +1502,7 @@ struct PersistenceStoreTests {
             messageID: matchedMessageID, radioID: device.id, attemptCount: 0, sequence: 1
         ))
 
-        // PendingSend whose messageID does NOT correspond to any saved Message.
+        // PendingSend whose messageID does not correspond to any saved Message.
         // The messageIDs-keyed cascade cannot see it; the radioID-keyed defensive
         // delete must reap it.
         try await store.upsertPendingSend(makePendingSendDTO(

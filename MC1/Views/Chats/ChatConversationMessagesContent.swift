@@ -100,10 +100,7 @@ struct ChatConversationMessagesContent: View {
         case .dm:
             .directMessage
         case .channel:
-            .channel(
-                isPublic: conversationType.isPublicStyleChannel,
-                contacts: viewModel.allContacts
-            )
+            .channel(isPublic: conversationType.isPublicStyleChannel)
         }
     }
 }

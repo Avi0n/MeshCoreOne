@@ -51,18 +51,22 @@ struct ChatTableViewSnapshotRegressionTests {
         }
 
         controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
         let baseline = callCount
         #expect(baseline > 0, "Baseline should call onNearTop at least once when not loading")
 
         controller.isLoadingOlderMessages = true
         controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
         controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
         #expect(callCount == baseline, "onNearTop must be suppressed while loading older messages")
 
         controller.isLoadingOlderMessages = false
         capturedRelease?()
         capturedRelease = nil
         controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
         #expect(callCount > baseline, "onNearTop must resume after release is called")
     }
 
@@ -89,14 +93,18 @@ struct ChatTableViewSnapshotRegressionTests {
         }
 
         controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
         let baseline = callCount
         #expect(baseline == 1, "First near-top tick should fire onNearTop once")
 
         // Multiple scroll ticks before release is called — the controller-owned
         // latch must suppress them so the view model isn't bombarded with redundant Task spawns
         controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
         controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
         controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
         #expect(callCount == baseline, "Latch must suppress fires until release is called")
 
         // Simulate the consumer's pagination work completing
@@ -104,6 +112,7 @@ struct ChatTableViewSnapshotRegressionTests {
         capturedRelease = nil
 
         controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
         #expect(callCount == baseline + 1, "After release, the latch resets and the next near-top fires")
     }
 
@@ -130,6 +139,7 @@ struct ChatTableViewSnapshotRegressionTests {
         }
 
         controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
         #expect(callCount == 1)
 
         // Simulate the view model short-circuiting (e.g., hasMoreMessages == false) —
@@ -138,6 +148,7 @@ struct ChatTableViewSnapshotRegressionTests {
         capturedRelease = nil
 
         controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
         #expect(callCount == 2, "Release must clear the latch even when isLoadingOlder never flipped")
     }
 
@@ -200,6 +211,7 @@ struct ChatTableViewSnapshotRegressionTests {
         // User now drags far away from bottom; isAtBottom flips false
         controller.tableView.contentOffset.y = 500
         controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
         #expect(!controller.isAtBottom, "Scrolling past threshold should flip isAtBottom false")
 
         controller.scrollViewDidEndDragging(controller.tableView, willDecelerate: false)

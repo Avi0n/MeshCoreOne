@@ -11,22 +11,27 @@ extension ChatViewModel {
     func appendMessageIfNew(_ message: MessageDTO) {
         guard let coordinator else { return }
         let previous = messages.last
-        guard coordinator.append(message) else { return }
 
+        // Synchronous append: coordinator append, render item insertion, and
+        // channel sender bookkeeping all mutate Observable state on the main
+        // actor in one call frame, so SwiftUI already invalidates dependent
+        // views once per change cycle without an explicit transaction.
+        guard coordinator.append(message) else { return }
         let newItem = makeItem(for: message, previous: previous)
         coordinator.appendRenderItem(newItem)
+        if let senderName = message.senderNodeName,
+           let radioID = currentChannel?.radioID {
+            addChannelSenderIfNew(senderName, radioID: radioID, timestamp: message.timestamp)
+        }
 
+        // URL detection writes `cachedURLs[messageID]` from a background task
+        // and lands as its own invalidation cycle.
         let messageID = message.id
         let text = message.text
         let generation = urlDetectionGeneration
         Task { [weak self] in
             guard let self else { return }
             await self.updateURLForDisplayItem(messageID: messageID, text: text, generation: generation)
-        }
-
-        if let senderName = message.senderNodeName,
-           let radioID = currentChannel?.radioID {
-            addChannelSenderIfNew(senderName, radioID: radioID, timestamp: message.timestamp)
         }
     }
 

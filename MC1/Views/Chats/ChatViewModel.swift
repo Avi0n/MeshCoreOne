@@ -189,8 +189,22 @@ final class ChatViewModel {
     /// In-flight preview fetch tasks (prevents duplicate fetches)
     var previewFetchTasks: [UUID: Task<Void, Never>] = [:]
 
-    /// Raw image data per message (keyed by message ID)
-    var loadedImageData: [UUID: Data] = [:]
+    /// Total cost limit for `loadedImageData`. `NSCache` evicts entries to
+    /// stay under this byte budget and also responds to system memory
+    /// pressure on its own.
+    private static let imageDataCacheLimitBytes = 50 * 1024 * 1024
+
+    /// Raw image data per message (keyed by message ID). Backed by
+    /// `NSCache` so memory pressure and the configured cost limit drive
+    /// eviction instead of an unbounded dictionary. `@ObservationIgnored`
+    /// because mutations should not trigger SwiftUI redraws — consumers
+    /// read this via explicit method calls when an image is tapped.
+    @ObservationIgnored
+    let loadedImageData: NSCache<NSUUID, NSData> = {
+        let cache = NSCache<NSUUID, NSData>()
+        cache.totalCostLimit = ChatViewModel.imageDataCacheLimitBytes
+        return cache
+    }()
 
     /// Pre-decoded UIImage per message (avoids decoding in view body)
     var decodedImages: [UUID: UIImage] = [:]

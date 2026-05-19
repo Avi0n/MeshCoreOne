@@ -55,29 +55,27 @@ struct MessageBubbleConfigurationTests {
     }
 
     @Test("channel sender resolver marks short prefix match as fallback")
-    func channelSenderResolverMarksShortPrefixMatchAsFallback() throws {
+    func channelSenderResolverMarksShortPrefixMatchAsFallback() {
         let older = createContact(prefix: [0xAA, 0x01], name: "Older", lastAdvertTimestamp: 100)
         let newer = createContact(prefix: [0xAA, 0x02], name: "Newer", lastAdvertTimestamp: 200)
-        let configuration = MessageBubbleConfiguration.channel(
-            isPublic: true,
+
+        let result = MessageBubbleConfiguration.resolveSenderName(
+            for: createMessage(senderKeyPrefix: Data([0xAA])),
             contacts: [older, newer]
         )
-
-        let result = try #require(configuration.senderNameResolver?(createMessage(senderKeyPrefix: Data([0xAA]))))
 
         #expect(result.displayName == "Newer")
         #expect(result.matchKind == .fallback)
     }
 
     @Test("channel sender resolver marks unique short prefix match as exact")
-    func channelSenderResolverMarksUniqueShortPrefixMatchAsExact() throws {
+    func channelSenderResolverMarksUniqueShortPrefixMatchAsExact() {
         let contact = createContact(prefix: [0xAA, 0x01], name: "Alpha", lastAdvertTimestamp: 100)
-        let configuration = MessageBubbleConfiguration.channel(
-            isPublic: true,
+
+        let result = MessageBubbleConfiguration.resolveSenderName(
+            for: createMessage(senderKeyPrefix: Data([0xAA])),
             contacts: [contact]
         )
-
-        let result = try #require(configuration.senderNameResolver?(createMessage(senderKeyPrefix: Data([0xAA]))))
 
         #expect(result.displayName == "Alpha")
         #expect(result.matchKind == .exact)

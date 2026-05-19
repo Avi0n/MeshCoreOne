@@ -62,7 +62,7 @@ public final class PendingSend {
     /// `hasPendingSend` gate for this row. Bumped at the top of each drain
     /// attempt, before any wire-affecting work. Three distinguishable states:
     ///
-    /// - `nil`     — pre-plan-build row (lightweight-migrated from a build
+    /// - `nil`     — pre-migration row (lightweight-migrated from a build
     ///               that did not have this column). The prior build's queue
     ///               drained these rows without recording attempts; treat as
     ///               "drain history unknown — may have sent on the wire."
@@ -70,11 +70,11 @@ public final class PendingSend {
     ///               first post-rehydrate drain bumps to `2` so
     ///               `preserveTimestamp = postBumpCount > 1` returns true,
     ///               protecting mesh dedup against a duplicate landing.
-    /// - `0`       — current-build row that has been persisted but has NOT
-    ///               yet progressed past the top-of-drain bump (either fresh
-    ///               enqueue in flight, or process death between persist and
-    ///               bump). The recipient cannot have seen this packet, so
-    ///               the next drain stamps a fresh wire timestamp
+    /// - `0`       — row that has been persisted but has not yet progressed
+    ///               past the top-of-drain bump (either fresh enqueue in
+    ///               flight, or process death between persist and bump).
+    ///               The recipient cannot have seen this packet, so the
+    ///               next drain stamps a fresh wire timestamp
     ///               (`preserveTimestamp = false`).
     /// - positive  — at least one drain attempt has run. A wire send may
     ///               already have happened, so auto-retries must preserve the
@@ -157,7 +157,7 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
     public let enqueuedAt: Date
     /// See `PendingSend.attemptCount` for the three-state semantics. The DTO
     /// memberwise init defaults this to `0` (current-build sentinel) so
-    /// new envelopes enter disk distinguishable from pre-plan rows that
+    /// new envelopes enter disk distinguishable from pre-migration rows that
     /// lightweight-migrate to `nil`.
     public let attemptCount: Int?
 

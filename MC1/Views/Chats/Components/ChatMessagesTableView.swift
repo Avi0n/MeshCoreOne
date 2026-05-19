@@ -34,21 +34,44 @@ struct ChatMessagesTableView: View {
 
     var body: some View {
         let mentionIDSet = Set(unseenMentionIDs)
+        let factory = ChatCellContentFactory(
+            contactName: contactName,
+            deviceName: deviceName,
+            configuration: configuration,
+            resolver: BubbleResolver(viewModel: viewModel),
+            actions: BubbleActions(
+                onRetryMessage: onRetryMessage,
+                onReaction: { emoji, message in
+                    recentEmojisStore.recordUsage(emoji)
+                    Task { await viewModel.sendReaction(emoji: emoji, to: message) }
+                },
+                onLongPress: { message in selectedMessageForActions = message },
+                onImageTap: { message in
+                    if let data = viewModel.imageData(for: message.id) {
+                        imageViewerData = ImageViewerData(
+                            imageData: data,
+                            isGIF: viewModel.isGIFImage(for: message.id)
+                        )
+                    }
+                },
+                onRetryImageFetch: { messageID in
+                    Task { await viewModel.retryImageFetch(for: messageID) }
+                },
+                onRequestPreviewFetch: { messageID in
+                    if viewModel.shouldRequestImageFetch(for: messageID) {
+                        viewModel.requestImageFetch(for: messageID)
+                    } else {
+                        viewModel.requestPreviewFetch(for: messageID)
+                    }
+                },
+                onManualPreviewFetch: { messageID in
+                    Task { await viewModel.manualFetchPreview(for: messageID) }
+                }
+            )
+        )
         ChatTableView(
             items: viewModel.items,
-            cellContent: { item in
-                MessageBubbleView(
-                    item: item,
-                    contactName: contactName,
-                    deviceName: deviceName,
-                    configuration: configuration,
-                    viewModel: viewModel,
-                    recentEmojisStore: recentEmojisStore,
-                    selectedMessageForActions: $selectedMessageForActions,
-                    imageViewerData: $imageViewerData,
-                    onRetryMessage: onRetryMessage
-                )
-            },
+            cellContent: factory.makeContent(for:),
             isAtBottom: $isAtBottom,
             unreadCount: $unreadCount,
             scrollToBottomRequest: $scrollToBottomRequest,

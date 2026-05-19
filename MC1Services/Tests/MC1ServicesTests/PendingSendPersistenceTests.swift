@@ -124,7 +124,7 @@ struct PendingSendPersistenceTests {
     /// `fetchPendingSends` (DTO → @Model → DTO) without normalization or
     /// loss. The convenience initializer `PendingSend(dto:)` must forward
     /// the value verbatim — per CLAUDE.md "Backup and restore", a stored
-    /// field that distinguishes pre-plan rows (`nil`) from current-build
+    /// field that distinguishes pre-migration rows (`nil`) from current-build
     /// rows (`0` or positive) must not collapse through a normalizing
     /// accessor at materialization time. Round-tripping each of the three
     /// distinguishable states verifies the column survives intact.
@@ -164,7 +164,7 @@ struct PendingSendPersistenceTests {
         let drainedRow = try #require(rows.first(where: { $0.messageID == drainedID }))
 
         #expect(legacyRow.attemptCount == nil,
-                "pre-plan row stored as nil must come back as nil — backfill is the only path that promotes")
+                "pre-migration row stored as nil must come back as nil — backfill is the only path that promotes")
         #expect(raceWindowRow.attemptCount == 0,
                 "current-build race-window row stored as 0 must come back as 0")
         #expect(drainedRow.attemptCount == 4,

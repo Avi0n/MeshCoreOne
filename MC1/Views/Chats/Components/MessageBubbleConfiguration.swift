@@ -1,30 +1,18 @@
 import MC1Services
 
-/// Configuration for message bubble appearance and behavior
+/// View-layer formatting flags for a message bubble.
 struct MessageBubbleConfiguration: Sendable {
-    let accentColor: Color
-    let showSenderName: Bool
-    let isChannel: Bool
-    let senderNameResolver: (@Sendable (MessageDTO) -> NodeNameResolution)?
+    var showSenderName: Bool
 
-    static let directMessage = MessageBubbleConfiguration(
-        accentColor: .blue,
-        showSenderName: false,
-        isChannel: false,
-        senderNameResolver: nil
-    )
+    static let directMessage = MessageBubbleConfiguration(showSenderName: false)
 
-    static func channel(isPublic: Bool, contacts: [ContactDTO]) -> MessageBubbleConfiguration {
-        MessageBubbleConfiguration(
-            accentColor: isPublic ? .green : .blue,
-            showSenderName: true,
-            isChannel: true,
-            senderNameResolver: { message in
-                resolveSenderName(for: message, contacts: contacts)
-            }
-        )
+    static func channel(isPublic: Bool) -> MessageBubbleConfiguration {
+        MessageBubbleConfiguration(showSenderName: true)
     }
 
+    /// Resolves the display name for a message's sender from the contacts list.
+    /// Used by `ChatViewModel+ItemBuild` to bake the resolved name into
+    /// `MessageItem.envelope.senderResolution` upstream.
     static func resolveSenderName(for message: MessageDTO, contacts: [ContactDTO]) -> NodeNameResolution {
         // First, try parsed sender name from channel message
         if let senderName = message.senderNodeName, !senderName.isEmpty {

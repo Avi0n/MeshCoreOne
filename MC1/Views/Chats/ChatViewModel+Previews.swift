@@ -228,7 +228,7 @@ extension ChatViewModel {
 
     /// Returns the raw image data for a message, if available
     func imageData(for messageID: UUID) -> Data? {
-        loadedImageData[messageID]
+        loadedImageData.object(forKey: messageID as NSUUID).map { Data(referencing: $0) }
     }
 
     /// Clears the negative cache entry for a failed image and re-triggers the fetch.
@@ -297,7 +297,7 @@ extension ChatViewModel {
             let isGIF = ImageURLDetector.isGIFData(data)
             imageIsGIF[messageID] = isGIF
             if !isGIF {
-                loadedImageData[messageID] = data
+                loadedImageData.setObject(data as NSData, forKey: messageID as NSUUID, cost: data.count)
             }
             let decoded: UIImage? = await Task.detached {
                 if isGIF {
@@ -336,7 +336,7 @@ extension ChatViewModel {
 
     /// Clean up image state for a specific message
     private func cleanupImageState(for messageID: UUID) {
-        loadedImageData.removeValue(forKey: messageID)
+        loadedImageData.removeObject(forKey: messageID as NSUUID)
         decodedImages.removeValue(forKey: messageID)
         imageIsGIF.removeValue(forKey: messageID)
         imageFetchTasks[messageID]?.cancel()
@@ -347,7 +347,7 @@ extension ChatViewModel {
     private func clearImageState() {
         imageFetchTasks.values.forEach { $0.cancel() }
         imageFetchTasks.removeAll()
-        loadedImageData.removeAll()
+        loadedImageData.removeAllObjects()
         decodedImages.removeAll()
         imageIsGIF.removeAll()
     }

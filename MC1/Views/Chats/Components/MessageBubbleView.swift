@@ -1,67 +1,41 @@
 import SwiftUI
 import MC1Services
 
-/// Renders a UnifiedMessageBubble for a stored MessageItem.
-/// Reads the message DTO from the view model and wires callbacks.
-struct MessageBubbleView: View {
+/// Renders a `UnifiedMessageBubble` for a stored `MessageItem`. Resolves
+/// the message DTO and per-message assets through `BubbleResolver` and
+/// dispatches user interactions through `BubbleActions`. The view does
+/// not hold a reference to `ChatViewModel`, which lets it adopt
+/// `Equatable` on `MessageItem` alone so SwiftUI can skip rebodies when
+/// the row identity and content are unchanged.
+struct MessageBubbleView: View, Equatable {
     let item: MessageItem
     let contactName: String
     let deviceName: String
     let configuration: MessageBubbleConfiguration
-    @Bindable var viewModel: ChatViewModel
-    let recentEmojisStore: RecentEmojisStore
-    @Binding var selectedMessageForActions: MessageDTO?
-    @Binding var imageViewerData: ImageViewerData?
-    let onRetryMessage: (MessageDTO) -> Void
+    let resolver: BubbleResolver
+    let actions: BubbleActions
+
+    nonisolated static func == (lhs: MessageBubbleView, rhs: MessageBubbleView) -> Bool {
+        lhs.item == rhs.item
+    }
 
     var body: some View {
-        if let message = viewModel.message(for: item) {
+        if let message = resolver.message(item) {
             UnifiedMessageBubble(
                 message: message,
                 contactName: contactName,
                 deviceName: deviceName,
                 configuration: configuration,
                 item: item,
-                imageResolver: { ref in
-                    switch ref.role {
-                    case .inline:
-                        return viewModel.decodedImage(for: ref.cacheKey)
-                    case .linkPreviewImage:
-                        return viewModel.decodedPreviewImage(for: ref.cacheKey)
-                    case .linkPreviewIcon:
-                        return viewModel.decodedPreviewIcon(for: ref.cacheKey)
-                    }
-                },
+                imageResolver: { ref in resolver.image(ref) },
                 callbacks: MessageBubbleCallbacks(
-                    onRetry: { onRetryMessage(message) },
-                    onReaction: { emoji in
-                        recentEmojisStore.recordUsage(emoji)
-                        Task { await viewModel.sendReaction(emoji: emoji, to: message) }
-                    },
-                    onLongPress: { selectedMessageForActions = message },
-                    onImageTap: {
-                        if let data = viewModel.imageData(for: message.id) {
-                            imageViewerData = ImageViewerData(
-                                imageData: data,
-                                isGIF: viewModel.isGIFImage(for: message.id)
-                            )
-                        }
-                    },
-                    onRetryImageFetch: {
-                        Task { await viewModel.retryImageFetch(for: message.id) }
-                    },
-                    onRequestPreviewFetch: {
-                        if viewModel.shouldRequestImageFetch(for: message.id) {
-                            viewModel.requestImageFetch(for: message.id)
-                        } else {
-                            viewModel.requestPreviewFetch(for: message.id)
-                        }
-                    },
-                    onManualPreviewFetch: {
-                        Task {
-                            await viewModel.manualFetchPreview(for: message.id)
-                        }
-                    }
+                    onRetry: { actions.onRetryMessage(message) },
+                    onReaction: { emoji in actions.onReaction(emoji, message) },
+                    onLongPress: { actions.onLongPress(message) },
+                    onImageTap: { actions.onImageTap(message) },
+                    onRetryImageFetch: { actions.onRetryImageFetch(message.id) },
+                    onRequestPreviewFetch: { actions.onRequestPreviewFetch(message.id) },
+                    onManualPreviewFetch: { actions.onManualPreviewFetch(message.id) }
                 )
             )
         } else {

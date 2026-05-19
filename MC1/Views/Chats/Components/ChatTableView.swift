@@ -27,7 +27,19 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     private var itemIndexByID: [Item.ID: Int] = [:]
     private var cellContentProvider: ((Item) -> CellContent)?
     private var dataSource: UITableViewDiffableDataSource<Section, Item.ID>?
-    private var pendingSnapshotApplies: [SnapshotApplyRequest] = []
+    /// Snapshot scheduled while a previous apply was still running. Latest
+    /// wins: when a new request arrives mid-apply, it replaces this field
+    /// and the intermediate snapshot is skipped. Diffable data source
+    /// derives the visual result from the final snapshot alone, so
+    /// dropping intermediates is safe.
+    private var pendingSnapshot: SnapshotApplyRequest?
+    /// Completions from snapshot requests whose snapshot was superseded
+    /// before it landed. They still need to run because callers (notably
+    /// the pagination prepend path) use them to restore the anchor row's
+    /// viewport position after layout settles; the anchor row is part of
+    /// the superseding snapshot too, so measuring against the post-apply
+    /// layout is correct. Drained in order after the latest apply lands.
+    private var pendingCompletions: [() -> Void] = []
 
     /// Bundled interaction/intent/apply/deferred axes for the scroll surface.
     private(set) var scrollState: ChatScrollState = .idle
@@ -75,6 +87,15 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     private var pendingScrollTargetID: Item.ID?
     private var pendingScrollTask: Task<Void, Never>?
+    private var checkVisibleMentionsTask: Task<Void, Never>?
+
+    /// Coalesces the four scroll-tracking callbacks
+    /// (`updateIsAtBottom`, `checkVisibleMentions`, `checkDividerVisibility`,
+    /// `checkNearTop`) to at most one invocation per display frame.
+    /// `scrollViewDidScroll` only sets a flag; the display link's tick drains it.
+    private var hasPendingScrollObservation = false
+    private var scrollDisplayLink: CADisplayLink?
+    private let scrollDisplayLinkProxy = ChatScrollDisplayLinkProxy()
 
     /// Target item ID for programmatic scroll, derived from the active scroll intent.
     private var scrollTargetItemID: Item.ID? {
@@ -131,10 +152,15 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
         // Manual keyboard observation (UIKit auto-adjustment doesn't work in SwiftUI embed)
         setupKeyboardObservers()
+
+        // Coalesces scroll-tracking callbacks at display-frame cadence
+        setupScrollDisplayLink()
     }
 
-    deinit {
+    isolated deinit {
         NotificationCenter.default.removeObserver(self)
+        scrollDisplayLink?.invalidate()
+        checkVisibleMentionsTask?.cancel()
     }
 
     // MARK: - Keyboard Handling
@@ -278,7 +304,13 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         )
 
         if scrollState.isApplyingSnapshot {
-            pendingSnapshotApplies.append(request)
+            // Latest-wins for the snapshot itself, but preserve the superseded
+            // request's completion so prepend anchor restores still fire after
+            // the final apply lands.
+            if let superseded = pendingSnapshot?.completion {
+                pendingCompletions.append(superseded)
+            }
+            pendingSnapshot = request
             return
         }
 
@@ -287,7 +319,8 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     private func applySnapshotRequest(_ request: SnapshotApplyRequest) {
         guard let dataSource else {
-            pendingSnapshotApplies.removeAll()
+            pendingSnapshot = nil
+            pendingCompletions.removeAll()
             scrollState.endApplying()
             return
         }
@@ -311,9 +344,24 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     private func drainSnapshotQueue() {
         scrollState.endApplying()
-        guard !pendingSnapshotApplies.isEmpty else { return }
-        let nextRequest = pendingSnapshotApplies.removeFirst()
-        applySnapshotRequest(nextRequest)
+        // Loop in case a new pending snapshot is enqueued while draining;
+        // each iteration applies the latest request and clears the field.
+        while let next = pendingSnapshot {
+            pendingSnapshot = nil
+            applySnapshotRequest(next)
+        }
+        // Fire superseded completions only when truly idle. An animated apply
+        // re-enters `scrollState.startApplying()` and finishes its drain in an
+        // async callback; firing now would run the completions before the
+        // final layout settles. The async callback will re-enter this method
+        // and reach the idle branch then.
+        if !scrollState.isApplyingSnapshot && !pendingCompletions.isEmpty {
+            let completions = pendingCompletions
+            pendingCompletions.removeAll()
+            for completion in completions {
+                completion()
+            }
+        }
     }
 
     private struct PrependAnchor {
@@ -435,8 +483,10 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         }
 
         // Check for visible mentions after layout settles (handles mentions visible on load)
-        Task { @MainActor [weak self] in
+        checkVisibleMentionsTask?.cancel()
+        checkVisibleMentionsTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .milliseconds(100))
+            guard !Task.isCancelled else { return }
             self?.checkVisibleMentions()
         }
 
@@ -566,10 +616,13 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     // MARK: - Scroll Tracking
 
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        updateIsAtBottom()
-        checkVisibleMentions()
-        checkDividerVisibility()
-        checkNearTop()
+        // Arm the coalescer; the display link's next tick drains the callbacks.
+        // Unpause only on the first hit of each burst — flipping `isPaused` is
+        // cheap but unnecessary when already running.
+        if !hasPendingScrollObservation {
+            hasPendingScrollObservation = true
+            scrollDisplayLink?.isPaused = false
+        }
     }
 
     private func checkVisibleMentions() {
