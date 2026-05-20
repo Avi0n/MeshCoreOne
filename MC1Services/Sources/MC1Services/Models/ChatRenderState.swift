@@ -5,24 +5,39 @@ import Foundation
 /// `ChatViewModel` accessors that forward to the coordinator's current
 /// `renderState`.
 public struct ChatRenderState: Sendable, Equatable {
+
+    /// Tri-state load phase that distinguishes "we haven't loaded yet" from
+    /// "we loaded and the result was empty." Per-conversation views gate the
+    /// empty-state placeholder on `phase == .loaded && items.isEmpty`, so a
+    /// freshly-bound coordinator whose first fetch is still in-flight does
+    /// not flash "No messages" before the awaited fetch lands.
+    public enum LoadPhase: Sendable {
+        case uninitialized
+        case loading
+        case loaded
+    }
+
     public let items: [MessageItem]
     public let itemIndexByID: [UUID: Int]
     public let hasMoreMessages: Bool
     public let isLoadingOlder: Bool
     public let totalFetchedCount: Int
+    public let phase: LoadPhase
 
     public init(
         items: [MessageItem],
         itemIndexByID: [UUID: Int],
         hasMoreMessages: Bool,
         isLoadingOlder: Bool,
-        totalFetchedCount: Int
+        totalFetchedCount: Int,
+        phase: LoadPhase = .uninitialized
     ) {
         self.items = items
         self.itemIndexByID = itemIndexByID
         self.hasMoreMessages = hasMoreMessages
         self.isLoadingOlder = isLoadingOlder
         self.totalFetchedCount = totalFetchedCount
+        self.phase = phase
     }
 
     public static let empty = ChatRenderState(
@@ -30,7 +45,8 @@ public struct ChatRenderState: Sendable, Equatable {
         itemIndexByID: [:],
         hasMoreMessages: true,
         isLoadingOlder: false,
-        totalFetchedCount: 0
+        totalFetchedCount: 0,
+        phase: .uninitialized
     )
 
     /// Returns a new render state with the supplied fields overridden.
@@ -40,14 +56,16 @@ public struct ChatRenderState: Sendable, Equatable {
         itemIndexByID: [UUID: Int]? = nil,
         hasMoreMessages: Bool? = nil,
         isLoadingOlder: Bool? = nil,
-        totalFetchedCount: Int? = nil
+        totalFetchedCount: Int? = nil,
+        phase: LoadPhase? = nil
     ) -> ChatRenderState {
         ChatRenderState(
             items: items ?? self.items,
             itemIndexByID: itemIndexByID ?? self.itemIndexByID,
             hasMoreMessages: hasMoreMessages ?? self.hasMoreMessages,
             isLoadingOlder: isLoadingOlder ?? self.isLoadingOlder,
-            totalFetchedCount: totalFetchedCount ?? self.totalFetchedCount
+            totalFetchedCount: totalFetchedCount ?? self.totalFetchedCount,
+            phase: phase ?? self.phase
         )
     }
 

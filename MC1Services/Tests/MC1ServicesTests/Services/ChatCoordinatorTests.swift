@@ -255,6 +255,130 @@ struct ChatCoordinatorTests {
         #expect(coordinator.messagesByID[message.id]?.status == .pending)
     }
 
+    @Test("fresh coordinator starts in .uninitialized phase")
+    func phase_startsUninitialized() {
+        let coordinator = ChatCoordinator.makeForTesting()
+        #expect(coordinator.renderState.phase == .uninitialized)
+    }
+
+    @Test("beginLoading transitions .uninitialized to .loading")
+    func beginLoading_transitionsFromUninitialized() {
+        let coordinator = ChatCoordinator.makeForTesting()
+        let renderIDBefore = coordinator.renderStateID
+
+        coordinator.beginLoading()
+
+        #expect(coordinator.renderState.phase == .loading)
+        #expect(coordinator.renderStateID == renderIDBefore &+ 1)
+    }
+
+    @Test("beginLoading is a no-op once .loaded")
+    func beginLoading_noOpWhenLoaded() {
+        let coordinator = ChatCoordinator.makeForTesting()
+        coordinator.replaceAll([])
+        let renderIDBefore = coordinator.renderStateID
+
+        coordinator.beginLoading()
+
+        #expect(coordinator.renderState.phase == .loaded)
+        #expect(coordinator.renderStateID == renderIDBefore)
+    }
+
+    @Test("beginLoading is a no-op while already .loading")
+    func beginLoading_noOpWhenLoading() {
+        let coordinator = ChatCoordinator.makeForTesting()
+        coordinator.beginLoading()
+        let renderIDBefore = coordinator.renderStateID
+
+        coordinator.beginLoading()
+
+        #expect(coordinator.renderState.phase == .loading)
+        #expect(coordinator.renderStateID == renderIDBefore)
+    }
+
+    @Test("markLoaded transitions .uninitialized to .loaded")
+    func markLoaded_transitionsFromUninitialized() {
+        let coordinator = ChatCoordinator.makeForTesting()
+        let renderIDBefore = coordinator.renderStateID
+
+        coordinator.markLoaded()
+
+        #expect(coordinator.renderState.phase == .loaded)
+        #expect(coordinator.renderStateID == renderIDBefore &+ 1)
+    }
+
+    @Test("markLoaded transitions .loading to .loaded")
+    func markLoaded_transitionsFromLoading() {
+        let coordinator = ChatCoordinator.makeForTesting()
+        coordinator.beginLoading()
+        let renderIDBefore = coordinator.renderStateID
+
+        coordinator.markLoaded()
+
+        #expect(coordinator.renderState.phase == .loaded)
+        #expect(coordinator.renderStateID == renderIDBefore &+ 1)
+    }
+
+    @Test("markLoaded is idempotent when already .loaded")
+    func markLoaded_idempotentWhenLoaded() {
+        let coordinator = ChatCoordinator.makeForTesting()
+        coordinator.markLoaded()
+        let renderIDBefore = coordinator.renderStateID
+
+        coordinator.markLoaded()
+
+        #expect(coordinator.renderState.phase == .loaded)
+        #expect(coordinator.renderStateID == renderIDBefore)
+    }
+
+    @Test("replaceAll transitions phase to .loaded")
+    func replaceAll_transitionsToLoaded() {
+        let coordinator = ChatCoordinator.makeForTesting()
+        #expect(coordinator.renderState.phase == .uninitialized)
+
+        coordinator.replaceAll([MessageDTO.testDirectMessage()])
+
+        #expect(coordinator.renderState.phase == .loaded)
+    }
+
+    @Test("replaceAll with empty list still transitions to .loaded")
+    func replaceAll_emptyTransitionsToLoaded() {
+        let coordinator = ChatCoordinator.makeForTesting()
+        coordinator.beginLoading()
+
+        coordinator.replaceAll([])
+
+        #expect(coordinator.renderState.phase == .loaded)
+        #expect(coordinator.messages.isEmpty)
+    }
+
+    /// Multi-view-model scenario: two `ChatViewModel`s pointing at the same
+    /// conversation (iPad split view, sheet dismissal) share a single
+    /// coordinator instance from the registry. When one VM's load
+    /// completes, both VMs observe `phase == .loaded` because both read
+    /// through the shared `renderState`. The empty-state gate stays
+    /// consistent across siblings.
+    @Test("phase is observed identically by sibling view models sharing one coordinator")
+    func phase_sharedAcrossSiblings() async throws {
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let dataStore = PersistenceStore(modelContainer: container)
+        let registry = ChatCoordinatorRegistry(dataStore: dataStore)
+
+        let radioID = UUID()
+        let contactID = UUID()
+        let conversationID = ChatConversationID.dm(radioID: radioID, contactID: contactID)
+        let coordinatorA = registry.coordinator(for: conversationID)
+        let coordinatorB = registry.coordinator(for: conversationID)
+
+        #expect(coordinatorA === coordinatorB)
+        #expect(coordinatorA.renderState.phase == .uninitialized)
+
+        coordinatorA.replaceAll([])
+
+        #expect(coordinatorA.renderState.phase == .loaded)
+        #expect(coordinatorB.renderState.phase == .loaded)
+    }
+
     /// Same regression scope as `applyReloadedIDs_invokesRenderItemRebuilder`,
     /// but verifies the rebuilder is not invoked for IDs that are not present
     /// in the coordinator's canonical `messages` array. Paginated-out

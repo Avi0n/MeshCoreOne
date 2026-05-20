@@ -1118,8 +1118,8 @@ public final class ConnectionManager {
         }
 
         // Run startup-time DB hygiene before hydrating the send queue.
-        // warmUp's inner operations (purgeOrphanPendingSends + the Phase-2
-        // attemptCount backfill) are best-effort; failure is non-fatal.
+        // warmUp's inner operations (purgeOrphanPendingSends and
+        // purgeLegacyAttemptCountRows) are best-effort; failure is non-fatal.
         do {
             try await newServices.warmUp()
         } catch {
@@ -1130,6 +1130,11 @@ public final class ConnectionManager {
         // view-model `configure` calls see a hydrated service from the
         // first read.
         await newServices.chatSendQueueService.hydrate()
+
+        // Restore `self.session` together with `self.services`: an interleaved
+        // `handleConnectionLoss` nils both atomically, and `promoteToReady`'s
+        // state invariants require both.
+        self.session = session
         self.services = newServices
 
         // BLE/WiFi connect paths set `connectionState = .connected` before

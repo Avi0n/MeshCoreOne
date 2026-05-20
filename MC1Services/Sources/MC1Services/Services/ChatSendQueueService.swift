@@ -84,7 +84,7 @@ public final class ChatSendQueueService {
 
     private var hasHydrated = false
 
-    // swiftlint:disable:next function_body_length cyclomatic_complexity
+    // swiftlint:disable:next function_body_length
     public init(
         radioID: UUID,
         dataStore: PersistenceStore,
@@ -138,76 +138,41 @@ public final class ChatSendQueueService {
                         return
                     case .transient(let error):
                         loggerRef.warning("DM drain fetchContact transient error: \(String(describing: error)); parking envelope")
-                        _ = try await ChatSendQueueService.waitForTransportOpen(
+                        try await ChatSendQueueService.parkAndCancel(
                             triggers: triggers,
                             logger: loggerRef,
                             messageID: envelope.messageID,
                             kind: "DM",
                             timeout: configRef.transportWaitTimeout
                         )
-                        throw CancellationError()
                     }
 
-                    // Pre-send gate. If the PendingSend row is gone the user (or
-                    // another path) has reclaimed ownership of this messageID —
-                    // abandon the parked envelope rather than racing a fresh send.
-                    switch await ChatSendQueueService.classifyRead({ () async throws -> Bool? in
-                        try await dataStoreRef.hasPendingSend(messageID: envelope.messageID) ? true : nil
-                    }) {
-                    case .found:
-                        break
-                    case .missing:
-                        loggerRef.info("DM drain abandoned messageID=\(envelope.messageID) reason=PendingSendGone")
-                        return
-                    case .transient(let error):
-                        loggerRef.warning("DM drain hasPendingSend transient error: \(String(describing: error)); parking envelope")
-                        _ = try await ChatSendQueueService.waitForTransportOpen(
-                            triggers: triggers,
-                            logger: loggerRef,
-                            messageID: envelope.messageID,
-                            kind: "DM",
-                            timeout: configRef.transportWaitTimeout
-                        )
-                        throw CancellationError()
-                    }
-
-                    // Top-of-drain bump. Persisted attemptCount becomes the source
-                    // of truth for preserveTimestamp. Bump completes (and
-                    // modelContext.save() commits) before any wire-affecting work.
-                    //
-                    // Explicit do/catch (not try?) so failures log. The helper
-                    // returns Int?: nil means terminal (row deleted), thrown
-                    // error means transient (park + retry — the persisted count
-                    // did not advance, so the next bump on the follow-up drain
-                    // produces the same postBumpCount the failed attempt would
-                    // have).
+                    // Pre-send gate + attemptCount bump. Persisted attemptCount
+                    // becomes the source of truth for preserveTimestamp. Bump
+                    // completes (and modelContext.save() commits) before any
+                    // wire-affecting work.
                     let postBumpCount: Int
+                    let preserveTimestamp: Bool
                     do {
-                        guard let bumped = try await dataStoreRef.incrementPendingSendAttemptCount(messageID: envelope.messageID) else {
-                            loggerRef.info("DM drain: PendingSend row gone for messageID=\(envelope.messageID); treating as terminal")
-                            return
-                        }
-                        postBumpCount = bumped
+                        guard let result = try await ChatSendQueueService.preflightAndBump(
+                            dataStore: dataStoreRef,
+                            messageID: envelope.messageID,
+                            kind: "DM",
+                            logger: loggerRef,
+                            osLogger: osLoggerRef
+                        ) else { return }
+                        postBumpCount = result.postBumpCount
+                        preserveTimestamp = result.preserveTimestamp
                     } catch {
-                        loggerRef.warning("incrementPendingSendAttemptCount failed: \(String(describing: error)); parking envelope for next transport-open")
                         _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
-                        _ = try await ChatSendQueueService.waitForTransportOpen(
+                        try await ChatSendQueueService.parkAndCancel(
                             triggers: triggers,
                             logger: loggerRef,
                             messageID: envelope.messageID,
                             kind: "DM",
                             timeout: configRef.transportWaitTimeout
                         )
-                        throw CancellationError()
                     }
-
-                    // preserveTimestamp = postBumpCount > 1, i.e. "this is at
-                    // least the 2nd drain attempt for this envelope; a wire send
-                    // may already have happened in a prior attempt — preserve
-                    // the original wire timestamp so mesh dedup catches duplicate
-                    // landings."
-                    let preserveTimestamp = postBumpCount > 1
-                    osLoggerRef.debug("DM drain begin messageID=\(envelope.messageID) postBumpCount=\(postBumpCount) preserveTimestamp=\(preserveTimestamp)")
 
                     do {
                         _ = try await messageServiceRef.retryDirectMessage(
@@ -236,19 +201,13 @@ public final class ChatSendQueueService {
                         // prevention on the next pass is via preserveTimestamp,
                         // not via any boundary check.
                         _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
-                        // Wait for a transport-open trigger up to the bounded
-                        // timeout, then throw CancellationError as the requeue
-                        // protocol: SendQueue.drain's catch is CancellationError
-                        // re-inserts the envelope; taskCompleted then respawns
-                        // the drain so the next attempt sees the live state.
-                        _ = try await ChatSendQueueService.waitForTransportOpen(
+                        try await ChatSendQueueService.parkAndCancel(
                             triggers: triggers,
                             logger: loggerRef,
                             messageID: envelope.messageID,
                             kind: "DM",
                             timeout: configRef.transportWaitTimeout
                         )
-                        throw CancellationError()
                     }
                 } catch let cancellation as CancellationError {
                     throw cancellation
@@ -276,52 +235,29 @@ public final class ChatSendQueueService {
                 // terminal failure for the envelope and fires
                 // `notifyMessageFailed` exactly once.
                 do {
-                    // Pre-send gate. Symmetric to the DM path: if the user (or
-                    // another path) reclaimed this messageID, abandon the
-                    // parked envelope.
-                    switch await ChatSendQueueService.classifyRead({ () async throws -> Bool? in
-                        try await dataStoreRef.hasPendingSend(messageID: envelope.messageID) ? true : nil
-                    }) {
-                    case .found:
-                        break
-                    case .missing:
-                        loggerRef.info("channel drain abandoned messageID=\(envelope.messageID) reason=PendingSendGone")
-                        return
-                    case .transient(let error):
-                        loggerRef.warning("channel drain hasPendingSend transient error: \(String(describing: error)); parking envelope")
-                        _ = try await ChatSendQueueService.waitForTransportOpen(
-                            triggers: triggers,
-                            logger: loggerRef,
-                            messageID: envelope.messageID,
-                            kind: "channel",
-                            timeout: configRef.transportWaitTimeout
-                        )
-                        throw CancellationError()
-                    }
-
-                    // Top-of-drain bump; see DM closure for rationale.
+                    // Pre-send gate + attemptCount bump; see DM closure for rationale.
                     let postBumpCount: Int
+                    let preserveTimestamp: Bool
                     do {
-                        guard let bumped = try await dataStoreRef.incrementPendingSendAttemptCount(messageID: envelope.messageID) else {
-                            loggerRef.info("Channel drain: PendingSend row gone for messageID=\(envelope.messageID); treating as terminal")
-                            return
-                        }
-                        postBumpCount = bumped
+                        guard let result = try await ChatSendQueueService.preflightAndBump(
+                            dataStore: dataStoreRef,
+                            messageID: envelope.messageID,
+                            kind: "channel",
+                            logger: loggerRef,
+                            osLogger: osLoggerRef
+                        ) else { return }
+                        postBumpCount = result.postBumpCount
+                        preserveTimestamp = result.preserveTimestamp
                     } catch {
-                        loggerRef.warning("incrementPendingSendAttemptCount failed: \(String(describing: error)); parking envelope for next transport-open")
                         _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
-                        _ = try await ChatSendQueueService.waitForTransportOpen(
+                        try await ChatSendQueueService.parkAndCancel(
                             triggers: triggers,
                             logger: loggerRef,
                             messageID: envelope.messageID,
                             kind: "channel",
                             timeout: configRef.transportWaitTimeout
                         )
-                        throw CancellationError()
                     }
-
-                    let preserveTimestamp = postBumpCount > 1
-                    osLoggerRef.debug("channel drain begin messageID=\(envelope.messageID) postBumpCount=\(postBumpCount) preserveTimestamp=\(preserveTimestamp)")
 
                     do {
                         // resendChannelMessage stamps a fresh wire timestamp so the
@@ -374,14 +310,13 @@ public final class ChatSendQueueService {
                             if postBumpCount < configRef.disambiguateAfterAttempts {
                                 loggerRef.info("channel drain NOT_FOUND below disambiguate threshold messageID=\(envelope.messageID) postBumpCount=\(postBumpCount); parking envelope")
                                 _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
-                                _ = try await ChatSendQueueService.waitForTransportOpen(
+                                try await ChatSendQueueService.parkAndCancel(
                                     triggers: triggers,
                                     logger: loggerRef,
                                     messageID: envelope.messageID,
                                     kind: "channel",
                                     timeout: configRef.transportWaitTimeout
                                 )
-                                throw CancellationError()
                             }
 
                             let stillExists: Bool
@@ -397,14 +332,13 @@ public final class ChatSendQueueService {
                                 }
                                 loggerRef.info("channel drain NOT_FOUND followup fetchChannel failed: \(String(describing: error)); parking envelope (\(failures)/\(configRef.maxConsecutiveFetchChannelFailures))")
                                 _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
-                                _ = try await ChatSendQueueService.waitForTransportOpen(
+                                try await ChatSendQueueService.parkAndCancel(
                                     triggers: triggers,
                                     logger: loggerRef,
                                     messageID: envelope.messageID,
                                     kind: "channel",
                                     timeout: configRef.transportWaitTimeout
                                 )
-                                throw CancellationError()
                             }
                             if !stillExists {
                                 loggerRef.warning("Channel drain: NOT_FOUND confirmed by fetchChannel for messageID=\(envelope.messageID); treating as terminal (channel deleted)")
@@ -423,14 +357,13 @@ public final class ChatSendQueueService {
                         }
                         loggerRef.info("channel drain transient messageID=\(envelope.messageID) error=\(String(describing: error))")
                         _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
-                        _ = try await ChatSendQueueService.waitForTransportOpen(
+                        try await ChatSendQueueService.parkAndCancel(
                             triggers: triggers,
                             logger: loggerRef,
                             messageID: envelope.messageID,
                             kind: "channel",
                             timeout: configRef.transportWaitTimeout
                         )
-                        throw CancellationError()
                     }
                 } catch let cancellation as CancellationError {
                     throw cancellation
@@ -516,6 +449,70 @@ public final class ChatSendQueueService {
             }
             return false
         }
+    }
+
+    /// Combines the `hasPendingSend` gate, the top-of-drain `attemptCount` bump,
+    /// and the `preserveTimestamp` computation that every DM and channel drain
+    /// runs before any wire-affecting work. Returns nil if the row is gone
+    /// (terminal — abandon envelope). Throws transient errors so the caller can
+    /// park and retry; throws nothing on the gate-missing terminal path.
+    nonisolated static func preflightAndBump(
+        dataStore: PersistenceStore,
+        messageID: UUID,
+        kind: String,
+        logger: PersistentLogger,
+        osLogger: os.Logger
+    ) async throws -> (postBumpCount: Int, preserveTimestamp: Bool)? {
+        switch await ChatSendQueueService.classifyRead({ () async throws -> Bool? in
+            try await dataStore.hasPendingSend(messageID: messageID) ? true : nil
+        }) {
+        case .found:
+            break
+        case .missing:
+            logger.info("\(kind) drain abandoned messageID=\(messageID) reason=PendingSendGone")
+            return nil
+        case .transient(let error):
+            logger.warning("\(kind) drain hasPendingSend transient error: \(String(describing: error)); parking envelope")
+            throw error
+        }
+
+        let postBumpCount: Int
+        do {
+            guard let bumped = try await dataStore.incrementPendingSendAttemptCount(messageID: messageID) else {
+                logger.info("\(kind) drain: PendingSend row gone for messageID=\(messageID); treating as terminal")
+                return nil
+            }
+            postBumpCount = bumped
+        } catch {
+            logger.warning("incrementPendingSendAttemptCount failed: \(String(describing: error)); parking envelope for next transport-open")
+            throw error
+        }
+
+        let preserveTimestamp = postBumpCount > 1
+        osLogger.debug("\(kind) drain begin messageID=\(messageID) postBumpCount=\(postBumpCount) preserveTimestamp=\(preserveTimestamp)")
+        return (postBumpCount: postBumpCount, preserveTimestamp: preserveTimestamp)
+    }
+
+    /// Awaits a transport-open trigger up to the bounded timeout, then throws
+    /// `CancellationError` to drive `SendQueue.drain`'s requeue protocol.
+    /// Sites that need to revert message status to `.pending` before parking
+    /// must call `updateMessageStatusUnlessDelivered` themselves — this helper
+    /// does not write status.
+    nonisolated static func parkAndCancel(
+        triggers: BLETransportOpenedSignal,
+        logger: PersistentLogger,
+        messageID: UUID,
+        kind: String,
+        timeout: TimeInterval
+    ) async throws -> Never {
+        _ = try await ChatSendQueueService.waitForTransportOpen(
+            triggers: triggers,
+            logger: logger,
+            messageID: messageID,
+            kind: kind,
+            timeout: timeout
+        )
+        throw CancellationError()
     }
 
     /// Classify a send error as transient (park the envelope and wait on a
@@ -624,13 +621,12 @@ public final class ChatSendQueueService {
     ///
     /// The nullable-attemptCount scheme stores legacy-vs-current-build
     /// distinction in the column itself; `PersistenceStore.warmUp()` runs
-    /// the `backfillPendingSendAttemptCounts` step before hydrate (wired in
+    /// `purgeLegacyAttemptCountRows` before hydrate (wired in
     /// `ConnectionManager.buildServicesAndSaveDevice`) so pre-migration `nil`
-    /// rows are promoted to `1`. The first post-rehydrate drain bumps to
-    /// `2` and `postBumpCount > 1` (= true) preserves the wire timestamp.
-    /// Race-window rows (persist succeeded, drain bump didn't run) sit at
-    /// `attemptCount = 0`, bump to `1`, and `preserveTimestamp` = false —
-    /// correct, because the recipient never saw the packet.
+    /// rows are deleted rather than promoted. Race-window rows (persist
+    /// succeeded, drain bump didn't run) sit at `attemptCount = 0`, bump to
+    /// `1`, and `preserveTimestamp` = false — correct, because the recipient
+    /// never saw the packet.
     public func hydrate() async {
         guard !hasHydrated else { return }
         hasHydrated = true

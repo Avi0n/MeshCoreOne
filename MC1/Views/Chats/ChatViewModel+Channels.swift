@@ -9,8 +9,14 @@ extension ChatViewModel {
     func loadChannelMessages(for channel: ChannelDTO) async {
         logger.info("loadChannelMessages: start channel=\(channel.index) radioID=\(channel.radioID)")
 
+        // Close the per-conversation empty-state gate while the fetch is
+        // in flight. No-op when the coordinator is already past
+        // `.uninitialized` (warm rebind, refresh).
+        coordinator?.beginLoading()
+
         guard let dataStore else {
             logger.info("loadChannelMessages: dataStore is nil, returning early")
+            coordinator?.markLoaded()
             return
         }
 
@@ -143,7 +149,9 @@ extension ChatViewModel {
         }
 
         logger.info("loadChannelMessages: done, isLoading=false, messages.count=\(self.messages.count)")
-        hasLoadedOnce = true
+        // Ensures the empty-state gate opens even when the fetch threw —
+        // `replaceAll` is the success path; this catches the failure path.
+        coordinator?.markLoaded()
         isLoading = false
     }
 

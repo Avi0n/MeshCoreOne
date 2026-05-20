@@ -1318,22 +1318,6 @@ struct PersistenceStoreTests {
         #expect(persisted?.attemptCount == 1, "persisted attemptCount should match return value")
     }
 
-    @Test("incrementPendingSendAttemptCount from nil logs fault and sets to 2")
-    func testIncrementPendingSendAttemptCount_FromNil_LogsFaultAndSetsToTwo() async throws {
-        let store = try await createTestStore()
-        let messageID = UUID()
-        // Simulate a pre-migration row that escaped the warmUp backfill.
-        let dto = makePendingSendDTO(messageID: messageID, attemptCount: nil)
-        try await store.upsertPendingSend(dto)
-
-        let result = try await store.incrementPendingSendAttemptCount(messageID: messageID)
-        #expect(result == 2,
-                "nil-handling: treat prior value as 1 so bump produces 2, preserving wire timestamp via postBumpCount > 1")
-
-        let persisted = try await store.fetchPendingSends(radioID: dto.radioID).first
-        #expect(persisted?.attemptCount == 2, "persisted attemptCount should match return value")
-    }
-
     @Test("incrementPendingSendAttemptCount returns nil when no row matches")
     func testIncrementPendingSendAttemptCount_NoRow_ReturnsNil() async throws {
         let store = try await createTestStore()
@@ -1343,8 +1327,8 @@ struct PersistenceStoreTests {
         #expect(result == nil, "missing-row case is terminal — return nil instead of creating a new row")
     }
 
-    @Test("backfillPendingSendAttemptCounts promotes only legacy nil rows")
-    func testBackfillPendingSendAttemptCounts_PromotesLegacyNilRowsOnly() async throws {
+    @Test("purgeLegacyAttemptCountRows deletes only legacy nil rows")
+    func testPurgeLegacyAttemptCountRows_DeletesLegacyNilRowsOnly() async throws {
         let store = try await createTestStore()
         let radioID = UUID()
         let legacyDTO = makePendingSendDTO(messageID: UUID(), radioID: radioID, attemptCount: nil, sequence: 1)
@@ -1354,32 +1338,32 @@ struct PersistenceStoreTests {
         try await store.upsertPendingSend(raceDTO)
         try await store.upsertPendingSend(drainedDTO)
 
-        let promoted = try await store.backfillPendingSendAttemptCounts()
-        #expect(promoted == 1, "only the single nil-valued row should be promoted")
+        let deleted = try await store.purgeLegacyAttemptCountRows()
+        #expect(deleted == 1, "only the single nil-valued row should be deleted")
 
         let rows = try await store.fetchPendingSends(radioID: radioID)
+        let messageIDs = Set(rows.map(\.messageID))
+        #expect(!messageIDs.contains(legacyDTO.messageID), "legacy nil row must be deleted")
         let byMessageID = Dictionary(uniqueKeysWithValues: rows.map { ($0.messageID, $0.attemptCount) })
-        #expect(byMessageID[legacyDTO.messageID] == 1, "legacy nil row → 1")
         #expect(byMessageID[raceDTO.messageID] == 0, "race-window 0 row stays at 0")
         #expect(byMessageID[drainedDTO.messageID] == 3, "already-drained row stays untouched")
     }
 
-    @Test("backfillPendingSendAttemptCounts is idempotent")
-    func testBackfillPendingSendAttemptCounts_IsIdempotent() async throws {
+    @Test("purgeLegacyAttemptCountRows is idempotent")
+    func testPurgeLegacyAttemptCountRows_IsIdempotent() async throws {
         let store = try await createTestStore()
         let radioID = UUID()
         let dto = makePendingSendDTO(messageID: UUID(), radioID: radioID, attemptCount: nil)
         try await store.upsertPendingSend(dto)
 
-        let firstPromoted = try await store.backfillPendingSendAttemptCounts()
-        let secondPromoted = try await store.backfillPendingSendAttemptCounts()
-        #expect(firstPromoted == 1, "first call promotes the legacy row")
-        #expect(secondPromoted == 0,
-                "second call: predicate matches nothing — monotonically idempotent (nil → 1 cannot reverse)")
+        let firstDeleted = try await store.purgeLegacyAttemptCountRows()
+        let secondDeleted = try await store.purgeLegacyAttemptCountRows()
+        #expect(firstDeleted == 1, "first call deletes the legacy nil row")
+        #expect(secondDeleted == 0, "second call: predicate matches nothing — idempotent on an empty nil set")
     }
 
-    @Test("warmUp runs both purgeOrphanPendingSends and backfillPendingSendAttemptCounts")
-    func testWarmUp_RunsPurgeAndBackfill() async throws {
+    @Test("warmUp runs both purgeOrphanPendingSends and purgeLegacyAttemptCountRows")
+    func testWarmUp_RunsBothPurges() async throws {
         let store = try await createTestStore()
         let radioWithDevice = UUID()
         let radioWithoutDevice = UUID()
@@ -1388,25 +1372,23 @@ struct PersistenceStoreTests {
         let scopedDevice = DeviceDTO.testDevice(id: radioWithDevice, radioID: radioWithDevice)
         try await store.saveDevice(scopedDevice)
 
-        let legacyOnDeviceRadio = makePendingSendDTO(
+        let nilCountOnDeviceRadio = makePendingSendDTO(
             messageID: UUID(), radioID: radioWithDevice, attemptCount: nil, sequence: 1
         )
         let orphanOnUnknownRadio = makePendingSendDTO(
             messageID: UUID(), radioID: radioWithoutDevice, attemptCount: nil, sequence: 1
         )
-        try await store.upsertPendingSend(legacyOnDeviceRadio)
+        try await store.upsertPendingSend(nilCountOnDeviceRadio)
         try await store.upsertPendingSend(orphanOnUnknownRadio)
 
         try await store.warmUp()
 
         let survivingForDevice = try await store.fetchPendingSends(radioID: radioWithDevice)
         let survivingForUnknown = try await store.fetchPendingSends(radioID: radioWithoutDevice)
-        #expect(survivingForDevice.count == 1,
-                "row attached to a paired device must survive purge")
-        #expect(survivingForDevice.first?.attemptCount == 1,
-                "warmUp must run backfill alongside purge: nil → 1")
+        #expect(survivingForDevice.isEmpty,
+                "warmUp must run both purges: nil-attemptCount rows deleted even when radio has a paired device")
         #expect(survivingForUnknown.isEmpty,
-                "row attached to no-device radio must be purged")
+                "row attached to no-device radio must be purged by purgeOrphanPendingSends")
     }
 
     @Test("deletePendingSendsForMessage public API saves on return")

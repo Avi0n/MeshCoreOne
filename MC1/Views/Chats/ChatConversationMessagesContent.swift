@@ -48,8 +48,10 @@ struct ChatConversationMessagesContent: View {
 
     var body: some View {
         Group {
-            if viewModel.messages.isEmpty {
+            if viewModel.renderState.phase == .loaded, viewModel.messages.isEmpty {
                 emptyState
+            } else if viewModel.messages.isEmpty {
+                Color.clear
             } else {
                 ChatMessagesTableView(
                     viewModel: viewModel,

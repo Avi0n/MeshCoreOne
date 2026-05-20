@@ -132,7 +132,9 @@ final class ChatViewModel {
     /// Loading state
     var isLoading = false
 
-    /// Whether data has been loaded at least once (prevents empty state flash)
+    /// True once a list-level conversation fetch has completed. Gates the
+    /// list-level empty-state placeholder. The per-conversation timeline
+    /// has its own gate on `ChatRenderState.LoadPhase`.
     var hasLoadedOnce = false
 
     /// Error message if any

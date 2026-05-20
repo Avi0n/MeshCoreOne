@@ -42,6 +42,7 @@ struct ChatRenderStateTests {
         #expect(empty.hasMoreMessages == true)
         #expect(empty.isLoadingOlder == false)
         #expect(empty.totalFetchedCount == 0)
+        #expect(empty.phase == .uninitialized)
     }
 
     @Test("with(...) replaces only specified fields")
@@ -53,6 +54,53 @@ struct ChatRenderStateTests {
         #expect(updated.isLoadingOlder == ChatRenderState.empty.isLoadingOlder)
         #expect(updated.items == ChatRenderState.empty.items)
         #expect(updated.itemIndexByID == ChatRenderState.empty.itemIndexByID)
+        #expect(updated.phase == ChatRenderState.empty.phase)
+    }
+
+    @Test("with(phase:) replaces only the phase")
+    func withReplacesOnlyPhase() {
+        let loading = ChatRenderState.empty.with(phase: .loading)
+        #expect(loading.phase == .loading)
+        #expect(loading.items == ChatRenderState.empty.items)
+        #expect(loading.hasMoreMessages == ChatRenderState.empty.hasMoreMessages)
+
+        let loaded = loading.with(phase: .loaded)
+        #expect(loaded.phase == .loaded)
+    }
+
+    @Test("appendingItem preserves phase")
+    func appendingItem_preservesPhase() {
+        let loaded = ChatRenderState.empty.with(phase: .loaded)
+        let after = loaded.appendingItem(makeFakeMessageItem(id: UUID(), senderName: "sender"))
+
+        #expect(after.phase == .loaded)
+    }
+
+    @Test("updatingItem preserves phase")
+    func updatingItem_preservesPhase() async {
+        let (viewModel, coordinator) = await makeChatSetup(messageCount: 3)
+        coordinator.markLoaded()
+        viewModel.buildItems()
+        await coordinator.buildItemsTask?.value
+
+        let target = viewModel.renderState.items[0]
+        let replaced = makeFakeMessageItem(id: target.id, senderName: "replaced")
+        let after = viewModel.renderState.updatingItem(id: target.id) { _ in replaced }
+
+        #expect(after.phase == viewModel.renderState.phase)
+    }
+
+    @Test("removingItem preserves phase")
+    func removingItem_preservesPhase() async {
+        let messages = (0..<2).map { makeMessage(index: $0) }
+        let (viewModel, coordinator) = await makeChatSetup(messages: messages)
+        coordinator.markLoaded()
+        viewModel.buildItems()
+        await coordinator.buildItemsTask?.value
+
+        let after = viewModel.renderState.removingItem(id: messages[0].id)
+
+        #expect(after.phase == viewModel.renderState.phase)
     }
 
     @Test("itemIndexByID matches items after buildItems")

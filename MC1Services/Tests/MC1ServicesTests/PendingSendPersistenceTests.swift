@@ -164,7 +164,7 @@ struct PendingSendPersistenceTests {
         let drainedRow = try #require(rows.first(where: { $0.messageID == drainedID }))
 
         #expect(legacyRow.attemptCount == nil,
-                "pre-migration row stored as nil must come back as nil — backfill is the only path that promotes")
+                "pre-migration row stored as nil must come back as nil — the field remains optional in storage")
         #expect(raceWindowRow.attemptCount == 0,
                 "current-build race-window row stored as 0 must come back as 0")
         #expect(drainedRow.attemptCount == 4,

@@ -4,10 +4,37 @@ public extension ChatCoordinator {
 
     /// Replace the entire canonical messages list. Rebuilds the lookup
     /// dictionary and bumps `renderStateID` so any in-flight off-main
-    /// build discards on apply.
+    /// build discards on apply. Settles `renderState.phase` to `.loaded`,
+    /// which is the load-completion seam for both initial loads and
+    /// `hardReset` refetches.
     func replaceAll(_ newMessages: [MessageDTO]) {
         messages = newMessages
         messagesByID = Dictionary(newMessages.map { ($0.id, $0) }, uniquingKeysWith: { _, new in new })
+        if renderState.phase != .loaded {
+            renderState = renderState.with(phase: .loaded)
+        }
+        renderStateID &+= 1
+    }
+
+    /// Transition `renderState.phase` to `.loading` only when still
+    /// `.uninitialized`. Called at the entry of `loadMessages` /
+    /// `loadChannelMessages` so the per-conversation view's empty-state
+    /// gate stays closed while the awaited fetch is in flight. A no-op
+    /// once the coordinator has reached `.loading` or `.loaded` — a
+    /// subsequent refresh of an already-populated timeline must not
+    /// regress to a placeholder.
+    func beginLoading() {
+        guard renderState.phase == .uninitialized else { return }
+        renderState = renderState.with(phase: .loading)
+        renderStateID &+= 1
+    }
+
+    /// Force the phase to `.loaded`. Used by the load paths to dismiss the
+    /// placeholder on error and on the nil-`dataStore` early-return, where
+    /// `replaceAll` is never reached. Idempotent when already `.loaded`.
+    func markLoaded() {
+        guard renderState.phase != .loaded else { return }
+        renderState = renderState.with(phase: .loaded)
         renderStateID &+= 1
     }
 

@@ -294,40 +294,26 @@ extension PersistenceStore {
         }
     }
 
-    /// One-shot backfill: promote `attemptCount` from `nil` to `1` for rows
-    /// that were persisted by a build that predates the field. Those rows had
-    /// at least one drain attempt under the old code (the persist-then-drain
-    /// flow runs within milliseconds under normal conditions) but the old
-    /// build had no field to record the attempt.
+    /// Deletes any `PendingSend` row where `attemptCount` is `nil`. Such rows
+    /// can only exist via lightweight migration from a schema version that
+    /// predates `attemptCount`; their drain history is ambiguous, so the user
+    /// re-sends if they care.
     ///
-    /// Three states distinguished:
-    /// - `nil`     — pre-migration row (lightweight-migrated from no column) →
-    ///               promote to 1 (treat as "may have sent on the wire").
-    /// - `0`       — row past `persist(...)` but not past the top-of-drain
-    ///               bump → leave alone. The recipient cannot have seen this
-    ///               packet yet (no wire send happened), so the next drain
-    ///               stamps a fresh timestamp via
-    ///               `preserveTimestamp = (postBumpCount > 1) = false`.
-    /// - positive  — already drained at least once → leave alone. The next
-    ///               drain bumps to `postBumpCount > 1` and preserves the
-    ///               wire timestamp.
+    /// Idempotent: an empty fetch after the first purge across the lifetime of
+    /// the storage.
     ///
-    /// Monotonically idempotent: the `nil → 1` transition cannot reverse, so
-    /// re-running the predicate on every connect costs only an empty fetch
-    /// after the first call promotes pre-migration rows. Called from
-    /// `PersistenceStore.warmUp()` which runs on every connect via
-    /// `ConnectionManager.buildServicesAndSaveDevice`.
+    /// Called from `PersistenceStore.warmUp()` on every connect.
     @discardableResult
-    public func backfillPendingSendAttemptCounts() throws -> Int {
+    public func purgeLegacyAttemptCountRows() throws -> Int {
         let nilPredicate = #Predicate<PendingSend> { row in
             row.attemptCount == nil
         }
         let rows = try modelContext.fetch(FetchDescriptor<PendingSend>(predicate: nilPredicate))
         guard !rows.isEmpty else { return 0 }
-        for row in rows { row.attemptCount = 1 }
+        for row in rows { modelContext.delete(row) }
         try modelContext.save()
-        Self.pendingSendLogger.info(
-            "Backfilled attemptCount nil → 1 on \(rows.count, privacy: .public) pre-migration PendingSend rows"
+        Self.pendingSendLogger.notice(
+            "purgeLegacyAttemptCountRows deleted \(rows.count, privacy: .public) row(s) with attemptCount=nil"
         )
         return rows.count
     }
@@ -337,15 +323,10 @@ extension PersistenceStore {
     /// Throws on SwiftData read/write failure — callers must treat a thrown
     /// error as transient (park + retry) and `nil` as terminal (deleted row).
     ///
-    /// Defensive nil handling: the warmUp backfill promotes pre-migration
-    /// `nil` rows to `1` before hydrate enqueues them, so a drain attempt
-    /// against a `nil`-valued row indicates a violated invariant (backfill
-    /// threw and was swallowed, or a future refactor reordered warmUp after
-    /// hydrate). We log `.fault` and apply the same "drain history unknown,
-    /// may have sent on the wire" semantic the backfill itself uses: treat
-    /// the prior value as `1` so the bump produces `postBumpCount = 2` and
-    /// `preserveTimestamp = (2 > 1) = true`. Mesh dedup then catches a
-    /// duplicate landing if the prior build did send on the wire.
+    /// `warmUp`'s purge runs before hydrate, so a `nil` row reaching increment
+    /// time would indicate the purge step was skipped (programmer error). The
+    /// `?? 0` fallback degrades gracefully without pretending the row had
+    /// prior drain attempts.
     @discardableResult
     public func incrementPendingSendAttemptCount(messageID: UUID) throws -> Int? {
         #if DEBUG
@@ -358,15 +339,7 @@ extension PersistenceStore {
         var descriptor = FetchDescriptor<PendingSend>(predicate: predicate)
         descriptor.fetchLimit = 1
         guard let row = try modelContext.fetch(descriptor).first else { return nil }
-        let nextCount: Int
-        if row.attemptCount == nil {
-            Self.pendingSendLogger.fault(
-                "PendingSend row \(messageID, privacy: .public) reached drain with attemptCount=nil; warmUp backfill did not run before hydrate"
-            )
-            nextCount = 2
-        } else {
-            nextCount = (row.attemptCount ?? 0) + 1
-        }
+        let nextCount = (row.attemptCount ?? 0) + 1
         row.attemptCount = nextCount
         try modelContext.save()
         return nextCount

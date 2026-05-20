@@ -268,7 +268,15 @@ extension ChatViewModel {
 
     /// Load messages for a contact
     func loadMessages(for contact: ContactDTO) async {
-        guard let dataStore else { return }
+        // Close the per-conversation empty-state gate while the fetch is
+        // in flight. No-op when the coordinator is already past
+        // `.uninitialized` (warm rebind, refresh).
+        coordinator?.beginLoading()
+
+        guard let dataStore else {
+            coordinator?.markLoaded()
+            return
+        }
 
         // Clear preview state only when switching to a different conversation
         if currentContact?.id != contact.id {
@@ -357,7 +365,9 @@ extension ChatViewModel {
             errorMessage = error.localizedDescription
         }
 
-        hasLoadedOnce = true
+        // Ensures the empty-state gate opens even when the fetch threw —
+        // `replaceAll` is the success path; this catches the failure path.
+        coordinator?.markLoaded()
         isLoading = false
     }
 

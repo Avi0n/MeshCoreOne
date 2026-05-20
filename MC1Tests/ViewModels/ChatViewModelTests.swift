@@ -295,6 +295,51 @@ struct ChatViewModelTests {
         #expect(viewModel.isLoading == false)
     }
 
+    @Test("renderState.phase starts .uninitialized when no coordinator is bound")
+    func renderStatePhaseUninitializedBeforeBind() {
+        let viewModel = ChatViewModel()
+        #expect(viewModel.renderState.phase == .uninitialized)
+    }
+
+    @Test("renderState.phase is .loaded after replaceAll on bound coordinator")
+    func renderStatePhaseLoadedAfterReplaceAll() {
+        let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
+
+        coordinator.replaceAll([])
+
+        #expect(viewModel.renderState.phase == .loaded)
+        #expect(viewModel.messages.isEmpty)
+    }
+
+    @Test("loadMessages settles phase to .loaded when dataStore is nil")
+    func loadMessagesMarksLoadedWhenDataStoreNil() async {
+        let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
+
+        await viewModel.loadMessages(for: createTestContact())
+
+        #expect(viewModel.renderState.phase == .loaded)
+    }
+
+    @Test("loadChannelMessages settles phase to .loaded when dataStore is nil")
+    func loadChannelMessagesMarksLoadedWhenDataStoreNil() async {
+        let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
+
+        let channel = ChannelDTO(from: Channel(
+            radioID: UUID(),
+            index: 1,
+            name: "Test"
+        ))
+        await viewModel.loadChannelMessages(for: channel)
+
+        #expect(viewModel.renderState.phase == .loaded)
+    }
+
 }
 
 // MARK: - Blocked Contact Filtering Tests

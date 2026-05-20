@@ -62,14 +62,10 @@ public final class PendingSend {
     /// `hasPendingSend` gate for this row. Bumped at the top of each drain
     /// attempt, before any wire-affecting work. Three distinguishable states:
     ///
-    /// - `nil`     — pre-migration row (lightweight-migrated from a build
-    ///               that did not have this column). The prior build's queue
-    ///               drained these rows without recording attempts; treat as
-    ///               "drain history unknown — may have sent on the wire."
-    ///               The warmUp backfill promotes these to `1`, and the
-    ///               first post-rehydrate drain bumps to `2` so
-    ///               `preserveTimestamp = postBumpCount > 1` returns true,
-    ///               protecting mesh dedup against a duplicate landing.
+    /// - `nil`     — pre-migration row, lightweight-migrated from a schema
+    ///               version without this column. Drain history is ambiguous,
+    ///               so `purgeLegacyAttemptCountRows` in
+    ///               `PersistenceStore.warmUp()` deletes these on connect.
     /// - `0`       — row that has been persisted but has not yet progressed
     ///               past the top-of-drain bump (either fresh enqueue in
     ///               flight, or process death between persist and bump).
@@ -84,8 +80,7 @@ public final class PendingSend {
     /// not Codable, intentionally excluded from AppBackupEnvelope — so there
     /// is no on-disk wire format to defend against. The only "legacy" data is
     /// live SwiftData rows persisted by a build that predates this field,
-    /// which lightweight migration maps to `nil` and the warmUp backfill
-    /// promotes to `1`.
+    /// which lightweight migration maps to `nil` and warmUp purges on connect.
     public var attemptCount: Int?
 
     public init(

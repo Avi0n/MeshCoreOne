@@ -89,7 +89,7 @@ public actor PersistenceStore: PersistenceStoreProtocol {
     /// - v2→v3: Added PendingSend (new table; no migration impact on existing rows).
     /// - v3→v4: Added PendingSend.attemptCount (Int?, default nil). Existing rows
     ///          lightweight-migrate to NULL; PersistenceStore.warmUp() runs
-    ///          backfillPendingSendAttemptCounts() on connect to promote nil → 1.
+    ///          purgeLegacyAttemptCountRows() on connect to delete any nil row.
     public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
         if !inMemory {
             let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
@@ -115,8 +115,8 @@ public actor PersistenceStore: PersistenceStoreProtocol {
         // Both inner operations are idempotent under their own predicates:
         // purgeOrphanPendingSends filters by absence of a matching
         // Device.radioID and returns an empty row set once Device rows catch
-        // up; backfillPendingSendAttemptCounts filters by `attemptCount == nil`
-        // and returns empty after the first promotion across the lifetime of
+        // up; purgeLegacyAttemptCountRows filters by `attemptCount == nil`
+        // and returns empty after the first purge across the lifetime of
         // the storage. Running both on every connect costs an empty fetch and
         // self-heals the "erase device then re-pair" path — a process-level
         // latch would suppress that recovery.
@@ -127,9 +127,9 @@ public actor PersistenceStore: PersistenceStoreProtocol {
             logger.warning("purgeOrphanPendingSends failed: \(error.localizedDescription, privacy: .public)")
         }
         do {
-            try backfillPendingSendAttemptCounts()
+            try purgeLegacyAttemptCountRows()
         } catch {
-            logger.warning("backfillPendingSendAttemptCounts failed: \(error.localizedDescription, privacy: .public)")
+            logger.warning("purgeLegacyAttemptCountRows failed: \(error.localizedDescription, privacy: .public)")
         }
     }
 
