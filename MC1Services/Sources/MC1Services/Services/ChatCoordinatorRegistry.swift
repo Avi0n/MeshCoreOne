@@ -1,9 +1,10 @@
 import Foundation
 
 /// Owns `ChatCoordinator` instances keyed by `ChatConversationID`.
-/// Lives on `ServiceContainer`; tears down when the container is destroyed.
-/// Multiple consumers resolving the same `ChatConversationID` share one
-/// `ChatCoordinator`, so canonical chat state stays unified across views.
+/// Owned by `AppState`; tears down on disconnect/radio-switch and rebinds
+/// its dataStore when services arrive. Multiple consumers resolving the
+/// same `ChatConversationID` share one `ChatCoordinator`, so canonical
+/// chat state stays unified across views.
 ///
 /// Intentionally not `@Observable` — views resolve one coordinator and
 /// observe that coordinator's properties. The registry is a lookup table;
@@ -13,9 +14,9 @@ public final class ChatCoordinatorRegistry {
 
     private var coordinators: [ChatConversationID: ChatCoordinator] = [:]
 
-    private let dataStore: PersistenceStore
+    private(set) var dataStore: PersistenceStore
 
-    init(dataStore: PersistenceStore) {
+    public init(dataStore: PersistenceStore) {
         self.dataStore = dataStore
     }
 
@@ -32,14 +33,19 @@ public final class ChatCoordinatorRegistry {
         return new
     }
 
+    public func rebind(dataStore: PersistenceStore) {
+        tearDown()
+        self.dataStore = dataStore
+    }
+
     /// Cancel in-flight builds and drain Tasks on every coordinator and
     /// drop all entries.
     ///
-    /// Called from `ServiceContainer.tearDown()` so off-main `rebuildItems`,
-    /// `coalescedReload`, and `hardReset` Tasks running on a coordinator
-    /// from the prior connection do not finish against a stale `dataStore`
-    /// reference after the container is released.
-    func tearDown() {
+    /// Called from `AppState.wireServicesIfConnected` on the services-left
+    /// path so off-main `rebuildItems`, `coalescedReload`, and `hardReset`
+    /// Tasks running on a coordinator from the prior connection do not finish
+    /// against a stale `dataStore` reference after the container is released.
+    public func tearDown() {
         for coordinator in coordinators.values {
             coordinator.cancelInFlight()
         }

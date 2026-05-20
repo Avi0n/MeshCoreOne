@@ -94,6 +94,12 @@ public final class AppState {
 
     // MARK: - Offline Data Access
 
+    /// Per-conversation coordinator registry. Lives at AppState scope so
+    /// chat detail screens render stored messages while disconnected. The
+    /// registry's dataStore rebinds to services.dataStore on connect and is
+    /// torn down on services-left.
+    private(set) var chatCoordinatorRegistry: ChatCoordinatorRegistry?
+
     /// Cached standalone persistence store for offline browsing
     private var cachedOfflineStore: PersistenceStore?
 
@@ -117,6 +123,19 @@ public final class AppState {
             cachedOfflineStore = connectionManager.createStandalonePersistenceStore()
         }
         return cachedOfflineStore
+    }
+
+    /// Ensures the chat coordinator registry exists, lazy-building one bound
+    /// to the offline data store if none has been built yet. Used by
+    /// `ChatViewModel` for the cold-launch-while-offline path where
+    /// `wireServicesIfConnected` has not yet run but
+    /// `connectionManager.lastConnectedDeviceID` is set so `offlineDataStore`
+    /// is non-nil.
+    func ensureChatCoordinatorRegistry() -> ChatCoordinatorRegistry? {
+        if let chatCoordinatorRegistry { return chatCoordinatorRegistry }
+        guard let store = offlineDataStore else { return nil }
+        chatCoordinatorRegistry = ChatCoordinatorRegistry(dataStore: store)
+        return chatCoordinatorRegistry
     }
 
     /// Incremented when contacts data changes. Views observe this to reload contact lists.
@@ -340,6 +359,8 @@ public final class AppState {
             batteryMonitor.stop()
             batteryMonitor.clearThresholds()
             await liveActivityManager.handleConnectionLost()
+            chatCoordinatorRegistry?.tearDown()
+            chatCoordinatorRegistry = nil
             return
         }
 
@@ -362,6 +383,12 @@ public final class AppState {
 
         // Store syncCoordinator reference
         syncCoordinator = services.syncCoordinator
+
+        if let existing = chatCoordinatorRegistry {
+            existing.rebind(dataStore: services.dataStore)
+        } else {
+            chatCoordinatorRegistry = ChatCoordinatorRegistry(dataStore: services.dataStore)
+        }
 
         await wireDataChangeCallbacks(services: services)
         wireSettingsEventStream(services: services)

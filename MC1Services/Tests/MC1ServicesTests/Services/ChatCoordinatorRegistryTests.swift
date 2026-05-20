@@ -35,4 +35,21 @@ struct ChatCoordinatorRegistryTests {
 
         #expect(dm !== channel)
     }
+
+    @MainActor
+    @Test func rebind_withDifferentStore_clearsExistingCoordinators() async throws {
+        let containerA = try PersistenceStore.createContainer(inMemory: true)
+        let containerB = try PersistenceStore.createContainer(inMemory: true)
+        let storeA = PersistenceStore(modelContainer: containerA)
+        let storeB = PersistenceStore(modelContainer: containerB)
+        let registry = ChatCoordinatorRegistry(dataStore: storeA)
+        let id = ChatConversationID.dm(radioID: UUID(), contactID: UUID())
+        let first = registry.coordinator(for: id)
+
+        registry.rebind(dataStore: storeB)
+        let second = registry.coordinator(for: id)
+
+        #expect(first !== second)
+        #expect(registry.dataStore === storeB)
+    }
 }

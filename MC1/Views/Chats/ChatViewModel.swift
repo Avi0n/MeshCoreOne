@@ -316,10 +316,8 @@ final class ChatViewModel {
     }
 
     private func bindCoordinator(appState: AppState, conversation: ChatConversationType?) {
-        guard let registry = appState.services?.chatCoordinatorRegistry,
-              let conversation else {
-            return
-        }
+        guard let conversation else { return }
+        guard let registry = appState.ensureChatCoordinatorRegistry() else { return }
         let id: ChatConversationID
         switch conversation {
         case .dm(let contact):

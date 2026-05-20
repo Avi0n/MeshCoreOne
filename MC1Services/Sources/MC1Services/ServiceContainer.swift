@@ -114,14 +114,6 @@ public final class ServiceContainer {
     /// Sync coordinator for managing sync lifecycle
     public let syncCoordinator: SyncCoordinator
 
-    // MARK: - Chat Coordinators
-
-    /// Per-conversation coordinator registry. Owns `ChatCoordinator`
-    /// instances for the lifetime of the container; iPad split-view
-    /// consumers that resolve the same `ChatConversationID` share one
-    /// coordinator.
-    public let chatCoordinatorRegistry: ChatCoordinatorRegistry
-
     // MARK: - Chat Send Queue
 
     /// Service-layer outbound chat queue. Replaces the per-view-model
@@ -225,8 +217,6 @@ public final class ServiceContainer {
 
         // Sync coordinator (no dependencies on other services)
         self.syncCoordinator = SyncCoordinator()
-
-        self.chatCoordinatorRegistry = ChatCoordinatorRegistry(dataStore: dataStore)
 
         self.chatSendQueueService = ChatSendQueueService(
             radioID: radioID,
@@ -403,7 +393,6 @@ public final class ServiceContainer {
     public func tearDown() async {
         await stopEventMonitoring()
         await chatSendQueueService.shutdown()
-        chatCoordinatorRegistry.tearDown()
     }
 
     // MARK: - Initial Sync
