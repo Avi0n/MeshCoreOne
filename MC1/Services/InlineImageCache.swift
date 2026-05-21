@@ -1,5 +1,7 @@
+import CoreGraphics
 import Foundation
 import ImageIO
+import MC1Services
 import OSLog
 
 /// Result of an inline image fetch
@@ -20,14 +22,26 @@ actor InlineImageCache {
     private let fetchSemaphore = AsyncSemaphore(value: 3)
     private var failedURLs: Set<String> = []
     private var inFlightURLs: Set<String> = []
+    private var dimensionsStore: InlineImageDimensionsStore?
 
     private static let maxEntryCount = 50
     private static let maxTotalCostBytes = 50 * 1024 * 1024 // 50MB
     private static let maxDownloadBytes = 10 * 1024 * 1024  // 10MB per image
+    private static let probeMaxBufferBytes = 1 * 1024 * 1024 // 1MB cap for probe bodies
+    private static let probeByteRange = "bytes=0-65535"
+    private static let rangeHeaderField = "Range"
+    private static let httpStatusOK = 200
+    private static let httpStatusPartialContent = 206
 
     init() {
         memoryCache.countLimit = Self.maxEntryCount
         memoryCache.totalCostLimit = Self.maxTotalCostBytes
+    }
+
+    /// Registers the persistence sink for successful probes. Held strongly;
+    /// later calls overwrite the reference so each connection's store wins.
+    func attachDimensionsStore(_ store: InlineImageDimensionsStore) {
+        self.dimensionsStore = store
     }
 
     /// Fetches image data for the given URL, returning cached data when available.
@@ -70,6 +84,65 @@ actor InlineImageCache {
     /// Removes a URL from the negative cache, allowing it to be retried.
     func clearFailure(for url: URL) {
         failedURLs.remove(url.absoluteString)
+    }
+
+    /// Probes the image header for pixel dimensions without persisting the bytes.
+    /// Uses a small Range request and `ImageHeaderDecoder`. Persists the resolved
+    /// size to the attached dimensions store on success. Failures do not touch
+    /// the negative cache or the in-flight set.
+    func probeImageDimensions(url: URL) async -> CGSize? {
+        guard await URLSafetyChecker.isSafe(url) else {
+            logger.debug("Blocked probe to unsafe URL: \(url.host() ?? "unknown")")
+            return nil
+        }
+
+        logger.debug("Probing image dimensions: \(url.absoluteString)")
+
+        await fetchSemaphore.wait()
+
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
+        request.setValue(Self.probeByteRange, forHTTPHeaderField: Self.rangeHeaderField)
+
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            logger.info("Image probe network failure: \(error.localizedDescription)")
+            await fetchSemaphore.signal()
+            return nil
+        }
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == Self.httpStatusOK
+                || httpResponse.statusCode == Self.httpStatusPartialContent else {
+            let code = (response as? HTTPURLResponse)?.statusCode ?? -1
+            logger.info("Image probe non-success status \(code): \(url.absoluteString)")
+            await fetchSemaphore.signal()
+            return nil
+        }
+
+        guard data.count <= Self.probeMaxBufferBytes else {
+            logger.info("Image probe body exceeds cap: \(url.absoluteString)")
+            await fetchSemaphore.signal()
+            return nil
+        }
+
+        guard let dims = ImageHeaderDecoder.decodeDimensions(from: data) else {
+            logger.info("Image probe could not decode dimensions: \(url.absoluteString)")
+            await fetchSemaphore.signal()
+            return nil
+        }
+
+        let size = CGSize(width: dims.width, height: dims.height)
+        logger.debug("Probed dimensions \(dims.width)x\(dims.height): \(url.absoluteString)")
+
+        if let dimensionsStore {
+            await dimensionsStore.save(url: url, size: size)
+        }
+
+        await fetchSemaphore.signal()
+        return size
     }
 
     /// Performs the HTTP fetch, validates the response, and caches the result.

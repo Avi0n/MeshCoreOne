@@ -143,11 +143,14 @@ actor LinkPreviewCache: LinkPreviewCaching {
             return .noPreviewAvailable
         }
 
+        let heroDimensions = metadata.imageData.flatMap(ImageHeaderDecoder.decodeDimensions(from:))
         let dto = LinkPreviewDataDTO(
             url: urlString,
             title: metadata.title,
             imageData: metadata.imageData,
-            iconData: metadata.iconData
+            iconData: metadata.iconData,
+            imageWidth: heroDimensions?.width,
+            imageHeight: heroDimensions?.height
         )
 
         // Cache in memory with cost based on image sizes

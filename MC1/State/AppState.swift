@@ -384,6 +384,9 @@ public final class AppState {
         // Store syncCoordinator reference
         syncCoordinator = services.syncCoordinator
 
+        // Process-wide inline image cache learns where to persist probed dims.
+        await InlineImageCache.shared.attachDimensionsStore(services.inlineImageDimensionsStore)
+
         if let existing = chatCoordinatorRegistry {
             existing.rebind(dataStore: services.dataStore)
         } else {
