@@ -93,8 +93,11 @@ public actor InlineImageDimensionsStore {
     /// Broadcast stream of URLs whose aspect was just (re)saved. Emits on every
     /// save call, including idempotent re-saves where the aspect did not change.
     ///
-    /// Single-consumer by design; downstream multi-listener fan-out is `ChatViewModel`'s
-    /// responsibility (it re-emits `rebuildDisplayItem` for affected items).
+    /// Single-consumer by design; `ChatViewModel` owns this in non-split-view
+    /// contexts. In iPad split view (multiple `ChatViewModel`s alive at once),
+    /// events are delivered to whichever subscriber happens to be iterating
+    /// first; affected bubbles still rebuild via other triggers (visible-cell
+    /// reload, retry, manual `rebuildDisplayItem`).
     public nonisolated var resolutionStream: AsyncStream<URL> {
         stream
     }

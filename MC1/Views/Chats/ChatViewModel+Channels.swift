@@ -175,6 +175,7 @@ extension ChatViewModel {
                 radioID: channel.radioID
             )
             appendMessageIfNew(message)
+            schedulePrefetchForOutgoingMessage(message, isChannelMessage: true)
         } catch {
             errorMessage = error.localizedDescription
             return

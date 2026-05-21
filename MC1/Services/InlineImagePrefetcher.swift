@@ -17,18 +17,10 @@ extension InlineImageCache: InlineImageDimensionProbing {}
 @MainActor
 final class InlineImagePrefetcher {
 
-    private static let httpScheme = "http"
-    private static let httpsScheme = "https"
-
     private let imageCache: any InlineImageDimensionProbing
     private let linkPreviewCache: any LinkPreviewCaching
     private let dimensionsStore: InlineImageDimensionsStore
     private let dataStore: any PersistenceStoreProtocol
-
-    /// Shared URL detector instance to avoid reallocating per call.
-    private static let urlDetector: NSDataDetector? = {
-        try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
-    }()
 
     init(
         imageCache: any InlineImageDimensionProbing,
@@ -44,8 +36,13 @@ final class InlineImagePrefetcher {
 
     /// Prefetch dimensions and link-preview metadata for every URL in `text`.
     /// Returns once all probes have resolved (success or failure). Never throws.
+    ///
+    /// Delegates URL extraction to `LinkPreviewService.extractAllURLs(in:)` so
+    /// the receive-time prefetcher and the per-message URL-detection writer
+    /// see the same set of URLs (Giphy short-codes expanded, `@[mention]`
+    /// ranges skipped, HTTP/HTTPS only).
     func prefetch(urlsIn text: String, isChannelMessage: Bool) async {
-        let urls = Self.extractURLs(from: text)
+        let urls = LinkPreviewService.extractAllURLs(in: text)
         guard !urls.isEmpty else { return }
 
         let imageCache = self.imageCache
@@ -71,23 +68,5 @@ final class InlineImagePrefetcher {
                 }
             }
         }
-    }
-
-    /// Returns every HTTP(S) URL detected in `text`, in document order.
-    private static func extractURLs(from text: String) -> [URL] {
-        guard !text.isEmpty, let detector = urlDetector else { return [] }
-
-        let range = NSRange(text.startIndex..., in: text)
-        let matches = detector.matches(in: text, options: [], range: range)
-
-        var urls: [URL] = []
-        urls.reserveCapacity(matches.count)
-        for match in matches {
-            guard let url = match.url,
-                  let scheme = url.scheme?.lowercased(),
-                  scheme == httpScheme || scheme == httpsScheme else { continue }
-            urls.append(url)
-        }
-        return urls
     }
 }

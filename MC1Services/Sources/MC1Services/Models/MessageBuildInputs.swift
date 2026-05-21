@@ -15,6 +15,11 @@ public struct MessageBuildInputs: Sendable, Hashable {
     public let hasPreviewImageRef: Bool
     public let hasPreviewIconRef: Bool
     public let imageIsGIF: Bool
+    /// Cached width-over-height ratio for `cachedURL` when it points to an
+    /// inline image. Resolved at build time so the bubble can reserve the
+    /// correct frame on first paint. `nil` for non-image URLs or when the
+    /// dimensions store has not yet seen this URL.
+    public let inlineImageAspect: Double?
     public let formattedText: AttributedString?
     public let baseColor: BaseColorSlot
     public let formattedPath: String?
@@ -33,6 +38,7 @@ public struct MessageBuildInputs: Sendable, Hashable {
         hasPreviewImageRef: Bool,
         hasPreviewIconRef: Bool,
         imageIsGIF: Bool,
+        inlineImageAspect: Double? = nil,
         formattedText: AttributedString?,
         baseColor: BaseColorSlot,
         formattedPath: String?,
@@ -50,6 +56,7 @@ public struct MessageBuildInputs: Sendable, Hashable {
         self.hasPreviewImageRef = hasPreviewImageRef
         self.hasPreviewIconRef = hasPreviewIconRef
         self.imageIsGIF = imageIsGIF
+        self.inlineImageAspect = inlineImageAspect
         self.formattedText = formattedText
         self.baseColor = baseColor
         self.formattedPath = formattedPath

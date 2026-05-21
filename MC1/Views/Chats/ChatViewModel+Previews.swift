@@ -4,6 +4,79 @@ import MC1Services
 
 extension ChatViewModel {
 
+    // MARK: - Receive-Time Prefetch
+
+    /// Default maximum time the receive pipeline waits for a prefetch to
+    /// resolve before admitting the bubble at its text-only size. After
+    /// this, the bubble may still morph in later when the background
+    /// fetch lands; see `handleDimensionResolution(_:)`.
+    static let defaultPrefetchTimeout: Duration = .seconds(3)
+
+    /// Admit an incoming message to the display-items array after racing
+    /// its URL prefetches against `prefetchTimeout` (default: 3s).
+    /// Messages without URLs admit immediately. Outgoing messages bypass
+    /// this and use the instant-render path in the send methods.
+    func admitIncomingMessage(_ message: MessageDTO, isChannelMessage: Bool) async {
+        guard let prefetcher else {
+            appendMessageIfNew(message)
+            return
+        }
+        guard !LinkPreviewService.extractAllURLs(in: message.text).isEmpty else {
+            appendMessageIfNew(message)
+            return
+        }
+
+        let text = message.text
+        let timeout = prefetchTimeout
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                await prefetcher.prefetch(urlsIn: text, isChannelMessage: isChannelMessage)
+            }
+            group.addTask {
+                try? await Task.sleep(for: timeout)
+            }
+            for await _ in group {
+                group.cancelAll()
+                break
+            }
+        }
+
+        appendMessageIfNew(message)
+    }
+
+    /// Fan-out hook for the inline image dimensions resolution stream.
+    /// Triggered when a probe lands after a message has already been admitted —
+    /// either because the receive-time prefetch hit its timeout, the user
+    /// retried, or the message arrived during background sync. Every message
+    /// whose body contains the resolved URL is rebuilt so the bubble picks up
+    /// the now-known `cachedAspect`.
+    func handleDimensionResolution(_ url: URL) async {
+        guard let coordinator else { return }
+        let target = url.absoluteString
+        let affected = coordinator.messages
+            .filter { $0.text.contains(target) }
+            .map(\.id)
+        for messageID in affected {
+            rebuildDisplayItem(for: messageID)
+        }
+    }
+
+    /// Outgoing-message exception to the withhold-and-release rule: the
+    /// bubble was added immediately at text-only height for instant send
+    /// feedback, so the prefetch runs in parallel and the cell height
+    /// morphs in via `rebuildDisplayItem` once the prefetch lands. The
+    /// `.easeOut(0.25)` cross-fade lives at the view layer.
+    func schedulePrefetchForOutgoingMessage(_ message: MessageDTO, isChannelMessage: Bool) {
+        guard let prefetcher else { return }
+        guard !LinkPreviewService.extractAllURLs(in: message.text).isEmpty else { return }
+        let messageID = message.id
+        let text = message.text
+        Task { [weak self] in
+            await prefetcher.prefetch(urlsIn: text, isChannelMessage: isChannelMessage)
+            self?.rebuildDisplayItem(for: messageID)
+        }
+    }
+
     // MARK: - Preview State Management
 
     /// Request preview fetch for a message (called when cell becomes visible)

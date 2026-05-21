@@ -41,7 +41,7 @@ struct ChatViewModelEventGuardTests {
     }
 
     @Test("messageStatusResolved applies status in place via the coordinator")
-    func messageStatusResolved_appliesStatusInPlace() {
+    func messageStatusResolved_appliesStatusInPlace() async {
         let viewModel = ChatViewModel()
         let coordinator = ChatCoordinator.makeForTesting()
         viewModel.coordinator = coordinator
@@ -49,7 +49,7 @@ struct ChatViewModelEventGuardTests {
         let message = makeMessage()
         _ = coordinator.append(message)
 
-        viewModel.handle(.messageStatusResolved(messageID: message.id, status: .delivered))
+        await viewModel.handle(.messageStatusResolved(messageID: message.id, status: .delivered))
 
         #expect(coordinator.messagesByID[message.id]?.status == .delivered)
         #expect(coordinator.reloadInFlight == false,
@@ -57,18 +57,18 @@ struct ChatViewModelEventGuardTests {
     }
 
     @Test("messageStatusResolved with no coordinator is a no-op")
-    func messageStatusResolved_skipsWithoutCoordinator() {
+    func messageStatusResolved_skipsWithoutCoordinator() async {
         let viewModel = ChatViewModel()
         // Intentionally leave coordinator unbound to mirror the
         // conversation-list view-model lifecycle.
 
-        viewModel.handle(.messageStatusResolved(messageID: UUID(), status: .sent))
+        await viewModel.handle(.messageStatusResolved(messageID: UUID(), status: .sent))
         // No assertion needed beyond reaching this line without a crash:
         // the handler must guard on `coordinator != nil`.
     }
 
     @Test("messageResent schedules a reload via the coordinator")
-    func messageResent_enqueuesReload() {
+    func messageResent_enqueuesReload() async {
         let viewModel = ChatViewModel()
         let coordinator = ChatCoordinator.makeForTesting()
         viewModel.coordinator = coordinator
@@ -77,13 +77,13 @@ struct ChatViewModelEventGuardTests {
         _ = coordinator.append(message)
 
         #expect(!coordinator.reloadInFlight)
-        viewModel.handle(.messageResent(messageID: message.id))
+        await viewModel.handle(.messageResent(messageID: message.id))
         #expect(coordinator.reloadInFlight,
                 "messageResent must schedule a reload so heardRepeats / sendCount / status refresh together")
     }
 
     @Test("messageFailed schedules a reload via the coordinator")
-    func messageFailed_enqueuesReload() {
+    func messageFailed_enqueuesReload() async {
         let viewModel = ChatViewModel()
         let coordinator = ChatCoordinator.makeForTesting()
         viewModel.coordinator = coordinator
@@ -92,13 +92,13 @@ struct ChatViewModelEventGuardTests {
         _ = coordinator.append(message)
 
         #expect(!coordinator.reloadInFlight)
-        viewModel.handle(.messageFailed(messageID: message.id))
+        await viewModel.handle(.messageFailed(messageID: message.id))
         #expect(coordinator.reloadInFlight,
                 "messageFailed must schedule a reload so the bubble re-reads the failed status")
     }
 
     @Test("heardRepeatRecorded schedules a reload via the coordinator")
-    func heardRepeatRecorded_enqueuesReload() {
+    func heardRepeatRecorded_enqueuesReload() async {
         let viewModel = ChatViewModel()
         let coordinator = ChatCoordinator.makeForTesting()
         viewModel.coordinator = coordinator
@@ -107,13 +107,13 @@ struct ChatViewModelEventGuardTests {
         _ = coordinator.append(message)
 
         #expect(!coordinator.reloadInFlight)
-        viewModel.handle(.heardRepeatRecorded(messageID: message.id, count: 2))
+        await viewModel.handle(.heardRepeatRecorded(messageID: message.id, count: 2))
         #expect(coordinator.reloadInFlight,
                 "heardRepeatRecorded must schedule a reload so the bubble re-reads heardRepeats")
     }
 
     @Test("reactionReceived schedules a reload via the coordinator")
-    func reactionReceived_enqueuesReload() {
+    func reactionReceived_enqueuesReload() async {
         let viewModel = ChatViewModel()
         let coordinator = ChatCoordinator.makeForTesting()
         viewModel.coordinator = coordinator
@@ -122,13 +122,13 @@ struct ChatViewModelEventGuardTests {
         _ = coordinator.append(message)
 
         #expect(!coordinator.reloadInFlight)
-        viewModel.handle(.reactionReceived(messageID: message.id, summary: "👍 1"))
+        await viewModel.handle(.reactionReceived(messageID: message.id, summary: "👍 1"))
         #expect(coordinator.reloadInFlight,
                 "reactionReceived must schedule a reload so the reaction badge appears")
     }
 
     @Test("messageStatusResolved does not downgrade .delivered to .sent")
-    func messageStatusResolved_doesNotDowngradeDelivered() {
+    func messageStatusResolved_doesNotDowngradeDelivered() async {
         let viewModel = ChatViewModel()
         let coordinator = ChatCoordinator.makeForTesting()
         viewModel.coordinator = coordinator
@@ -136,10 +136,10 @@ struct ChatViewModelEventGuardTests {
         let message = makeMessage()
         _ = coordinator.append(message)
 
-        viewModel.handle(.messageStatusResolved(messageID: message.id, status: .delivered, roundTripTime: 1_500))
+        await viewModel.handle(.messageStatusResolved(messageID: message.id, status: .delivered, roundTripTime: 1_500))
         #expect(coordinator.messagesByID[message.id]?.status == .delivered)
 
-        viewModel.handle(.messageStatusResolved(messageID: message.id, status: .sent))
+        await viewModel.handle(.messageStatusResolved(messageID: message.id, status: .sent))
         #expect(coordinator.messagesByID[message.id]?.status == .delivered, "Late .sent must not downgrade .delivered")
         #expect(coordinator.messagesByID[message.id]?.roundTripTime == 1_500, "Late .sent must not clobber RTT")
     }

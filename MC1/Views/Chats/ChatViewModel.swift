@@ -273,6 +273,27 @@ final class ChatViewModel {
     var syncCoordinator: SyncCoordinator?
     weak var appState: AppState?
 
+    /// Drives receive-time prefetch of inline image dimensions and link
+    /// preview metadata so message bubbles render at final size on first
+    /// paint. Constructed in `configure(...)` when services are available;
+    /// nil while disconnected (offline browse never receives new messages).
+    @ObservationIgnored var prefetcher: InlineImagePrefetcher?
+
+    /// Backing dimensions store for the prefetcher's image probes. Held so
+    /// the subscription task can read the resolution stream without a
+    /// services round-trip on every emission.
+    @ObservationIgnored var inlineImageDimensionsStore: InlineImageDimensionsStore?
+
+    /// Long-running subscription to `InlineImageDimensionsStore.resolutionStream`.
+    /// On each emitted URL, every message whose body contains that URL is
+    /// rebuilt so the bubble picks up the now-known `cachedAspect`.
+    @ObservationIgnored var dimensionResolutionTask: Task<Void, Never>?
+
+    /// Per-instance override of the receive-time prefetch timeout. Production
+    /// callers leave this at `defaultPrefetchTimeout` (3s); tests can shorten
+    /// it to bound their wall-clock budget.
+    @ObservationIgnored var prefetchTimeout: Duration = ChatViewModel.defaultPrefetchTimeout
+
     /// Contact ID currently having its favorite status toggled (for loading UI)
     var togglingFavoriteID: UUID?
 
@@ -300,6 +321,7 @@ final class ChatViewModel {
         self.syncCoordinator = appState.syncCoordinator
         self.linkPreviewCache = linkPreviewCache
         self.lastSetRegionScope = .unknown
+        configurePrefetcher(appState: appState, linkPreviewCache: linkPreviewCache)
         bindCoordinator(appState: appState, conversation: conversation)
     }
 
@@ -346,6 +368,45 @@ final class ChatViewModel {
 
     private func handleRenderStateInvalidated() {
         buildItems()
+    }
+
+    /// Build the receive-time prefetcher and start (or restart) the
+    /// dimension-resolution subscription. Called from both `configure(...)`
+    /// variants. No-op when services are unavailable (offline browse).
+    private func configurePrefetcher(
+        appState: AppState,
+        linkPreviewCache: any LinkPreviewCaching
+    ) {
+        guard let services = appState.services else {
+            prefetcher = nil
+            inlineImageDimensionsStore = nil
+            dimensionResolutionTask?.cancel()
+            dimensionResolutionTask = nil
+            return
+        }
+        let store = services.inlineImageDimensionsStore
+        inlineImageDimensionsStore = store
+        prefetcher = InlineImagePrefetcher(
+            imageCache: InlineImageCache.shared,
+            linkPreviewCache: linkPreviewCache,
+            dimensionsStore: store,
+            dataStore: services.dataStore
+        )
+        startObservingDimensionResolutions(store: store)
+    }
+
+    private func startObservingDimensionResolutions(store: InlineImageDimensionsStore) {
+        dimensionResolutionTask?.cancel()
+        dimensionResolutionTask = Task { [weak self] in
+            for await resolvedURL in store.resolutionStream {
+                guard !Task.isCancelled else { return }
+                await self?.handleDimensionResolution(resolvedURL)
+            }
+        }
+    }
+
+    deinit {
+        dimensionResolutionTask?.cancel()
     }
 
     static func copyForEnqueueFailure(_ error: Error) -> String {

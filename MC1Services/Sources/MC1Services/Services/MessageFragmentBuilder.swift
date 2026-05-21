@@ -102,7 +102,11 @@ public enum MessageFragmentBuilder {
         case .idle, .disabled, .malwareWarning:
             loadState = url.map { .idle($0) } ?? .failed(Self.blankURL)
         }
-        return InlineImage(state: loadState, autoPlayGIFs: envInputs.autoPlayGIFs)
+        return InlineImage(
+            state: loadState,
+            autoPlayGIFs: envInputs.autoPlayGIFs,
+            cachedAspect: inputs.inlineImageAspect
+        )
     }
 
     private static func makeLinkPreview(

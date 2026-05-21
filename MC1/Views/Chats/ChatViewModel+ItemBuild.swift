@@ -56,15 +56,24 @@ extension ChatViewModel {
     /// actor and feed the resulting `Sendable` snapshot to an off-main builder.
     func makeBuildInputs(for message: MessageDTO, previous: MessageDTO?) -> MessageBuildInputs {
         let flags = Self.computeDisplayFlags(for: message, previous: previous)
+        let cachedURL = cachedURLs[message.id].flatMap { $0 }
+        let inlineImageAspect: Double? = {
+            guard let cachedURL,
+                  ImageURLClassifier.isImageURL(cachedURL),
+                  let store = inlineImageDimensionsStore else { return nil }
+            let directURL = ImageURLClassifier.directImageURL(for: cachedURL)
+            return store.aspect(for: directURL) ?? store.aspect(for: cachedURL)
+        }()
         return MessageBuildInputs(
             messageID: message.id,
             previewState: previewStates[message.id] ?? .idle,
             loadedPreview: loadedPreviews[message.id],
-            cachedURL: cachedURLs[message.id].flatMap { $0 },
+            cachedURL: cachedURL,
             hasInlineImageRef: decodedImages[message.id] != nil,
             hasPreviewImageRef: decodedPreviewAssets[message.id]?.image != nil,
             hasPreviewIconRef: decodedPreviewAssets[message.id]?.icon != nil,
             imageIsGIF: imageIsGIF[message.id] ?? false,
+            inlineImageAspect: inlineImageAspect,
             formattedText: MessageText.buildFormattedText(
                 text: message.text,
                 isOutgoing: message.isOutgoing,

@@ -5,9 +5,11 @@ extension ChatViewModel {
 
     // MARK: - Display Items
 
-    /// Optimistically append a message if not already present. Called
-    /// synchronously before async reload to ensure `ChatTableView` sees
-    /// the new count immediately for unread tracking.
+    /// Optimistically append a message if not already present. Called from
+    /// the incoming admission path after the receive-time prefetch resolves
+    /// or hits its timeout, and from the outgoing send paths immediately
+    /// after `createPendingMessage`. Preserves unread-counter math via the
+    /// `newItems.count` delta in `ChatTableView.updateItems`.
     func appendMessageIfNew(_ message: MessageDTO) {
         guard let coordinator else { return }
         let previous = messages.last

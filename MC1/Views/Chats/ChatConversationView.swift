@@ -221,7 +221,7 @@ struct ChatConversationView: View {
         }
         .task {
             for await event in appState.messageEventStream.events() {
-                chatViewModel.handle(event)
+                await chatViewModel.handle(event)
             }
         }
         .onChange(of: chatViewModel.contactRefreshSignal) { _, _ in
