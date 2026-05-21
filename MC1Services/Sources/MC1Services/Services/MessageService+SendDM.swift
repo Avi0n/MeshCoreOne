@@ -233,7 +233,7 @@ extension MessageService {
     /// Creates a pending message without sending it.
     ///
     /// Use this when you want to show the message in the UI immediately
-    /// and retry it later via ``retryDirectMessage(messageID:to:)``.
+    /// and drain it later via ``sendPendingDirectMessage(messageID:to:preserveTimestamp:)``.
     ///
     /// - Parameters:
     ///   - text: The message text
@@ -267,67 +267,86 @@ extension MessageService {
         return messageDTO
     }
 
-    /// Retries sending a failed message with automatic retry logic.
+    /// Drains a `.pending` DM through the app-layer retry loop. Does not
+    /// bump `sendCount` or fire `messageResentHandler` — both bubble-
+    /// affecting side effects belong to
+    /// ``resendDirectMessage(messageID:to:preserveTimestamp:)``.
     ///
-    /// Use this method to retry messages that previously failed. The retry uses the same
-    /// automatic retry logic as `sendMessageWithRetry`, including flood routing fallback.
-    ///
-    /// - Parameters:
-    ///   - messageID: The ID of the failed message to retry
-    ///   - contact: The recipient contact
-    ///
-    /// - Returns: The updated message DTO with new delivery status
-    ///
-    /// - Throws:
-    ///   - `MessageServiceError.sendFailed` if message not found or retry already in progress
-    ///   - `MessageServiceError.sessionError` if MeshCore send fails
-    ///
-    /// # Example
-    ///
-    /// ```swift
-    /// let message = try await messageService.retryDirectMessage(
-    ///     messageID: failedMessage.id,
-    ///     to: contact
-    /// )
-    /// ```
-    public func retryDirectMessage(
+    /// - Parameter preserveTimestamp: True when a prior drain attempt may
+    ///   already have placed the packet on the wire (queue auto-park-and-
+    ///   retry), so the recipient's dedup ring catches the duplicate
+    ///   rather than rendering it twice. False on the first drain, where
+    ///   a fresh timestamp keeps mesh repeaters from filtering the packet.
+    public func sendPendingDirectMessage(
         messageID: UUID,
         to contact: ContactDTO,
         preserveTimestamp: Bool = false
     ) async throws -> MessageDTO {
-        // Guard against concurrent retries
+        try await performQueuedDirectMessageSend(
+            messageID: messageID,
+            to: contact,
+            preserveTimestamp: preserveTimestamp,
+            isResend: false
+        )
+    }
+
+    /// Resends an already-sent DM. Re-runs the app-layer retry loop,
+    /// increments `sendCount`, and fires `messageResentHandler` so the
+    /// bubble surfaces "Sent N times".
+    ///
+    /// - Parameter preserveTimestamp: True on queue auto-park-and-retry
+    ///   of the resend; false on the first drain attempt so the wire
+    ///   packet hashes distinctly from the original and clears repeater
+    ///   dedup rings.
+    public func resendDirectMessage(
+        messageID: UUID,
+        to contact: ContactDTO,
+        preserveTimestamp: Bool = false
+    ) async throws -> MessageDTO {
+        try await performQueuedDirectMessageSend(
+            messageID: messageID,
+            to: contact,
+            preserveTimestamp: preserveTimestamp,
+            isResend: true
+        )
+    }
+
+    private func performQueuedDirectMessageSend(
+        messageID: UUID,
+        to contact: ContactDTO,
+        preserveTimestamp: Bool,
+        isResend: Bool
+    ) async throws -> MessageDTO {
         guard !inFlightRetries.contains(messageID) else {
-            logger.warning("Retry already in progress for message: \(messageID)")
+            logger.warning("Send already in progress for message: \(messageID)")
             throw MessageServiceError.sendFailed("Retry already in progress")
         }
 
         inFlightRetries.insert(messageID)
         defer { inFlightRetries.remove(messageID) }
 
-        // Capture initial routing state to detect changes
         let initialPathLength = contact.outPathLength
 
         guard let existingMessage = try await dataStore.fetchMessage(id: messageID) else {
             throw MessageServiceError.sendFailed("Message not found")
         }
 
-        // Fresh timestamp on manual retry — mesh repeaters deduplicate by
+        // Fresh timestamp on first drain — mesh repeaters deduplicate by
         // packet content, so reusing the original would be dropped. Queue
         // auto-retry passes preserveTimestamp: true so the duplicate landing
         // on a recipient that already saw the first send gets caught by
         // their dedup ring rather than rendered as a second copy.
-        let retryTimestamp: Date
-        let retryTimestampRaw: UInt32
+        let wireTimestamp: Date
+        let wireTimestampRaw: UInt32
         if preserveTimestamp {
-            retryTimestampRaw = existingMessage.timestamp
-            retryTimestamp = Date(timeIntervalSince1970: TimeInterval(retryTimestampRaw))
+            wireTimestampRaw = existingMessage.timestamp
+            wireTimestamp = Date(timeIntervalSince1970: TimeInterval(wireTimestampRaw))
         } else {
-            retryTimestamp = Date()
-            retryTimestampRaw = UInt32(retryTimestamp.timeIntervalSince1970)
-            try await dataStore.updateMessageTimestamp(id: messageID, timestamp: retryTimestampRaw)
+            wireTimestamp = Date()
+            wireTimestampRaw = UInt32(wireTimestamp.timeIntervalSince1970)
+            try await dataStore.updateMessageTimestamp(id: messageID, timestamp: wireTimestampRaw)
         }
 
-        // Run app-layer retry loop with UI notifications
         do {
             let sentInfo = try await sendDirectMessageWithRetryLoop(
                 messageID: messageID,
@@ -335,12 +354,24 @@ extension MessageService {
                 radioID: contact.radioID,
                 publicKey: contact.publicKey,
                 text: existingMessage.text,
-                timestamp: retryTimestamp,
-                timestampRaw: retryTimestampRaw,
+                timestamp: wireTimestamp,
+                timestampRaw: wireTimestampRaw,
                 timeout: nil
             )
 
-            return try await finalizeSend(
+            // Bump only on a confirmed successful resend so sendCount counts
+            // landed user-initiated sends, not queue-driven attempts;
+            // bookkeeping failures log because the on-air retransmission
+            // already happened.
+            if isResend, sentInfo != nil {
+                do {
+                    _ = try await dataStore.incrementMessageSendCount(id: messageID)
+                } catch {
+                    logger.warning("DM resend sendCount bookkeeping failed messageID=\(messageID): \(String(describing: error))")
+                }
+            }
+
+            let message = try await finalizeSend(
                 messageID: messageID,
                 contactID: contact.id,
                 radioID: contact.radioID,
@@ -348,6 +379,14 @@ extension MessageService {
                 sentInfo: sentInfo,
                 initialPathLength: initialPathLength
             )
+
+            // Fire after the DB write so the downstream refetch sees both
+            // the bumped sendCount and the committed terminal status.
+            if isResend, sentInfo != nil {
+                await messageResentHandler?(messageID)
+            }
+
+            return message
         } catch {
             try await failMessageAndRethrow(error, messageID: messageID)
         }

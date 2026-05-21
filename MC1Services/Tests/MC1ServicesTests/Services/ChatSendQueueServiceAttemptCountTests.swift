@@ -114,7 +114,7 @@ struct ChatSendQueueServiceAttemptCountTests {
     /// `postBumpCount = 1 > 1` is false. The recipient never saw the packet,
     /// so a fresh wire timestamp is correct. Observable side effect:
     /// `Message.timestamp` changes (updateMessageTimestamp was called by
-    /// `retryDirectMessage`).
+    /// `sendPendingDirectMessage`).
     @Test("fresh send: row with attemptCount=0 first drain uses fresh timestamp")
     func freshSendBumpsToOneAndUsesFreshTimestamp() async throws {
         let harness = try await Self.setupQueueWithRow(attemptCount: 0)
@@ -159,10 +159,10 @@ struct ChatSendQueueServiceAttemptCountTests {
     /// Case 3 / Bump failure: when `incrementPendingSendAttemptCount` throws,
     /// the drain closure must park the envelope on the transport-open trigger
     /// (status reverts to `.pending`), leave the PendingSend row intact, and
-    /// must not call `retryDirectMessage`. Without this guarantee a SwiftData
-    /// failure during the bump could either drop the envelope silently or
-    /// double-send on retry.
-    @Test("bump failure parks envelope, preserves row, does not call retryDirectMessage")
+    /// must not call `sendPendingDirectMessage`. Without this guarantee a
+    /// SwiftData failure during the bump could either drop the envelope
+    /// silently or double-send on retry.
+    @Test("bump failure parks envelope, preserves row, does not call sendPendingDirectMessage")
     func bumpFailureParksWithoutSending() async throws {
         let harness = try await Self.setupQueueWithRow(attemptCount: 0)
 

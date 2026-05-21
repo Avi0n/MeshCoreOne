@@ -158,10 +158,10 @@ struct MessageServiceSendTests {
         #expect(message.channelIndex == nil)
     }
 
-    // MARK: - retryDirectMessage
+    // MARK: - sendPendingDirectMessage / resendDirectMessage
 
-    @Test("retryDirectMessage rejects concurrent retry for same messageID")
-    func retryDirectMessageRejectsConcurrent() async throws {
+    @Test("sendPendingDirectMessage rejects concurrent send for same messageID")
+    func sendPendingDirectMessageRejectsConcurrent() async throws {
         let (service, _) = try await MessageService.createForTesting()
         let contact = ContactDTO.testContact(radioID: testDeviceID)
         let messageID = UUID()
@@ -169,20 +169,20 @@ struct MessageServiceSendTests {
         await service.insertInFlightRetryForTest(messageID)
 
         try await #expect {
-            _ = try await service.retryDirectMessage(messageID: messageID, to: contact)
+            _ = try await service.sendPendingDirectMessage(messageID: messageID, to: contact)
         } throws: { error in
             guard let e = error as? MessageServiceError, case .sendFailed(let msg) = e else { return false }
             return msg.contains("already in progress")
         }
     }
 
-    @Test("retryDirectMessage throws when message not found")
-    func retryDirectMessageThrowsWhenNotFound() async throws {
+    @Test("sendPendingDirectMessage throws when message not found")
+    func sendPendingDirectMessageThrowsWhenNotFound() async throws {
         let (service, _) = try await MessageService.createForTesting()
         let contact = ContactDTO.testContact(radioID: testDeviceID)
 
         try await #expect {
-            _ = try await service.retryDirectMessage(messageID: UUID(), to: contact)
+            _ = try await service.sendPendingDirectMessage(messageID: UUID(), to: contact)
         } throws: { error in
             guard let e = error as? MessageServiceError, case .sendFailed = e else { return false }
             return true
@@ -385,6 +385,162 @@ struct MessageServiceSendTests {
         #expect(stored?.status == .sent, "resend must write .sent to the DB before firing the handler")
         #expect(stored?.heardRepeats == 0, "resend must reset heardRepeats to 0")
         #expect(stored?.sendCount == 2, "resend must increment sendCount from 1 to 2")
+    }
+
+    @Test("resendDirectMessage increments sendCount and fires messageResentHandler on a successful resend")
+    @MainActor
+    func resendDirectMessageBumpsSendCountAndFiresResentHandler() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 0.5)
+        )
+        let startTask = Task { try await session.start() }
+        try await waitUntil("session should send app start") {
+            await transport.sentData.count == 1
+        }
+        await transport.simulateReceive(makeSelfInfoPacket())
+        try await startTask.value
+        defer { Task { await session.stop() } }
+
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let dataStore = PersistenceStore(modelContainer: container)
+        let service = MessageService(session: session, dataStore: dataStore)
+
+        let messageID = UUID()
+        let contactID = UUID()
+        let radioID = testDeviceID
+        let contact = ContactDTO.testContact(id: contactID, radioID: radioID)
+
+        let delivered = MessageDTO.testDirectMessage(
+            id: messageID,
+            radioID: radioID,
+            contactID: contactID,
+            status: .delivered,
+            sendCount: 1
+        )
+        try await dataStore.saveMessage(delivered)
+
+        let tracker = MessageResentTracker()
+        await service.setMessageResentHandler { id in
+            await tracker.record(id)
+        }
+
+        // Pre-populate the pending-ack entry as already delivered so the
+        // retry loop short-circuits after sendMessage returns.
+        let ackCode = Data([0xAB, 0xCD, 0xEF, 0x12])
+        await service.setPendingAckForTest(
+            PendingAck(
+                messageID: messageID,
+                contactID: contactID,
+                ackCodes: [ackCode],
+                sentAt: Date(),
+                timeout: 30,
+                isDelivered: true
+            )
+        )
+
+        let resendTask = Task {
+            try await service.resendDirectMessage(messageID: messageID, to: contact)
+        }
+
+        try await waitUntil("resend should send CMD_SEND_TXT_MSG") {
+            await transport.sentData.count == 2
+        }
+
+        var msgSent = Data([ResponseCode.messageSent.rawValue])
+        msgSent.append(0)
+        msgSent.append(ackCode)
+        msgSent.append(uint32Bytes(5_000))
+        await transport.simulateReceive(msgSent)
+
+        _ = try await resendTask.value
+
+        let recorded = await tracker.resentIDs
+        #expect(recorded == [messageID],
+                "messageResentHandler must fire exactly once on successful DM resend")
+
+        let stored = try await dataStore.fetchMessage(id: messageID)
+        #expect(stored?.sendCount == 2,
+                "successful resendDirectMessage must increment sendCount from 1 to 2")
+    }
+
+    @Test("sendPendingDirectMessage does not bump sendCount or fire messageResentHandler on first send")
+    @MainActor
+    func sendPendingDirectMessageDoesNotBumpSendCount() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 0.5)
+        )
+        let startTask = Task { try await session.start() }
+        try await waitUntil("session should send app start") {
+            await transport.sentData.count == 1
+        }
+        await transport.simulateReceive(makeSelfInfoPacket())
+        try await startTask.value
+        defer { Task { await session.stop() } }
+
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let dataStore = PersistenceStore(modelContainer: container)
+        let service = MessageService(session: session, dataStore: dataStore)
+
+        let messageID = UUID()
+        let contactID = UUID()
+        let radioID = testDeviceID
+        let contact = ContactDTO.testContact(id: contactID, radioID: radioID)
+
+        let pending = MessageDTO.testDirectMessage(
+            id: messageID,
+            radioID: radioID,
+            contactID: contactID,
+            status: .pending,
+            sendCount: 1
+        )
+        try await dataStore.saveMessage(pending)
+
+        let tracker = MessageResentTracker()
+        await service.setMessageResentHandler { id in
+            await tracker.record(id)
+        }
+
+        // Pre-populate the pending-ack entry as already delivered so the
+        // retry loop short-circuits after sendMessage returns.
+        let ackCode = Data([0xAB, 0xCD, 0xEF, 0x12])
+        await service.setPendingAckForTest(
+            PendingAck(
+                messageID: messageID,
+                contactID: contactID,
+                ackCodes: [ackCode],
+                sentAt: Date(),
+                timeout: 30,
+                isDelivered: true
+            )
+        )
+
+        let sendTask = Task {
+            try await service.sendPendingDirectMessage(messageID: messageID, to: contact)
+        }
+
+        try await waitUntil("send should send CMD_SEND_TXT_MSG") {
+            await transport.sentData.count == 2
+        }
+
+        var msgSent = Data([ResponseCode.messageSent.rawValue])
+        msgSent.append(0)
+        msgSent.append(ackCode)
+        msgSent.append(uint32Bytes(5_000))
+        await transport.simulateReceive(msgSent)
+
+        _ = try await sendTask.value
+
+        let recorded = await tracker.resentIDs
+        #expect(recorded.isEmpty,
+                "messageResentHandler must not fire on first send")
+
+        let stored = try await dataStore.fetchMessage(id: messageID)
+        #expect(stored?.sendCount == 1,
+                "successful sendPendingDirectMessage must leave sendCount at 1")
     }
 
     private func makeSelfInfoPacket() -> Data {

@@ -175,11 +175,19 @@ public final class ChatSendQueueService {
                     }
 
                     do {
-                        _ = try await messageServiceRef.retryDirectMessage(
-                            messageID: envelope.messageID,
-                            to: contact,
-                            preserveTimestamp: preserveTimestamp
-                        )
+                        if envelope.isResend {
+                            _ = try await messageServiceRef.resendDirectMessage(
+                                messageID: envelope.messageID,
+                                to: contact,
+                                preserveTimestamp: preserveTimestamp
+                            )
+                        } else {
+                            _ = try await messageServiceRef.sendPendingDirectMessage(
+                                messageID: envelope.messageID,
+                                to: contact,
+                                preserveTimestamp: preserveTimestamp
+                            )
+                        }
                         try? await dataStoreRef.deletePendingSendsForMessage(messageID: envelope.messageID)
                         osLoggerRef.debug("DM drain success messageID=\(envelope.messageID)")
                         // Success: clear any armed trigger now that the row

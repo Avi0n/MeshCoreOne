@@ -157,6 +157,11 @@ public extension ChatCoordinator {
     /// callers (ack / send confirmation) never carry `.pending`, so the
     /// default avoids the visible `.failed` then `.pending` flicker when a
     /// stale event lands after the queue marked the row terminal.
+    ///
+    /// The `.delivered` downgrade guard is also relaxed for `userInitiated`
+    /// transitions so a user-initiated resend can visibly flip a delivered
+    /// row back to `.pending` while the queue retransmits; event-stream
+    /// callers still cannot downgrade a delivered row.
     func applyStatusUpdate(
         messageID: UUID,
         status: MessageStatus,
@@ -164,7 +169,7 @@ public extension ChatCoordinator {
         userInitiated: Bool = false
     ) {
         if let current = messagesByID[messageID] {
-            if current.status == .delivered, status != .delivered { return }
+            if current.status == .delivered, status != .delivered, !userInitiated { return }
             if current.status == .failed, status == .pending, !userInitiated { return }
         }
         update(messageID: messageID) { dto in

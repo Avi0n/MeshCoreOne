@@ -28,7 +28,7 @@ struct ChatSendQueueServiceTests {
     /// PendingSend row pointing at a contact that was deleted between
     /// enqueue and hydrate. The send closure's contact lookup fails,
     /// which is the "drop envelope" path — the row is purged without
-    /// calling `retryDirectMessage`. This exercises hydrate's queue
+    /// calling `sendPendingDirectMessage`. This exercises hydrate's queue
     /// loading and the queue's drain → onError → row-cleanup path on
     /// the simplest available transport-independent surface.
     @Test("hydrate replays persisted PendingSend rows and drains them")
@@ -108,8 +108,8 @@ struct ChatSendQueueServiceTests {
         )
 
         await service.hydrate()
-        // Give the drain time to call retryDirectMessage and throw a
-        // transient transport error, parking inside withCooperativeTimeout.
+        // Give the drain time to call sendPendingDirectMessage and throw
+        // a transient transport error, parking inside withCooperativeTimeout.
         try? await Task.sleep(for: .milliseconds(200))
         let rowsMidFlight = try await store.fetchPendingSends(radioID: radioID)
         #expect(rowsMidFlight.count == 1,

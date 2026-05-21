@@ -66,14 +66,18 @@ struct BubbleStatusRow: View {
             }
             return parts.joined(separator: " • ")
         case .delivered:
+            var parts: [String] = []
             if item.footer.heardRepeats > 0 {
                 let repeatWord = item.footer.heardRepeats == 1
                     ? L10n.Chats.Chats.Message.Repeat.singular
                     : L10n.Chats.Chats.Message.Repeat.plural
-                let repeatText = "\(item.footer.heardRepeats) \(repeatWord)"
-                return "\(repeatText) • \(L10n.Chats.Chats.Message.Status.delivered)"
+                parts.append("\(item.footer.heardRepeats) \(repeatWord)")
             }
-            return L10n.Chats.Chats.Message.Status.delivered
+            parts.append(L10n.Chats.Chats.Message.Status.delivered)
+            if item.footer.sendCount > 1 {
+                parts.append(L10n.Chats.Chats.Message.Status.sentMultiple(item.footer.sendCount))
+            }
+            return parts.joined(separator: " • ")
         case .failed:
             return L10n.Chats.Chats.Message.Status.failed
         case .retrying:

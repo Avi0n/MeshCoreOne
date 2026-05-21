@@ -8,7 +8,7 @@ public extension PendingSendDTO {
 
     func directMessageEnvelope() -> DirectMessageEnvelope? {
         guard kind == .dm, let contactID else { return nil }
-        return DirectMessageEnvelope(messageID: messageID, contactID: contactID)
+        return DirectMessageEnvelope(messageID: messageID, contactID: contactID, isResend: isResend)
     }
 
     func channelMessageEnvelope() -> ChannelMessageEnvelope? {
@@ -41,13 +41,15 @@ public extension PendingSendDTO {
         radioID: UUID,
         enqueuedAt: Date = Date()
     ) {
-        // DM rows persist a sentinel isResend/messageTimestamp. The DM
-        // drain path keys preserve-timestamp behaviour off the persisted
-        // `PendingSend.attemptCount` via the top-of-drain bump
-        // (`postBumpCount > 1` returns true on the 2nd+ drain attempt), so
-        // the wire timestamp does not need to round-trip through the DTO.
-        // Channel rows persist both explicitly because reaction indexing
-        // hashes off the post-send wire timestamp.
+        // DM rows persist `isResend` so a process restart between enqueue
+        // and drain routes the row to the same send method it would have
+        // hit pre-restart (sendPendingDirectMessage vs. resendDirectMessage).
+        // `messageTimestamp` stays sentinel: the DM drain keys preserve-
+        // timestamp behaviour off `PendingSend.attemptCount` via the
+        // top-of-drain bump (`postBumpCount > 1` returns true on the 2nd+
+        // drain attempt), so the wire timestamp does not round-trip
+        // through the DTO. Channel rows persist both explicitly because
+        // reaction indexing hashes off the post-send wire timestamp.
         self.init(
             id: id,
             radioID: radioID,
@@ -55,7 +57,7 @@ public extension PendingSendDTO {
             kind: .dm,
             contactID: envelope.contactID,
             channelIndex: nil,
-            isResend: false,
+            isResend: envelope.isResend,
             messageText: "",
             messageTimestamp: 0,
             localNodeName: nil,

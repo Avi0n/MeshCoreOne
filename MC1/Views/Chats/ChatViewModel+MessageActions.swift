@@ -92,7 +92,7 @@ extension ChatViewModel {
                 return
             }
 
-            let envelope = DirectMessageEnvelope(messageID: message.id, contactID: contact.id)
+            let envelope = DirectMessageEnvelope(messageID: message.id, contactID: contact.id, isResend: true)
             let dto = PendingSendDTO(envelope: envelope, radioID: contact.radioID)
 
             do {
