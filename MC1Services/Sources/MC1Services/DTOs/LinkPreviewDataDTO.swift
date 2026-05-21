@@ -8,6 +8,8 @@ public struct LinkPreviewDataDTO: Identifiable, Sendable, Hashable {
     public let title: String?
     public let imageData: Data?
     public let iconData: Data?
+    public let imageWidth: Int?
+    public let imageHeight: Int?
     public let fetchedAt: Date
 
     public init(
@@ -15,6 +17,8 @@ public struct LinkPreviewDataDTO: Identifiable, Sendable, Hashable {
         title: String? = nil,
         imageData: Data? = nil,
         iconData: Data? = nil,
+        imageWidth: Int? = nil,
+        imageHeight: Int? = nil,
         fetchedAt: Date = Date()
     ) {
         self.id = url
@@ -22,6 +26,8 @@ public struct LinkPreviewDataDTO: Identifiable, Sendable, Hashable {
         self.title = title
         self.imageData = imageData
         self.iconData = iconData
+        self.imageWidth = imageWidth
+        self.imageHeight = imageHeight
         self.fetchedAt = fetchedAt
     }
 
@@ -31,6 +37,8 @@ public struct LinkPreviewDataDTO: Identifiable, Sendable, Hashable {
         self.title = model.title
         self.imageData = model.imageData
         self.iconData = model.iconData
+        self.imageWidth = model.imageWidth
+        self.imageHeight = model.imageHeight
         self.fetchedAt = model.fetchedAt
     }
 }

@@ -111,6 +111,8 @@ extension PersistenceStore {
             existing.title = dto.title
             existing.imageData = dto.imageData
             existing.iconData = dto.iconData
+            existing.imageWidth = dto.imageWidth
+            existing.imageHeight = dto.imageHeight
             existing.fetchedAt = dto.fetchedAt
         } else {
             // Insert new
@@ -119,6 +121,8 @@ extension PersistenceStore {
                 title: dto.title,
                 imageData: dto.imageData,
                 iconData: dto.iconData,
+                imageWidth: dto.imageWidth,
+                imageHeight: dto.imageHeight,
                 fetchedAt: dto.fetchedAt
             )
             modelContext.insert(preview)
