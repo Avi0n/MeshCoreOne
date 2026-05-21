@@ -271,6 +271,10 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
             cell.transform = CGAffineTransform(scaleX: 1, y: -1)
             cell.backgroundColor = .clear
             cell.selectionStyle = .none
+            // Allow long-press scale-up and shadow on message bubbles to extend
+            // past the cell frame instead of being clipped at cell edges.
+            cell.clipsToBounds = false
+            cell.contentView.clipsToBounds = false
 
             // Embed SwiftUI content
             if let contentProvider = self.cellContentProvider {

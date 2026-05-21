@@ -46,7 +46,6 @@ struct MessageActionsSheet: View {
         )
     }
 
-    @State private var longPressHapticTrigger = 0
     @State private var destructiveHapticTrigger = 0
     @State private var showEmojiPicker = false
     @State private var isDetailExpanded = false
@@ -116,10 +115,6 @@ struct MessageActionsSheet: View {
         .presentationContentInteraction(.scrolls)
         .presentationDragIndicator(.visible)
         .presentationBackground(Color(.systemBackground))
-        .onAppear {
-            longPressHapticTrigger += 1
-        }
-        .sensoryFeedback(.impact(flexibility: .solid), trigger: longPressHapticTrigger)
         .sensoryFeedback(.warning, trigger: destructiveHapticTrigger)
         .task {
             guard let services = appState.services else { return }
