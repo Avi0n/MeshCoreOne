@@ -46,21 +46,28 @@ public extension ChatCoordinator {
                     envInputs: envInputs
                 ))
             }
-
-            await MainActor.run {
-                guard let self else { return }
-                guard !Task.isCancelled else { return }
-                let new = self.renderState.with(items: built, itemIndexByID: built.indexByID())
-                let applied = self.setRenderState(new, capturedID: capturedID)
-                if !applied {
-                    // A fresher mutation landed mid-flight. Notify the bound
-                    // view model so it can reassemble per-message inputs and
-                    // call rebuildItems again.
-                    self.renderStateInvalidated?()
-                    return
-                }
-                postApply?()
-            }
+            await self?.applyRebuiltItems(built, capturedID: capturedID, postApply: postApply)
         }
+    }
+
+    /// Reached via `await self?.…` from the `@concurrent` builder task.
+    /// Inlining as `MainActor.run { guard let self else … }` trips
+    /// Swift 6 region isolation on the `weak self` transfer.
+    private func applyRebuiltItems(
+        _ built: [MessageItem],
+        capturedID: UInt64,
+        postApply: (@MainActor () -> Void)?
+    ) {
+        guard !Task.isCancelled else { return }
+        let new = renderState.with(items: built, itemIndexByID: built.indexByID())
+        let applied = setRenderState(new, capturedID: capturedID)
+        if !applied {
+            // A fresher mutation landed mid-flight. Notify the bound
+            // view model so it can reassemble per-message inputs and
+            // call rebuildItems again.
+            renderStateInvalidated?()
+            return
+        }
+        postApply?()
     }
 }
