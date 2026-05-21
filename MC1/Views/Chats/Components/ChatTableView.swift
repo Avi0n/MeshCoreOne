@@ -89,6 +89,11 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     private var pendingScrollTask: Task<Void, Never>?
     private var checkVisibleMentionsTask: Task<Void, Never>?
 
+    /// Latest-wins buffer for updateItems calls received mid-drag. Applying a
+    /// snapshot mid-drag shifts contentOffset and fights the gesture; draining
+    /// on drag-end lets the offset adjust on settled content.
+    private var deferredItemsApply: (newItems: [Item], animated: Bool)?
+
     /// Coalesces the four scroll-tracking callbacks
     /// (`updateIsAtBottom`, `checkVisibleMentions`, `checkDividerVisibility`,
     /// `checkNearTop`) to at most one invocation per display frame.
@@ -123,7 +128,9 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
         // Visual setup
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 80
+        // estimatedRowHeight intentionally unset: UIHostingConfiguration
+        // self-sizing produces an exact contentSize, so pagination prepends
+        // don't shift contentOffset as estimates are replaced with measurements.
 
         // Flipped table (scaleX: 1, y: -1) inverts top/bottom, so automatic
         // content-inset adjustment applies safe-area padding to the wrong edges.
@@ -399,6 +406,11 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     }
 
     func updateItems(_ newItems: [Item], animated: Bool = true) {
+        if tableView.isDragging {
+            deferredItemsApply = (newItems, animated)
+            return
+        }
+
         let previousCount = items.count
         let wasAtBottom = isAtBottom
         let oldItems = items
@@ -413,7 +425,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         let wasPrepend = previousCount > 0 && hasNewItems && oldItems.first?.id != newItems.first?.id
 
         // For prepends, capture a measured anchor row so we can restore the visible
-        // content's screen position after estimatedRowHeight reconciliation shifts contentSize.
+        // content's screen position after the snapshot apply changes contentSize.
         let prependAnchor = wasPrepend ? capturePrependAnchor(in: oldItems) : nil
 
         // Apply snapshot with REVERSED order: newest-first for flipped table
@@ -435,6 +447,14 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         // 2. Content updates (status changes) - no animation to prevent flash
         let hasStructuralChanges = newItems.count != oldItems.count ||
             Set(newItems.map(\.id)) != Set(oldItems.map(\.id))
+
+        // Skip the apply when nothing changed. Otherwise re-renders triggered by
+        // non-content state (e.g. ChatRenderState.isLoadingOlder toggling) reach
+        // applySnapshot without prepend-anchor protection and can shift
+        // contentOffset, producing a visible jump while scrolling.
+        if previousCount > 0 && !hasStructuralChanges && changedIDs.isEmpty {
+            return
+        }
 
         // Prepends apply non-animated so anchor restoration in the apply completion runs
         // against the post-apply layout, not against a coalesced animation in flight
@@ -677,12 +697,20 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
             finalizeScrollPosition()
             fireDeferredScrollIfNeeded()
         }
+        drainDeferredItemsApply()
     }
 
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         scrollState.endDragging()
         finalizeScrollPosition()
         fireDeferredScrollIfNeeded()
+        drainDeferredItemsApply()
+    }
+
+    private func drainDeferredItemsApply() {
+        guard let deferred = deferredItemsApply else { return }
+        deferredItemsApply = nil
+        updateItems(deferred.newItems, animated: deferred.animated)
     }
 
     private func fireDeferredScrollIfNeeded() {

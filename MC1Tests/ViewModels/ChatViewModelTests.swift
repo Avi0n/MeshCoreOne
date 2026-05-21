@@ -340,6 +340,73 @@ struct ChatViewModelTests {
         #expect(viewModel.renderState.phase == .loaded)
     }
 
+    // MARK: - Sender Resolution Tests
+
+    @Test("senderResolutionFor uses message.channelIndex, not currentChannel")
+    func senderResolutionDispatchesOnMessageChannelIndex() {
+        let viewModel = ChatViewModel()
+        // Resolution must dispatch on intrinsic message data, not on
+        // transient view-model state that may not be set during a rebuild.
+        #expect(viewModel.currentChannel == nil)
+
+        let channelMessage = createChannelMessage(
+            timestamp: 1_700_000_000,
+            senderName: "Alice"
+        )
+
+        let resolution = viewModel.senderResolutionFor(channelMessage)
+
+        #expect(resolution.displayName == "Alice")
+        #expect(resolution.matchKind == .exact)
+    }
+
+    @Test("senderResolutionFor returns wire name for channel msg without senderNodeName via hex fallback")
+    func senderResolutionFallsBackToHexForChannelWithoutName() {
+        let viewModel = ChatViewModel()
+        #expect(viewModel.currentChannel == nil)
+
+        let prefixBytes = Data([0xAB, 0xCD])
+        let message = MessageDTO(
+            id: UUID(),
+            radioID: UUID(),
+            contactID: nil,
+            channelIndex: 0,
+            text: "hi",
+            timestamp: 1_700_000_000,
+            createdAt: Date(timeIntervalSince1970: 1_700_000_000),
+            direction: .incoming,
+            status: .delivered,
+            textType: .plain,
+            ackCode: nil,
+            pathLength: 0,
+            snr: nil,
+            senderKeyPrefix: prefixBytes,
+            senderNodeName: nil,
+            isRead: false,
+            replyToID: nil,
+            roundTripTime: nil,
+            heardRepeats: 0,
+            retryAttempt: 0,
+            maxRetryAttempts: 0
+        )
+
+        let resolution = viewModel.senderResolutionFor(message)
+
+        #expect(resolution.displayName == "ABCD")
+        #expect(resolution.matchKind == .unresolved)
+    }
+
+    @Test("senderResolutionFor returns Unknown sentinel for DM messages")
+    func senderResolutionUnknownForDirectMessage() {
+        let viewModel = ChatViewModel()
+        let dmMessage = createTestMessage(timestamp: 1_700_000_000)
+
+        let resolution = viewModel.senderResolutionFor(dmMessage)
+
+        #expect(resolution.displayName == L10n.Chats.Chats.Message.Sender.unknown)
+        #expect(resolution.matchKind == .unresolved)
+    }
+
 }
 
 // MARK: - Blocked Contact Filtering Tests

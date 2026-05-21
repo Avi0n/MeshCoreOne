@@ -106,11 +106,16 @@ extension ChatViewModel {
         return messages[index - 1]
     }
 
-    /// Resolve a sender display name for a message in the current conversation.
-    /// Channels run the contact-aware resolver; DMs fall back to the unknown
-    /// sentinel because DM bubbles never display the sender row.
+    /// Resolve a sender display name for a message. Channels run the
+    /// contact-aware resolver; DMs fall back to the unknown sentinel
+    /// because DM bubbles never display the sender row.
+    ///
+    /// Dispatch is keyed on `message.channelIndex` rather than the view
+    /// model's `currentChannel`: `currentChannel` is nil during early
+    /// rebuilds, so keying off it would mis-route channel rows to the
+    /// DM path and bake the unknown sentinel into cached items.
     func senderResolutionFor(_ message: MessageDTO) -> NodeNameResolution {
-        if currentChannel != nil {
+        if message.channelIndex != nil {
             return MessageBubbleConfiguration.resolveSenderName(
                 for: message,
                 contacts: allContacts
