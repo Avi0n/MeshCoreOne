@@ -43,6 +43,10 @@ public final class ServiceContainer {
     /// The persistence store for SwiftData operations
     public let dataStore: PersistenceStore
 
+    /// Persists inline-image aspect ratios for chat link previews. Built early
+    /// because downstream caches and the prefetcher depend on it.
+    public let inlineImageDimensionsStore: InlineImageDimensionsStore
+
     // MARK: - Independent Services
 
     /// Keychain service for secure credential storage
@@ -167,6 +171,7 @@ public final class ServiceContainer {
         self.session = session
         self.appStateProvider = appStateProvider
         self.dataStore = PersistenceStore(modelContainer: modelContainer)
+        self.inlineImageDimensionsStore = InlineImageDimensionsStore()
 
         // Independent services (no dependencies)
         self.keychainService = KeychainService()
