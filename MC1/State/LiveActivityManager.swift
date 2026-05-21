@@ -278,6 +278,18 @@ public final class LiveActivityManager {
             return
         }
         guard !DemoModeManager.shared.isEnabled else { return }
+
+        // Reclaim slots held by ended/dismissed entries before requesting.
+        // iOS keeps them in `.activities` for up to 4 hours (Lock Screen
+        // dismissal window) and counts them against the per-app activity
+        // cap, so `Activity.request` would otherwise throw
+        // `ActivityAuthorizationError.targetMaximumExceeded`. Mirrors
+        // `recoverExistingActivity`.
+        for activity in Activity<MeshStatusAttributes>.activities where
+            activity.activityState == .ended || activity.activityState == .dismissed {
+            await activity.end(nil, dismissalPolicy: .immediate)
+        }
+
         guard !Activity<MeshStatusAttributes>.activities.contains(where: {
             $0.activityState == .active || $0.activityState == .stale
         }) else {

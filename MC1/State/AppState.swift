@@ -546,6 +546,29 @@ public final class AppState {
         }
     }
 
+    /// `Activity.request` only succeeds in the foreground, so a `startActivity`
+    /// triggered from background (e.g. BLE auto-reconnect after the disconnect
+    /// grace timer fired) throws and leaves `currentActivity` nil. iOS may also
+    /// end an activity from background — 8-hour active cap, 12-hour total, or
+    /// memory pressure — in which case the `.dismissed` branch in
+    /// `validateActivityState` clears the reference without restarting. Both
+    /// leave the radio connected with no LA on screen.
+    private func restartLiveActivityIfMissing() async {
+        guard connectionState.isConnected,
+              liveActivityManager.isEnabled,
+              !liveActivityManager.hasActiveActivity,
+              let device = connectedDevice,
+              let services else { return }
+
+        let ocvArray = batteryMonitor.activeBatteryOCVArray(for: device)
+        let unreadCount = await totalUnreadCount(from: services)
+        await liveActivityManager.handleConnectionReady(
+            device: device,
+            ocvArray: ocvArray,
+            unreadCount: unreadCount
+        )
+    }
+
     private func totalUnreadCount(from services: ServiceContainer) async -> Int {
         guard let radioID = currentRadioID else { return 0 }
         let counts = (try? await services.dataStore.getTotalUnreadCounts(radioID: radioID))
@@ -768,6 +791,7 @@ public final class AppState {
 
         liveActivityManager.handleReturnToForeground()
         await liveActivityManager.validateActivityState()
+        await restartLiveActivityIfMissing()
 
         // Check for expired ACKs
         if connectionState == .ready {
