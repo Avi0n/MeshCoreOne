@@ -44,6 +44,7 @@ struct UnifiedMessageBubble: View, Equatable {
     @State private var showingReactionDetails = false
     @State private var isLongPressing = false
     @State private var longPressTrigger = 0
+    @State private var bubbleContentWidth: CGFloat?
 
     nonisolated static func == (lhs: UnifiedMessageBubble, rhs: UnifiedMessageBubble) -> Bool {
         lhs.item == rhs.item
@@ -219,8 +220,22 @@ struct UnifiedMessageBubble: View, Equatable {
             LinkPreviewFragmentView(
                 state: state,
                 imageResolver: imageResolver,
-                onManualPreviewFetch: callbacks.onManualPreviewFetch
+                onManualPreviewFetch: callbacks.onManualPreviewFetch,
+                bubbleContentWidth: bubbleContentWidth
             )
+            .background(
+                GeometryReader { proxy in
+                    Color.clear.preference(
+                        key: BubbleContentWidthKey.self,
+                        value: proxy.size.width
+                    )
+                }
+            )
+            .onPreferenceChange(BubbleContentWidthKey.self) { width in
+                if width > 0 {
+                    bubbleContentWidth = width
+                }
+            }
         case .text, .inlineImage:
             EmptyView()
         }
@@ -309,5 +324,14 @@ private extension UnifiedMessageBubble {
             }
         }
         return nil
+    }
+}
+
+/// Captures the actual rendered width of the link-preview fragment so the
+/// card can reserve hero height aspect-aware via stored DTO dimensions.
+private struct BubbleContentWidthKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }

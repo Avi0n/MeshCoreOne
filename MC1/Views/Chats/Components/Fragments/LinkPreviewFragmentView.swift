@@ -10,23 +10,45 @@ struct LinkPreviewFragmentView: View {
     let state: LinkPreviewFragmentState
     let imageResolver: (ImageReference) -> UIImage?
     let onManualPreviewFetch: (() -> Void)?
+    let bubbleContentWidth: CGFloat?
 
     @Environment(\.openURL) private var openURL
+
+    init(
+        state: LinkPreviewFragmentState,
+        imageResolver: @escaping (ImageReference) -> UIImage?,
+        onManualPreviewFetch: (() -> Void)?,
+        bubbleContentWidth: CGFloat? = nil
+    ) {
+        self.state = state
+        self.imageResolver = imageResolver
+        self.onManualPreviewFetch = onManualPreviewFetch
+        self.bubbleContentWidth = bubbleContentWidth
+    }
 
     var body: some View {
         switch state.mode {
         case .loaded(let preview, let imageRef, let iconRef):
             if let url = URL(string: preview.url) {
-                LinkPreviewCard(
-                    url: url,
-                    title: preview.title,
-                    image: imageRef.flatMap(imageResolver),
-                    icon: iconRef.flatMap(imageResolver),
-                    onTap: { openURL(url) }
-                )
+                let resolvedImage = imageRef.flatMap(imageResolver)
+                if imageRef != nil && resolvedImage == nil {
+                    // Image bytes still downloading — reserve hero space.
+                    LinkPreviewLoadingCard(state: state, bubbleContentWidth: bubbleContentWidth)
+                } else {
+                    LinkPreviewCard(
+                        url: url,
+                        title: preview.title,
+                        image: resolvedImage,
+                        icon: iconRef.flatMap(imageResolver),
+                        imageWidth: preview.imageWidth,
+                        imageHeight: preview.imageHeight,
+                        bubbleContentWidth: bubbleContentWidth,
+                        onTap: { openURL(url) }
+                    )
+                }
             }
-        case .loading(let url):
-            LinkPreviewLoadingCard(url: url)
+        case .loading:
+            LinkPreviewLoadingCard(state: state, bubbleContentWidth: bubbleContentWidth)
         case .disabled(let url):
             TapToLoadPreview(
                 url: url,
@@ -39,6 +61,9 @@ struct LinkPreviewFragmentView: View {
                 title: title,
                 image: imageRef.flatMap(imageResolver),
                 icon: iconRef.flatMap(imageResolver),
+                imageWidth: nil,
+                imageHeight: nil,
+                bubbleContentWidth: bubbleContentWidth,
                 onTap: { openURL(url) }
             )
         case .idle, .noPreview:
