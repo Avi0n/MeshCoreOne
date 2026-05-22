@@ -234,6 +234,20 @@ extension ChatViewModel {
 
     // MARK: - Inline Image State Management
 
+    /// Atomically seeds the per-VM image state from a decoded cache entry.
+    /// Restores `loadedImageData` from the entry's raw bytes when available
+    /// so the full-screen viewer and share sheet keep working after
+    /// rehydration. Does not rebuild the render item; the caller owns that
+    /// step.
+    func applyDecodedImage(_ cached: CachedDecodedImage, for messageID: UUID) {
+        decodedImages[messageID] = cached.image
+        imageIsGIF[messageID] = cached.isGIF
+        if let data = cached.data {
+            loadedImageData.setObject(data as NSData, forKey: messageID as NSUUID, cost: data.count)
+        }
+        previewStates[messageID] = .loaded
+    }
+
     /// Returns the pre-decoded UIImage for a message, if available
     func decodedImage(for messageID: UUID) -> UIImage? {
         decodedImages[messageID]
@@ -358,18 +372,24 @@ extension ChatViewModel {
         switch result {
         case .loaded(let data):
             let isGIF = ImageURLDetector.isGIFData(data)
-            imageIsGIF[messageID] = isGIF
-            if !isGIF {
-                loadedImageData.setObject(data as NSData, forKey: messageID as NSUUID, cost: data.count)
-            }
-            let decoded: UIImage? = await Task.detached {
-                if isGIF {
-                    return ImageURLDetector.decodeGIFImage(from: data)
-                } else {
-                    return ImageURLDetector.downsampledImage(from: data)
-                }
+            let entry: CachedDecodedImage? = await Task.detached { () -> CachedDecodedImage? in
+                let decoded: UIImage? = isGIF
+                    ? ImageURLDetector.decodeGIFImage(from: data)
+                    : ImageURLDetector.downsampledImage(from: data)
+                guard let decoded else { return nil }
+                return CachedDecodedImage(
+                    image: decoded,
+                    isGIF: isGIF,
+                    data: isGIF ? nil : data
+                )
             }.value
-            guard !Task.isCancelled, let decoded else {
+            // Persist before the cancellation/teardown guards so a
+            // scroll-away or chat-exit mid-decode still surfaces the
+            // pixels on the next chat re-entry.
+            if let entry {
+                InlineImageCache.shared.storeDecoded(entry, for: directURL)
+            }
+            guard !Task.isCancelled, let entry else {
                 imageFetchTasks.removeValue(forKey: messageID)
                 return
             }
@@ -377,8 +397,7 @@ extension ChatViewModel {
                 imageFetchTasks.removeValue(forKey: messageID)
                 return
             }
-            decodedImages[messageID] = decoded
-            previewStates[messageID] = .loaded
+            applyDecodedImage(entry, for: messageID)
 
         case .loading:
             break

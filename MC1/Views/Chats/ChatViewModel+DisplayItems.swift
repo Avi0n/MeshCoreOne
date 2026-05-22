@@ -49,17 +49,47 @@ extension ChatViewModel {
         // generation gating; only this URL-detection writer does.
         guard urlDetectionGeneration == generation else { return }
 
-        cachedURLs[messageID] = detectedURL
-
+        // Gate every per-VM write on the message still being present so a
+        // delete between detection-start and detection-end can never seed
+        // orphan state that no cleanup path purges before conversation
+        // switch.
         guard let coordinator,
               let message = coordinator.messagesByID[messageID] else {
             logger.warning("URL update for missing message id \(messageID)")
             return
         }
+
+        cachedURLs[messageID] = detectedURL
+
+        // Rehydrate decoded-image state from the singleton when this is a
+        // fresh chat-entry on a URL whose decode already completed in a
+        // prior session. Painting `.loaded` plus the dict entry in the
+        // same call frame means the next render skips the shimmer
+        // transition entirely.
+        rehydrateInlineImageStateIfCached(messageID: messageID, url: detectedURL)
+
         let previous = previousMessage(for: messageID)
         coordinator.updateRenderItem(id: messageID) { _ in
             makeItem(for: message, previous: previous)
         }
+    }
+
+    /// Seed `decodedImages` / `imageIsGIF` / `previewStates = .loaded`
+    /// atomically when the singleton has a decoded image for this URL.
+    /// Also restores raw bytes into `loadedImageData` for static images so
+    /// the full-screen viewer and share sheet (which need original
+    /// resolution and `Data`) keep working post-rehydration. Idempotent
+    /// and a no-op for non-image URLs, the inline-image AppStorage toggle
+    /// being off, or a per-VM state that has already advanced past `.idle`.
+    private func rehydrateInlineImageStateIfCached(messageID: UUID, url: URL?) {
+        guard envInputs.showInlineImages,
+              let url,
+              ImageURLClassifier.isImageURL(url) else { return }
+        let existingState = previewStates[messageID]
+        guard existingState == nil || existingState == .idle else { return }
+        let directURL = ImageURLClassifier.directImageURL(for: url)
+        guard let cached = InlineImageCache.shared.decoded(for: directURL) else { return }
+        applyDecodedImage(cached, for: messageID)
     }
 
     /// Build MessageItems with pre-computed properties. Snapshots view-model
