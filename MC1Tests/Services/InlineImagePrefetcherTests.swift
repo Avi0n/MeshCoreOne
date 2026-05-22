@@ -145,6 +145,36 @@ struct InlineImagePrefetcherTests {
         #expect(channelFlags == [true])
     }
 
+    // MARK: - Giphy hosting page routes to probe
+
+    @Test("Giphy hosting URL routes to probe path with resolved direct image URL")
+    func giphyHostingRoutesToProbe() async {
+        let imageCache = StubImageProber()
+        let linkCache = StubLinkPreviewFetcher()
+        let store = InlineImageDimensionsStore(fileURL: Self.makeTempDimensionsURL())
+        let dataStore = StubDataStore()
+
+        let prefetcher = InlineImagePrefetcher(
+            imageCache: imageCache,
+            linkPreviewCache: linkCache,
+            dimensionsStore: store,
+            dataStore: dataStore
+        )
+
+        let hostingURL = URL(string: "https://giphy.com/gifs/abc123")!
+        let expectedProbeURL = ImageURLClassifier.directImageURL(for: hostingURL)
+
+        await prefetcher.prefetch(
+            urlsIn: "look at \(hostingURL.absoluteString)",
+            isChannelMessage: false
+        )
+
+        let probeCalls = await imageCache.probedURLs
+        let previewCalls = await linkCache.fetchedURLs
+        #expect(probeCalls.map(\.absoluteString) == [expectedProbeURL.absoluteString])
+        #expect(previewCalls.isEmpty)
+    }
+
     // MARK: - Helpers
 
     private static func makeTempDimensionsURL() -> URL {

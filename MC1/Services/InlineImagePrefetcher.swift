@@ -52,10 +52,11 @@ final class InlineImagePrefetcher {
 
         await withTaskGroup(of: Void.self) { group in
             for url in urls {
-                if ImageURLClassifier.isDirectImageURL(url) {
-                    guard dimensionsStore.aspect(for: url) == nil else { continue }
+                if ImageURLClassifier.isImageURL(url) {
+                    let probeURL = ImageURLClassifier.directImageURL(for: url)
+                    guard dimensionsStore.aspect(for: probeURL) == nil else { continue }
                     group.addTask {
-                        _ = await imageCache.probeImageDimensions(url: url)
+                        _ = await imageCache.probeImageDimensions(url: probeURL)
                     }
                 } else {
                     group.addTask {
