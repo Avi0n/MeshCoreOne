@@ -164,6 +164,13 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         setupScrollDisplayLink()
     }
 
+    // Swift 6.3.2 EarlyPerfInliner crashes (infinite recursion in
+    // `isCallerAndCalleeLayoutConstraintsCompatible`) when optimizing this
+    // generic UITableViewController subclass's deinit under -O. Opting the
+    // deinit out of optimization sidesteps the crash without changing
+    // runtime behavior. Drop the attribute once a future Swift release
+    // fixes the underlying inliner bug.
+    @_optimize(none)
     isolated deinit {
         NotificationCenter.default.removeObserver(self)
         scrollDisplayLink?.invalidate()
