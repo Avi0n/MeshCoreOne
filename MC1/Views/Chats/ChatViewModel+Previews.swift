@@ -177,9 +177,21 @@ extension ChatViewModel {
             return await Task.detached { ImageURLDetector.downsampledImage(from: data) }.value
         }()
         let (hero, icon) = await (heroResult, iconResult)
-        if hero != nil || icon != nil {
-            decodedPreviewAssets[messageID] = DecodedPreviewAssets(image: hero, icon: icon)
+
+        // Warm the process-lifetime cache before the per-VM apply so a
+        // chat-exit mid-decode still surfaces the card on the next visit, and a
+        // later re-entry repaints loaded without re-decoding. Cache every
+        // resolved preview, including title-only cards with no hero or icon, so
+        // those skip the loading shimmer on re-entry too.
+        if let url = URL(string: dto.url) {
+            DecodedPreviewCache.shared.store(
+                CachedDecodedPreview(dto: dto, hero: hero, icon: icon),
+                for: url
+            )
         }
+
+        guard hero != nil || icon != nil else { return }
+        decodedPreviewAssets[messageID] = DecodedPreviewAssets(image: hero, icon: icon)
     }
 
     /// Update a message in place and rebuild its display item.

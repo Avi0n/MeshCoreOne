@@ -67,6 +67,7 @@ extension ChatViewModel {
         // same call frame means the next render skips the shimmer
         // transition entirely.
         rehydrateInlineImageStateIfCached(messageID: messageID, url: detectedURL)
+        rehydratePreviewStateIfCached(messageID: messageID, url: detectedURL)
 
         let previous = previousMessage(for: messageID)
         coordinator.updateRenderItem(id: messageID) { _ in
@@ -90,6 +91,22 @@ extension ChatViewModel {
         let directURL = ImageURLClassifier.directImageURL(for: url)
         guard let cached = InlineImageCache.shared.decoded(for: directURL) else { return }
         applyDecodedImage(cached, for: messageID)
+    }
+
+    /// Seed `loadedPreviews` / `decodedPreviewAssets` / `previewStates = .loaded`
+    /// atomically when `DecodedPreviewCache` already holds a decoded card for
+    /// this URL. Painting `.loaded` in the same call frame as URL detection
+    /// means the bubble skips the loading shimmer on chat re-entry. Idempotent
+    /// and a no-op once state has advanced past `.idle`; image URLs are handled
+    /// by `rehydrateInlineImageStateIfCached` and have no preview entry here.
+    private func rehydratePreviewStateIfCached(messageID: UUID, url: URL?) {
+        guard let url else { return }
+        let existingState = previewStates[messageID]
+        guard existingState == nil || existingState == .idle else { return }
+        guard let cached = DecodedPreviewCache.shared.decoded(for: url) else { return }
+        loadedPreviews[messageID] = cached.dto
+        decodedPreviewAssets[messageID] = DecodedPreviewAssets(image: cached.hero, icon: cached.icon)
+        previewStates[messageID] = .loaded
     }
 
     /// Build MessageItems with pre-computed properties. Snapshots view-model
