@@ -7,13 +7,12 @@ import MC1Services
 /// keeps the bubble's reserved height stable across the transition.
 struct LinkPreviewLoadingCard: View {
     let state: LinkPreviewFragmentState
-    let bubbleContentWidth: CGFloat?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @ScaledMetric(relativeTo: .body) private var heroHeight: CGFloat = 150
     @ScaledMetric(relativeTo: .body) private var minHeroHeight: CGFloat = 100
     @ScaledMetric(relativeTo: .body) private var maxHeroHeight: CGFloat = 250
 
+    private static let fallbackAspect: Double = 16.0 / 9.0
     private static let cardCornerRadius: CGFloat = 12
     private static let shimmerCornerRadius: CGFloat = 4
     private static let cardPadding: CGFloat = 10
@@ -23,11 +22,6 @@ struct LinkPreviewLoadingCard: View {
     private static let domainRowHeight: CGFloat = 10
     private static let titleRowWidthFraction: CGFloat = 0.72
     private static let domainRowWidthFraction: CGFloat = 0.4
-
-    init(state: LinkPreviewFragmentState, bubbleContentWidth: CGFloat? = nil) {
-        self.state = state
-        self.bubbleContentWidth = bubbleContentWidth
-    }
 
     var body: some View {
         switch state.mode {
@@ -47,7 +41,7 @@ struct LinkPreviewLoadingCard: View {
     private func unknownImageCard(url: URL?) -> some View {
         let host = url?.host ?? ""
         VStack(alignment: .leading, spacing: 0) {
-            shimmerBlock(height: heroHeight)
+            shimmerHero(aspect: CGFloat(Self.fallbackAspect))
                 .clipShape(.rect(
                     topLeadingRadius: Self.cardCornerRadius,
                     topTrailingRadius: Self.cardCornerRadius
@@ -70,13 +64,12 @@ struct LinkPreviewLoadingCard: View {
     private func confirmedImageCard(preview: LinkPreviewDataDTO) -> some View {
         let url = URL(string: preview.url)
         let host = url?.host ?? preview.url
-        let reservedHeight = reservedHeroHeight(
-            imageWidth: preview.imageWidth,
-            imageHeight: preview.imageHeight
-        )
 
         VStack(alignment: .leading, spacing: 0) {
-            shimmerBlock(height: reservedHeight)
+            shimmerHero(aspect: heroAspect(
+                imageWidth: preview.imageWidth,
+                imageHeight: preview.imageHeight
+            ))
                 .clipShape(.rect(
                     topLeadingRadius: Self.cardCornerRadius,
                     topTrailingRadius: Self.cardCornerRadius
@@ -111,22 +104,24 @@ struct LinkPreviewLoadingCard: View {
         .accessibilityHint(L10n.Chats.Chats.Preview.loadingHint)
     }
 
-    private func reservedHeroHeight(imageWidth: Int?, imageHeight: Int?) -> CGFloat {
-        guard let imageWidth, let imageHeight, imageWidth > 0, imageHeight > 0,
-              let width = bubbleContentWidth, width > 0 else {
-            return heroHeight
+    private func heroAspect(imageWidth: Int?, imageHeight: Int?) -> CGFloat {
+        guard let imageWidth, let imageHeight, imageWidth > 0, imageHeight > 0 else {
+            return CGFloat(Self.fallbackAspect)
         }
-        let aspect = CGFloat(imageWidth) / CGFloat(imageHeight)
-        let raw = width / aspect
-        return min(max(raw, minHeroHeight), maxHeroHeight)
+        return CGFloat(imageWidth) / CGFloat(imageHeight)
     }
 
     @ViewBuilder
-    private func shimmerBlock(height: CGFloat) -> some View {
-        Rectangle()
-            .fill(Color(.tertiarySystemFill))
-            .frame(height: height)
-            .modifier(Shimmer(isActive: !reduceMotion))
+    private func shimmerHero(aspect: CGFloat) -> some View {
+        Color.clear
+            .aspectRatio(aspect, contentMode: .fit)
+            .frame(minHeight: minHeroHeight, maxHeight: maxHeroHeight)
+            .frame(maxWidth: .infinity)
+            .overlay {
+                Rectangle()
+                    .fill(Color(.tertiarySystemFill))
+                    .modifier(Shimmer(isActive: !reduceMotion))
+            }
             .accessibilityHidden(true)
     }
 
@@ -161,8 +156,7 @@ struct LinkPreviewLoadingCard: View {
             ),
             image: nil,
             icon: nil
-        )),
-        bubbleContentWidth: 280
+        ))
     )
     .padding()
 }

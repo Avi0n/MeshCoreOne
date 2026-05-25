@@ -10,20 +10,17 @@ struct LinkPreviewFragmentView: View {
     let state: LinkPreviewFragmentState
     let imageResolver: (ImageReference) -> UIImage?
     let onManualPreviewFetch: (() -> Void)?
-    let bubbleContentWidth: CGFloat?
 
     @Environment(\.openURL) private var openURL
 
     init(
         state: LinkPreviewFragmentState,
         imageResolver: @escaping (ImageReference) -> UIImage?,
-        onManualPreviewFetch: (() -> Void)?,
-        bubbleContentWidth: CGFloat? = nil
+        onManualPreviewFetch: (() -> Void)?
     ) {
         self.state = state
         self.imageResolver = imageResolver
         self.onManualPreviewFetch = onManualPreviewFetch
-        self.bubbleContentWidth = bubbleContentWidth
     }
 
     var body: some View {
@@ -33,7 +30,7 @@ struct LinkPreviewFragmentView: View {
                 let resolvedImage = imageRef.flatMap(imageResolver)
                 if imageRef != nil && resolvedImage == nil {
                     // Image bytes still downloading — reserve hero space.
-                    LinkPreviewLoadingCard(state: state, bubbleContentWidth: bubbleContentWidth)
+                    LinkPreviewLoadingCard(state: state)
                 } else {
                     LinkPreviewCard(
                         url: url,
@@ -42,13 +39,12 @@ struct LinkPreviewFragmentView: View {
                         icon: iconRef.flatMap(imageResolver),
                         imageWidth: preview.imageWidth,
                         imageHeight: preview.imageHeight,
-                        bubbleContentWidth: bubbleContentWidth,
                         onTap: { openURL(url) }
                     )
                 }
             }
         case .loading:
-            LinkPreviewLoadingCard(state: state, bubbleContentWidth: bubbleContentWidth)
+            LinkPreviewLoadingCard(state: state)
         case .disabled(let url):
             TapToLoadPreview(
                 url: url,
@@ -63,7 +59,6 @@ struct LinkPreviewFragmentView: View {
                 icon: iconRef.flatMap(imageResolver),
                 imageWidth: nil,
                 imageHeight: nil,
-                bubbleContentWidth: bubbleContentWidth,
                 onTap: { openURL(url) }
             )
         case .idle, .noPreview:

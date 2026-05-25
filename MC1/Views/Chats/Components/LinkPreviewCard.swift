@@ -1,8 +1,8 @@
 import SwiftUI
 
 /// Displays a link preview with image, title, and domain. The hero frame is
-/// reserved at a fixed height so the bubble does not jump when image bytes
-/// arrive after layout.
+/// reserved from the image's aspect ratio (clamped to a min/max height) so the
+/// bubble does not jump when image bytes arrive after layout.
 struct LinkPreviewCard: View {
     let url: URL
     let title: String?
@@ -10,14 +10,13 @@ struct LinkPreviewCard: View {
     let icon: UIImage?
     let imageWidth: Int?
     let imageHeight: Int?
-    let bubbleContentWidth: CGFloat?
     let onTap: () -> Void
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @ScaledMetric(relativeTo: .body) private var heroHeight: CGFloat = 150
     @ScaledMetric(relativeTo: .body) private var minHeroHeight: CGFloat = 100
     @ScaledMetric(relativeTo: .body) private var maxHeroHeight: CGFloat = 250
 
+    private static let fallbackAspect: Double = 16.0 / 9.0
     private static let cardCornerRadius: CGFloat = 12
     private static let cardPadding: CGFloat = 10
     private static let headerSpacing: CGFloat = 8
@@ -31,7 +30,6 @@ struct LinkPreviewCard: View {
         icon: UIImage?,
         imageWidth: Int? = nil,
         imageHeight: Int? = nil,
-        bubbleContentWidth: CGFloat? = nil,
         onTap: @escaping () -> Void
     ) {
         self.url = url
@@ -40,7 +38,6 @@ struct LinkPreviewCard: View {
         self.icon = icon
         self.imageWidth = imageWidth
         self.imageHeight = imageHeight
-        self.bubbleContentWidth = bubbleContentWidth
         self.onTap = onTap
     }
 
@@ -57,25 +54,26 @@ struct LinkPreviewCard: View {
         dynamicTypeSize.isAccessibilitySize ? 2 : 1
     }
 
-    private var reservedHeroHeight: CGFloat {
-        guard let imageWidth, let imageHeight, imageWidth > 0, imageHeight > 0,
-              let width = bubbleContentWidth, width > 0 else {
-            return heroHeight
+    private var heroAspect: CGFloat {
+        guard let imageWidth, let imageHeight, imageWidth > 0, imageHeight > 0 else {
+            return CGFloat(Self.fallbackAspect)
         }
-        let aspect = CGFloat(imageWidth) / CGFloat(imageHeight)
-        let raw = width / aspect
-        return min(max(raw, minHeroHeight), maxHeroHeight)
+        return CGFloat(imageWidth) / CGFloat(imageHeight)
     }
 
     var body: some View {
         Button(action: onTap) {
             VStack(alignment: .leading, spacing: 0) {
                 if let image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(height: reservedHeroHeight)
+                    Color.clear
+                        .aspectRatio(heroAspect, contentMode: .fit)
+                        .frame(minHeight: minHeroHeight, maxHeight: maxHeroHeight)
                         .frame(maxWidth: .infinity)
+                        .overlay {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                        }
                         .clipShape(.rect(
                             topLeadingRadius: Self.cardCornerRadius,
                             topTrailingRadius: Self.cardCornerRadius
