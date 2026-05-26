@@ -249,6 +249,46 @@ struct ChatTableViewSnapshotRegressionTests {
         #expect(!controller.deferredScrollToBottomPending, "Deferred latch should clear after deceleration ends")
     }
 
+    @Test("Scroll-to-item row resolves from the applied snapshot, never the leading items model")
+    func scrollRowResolvesFromAppliedSnapshotNotModel() async throws {
+        let controller = ChatTableViewController<TestMessageItem, Text>()
+        controller.configure { item in
+            Text(item.text)
+        }
+        controller.loadViewIfNeeded()
+        controller.tableView.frame = CGRect(x: 0, y: 0, width: 320, height: 600)
+
+        let applied = (0..<10).map { index in
+            TestMessageItem(id: UUID(), text: "Message \(index)", revision: 0)
+        }
+        controller.updateItems(applied, animated: false)
+        try await waitForRowCount(applied.count, in: controller, context: "seed")
+
+        // Converged baseline: a present id resolves to an in-bounds applied-snapshot row.
+        let presentPath = try #require(controller.resolvedScrollRowForTests(id: applied[3].id))
+        #expect(presentPath.row >= 0)
+        #expect(presentPath.row < controller.tableView.numberOfRows(inSection: 0))
+
+        // Reproduce the model-ahead-of-snapshot divergence that could abort scrollToRow:
+        // grow the items model by one without applying a snapshot, so the model (11)
+        // leads the applied row count (10).
+        let ghost = TestMessageItem(id: UUID(), text: "Message 10", revision: 0)
+        controller.advanceItemsModelWithoutApplyingForTests(applied + [ghost])
+        #expect(controller.tableView.numberOfRows(inSection: 0) == applied.count)
+
+        // An id in the model but not yet in the applied snapshot must resolve to nil.
+        // The old model math (items.count - 1 - itemIndex) would instead return row 0
+        // here and hand a stale row to scrollToRow.
+        #expect(controller.resolvedScrollRowForTests(id: ghost.id) == nil)
+
+        // An applied id must resolve to its applied-snapshot row, which stays in bounds.
+        // For the oldest item the old math would compute items.count - 1 - 0 = 10 — one
+        // past the applied snapshot's last row (9), the exact out-of-range index that
+        // aborted scrollToRow. The snapshot-derived row is 9.
+        let oldestPath = try #require(controller.resolvedScrollRowForTests(id: applied[0].id))
+        #expect(oldestPath.row < controller.tableView.numberOfRows(inSection: 0))
+    }
+
     @Test("Scroll completion reload does not re-enter diffable apply during animated updates")
     func scrollCompletionReloadIsSafeDuringAnimatedUpdates() async throws {
         let controller = ChatTableViewController<TestMessageItem, Text>()

@@ -232,6 +232,30 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     }
     #endif
 
+    #if DEBUG
+    /// Exposes snapshot-derived scroll-row resolution so unit tests can assert that
+    /// scroll targets are sourced from the applied snapshot (nil-safe for ids not
+    /// yet applied) rather than the controller's leading items model.
+    func resolvedScrollRowForTests(id: Item.ID) -> IndexPath? {
+        snapshotRow(for: id)
+    }
+    #endif
+
+    #if DEBUG
+    /// Advances the items model (items/itemsByID/itemIndexByID) without applying a
+    /// diffable snapshot, reproducing the model-ahead-of-snapshot state the apply-lag
+    /// window produces — where a model-derived row can exceed the applied row count
+    /// and abort scrollToRow. Tests use this to assert scroll-row resolution reads the
+    /// applied snapshot (nil for ids not yet applied, in-bounds for applied ids)
+    /// rather than the leading model. Mirrors the synchronous model mutation at the
+    /// top of updateItems.
+    func advanceItemsModelWithoutApplyingForTests(_ newItems: [Item]) {
+        items = newItems
+        itemsByID = Dictionary(uniqueKeysWithValues: newItems.map { ($0.id, $0) })
+        itemIndexByID = Dictionary(uniqueKeysWithValues: newItems.enumerated().map { ($0.element.id, $0.offset) })
+    }
+    #endif
+
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let _ = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
@@ -263,6 +287,16 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     }
 
     // MARK: - Data Source
+
+    /// Row for an item in the *applied* diffable snapshot, or nil if the snapshot
+    /// has not yet caught up with the controller's items model. updateItems mutates
+    /// items/itemIndexByID synchronously while the snapshot apply can lag (queued
+    /// behind an in-flight apply), so model-derived rows can exceed the table's
+    /// applied row count and abort scrollToRow. All scroll-row lookups must go
+    /// through here. Mirrors the snapshot-derived lookup in restorePrependAnchor.
+    private func snapshotRow(for id: Item.ID) -> IndexPath? {
+        dataSource?.indexPath(for: id)
+    }
 
     private func configureDataSource() {
         dataSource = UITableViewDiffableDataSource<Section, Item.ID>(tableView: tableView) { [weak self] tableView, indexPath, itemID in
@@ -623,24 +657,45 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         }
     }
 
-    private func centerItem(id: Item.ID, animated: Bool) {
-        guard let itemIndex = itemIndexByID[id] else { return }
-        let rowIndex = items.count - 1 - itemIndex
-        let indexPath = IndexPath(row: rowIndex, section: 0)
+    /// Returns true if the target was found in the applied snapshot and scrolled.
+    /// Returns false when the snapshot has not yet caught up to the items model,
+    /// letting the caller retry instead of silently dropping the scroll.
+    @discardableResult
+    private func centerItem(id: Item.ID, animated: Bool) -> Bool {
+        guard let indexPath = snapshotRow(for: id) else { return false }
         tableView.layoutIfNeeded()
         // Intent is already .toTarget(id:) from scrollToItem; no need to set again here.
         tableView.scrollToRow(at: indexPath, at: .middle, animated: animated)
+        return true
     }
 
-    private func schedulePendingScroll(for id: Item.ID, delay: Duration) {
+    private func schedulePendingScroll(
+        for id: Item.ID,
+        delay: Duration,
+        retriesRemaining: Int = ChatScrollConstants.pendingScrollMaxRetries
+    ) {
         pendingScrollTask?.cancel()
         pendingScrollTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: delay)
             guard let self, !Task.isCancelled else { return }
             guard self.pendingScrollTargetID == id, !self.scrollState.isUserDriven else { return }
-            self.pendingScrollTargetID = nil
-            self.centerItem(id: id, animated: true)
             self.pendingScrollTask = nil
+            if self.centerItem(id: id, animated: true) {
+                self.pendingScrollTargetID = nil
+            } else if retriesRemaining > 0 {
+                // The applied snapshot has not caught up to the items model yet.
+                // Keep the target armed and retry once it has had a chance to drain.
+                self.schedulePendingScroll(
+                    for: id,
+                    delay: ChatScrollConstants.pendingScrollRetryDelay,
+                    retriesRemaining: retriesRemaining - 1
+                )
+            } else {
+                // No scrollToRow fired, so reloadTargetCell never clears the .toTarget
+                // intent; clear it here or checkNearTop will block pagination.
+                self.pendingScrollTargetID = nil
+                self.scrollState.clearIntent()
+            }
         }
     }
 
@@ -682,9 +737,10 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     private func checkDividerVisibility() {
         guard let dividerItemID,
-              let itemIndex = itemIndexByID[dividerItemID],
+              let indexPath = snapshotRow(for: dividerItemID),
               let onDividerVisibilityChanged else {
-            // No divider configured — report not visible if we previously reported visible
+            // No divider configured or not yet in the applied snapshot — report
+            // not visible if we previously reported visible.
             if lastDividerVisible == true {
                 lastDividerVisible = false
                 self.onDividerVisibilityChanged?(false)
@@ -692,8 +748,6 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
             return
         }
 
-        let rowIndex = items.count - 1 - itemIndex
-        let indexPath = IndexPath(row: rowIndex, section: 0)
         let isVisible = tableView.indexPathsForVisibleRows?.contains(indexPath) ?? false
 
         if isVisible != lastDividerVisible {
