@@ -82,6 +82,18 @@
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "Klaar";
 
+/* Location: NodeSettingsView.swift - Settings tab label */
+/* TODO: translate */
+"remoteNodes.settings.tab.settings" = "Settings";
+
+/* Location: NodeSettingsView.swift - CLI tab label */
+/* TODO: translate */
+"remoteNodes.settings.tab.cli" = "CLI";
+
+/* Location: NodeSettingsView.swift - View mode picker label */
+/* TODO: translate */
+"remoteNodes.settings.tab.picker" = "View mode";
+
 /* Location: RepeaterSettingsView.swift - Success alert title */
 "remoteNodes.settings.success" = "Gelukt";
 
@@ -763,6 +775,48 @@
 
 /* Location: RoomInfoSheet.swift - Management button */
 "remoteNodes.room.management" = "Management";
+
+// MARK: - Node CLI
+
+/* Location: NodeCliView.swift - Banner shown when connected to a node - %@ is node name */
+/* TODO: translate */
+"remoteNodes.nodeCli.bannerConnected" = "Connected to %@";
+
+/* Location: NodeCliView.swift - Hint shown below connected banner */
+/* TODO: translate */
+"remoteNodes.nodeCli.bannerHint" = "Type 'help' for available commands.";
+
+/* Location: NodeCliViewModel.swift - Toast after reboot command succeeds */
+/* TODO: translate */
+"remoteNodes.nodeCli.rebootSent" = "Reboot command sent";
+
+/* Location: NodeCliViewModel.swift - Toast after command is cancelled */
+/* TODO: translate */
+"remoteNodes.nodeCli.cancelled" = "Command cancelled";
+
+/* Location: NodeCliViewModel.swift - Header line in help output */
+/* TODO: translate */
+"remoteNodes.nodeCli.helpHeader" = "Available commands:";
+
+/* Location: NodeCliViewModel.swift - Help entry for 'help' command */
+/* TODO: translate */
+"remoteNodes.nodeCli.helpHelp" = "  help\n    Show this help";
+
+/* Location: NodeCliViewModel.swift - Help entry for 'clear' command */
+/* TODO: translate */
+"remoteNodes.nodeCli.helpClear" = "  clear\n    Clear the terminal";
+
+/* Location: NodeCliViewModel.swift - Help entry for 'clear stats' command */
+/* TODO: translate */
+"remoteNodes.nodeCli.helpClearStats" = "  clear stats\n    Reset node statistics";
+
+/* Location: NodeCliViewModel.swift - Help entry for 'reboot' command */
+/* TODO: translate */
+"remoteNodes.nodeCli.helpReboot" = "  reboot\n    Restart this node";
+
+/* Location: NodeCliViewModel.swift - Passthrough note at end of help output */
+/* TODO: translate */
+"remoteNodes.nodeCli.helpPassthrough" = "Any other input is sent to the node.";
 
 // MARK: - Shared
 

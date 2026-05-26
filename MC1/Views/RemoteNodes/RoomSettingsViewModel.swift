@@ -99,6 +99,19 @@ final class RoomSettingsViewModel {
         Task { await helper.fetchDeviceInfo() }
     }
 
+    /// Builds the node-CLI send closure, pre-binding this session's id and
+    /// capturing the private admin service (a thin pass-through to
+    /// `RemoteNodeService.sendRawCLICommand`). Returns nil if not configured.
+    func makeNodeCLISendClosure(
+        session: RemoteNodeSessionDTO
+    ) -> (@MainActor (_ command: String, _ timeout: Duration) async throws -> String)? {
+        guard let roomAdminService else { return nil }
+        return { [roomAdminService, sessionID = session.id] command, timeout in
+            try await roomAdminService.sendRawCommand(
+                sessionID: sessionID, command: command, timeout: timeout)
+        }
+    }
+
     // MARK: - Late Response Handling
 
     private func handleLateResponse(_ response: String) {

@@ -2772,6 +2772,30 @@ public enum L10n {
           public static let increased = L10n.tr("RemoteNodes", "remoteNodes.history.a11y.increased", fallback: "increased")
         }
       }
+      public enum NodeCli {
+        /// Location: NodeCliView.swift - Banner shown when connected to a node - %@ is node name
+        public static func bannerConnected(_ p1: Any) -> String {
+          return L10n.tr("RemoteNodes", "remoteNodes.nodeCli.bannerConnected", String(describing: p1), fallback: "Connected to %@")
+        }
+        /// Location: NodeCliView.swift - Hint shown below connected banner
+        public static let bannerHint = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.bannerHint", fallback: "Type 'help' for available commands.")
+        /// Location: NodeCliViewModel.swift - Toast after command is cancelled
+        public static let cancelled = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.cancelled", fallback: "Command cancelled")
+        /// Location: NodeCliViewModel.swift - Help entry for 'clear' command
+        public static let helpClear = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.helpClear", fallback: "  clear\n    Clear the terminal")
+        /// Location: NodeCliViewModel.swift - Help entry for 'clear stats' command
+        public static let helpClearStats = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.helpClearStats", fallback: "  clear stats\n    Reset node statistics")
+        /// Location: NodeCliViewModel.swift - Header line in help output
+        public static let helpHeader = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.helpHeader", fallback: "Available commands:")
+        /// Location: NodeCliViewModel.swift - Help entry for 'help' command
+        public static let helpHelp = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.helpHelp", fallback: "  help\n    Show this help")
+        /// Location: NodeCliViewModel.swift - Passthrough note at end of help output
+        public static let helpPassthrough = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.helpPassthrough", fallback: "Any other input is sent to the node.")
+        /// Location: NodeCliViewModel.swift - Help entry for 'reboot' command
+        public static let helpReboot = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.helpReboot", fallback: "  reboot\n    Restart this node")
+        /// Location: NodeCliViewModel.swift - Toast after reboot command succeeds
+        public static let rebootSent = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.rebootSent", fallback: "Reboot command sent")
+      }
       public enum Room {
         /// Location: RoomConversationView.swift - Activity section header
         public static let activity = L10n.tr("RemoteNodes", "remoteNodes.room.activity", fallback: "Activity")
@@ -3084,6 +3108,14 @@ public enum L10n {
           public static let saveToDevice = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.saveToDevice", fallback: "Save to Repeater")
           /// Location: RepeaterSettingsViewModel.swift - Region not found error
           public static let unknownRegion = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.unknownRegion", fallback: "Unknown region")
+        }
+        public enum Tab {
+          /// Location: NodeSettingsView.swift - CLI tab label
+          public static let cli = L10n.tr("RemoteNodes", "remoteNodes.settings.tab.cli", fallback: "CLI")
+          /// Location: NodeSettingsView.swift - View mode picker label
+          public static let picker = L10n.tr("RemoteNodes", "remoteNodes.settings.tab.picker", fallback: "View mode")
+          /// Location: NodeSettingsView.swift - Settings tab label
+          public static let settings = L10n.tr("RemoteNodes", "remoteNodes.settings.tab.settings", fallback: "Settings")
         }
       }
       public enum Status {

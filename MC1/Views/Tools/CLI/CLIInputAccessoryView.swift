@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CLIInputAccessoryView: View {
     let isWaiting: Bool
+    var showSessionsButton: Bool = true
     let onHistoryUp: () -> Void
     let onHistoryDown: () -> Void
     let onTabComplete: () -> Void
@@ -48,13 +49,15 @@ struct CLIInputAccessoryView: View {
                     }
                     .accessibilityLabel(L10n.Tools.Tools.Cli.paste)
 
-                    Divider()
-                        .frame(height: 20)
+                    if showSessionsButton {
+                        Divider()
+                            .frame(height: 20)
 
-                    Button(action: onSessions) {
-                        Image(systemName: "rectangle.stack")
+                        Button(action: onSessions) {
+                            Image(systemName: "rectangle.stack")
+                        }
+                        .accessibilityLabel(L10n.Tools.Tools.Cli.sessions)
                     }
-                    .accessibilityLabel(L10n.Tools.Tools.Cli.sessions)
 
                     Button(action: onCancel) {
                         Image(systemName: "stop.circle")

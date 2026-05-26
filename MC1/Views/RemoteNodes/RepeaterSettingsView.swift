@@ -9,38 +9,41 @@ struct RepeaterSettingsView: View {
 
     let session: RemoteNodeSessionDTO
     @State private var viewModel = RepeaterSettingsViewModel()
+    @State private var managementTab: NodeManagementTab = .settings
+    @State private var cliViewModel = NodeCLIViewModel()
     @State private var showRebootConfirmation = false
     @State private var showingLocationPicker = false
 
     var body: some View {
-        Form {
-            NodeSettingsHeaderSection(publicKey: session.publicKey, name: session.name, role: session.role)
-            makeRadioSettingsSection()
-            makeBehaviorSection()
-            makeRegionsSection()
-            makeIdentitySection()
-            makeContactInfoSection()
-            makeSecuritySection()
-            makeDeviceInfoSection()
-            makeActionsSection()
+        Group {
+            switch managementTab {
+            case .settings: settingsForm
+            case .cli: NodeCLIView(viewModel: cliViewModel)
+            }
         }
         .navigationTitle(L10n.RemoteNodes.RemoteNodes.Settings.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button(L10n.RemoteNodes.RemoteNodes.Settings.done) {
-                    focusedField = nil
+            if session.isAdmin {
+                ToolbarItem(placement: .principal) {
+                    Picker(L10n.RemoteNodes.RemoteNodes.Settings.Tab.picker, selection: $managementTab) {
+                        ForEach(NodeManagementTab.allCases, id: \.self) { tab in
+                            Text(tab.label).tag(tab)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .fixedSize()
                 }
             }
         }
         .task {
             await viewModel.configure(appState: appState, session: session)
+            if let send = viewModel.makeNodeCLISendClosure(session: session) {
+                cliViewModel.configure(sessionName: session.name, sendRawCommand: send)
+            }
         }
         .onDisappear {
-            Task {
-                await viewModel.cleanup()
-            }
+            Task { await viewModel.cleanup() }
         }
         .alert(L10n.RemoteNodes.RemoteNodes.Settings.success, isPresented: $viewModel.helper.showSuccessAlert) {
             Button(L10n.RemoteNodes.RemoteNodes.Settings.ok, role: .cancel) { }
@@ -58,6 +61,28 @@ struct RepeaterSettingsView: View {
                     latitude: coordinate.latitude,
                     longitude: coordinate.longitude
                 )
+            }
+        }
+    }
+
+    private var settingsForm: some View {
+        Form {
+            NodeSettingsHeaderSection(publicKey: session.publicKey, name: session.name, role: session.role)
+            makeRadioSettingsSection()
+            makeBehaviorSection()
+            makeRegionsSection()
+            makeIdentitySection()
+            makeContactInfoSection()
+            makeSecuritySection()
+            makeDeviceInfoSection()
+            makeActionsSection()
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(L10n.RemoteNodes.RemoteNodes.Settings.done) {
+                    focusedField = nil
+                }
             }
         }
     }

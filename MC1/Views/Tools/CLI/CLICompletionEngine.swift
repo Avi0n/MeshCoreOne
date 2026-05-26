@@ -7,7 +7,13 @@ final class CLICompletionEngine {
     // MARK: - Command Definitions
 
     private static let builtInCommands = [
-        "help", "clear", "session", "logout"
+        "help", "clear"
+    ]
+
+    // App-CLI session management; the node CLI is single-session and passes
+    // these straight to firmware, which has no such commands.
+    private static let sessionCommands = [
+        "session", "logout"
     ]
 
     private static let localOnlyCommands = [
@@ -84,12 +90,12 @@ final class CLICompletionEngine {
 
     // MARK: - Completion Logic
 
-    func completions(for input: String, isLocal: Bool) -> [String] {
+    func completions(for input: String, isLocal: Bool, includeSessionCommands: Bool = true) -> [String] {
         let trimmed = input.trimmingCharacters(in: .whitespaces)
 
         // Empty or just spaces - return all applicable commands
         if trimmed.isEmpty {
-            return availableCommands(isLocal: isLocal).sorted()
+            return availableCommands(isLocal: isLocal, includeSessionCommands: includeSessionCommands).sorted()
         }
 
         let parts = trimmed.split(separator: " ", omittingEmptySubsequences: false).map(String.init)
@@ -97,7 +103,7 @@ final class CLICompletionEngine {
 
         // Single word - complete command name
         if parts.count == 1 && !input.hasSuffix(" ") {
-            return availableCommands(isLocal: isLocal)
+            return availableCommands(isLocal: isLocal, includeSessionCommands: includeSessionCommands)
                 .filter { $0.hasPrefix(command) }
                 .sorted()
         }
@@ -177,8 +183,12 @@ final class CLICompletionEngine {
         }
     }
 
-    private func availableCommands(isLocal: Bool) -> [String] {
+    private func availableCommands(isLocal: Bool, includeSessionCommands: Bool) -> [String] {
         var commands = Self.builtInCommands
+
+        if includeSessionCommands {
+            commands.append(contentsOf: Self.sessionCommands)
+        }
 
         if isLocal {
             commands.append(contentsOf: Self.localOnlyCommands)

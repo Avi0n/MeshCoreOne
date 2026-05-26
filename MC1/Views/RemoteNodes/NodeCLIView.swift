@@ -1,84 +1,16 @@
 import SwiftUI
-import MC1Services
 import UIKit
 
-struct CLIToolView: View {
-    @Environment(\.appState) private var appState
+/// Hosts the terminal for a single managed node, owning the per-instance local
+/// state the terminal needs and wiring callbacks to `NodeCLIViewModel`.
+struct NodeCLIView: View {
+    @Bindable var viewModel: NodeCLIViewModel
 
     @State private var isKeyboardFocused = false
     @State private var scrollPosition = ScrollPosition(edge: .bottom)
     @State private var cursorPosition: Int = 0
 
     var body: some View {
-        content
-            .onAppear {
-                if appState.cliToolViewModel == nil {
-                    appState.cliToolViewModel = CLIToolViewModel()
-                } else {
-                    // Restore cursor to end of existing input when returning to CLI
-                    cursorPosition = appState.cliToolViewModel?.currentInput.count ?? 0
-                }
-            }
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        if let viewModel = appState.cliToolViewModel {
-            CLIToolContent(
-                viewModel: viewModel,
-                appState: appState,
-                isKeyboardFocused: $isKeyboardFocused,
-                scrollPosition: $scrollPosition,
-                cursorPosition: $cursorPosition
-            )
-        } else {
-            ProgressView()
-        }
-    }
-}
-
-private struct CLIToolContent: View {
-    @Bindable var viewModel: CLIToolViewModel
-    let appState: AppState
-    @Binding var isKeyboardFocused: Bool
-    @Binding var scrollPosition: ScrollPosition
-    @Binding var cursorPosition: Int
-
-    var body: some View {
-        Group {
-            if appState.services?.repeaterAdminService == nil {
-                disconnectedState
-            } else {
-                terminalView
-            }
-        }
-        .navigationTitle(L10n.Tools.Tools.cli)
-        .navigationBarTitleDisplayMode(.inline)
-        .liquidGlassToolbarBackground()
-        .task(id: appState.servicesVersion) {
-            viewModel.configure(
-                repeaterAdminService: appState.services?.repeaterAdminService,
-                remoteNodeService: appState.services?.remoteNodeService,
-                dataStore: appState.services?.dataStore,
-                radioID: appState.connectedDevice?.radioID,
-                localDeviceName: appState.connectedDevice?.nodeName ?? L10n.Tools.Tools.Cli.defaultDevice
-            )
-        }
-    }
-
-    // MARK: - Disconnected State
-
-    private var disconnectedState: some View {
-        ContentUnavailableView {
-            Label(L10n.Tools.Tools.Cli.notConnected, systemImage: "terminal")
-        } description: {
-            Text(L10n.Tools.Tools.Cli.notConnectedDescription)
-        }
-    }
-
-    // MARK: - Terminal View
-
-    private var terminalView: some View {
         CLITerminalView(
             outputLines: viewModel.outputLines,
             promptText: viewModel.promptText,
@@ -86,7 +18,7 @@ private struct CLIToolContent: View {
             tabSuggestions: viewModel.tabSuggestions,
             tabSelectionIndex: viewModel.tabSelectionIndex,
             isWaitingForResponse: viewModel.isWaitingForResponse,
-            showSessionsButton: true,
+            showSessionsButton: false,
             currentInput: $viewModel.currentInput,
             isKeyboardFocused: $isKeyboardFocused,
             scrollPosition: $scrollPosition,
@@ -134,7 +66,7 @@ private struct CLIToolContent: View {
                     viewModel.currentInput.count
                 )
             },
-            onSessions: { viewModel.executeCommand("session list") },
+            onSessions: {},
             onCancel: { viewModel.cancelCurrentCommand() },
             onDismiss: { isKeyboardFocused = false },
             onClear: { viewModel.executeCommand("clear") },
@@ -142,12 +74,9 @@ private struct CLIToolContent: View {
             onClearTabState: { viewModel.clearTabState() },
             onGetResponseBlock: { viewModel.getResponseBlock(containing: $0) }
         )
+        // Restore the cursor to the end of surviving input when the view is
+        // recreated by a Settings/CLI segment toggle; cursorPosition is
+        // view-local @State and resets to 0, but currentInput lives on the VM.
+        .onAppear { cursorPosition = viewModel.currentInput.count }
     }
-}
-
-#Preview {
-    NavigationStack {
-        CLIToolView()
-    }
-    .environment(\.appState, AppState())
 }

@@ -59,6 +59,39 @@ struct CLICompletionEngineTests {
         #expect(suggestions.contains("log"))
     }
 
+    // MARK: - Session Command Exclusion (Node CLI)
+
+    @Test("Node CLI completions exclude app-CLI session commands")
+    func nodeCompletionsExcludeSessionCommands() {
+        let engine = createEngine()
+        let suggestions = engine.completions(for: "", isLocal: false, includeSessionCommands: false)
+
+        #expect(!suggestions.contains("session"))
+        #expect(!suggestions.contains("logout"))
+        // Universal built-ins and node commands remain available.
+        #expect(suggestions.contains("help"))
+        #expect(suggestions.contains("clear"))
+        #expect(suggestions.contains("ver"))
+    }
+
+    @Test("Node CLI does not suggest logout for a 'log' prefix")
+    func nodeCompletionsExcludeLogoutPrefix() {
+        let engine = createEngine()
+        let suggestions = engine.completions(for: "log", isLocal: false, includeSessionCommands: false)
+
+        #expect(!suggestions.contains("logout"))
+        #expect(suggestions.contains("log"))
+    }
+
+    @Test("App CLI still offers session commands by default")
+    func appCompletionsIncludeSessionCommandsByDefault() {
+        let engine = createEngine()
+        let suggestions = engine.completions(for: "", isLocal: false)
+
+        #expect(suggestions.contains("session"))
+        #expect(suggestions.contains("logout"))
+    }
+
     @Test("Region subcommands complete after 'region '")
     func regionSubcommandsComplete() {
         let engine = createEngine()

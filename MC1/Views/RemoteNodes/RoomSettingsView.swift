@@ -8,10 +8,63 @@ struct RoomSettingsView: View {
 
     let session: RemoteNodeSessionDTO
     @State private var viewModel = RoomSettingsViewModel()
+    @State private var managementTab: NodeManagementTab = .settings
+    @State private var cliViewModel = NodeCLIViewModel()
     @State private var showRebootConfirmation = false
     @State private var showingLocationPicker = false
 
     var body: some View {
+        Group {
+            switch managementTab {
+            case .settings: settingsForm
+            case .cli: NodeCLIView(viewModel: cliViewModel)
+            }
+        }
+        .navigationTitle(L10n.RemoteNodes.RemoteNodes.RoomSettings.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if session.isAdmin {
+                ToolbarItem(placement: .principal) {
+                    Picker(L10n.RemoteNodes.RemoteNodes.Settings.Tab.picker, selection: $managementTab) {
+                        ForEach(NodeManagementTab.allCases, id: \.self) { tab in
+                            Text(tab.label).tag(tab)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .fixedSize()
+                }
+            }
+        }
+        .task {
+            await viewModel.configure(appState: appState, session: session)
+            if let send = viewModel.makeNodeCLISendClosure(session: session) {
+                cliViewModel.configure(sessionName: session.name, sendRawCommand: send)
+            }
+        }
+        .onDisappear {
+            Task { await viewModel.cleanup() }
+        }
+        .alert(L10n.RemoteNodes.RemoteNodes.Settings.success, isPresented: $viewModel.helper.showSuccessAlert) {
+            Button(L10n.RemoteNodes.RemoteNodes.Settings.ok, role: .cancel) { }
+        } message: {
+            Text(viewModel.helper.successMessage ?? L10n.RemoteNodes.RemoteNodes.Settings.settingsApplied)
+        }
+        .sheet(isPresented: $showingLocationPicker) {
+            LocationPickerView(
+                initialCoordinate: CLLocationCoordinate2D(
+                    latitude: viewModel.helper.latitude ?? 0,
+                    longitude: viewModel.helper.longitude ?? 0
+                )
+            ) { coordinate in
+                viewModel.helper.setLocationFromPicker(
+                    latitude: coordinate.latitude,
+                    longitude: coordinate.longitude
+                )
+            }
+        }
+    }
+
+    private var settingsForm: some View {
         Form {
             NodeSettingsHeaderSection(publicKey: session.publicKey, name: session.name, role: session.role)
             RoomAccessSection(viewModel: viewModel, focusedField: $focusedField)
@@ -36,40 +89,12 @@ struct RoomSettingsView: View {
                 rebootMessage: L10n.RemoteNodes.RemoteNodes.RoomSettings.rebootMessage
             )
         }
-        .navigationTitle(L10n.RemoteNodes.RemoteNodes.RoomSettings.title)
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
                 Button(L10n.RemoteNodes.RemoteNodes.Settings.done) {
                     focusedField = nil
                 }
-            }
-        }
-        .task {
-            await viewModel.configure(appState: appState, session: session)
-        }
-        .onDisappear {
-            Task {
-                await viewModel.cleanup()
-            }
-        }
-        .alert(L10n.RemoteNodes.RemoteNodes.Settings.success, isPresented: $viewModel.helper.showSuccessAlert) {
-            Button(L10n.RemoteNodes.RemoteNodes.Settings.ok, role: .cancel) { }
-        } message: {
-            Text(viewModel.helper.successMessage ?? L10n.RemoteNodes.RemoteNodes.Settings.settingsApplied)
-        }
-        .sheet(isPresented: $showingLocationPicker) {
-            LocationPickerView(
-                initialCoordinate: CLLocationCoordinate2D(
-                    latitude: viewModel.helper.latitude ?? 0,
-                    longitude: viewModel.helper.longitude ?? 0
-                )
-            ) { coordinate in
-                viewModel.helper.setLocationFromPicker(
-                    latitude: coordinate.latitude,
-                    longitude: coordinate.longitude
-                )
             }
         }
     }
