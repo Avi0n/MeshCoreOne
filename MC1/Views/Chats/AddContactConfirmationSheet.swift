@@ -134,14 +134,6 @@ private struct ContactAddConfirmationContent: View {
     let isAdding: Bool
     let onAdd: () -> Void
 
-    private var truncatedKey: String {
-        let hex = contactResult.publicKey.hexString()
-        guard hex.count >= 16 else { return hex }
-        let start = hex.prefix(8)
-        let end = hex.suffix(8)
-        return "\(start)...\(end)"
-    }
-
     var body: some View {
         VStack(spacing: 24) {
             Spacer()
@@ -165,10 +157,11 @@ private struct ContactAddConfirmationContent: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
-                Text(truncatedKey)
+                Text(contactResult.publicKey.hexString())
                     .font(.caption)
                     .monospaced()
                     .foregroundStyle(.tertiary)
+                    .textSelection(.enabled)
             }
 
             if let errorMessage {

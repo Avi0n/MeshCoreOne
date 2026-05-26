@@ -3,13 +3,14 @@ import UIKit
 import MC1Services
 
 /// Reusable chat input bar with configurable styling
-struct ChatInputBar: View {
+struct ChatInputBar<Leading: View>: View {
     @Environment(\.appState) private var appState
     @Binding var text: String
     @FocusState.Binding var isFocused: Bool
     let placeholder: String
     let maxBytes: Int
     let isEncrypted: Bool
+    @ViewBuilder let leading: () -> Leading
     let onSend: (String) -> Void
 
     @State private var isCoolingDown = false
@@ -30,6 +31,7 @@ struct ChatInputBar: View {
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 12) {
+            leading()
             ChatInputTextField(text: $text, placeholder: placeholder, isFocused: $isFocused, isEncrypted: isEncrypted)
             ChatSendButtonWithCounter(
                 canSend: canSend,
@@ -85,6 +87,29 @@ struct ChatInputBar: View {
             try? await Task.sleep(for: .seconds(1))
             isCoolingDown = false
         }
+    }
+}
+
+extension ChatInputBar where Leading == EmptyView {
+    /// Builds an input bar with no leading accessory, preserving the original
+    /// call sites that pass only a trailing `onSend` closure.
+    init(
+        text: Binding<String>,
+        isFocused: FocusState<Bool>.Binding,
+        placeholder: String,
+        maxBytes: Int,
+        isEncrypted: Bool,
+        onSend: @escaping (String) -> Void
+    ) {
+        self.init(
+            text: text,
+            isFocused: isFocused,
+            placeholder: placeholder,
+            maxBytes: maxBytes,
+            isEncrypted: isEncrypted,
+            leading: { EmptyView() },
+            onSend: onSend
+        )
     }
 }
 
@@ -262,4 +287,38 @@ private extension View {
             self.background(.bar)
         }
     }
+}
+
+// MARK: - Preview
+
+private struct ChatInputBarPreviewHost: View {
+    @State private var plainText = ""
+    @State private var leadingText = ""
+    @FocusState private var plainFocus: Bool
+    @FocusState private var leadingFocus: Bool
+
+    var body: some View {
+        VStack(spacing: 24) {
+            ChatInputBar(
+                text: $plainText,
+                isFocused: $plainFocus,
+                placeholder: "No leading accessory",
+                maxBytes: 140,
+                isEncrypted: true
+            ) { _ in }
+
+            ChatInputBar(
+                text: $leadingText,
+                isFocused: $leadingFocus,
+                placeholder: "With leading accessory",
+                maxBytes: 140,
+                isEncrypted: false,
+                leading: { Image(systemName: "plus") }
+            ) { _ in }
+        }
+    }
+}
+
+#Preview {
+    ChatInputBarPreviewHost()
 }

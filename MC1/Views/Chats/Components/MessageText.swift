@@ -55,14 +55,22 @@ struct MessageText: View {
         var result = AttributedString(text)
         result.foregroundColor = baseColor
 
+        // A contact share token's name is attacker-controlled and may itself contain `@[name]`.
+        // The mention pass runs first (and rewrites on the original text), so exclude token
+        // ranges from it; otherwise it corrupts the name the contact-share pass later parses.
+        let contactTokenRanges = contactShareTokenRanges(in: text)
+
         applyMentionFormatting(
             &result,
             text: text,
             baseColor: baseColor,
             isOutgoing: isOutgoing,
             currentUserName: currentUserName,
-            isHighContrast: isHighContrast
+            isHighContrast: isHighContrast,
+            excludedRanges: contactTokenRanges
         )
+
+        applyContactShareFormatting(&result, baseColor: baseColor)
 
         let (urlRanges, currentString) = applyURLFormatting(&result, baseColor: baseColor)
 
@@ -81,7 +89,8 @@ struct MessageText: View {
         baseColor: Color,
         isOutgoing: Bool,
         currentUserName: String?,
-        isHighContrast: Bool
+        isHighContrast: Bool,
+        excludedRanges: [Range<String.Index>]
     ) {
         guard let regex = MentionUtilities.mentionRegex else { return }
 
@@ -93,6 +102,9 @@ struct MessageText: View {
             guard let matchRange = Range(match.range, in: text),
                   let nameRange = Range(match.range(at: 1), in: text),
                   let attrMatchRange = Range(matchRange, in: attributedString) else { continue }
+
+            // Skip mentions that fall inside a contact share token's name
+            if excludedRanges.contains(where: { $0.overlaps(matchRange) }) { continue }
 
             // Get the name without brackets
             let name = String(text[nameRange])
@@ -125,6 +137,75 @@ struct MessageText: View {
             }
 
             attributedString.replaceSubrange(attrMatchRange, with: replacement)
+        }
+    }
+
+    // MARK: - Contact Share Formatting
+
+    /// Opening delimiter of a contact share token; gates the cheap fast-path skip.
+    private static let tokenOpen = "<"
+
+    /// Ranges of every contact share token in the original text, used to keep earlier passes
+    /// (which run on the original string) from rewriting characters inside a token's name.
+    private static func contactShareTokenRanges(in text: String) -> [Range<String.Index>] {
+        guard text.contains(tokenOpen), let regex = ContactShareUtilities.shareTokenRegex else { return [] }
+        let nsRange = NSRange(text.startIndex..., in: text)
+        return regex.matches(in: text, range: nsRange).compactMap { Range($0.range, in: text) }
+    }
+
+    /// Replaces inbound contact share tokens (`<64hex:type:name>`) with the parsed contact
+    /// name, rendered as a tappable link to the canonical add-contact deep link. Runs after
+    /// mention formatting and before the URL pass so the shorter replacement does not shift
+    /// indices out from under the snapshot the later passes rely on.
+    private static func applyContactShareFormatting(_ attributedString: inout AttributedString, baseColor: Color) {
+        let text = String(attributedString.characters)
+        guard text.contains(tokenOpen) else { return }
+        guard let regex = ContactShareUtilities.shareTokenRegex else { return }
+
+        let nsRange = NSRange(text.startIndex..., in: text)
+        // Process matches in reverse so replacing earlier tokens does not invalidate later ranges
+        for match in regex.matches(in: text, range: nsRange).reversed() {
+            guard let matchRange = Range(match.range, in: text),
+                  let attrRange = Range(matchRange, in: attributedString),
+                  let result = ContactShareUtilities.parseShare(String(text[matchRange])) else { continue }
+
+            // Sanitize once and carry the cleaned name through both the visible chip and the
+            // link URL, so the confirmation sheet and persisted contact see it. If sanitizing
+            // leaves nothing, keep the literal token rather than emit an empty, invisible chip.
+            let cleanName = displayName(for: result.name)
+            guard !cleanName.isEmpty else { continue }
+            guard let url = URL(string: ContactService.exportContactURI(
+                name: cleanName,
+                publicKey: result.publicKey,
+                type: result.contactType
+            )) else { continue }
+
+            var replacement = AttributedString(cleanName)
+            replacement.link = url
+            replacement.foregroundColor = baseColor
+            replacement.underlineStyle = .single
+            attributedString.replaceSubrange(attrRange, with: replacement)
+        }
+    }
+
+    /// Strips invisible and control Unicode scalars from an inbound contact name.
+    /// The name is attacker-controlled, so the cleaned form is used for both the visible
+    /// chip and the add-contact link URL, keeping the confirmation sheet and the persisted
+    /// contact free of bidi overrides, zero-width joiners, and line breaks that could hide or
+    /// reorder the visible identity.
+    private static func displayName(for name: String) -> String {
+        String(String.UnicodeScalarView(name.unicodeScalars.filter { !isStrippableScalar($0) }))
+    }
+
+    private static func isStrippableScalar(_ scalar: Unicode.Scalar) -> Bool {
+        if scalar.properties.isBidiControl || scalar.properties.isDefaultIgnorableCodePoint {
+            return true
+        }
+        switch scalar.properties.generalCategory {
+        case .control, .format, .lineSeparator, .paragraphSeparator:
+            return true
+        default:
+            return false
         }
     }
 
@@ -185,6 +266,12 @@ struct MessageText: View {
 
     // MARK: - MeshCore Link Formatting
 
+    /// Ranges of runs already carrying a `.link` (contact chips and detected URLs). Later passes
+    /// skip these so a `#tag` or `meshcore://` substring inside a chip is not re-linked.
+    private static func linkRanges(in attributedString: AttributedString) -> [Range<AttributedString.Index>] {
+        attributedString.runs.compactMap { $0.link == nil ? nil : $0.range }
+    }
+
     private static let meshCoreLinkRegex = try? NSRegularExpression(pattern: #"meshcore://[^\s<>"]+"#)
 
     private static func applyMeshCoreLinkFormatting(
@@ -197,6 +284,7 @@ struct MessageText: View {
 
         let nsRange = NSRange(currentString.startIndex..., in: currentString)
         let matches = regex.matches(in: currentString, range: nsRange)
+        let linkedRanges = linkRanges(in: attributedString)
 
         for match in matches.reversed() {
             guard var matchRange = Range(match.range, in: currentString) else { continue }
@@ -216,6 +304,9 @@ struct MessageText: View {
                   let url = URL(string: String(currentString[matchRange])),
                   url.host() == "contact" || url.host() == "channel" else { continue }
 
+            // Skip ranges inside an existing link, e.g. a contact chip whose name contains a URL
+            if linkedRanges.contains(where: { $0.overlaps(attrRange) }) { continue }
+
             attributedString[attrRange].link = url
             attributedString[attrRange].foregroundColor = baseColor
             attributedString[attrRange].underlineStyle = .single
@@ -231,10 +322,14 @@ struct MessageText: View {
         currentString: String
     ) {
         let hashtags = HashtagUtilities.extractHashtags(from: currentString, urlRanges: urlRanges)
+        let linkedRanges = linkRanges(in: attributedString)
 
         // Process in reverse to preserve indices
         for hashtag in hashtags.reversed() {
             guard let attrRange = Range(hashtag.range, in: attributedString) else { continue }
+
+            // Skip hashtags inside an existing link, e.g. a contact chip whose name contains a #tag
+            if linkedRanges.contains(where: { $0.overlaps(attrRange) }) { continue }
 
             // Format: meshcoreone://hashtag/channelname
             let channelName = HashtagUtilities.normalizeHashtagName(hashtag.name)

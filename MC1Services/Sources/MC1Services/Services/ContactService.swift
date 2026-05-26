@@ -373,6 +373,13 @@ public actor ContactService {
         }
     }
 
+    private static let contactURIScheme = "meshcore"
+    private static let contactURIHost = "contact"
+    private static let contactURIPath = "/add"
+    private static let contactURINameKey = "name"
+    private static let contactURIPublicKeyKey = "public_key"
+    private static let contactURITypeKey = "type"
+
     /// Build a shareable contact URI from contact information
     /// - Parameters:
     ///   - name: The contact's advertised name
@@ -380,8 +387,19 @@ public actor ContactService {
     ///   - type: The contact type (chat, repeater, room)
     /// - Returns: Contact URI string in format: meshcore://contact/add?name=...&public_key=...&type=...
     public static func exportContactURI(name: String, publicKey: Data, type: ContactType) -> String {
-        let encodedName = name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        return "meshcore://contact/add?name=\(encodedName)&public_key=\(publicKey.hexString())&type=\(type.rawValue)"
+        // Build via URLComponents so reserved characters in the name (`&`, `=`, `+`, `?`) are
+        // percent-encoded per query item. String interpolation would let a crafted name inject
+        // its own public_key/type and spoof the parsed contact identity.
+        var components = URLComponents()
+        components.scheme = contactURIScheme
+        components.host = contactURIHost
+        components.path = contactURIPath
+        components.queryItems = [
+            URLQueryItem(name: contactURINameKey, value: name),
+            URLQueryItem(name: contactURIPublicKeyKey, value: publicKey.hexString()),
+            URLQueryItem(name: contactURITypeKey, value: String(type.rawValue))
+        ]
+        return components.url?.absoluteString ?? ""
     }
 
     /// Import a contact from card data

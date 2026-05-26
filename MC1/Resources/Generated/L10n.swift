@@ -270,6 +270,16 @@ public enum L10n {
           public static let selected = L10n.tr("Chats", "chats.contactMatch.accessibility.selected", fallback: "Selected")
         }
       }
+      public enum ContactPicker {
+        /// Location: ShareContactPickerSheet.swift - Empty state when no contacts are available to share
+        public static let emptyState = L10n.tr("Chats", "chats.contactPicker.emptyState", fallback: "No contacts to share")
+        /// Location: ShareContactPickerSheet.swift - Navigation title for the share-contact picker
+        public static let title = L10n.tr("Chats", "chats.contactPicker.title", fallback: "Share Contact")
+        public enum Search {
+          /// Location: ShareContactPickerSheet.swift - Search placeholder for the contact picker
+          public static let placeholder = L10n.tr("Chats", "chats.contactPicker.search.placeholder", fallback: "Search contacts")
+        }
+      }
       public enum CreatePrivate {
         /// Location: CreatePrivateChannelView.swift - Text field placeholder for channel name
         public static let channelName = L10n.tr("Chats", "chats.createPrivate.channelName", fallback: "Channel Name")
@@ -418,6 +428,10 @@ public enum L10n {
         public enum Placeholder {
           /// Location: ChatConversationView.swift - Input bar placeholder for direct messages
           public static let directMessage = L10n.tr("Chats", "chats.input.placeholder.directMessage", fallback: "Direct Message")
+        }
+        public enum ShareButton {
+          /// Location: ChatShareMenu.swift - Accessibility label for the share (plus) button
+          public static let accessibilityLabel = L10n.tr("Chats", "chats.input.shareButton.accessibilityLabel", fallback: "Share")
         }
       }
       public enum JoinFromMessage {
@@ -923,6 +937,14 @@ public enum L10n {
         public static func title(_ p1: Any) -> String {
           return L10n.tr("Chats", "chats.sendDM.title", String(describing: p1), fallback: "Send DM to \"%@\"")
         }
+      }
+      public enum Share {
+        /// Location: ChatShareMenu.swift - Share menu action to share a contact
+        public static let contact = L10n.tr("Chats", "chats.share.contact", fallback: "Share Contact")
+        /// Location: ChatShareMenu.swift - Share menu action to share the current location
+        public static let location = L10n.tr("Chats", "chats.share.location", fallback: "Share Location")
+        /// Location: ChatShareMenu.swift - Share menu action to share the user's own node info
+        public static let myInfo = L10n.tr("Chats", "chats.share.myInfo", fallback: "Share My Info")
       }
       public enum Signal {
         /// Location: UnifiedMessageBubble.swift - SNR quality excellent
