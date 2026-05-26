@@ -32,6 +32,7 @@ private func createTestContact(
 private func createTestMessage(
     timestamp: UInt32,
     createdAt: Date? = nil,
+    sortDate: Date? = nil,
     text: String = "Test message"
 ) -> MessageDTO {
     let resolvedCreatedAt = createdAt ?? Date(timeIntervalSince1970: TimeInterval(timestamp))
@@ -42,6 +43,7 @@ private func createTestMessage(
         text: text,
         timestamp: timestamp,
         createdAt: resolvedCreatedAt,
+        sortDate: sortDate,
         directionRawValue: MessageDirection.outgoing.rawValue,
         statusRawValue: MessageStatus.sent.rawValue
     )
@@ -143,6 +145,51 @@ struct ChatViewModelTests {
         #expect(ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0]).showTimestamp == false)  // 300 is not > 300
     }
 
+    @Test("Backlog block keys divider grouping on send time, not the shared drain anchor")
+    func backlogBlockGroupsBySendTime() {
+        // Two backlog rows drained together share the anchor as their sortDate, but were
+        // sent ten minutes apart. Grouping must follow send time so the divider still
+        // appears inside the block; keying on the shared sortDate would collapse it.
+        let anchor = Date(timeIntervalSince1970: 5_000_000)
+        let earlier = createTestMessage(timestamp: 1000, sortDate: anchor)
+        let later = createTestMessage(timestamp: 1600, sortDate: anchor)  // +10 min send time
+        #expect(ChatViewModel.computeDisplayFlags(for: later, previous: earlier).showTimestamp == true)
+    }
+
+    @Test("Unread divider lands on the first unread row of the recent block")
+    @MainActor
+    func dividerLandsOnFirstUnreadBlockRow() {
+        // Block-at-reconnect layout: older already-read rows, then a recent unread block
+        // at the tail. The positional divider must land on the block's first row. This also
+        // guards against a regression to a first(where: { !$0.isRead }) scan — every row here
+        // has the default isRead == false, so such a scan would wrongly pick index 0.
+        let vm = ChatViewModel()
+        let readCount = 8
+        let unreadCount = 12
+        var messages: [MessageDTO] = []
+        let readBase = Date(timeIntervalSince1970: 1_000_000)
+        for i in 0..<readCount {
+            messages.append(createTestMessage(
+                timestamp: UInt32(1000 + i),
+                sortDate: readBase.addingTimeInterval(TimeInterval(i)),
+                text: "read \(i)"
+            ))
+        }
+        let anchor = Date(timeIntervalSince1970: 2_000_000)
+        for i in 0..<unreadCount {
+            messages.append(createTestMessage(
+                timestamp: UInt32(5000 + i),
+                sortDate: anchor,
+                text: "unread \(i)"
+            ))
+        }
+        let firstUnread = messages[readCount]
+
+        vm.computeDividerPosition(from: messages, unreadCount: unreadCount)
+
+        #expect(vm.newMessagesDividerMessageID == firstUnread.id)
+    }
+
     @Test("Mixed gaps show correct timestamps")
     func mixedGapsShowCorrectTimestamps() {
         let baseTime: UInt32 = 1000
@@ -197,28 +244,22 @@ struct ChatViewModelTests {
         #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showTimestamp == true)
     }
 
-    @Test("Time gap uses createdAt not timestamp when they diverge")
-    func timeGapUsesCreatedAtNotTimestamp() {
-        // Sender timestamps are 10 minutes apart, but messages arrived 1 second apart
-        let base = Date(timeIntervalSince1970: 1000)
-        let msg1 = createTestMessage(timestamp: 1000, createdAt: base)
-        let msg2 = createTestMessage(timestamp: 1600, createdAt: base.addingTimeInterval(1))
-
-        let flags = ChatViewModel.computeDisplayFlags(for: msg2, previous: msg1)
-        // createdAt gap is 1s (no timestamp shown), even though sender timestamps differ by 600s
-        #expect(flags.showTimestamp == false)
+    @Test("Divider grouping hides the header when send times are close despite a large sortDate gap")
+    func groupingHidesHeaderWhenSendTimesCloseDespiteSortDateGap() {
+        // Sent one second apart but assigned far-apart sortDates (e.g. drained in separate
+        // sessions, so distinct anchors). Grouping follows send time, so no header appears.
+        let msg1 = createTestMessage(timestamp: 1000, sortDate: Date(timeIntervalSince1970: 1_000_000))
+        let msg2 = createTestMessage(timestamp: 1001, sortDate: Date(timeIntervalSince1970: 1_000_600))
+        #expect(ChatViewModel.computeDisplayFlags(for: msg2, previous: msg1).showTimestamp == false)
     }
 
-    @Test("Time gap triggers timestamp when createdAt gap is large despite close sender timestamps")
-    func timeGapTriggersOnCreatedAtGap() {
-        // Sender timestamps are 1 second apart, but messages arrived 6 minutes apart
-        let base = Date(timeIntervalSince1970: 1000)
-        let msg1 = createTestMessage(timestamp: 1000, createdAt: base)
-        let msg2 = createTestMessage(timestamp: 1001, createdAt: base.addingTimeInterval(361))
-
-        let flags = ChatViewModel.computeDisplayFlags(for: msg2, previous: msg1)
-        // createdAt gap is 361s (> 300s), so timestamp should show
-        #expect(flags.showTimestamp == true)
+    @Test("Divider grouping ignores drain time: far createdAt with close send times hides the header")
+    func groupingIgnoresCreatedAtWhenSendTimesClose() {
+        // Received ten minutes apart (createdAt) but sent one second apart. Grouping must
+        // follow send time, not drain time, so the rows stay grouped with no header.
+        let msg1 = createTestMessage(timestamp: 1000, createdAt: Date(timeIntervalSince1970: 2_000_000))
+        let msg2 = createTestMessage(timestamp: 1001, createdAt: Date(timeIntervalSince1970: 2_000_600))
+        #expect(ChatViewModel.computeDisplayFlags(for: msg2, previous: msg1).showTimestamp == false)
     }
 
     @Test("Large time gaps show timestamp")

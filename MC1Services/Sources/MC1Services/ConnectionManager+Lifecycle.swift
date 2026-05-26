@@ -143,6 +143,24 @@ extension ConnectionManager {
             logger.error("repeater unread-count migration failed: \(error)")
         }
 
+        // Backfill sortDate from createdAt on pre-existing messages so date-header
+        // grouping keeps their current display order.
+        do {
+            try await resetStore.performSortDateBackfillMigration()
+        } catch {
+            logger.error("sortDate backfill migration failed: \(error)")
+        }
+
+        // Re-normalize sortDate to createdAt for installs whose backfill already ran
+        // before the block-at-reconnect change, un-burying any rows an interim build
+        // sorted by send time. Must run before stateMachine.activate() so no
+        // restoration-driven sync writes a fresh anchor before this resets the baseline.
+        do {
+            try await resetStore.performSortDateResetMigration()
+        } catch {
+            logger.error("sortDate reset migration failed: \(error)")
+        }
+
         #if targetEnvironment(simulator)
         // Skip auto-reconnect if user explicitly disconnected
         if connectionIntent.isUserDisconnected {

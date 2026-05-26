@@ -1971,6 +1971,107 @@ struct BackupIntegrationTests {
         let nilModel = Message(dto: nilDTO)
         #expect(nilModel.regionScope == nil)
     }
+
+    // MARK: - MessageDTO.sortDate round-trip
+
+    @Test("MessageDTO Codable: sortDate distinct from createdAt round-trips")
+    func messageDTOSortDateCodableRoundTrip() throws {
+        let createdAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let sortDate = Date(timeIntervalSince1970: 1_600_000_000)
+        var dto = MessageDTO.testDirectMessage(
+            radioID: UUID(),
+            contactID: UUID(),
+            text: "Test",
+            createdAt: createdAt
+        )
+        dto.sortDate = sortDate
+
+        let encoded = try JSONEncoder().encode(dto)
+        let decoded = try JSONDecoder().decode(MessageDTO.self, from: encoded)
+        #expect(decoded.sortDate == sortDate)
+        #expect(decoded.sortDate != decoded.createdAt)
+    }
+
+    @Test("Legacy MessageDTO envelope without sortDate falls back to createdAt")
+    func messageDTOLegacyEnvelopeMissingSortDate() throws {
+        let baseDTO = MessageDTO.testDirectMessage(
+            radioID: UUID(),
+            contactID: UUID(),
+            text: "Legacy",
+            createdAt: Date(timeIntervalSince1970: 1_700_000_000)
+        )
+        let encoded = try JSONEncoder().encode(baseDTO)
+        var json = try #require(try JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        json.removeValue(forKey: "sortDate")
+
+        let stripped = try JSONSerialization.data(withJSONObject: json)
+        let decoded = try JSONDecoder().decode(MessageDTO.self, from: stripped)
+        #expect(decoded.sortDate == decoded.createdAt)
+    }
+
+    @Test("Message(dto:) forwards sortDate verbatim through DTO to model")
+    func messageInitFromDTOForwardsSortDate() {
+        let createdAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let sortDate = Date(timeIntervalSince1970: 1_600_000_000)
+        var dto = MessageDTO.testDirectMessage(
+            radioID: UUID(),
+            contactID: UUID(),
+            text: "Forward",
+            createdAt: createdAt
+        )
+        dto.sortDate = sortDate
+        let model = Message(dto: dto)
+        #expect(model.sortDate == sortDate)
+        #expect(model.sortDate != model.createdAt)
+    }
+
+    @Test("Fully-populated MessageDTO survives encode/decode with every field distinct")
+    func messageDTOFullyPopulatedCodableRoundTrip() throws {
+        let dto = MessageDTO(
+            id: UUID(),
+            radioID: UUID(),
+            contactID: UUID(),
+            channelIndex: 7,
+            text: "Every field set",
+            timestamp: 1_700_000_001,
+            createdAt: Date(timeIntervalSince1970: 1_700_000_000),
+            direction: .incoming,
+            status: .delivered,
+            textType: .signedPlain,
+            ackCode: 0xDEAD_BEEF,
+            pathLength: 5,
+            snr: 12.5,
+            pathNodes: Data([0x01, 0x02, 0x03]),
+            senderKeyPrefix: Data([0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF]),
+            senderNodeName: "Bob",
+            isRead: true,
+            replyToID: UUID(),
+            roundTripTime: 432,
+            heardRepeats: 3,
+            sendCount: 2,
+            retryAttempt: 1,
+            maxRetryAttempts: 4,
+            deduplicationKey: "dedup-key",
+            linkPreviewURL: "https://example.com",
+            linkPreviewTitle: "Example",
+            linkPreviewImageData: Data([0x10, 0x20]),
+            linkPreviewIconData: Data([0x30, 0x40]),
+            linkPreviewFetched: true,
+            containsSelfMention: true,
+            mentionSeen: true,
+            timestampCorrected: true,
+            senderTimestamp: 1_699_999_999,
+            reactionSummary: "👍:3,❤️:2",
+            routeType: .tcDirect,
+            regionScope: "Germany"
+        )
+        var populated = dto
+        populated.sortDate = Date(timeIntervalSince1970: 1_600_000_000)
+
+        let encoded = try JSONEncoder().encode(populated)
+        let decoded = try JSONDecoder().decode(MessageDTO.self, from: encoded)
+        #expect(decoded == populated)
+    }
 }
 
 private enum InjectedImportFailure: Error {

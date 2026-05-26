@@ -42,10 +42,10 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
     // MARK: - Captured Handlers
 
     /// Captured contact message handler (set via setContactMessageHandler)
-    public private(set) var capturedContactMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
+    public private(set) var capturedContactMessageHandler: (@Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void)?
 
     /// Captured channel message handler (set via setChannelMessageHandler)
-    public private(set) var capturedChannelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?) async -> Void)?
+    public private(set) var capturedChannelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void)?
 
     /// Captured signed message handler (set via setSignedMessageHandler)
     public private(set) var capturedSignedMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
@@ -55,11 +55,11 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
 
     // MARK: - Handler Setter Methods (matching MessagePollingService)
 
-    public func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {
+    public func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void) {
         capturedContactMessageHandler = handler
     }
 
-    public func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?) async -> Void) {
+    public func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void) {
         capturedChannelMessageHandler = handler
     }
 

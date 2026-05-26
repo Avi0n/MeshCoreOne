@@ -186,4 +186,77 @@ extension PersistenceStore {
     public func resetRepeaterUnreadMigrationFlag() {
         UserDefaults.standard.removeObject(forKey: Self.repeaterUnreadMigrationKey)
     }
+
+    // MARK: - Message sortDate normalization
+
+    /// Normalizes every message's `sortDate` to its `createdAt`, guarded by a one-time flag.
+    /// Shared by the backfill and reset migrations, which differ only in which flag gates
+    /// them and what they log. Returns the row count, or `nil` when the flag was already set
+    /// and the migration was skipped.
+    private func normalizeMessageSortDates(flagKey: String) throws -> Int? {
+        guard !UserDefaults.standard.bool(forKey: flagKey) else { return nil }
+
+        let messages = try modelContext.fetch(FetchDescriptor<Message>())
+        for message in messages {
+            message.sortDate = message.createdAt
+        }
+        try modelContext.save()
+
+        UserDefaults.standard.set(true, forKey: flagKey)
+        return messages.count
+    }
+
+    // MARK: - Message sortDate backfill migration
+
+    private static let sortDateBackfillMigrationKey = "hasBackfilledMessageSortDate"
+    private static let sortDateBackfillMigrationLogger = Logger(
+        subsystem: "com.pocketmesh.mc1services",
+        category: "SortDateBackfillMigration"
+    )
+
+    /// One-time backfill: pre-existing rows were persisted before the `sortDate`
+    /// column existed and come up with the `Date.distantPast` schema default.
+    /// Set `sortDate` to `createdAt` on every row so the date-header grouping
+    /// preserves their current display order. This runs once at launch before
+    /// any sync, so every row present is a pre-feature row.
+    public func performSortDateBackfillMigration() throws {
+        guard let count = try normalizeMessageSortDates(flagKey: Self.sortDateBackfillMigrationKey) else { return }
+
+        Self.sortDateBackfillMigrationLogger.info(
+            "sortDate backfill complete: \(count) messages backfilled"
+        )
+    }
+
+    /// Resets the migration flag (for testing only).
+    public func resetSortDateBackfillMigrationFlag() {
+        UserDefaults.standard.removeObject(forKey: Self.sortDateBackfillMigrationKey)
+    }
+
+    // MARK: - Message sortDate reset migration
+
+    private static let sortDateResetMigrationKey = "hasResetMessageSortDate"
+    private static let sortDateResetMigrationLogger = Logger(
+        subsystem: "com.pocketmesh.mc1services",
+        category: "SortDateResetMigration"
+    )
+
+    /// One-time reset: an interim build derived `sortDate` from the sender's send time,
+    /// which buried just-synced backlog deep in scrollback. The original backfill
+    /// (`performSortDateBackfillMigration`) already ran on those installs, so its flag is
+    /// set and it can no longer touch the rows. Re-normalize every row's `sortDate` to
+    /// `createdAt` so block-at-reconnect ordering starts from a clean receive-time baseline;
+    /// subsequent syncs derive a fresh drain anchor per batch. Runs once at launch before
+    /// any sync, so every row present is a pre-feature row.
+    public func performSortDateResetMigration() throws {
+        guard let count = try normalizeMessageSortDates(flagKey: Self.sortDateResetMigrationKey) else { return }
+
+        Self.sortDateResetMigrationLogger.info(
+            "sortDate reset complete: \(count) messages re-normalized to createdAt"
+        )
+    }
+
+    /// Resets the migration flag (for testing only).
+    public func resetSortDateResetMigrationFlag() {
+        UserDefaults.standard.removeObject(forKey: Self.sortDateResetMigrationKey)
+    }
 }

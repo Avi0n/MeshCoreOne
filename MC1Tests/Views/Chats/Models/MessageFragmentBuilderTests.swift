@@ -164,6 +164,43 @@ struct MessageFragmentBuilderTests {
         #expect(item.envelope.mentionSeen == true)
     }
 
+    @Test("envelope date is the message send time, not its drain time")
+    func envelope_dateIsSendTime() {
+        // A drained backlog row sent three days before it was received. The centered
+        // divider is the sole time surface, so it must read send time — otherwise a
+        // days-old message gets relabeled "Today" at the block's delivery time.
+        let drainTime = Self.referenceDate
+        let sendTime = Self.referenceDate.addingTimeInterval(-3 * 24 * 60 * 60)
+        let message = MessageDTO(
+            id: UUID(),
+            radioID: Self.radioID,
+            contactID: Self.contactID,
+            channelIndex: nil,
+            text: "older message just arrived",
+            timestamp: UInt32(sendTime.timeIntervalSince1970),
+            createdAt: drainTime,
+            direction: .incoming,
+            status: .delivered,
+            textType: .plain,
+            ackCode: nil,
+            pathLength: 0,
+            snr: nil,
+            senderKeyPrefix: nil,
+            senderNodeName: nil,
+            isRead: true,
+            replyToID: nil,
+            roundTripTime: nil,
+            heardRepeats: 0,
+            retryAttempt: 0,
+            maxRetryAttempts: 0
+        )
+        let inputs = makeInputs(messageID: message.id)
+        let item = MessageFragmentBuilder.makeItem(for: message, inputs: inputs, envInputs: makeEnvInputs())
+
+        #expect(item.envelope.date == message.senderDate)
+        #expect(message.senderDate != message.date, "test must distinguish send time from drain time")
+    }
+
     @Test("footer captures heardRepeats from message")
     func footer_capturesHeardRepeats() {
         let message = makeMessage(text: "hi", heardRepeats: 3)

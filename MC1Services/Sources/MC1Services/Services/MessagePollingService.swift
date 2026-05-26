@@ -33,10 +33,10 @@ public actor MessagePollingService {
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "MessagePolling")
 
     /// Handler for incoming contact messages
-    private var contactMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
+    private var contactMessageHandler: (@Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void)?
 
     /// Handler for incoming channel messages
-    private var channelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?) async -> Void)?
+    private var channelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void)?
 
     /// Handler for signed messages (from room servers)
     private var signedMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
@@ -78,12 +78,12 @@ public actor MessagePollingService {
     // MARK: - Event Handlers
 
     /// Set handler for incoming contact messages
-    public func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {
+    public func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void) {
         contactMessageHandler = handler
     }
 
     /// Set handler for incoming channel messages
-    public func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?) async -> Void) {
+    public func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void) {
         channelMessageHandler = handler
     }
 
@@ -190,15 +190,19 @@ public actor MessagePollingService {
         defer { isPolling = false }
         var count = 0
 
+        // One anchor for the whole drain so every backlog message shares a sort date
+        // and forms a single contiguous block positioned at delivery time.
+        let blockAnchor = Date()
+
         while true {
             let result = try await pollMessage()
             switch result {
             case .contactMessage(let msg):
                 count += 1
-                await handleContactMessage(msg)
+                await handleContactMessage(msg, context: .initialSync(anchor: blockAnchor))
             case .channelMessage(let msg):
                 count += 1
-                await handleChannelMessage(msg)
+                await handleChannelMessage(msg, context: .initialSync(anchor: blockAnchor))
             case .channelDatagram:
                 // Datagrams are not user-visible messages; drain queue without counting.
                 // A follow-up plan will add a dedicated MC1Services listener for them.
@@ -256,13 +260,13 @@ public actor MessagePollingService {
             guard !isPolling else { return }
             pendingHandlerCount += 1
             defer { pendingHandlerCount -= 1 }
-            await handleContactMessage(message)
+            await handleContactMessage(message, context: .live)
 
         case .channelMessageReceived(let message):
             guard !isPolling else { return }
             pendingHandlerCount += 1
             defer { pendingHandlerCount -= 1 }
-            await handleChannelMessage(message)
+            await handleChannelMessage(message, context: .live)
 
         default:
             break
@@ -272,10 +276,10 @@ public actor MessagePollingService {
     // MARK: - Private Message Handlers
 
     /// Handle incoming contact message
-    private func handleContactMessage(_ message: ContactMessage) async {
+    private func handleContactMessage(_ message: ContactMessage, context: DeliveryContext) async {
         guard let radioID = currentRadioID else {
             logger.warning("Received message but no radio ID set")
-            await contactMessageHandler?(message, nil)
+            await contactMessageHandler?(message, nil, context)
             return
         }
 
@@ -295,22 +299,22 @@ public actor MessagePollingService {
             await signedMessageHandler?(message, contact)
         default:
             // Regular contact messages (textType = 0x00 or unknown)
-            await contactMessageHandler?(message, contact)
+            await contactMessageHandler?(message, contact, context)
         }
     }
 
     /// Handle incoming channel message
-    private func handleChannelMessage(_ message: ChannelMessage) async {
+    private func handleChannelMessage(_ message: ChannelMessage, context: DeliveryContext) async {
         guard let radioID = currentRadioID else {
             logger.warning("Received channel message but no radio ID set")
-            await channelMessageHandler?(message, nil)
+            await channelMessageHandler?(message, nil, context)
             return
         }
 
         // Look up the channel
         let channel = try? await dataStore.fetchChannel(radioID: radioID, index: message.channelIndex)
 
-        await channelMessageHandler?(message, channel)
+        await channelMessageHandler?(message, channel, context)
     }
 }
 

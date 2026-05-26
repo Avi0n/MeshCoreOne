@@ -58,7 +58,7 @@ extension SyncCoordinator {
     // MARK: - Contact Message Handler
 
     private func wireContactMessageHandler(services: ServiceContainer, radioID: UUID, selfNodeName: String) async {
-        await services.messagePollingService.setContactMessageHandler { [weak self] message, contact in
+        await services.messagePollingService.setContactMessageHandler { [weak self] message, contact, context in
             guard let self else { return }
 
             let timestamp = UInt32(message.senderTimestamp.timeIntervalSince1970)
@@ -69,6 +69,8 @@ extension SyncCoordinator {
             if timestampCorrected {
                 self.logger.debug("Corrected invalid direct message timestamp from \(Date(timeIntervalSince1970: TimeInterval(timestamp))) to \(receiveTime)")
             }
+
+            let sortDate = Self.sortDate(for: context, receiveTime: receiveTime)
 
             // Look up path data from RxLogEntry (for direct messages, channelIndex is nil)
             let rxResult = await self.lookupRxLogEntry(
@@ -101,6 +103,7 @@ extension SyncCoordinator {
                 text: message.text,
                 timestamp: finalTimestamp,
                 createdAt: receiveTime,
+                sortDate: sortDate,
                 direction: .incoming,
                 status: .delivered,
                 textType: TextType(rawValue: message.textType) ?? .plain,
@@ -208,7 +211,7 @@ extension SyncCoordinator {
     // MARK: - Channel Message Handler
 
     private func wireChannelMessageHandler(services: ServiceContainer, radioID: UUID, selfNodeName: String) async {
-        await services.messagePollingService.setChannelMessageHandler { [weak self] message, channel in
+        await services.messagePollingService.setChannelMessageHandler { [weak self] message, channel, context in
             guard let self else { return }
 
             // Parse "NodeName: text" format for sender name
@@ -222,6 +225,8 @@ extension SyncCoordinator {
             if timestampCorrected {
                 self.logger.debug("Corrected invalid channel message timestamp from \(Date(timeIntervalSince1970: TimeInterval(timestamp))) to \(receiveTime)")
             }
+
+            let sortDate = Self.sortDate(for: context, receiveTime: receiveTime)
 
             // Look up path data from RxLogEntry using sender timestamp (stored during decryption)
             let rxResult = await self.lookupRxLogEntry(
@@ -252,6 +257,7 @@ extension SyncCoordinator {
                 text: messageText,
                 timestamp: finalTimestamp,
                 createdAt: receiveTime,
+                sortDate: sortDate,
                 direction: .incoming,
                 status: .delivered,
                 textType: TextType(rawValue: message.textType) ?? .plain,

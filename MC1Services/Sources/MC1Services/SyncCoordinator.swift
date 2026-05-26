@@ -415,4 +415,30 @@ public actor SyncCoordinator {
         }
         return (timestamp, false)
     }
+
+    /// Computes the persisted sort date for an incoming message based on its delivery context.
+    ///
+    /// Live messages sort by receive time so a just-arrived message stays at the bottom of the
+    /// transcript. Backlog messages drained during sync sort by the drain `anchor`, so a whole
+    /// batch lands as one contiguous block at delivery time — recent, never buried — ordered
+    /// within the block by the secondary `timestamp` fetch key. The sort key no longer reads
+    /// sender time, so a skewed sender clock cannot scatter backlog into deep scrollback;
+    /// `correctTimestampIfNeeded` still governs the persisted `Message.timestamp` used for
+    /// dedup, display, and within-block ordering.
+    ///
+    /// - Parameters:
+    ///   - context: Whether the message arrived live or via a backlog drain (carrying the anchor).
+    ///   - receiveTime: When a live message was received. Ignored for `initialSync`.
+    /// - Returns: The date to persist as the message's sort key.
+    nonisolated static func sortDate(
+        for context: DeliveryContext,
+        receiveTime: Date
+    ) -> Date {
+        switch context {
+        case .live:
+            return receiveTime
+        case .initialSync(let anchor):
+            return anchor
+        }
+    }
 }

@@ -222,6 +222,67 @@ struct SyncCoordinatorTimestampTests {
     }
 }
 
+// MARK: - Sort Date Derivation Tests
+
+@Suite("SyncCoordinator Sort Date Derivation")
+struct SyncCoordinatorSortDateTests {
+
+    // MARK: - Test Constants
+
+    private let oneMinute: TimeInterval = 60
+
+    // MARK: - Live Delivery Tests
+
+    @Test("Live message sorts by receive time")
+    func liveUsesReceiveTime() {
+        let now = Date()
+
+        let result = SyncCoordinator.sortDate(for: .live, receiveTime: now)
+
+        #expect(result == now)
+    }
+
+    // MARK: - Backlog Delivery Tests
+
+    @Test("Backlog message sorts by the drain anchor, not its receive time")
+    func initialSyncUsesAnchor() {
+        let anchor = Date().addingTimeInterval(-oneMinute)
+        let receiveTime = Date()
+
+        let result = SyncCoordinator.sortDate(for: .initialSync(anchor: anchor), receiveTime: receiveTime)
+
+        // The anchor is the block's delivery-time position; the per-message
+        // receive time is ignored so the whole drain stays contiguous.
+        #expect(result == anchor)
+    }
+
+    @Test("Every message in one drain shares the anchor as its sort date")
+    func initialSyncBlockSharesAnchor() {
+        let anchor = Date()
+
+        let first = SyncCoordinator.sortDate(for: .initialSync(anchor: anchor), receiveTime: Date())
+        let second = SyncCoordinator.sortDate(for: .initialSync(anchor: anchor), receiveTime: Date().addingTimeInterval(oneMinute))
+        let third = SyncCoordinator.sortDate(for: .initialSync(anchor: anchor), receiveTime: Date().addingTimeInterval(2 * oneMinute))
+
+        #expect(first == anchor)
+        #expect(second == anchor)
+        #expect(third == anchor)
+    }
+
+    @Test("Distinct drains sort as distinct blocks in delivery order")
+    func distinctDrainsSortAsDistinctBlocks() {
+        let earlierDrain = Date().addingTimeInterval(-oneMinute)
+        let laterDrain = Date()
+
+        let earlier = SyncCoordinator.sortDate(for: .initialSync(anchor: earlierDrain), receiveTime: Date())
+        let later = SyncCoordinator.sortDate(for: .initialSync(anchor: laterDrain), receiveTime: Date())
+
+        #expect(earlier == earlierDrain)
+        #expect(later == laterDrain)
+        #expect(earlier < later)
+    }
+}
+
 // MARK: - Same-Sender Reordering Tests
 
 @Suite("Same-Sender Reordering")
@@ -230,6 +291,7 @@ struct SameSenderReorderingTests {
     private func makeDMMessage(
         timestamp: UInt32,
         createdAt: Date,
+        sortDate: Date? = nil,
         direction: MessageDirection = .incoming
     ) -> MessageDTO {
         MessageDTO(
@@ -240,6 +302,7 @@ struct SameSenderReorderingTests {
             text: "msg-\(timestamp)",
             timestamp: timestamp,
             createdAt: createdAt,
+            sortDate: sortDate,
             direction: direction,
             status: .delivered,
             textType: .plain,
@@ -481,5 +544,58 @@ struct SameSenderReorderingTests {
         #expect(result[0].id == msg1.id)
         #expect(result[1].id == msg2.id)
         #expect(result[2].id == msg3.id)
+    }
+
+    @Test("Far-apart sortDates are not clustered even when createdAt order is inverted")
+    func nonMonotonicCreatedAtDoesNotWidenWindow() {
+        let base = Date()
+        // Sorted by sortDate ascending, but createdAt runs backwards: a backlog row
+        // sent early yet drained an hour later, followed by a later-sent row received
+        // first. The createdAt gap is hugely negative, which the old createdAt-based
+        // window silently accepted (any negative gap is within the window) and
+        // clustered, scrambling send order.
+        let early = makeDMMessage(
+            timestamp: 200,
+            createdAt: base.addingTimeInterval(3600),
+            sortDate: base
+        )
+        let late = makeDMMessage(
+            timestamp: 100,
+            createdAt: base,
+            sortDate: base.addingTimeInterval(60)
+        )
+
+        let input = [early, late]
+        let result = MessageDTO.reorderSameSenderClusters(input)
+
+        // sortDate gap is 60s (> window): the two rows must stay in sortDate order,
+        // not be reordered by raw timestamp.
+        #expect(result[0].id == early.id)
+        #expect(result[1].id == late.id)
+    }
+
+    @Test("Clustering window follows sortDate, not createdAt")
+    func clusterWindowMeasuredOnSortDate() {
+        let base = Date()
+        // sortDates are 2s apart (within window) but createdAt are 100s apart (beyond
+        // the old window). Reordering must follow the sortDate axis the array is sorted
+        // by, so the tight send-time cluster is reordered by sender timestamp.
+        let first = makeDMMessage(
+            timestamp: 200,
+            createdAt: base,
+            sortDate: base
+        )
+        let second = makeDMMessage(
+            timestamp: 100,
+            createdAt: base.addingTimeInterval(100),
+            sortDate: base.addingTimeInterval(2)
+        )
+
+        let input = [first, second]
+        let result = MessageDTO.reorderSameSenderClusters(input)
+
+        // Within the sortDate window: reordered by sender timestamp.
+        #expect(result[0].timestamp == 100)
+        #expect(result[1].timestamp == 200)
     }
 }

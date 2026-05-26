@@ -23,8 +23,10 @@ public enum MessageDirection: Int, Sendable, Codable {
 public final class Message {
     #Index<Message>(
         [\.radioID, \.channelIndex, \.createdAt],
+        [\.radioID, \.channelIndex, \.sortDate],
         [\.radioID, \.channelIndex, \.timestamp],
         [\.contactID, \.createdAt],
+        [\.contactID, \.sortDate],
         [\.contactID, \.containsSelfMention, \.mentionSeen],
         [\.radioID, \.channelIndex, \.containsSelfMention, \.mentionSeen],
         [\.deduplicationKey]
@@ -52,6 +54,10 @@ public final class Message {
 
     /// Local creation date
     public var createdAt: Date
+
+    /// Date used for send-time ordering of synced backlog messages.
+    /// Defaults to `createdAt` for newly created rows.
+    public var sortDate: Date = Date.distantPast
 
     /// Direction (incoming/outgoing)
     public var directionRawValue: Int
@@ -160,6 +166,7 @@ public final class Message {
         text: String,
         timestamp: UInt32 = 0,
         createdAt: Date = Date(),
+        sortDate: Date? = nil,
         directionRawValue: Int = MessageDirection.outgoing.rawValue,
         statusRawValue: Int = MessageStatus.pending.rawValue,
         textTypeRawValue: UInt8 = TextType.plain.rawValue,
@@ -197,6 +204,7 @@ public final class Message {
         self.text = text
         self.timestamp = timestamp > 0 ? timestamp : UInt32(createdAt.timeIntervalSince1970)
         self.createdAt = createdAt
+        self.sortDate = sortDate ?? createdAt
         self.directionRawValue = directionRawValue
         self.statusRawValue = statusRawValue
         self.textTypeRawValue = textTypeRawValue
@@ -239,6 +247,7 @@ public final class Message {
             text: dto.text,
             timestamp: dto.timestamp,
             createdAt: dto.createdAt,
+            sortDate: dto.sortDate,
             directionRawValue: dto.direction.rawValue,
             statusRawValue: dto.status.rawValue,
             textTypeRawValue: dto.textType.rawValue,
@@ -324,6 +333,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     public var text: String
     public var timestamp: UInt32
     public var createdAt: Date
+    public var sortDate: Date
     public var direction: MessageDirection
     public var status: MessageStatus
     public var textType: TextType
@@ -354,6 +364,62 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     public var routeType: RouteType?
     public var regionScope: String?
 
+    // Explicit Codable so backups predating ``sortDate`` decode cleanly.
+    // Legacy envelopes have no `sortDate` key; it falls back to `createdAt`,
+    // which must be decoded first. Every other field decodes exactly as the
+    // synthesized Codable did, preserving the existing wire format.
+    private enum CodingKeys: String, CodingKey {
+        case id, radioID, contactID, channelIndex, text, timestamp, createdAt,
+             sortDate, direction, status, textType, ackCode, pathLength, snr,
+             pathNodes, senderKeyPrefix, senderNodeName, isRead, replyToID,
+             roundTripTime, heardRepeats, sendCount, retryAttempt, maxRetryAttempts,
+             deduplicationKey, linkPreviewURL, linkPreviewTitle, linkPreviewImageData,
+             linkPreviewIconData, linkPreviewFetched, containsSelfMention, mentionSeen,
+             timestampCorrected, senderTimestamp, reactionSummary, routeType, regionScope
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(UUID.self, forKey: .id)
+        self.radioID = try container.decode(UUID.self, forKey: .radioID)
+        self.contactID = try container.decodeIfPresent(UUID.self, forKey: .contactID)
+        self.channelIndex = try container.decodeIfPresent(UInt8.self, forKey: .channelIndex)
+        self.text = try container.decode(String.self, forKey: .text)
+        self.timestamp = try container.decode(UInt32.self, forKey: .timestamp)
+        let createdAt = try container.decode(Date.self, forKey: .createdAt)
+        self.createdAt = createdAt
+        self.sortDate = try container.decodeIfPresent(Date.self, forKey: .sortDate) ?? createdAt
+        self.direction = try container.decode(MessageDirection.self, forKey: .direction)
+        self.status = try container.decode(MessageStatus.self, forKey: .status)
+        self.textType = try container.decode(TextType.self, forKey: .textType)
+        self.ackCode = try container.decodeIfPresent(UInt32.self, forKey: .ackCode)
+        self.pathLength = try container.decode(UInt8.self, forKey: .pathLength)
+        self.snr = try container.decodeIfPresent(Double.self, forKey: .snr)
+        self.pathNodes = try container.decodeIfPresent(Data.self, forKey: .pathNodes)
+        self.senderKeyPrefix = try container.decodeIfPresent(Data.self, forKey: .senderKeyPrefix)
+        self.senderNodeName = try container.decodeIfPresent(String.self, forKey: .senderNodeName)
+        self.isRead = try container.decode(Bool.self, forKey: .isRead)
+        self.replyToID = try container.decodeIfPresent(UUID.self, forKey: .replyToID)
+        self.roundTripTime = try container.decodeIfPresent(UInt32.self, forKey: .roundTripTime)
+        self.heardRepeats = try container.decode(Int.self, forKey: .heardRepeats)
+        self.sendCount = try container.decode(Int.self, forKey: .sendCount)
+        self.retryAttempt = try container.decode(Int.self, forKey: .retryAttempt)
+        self.maxRetryAttempts = try container.decode(Int.self, forKey: .maxRetryAttempts)
+        self.deduplicationKey = try container.decodeIfPresent(String.self, forKey: .deduplicationKey)
+        self.linkPreviewURL = try container.decodeIfPresent(String.self, forKey: .linkPreviewURL)
+        self.linkPreviewTitle = try container.decodeIfPresent(String.self, forKey: .linkPreviewTitle)
+        self.linkPreviewImageData = try container.decodeIfPresent(Data.self, forKey: .linkPreviewImageData)
+        self.linkPreviewIconData = try container.decodeIfPresent(Data.self, forKey: .linkPreviewIconData)
+        self.linkPreviewFetched = try container.decode(Bool.self, forKey: .linkPreviewFetched)
+        self.containsSelfMention = try container.decode(Bool.self, forKey: .containsSelfMention)
+        self.mentionSeen = try container.decode(Bool.self, forKey: .mentionSeen)
+        self.timestampCorrected = try container.decode(Bool.self, forKey: .timestampCorrected)
+        self.senderTimestamp = try container.decodeIfPresent(UInt32.self, forKey: .senderTimestamp)
+        self.reactionSummary = try container.decodeIfPresent(String.self, forKey: .reactionSummary)
+        self.routeType = try container.decodeIfPresent(RouteType.self, forKey: .routeType)
+        self.regionScope = try container.decodeIfPresent(String.self, forKey: .regionScope)
+    }
+
     public init(from message: Message, includeLinkPreviewBlobs: Bool = true) {
         self.id = message.id
         self.radioID = message.radioID
@@ -362,6 +428,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
         self.text = message.text
         self.timestamp = message.timestamp
         self.createdAt = message.createdAt
+        self.sortDate = message.sortDate
         self.direction = message.direction
         self.status = message.status
         self.textType = message.textType
@@ -412,6 +479,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
         text: String,
         timestamp: UInt32,
         createdAt: Date,
+        sortDate: Date? = nil,
         direction: MessageDirection,
         status: MessageStatus,
         textType: TextType,
@@ -449,6 +517,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
         self.text = text
         self.timestamp = timestamp
         self.createdAt = createdAt
+        self.sortDate = sortDate ?? createdAt
         self.direction = direction
         self.status = status
         self.textType = textType
@@ -571,10 +640,12 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
 
     /// Reorders messages within narrow same-sender clusters by sender timestamp.
     ///
-    /// Messages are sorted by receive time (`createdAt`) for display. However, when multiple
-    /// messages from the same sender arrive within a short window, mesh relay may deliver them
+    /// Expects input already sorted by `sortDate` (the display sort key). When multiple
+    /// messages from the same sender fall within a short window, mesh relay may deliver them
     /// out of order. This function detects those clusters and re-sorts them by the sender's
-    /// claimed timestamp to restore the intended conversation order.
+    /// claimed timestamp to restore the intended conversation order. The cluster window is
+    /// measured on `sortDate` — the same key the input is sorted by — so it stays non-negative
+    /// and cannot pull together rows that are far apart on the display axis.
     public static func reorderSameSenderClusters(_ messages: [MessageDTO]) -> [MessageDTO] {
         guard messages.count > 1 else { return messages }
 
@@ -587,7 +658,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
             // Extend the cluster while consecutive messages match the same sender/direction
             // and fall within the reorder window
             while clusterEnd < result.count {
-                let gap = result[clusterEnd].createdAt.timeIntervalSince(result[clusterEnd - 1].createdAt)
+                let gap = result[clusterEnd].sortDate.timeIntervalSince(result[clusterEnd - 1].sortDate)
                 guard isSameSender(result[clusterEnd], result[clusterEnd - 1]),
                       gap <= sameSenderReorderWindow else { break }
                 clusterEnd += 1

@@ -23,9 +23,11 @@ extension ChatViewModel {
             return DisplayFlags(showTimestamp: true, showDirectionGap: false, showSenderName: true)
         }
 
-        // Uses createdAt to stay consistent with the message sort order — switching to a
-        // different timestamp field would silently break grouping at sort boundaries.
-        let timeGap = abs(Int(message.createdAt.timeIntervalSince(previous.createdAt)))
+        // Keys on send time (senderDate), not the sortDate sort key. Under block-at-reconnect
+        // a drained batch shares one sortDate, so grouping on it would collapse every in-block
+        // divider; send time keeps honest separators inside the block. The fetch's timestamp
+        // secondary key orders the block by send time, so headers stay monotonic within it.
+        let timeGap = abs(Int(message.senderDate.timeIntervalSince(previous.senderDate)))
 
         let showTimestamp = timeGap > messageGroupingGapSeconds
         let showDirectionGap = message.direction != previous.direction

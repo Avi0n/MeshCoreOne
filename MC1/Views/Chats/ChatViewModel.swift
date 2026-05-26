@@ -252,6 +252,13 @@ final class ChatViewModel {
 
     /// Computes the divider message ID from a fetched (unfiltered) message array.
     /// Must be called before filtering. Sets `dividerComputed = true`.
+    ///
+    /// Positional: the divider sits `unreadCount` rows from the end. This relies on unread
+    /// messages occupying the array tail, which block-at-reconnect upholds — every unread row
+    /// (live or drained) takes a sortDate at or after its receive/drain time, later than any
+    /// already-read row, so unread always sorts to the tail. Do not switch this to a
+    /// `first(where: { !$0.isRead })` scan: per-message `isRead` is not maintained on chat open
+    /// (only the unread counter is cleared), so the scan would land on the first row of the page.
     func computeDividerPosition(from messages: [MessageDTO], unreadCount: Int) {
         guard !dividerComputed, unreadCount > newMessagesDividerMinUnreadCount else { return }
         let dividerIndex = max(0, messages.count - unreadCount)

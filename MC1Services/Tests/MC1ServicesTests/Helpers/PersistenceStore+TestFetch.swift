@@ -38,4 +38,37 @@ extension PersistenceStore {
         return try modelContext.fetch(FetchDescriptor<Reaction>(predicate: predicate))
             .map { ReactionDTO(from: $0) }
     }
+
+    /// Inserts a raw Message with an explicit `sortDate` distinct from `createdAt`,
+    /// simulating a row persisted before the `sortDate` column existed (which comes
+    /// up with the `Date.distantPast` schema default). The production save path
+    /// always pins `sortDate` to `createdAt`, so this is test-only.
+    public func insertMessageWithSortDate(
+        id: UUID,
+        radioID: UUID,
+        text: String,
+        createdAt: Date,
+        sortDate: Date
+    ) throws {
+        let message = Message(
+            id: id,
+            radioID: radioID,
+            text: text,
+            createdAt: createdAt,
+            sortDate: sortDate
+        )
+        modelContext.insert(message)
+        try modelContext.save()
+    }
+
+    /// Overwrites the `sortDate` on an existing Message row (test-only).
+    public func setMessageSortDate(id: UUID, sortDate: Date) throws {
+        let targetID = id
+        let predicate = #Predicate<Message> { $0.id == targetID }
+        var descriptor = FetchDescriptor(predicate: predicate)
+        descriptor.fetchLimit = 1
+        guard let message = try modelContext.fetch(descriptor).first else { return }
+        message.sortDate = sortDate
+        try modelContext.save()
+    }
 }

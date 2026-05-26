@@ -52,8 +52,9 @@ extension PersistenceStore {
         var descriptor = FetchDescriptor(
             predicate: predicate,
             sortBy: [
-                SortDescriptor(\Message.createdAt, order: .reverse),
-                SortDescriptor(\Message.timestamp, order: .reverse)
+                SortDescriptor(\Message.sortDate, order: .reverse),
+                SortDescriptor(\Message.timestamp, order: .reverse),
+                SortDescriptor(\Message.createdAt, order: .reverse)
             ]
         )
         descriptor.fetchLimit = limit
@@ -74,8 +75,9 @@ extension PersistenceStore {
         var descriptor = FetchDescriptor(
             predicate: predicate,
             sortBy: [
-                SortDescriptor(\Message.createdAt, order: .reverse),
-                SortDescriptor(\Message.timestamp, order: .reverse)
+                SortDescriptor(\Message.sortDate, order: .reverse),
+                SortDescriptor(\Message.timestamp, order: .reverse),
+                SortDescriptor(\Message.createdAt, order: .reverse)
             ]
         )
         descriptor.fetchLimit = limit
@@ -278,6 +280,7 @@ extension PersistenceStore {
             text: dto.text,
             timestamp: dto.timestamp,
             createdAt: dto.createdAt,
+            sortDate: dto.sortDate,
             directionRawValue: dto.direction.rawValue,
             statusRawValue: dto.status.rawValue,
             textTypeRawValue: dto.textType.rawValue,

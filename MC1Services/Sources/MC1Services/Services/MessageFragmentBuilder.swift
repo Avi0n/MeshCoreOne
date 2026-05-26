@@ -165,7 +165,9 @@ public enum MessageFragmentBuilder {
             senderName: inputs.senderResolution.displayName,
             senderResolution: inputs.senderResolution,
             status: message.status,
-            date: message.date,
+            // Send time, not drain time: the centered divider is the sole time surface,
+            // so a days-old drained message must not be relabeled at its delivery time.
+            date: message.senderDate,
             hasFailed: message.hasFailed,
             containsSelfMention: message.containsSelfMention,
             mentionSeen: message.mentionSeen

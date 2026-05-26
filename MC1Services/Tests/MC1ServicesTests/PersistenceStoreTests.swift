@@ -559,6 +559,146 @@ struct PersistenceStoreTests {
         #expect(messages.last?.text == "Message 4")
     }
 
+    @Test("Interleaved backlog from multiple senders reassembles in sortDate (send) order")
+    func backlogReassemblesInSortDateOrder() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let frame = createTestContactFrame()
+        let contactID = try await store.saveContact(radioID: device.id, from: frame)
+
+        // Backlog drains in a scrambled receive order: rows arrive (createdAt)
+        // in the order 2, 0, 3, 1 but their send times (sortDate) are 0..<4.
+        // Display must reassemble by send order regardless of receive order.
+        let drainBase = Date(timeIntervalSince1970: 2_000_000)
+        let sendBase = Date(timeIntervalSince1970: 1_000_000)
+        let scrambledSendOrder = [2, 0, 3, 1]
+        for (receiveOffset, sendIndex) in scrambledSendOrder.enumerated() {
+            let message = MessageDTO(from: Message(
+                radioID: device.id,
+                contactID: contactID,
+                text: "Send \(sendIndex)",
+                timestamp: UInt32(sendBase.timeIntervalSince1970) + UInt32(sendIndex),
+                createdAt: drainBase.addingTimeInterval(TimeInterval(receiveOffset)),
+                sortDate: sendBase.addingTimeInterval(TimeInterval(sendIndex))
+            ))
+            try await store.saveMessage(message)
+        }
+
+        let messages = try await store.fetchMessages(contactID: contactID)
+        #expect(messages.map(\.text) == ["Send 0", "Send 1", "Send 2", "Send 3"])
+    }
+
+    @Test("Live message stays last even when an earlier-sortDate backlog row is inserted after it")
+    func liveMessageStaysLastDespiteLaterBacklogInsert() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let frame = createTestContactFrame()
+        let contactID = try await store.saveContact(radioID: device.id, from: frame)
+
+        // A live row: sortDate == createdAt == now.
+        let now = Date(timeIntervalSince1970: 3_000_000)
+        let liveMessage = MessageDTO(from: Message(
+            radioID: device.id,
+            contactID: contactID,
+            text: "Live",
+            timestamp: UInt32(now.timeIntervalSince1970),
+            createdAt: now,
+            sortDate: now
+        ))
+        try await store.saveMessage(liveMessage)
+
+        // A backlog row inserted afterwards (later createdAt) but with an
+        // earlier send time. Its skewed sender clock must not let it sort
+        // above the live row.
+        let laterCreatedAt = now.addingTimeInterval(60)
+        let earlierSendTime = now.addingTimeInterval(-3600)
+        let backlogMessage = MessageDTO(from: Message(
+            radioID: device.id,
+            contactID: contactID,
+            text: "Backlog",
+            timestamp: UInt32(earlierSendTime.timeIntervalSince1970),
+            createdAt: laterCreatedAt,
+            sortDate: earlierSendTime
+        ))
+        try await store.saveMessage(backlogMessage)
+
+        let messages = try await store.fetchMessages(contactID: contactID)
+        #expect(messages.map(\.text) == ["Backlog", "Live"])
+        #expect(messages.last?.text == "Live")
+    }
+
+    @Test("Equal sortDate and timestamp fall back to createdAt order (tertiary key)")
+    func equalSortDateAndTimestampFallBackToCreatedAt() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let frame = createTestContactFrame()
+        let contactID = try await store.saveContact(radioID: device.id, from: frame)
+
+        // All three rows share an identical sortDate (primary key, e.g. un-backfilled
+        // rows that all defaulted to the same value) and an identical timestamp (secondary
+        // key), so only createdAt — the tertiary sort key — can break the tie. Varying
+        // timestamp too would let the secondary key drive the order and mask whether
+        // createdAt is honored.
+        let sharedSortDate = Date(timeIntervalSince1970: 4_000_000)
+        let sharedTimestamp = UInt32(sharedSortDate.timeIntervalSince1970)
+        let createdBase = Date(timeIntervalSince1970: 5_000_000)
+        for i in 0..<3 {
+            let message = MessageDTO(from: Message(
+                radioID: device.id,
+                contactID: contactID,
+                text: "Tie \(i)",
+                timestamp: sharedTimestamp,
+                createdAt: createdBase.addingTimeInterval(TimeInterval(i)),
+                sortDate: sharedSortDate
+            ))
+            try await store.saveMessage(message)
+        }
+
+        let messages = try await store.fetchMessages(contactID: contactID)
+        #expect(messages.map(\.text) == ["Tie 0", "Tie 1", "Tie 2"])
+    }
+
+    @Test("Backlog block orders by send time within a shared drain anchor")
+    func backlogBlockOrdersBySendTimeWithinAnchor() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let channelIndex: UInt8 = 0
+        // One drain anchor shared by the whole block (block-at-reconnect).
+        let anchor = Date(timeIntervalSince1970: 1_700_000_000)
+
+        // Three different senders so reorderSameSenderClusters leaves them alone,
+        // isolating the fetch's sort keys. createdAt (drain order) runs opposite to
+        // send time, proving the secondary sort key is timestamp, not createdAt.
+        func backlogMessage(sender: String, sendTime: UInt32, drainOffset: TimeInterval) -> MessageDTO {
+            MessageDTO(from: Message(
+                radioID: device.id,
+                channelIndex: channelIndex,
+                text: sender,
+                timestamp: sendTime,
+                createdAt: anchor.addingTimeInterval(drainOffset),
+                sortDate: anchor,
+                directionRawValue: MessageDirection.incoming.rawValue,
+                senderNodeName: sender
+            ))
+        }
+        // Drained Carol, Bob, Alice (createdAt 0,1,2) but sent Alice < Bob < Carol.
+        try await store.saveMessage(backlogMessage(sender: "Carol", sendTime: 300, drainOffset: 0))
+        try await store.saveMessage(backlogMessage(sender: "Bob", sendTime: 200, drainOffset: 1))
+        try await store.saveMessage(backlogMessage(sender: "Alice", sendTime: 100, drainOffset: 2))
+
+        let messages = try await store.fetchMessages(radioID: device.id, channelIndex: channelIndex)
+
+        #expect(messages.map(\.text) == ["Alice", "Bob", "Carol"])
+    }
+
     @Test("Find channel message for reaction within timestamp window")
     func findChannelMessageForReactionWithinWindow() async throws {
         let store = try await createTestStore()
