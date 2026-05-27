@@ -745,6 +745,459 @@ struct BackupIntegrationTests {
         #expect(mergedChannel.regionScope == "US")
     }
 
+    // MARK: - Test 12b: Different-secret slot collision relocates instead of merging
+
+    /// Local `#kosice` (secret 0x01) occupies slot 2; the backup carries a distinct channel
+    /// `#praha` (secret 0x02) that also claims slot 2. Because the two secrets differ, this
+    /// is "different channel, relocate", never a metadata merge: `#kosice` keeps its slot,
+    /// name, and secret untouched, and `#praha` is inserted as a separate channel on a free
+    /// slot. Contrast with same-secret merges, where backup metadata is adopted in place.
+    @Test("Import onto a different-secret slot keeps the local channel and inserts the backup channel separately")
+    func importOntoExistingChannel_DifferentSecretRelocatesInsteadOfMerging() async throws {
+        let radioID = UUID()
+        let localSecret = Data(repeating: 0x01, count: 16)
+        let backupSecret = Data(repeating: 0x02, count: 16)
+
+        let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+        let existingChannel = ChannelDTO.testChannel(
+            radioID: radioID,
+            index: 2,
+            name: "#kosice",
+            secret: localSecret
+        )
+        try await destStore.saveChannel(existingChannel)
+
+        // Same (radioID, index) slot, but a different name and secret in the backup.
+        let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+        let backupChannel = ChannelDTO.testChannel(
+            id: UUID(),
+            radioID: radioID,
+            index: 2,
+            name: "#praha",
+            secret: backupSecret
+        )
+
+        let envelope = AppBackupEnvelope.test(devices: [backupDevice], channels: [backupChannel])
+        let service = AppBackupService()
+        let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+        // The backup channel is a distinct identity, so it is inserted (relocated), not
+        // merged into #kosice's slot.
+        #expect(result.channelsInserted == 1)
+        #expect(result.channelsSkipped == 0)
+
+        // #kosice keeps its slot, name, and secret.
+        let kosice = try #require(await destStore.fetchChannel(radioID: radioID, index: 2))
+        #expect(kosice.name == "#kosice")
+        #expect(kosice.secret == localSecret)
+
+        // #praha exists as a separate channel on a different slot, with its own name/secret.
+        let channels = try await destStore.fetchAllChannels(radioID: radioID)
+        let praha = try #require(channels.first { $0.secret == backupSecret })
+        #expect(praha.name == "#praha")
+        #expect(praha.index != 2)
+    }
+
+    // MARK: - Channel reconciliation by secret (slot relocation) — REPRO
+
+    /// Reproduction for silent wrong-context delivery. Backup `#praha` (secretA) lives
+    /// at slot 3 with a channel message; locally slot 3 is `#brno` (secretB). With slot-only
+    /// reconciliation the imported message attaches to `#brno` and `#praha` is dropped. The
+    /// fix reconciles by `(radioID, secret)`: `#praha` relocates to a free slot and its
+    /// message follows; `#brno` is untouched.
+    @Test("Channel reconcile: backup channel collides with a different-secret local slot, relocates and carries its message")
+    func channelSecretReconcile_RelocatesOnDifferentSecretSlotCollision() async throws {
+        let radioID = UUID()
+        let secretBrno = Data(repeating: 0xB0, count: 16)
+        let secretPraha = Data(repeating: 0xA0, count: 16)
+        let collisionIndex: UInt8 = 3
+
+        let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+        let localBrno = ChannelDTO.testChannel(
+            radioID: radioID,
+            index: collisionIndex,
+            name: "#brno",
+            secret: secretBrno
+        )
+        try await destStore.saveChannel(localBrno)
+
+        let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+        let backupPraha = ChannelDTO.testChannel(
+            id: UUID(),
+            radioID: radioID,
+            index: collisionIndex,
+            name: "#praha",
+            secret: secretPraha
+        )
+        var prahaMessage = MessageDTO.testChannelMessage(
+            radioID: radioID,
+            channelIndex: collisionIndex,
+            text: "Praha checkpoint",
+            timestamp: 1_700_000_900,
+            direction: .incoming,
+            senderNodeName: "Jan"
+        )
+        prahaMessage.deduplicationKey = "ch-\(collisionIndex)-1700000900-Jan-DEADBEEF"
+
+        let envelope = AppBackupEnvelope.test(
+            devices: [backupDevice],
+            channels: [backupPraha],
+            messages: [prahaMessage]
+        )
+
+        let service = AppBackupService()
+        let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+        // #praha is a distinct channel: inserted (relocated), not merged into #brno's slot.
+        #expect(result.channelsInserted == 1)
+        #expect(result.channelsSkipped == 0)
+        #expect(result.messagesInserted == 1)
+
+        let channels = try await destStore.fetchAllChannels(radioID: radioID)
+        let brno = try #require(channels.first { $0.secret == secretBrno })
+        let praha = try #require(channels.first { $0.secret == secretPraha })
+
+        // #brno keeps its slot and name; #praha lands on a different (free) slot.
+        #expect(brno.index == collisionIndex)
+        #expect(brno.name == "#brno")
+        #expect(praha.index != collisionIndex)
+        #expect(praha.name == "#praha")
+
+        // The message followed #praha's relocated slot, not #brno's.
+        let messages = try await destStore.fetchAllMessages(radioID: radioID)
+        #expect(messages.count == 1)
+        let restored = try #require(messages.first)
+        #expect(restored.channelIndex == praha.index)
+        #expect(restored.text == "Praha checkpoint")
+
+        // #brno received no foreign message.
+        let brnoMessages = messages.filter { $0.channelIndex == collisionIndex }
+        #expect(brnoMessages.isEmpty)
+    }
+
+    /// Case A: same secret at the same slot is a pure metadata merge with no relocation.
+    @Test("Channel reconcile: same secret at same slot merges metadata, index unchanged")
+    func channelSecretReconcile_SameSecretSameSlotIsNoOp() async throws {
+        let radioID = UUID()
+        let secret = Data(repeating: 0x44, count: 16)
+        let slot: UInt8 = 2
+        let importedDate = Date(timeIntervalSince1970: 1_700_000_950)
+
+        let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+        let localChannel = ChannelDTO.testChannel(
+            radioID: radioID,
+            index: slot,
+            name: "#ops",
+            secret: secret,
+            lastMessageDate: nil
+        )
+        try await destStore.saveChannel(localChannel)
+
+        let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+        let backupChannel = ChannelDTO.testChannel(
+            id: UUID(),
+            radioID: radioID,
+            index: slot,
+            name: "#ops",
+            secret: secret,
+            lastMessageDate: importedDate
+        )
+        var msg = MessageDTO.testChannelMessage(
+            radioID: radioID,
+            channelIndex: slot,
+            text: "Same slot",
+            timestamp: 1_700_000_950,
+            // Older than importedDate so the merged channel date is the max and survives
+            // the lastMessageDate reconcile pass (which keys on createdAt).
+            createdAt: Date(timeIntervalSince1970: 1_600_000_000),
+            direction: .incoming,
+            senderNodeName: "Eva"
+        )
+        msg.deduplicationKey = "ch-\(slot)-1700000950-Eva-CAFE0001"
+
+        let envelope = AppBackupEnvelope.test(
+            devices: [backupDevice],
+            channels: [backupChannel],
+            messages: [msg]
+        )
+
+        let service = AppBackupService()
+        let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+        #expect(result.channelsInserted == 0)
+        #expect(result.channelsSkipped == 1)
+        #expect(result.messagesInserted == 1)
+
+        let channels = try await destStore.fetchAllChannels(radioID: radioID)
+        #expect(channels.count == 1)
+        #expect(channels.first?.index == slot)
+        #expect(channels.first?.secret == secret)
+        #expect(channels.first?.lastMessageDate == importedDate)
+
+        let messages = try await destStore.fetchAllMessages(radioID: radioID)
+        #expect(messages.count == 1)
+        #expect(messages.first?.channelIndex == slot)
+    }
+
+    /// Case B: the same secret moved slots between backup and restore. The message
+    /// remaps to the local slot; no duplicate channel is inserted.
+    @Test("Channel reconcile: same secret on a different slot remaps the message, no duplicate channel")
+    func channelSecretReconcile_SameSecretDifferentSlotRemapsMessage() async throws {
+        let radioID = UUID()
+        let secret = Data(repeating: 0x55, count: 16)
+        let backupSlot: UInt8 = 3
+        let localSlot: UInt8 = 5
+
+        let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+        let localChannel = ChannelDTO.testChannel(
+            radioID: radioID,
+            index: localSlot,
+            name: "#praha",
+            secret: secret
+        )
+        try await destStore.saveChannel(localChannel)
+
+        let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+        let backupChannel = ChannelDTO.testChannel(
+            id: UUID(),
+            radioID: radioID,
+            index: backupSlot,
+            name: "#praha",
+            secret: secret
+        )
+        var msg = MessageDTO.testChannelMessage(
+            radioID: radioID,
+            channelIndex: backupSlot,
+            text: "Moved slots",
+            timestamp: 1_700_001_000,
+            direction: .incoming,
+            senderNodeName: "Lena"
+        )
+        msg.deduplicationKey = "ch-\(backupSlot)-1700001000-Lena-0BADF00D"
+
+        let envelope = AppBackupEnvelope.test(
+            devices: [backupDevice],
+            channels: [backupChannel],
+            messages: [msg]
+        )
+
+        let service = AppBackupService()
+        let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+        #expect(result.channelsInserted == 0)
+        #expect(result.channelsSkipped == 1)
+        #expect(result.messagesInserted == 1)
+
+        let channels = try await destStore.fetchAllChannels(radioID: radioID)
+        #expect(channels.count == 1)
+        #expect(channels.first?.index == localSlot)
+
+        let messages = try await destStore.fetchAllMessages(radioID: radioID)
+        #expect(messages.count == 1)
+        #expect(messages.first?.channelIndex == localSlot)
+    }
+
+    /// The public channel (index 0, all-zero secret) merges into the local public channel
+    /// without relocating, because empty-secret channels match by index.
+    @Test("Channel reconcile: public channel merges into local public channel without relocation")
+    func channelSecretReconcile_PublicChannelMergesIntoLocalPublic() async throws {
+        let radioID = UUID()
+
+        let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+        let localPublic = ChannelDTO.testChannel(
+            radioID: radioID,
+            index: 0,
+            name: "Public",
+            lastMessageDate: nil
+        )
+        try await destStore.saveChannel(localPublic)
+
+        let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+        let backupPublic = ChannelDTO.testChannel(
+            id: UUID(),
+            radioID: radioID,
+            index: 0,
+            name: "Public",
+            lastMessageDate: Date(timeIntervalSince1970: 1_700_001_100)
+        )
+        var msg = MessageDTO.testChannelMessage(
+            radioID: radioID,
+            channelIndex: 0,
+            text: "Public broadcast",
+            timestamp: 1_700_001_100,
+            direction: .incoming,
+            senderNodeName: "Mara"
+        )
+        msg.deduplicationKey = "ch-0-1700001100-Mara-FEEDFACE"
+
+        let envelope = AppBackupEnvelope.test(
+            devices: [backupDevice],
+            channels: [backupPublic],
+            messages: [msg]
+        )
+
+        let service = AppBackupService()
+        let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+        #expect(result.channelsInserted == 0)
+        #expect(result.channelsSkipped == 1)
+        #expect(result.messagesInserted == 1)
+
+        let channels = try await destStore.fetchAllChannels(radioID: radioID)
+        #expect(channels.count == 1)
+        #expect(channels.first?.index == 0)
+
+        let messages = try await destStore.fetchAllMessages(radioID: radioID)
+        #expect(messages.count == 1)
+        #expect(messages.first?.channelIndex == 0)
+    }
+
+    /// Dedup-key preservation: re-importing the same relocated backup must skip the
+    /// channel message on the second pass, proving the dedup key was rewritten to the
+    /// relocated index consistently across both runs.
+    @Test("Channel reconcile: re-importing a relocated channel skips the message the second time")
+    func channelSecretReconcile_RemapPreservesDedupKeyAcrossReimport() async throws {
+        let radioID = UUID()
+        let secretBrno = Data(repeating: 0xB2, count: 16)
+        let secretPraha = Data(repeating: 0xA2, count: 16)
+        let collisionIndex: UInt8 = 3
+
+        let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+        try await destStore.saveChannel(
+            ChannelDTO.testChannel(radioID: radioID, index: collisionIndex, name: "#brno", secret: secretBrno)
+        )
+
+        let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+        let backupPraha = ChannelDTO.testChannel(
+            id: UUID(),
+            radioID: radioID,
+            index: collisionIndex,
+            name: "#praha",
+            secret: secretPraha
+        )
+        var prahaMessage = MessageDTO.testChannelMessage(
+            radioID: radioID,
+            channelIndex: collisionIndex,
+            text: "Praha checkpoint",
+            timestamp: 1_700_001_200,
+            direction: .incoming,
+            senderNodeName: "Jan"
+        )
+        prahaMessage.deduplicationKey = "ch-\(collisionIndex)-1700001200-Jan-12345678"
+
+        let envelope = AppBackupEnvelope.test(
+            devices: [backupDevice],
+            channels: [backupPraha],
+            messages: [prahaMessage]
+        )
+
+        let service = AppBackupService()
+        let firstResult = try await service.importBackup(envelope: envelope, into: destStore)
+        #expect(firstResult.messagesInserted == 1)
+
+        let secondResult = try await service.importBackup(envelope: envelope, into: destStore)
+        #expect(secondResult.messagesInserted == 0)
+        #expect(secondResult.messagesSkipped == 1)
+
+        let messages = try await destStore.fetchAllMessages(radioID: radioID)
+        #expect(messages.count == 1)
+    }
+
+    /// Safety case: every local slot within the radio's channel capacity is occupied by a
+    /// different secret, so the backup channel has nowhere to land. It must be dropped (not
+    /// mis-associated), and its messages must be dropped with it rather than attaching to a
+    /// foreign channel.
+    @Test("Channel reconcile: backup channel with no free slot is dropped along with its messages")
+    func channelSecretReconcile_NoFreeSlotDropsChannelAndMessages() async throws {
+        let radioID = UUID()
+        let maxChannels: UInt8 = 2
+        let secretPraha = Data(repeating: 0xA4, count: 16)
+
+        let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+        // Fill every slot in [0, maxChannels) with distinct-secret local channels.
+        try await destStore.saveChannel(
+            ChannelDTO.testChannel(radioID: radioID, index: 0, name: "#a", secret: Data(repeating: 0x10, count: 16))
+        )
+        try await destStore.saveChannel(
+            ChannelDTO.testChannel(radioID: radioID, index: 1, name: "#b", secret: Data(repeating: 0x11, count: 16))
+        )
+
+        let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID).copy { $0.maxChannels = maxChannels }
+        let backupPraha = ChannelDTO.testChannel(
+            id: UUID(),
+            radioID: radioID,
+            index: 1,
+            name: "#praha",
+            secret: secretPraha
+        )
+        var prahaMessage = MessageDTO.testChannelMessage(
+            radioID: radioID,
+            channelIndex: 1,
+            text: "Should not survive",
+            timestamp: 1_700_001_300,
+            direction: .incoming,
+            senderNodeName: "Jan"
+        )
+        prahaMessage.deduplicationKey = "ch-1-1700001300-Jan-AABBCCDD"
+
+        let envelope = AppBackupEnvelope.test(
+            devices: [backupDevice],
+            channels: [backupPraha],
+            messages: [prahaMessage]
+        )
+
+        let service = AppBackupService()
+        let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+        // #praha is dropped: not inserted, counted as skipped; its message is not inserted.
+        #expect(result.channelsInserted == 0)
+        #expect(result.channelsSkipped == 1)
+        #expect(result.messagesInserted == 0)
+
+        let channels = try await destStore.fetchAllChannels(radioID: radioID)
+        #expect(channels.count == 2)
+        #expect(channels.contains { $0.secret == secretPraha } == false)
+
+        let messages = try await destStore.fetchAllMessages(radioID: radioID)
+        #expect(messages.isEmpty)
+    }
+
+    /// Slot 0 is reserved for the public channel, so a relocating non-public channel skips it
+    /// even when free. Local `#brno` occupies slot 1; slots 0 and 2 are free. The colliding
+    /// backup `#praha` must relocate to slot 2, never slot 0.
+    @Test("Channel reconcile: relocation reserves slot 0 for the public channel")
+    func channelSecretReconcile_RelocationReservesPublicSlotZero() async throws {
+        let radioID = UUID()
+        let secretBrno = Data(repeating: 0xB6, count: 16)
+        let secretPraha = Data(repeating: 0xA6, count: 16)
+
+        let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+        // Local channel occupies slot 1; slot 0 is intentionally left free (no public channel).
+        try await destStore.saveChannel(
+            ChannelDTO.testChannel(radioID: radioID, index: 1, name: "#brno", secret: secretBrno)
+        )
+
+        let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID).copy { $0.maxChannels = 3 }
+        let backupPraha = ChannelDTO.testChannel(
+            id: UUID(),
+            radioID: radioID,
+            index: 1,
+            name: "#praha",
+            secret: secretPraha
+        )
+
+        let envelope = AppBackupEnvelope.test(devices: [backupDevice], channels: [backupPraha])
+        let service = AppBackupService()
+        let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+        #expect(result.channelsInserted == 1)
+
+        let channels = try await destStore.fetchAllChannels(radioID: radioID)
+        let praha = try #require(channels.first { $0.secret == secretPraha })
+        // Lowest free slot at or above 1 — slot 0 is skipped even though it is free.
+        #expect(praha.index == 2)
+    }
+
     // MARK: - Test 13: Fresh-store import — remote sessions start disconnected
 
     @Test("Import inserts remote sessions as disconnected while preserving backup metadata")

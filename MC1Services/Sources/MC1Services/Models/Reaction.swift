@@ -92,7 +92,9 @@ public struct ReactionDTO: Sendable, Equatable, Hashable, Identifiable, Codable 
     public let messageHash: String
     public let rawText: String
     public let receivedAt: Date
-    public let channelIndex: UInt8?
+    /// Mutable so backup import can rewrite it in lockstep with the parent channel
+    /// message when a channel relocates to a different local slot.
+    public var channelIndex: UInt8?
     public var contactID: UUID?
     public var radioID: UUID
 

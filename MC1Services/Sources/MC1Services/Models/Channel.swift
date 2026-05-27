@@ -381,6 +381,21 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
         )
     }
 
+    /// Returns a copy placed at a different slot `index`, forwarding every other raw
+    /// storage field verbatim. Used by backup import to relocate a channel whose secret
+    /// has no local match onto a free slot without routing through the normalizing
+    /// ``ChannelFloodScope`` accessor (preserving pre-migration flood-scope rows).
+    func with(index newIndex: UInt8) -> ChannelDTO {
+        ChannelDTO(
+            id: id, radioID: radioID, index: newIndex, name: name,
+            secret: secret, isEnabled: isEnabled, lastMessageDate: lastMessageDate,
+            unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
+            notificationLevel: notificationLevel, isFavorite: isFavorite,
+            floodScopeModeRawValue: floodScopeModeRawValue,
+            regionScope: regionScope
+        )
+    }
+
     /// Returns a copy with only the raw `regionScope` column changed. This is the
     /// low-level bypass used for tests that must simulate malformed on-disk state;
     /// production code should go through ``with(floodScope:)``.

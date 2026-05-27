@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-private let backupLogger = PersistentLogger(subsystem: "com.mc1", category: "PersistenceStore.Backup")
+let backupLogger = PersistentLogger(subsystem: "com.mc1", category: "PersistenceStore.Backup")
 
 /// Iteration interval at which the import reconciliation loops yield to a cancellation
 /// check. Small enough to keep cancellation latency under a second on a busy backup;
@@ -191,12 +191,30 @@ extension PersistenceStore {
         applyContactIDMapping(contactIDMapping, toMessages: &messages, toReactions: &reactions)
 
         try Task.checkCancellation()
-        let channelResult = try batchInsertChannels(channels, radioIDs: allRadioIDs)
+        let maxChannelsByRadioID = maxChannelsByLocalRadioID(
+            devices: envelope.devices,
+            radioMap: radioMap.mapping
+        )
+        let channelResult = try batchInsertChannels(
+            channels,
+            radioIDs: allRadioIDs,
+            maxChannelsByRadioID: maxChannelsByRadioID
+        )
         result.record(
             .channels,
             inserted: channelResult.inserted,
             merged: channelResult.merged,
             skipped: channelResult.skipped
+        )
+
+        // Channels are now final, so rewrite channel-message slots before inserting
+        // messages: relocated channels carry their messages to the new slot, and messages
+        // for a dropped (no-free-slot) channel are removed rather than mis-associated.
+        applyChannelIndexMapping(
+            channelResult.channelIndexRemap,
+            droppedChannelIndices: channelResult.droppedChannelIndices,
+            toMessages: &messages,
+            toReactions: &reactions
         )
 
         try Task.checkCancellation()
@@ -400,6 +418,68 @@ extension PersistenceStore {
             guard let backupID = reactions[i].contactID,
                   let localID = mapping[backupID] else { continue }
             reactions[i].contactID = localID
+        }
+    }
+
+    /// Resolves each device's channel capacity to the local radioID it maps to, so the
+    /// channel reconciler can bound free-slot search by `maxChannels`. The envelope's
+    /// device radioIDs are pre-remap; `radioMap` rewrites them to the local partition key,
+    /// matching the radioID the channel DTOs were already remapped onto.
+    fileprivate func maxChannelsByLocalRadioID(
+        devices: [DeviceDTO],
+        radioMap: [UUID: UUID]
+    ) -> [UUID: UInt8] {
+        var result: [UUID: UInt8] = [:]
+        for device in devices {
+            let localRadioID = radioMap[device.radioID] ?? device.radioID
+            // First occurrence wins, consistent with duplicate-device handling upstream.
+            if result[localRadioID] == nil {
+                result[localRadioID] = device.maxChannels
+            }
+        }
+        return result
+    }
+
+    /// Rewrites `channelIndex` on channel messages and reactions to the slot their channel
+    /// was placed at locally, rewriting the content-based channel dedup key in lockstep so
+    /// a second import of the same backup still deduplicates. Messages and reactions
+    /// belonging to a channel that had no free local slot are dropped, since no placement
+    /// exists to attach them to. Mirrors how ``applyContactIDMapping`` rewrites the DM
+    /// dedup key alongside the remapped identifier.
+    fileprivate func applyChannelIndexMapping(
+        _ remap: [UUID: [UInt8: UInt8]],
+        droppedChannelIndices: [UUID: Set<UInt8>],
+        toMessages messages: inout [MessageDTO],
+        toReactions reactions: inout [ReactionDTO]
+    ) {
+        guard !remap.isEmpty || !droppedChannelIndices.isEmpty else { return }
+
+        if !droppedChannelIndices.isEmpty {
+            messages.removeAll { dto in
+                guard let index = dto.channelIndex else { return false }
+                return droppedChannelIndices[dto.radioID]?.contains(index) ?? false
+            }
+            reactions.removeAll { dto in
+                guard let index = dto.channelIndex else { return false }
+                return droppedChannelIndices[dto.radioID]?.contains(index) ?? false
+            }
+        }
+
+        guard !remap.isEmpty else { return }
+        for i in messages.indices {
+            guard let backupIndex = messages[i].channelIndex,
+                  let localIndex = remap[messages[i].radioID]?[backupIndex] else { continue }
+            messages[i].channelIndex = localIndex
+            if let dedupKey = messages[i].deduplicationKey {
+                messages[i].deduplicationKey = rewriteChannelDeduplicationKey(
+                    dedupKey, from: backupIndex, to: localIndex
+                )
+            }
+        }
+        for i in reactions.indices {
+            guard let backupIndex = reactions[i].channelIndex,
+                  let localIndex = remap[reactions[i].radioID]?[backupIndex] else { continue }
+            reactions[i].channelIndex = localIndex
         }
     }
 

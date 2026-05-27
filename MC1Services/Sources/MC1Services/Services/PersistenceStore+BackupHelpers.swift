@@ -113,6 +113,19 @@ extension PersistenceStore {
         let newPrefix = "\(DeduplicationKey.directMessagePrefix)\(localID.uuidString)-"
         return newPrefix + key.dropFirst(oldPrefix.count)
     }
+
+    /// Rewrite the channel-index segment of a content-based channel dedup key when a
+    /// backup channel is relocated to a different local slot. Only the leading
+    /// `ch-{index}-` segment is touched, mirroring ``rewriteDMDeduplicationKey``, so a
+    /// numeric run elsewhere in the key (timestamp, hash) cannot be misinterpreted as the
+    /// index. Keys that don't carry this prefix (outgoing identity keys, DM keys) pass
+    /// through unchanged.
+    func rewriteChannelDeduplicationKey(_ key: String, from backupIndex: UInt8, to localIndex: UInt8) -> String {
+        let oldPrefix = "\(DeduplicationKey.channelPrefix)\(backupIndex)-"
+        guard key.hasPrefix(oldPrefix) else { return key }
+        let newPrefix = "\(DeduplicationKey.channelPrefix)\(localIndex)-"
+        return newPrefix + key.dropFirst(oldPrefix.count)
+    }
 }
 
 // MARK: - Per-table existing-row lookups
@@ -139,6 +152,17 @@ extension PersistenceStore {
         return Dictionary(uniqueKeysWithValues: channels.map {
             (channelKey(radioID: $0.radioID, index: $0.index), $0)
         })
+    }
+
+    /// Fetches every local channel for the given radios as raw models. Channel
+    /// reconciliation needs to index local rows by both secret and slot in one pass,
+    /// which the `(radioID, index)`-keyed dictionary above can't express.
+    func fetchExistingChannels(radioIDs: Set<UUID>) throws -> [Channel] {
+        let radioIDArray = Array(radioIDs)
+        guard !radioIDArray.isEmpty else { return [] }
+
+        let predicate = #Predicate<Channel> { radioIDArray.contains($0.radioID) }
+        return try modelContext.fetch(FetchDescriptor(predicate: predicate))
     }
 
     func fetchExistingRemoteNodeSessionsByKey(radioIDs: Set<UUID>) throws -> [String: RemoteNodeSession] {

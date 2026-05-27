@@ -1,6 +1,10 @@
 import Foundation
 import SwiftData
 
+/// Slot 0 is reserved for the public channel (`Channel.isPublicChannel` is `index == 0`),
+/// so backup-channel relocation never assigns a non-public channel there.
+private let firstRelocatableChannelIndex = 1
+
 // MARK: - Batch Insert
 
 extension PersistenceStore {
@@ -113,30 +117,156 @@ extension PersistenceStore {
         return (inserted, skipped, merged, contactIDsByKey)
     }
 
+    /// Outcome of reconciling backup channels against local channels.
+    ///
+    /// `channelIndexRemap` maps `radioID -> [backupIndex: localIndex]` for every channel
+    /// whose placement differs from its backup slot, and `droppedChannelIndices` lists the
+    /// `(radioID, backupIndex)` slots that had no free local placement. The caller applies
+    /// both to channel messages before insert.
+    public struct ChannelBatchInsertResult: Sendable {
+        public let inserted: Int
+        public let skipped: Int
+        public let merged: Int
+        public let channelIndexRemap: [UUID: [UInt8: UInt8]]
+        public let droppedChannelIndices: [UUID: Set<UInt8>]
+    }
+
+    /// Reconciles backup channels against local channels by stable cryptographic identity
+    /// `(radioID, secret)`, treating the slot `index` as mere placement. A backup channel
+    /// whose secret matches a local channel merges into it (and records a message-index
+    /// remap if the slot differs); a backup channel with no local secret match is placed at
+    /// its own slot when free, otherwise relocated to the lowest free slot within the
+    /// radio's channel capacity. Channels with an empty (all-zero) secret carry no stable
+    /// identity — the public channel and unconfigured slots — so they fall back to
+    /// index-based placement, matching legacy behavior and keeping distinct empty-secret
+    /// slots from collapsing.
+    ///
+    /// A backup channel with no free slot is dropped and reported via `skipped`; its
+    /// messages are dropped by the caller because no placement exists.
     @discardableResult
     public func batchInsertChannels(
         _ dtos: [ChannelDTO],
-        radioIDs: Set<UUID>
-    ) throws -> (inserted: Int, skipped: Int, merged: Int) {
-        var existingChannelsByKey = try fetchExistingChannelsByKey(radioIDs: radioIDs)
+        radioIDs: Set<UUID>,
+        maxChannelsByRadioID: [UUID: UInt8] = [:]
+    ) throws -> ChannelBatchInsertResult {
+        let existingChannels = try fetchExistingChannels(radioIDs: radioIDs)
+
+        var localChannelsBySecret: [UUID: [Data: Channel]] = [:]
+        var occupiedIndicesByRadioID: [UUID: Set<UInt8>] = [:]
+        var localChannelByIndex: [UUID: [UInt8: Channel]] = [:]
+        for channel in existingChannels {
+            occupiedIndicesByRadioID[channel.radioID, default: []].insert(channel.index)
+            localChannelByIndex[channel.radioID, default: [:]][channel.index] = channel
+            if channelHasStableSecret(channel.secret) {
+                localChannelsBySecret[channel.radioID, default: [:]][channel.secret] = channel
+            }
+        }
+
         var inserted = 0
         var skipped = 0
         var merged = 0
-        for dto in dtos {
-            let key = channelKey(radioID: dto.radioID, index: dto.index)
-            if let existing = existingChannelsByKey[key] {
+        var channelIndexRemap: [UUID: [UInt8: UInt8]] = [:]
+        var droppedChannelIndices: [UUID: Set<UInt8>] = [:]
+
+        // Sort by (radioID, index) so free-slot assignment is deterministic regardless of
+        // the envelope's array order.
+        let orderedDTOs = dtos.sorted {
+            $0.radioID == $1.radioID ? $0.index < $1.index : $0.radioID.uuidString < $1.radioID.uuidString
+        }
+
+        for dto in orderedDTOs {
+            let radioID = dto.radioID
+
+            if channelHasStableSecret(dto.secret),
+               let existing = localChannelsBySecret[radioID]?[dto.secret] {
+                if mergeBackupMetadata(into: existing, from: dto) {
+                    merged += 1
+                }
+                skipped += 1
+                if existing.index != dto.index {
+                    channelIndexRemap[radioID, default: [:]][dto.index] = existing.index
+                }
+                continue
+            }
+
+            // Empty-secret channels reconcile by slot (the public channel's slot is its
+            // identity); a local channel already in that slot is the merge target.
+            if !channelHasStableSecret(dto.secret),
+               let existing = localChannelByIndex[radioID]?[dto.index] {
                 if mergeBackupMetadata(into: existing, from: dto) {
                     merged += 1
                 }
                 skipped += 1
                 continue
             }
-            let channel = Channel(dto: dto)
+
+            guard let placementIndex = resolveChannelPlacementIndex(
+                backupIndex: dto.index,
+                occupiedIndices: occupiedIndicesByRadioID[radioID] ?? [],
+                maxChannels: maxChannelsByRadioID[radioID]
+            ) else {
+                backupLogger.warning(
+                    "Backup channel at slot \(dto.index) for radio \(radioID.uuidString) has no free local slot; dropping it and its messages."
+                )
+                skipped += 1
+                droppedChannelIndices[radioID, default: []].insert(dto.index)
+                continue
+            }
+
+            let placedDTO = placementIndex == dto.index ? dto : dto.with(index: placementIndex)
+            let channel = Channel(dto: placedDTO)
             modelContext.insert(channel)
-            existingChannelsByKey[key] = channel
+            occupiedIndicesByRadioID[radioID, default: []].insert(placementIndex)
+            localChannelByIndex[radioID, default: [:]][placementIndex] = channel
+            if channelHasStableSecret(channel.secret) {
+                localChannelsBySecret[radioID, default: [:]][channel.secret] = channel
+            }
+            if placementIndex != dto.index {
+                channelIndexRemap[radioID, default: [:]][dto.index] = placementIndex
+            }
             inserted += 1
         }
-        return (inserted, skipped, merged)
+        return ChannelBatchInsertResult(
+            inserted: inserted,
+            skipped: skipped,
+            merged: merged,
+            channelIndexRemap: channelIndexRemap,
+            droppedChannelIndices: droppedChannelIndices
+        )
+    }
+
+    /// Lowest free slot for a relocating channel: prefer the backup's own slot when free,
+    /// otherwise the lowest unoccupied index within `[firstRelocatableChannelIndex, maxChannels)`
+    /// so slot 0 stays reserved for the public channel. Returns nil when no slot is free so the
+    /// caller can drop the channel rather than mis-associate it. When `maxChannels` is unavailable
+    /// (no matching device DTO), the search is bounded by the highest occupied slot plus one so it
+    /// still terminates without inventing a capacity.
+    private func resolveChannelPlacementIndex(
+        backupIndex: UInt8,
+        occupiedIndices: Set<UInt8>,
+        maxChannels: UInt8?
+    ) -> UInt8? {
+        if !occupiedIndices.contains(backupIndex) {
+            return backupIndex
+        }
+        let upperBound: Int
+        if let maxChannels {
+            upperBound = Int(maxChannels)
+        } else {
+            upperBound = Int(occupiedIndices.max() ?? 0) + 1
+        }
+        guard upperBound > firstRelocatableChannelIndex else { return nil }
+        for candidate in firstRelocatableChannelIndex..<upperBound where !occupiedIndices.contains(UInt8(candidate)) {
+            return UInt8(candidate)
+        }
+        return nil
+    }
+
+    /// A channel secret carries stable cryptographic identity only when it is non-empty.
+    /// An all-zero secret marks the public channel or an unconfigured slot, which is keyed
+    /// by slot index instead.
+    private func channelHasStableSecret(_ secret: Data) -> Bool {
+        !secret.isEmpty && !secret.allSatisfy { $0 == 0 }
     }
 
     @discardableResult
