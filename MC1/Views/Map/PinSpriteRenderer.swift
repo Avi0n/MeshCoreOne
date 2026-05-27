@@ -11,6 +11,24 @@ enum PinSpriteRenderer {
 
     private static var cachedImages: [String: UIImage]?
 
+    /// Single cached dropped-pin sprite for the chat map thumbnail. Distinct from
+    /// `cachedImages`, which is only populated after the Map tab loads its GL
+    /// style; the chat snapshot path never loads that style.
+    private static var cachedDroppedPin: UIImage?
+
+    /// The dropped-pin sprite (systemPink circle + `mappin`), rendered once and
+    /// reused. Coordinate-independent, so the chat thumbnail composites the exact
+    /// pin the Map tab drops. Must be called on the main actor.
+    static func droppedPinSprite() -> UIImage {
+        if let cached = cachedDroppedPin { return cached }
+        guard let spec = allSpecs.first(where: { $0.name == "pin-dropped" }) else {
+            return UIImage()
+        }
+        let image = render(spec)
+        cachedDroppedPin = image
+        return image
+    }
+
     /// Registers base pin sprites into the style. Hop-ring variants are rendered
     /// lazily via `renderOnDemand(name:into:)` when MapLibre requests a missing image.
     static func renderAll(into style: MLNStyle) {

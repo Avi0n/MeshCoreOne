@@ -171,3 +171,11 @@
 
 /* Label shown on map when device has no internet connection */
 "map.offlineBadge.label" = "离线";
+
+// MARK: - Chat Map Preview
+
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the chat map-location thumbnail */
+"map.preview.accessibilityLabel" = "地图位置预览";
+
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility hint for tapping the chat map-location thumbnail */
+"map.preview.accessibilityHint" = "在地图上打开此位置";

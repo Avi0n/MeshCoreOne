@@ -2360,6 +2360,12 @@ public enum L10n {
         /// Label shown on map when device has no internet connection
         public static let label = L10n.tr("Map", "map.offlineBadge.label", fallback: "Offline")
       }
+      public enum Preview {
+        /// Location: MapPreviewFragmentView.swift - Purpose: Accessibility hint for tapping the chat map-location thumbnail
+        public static let accessibilityHint = L10n.tr("Map", "map.preview.accessibilityHint", fallback: "Opens this location on the map")
+        /// Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the chat map-location thumbnail
+        public static let accessibilityLabel = L10n.tr("Map", "map.preview.accessibilityLabel", fallback: "Map location preview")
+      }
       public enum Style {
         /// Location: LayersMenu.swift - Purpose: Accessibility label for map style menu
         public static let accessibilityLabel = L10n.tr("Map", "map.style.accessibilityLabel", fallback: "Map style")
