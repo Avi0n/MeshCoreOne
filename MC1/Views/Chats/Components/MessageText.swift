@@ -1,3 +1,4 @@
+import CoreLocation
 import SwiftUI
 import MC1Services
 
@@ -35,12 +36,12 @@ struct MessageText: View {
     }
 
     private var formattedText: AttributedString {
-        Self.buildFormattedText(
+        MessageText.buildFormattedText(
             text: text,
             isOutgoing: isOutgoing,
             currentUserName: currentUserName,
             isHighContrast: colorSchemeContrast == .increased
-        )
+        ).text
     }
 
     /// Builds an AttributedString with mention, URL, and hashtag formatting.
@@ -50,7 +51,7 @@ struct MessageText: View {
         isOutgoing: Bool,
         currentUserName: String?,
         isHighContrast: Bool
-    ) -> AttributedString {
+    ) -> (text: AttributedString, mapCoordinate: CLLocationCoordinate2D?) {
         let baseColor: Color = isOutgoing ? .white : .primary
         var result = AttributedString(text)
         result.foregroundColor = baseColor
@@ -78,9 +79,9 @@ struct MessageText: View {
 
         applyMeshCoreLinkFormatting(&result, baseColor: baseColor, urlRanges: urlRanges, currentString: currentString)
 
-        applyCoordinateFormatting(&result, baseColor: baseColor)
+        let mapCoordinate = applyCoordinateFormatting(&result, baseColor: baseColor)
 
-        return result
+        return (result, mapCoordinate)
     }
 
     // MARK: - Mention Formatting
@@ -347,56 +348,45 @@ struct MessageText: View {
 
     // MARK: - Coordinate Formatting
 
-    /// Matches a decimal-degree pair: each component is a sign-optional 1-3 digit
-    /// integer part with a required decimal point and at least one fractional digit.
-    /// The lookbehind excludes an adjacent word char or `.` so the pass does not match
-    /// inside a longer number or after a version prefix (`v1.2, 3.4`). The trailing
-    /// lookahead rejects a following version segment (`.digit`, as in `3.4.5`) or word
-    /// char, but allows trailing punctuation so a coordinate ending a sentence still matches.
-    private static let coordinateRegex = try? NSRegularExpression(
-        pattern: #"(?<![\w.])(-?\d{1,3}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)(?!\.\d)(?!\w)"#
-    )
-
+    /// Linkifies every detected coordinate as a `meshcore://map` URL (skipping
+    /// ranges already carrying a link) and returns the first coordinate in
+    /// document order that was actually linkified — i.e. one that passed the
+    /// already-linked skip. That coordinate (not a raw regex hit) drives the
+    /// map-preview thumbnail, so a coordinate sitting inside a contact chip does
+    /// not spawn a card.
+    @discardableResult
     private static func applyCoordinateFormatting(
         _ attributedString: inout AttributedString,
         baseColor: Color
-    ) {
-        guard let regex = coordinateRegex else { return }
-
+    ) -> CLLocationCoordinate2D? {
         let text = String(attributedString.characters)
-        let nsRange = NSRange(text.startIndex..., in: text)
-        let matches = regex.matches(in: text, range: nsRange)
+        let matches = ChatCoordinateDetector.matches(in: text)
+        guard !matches.isEmpty else { return nil }
+
         let linkedRanges = linkRanges(in: attributedString)
+        var firstLinked: (lowerBound: String.Index, coordinate: CLLocationCoordinate2D)?
 
-        // Process matches in reverse to preserve indices
+        // Process matches in reverse to preserve indices while mutating.
         for match in matches.reversed() {
-            guard match.numberOfRanges == 3,
-                  let fullRange = Range(match.range, in: text),
-                  let latRange = Range(match.range(at: 1), in: text),
-                  let lonRange = Range(match.range(at: 2), in: text),
-                  let latitude = Double(String(text[latRange])),
-                  let longitude = Double(String(text[lonRange])),
-                  (-90.0...90.0).contains(latitude),
-                  (-180.0...180.0).contains(longitude) else { continue }
+            guard let attrRange = Range(match.range, in: attributedString) else { continue }
 
-            // Decimal-list guard: a third comma-number following the pair means this is
-            // a numeric list (`1.0, 2.0, 3.0`), not a coordinate. Skip it.
-            let tail = text[fullRange.upperBound...]
-            if tail.range(of: #"\s*,\s*-?\d"#, options: [.regularExpression, .anchored]) != nil {
-                continue
-            }
-
-            guard let attrRange = Range(fullRange, in: attributedString) else { continue }
-
-            // Skip ranges already carrying a link (contact chips, URLs, meshcore links)
+            // Skip ranges already carrying a link (contact chips, URLs, meshcore links).
             if linkedRanges.contains(where: { $0.overlaps(attrRange) }) { continue }
 
-            guard let url = mapURL(latitude: latitude, longitude: longitude) else { continue }
+            guard let url = mapURL(
+                latitude: match.coordinate.latitude,
+                longitude: match.coordinate.longitude
+            ) else { continue }
 
             attributedString[attrRange].link = url
             attributedString[attrRange].foregroundColor = baseColor
             attributedString[attrRange].underlineStyle = .single
+
+            if firstLinked == nil || match.range.lowerBound < firstLinked!.lowerBound {
+                firstLinked = (match.range.lowerBound, match.coordinate)
+            }
         }
+        return firstLinked?.coordinate
     }
 
     /// Builds `meshcore://map?lat=&lon=` with locale-independent `%.6f` values so the

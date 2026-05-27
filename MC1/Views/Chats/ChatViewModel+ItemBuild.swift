@@ -81,7 +81,7 @@ extension ChatViewModel {
                 isOutgoing: message.isOutgoing,
                 currentUserName: envInputs.currentUserName,
                 isHighContrast: envInputs.isHighContrast
-            ),
+            ).text,
             baseColor: message.isOutgoing ? .outgoing : .incoming,
             formattedPath: (envInputs.showIncomingPath && !message.isOutgoing)
                 ? MessagePathFormatter.format(message)
