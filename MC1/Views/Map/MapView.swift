@@ -40,7 +40,16 @@ struct MapView: View {
                 appState.locationService.requestLocation()
                 viewModel.configure(appState: appState)
                 await viewModel.loadContactsWithLocation()
-                viewModel.centerOnAllContacts()
+                // A pending or active chat-coordinate focus owns the camera; do not
+                // override it with the all-contacts framing on first appear.
+                if appState.navigation.pendingMapFocus == nil && viewModel.focusedPin == nil {
+                    viewModel.centerOnAllContacts()
+                }
+            }
+            .onChange(of: appState.navigation.pendingMapFocus, initial: true) { _, request in
+                guard let request else { return }
+                viewModel.focusOnCoordinate(request.coordinate)
+                appState.navigation.clearPendingMapFocus()
             }
             .sheet(item: $selectedContactForDetail) { contact in
                 ContactDetailSheet(

@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import CoreLocation
 import MC1Services
 @testable import MC1
 
@@ -258,5 +259,33 @@ struct NavigationCoordinatorNotificationTests {
         #expect(coordinator.pendingChannel?.id == channel.id)
         #expect(coordinator.pendingScrollToMessageID == messageID)
         #expect(coordinator.selectedTab == 0)
+    }
+}
+
+@Suite("NavigationCoordinator Map Navigation Tests")
+@MainActor
+struct NavigationCoordinatorMapTests {
+
+    @Test("navigateToMap sets pendingMapFocus and selects the map tab")
+    func navigateToMapSetsFocusAndTab() {
+        let coordinator = NavigationCoordinator()
+        let coordinate = CLLocationCoordinate2D(latitude: 37.3349, longitude: -122.00902)
+
+        coordinator.navigateToMap(coordinate: coordinate)
+
+        #expect(coordinator.pendingMapFocus?.latitude == 37.3349)
+        #expect(coordinator.pendingMapFocus?.longitude == -122.00902)
+        #expect(coordinator.pendingMapFocus?.coordinate.latitude == 37.3349)
+        #expect(coordinator.selectedTab == AppTab.map.rawValue)
+    }
+
+    @Test("clearPendingMapFocus resets the pending focus")
+    func clearPendingMapFocusResets() {
+        let coordinator = NavigationCoordinator()
+        coordinator.navigateToMap(coordinate: CLLocationCoordinate2D(latitude: 1, longitude: 2))
+
+        coordinator.clearPendingMapFocus()
+
+        #expect(coordinator.pendingMapFocus == nil)
     }
 }

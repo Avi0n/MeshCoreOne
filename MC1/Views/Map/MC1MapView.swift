@@ -372,6 +372,8 @@ extension MC1MapView {
         var currentPoints: [MapPoint] = []
         var currentLines: [MapLine] = []
         var lastAppliedPoints: [MapPoint] = []
+        var lastAppliedClusterablePoints: [MapPoint] = []
+        var lastAppliedFixedPoints: [MapPoint] = []
         var lastAppliedLines: [MapLine] = []
         var clusterSource: MLNShapeSource?
         var fixedSource: MLNShapeSource?
@@ -388,6 +390,8 @@ extension MC1MapView {
             clusterSource = nil
             fixedSource = nil
             lastAppliedPoints = []
+            lastAppliedClusterablePoints = []
+            lastAppliedFixedPoints = []
             lastAppliedLines = []
             currentShowLabels = true
 

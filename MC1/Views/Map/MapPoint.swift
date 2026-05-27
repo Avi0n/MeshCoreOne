@@ -20,6 +20,7 @@ struct MapPoint: Identifiable, Equatable {
         case crosshair
         case obstruction
         case badge
+        case droppedPin
     }
 
     let hopIndex: Int?

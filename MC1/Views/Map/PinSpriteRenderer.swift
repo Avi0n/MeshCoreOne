@@ -107,6 +107,10 @@ enum PinSpriteRenderer {
         // LOS obstruction marker
         SpriteSpec(name: "pin-obstruction", circleColor: .systemRed,
                    iconName: nil, text: nil, ringColor: nil, renderStyle: .obstruction),
+
+        // Chat-dropped coordinate pin
+        SpriteSpec(name: "pin-dropped", circleColor: .systemPink,
+                   iconName: "mappin", text: nil, ringColor: nil, renderStyle: .standard),
     ]
 
     // MARK: - Rendering

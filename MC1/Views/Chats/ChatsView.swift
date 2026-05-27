@@ -401,7 +401,9 @@ struct ChatsView: View {
     private func handleMeshCoreLink(_ url: URL) {
         let urlString = url.absoluteString
 
-        if let contactResult = MeshCoreURLParser.parseContactURL(urlString) {
+        if let coordinate = MeshCoreURLParser.parseMapURL(urlString) {
+            appState.navigation.navigateToMap(coordinate: coordinate)
+        } else if let contactResult = MeshCoreURLParser.parseContactURL(urlString) {
             handleContactLink(contactResult)
         } else if let channelResult = MeshCoreURLParser.parseChannelURL(urlString) {
             handleChannelLink(channelResult)

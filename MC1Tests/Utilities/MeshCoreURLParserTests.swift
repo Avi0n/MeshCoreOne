@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import CoreLocation
 import MC1Services
 @testable import MC1
 
@@ -77,5 +78,42 @@ struct MeshCoreURLParserTests {
             let result = try Self.roundTrip(name: "Node", type: type)
             #expect(result.contactType == type)
         }
+    }
+
+    // MARK: - parseMapURL
+
+    @Test("parseMapURL parses a valid map link into the correct coordinate")
+    func mapURLValidRoundTrip() throws {
+        let url = "meshcore://map?lat=37.334900&lon=-122.009020"
+        let coordinate = try #require(MeshCoreURLParser.parseMapURL(url))
+        #expect(abs(coordinate.latitude - 37.3349) < 0.000001)
+        #expect(abs(coordinate.longitude - (-122.00902)) < 0.000001)
+    }
+
+    @Test("parseMapURL returns nil when lat or lon is missing")
+    func mapURLMissingParams() {
+        #expect(MeshCoreURLParser.parseMapURL("meshcore://map?lat=37.0") == nil)
+        #expect(MeshCoreURLParser.parseMapURL("meshcore://map?lon=-122.0") == nil)
+        #expect(MeshCoreURLParser.parseMapURL("meshcore://map") == nil)
+    }
+
+    @Test("parseMapURL rejects out-of-range coordinates")
+    func mapURLOutOfRange() {
+        #expect(MeshCoreURLParser.parseMapURL("meshcore://map?lat=91.0&lon=0.0") == nil)
+        #expect(MeshCoreURLParser.parseMapURL("meshcore://map?lat=0.0&lon=181.0") == nil)
+        #expect(MeshCoreURLParser.parseMapURL("meshcore://map?lat=-90.001&lon=0.0") == nil)
+    }
+
+    @Test("parseMapURL rejects a non-map host")
+    func mapURLWrongHost() {
+        #expect(MeshCoreURLParser.parseMapURL("meshcore://contact?lat=10.0&lon=10.0") == nil)
+        #expect(MeshCoreURLParser.parseMapURL("meshcore://channel/add?lat=10.0&lon=10.0") == nil)
+    }
+
+    @Test("parseMapURL rejects non-finite and hex-float values that Double would otherwise accept")
+    func mapURLRejectsNonDecimalValues() {
+        #expect(MeshCoreURLParser.parseMapURL("meshcore://map?lat=nan&lon=0.0") == nil)
+        #expect(MeshCoreURLParser.parseMapURL("meshcore://map?lat=0.0&lon=inf") == nil)
+        #expect(MeshCoreURLParser.parseMapURL("meshcore://map?lat=0x1p4&lon=0.0") == nil)
     }
 }

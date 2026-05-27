@@ -134,24 +134,24 @@ struct MainTabView: View {
 
         ZStack(alignment: .top) {
             TabView(selection: $navigation.selectedTab) {
-            Tab(L10n.Localizable.Tabs.chats, systemImage: "message.fill", value: 0) {
+            Tab(L10n.Localizable.Tabs.chats, systemImage: "message.fill", value: AppTab.chats.rawValue) {
                 ChatsView()
             }
             .badge(appState.services?.notificationService.badgeCount ?? 0)
 
-            Tab(L10n.Localizable.Tabs.nodes, systemImage: "flipphone", value: 1) {
+            Tab(L10n.Localizable.Tabs.nodes, systemImage: "flipphone", value: AppTab.nodes.rawValue) {
                 ContactsListView()
             }
 
-            Tab(L10n.Localizable.Tabs.map, systemImage: "map.fill", value: 2) {
+            Tab(L10n.Localizable.Tabs.map, systemImage: "map.fill", value: AppTab.map.rawValue) {
                 MapView()
             }
 
-            Tab(L10n.Localizable.Tabs.tools, systemImage: "wrench.and.screwdriver", value: 3) {
+            Tab(L10n.Localizable.Tabs.tools, systemImage: "wrench.and.screwdriver", value: AppTab.tools.rawValue) {
                 ToolsView()
             }
 
-            Tab(L10n.Localizable.Tabs.settings, systemImage: "gear", value: 4) {
+            Tab(L10n.Localizable.Tabs.settings, systemImage: "gear", value: AppTab.settings.rawValue) {
                 SettingsView()
             }
         }

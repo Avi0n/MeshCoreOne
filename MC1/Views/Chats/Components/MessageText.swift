@@ -78,6 +78,8 @@ struct MessageText: View {
 
         applyMeshCoreLinkFormatting(&result, baseColor: baseColor, urlRanges: urlRanges, currentString: currentString)
 
+        applyCoordinateFormatting(&result, baseColor: baseColor)
+
         return result
     }
 
@@ -341,6 +343,75 @@ struct MessageText: View {
                 attributedString[attrRange].inlinePresentationIntent = .stronglyEmphasized
             }
         }
+    }
+
+    // MARK: - Coordinate Formatting
+
+    /// Matches a decimal-degree pair: each component is a sign-optional 1-3 digit
+    /// integer part with a required decimal point and at least one fractional digit.
+    /// The lookbehind excludes an adjacent word char or `.` so the pass does not match
+    /// inside a longer number or after a version prefix (`v1.2, 3.4`). The trailing
+    /// lookahead rejects a following version segment (`.digit`, as in `3.4.5`) or word
+    /// char, but allows trailing punctuation so a coordinate ending a sentence still matches.
+    private static let coordinateRegex = try? NSRegularExpression(
+        pattern: #"(?<![\w.])(-?\d{1,3}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)(?!\.\d)(?!\w)"#
+    )
+
+    private static func applyCoordinateFormatting(
+        _ attributedString: inout AttributedString,
+        baseColor: Color
+    ) {
+        guard let regex = coordinateRegex else { return }
+
+        let text = String(attributedString.characters)
+        let nsRange = NSRange(text.startIndex..., in: text)
+        let matches = regex.matches(in: text, range: nsRange)
+        let linkedRanges = linkRanges(in: attributedString)
+
+        // Process matches in reverse to preserve indices
+        for match in matches.reversed() {
+            guard match.numberOfRanges == 3,
+                  let fullRange = Range(match.range, in: text),
+                  let latRange = Range(match.range(at: 1), in: text),
+                  let lonRange = Range(match.range(at: 2), in: text),
+                  let latitude = Double(String(text[latRange])),
+                  let longitude = Double(String(text[lonRange])),
+                  (-90.0...90.0).contains(latitude),
+                  (-180.0...180.0).contains(longitude) else { continue }
+
+            // Decimal-list guard: a third comma-number following the pair means this is
+            // a numeric list (`1.0, 2.0, 3.0`), not a coordinate. Skip it.
+            let tail = text[fullRange.upperBound...]
+            if tail.range(of: #"\s*,\s*-?\d"#, options: [.regularExpression, .anchored]) != nil {
+                continue
+            }
+
+            guard let attrRange = Range(fullRange, in: attributedString) else { continue }
+
+            // Skip ranges already carrying a link (contact chips, URLs, meshcore links)
+            if linkedRanges.contains(where: { $0.overlaps(attrRange) }) { continue }
+
+            guard let url = mapURL(latitude: latitude, longitude: longitude) else { continue }
+
+            attributedString[attrRange].link = url
+            attributedString[attrRange].foregroundColor = baseColor
+            attributedString[attrRange].underlineStyle = .single
+        }
+    }
+
+    /// Builds `meshcore://map?lat=&lon=` with locale-independent `%.6f` values so the
+    /// link round-trips through `MeshCoreURLParser.parseMapURL` on every locale. A
+    /// comma-decimal locale's `.formatted()` would emit `37,334900`, which the parser's
+    /// decimal-format gate rejects.
+    private static func mapURL(latitude: Double, longitude: Double) -> URL? {
+        var components = URLComponents()
+        components.scheme = MeshCoreURLParser.scheme
+        components.host = "map"
+        components.queryItems = [
+            URLQueryItem(name: "lat", value: String(format: "%.6f", latitude)),
+            URLQueryItem(name: "lon", value: String(format: "%.6f", longitude)),
+        ]
+        return components.url
     }
 }
 

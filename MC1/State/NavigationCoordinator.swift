@@ -1,5 +1,6 @@
 import SwiftUI
 import MC1Services
+import CoreLocation
 
 /// Manages tab selection, pending navigation targets, and cross-tab navigation coordination.
 @Observable
@@ -34,6 +35,9 @@ public final class NavigationCoordinator {
 
     /// Whether device menu tip donation is pending (waiting for valid tab)
     var pendingDeviceMenuTipDonation = false
+
+    /// Coordinate the Map tab should drop a pin on and center, set by a chat coordinate tap.
+    var pendingMapFocus: MapFocusRequest?
 
     // MARK: - Navigation
 
@@ -74,6 +78,12 @@ public final class NavigationCoordinator {
         selectedTab = 1
     }
 
+    func navigateToMap(coordinate: CLLocationCoordinate2D) {
+        pendingMapFocus = MapFocusRequest(latitude: coordinate.latitude,
+                                          longitude: coordinate.longitude)
+        selectedTab = AppTab.map.rawValue
+    }
+
     func clearPendingNavigation() {
         pendingChatContact = nil
     }
@@ -98,9 +108,15 @@ public final class NavigationCoordinator {
         pendingContactDetail = nil
     }
 
+    func clearPendingMapFocus() {
+        pendingMapFocus = nil
+    }
+
     /// Tabs where BLEStatusIndicatorView exists and the device menu tip can anchor (Chats, Contacts, Map).
     var isOnValidTabForDeviceMenuTip: Bool {
-        selectedTab == 0 || selectedTab == 1 || selectedTab == 2
+        selectedTab == AppTab.chats.rawValue
+            || selectedTab == AppTab.nodes.rawValue
+            || selectedTab == AppTab.map.rawValue
     }
 
     // MARK: - Notification Handlers
