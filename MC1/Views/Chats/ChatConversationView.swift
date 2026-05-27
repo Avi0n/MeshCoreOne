@@ -61,6 +61,7 @@ struct ChatConversationView: View {
     // MARK: - Environment
 
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.colorScheme) private var colorScheme
 
     /// Snapshot of env-derived inputs the view model needs to construct
     /// MessageItems at write time. Recomputed on every render — Equatable
@@ -74,6 +75,7 @@ struct ChatConversationView: View {
             showIncomingRegion: showIncomingRegion,
             previewsEnabled: previewsEnabled,
             isHighContrast: colorSchemeContrast == .increased,
+            isDark: colorScheme == .dark,
             currentUserName: appState.localNodeName
         )
     }

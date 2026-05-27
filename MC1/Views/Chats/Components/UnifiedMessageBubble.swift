@@ -221,6 +221,8 @@ struct UnifiedMessageBubble: View, Equatable {
                 imageResolver: imageResolver,
                 onManualPreviewFetch: callbacks.onManualPreviewFetch
             )
+        case .mapPreview:
+            EmptyView()
         case .text, .inlineImage:
             EmptyView()
         }

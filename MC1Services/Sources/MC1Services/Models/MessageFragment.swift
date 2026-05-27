@@ -10,6 +10,7 @@ public enum MessageFragment: Sendable, Hashable {
     case text(MessageTextPayload)
     case inlineImage(InlineImage)
     case linkPreview(LinkPreviewFragmentState)
+    case mapPreview(MapPreviewFragmentState)
     case malwareWarning(URL)
     /// Carries the raw summary string (`"👍:3,❤️:2,😂:1"` format produced by
     /// `ReactionParser`). The DTO field `reactionSummary` is `String?`; the

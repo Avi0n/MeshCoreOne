@@ -395,6 +395,7 @@ struct MessageFragmentBuilderTests {
         showIncomingRegion: Bool = false,
         previewsEnabled: Bool = false,
         isHighContrast: Bool = false,
+        isDark: Bool = false,
         currentUserName: String = "Me"
     ) -> EnvInputs {
         EnvInputs(
@@ -405,8 +406,38 @@ struct MessageFragmentBuilderTests {
             showIncomingRegion: showIncomingRegion,
             previewsEnabled: previewsEnabled,
             isHighContrast: isHighContrast,
+            isDark: isDark,
             currentUserName: currentUserName
         )
+    }
+
+    @Test("A coordinate in build inputs emits a mapPreview fragment")
+    func mapPreviewEmittedWhenCoordinatePresent() {
+        let message = MessageFragmentBuilderFixtures.makeMessage(text: "Meet at 37.7749, -122.4194")
+        let inputs = MessageFragmentBuilderFixtures.makeInputs(
+            for: message,
+            mapPreviewLatitude: 37.7749,
+            mapPreviewLongitude: -122.4194,
+            isMapPreviewReady: true
+        )
+        let item = MessageFragmentBuilder.makeItem(for: message, inputs: inputs, envInputs: makeEnvInputs(isDark: true))
+
+        guard case .mapPreview(let state) = item.content.last else {
+            Issue.record("expected a trailing mapPreview fragment")
+            return
+        }
+        #expect(state.latitude == 37.7749)
+        #expect(state.longitude == -122.4194)
+        #expect(state.isDark == true)
+        #expect(state.isReady == true)
+    }
+
+    @Test("No coordinate means no mapPreview fragment")
+    func noMapPreviewWhenCoordinateAbsent() {
+        let message = MessageFragmentBuilderFixtures.makeMessage(text: "no coordinates here")
+        let inputs = MessageFragmentBuilderFixtures.makeInputs(for: message)
+        let item = MessageFragmentBuilder.makeItem(for: message, inputs: inputs, envInputs: makeEnvInputs())
+        #expect(!item.content.contains { if case .mapPreview = $0 { return true } else { return false } })
     }
 
     private func makeInputs(
@@ -456,7 +487,7 @@ struct MessageFragmentBuilderTests {
     }
 
     private enum FragmentKind: Equatable {
-        case text, inlineImage, linkPreview, malwareWarning, reactionSummary
+        case text, inlineImage, linkPreview, mapPreview, malwareWarning, reactionSummary
     }
 
     private static func kind(of fragment: MessageFragment) -> FragmentKind {
@@ -464,6 +495,7 @@ struct MessageFragmentBuilderTests {
         case .text: return .text
         case .inlineImage: return .inlineImage
         case .linkPreview: return .linkPreview
+        case .mapPreview: return .mapPreview
         case .malwareWarning: return .malwareWarning
         case .reactionSummary: return .reactionSummary
         }

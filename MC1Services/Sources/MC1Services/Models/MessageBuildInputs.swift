@@ -20,6 +20,14 @@ public struct MessageBuildInputs: Sendable, Hashable {
     /// correct frame on first paint. `nil` for non-image URLs or when the
     /// dimensions store has not yet seen this URL.
     public let inlineImageAspect: Double?
+    /// Latitude of the first linkified coordinate in the message text, or nil.
+    /// Drives the `.mapPreview` fragment. Stored as `Double` for `Hashable`.
+    public let mapPreviewLatitude: Double?
+    public let mapPreviewLongitude: Double?
+    /// True once the snapshot for this coordinate's `(rounded lat/lon, isDark)`
+    /// request has resolved (cached or failed). Build-time value: a
+    /// `UIHostingConfiguration` cell only re-evaluates when its item changes.
+    public let isMapPreviewReady: Bool
     public let formattedText: AttributedString?
     public let baseColor: BaseColorSlot
     public let formattedPath: String?
@@ -39,6 +47,9 @@ public struct MessageBuildInputs: Sendable, Hashable {
         hasPreviewIconRef: Bool,
         imageIsGIF: Bool,
         inlineImageAspect: Double? = nil,
+        mapPreviewLatitude: Double? = nil,
+        mapPreviewLongitude: Double? = nil,
+        isMapPreviewReady: Bool = false,
         formattedText: AttributedString?,
         baseColor: BaseColorSlot,
         formattedPath: String?,
@@ -57,6 +68,9 @@ public struct MessageBuildInputs: Sendable, Hashable {
         self.hasPreviewIconRef = hasPreviewIconRef
         self.imageIsGIF = imageIsGIF
         self.inlineImageAspect = inlineImageAspect
+        self.mapPreviewLatitude = mapPreviewLatitude
+        self.mapPreviewLongitude = mapPreviewLongitude
+        self.isMapPreviewReady = isMapPreviewReady
         self.formattedText = formattedText
         self.baseColor = baseColor
         self.formattedPath = formattedPath

@@ -162,6 +162,7 @@ enum MessageBubbleTestData {
             showIncomingRegion: showIncomingRegion,
             previewsEnabled: previewsEnabled,
             isHighContrast: false,
+            isDark: false,
             currentUserName: currentUserName
         )
         let item = MessageFragmentBuilder.makeItem(for: message, inputs: inputs, envInputs: envInputs)

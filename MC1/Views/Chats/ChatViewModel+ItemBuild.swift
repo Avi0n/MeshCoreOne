@@ -1,3 +1,4 @@
+import CoreLocation
 import Foundation
 import SwiftUI
 import MC1Services
@@ -53,9 +54,12 @@ extension ChatViewModel {
 
     /// Assemble `MessageBuildInputs` from current view-model state. Reads
     /// `previewStates`, `cachedURLs`, `decodedImages`, etc. plus `envInputs`
-    /// (`@MainActor` state). Pure with respect to the inputs — given the same
-    /// state it returns the same value, so it is safe to call from the main
-    /// actor and feed the resulting `Sendable` snapshot to an off-main builder.
+    /// (`@MainActor` state). The returned snapshot is deterministic w.r.t. the
+    /// inputs and `Sendable`, so it is safe to feed to the off-main builder. Has
+    /// one `@MainActor` side effect: it records the map-preview snapshot request
+    /// in `mapPreviewRequestIndex` so a late resolution can rebuild only the
+    /// affected rows — hence it must be called on the main actor (the batch
+    /// `buildItems()` path already does).
     func makeBuildInputs(for message: MessageDTO, previous: MessageDTO?) -> MessageBuildInputs {
         let flags = Self.computeDisplayFlags(for: message, previous: previous)
         let cachedURL = cachedURLs[message.id].flatMap { $0 }
@@ -66,6 +70,25 @@ extension ChatViewModel {
             let directURL = ImageURLClassifier.directImageURL(for: cachedURL)
             return store.aspect(for: directURL) ?? store.aspect(for: cachedURL)
         }()
+
+        let formatted = MessageText.buildFormattedText(
+            text: message.text,
+            isOutgoing: message.isOutgoing,
+            currentUserName: envInputs.currentUserName,
+            isHighContrast: envInputs.isHighContrast
+        )
+
+        var isMapPreviewReady = false
+        if let coordinate = formatted.mapCoordinate {
+            let request = MapSnapshotRequest(
+                latitude: coordinate.latitude,
+                longitude: coordinate.longitude,
+                isDark: envInputs.isDark
+            )
+            mapPreviewRequestIndex[request, default: []].insert(message.id)
+            isMapPreviewReady = MapSnapshotStore.shared.isResolved(request)
+        }
+
         return MessageBuildInputs(
             messageID: message.id,
             previewState: previewStates[message.id] ?? .idle,
@@ -76,12 +99,10 @@ extension ChatViewModel {
             hasPreviewIconRef: decodedPreviewAssets[message.id]?.icon != nil,
             imageIsGIF: imageIsGIF[message.id] ?? false,
             inlineImageAspect: inlineImageAspect,
-            formattedText: MessageText.buildFormattedText(
-                text: message.text,
-                isOutgoing: message.isOutgoing,
-                currentUserName: envInputs.currentUserName,
-                isHighContrast: envInputs.isHighContrast
-            ).text,
+            mapPreviewLatitude: formatted.mapCoordinate?.latitude,
+            mapPreviewLongitude: formatted.mapCoordinate?.longitude,
+            isMapPreviewReady: isMapPreviewReady,
+            formattedText: formatted.text,
             baseColor: message.isOutgoing ? .outgoing : .incoming,
             formattedPath: (envInputs.showIncomingPath && !message.isOutgoing)
                 ? MessagePathFormatter.format(message)

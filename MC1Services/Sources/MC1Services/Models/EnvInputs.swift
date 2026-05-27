@@ -13,6 +13,11 @@ public struct EnvInputs: Sendable, Hashable {
     public let showIncomingRegion: Bool
     public let previewsEnabled: Bool
     public let isHighContrast: Bool
+    /// Light/dark appearance, sourced from `@Environment(\.colorScheme)` in
+    /// `ChatConversationView`. Threaded into `MapPreviewFragmentState` so the map
+    /// thumbnail renders against the matching style. Like `isHighContrast`, a
+    /// change forces a full `buildItems()` rebuild (rare, OS-driven).
+    public let isDark: Bool
     public let currentUserName: String
 
     public init(
@@ -23,6 +28,7 @@ public struct EnvInputs: Sendable, Hashable {
         showIncomingRegion: Bool,
         previewsEnabled: Bool,
         isHighContrast: Bool,
+        isDark: Bool,
         currentUserName: String
     ) {
         self.showInlineImages = showInlineImages
@@ -32,6 +38,7 @@ public struct EnvInputs: Sendable, Hashable {
         self.showIncomingRegion = showIncomingRegion
         self.previewsEnabled = previewsEnabled
         self.isHighContrast = isHighContrast
+        self.isDark = isDark
         self.currentUserName = currentUserName
     }
 
@@ -43,6 +50,7 @@ public struct EnvInputs: Sendable, Hashable {
         showIncomingRegion: AppStorageKey.defaultShowIncomingRegion,
         previewsEnabled: AppStorageKey.defaultLinkPreviewsEnabled,
         isHighContrast: false,
+        isDark: false,
         currentUserName: ""
     )
 }

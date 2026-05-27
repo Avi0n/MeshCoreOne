@@ -230,6 +230,12 @@ final class ChatViewModel {
     /// Cached URL detection results to avoid re-running NSDataDetector on rebuilds
     var cachedURLs: [UUID: URL?] = [:]
 
+    /// Maps a snapshot request to the messages that show its thumbnail, so a late
+    /// `resolutionStream` event rebuilds only those rows (O(matches)) instead of
+    /// regex-scanning every loaded message. Populated in `makeBuildInputs`,
+    /// cleared on conversation switch.
+    @ObservationIgnored var mapPreviewRequestIndex: [MapSnapshotRequest: Set<UUID>] = [:]
+
     // MARK: - Pagination State
 
     /// Whether currently fetching older messages (exposed for UI binding)

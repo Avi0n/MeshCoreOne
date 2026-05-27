@@ -97,6 +97,35 @@ enum MessageFragmentBuilderFixtures {
         makeMinimalInputs(messageID: messageID)
     }
 
+    static func makeInputs(
+        for message: MessageDTO,
+        mapPreviewLatitude: Double? = nil,
+        mapPreviewLongitude: Double? = nil,
+        isMapPreviewReady: Bool = false
+    ) -> MessageBuildInputs {
+        MessageBuildInputs(
+            messageID: message.id,
+            previewState: .idle,
+            loadedPreview: nil,
+            cachedURL: nil,
+            hasInlineImageRef: false,
+            hasPreviewImageRef: false,
+            hasPreviewIconRef: false,
+            imageIsGIF: false,
+            mapPreviewLatitude: mapPreviewLatitude,
+            mapPreviewLongitude: mapPreviewLongitude,
+            isMapPreviewReady: isMapPreviewReady,
+            formattedText: nil,
+            baseColor: .incoming,
+            formattedPath: nil,
+            senderResolution: NodeNameResolution(displayName: "Sender", matchKind: .exact),
+            showTimestamp: false,
+            showDirectionGap: false,
+            showSenderName: false,
+            showNewMessagesDivider: false
+        )
+    }
+
     static func makeEnvInputs(isOutgoing: Bool = true) -> EnvInputs {
         EnvInputs(
             showInlineImages: true,
@@ -106,6 +135,7 @@ enum MessageFragmentBuilderFixtures {
             showIncomingRegion: false,
             previewsEnabled: false,
             isHighContrast: false,
+            isDark: false,
             currentUserName: isOutgoing ? "Me" : "Sender"
         )
     }

@@ -47,6 +47,7 @@ public enum MessageFragmentBuilder {
 
         if inputs.previewState == .malwareWarning, let url {
             fragments.append(.malwareWarning(url))
+            appendMapPreviewIfPresent(&fragments, inputs: inputs, envInputs: envInputs)
             return fragments
         }
 
@@ -60,7 +61,27 @@ public enum MessageFragmentBuilder {
             ))
         }
 
+        appendMapPreviewIfPresent(&fragments, inputs: inputs, envInputs: envInputs)
         return fragments
+    }
+
+    /// Appends a `.mapPreview` for the first linkified coordinate, if any. Sibling
+    /// order is deterministic (array order), so it sits after a link preview. The
+    /// card is independent of any suspicious URL, so it is shown on malware
+    /// messages too (the location is not the link).
+    private static func appendMapPreviewIfPresent(
+        _ fragments: inout [MessageFragment],
+        inputs: MessageBuildInputs,
+        envInputs: EnvInputs
+    ) {
+        guard let latitude = inputs.mapPreviewLatitude,
+              let longitude = inputs.mapPreviewLongitude else { return }
+        fragments.append(.mapPreview(MapPreviewFragmentState(
+            latitude: latitude,
+            longitude: longitude,
+            isDark: envInputs.isDark,
+            isReady: inputs.isMapPreviewReady
+        )))
     }
 
     private static func makeText(
