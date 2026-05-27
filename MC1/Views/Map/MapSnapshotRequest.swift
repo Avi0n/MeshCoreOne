@@ -14,8 +14,14 @@ struct MapSnapshotRequest: Hashable {
     private static let coordinatePrecision = 100_000.0
 
     init(latitude: Double, longitude: Double, isDark: Bool) {
-        self.latitude = (latitude * Self.coordinatePrecision).rounded() / Self.coordinatePrecision
-        self.longitude = (longitude * Self.coordinatePrecision).rounded() / Self.coordinatePrecision
+        // Normalize -0.0 to 0.0. -0.0 and 0.0 are `Hashable`-equal (so they dedupe
+        // as one request and share an index entry), but string interpolation in
+        // `cacheKey` renders them "-0.0" vs "0.0" — two distinct NSCache slots.
+        // Collapsing the sign keeps the cache key consistent with equality.
+        let roundedLatitude = (latitude * Self.coordinatePrecision).rounded() / Self.coordinatePrecision
+        let roundedLongitude = (longitude * Self.coordinatePrecision).rounded() / Self.coordinatePrecision
+        self.latitude = roundedLatitude == 0 ? 0 : roundedLatitude
+        self.longitude = roundedLongitude == 0 ? 0 : roundedLongitude
         self.isDark = isDark
     }
 

@@ -224,6 +224,41 @@ struct ChatViewModelTests {
         #expect(viewModel.itemIndexByID.isEmpty)
     }
 
+    @Test("buildItems clears stale mapPreviewRequestIndex so theme-toggle keys do not leak")
+    func buildItemsClearsStaleMapPreviewIndex() async {
+        let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
+
+        // Outgoing message so coordinate-text path runs without sender-name resolution.
+        let message = createTestMessage(timestamp: 1_000, text: "see 37.7749, -122.4194")
+        viewModel.appendMessageIfNew(message)
+
+        let lightOnline = MapSnapshotRequest(latitude: 37.7749, longitude: -122.4194, isDark: false, isOffline: false)
+        #expect(viewModel.mapPreviewRequestIndex[lightOnline]?.contains(message.id) == true)
+
+        let darkEnv = EnvInputs(
+            showInlineImages: EnvInputs.default.showInlineImages,
+            autoPlayGIFs: EnvInputs.default.autoPlayGIFs,
+            showIncomingPath: EnvInputs.default.showIncomingPath,
+            showIncomingHopCount: EnvInputs.default.showIncomingHopCount,
+            showIncomingRegion: EnvInputs.default.showIncomingRegion,
+            previewsEnabled: EnvInputs.default.previewsEnabled,
+            isHighContrast: EnvInputs.default.isHighContrast,
+            isDark: true,
+            showMapPreviews: EnvInputs.default.showMapPreviews,
+            isOffline: EnvInputs.default.isOffline,
+            currentUserName: EnvInputs.default.currentUserName
+        )
+        viewModel.applyEnvInputs(darkEnv)
+        await coordinator.buildItemsTask?.value
+
+        // Stale light-mode key must be gone after the rebuild.
+        #expect(viewModel.mapPreviewRequestIndex[lightOnline] == nil)
+        let darkOnline = MapSnapshotRequest(latitude: 37.7749, longitude: -122.4194, isDark: true, isOffline: false)
+        #expect(viewModel.mapPreviewRequestIndex[darkOnline]?.contains(message.id) == true)
+    }
+
     @Test("computeDisplayFlags with same timestamp messages")
     func computeDisplayFlagsSameTimestamp() {
         let baseTime: UInt32 = 1000

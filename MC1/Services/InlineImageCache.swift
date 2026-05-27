@@ -286,8 +286,6 @@ private final class CachedImageData: @unchecked Sendable {
 /// because the stored properties are `let` and `UIImage` / `Data` are
 /// immutable post-construction.
 final class CachedDecodedImage: @unchecked Sendable {
-    private static let bytesPerPixelRGBA = 4
-
     let image: UIImage
     let isGIF: Bool
     /// Original encoded bytes for static images, so the full-screen viewer
@@ -307,16 +305,9 @@ final class CachedDecodedImage: @unchecked Sendable {
 
     private static func computeCost(for image: UIImage, isGIF: Bool) -> Int {
         if isGIF, let frames = image.images, !frames.isEmpty {
-            return frames.reduce(0) { $0 + frameCost(for: $1) }
+            return frames.reduce(0) { $0 + ImageByteCost.bytes(for: $1) }
         }
-        return frameCost(for: image)
-    }
-
-    private static func frameCost(for image: UIImage) -> Int {
-        if let cgImage = image.cgImage {
-            return cgImage.bytesPerRow * cgImage.height
-        }
-        return Int(image.size.width * image.size.height) * bytesPerPixelRGBA
+        return ImageByteCost.bytes(for: image)
     }
 }
 

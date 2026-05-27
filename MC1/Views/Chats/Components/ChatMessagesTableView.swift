@@ -66,6 +66,9 @@ struct ChatMessagesTableView: View {
                 },
                 onManualPreviewFetch: { messageID in
                     Task { await viewModel.manualFetchPreview(for: messageID) }
+                },
+                onMapPreviewTap: { coordinate in
+                    viewModel.navigateToMap(coordinate)
                 }
             )
         )

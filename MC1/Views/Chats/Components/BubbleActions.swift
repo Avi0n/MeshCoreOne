@@ -1,3 +1,4 @@
+import CoreLocation
 import SwiftUI
 import MC1Services
 
@@ -23,4 +24,5 @@ struct BubbleActions {
     let onRetryImageFetch: (UUID) -> Void
     let onRequestPreviewFetch: (UUID) -> Void
     let onManualPreviewFetch: (UUID) -> Void
+    let onMapPreviewTap: (CLLocationCoordinate2D) -> Void
 }

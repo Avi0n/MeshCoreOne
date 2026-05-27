@@ -61,6 +61,15 @@ extension ChatViewModel {
         }
     }
 
+    /// A snapshot finished: rebuild only the rows that show it, found via the
+    /// request-keyed index (O(matches)), never by scanning every loaded message.
+    func handleSnapshotResolution(_ request: MapSnapshotRequest) {
+        guard let messageIDs = mapPreviewRequestIndex[request] else { return }
+        for messageID in messageIDs {
+            rebuildDisplayItem(for: messageID)
+        }
+    }
+
     /// Outgoing-message exception to the withhold-and-release rule: the
     /// bubble was added immediately at text-only height for instant send
     /// feedback, so the prefetch runs in parallel and the cell height
@@ -231,6 +240,7 @@ extension ChatViewModel {
         decodedPreviewAssets.removeAll()
         legacyPreviewDecodeInFlight.removeAll()
         cachedURLs.removeAll()
+        mapPreviewRequestIndex.removeAll()
         clearImageState()
     }
 
@@ -241,7 +251,21 @@ extension ChatViewModel {
         decodedPreviewAssets.removeValue(forKey: messageID)
         previewFetchTasks[messageID]?.cancel()
         previewFetchTasks.removeValue(forKey: messageID)
+        removeFromMapPreviewIndex(messageID)
         cleanupImageState(for: messageID)
+    }
+
+    /// Drops a deleted message from every map-preview request bucket so a late
+    /// snapshot resolution does not try to rebuild a row that no longer exists.
+    private func removeFromMapPreviewIndex(_ messageID: UUID) {
+        for request in Array(mapPreviewRequestIndex.keys) {
+            guard var ids = mapPreviewRequestIndex[request], ids.remove(messageID) != nil else { continue }
+            if ids.isEmpty {
+                mapPreviewRequestIndex.removeValue(forKey: request)
+            } else {
+                mapPreviewRequestIndex[request] = ids
+            }
+        }
     }
 
     // MARK: - Inline Image State Management

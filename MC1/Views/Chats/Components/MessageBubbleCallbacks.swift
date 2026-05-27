@@ -1,3 +1,5 @@
+import CoreLocation
+
 /// Callbacks for message bubble interactions
 struct MessageBubbleCallbacks {
     var onRetry: (() -> Void)?
@@ -7,4 +9,5 @@ struct MessageBubbleCallbacks {
     var onRetryImageFetch: (() -> Void)?
     var onRequestPreviewFetch: (() -> Void)?
     var onManualPreviewFetch: (() -> Void)?
+    var onMapPreviewTap: ((CLLocationCoordinate2D) -> Void)?
 }

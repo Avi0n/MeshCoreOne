@@ -30,8 +30,13 @@ struct MapSnapshotStoreTests {
         func release() { gate?.resume(); gate = nil }
     }
 
-    private func request(_ lat: Double = 37.0, _ lon: Double = -122.0, dark: Bool = false) -> MapSnapshotRequest {
-        MapSnapshotRequest(latitude: lat, longitude: lon, isDark: dark)
+    private func request(
+        _ lat: Double = 37.0,
+        _ lon: Double = -122.0,
+        dark: Bool = false,
+        offline: Bool = false
+    ) -> MapSnapshotRequest {
+        MapSnapshotRequest(latitude: lat, longitude: lon, isDark: dark, isOffline: offline)
     }
 
     @Test("A cache miss returns nil synchronously; isResolved is false")
@@ -42,13 +47,33 @@ struct MapSnapshotStoreTests {
         #expect(store.isResolved(req) == false)
     }
 
+    @Test("Signed-zero coordinates normalize so cacheKey agrees with Hashable equality")
+    func signedZeroNormalizes() {
+        // A latitude that rounds to -0.0 must key identically to +0.0: the two are
+        // Hashable-equal, so a divergent cacheKey string would split the cache.
+        let negativeZero = MapSnapshotRequest(latitude: -0.000004, longitude: 50.0, isDark: false, isOffline: false)
+        let positiveZero = MapSnapshotRequest(latitude: 0.0, longitude: 50.0, isDark: false, isOffline: false)
+        #expect(negativeZero == positiveZero)
+        #expect(negativeZero.hashValue == positiveZero.hashValue)
+        #expect(negativeZero.cacheKey == positiveZero.cacheKey)
+    }
+
+    @Test("Online and offline requests for the same coordinate produce distinct cache keys")
+    func isOfflineDistinguishesCacheKey() {
+        let online = MapSnapshotRequest(latitude: 37.0, longitude: -122.0, isDark: false, isOffline: false)
+        let offline = MapSnapshotRequest(latitude: 37.0, longitude: -122.0, isDark: false, isOffline: true)
+        #expect(online != offline)
+        #expect(online.hashValue != offline.hashValue)
+        #expect(online.cacheKey != offline.cacheKey)
+    }
+
     @Test("A completed render caches the image and emits on the stream")
     func completedRenderCachesAndEmits() async {
         let fake = FakeRenderer()
         let store = MapSnapshotStore(renderer: fake)
         let req = request()
 
-        var iterator = store.resolutionStream.makeAsyncIterator()
+        var iterator = store.resolutionStream().makeAsyncIterator()
         store.request(req)
         let emitted = await iterator.next()
 
@@ -65,7 +90,7 @@ struct MapSnapshotStoreTests {
         let store = MapSnapshotStore(renderer: fake)
         let req = request()
 
-        var iterator = store.resolutionStream.makeAsyncIterator()
+        var iterator = store.resolutionStream().makeAsyncIterator()
         store.request(req)
         _ = await iterator.next()
 
@@ -80,6 +105,7 @@ struct MapSnapshotStoreTests {
         let store = MapSnapshotStore(renderer: fake)
         let req = request()
 
+        var iterator = store.resolutionStream().makeAsyncIterator()
         store.request(req)
         store.request(req)
         store.request(req)
@@ -89,7 +115,6 @@ struct MapSnapshotStoreTests {
         #expect(fake.renderCount == 1)
 
         fake.release()
-        var iterator = store.resolutionStream.makeAsyncIterator()
         _ = await iterator.next()
         #expect(store.isResolved(req) == true)
     }
@@ -100,13 +125,96 @@ struct MapSnapshotStoreTests {
         let store = MapSnapshotStore(renderer: fake)
         let req = request()
 
-        var iterator = store.resolutionStream.makeAsyncIterator()
+        var iterator = store.resolutionStream().makeAsyncIterator()
         store.request(req)
         _ = await iterator.next()
         #expect(fake.renderCount == 1)
 
         store.request(req)
         await Task.yield()
+        #expect(fake.renderCount == 1)
+    }
+
+    @Test("The failed set is capped; the oldest entry is evicted when the limit is exceeded")
+    func failedSetCapEvictsOldest() async {
+        let fake = FakeRenderer()
+        fake.shouldFail = true
+        let store = MapSnapshotStore(renderer: fake)
+        let limit = MapSnapshotStore.failedSetSizeLimit
+
+        var iterator = store.resolutionStream().makeAsyncIterator()
+        for i in 0..<(limit + 1) {
+            store.request(request(Double(i), 0))
+            _ = await iterator.next()
+        }
+
+        // Oldest entry was evicted; a fresh request would re-render.
+        #expect(store.isResolved(request(0, 0)) == false)
+        // Newest entry is still marked failed.
+        #expect(store.isResolved(request(Double(limit), 0)) == true)
+    }
+
+    @Test("clear() yields resolutions for previously-resolved requests so on-screen rows reload")
+    func clearYieldsResolutionsForResolvedRequests() async {
+        let fake = FakeRenderer()
+        let store = MapSnapshotStore(renderer: fake)
+        let req = request()
+
+        var iterator = store.resolutionStream().makeAsyncIterator()
+        store.request(req)
+        let firstEmit = await iterator.next()
+        #expect(firstEmit == req)
+        #expect(store.image(for: req) != nil)
+
+        store.clear()
+
+        let secondEmit = await iterator.next()
+        #expect(secondEmit == req)
+        #expect(store.image(for: req) == nil)
+        #expect(store.isResolved(req) == false)
+    }
+
+    @Test("clearFailures() drops failed entries so the next request triggers a retry")
+    func clearFailuresAllowsRetry() async {
+        let fake = FakeRenderer()
+        fake.shouldFail = true
+        let store = MapSnapshotStore(renderer: fake)
+        let req = request()
+
+        var iterator = store.resolutionStream().makeAsyncIterator()
+        store.request(req)
+        _ = await iterator.next()
+        #expect(store.isResolved(req) == true)
+
+        store.clearFailures()
+        // Drain the invalidation yield emitted by clearFailures() so the next
+        // iterator.next() sees the retry's resolution, not the stale invalidation.
+        _ = await iterator.next()
+        #expect(store.isResolved(req) == false)
+
+        fake.shouldFail = false
+        store.request(req)
+        _ = await iterator.next()
+        #expect(store.image(for: req) != nil)
+        #expect(fake.renderCount == 2)
+    }
+
+    @Test("Every subscriber receives each resolution (multicast, not single-consumer split)")
+    func multicastDeliversToAllSubscribers() async {
+        let fake = FakeRenderer()
+        let store = MapSnapshotStore(renderer: fake)
+        let req = request()
+
+        var iteratorA = store.resolutionStream().makeAsyncIterator()
+        var iteratorB = store.resolutionStream().makeAsyncIterator()
+        store.request(req)
+
+        // A single shared AsyncStream would hand the yield to only one iterator;
+        // both must see it.
+        let emittedA = await iteratorA.next()
+        let emittedB = await iteratorB.next()
+        #expect(emittedA == req)
+        #expect(emittedB == req)
         #expect(fake.renderCount == 1)
     }
 }

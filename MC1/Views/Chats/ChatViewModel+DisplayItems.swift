@@ -118,6 +118,13 @@ extension ChatViewModel {
         urlDetectionGeneration &+= 1
         let urlGeneration = urlDetectionGeneration
 
+        // Drop stale entries from the previous build before `makeBuildInputs`
+        // re-inserts. Theme toggle and offline-state flip both rebuild items
+        // under a new request key for the same message; without this, the old
+        // key's bucket lingers and a late resolution could rebuild a row whose
+        // current request key has changed.
+        mapPreviewRequestIndex.removeAll()
+
         var uncachedMessageIDs: [(UUID, String)] = []
         let messagesSnapshot = coordinator.messages
 

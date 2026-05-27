@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 import MC1Services
 import OSLog
+import CoreLocation
 
 /// ViewModel for chat operations
 @Observable
@@ -95,6 +96,13 @@ final class ChatViewModel {
     /// changes and there are messages to rebuild. Idempotent on no-change.
     func applyEnvInputs(_ new: EnvInputs) {
         guard envInputs != new else { return }
+        // When the network transitions from unavailable to available, drop the
+        // sticky map-snapshot failures so renders that failed during the outage
+        // retry on the next rebuild. Without this, an offline-pack miss stays
+        // poisoned until a memory warning evicts the failed set.
+        if envInputs.isOffline && !new.isOffline {
+            MapSnapshotStore.shared.clearFailures()
+        }
         envInputs = new
         guard !messages.isEmpty else { return }
         buildItems()
@@ -302,6 +310,10 @@ final class ChatViewModel {
     /// rebuilt so the bubble picks up the now-known `cachedAspect`.
     @ObservationIgnored var dimensionResolutionTask: Task<Void, Never>?
 
+    /// Long-running subscription to `MapSnapshotStore.shared.resolutionStream`.
+    /// Started once (the store is a process-lifetime singleton).
+    @ObservationIgnored var snapshotResolutionTask: Task<Void, Never>?
+
     /// Per-instance override of the receive-time prefetch timeout. Production
     /// callers leave this at `defaultPrefetchTimeout` (3s); tests can shorten
     /// it to bound their wall-clock budget.
@@ -313,6 +325,13 @@ final class ChatViewModel {
     // MARK: - Initialization
 
     init() {}
+
+    /// Forwards a map-thumbnail tap to the same navigation sink the coordinate
+    /// text link uses. `appState` is a `weak` optional; if nil, the tap is a
+    /// no-op (the always-present text link remains the baseline).
+    func navigateToMap(_ coordinate: CLLocationCoordinate2D) {
+        appState?.navigation.navigateToMap(coordinate: coordinate)
+    }
 
     /// Conversation-aware configure. Resolves the per-conversation
     /// `ChatCoordinator` from the registry before the first view body
@@ -390,6 +409,19 @@ final class ChatViewModel {
         appState: AppState,
         linkPreviewCache: any LinkPreviewCaching
     ) {
+        // The snapshot-resolution stream is a process-lifetime singleton with no
+        // dependency on `services`, so subscribe once regardless of connection
+        // state — offline browse of cached coordinate messages still needs late
+        // snapshot resolutions to refresh their thumbnails.
+        if snapshotResolutionTask == nil {
+            snapshotResolutionTask = Task { [weak self] in
+                for await request in MapSnapshotStore.shared.resolutionStream() {
+                    guard !Task.isCancelled else { return }
+                    self?.handleSnapshotResolution(request)
+                }
+            }
+        }
+
         guard let services = appState.services else {
             prefetcher = nil
             inlineImageDimensionsStore = nil
@@ -420,6 +452,7 @@ final class ChatViewModel {
 
     deinit {
         dimensionResolutionTask?.cancel()
+        snapshotResolutionTask?.cancel()
     }
 
     static func copyForEnqueueFailure(_ error: Error) -> String {

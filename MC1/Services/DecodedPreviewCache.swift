@@ -9,8 +9,6 @@ import UIKit
 /// re-decode. `@unchecked Sendable` is sound because every stored property is
 /// `let` and `UIImage` / `LinkPreviewDataDTO` are immutable post-construction.
 final class CachedDecodedPreview: @unchecked Sendable {
-    private static let bytesPerPixelRGBA = 4
-
     let dto: LinkPreviewDataDTO
     let hero: UIImage?
     let icon: UIImage?
@@ -30,15 +28,7 @@ final class CachedDecodedPreview: @unchecked Sendable {
         )
         self.hero = hero
         self.icon = icon
-        self.cost = Self.pixelCost(hero) + Self.pixelCost(icon)
-    }
-
-    private static func pixelCost(_ image: UIImage?) -> Int {
-        guard let image else { return 0 }
-        if let cgImage = image.cgImage {
-            return cgImage.bytesPerRow * cgImage.height
-        }
-        return Int(image.size.width * image.size.height) * bytesPerPixelRGBA
+        self.cost = ImageByteCost.bytes(for: hero) + ImageByteCost.bytes(for: icon)
     }
 }
 

@@ -221,8 +221,13 @@ struct UnifiedMessageBubble: View, Equatable {
                 imageResolver: imageResolver,
                 onManualPreviewFetch: callbacks.onManualPreviewFetch
             )
-        case .mapPreview:
-            EmptyView()
+        case .mapPreview(let state):
+            MapPreviewFragmentView(
+                state: state,
+                snapshotResolver: { MapSnapshotStore.shared.image(for: $0) },
+                onTap: { callbacks.onMapPreviewTap?($0) },
+                onRequestSnapshot: { MapSnapshotStore.shared.request($0) }
+            )
         case .text, .inlineImage:
             EmptyView()
         }

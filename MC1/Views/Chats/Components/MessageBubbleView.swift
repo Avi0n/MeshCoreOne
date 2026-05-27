@@ -35,7 +35,8 @@ struct MessageBubbleView: View, Equatable {
                     onImageTap: { actions.onImageTap(message) },
                     onRetryImageFetch: { actions.onRetryImageFetch(message.id) },
                     onRequestPreviewFetch: { actions.onRequestPreviewFetch(message.id) },
-                    onManualPreviewFetch: { actions.onManualPreviewFetch(message.id) }
+                    onManualPreviewFetch: { actions.onManualPreviewFetch(message.id) },
+                    onMapPreviewTap: { coordinate in actions.onMapPreviewTap(coordinate) }
                 )
             )
         } else {

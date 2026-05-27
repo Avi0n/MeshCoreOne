@@ -279,6 +279,22 @@ struct NavigationCoordinatorMapTests {
         #expect(coordinator.selectedTab == AppTab.map.rawValue)
     }
 
+    @Test("ChatViewModel.navigateToMap forwards the coordinate to the navigation sink")
+    func chatViewModelForwardsToNavigationSink() {
+        let appState = AppState()
+        let viewModel = ChatViewModel()
+        viewModel.appState = appState
+        let coordinate = CLLocationCoordinate2D(latitude: 51.5074, longitude: -0.1278)
+
+        // The thumbnail tap path ends at ChatViewModel.navigateToMap, which forwards
+        // to the same navigation sink ChatsView.handleMeshCoreLink uses for the text link.
+        viewModel.navigateToMap(coordinate)
+
+        #expect(appState.navigation.pendingMapFocus?.latitude == 51.5074)
+        #expect(appState.navigation.pendingMapFocus?.longitude == -0.1278)
+        #expect(appState.navigation.selectedTab == AppTab.map.rawValue)
+    }
+
     @Test("clearPendingMapFocus resets the pending focus")
     func clearPendingMapFocusResets() {
         let coordinator = NavigationCoordinator()
