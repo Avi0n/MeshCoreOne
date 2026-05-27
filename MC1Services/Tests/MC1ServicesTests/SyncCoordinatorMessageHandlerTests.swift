@@ -212,4 +212,27 @@ struct SyncCoordinatorMessageHandlerTests {
         await coordinator.wireDiscoveryHandlers(services: services, radioID: radioID)
     }
 
+    // MARK: - Unresolved Channel Notification Guard
+
+    @Test("Channel message that resolves to no local channel must not post a notification")
+    func unresolvedChannelSuppressesNotification() {
+        #expect(SyncCoordinator.shouldPostChannelNotification(forResolvedChannel: nil) == false)
+    }
+
+    @Test("Channel message that resolves to a known local channel posts a notification")
+    func resolvedChannelPostsNotification() {
+        let channel = ChannelDTO(
+            id: UUID(),
+            radioID: UUID(),
+            index: 3,
+            name: "Test",
+            secret: Data(repeating: 1, count: 16),
+            isEnabled: true,
+            lastMessageDate: nil,
+            unreadCount: 0,
+            floodScope: .inherit
+        )
+        #expect(SyncCoordinator.shouldPostChannelNotification(forResolvedChannel: channel) == true)
+    }
+
 }

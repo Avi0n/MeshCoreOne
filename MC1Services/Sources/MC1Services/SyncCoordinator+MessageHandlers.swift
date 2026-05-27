@@ -799,38 +799,38 @@ extension SyncCoordinator {
                 }
             }
         }
-        if channel == nil {
-            recordUnresolvedChannelNotification(
+        if Self.shouldPostChannelNotification(forResolvedChannel: channel) {
+            await services.notificationService.postChannelMessageNotification(
+                channelName: channel?.name ?? "Channel \(channelIndex)",
+                channelIndex: channelIndex,
+                radioID: radioID,
+                senderName: senderNodeName,
+                messageText: messageText,
+                messageID: messageDTO.id,
+                notificationLevel: channel?.notificationLevel ?? .all,
+                hasSelfMention: hasSelfMention
+            )
+        } else {
+            recordUnresolvedChannel(
                 channelIndex: channelIndex,
                 radioID: radioID,
                 senderTimestamp: timestamp
             )
         }
-
-        await services.notificationService.postChannelMessageNotification(
-            channelName: channel?.name ?? "Channel \(channelIndex)",
-            channelIndex: channelIndex,
-            radioID: radioID,
-            senderName: senderNodeName,
-            messageText: messageText,
-            messageID: messageDTO.id,
-            notificationLevel: channel?.notificationLevel ?? .all,
-            hasSelfMention: hasSelfMention
-        )
         await services.notificationService.updateBadgeCount()
 
         // Forward to MessageEventStream consumers for real-time chat updates
         await onChannelMessageReceived?(messageDTO, channelIndex)
     }
 
-    private func recordUnresolvedChannelNotification(
+    private func recordUnresolvedChannel(
         channelIndex: UInt8,
         radioID: UUID,
         senderTimestamp: UInt32
     ) {
         let isNewIndex = unresolvedChannelIndices.insert(channelIndex).inserted
         logger.warning(
-            "Posting notification for unresolved channel \(channelIndex) on device \(radioID), senderTimestamp: \(senderTimestamp)"
+            "Suppressing notification for unresolved channel \(channelIndex) on device \(radioID), senderTimestamp: \(senderTimestamp) — no local channel for this slot"
         )
 
         let now = Date()
@@ -846,7 +846,7 @@ extension SyncCoordinator {
         guard shouldEmitSummary else { return }
         let sortedIndices = unresolvedChannelIndices.sorted()
         logger.warning(
-            "Unresolved channel notification summary: total=\(sortedIndices.count), indices=\(sortedIndices)"
+            "Unresolved channel summary: total=\(sortedIndices.count), indices=\(sortedIndices)"
         )
         lastUnresolvedChannelSummaryAt = now
     }
@@ -1119,5 +1119,14 @@ extension SyncCoordinator {
             return (senderName, messageText)
         }
         return (nil, text)
+    }
+
+    /// A received channel message only warrants a user notification when it resolves to a known
+    /// local channel. The radio can report a message on a slot the app has no `Channel` for: the
+    /// firmware decrypts zero-key group traffic on an unconfigured slot and attributes it to the
+    /// first empty slot. Such messages have no openable chat, so they are logged as unresolved
+    /// but never surfaced as a notification.
+    nonisolated static func shouldPostChannelNotification(forResolvedChannel channel: ChannelDTO?) -> Bool {
+        channel != nil
     }
 }

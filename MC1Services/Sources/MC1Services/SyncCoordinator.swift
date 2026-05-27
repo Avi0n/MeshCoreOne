@@ -129,7 +129,8 @@ public actor SyncCoordinator {
     /// Cached blocked names (contacts + channel senders) for O(1) lookup in message handlers
     private var blockedNames: Set<String> = []
 
-    /// Tracks unresolved channel indices that generated notifications in this connection session.
+    /// Tracks channel indices received for slots with no local channel (notifications suppressed)
+    /// in this connection session.
     var unresolvedChannelIndices: Set<UInt8> = []
     var lastUnresolvedChannelSummaryAt: Date?
     let unresolvedChannelSummaryIntervalSeconds: TimeInterval = 60
