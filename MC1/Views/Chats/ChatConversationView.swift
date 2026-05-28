@@ -31,6 +31,7 @@ struct ChatConversationView: View {
     @State private var unseenMentionIDs: [UUID] = []
     @State private var scrollToTargetID: UUID?
     @State private var mentionScrollTask: Task<Void, Never>?
+    @State private var mentionResolverTask: Task<Void, Never>?
     @State private var scrollToDividerRequest = 0
     @State private var isDividerVisible = false
 
@@ -40,6 +41,7 @@ struct ChatConversationView: View {
     @State private var selectedMessageForActions: MessageDTO?
     @State private var blockSenderContext: BlockSenderContext?
     @State private var sendDMContext: SendDMContext?
+    @State private var mentionPickerContext: MentionPickerContext?
     @State private var imageViewerData: ImageViewerData?
 
     // MARK: - Other State
@@ -114,6 +116,13 @@ struct ChatConversationView: View {
             onScrollToMention: { scrollToNextMention() },
             onRetryMessage: { retryMessage($0) }
         )
+        .environment(\.openURL, OpenURLAction { url in
+            if url.scheme == "meshcoreone" && url.host == "mention" {
+                handleMentionURL(url)
+                return .handled
+            }
+            return ChatLinkRouter.route(url, appState: appState) ? .handled : .systemAction
+        })
         // Banner is applied innermost so its safe-area inset stacks above the
         // input bar inset that follows, placing the strip between content and
         // the input bar (and lifting it with the keyboard).
@@ -287,6 +296,8 @@ struct ChatConversationView: View {
     private func performCleanup() {
         mentionScrollTask?.cancel()
         mentionScrollTask = nil
+        mentionResolverTask?.cancel()
+        mentionResolverTask = nil
 
         // Clear notification suppression
         switch conversationType {
@@ -497,6 +508,16 @@ struct ChatConversationView: View {
     }
 
     // MARK: - Mention Tap
+
+    private func handleMentionURL(_ url: URL) {
+        guard let rawDecoded = url.lastPathComponent.removingPercentEncoding else { return }
+        mentionResolverTask?.cancel()
+        mentionResolverTask = Task { @MainActor in
+            let ctx = resolveMentionTap(name: rawDecoded)
+            guard !Task.isCancelled else { return }
+            if let ctx { mentionPickerContext = ctx }
+        }
+    }
 
     private func resolveMentionTap(name rawName: String) -> MentionPickerContext? {
         let outcome = MentionTapEvaluator.evaluate(
@@ -746,6 +767,7 @@ private extension View {
 /// scope as an `enum` to enable direct unit testing without instantiating the
 /// view. The instance method on `ChatConversationView` is a one-line forwarder
 /// that performs the navigation side effect for `.navigate` outcomes.
+@MainActor
 enum MentionTapEvaluator {
     enum Outcome {
         case navigate(ContactDTO)
