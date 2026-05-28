@@ -137,7 +137,7 @@ private struct ActionsOutgoingDetailsRows: View {
 
     var body: some View {
         ActionInfoRow(text: L10n.Chats.Chats.Message.Info.sent(
-            message.senderDate.formatted(date: .abbreviated, time: .shortened)))
+            message.senderDate.formatted(date: .abbreviated, time: .standard)))
 
         if let rtt = message.roundTripTime {
             ActionInfoRow(text: L10n.Chats.Chats.Message.Info.roundTrip(Int(rtt)))
@@ -170,12 +170,12 @@ private struct ActionsIncomingDetailsRows: View {
         }
 
         let sentText = L10n.Chats.Chats.Message.Info.sent(
-            message.senderDate.formatted(date: .abbreviated, time: .shortened))
+            message.senderDate.formatted(date: .abbreviated, time: .standard))
         let adjusted = message.timestampCorrected ? " " + L10n.Chats.Chats.Message.Info.adjusted : ""
         ActionInfoRow(text: sentText + adjusted)
 
         ActionInfoRow(text: L10n.Chats.Chats.Message.Info.received(
-            message.createdAt.formatted(date: .abbreviated, time: .shortened)))
+            message.createdAt.formatted(date: .abbreviated, time: .standard)))
 
         if let snr = message.snr {
             ActionInfoRow(text: L10n.Chats.Chats.Message.Info.snr(snrFormatted(snr)))
