@@ -10,10 +10,6 @@ import UIKit
 /// only used briefly to build options and is suspended during the GL work.
 @MainActor
 final class MapSnapshotRenderer: MapSnapshotRendering {
-    /// Holds the in-flight snapshotter alive across the suspension. With
-    /// `MapSnapshotStore`'s serial cap there is at most one at a time.
-    private var activeSnapshotter: MLNMapSnapshotter?
-
     func render(_ request: MapSnapshotRequest) async -> UIImage? {
         let sprite = PinSpriteRenderer.droppedPinSprite()
         let size = CGSize(width: MapSnapshotLayout.width, height: MapSnapshotLayout.height)
@@ -39,30 +35,49 @@ final class MapSnapshotRenderer: MapSnapshotRendering {
         options.showsAttribution = false
 
         let snapshotter = MLNMapSnapshotter(options: options)
-        activeSnapshotter = snapshotter
-        defer { activeSnapshotter = nil }
+        // The `snapshotter.start(...)` call below retains `snapshotter` for the
+        // duration of the underlying GL work — no extra anchor is needed to
+        // keep it alive across the `await` suspension.
+        let snapshotterRef = SnapshotterRef(snapshotter)
 
-        return await withCheckedContinuation { (continuation: CheckedContinuation<UIImage?, Never>) in
-            snapshotter.start(
-                overlayHandler: { overlay in
-                    // Background queue. Composite the pre-rendered sprite directly
-                    // into the snapshot context, tip (bottom-center) at the point.
-                    let point = overlay.point(
-                        for: CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-                    )
-                    UIGraphicsPushContext(overlay.context)
-                    sprite.draw(in: CGRect(
-                        x: point.x - sprite.size.width / 2,
-                        y: point.y - sprite.size.height,
-                        width: sprite.size.width,
-                        height: sprite.size.height
-                    ))
-                    UIGraphicsPopContext()
-                },
-                completionHandler: { snapshot, _ in
-                    continuation.resume(returning: snapshot?.image)
-                }
-            )
+        return await withTaskCancellationHandler {
+            await withCheckedContinuation { (continuation: CheckedContinuation<UIImage?, Never>) in
+                snapshotter.start(
+                    overlayHandler: { overlay in
+                        // Background queue. Composite the pre-rendered sprite directly
+                        // into the snapshot context, tip (bottom-center) at the point.
+                        let point = overlay.point(
+                            for: CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+                        )
+                        UIGraphicsPushContext(overlay.context)
+                        sprite.draw(in: CGRect(
+                            x: point.x - sprite.size.width / 2,
+                            y: point.y - sprite.size.height,
+                            width: sprite.size.width,
+                            height: sprite.size.height
+                        ))
+                        UIGraphicsPopContext()
+                    },
+                    completionHandler: { snapshot, _ in
+                        continuation.resume(returning: snapshot?.image)
+                    }
+                )
+            }
+        } onCancel: { [snapshotterRef] in
+            // The cancel handler runs on whichever actor triggered cancellation;
+            // hop to the main actor so `MLNMapSnapshotter` (non-`Sendable`) is
+            // touched only from its owning context. Cancellation flows back to
+            // the awaiter via the `completionHandler` resuming with `nil`.
+            Task { @MainActor in snapshotterRef.snapshotter.cancel() }
         }
     }
+}
+
+/// `@unchecked Sendable` shuttle so the cancellation closure (which is
+/// `@Sendable`) can carry the non-`Sendable` `MLNMapSnapshotter` reference
+/// across actors. The closure only reads the property and immediately hops
+/// back to the main actor before touching it.
+private final class SnapshotterRef: @unchecked Sendable {
+    let snapshotter: MLNMapSnapshotter
+    init(_ snapshotter: MLNMapSnapshotter) { self.snapshotter = snapshotter }
 }
