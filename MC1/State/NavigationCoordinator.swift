@@ -39,6 +39,15 @@ public final class NavigationCoordinator {
     /// Coordinate the Map tab should drop a pin on and center, set by a chat coordinate tap.
     var pendingMapFocus: MapFocusRequest?
 
+    /// Pending contact-add confirmation triggered by a `meshcore://contact/add` link tap inside any chat surface.
+    var pendingContactLink: MeshCoreURLParser.ContactResult?
+
+    /// Pending channel-join confirmation triggered by a `meshcore://channel/...` link tap inside any chat surface.
+    var pendingChannelLink: MeshCoreURLParser.ChannelResult?
+
+    /// Pending hashtag-channel join sheet triggered by a `meshcoreone://hashtag/...` link tap inside any chat surface.
+    var pendingHashtag: HashtagJoinRequest?
+
     // MARK: - Navigation
 
     func navigateToChat(with contact: ContactDTO, scrollToMessageID: UUID? = nil) {
@@ -110,6 +119,18 @@ public final class NavigationCoordinator {
 
     func clearPendingMapFocus() {
         pendingMapFocus = nil
+    }
+
+    func clearPendingContactLink() {
+        pendingContactLink = nil
+    }
+
+    func clearPendingChannelLink() {
+        pendingChannelLink = nil
+    }
+
+    func clearPendingHashtag() {
+        pendingHashtag = nil
     }
 
     /// Tabs where BLEStatusIndicatorView exists and the device menu tip can anchor (Chats, Contacts, Map).

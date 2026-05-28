@@ -305,3 +305,45 @@ struct NavigationCoordinatorMapTests {
         #expect(coordinator.pendingMapFocus == nil)
     }
 }
+
+@Suite("NavigationCoordinator Pending Link Tests")
+@MainActor
+struct NavigationCoordinatorPendingLinkTests {
+
+    @Test("pendingContactLink starts nil and clears via helper")
+    func pendingContactLinkClears() {
+        let coordinator = NavigationCoordinator()
+        #expect(coordinator.pendingContactLink == nil)
+        coordinator.pendingContactLink = MeshCoreURLParser.ContactResult(
+            name: "Alice",
+            publicKey: Data(repeating: 0xAB, count: 32),
+            contactType: .chat
+        )
+        #expect(coordinator.pendingContactLink != nil)
+        coordinator.clearPendingContactLink()
+        #expect(coordinator.pendingContactLink == nil)
+    }
+
+    @Test("pendingChannelLink starts nil and clears via helper")
+    func pendingChannelLinkClears() {
+        let coordinator = NavigationCoordinator()
+        #expect(coordinator.pendingChannelLink == nil)
+        coordinator.pendingChannelLink = MeshCoreURLParser.ChannelResult(
+            name: "general",
+            secret: Data(repeating: 0xCC, count: 16)
+        )
+        #expect(coordinator.pendingChannelLink != nil)
+        coordinator.clearPendingChannelLink()
+        #expect(coordinator.pendingChannelLink == nil)
+    }
+
+    @Test("pendingHashtag starts nil and clears via helper")
+    func pendingHashtagClears() {
+        let coordinator = NavigationCoordinator()
+        #expect(coordinator.pendingHashtag == nil)
+        coordinator.pendingHashtag = HashtagJoinRequest(id: "#general")
+        #expect(coordinator.pendingHashtag != nil)
+        coordinator.clearPendingHashtag()
+        #expect(coordinator.pendingHashtag == nil)
+    }
+}
