@@ -88,6 +88,15 @@ private func createChannelMessage(
 @MainActor
 struct ChatViewModelTests {
 
+    /// `ChatViewModel.makeBuildInputs` calls `MapSnapshotStore.shared.isResolved`,
+    /// which lazily initializes the process-lifetime singleton. Swift Testing
+    /// constructs a fresh suite instance per `@Test`, so resetting the singleton
+    /// here keeps `resolvedKeys`, `imageEntries`, and `failed` from leaking
+    /// between tests in this suite (and from earlier suites that touched it).
+    init() {
+        MapSnapshotStore.shared.clear()
+    }
+
     // MARK: - Timestamp Logic Tests
 
     @Test("First message always shows timestamp")
