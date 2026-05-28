@@ -217,6 +217,9 @@ struct ChatConversationView: View {
                 appState.navigation.navigateToChat(with: contact)
             }
         }
+        .sheet(item: $mentionPickerContext) { context in
+            mentionPickerSheet(for: context)
+        }
         .fullScreenCover(item: $imageViewerData) { data in
             FullScreenImageViewer(data: data)
         }
