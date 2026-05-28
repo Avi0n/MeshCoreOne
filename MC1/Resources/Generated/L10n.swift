@@ -2365,6 +2365,10 @@ public enum L10n {
         public static let accessibilityHint = L10n.tr("Map", "map.preview.accessibilityHint", fallback: "Opens this location on the map")
         /// Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the chat map-location thumbnail
         public static let accessibilityLabel = L10n.tr("Map", "map.preview.accessibilityLabel", fallback: "Map location preview")
+        public enum RetryButton {
+          /// Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback
+          public static let accessibilityLabel = L10n.tr("Map", "map.preview.retryButton.accessibilityLabel", fallback: "Retry loading map thumbnail")
+        }
       }
       public enum Style {
         /// Location: LayersMenu.swift - Purpose: Accessibility label for map style menu

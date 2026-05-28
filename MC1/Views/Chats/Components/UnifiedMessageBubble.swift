@@ -226,7 +226,8 @@ struct UnifiedMessageBubble: View, Equatable {
                 state: state,
                 snapshotResolver: { MapSnapshotStore.shared.image(for: $0) },
                 onTap: { callbacks.onMapPreviewTap?($0) },
-                onRequestSnapshot: { MapSnapshotStore.shared.request($0) }
+                onRequestSnapshot: { MapSnapshotStore.shared.request($0) },
+                onRetry: { MapSnapshotStore.shared.retry($0) }
             )
         case .text, .inlineImage:
             EmptyView()
