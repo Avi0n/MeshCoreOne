@@ -40,24 +40,28 @@ final class MapSnapshotRenderer: MapSnapshotRendering {
         // keep it alive across the `await` suspension.
         let snapshotterRef = SnapshotterRef(snapshotter)
 
+        // `@Sendable` breaks `@MainActor` inheritance from the enclosing
+        // `withTaskCancellationHandler` operation closure; without it the
+        // runtime executor-isolation assertion (`dispatch_assert_queue_fail`)
+        // trips when MapLibre invokes the overlay handler off-main.
+        let overlayHandler: @Sendable (MLNMapSnapshotOverlay) -> Void = { overlay in
+            let point = overlay.point(
+                for: CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+            )
+            UIGraphicsPushContext(overlay.context)
+            sprite.draw(in: CGRect(
+                x: point.x - sprite.size.width / 2,
+                y: point.y - sprite.size.height,
+                width: sprite.size.width,
+                height: sprite.size.height
+            ))
+            UIGraphicsPopContext()
+        }
+
         return await withTaskCancellationHandler {
             await withCheckedContinuation { (continuation: CheckedContinuation<UIImage?, Never>) in
                 snapshotter.start(
-                    overlayHandler: { overlay in
-                        // Background queue. Composite the pre-rendered sprite directly
-                        // into the snapshot context, tip (bottom-center) at the point.
-                        let point = overlay.point(
-                            for: CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-                        )
-                        UIGraphicsPushContext(overlay.context)
-                        sprite.draw(in: CGRect(
-                            x: point.x - sprite.size.width / 2,
-                            y: point.y - sprite.size.height,
-                            width: sprite.size.width,
-                            height: sprite.size.height
-                        ))
-                        UIGraphicsPopContext()
-                    },
+                    overlayHandler: overlayHandler,
                     completionHandler: { snapshot, _ in
                         continuation.resume(returning: snapshot?.image)
                     }
