@@ -139,9 +139,7 @@ struct MessageText: View {
                 }
             }
 
-            if let encoded = name.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
-               !encoded.isEmpty,
-               let url = URL(string: "meshcoreone://mention/\(encoded)") {
+            if let url = MentionDeeplinkSupport.url(forName: name) {
                 replacement.link = url
             }
 

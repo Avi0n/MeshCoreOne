@@ -117,8 +117,8 @@ struct ChatConversationView: View {
             onRetryMessage: { retryMessage($0) }
         )
         .environment(\.openURL, OpenURLAction { url in
-            if url.scheme == "meshcoreone" && url.host == "mention" {
-                handleMentionURL(url)
+            if let mentionName = MentionDeeplinkSupport.name(from: url) {
+                handleMentionTap(name: mentionName)
                 return .handled
             }
             return ChatLinkRouter.route(url, appState: appState) ? .handled : .systemAction
@@ -512,11 +512,10 @@ struct ChatConversationView: View {
 
     // MARK: - Mention Tap
 
-    private func handleMentionURL(_ url: URL) {
-        guard let rawDecoded = url.lastPathComponent.removingPercentEncoding else { return }
+    private func handleMentionTap(name: String) {
         mentionResolverTask?.cancel()
         mentionResolverTask = Task { @MainActor in
-            let ctx = resolveMentionTap(name: rawDecoded)
+            let ctx = resolveMentionTap(name: name)
             guard !Task.isCancelled else { return }
             if let ctx { mentionPickerContext = ctx }
         }
