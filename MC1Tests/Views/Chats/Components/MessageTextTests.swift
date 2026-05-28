@@ -118,7 +118,7 @@ struct MessageTextTests {
         let link = formatted[attrRange].link
         #expect(link?.scheme == "meshcoreone")
         #expect(link?.host == "mention")
-        let decoded = link?.lastPathComponent.removingPercentEncoding
+        let decoded = link.flatMap(MentionDeeplinkSupport.name(from:))
         #expect(decoded == "Alice Smith")
     }
 

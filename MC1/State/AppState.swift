@@ -361,6 +361,7 @@ public final class AppState {
             await liveActivityManager.handleConnectionLost()
             chatCoordinatorRegistry?.tearDown()
             chatCoordinatorRegistry = nil
+            navigation.clearPendingLinks()
             return
         }
 

@@ -133,6 +133,16 @@ public final class NavigationCoordinator {
         pendingHashtag = nil
     }
 
+    /// Clears chat link / hashtag confirmation state staged before a disconnect
+    /// so a pending sheet cannot re-present against a different radio after the
+    /// connection is torn down and replaced. Restores the teardown semantics the
+    /// old `ChatsView` `@State` had when its view identity changed.
+    func clearPendingLinks() {
+        pendingContactLink = nil
+        pendingChannelLink = nil
+        pendingHashtag = nil
+    }
+
     /// Tabs where BLEStatusIndicatorView exists and the device menu tip can anchor (Chats, Contacts, Map).
     var isOnValidTabForDeviceMenuTip: Bool {
         selectedTab == AppTab.chats.rawValue
