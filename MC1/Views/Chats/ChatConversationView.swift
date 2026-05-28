@@ -496,6 +496,24 @@ struct ChatConversationView: View {
         }
     }
 
+    // MARK: - Mention Tap
+
+    private func resolveMentionTap(name rawName: String) -> MentionPickerContext? {
+        let outcome = MentionTapEvaluator.evaluate(
+            rawName: rawName,
+            contacts: chatViewModel.allContacts,
+            connectedDeviceName: appState.connectedDevice?.nodeName,
+            radioID: conversationType.radioID
+        )
+        switch outcome {
+        case .navigate(let contact):
+            appState.navigation.navigateToContactDetail(contact)
+            return nil
+        case .picker(let context):
+            return context
+        }
+    }
+
     // MARK: - Message Actions Sheet
 
     private func messageActionsSheet(for message: MessageDTO) -> some View {
@@ -720,4 +738,66 @@ private extension View {
         )
     }
     .environment(\.appState, AppState())
+}
+
+// MARK: - Mention Tap Evaluator
+
+/// Pure-logic core for `ChatConversationView.resolveMentionTap`. Lives at file
+/// scope as an `enum` to enable direct unit testing without instantiating the
+/// view. The instance method on `ChatConversationView` is a one-line forwarder
+/// that performs the navigation side effect for `.navigate` outcomes.
+enum MentionTapEvaluator {
+    enum Outcome {
+        case navigate(ContactDTO)
+        case picker(MentionPickerContext)
+    }
+
+    static func evaluate(
+        rawName: String,
+        contacts: [ContactDTO],
+        connectedDeviceName: String?,
+        radioID: UUID
+    ) -> Outcome {
+        let sanitized = MessageText.displayName(for: rawName)
+        let trimmed = sanitized.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if trimmed.isEmpty {
+            return .picker(MentionPickerContext(
+                name: sanitized,
+                radioID: radioID,
+                matches: [],
+                isSelfMention: false
+            ))
+        }
+
+        let isSelf: Bool = connectedDeviceName.map {
+            sanitized.localizedCaseInsensitiveCompare($0) == .orderedSame
+        } ?? false
+
+        if isSelf {
+            return .picker(MentionPickerContext(
+                name: sanitized,
+                radioID: radioID,
+                matches: [],
+                isSelfMention: true
+            ))
+        }
+
+        let matches = SenderContactMatcher.filter(
+            contacts: contacts,
+            senderName: sanitized,
+            excludeBlocked: false
+        )
+
+        if matches.count == 1 {
+            return .navigate(matches[0])
+        }
+
+        return .picker(MentionPickerContext(
+            name: sanitized,
+            radioID: radioID,
+            matches: matches,
+            isSelfMention: false
+        ))
+    }
 }
