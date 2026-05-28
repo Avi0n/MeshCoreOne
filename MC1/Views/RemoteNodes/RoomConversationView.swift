@@ -23,6 +23,10 @@ struct RoomConversationView: View {
 
     var body: some View {
         makeMessagesView()
+            .mentionTapHandling(
+                contacts: chatViewModel.allContacts,
+                radioID: session.radioID
+            )
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if !session.isConnected {
                     makeDisconnectedBanner()
@@ -55,6 +59,7 @@ struct RoomConversationView: View {
             .task {
                 viewModel.configure(appState: appState)
                 chatViewModel.configure(appState: appState)
+                await chatViewModel.loadAllContacts(radioID: session.radioID)
                 await viewModel.loadMessages(for: session)
             }
             .task {

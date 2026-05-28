@@ -31,7 +31,6 @@ struct ChatConversationView: View {
     @State private var unseenMentionIDs: [UUID] = []
     @State private var scrollToTargetID: UUID?
     @State private var mentionScrollTask: Task<Void, Never>?
-    @State private var mentionResolverTask: Task<Void, Never>?
     @State private var scrollToDividerRequest = 0
     @State private var isDividerVisible = false
 
@@ -41,7 +40,6 @@ struct ChatConversationView: View {
     @State private var selectedMessageForActions: MessageDTO?
     @State private var blockSenderContext: BlockSenderContext?
     @State private var sendDMContext: SendDMContext?
-    @State private var mentionPickerContext: MentionPickerContext?
     @State private var imageViewerData: ImageViewerData?
 
     // MARK: - Other State
@@ -116,13 +114,10 @@ struct ChatConversationView: View {
             onScrollToMention: { scrollToNextMention() },
             onRetryMessage: { retryMessage($0) }
         )
-        .environment(\.openURL, OpenURLAction { url in
-            if let mentionName = MentionDeeplinkSupport.name(from: url) {
-                handleMentionTap(name: mentionName)
-                return .handled
-            }
-            return ChatLinkRouter.route(url, appState: appState) ? .handled : .systemAction
-        })
+        .mentionTapHandling(
+            contacts: chatViewModel.allContacts,
+            radioID: conversationType.radioID
+        )
         // Banner is applied innermost so its safe-area inset stacks above the
         // input bar inset that follows, placing the strip between content and
         // the input bar (and lifting it with the keyboard).
@@ -217,9 +212,6 @@ struct ChatConversationView: View {
                 appState.navigation.navigateToChat(with: contact)
             }
         }
-        .sheet(item: $mentionPickerContext) { context in
-            mentionPickerSheet(for: context)
-        }
         .fullScreenCover(item: $imageViewerData) { data in
             FullScreenImageViewer(data: data)
         }
@@ -299,8 +291,6 @@ struct ChatConversationView: View {
     private func performCleanup() {
         mentionScrollTask?.cancel()
         mentionScrollTask = nil
-        mentionResolverTask?.cancel()
-        mentionResolverTask = nil
 
         // Clear notification suppression
         switch conversationType {
@@ -508,90 +498,6 @@ struct ChatConversationView: View {
             let mention = MentionUtilities.createMention(for: contact.name)
             chatViewModel.composingText.replaceSubrange(range, with: mention + " ")
         }
-    }
-
-    // MARK: - Mention Tap
-
-    private func handleMentionTap(name: String) {
-        mentionResolverTask?.cancel()
-        mentionResolverTask = Task { @MainActor in
-            let ctx = resolveMentionTap(name: name)
-            guard !Task.isCancelled else { return }
-            if let ctx { mentionPickerContext = ctx }
-        }
-    }
-
-    private func resolveMentionTap(name rawName: String) -> MentionPickerContext? {
-        let outcome = MentionTapEvaluator.evaluate(
-            rawName: rawName,
-            contacts: chatViewModel.allContacts,
-            connectedDeviceName: appState.connectedDevice?.nodeName,
-            radioID: conversationType.radioID
-        )
-        switch outcome {
-        case .navigate(let contact):
-            appState.navigation.navigateToContactDetail(contact)
-            return nil
-        case .picker(let context):
-            return context
-        }
-    }
-
-    // MARK: - Mention Picker Sheet
-
-    @ViewBuilder
-    private func mentionPickerSheet(for context: MentionPickerContext) -> some View {
-        NavigationStack {
-            Group {
-                if context.isSelfMention {
-                    ContentUnavailableView {
-                        Label(L10n.Chats.Chats.Mention.Picker.selfTitle,
-                              systemImage: "person.crop.circle")
-                    } description: {
-                        Text(L10n.Chats.Chats.Mention.Picker.selfSubtitle(context.name))
-                    }
-                } else if context.matches.isEmpty {
-                    ContentUnavailableView {
-                        Label(L10n.Chats.Chats.Mention.Picker.notSavedTitle,
-                              systemImage: "person.crop.circle.badge.questionmark")
-                    } description: {
-                        Text(L10n.Chats.Chats.Mention.Picker.notSavedSubtitle(context.name))
-                    }
-                } else {
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(L10n.Chats.Chats.Mention.Picker.matchingContacts)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-
-                            ForEach(context.matches) { match in
-                                ContactMatchRow(
-                                    contact: match,
-                                    style: .tap,
-                                    userLocation: appState.bestAvailableLocation,
-                                    action: {
-                                        mentionPickerContext = nil
-                                        appState.navigation.navigateToContactDetail(match)
-                                    }
-                                )
-                            }
-                        }
-                        .padding()
-                    }
-                }
-            }
-            .navigationTitle(L10n.Chats.Chats.Mention.Picker.title(context.name))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.Localizable.Common.done) {
-                        mentionPickerContext = nil
-                    }
-                }
-            }
-        }
-        .presentationDetents([.height(180), .medium])
-        .presentationDragIndicator(.visible)
     }
 
     // MARK: - Message Actions Sheet
@@ -818,67 +724,4 @@ private extension View {
         )
     }
     .environment(\.appState, AppState())
-}
-
-// MARK: - Mention Tap Evaluator
-
-/// Pure-logic core for `ChatConversationView.resolveMentionTap`. Lives at file
-/// scope as an `enum` to enable direct unit testing without instantiating the
-/// view. The instance method on `ChatConversationView` is a one-line forwarder
-/// that performs the navigation side effect for `.navigate` outcomes.
-@MainActor
-enum MentionTapEvaluator {
-    enum Outcome {
-        case navigate(ContactDTO)
-        case picker(MentionPickerContext)
-    }
-
-    static func evaluate(
-        rawName: String,
-        contacts: [ContactDTO],
-        connectedDeviceName: String?,
-        radioID: UUID
-    ) -> Outcome {
-        let sanitized = MessageText.displayName(for: rawName)
-        let trimmed = sanitized.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        if trimmed.isEmpty {
-            return .picker(MentionPickerContext(
-                name: sanitized,
-                radioID: radioID,
-                matches: [],
-                isSelfMention: false
-            ))
-        }
-
-        let isSelf: Bool = connectedDeviceName.map {
-            sanitized.localizedCaseInsensitiveCompare($0) == .orderedSame
-        } ?? false
-
-        if isSelf {
-            return .picker(MentionPickerContext(
-                name: sanitized,
-                radioID: radioID,
-                matches: [],
-                isSelfMention: true
-            ))
-        }
-
-        let matches = SenderContactMatcher.filter(
-            contacts: contacts,
-            senderName: sanitized,
-            excludeBlocked: false
-        )
-
-        if matches.count == 1 {
-            return .navigate(matches[0])
-        }
-
-        return .picker(MentionPickerContext(
-            name: sanitized,
-            radioID: radioID,
-            matches: matches,
-            isSelfMention: false
-        ))
-    }
 }
