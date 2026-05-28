@@ -555,6 +555,26 @@ public enum L10n {
             return L10n.tr("Chats", "chats.mention.accessibility.label", String(describing: p1), fallback: "Mention %@")
           }
         }
+        public enum Picker {
+          /// Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts
+          public static let matchingContacts = L10n.tr("Chats", "chats.mention.picker.matchingContacts", fallback: "Matching contacts")
+          /// Location: ChatConversationView.swift - Mention picker description when the tapped name matches no saved contact
+          public static func notSavedSubtitle(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.mention.picker.notSavedSubtitle", String(describing: p1), fallback: "@%@ doesn't match any contact on this radio.")
+          }
+          /// Location: ChatConversationView.swift - Mention picker title when the tapped name matches no saved contact
+          public static let notSavedTitle = L10n.tr("Chats", "chats.mention.picker.notSavedTitle", fallback: "Not a saved contact")
+          /// Location: ChatConversationView.swift - Mention picker description when the tapped name is the user's own node
+          public static func selfSubtitle(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.mention.picker.selfSubtitle", String(describing: p1), fallback: "@%@ is your own node name.")
+          }
+          /// Location: ChatConversationView.swift - Mention picker title when the tapped name is the user's own node
+          public static let selfTitle = L10n.tr("Chats", "chats.mention.picker.selfTitle", fallback: "That's you")
+          /// Location: ChatConversationView.swift - Mention picker navigation title shown with the tapped mention name
+          public static func title(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.mention.picker.title", String(describing: p1), fallback: "Mention: %@")
+          }
+        }
       }
       public enum Message {
         /// Location: ChatConversationView.swift - Placeholder when message data is unavailable

@@ -535,6 +535,63 @@ struct ChatConversationView: View {
         }
     }
 
+    // MARK: - Mention Picker Sheet
+
+    @ViewBuilder
+    private func mentionPickerSheet(for context: MentionPickerContext) -> some View {
+        NavigationStack {
+            Group {
+                if context.isSelfMention {
+                    ContentUnavailableView {
+                        Label(L10n.Chats.Chats.Mention.Picker.selfTitle,
+                              systemImage: "person.crop.circle")
+                    } description: {
+                        Text(L10n.Chats.Chats.Mention.Picker.selfSubtitle(context.name))
+                    }
+                } else if context.matches.isEmpty {
+                    ContentUnavailableView {
+                        Label(L10n.Chats.Chats.Mention.Picker.notSavedTitle,
+                              systemImage: "person.crop.circle.badge.questionmark")
+                    } description: {
+                        Text(L10n.Chats.Chats.Mention.Picker.notSavedSubtitle(context.name))
+                    }
+                } else {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text(L10n.Chats.Chats.Mention.Picker.matchingContacts)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+
+                            ForEach(context.matches) { match in
+                                ContactMatchRow(
+                                    contact: match,
+                                    style: .tap,
+                                    userLocation: appState.bestAvailableLocation,
+                                    action: {
+                                        mentionPickerContext = nil
+                                        appState.navigation.navigateToContactDetail(match)
+                                    }
+                                )
+                            }
+                        }
+                        .padding()
+                    }
+                }
+            }
+            .navigationTitle(L10n.Chats.Chats.Mention.Picker.title(context.name))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(L10n.Localizable.Common.done) {
+                        mentionPickerContext = nil
+                    }
+                }
+            }
+        }
+        .presentationDetents([.height(180), .medium])
+        .presentationDragIndicator(.visible)
+    }
+
     // MARK: - Message Actions Sheet
 
     private func messageActionsSheet(for message: MessageDTO) -> some View {
