@@ -139,6 +139,12 @@ struct MessageText: View {
                 }
             }
 
+            if let encoded = name.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+               !encoded.isEmpty,
+               let url = URL(string: "meshcoreone://mention/\(encoded)") {
+                replacement.link = url
+            }
+
             attributedString.replaceSubrange(attrMatchRange, with: replacement)
         }
     }

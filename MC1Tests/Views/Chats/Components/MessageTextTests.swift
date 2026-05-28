@@ -10,60 +10,47 @@ struct MessageTextTests {
 
     // MARK: - URL in Mention Tests
 
-    @Test("URL-like text in mention should not be parsed as a link")
+    @Test("URL-like text in mention should carry the mention link, not a parsed URL")
     func urlInMentionShouldNotBeParsedAsLink() {
-        // Username contains a domain-like string: "Ferret PocketMesh WCMesh.com"
         let text = "Hey @[Ferret PocketMesh WCMesh.com], check this out!"
         let messageText = MessageText(text)
-
-        // Extract the attributed string by accessing the formatted output
         let formatted = messageText.testableFormattedText
 
-        // The mention "@Ferret PocketMesh WCMesh.com" should be styled as a mention (bold)
-        // but "WCMesh.com" should NOT have a link attribute
-
-        // Find the range of "WCMesh.com" in the formatted string
         let content = String(formatted.characters)
-        guard let wcMeshRange = content.range(of: "WCMesh.com") else {
+        guard let wcMeshRange = content.range(of: "WCMesh.com"),
+              let attrRange = Range(wcMeshRange, in: formatted) else {
             Issue.record("Could not find 'WCMesh.com' in formatted text")
             return
         }
 
-        // Convert to AttributedString index
-        guard let attrRange = Range(wcMeshRange, in: formatted) else {
-            Issue.record("Could not convert range to AttributedString range")
-            return
-        }
+        let link = formatted[attrRange].link
+        #expect(link?.scheme == "meshcoreone")
+        #expect(link?.host == "mention")
+        #expect(link?.scheme != "http")
+        #expect(link?.scheme != "https")
 
-        // Check that WCMesh.com does NOT have a link attribute
-        let linkValue = formatted[attrRange].link
-        #expect(linkValue == nil, "WCMesh.com should not be parsed as a URL when it's part of a mention")
-
-        // Verify it has mention styling (underline)
         let underline = formatted[attrRange].underlineStyle
         #expect(underline == .single, "WCMesh.com should have mention styling (underline)")
     }
 
-    @Test("URL-like text in mention with IP address should not be parsed as link")
+    @Test("URL-like text in mention with IP address should carry the mention link, not a parsed URL")
     func ipAddressInMentionShouldNotBeParsedAsLink() {
         let text = "Message from @[Node 192.168.1.100]"
         let messageText = MessageText(text)
         let formatted = messageText.testableFormattedText
 
         let content = String(formatted.characters)
-        guard let ipRange = content.range(of: "192.168.1.100") else {
+        guard let ipRange = content.range(of: "192.168.1.100"),
+              let attrRange = Range(ipRange, in: formatted) else {
             Issue.record("Could not find IP address in formatted text")
             return
         }
 
-        guard let attrRange = Range(ipRange, in: formatted) else {
-            Issue.record("Could not convert range to AttributedString range")
-            return
-        }
-
-        // IP should not be a link
-        let linkValue = formatted[attrRange].link
-        #expect(linkValue == nil, "IP address should not be parsed as URL when in mention")
+        let link = formatted[attrRange].link
+        #expect(link?.scheme == "meshcoreone")
+        #expect(link?.host == "mention")
+        #expect(link?.scheme != "http")
+        #expect(link?.scheme != "https")
     }
 
     @Test("Regular URL outside mention should still be parsed as link")
@@ -97,23 +84,42 @@ struct MessageTextTests {
 
         let content = String(formatted.characters)
 
-        // node.example.com in mention should NOT be a link
         if let nodeRange = content.range(of: "node.example.com"),
            let attrRange = Range(nodeRange, in: formatted) {
-            let linkValue = formatted[attrRange].link
-            #expect(linkValue == nil, "node.example.com in mention should not be a link")
+            let link = formatted[attrRange].link
+            #expect(link?.scheme == "meshcoreone", "node.example.com inside the mention carries the mention link")
+            #expect(link?.host == "mention")
+            #expect(link?.scheme != "https", "node.example.com inside the mention is not parsed as an https URL")
         } else {
             Issue.record("Could not find node.example.com in formatted text")
         }
 
-        // docs.example.com URL should be a link
         if let docsRange = content.range(of: "https://docs.example.com"),
            let attrRange = Range(docsRange, in: formatted) {
-            let linkValue = formatted[attrRange].link
-            #expect(linkValue != nil, "Real URL should be parsed as a link")
+            let link = formatted[attrRange].link
+            #expect(link?.scheme == "https", "Real URL outside the mention is parsed as an https link")
         } else {
             Issue.record("Could not find https://docs.example.com in formatted text")
         }
+    }
+
+    @Test("A simple mention carries a meshcoreone://mention/<percent-encoded-name> link")
+    func mentionRangeCarriesMentionLink() {
+        let text = "Hey @[Alice Smith], how are you?"
+        let formatted = MessageText(text).testableFormattedText
+
+        let content = String(formatted.characters)
+        guard let mentionRange = content.range(of: "@Alice Smith"),
+              let attrRange = Range(mentionRange, in: formatted) else {
+            Issue.record("Could not locate mention substring")
+            return
+        }
+
+        let link = formatted[attrRange].link
+        #expect(link?.scheme == "meshcoreone")
+        #expect(link?.host == "mention")
+        let decoded = link?.lastPathComponent.removingPercentEncoding
+        #expect(decoded == "Alice Smith")
     }
 
     // MARK: - Coordinate Detection
