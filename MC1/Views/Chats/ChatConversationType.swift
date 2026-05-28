@@ -92,6 +92,15 @@ enum ChatConversationType: Sendable {
         }
     }
 
+    var radioID: UUID {
+        switch self {
+        case .dm(let contact):
+            contact.radioID
+        case .channel(let channel):
+            channel.radioID
+        }
+    }
+
     var isPublicStyleChannel: Bool {
         switch self {
         case .dm:

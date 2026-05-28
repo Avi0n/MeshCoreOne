@@ -264,6 +264,55 @@ struct ChatConversationTypeTests {
         #expect(sut.isPublicStyleChannel == false)
     }
 
+    // MARK: - radioID
+
+    @Test("radioID returns the contact's radioID for a DM conversation")
+    func radioIDDM() {
+        let radio = UUID()
+        let contact = ContactDTO(
+            id: UUID(),
+            radioID: radio,
+            publicKey: Data(),
+            name: "Alice",
+            typeRawValue: 0,
+            flags: 0,
+            outPathLength: 0,
+            outPath: Data(),
+            lastAdvertTimestamp: 0,
+            latitude: 0,
+            longitude: 0,
+            lastModified: 0,
+            nickname: nil,
+            isBlocked: false,
+            isMuted: false,
+            isFavorite: false,
+            lastMessageDate: nil,
+            unreadCount: 0,
+            ocvPreset: nil,
+            customOCVArrayString: nil
+        )
+        let conversation = ChatConversationType.dm(contact)
+        #expect(conversation.radioID == radio)
+    }
+
+    @Test("radioID returns the channel's radioID for a channel conversation")
+    func radioIDChannel() {
+        let radio = UUID()
+        let channel = ChannelDTO(
+            id: UUID(),
+            radioID: radio,
+            index: 3,
+            name: "General",
+            secret: Data(repeating: 0, count: 16),
+            isEnabled: true,
+            lastMessageDate: nil,
+            unreadCount: 0,
+            floodScope: .inherit
+        )
+        let conversation = ChatConversationType.channel(channel)
+        #expect(conversation.radioID == radio)
+    }
+
     // MARK: - replacingContact(_:)
 
     @Test("replacingContact returns DM with updated contact")
