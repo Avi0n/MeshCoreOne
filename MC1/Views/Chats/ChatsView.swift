@@ -27,9 +27,6 @@ struct ChatsView: View {
     @State private var channelDeleteFailure: ChannelDeleteFailure?
     @State private var pendingChatContact: ContactDTO?
     @State private var pendingChannel: ChannelDTO?
-    @State private var hashtagToJoin: HashtagJoinRequest?
-    @State private var pendingContactLink: MeshCoreURLParser.ContactResult?
-    @State private var pendingChannelLink: MeshCoreURLParser.ChannelResult?
     private var shouldUseSplitView: Bool {
         horizontalSizeClass == .regular
     }
@@ -115,40 +112,38 @@ struct ChatsView: View {
             }
         }
         .environment(\.openURL, OpenURLAction { url in
-            if url.scheme == MeshCoreURLParser.scheme {
-                handleMeshCoreLink(url)
-                return .handled
-            } else if url.scheme == HashtagDeeplinkSupport.scheme,
-                      let channelName = HashtagDeeplinkSupport.channelNameFromURL(url) {
-                handleHashtagTap(name: channelName)
-                return .handled
-            } else if url.scheme == HashtagDeeplinkSupport.scheme {
-                chatsViewLogger.error("Hashtag URL missing host: \(url.absoluteString, privacy: .public)")
-                return .handled
-            }
-            return .systemAction
+            ChatLinkRouter.route(url, appState: appState) ? .handled : .systemAction
         })
-        .sheet(item: $hashtagToJoin) { request in
+        .sheet(item: Binding(
+            get: { appState.navigation.pendingHashtag },
+            set: { appState.navigation.pendingHashtag = $0 }
+        )) { request in
             JoinHashtagFromMessageView(channelName: request.id) { channel in
-                hashtagToJoin = nil
+                appState.navigation.clearPendingHashtag()
                 if let channel {
                     navigate(to: .channel(channel))
                 }
             }
             .presentationDetents([.medium])
         }
-        .sheet(item: $pendingContactLink) { result in
+        .sheet(item: Binding(
+            get: { appState.navigation.pendingContactLink },
+            set: { appState.navigation.pendingContactLink = $0 }
+        )) { result in
             AddContactConfirmationSheet(contactResult: result) { addedContact in
-                pendingContactLink = nil
+                appState.navigation.clearPendingContactLink()
                 if let addedContact {
                     appState.navigation.navigateToContactDetail(addedContact)
                 }
             }
             .presentationDetents([.medium, .large])
         }
-        .sheet(item: $pendingChannelLink) { result in
+        .sheet(item: Binding(
+            get: { appState.navigation.pendingChannelLink },
+            set: { appState.navigation.pendingChannelLink = $0 }
+        )) { result in
             JoinChannelConfirmationSheet(channelResult: result) { newChannel in
-                pendingChannelLink = nil
+                appState.navigation.clearPendingChannelLink()
                 if let newChannel {
                     navigate(to: .channel(newChannel))
                 }
@@ -398,80 +393,6 @@ struct ChatsView: View {
         appState.navigation.clearPendingRoomNavigation()
     }
 
-    private func handleMeshCoreLink(_ url: URL) {
-        let urlString = url.absoluteString
-
-        if let coordinate = MeshCoreURLParser.parseMapURL(urlString) {
-            appState.navigation.navigateToMap(coordinate: coordinate)
-        } else if let contactResult = MeshCoreURLParser.parseContactURL(urlString) {
-            handleContactLink(contactResult)
-        } else if let channelResult = MeshCoreURLParser.parseChannelURL(urlString) {
-            handleChannelLink(channelResult)
-        } else {
-            chatsViewLogger.error("Failed to parse meshcore URL: \(urlString, privacy: .public)")
-        }
-    }
-
-    private func handleContactLink(_ result: MeshCoreURLParser.ContactResult) {
-        Task {
-            if result.publicKey == appState.connectedDevice?.publicKey {
-                return
-            }
-
-            if let deviceID = appState.currentRadioID,
-               let existingContact = try? await appState.offlineDataStore?.fetchContact(
-                   radioID: deviceID,
-                   publicKey: result.publicKey
-               ) {
-                appState.navigation.navigateToContactDetail(existingContact)
-            } else {
-                pendingContactLink = result
-            }
-        }
-    }
-
-    private func handleChannelLink(_ result: MeshCoreURLParser.ChannelResult) {
-        Task {
-            if let deviceID = appState.currentRadioID,
-               let channels = try? await appState.offlineDataStore?.fetchChannels(radioID: deviceID),
-               let existingChannel = channels.first(where: { $0.secret == result.secret }) {
-                navigate(to: .channel(existingChannel))
-            } else {
-                pendingChannelLink = result
-            }
-        }
-    }
-
-    private func handleHashtagTap(name: String) {
-        Task {
-            guard let fullName = HashtagDeeplinkSupport.fullChannelName(from: name) else {
-                chatsViewLogger.error("Invalid hashtag name in tap: \(name, privacy: .public)")
-                return
-            }
-
-            guard let deviceID = appState.currentRadioID else {
-                hashtagToJoin = HashtagJoinRequest(id: fullName)
-                return
-            }
-
-            do {
-                if let channel = try await HashtagDeeplinkSupport.findChannelByName(
-                    fullName,
-                    radioID: deviceID,
-                    fetchChannels: { deviceID in
-                        try await appState.offlineDataStore?.fetchChannels(radioID: deviceID) ?? []
-                    }
-                ) {
-                    navigate(to: .channel(channel))
-                } else {
-                    hashtagToJoin = HashtagJoinRequest(id: fullName)
-                }
-            } catch {
-                chatsViewLogger.error("Failed to fetch channels for hashtag lookup: \(error)")
-                hashtagToJoin = HashtagJoinRequest(id: fullName)
-            }
-        }
-    }
 }
 
 #Preview {
