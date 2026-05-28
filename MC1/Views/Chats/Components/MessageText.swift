@@ -196,7 +196,7 @@ struct MessageText: View {
     /// chip and the add-contact link URL, keeping the confirmation sheet and the persisted
     /// contact free of bidi overrides, zero-width joiners, and line breaks that could hide or
     /// reorder the visible identity.
-    private static func displayName(for name: String) -> String {
+    static func displayName(for name: String) -> String {
         String(String.UnicodeScalarView(name.unicodeScalars.filter { !isStrippableScalar($0) }))
     }
 
