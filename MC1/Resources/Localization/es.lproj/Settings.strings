@@ -1177,6 +1177,20 @@
 /* Footer explaining inline image privacy implications */
 "inlineImages.footer" = "Obtener imágenes de URLs puede revelar tu dirección IP al servidor que aloja la imagen.";
 
+// MARK: - Map Preview Settings Section
+
+/* Section header for chat map preview settings */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.header" = "Vistas previas del mapa";
+
+/* Toggle label for chat map thumbnails */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.toggle" = "Mostrar miniaturas del mapa";
+
+/* Footer explaining map preview privacy implications */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.footer" = "Mostrar miniaturas del mapa descarga las teselas para la coordenada desde un servidor de terceros, lo que puede revelar tu dirección IP.";
+
 // MARK: - Blocking Section
 
 /* Location: BlockingSection.swift - Purpose: Section header */

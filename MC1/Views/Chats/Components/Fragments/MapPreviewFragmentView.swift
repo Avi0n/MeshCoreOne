@@ -15,7 +15,12 @@ struct MapPreviewFragmentView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var request: MapSnapshotRequest {
-        MapSnapshotRequest(latitude: state.latitude, longitude: state.longitude, isDark: state.isDark)
+        MapSnapshotRequest(
+            latitude: state.latitude,
+            longitude: state.longitude,
+            isDark: state.isDark,
+            isOffline: state.isOffline
+        )
     }
 
     private var coordinateText: String {

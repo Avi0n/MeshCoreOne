@@ -20,7 +20,10 @@ final class MapSnapshotRenderer: MapSnapshotRendering {
         let latitude = request.latitude
         let longitude = request.longitude
         let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-        let styleURL = MapStyleSelection.standard.styleURL(isDarkMode: request.isDark)
+        let styleURL = MapStyleSelection.standard.styleURL(
+            isDarkMode: request.isDark,
+            isOffline: request.isOffline
+        )
 
         let camera = MLNMapCamera(
             lookingAtCenter: coordinate,

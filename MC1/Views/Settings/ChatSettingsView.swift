@@ -14,6 +14,7 @@ struct ChatSettingsView: View {
             }
 
             LinkPreviewSettingsSection()
+            MapPreviewSettingsSection()
             MessagesSettingsSection()
             BlockingSection()
         }

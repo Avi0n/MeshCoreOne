@@ -396,6 +396,8 @@ struct MessageFragmentBuilderTests {
         previewsEnabled: Bool = false,
         isHighContrast: Bool = false,
         isDark: Bool = false,
+        showMapPreviews: Bool = true,
+        isOffline: Bool = false,
         currentUserName: String = "Me"
     ) -> EnvInputs {
         EnvInputs(
@@ -407,6 +409,8 @@ struct MessageFragmentBuilderTests {
             previewsEnabled: previewsEnabled,
             isHighContrast: isHighContrast,
             isDark: isDark,
+            showMapPreviews: showMapPreviews,
+            isOffline: isOffline,
             currentUserName: currentUserName
         )
     }

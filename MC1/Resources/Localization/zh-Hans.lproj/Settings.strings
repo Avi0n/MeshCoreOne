@@ -1151,6 +1151,20 @@
 /* Footer explaining inline image privacy implications */
 "inlineImages.footer" = "从 URL 获取图片可能会将您的 IP 地址暴露给托管图片的服务器。";
 
+// MARK: - Map Preview Settings Section
+
+/* Section header for chat map preview settings */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.header" = "地图预览";
+
+/* Toggle label for chat map thumbnails */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.toggle" = "显示地图缩略图";
+
+/* Footer explaining map preview privacy implications */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.footer" = "显示地图缩略图会从第三方服务器获取该坐标的地图图块，可能会暴露您的IP地址。";
+
 // MARK: - Blocking Section
 
 /* Location: BlockingSection.swift - Purpose: Section header */

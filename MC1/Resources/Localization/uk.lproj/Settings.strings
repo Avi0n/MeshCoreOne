@@ -1177,6 +1177,20 @@
 /* Footer explaining inline image privacy implications */
 "inlineImages.footer" = "Завантаження зображень за URL-адресами може розкрити вашу IP-адресу серверу, який розміщує зображення.";
 
+// MARK: - Map Preview Settings Section
+
+/* Section header for chat map preview settings */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.header" = "Попередній перегляд карти";
+
+/* Toggle label for chat map thumbnails */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.toggle" = "Показувати мініатюри карти";
+
+/* Footer explaining map preview privacy implications */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.footer" = "Відображення мініатюр карти завантажує плитки для координати зі стороннього сервера, що може розкрити вашу IP-адресу.";
+
 // MARK: - Blocking Section
 
 /* Location: BlockingSection.swift - Purpose: Section header */

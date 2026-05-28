@@ -20,6 +20,7 @@ public enum AppStorageKey: String {
     case showInlineImages
     case autoPlayGIFs
     case replyWithQuote
+    case showMapPreviewThumbnails
 
     public static let defaultShowIncomingPath: Bool = false
     public static let defaultShowIncomingHopCount: Bool = false
@@ -28,4 +29,5 @@ public enum AppStorageKey: String {
     public static let defaultShowInlineImages: Bool = true
     public static let defaultAutoPlayGIFs: Bool = true
     public static let defaultReplyWithQuote: Bool = false
+    public static let defaultShowMapPreviewThumbnails: Bool = true
 }

@@ -79,11 +79,15 @@ extension ChatViewModel {
         )
 
         var isMapPreviewReady = false
-        if let coordinate = formatted.mapCoordinate {
+        // Gate the snapshot index on the privacy toggle so the index stays empty for
+        // users who turned thumbnails off — `MessageFragmentBuilder` makes the same
+        // check before appending the fragment, so the render request never fires.
+        if envInputs.showMapPreviews, let coordinate = formatted.mapCoordinate {
             let request = MapSnapshotRequest(
                 latitude: coordinate.latitude,
                 longitude: coordinate.longitude,
-                isDark: envInputs.isDark
+                isDark: envInputs.isDark,
+                isOffline: envInputs.isOffline
             )
             mapPreviewRequestIndex[request, default: []].insert(message.id)
             isMapPreviewReady = MapSnapshotStore.shared.isResolved(request)

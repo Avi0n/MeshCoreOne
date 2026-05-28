@@ -18,6 +18,16 @@ public struct EnvInputs: Sendable, Hashable {
     /// thumbnail renders against the matching style. Like `isHighContrast`, a
     /// change forces a full `buildItems()` rebuild (rare, OS-driven).
     public let isDark: Bool
+    /// User-controlled privacy gate. When false, `MessageFragmentBuilder` skips
+    /// the map-preview fragment entirely so `MapPreviewFragmentView.onAppear`
+    /// never fires the third-party tile request — the coordinate text in the
+    /// message body remains tappable.
+    public let showMapPreviews: Bool
+    /// True when `OfflineMapService.isNetworkAvailable` is false. Sourced in
+    /// `ChatConversationView` and threaded through `MapSnapshotRequest` so the
+    /// snapshotter routes to the offline-pack style URL and the cache key for
+    /// online and offline renders does not collide.
+    public let isOffline: Bool
     public let currentUserName: String
 
     public init(
@@ -29,6 +39,8 @@ public struct EnvInputs: Sendable, Hashable {
         previewsEnabled: Bool,
         isHighContrast: Bool,
         isDark: Bool,
+        showMapPreviews: Bool,
+        isOffline: Bool,
         currentUserName: String
     ) {
         self.showInlineImages = showInlineImages
@@ -39,6 +51,8 @@ public struct EnvInputs: Sendable, Hashable {
         self.previewsEnabled = previewsEnabled
         self.isHighContrast = isHighContrast
         self.isDark = isDark
+        self.showMapPreviews = showMapPreviews
+        self.isOffline = isOffline
         self.currentUserName = currentUserName
     }
 
@@ -51,6 +65,8 @@ public struct EnvInputs: Sendable, Hashable {
         previewsEnabled: AppStorageKey.defaultLinkPreviewsEnabled,
         isHighContrast: false,
         isDark: false,
+        showMapPreviews: AppStorageKey.defaultShowMapPreviewThumbnails,
+        isOffline: false,
         currentUserName: ""
     )
 }

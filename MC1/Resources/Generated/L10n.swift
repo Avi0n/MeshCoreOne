@@ -3963,6 +3963,14 @@ public enum L10n {
       /// Navigation title for location picker
       public static let title = L10n.tr("Settings", "locationPicker.title", fallback: "Set Location")
     }
+    public enum MapPreviews {
+      /// Footer explaining map preview privacy implications
+      public static let footer = L10n.tr("Settings", "mapPreviews.footer", fallback: "Showing map thumbnails fetches map tiles for the coordinate from a third-party server, which may reveal your IP address.")
+      /// Section header for chat map preview settings
+      public static let header = L10n.tr("Settings", "mapPreviews.header", fallback: "Map Previews")
+      /// Toggle label for chat map thumbnails
+      public static let toggle = L10n.tr("Settings", "mapPreviews.toggle", fallback: "Show Map Thumbnails")
+    }
     public enum Messages {
       /// Footer explaining what the message display options show
       public static let footer = L10n.tr("Settings", "messages.footer", fallback: "Display routing information inside incoming message bubbles.")

@@ -74,12 +74,18 @@ public enum MessageFragmentBuilder {
         inputs: MessageBuildInputs,
         envInputs: EnvInputs
     ) {
+        // Privacy gate: when the user has disabled chat map thumbnails, skip the
+        // fragment entirely so `MapPreviewFragmentView.onAppear` never fires the
+        // third-party tile request. The coordinate text inside the message body
+        // remains tappable through the formatted-text link path.
+        guard envInputs.showMapPreviews else { return }
         guard let latitude = inputs.mapPreviewLatitude,
               let longitude = inputs.mapPreviewLongitude else { return }
         fragments.append(.mapPreview(MapPreviewFragmentState(
             latitude: latitude,
             longitude: longitude,
             isDark: envInputs.isDark,
+            isOffline: envInputs.isOffline,
             isReady: inputs.isMapPreviewReady
         )))
     }

@@ -57,6 +57,7 @@ struct ChatConversationView: View {
     @AppStorage(AppStorageKey.showIncomingRegion.rawValue) private var showIncomingRegion = AppStorageKey.defaultShowIncomingRegion
     @AppStorage(AppStorageKey.linkPreviewsEnabled.rawValue) private var previewsEnabled = AppStorageKey.defaultLinkPreviewsEnabled
     @AppStorage(AppStorageKey.replyWithQuote.rawValue) private var replyWithQuote = AppStorageKey.defaultReplyWithQuote
+    @AppStorage(AppStorageKey.showMapPreviewThumbnails.rawValue) private var showMapPreviewThumbnails = AppStorageKey.defaultShowMapPreviewThumbnails
 
     // MARK: - Environment
 
@@ -76,6 +77,8 @@ struct ChatConversationView: View {
             previewsEnabled: previewsEnabled,
             isHighContrast: colorSchemeContrast == .increased,
             isDark: colorScheme == .dark,
+            showMapPreviews: showMapPreviewThumbnails,
+            isOffline: !appState.offlineMapService.isNetworkAvailable,
             currentUserName: appState.localNodeName
         )
     }
