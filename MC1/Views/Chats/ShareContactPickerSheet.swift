@@ -27,7 +27,8 @@ struct ShareContactPickerSheet: View {
         guard !searchText.isEmpty else { return contacts }
         return contacts.filter { contact in
             contact.name.localizedCaseInsensitiveContains(searchText) ||
-            (contact.nickname?.localizedCaseInsensitiveContains(searchText) ?? false)
+            (contact.nickname?.localizedCaseInsensitiveContains(searchText) ?? false) ||
+            contact.publicKey.hexString().hasPrefix(searchText.uppercased())
         }
     }
 
@@ -57,8 +58,12 @@ struct ShareContactPickerSheet: View {
                                 ContactAvatar(contact: contact, size: Layout.avatarSize)
 
                                 VStack(alignment: .leading, spacing: Layout.rowVerticalSpacing) {
-                                    Text(contact.displayName)
+                                    (Text(idPrefixHex(for: contact))
+                                        .monospaced()
+                                        .foregroundStyle(.secondary)
+                                        + Text(" \(contact.displayName)"))
                                         .font(.headline)
+                                        .accessibilityLabel(contact.displayName)
 
                                     Text(contactTypeLabel(for: contact))
                                         .font(.caption)
@@ -110,6 +115,11 @@ struct ShareContactPickerSheet: View {
             logger.error("Failed to fetch contacts for share picker: \(error)")
             errorMessage = error.localizedDescription
         }
+    }
+
+    private func idPrefixHex(for contact: ContactDTO) -> String {
+        let hashSize = appState.connectedDevice?.hashSize ?? 1
+        return contact.publicKey.prefix(hashSize).hexString()
     }
 
     private func contactTypeLabel(for contact: ContactDTO) -> String {
