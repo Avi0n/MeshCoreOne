@@ -178,8 +178,8 @@ public actor MessageService {
     ///
     /// Cancels `eventListenerTask` only. Does **not** cancel the periodic ACK
     /// expiry checker — for that, call `stopAckExpiryChecking()` (just stop
-    /// the checker) or `stopAndFailAllPending()` (stop the checker and fail
-    /// every in-flight DM, used during disconnect teardown).
+    /// the checker, used on a routine disconnect) or `stopAndFailAllPending()`
+    /// (stop the checker and fail every in-flight DM, for explicit full teardown).
     public func stopEventMonitoring() {
         eventListenerTask?.cancel()
         eventListenerTask = nil

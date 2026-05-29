@@ -213,6 +213,73 @@ struct MessageServiceACKTests {
                 "messageFailedHandler must not fire when the DB write is a no-op")
     }
 
+    @Test("checkExpiredAcks fails a DM only after ackGiveUpWindow elapses, ignoring the per-attempt timeout")
+    func checkExpiredAcksUsesAckGiveUpWindow() async throws {
+        let window: TimeInterval = 20
+        let (service, dataStore) = try await MessageService.createForTesting(
+            config: MessageServiceConfig(ackGiveUpWindow: window)
+        )
+
+        let survivingID = UUID()
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(id: survivingID, radioID: testDeviceID, status: .sent)
+        )
+        // Sent inside the window: must stay .sent even though the per-attempt
+        // timeout (30s, the makePending default) is already exceeded.
+        await service.setPendingAckForTest(
+            makePending(
+                messageID: survivingID,
+                ackCodes: [Data([0x01, 0x02, 0x03, 0x04])],
+                sentAt: Date().addingTimeInterval(-(window - 5))
+            )
+        )
+
+        let expiredID = UUID()
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(id: expiredID, radioID: testDeviceID, status: .sent)
+        )
+        await service.setPendingAckForTest(
+            makePending(
+                messageID: expiredID,
+                ackCodes: [Data([0x05, 0x06, 0x07, 0x08])],
+                sentAt: Date().addingTimeInterval(-(window + 5))
+            )
+        )
+
+        try await service.checkExpiredAcks()
+
+        #expect(try await dataStore.fetchMessage(id: survivingID)?.status == .sent,
+                "DM still inside ackGiveUpWindow must not be failed")
+        #expect(try await dataStore.fetchMessage(id: expiredID)?.status == .failed,
+                "DM past ackGiveUpWindow must be failed")
+    }
+
+    @Test("stopAckExpiryChecking leaves in-flight DMs .sent instead of failing them")
+    func stopAckExpiryCheckingLeavesPendingSent() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(id: messageID, radioID: testDeviceID, status: .sent)
+        )
+
+        let tracker = FailedMessageTracker()
+        await service.setMessageFailedHandlerForTest { id in await tracker.record(id) }
+
+        await service.setPendingAckForTest(
+            makePending(messageID: messageID, ackCodes: [Data([0x09, 0x0A, 0x0B, 0x0C])])
+        )
+        await service.startAckExpiryChecking()
+
+        await service.stopAckExpiryChecking()
+
+        #expect(await !service.isAckExpiryCheckingActive)
+        #expect(try await dataStore.fetchMessage(id: messageID)?.status == .sent,
+                "A routine disconnect must not fail in-flight DMs")
+        #expect(await service.pendingAckCount == 1,
+                "The pending entry must survive so a reconnect ACK can still reconcile")
+        #expect(await tracker.failedIDs.isEmpty)
+    }
+
     // MARK: - failAllPendingMessages
 
     @Test("failAllPendingMessages fails all non-delivered and calls handler")

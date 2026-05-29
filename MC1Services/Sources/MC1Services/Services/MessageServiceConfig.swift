@@ -53,6 +53,16 @@ public struct MessageServiceConfig: Sendable {
     /// Whether to trigger path discovery after successful flood delivery
     public let triggerPathDiscoveryAfterFlood: Bool
 
+    /// How long a sent DM waits for its end-to-end ACK before being marked
+    /// `.failed`, measured from the last send attempt.
+    ///
+    /// The firmware reports delivery whenever the ACK returns, even long after
+    /// its own `est_timeout` hint, so this is a generous client-side give-up
+    /// deadline rather than the firmware estimate. It must comfortably exceed a
+    /// multi-hop round trip while still surfacing a genuinely undeliverable DM
+    /// in bounded time.
+    public let ackGiveUpWindow: TimeInterval
+
     /// Tuning for the in-loop pool-exhaustion backoff (`withPoolBackoff`).
     public let poolBackoff: PoolBackoffConfig
 
@@ -63,6 +73,7 @@ public struct MessageServiceConfig: Sendable {
         floodAfter: Int = 2,
         minTimeout: TimeInterval = 0,
         triggerPathDiscoveryAfterFlood: Bool = true,
+        ackGiveUpWindow: TimeInterval = 45,
         poolBackoff: PoolBackoffConfig = .default
     ) {
         precondition(maxAttempts <= 4, "firmware AckCodeBuilder masks attempt & 0x03 — values > 4 produce ambiguous ACKs")
@@ -72,6 +83,7 @@ public struct MessageServiceConfig: Sendable {
         self.floodAfter = floodAfter
         self.minTimeout = minTimeout
         self.triggerPathDiscoveryAfterFlood = triggerPathDiscoveryAfterFlood
+        self.ackGiveUpWindow = ackGiveUpWindow
         self.poolBackoff = poolBackoff
     }
 

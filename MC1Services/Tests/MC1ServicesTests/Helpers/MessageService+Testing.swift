@@ -7,7 +7,8 @@ import Testing
 extension MessageService {
     static func createForTesting(
         defaultTimeout: TimeInterval = 5.0,
-        connectTransport: Bool = false
+        connectTransport: Bool = false,
+        config: MessageServiceConfig = .default
     ) async throws -> (MessageService, PersistenceStore) {
         let container = try PersistenceStore.createContainer(inMemory: true)
         let dataStore = PersistenceStore(modelContainer: container)
@@ -19,7 +20,7 @@ extension MessageService {
             transport: transport,
             configuration: SessionConfiguration(defaultTimeout: defaultTimeout)
         )
-        let service = MessageService(session: session, dataStore: dataStore)
+        let service = MessageService(session: session, dataStore: dataStore, config: config)
         return (service, dataStore)
     }
 

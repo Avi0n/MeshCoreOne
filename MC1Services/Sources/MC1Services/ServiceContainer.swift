@@ -376,12 +376,12 @@ public final class ServiceContainer {
         await advertisementService.stopEventMonitoring()
         await rxLogService.stopEventMonitoring()
         await messageService.stopEventMonitoring()
-        do {
-            try await messageService.stopAndFailAllPending()
-        } catch {
-            let logger = Logger(subsystem: "com.mc1.services", category: "ServiceContainer")
-            logger.error("stopAndFailAllPending failed during disconnect: \(error.localizedDescription, privacy: .public)")
-        }
+        // Do not fail in-flight DMs on disconnect. The firmware retains the
+        // expected ACK and re-emits the delivery confirmation whenever it
+        // returns, so a routine BLE cycle must not mark a delivered message
+        // `.failed`. Stop only the expiry checker; pending entries resolve on
+        // reconnect within the same session or expire via `ackGiveUpWindow`.
+        await messageService.stopAckExpiryChecking()
         await messagePollingService.stopMessageEventMonitoring()
         // RemoteNodeService event monitoring is per-session, handled internally
 
