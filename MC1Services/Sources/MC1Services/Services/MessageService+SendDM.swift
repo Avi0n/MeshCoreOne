@@ -620,6 +620,14 @@ extension MessageService {
     /// `ackCodes` set and resets both `sentAt` and the timeout window to the
     /// latest attempt so `checkExpiredAcks` does not fail the in-flight retry.
     func trackPendingAck(messageID: UUID, contactID: UUID, ackCode: Data, timeout: TimeInterval) {
+        // Diagnostic: the firmware ACK CRC is derived from (timestamp, attempt,
+        // text, sender key) with no recipient, so identical text sent in the
+        // same second to different contacts produces the same code. Counting
+        // collisions across distinct in-flight messages measures how often a
+        // delivery confirmation could be attributed to the wrong message.
+        if let colliding = pendingAcks.first(where: { $0.key != messageID && $0.value.ackCodes.contains(ackCode) }) {
+            logger.warning("[ack-diag] ackCode collision: code=\(ackCode.hexString()) shared by messages \(colliding.key) and \(messageID)")
+        }
         if var existing = pendingAcks[messageID] {
             existing.ackCodes.insert(ackCode)
             existing.sentAt = Date()

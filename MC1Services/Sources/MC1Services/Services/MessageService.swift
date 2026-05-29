@@ -197,6 +197,12 @@ public actor MessageService {
         guard let (messageID, tracking) = pendingAcks.first(where: {
             $0.value.ackCodes.contains(code) && !$0.value.isDelivered
         }) else {
+            // Diagnostic: the firmware delivered an end-to-end ACK we have no
+            // live entry for. This is either a genuinely late ACK that arrived
+            // after the message was already failed and removed, or a duplicate
+            // for an already-delivered message. Counting these quantifies how
+            // many delivery confirmations are being lost to premature give-up.
+            logger.warning("[ack-diag] unmatched ACK code=\(code.hexString()) livePending=\(pendingAcks.count) (late post-teardown or duplicate)")
             return
         }
 
@@ -229,7 +235,12 @@ public actor MessageService {
 
         await ackConfirmationHandler?(messageID, .delivered, tripTime)
 
-        logger.info("ACK received")
+        // Diagnostic: how long the ACK took relative to the last send attempt
+        // (sentAt is re-stamped per retry), the firmware-reported round trip,
+        // and how many other entries were in flight. Distinguishes late-but-
+        // arriving ACKs from never-arriving ones and measures table pressure.
+        let ackDelta = Date().timeIntervalSince(tracking.sentAt)
+        logger.info("[ack-diag] ACK matched deltaSinceLastSend=\(String(format: "%.2f", ackDelta))s firmwareTrip=\(tripTime.map { "\($0)ms" } ?? "nil") livePending=\(pendingAcks.count)")
     }
 
     /// Sets a callback to be invoked when an ACK is received.
