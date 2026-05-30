@@ -68,7 +68,7 @@ struct ImportPreviewSheet: View {
                 Button {
                     viewModel.performImport()
                 } label: {
-                    Label(L10n.Settings.Settings.Backup.Import.Preview.button, systemImage: "square.and.arrow.down")
+                    Text(L10n.Settings.Settings.Backup.Import.Preview.button)
                         .frame(maxWidth: .infinity)
                 }
                 .liquidGlassProminentButtonStyle()
