@@ -5,6 +5,7 @@ import MC1Services
 /// Shows contacts discovered via advertisement that haven't been added to the device
 struct DiscoveryView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @State private var viewModel = DiscoveryViewModel()
     @State private var searchText = ""
     @State private var selectedSegment: DiscoverSegment = .all
@@ -62,6 +63,7 @@ struct DiscoveryView: View {
                     filterSection
                 }
                 .listStyle(.plain)
+                .themedCanvas(theme)
                 .overlay {
                     ProgressView()
                 }
@@ -176,6 +178,7 @@ private struct DiscoverySearchEmptyView: View {
 
 private struct DiscoveryNodesList<FilterHeader: View, EmptyContent: View>: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     let filteredNodes: [DiscoveredNodeDTO]
     let viewModel: DiscoveryViewModel
     @Binding var addingNodeID: UUID?
@@ -205,6 +208,7 @@ private struct DiscoveryNodesList<FilterHeader: View, EmptyContent: View>: View 
             }
         }
         .listStyle(.plain)
+        .themedCanvas(theme)
     }
 
     private func addNode(_ node: DiscoveredNodeDTO) {

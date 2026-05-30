@@ -3,6 +3,7 @@ import MC1Services
 
 /// Disclosure group section listing available repeaters to add to a trace path
 struct AvailableRepeatersSectionView: View {
+    @Environment(\.appTheme) private var theme
     var viewModel: TracePathViewModel
     @Binding var recentlyAddedRepeaterID: UUID?
     @Binding var addHapticTrigger: Int
@@ -109,5 +110,6 @@ struct AvailableRepeatersSectionView: View {
                 }
             }
         }
+        .themedRowBackground(theme)
     }
 }

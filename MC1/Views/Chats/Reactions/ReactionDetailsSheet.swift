@@ -9,6 +9,7 @@ struct ReactionDetailsSheet: View {
 
     @Environment(\.appState) private var appState
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appTheme) private var theme
 
     private let logger = Logger(subsystem: "com.mc1", category: "ReactionDetailsSheet")
 
@@ -94,6 +95,7 @@ struct ReactionDetailsSheet: View {
             }
         }
         .listStyle(.plain)
+        .themedCanvas(theme)
     }
 
     private func loadReactions() async {

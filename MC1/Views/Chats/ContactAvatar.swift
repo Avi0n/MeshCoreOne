@@ -2,6 +2,9 @@ import SwiftUI
 import MC1Services
 
 struct ContactAvatar: View {
+    @Environment(\.appTheme) private var theme
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
     let name: String
     let size: CGFloat
 
@@ -18,7 +21,7 @@ struct ContactAvatar: View {
     var body: some View {
         Text(initials)
             .font(.system(size: size * 0.4, weight: .semibold))
-            .foregroundStyle(.white)
+            .foregroundStyle(glyphColor)
             .frame(width: size, height: size)
             .background(avatarColor, in: .circle)
     }
@@ -35,6 +38,15 @@ struct ContactAvatar: View {
     }
 
     private var avatarColor: Color {
-        AppColors.NameColor.color(for: name)
+        theme.identityColor(forName: name, colorScheme: colorScheme, contrast: colorSchemeContrast)
+    }
+
+    private var glyphColor: Color {
+        theme.avatarGlyphColor(
+            forFill: avatarColor,
+            usesCategoryOverride: false,
+            colorScheme: colorScheme,
+            contrast: colorSchemeContrast
+        )
     }
 }

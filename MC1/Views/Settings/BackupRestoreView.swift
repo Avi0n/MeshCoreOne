@@ -3,6 +3,7 @@ import MC1Services
 
 struct BackupRestoreView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @State private var viewModel: AppBackupViewModel
     @State private var showExportConfirmation = false
     @State private var showFileImporter = false
@@ -32,7 +33,9 @@ struct BackupRestoreView: View {
                     Text(L10n.Settings.Settings.Backup.FileBackup.footer)
                 }
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Settings.Settings.Backup.title)
         .alert(L10n.Settings.Settings.Backup.Export.Alert.title, isPresented: $showExportConfirmation) {
             Button(L10n.Settings.Settings.Backup.Export.Alert.cancel, role: .cancel) {}

@@ -106,18 +106,21 @@ private struct BubbleContent: View {
     let isFromSelf: Bool
     let highContrast: Bool
 
+    @Environment(\.appTheme) private var theme
+    @Environment(\.colorScheme) private var colorScheme
+
     private var bubbleBackground: Color {
         if isFromSelf {
             if message.status == .failed {
                 return AppColors.Message.outgoingBubbleFailed(highContrast: highContrast)
             }
-            return AppColors.Message.outgoingBubble
+            return theme.accentColor   // matches UnifiedMessageBubble.resolvedBubbleColor
         }
-        return AppColors.Message.incomingBubble
+        return theme.incomingBubbleColor
     }
 
     private var textColor: Color {
-        isFromSelf ? .white : .primary
+        isFromSelf ? theme.outgoingTextColor : .primary
     }
 
     var body: some View {
@@ -126,7 +129,11 @@ private struct BubbleContent: View {
                 Text(message.authorDisplayName)
                     .font(.footnote)
                     .bold()
-                    .foregroundStyle(AppColors.NameColor.color(for: message.authorDisplayName, highContrast: highContrast))
+                    .foregroundStyle(theme.identityColor(
+                        forName: message.authorDisplayName,
+                        colorScheme: colorScheme,
+                        contrast: highContrast ? .increased : .standard
+                    ))
                     .padding(.horizontal, 12)
             }
 

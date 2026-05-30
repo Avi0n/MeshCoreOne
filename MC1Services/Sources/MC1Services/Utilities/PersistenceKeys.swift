@@ -8,4 +8,11 @@ public enum PersistenceKeys {
     public static let lastConnectedDeviceID = "com.pocketmesh.lastConnectedDeviceID"
     public static let lastConnectedDeviceName = "com.pocketmesh.lastConnectedDeviceName"
     public static let lastConnectedRadioID = "com.pocketmesh.lastConnectedRadioID"
+
+    /// Selected theme ID (bare-string key, no `com.pocketmesh.` prefix — matches the
+    /// `BackupUserDefaults` string-mapping convention and the value's L10n-key form).
+    public static let selectedThemeID = "selectedThemeID"
+
+    /// App color-scheme preference raw value (`"system"` | `"light"` | `"dark"`). Bare string.
+    public static let appColorSchemePreference = "appColorSchemePreference"
 }

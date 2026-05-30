@@ -107,6 +107,7 @@ struct OnboardingView: View {
 
 struct MainTabView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showingDeviceSelection = false
@@ -155,6 +156,7 @@ struct MainTabView: View {
                 SettingsView()
             }
         }
+            .themedChrome(theme)
 
             SyncingPillView(
                 state: displayedPillState,

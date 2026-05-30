@@ -4,6 +4,7 @@ import MC1Services
 /// Radio preset selector with region-based filtering
 struct RadioPresetSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @State private var selectedPresetID: String?
     @State private var isApplying = false
@@ -163,6 +164,7 @@ struct RadioPresetSection: View {
                 }
             }
         }
+        .themedRowBackground(theme)
         .onAppear {
             isRepeatEnabled = appState.connectedDevice?.clientRepeat ?? false
             selectedPresetID = currentMatchingPresetID

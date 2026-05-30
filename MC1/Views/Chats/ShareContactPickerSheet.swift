@@ -17,6 +17,7 @@ struct ShareContactPickerSheet: View {
 
     @Environment(\.appState) private var appState
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.appTheme) private var theme
 
     @State private var contacts: [ContactDTO] = []
     @State private var searchText = ""
@@ -76,6 +77,7 @@ struct ShareContactPickerSheet: View {
                         }
                         .buttonStyle(.plain)
                     }
+                    .themedCanvas(theme)
                 }
             }
             .navigationTitle(L10n.Chats.Chats.ContactPicker.title)

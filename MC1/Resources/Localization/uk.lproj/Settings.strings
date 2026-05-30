@@ -1614,3 +1614,73 @@
 
 /* VoiceOver announcement when the export success sheet appears; %@ is the filename */
 "settings.backup.export.success.announcement" = "Резервну копію збережено як %@";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "Ви не володієте цією темою.";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "Тему повернено на стандартну.";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "Підтримати розробку";
+"Support.Header.Body" = "Якщо вам подобається MC1, ось кілька способів підтримати його розробку! Усе тут необов’язкове, лише кілька чайових і кілька додаткових тем.";
+"Support.Themes.Title" = "Теми";
+"Support.Themes.Owned" = "Придбано";
+"Support.Themes.PurchasedFooter" = "Застосуйте нову тему в меню Налаштування → Зовнішній вигляд.";
+"Support.Bundle.Title" = "Усі теми";
+"Support.Bundle.Subtitle" = "Включно з темами, доданими пізніше.";
+"Support.Contributions.Title" = "Внески";
+"Support.Contributions.Footer" = "Подяка-чайові на підтримку розробки MC1. Жодних фізичних товарів, жодних переваг членства.";
+"Support.Contributions.HighValueConfirm" = "Надіслати %@?";
+"Support.Contributions.ConfirmButton" = "Зробити внесок %@";
+"Support.Restore.Button" = "Відновити покупки";
+"Support.Restore.Syncing" = "Відновлення…";
+"Support.Refund.Link" = "Запросити повернення коштів";
+"Support.Pending.Banner" = "Очікує схвалення — ваша покупка активується після схвалення.";
+"Support.Pending.Button" = "Очікує схвалення";
+"Support.Contact.Link" = "Звернутися до підтримки";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "Стандартна";
+"Support.Theme.Ember" = "Ember";
+"Support.Theme.Fern" = "Fern";
+"Support.Theme.Marine" = "Marine";
+"Support.Theme.Olive" = "Olive";
+"Support.Theme.Lavender" = "Lavender";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "Не вдалося завантажити товари.";
+"Support.Error.ProductNotFound" = "Товар не знайдено.";
+"Support.Error.PurchaseFailed" = "Не вдалося здійснити покупку: %@";
+"Support.Error.NetworkUnavailable" = "Мережа недоступна.";
+"Support.Error.VerificationFailed" = "Не вдалося підтвердити вашу покупку.";
+"Support.Error.NotEntitled" = "Покупки на цьому пристрої обмежено. Перевірте обмеження вмісту в «Екранному часі».";
+"Support.Error.StorefrontUnavailable" = "Цей товар недоступний у вашому регіоні.";
+"Support.Error.Unsupported" = "Покупки в застосунку не підтримуються на цьому пристрої.";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "Тема %@, заблоковано";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "Тема %@, придбано";
+"Support.Accessibility.BundleCard.LockedLabel" = "Набір «Усі теми», заблоковано, %@";
+"Support.Accessibility.BundleCard.LockedHint" = "Купує набір «Усі теми»";
+"Support.Accessibility.BundleCard.LoadingLabel" = "All Themes bundle, loading price";
+"Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
+"Support.Accessibility.ContributionRow.Hint" = "Надсилає подяку-чайові";
+"Support.Accessibility.TipConfirmAnnouncement" = "Дякуємо за ваші чайові.";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "Зовнішній вигляд";
+"Appearance.Scheme.Header" = "Світлий/темний режим";
+"Appearance.Scheme.System" = "Системна";
+"Appearance.Scheme.Light" = "Світла";
+"Appearance.Scheme.Dark" = "Темна";
+"Appearance.Themes.Header" = "Виберіть тему";
+"Appearance.Themes.Selected" = "Вибрано";
+"Appearance.MoreThemes.Link" = "Придбати інші теми";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "Тема %@, придбано";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "Застосовує цю тему";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "Тема %@, наразі вибрано";
+"Appearance.Accessibility.Swatch.DualMode" = "%@, світлий і темний варіанти";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@, лише темний";

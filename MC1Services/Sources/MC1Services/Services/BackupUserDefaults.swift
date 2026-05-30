@@ -9,6 +9,8 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     public var hasCompletedOnboarding: Bool?
     public var liveActivityEnabled: Bool?
     public var mapStyleSelection: String?
+    public var selectedThemeID: String?
+    public var appColorSchemePreference: String?
     public var mapShowLabels: Bool?
     public var replyWithQuote: Bool?
     public var showInlineImages: Bool?
@@ -139,6 +141,8 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
         (\.discoverySortOrder, "discoverySortOrder"),
         (\.nodesSortOrder, "nodesSortOrder"),
         (\.tracePathViewMode, "tracePathViewMode"),
+        (\.selectedThemeID, PersistenceKeys.selectedThemeID),
+        (\.appColorSchemePreference, PersistenceKeys.appColorSchemePreference),
     ]
 
     /// Key strings used by `stringMappings`. Internal solely for testability —

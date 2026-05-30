@@ -15,6 +15,13 @@ struct ChatCellContentFactory {
     let contactName: String
     let deviceName: String
     let configuration: MessageBubbleConfiguration
+    /// The active theme, injected into each hosted cell. Custom environment values do not
+    /// auto-cross the `UIHostingConfiguration` boundary, so the bubble fill would otherwise
+    /// see only `Theme.default`. The factory carries the current theme on every render, but a
+    /// visible cell adopts a theme change only when it is reloaded — driven by
+    /// `reconfigureAllItems()`, which the table fires when its tracked theme id changes — or
+    /// recycled; re-wiring the cell closure alone does not re-host live cells.
+    let theme: Theme
     let resolver: BubbleResolver
     let actions: BubbleActions
 
@@ -27,5 +34,6 @@ struct ChatCellContentFactory {
             resolver: resolver,
             actions: actions
         )
+        .environment(\.appTheme, theme)
     }
 }

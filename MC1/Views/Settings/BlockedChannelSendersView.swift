@@ -7,6 +7,7 @@ private let logger = Logger(subsystem: "com.mc1", category: "BlockedChannelSende
 /// Settings screen listing blocked channel sender names with swipe-to-unblock.
 struct BlockedChannelSendersView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     @State private var blockedSenders: [BlockedChannelSenderDTO] = []
     @State private var isLoading = false
@@ -33,7 +34,9 @@ struct BlockedChannelSendersView: View {
                         }
                     }
                     .onDelete(perform: unblock)
+                    .themedRowBackground(theme)
                 }
+                .themedCanvas(theme)
             }
         }
         .navigationTitle(L10n.Settings.Blocking.ChannelSenders.title)

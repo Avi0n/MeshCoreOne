@@ -3275,6 +3275,180 @@ public enum L10n {
     public static func version(_ p1: Any) -> String {
       return L10n.tr("Settings", "version", String(describing: p1), fallback: "v%@")
     }
+    public enum Appearance {
+      /// MARK: Appearance (selection) screen
+      public static let title = L10n.tr("Settings", "Appearance.Title", fallback: "Appearance")
+      public enum Accessibility {
+        /// VoiceOver announcement when a refund reverts the active theme to the default
+        public static let themeReverted = L10n.tr("Settings", "Appearance.Accessibility.ThemeReverted", fallback: "Theme reverted to the default.")
+        public enum Swatch {
+          /// %@, dark only
+          public static func darkOnly(_ p1: Any) -> String {
+            return L10n.tr("Settings", "Appearance.Accessibility.Swatch.DarkOnly", String(describing: p1), fallback: "%@, dark only")
+          }
+          /// %@, light and dark variants
+          public static func dualMode(_ p1: Any) -> String {
+            return L10n.tr("Settings", "Appearance.Accessibility.Swatch.DualMode", String(describing: p1), fallback: "%@, light and dark variants")
+          }
+        }
+        public enum ThemeCard {
+          /// Applies this theme
+          public static let ownedHint = L10n.tr("Settings", "Appearance.Accessibility.ThemeCard.OwnedHint", fallback: "Applies this theme")
+          /// MARK: Appearance accessibility
+          public static func ownedLabel(_ p1: Any) -> String {
+            return L10n.tr("Settings", "Appearance.Accessibility.ThemeCard.OwnedLabel", String(describing: p1), fallback: "Theme %@, owned")
+          }
+          /// Theme %@, currently selected
+          public static func selectedLabel(_ p1: Any) -> String {
+            return L10n.tr("Settings", "Appearance.Accessibility.ThemeCard.SelectedLabel", String(describing: p1), fallback: "Theme %@, currently selected")
+          }
+        }
+      }
+      public enum MoreThemes {
+        /// Purchase More Themes
+        public static let link = L10n.tr("Settings", "Appearance.MoreThemes.Link", fallback: "Purchase More Themes")
+      }
+      public enum Scheme {
+        /// Dark
+        public static let dark = L10n.tr("Settings", "Appearance.Scheme.Dark", fallback: "Dark")
+        /// Light/Dark Mode
+        public static let header = L10n.tr("Settings", "Appearance.Scheme.Header", fallback: "Light/Dark Mode")
+        /// Light
+        public static let light = L10n.tr("Settings", "Appearance.Scheme.Light", fallback: "Light")
+        /// System
+        public static let system = L10n.tr("Settings", "Appearance.Scheme.System", fallback: "System")
+      }
+      public enum Themes {
+        /// Choose a theme
+        public static let header = L10n.tr("Settings", "Appearance.Themes.Header", fallback: "Choose a theme")
+        /// Selected
+        public static let selected = L10n.tr("Settings", "Appearance.Themes.Selected", fallback: "Selected")
+      }
+    }
+    public enum Support {
+      /// MARK: Support (purchase) screen
+      public static let title = L10n.tr("Settings", "Support.Title", fallback: "Support Development")
+      public enum Accessibility {
+        /// Thank you for your tip.
+        public static let tipConfirmAnnouncement = L10n.tr("Settings", "Support.Accessibility.TipConfirmAnnouncement", fallback: "Thank you for your tip.")
+        public enum BundleCard {
+          /// All Themes bundle, loading price
+          public static let loadingLabel = L10n.tr("Settings", "Support.Accessibility.BundleCard.LoadingLabel", fallback: "All Themes bundle, loading price")
+          /// Purchases the All Themes bundle
+          public static let lockedHint = L10n.tr("Settings", "Support.Accessibility.BundleCard.LockedHint", fallback: "Purchases the All Themes bundle")
+          /// All Themes bundle, locked, %@
+          public static func lockedLabel(_ p1: Any) -> String {
+            return L10n.tr("Settings", "Support.Accessibility.BundleCard.LockedLabel", String(describing: p1), fallback: "All Themes bundle, locked, %@")
+          }
+        }
+        public enum ContributionRow {
+          /// Sends a thank-you tip
+          public static let hint = L10n.tr("Settings", "Support.Accessibility.ContributionRow.Hint", fallback: "Sends a thank-you tip")
+          /// %1$@, %2$@
+          public static func label(_ p1: Any, _ p2: Any) -> String {
+            return L10n.tr("Settings", "Support.Accessibility.ContributionRow.Label", String(describing: p1), String(describing: p2), fallback: "%1$@, %2$@")
+          }
+        }
+        public enum ThemeCard {
+          /// MARK: Support accessibility (label = identity+state, hint = action)
+          public static func lockedLabel(_ p1: Any) -> String {
+            return L10n.tr("Settings", "Support.Accessibility.ThemeCard.LockedLabel", String(describing: p1), fallback: "Theme %@, locked")
+          }
+          /// Theme %@, owned
+          public static func ownedLabel(_ p1: Any) -> String {
+            return L10n.tr("Settings", "Support.Accessibility.ThemeCard.OwnedLabel", String(describing: p1), fallback: "Theme %@, owned")
+          }
+        }
+      }
+      public enum Bundle {
+        /// Including any themes added later.
+        public static let subtitle = L10n.tr("Settings", "Support.Bundle.Subtitle", fallback: "Including any themes added later.")
+        /// All Themes
+        public static let title = L10n.tr("Settings", "Support.Bundle.Title", fallback: "All Themes")
+      }
+      public enum Contact {
+        /// Email the developer
+        public static let link = L10n.tr("Settings", "Support.Contact.Link", fallback: "Email the developer")
+      }
+      public enum Contributions {
+        /// Contribute %@
+        public static func confirmButton(_ p1: Any) -> String {
+          return L10n.tr("Settings", "Support.Contributions.ConfirmButton", String(describing: p1), fallback: "Contribute %@")
+        }
+        /// Tips are a thank-you and support MC1's development. They don't include any goods, services, or membership benefits.
+        public static let footer = L10n.tr("Settings", "Support.Contributions.Footer", fallback: "Tips are a thank-you and support MC1's development. They don't include any goods, services, or membership benefits.")
+        /// Send a %@?
+        public static func highValueConfirm(_ p1: Any) -> String {
+          return L10n.tr("Settings", "Support.Contributions.HighValueConfirm", String(describing: p1), fallback: "Send a %@?")
+        }
+        /// Tips
+        public static let title = L10n.tr("Settings", "Support.Contributions.Title", fallback: "Tips")
+      }
+      public enum Error {
+        /// Network unavailable.
+        public static let networkUnavailable = L10n.tr("Settings", "Support.Error.NetworkUnavailable", fallback: "Network unavailable.")
+        /// Purchases are restricted on this device. Check Screen Time content restrictions.
+        public static let notEntitled = L10n.tr("Settings", "Support.Error.NotEntitled", fallback: "Purchases are restricted on this device. Check Screen Time content restrictions.")
+        /// Product not found.
+        public static let productNotFound = L10n.tr("Settings", "Support.Error.ProductNotFound", fallback: "Product not found.")
+        /// MARK: Support error messages (mapped from StoreServiceError)
+        public static let productsNotLoaded = L10n.tr("Settings", "Support.Error.ProductsNotLoaded", fallback: "Products could not be loaded.")
+        /// Purchase failed: %@
+        public static func purchaseFailed(_ p1: Any) -> String {
+          return L10n.tr("Settings", "Support.Error.PurchaseFailed", String(describing: p1), fallback: "Purchase failed: %@")
+        }
+        /// This product isn't available in your region.
+        public static let storefrontUnavailable = L10n.tr("Settings", "Support.Error.StorefrontUnavailable", fallback: "This product isn't available in your region.")
+        /// Error shown when applying a theme the user does not own
+        public static let themeNotOwned = L10n.tr("Settings", "Support.Error.ThemeNotOwned", fallback: "You don't own this theme.")
+        /// In-app purchases aren't supported on this device.
+        public static let unsupported = L10n.tr("Settings", "Support.Error.Unsupported", fallback: "In-app purchases aren't supported on this device.")
+        /// Could not verify your purchase.
+        public static let verificationFailed = L10n.tr("Settings", "Support.Error.VerificationFailed", fallback: "Could not verify your purchase.")
+      }
+      public enum Header {
+        /// If you love MC1, here are some ways to support its development! Everything here is optional, just a few tips and some extra themes.
+        public static let body = L10n.tr("Settings", "Support.Header.Body", fallback: "If you love MC1, here are some ways to support its development! Everything here is optional, just a few tips and some extra themes.")
+      }
+      public enum Pending {
+        /// Waiting for approval. Your purchase unlocks as soon as it's approved.
+        public static let banner = L10n.tr("Settings", "Support.Pending.Banner", fallback: "Waiting for approval. Your purchase unlocks as soon as it's approved.")
+        /// Awaiting approval
+        public static let button = L10n.tr("Settings", "Support.Pending.Button", fallback: "Awaiting approval")
+      }
+      public enum Refund {
+        /// Request a refund
+        public static let link = L10n.tr("Settings", "Support.Refund.Link", fallback: "Request a refund")
+      }
+      public enum Restore {
+        /// Restore Purchases
+        public static let button = L10n.tr("Settings", "Support.Restore.Button", fallback: "Restore Purchases")
+        /// Restoring…
+        public static let syncing = L10n.tr("Settings", "Support.Restore.Syncing", fallback: "Restoring…")
+      }
+      public enum Theme {
+        /// MARK: Theme display names
+        public static let `default` = L10n.tr("Settings", "Support.Theme.Default", fallback: "Default")
+        /// Ember
+        public static let ember = L10n.tr("Settings", "Support.Theme.Ember", fallback: "Ember")
+        /// Fern
+        public static let fern = L10n.tr("Settings", "Support.Theme.Fern", fallback: "Fern")
+        /// Lavender
+        public static let lavender = L10n.tr("Settings", "Support.Theme.Lavender", fallback: "Lavender")
+        /// Marine
+        public static let marine = L10n.tr("Settings", "Support.Theme.Marine", fallback: "Marine")
+        /// Olive
+        public static let olive = L10n.tr("Settings", "Support.Theme.Olive", fallback: "Olive")
+      }
+      public enum Themes {
+        /// Owned
+        public static let owned = L10n.tr("Settings", "Support.Themes.Owned", fallback: "Owned")
+        /// Apply your new theme in Settings → Appearance.
+        public static let purchasedFooter = L10n.tr("Settings", "Support.Themes.PurchasedFooter", fallback: "Apply your new theme in Settings → Appearance.")
+        /// Themes
+        public static let title = L10n.tr("Settings", "Support.Themes.Title", fallback: "Themes")
+      }
+    }
     public enum About {
       /// Link to GitHub repository
       public static let github = L10n.tr("Settings", "about.github", fallback: "GitHub")

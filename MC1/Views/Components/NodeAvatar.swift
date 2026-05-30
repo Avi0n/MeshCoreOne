@@ -1,21 +1,24 @@
 import SwiftUI
 import MC1Services
 
-/// Avatar view for remote nodes (room servers and repeaters)
+/// Avatar view for remote nodes (room servers and repeaters). All repeaters share one theme color,
+/// all room servers share another — distinct per category, fixed per theme.
 struct NodeAvatar: View {
+    @Environment(\.appTheme) private var theme
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
     let publicKey: Data
     let role: RemoteNodeRole
     let size: CGFloat
-    var index: Int = 0
 
     var body: some View {
         ZStack {
             Circle()
-                .fill(avatarColor)
+                .fill(fill)
 
             Image(systemName: iconName)
                 .font(.system(size: size * 0.45, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(glyph)
         }
         .frame(width: size, height: size)
     }
@@ -29,13 +32,21 @@ struct NodeAvatar: View {
         }
     }
 
-    private var avatarColor: Color {
-        switch role {
-        case .roomServer:
-            AppColors.RoomServerAvatar.color(for: publicKey)
-        case .repeater:
-            AppColors.RepeaterAvatar.color(at: index)
-        }
+    private var category: AvatarCategory {
+        role == .roomServer ? .room : .repeater
+    }
+
+    private var fill: Color {
+        theme.categoryAvatarColor(category, colorScheme: colorScheme, contrast: colorSchemeContrast)
+    }
+
+    private var glyph: Color {
+        theme.avatarGlyphColor(
+            forFill: fill,
+            usesCategoryOverride: theme.usesCategoryAvatarOverride,
+            colorScheme: colorScheme,
+            contrast: colorSchemeContrast
+        )
     }
 }
 

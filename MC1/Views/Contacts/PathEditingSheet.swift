@@ -10,6 +10,7 @@ struct PathEditingSheet: View {
     /// which only uses values where the top two bits encode the hash mode.
     private static let directRoutingPathLength: UInt8 = 0x00
 
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @Bindable var viewModel: PathManagementViewModel
     let contact: ContactDTO
@@ -26,13 +27,16 @@ struct PathEditingSheet: View {
         NavigationStack {
             List {
                 headerSection
+                    .themedRowBackground(theme)
                 if viewModel.editablePath.isEmpty {
                     emptyStateSection
                 } else {
                     currentPathSection
+                        .themedRowBackground(theme)
                     addHopCtaSection
                 }
             }
+            .themedCanvas(theme)
             .navigationTitle(L10n.Contacts.Contacts.PathEdit.title)
             .navigationBarTitleDisplayMode(.inline)
             .environment(\.editMode, .constant(.active))

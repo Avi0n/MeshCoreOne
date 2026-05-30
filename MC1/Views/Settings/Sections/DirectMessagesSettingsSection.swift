@@ -4,6 +4,7 @@ import MC1Services
 /// Settings section for direct message acknowledgment count
 struct DirectMessagesSettingsSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @State private var errorMessage: String?
     @State private var retryAlert = RetryAlertState()
@@ -24,6 +25,7 @@ struct DirectMessagesSettingsSection: View {
         } footer: {
             Text(L10n.Settings.DirectMessages.footer)
         }
+        .themedRowBackground(theme)
         .errorAlert($errorMessage)
         .retryAlert(retryAlert)
     }

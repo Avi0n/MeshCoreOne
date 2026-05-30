@@ -69,6 +69,7 @@ struct ReactionBadgesView: View {
 }
 
 private struct ReactionBadge: View {
+    @Environment(\.appTheme) private var theme
     let emoji: String
     let count: Int
 
@@ -84,12 +85,13 @@ private struct ReactionBadge: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 4)
-        .background(AppColors.Message.incomingBubble, in: .capsule)
-        .overlay(Capsule().strokeBorder(Color(.systemBackground), lineWidth: 2))
+        .background(theme.incomingBubbleColor, in: .capsule)
+        .overlay(Capsule().strokeBorder(theme.surfaces?.canvas ?? Color(.systemBackground), lineWidth: 2))
     }
 }
 
 private struct OverflowBadge: View {
+    @Environment(\.appTheme) private var theme
     let count: Int
 
     var body: some View {
@@ -98,8 +100,8 @@ private struct OverflowBadge: View {
             .foregroundStyle(.secondary)
             .padding(.horizontal, 10)
             .padding(.vertical, 4)
-            .background(AppColors.Message.incomingBubble, in: .capsule)
-            .overlay(Capsule().strokeBorder(Color(.systemBackground), lineWidth: 2))
+            .background(theme.incomingBubbleColor, in: .capsule)
+            .overlay(Capsule().strokeBorder(theme.surfaces?.canvas ?? Color(.systemBackground), lineWidth: 2))
     }
 }
 

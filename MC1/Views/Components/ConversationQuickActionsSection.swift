@@ -2,6 +2,7 @@ import SwiftUI
 import MC1Services
 
 struct ConversationQuickActionsSection: View {
+    @Environment(\.appTheme) private var theme
     @Binding var notificationLevel: NotificationLevel
     @Binding var isFavorite: Bool
     let availableLevels: [NotificationLevel]
@@ -25,5 +26,6 @@ struct ConversationQuickActionsSection: View {
             }
             .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
         }
+        .themedRowBackground(theme)
     }
 }

@@ -4,6 +4,7 @@ import MC1Services
 /// Auto-add mode and type settings for node discovery
 struct NodesSettingsSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @State private var errorMessage: String?
     @State private var retryAlert = RetryAlertState()
@@ -122,6 +123,7 @@ struct NodesSettingsSection: View {
         } footer: {
             Text(footerDescription)
         }
+        .themedRowBackground(theme)
         .radioDisabled(for: appState.connectionState, or: isApplying)
         .onAppear {
             loadFromDevice()

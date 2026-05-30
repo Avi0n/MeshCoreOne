@@ -3,6 +3,7 @@ import MC1Services
 
 struct ContactsCompactList: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     @Binding var selectedSegment: NodeSegment
     let isSearching: Bool
@@ -19,21 +20,22 @@ struct ContactsCompactList: View {
             if filteredContacts.isEmpty {
                 emptyStateRow
             } else {
-                ForEach(Array(filteredContacts.enumerated()), id: \.element.id) { index, contact in
+                ForEach(filteredContacts, id: \.id) { contact in
                     NavigationLink(value: contact) {
                         ContactRowView(
                             contact: contact,
                             showTypeLabel: isSearching,
                             userLocation: appState.bestAvailableLocation,
-                            index: index,
                             isTogglingFavorite: viewModel.togglingFavoriteID == contact.id
                         )
                     }
                     .contactSwipeActions(contact: contact, viewModel: viewModel)
                 }
+                .themedPlainRowBackground(theme)
             }
         }
         .listStyle(.plain)
+        .themedCanvas(theme)
     }
 
     @ViewBuilder

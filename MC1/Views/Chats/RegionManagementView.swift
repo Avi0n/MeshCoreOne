@@ -10,6 +10,7 @@ struct RegionManagementView: View {
     let onAddRegion: (String) -> Void
     let onDiscoverTapped: () -> Void
 
+    @Environment(\.appTheme) private var theme
     @State private var searchText = ""
     @State private var showingAddAlert = false
     @State private var newRegionName = ""
@@ -42,6 +43,7 @@ struct RegionManagementView: View {
                 }
             )
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Chats.Chats.ChannelInfo.Region.manage)
         .modifier(SearchableModifier(searchText: $searchText, isEnabled: knownRegions.count >= 15))
         .alert(L10n.Chats.Chats.ChannelInfo.Region.addRegionTitle, isPresented: $showingAddAlert) {
@@ -97,6 +99,7 @@ private struct RegionManagementEmptyState: View {
 }
 
 private struct KnownRegionsSection: View {
+    @Environment(\.appTheme) private var theme
     let regions: [String]
     let onDelete: (IndexSet) -> Void
 
@@ -107,6 +110,7 @@ private struct KnownRegionsSection: View {
             }
             .onDelete(perform: onDelete)
         }
+        .themedRowBackground(theme)
     }
 }
 
@@ -131,6 +135,7 @@ private struct RegionRow: View {
 }
 
 private struct ActionsSection: View {
+    @Environment(\.appTheme) private var theme
     let isDiscovering: Bool
     let discoveryMessage: String?
     let onDiscoverTapped: () -> Void
@@ -161,6 +166,7 @@ private struct ActionsSection: View {
         } footer: {
             Text(L10n.Chats.Chats.ChannelInfo.Region.invalidName)
         }
+        .themedRowBackground(theme)
     }
 }
 

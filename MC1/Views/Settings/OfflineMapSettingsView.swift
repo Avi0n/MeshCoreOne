@@ -4,6 +4,7 @@ import SwiftUI
 
 struct OfflineMapSettingsView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @State private var showingRegionPicker = false
     @State private var errorMessage: String?
 
@@ -25,6 +26,7 @@ struct OfflineMapSettingsView: View {
                     PacksSection()
                     StorageSection()
                 }
+                .themedCanvas(theme)
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
                         Button(L10n.Settings.OfflineMaps.downloadRegion, systemImage: "plus") {
@@ -53,6 +55,7 @@ struct OfflineMapSettingsView: View {
 
 private struct PacksSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         Section {
@@ -66,6 +69,7 @@ private struct PacksSection: View {
                 }
             }
         }
+        .themedRowBackground(theme)
     }
 }
 
@@ -73,6 +77,7 @@ private struct PacksSection: View {
 
 private struct StorageSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         Section {
@@ -84,6 +89,7 @@ private struct StorageSection: View {
         } footer: {
             Text(L10n.Settings.OfflineMaps.storageFooter)
         }
+        .themedRowBackground(theme)
     }
 }
 

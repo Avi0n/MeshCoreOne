@@ -3,6 +3,7 @@ import SwiftUI
 /// Section for managing the device's cryptographic identity
 struct DeviceIdentitySection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Binding var showingImportKeySheet: Bool
     @Binding var showingRegenerateSheet: Bool
 
@@ -24,5 +25,6 @@ struct DeviceIdentitySection: View {
         } header: {
             Text(L10n.Settings.RegenerateIdentity.header)
         }
+        .themedRowBackground(theme)
     }
 }

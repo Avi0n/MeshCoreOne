@@ -4,6 +4,7 @@ import MC1Services
 /// View for joining a private channel by entering name and hex secret key
 struct JoinPrivateChannelView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     let availableSlots: [UInt8]
     let onComplete: (ChannelDTO?) -> Void
@@ -54,12 +55,14 @@ struct JoinPrivateChannelView: View {
                     Text(L10n.Chats.Chats.JoinPrivate.footer)
                 }
             }
+            .themedRowBackground(theme)
 
             if let errorMessage {
                 Section {
                     Text(errorMessage)
                         .foregroundStyle(.red)
                 }
+                .themedRowBackground(theme)
             }
 
             Section {
@@ -80,7 +83,9 @@ struct JoinPrivateChannelView: View {
                 }
                 .disabled(channelName.isEmpty || !isValidSecret || isJoining)
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Chats.Chats.JoinPrivate.title)
         .navigationBarTitleDisplayMode(.inline)
     }

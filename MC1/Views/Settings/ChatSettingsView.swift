@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ChatSettingsView: View {
+    @Environment(\.appTheme) private var theme
     @AppStorage("replyWithQuote") private var replyWithQuote = false
 
     var body: some View {
@@ -12,12 +13,14 @@ struct ChatSettingsView: View {
             } footer: {
                 Text(L10n.Settings.ReplyWithQuote.footer)
             }
+            .themedRowBackground(theme)
 
             LinkPreviewSettingsSection()
             MapPreviewSettingsSection()
             MessagesSettingsSection()
             BlockingSection()
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Settings.ChatSettings.title)
         .navigationBarTitleDisplayMode(.inline)
     }

@@ -6,6 +6,7 @@ import MC1Services
 struct WiFiEditSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     /// Optional initial values for editing a saved (non-connected) device
     var initialHost: String?
@@ -60,6 +61,7 @@ struct WiFiEditSheet: View {
                         Label(errorMessage, systemImage: "exclamationmark.triangle")
                             .foregroundStyle(.red)
                     }
+                    .themedRowBackground(theme)
                 }
 
                 Section {
@@ -80,7 +82,9 @@ struct WiFiEditSheet: View {
                     }
                     .disabled(!isValidInput || !hasChanges || isReconnecting)
                 }
+                .themedRowBackground(theme)
             }
+            .themedCanvas(theme)
             .navigationTitle(L10n.Settings.WifiEdit.title)
             .navigationBarTitleDisplayMode(.inline)
             .wifiSheetToolbar(focusedField: $focusedField, isProcessing: isReconnecting)

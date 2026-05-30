@@ -16,6 +16,11 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         var snapshot: NSDiffableDataSourceSnapshot<Section, Item.ID>
         var animatingDifferences: Bool
         var completion: (() -> Void)?
+        /// `true` when this request was issued by `reconfigureAllItems` (live theme switch).
+        /// The pending-slot coalescer carries this flag — and a re-applied
+        /// `reconfigureItems(allCurrentIDs)` — forward into any superseding request so the
+        /// reconfigure intent isn't silently dropped when latest-wins overwrites pendingSnapshot.
+        var reconfigureAll: Bool = false
     }
 
     // MARK: - Properties
@@ -26,6 +31,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     /// O(1) index lookup for scroll-to-item (replaces O(n) firstIndex(where:))
     private var itemIndexByID: [Item.ID: Int] = [:]
     private var cellContentProvider: ((Item) -> CellContent)?
+    var defaultTableBackgroundColor: UIColor?
     private var dataSource: UITableViewDiffableDataSource<Section, Item.ID>?
     /// Snapshot scheduled while a previous apply was still running. Latest
     /// wins: when a new request arrives mid-apply, it replaces this field
@@ -347,21 +353,39 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     private func applySnapshot(
         _ snapshot: NSDiffableDataSourceSnapshot<Section, Item.ID>,
         animatingDifferences: Bool,
-        completion: (() -> Void)? = nil
+        completion: (() -> Void)? = nil,
+        reconfigureAll: Bool = false
     ) {
-        let request = SnapshotApplyRequest(
+        var request = SnapshotApplyRequest(
             snapshot: snapshot,
             animatingDifferences: animatingDifferences,
-            completion: completion
+            completion: completion,
+            reconfigureAll: reconfigureAll
         )
 
         if scrollState.isApplyingSnapshot {
-            // Latest-wins for the snapshot itself, but preserve the superseded
-            // request's completion so prepend anchor restores still fire after
-            // the final apply lands.
-            if let superseded = pendingSnapshot?.completion {
-                pendingCompletions.append(superseded)
+            if let existing = pendingSnapshot {
+                // Latest-wins for the snapshot itself, but preserve the superseded
+                // request's completion so prepend anchor restores still fire after
+                // the final apply lands.
+                if let superseded = existing.completion {
+                    pendingCompletions.append(superseded)
+                }
+                // If the pending request was a reconfigure-all (live theme switch), carry the
+                // intent forward into the incoming snapshot so dropping the pending slot
+                // doesn't silently lose the repaint. Reconfigures all items in the new
+                // snapshot — its identifiers are the current visible set, which is what the
+                // reconfigure-all intent was about anyway.
+                if existing.reconfigureAll {
+                    request.snapshot.reconfigureItems(request.snapshot.itemIdentifiers)
+                    request.reconfigureAll = true
+                }
             }
+            // The opposite ordering is intentionally not mirrored: an incoming reconfigure-all
+            // replacing a pending content snapshot adopts the reconfigure's (already-applied)
+            // identifier set, so the superseded snapshot's not-yet-applied items wait for the next
+            // apply. That is safe because a theme change also drives buildItems() with the full
+            // current set within a few frames, so the deferred rows reappear without a visible gap.
             pendingSnapshot = request
             return
         }
@@ -657,6 +681,18 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         }
     }
 
+    /// Reconfigures every current row in place so render-time, non-`MessageItem` styling
+    /// (the themed bubble fill) repaints on a live theme switch. `reconfigureItems` preserves
+    /// identity (no insert/delete, no scroll jump) and routes through the same serialized
+    /// `applySnapshot` path as every other apply.
+    func reconfigureAllItems() {
+        guard let dataSource else { return }
+        var snapshot = dataSource.snapshot()
+        guard !snapshot.itemIdentifiers.isEmpty else { return }
+        snapshot.reconfigureItems(snapshot.itemIdentifiers)
+        applySnapshot(snapshot, animatingDifferences: false, reconfigureAll: true)
+    }
+
     /// Returns true if the target was found in the applied snapshot and scrolled.
     /// Returns false when the snapshot has not yet caught up to the items model,
     /// letting the caller retry instead of silently dropping the scroll.
@@ -878,6 +914,17 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
 
     let items: [Item]
     let cellContent: (Item) -> Content
+    /// Themed canvas color for themes that paint a canvas (Ember → black, paid themes →
+    /// asset-catalog tint); `nil` leaves the table's default system background untouched, so
+    /// themes without surfaces are unchanged.
+    var contentBackground: Color?
+    /// Active theme id (`Theme.id`). Drives a one-shot reconfigure of all rows on a theme change
+    /// so the render-time bubble fill (`\.appTheme.accentColor`, not part of `MessageItem`) repaints
+    /// even when no baked text changed — e.g. switching between two themes that share white text.
+    var themeID: String = Theme.default.id
+    /// Appearance fingerprint (light/dark + contrast). Like `themeID`, a change reconfigures all rows
+    /// once so identity colors that depend on the appearance repaint in place.
+    var appearanceToken: String = ""
     @Binding var isAtBottom: Bool
     @Binding var unreadCount: Int
     @Binding var scrollToBottomRequest: Int
@@ -893,6 +940,7 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
 
     func makeUIViewController(context: Context) -> ChatTableViewController<Item, Content> {
         let controller = ChatTableViewController<Item, Content>()
+        controller.defaultTableBackgroundColor = controller.tableView.backgroundColor
         controller.configure { item in
             cellContent(item)
         }
@@ -910,6 +958,18 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
         controller.configure { item in
             cellContent(item)
         }
+        controller.tableView.backgroundColor = contentBackground.map(UIColor.init) ?? controller.defaultTableBackgroundColor
+
+        // Repaint visible bubbles whose render-time accent fill is not part of `MessageItem`:
+        // a theme-id change reconfigures all rows in place once. The gate skips the first
+        // pass (no previous id) so appearance does not trigger a needless reconfigure.
+        let themeChanged = context.coordinator.lastThemeID.map { $0 != themeID } ?? false
+        let appearanceChanged = context.coordinator.lastAppearanceToken.map { $0 != appearanceToken } ?? false
+        if themeChanged || appearanceChanged {
+            controller.reconfigureAllItems()
+        }
+        context.coordinator.lastThemeID = themeID
+        context.coordinator.lastAppearanceToken = appearanceToken
 
         // Store current binding setters in coordinator (updated each render cycle)
         // This ensures deferred callbacks always use fresh bindings
@@ -1000,6 +1060,8 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
         var lastScrollRequest: Int = 0
         var lastMentionRequest: Int = 0
         var lastDividerScrollRequest: Int = 0
+        var lastThemeID: String?
+        var lastAppearanceToken: String?
         var setIsAtBottom: ((Bool) -> Void)?
         var setUnreadCount: ((Int) -> Void)?
         var setIsDividerVisible: ((Bool) -> Void)?

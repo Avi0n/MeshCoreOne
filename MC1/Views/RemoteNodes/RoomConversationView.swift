@@ -6,6 +6,7 @@ struct RoomConversationView: View {
     @Environment(\.appState) private var appState
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.appTheme) private var theme
 
     @State private var session: RemoteNodeSessionDTO
     @State private var viewModel = RoomConversationViewModel()
@@ -146,6 +147,7 @@ struct RoomConversationView: View {
             unreadCount: $unreadCount,
             scrollToBottomRequest: $scrollToBottomRequest,
             session: session,
+            theme: theme,
             onRetry: { id in
                 Task { await viewModel.retryMessage(id: id) }
             }
@@ -197,7 +199,11 @@ private struct MessagesView: View {
     @Binding var unreadCount: Int
     @Binding var scrollToBottomRequest: Int
     let session: RemoteNodeSessionDTO
+    let theme: Theme
     let onRetry: (UUID) -> Void
+
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     var body: some View {
         Group {
@@ -211,7 +217,11 @@ private struct MessagesView: View {
                     items: messages,
                     cellContent: { message in
                         messageBubble(for: message)
+                            .environment(\.appTheme, theme)
                     },
+                    contentBackground: theme.surfaces?.canvas,
+                    themeID: theme.id,
+                    appearanceToken: AppearanceToken.make(colorScheme: colorScheme, contrast: colorSchemeContrast),
                     isAtBottom: $isAtBottom,
                     unreadCount: $unreadCount,
                     scrollToBottomRequest: $scrollToBottomRequest,
@@ -230,6 +240,7 @@ private struct MessagesView: View {
                 }
             }
         }
+        .themedCanvas(theme)
     }
 
     private func messageBubble(for message: RoomMessageDTO) -> some View {

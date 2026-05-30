@@ -7,6 +7,7 @@ private let logger = Logger(subsystem: "com.mc1", category: "LocationSettings")
 /// Location settings: set location, share publicly, auto-update from GPS
 struct LocationSettingsSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @Binding var showingLocationPicker: Bool
@@ -91,6 +92,7 @@ struct LocationSettingsSection: View {
             } footer: {
                 Text(L10n.Settings.Location.footer)
             }
+            .themedRowBackground(theme)
 
             if deviceHasGPS {
                 Section {
@@ -103,6 +105,7 @@ struct LocationSettingsSection: View {
                 } footer: {
                     Text(L10n.Settings.Location.DeviceGps.footer)
                 }
+                .themedRowBackground(theme)
             }
         }
         .task(id: startupTaskID) {

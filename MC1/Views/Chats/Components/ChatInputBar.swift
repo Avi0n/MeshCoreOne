@@ -5,6 +5,7 @@ import MC1Services
 /// Reusable chat input bar with configurable styling
 struct ChatInputBar<Leading: View>: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Binding var text: String
     @FocusState.Binding var isFocused: Bool
     let placeholder: String
@@ -46,7 +47,7 @@ struct ChatInputBar<Leading: View>: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
-        .inputBarBackground()
+        .inputBarBackground(themedCanvas: theme.surfaces?.canvas)
         .sensoryFeedback(.start, trigger: sendInvocationCounter)
     }
 
@@ -193,6 +194,8 @@ private struct ChatSendButton: View {
     let sendAccessibilityHint: String
     let onSend: () -> Void
 
+    @Environment(\.appTheme) private var theme
+
     private var sendButtonFont: Font {
         if #available(iOS 26.0, *) { .title2 } else { .title }
     }
@@ -201,7 +204,7 @@ private struct ChatSendButton: View {
         Button(action: onSend) {
             Image(systemName: "arrow.up.circle.fill")
                 .font(sendButtonFont)
-                .foregroundStyle(canSend ? AppColors.Message.outgoingBubble : .secondary)
+                .foregroundStyle(canSend ? theme.accentColor : .secondary)
         }
         .sendButtonStyle()
         .disabled(!canSend)
@@ -280,8 +283,10 @@ private extension View {
     }
 
     @ViewBuilder
-    func inputBarBackground() -> some View {
-        if #available(iOS 26.0, *) {
+    func inputBarBackground(themedCanvas: Color?) -> some View {
+        if let themedCanvas {
+            self.background(themedCanvas)
+        } else if #available(iOS 26.0, *) {
             self
         } else {
             self.background(.bar)

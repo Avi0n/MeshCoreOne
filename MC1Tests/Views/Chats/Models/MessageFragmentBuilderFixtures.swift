@@ -138,7 +138,8 @@ enum MessageFragmentBuilderFixtures {
             isDark: false,
             showMapPreviews: true,
             isOffline: false,
-            currentUserName: isOutgoing ? "Me" : "Sender"
+            currentUserName: isOutgoing ? "Me" : "Sender",
+            themeID: "default"
         )
     }
 }

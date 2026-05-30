@@ -5,15 +5,19 @@ import SwiftUI
 /// `ImportSuccessContent` minus the "already here" section — export
 /// has no skip concept. Lives in the MC1 target because it uses `L10n`.
 struct ExportSuccessContent: View {
+    @Environment(\.appTheme) private var theme
     let summary: AppBackupViewModel.ExportSuccessSummary
     let onDismiss: @MainActor () -> Void
 
     var body: some View {
         List {
             heroSection
+                .themedRowBackground(theme)
             includedSection
+                .themedRowBackground(theme)
             doneSection
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Settings.Settings.Backup.Export.Success.title)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {

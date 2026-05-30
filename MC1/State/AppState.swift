@@ -76,6 +76,8 @@ public final class AppState {
 
     /// The connection manager for device lifecycle
     public let connectionManager: ConnectionManager
+    public let storeState: StoreState
+    public let themeService: ThemeService
     private let bootstrapDebugLogBuffer: DebugLogBuffer
 
     // Convenience accessors
@@ -182,6 +184,7 @@ public final class AppState {
         contactsVersion += 1
         conversationsVersion += 1
         loadPersistedRegionSelection()
+        themeService.refreshFromUserDefaults()
     }
 
     // MARK: - Connection UI State
@@ -282,6 +285,11 @@ public final class AppState {
         self.bootstrapDebugLogBuffer = bootstrapBuffer
         DebugLogBuffer.shared = bootstrapBuffer
 
+        let store = StoreService()
+        let theme = ThemeService(store: store)
+        self.storeState = StoreState(service: store)
+        self.themeService = theme
+
         self.connectionManager = ConnectionManager(modelContainer: modelContainer)
 
         // Provide LiveActivityManager with current radio connection state so
@@ -325,6 +333,15 @@ public final class AppState {
                 onboarding.onboardingPath = suggested
             }
         }
+    }
+
+    /// Releases process-scoped resources held by this `AppState` instance so the caller can
+    /// drop it. Currently only cancels `StoreService`'s `Transaction.updates` listener Task,
+    /// which otherwise self-retains via the `for await` loop and leaks across an `MC1App` BFU
+    /// reassignment of `appState`. Connection-layer teardown stays on `ConnectionManager`'s own
+    /// disconnect path and is intentionally not chained here.
+    func shutdown() {
+        storeState.service.shutdown()
     }
 
     // MARK: - Lifecycle

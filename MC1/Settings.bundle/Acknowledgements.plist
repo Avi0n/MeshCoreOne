@@ -42,6 +42,30 @@
 			<key>Type</key>
 			<string>PSChildPaneSpecifier</string>
 		</dict>
+		<dict>
+			<key>File</key>
+			<string>Packages/Catppuccin</string>
+			<key>Title</key>
+			<string>Catppuccin</string>
+			<key>Type</key>
+			<string>PSChildPaneSpecifier</string>
+		</dict>
+		<dict>
+			<key>File</key>
+			<string>Packages/Nord</string>
+			<key>Title</key>
+			<string>Nord</string>
+			<key>Type</key>
+			<string>PSChildPaneSpecifier</string>
+		</dict>
+		<dict>
+			<key>File</key>
+			<string>Packages/Solarized</string>
+			<key>Title</key>
+			<string>Solarized</string>
+			<key>Type</key>
+			<string>PSChildPaneSpecifier</string>
+		</dict>
 	</array>
 	<key>StringsTable</key>
 	<string>Acknowledgements</string>

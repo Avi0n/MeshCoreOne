@@ -3,6 +3,7 @@ import MC1Services
 
 struct ConfigExportImportSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     private var isDisabled: Bool {
         appState.connectionState != .ready
@@ -28,5 +29,6 @@ struct ConfigExportImportSection: View {
         } footer: {
             Text(L10n.Settings.ConfigExport.sectionFooter)
         }
+        .themedRowBackground(theme)
     }
 }

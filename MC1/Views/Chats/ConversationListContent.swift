@@ -7,6 +7,8 @@ struct ConversationListContent: View {
         case navigation(onNavigate: (ChatRoute) -> Void, onRequestRoomAuth: (RemoteNodeSessionDTO) -> Void)
     }
 
+    @Environment(\.appTheme) private var theme
+
     private let viewModel: ChatViewModel
     private let favoriteConversations: [Conversation]
     private let otherConversations: [Conversation]
@@ -124,6 +126,7 @@ struct ConversationListContent: View {
                     }
                     .accessibilityLabel(L10n.Chats.Chats.Section.favorites)
                     .accessibilityHidden(favoriteConversations.isEmpty)
+                    .themedPlainRowBackground(theme)
 
                     Section {
                         ForEach(otherConversations) { conversation in
@@ -137,6 +140,7 @@ struct ConversationListContent: View {
                     }
                     .accessibilityLabel(L10n.Chats.Chats.Section.conversations)
                     .accessibilityHidden(otherConversations.isEmpty)
+                    .themedPlainRowBackground(theme)
                 }
             }
             .listStyle(.plain)
@@ -162,6 +166,7 @@ struct ConversationListContent: View {
                     }
                     .accessibilityLabel(L10n.Chats.Chats.Section.favorites)
                     .accessibilityHidden(favoriteConversations.isEmpty)
+                    .themedPlainRowBackground(theme)
 
                     Section {
                         ForEach(otherConversations) { conversation in
@@ -177,6 +182,7 @@ struct ConversationListContent: View {
                     }
                     .accessibilityLabel(L10n.Chats.Chats.Section.conversations)
                     .accessibilityHidden(otherConversations.isEmpty)
+                    .themedPlainRowBackground(theme)
                 }
             }
             .listStyle(.plain)

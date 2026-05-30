@@ -105,6 +105,7 @@ struct NodeCommonStatusRows: View {
 // MARK: - Status Section
 
 struct NodeStatusSection<Rows: View>: View {
+    @Environment(\.appTheme) private var theme
     let helper: NodeStatusHelper
     @ViewBuilder let rows: () -> Rows
 
@@ -135,6 +136,7 @@ struct NodeStatusSection<Rows: View>: View {
                 }
             }
         }
+        .themedRowBackground(theme)
     }
 }
 
@@ -191,6 +193,7 @@ struct NodeTelemetryRow: View {
 // MARK: - Battery Curve Disclosure Section
 
 struct NodeBatteryCurveDisclosureSection: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var helper: NodeStatusHelper
     let session: RemoteNodeSessionDTO
     let connectionState: ConnectionState
@@ -227,12 +230,14 @@ struct NodeBatteryCurveDisclosureSection: View {
         } footer: {
             Text(L10n.RemoteNodes.RemoteNodes.Status.batteryCurveFooter)
         }
+        .themedRowBackground(theme)
     }
 }
 
 // MARK: - Telemetry Disclosure Section
 
 struct NodeTelemetryDisclosureSection: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var helper: NodeStatusHelper
     let onRequestTelemetry: () async -> Void
 
@@ -291,6 +296,7 @@ struct NodeTelemetryDisclosureSection: View {
         } footer: {
             Text(L10n.RemoteNodes.RemoteNodes.Status.telemetryFooter)
         }
+        .themedRowBackground(theme)
     }
 }
 
@@ -624,6 +630,7 @@ struct NodeContactInfoSection: View {
 // MARK: - Security Section
 
 struct NodeSecuritySection: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var settings: NodeSettingsHelper
 
     var body: some View {
@@ -646,12 +653,14 @@ struct NodeSecuritySection: View {
         } footer: {
             Text(L10n.RemoteNodes.RemoteNodes.Settings.securityFooter)
         }
+        .themedRowBackground(theme)
     }
 }
 
 // MARK: - Actions Section
 
 struct NodeActionsSection: View {
+    @Environment(\.appTheme) private var theme
     let settings: NodeSettingsHelper
     @Binding var showRebootConfirmation: Bool
     var rebootConfirmTitle: String = L10n.RemoteNodes.RemoteNodes.Settings.rebootConfirmTitle
@@ -704,5 +713,6 @@ struct NodeActionsSection: View {
                     .font(.caption)
             }
         }
+        .themedRowBackground(theme)
     }
 }

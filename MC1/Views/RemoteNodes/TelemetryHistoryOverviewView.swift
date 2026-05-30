@@ -8,6 +8,7 @@ struct TelemetryHistoryOverviewView: View {
     let showNeighbors: Bool
 
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @State private var viewModel = TelemetryHistoryOverviewViewModel()
     @State private var radioExpanded = true
     @State private var sensorsExpanded: Bool
@@ -35,6 +36,7 @@ struct TelemetryHistoryOverviewView: View {
                 retentionFooter
             }
         }
+        .themedCanvas(theme)
         .chartScrubbingScrollLock()
         .navigationTitle(L10n.RemoteNodes.RemoteNodes.History.overviewTitle)
         .liquidGlassToolbarBackground()
@@ -162,6 +164,7 @@ struct TelemetryHistoryOverviewView: View {
                     )
                 }
             }
+            .themedRowBackground(theme)
         }
     }
 
@@ -191,6 +194,7 @@ struct TelemetryHistoryOverviewView: View {
                     }
                 }
             }
+            .themedRowBackground(theme)
         } else if viewModel.hasSnapshots {
             Section {
                 Text(L10n.RemoteNodes.RemoteNodes.History.sectionNotCaptured(
@@ -199,6 +203,7 @@ struct TelemetryHistoryOverviewView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             }
+            .themedRowBackground(theme)
         }
     }
 
@@ -223,6 +228,7 @@ struct TelemetryHistoryOverviewView: View {
                     }
                 }
             }
+            .themedRowBackground(theme)
         } else if viewModel.hasSnapshots {
             Section {
                 Text(L10n.RemoteNodes.RemoteNodes.History.sectionNotCaptured(
@@ -231,6 +237,7 @@ struct TelemetryHistoryOverviewView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             }
+            .themedRowBackground(theme)
         }
     }
 
@@ -290,6 +297,7 @@ struct TelemetryHistoryOverviewView: View {
         } footer: {
             Text(L10n.RemoteNodes.RemoteNodes.History.retentionNotice)
         }
+        .themedRowBackground(theme)
     }
 }
 

@@ -264,6 +264,7 @@ struct DeviceSelectionSheet: View {
 // MARK: - Device List View
 
 private struct DeviceListView: View {
+    @Environment(\.appTheme) private var theme
     let devices: [SelectableDevice]
     let devicesConnectedElsewhere: Set<UUID>
     let deviceSignalTier: [UUID: Int]
@@ -312,6 +313,7 @@ private struct DeviceListView: View {
             } header: {
                 Text(L10n.Settings.DeviceSelection.previouslyPaired)
             }
+            .themedRowBackground(theme)
 
             Section {
                 Button {
@@ -326,7 +328,9 @@ private struct DeviceListView: View {
                     Label(L10n.Settings.DeviceSelection.scanBluetooth, systemImage: "antenna.radiowaves.left.and.right")
                 }
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .sheet(isPresented: $showingWiFiConnection) {
             WiFiConnectionSheet()
         }

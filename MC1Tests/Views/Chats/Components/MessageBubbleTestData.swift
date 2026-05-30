@@ -165,7 +165,8 @@ enum MessageBubbleTestData {
             isDark: false,
             showMapPreviews: true,
             isOffline: false,
-            currentUserName: currentUserName
+            currentUserName: currentUserName,
+            themeID: "default"
         )
         let item = MessageFragmentBuilder.makeItem(for: message, inputs: inputs, envInputs: envInputs)
 

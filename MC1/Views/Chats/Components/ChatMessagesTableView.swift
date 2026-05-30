@@ -27,6 +27,9 @@ struct ChatMessagesTableView: View {
     let onRetryMessage: (MessageDTO) -> Void
 
     @State private var hasDismissedDividerFAB = false
+    @Environment(\.appTheme) private var theme
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     private var showDividerFAB: Bool {
         newMessagesDividerMessageID != nil && !isDividerVisible && !hasDismissedDividerFAB
@@ -38,6 +41,7 @@ struct ChatMessagesTableView: View {
             contactName: contactName,
             deviceName: deviceName,
             configuration: configuration,
+            theme: theme,
             resolver: BubbleResolver(viewModel: viewModel),
             actions: BubbleActions(
                 onRetryMessage: onRetryMessage,
@@ -75,6 +79,9 @@ struct ChatMessagesTableView: View {
         ChatTableView(
             items: viewModel.items,
             cellContent: factory.makeContent(for:),
+            contentBackground: theme.surfaces?.canvas,
+            themeID: theme.id,
+            appearanceToken: AppearanceToken.make(colorScheme: colorScheme, contrast: colorSchemeContrast),
             isAtBottom: $isAtBottom,
             unreadCount: $unreadCount,
             scrollToBottomRequest: $scrollToBottomRequest,

@@ -5,6 +5,7 @@ import MC1Services
 /// List-based view for building trace paths
 struct TracePathListView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: TracePathViewModel
 
     @Binding var addHapticTrigger: Int
@@ -22,12 +23,14 @@ struct TracePathListView: View {
     var body: some View {
         List {
             codeInputSection
+                .themedRowBackground(theme)
             AvailableRepeatersSectionView(
                 viewModel: viewModel,
                 recentlyAddedRepeaterID: $recentlyAddedRepeaterID,
                 addHapticTrigger: $addHapticTrigger
             )
             outboundPathSection
+                .themedRowBackground(theme)
             PathActionsSectionView(
                 viewModel: viewModel,
                 showingClearConfirmation: $showingClearConfirmation,
@@ -45,6 +48,7 @@ struct TracePathListView: View {
                 .listRowInsets(EdgeInsets())
                 .id("bottom")
         }
+        .themedCanvas(theme)
         .environment(\.editMode, .constant(.active))
     }
 

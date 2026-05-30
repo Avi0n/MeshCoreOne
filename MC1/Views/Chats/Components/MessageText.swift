@@ -11,6 +11,8 @@ struct MessageText: View {
     let precomputedText: AttributedString?
 
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appTheme) private var theme
 
     init(
         _ text: String,
@@ -40,7 +42,14 @@ struct MessageText: View {
             text: text,
             isOutgoing: isOutgoing,
             currentUserName: currentUserName,
-            isHighContrast: colorSchemeContrast == .increased
+            isHighContrast: colorSchemeContrast == .increased,
+            outgoingTextColor: theme.outgoingTextColor,
+            hashtagColor: theme.hashtagColor,
+            identityGamut: theme.identityGamut,
+            identityBackgroundLuminances: theme.avatarSurfaceLuminances(
+                colorScheme: colorScheme,
+                contrast: colorSchemeContrast
+            )
         ).text
     }
 
@@ -50,9 +59,13 @@ struct MessageText: View {
         text: String,
         isOutgoing: Bool,
         currentUserName: String?,
-        isHighContrast: Bool
+        isHighContrast: Bool,
+        outgoingTextColor: Color,
+        hashtagColor: Color,
+        identityGamut: IdentityGamut,
+        identityBackgroundLuminances: [Double]
     ) -> (text: AttributedString, mapCoordinate: CLLocationCoordinate2D?) {
-        let baseColor: Color = isOutgoing ? .white : .primary
+        let baseColor: Color = isOutgoing ? outgoingTextColor : .primary
         var result = AttributedString(text)
         result.foregroundColor = baseColor
 
@@ -68,6 +81,8 @@ struct MessageText: View {
             isOutgoing: isOutgoing,
             currentUserName: currentUserName,
             isHighContrast: isHighContrast,
+            identityGamut: identityGamut,
+            identityBackgroundLuminances: identityBackgroundLuminances,
             excludedRanges: contactTokenRanges
         )
 
@@ -75,7 +90,7 @@ struct MessageText: View {
 
         let (urlRanges, currentString) = applyURLFormatting(&result, baseColor: baseColor)
 
-        applyHashtagFormatting(&result, isOutgoing: isOutgoing, urlRanges: urlRanges, currentString: currentString)
+        applyHashtagFormatting(&result, isOutgoing: isOutgoing, outgoingTextColor: outgoingTextColor, hashtagColor: hashtagColor, urlRanges: urlRanges, currentString: currentString)
 
         applyMeshCoreLinkFormatting(&result, baseColor: baseColor, urlRanges: urlRanges, currentString: currentString)
 
@@ -93,6 +108,8 @@ struct MessageText: View {
         isOutgoing: Bool,
         currentUserName: String?,
         isHighContrast: Bool,
+        identityGamut: IdentityGamut,
+        identityBackgroundLuminances: [Double],
         excludedRanges: [Range<String.Index>]
     ) {
         guard let regex = MentionUtilities.mentionRegex else { return }
@@ -122,15 +139,17 @@ struct MessageText: View {
             replacement.underlineStyle = .single
 
             if isOutgoing {
-                // On dark bubbles: use white text, with background only for self-mentions
-                replacement.foregroundColor = .white
+                // On dark bubbles: outgoing text color, with background only for self-mentions
+                replacement.foregroundColor = baseColor
                 if isSelfMention {
-                    replacement.backgroundColor = Color.white.opacity(0.3)
+                    replacement.backgroundColor = baseColor.opacity(0.3)
                 }
             } else {
-                // On light bubbles: use sender color for the mentioned name
-                let mentionColor = AppColors.NameColor.color(
-                    for: name,
+                // On incoming bubbles: use the mentioned identity's theme color, matching its avatar
+                // and sender name. Solved against the same surfaces, so the mention stays legible.
+                let mentionColor = identityGamut.color(
+                    forName: name,
+                    backgroundLuminances: identityBackgroundLuminances,
                     highContrast: isHighContrast
                 )
                 replacement.foregroundColor = mentionColor
@@ -325,6 +344,8 @@ struct MessageText: View {
     private static func applyHashtagFormatting(
         _ attributedString: inout AttributedString,
         isOutgoing: Bool,
+        outgoingTextColor: Color,
+        hashtagColor: Color,
         urlRanges: [Range<String.Index>],
         currentString: String
     ) {
@@ -342,9 +363,8 @@ struct MessageText: View {
             let channelName = HashtagUtilities.normalizeHashtagName(hashtag.name)
             if let url = URL(string: "meshcoreone://hashtag/\(channelName)") {
                 attributedString[attrRange].link = url
-                // Hashtags: bold + cyan (or white on dark bubbles), no underline
-                // This distinguishes them from URLs which remain underlined
-                attributedString[attrRange].foregroundColor = isOutgoing ? .white : .cyan
+                // Hashtags: bold + themed color, no underline (distinguishes them from underlined URLs)
+                attributedString[attrRange].foregroundColor = isOutgoing ? outgoingTextColor : hashtagColor
                 attributedString[attrRange].inlinePresentationIntent = .stronglyEmphasized
             }
         }

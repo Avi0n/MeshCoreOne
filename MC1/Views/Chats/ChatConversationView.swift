@@ -64,6 +64,7 @@ struct ChatConversationView: View {
 
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appTheme) private var theme
 
     /// Snapshot of env-derived inputs the view model needs to construct
     /// MessageItems at write time. Recomputed on every render — Equatable
@@ -80,7 +81,8 @@ struct ChatConversationView: View {
             isDark: colorScheme == .dark,
             showMapPreviews: showMapPreviewThumbnails,
             isOffline: !appState.offlineMapService.isNetworkAvailable,
-            currentUserName: appState.localNodeName
+            currentUserName: appState.localNodeName,
+            themeID: theme.id
         )
     }
 
@@ -250,6 +252,12 @@ struct ChatConversationView: View {
             handleIncomingMentionIfNeeded(mention.messageID)
         }
         .chatErrorAlerts(chatViewModel: chatViewModel)
+        .themedChrome(theme)
+        .background {
+            if let canvas = theme.surfaces?.canvas {
+                canvas.ignoresSafeArea()
+            }
+        }
     }
 
     // MARK: - Initial Load (.task)

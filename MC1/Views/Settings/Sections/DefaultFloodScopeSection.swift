@@ -9,6 +9,7 @@ import MC1Services
 /// and the accepted value is cached in ``DeviceDTO/defaultFloodScopeName``.
 struct DefaultFloodScopeSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @State private var isApplying = false
     @State private var errorMessage: String?
@@ -34,6 +35,7 @@ struct DefaultFloodScopeSection: View {
         } footer: {
             Text(L10n.Settings.DefaultFloodScope.footer)
         }
+        .themedRowBackground(theme)
         .radioDisabled(for: appState.connectionState, or: isApplying)
         .errorAlert($errorMessage)
         .retryAlert(retryAlert)

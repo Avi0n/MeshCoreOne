@@ -3,6 +3,7 @@ import SwiftUI
 
 /// Drill-down view showing historical charts for telemetry metrics grouped by channel and type.
 struct TelemetryHistoryView: View {
+    @Environment(\.appTheme) private var theme
     let fetchSnapshots: @Sendable () async -> [NodeStatusSnapshotDTO]
     let ocvArray: [Int]
 
@@ -28,15 +29,18 @@ struct TelemetryHistoryView: View {
                     } header: {
                         Text(L10n.RemoteNodes.RemoteNodes.Status.channel(channelGroup.channel))
                     }
+                    .themedRowBackground(theme)
                 }
             } else if let singleGroup = groups.first {
                 ForEach(singleGroup.charts) { chart in
                     Section {
                         chartView(for: chart)
                     }
+                    .themedRowBackground(theme)
                 }
             }
         }
+        .themedCanvas(theme)
         .chartScrubbingScrollLock()
         .navigationTitle(L10n.RemoteNodes.RemoteNodes.Status.telemetry)
         .liquidGlassToolbarBackground()

@@ -5,6 +5,7 @@ import MC1Services
 struct ChannelOptionsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     let onChannelCreated: ((ChannelDTO) -> Void)?
 
@@ -127,6 +128,7 @@ struct ChannelOptionsSheet: View {
             } header: {
                 Text(L10n.Chats.Chats.ChannelOptions.Section.`private`)
             }
+            .themedRowBackground(theme)
 
             Section {
                 // Join Public Channel
@@ -165,7 +167,9 @@ struct ChannelOptionsSheet: View {
                     Text(L10n.Chats.Chats.ChannelOptions.Footer.hasPublic)
                 }
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
     }
 
     private func loadChannelState() async {

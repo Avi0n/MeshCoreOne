@@ -1614,3 +1614,73 @@
 
 /* VoiceOver announcement when the export success sheet appears; %@ is the filename */
 "settings.backup.export.success.announcement" = "Резервная копия сохранена как %@";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "У вас нет этой темы.";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "Тема возвращена к стандартной.";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "Поддержать разработку";
+"Support.Header.Body" = "Если вам нравится MC1, вот несколько способов поддержать его разработку! Всё здесь необязательно, лишь несколько чаевых и несколько дополнительных тем.";
+"Support.Themes.Title" = "Темы";
+"Support.Themes.Owned" = "Приобретено";
+"Support.Themes.PurchasedFooter" = "Примените новую тему в разделе «Настройки → Внешний вид».";
+"Support.Bundle.Title" = "Все темы";
+"Support.Bundle.Subtitle" = "Включая темы, добавленные позже.";
+"Support.Contributions.Title" = "Пожертвования";
+"Support.Contributions.Footer" = "Благодарственное пожертвование в поддержку разработки MC1. Без физических товаров и привилегий участника.";
+"Support.Contributions.HighValueConfirm" = "Отправить %@?";
+"Support.Contributions.ConfirmButton" = "Пожертвовать %@";
+"Support.Restore.Button" = "Восстановить покупки";
+"Support.Restore.Syncing" = "Восстановление…";
+"Support.Refund.Link" = "Запросить возврат средств";
+"Support.Pending.Banner" = "Ожидает одобрения — покупка активируется после одобрения.";
+"Support.Pending.Button" = "Ожидает одобрения";
+"Support.Contact.Link" = "Связаться с поддержкой";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "Стандартная";
+"Support.Theme.Ember" = "Ember";
+"Support.Theme.Fern" = "Fern";
+"Support.Theme.Marine" = "Marine";
+"Support.Theme.Olive" = "Olive";
+"Support.Theme.Lavender" = "Lavender";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "Не удалось загрузить товары.";
+"Support.Error.ProductNotFound" = "Товар не найден.";
+"Support.Error.PurchaseFailed" = "Не удалось совершить покупку: %@";
+"Support.Error.NetworkUnavailable" = "Сеть недоступна.";
+"Support.Error.VerificationFailed" = "Не удалось подтвердить вашу покупку.";
+"Support.Error.NotEntitled" = "Покупки на этом устройстве ограничены. Проверьте ограничения контента в «Экранном времени».";
+"Support.Error.StorefrontUnavailable" = "Этот товар недоступен в вашем регионе.";
+"Support.Error.Unsupported" = "Встроенные покупки не поддерживаются на этом устройстве.";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "Тема %@, заблокирована";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "Тема %@, приобретена";
+"Support.Accessibility.BundleCard.LockedLabel" = "Набор «Все темы», заблокирован, %@";
+"Support.Accessibility.BundleCard.LockedHint" = "Покупка набора «Все темы»";
+"Support.Accessibility.BundleCard.LoadingLabel" = "All Themes bundle, loading price";
+"Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
+"Support.Accessibility.ContributionRow.Hint" = "Отправляет благодарственное пожертвование";
+"Support.Accessibility.TipConfirmAnnouncement" = "Спасибо за ваше пожертвование.";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "Внешний вид";
+"Appearance.Scheme.Header" = "Светлый/тёмный режим";
+"Appearance.Scheme.System" = "Системная";
+"Appearance.Scheme.Light" = "Светлая";
+"Appearance.Scheme.Dark" = "Тёмная";
+"Appearance.Themes.Header" = "Выберите тему";
+"Appearance.Themes.Selected" = "Выбрана";
+"Appearance.MoreThemes.Link" = "Купить другие темы";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "Тема %@, приобретена";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "Применяет эту тему";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "Тема %@, выбрана в данный момент";
+"Appearance.Accessibility.Swatch.DualMode" = "%@, светлый и тёмный варианты";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@, только тёмный";

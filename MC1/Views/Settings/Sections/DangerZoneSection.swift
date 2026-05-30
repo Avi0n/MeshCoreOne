@@ -4,6 +4,7 @@ import MC1Services
 /// Destructive device actions
 struct DangerZoneSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @State private var showingForgetConfirmation = false
     @State private var showingResetAlert = false
@@ -60,6 +61,7 @@ struct DangerZoneSection: View {
         } footer: {
             Text(L10n.Settings.DangerZone.footer)
         }
+        .themedRowBackground(theme)
         .confirmationDialog(
             L10n.Settings.DangerZone.Dialog.Forget.title,
             isPresented: $showingForgetConfirmation,

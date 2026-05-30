@@ -3,6 +3,8 @@ import SwiftUI
 
 /// Settings section for managing blocked channel users and contacts.
 struct BlockingSection: View {
+    @Environment(\.appTheme) private var theme
+
     var body: some View {
         Section {
             NavigationLink {
@@ -19,5 +21,6 @@ struct BlockingSection: View {
         } header: {
             Text(L10n.Settings.Blocking.header)
         }
+        .themedRowBackground(theme)
     }
 }

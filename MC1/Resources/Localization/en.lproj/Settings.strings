@@ -1629,3 +1629,73 @@
 
 /* VoiceOver announcement when the export success sheet appears; %@ is the filename */
 "settings.backup.export.success.announcement" = "Backup saved as %@";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "You don't own this theme.";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "Theme reverted to the default.";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "Support Development";
+"Support.Header.Body" = "If you love MC1, here are some ways to support its development! Everything here is optional, just a few tips and some extra themes.";
+"Support.Themes.Title" = "Themes";
+"Support.Themes.Owned" = "Owned";
+"Support.Themes.PurchasedFooter" = "Apply your new theme in Settings → Appearance.";
+"Support.Bundle.Title" = "All Themes";
+"Support.Bundle.Subtitle" = "Including any themes added later.";
+"Support.Contributions.Title" = "Tips";
+"Support.Contributions.Footer" = "Tips are a thank-you and support MC1's development. They don't include any goods, services, or membership benefits.";
+"Support.Contributions.HighValueConfirm" = "Send a %@?";
+"Support.Contributions.ConfirmButton" = "Contribute %@";
+"Support.Restore.Button" = "Restore Purchases";
+"Support.Restore.Syncing" = "Restoring…";
+"Support.Refund.Link" = "Request a refund";
+"Support.Pending.Banner" = "Waiting for approval. Your purchase unlocks as soon as it's approved.";
+"Support.Pending.Button" = "Awaiting approval";
+"Support.Contact.Link" = "Email the developer";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "Default";
+"Support.Theme.Ember" = "Ember";
+"Support.Theme.Fern" = "Fern";
+"Support.Theme.Marine" = "Marine";
+"Support.Theme.Olive" = "Olive";
+"Support.Theme.Lavender" = "Lavender";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "Products could not be loaded.";
+"Support.Error.ProductNotFound" = "Product not found.";
+"Support.Error.PurchaseFailed" = "Purchase failed: %@";
+"Support.Error.NetworkUnavailable" = "Network unavailable.";
+"Support.Error.VerificationFailed" = "Could not verify your purchase.";
+"Support.Error.NotEntitled" = "Purchases are restricted on this device. Check Screen Time content restrictions.";
+"Support.Error.StorefrontUnavailable" = "This product isn't available in your region.";
+"Support.Error.Unsupported" = "In-app purchases aren't supported on this device.";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "Theme %@, locked";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "Theme %@, owned";
+"Support.Accessibility.BundleCard.LockedLabel" = "All Themes bundle, locked, %@";
+"Support.Accessibility.BundleCard.LockedHint" = "Purchases the All Themes bundle";
+"Support.Accessibility.BundleCard.LoadingLabel" = "All Themes bundle, loading price";
+"Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
+"Support.Accessibility.ContributionRow.Hint" = "Sends a thank-you tip";
+"Support.Accessibility.TipConfirmAnnouncement" = "Thank you for your tip.";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "Appearance";
+"Appearance.Scheme.Header" = "Light/Dark Mode";
+"Appearance.Scheme.System" = "System";
+"Appearance.Scheme.Light" = "Light";
+"Appearance.Scheme.Dark" = "Dark";
+"Appearance.Themes.Header" = "Choose a theme";
+"Appearance.Themes.Selected" = "Selected";
+"Appearance.MoreThemes.Link" = "Purchase More Themes";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "Theme %@, owned";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "Applies this theme";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "Theme %@, currently selected";
+"Appearance.Accessibility.Swatch.DualMode" = "%@, light and dark variants";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@, dark only";

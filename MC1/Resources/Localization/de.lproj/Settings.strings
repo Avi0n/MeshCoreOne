@@ -1614,3 +1614,73 @@
 
 /* VoiceOver announcement when the export success sheet appears; %@ is the filename */
 "settings.backup.export.success.announcement" = "Sicherung gespeichert als %@";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "Du besitzt dieses Design nicht.";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "Design auf den Standard zurückgesetzt.";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "Entwicklung unterstützen";
+"Support.Header.Body" = "Wenn du MC1 liebst, gibt es hier einige Möglichkeiten, die Entwicklung zu unterstützen! Alles hier ist optional, nur ein paar Trinkgelder und einige zusätzliche Designs.";
+"Support.Themes.Title" = "Designs";
+"Support.Themes.Owned" = "Im Besitz";
+"Support.Themes.PurchasedFooter" = "Wende dein neues Design unter Einstellungen → Erscheinungsbild an.";
+"Support.Bundle.Title" = "Alle Designs";
+"Support.Bundle.Subtitle" = "Einschließlich später hinzugefügter Designs.";
+"Support.Contributions.Title" = "Beiträge";
+"Support.Contributions.Footer" = "Ein Dankeschön-Trinkgeld, das die Entwicklung von MC1 unterstützt. Keine physischen Waren, keine Mitgliedsvorteile.";
+"Support.Contributions.HighValueConfirm" = "%@ senden?";
+"Support.Contributions.ConfirmButton" = "%@ beitragen";
+"Support.Restore.Button" = "Käufe wiederherstellen";
+"Support.Restore.Syncing" = "Wird wiederhergestellt…";
+"Support.Refund.Link" = "Erstattung anfordern";
+"Support.Pending.Banner" = "Warten auf Genehmigung – dein Kauf wird nach der Genehmigung aktiviert.";
+"Support.Pending.Button" = "Warten auf Genehmigung";
+"Support.Contact.Link" = "Support kontaktieren";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "Standard";
+"Support.Theme.Ember" = "Ember";
+"Support.Theme.Fern" = "Fern";
+"Support.Theme.Marine" = "Marine";
+"Support.Theme.Olive" = "Olive";
+"Support.Theme.Lavender" = "Lavender";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "Produkte konnten nicht geladen werden.";
+"Support.Error.ProductNotFound" = "Produkt nicht gefunden.";
+"Support.Error.PurchaseFailed" = "Kauf fehlgeschlagen: %@";
+"Support.Error.NetworkUnavailable" = "Netzwerk nicht verfügbar.";
+"Support.Error.VerificationFailed" = "Dein Kauf konnte nicht überprüft werden.";
+"Support.Error.NotEntitled" = "Käufe sind auf diesem Gerät eingeschränkt. Überprüfe die Inhaltsbeschränkungen unter Bildschirmzeit.";
+"Support.Error.StorefrontUnavailable" = "Dieses Produkt ist in deiner Region nicht verfügbar.";
+"Support.Error.Unsupported" = "In-App-Käufe werden auf diesem Gerät nicht unterstützt.";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "Design %@, gesperrt";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "Design %@, im Besitz";
+"Support.Accessibility.BundleCard.LockedLabel" = "Paket „Alle Designs“, gesperrt, %@";
+"Support.Accessibility.BundleCard.LockedHint" = "Kauft das Paket „Alle Designs“";
+"Support.Accessibility.BundleCard.LoadingLabel" = "All Themes bundle, loading price";
+"Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
+"Support.Accessibility.ContributionRow.Hint" = "Sendet ein Dankeschön-Trinkgeld";
+"Support.Accessibility.TipConfirmAnnouncement" = "Danke für dein Trinkgeld.";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "Erscheinungsbild";
+"Appearance.Scheme.Header" = "Hell-/Dunkelmodus";
+"Appearance.Scheme.System" = "System";
+"Appearance.Scheme.Light" = "Hell";
+"Appearance.Scheme.Dark" = "Dunkel";
+"Appearance.Themes.Header" = "Design auswählen";
+"Appearance.Themes.Selected" = "Ausgewählt";
+"Appearance.MoreThemes.Link" = "Weitere Designs kaufen";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "Design %@, im Besitz";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "Wendet dieses Design an";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "Design %@, derzeit ausgewählt";
+"Appearance.Accessibility.Swatch.DualMode" = "%@, helle und dunkle Variante";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@, nur dunkel";

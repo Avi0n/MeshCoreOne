@@ -3,6 +3,7 @@ import SwiftUI
 
 struct NodeTelemetryView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     let contact: ContactDTO
@@ -15,6 +16,7 @@ struct NodeTelemetryView: View {
                     await viewModel.requestTelemetry()
                 }
             }
+            .themedCanvas(theme)
             .navigationTitle(contact.displayName)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
