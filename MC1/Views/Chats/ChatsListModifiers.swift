@@ -4,6 +4,7 @@ import MC1Services
 /// Shared modifiers applied to the conversation list in both stack and split layouts.
 struct ChatsListModifiers: ViewModifier {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @State private var reloadTask: Task<Void, Never>?
 
     let viewModel: ChatViewModel
@@ -23,6 +24,7 @@ struct ChatsListModifiers: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            .themedCanvas(theme)
             .navigationTitle(L10n.Chats.Chats.title)
             .searchable(text: $searchText, prompt: L10n.Chats.Chats.Search.placeholder)
             .toolbar {

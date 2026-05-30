@@ -4,6 +4,7 @@ import UserNotifications
 
 /// Notification toggle settings
 struct NotificationSettingsSection: View {
+    @Environment(\.appTheme) private var theme
     @Environment(\.openURL) private var openURL
     @Environment(\.scenePhase) private var scenePhase
     @State private var preferences = NotificationPreferencesStore()
@@ -75,6 +76,7 @@ struct NotificationSettingsSection: View {
                 }
             }
         }
+        .themedRowBackground(theme)
         .task {
             await refreshAuthorizationStatus()
         }

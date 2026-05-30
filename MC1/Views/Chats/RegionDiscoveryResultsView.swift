@@ -6,6 +6,7 @@ struct RegionDiscoveryResultsView: View {
     let onAdd: ([String]) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.appTheme) private var theme
     @State private var selectedRegions: Set<String>
 
     init(discoveredRegions: [String], onAdd: @escaping ([String]) -> Void) {
@@ -39,6 +40,7 @@ struct RegionDiscoveryResultsView: View {
                     .tint(.primary)
                 }
             }
+            .themedRowBackground(theme)
 
             Section {
                 Button(L10n.Chats.Chats.ChannelInfo.Region.addSelected) {
@@ -47,7 +49,9 @@ struct RegionDiscoveryResultsView: View {
                 }
                 .disabled(selectedRegions.isEmpty)
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Chats.Chats.ChannelInfo.Region.discover)
     }
 

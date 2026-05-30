@@ -4,6 +4,7 @@ import MC1Services
 /// Picker for configuring the path hash size on firmware v10+ devices.
 struct PathHashModeSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @State private var selectedMode: UInt8?
     @State private var isApplying = false
@@ -32,6 +33,7 @@ struct PathHashModeSection: View {
         } footer: {
             Text(L10n.Settings.PathHashMode.footer)
         }
+        .themedRowBackground(theme)
         .onAppear {
             selectedMode = appState.connectedDevice?.pathHashMode ?? 0
         }

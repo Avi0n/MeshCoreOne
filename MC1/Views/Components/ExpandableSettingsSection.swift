@@ -3,6 +3,7 @@ import SwiftUI
 /// A collapsible section that auto-loads data when expanded
 /// More iOS-native than explicit "Load" buttons
 struct ExpandableSettingsSection<Content: View>: View {
+    @Environment(\.appTheme) private var theme
     let title: String
     let icon: String
 
@@ -84,6 +85,7 @@ struct ExpandableSettingsSection<Content: View>: View {
                 Text(footer)
             }
         }
+        .themedRowBackground(theme)
         .onChange(of: isExpanded) { _, expanded in
             if expanded && !isLoaded() && !isLoading {
                 Task { await onLoad() }

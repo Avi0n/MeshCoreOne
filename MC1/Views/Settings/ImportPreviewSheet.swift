@@ -2,6 +2,7 @@ import SwiftUI
 import MC1Services
 
 struct ImportPreviewSheet: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: AppBackupViewModel
 
     var body: some View {
@@ -50,10 +51,12 @@ struct ImportPreviewSheet: View {
                 LabeledContent(L10n.Settings.Settings.Backup.Import.Preview.exported, value: envelope.exportDate.formatted(date: .abbreviated, time: .shortened))
                 LabeledContent(L10n.Settings.Settings.Backup.Import.Preview.appVersion, value: "\(envelope.appVersion) (\(envelope.appBuild))")
             }
+            .themedRowBackground(theme)
 
             Section(L10n.Settings.Settings.Backup.Import.Preview.contents) {
                 manifestRows(envelope.manifest)
             }
+            .themedRowBackground(theme)
 
             Section {
                 Label {
@@ -63,6 +66,7 @@ struct ImportPreviewSheet: View {
                         .foregroundStyle(.tint)
                 }
             }
+            .themedRowBackground(theme)
 
             Section {
                 Button {
@@ -77,6 +81,7 @@ struct ImportPreviewSheet: View {
                 .listRowBackground(Color.clear)
             }
         }
+        .themedCanvas(theme)
     }
 
     // MARK: - Importing
@@ -117,6 +122,7 @@ struct ImportPreviewSheet: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
             }
+            .themedRowBackground(theme)
 
             Section {
                 Button {
@@ -130,7 +136,9 @@ struct ImportPreviewSheet: View {
                     }
                 }
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .onAppear {
             AccessibilityNotification.Announcement(L10n.Settings.Settings.Backup.Import.Cancelled.title).post()
         }
@@ -157,6 +165,7 @@ struct ImportPreviewSheet: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
             }
+            .themedRowBackground(theme)
 
             Section {
                 Button {
@@ -170,7 +179,9 @@ struct ImportPreviewSheet: View {
                     }
                 }
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .onAppear {
             AccessibilityNotification.Announcement(L10n.Settings.Settings.Backup.Import.Error.title).post()
         }

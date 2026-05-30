@@ -4,6 +4,7 @@ import SwiftUI
 
 /// Drill-down view showing historical charts for status metrics (battery, SNR, RSSI, noise floor).
 struct NodeStatusHistoryView: View {
+    @Environment(\.appTheme) private var theme
     let fetchSnapshots: @Sendable () async -> [NodeStatusSnapshotDTO]
     let ocvArray: [Int]
 
@@ -101,7 +102,9 @@ struct NodeStatusHistoryView: View {
             } footer: {
                 Text(L10n.RemoteNodes.RemoteNodes.History.retentionNotice)
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .chartScrubbingScrollLock()
         .navigationTitle(L10n.RemoteNodes.RemoteNodes.History.title)
         .liquidGlassToolbarBackground()
@@ -120,6 +123,7 @@ struct NodeStatusHistoryView: View {
             Section {
                 MetricChartView(title: title, unit: unit, dataPoints: dataPoints, accentColor: color, yAxisDomain: yAxisDomain)
             }
+            .themedRowBackground(theme)
         }
     }
 }

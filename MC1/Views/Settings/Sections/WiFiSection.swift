@@ -4,6 +4,7 @@ import MC1Services
 /// WiFi connection settings - shown when connected via WiFi instead of Bluetooth.
 struct WiFiSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Binding var showingEditSheet: Bool
 
     private var currentConnection: ConnectionMethod? {
@@ -25,6 +26,7 @@ struct WiFiSection: View {
         } footer: {
             Text(L10n.Settings.Wifi.footer)
         }
+        .themedRowBackground(theme)
     }
 }
 

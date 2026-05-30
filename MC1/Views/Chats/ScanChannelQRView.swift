@@ -139,6 +139,8 @@ private struct ScannerContent: View {
 }
 
 private struct ScanConfirmationContent: View {
+    @Environment(\.appTheme) private var theme
+
     let scannedChannel: MeshCoreURLParser.ChannelResult
     let isJoining: Bool
     let errorMessage: String?
@@ -158,12 +160,14 @@ private struct ScanConfirmationContent: View {
             } header: {
                 Text(L10n.Chats.Chats.CreatePrivate.Section.details)
             }
+            .themedRowBackground(theme)
 
             if let errorMessage {
                 Section {
                     Text(errorMessage)
                         .foregroundStyle(.red)
                 }
+                .themedRowBackground(theme)
             }
 
             Section {
@@ -189,7 +193,9 @@ private struct ScanConfirmationContent: View {
                     }
                 }
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
     }
 }
 

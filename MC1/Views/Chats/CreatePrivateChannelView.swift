@@ -5,6 +5,7 @@ import CoreImage.CIFilterBuiltins
 /// View for creating a private channel with auto-generated secret and QR code
 struct CreatePrivateChannelView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     let availableSlots: [UInt8]
     let onComplete: (ChannelDTO?) -> Void
@@ -43,6 +44,7 @@ struct CreatePrivateChannelView: View {
                 )
             }
         }
+        .themedCanvas(theme)
         .navigationTitle(isCreated ? L10n.Chats.Chats.CreatePrivate.titleShare : L10n.Chats.Chats.CreatePrivate.titleCreate)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -104,6 +106,7 @@ struct CreatePrivateChannelView: View {
 // MARK: - Extracted Views
 
 private struct CreateChannelFormContent: View {
+    @Environment(\.appTheme) private var theme
     @Binding var channelName: String
     let generatedSecret: Data?
     let isCreating: Bool
@@ -123,6 +126,7 @@ private struct CreateChannelFormContent: View {
             } header: {
                 Text(L10n.Chats.Chats.CreatePrivate.Section.details)
             }
+            .themedRowBackground(theme)
 
             Section {
                 if let secret = generatedSecret {
@@ -137,12 +141,14 @@ private struct CreateChannelFormContent: View {
             } footer: {
                 Text(L10n.Chats.Chats.CreatePrivate.secretFooter)
             }
+            .themedRowBackground(theme)
 
             if let errorMessage {
                 Section {
                     Text(errorMessage)
                         .foregroundStyle(.red)
                 }
+                .themedRowBackground(theme)
             }
 
             Section {
@@ -159,11 +165,13 @@ private struct CreateChannelFormContent: View {
                 }
                 .disabled(channelName.isEmpty || isCreating || generatedSecret == nil)
             }
+            .themedRowBackground(theme)
         }
     }
 }
 
 private struct ShareChannelContent: View {
+    @Environment(\.appTheme) private var theme
     let channelName: String
     let generatedSecret: Data?
     @Binding var copyHapticTrigger: Int
@@ -193,6 +201,7 @@ private struct ShareChannelContent: View {
                     Spacer()
                 }
             }
+            .themedRowBackground(theme)
 
             Section {
                 if let secret = generatedSecret {
@@ -220,6 +229,7 @@ private struct ShareChannelContent: View {
             } footer: {
                 Text(L10n.Chats.Chats.CreatePrivate.shareManuallyFooter)
             }
+            .themedRowBackground(theme)
         }
     }
 

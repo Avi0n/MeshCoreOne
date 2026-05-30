@@ -5,6 +5,7 @@ import SwiftUI
 struct RegenerateIdentitySheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     @State private var hexPrefix = ""
     @State private var isGenerating = false
@@ -22,13 +23,19 @@ struct RegenerateIdentitySheet: View {
         NavigationStack {
             Form {
                 explanationSection
+                    .themedRowBackground(theme)
                 prefixSection
+                    .themedRowBackground(theme)
                 generateSection
+                    .themedRowBackground(theme)
                 if let generatedKey {
                     keyPreviewSection(generatedKey)
+                        .themedRowBackground(theme)
                     replaceSection
+                        .themedRowBackground(theme)
                 }
             }
+            .themedCanvas(theme)
             .navigationTitle(L10n.Settings.RegenerateIdentity.Sheet.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

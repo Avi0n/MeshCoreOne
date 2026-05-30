@@ -38,8 +38,10 @@ struct UnifiedMessageBubble: View, Equatable {
     let callbacks: MessageBubbleCallbacks
 
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.openURL) private var openURL
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appTheme) private var theme
 
     @State private var showingReactionDetails = false
     @State private var isLongPressing = false
@@ -243,15 +245,16 @@ struct UnifiedMessageBubble: View, Equatable {
                     highContrast: colorSchemeContrast == .increased
                 )
             }
-            return AppColors.Message.outgoingBubble
+            return theme.accentColor
         }
-        return AppColors.Message.incomingBubble
+        return theme.incomingBubbleColor
     }
 
     private var senderColor: Color {
-        AppColors.NameColor.color(
-            for: item.envelope.senderName,
-            highContrast: colorSchemeContrast == .increased
+        theme.identityColor(
+            forName: item.envelope.senderName,
+            colorScheme: colorScheme,
+            contrast: colorSchemeContrast
         )
     }
 

@@ -46,6 +46,7 @@ struct ToolsView: View {
 
     @Environment(\.appState) private var appState
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.appTheme) private var theme
 
     @State private var selectedTool: ToolSelection?
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
@@ -108,7 +109,9 @@ struct ToolsView: View {
                             Label(tool.title, systemImage: tool.systemImage)
                         }
                     }
+                    .themedRowBackground(theme)
                 }
+                .themedCanvas(theme)
                 .navigationTitle(L10n.Tools.Tools.title)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {

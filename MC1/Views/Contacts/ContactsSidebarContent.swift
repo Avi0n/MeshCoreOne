@@ -6,6 +6,7 @@ private let sidebarLogger = Logger(subsystem: "com.mc1", category: "NodesListVie
 
 struct ContactsSidebarContent: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     let viewModel: ContactsViewModel
     let filteredContacts: [ContactDTO]
@@ -40,6 +41,7 @@ struct ContactsSidebarContent: View {
                     }
                 }
                 .listStyle(.plain)
+                .themedCanvas(theme)
                 .overlay {
                     ProgressView()
                 }

@@ -10,6 +10,7 @@ struct ChannelInfoSheet: View {
     @Environment(\.appState) private var appState
     @Environment(\.dismiss) private var dismiss
     @Environment(\.chatViewModel) private var viewModel
+    @Environment(\.appTheme) private var theme
 
     let channel: ChannelDTO
     let onClearMessages: () -> Void
@@ -109,6 +110,7 @@ struct ChannelInfoSheet: View {
                             Task { await deleteChannel() }
                         }
                     }
+                    .themedRowBackground(theme)
                 }
 
                 // Actions Section
@@ -120,6 +122,7 @@ struct ChannelInfoSheet: View {
                     showingDeleteConfirmation: $showingDeleteConfirmation
                 )
             }
+            .themedCanvas(theme)
             .navigationTitle(L10n.Chats.Chats.ChannelInfo.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -378,6 +381,7 @@ private struct ChannelInfoHeaderSection: View {
 }
 
 private struct ChannelInfoQRCodeSection: View {
+    @Environment(\.appTheme) private var theme
     let channel: ChannelDTO
 
     @State private var qrImage: UIImage?
@@ -404,6 +408,7 @@ private struct ChannelInfoQRCodeSection: View {
         } header: {
             Text(L10n.Chats.Chats.ChannelInfo.shareChannel)
         }
+        .themedRowBackground(theme)
         .task {
             qrImage = generateQRCode()
         }
@@ -431,6 +436,7 @@ private struct ChannelInfoQRCodeSection: View {
 }
 
 private struct ChannelInfoSecretKeySection: View {
+    @Environment(\.appTheme) private var theme
     let channel: ChannelDTO
     @Binding var copyHapticTrigger: Int
 
@@ -460,10 +466,12 @@ private struct ChannelInfoSecretKeySection: View {
         } footer: {
             Text(L10n.Chats.Chats.ChannelInfo.manualSharingFooter)
         }
+        .themedRowBackground(theme)
     }
 }
 
 private struct ChannelInfoActionsSection: View {
+    @Environment(\.appTheme) private var theme
     let isActionInProgress: Bool
     let isClearingMessages: Bool
     let isDeleting: Bool
@@ -505,10 +513,12 @@ private struct ChannelInfoActionsSection: View {
         } footer: {
             Text(L10n.Chats.Chats.ChannelInfo.deleteFooter)
         }
+        .themedRowBackground(theme)
     }
 }
 
 private struct ChannelInfoRegionSection: View {
+    @Environment(\.appTheme) private var theme
     let knownRegions: [String]
     let selectedFloodScope: ChannelFloodScope
     let deviceDefaultFloodScopeName: String?
@@ -557,6 +567,7 @@ private struct ChannelInfoRegionSection: View {
                 ChannelInfoRegionLabel(regionValueLabel: regionValueLabel)
             }
         }
+        .themedRowBackground(theme)
     }
 }
 

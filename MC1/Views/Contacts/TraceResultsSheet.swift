@@ -5,6 +5,7 @@ import MC1Services
 struct TraceResultsSheet: View {
     let result: TraceResult
     @Bindable var viewModel: TracePathViewModel
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     // Save dialog state
@@ -22,7 +23,9 @@ struct TraceResultsSheet: View {
                     showingDistanceInfo: $showingDistanceInfo
                 )
                 roundTripPathSection
+                    .themedRowBackground(theme)
             }
+            .themedCanvas(theme)
             .navigationTitle(L10n.Contacts.Contacts.Results.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

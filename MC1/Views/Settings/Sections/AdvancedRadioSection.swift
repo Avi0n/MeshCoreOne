@@ -4,6 +4,7 @@ import MC1Services
 /// Manual radio parameter configuration
 struct AdvancedRadioSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @State private var frequency: Double?  // MHz
     @State private var bandwidth: UInt32?  // Hz
@@ -140,6 +141,7 @@ struct AdvancedRadioSection: View {
         } footer: {
             Text(L10n.Settings.AdvancedRadio.footer)
         }
+        .themedRowBackground(theme)
         .onAppear {
             loadCurrentSettings()
         }

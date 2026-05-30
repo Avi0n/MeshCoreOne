@@ -7,20 +7,17 @@ struct ContactRowView: View {
     let contact: ContactDTO
     let showTypeLabel: Bool
     let userLocation: CLLocation?
-    let index: Int
     let isTogglingFavorite: Bool
 
     init(
         contact: ContactDTO,
         showTypeLabel: Bool = false,
         userLocation: CLLocation? = nil,
-        index: Int = 0,
         isTogglingFavorite: Bool = false
     ) {
         self.contact = contact
         self.showTypeLabel = showTypeLabel
         self.userLocation = userLocation
-        self.index = index
         self.isTogglingFavorite = isTogglingFavorite
     }
 
@@ -105,7 +102,7 @@ struct ContactRowView: View {
         case .chat:
             ContactAvatar(contact: contact, size: 44)
         case .repeater:
-            NodeAvatar(publicKey: contact.publicKey, role: .repeater, size: 44, index: index)
+            NodeAvatar(publicKey: contact.publicKey, role: .repeater, size: 44)
         case .room:
             NodeAvatar(publicKey: contact.publicKey, role: .roomServer, size: 44)
         }

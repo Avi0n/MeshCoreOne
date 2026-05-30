@@ -4,6 +4,7 @@ import CoreImage.CIFilterBuiltins
 
 /// Sheet for sharing a contact via QR code
 struct ContactQRShareSheet: View {
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     let contactName: String
@@ -23,9 +24,11 @@ struct ContactQRShareSheet: View {
             Form {
                 // QR Code Section
                 QRCodeSection(contactName: contactName, qrImage: qrImage)
+                    .themedRowBackground(theme)
 
                 // Contact Info Section
                 ContactInfoSection(publicKey: publicKey)
+                    .themedRowBackground(theme)
 
                 // Actions Section
                 ActionsSection(
@@ -35,7 +38,9 @@ struct ContactQRShareSheet: View {
                     showCopyFeedback: $showCopyFeedback,
                     copyToClipboard: copyToClipboard
                 )
+                .themedRowBackground(theme)
             }
+            .themedCanvas(theme)
             .navigationTitle(L10n.Contacts.Contacts.Qr.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

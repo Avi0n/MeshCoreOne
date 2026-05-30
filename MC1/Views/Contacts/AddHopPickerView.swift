@@ -6,6 +6,7 @@ import MC1Services
 /// `.navigationDestination(item: $viewModel.insertionIntent)`. Dedicated to
 /// finding a repeater fast via name substring or hex prefix.
 struct AddHopPickerView: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: PathManagementViewModel
     let intent: AddHopIntent
 
@@ -25,6 +26,7 @@ struct AddHopPickerView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .themedCanvas(theme)
         .environment(\.editMode, .constant(.inactive))  // override parent's .active
         .navigationHeader(
             title: L10n.Contacts.Contacts.PathEdit.addHop,
@@ -70,6 +72,7 @@ struct AddHopPickerView: View {
                     )
                 }
             }
+            .themedRowBackground(theme)
         }
     }
 

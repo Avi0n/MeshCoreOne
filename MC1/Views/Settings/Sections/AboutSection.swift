@@ -2,6 +2,8 @@ import SwiftUI
 
 /// About and links section
 struct AboutSection: View {
+    @Environment(\.appTheme) private var theme
+
     var body: some View {
         Section {
             Link(destination: URL(string: "https://meshcore.io")!) {
@@ -40,5 +42,6 @@ struct AboutSection: View {
         } header: {
             Text(L10n.Settings.About.header)
         }
+        .themedRowBackground(theme)
     }
 }

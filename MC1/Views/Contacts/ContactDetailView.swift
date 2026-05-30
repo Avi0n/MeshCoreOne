@@ -43,6 +43,7 @@ struct PingResultRow: View {
 /// Detailed view for a single contact
 struct ContactDetailView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     let contact: ContactDTO
@@ -129,6 +130,7 @@ struct ContactDetailView: View {
                 isSharing: isSharing,
                 showShareSuccess: showShareSuccess
             )
+            .themedRowBackground(theme)
 
             // Info section
             ContactInfoSection(
@@ -138,10 +140,12 @@ struct ContactDetailView: View {
                 isSaving: isSaving,
                 onSaveNickname: { Task { await saveNickname() } }
             )
+            .themedRowBackground(theme)
 
             // Location section (if available)
             if currentContact.hasLocation {
                 ContactLocationSection(currentContact: currentContact)
+                    .themedRowBackground(theme)
             }
 
             // Network path controls
@@ -149,12 +153,14 @@ struct ContactDetailView: View {
                 currentContact: currentContact,
                 pathViewModel: pathViewModel
             )
+            .themedRowBackground(theme)
 
             // Technical details
             ContactTechnicalSection(
                 currentContact: currentContact,
                 contactTypeLabel: contactTypeLabel
             )
+            .themedRowBackground(theme)
 
             // Danger zone
             ContactDangerSection(
@@ -169,7 +175,9 @@ struct ContactDetailView: View {
                 },
                 onDelete: { showingDeleteAlert = true }
             )
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .errorAlert($errorMessage)
         .navigationTitle(contactTypeLabel)
         .navigationBarTitleDisplayMode(.inline)
@@ -728,6 +736,7 @@ private struct ContactInfoSection: View {
 private struct ContactLocationSection: View {
     @Environment(\.appState) private var appState
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appTheme) private var theme
 
     let currentContact: ContactDTO
 
@@ -777,7 +786,7 @@ private struct ContactLocationSection: View {
             }
             .listRowBackground(
                 UnevenRoundedRectangle(topLeadingRadius: 10, topTrailingRadius: 10)
-                    .fill(Color(.secondarySystemGroupedBackground))
+                    .fill(theme.surfaces?.card ?? Color(.secondarySystemGroupedBackground))
             )
 
             // Open in Maps

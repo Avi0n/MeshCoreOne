@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Settings section for link preview preferences
 struct LinkPreviewSettingsSection: View {
+    @Environment(\.appTheme) private var theme
     @AppStorage("linkPreviewsEnabled") private var previewsEnabled = false
     @AppStorage("linkPreviewsAutoResolveDM") private var autoResolveDM = true
     @AppStorage("linkPreviewsAutoResolveChannels") private var autoResolveChannels = true
@@ -23,6 +24,7 @@ struct LinkPreviewSettingsSection: View {
         } footer: {
             Text(L10n.Settings.LinkPreviews.footer)
         }
+        .themedRowBackground(theme)
 
         Section {
             Toggle(isOn: $showInlineImages) {
@@ -37,6 +39,7 @@ struct LinkPreviewSettingsSection: View {
         } footer: {
             Text(L10n.Settings.InlineImages.footer)
         }
+        .themedRowBackground(theme)
     }
 }
 

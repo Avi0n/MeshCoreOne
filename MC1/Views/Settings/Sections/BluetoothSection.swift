@@ -4,6 +4,7 @@ import MC1Services
 /// Bluetooth PIN configuration
 struct BluetoothSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @State private var pinType: BluetoothPinType = .default
     @State private var customPin: String = ""
     @State private var showingPinEntry = false
@@ -108,6 +109,7 @@ struct BluetoothSection: View {
                 Text(L10n.Settings.Bluetooth.defaultPinFooter)
             }
         }
+        .themedRowBackground(theme)
         .onAppear {
             isPinVisible = false
             pinType = currentPinType

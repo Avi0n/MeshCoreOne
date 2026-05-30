@@ -3,6 +3,7 @@ import MC1Services
 
 struct ContactsSplitList: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     @Binding var selectedSegment: NodeSegment
     @Binding var selectedContact: ContactDTO?
@@ -20,20 +21,21 @@ struct ContactsSplitList: View {
             if filteredContacts.isEmpty {
                 emptyStateRow
             } else {
-                ForEach(Array(filteredContacts.enumerated()), id: \.element.id) { index, contact in
+                ForEach(filteredContacts, id: \.id) { contact in
                     ContactRowView(
                         contact: contact,
                         showTypeLabel: isSearching,
                         userLocation: appState.bestAvailableLocation,
-                        index: index,
                         isTogglingFavorite: viewModel.togglingFavoriteID == contact.id
                     )
                     .contactSwipeActions(contact: contact, viewModel: viewModel)
                     .tag(contact)
                 }
+                .themedPlainRowBackground(theme)
             }
         }
         .listStyle(.plain)
+        .themedCanvas(theme)
     }
 
     @ViewBuilder

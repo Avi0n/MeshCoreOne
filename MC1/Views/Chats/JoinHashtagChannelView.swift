@@ -5,6 +5,7 @@ import MC1Services
 @MainActor
 struct JoinHashtagChannelView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     let availableSlots: [UInt8]
     let onComplete: (ChannelDTO?) -> Void
@@ -53,6 +54,7 @@ struct JoinHashtagChannelView: View {
             } footer: {
                 Text(L10n.Chats.Chats.JoinHashtag.footer)
             }
+            .themedRowBackground(theme)
 
             Section {
                 HStack {
@@ -76,12 +78,14 @@ struct JoinHashtagChannelView: View {
                     Spacer()
                 }
             }
+            .themedRowBackground(theme)
 
             if let errorMessage {
                 Section {
                     Text(errorMessage)
                         .foregroundStyle(.red)
                 }
+                .themedRowBackground(theme)
             }
 
             Section {
@@ -117,7 +121,9 @@ struct JoinHashtagChannelView: View {
                         .frame(maxWidth: .infinity)
                 }
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Chats.Chats.JoinHashtag.title)
         .navigationBarTitleDisplayMode(.inline)
         .task {

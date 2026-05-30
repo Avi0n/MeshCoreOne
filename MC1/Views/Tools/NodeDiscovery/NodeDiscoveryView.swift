@@ -91,6 +91,7 @@ extension NodeDiscoveryView {
 extension NodeDiscoveryView {
     private struct ResultsList: View {
         @Bindable var viewModel: NodeDiscoveryViewModel
+        @Environment(\.appTheme) private var theme
 
         var body: some View {
             List {
@@ -123,6 +124,7 @@ extension NodeDiscoveryView {
                 }
             }
             .listStyle(.plain)
+            .themedCanvas(theme)
         }
     }
 }

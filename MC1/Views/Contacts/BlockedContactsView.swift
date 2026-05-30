@@ -4,6 +4,7 @@ import MC1Services
 /// View showing only blocked contacts for management
 struct BlockedContactsView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     @State private var contacts: [ContactDTO] = []
     @State private var isLoading = false
@@ -28,6 +29,7 @@ struct BlockedContactsView: View {
                 }
             }
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Contacts.Contacts.Blocked.title)
         .task {
             await loadBlockedContacts()

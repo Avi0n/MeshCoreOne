@@ -5,6 +5,7 @@ import SwiftUI
 /// from `ImportPreviewSheet` so the success rendering can stay under the
 /// project's ~300-line-per-file guideline and keep its own disclosure state.
 struct ImportSuccessContent: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: AppBackupViewModel
     let result: ImportResult
     @State private var isAlreadyHereExpanded = false
@@ -40,10 +41,18 @@ struct ImportSuccessContent: View {
     var body: some View {
         List {
             heroSection
-            if didAdd { addedSection }
-            if hasSkipped { alreadyHereSection }
+                .themedRowBackground(theme)
+            if didAdd {
+                addedSection
+                    .themedRowBackground(theme)
+            }
+            if hasSkipped {
+                alreadyHereSection
+                    .themedRowBackground(theme)
+            }
             doneSection
         }
+        .themedCanvas(theme)
         .onAppear {
             AccessibilityNotification.Announcement("\(heroTitle). \(heroSubtitle)").post()
         }

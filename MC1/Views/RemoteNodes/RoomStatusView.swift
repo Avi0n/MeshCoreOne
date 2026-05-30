@@ -4,6 +4,7 @@ import SwiftUI
 /// Display view for room server stats, telemetry, and battery curve
 struct RoomStatusView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     let session: RemoteNodeSessionDTO
@@ -17,6 +18,7 @@ struct RoomStatusView: View {
                 makeTelemetrySection()
                 makeBatteryCurveSection()
             }
+            .themedCanvas(theme)
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle(L10n.RemoteNodes.RemoteNodes.RoomStatus.title)
             .navigationBarTitleDisplayMode(.inline)

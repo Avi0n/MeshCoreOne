@@ -5,6 +5,7 @@ import os
 /// Sheet for manually adding a contact or scanning a QR code
 struct AddContactSheet: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedType: ContactType = .chat
@@ -36,16 +37,20 @@ struct AddContactSheet: View {
         NavigationStack {
             Form {
                 ScannerSection(showScanner: $showScanner)
+                    .themedRowBackground(theme)
 
                 TypePickerSection(selectedType: $selectedType)
+                    .themedRowBackground(theme)
 
                 NameInputSection(contactName: $contactName)
+                    .themedRowBackground(theme)
 
                 PublicKeyInputSection(
                     publicKeyHex: $publicKeyHex,
                     normalizedCount: normalizedPublicKeyHex.count,
                     isValid: isValidPublicKey
                 )
+                .themedRowBackground(theme)
 
                 PasteURLSection { result in
                     contactName = result.name
@@ -53,11 +58,14 @@ struct AddContactSheet: View {
                     selectedType = result.contactType
                     errorMessage = nil
                 }
+                .themedRowBackground(theme)
 
                 if let errorMessage {
                     ErrorSection(message: errorMessage)
+                        .themedRowBackground(theme)
                 }
             }
+            .themedCanvas(theme)
             .navigationTitle(L10n.Contacts.Contacts.Add.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

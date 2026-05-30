@@ -4,6 +4,7 @@ import MC1Services
 /// Advanced settings sheet for power users
 struct AdvancedSettingsView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedOCVPreset: OCVPreset = .liIon
@@ -64,6 +65,7 @@ struct AdvancedSettingsView: View {
             // Danger Zone
             DangerZoneSection()
         }
+        .themedCanvas(theme)
         .sheet(isPresented: $showingImportKeySheet) {
             ImportKeySheet()
         }

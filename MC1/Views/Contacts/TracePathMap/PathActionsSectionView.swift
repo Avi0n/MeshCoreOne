@@ -3,6 +3,7 @@ import MC1Services
 
 /// Section with path configuration toggles, copy, and clear actions
 struct PathActionsSectionView: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: TracePathViewModel
     @Binding var showingClearConfirmation: Bool
     @Binding var copyHapticTrigger: Int
@@ -63,5 +64,6 @@ struct PathActionsSectionView: View {
                 Text(L10n.Contacts.Contacts.Trace.List.rangeWarning)
             }
         }
+        .themedRowBackground(theme)
     }
 }

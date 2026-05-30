@@ -5,6 +5,7 @@ import SwiftUI
 /// Display view for repeater stats, telemetry, and neighbors
 struct RepeaterStatusView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     let session: RemoteNodeSessionDTO
@@ -22,6 +23,7 @@ struct RepeaterStatusView: View {
                 makeNeighborsSection()
                 makeBatteryCurveSection()
             }
+            .themedCanvas(theme)
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle(L10n.RemoteNodes.RemoteNodes.Status.title)
             .navigationBarTitleDisplayMode(.inline)
@@ -159,6 +161,7 @@ struct RepeaterStatusView: View {
 // MARK: - Owner Info Section
 
 private struct OwnerInfoSection: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: RepeaterStatusViewModel
     let session: RemoteNodeSessionDTO
 
@@ -191,6 +194,7 @@ private struct OwnerInfoSection: View {
                 }
             }
         }
+        .themedRowBackground(theme)
     }
 }
 
@@ -223,6 +227,7 @@ private struct StatusRows: View {
 // MARK: - Neighbors Section
 
 private struct NeighborsSection: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: RepeaterStatusViewModel
     let session: RemoteNodeSessionDTO
     let contacts: [ContactDTO]
@@ -328,12 +333,14 @@ private struct NeighborsSection: View {
         } footer: {
             Text(L10n.RemoteNodes.RemoteNodes.Status.neighborsFooter)
         }
+        .themedRowBackground(theme)
     }
 }
 
 // MARK: - Neighbor SNR Chart
 
 private struct NeighborSNRChartView: View {
+    @Environment(\.appTheme) private var theme
     let name: String
     let neighborPrefix: Data
     let fetchSnapshots: @Sendable () async -> [NodeStatusSnapshotDTO]
@@ -358,7 +365,9 @@ private struct NeighborSNRChartView: View {
                     accentColor: .blue
                 )
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .navigationTitle(name)
         .liquidGlassToolbarBackground()
         .task {

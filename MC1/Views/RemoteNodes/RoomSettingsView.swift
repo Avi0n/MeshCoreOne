@@ -4,6 +4,7 @@ import CoreLocation
 
 struct RoomSettingsView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @FocusState private var focusedField: NodeSettingsField?
 
     let session: RemoteNodeSessionDTO
@@ -89,6 +90,7 @@ struct RoomSettingsView: View {
                 rebootMessage: L10n.RemoteNodes.RemoteNodes.RoomSettings.rebootMessage
             )
         }
+        .themedCanvas(theme)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()

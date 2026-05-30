@@ -3,6 +3,7 @@ import SwiftUI
 
 /// Chat settings section for incoming message routing info display
 struct MessagesSettingsSection: View {
+    @Environment(\.appTheme) private var theme
     @AppStorage(AppStorageKey.showIncomingPath.rawValue) private var showIncomingPath = false
     @AppStorage(AppStorageKey.showIncomingHopCount.rawValue) private var showIncomingHopCount = false
     @AppStorage(AppStorageKey.showIncomingRegion.rawValue) private var showIncomingRegion = false
@@ -17,6 +18,7 @@ struct MessagesSettingsSection: View {
         } footer: {
             Text(L10n.Settings.Messages.footer)
         }
+        .themedRowBackground(theme)
     }
 }
 

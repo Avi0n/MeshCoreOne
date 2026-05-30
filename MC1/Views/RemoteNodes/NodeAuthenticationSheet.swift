@@ -7,6 +7,7 @@ private let logger = Logger(subsystem: "com.mc1", category: "NodeAuthenticationS
 /// Reusable password entry sheet for both room servers and repeaters
 struct NodeAuthenticationSheet: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     let contact: ContactDTO
@@ -59,6 +60,7 @@ struct NodeAuthenticationSheet: View {
                 makePathSection()
                 makeConnectButton()
             }
+            .themedCanvas(theme)
             .navigationTitle(customTitle ?? (role == .roomServer ? L10n.RemoteNodes.RemoteNodes.Auth.joinRoom : L10n.RemoteNodes.RemoteNodes.Auth.management))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -258,6 +260,7 @@ struct NodeAuthenticationSheet: View {
 // MARK: - Node Details Section
 
 private struct NodeDetailsSection: View {
+    @Environment(\.appTheme) private var theme
     let displayName: String
     let role: RemoteNodeRole
 
@@ -268,12 +271,14 @@ private struct NodeDetailsSection: View {
         } header: {
             Text(L10n.RemoteNodes.RemoteNodes.Auth.nodeDetails)
         }
+        .themedRowBackground(theme)
     }
 }
 
 // MARK: - Authentication Section
 
 private struct AuthenticationSection: View {
+    @Environment(\.appTheme) private var theme
     @Binding var password: String
     @Binding var rememberPassword: Bool
     @Binding var errorMessage: String?
@@ -304,6 +309,7 @@ private struct AuthenticationSection: View {
                     .accessibilityHidden(true)
             }
         }
+        .themedRowBackground(theme)
         .onChange(of: password) {
             if errorMessage != nil {
                 errorMessage = nil
@@ -322,6 +328,7 @@ private struct AuthenticationSection: View {
 // MARK: - Path Section
 
 private struct PathSection: View {
+    @Environment(\.appTheme) private var theme
     let contact: ContactDTO
     @Binding var useFloodRouting: Bool
 
@@ -383,6 +390,7 @@ private struct PathSection: View {
                 Text(L10n.RemoteNodes.RemoteNodes.Auth.noRouteFooter)
             }
         }
+        .themedRowBackground(theme)
         .animation(.default, value: useFloodRouting)
     }
 }
@@ -390,6 +398,7 @@ private struct PathSection: View {
 // MARK: - Connect Button
 
 private struct ConnectButton: View {
+    @Environment(\.appTheme) private var theme
     let role: RemoteNodeRole
     let isAuthenticating: Bool
     let onAuthenticate: () -> Void
@@ -413,6 +422,7 @@ private struct ConnectButton: View {
             }
             .disabled(isAuthenticating)
         }
+        .themedRowBackground(theme)
     }
 }
 

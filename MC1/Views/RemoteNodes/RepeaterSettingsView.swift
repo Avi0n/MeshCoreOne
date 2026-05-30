@@ -4,6 +4,7 @@ import CoreLocation
 
 struct RepeaterSettingsView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: NodeSettingsField?
 
@@ -77,6 +78,7 @@ struct RepeaterSettingsView: View {
             makeDeviceInfoSection()
             makeActionsSection()
         }
+        .themedCanvas(theme)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()

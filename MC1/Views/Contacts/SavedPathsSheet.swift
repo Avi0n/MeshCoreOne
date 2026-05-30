@@ -4,6 +4,7 @@ import MC1Services
 /// Sheet displaying saved trace paths for selection
 struct SavedPathsSheet: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = SavedPathsViewModel()
 
@@ -111,8 +112,10 @@ struct SavedPathsSheet: View {
                         }
                     }
             }
+            .themedRowBackground(theme)
         }
         .listStyle(.insetGrouped)
+        .themedCanvas(theme)
         .overlay {
             if viewModel.isLoading {
                 ProgressView()

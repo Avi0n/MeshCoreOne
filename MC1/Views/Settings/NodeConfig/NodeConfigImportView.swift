@@ -43,6 +43,7 @@ struct NodeConfigImportView: View {
 // MARK: - Select File
 
 private struct SelectFileList: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: NodeConfigImportViewModel
 
     var body: some View {
@@ -52,20 +53,24 @@ private struct SelectFileList: View {
                     viewModel.showFilePicker = true
                 }
             }
+            .themedRowBackground(theme)
 
             if let error = viewModel.parseError {
                 Section {
                     Label(error, systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.red)
                 }
+                .themedRowBackground(theme)
             }
         }
+        .themedCanvas(theme)
     }
 }
 
 // MARK: - Import Preview
 
 private struct ImportPreviewList: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: NodeConfigImportViewModel
     let config: MeshCoreNodeConfig
     let appState: AppState
@@ -88,6 +93,7 @@ private struct ImportPreviewList: View {
                 Section {
                     Toggle(L10n.Settings.ConfigExport.otherSettings, isOn: $viewModel.sections.otherSettings)
                 }
+                .themedRowBackground(theme)
             }
 
             if let channels = config.channels {
@@ -103,6 +109,7 @@ private struct ImportPreviewList: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
+            .themedRowBackground(theme)
 
             ApplySection(viewModel: viewModel)
 
@@ -111,6 +118,7 @@ private struct ImportPreviewList: View {
                     Label(error, systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.red)
                 }
+                .themedRowBackground(theme)
             }
 
             if viewModel.importComplete && !viewModel.isApplying {
@@ -118,14 +126,17 @@ private struct ImportPreviewList: View {
                     Label(L10n.Settings.ConfigImport.importSuccess, systemImage: "checkmark.circle.fill")
                         .foregroundStyle(.green)
                 }
+                .themedRowBackground(theme)
             }
         }
+        .themedCanvas(theme)
     }
 }
 
 // MARK: - Section Views
 
 private struct NodeIdentitySection: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: NodeConfigImportViewModel
     let config: MeshCoreNodeConfig
 
@@ -148,10 +159,12 @@ private struct NodeIdentitySection: View {
                 }
             }
         }
+        .themedRowBackground(theme)
     }
 }
 
 private struct RadioSettingsSection: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: NodeConfigImportViewModel
     let radio: MeshCoreNodeConfig.RadioSettings
     let currentRadio: MeshCoreNodeConfig.RadioSettings?
@@ -173,10 +186,12 @@ private struct RadioSettingsSection: View {
                 }
             }
         }
+        .themedRowBackground(theme)
     }
 }
 
 private struct PositionSection: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: NodeConfigImportViewModel
     let position: MeshCoreNodeConfig.PositionSettings
     let currentPosition: MeshCoreNodeConfig.PositionSettings?
@@ -193,10 +208,12 @@ private struct PositionSection: View {
                 }
             }
         }
+        .themedRowBackground(theme)
     }
 }
 
 private struct ChannelsSection: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: NodeConfigImportViewModel
     let channels: [MeshCoreNodeConfig.ChannelConfig]
 
@@ -211,10 +228,12 @@ private struct ChannelsSection: View {
                 }
             }
         }
+        .themedRowBackground(theme)
     }
 }
 
 private struct ContactsSection: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: NodeConfigImportViewModel
     let contacts: [MeshCoreNodeConfig.ContactConfig]
 
@@ -229,10 +248,12 @@ private struct ContactsSection: View {
                 }
             }
         }
+        .themedRowBackground(theme)
     }
 }
 
 private struct ApplySection: View {
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: NodeConfigImportViewModel
 
     var body: some View {
@@ -253,6 +274,7 @@ private struct ApplySection: View {
                 }
             }
         }
+        .themedRowBackground(theme)
     }
 }
 

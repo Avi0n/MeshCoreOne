@@ -7,6 +7,7 @@ import MeshCore
 struct RxLogView: View {
     @Environment(\.appState) private var appState
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appTheme) private var theme
 
     @State private var viewModel = RxLogViewModel()
     @State private var expandedHashes: Set<String> = []
@@ -75,8 +76,10 @@ struct RxLogView: View {
                 liveStatusHeader
                     .textCase(nil)
             }
+            .themedRowBackground(theme)
         }
         .listStyle(.insetGrouped)
+        .themedCanvas(theme)
     }
 
     private func expandedBinding(for hash: String) -> Binding<Bool> {

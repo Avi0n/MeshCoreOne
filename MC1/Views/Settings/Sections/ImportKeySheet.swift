@@ -5,6 +5,7 @@ import SwiftUI
 struct ImportKeySheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     @State private var hexInput = ""
     @State private var isImporting = false
@@ -17,9 +18,13 @@ struct ImportKeySheet: View {
         NavigationStack {
             Form {
                 explanationSection
+                    .themedRowBackground(theme)
                 keyInputSection
+                    .themedRowBackground(theme)
                 importSection
+                    .themedRowBackground(theme)
             }
+            .themedCanvas(theme)
             .navigationTitle(L10n.Settings.ImportKey.Sheet.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

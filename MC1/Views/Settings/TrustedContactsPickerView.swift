@@ -4,6 +4,7 @@ import MC1Services
 /// Picker for selecting trusted contacts for telemetry
 struct TrustedContactsPickerView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @State private var contacts: [ContactDTO] = []
     @State private var searchText = ""
     @State private var showFavoritesOnly = false
@@ -37,6 +38,7 @@ struct TrustedContactsPickerView: View {
             Section {
                 Toggle(L10n.Settings.TrustedContacts.favoritesOnly, isOn: $showFavoritesOnly)
             }
+            .themedRowBackground(theme)
 
             Section {
                 if filteredContacts.isEmpty {
@@ -75,7 +77,9 @@ struct TrustedContactsPickerView: View {
                     }
                 }
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .disabled(isApplying)
         .searchable(text: $searchText, prompt: L10n.Settings.TrustedContacts.searchPrompt)
         .navigationTitle(L10n.Settings.TrustedContacts.title)

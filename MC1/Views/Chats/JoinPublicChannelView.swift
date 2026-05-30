@@ -4,6 +4,7 @@ import MC1Services
 /// View for re-adding the public channel on slot 0
 struct JoinPublicChannelView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     let onComplete: (ChannelDTO?) -> Void
 
@@ -33,12 +34,14 @@ struct JoinPublicChannelView: View {
                     Spacer()
                 }
             }
+            .themedRowBackground(theme)
 
             if let errorMessage {
                 Section {
                     Text(errorMessage)
                         .foregroundStyle(.red)
                 }
+                .themedRowBackground(theme)
             }
 
             Section {
@@ -59,7 +62,9 @@ struct JoinPublicChannelView: View {
                 }
                 .disabled(isJoining)
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Chats.Chats.JoinPublic.title)
         .navigationBarTitleDisplayMode(.inline)
     }

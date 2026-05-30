@@ -4,6 +4,7 @@ import MC1Services
 /// Battery curve configuration section
 /// Pure UI component - caller provides data and save callback
 struct BatteryCurveSection: View {
+    @Environment(\.appTheme) private var theme
     let availablePresets: [OCVPreset]
     let headerText: String
     let footerText: String
@@ -70,6 +71,7 @@ struct BatteryCurveSection: View {
                 Text(footerText)
             }
         }
+        .themedRowBackground(theme)
     }
 
     private func handleValueChanged() {

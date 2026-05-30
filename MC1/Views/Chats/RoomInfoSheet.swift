@@ -6,6 +6,7 @@ private typealias Strings = L10n.RemoteNodes.RemoteNodes.Room
 struct RoomInfoSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.chatViewModel) private var viewModel
+    @Environment(\.appTheme) private var theme
 
     let session: RemoteNodeSessionDTO
 
@@ -67,6 +68,7 @@ struct RoomInfoSheet: View {
                             }
                         }
                     }
+                    .themedRowBackground(theme)
                 }
 
                 Section(Strings.details) {
@@ -76,6 +78,7 @@ struct RoomInfoSheet: View {
                         LabeledContent(Strings.status, value: Strings.connected)
                     }
                 }
+                .themedRowBackground(theme)
 
                 if let lastConnected = session.lastConnectedDate {
                     Section(Strings.activity) {
@@ -83,6 +86,7 @@ struct RoomInfoSheet: View {
                             Text(lastConnected, format: .relative(presentation: .named))
                         }
                     }
+                    .themedRowBackground(theme)
                 }
 
                 Section(Strings.identification) {
@@ -95,7 +99,9 @@ struct RoomInfoSheet: View {
                             .textSelection(.enabled)
                     }
                 }
+                .themedRowBackground(theme)
             }
+            .themedCanvas(theme)
             .navigationTitle(Strings.infoTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
