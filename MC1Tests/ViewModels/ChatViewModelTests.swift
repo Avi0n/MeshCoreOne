@@ -257,7 +257,8 @@ struct ChatViewModelTests {
             isDark: true,
             showMapPreviews: EnvInputs.default.showMapPreviews,
             isOffline: EnvInputs.default.isOffline,
-            currentUserName: EnvInputs.default.currentUserName
+            currentUserName: EnvInputs.default.currentUserName,
+            themeID: EnvInputs.default.themeID
         )
         viewModel.applyEnvInputs(darkEnv)
         await coordinator.buildItemsTask?.value
@@ -266,6 +267,42 @@ struct ChatViewModelTests {
         #expect(viewModel.mapPreviewRequestIndex[lightOnline] == nil)
         let darkOnline = MapSnapshotRequest(latitude: 37.7749, longitude: -122.4194, isDark: true, isOffline: false)
         #expect(viewModel.mapPreviewRequestIndex[darkOnline]?.contains(message.id) == true)
+    }
+
+    @Test("a themeID-only EnvInputs change rebuilds items with newly baked theme colors")
+    func themeIDChangeRebakesItemColors() async throws {
+        let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
+
+        // The hashtag run bakes hashtagColor, which differs between default and ember, so a
+        // themeID change must produce a different MessageItem. This guards the deliberate baking of
+        // bubble colors into MessageItem that defeats the theme-switch-needs-chat-reconfigure
+        // landmine, easy to miss because most themes share white outgoing text.
+        let message = createTestMessage(timestamp: 1_000, text: "ping #news")
+        viewModel.appendMessageIfNew(message)
+        let before = try #require(viewModel.items.first)
+
+        let emberEnv = EnvInputs(
+            showInlineImages: EnvInputs.default.showInlineImages,
+            autoPlayGIFs: EnvInputs.default.autoPlayGIFs,
+            showIncomingPath: EnvInputs.default.showIncomingPath,
+            showIncomingHopCount: EnvInputs.default.showIncomingHopCount,
+            showIncomingRegion: EnvInputs.default.showIncomingRegion,
+            previewsEnabled: EnvInputs.default.previewsEnabled,
+            isHighContrast: EnvInputs.default.isHighContrast,
+            isDark: EnvInputs.default.isDark,
+            showMapPreviews: EnvInputs.default.showMapPreviews,
+            isOffline: EnvInputs.default.isOffline,
+            currentUserName: EnvInputs.default.currentUserName,
+            themeID: Theme.ember.id
+        )
+        viewModel.applyEnvInputs(emberEnv)
+        await coordinator.buildItemsTask?.value
+
+        let after = try #require(viewModel.items.first)
+        #expect(after.id == before.id)   // same row, re-baked in place
+        #expect(after != before)         // baked colors changed
     }
 
     @Test("computeDisplayFlags with same timestamp messages")

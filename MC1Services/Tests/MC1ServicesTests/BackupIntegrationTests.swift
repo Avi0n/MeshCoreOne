@@ -2525,6 +2525,109 @@ struct BackupIntegrationTests {
         let decoded = try JSONDecoder().decode(MessageDTO.self, from: encoded)
         #expect(decoded == populated)
     }
+
+    // MARK: - selectedThemeID backup contract
+
+    @Test("selectedThemeID round-trips through encode/decode")
+    func selectedThemeIDRoundTrips() throws {
+        var prefs = BackupUserDefaults()
+        prefs.selectedThemeID = "ember"
+        let data = try JSONEncoder().encode(prefs)
+        let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+        #expect(decoded.selectedThemeID == "ember")
+    }
+
+    @Test("Legacy envelope without selectedThemeID decodes as nil")
+    func legacyEnvelopeDecodesSelectedThemeIDAsNil() throws {
+        let legacyJSON = """
+        { "hasCompletedOnboarding": true, "mapStyleSelection": "topo" }
+        """.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
+        #expect(decoded.selectedThemeID == nil)
+        #expect(decoded.hasCompletedOnboarding == true)
+    }
+
+    @Test("restore writes selectedThemeID only when local key is missing")
+    func restoreRespectsExistingSelectedThemeID() throws {
+        let defaults = UserDefaults(suiteName: "test.\(UUID().uuidString)")!
+        defaults.set("marine", forKey: PersistenceKeys.selectedThemeID)
+        var prefs = BackupUserDefaults()
+        prefs.selectedThemeID = "ember"
+        let setKeys = prefs.restore(to: defaults)
+        #expect(!setKeys.contains(PersistenceKeys.selectedThemeID))
+        #expect(defaults.string(forKey: PersistenceKeys.selectedThemeID) == "marine")
+    }
+
+    @Test("restore writes selectedThemeID when local is missing (fresh install)")
+    func restoreWritesSelectedThemeIDWhenMissing() throws {
+        let defaults = UserDefaults(suiteName: "test.\(UUID().uuidString)")!
+        var prefs = BackupUserDefaults()
+        prefs.selectedThemeID = "ember"
+        let setKeys = prefs.restore(to: defaults)
+        #expect(setKeys.contains(PersistenceKeys.selectedThemeID))
+        #expect(defaults.string(forKey: PersistenceKeys.selectedThemeID) == "ember")
+    }
+
+    // MARK: - appColorSchemePreference backup contract
+
+    @Test("appColorSchemePreference round-trips through encode/decode")
+    func appColorSchemePreferenceRoundTrips() throws {
+        var prefs = BackupUserDefaults()
+        prefs.appColorSchemePreference = "dark"
+        let data = try JSONEncoder().encode(prefs)
+        let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+        #expect(decoded.appColorSchemePreference == "dark")
+    }
+
+    @Test("Legacy envelope without appColorSchemePreference decodes as nil")
+    func legacyEnvelopeDecodesAppColorSchemePreferenceAsNil() throws {
+        let legacyJSON = """
+        { "hasCompletedOnboarding": true, "mapStyleSelection": "topo" }
+        """.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
+        #expect(decoded.appColorSchemePreference == nil)
+    }
+
+    @Test("restore writes appColorSchemePreference only when local key is missing")
+    func restoreRespectsExistingAppColorSchemePreference() throws {
+        let defaults = UserDefaults(suiteName: "test.\(UUID().uuidString)")!
+        defaults.set("light", forKey: PersistenceKeys.appColorSchemePreference)
+        var prefs = BackupUserDefaults()
+        prefs.appColorSchemePreference = "dark"
+        let setKeys = prefs.restore(to: defaults)
+        #expect(!setKeys.contains(PersistenceKeys.appColorSchemePreference))
+        #expect(defaults.string(forKey: PersistenceKeys.appColorSchemePreference) == "light")
+    }
+
+    @Test("restore writes appColorSchemePreference when local is missing (fresh install)")
+    func restoreWritesAppColorSchemePreferenceWhenMissing() throws {
+        let defaults = UserDefaults(suiteName: "test.\(UUID().uuidString)")!
+        var prefs = BackupUserDefaults()
+        prefs.appColorSchemePreference = "dark"
+        let setKeys = prefs.restore(to: defaults)
+        #expect(setKeys.contains(PersistenceKeys.appColorSchemePreference))
+        #expect(defaults.string(forKey: PersistenceKeys.appColorSchemePreference) == "dark")
+    }
+
+    // MARK: - Export read path (snapshot) for the new appearance keys
+
+    @Test("snapshot reads selectedThemeID and appColorSchemePreference from UserDefaults")
+    func snapshotReadsAppearanceKeys() throws {
+        let defaults = UserDefaults(suiteName: "test.\(UUID().uuidString)")!
+        defaults.set("marine", forKey: PersistenceKeys.selectedThemeID)
+        defaults.set("dark", forKey: PersistenceKeys.appColorSchemePreference)
+        let snapshot = BackupUserDefaults.snapshot(from: defaults)
+        #expect(snapshot.selectedThemeID == "marine")
+        #expect(snapshot.appColorSchemePreference == "dark")
+    }
+
+    @Test("snapshot leaves appearance keys nil when unset")
+    func snapshotLeavesAppearanceKeysNilWhenUnset() throws {
+        let defaults = UserDefaults(suiteName: "test.\(UUID().uuidString)")!
+        let snapshot = BackupUserDefaults.snapshot(from: defaults)
+        #expect(snapshot.selectedThemeID == nil)
+        #expect(snapshot.appColorSchemePreference == nil)
+    }
 }
 
 private enum InjectedImportFailure: Error {

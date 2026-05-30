@@ -411,7 +411,8 @@ struct MessageFragmentBuilderTests {
             isDark: isDark,
             showMapPreviews: showMapPreviews,
             isOffline: isOffline,
-            currentUserName: currentUserName
+            currentUserName: currentUserName,
+            themeID: "default"
         )
     }
 

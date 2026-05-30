@@ -10,7 +10,7 @@ struct StoreServiceErrorTests {
     func descriptions() {
         let cases: [StoreServiceError] = [
             .productsNotLoaded, .productNotFound(productID: "x"),
-            .purchaseFailed(reason: "boom"), .verificationFailed,
+            .purchaseFailed(reason: "boom"), .verificationFailed, .notEntitled,
             .networkUnavailable, .storefrontUnavailable, .unsupported
         ]
         for error in cases {
@@ -36,7 +36,7 @@ struct StoreServiceErrorTests {
         if #available(iOS 18.4, macOS 15.4, *) {
             #expect(StoreServiceError.from(.unsupported) == .unsupported)
         }
-        #expect(StoreServiceError.from(.notEntitled) == .verificationFailed)
+        #expect(StoreServiceError.from(.notEntitled) == .notEntitled)
     }
 
     @Test("userCancelled maps to nil (handled as a non-error outcome)")
