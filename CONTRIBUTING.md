@@ -4,7 +4,7 @@ To make the contribution process smooth and respectful of everyone's time, pleas
 
 ### Before Starting Work
 - **Discuss your idea first**: Reach out so we can coordinate. This helps avoid duplicate effort, as I might already be working on something similar.
-- [MeshCore Discord](https://discord.gg/bSuST8xvet) — look for the MeshCore One forum post.
+- [MeshCore Discord](https://meshcore.gg) — look for the MeshCore One forum post.
 - Or message me on Matrix @avion:matrix.org
 
 ### Pull Request Requirements
@@ -19,6 +19,9 @@ When submitting a PR, please:
 If you're an experienced software engineer and did not rely heavily on AI for your contribution, skip to Getting Started.
 
 If you used AI extensively (which is totally fine, I built this entire project with AI despite not being a SWE and only having basic Python scripting experience), please follow these best practices to ensure high-quality results:
+
+0. **If you have no previous coding experience**
+It's usually easier to simply create a feature request GitHub issue with your idea and then I can implement it using my established workflows. Feel free to create mock ups with AI and attach those screenshots in your feature request!
 
 1. **Choose the right model for planning**  
    If you're not a software engineer and aren't comfortable creating detailed technical plans yourself, stick to the strongest reasoning models: **Claude Opus** or **GPT Codex (high/xhigh)**. These are decent at turning non-technical ideas into solid implementation plans. Other popular models (e.g., GLM, MiniMax) perform well when given a detailed plan, but struggle to create one from scratch in a large codebase.
@@ -36,7 +39,7 @@ If you used AI extensively (which is totally fine, I built this entire project w
    Have the AI follow the finalized plan to make the changes.
 
 6. **Validate the implementation**  
-   In a new chat, ask the AI to review the code changes. Claude Code and Codex both have a built-in `/review` tool for this.
+   In a new chat, ask the AI to review the code changes. Claude Code and Codex both have a built-in `review` tool for this.
 
 7. **Test thoroughly**  
    Manually verify that everything works as expected. Test edge cases.
