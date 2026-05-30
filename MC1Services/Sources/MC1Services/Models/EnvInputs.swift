@@ -29,6 +29,10 @@ public struct EnvInputs: Sendable, Hashable {
     /// online and offline renders does not collide.
     public let isOffline: Bool
     public let currentUserName: String
+    /// Active theme identifier (`Theme.id`). A `Sendable, Hashable` token — never a SwiftUI
+    /// `Color`, which would pull SwiftUI into MC1Services and break `Hashable`. The MC1 side
+    /// resolves it back to a `Theme` to bake outgoing-text/hashtag colors into `MessageTextPayload`.
+    public let themeID: String
 
     public init(
         showInlineImages: Bool,
@@ -41,7 +45,8 @@ public struct EnvInputs: Sendable, Hashable {
         isDark: Bool,
         showMapPreviews: Bool,
         isOffline: Bool,
-        currentUserName: String
+        currentUserName: String,
+        themeID: String
     ) {
         self.showInlineImages = showInlineImages
         self.autoPlayGIFs = autoPlayGIFs
@@ -54,7 +59,12 @@ public struct EnvInputs: Sendable, Hashable {
         self.showMapPreviews = showMapPreviews
         self.isOffline = isOffline
         self.currentUserName = currentUserName
+        self.themeID = themeID
     }
+
+    /// Identifier of the built-in default theme. Shared so `EnvInputs.default` and `Theme.default.id`
+    /// (defined in the MC1 layer, which cannot see `Theme` from here) cannot drift apart.
+    public static let defaultThemeID = "default"
 
     public static let `default` = EnvInputs(
         showInlineImages: AppStorageKey.defaultShowInlineImages,
@@ -67,6 +77,7 @@ public struct EnvInputs: Sendable, Hashable {
         isDark: false,
         showMapPreviews: AppStorageKey.defaultShowMapPreviewThumbnails,
         isOffline: false,
-        currentUserName: ""
+        currentUserName: "",
+        themeID: defaultThemeID
     )
 }
