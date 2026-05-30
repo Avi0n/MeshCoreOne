@@ -62,6 +62,12 @@ struct RoomConversationView: View {
                 await chatViewModel.loadAllContacts(radioID: session.radioID)
                 await viewModel.loadMessages(for: session)
             }
+            .task(id: appState.servicesVersion) {
+                // Track the active room so foreground banners for it are suppressed.
+                // Keyed on servicesVersion so a reconnect, which mints a fresh
+                // NotificationService, re-asserts this on the new instance.
+                appState.services?.notificationService.activeRoomSessionID = session.id
+            }
             .task {
                 for await event in appState.messageEventStream.events() {
                     await viewModel.handleEvent(event)
@@ -92,15 +98,29 @@ struct RoomConversationView: View {
                 }
             }
             .onChange(of: scenePhase) { _, newPhase in
-                if newPhase == .active, session.isConnected {
+                if newPhase == .active {
+                    // Re-clear the tray: notifications usually arrive while
+                    // backgrounded with this room already on screen.
                     Task {
-                        await appState.services?.remoteNodeService.startSessionKeepAlive(
-                            sessionID: session.id, publicKey: session.publicKey
-                        )
+                        await appState.services?.notificationService
+                            .removeDeliveredNotifications(forRoomSessionID: session.id)
+                        await appState.services?.notificationService.updateBadgeCount()
+                    }
+                    if session.isConnected {
+                        Task {
+                            await appState.services?.remoteNodeService.startSessionKeepAlive(
+                                sessionID: session.id, publicKey: session.publicKey
+                            )
+                        }
                     }
                 }
             }
             .onDisappear {
+                // Only clear if this room still owns the active slot; a newer room's
+                // .task may have already claimed it before this view tears down.
+                if appState.services?.notificationService.activeRoomSessionID == session.id {
+                    appState.services?.notificationService.activeRoomSessionID = nil
+                }
                 Task {
                     await appState.services?.remoteNodeService.stopSessionKeepAlive(
                         sessionID: session.id

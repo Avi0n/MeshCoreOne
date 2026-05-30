@@ -878,6 +878,11 @@ public final class AppState {
             guard let self else { return }
             await self.handleChannelMarkAsRead(services: services, radioID: radioID, channelIndex: channelIndex, messageID: messageID)
         }
+
+        services.notificationService.onRoomMarkAsRead = { [weak self] sessionID, messageID in
+            guard let self else { return }
+            await self.handleRoomMarkAsRead(services: services, sessionID: sessionID, messageID: messageID)
+        }
     }
 
     private func handleQuickReply(services: ServiceContainer, contactID: UUID, text: String) async {
@@ -959,6 +964,17 @@ public final class AppState {
         do {
             try await services.dataStore.markMessageAsRead(id: messageID)
             try await services.dataStore.clearChannelUnreadCount(radioID: radioID, index: channelIndex)
+            services.notificationService.removeDeliveredNotification(messageID: messageID)
+            await services.notificationService.updateBadgeCount()
+            syncCoordinator?.notifyConversationsChanged()
+        } catch {
+            // Silently ignore
+        }
+    }
+
+    private func handleRoomMarkAsRead(services: ServiceContainer, sessionID: UUID, messageID: UUID) async {
+        do {
+            try await services.roomServerService.markAsRead(sessionID: sessionID)
             services.notificationService.removeDeliveredNotification(messageID: messageID)
             await services.notificationService.updateBadgeCount()
             syncCoordinator?.notifyConversationsChanged()

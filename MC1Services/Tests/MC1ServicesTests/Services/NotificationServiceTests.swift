@@ -160,6 +160,7 @@ struct NotificationServiceTests {
         // Should return without posting (no crash, no notification)
         await service.postRoomMessageNotification(
             roomName: "TestRoom",
+            sessionID: UUID(),
             senderName: "Alice",
             messageText: "Hello",
             messageID: UUID(),
@@ -175,5 +176,45 @@ struct NotificationServiceTests {
         // Verify reaction category exists in the enum
         let category = NotificationCategory.reaction
         #expect(category.rawValue == "REACTION")
+    }
+
+    // MARK: - Room Notification Tests
+
+    @Test("Active room session tracking can be set and cleared")
+    @MainActor
+    func activeRoomSessionTrackingCanBeSetAndCleared() async {
+        let service = NotificationService()
+        let sessionID = UUID()
+
+        #expect(service.activeRoomSessionID == nil)
+
+        service.activeRoomSessionID = sessionID
+        #expect(service.activeRoomSessionID == sessionID)
+
+        service.activeRoomSessionID = nil
+        #expect(service.activeRoomSessionID == nil)
+    }
+
+    @Test("onRoomMarkAsRead callback can be set and receives parameters")
+    @MainActor
+    func onRoomMarkAsReadCallbackReceivesParameters() async {
+        let service = NotificationService()
+        let expectedSessionID = UUID()
+        let expectedMessageID = UUID()
+
+        var receivedSessionID: UUID?
+        var receivedMessageID: UUID?
+
+        service.onRoomMarkAsRead = { sessionID, messageID in
+            receivedSessionID = sessionID
+            receivedMessageID = messageID
+        }
+
+        #expect(service.onRoomMarkAsRead != nil)
+
+        await service.onRoomMarkAsRead?(expectedSessionID, expectedMessageID)
+
+        #expect(receivedSessionID == expectedSessionID)
+        #expect(receivedMessageID == expectedMessageID)
     }
 }

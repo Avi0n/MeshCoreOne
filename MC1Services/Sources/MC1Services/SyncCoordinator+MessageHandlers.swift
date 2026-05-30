@@ -397,6 +397,7 @@ extension SyncCoordinator {
                     // Post notification for room message
                     await services.notificationService.postRoomMessageNotification(
                         roomName: session?.name ?? "Room",
+                        sessionID: savedMessage.sessionID,
                         senderName: savedMessage.authorName,
                         messageText: savedMessage.text,
                         messageID: savedMessage.id,

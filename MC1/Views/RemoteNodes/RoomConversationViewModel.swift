@@ -71,8 +71,10 @@ final class RoomConversationViewModel {
         do {
             messages = try await roomServerService.fetchMessages(sessionID: session.id)
 
-            // Clear unread count and update badge
+            // Clear unread count, remove any delivered notifications for this
+            // room still in the tray, and update the badge
             try await roomServerService.markAsRead(sessionID: session.id)
+            await notificationService?.removeDeliveredNotifications(forRoomSessionID: session.id)
             await notificationService?.updateBadgeCount()
             syncCoordinator?.notifyConversationsChanged()
         } catch {

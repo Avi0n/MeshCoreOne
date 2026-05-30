@@ -16,6 +16,7 @@ struct ChatConversationView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.linkPreviewCache) private var linkPreviewCache
+    @Environment(\.scenePhase) private var scenePhase
 
     @State private var conversationType: ChatConversationType
     let parentViewModel: ChatViewModel?
@@ -221,6 +222,14 @@ struct ChatConversationView: View {
         .onDisappear {
             performCleanup()
         }
+        .onChange(of: scenePhase) { _, newPhase in
+            // Notifications usually arrive while the app is backgrounded with this
+            // chat already on screen, so re-clear the tray when we return to the
+            // foreground — the open hook alone never re-fires in that case.
+            if newPhase == .active {
+                Task { await clearDeliveredNotifications() }
+            }
+        }
         .onChange(of: activeMentionQuery != nil) { _, isActive in
             if isActive {
                 mentionSenderOrder = chatViewModel.channelSenderOrder
@@ -284,6 +293,27 @@ struct ChatConversationView: View {
             scrollToTargetID = targetID
             scrollToMentionRequest += 1
         }
+
+        // Clear any notifications for this conversation still sitting in the tray
+        // (delivered while the app was backgrounded). The load above already
+        // cleared the unread count, so the recomputed badge stays correct.
+        await clearDeliveredNotifications()
+    }
+
+    /// Removes delivered lock-screen / Notification Center notifications for the
+    /// conversation the user just opened, then recomputes the app badge.
+    private func clearDeliveredNotifications() async {
+        guard let notificationService = appState.services?.notificationService else { return }
+        switch conversationType {
+        case .dm(let contact):
+            await notificationService.removeDeliveredNotifications(forContactID: contact.id)
+        case .channel(let channel):
+            await notificationService.removeDeliveredNotifications(
+                forChannelIndex: channel.index,
+                radioID: channel.radioID
+            )
+        }
+        await notificationService.updateBadgeCount()
     }
 
     // MARK: - Cleanup (.onDisappear)

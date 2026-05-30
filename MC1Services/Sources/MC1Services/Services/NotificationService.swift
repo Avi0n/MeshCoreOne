@@ -84,6 +84,11 @@ public final class NotificationService: NSObject {
     /// CRITICAL: Must be @MainActor - see onQuickReply comment.
     public var onChannelMarkAsRead: (@MainActor @Sendable (_ radioID: UUID, _ channelIndex: UInt8, _ messageID: UUID) async -> Void)?
 
+    /// Callback for when mark as read action is triggered on a room message.
+    /// Identified by the room's stable session ID.
+    /// Must be @MainActor - see onQuickReply comment.
+    public var onRoomMarkAsRead: (@MainActor @Sendable (_ sessionID: UUID, _ messageID: UUID) async -> Void)?
+
     /// Callback for when a quick reply action is triggered on a channel message.
     /// Includes radioID to correctly identify the channel across multiple connected devices.
     /// CRITICAL: Must be @MainActor - see onQuickReply comment.
@@ -115,6 +120,9 @@ public final class NotificationService: NSObject {
 
     /// Device ID for the active channel
     public var activeChannelRadioID: UUID?
+
+    /// Currently active room session ID (user is viewing this room)
+    public var activeRoomSessionID: UUID?
 
     // MARK: - Badge Management
 
@@ -373,6 +381,7 @@ public final class NotificationService: NSObject {
     /// Posts a notification for a room message.
     public func postRoomMessageNotification(
         roomName: String,
+        sessionID: UUID,
         senderName: String?,
         messageText: String,
         messageID: UUID,
@@ -398,10 +407,11 @@ public final class NotificationService: NSObject {
         content.categoryIdentifier = NotificationCategory.roomMessage.rawValue
         content.userInfo = [
             "roomName": roomName,
+            "sessionID": sessionID.uuidString,
             "messageID": messageID.uuidString,
             "type": "roomMessage"
         ]
-        content.threadIdentifier = "room-\(roomName)"
+        content.threadIdentifier = "room-\(sessionID.uuidString)"
 
         if preferences.badgeEnabled {
             content.badge = NSNumber(value: badgeCount + 1)
@@ -792,6 +802,19 @@ public final class NotificationService: NSObject {
         }
     }
 
+    /// Remove all delivered notifications for a room session
+    public func removeDeliveredNotifications(forRoomSessionID sessionID: UUID) async {
+        let center = UNUserNotificationCenter.current()
+        let notifications = await center.deliveredNotifications()
+        let idsToRemove = notifications
+            .filter { $0.request.content.userInfo["sessionID"] as? String == sessionID.uuidString }
+            .map(\.request.identifier)
+
+        if !idsToRemove.isEmpty {
+            center.removeDeliveredNotifications(withIdentifiers: idsToRemove)
+        }
+    }
+
 }
 
 // MARK: - UNUserNotificationCenterDelegate
@@ -822,6 +845,14 @@ extension NotificationService: @preconcurrency UNUserNotificationCenterDelegate 
            UInt8(channelIndex) == activeChannelIndex,
            radioID == activeChannelRadioID {
             // User is viewing this channel - don't show notification
+            return []
+        }
+
+        // Check if this is a room message notification for the active room
+        if let sessionIDString = userInfo["sessionID"] as? String,
+           let sessionID = UUID(uuidString: sessionIDString),
+           sessionID == activeRoomSessionID {
+            // User is viewing this room - don't show notification
             return []
         }
 
@@ -875,6 +906,11 @@ extension NotificationService: @preconcurrency UNUserNotificationCenterDelegate 
                       let messageID {
                 // Channel message mark as read (includes radioID for multi-device)
                 await onChannelMarkAsRead?(radioID, UInt8(channelIndex), messageID)
+            } else if let sessionIDString = userInfo["sessionID"] as? String,
+                      let sessionID = UUID(uuidString: sessionIDString),
+                      let messageID {
+                // Room message mark as read (identified by stable session ID)
+                await onRoomMarkAsRead?(sessionID, messageID)
             }
 
         case UNNotificationDefaultActionIdentifier:
