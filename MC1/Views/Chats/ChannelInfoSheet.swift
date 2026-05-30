@@ -276,9 +276,15 @@ struct ChannelInfoSheet: View {
         if let session = appState.services?.session {
             let resolved = ChannelFloodScopeResolver.resolve(
                 channelFloodScope: scope,
-                deviceDefaultFloodScopeName: appState.connectedDevice?.defaultFloodScopeName
+                deviceDefaultFloodScopeName: appState.connectedDevice?.defaultFloodScopeName,
+                supportsUnscopedFloodSend: appState.connectedDevice?.supportsUnscopedFloodSend ?? false
             )
-            try? await session.setFloodScope(resolved)
+            switch resolved {
+            case .unscoped:
+                try? await session.setFloodScopeUnscoped()
+            case .scope(let scope):
+                try? await session.setFloodScope(scope)
+            }
         }
     }
 

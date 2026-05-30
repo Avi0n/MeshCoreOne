@@ -77,9 +77,10 @@ enum ChatConversationType: Sendable {
     ) -> String? {
         let resolved = ChannelFloodScopeResolver.resolve(
             channelFloodScope: channel.floodScope,
-            deviceDefaultFloodScopeName: deviceDefaultFloodScopeName
+            deviceDefaultFloodScopeName: deviceDefaultFloodScopeName,
+            supportsUnscopedFloodSend: false
         )
-        if case .region(let name) = resolved { return name }
+        if case .scope(.region(let name)) = resolved { return name }
         return nil
     }
 

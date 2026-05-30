@@ -46,12 +46,18 @@ extension ChatViewModel {
             deviceDefault: deviceDefault
         )
         if lastSetRegionScope != desiredState, let session = appState?.services?.session {
-            let scope = ChannelFloodScopeResolver.resolve(
+            let resolved = ChannelFloodScopeResolver.resolve(
                 channelFloodScope: channel.floodScope,
-                deviceDefaultFloodScopeName: deviceDefault
+                deviceDefaultFloodScopeName: deviceDefault,
+                supportsUnscopedFloodSend: appState?.connectedDevice?.supportsUnscopedFloodSend ?? false
             )
             do {
-                try await session.setFloodScope(scope)
+                switch resolved {
+                case .unscoped:
+                    try await session.setFloodScopeUnscoped()
+                case .scope(let scope):
+                    try await session.setFloodScope(scope)
+                }
                 lastSetRegionScope = desiredState
             } catch {
                 logger.error("Failed to set flood scope: \(error.localizedDescription)")

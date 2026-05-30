@@ -6,58 +6,81 @@ import Testing
 @Suite("ChannelFloodScopeResolver")
 struct ChannelFloodScopeResolverTests {
 
-    @Test(".inherit with device default set pushes .region(default)")
-    func inheritWithDefaultPushesRegion() {
-        let scope = ChannelFloodScopeResolver.resolve(
+    @Test(".inherit with device default set resolves to .scope(.region(default))")
+    func inheritWithDefaultResolvesRegion() {
+        let resolved = ChannelFloodScopeResolver.resolve(
             channelFloodScope: .inherit,
-            deviceDefaultFloodScopeName: "Germany"
+            deviceDefaultFloodScopeName: "Germany",
+            supportsUnscopedFloodSend: true
         )
-        #expect(scope.scopeKey() == FloodScope.region("Germany").scopeKey())
+        #expect(resolved == .scope(.region("Germany")))
     }
 
-    @Test(".inherit with no device default pushes .disabled")
-    func inheritWithoutDefaultPushesDisabled() {
-        let scope = ChannelFloodScopeResolver.resolve(
+    @Test(".inherit with no device default resolves to .scope(.disabled)")
+    func inheritWithoutDefaultResolvesDisabled() {
+        let resolved = ChannelFloodScopeResolver.resolve(
             channelFloodScope: .inherit,
-            deviceDefaultFloodScopeName: nil
+            deviceDefaultFloodScopeName: nil,
+            supportsUnscopedFloodSend: true
         )
-        #expect(scope.scopeKey() == FloodScope.disabled.scopeKey())
-    }
-
-    @Test(".allRegions always pushes .disabled regardless of default")
-    func allRegionsPushesDisabled() {
-        let withDefault = ChannelFloodScopeResolver.resolve(
-            channelFloodScope: .allRegions,
-            deviceDefaultFloodScopeName: "Germany"
-        )
-        let withoutDefault = ChannelFloodScopeResolver.resolve(
-            channelFloodScope: .allRegions,
-            deviceDefaultFloodScopeName: nil
-        )
-        #expect(withDefault.scopeKey() == FloodScope.disabled.scopeKey())
-        #expect(withoutDefault.scopeKey() == FloodScope.disabled.scopeKey())
-    }
-
-    @Test(".region(name) pushes that region regardless of default")
-    func specificRegionPushesThatRegion() {
-        let withDefault = ChannelFloodScopeResolver.resolve(
-            channelFloodScope: .region("France"),
-            deviceDefaultFloodScopeName: "Germany"
-        )
-        let withoutDefault = ChannelFloodScopeResolver.resolve(
-            channelFloodScope: .region("France"),
-            deviceDefaultFloodScopeName: nil
-        )
-        #expect(withDefault.scopeKey() == FloodScope.region("France").scopeKey())
-        #expect(withoutDefault.scopeKey() == FloodScope.region("France").scopeKey())
+        #expect(resolved == .scope(.disabled))
     }
 
     @Test(".inherit with empty-string default treats it as no default")
-    func inheritWithEmptyDefaultPushesDisabled() {
-        let scope = ChannelFloodScopeResolver.resolve(
+    func inheritWithEmptyDefaultResolvesDisabled() {
+        let resolved = ChannelFloodScopeResolver.resolve(
             channelFloodScope: .inherit,
-            deviceDefaultFloodScopeName: ""
+            deviceDefaultFloodScopeName: "",
+            supportsUnscopedFloodSend: true
         )
-        #expect(scope.scopeKey() == FloodScope.disabled.scopeKey())
+        #expect(resolved == .scope(.disabled))
+    }
+
+    @Test(".allRegions on firmware v12+ resolves to .unscoped (true override)")
+    func allRegionsWithCapabilityResolvesUnscoped() {
+        let withDefault = ChannelFloodScopeResolver.resolve(
+            channelFloodScope: .allRegions,
+            deviceDefaultFloodScopeName: "Germany",
+            supportsUnscopedFloodSend: true
+        )
+        let withoutDefault = ChannelFloodScopeResolver.resolve(
+            channelFloodScope: .allRegions,
+            deviceDefaultFloodScopeName: nil,
+            supportsUnscopedFloodSend: true
+        )
+        #expect(withDefault == .unscoped)
+        #expect(withoutDefault == .unscoped)
+    }
+
+    @Test(".allRegions on older firmware falls back to .scope(.disabled)")
+    func allRegionsWithoutCapabilityFallsBackToDisabled() {
+        let withDefault = ChannelFloodScopeResolver.resolve(
+            channelFloodScope: .allRegions,
+            deviceDefaultFloodScopeName: "Germany",
+            supportsUnscopedFloodSend: false
+        )
+        let withoutDefault = ChannelFloodScopeResolver.resolve(
+            channelFloodScope: .allRegions,
+            deviceDefaultFloodScopeName: nil,
+            supportsUnscopedFloodSend: false
+        )
+        #expect(withDefault == .scope(.disabled))
+        #expect(withoutDefault == .scope(.disabled))
+    }
+
+    @Test(".region(name) resolves to that region regardless of default or capability")
+    func specificRegionResolvesThatRegion() {
+        let withDefault = ChannelFloodScopeResolver.resolve(
+            channelFloodScope: .region("France"),
+            deviceDefaultFloodScopeName: "Germany",
+            supportsUnscopedFloodSend: true
+        )
+        let withoutCapability = ChannelFloodScopeResolver.resolve(
+            channelFloodScope: .region("France"),
+            deviceDefaultFloodScopeName: nil,
+            supportsUnscopedFloodSend: false
+        )
+        #expect(withDefault == .scope(.region("France")))
+        #expect(withoutCapability == .scope(.region("France")))
     }
 }

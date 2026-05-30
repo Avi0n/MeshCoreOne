@@ -415,6 +415,10 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
     /// Whether this device supports the persisted default flood scope (firmware v11+).
     public var supportsDefaultFloodScope: Bool { firmwareVersion >= 11 }
 
+    /// Whether this device supports forcing un-scoped flood broadcasts that override
+    /// the persisted default flood scope (firmware v12+).
+    public var supportsUnscopedFloodSend: Bool { firmwareVersion >= 12 }
+
     /// Advertisement location policy interpreted from raw value.
     public var advertLocationPolicyMode: AdvertLocationPolicy {
         AdvertLocationPolicy(rawValue: advertLocationPolicy) ?? .none
