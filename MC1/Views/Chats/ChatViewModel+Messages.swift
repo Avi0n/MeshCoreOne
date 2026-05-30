@@ -288,7 +288,7 @@ extension ChatViewModel {
         currentContact = contact
 
         // Track active conversation for notification suppression
-        notificationService?.activeContactID = contact.id
+        notificationService?.setActiveConversation(contactID: contact.id)
 
         isLoading = true
         // Dual-reset: this function is shared between passive load and user-initiated

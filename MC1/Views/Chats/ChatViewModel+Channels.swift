@@ -32,9 +32,10 @@ extension ChatViewModel {
         currentContact = nil
 
         // Track active channel for notification suppression
-        notificationService?.activeContactID = nil
-        notificationService?.activeChannelIndex = channel.index
-        notificationService?.activeChannelRadioID = channel.radioID
+        notificationService?.setActiveConversation(
+            channelIndex: channel.index,
+            channelRadioID: channel.radioID
+        )
 
         // Sync the device's session-scoped flood key with the effective scope for this
         // channel. The effective scope combines the per-channel preference with the

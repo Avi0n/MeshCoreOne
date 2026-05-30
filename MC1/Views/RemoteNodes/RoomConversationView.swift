@@ -66,7 +66,7 @@ struct RoomConversationView: View {
                 // Track the active room so foreground banners for it are suppressed.
                 // Keyed on servicesVersion so a reconnect, which mints a fresh
                 // NotificationService, re-asserts this on the new instance.
-                appState.services?.notificationService.activeRoomSessionID = session.id
+                appState.services?.notificationService.setActiveConversation(roomSessionID: session.id)
             }
             .task {
                 for await event in appState.messageEventStream.events() {

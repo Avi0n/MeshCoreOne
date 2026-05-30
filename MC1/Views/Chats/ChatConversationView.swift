@@ -322,13 +322,21 @@ struct ChatConversationView: View {
         mentionScrollTask?.cancel()
         mentionScrollTask = nil
 
-        // Clear notification suppression
+        // Clear notification suppression only if this conversation still owns the
+        // active slot; a newer conversation's open may have already claimed it
+        // before this view tears down.
+        let service = appState.services?.notificationService
         switch conversationType {
-        case .dm:
-            appState.services?.notificationService.activeContactID = nil
-        case .channel:
-            appState.services?.notificationService.activeChannelIndex = nil
-            appState.services?.notificationService.activeChannelRadioID = nil
+        case .dm(let contact):
+            if service?.activeContactID == contact.id {
+                service?.activeContactID = nil
+            }
+        case .channel(let channel):
+            if service?.activeChannelIndex == channel.index,
+               service?.activeChannelRadioID == channel.radioID {
+                service?.activeChannelIndex = nil
+                service?.activeChannelRadioID = nil
+            }
         }
 
         // Refresh parent conversation list when leaving

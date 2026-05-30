@@ -129,6 +129,23 @@ public final class NotificationService: NSObject {
     /// Currently active room session ID (user is viewing this room)
     public var activeRoomSessionID: UUID?
 
+    /// Atomically sets the active conversation, clearing every slot the caller
+    /// does not pass. Opening one conversation type therefore clears the other
+    /// types in a single assignment, so a foreground banner is never suppressed
+    /// for a conversation the user just left. Only one slot is ever populated
+    /// because exactly one conversation detail is visible at a time.
+    public func setActiveConversation(
+        contactID: UUID? = nil,
+        channelIndex: UInt8? = nil,
+        channelRadioID: UUID? = nil,
+        roomSessionID: UUID? = nil
+    ) {
+        activeContactID = contactID
+        activeChannelIndex = channelIndex
+        activeChannelRadioID = channelRadioID
+        activeRoomSessionID = roomSessionID
+    }
+
     // MARK: - Badge Management
 
     /// Callback to get total unread count from data layer

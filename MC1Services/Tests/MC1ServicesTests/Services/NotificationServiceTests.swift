@@ -195,6 +195,42 @@ struct NotificationServiceTests {
         #expect(service.activeRoomSessionID == nil)
     }
 
+    @Test("setActiveConversation populates only the passed slot and clears the rest")
+    @MainActor
+    func setActiveConversationIsAtomicAcrossTypes() async {
+        let service = NotificationService()
+        let contactID = UUID()
+        let channelRadioID = UUID()
+        let roomSessionID = UUID()
+
+        // Pre-populate every slot so the setter must clear the unpassed ones.
+        service.activeContactID = contactID
+        service.activeChannelIndex = 3
+        service.activeChannelRadioID = channelRadioID
+        service.activeRoomSessionID = roomSessionID
+
+        // Opening a DM clears channel and room slots.
+        service.setActiveConversation(contactID: contactID)
+        #expect(service.activeContactID == contactID)
+        #expect(service.activeChannelIndex == nil)
+        #expect(service.activeChannelRadioID == nil)
+        #expect(service.activeRoomSessionID == nil)
+
+        // Opening a channel clears the contact slot.
+        service.setActiveConversation(channelIndex: 5, channelRadioID: channelRadioID)
+        #expect(service.activeContactID == nil)
+        #expect(service.activeChannelIndex == 5)
+        #expect(service.activeChannelRadioID == channelRadioID)
+        #expect(service.activeRoomSessionID == nil)
+
+        // Opening a room clears the channel slots.
+        service.setActiveConversation(roomSessionID: roomSessionID)
+        #expect(service.activeContactID == nil)
+        #expect(service.activeChannelIndex == nil)
+        #expect(service.activeChannelRadioID == nil)
+        #expect(service.activeRoomSessionID == roomSessionID)
+    }
+
     @Test("onRoomMarkAsRead callback can be set and receives parameters")
     @MainActor
     func onRoomMarkAsReadCallbackReceivesParameters() async {
