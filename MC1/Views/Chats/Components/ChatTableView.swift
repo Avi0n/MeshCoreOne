@@ -480,7 +480,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         snapshot.appendItems(newItems.reversed().map(\.id))
 
         // Find items that changed content (same ID, different hash).
-        // Without reloading these, diffable data source won't update cells for items with same ID.
+        // Without reconfiguring these, diffable data source won't update cells for items with same ID.
         let oldItemsByID = Dictionary(uniqueKeysWithValues: oldItems.map { ($0.id, $0) })
         let changedIDs = newItems.compactMap { newItem -> Item.ID? in
             guard let oldItem = oldItemsByID[newItem.id] else { return nil }
@@ -517,12 +517,12 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
             )
 
             if !changedIDs.isEmpty {
-                var reloadSnapshot = snapshot
-                reloadSnapshot.reloadItems(changedIDs)
-                applySnapshot(reloadSnapshot, animatingDifferences: false, completion: restoreClosure)
+                var reconfigureSnapshot = snapshot
+                reconfigureSnapshot.reconfigureItems(changedIDs)
+                applySnapshot(reconfigureSnapshot, animatingDifferences: false, completion: restoreClosure)
             }
         } else if !changedIDs.isEmpty {
-            snapshot.reloadItems(changedIDs)
+            snapshot.reconfigureItems(changedIDs)
             applySnapshot(snapshot, animatingDifferences: false, completion: restoreClosure)
         } else {
             applySnapshot(snapshot, animatingDifferences: false, completion: restoreClosure)
