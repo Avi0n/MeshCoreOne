@@ -1614,3 +1614,73 @@
 
 /* VoiceOver announcement when the export success sheet appears; %@ is the filename */
 "settings.backup.export.success.announcement" = "Kopia zapasowa zapisana jako %@";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "Nie posiadasz tego motywu.";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "Przywrócono motyw domyślny.";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "Wesprzyj rozwój";
+"Support.Header.Body" = "Jeśli kochasz MC1, oto kilka sposobów, aby wesprzeć jego rozwój! Wszystko tutaj jest opcjonalne, tylko kilka napiwków i kilka dodatkowych motywów.";
+"Support.Themes.Title" = "Motywy";
+"Support.Themes.Owned" = "Posiadane";
+"Support.Themes.PurchasedFooter" = "Zastosuj nowy motyw w Ustawienia → Wygląd.";
+"Support.Bundle.Title" = "Wszystkie motywy";
+"Support.Bundle.Subtitle" = "Obejmuje motywy dodane w przyszłości.";
+"Support.Contributions.Title" = "Wpłaty";
+"Support.Contributions.Footer" = "Napiwek z podziękowaniem wspierający rozwój MC1. Bez dóbr fizycznych, bez korzyści członkowskich.";
+"Support.Contributions.HighValueConfirm" = "Wysłać %@?";
+"Support.Contributions.ConfirmButton" = "Wpłać %@";
+"Support.Restore.Button" = "Przywróć zakupy";
+"Support.Restore.Syncing" = "Przywracanie…";
+"Support.Refund.Link" = "Poproś o zwrot pieniędzy";
+"Support.Pending.Banner" = "Oczekiwanie na zatwierdzenie — zakup zostanie aktywowany po zatwierdzeniu.";
+"Support.Pending.Button" = "Oczekiwanie na zatwierdzenie";
+"Support.Contact.Link" = "Skontaktuj się z pomocą techniczną";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "Domyślny";
+"Support.Theme.Ember" = "Ember";
+"Support.Theme.Fern" = "Fern";
+"Support.Theme.Marine" = "Marine";
+"Support.Theme.Olive" = "Olive";
+"Support.Theme.Lavender" = "Lavender";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "Nie udało się wczytać produktów.";
+"Support.Error.ProductNotFound" = "Nie znaleziono produktu.";
+"Support.Error.PurchaseFailed" = "Zakup nie powiódł się: %@";
+"Support.Error.NetworkUnavailable" = "Sieć niedostępna.";
+"Support.Error.VerificationFailed" = "Nie udało się zweryfikować zakupu.";
+"Support.Error.NotEntitled" = "Zakupy są ograniczone na tym urządzeniu. Sprawdź ograniczenia treści w Czasie przed ekranem.";
+"Support.Error.StorefrontUnavailable" = "Ten produkt nie jest dostępny w Twoim regionie.";
+"Support.Error.Unsupported" = "Zakupy w aplikacji nie są obsługiwane na tym urządzeniu.";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "Motyw %@, zablokowany";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "Motyw %@, posiadany";
+"Support.Accessibility.BundleCard.LockedLabel" = "Pakiet Wszystkie motywy, zablokowany, %@";
+"Support.Accessibility.BundleCard.LockedHint" = "Kupuje pakiet Wszystkie motywy";
+"Support.Accessibility.BundleCard.LoadingLabel" = "All Themes bundle, loading price";
+"Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
+"Support.Accessibility.ContributionRow.Hint" = "Wysyła napiwek z podziękowaniem";
+"Support.Accessibility.TipConfirmAnnouncement" = "Dziękujemy za napiwek.";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "Wygląd";
+"Appearance.Scheme.Header" = "Tryb jasny/ciemny";
+"Appearance.Scheme.System" = "Systemowy";
+"Appearance.Scheme.Light" = "Jasny";
+"Appearance.Scheme.Dark" = "Ciemny";
+"Appearance.Themes.Header" = "Wybierz motyw";
+"Appearance.Themes.Selected" = "Wybrany";
+"Appearance.MoreThemes.Link" = "Kup więcej motywów";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "Motyw %@, posiadany";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "Stosuje ten motyw";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "Motyw %@, aktualnie wybrany";
+"Appearance.Accessibility.Swatch.DualMode" = "%@, wariant jasny i ciemny";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@, tylko ciemny";

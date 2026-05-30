@@ -1588,3 +1588,73 @@
 
 /* VoiceOver announcement when the export success sheet appears; %@ is the filename */
 "settings.backup.export.success.announcement" = "备份已保存为 %@";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "你尚未拥有此主题。";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "主题已恢复为默认。";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "支持开发";
+"Support.Header.Body" = "如果你喜欢 MC1，这里有几种支持其开发的方式！这里的一切都是可选的，只有一些打赏和一些额外的主题。";
+"Support.Themes.Title" = "主题";
+"Support.Themes.Owned" = "已拥有";
+"Support.Themes.PurchasedFooter" = "在设置 → 外观中应用你的新主题。";
+"Support.Bundle.Title" = "全部主题";
+"Support.Bundle.Subtitle" = "包括日后新增的主题。";
+"Support.Contributions.Title" = "捐助";
+"Support.Contributions.Footer" = "支持 MC1 开发的感谢式打赏。无实物商品，无会员权益。";
+"Support.Contributions.HighValueConfirm" = "发送 %@？";
+"Support.Contributions.ConfirmButton" = "捐助 %@";
+"Support.Restore.Button" = "恢复购买";
+"Support.Restore.Syncing" = "正在恢复…";
+"Support.Refund.Link" = "申请退款";
+"Support.Pending.Banner" = "等待批准——你的购买将在获批后生效。";
+"Support.Pending.Button" = "等待批准";
+"Support.Contact.Link" = "联系支持";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "默认";
+"Support.Theme.Ember" = "Ember";
+"Support.Theme.Fern" = "Fern";
+"Support.Theme.Marine" = "Marine";
+"Support.Theme.Olive" = "Olive";
+"Support.Theme.Lavender" = "Lavender";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "无法加载商品。";
+"Support.Error.ProductNotFound" = "未找到商品。";
+"Support.Error.PurchaseFailed" = "购买失败：%@";
+"Support.Error.NetworkUnavailable" = "网络不可用。";
+"Support.Error.VerificationFailed" = "无法验证你的购买。";
+"Support.Error.NotEntitled" = "此设备上的购买已受限。请检查屏幕使用时间的内容限制。";
+"Support.Error.StorefrontUnavailable" = "此商品在你所在的地区不可用。";
+"Support.Error.Unsupported" = "此设备不支持应用内购买。";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "主题 %@，已锁定";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "主题 %@，已拥有";
+"Support.Accessibility.BundleCard.LockedLabel" = "全部主题套装，已锁定，%@";
+"Support.Accessibility.BundleCard.LockedHint" = "购买全部主题套装";
+"Support.Accessibility.BundleCard.LoadingLabel" = "All Themes bundle, loading price";
+"Support.Accessibility.ContributionRow.Label" = "%1$@，%2$@";
+"Support.Accessibility.ContributionRow.Hint" = "发送感谢式打赏";
+"Support.Accessibility.TipConfirmAnnouncement" = "感谢你的打赏。";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "外观";
+"Appearance.Scheme.Header" = "浅色/深色模式";
+"Appearance.Scheme.System" = "跟随系统";
+"Appearance.Scheme.Light" = "浅色";
+"Appearance.Scheme.Dark" = "深色";
+"Appearance.Themes.Header" = "选择主题";
+"Appearance.Themes.Selected" = "已选择";
+"Appearance.MoreThemes.Link" = "购买更多主题";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "主题 %@，已拥有";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "应用此主题";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "主题 %@，当前已选择";
+"Appearance.Accessibility.Swatch.DualMode" = "%@，浅色和深色变体";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@，仅深色";

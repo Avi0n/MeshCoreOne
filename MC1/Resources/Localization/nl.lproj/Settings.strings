@@ -1614,3 +1614,73 @@
 
 /* VoiceOver announcement when the export success sheet appears; %@ is the filename */
 "settings.backup.export.success.announcement" = "Back-up opgeslagen als %@";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "Je bezit dit thema niet.";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "Thema teruggezet naar het standaardthema.";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "Ontwikkeling steunen";
+"Support.Header.Body" = "Als je MC1 leuk vindt, zijn hier enkele manieren om de ontwikkeling te steunen! Alles hier is optioneel, gewoon een paar fooien en wat extra thema's.";
+"Support.Themes.Title" = "Thema's";
+"Support.Themes.Owned" = "In bezit";
+"Support.Themes.PurchasedFooter" = "Pas je nieuwe thema toe in Instellingen → Weergave.";
+"Support.Bundle.Title" = "Alle thema's";
+"Support.Bundle.Subtitle" = "Inclusief later toegevoegde thema's.";
+"Support.Contributions.Title" = "Bijdragen";
+"Support.Contributions.Footer" = "Een fooi als bedankje die de ontwikkeling van MC1 steunt. Geen fysieke goederen, geen lidmaatschapsvoordelen.";
+"Support.Contributions.HighValueConfirm" = "Een %@ sturen?";
+"Support.Contributions.ConfirmButton" = "%@ bijdragen";
+"Support.Restore.Button" = "Aankopen herstellen";
+"Support.Restore.Syncing" = "Herstellen…";
+"Support.Refund.Link" = "Terugbetaling aanvragen";
+"Support.Pending.Banner" = "Wacht op goedkeuring — je aankoop wordt geactiveerd zodra deze is goedgekeurd.";
+"Support.Pending.Button" = "Wacht op goedkeuring";
+"Support.Contact.Link" = "Contact opnemen met support";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "Standaard";
+"Support.Theme.Ember" = "Ember";
+"Support.Theme.Fern" = "Fern";
+"Support.Theme.Marine" = "Marine";
+"Support.Theme.Olive" = "Olive";
+"Support.Theme.Lavender" = "Lavender";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "Producten konden niet worden geladen.";
+"Support.Error.ProductNotFound" = "Product niet gevonden.";
+"Support.Error.PurchaseFailed" = "Aankoop mislukt: %@";
+"Support.Error.NetworkUnavailable" = "Netwerk niet beschikbaar.";
+"Support.Error.VerificationFailed" = "Kon je aankoop niet verifiëren.";
+"Support.Error.NotEntitled" = "Aankopen zijn beperkt op dit apparaat. Controleer de inhoudsbeperkingen van Schermtijd.";
+"Support.Error.StorefrontUnavailable" = "Dit product is niet beschikbaar in jouw regio.";
+"Support.Error.Unsupported" = "In-app-aankopen worden niet ondersteund op dit apparaat.";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "Thema %@, vergrendeld";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "Thema %@, in bezit";
+"Support.Accessibility.BundleCard.LockedLabel" = "Pakket Alle thema's, vergrendeld, %@";
+"Support.Accessibility.BundleCard.LockedHint" = "Koopt het pakket Alle thema's";
+"Support.Accessibility.BundleCard.LoadingLabel" = "All Themes bundle, loading price";
+"Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
+"Support.Accessibility.ContributionRow.Hint" = "Stuurt een fooi als bedankje";
+"Support.Accessibility.TipConfirmAnnouncement" = "Bedankt voor je fooi.";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "Weergave";
+"Appearance.Scheme.Header" = "Lichte/donkere modus";
+"Appearance.Scheme.System" = "Systeem";
+"Appearance.Scheme.Light" = "Licht";
+"Appearance.Scheme.Dark" = "Donker";
+"Appearance.Themes.Header" = "Kies een thema";
+"Appearance.Themes.Selected" = "Geselecteerd";
+"Appearance.MoreThemes.Link" = "Meer thema's kopen";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "Thema %@, in bezit";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "Past dit thema toe";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "Thema %@, momenteel geselecteerd";
+"Appearance.Accessibility.Swatch.DualMode" = "%@, licht- en donkervarianten";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@, alleen donker";

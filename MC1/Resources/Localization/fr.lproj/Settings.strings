@@ -1614,3 +1614,73 @@
 
 /* VoiceOver announcement when the export success sheet appears; %@ is the filename */
 "settings.backup.export.success.announcement" = "Sauvegarde enregistrée sous %@";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "Vous ne possédez pas ce thème.";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "Thème rétabli au thème par défaut.";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "Soutenir le développement";
+"Support.Header.Body" = "Si vous aimez MC1, voici quelques façons de soutenir son développement ! Tout ici est facultatif, juste quelques pourboires et quelques thèmes supplémentaires.";
+"Support.Themes.Title" = "Thèmes";
+"Support.Themes.Owned" = "Acquis";
+"Support.Themes.PurchasedFooter" = "Appliquez votre nouveau thème dans Réglages → Apparence.";
+"Support.Bundle.Title" = "Tous les thèmes";
+"Support.Bundle.Subtitle" = "Inclut les thèmes ajoutés ultérieurement.";
+"Support.Contributions.Title" = "Contributions";
+"Support.Contributions.Footer" = "Un pourboire de remerciement qui soutient le développement de MC1. Aucun bien physique, aucun avantage d'adhésion.";
+"Support.Contributions.HighValueConfirm" = "Envoyer un %@ ?";
+"Support.Contributions.ConfirmButton" = "Contribuer %@";
+"Support.Restore.Button" = "Restaurer les achats";
+"Support.Restore.Syncing" = "Restauration…";
+"Support.Refund.Link" = "Demander un remboursement";
+"Support.Pending.Banner" = "En attente d'approbation — votre achat sera activé une fois approuvé.";
+"Support.Pending.Button" = "En attente d'approbation";
+"Support.Contact.Link" = "Contacter l'assistance";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "Par défaut";
+"Support.Theme.Ember" = "Ember";
+"Support.Theme.Fern" = "Fern";
+"Support.Theme.Marine" = "Marine";
+"Support.Theme.Olive" = "Olive";
+"Support.Theme.Lavender" = "Lavender";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "Impossible de charger les produits.";
+"Support.Error.ProductNotFound" = "Produit introuvable.";
+"Support.Error.PurchaseFailed" = "Échec de l'achat : %@";
+"Support.Error.NetworkUnavailable" = "Réseau indisponible.";
+"Support.Error.VerificationFailed" = "Impossible de vérifier votre achat.";
+"Support.Error.NotEntitled" = "Les achats sont restreints sur cet appareil. Vérifiez les restrictions de contenu de Temps d'écran.";
+"Support.Error.StorefrontUnavailable" = "Ce produit n'est pas disponible dans votre région.";
+"Support.Error.Unsupported" = "Les achats intégrés ne sont pas pris en charge sur cet appareil.";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "Thème %@, verrouillé";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "Thème %@, acquis";
+"Support.Accessibility.BundleCard.LockedLabel" = "Pack Tous les thèmes, verrouillé, %@";
+"Support.Accessibility.BundleCard.LockedHint" = "Achète le pack Tous les thèmes";
+"Support.Accessibility.BundleCard.LoadingLabel" = "All Themes bundle, loading price";
+"Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
+"Support.Accessibility.ContributionRow.Hint" = "Envoie un pourboire de remerciement";
+"Support.Accessibility.TipConfirmAnnouncement" = "Merci pour votre pourboire.";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "Apparence";
+"Appearance.Scheme.Header" = "Mode clair/sombre";
+"Appearance.Scheme.System" = "Système";
+"Appearance.Scheme.Light" = "Clair";
+"Appearance.Scheme.Dark" = "Sombre";
+"Appearance.Themes.Header" = "Choisir un thème";
+"Appearance.Themes.Selected" = "Sélectionné";
+"Appearance.MoreThemes.Link" = "Acheter d'autres thèmes";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "Thème %@, acquis";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "Applique ce thème";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "Thème %@, actuellement sélectionné";
+"Appearance.Accessibility.Swatch.DualMode" = "%@, variantes claire et sombre";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@, sombre uniquement";
