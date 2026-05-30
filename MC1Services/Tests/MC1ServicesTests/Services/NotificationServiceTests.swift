@@ -217,4 +217,23 @@ struct NotificationServiceTests {
         #expect(receivedSessionID == expectedSessionID)
         #expect(receivedMessageID == expectedMessageID)
     }
+
+    @Test("onRoomNotificationTapped callback can be set and receives the session ID")
+    @MainActor
+    func onRoomNotificationTappedCallbackReceivesSessionID() async {
+        let service = NotificationService()
+        let expectedSessionID = UUID()
+
+        var receivedSessionID: UUID?
+
+        service.onRoomNotificationTapped = { sessionID in
+            receivedSessionID = sessionID
+        }
+
+        #expect(service.onRoomNotificationTapped != nil)
+
+        await service.onRoomNotificationTapped?(expectedSessionID)
+
+        #expect(receivedSessionID == expectedSessionID)
+    }
 }

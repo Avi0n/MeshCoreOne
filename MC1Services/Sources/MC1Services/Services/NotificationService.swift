@@ -52,6 +52,11 @@ public final class NotificationService: NSObject {
     /// CRITICAL: Must be @MainActor - see onQuickReply comment.
     public var onChannelNotificationTapped: (@MainActor @Sendable (_ radioID: UUID, _ channelIndex: UInt8) async -> Void)?
 
+    /// Callback for when a room notification is tapped.
+    /// Identified by the room's stable session ID.
+    /// Must be @MainActor for main-thread callback execution; see onQuickReply.
+    public var onRoomNotificationTapped: (@MainActor @Sendable (_ sessionID: UUID) async -> Void)?
+
     /// Callback for when a new contact discovered notification is tapped
     /// CRITICAL: Must be @MainActor - see onQuickReply comment.
     public var onNewContactNotificationTapped: (@MainActor @Sendable (_ contactID: UUID) async -> Void)?
@@ -940,6 +945,11 @@ extension NotificationService: @preconcurrency UNUserNotificationCenterDelegate 
                       let radioIDString = userInfo["radioID"] as? String,
                       let radioID = UUID(uuidString: radioIDString) {
                 await onChannelNotificationTapped?(radioID, UInt8(channelIndex))
+            }
+            // Handle room notifications (identified by stable session ID)
+            else if let sessionIDString = userInfo["sessionID"] as? String,
+                      let sessionID = UUID(uuidString: sessionIDString) {
+                await onRoomNotificationTapped?(sessionID)
             }
 
         default:

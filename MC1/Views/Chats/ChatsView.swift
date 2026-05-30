@@ -114,6 +114,12 @@ struct ChatsView: View {
         .environment(\.openURL, OpenURLAction { url in
             ChatLinkRouter.route(url, appState: appState) ? .handled : .systemAction
         })
+        .task {
+            consumePendingRoomAuthentication()
+        }
+        .onChange(of: appState.navigation.pendingRoomAuthentication) { _, _ in
+            consumePendingRoomAuthentication()
+        }
         .sheet(item: Binding(
             get: { appState.navigation.pendingHashtag },
             set: { appState.navigation.pendingHashtag = $0 }
@@ -391,6 +397,14 @@ struct ChatsView: View {
         guard let session = appState.navigation.pendingRoomSession else { return }
         navigate(to: .room(session))
         appState.navigation.clearPendingRoomNavigation()
+    }
+
+    /// Presents the room auth sheet for a disconnected room a notification tap
+    /// wants to open, reusing the same sheet a disconnected-room list tap uses.
+    private func consumePendingRoomAuthentication() {
+        guard let session = appState.navigation.pendingRoomAuthentication else { return }
+        roomToAuthenticate = session
+        appState.navigation.clearPendingRoomAuthentication()
     }
 
 }

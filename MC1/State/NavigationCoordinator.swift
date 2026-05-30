@@ -24,6 +24,11 @@ public final class NavigationCoordinator {
     /// Room session to navigate to
     var pendingRoomSession: RemoteNodeSessionDTO?
 
+    /// Room session a notification tap wants the user to authenticate into, set
+    /// when the tapped room is not currently connected. ChatsView presents
+    /// RoomAuthenticationSheet, mirroring a disconnected-room list tap.
+    var pendingRoomAuthentication: RemoteNodeSessionDTO?
+
     /// Whether to navigate to Discovery
     var pendingDiscoveryNavigation = false
 
@@ -99,6 +104,10 @@ public final class NavigationCoordinator {
 
     func clearPendingRoomNavigation() {
         pendingRoomSession = nil
+    }
+
+    func clearPendingRoomAuthentication() {
+        pendingRoomAuthentication = nil
     }
 
     func clearPendingChannelNavigation() {
@@ -196,6 +205,21 @@ public final class NavigationCoordinator {
             } else if let channelIndex, let radioID,
                       let channel = try? await dataStore.fetchChannel(radioID: radioID, index: channelIndex) {
                 self.navigateToChannel(with: channel, scrollToMessageID: messageID)
+            }
+        }
+
+        // Room notification tap. Resolves the full session from the stable
+        // sessionID carried in the notification. A connected room opens directly;
+        // a disconnected room is routed to the auth sheet, mirroring the list-row
+        // gate, instead of the iPad detail pane rendering an ungated read-only room.
+        notificationService.onRoomNotificationTapped = { [weak self] sessionID in
+            guard let self else { return }
+            guard let session = try? await dataStore.fetchRemoteNodeSession(id: sessionID) else { return }
+            if session.isConnected {
+                self.navigateToRoom(with: session)
+            } else {
+                self.selectedTab = 0
+                self.pendingRoomAuthentication = session
             }
         }
     }
