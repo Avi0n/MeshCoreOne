@@ -58,11 +58,21 @@ struct MC1App: App {
         WindowGroup {
             ContentView()
                 .environment(\.appState, appState)
+                .environment(\.appTheme, appState.themeService.current)
+                .tint(appState.themeService.current.chromeTint)
+                .preferredColorScheme(appState.themeService.effectiveColorScheme)
+                .task(id: ObjectIdentifier(appState)) { await appState.storeState.service.load() }
                 .task {
                     if awaitingDataProtection {
                         await waitForProtectedData()
                         do {
                             let container = try PersistenceStore.createContainer()
+                            // Tear down the BFU-bootstrap AppState's StoreService listener Task
+                            // before swapping in the real AppState — otherwise the bootstrap
+                            // instance's Transaction.updates listener leaks for the process
+                            // lifetime and every later transaction event fires `walkCurrentEntitlements`
+                            // twice (once per orphaned StoreService).
+                            appState.shutdown()
                             appState = AppState(modelContainer: container)
                             awaitingDataProtection = false
                         } catch {
