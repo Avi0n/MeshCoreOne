@@ -4,16 +4,55 @@
 SCHEME  := MC1
 PROJECT := MC1.xcodeproj
 
+# The full app suite runs on the project-standard iOS 26 simulator. Override SIM to retarget.
+SIM ?= platform=iOS Simulator,name=iPhone 17e
+
 # StoreKit (SKTestSession) suites must run on an iOS 18.x simulator. Under `xcodebuild
 # test`, iOS 26.x simulators deliver 0 products to storekitd (Apple regression
 # FB22237318 / FB22774836), so every product-dependent test falsely fails. A method-level
-# `-only-testing` selector also silently runs 0 tests for Swift Testing suites. The target
-# below pins iOS 18.x and uses the suite-level filter. Override STORE_SIM if your machine
+# `-only-testing` selector also silently runs 0 tests for Swift Testing suites, so the target
+# below pins iOS 18.x and uses suite-level (type-level) filters. These same suites gate on
+# `StoreKitTestAvailability.servesProducts`, so they auto-skip on iOS 26.x in the default
+# run — `test-store` is how you actually exercise them. Override STORE_SIM if your machine
 # has a different iOS 18.x simulator.
 STORE_SIM ?= platform=iOS Simulator,name=iPhone 16e,OS=18.6
 
+# Every suite that constructs an SKTestSession. Keep in sync with the `.enabled(if:)`
+# gates in MC1Tests; a suite missing here is never exercised on a products-serving runtime.
+STORE_SUITES := \
+	-only-testing:MC1Tests/StoreServiceTests \
+	-only-testing:MC1Tests/StoreStatePurchaseTests \
+	-only-testing:MC1Tests/AppearanceSelectionTests \
+	-only-testing:MC1Tests/RefundLinkSectionTests \
+	-only-testing:MC1Tests/ThemeServiceOwnershipTests
+
+# Concurrent `xcodebuild test` runs against the same simulator fight over its single
+# test-manager connection and hang ("test runner hung before establishing connection") — the
+# usual cause of a stuck run when several agent/worktree sessions share one Mac. SIM_LOCK takes
+# a per-simulator host lock so same-sim runs serialize while runs on different sims still
+# proceed in parallel. The lock is an atomic O_EXCL create (shell noclobber); if the holding
+# process is gone (killed run) the stale lock is reclaimed after `ps -p` confirms it is dead,
+# and it is released on exit. Skipped under $CI — runners are single-tenant. macOS `shlock` is
+# deliberately avoided here: it does not reclaim a dead-owner lock, so a SIGKILLed run would
+# wedge every later run. The calling recipe sets `dest` first.
+SIM_LOCK = if [ -z "$$CI" ]; then \
+		lock="/tmp/mc1-xcodebuild-$$(printf '%s' "$$dest" | tr -c 'A-Za-z0-9' '-').lock"; \
+		while :; do \
+			if ( set -C; echo $$$$ > "$$lock" ) 2>/dev/null; then break; fi; \
+			owner=$$(cat "$$lock" 2>/dev/null); \
+			if [ -z "$$owner" ] || ! ps -p "$$owner" >/dev/null 2>&1; then rm -f "$$lock"; continue; fi; \
+			echo "==> waiting for simulator lock ($$dest), held by pid $$owner"; sleep 2; \
+		done; \
+		trap 'rm -f "$$lock"' EXIT INT TERM HUP; \
+	fi
+
 .DEFAULT_GOAL := help
-.PHONY: help generate test-store
+.PHONY: help generate test test-app test-store
+# `make test` runs two xcodebuild passes because a single invocation targets one OS: the full
+# app suite on iOS 26 (where the StoreKit suites auto-skip) and the StoreKit suites on iOS 18.x
+# (where SKTestSession actually serves products). .NOTPARALLEL keeps `make -j` from running
+# both passes at once and colliding on the shared build.
+.NOTPARALLEL:
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -22,7 +61,14 @@ help: ## List available targets
 generate: ## Regenerate MC1.xcodeproj from project.yml (xcodegen)
 	xcodegen generate
 
-test-store: generate ## Run the StoreKit/IAP SKTestSession suite on iOS 18.x (suite-level filter)
-	xcodebuild test -project $(PROJECT) -scheme $(SCHEME) \
-		-destination '$(STORE_SIM)' \
-		-only-testing:MC1Tests/StoreServiceTests 2>&1 | xcsift -f toon
+test: test-app test-store ## Run everything: full app suite (iOS 26) + StoreKit suites (iOS 18)
+
+test-app: generate ## Run the full app suite on iOS 26 (StoreKit suites auto-skip here)
+	@dest='$(SIM)'; $(SIM_LOCK); \
+		xcodebuild test -project $(PROJECT) -scheme $(SCHEME) \
+		-destination "$$dest" 2>&1 | xcsift -f toon
+
+test-store: generate ## Run every StoreKit/IAP SKTestSession suite on iOS 18.x
+	@dest='$(STORE_SIM)'; $(SIM_LOCK); \
+		xcodebuild test -project $(PROJECT) -scheme $(SCHEME) \
+		-destination "$$dest" $(STORE_SUITES) 2>&1 | xcsift -f toon
