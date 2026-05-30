@@ -236,7 +236,7 @@ extension PacketParser {
                 )
             }
             return .messageSent(MessageSentInfo(
-                type: payload[0],
+                route: payload[0],
                 expectedAck: Data(payload[1..<5]),
                 suggestedTimeoutMs: payload.readUInt32LE(at: 5)
             ))

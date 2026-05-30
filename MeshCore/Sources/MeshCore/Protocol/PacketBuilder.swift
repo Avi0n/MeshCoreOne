@@ -37,6 +37,8 @@ public enum PacketBuilder: Sendable {
 
     /// Size of a public key in bytes.
     static let publicKeySize = 32
+    /// Size of an expanded private key in bytes (firmware `PRV_KEY_SIZE`).
+    static let privateKeySize = 64
     static let rawDataMaxPathBytes = 64
     static let rawDataMaxPayloadBytes = 184
     /// Flood sentinel for `path_len` fields: firmware treats `0xFF` as "route via flood".
@@ -151,7 +153,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x07` (setCoordinates)
+    /// - Offset 0 (1 byte): Command code `0x0E` (setCoordinates)
     /// - Offset 1 (4 bytes): Latitude scaled by 1,000,000, Little-endian Int32
     /// - Offset 5 (4 bytes): Longitude scaled by 1,000,000, Little-endian Int32
     /// - Offset 9 (4 bytes): Altitude placeholder (zeros)
@@ -188,7 +190,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x09` (setRadio)
+    /// - Offset 0 (1 byte): Command code `0x0B` (setRadio)
     /// - Offset 1 (4 bytes): Frequency scaled by 1,000, Little-endian UInt32
     /// - Offset 5 (4 bytes): Bandwidth scaled by 1,000, Little-endian UInt32
     /// - Offset 9 (1 byte): Spreading Factor
@@ -230,7 +232,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x0A` (sendAdvertisement)
+    /// - Offset 0 (1 byte): Command code `0x07` (sendAdvertisement)
     /// - Offset 1 (1 byte, optional): Flood flag (`0x01` if true, omitted if false)
     public static func sendAdvertisement(flood: Bool = false) -> Data {
         flood ? Data([CommandCode.sendAdvertisement.rawValue, 0x01]) : Data([CommandCode.sendAdvertisement.rawValue])
@@ -241,7 +243,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x0B` (reboot)
+    /// - Offset 0 (1 byte): Command code `0x13` (reboot)
     /// - Offset 1 (6 bytes): "reboot" string (UTF-8)
     public static func reboot() -> Data {
         var data = Data([CommandCode.reboot.rawValue])
@@ -257,7 +259,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x0C` (getContacts)
+    /// - Offset 0 (1 byte): Command code `0x04` (getContacts)
     /// - Offset 1 (4 bytes, optional): Last modified timestamp, Little-endian UInt32
     public static func getContacts(since lastModified: Date? = nil) -> Data {
         var data = Data([CommandCode.getContacts.rawValue])
@@ -288,7 +290,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x0E` (removeContact)
+    /// - Offset 0 (1 byte): Command code `0x0F` (removeContact)
     /// - Offset 1 (32 bytes): Full public key
     public static func removeContact(publicKey: Data) -> Data {
         var data = Data([CommandCode.removeContact.rawValue])
@@ -302,7 +304,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x0F` (shareContact)
+    /// - Offset 0 (1 byte): Command code `0x10` (shareContact)
     /// - Offset 1 (32 bytes): Full public key
     public static func shareContact(publicKey: Data) -> Data {
         var data = Data([CommandCode.shareContact.rawValue])
@@ -316,7 +318,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x24` (exportContact)
+    /// - Offset 0 (1 byte): Command code `0x11` (exportContact)
     /// - Offset 1 (32 bytes, optional): Full public key
     public static func exportContact(publicKey: Data? = nil) -> Data {
         var data = Data([CommandCode.exportContact.rawValue])
@@ -508,7 +510,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x21` (setChannel)
+    /// - Offset 0 (1 byte): Command code `0x20` (setChannel)
     /// - Offset 1 (1 byte): Channel index
     /// - Offset 2 (32 bytes): Padded channel name (UTF-8, zero-filled)
     /// - Offset 34 (16 bytes): PSK secret
@@ -605,7 +607,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x25` (setTuning)
+    /// - Offset 0 (1 byte): Command code `0x15` (setTuning)
     /// - Offset 1 (4 bytes): rxDelay, Little-endian UInt32
     /// - Offset 5 (4 bytes): af, Little-endian UInt32
     /// - Offset 9 (2 bytes): Reserved padding (zeros)
@@ -798,6 +800,21 @@ public enum PacketBuilder: Sendable {
         var data = Data([CommandCode.setFloodScope.rawValue, 0x00])
         data.append(scopeKey.prefix(16))
         return data
+    }
+
+    /// Builds a setFloodScope command that forces un-scoped flood broadcasts,
+    /// overriding any persisted default flood scope on the device.
+    ///
+    /// Unlike ``setFloodScope(_:)`` (sub-command 0, which resets the session scope
+    /// and falls back to the device default), this emits sub-command 1, which sets
+    /// the firmware `send_unscoped` flag. Requires firmware ver 12+; older firmware has
+    /// no handler for sub-command 1 and rejects the frame with `ERR_CODE_UNSUPPORTED_CMD`,
+    /// so callers must gate on the reported firmware version. No scope key follows the
+    /// sub-command byte.
+    ///
+    /// - Returns: The command packet data.
+    public static func setFloodScopeUnscoped() -> Data {
+        Data([CommandCode.setFloodScope.rawValue, 0x01])
     }
 
     /// Builds a `sendChannelData` command for sending a binary datagram to a channel.

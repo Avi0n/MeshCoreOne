@@ -36,4 +36,22 @@ struct FloodScopeMappingTests {
 
         #expect(europe != uk)
     }
+
+    @Test("setFloodScopeUnscoped emits sub-command 1 with no scope key")
+    func setFloodScopeUnscopedEmitsSubCommandOne() {
+        let data = PacketBuilder.setFloodScopeUnscoped()
+
+        #expect(data == Data([CommandCode.setFloodScope.rawValue, 0x01]))
+        #expect(data == Data([0x36, 0x01]))
+    }
+
+    @Test("setFloodScope (sub-command 0) differs from the unscoped override")
+    func setFloodScopeZeroKeyDiffersFromUnscoped() {
+        let zeroKey = PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey())
+        let unscoped = PacketBuilder.setFloodScopeUnscoped()
+
+        #expect(zeroKey != unscoped)
+        #expect(zeroKey[1] == 0x00)
+        #expect(unscoped[1] == 0x01)
+    }
 }

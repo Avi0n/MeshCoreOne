@@ -404,6 +404,25 @@ struct MeshCoreSessionCommandCorrelationTests {
         await session.stop()
     }
 
+    @Test("importPrivateKey rejects a key that is not the expanded private-key length")
+    func importPrivateKeyRejectsWrongLengthKey() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+        )
+
+        let error = await #expect(throws: MeshCoreError.self) {
+            try await session.importPrivateKey(Data(repeating: 0x33, count: PacketBuilder.publicKeySize))
+        }
+        guard case .invalidInput? = error else {
+            Issue.record("Expected invalidInput for wrong-length private key, got \(String(describing: error))")
+            return
+        }
+        let sentCount = await transport.sentData.count
+        #expect(sentCount == 0, "Guard must fail before any frame is sent")
+    }
+
     @Test("exportPrivateKey throws featureDisabled on disabled response")
     func exportPrivateKeyThrowsFeatureDisabledOnDisabledResponse() async throws {
         let transport = MockTransport()

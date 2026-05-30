@@ -301,6 +301,44 @@ struct V115SessionMethodsTests {
         #expect(code == 1)
         await session.stop()
     }
+
+    @Test("sendTrace throws invalidInput when path is nil")
+    func sendTraceRejectsNilPath() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 0.3, clientIdentifier: "MCTst")
+        )
+
+        let err = await #expect(throws: MeshCoreError.self) {
+            try await session.sendTrace()
+        }
+        guard case .invalidInput? = err else {
+            Issue.record("Expected invalidInput, got \(String(describing: err))")
+            return
+        }
+        let sentCount = await transport.sentData.count
+        #expect(sentCount == 0, "Guard must fail before any frame is sent")
+    }
+
+    @Test("sendTrace throws invalidInput when path is empty")
+    func sendTraceRejectsEmptyPath() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 0.3, clientIdentifier: "MCTst")
+        )
+
+        let err = await #expect(throws: MeshCoreError.self) {
+            try await session.sendTrace(path: Data())
+        }
+        guard case .invalidInput? = err else {
+            Issue.record("Expected invalidInput, got \(String(describing: err))")
+            return
+        }
+        let sentCount = await transport.sentData.count
+        #expect(sentCount == 0, "Guard must fail before any frame is sent")
+    }
 }
 
 private func startSession(

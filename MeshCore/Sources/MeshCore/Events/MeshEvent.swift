@@ -376,21 +376,21 @@ public enum MeshEvent: Sendable {
 /// This struct is returned by message-sending methods and contains information
 /// needed to wait for delivery acknowledgement.
 public struct MessageSentInfo: Sendable, Equatable {
-    /// The type of the sent message.
-    public let type: UInt8
+    /// Route flag from the firmware: 1 = flood, 0 = direct.
+    public let route: UInt8
     /// The expected acknowledgement data for correlation.
     public let expectedAck: Data
     /// The suggested timeout in milliseconds to wait for acknowledgement.
     public let suggestedTimeoutMs: UInt32
 
     /// Initializes a new message sent information object.
-    /// 
+    ///
     /// - Parameters:
-    ///   - type: The message type.
+    ///   - route: Route flag from the firmware: 1 = flood, 0 = direct.
     ///   - expectedAck: The expected acknowledgement data.
     ///   - suggestedTimeoutMs: The suggested timeout in milliseconds.
-    public init(type: UInt8, expectedAck: Data, suggestedTimeoutMs: UInt32) {
-        self.type = type
+    public init(route: UInt8, expectedAck: Data, suggestedTimeoutMs: UInt32) {
+        self.route = route
         self.expectedAck = expectedAck
         self.suggestedTimeoutMs = suggestedTimeoutMs
     }
@@ -1201,7 +1201,7 @@ public struct DiscoverResponse: Sendable, Equatable {
 ///
 /// Bundles the bitmask (which node types to auto-add) with the max hops filter.
 public struct AutoAddConfig: Sendable, Equatable {
-    /// Bitmask controlling auto-add behavior (0x01=overwrite, 0x02=contacts, 0x04=repeaters, 0x08=rooms).
+    /// Bitmask controlling auto-add behavior (0x01=overwrite-oldest, 0x02=Chat, 0x04=Repeater, 0x08=Room Server, 0x10=Sensor).
     public let bitmask: UInt8
     /// Maximum hops for auto-add filtering. 0 = no limit, 1 = direct only, N = up to N-1 hops (max 64).
     public let maxHops: UInt8
@@ -1355,7 +1355,7 @@ extension MeshEvent {
             return result
         case .messageSent(let info):
             return [
-                "type": info.type,
+                "route": info.route,
                 "expectedAck": info.expectedAck
             ]
         case .statusResponse(let resp):
@@ -1395,5 +1395,18 @@ extension MeshEvent {
             return String(full[..<paren])
         }
         return full
+    }
+}
+
+extension MeshEvent {
+    /// The typed device error sub-code for an ``error(code:)`` event.
+    ///
+    /// Returns `nil` for non-error events, when the firmware omitted the
+    /// sub-code byte, or when the raw byte falls outside the known
+    /// ``ErrorCode`` range. The raw byte remains available on the
+    /// associated value of ``error(code:)`` for forward compatibility.
+    public var errorCode: ErrorCode? {
+        guard case .error(let code) = self, let code else { return nil }
+        return ErrorCode(rawValue: code)
     }
 }

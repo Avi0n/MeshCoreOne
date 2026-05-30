@@ -45,6 +45,13 @@ public enum MeshCoreError: Error, Sendable {
     /// The device returned an error code.
     case deviceError(code: UInt8)
 
+    /// The typed firmware sub-code for a ``deviceError(code:)``, or `nil` for
+    /// other cases and for raw codes outside the known ``ErrorCode`` range.
+    public var deviceErrorCode: ErrorCode? {
+        guard case .deviceError(let code) = self else { return nil }
+        return ErrorCode(rawValue: code)
+    }
+
     /// Failed to parse data from the device.
     case parseError(String)
 

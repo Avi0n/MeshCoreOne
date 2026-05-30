@@ -42,7 +42,7 @@ public enum LPPSensorType: UInt8, Sendable, CaseIterable {
     case percentage = 120
     /// Altitude (2 bytes, 1m resolution).
     case altitude = 121
-    /// Load (2 bytes, 0.01kg resolution).
+    /// Load (3 bytes, 0.001kg resolution, signed).
     case load = 122
     /// Concentration (2 bytes, 1 ppm resolution).
     case concentration = 125
@@ -73,10 +73,10 @@ public enum LPPSensorType: UInt8, Sendable, CaseIterable {
             1
         // 2-byte types
         case .analogInput, .analogOutput, .illuminance, .temperature, .barometer,
-             .voltage, .current, .altitude, .load, .concentration, .power, .direction:
+             .voltage, .current, .altitude, .concentration, .power, .direction:
             2
         // 3-byte types
-        case .colour:
+        case .colour, .load:
             3
         // 4-byte types
         case .genericSensor, .frequency, .distance, .energy, .unixTime:
@@ -322,8 +322,8 @@ public enum LPPDecoder {
             return .float(Double(raw))
 
         case .load:
-            let raw = readUInt16BE(data)
-            return .float(Double(raw) / 100.0)
+            let raw = readInt24BE(data, offset: 0)
+            return .float(Double(raw) / 1000.0)
 
         case .concentration:
             let raw = readUInt16BE(data)
@@ -342,7 +342,7 @@ public enum LPPDecoder {
             return .float(Double(raw) / 100.0)
 
         case .genericSensor:
-            let raw = readInt32BE(data)
+            let raw = readUInt32BE(data)
             return .integer(Int(raw))
 
         case .frequency:
@@ -407,14 +407,6 @@ public enum LPPDecoder {
     private static func readUInt16BE(_ data: Data, offset: Int = 0) -> UInt16 {
         guard offset + 2 <= data.count else { return 0 }
         return UInt16(data[offset]) << 8 | UInt16(data[offset + 1])
-    }
-
-    private static func readInt32BE(_ data: Data, offset: Int = 0) -> Int32 {
-        guard offset + 4 <= data.count else { return 0 }
-        return Int32(data[offset]) << 24
-             | Int32(data[offset + 1]) << 16
-             | Int32(data[offset + 2]) << 8
-             | Int32(data[offset + 3])
     }
 
     private static func readUInt32BE(_ data: Data, offset: Int = 0) -> UInt32 {

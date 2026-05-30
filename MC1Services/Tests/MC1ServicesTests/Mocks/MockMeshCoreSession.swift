@@ -23,7 +23,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
 
     /// Result to return from sendMessage
     public var stubbedSendMessageResult: Result<MessageSentInfo, Error> = .success(
-        MessageSentInfo(type: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 5000)
+        MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 5000)
     )
 
     /// Result to return from sendChannelMessage
@@ -52,7 +52,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
 
     /// Result to return from sendPathDiscovery
     public var stubbedSendPathDiscoveryResult: Result<MessageSentInfo, Error> = .success(
-        MessageSentInfo(type: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 5000)
+        MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 5000)
     )
 
     /// Channel info to return from getChannel, keyed by index

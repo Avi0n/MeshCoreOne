@@ -35,8 +35,13 @@ public enum RxLogParser {
         let pathLength = payload[offset]
         offset += 1
 
-        // Decode actual byte length from multibyte encoding
-        let pathByteLen = decodePathLen(pathLength)?.byteLength ?? 0
+        // Decode actual byte length from multibyte encoding.
+        // Mode 3 is reserved and decodePathLen returns nil; the firmware rejects
+        // the whole packet in that case, so fail the parse rather than mis-slicing
+        // the remainder as payload.
+        guard let pathByteLen = decodePathLen(pathLength)?.byteLength else {
+            return nil
+        }
 
         // Parse path nodes
         var pathNodes: [UInt8] = []
@@ -49,12 +54,15 @@ public enum RxLogParser {
         // Remaining bytes are packet payload
         let packetPayload = payload.count > offset ? Data(payload[offset...]) : Data()
 
-        // Extract dest and src hashes for direct text messages
+        // Extract dest and src hashes for text messages. The firmware prefixes every
+        // text message payload with these two hashes regardless of route type, so flood
+        // and direct packets share the same offsets; extracting for both lets the
+        // consumer resolve the sender name for flood-routed DMs too.
         // DM payload hashes are always 1 byte per MeshCore spec (PATH_HASH_SIZE = 1)
         var senderPubkeyPrefix: Data?
         var recipientPubkeyPrefix: Data?
         let payloadHashSize = 1
-        if (routeType == .direct || routeType == .tcDirect) && payloadType == .textMessage && packetPayload.count >= payloadHashSize * 2 {
+        if payloadType == .textMessage && packetPayload.count >= payloadHashSize * 2 {
             recipientPubkeyPrefix = Data(packetPayload[0..<payloadHashSize])
             senderPubkeyPrefix = Data(packetPayload[payloadHashSize..<payloadHashSize * 2])
         }

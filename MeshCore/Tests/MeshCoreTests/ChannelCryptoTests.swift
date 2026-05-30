@@ -315,4 +315,46 @@ struct ChannelCryptoTests {
             }
         }
     }
+
+    @Test("Decrypt with 32-byte secret uses first 16 bytes for AES")
+    func decryptThirtyTwoByteSecret() {
+        let message = "Carol: 256-bit key channel"
+        let timestamp: UInt32 = 1703123456
+        let txtType: UInt8 = 0
+
+        // 32-byte secret whose first 16 bytes match the canonical 16-byte testSecret.
+        // Firmware keys AES-128 with the first 16 bytes and HMAC-SHA256 with all 32.
+        let secret32 = testSecret + Data([
+            0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80,
+            0x90, 0xA0, 0xB0, 0xC0, 0xD0, 0xE0, 0xF0, 0x00
+        ])
+
+        // Build plaintext: [timestamp: 4B] [txt_type: 1B] [message bytes]
+        var plaintext = Data()
+        var ts = timestamp.littleEndian
+        plaintext.append(Data(bytes: &ts, count: 4))
+        plaintext.append(txtType)
+        plaintext.append(Data(message.utf8))
+
+        // Encrypt with the 16-byte AES key (the first 16 bytes of the secret).
+        guard let ciphertext = encryptAES128ECB(plaintext: plaintext, key: testSecret) else {
+            Issue.record("Failed to encrypt test payload")
+            return
+        }
+
+        // MAC over ciphertext, keyed with the full 32-byte secret.
+        let mac = computeMAC(data: ciphertext, key: secret32)
+        let payload = mac + ciphertext
+
+        let result = ChannelCrypto.decrypt(payload: payload, secret: secret32)
+
+        switch result {
+        case .success(let resultTs, let resultType, let text):
+            #expect(resultTs == timestamp)
+            #expect(resultType == txtType)
+            #expect(text == message)
+        default:
+            Issue.record("Expected success for 32-byte secret")
+        }
+    }
 }

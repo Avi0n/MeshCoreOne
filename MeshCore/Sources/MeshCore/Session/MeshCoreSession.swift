@@ -1537,6 +1537,9 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ///   ``MeshCoreError/timeout`` if the device does not acknowledge the import,
     ///   or ``MeshCoreError/deviceError(code:)`` for a matched device error response.
     public func importPrivateKey(_ key: Data) async throws {
+        guard key.count == PacketBuilder.privateKeySize else {
+            throw MeshCoreError.invalidInput("Full \(PacketBuilder.privateKeySize)-byte private key required for importPrivateKey")
+        }
         let succeeded: Bool = try await sendAndWaitWithError(
             PacketBuilder.importPrivateKey(key)
         ) { event in
@@ -2054,6 +2057,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ///   - flags: Trace flags controlling behavior.
     ///   - path: Optional initial path to follow.
     /// - Returns: Information about the sent message, including tag and auth code.
+    /// - Throws: ``MeshCoreError/invalidInput`` if `path` is `nil` or empty; firmware
+    ///   requires at least one path byte and rejects a path-less trace frame.
     /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
     public func sendTrace(
         tag: UInt32? = nil,
@@ -2061,6 +2066,10 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         flags: UInt8 = 0,
         path: Data? = nil
     ) async throws -> MessageSentInfo {
+        guard let path, !path.isEmpty else {
+            throw MeshCoreError.invalidInput("Trace requires at least one path byte")
+        }
+
         let actualTag = tag ?? UInt32.random(in: 1...UInt32.max)
         let actualAuth = authCode ?? UInt32.random(in: 1...UInt32.max)
 
@@ -2090,6 +2099,23 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
     public func setFloodScope(_ scope: FloodScope) async throws {
         try await setFloodScope(scopeKey: scope.scopeKey())
+    }
+
+    /// Forces un-scoped flood broadcasts, overriding the device's persisted default
+    /// flood scope.
+    ///
+    /// Unlike ``setFloodScope(_:)`` (which resets the session scope and lets the device
+    /// fall back to its default), this sets the firmware `send_unscoped` flag so flood
+    /// packets are sent to all regions regardless of the configured default.
+    ///
+    /// Requires firmware ver 12+. Older firmware has no handler for sub-command 1 and
+    /// rejects the command with `ERR_CODE_UNSUPPORTED_CMD` (surfaced as
+    /// ``MeshCoreError/deviceError(code:)``), so callers must gate on the reported
+    /// firmware version before calling.
+    ///
+    /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
+    public func setFloodScopeUnscoped() async throws {
+        try await sendSimpleCommand(PacketBuilder.setFloodScopeUnscoped())
     }
 
     /// Persists the device's default flood scope.

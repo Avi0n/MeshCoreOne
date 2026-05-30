@@ -995,4 +995,64 @@ struct RoundTripTests {
             Issue.record("Expected vector3 value for accelerometer")
         }
     }
+
+    @Test("ChannelMessage v3 empty-text broadcast parses at firmware-minimum size")
+    func channelMessageV3EmptyTextParses() {
+        var data = Data()
+        let snrRaw: Int8 = -20  // -5.0 dB * 4
+        let reserved: UInt16 = 0
+        let channel: UInt8 = 2
+        let pathLen: UInt8 = 0
+        let txtType: UInt8 = 0
+        let timestamp: UInt32 = 1704067200
+
+        data.append(UInt8(bitPattern: snrRaw))
+        data.append(contentsOf: withUnsafeBytes(of: reserved.littleEndian) { Data($0) })
+        data.append(channel)
+        data.append(pathLen)
+        data.append(txtType)
+        data.append(contentsOf: withUnsafeBytes(of: timestamp.littleEndian) { Data($0) })
+        // No text bytes appended: firmware emits this when strlen(text) == 0.
+
+        #expect(data.count == 10)
+
+        let event = Parsers.ChannelMessage.parse(data, version: .v3)
+
+        guard case .channelMessageReceived(let msg) = event else {
+            Issue.record("Expected .channelMessageReceived event for empty-text broadcast, got \(event)")
+            return
+        }
+
+        #expect(msg.channelIndex == channel)
+        #expect(msg.pathLength == pathLen)
+        #expect(msg.text.isEmpty)
+    }
+
+    @Test("ChannelMessage v1 empty-text broadcast parses at firmware-minimum size")
+    func channelMessageV1EmptyTextParses() {
+        var data = Data()
+        let channel: UInt8 = 3
+        let pathLen: UInt8 = 0
+        let txtType: UInt8 = 0
+        let timestamp: UInt32 = 1704067200
+
+        data.append(channel)
+        data.append(pathLen)
+        data.append(txtType)
+        data.append(contentsOf: withUnsafeBytes(of: timestamp.littleEndian) { Data($0) })
+        // No text bytes appended: firmware emits this when strlen(text) == 0.
+
+        #expect(data.count == 7)
+
+        let event = Parsers.ChannelMessage.parse(data, version: .v1)
+
+        guard case .channelMessageReceived(let msg) = event else {
+            Issue.record("Expected .channelMessageReceived event for empty-text broadcast, got \(event)")
+            return
+        }
+
+        #expect(msg.channelIndex == channel)
+        #expect(msg.pathLength == pathLen)
+        #expect(msg.text.isEmpty)
+    }
 }

@@ -118,6 +118,11 @@ public enum CommandCode: UInt8, Sendable {
     case setDefaultFloodScope = 0x3F
     /// Gets the persisted default flood scope. Firmware v11+ (MeshCore v1.15.0+).
     case getDefaultFloodScope = 0x40
+    /// Injects a raw packet onto the mesh (priority byte followed by the raw packet bytes). Firmware v12+.
+    ///
+    /// No builder is provided; MC1 does not use raw-packet injection. The case exists so the
+    /// command table stays complete against firmware.
+    case sendRawPacket = 0x41
 }
 
 /// Defines the response codes received from the mesh device.
@@ -268,8 +273,8 @@ public enum StatsType: UInt8, Sendable {
 public enum TextType: UInt8, Sendable {
     /// Plain UTF-8 text.
     case plainText = 0x00
-    /// Raw binary data.
-    case binary = 0x01
+    /// A CLI command (firmware TXT_TYPE_CLI_DATA).
+    case cliData = 0x01
     /// Cryptographically signed message.
     case signed = 0x02
 }

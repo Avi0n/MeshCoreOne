@@ -16,9 +16,9 @@ enum PacketSize {
     /// Minimum size for version 3 contact messages.
     static let contactMessageV3Minimum = 15
     /// Minimum size for version 1 channel messages.
-    static let channelMessageV1Minimum = 8
+    static let channelMessageV1Minimum = 7
     /// Minimum size for version 3 channel messages.
-    static let channelMessageV3Minimum = 11
+    static let channelMessageV3Minimum = 10
     /// Minimum size for private key export.
     static let privateKeyMinimum = 64
     /// Minimum size for basic battery info.
@@ -1740,11 +1740,11 @@ enum MMAParser {
         case .altitude:
             return Double(readInt16BE(data))
         case .load:
-            return Double(readUInt16BE(data)) / 100.0
+            return Double(readInt24BE(data)) / 1000.0
         case .analogInput, .analogOutput:
             return Double(readInt16BE(data)) / 100.0
         case .genericSensor:
-            return Double(readInt32BE(data))
+            return Double(readUInt32BE(data))
         case .frequency:
             return Double(readUInt32BE(data))
         case .distance, .energy:
@@ -1763,17 +1763,23 @@ enum MMAParser {
         return Int16(data[offset]) << 8 | Int16(data[offset + 1])
     }
 
+    /// Reads a 24-bit signed integer (Big-Endian).
+    private static func readInt24BE(_ data: Data, offset: Int = 0) -> Int32 {
+        guard offset + 3 <= data.count else { return 0 }
+        var value: Int32 = Int32(data[offset]) << 16
+                         | Int32(data[offset + 1]) << 8
+                         | Int32(data[offset + 2])
+        // Sign extend if negative (bit 23 is set)
+        if value & 0x800000 != 0 {
+            value |= Int32(bitPattern: 0xFF000000)
+        }
+        return value
+    }
+
     /// Reads a 16-bit unsigned integer (Big-Endian).
     private static func readUInt16BE(_ data: Data, offset: Int = 0) -> UInt16 {
         guard offset + 2 <= data.count else { return 0 }
         return UInt16(data[offset]) << 8 | UInt16(data[offset + 1])
-    }
-
-    /// Reads a 32-bit signed integer (Big-Endian).
-    private static func readInt32BE(_ data: Data, offset: Int = 0) -> Int32 {
-        guard offset + 4 <= data.count else { return 0 }
-        return Int32(data[offset]) << 24 | Int32(data[offset + 1]) << 16
-             | Int32(data[offset + 2]) << 8 | Int32(data[offset + 3])
     }
 
     /// Reads a 32-bit unsigned integer (Big-Endian).

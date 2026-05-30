@@ -627,7 +627,7 @@ struct MessageServiceACKTests {
         // Retry loop's waitForEvent matched the same ACK, so finalizeSend runs
         // with sentInfo != nil. It must NOT clobber the listener-written RTT.
         let sentInfo = MessageSentInfo(
-            type: 0,
+            route: 0,
             expectedAck: ackCode,
             suggestedTimeoutMs: 5000
         )
@@ -676,7 +676,7 @@ struct MessageServiceACKTests {
         )
 
         let sentInfo = MessageSentInfo(
-            type: 0,
+            route: 0,
             expectedAck: ackCode,
             suggestedTimeoutMs: 5000
         )

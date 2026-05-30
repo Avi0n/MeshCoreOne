@@ -61,7 +61,7 @@ public enum DestinationError: Error, Sendable {
 }
 
 /// Defines the scope for flood routing in the mesh network.
-public enum FloodScope: Sendable {
+public enum FloodScope: Sendable, Equatable {
     /// Flood routing is disabled.
     case disabled
     /// Scope based on a channel name.
