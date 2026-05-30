@@ -35,6 +35,7 @@ struct SettingsView: View {
 
 private struct SettingsListContent: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.openURL) private var openURL
     @Binding var showingDeviceSelection: Bool
     @Bindable var demoModeManager: DemoModeManager
@@ -60,6 +61,8 @@ private struct SettingsListContent: View {
                 } label: {
                     TintedLabel(L10n.Settings.ChatSettings.title, systemImage: "bubble.left.and.bubble.right")
                 }
+
+                AppearanceSection()
 
                 TipView(liveActivityTip, arrowEdge: .bottom)
 
@@ -108,6 +111,7 @@ private struct SettingsListContent: View {
             } header: {
                 Text(L10n.Settings.AppSettings.header)
             }
+            .themedRowBackground(theme)
 
             AboutSection()
 
@@ -121,6 +125,7 @@ private struct SettingsListContent: View {
                 } footer: {
                     Text(L10n.Settings.DemoMode.footer)
                 }
+                .themedRowBackground(theme)
             }
 
             #if DEBUG
@@ -133,7 +138,10 @@ private struct SettingsListContent: View {
             } header: {
                 Text("Debug")
             }
+            .themedRowBackground(theme)
             #endif
+
+            SupportDevelopmentSection()
 
             Section {
             } footer: {
@@ -147,7 +155,9 @@ private struct SettingsListContent: View {
                 .padding(.bottom)
                 .frame(maxWidth: .infinity)
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Settings.title)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -173,6 +183,7 @@ private struct SettingsListContent: View {
 private struct MyDeviceSection: View {
     let device: DeviceDTO
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         Section {
@@ -215,6 +226,7 @@ private struct MyDeviceSection: View {
         } header: {
             Text(L10n.Settings.MyDevice.header)
         }
+        .themedRowBackground(theme)
     }
 
     private var radioDetailText: String {

@@ -4,22 +4,33 @@ import Foundation
 /// Adding a new theme, bundle, or tip means adding a constant here.
 public enum StoreCatalog {
     public enum Theme {
-        public static let nightops = "io.pocketmesh.app.theme.nightops"
-        public static let topographer = "io.pocketmesh.app.theme.topographer"
+        public static let ember = "io.pocketmesh.app.theme.ember"
+        public static let fern = "io.pocketmesh.app.theme.fern"
         public static let marine = "io.pocketmesh.app.theme.marine"
-        public static let tactical = "io.pocketmesh.app.theme.tactical"
-        public static let rose = "io.pocketmesh.app.theme.rose"
+        public static let olive = "io.pocketmesh.app.theme.olive"
         public static let lavender = "io.pocketmesh.app.theme.lavender"
         public static let sakura = "io.pocketmesh.app.theme.sakura"
+        public static let solarized = "io.pocketmesh.app.theme.solarized"
+        public static let nord = "io.pocketmesh.app.theme.nord"
+        public static let catppuccin = "io.pocketmesh.app.theme.catppuccin"
         public static let bundleAll = "io.pocketmesh.app.theme.bundle.all"
 
-        /// The seven individual theme product IDs (excludes the bundle).
+        /// The named application themes.
         public static let individualIDs: Set<String> =
-            [nightops, topographer, marine, tactical, rose, lavender, sakura]
+            [ember, fern, marine, olive, lavender, sakura]
+
+        /// The reference-palette themes (Solarized, Nord, Catppuccin).
+        public static let referenceIDs: Set<String> =
+            [solarized, nord, catppuccin]
+
+        /// Every theme a user can buy on its own. The `bundleAll` purchase grants this entire set,
+        /// and the entitlement walker uses it to decide whether a purchased product unlocks itself.
+        public static let purchasableIndividually: Set<String> =
+            individualIDs.union(referenceIDs)
 
         /// All theme-related product IDs, including the bundle.
         public static let all: Set<String> =
-            individualIDs.union([bundleAll])
+            individualIDs.union(referenceIDs).union([bundleAll])
     }
 
     public enum Tip {
