@@ -9,7 +9,7 @@ MeshCore-references/
 
 # AI
 .claude
-.agent
+.agent*
 .ignore
 CLAUDE.md
 AGENTS.md
@@ -18,6 +18,8 @@ plans/
 specs/
 tmp/
 .xcodebuildmcp/
+
+*lock.json
 
 scripts/
 
