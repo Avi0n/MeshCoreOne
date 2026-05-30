@@ -15,35 +15,27 @@ public enum StoreCatalog {
         public static let catppuccin = "io.pocketmesh.app.theme.catppuccin"
         public static let bundleAll = "io.pocketmesh.app.theme.bundle.all"
 
-        /// The named application themes.
-        public static let individualIDs: Set<String> =
-            [ember, fern, marine, olive, lavender, sakura]
-
-        /// The reference-palette themes (Solarized, Nord, Catppuccin).
-        public static let referenceIDs: Set<String> =
-            [solarized, nord, catppuccin]
-
-        /// Every theme a user can buy on its own. The `bundleAll` purchase grants this entire set,
-        /// and the entitlement walker uses it to decide whether a purchased product unlocks itself.
-        public static let purchasableIndividually: Set<String> =
-            individualIDs.union(referenceIDs)
-
-        /// All theme-related product IDs, including the bundle.
-        public static let all: Set<String> =
-            individualIDs.union(referenceIDs).union([bundleAll])
+        /// Every theme the `bundleAll` purchase unlocks. Themes are not sold individually — the
+        /// bundle is the only theme purchase — so this set is purely the bundle's entitlement
+        /// expansion and the per-theme ownership keys used to render locked/owned state.
+        public static let bundledThemeIDs: Set<String> =
+            [ember, fern, marine, olive, lavender, sakura, solarized, nord, catppuccin]
     }
 
     public enum Tip {
-        public static let coffee = "io.pocketmesh.app.tip.coffee"
-        public static let lunch = "io.pocketmesh.app.tip.lunch"
-        public static let dinner = "io.pocketmesh.app.tip.dinner"
-        public static let generous = "io.pocketmesh.app.tip.generous"
-        public static let massive = "io.pocketmesh.app.tip.massive"
-        public static let epic = "io.pocketmesh.app.tip.epic"
+        public static let coffee = "io.pocketmesh.app.tips.coffee"
+        public static let lunch = "io.pocketmesh.app.tips.lunch"
+        public static let dinner = "io.pocketmesh.app.tips.dinner"
+        public static let generous = "io.pocketmesh.app.tips.generous"
+        public static let massive = "io.pocketmesh.app.tips.massive"
+        public static let epic = "io.pocketmesh.app.tips.epic"
 
         public static let all: Set<String> = [coffee, lunch, dinner, generous, massive, epic]
     }
 
-    public static let allProductIDs: Set<String> =
-        Theme.all.union(Tip.all)
+    /// The product IDs the app fetches from the App Store and sells: the All Themes bundle and the
+    /// tips. Individual themes are not sold, so they are never requested from StoreKit — the bundle
+    /// purchase confers them as entitlements via `Theme.bundledThemeIDs`.
+    public static let sellableProductIDs: Set<String> =
+        Tip.all.union([Theme.bundleAll])
 }

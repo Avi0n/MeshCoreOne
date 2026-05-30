@@ -219,12 +219,12 @@ final class ThemeServiceOwnershipTests {
         UserDefaults(suiteName: "test.\(UUID().uuidString)")!
     }
 
-    @Test("an owned individual theme is accessible and selectable")
-    func ownedIndividualThemeAccessible() async throws {
+    @Test("a theme owned via the bundle is accessible and selectable")
+    func ownedThemeAccessible() async throws {
         let store = StoreService()
         await store.load()
-        let ember = try #require(store.product(for: StoreCatalog.Theme.ember))
-        _ = try await purchaseWithRetry(ember, on: store)
+        let bundle = try #require(store.product(for: StoreCatalog.Theme.bundleAll))
+        _ = try await purchaseWithRetry(bundle, on: store)
         store.shutdown()
 
         let theme = ThemeService(store: store, defaults: freshDefaults())
@@ -246,20 +246,20 @@ final class ThemeServiceOwnershipTests {
                 == Set(ThemeRegistry.allThemes.map(\.id)))
     }
 
-    @Test("refunding the selected theme reverts ThemeService to default via the listener")
+    @Test("refunding the bundle reverts the selected theme to default via the listener")
     func refundRevertsSelectedTheme() async throws {
         let store = StoreService()              // listener stays live for the refund path
         await store.load()
         let defaults = freshDefaults()
         let theme = ThemeService(store: store, defaults: defaults)
 
-        let ember = try #require(store.product(for: StoreCatalog.Theme.ember))
-        _ = try await purchaseWithRetry(ember, on: store)
+        let bundle = try #require(store.product(for: StoreCatalog.Theme.bundleAll))
+        _ = try await purchaseWithRetry(bundle, on: store)
         try theme.setCurrent(.ember)
         #expect(theme.current.id == Theme.ember.id)
 
         let txn = try #require(session.allTransactions().first {
-            $0.productIdentifier == StoreCatalog.Theme.ember
+            $0.productIdentifier == StoreCatalog.Theme.bundleAll
         })
         try session.refundTransaction(identifier: txn.identifier)
 
@@ -267,31 +267,6 @@ final class ThemeServiceOwnershipTests {
             theme.current.id == Theme.default.id
         }
         #expect(defaults.string(forKey: PersistenceKeys.selectedThemeID) == Theme.default.id)
-    }
-
-    @Test("refunding the bundle keeps a theme that is also owned individually")
-    func refundBundleKeepsIndividuallyOwned() async throws {
-        let store = StoreService()
-        await store.load()
-        let defaults = freshDefaults()
-        let theme = ThemeService(store: store, defaults: defaults)
-
-        let marine = try #require(store.product(for: StoreCatalog.Theme.marine))
-        let bundle = try #require(store.product(for: StoreCatalog.Theme.bundleAll))
-        _ = try await purchaseWithRetry(marine, on: store)
-        _ = try await purchaseWithRetry(bundle, on: store)
-        try theme.setCurrent(.marine)
-
-        let bundleTxn = try #require(session.allTransactions().first {
-            $0.productIdentifier == StoreCatalog.Theme.bundleAll
-        })
-        try session.refundTransaction(identifier: bundleTxn.identifier)
-
-        try await waitUntil(timeout: .seconds(5)) {
-            store.ownedThemeIDs == [StoreCatalog.Theme.marine]
-        }
-        // Marine is still owned individually, so the selection must not revert.
-        #expect(theme.current.id == Theme.marine.id)
     }
 
     @Test("the load() walk does not wipe a persisted theme on an empty ownership read")

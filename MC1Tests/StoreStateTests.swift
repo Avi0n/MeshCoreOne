@@ -78,17 +78,17 @@ final class StoreStatePurchaseTests {
 
     deinit { session.clearTransactions() }
 
-    @Test("buying a theme sets no error and leaves no pending purchase")
-    func purchaseThemeNoPending() async throws {
+    @Test("buying the bundle sets no error and leaves no pending purchase")
+    func purchaseBundleNoPending() async throws {
         let service = StoreService()
         await service.load()
         let state = StoreState(service: service)
 
-        await state.purchase(productID: StoreCatalog.Theme.marine) { try await $0.purchase() }
+        await state.purchase(productID: StoreCatalog.Theme.bundleAll) { try await $0.purchase() }
 
         #expect(state.errorMessage == nil)
         #expect(state.pendingPurchase == nil)
-        #expect(service.ownedThemeIDs.contains(StoreCatalog.Theme.marine))
+        #expect(service.ownedThemeIDs == StoreCatalog.Theme.bundledThemeIDs)
     }
 
     @Test("an Ask-to-Buy purchase sets a pending banner, then reconcile clears it on approval")
@@ -98,16 +98,16 @@ final class StoreStatePurchaseTests {
         await service.load()
         let state = StoreState(service: service)
 
-        await state.purchase(productID: StoreCatalog.Theme.fern) { try await $0.purchase() }
-        #expect(state.pendingPurchase?.productID == StoreCatalog.Theme.fern)
+        await state.purchase(productID: StoreCatalog.Theme.bundleAll) { try await $0.purchase() }
+        #expect(state.pendingPurchase?.productID == StoreCatalog.Theme.bundleAll)
 
         let pending = try #require(session.allTransactions().first {
-            $0.productIdentifier == StoreCatalog.Theme.fern
+            $0.productIdentifier == StoreCatalog.Theme.bundleAll
         })
         try session.approveAskToBuyTransaction(identifier: pending.identifier)
 
         try await waitUntil(timeout: .seconds(5)) {
-            service.ownedThemeIDs.contains(StoreCatalog.Theme.fern)
+            service.ownedThemeIDs == StoreCatalog.Theme.bundledThemeIDs
         }
         state.reconcilePendingPurchase()
         #expect(state.pendingPurchase == nil)
@@ -131,11 +131,11 @@ final class StoreStatePurchaseTests {
         await service.load()
         let state = StoreState(service: service)
 
-        let result = await state.purchase(productID: StoreCatalog.Theme.marine) { try await $0.purchase() }
+        let result = await state.purchase(productID: StoreCatalog.Theme.bundleAll) { try await $0.purchase() }
 
         #expect(result == true)
         #expect(state.errorMessage == nil)
-        #expect(service.ownedThemeIDs.contains(StoreCatalog.Theme.marine))
+        #expect(service.ownedThemeIDs == StoreCatalog.Theme.bundledThemeIDs)
     }
 
     @Test("purchase returns false on .userCancelled without setting an error or pending banner")
@@ -146,7 +146,7 @@ final class StoreStatePurchaseTests {
 
         // SKTestSession exposes no `.userCancelled` `Product.PurchaseResult`; the purchase closure
         // stubs it so this branch is reachable from tests.
-        let result = await state.purchase(productID: StoreCatalog.Theme.marine) { _ in .userCancelled }
+        let result = await state.purchase(productID: StoreCatalog.Theme.bundleAll) { _ in .userCancelled }
 
         #expect(result == false)
         #expect(state.errorMessage == nil)
@@ -155,14 +155,14 @@ final class StoreStatePurchaseTests {
 
     @Test("an unrelated .purchased does not clear an in-flight pending purchase")
     func purchaseDoesNotClearUnrelatedPending() async throws {
-        // Ask-to-Buy on while Ember is bought: outcome is .pending, banner is set.
+        // Ask-to-Buy on while the bundle is bought: outcome is .pending, banner is set.
         session.askToBuyEnabled = true
         let service = StoreService()
         await service.load()
         let state = StoreState(service: service)
 
-        _ = await state.purchase(productID: StoreCatalog.Theme.ember) { try await $0.purchase() }
-        #expect(state.pendingPurchase?.productID == StoreCatalog.Theme.ember)
+        _ = await state.purchase(productID: StoreCatalog.Theme.bundleAll) { try await $0.purchase() }
+        #expect(state.pendingPurchase?.productID == StoreCatalog.Theme.bundleAll)
 
         // Ask-to-Buy off so the next purchase completes immediately.
         session.askToBuyEnabled = false
@@ -170,8 +170,8 @@ final class StoreStatePurchaseTests {
 
         #expect(coffeeResult == true)
         // Clearing the pending banner is gated on matching productID, so completing an
-        // unrelated tip purchase leaves Ember's banner intact.
-        #expect(state.pendingPurchase?.productID == StoreCatalog.Theme.ember)
+        // unrelated tip purchase leaves the bundle's banner intact.
+        #expect(state.pendingPurchase?.productID == StoreCatalog.Theme.bundleAll)
     }
 
     @Test("restore that the user cancels maps to .cancelled, not .completed")

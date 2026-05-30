@@ -63,7 +63,7 @@ public final class StoreService {
     /// Loads the catalog and walks current entitlements. Non-throwing: surfaces failure via
     /// `loadState`. `productIDs` defaults to the full catalog; tests override it to exercise
     /// the empty-result path.
-    public func load(productIDs: Set<String> = StoreCatalog.allProductIDs) async {
+    public func load(productIDs: Set<String> = StoreCatalog.sellableProductIDs) async {
         loadState = .loading
         await processUnfinishedTransactions()
         do {
@@ -181,9 +181,8 @@ public final class StoreService {
             return
         }
         if transaction.revocationDate != nil {
-            // A revocation can overlap the bundle and an individual purchase, so it cannot be
-            // folded additively (subtracting the bundle's expansion would drop a separately owned
-            // theme). Rebuild from currentEntitlements, which reflects the true remaining set.
+            // A refund or revocation is rare and the authoritative remaining set is whatever
+            // currentEntitlements reports, so rebuild from it rather than fold the change in.
             await walkCurrentEntitlements()
         } else {
             apply(transaction)
@@ -225,20 +224,16 @@ public final class StoreService {
     }
 
     /// The theme product IDs an entitlement for `productID` confers: the bundle unlocks every
-    /// purchasable theme, any standalone theme unlocks itself, and anything else (tips) unlocks none.
+    /// bundled theme, and anything else (tips) unlocks none. Themes are sold only as the bundle,
+    /// so no standalone theme entitlement is ever granted.
     private func affectedThemeIDs(forProductID productID: String) -> Set<String> {
-        if productID == StoreCatalog.Theme.bundleAll {
-            return StoreCatalog.Theme.purchasableIndividually
-        } else if StoreCatalog.Theme.purchasableIndividually.contains(productID) {
-            return [productID]
-        }
-        return []
+        productID == StoreCatalog.Theme.bundleAll ? StoreCatalog.Theme.bundledThemeIDs : []
     }
 
     /// Folds a verified transaction's entitlement into `ownedThemeIDs` directly, without re-reading
     /// `Transaction.currentEntitlements` — which can lag or return empty immediately after a
     /// purchase, leaving the just-bought theme locked. Grant paths (`purchase`, Ask-to-Buy
-    /// approval) use this; revocation does not, since the bundle overlap requires a full rebuild.
+    /// approval) use this; revocation does not, since a refund rebuilds from currentEntitlements.
     private func apply(_ transaction: Transaction) {
         applyEntitlement(productID: transaction.productID, isRevoked: transaction.revocationDate != nil)
     }

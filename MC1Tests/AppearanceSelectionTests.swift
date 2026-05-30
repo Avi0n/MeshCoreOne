@@ -33,17 +33,16 @@ final class AppearanceSelectionTests {
         #expect(AppearanceView.shouldShowBrowseMore(available: theme.availableToCurrentUser()))
     }
 
-    @Test("an owned theme becomes available; selecting it updates current")
+    @Test("a theme owned via the bundle becomes available; selecting it updates current")
     func ownedThemeSelectable() async throws {
         let store = StoreService()
         await store.load()
-        let marine = try #require(store.product(for: StoreCatalog.Theme.marine))
-        _ = try await purchaseWithRetry(marine, on: store)
+        let bundle = try #require(store.product(for: StoreCatalog.Theme.bundleAll))
+        _ = try await purchaseWithRetry(bundle, on: store)
         let theme = ThemeService(store: store, defaults: freshDefaults())
 
         let available = theme.availableToCurrentUser().map(\.id)
         #expect(available.contains(Theme.marine.id))
-        #expect(!available.contains(Theme.ember.id))   // locked theme excluded
 
         try theme.setCurrent(.marine)
         #expect(theme.current.id == Theme.marine.id)

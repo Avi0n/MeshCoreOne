@@ -27,10 +27,10 @@ struct ThemeRegistryTests {
         #expect(paid.allSatisfy { $0.productID != nil })
     }
 
-    @Test("paid theme productIDs match StoreCatalog's individually purchasable IDs")
+    @Test("paid theme productIDs match StoreCatalog's bundled theme IDs")
     func productIDsMatchCatalog() {
         let registryProductIDs = Set(ThemeRegistry.allThemes.compactMap { $0.productID })
-        #expect(registryProductIDs == StoreCatalog.Theme.purchasableIndividually)
+        #expect(registryProductIDs == StoreCatalog.Theme.bundledThemeIDs)
         #expect(Theme.ember.productID == StoreCatalog.Theme.ember)
         #expect(Theme.solarized.productID == StoreCatalog.Theme.solarized)
     }

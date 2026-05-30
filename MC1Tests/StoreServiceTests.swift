@@ -29,10 +29,10 @@ final class StoreServiceTests {
 
     deinit { session.clearTransactions() }
 
-    @Test("the bundled configuration exposes all 16 products")
+    @Test("the bundled configuration exposes all seven sellable products")
     func configExposesAllProducts() async throws {
-        let products = try await Product.products(for: StoreCatalog.allProductIDs)
-        #expect(products.count == 16)
+        let products = try await Product.products(for: StoreCatalog.sellableProductIDs)
+        #expect(products.count == 7)
     }
 
     @Test("load populates products and reports loaded")
@@ -40,8 +40,8 @@ final class StoreServiceTests {
         let service = StoreService()
         await service.load()
         #expect(service.loadState == .loaded)
-        #expect(service.products.count == 16)
-        #expect(service.product(for: StoreCatalog.Theme.ember) != nil)
+        #expect(service.products.count == 7)
+        #expect(service.product(for: StoreCatalog.Theme.bundleAll) != nil)
     }
 
     @Test("a clean account owns no themes after load")
@@ -67,45 +67,20 @@ final class StoreServiceTests {
         #expect(service.transactionListenerTask == nil)
     }
 
-    @Test("buying a theme grants its entitlement and finishes the transaction")
-    func purchaseThemeGrantsEntitlement() async throws {
-        let service = StoreService()
-        await service.load()
-        let ember = try #require(service.product(for: StoreCatalog.Theme.ember))
-
-        let callbackCount = MutableBox(0)
-        service.onEntitlementsChanged = { callbackCount.value += 1 }
-
-        let outcome = try await purchaseWithRetry(ember, on: service)
-
-        #expect(outcome == .purchased)
-        #expect(service.ownedThemeIDs.contains(StoreCatalog.Theme.ember))
-        #expect(callbackCount.value >= 1)
-    }
-
-    @Test("buying the bundle grants every purchasable theme")
+    @Test("buying the bundle grants every theme, fires the callback, and finishes the transaction")
     func purchaseBundleGrantsAllThemes() async throws {
         let service = StoreService()
         await service.load()
         let bundle = try #require(service.product(for: StoreCatalog.Theme.bundleAll))
 
+        let callbackCount = MutableBox(0)
+        service.onEntitlementsChanged = { callbackCount.value += 1 }
+
         let outcome = try await purchaseWithRetry(bundle, on: service)
 
         #expect(outcome == .purchased)
-        #expect(service.ownedThemeIDs == StoreCatalog.Theme.purchasableIndividually)
-    }
-
-    @Test("bundle ownership coexists with a previously bought individual theme")
-    func bundleCoexistsWithIndividual() async throws {
-        let service = StoreService()
-        await service.load()
-        let marine = try #require(service.product(for: StoreCatalog.Theme.marine))
-        let bundle = try #require(service.product(for: StoreCatalog.Theme.bundleAll))
-
-        _ = try await purchaseWithRetry(marine, on: service)
-        _ = try await purchaseWithRetry(bundle, on: service)
-
-        #expect(service.ownedThemeIDs == StoreCatalog.Theme.purchasableIndividually)
+        #expect(service.ownedThemeIDs == StoreCatalog.Theme.bundledThemeIDs)
+        #expect(callbackCount.value >= 1)
     }
 
     @Test("buying a consumable tip succeeds without granting a theme entitlement")
@@ -148,41 +123,21 @@ final class StoreServiceTests {
         #expect(received.value == [StoreCatalog.Tip.coffee])
     }
 
-    @Test("refunding a theme revokes its entitlement via the listener")
-    func refundRevokesTheme() async throws {
+    @Test("refunding the bundle revokes its theme entitlements via the listener")
+    func refundRevokesThemes() async throws {
         let service = StoreService()
         await service.load()
-        let ember = try #require(service.product(for: StoreCatalog.Theme.ember))
-        _ = try await purchaseWithRetry(ember, on: service)
-        #expect(service.ownedThemeIDs.contains(StoreCatalog.Theme.ember))
+        let bundle = try #require(service.product(for: StoreCatalog.Theme.bundleAll))
+        _ = try await purchaseWithRetry(bundle, on: service)
+        #expect(service.ownedThemeIDs == StoreCatalog.Theme.bundledThemeIDs)
 
         let txn = try #require(session.allTransactions().first {
-            $0.productIdentifier == StoreCatalog.Theme.ember
+            $0.productIdentifier == StoreCatalog.Theme.bundleAll
         })
         try session.refundTransaction(identifier: txn.identifier)
 
         try await waitUntil(timeout: .seconds(5)) {
-            !service.ownedThemeIDs.contains(StoreCatalog.Theme.ember)
-        }
-    }
-
-    @Test("refunding the bundle leaves an independently bought theme intact")
-    func refundBundleKeepsIndividual() async throws {
-        let service = StoreService()
-        await service.load()
-        let marine = try #require(service.product(for: StoreCatalog.Theme.marine))
-        let bundle = try #require(service.product(for: StoreCatalog.Theme.bundleAll))
-        _ = try await purchaseWithRetry(marine, on: service)
-        _ = try await purchaseWithRetry(bundle, on: service)
-        #expect(service.ownedThemeIDs == StoreCatalog.Theme.purchasableIndividually)
-
-        let bundleTxn = try #require(session.allTransactions().first {
-            $0.productIdentifier == StoreCatalog.Theme.bundleAll
-        })
-        try session.refundTransaction(identifier: bundleTxn.identifier)
-
-        try await waitUntil(timeout: .seconds(5)) {
-            service.ownedThemeIDs == [StoreCatalog.Theme.marine]
+            service.ownedThemeIDs.isEmpty
         }
     }
 
@@ -192,25 +147,25 @@ final class StoreServiceTests {
         // the transaction unfinished. product.purchase() is synchronously consistent (unlike the
         // eventually-consistent session.buyProduct), so the transaction is committed before any
         // StoreService exists and load()'s drain path sees it deterministically.
-        let fern = try #require(
-            try await Product.products(for: [StoreCatalog.Theme.fern]).first
+        let bundle = try #require(
+            try await Product.products(for: [StoreCatalog.Theme.bundleAll]).first
         )
-        try await purchaseUnfinished(fern)
+        try await purchaseUnfinished(bundle)
 
         // Guard against any residual lag before Transaction.unfinished reflects the committed sale.
         try await waitUntil(
             timeout: .seconds(5),
             pollingInterval: .milliseconds(100),
-            "committed fern transaction did not surface in Transaction.unfinished"
+            "committed bundle transaction did not surface in Transaction.unfinished"
         ) {
-            await self.hasUnfinished(StoreCatalog.Theme.fern)
+            await self.hasUnfinished(StoreCatalog.Theme.bundleAll)
         }
 
         let service = StoreService()
         service.shutdown()   // detach the listener so only load()'s drain path can finish the transaction
         await service.load()
 
-        #expect(service.ownedThemeIDs.contains(StoreCatalog.Theme.fern))
+        #expect(service.ownedThemeIDs == StoreCatalog.Theme.bundledThemeIDs)
 
         var remainingUnfinished = 0
         for await _ in Transaction.unfinished { remainingUnfinished += 1 }
@@ -221,16 +176,16 @@ final class StoreServiceTests {
     func restoreRecoversEntitlements() async throws {
         // Establish ownership via the synchronously-consistent product.purchase(), then build a
         // fresh service whose ownedThemeIDs starts empty and recover it through restore.
-        let sakura = try #require(
-            try await Product.products(for: [StoreCatalog.Theme.sakura]).first
+        let bundle = try #require(
+            try await Product.products(for: [StoreCatalog.Theme.bundleAll]).first
         )
-        try await purchaseUnfinished(sakura)
+        try await purchaseUnfinished(bundle)
 
         let service = StoreService()
         service.shutdown()   // isolate the restore path from the listener
         try await service.restorePurchases()
 
-        #expect(service.ownedThemeIDs.contains(StoreCatalog.Theme.sakura))
+        #expect(service.ownedThemeIDs == StoreCatalog.Theme.bundledThemeIDs)
     }
 
     @Test("Ask-to-Buy yields a pending outcome, then the approval grants entitlement")
@@ -238,19 +193,19 @@ final class StoreServiceTests {
         session.askToBuyEnabled = true
         let service = StoreService()
         await service.load()
-        let lavender = try #require(service.product(for: StoreCatalog.Theme.lavender))
+        let bundle = try #require(service.product(for: StoreCatalog.Theme.bundleAll))
 
-        let outcome = try await purchaseWithRetry(lavender, on: service)
+        let outcome = try await purchaseWithRetry(bundle, on: service)
         #expect(outcome == .pending)
-        #expect(!service.ownedThemeIDs.contains(StoreCatalog.Theme.lavender))
+        #expect(service.ownedThemeIDs.isEmpty)
 
         let pending = try #require(session.allTransactions().first {
-            $0.productIdentifier == StoreCatalog.Theme.lavender
+            $0.productIdentifier == StoreCatalog.Theme.bundleAll
         })
         try session.approveAskToBuyTransaction(identifier: pending.identifier)
 
         try await waitUntil(timeout: .seconds(5)) {
-            service.ownedThemeIDs.contains(StoreCatalog.Theme.lavender)
+            service.ownedThemeIDs == StoreCatalog.Theme.bundledThemeIDs
         }
     }
 
@@ -258,15 +213,15 @@ final class StoreServiceTests {
     func listenerLoadIdempotence() async throws {
         let service = StoreService()
         await service.load()
-        let olive = try #require(service.product(for: StoreCatalog.Theme.olive))
+        let bundle = try #require(service.product(for: StoreCatalog.Theme.bundleAll))
 
-        _ = try await purchaseWithRetry(olive, on: service)   // listener + purchase both walk
+        _ = try await purchaseWithRetry(bundle, on: service)   // listener + purchase both walk
         let afterPurchase = service.ownedThemeIDs
         await service.load()                                     // walk again
         let afterReload = service.ownedThemeIDs
 
         #expect(afterPurchase == afterReload)
-        #expect(afterReload == [StoreCatalog.Theme.olive])
+        #expect(afterReload == StoreCatalog.Theme.bundledThemeIDs)
     }
 
     // MARK: - SKTestSession robustness helpers

@@ -122,7 +122,7 @@ public final class StoreState {
         guard let pending = pendingPurchase else { return }
         let owned = service.ownedThemeIDs
         let isResolved = pending.productID == StoreCatalog.Theme.bundleAll
-            ? owned.isSuperset(of: StoreCatalog.Theme.purchasableIndividually)
+            ? owned.isSuperset(of: StoreCatalog.Theme.bundledThemeIDs)
             : owned.contains(pending.productID)
         if isResolved { pendingPurchase = nil }
     }

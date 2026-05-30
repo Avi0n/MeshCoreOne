@@ -4,41 +4,30 @@ import Testing
 @Suite("StoreCatalog")
 struct StoreCatalogTests {
 
-    @Test("allProductIDs contains every theme, the bundle, and every tip")
-    func allProductIDsCount() {
-        #expect(StoreCatalog.allProductIDs.count == 16)
+    @Test("sellableProductIDs are the bundle plus the six tips — themes are not sold standalone")
+    func sellableProductIDsCount() {
+        #expect(StoreCatalog.sellableProductIDs.count == 7)
+        #expect(StoreCatalog.sellableProductIDs.contains(StoreCatalog.Theme.bundleAll))
+        #expect(StoreCatalog.sellableProductIDs.isSuperset(of: StoreCatalog.Tip.all))
+        #expect(StoreCatalog.sellableProductIDs.isDisjoint(with: StoreCatalog.Theme.bundledThemeIDs))
     }
 
-    @Test("individualIDs are the six named application themes")
-    func individualThemeCount() {
-        #expect(StoreCatalog.Theme.individualIDs.count == 6)
-        #expect(!StoreCatalog.Theme.individualIDs.contains(StoreCatalog.Theme.bundleAll))
+    @Test("bundledThemeIDs are the nine themes the bundle unlocks, excluding the bundle itself")
+    func bundledThemeCount() {
+        #expect(StoreCatalog.Theme.bundledThemeIDs.count == 9)
+        #expect(!StoreCatalog.Theme.bundledThemeIDs.contains(StoreCatalog.Theme.bundleAll))
     }
 
-    @Test("referenceIDs are the three reference-palette themes, excluded from the named set")
-    func referenceThemeCount() {
-        #expect(StoreCatalog.Theme.referenceIDs.count == 3)
-        #expect(StoreCatalog.Theme.referenceIDs.isDisjoint(with: StoreCatalog.Theme.individualIDs))
-        #expect(!StoreCatalog.Theme.referenceIDs.contains(StoreCatalog.Theme.bundleAll))
-        #expect(StoreCatalog.Theme.purchasableIndividually.count == 9)
-    }
-
-    @Test("Theme.all includes the bundle and reference themes; Tip.all has six entries")
-    func aggregateCounts() {
-        #expect(StoreCatalog.Theme.all.count == 10)
-        #expect(StoreCatalog.Theme.all.contains(StoreCatalog.Theme.bundleAll))
-        #expect(StoreCatalog.Theme.all.isSuperset(of: StoreCatalog.Theme.referenceIDs))
+    @Test("Tip.all has six entries, disjoint from the themes")
+    func tipCounts() {
         #expect(StoreCatalog.Tip.all.count == 6)
-    }
-
-    @Test("theme and tip namespaces are disjoint")
-    func namespacesDisjoint() {
-        #expect(StoreCatalog.Theme.all.isDisjoint(with: StoreCatalog.Tip.all))
+        #expect(StoreCatalog.Tip.all.isDisjoint(with: StoreCatalog.Theme.bundledThemeIDs))
+        #expect(!StoreCatalog.Tip.all.contains(StoreCatalog.Theme.bundleAll))
     }
 
     @Test("every product ID uses the io.pocketmesh.app prefix")
     func productIDPrefix() {
-        for id in StoreCatalog.allProductIDs {
+        for id in StoreCatalog.sellableProductIDs.union(StoreCatalog.Theme.bundledThemeIDs) {
             #expect(id.hasPrefix("io.pocketmesh.app."))
         }
     }

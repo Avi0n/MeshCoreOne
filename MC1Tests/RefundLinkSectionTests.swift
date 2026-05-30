@@ -57,20 +57,6 @@ final class RefundLinkSectionTests {
         #expect(postRefundID == nil)
     }
 
-    @Test("latestRefundableTransactionID ignores a standalone theme purchase")
-    func standaloneThemeIsNotRefundable() async throws {
-        // Only the bundle is purchasable in-app; a standalone theme (reachable via promo code
-        // or restore) must never surface a refund link.
-        let fern = try #require(
-            try await Product.products(for: [StoreCatalog.Theme.fern]).first
-        )
-        try await purchaseUnfinished(fern)
-
-        let section = RefundLinkSection()
-        let refundableID = await section.latestRefundableTransactionID()
-        #expect(refundableID == nil)
-    }
-
     /// Commits a purchase through `product.purchase()` and leaves the transaction unfinished;
     /// retries the transient `StoreKitError.unknown` storekitd raises under SKTestSession churn.
     /// Same shape as `StoreServiceTests.purchaseUnfinished` — duplicated locally because this

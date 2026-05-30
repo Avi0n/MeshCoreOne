@@ -14,7 +14,7 @@ struct ThemesPurchaseSection: View {
     }
 
     private var ownsEveryTheme: Bool {
-        storeState.service.ownedThemeIDs.isSuperset(of: StoreCatalog.Theme.purchasableIndividually)
+        storeState.service.ownedThemeIDs.isSuperset(of: StoreCatalog.Theme.bundledThemeIDs)
     }
 
     private var columns: [GridItem] {
