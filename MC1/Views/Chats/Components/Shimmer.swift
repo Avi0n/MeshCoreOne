@@ -30,7 +30,6 @@ struct Shimmer: ViewModifier {
                             )
                             .frame(width: width)
                             .offset(x: phase * width)
-                            .blendMode(.plusLighter)
                         }
                     }
                 }

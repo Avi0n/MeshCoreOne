@@ -111,7 +111,7 @@ struct LinkPreviewCard: View {
                 }
                 .padding(Self.cardPadding)
             }
-            .background(.regularMaterial, in: .rect(cornerRadius: Self.cardCornerRadius))
+            .background(Color(.secondarySystemBackground), in: .rect(cornerRadius: Self.cardCornerRadius))
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)

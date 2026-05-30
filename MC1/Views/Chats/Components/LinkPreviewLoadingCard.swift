@@ -53,7 +53,7 @@ struct LinkPreviewLoadingCard: View {
             }
             .padding(Self.cardPadding)
         }
-        .background(.regularMaterial, in: .rect(cornerRadius: Self.cardCornerRadius))
+        .background(Color(.secondarySystemBackground), in: .rect(cornerRadius: Self.cardCornerRadius))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L10n.Chats.Chats.Preview.loadingAccessibility(host))
         .accessibilityHint(L10n.Chats.Chats.Preview.loadingHint)
@@ -98,7 +98,7 @@ struct LinkPreviewLoadingCard: View {
             }
             .padding(Self.cardPadding)
         }
-        .background(.regularMaterial, in: .rect(cornerRadius: Self.cardCornerRadius))
+        .background(Color(.secondarySystemBackground), in: .rect(cornerRadius: Self.cardCornerRadius))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L10n.Chats.Chats.Preview.loadingAccessibility(host))
         .accessibilityHint(L10n.Chats.Chats.Preview.loadingHint)
