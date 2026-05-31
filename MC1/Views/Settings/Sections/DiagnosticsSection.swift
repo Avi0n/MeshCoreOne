@@ -5,8 +5,8 @@ import SwiftUI
 struct DiagnosticsSection: View {
     @Environment(\.appState) private var appState
     @Environment(\.appTheme) private var theme
+    @Binding var exportedFile: ExportedLogFile?
     @State private var isExporting = false
-    @State private var exportedFile: ExportedLogFile?
     @State private var showingClearLogsAlert = false
     @State private var errorMessage: String?
 
@@ -45,9 +45,6 @@ struct DiagnosticsSection: View {
             Text(L10n.Settings.Diagnostics.Alert.Clear.message)
         }
         .errorAlert($errorMessage)
-        .sheet(item: $exportedFile) { file in
-            ActivityView(activityItems: [file.url])
-        }
     }
 
     private func exportLogs() {
@@ -78,10 +75,4 @@ struct DiagnosticsSection: View {
             }
         }
     }
-}
-
-/// Identifiable wrapper so a generated export file can drive `.sheet(item:)`.
-private struct ExportedLogFile: Identifiable {
-    let id = UUID()
-    let url: URL
 }

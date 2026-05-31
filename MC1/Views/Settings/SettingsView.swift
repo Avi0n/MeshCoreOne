@@ -39,6 +39,7 @@ private struct SettingsListContent: View {
     @Environment(\.openURL) private var openURL
     @Binding var showingDeviceSelection: Bool
     @Bindable var demoModeManager: DemoModeManager
+    @State private var exportedLogFile: ExportedLogFile?
     private let liveActivityTip = LiveActivityTip()
 
     var body: some View {
@@ -115,7 +116,7 @@ private struct SettingsListContent: View {
 
             AboutSection()
 
-            DiagnosticsSection()
+            DiagnosticsSection(exportedFile: $exportedLogFile)
 
             if demoModeManager.isUnlocked {
                 Section {
@@ -166,6 +167,9 @@ private struct SettingsListContent: View {
             DeviceSelectionSheet()
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
+        }
+        .sheet(item: $exportedLogFile) { file in
+            ActivityView(activityItems: [file.url])
         }
     }
 
