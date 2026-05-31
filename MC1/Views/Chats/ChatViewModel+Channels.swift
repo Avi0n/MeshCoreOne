@@ -59,6 +59,8 @@ extension ChatViewModel {
                     try await session.setFloodScope(scope)
                 }
                 lastSetRegionScope = desiredState
+            } catch is CancellationError {
+                // Benign: a superseding load (reconnect / conversation switch) cancelled this one.
             } catch {
                 logger.error("Failed to set flood scope: \(error.localizedDescription)")
             }
@@ -150,6 +152,8 @@ extension ChatViewModel {
 
             // Update app badge
             await notificationService?.updateBadgeCount()
+        } catch is CancellationError {
+            // Benign cancellation; the superseding load will refetch.
         } catch {
             logger.info("loadChannelMessages: error - \(error.localizedDescription)")
             errorMessage = error.localizedDescription
