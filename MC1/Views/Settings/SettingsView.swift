@@ -141,8 +141,6 @@ private struct SettingsListContent: View {
             .themedRowBackground(theme)
             #endif
 
-            SupportDevelopmentSection()
-
             Section {
             } footer: {
                 let version = Bundle.main.appVersion
