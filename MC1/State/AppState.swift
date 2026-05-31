@@ -94,6 +94,10 @@ public final class AppState {
     /// Incremented when services change (device switch, reconnect). Views observe this to reload.
     public private(set) var servicesVersion: Int = 0
 
+    /// Identity of the `ServiceContainer` the last `servicesVersion` bump was for,
+    /// so redundant re-wires of the same container don't bump it again.
+    private var lastBumpedServicesID: ObjectIdentifier?
+
     // MARK: - Offline Data Access
 
     /// Per-conversation coordinator registry. Lives at AppState scope so
@@ -379,6 +383,7 @@ public final class AppState {
             chatCoordinatorRegistry?.tearDown()
             chatCoordinatorRegistry = nil
             navigation.clearPendingLinks()
+            lastBumpedServicesID = nil
             return
         }
 
@@ -417,8 +422,17 @@ public final class AppState {
         await wireMessageEvents(services: services)
         await wireLiveActivityCallbacks(services: services)
 
-        // Increment version to trigger UI refresh in views observing this
-        servicesVersion += 1
+        // Bump the version (which drives `.task(id:)` reloads in chat, tools, and
+        // room views) only when the services container actually changed. A single
+        // connect both fires `onConnectionReady` and is followed by an explicit
+        // `wireServicesIfConnected()` call, and the Live Activity toggle re-wires the
+        // same container — none of those are a services change, so they must not
+        // trigger a reload.
+        let servicesID = ObjectIdentifier(services)
+        if lastBumpedServicesID != servicesID {
+            lastBumpedServicesID = servicesID
+            servicesVersion += 1
+        }
 
         // Set up notification center delegate, wire localized strings, then register categories
         UNUserNotificationCenter.current().delegate = services.notificationService

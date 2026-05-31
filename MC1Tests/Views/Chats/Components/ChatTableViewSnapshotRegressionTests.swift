@@ -332,4 +332,43 @@ struct ChatTableViewSnapshotRegressionTests {
 
         #expect(controller.tableView.numberOfRows(inSection: 0) == items.count)
     }
+
+    @Test("A content-only reconfigure superseded mid-apply still reaches an applied snapshot")
+    func supersededReconfigureReachesAppliedSnapshot() async throws {
+        let controller = ChatTableViewController<TestMessageItem, Text>()
+        controller.configure { item in
+            Text(item.text)
+        }
+        controller.loadViewIfNeeded()
+        controller.tableView.frame = CGRect(x: 0, y: 0, width: 320, height: 600)
+
+        let x = TestMessageItem(id: UUID(), text: "X revision 0", revision: 0)
+        let older = TestMessageItem(id: UUID(), text: "Older", revision: 0)
+        controller.updateItems([older, x], animated: false)
+        try await waitForRowCount(2, in: controller, context: "seed")
+
+        // Open the coalescer window: mark an apply in flight so the next two updateItems
+        // calls park in the pending slot instead of applying immediately.
+        controller.beginApplyingForTests()
+
+        // Content-only change to X parks reconfigureItems([x]) in the pending slot.
+        let xBumped = TestMessageItem(id: x.id, text: "X revision 1", revision: 1)
+        controller.updateItems([older, xBumped], animated: false)
+
+        // Structural change (append Y) with X unchanged vs the parked snapshot. This
+        // supersedes the pending slot; the coalescer must carry X's targeted reconfigure
+        // forward rather than dropping it with latest-wins.
+        let y = TestMessageItem(id: UUID(), text: "Y", revision: 0)
+        controller.updateItems([older, xBumped, y], animated: false)
+
+        // Drain applies the surviving snapshot synchronously (no window means non-animated).
+        controller.drainPendingForTests()
+        try await waitForRowCount(3, in: controller, context: "after drain")
+
+        let reconfiguredX = controller.appliedReconfiguredItemIDsForTests.contains(x.id)
+        #expect(
+            reconfiguredX,
+            "X's content reconfigure must survive supersession and reach an applied snapshot"
+        )
+    }
 }

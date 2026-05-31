@@ -262,6 +262,26 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     }
     #endif
 
+    #if DEBUG
+    /// Identifiers reconfigured by every snapshot actually applied, accumulated across applies.
+    /// Lets unit tests assert that a targeted reconfigure survives the pending-slot coalescer
+    /// when its request is superseded mid-apply, reaching an applied snapshot.
+    private(set) var appliedReconfiguredItemIDsForTests: [Item.ID] = []
+
+    /// Forces the controller into the in-flight-apply state so subsequent `updateItems`
+    /// calls park in the pending slot instead of applying immediately. Lets tests open
+    /// the supersession window deterministically without a real animated apply in flight.
+    func beginApplyingForTests() {
+        scrollState.startApplying()
+    }
+
+    /// Drains the pending snapshot queue, applying the surviving request synchronously
+    /// (no window means non-animated applies). Pairs with `beginApplyingForTests`.
+    func drainPendingForTests() {
+        drainSnapshotQueue()
+    }
+    #endif
+
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let _ = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
@@ -371,11 +391,19 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
                 if let superseded = existing.completion {
                     pendingCompletions.append(superseded)
                 }
-                // If the pending request was a reconfigure-all (live theme switch), carry the
-                // intent forward into the incoming snapshot so dropping the pending slot
-                // doesn't silently lose the repaint. Reconfigures all items in the new
-                // snapshot — its identifiers are the current visible set, which is what the
-                // reconfigure-all intent was about anyway.
+                // Carry the superseded snapshot's reconfigure intent forward into the
+                // incoming snapshot so latest-wins doesn't silently drop a repaint. A
+                // content-only reconfigure parked here would otherwise never reach an
+                // applied snapshot, stranding its cell on stale content. Only items still
+                // present in the incoming snapshot are carried; superseded-then-deleted
+                // items are gone regardless.
+                let carriedReconfigures = existing.snapshot.reconfiguredItemIdentifiers
+                    .filter { request.snapshot.itemIdentifiers.contains($0) }
+                if !carriedReconfigures.isEmpty {
+                    request.snapshot.reconfigureItems(carriedReconfigures)
+                }
+                // A reconfigure-all (live theme switch) additionally repaints rows added by
+                // the incoming snapshot, so extend the intent to its full identifier set.
                 if existing.reconfigureAll {
                     request.snapshot.reconfigureItems(request.snapshot.itemIdentifiers)
                     request.reconfigureAll = true
@@ -400,6 +428,10 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
             scrollState.endApplying()
             return
         }
+
+        #if DEBUG
+        appliedReconfiguredItemIDsForTests.append(contentsOf: request.snapshot.reconfiguredItemIdentifiers)
+        #endif
 
         scrollState.startApplying()
         let shouldAnimate = request.animatingDifferences && view.window != nil

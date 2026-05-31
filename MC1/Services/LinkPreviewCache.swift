@@ -16,11 +16,14 @@ private enum CacheConfig {
 actor LinkPreviewCache: LinkPreviewCaching {
     private let logger = Logger(subsystem: "com.mc1", category: "LinkPreviewCache")
     private let memoryCache = NSCache<NSString, CachedPreview>()
-    private let service = LinkPreviewService()
+    private let service: any LinkMetadataFetching
     private nonisolated let preferences = LinkPreviewPreferences()
 
-    /// URLs currently being fetched (prevents duplicate in-flight requests)
-    private var inFlightFetches: Set<String> = []
+    /// Shared fetch task per in-flight URL. Concurrent requests for the same
+    /// URL await the same task and receive the resolved result, instead of a
+    /// `.loading` placeholder that would strand a follower's preview state with
+    /// no path back to `.loaded`.
+    private var inFlightTasks: [String: Task<LinkPreviewResult, Never>] = [:]
 
     /// URLs that have been fetched but have no preview available
     private var noPreviewAvailable: Set<String> = []
@@ -29,7 +32,8 @@ actor LinkPreviewCache: LinkPreviewCaching {
     /// Each LPMetadataProvider spawns WKWebView on main thread.
     private let fetchSemaphore = AsyncSemaphore(value: CacheConfig.maxConcurrentFetches)
 
-    init() {
+    init(service: any LinkMetadataFetching = LinkPreviewService()) {
+        self.service = service
         memoryCache.countLimit = CacheConfig.maxEntryCount
         memoryCache.totalCostLimit = CacheConfig.maxTotalCostBytes
     }
@@ -56,12 +60,7 @@ actor LinkPreviewCache: LinkPreviewCaching {
             return .disabled
         }
 
-        // Prevent duplicate fetches
-        guard !inFlightFetches.contains(urlString) else {
-            return .loading
-        }
-
-        // Network fetch with concurrency limiting
+        // Network fetch, coalescing concurrent requests for the same URL
         return await fetchFromNetwork(url: url, urlString: urlString, dataStore: dataStore)
     }
 
@@ -74,11 +73,6 @@ actor LinkPreviewCache: LinkPreviewCaching {
         // Check memory and database caches (skip negative cache for manual retry)
         if let cached = await checkCaches(urlString: urlString, dataStore: dataStore) {
             return .loaded(cached)
-        }
-
-        // Prevent duplicate fetches
-        guard !inFlightFetches.contains(urlString) else {
-            return .loading
         }
 
         // Clear from negative cache on manual retry
@@ -114,26 +108,37 @@ actor LinkPreviewCache: LinkPreviewCaching {
         return nil
     }
 
+    /// Coalesces concurrent fetches for the same URL onto a single shared task.
+    /// Followers await that task and receive its resolved result rather than a
+    /// `.loading` placeholder. The shared task is independent of any caller's
+    /// cancellation, so it completes and warms the cache even if the requesting
+    /// cell scrolls away or the conversation switches.
     private func fetchFromNetwork(
         url: URL,
         urlString: String,
         dataStore: any PersistenceStoreProtocol
     ) async -> LinkPreviewResult {
-        inFlightFetches.insert(urlString)
+        if let existing = inFlightTasks[urlString] {
+            return await existing.value
+        }
 
+        let task = Task<LinkPreviewResult, Never> { [self] in
+            await performNetworkFetch(url: url, urlString: urlString, dataStore: dataStore)
+        }
+        inFlightTasks[urlString] = task
+        let result = await task.value
+        inFlightTasks[urlString] = nil
+        return result
+    }
+
+    private func performNetworkFetch(
+        url: URL,
+        urlString: String,
+        dataStore: any PersistenceStoreProtocol
+    ) async -> LinkPreviewResult {
         // Wait for semaphore to limit concurrent fetches
         await fetchSemaphore.wait()
-
-        // Ensure semaphore is released and in-flight tracking is cleaned up
-        defer {
-            Task { await self.fetchSemaphore.signal() }
-            inFlightFetches.remove(urlString)
-        }
-
-        // Check for cancellation after acquiring semaphore
-        guard !Task.isCancelled else {
-            return .noPreviewAvailable
-        }
+        defer { Task { await self.fetchSemaphore.signal() } }
 
         let metadata = await service.fetchMetadata(for: url)
 
@@ -168,7 +173,7 @@ actor LinkPreviewCache: LinkPreviewCaching {
     }
 
     func isFetching(_ url: URL) async -> Bool {
-        inFlightFetches.contains(url.absoluteString)
+        inFlightTasks[url.absoluteString] != nil
     }
 
     func cachedPreview(for url: URL) async -> LinkPreviewDataDTO? {

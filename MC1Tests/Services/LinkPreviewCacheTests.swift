@@ -133,6 +133,37 @@ struct LinkPreviewCacheTests {
         #expect(!initiallyFetching)
     }
 
+    @Test("Concurrent fetches for the same URL coalesce; every caller receives the loaded result")
+    func concurrentNetworkFetchesCoalesceToLoaded() async {
+        let fetcher = FakeMetadataFetcher(delay: .milliseconds(200), title: "Coalesced")
+        let cache = LinkPreviewCache(service: fetcher)
+        let dataStore = MockPreviewDataStore()
+        let url = URL(string: "https://example.com/coalesce")!
+
+        // manualFetch bypasses the auto-resolve preference gate (off by default in
+        // tests) and routes through the same coalescing network fetch path.
+        // Start the first fetch and wait until it is registered in-flight, so the
+        // second request deterministically arrives during the network fetch window.
+        let first = Task { await cache.manualFetch(for: url, using: dataStore) }
+        var spins = 0
+        while await !cache.isFetching(url), spins < 1000 {
+            await Task.yield()
+            spins += 1
+        }
+
+        // A follower arriving mid-flight must receive the resolved result, not a
+        // `.loading` placeholder that would strand its preview state forever.
+        let second = await cache.manualFetch(for: url, using: dataStore)
+        let firstResult = await first.value
+
+        #expect(isLoaded(firstResult, withTitle: "Coalesced"))
+        #expect(isLoaded(second, withTitle: "Coalesced"))
+
+        // Coalescing means the underlying network fetch ran exactly once.
+        let calls = await fetcher.callCount
+        #expect(calls == 1)
+    }
+
     // MARK: - Database Integration Tests
 
     @Test("Preview is persisted to database after network fetch")
@@ -188,6 +219,28 @@ struct LinkPreviewCacheTests {
         default:
             return false
         }
+    }
+}
+
+// MARK: - Fake Metadata Fetcher
+
+/// Deterministic stand-in for the LinkPresentation network fetch. Counts calls
+/// so a test can assert that concurrent same-URL requests coalesce onto one fetch.
+private actor FakeMetadataFetcher: LinkMetadataFetching {
+    private(set) var callCount = 0
+    private let delay: Duration
+    private let title: String?
+
+    init(delay: Duration, title: String?) {
+        self.delay = delay
+        self.title = title
+    }
+
+    func fetchMetadata(for url: URL) async -> LinkPreviewMetadata? {
+        callCount += 1
+        if delay > .zero { try? await Task.sleep(for: delay) }
+        guard let title else { return nil }
+        return LinkPreviewMetadata(url: url, title: title, imageData: nil, iconData: nil)
     }
 }
 

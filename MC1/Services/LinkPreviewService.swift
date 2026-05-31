@@ -13,8 +13,14 @@ struct LinkPreviewMetadata: Sendable {
     let iconData: Data?
 }
 
+/// Abstracts the network metadata fetch so the cache layer's fetch
+/// coalescing can be tested without the LinkPresentation network path.
+protocol LinkMetadataFetching: Sendable {
+    func fetchMetadata(for url: URL) async -> LinkPreviewMetadata?
+}
+
 /// Service for extracting URLs from text and fetching link metadata
-final class LinkPreviewService: Sendable {
+final class LinkPreviewService: LinkMetadataFetching, Sendable {
     private let logger = Logger(subsystem: "com.mc1", category: "LinkPreviewService")
 
     /// Shared URL detector instance to avoid creating NSDataDetector on every call
