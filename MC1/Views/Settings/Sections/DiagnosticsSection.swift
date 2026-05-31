@@ -6,30 +6,24 @@ struct DiagnosticsSection: View {
     @Environment(\.appState) private var appState
     @Environment(\.appTheme) private var theme
     @State private var isExporting = false
-    @State private var exportedFileURL: URL?
+    @State private var exportedFile: ExportedLogFile?
     @State private var showingClearLogsAlert = false
     @State private var errorMessage: String?
 
     var body: some View {
         Section {
-            if let url = exportedFileURL {
-                ShareLink(item: url) {
+            Button {
+                exportLogs()
+            } label: {
+                HStack {
                     TintedLabel(L10n.Settings.Diagnostics.exportLogs, systemImage: "square.and.arrow.up")
-                }
-            } else {
-                Button {
-                    exportLogs()
-                } label: {
-                    HStack {
-                        TintedLabel(L10n.Settings.Diagnostics.exportLogs, systemImage: "arrow.up.doc")
-                        Spacer()
-                        if isExporting {
-                            ProgressView()
-                        }
+                    Spacer()
+                    if isExporting {
+                        ProgressView()
                     }
                 }
-                .disabled(isExporting)
             }
+            .disabled(isExporting)
 
             Button(role: .destructive) {
                 showingClearLogsAlert = true
@@ -51,11 +45,13 @@ struct DiagnosticsSection: View {
             Text(L10n.Settings.Diagnostics.Alert.Clear.message)
         }
         .errorAlert($errorMessage)
+        .sheet(item: $exportedFile) { file in
+            ActivityView(activityItems: [file.url])
+        }
     }
 
     private func exportLogs() {
         let dataStore = appState.services?.dataStore ?? appState.connectionManager.createStandalonePersistenceStore()
-        exportedFileURL = nil
         isExporting = true
 
         Task { @MainActor in
@@ -63,7 +59,7 @@ struct DiagnosticsSection: View {
                 appState: appState,
                 persistenceStore: dataStore
             ) {
-                exportedFileURL = url
+                exportedFile = ExportedLogFile(url: url)
             } else {
                 errorMessage = L10n.Settings.Diagnostics.Error.exportFailed
             }
@@ -82,4 +78,10 @@ struct DiagnosticsSection: View {
             }
         }
     }
+}
+
+/// Identifiable wrapper so a generated export file can drive `.sheet(item:)`.
+private struct ExportedLogFile: Identifiable {
+    let id = UUID()
+    let url: URL
 }
