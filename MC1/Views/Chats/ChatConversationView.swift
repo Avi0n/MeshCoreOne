@@ -252,7 +252,9 @@ struct ChatConversationView: View {
             handleIncomingMentionIfNeeded(mention.messageID)
         }
         .chatErrorAlerts(chatViewModel: chatViewModel)
-        .themedChrome(theme)
+        // Chrome theming comes from the stack-level themedChrome on the TabView. Re-declaring it
+        // on this pushed destination makes the nav bar appearance re-install after the push, which
+        // reflows the flipped table's top rows.
         .background {
             if let canvas = theme.surfaces?.canvas {
                 canvas.ignoresSafeArea()
