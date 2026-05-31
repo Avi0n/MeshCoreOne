@@ -79,7 +79,7 @@ struct ChatConversationView: View {
             previewsEnabled: previewsEnabled,
             isHighContrast: colorSchemeContrast == .increased,
             isDark: colorScheme == .dark,
-            showMapPreviews: showMapPreviewThumbnails,
+            showMapPreviews: showMapPreviewThumbnails && !conversationType.suppressesMapPreviews,
             isOffline: !appState.offlineMapService.isNetworkAvailable,
             currentUserName: appState.localNodeName,
             themeID: theme.id

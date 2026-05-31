@@ -111,6 +111,21 @@ enum ChatConversationType: Sendable {
         }
     }
 
+    /// Channels with this name (case-insensitive) suppress the inline map-preview
+    /// thumbnail, so the app doesn't flood the map API
+    private static let mapPreviewSuppressedChannelName = "wardriving"
+
+    /// Whether map preview thumbnails should be hidden for this conversation,
+    /// independent of the global show-map-previews setting. DMs never suppress.
+    /// Matches case-insensitively and tolerates the leading "#" hashtag-channel
+    /// convention, so both "wardriving" and "#wardriving" suppress.
+    var suppressesMapPreviews: Bool {
+        guard case .channel(let channel) = self else { return false }
+        let trimmed = channel.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalized = trimmed.hasPrefix("#") ? String(trimmed.dropFirst()) : trimmed
+        return normalized.caseInsensitiveCompare(Self.mapPreviewSuppressedChannelName) == .orderedSame
+    }
+
     // MARK: - Transforms
 
     /// Returns a copy with the contact replaced (DM only). Returns self unchanged for channels.

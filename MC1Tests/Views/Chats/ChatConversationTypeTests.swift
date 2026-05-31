@@ -264,6 +264,50 @@ struct ChatConversationTypeTests {
         #expect(sut.isPublicStyleChannel == false)
     }
 
+    // MARK: - suppressesMapPreviews
+
+    @Test("Channel named wardriving suppresses map previews")
+    func wardrivingChannelSuppresses() {
+        let sut = ChatConversationType.channel(makeChannel(name: "wardriving"))
+        #expect(sut.suppressesMapPreviews == true)
+    }
+
+    @Test("Wardriving match is case-insensitive")
+    func wardrivingMatchCaseInsensitive() {
+        #expect(ChatConversationType.channel(makeChannel(name: "Wardriving")).suppressesMapPreviews == true)
+        #expect(ChatConversationType.channel(makeChannel(name: "WARDRIVING")).suppressesMapPreviews == true)
+    }
+
+    @Test("Wardriving match trims surrounding whitespace")
+    func wardrivingMatchTrimsWhitespace() {
+        let sut = ChatConversationType.channel(makeChannel(name: " wardriving "))
+        #expect(sut.suppressesMapPreviews == true)
+    }
+
+    @Test("Hash-prefixed wardriving suppresses (tolerates the # channel convention)")
+    func hashWardrivingSuppresses() {
+        #expect(ChatConversationType.channel(makeChannel(name: "#wardriving")).suppressesMapPreviews == true)
+        #expect(ChatConversationType.channel(makeChannel(name: "#Wardriving")).suppressesMapPreviews == true)
+    }
+
+    @Test("Wardriving with suffix does not suppress (exact match, not prefix)")
+    func wardrivingSuffixDoesNotSuppress() {
+        let sut = ChatConversationType.channel(makeChannel(name: "wardriving-east"))
+        #expect(sut.suppressesMapPreviews == false)
+    }
+
+    @Test("Ordinary channel does not suppress map previews")
+    func ordinaryChannelDoesNotSuppress() {
+        let sut = ChatConversationType.channel(makeChannel(name: "general"))
+        #expect(sut.suppressesMapPreviews == false)
+    }
+
+    @Test("DM never suppresses map previews")
+    func dmDoesNotSuppress() {
+        let sut = ChatConversationType.dm(makeContact())
+        #expect(sut.suppressesMapPreviews == false)
+    }
+
     // MARK: - radioID
 
     @Test("radioID returns the contact's radioID for a DM conversation")
