@@ -15,6 +15,15 @@ struct WiFiTransportTests {
         #expect(!isConnected)
     }
 
+    @Test("Advertises pipelined reads without a Write-Without-Response characteristic")
+    func advertisesPipelinedReadsButNotWriteWithoutResponse() async {
+        let transport = WiFiTransport()
+        let pipelined = await transport.supportsPipelinedReads
+        let writeWithoutResponse = await transport.supportsWriteWithoutResponse
+        #expect(pipelined)
+        #expect(!writeWithoutResponse)
+    }
+
     @Test("Connect without configuration throws notConfigured")
     func connectWithoutConfigurationThrows() async {
         let transport = WiFiTransport()

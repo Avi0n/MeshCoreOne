@@ -23,4 +23,15 @@ struct MeshTransportDefaultsTests {
         let supported = await transport.supportsWriteWithoutResponse
         #expect(supported == false)
     }
+
+    @Test("Default supportsPipelinedReads mirrors supportsWriteWithoutResponse")
+    func defaultSupportsPipelinedReadsMirrorsWriteWithoutResponse() async {
+        let transport = MockTransport()
+        let defaultPipelined = await transport.supportsPipelinedReads
+        #expect(defaultPipelined == false)
+
+        await transport.setSupportsWriteWithoutResponse(true)
+        let mirroredPipelined = await transport.supportsPipelinedReads
+        #expect(mirroredPipelined == true)
+    }
 }

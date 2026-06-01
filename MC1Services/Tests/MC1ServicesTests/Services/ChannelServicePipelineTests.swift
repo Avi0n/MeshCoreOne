@@ -166,6 +166,80 @@ struct ChannelServicePipelineTests {
         #expect(stored.first { $0.index == 2 }?.name == "keep", "the unread configured slot is preserved verbatim")
     }
 
+    // MARK: - Gate #4b: reconcile circuit breaker
+
+    @Test("reconcile circuit breaker opens after consecutive failures and never deletes unread slots")
+    func reconcileCircuitBreakerStopsAndPreservesUnreadSlots() async throws {
+        let radioID = UUID()
+        let dataStore = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)
+
+        // Pre-seed configured rows at every index the pipeline will fail to read. Indices 2-4
+        // each fail their reconcile read (transport drop); indices 5-7 are skipped once the
+        // breaker opens at threshold 3. All six land in neither the configured nor the
+        // unconfigured list, so the data-loss guard must leave their rows intact.
+        let preseeded: [ChannelInfo] = (UInt8(2)...UInt8(7)).map {
+            ChannelInfo(index: $0, name: "keep\($0)", secret: Data(repeating: 0xCD, count: 16))
+        }
+        _ = try await dataStore.batchSaveChannels(
+            radioID: radioID,
+            configured: preseeded,
+            unconfiguredIndices: [],
+            pruneBeyond: nil
+        )
+
+        let transport = MockTransport()
+        await transport.setSupportsWriteWithoutResponse(true)
+        let session = try await startedSession(transport)
+        defer { Task { await session.stop() } }
+        let service = ChannelService(session: session, dataStore: dataStore)
+
+        let syncTask = Task {
+            try await service.syncChannels(radioID: radioID, maxChannels: 8, usePipelinedRead: true)
+        }
+
+        try await waitUntil("all eight reads should be primed") {
+            await transport.sentData.count == 9   // appStart + 8 primed reads
+        }
+
+        // Every reconcile read (send #10 onward) fails as a transport drop. A dropped send
+        // surfaces as a transportError, which counts toward the breaker and is not retried, so
+        // indices 2-4 each register one consecutive failure and indices 5-7 are skipped.
+        await transport.failSends(fromSendIndex: 10)
+
+        // Answer only 0 and 1; leave 2-7 unanswered so they become the missing set.
+        for index: UInt8 in [0, 1] {
+            await transport.simulateReceive(
+                makeChannelInfoPacket(index: index, name: "ch\(index)", secret: Data(repeating: 0xAB, count: 16))
+            )
+        }
+
+        let result = try await syncTask.value
+
+        #expect(result.channelsSynced == 2)
+        #expect(result.circuitBreakerAborted)
+
+        let transportErrorIndices = result.errors
+            .filter { $0.errorType == .transportError }
+            .map(\.index)
+            .sorted()
+        let circuitBreakerIndices = result.errors
+            .filter { $0.errorType == .circuitBreaker }
+            .map(\.index)
+            .sorted()
+        #expect(transportErrorIndices == [2, 3, 4], "the first three missing indices each fail their reconcile read")
+        #expect(circuitBreakerIndices == [5, 6, 7], "the open breaker skips the remaining missing indices")
+
+        let stored = try await dataStore.fetchChannels(radioID: radioID).sorted { $0.index < $1.index }
+        #expect(stored.map(\.index) == [0, 1, 2, 3, 4, 5, 6, 7], "no unread slot is deleted")
+        for index: UInt8 in 2...7 {
+            #expect(
+                stored.first { $0.index == index }?.name == "keep\(index)",
+                "an unread slot (reconcile-failed or breaker-skipped) is preserved verbatim"
+            )
+        }
+        #expect(stored.first { $0.index == 0 }?.name == "ch0")
+    }
+
     // MARK: - Parity: serial path unchanged
 
     @Test("serial path (usePipelinedRead: false) still syncs via acknowledged reads")

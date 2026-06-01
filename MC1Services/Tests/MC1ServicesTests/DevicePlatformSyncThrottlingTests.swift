@@ -74,6 +74,63 @@ struct DevicePlatformChannelSyncConfigTests {
         #expect(!config.usePipelinedChannelRead)
     }
 
+    @Test("ESP32 over WiFi enables pipelined channel reads")
+    @MainActor
+    func esp32OverWiFiEnablesPipelinedRead() throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+        manager.setTestState(detectedPlatform: .esp32)
+
+        let config = manager.currentChannelSyncConfig(for: UUID(), transportType: .wifi)
+
+        #expect(config.usePipelinedChannelRead)
+    }
+
+    @Test("WiFi connect resolves a recognized ESP32 model to ESP32")
+    @MainActor
+    func wifiRecognizedModelResolvesToESP32() throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+
+        manager.detectAndStorePlatform(model: "Heltec V3", transportType: .wifi)
+
+        #expect(manager.detectedPlatform == .esp32)
+    }
+
+    @Test("WiFi connect resolves an unrecognized model to ESP32 (WiFi implies ESP32-class)")
+    @MainActor
+    func wifiUnknownModelResolvesToESP32() throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+
+        manager.detectAndStorePlatform(model: "Totally Unknown Radio 9000", transportType: .wifi)
+
+        #expect(manager.detectedPlatform == .esp32)
+
+        // The skip window is earned and, because the resolved platform is ESP32 over WiFi,
+        // the channel-read pipeline is also enabled.
+        let config = manager.currentChannelSyncConfig(for: UUID(), transportType: .wifi)
+        #expect(config.channelSyncSkipWindow == .seconds(30))
+        #expect(config.usePipelinedChannelRead)
+    }
+
+    @Test("BLE connect leaves an unrecognized model as unknown (no WiFi coalesce)")
+    @MainActor
+    func bleUnknownModelStaysUnknown() throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+
+        manager.detectAndStorePlatform(model: "Totally Unknown Radio 9000", transportType: .bluetooth)
+
+        #expect(manager.detectedPlatform == .unknown)
+    }
+
+    @Test("BLE connect resolves an nRF52 model to nRF52")
+    @MainActor
+    func bleNRF52ModelResolvesToNRF52() throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+
+        manager.detectAndStorePlatform(model: "T1000-E", transportType: .bluetooth)
+
+        #expect(manager.detectedPlatform == .nrf52)
+    }
+
     @Test("Heartbeat pauses while syncing")
     @MainActor
     func heartbeatPausesWhileSyncing() throws {
