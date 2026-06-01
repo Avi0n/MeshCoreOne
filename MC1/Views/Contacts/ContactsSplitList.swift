@@ -30,8 +30,8 @@ struct ContactsSplitList: View {
                     )
                     .contactSwipeActions(contact: contact, viewModel: viewModel)
                     .tag(contact)
+                    .themedPlainRowBackground(theme, isSelected: selectedContact == contact)
                 }
-                .themedPlainRowBackground(theme)
             }
         }
         .listStyle(.plain)

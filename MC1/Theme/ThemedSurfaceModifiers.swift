@@ -22,8 +22,13 @@ extension View {
     /// Plain rows draw an opaque `systemBackground` by default, which otherwise hides the canvas
     /// painted by `themedCanvas`. No-op for themes without surfaces — preserves system rendering
     /// (including row-selection highlighting) on the default theme.
-    func themedPlainRowBackground(_ theme: Theme) -> some View {
-        modifier(ThemedPlainRowBackgroundModifier(theme: theme))
+    ///
+    /// In a `List(selection:)`, the selection highlight on a `.plain` list *is* the row's default
+    /// background. Applying any `listRowBackground` — even a clear one — opts the row out of that
+    /// default background and so suppresses the highlight. Pass `isSelected: true` for the selected
+    /// row to skip the override entirely and leave its native highlight intact.
+    func themedPlainRowBackground(_ theme: Theme, isSelected: Bool = false) -> some View {
+        modifier(ThemedPlainRowBackgroundModifier(theme: theme, isSelected: isSelected))
     }
 
     /// Match the navigation bar and tab bar backgrounds to the theme canvas so chrome blends
@@ -61,8 +66,10 @@ private struct ThemedRowBackgroundModifier: ViewModifier {
 
 private struct ThemedPlainRowBackgroundModifier: ViewModifier {
     let theme: Theme
+    let isSelected: Bool
+    @ViewBuilder
     func body(content: Content) -> some View {
-        if let canvas = theme.surfaces?.canvas {
+        if let canvas = theme.surfaces?.canvas, !isSelected {
             content.listRowBackground(canvas)
         } else {
             content
