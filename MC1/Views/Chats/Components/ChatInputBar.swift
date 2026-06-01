@@ -33,7 +33,13 @@ struct ChatInputBar<Leading: View>: View {
     var body: some View {
         HStack(alignment: .bottom, spacing: 12) {
             leading()
-            ChatInputTextField(text: $text, placeholder: placeholder, isFocused: $isFocused, isEncrypted: isEncrypted)
+            ChatInputTextField(
+                text: $text,
+                placeholder: placeholder,
+                isFocused: $isFocused,
+                isEncrypted: isEncrypted,
+                onSend: handleHardwareSend
+            )
             ChatSendButtonWithCounter(
                 canSend: canSend,
                 isOverLimit: isOverLimit,
@@ -75,6 +81,17 @@ struct ChatInputBar<Leading: View>: View {
         !isCoolingDown &&
         appState.connectionState == .ready &&
         !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isOverLimit
+    }
+
+    /// Sends in response to an unmodified hardware Return from the composer,
+    /// honoring the same gating as the send button. Returns `true` when a message
+    /// was sent so the composer consumes the Return; `false` when gated off so the
+    /// composer inserts a newline instead. The composer keeps focus on its own, so
+    /// no re-focus is needed here.
+    private func handleHardwareSend() -> Bool {
+        guard canSend else { return false }
+        send()
+        return true
     }
 
     private func send() {
@@ -121,27 +138,27 @@ private struct ChatInputTextField: View {
     let placeholder: String
     @FocusState.Binding var isFocused: Bool
     let isEncrypted: Bool
+    let onSend: () -> Bool
 
     var body: some View {
-        TextField(placeholder, text: $text, axis: .vertical)
-            .background(InlinePredictionFix())
-            .textFieldStyle(.plain)
-            .padding(.leading, 12)
-            .padding(.trailing, 28)
-            .padding(.vertical, 8)
-            .overlay(alignment: .trailing) {
-                Image(systemName: isEncrypted ? "lock.fill" : "lock.open.fill")
-                    .font(.footnote)
-                    .foregroundStyle(isEncrypted ? .blue : .orange)
-                    .padding(.trailing, 10)
-                    .accessibilityHidden(true)
-            }
-            .textFieldBackground()
-            .lineLimit(1...5)
-            .focused($isFocused)
-            .accessibilityLabel(L10n.Chats.Chats.Input.accessibilityLabel)
-            .accessibilityHint(L10n.Chats.Chats.Input.accessibilityHint)
-            .accessibilityValue(isEncrypted ? L10n.Chats.Chats.Input.encrypted : L10n.Chats.Chats.Input.notEncrypted)
+        ChatComposerTextView(
+            text: $text,
+            isFocused: $isFocused,
+            placeholder: placeholder,
+            isEncrypted: isEncrypted,
+            onSend: onSend
+        )
+        .frame(maxWidth: .infinity)
+        .padding(.leading, 12)
+        .padding(.trailing, 28)
+        .overlay(alignment: .trailing) {
+            Image(systemName: isEncrypted ? "lock.fill" : "lock.open.fill")
+                .font(.footnote)
+                .foregroundStyle(isEncrypted ? .blue : .orange)
+                .padding(.trailing, 10)
+                .accessibilityHidden(true)
+        }
+        .textFieldBackground()
     }
 }
 
@@ -210,52 +227,6 @@ private struct ChatSendButton: View {
         .disabled(!canSend)
         .accessibilityLabel(sendAccessibilityLabel)
         .accessibilityHint(sendAccessibilityHint)
-    }
-}
-
-// MARK: - Inline Prediction Fix (FB13727682)
-
-/// Finds the backing UITextView of a `TextField(axis: .vertical)` and disables
-/// inline predictions, which leave ghost-text that survives binding clears.
-private struct InlinePredictionFix: UIViewRepresentable {
-    func makeCoordinator() -> Coordinator { Coordinator() }
-
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView(frame: .zero)
-        view.isUserInteractionEnabled = false
-        view.isHidden = true
-        return view
-    }
-
-    func updateUIView(_ uiView: UIView, context: Context) {
-        guard !context.coordinator.applied else { return }
-        DispatchQueue.main.async {
-            if let textView = Self.findTextView(from: uiView) {
-                textView.inlinePredictionType = .no
-                context.coordinator.applied = true
-            }
-        }
-    }
-
-    private static func findTextView(from view: UIView) -> UITextView? {
-        var ancestor: UIView? = view.superview
-        while let parent = ancestor {
-            if let found = firstTextView(in: parent) { return found }
-            ancestor = parent.superview
-        }
-        return nil
-    }
-
-    private static func firstTextView(in view: UIView) -> UITextView? {
-        if let textView = view as? UITextView { return textView }
-        for subview in view.subviews {
-            if let found = firstTextView(in: subview) { return found }
-        }
-        return nil
-    }
-
-    final class Coordinator {
-        var applied = false
     }
 }
 
