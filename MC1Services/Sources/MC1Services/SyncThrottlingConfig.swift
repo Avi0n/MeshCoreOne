@@ -12,8 +12,8 @@ public struct ChannelSyncConfig: Sendable {
     /// Timestamp of the last attempted channel sync, even if it was partial.
     public let lastAttemptedChannelSync: Date?
 
-    /// Whether channel reads should use the windowed Write-Without-Response pipeline
-    /// (nRF52 over BLE). `false` everywhere else, including WiFi (`.none`).
+    /// Whether channel reads should use the windowed read pipeline — nRF52 over BLE (Write
+    /// Commands) or ESP32 over WiFi (TCP back-to-back sends). `false` for ESP32 over BLE.
     public let usePipelinedChannelRead: Bool
 
     public init(

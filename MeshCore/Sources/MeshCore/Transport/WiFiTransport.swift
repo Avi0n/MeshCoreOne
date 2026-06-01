@@ -63,6 +63,12 @@ public actor WiFiTransport: MeshTransport {
         _isConnected
     }
 
+    /// TCP streams pipeline natively: back-to-back sends queue in the socket buffer and the radio
+    /// drains them at its loop cadence, so windowed channel reads avoid the per-round-trip stall
+    /// that serial reads pay over WiFi. There is no ATT write characteristic, so
+    /// `supportsWriteWithoutResponse` stays false and `sendWithoutResponse` routes to `send`.
+    public var supportsPipelinedReads: Bool { true }
+
     public init() {
         // Create stream in init, matching BLETransport pattern
         let (stream, continuation) = AsyncStream<Data>.makeStream()
@@ -114,7 +120,14 @@ public actor WiFiTransport: MeshTransport {
         }
 
         let endpoint = NWEndpoint.hostPort(host: hostEndpoint, port: portEndpoint)
-        let parameters = NWParameters.tcp
+
+        // Disable Nagle's algorithm. The companion protocol is small-frame request-response
+        // (each getChannel is one command and one reply), and Nagle interacting with the peer's
+        // delayed-ACK injects a fixed per-round-trip stall that serial channel reads pay once per
+        // channel. Streamed traffic such as contacts coalesces and hides it; ping-pong reads do not.
+        let tcpOptions = NWProtocolTCP.Options()
+        tcpOptions.noDelay = true
+        let parameters = NWParameters(tls: nil, tcp: tcpOptions)
 
         let newConnection = NWConnection(to: endpoint, using: parameters)
         connection = newConnection

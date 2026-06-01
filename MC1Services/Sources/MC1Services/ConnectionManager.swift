@@ -1194,12 +1194,16 @@ public final class ConnectionManager {
     /// Builds a channel sync config for the current device and transport.
     /// BLE and WiFi both use platform-specific values because ESP32 radios can saturate either transport.
     func currentChannelSyncConfig(for radioID: UUID, transportType: TransportType) -> ChannelSyncConfig {
-        // Policy gate: pipeline channel reads only on nRF52 over BLE. ESP32's write
-        // characteristic is write-only (no Write Commands), and WiFi has no slave-latency
-        // penalty to amortize. The session enforces a second capability gate.
+        // Policy gate for pipelined channel reads. nRF52 over BLE amortizes the radio's
+        // per-write slave-latency penalty; ESP32 over WiFi avoids the per-round-trip TCP stall
+        // that makes serial channel reads roughly 200ms each. ESP32 over BLE has a write-only
+        // characteristic (no Write Commands), so it stays serial. MeshCoreSession.getChannels
+        // enforces a second capability gate on the transport, so this is the policy half of a
+        // two-gate design and the downstream re-check is intentional, not dead.
         let usePipelinedChannelRead: Bool
         switch (detectedPlatform, transportType) {
         case (.nrf52, .bluetooth): usePipelinedChannelRead = true
+        case (.esp32, .wifi): usePipelinedChannelRead = true
         default: usePipelinedChannelRead = false
         }
 
@@ -1474,12 +1478,33 @@ public final class ConnectionManager {
     /// Configures BLE write pacing based on detected device platform.
     /// - Parameter capabilities: The device capabilities from queryDevice()
     func configureBLEPacing(for capabilities: MeshCore.DeviceCapabilities) async {
-        let platform = DevicePlatform.detect(from: capabilities.model)
-        detectedPlatform = platform
-        let pacing = platform.recommendedWritePacing
+        detectAndStorePlatform(model: capabilities.model, transportType: .bluetooth)
+        let pacing = detectedPlatform.recommendedWritePacing
         await stateMachine.setWritePacingDelay(pacing)
         if pacing > 0 {
-            logger.info("[BLE] Platform detected: \(capabilities.model) -> \(platform), write pacing: \(pacing)s")
+            logger.info("[BLE] Platform detected: \(capabilities.model) -> \(detectedPlatform), write pacing: \(pacing)s")
+        }
+    }
+
+    /// Detects and stores the device platform from its model string, used for
+    /// channel-sync throttling and (over BLE) write pacing.
+    ///
+    /// A WiFi radio is always ESP32-class — no nRF52 part ships a WiFi radio, and the
+    /// WiFi companion firmware is ESP32-only — so an unrecognized model on WiFi resolves
+    /// to `.esp32` rather than `.unknown`. Without this, WiFi radios would keep the
+    /// no-skip `.unknown` config and re-read all channels on every sync. BLE keeps the
+    /// conservative `.unknown` fallback, which drives its ESP32-safe write pacing.
+    ///
+    /// Lives here rather than in the BLE/WiFi extensions because `detectedPlatform` has a
+    /// `private(set)` setter that only this file can write.
+    func detectAndStorePlatform(model: String, transportType: TransportType) {
+        var platform = DevicePlatform.detect(from: model)
+        if transportType == .wifi, platform == .unknown {
+            platform = .esp32
+        }
+        detectedPlatform = platform
+        if transportType == .wifi {
+            logger.info("[WiFi] Platform detected: \(model) -> \(platform)")
         }
     }
 

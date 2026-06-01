@@ -211,6 +211,7 @@ extension ConnectionManager {
         deviceID: UUID
     ) async throws {
         let capabilities = try await session.queryDevice()
+        detectAndStorePlatform(model: capabilities.model, transportType: .wifi)
         guard let selfInfo = await session.currentSelfInfo else {
             throw ConnectionError.initializationFailed("No self info")
         }
@@ -320,6 +321,7 @@ extension ConnectionManager {
             self.session = newSession
 
             let (meshCoreSelfInfo, deviceCapabilities) = try await initializeSession(newSession)
+            detectAndStorePlatform(model: deviceCapabilities.model, transportType: .wifi)
 
             // Derive device ID from public key (WiFi devices don't have Bluetooth UUIDs)
             let deviceID = DeviceIdentity.deriveUUID(from: meshCoreSelfInfo.publicKey)

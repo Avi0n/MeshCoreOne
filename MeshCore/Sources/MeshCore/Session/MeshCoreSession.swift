@@ -2209,22 +2209,23 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         }
     }
 
-    /// Reads multiple channels in a single bounded-window pipeline of unacknowledged Write
-    /// Commands, so the radio's per-write slave-latency penalty is paid roughly once instead
-    /// of once per index.
+    /// Reads multiple channels in a single bounded-window pipeline of unacknowledged requests,
+    /// so the per-request stall — BLE slave latency, or the WiFi per-round-trip TCP delay — is
+    /// amortized across the window instead of paid once per index.
     ///
     /// - Returns: `received` are the channels that answered (sorted by index); `missing` are
-    ///   the requested indexes whose Write Command was silently dropped. The caller reconciles
-    ///   `missing` with acknowledged reads — a dropped Write Command is data, not a fatal error.
+    ///   the requested indexes that went unanswered — a dropped BLE Write Command, or a TCP send
+    ///   the radio never replied to. The caller reconciles `missing` with serial acknowledged
+    ///   reads — an unanswered request is data, not a fatal error.
     /// - Throws: ``MeshCoreError`` only on a hard send failure (e.g. disconnect mid-send); an
     ///   idle stall returns the partial set rather than throwing.
     ///
-    /// Falls back to serial ``getChannel(index:)`` reads when the transport does not advertise
-    /// Write-Without-Response, so a radio limited to acknowledged writes still works.
+    /// Falls back to serial ``getChannel(index:)`` reads when the transport does not support
+    /// pipelined reads, so a radio limited to acknowledged serial reads still works.
     public func getChannels(indices: [UInt8]) async throws -> (received: [ChannelInfo], missing: [UInt8]) {
         guard !indices.isEmpty else { return (received: [], missing: []) }
 
-        guard await transport.supportsWriteWithoutResponse else {
+        guard await transport.supportsPipelinedReads else {
             var received: [ChannelInfo] = []
             for index in indices {
                 received.append(try await getChannel(index: index))
@@ -2258,6 +2259,14 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         do {
             // Prime the window before draining so the peripheral's send queue stays non-empty
             // and it does not re-enter slave latency between responses.
+            //
+            // The nRF52 Nordic UART Service does not preserve ATT-write framing: its receive
+            // path reads every byte currently available into one firmware frame, so adjacent
+            // Write Commands delivered in the same connection event are coalesced and only the
+            // first index in the blob is answered. One write is therefore not a guaranteed
+            // response — coalesced-away indexes surface in `missing` and the caller reconciles
+            // them with acknowledged reads. That reconcile path is load-bearing, not just a
+            // disconnect fallback.
             let primeCount = min(window, requested.count)
             for index in requested.prefix(primeCount) {
                 try await sessionTransport.sendWithoutResponse(PacketBuilder.getChannel(index: index))

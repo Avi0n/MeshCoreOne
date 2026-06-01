@@ -27,7 +27,7 @@ public protocol ChannelServiceProtocol: Actor {
     ///   - radioID: The device UUID
     ///   - maxChannels: Maximum number of channels to fetch (from device capacity)
     ///   - usePipelinedRead: When `true`, reads channels via the bounded-window pipeline
-    ///     (nRF52 over BLE); when `false`, uses the serial acknowledged path.
+    ///     (nRF52 over BLE, ESP32 over WiFi); when `false`, uses the serial acknowledged path.
     /// - Returns: Sync result with number of channels synced
     func syncChannels(radioID: UUID, maxChannels: UInt8, usePipelinedRead: Bool) async throws -> ChannelSyncResult
 

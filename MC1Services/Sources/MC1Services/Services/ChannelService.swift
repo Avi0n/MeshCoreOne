@@ -263,11 +263,11 @@ public actor ChannelService {
         )
     }
 
-    /// Pipelined channel read for nRF52 over BLE: one bounded-window `getChannels` exchange in
-    /// place of N serial round-trips, then acknowledged reconciliation of any dropped Write
-    /// Commands. Classification and the single-transaction persist match the serial path so an
-    /// index that could not be read lands in neither the configured nor the unconfigured list
-    /// and is therefore never deleted.
+    /// Pipelined channel read for transports that support it (nRF52 over BLE, ESP32 over WiFi):
+    /// one bounded-window `getChannels` exchange in place of N serial round-trips, then
+    /// acknowledged reconciliation of any dropped requests. Classification and the
+    /// single-transaction persist match the serial path so an index that could not be read lands
+    /// in neither the configured nor the unconfigured list and is therefore never deleted.
     private func syncChannelsPipelined(radioID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
         var syncErrors: [ChannelSyncError] = []
         var configured: [ChannelInfo] = []

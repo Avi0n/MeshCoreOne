@@ -217,7 +217,14 @@ extension PersistenceStore {
             }
         }
 
-        try modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            // Discard the staged upserts and deletes so a later successful save on this shared
+            // context cannot flush them and delete channels this failed pass meant to keep.
+            modelContext.rollback()
+            throw error
+        }
         return try fetchChannels(radioID: radioID)
     }
 
