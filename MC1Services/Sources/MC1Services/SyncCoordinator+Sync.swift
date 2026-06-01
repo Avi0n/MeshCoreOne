@@ -76,7 +76,8 @@ extension SyncCoordinator {
                 forceFullSync: forceFullSync,
                 channelSyncSkipWindow: channelSyncConfig.channelSyncSkipWindow,
                 lastCleanChannelSync: channelSyncConfig.lastCleanChannelSync,
-                lastAttemptedChannelSync: channelSyncConfig.lastAttemptedChannelSync
+                lastAttemptedChannelSync: channelSyncConfig.lastAttemptedChannelSync,
+                usePipelinedRead: channelSyncConfig.usePipelinedChannelRead
             )
 
             // End sync activity before messages phase (pill should hide).
@@ -147,7 +148,7 @@ extension SyncCoordinator {
     }
 
     /// Attempts to resync data after a previous sync failure.
-    /// Unlike onConnectionEstablished, does NOT rewire handlers or restart event monitoring.
+    /// Unlike onConnectionEstablished, does not rewire handlers or restart event monitoring.
     /// - Parameters:
     ///   - radioID: The connected device UUID
     ///   - services: The ServiceContainer with all services
@@ -221,7 +222,7 @@ extension SyncCoordinator {
     /// Wires handlers, starts event monitoring, and performs initial sync.
     ///
     /// This is the critical method that fixes the handler wiring gap:
-    /// 1. Wire message handlers FIRST (before events can arrive)
+    /// 1. Wire message handlers first (before events can arrive)
     /// 2. Start event monitoring (handlers are now ready)
     /// 3. Perform full sync (contacts, channels, messages)
     /// 4. Wire discovery handlers (for ongoing contact discovery)
@@ -260,13 +261,13 @@ extension SyncCoordinator {
             // Defer advert-driven contact fetches during sync to avoid BLE contention
             await services.advertisementService.setSyncingContacts(true)
 
-            // 1. Wire message handlers FIRST (before events can arrive)
+            // 1. Wire message handlers first (before events can arrive)
             await wireMessageHandlers(services: services, radioID: radioID)
 
             // Clean up legacy blocked sender messages still in DB from older app versions
             await deleteBlockedSenderMessages(radioID: radioID, dataStore: services.dataStore)
 
-            // 2. NOW start event monitoring (handlers are ready), but delay auto-fetch and advert monitoring until after sync
+            // 2. Now start event monitoring (handlers are ready), but delay auto-fetch and advert monitoring until after sync
             logger.info("[Sync] Starting event monitoring for device \(radioID.uuidString.prefix(8))")
             await services.startEventMonitoring(radioID: radioID, enableAutoFetch: false)
 
@@ -333,7 +334,7 @@ extension SyncCoordinator {
         }
         isSyncInProgress = false
 
-        // Note: pending reactions are NOT cleared on disconnect - they persist for the app session
+        // Note: pending reactions are not cleared on disconnect - they persist for the app session
         // This handles temporary BLE disconnects without losing queued reactions
         unresolvedChannelIndices.removeAll()
         lastUnresolvedChannelSummaryAt = nil
@@ -370,7 +371,8 @@ extension SyncCoordinator {
         forceFullSync: Bool,
         channelSyncSkipWindow: Duration = .zero,
         lastCleanChannelSync: Date? = nil,
-        lastAttemptedChannelSync: Date? = nil
+        lastAttemptedChannelSync: Date? = nil,
+        usePipelinedRead: Bool = false
     ) async throws -> ContactChannelSyncResult {
         // Fetch device once for both contacts (lastContactSync) and channels (maxChannels)
         let device = try await dataStore.fetchDevice(radioID: radioID)
@@ -456,7 +458,11 @@ extension SyncCoordinator {
                 let channelStart = ContinuousClock.now
                 let channelResult: ChannelSyncResult
                 do {
-                    channelResult = try await channelService.syncChannels(radioID: radioID, maxChannels: maxChannels)
+                    channelResult = try await channelService.syncChannels(
+                        radioID: radioID,
+                        maxChannels: maxChannels,
+                        usePipelinedRead: usePipelinedRead
+                    )
                 } catch let error as CancellationError {
                     throw error
                 } catch {

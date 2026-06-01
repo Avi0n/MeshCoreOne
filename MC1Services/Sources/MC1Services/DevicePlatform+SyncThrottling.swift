@@ -16,11 +16,16 @@ extension DevicePlatform {
     }
 
     /// Builds a channel sync config for a sync operation.
-    func channelSyncConfig(lastCleanChannelSync: Date?, lastAttemptedChannelSync: Date? = nil) -> ChannelSyncConfig {
+    func channelSyncConfig(
+        lastCleanChannelSync: Date?,
+        lastAttemptedChannelSync: Date? = nil,
+        usePipelinedChannelRead: Bool = false
+    ) -> ChannelSyncConfig {
         ChannelSyncConfig(
             channelSyncSkipWindow: channelSyncSkipWindow,
             lastCleanChannelSync: lastCleanChannelSync,
-            lastAttemptedChannelSync: lastAttemptedChannelSync
+            lastAttemptedChannelSync: lastAttemptedChannelSync,
+            usePipelinedChannelRead: usePipelinedChannelRead
         )
     }
 }

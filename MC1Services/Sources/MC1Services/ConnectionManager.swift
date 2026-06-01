@@ -1193,12 +1193,22 @@ public final class ConnectionManager {
 
     /// Builds a channel sync config for the current device and transport.
     /// BLE and WiFi both use platform-specific values because ESP32 radios can saturate either transport.
-    func currentChannelSyncConfig(for radioID: UUID, transportType _: TransportType) -> ChannelSyncConfig {
+    func currentChannelSyncConfig(for radioID: UUID, transportType: TransportType) -> ChannelSyncConfig {
+        // Policy gate: pipeline channel reads only on nRF52 over BLE. ESP32's write
+        // characteristic is write-only (no Write Commands), and WiFi has no slave-latency
+        // penalty to amortize. The session enforces a second capability gate.
+        let usePipelinedChannelRead: Bool
+        switch (detectedPlatform, transportType) {
+        case (.nrf52, .bluetooth): usePipelinedChannelRead = true
+        default: usePipelinedChannelRead = false
+        }
+
         return detectedPlatform.channelSyncConfig(
             lastCleanChannelSync: lastCleanChannelSync?.radioID == radioID
                 ? lastCleanChannelSync?.completedAt : nil,
             lastAttemptedChannelSync: lastAttemptedChannelSync?.radioID == radioID
-                ? lastAttemptedChannelSync?.attemptedAt : nil
+                ? lastAttemptedChannelSync?.attemptedAt : nil,
+            usePipelinedChannelRead: usePipelinedChannelRead
         )
     }
 

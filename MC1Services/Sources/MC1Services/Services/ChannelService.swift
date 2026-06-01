@@ -177,7 +177,11 @@ public actor ChannelService {
     /// - Returns: Sync result with number of channels synced
     /// - Throws: `syncAlreadyInProgress` if another sync is running,
     ///           `circuitBreakerOpen` if too many consecutive timeouts
-    public func syncChannels(radioID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
+    public func syncChannels(
+        radioID: UUID,
+        maxChannels: UInt8,
+        usePipelinedRead: Bool
+    ) async throws -> ChannelSyncResult {
         // Concurrency guard
         guard !isSyncing else {
             logger.warning("Channel sync already in progress, rejecting concurrent request")
@@ -186,6 +190,10 @@ public actor ChannelService {
 
         isSyncing = true
         defer { isSyncing = false }
+
+        if usePipelinedRead {
+            return try await syncChannelsPipelined(radioID: radioID, maxChannels: maxChannels)
+        }
 
         var syncErrors: [ChannelSyncError] = []
         var configured: [ChannelInfo] = []
@@ -242,9 +250,110 @@ public actor ChannelService {
             }
         }
 
-        // Persist the whole pass in a single transaction: upsert configured channels, delete
-        // stale rows at unconfigured slots, and prune orphans beyond device capacity. Indices
-        // skipped by the circuit breaker are left untouched (not in either list).
+        // Persist the whole pass in a single transaction. Indices skipped by the circuit breaker
+        // are left in neither list, so they are untouched.
+        return await finalizeChannelSync(
+            radioID: radioID,
+            maxChannels: maxChannels,
+            configured: configured,
+            unconfiguredIndices: unconfiguredIndices,
+            emptyNameWithSecretIndices: emptyNameWithSecretIndices,
+            syncErrors: syncErrors,
+            pipelined: false
+        )
+    }
+
+    /// Pipelined channel read for nRF52 over BLE: one bounded-window `getChannels` exchange in
+    /// place of N serial round-trips, then acknowledged reconciliation of any dropped Write
+    /// Commands. Classification and the single-transaction persist match the serial path so an
+    /// index that could not be read lands in neither the configured nor the unconfigured list
+    /// and is therefore never deleted.
+    private func syncChannelsPipelined(radioID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
+        var syncErrors: [ChannelSyncError] = []
+        var configured: [ChannelInfo] = []
+        var unconfiguredIndices: [UInt8] = []
+        var emptyNameWithSecretIndices: [UInt8] = []
+
+        // A hard send failure (e.g. disconnect mid-send) throws here, aborting the round with
+        // nothing persisted; an idle stall returns a partial set to reconcile rather than throwing.
+        let (received, missing) = try await session.getChannels(indices: Array(0..<maxChannels))
+
+        for info in received {
+            if Self.isChannelConfigured(name: info.name, secret: info.secret) {
+                configured.append(info)
+                if info.name.isEmpty {
+                    emptyNameWithSecretIndices.append(info.index)
+                }
+            } else {
+                unconfiguredIndices.append(info.index)
+            }
+        }
+
+        // Reconcile dropped Write Commands with acknowledged reads. "Consecutive" failures are
+        // meaningful again on this serial sub-loop, so the circuit breaker applies here. An index
+        // still unread after reconcile stays in neither list, so its row is never deleted.
+        var consecutiveTimeouts = 0
+        let circuitBreakerThreshold = 3
+        for index in missing {
+            if consecutiveTimeouts >= circuitBreakerThreshold {
+                logger.error("Reconcile circuit breaker open: \(consecutiveTimeouts) consecutive timeouts, stopping reconcile")
+                for remaining in missing.drop(while: { $0 != index }) {
+                    syncErrors.append(ChannelSyncError(
+                        index: remaining,
+                        errorType: .circuitBreaker,
+                        description: "Skipped due to circuit breaker"
+                    ))
+                }
+                break
+            }
+
+            do {
+                if let channelInfo = try await fetchChannel(index: index) {
+                    configured.append(channelInfo)
+                    consecutiveTimeouts = 0
+                    if channelInfo.name.isEmpty {
+                        emptyNameWithSecretIndices.append(index)
+                    }
+                } else {
+                    consecutiveTimeouts = 0
+                    unconfiguredIndices.append(index)
+                }
+            } catch {
+                let syncError = classifyError(error, forIndex: index)
+                consecutiveTimeouts = nextConsecutiveFailureCount(
+                    after: syncError,
+                    currentCount: consecutiveTimeouts
+                )
+                logger.warning("Reconcile failed for channel \(index): \(syncError.description)")
+                syncErrors.append(syncError)
+            }
+        }
+
+        return await finalizeChannelSync(
+            radioID: radioID,
+            maxChannels: maxChannels,
+            configured: configured,
+            unconfiguredIndices: unconfiguredIndices,
+            emptyNameWithSecretIndices: emptyNameWithSecretIndices,
+            syncErrors: syncErrors,
+            pipelined: true
+        )
+    }
+
+    /// Persists a completed channel-read pass in a single transaction and reports the result.
+    /// Shared by the serial and pipelined paths so their classification-to-persist tail cannot
+    /// drift: it upserts configured channels, deletes stale rows at unconfigured slots, prunes
+    /// orphans beyond capacity, and never touches an index that landed in neither list.
+    private func finalizeChannelSync(
+        radioID: UUID,
+        maxChannels: UInt8,
+        configured: [ChannelInfo],
+        unconfiguredIndices: [UInt8],
+        emptyNameWithSecretIndices: [UInt8],
+        syncErrors: [ChannelSyncError],
+        pipelined: Bool
+    ) async -> ChannelSyncResult {
+        var syncErrors = syncErrors
         let channels: [ChannelDTO]
         do {
             channels = try await dataStore.batchSaveChannels(
@@ -265,8 +374,9 @@ public actor ChannelService {
             return ChannelSyncResult(channelsSynced: 0, errors: syncErrors)
         }
 
+        let diagnosticsLabel = pipelined ? "Channel sync diagnostics (pipelined)" : "Channel sync diagnostics"
         logger.info(
-            "Channel sync diagnostics: synced=\(configured.count), unconfigured=\(unconfiguredIndices.count), emptyNameWithSecret=\(emptyNameWithSecretIndices.count), errors=\(syncErrors.count)"
+            "\(diagnosticsLabel): synced=\(configured.count), unconfigured=\(unconfiguredIndices.count), emptyNameWithSecret=\(emptyNameWithSecretIndices.count), errors=\(syncErrors.count)"
         )
         if !emptyNameWithSecretIndices.isEmpty {
             logger.warning(
@@ -274,7 +384,6 @@ public actor ChannelService {
             )
         }
 
-        // Notify handler of the full current channel set
         channelUpdateHandler?(channels)
 
         return ChannelSyncResult(channelsSynced: configured.count, errors: syncErrors)

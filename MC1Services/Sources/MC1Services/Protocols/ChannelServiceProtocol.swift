@@ -26,8 +26,10 @@ public protocol ChannelServiceProtocol: Actor {
     /// - Parameters:
     ///   - radioID: The device UUID
     ///   - maxChannels: Maximum number of channels to fetch (from device capacity)
+    ///   - usePipelinedRead: When `true`, reads channels via the bounded-window pipeline
+    ///     (nRF52 over BLE); when `false`, uses the serial acknowledged path.
     /// - Returns: Sync result with number of channels synced
-    func syncChannels(radioID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult
+    func syncChannels(radioID: UUID, maxChannels: UInt8, usePipelinedRead: Bool) async throws -> ChannelSyncResult
 
     /// Retries syncing only the channels that previously failed.
     /// - Parameters:
@@ -35,4 +37,13 @@ public protocol ChannelServiceProtocol: Actor {
     ///   - indices: Channel indices to retry
     /// - Returns: Sync result for the retried channels
     func retryFailedChannels(radioID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult
+}
+
+public extension ChannelServiceProtocol {
+    /// Convenience that defaults to the serial acknowledged read path. A default argument on
+    /// the protocol requirement itself is illegal and ignored by witness matching, so the
+    /// 2-arg form lives here while conformers implement only the 3-arg requirement.
+    func syncChannels(radioID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
+        try await syncChannels(radioID: radioID, maxChannels: maxChannels, usePipelinedRead: false)
+    }
 }
