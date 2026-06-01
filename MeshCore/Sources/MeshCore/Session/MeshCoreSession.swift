@@ -1632,9 +1632,14 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         if let publicKey {
             try requireFullPublicKey(publicKey, operation: "exportContact")
         }
+        let requestedKeyHex = publicKey?.hexString
         return try await sendAndWait(PacketBuilder.exportContact(publicKey: publicKey)) { event in
-            if case .contactURI(let uri) = event { return uri }
-            return nil
+            guard case .contactURI(let uri) = event else { return nil }
+            // The exported card begins with the contact's public key, so a card for a
+            // different contact (e.g. an orphan from a cancelled export whose response
+            // lands after this command's timeout) is rejected rather than returned.
+            if let requestedKeyHex, !uri.contains(requestedKeyHex) { return nil }
+            return uri
         }
     }
 

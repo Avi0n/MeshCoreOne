@@ -331,6 +331,36 @@ struct MeshCoreSessionCommandCorrelationTests {
         await session.stop()
     }
 
+    @Test("exportContact ignores contact URIs for other public keys")
+    func exportContactIgnoresURIsForOtherPublicKeys() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+        )
+
+        try await startSession(session, transport: transport)
+
+        let requestedKey = Data(repeating: 0x11, count: 32)
+        let otherKey = Data(repeating: 0x22, count: 32)
+
+        let exportTask = Task {
+            try await session.exportContact(publicKey: requestedKey)
+        }
+
+        try await waitUntil("exportContact should be sent") {
+            await transport.sentData.count == 2
+        }
+
+        await transport.simulateReceive(makeContactURIPacket(publicKey: otherKey))
+        await transport.simulateReceive(makeContactURIPacket(publicKey: requestedKey))
+
+        let uri = try await exportTask.value
+        #expect(uri.contains(requestedKey.hexString), "exportContact must return the card for the requested key")
+        #expect(!uri.contains(otherKey.hexString), "exportContact must not return another contact's card")
+        await session.stop()
+    }
+
     @Test("importPrivateKey ignores OK responses with payloads")
     func importPrivateKeyIgnoresOKResponsesWithPayloads() async throws {
         let transport = MockTransport()
@@ -1003,6 +1033,15 @@ private func makeMessageSentPacket(
     packet.append(type)
     packet.append(expectedAck)
     packet.append(contentsOf: withUnsafeBytes(of: timeoutMs.littleEndian) { Array($0) })
+    return packet
+}
+
+private func makeContactURIPacket(publicKey: Data) -> Data {
+    var packet = Data([ResponseCode.contactURI.rawValue])
+    packet.append(publicKey)
+    // Trailing card bytes (timestamp/signature/app data) follow the public key; their
+    // contents are irrelevant to the requested-key echo guard.
+    packet.append(Data(repeating: 0xCD, count: 8))
     return packet
 }
 
