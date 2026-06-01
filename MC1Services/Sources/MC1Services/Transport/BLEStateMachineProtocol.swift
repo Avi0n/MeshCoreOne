@@ -71,7 +71,7 @@ public protocol BLEStateMachineProtocol: Actor {
     func setWritePacingDelay(_ delay: TimeInterval)
 
     /// Sets a handler called when a device is discovered during scanning.
-    func setDeviceDiscoveredHandler(_ handler: @escaping @Sendable (UUID, Int) -> Void)
+    func setDeviceDiscoveredHandler(_ handler: @escaping @Sendable (UUID, String?, Int) -> Void)
 
     /// Starts scanning for BLE peripherals. Works while connected.
     func startScanning()

@@ -136,7 +136,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
 
     private var isCurrentlyScanning = false
     private var pendingScanRequest = false
-    private var onDeviceDiscovered: (@Sendable (UUID, Int) -> Void)?
+    private var onDeviceDiscovered: (@Sendable (UUID, String?, Int) -> Void)?
 
     // MARK: - Callbacks
 
@@ -199,7 +199,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     private let centralQueue = DispatchQueue(label: "com.pocketmesh.ble.central")
 
     private func initializeCentralManager() {
-        // Set stateMachine reference BEFORE creating CBCentralManager.
+        // Set stateMachine reference before creating CBCentralManager.
         // iOS calls willRestoreState during or immediately after CBCentralManager.init(),
         // and the delegate handler needs the stateMachine reference to process it.
         delegateHandler.stateMachine = self
@@ -297,7 +297,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     }
 
     /// Checks if a device is connected to the system (possibly by another app).
-    /// Call this BEFORE attempting connection when in `.idle` phase.
+    /// Call this before attempting connection when in `.idle` phase.
     /// - Parameter deviceID: The UUID of the device to check
     /// - Returns: `true` if the device is connected to the system
     public func isDeviceConnectedToSystem(_ deviceID: UUID) -> Bool {
@@ -375,8 +375,8 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     // MARK: - BLE Scanning
 
     /// Sets a handler called when a device is discovered during scanning.
-    /// - Parameter handler: Callback with (deviceID, rssi)
-    public func setDeviceDiscoveredHandler(_ handler: @escaping @Sendable (UUID, Int) -> Void) {
+    /// - Parameter handler: Callback with (deviceID, advertised name, rssi)
+    public func setDeviceDiscoveredHandler(_ handler: @escaping @Sendable (UUID, String?, Int) -> Void) {
         onDeviceDiscovered = handler
     }
 
@@ -410,9 +410,9 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     }
 
     /// Handles a discovered peripheral during scanning.
-    func handleDidDiscoverPeripheral(peripheralID: UUID, rssi: Int) {
+    func handleDidDiscoverPeripheral(peripheralID: UUID, name: String?, rssi: Int) {
         guard isCurrentlyScanning else { return }
-        onDeviceDiscovered?(peripheralID, rssi)
+        onDeviceDiscovered?(peripheralID, name, rssi)
     }
 
     /// Waits for Bluetooth to be powered on.
@@ -1354,7 +1354,7 @@ extension BLEStateMachine {
         serviceDiscoveryTimeoutTask?.cancel()
         serviceDiscoveryTimeoutTask = nil
 
-        // Transition to discoveryComplete BEFORE resuming the continuation.
+        // Transition to discoveryComplete before resuming the continuation.
         // This prevents double-resume if cancelCurrentOperation, disconnect(),
         // or a timeout handler runs before connect() transitions to .connected.
         transition(to: .discoveryComplete(peripheral: expected, tx: tx, rx: rx))
