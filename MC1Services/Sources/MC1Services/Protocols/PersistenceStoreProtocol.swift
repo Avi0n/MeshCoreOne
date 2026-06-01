@@ -162,6 +162,11 @@ public protocol PersistenceStoreProtocol: Actor {
     /// Save or update a contact from DTO
     func saveContact(_ dto: ContactDTO) async throws
 
+    /// Upsert contacts from frames in a single transaction, matching local rows by
+    /// `(radioID, publicKey)`. Returns the number of frames persisted.
+    @discardableResult
+    func batchSaveContacts(radioID: UUID, from frames: [ContactFrame]) async throws -> Int
+
     /// Delete a contact
     func deleteContact(id: UUID) async throws
 
@@ -240,6 +245,19 @@ public protocol PersistenceStoreProtocol: Actor {
 
     /// Save or update a channel from DTO
     func saveChannel(_ dto: ChannelDTO) async throws
+
+    /// Persists a full channel-sync pass in a single transaction: upserts each configured
+    /// `ChannelInfo` (matched by `(radioID, index)`), deletes stale local rows at
+    /// `unconfiguredIndices`, and — when `pruneBeyond` is non-nil — deletes orphaned rows
+    /// whose index is `>= pruneBeyond`. Rows at indices that are neither configured nor
+    /// unconfigured (e.g. skipped by the circuit breaker) are left untouched. Returns all
+    /// channels for the radio after the write, sorted by index.
+    func batchSaveChannels(
+        radioID: UUID,
+        configured: [ChannelInfo],
+        unconfiguredIndices: [UInt8],
+        pruneBeyond maxChannels: UInt8?
+    ) async throws -> [ChannelDTO]
 
     /// Delete a channel
     func deleteChannel(id: UUID) async throws
@@ -482,5 +500,41 @@ public extension PersistenceStoreProtocol {
     /// Update room activity with nil sync timestamp (sort date only)
     func updateRoomActivity(_ sessionID: UUID) async throws {
         try await updateRoomActivity(sessionID, syncTimestamp: nil)
+    }
+
+    /// Default batch upsert built from the per-item `saveContact` path. The concrete
+    /// `PersistenceStore` overrides this with a single-transaction implementation; this
+    /// fallback keeps lightweight test stubs conforming without their own batch logic.
+    @discardableResult
+    func batchSaveContacts(radioID: UUID, from frames: [ContactFrame]) async throws -> Int {
+        for frame in frames {
+            _ = try await saveContact(radioID: radioID, from: frame)
+        }
+        return frames.count
+    }
+
+    /// Default channel-sync persistence built from the per-item operations. The concrete
+    /// `PersistenceStore` overrides this with a single-transaction implementation; this
+    /// fallback keeps lightweight test stubs conforming without their own batch logic.
+    func batchSaveChannels(
+        radioID: UUID,
+        configured: [ChannelInfo],
+        unconfiguredIndices: [UInt8],
+        pruneBeyond maxChannels: UInt8?
+    ) async throws -> [ChannelDTO] {
+        for info in configured {
+            _ = try await saveChannel(radioID: radioID, from: info)
+        }
+        for index in unconfiguredIndices {
+            if let stale = try await fetchChannel(radioID: radioID, index: index) {
+                try await deleteChannel(id: stale.id)
+            }
+        }
+        if let maxChannels {
+            for channel in try await fetchChannels(radioID: radioID) where channel.index >= maxChannels {
+                try await deleteChannel(id: channel.id)
+            }
+        }
+        return try await fetchChannels(radioID: radioID)
     }
 }

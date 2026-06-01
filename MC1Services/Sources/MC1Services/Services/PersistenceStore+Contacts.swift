@@ -108,6 +108,35 @@ extension PersistenceStore {
         return contact.id
     }
 
+    /// Upserts contacts from frames in a single transaction, matching local rows by
+    /// `(radioID, publicKey)`. Commits once for the whole batch instead of once per contact,
+    /// which is the dominant cost of a full contact sync over BLE. Returns the number of
+    /// frames persisted.
+    @discardableResult
+    public func batchSaveContacts(radioID: UUID, from frames: [ContactFrame]) throws -> Int {
+        guard !frames.isEmpty else { return 0 }
+
+        let targetRadioID = radioID
+        let predicate = #Predicate<Contact> { contact in
+            contact.radioID == targetRadioID
+        }
+        let existing = try modelContext.fetch(FetchDescriptor(predicate: predicate))
+        var byKey = Dictionary(existing.map { ($0.publicKey, $0) }, uniquingKeysWith: { current, _ in current })
+
+        for frame in frames {
+            if let row = byKey[frame.publicKey] {
+                row.update(from: frame)
+            } else {
+                let contact = Contact(radioID: radioID, from: frame)
+                modelContext.insert(contact)
+                byKey[frame.publicKey] = contact
+            }
+        }
+
+        try modelContext.save()
+        return frames.count
+    }
+
     /// Save or update a contact from DTO
     public func saveContact(_ dto: ContactDTO) throws {
         let targetID = dto.id

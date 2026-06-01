@@ -174,6 +174,53 @@ extension PersistenceStore {
         return channel.id
     }
 
+    /// Persists a full channel-sync pass in a single transaction. See
+    /// ``PersistenceStoreProtocol/batchSaveChannels(radioID:configured:unconfiguredIndices:pruneBeyond:)``
+    /// for the contract. Collapses the per-index `saveChannel`/`deleteChannel` calls — each its
+    /// own commit, plus a redundant re-fetch — into one fetch, one mutation pass, and one
+    /// `save()`. Indices that were neither confirmed configured nor reported unconfigured are
+    /// left untouched, so a circuit-breaker abort never deletes channels it could not read.
+    public func batchSaveChannels(
+        radioID: UUID,
+        configured: [ChannelInfo],
+        unconfiguredIndices: [UInt8],
+        pruneBeyond maxChannels: UInt8?
+    ) throws -> [ChannelDTO] {
+        let targetRadioID = radioID
+        let predicate = #Predicate<Channel> { channel in
+            channel.radioID == targetRadioID
+        }
+        let existing = try modelContext.fetch(FetchDescriptor(predicate: predicate))
+        var byIndex = Dictionary(existing.map { ($0.index, $0) }, uniquingKeysWith: { current, _ in current })
+
+        for info in configured {
+            if let row = byIndex[info.index] {
+                row.update(from: info)
+            } else {
+                let channel = Channel(radioID: radioID, from: info)
+                modelContext.insert(channel)
+                byIndex[info.index] = channel
+            }
+        }
+
+        for index in unconfiguredIndices {
+            if let stale = byIndex[index] {
+                modelContext.delete(stale)
+                byIndex[index] = nil
+            }
+        }
+
+        if let maxChannels {
+            for (index, row) in byIndex where index >= maxChannels {
+                modelContext.delete(row)
+                byIndex[index] = nil
+            }
+        }
+
+        try modelContext.save()
+        return try fetchChannels(radioID: radioID)
+    }
+
     /// Save or update a channel from DTO
     public func saveChannel(_ dto: ChannelDTO) throws {
         let targetID = dto.id

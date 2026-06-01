@@ -187,10 +187,9 @@ public actor ChannelService {
         isSyncing = true
         defer { isSyncing = false }
 
-        var syncedCount = 0
         var syncErrors: [ChannelSyncError] = []
-        var channels: [ChannelDTO] = []
-        var unconfiguredCount = 0
+        var configured: [ChannelInfo] = []
+        var unconfiguredIndices: [UInt8] = []
         var emptyNameWithSecretIndices: [UInt8] = []
 
         // Circuit breaker state
@@ -214,24 +213,15 @@ public actor ChannelService {
 
             do {
                 if let channelInfo = try await fetchChannel(index: index) {
-                    _ = try await dataStore.saveChannel(radioID: radioID, from: channelInfo)
-                    syncedCount += 1
+                    configured.append(channelInfo)
                     consecutiveTimeouts = 0  // Reset on success
                     if channelInfo.name.isEmpty {
                         emptyNameWithSecretIndices.append(index)
                     }
-
-                    // Fetch the saved channel DTO
-                    if let dto = try await dataStore.fetchChannel(radioID: radioID, index: index) {
-                        channels.append(dto)
-                    }
                 } else {
-                    // Channel not configured on device - delete any stale local entry
+                    // Channel not configured on device - mark its slot for stale-entry cleanup
                     consecutiveTimeouts = 0  // Not-found is not a timeout
-                    unconfiguredCount += 1
-                    if let staleChannel = try await dataStore.fetchChannel(radioID: radioID, index: index) {
-                        try await dataStore.deleteChannel(id: staleChannel.id)
-                    }
+                    unconfiguredIndices.append(index)
                 }
             } catch let error as ChannelServiceError {
                 let syncError = classifyError(error, forIndex: index)
@@ -252,21 +242,31 @@ public actor ChannelService {
             }
         }
 
-        // Clean up orphaned channels (index >= maxChannels)
-        // This handles the case where device capacity decreased
+        // Persist the whole pass in a single transaction: upsert configured channels, delete
+        // stale rows at unconfigured slots, and prune orphans beyond device capacity. Indices
+        // skipped by the circuit breaker are left untouched (not in either list).
+        let channels: [ChannelDTO]
         do {
-            let allLocalChannels = try await dataStore.fetchChannels(radioID: radioID)
-            for channel in allLocalChannels where channel.index >= maxChannels {
-                logger.info("Removing orphaned channel \(channel.index) (maxChannels=\(maxChannels))")
-                try await dataStore.deleteChannel(id: channel.id)
-            }
+            channels = try await dataStore.batchSaveChannels(
+                radioID: radioID,
+                configured: configured,
+                unconfiguredIndices: unconfiguredIndices,
+                pruneBeyond: maxChannels
+            )
         } catch {
-            logger.warning("Failed to cleanup orphaned channels: \(error.localizedDescription)")
-            // Non-fatal: continue with sync result
+            logger.error("Channel batch persist failed: \(error.localizedDescription)")
+            for info in configured {
+                syncErrors.append(ChannelSyncError(
+                    index: info.index,
+                    errorType: .databaseError,
+                    description: "Batch persist failed: \(error.localizedDescription)"
+                ))
+            }
+            return ChannelSyncResult(channelsSynced: 0, errors: syncErrors)
         }
 
         logger.info(
-            "Channel sync diagnostics: synced=\(syncedCount), unconfigured=\(unconfiguredCount), emptyNameWithSecret=\(emptyNameWithSecretIndices.count), errors=\(syncErrors.count)"
+            "Channel sync diagnostics: synced=\(configured.count), unconfigured=\(unconfiguredIndices.count), emptyNameWithSecret=\(emptyNameWithSecretIndices.count), errors=\(syncErrors.count)"
         )
         if !emptyNameWithSecretIndices.isEmpty {
             logger.warning(
@@ -274,10 +274,10 @@ public actor ChannelService {
             )
         }
 
-        // Notify handler of updated channels
+        // Notify handler of the full current channel set
         channelUpdateHandler?(channels)
 
-        return ChannelSyncResult(channelsSynced: syncedCount, errors: syncErrors)
+        return ChannelSyncResult(channelsSynced: configured.count, errors: syncErrors)
     }
 
     /// Retries syncing only the channels that previously failed.
@@ -302,9 +302,8 @@ public actor ChannelService {
         // Brief delay before retry to allow transient issues to resolve
         try await Task.sleep(for: .milliseconds(500))
 
-        var syncedCount = 0
         var syncErrors: [ChannelSyncError] = []
-        var channels: [ChannelDTO] = []
+        var configured: [ChannelInfo] = []
 
         // Circuit breaker for retry (stricter threshold than initial sync)
         var consecutiveTimeouts = 0
@@ -328,13 +327,8 @@ public actor ChannelService {
 
             do {
                 if let channelInfo = try await fetchChannel(index: index) {
-                    _ = try await dataStore.saveChannel(radioID: radioID, from: channelInfo)
-                    syncedCount += 1
+                    configured.append(channelInfo)
                     consecutiveTimeouts = 0  // Reset on success
-
-                    if let dto = try await dataStore.fetchChannel(radioID: radioID, index: index) {
-                        channels.append(dto)
-                    }
                     logger.info("Retry succeeded for channel \(index)")
                 } else {
                     consecutiveTimeouts = 0  // Not-found is not a timeout
@@ -350,13 +344,34 @@ public actor ChannelService {
             }
         }
 
-        // Notify handler if we recovered any channels
-        if !channels.isEmpty {
-            let allChannels = try await dataStore.fetchChannels(radioID: radioID)
-            channelUpdateHandler?(allChannels)
+        // Nothing recovered: skip the persist round-trip and the handler notification.
+        guard !configured.isEmpty else {
+            return ChannelSyncResult(channelsSynced: 0, errors: syncErrors)
         }
 
-        return ChannelSyncResult(channelsSynced: syncedCount, errors: syncErrors)
+        // Upsert the recovered channels in one transaction. Retry only re-fetches previously
+        // failed slots, so it never deletes unconfigured slots or prunes by capacity.
+        do {
+            let allChannels = try await dataStore.batchSaveChannels(
+                radioID: radioID,
+                configured: configured,
+                unconfiguredIndices: [],
+                pruneBeyond: nil
+            )
+            channelUpdateHandler?(allChannels)
+        } catch {
+            logger.error("Retry batch persist failed: \(error.localizedDescription)")
+            for info in configured {
+                syncErrors.append(ChannelSyncError(
+                    index: info.index,
+                    errorType: .databaseError,
+                    description: "Retry persist failed: \(error.localizedDescription)"
+                ))
+            }
+            return ChannelSyncResult(channelsSynced: 0, errors: syncErrors)
+        }
+
+        return ChannelSyncResult(channelsSynced: configured.count, errors: syncErrors)
     }
 
     /// Fetches a single channel from the device with retry logic for transient BLE failures.
