@@ -104,6 +104,14 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
 
     public init() {}
 
+    // MARK: - Test Configuration
+
+    /// Sets the contacts returned by `getContacts(since:)`. Actor isolation forbids writing the
+    /// stub property directly from a test, so configuration goes through this isolated setter.
+    public func setStubbedContacts(_ contacts: [MeshContact]) {
+        stubbedContacts = contacts
+    }
+
     // MARK: - Protocol Methods
 
     public func sendMessage(to destination: Data, text: String, timestamp: Date, attempt: UInt8) async throws -> MessageSentInfo {
