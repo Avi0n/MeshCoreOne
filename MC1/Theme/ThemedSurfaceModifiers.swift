@@ -46,10 +46,11 @@ private struct ThemedCanvasModifier: ViewModifier {
 }
 
 private struct ThemedRowBackgroundModifier: ViewModifier {
+    @Environment(\.isSurfaceElevated) private var isSurfaceElevated
     let theme: Theme
     func body(content: Content) -> some View {
-        if let card = theme.surfaces?.card {
-            content.listRowBackground(card)
+        if let rowFill = theme.surfaces?.rowFill(isElevated: isSurfaceElevated) {
+            content.listRowBackground(rowFill)
         } else {
             content
         }

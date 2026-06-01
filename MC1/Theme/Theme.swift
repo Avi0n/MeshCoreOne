@@ -63,6 +63,16 @@ extension Theme {
             self.canvas = canvas
             self.card = card
         }
+
+        /// Fill for a card-tier list row. In an elevated context (iPad split-view columns, sheets)
+        /// the system collapses its grouped-background tiers, so card rows are painted with the
+        /// canvas to read flush — matching the surface-less default theme on iPad. In a base context
+        /// the distinct card tier is kept, matching the iPhone "card on grouped gray" look. Returns
+        /// `nil` for surfaces without a card tier (Ember), leaving those rows on the system tier.
+        func rowFill(isElevated: Bool) -> Color? {
+            guard let card else { return nil }
+            return isElevated ? canvas : card
+        }
     }
 
     /// Tint to impose on global chrome (buttons, links, controls) at the scene root.
