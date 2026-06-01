@@ -190,6 +190,18 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
         return ChannelInfo(index: index, name: "", secret: Data(repeating: 0, count: 16))
     }
 
+    public func getChannels(indices: [UInt8]) async throws -> (received: [ChannelInfo], missing: [UInt8]) {
+        getChannelIndices.append(contentsOf: indices)
+        if let error = stubbedGetChannelError {
+            throw error
+        }
+        // The firmware answers every requested index, so the mock returns one per request.
+        let received = indices.map { index in
+            stubbedChannels[index] ?? ChannelInfo(index: index, name: "", secret: Data(repeating: 0, count: 16))
+        }
+        return (received: received, missing: [])
+    }
+
     public func setChannel(index: UInt8, name: String, secret: Data) async throws {
         setChannelInvocations.append(SetChannelInvocation(index: index, name: name, secret: secret))
         if let error = stubbedSetChannelError {

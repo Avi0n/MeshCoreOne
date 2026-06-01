@@ -41,6 +41,39 @@ struct DevicePlatformChannelSyncConfigTests {
         #expect(config.lastAttemptedChannelSync == attemptedAt)
     }
 
+    @Test("nRF52 over BLE enables pipelined channel reads")
+    @MainActor
+    func nrf52OverBLEEnablesPipelinedRead() throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+        manager.setTestState(detectedPlatform: .nrf52)
+
+        let config = manager.currentChannelSyncConfig(for: UUID(), transportType: .bluetooth)
+
+        #expect(config.usePipelinedChannelRead)
+    }
+
+    @Test("nRF52 over WiFi does not pipeline channel reads")
+    @MainActor
+    func nrf52OverWiFiDoesNotPipeline() throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+        manager.setTestState(detectedPlatform: .nrf52)
+
+        let config = manager.currentChannelSyncConfig(for: UUID(), transportType: .wifi)
+
+        #expect(!config.usePipelinedChannelRead)
+    }
+
+    @Test("ESP32 over BLE does not pipeline channel reads")
+    @MainActor
+    func esp32OverBLEDoesNotPipeline() throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+        manager.setTestState(detectedPlatform: .esp32)
+
+        let config = manager.currentChannelSyncConfig(for: UUID(), transportType: .bluetooth)
+
+        #expect(!config.usePipelinedChannelRead)
+    }
+
     @Test("Heartbeat pauses while syncing")
     @MainActor
     func heartbeatPausesWhileSyncing() throws {

@@ -25,6 +25,7 @@ public actor MockChannelService: ChannelServiceProtocol {
     public struct SyncChannelsInvocation: Sendable, Equatable {
         public let radioID: UUID
         public let maxChannels: UInt8
+        public let usePipelinedRead: Bool
     }
 
     public struct RetryInvocation: Sendable, Equatable {
@@ -41,8 +42,10 @@ public actor MockChannelService: ChannelServiceProtocol {
 
     // MARK: - Protocol Methods
 
-    public func syncChannels(radioID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
-        syncChannelsInvocations.append(SyncChannelsInvocation(radioID: radioID, maxChannels: maxChannels))
+    public func syncChannels(radioID: UUID, maxChannels: UInt8, usePipelinedRead: Bool) async throws -> ChannelSyncResult {
+        syncChannelsInvocations.append(
+            SyncChannelsInvocation(radioID: radioID, maxChannels: maxChannels, usePipelinedRead: usePipelinedRead)
+        )
         switch stubbedSyncChannelsResult {
         case .success(let result):
             return result

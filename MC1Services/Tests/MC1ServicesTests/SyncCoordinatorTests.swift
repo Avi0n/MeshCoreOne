@@ -250,7 +250,7 @@ struct SyncCoordinatorTests {
             messagePollingService: orderTracker
         )
 
-        // Verify that activity ended BEFORE message polling started
+        // Verify that activity ended before message polling started
         let activityEndedBeforeMessages = await orderTracker.activityEndedBeforeMessagePoll
         #expect(activityEndedBeforeMessages, "Activity should end before message polling starts")
     }
@@ -401,6 +401,55 @@ struct SyncCoordinatorTests {
         // Contact sync should also run
         let contactInvocations = await mockContactService.syncContactsInvocations
         #expect(contactInvocations.count == 1, "Contact sync should run in foreground")
+    }
+
+    @Test("performFullSync forwards the pipelined-read flag from config into channel sync")
+    @MainActor
+    func performFullSyncForwardsPipelinedReadFlag() async throws {
+        let coordinator = SyncCoordinator()
+        let mockContactService = MockContactService()
+        let mockChannelService = MockChannelService()
+        let mockMessagePollingService = MockMessagePollingService()
+        let testDeviceID = UUID()
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
+
+        try await coordinator.performFullSync(
+            radioID: testDeviceID,
+            dataStore: dataStore,
+            contactService: mockContactService,
+            channelService: mockChannelService,
+            messagePollingService: mockMessagePollingService,
+            appStateProvider: nil,
+            channelSyncConfig: ChannelSyncConfig(usePipelinedChannelRead: true)
+        )
+
+        let channelInvocations = await mockChannelService.syncChannelsInvocations
+        #expect(channelInvocations.count == 1)
+        #expect(channelInvocations.last?.usePipelinedRead == true, "Config flag should reach channel sync")
+    }
+
+    @Test("performFullSync defaults channel sync to the serial read path")
+    @MainActor
+    func performFullSyncDefaultsToSerialRead() async throws {
+        let coordinator = SyncCoordinator()
+        let mockContactService = MockContactService()
+        let mockChannelService = MockChannelService()
+        let mockMessagePollingService = MockMessagePollingService()
+        let testDeviceID = UUID()
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
+
+        try await coordinator.performFullSync(
+            radioID: testDeviceID,
+            dataStore: dataStore,
+            contactService: mockContactService,
+            channelService: mockChannelService,
+            messagePollingService: mockMessagePollingService,
+            appStateProvider: nil
+        )
+
+        let channelInvocations = await mockChannelService.syncChannelsInvocations
+        #expect(channelInvocations.count == 1)
+        #expect(channelInvocations.last?.usePipelinedRead == false, "Default config should use the serial path")
     }
 
     @Test("Nil appStateProvider defaults to foreground behavior")
@@ -811,7 +860,7 @@ actor DelayingChannelService: ChannelServiceProtocol {
         }
     }
 
-    func syncChannels(radioID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
+    func syncChannels(radioID: UUID, maxChannels: UInt8, usePipelinedRead: Bool) async throws -> ChannelSyncResult {
         hasStarted = true
         while !startWaiters.isEmpty {
             startWaiters.removeFirst().resume()
