@@ -14,6 +14,21 @@ public struct SessionConfiguration: Sendable {
     /// Maximum total duration allowed for a contact stream.
     public let contactStreamHardTimeout: TimeInterval
 
+    /// Maximum number of `CMD_GET_CHANNEL` Write Commands the pipeline keeps outstanding.
+    /// Bounded below the nRF52 firmware's 12-deep receive queue to leave drop headroom.
+    public let channelPipelineWindow: Int
+
+    /// Maximum idle gap allowed between pipelined channel responses before the remaining
+    /// requests are presumed dropped and surfaced as `missing` for reconciliation.
+    public let channelPipelineIdleTimeout: TimeInterval
+
+    /// Maximum total duration for a pipelined channel read before it returns what it has.
+    public let channelPipelineHardTimeout: TimeInterval
+
+    /// Time to keep draining after the last requested channel arrives, absorbing duplicate or
+    /// straggler frames before releasing the serializer so they cannot leak to the next command.
+    public let channelPipelinePostDrainGrace: TimeInterval
+
     /// Initializes a new session configuration.
     ///
     /// - Parameters:
@@ -21,16 +36,28 @@ public struct SessionConfiguration: Sendable {
     ///   - clientIdentifier: The identifier for this client. Defaults to "MeshCore-Swift".
     ///   - contactStreamInactivityTimeout: The idle timeout for contact list progress.
     ///   - contactStreamHardTimeout: The total timeout for a contact list response.
+    ///   - channelPipelineWindow: Max outstanding pipelined channel reads.
+    ///   - channelPipelineIdleTimeout: Idle gap before remaining pipelined reads are presumed dropped.
+    ///   - channelPipelineHardTimeout: Total duration cap for a pipelined channel read.
+    ///   - channelPipelinePostDrainGrace: Straggler-drain window after the last response.
     public init(
         defaultTimeout: TimeInterval = 5.0,
         clientIdentifier: String = "MeshCore-Swift",
         contactStreamInactivityTimeout: TimeInterval = 15.0,
-        contactStreamHardTimeout: TimeInterval = 180.0
+        contactStreamHardTimeout: TimeInterval = 180.0,
+        channelPipelineWindow: Int = 8,
+        channelPipelineIdleTimeout: TimeInterval = 1.5,
+        channelPipelineHardTimeout: TimeInterval = 30.0,
+        channelPipelinePostDrainGrace: TimeInterval = 0.05
     ) {
         self.defaultTimeout = defaultTimeout
         self.clientIdentifier = clientIdentifier
         self.contactStreamInactivityTimeout = contactStreamInactivityTimeout
         self.contactStreamHardTimeout = contactStreamHardTimeout
+        self.channelPipelineWindow = channelPipelineWindow
+        self.channelPipelineIdleTimeout = channelPipelineIdleTimeout
+        self.channelPipelineHardTimeout = channelPipelineHardTimeout
+        self.channelPipelinePostDrainGrace = channelPipelinePostDrainGrace
     }
 
     /// The default configuration instance.
