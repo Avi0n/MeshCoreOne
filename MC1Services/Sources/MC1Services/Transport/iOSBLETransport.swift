@@ -141,6 +141,19 @@ public actor iOSBLETransport: MeshTransport {
         try await stateMachine.send(data)
     }
 
+    /// Whether the connected radio's write characteristic advertises Write-Without-Response.
+    public var supportsWriteWithoutResponse: Bool {
+        get async { await stateMachine.supportsWriteWithoutResponse }
+    }
+
+    /// Sends data as an unacknowledged ATT Write Command, enabling request pipelining.
+    ///
+    /// - Parameter data: The data to send.
+    /// - Throws: `BLEError.notConnected` if not connected.
+    public func sendWithoutResponse(_ data: Data) async throws {
+        try await stateMachine.sendWithoutResponse(data)
+    }
+
     // MARK: - Extended API
 
     /// UUID of the currently connected device, or nil if not connected.

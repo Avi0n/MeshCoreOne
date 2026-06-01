@@ -134,4 +134,9 @@ final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheral
         let seq = writeSequenceLock.withLock { $0 }
         Task { await sm.handleDidWriteValue(peripheral, characteristic: characteristic, error: error, writeSequence: seq) }
     }
+
+    func peripheralIsReady(toSendWriteWithoutResponse peripheral: CBPeripheral) {
+        guard let sm = stateMachine else { return }
+        Task { await sm.handlePeripheralReadyForWriteWithoutResponse() }
+    }
 }

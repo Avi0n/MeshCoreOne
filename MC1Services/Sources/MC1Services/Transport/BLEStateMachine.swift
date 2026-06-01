@@ -108,6 +108,25 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     /// Tracks the current write timeout task so it can be cancelled when write completes
     private var writeTimeoutTask: Task<Void, Never>?
 
+    /// Whether the connected peripheral's write (tx) characteristic advertises
+    /// `.writeWithoutResponse`. Captured at characteristic discovery (both the normal and
+    /// auto-reconnect branches) and only read while `.connected`, so it cannot go stale for
+    /// the same radio: a fresh value is written before any send can occur. nRF52 (Adafruit
+    /// BLEUart) advertises it; ESP32 does not, so ESP32 stays on the acknowledged path.
+    private var txSupportsWriteWithoutResponse = false
+
+    /// Continuation for a `sendWithoutResponse` caller parked on CoreBluetooth backpressure
+    /// (`canSendWriteWithoutResponse == false`). Resumed by the `peripheralIsReady` delegate
+    /// callback, by `cancelPendingWriteOperations` on teardown, or thrown by its own timeout
+    /// backstop, so a sender never hangs across a disconnect or a peripheral that goes silent.
+    /// Single slot: the pipeline issues one Write Command at a time.
+    private var writeWithoutResponseReadyContinuation: CheckedContinuation<Void, Error>?
+
+    /// Backstop timeout for `writeWithoutResponseReadyContinuation`: fails a parked sender if
+    /// the peripheral never re-signals readiness and no disconnect arrives, so a stuck Write
+    /// Command cannot defeat the session's pipeline timeout and hang the channel sync.
+    private var writeWithoutResponseReadyTimeoutTask: Task<Void, Never>?
+
     /// Tracks the service discovery timeout task so it can be cancelled on success
     private var serviceDiscoveryTimeoutTask: Task<Void, Never>?
 
@@ -521,6 +540,48 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
         try await claimWriteSlot(data: data)
     }
 
+    /// Whether the connected peripheral's write characteristic supports ATT Write Commands.
+    /// Drives the transport's `supportsWriteWithoutResponse` capability gate.
+    public var supportsWriteWithoutResponse: Bool { txSupportsWriteWithoutResponse }
+
+    /// Test observability: whether a `sendWithoutResponse` caller is currently parked
+    /// awaiting peripheral readiness. Reflects existing state; does not alter behavior.
+    var isAwaitingWriteWithoutResponseReady: Bool { writeWithoutResponseReadyContinuation != nil }
+
+    /// Sends data as an unacknowledged ATT Write Command (no `didWriteValue` ACK), which is
+    /// what lets a caller pipeline back-to-back requests.
+    ///
+    /// This path is independent of the `.withResponse` machinery (`pendingWriteContinuation`,
+    /// `writeTimeoutTask`, `writeWaiters`): flow control is CoreBluetooth's
+    /// `canSendWriteWithoutResponse` backpressure plus the caller's bounded send window. It
+    /// deliberately skips `writePacingDelay` — that delay protects the ESP32 RX queue during
+    /// `.withResponse` bursts, and Write Commands are an nRF52-only path. A radio whose write
+    /// characteristic does not advertise the capability degrades to the acknowledged path.
+    public func sendWithoutResponse(_ data: Data) async throws {
+        let myGeneration = connectionGeneration
+
+        guard case .connected(let peripheral, _, _, _) = phase,
+              peripheral.state == .connected else {
+            throw BLEError.notConnected
+        }
+
+        guard txSupportsWriteWithoutResponse else {
+            try await claimWriteSlot(data: data)
+            return
+        }
+
+        try await awaitWriteWithoutResponseReadiness(alreadyReady: peripheral.canSendWriteWithoutResponse)
+
+        // Re-validate after a possible suspension: the connection may have dropped while parked.
+        guard case .connected(let readyPeripheral, let readyTx, _, _) = phase,
+              readyPeripheral.state == .connected,
+              connectionGeneration == myGeneration else {
+            throw BLEError.notConnected
+        }
+
+        readyPeripheral.writeValue(data, for: readyTx, type: .withoutResponse)
+    }
+
     /// Serializes concurrent writes by waiting for any pending write to complete,
     /// then claims the write slot and issues the BLE write.
     private func claimWriteSlot(data: Data) async throws {
@@ -611,6 +672,59 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
         guard !writeWaiters.isEmpty else { return }
         let waiter = writeWaiters.removeFirst()
         waiter.resume()
+    }
+
+    /// Parks the caller until the peripheral can accept another Write Command. Returns
+    /// immediately when `alreadyReady`. Otherwise suspends on a single continuation that is
+    /// resumed by `handlePeripheralReadyForWriteWithoutResponse()`, released on teardown by
+    /// `cancelPendingWriteOperations`, or failed by a timeout backstop — so a peripheral that
+    /// stops signalling readiness cannot hang the sender past the per-write timeout.
+    func awaitWriteWithoutResponseReadiness(alreadyReady: Bool) async throws {
+        guard !alreadyReady else { return }
+        let timeout = writeTimeout
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            // The pipeline issues one Write Command at a time, so the slot is normally free.
+            // Release any stale waiter rather than leak it if that invariant is ever broken.
+            if let stale = writeWithoutResponseReadyContinuation {
+                writeWithoutResponseReadyContinuation = nil
+                writeWithoutResponseReadyTimeoutTask?.cancel()
+                writeWithoutResponseReadyTimeoutTask = nil
+                stale.resume(throwing: BLEError.notConnected)
+            }
+            writeWithoutResponseReadyContinuation = continuation
+            writeWithoutResponseReadyTimeoutTask = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(timeout))
+                guard !Task.isCancelled else { return }
+                await self?.timeoutWriteWithoutResponseReadiness()
+            }
+        }
+    }
+
+    /// Fails a parked `sendWithoutResponse` caller when the peripheral has not re-signalled
+    /// readiness within the backstop interval. A no-op when no caller is parked.
+    private func timeoutWriteWithoutResponseReadiness() {
+        guard let continuation = writeWithoutResponseReadyContinuation else { return }
+        writeWithoutResponseReadyContinuation = nil
+        writeWithoutResponseReadyTimeoutTask = nil
+        logger.warning("[BLE] Write-without-response readiness timeout after \(self.writeTimeout)s")
+        continuation.resume(throwing: BLEError.operationTimeout)
+    }
+
+    /// Resumes a parked `sendWithoutResponse` caller when CoreBluetooth reports the peripheral
+    /// can accept another Write Command. A no-op when no caller is parked.
+    func handlePeripheralReadyForWriteWithoutResponse() {
+        guard let continuation = writeWithoutResponseReadyContinuation else { return }
+        writeWithoutResponseReadyContinuation = nil
+        writeWithoutResponseReadyTimeoutTask?.cancel()
+        writeWithoutResponseReadyTimeoutTask = nil
+        continuation.resume()
+    }
+
+    /// Records whether the resolved write characteristic advertises Write-Without-Response.
+    /// Called from characteristic discovery; the log doubles as the on-device capability check.
+    func captureWriteWithoutResponseCapability(from tx: CBCharacteristic) {
+        txSupportsWriteWithoutResponse = tx.properties.contains(.writeWithoutResponse)
+        logger.info("[BLE] tx writeWithoutResponse capability: \(self.txSupportsWriteWithoutResponse)")
     }
 
     /// Gracefully shuts down the state machine, resuming all pending operations with cancellation.
@@ -1283,6 +1397,8 @@ extension BLEStateMachine {
                 return
             }
 
+            captureWriteWithoutResponseCapability(from: tx)
+
             // Store tx/rx in phase for use when notification subscription completes
             transition(to: .autoReconnecting(peripheral: peripheral, tx: tx, rx: rx))
 
@@ -1312,6 +1428,8 @@ extension BLEStateMachine {
             continuation.resume(throwing: BLEError.characteristicNotFound)
             return
         }
+
+        captureWriteWithoutResponseCapability(from: tx)
 
         transition(to: .subscribingToNotifications(
             peripheral: peripheral,
@@ -1566,6 +1684,9 @@ extension BLEStateMachine {
         while !writeWaiters.isEmpty {
             writeWaiters.removeFirst().resume()
         }
+
+        // Release a Write-Command sender parked on backpressure so it doesn't hang past the drop.
+        handlePeripheralReadyForWriteWithoutResponse()
     }
 
     /// Cancels the current operation, resuming any pending continuation with an error.

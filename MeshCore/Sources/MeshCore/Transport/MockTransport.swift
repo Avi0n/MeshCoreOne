@@ -38,6 +38,27 @@ public actor MockTransport: MeshTransport {
     /// Indicates whether the mock transport is currently "connected".
     public private(set) var isConnected = false
 
+    private var _supportsWriteWithoutResponse = false
+
+    /// Reports the configured Write-Without-Response capability. Defaults to `false` so
+    /// existing tests exercise the acknowledged path unless they opt in.
+    public var supportsWriteWithoutResponse: Bool { _supportsWriteWithoutResponse }
+
+    /// Opts this transport into advertising Write-Without-Response, so a session routes
+    /// through its pipelined `getChannels` path instead of the serial fallback.
+    public func setSupportsWriteWithoutResponse(_ supported: Bool) {
+        _supportsWriteWithoutResponse = supported
+    }
+
+    /// 1-based index of the first send that should fail, simulating a mid-burst transport drop.
+    private var failSendsFromIndex: Int?
+
+    /// Makes the `index`-th (1-based) and all later sends throw, simulating a disconnect that
+    /// strikes after some commands have already gone out.
+    public func failSends(fromSendIndex index: Int) {
+        failSendsFromIndex = index
+    }
+
     /// Initializes a new mock transport in a disconnected state.
     public init() {
         let (stream, continuation) = AsyncStream.makeStream(of: Data.self)
@@ -63,6 +84,9 @@ public actor MockTransport: MeshTransport {
     public func send(_ data: Data) async throws {
         guard isConnected else {
             throw MeshTransportError.notConnected
+        }
+        if let threshold = failSendsFromIndex, sentData.count + 1 >= threshold {
+            throw MeshTransportError.sendFailed("simulated send failure")
         }
         sentData.append(data)
     }
