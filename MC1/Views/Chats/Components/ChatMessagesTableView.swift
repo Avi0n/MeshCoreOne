@@ -96,6 +96,11 @@ struct ChatMessagesTableView: View {
                     await onMentionSeen(id)
                 }
             },
+            onSecondaryClick: { item in
+                if let message = viewModel.message(for: item) {
+                    selectedMessageForActions = message
+                }
+            },
             mentionTargetID: scrollToTargetID,
             scrollToDividerRequest: $scrollToDividerRequest,
             dividerItemID: newMessagesDividerMessageID,
