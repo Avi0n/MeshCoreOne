@@ -3,6 +3,7 @@ import SwiftUI
 /// About and links section
 struct AboutSection: View {
     @Environment(\.appTheme) private var theme
+    let isSidebar: Bool
 
     var body: some View {
         Section {
@@ -48,6 +49,6 @@ struct AboutSection: View {
         } header: {
             Text(L10n.Settings.About.header)
         }
-        .themedRowBackground(theme)
+        .themedRowBackground(theme, flatten: isSidebar)
     }
 }

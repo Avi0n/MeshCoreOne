@@ -11,9 +11,11 @@ extension View {
 
     /// Paint a `Section`'s rows with the theme's card color. No-op for themes without a card tier
     /// (Default, Ember) — preserves system `.secondarySystemGroupedBackground` rendering.
-    /// Apply per Section in `.insetGrouped` lists; omit on `.plain` and `.sidebar`.
-    func themedRowBackground(_ theme: Theme) -> some View {
-        modifier(ThemedRowBackgroundModifier(theme: theme))
+    /// Apply per Section in `.insetGrouped` lists; use `themedPlainRowBackground` on `.plain` lists
+    /// instead. For a `.sidebar`-styled list (the iPad Settings split-view column) pass
+    /// `flatten: true`, so card rows read flush with the canvas instead of as separated cards.
+    func themedRowBackground(_ theme: Theme, flatten: Bool = false) -> some View {
+        modifier(ThemedRowBackgroundModifier(theme: theme, flatten: flatten))
     }
 
     /// Paint a `.plain` list's rows with the theme canvas so the themed background shows through.
@@ -46,10 +48,10 @@ private struct ThemedCanvasModifier: ViewModifier {
 }
 
 private struct ThemedRowBackgroundModifier: ViewModifier {
-    @Environment(\.isSurfaceElevated) private var isSurfaceElevated
     let theme: Theme
+    let flatten: Bool
     func body(content: Content) -> some View {
-        if let rowFill = theme.surfaces?.rowFill(isElevated: isSurfaceElevated) {
+        if let rowFill = theme.surfaces?.rowFill(flatten: flatten) {
             content.listRowBackground(rowFill)
         } else {
             content

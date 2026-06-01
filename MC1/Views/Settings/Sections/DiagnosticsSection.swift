@@ -6,6 +6,7 @@ struct DiagnosticsSection: View {
     @Environment(\.appState) private var appState
     @Environment(\.appTheme) private var theme
     @Binding var exportedFile: ExportedLogFile?
+    let isSidebar: Bool
     @State private var isExporting = false
     @State private var showingClearLogsAlert = false
     @State private var errorMessage: String?
@@ -35,7 +36,7 @@ struct DiagnosticsSection: View {
         } footer: {
             Text(L10n.Settings.Diagnostics.footer)
         }
-        .themedRowBackground(theme)
+        .themedRowBackground(theme, flatten: isSidebar)
         .alert(L10n.Settings.Diagnostics.Alert.Clear.title, isPresented: $showingClearLogsAlert) {
             Button(L10n.Localizable.Common.cancel, role: .cancel) { }
             Button(L10n.Settings.Diagnostics.Alert.Clear.confirm, role: .destructive) {

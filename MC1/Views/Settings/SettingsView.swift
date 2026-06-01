@@ -15,7 +15,8 @@ struct SettingsView: View {
             NavigationSplitView {
                 SettingsListContent(
                     showingDeviceSelection: $showingDeviceSelection,
-                    demoModeManager: demoModeManager
+                    demoModeManager: demoModeManager,
+                    isSidebar: true
                 )
             } detail: {
                 ContentUnavailableView(L10n.Settings.selectSetting, systemImage: "gear")
@@ -24,7 +25,8 @@ struct SettingsView: View {
             NavigationStack {
                 SettingsListContent(
                     showingDeviceSelection: $showingDeviceSelection,
-                    demoModeManager: demoModeManager
+                    demoModeManager: demoModeManager,
+                    isSidebar: false
                 )
             }
         }
@@ -39,15 +41,18 @@ private struct SettingsListContent: View {
     @Environment(\.openURL) private var openURL
     @Binding var showingDeviceSelection: Bool
     @Bindable var demoModeManager: DemoModeManager
+    /// `true` when this list is the iPad split-view sidebar column, whose `.sidebar` style draws
+    /// rows transparent; themed card rows are flattened to canvas to match the system default there.
+    let isSidebar: Bool
     @State private var exportedLogFile: ExportedLogFile?
     private let liveActivityTip = LiveActivityTip()
 
     var body: some View {
         List {
             if let device = appState.connectedDevice {
-                MyDeviceSection(device: device)
+                MyDeviceSection(device: device, isSidebar: isSidebar)
             } else {
-                NoDeviceSection(showingDeviceSelection: $showingDeviceSelection)
+                NoDeviceSection(showingDeviceSelection: $showingDeviceSelection, isSidebar: isSidebar)
             }
 
             Section {
@@ -112,11 +117,11 @@ private struct SettingsListContent: View {
             } header: {
                 Text(L10n.Settings.AppSettings.header)
             }
-            .themedRowBackground(theme)
+            .themedRowBackground(theme, flatten: isSidebar)
 
-            AboutSection()
+            AboutSection(isSidebar: isSidebar)
 
-            DiagnosticsSection(exportedFile: $exportedLogFile)
+            DiagnosticsSection(exportedFile: $exportedLogFile, isSidebar: isSidebar)
 
             if demoModeManager.isUnlocked {
                 Section {
@@ -126,7 +131,7 @@ private struct SettingsListContent: View {
                 } footer: {
                     Text(L10n.Settings.DemoMode.footer)
                 }
-                .themedRowBackground(theme)
+                .themedRowBackground(theme, flatten: isSidebar)
             }
 
             #if DEBUG
@@ -139,7 +144,7 @@ private struct SettingsListContent: View {
             } header: {
                 Text("Debug")
             }
-            .themedRowBackground(theme)
+            .themedRowBackground(theme, flatten: isSidebar)
             #endif
 
             Section {
@@ -154,7 +159,7 @@ private struct SettingsListContent: View {
                 .padding(.bottom)
                 .frame(maxWidth: .infinity)
             }
-            .themedRowBackground(theme)
+            .themedRowBackground(theme, flatten: isSidebar)
         }
         .themedCanvas(theme)
         .navigationTitle(L10n.Settings.title)
@@ -184,6 +189,7 @@ private struct SettingsListContent: View {
 
 private struct MyDeviceSection: View {
     let device: DeviceDTO
+    let isSidebar: Bool
     @Environment(\.appState) private var appState
     @Environment(\.appTheme) private var theme
 
@@ -228,7 +234,7 @@ private struct MyDeviceSection: View {
         } header: {
             Text(L10n.Settings.MyDevice.header)
         }
-        .themedRowBackground(theme)
+        .themedRowBackground(theme, flatten: isSidebar)
     }
 
     private var radioDetailText: String {

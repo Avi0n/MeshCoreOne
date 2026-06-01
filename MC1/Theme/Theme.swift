@@ -64,14 +64,16 @@ extension Theme {
             self.card = card
         }
 
-        /// Fill for a card-tier list row. In an elevated context (iPad split-view columns, sheets)
-        /// the system collapses its grouped-background tiers, so card rows are painted with the
-        /// canvas to read flush — matching the surface-less default theme on iPad. In a base context
-        /// the distinct card tier is kept, matching the iPhone "card on grouped gray" look. Returns
-        /// `nil` for surfaces without a card tier (Ember), leaving those rows on the system tier.
-        func rowFill(isElevated: Bool) -> Color? {
+        /// Fill for a card-tier list row. When `flatten` is set — the top-level Settings list,
+        /// which renders in a `NavigationSplitView` sidebar column where the `.sidebar` style draws
+        /// rows transparent — card rows are painted with the canvas to read flush, matching the
+        /// surface-less default theme there. Otherwise the distinct card tier is kept, matching the
+        /// system's inset-grouped "card on grouped gray" look used everywhere else (sheets, detail
+        /// columns, pushed sub-pages, and all of iPhone). Returns `nil` for surfaces without a card
+        /// tier (Ember), leaving those rows on the system tier.
+        func rowFill(flatten: Bool) -> Color? {
             guard let card else { return nil }
-            return isElevated ? canvas : card
+            return flatten ? canvas : card
         }
     }
 
