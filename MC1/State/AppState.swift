@@ -388,7 +388,7 @@ public final class AppState {
         }
 
         // Wire ConnectionUI callbacks (sync activity, node storage, pills, VoiceOver)
-        // IMPORTANT: Must be set before onConnectionEstablished to avoid race condition
+        // Must be set before onConnectionEstablished to avoid a race condition
         await connectionUI.wireCallbacks(
             syncCoordinator: services.syncCoordinator,
             advertisementService: services.advertisementService,
@@ -665,9 +665,9 @@ public final class AppState {
                 if !onboarding.hasCompletedOnboarding {
                     onboarding.onboardingPath.append(.region)
                 }
-            } catch AccessorySetupKitError.pickerDismissed {
+            } catch DevicePairingError.cancelled {
                 // User cancelled - no error
-            } catch AccessorySetupKitError.pickerAlreadyActive {
+            } catch DevicePairingError.alreadyInProgress {
                 // Picker is already showing - ignore
             } catch let pairingError as PairingError {
                 connectionUI.presentPairingFailure(pairingError)

@@ -3,6 +3,13 @@ import MeshCore
 
 extension ConnectionManager {
 
+    /// The connection methods recorded for a freshly connected BLE device. Centralized so the
+    /// BLE connect and device-switch paths persist an identical `.bluetooth` descriptor rather
+    /// than repeating the literal at each call site.
+    static func bleConnectionMethods(for deviceID: UUID) -> [ConnectionMethod] {
+        [.bluetooth(peripheralUUID: deviceID, displayName: nil)]
+    }
+
     // MARK: - BLE Diagnostics
 
     /// Returns a best-effort snapshot of the BLE state machine for debug exports.
@@ -148,11 +155,11 @@ extension ConnectionManager {
 
     // MARK: - BLE Scanning
 
-    /// Starts scanning for nearby BLE devices and returns an AsyncStream of (deviceID, rssi) discoveries.
+    /// Starts scanning for nearby BLE devices and returns an AsyncStream of `DiscoveredDevice`.
     /// Scanning is orthogonal to the connection lifecycle — works while connected.
     /// Cancel the consuming task to stop scanning automatically.
-    public func startBLEScanning() -> AsyncStream<(UUID, Int)> {
-        let (stream, continuation) = AsyncStream.makeStream(of: (UUID, Int).self)
+    public func startBLEScanning() -> AsyncStream<DiscoveredDevice> {
+        let (stream, continuation) = AsyncStream.makeStream(of: DiscoveredDevice.self)
         bleScanTask?.cancel()
         bleScanRequestID &+= 1
         let requestID = bleScanRequestID
@@ -161,8 +168,8 @@ extension ConnectionManager {
             guard let self else { return }
             guard !Task.isCancelled, requestID == self.bleScanRequestID else { return }
 
-            await self.stateMachine.setDeviceDiscoveredHandler { @Sendable deviceID, rssi in
-                _ = continuation.yield((deviceID, rssi))
+            await self.stateMachine.setDeviceDiscoveredHandler { @Sendable deviceID, name, rssi in
+                _ = continuation.yield(DiscoveredDevice(id: deviceID, name: name, rssi: rssi))
             }
 
             guard !Task.isCancelled, requestID == self.bleScanRequestID else { return }
@@ -176,7 +183,7 @@ extension ConnectionManager {
                 self.bleScanRequestID &+= 1
                 self.bleScanTask?.cancel()
                 self.bleScanTask = nil
-                await self.stateMachine.setDeviceDiscoveredHandler { _, _ in }
+                await self.stateMachine.setDeviceDiscoveredHandler { _, _, _ in }
                 await self.stateMachine.stopScanning()
             }
         }
@@ -189,7 +196,7 @@ extension ConnectionManager {
         bleScanRequestID &+= 1
         bleScanTask?.cancel()
         bleScanTask = nil
-        await stateMachine.setDeviceDiscoveredHandler { _, _ in }
+        await stateMachine.setDeviceDiscoveredHandler { _, _, _ in }
         await stateMachine.stopScanning()
     }
 
@@ -526,14 +533,15 @@ extension ConnectionManager {
             deviceID: deviceID,
             session: newSession,
             selfInfo: meshCoreSelfInfo,
-            capabilities: deviceCapabilities
+            capabilities: deviceCapabilities,
+            connectionMethods: Self.bleConnectionMethods(for: deviceID)
         )
 
         // Persist connection for auto-reconnect
         let radioID = connectedDevice!.radioID
         persistConnection(deviceID: deviceID, radioID: radioID, deviceName: meshCoreSelfInfo.name)
 
-        // Notify observers BEFORE sync starts so they can wire callbacks
+        // Notify observers before sync starts so they can wire callbacks
         // (e.g., AppState needs to set sync activity callbacks for the syncing pill)
         await onConnectionReady?()
         let shouldForceFullSync: Bool
@@ -560,16 +568,15 @@ extension ConnectionManager {
         let bleState = await stateMachine.centralManagerStateName
         let blePhase = await stateMachine.currentPhaseName
         let lastDeviceShort = lastConnectedDeviceID?.uuidString.prefix(8) ?? "none"
-        let pairedAccessories = accessorySetupKit.pairedAccessories
-        let pairedSummary = pairedAccessories.prefix(5).compactMap { accessory -> String? in
-            guard let id = accessory.bluetoothIdentifier else { return nil }
-            return "\(accessory.displayName)(\(id.uuidString.prefix(8)))"
+        let registeredDevices = pairing.registeredDeviceInfos()
+        let pairedSummary = registeredDevices.prefix(5).map { info in
+            "\(info.name)(\(info.id.uuidString.prefix(8)))"
         }
         let pairedSummaryText = pairedSummary.isEmpty ? "none" : pairedSummary.joined(separator: ", ")
 
         logger.warning(
             // swiftlint:disable:next line_length
-            "[BLE] Device not found diagnostics (\(context)) - device: \(deviceID.uuidString.prefix(8)), lastDevice: \(lastDeviceShort), connectionIntent: \(connectionIntent), bleState: \(bleState), blePhase: \(blePhase), askActive: \(accessorySetupKit.isSessionActive), pairedCount: \(pairedAccessories.count), paired: \(pairedSummaryText)"
+            "[BLE] Device not found diagnostics (\(context)) - device: \(deviceID.uuidString.prefix(8)), lastDevice: \(lastDeviceShort), connectionIntent: \(connectionIntent), bleState: \(bleState), blePhase: \(blePhase), pairingSessionActive: \(pairing.isSessionActive), pairedCount: \(registeredDevices.count), paired: \(pairedSummaryText)"
         )
     }
 
@@ -647,8 +654,8 @@ extension ConnectionManager {
         }
     }
 
-    /// Logs Bluetooth state changes for diagnostics.
-    /// Disconnect logic is NOT duplicated here — BLEStateMachine already handles
+    /// Publishes user-actionable Bluetooth availability for the pickers and logs the change.
+    /// Disconnect logic is not duplicated here — BLEStateMachine already handles
     /// `.poweredOff` via `cancelCurrentOperation` which fires `onDisconnection`.
     func handleBluetoothStateChange(_ state: CBManagerState) {
         let stateName: String
@@ -661,6 +668,18 @@ extension ConnectionManager {
         case .poweredOn: stateName = "poweredOn"
         @unknown default: stateName = "unknown(\(state.rawValue))"
         }
+        bluetoothAvailability = Self.bluetoothAvailability(for: state)
         logger.info("[BLE] Bluetooth state changed: \(stateName), connectionState: \(String(describing: self.connectionState)), connectionIntent: \(self.connectionIntent)")
+    }
+
+    /// Maps a raw `CBManagerState` to the user-actionable availability the pickers display. Only the
+    /// two states a person can resolve get a distinct case; transient and unsupported states stay
+    /// `.ready` so the picker keeps scanning rather than offering a remedy that does nothing.
+    private static func bluetoothAvailability(for state: CBManagerState) -> BluetoothAvailability {
+        switch state {
+        case .poweredOff: .poweredOff
+        case .unauthorized: .unauthorized
+        default: .ready
+        }
     }
 }

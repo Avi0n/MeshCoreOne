@@ -41,12 +41,14 @@ extension ConnectionManager {
             createdSuiteName = name
         }
 
+        // Wrap the ASK mock in the production iOS pairing adapter so pairing flows exercise
+        // the real `DevicePairingService` seam while tests still assert on the mock's counts.
         let manager = ConnectionManager(
             modelContainer: container,
             defaults: resolvedDefaults,
             stateMachine: stateMachine,
             transport: mockTransport,
-            accessorySetupKit: mockASK
+            pairing: AccessorySetupPairingService(accessorySetupKit: mockASK)
         )
 
         // Cleanup closure: tests `defer { env.cleanup() }` to remove the persistent

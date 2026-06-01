@@ -61,6 +61,33 @@ struct DeviceSelectionFilterTests {
         #expect(DeviceSelectionFilter.isConnectable(device, pairedAccessoryIDs: [UUID()]))
     }
 
+    @Test("macOS: BLE device with a stored bluetooth method is shown (no ASK registry)")
+    func macBLEDeviceWithMethodShown() {
+        let device = makeDevice(connectionMethods: [
+            .bluetooth(peripheralUUID: UUID(), displayName: "Radio")
+        ])
+
+        // On macOS pairedAccessoryIDs is always empty; the stored method is the signal.
+        #expect(DeviceSelectionFilter.isConnectable(device, pairedAccessoryIDs: [], hasSystemPairingRegistry: false))
+    }
+
+    @Test("macOS: ghost/shadow with no bluetooth method is hidden")
+    func macGhostWithoutMethodHidden() {
+        let device = makeDevice(connectionMethods: [])
+
+        #expect(!DeviceSelectionFilter.isConnectable(device, pairedAccessoryIDs: [], hasSystemPairingRegistry: false))
+    }
+
+    @Test("macOS: a method-less device is hidden even when its id is in the registry set")
+    func macMethodLessDeviceIgnoresRegistry() {
+        let id = UUID()
+        let device = makeDevice(id: id, connectionMethods: [])
+
+        // Without a system pairing registry the stored method is the only signal, so a
+        // populated pairedAccessoryIDs must not flip a method-less device to connectable.
+        #expect(!DeviceSelectionFilter.isConnectable(device, pairedAccessoryIDs: [id], hasSystemPairingRegistry: false))
+    }
+
     private func makeDevice(
         id: UUID = UUID(),
         connectionMethods: [ConnectionMethod]

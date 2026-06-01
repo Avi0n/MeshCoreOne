@@ -25,6 +25,7 @@ public actor MockMeshTransport: iOSMeshTransport {
     /// would deinit and the stream would finish, ending consumer awaits prematurely.
     private let dataContinuation: AsyncStream<Data>.Continuation
     private var connected = false
+    private var connectError: Error?
 
     public init() {
         var continuation: AsyncStream<Data>.Continuation!
@@ -39,6 +40,7 @@ public actor MockMeshTransport: iOSMeshTransport {
 
     public func connect() async throws {
         connectInvocations.append(ConnectInvocation(deviceID: currentDeviceID, timestamp: Date()))
+        if let connectError { throw connectError }
         connected = true
     }
 
@@ -66,6 +68,13 @@ public actor MockMeshTransport: iOSMeshTransport {
     }
 
     // MARK: - Test Helpers
+
+    /// When set, `connect()` records the invocation then throws this error on every attempt,
+    /// modeling a transport that never reaches a BLE link. Lets tests drive the retry budget
+    /// without standing up a real session.
+    public func setConnectError(_ error: Error?) {
+        self.connectError = error
+    }
 
     /// Indicates whether `setReconnectionHandler` was wired up during init.
     /// Tests poll this before invoking `simulateReconnection` to avoid races.

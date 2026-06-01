@@ -87,6 +87,7 @@ struct BluetoothSection: View {
 
             if appState.connectionState == .ready,
                let deviceID = appState.connectedDevice?.id,
+               appState.connectionManager.supportsDeviceRename,
                appState.connectionManager.hasAccessory(for: deviceID) {
                 Button {
                     renameDevice()
@@ -166,13 +167,13 @@ struct BluetoothSection: View {
         // Skip if picker is being synced to device's current state (handles initialization race condition)
         guard newValue != currentPinType else { return }
 
-        // If changing TO custom, show PIN entry
+        // If changing to custom, show PIN entry
         if newValue == .custom && oldValue != .custom {
             showingPinEntry = true
             return
         }
 
-        // If changing FROM custom to default, show confirmation
+        // If changing from custom to default, show confirmation
         if oldValue == .custom && newValue == .default {
             pendingPinType = newValue
             showingRemoveConfirmation = true

@@ -118,4 +118,96 @@ struct DevicePublicKeyDeduplicationTests {
         #expect(device.id == bleUUID)
         #expect(device.radioID == freshRadioID)
     }
+
+    // MARK: - Bluetooth connection method persistence
+
+    /// The BLE connect ceremony passes a `.bluetooth` method so the saved row is
+    /// reachable on macOS, where there is no AccessorySetupKit registry to validate
+    /// against and `DeviceSelectionFilter` treats the method itself as the signal.
+    @Test("createDevice persists the Bluetooth method supplied by the BLE connect path")
+    @MainActor
+    func createDevicePersistsBluetoothMethod() throws {
+        let (cm, _) = try ConnectionManager.createForTesting()
+        let bleUUID = UUID()
+
+        let device = cm.createDevice(
+            deviceID: bleUUID,
+            radioID: UUID(),
+            selfInfo: Self.makeSelfInfo(),
+            capabilities: Self.testCapabilities,
+            autoAddConfig: AutoAddConfig(bitmask: 0),
+            connectionMethods: [.bluetooth(peripheralUUID: bleUUID, displayName: nil)]
+        )
+
+        #expect(device.connectionMethods.contains { $0.isBluetooth })
+    }
+
+    /// A radio reachable over both transports must keep its WiFi method when it
+    /// reconnects over BLE; the merge replaces by transport type rather than
+    /// discarding the other transport.
+    @Test("createDevice merges a Bluetooth method with an existing WiFi method")
+    @MainActor
+    func createDeviceMergesBluetoothWithExistingWiFi() throws {
+        let (cm, _) = try ConnectionManager.createForTesting()
+        let bleUUID = UUID()
+        let existingRadioID = UUID()
+        let existingDevice = DeviceDTO.testDevice(
+            radioID: existingRadioID,
+            publicKey: Self.testPublicKey
+        ).copy {
+            $0.connectionMethods = [.wifi(host: "10.0.0.2", port: 5000, displayName: nil)]
+        }
+
+        let device = cm.createDevice(
+            deviceID: bleUUID,
+            radioID: existingRadioID,
+            selfInfo: Self.makeSelfInfo(),
+            capabilities: Self.testCapabilities,
+            autoAddConfig: AutoAddConfig(bitmask: 0),
+            existingDevice: existingDevice,
+            connectionMethods: [.bluetooth(peripheralUUID: bleUUID, displayName: nil)]
+        )
+
+        // Exactly one of each transport: the Bluetooth method is added without discarding
+        // the WiFi method, and neither transport is duplicated.
+        #expect(device.connectionMethods.filter(\.isWiFi).count == 1)
+        #expect(device.connectionMethods.filter(\.isBluetooth).count == 1)
+    }
+
+    /// Reconnecting over BLE must replace the prior Bluetooth method, not append a second one.
+    /// macOS reachability and the live connect handle both key off the stored peripheralUUID, so
+    /// a stale UUID accumulating alongside the fresh one would strand or mis-route the device.
+    /// This pins the merge loop's `removeAll { $0.isBluetooth }` so dropping it would fail here.
+    @Test("createDevice replaces a stale Bluetooth peripheral UUID instead of accumulating")
+    @MainActor
+    func createDeviceReplacesStaleBluetoothMethod() throws {
+        let (cm, _) = try ConnectionManager.createForTesting()
+        let existingRadioID = UUID()
+        let staleUUID = UUID()
+        let existingDevice = DeviceDTO.testDevice(
+            radioID: existingRadioID,
+            publicKey: Self.testPublicKey
+        ).copy {
+            $0.connectionMethods = [.bluetooth(peripheralUUID: staleUUID, displayName: "Old")]
+        }
+
+        let freshUUID = UUID()
+        let device = cm.createDevice(
+            deviceID: freshUUID,
+            radioID: existingRadioID,
+            selfInfo: Self.makeSelfInfo(),
+            capabilities: Self.testCapabilities,
+            autoAddConfig: AutoAddConfig(bitmask: 0),
+            existingDevice: existingDevice,
+            connectionMethods: [.bluetooth(peripheralUUID: freshUUID, displayName: nil)]
+        )
+
+        let bluetoothMethods = device.connectionMethods.filter(\.isBluetooth)
+        #expect(bluetoothMethods.count == 1)
+        guard case .bluetooth(let uuid, _) = bluetoothMethods.first else {
+            Issue.record("Expected exactly one surviving Bluetooth method")
+            return
+        }
+        #expect(uuid == freshUUID)
+    }
 }

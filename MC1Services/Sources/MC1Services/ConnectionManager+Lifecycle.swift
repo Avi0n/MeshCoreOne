@@ -182,12 +182,13 @@ extension ConnectionManager {
         // Simulator doesn't support real BLE devices - show connection UI for simulator pairing
         return
         #else
-        // Activate AccessorySetupKit early; it is required for ASK events and iOS 26 state restoration.
+        // Activate the pairing session early; on iOS this is AccessorySetupKit, required for
+        // ASK events and iOS 26 state restoration. On macOS this is a no-op.
         do {
-            try await accessorySetupKit.activateSession()
+            try await pairing.activate()
         } catch {
-            logger.error("Failed to activate AccessorySetupKit: \(error.localizedDescription)")
-            // Don't return - WiFi doesn't need ASK
+            logger.error("Failed to activate pairing session: \(error.localizedDescription)")
+            // Don't return - WiFi doesn't need the pairing session
         }
 
         // Skip auto-reconnect if user explicitly disconnected
@@ -308,7 +309,11 @@ extension ConnectionManager {
     /// - Parameters:
     ///   - deviceID: The UUID of the device to connect to
     ///   - forceFullSync: Whether to force a full sync instead of incremental
-    ///   - forceReconnect: When `true`, bypasses the circuit breaker (user-initiated)
+    ///   - forceReconnect: When `true`, marks the connect as user-initiated: it bypasses the
+    ///     circuit breaker, and on a platform without a system pairing registry (macOS) it also
+    ///     bounds the retry budget to `unverifiedConnectAttempts`, so a tap on an out-of-range
+    ///     radio fails fast instead of hanging the full budget. Background reconnects pass
+    ///     `false` to keep the full budget for unattended recovery.
     /// - Throws: Connection errors
     public func connect(to deviceID: UUID, forceFullSync: Bool = false, forceReconnect: Bool = false) async throws {
         // Honor cancellation before any state mutation. Without this checkpoint
@@ -434,20 +439,26 @@ extension ConnectionManager {
         reconnectionCoordinator.clearReconnectingDevice()
 
         do {
-            // Validate device is still registered with ASK
-            if accessorySetupKit.isSessionActive {
-                let isRegistered = accessorySetupKit.pairedAccessories.contains {
-                    $0.bluetoothIdentifier == deviceID
-                }
+            // Validate device is still registered with the pairing registry. macOS reports
+            // no active session, so this guard is skipped and CoreBluetooth resolves the device.
+            if pairing.isSessionActive {
+                let isConnectable = pairing.isDeviceConnectable(deviceID)
 
-                if !isRegistered {
-                    await logDeviceNotFoundDiagnostics(deviceID: deviceID, context: "connect(to:) ASK paired accessories mismatch")
+                if !isConnectable {
+                    await logDeviceNotFoundDiagnostics(deviceID: deviceID, context: "connect(to:) paired accessories mismatch")
                     throw ConnectionError.deviceNotFound
                 }
             }
 
-            // Attempt connection with retry
-            try await connectWithRetry(deviceID: deviceID, maxAttempts: 4)
+            // Attempt connection with retry. Without a system pairing registry (macOS),
+            // CoreBluetooth cannot pre-reject an absent saved peripheral, so a user-initiated
+            // tap on an out-of-range radio would hang the full retry budget. Bound user taps
+            // there; background reconnects (forceReconnect == false) keep the full budget so
+            // unattended recovery still gets every attempt.
+            let maxAttempts = (forceReconnect && !pairing.hasSystemPairingRegistry)
+                ? Self.unverifiedConnectAttempts
+                : Self.defaultConnectAttempts
+            try await connectWithRetry(deviceID: deviceID, maxAttempts: maxAttempts)
         } catch {
             guard connectingDeviceID == deviceID else {
                 logger.info("Connection to \(deviceID.uuidString.prefix(8)) superseded")
@@ -646,13 +657,12 @@ extension ConnectionManager {
         persistIntent()
 
         do {
-            // Validate device is registered with ASK
-            if accessorySetupKit.isSessionActive {
-                let isRegistered = accessorySetupKit.pairedAccessories.contains {
-                    $0.bluetoothIdentifier == deviceID
-                }
-                if !isRegistered {
-                    await logDeviceNotFoundDiagnostics(deviceID: deviceID, context: "switchDevice ASK paired accessories mismatch")
+            // Validate device is registered with the pairing registry. Skipped on macOS,
+            // which has no active session; CoreBluetooth resolves the device on connect.
+            if pairing.isSessionActive {
+                let isConnectable = pairing.isDeviceConnectable(deviceID)
+                if !isConnectable {
+                    await logDeviceNotFoundDiagnostics(deviceID: deviceID, context: "switchDevice paired accessories mismatch")
                     throw ConnectionError.deviceNotFound
                 }
             }
@@ -697,14 +707,15 @@ extension ConnectionManager {
                 deviceID: deviceID,
                 session: newSession,
                 selfInfo: meshCoreSelfInfo,
-                capabilities: deviceCapabilities
+                capabilities: deviceCapabilities,
+                connectionMethods: Self.bleConnectionMethods(for: deviceID)
             )
 
             // Persist connection for auto-reconnect
             let radioID = connectedDevice!.radioID
             persistConnection(deviceID: deviceID, radioID: radioID, deviceName: meshCoreSelfInfo.name)
 
-            // Notify observers BEFORE sync starts so they can wire callbacks
+            // Notify observers before sync starts so they can wire callbacks
             await onConnectionReady?()
             let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, context: "Device switch", forceFullSync: true)
 

@@ -208,7 +208,7 @@ public struct RemoveUnfavoritedResult: Sendable {
 /// Manages the connection lifecycle for mesh devices.
 ///
 /// `ConnectionManager` owns the transport, session, and services. It handles:
-/// - Device pairing via AccessorySetupKit
+/// - Device pairing via the `DevicePairingService` seam (AccessorySetupKit on iOS, in-app scan picker on macOS)
 /// - Connection and disconnection
 /// - Auto-reconnect on connection loss
 /// - Last-device persistence for app restoration
@@ -251,6 +251,11 @@ public final class ConnectionManager {
     /// Current transport type (bluetooth or wifi)
     public internal(set) var currentTransportType: TransportType?
 
+    /// Current user-actionable Bluetooth availability, updated as `CBCentralManager` reports state
+    /// changes. The macOS scan picker reads this to swap its scanning state for a remedy when
+    /// Bluetooth is off or unauthorized; iOS surfaces the same conditions through its system picker.
+    public internal(set) var bluetoothAvailability: BluetoothAvailability = .ready
+
     /// Detected device platform, used for sync throttling config.
     /// Survives reconnects (lives on ConnectionManager, not ServiceContainer).
     private(set) var detectedPlatform: DevicePlatform = .unknown
@@ -281,7 +286,7 @@ public final class ConnectionManager {
     var isPairingInProgress = false
 
     /// Single source of truth for "stand down, an explicit connect flow is running."
-    /// Opportunistic reconnect call sites consult this; OR new conditions in here
+    /// Opportunistic reconnect call sites consult this; or new conditions in here
     /// when the next contention class shows up, so every site picks them up.
     var shouldDeferOpportunisticReconnect: Bool {
         isPairingInProgress
@@ -326,9 +331,25 @@ public final class ConnectionManager {
     /// Provider for app foreground/background state detection
     public var appStateProvider: AppStateProvider?
 
-    /// Number of paired accessories (for troubleshooting UI)
+    /// Number of devices registered with the system pairing registry (for troubleshooting UI).
+    /// iOS reports AccessorySetupKit accessories; macOS reports 0 (no system registry).
     public var pairedAccessoriesCount: Int {
-        accessorySetupKit.pairedAccessories.count
+        pairing.registeredDeviceCount
+    }
+
+    /// Whether the connected device can be renamed through a system rename surface.
+    /// `true` on iOS (AccessorySetupKit rename sheet); `false` on macOS, where the UI must
+    /// hide the rename action rather than offer a control that silently does nothing.
+    public var supportsDeviceRename: Bool {
+        pairing.supportsSystemRename
+    }
+
+    /// Whether this platform has an app-visible system pairing registry (AccessorySetupKit).
+    /// `true` on iOS; `false` on macOS "Designed for iPad". The device picker uses this to
+    /// decide whether registry membership or the stored connection method is the reachability
+    /// signal, and the connect path uses it to bound a user-initiated connect's retry budget.
+    public var hasSystemPairingRegistry: Bool {
+        pairing.hasSystemPairingRegistry
     }
 
     /// Creates a standalone persistence store for operations that don't require services
@@ -343,7 +364,15 @@ public final class ConnectionManager {
     let transport: any iOSMeshTransport
     var wifiTransport: WiFiTransport?
     var session: MeshCoreSession?
-    let accessorySetupKit: any AccessorySetupKitServicing
+    /// Device discovery + system pairing-registry seam. Resolves to AccessorySetupKit on
+    /// iOS, or an in-app CoreBluetooth scan picker on macOS "Designed for iPad".
+    let pairing: any DevicePairingService
+
+    /// Non-nil only on macOS, where the scan picker UI must be presented by the view layer.
+    /// nil on iOS, where AccessorySetupKit presents its own system picker.
+    public var bluetoothScanPicker: BluetoothScanPairingService? {
+        pairing as? BluetoothScanPairingService
+    }
 
     /// Shared BLE state machine to manage connection lifecycle.
     /// This prevents state restoration race conditions that cause "API MISUSE" errors.
@@ -419,6 +448,14 @@ public final class ConnectionManager {
 
     private var circuitBreaker: CircuitBreakerState = .closed
     private static let circuitBreakerCooldown: TimeInterval = 30
+
+    /// Connect-retry budget for a single `connect(to:)` call.
+    /// `default` applies to every attempt on a platform with a system pairing registry, and to
+    /// all background reconnects. `unverified` bounds a *user-initiated* connect on a platform
+    /// without a registry (macOS), where CoreBluetooth cannot pre-reject an absent cached
+    /// peripheral, so the full budget would otherwise leave the user staring at a ~40s spinner.
+    static let defaultConnectAttempts = 4
+    static let unverifiedConnectAttempts = 2
 
     /// Checks whether a connection attempt should proceed.
     /// Returns `true` if the circuit breaker allows it.
@@ -849,13 +886,13 @@ public final class ConnectionManager {
     ///   - modelContainer: The SwiftData model container for persistence
     ///   - stateMachine: Optional BLE state machine for testing. If nil, creates a real BLEStateMachine.
     ///   - transport: Optional iOS mesh transport for testing. If nil, creates an `iOSBLETransport` against the chosen state machine.
-    ///   - accessorySetupKit: Optional ASK picker service for testing. If nil, creates a real `AccessorySetupKitService`.
+    ///   - pairing: Optional pairing service for testing. If nil, `DevicePairingFactory` selects the platform implementation.
     public init(
         modelContainer: ModelContainer,
         defaults: UserDefaults = .standard,
         stateMachine: (any BLEStateMachineProtocol)? = nil,
         transport: (any iOSMeshTransport)? = nil,
-        accessorySetupKit: (any AccessorySetupKitServicing)? = nil
+        pairing: (any DevicePairingService)? = nil
     ) {
         self.modelContainer = modelContainer
         self.defaults = defaults
@@ -874,9 +911,9 @@ public final class ConnectionManager {
             self.transport = iOSBLETransport(stateMachine: BLEStateMachine())
         }
 
-        self.accessorySetupKit = accessorySetupKit ?? AccessorySetupKitService()
+        self.pairing = pairing ?? DevicePairingFactory.make()
 
-        self.accessorySetupKit.delegate = self
+        self.pairing.delegate = self
         reconnectionCoordinator.delegate = self
 
         // Wire up transport handlers
@@ -1173,7 +1210,7 @@ public final class ConnectionManager {
     ///
     /// - Parameter additionalGuard: Caller-specific invariant checked at every guard point,
     ///   including after async operations like `syncDeviceTimeIfNeeded()`. This cannot be an
-    ///   inline check at the call site because the invariant must hold both before AND after
+    ///   inline check at the call site because the invariant must hold both before and after
     ///   the internal awaits — a competing reconnect cycle could start during time sync,
     ///   and promoting a stale session to `.ready` would shadow the new one.
     ///   Currently only `rebuildSession` uses this (reconnect-generation check).

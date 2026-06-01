@@ -62,7 +62,13 @@ extension OnboardingState {
         regionAlreadySet: Bool
     ) async -> [OnboardingStep] {
         guard !hasCompletedOnboarding else { return [] }
-        guard connectionManager.pairedAccessoriesCount > 0 else { return [] }
+        // `pairedAccessoriesCount` is the AccessorySetupKit count, always 0 on macOS (no
+        // registry), so fall back to `lastConnectedDeviceID` — set only after a real successful
+        // connect and cleared when a device is forgotten, never by a backup import — as the
+        // platform-independent "this install has actually connected a radio" signal. A raw
+        // saved-device count would wrongly resume for backup-restored shadows and demoted ghosts.
+        guard connectionManager.pairedAccessoriesCount > 0
+            || connectionManager.lastConnectedDeviceID != nil else { return [] }
 
         let notificationStatus = await UNUserNotificationCenter.current()
             .notificationSettings().authorizationStatus

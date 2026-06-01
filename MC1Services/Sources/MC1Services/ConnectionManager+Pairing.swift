@@ -5,18 +5,19 @@ import MeshCore
 
 extension ConnectionManager {
 
-    /// Pairs a new device using AccessorySetupKit picker, then connects through the
-    /// shared `connect(to:)` ceremony. The connect path coordinates with in-flight
-    /// auto-reconnects, switch-device handling, and the circuit breaker, which
-    /// `connectAfterPairing`'s direct `performConnection` call used to bypass.
+    /// Discovers a new device through the platform pairing service (AccessorySetupKit on
+    /// iOS, an in-app CoreBluetooth scan picker on macOS), then connects through the shared
+    /// `connect(to:)` ceremony. The connect path coordinates with in-flight auto-reconnects,
+    /// switch-device handling, and the circuit breaker, which `connectAfterPairing`'s direct
+    /// `performConnection` call used to bypass.
     ///
     /// **Cancellation behavior** (per `await`):
-    /// - `accessorySetupKit.showPicker()` — `withTaskCancellationHandler` resumes the
-    ///   continuation with `CancellationError`. The system picker may stay visible
+    /// - `pairing.discoverDevice()` — `withTaskCancellationHandler` resumes the
+    ///   continuation with `CancellationError`. On iOS the system picker may stay visible
     ///   (no public ASK API to dismiss programmatically without invalidating the
     ///   session); if the user completes pairing in the orphaned picker,
-    ///   `accessoryAdded` removes the bond immediately. ASK has not added the
-    ///   device when this point is reached, so no cleanup needed here.
+    ///   `accessoryAdded` removes the bond immediately. The device is not registered
+    ///   when this point is reached, so no cleanup needed here.
     /// - `waitForOtherAppReconnection` — checks `Task.isCancelled` at the top of
     ///   each iteration and short-circuits to `false`. The subsequent
     ///   `try await connect(to:)` then surfaces the cancellation via its
@@ -30,7 +31,7 @@ extension ConnectionManager {
     /// `false` on next launch. No persistent state corruption.
     ///
     /// - Throws:
-    ///   - `AccessorySetupKitError.pickerAlreadyActive` on re-entry.
+    ///   - `DevicePairingError.alreadyInProgress` on re-entry.
     ///   - `PairingError.deviceConnectedToOtherApp` when another app holds the radio.
     ///   - `PairingError.connectionFailed` for any other connection failure (auth,
     ///     timeout, transport error). The wrapped `underlying` is checked by
@@ -39,7 +40,7 @@ extension ConnectionManager {
     public func pairNewDevice() async throws {
         logger.info("Starting device pairing")
         guard !isPairingInProgress else {
-            throw AccessorySetupKitError.pickerAlreadyActive
+            throw DevicePairingError.alreadyInProgress
         }
         isPairingInProgress = true
         defer { isPairingInProgress = false }
@@ -49,7 +50,7 @@ extension ConnectionManager {
 
         await stopBLEScanning()
 
-        let deviceID = try await accessorySetupKit.showPicker()
+        let deviceID = try await pairing.discoverDevice()
 
         if await waitForOtherAppReconnection(deviceID) {
             throw PairingError.deviceConnectedToOtherApp(deviceID: deviceID)
@@ -79,15 +80,13 @@ extension ConnectionManager {
         }
     }
 
-    /// Removes a partially-paired device from ASK after `connect(to:)` was cancelled
-    /// mid-flight. ASK has the device; we don't. Without this cleanup, iOS retains
-    /// a paired bond with no app-level state, surfacing as a phantom device in
-    /// Settings → Bluetooth that won't show up in the picker again.
+    /// Removes a partially-paired device from the system registry after `connect(to:)` was
+    /// cancelled mid-flight. On iOS the system has the device; we don't. Without this cleanup,
+    /// iOS retains a paired bond with no app-level state, surfacing as a phantom device in
+    /// Settings → Bluetooth that won't show up in the picker again. No-op on macOS.
     private func cleanupPartialPairing(deviceID: UUID) async {
-        logger.info("Pairing cancelled — removing device \(deviceID.uuidString.prefix(8)) from ASK")
-        if let accessory = accessorySetupKit.accessory(for: deviceID) {
-            try? await accessorySetupKit.removeAccessory(accessory)
-        }
+        logger.info("Pairing cancelled — removing device \(deviceID.uuidString.prefix(8)) from pairing registry")
+        try? await pairing.removeDevice(deviceID)
         // Defensive backstop — connectWithRetry and switchDevice both reset state
         // on throw, so this is normally a no-op. Kept so a future cancellation
         // path that lands here without doing so still leaves a clean UI.
@@ -103,13 +102,10 @@ extension ConnectionManager {
 
         await transport.disconnect()
 
-        if let accessory = accessorySetupKit.accessory(for: deviceID) {
-            do {
-                try await accessorySetupKit.removeAccessory(accessory)
-                logger.info("Removed device from ASK")
-            } catch {
-                logger.warning("Failed to remove from ASK: \(error.localizedDescription)")
-            }
+        do {
+            try await pairing.removeDevice(deviceID)
+        } catch {
+            logger.warning("Failed to remove from pairing registry: \(error.localizedDescription)")
         }
 
         let dataStore = PersistenceStore(modelContainer: modelContainer)
@@ -173,14 +169,14 @@ extension ConnectionManager {
             throw ConnectionError.notConnected
         }
 
-        guard let accessory = accessorySetupKit.accessory(for: deviceID) else {
+        guard pairing.isDeviceConnectable(deviceID) else {
             throw ConnectionError.deviceNotFound
         }
 
         logger.info("Forgetting device: \(deviceID), deleteData: \(deleteData)")
 
         await disconnect(reason: .forgetDevice)
-        try await accessorySetupKit.removeAccessory(accessory)
+        try await pairing.removeDevice(deviceID)
 
         let dataStore = PersistenceStore(modelContainer: modelContainer)
         do {
@@ -205,12 +201,10 @@ extension ConnectionManager {
 
         await disconnect(reason: .factoryReset)
 
-        if let accessory = accessorySetupKit.accessory(for: id) {
-            do {
-                try await accessorySetupKit.removeAccessory(accessory)
-            } catch {
-                logger.warning("Failed to remove accessory from ASK: \(error.localizedDescription)")
-            }
+        do {
+            try await pairing.removeDevice(id)
+        } catch {
+            logger.warning("Failed to remove device from pairing registry: \(error.localizedDescription)")
         }
 
         let dataStore = PersistenceStore(modelContainer: modelContainer)
@@ -218,6 +212,12 @@ extension ConnectionManager {
             try await dataStore.deleteDeviceAndData(id: id)
         } catch {
             logger.warning("Failed to delete device data from SwiftData: \(error.localizedDescription)")
+        }
+
+        // Drop the auto-reconnect / resume signal if we just forgot the device this install
+        // last connected to, so it can't trigger a phantom reconnect or onboarding resume.
+        if lastConnectedDeviceID == id {
+            clearPersistedConnection()
         }
 
         logger.info("Device forgotten by ID: \(id)")
@@ -319,21 +319,11 @@ extension ConnectionManager {
 
     // MARK: - Stale Pairings
 
-    /// Clears all stale pairings from AccessorySetupKit.
-    /// Use when a device has been factory-reset but iOS still has the old pairing.
+    /// Clears all stale pairings from the system registry (AccessorySetupKit on iOS).
+    /// Use when a device has been factory-reset but iOS still has the old pairing. No-op on macOS.
     public func clearStalePairings() async {
-        let accessories = self.accessorySetupKit.pairedAccessories
-        logger.info("Clearing \(accessories.count) stale pairings")
-
-        for accessory in accessories {
-            do {
-                try await self.accessorySetupKit.removeAccessory(accessory)
-            } catch {
-                // Continue trying to remove others even if one fails
-                logger.warning("Failed to remove accessory: \(error.localizedDescription)")
-            }
-        }
-
+        logger.info("Clearing stale pairings")
+        await pairing.clearStaleRegistrations()
         logger.info("Stale pairings cleared")
     }
 
@@ -481,11 +471,11 @@ extension ConnectionManager {
 
     // MARK: - Accessory Management
 
-    /// Checks if an accessory is registered with AccessorySetupKit.
+    /// Checks if a device is registered with the system pairing registry.
     /// - Parameter deviceID: The Bluetooth UUID of the device
-    /// - Returns: `true` if the accessory is available for connection
+    /// - Returns: `true` if the device is available for connection (always `true` on macOS).
     public func hasAccessory(for deviceID: UUID) -> Bool {
-        accessorySetupKit.accessory(for: deviceID) != nil
+        pairing.isDeviceConnectable(deviceID)
     }
 
     /// Fetches all previously paired devices from storage.
@@ -505,41 +495,48 @@ extension ConnectionManager {
         logger.info("deleteDevice called for device: \(id)")
         let dataStore = PersistenceStore(modelContainer: modelContainer)
         try await dataStore.demoteDeviceToGhost(id: id)
+
+        // Drop the auto-reconnect / onboarding-resume signal when the deleted row is the one
+        // this install last connected to, mirroring the sibling forget paths. Without this the
+        // macOS no-validation connect path grinds the full retry budget toward a device the
+        // user removed, and `OnboardingState.suggestedStartingPath` still resumes onto it.
+        if lastConnectedDeviceID == id {
+            clearPersistedConnection()
+        }
+
         logger.info("deleteDevice completed for device: \(id)")
     }
 
-    /// Returns paired accessories from AccessorySetupKit.
-    /// Use as fallback when SwiftData has no device records.
+    /// Returns devices registered with the system pairing registry (AccessorySetupKit on iOS).
+    /// Use as fallback when SwiftData has no device records. Empty on macOS.
     public var pairedAccessoryInfos: [(id: UUID, name: String)] {
-        accessorySetupKit.pairedAccessories.compactMap { accessory in
-            guard let id = accessory.bluetoothIdentifier else { return nil }
-            return (id: id, name: accessory.displayName)
-        }
+        pairing.registeredDeviceInfos()
     }
 
-    /// Renames the currently connected device via AccessorySetupKit.
+    /// Renames the currently connected device via the system rename UI (AccessorySetupKit on iOS).
+    /// No-op on macOS, where there is no system rename surface.
     /// - Throws: `ConnectionError.notConnected` if no device is connected
     public func renameCurrentDevice() async throws {
         guard let deviceID = connectedDevice?.id else {
             throw ConnectionError.notConnected
         }
 
-        guard let accessory = accessorySetupKit.accessory(for: deviceID) else {
+        guard pairing.isDeviceConnectable(deviceID) else {
             throw ConnectionError.deviceNotFound
         }
 
-        try await accessorySetupKit.renameAccessory(accessory)
+        try await pairing.renameDevice(deviceID)
     }
 }
 
-// MARK: - AccessorySetupKitServiceDelegate
+// MARK: - DevicePairingDelegate
 
-extension ConnectionManager: AccessorySetupKitServiceDelegate {
-    public func accessorySetupKitService(
-        _ service: AccessorySetupKitService,
-        didRemoveAccessoryWithID bluetoothID: UUID
+extension ConnectionManager: DevicePairingDelegate {
+    public func devicePairing(
+        _ service: any DevicePairingService,
+        didRemoveDeviceWithID bluetoothID: UUID
     ) {
-        logger.info("Device removed from ASK: \(bluetoothID)")
+        logger.info("Device removed from pairing registry: \(bluetoothID)")
 
         Task {
             if connectedDevice?.id == bluetoothID {
@@ -561,9 +558,9 @@ extension ConnectionManager: AccessorySetupKitServiceDelegate {
         }
     }
 
-    public func accessorySetupKitService(
-        _ service: AccessorySetupKitService,
-        didFailPairingForAccessoryWithID bluetoothID: UUID
+    public func devicePairing(
+        _ service: any DevicePairingService,
+        didFailPairingForDeviceWithID bluetoothID: UUID
     ) {
         // Clean up device record so the device can appear in picker again.
         // No data cascade — failed pairings have no associated data.
