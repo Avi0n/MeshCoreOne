@@ -293,3 +293,28 @@
 
 /* Location: RegionStepView.swift - Error shown when user-initiated retry of "Use my location" cannot resolve a region */
 "region.useMyLocation.failure" = "Locatieopzoeking gaf geen regio terug. Kies hieronder handmatig.";
+
+
+// MARK: - Device Scanner Sheet (macOS)
+
+/* Location: DeviceScannerSheet.swift - Navigation title for the macOS BLE scanner */
+"deviceScanner.title" = "Apparaat selecteren";
+
+/* Location: DeviceScannerSheet.swift - Placeholder name for peripherals with no advertised name */
+"deviceScanner.unknownDevice" = "Onbekend apparaat";
+
+/* Location: DeviceScannerSheet.swift - Empty state shown while scanning for devices */
+"deviceScanner.scanning" = "Apparaten zoeken…";
+
+/* Location: DeviceScannerSheet.swift - Title shown when Bluetooth is powered off on the macOS scanner */
+"deviceScanner.bluetoothOff.title" = "Bluetooth is uit";
+
+/* Location: DeviceScannerSheet.swift - Guidance shown when Bluetooth is powered off on the macOS scanner */
+"deviceScanner.bluetoothOff.message" = "Schakel Bluetooth in om naar apparaten in de buurt te zoeken.";
+
+/* Location: DeviceScannerSheet.swift - Title shown when the app is not authorized to use Bluetooth */
+"deviceScanner.bluetoothUnauthorized.title" = "Bluetooth-toegang vereist";
+
+/* Location: DeviceScannerSheet.swift - Guidance shown when the app is not authorized to use Bluetooth */
+"deviceScanner.bluetoothUnauthorized.message" = "Geef Bluetooth-toegang in Instellingen om naar apparaten in de buurt te zoeken.";
+

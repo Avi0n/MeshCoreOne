@@ -187,6 +187,11 @@
 /* VoiceOver announcement when device reconnects */
 "accessibility.connection.deviceReconnected" = "Пристрій перепідключено";
 
+/* VoiceOver signal-strength descriptors for the device picker signal bars */
+"accessibility.signalStrength.weak" = "Слабкий сигнал";
+"accessibility.signalStrength.medium" = "Середній сигнал";
+"accessibility.signalStrength.strong" = "Сильний сигнал";
+
 
 // MARK: - Status Pill
 

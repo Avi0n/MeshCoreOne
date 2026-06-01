@@ -2126,6 +2126,14 @@ public enum L10n {
         /// VoiceOver announcement when sync fails and device is disconnecting
         public static let syncFailedDisconnecting = L10n.tr("Localizable", "accessibility.connection.syncFailedDisconnecting", fallback: "Sync failed. Disconnecting.")
       }
+      public enum SignalStrength {
+        /// Medium signal
+        public static let medium = L10n.tr("Localizable", "accessibility.signalStrength.medium", fallback: "Medium signal")
+        /// Strong signal
+        public static let strong = L10n.tr("Localizable", "accessibility.signalStrength.strong", fallback: "Strong signal")
+        /// VoiceOver signal-strength descriptors for the device picker signal bars
+        public static let `weak` = L10n.tr("Localizable", "accessibility.signalStrength.weak", fallback: "Weak signal")
+      }
     }
     public enum Alert {
       public enum ConnectionFailed {
@@ -2443,6 +2451,26 @@ public enum L10n {
         public static let authenticationFailed = L10n.tr("Onboarding", "deviceScan.error.authenticationFailed", fallback: "Couldn't pair the device. Check the PIN, then remove the device and try again.")
         /// Couldn't connect to the device. Try again, or remove it if the problem continues.
         public static let connectionFailed = L10n.tr("Onboarding", "deviceScan.error.connectionFailed", fallback: "Couldn't connect to the device. Try again, or remove it if the problem continues.")
+      }
+    }
+    public enum DeviceScanner {
+      /// Location: DeviceScannerSheet.swift - Empty state shown while scanning for devices
+      public static let scanning = L10n.tr("Onboarding", "deviceScanner.scanning", fallback: "Scanning for devices…")
+      /// Location: DeviceScannerSheet.swift - Navigation title for the macOS BLE scanner
+      public static let title = L10n.tr("Onboarding", "deviceScanner.title", fallback: "Select Device")
+      /// Location: DeviceScannerSheet.swift - Placeholder name for peripherals with no advertised name
+      public static let unknownDevice = L10n.tr("Onboarding", "deviceScanner.unknownDevice", fallback: "Unknown Device")
+      public enum BluetoothOff {
+        /// Location: DeviceScannerSheet.swift - Guidance shown when Bluetooth is powered off on the macOS scanner
+        public static let message = L10n.tr("Onboarding", "deviceScanner.bluetoothOff.message", fallback: "Turn on Bluetooth to scan for nearby devices.")
+        /// Location: DeviceScannerSheet.swift - Title shown when Bluetooth is powered off on the macOS scanner
+        public static let title = L10n.tr("Onboarding", "deviceScanner.bluetoothOff.title", fallback: "Bluetooth Is Off")
+      }
+      public enum BluetoothUnauthorized {
+        /// Location: DeviceScannerSheet.swift - Guidance shown when the app is not authorized to use Bluetooth
+        public static let message = L10n.tr("Onboarding", "deviceScanner.bluetoothUnauthorized.message", fallback: "Allow Bluetooth access in Settings to scan for nearby devices.")
+        /// Location: DeviceScannerSheet.swift - Title shown when the app is not authorized to use Bluetooth
+        public static let title = L10n.tr("Onboarding", "deviceScanner.bluetoothUnauthorized.title", fallback: "Bluetooth Access Needed")
       }
     }
     public enum MeshAnimation {

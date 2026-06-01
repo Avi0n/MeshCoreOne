@@ -208,6 +208,11 @@
 /* VoiceOver announcement when device reconnects */
 "accessibility.connection.deviceReconnected" = "设备已重新连接";
 
+/* VoiceOver signal-strength descriptors for the device picker signal bars */
+"accessibility.signalStrength.weak" = "弱信号";
+"accessibility.signalStrength.medium" = "中等信号";
+"accessibility.signalStrength.strong" = "强信号";
+
 
 // MARK: - Status Pill
 

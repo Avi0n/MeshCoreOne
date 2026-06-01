@@ -64,7 +64,7 @@ targets:
         basedOnDependencyAnalysis: false
     settings:
       base:
-        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         MARKETING_VERSION: 0.11.0
         CURRENT_PROJECT_VERSION: 1

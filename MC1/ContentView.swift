@@ -72,6 +72,16 @@ struct ContentView: View {
         } message: {
             Text(L10n.Localizable.Alert.CouldNotConnect.otherAppMessage)
         }
+        // macOS "Designed for iPad" device picker. `bluetoothScanPicker` is nil on iOS, where
+        // AccessorySetupKit presents its own system picker, so this sheet never appears there.
+        .sheet(isPresented: Binding(
+            get: { appState.connectionManager.bluetoothScanPicker?.isPresenting ?? false },
+            set: { if !$0 { appState.connectionManager.bluetoothScanPicker?.cancel() } }
+        )) {
+            if let scanPicker = appState.connectionManager.bluetoothScanPicker {
+                DeviceScannerSheet(picker: scanPicker)
+            }
+        }
     }
 }
 

@@ -181,8 +181,8 @@ struct DeviceScanView: View {
                 await appState.wireServicesIfConnected()
                 pairingSuccessTrigger.toggle()
                 appState.onboarding.onboardingPath.append(.region)
-            } catch AccessorySetupKitError.pickerDismissed {
-            } catch AccessorySetupKitError.pickerAlreadyActive {
+            } catch DevicePairingError.cancelled {
+            } catch DevicePairingError.alreadyInProgress {
             } catch let pairingError as PairingError {
                 if case .deviceConnectedToOtherApp(let deviceID) = pairingError {
                     otherAppDeviceID = deviceID

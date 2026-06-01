@@ -194,6 +194,11 @@
 /* VoiceOver announcement when device reconnects */
 "accessibility.connection.deviceReconnected" = "Apparaat opnieuw verbonden";
 
+/* VoiceOver signal-strength descriptors for the device picker signal bars */
+"accessibility.signalStrength.weak" = "Zwak signaal";
+"accessibility.signalStrength.medium" = "Gemiddeld signaal";
+"accessibility.signalStrength.strong" = "Sterk signaal";
+
 
 // MARK: - Status Pill
 
