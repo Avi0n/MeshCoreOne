@@ -104,7 +104,6 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     private let clock: any Clock<Duration>
     private let dispatcher = EventDispatcher()
     private let pendingRequests = PendingRequests()
-    private let binaryRequestSerializer = BinaryRequestSerializer()
     private let requestResponseSerializer = RequestResponseSerializer()
 
     // State
@@ -654,7 +653,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         try await requestResponseSerializer.withSerialization { [self] in
             let effectiveTimeout = timeout ?? configuration.defaultTimeout
 
-            // Subscribe BEFORE sending to avoid race condition, then ignore all
+            // Subscribe before sending to avoid race condition, then ignore all
             // non-matching events until this request sees its own response.
             let (subscriptionID, events) = await dispatcher.subscribeTracked()
 
@@ -665,8 +664,6 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
                 return try await withThrowingTaskGroup(of: T?.self) { group in
                     group.addTask {
                         for await event in events {
-                            if Task.isCancelled { return nil }
-
                             switch matcher(event) {
                             case .success(let result):
                                 return result
@@ -1024,7 +1021,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ///           ``MeshCoreError/invalidResponse`` if an unexpected response is received.
     public func requestStatus(from publicKey: Data) async throws -> StatusResponse {
         try requireFullPublicKey(publicKey, operation: "requestStatus")
-        return try await binaryRequestSerializer.withSerialization { [self] in
+        return try await requestResponseSerializer.withSerialization { [self] in
             try await performStatusRequest(from: publicKey, layout: .repeater)
         }
     }
@@ -1044,7 +1041,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ) async throws -> StatusResponse {
         try requireFullPublicKey(publicKey, operation: "requestStatus")
         let layout: StatusResponse.Layout = type == .room ? .roomServer : .repeater
-        return try await binaryRequestSerializer.withSerialization { [self] in
+        return try await requestResponseSerializer.withSerialization { [self] in
             try await performStatusRequest(from: publicKey, layout: layout)
         }
     }
@@ -2234,7 +2231,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     public func requestTelemetry(from publicKey: Data) async throws -> TelemetryResponse {
         try requireFullPublicKey(publicKey, operation: "requestTelemetry")
         // Serialize binary requests to prevent messageSent race conditions
-        return try await binaryRequestSerializer.withSerialization { [self] in
+        return try await requestResponseSerializer.withSerialization { [self] in
             try await performTelemetryRequest(from: publicKey)
         }
     }
@@ -2353,7 +2350,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Throws: ``MeshCoreError/timeout`` if no response within timeout period.
     public func requestOwnerInfo(from publicKey: Data) async throws -> OwnerInfoResponse {
         try requireFullPublicKey(publicKey, operation: "requestOwnerInfo")
-        return try await binaryRequestSerializer.withSerialization { [self] in
+        return try await requestResponseSerializer.withSerialization { [self] in
             try await performOwnerInfoRequest(from: publicKey)
         }
     }
@@ -2455,7 +2452,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ///           ``MeshCoreError/deviceError(code:)`` if the device rejects the request.
     public func requestMMA(from publicKey: Data, start: Date, end: Date) async throws -> MMAResponse {
         try requireFullPublicKey(publicKey, operation: "requestMMA")
-        return try await binaryRequestSerializer.withSerialization { [self] in
+        return try await requestResponseSerializer.withSerialization { [self] in
             try await performMMARequest(from: publicKey, start: start, end: end)
         }
     }
@@ -2541,7 +2538,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ///           ``MeshCoreError/deviceError(code:)`` if the device rejects the request.
     public func requestACL(from publicKey: Data) async throws -> ACLResponse {
         try requireFullPublicKey(publicKey, operation: "requestACL")
-        return try await binaryRequestSerializer.withSerialization { [self] in
+        return try await requestResponseSerializer.withSerialization { [self] in
             try await performACLRequest(from: publicKey)
         }
     }
@@ -2630,7 +2627,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         orderBy: UInt8 = 0,
         pubkeyPrefixLength: UInt8 = 4
     ) async throws -> NeighboursResponse {
-        try await binaryRequestSerializer.withSerialization { [self] in
+        try await requestResponseSerializer.withSerialization { [self] in
             try await performNeighboursRequest(
                 from: publicKey,
                 count: count,
@@ -2738,12 +2735,46 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ///   ``MeshCoreError/deviceError(code:)`` if the firmware rejects the request,
     ///   ``MeshCoreError/parseError(_:)`` if the response is malformed.
     public func requestRegions(from contact: MeshContact) async throws -> [String] {
-        try await binaryRequestSerializer.withSerialization { [self] in
-            try await performRegionsRequest(from: contact)
+        let isFloodRouted = contact.outPathLength == 0xFF
+
+        // Firmware requires isRouteDirect() for region requests. For flood-routed
+        // contacts, temporarily set the contact to zero-hop direct on the firmware,
+        // matching the Python reference (base.py:269-273). The zero-hop write, the
+        // region exchange, and the restore are each their own serialized exchange so
+        // none nests inside the request/response serializer the others acquire.
+        if isFloodRouted {
+            try await updateContact(
+                publicKey: contact.publicKey,
+                type: contact.type,
+                flags: contact.flags,
+                outPathLength: 0,
+                outPath: Data(),
+                advertisedName: contact.advertisedName,
+                lastAdvertisement: contact.lastAdvertisement,
+                latitude: contact.latitude,
+                longitude: contact.longitude
+            )
+        }
+
+        do {
+            let result = try await requestResponseSerializer.withSerialization { [self] in
+                try await performRegionsRequest(from: contact)
+            }
+            if isFloodRouted {
+                try? await resetPath(publicKey: contact.publicKey)
+            }
+            return result
+        } catch {
+            if isFloodRouted {
+                try? await resetPath(publicKey: contact.publicKey)
+            }
+            throw error
         }
     }
 
-    /// Internal implementation of regions request, called within serialization.
+    /// Sends the region request and matches its response. Runs inside the
+    /// request/response serializer; flood-route setup and restore are handled by
+    /// ``requestRegions(from:)`` as separate exchanges.
     private func performRegionsRequest(from contact: MeshContact) async throws -> [String] {
         let isFloodRouted = contact.outPathLength == 0xFF
         let pathLength: UInt8
@@ -2759,23 +2790,6 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         let prefixHex = contact.publicKey.prefix(6).map { String(format: "%02x", $0) }.joined()
         let startTime = ContinuousClock.now
 
-        // Firmware requires isRouteDirect() for region requests. For flood-routed
-        // contacts, temporarily set the contact to zero-hop direct on the firmware,
-        // matching the Python reference (base.py:269-273).
-        if isFloodRouted {
-            try await updateContact(
-                publicKey: contact.publicKey,
-                type: contact.type,
-                flags: contact.flags,
-                outPathLength: 0,
-                outPath: Data(),
-                advertisedName: contact.advertisedName,
-                lastAdvertisement: contact.lastAdvertisement,
-                latitude: contact.latitude,
-                longitude: contact.longitude
-            )
-        }
-
         let data = PacketBuilder.sendAnonReq(
             to: contact.publicKey,
             type: .regions,
@@ -2785,83 +2799,67 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
         logger.info("Regions request to \(prefixHex): sending")
 
-        let result: [String]
-        do {
-            // Subscribe before sending to avoid race condition
-            let events = await dispatcher.subscribe()
-            try await transport.send(data)
+        // Subscribe before sending to avoid race condition
+        let events = await dispatcher.subscribe()
+        try await transport.send(data)
 
-            result = try await withThrowingTaskGroup(of: [String]?.self) { group in
-                let (timeoutStream, timeoutContinuation) = AsyncStream<TimeInterval>.makeStream()
+        return try await withThrowingTaskGroup(of: [String]?.self) { group in
+            let (timeoutStream, timeoutContinuation) = AsyncStream<TimeInterval>.makeStream()
 
-                group.addTask { [logger] in
-                    var expectedAck: Data?
+            group.addTask { [logger] in
+                var expectedAck: Data?
 
-                    for await event in events {
-                        if Task.isCancelled { return nil }
+                for await event in events {
+                    if Task.isCancelled { return nil }
 
-                        switch event {
-                        case .messageSent(let info):
-                            expectedAck = info.expectedAck
-                            let timeout = TimeInterval(info.suggestedTimeoutMs) / 1000.0 * 2.0
-                            logger.info("Regions request to \(prefixHex): messageSent received, suggestedTimeoutMs=\(info.suggestedTimeoutMs), effective timeout=\(String(format: "%.1f", timeout))s")
-                            timeoutContinuation.yield(timeout)
-                            timeoutContinuation.finish()
+                    switch event {
+                    case .messageSent(let info):
+                        expectedAck = info.expectedAck
+                        let timeout = TimeInterval(info.suggestedTimeoutMs) / 1000.0 * 2.0
+                        logger.info("Regions request to \(prefixHex): messageSent received, suggestedTimeoutMs=\(info.suggestedTimeoutMs), effective timeout=\(String(format: "%.1f", timeout))s")
+                        timeoutContinuation.yield(timeout)
+                        timeoutContinuation.finish()
 
-                        case .error(let code):
-                            throw MeshCoreError.deviceError(code: code ?? 0)
+                    case .error(let code):
+                        throw MeshCoreError.deviceError(code: code ?? 0)
 
-                        case .binaryResponse(let tag, let responseData):
-                            guard let expected = expectedAck, tag == expected else { continue }
-                            let result = try RegionsParser.parse(responseData)
-                            let elapsed = ContinuousClock.now - startTime
-                            logger.info("Regions request to \(prefixHex): response received in \(elapsed)")
-                            return result
+                    case .binaryResponse(let tag, let responseData):
+                        guard let expected = expectedAck, tag == expected else { continue }
+                        let result = try RegionsParser.parse(responseData)
+                        let elapsed = ContinuousClock.now - startTime
+                        logger.info("Regions request to \(prefixHex): response received in \(elapsed)")
+                        return result
 
-                        default:
-                            continue
-                        }
+                    default:
+                        continue
                     }
-                    timeoutContinuation.finish()
-                    return nil
                 }
+                timeoutContinuation.finish()
+                return nil
+            }
 
-                group.addTask { [logger, clock = self.clock, defaultTimeout = configuration.defaultTimeout] in
-                    var timeout = defaultTimeout
-                    var usedFirmwareTimeout = false
-                    for await t in timeoutStream {
-                        timeout = t
-                        usedFirmwareTimeout = true
-                        break
-                    }
-                    logger.info("Regions request to \(prefixHex): timeout task sleeping for \(String(format: "%.1f", timeout))s (\(usedFirmwareTimeout ? "firmware" : "default"))")
-                    try await clock.sleep(for: .seconds(timeout))
-                    let elapsed = ContinuousClock.now - startTime
-                    logger.warning("Regions request to \(prefixHex): timed out after \(elapsed)")
-                    return nil
+            group.addTask { [logger, clock = self.clock, defaultTimeout = configuration.defaultTimeout] in
+                var timeout = defaultTimeout
+                var usedFirmwareTimeout = false
+                for await t in timeoutStream {
+                    timeout = t
+                    usedFirmwareTimeout = true
+                    break
                 }
+                logger.info("Regions request to \(prefixHex): timeout task sleeping for \(String(format: "%.1f", timeout))s (\(usedFirmwareTimeout ? "firmware" : "default"))")
+                try await clock.sleep(for: .seconds(timeout))
+                let elapsed = ContinuousClock.now - startTime
+                logger.warning("Regions request to \(prefixHex): timed out after \(elapsed)")
+                return nil
+            }
 
-                if let result = try await group.next() ?? nil {
-                    group.cancelAll()
-                    return result
-                }
+            if let result = try await group.next() ?? nil {
                 group.cancelAll()
-                throw MeshCoreError.timeout
+                return result
             }
-        } catch {
-            // Restore flood routing before propagating the error
-            if isFloodRouted {
-                try? await resetPath(publicKey: contact.publicKey)
-            }
-            throw error
+            group.cancelAll()
+            throw MeshCoreError.timeout
         }
-
-        // Restore flood routing after successful request
-        if isFloodRouted {
-            try? await resetPath(publicKey: contact.publicKey)
-        }
-
-        return result
     }
 
     /// Fetches all neighbors from a remote node with automatic pagination.

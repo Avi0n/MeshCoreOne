@@ -688,8 +688,8 @@ struct MeshCoreSessionCommandCorrelationTests {
         await session.stop()
     }
 
-    @Test("error event from binary request also fails concurrent text command")
-    func errorEventFromBinaryRequestAffectsConcurrentTextCommand() async throws {
+    @Test("binary request serializes behind a concurrent text command")
+    func binaryRequestSerializesBehindConcurrentTextCommand() async throws {
         let transport = MockTransport()
         let session = MeshCoreSession(
             transport: transport,
@@ -698,7 +698,7 @@ struct MeshCoreSessionCommandCorrelationTests {
 
         try await startSession(session, transport: transport)
 
-        // Launch a text command (uses requestResponseSerializer)
+        // Text command acquires the unified serializer first.
         let keepAliveTask = Task {
             try await session.sendKeepAlive(
                 to: Data(repeating: 0x22, count: 32),
@@ -710,18 +710,16 @@ struct MeshCoreSessionCommandCorrelationTests {
             await transport.sentData.count == 2
         }
 
-        // Launch a binary request (uses binaryRequestSerializer) — runs concurrently
+        // Binary request must wait behind the text command, not run concurrently.
         let target = Data(repeating: 0x31, count: 32)
         let statusTask = Task {
             try await session.requestStatus(from: target)
         }
 
-        try await waitUntil("requestStatus should also be sent (independent serializer)") {
-            await transport.sentData.count == 3
-        }
+        try? await Task.sleep(for: .milliseconds(50))
+        #expect(await transport.sentData.count == 2, "binary request must not send while a text command is in flight")
 
-        // One error event — both subscribers see it because EventDispatcher
-        // broadcasts to all with no command correlation.
+        // The error belongs to the in-flight text command only.
         await transport.simulateError(code: 42)
 
         let keepAliveError = await #expect(throws: MeshCoreError.self) {
@@ -734,6 +732,13 @@ struct MeshCoreSessionCommandCorrelationTests {
         }
         #expect(keepAliveCode == 42)
 
+        // Only after the text command releases the serializer does the binary request send.
+        try await waitUntil("requestStatus should send after the text command completes") {
+            await transport.sentData.count == 3
+        }
+
+        await transport.simulateError(code: 43)
+
         let statusError = await #expect(throws: MeshCoreError.self) {
             try await statusTask.value
         }
@@ -742,7 +747,7 @@ struct MeshCoreSessionCommandCorrelationTests {
             await session.stop()
             return
         }
-        #expect(statusCode == 42)
+        #expect(statusCode == 43, "binary request runs as its own exchange after the text command")
 
         await session.stop()
     }
@@ -801,6 +806,141 @@ struct MeshCoreSessionCommandCorrelationTests {
             return
         }
         #expect(secondCode == 13)
+        await session.stop()
+    }
+
+    @Test("a response orphaned by a cancelled command is not delivered to the next command")
+    func cancelledCommandResponseIsNotStolenByNextCommand() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+        )
+
+        try await startSession(session, transport: transport)
+
+        // Command #1 is sent, then cancelled after its write has gone out — the radio
+        // still owes a response. getBattery is a singleton matcher whose value we control,
+        // so a stolen response surfaces as the wrong battery level on command #2.
+        let orphanedLevel: UInt16 = 1111
+        let correctLevel: UInt16 = 2222
+
+        let firstBattery = Task { try await session.getBattery() }
+        try await waitUntil("first getBattery should be sent") {
+            await transport.sentData.count == 2
+        }
+
+        firstBattery.cancel()
+        _ = try? await firstBattery.value
+
+        // Command #2 issued after the cancellation.
+        let secondBattery = Task { try await session.getBattery() }
+
+        // Give the next command time to subscribe before the orphan lands.
+        try? await Task.sleep(for: .milliseconds(50))
+
+        // The radio's late response to the cancelled command #1.
+        await transport.simulateReceive(makeBatteryPacket(level: orphanedLevel))
+
+        try await waitUntil("second getBattery should be sent") {
+            await transport.sentData.count == 3
+        }
+
+        // Command #2's own response.
+        await transport.simulateReceive(makeBatteryPacket(level: correctLevel))
+
+        let battery = try await secondBattery.value
+        #expect(battery.level == correctLevel, "command #2 must not receive command #1's orphaned response")
+        await session.stop()
+    }
+
+    @Test("concurrent unicast send and binary request do not share one messageSent")
+    func concurrentUnicastAndBinaryRequestKeepOwnMessageSent() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+        )
+
+        try await startSession(session, transport: transport)
+
+        let statusTarget = Data(repeating: 0x31, count: 32)
+        let messageTarget = Data(repeating: 0x11, count: 32)
+        let statusAck = Data([0xAA, 0xBB, 0xCC, 0xDD])
+        let messageAck = Data([0x11, 0x22, 0x33, 0x44])
+
+        // Binary request goes first and owns the in-flight exchange.
+        let statusTask = Task { try await session.requestStatus(from: statusTarget, type: .room) }
+        try await waitUntil("requestStatus should be sent") {
+            await transport.sentData.count == 2
+        }
+
+        // Unicast send issued while the binary request is outstanding.
+        let messageTask = Task { try await session.sendMessage(to: messageTarget, text: "hi") }
+
+        // Give a non-serialized sender time to also subscribe before any messageSent lands.
+        try? await Task.sleep(for: .milliseconds(50))
+
+        // The binary request's own messageSent + response.
+        await transport.simulateReceive(makeMessageSentPacket(expectedAck: statusAck))
+        await transport.simulateReceive(
+            makeBinaryStatusResponsePacket(
+                tag: statusAck,
+                battery: 1234,
+                roomServerPostedCount: 5,
+                roomServerPostPushCount: 2
+            )
+        )
+
+        let status = try await statusTask.value
+        #expect(status.battery == 1234)
+
+        try await waitUntil("sendMessage should be sent") {
+            await transport.sentData.count == 3
+        }
+
+        // The unicast send's own messageSent.
+        await transport.simulateReceive(makeMessageSentPacket(expectedAck: messageAck))
+
+        let info = try await messageTask.value
+        #expect(info.expectedAck == messageAck, "sendMessage must not consume the binary request's messageSent")
+        await session.stop()
+    }
+
+    @Test("a command cancelled while waiting on the serializer never writes")
+    func commandCancelledWhileWaitingDoesNotWrite() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+        )
+
+        try await startSession(session, transport: transport)
+
+        // Command #1 holds the serializer.
+        let first = Task { try await session.factoryReset() }
+        try await waitUntil("first command should be sent") {
+            await transport.sentData.count == 2
+        }
+
+        // Command #2 parks in acquire() behind command #1.
+        let second = Task { try await session.sendAdvertisement(flood: true) }
+        try? await Task.sleep(for: .milliseconds(50))
+        #expect(await transport.sentData.count == 2, "second command must wait behind the first")
+
+        // Cancel #2 while it is still parked, then let #1 finish so #2 acquires.
+        second.cancel()
+        await transport.simulateOK()
+        try await first.value
+
+        let error = await #expect(throws: CancellationError.self) {
+            try await second.value
+        }
+        #expect(error != nil)
+        #expect(
+            await transport.sentData.count == 2,
+            "a command cancelled before acquiring the serializer must not commit a write"
+        )
         await session.stop()
     }
 }
