@@ -47,7 +47,9 @@ struct ChatConversationView: View {
 
     @State private var recentEmojisStore = RecentEmojisStore()
     @State private var mentionSenderOrder: [String: UInt32]?
-    @FocusState private var isInputFocused: Bool
+    /// Focus-request token: each increment asks the composer to raise the
+    /// keyboard once. See `ChatComposerTextView` for why a token, not `@FocusState`.
+    @State private var inputFocusRequest = 0
 
     // MARK: - AppStorage
 
@@ -129,7 +131,7 @@ struct ChatConversationView: View {
             ChatConversationInputBar(
                 conversationType: conversationType,
                 composingText: $chatViewModel.composingText,
-                isFocused: $isInputFocused,
+                focusRequest: $inputFocusRequest,
                 nodeNameByteCount: appState.connectedDevice?.nodeName.utf8.count ?? 0,
                 onSend: { text in
                     switch conversationType {
@@ -633,7 +635,12 @@ struct ChatConversationView: View {
         } else {
             chatViewModel.composingText = MentionUtilities.createMention(for: mentionName) + " "
         }
-        isInputFocused = true
+        // Raise the keyboard only after the actions sheet has finished dismissing;
+        // a focus request issued while the sheet is still animating away is lost.
+        Task {
+            try? await Task.sleep(for: messageActionSheetPresentationDelay)
+            inputFocusRequest += 1
+        }
     }
 
     private func handleCopy(for message: MessageDTO) {

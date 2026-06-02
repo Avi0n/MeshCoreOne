@@ -7,7 +7,8 @@ struct ChatInputBar<Leading: View>: View {
     @Environment(\.appState) private var appState
     @Environment(\.appTheme) private var theme
     @Binding var text: String
-    @FocusState.Binding var isFocused: Bool
+    /// Focus-request token forwarded to the composer; see `ChatComposerTextView`.
+    let focusRequest: Int
     let placeholder: String
     let maxBytes: Int
     let isEncrypted: Bool
@@ -36,7 +37,7 @@ struct ChatInputBar<Leading: View>: View {
             ChatInputTextField(
                 text: $text,
                 placeholder: placeholder,
-                isFocused: $isFocused,
+                focusRequest: focusRequest,
                 isEncrypted: isEncrypted,
                 onSend: handleHardwareSend
             )
@@ -113,7 +114,7 @@ extension ChatInputBar where Leading == EmptyView {
     /// call sites that pass only a trailing `onSend` closure.
     init(
         text: Binding<String>,
-        isFocused: FocusState<Bool>.Binding,
+        focusRequest: Int,
         placeholder: String,
         maxBytes: Int,
         isEncrypted: Bool,
@@ -121,7 +122,7 @@ extension ChatInputBar where Leading == EmptyView {
     ) {
         self.init(
             text: text,
-            isFocused: isFocused,
+            focusRequest: focusRequest,
             placeholder: placeholder,
             maxBytes: maxBytes,
             isEncrypted: isEncrypted,
@@ -136,14 +137,14 @@ extension ChatInputBar where Leading == EmptyView {
 private struct ChatInputTextField: View {
     @Binding var text: String
     let placeholder: String
-    @FocusState.Binding var isFocused: Bool
+    let focusRequest: Int
     let isEncrypted: Bool
     let onSend: () -> Bool
 
     var body: some View {
         ChatComposerTextView(
             text: $text,
-            isFocused: $isFocused,
+            focusRequest: focusRequest,
             placeholder: placeholder,
             isEncrypted: isEncrypted,
             onSend: onSend
@@ -270,14 +271,12 @@ private extension View {
 private struct ChatInputBarPreviewHost: View {
     @State private var plainText = ""
     @State private var leadingText = ""
-    @FocusState private var plainFocus: Bool
-    @FocusState private var leadingFocus: Bool
 
     var body: some View {
         VStack(spacing: 24) {
             ChatInputBar(
                 text: $plainText,
-                isFocused: $plainFocus,
+                focusRequest: 0,
                 placeholder: "No leading accessory",
                 maxBytes: 140,
                 isEncrypted: true
@@ -285,7 +284,7 @@ private struct ChatInputBarPreviewHost: View {
 
             ChatInputBar(
                 text: $leadingText,
-                isFocused: $leadingFocus,
+                focusRequest: 0,
                 placeholder: "With leading accessory",
                 maxBytes: 140,
                 isEncrypted: false,

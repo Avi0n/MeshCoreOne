@@ -5,7 +5,7 @@ import MC1Services
 struct ChatConversationInputBar: View {
     let conversationType: ChatConversationType
     @Binding var composingText: String
-    @FocusState.Binding var isFocused: Bool
+    @Binding var focusRequest: Int
     let nodeNameByteCount: Int
     let onSend: (String) async -> Void
     let onWillSend: () -> Void
@@ -15,7 +15,7 @@ struct ChatConversationInputBar: View {
         case .dm:
             ChatInputBar(
                 text: $composingText,
-                isFocused: $isFocused,
+                focusRequest: focusRequest,
                 placeholder: L10n.Chats.Chats.Input.Placeholder.directMessage,
                 maxBytes: ProtocolLimits.maxDirectMessageLength,
                 isEncrypted: true,
@@ -31,7 +31,7 @@ struct ChatConversationInputBar: View {
             )
             ChatInputBar(
                 text: $composingText,
-                isFocused: $isFocused,
+                focusRequest: focusRequest,
                 placeholder: conversationType.isPublicStyleChannel
                     ? L10n.Chats.Chats.Channel.typePublic
                     : L10n.Chats.Chats.Channel.typePrivate,
@@ -54,6 +54,6 @@ struct ChatConversationInputBar: View {
             composingText.append(" ")
         }
         composingText.append(shared)
-        isFocused = true
+        focusRequest += 1
     }
 }

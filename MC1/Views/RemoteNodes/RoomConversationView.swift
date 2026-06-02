@@ -16,7 +16,6 @@ struct RoomConversationView: View {
     @State private var isAtBottom = true
     @State private var unreadCount = 0
     @State private var scrollToBottomRequest = 0
-    @FocusState private var isInputFocused: Bool
 
     init(session: RemoteNodeSessionDTO) {
         self._session = State(initialValue: session)
@@ -157,7 +156,7 @@ struct RoomConversationView: View {
     private func makeInputBar() -> some View {
         ChatInputBar(
             text: $viewModel.composingText,
-            isFocused: $isInputFocused,
+            focusRequest: 0,
             placeholder: L10n.RemoteNodes.RemoteNodes.Room.publicMessage,
             maxBytes: ProtocolLimits.maxDirectMessageLength,
             isEncrypted: false

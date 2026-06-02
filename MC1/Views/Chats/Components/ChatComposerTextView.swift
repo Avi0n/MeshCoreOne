@@ -9,16 +9,21 @@ import UIKit
 /// on-screen keyboard and IME commits still insert a newline, and a gated-off send
 /// (byte limit, disconnected, cooling down) inserts a newline rather than nothing.
 ///
-/// The `isFocused` binding is driven write-only toward focus: there is no
-/// programmatic resign path, so setting it back to `false` will not dismiss the
-/// keyboard (dismissal happens natively). See `updateUIView`.
+/// Programmatic focus is driven by the `focusRequest` token: each new value
+/// raises the keyboard once. There is no resign path — dismissal happens natively.
+/// A token is used rather than `@FocusState`/`Bool` because focus is a one-shot
+/// intent: a `@FocusState` with no `.focused()` consumer is reset by the focus
+/// engine and never drives `becomeFirstResponder()`, and a sticky `Bool` would
+/// re-raise the keyboard on the next view update after a native dismissal.
 ///
 /// `sizeThatFits` reports a flexible width and a content-driven height clamped to
 /// `maxVisibleLines`, so the field wraps to the offered width and grows downward
 /// instead of stretching the input bar.
 struct ChatComposerTextView: UIViewRepresentable {
     @Binding var text: String
-    var isFocused: FocusState<Bool>.Binding
+    /// Incremented by the parent to request focus; compared against the
+    /// coordinator's last-applied value so each request fires exactly once.
+    let focusRequest: Int
     let placeholder: String
     let isEncrypted: Bool
     /// Attempts a send. Returns `true` when a message was sent (Return is then
@@ -86,15 +91,15 @@ struct ChatComposerTextView: UIViewRepresentable {
             context.coordinator.placeholderLabel?.isHidden = !text.isEmpty
         }
 
-        if isFocused.wrappedValue, !textView.isFirstResponder {
-            // Drive first responder only toward focus. A resign here would fire
-            // spuriously: @FocusState has no SwiftUI `.focused()` consumer (the
-            // field is UIKit), so it reverts to false after `didBeginEditing`
-            // sets it, and reconciling that back would unfocus mid-typing.
-            // Keyboard dismissal happens natively (tapping away, leaving the view).
-            Task { @MainActor in
-                guard textView.window != nil else { return }
-                textView.becomeFirstResponder()
+        // Become first responder once per token increment. There is no resign
+        // path, so native dismissal is left untouched.
+        if focusRequest != context.coordinator.lastFocusRequest {
+            context.coordinator.lastFocusRequest = focusRequest
+            if !textView.isFirstResponder {
+                Task { @MainActor in
+                    guard textView.window != nil else { return }
+                    textView.becomeFirstResponder()
+                }
             }
         }
     }
@@ -115,9 +120,12 @@ struct ChatComposerTextView: UIViewRepresentable {
     final class Coordinator: NSObject, UITextViewDelegate {
         var parent: ChatComposerTextView
         weak var placeholderLabel: UILabel?
+        /// Last `focusRequest` value acted on, so a request fires only once.
+        var lastFocusRequest: Int
 
         init(_ parent: ChatComposerTextView) {
             self.parent = parent
+            self.lastFocusRequest = parent.focusRequest
         }
 
         func textViewDidChange(_ textView: UITextView) {
@@ -129,14 +137,6 @@ struct ChatComposerTextView: UIViewRepresentable {
                 parent.text = textView.text
             }
             placeholderLabel?.isHidden = !textView.text.isEmpty
-        }
-
-        func textViewDidBeginEditing(_ textView: UITextView) {
-            Task { @MainActor in self.parent.isFocused.wrappedValue = true }
-        }
-
-        func textViewDidEndEditing(_ textView: UITextView) {
-            Task { @MainActor in self.parent.isFocused.wrappedValue = false }
         }
     }
 }
