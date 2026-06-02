@@ -918,6 +918,46 @@ struct BackupIntegrationTests {
         #expect(brnoMessages.isEmpty)
     }
 
+    @Test("Re-importing a stale backup never upserts a reconfigured live channel")
+    func staleBackupDoesNotOverwriteReconfiguredChannel() async throws {
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let store = PersistenceStore(modelContainer: container)
+        let radioID = UUID()
+        let sharedID = UUID()
+
+        // Live channel: same surrogate id as the backup, but secret rotated in place (S2),
+        // occupying the backup's slot.
+        let liveSecret = Data(repeating: 0xB2, count: 32)
+        let live = ChannelDTO(
+            id: sharedID, radioID: radioID, index: 3, name: "Live Net",
+            secret: liveSecret, isEnabled: true, lastMessageDate: nil,
+            unreadCount: 0, unreadMentionCount: 0,
+            notificationLevel: .all, isFavorite: false, floodScope: .inherit
+        )
+        try await store.batchInsertChannels([live], radioIDs: [radioID], maxChannelsByRadioID: [radioID: 8])
+
+        // Backup channel: same id, slot 3, but the original secret S1 (no local match).
+        let backupSecret = Data(repeating: 0xA1, count: 32)
+        let backup = ChannelDTO(
+            id: sharedID, radioID: radioID, index: 3, name: "Stale Net",
+            secret: backupSecret, isEnabled: true, lastMessageDate: nil,
+            unreadCount: 0, unreadMentionCount: 0,
+            notificationLevel: .all, isFavorite: false, floodScope: .inherit
+        )
+        let result = try await store.batchInsertChannels([backup], radioIDs: [radioID], maxChannelsByRadioID: [radioID: 8])
+
+        let channels = try await store.fetchChannels(radioID: radioID)
+        // Live channel survives untouched at slot 3 with its rotated secret.
+        let liveRow = try #require(channels.first { $0.secret == liveSecret })
+        #expect(liveRow.index == 3)
+        #expect(liveRow.name == "Live Net")
+        // Backup channel coexists, relocated to a free slot with a fresh id.
+        let backupRow = try #require(channels.first { $0.secret == backupSecret })
+        #expect(backupRow.id != sharedID)
+        #expect(backupRow.index != 3)
+        #expect(result.inserted == 1)
+    }
+
     /// Case A: same secret at the same slot is a pure metadata merge with no relocation.
     @Test("Channel reconcile: same secret at same slot merges metadata, index unchanged")
     func channelSecretReconcile_SameSecretSameSlotIsNoOp() async throws {

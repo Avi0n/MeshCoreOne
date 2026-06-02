@@ -213,7 +213,13 @@ extension PersistenceStore {
                 continue
             }
 
-            let placedDTO = placementIndex == dto.index ? dto : dto.with(index: placementIndex)
+            // Re-mint the surrogate id on insert so a backup channel can never upsert a live
+            // local channel that shares its `@Attribute(.unique)` id (e.g. re-importing a stale
+            // backup after the same slot was reconfigured and its secret rotated in place).
+            // Channel has no inbound foreign key, so the fresh id breaks no message/reaction
+            // linkage (those key by channelIndex). Mirrors `batchInsertDevices`.
+            let relocatedDTO = placementIndex == dto.index ? dto : dto.with(index: placementIndex)
+            let placedDTO = relocatedDTO.with(id: UUID())
             let channel = Channel(dto: placedDTO)
             modelContext.insert(channel)
             occupiedIndicesByRadioID[radioID, default: []].insert(placementIndex)

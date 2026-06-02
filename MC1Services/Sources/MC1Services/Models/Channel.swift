@@ -396,6 +396,22 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
         )
     }
 
+    /// Returns a copy with a fresh surrogate `id`, forwarding every other raw storage
+    /// field verbatim. Used by backup import so a relocated/non-matching channel can never
+    /// upsert a live local channel that happens to share the backup's `@Attribute(.unique)`
+    /// id. Channel has no inbound foreign key, so re-issuing the id breaks no linkage; it
+    /// uses the raw initializer to preserve pre-migration flood-scope rows (see ``init(dto:)``).
+    func with(id newID: UUID) -> ChannelDTO {
+        ChannelDTO(
+            id: newID, radioID: radioID, index: index, name: name,
+            secret: secret, isEnabled: isEnabled, lastMessageDate: lastMessageDate,
+            unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
+            notificationLevel: notificationLevel, isFavorite: isFavorite,
+            floodScopeModeRawValue: floodScopeModeRawValue,
+            regionScope: regionScope
+        )
+    }
+
     /// Returns a copy with only the raw `regionScope` column changed. This is the
     /// low-level bypass used for tests that must simulate malformed on-disk state;
     /// production code should go through ``with(floodScope:)``.
