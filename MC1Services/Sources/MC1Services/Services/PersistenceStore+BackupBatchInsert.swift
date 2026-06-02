@@ -12,6 +12,17 @@ extension PersistenceStore {
     /// Inserts DTOs into the model context, skipping any whose `key` is
     /// already in `existingKeys`. Covers the "insert if absent" shape used
     /// by most backup batch-insert paths.
+    ///
+    /// Dedup is by business `key`; each model's surrogate `id` is a random UUIDv4 minted once
+    /// at creation, so a colliding `id` with a divergent business key is statistically
+    /// unreachable on any normal path. We deliberately do not re-mint ids here: re-minting a
+    /// child's `id` would orphan its inbound foreign keys (`Reaction.messageID`/
+    /// `MessageRepeat.messageID` key on `Message.id`; `replyToID` is rewritten only for
+    /// duplicate parents). Only Device (recurring CBPeripheral id) and Channel (children key by
+    /// slot/`channelIndex`, never `Channel.id`) are safe to re-mint, and both already do
+    /// (`batchInsertDevices`, `batchInsertChannels`). If a future change ever makes an `id`
+    /// content-derived or reused across rows, revisit this — a colliding insert would upsert the
+    /// local row.
     @discardableResult
     private func insertUnique<DTO, M: PersistentModel, Key: Hashable>(
         _ dtos: [DTO],

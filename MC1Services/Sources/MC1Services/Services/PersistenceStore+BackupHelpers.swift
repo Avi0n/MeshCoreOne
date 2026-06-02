@@ -100,6 +100,9 @@ extension PersistenceStore {
         // Use milliseconds (Int) to stay stable across JSON `.secondsSince1970`
         // encode/decode roundtrips — Double.bitPattern can drift on roundtrip
         // even when the two Dates compare equal.
+        // Two distinct snapshots for one node within the same millisecond intentionally
+        // coalesce (the second is counted as skipped). This is acceptable, rare diagnostic
+        // coalescing; the id is deliberately not part of the key so re-import stays idempotent.
         let milliseconds = Int(timestamp.timeIntervalSince1970 * 1000)
         return "\(nodePublicKey.base64EncodedString())-\(milliseconds)"
     }

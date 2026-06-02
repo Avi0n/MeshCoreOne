@@ -958,6 +958,24 @@ struct BackupIntegrationTests {
         #expect(result.inserted == 1)
     }
 
+    @Test("Exporting a channel with an unmigrated notification level does not migrate the live row")
+    func exportReadDoesNotMigrateNotificationLevel() throws {
+        let channel = Channel(
+            radioID: UUID(), index: 1, name: "Ops",
+            secret: Data(repeating: 0x33, count: 32)
+        )
+        // Simulate a pre-migration row: -1 sentinel with the legacy muted flag set.
+        channel.notificationLevelRawValue = -1
+        channel.legacyIsMuted = true
+
+        let dto = ChannelDTO(from: channel)
+
+        // The read did not trigger the migrating getter's in-memory write-back.
+        #expect(channel.notificationLevelRawValue == -1)
+        // The DTO still carries the correctly decoded level (muted, from legacy isMuted).
+        #expect(dto.notificationLevel == .muted)
+    }
+
     @Test("Duplicate device public keys in one envelope skip the loser and remap its children")
     func duplicatePublicKeyRemapsChildrenToSinglePartition() async throws {
         let container = try PersistenceStore.createContainer(inMemory: true)
@@ -984,6 +1002,72 @@ struct BackupIntegrationTests {
         let localRadioID = try #require(devices.first?.radioID)
         let contacts = try await store.fetchContacts(radioID: localRadioID)
         #expect(contacts.count == 2)
+    }
+
+    @Test("Channel floodScope survives a fresh-insert export/import round-trip")
+    func channelFloodScopeRoundTripsOnFreshInsert() async throws {
+        let radioID = UUID()
+        let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+        try await sourceStore.saveChannel(
+            ChannelDTO.testChannel(radioID: radioID, index: 0, name: "General", floodScope: .inherit)
+        )
+        try await sourceStore.saveChannel(
+            ChannelDTO.testChannel(
+                radioID: radioID, index: 1, name: "Regional",
+                secret: Data(repeating: 0x55, count: 32), floodScope: .region("US")
+            )
+        )
+
+        let service = AppBackupService()
+        let envelope = try parseBackup(data: try await service.export(persistenceStore: sourceStore).data)
+
+        // Fresh dest store: both channels take the fresh-insert path (Channel(dto:)), not merge.
+        let destStore = PersistenceStore(modelContainer: try PersistenceStore.createContainer(inMemory: true))
+        let result = try await service.importBackup(envelope: envelope, into: destStore)
+        #expect(result.channelsInserted == 2)
+
+        let restoredRegional = try #require(try await destStore.fetchChannel(radioID: radioID, index: 1))
+        #expect(restoredRegional.floodScope == .region("US"))
+        let restoredInherit = try #require(try await destStore.fetchChannel(radioID: radioID, index: 0))
+        #expect(restoredInherit.floodScope == .inherit)
+    }
+
+    @Test("Re-importing the same backup is idempotent for unread counts and last-message dates")
+    func secondImportIsIdempotentForMergeFields() async throws {
+        let radioID = UUID()
+        let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+        // Local channel the backup will merge into (matched by stable secret).
+        let secret = Data(repeating: 0x77, count: 32)
+        let localDate = Date(timeIntervalSince1970: 1_700_000_000)
+        try await destStore.saveChannel(
+            ChannelDTO.testChannel(
+                radioID: radioID, index: 1, name: "Ops", secret: secret,
+                lastMessageDate: localDate, unreadCount: 5
+            )
+        )
+
+        // Backup carries the same channel with a higher unread count and a later date.
+        let backupDate = Date(timeIntervalSince1970: 1_700_009_000)
+        let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+        let backupChannel = ChannelDTO.testChannel(
+            radioID: radioID, index: 1, name: "Ops", secret: secret,
+            lastMessageDate: backupDate, unreadCount: 9
+        )
+        let envelope = AppBackupEnvelope.test(devices: [backupDevice], channels: [backupChannel])
+
+        let service = AppBackupService()
+        _ = try await service.importBackup(envelope: envelope, into: destStore)
+        let afterFirst = try #require(try await destStore.fetchChannel(radioID: radioID, index: 1))
+
+        _ = try await service.importBackup(envelope: envelope, into: destStore)
+        let afterSecond = try #require(try await destStore.fetchChannel(radioID: radioID, index: 1))
+
+        // The merge (max of local/backup) and date reconciliation are idempotent: a repeat
+        // import neither double-counts unread nor oscillates the last-message date.
+        #expect(afterSecond.unreadCount == afterFirst.unreadCount)
+        #expect(afterSecond.unreadMentionCount == afterFirst.unreadMentionCount)
+        #expect(afterSecond.lastMessageDate == afterFirst.lastMessageDate)
     }
 
     /// Case A: same secret at the same slot is a pure metadata merge with no relocation.
