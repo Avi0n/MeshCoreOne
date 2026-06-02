@@ -225,6 +225,15 @@ final class AppBackupViewModel {
 
     func performImport() {
         guard case .preview(let envelope) = importState else { return }
+        // Re-check the connection at the commit point, not only via the disabled import row:
+        // a foreground auto-reconnect can connect the radio while the user reads the preview.
+        // Bind the import to a standalone store so its rollback-on-failure runs on its own
+        // per-actor ModelContext and can never discard the live sync store's pending writes.
+        guard !connectionManager.connectionState.isConnected else {
+            dismissImportSheet()
+            return
+        }
+        let store = connectionManager.createStandalonePersistenceStore()
         isCancellingImport = false
         importState = .importing
 
@@ -233,7 +242,7 @@ final class AppBackupViewModel {
             do {
                 let result = try await backupService.importBackup(
                     envelope: envelope,
-                    into: preferredPersistenceStore()
+                    into: store
                 )
                 importState = .success(result)
                 if result.hasRestoredChanges {

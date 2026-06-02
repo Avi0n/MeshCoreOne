@@ -125,7 +125,7 @@ struct BackupRestoreView: View {
             content
                 .disabled(true)
                 .foregroundStyle(.secondary)
-                .accessibilityHint("Disconnect radio first")
+                .accessibilityHint(L10n.Settings.Settings.Backup.Import.disabledWhenConnected)
         } else {
             content.disabled(isBusy)
         }

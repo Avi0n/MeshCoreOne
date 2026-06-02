@@ -171,6 +171,22 @@ struct AppBackupViewModelTests {
         #expect(envelope.contacts.first?.name == "Backed Up Contact")
     }
 
+    @Test("performImport aborts and dismisses when the radio is connected")
+    func performImportAbortsWhenConnected() async throws {
+        // The VM's `connectionManager` is private, so drive connection state on the manager
+        // before constructing the VM, using the existing test seam.
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let manager = ConnectionManager(modelContainer: container)
+        manager.setTestState(connectionState: .ready)
+        let vm = AppBackupViewModel(connectionManager: manager)
+        let envelope = AppBackupEnvelope(appVersion: "test", appBuild: "1", manifest: BackupManifest())
+        vm.importState = .preview(envelope)
+        vm.performImport()
+        // Aborted: no import ran and the sheet was dismissed back to idle.
+        #expect(vm.previewEnvelope == nil)
+        if case .importing = vm.importState { Issue.record("import ran while connected") }
+    }
+
     private func makeViewModel() throws -> AppBackupViewModel {
         let container = try PersistenceStore.createContainer(inMemory: true)
         let manager = ConnectionManager(modelContainer: container)
