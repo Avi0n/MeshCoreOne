@@ -3,16 +3,11 @@ import UIKit
 
 /// A growing, multi-line message composer backed by `UITextView`.
 ///
-/// Backing the field with UIKit lets a hardware keyboard's plain Return send the
-/// message (via `onSend`) while Shift+Return and Option+Return insert a newline.
-/// Return is intercepted in `pressesBegan` where `UIKey.modifierFlags` reports the
-/// Shift modifier reliably (SwiftUI's `onKeyPress` omits it for Return). When
-/// `onSend` reports a send actually fired, not forwarding to `super` keeps the view
-/// first responder, so focus is retained without a keyboard flicker. When the send
-/// is gated off (over the byte limit, disconnected, cooling down), Return falls
-/// through to `super` so it inserts a newline instead of vanishing. The on-screen
-/// keyboard's Return never reaches `pressesBegan`, so on-screen typing still
-/// inserts a newline.
+/// A hardware Return sends via `onSend`; Shift+Return and Option+Return insert a
+/// newline. Return is a `UIKeyCommand` with `wantsPriorityOverSystemBehavior` so it
+/// beats the text view's own newline, with explicit Shift/Option newline commands. The
+/// on-screen keyboard and IME commits still insert a newline, and a gated-off send
+/// (byte limit, disconnected, cooling down) inserts a newline rather than nothing.
 ///
 /// The `isFocused` binding is driven write-only toward focus: there is no
 /// programmatic resign path, so setting it back to `false` will not dismiss the
@@ -152,6 +147,11 @@ final class ChatComposerUITextView: UITextView {
     static let verticalInset: CGFloat = 8
     static let maxVisibleLines = 5
 
+    /// Key-command input for a hardware Return.
+    private static let returnInput = "\r"
+    /// Key-command input for a physical numpad Enter (Mac).
+    private static let numpadEnterInput = "\u{3}"
+
     var onSend: (() -> Bool)?
 
     /// Clears the field after a send through the text-input editing path.
@@ -197,17 +197,28 @@ final class ChatComposerUITextView: UITextView {
         return min(max(full, minHeight), maxHeight)
     }
 
-    override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
-        if let key = presses.first?.key,
-           key.keyCode == .keyboardReturnOrEnter || key.keyCode == .keypadEnter {
-            let composingModifiers: UIKeyModifierFlags = [.shift, .alternate, .control, .command]
-            if key.modifierFlags.isDisjoint(with: composingModifiers), onSend?() == true {
-                // A send fired: consume the Return so it neither inserts a newline
-                // nor resigns first responder. When the send is gated off, fall
-                // through to `super` so Return inserts a newline as it always did.
-                return
-            }
+    override var keyCommands: [UIKeyCommand]? {
+        // Register nothing during IME composition so Return commits the candidate. Shift
+        // and Option Return get explicit newline commands; without them the unmodified
+        // command's priority captures the modified press and would send.
+        guard markedTextRange == nil else { return nil }
+        let action = #selector(handleReturnCommand(_:))
+        let commands = [
+            UIKeyCommand(input: Self.returnInput, modifierFlags: [], action: action),
+            UIKeyCommand(input: Self.numpadEnterInput, modifierFlags: [], action: action),
+            UIKeyCommand(input: Self.returnInput, modifierFlags: .shift, action: action),
+            UIKeyCommand(input: Self.returnInput, modifierFlags: .alternate, action: action)
+        ]
+        commands.forEach { $0.wantsPriorityOverSystemBehavior = true }
+        return commands
+    }
+
+    @objc private func handleReturnCommand(_ command: UIKeyCommand) {
+        // Shift+Return and Option+Return insert a newline; an unmodified Return or
+        // numpad Enter sends, falling back to a newline when the send is gated off.
+        let insertsNewline = !command.modifierFlags.isDisjoint(with: [.shift, .alternate])
+        if insertsNewline || onSend?() != true {
+            insertText("\n")
         }
-        super.pressesBegan(presses, with: event)
     }
 }

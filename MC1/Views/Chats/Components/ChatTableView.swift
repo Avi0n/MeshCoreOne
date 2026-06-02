@@ -4,7 +4,7 @@ import SwiftUI
 /// UIKit table view controller with flipped orientation for chat-style scrolling
 /// Newest messages appear at visual bottom, keyboard handling via native UIKit
 @MainActor
-final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, CellContent: View>: UITableViewController where Item.ID == UUID {
+final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, CellContent: View>: UITableViewController, UIContextMenuInteractionDelegate where Item.ID == UUID {
 
     // MARK: - Types
 
@@ -63,7 +63,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     var onScrollStateChanged: ((Bool, Int) -> Void)?
 
     /// Callback when user scrolls near the top (oldest messages). The closure receives a release
-    /// callback the consumer must invoke when pagination work completes (success OR short-circuit)
+    /// callback the consumer must invoke when pagination work completes (success or short-circuit)
     /// so the request latch clears even when the view model's isLoadingOlder never visibly flips.
     var onNearTop: ((@escaping @MainActor () -> Void) -> Void)?
 
@@ -174,10 +174,19 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         // Coalesces scroll-tracking callbacks at display-frame cadence
         setupScrollDisplayLink()
 
-        // Secondary-click (right / two-finger trackpad) opens the message actions sheet
-        // for pointer users, matching the touch long-press. Filtering on the secondary
-        // button mask means it never competes with scrolling or the primary-touch gesture.
-        setupSecondaryClickRecognizer()
+        // Pointer secondary-click opens the actions sheet, matching the touch long-press.
+        setupSecondaryClickHandling()
+    }
+
+    /// Opens the actions sheet on a pointer secondary-click via each runtime's delivery
+    /// mechanism: a `.secondary` tap on iPad, a context-menu interaction on Mac (where a
+    /// right-click reaches the context-menu system, not a `.secondary` tap).
+    private func setupSecondaryClickHandling() {
+        if ProcessInfo.processInfo.isiOSAppOnMac {
+            tableView.addInteraction(UIContextMenuInteraction(delegate: self))
+        } else {
+            setupSecondaryClickRecognizer()
+        }
     }
 
     private func setupSecondaryClickRecognizer() {
@@ -185,17 +194,34 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
             target: self,
             action: #selector(handleSecondaryClick(_:))
         )
+        // The secondary button mask keeps this off scrolling and the primary-touch gesture.
         recognizer.buttonMaskRequired = .secondary
         recognizer.cancelsTouchesInView = false
         tableView.addGestureRecognizer(recognizer)
     }
 
     @objc private func handleSecondaryClick(_ gesture: UITapGestureRecognizer) {
-        let location = gesture.location(in: tableView)
-        guard let indexPath = tableView.indexPathForRow(at: location),
-              let itemID = dataSource?.itemIdentifier(for: indexPath),
-              let item = itemsByID[itemID] else { return }
+        guard let item = itemForRow(at: gesture.location(in: tableView)) else { return }
         onSecondaryClick?(item)
+    }
+
+    /// Resolves the model item under a point in the table view's coordinate space.
+    private func itemForRow(at point: CGPoint) -> Item? {
+        guard let indexPath = tableView.indexPathForRow(at: point),
+              let itemID = dataSource?.itemIdentifier(for: indexPath) else { return nil }
+        return itemsByID[itemID]
+    }
+
+    // On the class, not an extension: a generic class can carry `@objc` conformance
+    // only in its primary declaration.
+    func contextMenuInteraction(
+        _ interaction: UIContextMenuInteraction,
+        configurationForMenuAtLocation location: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        guard let item = itemForRow(at: location) else { return nil }
+        onSecondaryClick?(item)
+        // No configuration suppresses the native menu, leaving the sheet the only actions surface.
+        return nil
     }
 
     // Swift 6.3.2 EarlyPerfInliner crashes (infinite recursion in
@@ -557,7 +583,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         // content's screen position after the snapshot apply changes contentSize.
         let prependAnchor = wasPrepend ? capturePrependAnchor(in: oldItems) : nil
 
-        // Apply snapshot with REVERSED order: newest-first for flipped table
+        // Apply snapshot with reversed order: newest-first for flipped table
         // Row 0 = newest message → appears at visual bottom after flip
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item.ID>()
         snapshot.appendSections([.main])
@@ -681,7 +707,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         }
 
         // In flipped table with reversed data: row 0 = newest message
-        // Scroll row 0 to .top anchor (which is visual BOTTOM in flipped table)
+        // Scroll row 0 to .top anchor (which is visual bottom in flipped table)
         tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: animated)
 
         if !animated {
@@ -915,7 +941,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     private func updateIsAtBottom() {
         // Don't override isAtBottom during programmatic scroll-to-bottom animation
-        // This prevents the FAB from flickering when user sends a message
+        // This prevents the scroll-to-bottom button from flickering when user sends a message
         if scrollState.intent == .toBottom {
             return
         }
@@ -1087,7 +1113,7 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
             context.coordinator.lastDividerScrollRequest = scrollToDividerRequest
         }
 
-        // Check for scroll-to-bottom request BEFORE updating items
+        // Check for scroll-to-bottom request before updating items
         // This ensures user sends don't trigger unread badge
         let shouldForceScroll = scrollToBottomRequest != context.coordinator.lastScrollRequest
 
