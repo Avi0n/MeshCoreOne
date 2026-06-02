@@ -106,5 +106,21 @@
             <string>%d davon wurden mit neueren Informationen aus dem Backup aktualisiert.</string>
         </dict>
     </dict>
+    <key>settings.backup.import.success.dropped_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d Element konnte nicht wiederhergestellt werden</string>
+            <key>other</key>
+            <string>%d Elemente konnten nicht wiederhergestellt werden</string>
+        </dict>
+    </dict>
 </dict>
 </plist>

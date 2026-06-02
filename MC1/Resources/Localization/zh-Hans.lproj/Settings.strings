@@ -1587,6 +1587,15 @@
 /* Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict) */
 "settings.backup.import.success.already_here_refreshed" = "其中 %d 项已用备份中的较新信息更新。";
 
+/* Import success section header: channels that had no free local slot and couldn't be restored */
+"settings.backup.import.success.dropped_section" = "无法恢复";
+
+/* Import success disclosure row summary for the "Couldn't be restored" section */
+"settings.backup.import.success.dropped_summary" = "%d 个项目无法恢复";
+
+/* Import success footer explaining why some channels couldn't be restored and how to recover them */
+"settings.backup.import.success.dropped_footer" = "这些频道在此设备上没有空闲的频道位，因此它们及其消息未被导入。请腾出一个频道位后重新导入以恢复它们。";
+
 /* Import success done button */
 "settings.backup.import.success.done" = "完成";
 

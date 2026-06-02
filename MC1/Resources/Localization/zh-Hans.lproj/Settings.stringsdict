@@ -93,5 +93,19 @@
             <string>其中 %d 项已用备份中的较新信息更新。</string>
         </dict>
     </dict>
+    <key>settings.backup.import.success.dropped_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>other</key>
+            <string>%d 个项目无法恢复</string>
+        </dict>
+    </dict>
 </dict>
 </plist>

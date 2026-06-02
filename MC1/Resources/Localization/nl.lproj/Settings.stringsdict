@@ -106,5 +106,21 @@
             <string>%d hiervan zijn bijgewerkt met nieuwere informatie uit de back-up.</string>
         </dict>
     </dict>
+    <key>settings.backup.import.success.dropped_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d item kon niet worden hersteld</string>
+            <key>other</key>
+            <string>%d items konden niet worden hersteld</string>
+        </dict>
+    </dict>
 </dict>
 </plist>

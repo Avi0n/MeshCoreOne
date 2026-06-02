@@ -130,5 +130,25 @@
             <string>%d з них було оновлено новими даними з резервної копії.</string>
         </dict>
     </dict>
+    <key>settings.backup.import.success.dropped_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Не вдалося відновити %d елемент</string>
+            <key>few</key>
+            <string>Не вдалося відновити %d елементи</string>
+            <key>many</key>
+            <string>Не вдалося відновити %d елементів</string>
+            <key>other</key>
+            <string>Не вдалося відновити %d елемента</string>
+        </dict>
+    </dict>
 </dict>
 </plist>

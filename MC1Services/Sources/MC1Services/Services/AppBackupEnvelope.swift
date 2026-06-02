@@ -90,18 +90,23 @@ public enum BackupModelKind: String, CaseIterable, Sendable {
 
 // MARK: - PerTypeCounts
 
-/// Insert/merge/skip counts for a single model type during backup import.
+/// Insert/merge/skip/dropped counts for a single model type during backup import.
+/// `dropped` rows could not be restored at all (e.g. a channel with no free local
+/// slot, and its messages/reactions) — distinct from `skipped`, which means the row
+/// was already present locally.
 public struct PerTypeCounts: Sendable, Equatable {
     public var inserted: Int
     public var merged: Int
     public var skipped: Int
+    public var dropped: Int
 
-    public static let zero = PerTypeCounts(inserted: 0, merged: 0, skipped: 0)
+    public static let zero = PerTypeCounts(inserted: 0, merged: 0, skipped: 0, dropped: 0)
 
-    public init(inserted: Int = 0, merged: Int = 0, skipped: Int = 0) {
+    public init(inserted: Int = 0, merged: Int = 0, skipped: Int = 0, dropped: Int = 0) {
         self.inserted = inserted
         self.merged = merged
         self.skipped = skipped
+        self.dropped = dropped
     }
 }
 
@@ -206,18 +211,21 @@ public struct ImportResult: Sendable, Equatable {
         _ kind: BackupModelKind,
         inserted: Int = 0,
         merged: Int = 0,
-        skipped: Int = 0
+        skipped: Int = 0,
+        dropped: Int = 0
     ) {
         var current = counts[kind, default: .zero]
         current.inserted += inserted
         current.merged += merged
         current.skipped += skipped
+        current.dropped += dropped
         counts[kind] = current
     }
 
     public var totalInserted: Int { counts.values.reduce(0) { $0 + $1.inserted } }
     public var totalMerged: Int { counts.values.reduce(0) { $0 + $1.merged } }
     public var totalSkipped: Int { counts.values.reduce(0) { $0 + $1.skipped } }
+    public var totalDropped: Int { counts.values.reduce(0) { $0 + $1.dropped } }
 
     public var totalRestoredRecordCount: Int { totalInserted + totalMerged }
 

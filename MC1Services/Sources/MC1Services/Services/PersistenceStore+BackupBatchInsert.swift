@@ -127,6 +127,7 @@ extension PersistenceStore {
         public let inserted: Int
         public let skipped: Int
         public let merged: Int
+        public let dropped: Int
         public let channelIndexRemap: [UUID: [UInt8: UInt8]]
         public let droppedChannelIndices: [UUID: Set<UInt8>]
     }
@@ -165,6 +166,7 @@ extension PersistenceStore {
         var inserted = 0
         var skipped = 0
         var merged = 0
+        var dropped = 0
         var channelIndexRemap: [UUID: [UInt8: UInt8]] = [:]
         var droppedChannelIndices: [UUID: Set<UInt8>] = [:]
 
@@ -208,7 +210,7 @@ extension PersistenceStore {
                 backupLogger.warning(
                     "Backup channel at slot \(dto.index) for radio \(radioID.uuidString) has no free local slot; dropping it and its messages."
                 )
-                skipped += 1
+                dropped += 1
                 droppedChannelIndices[radioID, default: []].insert(dto.index)
                 continue
             }
@@ -236,6 +238,7 @@ extension PersistenceStore {
             inserted: inserted,
             skipped: skipped,
             merged: merged,
+            dropped: dropped,
             channelIndexRemap: channelIndexRemap,
             droppedChannelIndices: droppedChannelIndices
         )

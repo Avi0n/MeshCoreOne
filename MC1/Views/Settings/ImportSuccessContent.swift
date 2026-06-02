@@ -9,10 +9,12 @@ struct ImportSuccessContent: View {
     @Bindable var viewModel: AppBackupViewModel
     let result: ImportResult
     @State private var isAlreadyHereExpanded = false
+    @State private var isDroppedExpanded = false
 
     private var didAdd: Bool { result.totalInserted > 0 }
     private var didMerge: Bool { result.totalMerged > 0 }
     private var hasSkipped: Bool { result.totalSkipped > 0 }
+    private var hasDropped: Bool { result.totalDropped > 0 }
 
     private var heroTitle: String {
         result.hasRestoredChanges
@@ -48,6 +50,10 @@ struct ImportSuccessContent: View {
             }
             if hasSkipped {
                 alreadyHereSection
+                    .themedRowBackground(theme)
+            }
+            if hasDropped {
+                droppedSection
                     .themedRowBackground(theme)
             }
             doneSection
@@ -110,6 +116,25 @@ struct ImportSuccessContent: View {
                     Text(L10n.Settings.Settings.Backup.Import.Success.alreadyHereRefreshed(result.totalMerged))
                 }
             }
+        }
+    }
+
+    private var droppedSection: some View {
+        Section {
+            DisclosureGroup(isExpanded: $isDroppedExpanded) {
+                ForEach(BackupModelKind.allCases, id: \.self) { kind in
+                    let dropped = result.counts[kind]?.dropped ?? 0
+                    if dropped > 0 {
+                        LabeledContent(kind.label, value: "\(dropped)")
+                    }
+                }
+            } label: {
+                Text(L10n.Settings.Settings.Backup.Import.Success.droppedSummary(result.totalDropped))
+            }
+        } header: {
+            Text(L10n.Settings.Settings.Backup.Import.Success.droppedSection)
+        } footer: {
+            Text(L10n.Settings.Settings.Backup.Import.Success.droppedFooter)
         }
     }
 

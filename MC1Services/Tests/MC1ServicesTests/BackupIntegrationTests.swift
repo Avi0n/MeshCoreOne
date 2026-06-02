@@ -1232,9 +1232,9 @@ struct BackupIntegrationTests {
         let service = AppBackupService()
         let result = try await service.importBackup(envelope: envelope, into: destStore)
 
-        // #praha is dropped: not inserted, counted as skipped; its message is not inserted.
+        // #praha is dropped: not inserted, counted as dropped; its message is not inserted.
         #expect(result.channelsInserted == 0)
-        #expect(result.channelsSkipped == 1)
+        #expect(result.channelsDropped == 1)
         #expect(result.messagesInserted == 0)
 
         let channels = try await destStore.fetchAllChannels(radioID: radioID)
@@ -1243,6 +1243,81 @@ struct BackupIntegrationTests {
 
         let messages = try await destStore.fetchAllMessages(radioID: radioID)
         #expect(messages.isEmpty)
+    }
+
+    @Test("Dropped channels and their messages are accounted as dropped, not already-here")
+    func droppedChannelHistoryIsAccountedDistinctly() async throws {
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let store = PersistenceStore(modelContainer: container)
+        let radioID = UUID()
+
+        // Local radio is full to capacity (maxChannels = 2: slot 0 public + slot 1 used).
+        let existing = ChannelDTO(
+            id: UUID(), radioID: radioID, index: 1, name: "Local",
+            secret: Data(repeating: 0x11, count: 32), isEnabled: true, lastMessageDate: nil,
+            unreadCount: 0, unreadMentionCount: 0, notificationLevel: .all, isFavorite: false, floodScope: .inherit
+        )
+        try await store.batchInsertChannels([existing], radioIDs: [radioID], maxChannelsByRadioID: [radioID: 2])
+
+        // Backup channel at slot 1 with a different secret has no free slot -> dropped.
+        let backupChannel = ChannelDTO(
+            id: UUID(), radioID: radioID, index: 1, name: "Backup",
+            secret: Data(repeating: 0x22, count: 32), isEnabled: true, lastMessageDate: nil,
+            unreadCount: 0, unreadMentionCount: 0, notificationLevel: .all, isFavorite: false, floodScope: .inherit
+        )
+        let channelResult = try await store.batchInsertChannels(
+            [backupChannel], radioIDs: [radioID], maxChannelsByRadioID: [radioID: 2]
+        )
+        #expect(channelResult.dropped == 1)
+        #expect(channelResult.skipped == 0)
+        #expect(channelResult.droppedChannelIndices[radioID]?.contains(1) == true)
+    }
+
+    @Test("Full import accounts a no-slot channel's messages as dropped and the manifest balances")
+    func droppedChannelFullImportBalancesManifest() async throws {
+        let radioID = UUID()
+        let maxChannels: UInt8 = 2
+        let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+        // Fill every slot in [0, maxChannels) with distinct-secret local channels.
+        try await destStore.saveChannel(
+            ChannelDTO.testChannel(radioID: radioID, index: 0, name: "#a", secret: Data(repeating: 0x10, count: 16))
+        )
+        try await destStore.saveChannel(
+            ChannelDTO.testChannel(radioID: radioID, index: 1, name: "#b", secret: Data(repeating: 0x11, count: 16))
+        )
+
+        let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID).copy { $0.maxChannels = maxChannels }
+        // One backup channel that merges into an existing slot (slot 0, same empty-ish handling
+        // avoided by using a distinct secret at slot 0) and one that has no free slot -> dropped.
+        let droppedChannel = ChannelDTO.testChannel(
+            id: UUID(), radioID: radioID, index: 1, name: "#dropped", secret: Data(repeating: 0xA4, count: 16)
+        )
+        var droppedMessage1 = MessageDTO.testChannelMessage(
+            radioID: radioID, channelIndex: 1, text: "lost one",
+            timestamp: 1_700_002_000, direction: .incoming, senderNodeName: "Jan"
+        )
+        droppedMessage1.deduplicationKey = "ch-1-1700002000-Jan-AABBCCDD"
+        var droppedMessage2 = MessageDTO.testChannelMessage(
+            radioID: radioID, channelIndex: 1, text: "lost two",
+            timestamp: 1_700_002_100, direction: .incoming, senderNodeName: "Eva"
+        )
+        droppedMessage2.deduplicationKey = "ch-1-1700002100-Eva-AABBCCDE"
+
+        let envelope = AppBackupEnvelope.test(
+            devices: [backupDevice],
+            channels: [droppedChannel],
+            messages: [droppedMessage1, droppedMessage2]
+        )
+
+        let service = AppBackupService()
+        let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+        #expect(result.counts[.channels]?.dropped == 1)
+        #expect(result.counts[.messages]?.dropped == 2)
+
+        // Message balance invariant: every declared message is inserted, merged, skipped, or dropped.
+        let m = try #require(result.counts[.messages])
+        #expect(envelope.manifest.messageCount == m.inserted + m.merged + m.skipped + m.dropped)
     }
 
     /// Slot 0 is reserved for the public channel, so a relocating non-public channel skips it

@@ -1613,6 +1613,15 @@
 /* Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict) */
 "settings.backup.import.success.already_here_refreshed" = "%d з них було оновлено новими даними з резервної копії.";
 
+/* Import success section header: channels that had no free local slot and couldn't be restored */
+"settings.backup.import.success.dropped_section" = "Не вдалося відновити";
+
+/* Import success disclosure row summary for the "Couldn't be restored" section */
+"settings.backup.import.success.dropped_summary" = "Не вдалося відновити %d елементів";
+
+/* Import success footer explaining why some channels couldn't be restored and how to recover them */
+"settings.backup.import.success.dropped_footer" = "Для цих каналів не було вільного слота на цій рації, тому вони та їхні повідомлення не були імпортовані. Звільніть слот каналу та імпортуйте знову, щоб відновити їх.";
+
 /* Import success done button */
 "settings.backup.import.success.done" = "Готово";
 

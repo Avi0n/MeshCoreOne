@@ -10,6 +10,7 @@ extension ImportResult {
     var channelsInserted: Int { counts[.channels]?.inserted ?? 0 }
     var channelsSkipped: Int { counts[.channels]?.skipped ?? 0 }
     var channelsMerged: Int { counts[.channels]?.merged ?? 0 }
+    var channelsDropped: Int { counts[.channels]?.dropped ?? 0 }
     var messagesInserted: Int { counts[.messages]?.inserted ?? 0 }
     var messagesSkipped: Int { counts[.messages]?.skipped ?? 0 }
     var messageRepeatsInserted: Int { counts[.messageRepeats]?.inserted ?? 0 }

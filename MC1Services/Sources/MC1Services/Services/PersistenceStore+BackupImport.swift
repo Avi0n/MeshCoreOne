@@ -204,13 +204,14 @@ extension PersistenceStore {
             .channels,
             inserted: channelResult.inserted,
             merged: channelResult.merged,
-            skipped: channelResult.skipped
+            skipped: channelResult.skipped,
+            dropped: channelResult.dropped
         )
 
         // Channels are now final, so rewrite channel-message slots before inserting
         // messages: relocated channels carry their messages to the new slot, and messages
         // for a dropped (no-free-slot) channel are removed rather than mis-associated.
-        applyChannelIndexMapping(
+        let droppedChildren = applyChannelIndexMapping(
             channelResult.channelIndexRemap,
             droppedChannelIndices: channelResult.droppedChannelIndices,
             toMessages: &messages,
@@ -233,7 +234,7 @@ extension PersistenceStore {
             existingKeys: messageLookups.keys,
             existingIDsByKey: messageLookups.idsByKey
         )
-        result.record(.messages, inserted: messageResult.inserted, skipped: messageResult.skipped)
+        result.record(.messages, inserted: messageResult.inserted, skipped: messageResult.skipped, dropped: droppedChildren.messages)
 
         let messageIDMapping = messageResult.messageIDByBackupID
         let allMessageIDs = Set(messages.map { messageIDMapping[$0.id] ?? $0.id })
@@ -253,7 +254,7 @@ extension PersistenceStore {
             existingKeys: existingReactionKeys,
             existingMessageIDs: allMessageIDs
         )
-        result.record(.reactions, inserted: reactionResult.inserted, skipped: reactionResult.skipped)
+        result.record(.reactions, inserted: reactionResult.inserted, skipped: reactionResult.skipped, dropped: droppedChildren.reactions)
 
         let affectedMessageIDs = repeatResult.affectedMessageIDs.union(reactionResult.affectedMessageIDs)
         try recomputeMessageCaches(messageIDs: affectedMessageIDs)
@@ -446,41 +447,51 @@ extension PersistenceStore {
     /// belonging to a channel that had no free local slot are dropped, since no placement
     /// exists to attach them to. Mirrors how ``applyContactIDMapping`` rewrites the DM
     /// dedup key alongside the remapped identifier.
+    @discardableResult
     fileprivate func applyChannelIndexMapping(
         _ remap: [UUID: [UInt8: UInt8]],
         droppedChannelIndices: [UUID: Set<UInt8>],
         toMessages messages: inout [MessageDTO],
         toReactions reactions: inout [ReactionDTO]
-    ) {
-        guard !remap.isEmpty || !droppedChannelIndices.isEmpty else { return }
+    ) -> (messages: Int, reactions: Int) {
+        guard !remap.isEmpty || !droppedChannelIndices.isEmpty else { return (0, 0) }
 
+        var droppedMessages = 0
+        var droppedReactions = 0
         if !droppedChannelIndices.isEmpty {
+            let beforeMessages = messages.count
             messages.removeAll { dto in
                 guard let index = dto.channelIndex else { return false }
                 return droppedChannelIndices[dto.radioID]?.contains(index) ?? false
             }
+            droppedMessages = beforeMessages - messages.count
+
+            let beforeReactions = reactions.count
             reactions.removeAll { dto in
                 guard let index = dto.channelIndex else { return false }
                 return droppedChannelIndices[dto.radioID]?.contains(index) ?? false
             }
+            droppedReactions = beforeReactions - reactions.count
         }
 
-        guard !remap.isEmpty else { return }
-        for i in messages.indices {
-            guard let backupIndex = messages[i].channelIndex,
-                  let localIndex = remap[messages[i].radioID]?[backupIndex] else { continue }
-            messages[i].channelIndex = localIndex
-            if let dedupKey = messages[i].deduplicationKey {
-                messages[i].deduplicationKey = rewriteChannelDeduplicationKey(
-                    dedupKey, from: backupIndex, to: localIndex
-                )
+        if !remap.isEmpty {
+            for i in messages.indices {
+                guard let backupIndex = messages[i].channelIndex,
+                      let localIndex = remap[messages[i].radioID]?[backupIndex] else { continue }
+                messages[i].channelIndex = localIndex
+                if let dedupKey = messages[i].deduplicationKey {
+                    messages[i].deduplicationKey = rewriteChannelDeduplicationKey(
+                        dedupKey, from: backupIndex, to: localIndex
+                    )
+                }
+            }
+            for i in reactions.indices {
+                guard let backupIndex = reactions[i].channelIndex,
+                      let localIndex = remap[reactions[i].radioID]?[backupIndex] else { continue }
+                reactions[i].channelIndex = localIndex
             }
         }
-        for i in reactions.indices {
-            guard let backupIndex = reactions[i].channelIndex,
-                  let localIndex = remap[reactions[i].radioID]?[backupIndex] else { continue }
-            reactions[i].channelIndex = localIndex
-        }
+        return (droppedMessages, droppedReactions)
     }
 
     /// Rewrites `messageID` on both message repeats and reactions so they

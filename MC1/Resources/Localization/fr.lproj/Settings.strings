@@ -1613,6 +1613,15 @@
 /* Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict) */
 "settings.backup.import.success.already_here_refreshed" = "%d d'entre eux ont été actualisés avec des informations plus récentes de la sauvegarde.";
 
+/* Import success section header: channels that had no free local slot and couldn't be restored */
+"settings.backup.import.success.dropped_section" = "Impossible à restaurer";
+
+/* Import success disclosure row summary for the "Couldn't be restored" section */
+"settings.backup.import.success.dropped_summary" = "%d éléments n'ont pas pu être restaurés";
+
+/* Import success footer explaining why some channels couldn't be restored and how to recover them */
+"settings.backup.import.success.dropped_footer" = "Ces canaux n'avaient aucun emplacement libre sur cette radio ; ils n'ont donc pas été importés avec leurs messages. Libérez un emplacement de canal et réimportez pour les restaurer.";
+
 /* Import success done button */
 "settings.backup.import.success.done" = "Terminé";
 

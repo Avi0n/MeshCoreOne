@@ -106,5 +106,21 @@
             <string>%d d'entre eux ont été actualisés avec des informations plus récentes de la sauvegarde.</string>
         </dict>
     </dict>
+    <key>settings.backup.import.success.dropped_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d élément n'a pas pu être restauré</string>
+            <key>other</key>
+            <string>%d éléments n'ont pas pu être restaurés</string>
+        </dict>
+    </dict>
 </dict>
 </plist>

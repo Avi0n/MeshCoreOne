@@ -4672,7 +4672,7 @@ public enum L10n {
             /// Export confirmation alert export button
             public static let export = L10n.tr("Settings", "settings.backup.export.alert.export", fallback: "Export")
             /// Export confirmation alert message
-            public static let message = L10n.tr("Settings", "settings.backup.export.alert.message", fallback: "This backup includes channel encryption keys, message history, and your contact list. Store the exported file securely.")
+            public static let message = L10n.tr("Settings", "settings.backup.export.alert.message", fallback: "This backup includes channel encryption keys, message history, your contact list, and the WiFi node's local network address and port. Store the exported file securely.")
             /// Export confirmation alert title
             public static let title = L10n.tr("Settings", "settings.backup.export.alert.title", fallback: "Security Notice")
           }
@@ -4785,6 +4785,14 @@ public enum L10n {
             }
             /// Import success done button
             public static let done = L10n.tr("Settings", "settings.backup.import.success.done", fallback: "Done")
+            /// Import success footer explaining why some channels couldn't be restored and how to recover them
+            public static let droppedFooter = L10n.tr("Settings", "settings.backup.import.success.dropped_footer", fallback: "These channels had no free slot on this radio, so they and their messages were not imported. Free a channel slot and import again to restore them.")
+            /// Import success section header: channels that had no free local slot and couldn't be restored
+            public static let droppedSection = L10n.tr("Settings", "settings.backup.import.success.dropped_section", fallback: "Couldn't be restored")
+            /// Import success disclosure row summary for the "Couldn't be restored" section
+            public static func droppedSummary(_ p1: Int) -> String {
+              return L10n.tr("Settings", "settings.backup.import.success.dropped_summary", p1, fallback: "%d items couldn't be restored")
+            }
             /// Import success hero subtitle when new items were added (pluralized in .stringsdict)
             public static func subtitleAdded(_ p1: Int) -> String {
               return L10n.tr("Settings", "settings.backup.import.success.subtitle_added", p1, fallback: "%d items added.")
