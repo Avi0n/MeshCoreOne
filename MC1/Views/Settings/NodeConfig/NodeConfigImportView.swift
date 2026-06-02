@@ -14,7 +14,7 @@ struct NodeConfigImportView: View {
             }
         }
         .navigationTitle(L10n.Settings.ConfigImport.title)
-        .onDisappear { viewModel.cancelPreview() }
+        .onDisappear { viewModel.handleDismissal() }
         .fileImporter(
             isPresented: $viewModel.showFilePicker,
             allowedContentTypes: [.json]

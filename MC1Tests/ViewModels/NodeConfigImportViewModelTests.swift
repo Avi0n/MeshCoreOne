@@ -69,6 +69,36 @@ struct NodeConfigImportViewModelTests {
             == L10n.Settings.ConfigImport.failedPartial(clean))
         #expect(NodeConfigImportViewModel.failureMessage(for: error, didApplyAnyWrite: false) == clean)
     }
+
+    @Test("Leaving the screen resets a loaded preview back to the file picker")
+    func dismissalResetsLoadedPreview() {
+        let viewModel = NodeConfigImportViewModel()
+        viewModel.importedConfig = MeshCoreNodeConfig(name: "Node", channels: [])
+        viewModel.errorMessage = "stale error"
+        viewModel.sections.channels = true
+        viewModel.showConfirmation = true
+
+        viewModel.handleDismissal()
+
+        #expect(viewModel.importedConfig == nil)
+        #expect(viewModel.errorMessage == nil)
+        #expect(viewModel.sections == ConfigSections())
+        #expect(!viewModel.showConfirmation)
+    }
+
+    @Test("Leaving the screen mid-import preserves the in-flight import state")
+    func dismissalPreservesInFlightImport() {
+        let viewModel = NodeConfigImportViewModel()
+        viewModel.importedConfig = MeshCoreNodeConfig(name: "Node", channels: [])
+        viewModel.isApplying = true
+        viewModel.applyProgress = 0.5
+
+        viewModel.handleDismissal()
+
+        #expect(viewModel.importedConfig != nil)
+        #expect(viewModel.isApplying)
+        #expect(viewModel.applyProgress == 0.5)
+    }
 }
 
 private struct DummyError: Error {}

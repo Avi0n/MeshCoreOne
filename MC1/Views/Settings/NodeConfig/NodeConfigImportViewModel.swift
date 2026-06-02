@@ -136,6 +136,11 @@ final class NodeConfigImportViewModel {
             defer { isPreparingConfirmation = false }
             do {
                 let preview = try await service.previewImport(config, sections: sections)
+                // If the user left the screen while the round-trip was in flight, the dismissal has
+                // already reset the UI; presenting the confirmation now would pop an alert over a
+                // stale, off-screen state, so honour the cancellation even when the BLE call won the
+                // race and returned before observing it.
+                guard !Task.isCancelled else { return }
                 channelsWouldOverwrite = preview.channelsOverwriteExisting
                 errorMessage = nil
                 showConfirmation = true
@@ -212,11 +217,16 @@ final class NodeConfigImportViewModel {
         importTask?.cancel()
     }
 
-    /// Cancels a pending preview when the screen goes away. The import is deliberately left to run:
-    /// it is a destructive, safety-critical operation with its own explicit cancel control, so a
-    /// transient view disappearance must not silently abort it mid-write.
-    func cancelPreview() {
+    /// Called when the screen goes away. Cancels any pending preview round-trip and, unless a
+    /// destructive import is in flight, resets back to the file picker so re-entering the screen
+    /// starts fresh instead of re-showing a stale preview or error. An in-flight import is left
+    /// running with its progress state intact: it is a destructive, safety-critical operation with
+    /// its own explicit cancel control, so a transient view disappearance must neither abort it
+    /// mid-write nor hide its result from a user who returns.
+    func handleDismissal() {
         previewTask?.cancel()
+        guard !isApplying else { return }
+        resetToFileSelection()
     }
 
     /// Maps a service-layer ``ImportStep`` to a localized progress description, keeping `L10n`
@@ -303,6 +313,8 @@ final class NodeConfigImportViewModel {
         applyStepDescription = ""
         importComplete = false
         isApplying = false
+        isPreparingConfirmation = false
+        showConfirmation = false
         channelsWouldOverwrite = false
         didApplyAnyWrite = false
     }
