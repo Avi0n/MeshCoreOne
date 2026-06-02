@@ -311,7 +311,13 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
         self.lastMessageDate = channel.lastMessageDate
         self.unreadCount = channel.unreadCount
         self.unreadMentionCount = channel.unreadMentionCount
-        self.notificationLevel = channel.notificationLevel
+        // Decode the level without invoking the migrating getter's in-memory write-back, keeping
+        // export a pure read. An unmigrated -1 sentinel maps to its migrated value (muted if the
+        // legacy isMuted flag was set, else all) exactly as the getter would — but without
+        // dirtying the live row. The -1 sentinel itself is never put on the wire (the DTO carries
+        // a NotificationLevel, not the raw column), which is intended.
+        self.notificationLevel = NotificationLevel(rawValue: channel.notificationLevelRawValue)
+            ?? ((channel.legacyIsMuted == true) ? .muted : .all)
         self.isFavorite = channel.isFavorite
         self.floodScopeModeRawValue = channel.floodScopeModeRawValue
         self.regionScope = channel.regionScope

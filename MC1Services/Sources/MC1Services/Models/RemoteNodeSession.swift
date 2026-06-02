@@ -267,7 +267,12 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable,
         self.lastUptimeSeconds = model.lastUptimeSeconds
         self.lastNoiseFloor = model.lastNoiseFloor
         self.unreadCount = model.unreadCount
-        self.notificationLevel = model.notificationLevel
+        // Decode the level without invoking the migrating getter's in-memory write-back, keeping
+        // export a pure read (mirrors `ChannelDTO.init(from:)`). An unmigrated -1 sentinel maps
+        // to its migrated value (muted if the legacy isMuted flag was set, else all) exactly as
+        // the getter would, but without dirtying the live row.
+        self.notificationLevel = NotificationLevel(rawValue: model.notificationLevelRawValue)
+            ?? ((model.legacyIsMuted == true) ? .muted : .all)
         self.isFavorite = model.isFavorite
         self.lastRxAirtimeSeconds = model.lastRxAirtimeSeconds
         self.neighborCount = model.neighborCount
