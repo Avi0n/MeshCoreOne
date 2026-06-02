@@ -1524,7 +1524,7 @@
 "settings.backup.export.alert.title" = "Aviso de seguridad";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "Esta copia incluye claves de cifrado de canales, el historial de mensajes y tu lista de contactos. Almacena el archivo exportado de forma segura.";
+"settings.backup.export.alert.message" = "Esta copia incluye claves de cifrado de canales, el historial de mensajes, tu lista de contactos y la dirección de red local y el puerto del nodo WiFi. Almacena el archivo exportado de forma segura.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "Exportar";

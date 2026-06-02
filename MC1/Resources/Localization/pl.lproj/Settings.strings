@@ -1524,7 +1524,7 @@
 "settings.backup.export.alert.title" = "Informacja o bezpieczeństwie";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "Ta kopia zapasowa zawiera klucze szyfrowania kanałów, historię wiadomości i listę kontaktów. Przechowuj wyeksportowany plik w bezpiecznym miejscu.";
+"settings.backup.export.alert.message" = "Ta kopia zapasowa zawiera klucze szyfrowania kanałów, historię wiadomości, listę kontaktów oraz lokalny adres sieciowy i port węzła WiFi. Przechowuj wyeksportowany plik w bezpiecznym miejscu.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "Eksportuj";

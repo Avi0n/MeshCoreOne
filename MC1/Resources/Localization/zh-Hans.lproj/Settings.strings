@@ -1498,7 +1498,7 @@
 "settings.backup.export.alert.title" = "安全提示";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "此备份包含频道加密密钥、消息历史和联系人列表。请妥善保管导出的文件。";
+"settings.backup.export.alert.message" = "此备份包含频道加密密钥、消息历史、联系人列表以及 WiFi 节点的本地网络地址和端口。请妥善保管导出的文件。";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "导出";

@@ -1524,7 +1524,7 @@
 "settings.backup.export.alert.title" = "Sicherheitshinweis";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "Diese Sicherung enthält Kanal-Verschlüsselungsschlüssel, den Nachrichtenverlauf und deine Kontaktliste. Bewahre die exportierte Datei sicher auf.";
+"settings.backup.export.alert.message" = "Diese Sicherung enthält Kanal-Verschlüsselungsschlüssel, den Nachrichtenverlauf, deine Kontaktliste sowie die lokale Netzwerkadresse und den Port des WLAN-Knotens. Bewahre die exportierte Datei sicher auf.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "Exportieren";

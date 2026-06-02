@@ -1524,7 +1524,7 @@
 "settings.backup.export.alert.title" = "Avis de sécurité";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "Cette sauvegarde inclut les clés de chiffrement des canaux, l'historique des messages et votre liste de contacts. Conservez le fichier exporté en lieu sûr.";
+"settings.backup.export.alert.message" = "Cette sauvegarde inclut les clés de chiffrement des canaux, l'historique des messages, votre liste de contacts ainsi que l'adresse réseau locale et le port du nœud WiFi. Conservez le fichier exporté en lieu sûr.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "Exporter";

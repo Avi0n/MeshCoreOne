@@ -654,14 +654,24 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
         }
     }
 
-    /// Returns a copy with radio configuration fields reset to safe defaults
-    /// and any Bluetooth connection methods removed. Used during backup
-    /// export to avoid exposing BLE PIN, frequency, or the source phone's
-    /// `CBPeripheral.identifier` in the .mc1backup file — peripheral UUIDs
-    /// are only meaningful on the phone that paired the radio and are not
-    /// portable across installs.
+    /// Returns a copy with radio configuration fields reset to safe defaults,
+    /// the surrogate `id` reset to a fresh UUID, and any Bluetooth connection
+    /// methods removed. Used during backup export to avoid exposing BLE PIN,
+    /// frequency, or the source phone's `CBPeripheral.identifier` (the BLE
+    /// `Device.id`) in the .mc1backup file — peripheral UUIDs are only
+    /// meaningful on the phone that paired the radio and are not portable
+    /// across installs. WiFi connection methods are intentionally retained
+    /// (restore-then-reconnect reads them) and are disclosed in the pre-export
+    /// Security Notice. `publicKey`/`radioID` are preserved as the
+    /// reconciliation/partition keys; import re-mints `id` again on insert.
     public func redactedForBackup() -> DeviceDTO {
         copy {
+            // Reset the surrogate id so the source phone's CBPeripheral UUID (Device.id for BLE
+            // radios) never travels in a shareable backup. publicKey/radioID are preserved as the
+            // reconciliation/partition keys; import re-mints id again on insert. For WiFi radios
+            // Device.id is DeviceIdentity.deriveUUID(from: publicKey), re-derivable from the
+            // retained publicKey, so the reset is doc-honesty plus BLE-identifier removal.
+            $0.id = UUID()
             $0.frequency = Device.Defaults.frequency
             $0.bandwidth = Device.Defaults.bandwidth
             $0.spreadingFactor = Device.Defaults.spreadingFactor

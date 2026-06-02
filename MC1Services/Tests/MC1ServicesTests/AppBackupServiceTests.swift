@@ -330,6 +330,12 @@ struct AppBackupServiceTests {
             $0.telemetryModeLoc = 2
             $0.telemetryModeEnv = 1
             $0.advertLocationPolicy = 2
+            $0.manualAddContacts = true
+            $0.multiAcks = 4
+            $0.connectionMethods = [
+                .bluetooth(peripheralUUID: UUID(), displayName: "BT"),
+                .wifi(host: "10.0.0.2", port: 5000, displayName: "WiFi")
+            ]
         }
         try await store.saveDevice(sensitiveDevice)
 
@@ -361,6 +367,16 @@ struct AppBackupServiceTests {
         #expect(exported.telemetryModeLoc == 0)
         #expect(exported.telemetryModeEnv == 0)
         #expect(exported.advertLocationPolicy == 0)
+
+        // id is reset so the source phone's CBPeripheral UUID never leaves the device.
+        #expect(exported.id != radioID)
+        // WiFi is intentionally retained (needed for restore-then-reconnect) and disclosed in
+        // the export Security Notice; only Bluetooth is stripped.
+        #expect(exported.connectionMethods.contains { $0.isWiFi })
+        #expect(!exported.connectionMethods.contains { $0.isBluetooth })
+        // Radio-config preferences reset to defaults.
+        #expect(exported.manualAddContacts == Device.Defaults.manualAddContacts)
+        #expect(exported.multiAcks == Device.Defaults.multiAcks)
     }
 
     @Test("Export preserves non-sensitive device fields")

@@ -1524,7 +1524,7 @@
 "settings.backup.export.alert.title" = "Предупреждение о безопасности";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "Эта резервная копия содержит ключи шифрования каналов, историю сообщений и список контактов. Храните экспортированный файл в надёжном месте.";
+"settings.backup.export.alert.message" = "Эта резервная копия содержит ключи шифрования каналов, историю сообщений, список контактов, а также локальный сетевой адрес и порт узла Wi-Fi. Храните экспортированный файл в надёжном месте.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "Экспортировать";

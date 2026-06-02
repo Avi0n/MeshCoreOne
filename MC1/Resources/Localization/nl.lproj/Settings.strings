@@ -1524,7 +1524,7 @@
 "settings.backup.export.alert.title" = "Beveiligingsmelding";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "Deze back-up bevat kanaalversleutelingssleutels, de berichtgeschiedenis en je contactenlijst. Bewaar het geëxporteerde bestand veilig.";
+"settings.backup.export.alert.message" = "Deze back-up bevat kanaalversleutelingssleutels, de berichtgeschiedenis, je contactenlijst en het lokale netwerkadres en de poort van de WiFi-node. Bewaar het geëxporteerde bestand veilig.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "Exporteren";

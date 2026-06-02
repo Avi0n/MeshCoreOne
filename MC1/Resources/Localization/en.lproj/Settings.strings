@@ -1539,7 +1539,7 @@
 "settings.backup.export.alert.title" = "Security Notice";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "This backup includes channel encryption keys, message history, and your contact list. Store the exported file securely.";
+"settings.backup.export.alert.message" = "This backup includes channel encryption keys, message history, your contact list, and the WiFi node's local network address and port. Store the exported file securely.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "Export";
