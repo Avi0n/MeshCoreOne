@@ -178,7 +178,7 @@ public final class Contact {
             radioID: radioID,
             publicKey: frame.publicKey,
             name: frame.name,
-            typeRawValue: frame.type.rawValue,
+            typeRawValue: frame.typeRawValue,
             flags: frame.flags,
             outPathLength: frame.outPathLength,
             outPath: frame.outPath,
@@ -236,7 +236,7 @@ public extension Contact {
     /// Updates from a protocol ContactFrame
     func update(from frame: ContactFrame) {
         self.name = frame.name
-        self.typeRawValue = frame.type.rawValue
+        self.typeRawValue = frame.typeRawValue
         // Preserve bit 0 (favorite) from existing flags, take bits 1-7 from frame
         self.flags = (self.flags & 0x01) | (frame.flags & ~0x01)
         self.outPathLength = frame.outPathLength
@@ -252,6 +252,7 @@ public extension Contact {
         ContactFrame(
             publicKey: publicKey,
             type: type,
+            typeRawValue: typeRawValue,
             flags: flags,
             outPathLength: outPathLength,
             outPath: outPath,
@@ -480,6 +481,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
         ContactFrame(
             publicKey: publicKey,
             type: type,
+            typeRawValue: typeRawValue,
             flags: flags,
             outPathLength: outPathLength,
             outPath: outPath,

@@ -538,13 +538,31 @@ public actor SettingsService {
         advertLocationPolicy: AdvertLocationPolicy,
         multiAcks: UInt8
     ) async throws {
+        try await setOtherParams(
+            autoAddContacts: autoAddContacts,
+            telemetryModes: telemetryModes,
+            advertLocationPolicyRaw: advertLocationPolicy.rawValue,
+            multiAcks: multiAcks
+        )
+    }
+
+    /// Set other device parameters, taking the advertisement location policy as a raw byte.
+    ///
+    /// Used by config import so a policy value not modeled by ``AdvertLocationPolicy`` (e.g. from
+    /// newer firmware) is forwarded to the device verbatim instead of being coerced.
+    public func setOtherParams(
+        autoAddContacts: Bool,
+        telemetryModes: TelemetryModes,
+        advertLocationPolicyRaw: UInt8,
+        multiAcks: UInt8
+    ) async throws {
         do {
             try await session.setOtherParams(
                 manualAddContacts: !autoAddContacts,
                 telemetryModeEnvironment: telemetryModes.environment,
                 telemetryModeLocation: telemetryModes.location,
                 telemetryModeBase: telemetryModes.base,
-                advertisementLocationPolicy: advertLocationPolicy.rawValue,
+                advertisementLocationPolicy: advertLocationPolicyRaw,
                 multiAcks: multiAcks
             )
         } catch let error as MeshCoreError {
@@ -645,7 +663,7 @@ public actor SettingsService {
         // Calculate the scaled values we're actually sending
         let scaledLatSent = Int32(latitude * 1_000_000)
         let scaledLonSent = Int32(longitude * 1_000_000)
-        
+
         // log when attempting to clear location
         let isClearingLocation = scaledLatSent == 0 && scaledLonSent == 0
         logger.debug("[Location] setLocationVerified called - lat: \(latitude), lon: \(longitude), isClearing: \(isClearingLocation)")
@@ -665,7 +683,7 @@ public actor SettingsService {
 
         guard latDiff <= tolerance && lonDiff <= tolerance else {
             logger.error("[Location] Verification failed - sent: (\(scaledLatSent), \(scaledLonSent)), received: (\(scaledLatReceived), \(scaledLonReceived)), diff: (lat=\(latDiff), lon=\(lonDiff))")
-            
+
             if isClearingLocation {
                 logger.warning("[Location] Clear location failed - device reports non-zero coordinates. Device may have active GPS or firmware doesn't support (0,0).")
             }

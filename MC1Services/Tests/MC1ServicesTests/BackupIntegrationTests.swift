@@ -80,6 +80,49 @@ struct BackupIntegrationTests {
         #expect(messageIDs.contains(destReactions.first!.messageID))
     }
 
+    // MARK: - Test 1b: Unmodeled contact type byte survives backup
+
+    /// `ContactDTO.typeRawValue` is a non-optional field that has existed since the backup
+    /// feature shipped, so the contract is a plain encode → decode round-trip (no
+    /// `decodeIfPresent` legacy path). An unmodeled type byte must survive verbatim so a
+    /// future refactor can't silently re-collapse it onto a modeled `ContactType`.
+    @Test("Unmodeled contact type byte (0x04) survives DTO encode → decode round-trip")
+    func unmodeledContactTypeSurvivesCodableRoundTrip() throws {
+        let dto = ContactDTO.testContact(typeRawValue: 0x04)
+        let encoded = try JSONEncoder().encode(dto)
+        let decoded = try JSONDecoder().decode(ContactDTO.self, from: encoded)
+        #expect(decoded.typeRawValue == 0x04)
+        #expect(decoded.type == .chat)
+    }
+
+    /// Full envelope path: an unmodeled type byte must survive export → import into a fresh store,
+    /// not just an isolated DTO round-trip.
+    @Test("Unmodeled contact type byte (0x04) survives full backup export → import")
+    func unmodeledContactTypeSurvivesBackupPipeline() async throws {
+        let radioID = UUID()
+        let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+        let contact = ContactDTO.testContact(
+            radioID: radioID,
+            publicKey: Data(repeating: 0xAB, count: 32),
+            name: "FutureType",
+            typeRawValue: 0x04
+        )
+        try await sourceStore.saveContact(contact)
+
+        let service = AppBackupService()
+        let exportResult = try await service.export(persistenceStore: sourceStore)
+        let envelope = try parseBackup(data: exportResult.data)
+
+        let destContainer = try PersistenceStore.createContainer(inMemory: true)
+        let destStore = PersistenceStore(modelContainer: destContainer)
+        _ = try await service.importBackup(envelope: envelope, into: destStore)
+
+        let destContacts = try await destStore.fetchAllContacts(radioID: radioID)
+        #expect(destContacts.first?.typeRawValue == 0x04)
+        #expect(destContacts.first?.type == .chat)
+    }
+
     // MARK: - Test 2: Cross-bundle radioID remapping
 
     /// When the target store contains a device with the same publicKey as the backup but a

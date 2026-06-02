@@ -733,6 +733,7 @@ extension MeshContact {
         ContactFrame(
             publicKey: publicKey,
             type: type,
+            typeRawValue: typeRawValue,
             flags: flags.rawValue,
             outPathLength: outPathLength,
             outPath: outPath,
@@ -754,6 +755,7 @@ extension ContactFrame {
             id: publicKey.hexString(),
             publicKey: publicKey,
             type: type,
+            typeRawValue: typeRawValue,
             flags: ContactFlags(rawValue: flags),
             outPathLength: outPathLength,
             outPath: outPath,
