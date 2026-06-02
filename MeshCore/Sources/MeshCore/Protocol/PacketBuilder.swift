@@ -42,7 +42,7 @@ public enum PacketBuilder: Sendable {
     static let rawDataMaxPathBytes = 64
     static let rawDataMaxPayloadBytes = 184
     /// Flood sentinel for `path_len` fields: firmware treats `0xFF` as "route via flood".
-    @usableFromInline static let floodPathSentinel: UInt8 = 0xFF
+    public static let floodPathSentinel: UInt8 = 0xFF
     /// Maximum payload bytes for `CMD_SEND_CHANNEL_DATA` (`MAX_FRAME_SIZE - 9` per firmware).
     static let channelDataMaxPayloadBytes = 163
     /// Default-scope name-field width on the wire (31 bytes, zero-padded).
@@ -52,12 +52,46 @@ public enum PacketBuilder: Sendable {
     static let defaultScopeMaxNameBytes = 30
     /// Default-scope key width on the wire (16 bytes).
     static let defaultScopeKeyBytes = 16
+    /// Fixed-point scale firmware applies to latitude/longitude (degrees × 1e6, stored as Int32).
+    static let coordinateScale: Double = 1_000_000
+    /// Valid latitude range in degrees.
+    public static let latitudeRange: ClosedRange<Double> = -90...90
+    /// Valid longitude range in degrees.
+    public static let longitudeRange: ClosedRange<Double> = -180...180
+    /// Valid radio frequency range in kHz, matching firmware `CMD_SET_RADIO_PARAMS`.
+    public static let frequencyRangeKHz: ClosedRange<UInt32> = 150_000...2_500_000
+    /// Valid radio bandwidth range in Hz, matching firmware `CMD_SET_RADIO_PARAMS`.
+    public static let bandwidthRangeHz: ClosedRange<UInt32> = 7_000...500_000
+    /// Valid LoRa spreading factor range, matching firmware `CMD_SET_RADIO_PARAMS`.
+    public static let spreadingFactorRange: ClosedRange<UInt8> = 5...12
+    /// Valid LoRa coding rate range, matching firmware `CMD_SET_RADIO_PARAMS`.
+    public static let codingRateRange: ClosedRange<UInt8> = 5...8
+    /// Minimum LoRa transmit power in dBm (firmware rejects below this). The upper bound is the
+    /// device-reported `maxTxPower`, not a fixed constant, so it is supplied per device.
+    public static let txPowerFloor: Int8 = -9
 
     private static func encodePublicKey(_ publicKey: Data) -> Data {
         if publicKey.count >= publicKeySize {
             return publicKey.prefix(publicKeySize)
         }
         return publicKey + Data(repeating: 0, count: publicKeySize - publicKey.count)
+    }
+
+    /// Scales a coordinate (degrees) into the firmware's `Int32` fixed-point form,
+    /// clamping to a finite, valid range. A NaN, infinite, or out-of-range value
+    /// saturates instead of trapping `Int32(_:)`, so no caller can crash the encoder.
+    static func scaledCoordinate(_ degrees: Double, in range: ClosedRange<Double>) -> Int32 {
+        let clamped = degrees.isFinite ? min(max(degrees, range.lowerBound), range.upperBound) : 0
+        return Int32(clamped * coordinateScale)
+    }
+
+    /// Clamps a date to the firmware's unsigned 32-bit seconds-since-epoch field,
+    /// saturating pre-1970 and post-2106 dates instead of trapping `UInt32(_:)`.
+    static func epochSeconds32(_ date: Date) -> UInt32 {
+        let seconds = date.timeIntervalSince1970
+        guard seconds.isFinite, seconds > 0 else { return 0 }
+        guard seconds < Double(UInt32.max) else { return UInt32.max }
+        return UInt32(seconds)
     }
 
     // MARK: - Device Commands
@@ -159,8 +193,8 @@ public enum PacketBuilder: Sendable {
     /// - Offset 9 (4 bytes): Altitude placeholder (zeros)
     public static func setCoordinates(latitude: Double, longitude: Double) -> Data {
         var data = Data([CommandCode.setCoordinates.rawValue])
-        let lat = Int32(latitude * 1_000_000)
-        let lon = Int32(longitude * 1_000_000)
+        let lat = scaledCoordinate(latitude, in: latitudeRange)
+        let lon = scaledCoordinate(longitude, in: longitudeRange)
         data.append(contentsOf: withUnsafeBytes(of: lat.littleEndian) { Array($0) })
         data.append(contentsOf: withUnsafeBytes(of: lon.littleEndian) { Array($0) })
         data.append(contentsOf: [0, 0, 0, 0]) // altitude placeholder
@@ -577,26 +611,26 @@ public enum PacketBuilder: Sendable {
     public static func updateContact(_ contact: MeshContact) -> Data {
         var data = Data([CommandCode.updateContact.rawValue])              // 1 byte
         data.append(contact.publicKey.paddedOrTruncated(to: 32))           // 32 bytes
-        data.append(contact.type.rawValue)                                   // 1 byte
+        data.append(contact.typeRawValue)                                    // 1 byte
         data.append(contact.flags.rawValue)                                  // 1 byte
         data.append(contact.outPathLength)                                    // 1 byte
         data.append(contact.outPath.paddedOrTruncated(to: 64))              // 64 bytes
         data.append(contact.advertisedName.utf8PaddedOrTruncated(to: 32))   // 32 bytes
 
-        let timestamp = UInt32(contact.lastAdvertisement.timeIntervalSince1970)
+        let timestamp = epochSeconds32(contact.lastAdvertisement)
         data.appendLittleEndian(timestamp)                                  // 4 bytes
 
-        let lat = Int32(contact.latitude * 1_000_000)
+        let lat = scaledCoordinate(contact.latitude, in: latitudeRange)
         data.appendLittleEndian(lat)                                        // 4 bytes
 
-        let lon = Int32(contact.longitude * 1_000_000)
+        let lon = scaledCoordinate(contact.longitude, in: longitudeRange)
         data.appendLittleEndian(lon)                                        // 4 bytes
 
-        // Total: 1 + 32 + 1 + 1 + 1 + 64 + 32 + 4 + 4 + 4 = 144 bytes
-        // Firmware expects 147, so add 3 reserved bytes
+        // Subtotal so far: 1 + 32 + 1 + 1 + 1 + 64 + 32 + 4 + 4 + 4 = 144 bytes.
+        // Firmware expects a 147-byte frame, so pad with 3 reserved bytes.
         data.append(contentsOf: [0x00, 0x00, 0x00])                         // 3 bytes
 
-        return data  // 147 bytes
+        return data  // 144 + 3 = 147 bytes
     }
 
     /// Builds a setTuning command to adjust low-level radio timing.
@@ -977,7 +1011,7 @@ public enum PacketBuilder: Sendable {
     /// - Offset 1 (1 byte): Reserved `0x00`
     /// - Offset 2 (1 byte): Mode value (0, 1, or 2)
     public static func setPathHashMode(_ mode: UInt8) -> Data {
-        Data([CommandCode.setPathHashMode.rawValue, 0x00, min(mode, 2)])
+        Data([CommandCode.setPathHashMode.rawValue, 0x00, min(mode, UInt8(PathEncoding.maxPathHashMode))])
     }
 
     /// Builds a factoryReset command to wipe all settings and data from the device.

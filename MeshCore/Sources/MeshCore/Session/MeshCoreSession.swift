@@ -1709,11 +1709,11 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         }
         data.append(nameData)
 
-        let lastAdvert = UInt32(lastAdvertisement.timeIntervalSince1970)
+        let lastAdvert = PacketBuilder.epochSeconds32(lastAdvertisement)
         data.append(contentsOf: withUnsafeBytes(of: lastAdvert.littleEndian) { Array($0) })
 
-        let lat = Int32(latitude * 1_000_000)
-        let lon = Int32(longitude * 1_000_000)
+        let lat = PacketBuilder.scaledCoordinate(latitude, in: PacketBuilder.latitudeRange)
+        let lon = PacketBuilder.scaledCoordinate(longitude, in: PacketBuilder.longitudeRange)
         data.append(contentsOf: withUnsafeBytes(of: lat.littleEndian) { Array($0) })
         data.append(contentsOf: withUnsafeBytes(of: lon.littleEndian) { Array($0) })
 
@@ -1722,20 +1722,19 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
     /// Adds a contact to the device's contact list.
     ///
+    /// Encodes via ``PacketBuilder/updateContact(_:)``, which forwards the raw
+    /// ``MeshContact/typeRawValue`` byte and uses the saturating coordinate/timestamp
+    /// encoders, so a contact carrying a type byte not modeled by ``ContactType``
+    /// (e.g. from an imported config) reaches the device verbatim instead of being
+    /// coerced. The 147-byte frame is wire-equivalent to the prior 144-byte frame:
+    /// firmware applies the gps_lat/gps_lon coordinates in `[136, 144)` when the
+    /// payload length is at least 144, and intentionally omits last_mod in `[144, 148)`
+    /// (147 is below the 148-byte threshold), so the device restamps it from its RTC.
+    ///
     /// - Parameter contact: The contact to add.
     /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
     public func addContact(_ contact: MeshContact) async throws {
-        try await updateContact(
-            publicKey: contact.publicKey,
-            type: contact.type,
-            flags: contact.flags,
-            outPathLength: contact.outPathLength,
-            outPath: contact.outPath,
-            advertisedName: contact.advertisedName,
-            lastAdvertisement: contact.lastAdvertisement,
-            latitude: contact.latitude,
-            longitude: contact.longitude
-        )
+        try await sendSimpleCommand(PacketBuilder.updateContact(contact))
     }
 
     /// Changes the routing path for a contact.
@@ -2189,7 +2188,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Parameter mode: Hash mode (0=1-byte, 1=2-byte, 2=3-byte hashes).
     /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
     public func setPathHashMode(_ mode: UInt8) async throws {
-        guard mode <= 2 else {
+        guard mode <= UInt8(PathEncoding.maxPathHashMode) else {
             throw MeshCoreError.invalidInput("Path hash mode must be 0, 1, or 2")
         }
         try await sendSimpleCommand(PacketBuilder.setPathHashMode(mode))
@@ -2909,17 +2908,24 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         // region exchange, and the restore are each their own serialized exchange so
         // none nests inside the request/response serializer the others acquire.
         if isFloodRouted {
-            try await updateContact(
+            // Route through PacketBuilder.updateContact so the raw type byte survives instead of
+            // being coerced to .chat by the typed overload; the restore below only touches
+            // out_path_len, so any coercion here would be permanent.
+            let directContact = MeshContact(
+                id: contact.id,
                 publicKey: contact.publicKey,
                 type: contact.type,
+                typeRawValue: contact.typeRawValue,
                 flags: contact.flags,
                 outPathLength: 0,
                 outPath: Data(),
                 advertisedName: contact.advertisedName,
                 lastAdvertisement: contact.lastAdvertisement,
                 latitude: contact.latitude,
-                longitude: contact.longitude
+                longitude: contact.longitude,
+                lastModified: contact.lastModified
             )
+            try await sendSimpleCommand(PacketBuilder.updateContact(directContact))
         }
 
         do {

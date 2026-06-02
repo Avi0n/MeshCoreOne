@@ -97,3 +97,77 @@ struct UpdateContactTests {
         #expect(packet[35] == 0xFF, "outPathLength 0xFF should be flood routing")
     }
 }
+
+// MARK: - Legacy updateContact overload hardening
+
+/// Drives the `updateContact(publicKey:type:flags:…)` overload end-to-end through the public
+/// `changeContactFlags` seam to prove the coordinate/timestamp encoders saturate instead of
+/// trapping. A NaN latitude would crash a trapping integer conversion; the saturating
+/// helpers clamp it instead.
+@Suite("Legacy updateContact encoders saturate instead of trapping")
+struct LegacyUpdateContactHardeningTests {
+
+    /// Builds a minimal selfInfo packet to complete `session.start()`.
+    private func makeSelfInfoPacket() -> Data {
+        var data = Data([ResponseCode.selfInfo.rawValue])
+        data.append(0) // advType
+        data.append(0) // txPower
+        data.append(0) // maxTxPower
+        data.append(Data(repeating: 0x01, count: 32)) // publicKey
+        data.append(contentsOf: withUnsafeBytes(of: Int32(0).littleEndian) { Array($0) }) // lat
+        data.append(contentsOf: withUnsafeBytes(of: Int32(0).littleEndian) { Array($0) }) // lon
+        data.append(0) // flags
+        data.append(0) // reserved
+        data.append(0) // reserved
+        data.append(0) // reserved
+        data.append(contentsOf: withUnsafeBytes(of: UInt32(915_000).littleEndian) { Array($0) }) // freq
+        data.append(contentsOf: withUnsafeBytes(of: UInt32(125_000).littleEndian) { Array($0) }) // bw
+        data.append(7) // sf
+        data.append(5) // cr
+        data.append(contentsOf: "Test".utf8) // name
+        return data
+    }
+
+    private func startSession(_ session: MeshCoreSession, transport: MockTransport) async throws {
+        let startTask = Task { try await session.start() }
+        try await waitUntil("transport should have sent appStart") {
+            await transport.sentData.count >= 1
+        }
+        await transport.simulateReceive(makeSelfInfoPacket())
+        try await startTask.value
+        await transport.clearSentData()
+    }
+
+    private func acknowledgeNextCommand(_ transport: MockTransport, sentCountBefore: Int, label: String = "command") async throws {
+        try await waitUntil("transport should have sent \(label)") {
+            await transport.sentData.count > sentCountBefore
+        }
+        await transport.simulateOK()
+    }
+
+    @Test("changeContactFlags with a NaN coordinate does not trap and clamps the frame")
+    func changeContactFlagsClampsExtremeContact() async throws {
+        let transport = MockTransport()
+        // Match RegionTests' init: the suite uses a 0.5s timeout, not the 5.0s default.
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 0.5, clientIdentifier: "Test"))
+        try await startSession(session, transport: transport)
+
+        let contact = MeshContact(
+            id: "x", publicKey: Data(repeating: 0xAB, count: 32), type: .chat,
+            flags: ContactFlags(rawValue: 0), outPathLength: 0xFF, outPath: Data(),
+            advertisedName: "N", lastAdvertisement: Date(timeIntervalSince1970: -1),
+            latitude: .nan, longitude: 200, lastModified: Date())
+
+        let before = await transport.sentData.count
+        async let call: Void = session.changeContactFlags(contact, flags: ContactFlags(rawValue: 0x02))
+        try await acknowledgeNextCommand(transport, sentCountBefore: before, label: "changeContactFlags")
+        try await call
+
+        let frame = try #require(await transport.sentData.last)
+        #expect(frame.readUInt32LE(at: 132) == 0)                              // lastAdvertisement clamped to 0
+        #expect(Int32(bitPattern: frame.readUInt32LE(at: 136)) == 0)           // lat NaN -> 0
+        #expect(Int32(bitPattern: frame.readUInt32LE(at: 140)) == 180_000_000) // lon clamped to +180
+    }
+}

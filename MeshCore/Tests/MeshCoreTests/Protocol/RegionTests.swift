@@ -443,5 +443,40 @@ struct RequestRegionsIntegrationTests {
 
         await session.stop()
     }
-}
 
+    @Test("requestRegions preserves an unmodeled raw type byte in the temp write")
+    func requestRegionsPreservesRawType() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "Test"))
+        try await startSession(session, transport: transport)
+
+        // type falls back to .chat for the unmodeled 0x04 byte; typeRawValue carries the real byte.
+        let contact = MeshContact(
+            id: "r", publicKey: Data(repeating: 0xCD, count: 32), type: .chat,
+            typeRawValue: 0x04, flags: ContactFlags(rawValue: 0), outPathLength: 0xFF,
+            outPath: Data(), advertisedName: "Repeater", lastAdvertisement: Date(timeIntervalSince1970: 1000),
+            latitude: 0, longitude: 0, lastModified: Date())
+
+        let regionsTask = Task { try await session.requestRegions(from: contact) }
+
+        // Drive the proven flood-route flow: ack the zero-hop temp write, send a messageSent to
+        // start (and quickly expire) the region timeout, then ack the resetPath restore.
+        try await acknowledgeNextCommand(transport, sentCountBefore: 0, label: "temp write")
+        try await waitUntil("transport should have sent anon request") {
+            await transport.sentData.count >= 2
+        }
+        await transport.simulateReceive(makeMessageSentPacket(expectedAck: Data([0xAA, 0xBB, 0xCC, 0xDD]), timeoutMs: 100))
+        try await acknowledgeNextCommand(transport, sentCountBefore: 2, label: "resetPath")
+        _ = try? await regionsTask.value
+
+        // First sent packet is the zero-hop temp write; its type byte must be the raw 0x04.
+        let tempFrame = await transport.sentData[0]
+        #expect(tempFrame[0] == CommandCode.updateContact.rawValue) // 0x09
+        #expect(tempFrame[33] == 0x04, "raw type byte must survive, not coerce to 0x01")
+        #expect(tempFrame[35] == 0x00, "zero-hop direct out_path_len")
+
+        await session.stop()
+    }
+}

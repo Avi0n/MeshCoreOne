@@ -91,6 +91,18 @@ private let parserLogger = Logger(subsystem: "MeshCore", category: "Parsers")
 
 // MARK: - Path Encoding Utilities
 
+/// Limits for the multibyte path-length encoding, shared by ``encodePathLen(hashSize:hopCount:)``,
+/// `setPathHashMode`, and the config-import path validator so the valid ranges live in one place.
+public enum PathEncoding {
+    /// Highest valid path hash-size mode (0 = 1-byte, 1 = 2-byte, 2 = 3-byte hashes; mode 3 is reserved).
+    public static let maxPathHashMode = 2
+    /// Highest hop count representable in the encoded path-length byte's lower 6 bits.
+    public static let maxHopCount = 63
+    /// Maximum encoded out-path length in bytes (firmware `MAX_PATH_SIZE`); firmware
+    /// `isValidPathLen` rejects `hash_count * hash_size` beyond this.
+    public static let maxPathBytes = 64
+}
+
 /// Decoded components of a multibyte-encoded path length byte.
 public struct PathLenDecoded: Sendable {
     /// Bytes per hop hash (1, 2, or 3).
@@ -128,7 +140,7 @@ public func decodePathLen(_ encoded: UInt8) -> PathLenDecoded? {
 public func encodePathLen(hashSize: Int, hopCount: Int) -> UInt8 {
     precondition(1...3 ~= hashSize, "hashSize must be 1, 2, or 3")
     let mode = UInt8(hashSize - 1)
-    let hops = UInt8(min(hopCount, 63))
+    let hops = UInt8(min(hopCount, PathEncoding.maxHopCount))
     return (mode << 6) | hops
 }
 
@@ -160,7 +172,8 @@ public enum Parsers {
 
         var offset = 0
         let publicKey = Data(data[offset..<offset+32]); offset += 32
-        let type = ContactType(rawValue: data[offset]) ?? .chat; offset += 1
+        let typeByte = data[offset]
+        let type = ContactType(rawValue: typeByte) ?? .chat; offset += 1
         let flags = ContactFlags(rawValue: data[offset]); offset += 1
         let pathLen = data[offset]; offset += 1
         guard pathLen == 0xFF || decodePathLen(pathLen) != nil else { return nil }
@@ -182,6 +195,7 @@ public enum Parsers {
             id: publicKey.hexString,
             publicKey: publicKey,
             type: type,
+            typeRawValue: typeByte,
             flags: flags,
             outPathLength: pathLen,
             outPath: path,
