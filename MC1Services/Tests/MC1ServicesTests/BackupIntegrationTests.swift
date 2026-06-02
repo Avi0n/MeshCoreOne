@@ -958,6 +958,34 @@ struct BackupIntegrationTests {
         #expect(result.inserted == 1)
     }
 
+    @Test("Duplicate device public keys in one envelope skip the loser and remap its children")
+    func duplicatePublicKeyRemapsChildrenToSinglePartition() async throws {
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let store = PersistenceStore(modelContainer: container)
+        let key = Data(repeating: 0x42, count: 32)
+        let radioA = UUID(), radioB = UUID()
+        let devA = DeviceDTO.testDevice().copy { $0.publicKey = key; $0.radioID = radioA }
+        let devB = DeviceDTO.testDevice().copy { $0.publicKey = key; $0.radioID = radioB }
+        // Both devices share the duplicate `key` (the scenario under test), but the contacts
+        // must carry distinct public keys: after both contacts' radioID is remapped to the
+        // single surviving local radioID they would otherwise share an identical `contactKey`
+        // (radioID + publicKey) and the second would be deduped, collapsing to one row.
+        let contactA = ContactDTO.testContact(radioID: radioA, publicKey: Data(repeating: 0x01, count: 32))
+        let contactB = ContactDTO.testContact(radioID: radioB, publicKey: Data(repeating: 0x02, count: 32))
+        let envelope = AppBackupEnvelope.test(
+            devices: [devA, devB], contacts: [contactA, contactB]
+        )
+        let service = AppBackupService()
+        let result = try await service.importBackup(envelope: envelope, into: store)
+        #expect(result.counts[.devices]?.skipped == 1)   // loser duplicate
+        #expect(result.counts[.devices]?.inserted == 1)
+        // Both contacts land under the single surviving local radioID.
+        let devices = try await store.fetchAllDevices()
+        let localRadioID = try #require(devices.first?.radioID)
+        let contacts = try await store.fetchContacts(radioID: localRadioID)
+        #expect(contacts.count == 2)
+    }
+
     /// Case A: same secret at the same slot is a pure metadata merge with no relocation.
     @Test("Channel reconcile: same secret at same slot merges metadata, index unchanged")
     func channelSecretReconcile_SameSecretSameSlotIsNoOp() async throws {

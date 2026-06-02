@@ -335,6 +335,14 @@ extension PersistenceStore {
     /// Matches each backup device to a local device by publicKey, producing a
     /// radioID remap for child records. Duplicate publicKeys in the envelope
     /// (corruption) are counted so the caller can surface the skip.
+    ///
+    /// Keys are matched verbatim, with no empty/zero-key guard, because no MC1 export can
+    /// produce an empty or all-zero `publicKey`: every persist path sources it from a 32-byte
+    /// post-handshake `selfInfo.publicKey`, and `Device.init` requires it, so this branch only
+    /// ever sees real, distinct keys. The guard is intentionally omitted — the only way to reach
+    /// a collision (two devices carrying empty or zero `publicKey`s on distinct `radioID`s, which
+    /// would collapse into one partition and merge two radios' rows) is a hand-edited file, which
+    /// is out of scope for import validation.
     fileprivate func buildRadioIDMapping(
         from envelope: AppBackupEnvelope,
         localDeviceRadioIDsByPublicKey: [Data: UUID]
