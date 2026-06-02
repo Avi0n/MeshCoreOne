@@ -1147,6 +1147,12 @@
 /* Import cancelled */
 "configImport.cancelled" = "Import is geannuleerd.";
 
+/* Import cancelled after one or more settings were already written to the device */
+"configImport.cancelledPartial" = "Import is geannuleerd, maar sommige instellingen waren al naar het apparaat geschreven. Controleer de configuratie van het apparaat.";
+
+/* Import failed after one or more settings were already written; %@ is the underlying error message */
+"configImport.failedPartial" = "%@ Sommige instellingen zijn mogelijk al naar het apparaat geschreven. Controleer de configuratie van het apparaat.";
+
 /* Import success */
 "configImport.importSuccess" = "Configuratie succesvol geïmporteerd";
 
@@ -1167,6 +1173,69 @@
 
 /* Contact count (param: integer) */
 "configImport.contactCount" = "%d contacten worden toegevoegd/bijgewerkt op het apparaat";
+
+/* Generic device-name fallback used in confirmation messages when the node has no name */
+"configImport.thisDevice" = "dit apparaat";
+
+/* Import progress: applying position */
+"configImport.stepPosition" = "Positie instellen";
+
+/* Import progress: applying other parameters */
+"configImport.stepOtherParameters" = "Overige parameters instellen";
+
+/* Import progress: importing the private key */
+"configImport.stepPrivateKey" = "Privésleutel importeren";
+
+/* Import progress: setting the node name */
+"configImport.stepNodeName" = "Knooppuntnaam instellen";
+
+/* Import progress: applying radio parameters */
+"configImport.stepRadioParameters" = "Radioparameters instellen";
+
+/* Import progress: setting TX power */
+"configImport.stepTxPower" = "TX-vermogen instellen";
+
+/* Import progress: importing a channel (param: channel name) */
+"configImport.stepChannel" = "Kanaal importeren: %@";
+
+/* Import progress: importing a contact (param: contact name) */
+"configImport.stepContact" = "Contact importeren: %@";
+
+/* Validation field label: radio frequency */
+"configImport.field.frequency" = "Frequentie";
+
+/* Validation field label: radio bandwidth */
+"configImport.field.bandwidth" = "Bandbreedte";
+
+/* Validation field label: spreading factor */
+"configImport.field.spreadingFactor" = "Spreidingsfactor";
+
+/* Validation field label: coding rate */
+"configImport.field.codingRate" = "Coderingssnelheid";
+
+/* Validation field label: TX power */
+"configImport.field.txPower" = "TX-vermogen";
+
+/* Validation field label: latitude */
+"configImport.field.latitude" = "Breedtegraad";
+
+/* Validation field label: longitude */
+"configImport.field.longitude" = "Lengtegraad";
+
+/* Validation error: value outside radio's supported range (param: field label) */
+"configImport.error.radioOutOfRange" = "%@ valt buiten het ondersteunde bereik van de radio";
+
+/* Validation error: invalid coordinate (param: field label) */
+"configImport.error.positionInvalid" = "%@ heeft een ongeldige coördinaat of een coördinaat buiten bereik";
+
+/* Validation error: contact coordinate invalid (params: contact name, field label) */
+"configImport.error.contactCoordinateInvalid" = "Contact \"%@\" %@ heeft een ongeldige coördinaat of een coördinaat buiten bereik";
+
+/* Validation error: contact has an invalid routing path (param: contact name) */
+"configImport.error.invalidOutPath" = "Contact \"%@\" heeft een ongeldig routeringspad";
+
+/* Validation error: not enough free contact slots (params: needed count, available count) */
+"configImport.error.contactCapacityExceeded" = "Voor de import zijn %d vrije contactplekken nodig, maar er zijn er nog maar %d beschikbaar op het apparaat";
 
 /* Toggle label for inline images */
 "inlineImages.toggle" = "Inline afbeeldingen";

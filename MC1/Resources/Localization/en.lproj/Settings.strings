@@ -1172,6 +1172,12 @@
 /* Import cancelled */
 "configImport.cancelled" = "Import was cancelled.";
 
+/* Import cancelled after one or more settings were already written to the device */
+"configImport.cancelledPartial" = "Import cancelled, but some settings were already written to the device. Review the device's configuration.";
+
+/* Import failed after one or more settings were already written; %@ is the underlying error message */
+"configImport.failedPartial" = "%@ Some settings may have already been written to the device. Review the device's configuration.";
+
 /* Import success */
 "configImport.importSuccess" = "Configuration imported successfully";
 
@@ -1192,6 +1198,69 @@
 
 /* Contact count (param: integer) */
 "configImport.contactCount" = "Will add/update %d contacts on device";
+
+/* Generic device-name fallback used in confirmation messages when the node has no name */
+"configImport.thisDevice" = "this device";
+
+/* Import progress: applying position */
+"configImport.stepPosition" = "Setting position";
+
+/* Import progress: applying other parameters */
+"configImport.stepOtherParameters" = "Setting other parameters";
+
+/* Import progress: importing the private key */
+"configImport.stepPrivateKey" = "Importing private key";
+
+/* Import progress: setting the node name */
+"configImport.stepNodeName" = "Setting node name";
+
+/* Import progress: applying radio parameters */
+"configImport.stepRadioParameters" = "Setting radio parameters";
+
+/* Import progress: setting TX power */
+"configImport.stepTxPower" = "Setting TX power";
+
+/* Import progress: importing a channel (param: channel name) */
+"configImport.stepChannel" = "Importing channel: %@";
+
+/* Import progress: importing a contact (param: contact name) */
+"configImport.stepContact" = "Importing contact: %@";
+
+/* Validation field label: radio frequency */
+"configImport.field.frequency" = "Frequency";
+
+/* Validation field label: radio bandwidth */
+"configImport.field.bandwidth" = "Bandwidth";
+
+/* Validation field label: spreading factor */
+"configImport.field.spreadingFactor" = "Spreading factor";
+
+/* Validation field label: coding rate */
+"configImport.field.codingRate" = "Coding rate";
+
+/* Validation field label: TX power */
+"configImport.field.txPower" = "TX power";
+
+/* Validation field label: latitude */
+"configImport.field.latitude" = "Latitude";
+
+/* Validation field label: longitude */
+"configImport.field.longitude" = "Longitude";
+
+/* Validation error: value outside radio's supported range (param: field label) */
+"configImport.error.radioOutOfRange" = "%@ is outside the radio's supported range";
+
+/* Validation error: invalid coordinate (param: field label) */
+"configImport.error.positionInvalid" = "%@ has an invalid or out-of-range coordinate";
+
+/* Validation error: contact coordinate invalid (params: contact name, field label) */
+"configImport.error.contactCoordinateInvalid" = "Contact \"%@\" %@ has an invalid or out-of-range coordinate";
+
+/* Validation error: contact has an invalid routing path (param: contact name) */
+"configImport.error.invalidOutPath" = "Contact \"%@\" has an invalid routing path";
+
+/* Validation error: not enough free contact slots (params: needed count, available count) */
+"configImport.error.contactCapacityExceeded" = "Import needs %d free contact slot(s) but only %d remain on the device";
 
 
 // MARK: - Blocking Section

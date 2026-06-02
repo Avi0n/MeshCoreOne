@@ -3784,6 +3784,8 @@ public enum L10n {
       public static let applyButtonOverwrite = L10n.tr("Settings", "configImport.applyButtonOverwrite", fallback: "Overwrite Settings")
       /// Import cancelled
       public static let cancelled = L10n.tr("Settings", "configImport.cancelled", fallback: "Import was cancelled.")
+      /// Import cancelled after one or more settings were already written to the device
+      public static let cancelledPartial = L10n.tr("Settings", "configImport.cancelledPartial", fallback: "Import cancelled, but some settings were already written to the device. Review the device's configuration.")
       /// Cannot access file error
       public static let cannotAccess = L10n.tr("Settings", "configImport.cannotAccess", fallback: "Cannot access the selected file.")
       /// Channel count (param: integer)
@@ -3820,6 +3822,10 @@ public enum L10n {
       public static func current(_ p1: Any) -> String {
         return L10n.tr("Settings", "configImport.current", String(describing: p1), fallback: "Current: %@")
       }
+      /// Import failed after one or more settings were already written; %@ is the underlying error message
+      public static func failedPartial(_ p1: Any) -> String {
+        return L10n.tr("Settings", "configImport.failedPartial", String(describing: p1), fallback: "%@ Some settings may have already been written to the device. Review the device's configuration.")
+      }
       /// Import navigation row label
       public static let importConfig = L10n.tr("Settings", "configImport.importConfig", fallback: "Import Config")
       /// Import success
@@ -3836,8 +3842,68 @@ public enum L10n {
       public static let radioWarning = L10n.tr("Settings", "configImport.radioWarning", fallback: "Changing radio settings will disconnect from the current mesh network")
       /// Select file button
       public static let selectFile = L10n.tr("Settings", "configImport.selectFile", fallback: "Select JSON File")
+      /// Import progress: importing a channel (param: channel name)
+      public static func stepChannel(_ p1: Any) -> String {
+        return L10n.tr("Settings", "configImport.stepChannel", String(describing: p1), fallback: "Importing channel: %@")
+      }
+      /// Import progress: importing a contact (param: contact name)
+      public static func stepContact(_ p1: Any) -> String {
+        return L10n.tr("Settings", "configImport.stepContact", String(describing: p1), fallback: "Importing contact: %@")
+      }
+      /// Import progress: setting the node name
+      public static let stepNodeName = L10n.tr("Settings", "configImport.stepNodeName", fallback: "Setting node name")
+      /// Import progress: applying other parameters
+      public static let stepOtherParameters = L10n.tr("Settings", "configImport.stepOtherParameters", fallback: "Setting other parameters")
+      /// Import progress: applying position
+      public static let stepPosition = L10n.tr("Settings", "configImport.stepPosition", fallback: "Setting position")
+      /// Import progress: importing the private key
+      public static let stepPrivateKey = L10n.tr("Settings", "configImport.stepPrivateKey", fallback: "Importing private key")
+      /// Import progress: applying radio parameters
+      public static let stepRadioParameters = L10n.tr("Settings", "configImport.stepRadioParameters", fallback: "Setting radio parameters")
+      /// Import progress: setting TX power
+      public static let stepTxPower = L10n.tr("Settings", "configImport.stepTxPower", fallback: "Setting TX power")
+      /// Generic device-name fallback used in confirmation messages when the node has no name
+      public static let thisDevice = L10n.tr("Settings", "configImport.thisDevice", fallback: "this device")
       /// Import screen navigation title
       public static let title = L10n.tr("Settings", "configImport.title", fallback: "Import Configuration")
+      public enum Error {
+        /// Validation error: not enough free contact slots (params: needed count, available count)
+        public static func contactCapacityExceeded(_ p1: Int, _ p2: Int) -> String {
+          return L10n.tr("Settings", "configImport.error.contactCapacityExceeded", p1, p2, fallback: "Import needs %d free contact slot(s) but only %d remain on the device")
+        }
+        /// Validation error: contact coordinate invalid (params: contact name, field label)
+        public static func contactCoordinateInvalid(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Settings", "configImport.error.contactCoordinateInvalid", String(describing: p1), String(describing: p2), fallback: "Contact \"%@\" %@ has an invalid or out-of-range coordinate")
+        }
+        /// Validation error: contact has an invalid routing path (param: contact name)
+        public static func invalidOutPath(_ p1: Any) -> String {
+          return L10n.tr("Settings", "configImport.error.invalidOutPath", String(describing: p1), fallback: "Contact \"%@\" has an invalid routing path")
+        }
+        /// Validation error: invalid coordinate (param: field label)
+        public static func positionInvalid(_ p1: Any) -> String {
+          return L10n.tr("Settings", "configImport.error.positionInvalid", String(describing: p1), fallback: "%@ has an invalid or out-of-range coordinate")
+        }
+        /// Validation error: value outside radio's supported range (param: field label)
+        public static func radioOutOfRange(_ p1: Any) -> String {
+          return L10n.tr("Settings", "configImport.error.radioOutOfRange", String(describing: p1), fallback: "%@ is outside the radio's supported range")
+        }
+      }
+      public enum Field {
+        /// Validation field label: radio bandwidth
+        public static let bandwidth = L10n.tr("Settings", "configImport.field.bandwidth", fallback: "Bandwidth")
+        /// Validation field label: coding rate
+        public static let codingRate = L10n.tr("Settings", "configImport.field.codingRate", fallback: "Coding rate")
+        /// Validation field label: radio frequency
+        public static let frequency = L10n.tr("Settings", "configImport.field.frequency", fallback: "Frequency")
+        /// Validation field label: latitude
+        public static let latitude = L10n.tr("Settings", "configImport.field.latitude", fallback: "Latitude")
+        /// Validation field label: longitude
+        public static let longitude = L10n.tr("Settings", "configImport.field.longitude", fallback: "Longitude")
+        /// Validation field label: spreading factor
+        public static let spreadingFactor = L10n.tr("Settings", "configImport.field.spreadingFactor", fallback: "Spreading factor")
+        /// Validation field label: TX power
+        public static let txPower = L10n.tr("Settings", "configImport.field.txPower", fallback: "TX power")
+      }
     }
     public enum Contacts {
       /// Toggle label for auto-add nodes

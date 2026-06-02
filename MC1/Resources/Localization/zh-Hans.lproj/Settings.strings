@@ -1121,6 +1121,12 @@
 /* Import cancelled */
 "configImport.cancelled" = "导入已取消。";
 
+/* Import cancelled after one or more settings were already written to the device */
+"configImport.cancelledPartial" = "导入已取消，但部分设置已写入设备。请检查设备的配置。";
+
+/* Import failed after one or more settings were already written; %@ is the underlying error message */
+"configImport.failedPartial" = "%@ 部分设置可能已写入设备。请检查设备的配置。";
+
 /* Import success */
 "configImport.importSuccess" = "配置导入成功";
 
@@ -1141,6 +1147,69 @@
 
 /* Contact count (param: integer) */
 "configImport.contactCount" = "将在设备上添加/更新 %d 个联系人";
+
+/* Generic device-name fallback used in confirmation messages when the node has no name */
+"configImport.thisDevice" = "此设备";
+
+/* Import progress: applying position */
+"configImport.stepPosition" = "正在设置位置";
+
+/* Import progress: applying other parameters */
+"configImport.stepOtherParameters" = "正在设置其他参数";
+
+/* Import progress: importing the private key */
+"configImport.stepPrivateKey" = "正在导入私钥";
+
+/* Import progress: setting the node name */
+"configImport.stepNodeName" = "正在设置节点名称";
+
+/* Import progress: applying radio parameters */
+"configImport.stepRadioParameters" = "正在设置无线电参数";
+
+/* Import progress: setting TX power */
+"configImport.stepTxPower" = "正在设置发射功率";
+
+/* Import progress: importing a channel (param: channel name) */
+"configImport.stepChannel" = "正在导入频道：%@";
+
+/* Import progress: importing a contact (param: contact name) */
+"configImport.stepContact" = "正在导入联系人：%@";
+
+/* Validation field label: radio frequency */
+"configImport.field.frequency" = "频率";
+
+/* Validation field label: radio bandwidth */
+"configImport.field.bandwidth" = "带宽";
+
+/* Validation field label: spreading factor */
+"configImport.field.spreadingFactor" = "扩频因子";
+
+/* Validation field label: coding rate */
+"configImport.field.codingRate" = "编码率";
+
+/* Validation field label: TX power */
+"configImport.field.txPower" = "发射功率";
+
+/* Validation field label: latitude */
+"configImport.field.latitude" = "纬度";
+
+/* Validation field label: longitude */
+"configImport.field.longitude" = "经度";
+
+/* Validation error: value outside radio's supported range (param: field label) */
+"configImport.error.radioOutOfRange" = "%@ 超出无线电支持的范围";
+
+/* Validation error: invalid coordinate (param: field label) */
+"configImport.error.positionInvalid" = "%@ 的坐标无效或超出范围";
+
+/* Validation error: contact coordinate invalid (params: contact name, field label) */
+"configImport.error.contactCoordinateInvalid" = "联系人 \"%@\" 的 %@ 坐标无效或超出范围";
+
+/* Validation error: contact has an invalid routing path (param: contact name) */
+"configImport.error.invalidOutPath" = "联系人 \"%@\" 的路由路径无效";
+
+/* Validation error: not enough free contact slots (params: needed count, available count) */
+"configImport.error.contactCapacityExceeded" = "导入需要 %d 个空闲联系人槽位，但设备上仅剩 %d 个";
 
 /* Toggle label for inline images */
 "inlineImages.toggle" = "内嵌图片消息";

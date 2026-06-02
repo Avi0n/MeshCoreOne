@@ -1147,6 +1147,12 @@
 /* Import cancelled */
 "configImport.cancelled" = "Import wurde abgebrochen.";
 
+/* Import cancelled after one or more settings were already written to the device */
+"configImport.cancelledPartial" = "Import abgebrochen, aber einige Einstellungen wurden bereits auf das Gerät geschrieben. Überprüfe die Konfiguration des Geräts.";
+
+/* Import failed after one or more settings were already written; %@ is the underlying error message */
+"configImport.failedPartial" = "%@ Einige Einstellungen wurden möglicherweise bereits auf das Gerät geschrieben. Überprüfe die Konfiguration des Geräts.";
+
 /* Import success */
 "configImport.importSuccess" = "Konfiguration erfolgreich importiert";
 
@@ -1167,6 +1173,69 @@
 
 /* Contact count (param: integer) */
 "configImport.contactCount" = "%d Kontakte werden auf dem Gerät hinzugefügt/aktualisiert";
+
+/* Generic device-name fallback used in confirmation messages when the node has no name */
+"configImport.thisDevice" = "dieses Gerät";
+
+/* Import progress: applying position */
+"configImport.stepPosition" = "Position wird festgelegt";
+
+/* Import progress: applying other parameters */
+"configImport.stepOtherParameters" = "Weitere Parameter werden festgelegt";
+
+/* Import progress: importing the private key */
+"configImport.stepPrivateKey" = "Privater Schlüssel wird importiert";
+
+/* Import progress: setting the node name */
+"configImport.stepNodeName" = "Knotenname wird festgelegt";
+
+/* Import progress: applying radio parameters */
+"configImport.stepRadioParameters" = "Funkparameter werden festgelegt";
+
+/* Import progress: setting TX power */
+"configImport.stepTxPower" = "Sendeleistung wird festgelegt";
+
+/* Import progress: importing a channel (param: channel name) */
+"configImport.stepChannel" = "Kanal wird importiert: %@";
+
+/* Import progress: importing a contact (param: contact name) */
+"configImport.stepContact" = "Kontakt wird importiert: %@";
+
+/* Validation field label: radio frequency */
+"configImport.field.frequency" = "Frequenz";
+
+/* Validation field label: radio bandwidth */
+"configImport.field.bandwidth" = "Bandbreite";
+
+/* Validation field label: spreading factor */
+"configImport.field.spreadingFactor" = "Spreizfaktor";
+
+/* Validation field label: coding rate */
+"configImport.field.codingRate" = "Koderate";
+
+/* Validation field label: TX power */
+"configImport.field.txPower" = "Sendeleistung";
+
+/* Validation field label: latitude */
+"configImport.field.latitude" = "Breitengrad";
+
+/* Validation field label: longitude */
+"configImport.field.longitude" = "Längengrad";
+
+/* Validation error: value outside radio's supported range (param: field label) */
+"configImport.error.radioOutOfRange" = "%@ liegt außerhalb des vom Funkgerät unterstützten Bereichs";
+
+/* Validation error: invalid coordinate (param: field label) */
+"configImport.error.positionInvalid" = "%@ hat eine ungültige oder außerhalb des gültigen Bereichs liegende Koordinate";
+
+/* Validation error: contact coordinate invalid (params: contact name, field label) */
+"configImport.error.contactCoordinateInvalid" = "Kontakt \"%@\" %@ hat eine ungültige oder außerhalb des gültigen Bereichs liegende Koordinate";
+
+/* Validation error: contact has an invalid routing path (param: contact name) */
+"configImport.error.invalidOutPath" = "Kontakt \"%@\" hat einen ungültigen Routing-Pfad";
+
+/* Validation error: not enough free contact slots (params: needed count, available count) */
+"configImport.error.contactCapacityExceeded" = "Der Import benötigt %d freie Kontaktplätze, aber auf dem Gerät sind nur noch %d übrig";
 
 /* Toggle label for inline images */
 "inlineImages.toggle" = "Inline-Bilder";

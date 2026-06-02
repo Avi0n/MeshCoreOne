@@ -14,6 +14,7 @@ struct NodeConfigImportView: View {
             }
         }
         .navigationTitle(L10n.Settings.ConfigImport.title)
+        .onDisappear { viewModel.cancelPreview() }
         .fileImporter(
             isPresented: $viewModel.showFilePicker,
             allowedContentTypes: [.json]
@@ -23,7 +24,7 @@ struct NodeConfigImportView: View {
                 viewModel.parseFile(at: url)
                 Task { await viewModel.loadCurrentDeviceState(appState: appState) }
             case .failure(let error):
-                viewModel.parseError = error.localizedDescription
+                viewModel.errorMessage = error.localizedDescription
             }
         }
         .alert(
@@ -35,7 +36,7 @@ struct NodeConfigImportView: View {
             }
             Button(L10n.Localizable.Common.cancel, role: .cancel) {}
         } message: {
-            Text(viewModel.confirmMessage(deviceName: appState.connectedDevice?.nodeName ?? "device"))
+            Text(viewModel.confirmMessage(deviceName: appState.connectedDevice?.nodeName ?? L10n.Settings.ConfigImport.thisDevice))
         }
     }
 }
@@ -55,7 +56,7 @@ private struct SelectFileList: View {
             }
             .themedRowBackground(theme)
 
-            if let error = viewModel.parseError {
+            if let error = viewModel.errorMessage {
                 Section {
                     Label(error, systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.red)
@@ -113,7 +114,7 @@ private struct ImportPreviewList: View {
 
             ApplySection(viewModel: viewModel)
 
-            if let error = viewModel.applyError {
+            if let error = viewModel.errorMessage {
                 Section {
                     Label(error, systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.red)
@@ -130,6 +131,9 @@ private struct ImportPreviewList: View {
             }
         }
         .themedCanvas(theme)
+        // Lock the section toggles while the preview round-trip is in flight, so the selection
+        // the confirmation copy was computed from matches the selection the apply uses.
+        .disabled(viewModel.isPreparingConfirmation)
     }
 }
 
@@ -254,6 +258,7 @@ private struct ContactsSection: View {
 
 private struct ApplySection: View {
     @Environment(\.appTheme) private var theme
+    @Environment(\.appState) private var appState
     @Bindable var viewModel: NodeConfigImportViewModel
 
     var body: some View {
@@ -270,8 +275,9 @@ private struct ApplySection: View {
                 }
             } else if !viewModel.importComplete {
                 Button(viewModel.applyButtonLabel) {
-                    viewModel.showConfirmation = true
+                    viewModel.prepareConfirmation(appState: appState)
                 }
+                .disabled(viewModel.isPreparingConfirmation)
             }
         }
         .themedRowBackground(theme)
