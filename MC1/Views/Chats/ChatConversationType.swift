@@ -93,6 +93,18 @@ enum ChatConversationType: Sendable {
         }
     }
 
+    /// Stable key for the per-radio draft store. The channel case keys on the slot
+    /// `index`, not `conversationID` (a UUID), to align with the slot-based draft
+    /// cleanup on channel delete, sync prune, and backup-import relocation.
+    var draftConversationID: ChatConversationID {
+        switch self {
+        case .dm(let contact):
+            .dm(radioID: contact.radioID, contactID: contact.id)
+        case .channel(let channel):
+            .channel(radioID: channel.radioID, channelIndex: channel.index)
+        }
+    }
+
     var radioID: UUID {
         switch self {
         case .dm(let contact):

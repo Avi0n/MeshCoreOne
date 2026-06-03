@@ -29,6 +29,13 @@ public final class AppState {
     /// Offline map pack management and network monitoring
     let offlineMapService = OfflineMapService()
 
+    // MARK: - Chat Drafts
+
+    /// Disk-backed store for unsent chat-composer text. Recreated on
+    /// before-first-unlock, but reads the same `UserDefaults` key, so the fresh
+    /// instance recovers every persisted draft — no in-memory-lifetime dependency.
+    public let draftStore = DraftStore()
+
     /// Best available location for proximity-based disambiguation.
     public var bestAvailableLocation: CLLocation? {
         if let phoneLocation = locationService.currentLocation {
@@ -421,6 +428,14 @@ public final class AppState {
         await wireDeviceUpdateCallbacks(services: services)
         await wireMessageEvents(services: services)
         await wireLiveActivityCallbacks(services: services)
+
+        // Drop drafts for channel slots vacated by a delete or sync prune so a
+        // reused slot can't surface the prior channel's draft.
+        await services.channelService.setDraftClearHandler { [weak self] radioID, indices in
+            await MainActor.run {
+                self?.draftStore.clearChannelDrafts(radioID: radioID, indices: indices)
+            }
+        }
 
         // Bump the version (which drives `.task(id:)` reloads in chat, tools, and
         // room views) only when the services container actually changed. A single

@@ -208,6 +208,16 @@ extension PersistenceStore {
             dropped: channelResult.dropped
         )
 
+        // Slots whose channel identity changed — newly occupied inserts plus dropped slots — so
+        // the caller clears their drafts. Merge-by-secret slots keep their occupant and are
+        // excluded; see `ChannelBatchInsertResult.insertedLocalIndices` for the full rationale.
+        for (radioID, indices) in channelResult.insertedLocalIndices {
+            result.channelSlotsAffectedByImport[radioID, default: []].formUnion(indices)
+        }
+        for (radioID, dropped) in channelResult.droppedChannelIndices {
+            result.channelSlotsAffectedByImport[radioID, default: []].formUnion(dropped)
+        }
+
         // Channels are now final, so rewrite channel-message slots before inserting
         // messages: relocated channels carry their messages to the new slot, and messages
         // for a dropped (no-free-slot) channel are removed rather than mis-associated.

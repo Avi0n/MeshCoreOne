@@ -958,6 +958,75 @@ struct BackupIntegrationTests {
         #expect(result.inserted == 1)
     }
 
+    @Test("batchInsertChannels reports newly-occupied local slots for draft clearing, excluding merges")
+    func batchInsertReportsInsertedLocalIndicesForDraftClearing() async throws {
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let store = PersistenceStore(modelContainer: container)
+        let radioID = UUID()
+
+        let mergeSecret = Data(repeating: 0xC1, count: 32)
+        let occupiedSecret = Data(repeating: 0xC4, count: 32)
+        let localAtSlot2 = ChannelDTO(
+            id: UUID(), radioID: radioID, index: 2, name: "Keep",
+            secret: mergeSecret, isEnabled: true, lastMessageDate: nil,
+            unreadCount: 0, unreadMentionCount: 0,
+            notificationLevel: .all, isFavorite: false, floodScope: .inherit
+        )
+        let localAtSlot4 = ChannelDTO(
+            id: UUID(), radioID: radioID, index: 4, name: "Occupied",
+            secret: occupiedSecret, isEnabled: true, lastMessageDate: nil,
+            unreadCount: 0, unreadMentionCount: 0,
+            notificationLevel: .all, isFavorite: false, floodScope: .inherit
+        )
+        try await store.batchInsertChannels(
+            [localAtSlot2, localAtSlot4], radioIDs: [radioID], maxChannelsByRadioID: [radioID: 8]
+        )
+
+        // (a) merges by secret into local slot 2 though recorded at slot 6 — occupant unchanged.
+        let mergeBackup = ChannelDTO(
+            id: UUID(), radioID: radioID, index: 6, name: "Keep",
+            secret: mergeSecret, isEnabled: true, lastMessageDate: nil,
+            unreadCount: 0, unreadMentionCount: 0,
+            notificationLevel: .all, isFavorite: false, floodScope: .inherit
+        )
+        // (b) foreign channel placed at its own free slot 5.
+        let collideSecret = Data(repeating: 0xD4, count: 32)
+        let freshAtFreeSlot = ChannelDTO(
+            id: UUID(), radioID: radioID, index: 5, name: "Fresh",
+            secret: Data(repeating: 0xD5, count: 32), isEnabled: true, lastMessageDate: nil,
+            unreadCount: 0, unreadMentionCount: 0,
+            notificationLevel: .all, isFavorite: false, floodScope: .inherit
+        )
+        // (c) foreign channel colliding with occupied slot 4, relocated to a free slot.
+        let collideAtSlot4 = ChannelDTO(
+            id: UUID(), radioID: radioID, index: 4, name: "Collide",
+            secret: collideSecret, isEnabled: true, lastMessageDate: nil,
+            unreadCount: 0, unreadMentionCount: 0,
+            notificationLevel: .all, isFavorite: false, floodScope: .inherit
+        )
+
+        let result = try await store.batchInsertChannels(
+            [mergeBackup, freshAtFreeSlot, collideAtSlot4],
+            radioIDs: [radioID], maxChannelsByRadioID: [radioID: 8]
+        )
+
+        let inserted = result.insertedLocalIndices[radioID] ?? []
+        // Fresh insert recorded at its own free slot.
+        #expect(inserted.contains(5))
+        // Merge-by-secret destination (2) and backup-file source (6) are not local inserts.
+        #expect(!inserted.contains(2))
+        #expect(!inserted.contains(6))
+        // The colliding channel's untouched source slot (4) is not recorded; its relocation
+        // destination is.
+        #expect(!inserted.contains(4))
+        let relocatedRow = try #require(
+            (try await store.fetchChannels(radioID: radioID)).first { $0.secret == collideSecret }
+        )
+        #expect(relocatedRow.index != 4)
+        #expect(inserted.contains(relocatedRow.index))
+        #expect(result.inserted == 2)
+    }
+
     @Test("Exporting a channel with an unmigrated notification level does not migrate the live row")
     func exportReadDoesNotMigrateNotificationLevel() throws {
         let channel = Channel(

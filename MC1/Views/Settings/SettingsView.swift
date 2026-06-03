@@ -109,7 +109,10 @@ private struct SettingsListContent: View {
                 NavigationLink {
                     BackupRestoreView(
                         connectionManager: appState.connectionManager,
-                        onImportRestoredData: { [appState] in appState.notifyDataRestored() }
+                        onImportRestoredData: { [appState] in appState.notifyDataRestored() },
+                        onChannelDraftSlotsAffected: { [appState] slotsByRadio in
+                            appState.draftStore.clearChannelDrafts(slotsByRadio: slotsByRadio)
+                        }
                     )
                 } label: {
                     TintedLabel(L10n.Settings.Settings.Backup.title, systemImage: "archivebox.fill")

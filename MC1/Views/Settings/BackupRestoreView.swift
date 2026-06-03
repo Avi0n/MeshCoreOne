@@ -10,11 +10,13 @@ struct BackupRestoreView: View {
 
     init(
         connectionManager: ConnectionManager,
-        onImportRestoredData: (@MainActor () -> Void)? = nil
+        onImportRestoredData: (@MainActor () -> Void)? = nil,
+        onChannelDraftSlotsAffected: (@MainActor ([UUID: Set<UInt8>]) -> Void)? = nil
     ) {
         _viewModel = State(initialValue: AppBackupViewModel(
             connectionManager: connectionManager,
-            onImportRestoredData: onImportRestoredData
+            onImportRestoredData: onImportRestoredData,
+            onChannelDraftSlotsAffected: onChannelDraftSlotsAffected
         ))
     }
 

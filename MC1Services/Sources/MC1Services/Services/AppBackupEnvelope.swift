@@ -199,6 +199,12 @@ public struct ImportResult: Sendable, Equatable {
     public var counts: [BackupModelKind: PerTypeCounts]
     public var userDefaultsRestored: Bool = false
 
+    /// Local channel slots, keyed by radioID, whose occupancy changed during
+    /// import (relocated, merged at a different slot, or dropped). The main-actor
+    /// caller clears chat drafts for these slots so a draft typed against one
+    /// channel can't silently follow a slot to a different channel.
+    public var channelSlotsAffectedByImport: [UUID: Set<UInt8>] = [:]
+
     public init() {
         self.counts = Dictionary(
             uniqueKeysWithValues: BackupModelKind.allCases.map { ($0, .zero) }

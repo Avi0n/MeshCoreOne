@@ -383,6 +383,30 @@ extension ChatViewModel {
         composingText = draft
     }
 
+    /// Restores the composer for `id` on conversation entry, applying restore sources in a
+    /// fixed priority order so the precedence can't be reversed by reordering at the call site:
+    /// a pending notification quick-reply draft (assigned unconditionally) wins over an older
+    /// persisted disk draft (applied only when the field is still empty).
+    func restoreComposerDraft(from store: DraftStore, id: ChatConversationID) {
+        loadDraftIfExists()
+        loadDraft(from: store, id: id)
+    }
+
+    /// Restores the persisted composer draft for `id`, but only when the field is empty — so a
+    /// reconnect-driven reload can't clobber in-progress text and a quick-reply draft applied
+    /// first keeps precedence. The store is passed in from the view's environment, never the
+    /// view model's weak `appState`, so a niled reference can't silently skip the restore.
+    func loadDraft(from store: DraftStore, id: ChatConversationID) {
+        if let restored = store.draftToApply(over: composingText, for: id) {
+            composingText = restored
+        }
+    }
+
+    /// Persists the current composer text as the draft for `id`, or removes it when empty.
+    func saveDraft(to store: DraftStore, id: ChatConversationID) {
+        store.setDraft(composingText, for: id)
+    }
+
     /// Send a message to the current contact
     /// This is non-blocking - message is created and shown immediately, sent in background
     func sendMessage(text: String) async {

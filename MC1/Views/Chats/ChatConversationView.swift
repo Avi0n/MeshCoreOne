@@ -10,6 +10,10 @@ private let logger = Logger(subsystem: "com.mc1", category: "ChatConversationVie
 /// nothing.
 private let messageActionSheetPresentationDelay: Duration = .milliseconds(300)
 
+/// Quiet period after the last keystroke before the composer draft is persisted,
+/// so rapid typing coalesces into a single write.
+private let draftSaveDebounce: Duration = .milliseconds(500)
+
 /// Unified chat conversation view supporting both DMs and Channels.
 struct ChatConversationView: View {
     @Environment(\.appState) private var appState
@@ -34,6 +38,10 @@ struct ChatConversationView: View {
     @State private var mentionScrollTask: Task<Void, Never>?
     @State private var scrollToDividerRequest = 0
     @State private var isDividerVisible = false
+
+    /// Pending debounced draft persist; cancelled and restarted on each keystroke,
+    /// cancelled-then-flushed synchronously on view teardown and app suspension.
+    @State private var draftSaveTask: Task<Void, Never>?
 
     // MARK: - Sheet State
 
@@ -186,7 +194,12 @@ struct ChatConversationView: View {
                         await parent.loadLastMessagePreviews()
                     }
                 },
-                onDeleteChannel: { dismiss() }
+                onDeleteChannel: {
+                    // Clear the composer so the teardown flush doesn't re-persist a draft for the
+                    // freed slot — a channel later reusing that slot would otherwise surface it.
+                    chatViewModel.composingText = ""
+                    dismiss()
+                }
             )
         })
         // Message actions sheet — shared
@@ -224,14 +237,28 @@ struct ChatConversationView: View {
             await performInitialLoad()
         }
         .onDisappear {
+            // Load-bearing on iPad: ChatsSplitLayout pins the detail stack with
+            // `.id(detailID)`, so a detail swap tears down this view's @State
+            // (including draftSaveTask) before the debounce fires — flush here.
+            flushDraft()
             performCleanup()
+        }
+        .onChange(of: chatViewModel.composingText) { _, _ in
+            scheduleDraftSave()
         }
         .onChange(of: scenePhase) { _, newPhase in
             // Notifications usually arrive while the app is backgrounded with this
             // chat already on screen, so re-clear the tray when we return to the
             // foreground — the open hook alone never re-fires in that case.
-            if newPhase == .active {
+            switch newPhase {
+            case .active:
                 Task { await clearDeliveredNotifications() }
+            case .background, .inactive:
+                // The OS can suspend the process before the debounce fires, so flush
+                // the draft synchronously here.
+                flushDraft()
+            @unknown default:
+                break
             }
         }
         .onChange(of: activeMentionQuery != nil) { _, isActive in
@@ -289,13 +316,14 @@ struct ChatConversationView: View {
             await chatViewModel.loadMessages(for: contact)
             await chatViewModel.loadConversations(radioID: contact.radioID)
             await chatViewModel.loadAllContacts(radioID: contact.radioID)
-            chatViewModel.loadDraftIfExists()
+            chatViewModel.restoreComposerDraft(from: appState.draftStore, id: conversationType.draftConversationID)
 
         case .channel(let channel):
             // Load contacts first so contactNameSet is populated before buildChannelSenders runs
             await chatViewModel.loadAllContacts(radioID: channel.radioID)
             await chatViewModel.loadChannelMessages(for: channel)
             await chatViewModel.loadConversations(radioID: channel.radioID)
+            chatViewModel.restoreComposerDraft(from: appState.draftStore, id: conversationType.draftConversationID)
         }
 
         await loadUnseenMentions()
@@ -326,6 +354,30 @@ struct ChatConversationView: View {
             )
         }
         await notificationService.updateBadgeCount()
+    }
+
+    // MARK: - Draft Persistence
+
+    /// Restarts the debounced draft persist. The post-sleep cancellation guard is
+    /// required: `Task.cancel()` only sets a flag and `try?` swallows
+    /// `Task.sleep`'s `CancellationError`, so without it a synchronous flush that
+    /// already saved could be overwritten by the resuming task re-saving stale text.
+    private func scheduleDraftSave() {
+        draftSaveTask?.cancel()
+        let id = conversationType.draftConversationID
+        draftSaveTask = Task {
+            try? await Task.sleep(for: draftSaveDebounce)
+            guard !Task.isCancelled else { return }
+            chatViewModel.saveDraft(to: appState.draftStore, id: id)
+        }
+    }
+
+    /// Cancels any pending debounce and persists the current draft synchronously, reading the
+    /// store from the view's non-optional `@Environment(\.appState)` (matching `performCleanup`).
+    private func flushDraft() {
+        draftSaveTask?.cancel()
+        draftSaveTask = nil
+        chatViewModel.saveDraft(to: appState.draftStore, id: conversationType.draftConversationID)
     }
 
     // MARK: - Cleanup (.onDisappear)

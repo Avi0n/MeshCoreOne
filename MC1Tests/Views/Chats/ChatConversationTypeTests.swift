@@ -379,4 +379,22 @@ struct ChatConversationTypeTests {
         #expect(result.navigationTitle == "General")
     }
 
+    // MARK: - draftConversationID
+
+    @Test("DM draftConversationID keys on radioID and contact id")
+    func dmDraftConversationIDKeysOnContact() {
+        let contact = makeContact()
+        let sut = ChatConversationType.dm(contact)
+
+        #expect(sut.draftConversationID == .dm(radioID: contact.radioID, contactID: contact.id))
+    }
+
+    @Test("Channel draftConversationID keys on the slot index, not the row UUID")
+    func channelDraftConversationIDKeysOnSlotIndex() {
+        let channel = makeChannel(index: 3)
+        let sut = ChatConversationType.channel(channel)
+
+        #expect(sut.draftConversationID == .channel(radioID: channel.radioID, channelIndex: channel.index))
+    }
+
 }

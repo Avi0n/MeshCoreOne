@@ -134,6 +134,12 @@ extension PersistenceStore {
     /// whose placement differs from its backup slot, and `droppedChannelIndices` lists the
     /// `(radioID, backupIndex)` slots that had no free local placement. The caller applies
     /// both to channel messages before insert.
+    ///
+    /// `insertedLocalIndices` lists the local slots a foreign backup channel newly occupied
+    /// (every insert, whether relocated or placed at its own free index). These are the only
+    /// slots whose local channel identity changed, so they — together with `droppedChannelIndices`
+    /// — are the slots whose chat drafts the caller must clear. Slots reached via secret/slot
+    /// merge are excluded: their occupant is unchanged, so their draft stays valid.
     public struct ChannelBatchInsertResult: Sendable {
         public let inserted: Int
         public let skipped: Int
@@ -141,6 +147,7 @@ extension PersistenceStore {
         public let dropped: Int
         public let channelIndexRemap: [UUID: [UInt8: UInt8]]
         public let droppedChannelIndices: [UUID: Set<UInt8>]
+        public let insertedLocalIndices: [UUID: Set<UInt8>]
     }
 
     /// Reconciles backup channels against local channels by stable cryptographic identity
@@ -180,6 +187,7 @@ extension PersistenceStore {
         var dropped = 0
         var channelIndexRemap: [UUID: [UInt8: UInt8]] = [:]
         var droppedChannelIndices: [UUID: Set<UInt8>] = [:]
+        var insertedLocalIndices: [UUID: Set<UInt8>] = [:]
 
         // Sort by (radioID, index) so free-slot assignment is deterministic regardless of
         // the envelope's array order.
@@ -240,6 +248,7 @@ extension PersistenceStore {
             if channelHasStableSecret(channel.secret) {
                 localChannelsBySecret[radioID, default: [:]][channel.secret] = channel
             }
+            insertedLocalIndices[radioID, default: []].insert(placementIndex)
             if placementIndex != dto.index {
                 channelIndexRemap[radioID, default: [:]][dto.index] = placementIndex
             }
@@ -251,7 +260,8 @@ extension PersistenceStore {
             merged: merged,
             dropped: dropped,
             channelIndexRemap: channelIndexRemap,
-            droppedChannelIndices: droppedChannelIndices
+            droppedChannelIndices: droppedChannelIndices,
+            insertedLocalIndices: insertedLocalIndices
         )
     }
 

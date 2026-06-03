@@ -113,15 +113,18 @@ final class AppBackupViewModel {
 
     private let connectionManager: ConnectionManager
     private let onImportRestoredData: (@MainActor () -> Void)?
+    private let onChannelDraftSlotsAffected: (@MainActor ([UUID: Set<UInt8>]) -> Void)?
     private let backupService = AppBackupService()
     private let logger = Logger(subsystem: "com.mc1", category: "AppBackupViewModel")
 
     init(
         connectionManager: ConnectionManager,
-        onImportRestoredData: (@MainActor () -> Void)? = nil
+        onImportRestoredData: (@MainActor () -> Void)? = nil,
+        onChannelDraftSlotsAffected: (@MainActor ([UUID: Set<UInt8>]) -> Void)? = nil
     ) {
         self.connectionManager = connectionManager
         self.onImportRestoredData = onImportRestoredData
+        self.onChannelDraftSlotsAffected = onChannelDraftSlotsAffected
     }
 
     // MARK: - Export
@@ -245,6 +248,11 @@ final class AppBackupViewModel {
                     into: store
                 )
                 importState = .success(result)
+                // Channel relocation during import can change which channel occupies a
+                // slot; clear drafts for the affected slots before they are re-entered.
+                if !result.channelSlotsAffectedByImport.isEmpty {
+                    onChannelDraftSlotsAffected?(result.channelSlotsAffectedByImport)
+                }
                 if result.hasRestoredChanges {
                     // The import wrote directly to the persistence store, bypassing the
                     // sync-path callbacks that normally bump contacts/conversations

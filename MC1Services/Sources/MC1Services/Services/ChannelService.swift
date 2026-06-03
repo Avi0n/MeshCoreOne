@@ -124,6 +124,11 @@ public actor ChannelService {
     /// Callback for channel updates
     private var channelUpdateHandler: (@Sendable ([ChannelDTO]) -> Void)?
 
+    /// Callback invoked with the channel slots vacated by a delete or sync prune,
+    /// so the main-actor `DraftStore` can drop any draft keyed to a now-free slot
+    /// before that slot is reused by a different channel.
+    private var draftClearHandler: (@Sendable (UUID, Set<UInt8>) async -> Void)?
+
     /// Tracks whether a sync operation is in progress
     private var isSyncing = false
 
@@ -354,6 +359,16 @@ public actor ChannelService {
         pipelined: Bool
     ) async -> ChannelSyncResult {
         var syncErrors = syncErrors
+
+        // Snapshot occupied slots before the persist so vacated slots (unconfigured on the
+        // radio, or beyond capacity) can be diffed from the survivors and have their drafts
+        // dropped. A failed fetch yields an empty baseline that skips clearing, so log it.
+        let priorChannels = try? await dataStore.fetchChannels(radioID: radioID)
+        if priorChannels == nil {
+            logger.warning("Pre-sync channel snapshot failed for radio \(radioID.uuidString); skipping draft clear for any slots this prune vacates")
+        }
+        let occupiedBeforeSync = Set(priorChannels?.map(\.index) ?? [])
+
         let channels: [ChannelDTO]
         do {
             channels = try await dataStore.batchSaveChannels(
@@ -382,6 +397,11 @@ public actor ChannelService {
             logger.warning(
                 "Channel sync detected empty-name channels with non-zero secrets at indices: \(emptyNameWithSecretIndices)"
             )
+        }
+
+        let vacatedSlots = occupiedBeforeSync.subtracting(channels.map(\.index))
+        if !vacatedSlots.isEmpty {
+            await draftClearHandler?(radioID, vacatedSlots)
         }
 
         channelUpdateHandler?(channels)
@@ -639,6 +659,10 @@ public actor ChannelService {
             try await dataStore.deleteChannel(id: channel.id)
         }
 
+        // Drop any draft keyed to the freed slot so a channel later created at the
+        // same index can't surface this channel's stale draft.
+        await draftClearHandler?(radioID, [index])
+
         // Notify handler that channels changed
         let channels = try await dataStore.fetchChannels(radioID: radioID)
         channelUpdateHandler?(channels)
@@ -723,6 +747,13 @@ public actor ChannelService {
 
     /// Whether a channel update handler has been wired via `setChannelUpdateHandler`.
     var hasChannelUpdateHandlerWired: Bool { channelUpdateHandler != nil }
+
+    /// Sets a callback that receives the channel slots vacated by `clearChannel`
+    /// and by the sync prune in `finalizeChannelSync`, so the `DraftStore` can
+    /// clear drafts keyed to a freed slot.
+    public func setDraftClearHandler(_ handler: @escaping @Sendable (UUID, Set<UInt8>) async -> Void) {
+        draftClearHandler = handler
+    }
 
     // MARK: - Private Helpers
 
