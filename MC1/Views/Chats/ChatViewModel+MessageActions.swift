@@ -133,19 +133,15 @@ extension ChatViewModel {
             // Clean up preview state for deleted message
             cleanupPreviewState(for: message.id)
 
-            // Update last message date if needed
+            // Re-derive the conversation's last-message date from the database
+            // rather than the paginated in-memory window: older messages beyond
+            // the loaded page must keep the conversation visible. Always refresh
+            // the chat list afterward — deleting the newest message shifts the
+            // conversation's sort position and preview even when older messages
+            // remain, and deleting the last one removes it entirely.
             if let currentContact {
-                if let lastMessage = messages.last {
-                    try await dataStore.updateContactLastMessage(
-                        contactID: currentContact.id,
-                        date: lastMessage.date
-                    )
-                } else {
-                    try await dataStore.updateContactLastMessage(
-                        contactID: currentContact.id,
-                        date: Date.distantPast
-                    )
-                }
+                try await dataStore.recomputeContactLastMessageDate(contactID: currentContact.id)
+                syncCoordinator?.notifyConversationsChanged()
             }
         } catch {
             errorMessage = error.localizedDescription

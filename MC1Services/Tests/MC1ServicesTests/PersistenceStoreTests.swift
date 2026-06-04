@@ -462,6 +462,52 @@ struct PersistenceStoreTests {
         #expect(contact2Messages.count == 1)
     }
 
+    @Test("recomputeContactLastMessageDate keeps a conversation visible while older messages remain and clears it only when empty")
+    func recomputeContactLastMessageDateTracksRemainingMessages() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let frame = createTestContactFrame(name: "Conversation")
+        let contactID = try await store.saveContact(radioID: device.id, from: frame)
+
+        let base = Date(timeIntervalSince1970: 1_700_000_000)
+        let messages = (0..<3).map { i in
+            MessageDTO.testDirectMessage(
+                radioID: device.id,
+                contactID: contactID,
+                text: "Message \(i)",
+                timestamp: UInt32(base.timeIntervalSince1970) + UInt32(i),
+                createdAt: base.addingTimeInterval(Double(i))
+            )
+        }
+        for message in messages {
+            try await store.saveMessage(message)
+        }
+
+        // Newest message sets the date; the conversation is visible.
+        var newDate = try await store.recomputeContactLastMessageDate(contactID: contactID)
+        #expect(newDate == messages[2].date)
+        var conversations = try await store.fetchConversations(radioID: device.id)
+        #expect(conversations.contains { $0.id == contactID })
+
+        // Deleting the newest message falls back to the next remaining message,
+        // not nil: the conversation must stay visible while messages remain.
+        try await store.deleteMessage(id: messages[2].id)
+        newDate = try await store.recomputeContactLastMessageDate(contactID: contactID)
+        #expect(newDate == messages[1].date)
+        conversations = try await store.fetchConversations(radioID: device.id)
+        #expect(conversations.contains { $0.id == contactID })
+
+        // Deleting the last remaining messages clears the date and removes the conversation.
+        try await store.deleteMessage(id: messages[1].id)
+        try await store.deleteMessage(id: messages[0].id)
+        newDate = try await store.recomputeContactLastMessageDate(contactID: contactID)
+        #expect(newDate == nil)
+        conversations = try await store.fetchConversations(radioID: device.id)
+        #expect(!conversations.contains { $0.id == contactID })
+    }
+
     @Test("deleteMessagesForChannel removes all messages for a channel")
     func deleteMessagesForChannelRemovesAll() async throws {
         let store = try await createTestStore()

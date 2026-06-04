@@ -196,6 +196,16 @@ extension PersistenceStore {
         }
     }
 
+    /// Re-derives a contact's lastMessageDate from its newest remaining message,
+    /// clearing it (removing the conversation from the list) when none remain.
+    /// Returns the resulting date so callers can react to removal.
+    @discardableResult
+    public func recomputeContactLastMessageDate(contactID: UUID) throws -> Date? {
+        let newest = try fetchMessages(contactID: contactID, limit: 1, offset: 0).first
+        try updateContactLastMessage(contactID: contactID, date: newest?.date)
+        return newest?.date
+    }
+
     /// Increment unread count for a contact
     public func incrementUnreadCount(contactID: UUID) throws {
         let targetID = contactID
