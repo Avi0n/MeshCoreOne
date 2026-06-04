@@ -12,6 +12,10 @@ public final class NavigationCoordinator {
 
     var tabBarVisibility: Visibility = .visible
 
+    /// Whether the iPad sidebar is collapsed. Section toolbars read it to surface the radio control
+    /// while the sidebar is hidden. Always false on the compact iPhone path, which has no sidebar.
+    var isSidebarCollapsed = false
+
     /// Contact to navigate to
     var pendingChatContact: ContactDTO?
 
@@ -34,6 +38,26 @@ public final class NavigationCoordinator {
 
     /// Contact to navigate to (for detail view on Contacts tab)
     var pendingContactDetail: ContactDTO?
+
+    /// The currently selected contact in the Nodes split view detail pane. Kept in memory
+    /// only and never persisted: it carries a public key and `radioID` (identity-bearing
+    /// data) that must not be written outside the encrypted backup envelope.
+    var selectedContact: ContactDTO?
+
+    /// Whether the Nodes split view detail pane is showing Discovery rather than a contact.
+    /// Shared so the iPad content and detail columns agree on which detail to render.
+    var nodesShowingDiscovery = false
+
+    /// The selected tool on the Tools tab, shared so the iPad content and detail columns agree on
+    /// which tool is open. Held here rather than in the split view so it survives the section-switch
+    /// teardown of the inactive Tools tree. Radio-only tools clear on disconnect (`requiresRadio`).
+    var selectedTool: ToolSelection?
+
+    /// The selected settings page on the Settings tab, shared so the iPad content and detail columns
+    /// agree on which page is open. Held here rather than in the split view so it survives the
+    /// section-switch teardown of the inactive Settings tree. My Device pages clear on disconnect
+    /// (`requiresDevice`).
+    var selectedSetting: SettingsDetail?
 
     /// Message to scroll to after navigation (for reaction notifications)
     var pendingScrollToMessageID: UUID?
@@ -142,14 +166,36 @@ public final class NavigationCoordinator {
         pendingHashtag = nil
     }
 
-    /// Clears chat link / hashtag confirmation state staged before a disconnect
-    /// so a pending sheet cannot re-present against a different radio after the
-    /// connection is torn down and replaced. Restores the teardown semantics the
-    /// old `ChatsView` `@State` had when its view identity changed.
+    /// Clears deep-link confirmation state and every per-radio detail selection so a pending sheet
+    /// cannot re-present, and a selection made on the previous radio cannot drive a detail pane,
+    /// after the connection is torn down and replaced.
     func clearPendingLinks() {
         pendingContactLink = nil
         pendingChannelLink = nil
         pendingHashtag = nil
+        clearPerRadioSelection()
+    }
+
+    /// Resets every detail selection scoped to the current radio so a stale selection cannot aim a
+    /// section's detail pane at the wrong radio. Runs on disconnect and on a direct radio-to-radio
+    /// switch. Line of Sight is preserved because it runs offline and is not radio-scoped.
+    func clearPerRadioSelection() {
+        selectedContact = nil
+        nodesShowingDiscovery = false
+        chatsSelectedRoute = nil
+        clearPerDeviceSelection()
+    }
+
+    /// Clears only device-scoped selections (the radio-requiring tool and the My Device settings
+    /// page), but keeps an open Chats/Nodes detail so a manual disconnect does not eject the user from
+    /// an open conversation. Line of Sight and app-wide settings are radio-independent and preserved.
+    func clearPerDeviceSelection() {
+        if selectedTool?.requiresRadio == true {
+            selectedTool = nil
+        }
+        if selectedSetting?.requiresDevice == true {
+            selectedSetting = nil
+        }
     }
 
     /// Tabs where BLEStatusIndicatorView exists and the device menu tip can anchor (Chats, Contacts, Map).

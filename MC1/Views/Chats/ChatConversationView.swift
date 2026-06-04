@@ -237,9 +237,9 @@ struct ChatConversationView: View {
             await performInitialLoad()
         }
         .onDisappear {
-            // Load-bearing on iPad: ChatsSplitLayout pins the detail stack with
-            // `.id(detailID)`, so a detail swap tears down this view's @State
-            // (including draftSaveTask) before the debounce fires — flush here.
+            // Load-bearing on iPad: MainSidebarView pins the Chats detail stack with
+            // `.id(chatsSelectedRoute.conversationID)`, so a detail swap tears down this view's
+            // @State (including draftSaveTask) before the debounce fires — flush here.
             flushDraft()
             performCleanup()
         }

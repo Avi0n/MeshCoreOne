@@ -21,6 +21,7 @@ public enum AppStorageKey: String {
     case autoPlayGIFs
     case replyWithQuote
     case showMapPreviewThumbnails
+    case nodesSortOrder
 
     public static let defaultShowIncomingPath: Bool = false
     public static let defaultShowIncomingHopCount: Bool = false

@@ -222,7 +222,7 @@ extension ChatViewModel {
     /// channel send later fails and the row returns to `.failed`.
     func retryChannelMessage(_ message: MessageDTO) async {
         guard messageService != nil,
-              let channel = currentChannel,
+              currentChannel != nil,
               let channelIndex = message.channelIndex,
               !retryInFlight else { return }
 

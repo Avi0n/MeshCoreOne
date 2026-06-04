@@ -9,6 +9,10 @@ struct ChatsListModifiers: ViewModifier {
 
     let viewModel: ChatViewModel
 
+    /// `true` when this list is the iPad sidebar shell's content column, where the outer
+    /// sidebar owns the radio; `false` on the iPhone stack, which has no sidebar.
+    let isSidebar: Bool
+
     @Binding var searchText: String
     @Binding var showingNewChat: Bool
     @Binding var showingChannelOptions: Bool
@@ -28,9 +32,7 @@ struct ChatsListModifiers: ViewModifier {
             .navigationTitle(L10n.Chats.Chats.title)
             .searchable(text: $searchText, prompt: L10n.Chats.Chats.Search.placeholder)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    BLEStatusIndicatorView()
-                }
+                bleStatusToolbarItem(isVisible: !isSidebar || appState.navigation.isSidebarCollapsed)
                 ToolbarItem(placement: .automatic) {
                     Menu {
                         Button {

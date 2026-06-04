@@ -67,9 +67,7 @@ struct ContactsSidebarContent: View {
         .navigationTitle(L10n.Contacts.Contacts.List.title)
         .searchable(text: $searchText, prompt: searchPrompt)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                BLEStatusIndicatorView()
-            }
+            bleStatusToolbarItem(isVisible: !shouldUseSplitView || appState.navigation.isSidebarCollapsed)
 
             ToolbarItem(placement: .automatic) {
                 Menu {
@@ -187,7 +185,7 @@ struct ContactsSidebarContent: View {
                 await onLoadContacts()
             }
         }
-        .onChange(of: appState.navigation.pendingDiscoveryNavigation) { _, shouldNavigate in
+        .onChange(of: appState.navigation.pendingDiscoveryNavigation, initial: true) { _, shouldNavigate in
             if shouldNavigate {
                 showDiscovery = true
                 appState.navigation.clearPendingDiscoveryNavigation()

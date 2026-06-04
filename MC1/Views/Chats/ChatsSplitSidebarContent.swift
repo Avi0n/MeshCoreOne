@@ -40,6 +40,7 @@ struct ChatsSplitSidebarContent: View {
         )
         .modifier(ChatsListModifiers(
             viewModel: viewModel,
+            isSidebar: true,
             searchText: $searchText,
             showingNewChat: $showingNewChat,
             showingChannelOptions: $showingChannelOptions,
@@ -73,11 +74,11 @@ struct ChatsSplitSidebarContent: View {
 
             lastSelectedRoomIsConnected = newValue?.roomIsConnected
 
-            // Sync sidebar selection to AppState for detail pane (non-nil only;
-            // nil is handled by deletion methods and disconnected room path)
-            if let newValue {
-                appState.navigation.chatsSelectedRoute = newValue
-            }
+            // Mirror the sidebar selection to AppState so the detail pane tracks it. Assigned
+            // unconditionally, including nil: the disconnected-room reload path clears the local
+            // selection without writing `chatsSelectedRoute`, so mirroring nil here is what dismisses
+            // the now-stale detail pane.
+            appState.navigation.chatsSelectedRoute = newValue
         }
     }
 

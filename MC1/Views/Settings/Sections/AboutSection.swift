@@ -7,9 +7,7 @@ struct AboutSection: View {
 
     var body: some View {
         Section {
-            NavigationLink {
-                SupportDevelopmentView()
-            } label: {
+            SettingsDetailRow(detail: .support, isSidebar: isSidebar) {
                 TintedLabel(L10n.Settings.Support.title, systemImage: "heart")
             }
 

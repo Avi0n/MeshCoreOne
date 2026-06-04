@@ -403,11 +403,14 @@ public final class AppState {
             connectionManager: connectionManager
         )
 
-        // Reset CLI if device changed (handles device switch where onConnectionLost doesn't fire)
+        // On a device switch onConnectionLost doesn't fire, so the disconnect teardown that
+        // resets per-radio UI state is skipped. Reset the CLI and every per-radio detail selection
+        // here so neither carries the previous radio's state into the new session.
         if let newDeviceID = connectedDevice?.id,
            let oldDeviceID = lastConnectedDeviceIDForCLI,
            newDeviceID != oldDeviceID {
             cliToolViewModel?.reset()
+            navigation.clearPerRadioSelection()
         }
         lastConnectedDeviceIDForCLI = connectedDevice?.id
 
@@ -879,6 +882,13 @@ public final class AppState {
         } else {
             navigation.pendingDeviceMenuTipDonation = true
         }
+    }
+
+    /// Donates the tip unconditionally. Used on iPad where the radio is always
+    /// visible in the sidebar regardless of which section is selected.
+    func donateDeviceMenuTip() async {
+        navigation.pendingDeviceMenuTipDonation = false
+        await DeviceMenuTip.hasCompletedOnboarding.donate()
     }
 
 #if DEBUG

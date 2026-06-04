@@ -346,4 +346,138 @@ struct NavigationCoordinatorPendingLinkTests {
         coordinator.clearPendingHashtag()
         #expect(coordinator.pendingHashtag == nil)
     }
+
+    // MARK: - clearPendingLinks (per-radio teardown)
+
+    private static func makeContact(name: String = "TestContact") -> ContactDTO {
+        ContactDTO(
+            id: UUID(),
+            radioID: UUID(),
+            publicKey: Data(repeating: 0xAA, count: 32),
+            name: name,
+            typeRawValue: 0x01,
+            flags: 0,
+            outPathLength: 0,
+            outPath: Data(),
+            lastAdvertTimestamp: 0,
+            latitude: 0,
+            longitude: 0,
+            lastModified: 0,
+            nickname: nil,
+            isBlocked: false,
+            isMuted: false,
+            isFavorite: false,
+            lastMessageDate: nil,
+            unreadCount: 0,
+            unreadMentionCount: 0,
+            ocvPreset: nil,
+            customOCVArrayString: nil
+        )
+    }
+
+    @Test("clearPendingLinks clears the hoisted Nodes selected contact")
+    func clearPendingLinksClearsSelectedContact() {
+        let coordinator = NavigationCoordinator()
+        coordinator.selectedContact = Self.makeContact()
+        #expect(coordinator.selectedContact != nil)
+
+        coordinator.clearPendingLinks()
+
+        #expect(coordinator.selectedContact == nil)
+    }
+
+    @Test("clearPendingLinks clears the hoisted Nodes discovery flag")
+    func clearPendingLinksClearsNodesShowingDiscovery() {
+        let coordinator = NavigationCoordinator()
+        coordinator.nodesShowingDiscovery = true
+
+        coordinator.clearPendingLinks()
+
+        #expect(coordinator.nodesShowingDiscovery == false)
+    }
+
+    @Test("clearPendingLinks clears every staged per-radio field at once")
+    func clearPendingLinksClearsAllPendingFields() {
+        let coordinator = NavigationCoordinator()
+        coordinator.pendingContactLink = MeshCoreURLParser.ContactResult(
+            name: "Alice",
+            publicKey: Data(repeating: 0xAB, count: 32),
+            contactType: .chat
+        )
+        coordinator.pendingChannelLink = MeshCoreURLParser.ChannelResult(
+            name: "general",
+            secret: Data(repeating: 0xCC, count: 16)
+        )
+        coordinator.pendingHashtag = HashtagJoinRequest(id: "#general")
+        coordinator.selectedContact = Self.makeContact()
+        coordinator.nodesShowingDiscovery = true
+        coordinator.chatsSelectedRoute = .direct(Self.makeContact())
+        coordinator.selectedTool = .cli
+
+        coordinator.clearPendingLinks()
+
+        #expect(coordinator.pendingContactLink == nil)
+        #expect(coordinator.pendingChannelLink == nil)
+        #expect(coordinator.pendingHashtag == nil)
+        #expect(coordinator.selectedContact == nil)
+        #expect(coordinator.nodesShowingDiscovery == false)
+        #expect(coordinator.chatsSelectedRoute == nil)
+        #expect(coordinator.selectedTool == nil)
+    }
+
+    // MARK: - clearPerRadioSelection
+
+    @Test("clearPerRadioSelection clears the hoisted Chats route")
+    func clearPerRadioSelectionClearsChatsRoute() {
+        let coordinator = NavigationCoordinator()
+        coordinator.chatsSelectedRoute = .direct(Self.makeContact())
+
+        coordinator.clearPerRadioSelection()
+
+        #expect(coordinator.chatsSelectedRoute == nil)
+    }
+
+    @Test("clearPerRadioSelection clears a radio-requiring tool")
+    func clearPerRadioSelectionClearsRadioRequiringTool() {
+        let coordinator = NavigationCoordinator()
+        coordinator.selectedTool = .cli
+        #expect(coordinator.selectedTool?.requiresRadio == true)
+
+        coordinator.clearPerRadioSelection()
+
+        #expect(coordinator.selectedTool == nil)
+    }
+
+    @Test("clearPerRadioSelection preserves the offline Line of Sight tool")
+    func clearPerRadioSelectionPreservesOfflineTool() {
+        let coordinator = NavigationCoordinator()
+        coordinator.selectedTool = .lineOfSight
+        #expect(coordinator.selectedTool?.requiresRadio == false)
+
+        coordinator.clearPerRadioSelection()
+
+        #expect(coordinator.selectedTool == .lineOfSight)
+    }
+
+    @Test("clearPerRadioSelection clears a per-device settings page")
+    func clearPerRadioSelectionClearsDeviceSetting() {
+        let coordinator = NavigationCoordinator()
+        coordinator.selectedSetting = .radio
+        #expect(coordinator.selectedSetting?.requiresDevice == true)
+
+        coordinator.clearPerRadioSelection()
+
+        #expect(coordinator.selectedSetting == nil)
+    }
+
+    @Test("clearPerRadioSelection preserves a device-independent settings page")
+    func clearPerRadioSelectionPreservesAppSetting() {
+        let coordinator = NavigationCoordinator()
+        coordinator.selectedSetting = .appearance
+        #expect(coordinator.selectedSetting?.requiresDevice == false)
+
+        coordinator.clearPerRadioSelection()
+
+        #expect(coordinator.selectedSetting == .appearance)
+    }
 }

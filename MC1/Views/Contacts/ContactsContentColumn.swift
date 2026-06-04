@@ -1,19 +1,22 @@
 import SwiftUI
 import MC1Services
-import OSLog
 
-private let nodesListLogger = Logger(subsystem: "com.mc1", category: "NodesListView")
-
-/// List of all contacts discovered on the mesh network
-struct ContactsListView: View {
+/// The iPad sidebar's Nodes content column. It mirrors the regular-width (split) path of
+/// `ContactsListView`, hosting `ContactsSidebarContent` with the same toolbar, searchable,
+/// sheets, and handlers. The compact (stack) path stays solely in `ContactsListView`.
+///
+/// Selection is driven through `appState.navigation.selectedContact` rather than view-local
+/// state so the detail column can read it. `ContactsSidebarContent`'s
+/// `pendingContactDetail` bridge writes through that binding; its `initial: true` resolves a
+/// deep link (e.g. a notification tap) the first time Nodes is entered, and this view is
+/// instantiated whenever Nodes is selected.
+struct ContactsContentColumn: View {
     @Environment(\.appState) private var appState
 
     @State private var viewModel = ContactsViewModel()
-    @State private var navigationPath = NavigationPath()
     @State private var searchText = ""
     @State private var selectedSegment: NodeSegment = .contacts
     @AppStorage(AppStorageKey.nodesSortOrder.rawValue) private var sortOrder: NodeSortOrder = .lastHeard
-    @State private var showDiscovery = false
     @State private var syncSuccessTrigger = false
     @State private var showShareMyContact = false
     @State private var showAddContact = false
@@ -25,46 +28,42 @@ struct ContactsListView: View {
     }
 
     var body: some View {
-        NavigationStack(path: $navigationPath) {
-            sidebarContent
-                .navigationDestination(isPresented: $showDiscovery) {
-                    DiscoveryView()
-                }
-                .navigationDestination(for: ContactDTO.self) { contact in
-                    ContactDetailView(contact: contact)
-                        .id(contact.id)
-                }
-        }
-    }
+        @Bindable var navigation = appState.navigation
 
-    private var sidebarContent: some View {
         ContactsSidebarContent(
             viewModel: viewModel,
             filteredContacts: actions.filteredContacts(searchText: searchText, segment: selectedSegment, sortOrder: sortOrder),
             isSearching: !searchText.isEmpty,
             searchPrompt: actions.searchPrompt,
-            shouldUseSplitView: false,
+            shouldUseSplitView: true,
             selectedSegment: $selectedSegment,
-            // Split-only: the compact stack navigates via navigationPath, so it has no selection.
-            selectedContact: .constant(nil),
+            selectedContact: $navigation.selectedContact,
             searchText: $searchText,
             sortOrder: $sortOrder,
-            showDiscovery: $showDiscovery,
+            showDiscovery: $navigation.nodesShowingDiscovery,
             syncSuccessTrigger: $syncSuccessTrigger,
             showShareMyContact: $showShareMyContact,
             showAddContact: $showAddContact,
             showLocationDeniedAlert: $showLocationDeniedAlert,
             showOfflineRefreshAlert: $showOfflineRefreshAlert,
-            navigationPath: $navigationPath,
+            // Compact-only navigation, unused on the split path which drives selection via selectedContact.
+            navigationPath: .constant(NavigationPath()),
             showErrorBinding: actions.showErrorBinding,
             onLoadContacts: actions.loadContacts,
             onSyncContacts: actions.syncContacts,
             onAnnounceOfflineStateIfNeeded: actions.announceOfflineStateIfNeeded
         )
+        .onChange(of: appState.navigation.selectedContact) { _, newContact in
+            if newContact != nil {
+                appState.navigation.nodesShowingDiscovery = false
+            }
+        }
     }
 }
 
 #Preview {
-    ContactsListView()
-        .environment(\.appState, AppState())
+    NavigationStack {
+        ContactsContentColumn()
+    }
+    .environment(\.appState, AppState())
 }

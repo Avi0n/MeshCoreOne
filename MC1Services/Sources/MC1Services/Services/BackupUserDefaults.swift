@@ -139,7 +139,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     nonisolated(unsafe) private static let stringMappings: [(WritableKeyPath<BackupUserDefaults, String?>, String)] = [
         (\.mapStyleSelection, "mapStyleSelection"),
         (\.discoverySortOrder, "discoverySortOrder"),
-        (\.nodesSortOrder, "nodesSortOrder"),
+        (\.nodesSortOrder, AppStorageKey.nodesSortOrder.rawValue),
         (\.tracePathViewMode, "tracePathViewMode"),
         (\.selectedThemeID, PersistenceKeys.selectedThemeID),
         (\.appColorSchemePreference, PersistenceKeys.appColorSchemePreference),

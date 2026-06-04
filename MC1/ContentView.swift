@@ -4,13 +4,18 @@ import MC1Services
 struct ContentView: View {
     @Environment(\.appState) private var appState
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
         @Bindable var connectionUI = appState.connectionUI
 
         Group {
             if appState.onboarding.hasCompletedOnboarding {
-                MainTabView()
+                if horizontalSizeClass == .regular {
+                    MainSidebarView()
+                } else {
+                    MainTabView()
+                }
             } else {
                 OnboardingView()
             }
@@ -118,33 +123,12 @@ struct OnboardingView: View {
 struct MainTabView: View {
     @Environment(\.appState) private var appState
     @Environment(\.appTheme) private var theme
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showingDeviceSelection = false
-    @State private var displayedPillState: StatusPillState = .hidden
-
-    private var topPillPadding: CGFloat {
-        horizontalSizeClass == .regular ? 56 : 8
-    }
-
-    private var pillAnimation: Animation {
-        if reduceMotion { return .linear(duration: 0) }
-
-        switch appState.statusPillState {
-        case .ready:
-            return .spring(duration: 0.4, bounce: 0.15)
-        case .failed, .disconnected:
-            return .spring(duration: 0.35, bounce: 0.2)
-        default:
-            return .spring(duration: 0.4)
-        }
-    }
 
     var body: some View {
         @Bindable var navigation = appState.navigation
 
-        ZStack(alignment: .top) {
-            TabView(selection: $navigation.selectedTab) {
+        TabView(selection: $navigation.selectedTab) {
             Tab(L10n.Localizable.Tabs.chats, systemImage: "message.fill", value: AppTab.chats.rawValue) {
                 ChatsView()
             }
@@ -166,28 +150,9 @@ struct MainTabView: View {
                 SettingsView()
             }
         }
-            .themedChrome(theme)
-
-            SyncingPillView(
-                state: displayedPillState,
-                onDisconnectedTap: { showingDeviceSelection = true }
-            )
-            .animation(.spring(duration: 0.3), value: displayedPillState)
-            .padding(.top, topPillPadding)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .offset(y: appState.statusPillState == .hidden ? -100 : 0)
-            .opacity(appState.statusPillState == .hidden ? 0 : 1)
-            .animation(pillAnimation, value: appState.statusPillState)
-            .allowsHitTesting(appState.statusPillState != .hidden)
-        }
-        .onChange(of: appState.statusPillState, initial: true) { _, new in
-            if new != .hidden {
-                withAnimation(pillAnimation) {
-                    displayedPillState = new
-                }
-            }
-        }
-        .onChange(of: appState.navigation.selectedTab) { _, newTab in
+        .themedChrome(theme)
+        .syncingPillOverlay(onDisconnectedTap: { showingDeviceSelection = true })
+        .onChange(of: appState.navigation.selectedTab) { _, _ in
             // Donate pending device menu tip when returning to a valid tab
             if appState.navigation.pendingDeviceMenuTipDonation && appState.navigation.isOnValidTabForDeviceMenuTip {
                 Task {
