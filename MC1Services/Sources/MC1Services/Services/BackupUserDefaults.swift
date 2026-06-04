@@ -18,6 +18,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     public var showIncomingPath: Bool?
     public var showIncomingHopCount: Bool?
     public var showIncomingRegion: Bool?
+    public var showIncomingSendTime: Bool?
     public var autoDeleteStaleNodesDays: Int?
     public var discoverySortOrder: String?
     public var nodesSortOrder: String?
@@ -108,6 +109,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
         (\.showIncomingPath, AppStorageKey.showIncomingPath.rawValue),
         (\.showIncomingHopCount, AppStorageKey.showIncomingHopCount.rawValue),
         (\.showIncomingRegion, AppStorageKey.showIncomingRegion.rawValue),
+        (\.showIncomingSendTime, AppStorageKey.showIncomingSendTime.rawValue),
         (\.tracePathShowOnlyFavorites, "tracePathShowOnlyFavorites"),
         (\.tracePathIncludeRooms, "tracePathIncludeRooms"),
         (\.tracePathIncludeDiscovered, "tracePathIncludeDiscovered"),

@@ -26,7 +26,8 @@ struct BubbleFragmentStack: View, Equatable {
     }
 
     private var hasFooter: Bool {
-        item.footer.showHop
+        item.footer.sendTimeToShow != nil
+            || item.footer.showHop
             || item.footer.formattedPath != nil
             || item.footer.regionToShow != nil
     }

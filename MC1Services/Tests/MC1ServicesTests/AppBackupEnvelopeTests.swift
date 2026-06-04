@@ -239,12 +239,34 @@ struct AppBackupEnvelopeTests {
         prefs.notifyContactMessages = false
         prefs.linkPreviewsEnabled = true
         prefs.showIncomingRegion = true
+        prefs.showIncomingSendTime = true
 
         let data = try JSONEncoder().encode(prefs)
         let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
 
         #expect(decoded == prefs)
         #expect(decoded.showIncomingRegion == true)
+        #expect(decoded.showIncomingSendTime == true)
+    }
+
+    @Test("Legacy envelope without showIncomingSendTime decodes to nil and restore skips it")
+    func legacyEnvelopeMissingShowIncomingSendTime() throws {
+        // A backup predating the toggle has no key. decodeIfPresent must yield nil,
+        // and write-if-missing restore must leave any existing local value untouched.
+        let legacyJSON = "{\"hasCompletedOnboarding\":true}"
+        let data = Data(legacyJSON.utf8)
+
+        let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+        #expect(decoded.showIncomingSendTime == nil)
+
+        let suiteName = "test.showIncomingSendTime.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let key = AppStorageKey.showIncomingSendTime.rawValue
+        let setKeys = decoded.restore(to: defaults)
+        #expect(!setKeys.contains(key))
+        #expect(defaults.object(forKey: key) == nil)
     }
 
     // MARK: - AppBackupError descriptions

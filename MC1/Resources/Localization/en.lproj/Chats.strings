@@ -625,6 +625,9 @@
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for adjusted timestamp */
 "chats.message.info.adjustedHint" = "Sender's clock was incorrect";
 
+/* Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date */
+"chats.message.info.originalSendTime" = "Original send time: %@";
+
 /* Location: UnifiedMessageBubble.swift - Context menu text showing received time - %@ is formatted date */
 "chats.message.info.received" = "Received: %@";
 
@@ -731,6 +734,12 @@
 
 /* Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name */
 "chats.message.region.accessibilityLabel" = "Region %@";
+
+/* Location: BubbleFooterRow.swift - Accessibility label for the raw send time footer - %@ is the time */
+"chats.message.sendTime.accessibilityLabel" = "Send time: %@";
+
+/* Location: BubbleFooterRow.swift - Accessibility label for the send time footer when the sender's clock was corrected - %@ is the time */
+"chats.message.sendTime.correctedAccessibilityLabel" = "Send time: %@, adjusted due to sender clock error";
 
 // MARK: - Reactions
 

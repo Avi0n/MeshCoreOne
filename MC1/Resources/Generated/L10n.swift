@@ -646,6 +646,10 @@ public enum L10n {
           public static func hops(_ p1: Any) -> String {
             return L10n.tr("Chats", "chats.message.info.hops", String(describing: p1), fallback: "Hops: %@")
           }
+          /// Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date
+          public static func originalSendTime(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.info.originalSendTime", String(describing: p1), fallback: "Original send time: %@")
+          }
           /// Location: UnifiedMessageBubble.swift - Context menu text showing received time - %@ is formatted date
           public static func received(_ p1: Any) -> String {
             return L10n.tr("Chats", "chats.message.info.received", String(describing: p1), fallback: "Received: %@")
@@ -692,6 +696,16 @@ public enum L10n {
           public static let plural = L10n.tr("Chats", "chats.message.repeat.plural", fallback: "repeats")
           /// Location: UnifiedMessageBubble.swift - Singular form of repeat
           public static let singular = L10n.tr("Chats", "chats.message.repeat.singular", fallback: "repeat")
+        }
+        public enum SendTime {
+          /// Location: BubbleFooterRow.swift - Accessibility label for the raw send time footer - %@ is the time
+          public static func accessibilityLabel(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.sendTime.accessibilityLabel", String(describing: p1), fallback: "Send time: %@")
+          }
+          /// Location: BubbleFooterRow.swift - Accessibility label for the send time footer when the sender's clock was corrected - %@ is the time
+          public static func correctedAccessibilityLabel(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.sendTime.correctedAccessibilityLabel", String(describing: p1), fallback: "Send time: %@, adjusted due to sender clock error")
+          }
         }
         public enum Sender {
           /// Location: UnifiedMessageBubble.swift - Accessibility text for sender names resolved from a short prefix
@@ -4275,7 +4289,7 @@ public enum L10n {
     }
     public enum Messages {
       /// Footer explaining what the message display options show
-      public static let footer = L10n.tr("Settings", "messages.footer", fallback: "Display routing information inside incoming message bubbles.")
+      public static let footer = L10n.tr("Settings", "messages.footer", fallback: "Display routing and timing information inside incoming message bubbles.")
       /// Section header for message info settings in chats
       public static let header = L10n.tr("Settings", "messages.header", fallback: "Message Info")
       /// Toggle label for showing hop count on incoming messages
@@ -4284,6 +4298,8 @@ public enum L10n {
       public static let showIncomingPath = L10n.tr("Settings", "messages.showIncomingPath", fallback: "Incoming Path")
       /// Toggle label for showing the radio region an incoming message was flooded under
       public static let showIncomingRegion = L10n.tr("Settings", "messages.showIncomingRegion", fallback: "Incoming Region")
+      /// Toggle label for showing the raw uncorrected wire send time on incoming messages
+      public static let showIncomingSendTime = L10n.tr("Settings", "messages.showIncomingSendTime", fallback: "Incoming Send Time")
     }
     public enum MyDevice {
       /// Section header for device-specific settings

@@ -213,11 +213,21 @@ public enum MessageFragmentBuilder {
         } else {
             region = nil
         }
+        // Send time shows on every incoming message (DM and channel) — unlike hop
+        // and region, it is not gated on `isFloodRouted`. Shows the clock-corrected
+        // `senderDate`, not the raw wire value, so a skewed sender clock doesn't put a
+        // misleading timestamp in the bubble; the badge flags the substitution and the
+        // raw value is available in the message info sheet.
+        let sendTimeToShow: Date? =
+            (envInputs.showIncomingSendTime && !message.isOutgoing)
+            ? message.senderDate : nil
         return MessageFooter(
             showHop: showHop,
             hopCount: message.hopCount,
             formattedPath: inputs.formattedPath,
             regionToShow: region,
+            sendTimeToShow: sendTimeToShow,
+            sendTimeWasCorrected: message.timestampCorrected,
             showStatusRow: message.isOutgoing,
             status: message.status,
             heardRepeats: message.heardRepeats,

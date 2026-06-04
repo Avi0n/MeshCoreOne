@@ -951,6 +951,9 @@
 /* Section header for message info settings in chats */
 "messages.header" = "Info o wiadomości";
 
+/* Toggle label for showing the raw uncorrected wire send time on incoming messages */
+"messages.showIncomingSendTime" = "Czas wysłania przychodzący";
+
 /* Toggle label for showing routing path on incoming messages */
 "messages.showIncomingPath" = "Ścieżka przychodząca";
 
@@ -961,7 +964,7 @@
 "messages.showIncomingRegion" = "Region przychodzący";
 
 /* Footer explaining what the message display options show */
-"messages.footer" = "Wyświetlaj informacje o trasowaniu w dymkach wiadomości przychodzących.";
+"messages.footer" = "Wyświetlaj informacje o trasowaniu i czasie w dymkach wiadomości przychodzących.";
 
 
 // MARK: - Direct Messages Settings Section

@@ -961,6 +961,9 @@
 /* Section header for message info settings in chats */
 "messages.header" = "消息信息";
 
+/* Toggle label for showing the raw uncorrected wire send time on incoming messages */
+"messages.showIncomingSendTime" = "传入发送时间";
+
 /* Toggle label for showing routing path on incoming messages */
 "messages.showIncomingPath" = "传入路径";
 
@@ -971,7 +974,7 @@
 "messages.showIncomingRegion" = "传入区域";
 
 /* Footer explaining what message display options show */
-"messages.footer" = "在传入消息气泡内显示路由信息。";
+"messages.footer" = "在传入消息气泡内显示路由和时间信息。";
 
 
 // MARK: - Direct Messages Settings Section

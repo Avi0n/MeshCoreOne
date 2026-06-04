@@ -1,11 +1,16 @@
 import SwiftUI
 import MC1Services
 
-/// Renders the hop / path / region trio from a `MessageFooter`. HStack at
-/// standard dynamic type sizes; VStack when `dynamicTypeSize.isAccessibilitySize`
-/// is true. Each sub-row carries its own `.accessibilityLabel(...)`; the
-/// container uses `.accessibilityElement(children: .combine)` so VoiceOver
-/// surfaces the trio as a single rotor stop.
+/// SF Symbol shown beside the send time when the sender's clock was invalid and the
+/// app substituted a corrected value, signalling that the displayed time was adjusted.
+private let correctedClockBadgeSymbol = "clock.badge.exclamationmark"
+
+/// Renders the send-time / hop / path / region footer from a `MessageFooter`.
+/// HStack at standard dynamic type sizes; VStack when
+/// `dynamicTypeSize.isAccessibilitySize` is true. Each sub-row carries its own
+/// `.accessibilityLabel(...)`; the container uses
+/// `.accessibilityElement(children: .combine)` so VoiceOver surfaces the row as
+/// a single rotor stop.
 struct BubbleFooterRow: View {
     let footer: MessageFooter
     let dynamicTypeSize: DynamicTypeSize
@@ -26,6 +31,9 @@ struct BubbleFooterRow: View {
 
     @ViewBuilder
     private func footerContents(allowsWrap: Bool) -> some View {
+        if let sendTime = footer.sendTimeToShow {
+            BubbleSendTimeFooter(date: sendTime, wasCorrected: footer.sendTimeWasCorrected)
+        }
         if footer.showHop {
             BubbleHopCountFooter(hopCount: footer.hopCount)
         }
@@ -35,6 +43,34 @@ struct BubbleFooterRow: View {
         if let region = footer.regionToShow {
             BubbleRegionFooter(regionName: region, allowsWrap: allowsWrap)
         }
+    }
+}
+
+private struct BubbleSendTimeFooter: View {
+    let date: Date
+    let wasCorrected: Bool
+
+    private var timeText: String {
+        date.formatted(date: .omitted, time: .shortened)
+    }
+
+    private var accessibilityLabel: String {
+        wasCorrected
+            ? L10n.Chats.Chats.Message.SendTime.correctedAccessibilityLabel(timeText)
+            : L10n.Chats.Chats.Message.SendTime.accessibilityLabel(timeText)
+    }
+
+    var body: some View {
+        HStack(spacing: 4) {
+            if wasCorrected {
+                Image(systemName: correctedClockBadgeSymbol)
+            }
+            Text(timeText)
+        }
+        .font(.caption2)
+        .foregroundStyle(.secondary)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabel)
     }
 }
 

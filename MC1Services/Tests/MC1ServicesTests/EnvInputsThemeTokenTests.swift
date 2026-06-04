@@ -11,6 +11,7 @@ struct EnvInputsThemeTokenTests {
             showIncomingPath: true,
             showIncomingHopCount: true,
             showIncomingRegion: true,
+            showIncomingSendTime: true,
             previewsEnabled: true,
             isHighContrast: false,
             isDark: false,

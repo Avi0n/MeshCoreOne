@@ -225,6 +225,55 @@ struct MessageFragmentBuilderTests {
         #expect(item.footer.maxRetryAttempts == 5)
     }
 
+    // MARK: - Incoming send time
+
+    @Test("footer shows send time on incoming message when enabled")
+    func footer_showsSendTime_whenEnabledAndIncoming() {
+        let wire: UInt32 = 1_700_000_000
+        let message = makeIncomingMessage(timestamp: wire)
+        let inputs = makeInputs(messageID: message.id)
+        let item = MessageFragmentBuilder.makeItem(
+            for: message, inputs: inputs, envInputs: makeEnvInputs(showIncomingSendTime: true)
+        )
+        #expect(item.footer.sendTimeToShow == Date(timeIntervalSince1970: TimeInterval(wire)))
+        #expect(item.footer.sendTimeWasCorrected == false)
+    }
+
+    @Test("footer hides send time when the toggle is off")
+    func footer_hidesSendTime_whenDisabled() {
+        let message = makeIncomingMessage(timestamp: 1_700_000_000)
+        let inputs = makeInputs(messageID: message.id)
+        let item = MessageFragmentBuilder.makeItem(
+            for: message, inputs: inputs, envInputs: makeEnvInputs(showIncomingSendTime: false)
+        )
+        #expect(item.footer.sendTimeToShow == nil)
+    }
+
+    @Test("footer hides send time on outgoing messages even when enabled")
+    func footer_hidesSendTime_forOutgoing() {
+        let message = makeMessage(text: "hi") // outgoing by default
+        let inputs = makeInputs(messageID: message.id)
+        let item = MessageFragmentBuilder.makeItem(
+            for: message, inputs: inputs, envInputs: makeEnvInputs(showIncomingSendTime: true)
+        )
+        #expect(item.footer.sendTimeToShow == nil)
+    }
+
+    @Test("footer send time uses the corrected value and flags correction")
+    func footer_sendTime_usesCorrectedValue_whenCorrected() {
+        let rawWire: UInt32 = 100 // sender's skewed clock, surfaced only in the info sheet
+        let corrected: UInt32 = 1_700_000_000 // value the app substituted for ordering
+        let message = makeIncomingMessage(
+            timestamp: corrected, senderTimestamp: rawWire, timestampCorrected: true
+        )
+        let inputs = makeInputs(messageID: message.id)
+        let item = MessageFragmentBuilder.makeItem(
+            for: message, inputs: inputs, envInputs: makeEnvInputs(showIncomingSendTime: true)
+        )
+        #expect(item.footer.sendTimeToShow == Date(timeIntervalSince1970: TimeInterval(corrected)))
+        #expect(item.footer.sendTimeWasCorrected == true)
+    }
+
     // MARK: - Hash propagation regression
 
     @Test("previewState change flips the item hash")
@@ -387,12 +436,45 @@ struct MessageFragmentBuilderTests {
         )
     }
 
+    private func makeIncomingMessage(
+        timestamp: UInt32,
+        senderTimestamp: UInt32? = nil,
+        timestampCorrected: Bool = false
+    ) -> MessageDTO {
+        MessageDTO(
+            id: UUID(),
+            radioID: Self.radioID,
+            contactID: Self.contactID,
+            channelIndex: nil,
+            text: "hi",
+            timestamp: timestamp,
+            createdAt: Self.referenceDate,
+            direction: .incoming,
+            status: .delivered,
+            textType: .plain,
+            ackCode: nil,
+            pathLength: 0,
+            snr: nil,
+            senderKeyPrefix: nil,
+            senderNodeName: nil,
+            isRead: true,
+            replyToID: nil,
+            roundTripTime: nil,
+            heardRepeats: 0,
+            retryAttempt: 0,
+            maxRetryAttempts: 0,
+            timestampCorrected: timestampCorrected,
+            senderTimestamp: senderTimestamp
+        )
+    }
+
     private func makeEnvInputs(
         showInlineImages: Bool = true,
         autoPlayGIFs: Bool = true,
         showIncomingPath: Bool = false,
         showIncomingHopCount: Bool = false,
         showIncomingRegion: Bool = false,
+        showIncomingSendTime: Bool = false,
         previewsEnabled: Bool = false,
         isHighContrast: Bool = false,
         isDark: Bool = false,
@@ -406,6 +488,7 @@ struct MessageFragmentBuilderTests {
             showIncomingPath: showIncomingPath,
             showIncomingHopCount: showIncomingHopCount,
             showIncomingRegion: showIncomingRegion,
+            showIncomingSendTime: showIncomingSendTime,
             previewsEnabled: previewsEnabled,
             isHighContrast: isHighContrast,
             isDark: isDark,

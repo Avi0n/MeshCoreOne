@@ -1,7 +1,7 @@
 import Foundation
 
 /// Environment-derived inputs that influence `MessageItem` content. Sourced
-/// from `@AppStorage` (six toggles), `@Environment(\.colorSchemeContrast)`,
+/// from `@AppStorage` (seven toggles), `@Environment(\.colorSchemeContrast)`,
 /// and the parent view's `deviceName`. `ChatConversationView` constructs one
 /// and pushes it to `ChatViewModel.applyEnvInputs(_:)`; the view model
 /// rebuilds `MessageItem`s when the value changes.
@@ -11,6 +11,7 @@ public struct EnvInputs: Sendable, Hashable {
     public let showIncomingPath: Bool
     public let showIncomingHopCount: Bool
     public let showIncomingRegion: Bool
+    public let showIncomingSendTime: Bool
     public let previewsEnabled: Bool
     public let isHighContrast: Bool
     /// Light/dark appearance, sourced from `@Environment(\.colorScheme)` in
@@ -40,6 +41,7 @@ public struct EnvInputs: Sendable, Hashable {
         showIncomingPath: Bool,
         showIncomingHopCount: Bool,
         showIncomingRegion: Bool,
+        showIncomingSendTime: Bool,
         previewsEnabled: Bool,
         isHighContrast: Bool,
         isDark: Bool,
@@ -53,6 +55,7 @@ public struct EnvInputs: Sendable, Hashable {
         self.showIncomingPath = showIncomingPath
         self.showIncomingHopCount = showIncomingHopCount
         self.showIncomingRegion = showIncomingRegion
+        self.showIncomingSendTime = showIncomingSendTime
         self.previewsEnabled = previewsEnabled
         self.isHighContrast = isHighContrast
         self.isDark = isDark
@@ -72,6 +75,7 @@ public struct EnvInputs: Sendable, Hashable {
         showIncomingPath: AppStorageKey.defaultShowIncomingPath,
         showIncomingHopCount: AppStorageKey.defaultShowIncomingHopCount,
         showIncomingRegion: AppStorageKey.defaultShowIncomingRegion,
+        showIncomingSendTime: AppStorageKey.defaultShowIncomingSendTime,
         previewsEnabled: AppStorageKey.defaultLinkPreviewsEnabled,
         isHighContrast: false,
         isDark: false,

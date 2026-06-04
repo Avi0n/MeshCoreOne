@@ -589,6 +589,13 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
         Date(timeIntervalSince1970: TimeInterval(timestamp))
     }
 
+    /// Raw, uncorrected send time the sender stamped on the wire.
+    /// Unlike `senderDate`, this is not clock-corrected, so a skewed
+    /// sender clock surfaces its literal value.
+    public var wireSentDate: Date {
+        Date(timeIntervalSince1970: TimeInterval(senderTimestamp ?? timestamp))
+    }
+
     /// Hop count decoded from pathLength (lower 6 bits)
     public var hopCount: Int {
         decodePathLen(pathLength)?.hopCount ?? Int(pathLength & 63)

@@ -16,6 +16,7 @@ public enum AppStorageKey: String {
     case showIncomingPath
     case showIncomingHopCount
     case showIncomingRegion
+    case showIncomingSendTime
     case linkPreviewsEnabled
     case showInlineImages
     case autoPlayGIFs
@@ -26,6 +27,7 @@ public enum AppStorageKey: String {
     public static let defaultShowIncomingPath: Bool = false
     public static let defaultShowIncomingHopCount: Bool = false
     public static let defaultShowIncomingRegion: Bool = false
+    public static let defaultShowIncomingSendTime: Bool = false
     public static let defaultLinkPreviewsEnabled: Bool = false
     public static let defaultShowInlineImages: Bool = true
     public static let defaultAutoPlayGIFs: Bool = true

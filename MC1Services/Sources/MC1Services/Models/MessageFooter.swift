@@ -15,6 +15,18 @@ public struct MessageFooter: Sendable, Hashable {
     public let hopCount: Int
     public let formattedPath: String?
     public let regionToShow: String?
+    /// Send time to display inside the bubble; nil means do not show it. Holds the
+    /// clock-corrected `senderDate`, so a skewed sender clock never surfaces a
+    /// misleading time here — `sendTimeWasCorrected` flags the substitution and the
+    /// raw wire value stays available in the message info sheet. Stored as a `Date`,
+    /// not a formatted string, so a mid-session 12h/24h or language change reformats
+    /// at render time without rebaking items — the same rule that keeps `status` a
+    /// raw enum here.
+    public let sendTimeToShow: Date?
+    /// Whether the app substituted a corrected `timestamp` because the sender's
+    /// wire clock was invalid. Only meaningful when `sendTimeToShow != nil`;
+    /// drives the warning badge next to the time.
+    public let sendTimeWasCorrected: Bool
     public let showStatusRow: Bool
     public let status: MessageStatus
     public let heardRepeats: Int
@@ -27,6 +39,8 @@ public struct MessageFooter: Sendable, Hashable {
         hopCount: Int,
         formattedPath: String?,
         regionToShow: String?,
+        sendTimeToShow: Date?,
+        sendTimeWasCorrected: Bool,
         showStatusRow: Bool,
         status: MessageStatus,
         heardRepeats: Int,
@@ -38,6 +52,8 @@ public struct MessageFooter: Sendable, Hashable {
         self.hopCount = hopCount
         self.formattedPath = formattedPath
         self.regionToShow = regionToShow
+        self.sendTimeToShow = sendTimeToShow
+        self.sendTimeWasCorrected = sendTimeWasCorrected
         self.showStatusRow = showStatusRow
         self.status = status
         self.heardRepeats = heardRepeats
@@ -54,6 +70,8 @@ public struct MessageFooter: Sendable, Hashable {
             hopCount: hopCount,
             formattedPath: formattedPath,
             regionToShow: regionToShow,
+            sendTimeToShow: sendTimeToShow,
+            sendTimeWasCorrected: sendTimeWasCorrected,
             showStatusRow: showStatusRow,
             status: status,
             heardRepeats: heardRepeats,

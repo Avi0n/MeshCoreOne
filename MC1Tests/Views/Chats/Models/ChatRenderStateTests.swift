@@ -236,6 +236,8 @@ private func makeFakeMessageItem(id: UUID, senderName: String) -> MessageItem {
             hopCount: 0,
             formattedPath: nil,
             regionToShow: nil,
+            sendTimeToShow: nil,
+            sendTimeWasCorrected: false,
             showStatusRow: false,
             status: .sent,
             heardRepeats: 0,

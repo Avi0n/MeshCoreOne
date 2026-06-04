@@ -608,6 +608,9 @@
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for adjusted timestamp */
 "chats.message.info.adjustedHint" = "Годинник відправника був неточним";
 
+/* Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date */
+"chats.message.info.originalSendTime" = "Початковий час надсилання: %@";
+
 /* Location: UnifiedMessageBubble.swift - Context menu text showing received time - %@ is formatted date */
 "chats.message.info.received" = "Отримано: %@";
 
@@ -893,6 +896,12 @@
 
 /* Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
 "chats.message.region.accessibilityLabel" = "Регіон %@";
+
+/* Location: BubbleFooterRow.swift - Accessibility label for the raw send time footer - %@ is the time */
+"chats.message.sendTime.accessibilityLabel" = "Час надсилання: %@";
+
+/* Location: BubbleFooterRow.swift - Accessibility label for the send time footer when the sender's clock was corrected - %@ is the time */
+"chats.message.sendTime.correctedAccessibilityLabel" = "Час надсилання: %@, скориговано через помилку годинника відправника";
 
 // MARK: - Reaction Details Sheet
 

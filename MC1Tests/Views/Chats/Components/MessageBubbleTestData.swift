@@ -160,6 +160,7 @@ enum MessageBubbleTestData {
             showIncomingPath: formattedPath != nil,
             showIncomingHopCount: showIncomingHopCount,
             showIncomingRegion: showIncomingRegion,
+            showIncomingSendTime: false,
             previewsEnabled: previewsEnabled,
             isHighContrast: false,
             isDark: false,

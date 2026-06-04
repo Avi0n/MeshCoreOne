@@ -174,6 +174,11 @@ private struct ActionsIncomingDetailsRows: View {
         let adjusted = message.timestampCorrected ? " " + L10n.Chats.Chats.Message.Info.adjusted : ""
         ActionInfoRow(text: sentText + adjusted)
 
+        if message.timestampCorrected {
+            ActionInfoRow(text: L10n.Chats.Chats.Message.Info.originalSendTime(
+                message.wireSentDate.formatted(date: .abbreviated, time: .standard)))
+        }
+
         ActionInfoRow(text: L10n.Chats.Chats.Message.Info.received(
             message.createdAt.formatted(date: .abbreviated, time: .standard)))
 

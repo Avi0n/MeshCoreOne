@@ -133,6 +133,7 @@ enum MessageFragmentBuilderFixtures {
             showIncomingPath: false,
             showIncomingHopCount: false,
             showIncomingRegion: false,
+            showIncomingSendTime: false,
             previewsEnabled: false,
             isHighContrast: false,
             isDark: false,

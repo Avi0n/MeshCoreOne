@@ -951,6 +951,9 @@
 /* Section header for message info settings in chats */
 "messages.header" = "Інфо повідомлення";
 
+/* Toggle label for showing the raw uncorrected wire send time on incoming messages */
+"messages.showIncomingSendTime" = "Вхідний час надсилання";
+
 /* Toggle label for showing routing path on incoming messages */
 "messages.showIncomingPath" = "Вхідний шлях";
 
@@ -961,7 +964,7 @@
 "messages.showIncomingRegion" = "Вхідний регіон";
 
 /* Footer explaining what the message display options show */
-"messages.footer" = "Показувати інформацію про маршрутизацію у вхідних повідомленнях.";
+"messages.footer" = "Показувати інформацію про маршрутизацію та час у вхідних повідомленнях.";
 
 
 // MARK: - Direct Messages Settings Section
