@@ -158,6 +158,22 @@ struct MessageServiceSendTests {
         #expect(message.channelIndex == nil)
     }
 
+    @Test("createPendingMessage stamps lastMessageDate so a first DM appears in the chat list before any send succeeds")
+    func createPendingMessageMakesConversationVisible() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let contact = ContactDTO.testContact(radioID: testDeviceID, lastMessageDate: nil)
+        try await dataStore.saveContact(contact)
+
+        let before = try await dataStore.fetchConversations(radioID: testDeviceID)
+        #expect(before.isEmpty)
+
+        _ = try await service.createPendingMessage(text: "First DM", to: contact)
+
+        let after = try await dataStore.fetchConversations(radioID: testDeviceID)
+        #expect(after.contains { $0.id == contact.id })
+        #expect(after.first { $0.id == contact.id }?.lastMessageDate != nil)
+    }
+
     // MARK: - sendPendingDirectMessage / resendDirectMessage
 
     @Test("sendPendingDirectMessage rejects concurrent send for same messageID")

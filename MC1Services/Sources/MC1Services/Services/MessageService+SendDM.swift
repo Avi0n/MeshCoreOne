@@ -263,6 +263,7 @@ extension MessageService {
             replyToID: replyToID
         )
         try await dataStore.saveMessage(messageDTO)
+        try await dataStore.updateContactLastMessage(contactID: contact.id, date: Date())
 
         return messageDTO
     }
