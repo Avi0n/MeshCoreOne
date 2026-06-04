@@ -12,14 +12,17 @@ struct AppSidebar: View {
     /// Selecting a row collapses the sidebar (Mail-style) in the same write as the tab change, so
     /// the section rebuilds once with the right visibility for its column count — collapsing
     /// reactively after the tab change instead would render one frame at the wrong shape (the map
-    /// section flashing its sidebar, a list section briefly missing its content column).
+    /// section flashing its sidebar, a list section briefly missing its content column). The collapse
+    /// is gated on `isSidebarWide`.
     private var selection: Binding<AppTab?> {
         Binding(
             get: { AppTab(rawValue: appState.navigation.selectedTab) ?? .chats },
             set: { newValue in
                 let tab = newValue ?? .chats
                 appState.navigation.selectedTab = tab.rawValue
-                columnVisibility = tab.collapsedSidebarVisibility
+                if !appState.navigation.isSidebarWide {
+                    columnVisibility = tab.collapsedSidebarVisibility
+                }
             }
         )
     }

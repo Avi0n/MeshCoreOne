@@ -1,15 +1,10 @@
 import SwiftUI
 import MC1Services
 
-/// The iPad sidebar shell: a sidebar selecting the active `AppTab`, plus that section's columns.
-/// List sections use a three-column split; Map uses two columns so the sidebar reveal control
-/// keeps a home in the detail toolbar (a zero-width middle column would strip it and strand the
-/// sidebar closed). Switching tabs rebuilds the inactive section's tree, so per-section selection
-/// that must survive that teardown (Chats route, Nodes contact, selected Tool) lives in
-/// `NavigationCoordinator`; the shared view models are hosted here so each section's content and
-/// detail columns read one instance. Selecting a row collapses the sidebar (Mail-style); while
-/// collapsed the radio is surfaced in the section toolbar (gated on `isSidebarCollapsed`) so the
-/// connection control stays reachable.
+/// The iPad sidebar shell: a sidebar selecting the active `AppTab`, plus that section's columns
+/// (list sections are three-column, Map is two-column). Per-section selection that must survive the
+/// section-switch teardown lives in `NavigationCoordinator`; the shared view models are hosted here
+/// so each section's content and detail columns read one instance.
 struct MainSidebarView: View {
     @Environment(\.appState) private var appState
     @Environment(\.appTheme) private var theme
@@ -34,37 +29,79 @@ struct MainSidebarView: View {
     @State private var settingsShowingDeviceSelection = false
     @State private var settingsDemoModeManager = DemoModeManager.shared
 
-    private static let toolListColumnWidthMin: CGFloat = 320
-    private static let toolListColumnWidthIdeal: CGFloat = 360
-    private static let toolListColumnWidthMax: CGFloat = 420
     private static let lineOfSightPanelWidthMin: CGFloat = 380
     private static let lineOfSightPanelWidthIdeal: CGFloat = 440
     private static let lineOfSightPanelWidthMax: CGFloat = 560
+
+    // sidebarColumnWidth is pinned on AppSidebar in both shell shapes (via navigationSplitViewColumnWidth)
+    // so the sidebar renders at exactly this width whether the section is two- or three-column. Without
+    // the pin the two-column Map shell gives its sidebar a wider system default than the three-column
+    // list shell, so the sidebar visibly jumps width when switching to Map. detailColumnApproxMinWidth
+    // is a named approximation of the system detail min-width, which the detail column inherits. Both are
+    // `nonisolated` because sidebarTileableMinWidth's nonisolated initializer reads them.
+    nonisolated private static let sidebarColumnWidth: CGFloat = 320
+    nonisolated private static let detailColumnApproxMinWidth: CGFloat = 320
+
+    // Content-column floor used only by the tileability test: the widest minimum any section's content
+    // column takes, so the gate clears for every section. Deliberately its own constant, not a reuse of
+    // lineOfSightPanelWidthMin, so retuning the Line of Sight panel for comfort cannot shift when the
+    // sidebar tiles. `nonisolated` because sidebarTileableMinWidth's nonisolated initializer reads it.
+    nonisolated private static let contentColumnTileableMinWidth: CGFloat = 380
+
+    /// Three columns tile only when the container is at least the sum of the system's own column
+    /// min-widths (sidebar + a content column at its min + detail at its min). Below it the system
+    /// overlays the sidebar, so the not-wide branch keeps collapse-on-selection rather than leaving an
+    /// overlay that could strand the radio control. `nonisolated` so the @Sendable onGeometryChange
+    /// transform can read it; a main-actor-isolated static is not referenceable from a Sendable closure.
+    nonisolated private static let sidebarTileableMinWidth: CGFloat =
+        sidebarColumnWidth + contentColumnTileableMinWidth + detailColumnApproxMinWidth
 
     private var selectedTab: AppTab {
         AppTab(rawValue: appState.navigation.selectedTab) ?? .chats
     }
 
-    /// Widen the Tools content column to fit the Line of Sight analysis panel, narrow it back to a
-    /// tool-list width otherwise. The modifier is applied unconditionally with switched values so
-    /// the content column's identity stays stable and the width change animates.
-    private var toolsContentWidth: (min: CGFloat, ideal: CGFloat, max: CGFloat) {
+    /// Width override for the Tools content column: applied only when the Line of Sight analysis panel
+    /// is open, where the column must widen to fit the RF figures. In the plain tool-list state this is
+    /// nil so the column inherits the system-default content width, matching the Chats/Nodes/Settings
+    /// columns, which set no width modifier.
+    private var toolsContentWidth: (min: CGFloat, ideal: CGFloat, max: CGFloat)? {
         appState.navigation.selectedTool == .lineOfSight
             ? (Self.lineOfSightPanelWidthMin, Self.lineOfSightPanelWidthIdeal, Self.lineOfSightPanelWidthMax)
-            : (Self.toolListColumnWidthMin, Self.toolListColumnWidthIdeal, Self.toolListColumnWidthMax)
+            : nil
     }
 
     var body: some View {
         shell
+            // Width is read at the shell because a content column misreports horizontalSizeClass as
+            // .compact on regular iPad. The transform stays the bare comparison (allocation-free); the
+            // action fires once on first layout and once per threshold crossing (the Bool dedups
+            // intermediate resize frames). This action is the single width-driven writer of
+            // columnVisibility and runs on first layout, so visibility is decided once measurement exists.
+            .onGeometryChange(for: Bool.self) { proxy in
+                proxy.size.width >= Self.sidebarTileableMinWidth
+            } action: { isWide in
+                appState.navigation.isSidebarWide = isWide
+                // Wide reveals the tiled sidebar; narrow collapses to the section's hidden shape so the
+                // radio lands in the toolbar and no .all overlay can strand it. selectedTab is read
+                // live so the collapsed shape matches the currently mounted shell.
+                if isWide {
+                    columnVisibility = .all
+                } else {
+                    columnVisibility = selectedTab.collapsedSidebarVisibility
+                }
+            }
             .navigationSplitViewStyle(.automatic)
             .themedChrome(theme)
             .syncingPillOverlay(onDisconnectedTap: { showingDeviceSelection = true })
             .onChange(of: appState.navigation.selectedTab) { _, newValue in
                 clearToolSelectionWhenLeavingTools()
                 let newTab = AppTab(rawValue: newValue) ?? .chats
-                // Backstop for programmatic tab changes (deep links, notification taps) that bypass
-                // the sidebar's selection setter; direct row taps already collapse atomically there.
-                columnVisibility = newTab.collapsedSidebarVisibility
+                // Backstop for programmatic tab changes (deep links, notification taps) that bypass the
+                // sidebar's selection setter. Width-gated and idempotent so it never re-collapses a wide
+                // sidebar or duplicates a write the setter already made.
+                if !appState.navigation.isSidebarWide && columnVisibility != newTab.collapsedSidebarVisibility {
+                    columnVisibility = newTab.collapsedSidebarVisibility
+                }
                 // The collapse drops the tapped sidebar row, so steer VoiceOver into the new content.
                 focusedColumn = newTab
                 // The radio lives in AppSidebar, so donate the tip when a donation is waiting.
@@ -75,9 +112,10 @@ struct MainSidebarView: View {
                 }
             }
             .onChange(of: columnVisibility, initial: true) { _, newValue in
-                // `initial: true` resyncs on a compact→regular size-class change, which freshly
-                // instantiates this view (columnVisibility resets to .all) while the shared
-                // NavigationCoordinator may still hold a stale collapsed flag from a prior session.
+                // Derive the single radio-gating signal. The width-driven collapse/reveal is owned by
+                // the geometry action above; this handler only mirrors the resulting visibility into
+                // isSidebarCollapsed (true iff the sidebar column is hidden), which the section
+                // toolbars read to surface the radio.
                 appState.navigation.isSidebarCollapsed = newValue != .all
             }
             .onChange(of: appState.connectedDevice) { _, newDevice in
@@ -104,6 +142,7 @@ struct MainSidebarView: View {
         case .map:
             NavigationSplitView(columnVisibility: $columnVisibility) {
                 AppSidebar(columnVisibility: $columnVisibility)
+                    .navigationSplitViewColumnWidth(Self.sidebarColumnWidth)
             } detail: {
                 // The map already draws full-bleed (its canvas ignores the safe area), so it
                 // extends under the floating sidebar and status bar with real tiles. The
@@ -115,6 +154,7 @@ struct MainSidebarView: View {
         case .chats, .nodes, .settings, .tools:
             NavigationSplitView(columnVisibility: $columnVisibility) {
                 AppSidebar(columnVisibility: $columnVisibility)
+                    .navigationSplitViewColumnWidth(Self.sidebarColumnWidth)
             } content: {
                 contentColumn
             } detail: {
@@ -153,11 +193,7 @@ struct MainSidebarView: View {
             // tool list only) so the Line of Sight analysis panel keeps its opaque background.
             ToolsContentColumn(lineOfSightViewModel: lineOfSightViewModel)
                 .accessibilityFocused($focusedColumn, equals: .tools)
-                .navigationSplitViewColumnWidth(
-                    min: toolsContentWidth.min,
-                    ideal: toolsContentWidth.ideal,
-                    max: toolsContentWidth.max
-                )
+                .modifier(OptionalColumnWidth(width: toolsContentWidth))
         case .map:
             // Map renders through the two-column shell, never this column.
             EmptyView()
@@ -203,6 +239,23 @@ struct MainSidebarView: View {
     private func clearToolSelectionWhenLeavingTools() {
         if selectedTab != .tools {
             appState.navigation.selectedTool = nil
+        }
+    }
+}
+
+/// Applies a content-column width override only when one is supplied, leaving the column at the
+/// system default otherwise. The override can't be expressed as a fixed width in the default state,
+/// so it is applied conditionally: toggling it re-identifies the wrapped column and the width snaps
+/// rather than animating, which is acceptable because the only caller swaps the column's content on
+/// the same toggle and drives it from external state.
+private struct OptionalColumnWidth: ViewModifier {
+    let width: (min: CGFloat, ideal: CGFloat, max: CGFloat)?
+
+    func body(content: Content) -> some View {
+        if let width {
+            content.navigationSplitViewColumnWidth(min: width.min, ideal: width.ideal, max: width.max)
+        } else {
+            content
         }
     }
 }

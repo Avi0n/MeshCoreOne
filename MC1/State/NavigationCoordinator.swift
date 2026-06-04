@@ -16,6 +16,12 @@ public final class NavigationCoordinator {
     /// while the sidebar is hidden. Always false on the compact iPhone path, which has no sidebar.
     var isSidebarCollapsed = false
 
+    /// Whether the split container can tile all three columns side by side, measured at the shell.
+    /// When true, row selection leaves the sidebar tiled open instead of collapsing it. Defaults to
+    /// false so an unmeasured layout takes the safe collapse-on-selection branch rather than claiming
+    /// wide while actually narrow and stranding the radio behind a sidebar overlay.
+    var isSidebarWide = false
+
     /// Contact to navigate to
     var pendingChatContact: ContactDTO?
 

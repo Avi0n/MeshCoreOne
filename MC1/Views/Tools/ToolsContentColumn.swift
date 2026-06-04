@@ -33,6 +33,7 @@ struct ToolsContentColumn: View {
             ForEach(ToolSelection.allCases, id: \.self) { tool in
                 Label(tool.title, systemImage: tool.systemImage)
                     .tag(Optional(tool))
+                    .themedPlainRowBackground(theme, isSelected: selection.wrappedValue == tool)
             }
         }
         .listStyle(.plain)
