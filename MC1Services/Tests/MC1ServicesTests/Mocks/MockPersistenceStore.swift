@@ -1531,6 +1531,47 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         }
     }
 
+    /// Non-atomic in-memory stand-in for the concrete store's atomic override.
+    /// This double is never driven concurrently, so it enriches the latest
+    /// in-window row or inserts a new one without the single-turn guarantee.
+    public func recordNodeStatusSnapshot(
+        nodePublicKey: Data,
+        status: NodeStatusMetrics?,
+        telemetry: [TelemetrySnapshotEntry]?,
+        neighbors: [NeighborSnapshotEntry]?
+    ) async throws -> UUID {
+        if let latest = try await fetchLatestNodeStatusSnapshot(nodePublicKey: nodePublicKey),
+           latest.timestamp.distance(to: .now) < NodeSnapshotPolicy.minimumInterval {
+            if let telemetry { try await updateSnapshotTelemetry(id: latest.id, telemetry: telemetry) }
+            if let neighbors { try await updateSnapshotNeighbors(id: latest.id, neighbors: neighbors) }
+            return latest.id
+        }
+
+        if let status {
+            return try await saveNodeStatusSnapshot(
+                nodePublicKey: nodePublicKey,
+                batteryMillivolts: status.batteryMillivolts,
+                lastSNR: status.lastSNR,
+                lastRSSI: status.lastRSSI,
+                noiseFloor: status.noiseFloor,
+                uptimeSeconds: status.uptimeSeconds,
+                rxAirtimeSeconds: status.rxAirtimeSeconds,
+                packetsSent: status.packetsSent,
+                packetsReceived: status.packetsReceived,
+                receiveErrors: status.receiveErrors,
+                postedCount: status.postedCount,
+                postPushCount: status.postPushCount
+            )
+        }
+
+        let id = try await saveTelemetryOnlySnapshot(
+            nodePublicKey: nodePublicKey,
+            telemetryEntries: telemetry ?? []
+        )
+        if let neighbors { try await updateSnapshotNeighbors(id: id, neighbors: neighbors) }
+        return id
+    }
+
     public func deleteOldNodeStatusSnapshots(olderThan date: Date) async throws {
         nodeStatusSnapshots.removeAll { $0.timestamp < date }
     }

@@ -1,5 +1,83 @@
 import Foundation
+import MeshCore
 import SwiftData
+
+/// Capture-rate policy for node status snapshots.
+public enum NodeSnapshotPolicy {
+    /// Minimum interval between persisted snapshots for the same node.
+    /// A status, telemetry, or neighbor capture arriving within this window of
+    /// the latest snapshot enriches that row rather than inserting a new one.
+    public static let minimumInterval: TimeInterval = 15 * 60
+}
+
+/// The radio/room status fields captured in a snapshot, clamped to their
+/// storage types. Bundling them into one value keeps the save and backfill
+/// paths in lockstep and performs the lossy `Int16` conversions exactly once.
+public struct NodeStatusMetrics: Sendable, Equatable {
+    public let batteryMillivolts: UInt16?
+    public let lastSNR: Double?
+    public let lastRSSI: Int16?
+    public let noiseFloor: Int16?
+    public let uptimeSeconds: UInt32?
+    public let rxAirtimeSeconds: UInt32?
+    public let packetsSent: UInt32?
+    public let packetsReceived: UInt32?
+    public let receiveErrors: UInt32?
+    public let postedCount: UInt16?
+    public let postPushCount: UInt16?
+
+    public init(
+        batteryMillivolts: UInt16?,
+        lastSNR: Double?,
+        lastRSSI: Int16?,
+        noiseFloor: Int16?,
+        uptimeSeconds: UInt32?,
+        rxAirtimeSeconds: UInt32?,
+        packetsSent: UInt32?,
+        packetsReceived: UInt32?,
+        receiveErrors: UInt32?,
+        postedCount: UInt16? = nil,
+        postPushCount: UInt16? = nil
+    ) {
+        self.batteryMillivolts = batteryMillivolts
+        self.lastSNR = lastSNR
+        self.lastRSSI = lastRSSI
+        self.noiseFloor = noiseFloor
+        self.uptimeSeconds = uptimeSeconds
+        self.rxAirtimeSeconds = rxAirtimeSeconds
+        self.packetsSent = packetsSent
+        self.packetsReceived = packetsReceived
+        self.receiveErrors = receiveErrors
+        self.postedCount = postedCount
+        self.postPushCount = postPushCount
+    }
+
+    /// Build metrics from a status response. `lastRSSI` and `noiseFloor` saturate
+    /// into `Int16` so an out-of-range firmware value clamps to the axis bound.
+    /// Role-specific fields are supplied by the caller: repeaters pass
+    /// `rxAirtimeSeconds`/`receiveErrors`, rooms pass `postedCount`/`postPushCount`.
+    public init(
+        status: RemoteNodeStatus,
+        rxAirtimeSeconds: UInt32? = nil,
+        receiveErrors: UInt32? = nil,
+        postedCount: UInt16? = nil,
+        postPushCount: UInt16? = nil
+    ) {
+        self.init(
+            batteryMillivolts: status.batteryMillivolts,
+            lastSNR: status.lastSNR,
+            lastRSSI: Int16(clamping: status.lastRSSI),
+            noiseFloor: Int16(clamping: status.noiseFloor),
+            uptimeSeconds: status.uptimeSeconds,
+            rxAirtimeSeconds: rxAirtimeSeconds,
+            packetsSent: status.packetsSent,
+            packetsReceived: status.packetsReceived,
+            receiveErrors: receiveErrors,
+            postedCount: postedCount,
+            postPushCount: postPushCount
+        )
+    }
+}
 
 /// Codable entry representing a single neighbor's state at snapshot time.
 public struct NeighborSnapshotEntry: Codable, Sendable, Equatable {
@@ -102,6 +180,22 @@ public final class NodeStatusSnapshot {
         self.postPushCount = postPushCount
         self.neighborSnapshots = neighborSnapshots
         self.telemetryEntries = telemetryEntries
+    }
+
+    /// Apply captured status metrics onto this snapshot, leaving neighbor and
+    /// telemetry enrichment untouched.
+    func apply(_ metrics: NodeStatusMetrics) {
+        batteryMillivolts = metrics.batteryMillivolts
+        lastSNR = metrics.lastSNR
+        lastRSSI = metrics.lastRSSI
+        noiseFloor = metrics.noiseFloor
+        uptimeSeconds = metrics.uptimeSeconds
+        rxAirtimeSeconds = metrics.rxAirtimeSeconds
+        packetsSent = metrics.packetsSent
+        packetsReceived = metrics.packetsReceived
+        receiveErrors = metrics.receiveErrors
+        postedCount = metrics.postedCount
+        postPushCount = metrics.postPushCount
     }
 
     /// Builds a model instance directly from a DTO.

@@ -52,9 +52,6 @@ final class RepeaterStatusViewModel {
 
     private var repeaterAdminService: RepeaterAdminService?
 
-    /// Buffered neighbor enrichment data received before snapshot ID was set.
-    private var pendingNeighborEntries: [NeighborSnapshotEntry]?
-
     // MARK: - Initialization
 
     init() {}
@@ -105,23 +102,17 @@ final class RepeaterStatusViewModel {
 
     func requestStatus(for session: RemoteNodeSessionDTO) async {
         guard let repeaterAdminService else { return }
-
         if helper.session == nil { helper.session = session }
-        helper.isLoadingStatus = true
-        helper.statusSectionError = nil
 
-        do {
-            let response = try await helper.performWithTransientRetries(operationName: "status") { [repeaterAdminService] timeout in
-                return try await repeaterAdminService.requestStatus(sessionID: session.id, timeout: timeout)
-            }
-            await handleStatusResponse(response)
-        } catch RemoteNodeError.timeout {
-            helper.statusSectionError = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
-            helper.isLoadingStatus = false
-        } catch {
-            helper.statusSectionError = error.localizedDescription
-            helper.isLoadingStatus = false
-        }
+        await helper.runRetryingSectionRequest(
+            operationName: "status",
+            setLoading: { self.helper.isLoadingStatus = $0 },
+            setError: { self.helper.statusSectionError = $0 },
+            operation: { [repeaterAdminService] timeout in
+                try await repeaterAdminService.requestStatus(sessionID: session.id, timeout: timeout)
+            },
+            onSuccess: { await self.handleStatusResponse($0) }
+        )
     }
 
     private func handleStatusResponse(_ response: RemoteNodeStatus) async {
@@ -130,38 +121,26 @@ final class RepeaterStatusViewModel {
             rxAirtimeSeconds: response.repeaterRxAirtimeSeconds,
             receiveErrors: response.receiveErrors
         )
-
-        // Flush any buffered neighbor entries now that snapshot ID is set
-        if let pending = pendingNeighborEntries {
-            pendingNeighborEntries = nil
-            helper.flushPendingNeighborEntries(pending)
-        }
     }
 
     // MARK: - Neighbors
 
     func requestNeighbors(for session: RemoteNodeSessionDTO) async {
         guard let repeaterAdminService else { return }
-
         if helper.session == nil { helper.session = session }
-        isLoadingNeighbors = true
-        neighborsSectionError = nil
 
-        do {
-            let response = try await helper.performWithTransientRetries(operationName: "neighbors") { [repeaterAdminService] timeout in
-                return try await repeaterAdminService.requestNeighbors(sessionID: session.id, timeout: timeout)
-            }
-            handleNeighboursResponse(response)
-        } catch RemoteNodeError.timeout {
-            neighborsSectionError = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
-            isLoadingNeighbors = false
-        } catch {
-            neighborsSectionError = error.localizedDescription
-            isLoadingNeighbors = false
-        }
+        await helper.runRetryingSectionRequest(
+            operationName: "neighbors",
+            setLoading: { self.isLoadingNeighbors = $0 },
+            setError: { self.neighborsSectionError = $0 },
+            operation: { [repeaterAdminService] timeout in
+                try await repeaterAdminService.requestNeighbors(sessionID: session.id, timeout: timeout)
+            },
+            onSuccess: { await self.handleNeighboursResponse($0) }
+        )
     }
 
-    func handleNeighboursResponse(_ response: NeighboursResponse) {
+    func handleNeighboursResponse(_ response: NeighboursResponse) async {
         self.neighbors = response.neighbours
         self.isLoadingNeighbors = false
         self.neighborsLoaded = true
@@ -169,9 +148,7 @@ final class RepeaterStatusViewModel {
         let entries = response.neighbours.map {
             NeighborSnapshotEntry(publicKeyPrefix: $0.publicKeyPrefix, snr: $0.snr, secondsAgo: $0.secondsAgo)
         }
-        if !helper.enrichWithNeighbors(entries) {
-            pendingNeighborEntries = entries
-        }
+        await helper.enrichNeighbors(entries)
     }
 
     // MARK: - Discovery
@@ -228,23 +205,17 @@ final class RepeaterStatusViewModel {
 
     func requestTelemetry(for session: RemoteNodeSessionDTO) async {
         guard let repeaterAdminService else { return }
-
         if helper.session == nil { helper.session = session }
-        helper.isLoadingTelemetry = true
-        helper.telemetrySectionError = nil
 
-        do {
-            let response = try await helper.performWithTransientRetries(operationName: "telemetry") { [repeaterAdminService] timeout in
-                return try await repeaterAdminService.requestTelemetry(sessionID: session.id, timeout: timeout)
-            }
-            helper.handleTelemetryResponse(response)
-        } catch RemoteNodeError.timeout {
-            helper.telemetrySectionError = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
-            helper.isLoadingTelemetry = false
-        } catch {
-            helper.telemetrySectionError = error.localizedDescription
-            helper.isLoadingTelemetry = false
-        }
+        await helper.runRetryingSectionRequest(
+            operationName: "telemetry",
+            setLoading: { self.helper.isLoadingTelemetry = $0 },
+            setError: { self.helper.telemetrySectionError = $0 },
+            operation: { [repeaterAdminService] timeout in
+                try await repeaterAdminService.requestTelemetry(sessionID: session.id, timeout: timeout)
+            },
+            onSuccess: { await self.helper.handleTelemetryResponse($0) }
+        )
     }
 
     // MARK: - Owner Info
@@ -253,20 +224,15 @@ final class RepeaterStatusViewModel {
         guard let repeaterAdminService else { return }
         if helper.session == nil { helper.session = session }
 
-        ownerInfoError = nil
-        isLoadingOwnerInfo = true
-
-        do {
-            let response = try await helper.performWithTransientRetries(operationName: "ownerInfo") { [repeaterAdminService] timeout in
-                return try await repeaterAdminService.requestOwnerInfo(sessionID: session.id, timeout: timeout)
-            }
-            ownerInfo = response.ownerInfo
-        } catch RemoteNodeError.timeout {
-            ownerInfoError = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
-        } catch {
-            ownerInfoError = error.localizedDescription
-        }
-        isLoadingOwnerInfo = false
+        await helper.runRetryingSectionRequest(
+            operationName: "ownerInfo",
+            setLoading: { self.isLoadingOwnerInfo = $0 },
+            setError: { self.ownerInfoError = $0 },
+            operation: { [repeaterAdminService] timeout in
+                try await repeaterAdminService.requestOwnerInfo(sessionID: session.id, timeout: timeout)
+            },
+            onSuccess: { self.ownerInfo = $0.ownerInfo }
+        )
     }
 
     // MARK: - Repeater-Only Display

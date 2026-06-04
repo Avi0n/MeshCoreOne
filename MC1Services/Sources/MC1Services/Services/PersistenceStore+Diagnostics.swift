@@ -602,6 +602,62 @@ extension PersistenceStore {
         try modelContext.save()
     }
 
+    /// Atomically capture a status, telemetry, and/or neighbor snapshot for a node.
+    ///
+    /// The fetch-latest decision and the insert-or-enrich both run in this single
+    /// `@ModelActor` method body with no `await`, so two concurrent captures
+    /// serialize and the second observes the first's row — there is no window for a
+    /// duplicate in-window insert. Keeping the body suspension-free is the whole
+    /// point; an `await` here would reopen that race. Mirrors the same-isolation
+    /// guarantee `insertPendingSendAssigningSequence` relies on.
+    ///
+    /// Within `NodeSnapshotPolicy.minimumInterval` of the latest snapshot the
+    /// capture enriches that row: status fields are applied only when the row is
+    /// still telemetry-only (`uptimeSeconds == nil`), preserving the
+    /// one-status-point-per-window throttle; telemetry and neighbor arrays are
+    /// applied whenever supplied. Outside the window a new snapshot is inserted.
+    public func recordNodeStatusSnapshot(
+        nodePublicKey: Data,
+        status: NodeStatusMetrics?,
+        telemetry: [TelemetrySnapshotEntry]?,
+        neighbors: [NeighborSnapshotEntry]?
+    ) throws -> UUID {
+        var latestDescriptor = FetchDescriptor<NodeStatusSnapshot>(
+            predicate: #Predicate { $0.nodePublicKey == nodePublicKey },
+            sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
+        )
+        latestDescriptor.fetchLimit = 1
+
+        if let latest = try modelContext.fetch(latestDescriptor).first,
+           latest.timestamp.distance(to: .now) < NodeSnapshotPolicy.minimumInterval {
+            if let status, latest.uptimeSeconds == nil {
+                latest.apply(status)
+            }
+            if let telemetry {
+                latest.telemetryEntries = telemetry
+            }
+            if let neighbors {
+                latest.neighborSnapshots = neighbors
+            }
+            try modelContext.save()
+            return latest.id
+        }
+
+        let snapshot = NodeStatusSnapshot(
+            nodePublicKey: nodePublicKey,
+            telemetryEntries: telemetry
+        )
+        if let status {
+            snapshot.apply(status)
+        }
+        if let neighbors {
+            snapshot.neighborSnapshots = neighbors
+        }
+        modelContext.insert(snapshot)
+        try modelContext.save()
+        return snapshot.id
+    }
+
     public func deleteOldNodeStatusSnapshots(olderThan date: Date) throws {
         try modelContext.delete(
             model: NodeStatusSnapshot.self,

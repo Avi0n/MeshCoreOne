@@ -485,6 +485,17 @@ public protocol PersistenceStoreProtocol: Actor {
         telemetryEntries: [TelemetrySnapshotEntry]
     ) async throws -> UUID
 
+    /// Atomically capture a status, telemetry, and/or neighbor snapshot for a node,
+    /// enriching the latest in-window snapshot or inserting a new one. Returns the
+    /// snapshot ID. The concrete `PersistenceStore` performs the read-modify-write
+    /// in a single `@ModelActor` turn so concurrent captures cannot duplicate a row.
+    func recordNodeStatusSnapshot(
+        nodePublicKey: Data,
+        status: NodeStatusMetrics?,
+        telemetry: [TelemetrySnapshotEntry]?,
+        neighbors: [NeighborSnapshotEntry]?
+    ) async throws -> UUID
+
     /// Delete snapshots older than the given date
     func deleteOldNodeStatusSnapshots(olderThan date: Date) async throws
 }

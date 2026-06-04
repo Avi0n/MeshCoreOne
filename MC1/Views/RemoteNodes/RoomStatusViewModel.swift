@@ -60,23 +60,17 @@ final class RoomStatusViewModel {
 
     func requestStatus(for session: RemoteNodeSessionDTO) async {
         guard let roomAdminService else { return }
-
         if helper.session == nil { helper.session = session }
-        helper.isLoadingStatus = true
-        helper.statusSectionError = nil
 
-        do {
-            let response = try await helper.performWithTransientRetries(operationName: "status") { [roomAdminService] timeout in
-                return try await roomAdminService.requestStatus(sessionID: session.id, timeout: timeout)
-            }
-            await handleStatusResponse(response)
-        } catch RemoteNodeError.timeout {
-            helper.statusSectionError = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
-            helper.isLoadingStatus = false
-        } catch {
-            helper.statusSectionError = error.localizedDescription
-            helper.isLoadingStatus = false
-        }
+        await helper.runRetryingSectionRequest(
+            operationName: "status",
+            setLoading: { self.helper.isLoadingStatus = $0 },
+            setError: { self.helper.statusSectionError = $0 },
+            operation: { [roomAdminService] timeout in
+                try await roomAdminService.requestStatus(sessionID: session.id, timeout: timeout)
+            },
+            onSuccess: { await self.handleStatusResponse($0) }
+        )
     }
 
     private func handleStatusResponse(_ response: RemoteNodeStatus) async {
@@ -91,23 +85,17 @@ final class RoomStatusViewModel {
 
     func requestTelemetry(for session: RemoteNodeSessionDTO) async {
         guard let roomAdminService else { return }
-
         if helper.session == nil { helper.session = session }
-        helper.isLoadingTelemetry = true
-        helper.telemetrySectionError = nil
 
-        do {
-            let response = try await helper.performWithTransientRetries(operationName: "telemetry") { [roomAdminService] timeout in
-                return try await roomAdminService.requestTelemetry(sessionID: session.id, timeout: timeout)
-            }
-            helper.handleTelemetryResponse(response)
-        } catch RemoteNodeError.timeout {
-            helper.telemetrySectionError = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
-            helper.isLoadingTelemetry = false
-        } catch {
-            helper.telemetrySectionError = error.localizedDescription
-            helper.isLoadingTelemetry = false
-        }
+        await helper.runRetryingSectionRequest(
+            operationName: "telemetry",
+            setLoading: { self.helper.isLoadingTelemetry = $0 },
+            setError: { self.helper.telemetrySectionError = $0 },
+            operation: { [roomAdminService] timeout in
+                try await roomAdminService.requestTelemetry(sessionID: session.id, timeout: timeout)
+            },
+            onSuccess: { await self.helper.handleTelemetryResponse($0) }
+        )
     }
 
     // MARK: - Room-Only Display

@@ -56,17 +56,12 @@ final class NodeStatusHelper {
     /// Whether the telemetry disclosure group is expanded
     var telemetryExpanded = false
 
-    /// Error message if any
-    var errorMessage: String?
-
-    /// Error text owned by the status counters section. Kept separate from
-    /// `errorMessage` so a status failure surfaces only under the status section
-    /// once sections load independently.
+    /// Error text owned by the status counters section, scoped so a status
+    /// failure surfaces only under the status section once sections load independently.
     var statusSectionError: String?
 
-    /// Error text owned by the telemetry section. Kept separate from
-    /// `errorMessage` so a telemetry failure surfaces only under the telemetry
-    /// section once sections load independently.
+    /// Error text owned by the telemetry section, scoped so a telemetry
+    /// failure surfaces only under the telemetry section once sections load independently.
     var telemetrySectionError: String?
 
     // MARK: - OCV Curve Properties
@@ -83,11 +78,6 @@ final class NodeStatusHelper {
     private(set) var nodeSnapshotService: NodeSnapshotService?
 
     // MARK: - Snapshot State
-
-    /// ID of the snapshot to enrich with telemetry and neighbor data.
-    /// A status apply sets it from the status snapshot; a telemetry apply with
-    /// no status snapshot yet sets it from a telemetry-only snapshot it persists.
-    private var currentSnapshotID: UUID?
 
     /// Previous snapshot for delta display
     private(set) var previousSnapshot: NodeStatusSnapshotDTO?
@@ -160,6 +150,32 @@ final class NodeStatusHelper {
         }
     }
 
+    /// Drive a section request through the shared retry budget, owning the
+    /// loading flag and section-error scaffold that the admin status view models
+    /// otherwise repeat verbatim. The `setLoading`/`setError` closures target the
+    /// section's own state (some live on this helper, some on the view model);
+    /// `onSuccess` applies the response. A `RemoteNodeError.timeout` surfaces the
+    /// shared timed-out string, any other error its localized description.
+    func runRetryingSectionRequest<T>(
+        operationName: String,
+        setLoading: @MainActor (Bool) -> Void,
+        setError: @MainActor (String?) -> Void,
+        operation: @escaping @Sendable (Duration) async throws -> T,
+        onSuccess: @MainActor (T) async -> Void
+    ) async {
+        setLoading(true)
+        setError(nil)
+        do {
+            let response = try await performWithTransientRetries(operationName: operationName, operation: operation)
+            await onSuccess(response)
+        } catch RemoteNodeError.timeout {
+            setError(L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut)
+        } catch {
+            setError(error.localizedDescription)
+        }
+        setLoading(false)
+    }
+
     // MARK: - Status Response Handling
 
     /// Handle a status response, saving a snapshot with role-specific fields.
@@ -183,51 +199,38 @@ final class NodeStatusHelper {
 
         guard let nodeSnapshotService, let session else { return }
 
-        let prev = await nodeSnapshotService.previousSnapshot(
+        self.previousSnapshot = await nodeSnapshotService.previousSnapshot(
             for: session.publicKey,
             before: .now
         )
-        self.previousSnapshot = prev
 
-        let snapshotID = await nodeSnapshotService.saveStatusSnapshot(
-            nodePublicKey: session.publicKey,
-            batteryMillivolts: response.batteryMillivolts,
-            lastSNR: response.lastSNR,
-            lastRSSI: Int16(clamping: response.lastRSSI),
-            noiseFloor: Int16(clamping: response.noiseFloor),
-            uptimeSeconds: response.uptimeSeconds,
+        let metrics = NodeStatusMetrics(
+            status: response,
             rxAirtimeSeconds: rxAirtimeSeconds,
-            packetsSent: response.packetsSent,
-            packetsReceived: response.packetsReceived,
             receiveErrors: receiveErrors,
             postedCount: postedCount,
             postPushCount: postPushCount
         )
-        if let snapshotID {
-            self.currentSnapshotID = snapshotID
-        } else if let prevID = prev?.id {
-            self.currentSnapshotID = prevID
-        }
+        _ = await nodeSnapshotService.recordSnapshot(
+            nodePublicKey: session.publicKey,
+            status: metrics
+        )
     }
 
-    /// Flush buffered neighbor enrichment data. Called by repeater VM after
-    /// status response sets `currentSnapshotID`.
-    func flushPendingNeighborEntries(_ entries: [NeighborSnapshotEntry]) {
-        guard let snapshotID = currentSnapshotID else { return }
-        Task { await nodeSnapshotService?.enrichWithNeighbors(entries, snapshotID: snapshotID) }
-    }
-
-    /// Enrich the current snapshot with neighbor data, or return `false` if
-    /// the snapshot ID isn't ready yet (caller should buffer).
-    func enrichWithNeighbors(_ entries: [NeighborSnapshotEntry]) -> Bool {
-        guard let snapshotID = currentSnapshotID else { return false }
-        Task { await nodeSnapshotService?.enrichWithNeighbors(entries, snapshotID: snapshotID) }
-        return true
+    /// Capture neighbor data onto the node's current in-window snapshot, creating
+    /// one if none exists yet. Safe to call before a status response: the store
+    /// enriches the latest in-window row or inserts a neighbor-bearing snapshot.
+    func enrichNeighbors(_ entries: [NeighborSnapshotEntry]) async {
+        guard let nodeSnapshotService, let nodePublicKey = effectivePublicKey else { return }
+        _ = await nodeSnapshotService.recordSnapshot(
+            nodePublicKey: nodePublicKey,
+            neighbors: entries
+        )
     }
 
     // MARK: - Telemetry Response Handling
 
-    func handleTelemetryResponse(_ response: TelemetryResponse) {
+    func handleTelemetryResponse(_ response: TelemetryResponse) async {
         guard let expectedPrefix = effectivePublicKeyPrefix,
               response.publicKeyPrefix == expectedPrefix else {
             return
@@ -251,27 +254,14 @@ final class NodeStatusHelper {
             guard let value = numericValue else { return nil }
             return TelemetrySnapshotEntry(channel: Int(dp.channel), type: dp.typeName, value: value)
         }
-        guard !entries.isEmpty else { return }
+        guard !entries.isEmpty,
+              let nodeSnapshotService,
+              let nodePublicKey = effectivePublicKey else { return }
 
-        if let snapshotID = currentSnapshotID {
-            Task { await nodeSnapshotService?.enrichWithTelemetry(entries, snapshotID: snapshotID) }
-        } else if let nodeSnapshotService, let nodePublicKey = effectivePublicKey {
-            // No status snapshot exists yet (telemetry expanded without status).
-            // Persist a telemetry-only snapshot so the displayed data survives,
-            // and retarget enrichment at it. A status response can set
-            // `currentSnapshotID` during the save suspension, so adopt the
-            // telemetry-only id only when the field is still nil on resume —
-            // a status snapshot is the preferred enrichment target.
-            Task {
-                let savedID = await nodeSnapshotService.saveTelemetryOnlySnapshot(
-                    nodePublicKey: nodePublicKey,
-                    telemetryEntries: entries
-                )
-                if let savedID, self.currentSnapshotID == nil {
-                    self.currentSnapshotID = savedID
-                }
-            }
-        }
+        _ = await nodeSnapshotService.recordSnapshot(
+            nodePublicKey: nodePublicKey,
+            telemetry: entries
+        )
     }
 
     // MARK: - Telemetry Grouping

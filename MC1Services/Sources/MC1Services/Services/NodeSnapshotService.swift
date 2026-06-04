@@ -6,97 +6,30 @@ public actor NodeSnapshotService {
     private let dataStore: any PersistenceStoreProtocol
     private let logger = Logger(subsystem: "com.mc1.services", category: "NodeSnapshotService")
 
-    /// Minimum interval between snapshots for the same node (15 minutes)
-    private static let minimumInterval: TimeInterval = 15 * 60
-
     public init(dataStore: any PersistenceStoreProtocol) {
         self.dataStore = dataStore
     }
 
-    /// Save a status snapshot if enough time has passed since the last one.
-    /// Returns the snapshot ID if saved, nil if throttled.
-    public func saveStatusSnapshot(
+    /// Capture a status, telemetry, and/or neighbor reading for a node, enriching
+    /// the latest in-window snapshot or inserting a new one. Returns the snapshot
+    /// ID so callers can target later enrichment, or nil on persistence failure.
+    /// The throttle check and the write are atomic in the store, so concurrent
+    /// captures never duplicate an in-window row.
+    public func recordSnapshot(
         nodePublicKey: Data,
-        batteryMillivolts: UInt16?,
-        lastSNR: Double?,
-        lastRSSI: Int16?,
-        noiseFloor: Int16?,
-        uptimeSeconds: UInt32?,
-        rxAirtimeSeconds: UInt32?,
-        packetsSent: UInt32?,
-        packetsReceived: UInt32?,
-        receiveErrors: UInt32?,
-        postedCount: UInt16? = nil,
-        postPushCount: UInt16? = nil
+        status: NodeStatusMetrics? = nil,
+        telemetry: [TelemetrySnapshotEntry]? = nil,
+        neighbors: [NeighborSnapshotEntry]? = nil
     ) async -> UUID? {
         do {
-            if let latest = try await dataStore.fetchLatestNodeStatusSnapshot(nodePublicKey: nodePublicKey),
-               latest.timestamp.distance(to: .now) < Self.minimumInterval {
-                logger.debug("Snapshot throttled for node (last: \(latest.timestamp))")
-                return nil
-            }
-
-            let id = try await dataStore.saveNodeStatusSnapshot(
+            return try await dataStore.recordNodeStatusSnapshot(
                 nodePublicKey: nodePublicKey,
-                batteryMillivolts: batteryMillivolts,
-                lastSNR: lastSNR,
-                lastRSSI: lastRSSI,
-                noiseFloor: noiseFloor,
-                uptimeSeconds: uptimeSeconds,
-                rxAirtimeSeconds: rxAirtimeSeconds,
-                packetsSent: packetsSent,
-                packetsReceived: packetsReceived,
-                receiveErrors: receiveErrors,
-                postedCount: postedCount,
-                postPushCount: postPushCount
+                status: status,
+                telemetry: telemetry,
+                neighbors: neighbors
             )
-            logger.info("Saved status snapshot for node")
-            return id
         } catch {
-            logger.error("Failed to save snapshot: \(error)")
-            return nil
-        }
-    }
-
-    /// Enrich an existing snapshot with neighbor data.
-    public func enrichWithNeighbors(_ neighbors: [NeighborSnapshotEntry], snapshotID: UUID) async {
-        do {
-            try await dataStore.updateSnapshotNeighbors(id: snapshotID, neighbors: neighbors)
-        } catch {
-            logger.error("Failed to enrich snapshot with neighbors: \(error)")
-        }
-    }
-
-    /// Enrich an existing snapshot with telemetry data.
-    public func enrichWithTelemetry(_ telemetry: [TelemetrySnapshotEntry], snapshotID: UUID) async {
-        do {
-            try await dataStore.updateSnapshotTelemetry(id: snapshotID, telemetry: telemetry)
-        } catch {
-            logger.error("Failed to enrich snapshot with telemetry: \(error)")
-        }
-    }
-
-    /// Save a telemetry-only snapshot if enough time has passed since the last one.
-    /// Returns the snapshot ID if saved, nil if throttled.
-    public func saveTelemetryOnlySnapshot(
-        nodePublicKey: Data,
-        telemetryEntries: [TelemetrySnapshotEntry]
-    ) async -> UUID? {
-        do {
-            if let latest = try await dataStore.fetchLatestNodeStatusSnapshot(nodePublicKey: nodePublicKey),
-               latest.timestamp.distance(to: .now) < Self.minimumInterval {
-                logger.debug("Telemetry snapshot throttled for node (last: \(latest.timestamp))")
-                return nil
-            }
-
-            let id = try await dataStore.saveTelemetryOnlySnapshot(
-                nodePublicKey: nodePublicKey,
-                telemetryEntries: telemetryEntries
-            )
-            logger.info("Saved telemetry-only snapshot for node")
-            return id
-        } catch {
-            logger.error("Failed to save telemetry snapshot: \(error)")
+            logger.error("Failed to record snapshot: \(error)")
             return nil
         }
     }
