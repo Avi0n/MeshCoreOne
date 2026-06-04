@@ -90,6 +90,9 @@
 /* TODO: translate */
 "remoteNodes.settings.tab.cli" = "CLI";
 
+/* Location: NodeSettingsView.swift - Telemetry tab label */
+"remoteNodes.settings.tab.telemetry" = "Telemetrie";
+
 /* Location: NodeSettingsView.swift - View mode picker label */
 /* TODO: translate */
 "remoteNodes.settings.tab.picker" = "View mode";

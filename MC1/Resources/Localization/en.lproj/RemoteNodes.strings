@@ -88,6 +88,9 @@
 /* Location: NodeSettingsView.swift - CLI tab label */
 "remoteNodes.settings.tab.cli" = "CLI";
 
+/* Location: NodeSettingsView.swift - Telemetry tab label */
+"remoteNodes.settings.tab.telemetry" = "Telemetry";
+
 /* Location: NodeSettingsView.swift - View mode picker label */
 "remoteNodes.settings.tab.picker" = "View mode";
 

@@ -3174,6 +3174,8 @@ public enum L10n {
           public static let picker = L10n.tr("RemoteNodes", "remoteNodes.settings.tab.picker", fallback: "View mode")
           /// Location: NodeSettingsView.swift - Settings tab label
           public static let settings = L10n.tr("RemoteNodes", "remoteNodes.settings.tab.settings", fallback: "Settings")
+          /// Location: NodeSettingsView.swift - Telemetry tab label
+          public static let telemetry = L10n.tr("RemoteNodes", "remoteNodes.settings.tab.telemetry", fallback: "Telemetry")
         }
       }
       public enum Status {
