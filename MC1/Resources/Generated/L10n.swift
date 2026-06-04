@@ -3247,7 +3247,7 @@ public enum L10n {
         public static let possibleMatchTitle = L10n.tr("RemoteNodes", "remoteNodes.status.possibleMatchTitle", fallback: "Possible Match")
         /// Location: RepeaterStatusView.swift - Receive errors label
         public static let receiveErrors = L10n.tr("RemoteNodes", "remoteNodes.status.receiveErrors", fallback: "Packet Errors Received")
-        /// Location: RepeaterStatusView.swift, RoomStatusView.swift - Refresh button accessibility label
+        /// Location: NodeTelemetryView.swift - Refresh button accessibility label
         public static let refresh = L10n.tr("RemoteNodes", "remoteNodes.status.refresh", fallback: "Refresh")
         /// Location: RepeaterStatusViewModel.swift - Request timed out
         public static let requestTimedOut = L10n.tr("RemoteNodes", "remoteNodes.status.requestTimedOut", fallback: "Request timed out")
@@ -3290,11 +3290,11 @@ public enum L10n {
           return L10n.tr("RemoteNodes", "remoteNodes.status.uptimeMinutes", p1, fallback: "%dm")
         }
         public enum Accessibility {
-          /// Location: RepeaterStatusView.swift - Per-section reload button accessibility label for owner info
+          /// Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for owner info
           public static let reloadOwnerInfo = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadOwnerInfo", fallback: "Reload contact info")
-          /// Location: SharedNodeViews.swift - Per-section reload button accessibility label for the status counters
+          /// Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for the status counters
           public static let reloadStatus = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadStatus", fallback: "Reload status")
-          /// Location: SharedNodeViews.swift - Per-section reload button accessibility label for telemetry
+          /// Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for telemetry
           public static let reloadTelemetry = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadTelemetry", fallback: "Reload telemetry")
         }
       }

@@ -354,7 +354,7 @@ struct NodeSnapshotServiceTests {
         #expect(snapshots[0].neighborSnapshots?.count == 1, "Neighbor entry should persist")
     }
 
-    // MARK: - Race-fix coverage
+    // MARK: - Concurrent and out-of-order capture coverage
 
     @Test("Telemetry-first then status-within-window backfills status onto the single snapshot")
     func statusEnrichesTelemetryOnlySnapshot() async throws {

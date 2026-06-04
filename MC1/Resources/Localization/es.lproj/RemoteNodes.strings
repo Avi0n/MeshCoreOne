@@ -533,16 +533,16 @@
 /* Location: RepeaterStatusView.swift - Battery curve section footer */
 "remoteNodes.status.batteryCurveFooter" = "Mapeo de voltaje a porcentaje para estimar el nivel de batería.";
 
-/* Location: RepeaterStatusView.swift, RoomStatusView.swift - Refresh button accessibility label */
+/* Location: NodeTelemetryView.swift - Refresh button accessibility label */
 "remoteNodes.status.refresh" = "Actualizar";
 
-/* Location: SharedNodeViews.swift - Per-section reload button accessibility label for the status counters */
+/* Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for the status counters */
 "remoteNodes.status.accessibility.reloadStatus" = "Recargar estado";
 
-/* Location: SharedNodeViews.swift - Per-section reload button accessibility label for telemetry */
+/* Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for telemetry */
 "remoteNodes.status.accessibility.reloadTelemetry" = "Recargar telemetría";
 
-/* Location: RepeaterStatusView.swift - Per-section reload button accessibility label for owner info */
+/* Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for owner info */
 "remoteNodes.status.accessibility.reloadOwnerInfo" = "Recargar información de contacto";
 
 // MARK: - History

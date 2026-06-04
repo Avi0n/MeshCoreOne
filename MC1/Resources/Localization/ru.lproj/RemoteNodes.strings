@@ -530,16 +530,16 @@
 /* Location: RepeaterStatusView.swift - Battery curve section footer */
 "remoteNodes.status.batteryCurveFooter" = "Соответствие напряжения и процента для оценки уровня заряда батареи.";
 
-/* Location: RepeaterStatusView.swift, RoomStatusView.swift - Refresh button accessibility label */
+/* Location: NodeTelemetryView.swift - Refresh button accessibility label */
 "remoteNodes.status.refresh" = "Обновить";
 
-/* Location: SharedNodeViews.swift - Per-section reload button accessibility label for the status counters */
+/* Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for the status counters */
 "remoteNodes.status.accessibility.reloadStatus" = "Обновить статус";
 
-/* Location: SharedNodeViews.swift - Per-section reload button accessibility label for telemetry */
+/* Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for telemetry */
 "remoteNodes.status.accessibility.reloadTelemetry" = "Обновить телеметрию";
 
-/* Location: RepeaterStatusView.swift - Per-section reload button accessibility label for owner info */
+/* Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for owner info */
 "remoteNodes.status.accessibility.reloadOwnerInfo" = "Обновить контактную информацию";
 
 // MARK: - History
