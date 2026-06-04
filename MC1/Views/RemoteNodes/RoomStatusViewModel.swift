@@ -29,8 +29,9 @@ final class RoomStatusViewModel {
     func registerHandlers(appState: AppState) async {
         guard let roomAdminService = appState.services?.roomAdminService else { return }
 
-        await roomAdminService.clearHandlers()
-
+        // Set only the slots this view model owns. The admin service is shared
+        // with the settings/CLI view model, so clearing here would drop its CLI
+        // handler and silently break late CLI-response delivery.
         await roomAdminService.setStatusHandler { [weak self] status in
             await self?.handleStatusResponse(status)
         }
@@ -40,6 +41,14 @@ final class RoomStatusViewModel {
         }
     }
 
+    /// Clear every handler slot on the shared admin service. Only for true
+    /// surface teardown (sheet dismiss); calling it on a segment switch would
+    /// wipe the CLI handler the settings view model relies on.
+    func cleanup(appState: AppState) async {
+        guard let roomAdminService = appState.services?.roomAdminService else { return }
+        await roomAdminService.clearHandlers()
+    }
+
     // MARK: - Status
 
     func requestStatus(for session: RemoteNodeSessionDTO) async {
@@ -47,7 +56,7 @@ final class RoomStatusViewModel {
 
         if helper.session == nil { helper.session = session }
         helper.isLoadingStatus = true
-        helper.errorMessage = nil
+        helper.statusSectionError = nil
 
         do {
             let response = try await helper.performWithTransientRetries(operationName: "status") { [roomAdminService] timeout in
@@ -55,10 +64,10 @@ final class RoomStatusViewModel {
             }
             await handleStatusResponse(response)
         } catch RemoteNodeError.timeout {
-            helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
+            helper.statusSectionError = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
             helper.isLoadingStatus = false
         } catch {
-            helper.errorMessage = error.localizedDescription
+            helper.statusSectionError = error.localizedDescription
             helper.isLoadingStatus = false
         }
     }
@@ -78,7 +87,7 @@ final class RoomStatusViewModel {
 
         if helper.session == nil { helper.session = session }
         helper.isLoadingTelemetry = true
-        helper.errorMessage = nil
+        helper.telemetrySectionError = nil
 
         do {
             let response = try await helper.performWithTransientRetries(operationName: "telemetry") { [roomAdminService] timeout in
@@ -86,10 +95,10 @@ final class RoomStatusViewModel {
             }
             helper.handleTelemetryResponse(response)
         } catch RemoteNodeError.timeout {
-            helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
+            helper.telemetrySectionError = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
             helper.isLoadingTelemetry = false
         } catch {
-            helper.errorMessage = error.localizedDescription
+            helper.telemetrySectionError = error.localizedDescription
             helper.isLoadingTelemetry = false
         }
     }

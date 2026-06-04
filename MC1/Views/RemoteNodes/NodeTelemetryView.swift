@@ -12,7 +12,7 @@ struct NodeTelemetryView: View {
     var body: some View {
         NavigationStack {
             List {
-                NodeTelemetryDisclosureSection(helper: viewModel.helper) {
+                NodeTelemetryDisclosureSection(helper: viewModel.helper, connectionState: appState.connectionState) {
                     await viewModel.requestTelemetry()
                 }
             }

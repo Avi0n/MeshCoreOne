@@ -533,6 +533,15 @@
 /* Location: RepeaterStatusView.swift, RoomStatusView.swift - Refresh button accessibility label */
 "remoteNodes.status.refresh" = "Оновити";
 
+/* Location: SharedNodeViews.swift - Per-section reload button accessibility label for the status counters */
+"remoteNodes.status.accessibility.reloadStatus" = "Оновити статус";
+
+/* Location: SharedNodeViews.swift - Per-section reload button accessibility label for telemetry */
+"remoteNodes.status.accessibility.reloadTelemetry" = "Оновити телеметрію";
+
+/* Location: RepeaterStatusView.swift - Per-section reload button accessibility label for owner info */
+"remoteNodes.status.accessibility.reloadOwnerInfo" = "Оновити контактну інформацію";
+
 // MARK: - History
 
 /* Location: RepeaterStatusViewModel.swift - Delta timestamp (minutes ago) */

@@ -3289,6 +3289,14 @@ public enum L10n {
         public static func uptimeMinutes(_ p1: Int) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.status.uptimeMinutes", p1, fallback: "%dm")
         }
+        public enum Accessibility {
+          /// Location: RepeaterStatusView.swift - Per-section reload button accessibility label for owner info
+          public static let reloadOwnerInfo = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadOwnerInfo", fallback: "Reload contact info")
+          /// Location: SharedNodeViews.swift - Per-section reload button accessibility label for the status counters
+          public static let reloadStatus = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadStatus", fallback: "Reload status")
+          /// Location: SharedNodeViews.swift - Per-section reload button accessibility label for telemetry
+          public static let reloadTelemetry = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadTelemetry", fallback: "Reload telemetry")
+        }
       }
     }
   }

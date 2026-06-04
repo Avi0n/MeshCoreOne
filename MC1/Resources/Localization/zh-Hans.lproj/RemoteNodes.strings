@@ -536,6 +536,15 @@
 /* Location: RepeaterStatusView.swift, RoomStatusView.swift - Refresh button accessibility label */
 "remoteNodes.status.refresh" = "刷新";
 
+/* Location: SharedNodeViews.swift - Per-section reload button accessibility label for the status counters */
+"remoteNodes.status.accessibility.reloadStatus" = "重新加载状态";
+
+/* Location: SharedNodeViews.swift - Per-section reload button accessibility label for telemetry */
+"remoteNodes.status.accessibility.reloadTelemetry" = "重新加载遥测数据";
+
+/* Location: RepeaterStatusView.swift - Per-section reload button accessibility label for owner info */
+"remoteNodes.status.accessibility.reloadOwnerInfo" = "重新加载联系信息";
+
 // MARK: - History
 
 /* Location: RepeaterStatusViewModel.swift - Delta timestamp (minutes ago) */

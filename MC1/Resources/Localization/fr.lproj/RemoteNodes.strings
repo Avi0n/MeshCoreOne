@@ -536,6 +536,15 @@
 /* Location: RepeaterStatusView.swift, RoomStatusView.swift - Refresh button accessibility label */
 "remoteNodes.status.refresh" = "Actualiser";
 
+/* Location: SharedNodeViews.swift - Per-section reload button accessibility label for the status counters */
+"remoteNodes.status.accessibility.reloadStatus" = "Recharger le statut";
+
+/* Location: SharedNodeViews.swift - Per-section reload button accessibility label for telemetry */
+"remoteNodes.status.accessibility.reloadTelemetry" = "Recharger la télémétrie";
+
+/* Location: RepeaterStatusView.swift - Per-section reload button accessibility label for owner info */
+"remoteNodes.status.accessibility.reloadOwnerInfo" = "Recharger les informations de contact";
+
 // MARK: - History
 
 /* Location: RepeaterStatusViewModel.swift - Delta timestamp (minutes ago) */

@@ -43,6 +43,13 @@ final class NodeStatusHelper {
     var isLoadingStatus = false
     var isLoadingTelemetry = false
 
+    /// Whether a status response has been applied since the sheet opened.
+    /// Drives lazy loading of the status counters section.
+    var statusLoaded = false
+
+    /// Whether the status disclosure group is expanded
+    var statusExpanded = false
+
     /// Whether telemetry has been loaded at least once (for refresh logic)
     var telemetryLoaded = false
 
@@ -51,6 +58,16 @@ final class NodeStatusHelper {
 
     /// Error message if any
     var errorMessage: String?
+
+    /// Error text owned by the status counters section. Kept separate from
+    /// `errorMessage` so a status failure surfaces only under the status section
+    /// once sections load independently.
+    var statusSectionError: String?
+
+    /// Error text owned by the telemetry section. Kept separate from
+    /// `errorMessage` so a telemetry failure surfaces only under the telemetry
+    /// section once sections load independently.
+    var telemetrySectionError: String?
 
     // MARK: - OCV Curve Properties
 
@@ -67,15 +84,10 @@ final class NodeStatusHelper {
 
     // MARK: - Snapshot State
 
-    /// ID of the current session's snapshot (for enrichment).
-    /// Because `handleStatusResponse` suspends while saving the snapshot,
-    /// telemetry handlers may fire before this is set.
-    /// In that case, enrichment data is buffered in `pendingTelemetryEntries`
-    /// and flushed once the ID is available.
+    /// ID of the snapshot to enrich with telemetry and neighbor data.
+    /// A status apply sets it from the status snapshot; a telemetry apply with
+    /// no status snapshot yet sets it from a telemetry-only snapshot it persists.
     private var currentSnapshotID: UUID?
-
-    /// Buffered enrichment data received before `currentSnapshotID` was set.
-    private var pendingTelemetryEntries: [TelemetrySnapshotEntry]?
 
     /// Previous snapshot for delta display
     private(set) var previousSnapshot: NodeStatusSnapshotDTO?
@@ -165,7 +177,9 @@ final class NodeStatusHelper {
             return
         }
         self.status = response
+        self.statusLoaded = true
         self.isLoadingStatus = false
+        self.statusSectionError = nil
 
         guard let nodeSnapshotService, let session else { return }
 
@@ -193,13 +207,6 @@ final class NodeStatusHelper {
             self.currentSnapshotID = snapshotID
         } else if let prevID = prev?.id {
             self.currentSnapshotID = prevID
-        }
-
-        if let enrichmentTarget = self.currentSnapshotID {
-            if let pending = pendingTelemetryEntries {
-                pendingTelemetryEntries = nil
-                Task { await nodeSnapshotService.enrichWithTelemetry(pending, snapshotID: enrichmentTarget) }
-            }
         }
     }
 
@@ -229,6 +236,7 @@ final class NodeStatusHelper {
         self.cachedDataPoints = response.dataPoints.filter { $0.channel != 0 }
         self.isLoadingTelemetry = false
         self.telemetryLoaded = true
+        self.telemetrySectionError = nil
 
         let entries: [TelemetrySnapshotEntry] = cachedDataPoints.compactMap { dp in
             let numericValue: Double?
@@ -243,11 +251,25 @@ final class NodeStatusHelper {
             guard let value = numericValue else { return nil }
             return TelemetrySnapshotEntry(channel: Int(dp.channel), type: dp.typeName, value: value)
         }
-        if !entries.isEmpty {
-            if let snapshotID = currentSnapshotID {
-                Task { await nodeSnapshotService?.enrichWithTelemetry(entries, snapshotID: snapshotID) }
-            } else {
-                pendingTelemetryEntries = entries
+        guard !entries.isEmpty else { return }
+
+        if let snapshotID = currentSnapshotID {
+            Task { await nodeSnapshotService?.enrichWithTelemetry(entries, snapshotID: snapshotID) }
+        } else if let nodeSnapshotService, let nodePublicKey = effectivePublicKey {
+            // No status snapshot exists yet (telemetry expanded without status).
+            // Persist a telemetry-only snapshot so the displayed data survives,
+            // and retarget enrichment at it. A status response can set
+            // `currentSnapshotID` during the save suspension, so adopt the
+            // telemetry-only id only when the field is still nil on resume —
+            // a status snapshot is the preferred enrichment target.
+            Task {
+                let savedID = await nodeSnapshotService.saveTelemetryOnlySnapshot(
+                    nodePublicKey: nodePublicKey,
+                    telemetryEntries: entries
+                )
+                if let savedID, self.currentSnapshotID == nil {
+                    self.currentSnapshotID = savedID
+                }
             }
         }
     }

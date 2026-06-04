@@ -27,6 +27,9 @@ final class RepeaterStatusViewModel {
     /// Whether the neighbors disclosure group is expanded
     var neighborsExpanded = false
 
+    /// Error scoped to the neighbors section, kept separate from other sections' errors.
+    var neighborsSectionError: String?
+
     /// Discovery state
     var isDiscovering: Bool { discoverTask != nil }
     var discoverySecondsRemaining = 0
@@ -67,8 +70,9 @@ final class RepeaterStatusViewModel {
     func registerHandlers(appState: AppState) async {
         guard let repeaterAdminService = appState.services?.repeaterAdminService else { return }
 
-        await repeaterAdminService.clearHandlers()
-
+        // Set only the slots this view model owns. The admin service is shared
+        // with the settings/CLI view model, so clearing here would drop its CLI
+        // handler and silently break late CLI-response delivery.
         await repeaterAdminService.setStatusHandler { [weak self] status in
             await self?.handleStatusResponse(status)
         }
@@ -82,6 +86,14 @@ final class RepeaterStatusViewModel {
         }
     }
 
+    /// Clear every handler slot on the shared admin service. Only for true
+    /// surface teardown (sheet dismiss); calling it on a segment switch would
+    /// wipe the CLI handler the settings view model relies on.
+    func cleanup(appState: AppState) async {
+        guard let repeaterAdminService = appState.services?.repeaterAdminService else { return }
+        await repeaterAdminService.clearHandlers()
+    }
+
     // MARK: - Status
 
     func requestStatus(for session: RemoteNodeSessionDTO) async {
@@ -89,7 +101,7 @@ final class RepeaterStatusViewModel {
 
         if helper.session == nil { helper.session = session }
         helper.isLoadingStatus = true
-        helper.errorMessage = nil
+        helper.statusSectionError = nil
 
         do {
             let response = try await helper.performWithTransientRetries(operationName: "status") { [repeaterAdminService] timeout in
@@ -97,10 +109,10 @@ final class RepeaterStatusViewModel {
             }
             await handleStatusResponse(response)
         } catch RemoteNodeError.timeout {
-            helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
+            helper.statusSectionError = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
             helper.isLoadingStatus = false
         } catch {
-            helper.errorMessage = error.localizedDescription
+            helper.statusSectionError = error.localizedDescription
             helper.isLoadingStatus = false
         }
     }
@@ -126,7 +138,7 @@ final class RepeaterStatusViewModel {
 
         if helper.session == nil { helper.session = session }
         isLoadingNeighbors = true
-        helper.errorMessage = nil
+        neighborsSectionError = nil
 
         do {
             let response = try await helper.performWithTransientRetries(operationName: "neighbors") { [repeaterAdminService] timeout in
@@ -134,10 +146,10 @@ final class RepeaterStatusViewModel {
             }
             handleNeighboursResponse(response)
         } catch RemoteNodeError.timeout {
-            helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
+            neighborsSectionError = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
             isLoadingNeighbors = false
         } catch {
-            helper.errorMessage = error.localizedDescription
+            neighborsSectionError = error.localizedDescription
             isLoadingNeighbors = false
         }
     }
@@ -169,7 +181,7 @@ final class RepeaterStatusViewModel {
                     command: Self.discoverCommand
                 )
             } catch {
-                helper.errorMessage = error.localizedDescription
+                neighborsSectionError = error.localizedDescription
                 discoverySecondsRemaining = 0
                 discoverTask = nil
                 return
@@ -212,7 +224,7 @@ final class RepeaterStatusViewModel {
 
         if helper.session == nil { helper.session = session }
         helper.isLoadingTelemetry = true
-        helper.errorMessage = nil
+        helper.telemetrySectionError = nil
 
         do {
             let response = try await helper.performWithTransientRetries(operationName: "telemetry") { [repeaterAdminService] timeout in
@@ -220,10 +232,10 @@ final class RepeaterStatusViewModel {
             }
             helper.handleTelemetryResponse(response)
         } catch RemoteNodeError.timeout {
-            helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
+            helper.telemetrySectionError = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
             helper.isLoadingTelemetry = false
         } catch {
-            helper.errorMessage = error.localizedDescription
+            helper.telemetrySectionError = error.localizedDescription
             helper.isLoadingTelemetry = false
         }
     }
