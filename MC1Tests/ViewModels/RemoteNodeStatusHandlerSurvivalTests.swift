@@ -112,6 +112,75 @@ struct RemoteNodeStatusHandlerSurvivalTests {
         #expect(flag.isSet, "CLI handler should survive the status view model registering its own handlers")
     }
 
+    private func makeStatusResponse() -> StatusResponse {
+        StatusResponse(
+            publicKeyPrefix: Self.contactPublicKey.prefix(6),
+            battery: 0,
+            txQueueLength: 0,
+            noiseFloor: 0,
+            lastRSSI: 0,
+            packetsReceived: 0,
+            packetsSent: 0,
+            airtime: 0,
+            uptime: 0,
+            sentFlood: 0,
+            sentDirect: 0,
+            receivedFlood: 0,
+            receivedDirect: 0,
+            fullEvents: 0,
+            lastSNR: 0,
+            directDuplicates: 0,
+            floodDuplicates: 0,
+            rxAirtime: 0
+        )
+    }
+
+    @Test("Repeater clearStatusHandlers leaves the CLI handler firing")
+    func repeaterClearStatusHandlersKeepsCLIHandler() async throws {
+        let (appState, services) = try makeAppState()
+        let service = services.repeaterAdminService
+
+        let cliFlag = FlagBox()
+        let statusFlag = FlagBox()
+        await service.setCLIHandler { _, _ in cliFlag.set() }
+
+        let viewModel = RepeaterStatusViewModel()
+        viewModel.configure(appState: appState)
+        await viewModel.registerHandlers(appState: appState)
+        await service.setStatusHandler { _ in statusFlag.set() }
+
+        await viewModel.clearStatusHandlers(appState: appState)
+
+        await service.invokeCLIHandler(makeContactMessage(), fromContact: makeContact())
+        await service.invokeStatusHandler(makeStatusResponse())
+
+        #expect(cliFlag.isSet, "CLI handler should survive clearing the status-surface handlers")
+        #expect(!statusFlag.isSet, "status handler should no longer fire after clearStatusHandlers")
+    }
+
+    @Test("Room clearStatusHandlers leaves the CLI handler firing")
+    func roomClearStatusHandlersKeepsCLIHandler() async throws {
+        let (appState, services) = try makeAppState()
+        let service = services.roomAdminService
+
+        let cliFlag = FlagBox()
+        let statusFlag = FlagBox()
+        await service.setCLIHandler { _, _ in cliFlag.set() }
+
+        let viewModel = RoomStatusViewModel()
+        viewModel.configure(appState: appState)
+        await viewModel.registerHandlers(appState: appState)
+        await service.setStatusHandler { _ in statusFlag.set() }
+
+        await viewModel.clearStatusHandlers(appState: appState)
+
+        await service.invokeCLIHandler(makeContactMessage(), fromContact: makeContact())
+        await service.invokeStatusHandler(makeStatusResponse())
+
+        #expect(cliFlag.isSet, "CLI handler should survive clearing the status-surface handlers")
+        #expect(!statusFlag.isSet, "status handler should no longer fire after clearStatusHandlers")
+    }
+
     @Test("Repeater cleanup clears the CLI handler on true teardown")
     func repeaterCleanupClearsCLIHandler() async throws {
         let (appState, services) = try makeAppState()

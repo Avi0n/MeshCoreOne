@@ -49,6 +49,13 @@ final class RoomStatusViewModel {
         await roomAdminService.clearHandlers()
     }
 
+    /// Clear only this view model's status/telemetry handler slots, leaving the settings view
+    /// model's CLI handler intact. For the merged admin surface's status-segment teardown.
+    func clearStatusHandlers(appState: AppState) async {
+        guard let roomAdminService = appState.services?.roomAdminService else { return }
+        await roomAdminService.clearStatusHandlers()
+    }
+
     // MARK: - Status
 
     func requestStatus(for session: RemoteNodeSessionDTO) async {

@@ -6,11 +6,13 @@ import Foundation
 enum NodeManagementTab: CaseIterable {
     case settings
     case cli
+    case telemetry
 
     var label: String {
         switch self {
         case .settings: L10n.RemoteNodes.RemoteNodes.Settings.Tab.settings
         case .cli: L10n.RemoteNodes.RemoteNodes.Settings.Tab.cli
+        case .telemetry: L10n.RemoteNodes.RemoteNodes.Settings.Tab.telemetry
         }
     }
 }

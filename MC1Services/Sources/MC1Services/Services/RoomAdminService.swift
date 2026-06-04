@@ -153,4 +153,11 @@ public actor RoomAdminService {
         self.telemetryResponseHandler = nil
         self.cliResponseHandler = nil
     }
+
+    /// Clears only the status-surface handlers so the merged admin surface can tear down its
+    /// status segment without dropping the settings VM's CLI handler on the shared per-connection service.
+    public func clearStatusHandlers() {
+        self.statusResponseHandler = nil
+        self.telemetryResponseHandler = nil
+    }
 }

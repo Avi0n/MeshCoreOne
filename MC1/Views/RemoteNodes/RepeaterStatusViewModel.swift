@@ -94,6 +94,13 @@ final class RepeaterStatusViewModel {
         await repeaterAdminService.clearHandlers()
     }
 
+    /// Clear only this view model's status/neighbours/telemetry handler slots, leaving the
+    /// settings view model's CLI handler intact. For the merged admin surface's status-segment teardown.
+    func clearStatusHandlers(appState: AppState) async {
+        guard let repeaterAdminService = appState.services?.repeaterAdminService else { return }
+        await repeaterAdminService.clearStatusHandlers()
+    }
+
     // MARK: - Status
 
     func requestStatus(for session: RemoteNodeSessionDTO) async {

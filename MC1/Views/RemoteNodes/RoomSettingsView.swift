@@ -9,18 +9,31 @@ struct RoomSettingsView: View {
 
     let session: RemoteNodeSessionDTO
     @State private var viewModel = RoomSettingsViewModel()
+    @State private var statusViewModel = RoomStatusViewModel()
     @State private var managementTab: NodeManagementTab = .settings
     @State private var cliViewModel = NodeCLIViewModel()
     @State private var showRebootConfirmation = false
     @State private var showingLocationPicker = false
+    @State private var telemetryConfigured = false
 
     var body: some View {
-        Group {
+        // ZStack, not Group: a stable container keeps the toolbar/title hosted on one
+        // view across segment switches. Group would re-host them on each switch branch,
+        // animating a nav-bar item transition.
+        ZStack {
             switch managementTab {
             case .settings: settingsForm
             case .cli: NodeCLIView(viewModel: cliViewModel)
+            case .telemetry:
+                RoomStatusContent(
+                    viewModel: statusViewModel,
+                    session: session,
+                    connectionState: appState.connectionState,
+                    connectedDeviceID: appState.connectedDevice?.radioID
+                )
             }
         }
+        .animation(nil, value: managementTab)
         .navigationTitle(L10n.RemoteNodes.RemoteNodes.RoomSettings.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -42,8 +55,27 @@ struct RoomSettingsView: View {
                 cliViewModel.configure(sessionName: session.name, sendRawCommand: send)
             }
         }
+        .onChange(of: managementTab) { _, newTab in
+            guard newTab == .telemetry, !telemetryConfigured else { return }
+            telemetryConfigured = true
+            // Configure the status VM on first Telemetry reveal rather than on open:
+            // its handlers populate only the status/telemetry slots, leaving the settings VM's
+            // CLI handler intact for the Settings/CLI surface. Guarded by telemetryConfigured
+            // because a segment switch recreates only the content subtree, so this must not
+            // re-run or duplicate handler registration.
+            statusViewModel.configure(appState: appState)
+            Task {
+                await statusViewModel.registerHandlers(appState: appState)
+                if let radioID = appState.connectedDevice?.radioID {
+                    await statusViewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
+                }
+            }
+        }
         .onDisappear {
-            Task { await viewModel.cleanup() }
+            Task {
+                await statusViewModel.clearStatusHandlers(appState: appState)
+                await viewModel.cleanup()
+            }
         }
         .alert(L10n.RemoteNodes.RemoteNodes.Settings.success, isPresented: $viewModel.helper.showSuccessAlert) {
             Button(L10n.RemoteNodes.RemoteNodes.Settings.ok, role: .cancel) { }
