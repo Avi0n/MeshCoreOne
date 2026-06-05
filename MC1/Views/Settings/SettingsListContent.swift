@@ -4,7 +4,7 @@ import TipKit
 
 /// The settings list itself, shared by the compact `SettingsView` (stack) and the iPad
 /// `MainSidebarView` content column (split). `isSidebar` switches the iPad-only selection binding
-/// and themed-row flattening; the compact stack pushes via value-based `NavigationLink` instead.
+/// and themed-row treatment; the compact stack pushes via value-based `NavigationLink` instead.
 struct SettingsListContent: View {
     @Environment(\.appState) private var appState
     @Environment(\.appTheme) private var theme
@@ -12,14 +12,14 @@ struct SettingsListContent: View {
     @Binding var showingDeviceSelection: Bool
     @Bindable var demoModeManager: DemoModeManager
     /// `true` when this list is the iPad split-view sidebar column, whose `.sidebar` style draws
-    /// rows transparent; themed card rows are flattened to canvas to match the system default there.
+    /// rows transparent so the column canvas shows through and the native selection highlight shows.
     let isSidebar: Bool
     @State private var exportedLogFile: ExportedLogFile?
     private let liveActivityTip = LiveActivityTip()
 
     /// Drives the iPad split's selected settings page. The compact stack leaves it nil — inside a
     /// `NavigationStack` a value-based `NavigationLink` drives the stack path (via `SettingsView`'s
-    /// `navigationDestination`), not the list selection — so the row capsule stays iPad-only.
+    /// `navigationDestination`), not the list selection — so persistent selection stays iPad-only.
     private var settingSelection: Binding<SettingsDetail?> {
         Binding(
             get: { appState.navigation.selectedSetting },
@@ -51,6 +51,7 @@ struct SettingsListContent: View {
     private var settingsList: some View {
         if isSidebar {
             List(selection: settingSelection) { sections }
+                .listStyle(.sidebar)
         } else {
             List { sections }
         }
@@ -65,15 +66,15 @@ struct SettingsListContent: View {
         }
 
         Section {
-            SettingsDetailRow(detail: .notifications, isSidebar: isSidebar) {
+            SettingsDetailRow(detail: .notifications) {
                 TintedLabel(L10n.Settings.Notifications.header, systemImage: "bell.badge")
             }
 
-            SettingsDetailRow(detail: .chats, isSidebar: isSidebar) {
+            SettingsDetailRow(detail: .chats) {
                 TintedLabel(L10n.Settings.ChatSettings.title, systemImage: "bubble.left.and.bubble.right")
             }
 
-            AppearanceSection(isSidebar: isSidebar)
+            AppearanceSection()
 
             TipView(liveActivityTip, arrowEdge: .bottom)
 
@@ -105,11 +106,11 @@ struct SettingsListContent: View {
                 )
             }
 
-            SettingsDetailRow(detail: .offlineMaps, isSidebar: isSidebar) {
+            SettingsDetailRow(detail: .offlineMaps) {
                 TintedLabel(L10n.Settings.OfflineMaps.title, systemImage: "map.fill")
             }
 
-            SettingsDetailRow(detail: .backup, isSidebar: isSidebar) {
+            SettingsDetailRow(detail: .backup) {
                 TintedLabel(L10n.Settings.Settings.Backup.title, systemImage: "archivebox.fill")
             }
         } header: {
@@ -176,22 +177,22 @@ private struct MyDeviceSection: View {
 
     var body: some View {
         Section {
-            SettingsDetailRow(detail: .deviceInfo, isSidebar: isSidebar) {
+            SettingsDetailRow(detail: .deviceInfo) {
                 SettingsRow(L10n.Settings.DeviceInfo.title, systemImage: "cpu", detail: device.nodeName)
             }
             .accessibilityValue(device.nodeName)
 
-            SettingsDetailRow(detail: .radio, isSidebar: isSidebar) {
+            SettingsDetailRow(detail: .radio) {
                 SettingsRow(L10n.Settings.Radio.header, systemImage: "antenna.radiowaves.left.and.right", detail: radioDetailText)
             }
             .accessibilityValue(radioDetailText)
 
-            SettingsDetailRow(detail: .location, isSidebar: isSidebar) {
+            SettingsDetailRow(detail: .location) {
                 SettingsRow(L10n.Settings.Location.header, systemImage: "location", detail: locationDetailText)
             }
             .accessibilityValue(locationDetailText)
 
-            SettingsDetailRow(detail: .connection, isSidebar: isSidebar) {
+            SettingsDetailRow(detail: .connection) {
                 let isWiFi = appState.connectionManager.currentTransportType == .wifi
                 TintedLabel(
                     isWiFi ? L10n.Settings.Wifi.header : L10n.Settings.Bluetooth.header,
@@ -199,7 +200,7 @@ private struct MyDeviceSection: View {
                 )
             }
 
-            SettingsDetailRow(detail: .advanced, isSidebar: isSidebar) {
+            SettingsDetailRow(detail: .advanced) {
                 TintedLabel(L10n.Settings.AdvancedSettings.title, systemImage: "gearshape.2")
             }
         } header: {

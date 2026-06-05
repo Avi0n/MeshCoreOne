@@ -13,7 +13,7 @@ extension View {
     /// (Default, Ember) — preserves system `.secondarySystemGroupedBackground` rendering.
     /// Apply per Section in `.insetGrouped` lists; use `themedPlainRowBackground` on `.plain` lists
     /// instead. For a `.sidebar`-styled list (the iPad Settings split-view column) pass
-    /// `flatten: true`, so card rows read flush with the canvas instead of as separated cards.
+    /// `flatten: true`, so rows stay transparent and read flush with the canvas, not as cards.
     func themedRowBackground(_ theme: Theme, flatten: Bool = false) -> some View {
         modifier(ThemedRowBackgroundModifier(theme: theme, flatten: flatten))
     }
@@ -22,16 +22,8 @@ extension View {
     /// Plain rows draw an opaque `systemBackground` by default, which otherwise hides the canvas
     /// painted by `themedCanvas`. No-op for themes without surfaces — preserves system rendering
     /// on the default theme.
-    ///
-    /// The native selection highlight on a `.plain` list is a full-width UIKit cell background that
-    /// draws to the row's physical leading edge. In the iPad sidebar split, the content column
-    /// underlaps the floating Liquid Glass sidebar, so that edge-to-edge highlight bleeds under the
-    /// sidebar and shows through the glass. Pass `isSelected: true` to replace it with a rounded,
-    /// inset selection capsule (the iOS 26 selection shape) drawn inside the row's content area, so
-    /// the selection stays clear of the sidebar. Applying any `listRowBackground` — even a clear one
-    /// — opts the row out of the native highlight, which is what lets the capsule stand in for it.
-    func themedPlainRowBackground(_ theme: Theme, isSelected: Bool = false) -> some View {
-        modifier(ThemedPlainRowBackgroundModifier(theme: theme, isSelected: isSelected))
+    func themedPlainRowBackground(_ theme: Theme) -> some View {
+        modifier(ThemedPlainRowBackgroundModifier(theme: theme))
     }
 
     /// Match the navigation bar and tab bar backgrounds to the theme canvas so chrome blends
@@ -69,18 +61,10 @@ private struct ThemedRowBackgroundModifier: ViewModifier {
 
 private struct ThemedPlainRowBackgroundModifier: ViewModifier {
     let theme: Theme
-    let isSelected: Bool
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        if isSelected {
-            content
-                // Force a dark color scheme on the selected row so `Color.primary`/`.secondary`
-                // (and SF Symbols) resolve to light variants that read against the solid accent
-                // fill, mirroring how the system inverts a selected row's text.
-                .environment(\.colorScheme, .dark)
-                .listRowBackground(SelectionCapsule(theme: theme))
-        } else if let canvas = theme.surfaces?.canvas {
+        if let canvas = theme.surfaces?.canvas {
             content.listRowBackground(canvas)
         } else {
             content

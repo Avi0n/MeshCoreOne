@@ -122,10 +122,6 @@ struct ConversationListContent: View {
                                 referenceDate: referenceDate,
                                 onDelete: { onDeleteConversation(conversation) }
                             )
-                            .themedPlainRowBackground(
-                                theme,
-                                isSelected: selection.wrappedValue == ChatRoute(conversation: conversation)
-                            )
                         }
                     }
                     .accessibilityLabel(L10n.Chats.Chats.Section.favorites)
@@ -139,17 +135,13 @@ struct ConversationListContent: View {
                                 referenceDate: referenceDate,
                                 onDelete: { onDeleteConversation(conversation) }
                             )
-                            .themedPlainRowBackground(
-                                theme,
-                                isSelected: selection.wrappedValue == ChatRoute(conversation: conversation)
-                            )
                         }
                     }
                     .accessibilityLabel(L10n.Chats.Chats.Section.conversations)
                     .accessibilityHidden(otherConversations.isEmpty)
                 }
             }
-            .listStyle(.plain)
+            .listStyle(.sidebar)
 
         case .navigation(let onNavigate, let onRequestRoomAuth):
             List {

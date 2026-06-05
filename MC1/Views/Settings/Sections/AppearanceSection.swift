@@ -5,10 +5,9 @@ import SwiftUI
 struct AppearanceSection: View {
     @Environment(\.appState) private var appState
     @Environment(\.appTheme) private var activeTheme
-    let isSidebar: Bool
 
     var body: some View {
-        SettingsDetailRow(detail: .appearance, isSidebar: isSidebar) {
+        SettingsDetailRow(detail: .appearance) {
             HStack {
                 TintedLabel(L10n.Settings.Appearance.title, systemImage: "paintpalette")
                 Spacer()

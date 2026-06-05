@@ -30,11 +30,10 @@ struct ContactsSplitList: View {
                     )
                     .contactSwipeActions(contact: contact, viewModel: viewModel)
                     .tag(contact)
-                    .themedPlainRowBackground(theme, isSelected: selectedContact == contact)
                 }
             }
         }
-        .listStyle(.plain)
+        .listStyle(.sidebar)
         .themedCanvas(theme)
     }
 
