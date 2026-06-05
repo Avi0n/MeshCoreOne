@@ -231,7 +231,22 @@ extension ConnectionManager {
         }
 
         await onConnectionReady?()
-        let radioID = connectedDevice!.radioID
+        // onConnectionReady can suspend; a reentrant main-actor WiFi disconnect may
+        // clear connectedDevice or replace services during that await. Recheck and
+        // rebind so an aborted reconnect bails here.
+        guard connectionIntent.wantsConnection,
+              self.services === newServices,
+              let device = connectedDevice
+        else {
+            logger.info("[WiFi] reconnect aborted after onConnectionReady: connection state changed")
+            await session.stop()
+            await newServices.tearDown()
+            services = nil
+            connectedDevice = nil
+            allowedRepeatFreqRanges = []
+            return
+        }
+        let radioID = device.radioID
         let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, transportType: .wifi, context: "WiFi reconnect")
 
         guard await promoteToReady(syncSucceeded: syncSucceeded, expectedServices: newServices, transportType: .wifi) else { return }

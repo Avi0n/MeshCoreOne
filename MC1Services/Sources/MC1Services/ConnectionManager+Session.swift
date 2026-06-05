@@ -144,9 +144,25 @@ extension ConnectionManager: BLEReconnectionDelegate {
             return
         }
 
-        // Notify observers BEFORE sync starts so they can wire callbacks
+        // Notify observers before sync starts so they can wire callbacks
         await onConnectionReady?()
-        let radioID = connectedDevice!.radioID
+        // onConnectionReady can suspend; a reentrant main-actor disconnect or
+        // reconnect-UI timeout may clear connectedDevice or replace services during
+        // that await. Recheck and rebind so an aborted reconnect bails here.
+        guard connectionIntent.wantsConnection,
+              reconnectionCoordinator.reconnectGeneration == expectedGeneration,
+              self.services === newServices,
+              let device = connectedDevice
+        else {
+            logger.info("[BLE] rebuildSession aborted after onConnectionReady: reconnect state changed")
+            await newSession.stop()
+            await newServices.tearDown()
+            services = nil
+            connectedDevice = nil
+            allowedRepeatFreqRanges = []
+            return
+        }
+        let radioID = device.radioID
         let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, context: "[BLE] iOS auto-reconnect")
 
         // Caller-specific guard: generation check for superseded reconnects
