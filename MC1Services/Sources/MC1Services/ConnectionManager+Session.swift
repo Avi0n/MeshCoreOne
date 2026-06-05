@@ -116,7 +116,7 @@ extension ConnectionManager: BLEReconnectionDelegate {
             return
         }
 
-        let newServices = try await buildServicesAndSaveDevice(
+        let (newServices, radioID) = try await buildServicesAndSaveDevice(
             deviceID: deviceID,
             session: newSession,
             selfInfo: selfInfo,
@@ -148,11 +148,12 @@ extension ConnectionManager: BLEReconnectionDelegate {
         await onConnectionReady?()
         // onConnectionReady can suspend; a reentrant main-actor disconnect or
         // reconnect-UI timeout may clear connectedDevice or replace services during
-        // that await. Recheck and rebind so an aborted reconnect bails here.
+        // that await. Recheck so an aborted reconnect bails here instead of syncing
+        // a torn-down session.
         guard connectionIntent.wantsConnection,
               reconnectionCoordinator.reconnectGeneration == expectedGeneration,
               self.services === newServices,
-              let device = connectedDevice
+              connectedDevice != nil
         else {
             logger.info("[BLE] rebuildSession aborted after onConnectionReady: reconnect state changed")
             await newSession.stop()
@@ -162,7 +163,6 @@ extension ConnectionManager: BLEReconnectionDelegate {
             allowedRepeatFreqRanges = []
             return
         }
-        let radioID = device.radioID
         let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, context: "[BLE] iOS auto-reconnect")
 
         // Caller-specific guard: generation check for superseded reconnects

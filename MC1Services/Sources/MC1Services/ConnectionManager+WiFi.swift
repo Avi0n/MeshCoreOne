@@ -216,7 +216,7 @@ extension ConnectionManager {
             throw ConnectionError.initializationFailed("No self info")
         }
 
-        let newServices = try await buildServicesAndSaveDevice(
+        let (newServices, radioID) = try await buildServicesAndSaveDevice(
             deviceID: deviceID,
             session: session,
             selfInfo: selfInfo,
@@ -232,11 +232,11 @@ extension ConnectionManager {
 
         await onConnectionReady?()
         // onConnectionReady can suspend; a reentrant main-actor WiFi disconnect may
-        // clear connectedDevice or replace services during that await. Recheck and
-        // rebind so an aborted reconnect bails here.
+        // clear connectedDevice or replace services during that await. Recheck so an
+        // aborted reconnect bails here instead of syncing a torn-down session.
         guard connectionIntent.wantsConnection,
               self.services === newServices,
-              let device = connectedDevice
+              connectedDevice != nil
         else {
             logger.info("[WiFi] reconnect aborted after onConnectionReady: connection state changed")
             await session.stop()
@@ -246,7 +246,6 @@ extension ConnectionManager {
             allowedRepeatFreqRanges = []
             return
         }
-        let radioID = device.radioID
         let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, transportType: .wifi, context: "WiFi reconnect")
 
         guard await promoteToReady(syncSucceeded: syncSucceeded, expectedServices: newServices, transportType: .wifi) else { return }
@@ -342,7 +341,7 @@ extension ConnectionManager {
             let deviceID = DeviceIdentity.deriveUUID(from: meshCoreSelfInfo.publicKey)
 
             let wifiMethod = ConnectionMethod.wifi(host: host, port: port, displayName: nil)
-            let newServices = try await buildServicesAndSaveDevice(
+            let (newServices, radioID) = try await buildServicesAndSaveDevice(
                 deviceID: deviceID,
                 session: newSession,
                 selfInfo: meshCoreSelfInfo,
@@ -351,7 +350,6 @@ extension ConnectionManager {
             )
 
             // Persist connection for potential future use
-            let radioID = connectedDevice!.radioID
             persistConnection(deviceID: deviceID, radioID: radioID, deviceName: meshCoreSelfInfo.name)
 
             await onConnectionReady?()

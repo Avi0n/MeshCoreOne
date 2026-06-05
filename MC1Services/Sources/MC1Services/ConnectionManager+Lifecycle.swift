@@ -703,7 +703,7 @@ extension ConnectionManager {
             // Configure BLE write pacing based on device platform
             await configureBLEPacing(for: deviceCapabilities)
 
-            let newServices = try await buildServicesAndSaveDevice(
+            let (newServices, radioID) = try await buildServicesAndSaveDevice(
                 deviceID: deviceID,
                 session: newSession,
                 selfInfo: meshCoreSelfInfo,
@@ -712,7 +712,6 @@ extension ConnectionManager {
             )
 
             // Persist connection for auto-reconnect
-            let radioID = connectedDevice!.radioID
             persistConnection(deviceID: deviceID, radioID: radioID, deviceName: meshCoreSelfInfo.name)
 
             // Notify observers before sync starts so they can wire callbacks

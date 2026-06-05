@@ -1094,7 +1094,7 @@ public final class ConnectionManager {
         selfInfo: SelfInfo,
         capabilities: DeviceCapabilities,
         connectionMethods: [ConnectionMethod] = []
-    ) async throws -> ServiceContainer {
+    ) async throws -> (services: ServiceContainer, radioID: UUID) {
         // Kick off `getAutoAddConfig` up-front so the BLE roundtrip overlaps
         // with the local DB fetches and container wiring below.
         async let autoAddConfigResult = session.getAutoAddConfig()
@@ -1186,7 +1186,7 @@ public final class ConnectionManager {
         self.connectedDevice = deviceDTO
         self.allowedRepeatFreqRanges = repeatFreqRanges
 
-        return newServices
+        return (newServices, deviceDTO.radioID)
     }
 
     // MARK: - Channel Sync Configuration
