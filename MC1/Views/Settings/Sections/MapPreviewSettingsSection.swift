@@ -6,6 +6,7 @@ import SwiftUI
 /// when off, `MessageFragmentBuilder` skips the fragment entirely and the
 /// coordinate text in the message body remains tappable.
 struct MapPreviewSettingsSection: View {
+    @Environment(\.appTheme) private var theme
     @AppStorage(AppStorageKey.showMapPreviewThumbnails.rawValue)
     private var showMapPreviewThumbnails = AppStorageKey.defaultShowMapPreviewThumbnails
 
@@ -19,6 +20,7 @@ struct MapPreviewSettingsSection: View {
         } footer: {
             Text(L10n.Settings.MapPreviews.footer)
         }
+        .themedRowBackground(theme)
     }
 }
 
