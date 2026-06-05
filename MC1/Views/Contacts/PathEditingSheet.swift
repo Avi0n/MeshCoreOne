@@ -57,9 +57,7 @@ struct PathEditingSheet: View {
                     }
                 }
             }
-            .navigationDestination(item: $viewModel.insertionIntent) { intent in
-                AddHopPickerView(viewModel: viewModel, intent: intent)
-            }
+            .addHopPicker(for: $viewModel.insertionIntent, source: viewModel)
             .sensoryFeedback(.impact(weight: .light), trigger: dragHapticTrigger)
             .sensoryFeedback(.impact(weight: .medium), trigger: deleteHapticTrigger)
             .sensoryFeedback(.success, trigger: saveCompletedToken)
@@ -156,8 +154,8 @@ struct PathEditingSheet: View {
             Button {
                 viewModel.insertionIntent = .append
             } label: {
-                stretchedCenteredLabel(
-                    viewModel.isPathFull
+                PathEditCTALabel(
+                    title: viewModel.isPathFull
                         ? L10n.Contacts.Contacts.PathEdit.MaxHops.reached
                         : L10n.Contacts.Contacts.PathEdit.addHop,
                     systemImage: viewModel.isPathFull ? "checkmark.circle" : "plus.circle.fill"
@@ -166,7 +164,7 @@ struct PathEditingSheet: View {
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
             .disabled(viewModel.isPathFull)
-            .listRowInsets(emptyStateButtonInsets)
+            .listRowInsets(PathEditMetrics.ctaRowInsets)
             .listRowBackground(Color.clear)
         } footer: {
             if viewModel.isPathFull {
@@ -195,72 +193,45 @@ struct PathEditingSheet: View {
             Button {
                 viewModel.insertionIntent = .append
             } label: {
-                stretchedCenteredLabel(
-                    L10n.Contacts.Contacts.PathEdit.addHop,
+                PathEditCTALabel(
+                    title: L10n.Contacts.Contacts.PathEdit.addHop,
                     systemImage: "plus.circle.fill"
                 )
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
-            .listRowInsets(emptyStateButtonInsets)
+            .listRowInsets(PathEditMetrics.ctaRowInsets)
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
 
             Button {
                 showingDirectConfirmation = true
             } label: {
-                stretchedCenteredLabel(
-                    L10n.Contacts.Contacts.PathEdit.useDirectRouting,
+                PathEditCTALabel(
+                    title: L10n.Contacts.Contacts.PathEdit.useDirectRouting,
                     systemImage: "person.wave.2"
                 )
             }
             .buttonStyle(.bordered)
             .controlSize(.large)
-            .listRowInsets(emptyStateButtonInsets)
+            .listRowInsets(PathEditMetrics.ctaRowInsets)
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
 
             Button {
                 showingFloodConfirmation = true
             } label: {
-                stretchedCenteredLabel(
-                    L10n.Contacts.Contacts.PathEdit.useFloodRouting,
+                PathEditCTALabel(
+                    title: L10n.Contacts.Contacts.PathEdit.useFloodRouting,
                     systemImage: "dot.radiowaves.left.and.right"
                 )
             }
             .buttonStyle(.bordered)
             .controlSize(.large)
-            .listRowInsets(emptyStateButtonInsets)
+            .listRowInsets(PathEditMetrics.ctaRowInsets)
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
         }
-    }
-
-    /// Button-label that fills the list row width and centers the icon+text.
-    /// Builds the icon+text pair manually with an explicit frame on the
-    /// SF Symbol so `.borderedProminent` can't collapse it to zero width.
-    /// Surrounding spacers push the intrinsic-width pair to center within the
-    /// stretched frame.
-    private func stretchedCenteredLabel(_ title: String, systemImage: String) -> some View {
-        HStack(spacing: 8) {
-            Spacer()
-            Image(systemName: systemImage)
-                .font(.body.weight(.semibold))
-                .frame(width: 22, height: 22)
-            Text(title)
-                .font(.body.weight(.semibold))
-            Spacer()
-        }
-        .frame(maxWidth: .infinity)
-    }
-
-    private var emptyStateButtonInsets: EdgeInsets {
-        EdgeInsets(
-            top: PathEditMetrics.rowVerticalPadding,
-            leading: PathEditMetrics.rowInset,
-            bottom: PathEditMetrics.rowVerticalPadding,
-            trailing: PathEditMetrics.rowInset
-        )
     }
 }
 

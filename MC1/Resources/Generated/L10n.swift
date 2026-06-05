@@ -1551,6 +1551,8 @@ public enum L10n {
         public static func hopWithName(_ p1: Int, _ p2: Int, _ p3: Any) -> String {
           return L10n.tr("Contacts", "contacts.pathEdit.hopWithName", p1, p2, String(describing: p3), fallback: "Hop %d of %d: %@")
         }
+        /// Location: AddHopPickerView.swift - Purpose: Paste clipboard text into the hop search field
+        public static let paste = L10n.tr("Contacts", "contacts.pathEdit.paste", fallback: "Paste from clipboard")
         /// Location: AddHopPickerView.swift - Purpose: Position banner when appending, %d is target hop number
         public static func positionAppend(_ p1: Int) -> String {
           return L10n.tr("Contacts", "contacts.pathEdit.positionAppend", p1, fallback: "Adding as hop %d")
@@ -1558,13 +1560,29 @@ public enum L10n {
         /// Location: PathEditingSheet.swift - Purpose: Section footer hint
         public static let reorderHint = L10n.tr("Contacts", "contacts.pathEdit.reorderHint", fallback: "Drag to reorder · Swipe left to remove")
         /// Location: AddHopPickerView.swift - Purpose: Search field placeholder
-        public static let searchPrompt = L10n.tr("Contacts", "contacts.pathEdit.searchPrompt", fallback: "Search by name or ID")
+        public static let searchPrompt = L10n.tr("Contacts", "contacts.pathEdit.searchPrompt", fallback: "A1,2B or name/ID")
         /// Location: PathEditingSheet.swift - Purpose: Navigation title
         public static let title = L10n.tr("Contacts", "contacts.pathEdit.title", fallback: "Edit Path")
         /// Location: PathEditingSheet.swift - Purpose: Use-direct-routing empty-state button
         public static let useDirectRouting = L10n.tr("Contacts", "contacts.pathEdit.useDirectRouting", fallback: "Use Direct Routing")
         /// Location: PathEditingSheet.swift - Purpose: Use-flood-routing empty-state button
         public static let useFloodRouting = L10n.tr("Contacts", "contacts.pathEdit.useFloodRouting", fallback: "Use Flood Routing")
+        public enum BulkAdd {
+          /// Location: AddHopPickerView.swift - Purpose: Bulk-add action button, %@ is the comma-joined codes
+          public static func action(_ p1: Any) -> String {
+            return L10n.tr("Contacts", "contacts.pathEdit.bulkAdd.action", String(describing: p1), fallback: "Add nodes: %@")
+          }
+          /// Location: AddHopPickerView.swift - Purpose: Bulk-add action button when nothing is addable
+          public static let empty = L10n.tr("Contacts", "contacts.pathEdit.bulkAdd.empty", fallback: "No new nodes to add")
+          /// Location: AddHopPickerView.swift - Purpose: Bulk-add row, code skipped past the hop cap, %@ is the code
+          public static func pathFull(_ p1: Any) -> String {
+            return L10n.tr("Contacts", "contacts.pathEdit.bulkAdd.pathFull", String(describing: p1), fallback: "%@ exceeds the hop limit")
+          }
+          /// Location: AddHopPickerView.swift - Purpose: Bulk-add row, code will be added, %@ is the code
+          public static func willAdd(_ p1: Any) -> String {
+            return L10n.tr("Contacts", "contacts.pathEdit.bulkAdd.willAdd", String(describing: p1), fallback: "%@ will be added")
+          }
+        }
         public enum DirectRouting {
           public enum Confirm {
             /// Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation confirm label
@@ -1620,9 +1638,9 @@ public enum L10n {
           public static let reached = L10n.tr("Contacts", "contacts.pathEdit.maxHops.reached", fallback: "Max hops reached")
         }
         public enum NoRepeaters {
-          /// Location: PathEditingSheet.swift - Purpose: No repeaters empty description
+          /// Location: AddHopPickerView.swift - Purpose: No repeaters empty description
           public static let description = L10n.tr("Contacts", "contacts.pathEdit.noRepeaters.description", fallback: "Repeaters appear here once they're discovered in your mesh network.")
-          /// Location: PathEditingSheet.swift - Purpose: No repeaters empty title
+          /// Location: AddHopPickerView.swift - Purpose: No repeaters empty title
           public static let title = L10n.tr("Contacts", "contacts.pathEdit.noRepeaters.title", fallback: "No Repeaters Available")
         }
         public enum Search {
@@ -1992,32 +2010,18 @@ public enum L10n {
           public static let batchTrace = L10n.tr("Contacts", "contacts.trace.list.batchTrace", fallback: "Batch Trace")
           /// Location: TracePathListView.swift - Purpose: Batch trace toggle description
           public static let batchTraceDescription = L10n.tr("Contacts", "contacts.trace.list.batchTraceDescription", fallback: "Run multiple traces and average the results")
-          /// Location: TracePathListView.swift - Purpose: Code input footer
-          public static let codeFooter = L10n.tr("Contacts", "contacts.trace.list.codeFooter", fallback: "Press Return to add repeaters")
-          /// Location: TracePathListView.swift - Purpose: Code input placeholder
-          public static let codePlaceholder = L10n.tr("Contacts", "contacts.trace.list.codePlaceholder", fallback: "Example: A1, 2B")
           /// Location: TracePathListView.swift - Purpose: Copy path button
           public static let copyPath = L10n.tr("Contacts", "contacts.trace.list.copyPath", fallback: "Copy Path")
           /// Location: TracePathListView.swift - Purpose: Empty path instruction
-          public static let emptyPath = L10n.tr("Contacts", "contacts.trace.list.emptyPath", fallback: "Tap a repeater above to start building your path")
-          /// Location: TracePathListView.swift - Purpose: Favorites filter toggle label
-          public static let favoritesOnly = L10n.tr("Contacts", "contacts.trace.list.favoritesOnly", fallback: "Favorites Only")
+          public static let emptyPath = L10n.tr("Contacts", "contacts.trace.list.emptyPath", fallback: "Add a hop to start building your path.")
           /// Location: TracePathListView.swift - Purpose: Hop row accessibility hint
           public static let hopHint = L10n.tr("Contacts", "contacts.trace.list.hopHint", fallback: "Swipe left to delete, use drag handle to reorder")
           /// Location: TracePathListView.swift - Purpose: Hop row accessibility label
           public static func hopLabel(_ p1: Int, _ p2: Any) -> String {
             return L10n.tr("Contacts", "contacts.trace.list.hopLabel", p1, String(describing: p2), fallback: "Hop %d: %@")
           }
-          /// Location: TracePathListView.swift - Purpose: Toggle to include discovered repeaters
-          public static let includeDiscovered = L10n.tr("Contacts", "contacts.trace.list.includeDiscovered", fallback: "Include Discovered")
-          /// Location: TracePathListView.swift - Purpose: Toggle to include room servers in the list
-          public static let includeRooms = L10n.tr("Contacts", "contacts.trace.list.includeRooms", fallback: "Include Rooms")
-          /// Location: TracePathListView.swift - Purpose: Paste button
-          public static let paste = L10n.tr("Contacts", "contacts.trace.list.paste", fallback: "Paste from clipboard")
           /// Location: TracePathListView.swift - Purpose: Range warning footer
           public static let rangeWarning = L10n.tr("Contacts", "contacts.trace.list.rangeWarning", fallback: "You must be within range of the last repeater to receive a response.")
-          /// Location: TracePathListView.swift - Purpose: Repeaters section label
-          public static let repeaters = L10n.tr("Contacts", "contacts.trace.list.repeaters", fallback: "Repeaters")
           /// Location: TracePathListView.swift - Purpose: Round trip path section header
           public static let roundTripPath = L10n.tr("Contacts", "contacts.trace.list.roundTripPath", fallback: "Round Trip Path")
           /// Location: TracePathListView.swift - Purpose: Running trace with batch count
@@ -2042,12 +2046,6 @@ public enum L10n {
           public static let singleHint = L10n.tr("Contacts", "contacts.trace.list.singleHint", fallback: "Double tap to trace the path")
           /// Location: TracePathListView.swift - Purpose: Traces count label
           public static let traces = L10n.tr("Contacts", "contacts.trace.list.traces", fallback: "Traces:")
-          public enum NoFavorites {
-            /// Location: TracePathListView.swift - Purpose: No favorite repeaters empty description
-            public static let description = L10n.tr("Contacts", "contacts.trace.list.noFavorites.description", fallback: "Mark repeaters as favorites in the Nodes tab to see them here.")
-            /// Location: TracePathListView.swift - Purpose: No favorite repeaters empty title
-            public static let title = L10n.tr("Contacts", "contacts.trace.list.noFavorites.title", fallback: "No Favorite Repeaters")
-          }
         }
         public enum Map {
           /// Location: TracePathMapView.swift - Purpose: Center on path accessibility

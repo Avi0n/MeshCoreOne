@@ -23,9 +23,6 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     public var discoverySortOrder: String?
     public var nodesSortOrder: String?
     public var tracePathViewMode: String?
-    public var tracePathShowOnlyFavorites: Bool?
-    public var tracePathIncludeRooms: Bool?
-    public var tracePathIncludeDiscovered: Bool?
     public var linkPreviewsEnabled: Bool?
     public var linkPreviewsAutoResolveDM: Bool?
     public var linkPreviewsAutoResolveChannels: Bool?
@@ -110,9 +107,6 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
         (\.showIncomingHopCount, AppStorageKey.showIncomingHopCount.rawValue),
         (\.showIncomingRegion, AppStorageKey.showIncomingRegion.rawValue),
         (\.showIncomingSendTime, AppStorageKey.showIncomingSendTime.rawValue),
-        (\.tracePathShowOnlyFavorites, "tracePathShowOnlyFavorites"),
-        (\.tracePathIncludeRooms, "tracePathIncludeRooms"),
-        (\.tracePathIncludeDiscovered, "tracePathIncludeDiscovered"),
         (\.linkPreviewsEnabled, "linkPreviewsEnabled"),
         (\.linkPreviewsAutoResolveDM, "linkPreviewsAutoResolveDM"),
         (\.linkPreviewsAutoResolveChannels, "linkPreviewsAutoResolveChannels"),

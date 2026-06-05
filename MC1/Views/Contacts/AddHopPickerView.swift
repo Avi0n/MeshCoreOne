@@ -1,18 +1,41 @@
 import Accessibility
 import SwiftUI
 import MC1Services
+import UIKit
 
-/// Pushed onto the same NavigationStack as `PathEditingSheet` via
-/// `.navigationDestination(item: $viewModel.insertionIntent)`. Dedicated to
-/// finding a repeater fast via name substring or hex prefix.
+/// Shared full-screen Add-Hop picker, pushed via `.navigationDestination(item:)`
+/// from both the contact path editor (`PathEditingSheet`) and the trace path
+/// builder (`TracePathListView`). Finds a node fast via name substring or hex
+/// prefix; a comma in the search field switches to bulk code entry.
 struct AddHopPickerView: View {
     @Environment(\.appTheme) private var theme
-    @Bindable var viewModel: PathManagementViewModel
+    @Environment(\.dismiss) private var dismiss
+    let viewModel: any HopPickerSource
     let intent: AddHopIntent
+    /// Set when the picker is presented modally (a sheet) rather than pushed onto a
+    /// navigation stack, so it surfaces its own dismiss control in place of the
+    /// system back button. See `addHopPicker(for:source:)`.
+    var presentsOwnDismiss = false
 
     @State private var searchText = ""
     @State private var filter: AddHopFilter = .all
     @State private var addHapticTrigger = 0
+
+    /// Recent keys frozen at presentation. Tapping a row records the node into the
+    /// view model's live recents (for the next time the picker opens), but the
+    /// section partitioning reads this snapshot so a just-added row keeps its place
+    /// instead of jumping into the Recent section mid-interaction.
+    @State private var sessionRecentKeys: [Data]
+
+    init(viewModel: any HopPickerSource, intent: AddHopIntent, presentsOwnDismiss: Bool = false) {
+        self.viewModel = viewModel
+        self.intent = intent
+        self.presentsOwnDismiss = presentsOwnDismiss
+        _sessionRecentKeys = State(initialValue: viewModel.recentPublicKeys)
+    }
+
+    /// A comma in the query switches the picker to bulk code entry.
+    private var isBulkMode: Bool { searchText.contains(",") }
 
     var body: some View {
         List {
@@ -21,6 +44,8 @@ struct AddHopPickerView: View {
                     maxHopsReachedView
                         .listRowBackground(Color.clear)
                 }
+            } else if isBulkMode {
+                bulkAddContent
             } else {
                 resultsContent
             }
@@ -41,6 +66,23 @@ struct AddHopPickerView: View {
             AddHopSegmentPicker(selection: $filter)
         }
         .sensoryFeedback(.impact(weight: .light), trigger: addHapticTrigger)
+        .toolbar {
+            if presentsOwnDismiss {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(L10n.Contacts.Contacts.Common.done) { dismiss() }
+                }
+            }
+            ToolbarItem(placement: .primaryAction) {
+                // Pastes clipboard text into the search field; a comma in the
+                // pasted value switches the picker to bulk code entry.
+                Button(L10n.Contacts.Contacts.PathEdit.paste, systemImage: "doc.on.clipboard") {
+                    guard let pasted = UIPasteboard.general.string?
+                        .trimmingCharacters(in: .whitespacesAndNewlines),
+                          !pasted.isEmpty else { return }
+                    searchText = pasted
+                }
+            }
+        }
     }
 
     @ViewBuilder
@@ -76,6 +118,41 @@ struct AddHopPickerView: View {
         }
     }
 
+    // MARK: - Bulk add
+
+    /// Bulk code entry: parse the comma-separated query, preview per-code validity,
+    /// and add every resolvable code on tap, then clear the search.
+    @ViewBuilder
+    private var bulkAddContent: some View {
+        let classifications = viewModel.classifyCodes(searchText)
+        let addableCodes = classifications.filter(\.willBeAdded).map(\.code)
+        Section {
+            ForEach(classifications) { classification in
+                BulkCodeRow(classification: classification)
+            }
+        }
+        .themedRowBackground(theme)
+        Section {
+            Button {
+                let result = viewModel.addCodes(searchText)
+                if !result.added.isEmpty {
+                    addHapticTrigger += 1
+                    AccessibilityNotification.Announcement(bannerText).post()
+                }
+                searchText = ""
+            } label: {
+                Text(addableCodes.isEmpty
+                    ? L10n.Contacts.Contacts.PathEdit.BulkAdd.empty
+                    : L10n.Contacts.Contacts.PathEdit.BulkAdd.action(addableCodes.joined(separator: ", ")))
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .disabled(addableCodes.isEmpty)
+            .listRowBackground(Color.clear)
+        }
+    }
+
     // MARK: - Subtitle text
 
     private var bannerText: String {
@@ -85,13 +162,13 @@ struct AddHopPickerView: View {
     /// Shared text source so the navigation subtitle and the row-tap
     /// announcement (posted from `PickerRowView.handleTap`) read identically.
     @MainActor
-    static func bannerText(for viewModel: PathManagementViewModel, intent: AddHopIntent) -> String {
+    static func bannerText(for viewModel: any HopPickerSource, intent: AddHopIntent) -> String {
         if viewModel.isPathFull {
             return L10n.Contacts.Contacts.PathEdit.MaxHops.reached
         }
         switch intent {
         case .append:
-            return L10n.Contacts.Contacts.PathEdit.positionAppend(viewModel.editablePath.count + 1)
+            return L10n.Contacts.Contacts.PathEdit.positionAppend(viewModel.currentHopCount + 1)
         }
     }
 
@@ -112,7 +189,7 @@ struct AddHopPickerView: View {
     }
 
     private func buildResults() -> PickerResults {
-        let recentKeys = Set(viewModel.recentPublicKeys)
+        let recentKeys = Set(sessionRecentKeys)
         let contactKeys = Set(viewModel.availableRepeaters.map(\.publicKey))
         var results = PickerResults()
         if showsRecent { results.recent = recentResults() }
@@ -126,7 +203,7 @@ struct AddHopPickerView: View {
     /// Recent hits resolved against contacts + discovered nodes, preserving LRU
     /// order. Filtered against the current search query.
     private func recentResults() -> [PickerNode] {
-        let resolved = viewModel.recentPublicKeys.compactMap { pubkey -> PickerNode? in
+        let resolved = sessionRecentKeys.compactMap { pubkey -> PickerNode? in
             if let contact = viewModel.availableRepeaters.first(where: { $0.publicKey == pubkey }) {
                 return .contact(contact)
             }
@@ -135,7 +212,7 @@ struct AddHopPickerView: View {
             }
             return nil
         }
-        return PathManagementViewModel.filtered(resolved, by: searchText)
+        return HopNodeMatching.filtered(resolved, by: searchText)
     }
 
     /// Favorite contacts minus anything already in Recent.
@@ -144,7 +221,7 @@ struct AddHopPickerView: View {
             .filter { $0.isFavorite && !keySet.contains($0.publicKey) }
             .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
             .map { PickerNode.contact($0) }
-        return PathManagementViewModel.filtered(nodes, by: searchText)
+        return HopNodeMatching.filtered(nodes, by: searchText)
     }
 
     /// Non-favorite contact repeaters minus Recent.
@@ -153,7 +230,7 @@ struct AddHopPickerView: View {
             .filter { !$0.isFavorite && !keySet.contains($0.publicKey) }
             .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
             .map { PickerNode.contact($0) }
-        return PathManagementViewModel.filtered(nodes, by: searchText)
+        return HopNodeMatching.filtered(nodes, by: searchText)
     }
 
     /// Discovered repeaters minus any pubkey already present as a contact and
@@ -163,7 +240,7 @@ struct AddHopPickerView: View {
             .filter { !contactKeys.contains($0.publicKey) && !recentKeys.contains($0.publicKey) }
             .sorted { $0.resolvableName.localizedCaseInsensitiveCompare($1.resolvableName) == .orderedAscending }
             .map { PickerNode.discovered($0) }
-        return PathManagementViewModel.filtered(nodes, by: searchText)
+        return HopNodeMatching.filtered(nodes, by: searchText)
     }
 
     /// Rooms (contact type == .room) — never double-listed.
@@ -172,7 +249,7 @@ struct AddHopPickerView: View {
             .filter { !keySet.contains($0.publicKey) }
             .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
             .map { PickerNode.contact($0) }
-        return PathManagementViewModel.filtered(nodes, by: searchText)
+        return HopNodeMatching.filtered(nodes, by: searchText)
     }
 
     // MARK: - Visibility per filter
@@ -195,7 +272,7 @@ struct AddHopPickerView: View {
             )
         } else {
             let roomsWouldMatch = filter != .all && viewModel.availableRooms.contains { room in
-                PathManagementViewModel.matches(.contact(room), query: searchText)
+                HopNodeMatching.matches(.contact(room), query: searchText)
             }
             ContentUnavailableView {
                 Label(
@@ -219,15 +296,17 @@ struct AddHopPickerView: View {
                 systemImage: "checkmark.circle"
             )
         } description: {
-            Text(L10n.Contacts.Contacts.PathEdit.MaxHops.description(viewModel.maxHopCount))
+            Text(L10n.Contacts.Contacts.PathEdit.MaxHops.description(viewModel.hopLimit ?? 0))
         }
     }
 }
 
+// MARK: - Picker row
+
 private struct PickerRowView: View {
     let node: PickerNode
     let intent: AddHopIntent
-    let viewModel: PathManagementViewModel
+    let viewModel: any HopPickerSource
     @Binding var addHapticTrigger: Int
 
     @State private var showSuccess = false
@@ -293,7 +372,7 @@ private struct PickerRowView: View {
     private func handleTap() {
         guard !viewModel.isPathFull else { return }
         addHapticTrigger += 1
-        viewModel.insert(node.underlying, at: intent)
+        viewModel.appendHop(node.underlying)
         let updatedBanner = AddHopPickerView.bannerText(for: viewModel, intent: intent)
         AccessibilityNotification.Announcement(updatedBanner).post()
         resetTask?.cancel()
@@ -307,6 +386,65 @@ private struct PickerRowView: View {
     }
 
     private var rowAccessibilityLabel: String {
-        L10n.Contacts.Contacts.PathEdit.addToPathAsHop(node.displayName, viewModel.editablePath.count + 1)
+        L10n.Contacts.Contacts.PathEdit.addToPathAsHop(node.displayName, viewModel.currentHopCount + 1)
+    }
+}
+
+// MARK: - Bulk code row
+
+/// One parsed code in the bulk-add preview, showing the per-code outcome.
+private struct BulkCodeRow: View {
+    let classification: HopCodeClassification
+
+    var body: some View {
+        HStack(spacing: PathEditMetrics.rowContentSpacing) {
+            Text(rowText)
+                .font(.callout)
+            Spacer()
+            trailingIcon
+        }
+        .frame(minHeight: PathEditMetrics.tapTarget)
+        .accessibilityElement(children: .combine)
+    }
+
+    /// Only problem statuses get a glyph. Rows that will be added rely on the
+    /// single "Add codes" button, so they show no add-like affordance.
+    @ViewBuilder
+    private var trailingIcon: some View {
+        if let icon = iconName, let tint = iconTint {
+            Image(systemName: icon)
+                .foregroundStyle(tint)
+        }
+    }
+
+    private var rowText: String {
+        let code = classification.code
+        switch classification.status {
+        case .willAdd:       return L10n.Contacts.Contacts.PathEdit.BulkAdd.willAdd(code)
+        case .alreadyInPath: return L10n.Contacts.Contacts.CodeInput.Error.alreadyInPath(code)
+        case .notFound:      return L10n.Contacts.Contacts.CodeInput.Error.notFound(code)
+        case .invalidFormat: return L10n.Contacts.Contacts.CodeInput.Error.invalidFormat(code)
+        case .pathFull:      return L10n.Contacts.Contacts.PathEdit.BulkAdd.pathFull(code)
+        }
+    }
+
+    private var iconName: String? {
+        switch classification.status {
+        case .willAdd:       return nil
+        case .alreadyInPath: return "checkmark.circle.fill"
+        case .notFound:      return "questionmark.circle"
+        case .invalidFormat: return "exclamationmark.triangle.fill"
+        case .pathFull:      return "nosign"
+        }
+    }
+
+    private var iconTint: Color? {
+        switch classification.status {
+        case .willAdd:       return nil
+        case .alreadyInPath: return .secondary
+        case .notFound:      return .orange
+        case .invalidFormat: return .red
+        case .pathFull:      return .secondary
+        }
     }
 }

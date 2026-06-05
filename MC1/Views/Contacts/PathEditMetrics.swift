@@ -12,4 +12,13 @@ enum PathEditMetrics {
     static let badgeSpacing: CGFloat = 6
     static let segmentPickerVerticalInset: CGFloat = 8
     static let disabledOpacity: Double = 0.5
+
+    /// Add Hop CTA label: icon box size and icon-to-text spacing.
+    static let ctaIconSize: CGFloat = 22
+    static let ctaIconSpacing: CGFloat = 8
+
+    /// Row insets for the full-width Add Hop / routing CTA buttons.
+    static var ctaRowInsets: EdgeInsets {
+        EdgeInsets(top: rowVerticalPadding, leading: rowInset, bottom: rowVerticalPadding, trailing: rowInset)
+    }
 }

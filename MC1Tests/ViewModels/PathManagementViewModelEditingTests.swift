@@ -389,16 +389,16 @@ struct PathManagementViewModelEditingTests {
     @Test("Empty query matches everything")
     func matchesEmptyQueryMatchesAll() {
         let node = PickerNode.contact(.fixture(name: "Basecamp"))
-        #expect(PathManagementViewModel.matches(node, query: "") == true)
+        #expect(HopNodeMatching.matches(node, query: "") == true)
     }
 
     @Test("Name substring is case-insensitive")
     func matchesNameSubstringCaseInsensitive() {
         let node = PickerNode.contact(.fixture(name: "Basecamp North"))
-        #expect(PathManagementViewModel.matches(node, query: "bas") == true)
-        #expect(PathManagementViewModel.matches(node, query: "BASE") == true)
-        #expect(PathManagementViewModel.matches(node, query: "north") == true)
-        #expect(PathManagementViewModel.matches(node, query: "zzz") == false)
+        #expect(HopNodeMatching.matches(node, query: "bas") == true)
+        #expect(HopNodeMatching.matches(node, query: "BASE") == true)
+        #expect(HopNodeMatching.matches(node, query: "north") == true)
+        #expect(HopNodeMatching.matches(node, query: "zzz") == false)
     }
 
     @Test("Turkish dotless-I folds correctly")
@@ -406,7 +406,7 @@ struct PathManagementViewModelEditingTests {
         // localizedCaseInsensitiveContains folds İ↔i per the user's locale.
         // The query "istanbul" should match a name with Turkish İ.
         let node = PickerNode.contact(.fixture(name: "İstanbul Relay"))
-        #expect(PathManagementViewModel.matches(node, query: "istanbul") == true)
+        #expect(HopNodeMatching.matches(node, query: "istanbul") == true)
     }
 
     @Test("Hex prefix matches full pubkey")
@@ -414,9 +414,9 @@ struct PathManagementViewModelEditingTests {
         // Pubkey a3 f2 00 00 … — query "a3f2" should match via hex branch
         let pk = Data([0xa3, 0xf2] + Array(repeating: 0x00, count: 30))
         let node = PickerNode.contact(.fixture(name: "Unrelated", publicKey: pk))
-        #expect(PathManagementViewModel.matches(node, query: "a3f2") == true)
-        #expect(PathManagementViewModel.matches(node, query: "A3F2") == true)
-        #expect(PathManagementViewModel.matches(node, query: "b7") == false)
+        #expect(HopNodeMatching.matches(node, query: "a3f2") == true)
+        #expect(HopNodeMatching.matches(node, query: "A3F2") == true)
+        #expect(HopNodeMatching.matches(node, query: "b7") == false)
     }
 
     @Test("All-hex query matches both name and pubkey hex")
@@ -424,22 +424,22 @@ struct PathManagementViewModelEditingTests {
         // Name "A3 Basecamp" and pubkey starting a3… — "a3" matches both branches.
         let pk = Data([0xa3] + Array(repeating: 0x00, count: 31))
         let node = PickerNode.contact(.fixture(name: "A3 Basecamp", publicKey: pk))
-        #expect(PathManagementViewModel.matches(node, query: "a3") == true)
+        #expect(HopNodeMatching.matches(node, query: "a3") == true)
     }
 
     @Test("Non-hex query ignores pubkey")
     func matchesNonHexIgnoresPubkey() {
         let node = PickerNode.contact(.fixture(name: "Summit"))
-        #expect(PathManagementViewModel.matches(node, query: "foo") == false)
+        #expect(HopNodeMatching.matches(node, query: "foo") == false)
     }
 
     @Test("isHexQuery detects valid hex digits")
     func isHexQueryDetection() {
-        #expect(PathManagementViewModel.isHexQuery("a3f2") == true)
-        #expect(PathManagementViewModel.isHexQuery("A3F2") == true)
-        #expect(PathManagementViewModel.isHexQuery("0123456789abcdefABCDEF") == true)
-        #expect(PathManagementViewModel.isHexQuery("a3z") == false)
-        #expect(PathManagementViewModel.isHexQuery("") == false)
+        #expect(HopNodeMatching.isHexQuery("a3f2") == true)
+        #expect(HopNodeMatching.isHexQuery("A3F2") == true)
+        #expect(HopNodeMatching.isHexQuery("0123456789abcdefABCDEF") == true)
+        #expect(HopNodeMatching.isHexQuery("a3z") == false)
+        #expect(HopNodeMatching.isHexQuery("") == false)
     }
 
     // MARK: - filtered(_:by:)
@@ -450,7 +450,7 @@ struct PathManagementViewModelEditingTests {
             PickerNode.contact(.fixture(name: "A")),
             PickerNode.contact(.fixture(name: "B"))
         ]
-        let result = PathManagementViewModel.filtered(nodes, by: "")
+        let result = HopNodeMatching.filtered(nodes, by: "")
         #expect(result.count == 2)
     }
 
@@ -460,7 +460,7 @@ struct PathManagementViewModelEditingTests {
             PickerNode.contact(.fixture(name: "Basecamp")),
             PickerNode.contact(.fixture(name: "Summit"))
         ]
-        let result = PathManagementViewModel.filtered(nodes, by: "base")
+        let result = HopNodeMatching.filtered(nodes, by: "base")
         #expect(result.count == 1)
         #expect(result[0].displayName == "Basecamp")
     }
@@ -476,7 +476,7 @@ struct PathManagementViewModelEditingTests {
             PickerNode.contact(.fixture(name: "A3 Basecamp", publicKey: pk2)),
             PickerNode.contact(.fixture(name: "Zeta", publicKey: pk3))
         ]
-        let result = PathManagementViewModel.filtered(nodes, by: "a3")
+        let result = HopNodeMatching.filtered(nodes, by: "a3")
         #expect(result.count == 2)
     }
 
@@ -551,7 +551,7 @@ struct PathManagementViewModelEditingTests {
         let pk = Data([0xAB, 0xCD] + Array(repeating: 0x00, count: 30))
         vm.insert(ContactDTO.fixture(publicKey: pk), at: .append)
 
-        let key = PathManagementViewModel.recentKeysDefaultsKey(for: radioID)
+        let key = RecentHopsStore.defaultsKey(for: radioID)
         let stored = defaults.stringArray(forKey: key) ?? []
         #expect(stored.count == 1)
         #expect(stored[0] == stored[0].lowercased())

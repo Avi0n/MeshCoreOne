@@ -245,7 +245,6 @@
 /* Location: ContactDetailView.swift - Purpose: Share contact error when advert is missing or stale */
 "contacts.detail.shareContactUnavailable" = "No se puede compartir el nodo. El anuncio del nodo puede faltar o ser demasiado antiguo.";
 
-
 /* Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes */
 "contacts.detail.ping" = "Ping Zero-Hop";
 
@@ -601,10 +600,10 @@
 /* Location: PathEditingSheet.swift - Purpose: Current path section header */
 "contacts.pathEdit.currentPath" = "Ruta actual";
 
-/* Location: PathEditingSheet.swift - Purpose: No repeaters empty title */
+/* Location: AddHopPickerView.swift - Purpose: No repeaters empty title */
 "contacts.pathEdit.noRepeaters.title" = "Sin repetidores disponibles";
 
-/* Location: PathEditingSheet.swift - Purpose: No repeaters empty description */
+/* Location: AddHopPickerView.swift - Purpose: No repeaters empty description */
 "contacts.pathEdit.noRepeaters.description" = "Los repetidores aparecen aquí una vez que se descubren en tu red mesh.";
 
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with name */
@@ -615,6 +614,9 @@
 
 /* Location: PathEditingSheet.swift - Purpose: Add Hop CTA (primary button when path has >=1 hop) */
 "contacts.pathEdit.addHop" = "Añadir salto";
+
+/* Location: AddHopPickerView.swift - Purpose: Paste clipboard text into the hop search field */
+"contacts.pathEdit.paste" = "Pegar del portapapeles";
 
 /* Location: PathEditingSheet.swift - Purpose: Use-direct-routing empty-state button */
 "contacts.pathEdit.useDirectRouting" = "Usar enrutado directo";
@@ -644,7 +646,7 @@
 "contacts.pathEdit.positionAppend" = "Añadiendo como salto %d";
 
 /* Location: AddHopPickerView.swift - Purpose: Search field placeholder */
-"contacts.pathEdit.searchPrompt" = "Buscar por nombre o ID";
+"contacts.pathEdit.searchPrompt" = "A1,2B o nombre/ID";
 
 /* Location: PathEditingSheet.swift - Purpose: Section footer hint */
 "contacts.pathEdit.reorderHint" = "Arrastra para reordenar · Desliza para eliminar";
@@ -705,6 +707,12 @@
 
 /* Location: PathEditingSheet.swift - Purpose: Add Hop CTA footer explaining the hop cap, %d is the cap */
 "contacts.pathEdit.maxHops.footer" = "Máximo de %d saltos alcanzado. Elimina un salto para añadir otro.";
+
+/* Location: AddHopPickerView.swift - Purpose: Bulk-add panel strings */
+"contacts.pathEdit.bulkAdd.action" = "Añadir nodos: %@";
+"contacts.pathEdit.bulkAdd.willAdd" = "%@ se añadirá";
+"contacts.pathEdit.bulkAdd.pathFull" = "%@ supera el límite de saltos";
+"contacts.pathEdit.bulkAdd.empty" = "No hay nodos nuevos para añadir";
 
 // MARK: - Path Discovery Results
 
@@ -899,20 +907,8 @@
 
 // MARK: - Trace Path List View
 
-/* Location: TracePathListView.swift - Purpose: Code input placeholder */
-"contacts.trace.list.codePlaceholder" = "Ejemplo: A1, 2B";
-
-/* Location: TracePathListView.swift - Purpose: Paste button */
-"contacts.trace.list.paste" = "Pegar del portapapeles";
-
-/* Location: TracePathListView.swift - Purpose: Code input footer */
-"contacts.trace.list.codeFooter" = "Presiona Intro para añadir repetidores";
-
-/* Location: TracePathListView.swift - Purpose: Repeaters section label */
-"contacts.trace.list.repeaters" = "Repetidores";
-
 /* Location: TracePathListView.swift - Purpose: Empty path instruction */
-"contacts.trace.list.emptyPath" = "Toca un repetidor arriba para empezar a construir tu ruta";
+"contacts.trace.list.emptyPath" = "Añade un salto para empezar a construir tu ruta.";
 
 /* Location: TracePathListView.swift - Purpose: Round trip path section header */
 "contacts.trace.list.roundTripPath" = "Ruta de ida y vuelta";
@@ -968,26 +964,10 @@
 /* Location: TracePathListView.swift - Purpose: Hop row accessibility hint */
 "contacts.trace.list.hopHint" = "Desliza a la izquierda para eliminar, usa el control de arrastre para reordenar";
 
-/* Location: TracePathListView.swift - Purpose: Favorites filter toggle label */
-"contacts.trace.list.favoritesOnly" = "Solo favoritos";
-
-/* Location: TracePathListView.swift - Purpose: Toggle to include room servers in the list */
-"contacts.trace.list.includeRooms" = "Incluir salas";
-
-/* Location: TracePathListView.swift - Purpose: Toggle to include discovered repeaters */
-"contacts.trace.list.includeDiscovered" = "Incluir descubiertos";
-
-/* Location: TracePathListView.swift - Purpose: No favorite repeaters empty title */
-"contacts.trace.list.noFavorites.title" = "Sin repetidores favoritos";
-
-/* Location: TracePathListView.swift - Purpose: No favorite repeaters empty description */
-"contacts.trace.list.noFavorites.description" = "Marca repetidores como favoritos en la pestaña Nodos para verlos aquí.";
-
 // MARK: - Trace Path Map View
 
 /* Location: TracePathMapView.swift - Purpose: Hops count in results banner */
 "contacts.trace.map.hops" = "%d saltos";
-
 
 /* Location: TracePathMapView.swift - Purpose: Clear button */
 "contacts.trace.map.clear" = "Limpiar";

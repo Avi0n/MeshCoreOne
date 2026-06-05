@@ -245,7 +245,6 @@
 /* Location: ContactDetailView.swift - Purpose: Share contact error when advert is missing or stale */
 "contacts.detail.shareContactUnavailable" = "Неможливо поділитися вузлом. Оголошення вузла може бути відсутнім або занадто старим.";
 
-
 /* Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes */
 "contacts.detail.ping" = "Zero-Hop Ping";
 
@@ -618,10 +617,10 @@
 /* Location: PathEditingSheet.swift - Purpose: Current path section header */
 "contacts.pathEdit.currentPath" = "Поточний шлях";
 
-/* Location: PathEditingSheet.swift - Purpose: No repeaters empty title */
+/* Location: AddHopPickerView.swift - Purpose: No repeaters empty title */
 "contacts.pathEdit.noRepeaters.title" = "Немає доступних ретрансляторів";
 
-/* Location: PathEditingSheet.swift - Purpose: No repeaters empty description */
+/* Location: AddHopPickerView.swift - Purpose: No repeaters empty description */
 "contacts.pathEdit.noRepeaters.description" = "Ретранслятори з'являться тут після виявлення у вашій mesh-мережі.";
 
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with name */
@@ -632,6 +631,9 @@
 
 /* Location: PathEditingSheet.swift - Purpose: Add Hop CTA (primary button when path has >=1 hop) */
 "contacts.pathEdit.addHop" = "Додати вузол";
+
+/* Location: AddHopPickerView.swift - Purpose: Paste clipboard text into the hop search field */
+"contacts.pathEdit.paste" = "Вставити з буфера обміну";
 
 /* Location: PathEditingSheet.swift - Purpose: Use-direct-routing empty-state button */
 "contacts.pathEdit.useDirectRouting" = "Використовувати пряму";
@@ -661,7 +663,7 @@
 "contacts.pathEdit.positionAppend" = "Додавання як вузол %d";
 
 /* Location: AddHopPickerView.swift - Purpose: Search field placeholder */
-"contacts.pathEdit.searchPrompt" = "Пошук за ім'ям або ID";
+"contacts.pathEdit.searchPrompt" = "A1,2B або ім'я/ID";
 
 /* Location: PathEditingSheet.swift - Purpose: Section footer hint */
 "contacts.pathEdit.reorderHint" = "Перетягніть для впорядкування · Проведіть для видалення";
@@ -722,6 +724,12 @@
 
 /* Location: PathEditingSheet.swift - Purpose: Add Hop CTA footer explaining the hop cap, %d is the cap */
 "contacts.pathEdit.maxHops.footer" = "Досягнуто максимуму в %d вузлів. Видаліть вузол, щоб додати новий.";
+
+/* Location: AddHopPickerView.swift - Purpose: Bulk-add panel strings */
+"contacts.pathEdit.bulkAdd.action" = "Додати вузли: %@";
+"contacts.pathEdit.bulkAdd.willAdd" = "%@ буде додано";
+"contacts.pathEdit.bulkAdd.pathFull" = "%@ перевищує ліміт вузлів";
+"contacts.pathEdit.bulkAdd.empty" = "Немає нових вузлів для додавання";
 
 // MARK: - Path Discovery Results
 
@@ -886,20 +894,8 @@
 
 // MARK: - Trace Path List View
 
-/* Location: TracePathListView.swift - Purpose: Code input placeholder */
-"contacts.trace.list.codePlaceholder" = "Приклад: A1, 2B";
-
-/* Location: TracePathListView.swift - Purpose: Paste button */
-"contacts.trace.list.paste" = "Вставити з буфера обміну";
-
-/* Location: TracePathListView.swift - Purpose: Code input footer */
-"contacts.trace.list.codeFooter" = "Натисни Enter для додавання ретрансляторів";
-
-/* Location: TracePathListView.swift - Purpose: Repeaters section label */
-"contacts.trace.list.repeaters" = "Ретранслятори";
-
 /* Location: TracePathListView.swift - Purpose: Empty path instruction */
-"contacts.trace.list.emptyPath" = "Торкнись ретранслятора вище, щоб почати будувати шлях";
+"contacts.trace.list.emptyPath" = "Додай вузол, щоб почати будувати шлях.";
 
 /* Location: TracePathListView.swift - Purpose: Round trip path section header */
 "contacts.trace.list.roundTripPath" = "Маршрут туди й назад";
@@ -955,26 +951,10 @@
 /* Location: TracePathListView.swift - Purpose: Hop row accessibility hint */
 "contacts.trace.list.hopHint" = "Проведи вліво для видалення, використовуй маркер перетягування для зміни порядку";
 
-/* Location: TracePathListView.swift - Purpose: Favorites filter toggle label */
-"contacts.trace.list.favoritesOnly" = "Лише обрані";
-
-/* Location: TracePathListView.swift - Purpose: Toggle to include room servers in the list */
-"contacts.trace.list.includeRooms" = "Включити кімнати";
-
-/* Location: TracePathListView.swift - Purpose: Toggle to include discovered repeaters */
-"contacts.trace.list.includeDiscovered" = "Включити виявлені";
-
-/* Location: TracePathListView.swift - Purpose: No favorite repeaters empty title */
-"contacts.trace.list.noFavorites.title" = "Немає обраних ретрансляторів";
-
-/* Location: TracePathListView.swift - Purpose: No favorite repeaters empty description */
-"contacts.trace.list.noFavorites.description" = "Познач ретранслятори як обрані у вкладці Вузли, щоб побачити їх тут.";
-
 // MARK: - Trace Path Map View
 
 /* Location: TracePathMapView.swift - Purpose: Hops count in results banner */
 "contacts.trace.map.hops" = "%d переходів";
-
 
 /* Location: TracePathMapView.swift - Purpose: Clear button */
 "contacts.trace.map.clear" = "Очистити";

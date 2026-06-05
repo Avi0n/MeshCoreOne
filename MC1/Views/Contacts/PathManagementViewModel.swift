@@ -4,12 +4,13 @@ import os.log
 
 private let logger = Logger(subsystem: "com.mc1", category: "PathManagement")
 
-/// Drives `navigationDestination(item:)` on the edit sheet. Only `.append` is
-/// reachable today; the enum is kept (rather than using `Bool` or `Void`) so
-/// the navigation binding has a concrete `Hashable` item type and so future
-/// positional-insert flows can extend it without restructuring the binding.
-enum AddHopIntent: Hashable {
+/// Drives `navigationDestination(item:)`/`sheet(item:)` on the path editors.
+/// Modeled as an enum (rather than `Bool` or `Void`) so the item binding has a
+/// concrete `Identifiable`/`Hashable` type. Only `.append` exists today.
+enum AddHopIntent: Hashable, Identifiable {
     case append
+
+    var id: Self { self }
 }
 
 /// Sections the Add-Hop picker can narrow to. `.all` shows every section.
@@ -105,8 +106,6 @@ final class PathManagementViewModel {
     /// Captured radio scope for persistence. Set by `loadRecentKeys(for:)`.
     private var currentRadioID: UUID?
 
-    private static let recentKeysLimit = 8
-
     /// Firmware `outPath` budget: 64 bytes. `encodePathLen` also clamps the
     /// hop-count field to 6 bits (0…63). The effective cap is whichever is
     /// smaller.
@@ -140,10 +139,10 @@ final class PathManagementViewModel {
     // MARK: - Dependencies
 
     private var appState: AppState?
-    private let defaults: UserDefaults
+    private let recents: RecentHopsStore
 
     init(defaults: UserDefaults = .standard) {
-        self.defaults = defaults
+        self.recents = RecentHopsStore(defaults: defaults)
     }
 
     /// Current hash size from device configuration (1, 2, or 3 bytes per hop).
@@ -325,41 +324,22 @@ final class PathManagementViewModel {
         case .append:
             editablePath.append(hop)
         }
-        recordRecent(pubkey: node.publicKey)
+        recordRecent(node.publicKey)
     }
 
     // MARK: - Recents persistence
-
-    static func recentKeysDefaultsKey(for radioID: UUID) -> String {
-        "pathEdit.recentPublicKeys.\(radioID.uuidString)"
-    }
 
     /// Internal — tests invoke this directly via `@testable import MC1` to seed
     /// a specific radio scope without building a full `AppState`.
     func loadRecentKeys(for radioID: UUID) {
         currentRadioID = radioID
-        let key = Self.recentKeysDefaultsKey(for: radioID)
-        let hexList = defaults.stringArray(forKey: key) ?? []
-        recentPublicKeys = hexList.compactMap(Data.init(hexString:))
+        recentPublicKeys = recents.load(for: radioID)
     }
 
-    private func saveRecentKeys() {
+    /// LRU insert via ``RecentHopsStore``, persisting under the captured radio scope.
+    func recordRecent(_ publicKey: Data) {
         guard let radioID = currentRadioID else { return }
-        // `Data.hex` is lowercase (%02x); `Data.init(hexString:)` uppercases
-        // internally on read, so round-trips regardless of case. Lowercase is the
-        // storage convention.
-        let hexList = recentPublicKeys.map(\.hex)
-        defaults.set(hexList, forKey: Self.recentKeysDefaultsKey(for: radioID))
-    }
-
-    /// LRU: move to front if present, else prepend; trim to limit; persist.
-    private func recordRecent(pubkey: Data) {
-        recentPublicKeys.removeAll { $0 == pubkey }
-        recentPublicKeys.insert(pubkey, at: 0)
-        if recentPublicKeys.count > Self.recentKeysLimit {
-            recentPublicKeys = Array(recentPublicKeys.prefix(Self.recentKeysLimit))
-        }
-        saveRecentKeys()
+        recentPublicKeys = recents.record(publicKey, into: recentPublicKeys, for: radioID)
     }
 
     /// Remove a repeater from the path at index
@@ -462,48 +442,6 @@ final class PathManagementViewModel {
     }
 
     // MARK: - Path Operations
-
-    /// True when `query` is non-empty and every character is a hex digit.
-    /// All-digit names like "1234" therefore match both name and pubkey branches
-    /// — acceptable since both surfaces produce the same row.
-    nonisolated static func isHexQuery(_ query: String) -> Bool {
-        !query.isEmpty && query.allSatisfy(\.isHexDigit)
-    }
-
-    /// Match a picker node against a query string.
-    /// - Empty query → true.
-    /// - All-hex query → case-and-diacritic-insensitive name substring OR
-    ///   full-pubkey-hex prefix (ASCII, case-insensitive).
-    /// - Otherwise → case-and-diacritic-insensitive name substring.
-    ///
-    /// Uses `range(of:options:)` with `[.caseInsensitive, .diacriticInsensitive]`
-    /// so Turkish İ/ı and NFC/NFD Cyrillic fold correctly regardless of the
-    /// runtime locale (en_US fails to fold İ via `localizedCaseInsensitiveContains`
-    /// because İ lowercases to "i" + combining dot).
-    nonisolated static func matches(_ node: PickerNode, query: String) -> Bool {
-        guard !query.isEmpty else { return true }
-        let nameHit = node.displayName.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
-        if isHexQuery(query) {
-            return nameHit || node.publicKeyHex.lowercased().hasPrefix(query.lowercased())
-        }
-        return nameHit
-    }
-
-    /// Batched variant of `matches(_:query:)` that hoists `isHexQuery` and
-    /// `query.lowercased()` above the filter loop so they run once per call
-    /// instead of once per node. Use this in render-path filter chains.
-    nonisolated static func filtered(_ nodes: [PickerNode], by query: String) -> [PickerNode] {
-        guard !query.isEmpty else { return nodes }
-        let hex = isHexQuery(query)
-        let loweredQuery = hex ? query.lowercased() : ""
-        return nodes.filter { node in
-            let nameHit = node.displayName.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
-            if hex {
-                return nameHit || node.publicKeyHex.lowercased().hasPrefix(loweredQuery)
-            }
-            return nameHit
-        }
-    }
 
     nonisolated static func sanitizedDiscoveryTimeoutSeconds(suggestedTimeoutMs: UInt32) -> Double {
         let candidateSeconds = (Double(suggestedTimeoutMs) / 1000.0) * DiscoveryTimeout.multiplier
@@ -687,5 +625,53 @@ final class PathManagementViewModel {
         }
 
         isSettingPath = false
+    }
+}
+
+// MARK: - HopPickerSource
+
+extension PathManagementViewModel: HopPickerSource {
+    var currentHopCount: Int { editablePath.count }
+
+    /// Contact paths are capped; expose the cap so the shared picker can show the
+    /// max-hops state and stop bulk-add cleanly.
+    var hopLimit: Int? { maxHopCount }
+
+    func appendHop(_ node: some RepeaterResolvable) {
+        insert(node, at: .append)
+    }
+
+    func classifyCodes(_ input: String) -> [HopCodeClassification] {
+        let existing = Set(editablePath.map(\.hashBytes))
+        let remaining = max(0, maxHopCount - editablePath.count)
+        return HopCodeParser.classify(
+            input: input,
+            hashSize: hashSize,
+            existingHashes: existing,
+            remainingCapacity: remaining
+        ) { hash in
+            guard let publicKey = resolveHashToPublicKey(hash) else { return nil }
+            return (publicKey, resolveHashToName(hash))
+        }
+    }
+
+    /// Bulk-add resolvable codes, honoring the hop cap. Codes past the cap are
+    /// classified `.pathFull` and skipped, so the path stops cleanly at `maxHopCount`.
+    @discardableResult
+    func addCodes(_ input: String) -> CodeInputResult {
+        var result = CodeInputResult()
+        for entry in classifyCodes(input) {
+            switch entry.status {
+            case .willAdd(let hop):
+                editablePath.append(hop)
+                if let publicKey = hop.publicKey { recordRecent(publicKey) }
+                result.added.append(entry.code)
+            case .alreadyInPath: result.alreadyInPath.append(entry.code)
+            case .notFound: result.notFound.append(entry.code)
+            case .invalidFormat: result.invalidFormat.append(entry.code)
+            case .pathFull: break
+            }
+        }
+        return result
     }
 }

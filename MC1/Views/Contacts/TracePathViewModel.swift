@@ -8,7 +8,8 @@ import os.log
 
 private let logger = Logger(subsystem: "com.mc1", category: "TracePath")
 
-@MainActor @Observable
+@Observable
+@MainActor
 final class TracePathViewModel {
 
     // MARK: - Path Building State
@@ -19,6 +20,16 @@ final class TracePathViewModel {
     var autoReturnPath = true
     private var allContacts: [ContactDTO] = []
     var discoveredRepeaters: [DiscoveredNodeDTO] = []
+
+    /// Recently added hop public keys, newest first. Source for the shared
+    /// picker's "Recent" section; persisted per radio via ``RecentHopsStore``.
+    var recentPublicKeys: [Data] = []
+    private let recents: RecentHopsStore
+    private var currentRadioID: UUID?
+
+    init(defaults: UserDefaults = .standard) {
+        self.recents = RecentHopsStore(defaults: defaults)
+    }
 
     /// Combined repeaters and rooms for resolution (hex codes, map pins, etc.)
     var availableNodes: [ContactDTO] {
@@ -349,6 +360,8 @@ final class TracePathViewModel {
 
     /// Load contacts for name resolution and available repeaters
     func loadContacts(radioID: UUID) async {
+        currentRadioID = radioID
+        recentPublicKeys = recents.load(for: radioID)
         guard let appState,
               let dataStore = appState.services?.dataStore else { return }
         do {
@@ -380,59 +393,21 @@ final class TracePathViewModel {
         result = nil
     }
 
-    /// Parse comma-separated hex codes and add matching repeaters to the path
+    /// Parse comma-separated hex codes and add matching repeaters to the path.
+    /// Shares ``HopCodeParser`` with the bulk-add preview so the two never diverge.
+    @discardableResult
     func addRepeatersFromCodes(_ input: String) -> CodeInputResult {
         var result = CodeInputResult()
-        let expectedHexLen = hashSize * 2
-
-        let codes = input
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespaces).uppercased() }
-            .filter { !$0.isEmpty }
-
-        // Deduplicate while preserving order
-        var seen = Set<String>()
-        let uniqueCodes = codes.filter { seen.insert($0).inserted }
-
-        let existingHashes = Set(outboundPath.map { $0.hashBytes })
-
-        for code in uniqueCodes {
-            // Validate hex format (must match hash size * 2 hex characters)
-            guard code.count == expectedHexLen,
-                  code.allSatisfy(\.isHexDigit) else {
-                result.invalidFormat.append(code)
-                continue
-            }
-
-            // Parse hex string into bytes
-            var hashData = Data()
-            var idx = code.startIndex
-            while idx < code.endIndex {
-                let nextIdx = code.index(idx, offsetBy: 2)
-                guard let byte = UInt8(code[idx..<nextIdx], radix: 16) else {
-                    break
-                }
-                hashData.append(byte)
-                idx = nextIdx
-            }
-            guard hashData.count == hashSize else {
-                result.invalidFormat.append(code)
-                continue
-            }
-
-            // Check if already in path
-            if existingHashes.contains(hashData) {
-                result.alreadyInPath.append(code)
-                continue
-            }
-
-            // Find matching node (prefer closer or more recent on collisions)
-            if let match = resolveNode(for: hashData) {
-                let hop = PathHop(hashBytes: hashData, publicKey: match.publicKey, resolvedName: match.resolvableName)
+        for entry in classifyCodes(input) {
+            switch entry.status {
+            case .willAdd(let hop):
                 outboundPath.append(hop)
-                result.added.append(code)
-            } else {
-                result.notFound.append(code)
+                if let publicKey = hop.publicKey { recordRecent(publicKey) }
+                result.added.append(entry.code)
+            case .alreadyInPath: result.alreadyInPath.append(entry.code)
+            case .notFound: result.notFound.append(entry.code)
+            case .invalidFormat: result.invalidFormat.append(entry.code)
+            case .pathFull: assertionFailure("trace paths are uncapped, so classifyCodes never yields .pathFull")
             }
         }
 
@@ -1142,4 +1117,41 @@ final class TracePathViewModel {
         availableRooms = contacts.filter { $0.type == .room }
     }
     #endif
+}
+
+// MARK: - HopPickerSource
+
+extension TracePathViewModel: HopPickerSource {
+    var currentHopCount: Int { outboundPath.count }
+
+    /// Trace paths are uncapped; `nil` tells the shared picker not to gate adds
+    /// (the `HopPickerSource` default then makes `isPathFull` always `false`).
+    var hopLimit: Int? { nil }
+
+    func appendHop(_ node: some RepeaterResolvable) {
+        addNode(node)
+        recordRecent(node.publicKey)
+    }
+
+    func addCodes(_ input: String) -> CodeInputResult {
+        addRepeatersFromCodes(input)
+    }
+
+    func classifyCodes(_ input: String) -> [HopCodeClassification] {
+        let existing = Set(outboundPath.map(\.hashBytes))
+        return HopCodeParser.classify(
+            input: input,
+            hashSize: hashSize,
+            existingHashes: existing,
+            remainingCapacity: nil
+        ) { hash in
+            guard let match = resolveNode(for: hash) else { return nil }
+            return (match.publicKey, match.resolvableName)
+        }
+    }
+
+    func recordRecent(_ publicKey: Data) {
+        guard let radioID = currentRadioID else { return }
+        recentPublicKeys = recents.record(publicKey, into: recentPublicKeys, for: radioID)
+    }
 }
