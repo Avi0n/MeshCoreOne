@@ -148,10 +148,13 @@ extension ChatViewModel {
         }
     }
 
-    /// Delete all messages for a direct conversation
+    /// Clears a direct conversation by dropping its messages and last-message date (a local
+    /// SwiftData write, no radio command). Throws `ConversationActionError.notConnected` rather
+    /// than returning silently so the caller can roll back the optimistic hide and surface an error.
     func deleteDirectConversation(for contact: ContactDTO) async throws {
-        guard appState?.connectionState == .ready else { return }
-        guard let dataStore else { return }
+        guard appState?.connectionState == .ready, let dataStore else {
+            throw ConversationActionError.notConnected
+        }
 
         try await dataStore.deleteMessagesForContact(contactID: contact.id)
         try await dataStore.clearUnreadCount(contactID: contact.id)

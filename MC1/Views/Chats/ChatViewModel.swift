@@ -30,8 +30,19 @@ final class ChatViewModel {
 
     let logger = Logger(subsystem: "com.mc1", category: "ChatViewModel")
 
-    /// Current conversations (contacts with messages)
-    var conversations: [ContactDTO] = []
+    /// Single observed structural source of truth the List reads (via the accessors
+    /// on `ChatViewModel+ConversationCache`). Must not be `@ObservationIgnored`:
+    /// observation of this property is what drives the List diff. Assigned only in
+    /// `recomputeSnapshot()`, always as a complete favorite/other split.
+    var conversationSnapshot: ConversationSnapshot = .empty
+
+    /// Cheap Equatable surrogate for `onChange(of:)`; bumped only in `recomputeSnapshot()`.
+    var snapshotGeneration: Int = 0
+
+    /// Current conversations (contacts with messages). Demoted to a non-observed
+    /// fetch buffer feeding `recomputeSnapshot()`; kept `internal` so tests in
+    /// `@testable import MC1` can seed it directly.
+    @ObservationIgnored var conversations: [ContactDTO] = []
 
     /// All contacts for mention autocomplete (includes contacts without messages)
     var allContacts: [ContactDTO] = []
@@ -48,20 +59,36 @@ final class ChatViewModel {
     /// O(1) lookup for contact names
     var contactNameSet: Set<String> = []
 
-    /// Current channels with messages
-    var channels: [ChannelDTO] = []
+    /// Current channels with messages. Non-observed fetch buffer feeding `recomputeSnapshot()`.
+    @ObservationIgnored var channels: [ChannelDTO] = []
 
-    /// Current room sessions
-    var roomSessions: [RemoteNodeSessionDTO] = []
+    /// Current room sessions. Non-observed fetch buffer feeding `recomputeSnapshot()`.
+    @ObservationIgnored var roomSessions: [RemoteNodeSessionDTO] = []
+
+    /// Ids hidden optimistically on delete until a DB-confirming reload drops them.
+    /// `reconcilePendingRemovals()` self-heals this once the fetch confirms the row is gone.
+    @ObservationIgnored var pendingRemovalIDs: Set<UUID> = []
+
+    /// Rows showing an in-flight delete spinner during a confirmation-gated radio command
+    /// (channel clear, room leave). Presentation state read directly by the rows, so it is
+    /// observed; it never filters `conversationSnapshot`. Distinct from `pendingRemovalIDs`,
+    /// the optimistic-hide mask used only by the radio-free direct-message path.
+    var deletingIDs: Set<UUID> = []
+
+    /// Cancel-and-replace token for the serialized reload funnel (house idiom,
+    /// matching `RoomConversationViewModel.reloadTask`). No view reads it.
+    @ObservationIgnored var reloadTask: Task<Void, Never>?
+
+    #if DEBUG
+    /// Test-only interleave hook, awaited once mid-reload. Lets a unit test deterministically
+    /// suspend reload #1 between fetches and commit reload #2 first, without widening `dataStore`
+    /// to the protocol (several of its methods are off-`PersistenceStoreProtocol`). Compiled out
+    /// of release builds, so it cannot affect the shipping reload path.
+    @ObservationIgnored var reloadInterleaveHook: (@MainActor () async -> Void)?
+    #endif
 
     // MARK: - Conversation Cache Storage
 
-    /// Stored backing for the conversation-cache layer. Methods live in a
-    /// dedicated extension; storage stays here because Swift requires
-    /// stored properties on the type, not in extensions.
-    @ObservationIgnored var cachedFavoriteConversations: [Conversation] = []
-    @ObservationIgnored var cachedNonFavoriteConversations: [Conversation] = []
-    @ObservationIgnored var conversationCacheValid = false
     @ObservationIgnored var urlDetectionTask: Task<Void, Never>?
     /// Bumped on every buildItems rebuild. Only the URL-detection writer
     /// checks this before mutating cachedURLs; single-row rebuilds via

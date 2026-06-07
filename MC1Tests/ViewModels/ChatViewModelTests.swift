@@ -372,6 +372,7 @@ struct ChatViewModelTests {
 
         // Set conversations to include repeaters
         viewModel.conversations = [chatContact, chatContact2, repeaterContact, anotherRepeater]
+        viewModel.recomputeSnapshot()
 
         // Verify allConversations excludes repeaters
         let conversations = viewModel.allConversations
@@ -400,6 +401,7 @@ struct ChatViewModelTests {
             createTestContact(radioID: radioID, name: "Repeater 1", type: .repeater),
             createTestContact(radioID: radioID, name: "Repeater 2", type: .repeater)
         ]
+        viewModel.recomputeSnapshot()
 
         let conversations = viewModel.allConversations
         #expect(conversations.isEmpty)
@@ -559,6 +561,7 @@ struct BlockedContactFilteringTests {
         )
 
         viewModel.conversations = [normalContact, blockedContact]
+        viewModel.recomputeSnapshot()
 
         let conversations = viewModel.allConversations
         #expect(conversations.count == 1)
@@ -578,6 +581,7 @@ struct BlockedContactFilteringTests {
             createTestContact(radioID: radioID, name: "Blocked1", type: .chat, isBlocked: true),
             createTestContact(radioID: radioID, name: "Blocked2", type: .chat, isBlocked: true)
         ]
+        viewModel.recomputeSnapshot()
 
         let conversations = viewModel.allConversations
         #expect(conversations.isEmpty)
@@ -595,6 +599,7 @@ struct BlockedContactFilteringTests {
             createTestContact(radioID: radioID, name: "Repeater", type: .repeater, isBlocked: false),
             createTestContact(radioID: radioID, name: "BlockedRepeater", type: .repeater, isBlocked: true)
         ]
+        viewModel.recomputeSnapshot()
 
         let conversations = viewModel.allConversations
         #expect(conversations.count == 1)

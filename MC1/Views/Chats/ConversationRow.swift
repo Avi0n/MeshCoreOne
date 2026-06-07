@@ -50,9 +50,6 @@ struct ConversationRow: View {
                     )
                 }
             }
-            .alignmentGuide(.listRowSeparatorLeading) { d in
-                d[.leading]
-            }
         }
         .padding(.vertical, 4)
     }

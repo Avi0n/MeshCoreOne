@@ -245,6 +245,9 @@
 /* Location: ChannelInfoSheet.swift - Error when services unavailable */
 "chats.error.servicesUnavailable" = "Servicios no disponibles";
 
+/* TODO: translate - Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
+"chats.error.notConnectedToDelete" = "Connect to your radio to delete this conversation.";
+
 /* Location: ChatConversationView.swift - Error when loading older messages fails */
 "chats.error.loadOlderMessagesFailed" = "Error al cargar mensajes anteriores";
 
@@ -343,20 +346,20 @@
 
 // MARK: - Swipe Actions
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to delete */
-"chats.swipeAction.delete" = "Eliminar";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to delete */
+"chats.action.delete" = "Eliminar";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to unmute */
-"chats.swipeAction.unmute" = "Activar sonido";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to unmute */
+"chats.action.unmute" = "Activar sonido";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to mute */
-"chats.swipeAction.mute" = "Silenciar";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
+"chats.action.mute" = "Silenciar";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to remove from favorites */
-"chats.swipeAction.unfavorite" = "Quitar de favoritos";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to remove from favorites */
+"chats.action.unfavorite" = "Quitar de favoritos";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to add to favorites */
-"chats.swipeAction.favorite" = "Favorito";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to add to favorites */
+"chats.action.favorite" = "Favorito";
 
 // MARK: - Room Conversation Row
 

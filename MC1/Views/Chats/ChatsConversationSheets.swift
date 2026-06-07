@@ -3,10 +3,12 @@ import MC1Services
 
 /// The deep-link sheets, conversation sheets, and destructive-action alerts shared by the compact
 /// `ChatsView` (stack) and the iPad `ChatsContentColumn` (split). Both attach an identical surface;
-/// only the navigation glue (`navigate`, `loadConversations`, the delete handlers) differs between
+/// only the navigation glue (`navigate` and the delete handlers) differs between
 /// the stack and split paths, so those are injected as closures.
 struct ChatsConversationSheets: ViewModifier {
     @Environment(\.appState) private var appState
+
+    let viewModel: ChatViewModel
 
     @Binding var showingNewChat: Bool
     @Binding var showingChannelOptions: Bool
@@ -15,12 +17,10 @@ struct ChatsConversationSheets: ViewModifier {
     @Binding var showRoomDeleteAlert: Bool
     @Binding var channelDeleteFailure: ChatConversationActions.Failure?
     @Binding var showChannelDeleteFailed: Bool
-    @Binding var routeBeingDeleted: ChatRoute?
     @Binding var pendingChatContact: ContactDTO?
     @Binding var pendingChannel: ChannelDTO?
 
     let navigate: (ChatRoute) -> Void
-    let loadConversations: () async -> Void
     let deleteChannelConversation: (ChannelDTO) -> Void
     let deleteRoom: (RemoteNodeSessionDTO) async -> Void
 
@@ -77,12 +77,10 @@ struct ChatsConversationSheets: ViewModifier {
                 }
             }
             .sheet(isPresented: $showingChannelOptions, onDismiss: {
-                Task {
-                    await loadConversations()
-                    if let channel = pendingChannel {
-                        pendingChannel = nil
-                        navigate(.channel(channel))
-                    }
+                viewModel.requestConversationReload()
+                if let channel = pendingChannel {
+                    pendingChannel = nil
+                    navigate(.channel(channel))
                 }
             }) {
                 ChannelOptionsSheet { channel in
@@ -99,17 +97,11 @@ struct ChatsConversationSheets: ViewModifier {
             .alert(L10n.Chats.Chats.Alert.LeaveRoom.title, isPresented: $showRoomDeleteAlert) {
                 Button(L10n.Chats.Chats.Common.cancel, role: .cancel) {
                     roomToDelete = nil
-                    routeBeingDeleted = nil
                 }
                 Button(L10n.Chats.Chats.Alert.LeaveRoom.confirm, role: .destructive) {
                     Task {
-                        if let session = roomToDelete {
-                            routeBeingDeleted = .room(session)
-                            await deleteRoom(session)
-                        }
+                        if let session = roomToDelete { await deleteRoom(session) }
                         roomToDelete = nil
-                        await loadConversations()
-                        routeBeingDeleted = nil
                     }
                 }
             } message: {

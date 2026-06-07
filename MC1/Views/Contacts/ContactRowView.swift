@@ -89,9 +89,6 @@ struct ContactRowView: View {
                     }
                 }
             }
-            .alignmentGuide(.listRowSeparatorLeading) { dimensions in
-                dimensions[.leading]
-            }
         }
         .padding(.vertical, 4)
     }

@@ -6,7 +6,6 @@ private let sidebarLogger = Logger(subsystem: "com.mc1", category: "NodesListVie
 
 struct ContactsSidebarContent: View {
     @Environment(\.appState) private var appState
-    @Environment(\.appTheme) private var theme
 
     let viewModel: ContactsViewModel
     let filteredContacts: [ContactDTO]
@@ -33,37 +32,15 @@ struct ContactsSidebarContent: View {
     let onAnnounceOfflineStateIfNeeded: () -> Void
 
     var body: some View {
-        Group {
-            if !viewModel.hasLoadedOnce {
-                List {
-                    PinnedFilterHeader {
-                        NodeSegmentPicker(selection: $selectedSegment, isSearching: isSearching)
-                    }
-                }
-                .listStyle(.plain)
-                .themedCanvas(theme)
-                .overlay {
-                    ProgressView()
-                }
-            } else if shouldUseSplitView {
-                ContactsSplitList(
-                    selectedSegment: $selectedSegment,
-                    selectedContact: $selectedContact,
-                    isSearching: isSearching,
-                    searchText: searchText,
-                    filteredContacts: filteredContacts,
-                    viewModel: viewModel
-                )
-            } else {
-                ContactsCompactList(
-                    selectedSegment: $selectedSegment,
-                    isSearching: isSearching,
-                    searchText: searchText,
-                    filteredContacts: filteredContacts,
-                    viewModel: viewModel
-                )
-            }
-        }
+        ContactsListContent(
+            mode: shouldUseSplitView ? .selection($selectedContact) : .navigation,
+            selectedSegment: $selectedSegment,
+            isSearching: isSearching,
+            searchText: searchText,
+            filteredContacts: filteredContacts,
+            hasLoadedOnce: viewModel.hasLoadedOnce,
+            viewModel: viewModel
+        )
         .navigationTitle(L10n.Contacts.Contacts.List.title)
         .searchable(text: $searchText, prompt: searchPrompt)
         .toolbar {

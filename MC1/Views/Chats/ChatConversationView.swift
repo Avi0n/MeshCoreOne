@@ -191,10 +191,7 @@ struct ChatConversationView: View {
                 onClearChannelMessages: {
                     guard case .channel(let channel) = conversationType else { return }
                     await chatViewModel.loadChannelMessages(for: channel)
-                    if let parent = parentViewModel {
-                        await parent.loadChannels(radioID: channel.radioID)
-                        await parent.loadLastMessagePreviews()
-                    }
+                    parentViewModel?.requestConversationReload()
                 },
                 onDeleteChannel: {
                     // Clear the composer so the teardown flush doesn't re-persist a draft for the
@@ -406,16 +403,7 @@ struct ChatConversationView: View {
         }
 
         // Refresh parent conversation list when leaving
-        if let parent = parentViewModel {
-            Task {
-                guard let radioID = appState.connectedDevice?.radioID else { return }
-                await parent.loadConversations(radioID: radioID)
-                if case .channel = conversationType {
-                    await parent.loadChannels(radioID: radioID)
-                }
-                await parent.loadLastMessagePreviews()
-            }
-        }
+        parentViewModel?.requestConversationReload()
     }
 
     private func handleIncomingMentionIfNeeded(_ messageID: UUID) {
@@ -512,14 +500,10 @@ struct ChatConversationView: View {
             switch conversationType {
             case .dm(let contact):
                 try await dataStore.decrementUnreadMentionCount(contactID: contact.id)
-                if let parent = parentViewModel, let radioID = appState.connectedDevice?.radioID {
-                    await parent.loadConversations(radioID: radioID)
-                }
+                parentViewModel?.requestConversationReload()
             case .channel(let channel):
                 try await dataStore.decrementChannelUnreadMentionCount(channelID: channel.id)
-                if let parent = parentViewModel, let radioID = appState.connectedDevice?.radioID {
-                    await parent.loadChannels(radioID: radioID)
-                }
+                parentViewModel?.requestConversationReload()
             }
             return true
         } catch {

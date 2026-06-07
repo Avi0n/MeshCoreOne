@@ -183,7 +183,7 @@ struct ContactDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .alert(L10n.Contacts.Contacts.Detail.Alert.Block.title, isPresented: $showingBlockAlert) {
             Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) { }
-            Button(L10n.Contacts.Contacts.Swipe.block, role: .destructive) {
+            Button(L10n.Contacts.Contacts.Action.block, role: .destructive) {
                 Task {
                     await toggleBlocked()
                 }

@@ -150,7 +150,7 @@
 "contacts.list.empty.favorites.title" = "Обраних ще немає";
 
 /* Location: ContactsListView.swift - Purpose: No favorites empty description */
-"contacts.list.empty.favorites.description" = "Проведи вправо по будь-якому вузлу, щоб додати його до обраних.";
+"contacts.list.empty.favorites.description" = "Натисни й утримуй будь-який вузол, щоб додати його до обраних.";
 
 /* Location: ContactsListView.swift - Purpose: No contacts empty title */
 "contacts.list.empty.contacts.title" = "Немає контактів";
@@ -192,14 +192,14 @@
 
 // MARK: - Contacts List Swipe Actions
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unfavorite swipe action */
-"contacts.swipe.unfavorite" = "Прибрати з обраних";
+/* Location: ContactContextMenuModifier - Purpose: Unfavorite action */
+"contacts.action.unfavorite" = "Прибрати з обраних";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Block swipe action */
-"contacts.swipe.block" = "Заблокувати";
+/* Location: ContactContextMenuModifier - Purpose: Block action */
+"contacts.action.block" = "Заблокувати";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unblock swipe action */
-"contacts.swipe.unblock" = "Розблокувати";
+/* Location: ContactContextMenuModifier - Purpose: Unblock action */
+"contacts.action.unblock" = "Розблокувати";
 
 // MARK: - Contact Detail
 
@@ -1128,6 +1128,9 @@
 
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "Підключись до радіо для видалення вузлів";
+
+/* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
+"contacts.viewModel.removeTimedOut" = "Deleting the node timed out. Try again.";
 
 // MARK: - Path Management ViewModel Errors
 

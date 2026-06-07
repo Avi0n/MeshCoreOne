@@ -150,7 +150,7 @@
 "contacts.list.empty.favorites.title" = "Brak ulubionych";
 
 /* Location: ContactsListView.swift - Purpose: No favorites empty description */
-"contacts.list.empty.favorites.description" = "Przesuń w prawo na dowolnym węźle, aby dodać go do ulubionych.";
+"contacts.list.empty.favorites.description" = "Naciśnij i przytrzymaj dowolny węzeł, aby dodać go do ulubionych.";
 
 /* Location: ContactsListView.swift - Purpose: No contacts empty title */
 "contacts.list.empty.contacts.title" = "Brak kontaktów";
@@ -192,14 +192,14 @@
 
 // MARK: - Contacts List Swipe Actions
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unfavorite swipe action */
-"contacts.swipe.unfavorite" = "Usuń z ulubionych";
+/* Location: ContactContextMenuModifier - Purpose: Unfavorite action */
+"contacts.action.unfavorite" = "Usuń z ulubionych";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Block swipe action */
-"contacts.swipe.block" = "Zablokuj";
+/* Location: ContactContextMenuModifier - Purpose: Block action */
+"contacts.action.block" = "Zablokuj";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unblock swipe action */
-"contacts.swipe.unblock" = "Odblokuj";
+/* Location: ContactContextMenuModifier - Purpose: Unblock action */
+"contacts.action.unblock" = "Odblokuj";
 
 // MARK: - Contact Detail
 
@@ -1128,6 +1128,9 @@
 
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "Połącz się z radiem, aby usunąć węzły";
+
+/* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
+"contacts.viewModel.removeTimedOut" = "Deleting the node timed out. Try again.";
 
 // MARK: - Path Management ViewModel Errors
 

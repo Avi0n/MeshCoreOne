@@ -245,6 +245,9 @@
 /* Location: ChannelInfoSheet.swift - Error when services unavailable */
 "chats.error.servicesUnavailable" = "服务不可用";
 
+/* TODO: translate - Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
+"chats.error.notConnectedToDelete" = "Connect to your radio to delete this conversation.";
+
 /* Location: ChatConversationView.swift - Error when loading older messages fails */
 "chats.error.loadOlderMessagesFailed" = "加载更早的消息失败";
 
@@ -354,20 +357,20 @@
 
 // MARK: - Swipe Actions
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to delete */
-"chats.swipeAction.delete" = "删除";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to delete */
+"chats.action.delete" = "删除";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to unmute */
-"chats.swipeAction.unmute" = "取消静音";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to unmute */
+"chats.action.unmute" = "取消静音";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to mute */
-"chats.swipeAction.mute" = "静音";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
+"chats.action.mute" = "静音";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to remove from favorites */
-"chats.swipeAction.unfavorite" = "取消收藏";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to remove from favorites */
+"chats.action.unfavorite" = "取消收藏";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to add to favorites */
-"chats.swipeAction.favorite" = "收藏";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to add to favorites */
+"chats.action.favorite" = "收藏";
 
 // MARK: - Room Conversation Row
 

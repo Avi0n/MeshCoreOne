@@ -51,9 +51,6 @@ struct RoomConversationRow: View {
                     )
                 }
             }
-            .alignmentGuide(.listRowSeparatorLeading) { d in
-                d[.leading]
-            }
 
             Image(systemName: "chevron.right")
                 .font(.caption.weight(.semibold))

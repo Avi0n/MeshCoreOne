@@ -16,7 +16,6 @@ struct ChatsStackRootContent: View {
     @Binding var navigationPath: NavigationPath
 
     let onDeleteConversation: (Conversation) -> Void
-    let onLoadConversations: () async -> Void
     let onHandlePendingNavigation: () -> Void
     let onHandlePendingChannelNavigation: () -> Void
     let onHandlePendingRoomNavigation: () -> Void
@@ -40,8 +39,6 @@ struct ChatsStackRootContent: View {
             searchText: $searchText,
             showingNewChat: $showingNewChat,
             showingChannelOptions: $showingChannelOptions,
-            routeBeingDeleted: nil,
-            onLoadConversations: onLoadConversations,
             onAnnounceOfflineStateIfNeeded: onAnnounceOfflineStateIfNeeded,
             onHandlePendingNavigation: onHandlePendingNavigation,
             onHandlePendingChannelNavigation: onHandlePendingChannelNavigation,

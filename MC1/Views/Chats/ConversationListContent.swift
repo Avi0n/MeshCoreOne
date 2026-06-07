@@ -1,6 +1,10 @@
 import SwiftUI
 import MC1Services
 
+/// The conversation list rendered as a `ScrollView` + `LazyVStack` rather than a `List`.
+/// `List` is backed by `UpdateCoalescingCollectionView`, whose batch-consistency assertion
+/// is violated when the selected row is deleted; a `LazyVStack` has no collection view, so
+/// that crash cannot occur. Row actions live in a `.contextMenu`.
 struct ConversationListContent: View {
     enum ListMode {
         case selection(Binding<ChatRoute?>)
@@ -17,6 +21,10 @@ struct ConversationListContent: View {
     private let emptyStateMessage: (title: String, description: String, systemImage: String)
     private let onDeleteConversation: (Conversation) -> Void
     @Binding private var selectedFilter: ChatFilter
+
+    /// Leading inset for the inter-row divider, aligning it under the row text past the avatar
+    /// (row horizontal padding 16 + avatar 44 + avatar-to-text spacing 12).
+    private static let rowSeparatorLeadingInset: CGFloat = 72
 
     init(
         viewModel: ChatViewModel,
@@ -62,158 +70,157 @@ struct ConversationListContent: View {
     var body: some View {
         Group {
             if !hasLoadedOnce {
-                List {
-                    filterSection
-                }
-                .listStyle(.plain)
-                .overlay {
-                    ProgressView()
-                }
+                loadingBody
             } else {
                 TimelineView(.everyMinute) { context in
-                    listContent(referenceDate: context.date)
+                    loadedBody(referenceDate: context.date)
                 }
             }
         }
     }
 
-    private var filterSection: some View {
-        PinnedFilterHeader { ChatFilterPicker(selection: $selectedFilter) }
+    private var loadingBody: some View {
+        ScrollView {
+            LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+                Section { } header: { pinnedFilterHeader }
+            }
+        }
+        .overlay { ProgressView() }
     }
 
-    @ViewBuilder
-    private var emptyStateRow: some View {
-        Section {
-            ContentUnavailableView {
-                Label(emptyStateMessage.title, systemImage: emptyStateMessage.systemImage)
-            } description: {
-                Text(emptyStateMessage.description)
-            } actions: {
-                if selectedFilter != .all {
-                    Button(L10n.Chats.Chats.Filter.clear) {
-                        selectedFilter = .all
+    private func loadedBody(referenceDate: Date) -> some View {
+        ScrollView {
+            LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+                Section {
+                    if hasNoConversations {
+                        emptyState
+                    } else {
+                        rows(referenceDate: referenceDate)
                     }
+                } header: {
+                    pinnedFilterHeader
                 }
             }
         }
-        .listRowSeparator(.hidden)
-        .listRowBackground(Color.clear)
+    }
+
+    /// Filter bar as the pinned section header. The strip carries the themed canvas color so
+    /// rows scrolling underneath the pin don't show through the bar's transparent margins and
+    /// inter-control gaps; the `GlassFilterBar` pills still render their glass over this backing.
+    private var pinnedFilterHeader: some View {
+        ChatFilterPicker(selection: $selectedFilter)
+            .frame(maxWidth: .infinity)
+            .background(theme.surfaces?.canvas ?? Color(.systemBackground))
     }
 
     private var hasNoConversations: Bool {
         favoriteConversations.isEmpty && otherConversations.isEmpty
     }
 
+    private var emptyState: some View {
+        ContentUnavailableView {
+            Label(emptyStateMessage.title, systemImage: emptyStateMessage.systemImage)
+        } description: {
+            Text(emptyStateMessage.description)
+        } actions: {
+            if selectedFilter != .all {
+                Button(L10n.Chats.Chats.Filter.clear) {
+                    selectedFilter = .all
+                }
+            }
+        }
+        .containerRelativeFrame([.horizontal, .vertical])
+    }
+
+    /// One unified section, favorites first by concatenation, with an inset divider between rows.
+    private func rows(referenceDate: Date) -> some View {
+        let ordered = favoriteConversations + otherConversations
+        return ForEach(Array(ordered.enumerated()), id: \.element.id) { index, conversation in
+            rowView(conversation, referenceDate: referenceDate)
+                .transition(.opacity)
+            if index < ordered.count - 1 {
+                Divider().padding(.leading, Self.rowSeparatorLeadingInset)
+            }
+        }
+    }
+
     @ViewBuilder
-    private func listContent(referenceDate: Date) -> some View {
+    private func rowView(_ conversation: Conversation, referenceDate: Date) -> some View {
         switch mode {
         case .selection(let selection):
-            List(selection: selection) {
-                filterSection
-
-                if hasNoConversations {
-                    emptyStateRow
-                } else {
-                    Section {
-                        ForEach(favoriteConversations) { conversation in
-                            ConversationSelectionRow(
-                                conversation: conversation,
-                                viewModel: viewModel,
-                                referenceDate: referenceDate,
-                                onDelete: { onDeleteConversation(conversation) }
-                            )
-                        }
-                    }
-                    .accessibilityLabel(L10n.Chats.Chats.Section.favorites)
-                    .accessibilityHidden(favoriteConversations.isEmpty)
-
-                    Section {
-                        ForEach(otherConversations) { conversation in
-                            ConversationSelectionRow(
-                                conversation: conversation,
-                                viewModel: viewModel,
-                                referenceDate: referenceDate,
-                                onDelete: { onDeleteConversation(conversation) }
-                            )
-                        }
-                    }
-                    .accessibilityLabel(L10n.Chats.Chats.Section.conversations)
-                    .accessibilityHidden(otherConversations.isEmpty)
-                }
-            }
-            .listStyle(.sidebar)
-
+            ConversationSelectionRow(
+                conversation: conversation,
+                viewModel: viewModel,
+                referenceDate: referenceDate,
+                isSelected: selection.wrappedValue == ChatRoute(conversation: conversation),
+                onSelect: { selection.wrappedValue = ChatRoute(conversation: conversation) },
+                onDelete: { onDeleteConversation(conversation) }
+            )
         case .navigation(let onNavigate, let onRequestRoomAuth):
-            List {
-                filterSection
-
-                if hasNoConversations {
-                    emptyStateRow
-                } else {
-                    Section {
-                        ForEach(favoriteConversations) { conversation in
-                            ConversationNavigationRow(
-                                conversation: conversation,
-                                viewModel: viewModel,
-                                referenceDate: referenceDate,
-                                onNavigate: onNavigate,
-                                onRequestRoomAuth: onRequestRoomAuth,
-                                onDelete: { onDeleteConversation(conversation) }
-                            )
-                        }
-                    }
-                    .accessibilityLabel(L10n.Chats.Chats.Section.favorites)
-                    .accessibilityHidden(favoriteConversations.isEmpty)
-                    .themedPlainRowBackground(theme)
-
-                    Section {
-                        ForEach(otherConversations) { conversation in
-                            ConversationNavigationRow(
-                                conversation: conversation,
-                                viewModel: viewModel,
-                                referenceDate: referenceDate,
-                                onNavigate: onNavigate,
-                                onRequestRoomAuth: onRequestRoomAuth,
-                                onDelete: { onDeleteConversation(conversation) }
-                            )
-                        }
-                    }
-                    .accessibilityLabel(L10n.Chats.Chats.Section.conversations)
-                    .accessibilityHidden(otherConversations.isEmpty)
-                    .themedPlainRowBackground(theme)
-                }
-            }
-            .listStyle(.plain)
+            ConversationNavigationRow(
+                conversation: conversation,
+                viewModel: viewModel,
+                referenceDate: referenceDate,
+                onNavigate: onNavigate,
+                onRequestRoomAuth: onRequestRoomAuth,
+                onDelete: { onDeleteConversation(conversation) }
+            )
         }
     }
 }
 
-// MARK: - Extracted Views
+// MARK: - Row Layout
+
+private enum ConversationRowLayout {
+    static let horizontalPadding: CGFloat = 16
+    static let verticalPadding: CGFloat = 6
+}
+
+/// Renders a conversation's row body, shared by the selection and navigation rows.
+private struct ConversationRowLabel: View {
+    let conversation: Conversation
+    let viewModel: ChatViewModel
+    let referenceDate: Date
+
+    var body: some View {
+        Group {
+            switch conversation {
+            case .direct(let contact):
+                ConversationRow(contact: contact, viewModel: viewModel, referenceDate: referenceDate)
+            case .channel(let channel):
+                ChannelConversationRow(channel: channel, viewModel: viewModel, referenceDate: referenceDate)
+            case .room(let session):
+                RoomConversationRow(session: session, referenceDate: referenceDate)
+            }
+        }
+        .padding(.horizontal, ConversationRowLayout.horizontalPadding)
+        .padding(.vertical, ConversationRowLayout.verticalPadding)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(.rect)
+    }
+}
+
+// MARK: - Extracted Rows
 
 private struct ConversationSelectionRow: View {
     let conversation: Conversation
     let viewModel: ChatViewModel
     let referenceDate: Date
+    let isSelected: Bool
+    let onSelect: () -> Void
     let onDelete: () -> Void
 
+    private var isDeleting: Bool { viewModel.deletingIDs.contains(conversation.id) }
+
     var body: some View {
-        let route = ChatRoute(conversation: conversation)
-        switch conversation {
-        case .direct(let contact):
-            ConversationRow(contact: contact, viewModel: viewModel, referenceDate: referenceDate)
-                .tag(route)
-                .conversationSwipeActions(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
-
-        case .channel(let channel):
-            ChannelConversationRow(channel: channel, viewModel: viewModel, referenceDate: referenceDate)
-                .tag(route)
-                .conversationSwipeActions(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
-
-        case .room(let session):
-            RoomConversationRow(session: session, referenceDate: referenceDate)
-                .tag(route)
-                .conversationSwipeActions(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
+        Button(action: onSelect) {
+            ConversationRowLabel(conversation: conversation, viewModel: viewModel, referenceDate: referenceDate)
         }
+        .buttonStyle(.plain)
+        .selectedRowHighlight(isSelected: isSelected)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .deletingRowOverlay(isDeleting: isDeleting)
+        .conversationContextMenu(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
     }
 }
 
@@ -225,33 +232,23 @@ private struct ConversationNavigationRow: View {
     let onRequestRoomAuth: (RemoteNodeSessionDTO) -> Void
     let onDelete: () -> Void
 
+    private var isDeleting: Bool { viewModel.deletingIDs.contains(conversation.id) }
+
     var body: some View {
+        Button(action: tap) {
+            ConversationRowLabel(conversation: conversation, viewModel: viewModel, referenceDate: referenceDate)
+        }
+        .buttonStyle(.plain)
+        .deletingRowOverlay(isDeleting: isDeleting)
+        .conversationContextMenu(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
+    }
+
+    private func tap() {
         let route = ChatRoute(conversation: conversation)
-        switch conversation {
-        case .direct(let contact):
-            NavigationLink(value: route) {
-                ConversationRow(contact: contact, viewModel: viewModel, referenceDate: referenceDate)
-            }
-            .conversationSwipeActions(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
-
-        case .channel(let channel):
-            NavigationLink(value: route) {
-                ChannelConversationRow(channel: channel, viewModel: viewModel, referenceDate: referenceDate)
-            }
-            .conversationSwipeActions(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
-
-        case .room(let session):
-            Button {
-                if session.isConnected {
-                    onNavigate(route)
-                } else {
-                    onRequestRoomAuth(session)
-                }
-            } label: {
-                RoomConversationRow(session: session, referenceDate: referenceDate)
-            }
-            .buttonStyle(.plain)
-            .conversationSwipeActions(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
+        if case .room(let session) = conversation, !session.isConnected {
+            onRequestRoomAuth(session)
+        } else {
+            onNavigate(route)
         }
     }
 }
