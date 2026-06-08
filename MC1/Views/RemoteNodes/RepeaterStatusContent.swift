@@ -22,7 +22,6 @@ struct RepeaterStatusContent: View {
     var body: some View {
         List {
             NodeStatusHeaderSection(session: session)
-            OwnerInfoSection(viewModel: viewModel, session: session, connectionState: connectionState)
             StatusSection(viewModel: viewModel, session: session, connectionState: connectionState)
             NodeTelemetryDisclosureSection(helper: viewModel.helper, connectionState: connectionState) {
                 await viewModel.requestTelemetry(for: session)
@@ -35,6 +34,7 @@ struct RepeaterStatusContent: View {
                 userLocation: userLocation,
                 connectionState: connectionState
             )
+            OwnerInfoSection(viewModel: viewModel, session: session, connectionState: connectionState)
             NodeBatteryCurveDisclosureSection(
                 helper: viewModel.helper,
                 session: session,
