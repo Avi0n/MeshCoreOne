@@ -33,8 +33,15 @@ struct MC1App: App {
                 do {
                     container = try PersistenceStore.createContainer()
                 } catch {
-                    logger.fault("Container creation failed after retry: \(error)")
-                    fatalError("ModelContainer creation failed after retry while data is available")
+                    let nsError = error as NSError
+                    logger.fault("""
+                        Container creation failed after retry: \
+                        domain=\(nsError.domain, privacy: .public) \
+                        code=\(nsError.code, privacy: .public) \
+                        desc=\(nsError.localizedDescription, privacy: .public) \
+                        userInfo=\(String(describing: nsError.userInfo), privacy: .public)
+                        """)
+                    fatalError("ModelContainer creation failed after retry while data is available: \(nsError.domain) \(nsError.code)")
                 }
                 _appState = State(initialValue: AppState(modelContainer: container))
                 return
@@ -76,8 +83,15 @@ struct MC1App: App {
                             appState = AppState(modelContainer: container)
                             awaitingDataProtection = false
                         } catch {
-                            logger.fault("Container creation failed after unlock: \(error)")
-                            fatalError("ModelContainer creation failed after protected data became available")
+                            let nsError = error as NSError
+                            logger.fault("""
+                                Container creation failed after unlock: \
+                                domain=\(nsError.domain, privacy: .public) \
+                                code=\(nsError.code, privacy: .public) \
+                                desc=\(nsError.localizedDescription, privacy: .public) \
+                                userInfo=\(String(describing: nsError.userInfo), privacy: .public)
+                                """)
+                            fatalError("ModelContainer creation failed after protected data became available: \(nsError.domain) \(nsError.code)")
                         }
                     }
 
