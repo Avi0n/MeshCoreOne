@@ -664,6 +664,10 @@ public enum L10n {
           public static func originalSendTime(_ p1: Any) -> String {
             return L10n.tr("Chats", "chats.message.info.originalSendTime", String(describing: p1), fallback: "Original send time: %@")
           }
+          /// Location: ActionsDetailsSection.swift - Info row showing the path hash size in bytes - %d is 1, 2, or 3
+          public static func pathHash(_ p1: Int) -> String {
+            return L10n.tr("Chats", "chats.message.info.pathHash", p1, fallback: "Path hash: %d-byte")
+          }
           /// Location: UnifiedMessageBubble.swift - Context menu text showing received time - %@ is formatted date
           public static func received(_ p1: Any) -> String {
             return L10n.tr("Chats", "chats.message.info.received", String(describing: p1), fallback: "Received: %@")
