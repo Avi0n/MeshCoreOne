@@ -20,7 +20,7 @@ struct LineOfSightView: View {
     @State private var showAnalysisSheet: Bool
     @State private var editingPoint: PointID?
     @State private var isDropPinMode = false
-    @AppStorage("mapStyleSelection") private var mapStyleSelection: MapStyleSelection = .topo
+    @AppStorage("mapStyleSelection") private var mapStyleSelection: MapStyleSelection = .standard
     @AppStorage("mapShowLabels") private var showLabels = true
     @State private var sheetBottomInset: CGFloat = 220
     @State private var isResultsExpanded = false
@@ -491,8 +491,7 @@ private struct LOSMapCanvasView: View {
                         Spacer()
                         LayersMenu(
                             selection: $mapStyleSelection,
-                            isPresented: $showingMapStyleMenu,
-                            viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds()
+                            isPresented: $showingMapStyleMenu
                         )
                         .padding(.trailing)
                     }

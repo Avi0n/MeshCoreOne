@@ -1,5 +1,4 @@
 import MapKit
-import MapLibre
 import SwiftUI
 import MC1Services
 
@@ -52,8 +51,7 @@ struct TracePathMapToolbarView: View {
             if mapViewModel.showingLayersMenu {
                 LayersMenu(
                     selection: $mapStyleSelection,
-                    isPresented: $mapViewModel.showingLayersMenu,
-                    viewportBounds: mapViewModel.cameraRegion?.toMLNCoordinateBounds()
+                    isPresented: $mapViewModel.showingLayersMenu
                 )
                 .padding(.trailing, 16)
                 .padding(.bottom, 160)
