@@ -275,6 +275,10 @@ struct MC1MapView: UIViewRepresentable {
         updateCameraRegion(in: mapView, coordinator: coordinator)
     }
 
+    /// Maximum absolute latitude MapLibre's `mbgl::LatLng` accepts; it throws an
+    /// uncaught `std::domain_error` (aborting the app) for any value beyond ±90.
+    private static let latitudeLimit = 90.0
+
     private func updateCameraRegion(in mapView: MLNMapView, coordinator: Coordinator) {
         guard let region = cameraRegion else { return }
         guard cameraRegionVersion != coordinator.lastAppliedRegionVersion else { return }
@@ -288,13 +292,18 @@ struct MC1MapView: UIViewRepresentable {
         let animated = coordinator.lastAppliedRegionVersion > 0 && !isInflated
         coordinator.lastAppliedRegionVersion = cameraRegionVersion
 
+        // A valid center isn't enough: the corners are center ± span/2, so a
+        // near-pole center can push a corner past ±90, which makes MapLibre's
+        // LatLng constructor throw and abort the process. Clamp latitude to the
+        // valid range; longitude is left unclamped because MapLibre wraps it.
+        let limit = Self.latitudeLimit
         let bounds = MLNCoordinateBounds(
             sw: CLLocationCoordinate2D(
-                latitude: region.center.latitude - region.span.latitudeDelta / 2,
+                latitude: max(-limit, region.center.latitude - region.span.latitudeDelta / 2),
                 longitude: region.center.longitude - region.span.longitudeDelta / 2
             ),
             ne: CLLocationCoordinate2D(
-                latitude: region.center.latitude + region.span.latitudeDelta / 2,
+                latitude: min(limit, region.center.latitude + region.span.latitudeDelta / 2),
                 longitude: region.center.longitude + region.span.longitudeDelta / 2
             )
         )
