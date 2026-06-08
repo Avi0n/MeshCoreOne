@@ -10,18 +10,40 @@ struct ActionsDetailsSection: View {
     let discoveredNodes: [DiscoveredNodeDTO]
     let pathViewModel: MessagePathViewModel
 
+    @State private var showPathMap = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if availability.canShowRepeatDetails || availability.canViewPath {
-                ActionsExpandableDetailRow(
-                    message: message,
-                    availability: availability,
-                    isDetailExpanded: $isDetailExpanded,
-                    repeats: repeats,
-                    contacts: contacts,
-                    discoveredNodes: discoveredNodes,
-                    pathViewModel: pathViewModel
-                )
+                HStack(spacing: 0) {
+                    ActionsExpandableDetailRow(
+                        message: message,
+                        availability: availability,
+                        isDetailExpanded: $isDetailExpanded,
+                        repeats: repeats,
+                        contacts: contacts,
+                        discoveredNodes: discoveredNodes,
+                        pathViewModel: pathViewModel
+                    )
+
+                    if availability.canViewPath {
+                        Divider()
+                            .frame(height: 24)
+                        Button {
+                            showPathMap = true
+                        } label: {
+                            Image(systemName: "map")
+                                .frame(width: 44, height: 44)
+                                .contentShape(.rect)
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel(L10n.Chats.Chats.Path.title)
+                    }
+                }
+                .sheet(isPresented: $showPathMap) {
+                    MessagePathMapView(message: message, pathViewModel: pathViewModel)
+                }
             }
 
             Text(L10n.Chats.Chats.Message.Action.details)
