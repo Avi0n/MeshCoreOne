@@ -898,6 +898,21 @@
 /* Location: TracePathListView.swift - Purpose: Traces count label */
 "contacts.trace.list.traces" = "Traces:";
 
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size picker label */
+"contacts.trace.list.hashSize" = "Hash-grootte";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 1 byte per hop */
+"contacts.trace.list.hashSizeOneByte" = "1 byte";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 2 bytes per hop */
+"contacts.trace.list.hashSizeTwoBytes" = "2 bytes";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 4 bytes per hop */
+"contacts.trace.list.hashSizeFourBytes" = "4 bytes";
+
+/* Location: PathActionsSectionView.swift - Purpose: Caveat shown for multi-byte trace hash sizes */
+"contacts.trace.list.hashSizeFooter" = "Repeaters met firmware ouder dan 1.11.0 sturen traces met een hash-grootte groter dan 1 byte niet door.";
+
 /* Location: TracePathListView.swift - Purpose: Copy path button */
 "contacts.trace.list.copyPath" = "Pad kopiëren";
 

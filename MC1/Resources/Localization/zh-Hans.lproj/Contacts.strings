@@ -898,6 +898,21 @@
 /* Location: TracePathListView.swift - Purpose: Traces count label */
 "contacts.trace.list.traces" = "追踪：";
 
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size picker label */
+"contacts.trace.list.hashSize" = "哈希大小";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 1 byte per hop */
+"contacts.trace.list.hashSizeOneByte" = "1 字节";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 2 bytes per hop */
+"contacts.trace.list.hashSizeTwoBytes" = "2 字节";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 4 bytes per hop */
+"contacts.trace.list.hashSizeFourBytes" = "4 字节";
+
+/* Location: PathActionsSectionView.swift - Purpose: Caveat shown for multi-byte trace hash sizes */
+"contacts.trace.list.hashSizeFooter" = "固件版本低于 1.11.0 的转发节点不会转发哈希大小超过 1 字节的追踪。";
+
 /* Location: TracePathListView.swift - Purpose: Copy path button */
 "contacts.trace.list.copyPath" = "复制路径";
 

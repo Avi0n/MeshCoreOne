@@ -928,6 +928,21 @@
 /* Location: TracePathListView.swift - Purpose: Traces count label */
 "contacts.trace.list.traces" = "Tracés :";
 
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size picker label */
+"contacts.trace.list.hashSize" = "Taille de hachage";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 1 byte per hop */
+"contacts.trace.list.hashSizeOneByte" = "1 octet";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 2 bytes per hop */
+"contacts.trace.list.hashSizeTwoBytes" = "2 octets";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 4 bytes per hop */
+"contacts.trace.list.hashSizeFourBytes" = "4 octets";
+
+/* Location: PathActionsSectionView.swift - Purpose: Caveat shown for multi-byte trace hash sizes */
+"contacts.trace.list.hashSizeFooter" = "Les répéteurs dont le micrologiciel est antérieur à 1.11.0 ne transmettront pas les tracés dont la taille de hachage est supérieure à 1 octet.";
+
 /* Location: TracePathListView.swift - Purpose: Copy path button */
 "contacts.trace.list.copyPath" = "Copier le chemin";
 

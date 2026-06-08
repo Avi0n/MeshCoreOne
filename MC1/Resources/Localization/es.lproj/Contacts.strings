@@ -928,6 +928,21 @@
 /* Location: TracePathListView.swift - Purpose: Traces count label */
 "contacts.trace.list.traces" = "Trazas:";
 
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size picker label */
+"contacts.trace.list.hashSize" = "Tamaño de hash";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 1 byte per hop */
+"contacts.trace.list.hashSizeOneByte" = "1 byte";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 2 bytes per hop */
+"contacts.trace.list.hashSizeTwoBytes" = "2 bytes";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 4 bytes per hop */
+"contacts.trace.list.hashSizeFourBytes" = "4 bytes";
+
+/* Location: PathActionsSectionView.swift - Purpose: Caveat shown for multi-byte trace hash sizes */
+"contacts.trace.list.hashSizeFooter" = "Los repetidores con firmware anterior a 1.11.0 no reenviarán trazas con un tamaño de hash superior a 1 byte.";
+
 /* Location: TracePathListView.swift - Purpose: Copy path button */
 "contacts.trace.list.copyPath" = "Copiar ruta";
 

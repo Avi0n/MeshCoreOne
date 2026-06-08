@@ -3,6 +3,7 @@ import MC1Services
 
 /// Section with path configuration toggles, copy, and clear actions
 struct PathActionsSectionView: View {
+    @Environment(\.appState) private var appState
     @Environment(\.appTheme) private var theme
     @Bindable var viewModel: TracePathViewModel
     @Binding var showingClearConfirmation: Bool
@@ -37,6 +38,27 @@ struct PathActionsSectionView: View {
                         BatchSizeChip(size: 3, selectedSize: $viewModel.batchSize)
                         BatchSizeChip(size: 5, selectedSize: $viewModel.batchSize)
                         BatchSizeChip(size: 10, selectedSize: $viewModel.batchSize)
+                    }
+                }
+
+                if appState.connectedDevice?.supportsTraceHashSizeOverride == true {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Picker(L10n.Contacts.Contacts.Trace.List.hashSize, selection: Binding(
+                            get: { viewModel.effectiveTraceMode },
+                            set: { viewModel.setTraceHashMode($0) }
+                        )) {
+                            Text(L10n.Contacts.Contacts.Trace.List.hashSizeOneByte).tag(UInt8(0))
+                            Text(L10n.Contacts.Contacts.Trace.List.hashSizeTwoBytes).tag(UInt8(1))
+                            Text(L10n.Contacts.Contacts.Trace.List.hashSizeFourBytes).tag(UInt8(2))
+                        }
+                        .pickerStyle(.menu)
+                        .tint(.primary)
+
+                        if viewModel.effectiveTraceMode > 0 {
+                            Text(L10n.Contacts.Contacts.Trace.List.hashSizeFooter)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
 

@@ -2020,6 +2020,16 @@ public enum L10n {
           public static let copyPath = L10n.tr("Contacts", "contacts.trace.list.copyPath", fallback: "Copy Path")
           /// Location: TracePathListView.swift - Purpose: Empty path instruction
           public static let emptyPath = L10n.tr("Contacts", "contacts.trace.list.emptyPath", fallback: "Add a hop to start building your path.")
+          /// Location: PathActionsSectionView.swift - Purpose: Trace hash size picker label
+          public static let hashSize = L10n.tr("Contacts", "contacts.trace.list.hashSize", fallback: "Hash Size")
+          /// Location: PathActionsSectionView.swift - Purpose: Caveat shown for multi-byte trace hash sizes
+          public static let hashSizeFooter = L10n.tr("Contacts", "contacts.trace.list.hashSizeFooter", fallback: "Repeaters running firmware older than 1.11.0 will not forward traces with a hash size greater than 1 byte.")
+          /// Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 4 bytes per hop
+          public static let hashSizeFourBytes = L10n.tr("Contacts", "contacts.trace.list.hashSizeFourBytes", fallback: "4 Bytes")
+          /// Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 1 byte per hop
+          public static let hashSizeOneByte = L10n.tr("Contacts", "contacts.trace.list.hashSizeOneByte", fallback: "1 Byte")
+          /// Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 2 bytes per hop
+          public static let hashSizeTwoBytes = L10n.tr("Contacts", "contacts.trace.list.hashSizeTwoBytes", fallback: "2 Bytes")
           /// Location: TracePathListView.swift - Purpose: Hop row accessibility hint
           public static let hopHint = L10n.tr("Contacts", "contacts.trace.list.hopHint", fallback: "Swipe left to delete, use drag handle to reorder")
           /// Location: TracePathListView.swift - Purpose: Hop row accessibility label
