@@ -1,24 +1,54 @@
-import MapLibre
 import UIKit
 
 @MainActor
 enum PinSpriteRenderer {
-    /// Height of a standard pin sprite in points (circle + triangle pointer).
-    /// Used by the map Coordinator to position callout anchors above the pin icon.
     static let standardHeight: CGFloat = 43 // 36 (circle) + 10 (triangle) - 3 (overlap)
-
     static let labelSpritePrefix = "label-"
 
-    private static var cachedImages: [String: UIImage]?
-
-    /// Single cached dropped-pin sprite for the chat map thumbnail. Distinct from
-    /// `cachedImages`, which is only populated after the Map tab loads its GL
-    /// style; the chat snapshot path never loads that style.
+    private static var cachedImages: [String: UIImage] = [:]
     private static var cachedDroppedPin: UIImage?
 
-    /// The dropped-pin sprite (systemPink circle + `mappin`), rendered once and
-    /// reused. Coordinate-independent, so the chat thumbnail composites the exact
-    /// pin the Map tab drops. Must be called on the main actor.
+    /// Pre-renders all base sprites into the cache.
+    static func warmCache() {
+        guard cachedImages.isEmpty else { return }
+        for spec in allSpecs {
+            cachedImages[spec.name] = render(spec)
+        }
+    }
+
+    /// Returns the pin image for the given MapPoint.
+    static func pinImage(for point: MapPoint) -> UIImage {
+        let name = spriteName(for: point)
+        if let cached = cachedImages[name] { return cached }
+
+        if name.hasPrefix("pin-repeater-ring-white-hop-"),
+           let hopString = name.split(separator: "-").last,
+           let hop = Int(hopString),
+           (1...20).contains(hop),
+           let spec = allSpecs.first(where: { $0.name == "pin-repeater-ring-white" }) {
+            let image = render(spec, hopIndex: hop)
+            cachedImages[name] = image
+            return image
+        }
+
+        if let spec = allSpecs.first(where: { $0.name == name }) {
+            let image = render(spec)
+            cachedImages[name] = image
+            return image
+        }
+        return UIImage()
+    }
+
+    /// Returns a label pill image for the given text string.
+    static func labelImage(for text: String) -> UIImage {
+        let key = "\(labelSpritePrefix)\(text)"
+        if let cached = cachedImages[key] { return cached }
+        let image = renderLabelSprite(text: text)
+        cachedImages[key] = image
+        return image
+    }
+
+    /// The dropped-pin sprite, rendered once and reused.
     static func droppedPinSprite() -> UIImage {
         if let cached = cachedDroppedPin { return cached }
         guard let spec = allSpecs.first(where: { $0.name == "pin-dropped" }) else {
@@ -29,53 +59,29 @@ enum PinSpriteRenderer {
         return image
     }
 
-    /// Registers base pin sprites into the style. Hop-ring variants are rendered
-    /// lazily via `renderOnDemand(name:into:)` when MapLibre requests a missing image.
-    static func renderAll(into style: MLNStyle) {
-        var rendered: [String: UIImage] = [:]
-        for spec in allSpecs {
-            rendered[spec.name] = render(spec)
-        }
-        rendered["pin-badge"] = UIGraphicsImageRenderer(
-            size: CGSize(width: 1, height: 1), format: .preferred()
-        ).image { _ in }
-        rendered["pill-bg"] = renderPillBackground()
-        cachedImages = rendered
+    // MARK: - Sprite name
 
-        for (name, image) in rendered {
-            style.setImage(image, forName: name)
-        }
-    }
-
-    /// Renders a hop-ring sprite on demand when MapLibre requests a missing image name.
-    /// Returns the rendered image so the caller can pass it back to MapLibre as
-    /// the immediate fallback, avoiding a single-frame blink.
-    static func renderOnDemand(name: String, into style: MLNStyle) -> UIImage? {
-        if let cached = cachedImages?[name] {
-            style.setImage(cached, forName: name)
-            return cached
-        }
-
-        let image: UIImage
-        if name.hasPrefix("pin-repeater-ring-white-hop-") {
-            guard let hopString = name.split(separator: "-").last,
-                  let hop = Int(hopString),
-                  (1...20).contains(hop),
-                  let ringWhiteSpec = allSpecs.first(where: { $0.name == "pin-repeater-ring-white" }) else {
-                return nil
+    static func spriteName(for point: MapPoint) -> String {
+        switch point.pinStyle {
+        case .contactChat: "pin-chat"
+        case .contactRepeater: "pin-repeater"
+        case .contactRoom: "pin-room"
+        case .repeater: "pin-repeater"
+        case .repeaterRingBlue: "pin-repeater-ring-blue"
+        case .repeaterRingGreen: "pin-repeater-ring-green"
+        case .repeaterRingWhite:
+            if let hop = point.hopIndex {
+                "pin-repeater-ring-white-hop-\(min(hop, 20))"
+            } else {
+                "pin-repeater-ring-white"
             }
-            image = render(ringWhiteSpec, hopIndex: hop)
-        } else if name.hasPrefix(labelSpritePrefix) {
-            let text = String(name.dropFirst(labelSpritePrefix.count))
-            guard !text.isEmpty else { return nil }
-            image = renderLabelSprite(text: text)
-        } else {
-            return nil
+        case .pointA: "pin-point-a"
+        case .pointB: "pin-point-b"
+        case .crosshair: "pin-crosshair"
+        case .obstruction: "pin-obstruction"
+        case .droppedPin: "pin-dropped"
+        case .badge: "pin-badge"
         }
-
-        cachedImages?[name] = image
-        style.setImage(image, forName: name)
-        return image
     }
 
     // MARK: - Sprite specifications
@@ -89,44 +95,33 @@ enum PinSpriteRenderer {
     private struct SpriteSpec {
         let name: String
         let circleColor: UIColor
-        let iconName: String?    // SF Symbol name
-        let text: String?        // e.g. "A", "B" for point pins
-        let ringColor: UIColor?  // selection ring
+        let iconName: String?
+        let text: String?
+        let ringColor: UIColor?
         let renderStyle: RenderStyle
     }
 
     private static let allSpecs: [SpriteSpec] = [
-        // Main map contacts
-        SpriteSpec(name: "pin-chat", circleColor: UIColor(red: 204 / 255, green: 122 / 255, blue: 92 / 255, alpha: 1),
+        SpriteSpec(name: "pin-chat", circleColor: UIColor(red: 204/255, green: 122/255, blue: 92/255, alpha: 1),
                    iconName: "person.fill", text: nil, ringColor: nil, renderStyle: .standard),
         SpriteSpec(name: "pin-repeater", circleColor: .systemCyan,
                    iconName: "antenna.radiowaves.left.and.right", text: nil, ringColor: nil, renderStyle: .standard),
-        SpriteSpec(name: "pin-room", circleColor: UIColor(red: 1, green: 136 / 255, blue: 0, alpha: 1),
+        SpriteSpec(name: "pin-room", circleColor: UIColor(red: 1, green: 136/255, blue: 0, alpha: 1),
                    iconName: "person.3.fill", text: nil, ringColor: nil, renderStyle: .standard),
-
-        // LOS/TracePath repeater states
         SpriteSpec(name: "pin-repeater-ring-blue", circleColor: .systemCyan,
                    iconName: "antenna.radiowaves.left.and.right", text: nil, ringColor: .systemBlue, renderStyle: .standard),
         SpriteSpec(name: "pin-repeater-ring-green", circleColor: .systemCyan,
                    iconName: "antenna.radiowaves.left.and.right", text: nil, ringColor: .systemGreen, renderStyle: .standard),
         SpriteSpec(name: "pin-repeater-ring-white", circleColor: .systemCyan,
                    iconName: "antenna.radiowaves.left.and.right", text: nil, ringColor: .white, renderStyle: .standard),
-
-        // LOS point pins
         SpriteSpec(name: "pin-point-a", circleColor: .systemBlue,
                    iconName: nil, text: "A", ringColor: nil, renderStyle: .standard),
         SpriteSpec(name: "pin-point-b", circleColor: .systemGreen,
                    iconName: nil, text: "B", ringColor: nil, renderStyle: .standard),
-
-        // LOS crosshair target
         SpriteSpec(name: "pin-crosshair", circleColor: .systemPurple,
                    iconName: nil, text: "R", ringColor: nil, renderStyle: .crosshair),
-
-        // LOS obstruction marker
         SpriteSpec(name: "pin-obstruction", circleColor: .systemRed,
                    iconName: nil, text: nil, ringColor: nil, renderStyle: .obstruction),
-
-        // Chat-dropped coordinate pin
         SpriteSpec(name: "pin-dropped", circleColor: .systemPink,
                    iconName: "mappin", text: nil, ringColor: nil, renderStyle: .standard),
     ]
@@ -153,37 +148,23 @@ enum PinSpriteRenderer {
             let cgContext = ctx.cgContext
             let centerX = totalWidth / 2
 
-            // Selection ring
             if let ringColor = spec.ringColor {
-                let ringRect = CGRect(
-                    x: centerX - ringSize / 2,
-                    y: ringPadding,
-                    width: ringSize,
-                    height: ringSize
-                )
+                let ringRect = CGRect(x: centerX - ringSize / 2, y: ringPadding, width: ringSize, height: ringSize)
                 ringColor.setStroke()
                 cgContext.setLineWidth(3)
                 cgContext.strokeEllipse(in: ringRect.insetBy(dx: 1.5, dy: 1.5))
             }
 
-            // Circle shadow
             cgContext.saveGState()
             cgContext.setShadow(offset: CGSize(width: 0, height: 2), blur: 4, color: UIColor.black.withAlphaComponent(0.3).cgColor)
-            let circleRect = CGRect(
-                x: centerX - circleSize / 2,
-                y: ringPadding,
-                width: circleSize,
-                height: circleSize
-            )
+            let circleRect = CGRect(x: centerX - circleSize / 2, y: ringPadding, width: circleSize, height: circleSize)
             spec.circleColor.setFill()
             cgContext.fillEllipse(in: circleRect)
             cgContext.restoreGState()
 
-            // Circle (again without shadow for crisp edge)
             spec.circleColor.setFill()
             cgContext.fillEllipse(in: circleRect)
 
-            // Icon or text
             if let iconName = spec.iconName {
                 let config = UIImage.SymbolConfiguration(pointSize: iconSize, weight: .regular)
                 if let icon = UIImage(systemName: iconName, withConfiguration: config)?.withTintColor(.white, renderingMode: .alwaysOriginal) {
@@ -208,7 +189,6 @@ enum PinSpriteRenderer {
                 (text as NSString).draw(in: textRect, withAttributes: attrs)
             }
 
-            // Triangle pointer
             let triangleTop = circleRect.maxY - 3
             let path = UIBezierPath()
             path.move(to: CGPoint(x: centerX - triangleSize / 2, y: triangleTop))
@@ -218,7 +198,6 @@ enum PinSpriteRenderer {
             spec.circleColor.setFill()
             path.fill()
 
-            // Hop badge overlay (ring pins only)
             if let hopIndex, spec.ringColor != nil {
                 let badgeSize: CGFloat = 18
                 let badgeX = circleRect.maxX + 4 - badgeSize
@@ -243,45 +222,7 @@ enum PinSpriteRenderer {
         }
     }
 
-    // MARK: - Pill sprites
-
-    /// Semi-transparent stretchable pill for stats badges.
-    /// Registered as a resizable image so MapLibre's `iconTextFit` can stretch
-    /// the flat center while preserving the rounded caps.
-    private static func renderPillBackground() -> UIImage {
-        let cornerRadius: CGFloat = 4
-        let size: CGFloat = 2 * cornerRadius + 2
-        let shadowPadding: CGFloat = 1
-        let totalSize = size + shadowPadding * 2
-        let capInset = cornerRadius + shadowPadding
-
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: totalSize, height: totalSize), format: .preferred())
-        let image = renderer.image { ctx in
-            let cgContext = ctx.cgContext
-            let pillRect = CGRect(x: shadowPadding, y: shadowPadding, width: size, height: size)
-            let pillPath = UIBezierPath(roundedRect: pillRect, cornerRadius: cornerRadius)
-
-            // Shadow pass
-            cgContext.saveGState()
-            cgContext.setShadow(
-                offset: CGSize(width: 0, height: 0.5),
-                blur: 1,
-                color: UIColor.black.withAlphaComponent(0.15).cgColor
-            )
-            UIColor.white.setFill()
-            pillPath.fill()
-            cgContext.restoreGState()
-
-            // Light fill for readability in both light and dark mode
-            UIColor.white.withAlphaComponent(0.85).setFill()
-            pillPath.fill()
-        }
-
-        return image.resizableImage(
-            withCapInsets: UIEdgeInsets(top: capInset, left: capInset, bottom: capInset, right: capInset),
-            resizingMode: .stretch
-        )
-    }
+    // MARK: - Label sprite
 
     private static func renderLabelSprite(text: String) -> UIImage {
         let font = UIFont.systemFont(ofSize: 12, weight: .bold)
@@ -298,21 +239,15 @@ enum PinSpriteRenderer {
         let totalWidth = pillWidth + shadowPadding * 2
         let totalHeight = pillHeight + shadowPadding * 2
 
-        let renderer = UIGraphicsImageRenderer(
-            size: CGSize(width: totalWidth, height: totalHeight),
-            format: .preferred()
-        )
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: totalWidth, height: totalHeight), format: .preferred())
         return renderer.image { ctx in
             let cgContext = ctx.cgContext
             let pillRect = CGRect(x: shadowPadding, y: shadowPadding, width: pillWidth, height: pillHeight)
             let pillPath = UIBezierPath(roundedRect: pillRect, cornerRadius: cornerRadius)
 
             cgContext.saveGState()
-            cgContext.setShadow(
-                offset: CGSize(width: 0, height: 0.5),
-                blur: 1,
-                color: UIColor.black.withAlphaComponent(0.15).cgColor
-            )
+            cgContext.setShadow(offset: CGSize(width: 0, height: 0.5), blur: 1,
+                                color: UIColor.black.withAlphaComponent(0.15).cgColor)
             UIColor.white.setFill()
             pillPath.fill()
             cgContext.restoreGState()
@@ -335,30 +270,24 @@ enum PinSpriteRenderer {
         let padding: CGFloat = 3
         let totalSize = size + padding * 2
         let armLength: CGFloat = size / 2 - 1
-        let casingWidth: CGFloat = 6
-        let strokeWidth: CGFloat = 2.5
 
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: totalSize, height: totalSize), format: .preferred())
         return renderer.image { ctx in
             let cgContext = ctx.cgContext
             let center = CGPoint(x: totalSize / 2, y: totalSize / 2)
 
-            // Draw white casing (thick white stroke behind the red X)
             cgContext.setStrokeColor(UIColor.white.cgColor)
-            cgContext.setLineWidth(casingWidth)
+            cgContext.setLineWidth(6)
             cgContext.setLineCap(.round)
-
             cgContext.move(to: CGPoint(x: center.x - armLength, y: center.y - armLength))
             cgContext.addLine(to: CGPoint(x: center.x + armLength, y: center.y + armLength))
             cgContext.move(to: CGPoint(x: center.x + armLength, y: center.y - armLength))
             cgContext.addLine(to: CGPoint(x: center.x - armLength, y: center.y + armLength))
             cgContext.strokePath()
 
-            // Draw red X on top
             cgContext.setStrokeColor(UIColor.systemRed.cgColor)
-            cgContext.setLineWidth(strokeWidth)
+            cgContext.setLineWidth(2.5)
             cgContext.setLineCap(.round)
-
             cgContext.move(to: CGPoint(x: center.x - armLength, y: center.y - armLength))
             cgContext.addLine(to: CGPoint(x: center.x + armLength, y: center.y + armLength))
             cgContext.move(to: CGPoint(x: center.x + armLength, y: center.y - armLength))
@@ -375,7 +304,6 @@ enum PinSpriteRenderer {
         let outerRadius: CGFloat = 22
         let badgeHeight: CGFloat = 20
         let badgeGap: CGFloat = 2
-        // Top padding so the crosshair center sits at the image's vertical midpoint
         let topPadding = badgeHeight + badgeGap
         let totalHeight = topPadding + size + badgeGap + badgeHeight
 
@@ -384,11 +312,9 @@ enum PinSpriteRenderer {
             let cgContext = ctx.cgContext
             let center = CGPoint(x: size / 2, y: topPadding + size / 2)
 
-            // White casing behind crosshair lines
             cgContext.setStrokeColor(UIColor.white.cgColor)
             cgContext.setLineWidth(6)
             cgContext.setLineCap(.round)
-
             cgContext.move(to: CGPoint(x: center.x, y: center.y - outerRadius))
             cgContext.addLine(to: CGPoint(x: center.x, y: center.y - gapRadius))
             cgContext.move(to: CGPoint(x: center.x, y: center.y + gapRadius))
@@ -399,11 +325,9 @@ enum PinSpriteRenderer {
             cgContext.addLine(to: CGPoint(x: center.x + outerRadius, y: center.y))
             cgContext.strokePath()
 
-            // Crosshair lines
             cgContext.setStrokeColor(UIColor.systemPurple.cgColor)
             cgContext.setLineWidth(2)
             cgContext.setLineCap(.round)
-
             cgContext.move(to: CGPoint(x: center.x, y: center.y - outerRadius))
             cgContext.addLine(to: CGPoint(x: center.x, y: center.y - gapRadius))
             cgContext.move(to: CGPoint(x: center.x, y: center.y + gapRadius))
@@ -414,7 +338,6 @@ enum PinSpriteRenderer {
             cgContext.addLine(to: CGPoint(x: center.x + outerRadius, y: center.y))
             cgContext.strokePath()
 
-            // "R" badge
             let badgeWidth: CGFloat = 20
             let badgeRect = CGRect(x: center.x - badgeWidth / 2, y: topPadding + size + badgeGap, width: badgeWidth, height: badgeHeight)
             let badgePath = UIBezierPath(roundedRect: badgeRect, cornerRadius: 9)
