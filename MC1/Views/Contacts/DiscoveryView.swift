@@ -37,46 +37,35 @@ struct DiscoveryView: View {
         )
     }
 
-    private var filterSection: some View {
-        PinnedFilterHeader {
-            DiscoverSegmentPicker(selection: $selectedSegment, isSearching: isSearching)
-        }
+    /// Segment picker as the pinned section header; `pinnedFilterHeaderBackground` documents the
+    /// per-OS backing.
+    private var pinnedFilterHeader: some View {
+        DiscoverSegmentPicker(selection: $selectedSegment, isSearching: isSearching)
+            .frame(maxWidth: .infinity)
+            .pinnedFilterHeaderBackground(theme)
     }
 
     @ViewBuilder
-    private var emptyStateRow: some View {
-        Section {
+    private var emptyState: some View {
+        Group {
             if isSearching {
                 DiscoverySearchEmptyView(searchText: searchText)
             } else {
                 DiscoveryEmptyView()
             }
         }
-        .listRowSeparator(.hidden)
-        .listRowBackground(Color.clear)
+        .containerRelativeFrame([.horizontal, .vertical])
     }
 
     var body: some View {
         Group {
             if !viewModel.hasLoadedOnce {
-                List {
-                    filterSection
-                }
-                .listStyle(.plain)
-                .themedCanvas(theme)
-                .overlay {
-                    ProgressView()
-                }
+                loadingBody
             } else {
-                DiscoveryNodesList(
-                    filteredNodes: filteredNodes,
-                    viewModel: viewModel,
-                    addingNodeID: $addingNodeID,
-                    filterHeader: { filterSection },
-                    emptyContent: { emptyStateRow }
-                )
+                loadedBody
             }
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Contacts.Contacts.Discovery.title)
         .toolbar {
             ToolbarItem(placement: .automatic) {
@@ -134,10 +123,92 @@ struct DiscoveryView: View {
         }
     }
 
+    /// Leading inset for the inter-row divider, aligning it under the row text past the avatar.
+    private static let rowSeparatorLeadingInset: CGFloat = 72
+
+    private var loadingBody: some View {
+        ScrollView {
+            LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+                Section { } header: { pinnedFilterHeader }
+            }
+        }
+        .overlay { ProgressView() }
+    }
+
+    private var loadedBody: some View {
+        ScrollView {
+            LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+                Section {
+                    if filteredNodes.isEmpty {
+                        emptyState
+                    } else {
+                        rows
+                    }
+                } header: {
+                    pinnedFilterHeader
+                }
+            }
+        }
+    }
+
+    private var rows: some View {
+        ForEach(Array(filteredNodes.enumerated()), id: \.element.id) { index, node in
+            DiscoveryNodeRow(
+                node: node,
+                isAdded: viewModel.isAdded(node),
+                isAdding: addingNodeID == node.id,
+                onAdd: { addNode(node) },
+                onDelete: {
+                    Task {
+                        await viewModel.deleteDiscoveredNode(node)
+                    }
+                }
+            )
+            .transition(.opacity)
+            if index < filteredNodes.count - 1 {
+                Divider().padding(.leading, Self.rowSeparatorLeadingInset)
+            }
+        }
+    }
+
     private func loadDiscoveredNodes() async {
         guard let radioID = appState.connectedDevice?.radioID else { return }
         viewModel.configure(appState: appState)
         await viewModel.loadDiscoveredNodes(radioID: radioID)
+    }
+
+    private func addNode(_ node: DiscoveredNodeDTO) {
+        guard let contactService = appState.services?.contactService else { return }
+
+        addingNodeID = node.id
+        Task {
+            do {
+                let frame = ContactFrame(
+                    publicKey: node.publicKey,
+                    type: node.nodeType,
+                    flags: 0,
+                    outPathLength: node.outPathLength,
+                    outPath: node.outPath,
+                    name: node.name,
+                    lastAdvertTimestamp: node.lastAdvertTimestamp,
+                    latitude: node.latitude,
+                    longitude: node.longitude,
+                    lastModified: 0
+                )
+                try await contactService.addOrUpdateContact(radioID: node.radioID, contact: frame)
+                await viewModel.loadDiscoveredNodes(radioID: node.radioID)
+            } catch ContactServiceError.contactTableFull {
+                let maxContacts = appState.connectedDevice?.maxContacts
+                if let maxContacts {
+                    viewModel.errorMessage = L10n.Contacts.Contacts.Add.Error.nodeListFull(Int(maxContacts))
+                } else {
+                    viewModel.errorMessage = L10n.Contacts.Contacts.Add.Error.nodeListFullSimple
+                }
+            } catch {
+                viewModel.errorMessage = error.localizedDescription
+            }
+            addingNodeID = nil
+        }
     }
 
     private func clearAllDiscoveredNodes() async {
@@ -174,76 +245,10 @@ private struct DiscoverySearchEmptyView: View {
     }
 }
 
-// MARK: - Nodes List
+// MARK: - Row Layout
 
-private struct DiscoveryNodesList<FilterHeader: View, EmptyContent: View>: View {
-    @Environment(\.appState) private var appState
-    @Environment(\.appTheme) private var theme
-    let filteredNodes: [DiscoveredNodeDTO]
-    let viewModel: DiscoveryViewModel
-    @Binding var addingNodeID: UUID?
-    @ViewBuilder let filterHeader: () -> FilterHeader
-    @ViewBuilder let emptyContent: () -> EmptyContent
-
-    var body: some View {
-        List {
-            filterHeader()
-
-            if filteredNodes.isEmpty {
-                emptyContent()
-            } else {
-                ForEach(filteredNodes) { node in
-                    DiscoveryNodeRow(
-                        node: node,
-                        isAdded: viewModel.isAdded(node),
-                        isAdding: addingNodeID == node.id,
-                        onAdd: { addNode(node) },
-                        onDelete: {
-                            Task {
-                                await viewModel.deleteDiscoveredNode(node)
-                            }
-                        }
-                    )
-                }
-            }
-        }
-        .listStyle(.plain)
-        .themedCanvas(theme)
-    }
-
-    private func addNode(_ node: DiscoveredNodeDTO) {
-        guard let contactService = appState.services?.contactService else { return }
-
-        addingNodeID = node.id
-        Task {
-            do {
-                let frame = ContactFrame(
-                    publicKey: node.publicKey,
-                    type: node.nodeType,
-                    flags: 0,
-                    outPathLength: node.outPathLength,
-                    outPath: node.outPath,
-                    name: node.name,
-                    lastAdvertTimestamp: node.lastAdvertTimestamp,
-                    latitude: node.latitude,
-                    longitude: node.longitude,
-                    lastModified: 0
-                )
-                try await contactService.addOrUpdateContact(radioID: node.radioID, contact: frame)
-                await viewModel.loadDiscoveredNodes(radioID: node.radioID)
-            } catch ContactServiceError.contactTableFull {
-                let maxContacts = appState.connectedDevice?.maxContacts
-                if let maxContacts {
-                    viewModel.errorMessage = L10n.Contacts.Contacts.Add.Error.nodeListFull(Int(maxContacts))
-                } else {
-                    viewModel.errorMessage = L10n.Contacts.Contacts.Add.Error.nodeListFullSimple
-                }
-            } catch {
-                viewModel.errorMessage = error.localizedDescription
-            }
-            addingNodeID = nil
-        }
-    }
+private enum DiscoveryListLayout {
+    static let rowHorizontalPadding: CGFloat = 16
 }
 
 // MARK: - Node Row
@@ -327,8 +332,11 @@ private struct DiscoveryNodeRow: View {
                 .disabled(isAdding)
             }
         }
+        .padding(.horizontal, DiscoveryListLayout.rowHorizontalPadding)
         .padding(.vertical, 4)
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(.rect)
+        .contextMenu {
             Button(role: .destructive) {
                 onDelete()
             } label: {
