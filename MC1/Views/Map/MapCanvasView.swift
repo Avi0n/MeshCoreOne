@@ -1,4 +1,3 @@
-import MapLibre
 import SwiftUI
 import MC1Services
 
@@ -29,11 +28,6 @@ struct MapCanvasView: View {
                 onNavigateToChat: onNavigateToChat
             )
             .ignoresSafeArea()
-
-            // Offline badge
-            if !appState.offlineMapService.isNetworkAvailable {
-                OfflineBadge()
-            }
 
             // Floating controls
             VStack {
@@ -68,8 +62,7 @@ struct MapCanvasView: View {
                         Spacer()
                         LayersMenu(
                             selection: $mapStyleSelection,
-                            isPresented: $viewModel.showingLayersMenu,
-                            viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds()
+                            isPresented: $viewModel.showingLayersMenu
                         )
                         .padding(.trailing, 72)
                         .padding(.bottom)
