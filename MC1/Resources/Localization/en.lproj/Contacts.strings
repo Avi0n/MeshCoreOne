@@ -150,7 +150,7 @@
 "contacts.list.empty.favorites.title" = "No Favorites Yet";
 
 /* Location: ContactsListView.swift - Purpose: No favorites empty description */
-"contacts.list.empty.favorites.description" = "Swipe right on any node to add it to your favorites.";
+"contacts.list.empty.favorites.description" = "Touch and hold any node to add it to your favorites.";
 
 /* Location: ContactsListView.swift - Purpose: No contacts empty title */
 "contacts.list.empty.contacts.title" = "No Contacts";
@@ -192,14 +192,14 @@
 
 // MARK: - Contacts List Swipe Actions
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unfavorite swipe action */
-"contacts.swipe.unfavorite" = "Unfavorite";
+/* Location: ContactContextMenuModifier - Purpose: Unfavorite action */
+"contacts.action.unfavorite" = "Unfavorite";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Block swipe action */
-"contacts.swipe.block" = "Block";
+/* Location: ContactContextMenuModifier - Purpose: Block action */
+"contacts.action.block" = "Block";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unblock swipe action */
-"contacts.swipe.unblock" = "Unblock";
+/* Location: ContactContextMenuModifier - Purpose: Unblock action */
+"contacts.action.unblock" = "Unblock";
 
 // MARK: - Contact Detail
 
@@ -904,6 +904,21 @@
 /* Location: TracePathListView.swift - Purpose: Traces count label */
 "contacts.trace.list.traces" = "Traces:";
 
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size picker label */
+"contacts.trace.list.hashSize" = "Hash Size";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 1 byte per hop */
+"contacts.trace.list.hashSizeOneByte" = "1 Byte";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 2 bytes per hop */
+"contacts.trace.list.hashSizeTwoBytes" = "2 Bytes";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 4 bytes per hop */
+"contacts.trace.list.hashSizeFourBytes" = "4 Bytes";
+
+/* Location: PathActionsSectionView.swift - Purpose: Caveat shown for multi-byte trace hash sizes */
+"contacts.trace.list.hashSizeFooter" = "Repeaters running firmware older than 1.11.0 will not forward traces with a hash size greater than 1 byte.";
+
 /* Location: TracePathListView.swift - Purpose: Copy path button */
 "contacts.trace.list.copyPath" = "Copy Path";
 
@@ -1147,6 +1162,9 @@
 
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "Connect to a radio to delete nodes";
+
+/* Location: ContactsViewModel.swift - Purpose: Delete radio command timed out error */
+"contacts.viewModel.removeTimedOut" = "Deleting the node timed out. Try again.";
 
 // MARK: - Path Management ViewModel Errors
 

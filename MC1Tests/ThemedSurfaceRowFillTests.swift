@@ -2,8 +2,9 @@ import Testing
 import SwiftUI
 @testable import MC1
 
-/// Guards the row fill that flattens themed rows to the canvas in the iPad Settings sidebar
-/// (`flatten: true`) while preserving the distinct card tier everywhere else (`flatten: false`).
+/// Guards the row fill that emits no background in the iPad Settings sidebar (`flatten: true`), so
+/// sidebar rows stay transparent and keep the native `.sidebar` selection highlight, while
+/// preserving the distinct card tier everywhere else (`flatten: false`).
 /// This is logic-only coverage; the rendered result is verified visually on device/simulator.
 @Suite("Themed surface row fill")
 struct ThemedSurfaceRowFillTests {
@@ -14,11 +15,10 @@ struct ThemedSurfaceRowFillTests {
         #expect(surfaces.rowFill(flatten: false) == surfaces.card)
     }
 
-    @Test("card theme paints rows with the canvas when flattened (iPad Settings sidebar)")
-    func cardThemeFlattenedUsesCanvas() {
+    @Test("card theme emits no row fill when flattened, so the iPad Settings sidebar keeps native selection")
+    func cardThemeFlattenedHasNoFill() {
         let surfaces = Theme.marine.surfaces!
-        #expect(surfaces.rowFill(flatten: true) == surfaces.canvas)
-        #expect(surfaces.rowFill(flatten: true) != surfaces.card)
+        #expect(surfaces.rowFill(flatten: true) == nil)
     }
 
     @Test("canvas-only theme (Ember) leaves rows on the system tier regardless of flattening")

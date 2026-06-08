@@ -206,10 +206,20 @@ final class TracePathViewModel {
         Array(fullPathData)
     }
 
-    /// Trace hash size from device configuration (1, 2, or 4 bytes per hop)
-    var hashSize: Int {
-        appState?.connectedDevice?.traceHashSize ?? 1
+    /// Per-trace hash size override (path_sz code 0/1/2). `nil` follows the
+    /// radio's configured `pathHashMode`. Honored by firmware v1.11+.
+    var traceHashMode: UInt8?
+
+    /// Path_sz code used for this trace's flags byte and hop widths: the
+    /// override when set, otherwise the radio's configured `pathHashMode`.
+    var effectiveTraceMode: UInt8 {
+        traceHashMode ?? (appState?.connectedDevice?.pathHashMode ?? 0)
     }
+
+    /// Trace hash size in bytes per hop (1, 2, or 4), derived from the effective
+    /// mode. Trace uses power-of-2 encoding (`1 << mode`), unlike the linear
+    /// 1/2/3-byte routing hash size.
+    var hashSize: Int { 1 << Int(effectiveTraceMode) }
 
     /// Comma-separated path string for display/copy, chunked by hash size
     var fullPathString: String {
@@ -362,6 +372,11 @@ final class TracePathViewModel {
     func loadContacts(radioID: UUID) async {
         currentRadioID = radioID
         recentPublicKeys = recents.load(for: radioID)
+        // Drop an override carried from a prior radio the current one can't
+        // honor, so the trace falls back to its pathHashMode.
+        if appState?.connectedDevice?.supportsTraceHashSizeOverride != true {
+            traceHashMode = nil
+        }
         guard let appState,
               let dataStore = appState.services?.dataStore else { return }
         do {
@@ -388,6 +403,30 @@ final class TracePathViewModel {
         let hashBytes = Data(node.publicKey.prefix(hashSize))
         let hop = PathHop(hashBytes: hashBytes, publicKey: node.publicKey, resolvedName: node.resolvableName)
         outboundPath.append(hop)
+        activeSavedPath = nil
+        pendingPathHash = nil
+        result = nil
+    }
+
+    /// Apply a per-trace hash size override and rebuild every hop to a uniform
+    /// width. Hops with a public key re-prefix exactly; key-less hops (from a
+    /// saved path with an unresolved hop) have nothing to widen from and are
+    /// zero-padded. The width must be uniform because the trace flags byte
+    /// declares a single hash size for the whole path.
+    func setTraceHashMode(_ mode: UInt8) {
+        clearError()
+        traceHashMode = mode
+        let size = hashSize
+        outboundPath = outboundPath.map { hop in
+            var hop = hop
+            let source = hop.publicKey ?? hop.hashBytes
+            var bytes = Data(source.prefix(size))
+            if bytes.count < size {
+                bytes.append(Data(repeating: 0, count: size - bytes.count))
+            }
+            hop.hashBytes = bytes
+            return hop
+        }
         activeSavedPath = nil
         pendingPathHash = nil
         result = nil
@@ -567,6 +606,15 @@ final class TracePathViewModel {
         let size = savedPath.hashSize
         guard !fullPath.isEmpty else { return }
 
+        // Match the trace hash mode to the saved width (size is 1/2/4 -> code
+        // 0/1/2), but only on a radio that honors the per-trace override;
+        // otherwise the trace follows the configured pathHashMode.
+        if appState?.connectedDevice?.supportsTraceHashSizeOverride == true {
+            traceHashMode = UInt8(size.trailingZeroBitCount)
+        } else {
+            traceHashMode = nil
+        }
+
         // Calculate total hops, then outbound is first half (rounded up)
         let totalHops = fullPath.count / size
         let outboundHopCount = (totalHops + 1) / 2
@@ -594,6 +642,7 @@ final class TracePathViewModel {
         outboundPath.removeAll()
         result = nil
         pendingPathHash = nil
+        traceHashMode = nil
     }
 
     /// Clear active saved path reference if it matches the deleted path
@@ -671,7 +720,7 @@ final class TracePathViewModel {
             let sentInfo = try await session.sendTrace(
                 tag: tag,
                 authCode: 0,  // Not used for basic trace
-                flags: UInt8(appState.connectedDevice?.pathHashMode ?? 0),
+                flags: effectiveTraceMode,
                 path: pathData
             )
             timeoutSeconds = Double(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
@@ -838,7 +887,7 @@ final class TracePathViewModel {
             let sentInfo = try await session.sendTrace(
                 tag: tag,
                 authCode: 0,
-                flags: UInt8(appState.connectedDevice?.pathHashMode ?? 0),
+                flags: effectiveTraceMode,
                 path: pathData
             )
             timeoutSeconds = Double(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2

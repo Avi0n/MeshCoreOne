@@ -245,6 +245,9 @@
 /* Location: ChannelInfoSheet.swift - Error when services unavailable */
 "chats.error.servicesUnavailable" = "Services niet beschikbaar";
 
+/* TODO: translate - Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
+"chats.error.notConnectedToDelete" = "Connect to your radio to delete this conversation.";
+
 /* Location: ChatConversationView.swift - Error when loading older messages fails */
 "chats.error.loadOlderMessagesFailed" = "Laden van oudere berichten mislukt";
 
@@ -343,20 +346,20 @@
 
 // MARK: - Swipe Actions
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to delete */
-"chats.swipeAction.delete" = "Verwijderen";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to delete */
+"chats.action.delete" = "Verwijderen";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to unmute */
-"chats.swipeAction.unmute" = "Dempen opheffen";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to unmute */
+"chats.action.unmute" = "Dempen opheffen";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to mute */
-"chats.swipeAction.mute" = "Dempen";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
+"chats.action.mute" = "Dempen";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to remove from favorites */
-"chats.swipeAction.unfavorite" = "Uit favorieten";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to remove from favorites */
+"chats.action.unfavorite" = "Uit favorieten";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to add to favorites */
-"chats.swipeAction.favorite" = "Favoriet";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to add to favorites */
+"chats.action.favorite" = "Favoriet";
 
 // MARK: - Room Conversation Row
 
@@ -604,6 +607,9 @@
 
 /* Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct" */
 "chats.message.info.hops" = "Sprongen: %@";
+
+/* Location: ActionsDetailsSection.swift - Info row showing the path hash size in bytes - %d is 1, 2, or 3 */
+"chats.message.info.pathHash" = "Pad-hash: %d byte";
 
 /* Location: UnifiedMessageBubble.swift - Indicator that timestamp was adjusted */
 "chats.message.info.adjusted" = "(aangepast)";

@@ -22,7 +22,6 @@ struct ChatsContentColumn: View {
     /// column and resets the mirror, which would otherwise un-highlight the row the detail shows.
     @State private var selectedRoute: ChatRoute?
     @State private var lastSelectedRoomIsConnected: Bool?
-    @State private var routeBeingDeleted: ChatRoute?
 
     @State private var roomToAuthenticate: RemoteNodeSessionDTO?
     @State private var roomToDelete: RemoteNodeSessionDTO?
@@ -59,15 +58,13 @@ struct ChatsContentColumn: View {
         ChatListActions(
             viewModel: viewModel,
             appState: appState,
-            routeBeingDeleted: $routeBeingDeleted,
             roomToDelete: $roomToDelete,
             showRoomDeleteAlert: $showRoomDeleteAlert,
             channelDeleteFailure: $channelDeleteFailure,
             showChannelDeleteFailed: $showChannelDeleteFailed,
             roomToAuthenticate: $roomToAuthenticate,
             navigate: { navigate(to: $0) },
-            clearNavigationIfActive: clearNavigationIfActive,
-            loadConversations: loadConversations
+            clearNavigationIfActive: clearNavigationIfActive
         )
     }
 
@@ -85,9 +82,7 @@ struct ChatsContentColumn: View {
             showingChannelOptions: $showingChannelOptions,
             roomToAuthenticate: $roomToAuthenticate,
             lastSelectedRoomIsConnected: $lastSelectedRoomIsConnected,
-            routeBeingDeleted: $routeBeingDeleted,
             onDeleteConversation: actions.handleDeleteConversation,
-            onLoadConversations: loadConversations,
             onHandlePendingNavigation: actions.handlePendingNavigation,
             onHandlePendingChannelNavigation: actions.handlePendingChannelNavigation,
             onHandlePendingRoomNavigation: actions.handlePendingRoomNavigation,
@@ -110,7 +105,23 @@ struct ChatsContentColumn: View {
                 lastSelectedRoomIsConnected = nil
             }
         }
+        // Refresh the selected route's payload as the snapshot recomputes and re-run the
+        // room reauth guard; a route whose conversation was removed resolves to nil and clears.
+        .onChange(of: viewModel.snapshotGeneration) { _, _ in
+            let refreshed = selectedRoute?.refreshedPayload(from: viewModel.allConversations)
+            selectedRoute = refreshed
+
+            if lastSelectedRoomIsConnected == true,
+               case .room(let session) = selectedRoute,
+               !session.isConnected {
+                roomToAuthenticate = session
+                selectedRoute = nil
+            }
+
+            lastSelectedRoomIsConnected = selectedRoute?.roomIsConnected
+        }
         .modifier(ChatsConversationSheets(
+            viewModel: viewModel,
             showingNewChat: $showingNewChat,
             showingChannelOptions: $showingChannelOptions,
             roomToAuthenticate: $roomToAuthenticate,
@@ -118,42 +129,12 @@ struct ChatsContentColumn: View {
             showRoomDeleteAlert: $showRoomDeleteAlert,
             channelDeleteFailure: $channelDeleteFailure,
             showChannelDeleteFailed: $showChannelDeleteFailed,
-            routeBeingDeleted: $routeBeingDeleted,
             pendingChatContact: $pendingChatContact,
             pendingChannel: $pendingChannel,
             navigate: { navigate(to: $0) },
-            loadConversations: loadConversations,
             deleteChannelConversation: actions.deleteChannelConversation,
             deleteRoom: actions.deleteRoom
         ))
-    }
-
-    private func loadConversations() async {
-        guard let deviceID = appState.currentRadioID else {
-            viewModel.clearConversations()
-            return
-        }
-        viewModel.configure(appState: appState)
-        await viewModel.loadAllConversations(radioID: deviceID)
-
-        // If we're in the middle of deleting an item, ensure it stays removed.
-        // This handles race conditions where a reload happens before DB delete completes.
-        if let routeBeingDeleted {
-            viewModel.removeConversation(routeBeingDeleted.toConversation())
-        }
-
-        if let selectedRoute {
-            self.selectedRoute = selectedRoute.refreshedPayload(from: viewModel.allConversations)
-        }
-
-        if lastSelectedRoomIsConnected == true,
-           case .room(let session) = self.selectedRoute,
-           !session.isConnected {
-            roomToAuthenticate = session
-            self.selectedRoute = nil
-        }
-
-        lastSelectedRoomIsConnected = selectedRoute?.roomIsConnected
     }
 
     private func navigate(to route: ChatRoute) {

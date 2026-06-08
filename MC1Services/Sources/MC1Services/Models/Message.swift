@@ -619,6 +619,12 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
         decodePathLen(pathLength)?.hashSize ?? 1
     }
 
+    /// Hash size per hop in bytes (1, 2, or 3) when the path length byte encodes a
+    /// valid hash mode; nil for reserved modes or the no-path marker (0xFF).
+    public var pathHashSizeIfKnown: Int? {
+        decodePathLen(pathLength)?.hashSize
+    }
+
     /// Path nodes as hex strings for display, chunked by hash size
     public var pathNodesHex: [String] {
         guard let pathNodes else { return [] }

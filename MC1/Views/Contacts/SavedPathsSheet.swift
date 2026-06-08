@@ -87,21 +87,23 @@ struct SavedPathsSheet: View {
 
     // MARK: - Paths List
 
+    /// `SavedPathRow` has no avatar, so the row text and the inter-row divider share this inset.
+    private static let rowHorizontalPadding: CGFloat = 16
+
     private var pathsList: some View {
-        List {
-            ForEach(viewModel.savedPaths) { path in
-                Button {
-                    onSelect(path)
-                    dismiss()
-                } label: {
-                    SavedPathRow(path: path)
-                }
-                .buttonStyle(.plain)
-                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        Button(L10n.Contacts.Contacts.Common.delete, role: .destructive) {
-                            pathToDelete = path
-                        }
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(Array(viewModel.savedPaths.enumerated()), id: \.element.id) { index, path in
+                    Button {
+                        onSelect(path)
+                        dismiss()
+                    } label: {
+                        SavedPathRow(path: path)
+                            .padding(.horizontal, Self.rowHorizontalPadding)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(.rect)
                     }
+                    .buttonStyle(.plain)
                     .contextMenu {
                         Button(L10n.Contacts.Contacts.SavedPaths.rename, systemImage: "pencil") {
                             renameText = path.name
@@ -111,10 +113,13 @@ struct SavedPathsSheet: View {
                             pathToDelete = path
                         }
                     }
+                    .transition(.opacity)
+                    if index < viewModel.savedPaths.count - 1 {
+                        Divider().padding(.leading, Self.rowHorizontalPadding)
+                    }
+                }
             }
-            .themedRowBackground(theme)
         }
-        .listStyle(.insetGrouped)
         .themedCanvas(theme)
         .overlay {
             if viewModel.isLoading {

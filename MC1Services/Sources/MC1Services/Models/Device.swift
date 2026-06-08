@@ -406,6 +406,15 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
         firmwareVersionString.isAtLeast(major: 1, minor: 14)
     }
 
+    /// Whether the trace command honors a per-trace hash size in its flags byte,
+    /// letting a trace use a hash size different from `pathHashMode`. Added in
+    /// firmware v1.11.0; FIRMWARE_VER_CODE stayed 8 from v1.10.0 through v1.12.0,
+    /// so the version string disambiguates the v1.11/v1.12 window while
+    /// firmwareVersion >= 9 (v1.13+) still holds if a fork rewrites the string.
+    public var supportsTraceHashSizeOverride: Bool {
+        firmwareVersion >= 9 || firmwareVersionString.isAtLeast(major: 1, minor: 11)
+    }
+
     /// Whether this device supports client repeat mode (firmware v9+)
     public var supportsClientRepeat: Bool { firmwareVersion >= 9 }
 

@@ -1810,3 +1810,161 @@ struct RoomSupportTests {
     }
 }
 
+// MARK: - Trace Hash Size Override Tests
+
+@Suite("Trace Hash Size Override")
+@MainActor
+struct TraceHashSizeOverrideTests {
+
+    @Test("setTraceHashMode rebuilds hop hash bytes from the public key prefix")
+    func setTraceHashModeReprefixesHops() {
+        let viewModel = TracePathViewModel()
+        viewModel.addNode(createTestContact())
+
+        // Default (no override, no appState) is mode 0 -> 1 byte per hop.
+        #expect(viewModel.effectiveTraceMode == 0)
+        #expect(viewModel.hashSize == 1)
+        #expect(viewModel.outboundPath[0].hashBytes == Data([0xAB]))
+
+        viewModel.setTraceHashMode(1)
+        #expect(viewModel.effectiveTraceMode == 1)
+        #expect(viewModel.hashSize == 2)
+        #expect(viewModel.outboundPath[0].hashBytes == Data([0xAB, 0x00]))
+
+        viewModel.setTraceHashMode(2)
+        #expect(viewModel.hashSize == 4)
+        #expect(viewModel.outboundPath[0].hashBytes.count == 4)
+        #expect(viewModel.outboundPath[0].hashBytes == Data([0xAB, 0x00, 0x00, 0x00]))
+
+        viewModel.setTraceHashMode(0)
+        #expect(viewModel.hashSize == 1)
+        #expect(viewModel.outboundPath[0].hashBytes == Data([0xAB]))
+    }
+
+    @Test("fullPathData width tracks the active hash mode")
+    func fullPathDataTracksMode() {
+        let viewModel = TracePathViewModel()
+        viewModel.addNode(createTestContact())
+        viewModel.addNode(createTestContact())
+
+        // Two outbound hops with auto-return mirror -> 3 hops on the wire.
+        #expect(viewModel.autoReturnPath)
+        #expect(viewModel.fullPathData.count == 3 * 1)
+
+        viewModel.setTraceHashMode(1)
+        #expect(viewModel.fullPathData.count == 3 * 2)
+
+        viewModel.setTraceHashMode(2)
+        #expect(viewModel.fullPathData.count == 3 * 4)
+    }
+
+    @Test("setTraceHashMode clears a stale result and saved-path reference")
+    func setTraceHashModeClearsState() {
+        let viewModel = TracePathViewModel()
+        viewModel.addNode(createTestContact())
+        viewModel.activeSavedPath = createTestSavedPath(runs: [])
+
+        viewModel.setTraceHashMode(2)
+
+        #expect(viewModel.activeSavedPath == nil)
+        #expect(viewModel.result == nil)
+    }
+
+    @Test("widening zero-pads key-less hops so the wire stays a uniform width")
+    func setTraceHashModePadsKeylessHops() {
+        let viewModel = TracePathViewModel()
+        // Saved path bytes match no known contact, so every hop is key-less.
+        viewModel.loadSavedPath(createTestSavedPath(runs: []))
+        #expect(!viewModel.outboundPath.isEmpty)
+        #expect(viewModel.outboundPath.allSatisfy { $0.publicKey == nil })
+
+        viewModel.setTraceHashMode(2)
+
+        #expect(viewModel.hashSize == 4)
+        #expect(viewModel.outboundPath.allSatisfy { $0.hashBytes.count == 4 })
+        // A short hop would break divisibility and misalign the firmware's parse.
+        #expect(viewModel.fullPathData.count % 4 == 0)
+    }
+
+    @Test("clearPath resets the per-trace hash mode override")
+    func clearPathResetsOverride() {
+        let viewModel = TracePathViewModel()
+        viewModel.addNode(createTestContact())
+        viewModel.setTraceHashMode(2)
+        #expect(viewModel.effectiveTraceMode == 2)
+
+        viewModel.clearPath()
+
+        #expect(viewModel.effectiveTraceMode == 0)
+        #expect(viewModel.outboundPath.isEmpty)
+    }
+
+    @Test("loadSavedPath sets no override when the radio can't honor it")
+    func loadSavedPathNoOverrideWhenUnsupported() {
+        let viewModel = TracePathViewModel()
+        // No appState configured, so supportsTraceHashSizeOverride is not true.
+        viewModel.loadSavedPath(createTestSavedPath(runs: []))
+
+        #expect(viewModel.effectiveTraceMode == 0)
+    }
+}
+
+// MARK: - Trace Hash Size Capability Gate Tests
+
+@Suite("Trace Hash Size Capability Gate")
+struct TraceHashSizeCapabilityGateTests {
+
+    private func makeDevice(firmwareVersion: UInt8, firmwareVersionString: String) -> DeviceDTO {
+        DeviceDTO(
+            id: UUID(),
+            radioID: UUID(),
+            publicKey: Data(repeating: 0x01, count: 32),
+            nodeName: "TestDevice",
+            firmwareVersion: firmwareVersion,
+            firmwareVersionString: firmwareVersionString,
+            manufacturerName: "TestMfg",
+            buildDate: "01 Jan 2025",
+            maxContacts: 100,
+            maxChannels: 8,
+            frequency: 915_000,
+            bandwidth: 250_000,
+            spreadingFactor: 10,
+            codingRate: 5,
+            txPower: 20,
+            maxTxPower: 20,
+            latitude: 0,
+            longitude: 0,
+            blePin: 0,
+            manualAddContacts: false,
+            multiAcks: 2,
+            telemetryModeBase: 2,
+            telemetryModeLoc: 0,
+            telemetryModeEnv: 0,
+            advertLocationPolicy: 0,
+            lastConnected: Date(),
+            lastContactSync: 0,
+            isActive: false,
+            ocvPreset: nil,
+            customOCVArrayString: nil,
+            connectionMethods: []
+        )
+    }
+
+    @Test("VER_CODE 8 disambiguates v1.10 (off) from v1.11/v1.12 (on)")
+    func verCodeSeamUsesVersionString() {
+        // VER_CODE stayed 8 across v1.10.0 (no feature) through v1.12.0 (feature).
+        #expect(makeDevice(firmwareVersion: 8, firmwareVersionString: "v1.10.0").supportsTraceHashSizeOverride == false)
+        #expect(makeDevice(firmwareVersion: 8, firmwareVersionString: "v1.11.0").supportsTraceHashSizeOverride == true)
+        #expect(makeDevice(firmwareVersion: 8, firmwareVersionString: "v1.12.0").supportsTraceHashSizeOverride == true)
+    }
+
+    @Test("VER_CODE >= 9 enables the override even without a usable version string")
+    func verCodeArmEnablesOverride() {
+        #expect(makeDevice(firmwareVersion: 9, firmwareVersionString: "").supportsTraceHashSizeOverride == true)
+    }
+
+    @Test("older firmware does not support the override")
+    func olderFirmwareUnsupported() {
+        #expect(makeDevice(firmwareVersion: 7, firmwareVersionString: "v1.9.0").supportsTraceHashSizeOverride == false)
+    }
+}

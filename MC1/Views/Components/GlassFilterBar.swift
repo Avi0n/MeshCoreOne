@@ -4,6 +4,9 @@ private let pillSpacing: CGFloat = 8
 private let barHorizontalPadding: CGFloat = 16
 private let barTopPadding: CGFloat = -4
 private let barBottomPadding: CGFloat = 8
+/// The segmented `Picker` has no intrinsic vertical padding, so the glass pills' negative top
+/// inset would clip its top edge. It gets a positive inset matching the bottom for even spacing.
+private let segmentedTopPadding: CGFloat = 8
 private let dimmedOpacity: Double = 0.5
 
 /// Pinned filter bar that renders as Liquid Glass capsule pills on iOS 26 and
@@ -79,7 +82,7 @@ where Filter.AllCases: RandomAccessCollection {
         }
         .pickerStyle(.segmented)
         .padding(.horizontal, barHorizontalPadding)
-        .padding(.top, barTopPadding)
+        .padding(.top, segmentedTopPadding)
         .padding(.bottom, barBottomPadding)
     }
 }
@@ -91,6 +94,20 @@ private extension View {
             self.liquidGlassProminentButtonStyle()
         } else {
             self.liquidGlassSecondaryButtonStyle()
+        }
+    }
+}
+
+extension View {
+    /// Backs the pinned filter header with the themed canvas on iOS 18, where the fallback
+    /// segmented `Picker` is transparent and would let scrolling rows show through. iOS 26 glass
+    /// pills carry their own material and float over the content, so no backing is applied.
+    @ViewBuilder
+    func pinnedFilterHeaderBackground(_ theme: Theme) -> some View {
+        if #available(iOS 26.0, *) {
+            self
+        } else {
+            background(theme.surfaces?.canvas ?? Color(.systemBackground))
         }
     }
 }

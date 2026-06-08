@@ -33,10 +33,9 @@ struct ToolsContentColumn: View {
             ForEach(ToolSelection.allCases, id: \.self) { tool in
                 Label(tool.title, systemImage: tool.systemImage)
                     .tag(Optional(tool))
-                    .themedPlainRowBackground(theme, isSelected: selection.wrappedValue == tool)
             }
         }
-        .listStyle(.plain)
+        .listStyle(.sidebar)
         .navigationTitle(L10n.Tools.Tools.title)
         .modifier(SidebarContentColumnBackground(theme: theme))
         .toolbar {

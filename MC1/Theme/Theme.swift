@@ -64,16 +64,13 @@ extension Theme {
             self.card = card
         }
 
-        /// Fill for a card-tier list row. When `flatten` is set — the top-level Settings list,
-        /// which renders in a `NavigationSplitView` sidebar column where the `.sidebar` style draws
-        /// rows transparent — card rows are painted with the canvas to read flush, matching the
-        /// surface-less default theme there. Otherwise the distinct card tier is kept, matching the
-        /// system's inset-grouped "card on grouped gray" look used everywhere else (sheets, detail
-        /// columns, pushed sub-pages, and all of iPhone). Returns `nil` for surfaces without a card
-        /// tier (Ember), leaving those rows on the system tier.
+        /// Fill for a card-tier list row. Returns `nil` when `flatten` is set (the iPad Settings
+        /// sidebar column), so rows stay transparent: the column canvas shows through and the native
+        /// `.sidebar` selection highlight survives, which any `listRowBackground` would suppress.
+        /// Otherwise returns the card tier — the inset-grouped "card on grouped gray" look used
+        /// everywhere else. `nil` for surfaces without a card tier (Ember).
         func rowFill(flatten: Bool) -> Color? {
-            guard let card else { return nil }
-            return flatten ? canvas : card
+            flatten ? nil : card
         }
     }
 

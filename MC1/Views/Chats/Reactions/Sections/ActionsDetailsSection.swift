@@ -183,6 +183,10 @@ private struct ActionsIncomingDetailsRows: View {
             icon: "arrowshape.bounce.right"
         )
 
+        if let hashSize = message.pathHashSizeIfKnown {
+            ActionInfoRow(text: L10n.Chats.Chats.Message.Info.pathHash(hashSize))
+        }
+
         if message.routeType == .tcFlood {
             ActionInfoRow(
                 text: message.regionScope.map { L10n.Chats.Chats.Message.Info.floodedUnder($0) }

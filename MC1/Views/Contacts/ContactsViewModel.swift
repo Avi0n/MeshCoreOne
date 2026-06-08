@@ -65,6 +65,20 @@ final class ContactsViewModel {
     /// Contact ID currently having its favorite status toggled (for loading UI)
     var togglingFavoriteID: UUID?
 
+    /// Mask of rows hidden after a confirmed delete, held until a reload sees the row gone so a
+    /// racing reload can't resurrect it. Observed because `filteredContacts` reads it during body
+    /// evaluation. Distinct from `deletingIDs`, the in-flight presentation set.
+    var pendingRemovalIDs: Set<UUID> = []
+
+    /// Rows with a delete command in flight, surfaced as a spinner. Distinct from
+    /// `pendingRemovalIDs`, the post-confirmation mask.
+    var deletingIDs: Set<UUID> = []
+
+    /// True while a delete for this row is either confirmed-but-unreloaded or in flight.
+    func isDeletePending(_ id: UUID) -> Bool {
+        pendingRemovalIDs.contains(id) || deletingIDs.contains(id)
+    }
+
     // MARK: - Dependencies
 
     private var dataStore: DataStore?
@@ -104,6 +118,8 @@ final class ContactsViewModel {
 
         do {
             contacts = try await dataStore.fetchContacts(radioID: radioID)
+            // Self-heal the mask: once a deleted row is gone from the fetch, stop masking it.
+            pendingRemovalIDs.formIntersection(Set(contacts.map(\.id)))
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -208,25 +224,50 @@ final class ContactsViewModel {
         }
     }
 
-    /// Delete contact
+    /// Delete a contact. Removing a node is a real radio command, so the row stays in place with a
+    /// spinner until the radio acks, then is hidden once; a failure or timeout leaves it untouched
+    /// with an error rather than bouncing it out and back.
     func deleteContact(_ contact: ContactDTO) async {
         guard let contactService else {
             errorMessage = L10n.Contacts.Contacts.ViewModel.connectToDelete
             return
         }
+        guard !isDeletePending(contact.id) else { return }
 
-        // Remove from UI immediately to avoid race condition with List animation
-        let backup = contacts
-        contacts.removeAll { $0.id == contact.id }
+        deletingIDs.insert(contact.id)
+        defer { deletingIDs.remove(contact.id) }
 
         do {
-            try await contactService.removeContact(
-                radioID: contact.radioID,
-                publicKey: contact.publicKey
-            )
+            try await withTimeout(RadioCommandTimeout.delete, operationName: "removeContact") {
+                try await contactService.removeContact(
+                    radioID: contact.radioID,
+                    publicKey: contact.publicKey
+                )
+            }
+            hideDeletedContact(contact)
+        } catch ContactServiceError.contactNotFound {
+            // The radio no longer knows this contact (e.g. a prior attempt's command landed but its
+            // local delete was interrupted). Clear the orphaned local row so it stops reappearing.
+            do {
+                try await contactService.removeLocalContact(contactID: contact.id, publicKey: contact.publicKey)
+                hideDeletedContact(contact)
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        } catch is TimeoutError {
+            errorMessage = L10n.Contacts.Contacts.ViewModel.removeTimedOut
         } catch {
-            contacts = backup
             errorMessage = error.localizedDescription
+        }
+    }
+
+    /// Masks and removes a row whose deletion the radio confirmed, in one animation.
+    /// The mask insert is observed (read live by `filteredContacts`), so it must land inside
+    /// the same transaction as the array removal or it hides the row unanimated first.
+    private func hideDeletedContact(_ contact: ContactDTO) {
+        withAnimation(.snappy) {
+            pendingRemovalIDs.insert(contact.id)
+            contacts.removeAll { $0.id == contact.id }
         }
     }
 
@@ -239,7 +280,7 @@ final class ContactsViewModel {
         sortOrder: NodeSortOrder,
         userLocation: CLLocation?
     ) -> [ContactDTO] {
-        var result = contacts
+        var result = contacts.filter { !pendingRemovalIDs.contains($0.id) }
 
         // If searching, show all types (ignore segment)
         if searchText.isEmpty {

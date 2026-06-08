@@ -20,13 +20,7 @@ struct BlockedContactsView: View {
                     description: Text(L10n.Contacts.Contacts.Blocked.Empty.description)
                 )
             } else {
-                List(contacts) { contact in
-                    NavigationLink {
-                        ContactDetailView(contact: contact)
-                    } label: {
-                        ContactRowView(contact: contact)
-                    }
-                }
+                blockedList
             }
         }
         .themedCanvas(theme)
@@ -37,6 +31,34 @@ struct BlockedContactsView: View {
         .onChange(of: appState.contactsVersion) { _, _ in
             Task {
                 await loadBlockedContacts()
+            }
+        }
+    }
+
+    /// Leading inset for the inter-row divider, aligning it under the row text past the avatar.
+    private static let rowSeparatorLeadingInset: CGFloat = 72
+    private static let rowHorizontalPadding: CGFloat = 16
+    private static let rowVerticalPadding: CGFloat = 6
+
+    private var blockedList: some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(Array(contacts.enumerated()), id: \.element.id) { index, contact in
+                    NavigationLink {
+                        ContactDetailView(contact: contact)
+                    } label: {
+                        ContactRowView(contact: contact)
+                            .padding(.horizontal, Self.rowHorizontalPadding)
+                            .padding(.vertical, Self.rowVerticalPadding)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                    .transition(.opacity)
+                    if index < contacts.count - 1 {
+                        Divider().padding(.leading, Self.rowSeparatorLeadingInset)
+                    }
+                }
             }
         }
     }

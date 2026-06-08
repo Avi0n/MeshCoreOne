@@ -5,7 +5,6 @@ import MC1Services
 struct ChatsListModifiers: ViewModifier {
     @Environment(\.appState) private var appState
     @Environment(\.appTheme) private var theme
-    @State private var reloadTask: Task<Void, Never>?
 
     let viewModel: ChatViewModel
 
@@ -17,10 +16,6 @@ struct ChatsListModifiers: ViewModifier {
     @Binding var showingNewChat: Bool
     @Binding var showingChannelOptions: Bool
 
-    /// Non-nil only in split layout; guards version-change reloads during deletion.
-    let routeBeingDeleted: ChatRoute?
-
-    let onLoadConversations: () async -> Void
     let onAnnounceOfflineStateIfNeeded: () -> Void
     let onHandlePendingNavigation: () -> Void
     let onHandlePendingChannelNavigation: () -> Void
@@ -53,7 +48,7 @@ struct ChatsListModifiers: ViewModifier {
             }
             .task {
                 viewModel.configure(appState: appState)
-                await onLoadConversations()
+                await viewModel.requestConversationReload()?.value
                 onAnnounceOfflineStateIfNeeded()
                 onHandlePendingNavigation()
                 onHandlePendingChannelNavigation()
@@ -69,26 +64,21 @@ struct ChatsListModifiers: ViewModifier {
                 onHandlePendingRoomNavigation()
             }
             .onChange(of: appState.servicesVersion) { _, _ in
-                guard routeBeingDeleted == nil else { return }
-                reloadTask?.cancel()
-                reloadTask = Task {
-                    await onLoadConversations()
-                }
+                viewModel.requestConversationReload()
             }
             .onChange(of: appState.conversationsVersion) { _, _ in
-                guard routeBeingDeleted == nil else { return }
-                reloadTask?.cancel()
-                reloadTask = Task {
-                    await onLoadConversations()
-                }
+                viewModel.requestConversationReload()
             }
             .onChange(of: appState.connectionState) { _, newState in
                 if newState == .disconnected {
-                    reloadTask?.cancel()
-                    reloadTask = Task {
-                        await onLoadConversations()
-                    }
+                    viewModel.requestConversationReload()
                 }
             }
+            // Surfaces direct-message and room delete failures; the channel retry alert lives on
+            // ChatsConversationSheets, and only one can present since deletes happen one at a time.
+            .errorAlert(Binding(
+                get: { viewModel.errorMessage },
+                set: { viewModel.errorMessage = $0 }
+            ))
     }
 }

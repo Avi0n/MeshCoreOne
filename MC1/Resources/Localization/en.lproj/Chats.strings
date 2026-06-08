@@ -245,6 +245,9 @@
 /* Location: ChannelInfoSheet.swift - Error when services unavailable */
 "chats.error.servicesUnavailable" = "Services not available";
 
+/* Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
+"chats.error.notConnectedToDelete" = "Connect to your radio to delete this conversation.";
+
 /* Location: ChatConversationView.swift - Error when loading older messages fails */
 "chats.error.loadOlderMessagesFailed" = "Failed to load older messages";
 
@@ -354,20 +357,20 @@
 
 // MARK: - Swipe Actions
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to delete */
-"chats.swipeAction.delete" = "Delete";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to delete */
+"chats.action.delete" = "Delete";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to unmute */
-"chats.swipeAction.unmute" = "Unmute";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to unmute */
+"chats.action.unmute" = "Unmute";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to mute */
-"chats.swipeAction.mute" = "Mute";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
+"chats.action.mute" = "Mute";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to remove from favorites */
-"chats.swipeAction.unfavorite" = "Unfavorite";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to remove from favorites */
+"chats.action.unfavorite" = "Unfavorite";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to add to favorites */
-"chats.swipeAction.favorite" = "Favorite";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to add to favorites */
+"chats.action.favorite" = "Favorite";
 
 // MARK: - Room Conversation Row
 
@@ -615,6 +618,9 @@
 
 /* Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct" */
 "chats.message.info.hops" = "Hops: %@";
+
+/* Location: ActionsDetailsSection.swift - Info row showing the path hash size in bytes - %d is 1, 2, or 3 */
+"chats.message.info.pathHash" = "Path hash: %d-byte";
 
 /* Location: UnifiedMessageBubble.swift - Indicator that timestamp was adjusted */
 "chats.message.info.adjusted" = "(adjusted)";

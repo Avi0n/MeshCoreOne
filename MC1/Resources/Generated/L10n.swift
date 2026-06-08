@@ -18,6 +18,18 @@ public enum L10n {
         /// Location: ChatsView.swift - VoiceOver announcement when viewing cached data offline
         public static let offlineAnnouncement = L10n.tr("Chats", "chats.accessibility.offlineAnnouncement", fallback: "Viewing cached data. Connect to device for updates.")
       }
+      public enum Action {
+        /// Location: ConversationContextMenuModifier.swift - Context-menu action to delete
+        public static let delete = L10n.tr("Chats", "chats.action.delete", fallback: "Delete")
+        /// Location: ConversationContextMenuModifier.swift - Context-menu action to add to favorites
+        public static let favorite = L10n.tr("Chats", "chats.action.favorite", fallback: "Favorite")
+        /// Location: ConversationContextMenuModifier.swift - Context-menu action to mute
+        public static let mute = L10n.tr("Chats", "chats.action.mute", fallback: "Mute")
+        /// Location: ConversationContextMenuModifier.swift - Context-menu action to remove from favorites
+        public static let unfavorite = L10n.tr("Chats", "chats.action.unfavorite", fallback: "Unfavorite")
+        /// Location: ConversationContextMenuModifier.swift - Context-menu action to unmute
+        public static let unmute = L10n.tr("Chats", "chats.action.unmute", fallback: "Unmute")
+      }
       public enum Alert {
         public enum LeaveRoom {
           /// Location: ChatsView.swift - Button to confirm leaving a room
@@ -351,6 +363,8 @@ public enum L10n {
         public static let loadOlderMessagesFailed = L10n.tr("Chats", "chats.error.loadOlderMessagesFailed", fallback: "Failed to load older messages")
         /// Location: ChannelInfoSheet.swift - Error when device not connected
         public static let noDeviceConnected = L10n.tr("Chats", "chats.error.noDeviceConnected", fallback: "No device connected")
+        /// Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted
+        public static let notConnectedToDelete = L10n.tr("Chats", "chats.error.notConnectedToDelete", fallback: "Connect to your radio to delete this conversation.")
         /// Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error)
         public static let sendQueuePersistFailed = L10n.tr("Chats", "chats.error.sendQueuePersistFailed", fallback: "Couldn't queue your message. Try again.")
         /// Location: ChannelInfoSheet.swift - Error when services unavailable
@@ -649,6 +663,10 @@ public enum L10n {
           /// Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date
           public static func originalSendTime(_ p1: Any) -> String {
             return L10n.tr("Chats", "chats.message.info.originalSendTime", String(describing: p1), fallback: "Original send time: %@")
+          }
+          /// Location: ActionsDetailsSection.swift - Info row showing the path hash size in bytes - %d is 1, 2, or 3
+          public static func pathHash(_ p1: Int) -> String {
+            return L10n.tr("Chats", "chats.message.info.pathHash", p1, fallback: "Path hash: %d-byte")
           }
           /// Location: UnifiedMessageBubble.swift - Context menu text showing received time - %@ is formatted date
           public static func received(_ p1: Any) -> String {
@@ -996,18 +1014,6 @@ public enum L10n {
         /// Location: MentionSuggestionView.swift - Accessibility label for mention suggestions popup
         public static let accessibilityLabel = L10n.tr("Chats", "chats.suggestions.accessibilityLabel", fallback: "Mention suggestions")
       }
-      public enum SwipeAction {
-        /// Location: ConversationSwipeActionsModifier.swift - Swipe action to delete
-        public static let delete = L10n.tr("Chats", "chats.swipeAction.delete", fallback: "Delete")
-        /// Location: ConversationSwipeActionsModifier.swift - Swipe action to add to favorites
-        public static let favorite = L10n.tr("Chats", "chats.swipeAction.favorite", fallback: "Favorite")
-        /// Location: ConversationSwipeActionsModifier.swift - Swipe action to mute
-        public static let mute = L10n.tr("Chats", "chats.swipeAction.mute", fallback: "Mute")
-        /// Location: ConversationSwipeActionsModifier.swift - Swipe action to remove from favorites
-        public static let unfavorite = L10n.tr("Chats", "chats.swipeAction.unfavorite", fallback: "Unfavorite")
-        /// Location: ConversationSwipeActionsModifier.swift - Swipe action to unmute
-        public static let unmute = L10n.tr("Chats", "chats.swipeAction.unmute", fallback: "Unmute")
-      }
       public enum Timestamp {
         /// Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old
         public static let now = L10n.tr("Chats", "chats.timestamp.now", fallback: "Now")
@@ -1086,6 +1092,14 @@ public enum L10n {
   }
   public enum Contacts {
     public enum Contacts {
+      public enum Action {
+        /// Location: ContactContextMenuModifier - Purpose: Block action
+        public static let block = L10n.tr("Contacts", "contacts.action.block", fallback: "Block")
+        /// Location: ContactContextMenuModifier - Purpose: Unblock action
+        public static let unblock = L10n.tr("Contacts", "contacts.action.unblock", fallback: "Unblock")
+        /// Location: ContactContextMenuModifier - Purpose: Unfavorite action
+        public static let unfavorite = L10n.tr("Contacts", "contacts.action.unfavorite", fallback: "Unfavorite")
+      }
       public enum Add {
         /// Location: AddContactSheet.swift - Purpose: Add button
         public static let add = L10n.tr("Contacts", "contacts.add.add", fallback: "Add")
@@ -1432,7 +1446,7 @@ public enum L10n {
           }
           public enum Favorites {
             /// Location: ContactsListView.swift - Purpose: No favorites empty description
-            public static let description = L10n.tr("Contacts", "contacts.list.empty.favorites.description", fallback: "Swipe right on any node to add it to your favorites.")
+            public static let description = L10n.tr("Contacts", "contacts.list.empty.favorites.description", fallback: "Touch and hold any node to add it to your favorites.")
             /// Location: ContactsListView.swift - Purpose: No favorites empty title
             public static let title = L10n.tr("Contacts", "contacts.list.empty.favorites.title", fallback: "No Favorites Yet")
           }
@@ -1960,14 +1974,6 @@ public enum L10n {
           return L10n.tr("Contacts", "contacts.statsBadge.accessibility", String(describing: p1), p2, fallback: "Distance: %@, Signal: %d decibels")
         }
       }
-      public enum Swipe {
-        /// Location: ContactSwipeActionsModifier - Purpose: Block swipe action
-        public static let block = L10n.tr("Contacts", "contacts.swipe.block", fallback: "Block")
-        /// Location: ContactSwipeActionsModifier - Purpose: Unblock swipe action
-        public static let unblock = L10n.tr("Contacts", "contacts.swipe.unblock", fallback: "Unblock")
-        /// Location: ContactSwipeActionsModifier - Purpose: Unfavorite swipe action
-        public static let unfavorite = L10n.tr("Contacts", "contacts.swipe.unfavorite", fallback: "Unfavorite")
-      }
       public enum Trace {
         /// Location: TracePathView.swift - Purpose: Clear path dialog title
         public static let clearPath = L10n.tr("Contacts", "contacts.trace.clearPath", fallback: "Clear Path")
@@ -2014,6 +2020,16 @@ public enum L10n {
           public static let copyPath = L10n.tr("Contacts", "contacts.trace.list.copyPath", fallback: "Copy Path")
           /// Location: TracePathListView.swift - Purpose: Empty path instruction
           public static let emptyPath = L10n.tr("Contacts", "contacts.trace.list.emptyPath", fallback: "Add a hop to start building your path.")
+          /// Location: PathActionsSectionView.swift - Purpose: Trace hash size picker label
+          public static let hashSize = L10n.tr("Contacts", "contacts.trace.list.hashSize", fallback: "Hash Size")
+          /// Location: PathActionsSectionView.swift - Purpose: Caveat shown for multi-byte trace hash sizes
+          public static let hashSizeFooter = L10n.tr("Contacts", "contacts.trace.list.hashSizeFooter", fallback: "Repeaters running firmware older than 1.11.0 will not forward traces with a hash size greater than 1 byte.")
+          /// Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 4 bytes per hop
+          public static let hashSizeFourBytes = L10n.tr("Contacts", "contacts.trace.list.hashSizeFourBytes", fallback: "4 Bytes")
+          /// Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 1 byte per hop
+          public static let hashSizeOneByte = L10n.tr("Contacts", "contacts.trace.list.hashSizeOneByte", fallback: "1 Byte")
+          /// Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 2 bytes per hop
+          public static let hashSizeTwoBytes = L10n.tr("Contacts", "contacts.trace.list.hashSizeTwoBytes", fallback: "2 Bytes")
           /// Location: TracePathListView.swift - Purpose: Hop row accessibility hint
           public static let hopHint = L10n.tr("Contacts", "contacts.trace.list.hopHint", fallback: "Swipe left to delete, use drag handle to reorder")
           /// Location: TracePathListView.swift - Purpose: Hop row accessibility label
@@ -2113,6 +2129,8 @@ public enum L10n {
       public enum ViewModel {
         /// Location: ContactsViewModel.swift - Purpose: Delete requires connection error
         public static let connectToDelete = L10n.tr("Contacts", "contacts.viewModel.connectToDelete", fallback: "Connect to a radio to delete nodes")
+        /// Location: ContactsViewModel.swift - Purpose: Delete radio command timed out error
+        public static let removeTimedOut = L10n.tr("Contacts", "contacts.viewModel.removeTimedOut", fallback: "Deleting the node timed out. Try again.")
       }
     }
   }

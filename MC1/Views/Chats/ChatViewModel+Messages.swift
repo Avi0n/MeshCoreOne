@@ -39,7 +39,6 @@ extension ChatViewModel {
 
     /// Updates the notification level in the local conversations array
     private func updateConversationNotificationLevel(_ conversation: Conversation, level: NotificationLevel) {
-        invalidateConversationCache()
         switch conversation {
         case .direct(let contact):
             if let index = conversations.firstIndex(where: { $0.id == contact.id }) {
@@ -54,6 +53,7 @@ extension ChatViewModel {
                 roomSessions[index] = roomSessions[index].with(notificationLevel: level)
             }
         }
+        recomputeSnapshot()
     }
 
     // MARK: - Favorite
@@ -134,9 +134,9 @@ extension ChatViewModel {
         }
     }
 
-    /// Updates the favorite state in the local conversations array
+    /// Updates the favorite state in the local buffers. `recomputeSnapshot()` runs synchronously
+    /// after the mutation so it stays inside any `disablesAnimations` transaction the caller opens.
     private func updateConversationFavoriteState(_ conversation: Conversation, isFavorite: Bool) {
-        invalidateConversationCache()
         switch conversation {
         case .direct(let contact):
             if let index = conversations.firstIndex(where: { $0.id == contact.id }) {
@@ -151,6 +151,7 @@ extension ChatViewModel {
                 roomSessions[index] = roomSessions[index].with(isFavorite: isFavorite)
             }
         }
+        recomputeSnapshot()
     }
 
     // MARK: - Conversation List
@@ -161,26 +162,71 @@ extension ChatViewModel {
         conversations = []
         channels = []
         roomSessions = []
+        pendingRemovalIDs = []
+        deletingIDs = []
         allContacts = []
         channelSenders = []
         channelSenderNames = []
         channelSenderOrder = [:]
         contactNameSet = []
         lastMessageCache = [:]
-        invalidateConversationCache()
+        recomputeSnapshot()
     }
 
-    /// Removes a conversation from local arrays for optimistic UI update.
+    /// True while an optimistic hide or a confirmation-gated radio delete is in flight for
+    /// `id`. Gates the delete action so a rapid re-tap can't double-fire the same removal.
+    func isDeletePending(_ id: UUID) -> Bool {
+        pendingRemovalIDs.contains(id) || deletingIDs.contains(id)
+    }
+
+    /// Hides a conversation, recording the id in `pendingRemovalIDs` so a racing reload can't
+    /// resurrect it; `reconcilePendingRemovals()` drops the id once the fetch confirms it's gone.
     func removeConversation(_ conversation: Conversation) {
-        invalidateConversationCache()
-        switch conversation {
-        case .direct(let contact):
-            conversations = conversations.filter { $0.id != contact.id }
-        case .channel(let channel):
-            channels = channels.filter { $0.id != channel.id }
-        case .room(let session):
-            roomSessions = roomSessions.filter { $0.id != session.id }
+        pendingRemovalIDs.insert(conversation.id)
+        withAnimation(.snappy) {
+            switch conversation {
+            case .direct(let contact):
+                conversations = conversations.filter { $0.id != contact.id }
+            case .channel(let channel):
+                channels = channels.filter { $0.id != channel.id }
+            case .room(let session):
+                roomSessions = roomSessions.filter { $0.id != session.id }
+            }
+            recomputeSnapshot()
         }
+    }
+
+    /// Re-admits a row after its delete failed: drops the mask and re-inserts the caller-held DTO.
+    /// Reusing the held DTO rather than re-fetching keeps the rollback independent of reload timing.
+    func restoreConversation(_ conversation: Conversation) {
+        pendingRemovalIDs.remove(conversation.id)
+        withAnimation(.snappy) {
+            switch conversation {
+            case .direct(let contact):
+                if !conversations.contains(where: { $0.id == contact.id }) {
+                    conversations.append(contact)
+                }
+            case .channel(let channel):
+                if !channels.contains(where: { $0.id == channel.id }) {
+                    channels.append(channel)
+                }
+            case .room(let session):
+                if !roomSessions.contains(where: { $0.id == session.id }) {
+                    roomSessions.append(session)
+                }
+            }
+            recomputeSnapshot()
+        }
+    }
+
+    /// Confirms a direct conversation's local clear: drops the mask and purges the fetch buffer
+    /// together. Purging matters because a stale reload could have re-added the contact while it
+    /// was masked, and a later recompute would then republish it; a re-created row still returns
+    /// via the next reload's fetch.
+    func confirmDirectRemoval(_ contact: ContactDTO) {
+        pendingRemovalIDs.remove(contact.id)
+        conversations.removeAll { $0.id == contact.id }
+        recomputeSnapshot()
     }
 
     /// Load conversations for a device
@@ -192,7 +238,7 @@ extension ChatViewModel {
 
         do {
             conversations = try await dataStore.fetchConversations(radioID: radioID)
-            invalidateConversationCache()
+            recomputeSnapshot()
         } catch {
             errorBannerMessage = L10n.Chats.Chats.Error.loadConversationsFailed
             logger.error("loadConversations failed: \(error.localizedDescription)")
@@ -220,47 +266,71 @@ extension ChatViewModel {
 
         do {
             channels = try await dataStore.fetchChannels(radioID: radioID)
-            invalidateConversationCache()
+            recomputeSnapshot()
         } catch {
             // Silently handle - channels are optional
         }
     }
 
-    /// Load all conversations (contacts + channels + rooms) for unified display.
-    /// Fetches into local variables first, then applies all mutations in a single
-    /// synchronous block so SwiftUI sees one consistent state update.
-    func loadAllConversations(radioID: UUID) async {
+    /// Single entry point for every list reload. Cancel-and-replaces any in-flight reload so the
+    /// latest request wins and a superseded one returns at an `isCancelled` gate before committing.
+    /// Returns the new task so a caller that needs ordering (initial load) can await `.value`.
+    @discardableResult
+    func requestConversationReload() -> Task<Void, Never>? {
+        reloadTask?.cancel()
+        guard let radioID = appState?.currentRadioID else {
+            reloadTask = nil
+            clearConversations()
+            return nil
+        }
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+            await self.performConversationReload(radioID: radioID)
+        }
+        reloadTask = task
+        return task
+    }
+
+    /// Fetches contacts, channels, and rooms into locals, then commits one consistent snapshot.
+    /// No `await` may sit between the last `isCancelled` check and the assignment, so no other
+    /// reload can interleave a mismatched commit on the main actor.
+    private func performConversationReload(radioID: UUID) async {
         guard let dataStore else { return }
-
         isLoading = true
-        errorBannerMessage = nil
+        defer { isLoading = false }
 
-        // Fetch into locals — no @Observable mutations between awaits.
-        var fetchedConversations: [ContactDTO]?
-        var fetchedChannels: [ChannelDTO]?
-        var fetchedRoomSessions: [RemoteNodeSessionDTO]?
-
+        // Only fetchConversations sets the error banner; channel/room failures stay silent.
+        var banner: String?
+        let fetchedConversations: [ContactDTO]?
         do {
             fetchedConversations = try await dataStore.fetchConversations(radioID: radioID)
         } catch {
-            errorBannerMessage = L10n.Chats.Chats.Error.loadConversationsFailed
-            logger.error("loadAllConversations failed: \(error.localizedDescription)")
+            fetchedConversations = nil
+            banner = L10n.Chats.Chats.Error.loadConversationsFailed
+            logger.error("performConversationReload fetchConversations failed: \(error.localizedDescription)")
         }
+        if Task.isCancelled { return }
+        #if DEBUG
+        await reloadInterleaveHook?()
+        if Task.isCancelled { return }
+        #endif
 
-        fetchedChannels = try? await dataStore.fetchChannels(radioID: radioID)
-        fetchedRoomSessions = (try? await dataStore.fetchRemoteNodeSessions(radioID: radioID))?
+        let fetchedChannels = try? await dataStore.fetchChannels(radioID: radioID)
+        if Task.isCancelled { return }
+        let fetchedRooms = (try? await dataStore.fetchRemoteNodeSessions(radioID: radioID))?
             .filter { $0.isRoom }
+        if Task.isCancelled { return }
 
-        // Apply all changes in a single synchronous block so SwiftUI sees one
-        // consistent state instead of three intermediate partial states.
         if let fetchedConversations { conversations = fetchedConversations }
         if let fetchedChannels { channels = fetchedChannels }
-        if let fetchedRoomSessions { roomSessions = fetchedRoomSessions }
-        invalidateConversationCache()
-
+        if let fetchedRooms { roomSessions = fetchedRooms }
+        errorBannerMessage = banner
+        reconcilePendingRemovals()
+        recomputeSnapshot()
         hasLoadedOnce = true
-        isLoading = false
 
+        // Skip the trailing preview load if this reload was superseded.
+        if Task.isCancelled { return }
         await loadLastMessagePreviews()
     }
 

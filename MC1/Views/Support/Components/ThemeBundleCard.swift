@@ -8,6 +8,7 @@ struct ThemeBundleCard: View {
     let displayPrice: String?
     let onPurchase: () async -> Void
 
+    @Environment(\.appTheme) private var theme
     @State private var isPurchasing = false
 
     var body: some View {
@@ -22,7 +23,7 @@ struct ThemeBundleCard: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .center)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: ThemeCardMetrics.cornerRadius))
+        .background(theme.surfaces?.card ?? Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: ThemeCardMetrics.cornerRadius))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityHint(isActionable ? L10n.Settings.Support.Accessibility.BundleCard.lockedHint : "")
