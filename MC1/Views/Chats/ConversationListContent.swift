@@ -104,13 +104,12 @@ struct ConversationListContent: View {
         }
     }
 
-    /// Filter bar as the pinned section header. The strip carries the themed canvas color so
-    /// rows scrolling underneath the pin don't show through the bar's transparent margins and
-    /// inter-control gaps; the `GlassFilterBar` pills still render their glass over this backing.
+    /// Filter bar as the pinned section header; `pinnedFilterHeaderBackground` documents the
+    /// per-OS backing.
     private var pinnedFilterHeader: some View {
         ChatFilterPicker(selection: $selectedFilter)
             .frame(maxWidth: .infinity)
-            .background(theme.surfaces?.canvas ?? Color(.systemBackground))
+            .pinnedFilterHeaderBackground(theme)
     }
 
     private var hasNoConversations: Bool {

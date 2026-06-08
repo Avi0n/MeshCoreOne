@@ -63,13 +63,12 @@ struct ContactsListContent: View {
         }
     }
 
-    /// Segment picker as the pinned section header. The strip carries the themed canvas color so
-    /// rows scrolling underneath the pin don't show through the bar's transparent margins and
-    /// inter-control gaps; the `GlassFilterBar` pills still render their glass over this backing.
+    /// Segment picker as the pinned section header; `pinnedFilterHeaderBackground` documents the
+    /// per-OS backing.
     private var pinnedSegmentHeader: some View {
         NodeSegmentPicker(selection: $selectedSegment, isSearching: isSearching)
             .frame(maxWidth: .infinity)
-            .background(theme.surfaces?.canvas ?? Color(.systemBackground))
+            .pinnedFilterHeaderBackground(theme)
     }
 
     @ViewBuilder
