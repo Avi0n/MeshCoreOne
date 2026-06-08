@@ -288,14 +288,21 @@ struct MC1MapView: UIViewRepresentable {
             return
         }
 
+        // Corners are center ± span/2, so a non-finite span makes MapLibre's LatLng
+        // constructor throw and abort the process — and the latitude clamp below can't
+        // catch it because Swift's max/min propagate NaN. Skip the update when non-finite.
+        guard region.span.latitudeDelta.isFinite,
+              region.span.longitudeDelta.isFinite else {
+            coordinator.lastAppliedRegionVersion = cameraRegionVersion
+            return
+        }
+
         let isInflated = mapView.window.map { mapView.bounds.height > $0.bounds.height * 1.5 } ?? false
         let animated = coordinator.lastAppliedRegionVersion > 0 && !isInflated
         coordinator.lastAppliedRegionVersion = cameraRegionVersion
 
-        // A valid center isn't enough: the corners are center ± span/2, so a
-        // near-pole center can push a corner past ±90, which makes MapLibre's
-        // LatLng constructor throw and abort the process. Clamp latitude to the
-        // valid range; longitude is left unclamped because MapLibre wraps it.
+        // Clamp latitude so a near-pole center can't push a corner past ±90 (another
+        // LatLng abort). Longitude is left unclamped because MapLibre wraps it.
         let limit = Self.latitudeLimit
         let bounds = MLNCoordinateBounds(
             sw: CLLocationCoordinate2D(
