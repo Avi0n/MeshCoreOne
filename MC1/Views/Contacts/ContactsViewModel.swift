@@ -65,12 +65,9 @@ final class ContactsViewModel {
     /// Contact ID currently having its favorite status toggled (for loading UI)
     var togglingFavoriteID: UUID?
 
-    /// Sticky mask of rows hidden after a confirmed delete, held until a reload observes the row
-    /// gone from the database, so a reload racing the database delete can't resurrect it. Distinct
-    /// from `deletingIDs`, the in-flight presentation set. Intentionally observed (no
-    /// `@ObservationIgnored`): `filteredContacts` reads it during body evaluation, so a mutation
-    /// must re-run the filter. The `ChatViewModel` twin is ignored only because views there read a
-    /// recomputed snapshot instead.
+    /// Mask of rows hidden after a confirmed delete, held until a reload sees the row gone so a
+    /// racing reload can't resurrect it. Observed because `filteredContacts` reads it during body
+    /// evaluation. Distinct from `deletingIDs`, the in-flight presentation set.
     var pendingRemovalIDs: Set<UUID> = []
 
     /// Rows with a delete command in flight, surfaced as a spinner. Distinct from

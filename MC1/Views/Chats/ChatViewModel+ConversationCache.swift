@@ -21,14 +21,10 @@ extension ChatViewModel {
     /// Fallback date for conversations with no messages, used to sort them to the end.
     static let noMessageSentinel = Date.distantPast
 
-    /// Recomputes the observed snapshot from the current fetch buffers in one
-    /// synchronous pass. Filters and sort carry over verbatim from the source
-    /// arrays; the only added rule is the `pendingRemovalIDs` exclusion that keeps
-    /// a just-deleted row hidden across a stale or racing reload.
-    ///
-    /// Never opens an animation transaction here. Only `removeConversation` and
-    /// `restoreConversation` wrap their call in `withAnimation`, so a delete animates
-    /// once while reload-driven recomputes render in the default (empty) transaction.
+    /// Recomputes the observed snapshot from the fetch buffers in one synchronous pass,
+    /// excluding `pendingRemovalIDs` so a just-deleted row stays hidden across a racing reload.
+    /// Never wraps the assignment in `withAnimation`; only `removeConversation`/`restoreConversation`
+    /// do, so a delete animates once while reload-driven recomputes stay unanimated.
     func recomputeSnapshot() {
         let contactConversations = conversations
             .filter { $0.type != .repeater && !$0.isBlocked && !pendingRemovalIDs.contains($0.id) }
@@ -46,10 +42,9 @@ extension ChatViewModel {
             others: sortedByLastMessage(all.filter { !$0.isFavorite })
         )
 
-        // A value-identical snapshot is a true no-op: republishing it would re-diff the list and
-        // bump the generation for nothing. Safe only because pendingRemovalIDs masks a just-deleted
-        // row, so a stale reload recomputes this same snapshot instead of a row-present one that
-        // would slip past the guard and resurrect the row.
+        // Skip republishing an identical snapshot to avoid a needless re-diff. Safe because
+        // pendingRemovalIDs masks a deleted row, so a stale reload recomputes this same snapshot
+        // rather than a row-present one that would slip past the guard.
         guard newSnapshot != conversationSnapshot else { return }
 
         conversationSnapshot = newSnapshot

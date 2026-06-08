@@ -74,9 +74,8 @@ struct ChatsListModifiers: ViewModifier {
                     viewModel.requestConversationReload()
                 }
             }
-            // Surfaces the direct-message and room delete failures. The channel retry alert
-            // lives on the separate ChatsConversationSheets subtree; the two never present at
-            // once since a user deletes one conversation at a time.
+            // Surfaces direct-message and room delete failures; the channel retry alert lives on
+            // ChatsConversationSheets, and only one can present since deletes happen one at a time.
             .errorAlert(Binding(
                 get: { viewModel.errorMessage },
                 set: { viewModel.errorMessage = $0 }

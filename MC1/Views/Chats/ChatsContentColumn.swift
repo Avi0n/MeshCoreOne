@@ -105,9 +105,8 @@ struct ChatsContentColumn: View {
                 lastSelectedRoomIsConnected = nil
             }
         }
-        // Keep the selected route's payload current as the snapshot recomputes, and
-        // re-run the disconnected-room reauth guard a reload may have invalidated. A
-        // selected route whose conversation was removed resolves to nil and clears.
+        // Refresh the selected route's payload as the snapshot recomputes and re-run the
+        // room reauth guard; a route whose conversation was removed resolves to nil and clears.
         .onChange(of: viewModel.snapshotGeneration) { _, _ in
             let refreshed = selectedRoute?.refreshedPayload(from: viewModel.allConversations)
             selectedRoute = refreshed

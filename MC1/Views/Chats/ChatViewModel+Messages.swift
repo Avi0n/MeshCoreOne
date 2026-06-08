@@ -134,10 +134,8 @@ extension ChatViewModel {
         }
     }
 
-    /// Updates the favorite state in the local conversations array.
-    /// `recomputeSnapshot()` runs synchronously after the element mutation with no
-    /// `await` between them, so when `applyFavoriteUpdate` wraps this in a
-    /// `disablesAnimations` transaction the republish stays inside that block.
+    /// Updates the favorite state in the local buffers. `recomputeSnapshot()` runs synchronously
+    /// after the mutation so it stays inside any `disablesAnimations` transaction the caller opens.
     private func updateConversationFavoriteState(_ conversation: Conversation, isFavorite: Bool) {
         switch conversation {
         case .direct(let contact):
@@ -181,10 +179,8 @@ extension ChatViewModel {
         pendingRemovalIDs.contains(id) || deletingIDs.contains(id)
     }
 
-    /// Hides a conversation. The id is recorded in `pendingRemovalIDs` so a stale or racing
-    /// reload that still returns the row cannot resurrect it; `reconcilePendingRemovals()`
-    /// drops the id once the DB confirms the deletion. Animates the single membership change
-    /// (see the transaction note on `recomputeSnapshot`).
+    /// Hides a conversation, recording the id in `pendingRemovalIDs` so a racing reload can't
+    /// resurrect it; `reconcilePendingRemovals()` drops the id once the fetch confirms it's gone.
     func removeConversation(_ conversation: Conversation) {
         pendingRemovalIDs.insert(conversation.id)
         withAnimation(.snappy) {
@@ -200,9 +196,8 @@ extension ChatViewModel {
         }
     }
 
-    /// Re-admits a row hidden by `removeConversation` after its delete failed. Drops the mask
-    /// and re-inserts the caller-held DTO (never a re-fetch, which could race the reload), so
-    /// the rollback is reload-timing independent and the single insert diff animates exactly once.
+    /// Re-admits a row after its delete failed: drops the mask and re-inserts the caller-held DTO.
+    /// Reusing the held DTO rather than re-fetching keeps the rollback independent of reload timing.
     func restoreConversation(_ conversation: Conversation) {
         pendingRemovalIDs.remove(conversation.id)
         withAnimation(.snappy) {
@@ -224,11 +219,10 @@ extension ChatViewModel {
         }
     }
 
-    /// Confirms a direct conversation's local clear: drops the optimistic mask and removes the
-    /// row from the fetch buffer in one synchronous step. Without the buffer purge, a stale reload
-    /// that re-added the contact while it was still masked would leave the buffer holding it once
-    /// the mask clears, so the next independent recompute (favorite/mute toggle) could republish the
-    /// just-deleted row. A genuinely re-created row still reappears via the trailing reload's fetch.
+    /// Confirms a direct conversation's local clear: drops the mask and purges the fetch buffer
+    /// together. Purging matters because a stale reload could have re-added the contact while it
+    /// was masked, and a later recompute would then republish it; a re-created row still returns
+    /// via the next reload's fetch.
     func confirmDirectRemoval(_ contact: ContactDTO) {
         pendingRemovalIDs.remove(contact.id)
         conversations.removeAll { $0.id == contact.id }
@@ -278,11 +272,9 @@ extension ChatViewModel {
         }
     }
 
-    /// Serialized reload funnel — the single entry point every list-reload trigger
-    /// calls. Cancels any in-flight reload and replaces it, so the most recent
-    /// request wins and a stale reload returns at an `isCancelled` gate before it
-    /// can commit a mismatched snapshot. Returns the new task so a caller that must
-    /// preserve ordering (initial load) can await `.value`.
+    /// Single entry point for every list reload. Cancel-and-replaces any in-flight reload so the
+    /// latest request wins and a superseded one returns at an `isCancelled` gate before committing.
+    /// Returns the new task so a caller that needs ordering (initial load) can await `.value`.
     @discardableResult
     func requestConversationReload() -> Task<Void, Never>? {
         reloadTask?.cancel()
@@ -299,17 +291,15 @@ extension ChatViewModel {
         return task
     }
 
-    /// Fetches contacts, channels, and rooms into locals, then commits them as one
-    /// internally consistent snapshot in a single synchronous block. There must be
-    /// no `await` between the final `isCancelled` check and the snapshot assignment,
-    /// so on the main actor no other reload can interleave a mismatched commit.
+    /// Fetches contacts, channels, and rooms into locals, then commits one consistent snapshot.
+    /// No `await` may sit between the last `isCancelled` check and the assignment, so no other
+    /// reload can interleave a mismatched commit on the main actor.
     private func performConversationReload(radioID: UUID) async {
         guard let dataStore else { return }
         isLoading = true
         defer { isLoading = false }
 
-        // Preserve the conversation-load error banner: catch fetchConversations
-        // explicitly and clear it on success; channel/room fetch failures stay silent.
+        // Only fetchConversations sets the error banner; channel/room failures stay silent.
         var banner: String?
         let fetchedConversations: [ContactDTO]?
         do {
@@ -339,8 +329,7 @@ extension ChatViewModel {
         recomputeSnapshot()
         hasLoadedOnce = true
 
-        // Extend the funnel's cancellation discipline to the trailing preview load so a
-        // superseded reload doesn't run redundant fetches and fire spurious observation.
+        // Skip the trailing preview load if this reload was superseded.
         if Task.isCancelled { return }
         await loadLastMessagePreviews()
     }

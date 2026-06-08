@@ -40,19 +40,17 @@ struct ChatListActions {
     func deleteDirectConversation(_ contact: ContactDTO) {
         guard !viewModel.isDeletePending(contact.id) else { return }
         clearNavigationIfActive(.direct(contact))
-        viewModel.removeConversation(.direct(contact))      // optimistic hide, animated
+        viewModel.removeConversation(.direct(contact))
 
         Task {
             do {
                 try await viewModel.deleteDirectConversation(for: contact)
-                // The local clear is authoritative, so drop the mask and purge the buffer now
-                // rather than waiting for the reload to observe absence. An inbound message that
-                // re-sets lastMessageDate mid-delete would otherwise read the row present at every
-                // reload and mask it forever; clearing here lets such a row correctly reappear.
+                // Confirm immediately rather than waiting for the reload; an inbound message that
+                // re-sets lastMessageDate mid-delete would otherwise keep the row masked forever.
                 viewModel.confirmDirectRemoval(contact)
                 viewModel.requestConversationReload()
             } catch {
-                viewModel.restoreConversation(.direct(contact))  // re-admit the held DTO, animated
+                viewModel.restoreConversation(.direct(contact))
                 viewModel.errorMessage = error.localizedDescription
             }
         }
@@ -70,7 +68,7 @@ struct ChatListActions {
                     try await ChatConversationActions.deleteChannel(channel, appState: appState)
                 }
                 clearNavigationIfActive(.channel(channel))
-                viewModel.removeConversation(.channel(channel))  // single animated removal after ack
+                viewModel.removeConversation(.channel(channel))
             } catch {
                 channelDeleteFailure.wrappedValue = ChatConversationActions.Failure(
                     channel: channel,
@@ -82,10 +80,9 @@ struct ChatListActions {
         }
     }
 
-    /// Room leave sends radio commands (logout, remove contact). The row stays put with a
-    /// spinner until they ack, then is hidden once; a failure leaves it in place. A partial
-    /// failure is reconciled by the trailing reload rather than a blind re-insert, so a row
-    /// already gone from the database is not re-admitted.
+    /// Room leave sends radio commands (logout, remove contact). The row keeps its spinner until
+    /// they ack, then is hidden once; a failure leaves it in place and the trailing reload
+    /// reconciles a partial failure rather than blindly re-inserting.
     func deleteRoom(_ session: RemoteNodeSessionDTO) async {
         guard !viewModel.isDeletePending(session.id) else { return }
         viewModel.deletingIDs.insert(session.id)
@@ -95,7 +92,7 @@ struct ChatListActions {
                 try await ChatConversationActions.leaveRoom(session, appState: appState)
             }
             clearNavigationIfActive(.room(session))
-            viewModel.removeConversation(.room(session))     // hide after the database is mutated, animated
+            viewModel.removeConversation(.room(session))
         } catch {
             chatListActionsLogger.error("Failed to delete room: \(error)")
             viewModel.errorMessage = error.localizedDescription

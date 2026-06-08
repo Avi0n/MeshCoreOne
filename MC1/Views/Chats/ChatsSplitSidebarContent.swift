@@ -47,10 +47,8 @@ struct ChatsSplitSidebarContent: View {
             onHandlePendingRoomNavigation: onHandlePendingRoomNavigation
         ))
         .onChange(of: selectedRoute) { oldValue, newValue in
-            // Reload conversations when navigating away from a selection. The funnel
-            // cancel-and-replaces any in-flight reload, and pendingRemovalIDs keeps a
-            // just-deleted row hidden, so a delete that clears the selection can no
-            // longer resurrect the row through this reload.
+            // Reload when navigating away from a selection. The funnel and pendingRemovalIDs
+            // keep a delete that cleared the selection from resurrecting the row through this reload.
             if oldValue != nil {
                 viewModel.requestConversationReload()
             }

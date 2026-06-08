@@ -30,18 +30,14 @@ final class ChatViewModel {
 
     let logger = Logger(subsystem: "com.mc1", category: "ChatViewModel")
 
-    /// Single observed structural source of truth the List reads (via the accessors
-    /// on `ChatViewModel+ConversationCache`). Must not be `@ObservationIgnored`:
-    /// observation of this property is what drives the List diff. Assigned only in
-    /// `recomputeSnapshot()`, always as a complete favorite/other split.
+    /// Observed source of truth the list diffs against. Stays observed because that
+    /// observation drives the diff; assigned only by `recomputeSnapshot()`.
     var conversationSnapshot: ConversationSnapshot = .empty
 
     /// Cheap Equatable surrogate for `onChange(of:)`; bumped only in `recomputeSnapshot()`.
     var snapshotGeneration: Int = 0
 
-    /// Current conversations (contacts with messages). Demoted to a non-observed
-    /// fetch buffer feeding `recomputeSnapshot()`; kept `internal` so tests in
-    /// `@testable import MC1` can seed it directly.
+    /// Non-observed fetch buffer feeding `recomputeSnapshot()`; `internal` so tests can seed it.
     @ObservationIgnored var conversations: [ContactDTO] = []
 
     /// All contacts for mention autocomplete (includes contacts without messages)
@@ -69,21 +65,17 @@ final class ChatViewModel {
     /// `reconcilePendingRemovals()` self-heals this once the fetch confirms the row is gone.
     @ObservationIgnored var pendingRemovalIDs: Set<UUID> = []
 
-    /// Rows showing an in-flight delete spinner during a confirmation-gated radio command
-    /// (channel clear, room leave). Presentation state read directly by the rows, so it is
-    /// observed; it never filters `conversationSnapshot`. Distinct from `pendingRemovalIDs`,
-    /// the optimistic-hide mask used only by the radio-free direct-message path.
+    /// Rows showing a delete spinner during a radio-backed delete (channel clear, room leave).
+    /// Observed presentation state read by the rows; never filters the snapshot. Distinct from
+    /// `pendingRemovalIDs`, the optimistic-hide mask.
     var deletingIDs: Set<UUID> = []
 
-    /// Cancel-and-replace token for the serialized reload funnel (house idiom,
-    /// matching `RoomConversationViewModel.reloadTask`). No view reads it.
+    /// Cancel-and-replace token for the serialized reload funnel. No view reads it.
     @ObservationIgnored var reloadTask: Task<Void, Never>?
 
     #if DEBUG
-    /// Test-only interleave hook, awaited once mid-reload. Lets a unit test deterministically
-    /// suspend reload #1 between fetches and commit reload #2 first, without widening `dataStore`
-    /// to the protocol (several of its methods are off-`PersistenceStoreProtocol`). Compiled out
-    /// of release builds, so it cannot affect the shipping reload path.
+    /// Test-only interleave hook, awaited once mid-reload so a test can suspend reload #1
+    /// between fetches and commit reload #2 first. Compiled out of release builds.
     @ObservationIgnored var reloadInterleaveHook: (@MainActor () async -> Void)?
     #endif
 
