@@ -44,7 +44,7 @@ struct ContactsSidebarContent: View {
         .navigationTitle(L10n.Contacts.Contacts.List.title)
         .searchable(text: $searchText, prompt: searchPrompt)
         .toolbar {
-            bleStatusToolbarItem(isVisible: !shouldUseSplitView || appState.navigation.isSidebarCollapsed)
+            bleStatusToolbarItem()
 
             ToolbarItem(placement: .automatic) {
                 Menu {

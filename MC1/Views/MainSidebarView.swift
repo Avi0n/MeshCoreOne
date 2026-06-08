@@ -36,28 +36,56 @@ struct MainSidebarView: View {
     // sidebarColumnWidth is pinned on AppSidebar in both shell shapes (via navigationSplitViewColumnWidth)
     // so the sidebar renders at exactly this width whether the section is two- or three-column. Without
     // the pin the two-column Map shell gives its sidebar a wider system default than the three-column
-    // list shell, so the sidebar visibly jumps width when switching to Map. detailColumnApproxMinWidth
-    // is a named approximation of the system detail min-width, which the detail column inherits. Both are
-    // `nonisolated` because sidebarTileableMinWidth's nonisolated initializer reads them.
-    nonisolated private static let sidebarColumnWidth: CGFloat = 320
-    nonisolated private static let detailColumnApproxMinWidth: CGFloat = 320
+    // list shell, so the sidebar visibly jumps width when switching to Map. detailColumnApproxMinWidth is
+    // the detail-column floor feeding the tiling breakpoint below: an approximation of the width the detail
+    // column settles at on our supported iPads, validated on device. Both are `nonisolated` because
+    // sidebarTileableMinWidth's nonisolated initializer reads them.
+    nonisolated static let sidebarColumnWidth: CGFloat = 64
+    nonisolated static let detailColumnApproxMinWidth: CGFloat = 320
 
-    // Content-column floor used only by the tileability test: the widest minimum any section's content
-    // column takes, so the gate clears for every section. Deliberately its own constant, not a reuse of
-    // lineOfSightPanelWidthMin, so retuning the Line of Sight panel for comfort cannot shift when the
-    // sidebar tiles. `nonisolated` because sidebarTileableMinWidth's nonisolated initializer reads it.
-    nonisolated private static let contentColumnTileableMinWidth: CGFloat = 380
+    // Content-column floor feeding the tiling breakpoint: the widest minimum any section's content
+    // column takes, so the breakpoint clears for every section. A deliberate, team-owned value kept as
+    // its own constant, not a reuse of lineOfSightPanelWidthMin, so retuning the Line of Sight panel for
+    // comfort cannot shift when the sidebar tiles. `nonisolated` because sidebarTileableMinWidth's
+    // nonisolated initializer reads it.
+    nonisolated static let contentColumnTileableMinWidth: CGFloat = 380
 
-    /// Three columns tile only when the container is at least the sum of the system's own column
-    /// min-widths (sidebar + a content column at its min + detail at its min). Below it the system
-    /// overlays the sidebar, so the not-wide branch keeps collapse-on-selection rather than leaving an
-    /// overlay that could strand the radio control. `nonisolated` so the @Sendable onGeometryChange
+    /// Three columns tile only when the container is at least the sum of the three column widths: the
+    /// pinned icon sidebar plus a content column at its min plus detail at its min. Below it the system
+    /// overlays the sidebar, so the not-wide branch keeps collapse-on-selection rather than leaving a
+    /// sidebar overlay on a too-narrow container. `nonisolated` so the @Sendable onGeometryChange
     /// transform can read it; a main-actor-isolated static is not referenceable from a Sendable closure.
-    nonisolated private static let sidebarTileableMinWidth: CGFloat =
+    nonisolated static let sidebarTileableMinWidth: CGFloat =
         sidebarColumnWidth + contentColumnTileableMinWidth + detailColumnApproxMinWidth
+
+    /// Pure mapping from container width and section to the desired sidebar visibility: wide tiles the
+    /// sidebar (`.all`), narrow collapses to the section's hidden shape, and a sidebar-collapsing tool
+    /// overrides both. `nonisolated` so the @Sendable-adjacent geometry action and the layout test can
+    /// both call it.
+    nonisolated static func sidebarVisibility(
+        isWide: Bool,
+        toolCollapsesSidebar: Bool,
+        sectionCollapsed: NavigationSplitViewVisibility
+    ) -> NavigationSplitViewVisibility {
+        if toolCollapsesSidebar { return sectionCollapsed }
+        return isWide ? .all : sectionCollapsed
+    }
 
     private var selectedTab: AppTab {
         AppTab(rawValue: appState.navigation.selectedTab) ?? .chats
+    }
+
+    /// True while the Tools section is showing a tool whose `prefersCollapsedSidebar` is set.
+    private var isSidebarCollapsingToolOpen: Bool {
+        selectedTab == .tools && appState.navigation.selectedTool?.prefersCollapsedSidebar == true
+    }
+
+    private func desiredSidebarVisibility(isWide: Bool) -> NavigationSplitViewVisibility {
+        Self.sidebarVisibility(
+            isWide: isWide,
+            toolCollapsesSidebar: isSidebarCollapsingToolOpen,
+            sectionCollapsed: selectedTab.collapsedSidebarVisibility
+        )
     }
 
     /// Width override for the Tools content column: applied only when the Line of Sight analysis panel
@@ -81,16 +109,12 @@ struct MainSidebarView: View {
                 proxy.size.width >= Self.sidebarTileableMinWidth
             } action: { isWide in
                 appState.navigation.isSidebarWide = isWide
-                // Wide reveals the tiled sidebar; narrow collapses to the section's hidden shape so the
-                // radio lands in the toolbar and no .all overlay can strand it. selectedTab is read
-                // live so the collapsed shape matches the currently mounted shell.
-                if isWide {
-                    columnVisibility = .all
-                } else {
-                    columnVisibility = selectedTab.collapsedSidebarVisibility
-                }
+                // Wide reveals the tiled sidebar; narrow collapses to the section's hidden shape so a
+                // too-narrow container shows a single column rather than a sidebar overlay. selectedTab
+                // is read live so the collapsed shape matches the currently mounted shell.
+                columnVisibility = desiredSidebarVisibility(isWide: isWide)
             }
-            .navigationSplitViewStyle(.automatic)
+            .navigationSplitViewStyle(.balanced)
             .themedChrome(theme)
             .syncingPillOverlay(onDisconnectedTap: { showingDeviceSelection = true })
             .onChange(of: appState.navigation.selectedTab) { _, newValue in
@@ -104,19 +128,17 @@ struct MainSidebarView: View {
                 }
                 // The collapse drops the tapped sidebar row, so steer VoiceOver into the new content.
                 focusedColumn = newTab
-                // The radio lives in AppSidebar, so donate the tip when a donation is waiting.
+                // The radio sits in the section toolbar on every tab, so donate the tip when one waits.
                 if appState.navigation.pendingDeviceMenuTipDonation {
                     Task {
                         await appState.donateDeviceMenuTip()
                     }
                 }
             }
-            .onChange(of: columnVisibility, initial: true) { _, newValue in
-                // Derive the single radio-gating signal. The width-driven collapse/reveal is owned by
-                // the geometry action above; this handler only mirrors the resulting visibility into
-                // isSidebarCollapsed (true iff the sidebar column is hidden), which the section
-                // toolbars read to surface the radio.
-                appState.navigation.isSidebarCollapsed = newValue != .all
+            .onChange(of: appState.navigation.selectedTool) { _, _ in
+                // A tool's sidebar preference can change the desired visibility, so re-derive it whenever
+                // the selected tool changes.
+                columnVisibility = desiredSidebarVisibility(isWide: appState.navigation.isSidebarWide)
             }
             .onChange(of: appState.connectedDevice) { _, newDevice in
                 // An explicit (status-menu) disconnect tears down the connection without firing

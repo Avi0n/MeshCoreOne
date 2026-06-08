@@ -37,4 +37,12 @@ enum ToolSelection: Hashable, CaseIterable {
     var requiresRadio: Bool {
         self != .lineOfSight
     }
+
+    /// Tools that collapse the iPad section's sidebar when open, reclaiming its width. Line of Sight
+    /// swaps the content column for its analysis panel beside the detail map; Trace Path keeps the tool
+    /// list in the content column and gives its own list/map view the freed width in the detail column.
+    /// Other tools keep the sidebar's normal width-driven behavior.
+    var prefersCollapsedSidebar: Bool {
+        self == .lineOfSight || self == .tracePath
+    }
 }

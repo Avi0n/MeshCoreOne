@@ -5,7 +5,6 @@ import MC1Services
 /// Map view displaying contacts with their locations
 struct MapView: View {
     @Environment(\.appState) private var appState
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage("mapStyleSelection") private var mapStyleSelection: MapStyleSelection = .standard
     @AppStorage("mapShowLabels") private var showLabels = true
     @State private var viewModel = MapViewModel()
@@ -29,7 +28,7 @@ struct MapView: View {
                 onClearSelection: { clearSelection() }
             )
             .toolbar {
-                bleStatusToolbarItem(isVisible: horizontalSizeClass == .compact || appState.navigation.isSidebarCollapsed)
+                bleStatusToolbarItem()
                 ToolbarItem(placement: .topBarTrailing) {
                     MapRefreshButton(viewModel: viewModel)
                 }

@@ -14,8 +14,23 @@ struct ToolsContentColumn: View {
     private var selection: Binding<ToolSelection?> {
         Binding(
             get: { appState.navigation.selectedTool },
-            set: { appState.navigation.selectedTool = $0 }
+            set: { setSelectedTool($0) }
         )
+    }
+
+    /// Selecting or leaving Line of Sight swaps this column's `NavigationStack` root, which animates
+    /// the navigation bar; suppressing the animation on that transition stops the radio control from
+    /// leaving a stuck ghost over the title while the leading slot reconfigures to the back button.
+    /// Selections that only drive the detail column (every other tool) keep their default animation.
+    private func setSelectedTool(_ tool: ToolSelection?) {
+        let togglesPanel = tool == .lineOfSight || appState.navigation.selectedTool == .lineOfSight
+        guard togglesPanel else {
+            appState.navigation.selectedTool = tool
+            return
+        }
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) { appState.navigation.selectedTool = tool }
     }
 
     var body: some View {
@@ -39,9 +54,7 @@ struct ToolsContentColumn: View {
         .navigationTitle(L10n.Tools.Tools.title)
         .modifier(SidebarContentColumnBackground(theme: theme))
         .toolbar {
-            // Tools renders only through the iPad split here, so the radio shows whenever the sidebar
-            // is collapsed (the sidebar otherwise owns it).
-            bleStatusToolbarItem(isVisible: appState.navigation.isSidebarCollapsed)
+            bleStatusToolbarItem()
         }
     }
 
@@ -52,11 +65,13 @@ struct ToolsContentColumn: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        appState.navigation.selectedTool = nil
+                        setSelectedTool(nil)
                     } label: {
                         Label(L10n.Tools.Tools.title, systemImage: "chevron.backward")
                     }
                 }
+                // The back button owns the leading slot here, so the radio moves to the trailing edge.
+                bleStatusToolbarItem(placement: .topBarTrailing)
             }
     }
 }

@@ -1,15 +1,14 @@
 import SwiftUI
 
-/// The leading radio status control (`BLEStatusIndicatorView`) as a reusable toolbar item. The iPad
-/// sidebar owns the radio while it is visible, so each section surfaces the control in its own
-/// toolbar only when it owns it — on iPhone (no sidebar) or while the iPad sidebar is collapsed.
-/// Each call site passes that per-section condition; the placement stays defined once here.
+/// The radio status control (`BLEStatusIndicatorView`) as a reusable toolbar item. Every section
+/// surfaces it unconditionally: the icon-only iPad sidebar is too narrow to host the control, so
+/// each section owns it in its own toolbar. It sits at the leading edge by default; a section whose
+/// leading slot is already taken (the Line of Sight panel's back button) passes `.topBarTrailing`
+/// to move it to the right rather than crowd the title.
 @MainActor
 @ToolbarContentBuilder
-func bleStatusToolbarItem(isVisible: Bool) -> some ToolbarContent {
-    if isVisible {
-        ToolbarItem(placement: .topBarLeading) {
-            BLEStatusIndicatorView()
-        }
+func bleStatusToolbarItem(placement: ToolbarItemPlacement = .topBarLeading) -> some ToolbarContent {
+    ToolbarItem(placement: placement) {
+        BLEStatusIndicatorView()
     }
 }

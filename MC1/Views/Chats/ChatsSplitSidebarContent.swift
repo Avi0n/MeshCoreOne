@@ -37,7 +37,6 @@ struct ChatsSplitSidebarContent: View {
         )
         .modifier(ChatsListModifiers(
             viewModel: viewModel,
-            isSidebar: true,
             searchText: $searchText,
             showingNewChat: $showingNewChat,
             showingChannelOptions: $showingChannelOptions,

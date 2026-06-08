@@ -1,8 +1,9 @@
 import SwiftUI
 import MC1Services
 
-/// The sidebar column of the iPad three-column layout: the radio control plus the five
-/// `AppTab` rows, bridging row selection to `NavigationCoordinator.selectedTab`.
+/// The sidebar column of the iPad three-column layout: the five `AppTab` rows, bridging
+/// row selection to `NavigationCoordinator.selectedTab`. The radio control lives in each
+/// section's own toolbar, since the icon-only sidebar is too narrow to host it.
 struct AppSidebar: View {
     @Environment(\.appState) private var appState
 
@@ -45,11 +46,9 @@ struct AppSidebar: View {
             Label(L10n.Localizable.Tabs.settings, systemImage: "gear")
                 .tag(AppTab.settings)
         }
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                BLEStatusIndicatorView()
-            }
-        }
+        // Icon-only sidebar: each Label's title is hidden visually but stays its row's VoiceOver
+        // label, so the titles are load-bearing for accessibility and must remain on every row.
+        .labelStyle(.iconOnly)
     }
 }
 
