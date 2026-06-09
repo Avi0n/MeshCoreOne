@@ -7,9 +7,22 @@ struct AboutSection: View {
 
     var body: some View {
         Section {
+            #if SIDELOAD
+            Link(destination: URL(string: "https://github.com/sponsors/Avi0n")!) {
+                HStack {
+                    TintedLabel(L10n.Settings.Support.title, systemImage: "heart")
+                    Spacer()
+                    Image(systemName: "arrow.up.right")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+            .foregroundStyle(.primary)
+            #else
             SettingsDetailRow(detail: .support) {
                 TintedLabel(L10n.Settings.Support.title, systemImage: "heart")
             }
+            #endif
 
             Link(destination: URL(string: "https://meshcore.io")!) {
                 HStack {
