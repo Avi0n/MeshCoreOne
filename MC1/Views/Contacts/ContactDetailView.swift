@@ -802,9 +802,22 @@ private struct ContactLocationSection: View {
                 UnevenRoundedRectangle(topLeadingRadius: 10, topTrailingRadius: 10)
                     .fill(theme.surfaces?.card ?? Color(.secondarySystemGroupedBackground))
             )
+
+            // Open in Maps
+            Button {
+                openInMaps()
+            } label: {
+                Label(L10n.Contacts.Contacts.Detail.openInMaps, systemImage: "map")
+            }
         } header: {
             Text(L10n.Contacts.Contacts.Detail.location)
         }
+    }
+
+    private func openInMaps() {
+        let mapItem = MKMapItem(placemark: MKPlacemark(coordinate: currentContact.coordinate))
+        mapItem.name = currentContact.displayName
+        mapItem.openInMaps()
     }
 }
 
