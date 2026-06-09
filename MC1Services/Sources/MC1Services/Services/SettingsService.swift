@@ -349,6 +349,22 @@ public enum RadioPresets {
             return false
         }
     }
+
+    /// Whether `preset` should appear in a manual picker for `region`. Only county-scoped presets are
+    /// gated: they appear only when `region` resolves to one of their counties (a nil region hides them).
+    /// Every other tier is always selectable.
+    public static func isSelectable(_ preset: RadioPreset, in region: RegionSelection?) -> Bool {
+        guard case .counties(let country, let state, let keys) = preset.availability else {
+            return true
+        }
+        guard let region,
+              region.countryCode == country,
+              region.administrativeAreaCode == state,
+              let countyKey = region.countyKey else {
+            return false
+        }
+        return keys.contains(countyKey)
+    }
 }
 
 // MARK: - Telemetry Modes
