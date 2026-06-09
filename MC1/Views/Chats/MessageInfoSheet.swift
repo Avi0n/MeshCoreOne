@@ -88,6 +88,9 @@ struct MessageInfoSheet: View {
         Text(L10n.Chats.Chats.Message.Info.hops(
             message.isDirectRouted ? L10n.Chats.Chats.Message.Hops.direct : "\(message.hopCount)"
         ))
+        if let hashSize = message.pathHashSizeIfKnown {
+            Text(L10n.Chats.Chats.Message.Info.pathHash(hashSize))
+        }
         if let snr = message.snr {
             Text(L10n.Chats.Chats.Message.Info.snr(
                 "\(snr.formatted(.number.precision(.fractionLength(1)))) dB (\(SNRQuality(snr: snr).localizedLabel))"
@@ -100,6 +103,10 @@ struct MessageInfoSheet: View {
         Text(L10n.Chats.Chats.Message.Info.sent(
             message.senderDate.formatted(date: .abbreviated, time: .standard))
             + (message.timestampCorrected ? " \(L10n.Chats.Chats.Message.Info.adjusted)" : ""))
+        if message.timestampCorrected {
+            Text(L10n.Chats.Chats.Message.Info.originalSendTime(
+                message.wireSentDate.formatted(date: .abbreviated, time: .standard)))
+        }
         Text(L10n.Chats.Chats.Message.Info.received(
             message.createdAt.formatted(date: .abbreviated, time: .standard)))
     }
