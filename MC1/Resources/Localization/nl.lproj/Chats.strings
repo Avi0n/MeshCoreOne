@@ -975,7 +975,7 @@
 "chats.tip.deviceMenu.title" = "Je apparaatmenu";
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
-"chats.tip.deviceMenu.message" = "Beheer je verbinding, verstuur advertenties en controleer de batterij. Bluetooth-apparaten blijven verbonden, zelfs als de app is gesloten — tik op Verbreken wanneer je de verbinding wilt uitschakelen.";
+"chats.tip.deviceMenu.message" = "Beheer je verbinding, verstuur advertenties en controleer de batterij. De radio blijft verbonden, zelfs na een geforceerde afsluiting. Tik op Verbreken om de verbinding uit te schakelen.";
 
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Afbeelding";

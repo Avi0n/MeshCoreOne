@@ -966,7 +966,7 @@
 "chats.tip.deviceMenu.title" = "Меню устройства";
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
-"chats.tip.deviceMenu.message" = "Управляйте подключением, отправляйте объявления и проверяйте заряд батареи. Bluetooth-устройства остаются подключёнными, даже если приложение закрыто — нажмите «Отключить», когда будете готовы разорвать связь.";
+"chats.tip.deviceMenu.message" = "Управляйте подключением, отправляйте объявления и проверяйте заряд батареи. Радио остаётся подключённым даже после принудительного закрытия приложения. Нажмите «Отключить», чтобы разорвать связь.";
 
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Изображение";

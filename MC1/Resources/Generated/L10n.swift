@@ -1023,7 +1023,7 @@ public enum L10n {
       public enum Tip {
         public enum DeviceMenu {
           /// Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features
-          public static let message = L10n.tr("Chats", "chats.tip.deviceMenu.message", fallback: "Manage your connection, send advertisements, and check battery. Bluetooth devices stay connected even if the app is closed — tap Disconnect when you're ready to turn off the link.")
+          public static let message = L10n.tr("Chats", "chats.tip.deviceMenu.message", fallback: "Manage your connection, send advertisements, and check battery. The radio stays connected even after force quit. Tap Disconnect to turn off the link.")
           /// Location: DeviceMenuTip.swift - Purpose: Tip title introducing device menu
           public static let title = L10n.tr("Chats", "chats.tip.deviceMenu.title", fallback: "Your Device Menu")
         }

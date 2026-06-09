@@ -975,7 +975,7 @@
 "chats.tip.deviceMenu.title" = "Dein Gerätemenü";
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
-"chats.tip.deviceMenu.message" = "Verwalte deine Verbindung, sende Ankündigungen und prüfe den Akku. Bluetooth-Geräte bleiben verbunden, auch wenn die App geschlossen ist — tippe auf „Trennen“, wenn du die Verbindung beenden möchtest.";
+"chats.tip.deviceMenu.message" = "Verwalte deine Verbindung, sende Ankündigungen und prüfe den Akku. Das Funkgerät bleibt auch nach erzwungenem Beenden verbunden. Tippe auf „Trennen“, um die Verbindung zu beenden.";
 
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Bild";

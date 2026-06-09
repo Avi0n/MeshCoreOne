@@ -975,7 +975,7 @@
 "chats.tip.deviceMenu.title" = "Tu menú de dispositivo";
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
-"chats.tip.deviceMenu.message" = "Gestiona tu conexión, envía anuncios y revisa la batería. Los dispositivos Bluetooth permanecen conectados incluso si la app está cerrada — toca Desconectar cuando quieras cerrar el enlace.";
+"chats.tip.deviceMenu.message" = "Gestiona tu conexión, envía anuncios y revisa la batería. La radio permanece conectada incluso tras forzar el cierre. Toca Desconectar para cerrar el enlace.";
 
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Imagen";

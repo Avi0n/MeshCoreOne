@@ -1060,7 +1060,7 @@
 "chats.tip.deviceMenu.title" = "Your Device Menu";
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
-"chats.tip.deviceMenu.message" = "Manage your connection, send advertisements, and check battery. Bluetooth devices stay connected even if the app is closed — tap Disconnect when you're ready to turn off the link.";
+"chats.tip.deviceMenu.message" = "Manage your connection, send advertisements, and check battery. The radio stays connected even after force quit. Tap Disconnect to turn off the link.";
 
 // MARK: - Block Sender Sheet
 

@@ -1025,7 +1025,7 @@
 "chats.tip.deviceMenu.title" = "您的设备菜单";
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
-"chats.tip.deviceMenu.message" = "管理您的连接、发送广播并查看电池电量。Bluetooth 设备即使在应用关闭后仍保持连接 — 准备好断开链路时请点击断开连接。";
+"chats.tip.deviceMenu.message" = "管理您的连接、发送广播并查看电池电量。即使在强制退出应用后，无线电仍保持连接。点击断开连接以关闭链路。";
 
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "图片";
