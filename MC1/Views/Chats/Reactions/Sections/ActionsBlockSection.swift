@@ -6,14 +6,14 @@ struct ActionsBlockSection: View {
 
     var body: some View {
         if availability.canBlockSender {
-            Divider()
-                .padding(.vertical, 8)
             ActionButton(
                 title: L10n.Chats.Chats.Message.Action.blockSender,
                 icon: "hand.raised",
                 isDestructive: true,
                 action: { onSelectAction(.blockSender) }
             )
+            .liquidGlass()
+            .padding(.top, 6)
         }
     }
 }

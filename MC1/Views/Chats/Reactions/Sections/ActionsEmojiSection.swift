@@ -11,7 +11,7 @@ struct ActionsEmojiSection: View {
             onSelect: onSelectEmoji,
             onOpenKeyboard: { showEmojiPicker = true }
         )
-        .padding(.vertical, 4)
+        .padding(.vertical, 8)
         .sheet(isPresented: $showEmojiPicker) {
             EmojiPickerSheet(onSelect: onSelectEmoji)
         }

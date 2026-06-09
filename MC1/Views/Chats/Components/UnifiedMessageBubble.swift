@@ -46,6 +46,7 @@ struct UnifiedMessageBubble: View, Equatable {
     @State private var showingReactionDetails = false
     @State private var isLongPressing = false
     @State private var longPressTrigger = 0
+    @State private var showActionsPopover = false
 
     nonisolated static func == (lhs: UnifiedMessageBubble, rhs: UnifiedMessageBubble) -> Bool {
         lhs.item == rhs.item
@@ -123,12 +124,21 @@ struct UnifiedMessageBubble: View, Equatable {
                         minimumDuration: longPressConfirmDuration,
                         perform: {
                             longPressTrigger += 1
-                            callbacks.onLongPress?()
+                            if callbacks.makeActionsMenu != nil {
+                                showActionsPopover = true
+                            } else {
+                                callbacks.onLongPress?()
+                            }
                         },
                         onPressingChanged: { pressing in
                             isLongPressing = pressing
                         }
                     )
+                    .popover(isPresented: $showActionsPopover) {
+                        callbacks.makeActionsMenu?()
+                            .presentationCompactAdaptation(.popover)
+                            .presentationBackground(.clear)
+                    }
 
                     ForEach(Array(item.content.enumerated()), id: \.offset) { _, fragment in
                         siblingFragmentView(fragment)
@@ -136,6 +146,7 @@ struct UnifiedMessageBubble: View, Equatable {
 
                     if item.footer.showStatusRow {
                         BubbleStatusRow(item: item, onRetry: callbacks.onRetry)
+                            .onTapGesture { callbacks.onTap?() }
                     }
                 }
                 .accessibilityElement(children: .combine)

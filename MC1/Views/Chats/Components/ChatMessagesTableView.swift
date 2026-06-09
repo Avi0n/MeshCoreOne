@@ -17,6 +17,7 @@ struct ChatMessagesTableView: View {
     @Binding var scrollToDividerRequest: Int
     @Binding var isDividerVisible: Bool
     @Binding var selectedMessageForActions: MessageDTO?
+    @Binding var selectedMessageForInfo: MessageDTO?
     @Binding var imageViewerData: ImageViewerData?
 
     let unseenMentionIDs: [UUID]
@@ -25,6 +26,7 @@ struct ChatMessagesTableView: View {
     let onMentionSeen: (UUID) async -> Void
     let onScrollToMention: () -> Void
     let onRetryMessage: (MessageDTO) -> Void
+    let makeActionsMenu: (MessageDTO) -> AnyView
 
     @State private var hasDismissedDividerFAB = false
     @Environment(\.appTheme) private var theme
@@ -49,7 +51,9 @@ struct ChatMessagesTableView: View {
                     recentEmojisStore.recordUsage(emoji)
                     Task { await viewModel.sendReaction(emoji: emoji, to: message) }
                 },
+                onTap: { message in selectedMessageForInfo = message },
                 onLongPress: { message in selectedMessageForActions = message },
+                makeActionsMenu: makeActionsMenu,
                 onImageTap: { message in
                     if let data = viewModel.imageData(for: message.id) {
                         imageViewerData = ImageViewerData(

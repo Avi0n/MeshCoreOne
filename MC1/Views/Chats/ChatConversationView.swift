@@ -47,6 +47,8 @@ struct ChatConversationView: View {
 
     @State private var showingInfo = false
     @State private var selectedMessageForActions: MessageDTO?
+    @State private var selectedMessageForInfo: MessageDTO?
+    @State private var infoPathViewModel = MessagePathViewModel()
     @State private var blockSenderContext: BlockSenderContext?
     @State private var sendDMContext: SendDMContext?
     @State private var imageViewerData: ImageViewerData?
@@ -124,10 +126,12 @@ struct ChatConversationView: View {
             scrollToTargetID: scrollToTargetID,
             newMessagesDividerMessageID: chatViewModel.newMessagesDividerMessageID,
             selectedMessageForActions: $selectedMessageForActions,
+            selectedMessageForInfo: $selectedMessageForInfo,
             imageViewerData: $imageViewerData,
             onMentionSeen: { await markMentionSeen(messageID: $0) },
             onScrollToMention: { scrollToNextMention() },
-            onRetryMessage: { retryMessage($0) }
+            onRetryMessage: { retryMessage($0) },
+            makeActionsMenu: { AnyView(actionsMenu(for: $0)) }
         )
         .mentionTapHandling(
             contacts: chatViewModel.allContacts,
@@ -201,10 +205,21 @@ struct ChatConversationView: View {
                 }
             )
         })
-        // Message actions sheet — shared
-        .sheet(item: $selectedMessageForActions) { message in
-            messageActionsSheet(for: message)
-                .environment(\.horizontalSizeClass, horizontalSizeClass)
+        // Message actions menu — secondary click / accessibility fallback.
+        // Primary long-press presents an anchored popover from the bubble itself.
+        .popover(item: $selectedMessageForActions) { message in
+            actionsMenu(for: message)
+                .presentationCompactAdaptation(.popover)
+                .presentationBackground(.clear)
+        }
+        // Message info sheet — tap on message status row
+        .sheet(item: $selectedMessageForInfo) { message in
+            let senderName = resolveSenderName(for: message)
+            MessageInfoSheet(
+                message: message,
+                senderName: senderName,
+                pathViewModel: infoPathViewModel
+            )
         }
         // Block sender sheet — channel only
         .sheet(item: $blockSenderContext) { context in
@@ -590,43 +605,44 @@ struct ChatConversationView: View {
 
     // MARK: - Message Actions Sheet
 
-    private func messageActionsSheet(for message: MessageDTO) -> some View {
-        let senderResolution: NodeNameResolution = {
-            if message.isOutgoing {
-                return NodeNameResolution(displayName: appState.localNodeName, matchKind: .exact)
-            }
-            switch conversationType {
-            case .dm(let contact):
-                return NodeNameResolution(displayName: contact.displayName, matchKind: .exact)
-            case .channel:
-                if let senderName = message.senderNodeName, !senderName.isEmpty {
-                    return NodeNameResolution(displayName: senderName, matchKind: .exact)
-                }
-                if let prefix = message.senderKeyPrefix,
-                   let result = NeighborNameResolver.resolve(
-                    for: prefix,
-                    contacts: chatViewModel.allContacts,
-                    discoveredNodes: [],
-                    userLocation: nil
-                   ) {
-                    return result
-                }
-                return NodeNameResolution(
-                    displayName: L10n.Chats.Chats.Message.Sender.unknown,
-                    matchKind: .unresolved
-                )
-            }
-        }()
-
-        return MessageActionsSheet(
+    private func actionsMenu(for message: MessageDTO) -> some View {
+        let resolution = senderResolution(for: message)
+        return MessageActionsMenu(
             message: message,
-            senderName: senderResolution.displayName,
-            senderMatchKind: senderResolution.matchKind,
+            senderName: resolution.displayName,
+            senderMatchKind: resolution.matchKind,
             recentEmojis: recentEmojisStore.recentEmojis,
-            onAction: { action in
-                dispatch(action, for: message)
+            onAction: { action in dispatch(action, for: message) },
+            onShowInfo: {
+                infoPathViewModel = MessagePathViewModel()
+                selectedMessageForInfo = message
             }
         )
+    }
+
+    private func senderResolution(for message: MessageDTO) -> NodeNameResolution {
+        if message.isOutgoing {
+            return NodeNameResolution(displayName: appState.localNodeName, matchKind: .exact)
+        }
+        switch conversationType {
+        case .dm(let contact):
+            return NodeNameResolution(displayName: contact.displayName, matchKind: .exact)
+        case .channel:
+            if let name = message.senderNodeName, !name.isEmpty {
+                return NodeNameResolution(displayName: name, matchKind: .exact)
+            }
+            if let prefix = message.senderKeyPrefix,
+               let result = NeighborNameResolver.resolve(
+                for: prefix, contacts: chatViewModel.allContacts, discoveredNodes: [], userLocation: nil) {
+                return result
+            }
+            return NodeNameResolution(
+                displayName: L10n.Chats.Chats.Message.Sender.unknown, matchKind: .unresolved)
+        }
+    }
+
+    private func resolveSenderName(for message: MessageDTO) -> String {
+        senderResolution(for: message).displayName
     }
 
     // MARK: - Message Action Handling
