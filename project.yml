@@ -21,9 +21,6 @@ packages:
   Emojibase:
     url: https://github.com/matrix-org/emojibase-bindings
     from: 1.5.0
-  MapLibre:
-    url: https://github.com/maplibre/maplibre-gl-native-distribution
-    exactVersion: 6.25.1
 
 targets:
   MC1:
@@ -38,7 +35,6 @@ targets:
     dependencies:
       - package: MC1Services
       - package: Emojibase
-      - package: MapLibre
       - target: MC1Widgets
     preBuildScripts:
       - name: SwiftGen
