@@ -26,24 +26,16 @@ struct TracePathMapToolbarView: View {
                             appState.locationService.requestLocation()
                         }
                     },
-                    showingLayersMenu: $mapViewModel.showingLayersMenu,
-                    topContent: {
-                        NorthLockButton(isNorthLocked: $mapViewModel.isNorthLocked)
-                    }
+                    isNorthLocked: $mapViewModel.isNorthLocked,
+                    showLabels: $showLabels,
+                    showingLayersMenu: $mapViewModel.showingLayersMenu
                 ) {
-                    LabelsToggleButton(showLabels: $showLabels)
-
                     // Center on path
                     if mapViewModel.hasPath {
                         Button(L10n.Contacts.Contacts.Trace.Map.centerOnPath, systemImage: "arrow.up.left.and.arrow.down.right") {
                             mapViewModel.centerOnPath()
                         }
-                        .font(.body.weight(.medium))
-                        .foregroundStyle(.primary)
-                        .frame(width: 44, height: 44)
-                        .contentShape(.rect)
-                        .buttonStyle(.plain)
-                        .labelStyle(.iconOnly)
+                        .mapControlButton(tint: .primary)
                     }
                 }
             }
