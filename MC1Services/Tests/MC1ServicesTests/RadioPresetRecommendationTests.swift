@@ -66,6 +66,12 @@ struct RadioPresetRecommendationTests {
         #expect(RadioPresets.recommended(for: region)?.id == "vn-narrow")
     }
 
+    @Test("Netherlands → nl (country tier beats EU continent)")
+    func netherlandsGetsNL() {
+        let region = RegionSelection(countryCode: "NL", source: .location)
+        #expect(RadioPresets.recommended(for: region)?.id == "nl")
+    }
+
     // MARK: - Tier 3 (continent)
 
     @Test("Berlin (DE) → eu-narrow (priority 110 beats eu-lr)")
