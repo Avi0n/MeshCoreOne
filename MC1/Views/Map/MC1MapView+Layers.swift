@@ -28,6 +28,8 @@ enum MapLayerID {
     static let lineTraceWeakCasing = "line-trace-weak-casing"
     static let lineTraceMediumCasing = "line-trace-medium-casing"
     static let lineTraceGoodCasing = "line-trace-good-casing"
+    static let lineMessagePath = "line-message-path"
+    static let lineMessagePathCasing = "line-message-path-casing"
     static let satelliteLayer = "satellite-layer"
     static let topoLayer = "topo-layer"
 }
@@ -288,6 +290,25 @@ extension MC1MapView.Coordinator {
         goodLayer.lineColor = NSExpression(forConstantValue: SNRQuality.good.uiColor)
         goodLayer.lineWidth = NSExpression(forConstantValue: 4)
         style.addLayer(goodLayer)
+
+        // Message path: solid blue with a white casing (no dashes) — a direct
+        // node-to-node route, visually distinct from the dashed LOS line.
+        let messagePathCasing = MLNLineStyleLayer(identifier: MapLayerID.lineMessagePathCasing, source: source)
+        messagePathCasing.predicate = NSPredicate(format: "lineStyle == %@", MapLine.LineStyle.messagePath.rawValue)
+        messagePathCasing.lineColor = white
+        messagePathCasing.lineOpacity = casingOpacity
+        messagePathCasing.lineWidth = NSExpression(forConstantValue: 6)
+        messagePathCasing.lineJoin = roundJoin
+        messagePathCasing.lineCap = roundCap
+        style.addLayer(messagePathCasing)
+
+        let messagePathLayer = MLNLineStyleLayer(identifier: MapLayerID.lineMessagePath, source: source)
+        messagePathLayer.predicate = NSPredicate(format: "lineStyle == %@", MapLine.LineStyle.messagePath.rawValue)
+        messagePathLayer.lineColor = NSExpression(forConstantValue: UIColor.systemBlue)
+        messagePathLayer.lineWidth = NSExpression(forConstantValue: 3)
+        messagePathLayer.lineJoin = roundJoin
+        messagePathLayer.lineCap = roundCap
+        style.addLayer(messagePathLayer)
     }
 
     func updateLineSource(mapView: MLNMapView) {

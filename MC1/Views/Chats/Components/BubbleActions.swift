@@ -19,7 +19,10 @@ import MC1Services
 struct BubbleActions {
     let onRetryMessage: (MessageDTO) -> Void
     let onReaction: (String, MessageDTO) -> Void
+    let onTap: (MessageDTO) -> Void
     let onLongPress: (MessageDTO) -> Void
+    /// Builds the long-press actions menu (emoji bar + actions) for a message.
+    let makeActionsMenu: (MessageDTO) -> AnyView
     let onImageTap: (MessageDTO) -> Void
     let onRetryImageFetch: (UUID) -> Void
     let onRequestPreviewFetch: (UUID) -> Void

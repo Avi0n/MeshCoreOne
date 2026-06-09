@@ -1,7 +1,6 @@
 import MC1Services
 import SwiftUI
 
-/// Actions available from the message actions sheet
 enum MessageAction: Equatable {
     case react(String)
     case reply
@@ -12,165 +11,122 @@ enum MessageAction: Equatable {
     case delete
 }
 
-struct MessageActionsSheet: View {
-    @Environment(\.appState) private var appState
+/// iMessage-style long-press menu: a floating emoji reaction bar above a
+/// compact action list. Designed to be presented in a `.popover` anchored to
+/// the message bubble (haptic touch), with a clear presentation background so
+/// the cards float detached.
+struct MessageActionsMenu: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     let message: MessageDTO
     let senderName: String
     let senderMatchKind: NodeNameMatchKind
     let recentEmojis: [String]
     let onAction: (MessageAction) -> Void
+    let onShowInfo: () -> Void
+
+    @State private var destructiveHapticTrigger = 0
+    @State private var showEmojiPicker = false
 
     private var availability: MessageActionAvailability {
         MessageActionAvailability(message: message)
     }
 
-    private func performAction(_ action: MessageAction) {
-        if action == .delete || action == .blockSender {
-            destructiveHapticTrigger += 1
-        }
-        onAction(action)
+    private func perform(_ action: MessageAction) {
+        if action == .delete || action == .blockSender { destructiveHapticTrigger += 1 }
         dismiss()
+        onAction(action)
     }
-
-    private var emojiSection: some View {
-        ActionsEmojiSection(
-            recentEmojis: recentEmojis,
-            showEmojiPicker: $showEmojiPicker,
-            onSelectEmoji: { emoji in
-                performAction(.react(emoji))
-            }
-        )
-    }
-
-    @State private var destructiveHapticTrigger = 0
-    @State private var showEmojiPicker = false
-    @State private var isDetailExpanded = false
-    @State private var repeats: [MessageRepeatDTO]?
-    @State private var contacts: [ContactDTO] = []
-    @State private var discoveredNodes: [DiscoveredNodeDTO] = []
-    @State private var pathViewModel = MessagePathViewModel()
 
     var body: some View {
-        VStack(spacing: 0) {
-            ActionsPreviewHeader(
-                message: message,
-                senderName: senderName,
-                senderMatchKind: senderMatchKind
+        VStack(spacing: 8) {
+            // Emoji reaction bar
+            EmojiPickerRow(
+                emojis: recentEmojis,
+                onSelect: { perform(.react($0)) },
+                onOpenKeyboard: { showEmojiPicker = true }
             )
+            .padding(.vertical, 6)
+            .liquidGlass(in: .capsule)
 
-            Divider()
-
-            if !dynamicTypeSize.isAccessibilitySize {
-                emojiSection
-                Divider()
+            // Primary actions
+            VStack(spacing: 0) {
+                if availability.canReply {
+                    ActionButton(title: L10n.Chats.Chats.Message.Action.reply,
+                                 icon: "arrowshape.turn.up.left",
+                                 action: { perform(.reply) })
+                    rowDivider
+                }
+                if availability.canSendDM {
+                    ActionButton(title: L10n.Chats.Chats.Message.Action.sendDM,
+                                 icon: "bubble.left.and.bubble.right",
+                                 action: { perform(.sendDM) })
+                    rowDivider
+                }
+                ActionButton(title: L10n.Chats.Chats.Message.Action.copy,
+                             icon: "doc.on.doc",
+                             action: { perform(.copy) })
+                if availability.canSendAgain {
+                    rowDivider
+                    ActionButton(title: L10n.Chats.Chats.Message.Action.sendAgain,
+                                 icon: "arrow.uturn.forward",
+                                 action: { perform(.sendAgain) })
+                }
+                rowDivider
+                ActionButton(title: L10n.Chats.Chats.Message.Action.details,
+                             icon: "info.circle",
+                             action: {
+                                 dismiss()
+                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                     onShowInfo()
+                                 }
+                             })
             }
+            .liquidGlass(in: .rect(cornerRadius: 14))
 
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(spacing: 0) {
-                        if dynamicTypeSize.isAccessibilitySize {
-                            emojiSection
-                            Divider()
-                        }
-                        ActionsButtonsSection(
-                            availability: availability,
-                            onSelectAction: performAction
-                        )
-                        ActionsDetailsSection(
-                            message: message,
-                            availability: availability,
-                            isDetailExpanded: $isDetailExpanded,
-                            repeats: repeats,
-                            contacts: contacts,
-                            discoveredNodes: discoveredNodes,
-                            pathViewModel: pathViewModel
-                        )
-                        ActionsBlockSection(
-                            availability: availability,
-                            onSelectAction: performAction
-                        )
-                        ActionsDeleteSection(
-                            availability: availability,
-                            onSelectAction: performAction
-                        )
-                    }
-                }
-                .onChange(of: isDetailExpanded) { _, expanded in
-                    if expanded {
-                        withAnimation(reduceMotion ? nil : .default) {
-                            proxy.scrollTo("expandedContent", anchor: .top)
-                        }
-                    }
-                }
+            // Destructive actions
+            if availability.canBlockSender {
+                ActionButton(title: L10n.Chats.Chats.Message.Action.blockSender,
+                             icon: "hand.raised",
+                             isDestructive: true,
+                             action: { perform(.blockSender) })
+                .liquidGlass(in: .rect(cornerRadius: 14))
+            }
+            if availability.canDelete {
+                ActionButton(title: L10n.Chats.Chats.Message.Action.delete,
+                             icon: "trash",
+                             isDestructive: true,
+                             action: { perform(.delete) })
+                .liquidGlass(in: .rect(cornerRadius: 14))
             }
         }
-        .presentationDetents(
-            (horizontalSizeClass == .regular || dynamicTypeSize.isAccessibilitySize)
-                ? [.large] : [.medium, .large]
-        )
-        .presentationContentInteraction(.scrolls)
-        .presentationDragIndicator(.visible)
-        .presentationBackground(Color(.systemBackground))
+        .frame(width: 260)
+        .padding(8)
         .sensoryFeedback(.warning, trigger: destructiveHapticTrigger)
-        .task {
-            guard let services = appState.services else { return }
-            if availability.canShowRepeatDetails {
-                do {
-                    contacts = try await services.dataStore.fetchContacts(radioID: message.radioID)
-                    discoveredNodes = try await services.dataStore.fetchDiscoveredNodes(radioID: message.radioID)
-                } catch {
-                    contacts = []
-                    discoveredNodes = []
-                }
-                repeats = await services.heardRepeatsService.refreshRepeats(for: message.id)
-            } else if availability.canViewPath {
-                await pathViewModel.loadContacts(services: services, radioID: message.radioID)
-            }
+        .sheet(isPresented: $showEmojiPicker) {
+            EmojiPickerSheet(onSelect: { perform(.react($0)) })
         }
+    }
+
+    private var rowDivider: some View {
+        Divider().padding(.leading, 52)
     }
 }
 
-#Preview("Outgoing Message") {
+#Preview("Incoming") {
     let message = Message(
-        radioID: UUID(),
-        contactID: UUID(),
-        text: "Hello world!",
-        directionRawValue: MessageDirection.outgoing.rawValue,
-        statusRawValue: MessageStatus.delivered.rawValue
-    )
-    message.roundTripTime = 234
-    message.heardRepeats = 2
-    return MessageActionsSheet(
-        message: MessageDTO(from: message),
-        senderName: "My Device",
-        senderMatchKind: .exact,
-        recentEmojis: RecentEmojisStore.defaultEmojis,
-
-        onAction: { print("Action: \($0)") }
-    )
-}
-
-#Preview("Incoming Message") {
-    let message = Message(
-        radioID: UUID(),
-        contactID: UUID(),
-        text: "Hey, can you meet me at the coffee shop downtown later today? I have something important to discuss.",
+        radioID: UUID(), contactID: UUID(),
+        text: "Hey, can you meet me at the coffee shop?",
         directionRawValue: MessageDirection.incoming.rawValue,
-        statusRawValue: MessageStatus.delivered.rawValue,
-        pathLength: 2
+        statusRawValue: MessageStatus.delivered.rawValue, pathLength: 2
     )
-    message.pathNodes = Data([0xA3, 0x7F])
     message.snr = 8.5
-    return MessageActionsSheet(
+    return MessageActionsMenu(
         message: MessageDTO(from: message),
-        senderName: "Alice",
-        senderMatchKind: .exact,
+        senderName: "Alice", senderMatchKind: .exact,
         recentEmojis: RecentEmojisStore.defaultEmojis,
-
-        onAction: { print("Action: \($0)") }
+        onAction: { _ in }, onShowInfo: {}
     )
+    .padding()
+    .background(.gray)
 }

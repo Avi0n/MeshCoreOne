@@ -10,12 +10,11 @@ struct ActionsButtonsSection: View {
     var body: some View {
         if availability.canReply {
             ActionButton(
-                title: replyWithQuote
-                    ? L10n.Chats.Chats.Message.Action.reply
-                    : L10n.Chats.Chats.Message.Action.mention,
+                title: replyWithQuote ? L10n.Chats.Chats.Message.Action.reply : L10n.Chats.Chats.Message.Action.mention,
                 icon: "arrowshape.turn.up.left",
                 action: { onSelectAction(.reply) }
             )
+            rowDivider
         }
 
         if availability.canSendDM {
@@ -24,6 +23,7 @@ struct ActionsButtonsSection: View {
                 icon: "bubble.left.and.bubble.right",
                 action: { onSelectAction(.sendDM) }
             )
+            rowDivider
         }
 
         ActionButton(
@@ -33,11 +33,16 @@ struct ActionsButtonsSection: View {
         )
 
         if availability.canSendAgain {
+            rowDivider
             ActionButton(
                 title: L10n.Chats.Chats.Message.Action.sendAgain,
                 icon: "arrow.uturn.forward",
                 action: { onSelectAction(.sendAgain) }
             )
         }
+    }
+
+    private var rowDivider: some View {
+        Divider().padding(.leading, 52)
     }
 }

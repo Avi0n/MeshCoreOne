@@ -47,6 +47,8 @@ struct ChatConversationView: View {
 
     @State private var showingInfo = false
     @State private var selectedMessageForActions: MessageDTO?
+    @State private var selectedMessageForInfo: MessageDTO?
+    @State private var emojiPickerMessage: MessageDTO?
     @State private var blockSenderContext: BlockSenderContext?
     @State private var sendDMContext: SendDMContext?
     @State private var imageViewerData: ImageViewerData?
@@ -124,10 +126,12 @@ struct ChatConversationView: View {
             scrollToTargetID: scrollToTargetID,
             newMessagesDividerMessageID: chatViewModel.newMessagesDividerMessageID,
             selectedMessageForActions: $selectedMessageForActions,
+            selectedMessageForInfo: $selectedMessageForInfo,
             imageViewerData: $imageViewerData,
             onMentionSeen: { await markMentionSeen(messageID: $0) },
             onScrollToMention: { scrollToNextMention() },
-            onRetryMessage: { retryMessage($0) }
+            onRetryMessage: { retryMessage($0) },
+            makeActionsMenu: { AnyView(messageContextMenu(for: $0)) }
         )
         .mentionTapHandling(
             contacts: chatViewModel.allContacts,
@@ -201,10 +205,16 @@ struct ChatConversationView: View {
                 }
             )
         })
-        // Message actions sheet — shared
-        .sheet(item: $selectedMessageForActions) { message in
-            messageActionsSheet(for: message)
-                .environment(\.horizontalSizeClass, horizontalSizeClass)
+        // "More reactions" emoji picker, opened from the context menu.
+        .sheet(item: $emojiPickerMessage) { message in
+            EmojiPickerSheet(onSelect: { emoji in dispatch(.react(emoji), for: message) })
+        }
+        // Message info sheet — tap on message status row
+        .sheet(item: $selectedMessageForInfo) { message in
+            MessageInfoSheet(
+                message: message,
+                senderName: resolveSenderName(for: message)
+            )
         }
         // Block sender sheet — channel only
         .sheet(item: $blockSenderContext) { context in
@@ -590,43 +600,104 @@ struct ChatConversationView: View {
 
     // MARK: - Message Actions Sheet
 
-    private func messageActionsSheet(for message: MessageDTO) -> some View {
-        let senderResolution: NodeNameResolution = {
-            if message.isOutgoing {
-                return NodeNameResolution(displayName: appState.localNodeName, matchKind: .exact)
+    /// Native haptic-touch context menu shown on long-press of a bubble.
+    @ViewBuilder
+    private func messageContextMenu(for message: MessageDTO) -> some View {
+        let availability = MessageActionAvailability(message: message)
+
+        // Quick reactions render as a horizontal palette via `.compactMenu`.
+        // The style caps the row at ~4 items, so show the first four and route
+        // the rest through the "More" picker below.
+        ControlGroup {
+            ForEach(Array(recentEmojisStore.recentEmojis.prefix(4)), id: \.self) { emoji in
+                Button(emoji) { dispatch(.react(emoji), for: message) }
             }
-            switch conversationType {
-            case .dm(let contact):
-                return NodeNameResolution(displayName: contact.displayName, matchKind: .exact)
-            case .channel:
-                if let senderName = message.senderNodeName, !senderName.isEmpty {
-                    return NodeNameResolution(displayName: senderName, matchKind: .exact)
-                }
-                if let prefix = message.senderKeyPrefix,
-                   let result = NeighborNameResolver.resolve(
-                    for: prefix,
-                    contacts: chatViewModel.allContacts,
-                    discoveredNodes: [],
-                    userLocation: nil
-                   ) {
-                    return result
-                }
-                return NodeNameResolution(
-                    displayName: L10n.Chats.Chats.Message.Sender.unknown,
-                    matchKind: .unresolved
+        }
+        .controlGroupStyle(.compactMenu)
+
+        Button {
+            emojiPickerMessage = message
+        } label: {
+            Label(L10n.Chats.Reactions.moreEmojis, systemImage: "face.smiling")
+        }
+
+        if availability.canReply {
+            Button {
+                dispatch(.reply, for: message)
+            } label: {
+                Label(
+                    replyWithQuote
+                        ? L10n.Chats.Chats.Message.Action.reply
+                        : L10n.Chats.Chats.Message.Action.mention,
+                    systemImage: "arrowshape.turn.up.left"
                 )
             }
-        }()
-
-        return MessageActionsSheet(
-            message: message,
-            senderName: senderResolution.displayName,
-            senderMatchKind: senderResolution.matchKind,
-            recentEmojis: recentEmojisStore.recentEmojis,
-            onAction: { action in
-                dispatch(action, for: message)
+        }
+        if availability.canSendDM {
+            Button {
+                dispatch(.sendDM, for: message)
+            } label: {
+                Label(L10n.Chats.Chats.Message.Action.sendDM, systemImage: "bubble.left.and.bubble.right")
             }
-        )
+        }
+        Button {
+            dispatch(.copy, for: message)
+        } label: {
+            Label(L10n.Chats.Chats.Message.Action.copy, systemImage: "doc.on.doc")
+        }
+        if availability.canSendAgain {
+            Button {
+                dispatch(.sendAgain, for: message)
+            } label: {
+                Label(L10n.Chats.Chats.Message.Action.sendAgain, systemImage: "arrow.uturn.forward")
+            }
+        }
+
+        Button {
+            selectedMessageForInfo = message
+        } label: {
+            Label(L10n.Chats.Chats.Message.Action.details, systemImage: "info.circle")
+        }
+
+        Section {
+            if availability.canBlockSender {
+                Button(role: .destructive) {
+                    dispatch(.blockSender, for: message)
+                } label: {
+                    Label(L10n.Chats.Chats.Message.Action.blockSender, systemImage: "hand.raised")
+                }
+            }
+            Button(role: .destructive) {
+                dispatch(.delete, for: message)
+            } label: {
+                Label(L10n.Chats.Chats.Message.Action.delete, systemImage: "trash")
+            }
+        }
+    }
+
+    private func senderResolution(for message: MessageDTO) -> NodeNameResolution {
+        if message.isOutgoing {
+            return NodeNameResolution(displayName: appState.localNodeName, matchKind: .exact)
+        }
+        switch conversationType {
+        case .dm(let contact):
+            return NodeNameResolution(displayName: contact.displayName, matchKind: .exact)
+        case .channel:
+            if let name = message.senderNodeName, !name.isEmpty {
+                return NodeNameResolution(displayName: name, matchKind: .exact)
+            }
+            if let prefix = message.senderKeyPrefix,
+               let result = NeighborNameResolver.resolve(
+                for: prefix, contacts: chatViewModel.allContacts, discoveredNodes: [], userLocation: nil) {
+                return result
+            }
+            return NodeNameResolution(
+                displayName: L10n.Chats.Chats.Message.Sender.unknown, matchKind: .unresolved)
+        }
+    }
+
+    private func resolveSenderName(for message: MessageDTO) -> String {
+        senderResolution(for: message).displayName
     }
 
     // MARK: - Message Action Handling

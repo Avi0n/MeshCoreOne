@@ -36,6 +36,7 @@ struct ChatConversationMessagesContent: View {
     // MARK: - Sheet State Bindings
 
     @Binding var selectedMessageForActions: MessageDTO?
+    @Binding var selectedMessageForInfo: MessageDTO?
     @Binding var imageViewerData: ImageViewerData?
 
     // MARK: - Callbacks
@@ -43,6 +44,7 @@ struct ChatConversationMessagesContent: View {
     let onMentionSeen: (UUID) async -> Void
     let onScrollToMention: () -> Void
     let onRetryMessage: (MessageDTO) -> Void
+    let makeActionsMenu: (MessageDTO) -> AnyView
 
     // MARK: - Body
 
@@ -67,13 +69,15 @@ struct ChatConversationMessagesContent: View {
                     scrollToDividerRequest: $scrollToDividerRequest,
                     isDividerVisible: $isDividerVisible,
                     selectedMessageForActions: $selectedMessageForActions,
+                    selectedMessageForInfo: $selectedMessageForInfo,
                     imageViewerData: $imageViewerData,
                     unseenMentionIDs: unseenMentionIDs,
                     scrollToTargetID: scrollToTargetID,
                     newMessagesDividerMessageID: newMessagesDividerMessageID,
                     onMentionSeen: onMentionSeen,
                     onScrollToMention: onScrollToMention,
-                    onRetryMessage: onRetryMessage
+                    onRetryMessage: onRetryMessage,
+                    makeActionsMenu: makeActionsMenu
                 )
             }
         }
@@ -187,10 +191,12 @@ private struct ChannelEmptyMessagesView: View {
             scrollToTargetID: nil,
             newMessagesDividerMessageID: nil,
             selectedMessageForActions: .constant(nil),
+            selectedMessageForInfo: .constant(nil),
             imageViewerData: .constant(nil),
             onMentionSeen: { _ in },
             onScrollToMention: {},
-            onRetryMessage: { _ in }
+            onRetryMessage: { _ in },
+            makeActionsMenu: { _ in AnyView(EmptyView()) }
         )
     }
     .environment(\.appState, AppState())
@@ -218,10 +224,12 @@ private struct ChannelEmptyMessagesView: View {
             scrollToTargetID: nil,
             newMessagesDividerMessageID: nil,
             selectedMessageForActions: .constant(nil),
+            selectedMessageForInfo: .constant(nil),
             imageViewerData: .constant(nil),
             onMentionSeen: { _ in },
             onScrollToMention: {},
-            onRetryMessage: { _ in }
+            onRetryMessage: { _ in },
+            makeActionsMenu: { _ in AnyView(EmptyView()) }
         )
     }
     .environment(\.appState, AppState())

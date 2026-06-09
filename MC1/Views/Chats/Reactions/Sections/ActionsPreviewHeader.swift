@@ -39,7 +39,9 @@ struct ActionsPreviewHeader: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
         }
-        .padding()
+        .padding(.horizontal, 20)
+        .padding(.top, 20)
+        .padding(.bottom, 16)
         // Only collapse to a single rotor stop when there is no interactive
         // descendant. The fallback-match indicator (inside senderLabel) is a
         // Button with its own label/hint/popover; .combine would destroy that
