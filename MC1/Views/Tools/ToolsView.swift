@@ -21,8 +21,7 @@ struct ToolsView: View {
             .themedCanvas(theme)
             .navigationTitle(L10n.Tools.Tools.title)
             .toolbar {
-                // Compact stack has no sidebar, so the radio control is always shown.
-                bleStatusToolbarItem(isVisible: true)
+                bleStatusToolbarItem()
             }
         }
     }

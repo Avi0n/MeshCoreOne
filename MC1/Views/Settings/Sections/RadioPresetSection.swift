@@ -22,7 +22,11 @@ struct RadioPresetSection: View {
     }
 
     private var presets: [RadioPreset] {
-        RadioPresets.presetsForLocale()
+        let region = appState.regionSelection
+        let activeID = currentPreset?.id
+        return RadioPresets.presetsForLocale().filter {
+            RadioPresets.isSelectable($0, in: region) || $0.id == activeID
+        }
     }
 
     private var repeatPresets: [RadioPreset] {

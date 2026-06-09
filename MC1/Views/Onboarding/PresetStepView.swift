@@ -21,10 +21,15 @@ struct PresetStepView: View {
     }
 
     private var alternatives: [RadioPreset] {
-        guard let region else { return RadioPresets.presetsForLocale() }
-        let presets = RadioPresets.presets(for: region)
-        guard !presets.isEmpty else { return RadioPresets.presetsForLocale() }
-        return presets.sorted { $0.name < $1.name }
+        let base: [RadioPreset]
+        if let region, !RadioPresets.presets(for: region).isEmpty {
+            base = RadioPresets.presets(for: region)
+        } else {
+            base = RadioPresets.presetsForLocale()
+        }
+        return base
+            .filter { RadioPresets.isSelectable($0, in: region) }
+            .sorted { $0.name < $1.name }
     }
 
     private var visiblePresets: [RadioPreset] {

@@ -60,7 +60,8 @@ final class CLICompletionEngine {
     // Per MeshCore CLI Reference - all get/set parameters
     private static let getSetParams = [
         "acl", "name", "radio", "tx", "repeat", "lat", "lon",
-        "af", "flood.max", "int.thresh", "agc.reset.interval",
+        "af", "dutycycle", "flood.max", "flood.max.advert", "flood.max.unscoped",
+        "int.thresh", "agc.reset.interval",
         "multi.acks", "advert.interval", "flood.advert.interval",
         "guest.password", "allow.read.only",
         "rxdelay", "txdelay", "direct.txdelay",

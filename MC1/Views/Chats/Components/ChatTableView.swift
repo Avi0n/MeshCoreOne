@@ -338,7 +338,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
-              let _ = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+              userInfo[UIResponder.keyboardFrameEndUserInfoKey] is CGRect else {
             return
         }
 

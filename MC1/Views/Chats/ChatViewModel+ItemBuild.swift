@@ -15,13 +15,14 @@ extension ChatViewModel {
         let showTimestamp: Bool
         let showDirectionGap: Bool
         let showSenderName: Bool
+        let showDayDivider: Bool
     }
 
     /// Computes all display flags in a single pass to avoid redundant message lookups.
     /// Used by buildItems() for O(n) performance instead of O(3n).
     static func computeDisplayFlags(for message: MessageDTO, previous: MessageDTO?) -> DisplayFlags {
         guard let previous else {
-            return DisplayFlags(showTimestamp: true, showDirectionGap: false, showSenderName: true)
+            return DisplayFlags(showTimestamp: true, showDirectionGap: false, showSenderName: true, showDayDivider: true)
         }
 
         // Keys on send time (senderDate), not the sortDate sort key. Under block-at-reconnect
@@ -29,6 +30,11 @@ extension ChatViewModel {
         // divider; send time keeps honest separators inside the block. The fetch's timestamp
         // secondary key orders the block by send time, so headers stay monotonic within it.
         let timeGap = abs(Int(message.senderDate.timeIntervalSince(previous.senderDate)))
+
+        // Keys on senderDate (the value the divider and time marker display) so the boundary
+        // matches the times beneath it; a backlog synced in one session shares one receive
+        // day but still divides on real send days.
+        let dayChanged = !Calendar.current.isDate(message.senderDate, inSameDayAs: previous.senderDate)
 
         let showTimestamp = timeGap > messageGroupingGapSeconds
         let showDirectionGap = message.direction != previous.direction
@@ -47,7 +53,7 @@ extension ChatViewModel {
             showSenderName = true
         }
 
-        return DisplayFlags(showTimestamp: showTimestamp, showDirectionGap: showDirectionGap, showSenderName: showSenderName)
+        return DisplayFlags(showTimestamp: showTimestamp, showDirectionGap: showDirectionGap, showSenderName: showSenderName, showDayDivider: dayChanged)
     }
 
     // MARK: - Item Build
@@ -125,7 +131,8 @@ extension ChatViewModel {
             showTimestamp: flags.showTimestamp,
             showDirectionGap: flags.showDirectionGap,
             showSenderName: flags.showSenderName,
-            showNewMessagesDivider: message.id == newMessagesDividerMessageID
+            showNewMessagesDivider: message.id == newMessagesDividerMessageID,
+            showDayDivider: flags.showDayDivider
         )
     }
 

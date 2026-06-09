@@ -42,6 +42,7 @@
 		<string>T1000-E-BOOT</string>
 		<string>me25ls01-BOOT</string>
 		<string>NRF52 DK</string>
+		<string>T-Impulse</string>
 	</array>
 	<key>NSAccessorySetupSupports</key>
 	<array>

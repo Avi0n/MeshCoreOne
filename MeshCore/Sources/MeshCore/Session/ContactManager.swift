@@ -189,7 +189,15 @@ struct ContactManager {
             let contactId = publicKey.hexString
             let keyPrefix = publicKey.prefix(6).hexString
             if let cached = contacts[contactId] {
-                logger.info("Overwrite oldest: removing '\(cached.advertisedName, privacy: .public)' (\(keyPrefix, privacy: .public)...) from contacts cache (type=\(cached.type.rawValue), lastAdvert=\(cached.lastAdvertisement.description, privacy: .public), lastModified=\(cached.lastModified.description, privacy: .public))")
+                logger.info(
+                    """
+                    Overwrite oldest: removing '\(cached.advertisedName, privacy: .public)' \
+                    (\(keyPrefix, privacy: .public)...) from contacts cache \
+                    (type=\(cached.type.rawValue), \
+                    lastAdvert=\(cached.lastAdvertisement.description, privacy: .public), \
+                    lastModified=\(cached.lastModified.description, privacy: .public))
+                    """
+                )
             } else if pendingContacts[contactId] != nil {
                 logger.info("Overwrite oldest: removing \(keyPrefix, privacy: .public)... from pending contacts cache")
             } else {

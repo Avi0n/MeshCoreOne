@@ -22,7 +22,7 @@ struct ScrollToBottomButton: View {
         .scaleEffect(isVisible ? 1 : 0.5)
         .animation(.snappy(duration: 0.2), value: isVisible)
         .accessibilityLabel(L10n.Chats.Chats.ScrollButton.ScrollToBottom.accessibilityLabel)
-        .accessibilityValue(unreadCount > 0 ? String(format: NSLocalizedString("chats.unreadMessages.accessibilityValue", tableName: "Chats", comment: ""), locale: .current, unreadCount) : "")
+        .accessibilityValue(unreadCount > 0 ? L10n.Chats.Chats.ScrollButton.ScrollToBottom.accessibilityValue(unreadCount) : "")
         .accessibilityHidden(!isVisible)
     }
 

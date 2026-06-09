@@ -13,7 +13,7 @@
 "welcome.title" = "MeshCore One";
 
 /* Location: WelcomeView.swift - Subtitle describing the app */
-"welcome.subtitle" = "Bez zasięgu komórkowego. Twoje wiadomości podróżują przez społecznościową sieć radiową.";
+"welcome.subtitle" = "Wysyłaj wiadomości przez sieć zbudowaną przez społeczność, nawet bez internetu.";
 
 /* Location: WelcomeView.swift - Button to proceed to next onboarding step */
 "welcome.getStarted" = "Rozpocznij";
@@ -31,13 +31,13 @@
 "permissions.notifications.title" = "Powiadomienia";
 
 /* Location: PermissionsView.swift - Permission card description for notifications */
-"permissions.notifications.description" = "Otrzymuj powiadomienia o wiadomościach, reakcjach i alertach niskiej baterii — nawet gdy aplikacja jest zamknięta.";
+"permissions.notifications.description" = "Otrzymuj alerty o nowych wiadomościach i niskim poziomie baterii, nawet gdy aplikacja jest zamknięta.";
 
 /* Location: PermissionsView.swift - Permission card title for location */
 "permissions.location.title" = "Lokalizacja";
 
 /* Location: PermissionsView.swift - Permission card description for location */
-"permissions.location.description" = "Sugeruje zalecany preset radiowy dla Twojego obszaru, pokazuje Twoją pozycję na mapach i sortuje kontakty według odległości.";
+"permissions.location.description" = "Sugeruje lokalne presety radiowe, pokazuje Twoją pozycję na mapie i sortuje kontakty według odległości.";
 
 /* Location: PermissionsView.swift - Button to proceed to next step */
 "permissions.continue" = "Kontynuuj";
@@ -200,7 +200,7 @@
 "preset.subtitle.locale" = "Wybierz preset dla swojego radia.";
 
 /* Location: PresetStepView.swift - Footer help line pointing users to the MeshCore Discord */
-"preset.discordHelp" = "Not sure which preset to pick? Join the official MeshCore Discord and ask! [https://meshcore.gg](https://meshcore.gg)";
+"preset.discordHelp" = "Nie wiesz, który preset wybrać? Dołącz do oficjalnego MeshCore Discord i zapytaj! [https://meshcore.gg](https://meshcore.gg)";
 
 /* Location: PresetStepView.swift - Apply CTA "Use %@" */
 "preset.use" = "Użyj %@";
@@ -216,6 +216,9 @@
 
 /* Location: PresetStepView.swift - Already-configured secondary link */
 "preset.alreadyConfigured.choose" = "Wybierz inny preset";
+
+/* Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring */
+"preset.error.notConnected" = "Połącz się z urządzeniem, aby zastosować ten preset.";
 
 /* Location: PresetStepView.swift - Generic Continue label used when no preset is selected */
 "preset.continue" = "Dalej";

@@ -550,10 +550,10 @@
 "nodes.staleCleanup.days" = "%d дн.";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "Неизбранные узлы, от которых не было сигнала %d дн., автоматически удаляются при подключении.";
+"nodes.staleCleanup.footerEnabled" = "Неизбранные узлы, которые не обновлялись %d дн., автоматически удаляются при подключении.";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "Автоматически удаляет неизбранные узлы, от которых не было сигнала после установленного периода. Избранные никогда не удаляются.";
+"nodes.staleCleanup.footerDisabled" = "Автоматически удаляет неизбранные узлы, которые не обновлялись в течение установленного периода. Избранные никогда не удаляются.";
 
 /* Footer when toggle is on but no threshold selected yet */
 "nodes.staleCleanup.footerSelect" = "Выберите, как долго хранить узлы. Избранные никогда не удаляются.";
@@ -607,13 +607,13 @@
 "dangerZone.dialog.forget.title" = "Забыть устройство";
 
 /* Confirmation dialog message for forget device */
-"dangerZone.dialog.forget.message" = "Your device will be unpaired. You can choose to keep or delete your messages, contacts, and channels.";
+"dangerZone.dialog.forget.message" = "Ваше устройство будет отвязано. Вы можете сохранить или удалить ваши сообщения, контакты и каналы.";
 
 /* Button to forget device but keep data */
 "dangerZone.dialog.forget.keepData" = "Забыть устройство";
 
 /* Button to forget device and delete all associated data */
-"dangerZone.dialog.forget.deleteAll" = "Forget Device & Delete Data";
+"dangerZone.dialog.forget.deleteAll" = "Забыть устройство и удалить данные";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "Сброс до заводских настроек";
@@ -970,13 +970,13 @@
 // MARK: - Direct Messages Settings Section
 
 /* Section header for direct message settings */
-"directMessages.header" = "Direct Messages";
+"directMessages.header" = "Прямые сообщения";
 
 /* Picker label for number of acknowledgments */
 "directMessages.acknowledgments" = "Acknowledgments";
 
 /* Footer explaining the acknowledgments setting */
-"directMessages.footer" = "Number of acknowledgments sent per direct message. Use 2 for better delivery confirmation over unreliable links.";
+"directMessages.footer" = "Количество подтверждений, отправляемых на каждое прямое сообщение. Используйте 2 для лучшего подтверждения доставки по ненадёжным каналам.";
 
 
 // MARK: - BLE Status Indicator
@@ -1301,6 +1301,18 @@
 /* Location: SettingsView.swift - Detail row when region is unset */
 "region.notSet" = "Не задан";
 
+/* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
+"region.subdivision.US-CA" = "Калифорния";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
+"region.subdivision.AU-QLD" = "Квинсленд";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name */
+"region.subdivision.AU-SA" = "Южная Австралия";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
+"region.subdivision.AU-WA" = "Западная Австралия";
+
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
@@ -1401,8 +1413,8 @@
 "importKey.error.invalidKey" = "Недействительный закрытый ключ Ed25519";
 
 // Reply with Quote
-"replyWithQuote.toggle" = "Reply with Quote";
-"replyWithQuote.footer" = "Replying includes a preview of the original message.";
+"replyWithQuote.toggle" = "Ответ с цитатой";
+"replyWithQuote.footer" = "Ответ включает предпросмотр исходного сообщения.";
 
 // MARK: - Offline Maps
 
@@ -1744,7 +1756,7 @@
 "Support.Accessibility.ThemeCard.OwnedLabel" = "Тема %@, приобретена";
 "Support.Accessibility.BundleCard.LockedLabel" = "Набор «Все темы», заблокирован, %@";
 "Support.Accessibility.BundleCard.LockedHint" = "Покупка набора «Все темы»";
-"Support.Accessibility.BundleCard.LoadingLabel" = "All Themes bundle, loading price";
+"Support.Accessibility.BundleCard.LoadingLabel" = "Набор «Все темы», загрузка цены";
 "Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
 "Support.Accessibility.ContributionRow.Hint" = "Отправляет благодарственное пожертвование";
 "Support.Accessibility.TipConfirmAnnouncement" = "Спасибо за ваше пожертвование.";

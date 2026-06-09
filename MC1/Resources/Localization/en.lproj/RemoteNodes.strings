@@ -542,6 +542,9 @@
 /* Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for owner info */
 "remoteNodes.status.accessibility.reloadOwnerInfo" = "Reload contact info";
 
+/* Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for neighbors */
+"remoteNodes.status.accessibility.reloadNeighbors" = "Reload neighbors";
+
 // MARK: - History
 
 /* Location: RepeaterStatusViewModel.swift - Delta timestamp (minutes ago) */

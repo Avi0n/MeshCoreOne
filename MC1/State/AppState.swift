@@ -7,7 +7,6 @@ import MeshCore
 import OSLog
 import TipKit
 
-
 /// Simplified app-wide state management.
 /// Composes ConnectionManager for connection lifecycle.
 /// Handles only UI state, navigation, and notification wiring.
@@ -420,6 +419,12 @@ public final class AppState {
         // Process-wide inline image cache learns where to persist probed dims.
         await InlineImageCache.shared.attachDimensionsStore(services.inlineImageDimensionsStore)
 
+        // Demo mode ships an inline image whose bytes are embedded offline; pre-seed the
+        // process-wide cache so the seeded DM renders it without a network fetch.
+        if connectedDevice?.id == MockDataProvider.simulatorDeviceID {
+            DemoInlineImageSeeder.seed()
+        }
+
         if let existing = chatCoordinatorRegistry {
             existing.rebind(dataStore: services.dataStore)
         } else {
@@ -469,6 +474,10 @@ public final class AppState {
                 return (contacts: 0, channels: 0, rooms: 0)
             }
         }
+
+        // Seed the badge from persisted unread messages now that the callback is wired; otherwise
+        // badgeCount stays 0 until a message arrives or a chat opens and recomputes it.
+        await services.notificationService.updateBadgeCount()
 
         // Configure notification interaction handlers
         configureNotificationHandlers()

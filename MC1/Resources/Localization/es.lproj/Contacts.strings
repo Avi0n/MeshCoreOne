@@ -449,7 +449,7 @@
 "contacts.add.pasteURL" = "Paste Contact URL";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL section footer */
-"contacts.add.pasteURLFooter" = "Paste a meshcore:// contact link to auto-fill the fields above";
+"contacts.add.pasteURLFooter" = "Pega un enlace de contacto meshcore:// para autocompletar los campos de arriba";
 
 /* Location: AddContactSheet.swift - Purpose: Invalid paste URL error */
 "contacts.add.error.invalidURL" = "Clipboard does not contain a valid contact URL";
@@ -510,7 +510,7 @@
 "contacts.scan.error.invalidKey" = "Código QR inválido: clave pública inválida";
 
 /* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
-"contacts.scan.error.importFailed" = "Failed to import contact: %@";
+"contacts.scan.error.importFailed" = "Error al importar el contacto: %@";
 
 // MARK: - Discovery View
 
@@ -530,7 +530,7 @@
 "contacts.discovery.added" = "Added";
 
 /* Location: DiscoveryView.swift - Purpose: Accessibility label for added button */
-"contacts.discovery.addedAccessibility" = "Already added to contacts";
+"contacts.discovery.addedAccessibility" = "Ya agregado a los contactos";
 
 /* Location: DiscoveryView.swift - Purpose: Services not available error */
 "contacts.discovery.error.servicesUnavailable" = "Servicios no disponibles";
@@ -628,7 +628,7 @@
 "contacts.pathEdit.directRouting.confirm.title" = "¿Guardar como enrutado directo?";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name */
-"contacts.pathEdit.directRouting.confirm.message" = "Los mensajes a %@ se enviarán directamente sin pasar por ningún repetidor. Usa esto solo si %@ es un vecino a 1 salto.";
+"contacts.pathEdit.directRouting.confirm.message" = "Los mensajes a %@ se enviarán directamente sin pasar por ningún repetidor. Usa esto solo si %@ es un vecino directo (a 0 saltos).";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation confirm label */
 "contacts.pathEdit.directRouting.confirm.confirm" = "Guardar como directo";
@@ -1158,7 +1158,7 @@
 "contacts.viewModel.connectToDelete" = "Conecta una radio para eliminar nodos";
 
 /* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
-"contacts.viewModel.removeTimedOut" = "Deleting the node timed out. Try again.";
+"contacts.viewModel.removeTimedOut" = "Se agotó el tiempo al eliminar el nodo. Inténtalo de nuevo.";
 
 // MARK: - Path Management ViewModel Errors
 

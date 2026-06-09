@@ -375,7 +375,7 @@ extension MC1MapView.Coordinator {
     private func configureNameLabelLayer(_ layer: MLNSymbolStyleLayer) {
         layer.iconImageName = NSExpression(forKeyPath: "labelSpriteName")
         layer.iconAnchor = NSExpression(forConstantValue: "bottom")
-        layer.iconOffset = NSExpression(forConstantValue: NSValue(cgVector: CGVector(dx: 0, dy: -44)))
+        layer.iconOffset = NSExpression(forConstantValue: NSValue(cgVector: CGVector(dx: 0, dy: -46)))
         layer.symbolSortKey = NSExpression(forKeyPath: "hopIndex")
         layer.iconAllowsOverlap = NSExpression(forConstantValue: true)
         layer.iconIgnoresPlacement = NSExpression(forConstantValue: true)

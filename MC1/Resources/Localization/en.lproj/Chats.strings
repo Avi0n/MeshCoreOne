@@ -99,7 +99,10 @@
 
 // MARK: - Message Timestamps
 
-/* Location: MessageTimestampView.swift - Prefix for yesterday's date */
+/* Location: MessageDayDividerView.swift - Label for today's date in the chat day separator */
+"chats.timestamp.today" = "Today";
+
+/* Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator */
 "chats.timestamp.yesterday" = "Yesterday";
 
 /* Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old */
@@ -119,6 +122,8 @@
 /* Location: ScrollToBottomButton.swift - Accessibility label for scroll to bottom button */
 "chats.scrollButton.scrollToBottom.accessibilityLabel" = "Scroll to latest message";
 
+/* Location: ScrollToBottomButton.swift - Accessibility value for unread message count - %d is the number of unread messages */
+"chats.scrollButton.scrollToBottom.accessibilityValue" = "%d unread messages";
 /* Location: ScrollToMentionButton.swift, ScrollToBottomButton.swift - Badge text for 99+ unread */
 "chats.scrollButton.badge.overflow" = "99+";
 
@@ -258,7 +263,7 @@
 "chats.error.sendQueuePersistFailed" = "Couldn't queue your message. Try again.";
 
 /* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
-"chats.error.loadConversationsFailed" = "Couldn't load conversations. Pull to retry.";
+"chats.error.loadConversationsFailed" = "Couldn't load conversations.";
 
 // MARK: - Channel Options Sheet
 
@@ -1060,7 +1065,7 @@
 "chats.tip.deviceMenu.title" = "Your Device Menu";
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
-"chats.tip.deviceMenu.message" = "Manage your connection, send advertisements, and check battery. Bluetooth devices stay connected even if the app is closed — tap Disconnect when you're ready to turn off the link.";
+"chats.tip.deviceMenu.message" = "Manage your connection, send advertisements, and check battery. The radio stays connected even after force quit. Tap Disconnect to turn off the link.";
 
 // MARK: - Block Sender Sheet
 

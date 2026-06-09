@@ -97,12 +97,10 @@ private struct MapCanvasControls: View {
             Spacer()
             MapControlsToolbar(
                 onLocationTap: onLocationTap,
-                showingLayersMenu: $showingLayersMenu,
-                topContent: {
-                    NorthLockButton(isNorthLocked: $isNorthLocked)
-                }
+                isNorthLocked: $isNorthLocked,
+                showLabels: $showLabels,
+                showingLayersMenu: $showingLayersMenu
             ) {
-                LabelsToggleButton(showLabels: $showLabels)
                 CenterAllButton(
                     isEmpty: contactsEmpty,
                     onClearSelection: onClearSelection,
@@ -125,12 +123,7 @@ private struct CenterAllButton: View {
             onClearSelection()
             onCenterAll()
         }
-        .font(.body.weight(.medium))
-        .foregroundStyle(isEmpty ? .secondary : .primary)
-        .frame(width: 44, height: 44)
-        .contentShape(.rect)
-        .buttonStyle(.plain)
+        .mapControlButton(tint: isEmpty ? .secondary : .primary)
         .disabled(isEmpty)
-        .labelStyle(.iconOnly)
     }
 }

@@ -66,6 +66,12 @@ struct RadioPresetRecommendationTests {
         #expect(RadioPresets.recommended(for: region)?.id == "vn-narrow")
     }
 
+    @Test("Netherlands → nl (country tier beats EU continent)")
+    func netherlandsGetsNL() {
+        let region = RegionSelection(countryCode: "NL", source: .location)
+        #expect(RadioPresets.recommended(for: region)?.id == "nl")
+    }
+
     // MARK: - Tier 3 (continent)
 
     @Test("Berlin (DE) → eu-narrow (priority 110 beats eu-lr)")
@@ -117,5 +123,68 @@ struct RadioPresetRecommendationTests {
         let ids = RadioPresets.presets(for: region).map(\.id)
         #expect(ids.contains("vn-narrow"))
         #expect(ids.contains("vn"))
+    }
+}
+
+@Suite("RadioPresets.isSelectable(_:in:)")
+struct RadioPresetSelectabilityTests {
+
+    private func preset(_ id: String) -> RadioPreset {
+        guard let preset = RadioPresets.all.first(where: { $0.id == id }) else {
+            fatalError("missing preset \(id)")
+        }
+        return preset
+    }
+
+    // MARK: - County-restricted (WCMesh)
+
+    @Test("SoCal county → WCMesh selectable")
+    func socalShowsWCMesh() {
+        let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-CA",
+                                     countyKey: "los angeles", source: .location)
+        #expect(RadioPresets.isSelectable(preset("wcmesh"), in: region))
+    }
+
+    @Test("NorCal county → WCMesh hidden, us-ca still selectable")
+    func norcalHidesWCMesh() {
+        let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-CA",
+                                     countyKey: "sacramento", source: .location)
+        #expect(!RadioPresets.isSelectable(preset("wcmesh"), in: region))
+        #expect(RadioPresets.isSelectable(preset("us-ca"), in: region))
+    }
+
+    @Test("California with no county → WCMesh hidden")
+    func californiaWithoutCountyHidesWCMesh() {
+        let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-CA", source: .manual)
+        #expect(!RadioPresets.isSelectable(preset("wcmesh"), in: region))
+    }
+
+    @Test("Non-CA US state → WCMesh hidden, us-ca selectable")
+    func texasHidesWCMesh() {
+        let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-TX", source: .location)
+        #expect(!RadioPresets.isSelectable(preset("wcmesh"), in: region))
+        #expect(RadioPresets.isSelectable(preset("us-ca"), in: region))
+    }
+
+    @Test("nil region → WCMesh hidden, global presets selectable")
+    func nilRegionHidesWCMesh() {
+        #expect(!RadioPresets.isSelectable(preset("wcmesh"), in: nil))
+        #expect(RadioPresets.isSelectable(preset("us-ca"), in: nil))
+        #expect(RadioPresets.isSelectable(preset("eu-narrow"), in: nil))
+    }
+
+    // MARK: - Non-county presets are never gated
+
+    @Test("Continent/country presets selectable for any region including nil")
+    func globalPresetsAlwaysSelectable() {
+        let regions: [RegionSelection?] = [
+            nil,
+            RegionSelection(countryCode: "US", administrativeAreaCode: "US-TX", source: .location),
+            RegionSelection(countryCode: "DE", source: .location),
+        ]
+        for region in regions {
+            #expect(RadioPresets.isSelectable(preset("eu-narrow"), in: region))
+            #expect(RadioPresets.isSelectable(preset("us-ca"), in: region))
+        }
     }
 }

@@ -449,7 +449,7 @@
 "contacts.add.pasteURL" = "Paste Contact URL";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL section footer */
-"contacts.add.pasteURLFooter" = "Paste a meshcore:// contact link to auto-fill the fields above";
+"contacts.add.pasteURLFooter" = "Füge einen meshcore:// Kontaktlink ein, um die Felder oben automatisch auszufüllen";
 
 /* Location: AddContactSheet.swift - Purpose: Invalid paste URL error */
 "contacts.add.error.invalidURL" = "Clipboard does not contain a valid contact URL";
@@ -510,7 +510,7 @@
 "contacts.scan.error.invalidKey" = "Ungültiger QR-Code: ungültiger öffentlicher Schlüssel";
 
 /* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
-"contacts.scan.error.importFailed" = "Failed to import contact: %@";
+"contacts.scan.error.importFailed" = "Kontakt konnte nicht importiert werden: %@";
 
 // MARK: - Discovery View
 
@@ -530,7 +530,7 @@
 "contacts.discovery.added" = "Added";
 
 /* Location: DiscoveryView.swift - Purpose: Accessibility label for added button */
-"contacts.discovery.addedAccessibility" = "Already added to contacts";
+"contacts.discovery.addedAccessibility" = "Bereits zu Kontakten hinzugefügt";
 
 /* Location: DiscoveryView.swift - Purpose: Services not available error */
 "contacts.discovery.error.servicesUnavailable" = "Dienste nicht verfügbar";
@@ -628,7 +628,7 @@
 "contacts.pathEdit.directRouting.confirm.title" = "Als Direkt-Routing speichern?";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name */
-"contacts.pathEdit.directRouting.confirm.message" = "Nachrichten an %@ werden direkt ohne Weiterleitung über einen Repeater gesendet. Nur verwenden, wenn %@ ein 1-Hop-Nachbar ist.";
+"contacts.pathEdit.directRouting.confirm.message" = "Nachrichten an %@ werden direkt ohne Weiterleitung über einen Repeater gesendet. Nur verwenden, wenn %@ ein direkter (0-Hop-)Nachbar ist.";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation confirm label */
 "contacts.pathEdit.directRouting.confirm.confirm" = "Als Direkt speichern";
@@ -1158,7 +1158,7 @@
 "contacts.viewModel.connectToDelete" = "Mit Funk verbinden, um Knoten zu löschen";
 
 /* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
-"contacts.viewModel.removeTimedOut" = "Deleting the node timed out. Try again.";
+"contacts.viewModel.removeTimedOut" = "Zeitüberschreitung beim Löschen des Knotens. Versuche es erneut.";
 
 // MARK: - Path Management ViewModel Errors
 

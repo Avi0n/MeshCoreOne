@@ -409,7 +409,7 @@ struct MessageServiceSendTests {
         let transport = MockTransport()
         let session = MeshCoreSession(
             transport: transport,
-            configuration: SessionConfiguration(defaultTimeout: 0.5)
+            configuration: SessionConfiguration(defaultTimeout: 10)
         )
         let startTask = Task { try await session.start() }
         try await waitUntil("session should send app start") {
@@ -487,7 +487,7 @@ struct MessageServiceSendTests {
         let transport = MockTransport()
         let session = MeshCoreSession(
             transport: transport,
-            configuration: SessionConfiguration(defaultTimeout: 0.5)
+            configuration: SessionConfiguration(defaultTimeout: 10)
         )
         let startTask = Task { try await session.start() }
         try await waitUntil("session should send app start") {
@@ -591,7 +591,7 @@ struct MessageServiceSendTests {
 
     @Test("sendDirectMessage tracks pending ACK before session.sendMessage so the listener cannot race")
     func sendDirectMessageTracksPendingAckBeforeSend() async throws {
-        let (service, _) = try await MessageService.createForTesting(defaultTimeout: 0.5, connectTransport: true)
+        let (service, _) = try await MessageService.createForTesting(defaultTimeout: 10, connectTransport: true)
 
         // Seed selfInfo so the precompute step can read currentSelfInfo.publicKey
         // without simulating an APP_START round-trip.
@@ -600,23 +600,22 @@ struct MessageServiceSendTests {
         let contact = ContactDTO.testContact()
 
         // The mock transport never emits a messageSent event, so sendDirectMessage
-        // will suspend inside session.sendMessage and fail with `.timeout` after
-        // the short defaultTimeout. That gives us a stable observation window in
-        // which pendingAckCount should already reflect the speculative entry.
+        // suspends inside session.sendMessage for the full defaultTimeout, holding
+        // the speculative pending-ack entry that trackPendingAck adds *before* the
+        // send. Poll for that entry with a generous ceiling: a correct ordering
+        // surfaces it near-instantly, while a regression that tracked after
+        // session.sendMessage would be blocked behind the send's timeout and never
+        // surface it before the task is cancelled — so this still catches reorders.
         let sendTask = Task {
             try? await service.sendDirectMessage(text: "hi", to: contact)
         }
 
-        let deadline = ContinuousClock.now.advanced(by: .milliseconds(200))
-        var observed = 0
-        while ContinuousClock.now < deadline {
-            observed = await service.pendingAckCount
-            if observed > 0 { break }
-            await Task.yield()
+        try await waitUntil(
+            timeout: .seconds(8),
+            "trackPendingAck must run before session.sendMessage so a listener ACK cannot race the tracker"
+        ) {
+            await service.pendingAckCount > 0
         }
-
-        #expect(observed > 0,
-                "trackPendingAck must run before session.sendMessage so a listener ACK cannot race the tracker")
 
         sendTask.cancel()
         _ = await sendTask.value
@@ -624,7 +623,7 @@ struct MessageServiceSendTests {
 
     @Test("sendMessageWithRetry tracks pending ACK before session.sendMessage")
     func sendMessageWithRetryTracksPendingAckBeforeSend() async throws {
-        let (service, _) = try await MessageService.createForTesting(defaultTimeout: 0.5, connectTransport: true)
+        let (service, _) = try await MessageService.createForTesting(defaultTimeout: 10, connectTransport: true)
 
         await service.installSelfInfoForTest(publicKey: Data(repeating: 0xFE, count: 32))
 
@@ -634,16 +633,12 @@ struct MessageServiceSendTests {
             try? await service.sendMessageWithRetry(text: "hi", to: contact)
         }
 
-        let deadline = ContinuousClock.now.advanced(by: .milliseconds(200))
-        var observed = 0
-        while ContinuousClock.now < deadline {
-            observed = await service.pendingAckCount
-            if observed > 0 { break }
-            await Task.yield()
+        try await waitUntil(
+            timeout: .seconds(8),
+            "retry-loop precompute must track before session.sendMessage on every attempt"
+        ) {
+            await service.pendingAckCount > 0
         }
-
-        #expect(observed > 0,
-                "retry-loop precompute must track before session.sendMessage on every attempt")
 
         sendTask.cancel()
         _ = await sendTask.value

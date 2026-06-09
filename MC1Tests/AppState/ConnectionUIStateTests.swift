@@ -250,8 +250,6 @@ struct ConnectionUIStateTests {
         #expect(sut.connectionFailedTitle == nil)
     }
 
-
-
     // MARK: - handleDisconnect
 
     @Test("handleDisconnect resets syncActivityCount to zero")

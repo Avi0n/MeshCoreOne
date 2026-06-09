@@ -550,10 +550,10 @@
 "nodes.staleCleanup.days" = "%d days";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "Non-favorite nodes not heard from in %d days are automatically removed on connection.";
+"nodes.staleCleanup.footerEnabled" = "Non-favorite nodes not modified within %d days are automatically removed on connection.";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "Automatically removes non-favorite nodes that haven't been heard from after a set period. Favorites are never removed.";
+"nodes.staleCleanup.footerDisabled" = "Automatically removes non-favorite nodes that haven't been modified within a set period. Favorites are never removed.";
 
 /* Footer when toggle is on but no threshold selected yet */
 "nodes.staleCleanup.footerSelect" = "Choose how long to keep nodes. Favorites are never removed.";

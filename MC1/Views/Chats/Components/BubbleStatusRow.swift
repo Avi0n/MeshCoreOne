@@ -11,8 +11,6 @@ struct BubbleStatusRow: View {
 
     @State private var retryInvocationCounter: Int = 0
 
-    private static let minimumTapTargetHeight: CGFloat = 44
-
     var body: some View {
         HStack(spacing: 4) {
             if item.footer.status == .failed, let onRetry {
@@ -25,7 +23,6 @@ struct BubbleStatusRow: View {
                         Text(L10n.Chats.Chats.Message.Status.retry)
                     }
                     .font(.caption2)
-                    .frame(minHeight: Self.minimumTapTargetHeight)
                     .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
