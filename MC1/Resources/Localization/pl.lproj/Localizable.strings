@@ -75,6 +75,9 @@
 /* Tab bar title for the messaging/conversations screen */
 "tabs.chats" = "Czaty";
 
+/* VoiceOver value announcing the unread message count on the Chats sidebar icon. %d is the count. */
+"tabs.chatsUnreadAccessibilityValue" = "%d unread";
+
 /* Tab bar title for the nodes/contacts list screen */
 "tabs.nodes" = "Węzły";
 

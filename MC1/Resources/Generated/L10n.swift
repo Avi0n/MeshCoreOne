@@ -946,6 +946,10 @@ public enum L10n {
         public enum ScrollToBottom {
           /// Location: ScrollToBottomButton.swift - Accessibility label for scroll to bottom button
           public static let accessibilityLabel = L10n.tr("Chats", "chats.scrollButton.scrollToBottom.accessibilityLabel", fallback: "Scroll to latest message")
+          /// Location: ScrollToBottomButton.swift - Accessibility value for unread message count - %d is the number of unread messages
+          public static func accessibilityValue(_ p1: Int) -> String {
+            return L10n.tr("Chats", "chats.scrollButton.scrollToBottom.accessibilityValue", p1, fallback: "%d unread messages")
+          }
         }
         public enum ScrollToDivider {
           /// Location: ScrollToDividerButton.swift - Accessibility hint for scroll to divider button
@@ -2298,6 +2302,10 @@ public enum L10n {
     public enum Tabs {
       /// Tab bar title for the messaging/conversations screen
       public static let chats = L10n.tr("Localizable", "tabs.chats", fallback: "Chats")
+      /// VoiceOver value announcing the unread message count on the Chats sidebar icon. %d is the count.
+      public static func chatsUnreadAccessibilityValue(_ p1: Int) -> String {
+        return L10n.tr("Localizable", "tabs.chatsUnreadAccessibilityValue", p1, fallback: "%d unread")
+      }
       /// Tab bar title for the map screen showing node locations
       public static let map = L10n.tr("Localizable", "tabs.map", fallback: "Map")
       /// Tab bar title for the nodes/contacts list screen
