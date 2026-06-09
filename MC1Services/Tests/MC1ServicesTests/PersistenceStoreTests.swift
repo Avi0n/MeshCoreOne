@@ -1214,6 +1214,72 @@ struct PersistenceStoreTests {
         #expect(messages.count == 3)
     }
 
+    @Test("Room messages tied on timestamp order deterministically by createdAt")
+    func roomMessagesEqualTimestampOrderByCreatedAt() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let session = createTestRoomSession(radioID: device.id)
+        try await store.saveRemoteNodeSessionDTO(session)
+
+        // Same wire timestamp (1-second resolution) but distinct arrival times. Inserted
+        // out of arrival order so the fetch must impose the createdAt tie-break itself.
+        let sharedTimestamp = UInt32(Date().timeIntervalSince1970)
+        let base = Date(timeIntervalSince1970: 1_700_000_000)
+        let arrivals: [(text: String, createdAt: Date)] = [
+            ("second", base.addingTimeInterval(1)),
+            ("third", base.addingTimeInterval(2)),
+            ("first", base)
+        ]
+        for arrival in arrivals {
+            let message = RoomMessageDTO(
+                sessionID: session.id,
+                authorKeyPrefix: Data([0x01, 0x02, 0x03, 0x04]),
+                text: arrival.text,
+                timestamp: sharedTimestamp,
+                createdAt: arrival.createdAt
+            )
+            try await store.saveRoomMessage(message)
+        }
+
+        let messages = try await store.fetchRoomMessages(sessionID: session.id)
+        #expect(messages.map(\.text) == ["first", "second", "third"])
+    }
+
+    @Test("Room messages order primarily by wire timestamp")
+    func roomMessagesOrderByTimestamp() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let session = createTestRoomSession(radioID: device.id)
+        try await store.saveRemoteNodeSessionDTO(session)
+
+        // Distinct timestamps inserted out of order; arrival order is the inverse of
+        // send order to prove the timestamp key wins over createdAt.
+        let baseTimestamp = UInt32(Date().timeIntervalSince1970)
+        let arrival = Date(timeIntervalSince1970: 1_700_000_000)
+        let entries: [(text: String, offset: UInt32, arrivalOffset: TimeInterval)] = [
+            ("newest", 2, 0),
+            ("oldest", 0, 2),
+            ("middle", 1, 1)
+        ]
+        for entry in entries {
+            let message = RoomMessageDTO(
+                sessionID: session.id,
+                authorKeyPrefix: Data([0x01, 0x02, 0x03, 0x04]),
+                text: entry.text,
+                timestamp: baseTimestamp + entry.offset,
+                createdAt: arrival.addingTimeInterval(entry.arrivalOffset)
+            )
+            try await store.saveRoomMessage(message)
+        }
+
+        let messages = try await store.fetchRoomMessages(sessionID: session.id)
+        #expect(messages.map(\.text) == ["oldest", "middle", "newest"])
+    }
+
     @Test("Room message deduplication")
     func roomMessageDeduplication() async throws {
         let store = try await createTestStore()
