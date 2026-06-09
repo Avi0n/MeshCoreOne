@@ -429,9 +429,15 @@ extension MC1MapView.Coordinator {
         case .repeaterRingGreen: "pin-repeater-ring-green"
         case .repeaterRingWhite:
             if let hop = point.hopIndex {
-                "pin-repeater-ring-white-hop-\(min(hop, 20))"
+                "pin-repeater-ring-white-hop-\(min(hop, PinSpriteRenderer.maxHopBadge))"
             } else {
                 "pin-repeater-ring-white"
+            }
+        case .repeaterHop:
+            if let hop = point.hopIndex {
+                "pin-repeater-hop-\(min(hop, PinSpriteRenderer.maxHopBadge))"
+            } else {
+                "pin-repeater"
             }
         case .pointA: "pin-point-a"
         case .pointB: "pin-point-b"

@@ -109,24 +109,32 @@ struct MessagePathMapView: View {
             ), coord))
         }
 
-        // Repeater hops
+        // Repeater hops. A 1-byte path hash can't tell apart repeaters sharing a
+        // first key byte, so only plot hops that resolve to a single, unambiguous
+        // repeater (exact match). Ambiguous hops — where several known repeaters
+        // share the hash — are skipped rather than guessed at by proximity, which
+        // is what produced the criss-crossing pile-ups.
         if let pathNodes = message.pathNodes {
             let size = message.pathHashSize
             let hops = stride(from: 0, to: pathNodes.count, by: size).map { start -> Data in
                 Data(pathNodes[start..<min(start + size, pathNodes.count)])
             }
 
+            var seenKeys = Set<Data>()
             for (index, hashBytes) in hops.enumerated() {
                 let hopNumber = index + 1
-                let resolvedContact: (any RepeaterResolvable)? = RepeaterResolver.bestMatch(for: hashBytes, in: pathViewModel.repeaters, userLocation: appState.bestAvailableLocation)
-                let resolvedNode: (any RepeaterResolvable)? = RepeaterResolver.bestMatch(for: hashBytes, in: pathViewModel.discoveredRepeaters, userLocation: appState.bestAvailableLocation)
-                let r: (any RepeaterResolvable)? = resolvedContact ?? resolvedNode
-                if let r, r.hasLocation {
+                let resolvedContact = RepeaterResolver.resolve(for: hashBytes, in: pathViewModel.repeaters, userLocation: appState.bestAvailableLocation)
+                let resolvedNode = RepeaterResolver.resolve(for: hashBytes, in: pathViewModel.discoveredRepeaters, userLocation: appState.bestAvailableLocation)
+                let resolved: (node: any RepeaterResolvable, matchKind: NodeNameMatchKind)? =
+                    resolvedContact.map { ($0.node, $0.matchKind) } ?? resolvedNode.map { ($0.node, $0.matchKind) }
+                guard let resolved, resolved.matchKind == .exact else { continue }
+                let r = resolved.node
+                if r.hasLocation, seenKeys.insert(r.publicKey).inserted {
                     let coord = CLLocationCoordinate2D(latitude: r.latitude, longitude: r.longitude)
                     nodes.append((MapPoint(
                         id: UUID(),
                         coordinate: coord,
-                        pinStyle: .repeaterRingWhite,
+                        pinStyle: .repeaterHop,
                         label: r.resolvableName,
                         isClusterable: false,
                         hopIndex: hopNumber,
