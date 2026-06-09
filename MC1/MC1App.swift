@@ -68,7 +68,9 @@ struct MC1App: App {
                 .environment(\.appTheme, appState.themeService.current)
                 .tint(appState.themeService.current.chromeTint)
                 .preferredColorScheme(appState.themeService.effectiveColorScheme)
+                #if !SIDELOAD
                 .task(id: ObjectIdentifier(appState)) { await appState.storeState.service.load() }
+                #endif
                 .task {
                     if awaitingDataProtection {
                         await waitForProtectedData()

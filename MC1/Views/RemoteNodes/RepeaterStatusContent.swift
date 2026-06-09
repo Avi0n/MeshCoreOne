@@ -229,6 +229,14 @@ private struct NeighborsSection: View {
                         Text("\(viewModel.neighbors.count)")
                             .foregroundStyle(.secondary)
                     }
+                    SectionReloadButton(
+                        isLoading: viewModel.isLoadingNeighbors && !viewModel.isDiscovering,
+                        isLoaded: viewModel.neighborsLoaded,
+                        hasError: viewModel.neighborsSectionError != nil,
+                        isDisabled: connectionState != .ready || viewModel.isDiscovering,
+                        accessibilityLabel: L10n.RemoteNodes.RemoteNodes.Status.Accessibility.reloadNeighbors,
+                        onReload: { await viewModel.requestNeighbors(for: session) }
+                    )
                 }
             }
             .onChange(of: viewModel.neighborsExpanded) { _, isExpanded in

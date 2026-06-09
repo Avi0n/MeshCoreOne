@@ -148,7 +148,8 @@ public actor RepeaterAdminService {
         // Paginate over the per-page request so each round-trip keeps its audit log entry
         // and timeout ceiling; a single node response is capped to one radio frame.
         let response = try await NeighboursResponse.collectingAllPages { offset in
-            try await self.requestNeighbors(
+            if offset > 0 { try await Task.sleep(for: NeighboursResponse.interPageDelay) }
+            return try await self.requestNeighbors(
                 sessionID: sessionID,
                 count: Self.neighborPageSize,
                 offset: offset,
