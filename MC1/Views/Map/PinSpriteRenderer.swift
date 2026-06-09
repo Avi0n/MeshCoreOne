@@ -153,11 +153,13 @@ enum PinSpriteRenderer {
             let cgContext = ctx.cgContext
             let centerX = totalWidth / 2
 
-            // Selection ring
+            // Selection ring, centered on the circle head so it encircles the
+            // round portion rather than the triangle tail.
             if let ringColor = spec.ringColor {
+                let circleCenterY = ringPadding + circleSize / 2
                 let ringRect = CGRect(
                     x: centerX - ringSize / 2,
-                    y: ringPadding,
+                    y: circleCenterY - ringSize / 2,
                     width: ringSize,
                     height: ringSize
                 )
