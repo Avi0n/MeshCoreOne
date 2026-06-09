@@ -346,7 +346,7 @@ struct MC1MapView: UIViewRepresentable {
             let pixelOffset = (Double(padding.top) - Double(padding.bottom)) / 2
             let offsetDeg = pixelOffset * requiredMPP / 111_000
             let center = CLLocationCoordinate2D(
-                latitude: centerLat + offsetDeg,
+                latitude: min(limit, max(-limit, centerLat + offsetDeg)),
                 longitude: centerLon
             )
 
