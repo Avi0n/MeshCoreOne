@@ -419,6 +419,12 @@ public final class AppState {
         // Process-wide inline image cache learns where to persist probed dims.
         await InlineImageCache.shared.attachDimensionsStore(services.inlineImageDimensionsStore)
 
+        // Demo mode ships an inline image whose bytes are embedded offline; pre-seed the
+        // process-wide cache so the seeded DM renders it without a network fetch.
+        if connectedDevice?.id == MockDataProvider.simulatorDeviceID {
+            DemoInlineImageSeeder.seed()
+        }
+
         if let existing = chatCoordinatorRegistry {
             existing.rebind(dataStore: services.dataStore)
         } else {
