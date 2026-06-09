@@ -234,7 +234,6 @@ struct MC1MapView: UIViewRepresentable {
             coordinator.isStyleLoaded = false
             mapView.styleURL = newStyleURL
         }
-        let mapStyleChanged = coordinator.currentMapStyle != mapStyle
         coordinator.currentMapStyle = mapStyle
 
         // User location
@@ -254,8 +253,9 @@ struct MC1MapView: UIViewRepresentable {
         // Compare against lastApplied* so updates arriving during a gesture
         // are applied once the gesture ends.
         if coordinator.isStyleLoaded, !coordinator.isUserInteracting {
-            if mapStyleChanged {
+            if coordinator.lastAppliedMapStyle != mapStyle {
                 coordinator.updateRasterLayerVisibility(mapView: mapView)
+                coordinator.lastAppliedMapStyle = mapStyle
             }
             if coordinator.lastAppliedPoints != points {
                 coordinator.updatePointSource(mapView: mapView)
@@ -385,6 +385,7 @@ extension MC1MapView {
         var currentShowLabels = true
         var lastAppliedStyleURL: URL?
         var currentMapStyle: MapStyleSelection?
+        var lastAppliedMapStyle: MapStyleSelection?
         var currentPoints: [MapPoint] = []
         var currentLines: [MapLine] = []
         var lastAppliedPoints: [MapPoint] = []
@@ -403,12 +404,15 @@ extension MC1MapView {
             // Clear stale source/state references from the previous style.
             // Reset currentShowLabels to the new layer default (visible) so
             // updateUIView detects the mismatch and reapplies the user's preference.
+            // A reload rebuilds the raster layers with isVisible == false, so clear
+            // lastAppliedMapStyle to force updateUIView to re-apply the selected overlay.
             clusterSource = nil
             fixedSource = nil
             lastAppliedPoints = []
             lastAppliedClusterablePoints = []
             lastAppliedFixedPoints = []
             lastAppliedLines = []
+            lastAppliedMapStyle = nil
             currentShowLabels = true
 
             PinSpriteRenderer.renderAll(into: style)
