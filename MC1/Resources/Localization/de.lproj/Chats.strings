@@ -99,7 +99,10 @@
 
 // MARK: - Message Timestamps
 
-/* Location: MessageTimestampView.swift - Prefix for yesterday's date */
+/* Location: MessageDayDividerView.swift - Label for today's date in the chat day separator */
+"chats.timestamp.today" = "Heute";
+
+/* Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator */
 "chats.timestamp.yesterday" = "Gestern";
 
 /* Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old */

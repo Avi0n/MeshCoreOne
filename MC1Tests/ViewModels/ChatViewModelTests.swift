@@ -82,6 +82,17 @@ private func createChannelMessage(
     )
 }
 
+/// Builds a calendar date at a specific day and time in the current calendar.
+private func makeDate(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int = 0) -> Date {
+    Calendar.current.date(from: DateComponents(year: year, month: month, day: day, hour: hour, minute: minute))!
+}
+
+/// Sender-clock timestamp for a day/time. Day-divider detection keys on
+/// `MessageDTO.senderDate`, which derives from `timestamp`, so this drives the real path.
+private func makeTimestamp(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int = 0) -> UInt32 {
+    UInt32(makeDate(year, month, day, hour, minute).timeIntervalSince1970)
+}
+
 // MARK: - ChatViewModel Tests
 
 @Suite("ChatViewModel Tests")
@@ -836,5 +847,46 @@ struct DisplayFlagsTests {
         #expect(flags0.showDirectionGap == false)
         #expect(flags1.showDirectionGap == true)
         #expect(flags2.showDirectionGap == true)
+    }
+
+    // MARK: - Day Divider
+
+    @Test("First message always shows day divider")
+    func firstMessageShowsDayDivider() {
+        let message = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 10))
+        #expect(ChatViewModel.computeDisplayFlags(for: message, previous: nil).showDayDivider == true)
+    }
+
+    @Test("Same calendar day hides day divider")
+    func sameDayHidesDayDivider() {
+        let m0 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 10, 0))
+        let m1 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 10, 1))
+        #expect(ChatViewModel.computeDisplayFlags(for: m1, previous: m0).showDayDivider == false)
+    }
+
+    @Test("Calendar day change shows day divider")
+    func dayChangeShowsDayDivider() {
+        let m0 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 10))
+        let m1 = createTestMessage(timestamp: makeTimestamp(2024, 5, 2, 10))
+        #expect(ChatViewModel.computeDisplayFlags(for: m1, previous: m0).showDayDivider == true)
+    }
+
+    @Test("Day change detection ignores a shared local receive day")
+    func dayChangeUsesSenderDateNotReceiveDate() {
+        // Both rows were stored locally on the same day (a one-session backlog sync),
+        // but were sent on different days; the divider must key on the send day.
+        let receiveDay = makeDate(2024, 6, 2, 14)
+        let m0 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 10), createdAt: receiveDay)
+        let m1 = createTestMessage(timestamp: makeTimestamp(2024, 5, 2, 10), createdAt: receiveDay)
+        #expect(ChatViewModel.computeDisplayFlags(for: m1, previous: m0).showDayDivider == true)
+    }
+
+    @Test("Day change divides even under the grouping gap")
+    func dayChangeDividesUnderGroupingGap() {
+        // 180s send-time gap is under the 300s grouping threshold, but the two
+        // messages straddle midnight, so the day divider must still show.
+        let m0 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 23, 58))
+        let m1 = createTestMessage(timestamp: makeTimestamp(2024, 5, 2, 0, 1))
+        #expect(ChatViewModel.computeDisplayFlags(for: m1, previous: m0).showDayDivider == true)
     }
 }

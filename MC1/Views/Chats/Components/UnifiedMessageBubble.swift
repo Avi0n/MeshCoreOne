@@ -76,7 +76,13 @@ struct UnifiedMessageBubble: View, Equatable {
                     .padding(.bottom, 4)
             }
 
-            if item.grouping.showTimestamp {
+            if item.grouping.showDayDivider {
+                MessageDayDividerView(date: item.envelope.date)
+            }
+
+            // The day divider already anchors the cluster in time, so a time-only
+            // marker directly beneath it would be redundant; suppress it there.
+            if item.grouping.showTimestamp && !item.grouping.showDayDivider {
                 MessageTimestampView(date: item.envelope.date)
             }
 

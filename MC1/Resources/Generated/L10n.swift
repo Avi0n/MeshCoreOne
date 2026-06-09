@@ -1017,7 +1017,9 @@ public enum L10n {
       public enum Timestamp {
         /// Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old
         public static let now = L10n.tr("Chats", "chats.timestamp.now", fallback: "Now")
-        /// Location: MessageTimestampView.swift - Prefix for yesterday's date
+        /// Location: MessageDayDividerView.swift - Label for today's date in the chat day separator
+        public static let today = L10n.tr("Chats", "chats.timestamp.today", fallback: "Today")
+        /// Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator
         public static let yesterday = L10n.tr("Chats", "chats.timestamp.yesterday", fallback: "Yesterday")
       }
       public enum Tip {
