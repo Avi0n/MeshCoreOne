@@ -73,6 +73,9 @@ struct AppSidebar: View {
                 .padding(.vertical, 2)
                 .background(.red, in: .capsule)
                 .fixedSize()
+                // The sidebar renders row content through a vibrancy effect that blends the capsule
+                // fill with the background; flattening to one layer keeps the red fully opaque.
+                .drawingGroup()
                 .offset(x: 8, y: -8)
         }
     }
