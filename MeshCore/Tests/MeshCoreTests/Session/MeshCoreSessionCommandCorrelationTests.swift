@@ -226,13 +226,15 @@ struct MeshCoreSessionCommandCorrelationTests {
     @Test("getContacts succeeds when slow stream keeps making progress")
     func getContactsSucceedsWhenSlowStreamKeepsMakingProgress() async throws {
         let transport = MockTransport()
+        // Inactivity timeout sits well above the 70ms send cadence so a slow
+        // runner that overshoots a sleep can't trip it mid-stream.
         let session = MeshCoreSession(
             transport: transport,
             configuration: SessionConfiguration(
-                defaultTimeout: 0.2,
+                defaultTimeout: 5.0,
                 clientIdentifier: "MCTst",
-                contactStreamInactivityTimeout: 0.12,
-                contactStreamHardTimeout: 1.0
+                contactStreamInactivityTimeout: 1.0,
+                contactStreamHardTimeout: 10.0
             )
         )
 

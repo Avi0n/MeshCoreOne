@@ -314,17 +314,29 @@ struct ChatSendQueueServiceTests {
     /// the envelope.
     @Test("channel drain parks deviceError(2) below disambiguateAfterAttempts")
     func testChannelDrain_PoolExhaustion_ChannelStillExists_ParksEnvelope() async throws {
-        let harness = try await Self.setUpChannelCapHarness(attemptCount: 0)
+        let harness = try await Self.setUpChannelCapHarness(
+            attemptCount: 0,
+            messageConfig: MessageServiceConfig(
+                poolBackoff: PoolBackoffConfig(attemptCap: 2, baseDelay: 0.01)
+            )
+        )
         let dispatchTask = Self.startDeviceErrorDispatch(service: harness.messageService, code: FirmwareDeviceErrorCode.channelMessageNotFound)
         defer { dispatchTask.cancel() }
 
         await harness.queueService.hydrate()
-        // Pool-backoff exhausts after ~3.5s (500ms + 1s + 2s + matcher
-        // overhead). The transient catch branch then writes status=.pending
-        // and suspends in waitForTransportOpen. Sleep past pool-backoff so the
-        // steady-state assertions below observe the post-park values rather
-        // than the initial .pending status that exists before any drain runs.
-        try await Task.sleep(for: .seconds(4))
+        // The shrunk pool-backoff lets the first drain bump attemptCount,
+        // exhaust backoff in tens of milliseconds, then the transient catch
+        // branch remaps the `.failed` write back to `.pending` and suspends in
+        // waitForTransportOpen with no further trigger. Poll for that parked
+        // steady-state — gated on attemptCount >= 1 so it cannot match the
+        // initial pre-drain `.pending` — rather than sleeping a fixed interval
+        // that races a loaded runner against the backoff schedule.
+        try await Self.waitForCondition(timeout: .seconds(15)) {
+            let message = try await harness.store.fetchMessage(id: harness.messageID)
+            let row = try await harness.store.fetchPendingSends(radioID: harness.radioID)
+                .first(where: { $0.messageID == harness.messageID })
+            return (row?.attemptCount ?? 0) >= 1 && message?.status == .pending
+        }
 
         let postDrainMessage = try await harness.store.fetchMessage(id: harness.messageID)
         #expect(postDrainMessage?.status == .pending,

@@ -120,7 +120,16 @@ struct ChatSendQueueServiceAttemptCountTests {
         let harness = try await Self.setupQueueWithRow(attemptCount: 0)
 
         await harness.service.hydrate()
-        try? await Task.sleep(for: .milliseconds(500))
+        // Poll for both drain effects so the assertions can't observe a
+        // half-applied drain on a slow runner.
+        try await waitUntil(timeout: .seconds(10), "first drain must bump 0 → 1 and stamp a fresh timestamp") {
+            guard
+                let row = (try? await harness.store.fetchPendingSends(radioID: harness.radioID))?
+                    .first(where: { $0.messageID == harness.messageID }),
+                let timestamp = (try? await harness.store.fetchMessage(id: harness.messageID))?.timestamp
+            else { return false }
+            return row.attemptCount == 1 && timestamp != harness.originalTimestamp
+        }
 
         let rows = try await harness.store.fetchPendingSends(radioID: harness.radioID)
         let bumped = rows.first(where: { $0.messageID == harness.messageID })?.attemptCount
@@ -143,7 +152,11 @@ struct ChatSendQueueServiceAttemptCountTests {
         let harness = try await Self.setupQueueWithRow(attemptCount: 1)
 
         await harness.service.hydrate()
-        try? await Task.sleep(for: .milliseconds(500))
+        try await waitUntil(timeout: .seconds(10), "rehydrate drain must bump 1 → 2") {
+            let row = (try? await harness.store.fetchPendingSends(radioID: harness.radioID))?
+                .first(where: { $0.messageID == harness.messageID })
+            return row?.attemptCount == 2
+        }
 
         let postDrain = try await harness.store.fetchPendingSends(radioID: harness.radioID)
         #expect(postDrain.first(where: { $0.messageID == harness.messageID })?.attemptCount == 2,
