@@ -194,7 +194,7 @@ public enum RadioPresets {
                     availability: .countries(["NL"]), recommendationPriority: 110),
 
         // North America
-        RadioPreset(id: "us-ca", name: "USA/Canada (Recommended)", region: .northAmerica,
+        RadioPreset(id: "us-ca", name: "USA/Canada", region: .northAmerica,
                     frequencyMHz: 910.525, bandwidthKHz: 62.5, spreadingFactor: 7, codingRate: 5,
                     availability: .countries(["US", "CA"]), recommendationPriority: 110),
         RadioPreset(id: "wcmesh", name: "WCMesh (SoCal)", region: .northAmerica,
