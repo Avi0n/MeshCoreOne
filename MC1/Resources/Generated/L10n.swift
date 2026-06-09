@@ -1603,7 +1603,7 @@ public enum L10n {
             public static let confirm = L10n.tr("Contacts", "contacts.pathEdit.directRouting.confirm.confirm", fallback: "Save as Direct")
             /// Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name
             public static func message(_ p1: Any, _ p2: Any) -> String {
-              return L10n.tr("Contacts", "contacts.pathEdit.directRouting.confirm.message", String(describing: p1), String(describing: p2), fallback: "Messages to %@ will be sent directly without relaying through any repeater. Use this only if %@ is a 1-hop neighbor.")
+              return L10n.tr("Contacts", "contacts.pathEdit.directRouting.confirm.message", String(describing: p1), String(describing: p2), fallback: "Messages to %@ will be sent directly without relaying through any repeater. Use this only if %@ is a direct (0-hop) neighbor.")
             }
             /// Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert title
             public static let title = L10n.tr("Contacts", "contacts.pathEdit.directRouting.confirm.title", fallback: "Save as direct routing?")

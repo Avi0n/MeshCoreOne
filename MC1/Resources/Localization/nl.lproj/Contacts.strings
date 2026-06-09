@@ -628,7 +628,7 @@
 "contacts.pathEdit.directRouting.confirm.title" = "Opslaan als direct-routing?";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name */
-"contacts.pathEdit.directRouting.confirm.message" = "Berichten naar %@ worden rechtstreeks verzonden zonder tussenkomst van een repeater. Gebruik dit alleen als %@ een buurtknooppunt is.";
+"contacts.pathEdit.directRouting.confirm.message" = "Berichten naar %@ worden rechtstreeks verzonden zonder tussenkomst van een repeater. Gebruik dit alleen als %@ een directe (0-hop) buur is.";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation confirm label */
 "contacts.pathEdit.directRouting.confirm.confirm" = "Opslaan als direct";

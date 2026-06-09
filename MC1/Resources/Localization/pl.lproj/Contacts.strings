@@ -628,7 +628,7 @@
 "contacts.pathEdit.directRouting.confirm.title" = "Zapisać jako trasowanie bezpośrednie?";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name */
-"contacts.pathEdit.directRouting.confirm.message" = "Wiadomości do %@ będą wysyłane bezpośrednio bez pośrednictwa żadnego wzmacniaka. Użyj tylko gdy %@ jest bezpośrednim sąsiadem.";
+"contacts.pathEdit.directRouting.confirm.message" = "Wiadomości do %@ będą wysyłane bezpośrednio bez pośrednictwa żadnego wzmacniaka. Użyj tylko gdy %@ jest bezpośrednim (0-przeskokowym) sąsiadem.";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation confirm label */
 "contacts.pathEdit.directRouting.confirm.confirm" = "Zapisz jako bezpośrednie";

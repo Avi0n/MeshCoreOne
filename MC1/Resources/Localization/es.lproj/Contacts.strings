@@ -628,7 +628,7 @@
 "contacts.pathEdit.directRouting.confirm.title" = "¿Guardar como enrutado directo?";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name */
-"contacts.pathEdit.directRouting.confirm.message" = "Los mensajes a %@ se enviarán directamente sin pasar por ningún repetidor. Usa esto solo si %@ es un vecino a 1 salto.";
+"contacts.pathEdit.directRouting.confirm.message" = "Los mensajes a %@ se enviarán directamente sin pasar por ningún repetidor. Usa esto solo si %@ es un vecino directo (a 0 saltos).";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation confirm label */
 "contacts.pathEdit.directRouting.confirm.confirm" = "Guardar como directo";

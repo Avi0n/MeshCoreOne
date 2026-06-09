@@ -645,7 +645,7 @@
 "contacts.pathEdit.directRouting.confirm.title" = "Сохранить как прямую маршрутизацию?";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name */
-"contacts.pathEdit.directRouting.confirm.message" = "Сообщения для %@ будут отправляться напрямую без ретрансляции через какой-либо ретранслятор. Используйте только если %@ является соседом в 1 прыжок.";
+"contacts.pathEdit.directRouting.confirm.message" = "Сообщения для %@ будут отправляться напрямую без ретрансляции через какой-либо ретранслятор. Используйте только если %@ является прямым соседом (0 прыжков).";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation confirm label */
 "contacts.pathEdit.directRouting.confirm.confirm" = "Сохранить как прямую";
