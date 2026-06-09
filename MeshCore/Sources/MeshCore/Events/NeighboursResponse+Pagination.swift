@@ -6,6 +6,11 @@ public extension NeighboursResponse {
     /// reporting fresh rows without ever reaching its advertised total.
     static let maxPaginationPages = 512
 
+    /// Pause a caller applies before each page after the first: back-to-back remote round-trips
+    /// can be dropped while the radio is still transmitting the prior reply or settling a
+    /// newly-discovered path. The pause lives at the call site so this aggregator stays clock-free.
+    static let interPageDelay: Duration = .seconds(1)
+
     /// Aggregates every neighbour page from a node into a single response.
     ///
     /// A node returns at most one radio frame of neighbours per request (roughly a dozen

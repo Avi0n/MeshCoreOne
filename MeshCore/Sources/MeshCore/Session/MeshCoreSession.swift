@@ -3051,7 +3051,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         pubkeyPrefixLength: UInt8 = 4
     ) async throws -> NeighboursResponse {
         try await NeighboursResponse.collectingAllPages { offset in
-            try await requestNeighbours(
+            if offset > 0 { try await clock.sleep(for: NeighboursResponse.interPageDelay) }
+            return try await requestNeighbours(
                 from: publicKey,
                 count: 255,
                 offset: offset,

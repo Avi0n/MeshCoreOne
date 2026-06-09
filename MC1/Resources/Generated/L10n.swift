@@ -3330,6 +3330,8 @@ public enum L10n {
           return L10n.tr("RemoteNodes", "remoteNodes.status.uptimeMinutes", p1, fallback: "%dm")
         }
         public enum Accessibility {
+          /// Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for neighbors
+          public static let reloadNeighbors = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadNeighbors", fallback: "Reload neighbors")
           /// Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for owner info
           public static let reloadOwnerInfo = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadOwnerInfo", fallback: "Reload contact info")
           /// Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for the status counters
