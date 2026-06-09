@@ -448,6 +448,7 @@ public protocol PersistenceStoreProtocol: Actor {
 
     // MARK: - Node Status Snapshots
 
+    // swiftlint:disable function_parameter_count
     /// Save a node status snapshot from primitive parameters. Returns the snapshot ID.
     func saveNodeStatusSnapshot(
         nodePublicKey: Data,
@@ -463,6 +464,7 @@ public protocol PersistenceStoreProtocol: Actor {
         postedCount: UInt16?,
         postPushCount: UInt16?
     ) async throws -> UUID
+    // swiftlint:enable function_parameter_count
 
     /// Fetch the most recent snapshot for a node
     func fetchLatestNodeStatusSnapshot(nodePublicKey: Data) async throws -> NodeStatusSnapshotDTO?

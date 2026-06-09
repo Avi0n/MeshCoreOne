@@ -7,7 +7,6 @@ import MeshCore
 import OSLog
 import TipKit
 
-
 /// Simplified app-wide state management.
 /// Composes ConnectionManager for connection lifecycle.
 /// Handles only UI state, navigation, and notification wiring.

@@ -269,7 +269,14 @@ public final class AccessorySetupKitService {
         pickerOutcome = "presented"
         pickerWasCancelled = false
         logger.info(
-            "[ASK] Presenting picker on iOS \(currentOSVersion), sessionActive: \(isSessionActive), pairedCount: \(pairedAccessories.count), displayItems: \(displayItems.count), filteredDiscovery: \(AccessorySetupKitDiscoveryCriteria.usesFilteredDiscovery), criteria: \(AccessorySetupKitLogFormatter.criteriaSummary(AccessorySetupKitDiscoveryCriteria.supportedBluetoothCriteria))"
+            """
+            [ASK] Presenting picker on iOS \(currentOSVersion), \
+            sessionActive: \(isSessionActive), \
+            pairedCount: \(pairedAccessories.count), \
+            displayItems: \(displayItems.count), \
+            filteredDiscovery: \(AccessorySetupKitDiscoveryCriteria.usesFilteredDiscovery), \
+            criteria: \(AccessorySetupKitLogFormatter.criteriaSummary(AccessorySetupKitDiscoveryCriteria.supportedBluetoothCriteria))
+            """
         )
 
         return try await withTaskCancellationHandler {

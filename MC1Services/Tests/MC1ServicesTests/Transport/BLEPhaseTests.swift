@@ -12,7 +12,6 @@ struct BLEPhaseTests {
         #expect(phase.name == "idle")
     }
 
-
     // MARK: - isDiscoveryChain Tests
 
     @Test("idle is not part of discovery chain")
