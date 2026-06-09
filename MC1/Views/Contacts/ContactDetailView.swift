@@ -769,14 +769,10 @@ private struct ContactLocationSection: View {
                         span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
                     )),
                     cameraRegionVersion: currentContact.latitude.hashValue ^ currentContact.longitude.hashValue,
-                    onPointTap: nil,
-                    onMapTap: nil,
+                    onPointTap: { _, _ in showFullMap = true },
+                    onMapTap: { _ in showFullMap = true },
                     onCameraRegionChange: nil
                 )
-
-                Color.clear
-                    .contentShape(.rect)
-                    .onTapGesture { showFullMap = true }
 
                 Image(systemName: "arrow.up.left.and.arrow.down.right")
                     .font(.caption.weight(.semibold))

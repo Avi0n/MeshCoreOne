@@ -22,6 +22,7 @@ struct AccessorySetupKitDiscoveryCriteriaTests {
                 "T1000-E-BOOT",
                 "me25ls01-BOOT",
                 "NRF52 DK",
+                "T-Impulse",
             ]
         )
     }

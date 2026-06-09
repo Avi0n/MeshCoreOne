@@ -242,7 +242,8 @@ public enum MessageFragmentBuilder {
             showTimestamp: inputs.showTimestamp,
             showDirectionGap: inputs.showDirectionGap,
             showSenderName: inputs.showSenderName,
-            showNewMessagesDivider: inputs.showNewMessagesDivider
+            showNewMessagesDivider: inputs.showNewMessagesDivider,
+            showDayDivider: inputs.showDayDivider
         )
     }
 

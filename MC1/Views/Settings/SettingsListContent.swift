@@ -32,7 +32,7 @@ struct SettingsListContent: View {
             .themedCanvas(theme)
             .navigationTitle(L10n.Settings.title)
             .toolbar {
-                bleStatusToolbarItem(isVisible: !isSidebar || appState.navigation.isSidebarCollapsed)
+                bleStatusToolbarItem()
             }
             .sheet(isPresented: $showingDeviceSelection) {
                 DeviceSelectionSheet()

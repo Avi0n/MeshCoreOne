@@ -13,10 +13,6 @@ struct LiveActivityTip: Tip {
         Text(L10n.Settings.LiveActivity.Tip.message)
     }
 
-    var image: Image? {
-        Image(systemName: "antenna.radiowaves.left.and.right.fill")
-    }
-
     var options: [TipOption] {
         [Tips.MaxDisplayCount(1)]
     }

@@ -1419,6 +1419,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
     public var nodeStatusSnapshots: [NodeStatusSnapshotDTO] = []
 
+    // swiftlint:disable:next function_parameter_count
     public func saveNodeStatusSnapshot(
         nodePublicKey: Data,
         batteryMillivolts: UInt16?,

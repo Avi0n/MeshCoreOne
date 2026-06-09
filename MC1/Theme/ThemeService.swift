@@ -141,7 +141,13 @@ public final class ThemeService {
     }
 
     private static func isAccessible(_ theme: Theme, store: StoreService) -> Bool {
+        #if SIDELOAD
+        // Sideload builds have no App Store entitlement, so StoreKit can never populate
+        // ownedThemeIDs. Unlock every theme rather than leaving paid themes permanently locked.
+        return true
+        #else
         guard let productID = theme.productID else { return true }   // default is always accessible
         return store.ownedThemeIDs.contains(productID)
+        #endif
     }
 }

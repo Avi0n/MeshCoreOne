@@ -509,7 +509,13 @@ public actor AdvertisementService {
             let lastModifiedDate = Date(timeIntervalSince1970: TimeInterval(contact.lastModified))
             let lastAdvertDate = Date(timeIntervalSince1970: TimeInterval(contact.lastAdvertTimestamp))
 
-            logger.notice("Overwrite oldest: deleting contact '\(contactName)' [key=\(fullPubKeyHex), type=\(contactTypeDesc), favorite=\(contact.isFavorite), pathLen=\(contact.outPathLength), lastModified=\(lastModifiedDate), lastAdvert=\(lastAdvertDate)]")
+            logger.notice(
+                """
+                Overwrite oldest: deleting contact '\(contactName)' \
+                [key=\(fullPubKeyHex), type=\(contactTypeDesc), favorite=\(contact.isFavorite), \
+                pathLen=\(contact.outPathLength), lastModified=\(lastModifiedDate), lastAdvert=\(lastAdvertDate)]
+                """
+            )
 
             // Store deletion info for correlation with the replacement contact
             lastOverwriteDeletion = (name: contactName, pubKeyHex: pubKeyPrefix, time: Date())

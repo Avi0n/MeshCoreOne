@@ -486,5 +486,5 @@ final class ChatViewModel {
 // MARK: - Environment Key
 
 extension EnvironmentValues {
-    @Entry var chatViewModel: ChatViewModel? = nil
+    @Entry var chatViewModel: ChatViewModel?
 }

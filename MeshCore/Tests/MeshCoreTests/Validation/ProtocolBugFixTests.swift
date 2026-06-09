@@ -589,6 +589,68 @@ struct ProtocolBugFixTests {
         #expect(abs(response.neighbours[0].snr - 5.0) <= 0.001)
     }
 
+    // MARK: - Neighbours Pagination
+
+    /// Builds one page of a paginated neighbour table. `secondsAgo` encodes the global
+    /// index so a test can assert each page was fetched at the correct offset and
+    /// concatenated in order.
+    private func neighboursPage(total: Int, from start: Int, pageSize: Int) -> NeighboursResponse {
+        let end = min(start + pageSize, total)
+        let entries = (start..<end).map { index in
+            Neighbour(publicKeyPrefix: Data([UInt8(index & 0xFF)]), secondsAgo: index, snr: Double(index))
+        }
+        return NeighboursResponse(
+            publicKeyPrefix: Data([0x01]),
+            tag: Data([0x02]),
+            totalCount: total,
+            neighbours: entries
+        )
+    }
+
+    @Test("collectingAllPages aggregates every page until the total is reached")
+    func neighboursPaginationAggregatesAllPages() async {
+        // A 34-neighbour table delivered in frames of 11, mirroring a repeater whose
+        // single-frame response caps well below its total.
+        let result = await NeighboursResponse.collectingAllPages { offset in
+            self.neighboursPage(total: 34, from: Int(offset), pageSize: 11)
+        }
+
+        #expect(result.totalCount == 34)
+        #expect(result.neighbours.count == 34)
+        // Strictly increasing indices prove pages were fetched at 0, 11, 22, 33 and joined in order.
+        #expect(result.neighbours.map(\.secondsAgo) == Array(0..<34))
+    }
+
+    @Test("collectingAllPages stops when a stalled page returns no rows")
+    func neighboursPaginationStopsOnEmptyPage() async {
+        // Node advertises 34 but never delivers past the first frame. Without the
+        // empty-page guard this would loop forever and hang the suite.
+        let result = await NeighboursResponse.collectingAllPages { offset in
+            if offset == 0 {
+                return self.neighboursPage(total: 34, from: 0, pageSize: 11)
+            }
+            return NeighboursResponse(
+                publicKeyPrefix: Data([0x01]),
+                tag: Data([0x02]),
+                totalCount: 34,
+                neighbours: []
+            )
+        }
+
+        #expect(result.neighbours.count == 11)
+        #expect(result.totalCount == 34)
+    }
+
+    @Test("collectingAllPages returns a single complete page without over-fetching")
+    func neighboursPaginationSinglePage() async {
+        let result = await NeighboursResponse.collectingAllPages { offset in
+            self.neighboursPage(total: 5, from: Int(offset), pageSize: 20)
+        }
+
+        #expect(result.neighbours.count == 5)
+        #expect(result.totalCount == 5)
+    }
+
     @Test("ACL parser parses valid response")
     func aclParserParsesValidResponse() {
         var payload = Data()

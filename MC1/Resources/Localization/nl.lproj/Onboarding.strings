@@ -13,7 +13,7 @@
 "welcome.title" = "MeshCore One";
 
 /* Location: WelcomeView.swift - Subtitle describing the app */
-"welcome.subtitle" = "Geen mobiel netwerk nodig. Je berichten reizen via een community radionetwerk.";
+"welcome.subtitle" = "Verstuur berichten via een door de community gebouwd netwerk, zelfs zonder internet.";
 
 /* Location: WelcomeView.swift - Button to proceed to next onboarding step */
 "welcome.getStarted" = "Aan de slag";
@@ -31,13 +31,13 @@
 "permissions.notifications.title" = "Meldingen";
 
 /* Location: PermissionsView.swift - Permission card description for notifications */
-"permissions.notifications.description" = "Ontvang meldingen over berichten, reacties en lage-batterijwaarschuwingen — ook als de app niet open is.";
+"permissions.notifications.description" = "Ontvang meldingen voor nieuwe berichten en lage batterij, ook als de app gesloten is.";
 
 /* Location: PermissionsView.swift - Permission card title for location */
 "permissions.location.title" = "Locatie";
 
 /* Location: PermissionsView.swift - Permission card description for location */
-"permissions.location.description" = "Stelt een aanbevolen radiopreset voor jouw gebied voor, toont je positie op kaarten en sorteert contacten op afstand.";
+"permissions.location.description" = "Stelt lokale radiopresets voor, toont je positie op de kaart en sorteert contacten op afstand.";
 
 /* Location: PermissionsView.swift - Button to proceed to next step */
 "permissions.continue" = "Doorgaan";
@@ -200,7 +200,7 @@
 "preset.subtitle.locale" = "Kies een preset voor je radio.";
 
 /* Location: PresetStepView.swift - Footer help line pointing users to the MeshCore Discord */
-"preset.discordHelp" = "Not sure which preset to pick? Join the official MeshCore Discord and ask! [https://meshcore.gg](https://meshcore.gg)";
+"preset.discordHelp" = "Weet je niet welke preset je moet kiezen? Word lid van de officiële MeshCore Discord en vraag het! [https://meshcore.gg](https://meshcore.gg)";
 
 /* Location: PresetStepView.swift - Apply CTA "Use %@" */
 "preset.use" = "%@ gebruiken";
@@ -216,6 +216,9 @@
 
 /* Location: PresetStepView.swift - Already-configured secondary link */
 "preset.alreadyConfigured.choose" = "Andere preset kiezen";
+
+/* Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring */
+"preset.error.notConnected" = "Verbind met je apparaat om deze preset toe te passen.";
 
 /* Location: PresetStepView.swift - Generic Continue label used when no preset is selected */
 "preset.continue" = "Doorgaan";

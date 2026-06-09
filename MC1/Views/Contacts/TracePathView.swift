@@ -33,7 +33,7 @@ struct TracePathView: View {
     @AppStorage("tracePathViewMode") private var viewMode: TracePathViewMode = .list
 
     var body: some View {
-        Group {
+        ZStack {
             switch viewMode {
             case .list:
                 listView
@@ -41,6 +41,7 @@ struct TracePathView: View {
                 TracePathMapView(traceViewModel: viewModel, presentedResult: $presentedResult)
             }
         }
+        .animation(nil, value: viewMode)
         .navigationTitle(L10n.Contacts.Contacts.Trace.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

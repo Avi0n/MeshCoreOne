@@ -358,7 +358,7 @@ public enum L10n {
       }
       public enum Error {
         /// Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails
-        public static let loadConversationsFailed = L10n.tr("Chats", "chats.error.loadConversationsFailed", fallback: "Couldn't load conversations. Pull to retry.")
+        public static let loadConversationsFailed = L10n.tr("Chats", "chats.error.loadConversationsFailed", fallback: "Couldn't load conversations.")
         /// Location: ChatConversationView.swift - Error when loading older messages fails
         public static let loadOlderMessagesFailed = L10n.tr("Chats", "chats.error.loadOlderMessagesFailed", fallback: "Failed to load older messages")
         /// Location: ChannelInfoSheet.swift - Error when device not connected
@@ -946,6 +946,10 @@ public enum L10n {
         public enum ScrollToBottom {
           /// Location: ScrollToBottomButton.swift - Accessibility label for scroll to bottom button
           public static let accessibilityLabel = L10n.tr("Chats", "chats.scrollButton.scrollToBottom.accessibilityLabel", fallback: "Scroll to latest message")
+          /// Location: ScrollToBottomButton.swift - Accessibility value for unread message count - %d is the number of unread messages
+          public static func accessibilityValue(_ p1: Int) -> String {
+            return L10n.tr("Chats", "chats.scrollButton.scrollToBottom.accessibilityValue", p1, fallback: "%d unread messages")
+          }
         }
         public enum ScrollToDivider {
           /// Location: ScrollToDividerButton.swift - Accessibility hint for scroll to divider button
@@ -1017,13 +1021,15 @@ public enum L10n {
       public enum Timestamp {
         /// Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old
         public static let now = L10n.tr("Chats", "chats.timestamp.now", fallback: "Now")
-        /// Location: MessageTimestampView.swift - Prefix for yesterday's date
+        /// Location: MessageDayDividerView.swift - Label for today's date in the chat day separator
+        public static let today = L10n.tr("Chats", "chats.timestamp.today", fallback: "Today")
+        /// Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator
         public static let yesterday = L10n.tr("Chats", "chats.timestamp.yesterday", fallback: "Yesterday")
       }
       public enum Tip {
         public enum DeviceMenu {
           /// Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features
-          public static let message = L10n.tr("Chats", "chats.tip.deviceMenu.message", fallback: "Manage your connection, send advertisements, and check battery. Bluetooth devices stay connected even if the app is closed — tap Disconnect when you're ready to turn off the link.")
+          public static let message = L10n.tr("Chats", "chats.tip.deviceMenu.message", fallback: "Manage your connection, send advertisements, and check battery. The radio stays connected even after force quit. Tap Disconnect to turn off the link.")
           /// Location: DeviceMenuTip.swift - Purpose: Tip title introducing device menu
           public static let title = L10n.tr("Chats", "chats.tip.deviceMenu.title", fallback: "Your Device Menu")
         }
@@ -1603,7 +1609,7 @@ public enum L10n {
             public static let confirm = L10n.tr("Contacts", "contacts.pathEdit.directRouting.confirm.confirm", fallback: "Save as Direct")
             /// Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name
             public static func message(_ p1: Any, _ p2: Any) -> String {
-              return L10n.tr("Contacts", "contacts.pathEdit.directRouting.confirm.message", String(describing: p1), String(describing: p2), fallback: "Messages to %@ will be sent directly without relaying through any repeater. Use this only if %@ is a 1-hop neighbor.")
+              return L10n.tr("Contacts", "contacts.pathEdit.directRouting.confirm.message", String(describing: p1), String(describing: p2), fallback: "Messages to %@ will be sent directly without relaying through any repeater. Use this only if %@ is a direct (0-hop) neighbor.")
             }
             /// Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert title
             public static let title = L10n.tr("Contacts", "contacts.pathEdit.directRouting.confirm.title", fallback: "Save as direct routing?")
@@ -2296,6 +2302,10 @@ public enum L10n {
     public enum Tabs {
       /// Tab bar title for the messaging/conversations screen
       public static let chats = L10n.tr("Localizable", "tabs.chats", fallback: "Chats")
+      /// VoiceOver value announcing the unread message count on the Chats sidebar icon. %d is the count.
+      public static func chatsUnreadAccessibilityValue(_ p1: Int) -> String {
+        return L10n.tr("Localizable", "tabs.chatsUnreadAccessibilityValue", p1, fallback: "%d unread")
+      }
       /// Tab bar title for the map screen showing node locations
       public static let map = L10n.tr("Localizable", "tabs.map", fallback: "Map")
       /// Tab bar title for the nodes/contacts list screen
@@ -2534,7 +2544,7 @@ public enum L10n {
       public static let title = L10n.tr("Onboarding", "permissions.title", fallback: "A couple of permissions")
       public enum Location {
         /// Location: PermissionsView.swift - Permission card description for location
-        public static let description = L10n.tr("Onboarding", "permissions.location.description", fallback: "Suggest a recommended radio preset for your area, show your position on maps, and sort contacts by distance.")
+        public static let description = L10n.tr("Onboarding", "permissions.location.description", fallback: "Suggest local radio presets, show your position on the map, and sort contacts by distance.")
         /// Location: PermissionsView.swift - Permission card title for location
         public static let title = L10n.tr("Onboarding", "permissions.location.title", fallback: "Location")
       }
@@ -2548,7 +2558,7 @@ public enum L10n {
       }
       public enum Notifications {
         /// Location: PermissionsView.swift - Permission card description for notifications
-        public static let description = L10n.tr("Onboarding", "permissions.notifications.description", fallback: "Get notified about messages, reactions, and low-battery alerts — even when the app isn't open.")
+        public static let description = L10n.tr("Onboarding", "permissions.notifications.description", fallback: "Get alerts for new messages and low battery, even when the app is closed.")
         /// Location: PermissionsView.swift - Permission card title for notifications
         public static let title = L10n.tr("Onboarding", "permissions.notifications.title", fallback: "Notifications")
       }
@@ -2675,7 +2685,7 @@ public enum L10n {
       /// Location: WelcomeView.swift - Button to proceed to next onboarding step
       public static let getStarted = L10n.tr("Onboarding", "welcome.getStarted", fallback: "Get Started")
       /// Location: WelcomeView.swift - Subtitle describing the app
-      public static let subtitle = L10n.tr("Onboarding", "welcome.subtitle", fallback: "No cell service needed. Your messages travel through a community radio network.")
+      public static let subtitle = L10n.tr("Onboarding", "welcome.subtitle", fallback: "Send messages through a community built network, even without internet.")
       /// Location: WelcomeView.swift - App title displayed on welcome screen
       public static let title = L10n.tr("Onboarding", "welcome.title", fallback: "MeshCore One")
     }
@@ -3320,6 +3330,8 @@ public enum L10n {
           return L10n.tr("RemoteNodes", "remoteNodes.status.uptimeMinutes", p1, fallback: "%dm")
         }
         public enum Accessibility {
+          /// Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for neighbors
+          public static let reloadNeighbors = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadNeighbors", fallback: "Reload neighbors")
           /// Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for owner info
           public static let reloadOwnerInfo = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadOwnerInfo", fallback: "Reload contact info")
           /// Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for the status counters
@@ -4402,12 +4414,12 @@ public enum L10n {
           return L10n.tr("Settings", "nodes.staleCleanup.days", p1, fallback: "%d days")
         }
         /// Footer describing the auto-remove feature (shown when toggle is off)
-        public static let footerDisabled = L10n.tr("Settings", "nodes.staleCleanup.footerDisabled", fallback: "Automatically removes non-favorite nodes that haven't been heard from after a set period. Favorites are never removed.")
+        public static let footerDisabled = L10n.tr("Settings", "nodes.staleCleanup.footerDisabled", fallback: "Automatically removes non-favorite nodes that haven't been modified within a set period. Favorites are never removed.")
         /// Footer when enabled but device is disconnected
         public static let footerDisconnected = L10n.tr("Settings", "nodes.staleCleanup.footerDisconnected", fallback: "Will check for old nodes on next connection. Favorites are never removed.")
         /// Footer when auto-remove is enabled (%d = day count)
         public static func footerEnabled(_ p1: Int) -> String {
-          return L10n.tr("Settings", "nodes.staleCleanup.footerEnabled", p1, fallback: "Non-favorite nodes not heard from in %d days are automatically removed on connection.")
+          return L10n.tr("Settings", "nodes.staleCleanup.footerEnabled", p1, fallback: "Non-favorite nodes not modified within %d days are automatically removed on connection.")
         }
         /// Footer when toggle is on but no threshold selected yet
         public static let footerSelect = L10n.tr("Settings", "nodes.staleCleanup.footerSelect", fallback: "Choose how long to keep nodes. Favorites are never removed.")

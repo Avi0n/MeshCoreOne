@@ -35,7 +35,6 @@ struct ChatsStackRootContent: View {
         )
         .modifier(ChatsListModifiers(
             viewModel: viewModel,
-            isSidebar: false,
             searchText: $searchText,
             showingNewChat: $showingNewChat,
             showingChannelOptions: $showingChannelOptions,

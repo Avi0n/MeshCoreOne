@@ -178,4 +178,3 @@ private struct TracePathResultsBanner: View {
         .animation(.spring(response: 0.3), value: result.id)
     }
 }
-

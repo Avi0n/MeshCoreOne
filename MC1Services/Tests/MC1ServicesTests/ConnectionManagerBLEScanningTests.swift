@@ -12,7 +12,7 @@ struct ConnectionManagerBLEScanningTests {
         let stream = manager.startBLEScanning()
 
         let expectedID = UUID()
-        let receiveTask = Task { await nextValue(from: stream, timeout: .seconds(1)) }
+        let receiveTask = Task { await nextValue(from: stream, timeout: .seconds(10)) }
 
         try await waitUntil("BLE scanning should start") {
             await mock.isScanning

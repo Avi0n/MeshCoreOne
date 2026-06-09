@@ -1,63 +1,67 @@
-import MapKit
 import SwiftUI
 
-/// Shared toolbar for map control buttons with liquid glass styling.
-/// Provides location and layers buttons with slots for top and bottom custom content.
-struct MapControlsToolbar<TopContent: View, CustomContent: View>: View {
-    /// MapScope for SwiftUI Map's MapUserLocationButton. Mutually exclusive with onLocationTap.
-    var mapScope: Namespace.ID?
+/// Shared liquid-glass toolbar hosting the controls every interactive map uses
+/// (north lock, location, layers, labels) plus a slot for one map-specific button.
+struct MapControlsToolbar<TrailingContent: View>: View {
+    /// Centers the map on the user's location.
+    var onLocationTap: () -> Void
 
-    /// Custom action for location button. Used when MapScope isn't available (e.g., MapLibre views).
-    var onLocationTap: (() -> Void)?
+    @Binding var isNorthLocked: Bool
+    @Binding var showLabels: Bool
 
-    /// Binding to control layers menu visibility. Parent view handles menu presentation.
+    /// Controls layers menu visibility. Parent view handles menu presentation.
     @Binding var showingLayersMenu: Bool
 
-    /// Custom buttons to display above the standard buttons.
-    @ViewBuilder var topContent: () -> TopContent
-
-    /// Custom buttons to display below the standard buttons.
-    @ViewBuilder var customContent: () -> CustomContent
+    /// One map-specific button shown below the standard controls.
+    @ViewBuilder var trailingContent: () -> TrailingContent
 
     var body: some View {
         VStack(spacing: 0) {
-            CustomContentStack {
-                topContent()
-            }
+            northLockButton
+
+            Divider()
+                .frame(width: MapToolbarLayout.dividerWidth)
 
             locationButton
 
             Divider()
-                .frame(width: 36)
+                .frame(width: MapToolbarLayout.dividerWidth)
 
             layersButton
 
+            Divider()
+                .frame(width: MapToolbarLayout.dividerWidth)
+
+            labelsButton
+
             CustomContentStack {
-                customContent()
+                trailingContent()
             }
         }
-        .liquidGlass(in: .rect(cornerRadius: 8))
+        .liquidGlass(in: .rect(cornerRadius: MapToolbarLayout.cornerRadius))
         .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
         .padding()
     }
 
+    // MARK: - North Lock Button
+
+    private var northLockButton: some View {
+        Button(
+            isNorthLocked ? L10n.Map.Map.Controls.unlockNorth : L10n.Map.Map.Controls.lockNorth,
+            systemImage: isNorthLocked ? "location.north.line.fill" : "location.north.line"
+        ) {
+            withAnimation {
+                isNorthLocked.toggle()
+            }
+        }
+        .mapControlButton(tint: isNorthLocked ? .blue : .primary)
+    }
+
     // MARK: - Location Button
 
-    @ViewBuilder
     private var locationButton: some View {
-        if let mapScope {
-            MapUserLocationButton(scope: mapScope)
-                .frame(width: 44, height: 44)
-                .contentShape(.rect)
-        } else if let onLocationTap {
-            Button(L10n.Map.Map.Controls.centerOnMyLocation, systemImage: "location.fill", action: onLocationTap)
-                .font(.body.weight(.medium))
-                .foregroundStyle(.primary)
-                .frame(width: 44, height: 44)
-                .contentShape(.rect)
-                .buttonStyle(.plain)
-                .labelStyle(.iconOnly)
-        }
+        Button(L10n.Map.Map.Controls.centerOnMyLocation, systemImage: "location.fill", action: onLocationTap)
+            .mapControlButton(tint: .primary)
     }
 
     // MARK: - Layers Button
@@ -68,33 +72,34 @@ struct MapControlsToolbar<TopContent: View, CustomContent: View>: View {
                 showingLayersMenu.toggle()
             }
         }
-        .font(.body.weight(.medium))
-        .foregroundStyle(.primary)
-        .frame(width: 44, height: 44)
-        .contentShape(.rect)
-        .buttonStyle(.plain)
-        .labelStyle(.iconOnly)
+        .mapControlButton(tint: .primary)
+    }
+
+    // MARK: - Labels Button
+
+    private var labelsButton: some View {
+        Button(
+            showLabels ? L10n.Map.Map.Controls.hideLabels : L10n.Map.Map.Controls.showLabels,
+            systemImage: "character.textbox"
+        ) {
+            withAnimation {
+                showLabels.toggle()
+            }
+        }
+        .mapControlButton(tint: showLabels ? .blue : .primary)
     }
 }
 
-extension MapControlsToolbar where TopContent == EmptyView {
-    init(
-        mapScope: Namespace.ID? = nil,
-        onLocationTap: (() -> Void)? = nil,
-        showingLayersMenu: Binding<Bool>,
-        @ViewBuilder customContent: @escaping () -> CustomContent
-    ) {
-        self.mapScope = mapScope
-        self.onLocationTap = onLocationTap
-        self._showingLayersMenu = showingLayersMenu
-        self.topContent = { EmptyView() }
-        self.customContent = customContent
-    }
+// MARK: - Layout
+
+private enum MapToolbarLayout {
+    static let dividerWidth: CGFloat = 36
+    static let cornerRadius: CGFloat = 8
 }
 
 // MARK: - Custom Content Stack
 
-/// Wraps custom content and inserts dividers before each child view.
+/// Wraps trailing content and inserts a divider before each child view.
 private struct CustomContentStack<Content: View>: View {
     @ViewBuilder var content: Content
 
@@ -102,7 +107,7 @@ private struct CustomContentStack<Content: View>: View {
         Group(subviews: content) { subviews in
             ForEach(subviews) { subview in
                 Divider()
-                    .frame(width: 36)
+                    .frame(width: MapToolbarLayout.dividerWidth)
                 subview
             }
         }

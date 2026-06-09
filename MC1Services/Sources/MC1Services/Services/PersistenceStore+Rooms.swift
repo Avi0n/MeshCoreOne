@@ -444,7 +444,10 @@ extension PersistenceStore {
         }
         var descriptor = FetchDescriptor(
             predicate: predicate,
-            sortBy: [SortDescriptor(\RoomMessage.timestamp, order: .forward)]
+            sortBy: [
+                SortDescriptor(\RoomMessage.timestamp, order: .forward),
+                SortDescriptor(\RoomMessage.createdAt, order: .forward)
+            ]
         )
         if let limit {
             descriptor.fetchLimit = limit

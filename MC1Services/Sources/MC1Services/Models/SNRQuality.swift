@@ -13,10 +13,7 @@ public enum SNRQuality: Sendable, Equatable {
             self = .unknown
             return
         }
-        if snr > 6 { self = .excellent }
-        else if snr > 0 { self = .good }
-        else if snr > -6 { self = .fair }
-        else { self = .poor }
+        if snr > 6 { self = .excellent } else if snr > 0 { self = .good } else if snr > -6 { self = .fair } else { self = .poor }
     }
 
     /// Bar level for SF Symbol `cellularbars` variableValue (0–1).

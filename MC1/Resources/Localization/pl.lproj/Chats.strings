@@ -99,7 +99,10 @@
 
 // MARK: - Message Timestamps
 
-/* Location: MessageTimestampView.swift - Prefix for yesterday's date */
+/* Location: MessageDayDividerView.swift - Label for today's date in the chat day separator */
+"chats.timestamp.today" = "Dzisiaj";
+
+/* Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator */
 "chats.timestamp.yesterday" = "Wczoraj";
 
 /* Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old */
@@ -119,14 +122,16 @@
 /* Location: ScrollToBottomButton.swift - Accessibility label for scroll to bottom button */
 "chats.scrollButton.scrollToBottom.accessibilityLabel" = "Przewiń do najnowszej wiadomości";
 
+/* Location: ScrollToBottomButton.swift - Accessibility value for unread message count - %d is the number of unread messages */
+"chats.scrollButton.scrollToBottom.accessibilityValue" = "%d nieprzeczytanych wiadomości";
 /* Location: ScrollToMentionButton.swift, ScrollToBottomButton.swift - Badge text for 99+ unread */
 "chats.scrollButton.badge.overflow" = "99+";
 
 /* Location: ScrollToDividerButton.swift - Accessibility label for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityLabel" = "Scroll to new messages";
+"chats.scrollButton.scrollToDivider.accessibilityLabel" = "Przewiń do nowych wiadomości";
 
 /* Location: ScrollToDividerButton.swift - Accessibility hint for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityHint" = "Double-tap to scroll to the new messages divider";
+"chats.scrollButton.scrollToDivider.accessibilityHint" = "Stuknij dwukrotnie, aby przewinąć do separatora nowych wiadomości";
 
 // MARK: - Chat View (Direct Messages)
 
@@ -246,7 +251,7 @@
 "chats.error.servicesUnavailable" = "Usługi niedostępne";
 
 /* TODO: translate - Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
-"chats.error.notConnectedToDelete" = "Connect to your radio to delete this conversation.";
+"chats.error.notConnectedToDelete" = "Połącz się z radiem, aby usunąć tę rozmowę.";
 
 /* Location: ChatConversationView.swift - Error when loading older messages fails */
 "chats.error.loadOlderMessagesFailed" = "Nie udało się załadować starszych wiadomości";
@@ -258,7 +263,7 @@
 "chats.error.sendQueuePersistFailed" = "Nie udało się dodać wiadomości do kolejki. Spróbuj ponownie.";
 
 /* TODO: translate - Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
-"chats.error.loadConversationsFailed" = "Couldn't load conversations. Pull to retry.";
+"chats.error.loadConversationsFailed" = "Nie udało się załadować rozmów.";
 
 // MARK: - Channel Options Sheet
 
@@ -964,10 +969,10 @@
 // MARK: - Tips
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip title introducing device menu */
-"chats.tip.deviceMenu.title" = "Your Device Menu";
+"chats.tip.deviceMenu.title" = "Menu urządzenia";
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
-"chats.tip.deviceMenu.message" = "Manage your connection, send advertisements, and check battery. Bluetooth devices stay connected even if the app is closed — tap Disconnect when you're ready to turn off the link.";
+"chats.tip.deviceMenu.message" = "Zarządzaj połączeniem, wysyłaj ogłoszenia i sprawdzaj baterię. Radio pozostaje połączone nawet po wymuszonym zamknięciu aplikacji. Dotknij Rozłącz, aby wyłączyć łącze.";
 
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Obraz";
@@ -982,10 +987,10 @@
 "chats.inlineImage.tapHint" = "Stuknij dwukrotnie, aby wyświetlić na pełnym ekranie";
 
 /* Location: UnifiedMessageBubble.swift - Tap to retry loading failed image */
-"chats.inlineImage.tapToRetry" = "Tap to retry";
+"chats.inlineImage.tapToRetry" = "Dotknij, aby spróbować ponownie";
 
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for retry button */
-"chats.inlineImage.retryHint" = "Double tap to retry loading image";
+"chats.inlineImage.retryHint" = "Stuknij dwukrotnie, aby ponownie spróbować załadować obraz";
 
 /* Location: InlineImageFragmentView.swift - VoiceOver identity for a failed inline image */
 "chats.inlineImage.failedLabel" = "Nie udało się załadować obrazu";
@@ -1115,10 +1120,10 @@
 "chats.channelInfo.region.notConfigured" = "Not configured";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Explanation shown when no regions exist */
-"chats.channelInfo.region.explanation" = "Limit messages to a geographic area";
+"chats.channelInfo.region.explanation" = "Ogranicz wiadomości do obszaru geograficznego";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Discover button */
-"chats.channelInfo.region.discover" = "Discover Nearby Regions";
+"chats.channelInfo.region.discover" = "Odkryj pobliskie regiony";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Discover button loading state */
 "chats.channelInfo.region.discovering" = "Discovering…";
@@ -1127,7 +1132,7 @@
 "chats.channelInfo.region.manage" = "Regions";
 
 /* Location: RegionManagementView.swift - Purpose: Manage regions link */
-"chats.channelInfo.region.manageRegions" = "Manage Regions";
+"chats.channelInfo.region.manageRegions" = "Zarządzaj regionami";
 
 /* Location: RegionManagementView.swift - Purpose: Add manually button */
 "chats.channelInfo.region.addManually" = "Add Manually";
@@ -1136,7 +1141,7 @@
 "chats.channelInfo.region.noRegions" = "No regions added";
 
 /* Location: RegionManagementView.swift - Purpose: Empty state description */
-"chats.channelInfo.region.noRegionsDescription" = "Discover regions from nearby repeaters or add them manually.";
+"chats.channelInfo.region.noRegionsDescription" = "Odkryj regiony z pobliskich przekaźników lub dodaj je ręcznie.";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: No new regions found */
 "chats.channelInfo.region.noNewRegions" = "No new regions found";
@@ -1145,10 +1150,10 @@
 "chats.channelInfo.region.noRepeatersResponded" = "No repeaters responded";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Couldn't load nearby repeater list */
-"chats.channelInfo.region.errLoadingRepeaters" = "Couldn't load nearby repeaters";
+"chats.channelInfo.region.errLoadingRepeaters" = "Nie udało się załadować pobliskich przekaźników";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Some queries failed because radio contact list is full */
-"chats.channelInfo.region.errRadioContactsFull" = "Radio contact list is full — some repeaters could not be queried";
+"chats.channelInfo.region.errRadioContactsFull" = "Lista kontaktów radia jest pełna — niektórych przekaźników nie udało się odpytać";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: Add selected regions button */
 "chats.channelInfo.region.addSelected" = "Add";
@@ -1160,19 +1165,19 @@
 "chats.channelInfo.region.addRegionPlaceholder" = "Region name";
 
 /* Location: AddRegionView.swift - Purpose: Validation error */
-"chats.channelInfo.region.invalidName" = "Region names can only contain letters, numbers, and hyphens.";
+"chats.channelInfo.region.invalidName" = "Nazwy regionów mogą zawierać tylko litery, cyfry i myślniki.";
 
 /* Location: RegionManagementView.swift - Purpose: Validation error when a region name exceeds the firmware byte cap */
-"chats.channelInfo.region.nameTooLong" = "Region names are limited to %d bytes.";
+"chats.channelInfo.region.nameTooLong" = "Nazwy regionów są ograniczone do %d bajtów.";
 
 /* Location: AddRegionView.swift - Purpose: Duplicate error */
-"chats.channelInfo.region.duplicate" = "This region is already in your list.";
+"chats.channelInfo.region.duplicate" = "Ten region jest już na Twojej liście.";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Private region label */
 "chats.channelInfo.region.private" = "Private";
 
 /* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle */
-"chats.channelInfo.region.scopedAccessibility" = "%@, scoped to %@";
+"chats.channelInfo.region.scopedAccessibility" = "%@, ograniczony do %@";
 
 /* Location: ChatConversationType.swift - Purpose: Subtitle suffix when channel region matches the device default flood scope */
 "chats.channelInfo.region.scopedDefault" = "%@ (domyślny)";
@@ -1194,13 +1199,13 @@
 "chats.mention.picker.notSavedTitle" = "Not a saved contact";
 
 /* TODO: translate - Location: ChatConversationView.swift - Mention picker description when the tapped name matches no saved contact */
-"chats.mention.picker.notSavedSubtitle" = "@%@ doesn't match any contact on this radio.";
+"chats.mention.picker.notSavedSubtitle" = "@%@ nie pasuje do żadnego kontaktu na tym radiu.";
 
 /* TODO: translate - Location: ChatConversationView.swift - Mention picker title when the tapped name is the user's own node */
-"chats.mention.picker.selfTitle" = "That's you";
+"chats.mention.picker.selfTitle" = "To Ty";
 
 /* TODO: translate - Location: ChatConversationView.swift - Mention picker description when the tapped name is the user's own node */
-"chats.mention.picker.selfSubtitle" = "@%@ is your own node name.";
+"chats.mention.picker.selfSubtitle" = "@%@ to nazwa Twojego własnego węzła.";
 
 /* TODO: translate - Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
 "chats.mention.picker.matchingContacts" = "Matching contacts";

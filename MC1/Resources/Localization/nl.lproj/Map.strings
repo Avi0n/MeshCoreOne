@@ -56,7 +56,7 @@
 "map.style.requiresNetwork" = "Requires network connection";
 
 /* Location: LayersMenu.swift - Purpose: Hint when no offline pack covers viewport */
-"map.style.noOfflineCoverage" = "No offline map covers this area";
+"map.style.noOfflineCoverage" = "Geen offlinekaart dekt dit gebied";
 
 // MARK: - Contact Detail Sheet
 
@@ -181,4 +181,4 @@
 "map.preview.accessibilityHint" = "Opent deze locatie op de kaart";
 
 /* TODO: translate - Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback */
-"map.preview.retryButton.accessibilityLabel" = "Retry loading map thumbnail";
+"map.preview.retryButton.accessibilityLabel" = "Kaartminiatuur opnieuw laden";

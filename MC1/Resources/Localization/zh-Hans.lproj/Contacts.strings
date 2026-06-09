@@ -449,7 +449,7 @@
 "contacts.add.pasteURL" = "Paste Contact URL";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL section footer */
-"contacts.add.pasteURLFooter" = "Paste a meshcore:// contact link to auto-fill the fields above";
+"contacts.add.pasteURLFooter" = "粘贴 meshcore:// 联系人链接以自动填写上面的字段";
 
 /* Location: AddContactSheet.swift - Purpose: Invalid paste URL error */
 "contacts.add.error.invalidURL" = "Clipboard does not contain a valid contact URL";
@@ -510,7 +510,7 @@
 "contacts.scan.error.invalidKey" = "无效的二维码：无效的公钥";
 
 /* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
-"contacts.scan.error.importFailed" = "Failed to import contact: %@";
+"contacts.scan.error.importFailed" = "导入联系人失败：%@";
 
 // MARK: - Discovery View
 
@@ -628,7 +628,7 @@
 "contacts.pathEdit.directRouting.confirm.title" = "保存为直连路由?";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name */
-"contacts.pathEdit.directRouting.confirm.message" = "发往 %@ 的消息将直接发送,不通过任何中继器。仅当 %@ 是 1 跳邻居时使用。";
+"contacts.pathEdit.directRouting.confirm.message" = "发往 %@ 的消息将直接发送,不通过任何中继器。仅当 %@ 是直连(0 跳)邻居时使用。";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation confirm label */
 "contacts.pathEdit.directRouting.confirm.confirm" = "保存为直连";
@@ -1158,7 +1158,7 @@
 "contacts.viewModel.connectToDelete" = "连接到无线电以删除节点";
 
 /* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
-"contacts.viewModel.removeTimedOut" = "Deleting the node timed out. Try again.";
+"contacts.viewModel.removeTimedOut" = "删除节点超时。请重试。";
 
 // MARK: - Path Management ViewModel Errors
 

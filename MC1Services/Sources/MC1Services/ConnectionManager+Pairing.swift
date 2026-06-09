@@ -408,8 +408,7 @@ extension ConnectionManager {
         let updated = device.copy { $0.knownRegions.append(region) }
         connectedDevice = updated
         Task {
-            do { try await services?.dataStore.addDeviceKnownRegion(radioID: updated.radioID, region: region) }
-            catch { logger.error("Failed to add known region: \(error)") }
+            do { try await services?.dataStore.addDeviceKnownRegion(radioID: updated.radioID, region: region) } catch { logger.error("Failed to add known region: \(error)") }
             await services?.rxLogService.updateKnownRegions(updated.knownRegions)
         }
     }

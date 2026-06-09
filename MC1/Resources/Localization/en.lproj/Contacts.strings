@@ -628,7 +628,7 @@
 "contacts.pathEdit.directRouting.confirm.title" = "Save as direct routing?";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name */
-"contacts.pathEdit.directRouting.confirm.message" = "Messages to %@ will be sent directly without relaying through any repeater. Use this only if %@ is a 1-hop neighbor.";
+"contacts.pathEdit.directRouting.confirm.message" = "Messages to %@ will be sent directly without relaying through any repeater. Use this only if %@ is a direct (0-hop) neighbor.";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation confirm label */
 "contacts.pathEdit.directRouting.confirm.confirm" = "Save as Direct";

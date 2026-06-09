@@ -168,7 +168,7 @@ public enum RadioPresets {
         RadioPreset(id: "eu-narrow", name: "EU/UK (Narrow)", region: .europe,
                     frequencyMHz: 869.618, bandwidthKHz: 62.5, spreadingFactor: 8, codingRate: 8,
                     availability: .continent(.europe), recommendationPriority: 110),
-        RadioPreset(id: "eu-lr", name: "EU/UK (Long Range)", region: .europe,
+        RadioPreset(id: "eu-lr", name: "EU/UK (Deprecated)", region: .europe,
                     frequencyMHz: 869.525, bandwidthKHz: 250, spreadingFactor: 11, codingRate: 5,
                     availability: .continent(.europe)),
         RadioPreset(id: "cz-narrow", name: "Czech Republic (Narrow)", region: .europe,
@@ -189,6 +189,9 @@ public enum RadioPresets {
         RadioPreset(id: "ch", name: "Switzerland", region: .europe,
                     frequencyMHz: 869.618, bandwidthKHz: 62.5, spreadingFactor: 8, codingRate: 8,
                     availability: .countries(["CH"])),
+        RadioPreset(id: "nl", name: "Netherlands", region: .europe,
+                    frequencyMHz: 869.618, bandwidthKHz: 62.5, spreadingFactor: 7, codingRate: 5,
+                    availability: .countries(["NL"]), recommendationPriority: 110),
 
         // North America
         RadioPreset(id: "us-ca", name: "USA/Canada", region: .northAmerica,
@@ -205,7 +208,7 @@ public enum RadioPresets {
         RadioPreset(id: "vn-narrow", name: "Vietnam (Narrow)", region: .asia,
                     frequencyMHz: 920.250, bandwidthKHz: 62.5, spreadingFactor: 8, codingRate: 5,
                     availability: .countries(["VN"]), recommendationPriority: 110),
-        RadioPreset(id: "vn", name: "Vietnam", region: .asia,
+        RadioPreset(id: "vn", name: "Vietnam (Deprecated)", region: .asia,
                     frequencyMHz: 920.250, bandwidthKHz: 250, spreadingFactor: 11, codingRate: 5,
                     availability: .countries(["VN"])),
     ]
@@ -345,6 +348,22 @@ public enum RadioPresets {
             if case .continent(let r) = preset.availability { return r == continent }
             return false
         }
+    }
+
+    /// Whether `preset` should appear in a manual picker for `region`. Only county-scoped presets are
+    /// gated: they appear only when `region` resolves to one of their counties (a nil region hides them).
+    /// Every other tier is always selectable.
+    public static func isSelectable(_ preset: RadioPreset, in region: RegionSelection?) -> Bool {
+        guard case .counties(let country, let state, let keys) = preset.availability else {
+            return true
+        }
+        guard let region,
+              region.countryCode == country,
+              region.administrativeAreaCode == state,
+              let countyKey = region.countyKey else {
+            return false
+        }
+        return keys.contains(countyKey)
     }
 }
 

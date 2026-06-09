@@ -665,7 +665,6 @@ public actor RemoteNodeService {
                             logger.error("Failed to persist disconnected state for session \(sessionID): \(error)")
                         }
                         await sessionStateChangedHandler?(sessionID, false)
-                        break
                     }
                     if action.shouldExitLoop { break }
                 }

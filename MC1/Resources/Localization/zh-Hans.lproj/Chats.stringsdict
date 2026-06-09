@@ -16,5 +16,37 @@
             <string>%d 条未读提及</string>
         </dict>
     </dict>
+    <key>chats.unreadMentions.accessibilityValue</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>zero</key>
+            <string>无未读提及</string>
+            <key>other</key>
+            <string>%d 条未读提及</string>
+        </dict>
+    </dict>
+    <key>chats.unreadMessages.accessibilityValue</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>zero</key>
+            <string>无未读消息</string>
+            <key>other</key>
+            <string>%d 条未读消息</string>
+        </dict>
+    </dict>
 </dict>
 </plist>
