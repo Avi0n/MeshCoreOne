@@ -2534,7 +2534,7 @@ public enum L10n {
       public static let title = L10n.tr("Onboarding", "permissions.title", fallback: "A couple of permissions")
       public enum Location {
         /// Location: PermissionsView.swift - Permission card description for location
-        public static let description = L10n.tr("Onboarding", "permissions.location.description", fallback: "Suggest a recommended radio preset for your area, show your position on maps, and sort contacts by distance.")
+        public static let description = L10n.tr("Onboarding", "permissions.location.description", fallback: "Suggest local radio presets, show your position on the map, and sort contacts by distance.")
         /// Location: PermissionsView.swift - Permission card title for location
         public static let title = L10n.tr("Onboarding", "permissions.location.title", fallback: "Location")
       }
@@ -2548,7 +2548,7 @@ public enum L10n {
       }
       public enum Notifications {
         /// Location: PermissionsView.swift - Permission card description for notifications
-        public static let description = L10n.tr("Onboarding", "permissions.notifications.description", fallback: "Get notified about messages, reactions, and low-battery alerts — even when the app isn't open.")
+        public static let description = L10n.tr("Onboarding", "permissions.notifications.description", fallback: "Get alerts for new messages and low battery, even when the app is closed.")
         /// Location: PermissionsView.swift - Permission card title for notifications
         public static let title = L10n.tr("Onboarding", "permissions.notifications.title", fallback: "Notifications")
       }
@@ -2675,7 +2675,7 @@ public enum L10n {
       /// Location: WelcomeView.swift - Button to proceed to next onboarding step
       public static let getStarted = L10n.tr("Onboarding", "welcome.getStarted", fallback: "Get Started")
       /// Location: WelcomeView.swift - Subtitle describing the app
-      public static let subtitle = L10n.tr("Onboarding", "welcome.subtitle", fallback: "No cell service needed. Your messages travel through a community radio network.")
+      public static let subtitle = L10n.tr("Onboarding", "welcome.subtitle", fallback: "Send messages through a community built network, even without internet.")
       /// Location: WelcomeView.swift - App title displayed on welcome screen
       public static let title = L10n.tr("Onboarding", "welcome.title", fallback: "MeshCore One")
     }
@@ -4402,12 +4402,12 @@ public enum L10n {
           return L10n.tr("Settings", "nodes.staleCleanup.days", p1, fallback: "%d days")
         }
         /// Footer describing the auto-remove feature (shown when toggle is off)
-        public static let footerDisabled = L10n.tr("Settings", "nodes.staleCleanup.footerDisabled", fallback: "Automatically removes non-favorite nodes that haven't been heard from after a set period. Favorites are never removed.")
+        public static let footerDisabled = L10n.tr("Settings", "nodes.staleCleanup.footerDisabled", fallback: "Automatically removes non-favorite nodes that haven't been modified within a set period. Favorites are never removed.")
         /// Footer when enabled but device is disconnected
         public static let footerDisconnected = L10n.tr("Settings", "nodes.staleCleanup.footerDisconnected", fallback: "Will check for old nodes on next connection. Favorites are never removed.")
         /// Footer when auto-remove is enabled (%d = day count)
         public static func footerEnabled(_ p1: Int) -> String {
-          return L10n.tr("Settings", "nodes.staleCleanup.footerEnabled", p1, fallback: "Non-favorite nodes not heard from in %d days are automatically removed on connection.")
+          return L10n.tr("Settings", "nodes.staleCleanup.footerEnabled", p1, fallback: "Non-favorite nodes not modified within %d days are automatically removed on connection.")
         }
         /// Footer when toggle is on but no threshold selected yet
         public static let footerSelect = L10n.tr("Settings", "nodes.staleCleanup.footerSelect", fallback: "Choose how long to keep nodes. Favorites are never removed.")

@@ -13,7 +13,7 @@
 "welcome.title" = "MeshCore One";
 
 /* Location: WelcomeView.swift - Subtitle describing the app */
-"welcome.subtitle" = "无需手机信号。您的消息通过社区无线电网络传递。";
+"welcome.subtitle" = "即使没有互联网，也能通过社区搭建的网络发送消息。";
 
 /* Location: WelcomeView.swift - Button to proceed to next onboarding step */
 "welcome.getStarted" = "开始使用";
@@ -30,13 +30,13 @@
 "permissions.notifications.title" = "通知";
 
 /* Location: PermissionsView.swift - Permission card description for notifications */
-"permissions.notifications.description" = "接收消息、反应和低电量提醒——即使应用未打开。";
+"permissions.notifications.description" = "在有新消息和电量不足时提醒您，即使应用已关闭。";
 
 /* Location: PermissionsView.swift - Permission card title for location */
 "permissions.location.title" = "位置";
 
 /* Location: PermissionsView.swift - Permission card description for location */
-"permissions.location.description" = "为您所在地区推荐无线电预设、在地图上显示您的位置，并按距离排列联系人。";
+"permissions.location.description" = "推荐本地无线电预设、在地图上显示您的位置，并按距离排列联系人。";
 
 /* Location: PermissionsView.swift - Button when all permissions granted */
 "permissions.continue" = "继续";

@@ -29,39 +29,47 @@ struct PermissionsView: View {
             }
             .padding(.top, OnboardingMetrics.headerTopPadding)
 
-            Spacer()
+            GeometryReader { proxy in
+                ScrollView {
+                    VStack(spacing: 0) {
+                        Spacer(minLength: 0)
 
-            LiquidGlassContainer(spacing: OnboardingMetrics.contentPadding) {
-                VStack(spacing: OnboardingMetrics.cardSpacing) {
-                    PermissionCard(
-                        icon: "bell.fill",
-                        title: L10n.Onboarding.Permissions.Notifications.title,
-                        description: L10n.Onboarding.Permissions.Notifications.description,
-                        isGranted: coordinator.notificationAuthorization == .authorized,
-                        isDenied: coordinator.notificationAuthorization == .denied,
-                        action: coordinator.requestNotifications
-                    )
+                        LiquidGlassContainer(spacing: OnboardingMetrics.contentPadding) {
+                            VStack(spacing: OnboardingMetrics.cardSpacing) {
+                                PermissionCard(
+                                    icon: "bell.fill",
+                                    title: L10n.Onboarding.Permissions.Notifications.title,
+                                    description: L10n.Onboarding.Permissions.Notifications.description,
+                                    isGranted: coordinator.notificationAuthorization == .authorized,
+                                    isDenied: coordinator.notificationAuthorization == .denied,
+                                    action: coordinator.requestNotifications
+                                )
 
-                    PermissionCard(
-                        icon: "location.fill",
-                        title: L10n.Onboarding.Permissions.Location.title,
-                        description: L10n.Onboarding.Permissions.Location.description,
-                        isGranted: coordinator.locationAuthorization == .authorizedWhenInUse
-                                  || coordinator.locationAuthorization == .authorizedAlways,
-                        isDenied: coordinator.locationAuthorization == .denied,
-                        action: {
-                            if coordinator.locationAuthorization == .denied {
-                                showingLocationAlert = true
-                            } else {
-                                coordinator.requestLocation()
+                                PermissionCard(
+                                    icon: "location.fill",
+                                    title: L10n.Onboarding.Permissions.Location.title,
+                                    description: L10n.Onboarding.Permissions.Location.description,
+                                    isGranted: coordinator.locationAuthorization == .authorizedWhenInUse
+                                              || coordinator.locationAuthorization == .authorizedAlways,
+                                    isDenied: coordinator.locationAuthorization == .denied,
+                                    action: {
+                                        if coordinator.locationAuthorization == .denied {
+                                            showingLocationAlert = true
+                                        } else {
+                                            coordinator.requestLocation()
+                                        }
+                                    }
+                                )
                             }
                         }
-                    )
-                }
-            }
-            .padding(.horizontal)
+                        .padding(.horizontal)
 
-            Spacer()
+                        Spacer(minLength: 0)
+                    }
+                    .frame(minHeight: proxy.size.height)
+                }
+                .scrollBounceBehavior(.basedOnSize)
+            }
 
             Button {
                 appState.onboarding.onboardingPath.append(.pair)

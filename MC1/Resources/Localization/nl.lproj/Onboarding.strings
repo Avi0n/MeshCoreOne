@@ -13,7 +13,7 @@
 "welcome.title" = "MeshCore One";
 
 /* Location: WelcomeView.swift - Subtitle describing the app */
-"welcome.subtitle" = "Geen mobiel netwerk nodig. Je berichten reizen via een community radionetwerk.";
+"welcome.subtitle" = "Verstuur berichten via een door de community gebouwd netwerk, zelfs zonder internet.";
 
 /* Location: WelcomeView.swift - Button to proceed to next onboarding step */
 "welcome.getStarted" = "Aan de slag";
@@ -31,13 +31,13 @@
 "permissions.notifications.title" = "Meldingen";
 
 /* Location: PermissionsView.swift - Permission card description for notifications */
-"permissions.notifications.description" = "Ontvang meldingen over berichten, reacties en lage-batterijwaarschuwingen — ook als de app niet open is.";
+"permissions.notifications.description" = "Ontvang meldingen voor nieuwe berichten en lage batterij, ook als de app gesloten is.";
 
 /* Location: PermissionsView.swift - Permission card title for location */
 "permissions.location.title" = "Locatie";
 
 /* Location: PermissionsView.swift - Permission card description for location */
-"permissions.location.description" = "Stelt een aanbevolen radiopreset voor jouw gebied voor, toont je positie op kaarten en sorteert contacten op afstand.";
+"permissions.location.description" = "Stelt lokale radiopresets voor, toont je positie op de kaart en sorteert contacten op afstand.";
 
 /* Location: PermissionsView.swift - Button to proceed to next step */
 "permissions.continue" = "Doorgaan";
