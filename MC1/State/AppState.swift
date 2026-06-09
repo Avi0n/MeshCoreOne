@@ -475,6 +475,10 @@ public final class AppState {
             }
         }
 
+        // Seed the badge from persisted unread messages now that the callback is wired; otherwise
+        // badgeCount stays 0 until a message arrives or a chat opens and recomputes it.
+        await services.notificationService.updateBadgeCount()
+
         // Configure notification interaction handlers
         configureNotificationHandlers()
 
