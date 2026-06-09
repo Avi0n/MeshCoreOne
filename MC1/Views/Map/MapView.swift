@@ -38,9 +38,12 @@ struct MapView: View {
                 appState.locationService.requestLocation()
                 viewModel.configure(appState: appState)
                 await viewModel.loadContactsWithLocation()
-                // A pending or active chat-coordinate focus owns the camera; do not
-                // override it with the all-contacts framing on first appear.
-                if appState.navigation.pendingMapFocus == nil && viewModel.focusedPin == nil {
+                // Frame all contacts only on a cold open. A focus or contact target aims the camera
+                // and clears its nav flag synchronously before this await resolves, so a non-nil
+                // camera region is the load-bearing signal that a target already owns the framing.
+                if appState.navigation.pendingMapFocus == nil
+                    && viewModel.focusedPin == nil
+                    && viewModel.cameraRegion == nil {
                     viewModel.centerOnAllContacts()
                 }
             }
@@ -48,6 +51,11 @@ struct MapView: View {
                 guard let request else { return }
                 viewModel.focusOnCoordinate(request.coordinate)
                 appState.navigation.clearPendingMapFocus()
+            }
+            .onChange(of: appState.navigation.pendingMapContact, initial: true) { _, contact in
+                guard let contact else { return }
+                viewModel.centerOnContact(contact)
+                appState.navigation.clearPendingMapContact()
             }
             .sheet(item: $selectedContactForDetail) { contact in
                 ContactDetailSheet(

@@ -70,6 +70,10 @@ public final class NavigationCoordinator {
     /// Coordinate the Map tab should drop a pin on and center, set by a chat coordinate tap.
     var pendingMapFocus: MapFocusRequest?
 
+    /// Contact the Map tab should center on (the node's own marker, not a dropped pin), set by a
+    /// contact-detail map tap. Held in memory only like `selectedContact` — it carries identity-bearing data.
+    var pendingMapContact: ContactDTO?
+
     /// Pending contact-add confirmation triggered by a `meshcore://contact/add` link tap inside any chat surface.
     var pendingContactLink: MeshCoreURLParser.ContactResult?
 
@@ -124,6 +128,11 @@ public final class NavigationCoordinator {
         selectedTab = AppTab.map.rawValue
     }
 
+    func navigateToMap(contact: ContactDTO) {
+        pendingMapContact = contact
+        selectedTab = AppTab.map.rawValue
+    }
+
     func clearPendingNavigation() {
         pendingChatContact = nil
     }
@@ -154,6 +163,10 @@ public final class NavigationCoordinator {
 
     func clearPendingMapFocus() {
         pendingMapFocus = nil
+    }
+
+    func clearPendingMapContact() {
+        pendingMapContact = nil
     }
 
     func clearPendingContactLink() {
