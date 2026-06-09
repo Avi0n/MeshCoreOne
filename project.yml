@@ -23,7 +23,7 @@ packages:
     from: 1.5.0
   MapLibre:
     url: https://github.com/maplibre/maplibre-gl-native-distribution
-    from: 6.23.0
+    exactVersion: 6.25.1
 
 targets:
   MC1:
@@ -64,9 +64,9 @@ targets:
         basedOnDependencyAnalysis: false
     settings:
       base:
-        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        MARKETING_VERSION: 0.11.0
+        MARKETING_VERSION: 1.0.0
         CURRENT_PROJECT_VERSION: 1
         VERSIONING_SYSTEM: apple-generic
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -75,7 +75,9 @@ targets:
           - bluetooth-central
         NSBluetoothAlwaysUsageDescription: "MeshCore One uses Bluetooth to maintain connections with MeshCore radios, even in the background, so you can send and receive messages without opening the app."
         NSBluetoothPeripheralUsageDescription: "MeshCore One uses Bluetooth to connect to MeshCore radios."
-        NSLocationWhenInUseUsageDescription: "MeshCore One can share your location with contacts on the mesh network."
+        NSLocationWhenInUseUsageDescription: "MeshCore One uses your location to suggest a recommended radio preset for your area, show your position on maps, and sort contacts by distance. When you enable location sharing, MeshCore One also advertises your location to your mesh contacts."
+        NSAccessorySetupSupports:
+          - Bluetooth
         NSAccessorySetupKitSupports:
           - Bluetooth
         NSAccessorySetupBluetoothServices:
@@ -95,6 +97,7 @@ targets:
           - "T1000-E-BOOT"
           - "me25ls01-BOOT"
           - "NRF52 DK"
+          - "T-Impulse"
       configs:
         Debug:
           INFOPLIST_FILE: MC1/Info-Debug.plist
@@ -113,7 +116,7 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: MC1Tests/Info.plist
-        MARKETING_VERSION: 0.11.0
+        MARKETING_VERSION: 1.0.0
         CURRENT_PROJECT_VERSION: 1
         VERSIONING_SYSTEM: apple-generic
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/MC1.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MC1"
@@ -127,7 +130,7 @@ targets:
       - path: Shared
     settings:
       base:
-        MARKETING_VERSION: 0.11.0
+        MARKETING_VERSION: 1.0.0
         CURRENT_PROJECT_VERSION: 1
         VERSIONING_SYSTEM: apple-generic
         TARGETED_DEVICE_FAMILY: "1,2"

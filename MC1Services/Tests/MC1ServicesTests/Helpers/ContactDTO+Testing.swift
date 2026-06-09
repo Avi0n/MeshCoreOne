@@ -8,12 +8,12 @@ extension ContactDTO {
     ///
     /// Usage:
     /// ```
-    /// let contact = ContactDTO.testContact(deviceID: myDeviceID)
-    /// let repeater = ContactDTO.testContact(deviceID: myDeviceID, typeRawValue: ContactType.repeater.rawValue)
+    /// let contact = ContactDTO.testContact(radioID: myRadioID)
+    /// let repeater = ContactDTO.testContact(radioID: myRadioID, typeRawValue: ContactType.repeater.rawValue)
     /// ```
     static func testContact(
         id: UUID = UUID(),
-        deviceID: UUID = UUID(),
+        radioID: UUID = UUID(),
         publicKey: Data = Data(repeating: 0xAB, count: 32),
         name: String = "TestContact",
         typeRawValue: UInt8 = ContactType.chat.rawValue,
@@ -34,7 +34,7 @@ extension ContactDTO {
     ) -> ContactDTO {
         ContactDTO(
             id: id,
-            deviceID: deviceID,
+            radioID: radioID,
             publicKey: publicKey,
             name: name,
             typeRawValue: typeRawValue,

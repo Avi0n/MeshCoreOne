@@ -13,19 +13,7 @@
 "welcome.title" = "MeshCore One";
 
 /* Location: WelcomeView.swift - Subtitle describing the app */
-"welcome.subtitle" = "Een MeshCore-client voor Apple-apparaten";
-
-/* Location: WelcomeView.swift - Feature title for multi-hop routing */
-"welcome.feature.multiHop.title" = "Multi-hop routing";
-
-/* Location: WelcomeView.swift - Feature description for multi-hop routing */
-"welcome.feature.multiHop.description" = "Je bericht vindt zijn weg door het mesh";
-
-/* Location: WelcomeView.swift - Feature title for community network */
-"welcome.feature.community.title" = "Community-netwerk";
-
-/* Location: WelcomeView.swift - Feature description for community network */
-"welcome.feature.community.description" = "Netwerk gebouwd door gebruikers zoals jij";
+"welcome.subtitle" = "Verstuur berichten via een door de community gebouwd netwerk, zelfs zonder internet.";
 
 /* Location: WelcomeView.swift - Button to proceed to next onboarding step */
 "welcome.getStarted" = "Aan de slag";
@@ -34,31 +22,25 @@
 // MARK: - Permissions View
 
 /* Location: PermissionsView.swift - Screen title for permissions */
-"permissions.title" = "Machtigingen";
+"permissions.title" = "Even twee toestemmingen";
 
 /* Location: PermissionsView.swift - Subtitle encouraging notification permission */
-"permissions.subtitle" = "Sta meldingen toe voor de beste ervaring";
+"permissions.subtitle" = "Beide optioneel. Je kunt ze altijd wijzigen via Instellingen.";
 
 /* Location: PermissionsView.swift - Permission card title for notifications */
 "permissions.notifications.title" = "Meldingen";
 
 /* Location: PermissionsView.swift - Permission card description for notifications */
-"permissions.notifications.description" = "Ontvang meldingen voor nieuwe berichten";
+"permissions.notifications.description" = "Ontvang meldingen voor nieuwe berichten en lage batterij, ook als de app gesloten is.";
 
 /* Location: PermissionsView.swift - Permission card title for location */
 "permissions.location.title" = "Locatie";
 
 /* Location: PermissionsView.swift - Permission card description for location */
-"permissions.location.description" = "Bekijk je locatie op de kaart";
+"permissions.location.description" = "Stelt lokale radiopresets voor, toont je positie op de kaart en sorteert contacten op afstand.";
 
-/* Location: PermissionsView.swift - Button when all permissions granted */
+/* Location: PermissionsView.swift - Button to proceed to next step */
 "permissions.continue" = "Doorgaan";
-
-/* Location: PermissionsView.swift - Button when some permissions skipped */
-"permissions.skipForNow" = "Nu overslaan";
-
-/* Location: PermissionsView.swift - Button to go back */
-"permissions.back" = "Terug";
 
 /* Location: PermissionsView.swift - Badge shown for optional permissions */
 "permissions.optional" = "Optioneel";
@@ -82,25 +64,16 @@
 // MARK: - Device Scan View
 
 /* Location: DeviceScanView.swift - Screen title for device pairing */
-"deviceScan.title" = "Apparaat koppelen";
+"deviceScan.title" = "Koppel je apparaat";
 
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
-"deviceScan.subtitle" = "Zorg dat je MeshCore-apparaat is ingeschakeld en in de buurt is";
+"deviceScan.subtitle" = "Schakel het in en tik op Apparaat toevoegen.";
 
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "Je apparaat is al gekoppeld";
 
-/* Location: DeviceScanView.swift - Instruction step 1 */
-"deviceScan.instruction.powerOn" = "Schakel je MeshCore-apparaat in";
-
-/* Location: DeviceScanView.swift - Instruction step 2 */
-"deviceScan.instruction.tapAdd" = "Tik hieronder op \"Apparaat toevoegen\"";
-
-/* Location: DeviceScanView.swift - Instruction step 3 */
-"deviceScan.instruction.selectDevice" = "Selecteer je apparaat uit de lijst";
-
-/* Location: DeviceScanView.swift - Instruction step 4 */
-"deviceScan.instruction.enterPin" = "Voer de pincode in wanneer daarom wordt gevraagd";
+/* Location: DeviceScanView.swift - "I don't have a device yet" tertiary */
+"deviceScan.noDeviceYet" = "Ik heb nog geen apparaat";
 
 /* Location: DeviceScanView.swift - Button to continue after pairing */
 "deviceScan.continue" = "Doorgaan";
@@ -121,7 +94,7 @@
 "deviceScan.retryConnection" = "Opnieuw verbinden";
 
 /* Location: DeviceScanView.swift - Button for troubleshooting */
-"deviceScan.deviceNotAppearing" = "Apparaat verschijnt niet?";
+"deviceScan.deviceNotAppearing" = "Hulp";
 
 /* Location: DeviceScanView.swift - Button to connect via WiFi */
 "deviceScan.connectViaWifi" = "Verbinden via wifi";
@@ -132,6 +105,9 @@
 /* Location: DeviceScanView.swift - Alert message for demo mode */
 "deviceScan.demoModeAlert.message" = "Je kunt nu doorgaan zonder apparaat. Schakel demomodus op elk moment uit via Instellingen.";
 
+/* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
+"deviceScan.error.authenticationFailed" = "Kan apparaat niet koppelen. Controleer de pincode, verwijder vervolgens het apparaat en probeer het opnieuw.";
+"deviceScan.error.connectionFailed" = "Kan geen verbinding maken met het apparaat. Probeer het opnieuw, of verwijder het als het probleem aanhoudt.";
 
 // MARK: - Troubleshooting Sheet
 
@@ -146,6 +122,9 @@
 
 /* Location: DeviceScanView.swift - Check to move device closer */
 "troubleshooting.basicChecks.moveCloser" = "Breng het apparaat dichter bij je telefoon";
+
+/* Location: TroubleshootingSheet.swift - Check that radio isn't connected elsewhere */
+"troubleshooting.basicChecks.notConnectedElsewhere" = "Zorg dat je radio niet verbonden is met een andere telefoon of app";
 
 /* Location: DeviceScanView.swift - Check to restart the device */
 "troubleshooting.basicChecks.restart" = "Herstart het MeshCore-apparaat";
@@ -177,6 +156,16 @@
 /* Location: DeviceScanView.swift - Path to accessories in settings */
 "troubleshooting.systemSettings.path" = "Instellingen → Privacy en beveiliging → Accessoires";
 
+/* Location: TroubleshootingSheet.swift - Button that opens iOS Settings */
+"troubleshooting.systemSettings.openSettings" = "Instellingen openen";
+
+/* Location: TroubleshootingSheet.swift - Section header for last-resort flashing steps */
+"troubleshooting.stillNotAppearing.header" = "Nog steeds niet zichtbaar?";
+
+/* Location: TroubleshootingSheet.swift - Body text explaining backup and reflash steps */
+"troubleshooting.stillNotAppearing.body" = "Als je alles hierboven hebt geprobeerd, maak een back-up van de configuratie van je radio in Liam Cottles MeshCore-app, wis hem vervolgens en flash hem opnieuw op je computer via https://flasher.meshcore.io";
+
+
 
 // MARK: - Mesh Animation View
 
@@ -184,29 +173,58 @@
 "meshAnimation.accessibilityLabel" = "Mesh-netwerk visualisatie";
 
 
-// MARK: - Radio Preset Onboarding View
+// MARK: - No Device Sheet
 
-/* Location: RadioPresetOnboardingView.swift - Screen title for radio settings */
-"radioPreset.title" = "Radio-instellingen";
+/* Location: NoDeviceSheet.swift - Sheet title */
+"noDevice.sheet.title" = "Kijk even rond";
 
-/* Location: RadioPresetOnboardingView.swift - Subtitle with instructions and Discord link */
-"radioPreset.subtitle" = "Je kunt deze instellingen op elk moment wijzigen in de MeshCore One-instellingen. Als je niet zeker weet welke preset je moet gebruiken, vraag het in de [MeshCore Discord](https://meshcore.co.uk/contact.html)";
+/* Location: NoDeviceSheet.swift - Sheet body */
+"noDevice.sheet.body" = "Je hebt een gekoppelde radio nodig om berichten te sturen en ontvangen. Verken de app alvast en koppel op elk moment via Instellingen.";
 
-/* Location: RadioPresetOnboardingView.swift - Button label while applying preset */
-"radioPreset.applying" = "Toepassen...";
+/* Location: NoDeviceSheet.swift - Primary CTA */
+"noDevice.sheet.confirm" = "Doorgaan";
 
-/* Location: RadioPresetOnboardingView.swift - Button to apply selected preset */
-"radioPreset.apply" = "Toepassen";
+/* Location: NoDeviceSheet.swift - Secondary CTA */
+"noDevice.sheet.cancel" = "Annuleren";
 
-/* Location: RadioPresetOnboardingView.swift - Button to continue */
-"radioPreset.continue" = "Doorgaan";
 
-/* Location: RadioPresetOnboardingView.swift - Button to skip radio setup */
-"radioPreset.skip" = "Overslaan";
+// MARK: - Preset Step View
 
-/* Location: RadioPresetOnboardingView.swift - Label for custom (non-preset) radio settings */
-"radioPreset.custom" = "Aangepast";
+/* Location: PresetStepView.swift - Title */
+"preset.title" = "Kies een preset";
 
+/* Location: PresetStepView.swift - Subtitle when recommendation exists */
+"preset.subtitle.recommended" = "Aanbevolen voor %@";
+
+/* Location: PresetStepView.swift - Subtitle for empty-region fallback */
+"preset.subtitle.locale" = "Kies een preset voor je radio.";
+
+/* Location: PresetStepView.swift - Footer help line pointing users to the MeshCore Discord */
+"preset.discordHelp" = "Weet je niet welke preset je moet kiezen? Word lid van de officiële MeshCore Discord en vraag het! [https://meshcore.gg](https://meshcore.gg)";
+
+/* Location: PresetStepView.swift - Apply CTA "Use %@" */
+"preset.use" = "%@ gebruiken";
+
+/* Location: PresetStepView.swift - Already-configured title */
+"preset.alreadyConfigured.title" = "Al geconfigureerd";
+
+/* Location: PresetStepView.swift - Already-configured subtitle */
+"preset.alreadyConfigured.subtitle" = "Je radio staat al op %@, de aanbevolen preset voor %@.";
+
+/* Location: PresetStepView.swift - Already-configured primary CTA */
+"preset.alreadyConfigured.done" = "Klaar";
+
+/* Location: PresetStepView.swift - Already-configured secondary link */
+"preset.alreadyConfigured.choose" = "Andere preset kiezen";
+
+/* Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring */
+"preset.error.notConnected" = "Verbind met je apparaat om deze preset toe te passen.";
+
+/* Location: PresetStepView.swift - Generic Continue label used when no preset is selected */
+"preset.continue" = "Doorgaan";
+
+/* Location: PresetStepView.swift - VoiceOver hint for tapping a preset card */
+"preset.row.accessibilityHint" = "Selecteert deze preset.";
 
 // MARK: - WiFi Connection Sheet
 
@@ -239,3 +257,67 @@
 
 /* Location: WiFiConnectionSheet.swift - Error message for invalid port */
 "wifiConnection.error.invalidPort" = "Ongeldig poortnummer";
+
+
+// MARK: - Region Picker View
+
+/* Location: RegionPickerView.swift - Country picker label */
+"region.country" = "Land";
+
+/* Location: RegionPickerView.swift - State/Province picker label */
+"region.administrativeArea" = "Provincie / Staat";
+
+/* Location: RegionPickerView.swift - Continue CTA in manual picker */
+"region.continue" = "Doorgaan";
+
+/* Location: RegionStepView.swift - Title (both states) */
+"region.title" = "Kies je regio";
+
+/* Location: RegionStepView.swift - Subtitle for the region step */
+"region.subtitle" = "We tonen presets die werken in jouw omgeving.";
+
+/* Location: RegionStepView.swift - "Detected" tag */
+"region.detected.tag" = "Gevonden";
+
+/* Location: RegionStepView.swift - Caption "From your location" */
+"region.detected.source" = "Vanuit je locatie";
+
+/* Location: RegionStepView.swift - Primary CTA in detected state */
+"region.useThisRegion" = "Gebruik deze regio";
+
+/* Location: RegionStepView.swift - "Choose another" link */
+"region.chooseAnother" = "Andere kiezen";
+
+/* Location: RegionStepView.swift - "Use my location" link in manual state */
+"region.useMyLocation" = "Mijn locatie gebruiken";
+
+/* Location: RegionStepView.swift - "Finding your region…" */
+"region.resolving" = "Regio zoeken…";
+
+/* Location: RegionStepView.swift - Error shown when user-initiated retry of "Use my location" cannot resolve a region */
+"region.useMyLocation.failure" = "Locatieopzoeking gaf geen regio terug. Kies hieronder handmatig.";
+
+
+// MARK: - Device Scanner Sheet (macOS)
+
+/* Location: DeviceScannerSheet.swift - Navigation title for the macOS BLE scanner */
+"deviceScanner.title" = "Apparaat selecteren";
+
+/* Location: DeviceScannerSheet.swift - Placeholder name for peripherals with no advertised name */
+"deviceScanner.unknownDevice" = "Onbekend apparaat";
+
+/* Location: DeviceScannerSheet.swift - Empty state shown while scanning for devices */
+"deviceScanner.scanning" = "Apparaten zoeken…";
+
+/* Location: DeviceScannerSheet.swift - Title shown when Bluetooth is powered off on the macOS scanner */
+"deviceScanner.bluetoothOff.title" = "Bluetooth is uit";
+
+/* Location: DeviceScannerSheet.swift - Guidance shown when Bluetooth is powered off on the macOS scanner */
+"deviceScanner.bluetoothOff.message" = "Schakel Bluetooth in om naar apparaten in de buurt te zoeken.";
+
+/* Location: DeviceScannerSheet.swift - Title shown when the app is not authorized to use Bluetooth */
+"deviceScanner.bluetoothUnauthorized.title" = "Bluetooth-toegang vereist";
+
+/* Location: DeviceScannerSheet.swift - Guidance shown when the app is not authorized to use Bluetooth */
+"deviceScanner.bluetoothUnauthorized.message" = "Geef Bluetooth-toegang in Instellingen om naar apparaten in de buurt te zoeken.";
+

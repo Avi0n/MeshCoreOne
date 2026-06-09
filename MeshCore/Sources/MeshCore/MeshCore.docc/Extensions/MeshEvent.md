@@ -23,6 +23,7 @@
 - ``currentTime(_:)``
 - ``customVars(_:)``
 - ``channelInfo(_:)``
+- ``defaultFloodScope(_:)``
 - ``statsCore(_:)``
 - ``statsRadio(_:)``
 - ``statsPackets(_:)``
@@ -40,6 +41,7 @@
 - ``messageSent(_:)``
 - ``contactMessageReceived(_:)``
 - ``channelMessageReceived(_:)``
+- ``channelDataReceived(_:)``
 - ``noMoreMessages``
 - ``messagesWaiting``
 

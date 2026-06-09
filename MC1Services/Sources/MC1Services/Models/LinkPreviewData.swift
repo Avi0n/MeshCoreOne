@@ -20,6 +20,12 @@ public final class LinkPreviewData {
     @Attribute(.externalStorage)
     public var iconData: Data?
 
+    /// Hero image pixel width, recorded at fetch time
+    public var imageWidth: Int?
+
+    /// Hero image pixel height, recorded at fetch time
+    public var imageHeight: Int?
+
     /// When this preview was fetched
     public var fetchedAt: Date
 
@@ -28,12 +34,16 @@ public final class LinkPreviewData {
         title: String? = nil,
         imageData: Data? = nil,
         iconData: Data? = nil,
+        imageWidth: Int? = nil,
+        imageHeight: Int? = nil,
         fetchedAt: Date = Date()
     ) {
         self.url = url
         self.title = title
         self.imageData = imageData
         self.iconData = iconData
+        self.imageWidth = imageWidth
+        self.imageHeight = imageHeight
         self.fetchedAt = fetchedAt
     }
 }

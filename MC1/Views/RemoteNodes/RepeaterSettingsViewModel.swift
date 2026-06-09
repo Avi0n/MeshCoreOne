@@ -97,7 +97,23 @@ final class RepeaterSettingsViewModel {
             }
         }
 
-        await fetchNodeInfo()
+        // Detached so configure returns immediately and the node CLI send
+        // closure wires without waiting on the owner-info round-trip (matches
+        // RoomSettingsViewModel's detached device-info fetch).
+        Task { await fetchNodeInfo() }
+    }
+
+    /// Builds the node-CLI send closure, pre-binding this session's id and
+    /// capturing the private admin service (a thin pass-through to
+    /// `RemoteNodeService.sendRawCLICommand`). Returns nil if not configured.
+    func makeNodeCLISendClosure(
+        session: RemoteNodeSessionDTO
+    ) -> (@MainActor (_ command: String, _ timeout: Duration) async throws -> String)? {
+        guard let repeaterAdminService else { return nil }
+        return { [repeaterAdminService, sessionID = session.id] command, timeout in
+            try await repeaterAdminService.sendRawCommand(
+                sessionID: sessionID, command: command, timeout: timeout)
+        }
     }
 
     private var isLoadingNodeInfo = false
@@ -412,7 +428,7 @@ final class RepeaterSettingsViewModel {
         if let validationError = RegionNameValidator.validate(trimmed, existingRegions: regions.map(\.name)) {
             switch validationError {
             case .empty: return
-            case .invalidCharacters, .invalidPrefix, .duplicate:
+            case .invalidCharacters, .tooLong, .duplicate:
                 helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.addFailed
             }
             return

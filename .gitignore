@@ -9,13 +9,19 @@ MeshCore-references/
 
 # AI
 .claude
+.agent*
 .ignore
 CLAUDE.md
 AGENTS.md
 thoughts/
 plans/
+specs/
 tmp/
 .xcodebuildmcp/
+.codegraph
+.asc
+
+*lock.json
 
 scripts/
 
@@ -95,3 +101,5 @@ __pycache__
 
 # idea
 .idea/
+# Brainstorming visual companion mockups
+.superpowers/

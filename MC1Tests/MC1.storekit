@@ -1,0 +1,35 @@
+{
+  "identifier" : "B1A2C3D4-1111-2222-3333-444455556666",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    { "displayPrice" : "9.99", "familyShareable" : false, "internalID" : "1000000008",
+      "localizations" : [ { "description" : "Unlock all themes", "displayName" : "All Themes", "locale" : "en_US" } ],
+      "productID" : "io.pocketmesh.app.theme.bundle.all", "referenceName" : "All Themes", "type" : "NonConsumable" },
+    { "displayPrice" : "4.99", "familyShareable" : false, "internalID" : "1000000009",
+      "localizations" : [ { "description" : "A thank-you tip. No features or content unlocked.", "displayName" : "Coffee", "locale" : "en_US" } ],
+      "productID" : "io.pocketmesh.app.tips.coffee", "referenceName" : "Coffee", "type" : "Consumable" },
+    { "displayPrice" : "9.99", "familyShareable" : false, "internalID" : "1000000010",
+      "localizations" : [ { "description" : "A thank-you tip. No features or content unlocked.", "displayName" : "Lunch", "locale" : "en_US" } ],
+      "productID" : "io.pocketmesh.app.tips.lunch", "referenceName" : "Lunch", "type" : "Consumable" },
+    { "displayPrice" : "14.99", "familyShareable" : false, "internalID" : "1000000011",
+      "localizations" : [ { "description" : "A thank-you tip. No features or content unlocked.", "displayName" : "Dinner", "locale" : "en_US" } ],
+      "productID" : "io.pocketmesh.app.tips.dinner", "referenceName" : "Dinner", "type" : "Consumable" },
+    { "displayPrice" : "19.99", "familyShareable" : false, "internalID" : "1000000012",
+      "localizations" : [ { "description" : "A thank-you tip. No features or content unlocked.", "displayName" : "Generous Tip", "locale" : "en_US" } ],
+      "productID" : "io.pocketmesh.app.tips.generous", "referenceName" : "Generous Tip", "type" : "Consumable" },
+    { "displayPrice" : "49.99", "familyShareable" : false, "internalID" : "1000000013",
+      "localizations" : [ { "description" : "A thank-you tip. No features or content unlocked.", "displayName" : "Massive Tip", "locale" : "en_US" } ],
+      "productID" : "io.pocketmesh.app.tips.massive", "referenceName" : "Massive Tip", "type" : "Consumable" },
+    { "displayPrice" : "99.99", "familyShareable" : false, "internalID" : "1000000014",
+      "localizations" : [ { "description" : "A thank-you tip. No features or content unlocked.", "displayName" : "Epic Tip", "locale" : "en_US" } ],
+      "productID" : "io.pocketmesh.app.tips.epic", "referenceName" : "Epic Tip", "type" : "Consumable" }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : []
+  },
+  "subscriptionGroups" : [],
+  "version" : { "major" : 4, "minor" : 0 }
+}

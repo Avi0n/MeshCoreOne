@@ -85,7 +85,7 @@ struct MeshStatusLiveActivity: Widget {
                         .foregroundStyle(.orange)
                 }
             }
-            .widgetURL(URL(string: "pocketmesh://status"))
+            .widgetURL(URL(string: "meshcoreone://status"))
         }
     }
 }

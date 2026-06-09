@@ -2,17 +2,12 @@ import Foundation
 import ImageIO
 import UIKit
 
-/// Detects image URLs and resolves hosting service URLs to direct image links
+/// Inline image decoding (UIKit/ImageIO). For URL classification, use
+/// `MC1Services.ImageURLClassifier`.
 enum ImageURLDetector {
-
-    private static let imageExtensions: Set<String> = [
-        "jpg", "jpeg", "png", "gif", "webp", "heic"
-    ]
 
     /// Max pixel dimension for inline image display (280pt × 3x scale)
     private static let inlineMaxPixelSize: CGFloat = 900
-
-    // MARK: - Image Decoding
 
     /// Decodes an image at a reduced size using ImageIO, avoiding full-resolution decode.
     /// Falls back to `UIImage(data:)` if thumbnail generation fails.
@@ -33,13 +28,6 @@ enum ImageURLDetector {
             return UIImage(data: data)
         }
         return UIImage(cgImage: cgImage)
-    }
-
-    // MARK: - Direct Image Detection
-
-    /// Returns `true` if the URL's path extension is a known image type
-    static func isDirectImageURL(_ url: URL) -> Bool {
-        imageExtensions.contains(url.pathExtension.lowercased())
     }
 
     /// Returns `true` if the data begins with the GIF magic bytes (`GIF8`)
@@ -88,65 +76,5 @@ enum ImageURLDetector {
 
         guard !frames.isEmpty else { return nil }
         return UIImage.animatedImage(with: frames, duration: totalDuration)
-    }
-
-    // MARK: - Hosting Service Resolution
-
-    /// Returns the direct image URL for known hosting page URLs, or `nil` if not resolvable
-    static func resolveImageURL(_ url: URL) -> URL? {
-        guard let host = url.host()?.lowercased() else { return nil }
-
-        if host == "giphy.com" || host == "www.giphy.com" {
-            return resolveGiphyURL(url)
-        }
-
-        if host == "media.giphy.com" || host == "i.giphy.com" {
-            // Already a direct Giphy media URL
-            return nil
-        }
-
-        return nil
-    }
-
-    /// Returns `true` if the URL points to a direct image or a resolvable hosting page
-    static func isImageURL(_ url: URL) -> Bool {
-        isDirectImageURL(url) || resolveImageURL(url) != nil
-    }
-
-    /// Returns the direct image URL: the URL itself for direct images,
-    /// or the resolved URL for hosting pages
-    static func directImageURL(for url: URL) -> URL {
-        if isDirectImageURL(url) { return url }
-        return resolveImageURL(url) ?? url
-    }
-
-    // MARK: - Giphy Resolution
-
-    /// Resolves Giphy page URLs to direct GIF URLs.
-    ///
-    /// Supported patterns:
-    /// - `giphy.com/gifs/{slug}-{ID}` or `giphy.com/gifs/{ID}`
-    /// - `giphy.com/embed/{ID}`
-    private static func resolveGiphyURL(_ url: URL) -> URL? {
-        let pathComponents = url.pathComponents // ["/" , "gifs", "slug-ID"] etc.
-
-        guard pathComponents.count >= 3 else { return nil }
-
-        let section = pathComponents[1].lowercased()
-        guard section == "gifs" || section == "embed" else { return nil }
-
-        let lastComponent = pathComponents[2]
-
-        // Extract ID: for gifs it may be "slug-text-ID", take last segment after "-"
-        let giphyID: String
-        if section == "gifs" {
-            giphyID = lastComponent.components(separatedBy: "-").last ?? lastComponent
-        } else {
-            giphyID = lastComponent
-        }
-
-        guard !giphyID.isEmpty else { return nil }
-
-        return URL(string: "https://i.giphy.com/media/\(giphyID)/giphy.gif")
     }
 }

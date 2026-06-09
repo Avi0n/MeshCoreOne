@@ -185,28 +185,17 @@ struct ConnectionUIStateTests {
         #expect(appState.canRunSettingsStartupReads == false)
     }
 
-    // MARK: - withSyncActivity
+    // MARK: - Sync Activity Tracking
 
-    @Test("withSyncActivity shows syncing during operation")
-    func withSyncActivity() async {
+    @Test("Sync activity shows syncing pill while active")
+    func syncActivityShowsSyncing() {
         let appState = AppState()
 
-        await appState.connectionUI.withSyncActivity {
-            #expect(appState.statusPillState == .syncing)
-        }
+        appState.connectionUI.simulateSyncStarted()
+        #expect(appState.statusPillState == .syncing)
 
+        appState.connectionUI.simulateSyncEnded()
         #expect(appState.statusPillState != .syncing)
-    }
-
-    @Test("withSyncActivity propagates return value")
-    func withSyncActivityReturnValue() async {
-        let appState = AppState()
-
-        let result = await appState.connectionUI.withSyncActivity {
-            return 42
-        }
-
-        #expect(result == 42)
     }
 
     // MARK: - UI State Defaults
@@ -216,13 +205,50 @@ struct ConnectionUIStateTests {
         let appState = AppState()
         #expect(appState.connectionUI.showingConnectionFailedAlert == false)
         #expect(appState.connectionUI.connectionFailedMessage == nil)
-#expect(appState.connectionUI.failedPairingDeviceID == nil)
+        #expect(appState.connectionUI.failedPairingDeviceID == nil)
+        #expect(appState.connectionUI.pairingFailureKind == nil)
         #expect(appState.connectionUI.otherAppWarningDeviceID == nil)
-        #expect(appState.connectionUI.isPairing == false)
+        #expect(appState.connectionUI.isBusy == false)
         #expect(appState.connectionUI.isNodeStorageFull == false)
     }
 
+    // MARK: - presentPairingFailure / presentConnectionFailure
 
+    @Test("presentPairingFailure(auth) sets pairingFailureKind to .authentication")
+    func presentPairingFailureSetsAuthKind() {
+        let sut = ConnectionUIState()
+        let deviceID = UUID()
+        sut.presentPairingFailure(.connectionFailed(deviceID: deviceID, underlying: BLEError.authenticationFailed))
+
+        #expect(sut.failedPairingDeviceID == deviceID)
+        #expect(sut.pairingFailureKind == .authentication)
+        #expect(sut.connectionFailedTitle != nil)
+        #expect(sut.showingConnectionFailedAlert == true)
+    }
+
+    @Test("presentPairingFailure(transient) sets pairingFailureKind to .transient")
+    func presentPairingFailureSetsTransientKind() {
+        let sut = ConnectionUIState()
+        let deviceID = UUID()
+        sut.presentPairingFailure(.connectionFailed(deviceID: deviceID, underlying: BLEError.connectionFailed("timeout")))
+
+        #expect(sut.failedPairingDeviceID == deviceID)
+        #expect(sut.pairingFailureKind == .transient)
+        #expect(sut.connectionFailedTitle == nil)
+        #expect(sut.showingConnectionFailedAlert == true)
+    }
+
+    @Test("presentConnectionFailure clears pairingFailureKind set by a prior pairing failure")
+    func presentConnectionFailureClearsPairingKind() {
+        let sut = ConnectionUIState()
+        sut.presentPairingFailure(.connectionFailed(deviceID: UUID(), underlying: BLEError.authenticationFailed))
+        #expect(sut.pairingFailureKind == .authentication)
+
+        sut.presentConnectionFailure(message: "generic")
+
+        #expect(sut.pairingFailureKind == nil)
+        #expect(sut.connectionFailedTitle == nil)
+    }
 
     // MARK: - handleDisconnect
 

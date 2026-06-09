@@ -39,7 +39,6 @@ extension ChatViewModel {
 
     /// Updates the notification level in the local conversations array
     private func updateConversationNotificationLevel(_ conversation: Conversation, level: NotificationLevel) {
-        invalidateConversationCache()
         switch conversation {
         case .direct(let contact):
             if let index = conversations.firstIndex(where: { $0.id == contact.id }) {
@@ -54,6 +53,7 @@ extension ChatViewModel {
                 roomSessions[index] = roomSessions[index].with(notificationLevel: level)
             }
         }
+        recomputeSnapshot()
     }
 
     // MARK: - Favorite
@@ -134,9 +134,9 @@ extension ChatViewModel {
         }
     }
 
-    /// Updates the favorite state in the local conversations array
+    /// Updates the favorite state in the local buffers. `recomputeSnapshot()` runs synchronously
+    /// after the mutation so it stays inside any `disablesAnimations` transaction the caller opens.
     private func updateConversationFavoriteState(_ conversation: Conversation, isFavorite: Bool) {
-        invalidateConversationCache()
         switch conversation {
         case .direct(let contact):
             if let index = conversations.firstIndex(where: { $0.id == contact.id }) {
@@ -151,35 +151,97 @@ extension ChatViewModel {
                 roomSessions[index] = roomSessions[index].with(isFavorite: isFavorite)
             }
         }
+        recomputeSnapshot()
     }
 
     // MARK: - Conversation List
 
-    /// Removes a conversation from local arrays for optimistic UI update.
+    /// Clears all conversation data from the view model.
+    /// Called when the device is forgotten or removed so the list doesn't show stale entries.
+    func clearConversations() {
+        conversations = []
+        channels = []
+        roomSessions = []
+        pendingRemovalIDs = []
+        deletingIDs = []
+        allContacts = []
+        channelSenders = []
+        channelSenderNames = []
+        channelSenderOrder = [:]
+        contactNameSet = []
+        lastMessageCache = [:]
+        recomputeSnapshot()
+    }
+
+    /// True while an optimistic hide or a confirmation-gated radio delete is in flight for
+    /// `id`. Gates the delete action so a rapid re-tap can't double-fire the same removal.
+    func isDeletePending(_ id: UUID) -> Bool {
+        pendingRemovalIDs.contains(id) || deletingIDs.contains(id)
+    }
+
+    /// Hides a conversation, recording the id in `pendingRemovalIDs` so a racing reload can't
+    /// resurrect it; `reconcilePendingRemovals()` drops the id once the fetch confirms it's gone.
     func removeConversation(_ conversation: Conversation) {
-        invalidateConversationCache()
-        switch conversation {
-        case .direct(let contact):
-            conversations = conversations.filter { $0.id != contact.id }
-        case .channel(let channel):
-            channels = channels.filter { $0.id != channel.id }
-        case .room(let session):
-            roomSessions = roomSessions.filter { $0.id != session.id }
+        pendingRemovalIDs.insert(conversation.id)
+        withAnimation(.snappy) {
+            switch conversation {
+            case .direct(let contact):
+                conversations = conversations.filter { $0.id != contact.id }
+            case .channel(let channel):
+                channels = channels.filter { $0.id != channel.id }
+            case .room(let session):
+                roomSessions = roomSessions.filter { $0.id != session.id }
+            }
+            recomputeSnapshot()
         }
     }
 
+    /// Re-admits a row after its delete failed: drops the mask and re-inserts the caller-held DTO.
+    /// Reusing the held DTO rather than re-fetching keeps the rollback independent of reload timing.
+    func restoreConversation(_ conversation: Conversation) {
+        pendingRemovalIDs.remove(conversation.id)
+        withAnimation(.snappy) {
+            switch conversation {
+            case .direct(let contact):
+                if !conversations.contains(where: { $0.id == contact.id }) {
+                    conversations.append(contact)
+                }
+            case .channel(let channel):
+                if !channels.contains(where: { $0.id == channel.id }) {
+                    channels.append(channel)
+                }
+            case .room(let session):
+                if !roomSessions.contains(where: { $0.id == session.id }) {
+                    roomSessions.append(session)
+                }
+            }
+            recomputeSnapshot()
+        }
+    }
+
+    /// Confirms a direct conversation's local clear: drops the mask and purges the fetch buffer
+    /// together. Purging matters because a stale reload could have re-added the contact while it
+    /// was masked, and a later recompute would then republish it; a re-created row still returns
+    /// via the next reload's fetch.
+    func confirmDirectRemoval(_ contact: ContactDTO) {
+        pendingRemovalIDs.remove(contact.id)
+        conversations.removeAll { $0.id == contact.id }
+        recomputeSnapshot()
+    }
+
     /// Load conversations for a device
-    func loadConversations(deviceID: UUID) async {
+    func loadConversations(radioID: UUID) async {
         guard let dataStore else { return }
 
         isLoading = true
-        errorMessage = nil
+        errorBannerMessage = nil
 
         do {
-            conversations = try await dataStore.fetchConversations(deviceID: deviceID)
-            invalidateConversationCache()
+            conversations = try await dataStore.fetchConversations(radioID: radioID)
+            recomputeSnapshot()
         } catch {
-            errorMessage = error.localizedDescription
+            errorBannerMessage = L10n.Chats.Chats.Error.loadConversationsFailed
+            logger.error("loadConversations failed: \(error.localizedDescription)")
         }
 
         hasLoadedOnce = true
@@ -187,11 +249,11 @@ extension ChatViewModel {
     }
 
     /// Load all contacts for mention autocomplete
-    func loadAllContacts(deviceID: UUID) async {
+    func loadAllContacts(radioID: UUID) async {
         guard let dataStore else { return }
 
         do {
-            allContacts = try await dataStore.fetchContacts(deviceID: deviceID)
+            allContacts = try await dataStore.fetchContacts(radioID: radioID)
             contactNameSet = Set(allContacts.map(\.name))
         } catch {
             logger.warning("Failed to load contacts for mentions: \(error.localizedDescription)")
@@ -199,60 +261,76 @@ extension ChatViewModel {
     }
 
     /// Load channels for a device
-    func loadChannels(deviceID: UUID) async {
+    func loadChannels(radioID: UUID) async {
         guard let dataStore else { return }
 
         do {
-            channels = try await dataStore.fetchChannels(deviceID: deviceID)
-            invalidateConversationCache()
+            channels = try await dataStore.fetchChannels(radioID: radioID)
+            recomputeSnapshot()
         } catch {
             // Silently handle - channels are optional
         }
     }
 
-    /// Load all conversations (contacts + channels + rooms) for unified display.
-    /// Fetches into local variables first, then applies all mutations in a single
-    /// synchronous block so SwiftUI sees one consistent state update.
-    func loadAllConversations(deviceID: UUID) async {
+    /// Single entry point for every list reload. Cancel-and-replaces any in-flight reload so the
+    /// latest request wins and a superseded one returns at an `isCancelled` gate before committing.
+    /// Returns the new task so a caller that needs ordering (initial load) can await `.value`.
+    @discardableResult
+    func requestConversationReload() -> Task<Void, Never>? {
+        reloadTask?.cancel()
+        guard let radioID = appState?.currentRadioID else {
+            reloadTask = nil
+            clearConversations()
+            return nil
+        }
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+            await self.performConversationReload(radioID: radioID)
+        }
+        reloadTask = task
+        return task
+    }
+
+    /// Fetches contacts, channels, and rooms into locals, then commits one consistent snapshot.
+    /// No `await` may sit between the last `isCancelled` check and the assignment, so no other
+    /// reload can interleave a mismatched commit on the main actor.
+    private func performConversationReload(radioID: UUID) async {
         guard let dataStore else { return }
-
         isLoading = true
-        errorMessage = nil
+        defer { isLoading = false }
 
-        // Fetch into locals — no @Observable mutations between awaits.
-        var fetchedConversations: [ContactDTO]?
-        var fetchedChannels: [ChannelDTO]?
-        var fetchedRoomSessions: [RemoteNodeSessionDTO]?
-
+        // Only fetchConversations sets the error banner; channel/room failures stay silent.
+        var banner: String?
+        let fetchedConversations: [ContactDTO]?
         do {
-            fetchedConversations = try await dataStore.fetchConversations(deviceID: deviceID)
+            fetchedConversations = try await dataStore.fetchConversations(radioID: radioID)
         } catch {
-            errorMessage = error.localizedDescription
+            fetchedConversations = nil
+            banner = L10n.Chats.Chats.Error.loadConversationsFailed
+            logger.error("performConversationReload fetchConversations failed: \(error.localizedDescription)")
         }
+        if Task.isCancelled { return }
+        #if DEBUG
+        await reloadInterleaveHook?()
+        if Task.isCancelled { return }
+        #endif
 
-        do {
-            fetchedChannels = try await dataStore.fetchChannels(deviceID: deviceID)
-        } catch {
-            // Silently handle — channels are optional
-        }
+        let fetchedChannels = try? await dataStore.fetchChannels(radioID: radioID)
+        if Task.isCancelled { return }
+        let fetchedRooms = (try? await dataStore.fetchRemoteNodeSessions(radioID: radioID))?
+            .filter { $0.isRoom }
+        if Task.isCancelled { return }
 
-        do {
-            let sessions = try await dataStore.fetchRemoteNodeSessions(deviceID: deviceID)
-            fetchedRoomSessions = sessions.filter { $0.isRoom }
-        } catch {
-            // Silently handle — rooms are optional
-        }
-
-        // Apply all changes in a single synchronous block so SwiftUI sees one
-        // consistent state instead of three intermediate partial states.
         if let fetchedConversations { conversations = fetchedConversations }
         if let fetchedChannels { channels = fetchedChannels }
-        if let fetchedRoomSessions { roomSessions = fetchedRoomSessions }
-        invalidateConversationCache()
-
+        if let fetchedRooms { roomSessions = fetchedRooms }
+        errorBannerMessage = banner
+        reconcilePendingRemovals()
+        recomputeSnapshot()
         hasLoadedOnce = true
-        isLoading = false
 
+        // Skip the trailing preview load if this reload was superseded.
+        if Task.isCancelled { return }
         await loadLastMessagePreviews()
     }
 
@@ -260,7 +338,15 @@ extension ChatViewModel {
 
     /// Load messages for a contact
     func loadMessages(for contact: ContactDTO) async {
-        guard let dataStore else { return }
+        // Close the per-conversation empty-state gate while the fetch is
+        // in flight. No-op when the coordinator is already past
+        // `.uninitialized` (warm rebind, refresh).
+        coordinator?.beginLoading()
+
+        guard let dataStore else {
+            coordinator?.markLoaded()
+            return
+        }
 
         // Clear preview state only when switching to a different conversation
         if currentContact?.id != contact.id {
@@ -272,20 +358,21 @@ extension ChatViewModel {
         currentContact = contact
 
         // Track active conversation for notification suppression
-        notificationService?.activeContactID = contact.id
+        notificationService?.setActiveConversation(contactID: contact.id)
 
         isLoading = true
+        // Dual-reset: this function is shared between passive load and user-initiated
+        // retry paths, so both surfaces must clear at entry to avoid stale state.
         errorMessage = nil
+        errorBannerMessage = nil
 
         // Reset pagination state for new conversation
-        hasMoreMessages = true
-        isLoadingOlder = false
-        totalFetchedCount = 0
+        coordinator?.updateRenderState { $0.with(hasMoreMessages: true, isLoadingOlder: false, totalFetchedCount: 0) }
 
         do {
-            var fetchedMessages = try await dataStore.fetchMessages(contactID: contact.id, limit: pageSize, offset: 0)
+            var fetchedMessages = try await dataStore.fetchMessages(contactID: contact.id, limit: ChatCoordinator.pageSize, offset: 0)
             let unfilteredCount = fetchedMessages.count
-            totalFetchedCount = unfilteredCount
+            coordinator?.updateRenderState { $0.with(totalFetchedCount: unfilteredCount) }
 
             // Compute divider position before filtering, using unfiltered array
             computeDividerPosition(from: fetchedMessages, unreadCount: contact.unreadCount)
@@ -293,10 +380,10 @@ extension ChatViewModel {
             // Hide sent reaction messages (unless failed)
             fetchedMessages = filterOutgoingReactionMessages(fetchedMessages, isDM: true)
 
-            messages = fetchedMessages
-            hasMoreMessages = unfilteredCount == pageSize
+            coordinator?.replaceAll(fetchedMessages)
+            coordinator?.updateRenderState { $0.with(hasMoreMessages: unfilteredCount == ChatCoordinator.pageSize) }
 
-            buildDisplayItems()
+            buildItems()
 
             // Index loaded messages for reaction matching and process any pending reactions
             if let reactionService = appState?.services?.reactionService {
@@ -324,7 +411,7 @@ extension ChatViewModel {
                                 messageHash: pending.parsed.messageHash,
                                 rawText: pending.rawText,
                                 contactID: contact.id,
-                                deviceID: contact.deviceID
+                                radioID: contact.radioID
                             )
                             if let result = await reactionService.persistReactionAndUpdateSummary(
                                 reactionDTO,
@@ -348,89 +435,10 @@ extension ChatViewModel {
             errorMessage = error.localizedDescription
         }
 
-        hasLoadedOnce = true
+        // Ensures the empty-state gate opens even when the fetch threw —
+        // `replaceAll` is the success path; this catches the failure path.
+        coordinator?.markLoaded()
         isLoading = false
-    }
-
-    /// Optimistically append a message if not already present.
-    /// Called synchronously before async reload to ensure ChatTableView
-    /// sees the new count immediately for unread tracking.
-    func appendMessageIfNew(_ message: MessageDTO) {
-        guard !messages.contains(where: { $0.id == message.id }) else { return }
-        let previous = messages.last
-        messages.append(message)
-        messagesByID[message.id] = message
-        totalFetchedCount += 1
-
-        // Build display item synchronously for immediate consistency
-        let flags = Self.computeDisplayFlags(for: message, previous: previous)
-        let newItem = MessageDisplayItem(
-            messageID: message.id,
-            showTimestamp: flags.showTimestamp,
-            showDirectionGap: flags.showDirectionGap,
-            showSenderName: flags.showSenderName,
-            showNewMessagesDivider: false,
-            detectedURL: nil,  // URL detection deferred to avoid main thread blocking
-            isImageURL: false,
-            isOutgoing: message.isOutgoing,
-            status: message.status,
-            containsSelfMention: message.containsSelfMention,
-            mentionSeen: message.mentionSeen,
-            heardRepeats: message.heardRepeats,
-            retryAttempt: message.retryAttempt,
-            maxRetryAttempts: message.maxRetryAttempts,
-            reactionSummary: message.reactionSummary,
-            previewState: .idle,
-            loadedPreview: nil
-        )
-        displayItems.append(newItem)
-        displayItemIndexByID[message.id] = displayItems.count - 1
-
-        // Async URL detection for this message only
-        // Capture messageID (not index) to handle concurrent buildDisplayItems() calls
-        let messageID = message.id
-        let text = message.text
-        Task {
-            await updateURLForDisplayItem(messageID: messageID, text: text)
-        }
-
-        // Add sender to channelSenders if new (for channel messages)
-        if let senderName = message.senderNodeName,
-           let deviceID = currentChannel?.deviceID {
-            addChannelSenderIfNew(senderName, deviceID: deviceID)
-        }
-    }
-
-    /// Update URL detection for a single display item by message ID.
-    /// Uses O(1) dictionary lookup to handle concurrent array modifications.
-    private func updateURLForDisplayItem(messageID: UUID, text: String) async {
-        let detectedURL = await Task.detached(priority: .userInitiated) {
-            LinkPreviewService.extractFirstURL(from: text)
-        }.value
-
-        cachedURLs[messageID] = detectedURL
-
-        guard let index = displayItemIndexByID[messageID] else { return }
-        let item = displayItems[index]
-        displayItems[index] = MessageDisplayItem(
-            messageID: item.messageID,
-            showTimestamp: item.showTimestamp,
-            showDirectionGap: item.showDirectionGap,
-            showSenderName: item.showSenderName,
-            showNewMessagesDivider: item.showNewMessagesDivider,
-            detectedURL: detectedURL,
-            isImageURL: detectedURL.map { ImageURLDetector.isImageURL($0) } ?? false,
-            isOutgoing: item.isOutgoing,
-            status: item.status,
-            containsSelfMention: item.containsSelfMention,
-            mentionSeen: item.mentionSeen,
-            heardRepeats: item.heardRepeats,
-            retryAttempt: item.retryAttempt,
-            maxRetryAttempts: item.maxRetryAttempts,
-            reactionSummary: item.reactionSummary,
-            previewState: previewStates[messageID] ?? .idle,
-            loadedPreview: loadedPreviews[messageID]
-        )
     }
 
     /// Load any saved draft for the current contact
@@ -445,6 +453,30 @@ extension ChatViewModel {
         composingText = draft
     }
 
+    /// Restores the composer for `id` on conversation entry, applying restore sources in a
+    /// fixed priority order so the precedence can't be reversed by reordering at the call site:
+    /// a pending notification quick-reply draft (assigned unconditionally) wins over an older
+    /// persisted disk draft (applied only when the field is still empty).
+    func restoreComposerDraft(from store: DraftStore, id: ChatConversationID) {
+        loadDraftIfExists()
+        loadDraft(from: store, id: id)
+    }
+
+    /// Restores the persisted composer draft for `id`, but only when the field is empty — so a
+    /// reconnect-driven reload can't clobber in-progress text and a quick-reply draft applied
+    /// first keeps precedence. The store is passed in from the view's environment, never the
+    /// view model's weak `appState`, so a niled reference can't silently skip the restore.
+    func loadDraft(from store: DraftStore, id: ChatConversationID) {
+        if let restored = store.draftToApply(over: composingText, for: id) {
+            composingText = restored
+        }
+    }
+
+    /// Persists the current composer text as the draft for `id`, or removes it when empty.
+    func saveDraft(to store: DraftStore, id: ChatConversationID) {
+        store.setDraft(composingText, for: id)
+    }
+
     /// Send a message to the current contact
     /// This is non-blocking - message is created and shown immediately, sent in background
     func sendMessage(text: String) async {
@@ -456,20 +488,25 @@ extension ChatViewModel {
 
         errorMessage = nil
 
+        let message: MessageDTO
         do {
-            // Create message immediately and show it
-            let message = try await messageService.createPendingMessage(text: text, to: contact)
+            message = try await messageService.createPendingMessage(text: text, to: contact)
             appendMessageIfNew(message)
-
-            // Queue for sending
-            sendQueue.append(QueuedMessage(messageID: message.id, contactID: contact.id))
-
-            // Start processor if not already running
-            if !isProcessingQueue {
-                queueProcessorTask = Task { await processQueue() }
-            }
+            schedulePrefetchForOutgoingMessage(message, isChannelMessage: false)
+            syncCoordinator?.notifyConversationsChanged()
         } catch {
             errorMessage = error.localizedDescription
+            return
+        }
+
+        let envelope = DirectMessageEnvelope(messageID: message.id, contactID: contact.id)
+        do {
+            try await enqueueDM(envelope)
+        } catch {
+            logger.error("enqueueDM failed for messageID=\(message.id, privacy: .public): \(String(describing: error))")
+            _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .failed)
+            coordinator?.applyStatusUpdate(messageID: message.id, status: .failed)
+            sendErrorMessage = Self.copyForEnqueueFailure(error)
         }
     }
 
@@ -479,191 +516,11 @@ extension ChatViewModel {
         await loadMessages(for: contact)
     }
 
-    // MARK: - Pagination
-
-    /// Load older messages when user scrolls near the top
-    func loadOlderMessages() async {
-        // Guard against duplicate fetches and end of history
-        guard !isLoadingOlder, hasMoreMessages else { return }
-        guard let dataStore else { return }
-
-        isLoadingOlder = true
-        defer { isLoadingOlder = false }
-
-        // Snapshot conversation context before any await — actor reentrancy
-        // means currentContact/currentChannel can change during suspensions
-        let contact = currentContact
-        let channel = currentChannel
-
-        do {
-            let currentOffset = totalFetchedCount
-            var olderMessages: [MessageDTO]
-
-            if let contact {
-                olderMessages = try await dataStore.fetchMessages(
-                    contactID: contact.id,
-                    limit: pageSize,
-                    offset: currentOffset
-                )
-            } else if let channel {
-                olderMessages = try await dataStore.fetchMessages(
-                    deviceID: channel.deviceID,
-                    channelIndex: channel.index,
-                    limit: pageSize,
-                    offset: currentOffset
-                )
-            } else {
-                return
-            }
-
-            // Use unfiltered count to determine if more messages exist
-            let unfilteredCount = olderMessages.count
-            totalFetchedCount += unfilteredCount
-            if unfilteredCount < pageSize {
-                hasMoreMessages = false
-            }
-
-            // Filter blocked senders for channel messages
-            if channel != nil, let syncCoordinator {
-                let blockedNames = await syncCoordinator.blockedSenderNames()
-                if !blockedNames.isEmpty {
-                    olderMessages = olderMessages.filter { message in
-                        guard let senderName = message.senderNodeName else { return true }
-                        return !blockedNames.contains(senderName)
-                    }
-                }
-            }
-
-            // Hide sent reaction messages (unless failed)
-            let isDM = contact != nil
-            olderMessages = filterOutgoingReactionMessages(olderMessages, isDM: isDM)
-
-            // Filter out messages already in array (race condition: appendMessageIfNew can add
-            // a message while this fetch is in-flight, causing duplicates)
-            let existingIDs = Set(messages.map(\.id))
-            olderMessages = olderMessages.filter { !existingIDs.contains($0.id) }
-
-            // Prepend older messages (they're chronologically earlier)
-            messages.insert(contentsOf: olderMessages, at: 0)
-
-            // Re-run same-sender reordering across the page boundary to handle
-            // clusters that were split between the existing and newly loaded pages
-            messages = MessageDTO.reorderSameSenderClusters(messages)
-
-            // Update lookup dictionary
-            for message in olderMessages {
-                messagesByID[message.id] = message
-            }
-
-            // Rebuild display items with new messages
-            buildDisplayItems()
-
-            // Index older channel messages for reaction matching and process pending reactions
-            if let channel,
-               let reactionService = appState?.services?.reactionService {
-                let localNodeName = appState?.connectedDevice?.nodeName
-                let deviceID = appState?.connectedDevice?.id ?? UUID()
-                for message in olderMessages {
-                    let senderName: String?
-                    if message.isOutgoing {
-                        senderName = localNodeName
-                    } else {
-                        senderName = message.senderNodeName
-                    }
-                    if let senderName {
-                        let pendingMatches = await reactionService.indexMessage(
-                            id: message.id,
-                            channelIndex: channel.index,
-                            senderName: senderName,
-                            text: message.text,
-                            timestamp: message.timestamp
-                        )
-
-                        // Process any pending reactions that now have their target
-                        for pending in pendingMatches {
-                            let exists = try? await dataStore.reactionExists(
-                                messageID: message.id,
-                                senderName: pending.senderNodeName,
-                                emoji: pending.parsed.emoji
-                            )
-
-                            if exists != true {
-                                let reactionDTO = ReactionDTO(
-                                    messageID: message.id,
-                                    emoji: pending.parsed.emoji,
-                                    senderName: pending.senderNodeName,
-                                    messageHash: pending.parsed.messageHash,
-                                    rawText: pending.rawText,
-                                    channelIndex: pending.channelIndex,
-                                    deviceID: deviceID
-                                )
-                                if let result = await reactionService.persistReactionAndUpdateSummary(
-                                    reactionDTO,
-                                    using: dataStore
-                                ) {
-                                    updateReactionSummary(for: result.messageID, summary: result.summary)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Index older DM messages for reaction matching and process pending reactions
-            if let contact,
-               let reactionService = appState?.services?.reactionService {
-                for message in olderMessages {
-                    let pendingMatches = await reactionService.indexDMMessage(
-                        id: message.id,
-                        contactID: contact.id,
-                        text: message.text,
-                        timestamp: message.reactionTimestamp
-                    )
-
-                    // Process any pending reactions that now have their target
-                    for pending in pendingMatches {
-                        let exists = try? await dataStore.reactionExists(
-                            messageID: message.id,
-                            senderName: pending.senderName,
-                            emoji: pending.parsed.emoji
-                        )
-
-                        if exists != true {
-                            let reactionDTO = ReactionDTO(
-                                messageID: message.id,
-                                emoji: pending.parsed.emoji,
-                                senderName: pending.senderName,
-                                messageHash: pending.parsed.messageHash,
-                                rawText: pending.rawText,
-                                contactID: contact.id,
-                                deviceID: contact.deviceID
-                            )
-                            if let result = await reactionService.persistReactionAndUpdateSummary(
-                                reactionDTO,
-                                using: dataStore
-                            ) {
-                                updateReactionSummary(for: result.messageID, summary: result.summary)
-                            }
-                        }
-                    }
-                }
-            }
-
-        } catch {
-            errorMessage = L10n.Chats.Chats.Errors.loadOlderMessagesFailed
-            logger.error("Failed to load older messages: \(error)")
-        }
-    }
-
     // MARK: - Message Previews
 
-    /// Get the last message preview for a contact
-    func lastMessagePreview(for contact: ContactDTO) -> String? {
-        // Check cache first
-        if let cached = lastMessageCache[contact.id] {
-            return cached.text
-        }
-        return nil
+    /// Get the cached last-message preview text for a conversation, keyed by its id.
+    func lastMessagePreview(id: UUID) -> String? {
+        lastMessageCache[id]?.text
     }
 
     /// Load last message previews for all conversations.
@@ -698,19 +555,14 @@ extension ChatViewModel {
 
         // Batch fetch channel message previews (single actor hop)
         if !channels.isEmpty {
-            let blockedNames = await syncCoordinator?.blockedSenderNames() ?? []
             do {
-                let channelParams = channels.map { (deviceID: $0.deviceID, channelIndex: $0.index, id: $0.id) }
+                let channelParams = channels.map { (radioID: $0.radioID, channelIndex: $0.index, id: $0.id) }
                 let channelMessages = try await dataStore.fetchLastChannelMessages(channels: channelParams, limit: 20)
                 for channel in channels {
                     guard let messages = channelMessages[channel.id] else { continue }
 
-                    // Filter out messages from blocked senders and outgoing reactions
+                    // Filter out outgoing reactions (keep failed ones visible)
                     let lastMessage = messages.last { message in
-                        if let senderName = message.senderNodeName,
-                           blockedNames.contains(senderName) {
-                            return false
-                        }
                         if message.direction == .outgoing,
                            ReactionParser.parse(message.text) != nil,
                            message.status != .failed {
@@ -731,256 +583,4 @@ extension ChatViewModel {
         }
     }
 
-    /// Get the last message preview for a channel
-    func lastMessagePreview(for channel: ChannelDTO) -> String? {
-        if let cached = lastMessageCache[channel.id] {
-            return cached.text
-        }
-        return nil
-    }
-
-    // MARK: - Message Actions
-
-    /// Retry sending a failed message with flood routing enabled
-    func retryMessage(_ message: MessageDTO) async {
-        logger.info("retryMessage called for message: \(message.id)")
-
-        guard let messageService else {
-            logger.warning("retryMessage: messageService is nil")
-            return
-        }
-
-        guard let contact = currentContact else {
-            logger.warning("retryMessage: currentContact is nil")
-            return
-        }
-
-        logger.info("retryMessage: starting retry for contact \(contact.displayName)")
-
-        errorMessage = nil
-
-        // Update status to pending and reload immediately for instant "Sending" feedback
-        try? await dataStore?.updateMessageStatus(id: message.id, status: .pending)
-        await loadMessages(for: contact)
-
-        do {
-            // Retry the existing message (preserves message identity)
-            logger.info("retryMessage: calling retryDirectMessage with messageID")
-            let result = try await messageService.retryDirectMessage(messageID: message.id, to: contact)
-            logger.info("retryMessage: completed with status \(String(describing: result.status))")
-
-            // Reload messages to show updated status
-            await loadMessages(for: contact)
-        } catch {
-            logger.error("retryMessage: error - \(error)")
-            errorMessage = error.localizedDescription
-            showRetryError = true
-            // Reload to show the failed status
-            await loadMessages(for: contact)
-        }
-    }
-
-    /// Resend a channel message in place, or copy text for direct messages.
-    /// Used for "Send Again" context menu action.
-    func sendAgain(_ message: MessageDTO) async {
-        if message.channelIndex != nil {
-            // Channel messages: resend in place (increments send count)
-            guard let messageService else { return }
-            do {
-                try await messageService.resendChannelMessage(messageID: message.id)
-                // Reload to show updated send count
-                if let channel = currentChannel {
-                    await loadChannelMessages(for: channel)
-                }
-            } catch {
-                logger.error("Failed to resend message: \(error)")
-            }
-        } else {
-            // Direct messages: send the failed message text directly
-            await sendMessage(text: message.text)
-        }
-    }
-
-    /// Delete a single message
-    func deleteMessage(_ message: MessageDTO) async {
-        guard appState?.connectionState == .ready else { return }
-        guard let dataStore else { return }
-
-        do {
-            try await dataStore.deleteMessage(id: message.id)
-
-            // Remove from all local collections
-            messages.removeAll { $0.id == message.id }
-            messagesByID.removeValue(forKey: message.id)
-            displayItems.removeAll { $0.messageID == message.id }
-            // Rebuild index dictionary after removal (indices shift)
-            displayItemIndexByID = Dictionary(uniqueKeysWithValues: displayItems.enumerated().map { ($0.element.messageID, $0.offset) })
-
-            // Clean up preview state for deleted message
-            cleanupPreviewState(for: message.id)
-
-            // Update last message date if needed
-            if let currentContact {
-                if let lastMessage = messages.last {
-                    try await dataStore.updateContactLastMessage(
-                        contactID: currentContact.id,
-                        date: lastMessage.date
-                    )
-                } else {
-                    try await dataStore.updateContactLastMessage(
-                        contactID: currentContact.id,
-                        date: Date.distantPast
-                    )
-                }
-            }
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-
-    /// Delete all messages for a direct conversation
-    func deleteDirectConversation(for contact: ContactDTO) async throws {
-        guard appState?.connectionState == .ready else { return }
-        guard let dataStore else { return }
-
-        try await dataStore.deleteMessagesForContact(contactID: contact.id)
-        try await dataStore.clearUnreadCount(contactID: contact.id)
-        try await dataStore.updateContactLastMessage(contactID: contact.id, date: nil)
-        await notificationService?.updateBadgeCount()
-    }
-
-    // MARK: - Display Items
-
-    /// Build display items with pre-computed properties.
-    /// Uses cached URL results for previously processed messages and defers
-    /// async detection for new messages to avoid blocking the main actor.
-    func buildDisplayItems() {
-        messagesByID = Dictionary(uniqueKeysWithValues: messages.map { ($0.id, $0) })
-
-        var uncachedMessageIDs: [(UUID, String)] = []
-
-        displayItems = messages.enumerated().map { index, message in
-            // Compute all display flags in single pass to avoid redundant array lookups
-            let previous: MessageDTO? = index > 0 ? messages[index - 1] : nil
-            let flags = Self.computeDisplayFlags(for: message, previous: previous)
-
-            // Use cached URL if available, otherwise nil (async detection below)
-            let url: URL?
-            if let cached = cachedURLs[message.id] {
-                url = cached
-            } else if previewStates[message.id] != nil || loadedPreviews[message.id] != nil {
-                // Message already had a preview fetched — URL was already detected
-                url = nil
-            } else {
-                url = nil
-                uncachedMessageIDs.append((message.id, message.text))
-            }
-
-            return MessageDisplayItem(
-                messageID: message.id,
-                showTimestamp: flags.showTimestamp,
-                showDirectionGap: flags.showDirectionGap,
-                showSenderName: flags.showSenderName,
-                showNewMessagesDivider: message.id == newMessagesDividerMessageID,
-                detectedURL: url,
-                isImageURL: url.map { ImageURLDetector.isImageURL($0) } ?? false,
-                isOutgoing: message.isOutgoing,
-                status: message.status,
-                containsSelfMention: message.containsSelfMention,
-                mentionSeen: message.mentionSeen,
-                heardRepeats: message.heardRepeats,
-                retryAttempt: message.retryAttempt,
-                maxRetryAttempts: message.maxRetryAttempts,
-                reactionSummary: message.reactionSummary,
-                previewState: previewStates[message.id] ?? .idle,
-                loadedPreview: loadedPreviews[message.id]
-            )
-        }
-
-        // Build O(1) index lookup
-        displayItemIndexByID = Dictionary(uniqueKeysWithValues: displayItems.enumerated().map { ($0.element.messageID, $0.offset) })
-
-        // Async URL detection for messages without cached results
-        if !uncachedMessageIDs.isEmpty {
-            let messagesToDetect = uncachedMessageIDs
-            urlDetectionTask?.cancel()
-            urlDetectionTask = Task {
-                for (messageID, text) in messagesToDetect {
-                    guard !Task.isCancelled else { return }
-                    await updateURLForDisplayItem(messageID: messageID, text: text)
-                }
-            }
-        }
-
-        // Pre-decode legacy preview images off the main thread
-        decodeLegacyPreviewImages()
-    }
-
-    /// Get full message DTO for a display item.
-    /// Logs a warning if lookup fails (indicates data inconsistency).
-    func message(for displayItem: MessageDisplayItem) -> MessageDTO? {
-        guard let message = messagesByID[displayItem.messageID] else {
-            logger.warning("Message lookup failed for displayItem id=\(displayItem.messageID)")
-            return nil
-        }
-        return message
-    }
-
-    // MARK: - Message Queue
-
-    /// Add a message to the send queue (for testing)
-    func enqueueMessage(_ messageID: UUID, contactID: UUID) {
-        sendQueue.append(QueuedMessage(messageID: messageID, contactID: contactID))
-    }
-
-    /// Process the queue (exposed for testing)
-    func processQueueForTesting() async {
-        await processQueue()
-    }
-
-    /// Process queued messages serially
-    private func processQueue() async {
-        guard let messageService,
-              let dataStore else { return }
-
-        isProcessingQueue = true
-        defer { isProcessingQueue = false }
-
-        // Snapshot before suspensions — currentContact can change if user switches conversations
-        let contact = currentContact
-        var lastDeviceID: UUID?
-
-        // Process messages with re-check after reload to catch any that arrived during reload
-        repeat {
-            while !sendQueue.isEmpty {
-                let queued = sendQueue.removeFirst()
-
-                // Fetch the target contact by ID - it may differ from currentContact
-                guard let contact = try? await dataStore.fetchContact(id: queued.contactID) else {
-                    // Contact was deleted, skip this message
-                    logger.info("Skipping queued message - contact \(queued.contactID) was deleted")
-                    continue
-                }
-
-                lastDeviceID = contact.deviceID
-
-                do {
-                    _ = try await messageService.retryDirectMessage(
-                        messageID: queued.messageID,
-                        to: contact
-                    )
-                } catch {
-                    errorMessage = error.localizedDescription
-                }
-            }
-
-            // Reload after queue drains - syncs statuses and conversation list
-            if let contact {
-                await loadMessages(for: contact)
-            }
-            if let deviceID = lastDeviceID {
-                await loadConversations(deviceID: deviceID)
-            }
-        } while !sendQueue.isEmpty
-    }
 }

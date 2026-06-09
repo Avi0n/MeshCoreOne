@@ -44,7 +44,7 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     private var autoReconnectingHandler: (@Sendable (UUID, String) -> Void)?
     private var bluetoothPoweredOnHandler: (@Sendable () -> Void)?
     private var bluetoothStateChangeHandler: (@Sendable (CBManagerState) -> Void)?
-    private var deviceDiscoveredHandler: (@Sendable (UUID, Int) -> Void)?
+    private var deviceDiscoveredHandler: (@Sendable (UUID, String?, Int) -> Void)?
 
     // MARK: - Initialization
 
@@ -85,7 +85,7 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
         bluetoothStateChangeHandler = handler
     }
 
-    public func setDeviceDiscoveredHandler(_ handler: @escaping @Sendable (UUID, Int) -> Void) {
+    public func setDeviceDiscoveredHandler(_ handler: @escaping @Sendable (UUID, String?, Int) -> Void) {
         deviceDiscoveredHandler = handler
     }
 
@@ -163,8 +163,8 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     }
 
     /// Simulates BLE discovery callback while scanning.
-    public func simulateDiscoveredDevice(id: UUID, rssi: Int) {
-        deviceDiscoveredHandler?(id, rssi)
+    public func simulateDiscoveredDevice(id: UUID, name: String? = nil, rssi: Int) {
+        deviceDiscoveredHandler?(id, name, rssi)
     }
 }
 

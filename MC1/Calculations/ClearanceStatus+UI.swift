@@ -18,7 +18,16 @@ extension ClearanceStatus {
         }
     }
 
+    var localizedName: String {
+        switch self {
+        case .clear: L10n.Tools.Tools.LineOfSight.Status.clear
+        case .marginal: L10n.Tools.Tools.LineOfSight.Status.marginal
+        case .partialObstruction: L10n.Tools.Tools.LineOfSight.Status.partialObstruction
+        case .blocked: L10n.Tools.Tools.LineOfSight.Status.blocked
+        }
+    }
+
     static var blockedSubtitle: String {
-        "Direct path intersects terrain"
+        L10n.Tools.Tools.LineOfSight.Status.blockedSubtitle
     }
 }

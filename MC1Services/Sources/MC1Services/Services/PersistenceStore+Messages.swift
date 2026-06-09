@@ -34,11 +34,11 @@ extension PersistenceStore {
 
     /// Batch fetch last messages for multiple channels in a single actor-isolated call.
     /// Runs N fetches with zero suspension points between them, avoiding N actor hops.
-    public func fetchLastChannelMessages(channels: [(deviceID: UUID, channelIndex: UInt8, id: UUID)], limit: Int) throws -> [UUID: [MessageDTO]] {
+    public func fetchLastChannelMessages(channels: [(radioID: UUID, channelIndex: UInt8, id: UUID)], limit: Int) throws -> [UUID: [MessageDTO]] {
         var result: [UUID: [MessageDTO]] = [:]
         result.reserveCapacity(channels.count)
         for channel in channels {
-            result[channel.id] = try fetchMessages(deviceID: channel.deviceID, channelIndex: channel.channelIndex, limit: limit)
+            result[channel.id] = try fetchMessages(radioID: channel.radioID, channelIndex: channel.channelIndex, limit: limit)
         }
         return result
     }
@@ -52,8 +52,9 @@ extension PersistenceStore {
         var descriptor = FetchDescriptor(
             predicate: predicate,
             sortBy: [
-                SortDescriptor(\Message.createdAt, order: .reverse),
-                SortDescriptor(\Message.timestamp, order: .reverse)
+                SortDescriptor(\Message.sortDate, order: .reverse),
+                SortDescriptor(\Message.timestamp, order: .reverse),
+                SortDescriptor(\Message.createdAt, order: .reverse)
             ]
         )
         descriptor.fetchLimit = limit
@@ -65,17 +66,18 @@ extension PersistenceStore {
     }
 
     /// Fetch messages for a channel
-    public func fetchMessages(deviceID: UUID, channelIndex: UInt8, limit: Int = 50, offset: Int = 0) throws -> [MessageDTO] {
-        let targetDeviceID = deviceID
+    public func fetchMessages(radioID: UUID, channelIndex: UInt8, limit: Int = 50, offset: Int = 0) throws -> [MessageDTO] {
+        let targetRadioID = radioID
         let targetChannelIndex: UInt8? = channelIndex
         let predicate = #Predicate<Message> { message in
-            message.deviceID == targetDeviceID && message.channelIndex == targetChannelIndex
+            message.radioID == targetRadioID && message.channelIndex == targetChannelIndex
         }
         var descriptor = FetchDescriptor(
             predicate: predicate,
             sortBy: [
-                SortDescriptor(\Message.createdAt, order: .reverse),
-                SortDescriptor(\Message.timestamp, order: .reverse)
+                SortDescriptor(\Message.sortDate, order: .reverse),
+                SortDescriptor(\Message.timestamp, order: .reverse),
+                SortDescriptor(\Message.createdAt, order: .reverse)
             ]
         )
         descriptor.fetchLimit = limit
@@ -88,7 +90,7 @@ extension PersistenceStore {
 
     /// Finds a channel message matching a parsed reaction within a timestamp window.
     public func findChannelMessageForReaction(
-        deviceID: UUID,
+        radioID: UUID,
         channelIndex: UInt8,
         parsedReaction: ParsedReaction,
         localNodeName: String?,
@@ -100,7 +102,7 @@ extension PersistenceStore {
         logger.debug("[REACTION-MATCH] Looking for message: targetSender=\(parsedReaction.targetSender), hash=\(parsedReaction.messageHash), localNodeName=\(localNodeName ?? "nil"), window=\(timestampWindow.lowerBound)...\(timestampWindow.upperBound)")
 
         let candidates = try fetchChannelMessageCandidates(
-            deviceID: deviceID,
+            radioID: radioID,
             channelIndex: channelIndex,
             timestampWindow: timestampWindow,
             limit: limit
@@ -142,18 +144,18 @@ extension PersistenceStore {
     ///
     /// Returns raw candidates without hash matching — the caller performs Dart hash comparison.
     public func fetchChannelMessageCandidates(
-        deviceID: UUID,
+        radioID: UUID,
         channelIndex: UInt8,
         timestampWindow: ClosedRange<UInt32>,
         limit: Int
     ) throws -> [MessageDTO] {
-        let targetDeviceID = deviceID
+        let targetRadioID = radioID
         let targetChannelIndex: UInt8? = channelIndex
         let start = timestampWindow.lowerBound
         let end = timestampWindow.upperBound
 
         let predicate = #Predicate<Message> { message in
-            message.deviceID == targetDeviceID &&
+            message.radioID == targetRadioID &&
             message.channelIndex == targetChannelIndex &&
             message.timestamp >= start &&
             message.timestamp <= end
@@ -175,18 +177,18 @@ extension PersistenceStore {
     ///
     /// Returns raw candidates without hash matching — the caller performs Dart hash comparison.
     public func fetchDMMessageCandidates(
-        deviceID: UUID,
+        radioID: UUID,
         contactID: UUID,
         timestampWindow: ClosedRange<UInt32>,
         limit: Int
     ) throws -> [MessageDTO] {
-        let targetDeviceID = deviceID
+        let targetRadioID = radioID
         let targetContactID: UUID? = contactID
         let start = timestampWindow.lowerBound
         let end = timestampWindow.upperBound
 
         let predicate = #Predicate<Message> { message in
-            message.deviceID == targetDeviceID &&
+            message.radioID == targetRadioID &&
             message.contactID == targetContactID &&
             message.timestamp >= start &&
             message.timestamp <= end
@@ -206,7 +208,7 @@ extension PersistenceStore {
 
     /// Finds a DM message matching a reaction by hash within a timestamp window.
     public func findDMMessageForReaction(
-        deviceID: UUID,
+        radioID: UUID,
         contactID: UUID,
         messageHash: String,
         timestampWindow: ClosedRange<UInt32>,
@@ -216,7 +218,7 @@ extension PersistenceStore {
         logger.debug("[DM-REACTION-MATCH] Looking for DM: hash=\(messageHash), contactID=\(contactID)")
 
         let candidates = try fetchDMMessageCandidates(
-            deviceID: deviceID,
+            radioID: radioID,
             contactID: contactID,
             timestampWindow: timestampWindow,
             limit: limit
@@ -258,21 +260,13 @@ extension PersistenceStore {
         return try modelContext.fetch(descriptor).first.map { MessageDTO(from: $0) }
     }
 
-    /// Fetch a message by ACK code
-    public func fetchMessage(ackCode: UInt32) throws -> MessageDTO? {
-        let targetAckCode: UInt32? = ackCode
-        let predicate = #Predicate<Message> { message in
-            message.ackCode == targetAckCode
-        }
-        var descriptor = FetchDescriptor(predicate: predicate)
-        descriptor.fetchLimit = 1
-        return try modelContext.fetch(descriptor).first.map { MessageDTO(from: $0) }
-    }
-
-    /// Check if a message with this deduplication key already exists
-    public func isDuplicateMessage(deduplicationKey: String) throws -> Bool {
+    /// Check if a message with this deduplication key already exists for the given radio.
+    public func isDuplicateMessage(deduplicationKey: String, radioID: UUID) throws -> Bool {
         let targetKey = deduplicationKey
-        let predicate = #Predicate<Message> { $0.deduplicationKey == targetKey }
+        let targetRadioID = radioID
+        let predicate = #Predicate<Message> {
+            $0.deduplicationKey == targetKey && $0.radioID == targetRadioID
+        }
         return try modelContext.fetchCount(FetchDescriptor(predicate: predicate)) > 0
     }
 
@@ -280,12 +274,13 @@ extension PersistenceStore {
     public func saveMessage(_ dto: MessageDTO) throws {
         let message = Message(
             id: dto.id,
-            deviceID: dto.deviceID,
+            radioID: dto.radioID,
             contactID: dto.contactID,
             channelIndex: dto.channelIndex,
             text: dto.text,
             timestamp: dto.timestamp,
             createdAt: dto.createdAt,
+            sortDate: dto.sortDate,
             directionRawValue: dto.direction.rawValue,
             statusRawValue: dto.status.rawValue,
             textTypeRawValue: dto.textType.rawValue,
@@ -305,7 +300,9 @@ extension PersistenceStore {
             containsSelfMention: dto.containsSelfMention,
             mentionSeen: dto.mentionSeen,
             timestampCorrected: dto.timestampCorrected,
-            senderTimestamp: dto.senderTimestamp
+            senderTimestamp: dto.senderTimestamp,
+            routeTypeRawValue: dto.routeType.map { Int($0.rawValue) } ?? -1,
+            regionScope: dto.regionScope
         )
         modelContext.insert(message)
         try modelContext.save()
@@ -326,7 +323,34 @@ extension PersistenceStore {
         }
     }
 
-    /// Update message status with retry attempt information
+    /// Update message status unless delivery has already won the race.
+    ///
+    /// - Returns: `true` if the row's status was changed, `false` if no row was
+    ///   updated (either the row is already `.delivered`, or no row exists for
+    ///   the given `id`). Callers must gate failure side effects (e.g.,
+    ///   `messageFailedHandler`, UI toasts) on the return value so they do not
+    ///   surface a `.failed` event for a delivered or absent row.
+    public func updateMessageStatusUnlessDelivered(id: UUID, status: MessageStatus) throws -> Bool {
+        let targetID = id
+        let predicate = #Predicate<Message> { message in
+            message.id == targetID
+        }
+        var descriptor = FetchDescriptor(predicate: predicate)
+        descriptor.fetchLimit = 1
+
+        guard let message = try modelContext.fetch(descriptor).first, message.status != .delivered else {
+            return false
+        }
+        message.status = status
+        try modelContext.save()
+        return true
+    }
+
+    /// Update message status with retry attempt information.
+    ///
+    /// Skips the write when the message is already `.delivered` so a stale
+    /// retry iteration (e.g., one racing the persistent ACK listener) cannot
+    /// clobber a winning ACK.
     public func updateMessageRetryStatus(
         id: UUID,
         status: MessageStatus,
@@ -340,7 +364,7 @@ extension PersistenceStore {
         var descriptor = FetchDescriptor(predicate: predicate)
         descriptor.fetchLimit = 1
 
-        if let message = try modelContext.fetch(descriptor).first {
+        if let message = try modelContext.fetch(descriptor).first, message.status != .delivered {
             message.status = status
             message.retryAttempt = retryAttempt
             message.maxRetryAttempts = maxRetryAttempts
@@ -363,7 +387,12 @@ extension PersistenceStore {
         }
     }
 
-    /// Update message ACK info
+    /// Update message ACK info.
+    ///
+    /// Never downgrades a `.delivered` message to a lower status: once the
+    /// listener (or `finalizeSend`) writes `.delivered` + `roundTripTime`, a
+    /// later `.sent` write from the send-return path is skipped so the
+    /// authoritative delivery state is preserved.
     public func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32? = nil) throws {
         let targetID = id
         let predicate = #Predicate<Message> { message in
@@ -373,23 +402,8 @@ extension PersistenceStore {
         descriptor.fetchLimit = 1
 
         if let message = try modelContext.fetch(descriptor).first {
+            if message.status == .delivered && status != .delivered { return }
             message.ackCode = ackCode
-            message.status = status
-            message.roundTripTime = roundTripTime
-            try modelContext.save()
-        }
-    }
-
-    /// Update message status by ACK code
-    public func updateMessageByAckCode(_ ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32? = nil) throws {
-        let targetAckCode: UInt32? = ackCode
-        let predicate = #Predicate<Message> { message in
-            message.ackCode == targetAckCode
-        }
-        var descriptor = FetchDescriptor(predicate: predicate)
-        descriptor.fetchLimit = 1
-
-        if let message = try modelContext.fetch(descriptor).first {
             message.status = status
             message.roundTripTime = roundTripTime
             try modelContext.save()
@@ -455,23 +469,82 @@ extension PersistenceStore {
     /// Delete a message and its reactions
     public func deleteMessage(id: UUID) throws {
         let targetID = id
+
+        // Cascade PendingSend outside the `if let message` guard. An orphan
+        // PendingSend (no matching Message row) can exist via several paths:
+        // the queue's success-path `deletePendingSends` racing a deleteMessage
+        // from another path; same-millisecond user delete + queue upsert;
+        // historical bugs; tests. Reaping the PendingSend unconditionally on
+        // deleteMessage is strictly stronger than gating on the Message
+        // existing — there is no Message left to be "consistent" with, and
+        // orphan PendingSends otherwise survive until the next purge cycle.
+        let pendingPredicate = #Predicate<PendingSend> { row in
+            row.messageID == targetID
+        }
+        for row in try modelContext.fetch(FetchDescriptor(predicate: pendingPredicate)) {
+            modelContext.delete(row)
+        }
+
         let predicate = #Predicate<Message> { message in
             message.id == targetID
         }
         if let message = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first {
-            try deleteReactionsForMessage(messageID: id)
+            // Inlined Reaction cascade — only meaningful when the Message
+            // exists. Reactions are anchored to the Message row, so an
+            // orphan-Message reaction is its own cleanup problem.
+            try modelContext.delete(model: Reaction.self, where: #Predicate<Reaction> { reaction in
+                reaction.messageID == targetID
+            })
             modelContext.delete(message)
-            try modelContext.save()
         }
+        try modelContext.save()
+    }
+
+    /// Delete all channel messages from a specific sender for a device.
+    /// Only deletes messages with a non-nil channelIndex (channel messages), preserving DMs.
+    /// Cascades PendingSend, MessageRepeat, and Reaction rows associated with the deleted
+    /// messages within a single save.
+    public func deleteChannelMessages(fromSender senderName: String, radioID: UUID) throws {
+        let targetRadioID = radioID
+        let targetSenderName: String? = senderName
+        let messagePredicate = #Predicate<Message> { message in
+            message.radioID == targetRadioID &&
+            message.senderNodeName == targetSenderName &&
+            message.channelIndex != nil
+        }
+
+        let messageIDs = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate)).map(\.id)
+
+        if !messageIDs.isEmpty {
+            try _deletePendingSendsForMessageIDsWithoutSaving(messageIDs: messageIDs)
+            // Cascade MessageRepeat alongside Reaction. Bulk `delete(model:where:)`
+            // bypasses the `@Relationship(deleteRule: .cascade)` declared on
+            // `Message → MessageRepeat`, so the cascade has to be explicit.
+            // Chunk both predicates to stay under SQLITE_MAX_VARIABLE_NUMBER
+            // (32766 on iOS 18+).
+            let chunkSize = 500
+            for start in stride(from: 0, to: messageIDs.count, by: chunkSize) {
+                let chunk = Array(messageIDs[start..<min(start + chunkSize, messageIDs.count)])
+                try modelContext.delete(model: Reaction.self, where: #Predicate {
+                    chunk.contains($0.messageID)
+                })
+                try modelContext.delete(model: MessageRepeat.self, where: #Predicate {
+                    chunk.contains($0.messageID)
+                })
+            }
+        }
+
+        try modelContext.delete(model: Message.self, where: messagePredicate)
+        try modelContext.save()
     }
 
     /// Count pending messages for a device
-    public func countPendingMessages(deviceID: UUID) throws -> Int {
-        let targetDeviceID = deviceID
+    public func countPendingMessages(radioID: UUID) throws -> Int {
+        let targetRadioID = radioID
         let pendingStatus = MessageStatus.pending.rawValue
         let sendingStatus = MessageStatus.sending.rawValue
         let predicate = #Predicate<Message> { message in
-            message.deviceID == targetDeviceID &&
+            message.radioID == targetRadioID &&
             (message.statusRawValue == pendingStatus ||
              message.statusRawValue == sendingStatus)
         }
@@ -484,20 +557,20 @@ extension PersistenceStore {
     /// Used for correlating RX log entries to sent messages.
     ///
     /// - Parameters:
-    ///   - deviceID: The device that sent the message
+    ///   - radioID: The radio that sent the message
     ///   - channelIndex: Channel the message was sent on
     ///   - timestamp: Sender timestamp from the message
     ///   - text: Message text to match
     ///   - withinSeconds: Time window to search (default 10 seconds)
     /// - Returns: MessageDTO if found, nil otherwise
     public func findSentChannelMessage(
-        deviceID: UUID,
+        radioID: UUID,
         channelIndex: UInt8,
         timestamp: UInt32,
         text: String,
         withinSeconds: Int = 10
     ) throws -> MessageDTO? {
-        let targetDeviceID = deviceID
+        let targetRadioID = radioID
         let targetChannelIndex: UInt8? = channelIndex
         let targetTimestamp = timestamp
         let outgoingDirection = MessageDirection.outgoing.rawValue
@@ -508,7 +581,7 @@ extension PersistenceStore {
         let windowStartTimestamp = UInt32(windowStart.timeIntervalSince1970)
 
         let predicate = #Predicate<Message> { message in
-            message.deviceID == targetDeviceID &&
+            message.radioID == targetRadioID &&
             message.channelIndex == targetChannelIndex &&
             message.timestamp == targetTimestamp &&
             message.directionRawValue == outgoingDirection &&
@@ -644,7 +717,7 @@ extension PersistenceStore {
             receivedAt: dto.receivedAt,
             channelIndex: dto.channelIndex,
             contactID: dto.contactID,
-            deviceID: dto.deviceID
+            radioID: dto.radioID
         )
         modelContext.insert(reaction)
         try modelContext.save()

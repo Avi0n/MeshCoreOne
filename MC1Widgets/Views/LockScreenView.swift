@@ -45,7 +45,7 @@ struct LockScreenView: View {
         }
         .padding()
         .accessibilityElement(children: .combine)
-        .widgetURL(URL(string: "pocketmesh://status"))
+        .widgetURL(URL(string: "meshcoreone://status"))
     }
 }
 

@@ -1,33 +1,31 @@
 import SwiftUI
-import UIKit
 import MC1Services
 
-/// List-based view for building trace paths
+/// List-based view for building trace paths. Hops are added through the shared
+/// `AddHopPickerView`, pushed onto the Tools navigation stack via the Add Hop CTA.
 struct TracePathListView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Bindable var viewModel: TracePathViewModel
 
-    @Binding var addHapticTrigger: Int
     @Binding var dragHapticTrigger: Int
     @Binding var copyHapticTrigger: Int
-    @Binding var recentlyAddedRepeaterID: UUID?
     @Binding var showingClearConfirmation: Bool
     @Binding var presentedResult: TraceResult?
     @Binding var showJumpToPath: Bool
 
-    @State private var codeInput = ""
-    @State private var codeInputError: String?
-    @State private var pastedSuccessfully = false
+    /// Drives the pushed Add Hop picker via `.navigationDestination(item:)`.
+    @State private var insertionIntent: AddHopIntent?
 
     var body: some View {
         List {
-            codeInputSection
-            AvailableRepeatersSectionView(
-                viewModel: viewModel,
-                recentlyAddedRepeaterID: $recentlyAddedRepeaterID,
-                addHapticTrigger: $addHapticTrigger
-            )
-            outboundPathSection
+            if viewModel.outboundPath.isEmpty {
+                emptyStateSection
+            } else {
+                outboundPathSection
+                    .themedRowBackground(theme)
+                addHopCtaSection
+            }
             PathActionsSectionView(
                 viewModel: viewModel,
                 showingClearConfirmation: $showingClearConfirmation,
@@ -45,83 +43,74 @@ struct TracePathListView: View {
                 .listRowInsets(EdgeInsets())
                 .id("bottom")
         }
+        .themedCanvas(theme)
         .environment(\.editMode, .constant(.active))
+        .addHopPicker(for: $insertionIntent, source: viewModel, inDetailColumn: true)
     }
 
-    // MARK: - Code Input Section
+    // MARK: - Empty state
 
-    private var codeInputSection: some View {
+    @ViewBuilder
+    private var emptyStateSection: some View {
         Section {
-            HStack {
-                TextField(L10n.Contacts.Contacts.Trace.List.codePlaceholder, text: $codeInput)
-                    .textInputAutocapitalization(.characters)
-                    .autocorrectionDisabled()
-                    .onSubmit {
-                        processCodeInput()
-                    }
+            ContentUnavailableView {
+                Label(
+                    L10n.Contacts.Contacts.PathEdit.Empty.title,
+                    systemImage: "antenna.radiowaves.left.and.right.slash"
+                )
+            } description: {
+                Text(L10n.Contacts.Contacts.Trace.List.emptyPath)
+            }
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
+            .listRowSeparator(.hidden)
+        }
 
-                Button(L10n.Contacts.Contacts.Trace.List.paste, systemImage: "doc.on.clipboard") {
-                    pasteAndProcess()
-                }
-                .labelStyle(.iconOnly)
-                .buttonStyle(.borderless)
-            }
-        } footer: {
-            if let error = codeInputError {
-                Text(error)
-                    .foregroundStyle(.red)
-            } else if !pastedSuccessfully {
-                Text(L10n.Contacts.Contacts.Trace.List.codeFooter)
-            }
+        Section {
+            addHopButton
+                .listRowInsets(PathEditMetrics.ctaRowInsets)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
         }
     }
 
-    private func processCodeInput() {
-        guard !codeInput.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+    // MARK: - Add Hop CTA
 
-        pastedSuccessfully = false
-        let result = viewModel.addRepeatersFromCodes(codeInput)
-        codeInputError = result.errorMessage
-
-        if !result.added.isEmpty {
-            addHapticTrigger += 1
+    private var addHopCtaSection: some View {
+        Section {
+            addHopButton
+                .listRowInsets(PathEditMetrics.ctaRowInsets)
+                .listRowBackground(Color.clear)
         }
     }
 
-    private func pasteAndProcess() {
-        guard let pasteboardString = UIPasteboard.general.string,
-              !pasteboardString.isEmpty else { return }
-
-        codeInput = pasteboardString
-        let result = viewModel.addRepeatersFromCodes(codeInput)
-        codeInputError = result.errorMessage
-        pastedSuccessfully = !result.added.isEmpty
-
-        if !result.added.isEmpty {
-            addHapticTrigger += 1
+    private var addHopButton: some View {
+        Button {
+            insertionIntent = .append
+        } label: {
+            PathEditCTALabel(
+                title: L10n.Contacts.Contacts.PathEdit.addHop,
+                systemImage: "plus.circle.fill"
+            )
         }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
     }
 
     // MARK: - Outbound Path Section
 
     private var outboundPathSection: some View {
         Section {
-            if viewModel.outboundPath.isEmpty {
-                Text(L10n.Contacts.Contacts.Trace.List.emptyPath)
-                    .foregroundStyle(.secondary)
-                    .frame(minHeight: 44)
-            } else {
-                ForEach(Array(viewModel.outboundPath.enumerated()), id: \.element.id) { index, hop in
-                    TracePathHopRow(hop: hop, hopNumber: index + 1)
-                }
-                .onMove { source, destination in
-                    dragHapticTrigger += 1
-                    viewModel.moveRepeater(from: source, to: destination)
-                }
-                .onDelete { indexSet in
-                    for index in indexSet.sorted().reversed() {
-                        viewModel.removeRepeater(at: index)
-                    }
+            ForEach(Array(viewModel.outboundPath.enumerated()), id: \.element.id) { index, hop in
+                TracePathHopRow(hop: hop, hopNumber: index + 1)
+            }
+            .onMove { source, destination in
+                dragHapticTrigger += 1
+                viewModel.moveRepeater(from: source, to: destination)
+            }
+            .onDelete { indexSet in
+                for index in indexSet.sorted().reversed() {
+                    viewModel.removeRepeater(at: index)
                 }
             }
         } header: {

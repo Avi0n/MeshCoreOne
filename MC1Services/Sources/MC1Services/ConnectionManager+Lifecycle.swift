@@ -64,6 +64,11 @@ extension ConnectionManager {
         guard currentTransportType == nil || currentTransportType == .bluetooth else { return }
         guard connectionIntent.wantsConnection, connectionState == .disconnected else { return }
 
+        if shouldDeferOpportunisticReconnect {
+            logger.info("[BLE] ConnectionManager: not re-arming watchdog on foreground (pairing in progress)")
+            return
+        }
+
         if await stateMachine.isAutoReconnecting {
             logger.info("[BLE] ConnectionManager: not re-arming watchdog on foreground (iOS auto-reconnect in progress)")
             return
@@ -78,10 +83,10 @@ extension ConnectionManager {
     /// Triggers resync if connected but sync state is failed.
     /// Called when app returns to foreground.
     public func checkSyncHealth() async {
-        guard connectionState == .ready,
+        guard connectionState.isOperational,
               connectionIntent.wantsConnection,
               let services,
-              let deviceID = connectedDevice?.id else { return }
+              let radioID = connectedDevice?.radioID else { return }
 
         let syncCoordinator = services.syncCoordinator
         let syncState = syncCoordinator.state
@@ -93,7 +98,7 @@ extension ConnectionManager {
         }
 
         logger.info("Foreground return: sync state is failed, starting resync loop")
-        startResyncLoop(deviceID: deviceID, services: services)
+        startResyncLoop(radioID: radioID, services: services, transportType: currentTransportType ?? .bluetooth)
     }
 
     // MARK: - Activation
@@ -114,6 +119,47 @@ extension ConnectionManager {
         // Reset stale room session connections from previous app launch
         let resetStore = createStandalonePersistenceStore()
         try? await resetStore.resetAllRemoteNodeSessionConnections()
+
+        // Populate radioID on existing devices and backfill deduplication keys (one-time migration)
+        do {
+            try await resetStore.performRadioIDMigration()
+        } catch {
+            logger.error("radioID migration failed: \(error)")
+        }
+
+        // Promote legacy per-channel region overrides to `.specific` mode so the
+        // corrective flood-scope semantics don't reinterpret them as `.inherit`.
+        do {
+            try await resetStore.performChannelFloodScopeMigration()
+        } catch {
+            logger.error("channel flood-scope migration failed: \(error)")
+        }
+
+        // Zero accumulated unread counts on repeater-type contacts and repeater-role
+        // sessions so the badge stops including invisible records.
+        do {
+            try await resetStore.performRepeaterUnreadCountMigration()
+        } catch {
+            logger.error("repeater unread-count migration failed: \(error)")
+        }
+
+        // Backfill sortDate from createdAt on pre-existing messages so date-header
+        // grouping keeps their current display order.
+        do {
+            try await resetStore.performSortDateBackfillMigration()
+        } catch {
+            logger.error("sortDate backfill migration failed: \(error)")
+        }
+
+        // Re-normalize sortDate to createdAt for installs whose backfill already ran
+        // before the block-at-reconnect change, un-burying any rows an interim build
+        // sorted by send time. Must run before stateMachine.activate() so no
+        // restoration-driven sync writes a fresh anchor before this resets the baseline.
+        do {
+            try await resetStore.performSortDateResetMigration()
+        } catch {
+            logger.error("sortDate reset migration failed: \(error)")
+        }
 
         #if targetEnvironment(simulator)
         // Skip auto-reconnect if user explicitly disconnected
@@ -136,12 +182,13 @@ extension ConnectionManager {
         // Simulator doesn't support real BLE devices - show connection UI for simulator pairing
         return
         #else
-        // Activate AccessorySetupKit early; it is required for ASK events and iOS 26 state restoration.
+        // Activate the pairing session early; on iOS this is AccessorySetupKit, required for
+        // ASK events and iOS 26 state restoration. On macOS this is a no-op.
         do {
-            try await accessorySetupKit.activateSession()
+            try await pairing.activate()
         } catch {
-            logger.error("Failed to activate AccessorySetupKit: \(error.localizedDescription)")
-            // Don't return - WiFi doesn't need ASK
+            logger.error("Failed to activate pairing session: \(error.localizedDescription)")
+            // Don't return - WiFi doesn't need the pairing session
         }
 
         // Skip auto-reconnect if user explicitly disconnected
@@ -262,9 +309,18 @@ extension ConnectionManager {
     /// - Parameters:
     ///   - deviceID: The UUID of the device to connect to
     ///   - forceFullSync: Whether to force a full sync instead of incremental
-    ///   - forceReconnect: When `true`, bypasses the circuit breaker (user-initiated)
+    ///   - forceReconnect: When `true`, marks the connect as user-initiated: it bypasses the
+    ///     circuit breaker, and on a platform without a system pairing registry (macOS) it also
+    ///     bounds the retry budget to `unverifiedConnectAttempts`, so a tap on an out-of-range
+    ///     radio fails fast instead of hanging the full budget. Background reconnects pass
+    ///     `false` to keep the full budget for unattended recovery.
     /// - Throws: Connection errors
     public func connect(to deviceID: UUID, forceFullSync: Bool = false, forceReconnect: Bool = false) async throws {
+        // Honor cancellation before any state mutation. Without this checkpoint
+        // a cancelled `pairNewDevice` task whose preceding awaits all swallowed
+        // cancellation would still drive a real BLE connect to completion.
+        try Task.checkCancellation()
+
         // Circuit breaker: prevent rapid reconnection loops after repeated failures
         guard shouldAllowConnection(force: forceReconnect) else {
             logger.info("[BLE] Circuit breaker open, rejecting connection to \(deviceID.uuidString.prefix(8))")
@@ -274,7 +330,9 @@ extension ConnectionManager {
         if activeReconnectDeviceID == deviceID {
             connectionIntent = .wantsConnection(forceFullSync: forceFullSync)
             persistIntent()
-            reconnectionCoordinator.restartTimeout(deviceID: deviceID)
+            if sessionRebuildDeviceID != deviceID {
+                reconnectionCoordinator.restartTimeout(deviceID: deviceID)
+            }
             logger.info("[BLE] Reconnect already in progress for \(deviceID.uuidString.prefix(8)), deferring duplicate connect request")
             return
         }
@@ -381,20 +439,26 @@ extension ConnectionManager {
         reconnectionCoordinator.clearReconnectingDevice()
 
         do {
-            // Validate device is still registered with ASK
-            if accessorySetupKit.isSessionActive {
-                let isRegistered = accessorySetupKit.pairedAccessories.contains {
-                    $0.bluetoothIdentifier == deviceID
-                }
+            // Validate device is still registered with the pairing registry. macOS reports
+            // no active session, so this guard is skipped and CoreBluetooth resolves the device.
+            if pairing.isSessionActive {
+                let isConnectable = pairing.isDeviceConnectable(deviceID)
 
-                if !isRegistered {
-                    await logDeviceNotFoundDiagnostics(deviceID: deviceID, context: "connect(to:) ASK paired accessories mismatch")
+                if !isConnectable {
+                    await logDeviceNotFoundDiagnostics(deviceID: deviceID, context: "connect(to:) paired accessories mismatch")
                     throw ConnectionError.deviceNotFound
                 }
             }
 
-            // Attempt connection with retry
-            try await connectWithRetry(deviceID: deviceID, maxAttempts: 4)
+            // Attempt connection with retry. Without a system pairing registry (macOS),
+            // CoreBluetooth cannot pre-reject an absent saved peripheral, so a user-initiated
+            // tap on an out-of-range radio would hang the full retry budget. Bound user taps
+            // there; background reconnects (forceReconnect == false) keep the full budget so
+            // unattended recovery still gets every attempt.
+            let maxAttempts = (forceReconnect && !pairing.hasSystemPairingRegistry)
+                ? Self.unverifiedConnectAttempts
+                : Self.defaultConnectAttempts
+            try await connectWithRetry(deviceID: deviceID, maxAttempts: maxAttempts)
         } catch {
             guard connectingDeviceID == deviceID else {
                 logger.info("Connection to \(deviceID.uuidString.prefix(8)) superseded")
@@ -448,12 +512,16 @@ extension ConnectionManager {
         stopReconnectionWatchdog()
 
         cancelResyncLoop()
+        cancelChannelRetry()
 
-        // Only clear user intent for user-initiated disconnects
+        // Only clear user intent and clean-channel state for explicit disconnects.
+        // Transient reasons preserve both so the next reconnect can skip redundant channel sync.
         switch reason {
         case .userInitiated, .statusMenuDisconnectTap, .forgetDevice, .deviceRemovedFromSettings, .factoryReset, .switchingDevice:
             connectionIntent = .userDisconnected
             persistIntent()
+            lastCleanChannelSync = nil
+            lastAttemptedChannelSync = nil
         case .resyncFailed, .wifiAddressChange, .wifiReconnectPrep, .pairingFailed:
             // Preserve .wantsConnection so health check can retry
             break
@@ -466,8 +534,7 @@ extension ConnectionManager {
             sessionsAwaitingReauth = []
         }
 
-        // Stop event monitoring
-        await services?.stopEventMonitoring()
+        await services?.tearDown()
 
         // Reset sync state and clear notification suppression (safety net)
         if let services {
@@ -540,10 +607,13 @@ extension ConnectionManager {
             let newServices = ServiceContainer(
                 session: session,
                 modelContainer: modelContainer,
+                radioID: MockDataProvider.simulatorDeviceID,
                 appStateProvider: appStateProvider
             )
             await newServices.wireServices()
-                self.services = newServices
+            await wireCleanChannelSyncCallback(on: newServices)
+            await newServices.chatSendQueueService.hydrate()
+            self.services = newServices
 
             // Seed mock data
             try await simulatorMode.seedDataStore(newServices.dataStore)
@@ -554,6 +624,7 @@ extension ConnectionManager {
             // Persist for auto-reconnect
             persistConnection(
                 deviceID: MockDataProvider.simulatorDeviceID,
+                radioID: MockDataProvider.simulatorDeviceID,
                 deviceName: "MeshCore One Sim"
             )
 
@@ -578,96 +649,88 @@ extension ConnectionManager {
     /// - Parameter deviceID: UUID of the new device to connect to
     public func switchDevice(to deviceID: UUID) async throws {
         logger.info("Switching to device: \(deviceID)")
+        lastCleanChannelSync = nil
+        lastAttemptedChannelSync = nil
 
         // Update intent
         connectionIntent = .wantsConnection()
         persistIntent()
 
-        // Validate device is registered with ASK
-        if accessorySetupKit.isSessionActive {
-            let isRegistered = accessorySetupKit.pairedAccessories.contains {
-                $0.bluetoothIdentifier == deviceID
+        do {
+            // Validate device is registered with the pairing registry. Skipped on macOS,
+            // which has no active session; CoreBluetooth resolves the device on connect.
+            if pairing.isSessionActive {
+                let isConnectable = pairing.isDeviceConnectable(deviceID)
+                if !isConnectable {
+                    await logDeviceNotFoundDiagnostics(deviceID: deviceID, context: "switchDevice paired accessories mismatch")
+                    throw ConnectionError.deviceNotFound
+                }
             }
-            if !isRegistered {
-                await logDeviceNotFoundDiagnostics(deviceID: deviceID, context: "switchDevice ASK paired accessories mismatch")
-                throw ConnectionError.deviceNotFound
+
+            // Cancel any resync loop from the old device before teardown
+            cancelResyncLoop()
+
+            // Reset sync state before destroying services to prevent stuck "Syncing" pill
+            if let services {
+                await services.syncCoordinator.onDisconnected(services: services)
             }
+
+            // Stop current services
+            await services?.tearDown()
+            // Drop the torn-down container so the .connected edge below
+            // short-circuits the didSet's `services?.chatSendQueueService.
+            // transportDidOpen()` instead of firing it against a dead
+            // container. The load-bearing wake of parked drains comes from
+            // the explicit `transportDidOpen()` call inside
+            // `buildServicesAndSaveDevice` after the freshly-built container
+            // is installed; this nil keeps the intermediate didSet honest.
+            self.services = nil
+            await session?.stop()
+
+            // Switch transport
+            logger.info("[BLE] switchDevice: state → .connecting for device: \(deviceID.uuidString.prefix(8))")
+            connectionState = .connecting
+            try await transport.switchDevice(to: deviceID)
+            logger.info("[BLE] switchDevice: state → .connected for device: \(deviceID.uuidString.prefix(8))")
+            connectionState = .connected
+
+            // Re-create session with existing transport
+            let newSession = MeshCoreSession(transport: transport)
+            self.session = newSession
+
+            let (meshCoreSelfInfo, deviceCapabilities) = try await initializeSession(newSession)
+
+            // Configure BLE write pacing based on device platform
+            await configureBLEPacing(for: deviceCapabilities)
+
+            let (newServices, radioID) = try await buildServicesAndSaveDevice(
+                deviceID: deviceID,
+                session: newSession,
+                selfInfo: meshCoreSelfInfo,
+                capabilities: deviceCapabilities,
+                connectionMethods: Self.bleConnectionMethods(for: deviceID)
+            )
+
+            // Persist connection for auto-reconnect
+            persistConnection(deviceID: deviceID, radioID: radioID, deviceName: meshCoreSelfInfo.name)
+
+            // Notify observers before sync starts so they can wire callbacks
+            await onConnectionReady?()
+            let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, context: "Device switch", forceFullSync: true)
+
+            guard await promoteToReady(syncSucceeded: syncSucceeded, expectedServices: newServices, transportType: .bluetooth) else { return }
+
+            stopReconnectionWatchdog()
+            logger.info("Device switch complete - device ready")
+        } catch {
+            // Without this, a partial switch would leave services, session, and
+            // connectedDevice pointing at the old device with state stuck on
+            // .connecting or .connected. pairNewDevice routes through here when
+            // an old radio is still connected, so the failure alert's recovery
+            // actions need clean state.
+            await cleanupConnection()
+            await transport.disconnect()
+            throw error
         }
-
-        // Reset sync state before destroying services to prevent stuck "Syncing" pill
-        if let services {
-            await services.syncCoordinator.onDisconnected(services: services)
-        }
-
-        // Stop current services
-        await services?.stopEventMonitoring()
-        await session?.stop()
-
-        // Switch transport
-        logger.info("[BLE] switchDevice: state → .connecting for device: \(deviceID.uuidString.prefix(8))")
-        connectionState = .connecting
-        try await transport.switchDevice(to: deviceID)
-        logger.info("[BLE] switchDevice: state → .connected for device: \(deviceID.uuidString.prefix(8))")
-        connectionState = .connected
-
-        // Re-create session with existing transport
-        let newSession = MeshCoreSession(transport: transport)
-        self.session = newSession
-
-        let (meshCoreSelfInfo, deviceCapabilities) = try await initializeSession(newSession)
-
-        // Configure BLE write pacing based on device platform
-        await configureBLEPacing(for: deviceCapabilities)
-
-        // Create and wire services
-        let newServices = ServiceContainer(
-            session: newSession,
-            modelContainer: modelContainer,
-            appStateProvider: appStateProvider
-        )
-        await newServices.wireServices()
-        self.services = newServices
-
-        // Fetch existing device and auto-add config concurrently (independent operations)
-        async let existingDeviceResult = newServices.dataStore.fetchDevice(id: deviceID)
-        async let autoAddConfigResult = newSession.getAutoAddConfig()
-        let existingDevice = try? await existingDeviceResult
-        let autoAddConfig = (try? await autoAddConfigResult) ?? MeshCore.AutoAddConfig(bitmask: 0)
-
-        let repeatFreqRanges: [MeshCore.FrequencyRange] = deviceCapabilities.clientRepeat
-            ? (try? await newSession.getRepeatFreq()) ?? []
-            : []
-
-        // Create and save device
-        let device = createDevice(
-            deviceID: deviceID,
-            selfInfo: meshCoreSelfInfo,
-            capabilities: deviceCapabilities,
-            autoAddConfig: autoAddConfig,
-            existingDevice: existingDevice
-        )
-
-        try await newServices.dataStore.saveDevice(DeviceDTO(from: device))
-        self.connectedDevice = DeviceDTO(from: device)
-        self.allowedRepeatFreqRanges = repeatFreqRanges
-
-        // Persist connection for auto-reconnect
-        persistConnection(deviceID: deviceID, deviceName: meshCoreSelfInfo.name)
-
-        // Notify observers BEFORE sync starts so they can wire callbacks
-        await onConnectionReady?()
-        await performInitialSync(deviceID: deviceID, services: newServices, context: "Device switch", forceFullSync: true)
-
-        // User may have disconnected while sync was in progress
-        guard connectionIntent.wantsConnection else { return }
-
-        await syncDeviceTimeIfNeeded()
-        guard connectionIntent.wantsConnection else { return }
-
-        currentTransportType = .bluetooth
-        connectionState = .ready
-        await onDeviceSynced?()
-        stopReconnectionWatchdog()
-        logger.info("Device switch complete - device ready")
     }
 }

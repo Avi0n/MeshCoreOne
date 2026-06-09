@@ -431,13 +431,13 @@ struct ContactServiceTests {
         let mockSession = MockMeshCoreSession()
         let mockStore = MockPersistenceStore()
 
-        let deviceID = UUID()
+        let radioID = UUID()
         let contactID = UUID()
 
         // Set up contact in the mock store
         let contact = ContactDTO(
             id: contactID,
-            deviceID: deviceID,
+            radioID: radioID,
             publicKey: testPublicKey,
             name: "TestContact",
             typeRawValue: ContactType.chat.rawValue,
@@ -466,7 +466,7 @@ struct ContactServiceTests {
         }
 
         // Remove the contact
-        try await service.removeContact(deviceID: deviceID, publicKey: testPublicKey)
+        try await service.removeContact(radioID: radioID, publicKey: testPublicKey)
 
         // Verify messages were deleted
         let deletedForContacts = await mockStore.deletedMessagesForContactIDs
@@ -484,13 +484,13 @@ struct ContactServiceTests {
         let mockSession = MockMeshCoreSession()
         let mockStore = MockPersistenceStore()
 
-        let deviceID = UUID()
+        let radioID = UUID()
         let contactID = UUID()
 
         // Set up contact with unread count
         let contact = ContactDTO(
             id: contactID,
-            deviceID: deviceID,
+            radioID: radioID,
             publicKey: testPublicKey,
             name: "TestContact",
             typeRawValue: ContactType.chat.rawValue,
@@ -538,13 +538,13 @@ struct ContactServiceTests {
         let mockSession = MockMeshCoreSession()
         let mockStore = MockPersistenceStore()
 
-        let deviceID = UUID()
+        let radioID = UUID()
         let contactID = UUID()
 
         // Set up contact
         let contact = ContactDTO(
             id: contactID,
-            deviceID: deviceID,
+            radioID: radioID,
             publicKey: testPublicKey,
             name: "TestContact",
             typeRawValue: ContactType.chat.rawValue,
@@ -590,13 +590,13 @@ struct ContactServiceTests {
         let mockSession = MockMeshCoreSession()
         let mockStore = MockPersistenceStore()
 
-        let deviceID = UUID()
+        let radioID = UUID()
         let contactID = UUID()
 
         // Set up contact with special fields
         let contact = ContactDTO(
             id: contactID,
-            deviceID: deviceID,
+            radioID: radioID,
             publicKey: testPublicKey,
             name: "TestContact",
             typeRawValue: ContactType.chat.rawValue,
@@ -638,13 +638,13 @@ struct ContactServiceTests {
         let mockSession = MockMeshCoreSession()
         let mockStore = MockPersistenceStore()
 
-        let deviceID = UUID()
+        let radioID = UUID()
         let contactID = UUID()
 
         // Set up contact that is already blocked
         let contact = ContactDTO(
             id: contactID,
-            deviceID: deviceID,
+            radioID: radioID,
             publicKey: testPublicKey,
             name: "TestContact",
             typeRawValue: ContactType.chat.rawValue,

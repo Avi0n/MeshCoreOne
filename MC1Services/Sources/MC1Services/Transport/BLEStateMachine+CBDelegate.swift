@@ -64,7 +64,10 @@ final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheral
         guard let sm = stateMachine else { return }
         let peripheralID = peripheral.identifier
         let rssiValue = RSSI.intValue
-        Task { await sm.handleDidDiscoverPeripheral(peripheralID: peripheralID, rssi: rssiValue) }
+        // Prefer the advertised local name; it is present before a connection is established
+        // and fresher than the cached `peripheral.name`.
+        let name = (advertisementData[CBAdvertisementDataLocalNameKey] as? String) ?? peripheral.name
+        Task { await sm.handleDidDiscoverPeripheral(peripheralID: peripheralID, name: name, rssi: rssiValue) }
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
@@ -107,7 +110,7 @@ final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheral
 
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         // Yield data directly to preserve ordering from the serial CBCentralManager queue.
-        // Do NOT spawn a Task here - that breaks ordering guarantees.
+        // Do not spawn a Task here - that breaks ordering guarantees.
         if let error {
             logger.warning("[BLE] didUpdateValueFor error: \(peripheral.identifier.uuidString.prefix(8)), char: \(characteristic.uuid.uuidString.prefix(8)), error: \(error.localizedDescription)")
             return
@@ -130,5 +133,10 @@ final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheral
         // this callback with the write that triggered it.
         let seq = writeSequenceLock.withLock { $0 }
         Task { await sm.handleDidWriteValue(peripheral, characteristic: characteristic, error: error, writeSequence: seq) }
+    }
+
+    func peripheralIsReady(toSendWriteWithoutResponse peripheral: CBPeripheral) {
+        guard let sm = stateMachine else { return }
+        Task { await sm.handlePeripheralReadyForWriteWithoutResponse() }
     }
 }

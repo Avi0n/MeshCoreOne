@@ -7,8 +7,8 @@ extension ChatViewModel {
 
     /// Send a reaction emoji to a message (channel or DM)
     func sendReaction(emoji: String, to message: MessageDTO) async {
-        guard let reactionService = appState?.services?.reactionService,
-              let messageService,
+        guard appState?.services?.reactionService != nil,
+              messageService != nil,
               let dataStore else {
             return
         }
@@ -82,7 +82,7 @@ extension ChatViewModel {
             _ = try await messageService.sendChannelMessage(
                 text: reactionText,
                 channelIndex: channelIndex,
-                deviceID: message.deviceID
+                radioID: message.radioID
             )
 
             // Optimistic local update
@@ -97,7 +97,7 @@ extension ChatViewModel {
                 messageHash: messageHash,
                 rawText: reactionText,
                 channelIndex: channelIndex,
-                deviceID: message.deviceID
+                radioID: message.radioID
             )
             if let result = await reactionService.persistReactionAndUpdateSummary(
                 reactionDTO,
@@ -151,7 +151,7 @@ extension ChatViewModel {
                 messageHash: messageHash,
                 rawText: reactionText,
                 contactID: contactID,
-                deviceID: message.deviceID
+                radioID: message.radioID
             )
             if let result = await reactionService.persistReactionAndUpdateSummary(
                 reactionDTO,

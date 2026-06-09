@@ -13,19 +13,7 @@
 "welcome.title" = "MeshCore One";
 
 /* Location: WelcomeView.swift - Subtitle describing the app */
-"welcome.subtitle" = "Клієнт MeshCore для пристроїв Apple";
-
-/* Location: WelcomeView.swift - Feature title for multi-hop routing */
-"welcome.feature.multiHop.title" = "Багатопереходова маршрутизація";
-
-/* Location: WelcomeView.swift - Feature description for multi-hop routing */
-"welcome.feature.multiHop.description" = "Ваше повідомлення знайде шлях через мережу mesh";
-
-/* Location: WelcomeView.swift - Feature title for community network */
-"welcome.feature.community.title" = "Мережа спільноти";
-
-/* Location: WelcomeView.swift - Feature description for community network */
-"welcome.feature.community.description" = "Мережа, побудована такими ж користувачами, як ви";
+"welcome.subtitle" = "Надсилайте повідомлення через мережу, створену спільнотою, навіть без інтернету.";
 
 /* Location: WelcomeView.swift - Button to proceed to next onboarding step */
 "welcome.getStarted" = "Почати";
@@ -34,31 +22,25 @@
 // MARK: - Permissions View
 
 /* Location: PermissionsView.swift - Screen title for permissions */
-"permissions.title" = "Дозволи";
+"permissions.title" = "Кілька дозволів";
 
 /* Location: PermissionsView.swift - Subtitle encouraging notification permission */
-"permissions.subtitle" = "Дозвольте сповіщення для найкращого досвіду";
+"permissions.subtitle" = "Обидва необов'язкові. Ви можете змінити це в Налаштуваннях будь-коли.";
 
 /* Location: PermissionsView.swift - Permission card title for notifications */
 "permissions.notifications.title" = "Сповіщення";
 
 /* Location: PermissionsView.swift - Permission card description for notifications */
-"permissions.notifications.description" = "Отримуйте сповіщення про нові повідомлення";
+"permissions.notifications.description" = "Отримуйте сповіщення про нові повідомлення та низький заряд, навіть коли програма закрита.";
 
 /* Location: PermissionsView.swift - Permission card title for location */
 "permissions.location.title" = "Місцезнаходження";
 
 /* Location: PermissionsView.swift - Permission card description for location */
-"permissions.location.description" = "Бачте своє місцезнаходження на карті";
+"permissions.location.description" = "Пропонує локальні пресети радіо, показує вашу позицію на карті та сортує контакти за відстанню.";
 
-/* Location: PermissionsView.swift - Button when all permissions granted */
+/* Location: PermissionsView.swift - Button to proceed to next step */
 "permissions.continue" = "Продовжити";
-
-/* Location: PermissionsView.swift - Button when some permissions skipped */
-"permissions.skipForNow" = "Пропустити";
-
-/* Location: PermissionsView.swift - Button to go back */
-"permissions.back" = "Назад";
 
 /* Location: PermissionsView.swift - Badge shown for optional permissions */
 "permissions.optional" = "Необов'язково";
@@ -85,22 +67,13 @@
 "deviceScan.title" = "Сполучення пристрою";
 
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
-"deviceScan.subtitle" = "Переконайтеся, що пристрій MeshCore увімкнено та він поблизу";
+"deviceScan.subtitle" = "Увімкніть його, а потім торкніться «Додати пристрій».";
 
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "Ваш пристрій вже сполучено";
 
-/* Location: DeviceScanView.swift - Instruction step 1 */
-"deviceScan.instruction.powerOn" = "Увімкніть пристрій MeshCore";
-
-/* Location: DeviceScanView.swift - Instruction step 2 */
-"deviceScan.instruction.tapAdd" = "Натисніть «Додати пристрій» нижче";
-
-/* Location: DeviceScanView.swift - Instruction step 3 */
-"deviceScan.instruction.selectDevice" = "Виберіть пристрій зі списку";
-
-/* Location: DeviceScanView.swift - Instruction step 4 */
-"deviceScan.instruction.enterPin" = "Введіть PIN-код за запитом";
+/* Location: DeviceScanView.swift - "I don't have a device yet" tertiary */
+"deviceScan.noDeviceYet" = "У мене ще немає пристрою";
 
 /* Location: DeviceScanView.swift - Button to continue after pairing */
 "deviceScan.continue" = "Продовжити";
@@ -121,7 +94,7 @@
 "deviceScan.retryConnection" = "Повторити з'єднання";
 
 /* Location: DeviceScanView.swift - Button for troubleshooting */
-"deviceScan.deviceNotAppearing" = "Пристрій не з'являється?";
+"deviceScan.deviceNotAppearing" = "Допомога";
 
 /* Location: DeviceScanView.swift - Button to connect via WiFi */
 "deviceScan.connectViaWifi" = "Підключитися через WiFi";
@@ -132,6 +105,9 @@
 /* Location: DeviceScanView.swift - Alert message for demo mode */
 "deviceScan.demoModeAlert.message" = "Тепер ви можете продовжити без пристрою. Вимкніть демо-режим у будь-який час у Налаштуваннях.";
 
+/* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
+"deviceScan.error.authenticationFailed" = "Не вдалося спарувати пристрій. Перевірте PIN-код, потім видаліть пристрій і спробуйте ще раз.";
+"deviceScan.error.connectionFailed" = "Не вдалося підключитися до пристрою. Спробуйте знову або видаліть пристрій, якщо проблема не зникає.";
 
 // MARK: - Troubleshooting Sheet
 
@@ -146,6 +122,9 @@
 
 /* Location: DeviceScanView.swift - Check to move device closer */
 "troubleshooting.basicChecks.moveCloser" = "Піднесіть пристрій ближче до телефону";
+
+/* Location: TroubleshootingSheet.swift - Check that radio isn't connected elsewhere */
+"troubleshooting.basicChecks.notConnectedElsewhere" = "Переконайтеся, що ваше радіо не підключено до іншого телефону або додатка";
 
 /* Location: DeviceScanView.swift - Check to restart the device */
 "troubleshooting.basicChecks.restart" = "Перезапустіть пристрій MeshCore";
@@ -177,6 +156,16 @@
 /* Location: DeviceScanView.swift - Path to accessories in settings */
 "troubleshooting.systemSettings.path" = "Налаштування → Конфіденційність та безпека → Аксесуари";
 
+/* Location: TroubleshootingSheet.swift - Button that opens iOS Settings */
+"troubleshooting.systemSettings.openSettings" = "Відкрити Налаштування";
+
+/* Location: TroubleshootingSheet.swift - Section header for last-resort flashing steps */
+"troubleshooting.stillNotAppearing.header" = "Досі не з'являється?";
+
+/* Location: TroubleshootingSheet.swift - Body text explaining backup and reflash steps */
+"troubleshooting.stillNotAppearing.body" = "Якщо ви спробували все вищезазначене, створіть резервну копію конфігурації вашого радіо в застосунку MeshCore від Liam Cottle, потім зітріть і перепрошийте його на комп'ютері за адресою https://flasher.meshcore.io";
+
+
 
 // MARK: - Mesh Animation View
 
@@ -184,29 +173,58 @@
 "meshAnimation.accessibilityLabel" = "Візуалізація мережі mesh";
 
 
-// MARK: - Radio Preset Onboarding View
+// MARK: - No Device Sheet
 
-/* Location: RadioPresetOnboardingView.swift - Screen title for radio settings */
-"radioPreset.title" = "Налаштування радіо";
+/* Location: NoDeviceSheet.swift - Sheet title */
+"noDevice.sheet.title" = "Роздивіться навколо";
 
-/* Location: RadioPresetOnboardingView.swift - Subtitle with instructions and Discord link */
-"radioPreset.subtitle" = "Ви можете змінити ці налаштування в будь-який час у налаштуваннях MeshCore One. Якщо ви не знаєте, який пресет використовувати, запитайте в [MeshCore Discord](https://meshcore.co.uk/contact.html)";
+/* Location: NoDeviceSheet.swift - Sheet body */
+"noDevice.sheet.body" = "Для надсилання та отримання повідомлень потрібне спарене радіо. Вивчіть програму зараз і виконайте сполучення будь-коли з Налаштувань.";
 
-/* Location: RadioPresetOnboardingView.swift - Button label while applying preset */
-"radioPreset.applying" = "Застосування...";
+/* Location: NoDeviceSheet.swift - Primary CTA */
+"noDevice.sheet.confirm" = "Продовжити";
 
-/* Location: RadioPresetOnboardingView.swift - Button to apply selected preset */
-"radioPreset.apply" = "Застосувати";
+/* Location: NoDeviceSheet.swift - Secondary CTA */
+"noDevice.sheet.cancel" = "Скасувати";
 
-/* Location: RadioPresetOnboardingView.swift - Button to continue */
-"radioPreset.continue" = "Продовжити";
 
-/* Location: RadioPresetOnboardingView.swift - Button to skip radio setup */
-"radioPreset.skip" = "Пропустити";
+// MARK: - Preset Step View
 
-/* Location: RadioPresetOnboardingView.swift - Label for custom (non-preset) radio settings */
-"radioPreset.custom" = "Власні";
+/* Location: PresetStepView.swift - Title */
+"preset.title" = "Виберіть пресет";
 
+/* Location: PresetStepView.swift - Subtitle when recommendation exists */
+"preset.subtitle.recommended" = "Рекомендовано для %@";
+
+/* Location: PresetStepView.swift - Subtitle for empty-region fallback */
+"preset.subtitle.locale" = "Виберіть пресет для вашого радіо.";
+
+/* Location: PresetStepView.swift - Footer help line pointing users to the MeshCore Discord */
+"preset.discordHelp" = "Не впевнені, який пресет вибрати? Приєднуйтесь до офіційного MeshCore Discord і запитайте! [https://meshcore.gg](https://meshcore.gg)";
+
+/* Location: PresetStepView.swift - Apply CTA "Use %@" */
+"preset.use" = "Використати %@";
+
+/* Location: PresetStepView.swift - Already-configured title */
+"preset.alreadyConfigured.title" = "Вже налаштовано";
+
+/* Location: PresetStepView.swift - Already-configured subtitle */
+"preset.alreadyConfigured.subtitle" = "Ваше радіо вже налаштовано на %@, рекомендований пресет для %@.";
+
+/* Location: PresetStepView.swift - Already-configured primary CTA */
+"preset.alreadyConfigured.done" = "Готово";
+
+/* Location: PresetStepView.swift - Already-configured secondary link */
+"preset.alreadyConfigured.choose" = "Вибрати інший пресет";
+
+/* Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring */
+"preset.error.notConnected" = "Підключіться до пристрою, щоб застосувати цей пресет.";
+
+/* Location: PresetStepView.swift - Generic Continue label used when no preset is selected */
+"preset.continue" = "Продовжити";
+
+/* Location: PresetStepView.swift - VoiceOver hint for tapping a preset card */
+"preset.row.accessibilityHint" = "Вибирає цей пресет.";
 
 // MARK: - WiFi Connection Sheet
 
@@ -239,3 +257,67 @@
 
 /* Location: WiFiConnectionSheet.swift - Error message for invalid port */
 "wifiConnection.error.invalidPort" = "Невірний номер порту";
+
+
+// MARK: - Region Picker View
+
+/* Location: RegionPickerView.swift - Country picker label */
+"region.country" = "Країна";
+
+/* Location: RegionPickerView.swift - State/Province picker label */
+"region.administrativeArea" = "Область / Провінція";
+
+/* Location: RegionPickerView.swift - Continue CTA in manual picker */
+"region.continue" = "Продовжити";
+
+/* Location: RegionStepView.swift - Title (both states) */
+"region.title" = "Виберіть регіон";
+
+/* Location: RegionStepView.swift - Subtitle for the region step */
+"region.subtitle" = "Ми покажемо пресети, які працюють у вашому районі.";
+
+/* Location: RegionStepView.swift - "Detected" tag */
+"region.detected.tag" = "Визначено";
+
+/* Location: RegionStepView.swift - Caption "From your location" */
+"region.detected.source" = "На основі вашого місцезнаходження";
+
+/* Location: RegionStepView.swift - Primary CTA in detected state */
+"region.useThisRegion" = "Використати цей регіон";
+
+/* Location: RegionStepView.swift - "Choose another" link */
+"region.chooseAnother" = "Вибрати інший";
+
+/* Location: RegionStepView.swift - "Use my location" link in manual state */
+"region.useMyLocation" = "Використати моє місцезнаходження";
+
+/* Location: RegionStepView.swift - "Finding your region…" */
+"region.resolving" = "Визначення регіону…";
+
+/* Location: RegionStepView.swift - Error shown when user-initiated retry of "Use my location" cannot resolve a region */
+"region.useMyLocation.failure" = "Пошук за місцезнаходженням не повернув регіон. Виберіть вручну нижче.";
+
+
+// MARK: - Device Scanner Sheet (macOS)
+
+/* Location: DeviceScannerSheet.swift - Navigation title for the macOS BLE scanner */
+"deviceScanner.title" = "Виберіть пристрій";
+
+/* Location: DeviceScannerSheet.swift - Placeholder name for peripherals with no advertised name */
+"deviceScanner.unknownDevice" = "Невідомий пристрій";
+
+/* Location: DeviceScannerSheet.swift - Empty state shown while scanning for devices */
+"deviceScanner.scanning" = "Пошук пристроїв…";
+
+/* Location: DeviceScannerSheet.swift - Title shown when Bluetooth is powered off on the macOS scanner */
+"deviceScanner.bluetoothOff.title" = "Bluetooth вимкнено";
+
+/* Location: DeviceScannerSheet.swift - Guidance shown when Bluetooth is powered off on the macOS scanner */
+"deviceScanner.bluetoothOff.message" = "Увімкніть Bluetooth, щоб знайти пристрої поблизу.";
+
+/* Location: DeviceScannerSheet.swift - Title shown when the app is not authorized to use Bluetooth */
+"deviceScanner.bluetoothUnauthorized.title" = "Потрібен доступ до Bluetooth";
+
+/* Location: DeviceScannerSheet.swift - Guidance shown when the app is not authorized to use Bluetooth */
+"deviceScanner.bluetoothUnauthorized.message" = "Дозвольте доступ до Bluetooth у Налаштуваннях, щоб знайти пристрої поблизу.";
+

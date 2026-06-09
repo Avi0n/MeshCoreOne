@@ -7,6 +7,7 @@ private let logger = Logger(subsystem: "com.mc1", category: "NodeAuthenticationS
 /// Reusable password entry sheet for both room servers and repeaters
 struct NodeAuthenticationSheet: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     let contact: ContactDTO
@@ -19,6 +20,8 @@ struct NodeAuthenticationSheet: View {
 
     @State private var password: String = ""
     @State private var rememberPassword = true
+    @State private var useFloodRouting: Bool
+    @State private var didResetPath = false
     @State private var isAuthenticating = false
     @State private var errorMessage: String?
     @State private var hasSavedPassword = false
@@ -44,6 +47,7 @@ struct NodeAuthenticationSheet: View {
         self.hideNodeDetails = hideNodeDetails
         self.customTitle = customTitle
         self.onSuccess = onSuccess
+        self._useFloodRouting = State(initialValue: contact.isFloodRouted)
     }
 
     var body: some View {
@@ -53,8 +57,10 @@ struct NodeAuthenticationSheet: View {
                     makeNodeDetailsSection()
                 }
                 makeAuthenticationSection()
+                makePathSection()
                 makeConnectButton()
             }
+            .themedCanvas(theme)
             .navigationTitle(customTitle ?? (role == .roomServer ? L10n.RemoteNodes.RemoteNodes.Auth.joinRoom : L10n.RemoteNodes.RemoteNodes.Auth.management))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -99,6 +105,13 @@ struct NodeAuthenticationSheet: View {
         )
     }
 
+    private func makePathSection() -> some View {
+        PathSection(
+            contact: contact,
+            useFloodRouting: $useFloodRouting
+        )
+    }
+
     private func makeConnectButton() -> some View {
         ConnectButton(
             role: role,
@@ -126,8 +139,21 @@ struct NodeAuthenticationSheet: View {
                     throw RemoteNodeError.notConnected
                 }
 
-                // Determine path length from contact for timeout calculation
-                let pathLength = contact.outPathLength
+                // Reset the firmware's stored path so the login packet is flood-routed.
+                // Only needed once per session — subsequent retries skip the BLE round-trip.
+                let pathLength: UInt8
+                if useFloodRouting && !contact.isFloodRouted && !didResetPath {
+                    try await services.contactService.resetPath(
+                        radioID: device.radioID,
+                        publicKey: contact.publicKey
+                    )
+                    didResetPath = true
+                    pathLength = 0xFF
+                } else if useFloodRouting {
+                    pathLength = 0xFF
+                } else {
+                    pathLength = contact.outPathLength
+                }
 
                 let session: RemoteNodeSessionDTO
                 // MeshCore repeaters and rooms only support 15-character passwords, truncate if needed
@@ -147,7 +173,7 @@ struct NodeAuthenticationSheet: View {
 
                 if role == .roomServer {
                     session = try await services.roomServerService.joinRoom(
-                        deviceID: device.id,
+                        radioID: device.radioID,
                         contact: contact,
                         password: passwordToUse,
                         rememberPassword: rememberPassword,
@@ -156,7 +182,7 @@ struct NodeAuthenticationSheet: View {
                     )
                 } else {
                     session = try await services.repeaterAdminService.connectAsAdmin(
-                        deviceID: device.id,
+                        radioID: device.radioID,
                         contact: contact,
                         password: passwordToUse,
                         rememberPassword: rememberPassword,
@@ -234,6 +260,7 @@ struct NodeAuthenticationSheet: View {
 // MARK: - Node Details Section
 
 private struct NodeDetailsSection: View {
+    @Environment(\.appTheme) private var theme
     let displayName: String
     let role: RemoteNodeRole
 
@@ -244,12 +271,14 @@ private struct NodeDetailsSection: View {
         } header: {
             Text(L10n.RemoteNodes.RemoteNodes.Auth.nodeDetails)
         }
+        .themedRowBackground(theme)
     }
 }
 
 // MARK: - Authentication Section
 
 private struct AuthenticationSection: View {
+    @Environment(\.appTheme) private var theme
     @Binding var password: String
     @Binding var rememberPassword: Bool
     @Binding var errorMessage: String?
@@ -280,6 +309,7 @@ private struct AuthenticationSection: View {
                     .accessibilityHidden(true)
             }
         }
+        .themedRowBackground(theme)
         .onChange(of: password) {
             if errorMessage != nil {
                 errorMessage = nil
@@ -295,9 +325,80 @@ private struct AuthenticationSection: View {
     }
 }
 
+// MARK: - Path Section
+
+private struct PathSection: View {
+    @Environment(\.appTheme) private var theme
+    let contact: ContactDTO
+    @Binding var useFloodRouting: Bool
+
+    private var hasStoredPath: Bool {
+        !contact.isFloodRouted
+    }
+
+    private var pathDisplayText: String {
+        if contact.pathHopCount == 0 {
+            return L10n.Contacts.Contacts.Route.direct
+        } else {
+            return contact.pathString
+        }
+    }
+
+    private var pathAccessibilityLabel: String {
+        if contact.pathHopCount == 0 {
+            return L10n.Contacts.Contacts.Detail.routeDirect
+        } else {
+            return L10n.Contacts.Contacts.Detail.routePrefix(pathDisplayText)
+        }
+    }
+
+    var body: some View {
+        Section {
+            if hasStoredPath && !useFloodRouting {
+                Label {
+                    Text(pathDisplayText)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.primary)
+                        .lineLimit(nil)
+                } icon: {
+                    Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
+                        .foregroundStyle(.secondary)
+                        .accessibilityHidden(true)
+                }
+                .accessibilityLabel(pathAccessibilityLabel)
+            } else if !hasStoredPath {
+                Label {
+                    Text(L10n.RemoteNodes.RemoteNodes.Auth.noRouteSet)
+                        .foregroundStyle(.secondary)
+                } icon: {
+                    Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
+                        .foregroundStyle(.secondary)
+                        .accessibilityHidden(true)
+                }
+                .accessibilityHidden(true)
+            }
+
+            Toggle(L10n.RemoteNodes.RemoteNodes.Auth.floodRouting, isOn: $useFloodRouting)
+                .disabled(!hasStoredPath)
+                .accessibilityHint(hasStoredPath ? "" : L10n.RemoteNodes.RemoteNodes.Auth.noRouteFooter)
+        } header: {
+            Text(L10n.RemoteNodes.RemoteNodes.Auth.path)
+        } footer: {
+            if hasStoredPath {
+                Text(L10n.RemoteNodes.RemoteNodes.Auth.pathFooter)
+            } else {
+                Text(L10n.RemoteNodes.RemoteNodes.Auth.noRouteFooter)
+            }
+        }
+        .themedRowBackground(theme)
+        .animation(.default, value: useFloodRouting)
+    }
+}
+
 // MARK: - Connect Button
 
 private struct ConnectButton: View {
+    @Environment(\.appTheme) private var theme
     let role: RemoteNodeRole
     let isAuthenticating: Bool
     let onAuthenticate: () -> Void
@@ -321,13 +422,14 @@ private struct ConnectButton: View {
             }
             .disabled(isAuthenticating)
         }
+        .themedRowBackground(theme)
     }
 }
 
 #Preview {
     NodeAuthenticationSheet(
         contact: ContactDTO(from: Contact(
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0x42, count: 32),
             name: "Test Room",
             typeRawValue: ContactType.room.rawValue

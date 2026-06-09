@@ -295,7 +295,7 @@ struct RelayResultsCardView: View {
             Divider()
 
             HStack {
-                Text("Total: \(LOSFormatters.formatDistance(result.totalDistanceMeters))")
+                Text("\(L10n.Tools.Tools.LineOfSight.total): \(LOSFormatters.formatDistance(result.totalDistanceMeters))")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -312,7 +312,7 @@ struct RelayResultsCardView: View {
             Text("\(segment.startLabel) \u{2192} \(segment.endLabel)")
                 .font(.caption)
 
-            Text(segment.clearanceStatus.rawValue)
+            Text(segment.clearanceStatus.localizedName)
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -344,7 +344,7 @@ struct RelayResultsCardView: View {
                     Text(L10n.Tools.Tools.LineOfSight.status)
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text(segment.clearanceStatus.rawValue)
+                    Text(segment.clearanceStatus.localizedName)
                 }
                 GridRow {
                     Text(L10n.Tools.Tools.LineOfSight.distance)

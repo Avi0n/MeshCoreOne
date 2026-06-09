@@ -33,19 +33,16 @@ public actor MessagePollingService {
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "MessagePolling")
 
     /// Handler for incoming contact messages
-    private var contactMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
+    private var contactMessageHandler: (@Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void)?
 
     /// Handler for incoming channel messages
-    private var channelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?) async -> Void)?
+    private var channelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void)?
 
     /// Handler for signed messages (from room servers)
     private var signedMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
 
     /// Handler for CLI responses (textType = 0x01)
     private var cliMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
-
-    /// Handler for acknowledgements (message delivery confirmations)
-    private var acknowledgementHandler: (@Sendable (Data) async -> Void)?
 
     /// Event monitoring task
     private var eventMonitorTask: Task<Void, Never>?
@@ -54,7 +51,7 @@ public actor MessagePollingService {
     private var isAutoFetchEnabled = false
 
     /// Device ID for contact lookups
-    private var currentDeviceID: UUID?
+    private var currentRadioID: UUID?
 
     /// Count of message handlers currently executing
     /// Used to wait for sync-time handlers to complete before resuming notifications
@@ -66,7 +63,10 @@ public actor MessagePollingService {
 
     // MARK: - Initialization
 
-    public init(session: MeshCoreSession, dataStore: PersistenceStore) {
+    public init(
+        session: MeshCoreSession,
+        dataStore: PersistenceStore
+    ) {
         self.session = session
         self.dataStore = dataStore
     }
@@ -78,12 +78,12 @@ public actor MessagePollingService {
     // MARK: - Event Handlers
 
     /// Set handler for incoming contact messages
-    public func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {
+    public func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void) {
         contactMessageHandler = handler
     }
 
     /// Set handler for incoming channel messages
-    public func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?) async -> Void) {
+    public func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void) {
         channelMessageHandler = handler
     }
 
@@ -97,20 +97,15 @@ public actor MessagePollingService {
         cliMessageHandler = handler
     }
 
-    /// Set handler for acknowledgements
-    public func setAcknowledgementHandler(_ handler: @escaping @Sendable (Data) async -> Void) {
-        acknowledgementHandler = handler
-    }
-
     // MARK: - Event Monitoring
 
     /// Start event monitoring for message handlers without enabling auto-fetch.
     /// Call this before sync to ensure handlers are ready for polled messages.
-    /// - Parameter deviceID: The device ID for contact lookups
-    public func startMessageEventMonitoring(deviceID: UUID) {
-        currentDeviceID = deviceID
+    /// - Parameter radioID: The radio ID for contact lookups
+    public func startMessageEventMonitoring(radioID: UUID) {
+        currentRadioID = radioID
         startEventMonitoring()
-        logger.info("Message event monitoring started for device \(deviceID)")
+        logger.info("Message event monitoring started for radio \(radioID)")
     }
 
     /// Stop event monitoring (also stops auto-fetch if running)
@@ -119,7 +114,7 @@ public actor MessagePollingService {
             await stopAutoFetch()
         } else {
             stopEventMonitoring()
-            currentDeviceID = nil
+            currentRadioID = nil
         }
     }
 
@@ -127,11 +122,11 @@ public actor MessagePollingService {
 
     /// Start automatic message fetching for a device.
     /// This enables the session's auto-fetch feature and monitors for incoming messages.
-    /// - Parameter deviceID: The device ID for contact lookups
-    public func startAutoFetch(deviceID: UUID) async {
+    /// - Parameter radioID: The radio ID for contact lookups
+    public func startAutoFetch(radioID: UUID) async {
         guard !isAutoFetchEnabled else { return }
 
-        currentDeviceID = deviceID
+        currentRadioID = radioID
         isAutoFetchEnabled = true
 
         // Start event monitoring if not already running
@@ -140,7 +135,7 @@ public actor MessagePollingService {
         }
         await session.startAutoMessageFetching()
 
-        logger.info("Auto-fetch started for device \(deviceID)")
+        logger.info("Auto-fetch started for radio \(radioID)")
     }
 
     /// Stop automatic message fetching
@@ -195,15 +190,23 @@ public actor MessagePollingService {
         defer { isPolling = false }
         var count = 0
 
+        // One anchor for the whole drain so every backlog message shares a sort date
+        // and forms a single contiguous block positioned at delivery time.
+        let blockAnchor = Date()
+
         while true {
             let result = try await pollMessage()
             switch result {
             case .contactMessage(let msg):
                 count += 1
-                await handleContactMessage(msg)
+                await handleContactMessage(msg, context: .initialSync(anchor: blockAnchor))
             case .channelMessage(let msg):
                 count += 1
-                await handleChannelMessage(msg)
+                await handleChannelMessage(msg, context: .initialSync(anchor: blockAnchor))
+            case .channelDatagram:
+                // Datagrams are not user-visible messages; drain queue without counting.
+                // A follow-up plan will add a dedicated MC1Services listener for them.
+                break
             case .noMoreMessages:
                 return count
             }
@@ -235,7 +238,7 @@ public actor MessagePollingService {
 
         eventMonitorTask = Task { [weak self] in
             guard let self else { return }
-            let events = await session.events()
+            let events = await session.events(filter: EventFilter.anyContactMessage.or(.anyChannelMessage))
 
             for await event in events {
                 guard !Task.isCancelled else { break }
@@ -257,16 +260,13 @@ public actor MessagePollingService {
             guard !isPolling else { return }
             pendingHandlerCount += 1
             defer { pendingHandlerCount -= 1 }
-            await handleContactMessage(message)
+            await handleContactMessage(message, context: .live)
 
         case .channelMessageReceived(let message):
             guard !isPolling else { return }
             pendingHandlerCount += 1
             defer { pendingHandlerCount -= 1 }
-            await handleChannelMessage(message)
-
-        case .acknowledgement(let code, _):
-            await acknowledgementHandler?(code)
+            await handleChannelMessage(message, context: .live)
 
         default:
             break
@@ -276,16 +276,16 @@ public actor MessagePollingService {
     // MARK: - Private Message Handlers
 
     /// Handle incoming contact message
-    private func handleContactMessage(_ message: ContactMessage) async {
-        guard let deviceID = currentDeviceID else {
-            logger.warning("Received message but no device ID set")
-            await contactMessageHandler?(message, nil)
+    private func handleContactMessage(_ message: ContactMessage, context: DeliveryContext) async {
+        guard let radioID = currentRadioID else {
+            logger.warning("Received message but no radio ID set")
+            await contactMessageHandler?(message, nil, context)
             return
         }
 
         // Look up the sender contact
         let contact = try? await dataStore.fetchContact(
-            deviceID: deviceID,
+            radioID: radioID,
             publicKeyPrefix: message.senderPublicKeyPrefix
         )
 
@@ -299,22 +299,22 @@ public actor MessagePollingService {
             await signedMessageHandler?(message, contact)
         default:
             // Regular contact messages (textType = 0x00 or unknown)
-            await contactMessageHandler?(message, contact)
+            await contactMessageHandler?(message, contact, context)
         }
     }
 
     /// Handle incoming channel message
-    private func handleChannelMessage(_ message: ChannelMessage) async {
-        guard let deviceID = currentDeviceID else {
-            logger.warning("Received channel message but no device ID set")
-            await channelMessageHandler?(message, nil)
+    private func handleChannelMessage(_ message: ChannelMessage, context: DeliveryContext) async {
+        guard let radioID = currentRadioID else {
+            logger.warning("Received channel message but no radio ID set")
+            await channelMessageHandler?(message, nil, context)
             return
         }
 
         // Look up the channel
-        let channel = try? await dataStore.fetchChannel(deviceID: deviceID, index: message.channelIndex)
+        let channel = try? await dataStore.fetchChannel(radioID: radioID, index: message.channelIndex)
 
-        await channelMessageHandler?(message, channel)
+        await channelMessageHandler?(message, channel, context)
     }
 }
 

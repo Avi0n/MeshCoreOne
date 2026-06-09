@@ -8,7 +8,8 @@ public final class SavedTracePath {
     public var id: UUID
 
     /// The device this path belongs to
-    public var deviceID: UUID
+    @Attribute(originalName: "deviceID")
+    public var radioID: UUID
 
     /// User-editable name (e.g., "Tower → Barn → Ridge")
     public var name: String
@@ -28,14 +29,14 @@ public final class SavedTracePath {
 
     public init(
         id: UUID = UUID(),
-        deviceID: UUID,
+        radioID: UUID,
         name: String,
         pathBytes: Data,
         hashSize: Int = 1,
         createdDate: Date = Date()
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.name = name
         self.pathBytes = pathBytes
         self.hashSize = hashSize
@@ -76,6 +77,20 @@ public final class TracePathRun {
         self.success = success
         self.roundTripMs = roundTripMs
         self.hopsData = hopsData
+    }
+
+    /// Builds a model instance directly from a DTO, re-encoding `hopsSNR` to
+    /// the JSON-array format used by `hopsData` storage. Shared by the
+    /// diagnostics and backup insert paths so the encoding stays consistent.
+    public convenience init(dto: TracePathRunDTO) throws {
+        let hopsData = try JSONEncoder().encode(dto.hopsSNR)
+        self.init(
+            id: dto.id,
+            date: dto.date,
+            success: dto.success,
+            roundTripMs: dto.roundTripMs,
+            hopsData: hopsData
+        )
     }
 }
 
@@ -119,9 +134,9 @@ public extension TracePathRun {
 // MARK: - DTOs
 
 /// Sendable snapshot of SavedTracePath for cross-actor transfers
-public struct SavedTracePathDTO: Sendable, Identifiable, Equatable, Hashable {
+public struct SavedTracePathDTO: Sendable, Identifiable, Equatable, Hashable, Codable {
     public let id: UUID
-    public let deviceID: UUID
+    public var radioID: UUID
     public let name: String
     public let pathBytes: Data
     public let hashSize: Int
@@ -130,7 +145,7 @@ public struct SavedTracePathDTO: Sendable, Identifiable, Equatable, Hashable {
 
     public init(from model: SavedTracePath) {
         self.id = model.id
-        self.deviceID = model.deviceID
+        self.radioID = model.radioID
         self.name = model.name
         self.pathBytes = model.pathBytes
         self.hashSize = model.hashSize
@@ -140,7 +155,7 @@ public struct SavedTracePathDTO: Sendable, Identifiable, Equatable, Hashable {
 
     public init(
         id: UUID,
-        deviceID: UUID,
+        radioID: UUID,
         name: String,
         pathBytes: Data,
         hashSize: Int = 1,
@@ -148,7 +163,7 @@ public struct SavedTracePathDTO: Sendable, Identifiable, Equatable, Hashable {
         runs: [TracePathRunDTO]
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.name = name
         self.pathBytes = pathBytes
         self.hashSize = hashSize
@@ -191,7 +206,7 @@ public struct SavedTracePathDTO: Sendable, Identifiable, Equatable, Hashable {
 }
 
 /// Sendable snapshot of TracePathRun
-public struct TracePathRunDTO: Sendable, Identifiable, Equatable, Hashable {
+public struct TracePathRunDTO: Sendable, Identifiable, Equatable, Hashable, Codable {
     public let id: UUID
     public let date: Date
     public let success: Bool

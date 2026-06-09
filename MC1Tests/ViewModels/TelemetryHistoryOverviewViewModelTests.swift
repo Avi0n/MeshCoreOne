@@ -17,17 +17,22 @@ struct TelemetryHistoryOverviewViewModelTests {
         return PersistenceStore(modelContainer: container)
     }
 
-    private func createContactDTO(ocvPreset: String? = nil) -> ContactDTO {
+    private func createContactDTO(
+        publicKey: Data? = nil,
+        name: String = "Test Repeater",
+        lastAdvertTimestamp: UInt32 = 0,
+        ocvPreset: String? = nil
+    ) -> ContactDTO {
         ContactDTO(
             id: UUID(),
-            deviceID: testDeviceID,
-            publicKey: testPublicKey,
-            name: "Test Repeater",
+            radioID: testDeviceID,
+            publicKey: publicKey ?? testPublicKey,
+            name: name,
             typeRawValue: ContactType.repeater.rawValue,
             flags: 0,
             outPathLength: 0,
             outPath: Data(),
-            lastAdvertTimestamp: 0,
+            lastAdvertTimestamp: lastAdvertTimestamp,
             latitude: 0,
             longitude: 0,
             lastModified: 0,
@@ -62,7 +67,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
 
         #expect(viewModel.snapshots.count == 2)
@@ -74,7 +79,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
 
         #expect(viewModel.snapshots.isEmpty)
@@ -91,7 +96,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
 
         #expect(viewModel.ocvArray == OCVPreset.liFePO4.ocvArray)
@@ -103,7 +108,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
 
         #expect(viewModel.ocvArray == OCVPreset.liIon.ocvArray)
@@ -124,7 +129,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
         viewModel.timeRange = .all
 
@@ -155,7 +160,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
         viewModel.timeRange = .week
 
@@ -179,7 +184,7 @@ struct TelemetryHistoryOverviewViewModelTests {
         )
 
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
         #expect(viewModel.hasSnapshots)
     }
@@ -198,7 +203,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
         #expect(!viewModel.hasTelemetryData, "Should be false with no telemetry entries")
 
@@ -209,7 +214,7 @@ struct TelemetryHistoryOverviewViewModelTests {
         )
 
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
         #expect(viewModel.hasTelemetryData, "Should be true after adding telemetry entries")
     }
@@ -228,7 +233,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
         #expect(!viewModel.hasNeighborData, "Should be false with no neighbor snapshots")
 
@@ -239,9 +244,33 @@ struct TelemetryHistoryOverviewViewModelTests {
         )
 
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
         #expect(viewModel.hasNeighborData, "Should be true after adding neighbor snapshots")
+    }
+
+    @Test("resolveNeighborName disambiguates short contact prefixes by resolver policy")
+    func resolveNeighborNameDisambiguatesShortContactPrefixes() async throws {
+        let store = try await createStore()
+        let older = createContactDTO(
+            publicKey: Data([0xAB, 0xCD, 0x01] + Array(repeating: UInt8(0), count: 29)),
+            name: "A Older Repeater",
+            lastAdvertTimestamp: 100
+        )
+        let newer = createContactDTO(
+            publicKey: Data([0xAB, 0xCD, 0x02] + Array(repeating: UInt8(0), count: 29)),
+            name: "Z Newer Repeater",
+            lastAdvertTimestamp: 200
+        )
+        try await store.saveContact(older)
+        try await store.saveContact(newer)
+
+        let viewModel = TelemetryHistoryOverviewViewModel()
+        await viewModel.loadData(
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
+        )
+
+        #expect(viewModel.resolveNeighborName(prefix: Data([0xAB, 0xCD])) == "Z Newer Repeater")
     }
 
     // MARK: - Channel Groups
@@ -271,7 +300,7 @@ struct TelemetryHistoryOverviewViewModelTests {
 
         let viewModel = TelemetryHistoryOverviewViewModel()
         await viewModel.loadData(
-            dataStore: store, publicKey: testPublicKey, deviceID: testDeviceID
+            dataStore: store, publicKey: testPublicKey, radioID: testDeviceID
         )
 
         let groups = viewModel.channelGroups

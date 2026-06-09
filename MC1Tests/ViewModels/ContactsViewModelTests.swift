@@ -7,7 +7,7 @@ import CoreLocation
 // MARK: - Test Helpers
 
 private func createContact(
-    deviceID: UUID = UUID(),
+    radioID: UUID = UUID(),
     name: String = "TestContact",
     type: ContactType = .chat,
     isFavorite: Bool = false,
@@ -19,7 +19,7 @@ private func createContact(
 ) -> ContactDTO {
     ContactDTO(
         id: UUID(),
-        deviceID: deviceID,
+        radioID: radioID,
         publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) }),
         name: name,
         typeRawValue: type.rawValue,
@@ -70,7 +70,7 @@ struct ContactsViewModelTests {
     @Test("loadContacts with nil dataStore returns early without setting hasLoadedOnce")
     func loadContactsNilDataStore() async {
         let viewModel = ContactsViewModel()
-        await viewModel.loadContacts(deviceID: UUID())
+        await viewModel.loadContacts(radioID: UUID())
 
         #expect(viewModel.contacts.isEmpty)
         #expect(viewModel.hasLoadedOnce == false)
@@ -80,7 +80,7 @@ struct ContactsViewModelTests {
     @Test("syncContacts with nil contactService returns early")
     func syncContactsNilService() async {
         let viewModel = ContactsViewModel()
-        await viewModel.syncContacts(deviceID: UUID())
+        await viewModel.syncContacts(radioID: UUID())
 
         #expect(viewModel.isSyncing == false)
         #expect(viewModel.syncProgress == nil)
@@ -103,9 +103,9 @@ struct ContactsViewModelTests {
         let viewModel = ContactsViewModel()
         let deviceID = UUID()
         viewModel.contacts = [
-            createContact(deviceID: deviceID, name: "Alice", isFavorite: true),
-            createContact(deviceID: deviceID, name: "Bob", isFavorite: false),
-            createContact(deviceID: deviceID, name: "Charlie", isFavorite: true)
+            createContact(radioID: deviceID, name: "Alice", isFavorite: true),
+            createContact(radioID: deviceID, name: "Bob", isFavorite: false),
+            createContact(radioID: deviceID, name: "Charlie", isFavorite: true)
         ]
 
         let result = viewModel.filteredContacts(
@@ -127,9 +127,9 @@ struct ContactsViewModelTests {
         let viewModel = ContactsViewModel()
         let deviceID = UUID()
         viewModel.contacts = [
-            createContact(deviceID: deviceID, name: "Alice", type: .chat),
-            createContact(deviceID: deviceID, name: "Relay1", type: .repeater),
-            createContact(deviceID: deviceID, name: "Room1", type: .room)
+            createContact(radioID: deviceID, name: "Alice", type: .chat),
+            createContact(radioID: deviceID, name: "Relay1", type: .repeater),
+            createContact(radioID: deviceID, name: "Room1", type: .room)
         ]
 
         let result = viewModel.filteredContacts(
@@ -143,27 +143,48 @@ struct ContactsViewModelTests {
         #expect(result.first?.name == "Alice")
     }
 
-    @Test("filteredContacts network segment returns repeaters and rooms")
-    func filteredContactsNetworkSegment() {
+    @Test("filteredContacts repeaters segment returns only repeater type")
+    func filteredContactsRepeatersSegment() {
         let viewModel = ContactsViewModel()
         let deviceID = UUID()
         viewModel.contacts = [
-            createContact(deviceID: deviceID, name: "Alice", type: .chat),
-            createContact(deviceID: deviceID, name: "Relay1", type: .repeater),
-            createContact(deviceID: deviceID, name: "Room1", type: .room)
+            createContact(radioID: deviceID, name: "Alice", type: .chat),
+            createContact(radioID: deviceID, name: "Relay1", type: .repeater),
+            createContact(radioID: deviceID, name: "Relay2", type: .repeater),
+            createContact(radioID: deviceID, name: "Room1", type: .room)
         ]
 
         let result = viewModel.filteredContacts(
             searchText: "",
-            segment: .network,
+            segment: .repeaters,
             sortOrder: .name,
             userLocation: nil
         )
 
         #expect(result.count == 2)
-        let names = result.map(\.name)
-        #expect(names.contains("Relay1"))
-        #expect(names.contains("Room1"))
+        #expect(result.allSatisfy { $0.type == .repeater })
+    }
+
+    @Test("filteredContacts rooms segment returns only room type")
+    func filteredContactsRoomsSegment() {
+        let viewModel = ContactsViewModel()
+        let deviceID = UUID()
+        viewModel.contacts = [
+            createContact(radioID: deviceID, name: "Alice", type: .chat),
+            createContact(radioID: deviceID, name: "Relay1", type: .repeater),
+            createContact(radioID: deviceID, name: "Room1", type: .room),
+            createContact(radioID: deviceID, name: "Room2", type: .room)
+        ]
+
+        let result = viewModel.filteredContacts(
+            searchText: "",
+            segment: .rooms,
+            sortOrder: .name,
+            userLocation: nil
+        )
+
+        #expect(result.count == 2)
+        #expect(result.allSatisfy { $0.type == .room })
     }
 
     // MARK: - Filtering by Search Text
@@ -173,9 +194,9 @@ struct ContactsViewModelTests {
         let viewModel = ContactsViewModel()
         let deviceID = UUID()
         viewModel.contacts = [
-            createContact(deviceID: deviceID, name: "Alice", type: .chat),
-            createContact(deviceID: deviceID, name: "Relay-Alpha", type: .repeater),
-            createContact(deviceID: deviceID, name: "Bob", type: .chat)
+            createContact(radioID: deviceID, name: "Alice", type: .chat),
+            createContact(radioID: deviceID, name: "Relay-Alpha", type: .repeater),
+            createContact(radioID: deviceID, name: "Bob", type: .chat)
         ]
 
         // Search for "al" should match Alice and Relay-Alpha, ignoring segment filter
@@ -217,9 +238,9 @@ struct ContactsViewModelTests {
         let viewModel = ContactsViewModel()
         let deviceID = UUID()
         viewModel.contacts = [
-            createContact(deviceID: deviceID, name: "Charlie", type: .chat),
-            createContact(deviceID: deviceID, name: "Alice", type: .chat),
-            createContact(deviceID: deviceID, name: "Bob", type: .chat)
+            createContact(radioID: deviceID, name: "Charlie", type: .chat),
+            createContact(radioID: deviceID, name: "Alice", type: .chat),
+            createContact(radioID: deviceID, name: "Bob", type: .chat)
         ]
 
         let result = viewModel.filteredContacts(
@@ -237,9 +258,9 @@ struct ContactsViewModelTests {
         let viewModel = ContactsViewModel()
         let deviceID = UUID()
         viewModel.contacts = [
-            createContact(deviceID: deviceID, name: "Old", type: .chat, lastModified: 100),
-            createContact(deviceID: deviceID, name: "Recent", type: .chat, lastModified: 300),
-            createContact(deviceID: deviceID, name: "Middle", type: .chat, lastModified: 200)
+            createContact(radioID: deviceID, name: "Old", type: .chat, lastModified: 100),
+            createContact(radioID: deviceID, name: "Recent", type: .chat, lastModified: 300),
+            createContact(radioID: deviceID, name: "Middle", type: .chat, lastModified: 200)
         ]
 
         let result = viewModel.filteredContacts(
@@ -257,8 +278,8 @@ struct ContactsViewModelTests {
         let viewModel = ContactsViewModel()
         let deviceID = UUID()
         viewModel.contacts = [
-            createContact(deviceID: deviceID, name: "Charlie", type: .chat),
-            createContact(deviceID: deviceID, name: "Alice", type: .chat)
+            createContact(radioID: deviceID, name: "Charlie", type: .chat),
+            createContact(radioID: deviceID, name: "Alice", type: .chat)
         ]
 
         // No user location → falls back to name sort
@@ -281,9 +302,9 @@ struct ContactsViewModelTests {
 
         viewModel.contacts = [
             // New York (~4100km away)
-            createContact(deviceID: deviceID, name: "FarAway", type: .chat, latitude: 40.7128, longitude: -74.0060),
+            createContact(radioID: deviceID, name: "FarAway", type: .chat, latitude: 40.7128, longitude: -74.0060),
             // Oakland (~13km away)
-            createContact(deviceID: deviceID, name: "Nearby", type: .chat, latitude: 37.8044, longitude: -122.2712)
+            createContact(radioID: deviceID, name: "Nearby", type: .chat, latitude: 37.8044, longitude: -122.2712)
         ]
 
         let result = viewModel.filteredContacts(

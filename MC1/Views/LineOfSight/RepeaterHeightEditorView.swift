@@ -11,7 +11,7 @@ struct RepeaterHeightEditorView: View {
                 get: { repeaterPoint.additionalHeight },
                 set: { viewModel.updateRepeaterHeight(meters: $0) }
             ),
-            range: 0...200,
+            range: 0.0...200.0,
             onHeightChanged: { viewModel.analyzeWithRepeater() }
         )
     }

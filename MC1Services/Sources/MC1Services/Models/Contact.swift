@@ -7,8 +7,8 @@ import SwiftData
 @Model
 public final class Contact {
     #Index<Contact>(
-        [\.deviceID],
-        [\.deviceID, \.publicKey]
+        [\.radioID],
+        [\.radioID, \.publicKey]
     )
 
     /// Unique identifier (derived from public key hash)
@@ -16,7 +16,8 @@ public final class Contact {
     public var id: UUID
 
     /// The device this contact belongs to
-    public var deviceID: UUID
+    @Attribute(originalName: "deviceID")
+    public var radioID: UUID
 
     /// The 32-byte public key of the contact
     public var publicKey: Data
@@ -77,7 +78,7 @@ public final class Contact {
 
     public init(
         id: UUID = UUID(),
-        deviceID: UUID,
+        radioID: UUID,
         publicKey: Data,
         name: String,
         typeRawValue: UInt8 = 0,
@@ -99,7 +100,7 @@ public final class Contact {
         customOCVArrayString: String? = nil
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.publicKey = publicKey
         self.name = name
         self.typeRawValue = typeRawValue
@@ -119,6 +120,34 @@ public final class Contact {
         self.unreadMentionCount = unreadMentionCount
         self.ocvPreset = ocvPreset
         self.customOCVArrayString = customOCVArrayString
+    }
+
+    /// Builds a model instance directly from a DTO. Shared by `saveContact` and
+    /// backup batch-insert paths so they can't drift on field coverage.
+    public convenience init(dto: ContactDTO) {
+        self.init(
+            id: dto.id,
+            radioID: dto.radioID,
+            publicKey: dto.publicKey,
+            name: dto.name,
+            typeRawValue: dto.typeRawValue,
+            flags: dto.flags,
+            outPathLength: dto.outPathLength,
+            outPath: dto.outPath,
+            lastAdvertTimestamp: dto.lastAdvertTimestamp,
+            latitude: dto.latitude,
+            longitude: dto.longitude,
+            lastModified: dto.lastModified,
+            nickname: dto.nickname,
+            isBlocked: dto.isBlocked,
+            isMuted: dto.isMuted,
+            isFavorite: dto.isFavorite,
+            lastMessageDate: dto.lastMessageDate,
+            unreadCount: dto.unreadCount,
+            unreadMentionCount: dto.unreadMentionCount,
+            ocvPreset: dto.ocvPreset,
+            customOCVArrayString: dto.customOCVArrayString
+        )
     }
 
     /// Applies all mutable fields from a DTO to this model instance.
@@ -144,12 +173,12 @@ public final class Contact {
     }
 
     /// Creates a Contact from a protocol ContactFrame
-    public convenience init(deviceID: UUID, from frame: ContactFrame) {
+    public convenience init(radioID: UUID, from frame: ContactFrame) {
         self.init(
-            deviceID: deviceID,
+            radioID: radioID,
             publicKey: frame.publicKey,
             name: frame.name,
-            typeRawValue: frame.type.rawValue,
+            typeRawValue: frame.typeRawValue,
             flags: frame.flags,
             outPathLength: frame.outPathLength,
             outPath: frame.outPath,
@@ -207,7 +236,7 @@ public extension Contact {
     /// Updates from a protocol ContactFrame
     func update(from frame: ContactFrame) {
         self.name = frame.name
-        self.typeRawValue = frame.type.rawValue
+        self.typeRawValue = frame.typeRawValue
         // Preserve bit 0 (favorite) from existing flags, take bits 1-7 from frame
         self.flags = (self.flags & 0x01) | (frame.flags & ~0x01)
         self.outPathLength = frame.outPathLength
@@ -223,6 +252,7 @@ public extension Contact {
         ContactFrame(
             publicKey: publicKey,
             type: type,
+            typeRawValue: typeRawValue,
             flags: flags,
             outPathLength: outPathLength,
             outPath: outPath,
@@ -238,9 +268,9 @@ public extension Contact {
 // MARK: - Sendable DTO
 
 /// A sendable snapshot of Contact for cross-actor transfers
-public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterResolvable {
+public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, RepeaterResolvable {
     public let id: UUID
-    public let deviceID: UUID
+    public var radioID: UUID
     public let publicKey: Data
     public let name: String
     public let typeRawValue: UInt8
@@ -263,7 +293,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
 
     public init(from contact: Contact) {
         self.id = contact.id
-        self.deviceID = contact.deviceID
+        self.radioID = contact.radioID
         self.publicKey = contact.publicKey
         self.name = contact.name
         self.typeRawValue = contact.typeRawValue
@@ -288,7 +318,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
     /// Memberwise initializer for creating DTOs directly
     public init(
         id: UUID,
-        deviceID: UUID,
+        radioID: UUID,
         publicKey: Data,
         name: String,
         typeRawValue: UInt8,
@@ -310,7 +340,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
         customOCVArrayString: String? = nil
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.publicKey = publicKey
         self.name = name
         self.typeRawValue = typeRawValue
@@ -363,6 +393,21 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
         decodePathLen(outPathLength)?.byteLength ?? 0
     }
 
+    /// Each hop's hash as a hex string, e.g. `["A3", "7F", "42"]`.
+    public var pathNodesHex: [String] {
+        let size = pathHashSize
+        let relevantPath = outPath.prefix(pathByteLength)
+        return stride(from: 0, to: relevantPath.count, by: size).compactMap { start in
+            let end = min(start + size, relevantPath.count)
+            return relevantPath[start..<end].hexString()
+        }
+    }
+
+    /// Human-readable path string with arrow separators, e.g. `"A3 → 7F → 42"`.
+    public var pathString: String {
+        pathNodesHex.joined(separator: " \u{2192} ")
+    }
+
     public var hasLocation: Bool {
         let hasNonZero = latitude != 0 || longitude != 0
         guard hasNonZero else { return false }
@@ -378,7 +423,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
     /// Returns a copy with only `isMuted` changed.
     public func with(isMuted: Bool) -> ContactDTO {
         ContactDTO(
-            id: id, deviceID: deviceID, publicKey: publicKey, name: name,
+            id: id, radioID: radioID, publicKey: publicKey, name: name,
             typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
             outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
             latitude: latitude, longitude: longitude, lastModified: lastModified,
@@ -392,7 +437,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
     /// Returns a copy with only `isFavorite` changed.
     public func with(isFavorite: Bool) -> ContactDTO {
         ContactDTO(
-            id: id, deviceID: deviceID, publicKey: publicKey, name: name,
+            id: id, radioID: radioID, publicKey: publicKey, name: name,
             typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
             outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
             latitude: latitude, longitude: longitude, lastModified: lastModified,
@@ -436,6 +481,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, RepeaterR
         ContactFrame(
             publicKey: publicKey,
             type: type,
+            typeRawValue: typeRawValue,
             flags: flags,
             outPathLength: outPathLength,
             outPath: outPath,

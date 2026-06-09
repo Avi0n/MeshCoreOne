@@ -191,7 +191,7 @@ struct MentionUtilitiesTests {
     ) -> ContactDTO {
         ContactDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: publicKey,
             name: name,
             typeRawValue: type.rawValue,

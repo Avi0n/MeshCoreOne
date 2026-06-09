@@ -50,19 +50,24 @@ public final class NotificationService: NSObject {
 
     /// Callback for when a channel notification is tapped
     /// CRITICAL: Must be @MainActor - see onQuickReply comment.
-    public var onChannelNotificationTapped: (@MainActor @Sendable (_ deviceID: UUID, _ channelIndex: UInt8) async -> Void)?
+    public var onChannelNotificationTapped: (@MainActor @Sendable (_ radioID: UUID, _ channelIndex: UInt8) async -> Void)?
+
+    /// Callback for when a room notification is tapped.
+    /// Identified by the room's stable session ID.
+    /// Must be @MainActor for main-thread callback execution; see onQuickReply.
+    public var onRoomNotificationTapped: (@MainActor @Sendable (_ sessionID: UUID) async -> Void)?
 
     /// Callback for when a new contact discovered notification is tapped
     /// CRITICAL: Must be @MainActor - see onQuickReply comment.
     public var onNewContactNotificationTapped: (@MainActor @Sendable (_ contactID: UUID) async -> Void)?
 
     /// Callback for when a reaction notification is tapped
-    /// Parameters: contactID (for DM) or nil, channelIndex/deviceID (for channel) or nil, and messageID
+    /// Parameters: contactID (for DM) or nil, channelIndex/radioID (for channel) or nil, and messageID
     /// CRITICAL: Must be @MainActor - see onQuickReply comment.
     public var onReactionNotificationTapped: (@MainActor @Sendable (
         _ contactID: UUID?,
         _ channelIndex: UInt8?,
-        _ deviceID: UUID?,
+        _ radioID: UUID?,
         _ messageID: UUID
     ) async -> Void)?
 
@@ -80,14 +85,19 @@ public final class NotificationService: NSObject {
     public var onMarkAsRead: (@MainActor @Sendable (_ contactID: UUID, _ messageID: UUID) async -> Void)?
 
     /// Callback for when mark as read action is triggered on a channel message
-    /// Includes deviceID to correctly identify the channel across multiple connected devices
+    /// Includes radioID to correctly identify the channel across multiple connected devices
     /// CRITICAL: Must be @MainActor - see onQuickReply comment.
-    public var onChannelMarkAsRead: (@MainActor @Sendable (_ deviceID: UUID, _ channelIndex: UInt8, _ messageID: UUID) async -> Void)?
+    public var onChannelMarkAsRead: (@MainActor @Sendable (_ radioID: UUID, _ channelIndex: UInt8, _ messageID: UUID) async -> Void)?
+
+    /// Callback for when mark as read action is triggered on a room message.
+    /// Identified by the room's stable session ID.
+    /// Must be @MainActor - see onQuickReply comment.
+    public var onRoomMarkAsRead: (@MainActor @Sendable (_ sessionID: UUID, _ messageID: UUID) async -> Void)?
 
     /// Callback for when a quick reply action is triggered on a channel message.
-    /// Includes deviceID to correctly identify the channel across multiple connected devices.
+    /// Includes radioID to correctly identify the channel across multiple connected devices.
     /// CRITICAL: Must be @MainActor - see onQuickReply comment.
-    public var onChannelQuickReply: (@MainActor @Sendable (_ deviceID: UUID, _ channelIndex: UInt8, _ text: String) async -> Void)?
+    public var onChannelQuickReply: (@MainActor @Sendable (_ radioID: UUID, _ channelIndex: UInt8, _ text: String) async -> Void)?
 
     /// Whether notifications are enabled by user preference
     private var notificationsEnabled: Bool {
@@ -114,7 +124,27 @@ public final class NotificationService: NSObject {
     public var activeChannelIndex: UInt8?
 
     /// Device ID for the active channel
-    public var activeChannelDeviceID: UUID?
+    public var activeChannelRadioID: UUID?
+
+    /// Currently active room session ID (user is viewing this room)
+    public var activeRoomSessionID: UUID?
+
+    /// Atomically sets the active conversation, clearing every slot the caller
+    /// does not pass. Opening one conversation type therefore clears the other
+    /// types in a single assignment, so a foreground banner is never suppressed
+    /// for a conversation the user just left. Only one slot is ever populated
+    /// because exactly one conversation detail is visible at a time.
+    public func setActiveConversation(
+        contactID: UUID? = nil,
+        channelIndex: UInt8? = nil,
+        channelRadioID: UUID? = nil,
+        roomSessionID: UUID? = nil
+    ) {
+        activeContactID = contactID
+        activeChannelIndex = channelIndex
+        activeChannelRadioID = channelRadioID
+        activeRoomSessionID = roomSessionID
+    }
 
     // MARK: - Badge Management
 
@@ -312,7 +342,7 @@ public final class NotificationService: NSObject {
     public func postChannelMessageNotification(
         channelName: String,
         channelIndex: UInt8,
-        deviceID: UUID,
+        radioID: UUID,
         senderName: String?,
         messageText: String,
         messageID: UUID,
@@ -340,11 +370,11 @@ public final class NotificationService: NSObject {
         content.categoryIdentifier = NotificationCategory.channelMessage.rawValue
         content.userInfo = [
             "channelIndex": Int(channelIndex),
-            "deviceID": deviceID.uuidString,
+            "radioID": radioID.uuidString,
             "messageID": messageID.uuidString,
             "type": "channelMessage"
         ]
-        content.threadIdentifier = "channel-\(deviceID.uuidString)-\(channelIndex)"
+        content.threadIdentifier = "channel-\(radioID.uuidString)-\(channelIndex)"
 
         // Use current badge count (will be updated after posting)
         if preferences.badgeEnabled {
@@ -373,6 +403,7 @@ public final class NotificationService: NSObject {
     /// Posts a notification for a room message.
     public func postRoomMessageNotification(
         roomName: String,
+        sessionID: UUID,
         senderName: String?,
         messageText: String,
         messageID: UUID,
@@ -382,7 +413,6 @@ public final class NotificationService: NSObject {
         guard isAuthorized && notificationsEnabled else { return }
 
         // Check granular preference
-        let preferences = NotificationPreferences()
         guard preferences.roomMessagesEnabled else { return }
 
         // Skip system notification if suppressed (during sync window)
@@ -399,10 +429,11 @@ public final class NotificationService: NSObject {
         content.categoryIdentifier = NotificationCategory.roomMessage.rawValue
         content.userInfo = [
             "roomName": roomName,
+            "sessionID": sessionID.uuidString,
             "messageID": messageID.uuidString,
             "type": "roomMessage"
         ]
-        content.threadIdentifier = "room-\(roomName)"
+        content.threadIdentifier = "room-\(sessionID.uuidString)"
 
         if preferences.badgeEnabled {
             content.badge = NSNumber(value: badgeCount + 1)
@@ -438,8 +469,14 @@ public final class NotificationService: NSObject {
         guard isAuthorized && notificationsEnabled else { return }
 
         // Check granular preference
-        let preferences = NotificationPreferences()
         guard preferences.newContactDiscoveredEnabled else { return }
+
+        // Per-type filtering
+        switch contactType {
+        case .chat:     guard preferences.discoveryContactEnabled else { return }
+        case .repeater: guard preferences.discoveryRepeaterEnabled else { return }
+        case .room:     guard preferences.discoveryRoomEnabled else { return }
+        }
 
         // Get localized title from provider, fallback to English
         let title = stringProvider?.discoveryNotificationTitle(for: contactType)
@@ -484,14 +521,14 @@ public final class NotificationService: NSObject {
     ///   - messageID: ID of the message that was reacted to
     ///   - contactID: Contact ID if this is a direct message reaction (nil for channels)
     ///   - channelIndex: Channel index if this is a channel reaction (nil for DMs)
-    ///   - deviceID: Device ID for channel reactions (nil for DMs)
+    ///   - radioID: Device ID for channel reactions (nil for DMs)
     public func postReactionNotification(
         reactorName: String,
         body: String,
         messageID: UUID,
         contactID: UUID?,
         channelIndex: UInt8?,
-        deviceID: UUID?
+        radioID: UUID?
     ) async {
         guard isAuthorized && notificationsEnabled else { return }
 
@@ -517,10 +554,10 @@ public final class NotificationService: NSObject {
             userInfo["contactID"] = contactID.uuidString
             content.threadIdentifier = "reaction-contact-\(contactID.uuidString)"
         }
-        if let channelIndex, let deviceID {
+        if let channelIndex, let radioID {
             userInfo["channelIndex"] = Int(channelIndex)
-            userInfo["deviceID"] = deviceID.uuidString
-            content.threadIdentifier = "reaction-channel-\(deviceID.uuidString)-\(channelIndex)"
+            userInfo["radioID"] = radioID.uuidString
+            content.threadIdentifier = "reaction-channel-\(radioID.uuidString)-\(channelIndex)"
         }
         content.userInfo = userInfo
 
@@ -545,7 +582,6 @@ public final class NotificationService: NSObject {
     ) async {
         guard isAuthorized else { return }
 
-        let preferences = NotificationPreferences()
         guard preferences.lowBatteryEnabled else { return }
 
         let content = UNMutableNotificationContent()
@@ -606,7 +642,7 @@ public final class NotificationService: NSObject {
     /// Posts a notification that a channel quick reply failed to send.
     public func postChannelQuickReplyFailedNotification(
         channelName: String,
-        deviceID: UUID,
+        radioID: UUID,
         channelIndex: UInt8
     ) async {
         guard isAuthorized else { return }
@@ -617,12 +653,12 @@ public final class NotificationService: NSObject {
         content.sound = .default
         content.userInfo = [
             "channelIndex": Int(channelIndex),
-            "deviceID": deviceID.uuidString,
+            "radioID": radioID.uuidString,
             "type": "channelQuickReplyFailed"
         ]
 
         let request = UNNotificationRequest(
-            identifier: "channel-reply-failed-\(deviceID.uuidString)-\(channelIndex)-\(Date().timeIntervalSince1970)",
+            identifier: "channel-reply-failed-\(radioID.uuidString)-\(channelIndex)-\(Date().timeIntervalSince1970)",
             content: content,
             trigger: nil
         )
@@ -768,16 +804,16 @@ public final class NotificationService: NSObject {
     }
 
     /// Remove all delivered notifications for a channel
-    public func removeDeliveredNotifications(forChannelIndex channelIndex: UInt8, deviceID: UUID) async {
+    public func removeDeliveredNotifications(forChannelIndex channelIndex: UInt8, radioID: UUID) async {
         let center = UNUserNotificationCenter.current()
         let notifications = await center.deliveredNotifications()
 
         let identifiersToRemove = notifications.compactMap { notification -> String? in
             let userInfo = notification.request.content.userInfo
             guard let notifChannelIndex = userInfo["channelIndex"] as? Int,
-                  let notifDeviceIDString = userInfo["deviceID"] as? String,
+                  let notifDeviceIDString = userInfo["radioID"] as? String,
                   UInt8(notifChannelIndex) == channelIndex,
-                  notifDeviceIDString == deviceID.uuidString else {
+                  notifDeviceIDString == radioID.uuidString else {
                 return nil
             }
             return notification.request.identifier
@@ -785,6 +821,19 @@ public final class NotificationService: NSObject {
 
         if !identifiersToRemove.isEmpty {
             center.removeDeliveredNotifications(withIdentifiers: identifiersToRemove)
+        }
+    }
+
+    /// Remove all delivered notifications for a room session
+    public func removeDeliveredNotifications(forRoomSessionID sessionID: UUID) async {
+        let center = UNUserNotificationCenter.current()
+        let notifications = await center.deliveredNotifications()
+        let idsToRemove = notifications
+            .filter { $0.request.content.userInfo["sessionID"] as? String == sessionID.uuidString }
+            .map(\.request.identifier)
+
+        if !idsToRemove.isEmpty {
+            center.removeDeliveredNotifications(withIdentifiers: idsToRemove)
         }
     }
 
@@ -811,13 +860,21 @@ extension NotificationService: @preconcurrency UNUserNotificationCenterDelegate 
         }
 
         // Check if this is a channel message notification for the active channel
-        // Must check BOTH channelIndex AND deviceID for multi-device scenarios
+        // Must check BOTH channelIndex AND radioID for multi-device scenarios
         if let channelIndex = userInfo["channelIndex"] as? Int,
-           let deviceIDString = userInfo["deviceID"] as? String,
-           let deviceID = UUID(uuidString: deviceIDString),
+           let radioIDString = userInfo["radioID"] as? String,
+           let radioID = UUID(uuidString: radioIDString),
            UInt8(channelIndex) == activeChannelIndex,
-           deviceID == activeChannelDeviceID {
+           radioID == activeChannelRadioID {
             // User is viewing this channel - don't show notification
+            return []
+        }
+
+        // Check if this is a room message notification for the active room
+        if let sessionIDString = userInfo["sessionID"] as? String,
+           let sessionID = UUID(uuidString: sessionIDString),
+           sessionID == activeRoomSessionID {
+            // User is viewing this room - don't show notification
             return []
         }
 
@@ -850,9 +907,9 @@ extension NotificationService: @preconcurrency UNUserNotificationCenterDelegate 
             }
             // Check if it's a channel reply (new)
             else if let channelIndex = userInfo["channelIndex"] as? Int,
-                    let deviceIDString = userInfo["deviceID"] as? String,
-                    let deviceID = UUID(uuidString: deviceIDString) {
-                await onChannelQuickReply?(deviceID, UInt8(channelIndex), replyText)
+                    let radioIDString = userInfo["radioID"] as? String,
+                    let radioID = UUID(uuidString: radioIDString) {
+                await onChannelQuickReply?(radioID, UInt8(channelIndex), replyText)
             }
 
         case NotificationAction.markRead.rawValue:
@@ -866,11 +923,16 @@ extension NotificationService: @preconcurrency UNUserNotificationCenterDelegate 
                 // Direct message mark as read
                 await onMarkAsRead?(contactID, messageID)
             } else if let channelIndex = userInfo["channelIndex"] as? Int,
-                      let deviceIDString = userInfo["deviceID"] as? String,
-                      let deviceID = UUID(uuidString: deviceIDString),
+                      let radioIDString = userInfo["radioID"] as? String,
+                      let radioID = UUID(uuidString: radioIDString),
                       let messageID {
-                // Channel message mark as read (includes deviceID for multi-device)
-                await onChannelMarkAsRead?(deviceID, UInt8(channelIndex), messageID)
+                // Channel message mark as read (includes radioID for multi-device)
+                await onChannelMarkAsRead?(radioID, UInt8(channelIndex), messageID)
+            } else if let sessionIDString = userInfo["sessionID"] as? String,
+                      let sessionID = UUID(uuidString: sessionIDString),
+                      let messageID {
+                // Room message mark as read (identified by stable session ID)
+                await onRoomMarkAsRead?(sessionID, messageID)
             }
 
         case UNNotificationDefaultActionIdentifier:
@@ -883,8 +945,8 @@ extension NotificationService: @preconcurrency UNUserNotificationCenterDelegate 
                let messageID = UUID(uuidString: messageIDString) {
                 let contactID = (userInfo["contactID"] as? String).flatMap { UUID(uuidString: $0) }
                 let channelIndex = (userInfo["channelIndex"] as? Int).map { UInt8($0) }
-                let deviceID = (userInfo["deviceID"] as? String).flatMap { UUID(uuidString: $0) }
-                await onReactionNotificationTapped?(contactID, channelIndex, deviceID, messageID)
+                let radioID = (userInfo["radioID"] as? String).flatMap { UUID(uuidString: $0) }
+                await onReactionNotificationTapped?(contactID, channelIndex, radioID, messageID)
             }
             // Handle contact-based notifications (DM, new contact)
             else if let contactIDString = userInfo["contactID"] as? String,
@@ -897,9 +959,14 @@ extension NotificationService: @preconcurrency UNUserNotificationCenterDelegate 
             }
             // Handle channel notifications
             else if let channelIndex = userInfo["channelIndex"] as? Int,
-                      let deviceIDString = userInfo["deviceID"] as? String,
-                      let deviceID = UUID(uuidString: deviceIDString) {
-                await onChannelNotificationTapped?(deviceID, UInt8(channelIndex))
+                      let radioIDString = userInfo["radioID"] as? String,
+                      let radioID = UUID(uuidString: radioIDString) {
+                await onChannelNotificationTapped?(radioID, UInt8(channelIndex))
+            }
+            // Handle room notifications (identified by stable session ID)
+            else if let sessionIDString = userInfo["sessionID"] as? String,
+                      let sessionID = UUID(uuidString: sessionIDString) {
+                await onRoomNotificationTapped?(sessionID)
             }
 
         default:

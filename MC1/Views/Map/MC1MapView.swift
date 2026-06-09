@@ -16,6 +16,7 @@ private let logger = Logger(subsystem: "com.mc1", category: "MapPins")
 /// Upstream issue: https://github.com/maplibre/maplibre-native/issues/3214
 private enum MetalLayerScaleFix {
 
+    @MainActor
     static func apply(to mapView: MLNMapView) {
         guard let metalView = findMetalView(in: mapView) else { return }
 
@@ -39,6 +40,7 @@ private enum MetalLayerScaleFix {
         object_setClass(metalView, fixedClass)
     }
 
+    @MainActor
     private static func findMetalView(in view: UIView) -> UIView? {
         for subview in view.subviews where subview.layer is CAMetalLayer {
             return subview
@@ -46,6 +48,7 @@ private enum MetalLayerScaleFix {
         return nil
     }
 
+    @MainActor
     private static func findMapView(from metalView: UIView) -> MLNMapView? {
         var parent: UIView? = metalView.superview
         while let v = parent, !(v is MLNMapView) { parent = v.superview }
@@ -59,31 +62,33 @@ private enum MetalLayerScaleFix {
         let selector = NSSelectorFromString("setDrawableSize:")
         guard let original = class_getInstanceMethod(originalClass, selector) else { return }
         let originalIMP = method_getImplementation(original)
-        typealias SetDrawableSizeFn = @convention(c) (AnyObject, Selector, CGSize) -> Void
+        typealias SetDrawableSizeFn = @convention(c) @Sendable (AnyObject, Selector, CGSize) -> Void
         let callOriginal = unsafeBitCast(originalIMP, to: SetDrawableSizeFn.self)
 
         let block: @convention(block) (UIView, CGSize) -> Void = { metalView, proposedSize in
-            guard let mapView = findMapView(from: metalView),
-                  mapView.bounds.size.width > 0,
-                  mapView.bounds.size.height > 0,
-                  let screen = mapView.window?.screen else {
-                callOriginal(metalView, selector, proposedSize)
-                return
+            dispatchPrecondition(condition: .onQueue(.main))
+            MainActor.assumeIsolated {
+                guard let mapView = findMapView(from: metalView),
+                      mapView.bounds.size.width > 0,
+                      mapView.bounds.size.height > 0,
+                      let screen = mapView.window?.screen else {
+                    callOriginal(metalView, selector, proposedSize)
+                    return
+                }
+
+                let correctScale = screen.nativeScale
+                let correctSize = CGSize(
+                    width: mapView.bounds.width * correctScale,
+                    height: mapView.bounds.height * correctScale
+                )
+
+                if let layer = metalView.layer as? CAMetalLayer,
+                   layer.drawableSize == correctSize {
+                    return
+                }
+
+                callOriginal(metalView, selector, correctSize)
             }
-
-            let correctScale = screen.nativeScale
-            let correctSize = CGSize(
-                width: mapView.bounds.width * correctScale,
-                height: mapView.bounds.height * correctScale
-            )
-
-            // Avoid redundant drawable reallocation and layout loops.
-            if let layer = metalView.layer as? CAMetalLayer,
-               layer.drawableSize == correctSize {
-                return
-            }
-
-            callOriginal(metalView, selector, correctSize)
         }
 
         let imp = imp_implementationWithBlock(block)
@@ -97,21 +102,24 @@ private enum MetalLayerScaleFix {
         let selector = NSSelectorFromString("setContentScaleFactor:")
         guard let original = class_getInstanceMethod(originalClass, selector) else { return }
         let originalIMP = method_getImplementation(original)
-        typealias SetScaleFn = @convention(c) (AnyObject, Selector, CGFloat) -> Void
+        typealias SetScaleFn = @convention(c) @Sendable (AnyObject, Selector, CGFloat) -> Void
         let callOriginal = unsafeBitCast(originalIMP, to: SetScaleFn.self)
 
         let block: @convention(block) (UIView, CGFloat) -> Void = { metalView, _ in
-            guard let mapView = findMapView(from: metalView),
-                  let screen = mapView.window?.screen else {
-                return
-            }
+            dispatchPrecondition(condition: .onQueue(.main))
+            MainActor.assumeIsolated {
+                guard let mapView = findMapView(from: metalView),
+                      let screen = mapView.window?.screen else {
+                    return
+                }
 
-            let correctScale = screen.nativeScale
-            if metalView.contentScaleFactor == correctScale {
-                return
-            }
+                let correctScale = screen.nativeScale
+                if metalView.contentScaleFactor == correctScale {
+                    return
+                }
 
-            callOriginal(metalView, selector, correctScale)
+                callOriginal(metalView, selector, correctScale)
+            }
         }
 
         let imp = imp_implementationWithBlock(block)
@@ -226,7 +234,6 @@ struct MC1MapView: UIViewRepresentable {
             coordinator.isStyleLoaded = false
             mapView.styleURL = newStyleURL
         }
-        let mapStyleChanged = coordinator.currentMapStyle != mapStyle
         coordinator.currentMapStyle = mapStyle
 
         // User location
@@ -246,8 +253,9 @@ struct MC1MapView: UIViewRepresentable {
         // Compare against lastApplied* so updates arriving during a gesture
         // are applied once the gesture ends.
         if coordinator.isStyleLoaded, !coordinator.isUserInteracting {
-            if mapStyleChanged {
+            if coordinator.lastAppliedMapStyle != mapStyle {
                 coordinator.updateRasterLayerVisibility(mapView: mapView)
+                coordinator.lastAppliedMapStyle = mapStyle
             }
             if coordinator.lastAppliedPoints != points {
                 coordinator.updatePointSource(mapView: mapView)
@@ -267,21 +275,42 @@ struct MC1MapView: UIViewRepresentable {
         updateCameraRegion(in: mapView, coordinator: coordinator)
     }
 
+    /// Maximum absolute latitude MapLibre's `mbgl::LatLng` accepts; it throws an
+    /// uncaught `std::domain_error` (aborting the app) for any value beyond ±90.
+    private static let latitudeLimit = 90.0
+
     private func updateCameraRegion(in mapView: MLNMapView, coordinator: Coordinator) {
         guard let region = cameraRegion else { return }
         guard cameraRegionVersion != coordinator.lastAppliedRegionVersion else { return }
+
+        guard CLLocationCoordinate2DIsValid(region.center) else {
+            coordinator.lastAppliedRegionVersion = cameraRegionVersion
+            return
+        }
+
+        // Corners are center ± span/2, so a non-finite span makes MapLibre's LatLng
+        // constructor throw and abort the process — and the latitude clamp below can't
+        // catch it because Swift's max/min propagate NaN. Skip the update when non-finite.
+        guard region.span.latitudeDelta.isFinite,
+              region.span.longitudeDelta.isFinite else {
+            coordinator.lastAppliedRegionVersion = cameraRegionVersion
+            return
+        }
 
         let isInflated = mapView.window.map { mapView.bounds.height > $0.bounds.height * 1.5 } ?? false
         let animated = coordinator.lastAppliedRegionVersion > 0 && !isInflated
         coordinator.lastAppliedRegionVersion = cameraRegionVersion
 
+        // Clamp latitude so a near-pole center can't push a corner past ±90 (another
+        // LatLng abort). Longitude is left unclamped because MapLibre wraps it.
+        let limit = Self.latitudeLimit
         let bounds = MLNCoordinateBounds(
             sw: CLLocationCoordinate2D(
-                latitude: region.center.latitude - region.span.latitudeDelta / 2,
+                latitude: max(-limit, region.center.latitude - region.span.latitudeDelta / 2),
                 longitude: region.center.longitude - region.span.longitudeDelta / 2
             ),
             ne: CLLocationCoordinate2D(
-                latitude: region.center.latitude + region.span.latitudeDelta / 2,
+                latitude: min(limit, region.center.latitude + region.span.latitudeDelta / 2),
                 longitude: region.center.longitude + region.span.longitudeDelta / 2
             )
         )
@@ -317,13 +346,18 @@ struct MC1MapView: UIViewRepresentable {
             let pixelOffset = (Double(padding.top) - Double(padding.bottom)) / 2
             let offsetDeg = pixelOffset * requiredMPP / 111_000
             let center = CLLocationCoordinate2D(
-                latitude: centerLat + offsetDeg,
+                latitude: min(limit, max(-limit, centerLat + offsetDeg)),
                 longitude: centerLon
             )
 
             mapView.setCenter(center, zoomLevel: targetZoom, animated: false)
         } else {
-            mapView.setVisibleCoordinateBounds(bounds, edgePadding: padding, animated: animated)
+            mapView.setVisibleCoordinateBounds(
+                bounds,
+                edgePadding: padding,
+                animated: animated,
+                completionHandler: nil
+            )
         }
     }
 }
@@ -351,9 +385,12 @@ extension MC1MapView {
         var currentShowLabels = true
         var lastAppliedStyleURL: URL?
         var currentMapStyle: MapStyleSelection?
+        var lastAppliedMapStyle: MapStyleSelection?
         var currentPoints: [MapPoint] = []
         var currentLines: [MapLine] = []
         var lastAppliedPoints: [MapPoint] = []
+        var lastAppliedClusterablePoints: [MapPoint] = []
+        var lastAppliedFixedPoints: [MapPoint] = []
         var lastAppliedLines: [MapLine] = []
         var clusterSource: MLNShapeSource?
         var fixedSource: MLNShapeSource?
@@ -367,10 +404,15 @@ extension MC1MapView {
             // Clear stale source/state references from the previous style.
             // Reset currentShowLabels to the new layer default (visible) so
             // updateUIView detects the mismatch and reapplies the user's preference.
+            // A reload rebuilds the raster layers with isVisible == false, so clear
+            // lastAppliedMapStyle to force updateUIView to re-apply the selected overlay.
             clusterSource = nil
             fixedSource = nil
             lastAppliedPoints = []
+            lastAppliedClusterablePoints = []
+            lastAppliedFixedPoints = []
             lastAppliedLines = []
+            lastAppliedMapStyle = nil
             currentShowLabels = true
 
             PinSpriteRenderer.renderAll(into: style)

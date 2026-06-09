@@ -3,6 +3,13 @@ import MeshCore
 
 extension ConnectionManager {
 
+    /// The connection methods recorded for a freshly connected BLE device. Centralized so the
+    /// BLE connect and device-switch paths persist an identical `.bluetooth` descriptor rather
+    /// than repeating the literal at each call site.
+    static func bleConnectionMethods(for deviceID: UUID) -> [ConnectionMethod] {
+        [.bluetooth(peripheralUUID: deviceID, displayName: nil)]
+    }
+
     // MARK: - BLE Diagnostics
 
     /// Returns a best-effort snapshot of the BLE state machine for debug exports.
@@ -13,13 +20,30 @@ extension ConnectionManager {
         let isConnected = await stateMachine.isConnected
         let isAutoReconnecting = await stateMachine.isAutoReconnecting
         let connectedDeviceShort = await stateMachine.connectedDeviceID?.uuidString.prefix(8) ?? "none"
+        let sessionPresent = session != nil
+        let servicesPresent = services != nil
+        let eventMonitoringActive = services?.isEventMonitoringActive ?? false
+        let autoFetchActive: Bool
+        if let services {
+            autoFetchActive = await services.messagePollingService.isAutoFetching
+        } else {
+            autoFetchActive = false
+        }
+        let activeReconnectDeviceShort = reconnectionCoordinator.reconnectingDeviceID?.uuidString.prefix(8) ?? "none"
+        let sessionRebuildDeviceShort = sessionRebuildDeviceID?.uuidString.prefix(8) ?? "none"
         return
             "BLE: state=\(bleState), " +
             "phase=\(blePhase), " +
             "peripheralState=\(blePeripheralState), " +
             "isConnected=\(isConnected), " +
             "isAutoReconnecting=\(isAutoReconnecting), " +
-            "connectedDevice=\(connectedDeviceShort)"
+            "connectedDevice=\(connectedDeviceShort), " +
+            "sessionPresent=\(sessionPresent), " +
+            "servicesPresent=\(servicesPresent), " +
+            "eventMonitoringActive=\(eventMonitoringActive), " +
+            "autoFetchActive=\(autoFetchActive), " +
+            "activeReconnectDevice=\(activeReconnectDeviceShort), " +
+            "sessionRebuildDevice=\(sessionRebuildDeviceShort)"
     }
 
     // MARK: - BLE Device Checks
@@ -131,11 +155,11 @@ extension ConnectionManager {
 
     // MARK: - BLE Scanning
 
-    /// Starts scanning for nearby BLE devices and returns an AsyncStream of (deviceID, rssi) discoveries.
+    /// Starts scanning for nearby BLE devices and returns an AsyncStream of `DiscoveredDevice`.
     /// Scanning is orthogonal to the connection lifecycle — works while connected.
     /// Cancel the consuming task to stop scanning automatically.
-    public func startBLEScanning() -> AsyncStream<(UUID, Int)> {
-        let (stream, continuation) = AsyncStream.makeStream(of: (UUID, Int).self)
+    public func startBLEScanning() -> AsyncStream<DiscoveredDevice> {
+        let (stream, continuation) = AsyncStream.makeStream(of: DiscoveredDevice.self)
         bleScanTask?.cancel()
         bleScanRequestID &+= 1
         let requestID = bleScanRequestID
@@ -144,8 +168,8 @@ extension ConnectionManager {
             guard let self else { return }
             guard !Task.isCancelled, requestID == self.bleScanRequestID else { return }
 
-            await self.stateMachine.setDeviceDiscoveredHandler { @Sendable deviceID, rssi in
-                _ = continuation.yield((deviceID, rssi))
+            await self.stateMachine.setDeviceDiscoveredHandler { @Sendable deviceID, name, rssi in
+                _ = continuation.yield(DiscoveredDevice(id: deviceID, name: name, rssi: rssi))
             }
 
             guard !Task.isCancelled, requestID == self.bleScanRequestID else { return }
@@ -159,7 +183,7 @@ extension ConnectionManager {
                 self.bleScanRequestID &+= 1
                 self.bleScanTask?.cancel()
                 self.bleScanTask = nil
-                await self.stateMachine.setDeviceDiscoveredHandler { _, _ in }
+                await self.stateMachine.setDeviceDiscoveredHandler { _, _, _ in }
                 await self.stateMachine.stopScanning()
             }
         }
@@ -172,7 +196,7 @@ extension ConnectionManager {
         bleScanRequestID &+= 1
         bleScanTask?.cancel()
         bleScanTask = nil
-        await stateMachine.setDeviceDiscoveredHandler { _, _ in }
+        await stateMachine.setDeviceDiscoveredHandler { _, _, _ in }
         await stateMachine.stopScanning()
     }
 
@@ -232,6 +256,11 @@ extension ConnectionManager {
         // Only check BLE connections
         guard currentTransportType == nil || currentTransportType == .bluetooth else { return }
 
+        if shouldDeferOpportunisticReconnect {
+            logger.info("[BLE] Foreground health check standing down: pairing in progress")
+            return
+        }
+
         let deviceShort = lastConnectedDeviceID?.uuidString.prefix(8) ?? "none"
         let bleState = await stateMachine.centralManagerStateName
         let blePhase = await stateMachine.currentPhaseName
@@ -253,9 +282,11 @@ extension ConnectionManager {
             return
         }
 
-        // Check actual BLE state - if connected at BLE level, no action needed
+        // Check actual BLE state. A live BLE transport is only healthy if the
+        // MC1 session, services, and listeners are alive too.
         let bleConnected = await stateMachine.isConnected
         if bleConnected {
+            await reconcileConnectedBLEAppStack(deviceID: deviceID)
             return
         }
 
@@ -273,7 +304,7 @@ extension ConnectionManager {
 
         // Detect stale connection state: app thinks connected but BLE is actually disconnected
         // This happens when iOS terminates the BLE connection while app is suspended
-        if connectionState == .ready || connectionState == .connected {
+        if connectionState.isConnected {
             logger.warning("[BLE] Detected stale connection state on foreground: connectionState=\(String(describing: connectionState)) but BLE disconnected, triggering cleanup")
             await handleConnectionLoss(deviceID: deviceID, error: nil)
         }
@@ -309,10 +340,86 @@ extension ConnectionManager {
         }
 
         logger.info("[BLE] Attempting foreground reconnection to \(deviceID.uuidString.prefix(8))")
+        await attemptOpportunisticReconnect(deviceID: deviceID, reason: "foreground health check")
+    }
+
+    private func reconcileConnectedBLEAppStack(deviceID: UUID) async {
+        if await stateMachine.isAutoReconnecting {
+            logger.info("[BLE] Skipping connected-transport recovery: iOS auto-reconnect still in progress")
+            return
+        }
+
+        let bleConnectedDeviceID = await stateMachine.connectedDeviceID
+        if let bleConnectedDeviceID, bleConnectedDeviceID != deviceID {
+            logger.warning(
+                "[BLE] Connected transport belongs to \(bleConnectedDeviceID.uuidString.prefix(8)); expected \(deviceID.uuidString.prefix(8))"
+            )
+            return
+        }
+
+        guard let services,
+              session != nil,
+              let connectedDevice,
+              connectedDevice.id == deviceID else {
+            await rebuildConnectedBLEAppStack(deviceID: deviceID)
+            return
+        }
+
+        guard connectionState.isOperational else {
+            logger.info(
+                "[BLE] Connected transport app stack present while state is \(String(describing: connectionState)); leaving active connection flow in place"
+            )
+            return
+        }
+
+        await reconcileConnectedBLEListeners(
+            services: services,
+            radioID: connectedDevice.radioID
+        )
+    }
+
+    private func rebuildConnectedBLEAppStack(deviceID: UUID) async {
+        logger.warning(
+            "[BLE] Connected BLE transport has missing app stack; rebuilding session for \(deviceID.uuidString.prefix(8))"
+        )
+        connectionState = .connecting
+
         do {
-            try await connect(to: deviceID)
+            try await rebuildSessionForHealthCheck(deviceID: deviceID)
         } catch {
-            logger.warning("[BLE] Foreground reconnection failed: \(error.localizedDescription)")
+            logger.warning("[BLE] Connected-transport session rebuild failed: \(error.localizedDescription)")
+            await handleReconnectionFailure()
+        }
+    }
+
+    private func rebuildSessionForHealthCheck(deviceID: UUID) async throws {
+        #if DEBUG
+        if let rebuildSessionForHealthCheckOverride {
+            try await rebuildSessionForHealthCheckOverride(deviceID)
+            return
+        }
+        #endif
+
+        try await rebuildSession(deviceID: deviceID)
+    }
+
+    private func reconcileConnectedBLEListeners(
+        services: ServiceContainer,
+        radioID: UUID
+    ) async {
+        let eventMonitoringActive = services.isEventMonitoringActive
+        let autoFetchActive = await services.messagePollingService.isAutoFetching
+
+        guard !eventMonitoringActive || !autoFetchActive else { return }
+
+        logger.warning(
+            "[BLE] Connected BLE app stack missing listeners; restarting event pipeline for \(radioID.uuidString.prefix(8))"
+        )
+
+        if !eventMonitoringActive {
+            await services.startEventMonitoring(radioID: radioID)
+        } else {
+            await services.messagePollingService.startAutoFetch(radioID: radioID)
         }
     }
 
@@ -341,9 +448,18 @@ extension ConnectionManager {
                 // BLE precondition failures won't resolve between retries.
                 // Exit without retrying or tripping the circuit breaker so that
                 // onBluetoothPoweredOn can reconnect cleanly when BLE comes back.
+                // Auth failures also bypass retry — the bond is bad, the user has to
+                // intervene; four sequential auth failures just delays the recovery alert.
                 if let bleError = error as? BLEError {
                     switch bleError {
                     case .bluetoothPoweredOff, .bluetoothUnavailable, .bluetoothUnauthorized:
+                        throw error
+                    case .authenticationFailed:
+                        // The peripheral connected before auth failed, leaving the
+                        // BLE state machine in a non-idle phase. Tear down before
+                        // bypassing retries so subsequent connects start fresh.
+                        await cleanupResources()
+                        await transport.disconnect()
                         throw error
                     default:
                         break
@@ -413,42 +529,18 @@ extension ConnectionManager {
         // Configure BLE write pacing based on device platform
         await configureBLEPacing(for: deviceCapabilities)
 
-        // Create services
-        let newServices = ServiceContainer(
-            session: newSession,
-            modelContainer: modelContainer,
-            appStateProvider: appStateProvider
-        )
-        await newServices.wireServices()
-        self.services = newServices
-
-        // Fetch existing device and auto-add config concurrently (independent operations)
-        async let existingDeviceResult = newServices.dataStore.fetchDevice(id: deviceID)
-        async let autoAddConfigResult = newSession.getAutoAddConfig()
-        let existingDevice = try? await existingDeviceResult
-        let autoAddConfig = (try? await autoAddConfigResult) ?? MeshCore.AutoAddConfig(bitmask: 0)
-
-        let repeatFreqRanges: [MeshCore.FrequencyRange] = deviceCapabilities.clientRepeat
-            ? (try? await newSession.getRepeatFreq()) ?? []
-            : []
-
-        // Create and save device
-        let device = createDevice(
+        let (newServices, radioID) = try await buildServicesAndSaveDevice(
             deviceID: deviceID,
+            session: newSession,
             selfInfo: meshCoreSelfInfo,
             capabilities: deviceCapabilities,
-            autoAddConfig: autoAddConfig,
-            existingDevice: existingDevice
+            connectionMethods: Self.bleConnectionMethods(for: deviceID)
         )
 
-        try await newServices.dataStore.saveDevice(DeviceDTO(from: device))
-        self.connectedDevice = DeviceDTO(from: device)
-        self.allowedRepeatFreqRanges = repeatFreqRanges
-
         // Persist connection for auto-reconnect
-        persistConnection(deviceID: deviceID, deviceName: meshCoreSelfInfo.name)
+        persistConnection(deviceID: deviceID, radioID: radioID, deviceName: meshCoreSelfInfo.name)
 
-        // Notify observers BEFORE sync starts so they can wire callbacks
+        // Notify observers before sync starts so they can wire callbacks
         // (e.g., AppState needs to set sync activity callbacks for the syncing pill)
         await onConnectionReady?()
         let shouldForceFullSync: Bool
@@ -458,17 +550,13 @@ extension ConnectionManager {
         } else {
             shouldForceFullSync = false
         }
-        await performInitialSync(deviceID: deviceID, services: newServices, forceFullSync: shouldForceFullSync)
+        let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, forceFullSync: shouldForceFullSync)
 
-        // User may have disconnected while sync was in progress
-        guard connectionIntent.wantsConnection else { return }
+        guard await promoteToReady(syncSucceeded: syncSucceeded, expectedServices: newServices, transportType: .bluetooth) else {
+            await newSession.stop()
+            return
+        }
 
-        await syncDeviceTimeIfNeeded()
-        guard connectionIntent.wantsConnection else { return }
-
-        currentTransportType = .bluetooth
-        connectionState = .ready
-        await onDeviceSynced?()
         stopReconnectionWatchdog()
         logger.info("Connection complete - device ready")
     }
@@ -479,16 +567,15 @@ extension ConnectionManager {
         let bleState = await stateMachine.centralManagerStateName
         let blePhase = await stateMachine.currentPhaseName
         let lastDeviceShort = lastConnectedDeviceID?.uuidString.prefix(8) ?? "none"
-        let pairedAccessories = accessorySetupKit.pairedAccessories
-        let pairedSummary = pairedAccessories.prefix(5).compactMap { accessory -> String? in
-            guard let id = accessory.bluetoothIdentifier else { return nil }
-            return "\(accessory.displayName)(\(id.uuidString.prefix(8)))"
+        let registeredDevices = pairing.registeredDeviceInfos()
+        let pairedSummary = registeredDevices.prefix(5).map { info in
+            "\(info.name)(\(info.id.uuidString.prefix(8)))"
         }
         let pairedSummaryText = pairedSummary.isEmpty ? "none" : pairedSummary.joined(separator: ", ")
 
         logger.warning(
             // swiftlint:disable:next line_length
-            "[BLE] Device not found diagnostics (\(context)) - device: \(deviceID.uuidString.prefix(8)), lastDevice: \(lastDeviceShort), connectionIntent: \(connectionIntent), bleState: \(bleState), blePhase: \(blePhase), askActive: \(accessorySetupKit.isSessionActive), pairedCount: \(pairedAccessories.count), paired: \(pairedSummaryText)"
+            "[BLE] Device not found diagnostics (\(context)) - device: \(deviceID.uuidString.prefix(8)), lastDevice: \(lastDeviceShort), connectionIntent: \(connectionIntent), bleState: \(bleState), blePhase: \(blePhase), pairingSessionActive: \(pairing.isSessionActive), pairedCount: \(registeredDevices.count), paired: \(pairedSummaryText)"
         )
     }
 
@@ -530,7 +617,7 @@ extension ConnectionManager {
             _ = await remoteNodeService.handleBLEDisconnection()
         }
 
-        await services?.stopEventMonitoring()
+        await services?.tearDown()
 
         // Reset sync state before destroying services to prevent stuck "Syncing" pill
         if let services {
@@ -566,8 +653,8 @@ extension ConnectionManager {
         }
     }
 
-    /// Logs Bluetooth state changes for diagnostics.
-    /// Disconnect logic is NOT duplicated here — BLEStateMachine already handles
+    /// Publishes user-actionable Bluetooth availability for the pickers and logs the change.
+    /// Disconnect logic is not duplicated here — BLEStateMachine already handles
     /// `.poweredOff` via `cancelCurrentOperation` which fires `onDisconnection`.
     func handleBluetoothStateChange(_ state: CBManagerState) {
         let stateName: String
@@ -580,6 +667,18 @@ extension ConnectionManager {
         case .poweredOn: stateName = "poweredOn"
         @unknown default: stateName = "unknown(\(state.rawValue))"
         }
+        bluetoothAvailability = Self.bluetoothAvailability(for: state)
         logger.info("[BLE] Bluetooth state changed: \(stateName), connectionState: \(String(describing: self.connectionState)), connectionIntent: \(self.connectionIntent)")
+    }
+
+    /// Maps a raw `CBManagerState` to the user-actionable availability the pickers display. Only the
+    /// two states a person can resolve get a distinct case; transient and unsupported states stay
+    /// `.ready` so the picker keeps scanning rather than offering a remedy that does nothing.
+    private static func bluetoothAvailability(for state: CBManagerState) -> BluetoothAvailability {
+        switch state {
+        case .poweredOff: .poweredOff
+        case .unauthorized: .unauthorized
+        default: .ready
+        }
     }
 }

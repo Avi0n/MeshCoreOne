@@ -31,6 +31,9 @@
 /* Location: ChatsView.swift - Filter option for channels */
 "chats.filter.channels" = "Каналы";
 
+/* Location: ChatsView.swift - Filter option for rooms */
+"chats.filter.rooms" = "Комнаты";
+
 // MARK: - Compose Menu
 
 /* Location: ChatsView.swift - Button to start a new direct chat */
@@ -68,6 +71,12 @@
 /* Location: ChatsView.swift - Description when no channels */
 "chats.emptyState.noChannels.description" = "Присоединись к каналу или создай новый";
 
+/* Location: ChatsView.swift - Title when no rooms exist */
+"chats.emptyState.noRooms.title" = "Нет комнат";
+
+/* Location: ChatsView.swift - Description when no rooms exist */
+"chats.emptyState.noRooms.description" = "Присоединись к комнате из «Контактов»";
+
 /* Location: ChatsView.swift - Split view placeholder when no conversation selected */
 "chats.emptyState.selectConversation" = "Выбери разговор";
 
@@ -89,7 +98,10 @@
 
 // MARK: - Message Timestamps
 
-/* Location: MessageTimestampView.swift - Prefix for yesterday's date */
+/* Location: MessageDayDividerView.swift - Label for today's date in the chat day separator */
+"chats.timestamp.today" = "Сегодня";
+
+/* Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator */
 "chats.timestamp.yesterday" = "Вчера";
 
 /* Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old */
@@ -109,14 +121,16 @@
 /* Location: ScrollToBottomButton.swift - Accessibility label for scroll to bottom button */
 "chats.scrollButton.scrollToBottom.accessibilityLabel" = "Перейти к последнему сообщению";
 
+/* Location: ScrollToBottomButton.swift - Accessibility value for unread message count - %d is the number of unread messages */
+"chats.scrollButton.scrollToBottom.accessibilityValue" = "%d непрочитанных сообщений";
 /* Location: ScrollToMentionButton.swift, ScrollToBottomButton.swift - Badge text for 99+ unread */
 "chats.scrollButton.badge.overflow" = "99+";
 
 /* Location: ScrollToDividerButton.swift - Accessibility label for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityLabel" = "Scroll to new messages";
+"chats.scrollButton.scrollToDivider.accessibilityLabel" = "Прокрутить к новым сообщениям";
 
 /* Location: ScrollToDividerButton.swift - Accessibility hint for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityHint" = "Double-tap to scroll to the new messages divider";
+"chats.scrollButton.scrollToDivider.accessibilityHint" = "Нажмите дважды, чтобы прокрутить к разделителю новых сообщений";
 
 // MARK: - Chat View (Direct Messages)
 
@@ -235,8 +249,20 @@
 /* Location: ChannelInfoSheet.swift - Error when services unavailable */
 "chats.error.servicesUnavailable" = "Сервисы недоступны";
 
+/* TODO: translate - Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
+"chats.error.notConnectedToDelete" = "Подключитесь к радио, чтобы удалить этот разговор.";
+
 /* Location: ChatConversationView.swift - Error when loading older messages fails */
-"chats.errors.loadOlderMessagesFailed" = "Не удалось загрузить старые сообщения";
+"chats.error.loadOlderMessagesFailed" = "Не удалось загрузить старые сообщения";
+
+/* Location: ErrorBannerModifier.swift - Accessibility hint announcing that tapping the banner dismisses it */
+"chats.error.banner.dismissAccessibilityHint" = "Нажмите, чтобы закрыть";
+
+/* Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error) */
+"chats.error.sendQueuePersistFailed" = "Не удалось поставить сообщение в очередь. Повторите попытку.";
+
+/* TODO: translate - Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
+"chats.error.loadConversationsFailed" = "Не удалось загрузить разговоры.";
 
 // MARK: - Channel Options Sheet
 
@@ -324,20 +350,20 @@
 
 // MARK: - Swipe Actions
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to delete */
-"chats.swipeAction.delete" = "Удалить";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to delete */
+"chats.action.delete" = "Удалить";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to unmute */
-"chats.swipeAction.unmute" = "Включить звук";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to unmute */
+"chats.action.unmute" = "Включить звук";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to mute */
-"chats.swipeAction.mute" = "Без звука";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
+"chats.action.mute" = "Без звука";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to remove from favorites */
-"chats.swipeAction.unfavorite" = "Убрать из избранного";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to remove from favorites */
+"chats.action.unfavorite" = "Убрать из избранного";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to add to favorites */
-"chats.swipeAction.favorite" = "В избранное";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to add to favorites */
+"chats.action.favorite" = "В избранное";
 
 // MARK: - Room Conversation Row
 
@@ -542,6 +568,9 @@
 /* Location: UnifiedMessageBubble.swift - Fallback sender name */
 "chats.message.sender.unknown" = "Неизвестно";
 
+/* Location: UnifiedMessageBubble.swift - Accessibility text for sender names resolved from a short prefix */
+"chats.message.sender.possibleMatch" = "Возможное совпадение, определено по короткому префиксу";
+
 /* Location: UnifiedMessageBubble.swift - Context menu action to reply */
 "chats.message.action.reply" = "Ответить";
 
@@ -578,6 +607,9 @@
 /* Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct" */
 "chats.message.info.hops" = "Переходов: %@";
 
+/* Location: ActionsDetailsSection.swift - Info row showing the path hash size in bytes - %d is 1, 2, or 3 */
+"chats.message.info.pathHash" = "Хеш пути: %d Б";
+
 /* Location: UnifiedMessageBubble.swift - Indicator that timestamp was adjusted */
 "chats.message.info.adjusted" = "(скорректировано)";
 
@@ -587,20 +619,53 @@
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for adjusted timestamp */
 "chats.message.info.adjustedHint" = "Часы отправителя были неточны";
 
+/* Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date */
+"chats.message.info.originalSendTime" = "Исходное время отправки: %@";
+
 /* Location: UnifiedMessageBubble.swift - Context menu text showing received time - %@ is formatted date */
 "chats.message.info.received" = "Получено: %@";
 
 /* Location: UnifiedMessageBubble.swift - Context menu text showing SNR - %@ is formatted value */
 "chats.message.info.snr" = "SNR: %@";
 
+/* Location: MessageActionsSheet.swift - Context menu text showing the radio region the message was flooded under - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
+"chats.message.info.floodedUnder" = "Регион: %@";
+
+/* Location: MessageActionsSheet.swift - Details row shown when region could not be resolved */
+"chats.message.info.regionUnresolved" = "Регион: Неизвестно";
+
 /* Location: UnifiedMessageBubble.swift - Context menu submenu label */
 "chats.message.action.details" = "Подробнее";
+
+/* Location: ActionsDetailsSection.swift - Accessibility value when the details row is expanded */
+"chats.message.action.expanded" = "Развёрнуто";
+
+/* Location: ActionsDetailsSection.swift - Accessibility value when the details row is collapsed */
+"chats.message.action.collapsed" = "Свёрнуто";
 
 /* Location: UnifiedMessageBubble.swift - Context menu action to delete */
 "chats.message.action.delete" = "Удалить";
 
 /* Location: MessageActionsSheet.swift - Purpose: Block sender action */
 "chats.message.action.blockSender" = "Заблокировать отправителя";
+
+/* Location: MessageActionsSheet.swift - Purpose: Action to start a DM with the channel sender */
+"chats.message.action.sendDM" = "Отправить ЛС";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed send */
+"chats.message.action.retry" = "Повторить";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the reactions detail sheet */
+"chats.message.action.viewReactions" = "Показать реакции";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL */
+"chats.message.action.openLink" = "Открыть ссылку";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen */
+"chats.message.action.viewImage" = "Показать изображение";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed image download */
+"chats.message.action.retryImage" = "Загрузить снова";
 
 /* Location: UnifiedMessageBubble.swift - Status row retry button */
 "chats.message.status.retry" = "Повторить";
@@ -675,6 +740,31 @@
 "chats.input.encrypted" = "Зашифровано";
 "chats.input.notEncrypted" = "Не зашифровано";
 
+/* Location: ChatShareMenu.swift - Accessibility label for the share (plus) button */
+"chats.input.shareButton.accessibilityLabel" = "Поделиться";
+
+// MARK: - Share Menu
+
+/* Location: ChatShareMenu.swift - Share menu action to share the current location */
+"chats.share.location" = "Поделиться местоположением";
+
+/* Location: ChatShareMenu.swift - Share menu action to share a contact */
+"chats.share.contact" = "Поделиться контактом";
+
+/* Location: ChatShareMenu.swift - Share menu action to share the user's own node info */
+"chats.share.myInfo" = "Поделиться своим контактом";
+
+// MARK: - Contact Picker
+
+/* Location: ShareContactPickerSheet.swift - Navigation title for the share-contact picker */
+"chats.contactPicker.title" = "Поделиться контактом";
+
+/* Location: ShareContactPickerSheet.swift - Search placeholder for the contact picker */
+"chats.contactPicker.search.placeholder" = "Поиск контактов";
+
+/* Location: ShareContactPickerSheet.swift - Empty state when no contacts are available to share */
+"chats.contactPicker.emptyState" = "Нет контактов для отправки";
+
 // MARK: - Message Path Sheet
 
 /* Location: MessagePathSheet.swift - Empty state title */
@@ -717,6 +807,15 @@
 
 /* Location: PathHopRowView.swift - Unknown signal quality */
 "chats.path.hop.signalUnknown" = "Неизвестно";
+
+/* Location: FallbackMatchIndicatorView.swift - Accessibility label for possible match indicator */
+"chats.path.hop.possibleMatch" = "Возможное совпадение, определено по короткому префиксу";
+
+/* Location: FallbackMatchIndicatorView.swift - Title for possible match explanation popover */
+"chats.path.hop.possibleMatchTitle" = "Возможное Совпадение";
+
+/* Location: FallbackMatchIndicatorView.swift - Explanation of what a possible match means */
+"chats.path.hop.possibleMatchExplanation" = "Несколько узлов имеют этот префикс. Отображаемое имя может быть неверным.";
 
 /* Location: PathHopRowView.swift - Label for receiver (your device) */
 "chats.path.receiver.label" = "Получатель";
@@ -791,6 +890,8 @@
 
 /* Direct message path (no hops) */
 "chats.message.path.direct" = "Напрямую";
+/* Routing strategy where the radio rebroadcasts the message to every neighbor (no specific path). UI displays this as a label in the per-message details sheet. Prefer a localized term over the English loanword if one exists in your locale's networking terminology. */
+"chats.message.path.flood" = "Flood";
 
 /* Message path hop count */
 "chats.message.path.hops" = "%d переходов";
@@ -803,6 +904,15 @@
 
 /* Location: UnifiedMessageBubble.swift - Accessibility label for hop count display - %d is count */
 "chats.message.hopCount.accessibilityLabel" = "Количество переходов: %d";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
+"chats.message.region.accessibilityLabel" = "Регион %@";
+
+/* Location: BubbleFooterRow.swift - Accessibility label for the raw send time footer - %@ is the time */
+"chats.message.sendTime.accessibilityLabel" = "Время отправки: %@";
+
+/* Location: BubbleFooterRow.swift - Accessibility label for the send time footer when the sender's clock was corrected - %@ is the time */
+"chats.message.sendTime.correctedAccessibilityLabel" = "Время отправки: %@, скорректировано из-за ошибки часов отправителя";
 
 // MARK: - Reaction Details Sheet
 
@@ -858,13 +968,16 @@
 // MARK: - Tips
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip title introducing device menu */
-"chats.tip.deviceMenu.title" = "Your Device Menu";
+"chats.tip.deviceMenu.title" = "Меню устройства";
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
-"chats.tip.deviceMenu.message" = "Manage your connection, send advertisements, and check battery. Bluetooth devices stay connected even if the app is closed — tap Disconnect when you're ready to turn off the link.";
+"chats.tip.deviceMenu.message" = "Управляйте подключением, отправляйте объявления и проверяйте заряд батареи. Радио остаётся подключённым даже после принудительного закрытия приложения. Нажмите «Отключить», чтобы разорвать связь.";
 
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Изображение";
+
+/* Location: InlineImageFragmentView.swift - Accessibility label for loading state */
+"chats.inlineImage.loading" = "Загрузка изображения";
 
 /* Location: InlineImageView.swift - Accessibility label for animated image */
 "chats.inlineImage.animatedAccessibility" = "Анимированное изображение";
@@ -873,10 +986,13 @@
 "chats.inlineImage.tapHint" = "Двойное нажатие для просмотра на весь экран";
 
 /* Location: UnifiedMessageBubble.swift - Tap to retry loading failed image */
-"chats.inlineImage.tapToRetry" = "Tap to retry";
+"chats.inlineImage.tapToRetry" = "Нажмите, чтобы повторить";
 
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for retry button */
-"chats.inlineImage.retryHint" = "Double tap to retry loading image";
+"chats.inlineImage.retryHint" = "Нажмите дважды, чтобы повторить загрузку изображения";
+
+/* Location: InlineImageFragmentView.swift - VoiceOver identity for a failed inline image */
+"chats.inlineImage.failedLabel" = "Не удалось загрузить изображение";
 
 /* Location: FullScreenImageViewer.swift - Close button label */
 "chats.imageViewer.close" = "Закрыть";
@@ -901,14 +1017,33 @@
 /* Location: BlockSenderSheet.swift - Purpose: Destructive block button */
 "chats.blockSender.blockAnyway" = "Заблокировать";
 
-/* Location: BlockSenderSheet.swift - Purpose: Accessibility value when contact is selected */
-"chats.blockSender.accessibility.selected" = "Выбрано";
+// MARK: - Contact Match Row
 
-/* Location: BlockSenderSheet.swift - Purpose: Accessibility value when contact is not selected */
-"chats.blockSender.accessibility.notSelected" = "Не выбрано";
+/* Location: ContactMatchRow.swift - Purpose: Accessibility value when contact is selected */
+"chats.contactMatch.accessibility.selected" = "Выбрано";
 
-/* Location: BlockSenderSheet.swift - Purpose: Public key label */
-"chats.blockSender.key" = "Ключ: %@";
+/* Location: ContactMatchRow.swift - Purpose: Accessibility value when contact is not selected */
+"chats.contactMatch.accessibility.notSelected" = "Не выбрано";
+
+/* Location: ContactMatchRow.swift - Purpose: Public key label */
+"chats.contactMatch.key" = "Ключ: %@";
+
+// MARK: - Send DM Sheet
+
+/* Location: SendDMSheet.swift - Purpose: Sheet title with sender name */
+"chats.sendDM.title" = "Отправить ЛС \"%@\"";
+
+/* Location: SendDMSheet.swift - Purpose: Name-based matching limitation warning */
+"chats.sendDM.limitation" = "Сообщения в каналах не содержат идентификатора отправителя. Это совпадение работает только по имени — контакт может быть другим человеком с тем же именем.";
+
+/* Location: SendDMSheet.swift - Purpose: Section header listing matching contacts */
+"chats.sendDM.matchingContacts" = "Выберите контакт, которому отправить сообщение:";
+
+/* Location: SendDMSheet.swift - Purpose: Empty-state message when no contact matches */
+"chats.sendDM.noMatches" = "Контакт с именем \"%@\" не найден.";
+
+/* Location: SendDMSheet.swift - Purpose: Cancel button */
+"chats.sendDM.cancel" = "Отмена";
 
 // MARK: - Message Actions & Notification Level
 
@@ -975,14 +1110,17 @@
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set */
 "chats.channelInfo.region.allRegions" = "All Regions";
 
+/* Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope */
+"chats.channelInfo.region.useDefaultFormat" = "%@ (по умолчанию)";
+
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no regions configured */
 "chats.channelInfo.region.notConfigured" = "Not configured";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Explanation shown when no regions exist */
-"chats.channelInfo.region.explanation" = "Limit messages to a geographic area";
+"chats.channelInfo.region.explanation" = "Ограничить сообщения географической областью";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Discover button */
-"chats.channelInfo.region.discover" = "Discover Nearby Regions";
+"chats.channelInfo.region.discover" = "Найти регионы поблизости";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Discover button loading state */
 "chats.channelInfo.region.discovering" = "Discovering…";
@@ -991,7 +1129,7 @@
 "chats.channelInfo.region.manage" = "Regions";
 
 /* Location: RegionManagementView.swift - Purpose: Manage regions link */
-"chats.channelInfo.region.manageRegions" = "Manage Regions";
+"chats.channelInfo.region.manageRegions" = "Управление регионами";
 
 /* Location: RegionManagementView.swift - Purpose: Add manually button */
 "chats.channelInfo.region.addManually" = "Add Manually";
@@ -1000,13 +1138,19 @@
 "chats.channelInfo.region.noRegions" = "No regions added";
 
 /* Location: RegionManagementView.swift - Purpose: Empty state description */
-"chats.channelInfo.region.noRegionsDescription" = "Discover regions from nearby repeaters or add them manually.";
+"chats.channelInfo.region.noRegionsDescription" = "Найдите регионы у ближайших ретрансляторов или добавьте их вручную.";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: No new regions found */
 "chats.channelInfo.region.noNewRegions" = "No new regions found";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: No repeaters responded */
 "chats.channelInfo.region.noRepeatersResponded" = "No repeaters responded";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Couldn't load nearby repeater list */
+"chats.channelInfo.region.errLoadingRepeaters" = "Не удалось загрузить ближайшие ретрансляторы";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Some queries failed because radio contact list is full */
+"chats.channelInfo.region.errRadioContactsFull" = "Список контактов радио заполнен — некоторые ретрансляторы не удалось опросить";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: Add selected regions button */
 "chats.channelInfo.region.addSelected" = "Add";
@@ -1018,13 +1162,47 @@
 "chats.channelInfo.region.addRegionPlaceholder" = "Region name";
 
 /* Location: AddRegionView.swift - Purpose: Validation error */
-"chats.channelInfo.region.invalidName" = "Region names cannot contain spaces or start with # or $.";
+"chats.channelInfo.region.invalidName" = "Названия регионов могут содержать только буквы, цифры и дефисы.";
+
+/* Location: RegionManagementView.swift - Purpose: Validation error when a region name exceeds the firmware byte cap */
+"chats.channelInfo.region.nameTooLong" = "Названия регионов ограничены %d байтами.";
 
 /* Location: AddRegionView.swift - Purpose: Duplicate error */
-"chats.channelInfo.region.duplicate" = "This region is already in your list.";
+"chats.channelInfo.region.duplicate" = "Этот регион уже есть в вашем списке.";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Private region label */
 "chats.channelInfo.region.private" = "Private";
 
 /* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle */
-"chats.channelInfo.region.scopedAccessibility" = "%@, scoped to %@";
+"chats.channelInfo.region.scopedAccessibility" = "%@, ограничено областью %@";
+
+/* Location: ChatConversationType.swift - Purpose: Subtitle suffix when channel region matches the device default flood scope */
+"chats.channelInfo.region.scopedDefault" = "%@ (по умолчанию)";
+
+/* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle when region matches the device default */
+"chats.channelInfo.region.defaultScopedAccessibility" = "%@, ограничено %@ (по умолчанию)";
+
+// MARK: - Common
+
+/* Location: ChatConversationView.swift - Conversation toolbar Info button */
+"chats.common.info" = "Информация";
+
+// MARK: - Mention Picker
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker navigation title shown with the tapped mention name */
+"chats.mention.picker.title" = "Mention: %@";
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker title when the tapped name matches no saved contact */
+"chats.mention.picker.notSavedTitle" = "Not a saved contact";
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker description when the tapped name matches no saved contact */
+"chats.mention.picker.notSavedSubtitle" = "@%@ не соответствует ни одному контакту на этом радио.";
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker title when the tapped name is the user's own node */
+"chats.mention.picker.selfTitle" = "Это вы";
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker description when the tapped name is the user's own node */
+"chats.mention.picker.selfSubtitle" = "@%@ — имя вашего собственного узла.";
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
+"chats.mention.picker.matchingContacts" = "Matching contacts";

@@ -4,9 +4,10 @@ import MC1Services
 /// Device maintenance actions (reboot)
 struct DeviceActionsSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @State private var showingRebootAlert = false
     @State private var isRebooting = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
 
     var body: some View {
         Section {
@@ -26,6 +27,7 @@ struct DeviceActionsSection: View {
         } header: {
             Text(L10n.Settings.DeviceActions.header)
         }
+        .themedRowBackground(theme)
         .alert(L10n.Settings.DeviceActions.Alert.Reboot.title, isPresented: $showingRebootAlert) {
             Button(L10n.Localizable.Common.cancel, role: .cancel) { }
             Button(L10n.Settings.DeviceActions.Alert.Reboot.confirm) {
@@ -34,7 +36,7 @@ struct DeviceActionsSection: View {
         } message: {
             Text(L10n.Settings.DeviceActions.Alert.Reboot.message)
         }
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
     }
 
     private func rebootDevice() {
@@ -48,7 +50,7 @@ struct DeviceActionsSection: View {
             } catch BLEError.operationTimeout {
                 // Expected - device reboots before BLE write callback arrives
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
         }
     }

@@ -6,10 +6,10 @@ extension PersistenceStore {
 
     // MARK: - Saved Trace Path Operations
 
-    public func fetchSavedTracePaths(deviceID: UUID) throws -> [SavedTracePathDTO] {
-        let targetDeviceID = deviceID
+    public func fetchSavedTracePaths(radioID: UUID) throws -> [SavedTracePathDTO] {
+        let targetRadioID = radioID
         let descriptor = FetchDescriptor<SavedTracePath>(
-            predicate: #Predicate { $0.deviceID == targetDeviceID },
+            predicate: #Predicate { $0.radioID == targetRadioID },
             sortBy: [SortDescriptor(\.createdDate, order: .reverse)]
         )
         let paths = try modelContext.fetch(descriptor)
@@ -26,27 +26,21 @@ extension PersistenceStore {
     }
 
     public func createSavedTracePath(
-        deviceID: UUID,
+        radioID: UUID,
         name: String,
         pathBytes: Data,
         hashSize: Int = 1,
         initialRun: TracePathRunDTO?
     ) throws -> SavedTracePathDTO {
         let path = SavedTracePath(
-            deviceID: deviceID,
+            radioID: radioID,
             name: name,
             pathBytes: pathBytes,
             hashSize: hashSize
         )
 
         if let runDTO = initialRun {
-            let run = TracePathRun(
-                id: runDTO.id,
-                date: runDTO.date,
-                success: runDTO.success,
-                roundTripMs: runDTO.roundTripMs,
-                hopsData: (try? JSONEncoder().encode(runDTO.hopsSNR)) ?? Data()
-            )
+            let run = try TracePathRun(dto: runDTO)
             run.savedPath = path
             path.runs.append(run)
             modelContext.insert(run)
@@ -88,13 +82,7 @@ extension PersistenceStore {
             throw PersistenceStoreError.fetchFailed("SavedTracePath not found")
         }
 
-        let run = TracePathRun(
-            id: runDTO.id,
-            date: runDTO.date,
-            success: runDTO.success,
-            roundTripMs: runDTO.roundTripMs,
-            hopsData: (try? JSONEncoder().encode(runDTO.hopsSNR)) ?? Data()
-        )
+        let run = try TracePathRun(dto: runDTO)
         run.savedPath = path
         path.runs.append(run)
         modelContext.insert(run)
@@ -107,7 +95,7 @@ extension PersistenceStore {
     public func saveRxLogEntry(_ dto: RxLogEntryDTO) throws {
         let entry = RxLogEntry(
             id: dto.id,
-            deviceID: dto.deviceID,
+            radioID: dto.radioID,
             receivedAt: dto.receivedAt,
             snr: dto.snr,
             rssi: dto.rssi,
@@ -125,18 +113,20 @@ extension PersistenceStore {
             decryptStatus: dto.decryptStatus.rawValue,
             fromContactName: dto.fromContactName,
             toContactName: dto.toContactName,
-            senderTimestamp: dto.senderTimestamp.map { Int($0) }
+            senderTimestamp: dto.senderTimestamp.map { Int($0) },
+            regionScope: dto.regionScope,
+            payloadTypeBits: Int(dto.payloadTypeBits)
         )
         modelContext.insert(entry)
         try modelContext.save()
-        rxLogEntryCountsByDevice[dto.deviceID, default: 0] += 1
+        rxLogEntryCountsByDevice[dto.radioID, default: 0] += 1
     }
 
     /// Fetch RX log entries for a device, most recent first.
-    public func fetchRxLogEntries(deviceID: UUID, limit: Int = 500) throws -> [RxLogEntryDTO] {
-        let targetDeviceID = deviceID
+    public func fetchRxLogEntries(radioID: UUID, limit: Int = 500) throws -> [RxLogEntryDTO] {
+        let targetRadioID = radioID
         var descriptor = FetchDescriptor<RxLogEntry>(
-            predicate: #Predicate { $0.deviceID == targetDeviceID },
+            predicate: #Predicate { $0.radioID == targetRadioID },
             sortBy: [SortDescriptor(\.receivedAt, order: .reverse)]
         )
         descriptor.fetchLimit = limit
@@ -145,10 +135,10 @@ extension PersistenceStore {
     }
 
     /// Count RX log entries for a device.
-    public func countRxLogEntries(deviceID: UUID) throws -> Int {
-        let targetDeviceID = deviceID
+    public func countRxLogEntries(radioID: UUID) throws -> Int {
+        let targetRadioID = radioID
         let descriptor = FetchDescriptor<RxLogEntry>(
-            predicate: #Predicate { $0.deviceID == targetDeviceID }
+            predicate: #Predicate { $0.radioID == targetRadioID }
         )
         return try modelContext.fetchCount(descriptor)
     }
@@ -158,18 +148,18 @@ extension PersistenceStore {
     /// This avoids repeated count/fetch/delete maintenance on every RX packet while keeping
     /// retention bounded to `keepCount + pruneThreshold` entries between prune passes.
     public func pruneRxLogEntries(
-        deviceID: UUID,
+        radioID: UUID,
         keepCount: Int = 1000,
         pruneThreshold: Int = 100
     ) throws {
-        let count = try cachedRxLogEntryCount(deviceID: deviceID)
+        let count = try cachedRxLogEntryCount(radioID: radioID)
         guard count > keepCount + pruneThreshold else { return }
 
         let deleteCount = count - keepCount
-        let targetDeviceID = deviceID
+        let targetRadioID = radioID
 
         var descriptor = FetchDescriptor<RxLogEntry>(
-            predicate: #Predicate { $0.deviceID == targetDeviceID },
+            predicate: #Predicate { $0.radioID == targetRadioID },
             sortBy: [SortDescriptor(\.receivedAt, order: .forward)]  // Oldest first
         )
         descriptor.fetchLimit = deleteCount
@@ -179,48 +169,40 @@ extension PersistenceStore {
             modelContext.delete(entry)
         }
         try modelContext.save()
-        rxLogEntryCountsByDevice[deviceID] = keepCount
+        rxLogEntryCountsByDevice[radioID] = keepCount
     }
 
     /// Clear all RX log entries for a device.
-    public func clearRxLogEntries(deviceID: UUID) throws {
-        let targetDeviceID = deviceID
+    public func clearRxLogEntries(radioID: UUID) throws {
+        let targetRadioID = radioID
         let descriptor = FetchDescriptor<RxLogEntry>(
-            predicate: #Predicate { $0.deviceID == targetDeviceID }
+            predicate: #Predicate { $0.radioID == targetRadioID }
         )
         let entries = try modelContext.fetch(descriptor)
         for entry in entries {
             modelContext.delete(entry)
         }
         try modelContext.save()
-        rxLogEntryCountsByDevice[deviceID] = 0
+        rxLogEntryCountsByDevice[radioID] = 0
     }
 
-    private func cachedRxLogEntryCount(deviceID: UUID) throws -> Int {
-        if let cached = rxLogEntryCountsByDevice[deviceID] {
+    private func cachedRxLogEntryCount(radioID: UUID) throws -> Int {
+        if let cached = rxLogEntryCountsByDevice[radioID] {
             return cached
         }
 
-        let count = try countRxLogEntries(deviceID: deviceID)
-        rxLogEntryCountsByDevice[deviceID] = count
+        let count = try countRxLogEntries(radioID: radioID)
+        rxLogEntryCountsByDevice[radioID] = count
         return count
     }
 
     /// Find RxLogEntry matching an incoming message for path correlation.
     ///
-    /// For channel messages: Correlates by channel index and sender timestamp (stored in RxLogEntry).
-    /// For direct messages: Correlates by sender timestamp (now stored via decryption), payload type, and optional contact name.
-    ///
-    /// - Parameters:
-    ///   - channelIndex: Channel index for channel messages, nil for direct messages
-    ///   - senderTimestamp: The sender's timestamp from the message
-    ///   - withinSeconds: Time window for correlation (unused, kept for API compatibility)
-    ///   - contactName: For direct messages, the sender's contact name for additional filtering
+    /// For channel messages: Correlates by channel index and sender timestamp.
+    /// For direct messages: Correlates by sender timestamp and payload type.
     public func findRxLogEntry(
         channelIndex: UInt8?,
-        senderTimestamp: UInt32,
-        withinSeconds: Double,
-        contactName: String? = nil
+        senderTimestamp: UInt32
     ) throws -> RxLogEntryDTO? {
         let targetTimestamp = Int(senderTimestamp)
 
@@ -240,23 +222,13 @@ extension PersistenceStore {
             let results = try modelContext.fetch(descriptor)
             return results.first.map { RxLogEntryDTO(from: $0) }
         } else {
-            // Direct message: match on senderTimestamp (now stored via decryption)
+            // Direct message: match on senderTimestamp
             let textMessageType = Int(PayloadType.textMessage.rawValue)
 
-            let predicate: Predicate<RxLogEntry>
-            if let contactName {
-                predicate = #Predicate<RxLogEntry> { entry in
-                    entry.senderTimestamp == targetTimestamp &&
-                    entry.channelIndex == nil &&
-                    entry.payloadType == textMessageType &&
-                    entry.fromContactName == contactName
-                }
-            } else {
-                predicate = #Predicate<RxLogEntry> { entry in
-                    entry.senderTimestamp == targetTimestamp &&
-                    entry.channelIndex == nil &&
-                    entry.payloadType == textMessageType
-                }
+            let predicate = #Predicate<RxLogEntry> { entry in
+                entry.senderTimestamp == targetTimestamp &&
+                entry.channelIndex == nil &&
+                entry.payloadType == textMessageType
             }
 
             var descriptor = FetchDescriptor<RxLogEntry>(predicate: predicate)
@@ -268,14 +240,46 @@ extension PersistenceStore {
         }
     }
 
-    /// Fetch recent RX log entries that failed decryption due to missing keys.
-    public func fetchRecentNoMatchingKeyEntries(deviceID: UUID, since: Date) throws -> [RxLogEntryDTO] {
-        let targetDeviceID = deviceID
-        let targetStatus = DecryptStatus.noMatchingKey.rawValue
+    /// Find a DM RxLogEntry by matching the sender prefix byte in the packet payload.
+    ///
+    /// Fallback for when the primary `findRxLogEntry(senderTimestamp:)` fails because
+    /// DM decryption hadn't succeeded yet (senderTimestamp was nil). Matches on the
+    /// unencrypted srcHash byte at `packetPayload[1]` and a receive-time window.
+    public func findRxLogEntryBySenderPrefix(
+        senderPrefixByte: UInt8,
+        receivedSince: Date
+    ) throws -> RxLogEntryDTO? {
+        let textMessageType = Int(PayloadType.textMessage.rawValue)
+        let cutoff = receivedSince
+
+        let predicate = #Predicate<RxLogEntry> { entry in
+            entry.channelIndex == nil &&
+            entry.payloadType == textMessageType &&
+            entry.receivedAt >= cutoff
+        }
+
+        var descriptor = FetchDescriptor<RxLogEntry>(predicate: predicate)
+        descriptor.sortBy = [SortDescriptor(\.receivedAt, order: .reverse)]
+        descriptor.fetchLimit = 20
+
+        let candidates = try modelContext.fetch(descriptor)
+
+        // Filter in-memory: match sender prefix byte at packetPayload[1]
+        let match = candidates.first { entry in
+            entry.packetPayload.count >= 2 && entry.packetPayload[1] == senderPrefixByte
+        }
+
+        return match.map { RxLogEntryDTO(from: $0) }
+    }
+
+    /// Fetch recent RX log entries with a given decrypt status.
+    public func fetchRecentEntriesByDecryptStatus(radioID: UUID, status: DecryptStatus, since: Date) throws -> [RxLogEntryDTO] {
+        let targetRadioID = radioID
+        let targetStatus = status.rawValue
         let cutoff = since
         let descriptor = FetchDescriptor<RxLogEntry>(
             predicate: #Predicate {
-                $0.deviceID == targetDeviceID &&
+                $0.radioID == targetRadioID &&
                 $0.decryptStatus == targetStatus &&
                 $0.receivedAt >= cutoff
             },
@@ -301,6 +305,102 @@ extension PersistenceStore {
             entry.channelName = update.channelName
             entry.decryptStatus = DecryptStatus.success.rawValue
             entry.senderTimestamp = update.senderTimestamp.map { Int($0) }
+        }
+        try modelContext.save()
+    }
+
+    /// Fetch RX log entries that have a transport code but no resolved
+    /// region yet — the back-fill candidate set.
+    public func fetchEntriesWithMissingRegion(radioID: UUID) throws -> [RxLogEntryDTO] {
+        let targetRadioID = radioID
+        let descriptor = FetchDescriptor<RxLogEntry>(
+            predicate: #Predicate {
+                $0.radioID == targetRadioID &&
+                $0.transportCode != nil &&
+                $0.regionScope == nil
+            },
+            sortBy: [SortDescriptor(\.receivedAt, order: .forward)]
+        )
+        let entries = try modelContext.fetch(descriptor)
+        return entries.map { RxLogEntryDTO(from: $0) }
+    }
+
+    /// Batch update `regionScope` on RX log entries by id.
+    public func batchUpdateRxLogRegion(
+        updates: [(id: UUID, regionScope: String?)]
+    ) throws {
+        for update in updates {
+            let targetID = update.id
+            let descriptor = FetchDescriptor<RxLogEntry>(
+                predicate: #Predicate { $0.id == targetID }
+            )
+            guard let entry = try modelContext.fetch(descriptor).first else { continue }
+            entry.regionScope = update.regionScope
+        }
+        try modelContext.save()
+    }
+
+    /// Batch update `regionScope` on incoming **channel** `Message` rows
+    /// correlated by `(channelIndex, senderTimestamp)`. The wire timestamp
+    /// fallback is required because `Message.senderTimestamp` is only
+    /// populated for the rare timestamp-corrected case; the normal case puts
+    /// the wire timestamp on `Message.timestamp`.
+    public func batchUpdateChannelMessageRegion(
+        radioID: UUID,
+        updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)]
+    ) throws {
+        let targetRadioID = radioID
+        let incoming = MessageDirection.incoming.rawValue
+        for update in updates {
+            let targetIndex: UInt8? = update.channelIndex
+            let targetSenderTimestamp: UInt32? = update.senderTimestamp
+            let targetWireTimestamp: UInt32 = update.senderTimestamp
+            let descriptor = FetchDescriptor<Message>(
+                predicate: #Predicate {
+                    $0.radioID == targetRadioID &&
+                    $0.channelIndex == targetIndex &&
+                    $0.directionRawValue == incoming &&
+                    ($0.senderTimestamp == targetSenderTimestamp ||
+                     ($0.senderTimestamp == nil && $0.timestamp == targetWireTimestamp))
+                }
+            )
+            for message in try modelContext.fetch(descriptor) {
+                message.regionScope = update.regionScope
+            }
+        }
+        try modelContext.save()
+    }
+
+    /// Batch update `regionScope` on incoming **DM** `Message` rows. DMs
+    /// carry the sender prefix byte at `RxLogEntry.packetPayload[1]` but
+    /// the Message side stores the full multi-byte `senderKeyPrefix`, so
+    /// the predicate fetches by timestamp + DM channel and an in-memory
+    /// pass disambiguates by first-byte equality. Mirrors the correlation
+    /// key used by `findRxLogEntryBySenderPrefix`.
+    public func batchUpdateDMMessageRegion(
+        radioID: UUID,
+        updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)]
+    ) throws {
+        let targetRadioID = radioID
+        let nilChannel: UInt8? = nil
+        let incoming = MessageDirection.incoming.rawValue
+        for update in updates {
+            let targetSenderTimestamp: UInt32? = update.senderTimestamp
+            let targetWireTimestamp: UInt32 = update.senderTimestamp
+            let descriptor = FetchDescriptor<Message>(
+                predicate: #Predicate {
+                    $0.radioID == targetRadioID &&
+                    $0.channelIndex == nilChannel &&
+                    $0.directionRawValue == incoming &&
+                    ($0.senderTimestamp == targetSenderTimestamp ||
+                     ($0.senderTimestamp == nil && $0.timestamp == targetWireTimestamp))
+                }
+            )
+            let prefixByte = update.senderPrefixByte
+            let candidates = try modelContext.fetch(descriptor)
+            for message in candidates where message.senderKeyPrefix?.first == prefixByte {
+                message.regionScope = update.regionScope
+            }
         }
         try modelContext.save()
     }
@@ -479,6 +579,19 @@ extension PersistenceStore {
         try modelContext.save()
     }
 
+    public func saveTelemetryOnlySnapshot(
+        nodePublicKey: Data,
+        telemetryEntries: [TelemetrySnapshotEntry]
+    ) throws -> UUID {
+        let snapshot = NodeStatusSnapshot(
+            nodePublicKey: nodePublicKey,
+            telemetryEntries: telemetryEntries
+        )
+        modelContext.insert(snapshot)
+        try modelContext.save()
+        return snapshot.id
+    }
+
     public func updateSnapshotTelemetry(id: UUID, telemetry: [TelemetrySnapshotEntry]) throws {
         var descriptor = FetchDescriptor<NodeStatusSnapshot>(
             predicate: #Predicate { $0.id == id }
@@ -487,6 +600,62 @@ extension PersistenceStore {
         guard let snapshot = try modelContext.fetch(descriptor).first else { return }
         snapshot.telemetryEntries = telemetry
         try modelContext.save()
+    }
+
+    /// Atomically capture a status, telemetry, and/or neighbor snapshot for a node.
+    ///
+    /// The fetch-latest decision and the insert-or-enrich both run in this single
+    /// `@ModelActor` method body with no `await`, so two concurrent captures
+    /// serialize and the second observes the first's row — there is no window for a
+    /// duplicate in-window insert. Keeping the body suspension-free is the whole
+    /// point; an `await` here would reopen that race. Mirrors the same-isolation
+    /// guarantee `insertPendingSendAssigningSequence` relies on.
+    ///
+    /// Within `NodeSnapshotPolicy.minimumInterval` of the latest snapshot the
+    /// capture enriches that row: status fields are applied only when the row is
+    /// still telemetry-only (`uptimeSeconds == nil`), preserving the
+    /// one-status-point-per-window throttle; telemetry and neighbor arrays are
+    /// applied whenever supplied. Outside the window a new snapshot is inserted.
+    public func recordNodeStatusSnapshot(
+        nodePublicKey: Data,
+        status: NodeStatusMetrics?,
+        telemetry: [TelemetrySnapshotEntry]?,
+        neighbors: [NeighborSnapshotEntry]?
+    ) throws -> UUID {
+        var latestDescriptor = FetchDescriptor<NodeStatusSnapshot>(
+            predicate: #Predicate { $0.nodePublicKey == nodePublicKey },
+            sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
+        )
+        latestDescriptor.fetchLimit = 1
+
+        if let latest = try modelContext.fetch(latestDescriptor).first,
+           latest.timestamp.distance(to: .now) < NodeSnapshotPolicy.minimumInterval {
+            if let status, latest.uptimeSeconds == nil {
+                latest.apply(status)
+            }
+            if let telemetry {
+                latest.telemetryEntries = telemetry
+            }
+            if let neighbors {
+                latest.neighborSnapshots = neighbors
+            }
+            try modelContext.save()
+            return latest.id
+        }
+
+        let snapshot = NodeStatusSnapshot(
+            nodePublicKey: nodePublicKey,
+            telemetryEntries: telemetry
+        )
+        if let status {
+            snapshot.apply(status)
+        }
+        if let neighbors {
+            snapshot.neighborSnapshots = neighbors
+        }
+        modelContext.insert(snapshot)
+        try modelContext.save()
+        return snapshot.id
     }
 
     public func deleteOldNodeStatusSnapshots(olderThan date: Date) throws {

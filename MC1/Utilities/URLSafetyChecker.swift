@@ -154,12 +154,12 @@ enum URLSafetyChecker {
         case AF_INET:
             var addr = info.ai_addr!.withMemoryRebound(to: sockaddr_in.self, capacity: 1) { $0.pointee }
             inet_ntop(AF_INET, &addr.sin_addr, &buffer, socklen_t(INET_ADDRSTRLEN))
-            return String(cString: buffer)
+            return buffer.withUnsafeBufferPointer { String(cString: $0.baseAddress!) }
 
         case AF_INET6:
             var addr = info.ai_addr!.withMemoryRebound(to: sockaddr_in6.self, capacity: 1) { $0.pointee }
             inet_ntop(AF_INET6, &addr.sin6_addr, &buffer, socklen_t(INET6_ADDRSTRLEN))
-            return String(cString: buffer)
+            return buffer.withUnsafeBufferPointer { String(cString: $0.baseAddress!) }
 
         default:
             return nil

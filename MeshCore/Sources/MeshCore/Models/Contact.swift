@@ -45,6 +45,21 @@ public struct MeshContact: Sendable, Identifiable, Equatable {
     /// The type identifier for the contact.
     public let type: ContactType
 
+    /// The raw 1-byte type value as it appears on the wire.
+    ///
+    /// Normally equal to `type.rawValue`. Preserved separately so a contact carrying a
+    /// type byte not yet modeled by ``ContactType`` (e.g. from newer firmware or an
+    /// imported config) survives instead of being coerced to `.chat`. The byte round-trips
+    /// through OTA decode, the local cache, config export, and the config-import /
+    /// contact-add device write (``addContact`` encodes via ``PacketBuilder/updateContact(_:)``).
+    ///
+    /// Two honest exclusions: `changeContactPath` and `changeContactFlags` re-coerce the type
+    /// on a user-initiated path/flag edit (they encode through the typed
+    /// `updateContact(publicKey:type:…)` overload), and `lastModified` is restamped by the
+    /// firmware on receipt because the frame is under 148 bytes — so "verbatim" covers the
+    /// type byte, not the device-side advert/modified timestamps.
+    public let typeRawValue: UInt8
+
     /// The operational flags for the contact.
     public let flags: ContactFlags
 
@@ -114,6 +129,8 @@ public struct MeshContact: Sendable, Identifiable, Equatable {
     ///   - id: Unique hex string identifier.
     ///   - publicKey: The 32-byte public key data.
     ///   - type: Contact type identifier (chat, repeater, room).
+    ///   - typeRawValue: Raw wire type byte. Defaults to `type.rawValue`; pass an explicit
+    ///     value to preserve a byte not modeled by ``ContactType``.
     ///   - flags: Operational flags (favorite, telemetry permissions).
     ///   - outPathLength: Encoded outbound path length byte.
     ///   - outPath: Outbound path data.
@@ -126,6 +143,7 @@ public struct MeshContact: Sendable, Identifiable, Equatable {
         id: String,
         publicKey: Data,
         type: ContactType,
+        typeRawValue: UInt8? = nil,
         flags: ContactFlags,
         outPathLength: UInt8,
         outPath: Data,
@@ -138,6 +156,7 @@ public struct MeshContact: Sendable, Identifiable, Equatable {
         self.id = id
         self.publicKey = publicKey
         self.type = type
+        self.typeRawValue = typeRawValue ?? type.rawValue
         self.flags = flags
         self.outPathLength = outPathLength
         self.outPath = outPath

@@ -4,32 +4,46 @@ import SwiftUI
 /// Offline-accessible overview of all historical telemetry charts for a repeater.
 struct TelemetryHistoryOverviewView: View {
     let publicKey: Data
-    let deviceID: UUID
+    let radioID: UUID
+    let showNeighbors: Bool
 
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @State private var viewModel = TelemetryHistoryOverviewViewModel()
     @State private var radioExpanded = true
-    @State private var sensorsExpanded = false
+    @State private var sensorsExpanded: Bool
     @State private var neighborsExpanded = false
 
+    init(publicKey: Data, radioID: UUID, showNeighbors: Bool = true) {
+        self.publicKey = publicKey
+        self.radioID = radioID
+        self.showNeighbors = showNeighbors
+        self._sensorsExpanded = State(initialValue: !showNeighbors)
+    }
+
     var body: some View {
+        let filtered = viewModel.filteredSnapshots
         List {
             if !viewModel.hasSnapshots {
                 emptyState
             } else {
                 HistoryTimeRangePicker(selection: $viewModel.timeRange)
-                radioSection
-                sensorsSection
-                neighborsSection
+                radioSection(filtered: filtered)
+                sensorsSection(filtered: filtered)
+                if showNeighbors {
+                    neighborsSection(filtered: filtered)
+                }
                 retentionFooter
             }
         }
+        .themedCanvas(theme)
+        .chartScrubbingScrollLock()
         .navigationTitle(L10n.RemoteNodes.RemoteNodes.History.overviewTitle)
         .liquidGlassToolbarBackground()
         .task {
             guard let store = appState.offlineDataStore else { return }
             await viewModel.loadData(
-                dataStore: store, publicKey: publicKey, deviceID: deviceID
+                dataStore: store, publicKey: publicKey, radioID: radioID
             )
         }
     }
@@ -48,8 +62,7 @@ struct TelemetryHistoryOverviewView: View {
     // MARK: - Radio Section
 
     @ViewBuilder
-    private var radioSection: some View {
-        let filtered = viewModel.filteredSnapshots
+    private func radioSection(filtered: [NodeStatusSnapshotDTO]) -> some View {
         let hasRadioData = filtered.contains {
             $0.batteryMillivolts != nil || $0.lastSNR != nil ||
             $0.lastRSSI != nil || $0.noiseFloor != nil ||
@@ -64,15 +77,16 @@ struct TelemetryHistoryOverviewView: View {
                     L10n.RemoteNodes.RemoteNodes.History.radioSection,
                     isExpanded: $radioExpanded
                 ) {
+                    let batteryPoints = filtered.compactMap { s in
+                        s.batteryMillivolts.map {
+                            MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0) / 1000.0)
+                        }
+                    }
                     metricChart(
                         title: L10n.RemoteNodes.RemoteNodes.History.battery,
                         unit: "V", color: .mint,
-                        dataPoints: filtered.compactMap { s in
-                            s.batteryMillivolts.map {
-                                .init(id: s.id, date: s.timestamp, value: Double($0) / 1000.0)
-                            }
-                        },
-                        yAxisDomain: viewModel.ocvArray.voltageChartDomain()
+                        dataPoints: batteryPoints,
+                        yAxisDomain: viewModel.ocvArray.voltageChartDomain(dataPoints: batteryPoints)
                     )
 
                     metricChart(
@@ -99,56 +113,67 @@ struct TelemetryHistoryOverviewView: View {
                         }
                     )
 
+                    let packetsSentPoints = filtered.compactMap { s in
+                        s.packetsSent.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
+                    }
+                    let packetsReceivedPoints = filtered.compactMap { s in
+                        s.packetsReceived.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
+                    }
+                    let receiveErrorPoints = filtered.compactMap { s in
+                        s.receiveErrors.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
+                    }
+                    let postsReceivedPoints = filtered.compactMap { s in
+                        s.postedCount.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
+                    }
+                    let postsPushedPoints = filtered.compactMap { s in
+                        s.postPushCount.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
+                    }
+                    let packetDomain = [MetricChartView.DataPoint].sharedDomain(for: [
+                        packetsSentPoints, packetsReceivedPoints, receiveErrorPoints,
+                        postsReceivedPoints, postsPushedPoints
+                    ])
+
                     metricChart(
                         title: L10n.RemoteNodes.RemoteNodes.History.packetsSent,
                         unit: "", color: .green,
-                        dataPoints: filtered.compactMap { s in
-                            s.packetsSent.map { .init(id: s.id, date: s.timestamp, value: Double($0)) }
-                        }
+                        dataPoints: packetsSentPoints, yAxisDomain: packetDomain
                     )
 
                     metricChart(
                         title: L10n.RemoteNodes.RemoteNodes.History.packetsReceived,
                         unit: "", color: .orange,
-                        dataPoints: filtered.compactMap { s in
-                            s.packetsReceived.map { .init(id: s.id, date: s.timestamp, value: Double($0)) }
-                        }
+                        dataPoints: packetsReceivedPoints, yAxisDomain: packetDomain
                     )
 
                     metricChart(
                         title: L10n.RemoteNodes.RemoteNodes.History.receiveErrors,
                         unit: "", color: .red,
-                        dataPoints: filtered.compactMap { s in
-                            s.receiveErrors.map { .init(id: s.id, date: s.timestamp, value: Double($0)) }
-                        }
+                        dataPoints: receiveErrorPoints, yAxisDomain: packetDomain
                     )
 
                     metricChart(
                         title: L10n.RemoteNodes.RemoteNodes.RoomStatus.postsReceived,
                         unit: "", color: .purple,
-                        dataPoints: filtered.compactMap { s in
-                            s.postedCount.map { .init(id: s.id, date: s.timestamp, value: Double($0)) }
-                        }
+                        dataPoints: postsReceivedPoints, yAxisDomain: packetDomain
                     )
 
                     metricChart(
                         title: L10n.RemoteNodes.RemoteNodes.RoomStatus.postsPushed,
                         unit: "", color: .cyan,
-                        dataPoints: filtered.compactMap { s in
-                            s.postPushCount.map { .init(id: s.id, date: s.timestamp, value: Double($0)) }
-                        }
+                        dataPoints: postsPushedPoints, yAxisDomain: packetDomain
                     )
                 }
             }
+            .themedRowBackground(theme)
         }
     }
 
     // MARK: - Sensors Section
 
     @ViewBuilder
-    private var sensorsSection: some View {
-        if viewModel.hasTelemetryData {
-            let groups = viewModel.channelGroups
+    private func sensorsSection(filtered: [NodeStatusSnapshotDTO]) -> some View {
+        if viewModel.hasTelemetryData(in: filtered) {
+            let groups = ChannelGroup.groups(from: filtered)
             Section {
                 DisclosureGroup(
                     L10n.RemoteNodes.RemoteNodes.History.sensorsSection,
@@ -169,6 +194,7 @@ struct TelemetryHistoryOverviewView: View {
                     }
                 }
             }
+            .themedRowBackground(theme)
         } else if viewModel.hasSnapshots {
             Section {
                 Text(L10n.RemoteNodes.RemoteNodes.History.sectionNotCaptured(
@@ -177,15 +203,16 @@ struct TelemetryHistoryOverviewView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             }
+            .themedRowBackground(theme)
         }
     }
 
     // MARK: - Neighbors Section
 
     @ViewBuilder
-    private var neighborsSection: some View {
-        if viewModel.hasNeighborData {
-            let neighborCharts = buildNeighborCharts()
+    private func neighborsSection(filtered: [NodeStatusSnapshotDTO]) -> some View {
+        if viewModel.hasNeighborData(in: filtered) {
+            let neighborCharts = buildNeighborCharts(from: filtered)
             Section {
                 DisclosureGroup(
                     L10n.RemoteNodes.RemoteNodes.History.neighborsSection,
@@ -201,6 +228,7 @@ struct TelemetryHistoryOverviewView: View {
                     }
                 }
             }
+            .themedRowBackground(theme)
         } else if viewModel.hasSnapshots {
             Section {
                 Text(L10n.RemoteNodes.RemoteNodes.History.sectionNotCaptured(
@@ -209,6 +237,7 @@ struct TelemetryHistoryOverviewView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             }
+            .themedRowBackground(theme)
         }
     }
 
@@ -232,16 +261,16 @@ struct TelemetryHistoryOverviewView: View {
     private func chartView(for chart: TelemetryChartGroup) -> MetricChartView {
         MetricChartView(
             title: chart.title,
-            unit: chart.sensorType?.unit ?? "",
+            unit: chart.sensorType?.localizedUnitSymbol ?? "",
             dataPoints: chart.dataPoints,
             accentColor: chart.sensorType?.chartColor ?? .cyan,
-            yAxisDomain: chart.sensorType == .voltage ? viewModel.ocvArray.voltageChartDomain() : nil
+            yAxisDomain: chart.sensorType == .voltage ? viewModel.ocvArray.voltageChartDomain(dataPoints: chart.dataPoints) : nil
         )
     }
 
-    private func buildNeighborCharts() -> [NeighborChart] {
+    private func buildNeighborCharts(from filtered: [NodeStatusSnapshotDTO]) -> [NeighborChart] {
         var charts: [Data: NeighborChart] = [:]
-        for snapshot in viewModel.filteredSnapshots {
+        for snapshot in filtered {
             for neighbor in snapshot.neighborSnapshots ?? [] {
                 let point = MetricChartView.DataPoint(
                     id: snapshot.id, date: snapshot.timestamp, value: neighbor.snr
@@ -268,6 +297,7 @@ struct TelemetryHistoryOverviewView: View {
         } footer: {
             Text(L10n.RemoteNodes.RemoteNodes.History.retentionNotice)
         }
+        .themedRowBackground(theme)
     }
 }
 

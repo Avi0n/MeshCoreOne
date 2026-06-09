@@ -47,6 +47,48 @@ public enum SyncPhase: Sendable, Equatable {
     case messages
 }
 
+/// Phase-level sync outcome.
+public enum SyncPhaseStatus: Sendable, Equatable {
+    case clean
+    case partial
+    case skipped
+    case failed(String)
+
+    public var isClean: Bool {
+        self == .clean
+    }
+}
+
+/// Structured result for an initial or full sync.
+public struct FullSyncResult: Sendable, Equatable {
+    public let contacts: SyncPhaseStatus
+    public let channels: SyncPhaseStatus
+    public let messages: SyncPhaseStatus
+    public let channelRetryIndices: [UInt8]
+
+    public var isConnectionUsable: Bool {
+        contacts == .clean
+    }
+
+    public init(
+        contacts: SyncPhaseStatus,
+        channels: SyncPhaseStatus,
+        messages: SyncPhaseStatus,
+        channelRetryIndices: [UInt8] = []
+    ) {
+        self.contacts = contacts
+        self.channels = channels
+        self.messages = messages
+        self.channelRetryIndices = channelRetryIndices
+    }
+
+    public static let skipped = FullSyncResult(
+        contacts: .skipped,
+        channels: .skipped,
+        messages: .skipped
+    )
+}
+
 /// Errors from SyncCoordinator operations
 public enum SyncCoordinatorError: Error, Sendable {
     case notConnected
@@ -79,10 +121,16 @@ public actor SyncCoordinator {
 
     let logger = PersistentLogger(subsystem: "com.mc1.services", category: "SyncCoordinator")
 
+    /// Actor-local guard against concurrent sync execution.
+    /// Checked and set synchronously (no `await`) to eliminate the TOCTOU window
+    /// that existed when guarding via the `@MainActor`-isolated `state` property.
+    var isSyncInProgress = false
+
     /// Cached blocked names (contacts + channel senders) for O(1) lookup in message handlers
     private var blockedNames: Set<String> = []
 
-    /// Tracks unresolved channel indices that generated notifications in this connection session.
+    /// Tracks channel indices received for slots with no local channel (notifications suppressed)
+    /// in this connection session.
     var unresolvedChannelIndices: Set<UInt8> = []
     var lastUnresolvedChannelSummaryAt: Date?
     let unresolvedChannelSummaryIntervalSeconds: TimeInterval = 60
@@ -105,11 +153,29 @@ public actor SyncCoordinator {
     /// Last successful sync date
     @MainActor public private(set) var lastSyncDate: Date?
 
+    /// Called when channel sync completes with zero errors (including retries).
+    /// Used by ConnectionManager to track clean channel completions for smart resync.
+    var onCleanChannelSync: (@Sendable (_ radioID: UUID) async -> Void)?
+
+    /// Called when a channel sync attempt starts, clean or partial.
+    /// Used by ConnectionManager to cool down immediate channel retry loops.
+    var onChannelSyncAttempted: (@Sendable (_ radioID: UUID) async -> Void)?
+
+    /// Sets the callback for clean channel sync completion.
+    public func setCleanChannelSyncCallback(_ callback: @escaping @Sendable (_ radioID: UUID) async -> Void) {
+        onCleanChannelSync = callback
+    }
+
+    /// Sets the callback for any channel sync attempt.
+    public func setChannelSyncAttemptedCallback(_ callback: @escaping @Sendable (_ radioID: UUID) async -> Void) {
+        onChannelSyncAttempted = callback
+    }
+
     /// Callback when non-message sync activity starts
     var onSyncActivityStarted: (@Sendable () async -> Void)?
 
     /// Callback when non-message sync activity ends
-    private var onSyncActivityEnded: (@Sendable () async -> Void)?
+    var onSyncActivityEnded: (@Sendable (_ succeeded: Bool) async -> Void)?
 
     /// Tracks whether onSyncActivityEnded has been called for the current sync cycle.
     /// Prevents double-callback when disconnect occurs mid-sync (both onDisconnected
@@ -129,17 +195,29 @@ public actor SyncCoordinator {
     /// Callback when conversations data changes (for SwiftUI observation).
     @MainActor private var onConversationsChanged: (@Sendable @MainActor () -> Void)?
 
-    /// Callback when a direct message is received (for MessageEventBroadcaster)
+    /// Callback when a direct message is received (forwarded to `MessageEventStream` consumers).
     var onDirectMessageReceived: (@Sendable (_ message: MessageDTO, _ contact: ContactDTO) async -> Void)?
 
-    /// Callback when a channel message is received (for MessageEventBroadcaster)
+    /// Callback when a channel message is received (forwarded to `MessageEventStream` consumers).
     var onChannelMessageReceived: (@Sendable (_ message: MessageDTO, _ channelIndex: UInt8) async -> Void)?
 
-    /// Callback when a room message is received (for MessageEventBroadcaster)
+    /// Callback when a room message is received (forwarded to `MessageEventStream` consumers).
     var onRoomMessageReceived: (@Sendable (_ message: RoomMessageDTO) async -> Void)?
 
     /// Callback when a reaction is received for a channel message
     var onReactionReceived: (@Sendable (_ messageID: UUID, _ summary: String) async -> Void)?
+
+    // MARK: - Test Seams
+
+    #if DEBUG
+    /// Test override for `performResync`. When set, bypasses the real sync path.
+    var performResyncOverride: ((_ radioID: UUID, _ services: ServiceContainer) async -> Bool)?
+
+    /// Sets the test override for `performResync`.
+    public func setPerformResyncOverride(_ override: @escaping @Sendable (_ radioID: UUID, _ services: ServiceContainer) async -> Bool) {
+        performResyncOverride = override
+    }
+    #endif
 
     // MARK: - Initialization
 
@@ -166,7 +244,7 @@ public actor SyncCoordinator {
     /// Only called for contacts and channels phases, NOT for messages.
     public func setSyncActivityCallbacks(
         onStarted: @escaping @Sendable () async -> Void,
-        onEnded: @escaping @Sendable () async -> Void,
+        onEnded: @escaping @Sendable (_ succeeded: Bool) async -> Void,
         onPhaseChanged: @escaping @Sendable @MainActor (_ phase: SyncPhase?) -> Void
     ) async {
         onSyncActivityStarted = onStarted
@@ -185,7 +263,7 @@ public actor SyncCoordinator {
         }
     }
 
-    /// Sets callbacks for message events (used by AppState for MessageEventBroadcaster)
+    /// Sets callbacks for message events (used by AppState to feed `MessageEventStream`).
     public func setMessageEventCallbacks(
         onDirectMessageReceived: @escaping @Sendable (_ message: MessageDTO, _ contact: ContactDTO) async -> Void,
         onChannelMessageReceived: @escaping @Sendable (_ message: MessageDTO, _ channelIndex: UInt8) async -> Void,
@@ -202,11 +280,23 @@ public actor SyncCoordinator {
 
     /// Calls onSyncActivityEnded at most once per sync cycle.
     /// Guards against double-callback when disconnect occurs mid-sync.
-    func endSyncActivityOnce() async {
+    func endSyncActivityOnce(succeeded: Bool = false) async {
         guard !hasEndedSyncActivity else { return }
         hasEndedSyncActivity = true
-        logger.info("[Sync] Calling onSyncActivityEnded")
-        await onSyncActivityEnded?()
+        logger.info("[Sync] Calling onSyncActivityEnded (succeeded: \(succeeded))")
+        await onSyncActivityEnded?(succeeded)
+    }
+
+    /// Called by ConnectionManager when a resync loop starts.
+    /// Increments the activity count so "Syncing" pill stays visible across retries.
+    func beginResyncActivity() async {
+        await onSyncActivityStarted?()
+    }
+
+    /// Called by ConnectionManager when a resync loop ends (success or exhausted retries).
+    /// Decrements the activity count. Only triggers "Ready" toast on success.
+    func endResyncActivity(succeeded: Bool) async {
+        await onSyncActivityEnded?(succeeded)
     }
 
     // MARK: - Notification Suppression Watchdog
@@ -250,10 +340,10 @@ public actor SyncCoordinator {
     // MARK: - Blocked Contacts Cache
 
     /// Refresh the blocked names cache from the data store (contacts + channel senders)
-    public func refreshBlockedContactsCache(deviceID: UUID, dataStore: any PersistenceStoreProtocol) async {
+    public func refreshBlockedContactsCache(radioID: UUID, dataStore: any PersistenceStoreProtocol) async {
         do {
-            let blockedContacts = try await dataStore.fetchBlockedContacts(deviceID: deviceID)
-            let blockedSenders = try await dataStore.fetchBlockedChannelSenders(deviceID: deviceID)
+            let blockedContacts = try await dataStore.fetchBlockedContacts(radioID: radioID)
+            let blockedSenders = try await dataStore.fetchBlockedChannelSenders(radioID: radioID)
             blockedNames = Set(blockedContacts.map(\.name))
                 .union(Set(blockedSenders.map(\.name)))
             logger.debug("Refreshed blocked names cache: \(self.blockedNames.count) entries")
@@ -261,12 +351,6 @@ public actor SyncCoordinator {
             logger.error("Failed to refresh blocked names cache: \(error)")
             blockedNames = []
         }
-    }
-
-    /// Invalidate the blocked names cache (call when block status changes)
-    public func invalidateBlockedContactsCache() {
-        blockedNames = []
-        logger.debug("Invalidated blocked names cache")
     }
 
     /// Check if a sender name is blocked (O(1) lookup)
@@ -278,6 +362,19 @@ public actor SyncCoordinator {
     /// Returns a snapshot of blocked sender names for synchronous filtering
     public func blockedSenderNames() -> Set<String> {
         blockedNames
+    }
+
+    /// Delete any channel messages from blocked senders still in the DB.
+    /// Runs on every connection. After the first pass, delete queries match zero rows
+    /// and are effectively free (indexed predicate, no mutations). This handles legacy
+    /// data from app versions that filtered at read time instead of deleting at block time.
+    func deleteBlockedSenderMessages(radioID: UUID, dataStore: any PersistenceStoreProtocol) async {
+        let names = blockedNames
+        guard !names.isEmpty else { return }
+
+        for name in names {
+            try? await dataStore.deleteChannelMessages(fromSender: name, radioID: radioID)
+        }
     }
 
     // MARK: - Timestamp Correction
@@ -318,5 +415,31 @@ public actor SyncCoordinator {
             return (UInt32(receiveSeconds), true)
         }
         return (timestamp, false)
+    }
+
+    /// Computes the persisted sort date for an incoming message based on its delivery context.
+    ///
+    /// Live messages sort by receive time so a just-arrived message stays at the bottom of the
+    /// transcript. Backlog messages drained during sync sort by the drain `anchor`, so a whole
+    /// batch lands as one contiguous block at delivery time — recent, never buried — ordered
+    /// within the block by the secondary `timestamp` fetch key. The sort key no longer reads
+    /// sender time, so a skewed sender clock cannot scatter backlog into deep scrollback;
+    /// `correctTimestampIfNeeded` still governs the persisted `Message.timestamp` used for
+    /// dedup, display, and within-block ordering.
+    ///
+    /// - Parameters:
+    ///   - context: Whether the message arrived live or via a backlog drain (carrying the anchor).
+    ///   - receiveTime: When a live message was received. Ignored for `initialSync`.
+    /// - Returns: The date to persist as the message's sort key.
+    nonisolated static func sortDate(
+        for context: DeliveryContext,
+        receiveTime: Date
+    ) -> Date {
+        switch context {
+        case .live:
+            return receiveTime
+        case .initialSync(let anchor):
+            return anchor
+        }
     }
 }

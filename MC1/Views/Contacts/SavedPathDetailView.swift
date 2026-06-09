@@ -4,6 +4,7 @@ import MC1Services
 
 struct SavedPathDetailView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @State private var viewModel: SavedPathDetailViewModel
 
     init(savedPath: SavedTracePathDTO) {
@@ -13,9 +14,13 @@ struct SavedPathDetailView: View {
     var body: some View {
         List {
             pathSection
+                .themedRowBackground(theme)
             performanceSection
+                .themedRowBackground(theme)
             historySection
+                .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .navigationTitle(viewModel.savedPath.name)
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -156,6 +161,7 @@ private struct StatView: View {
 }
 
 private struct RunDetailView: View {
+    @Environment(\.appTheme) private var theme
     let run: TracePathRunDTO
 
     var body: some View {
@@ -165,6 +171,7 @@ private struct RunDetailView: View {
                 LabeledContent(L10n.Contacts.Contacts.PathDetail.roundTrip, value: "\(run.roundTripMs) ms")
                 LabeledContent(L10n.Contacts.Contacts.PathDetail.status, value: run.success ? L10n.Contacts.Contacts.PathDetail.success : L10n.Contacts.Contacts.PathDetail.failed)
             }
+            .themedRowBackground(theme)
 
             if run.success && !run.hopsSNR.isEmpty {
                 Section(L10n.Contacts.Contacts.PathDetail.perHopSNR) {
@@ -175,8 +182,10 @@ private struct RunDetailView: View {
                         }
                     }
                 }
+                .themedRowBackground(theme)
             }
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Contacts.Contacts.PathDetail.runDetails)
         .navigationBarTitleDisplayMode(.inline)
     }

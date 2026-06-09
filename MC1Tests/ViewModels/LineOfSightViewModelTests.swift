@@ -63,8 +63,8 @@ actor MockElevationService: ElevationServiceProtocol {
 actor MockPersistenceStore: PersistenceStoreProtocol {
     var contacts: [UUID: ContactDTO] = [:]
 
-    func fetchContacts(deviceID: UUID) async throws -> [ContactDTO] {
-        Array(contacts.values.filter { $0.deviceID == deviceID })
+    func fetchContacts(radioID: UUID) async throws -> [ContactDTO] {
+        Array(contacts.values.filter { $0.radioID == radioID })
     }
 
     func addContact(_ contact: ContactDTO) {
@@ -79,23 +79,21 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
 
     func saveMessage(_ dto: MessageDTO) async throws {}
     func fetchMessage(id: UUID) async throws -> MessageDTO? { nil }
-    func fetchMessage(ackCode: UInt32) async throws -> MessageDTO? { nil }
     func fetchMessages(contactID: UUID, limit: Int, offset: Int) async throws -> [MessageDTO] { [] }
-    func fetchMessages(deviceID: UUID, channelIndex: UInt8, limit: Int, offset: Int) async throws -> [MessageDTO] { [] }
+    func fetchMessages(radioID: UUID, channelIndex: UInt8, limit: Int, offset: Int) async throws -> [MessageDTO] { [] }
     func fetchLastMessages(contactIDs: [UUID], limit: Int) throws -> [UUID: [MessageDTO]] { [:] }
-    func fetchLastChannelMessages(channels: [(deviceID: UUID, channelIndex: UInt8, id: UUID)], limit: Int) throws -> [UUID: [MessageDTO]] { [:] }
+    func fetchLastChannelMessages(channels: [(radioID: UUID, channelIndex: UInt8, id: UUID)], limit: Int) throws -> [UUID: [MessageDTO]] { [:] }
     func deleteMessagesForContact(contactID: UUID) async throws {}
     func updateMessageStatus(id: UUID, status: MessageStatus) async throws {}
     func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {}
-    func updateMessageByAckCode(_ ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {}
     func updateMessageRetryStatus(id: UUID, status: MessageStatus, retryAttempt: Int, maxRetryAttempts: Int) async throws {}
     func updateMessageHeardRepeats(id: UUID, heardRepeats: Int) async throws {}
     func updateMessageLinkPreview(id: UUID, url: String?, title: String?, imageData: Data?, iconData: Data?, fetched: Bool) throws {}
-    func fetchConversations(deviceID: UUID) async throws -> [ContactDTO] { [] }
+    func fetchConversations(radioID: UUID) async throws -> [ContactDTO] { [] }
     func fetchContact(id: UUID) async throws -> ContactDTO? { nil }
-    func fetchContact(deviceID: UUID, publicKey: Data) async throws -> ContactDTO? { nil }
-    func fetchContact(deviceID: UUID, publicKeyPrefix: Data) async throws -> ContactDTO? { nil }
-    @discardableResult func saveContact(deviceID: UUID, from frame: ContactFrame) async throws -> UUID { UUID() }
+    func fetchContact(radioID: UUID, publicKey: Data) async throws -> ContactDTO? { nil }
+    func fetchContact(radioID: UUID, publicKeyPrefix: Data) async throws -> ContactDTO? { nil }
+    @discardableResult func saveContact(radioID: UUID, from frame: ContactFrame) async throws -> UUID { UUID() }
     func saveContact(_ dto: ContactDTO) async throws {}
     func deleteContact(id: UUID) async throws {}
     func updateContactLastMessage(contactID: UUID, date: Date?) async throws {}
@@ -109,24 +107,25 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
     func decrementChannelUnreadMentionCount(channelID: UUID) async throws {}
     func clearChannelUnreadMentionCount(channelID: UUID) async throws {}
     func fetchUnseenMentionIDs(contactID: UUID) async throws -> [UUID] { [] }
-    func fetchUnseenChannelMentionIDs(deviceID: UUID, channelIndex: UInt8) async throws -> [UUID] { [] }
-    func fetchBlockedContacts(deviceID: UUID) async throws -> [ContactDTO] { [] }
+    func fetchUnseenChannelMentionIDs(radioID: UUID, channelIndex: UInt8) async throws -> [UUID] { [] }
+    func fetchBlockedContacts(radioID: UUID) async throws -> [ContactDTO] { [] }
     func saveBlockedChannelSender(_ dto: BlockedChannelSenderDTO) async throws {}
-    func deleteBlockedChannelSender(deviceID: UUID, name: String) async throws {}
-    func fetchBlockedChannelSenders(deviceID: UUID) async throws -> [BlockedChannelSenderDTO] { [] }
-    func fetchChannels(deviceID: UUID) async throws -> [ChannelDTO] { [] }
-    func fetchChannel(deviceID: UUID, index: UInt8) async throws -> ChannelDTO? { nil }
+    func deleteBlockedChannelSender(radioID: UUID, name: String) async throws {}
+    func deleteChannelMessages(fromSender senderName: String, radioID: UUID) async throws {}
+    func fetchBlockedChannelSenders(radioID: UUID) async throws -> [BlockedChannelSenderDTO] { [] }
+    func fetchChannels(radioID: UUID) async throws -> [ChannelDTO] { [] }
+    func fetchChannel(radioID: UUID, index: UInt8) async throws -> ChannelDTO? { nil }
     func fetchChannel(id: UUID) async throws -> ChannelDTO? { nil }
-    @discardableResult func saveChannel(deviceID: UUID, from info: ChannelInfo) async throws -> UUID { UUID() }
+    @discardableResult func saveChannel(radioID: UUID, from info: ChannelInfo) async throws -> UUID { UUID() }
     func saveChannel(_ dto: ChannelDTO) async throws {}
     func deleteChannel(id: UUID) async throws {}
     func updateChannelLastMessage(channelID: UUID, date: Date?) async throws {}
     func incrementChannelUnreadCount(channelID: UUID) async throws {}
     func clearChannelUnreadCount(channelID: UUID) async throws {}
-    func fetchSavedTracePaths(deviceID: UUID) async throws -> [SavedTracePathDTO] { [] }
+    func fetchSavedTracePaths(radioID: UUID) async throws -> [SavedTracePathDTO] { [] }
     func fetchSavedTracePath(id: UUID) async throws -> SavedTracePathDTO? { nil }
-    func createSavedTracePath(deviceID: UUID, name: String, pathBytes: Data, hashSize: Int, initialRun: TracePathRunDTO?) async throws -> SavedTracePathDTO {
-        SavedTracePathDTO(id: UUID(), deviceID: deviceID, name: name, pathBytes: pathBytes, hashSize: hashSize, createdDate: Date(), runs: [])
+    func createSavedTracePath(radioID: UUID, name: String, pathBytes: Data, hashSize: Int, initialRun: TracePathRunDTO?) async throws -> SavedTracePathDTO {
+        SavedTracePathDTO(id: UUID(), radioID: radioID, name: name, pathBytes: pathBytes, hashSize: hashSize, createdDate: Date(), runs: [])
     }
     func updateSavedTracePathName(id: UUID, name: String) async throws {}
     func deleteSavedTracePath(id: UUID) async throws {}
@@ -134,7 +133,7 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
 
     // MARK: - Heard Repeats (stubs)
 
-    func findSentChannelMessage(deviceID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String, withinSeconds: Int) async throws -> MessageDTO? { nil }
+    func findSentChannelMessage(radioID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String, withinSeconds: Int) async throws -> MessageDTO? { nil }
     func saveMessageRepeat(_ dto: MessageRepeatDTO) async throws {}
     func fetchMessageRepeats(messageID: UUID) async throws -> [MessageRepeatDTO] { [] }
     func messageRepeatExists(rxLogEntryID: UUID) async throws -> Bool { false }
@@ -158,18 +157,19 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
 
     // MARK: - Contact Public Keys (stubs)
 
-    func fetchContactPublicKeysByPrefix(deviceID: UUID) async throws -> [UInt8: [Data]] { [:] }
+    func fetchContactPublicKeysByPrefix(radioID: UUID) async throws -> [UInt8: [Data]] { [:] }
 
     // MARK: - RxLogEntry Lookup (stubs)
 
-    func findRxLogEntry(channelIndex: UInt8?, senderTimestamp: UInt32, withinSeconds: Double, contactName: String?) async throws -> RxLogEntryDTO? { nil }
+    func findRxLogEntry(channelIndex: UInt8?, senderTimestamp: UInt32) async throws -> RxLogEntryDTO? { nil }
+    func findRxLogEntryBySenderPrefix(senderPrefixByte: UInt8, receivedSince: Date) async throws -> RxLogEntryDTO? { nil }
 
     // MARK: - Room Message Operations (stubs)
 
     func saveRoomMessage(_ dto: RoomMessageDTO) async throws {}
     func fetchRoomMessage(id: UUID) async throws -> RoomMessageDTO? { nil }
     func fetchRoomMessages(sessionID: UUID, limit: Int?, offset: Int?) async throws -> [RoomMessageDTO] { [] }
-    func isDuplicateMessage(deduplicationKey: String) async throws -> Bool { false }
+    func isDuplicateMessage(deduplicationKey: String, radioID: UUID) async throws -> Bool { false }
     func isDuplicateRoomMessage(sessionID: UUID, deduplicationKey: String) async throws -> Bool { false }
     func updateRoomMessageStatus(id: UUID, status: MessageStatus, ackCode: UInt32?, roundTripTime: UInt32?) async throws {}
     func updateRoomMessageRetryStatus(id: UUID, status: MessageStatus, retryAttempt: Int, maxRetryAttempts: Int) async throws {}
@@ -177,13 +177,13 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
 
     // MARK: - Discovered Nodes (stubs)
 
-    func upsertDiscoveredNode(deviceID: UUID, from frame: ContactFrame) async throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
+    func upsertDiscoveredNode(radioID: UUID, from frame: ContactFrame) async throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
         fatalError("Not implemented")
     }
-    func fetchDiscoveredNodes(deviceID: UUID) async throws -> [DiscoveredNodeDTO] { [] }
+    func fetchDiscoveredNodes(radioID: UUID) async throws -> [DiscoveredNodeDTO] { [] }
     func deleteDiscoveredNode(id: UUID) async throws {}
-    func clearDiscoveredNodes(deviceID: UUID) async throws {}
-    func fetchContactPublicKeys(deviceID: UUID) async throws -> Set<Data> { Set() }
+    func clearDiscoveredNodes(radioID: UUID) async throws {}
+    func fetchContactPublicKeys(radioID: UUID) async throws -> Set<Data> { Set() }
 
     // MARK: - Reactions (stubs)
 
@@ -192,10 +192,10 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
     func reactionExists(messageID: UUID, senderName: String, emoji: String) async throws -> Bool { false }
     func updateMessageReactionSummary(messageID: UUID, summary: String?) async throws {}
     func deleteReactionsForMessage(messageID: UUID) async throws {}
-    func findChannelMessageForReaction(deviceID: UUID, channelIndex: UInt8, parsedReaction: ParsedReaction, localNodeName: String?, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> MessageDTO? { nil }
-    func fetchChannelMessageCandidates(deviceID: UUID, channelIndex: UInt8, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> [MessageDTO] { [] }
-    func fetchDMMessageCandidates(deviceID: UUID, contactID: UUID, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> [MessageDTO] { [] }
-    func findDMMessageForReaction(deviceID: UUID, contactID: UUID, messageHash: String, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> MessageDTO? { nil }
+    func findChannelMessageForReaction(radioID: UUID, channelIndex: UInt8, parsedReaction: ParsedReaction, localNodeName: String?, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> MessageDTO? { nil }
+    func fetchChannelMessageCandidates(radioID: UUID, channelIndex: UInt8, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> [MessageDTO] { [] }
+    func fetchDMMessageCandidates(radioID: UUID, contactID: UUID, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> [MessageDTO] { [] }
+    func findDMMessageForReaction(radioID: UUID, contactID: UUID, messageHash: String, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> MessageDTO? { nil }
 
     // MARK: - Notification Level (stubs)
 
@@ -206,18 +206,29 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
 
     // MARK: - Channel Message Deletion (stubs)
 
-    func deleteMessagesForChannel(deviceID: UUID, channelIndex: UInt8) async throws {}
+    func deleteMessagesForChannel(radioID: UUID, channelIndex: UInt8) async throws {}
 
     // MARK: - Node Status Snapshots (stubs)
 
-    // swiftlint:disable:next line_length
+    // swiftlint:disable:next line_length function_parameter_count
     func saveNodeStatusSnapshot(nodePublicKey: Data, batteryMillivolts: UInt16?, lastSNR: Double?, lastRSSI: Int16?, noiseFloor: Int16?, uptimeSeconds: UInt32?, rxAirtimeSeconds: UInt32?, packetsSent: UInt32?, packetsReceived: UInt32?, receiveErrors: UInt32?, postedCount: UInt16?, postPushCount: UInt16?) async throws -> UUID { UUID() }
     func fetchLatestNodeStatusSnapshot(nodePublicKey: Data) async throws -> NodeStatusSnapshotDTO? { nil }
     func fetchNodeStatusSnapshots(nodePublicKey: Data, since: Date?) async throws -> [NodeStatusSnapshotDTO] { [] }
     func fetchPreviousNodeStatusSnapshot(nodePublicKey: Data, before: Date) async throws -> NodeStatusSnapshotDTO? { nil }
     func updateSnapshotNeighbors(id: UUID, neighbors: [NeighborSnapshotEntry]) async throws {}
     func updateSnapshotTelemetry(id: UUID, telemetry: [TelemetrySnapshotEntry]) async throws {}
+    func recordNodeStatusSnapshot(nodePublicKey: Data, status: NodeStatusMetrics?, telemetry: [TelemetrySnapshotEntry]?, neighbors: [NeighborSnapshotEntry]?) async throws -> UUID { UUID() }
+    func saveTelemetryOnlySnapshot(nodePublicKey: Data, telemetryEntries: [TelemetrySnapshotEntry]) async throws -> UUID { UUID() }
     func deleteOldNodeStatusSnapshots(olderThan date: Date) async throws {}
+
+    // MARK: - Pending Sends (stubs)
+
+    func upsertPendingSend(_ dto: PendingSendDTO) async throws {}
+    func insertPendingSendAssigningSequence(_ dto: PendingSendDTO) async throws -> Int { 0 }
+    func fetchPendingSends(radioID: UUID) async throws -> [PendingSendDTO] { [] }
+    func deletePendingSend(id: UUID) async throws {}
+    func deletePendingSendsForMessage(messageID: UUID) async throws {}
+    func hasPendingSend(messageID: UUID) async throws -> Bool { false }
 }
 
 // MARK: - Test Helpers
@@ -231,11 +242,11 @@ private func createTestContact(
     latitude: Double = 37.7749,
     longitude: Double = -122.4194,
     type: ContactType = .chat,
-    deviceID: UUID = UUID()
+    radioID: UUID = UUID()
 ) -> ContactDTO {
     ContactDTO(
         id: UUID(),
-        deviceID: deviceID,
+        radioID: radioID,
         publicKey: Data([0xAB] + Array(repeating: UInt8(0x00), count: 31)),
         name: name,
         typeRawValue: type.rawValue,
@@ -1012,7 +1023,7 @@ struct LoadRepeatersTests {
     func loadRepeatersFiltersCorrectly() async throws {
         let mockService = MockElevationService()
         let mockDataStore = MockPersistenceStore()
-        let deviceID = UUID()
+        let radioID = UUID()
 
         // Add a repeater with location
         let repeaterWithLocation = createTestContact(
@@ -1020,7 +1031,7 @@ struct LoadRepeatersTests {
             latitude: 37.7749,
             longitude: -122.4194,
             type: .repeater,
-            deviceID: deviceID
+            radioID: radioID
         )
         await mockDataStore.addContact(repeaterWithLocation)
 
@@ -1030,7 +1041,7 @@ struct LoadRepeatersTests {
             latitude: 0,
             longitude: 0,
             type: .repeater,
-            deviceID: deviceID
+            radioID: radioID
         )
         await mockDataStore.addContact(repeaterNoLocation)
 
@@ -1040,7 +1051,7 @@ struct LoadRepeatersTests {
             latitude: 37.8044,
             longitude: -122.2712,
             type: .chat,
-            deviceID: deviceID
+            radioID: radioID
         )
         await mockDataStore.addContact(chatWithLocation)
 
@@ -1050,12 +1061,12 @@ struct LoadRepeatersTests {
             latitude: 37.8716,
             longitude: -122.2727,
             type: .room,
-            deviceID: deviceID
+            radioID: radioID
         )
         await mockDataStore.addContact(roomWithLocation)
 
         let viewModel = LineOfSightViewModel(elevationService: mockService)
-        viewModel.configure(dataStore: mockDataStore, deviceID: deviceID)
+        viewModel.configure(dataStore: mockDataStore, radioID: radioID)
 
         await viewModel.loadRepeaters()
 
@@ -1067,7 +1078,7 @@ struct LoadRepeatersTests {
     func loadRepeatersEmptyWhenNoLocation() async throws {
         let mockService = MockElevationService()
         let mockDataStore = MockPersistenceStore()
-        let deviceID = UUID()
+        let radioID = UUID()
 
         // Add repeaters without location
         let repeater1 = createTestContact(
@@ -1075,7 +1086,7 @@ struct LoadRepeatersTests {
             latitude: 0,
             longitude: 0,
             type: .repeater,
-            deviceID: deviceID
+            radioID: radioID
         )
         await mockDataStore.addContact(repeater1)
 
@@ -1084,12 +1095,12 @@ struct LoadRepeatersTests {
             latitude: 0,
             longitude: 0,
             type: .repeater,
-            deviceID: deviceID
+            radioID: radioID
         )
         await mockDataStore.addContact(repeater2)
 
         let viewModel = LineOfSightViewModel(elevationService: mockService)
-        viewModel.configure(dataStore: mockDataStore, deviceID: deviceID)
+        viewModel.configure(dataStore: mockDataStore, radioID: radioID)
 
         await viewModel.loadRepeaters()
 
@@ -1111,8 +1122,8 @@ struct LoadRepeatersTests {
     func loadRepeatersForSpecificDevice() async throws {
         let mockService = MockElevationService()
         let mockDataStore = MockPersistenceStore()
-        let deviceID1 = UUID()
-        let deviceID2 = UUID()
+        let radioID1 = UUID()
+        let radioID2 = UUID()
 
         // Add repeater for device 1
         let repeaterDevice1 = createTestContact(
@@ -1120,7 +1131,7 @@ struct LoadRepeatersTests {
             latitude: 37.7749,
             longitude: -122.4194,
             type: .repeater,
-            deviceID: deviceID1
+            radioID: radioID1
         )
         await mockDataStore.addContact(repeaterDevice1)
 
@@ -1130,12 +1141,12 @@ struct LoadRepeatersTests {
             latitude: 37.8044,
             longitude: -122.2712,
             type: .repeater,
-            deviceID: deviceID2
+            radioID: radioID2
         )
         await mockDataStore.addContact(repeaterDevice2)
 
         let viewModel = LineOfSightViewModel(elevationService: mockService)
-        viewModel.configure(dataStore: mockDataStore, deviceID: deviceID1)
+        viewModel.configure(dataStore: mockDataStore, radioID: radioID1)
 
         await viewModel.loadRepeaters()
 
@@ -1608,6 +1619,62 @@ struct RelayAnalysisTests {
 
         // A→R segment should be shorter now
         #expect(updatedResult.segmentAR.distanceMeters < initialARDistance)
+    }
+
+    @Test("Off-path height and RF changes reuse cached profiles without network fetch")
+    func offPathParamChangesUseCachedProfiles() async throws {
+        let mockService = MockElevationService()
+        let viewModel = LineOfSightViewModel(elevationService: mockService)
+
+        viewModel.setPointA(coordinate: sanFrancisco)
+        viewModel.setPointB(coordinate: oakland)
+        try await waitForBothPointElevations(viewModel)
+
+        let fetchCountAfterPoints = await mockService.fetchCount
+
+        // Place repeater off-path and do initial analysis (triggers network fetch)
+        let repeaterCoord = CLLocationCoordinate2D(latitude: 37.79, longitude: -122.35)
+        viewModel.setRepeaterOffPath(coordinate: repeaterCoord)
+
+        // Wait for repeater elevation fetch
+        try await waitUntil("repeater elevation should load") {
+            viewModel.repeaterPoint?.groundElevation != nil
+        }
+
+        viewModel.analyzeWithRepeater()
+        try await waitUntil(timeout: .seconds(5), "off-path analysis should complete") {
+            if case .relayResult = viewModel.analysisStatus { return true }
+            return false
+        }
+
+        let fetchCountAfterAnalysis = await mockService.fetchCount
+        #expect(fetchCountAfterAnalysis > fetchCountAfterPoints)
+
+        // Change repeater height — should NOT trigger new fetches
+        viewModel.updateRepeaterHeight(meters: 25)
+        viewModel.analyzeWithRepeater()
+
+        let fetchCountAfterHeight = await mockService.fetchCount
+        #expect(fetchCountAfterHeight == fetchCountAfterAnalysis)
+
+        // Verify we still have a relay result
+        if case .relayResult = viewModel.analysisStatus {
+            // expected
+        } else {
+            Issue.record("Expected relayResult after height change, got: \(viewModel.analysisStatus)")
+        }
+
+        // Change RF params — should NOT trigger new fetches
+        viewModel.refractionK = 4.0 / 3.0
+
+        let fetchCountAfterRF = await mockService.fetchCount
+        #expect(fetchCountAfterRF == fetchCountAfterAnalysis)
+
+        if case .relayResult = viewModel.analysisStatus {
+            // expected
+        } else {
+            Issue.record("Expected relayResult after RF change, got: \(viewModel.analysisStatus)")
+        }
     }
 }
 

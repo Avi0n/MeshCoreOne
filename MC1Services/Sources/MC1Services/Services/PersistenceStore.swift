@@ -38,6 +38,26 @@ extension PersistenceStoreError: LocalizedError {
 public actor PersistenceStore: PersistenceStoreProtocol {
     var rxLogEntryCountsByDevice: [UUID: Int] = [:]
 
+    #if DEBUG
+    /// Test-only fault-injection hook fired immediately before `modelContext.save()`
+    /// in `importBackupDatabase`. Debug-only so the production API stays clean.
+    /// SwiftData upserts on unique-constraint conflicts, so there is no reliable
+    /// in-band way to provoke a save failure from a well-formed envelope.
+    var backupImportFaultInjection: (@Sendable () throws -> Void)?
+
+    /// Test-only hook fired after `modelContext.save()` succeeds and the
+    /// transaction is committed. Tests use it to cancel the outer task so
+    /// they can assert post-commit behaviour of `importBackup`.
+    var backupImportPostCommitHook: (@Sendable () -> Void)?
+
+    /// Test-only fault injection fired at the top of
+    /// `incrementPendingSendAttemptCount`. Tests use it to verify the
+    /// bump-failure park-and-requeue path in `ChatSendQueueService`'s drain
+    /// closures — a real SwiftData save failure here is otherwise hard to
+    /// provoke from a well-formed row.
+    var incrementPendingSendAttemptCountFaultInjection: (@Sendable () throws -> Void)?
+    #endif
+
     /// Shared schema for MeshCore One models
     public static let schema = Schema([
         Device.self,
@@ -55,7 +75,8 @@ public actor PersistenceStore: PersistenceStoreProtocol {
         LinkPreviewData.self,
         DiscoveredNode.self,
         NodeStatusSnapshot.self,
-        BlockedChannelSender.self
+        BlockedChannelSender.self,
+        PendingSend.self
     ])
 
     /// Creates a ModelContainer for the app.
@@ -65,6 +86,10 @@ public actor PersistenceStore: PersistenceStoreProtocol {
     ///          (SQLite INTEGER is identical for both; bit pattern -1 == 0xFF).
     ///          Added MessageRepeat.pathLength (UInt8, default 0).
     ///          Added SavedTracePath.hashSize (Int, default 1).
+    /// - v2→v3: Added PendingSend (new table; no migration impact on existing rows).
+    /// - v3→v4: Added PendingSend.attemptCount (Int?, default nil). Existing rows
+    ///          lightweight-migrate to NULL; PersistenceStore.warmUp() runs
+    ///          purgeLegacyAttemptCountRows() on connect to delete any nil row.
     public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
         if !inMemory {
             let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
@@ -86,17 +111,37 @@ public actor PersistenceStore: PersistenceStoreProtocol {
     public func warmUp() throws {
         // Perform a simple fetch to trigger modelContext initialization
         _ = try modelContext.fetchCount(FetchDescriptor<Device>())
+
+        // Both inner operations are idempotent under their own predicates:
+        // purgeOrphanPendingSends filters by absence of a matching
+        // Device.radioID and returns an empty row set once Device rows catch
+        // up; purgeLegacyAttemptCountRows filters by `attemptCount == nil`
+        // and returns empty after the first purge across the lifetime of
+        // the storage. Running both on every connect costs an empty fetch and
+        // self-heals the "erase device then re-pair" path — a process-level
+        // latch would suppress that recovery.
+        let logger = Logger(subsystem: "MC1Services", category: "PersistenceStore.warmUp")
+        do {
+            try purgeOrphanPendingSends()
+        } catch {
+            logger.warning("purgeOrphanPendingSends failed: \(error.localizedDescription, privacy: .public)")
+        }
+        do {
+            try purgeLegacyAttemptCountRows()
+        } catch {
+            logger.warning("purgeLegacyAttemptCountRows failed: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     // MARK: - Discovered Nodes
 
     private let maxDiscoveredNodes = 1000
 
-    public func upsertDiscoveredNode(deviceID: UUID, from frame: ContactFrame) throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
-        let targetDeviceID = deviceID
+    public func upsertDiscoveredNode(radioID: UUID, from frame: ContactFrame) throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
+        let targetRadioID = radioID
         let publicKey = frame.publicKey
         let predicate = #Predicate<DiscoveredNode> { node in
-            node.deviceID == targetDeviceID && node.publicKey == publicKey
+            node.radioID == targetRadioID && node.publicKey == publicKey
         }
         var descriptor = FetchDescriptor<DiscoveredNode>(predicate: predicate)
         descriptor.fetchLimit = 1
@@ -117,7 +162,7 @@ public actor PersistenceStore: PersistenceStoreProtocol {
             isNew = false
         } else {
             node = DiscoveredNode(
-                deviceID: deviceID,
+                radioID: radioID,
                 publicKey: frame.publicKey,
                 name: frame.name,
                 typeRawValue: frame.type.rawValue,
@@ -130,16 +175,16 @@ public actor PersistenceStore: PersistenceStoreProtocol {
             modelContext.insert(node)
             isNew = true
 
-            try enforceDiscoveredNodeCap(deviceID: deviceID)
+            try enforceDiscoveredNodeCap(radioID: radioID)
         }
 
         try modelContext.save()
         return (node: DiscoveredNodeDTO(from: node), isNew: isNew)
     }
 
-    private func enforceDiscoveredNodeCap(deviceID: UUID) throws {
-        let targetDeviceID = deviceID
-        let countPredicate = #Predicate<DiscoveredNode> { $0.deviceID == targetDeviceID }
+    private func enforceDiscoveredNodeCap(radioID: UUID) throws {
+        let targetRadioID = radioID
+        let countPredicate = #Predicate<DiscoveredNode> { $0.radioID == targetRadioID }
         let countDescriptor = FetchDescriptor<DiscoveredNode>(predicate: countPredicate)
         let count = try modelContext.fetchCount(countDescriptor)
 
@@ -158,9 +203,9 @@ public actor PersistenceStore: PersistenceStoreProtocol {
         }
     }
 
-    public func fetchDiscoveredNodes(deviceID: UUID) throws -> [DiscoveredNodeDTO] {
-        let targetDeviceID = deviceID
-        let predicate = #Predicate<DiscoveredNode> { $0.deviceID == targetDeviceID }
+    public func fetchDiscoveredNodes(radioID: UUID) throws -> [DiscoveredNodeDTO] {
+        let targetRadioID = radioID
+        let predicate = #Predicate<DiscoveredNode> { $0.radioID == targetRadioID }
         let descriptor = FetchDescriptor<DiscoveredNode>(predicate: predicate)
         let nodes = try modelContext.fetch(descriptor)
         return nodes.map { DiscoveredNodeDTO(from: $0) }
@@ -177,9 +222,9 @@ public actor PersistenceStore: PersistenceStoreProtocol {
         }
     }
 
-    public func clearDiscoveredNodes(deviceID: UUID) throws {
-        let targetDeviceID = deviceID
-        let predicate = #Predicate<DiscoveredNode> { $0.deviceID == targetDeviceID }
+    public func clearDiscoveredNodes(radioID: UUID) throws {
+        let targetRadioID = radioID
+        let predicate = #Predicate<DiscoveredNode> { $0.radioID == targetRadioID }
         let descriptor = FetchDescriptor<DiscoveredNode>(predicate: predicate)
         let nodes = try modelContext.fetch(descriptor)
         for node in nodes {

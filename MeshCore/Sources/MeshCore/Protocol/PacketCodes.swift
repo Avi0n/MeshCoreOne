@@ -92,7 +92,11 @@ public enum CommandCode: UInt8, Sendable {
     case factoryReset = 0x33
     /// Initiates a path discovery process to a remote node.
     case pathDiscovery = 0x34
-    /// Sets the flood routing scope.
+    /// Sets the current (session-scoped) flood routing key.
+    ///
+    /// Firmware v1.15.0 renamed the on-device symbol `CMD_SET_FLOOD_SCOPE` to
+    /// `CMD_SET_FLOOD_SCOPE_KEY`; the opcode is unchanged. Use ``setDefaultFloodScope``
+    /// to persist a scope across reboots (Firmware v11+).
     case setFloodScope = 0x36
     /// Sends raw control data.
     case sendControlData = 0x37
@@ -108,6 +112,17 @@ public enum CommandCode: UInt8, Sendable {
     case getRepeatFreq = 0x3C
     /// Sets the path hash mode (0=1-byte, 1=2-byte, 2=3-byte hashes).
     case setPathHashMode = 0x3D
+    /// Sends a binary datagram to a channel. Firmware v11+ (MeshCore v1.15.0+).
+    case sendChannelData = 0x3E
+    /// Sets the persisted default flood scope (name + 16-byte key). Firmware v11+ (MeshCore v1.15.0+).
+    case setDefaultFloodScope = 0x3F
+    /// Gets the persisted default flood scope. Firmware v11+ (MeshCore v1.15.0+).
+    case getDefaultFloodScope = 0x40
+    /// Injects a raw packet onto the mesh (priority byte followed by the raw packet bytes). Firmware v12+.
+    ///
+    /// No builder is provided; MC1 does not use raw-packet injection. The case exists so the
+    /// command table stays complete against firmware.
+    case sendRawPacket = 0x41
 }
 
 /// Defines the response codes received from the mesh device.
@@ -166,6 +181,10 @@ public enum ResponseCode: UInt8, Sendable {
     case autoAddConfig = 0x19
     /// Contains the allowed frequency ranges for client repeat mode (v9+).
     case allowedRepeatFreq = 0x1A
+    /// A binary datagram was received on a channel. Firmware v11+ (MeshCore v1.15.0+).
+    case channelDataReceived = 0x1B
+    /// Contains the persisted default flood scope. Firmware v11+ (MeshCore v1.15.0+).
+    case defaultFloodScope = 0x1C
 
     // Push notifications (0x80+)
     /// Indicates a node advertisement was received.
@@ -254,8 +273,8 @@ public enum StatsType: UInt8, Sendable {
 public enum TextType: UInt8, Sendable {
     /// Plain UTF-8 text.
     case plainText = 0x00
-    /// Raw binary data.
-    case binary = 0x01
+    /// A CLI command (firmware TXT_TYPE_CLI_DATA).
+    case cliData = 0x01
     /// Cryptographically signed message.
     case signed = 0x02
 }
@@ -289,12 +308,12 @@ extension ResponseCode {
         case .ok, .error:
             return .simple
         case .selfInfo, .deviceInfo, .battery, .currentTime, .privateKey, .disabled, .advertPath, .tuningParams,
-             .autoAddConfig, .allowedRepeatFreq:
+             .autoAddConfig, .allowedRepeatFreq, .defaultFloodScope:
             return .device
         case .contactStart, .contact, .contactEnd, .contactURI:
             return .contact
         case .messageSent, .contactMessageReceived, .contactMessageReceivedV3,
-             .channelMessageReceived, .channelMessageReceivedV3, .noMoreMessages:
+             .channelMessageReceived, .channelMessageReceivedV3, .channelDataReceived, .noMoreMessages:
             return .message
         case .advertisement, .pathUpdate, .ack, .messagesWaiting, .newAdvertisement,
              .statusResponse, .telemetryResponse, .binaryResponse, .pathDiscoveryResponse,

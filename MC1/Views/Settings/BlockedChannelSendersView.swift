@@ -7,6 +7,7 @@ private let logger = Logger(subsystem: "com.mc1", category: "BlockedChannelSende
 /// Settings screen listing blocked channel sender names with swipe-to-unblock.
 struct BlockedChannelSendersView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     @State private var blockedSenders: [BlockedChannelSenderDTO] = []
     @State private var isLoading = false
@@ -33,7 +34,9 @@ struct BlockedChannelSendersView: View {
                         }
                     }
                     .onDelete(perform: unblock)
+                    .themedRowBackground(theme)
                 }
+                .themedCanvas(theme)
             }
         }
         .navigationTitle(L10n.Settings.Blocking.ChannelSenders.title)
@@ -49,13 +52,13 @@ struct BlockedChannelSendersView: View {
 
     private func loadBlockedSenders() async {
         guard let services = appState.services,
-              let deviceID = appState.connectedDevice?.id else { return }
+              let radioID = appState.connectedDevice?.radioID else { return }
         isLoading = true
         defer { isLoading = false }
 
         do {
             blockedSenders = try await services.dataStore.fetchBlockedChannelSenders(
-                deviceID: deviceID
+                radioID: radioID
             )
         } catch {
             logger.error("Failed to load blocked channel senders: \(error)")
@@ -69,12 +72,12 @@ struct BlockedChannelSendersView: View {
 
         Task {
             guard let services = appState.services,
-                  let deviceID = appState.connectedDevice?.id else { return }
+                  let radioID = appState.connectedDevice?.radioID else { return }
 
             for sender in sendersToUnblock {
                 do {
                     try await services.dataStore.deleteBlockedChannelSender(
-                        deviceID: deviceID,
+                        radioID: radioID,
                         name: sender.name
                     )
                 } catch {
@@ -83,10 +86,10 @@ struct BlockedChannelSendersView: View {
             }
 
             await services.syncCoordinator.refreshBlockedContactsCache(
-                deviceID: deviceID,
+                radioID: radioID,
                 dataStore: services.dataStore
             )
-            await services.syncCoordinator.notifyConversationsChanged()
+            services.syncCoordinator.notifyConversationsChanged()
         }
     }
 }

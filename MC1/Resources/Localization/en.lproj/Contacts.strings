@@ -71,8 +71,14 @@
 /* Location: ContactsViewModel.swift - Purpose: Contacts segment */
 "contacts.segment.contacts" = "Contacts";
 
-/* Location: ContactsViewModel.swift - Purpose: Network segment */
-"contacts.segment.network" = "Network";
+/* Location: ContactsViewModel.swift - Purpose: Repeaters segment */
+"contacts.segment.repeaters" = "Repeaters";
+
+/* Location: ContactsViewModel.swift - Purpose: Rooms segment */
+"contacts.segment.rooms" = "Rooms";
+
+/* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
+"contacts.segment.pickerLabel" = "Filter nodes";
 
 // MARK: - Sort Order
 
@@ -144,7 +150,7 @@
 "contacts.list.empty.favorites.title" = "No Favorites Yet";
 
 /* Location: ContactsListView.swift - Purpose: No favorites empty description */
-"contacts.list.empty.favorites.description" = "Swipe right on any node to add it to your favorites.";
+"contacts.list.empty.favorites.description" = "Touch and hold any node to add it to your favorites.";
 
 /* Location: ContactsListView.swift - Purpose: No contacts empty title */
 "contacts.list.empty.contacts.title" = "No Contacts";
@@ -152,11 +158,17 @@
 /* Location: ContactsListView.swift - Purpose: No contacts empty description */
 "contacts.list.empty.contacts.description" = "Contacts appear when discovered on the mesh network. If auto-add contacts is off, check Discovery in the top right menu.";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty title */
-"contacts.list.empty.network.title" = "No Network Nodes";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty title */
+"contacts.list.empty.repeaters.title" = "No Repeaters";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty description */
-"contacts.list.empty.network.description" = "Repeaters and room servers will appear when discovered on the mesh.";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty description */
+"contacts.list.empty.repeaters.description" = "Repeaters extend your mesh range. They'll appear here when discovered.";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty title */
+"contacts.list.empty.rooms.title" = "No Rooms";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty description */
+"contacts.list.empty.rooms.description" = "Rooms are public chat servers on the mesh. They'll appear here when discovered.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "No Results";
@@ -180,14 +192,14 @@
 
 // MARK: - Contacts List Swipe Actions
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unfavorite swipe action */
-"contacts.swipe.unfavorite" = "Unfavorite";
+/* Location: ContactContextMenuModifier - Purpose: Unfavorite action */
+"contacts.action.unfavorite" = "Unfavorite";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Block swipe action */
-"contacts.swipe.block" = "Block";
+/* Location: ContactContextMenuModifier - Purpose: Block action */
+"contacts.action.block" = "Block";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unblock swipe action */
-"contacts.swipe.unblock" = "Unblock";
+/* Location: ContactContextMenuModifier - Purpose: Unblock action */
+"contacts.action.unblock" = "Unblock";
 
 // MARK: - Contact Detail
 
@@ -230,8 +242,8 @@
 /* Location: ContactDetailView.swift - Purpose: Share via advert button */
 "contacts.detail.shareViaAdvert" = "Share Contact via Advert";
 
-/* Location: ContactDetailView.swift - Purpose: Ping repeater button */
-"contacts.detail.pingRepeater" = "Ping Repeater";
+/* Location: ContactDetailView.swift - Purpose: Share contact error when advert is missing or stale */
+"contacts.detail.shareContactUnavailable" = "Unable to share node. The node's advertisement may be missing or too old.";
 
 /* Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes */
 "contacts.detail.ping" = "Zero-Hop Ping";
@@ -386,6 +398,7 @@
 
 /* Location: AddContactSheet.swift - Purpose: Navigation title */
 "contacts.add.title" = "Add Contact";
+"contacts.add.nodeTitle" = "Add Node";
 
 /* Location: AddContactSheet.swift - Purpose: Add button */
 "contacts.add.add" = "Add";
@@ -458,6 +471,12 @@
 /* Location: ContactQRShareSheet.swift - Purpose: Share button */
 "contacts.qr.share" = "Share";
 
+/* Location: ContactQRShareSheet.swift - Purpose: Contact label in share text, %@ is contact name */
+"contacts.share.contactLabel" = "MeshCore One Contact: %@";
+
+/* Location: ContactQRShareSheet.swift - Purpose: Key label in share text, %@ is hex public key */
+"contacts.share.keyLabel" = "Key: %@";
+
 // MARK: - Scan Contact QR
 
 /* Location: ScanContactQRView.swift - Purpose: Navigation title */
@@ -490,6 +509,9 @@
 /* Location: ScanContactQRView.swift - Purpose: Invalid public key error */
 "contacts.scan.error.invalidKey" = "Invalid QR code: invalid public key";
 
+/* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
+"contacts.scan.error.importFailed" = "Failed to import contact: %@";
+
 // MARK: - Discovery View
 
 /* Location: DiscoveryView.swift - Purpose: Navigation title */
@@ -519,8 +541,14 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter: Contacts */
 "contacts.discovery.segment.contacts" = "Contacts";
 
-/* Location: DiscoveryView.swift - Purpose: Segment filter: Network */
-"contacts.discovery.segment.network" = "Network";
+/* Location: DiscoveryView.swift - Purpose: Segment filter: Repeaters */
+"contacts.discovery.segment.repeaters" = "Repeaters";
+
+/* Location: DiscoveryView.swift - Purpose: Segment filter: Rooms */
+"contacts.discovery.segment.rooms" = "Rooms";
+
+/* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
+"contacts.discovery.segment.pickerLabel" = "Filter discovered nodes";
 
 /* Location: DiscoveryView.swift - Purpose: Search prompt */
 "contacts.discovery.searchPrompt" = "Search discovered";
@@ -572,32 +600,125 @@
 /* Location: PathEditingSheet.swift - Purpose: Current path section header */
 "contacts.pathEdit.currentPath" = "Current Path";
 
-/* Location: PathEditingSheet.swift - Purpose: Empty path footer */
-"contacts.pathEdit.emptyFooter" = "No path set (direct or flood routing)";
-
-/* Location: PathEditingSheet.swift - Purpose: Path instructions footer */
-"contacts.pathEdit.instructionsFooter" = "Drag to reorder. Tap to remove.";
-
-/* Location: PathEditingSheet.swift - Purpose: Add repeater section header */
-"contacts.pathEdit.addRepeater" = "Add Repeater";
-
-/* Location: PathEditingSheet.swift - Purpose: No repeaters empty title */
+/* Location: AddHopPickerView.swift - Purpose: No repeaters empty title */
 "contacts.pathEdit.noRepeaters.title" = "No Repeaters Available";
 
-/* Location: PathEditingSheet.swift - Purpose: No repeaters empty description */
+/* Location: AddHopPickerView.swift - Purpose: No repeaters empty description */
 "contacts.pathEdit.noRepeaters.description" = "Repeaters appear here once they're discovered in your mesh network.";
-
-/* Location: PathEditingSheet.swift - Purpose: Add repeater footer */
-"contacts.pathEdit.addFooter" = "Tap a repeater to add it to the path.";
-
-/* Location: PathEditingSheet.swift - Purpose: Add to path accessibility label */
-"contacts.pathEdit.addToPath" = "Add %@ to path";
 
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with name */
 "contacts.pathEdit.hopWithName" = "Hop %d of %d: %@";
 
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with hex */
 "contacts.pathEdit.hopWithHex" = "Hop %d of %d: repeater %@";
+
+/* Location: PathEditingSheet.swift - Purpose: Add Hop CTA (primary button when path has >=1 hop) */
+"contacts.pathEdit.addHop" = "Add Hop";
+
+/* Location: AddHopPickerView.swift - Purpose: Paste clipboard text into the hop search field */
+"contacts.pathEdit.paste" = "Paste from clipboard";
+
+/* Location: PathEditingSheet.swift - Purpose: Use-direct-routing empty-state button */
+"contacts.pathEdit.useDirectRouting" = "Use Direct Routing";
+
+/* Location: PathEditingSheet.swift - Purpose: Use-flood-routing empty-state button */
+"contacts.pathEdit.useFloodRouting" = "Use Flood Routing";
+
+/* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert title */
+"contacts.pathEdit.directRouting.confirm.title" = "Save as direct routing?";
+
+/* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name */
+"contacts.pathEdit.directRouting.confirm.message" = "Messages to %@ will be sent directly without relaying through any repeater. Use this only if %@ is a direct (0-hop) neighbor.";
+
+/* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation confirm label */
+"contacts.pathEdit.directRouting.confirm.confirm" = "Save as Direct";
+
+/* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation alert title */
+"contacts.pathEdit.floodRouting.confirm.title" = "Use flood routing?";
+
+/* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation alert message, %@ is contact name */
+"contacts.pathEdit.floodRouting.confirm.message" = "Messages to %@ will be sent to every nearby node until a path is found. Use this when no repeater route is known.";
+
+/* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation confirm label */
+"contacts.pathEdit.floodRouting.confirm.confirm" = "Use Flood Routing";
+
+/* Location: AddHopPickerView.swift - Purpose: Position banner when appending, %d is target hop number */
+"contacts.pathEdit.positionAppend" = "Adding as hop %d";
+
+/* Location: AddHopPickerView.swift - Purpose: Search field placeholder */
+"contacts.pathEdit.searchPrompt" = "A1,2B or name/ID";
+
+/* Location: PathEditingSheet.swift - Purpose: Section footer hint */
+"contacts.pathEdit.reorderHint" = "Drag to reorder · Swipe left to remove";
+
+/* Location: PathEditingSheet.swift - Purpose: Empty-state title */
+"contacts.pathEdit.empty.title" = "No hops yet";
+
+/* Location: PathEditingSheet.swift - Purpose: Empty-state description, %@ is contact name */
+"contacts.pathEdit.empty.description" = "Add repeaters to control how messages reach %@, or use flood routing if no path is known.";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: All filter */
+"contacts.pathEdit.filter.all" = "All";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: Favorites filter */
+"contacts.pathEdit.filter.favorites" = "Favorites";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: Recent filter */
+"contacts.pathEdit.filter.recent" = "Recent";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: Discovered filter */
+"contacts.pathEdit.filter.discovered" = "Discovered";
+
+/* Location: AddHopPickerView.swift - Purpose: Recent section header */
+"contacts.pathEdit.sections.recent" = "Recent";
+
+/* Location: AddHopPickerView.swift - Purpose: Favorites section header */
+"contacts.pathEdit.sections.favorites" = "Favorites";
+
+/* Location: AddHopPickerView.swift - Purpose: Contacts section header */
+"contacts.pathEdit.sections.contacts" = "Contacts";
+
+/* Location: AddHopPickerView.swift - Purpose: Discovered section header */
+"contacts.pathEdit.sections.discovered" = "Discovered";
+
+/* Location: AddHopPickerView.swift - Purpose: Rooms section header */
+"contacts.pathEdit.sections.rooms" = "Rooms";
+
+/* Location: AddHopPickerView.swift - Purpose: No-match search description */
+"contacts.pathEdit.search.noMatches.description" = "Try a name or hex prefix like 'a3'.";
+
+/* Location: AddHopPickerView.swift - Purpose: No-match description when a filter other than All is selected and a matching room exists */
+"contacts.pathEdit.search.noMatches.descriptionWithRoomsHint" = "Try a name or hex prefix like 'a3'. Rooms only appear under the All filter.";
+
+/* Location: AddHopPickerView.swift - Purpose: Picker row accessibility label, %1$@ is name, %2$d is target hop number */
+"contacts.pathEdit.addToPathAsHop" = "Add %1$@ to path as hop %2$d";
+
+/* Location: PathEditingSheet.swift - Purpose: VoiceOver hint for a hop row describing swipe + drag actions */
+"contacts.pathEdit.hopHint" = "Swipe to delete. Drag to reorder.";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: VoiceOver label for the section filter picker */
+"contacts.pathEdit.filterPickerLabel" = "Filter hops";
+
+/* Location: PathEditingSheet.swift + AddHopPickerView.swift - Purpose: Max-hops reached title */
+"contacts.pathEdit.maxHops.reached" = "Max hops reached";
+
+/* Location: AddHopPickerView.swift - Purpose: Max-hops reached description, %d is the cap */
+"contacts.pathEdit.maxHops.description" = "This path has reached the maximum of %d hops for the current hash mode. Remove a hop to add another.";
+
+/* Location: PathEditingSheet.swift - Purpose: Add Hop CTA footer explaining the hop cap, %d is the cap */
+"contacts.pathEdit.maxHops.footer" = "Maximum %d hops reached. Remove a hop to add another.";
+
+/* Location: AddHopPickerView.swift - Purpose: Bulk-add action button, %@ is the comma-joined codes */
+"contacts.pathEdit.bulkAdd.action" = "Add nodes: %@";
+
+/* Location: AddHopPickerView.swift - Purpose: Bulk-add row, code will be added, %@ is the code */
+"contacts.pathEdit.bulkAdd.willAdd" = "%@ will be added";
+
+/* Location: AddHopPickerView.swift - Purpose: Bulk-add row, code skipped past the hop cap, %@ is the code */
+"contacts.pathEdit.bulkAdd.pathFull" = "%@ exceeds the hop limit";
+
+/* Location: AddHopPickerView.swift - Purpose: Bulk-add action button when nothing is addable */
+"contacts.pathEdit.bulkAdd.empty" = "No new nodes to add";
 
 // MARK: - Path Discovery Results
 
@@ -762,20 +883,8 @@
 
 // MARK: - Trace Path List View
 
-/* Location: TracePathListView.swift - Purpose: Code input placeholder */
-"contacts.trace.list.codePlaceholder" = "Example: A1, 2B";
-
-/* Location: TracePathListView.swift - Purpose: Paste button */
-"contacts.trace.list.paste" = "Paste from clipboard";
-
-/* Location: TracePathListView.swift - Purpose: Code input footer */
-"contacts.trace.list.codeFooter" = "Press Return to add repeaters";
-
-/* Location: TracePathListView.swift - Purpose: Repeaters section label */
-"contacts.trace.list.repeaters" = "Repeaters";
-
 /* Location: TracePathListView.swift - Purpose: Empty path instruction */
-"contacts.trace.list.emptyPath" = "Tap a repeater above to start building your path";
+"contacts.trace.list.emptyPath" = "Add a hop to start building your path.";
 
 /* Location: TracePathListView.swift - Purpose: Round trip path section header */
 "contacts.trace.list.roundTripPath" = "Round Trip Path";
@@ -794,6 +903,21 @@
 
 /* Location: TracePathListView.swift - Purpose: Traces count label */
 "contacts.trace.list.traces" = "Traces:";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size picker label */
+"contacts.trace.list.hashSize" = "Hash Size";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 1 byte per hop */
+"contacts.trace.list.hashSizeOneByte" = "1 Byte";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 2 bytes per hop */
+"contacts.trace.list.hashSizeTwoBytes" = "2 Bytes";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 4 bytes per hop */
+"contacts.trace.list.hashSizeFourBytes" = "4 Bytes";
+
+/* Location: PathActionsSectionView.swift - Purpose: Caveat shown for multi-byte trace hash sizes */
+"contacts.trace.list.hashSizeFooter" = "Repeaters running firmware older than 1.11.0 will not forward traces with a hash size greater than 1 byte.";
 
 /* Location: TracePathListView.swift - Purpose: Copy path button */
 "contacts.trace.list.copyPath" = "Copy Path";
@@ -831,21 +955,6 @@
 /* Location: TracePathListView.swift - Purpose: Hop row accessibility hint */
 "contacts.trace.list.hopHint" = "Swipe left to delete, use drag handle to reorder";
 
-/* Location: TracePathListView.swift - Purpose: Favorites filter toggle label */
-"contacts.trace.list.favoritesOnly" = "Favorites Only";
-
-/* Location: TracePathListView.swift - Purpose: Toggle to include room servers in the list */
-"contacts.trace.list.includeRooms" = "Include Rooms";
-
-/* Location: TracePathListView.swift, PathEditingSheet.swift - Purpose: Toggle to include discovered repeaters */
-"contacts.trace.list.includeDiscovered" = "Include Discovered";
-
-/* Location: TracePathListView.swift - Purpose: No favorite repeaters empty title */
-"contacts.trace.list.noFavorites.title" = "No Favorite Repeaters";
-
-/* Location: TracePathListView.swift - Purpose: No favorite repeaters empty description */
-"contacts.trace.list.noFavorites.description" = "Mark repeaters as favorites in the Nodes tab to see them here.";
-
 // MARK: - Trace Path List Accessibility
 
 /* Location: TracePathListView.swift - Accessibility hint when trace is running */
@@ -880,7 +989,6 @@
 
 /* Location: TracePathMapView.swift - Purpose: Hops count in results banner */
 "contacts.trace.map.hops" = "%d hops";
-
 
 /* Location: TracePathMapView.swift - Purpose: Clear button */
 "contacts.trace.map.clear" = "Clear";
@@ -1055,6 +1163,9 @@
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "Connect to a radio to delete nodes";
 
+/* Location: ContactsViewModel.swift - Purpose: Delete radio command timed out error */
+"contacts.viewModel.removeTimedOut" = "Deleting the node timed out. Try again.";
+
 // MARK: - Path Management ViewModel Errors
 
 /* Location: PathManagementViewModel.swift - Purpose: Save path error prefix */
@@ -1065,6 +1176,12 @@
 
 /* Location: PathManagementViewModel.swift - Purpose: Set path error prefix */
 "contacts.pathManagement.error.setFailed" = "Set path failed: %@";
+
+/* Location: PathManagementViewModel.swift - Purpose: Shown when a stored path's hop can't be resized to the device's current hash size */
+"contacts.pathManagement.error.hopResizeRequired" = "Path Hash Size changed — remove and re-add hops to save.";
+
+/* Location: PathManagementViewModel.swift - Purpose: Shown when the existing path has more hops than the current hash mode supports */
+"contacts.pathManagement.error.tooManyHops" = "Too many hops. Current hash mode supports at most %d.";
 
 // MARK: - Code Input Result
 

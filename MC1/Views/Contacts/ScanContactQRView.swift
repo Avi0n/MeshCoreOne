@@ -132,55 +132,17 @@ struct ScanContactQRView: View {
         .padding()
     }
 
-    // MARK: - Parsed Contact
-
-    private struct ParsedContact {
-        let name: String
-        let publicKey: Data
-        let type: ContactType
-    }
-
     // MARK: - Private Methods
 
     private func handleScanResult(_ result: String) {
         guard !isImporting else { return }
 
-        // Parse URL: meshcore://contact/add?name=<name>&public_key=<hex>&type=<1|2|3>
-        guard let url = URL(string: result),
-              url.scheme == "meshcore",
-              url.host == "contact",
-              url.path == "/add",
-              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              let queryItems = components.queryItems else {
+        guard let parsed = MeshCoreURLParser.parseContactURL(result) else {
             logger.error("Invalid QR code format: \(result)")
             errorMessage = L10n.Contacts.Contacts.Scan.Error.invalidFormat
             return
         }
 
-        // Extract parameters
-        // Note: URLQueryItem decodes %20 but not + (form-urlencoded space)
-        guard let rawName = queryItems.first(where: { $0.name == "name" })?.value,
-              !rawName.isEmpty else {
-            logger.error("Missing or empty name parameter")
-            errorMessage = L10n.Contacts.Contacts.Scan.Error.missingName
-            return
-        }
-        let name = rawName.replacing("+", with: " ")
-
-        guard let publicKeyHex = queryItems.first(where: { $0.name == "public_key" })?.value,
-              let publicKey = Data(hexString: publicKeyHex),
-              publicKey.count == ProtocolLimits.publicKeySize else {
-            logger.error("Invalid or missing public_key parameter")
-            errorMessage = L10n.Contacts.Contacts.Scan.Error.invalidKey
-            return
-        }
-
-        let typeValue = queryItems.first(where: { $0.name == "type" })?.value.flatMap { Int($0) } ?? 1
-        let contactType = ContactType(rawValue: UInt8(typeValue)) ?? .chat
-
-        let parsed = ParsedContact(name: name, publicKey: publicKey, type: contactType)
-
-        // Provide haptic feedback on successful QR scan
         scanSuccessTrigger.toggle()
 
         Task {
@@ -189,7 +151,7 @@ struct ScanContactQRView: View {
     }
 
     @MainActor
-    private func importContact(_ contact: ParsedContact) async {
+    private func importContact(_ contact: MeshCoreURLParser.ContactResult) async {
         guard let services = appState.services,
               let device = appState.connectedDevice else {
             logger.error("Services or device not available")
@@ -197,7 +159,7 @@ struct ScanContactQRView: View {
             return
         }
 
-        let deviceID = device.id
+        let radioID = device.radioID
         let maxContacts = device.maxContacts
 
         isImporting = true
@@ -208,7 +170,7 @@ struct ScanContactQRView: View {
 
             let contactFrame = ContactFrame(
                 publicKey: contact.publicKey,
-                type: contact.type,
+                type: contact.contactType,
                 flags: 0,
                 outPathLength: 0xFF,  // Flood routing
                 outPath: Data(),
@@ -220,7 +182,7 @@ struct ScanContactQRView: View {
             )
 
             logger.info("Importing contact: \(contact.name) (\(contact.publicKey.hexString()))")
-            try await services.contactService.addOrUpdateContact(deviceID: deviceID, contact: contactFrame)
+            try await services.contactService.addOrUpdateContact(radioID: radioID, contact: contactFrame)
             logger.info("Contact imported successfully")
 
             // Reset state and dismiss before calling completion handler
@@ -230,11 +192,11 @@ struct ScanContactQRView: View {
             onScan(contact.name, contact.publicKey)
         } catch ContactServiceError.contactTableFull {
             logger.error("Node list is full")
-            errorMessage = "Node list is full (max \(maxContacts) nodes)"
+            errorMessage = L10n.Contacts.Contacts.Add.Error.nodeListFull(Int(maxContacts))
             isImporting = false
         } catch {
             logger.error("Failed to import contact: \(error.localizedDescription)")
-            errorMessage = "Failed to import contact: \(error.localizedDescription)"
+            errorMessage = L10n.Contacts.Contacts.Scan.Error.importFailed(error.localizedDescription)
             isImporting = false
         }
     }

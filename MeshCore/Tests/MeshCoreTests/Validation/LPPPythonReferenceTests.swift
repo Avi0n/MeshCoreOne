@@ -279,4 +279,78 @@ struct LPPPythonReferenceTests {
             Issue.record("Expected vector3 value")
         }
     }
+
+    // MARK: - Load Tests (type 122, 3-byte signed, 0.001 kg)
+
+    @Test("Load positive decodes as 3-byte signed divided by 1000")
+    func loadPositiveDecode() {
+        // No addLoad encoder exists, so build the raw frame by hand.
+        // channel(0x07) + type(0x7A = 122) + value(int24 BE, *1000)
+        // 12.345 kg * 1000 = 12345 = 0x003039
+        let frame = Data([0x07, 0x7A, 0x00, 0x30, 0x39])
+        let decoded = LPPDecoder.decode(frame)
+        #expect(decoded.count == 1)
+        #expect(decoded[0].channel == 0x07)
+        #expect(decoded[0].type == .load)
+        if case .float(let value) = decoded[0].value {
+            #expect(abs(value - 12.345) <= 0.001)
+        } else {
+            Issue.record("Expected float value for load")
+        }
+    }
+
+    @Test("Load negative round trips through 24-bit sign extension")
+    func loadNegativeDecode() {
+        // -1.5 kg * 1000 = -1500 = 0xFFFA24 (24-bit two's complement)
+        let frame = Data([0x07, 0x7A, 0xFF, 0xFA, 0x24])
+        let decoded = LPPDecoder.decode(frame)
+        #expect(decoded.count == 1)
+        #expect(decoded[0].type == .load)
+        if case .float(let value) = decoded[0].value {
+            #expect(abs(value - (-1.5)) <= 0.001)
+        } else {
+            Issue.record("Expected float value for load")
+        }
+    }
+
+    @Test("Load consumes three bytes so the next datum stays aligned")
+    func loadStrideKeepsFrameAligned() {
+        // Load (3 bytes) followed by a temperature reading; if Load were
+        // mis-sized at 2 bytes the temperature would be misaligned or dropped.
+        // Load: 1.000 kg = 1000 = 0x0003E8
+        // Temp: 25.5 C = 255 = 0x00FF
+        let frame = Data([0x07, 0x7A, 0x00, 0x03, 0xE8, 0x01, 0x67, 0x00, 0xFF])
+        let decoded = LPPDecoder.decode(frame)
+        #expect(decoded.count == 2)
+        #expect(decoded[0].type == .load)
+        if case .float(let load) = decoded[0].value {
+            #expect(abs(load - 1.0) <= 0.001)
+        } else {
+            Issue.record("Expected float value for load")
+        }
+        #expect(decoded[1].type == .temperature)
+        if case .float(let temp) = decoded[1].value {
+            #expect(abs(temp - 25.5) <= 0.1)
+        } else {
+            Issue.record("Expected float value for temperature")
+        }
+    }
+
+    // MARK: - Generic Sensor Tests (type 100, 4-byte unsigned)
+
+    @Test("Generic sensor decodes high bit set as a large positive integer")
+    func genericSensorUnsignedDecode() {
+        // No addGenericSensor encoder exists, so build the raw frame by hand.
+        // channel(0x01) + type(0x64 = 100) + value(uint32 BE)
+        // 0x80000000 = 2_147_483_648; a signed decode would yield -2_147_483_648.
+        let frame = Data([0x01, 0x64, 0x80, 0x00, 0x00, 0x00])
+        let decoded = LPPDecoder.decode(frame)
+        #expect(decoded.count == 1)
+        #expect(decoded[0].type == .genericSensor)
+        if case .integer(let value) = decoded[0].value {
+            #expect(value == 2_147_483_648)
+        } else {
+            Issue.record("Expected integer value for generic sensor")
+        }
+    }
 }

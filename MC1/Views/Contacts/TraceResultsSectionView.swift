@@ -3,6 +3,7 @@ import MC1Services
 
 /// Section displaying trace result hops, RTT info, distance, and save action
 struct TraceResultsSectionView: View {
+    @Environment(\.appTheme) private var theme
     let result: TraceResult
     @Bindable var viewModel: TracePathViewModel
     @Binding var saveHapticTrigger: Int
@@ -74,5 +75,6 @@ struct TraceResultsSectionView: View {
                     .foregroundStyle(.orange)
             }
         }
+        .themedRowBackground(theme)
     }
 }

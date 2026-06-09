@@ -2,20 +2,11 @@ import Foundation
 import os
 import Security
 
-// MARK: - KeychainService Protocol
-
-public protocol KeychainServiceProtocol: Actor {
-    func storePassword(_ password: String, forNodeKey publicKey: Data) async throws
-    func retrievePassword(forNodeKey publicKey: Data) async throws -> String?
-    func deletePassword(forNodeKey publicKey: Data) async throws
-    func hasPassword(forNodeKey publicKey: Data) async -> Bool
-}
-
 // MARK: - KeychainService
 
 /// Secure password storage for remote node authentication.
 /// Passwords are stored device-only (not synced to iCloud).
-public actor KeychainService: KeychainServiceProtocol {
+public actor KeychainService {
     public static let shared = KeychainService()
 
     private let service = "com.pocketmesh.nodepasswords"
@@ -135,7 +126,6 @@ public actor KeychainService: KeychainServiceProtocol {
 
 public enum KeychainError: Error, LocalizedError, Sendable {
     case encodingFailed
-    case unexpectedPasswordData
     case storageFailed(OSStatus)
     case retrievalFailed(OSStatus)
     case deletionFailed(OSStatus)
@@ -144,8 +134,6 @@ public enum KeychainError: Error, LocalizedError, Sendable {
         switch self {
         case .encodingFailed:
             return "Failed to encode password"
-        case .unexpectedPasswordData:
-            return "Password data was in unexpected format"
         case .storageFailed(let status):
             return "Failed to store password (error \(status))"
         case .retrievalFailed(let status):

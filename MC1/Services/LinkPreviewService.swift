@@ -13,8 +13,14 @@ struct LinkPreviewMetadata: Sendable {
     let iconData: Data?
 }
 
+/// Abstracts the network metadata fetch so the cache layer's fetch
+/// coalescing can be tested without the LinkPresentation network path.
+protocol LinkMetadataFetching: Sendable {
+    func fetchMetadata(for url: URL) async -> LinkPreviewMetadata?
+}
+
 /// Service for extracting URLs from text and fetching link metadata
-final class LinkPreviewService: Sendable {
+final class LinkPreviewService: LinkMetadataFetching, Sendable {
     private let logger = Logger(subsystem: "com.mc1", category: "LinkPreviewService")
 
     /// Shared URL detector instance to avoid creating NSDataDetector on every call
@@ -35,21 +41,32 @@ final class LinkPreviewService: Sendable {
     /// - Parameter text: Message text to scan
     /// - Returns: First HTTP(S) URL found outside mentions, or nil
     static func extractFirstURL(from text: String) -> URL? {
-        guard !text.isEmpty else { return nil }
+        extractAllURLs(in: text).first
+    }
 
-        // Check for meshcore-open g:{giphy_id} format first
+    /// Extracts every HTTP/HTTPS URL from text, in document order. Used by the
+    /// receive-time prefetcher and the per-message URL-detection writer so
+    /// both paths see the same set of URLs:
+    /// - meshcore-open `g:{id}` short-codes are expanded to direct Giphy URLs
+    /// - URLs inside `@[mention]` ranges are skipped
+    /// - schemes are restricted to HTTP / HTTPS
+    static func extractAllURLs(in text: String) -> [URL] {
+        guard !text.isEmpty else { return [] }
+
+        // Check for meshcore-open g:{giphy_id} format first; when present it
+        // is the entire message (trimmed wholeMatch), so no detector pass.
         if let gifURL = extractGiphyGIFURL(from: text) {
-            return gifURL
+            return [gifURL]
         }
 
-        guard let detector = urlDetector else { return nil }
+        guard let detector = urlDetector else { return [] }
 
-        // Find mention ranges to exclude (format: @[name])
         let mentionRanges = extractMentionRanges(from: text)
-
         let range = NSRange(text.startIndex..., in: text)
         let matches = detector.matches(in: text, options: [], range: range)
 
+        var urls: [URL] = []
+        urls.reserveCapacity(matches.count)
         for match in matches {
             guard let url = match.url,
                   let scheme = url.scheme?.lowercased(),
@@ -57,19 +74,16 @@ final class LinkPreviewService: Sendable {
                 continue
             }
 
-            // Skip URLs that overlap with mention ranges
             let urlRange = match.range
             let overlapsWithMention = mentionRanges.contains { mentionRange in
                 NSIntersectionRange(urlRange, mentionRange).length > 0
             }
-            if overlapsWithMention {
-                continue
-            }
+            if overlapsWithMention { continue }
 
-            return url
+            urls.append(url)
         }
 
-        return nil
+        return urls
     }
 
     /// Cached mention regex to avoid re-creating on every call

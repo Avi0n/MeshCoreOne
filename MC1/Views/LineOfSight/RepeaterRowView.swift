@@ -29,9 +29,9 @@ struct RepeaterRowView: View {
                         .lineLimit(1)
 
                     if let elevation = viewModel.repeaterGroundElevation {
-                        let totalHeight = Int(elevation) + (viewModel.repeaterPoint?.additionalHeight ?? 0)
+                        let totalHeight = elevation + (viewModel.repeaterPoint?.additionalHeight ?? 0.0)
                         Text(Measurement(
-                            value: Double(totalHeight),
+                            value: totalHeight,
                             unit: UnitLength.meters
                         ).formatted())
                             .font(.caption)

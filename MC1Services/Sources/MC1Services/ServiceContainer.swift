@@ -22,7 +22,7 @@ import MeshCore
 /// await container.wireServices()
 ///
 /// // Start event monitoring when device is connected
-/// await container.startEventMonitoring(deviceID: deviceUUID)
+/// await container.startEventMonitoring(radioID: radioUUID)
 /// ```
 ///
 /// ## Service Dependencies
@@ -42,6 +42,10 @@ public final class ServiceContainer {
 
     /// The persistence store for SwiftData operations
     public let dataStore: PersistenceStore
+
+    /// Persists inline-image aspect ratios for chat link previews. Built early
+    /// because downstream caches and the prefetcher depend on it.
+    public let inlineImageDimensionsStore: InlineImageDimensionsStore
 
     // MARK: - Independent Services
 
@@ -114,6 +118,20 @@ public final class ServiceContainer {
     /// Sync coordinator for managing sync lifecycle
     public let syncCoordinator: SyncCoordinator
 
+    // MARK: - Chat Send Queue
+
+    /// Service-layer outbound chat queue. Replaces the per-view-model
+    /// `dmSendQueue` / `channelSendQueue` instances. Hydrates from
+    /// `PendingSend` on construction; drain gated on `ConnectionManager`
+    /// transport state via `BLETransportOpenedSignal`.
+    ///
+    /// Constructed eagerly in `ServiceContainer.init` because `radioID`
+    /// is known at container-build time (`buildServicesAndSaveDevice`
+    /// resolves the device record before instantiating the container).
+    /// Eager construction closes the visibility window where the
+    /// container exists but the service is `nil`.
+    public let chatSendQueueService: ChatSendQueueService
+
     // MARK: - App State
 
     /// Provider for checking app foreground/background state
@@ -128,6 +146,11 @@ public final class ServiceContainer {
     /// Whether event monitoring is active
     private var isMonitoringEvents = false
 
+    /// Whether service event listeners are currently active.
+    public var isEventMonitoringActive: Bool {
+        isMonitoringEvents
+    }
+
     // MARK: - Initialization
 
     /// Creates a new service container.
@@ -135,15 +158,20 @@ public final class ServiceContainer {
     /// - Parameters:
     ///   - session: The MeshCoreSession for device communication
     ///   - modelContainer: The SwiftData model container for persistence
+    ///   - radioID: The connected device's radio ID. Used to scope the
+    ///     chat send queue's pending-send rows so two radios cannot share
+    ///     drain state across reconnects.
     ///   - appStateProvider: Optional provider for app foreground/background state
     public init(
         session: MeshCoreSession,
         modelContainer: ModelContainer,
+        radioID: UUID,
         appStateProvider: AppStateProvider? = nil
     ) {
         self.session = session
         self.appStateProvider = appStateProvider
         self.dataStore = PersistenceStore(modelContainer: modelContainer)
+        self.inlineImageDimensionsStore = InlineImageDimensionsStore()
 
         // Independent services (no dependencies)
         self.keychainService = KeychainService()
@@ -194,6 +222,14 @@ public final class ServiceContainer {
 
         // Sync coordinator (no dependencies on other services)
         self.syncCoordinator = SyncCoordinator()
+
+        self.chatSendQueueService = ChatSendQueueService(
+            radioID: radioID,
+            dataStore: dataStore,
+            messageService: messageService,
+            channelService: channelService,
+            reactionService: reactionService
+        )
     }
 
     // MARK: - Service Wiring
@@ -218,9 +254,19 @@ public final class ServiceContainer {
         await contactService.setCleanupHandler { [weak self] contactID, reason, publicKey in
             guard let self else { return }
 
-            // Invalidate blocked contacts cache (for both block and unblock)
+            // Refresh blocked names cache and delete channel messages on block
             if reason == .blocked || reason == .unblocked {
-                await self.syncCoordinator.invalidateBlockedContactsCache()
+                if let contact = try? await self.dataStore.fetchContact(id: contactID) {
+                    if reason == .blocked {
+                        try? await self.dataStore.deleteChannelMessages(
+                            fromSender: contact.name, radioID: contact.radioID
+                        )
+                    }
+                    await self.syncCoordinator.refreshBlockedContactsCache(
+                        radioID: contact.radioID, dataStore: self.dataStore
+                    )
+                    await self.syncCoordinator.notifyConversationsChanged()
+                }
             }
 
             // Remove delivered notifications for this contact (only on block/delete)
@@ -266,11 +312,11 @@ public final class ServiceContainer {
     /// from the MeshCoreSession.
     ///
     /// - Parameters:
-    ///   - deviceID: The connected device's UUID
+    ///   - radioID: The connected device's radio ID for data scoping
     ///   - enableAutoFetch: Whether to start message auto-fetch immediately (default true)
     ///   - enableAdvertisementMonitoring: Whether to start advertisement monitoring immediately (default true)
     public func startEventMonitoring(
-        deviceID: UUID,
+        radioID: UUID,
         enableAutoFetch: Bool = true,
         enableAdvertisementMonitoring: Bool = true
     ) async {
@@ -280,9 +326,9 @@ public final class ServiceContainer {
 
         // Configure HeardRepeatsService with device info
         do {
-            if let device = try await dataStore.fetchDevice(id: deviceID) {
+            if let device = try await dataStore.fetchDevice(radioID: radioID) {
                 await heardRepeatsService.configure(
-                    deviceID: deviceID,
+                    radioID: radioID,
                     localNodeName: device.nodeName
                 )
             } else {
@@ -294,16 +340,17 @@ public final class ServiceContainer {
 
         // Start event monitoring for services that need it
         if enableAdvertisementMonitoring {
-            await advertisementService.startEventMonitoring(deviceID: deviceID)
+            await advertisementService.startEventMonitoring(radioID: radioID)
         }
-        await rxLogService.startEventMonitoring(deviceID: deviceID)
+        await rxLogService.startEventMonitoring(radioID: radioID)
         await messageService.startEventMonitoring()
+        await messageService.startAckExpiryChecking()
         await remoteNodeService.startEventMonitoring()
 
         // Always start message event monitoring so handlers are ready for polled messages
-        await messagePollingService.startMessageEventMonitoring(deviceID: deviceID)
+        await messagePollingService.startMessageEventMonitoring(radioID: radioID)
         if enableAutoFetch {
-            await messagePollingService.startAutoFetch(deviceID: deviceID)
+            await messagePollingService.startAutoFetch(radioID: radioID)
         }
 
         // Prune debug logs on connection
@@ -329,6 +376,12 @@ public final class ServiceContainer {
         await advertisementService.stopEventMonitoring()
         await rxLogService.stopEventMonitoring()
         await messageService.stopEventMonitoring()
+        // Do not fail in-flight DMs on disconnect. The firmware retains the
+        // expected ACK and re-emits the delivery confirmation whenever it
+        // returns, so a routine BLE cycle must not mark a delivered message
+        // `.failed`. Stop only the expiry checker; pending entries resolve on
+        // reconnect within the same session or expire via `ackGiveUpWindow`.
+        await messageService.stopAckExpiryChecking()
         await messagePollingService.stopMessageEventMonitoring()
         // RemoteNodeService event monitoring is per-session, handled internally
 
@@ -338,76 +391,13 @@ public final class ServiceContainer {
         isMonitoringEvents = false
     }
 
-    // MARK: - Initial Sync
-
-    /// Performs initial sync of contacts and channels from the device.
-    ///
-    /// This method checks for task cancellation between sync operations.
-    /// Call after connection is established to ensure device data is current.
-    ///
-    /// - Parameter deviceID: The connected device's UUID
-    public func performInitialSync(deviceID: UUID) async {
-        let logger = Logger(subsystem: "com.mc1.services", category: "ServiceContainer")
-
-        // Migrate app favorites to device BEFORE sync (one-time on upgrade)
-        // Must run first because sync overwrites isFavorite with device flags
-        guard !Task.isCancelled else { return }
-        do {
-            let migrated = try await contactService.migrateAppFavoritesToDevice(deviceID: deviceID)
-            if migrated > 0 {
-                logger.info("Initial sync: \(migrated) favorites migrated to device")
-            }
-        } catch {
-            logger.warning("Initial sync: favorites migration failed: \(error)")
-        }
-
-        // Sync contacts from device
-        guard !Task.isCancelled else { return }
-        do {
-            let result = try await contactService.syncContacts(deviceID: deviceID)
-            if result.contactsReceived > 0 {
-                logger.info("Initial sync: \(result.contactsReceived) contacts synced")
-            }
-        } catch {
-            logger.warning("Initial sync: contact sync failed: \(error)")
-        }
-
-        // Sync channels
-        guard !Task.isCancelled else { return }
-        do {
-            // Fetch device to get maxChannels
-            guard let device = try await dataStore.fetchDevice(id: deviceID) else {
-                logger.warning("Initial sync: device not found for channel sync")
-                return
-            }
-
-            let result = try await channelService.syncChannels(deviceID: deviceID, maxChannels: device.maxChannels)
-            if result.channelsSynced > 0 {
-                logger.info("Initial sync: \(result.channelsSynced) channels synced")
-            }
-
-            // Update RxLogService with channel data for decryption
-            await updateRxLogChannels(deviceID: deviceID)
-        } catch {
-            logger.warning("Initial sync: channel sync failed: \(error)")
-        }
-    }
-
-    /// Updates RxLogService with current channel data for message decryption.
-    private func updateRxLogChannels(deviceID: UUID) async {
-        do {
-            let channels = try await dataStore.fetchChannels(deviceID: deviceID)
-            let secrets: [UInt8: Data] = Dictionary(
-                uniqueKeysWithValues: channels.map { ($0.index, $0.secret) }
-            )
-            let names: [UInt8: String] = Dictionary(
-                uniqueKeysWithValues: channels.map { ($0.index, $0.name) }
-            )
-            await rxLogService.updateChannels(secrets: secrets, names: names)
-        } catch {
-            let logger = Logger(subsystem: "com.mc1.services", category: "ServiceContainer")
-            logger.warning("Failed to update RX log channels: \(error)")
-        }
+    /// Full container teardown. Must be awaited before nulling the container
+    /// so chat send queue drains and chat coordinator off-main builds release
+    /// the strong references they hold on `MessageService` and `dataStore`.
+    /// `stopEventMonitoring()` alone does not cover those.
+    public func tearDown() async {
+        await stopEventMonitoring()
+        await chatSendQueueService.shutdown()
     }
 
     // MARK: - Convenience Methods
@@ -439,10 +429,19 @@ extension ServiceContainer {
     /// - Parameters:
     ///   - session: The MeshCoreSession for device communication
     ///   - wired: Whether to call `wireServices()` after creation (default `true`)
+    ///   - radioID: Radio ID to scope the chat send queue (default: synthesized `UUID()`)
     /// - Returns: A configured ServiceContainer with in-memory storage
-    public static func forTesting(session: MeshCoreSession, wired: Bool = true) async throws -> ServiceContainer {
+    public static func forTesting(
+        session: MeshCoreSession,
+        wired: Bool = true,
+        radioID: UUID = UUID()
+    ) async throws -> ServiceContainer {
         let container = try PersistenceStore.createContainer(inMemory: true)
-        let services = ServiceContainer(session: session, modelContainer: container)
+        let services = ServiceContainer(
+            session: session,
+            modelContainer: container,
+            radioID: radioID
+        )
         if wired {
             await services.wireServices()
         }

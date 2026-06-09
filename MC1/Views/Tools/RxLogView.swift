@@ -7,6 +7,7 @@ import MeshCore
 struct RxLogView: View {
     @Environment(\.appState) private var appState
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appTheme) private var theme
 
     @State private var viewModel = RxLogViewModel()
     @State private var expandedHashes: Set<String> = []
@@ -75,8 +76,10 @@ struct RxLogView: View {
                 liveStatusHeader
                     .textCase(nil)
             }
+            .themedRowBackground(theme)
         }
         .listStyle(.insetGrouped)
+        .themedCanvas(theme)
     }
 
     private func expandedBinding(for hash: String) -> Binding<Bool> {
@@ -235,8 +238,8 @@ struct RxLogView: View {
 
     private func loadNodeNames() async {
         guard let dataStore = appState.services?.dataStore,
-              let deviceID = appState.currentDeviceID else { return }
-        await viewModel.loadNodeNames(from: dataStore, deviceID: deviceID)
+              let deviceID = appState.currentRadioID else { return }
+        await viewModel.loadNodeNames(from: dataStore, radioID: deviceID)
     }
 }
 
@@ -442,11 +445,17 @@ struct RxLogRowView: View {
 
             // Channel message: show channel info
             if entry.decryptStatus == .success {
-                if let channelHashByte = entry.packetPayload.first {
+                if entry.channelIndex != nil, let channelHashByte = entry.packetPayload.first {
                     DetailRow(label: L10n.Tools.Tools.RxLog.channelHashLabel, value: String(format: "%02x", channelHashByte))
                 }
                 if let channelName = entry.channelName {
                     DetailRow(label: L10n.Tools.Tools.RxLog.channelNameLabel, value: channelName)
+                }
+                if let transportCode = entry.transportCode, !transportCode.isEmpty {
+                    DetailRow(
+                        label: L10n.Tools.Tools.RxLog.regionLabel,
+                        value: entry.regionScope ?? L10n.Tools.Tools.RxLog.regionUnresolved
+                    )
                 }
                 if let text = entry.decodedText {
                     HStack(alignment: .top) {

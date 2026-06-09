@@ -2,110 +2,119 @@ import Testing
 import Foundation
 @testable import MC1Services
 
-@Suite("ChannelDTO regionScope propagation")
+@Suite("ChannelDTO floodScope propagation through with(...) methods")
 struct ChannelRegionScopeTests {
 
     // MARK: - Helpers
 
-    private func makeDTO(regionScope: String? = nil) -> ChannelDTO {
+    private func makeDTO(floodScope: ChannelFloodScope = .inherit) -> ChannelDTO {
         ChannelDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             index: 1,
             name: "Test",
             secret: Data(repeating: 0, count: 16),
             isEnabled: true,
             lastMessageDate: nil,
             unreadCount: 0,
-            regionScope: regionScope
+            floodScope: floodScope
         )
     }
 
     // MARK: - Init Tests
 
-    @Test("nil regionScope preserved on init")
-    func nilRegionScopePreserved() {
+    @Test("Default floodScope is .inherit")
+    func defaultFloodScopeIsInherit() {
         let dto = makeDTO()
-        #expect(dto.regionScope == nil)
+        #expect(dto.floodScope == .inherit)
     }
 
-    @Test("non-nil regionScope preserved on init")
-    func regionScopePreserved() {
-        let dto = makeDTO(regionScope: "Europe")
-        #expect(dto.regionScope == "Europe")
+    @Test(".region(name) preserved on init")
+    func regionPreserved() {
+        let dto = makeDTO(floodScope: .region("Europe"))
+        #expect(dto.floodScope == .region("Europe"))
     }
 
     // MARK: - with(notificationLevel:)
 
-    @Test("with(notificationLevel:) preserves regionScope")
-    func withNotificationLevelPreservesRegionScope() {
-        let dto = makeDTO(regionScope: "UK")
+    @Test("with(notificationLevel:) preserves .region(name)")
+    func withNotificationLevelPreservesRegion() {
+        let dto = makeDTO(floodScope: .region("UK"))
         let updated = dto.with(notificationLevel: .muted)
 
-        #expect(updated.regionScope == "UK")
+        #expect(updated.floodScope == .region("UK"))
         #expect(updated.notificationLevel == .muted)
     }
 
-    @Test("with(notificationLevel:) preserves nil regionScope")
-    func withNotificationLevelPreservesNilRegionScope() {
+    @Test("with(notificationLevel:) preserves .allRegions")
+    func withNotificationLevelPreservesAllRegions() {
+        let dto = makeDTO(floodScope: .allRegions)
+        let updated = dto.with(notificationLevel: .mentionsOnly)
+
+        #expect(updated.floodScope == .allRegions)
+    }
+
+    @Test("with(notificationLevel:) preserves .inherit")
+    func withNotificationLevelPreservesInherit() {
         let dto = makeDTO()
         let updated = dto.with(notificationLevel: .mentionsOnly)
 
-        #expect(updated.regionScope == nil)
+        #expect(updated.floodScope == .inherit)
     }
 
     // MARK: - with(isFavorite:)
 
-    @Test("with(isFavorite:) preserves regionScope")
-    func withIsFavoritePreservesRegionScope() {
-        let dto = makeDTO(regionScope: "France")
+    @Test("with(isFavorite:) preserves .region(name)")
+    func withIsFavoritePreservesRegion() {
+        let dto = makeDTO(floodScope: .region("France"))
         let updated = dto.with(isFavorite: true)
 
-        #expect(updated.regionScope == "France")
+        #expect(updated.floodScope == .region("France"))
         #expect(updated.isFavorite == true)
     }
 
-    @Test("with(isFavorite:) preserves nil regionScope")
-    func withIsFavoritePreservesNilRegionScope() {
+    @Test("with(isFavorite:) preserves .inherit")
+    func withIsFavoritePreservesInherit() {
         let dto = makeDTO()
         let updated = dto.with(isFavorite: true)
 
+        #expect(updated.floodScope == .inherit)
+    }
+
+    // MARK: - with(floodScope:)
+
+    @Test("with(floodScope:) updates from .region to .region")
+    func withFloodScopeUpdatesBetweenRegions() {
+        let dto = makeDTO(floodScope: .region("Europe"))
+        let updated = dto.with(floodScope: .region("UK"))
+
+        #expect(updated.floodScope == .region("UK"))
+    }
+
+    @Test("with(floodScope: .inherit) clears region name in storage")
+    func withFloodScopeInheritClears() {
+        let dto = makeDTO(floodScope: .region("Europe"))
+        let updated = dto.with(floodScope: .inherit)
+
+        #expect(updated.floodScope == .inherit)
         #expect(updated.regionScope == nil)
     }
 
-    // MARK: - with(regionScope:)
-
-    @Test("with(regionScope:) updates the value")
-    func withRegionScopeUpdates() {
-        let dto = makeDTO(regionScope: "Europe")
-        let updated = dto.with(regionScope: "UK")
-
-        #expect(updated.regionScope == "UK")
-    }
-
-    @Test("with(regionScope: nil) clears the value")
-    func withRegionScopeClears() {
-        let dto = makeDTO(regionScope: "Europe")
-        let updated = dto.with(regionScope: nil)
-
-        #expect(updated.regionScope == nil)
-    }
-
-    @Test("with(regionScope:) sets value from nil")
-    func withRegionScopeSetsFromNil() {
+    @Test("with(floodScope:) sets specific region from inherit")
+    func withFloodScopeSetsFromInherit() {
         let dto = makeDTO()
-        let updated = dto.with(regionScope: "Asia")
+        let updated = dto.with(floodScope: .region("Asia"))
 
-        #expect(updated.regionScope == "Asia")
+        #expect(updated.floodScope == .region("Asia"))
     }
 
-    @Test("with(regionScope:) preserves all other fields")
-    func withRegionScopePreservesOtherFields() {
-        let dto = makeDTO(regionScope: "Europe")
-        let updated = dto.with(regionScope: "UK")
+    @Test("with(floodScope:) preserves all other fields")
+    func withFloodScopePreservesOtherFields() {
+        let dto = makeDTO(floodScope: .region("Europe"))
+        let updated = dto.with(floodScope: .region("UK"))
 
         #expect(updated.id == dto.id)
-        #expect(updated.deviceID == dto.deviceID)
+        #expect(updated.radioID == dto.radioID)
         #expect(updated.index == dto.index)
         #expect(updated.name == dto.name)
         #expect(updated.secret == dto.secret)

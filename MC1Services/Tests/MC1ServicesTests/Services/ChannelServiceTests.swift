@@ -63,6 +63,22 @@ struct ChannelServiceTests {
         #expect(error.isRetryable)
     }
 
+    @Test("ChannelSyncError send timeout is retryable and counted separately")
+    func sendTimeoutErrorIsRetryableAndCountedSeparately() {
+        let error = ChannelSyncError(index: 0, errorType: .sendTimeout, description: "Send timed out")
+        let result = ChannelSyncResult(channelsSynced: 0, errors: [error])
+
+        #expect(error.isRetryable)
+        #expect(result.requestTimeoutCount == 0)
+        #expect(result.sendTimeoutCount == 1)
+    }
+
+    @Test("ChannelSyncError circuit breaker is not retryable")
+    func circuitBreakerErrorIsNotRetryable() {
+        let error = ChannelSyncError(index: 0, errorType: .circuitBreaker, description: "Circuit open")
+        #expect(!error.isRetryable)
+    }
+
     @Test("ChannelSyncError deviceError is not retryable")
     func deviceErrorIsNotRetryable() {
         let error = ChannelSyncError(index: 0, errorType: .deviceError(code: 0x02), description: "Not found")
@@ -108,6 +124,24 @@ struct ChannelServiceTests {
         #expect(result.retryableIndices == [1, 5])
     }
 
+    @Test("ChannelService aborts early when transport send timeouts cascade")
+    func syncChannelsAbortsEarlyForSendTimeoutCascade() async throws {
+        let radioID = UUID()
+        let dataStore = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 6)
+        let transport = SendTimeoutTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 0.01, clientIdentifier: "MCTst")
+        )
+        let service = ChannelService(session: session, dataStore: dataStore)
+
+        let result = try await service.syncChannels(radioID: radioID, maxChannels: 6)
+
+        #expect(result.sendTimeoutCount == 3)
+        #expect(result.circuitBreakerAborted)
+        #expect(await transport.sendCount == 3)
+    }
+
     @Test("ChannelSyncResult retryableIndices empty when no retryable errors")
     func syncResultRetryableIndicesEmptyWhenNoRetryable() {
         let errors = [
@@ -144,5 +178,26 @@ struct ChannelServiceTests {
             secret: Data(repeating: 0, count: ProtocolLimits.channelSecretSize)
         )
         #expect(isConfigured)
+    }
+}
+
+private actor SendTimeoutTransport: MeshTransport {
+    private(set) var sendCount = 0
+
+    var receivedData: AsyncStream<Data> {
+        AsyncStream { continuation in
+            continuation.finish()
+        }
+    }
+
+    var isConnected: Bool { true }
+
+    func connect() async throws {}
+
+    func disconnect() async {}
+
+    func send(_ data: Data) async throws {
+        sendCount += 1
+        throw WiFiTransportError.sendTimeout
     }
 }

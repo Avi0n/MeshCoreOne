@@ -7,11 +7,11 @@ import Testing
 struct MessagePathFormatterTests {
     // MARK: - Direct Path Tests
 
-    @Test("pathLength 0 returns Direct")
-    func directPathLengthZero() {
+    @Test("pathLength 0 with no pathNodes returns Flood (zero-hop flood)")
+    func floodPathLengthZero() {
         let message = createMessage(pathLength: 0, pathNodes: nil)
         let result = MessagePathFormatter.format(message)
-        #expect(result == L10n.Chats.Chats.Message.Path.direct)
+        #expect(result == L10n.Chats.Chats.Message.Path.flood)
     }
 
     @Test("pathLength 0xFF returns Direct")
@@ -104,11 +104,11 @@ struct MessagePathFormatterTests {
 
     // MARK: - Fallback Tests
 
-    @Test("Missing pathNodes returns Unavailable")
-    func fallbackToUnavailable() {
+    @Test("Missing pathNodes on flood-routed returns Flood")
+    func fallbackToFlood() {
         let message = createMessage(pathLength: 3, pathNodes: nil)
         let result = MessagePathFormatter.format(message)
-        #expect(result == L10n.Chats.Chats.Message.Path.unavailable)
+        #expect(result == L10n.Chats.Chats.Message.Path.flood)
     }
 
     // MARK: - Edge Case Tests
@@ -121,11 +121,33 @@ struct MessagePathFormatterTests {
         #expect(result == "A3,7F,42")
     }
 
+    // MARK: - Multibyte Hash Mode Tests
+
+    @Test("Mode-1 path chunks bytes into 2-byte hops")
+    func mode1TwoByteHops() {
+        // 0x42 = mode 1 (2 bytes/hop), 2 hops → 4 wire bytes → ["A1B2","C3D4"].
+        let message = createMessage(
+            pathLength: 0x42,
+            pathNodes: Data([0xA1, 0xB2, 0xC3, 0xD4])
+        )
+        #expect(MessagePathFormatter.format(message) == "A1B2,C3D4")
+    }
+
+    @Test("Mode-2 path chunks bytes into 3-byte hops")
+    func mode2ThreeByteHops() {
+        // 0x82 = mode 2 (3 bytes/hop), 2 hops → 6 wire bytes → ["010203","040506"].
+        let message = createMessage(
+            pathLength: 0x82,
+            pathNodes: Data([0x01, 0x02, 0x03, 0x04, 0x05, 0x06])
+        )
+        #expect(MessagePathFormatter.format(message) == "010203,040506")
+    }
+
     // MARK: - Helper
 
     private func createMessage(pathLength: UInt8, pathNodes: Data?) -> MessageDTO {
         let message = Message(
-            deviceID: UUID(),
+            radioID: UUID(),
             contactID: UUID(),
             text: "Test",
             directionRawValue: MessageDirection.incoming.rawValue,

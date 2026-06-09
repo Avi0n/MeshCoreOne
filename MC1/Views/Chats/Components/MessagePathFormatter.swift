@@ -5,10 +5,9 @@ import MC1Services
 enum MessagePathFormatter {
     /// Formats the routing path for display
     /// - Parameter message: The message DTO containing path information
-    /// - Returns: Formatted path string (e.g., "Direct", "A3,7F,42", or "A3,7F…B2,C1")
+    /// - Returns: Formatted path string (e.g., "Direct", "Flood", "A3,7F,42", or "A3,7F…B2,C1")
     static func format(_ message: MessageDTO) -> String {
-        // Direct or flood path
-        if message.isDirect {
+        if message.isDirectRouted {
             return L10n.Chats.Chats.Message.Path.direct
         }
 
@@ -21,9 +20,8 @@ enum MessagePathFormatter {
 
         let nodes = message.pathNodesHex
 
-        // Fallback when path nodes unavailable
         if nodes.isEmpty {
-            return L10n.Chats.Chats.Message.Path.unavailable
+            return L10n.Chats.Chats.Message.Path.flood
         }
 
         // Truncate if more than 6 nodes: show first 3 + ellipsis + last 3

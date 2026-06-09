@@ -162,6 +162,9 @@ extension PacketParser {
         case .allowedRepeatFreq:
             return Parsers.AllowedRepeatFreq.parse(payload)
 
+        case .defaultFloodScope:
+            return Parsers.DefaultFloodScope.parse(payload)
+
         default:
             return .parseFailure(data: payload, reason: "Unexpected code in device response: \(code)")
         }
@@ -233,7 +236,7 @@ extension PacketParser {
                 )
             }
             return .messageSent(MessageSentInfo(
-                type: payload[0],
+                route: payload[0],
                 expectedAck: Data(payload[1..<5]),
                 suggestedTimeoutMs: payload.readUInt32LE(at: 5)
             ))
@@ -252,6 +255,9 @@ extension PacketParser {
 
         case .channelMessageReceivedV3:
             return Parsers.ChannelMessage.parse(payload, version: .v3)
+
+        case .channelDataReceived:
+            return Parsers.ChannelDatagram.parse(payload)
 
         default:
             return .parseFailure(data: payload, reason: "Unexpected code in message response: \(code)")
@@ -279,11 +285,10 @@ extension PacketParser {
                 )
             }
             let code = Data(payload.prefix(PacketSize.ackMinimum))
-            // Room server keep-alive ACKs include unsyncedCount as 5th byte
-            let unsyncedCount: UInt8? = payload.count > PacketSize.ackMinimum
-                ? payload[PacketSize.ackMinimum]
+            let tripTime: UInt32? = payload.count >= PacketSize.ackWithTripTime
+                ? payload.readUInt32LE(at: PacketSize.ackMinimum)
                 : nil
-            return .acknowledgement(code: code, unsyncedCount: unsyncedCount)
+            return .acknowledgement(code: code, tripTime: tripTime)
 
         case .messagesWaiting:
             return .messagesWaiting

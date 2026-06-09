@@ -92,7 +92,7 @@ extension CLIToolViewModel {
             return
         }
 
-        guard let dataStore, let deviceID, let remoteNodeService else {
+        guard let dataStore, let radioID, let remoteNodeService else {
             appendOutput(L10n.Tools.Tools.Cli.notConnected, type: .error)
             return
         }
@@ -100,7 +100,7 @@ extension CLIToolViewModel {
         // Find contact by name (repeaters and room servers only)
         let contact: ContactDTO
         do {
-            let contacts = try await dataStore.fetchContacts(deviceID: deviceID)
+            let contacts = try await dataStore.fetchContacts(radioID: radioID)
             guard let found = contacts.first(where: {
                 $0.name.localizedCaseInsensitiveCompare(nodeName) == .orderedSame
                 && ($0.type == .repeater || $0.type == .room)
@@ -130,7 +130,7 @@ extension CLIToolViewModel {
     }
 
     func completeLogin(contact: ContactDTO, password: String) async {
-        guard let deviceID, let remoteNodeService else {
+        guard let radioID, let remoteNodeService else {
             appendOutput(L10n.Tools.Tools.Cli.notConnected, type: .error)
             return
         }
@@ -144,7 +144,7 @@ extension CLIToolViewModel {
         do {
             // Create or reuse session
             let remoteSession = try await remoteNodeService.createSession(
-                deviceID: deviceID,
+                radioID: radioID,
                 contact: contact,
                 password: password,
                 rememberPassword: true
@@ -278,14 +278,14 @@ extension CLIToolViewModel {
     // MARK: - Local Command Handlers
 
     func handleNodesCommand() async {
-        guard let dataStore, let deviceID else {
+        guard let dataStore, let radioID else {
             appendOutput(L10n.Tools.Tools.Cli.notConnected, type: .error)
             return
         }
 
         let contacts: [ContactDTO]
         do {
-            contacts = try await dataStore.fetchContacts(deviceID: deviceID)
+            contacts = try await dataStore.fetchContacts(radioID: radioID)
         } catch {
             Self.logger.error("Failed to fetch contacts: \(error)")
             appendOutput(L10n.Tools.Tools.Cli.noNodes, type: .response)
@@ -319,14 +319,14 @@ extension CLIToolViewModel {
     }
 
     func handleChannelsCommand() async {
-        guard let dataStore, let deviceID else {
+        guard let dataStore, let radioID else {
             appendOutput(L10n.Tools.Tools.Cli.notConnected, type: .error)
             return
         }
 
         let channels: [ChannelDTO]
         do {
-            channels = try await dataStore.fetchChannels(deviceID: deviceID)
+            channels = try await dataStore.fetchChannels(radioID: radioID)
         } catch {
             Self.logger.error("Failed to fetch channels: \(error)")
             appendOutput(L10n.Tools.Tools.Cli.noChannels, type: .response)

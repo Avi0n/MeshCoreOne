@@ -1,4 +1,5 @@
 import Testing
+import Foundation
 import MeshCore
 @testable import MC1Services
 
@@ -76,5 +77,27 @@ struct ServiceContainerWiringTests {
 
         let hasHeardRepeats = await container.rxLogService.hasHeardRepeatsServiceWired
         #expect(!hasHeardRepeats, "rxLogService should not have heardRepeatsService before wiring")
+    }
+
+    @Test("startEventMonitoring activates ACK expiry checker; stopEventMonitoring deactivates it")
+    @MainActor
+    func startEventMonitoringActivatesAckChecking() async throws {
+        let container = try await makeWiredContainer()
+        let radioID = UUID()
+        try await container.dataStore.saveDevice(
+            DeviceDTO.testDevice(id: radioID, radioID: radioID)
+        )
+
+        #expect(await container.messageService.isAckExpiryCheckingActive == false)
+
+        await container.startEventMonitoring(
+            radioID: radioID,
+            enableAutoFetch: false,
+            enableAdvertisementMonitoring: false
+        )
+        #expect(await container.messageService.isAckExpiryCheckingActive == true)
+
+        await container.stopEventMonitoring()
+        #expect(await container.messageService.isAckExpiryCheckingActive == false)
     }
 }

@@ -6,6 +6,11 @@ import SwiftData
 /// Each repeat is an observation of the message being re-broadcast by a repeater.
 @Model
 public final class MessageRepeat {
+    #Index<MessageRepeat>(
+        [\.messageID, \.receivedAt],
+        [\.rxLogEntryID]
+    )
+
     @Attribute(.unique)
     public var id: UUID
 
@@ -54,14 +59,31 @@ public final class MessageRepeat {
         self.rssi = rssi
         self.rxLogEntryID = rxLogEntryID
     }
+
+    /// Builds a model instance directly from a DTO. The parent `message`
+    /// relationship is passed separately because the caller looks it up in
+    /// bulk before iterating.
+    public convenience init(dto: MessageRepeatDTO, message: Message?) {
+        self.init(
+            id: dto.id,
+            message: message,
+            messageID: dto.messageID,
+            receivedAt: dto.receivedAt,
+            pathNodes: dto.pathNodes,
+            pathLength: dto.pathLength,
+            snr: dto.snr,
+            rssi: dto.rssi,
+            rxLogEntryID: dto.rxLogEntryID
+        )
+    }
 }
 
 // MARK: - DTO
 
 /// Sendable DTO for cross-actor transfer of MessageRepeat data.
-public struct MessageRepeatDTO: Sendable, Identifiable, Equatable, Hashable {
+public struct MessageRepeatDTO: Sendable, Identifiable, Equatable, Hashable, Codable {
     public let id: UUID
-    public let messageID: UUID
+    public var messageID: UUID
     public let receivedAt: Date
     public let pathNodes: Data
     public let pathLength: UInt8

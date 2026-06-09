@@ -71,8 +71,14 @@
 /* Location: ContactsViewModel.swift - Purpose: Contacts segment */
 "contacts.segment.contacts" = "Kontakty";
 
-/* Location: ContactsViewModel.swift - Purpose: Network segment */
-"contacts.segment.network" = "Sieć";
+/* Location: ContactsViewModel.swift - Purpose: Repeaters segment */
+"contacts.segment.repeaters" = "Przekaźniki";
+
+/* Location: ContactsViewModel.swift - Purpose: Rooms segment */
+"contacts.segment.rooms" = "Pokoje";
+
+/* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
+"contacts.segment.pickerLabel" = "Filtruj węzły";
 
 // MARK: - Sort Order
 
@@ -144,7 +150,7 @@
 "contacts.list.empty.favorites.title" = "Brak ulubionych";
 
 /* Location: ContactsListView.swift - Purpose: No favorites empty description */
-"contacts.list.empty.favorites.description" = "Przesuń w prawo na dowolnym węźle, aby dodać go do ulubionych.";
+"contacts.list.empty.favorites.description" = "Naciśnij i przytrzymaj dowolny węzeł, aby dodać go do ulubionych.";
 
 /* Location: ContactsListView.swift - Purpose: No contacts empty title */
 "contacts.list.empty.contacts.title" = "Brak kontaktów";
@@ -152,11 +158,17 @@
 /* Location: ContactsListView.swift - Purpose: No contacts empty description */
 "contacts.list.empty.contacts.description" = "Kontakty pojawiają się po wykryciu w sieci mesh. Jeśli automatyczne dodawanie kontaktów jest wyłączone, sprawdź Odkrycie w menu w prawym górnym rogu.";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty title */
-"contacts.list.empty.network.title" = "Brak węzłów sieciowych";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty title */
+"contacts.list.empty.repeaters.title" = "Brak przekaźników";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty description */
-"contacts.list.empty.network.description" = "Przekaźniki i serwery pokojów pojawią się po wykryciu w sieci mesh.";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty description */
+"contacts.list.empty.repeaters.description" = "Przekaźniki zwiększają zasięg sieci mesh. Pojawią się tutaj po wykryciu.";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty title */
+"contacts.list.empty.rooms.title" = "Brak pokoi";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty description */
+"contacts.list.empty.rooms.description" = "Pokoje to publiczne serwery czatu w sieci mesh. Pojawią się tutaj po wykryciu.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "Brak wyników";
@@ -180,14 +192,14 @@
 
 // MARK: - Contacts List Swipe Actions
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unfavorite swipe action */
-"contacts.swipe.unfavorite" = "Usuń z ulubionych";
+/* Location: ContactContextMenuModifier - Purpose: Unfavorite action */
+"contacts.action.unfavorite" = "Usuń z ulubionych";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Block swipe action */
-"contacts.swipe.block" = "Zablokuj";
+/* Location: ContactContextMenuModifier - Purpose: Block action */
+"contacts.action.block" = "Zablokuj";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unblock swipe action */
-"contacts.swipe.unblock" = "Odblokuj";
+/* Location: ContactContextMenuModifier - Purpose: Unblock action */
+"contacts.action.unblock" = "Odblokuj";
 
 // MARK: - Contact Detail
 
@@ -230,8 +242,8 @@
 /* Location: ContactDetailView.swift - Purpose: Share via advert button */
 "contacts.detail.shareViaAdvert" = "Udostępnij kontakt przez ogłoszenie";
 
-/* Location: ContactDetailView.swift - Purpose: Ping repeater button */
-"contacts.detail.pingRepeater" = "Pinguj przekaźnik";
+/* Location: ContactDetailView.swift - Purpose: Share contact error when advert is missing or stale */
+"contacts.detail.shareContactUnavailable" = "Nie można udostępnić węzła. Ogłoszenie węzła może być niedostępne lub zbyt stare.";
 
 /* Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes */
 "contacts.detail.ping" = "Ping Zero-Hop";
@@ -386,6 +398,7 @@
 
 /* Location: AddContactSheet.swift - Purpose: Navigation title */
 "contacts.add.title" = "Dodaj kontakt";
+"contacts.add.nodeTitle" = "Dodaj węzeł";
 
 /* Location: AddContactSheet.swift - Purpose: Add button */
 "contacts.add.add" = "Dodaj";
@@ -436,7 +449,7 @@
 "contacts.add.pasteURL" = "Paste Contact URL";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL section footer */
-"contacts.add.pasteURLFooter" = "Paste a meshcore:// contact link to auto-fill the fields above";
+"contacts.add.pasteURLFooter" = "Wklej link kontaktowy meshcore://, aby automatycznie wypełnić powyższe pola";
 
 /* Location: AddContactSheet.swift - Purpose: Invalid paste URL error */
 "contacts.add.error.invalidURL" = "Clipboard does not contain a valid contact URL";
@@ -457,6 +470,12 @@
 
 /* Location: ContactQRShareSheet.swift - Purpose: Share button */
 "contacts.qr.share" = "Udostępnij";
+
+/* Location: ContactQRShareSheet.swift - Purpose: Contact label in share text, %@ is contact name */
+"contacts.share.contactLabel" = "MeshCore One Contact: %@";
+
+/* Location: ContactQRShareSheet.swift - Purpose: Key label in share text, %@ is hex public key */
+"contacts.share.keyLabel" = "Key: %@";
 
 // MARK: - Scan Contact QR
 
@@ -490,6 +509,9 @@
 /* Location: ScanContactQRView.swift - Purpose: Invalid public key error */
 "contacts.scan.error.invalidKey" = "Nieprawidłowy kod QR: nieprawidłowy klucz publiczny";
 
+/* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
+"contacts.scan.error.importFailed" = "Nie udało się zaimportować kontaktu: %@";
+
 // MARK: - Discovery View
 
 /* Location: DiscoveryView.swift - Purpose: Navigation title */
@@ -508,7 +530,7 @@
 "contacts.discovery.added" = "Added";
 
 /* Location: DiscoveryView.swift - Purpose: Accessibility label for added button */
-"contacts.discovery.addedAccessibility" = "Already added to contacts";
+"contacts.discovery.addedAccessibility" = "Już dodano do kontaktów";
 
 /* Location: DiscoveryView.swift - Purpose: Services not available error */
 "contacts.discovery.error.servicesUnavailable" = "Usługi niedostępne";
@@ -519,8 +541,14 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter - Contacts */
 "contacts.discovery.segment.contacts" = "Kontakty";
 
-/* Location: DiscoveryView.swift - Purpose: Segment filter - Network */
-"contacts.discovery.segment.network" = "Sieć";
+/* Location: DiscoveryView.swift - Purpose: Segment filter - Repeaters */
+"contacts.discovery.segment.repeaters" = "Przekaźniki";
+
+/* Location: DiscoveryView.swift - Purpose: Segment filter - Rooms */
+"contacts.discovery.segment.rooms" = "Pokoje";
+
+/* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
+"contacts.discovery.segment.pickerLabel" = "Filtruj odkryte węzły";
 
 /* Location: DiscoveryView.swift - Purpose: Search field placeholder */
 "contacts.discovery.searchPrompt" = "Szukaj odkrytych";
@@ -572,32 +600,119 @@
 /* Location: PathEditingSheet.swift - Purpose: Current path section header */
 "contacts.pathEdit.currentPath" = "Aktualna ścieżka";
 
-/* Location: PathEditingSheet.swift - Purpose: Empty path footer */
-"contacts.pathEdit.emptyFooter" = "Brak ustawionej ścieżki (routing bezpośredni lub rozproszony)";
-
-/* Location: PathEditingSheet.swift - Purpose: Path instructions footer */
-"contacts.pathEdit.instructionsFooter" = "Przeciągnij, aby zmienić kolejność. Dotknij, aby usunąć.";
-
-/* Location: PathEditingSheet.swift - Purpose: Add repeater section header */
-"contacts.pathEdit.addRepeater" = "Dodaj przekaźnik";
-
-/* Location: PathEditingSheet.swift - Purpose: No repeaters empty title */
+/* Location: AddHopPickerView.swift - Purpose: No repeaters empty title */
 "contacts.pathEdit.noRepeaters.title" = "Brak dostępnych przekaźników";
 
-/* Location: PathEditingSheet.swift - Purpose: No repeaters empty description */
+/* Location: AddHopPickerView.swift - Purpose: No repeaters empty description */
 "contacts.pathEdit.noRepeaters.description" = "Przekaźniki pojawią się tutaj po wykryciu w sieci mesh.";
-
-/* Location: PathEditingSheet.swift - Purpose: Add repeater footer */
-"contacts.pathEdit.addFooter" = "Dotknij przekaźnik, aby dodać go do ścieżki.";
-
-/* Location: PathEditingSheet.swift - Purpose: Add to path accessibility label */
-"contacts.pathEdit.addToPath" = "Dodaj %@ do ścieżki";
 
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with name */
 "contacts.pathEdit.hopWithName" = "Skok %d z %d: %@";
 
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with hex */
 "contacts.pathEdit.hopWithHex" = "Skok %d z %d: przekaźnik %@";
+
+/* Location: PathEditingSheet.swift - Purpose: Add Hop CTA (primary button when path has >=1 hop) */
+"contacts.pathEdit.addHop" = "Dodaj skok";
+
+/* Location: AddHopPickerView.swift - Purpose: Paste clipboard text into the hop search field */
+"contacts.pathEdit.paste" = "Wklej ze schowka";
+
+/* Location: PathEditingSheet.swift - Purpose: Use-direct-routing empty-state button */
+"contacts.pathEdit.useDirectRouting" = "Użyj trasowania bezp.";
+
+/* Location: PathEditingSheet.swift - Purpose: Use-flood-routing empty-state button */
+"contacts.pathEdit.useFloodRouting" = "Użyj trasowania flood";
+
+/* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert title */
+"contacts.pathEdit.directRouting.confirm.title" = "Zapisać jako trasowanie bezpośrednie?";
+
+/* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name */
+"contacts.pathEdit.directRouting.confirm.message" = "Wiadomości do %@ będą wysyłane bezpośrednio bez pośrednictwa żadnego wzmacniaka. Użyj tylko gdy %@ jest bezpośrednim (0-przeskokowym) sąsiadem.";
+
+/* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation confirm label */
+"contacts.pathEdit.directRouting.confirm.confirm" = "Zapisz jako bezpośrednie";
+
+/* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation alert title */
+"contacts.pathEdit.floodRouting.confirm.title" = "Użyć trasowania flood?";
+
+/* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation alert message, %@ is contact name */
+"contacts.pathEdit.floodRouting.confirm.message" = "Wiadomości do %@ będą wysyłane do każdego pobliskiego węzła, aż do znalezienia ścieżki. Użyj gdy nie jest znana trasa wzmacniaka.";
+
+/* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation confirm label */
+"contacts.pathEdit.floodRouting.confirm.confirm" = "Użyj trasowania flood";
+
+/* Location: AddHopPickerView.swift - Purpose: Position banner when appending, %d is target hop number */
+"contacts.pathEdit.positionAppend" = "Dodawanie jako skok %d";
+
+/* Location: AddHopPickerView.swift - Purpose: Search field placeholder */
+"contacts.pathEdit.searchPrompt" = "A1,2B lub nazwa/ID";
+
+/* Location: PathEditingSheet.swift - Purpose: Section footer hint */
+"contacts.pathEdit.reorderHint" = "Przeciągnij aby uporządkować · Przesuń aby usunąć";
+
+/* Location: PathEditingSheet.swift - Purpose: Empty-state title */
+"contacts.pathEdit.empty.title" = "Brak skoków";
+
+/* Location: PathEditingSheet.swift - Purpose: Empty-state description, %@ is contact name */
+"contacts.pathEdit.empty.description" = "Dodaj wzmacniaki aby kontrolować trasę wiadomości do %@, lub użyj trasowania flood gdy trasa jest nieznana.";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: All filter */
+"contacts.pathEdit.filter.all" = "Wszystkie";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: Favorites filter */
+"contacts.pathEdit.filter.favorites" = "Ulubione";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: Recent filter */
+"contacts.pathEdit.filter.recent" = "Ostatnie";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: Discovered filter */
+"contacts.pathEdit.filter.discovered" = "Nowe";
+
+/* Location: AddHopPickerView.swift - Purpose: Recent section header */
+"contacts.pathEdit.sections.recent" = "Ostatnie";
+
+/* Location: AddHopPickerView.swift - Purpose: Favorites section header */
+"contacts.pathEdit.sections.favorites" = "Ulubione";
+
+/* Location: AddHopPickerView.swift - Purpose: Contacts section header */
+"contacts.pathEdit.sections.contacts" = "Kontakty";
+
+/* Location: AddHopPickerView.swift - Purpose: Discovered section header */
+"contacts.pathEdit.sections.discovered" = "Wykryte";
+
+/* Location: AddHopPickerView.swift - Purpose: Rooms section header */
+"contacts.pathEdit.sections.rooms" = "Pokoje";
+
+/* Location: AddHopPickerView.swift - Purpose: No-match search description */
+"contacts.pathEdit.search.noMatches.description" = "Spróbuj nazwy lub prefiksu hex jak 'a3'.";
+
+/* Location: AddHopPickerView.swift - Purpose: No-match description when a filter other than All is selected and a matching room exists */
+"contacts.pathEdit.search.noMatches.descriptionWithRoomsHint" = "Spróbuj nazwy lub prefiksu hex jak 'a3'. Pokoje widoczne są tylko w filtrze Wszystkie.";
+
+/* Location: AddHopPickerView.swift - Purpose: Picker row accessibility label, %1$@ is name, %2$d is target hop number */
+"contacts.pathEdit.addToPathAsHop" = "Dodaj %1$@ do ścieżki jako skok %2$d";
+
+/* Location: PathEditingSheet.swift - Purpose: VoiceOver hint for a hop row describing swipe + drag actions */
+"contacts.pathEdit.hopHint" = "Przesuń aby usunąć. Przeciągnij aby uporządkować.";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: VoiceOver label for the section filter picker */
+"contacts.pathEdit.filterPickerLabel" = "Filtruj skoki";
+
+/* Location: PathEditingSheet.swift + AddHopPickerView.swift - Purpose: Max-hops reached title */
+"contacts.pathEdit.maxHops.reached" = "Osiągnięto maksymalną liczbę skoków";
+
+/* Location: AddHopPickerView.swift - Purpose: Max-hops reached description, %d is the cap */
+"contacts.pathEdit.maxHops.description" = "Ta trasa osiągnęła maksimum %d skoków dla bieżącego trybu hash. Usuń skok, aby dodać kolejny.";
+
+/* Location: PathEditingSheet.swift - Purpose: Add Hop CTA footer explaining the hop cap, %d is the cap */
+"contacts.pathEdit.maxHops.footer" = "Osiągnięto maksimum %d skoków. Usuń skok, aby dodać kolejny.";
+
+/* Location: AddHopPickerView.swift - Purpose: Bulk-add panel strings */
+"contacts.pathEdit.bulkAdd.action" = "Dodaj węzły: %@";
+"contacts.pathEdit.bulkAdd.willAdd" = "%@ zostanie dodany";
+"contacts.pathEdit.bulkAdd.pathFull" = "%@ przekracza limit skoków";
+"contacts.pathEdit.bulkAdd.empty" = "Brak nowych węzłów do dodania";
 
 // MARK: - Path Discovery Results
 
@@ -779,20 +894,8 @@
 
 // MARK: - Trace Path List View
 
-/* Location: TracePathListView.swift - Purpose: Code input placeholder */
-"contacts.trace.list.codePlaceholder" = "Przykład: A1, 2B";
-
-/* Location: TracePathListView.swift - Purpose: Paste button */
-"contacts.trace.list.paste" = "Wklej ze schowka";
-
-/* Location: TracePathListView.swift - Purpose: Code input footer */
-"contacts.trace.list.codeFooter" = "Naciśnij Enter, aby dodać przekaźniki";
-
-/* Location: TracePathListView.swift - Purpose: Repeaters section label */
-"contacts.trace.list.repeaters" = "Przekaźniki";
-
 /* Location: TracePathListView.swift - Purpose: Empty path instruction */
-"contacts.trace.list.emptyPath" = "Dotknij przekaźnik powyżej, aby rozpocząć budowanie ścieżki";
+"contacts.trace.list.emptyPath" = "Dodaj skok, aby rozpocząć budowanie ścieżki.";
 
 /* Location: TracePathListView.swift - Purpose: Round trip path section header */
 "contacts.trace.list.roundTripPath" = "Ścieżka w obie strony";
@@ -811,6 +914,21 @@
 
 /* Location: TracePathListView.swift - Purpose: Traces count label */
 "contacts.trace.list.traces" = "Śledzenia:";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size picker label */
+"contacts.trace.list.hashSize" = "Rozmiar skrótu";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 1 byte per hop */
+"contacts.trace.list.hashSizeOneByte" = "1 bajt";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 2 bytes per hop */
+"contacts.trace.list.hashSizeTwoBytes" = "2 bajty";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 4 bytes per hop */
+"contacts.trace.list.hashSizeFourBytes" = "4 bajty";
+
+/* Location: PathActionsSectionView.swift - Purpose: Caveat shown for multi-byte trace hash sizes */
+"contacts.trace.list.hashSizeFooter" = "Przekaźniki z oprogramowaniem starszym niż 1.11.0 nie przekażą śledzeń o rozmiarze skrótu większym niż 1 bajt.";
 
 /* Location: TracePathListView.swift - Purpose: Copy path button */
 "contacts.trace.list.copyPath" = "Kopiuj ścieżkę";
@@ -848,26 +966,10 @@
 /* Location: TracePathListView.swift - Purpose: Hop row accessibility hint */
 "contacts.trace.list.hopHint" = "Przesuń w lewo, aby usunąć, użyj uchwytu do zmiany kolejności";
 
-/* Location: TracePathListView.swift - Purpose: Favorites filter toggle label */
-"contacts.trace.list.favoritesOnly" = "Tylko ulubione";
-
-/* Location: TracePathListView.swift - Purpose: Toggle to include room servers in the list */
-"contacts.trace.list.includeRooms" = "Uwzględnij pokoje";
-
-/* Location: TracePathListView.swift, PathEditingSheet.swift - Purpose: Toggle to include discovered repeaters */
-"contacts.trace.list.includeDiscovered" = "Uwzględnij odkryte";
-
-/* Location: TracePathListView.swift - Purpose: No favorite repeaters empty title */
-"contacts.trace.list.noFavorites.title" = "Brak ulubionych przekaźników";
-
-/* Location: TracePathListView.swift - Purpose: No favorite repeaters empty description */
-"contacts.trace.list.noFavorites.description" = "Oznacz przekaźniki jako ulubione w zakładce Węzły, aby zobaczyć je tutaj.";
-
 // MARK: - Trace Path Map View
 
 /* Location: TracePathMapView.swift - Purpose: Hops count in results banner */
 "contacts.trace.map.hops" = "%d skoków";
-
 
 /* Location: TracePathMapView.swift - Purpose: Clear button */
 "contacts.trace.map.clear" = "Wyczyść";
@@ -1042,6 +1144,9 @@
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "Połącz się z radiem, aby usunąć węzły";
 
+/* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
+"contacts.viewModel.removeTimedOut" = "Upłynął limit czasu usuwania węzła. Spróbuj ponownie.";
+
 // MARK: - Path Management ViewModel Errors
 
 /* Location: PathManagementViewModel.swift - Purpose: Save path error prefix */
@@ -1052,6 +1157,10 @@
 
 /* Location: PathManagementViewModel.swift - Purpose: Set path error prefix */
 "contacts.pathManagement.error.setFailed" = "Ustawianie ścieżki nie powiodło się: %@";
+
+"contacts.pathManagement.error.hopResizeRequired" = "Rozmiar hashu ścieżki zmieniony — usuń i dodaj ponownie skoki, aby zapisać.";
+
+"contacts.pathManagement.error.tooManyHops" = "Za dużo skoków. Aktualny tryb skrótu obsługuje maksymalnie %d.";
 
 // MARK: - Code Input Result
 

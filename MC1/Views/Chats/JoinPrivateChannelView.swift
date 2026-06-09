@@ -4,6 +4,7 @@ import MC1Services
 /// View for joining a private channel by entering name and hex secret key
 struct JoinPrivateChannelView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     let availableSlots: [UInt8]
     let onComplete: (ChannelDTO?) -> Void
@@ -54,12 +55,14 @@ struct JoinPrivateChannelView: View {
                     Text(L10n.Chats.Chats.JoinPrivate.footer)
                 }
             }
+            .themedRowBackground(theme)
 
             if let errorMessage {
                 Section {
                     Text(errorMessage)
                         .foregroundStyle(.red)
                 }
+                .themedRowBackground(theme)
             }
 
             Section {
@@ -80,13 +83,15 @@ struct JoinPrivateChannelView: View {
                 }
                 .disabled(channelName.isEmpty || !isValidSecret || isJoining)
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Chats.Chats.JoinPrivate.title)
         .navigationBarTitleDisplayMode(.inline)
     }
 
     private func joinChannel() async {
-        guard let deviceID = appState.connectedDevice?.id else {
+        guard let radioID = appState.connectedDevice?.radioID else {
             errorMessage = L10n.Chats.Chats.Error.noDeviceConnected
             return
         }
@@ -106,7 +111,7 @@ struct JoinPrivateChannelView: View {
                 return
             }
             try await channelService.setChannelWithSecret(
-                deviceID: deviceID,
+                radioID: radioID,
                 index: selectedSlot,
                 name: channelName,
                 secret: secret
@@ -114,7 +119,7 @@ struct JoinPrivateChannelView: View {
 
             // Fetch the joined channel to return it
             var joinedChannel: ChannelDTO?
-            if let channels = try? await appState.services?.dataStore.fetchChannels(deviceID: deviceID) {
+            if let channels = try? await appState.services?.dataStore.fetchChannels(radioID: radioID) {
                 joinedChannel = channels.first { $0.index == selectedSlot }
             }
             onComplete(joinedChannel)

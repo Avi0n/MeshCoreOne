@@ -4,6 +4,7 @@ import MC1Services
 /// View showing only blocked contacts for management
 struct BlockedContactsView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     @State private var contacts: [ContactDTO] = []
     @State private var isLoading = false
@@ -19,15 +20,10 @@ struct BlockedContactsView: View {
                     description: Text(L10n.Contacts.Contacts.Blocked.Empty.description)
                 )
             } else {
-                List(contacts) { contact in
-                    NavigationLink {
-                        ContactDetailView(contact: contact)
-                    } label: {
-                        ContactRowView(contact: contact)
-                    }
-                }
+                blockedList
             }
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Contacts.Contacts.Blocked.title)
         .task {
             await loadBlockedContacts()
@@ -39,15 +35,43 @@ struct BlockedContactsView: View {
         }
     }
 
+    /// Leading inset for the inter-row divider, aligning it under the row text past the avatar.
+    private static let rowSeparatorLeadingInset: CGFloat = 72
+    private static let rowHorizontalPadding: CGFloat = 16
+    private static let rowVerticalPadding: CGFloat = 6
+
+    private var blockedList: some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(Array(contacts.enumerated()), id: \.element.id) { index, contact in
+                    NavigationLink {
+                        ContactDetailView(contact: contact)
+                    } label: {
+                        ContactRowView(contact: contact)
+                            .padding(.horizontal, Self.rowHorizontalPadding)
+                            .padding(.vertical, Self.rowVerticalPadding)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                    .transition(.opacity)
+                    if index < contacts.count - 1 {
+                        Divider().padding(.leading, Self.rowSeparatorLeadingInset)
+                    }
+                }
+            }
+        }
+    }
+
     private func loadBlockedContacts() async {
         guard let services = appState.services,
-              let deviceID = appState.connectedDevice?.id else { return }
+              let radioID = appState.connectedDevice?.radioID else { return }
         isLoading = true
         defer { isLoading = false }
 
         do {
             contacts = try await services.dataStore.fetchBlockedContacts(
-                deviceID: deviceID
+                radioID: radioID
             )
         } catch {
             contacts = []

@@ -16,10 +16,7 @@ struct ChatConversationMessagesContent: View {
 
     // MARK: - Display Preferences
 
-    let showInlineImages: Bool
-    let autoPlayGIFs: Bool
-    let showIncomingPath: Bool
-    let showIncomingHopCount: Bool
+    let envInputs: EnvInputs
 
     // MARK: - Scroll State Bindings
 
@@ -51,11 +48,10 @@ struct ChatConversationMessagesContent: View {
 
     var body: some View {
         Group {
-            if !viewModel.hasLoadedOnce {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.messages.isEmpty {
+            if viewModel.renderState.phase == .loaded, viewModel.messages.isEmpty {
                 emptyState
+            } else if viewModel.messages.isEmpty {
+                Color.clear
             } else {
                 ChatMessagesTableView(
                     viewModel: viewModel,
@@ -63,10 +59,7 @@ struct ChatConversationMessagesContent: View {
                     deviceName: deviceName,
                     configuration: bubbleConfiguration,
                     recentEmojisStore: recentEmojisStore,
-                    showInlineImages: showInlineImages,
-                    autoPlayGIFs: autoPlayGIFs,
-                    showIncomingPath: showIncomingPath,
-                    showIncomingHopCount: showIncomingHopCount,
+                    envInputs: envInputs,
                     isAtBottom: $isAtBottom,
                     unreadCount: $unreadCount,
                     scrollToBottomRequest: $scrollToBottomRequest,
@@ -109,10 +102,7 @@ struct ChatConversationMessagesContent: View {
         case .dm:
             .directMessage
         case .channel:
-            .channel(
-                isPublic: conversationType.isPublicStyleChannel,
-                contacts: viewModel.conversations
-            )
+            .channel(isPublic: conversationType.isPublicStyleChannel)
         }
     }
 }
@@ -179,17 +169,14 @@ private struct ChannelEmptyMessagesView: View {
     NavigationStack {
         ChatConversationMessagesContent(
             conversationType: .dm(ContactDTO(from: Contact(
-                deviceID: UUID(),
+                radioID: UUID(),
                 publicKey: Data(repeating: 0x42, count: 32),
                 name: "Alice"
             ))),
             viewModel: ChatViewModel(),
             deviceName: "My Device",
             recentEmojisStore: RecentEmojisStore(),
-            showInlineImages: true,
-            autoPlayGIFs: true,
-            showIncomingPath: false,
-            showIncomingHopCount: false,
+            envInputs: .default,
             isAtBottom: .constant(true),
             unreadCount: .constant(0),
             scrollToBottomRequest: .constant(0),
@@ -213,17 +200,14 @@ private struct ChannelEmptyMessagesView: View {
     NavigationStack {
         ChatConversationMessagesContent(
             conversationType: .channel(ChannelDTO(from: Channel(
-                deviceID: UUID(),
+                radioID: UUID(),
                 index: 1,
                 name: "General"
             ))),
             viewModel: ChatViewModel(),
             deviceName: "My Device",
             recentEmojisStore: RecentEmojisStore(),
-            showInlineImages: true,
-            autoPlayGIFs: true,
-            showIncomingPath: false,
-            showIncomingHopCount: false,
+            envInputs: .default,
             isAtBottom: .constant(true),
             unreadCount: .constant(0),
             scrollToBottomRequest: .constant(0),

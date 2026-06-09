@@ -6,6 +6,7 @@ import MC1Services
 struct WiFiEditSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     /// Optional initial values for editing a saved (non-connected) device
     var initialHost: String?
@@ -16,11 +17,7 @@ struct WiFiEditSheet: View {
     @State private var isReconnecting = false
     @State private var errorMessage: String?
 
-    @FocusState private var focusedField: Field?
-
-    enum Field {
-        case ipAddress, port
-    }
+    @FocusState private var focusedField: WiFiField?
 
     private var currentConnection: ConnectionMethod? {
         appState.connectedDevice?.connectionMethods.first { $0.isWiFi }
@@ -39,7 +36,7 @@ struct WiFiEditSheet: View {
     }
 
     private var isValidInput: Bool {
-        isValidIPAddress(ipAddress) && isValidPort(port)
+        WiFiAddressFields.isValidIPAddress(ipAddress) && WiFiAddressFields.isValidPort(port)
     }
 
     private var hasChanges: Bool {
@@ -50,60 +47,21 @@ struct WiFiEditSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    HStack {
-                        TextField(L10n.Settings.WifiEdit.ipPlaceholder, text: $ipAddress)
-                            .keyboardType(.decimalPad)
-                            .environment(\.locale, Locale(identifier: "en_US"))
-                            .textContentType(.none)
-                            .autocorrectionDisabled()
-                            .focused($focusedField, equals: .ipAddress)
-                            .onChange(of: ipAddress) { _, newValue in
-                                let replaced = newValue.replacing(",", with: ".")
-                                if replaced != newValue {
-                                    ipAddress = replaced
-                                }
-                            }
-
-                        if !ipAddress.isEmpty {
-                            Button {
-                                ipAddress = ""
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(.secondary)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel(L10n.Settings.WifiEdit.clearIp)
-                        }
-                    }
-
-                    HStack {
-                        TextField(L10n.Settings.WifiEdit.portPlaceholder, text: $port)
-                            .keyboardType(.numberPad)
-                            .focused($focusedField, equals: .port)
-
-                        if !port.isEmpty {
-                            Button {
-                                port = ""
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(.secondary)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel(L10n.Settings.WifiEdit.clearPort)
-                        }
-                    }
-                } header: {
-                    Text(L10n.Settings.WifiEdit.connectionDetails)
-                } footer: {
-                    Text(L10n.Settings.WifiEdit.footer)
-                }
+                WiFiAddressFields(
+                    ipAddress: $ipAddress,
+                    port: $port,
+                    focusedField: $focusedField,
+                    sectionHeader: L10n.Settings.WifiEdit.connectionDetails,
+                    sectionFooter: L10n.Settings.WifiEdit.footer,
+                    onPortSubmit: { saveChanges() }
+                )
 
                 if let errorMessage {
                     Section {
                         Label(errorMessage, systemImage: "exclamationmark.triangle")
                             .foregroundStyle(.red)
                     }
+                    .themedRowBackground(theme)
                 }
 
                 Section {
@@ -124,23 +82,12 @@ struct WiFiEditSheet: View {
                     }
                     .disabled(!isValidInput || !hasChanges || isReconnecting)
                 }
+                .themedRowBackground(theme)
             }
+            .themedCanvas(theme)
             .navigationTitle(L10n.Settings.WifiEdit.title)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.Localizable.Common.cancel) {
-                        dismiss()
-                    }
-                    .disabled(isReconnecting)
-                }
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button(L10n.Localizable.Common.done) {
-                        focusedField = nil
-                    }
-                }
-            }
+            .wifiSheetToolbar(focusedField: $focusedField, isProcessing: isReconnecting)
             .interactiveDismissDisabled(isReconnecting)
             .onAppear {
                 populateCurrentValues()
@@ -159,6 +106,8 @@ struct WiFiEditSheet: View {
     }
 
     private func saveChanges() {
+        focusedField = nil
+
         guard let portNumber = UInt16(port) else {
             errorMessage = L10n.Settings.WifiEdit.Error.invalidPort
             return
@@ -180,19 +129,6 @@ struct WiFiEditSheet: View {
         }
     }
 
-    private func isValidIPAddress(_ ipString: String) -> Bool {
-        let parts = ipString.split(separator: ".")
-        guard parts.count == 4 else { return false }
-        return parts.allSatisfy { part in
-            guard let num = Int(part) else { return false }
-            return num >= 0 && num <= 255
-        }
-    }
-
-    private func isValidPort(_ port: String) -> Bool {
-        guard let num = UInt16(port) else { return false }
-        return num > 0
-    }
 }
 
 #Preview {

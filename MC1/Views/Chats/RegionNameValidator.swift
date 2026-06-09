@@ -1,4 +1,5 @@
 import Foundation
+import MC1Services
 
 extension String {
     /// Whether this region name represents a private region (prefixed with "$")
@@ -7,22 +8,23 @@ extension String {
 
 /// Validates region names before adding them to the device's known regions list
 enum RegionNameValidator {
-    enum ValidationError {
+    enum ValidationError: Equatable {
         case empty
         case invalidCharacters
-        case invalidPrefix
+        case tooLong(maxBytes: Int)
         case duplicate
     }
-
-    private static let disallowedCharacters = CharacterSet.controlCharacters.union(.whitespaces)
 
     static func validate(_ name: String, existingRegions: [String]) -> ValidationError? {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
         if trimmed.isEmpty { return .empty }
-        if trimmed.unicodeScalars.contains(where: { disallowedCharacters.contains($0) }) {
+        if !trimmed.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "-") }) {
             return .invalidCharacters
         }
-        if trimmed.isPrivateRegion || trimmed.hasPrefix("#") { return .invalidPrefix }
+        let maxBytes = ProtocolLimits.maxDefaultFloodScopeNameBytes
+        if trimmed.utf8.count > maxBytes {
+            return .tooLong(maxBytes: maxBytes)
+        }
         if existingRegions.contains(trimmed) { return .duplicate }
         return nil
     }

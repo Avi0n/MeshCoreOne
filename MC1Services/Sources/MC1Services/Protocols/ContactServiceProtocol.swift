@@ -24,8 +24,8 @@ public protocol ContactServiceProtocol: Actor {
 
     /// Sync all contacts from device
     /// - Parameters:
-    ///   - deviceID: The device to sync from
+    ///   - radioID: The device to sync from
     ///   - since: Optional date for incremental sync (only contacts modified after this time)
     /// - Returns: Sync result with count and timestamp
-    func syncContacts(deviceID: UUID, since: Date?) async throws -> ContactSyncResult
+    func syncContacts(radioID: UUID, since: Date?) async throws -> ContactSyncResult
 }

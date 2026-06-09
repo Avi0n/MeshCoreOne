@@ -5,6 +5,11 @@ import SwiftData
 /// Represents a message in a room server conversation.
 @Model
 public final class RoomMessage {
+    #Index<RoomMessage>(
+        [\.sessionID, \.timestamp],
+        [\.sessionID, \.deduplicationKey]
+    )
+
     /// Unique message identifier
     @Attribute(.unique)
     public var id: UUID
@@ -74,6 +79,27 @@ public final class RoomMessage {
             text: text
         )
     }
+
+    /// Builds a model instance directly from a DTO, preserving the exact
+    /// createdAt, deduplicationKey, and delivery metadata from the source.
+    public convenience init(dto: RoomMessageDTO) {
+        self.init(
+            id: dto.id,
+            sessionID: dto.sessionID,
+            authorKeyPrefix: dto.authorKeyPrefix,
+            authorName: dto.authorName,
+            text: dto.text,
+            timestamp: dto.timestamp,
+            isFromSelf: dto.isFromSelf,
+            status: dto.status
+        )
+        createdAt = dto.createdAt
+        deduplicationKey = dto.deduplicationKey
+        ackCode = dto.ackCode
+        roundTripTime = dto.roundTripTime
+        retryAttempt = dto.retryAttempt
+        maxRetryAttempts = dto.maxRetryAttempts
+    }
 }
 
 // MARK: - Computed Properties
@@ -115,9 +141,9 @@ public extension RoomMessage {
 // MARK: - Sendable DTO
 
 /// A sendable snapshot of RoomMessage for cross-actor transfers
-public struct RoomMessageDTO: Sendable, Equatable, Identifiable, Hashable {
+public struct RoomMessageDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
     public let id: UUID
-    public let sessionID: UUID
+    public var sessionID: UUID
     public let authorKeyPrefix: Data
     public let authorName: String?
     public let text: String

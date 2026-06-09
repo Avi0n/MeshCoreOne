@@ -33,7 +33,7 @@ struct RepeaterPoint: Equatable {
     var groundElevation: Double?
 
     /// Additional height above ground in meters
-    var additionalHeight: Int
+    var additionalHeight: Double
 
     /// True if repeater is on the A-B path (from slider), false if relocated off-path
     var isOnPath: Bool
@@ -47,7 +47,7 @@ struct RepeaterPoint: Equatable {
         }
     }
 
-    init(coordinate: CLLocationCoordinate2D, groundElevation: Double? = nil, additionalHeight: Int = 10, isOnPath: Bool = true, pathFraction: Double = 0.5) {
+    init(coordinate: CLLocationCoordinate2D, groundElevation: Double? = nil, additionalHeight: Double = 10, isOnPath: Bool = true, pathFraction: Double = 0.5) {
         self.coordinate = coordinate
         self.groundElevation = groundElevation
         self.additionalHeight = additionalHeight
@@ -79,10 +79,10 @@ struct SelectedPoint: Identifiable, Equatable {
     let coordinate: CLLocationCoordinate2D
     let contact: ContactDTO?
     var groundElevation: Double?
-    var additionalHeight: Int = 7
+    var additionalHeight: Double = 7
 
     var totalHeight: Double? {
-        groundElevation.map { $0 + Double(additionalHeight) }
+        groundElevation.map { $0 + additionalHeight }
     }
 
     var displayName: String {
@@ -94,7 +94,9 @@ struct SelectedPoint: Identifiable, Equatable {
     }
 
     static func == (lhs: SelectedPoint, rhs: SelectedPoint) -> Bool {
-        lhs.id == rhs.id
+        lhs.id == rhs.id &&
+        lhs.additionalHeight == rhs.additionalHeight &&
+        lhs.groundElevation == rhs.groundElevation
     }
 }
 
@@ -292,7 +294,7 @@ final class LineOfSightViewModel {
 
     private let elevationService: ElevationServiceProtocol
     private var dataStore: (any PersistenceStoreProtocol)?
-    private var deviceID: UUID?
+    private var radioID: UUID?
 
     // MARK: - Computed Properties
 
@@ -418,20 +420,17 @@ final class LineOfSightViewModel {
         let dimOpacity = 0.3
 
         if let r = repeaterPoint?.coordinate {
-            let arCoords = elevationProfileAR.isEmpty ? [a, r] : elevationProfileAR.map(\.coordinate)
-            let rbCoords = elevationProfileRB.isEmpty ? [r, b] : elevationProfileRB.map(\.coordinate)
             let opacityAR = relocatingPoint == .pointA ? dimOpacity : activeOpacity
             let opacityRB = relocatingPoint == .pointB ? dimOpacity : activeOpacity
             mapLines = [
-                MapLine(id: "los-ar", coordinates: arCoords,
+                MapLine(id: "los-ar", coordinates: [a, r],
                         style: .los, opacity: relocatingPoint == .repeater ? dimOpacity : opacityAR),
-                MapLine(id: "los-rb", coordinates: rbCoords,
+                MapLine(id: "los-rb", coordinates: [r, b],
                         style: .los, opacity: relocatingPoint == .repeater ? dimOpacity : opacityRB)
             ]
         } else {
-            let coords = elevationProfile.isEmpty ? [a, b] : elevationProfile.map(\.coordinate)
             let opacity = relocatingPoint != nil ? dimOpacity : activeOpacity
-            mapLines = [MapLine(id: "los-ab", coordinates: coords, style: .los, opacity: opacity)]
+            mapLines = [MapLine(id: "los-ab", coordinates: [a, b], style: .los, opacity: opacity)]
         }
     }
 
@@ -498,7 +497,7 @@ final class LineOfSightViewModel {
     func configure(appState: AppState) {
         // Use offline-capable data store and device ID to support browsing cached data when disconnected
         self.dataStore = appState.offlineDataStore
-        self.deviceID = appState.currentDeviceID
+        self.radioID = appState.currentRadioID
 
         // Initialize frequency from connected device (stored in kHz, convert to MHz)
         if let deviceFrequencyKHz = appState.connectedDevice?.frequency {
@@ -506,18 +505,18 @@ final class LineOfSightViewModel {
         }
     }
 
-    func configure(dataStore: any PersistenceStoreProtocol, deviceID: UUID?) {
+    func configure(dataStore: any PersistenceStoreProtocol, radioID: UUID?) {
         self.dataStore = dataStore
-        self.deviceID = deviceID
+        self.radioID = radioID
     }
 
     // MARK: - Load Repeaters
 
     func loadRepeaters() async {
-        guard let dataStore, let deviceID else { return }
+        guard let dataStore, let radioID else { return }
 
         do {
-            let allContacts = try await dataStore.fetchContacts(deviceID: deviceID)
+            let allContacts = try await dataStore.fetchContacts(radioID: radioID)
             repeatersWithLocation = allContacts.filter { $0.hasLocation && $0.type == .repeater }
         } catch {
             logger.error("Failed to load repeaters: \(error.localizedDescription)")
@@ -588,8 +587,8 @@ final class LineOfSightViewModel {
 
     // MARK: - Height Adjustment
 
-    func updateAdditionalHeight(for point: PointID, meters: Int) {
-        let clampedHeight = max(0, meters)
+    func updateAdditionalHeight(for point: PointID, meters: Double) {
+        let clampedHeight = max(0.0, meters)
 
         switch point {
         case .pointA:
@@ -652,6 +651,8 @@ final class LineOfSightViewModel {
         isAnalyzing = false
         analysisStatus = .idle
         elevationProfile = []
+        elevationProfileAR = []
+        elevationProfileRB = []
     }
 
     func clearPointA() {
@@ -713,9 +714,9 @@ final class LineOfSightViewModel {
     }
 
     /// Updates repeater height above ground
-    func updateRepeaterHeight(meters: Int) {
+    func updateRepeaterHeight(meters: Double) {
         guard repeaterPoint != nil else { return }
-        repeaterPoint?.additionalHeight = max(0, meters)
+        repeaterPoint?.additionalHeight = max(0.0, meters)
     }
 
     /// Sets repeater to an off-path location
@@ -730,6 +731,10 @@ final class LineOfSightViewModel {
             isOnPath: false,
             pathFraction: 0.5  // Not used for off-path
         )
+
+        // Invalidate cached off-path profiles (coordinates changed)
+        elevationProfileAR = []
+        elevationProfileRB = []
 
         // Fetch elevation for the new coordinate
         repeaterElevationTask?.cancel()
@@ -754,14 +759,23 @@ final class LineOfSightViewModel {
     /// Analyzes the path with the current repeater position
     func analyzeWithRepeater() {
         guard let repeaterPoint,
-              pointA != nil,
-              pointB != nil else { return }
+              let pointA,
+              let pointB else { return }
 
         if repeaterPoint.isOnPath {
-            // On-path: use cached profile (existing logic)
             analyzeWithRepeaterOnPath()
+        } else if !elevationProfileAR.isEmpty, !elevationProfileRB.isEmpty {
+            // Cached profiles exist — no network fetch needed
+            applyRelayAnalysis(
+                profileAR: elevationProfileAR,
+                profileRB: elevationProfileRB,
+                pointAHeight: pointA.additionalHeight,
+                repeaterHeight: repeaterPoint.additionalHeight,
+                pointBHeight: pointB.additionalHeight,
+                frequencyMHz: frequencyMHz,
+                refractionK: refractionK
+            )
         } else {
-            // Off-path: fetch fresh profiles
             analysisTask?.cancel()
             analysisTask = Task {
                 await analyzeWithRepeaterOffPath()
@@ -785,9 +799,9 @@ final class LineOfSightViewModel {
         applyRelayAnalysis(
             profileAR: Array(elevationProfile[0...splitIndex]),
             profileRB: Array(elevationProfile[splitIndex...]),
-            pointAHeight: Double(pointA.additionalHeight),
-            repeaterHeight: Double(repeaterPoint.additionalHeight),
-            pointBHeight: Double(pointB.additionalHeight),
+            pointAHeight: pointA.additionalHeight,
+            repeaterHeight: repeaterPoint.additionalHeight,
+            pointBHeight: pointB.additionalHeight,
             frequencyMHz: frequencyMHz,
             refractionK: refractionK
         )
@@ -841,9 +855,9 @@ final class LineOfSightViewModel {
             applyRelayAnalysis(
                 profileAR: profileAR,
                 profileRB: profileRBAdjusted,
-                pointAHeight: Double(pointA.additionalHeight),
-                repeaterHeight: Double(repeaterPoint.additionalHeight),
-                pointBHeight: Double(pointB.additionalHeight),
+                pointAHeight: pointA.additionalHeight,
+                repeaterHeight: repeaterPoint.additionalHeight,
+                pointBHeight: pointB.additionalHeight,
                 frequencyMHz: frequencyMHz,
                 refractionK: refractionK
             )
@@ -948,8 +962,8 @@ final class LineOfSightViewModel {
         // Capture values for use in task
         let pointACoord = pointA.coordinate
         let pointBCoord = pointB.coordinate
-        let pointAHeight = Double(pointA.additionalHeight)
-        let pointBHeight = Double(pointB.additionalHeight)
+        let pointAHeight = pointA.additionalHeight
+        let pointBHeight = pointB.additionalHeight
         let freq = frequencyMHz
         let k = refractionK
 
@@ -1018,6 +1032,8 @@ final class LineOfSightViewModel {
         repeaterElevationTask?.cancel()
         repeaterElevationTask = nil
         elevationProfile = []
+        elevationProfileAR = []
+        elevationProfileRB = []
         profileSamples = []
         profileSamplesRB = []
         elevationFetchFailed = false
@@ -1046,8 +1062,8 @@ final class LineOfSightViewModel {
 
         // Capture values for use in task
         let profile = elevationProfile
-        let pointAHeight = Double(pointA.additionalHeight)
-        let pointBHeight = Double(pointB.additionalHeight)
+        let pointAHeight = pointA.additionalHeight
+        let pointBHeight = pointB.additionalHeight
         let freq = frequencyMHz
         let k = refractionK
 

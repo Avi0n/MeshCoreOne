@@ -133,6 +133,37 @@ struct LinkPreviewCacheTests {
         #expect(!initiallyFetching)
     }
 
+    @Test("Concurrent fetches for the same URL coalesce; every caller receives the loaded result")
+    func concurrentNetworkFetchesCoalesceToLoaded() async {
+        let fetcher = FakeMetadataFetcher(delay: .milliseconds(200), title: "Coalesced")
+        let cache = LinkPreviewCache(service: fetcher)
+        let dataStore = MockPreviewDataStore()
+        let url = URL(string: "https://example.com/coalesce")!
+
+        // manualFetch bypasses the auto-resolve preference gate (off by default in
+        // tests) and routes through the same coalescing network fetch path.
+        // Start the first fetch and wait until it is registered in-flight, so the
+        // second request deterministically arrives during the network fetch window.
+        let first = Task { await cache.manualFetch(for: url, using: dataStore) }
+        var spins = 0
+        while await !cache.isFetching(url), spins < 1000 {
+            await Task.yield()
+            spins += 1
+        }
+
+        // A follower arriving mid-flight must receive the resolved result, not a
+        // `.loading` placeholder that would strand its preview state forever.
+        let second = await cache.manualFetch(for: url, using: dataStore)
+        let firstResult = await first.value
+
+        #expect(isLoaded(firstResult, withTitle: "Coalesced"))
+        #expect(isLoaded(second, withTitle: "Coalesced"))
+
+        // Coalescing means the underlying network fetch ran exactly once.
+        let calls = await fetcher.callCount
+        #expect(calls == 1)
+    }
+
     // MARK: - Database Integration Tests
 
     @Test("Preview is persisted to database after network fetch")
@@ -188,6 +219,28 @@ struct LinkPreviewCacheTests {
         default:
             return false
         }
+    }
+}
+
+// MARK: - Fake Metadata Fetcher
+
+/// Deterministic stand-in for the LinkPresentation network fetch. Counts calls
+/// so a test can assert that concurrent same-URL requests coalesce onto one fetch.
+private actor FakeMetadataFetcher: LinkMetadataFetching {
+    private(set) var callCount = 0
+    private let delay: Duration
+    private let title: String?
+
+    init(delay: Duration, title: String?) {
+        self.delay = delay
+        self.title = title
+    }
+
+    func fetchMetadata(for url: URL) async -> LinkPreviewMetadata? {
+        callCount += 1
+        if delay > .zero { try? await Task.sleep(for: delay) }
+        guard let title else { return nil }
+        return LinkPreviewMetadata(url: url, title: title, imageData: nil, iconData: nil)
     }
 }
 
@@ -248,25 +301,23 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     // Message Operations
     func saveMessage(_ dto: MessageDTO) async throws {}
     func fetchMessage(id: UUID) async throws -> MessageDTO? { nil }
-    func fetchMessage(ackCode: UInt32) async throws -> MessageDTO? { nil }
     func fetchMessages(contactID: UUID, limit: Int, offset: Int) async throws -> [MessageDTO] { [] }
-    func fetchMessages(deviceID: UUID, channelIndex: UInt8, limit: Int, offset: Int) async throws -> [MessageDTO] { [] }
+    func fetchMessages(radioID: UUID, channelIndex: UInt8, limit: Int, offset: Int) async throws -> [MessageDTO] { [] }
     func fetchLastMessages(contactIDs: [UUID], limit: Int) throws -> [UUID: [MessageDTO]] { [:] }
-    func fetchLastChannelMessages(channels: [(deviceID: UUID, channelIndex: UInt8, id: UUID)], limit: Int) throws -> [UUID: [MessageDTO]] { [:] }
+    func fetchLastChannelMessages(channels: [(radioID: UUID, channelIndex: UInt8, id: UUID)], limit: Int) throws -> [UUID: [MessageDTO]] { [:] }
     func updateMessageStatus(id: UUID, status: MessageStatus) async throws {}
     func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {}
-    func updateMessageByAckCode(_ ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {}
     func updateMessageRetryStatus(id: UUID, status: MessageStatus, retryAttempt: Int, maxRetryAttempts: Int) async throws {}
     func updateMessageHeardRepeats(id: UUID, heardRepeats: Int) async throws {}
     func updateMessageLinkPreview(id: UUID, url: String?, title: String?, imageData: Data?, iconData: Data?, fetched: Bool) throws {}
 
     // Contact Operations
-    func fetchContacts(deviceID: UUID) async throws -> [ContactDTO] { [] }
-    func fetchConversations(deviceID: UUID) async throws -> [ContactDTO] { [] }
+    func fetchContacts(radioID: UUID) async throws -> [ContactDTO] { [] }
+    func fetchConversations(radioID: UUID) async throws -> [ContactDTO] { [] }
     func fetchContact(id: UUID) async throws -> ContactDTO? { nil }
-    func fetchContact(deviceID: UUID, publicKey: Data) async throws -> ContactDTO? { nil }
-    func fetchContact(deviceID: UUID, publicKeyPrefix: Data) async throws -> ContactDTO? { nil }
-    @discardableResult func saveContact(deviceID: UUID, from frame: ContactFrame) async throws -> UUID { UUID() }
+    func fetchContact(radioID: UUID, publicKey: Data) async throws -> ContactDTO? { nil }
+    func fetchContact(radioID: UUID, publicKeyPrefix: Data) async throws -> ContactDTO? { nil }
+    @discardableResult func saveContact(radioID: UUID, from frame: ContactFrame) async throws -> UUID { UUID() }
     func saveContact(_ dto: ContactDTO) async throws {}
     func deleteContact(id: UUID) async throws {}
     func updateContactLastMessage(contactID: UUID, date: Date?) async throws {}
@@ -282,20 +333,21 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func decrementChannelUnreadMentionCount(channelID: UUID) async throws {}
     func clearChannelUnreadMentionCount(channelID: UUID) async throws {}
     func fetchUnseenMentionIDs(contactID: UUID) async throws -> [UUID] { [] }
-    func fetchUnseenChannelMentionIDs(deviceID: UUID, channelIndex: UInt8) async throws -> [UUID] { [] }
+    func fetchUnseenChannelMentionIDs(radioID: UUID, channelIndex: UInt8) async throws -> [UUID] { [] }
     func deleteMessagesForContact(contactID: UUID) async throws {}
-    func fetchBlockedContacts(deviceID: UUID) async throws -> [ContactDTO] { [] }
+    func fetchBlockedContacts(radioID: UUID) async throws -> [ContactDTO] { [] }
 
     // Blocked Channel Senders
     func saveBlockedChannelSender(_ dto: BlockedChannelSenderDTO) async throws {}
-    func deleteBlockedChannelSender(deviceID: UUID, name: String) async throws {}
-    func fetchBlockedChannelSenders(deviceID: UUID) async throws -> [BlockedChannelSenderDTO] { [] }
+    func deleteBlockedChannelSender(radioID: UUID, name: String) async throws {}
+    func deleteChannelMessages(fromSender senderName: String, radioID: UUID) async throws {}
+    func fetchBlockedChannelSenders(radioID: UUID) async throws -> [BlockedChannelSenderDTO] { [] }
 
     // Channel Operations
-    func fetchChannels(deviceID: UUID) async throws -> [ChannelDTO] { [] }
-    func fetchChannel(deviceID: UUID, index: UInt8) async throws -> ChannelDTO? { nil }
+    func fetchChannels(radioID: UUID) async throws -> [ChannelDTO] { [] }
+    func fetchChannel(radioID: UUID, index: UInt8) async throws -> ChannelDTO? { nil }
     func fetchChannel(id: UUID) async throws -> ChannelDTO? { nil }
-    @discardableResult func saveChannel(deviceID: UUID, from info: ChannelInfo) async throws -> UUID { UUID() }
+    @discardableResult func saveChannel(radioID: UUID, from info: ChannelInfo) async throws -> UUID { UUID() }
     func saveChannel(_ dto: ChannelDTO) async throws {}
     func deleteChannel(id: UUID) async throws {}
     func updateChannelLastMessage(channelID: UUID, date: Date?) async throws {}
@@ -303,17 +355,17 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func clearChannelUnreadCount(channelID: UUID) async throws {}
 
     // Saved Trace Paths
-    func fetchSavedTracePaths(deviceID: UUID) async throws -> [SavedTracePathDTO] { [] }
+    func fetchSavedTracePaths(radioID: UUID) async throws -> [SavedTracePathDTO] { [] }
     func fetchSavedTracePath(id: UUID) async throws -> SavedTracePathDTO? { nil }
-    func createSavedTracePath(deviceID: UUID, name: String, pathBytes: Data, hashSize: Int, initialRun: TracePathRunDTO?) async throws -> SavedTracePathDTO {
-        SavedTracePathDTO(id: UUID(), deviceID: deviceID, name: name, pathBytes: pathBytes, hashSize: hashSize, createdDate: Date(), runs: [])
+    func createSavedTracePath(radioID: UUID, name: String, pathBytes: Data, hashSize: Int, initialRun: TracePathRunDTO?) async throws -> SavedTracePathDTO {
+        SavedTracePathDTO(id: UUID(), radioID: radioID, name: name, pathBytes: pathBytes, hashSize: hashSize, createdDate: Date(), runs: [])
     }
     func updateSavedTracePathName(id: UUID, name: String) async throws {}
     func deleteSavedTracePath(id: UUID) async throws {}
     func appendTracePathRun(pathID: UUID, run: TracePathRunDTO) async throws {}
 
     // Heard Repeats
-    func findSentChannelMessage(deviceID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String, withinSeconds: Int) async throws -> MessageDTO? { nil }
+    func findSentChannelMessage(radioID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String, withinSeconds: Int) async throws -> MessageDTO? { nil }
     func saveMessageRepeat(_ dto: MessageRepeatDTO) async throws {}
     func fetchMessageRepeats(messageID: UUID) async throws -> [MessageRepeatDTO] { [] }
     func messageRepeatExists(rxLogEntryID: UUID) async throws -> Bool { false }
@@ -330,29 +382,30 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func clearDebugLogEntries() async throws {}
 
     // Contact Public Keys
-    func fetchContactPublicKeysByPrefix(deviceID: UUID) async throws -> [UInt8: [Data]] { [:] }
+    func fetchContactPublicKeysByPrefix(radioID: UUID) async throws -> [UInt8: [Data]] { [:] }
 
     // RxLogEntry Lookup
-    func findRxLogEntry(channelIndex: UInt8?, senderTimestamp: UInt32, withinSeconds: Double, contactName: String?) async throws -> RxLogEntryDTO? { nil }
+    func findRxLogEntry(channelIndex: UInt8?, senderTimestamp: UInt32) async throws -> RxLogEntryDTO? { nil }
+    func findRxLogEntryBySenderPrefix(senderPrefixByte: UInt8, receivedSince: Date) async throws -> RxLogEntryDTO? { nil }
 
     // Room Message Operations
     func saveRoomMessage(_ dto: RoomMessageDTO) async throws {}
     func fetchRoomMessage(id: UUID) async throws -> RoomMessageDTO? { nil }
     func fetchRoomMessages(sessionID: UUID, limit: Int?, offset: Int?) async throws -> [RoomMessageDTO] { [] }
-    func isDuplicateMessage(deduplicationKey: String) async throws -> Bool { false }
+    func isDuplicateMessage(deduplicationKey: String, radioID: UUID) async throws -> Bool { false }
     func isDuplicateRoomMessage(sessionID: UUID, deduplicationKey: String) async throws -> Bool { false }
     func updateRoomMessageStatus(id: UUID, status: MessageStatus, ackCode: UInt32?, roundTripTime: UInt32?) async throws {}
     func updateRoomMessageRetryStatus(id: UUID, status: MessageStatus, retryAttempt: Int, maxRetryAttempts: Int) async throws {}
     func updateRoomActivity(_ sessionID: UUID, syncTimestamp: UInt32?) async throws {}
 
     // Discovered Nodes
-    func upsertDiscoveredNode(deviceID: UUID, from frame: ContactFrame) async throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
+    func upsertDiscoveredNode(radioID: UUID, from frame: ContactFrame) async throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
         fatalError("Not implemented")
     }
-    func fetchDiscoveredNodes(deviceID: UUID) async throws -> [DiscoveredNodeDTO] { [] }
+    func fetchDiscoveredNodes(radioID: UUID) async throws -> [DiscoveredNodeDTO] { [] }
     func deleteDiscoveredNode(id: UUID) async throws {}
-    func clearDiscoveredNodes(deviceID: UUID) async throws {}
-    func fetchContactPublicKeys(deviceID: UUID) async throws -> Set<Data> { Set() }
+    func clearDiscoveredNodes(radioID: UUID) async throws {}
+    func fetchContactPublicKeys(radioID: UUID) async throws -> Set<Data> { Set() }
 
     // Reactions
     func fetchReactions(for messageID: UUID, limit: Int) async throws -> [ReactionDTO] { [] }
@@ -360,10 +413,10 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func reactionExists(messageID: UUID, senderName: String, emoji: String) async throws -> Bool { false }
     func updateMessageReactionSummary(messageID: UUID, summary: String?) async throws {}
     func deleteReactionsForMessage(messageID: UUID) async throws {}
-    func findChannelMessageForReaction(deviceID: UUID, channelIndex: UInt8, parsedReaction: ParsedReaction, localNodeName: String?, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> MessageDTO? { nil }
-    func fetchChannelMessageCandidates(deviceID: UUID, channelIndex: UInt8, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> [MessageDTO] { [] }
-    func fetchDMMessageCandidates(deviceID: UUID, contactID: UUID, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> [MessageDTO] { [] }
-    func findDMMessageForReaction(deviceID: UUID, contactID: UUID, messageHash: String, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> MessageDTO? { nil }
+    func findChannelMessageForReaction(radioID: UUID, channelIndex: UInt8, parsedReaction: ParsedReaction, localNodeName: String?, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> MessageDTO? { nil }
+    func fetchChannelMessageCandidates(radioID: UUID, channelIndex: UInt8, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> [MessageDTO] { [] }
+    func fetchDMMessageCandidates(radioID: UUID, contactID: UUID, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> [MessageDTO] { [] }
+    func findDMMessageForReaction(radioID: UUID, contactID: UUID, messageHash: String, timestampWindow: ClosedRange<UInt32>, limit: Int) async throws -> MessageDTO? { nil }
 
     // Notification Level
     func setChannelNotificationLevel(_ channelID: UUID, level: NotificationLevel) async throws {}
@@ -372,15 +425,25 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func markRoomSessionConnected(_ sessionID: UUID) async throws -> Bool { false }
 
     // Channel Message Deletion
-    func deleteMessagesForChannel(deviceID: UUID, channelIndex: UInt8) async throws {}
+    func deleteMessagesForChannel(radioID: UUID, channelIndex: UInt8) async throws {}
 
     // Node Status Snapshots
-    // swiftlint:disable:next line_length
+    // swiftlint:disable:next line_length function_parameter_count
     func saveNodeStatusSnapshot(nodePublicKey: Data, batteryMillivolts: UInt16?, lastSNR: Double?, lastRSSI: Int16?, noiseFloor: Int16?, uptimeSeconds: UInt32?, rxAirtimeSeconds: UInt32?, packetsSent: UInt32?, packetsReceived: UInt32?, receiveErrors: UInt32?, postedCount: UInt16?, postPushCount: UInt16?) async throws -> UUID { UUID() }
     func fetchLatestNodeStatusSnapshot(nodePublicKey: Data) async throws -> NodeStatusSnapshotDTO? { nil }
     func fetchNodeStatusSnapshots(nodePublicKey: Data, since: Date?) async throws -> [NodeStatusSnapshotDTO] { [] }
     func fetchPreviousNodeStatusSnapshot(nodePublicKey: Data, before: Date) async throws -> NodeStatusSnapshotDTO? { nil }
     func updateSnapshotNeighbors(id: UUID, neighbors: [NeighborSnapshotEntry]) async throws {}
     func updateSnapshotTelemetry(id: UUID, telemetry: [TelemetrySnapshotEntry]) async throws {}
+    func recordNodeStatusSnapshot(nodePublicKey: Data, status: NodeStatusMetrics?, telemetry: [TelemetrySnapshotEntry]?, neighbors: [NeighborSnapshotEntry]?) async throws -> UUID { UUID() }
+    func saveTelemetryOnlySnapshot(nodePublicKey: Data, telemetryEntries: [TelemetrySnapshotEntry]) async throws -> UUID { UUID() }
     func deleteOldNodeStatusSnapshots(olderThan date: Date) async throws {}
+
+    // Pending Sends
+    func upsertPendingSend(_ dto: PendingSendDTO) async throws {}
+    func insertPendingSendAssigningSequence(_ dto: PendingSendDTO) async throws -> Int { 0 }
+    func fetchPendingSends(radioID: UUID) async throws -> [PendingSendDTO] { [] }
+    func deletePendingSend(id: UUID) async throws {}
+    func deletePendingSendsForMessage(messageID: UUID) async throws {}
+    func hasPendingSend(messageID: UUID) async throws -> Bool { false }
 }

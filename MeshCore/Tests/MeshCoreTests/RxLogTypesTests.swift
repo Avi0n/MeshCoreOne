@@ -78,6 +78,7 @@ struct RxLogTypesTests {
             routeType: .flood,
             payloadType: .groupText,
             payloadVersion: 1,
+            payloadTypeBits: 5,
             transportCode: nil,
             pathLength: 2,
             pathNodes: [0x3A, 0x7F],
@@ -101,12 +102,14 @@ struct RxLogTypesTests {
         let data1 = ParsedRxLogData(
             snr: nil, rssi: nil, rawPayload: Data(),
             routeType: .flood, payloadType: .groupText, payloadVersion: 0,
+            payloadTypeBits: 5,
             transportCode: nil, pathLength: 0, pathNodes: [],
             packetPayload: payload
         )
         let data2 = ParsedRxLogData(
             snr: 5.0, rssi: -90, rawPayload: Data([0xFF]),
             routeType: .direct, payloadType: .ack, payloadVersion: 2,
+            payloadTypeBits: 3,
             transportCode: Data([0x01, 0x02, 0x03, 0x04]), pathLength: 3, pathNodes: [0x11, 0x22, 0x33],
             packetPayload: payload  // Same payload
         )

@@ -8,10 +8,7 @@ struct ChatMessagesTableView: View {
     let deviceName: String
     let configuration: MessageBubbleConfiguration
     let recentEmojisStore: RecentEmojisStore
-    let showInlineImages: Bool
-    let autoPlayGIFs: Bool
-    let showIncomingPath: Bool
-    let showIncomingHopCount: Bool
+    let envInputs: EnvInputs
 
     @Binding var isAtBottom: Bool
     @Binding var unreadCount: Int
@@ -30,6 +27,9 @@ struct ChatMessagesTableView: View {
     let onRetryMessage: (MessageDTO) -> Void
 
     @State private var hasDismissedDividerFAB = false
+    @Environment(\.appTheme) private var theme
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     private var showDividerFAB: Bool {
         newMessagesDividerMessageID != nil && !isDividerVisible && !hasDismissedDividerFAB
@@ -37,44 +37,78 @@ struct ChatMessagesTableView: View {
 
     var body: some View {
         let mentionIDSet = Set(unseenMentionIDs)
+        let factory = ChatCellContentFactory(
+            contactName: contactName,
+            deviceName: deviceName,
+            configuration: configuration,
+            theme: theme,
+            resolver: BubbleResolver(viewModel: viewModel),
+            actions: BubbleActions(
+                onRetryMessage: onRetryMessage,
+                onReaction: { emoji, message in
+                    recentEmojisStore.recordUsage(emoji)
+                    Task { await viewModel.sendReaction(emoji: emoji, to: message) }
+                },
+                onLongPress: { message in selectedMessageForActions = message },
+                onImageTap: { message in
+                    if let data = viewModel.imageData(for: message.id) {
+                        imageViewerData = ImageViewerData(
+                            imageData: data,
+                            isGIF: viewModel.isGIFImage(for: message.id)
+                        )
+                    }
+                },
+                onRetryImageFetch: { messageID in
+                    Task { await viewModel.retryImageFetch(for: messageID) }
+                },
+                onRequestPreviewFetch: { messageID in
+                    if viewModel.shouldRequestImageFetch(for: messageID) {
+                        viewModel.requestImageFetch(for: messageID)
+                    } else {
+                        viewModel.requestPreviewFetch(for: messageID)
+                    }
+                },
+                onManualPreviewFetch: { messageID in
+                    Task { await viewModel.manualFetchPreview(for: messageID) }
+                },
+                onMapPreviewTap: { coordinate in
+                    viewModel.navigateToMap(coordinate)
+                }
+            )
+        )
         ChatTableView(
-            items: viewModel.displayItems,
-            cellContent: { item in
-                MessageBubbleView(
-                    item: item,
-                    contactName: contactName,
-                    deviceName: deviceName,
-                    configuration: configuration,
-                    viewModel: viewModel,
-                    recentEmojisStore: recentEmojisStore,
-                    showInlineImages: showInlineImages,
-                    autoPlayGIFs: autoPlayGIFs,
-                    showIncomingPath: showIncomingPath,
-                    showIncomingHopCount: showIncomingHopCount,
-                    selectedMessageForActions: $selectedMessageForActions,
-                    imageViewerData: $imageViewerData,
-                    onRetryMessage: onRetryMessage
-                )
-            },
+            items: viewModel.items,
+            cellContent: factory.makeContent(for:),
+            contentBackground: theme.surfaces?.canvas,
+            themeID: theme.id,
+            appearanceToken: AppearanceToken.make(colorScheme: colorScheme, contrast: colorSchemeContrast),
             isAtBottom: $isAtBottom,
             unreadCount: $unreadCount,
             scrollToBottomRequest: $scrollToBottomRequest,
             scrollToMentionRequest: $scrollToMentionRequest,
             isUnseenMention: { item in
-                item.containsSelfMention && !item.mentionSeen && mentionIDSet.contains(item.id)
+                item.envelope.containsSelfMention
+                    && !item.envelope.mentionSeen
+                    && mentionIDSet.contains(item.id)
             },
             onMentionBecameVisible: { id in
                 Task {
                     await onMentionSeen(id)
                 }
             },
+            onSecondaryClick: { item in
+                if let message = viewModel.message(for: item) {
+                    selectedMessageForActions = message
+                }
+            },
             mentionTargetID: scrollToTargetID,
             scrollToDividerRequest: $scrollToDividerRequest,
             dividerItemID: newMessagesDividerMessageID,
             isDividerVisible: $isDividerVisible,
-            onNearTop: {
-                Task {
+            onNearTop: { release in
+                Task { @MainActor in
                     await viewModel.loadOlderMessages()
+                    release()
                 }
             },
             isLoadingOlderMessages: viewModel.isLoadingOlder
@@ -112,6 +146,9 @@ struct ChatMessagesTableView: View {
         }
         .onChange(of: newMessagesDividerMessageID) { _, _ in
             hasDismissedDividerFAB = false
+        }
+        .onChange(of: envInputs) { _, new in
+            viewModel.applyEnvInputs(new)
         }
     }
 }

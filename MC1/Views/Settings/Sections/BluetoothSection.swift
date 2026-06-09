@@ -4,13 +4,14 @@ import MC1Services
 /// Bluetooth PIN configuration
 struct BluetoothSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @State private var pinType: BluetoothPinType = .default
     @State private var customPin: String = ""
     @State private var showingPinEntry = false
     @State private var showingChangePinEntry = false
     @State private var showingRemoveConfirmation = false
     @State private var isChangingPin = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var hasInitialized = false
     @State private var isPinVisible = false
 
@@ -86,6 +87,7 @@ struct BluetoothSection: View {
 
             if appState.connectionState == .ready,
                let deviceID = appState.connectedDevice?.id,
+               appState.connectionManager.supportsDeviceRename,
                appState.connectionManager.hasAccessory(for: deviceID) {
                 Button {
                     renameDevice()
@@ -108,6 +110,7 @@ struct BluetoothSection: View {
                 Text(L10n.Settings.Bluetooth.defaultPinFooter)
             }
         }
+        .themedRowBackground(theme)
         .onAppear {
             isPinVisible = false
             pinType = currentPinType
@@ -157,20 +160,20 @@ struct BluetoothSection: View {
         } message: {
             Text(L10n.Settings.Bluetooth.Alert.ChangePinType.message)
         }
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
     }
 
     private func handlePinTypeChange(from oldValue: BluetoothPinType, to newValue: BluetoothPinType) {
         // Skip if picker is being synced to device's current state (handles initialization race condition)
         guard newValue != currentPinType else { return }
 
-        // If changing TO custom, show PIN entry
+        // If changing to custom, show PIN entry
         if newValue == .custom && oldValue != .custom {
             showingPinEntry = true
             return
         }
 
-        // If changing FROM custom to default, show confirmation
+        // If changing from custom to default, show confirmation
         if oldValue == .custom && newValue == .default {
             pendingPinType = newValue
             showingRemoveConfirmation = true
@@ -201,7 +204,7 @@ struct BluetoothSection: View {
                     // Expected - device reboots before BLE write callback arrives
                 }
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
                 // Revert
                 hasInitialized = false
                 pinType = currentPinType
@@ -215,7 +218,7 @@ struct BluetoothSection: View {
 
     private func setCustomPin() {
         guard let pin = UInt32(customPin), pin >= 100000, pin <= 999999 else {
-            showError = L10n.Settings.Bluetooth.Error.invalidPin
+            errorMessage = L10n.Settings.Bluetooth.Error.invalidPin
             customPin = ""
             // Revert
             hasInitialized = false
@@ -244,7 +247,7 @@ struct BluetoothSection: View {
                     // Expected - device reboots before BLE write callback arrives
                 }
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
                 // Revert
                 hasInitialized = false
                 pinType = currentPinType

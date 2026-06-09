@@ -6,10 +6,15 @@ import SwiftData
 /// SwiftData model for persisted RX log packets.
 @Model
 public final class RxLogEntry {
+    #Index<RxLogEntry>(
+        [\.channelIndex, \.senderTimestamp]
+    )
+
     @Attribute(.unique)
     public var id: UUID
 
-    public var deviceID: UUID
+    @Attribute(originalName: "deviceID")
+    public var radioID: UUID
 
     public var receivedAt: Date
 
@@ -40,13 +45,23 @@ public final class RxLogEntry {
     /// Only available for successfully decrypted channel messages.
     public var senderTimestamp: Int?
 
+    /// Resolved flood region the sender transmitted under, derived from
+    /// `transport_codes[0]` at receive time. Nil when no known region matches.
+    /// Local-only: not part of any backup envelope.
+    public var regionScope: String?
+
+    /// Raw 4-bit payload-type nibble from the wire header. Persisted so the
+    /// region resolver can replay the exact firmware HMAC input on back-fill,
+    /// even for header values that map to `PayloadType.unknown`.
+    public var payloadTypeBits: Int = 0
+
     // Privacy: Never persisted — decrypted on demand
     @Transient
     public var decodedText: String?
 
     public init(
         id: UUID = UUID(),
-        deviceID: UUID,
+        radioID: UUID,
         receivedAt: Date = Date(),
         snr: Double? = nil,
         rssi: Int? = nil,
@@ -64,10 +79,12 @@ public final class RxLogEntry {
         decryptStatus: Int = DecryptStatus.notApplicable.rawValue,
         fromContactName: String? = nil,
         toContactName: String? = nil,
-        senderTimestamp: Int? = nil
+        senderTimestamp: Int? = nil,
+        regionScope: String? = nil,
+        payloadTypeBits: Int = 0
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.receivedAt = receivedAt
         self.snr = snr
         self.rssi = rssi
@@ -86,13 +103,15 @@ public final class RxLogEntry {
         self.fromContactName = fromContactName
         self.toContactName = toContactName
         self.senderTimestamp = senderTimestamp
+        self.regionScope = regionScope
+        self.payloadTypeBits = payloadTypeBits
     }
 }
 
 /// Sendable DTO for cross-actor transfer of RxLogEntry data.
 public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     public let id: UUID
-    public let deviceID: UUID
+    public var radioID: UUID
     public let receivedAt: Date
     public let snr: Double?
     public let rssi: Int?
@@ -116,13 +135,20 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     /// Mutable to allow updating during re-decryption of older entries.
     public var senderTimestamp: UInt32?
 
+    /// Resolved flood region the sender transmitted under. Local-only.
+    public let regionScope: String?
+
+    /// Raw 4-bit payload-type nibble from the wire header (matches firmware
+    /// HMAC input). Persisted alongside `regionScope` for back-fill replay.
+    public let payloadTypeBits: UInt8
+
     // Transient - set by UI layer after decryption
     public var decodedText: String?
 
     /// Initialize from SwiftData model.
     public init(from model: RxLogEntry) {
         self.id = model.id
-        self.deviceID = model.deviceID
+        self.radioID = model.radioID
         self.receivedAt = model.receivedAt
         self.snr = model.snr
         self.rssi = model.rssi
@@ -141,13 +167,15 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
         self.fromContactName = model.fromContactName
         self.toContactName = model.toContactName
         self.senderTimestamp = model.senderTimestamp.map { UInt32($0) }
+        self.regionScope = model.regionScope
+        self.payloadTypeBits = UInt8(model.payloadTypeBits & 0x0F)
         self.decodedText = model.decodedText
     }
 
     /// Initialize from ParsedRxLogData (for new entries).
     public init(
         id: UUID = UUID(),
-        deviceID: UUID,
+        radioID: UUID,
         receivedAt: Date = Date(),
         from parsed: ParsedRxLogData,
         channelIndex: UInt8? = nil,
@@ -156,10 +184,11 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
         fromContactName: String? = nil,
         toContactName: String? = nil,
         senderTimestamp: UInt32? = nil,
+        regionScope: String? = nil,
         decodedText: String? = nil
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.receivedAt = receivedAt
         self.snr = parsed.snr
         self.rssi = parsed.rssi
@@ -178,6 +207,8 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
         self.fromContactName = fromContactName
         self.toContactName = toContactName
         self.senderTimestamp = senderTimestamp
+        self.regionScope = regionScope
+        self.payloadTypeBits = parsed.payloadTypeBits
         self.decodedText = decodedText
     }
 
@@ -209,17 +240,17 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     /// Sender public key prefix for direct text messages.
     public var senderPrefix: Data? {
         guard !isFlood, payloadType == .textMessage else { return nil }
-        let hs = pathHashSize
-        guard packetPayload.count >= hs * 2 else { return nil }
-        return Data(packetPayload[hs..<hs * 2])
+        let dmPrefixSize = 1
+        guard packetPayload.count >= dmPrefixSize * 2 else { return nil }
+        return Data(packetPayload[dmPrefixSize..<dmPrefixSize * 2])
     }
 
     /// Recipient public key prefix for direct text messages.
     public var recipientPrefix: Data? {
         guard !isFlood, payloadType == .textMessage else { return nil }
-        let hs = pathHashSize
-        guard packetPayload.count >= hs * 2 else { return nil }
-        return Data(packetPayload[0..<hs])
+        let dmPrefixSize = 1
+        guard packetPayload.count >= dmPrefixSize * 2 else { return nil }
+        return Data(packetPayload[0..<dmPrefixSize])
     }
 
     /// Whether this is a flood-type route.

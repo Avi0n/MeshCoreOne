@@ -15,133 +15,105 @@ struct NodeSnapshotServiceTests {
         return (service, store)
     }
 
-    @Test("Save snapshot returns ID on first save")
-    func saveFirstSnapshot() async throws {
-        let (service, _) = try await createTestService()
-
-        let id = await service.saveStatusSnapshot(
-            nodePublicKey: testPublicKey,
-            batteryMillivolts: 3850,
+    private func metrics(battery: UInt16, uptime: UInt32?) -> NodeStatusMetrics {
+        NodeStatusMetrics(
+            batteryMillivolts: battery,
             lastSNR: 8.5,
             lastRSSI: -87,
             noiseFloor: -120,
-            uptimeSeconds: 3600,
+            uptimeSeconds: uptime,
             rxAirtimeSeconds: 100,
             packetsSent: 500,
             packetsReceived: 1000,
             receiveErrors: nil
         )
+    }
+
+    @Test("Record returns an ID on first capture")
+    func recordFirstSnapshot() async throws {
+        let (service, _) = try await createTestService()
+
+        let id = await service.recordSnapshot(
+            nodePublicKey: testPublicKey,
+            status: metrics(battery: 3850, uptime: 3600)
+        )
 
         #expect(id != nil)
     }
 
-    @Test("Save snapshot is throttled within 15 minutes")
-    func throttledSnapshot() async throws {
+    @Test("Second status within the window enriches the same row, not a new one")
+    func inWindowStatusKeepsSingleRow() async throws {
         let (service, _) = try await createTestService()
 
-        let first = await service.saveStatusSnapshot(
+        let first = await service.recordSnapshot(
             nodePublicKey: testPublicKey,
-            batteryMillivolts: 3850,
-            lastSNR: 8.5,
-            lastRSSI: -87,
-            noiseFloor: -120,
-            uptimeSeconds: nil,
-            rxAirtimeSeconds: nil,
-            packetsSent: nil,
-            packetsReceived: nil,
-            receiveErrors: nil
+            status: metrics(battery: 3850, uptime: 3600)
         )
         #expect(first != nil)
 
-        let second = await service.saveStatusSnapshot(
+        let second = await service.recordSnapshot(
             nodePublicKey: testPublicKey,
-            batteryMillivolts: 3900,
-            lastSNR: 9.0,
-            lastRSSI: -85,
-            noiseFloor: -118,
-            uptimeSeconds: nil,
-            rxAirtimeSeconds: nil,
-            packetsSent: nil,
-            packetsReceived: nil,
-            receiveErrors: nil
+            status: metrics(battery: 3900, uptime: 7200)
         )
-        #expect(second == nil, "Second snapshot should be throttled")
+        #expect(second == first, "An in-window status capture returns the existing row's ID")
+
+        let snapshots = await service.fetchSnapshots(for: testPublicKey)
+        #expect(snapshots.count == 1, "No second snapshot is created within the window")
+        #expect(snapshots[0].batteryMillivolts == 3850, "A row already carrying status is not overwritten")
+        #expect(snapshots[0].uptimeSeconds == 3600)
     }
 
-    @Test("Different nodes are not throttled against each other")
-    func differentNodesNotThrottled() async throws {
+    @Test("Different nodes get independent snapshots")
+    func differentNodesIndependent() async throws {
         let (service, _) = try await createTestService()
         let otherKey = Data(repeating: 0x99, count: 32)
 
-        let first = await service.saveStatusSnapshot(
+        let first = await service.recordSnapshot(
             nodePublicKey: testPublicKey,
-            batteryMillivolts: 3850,
-            lastSNR: nil, lastRSSI: nil, noiseFloor: nil,
-            uptimeSeconds: nil, rxAirtimeSeconds: nil,
-            packetsSent: nil, packetsReceived: nil,
-            receiveErrors: nil
+            status: metrics(battery: 3850, uptime: 3600)
         )
-        #expect(first != nil)
-
-        let second = await service.saveStatusSnapshot(
+        let second = await service.recordSnapshot(
             nodePublicKey: otherKey,
-            batteryMillivolts: 3700,
-            lastSNR: nil, lastRSSI: nil, noiseFloor: nil,
-            uptimeSeconds: nil, rxAirtimeSeconds: nil,
-            packetsSent: nil, packetsReceived: nil,
-            receiveErrors: nil
+            status: metrics(battery: 3700, uptime: 1800)
         )
-        #expect(second != nil, "Different node should not be throttled")
+
+        #expect(first != nil)
+        #expect(second != nil)
+        #expect(first != second, "Different nodes are not throttled against each other")
     }
 
-    @Test("Enrich snapshot with neighbors")
-    func enrichWithNeighbors() async throws {
+    @Test("Neighbors enrich the in-window snapshot")
+    func neighborsEnrichInWindow() async throws {
         let (service, store) = try await createTestService()
 
-        let id = await service.saveStatusSnapshot(
+        let statusID = await service.recordSnapshot(
             nodePublicKey: testPublicKey,
-            batteryMillivolts: 3850,
-            lastSNR: nil, lastRSSI: nil, noiseFloor: nil,
-            uptimeSeconds: nil, rxAirtimeSeconds: nil,
-            packetsSent: nil, packetsReceived: nil,
-            receiveErrors: nil
+            status: metrics(battery: 3850, uptime: 3600)
         )
-        guard let snapshotID = id else {
-            Issue.record("Expected snapshot ID")
-            return
-        }
-
         let neighbors = [
             NeighborSnapshotEntry(publicKeyPrefix: Data([0x01, 0x02, 0x03, 0x04]), snr: 5.5, secondsAgo: 30)
         ]
-        await service.enrichWithNeighbors(neighbors, snapshotID: snapshotID)
+        let neighborID = await service.recordSnapshot(nodePublicKey: testPublicKey, neighbors: neighbors)
+        #expect(neighborID == statusID, "Neighbors land on the existing in-window row")
 
         let latest = try await store.fetchLatestNodeStatusSnapshot(nodePublicKey: testPublicKey)
         #expect(latest?.neighborSnapshots?.count == 1)
         #expect(latest?.neighborSnapshots?.first?.snr == 5.5)
     }
 
-    @Test("Enrich snapshot with telemetry")
-    func enrichWithTelemetry() async throws {
+    @Test("Telemetry enriches the in-window snapshot")
+    func telemetryEnrichInWindow() async throws {
         let (service, store) = try await createTestService()
 
-        let id = await service.saveStatusSnapshot(
+        let statusID = await service.recordSnapshot(
             nodePublicKey: testPublicKey,
-            batteryMillivolts: 3850,
-            lastSNR: nil, lastRSSI: nil, noiseFloor: nil,
-            uptimeSeconds: nil, rxAirtimeSeconds: nil,
-            packetsSent: nil, packetsReceived: nil,
-            receiveErrors: nil
+            status: metrics(battery: 3850, uptime: 3600)
         )
-        guard let snapshotID = id else {
-            Issue.record("Expected snapshot ID")
-            return
-        }
-
         let telemetry = [
             TelemetrySnapshotEntry(channel: 0, type: "temperature", value: 32.5)
         ]
-        await service.enrichWithTelemetry(telemetry, snapshotID: snapshotID)
+        let telemetryID = await service.recordSnapshot(nodePublicKey: testPublicKey, telemetry: telemetry)
+        #expect(telemetryID == statusID, "Telemetry lands on the existing in-window row")
 
         let latest = try await store.fetchLatestNodeStatusSnapshot(nodePublicKey: testPublicKey)
         #expect(latest?.telemetryEntries?.count == 1)
@@ -301,7 +273,7 @@ struct NodeSnapshotServiceTests {
     func enrichmentRoundTrip() async throws {
         let (service, store) = try await createTestService()
 
-        // Save two snapshots directly to the store (bypass throttle)
+        // Save two snapshots directly to the store (bypass the window)
         let t1 = Date.now.addingTimeInterval(-20)
         let t2 = Date.now.addingTimeInterval(-10)
         let id1 = try await store.saveNodeStatusSnapshot(
@@ -323,54 +295,45 @@ struct NodeSnapshotServiceTests {
             receiveErrors: nil
         )
 
-        // Enrich both with telemetry
+        // Enrich both directly through the store, targeting specific rows
         let telemetry1 = [TelemetrySnapshotEntry(channel: 0, type: "temperature", value: 25.0)]
         let telemetry2 = [TelemetrySnapshotEntry(channel: 0, type: "temperature", value: 30.0)]
-        await service.enrichWithTelemetry(telemetry1, snapshotID: id1)
-        await service.enrichWithTelemetry(telemetry2, snapshotID: id2)
+        try await store.updateSnapshotTelemetry(id: id1, telemetry: telemetry1)
+        try await store.updateSnapshotTelemetry(id: id2, telemetry: telemetry2)
 
-        // Enrich both with neighbors
         let neighbors1 = [NeighborSnapshotEntry(publicKeyPrefix: Data([0x01, 0x02, 0x03, 0x04]), snr: 5.0, secondsAgo: 60)]
         let neighbors2 = [NeighborSnapshotEntry(publicKeyPrefix: Data([0x05, 0x06, 0x07, 0x08]), snr: 9.0, secondsAgo: 10)]
-        await service.enrichWithNeighbors(neighbors1, snapshotID: id1)
-        await service.enrichWithNeighbors(neighbors2, snapshotID: id2)
+        try await store.updateSnapshotNeighbors(id: id1, neighbors: neighbors1)
+        try await store.updateSnapshotNeighbors(id: id2, neighbors: neighbors2)
 
         // Fetch all via the method used by history views
         let snapshots = await service.fetchSnapshots(for: testPublicKey)
         #expect(snapshots.count == 2)
 
-        // Verify enrichment data persisted on snapshot 1
         #expect(snapshots[0].telemetryEntries?.count == 1, "Snapshot 1 telemetry should persist")
         #expect(snapshots[0].telemetryEntries?.first?.value == 25.0)
         #expect(snapshots[0].neighborSnapshots?.count == 1, "Snapshot 1 neighbors should persist")
         #expect(snapshots[0].neighborSnapshots?.first?.snr == 5.0)
 
-        // Verify enrichment data persisted on snapshot 2
         #expect(snapshots[1].telemetryEntries?.count == 1, "Snapshot 2 telemetry should persist")
         #expect(snapshots[1].telemetryEntries?.first?.value == 30.0)
         #expect(snapshots[1].neighborSnapshots?.count == 1, "Snapshot 2 neighbors should persist")
         #expect(snapshots[1].neighborSnapshots?.first?.snr == 9.0)
     }
 
-    @Test("Enrichment via service.saveStatusSnapshot -> enrich -> fetchSnapshots round-trip")
-    func enrichmentViaServiceRoundTrip() async throws {
+    @Test("Status + telemetry + neighbors in one window collapse onto a single row")
+    func combinedCaptureSingleRow() async throws {
         let (service, _) = try await createTestService()
 
-        // Save first snapshot through the service (not throttled)
-        let id1 = await service.saveStatusSnapshot(
+        let statusID = await service.recordSnapshot(
             nodePublicKey: testPublicKey,
-            batteryMillivolts: 3700,
-            lastSNR: 7.0, lastRSSI: -90, noiseFloor: -120,
-            uptimeSeconds: nil, rxAirtimeSeconds: nil,
-            packetsSent: nil, packetsReceived: nil,
-            receiveErrors: nil
+            status: metrics(battery: 3700, uptime: 3600)
         )
-        guard let snapshotID = id1 else {
-            Issue.record("First snapshot should not be throttled")
+        guard let snapshotID = statusID else {
+            Issue.record("First capture should return an ID")
             return
         }
 
-        // Enrich with telemetry and neighbors
         let telemetry = [
             TelemetrySnapshotEntry(channel: 0, type: "temperature", value: 28.5),
             TelemetrySnapshotEntry(channel: 1, type: "humidity", value: 65.0),
@@ -378,13 +341,87 @@ struct NodeSnapshotServiceTests {
         let neighbors = [
             NeighborSnapshotEntry(publicKeyPrefix: Data([0xAA, 0xBB, 0xCC, 0xDD]), snr: 6.5, secondsAgo: 45),
         ]
-        await service.enrichWithTelemetry(telemetry, snapshotID: snapshotID)
-        await service.enrichWithNeighbors(neighbors, snapshotID: snapshotID)
+        let enrichedID = await service.recordSnapshot(
+            nodePublicKey: testPublicKey,
+            telemetry: telemetry,
+            neighbors: neighbors
+        )
+        #expect(enrichedID == snapshotID)
 
-        // Fetch via fetchSnapshots (history view path)
         let snapshots = await service.fetchSnapshots(for: testPublicKey)
         #expect(snapshots.count == 1)
         #expect(snapshots[0].telemetryEntries?.count == 2, "Both telemetry entries should persist")
         #expect(snapshots[0].neighborSnapshots?.count == 1, "Neighbor entry should persist")
+    }
+
+    // MARK: - Concurrent and out-of-order capture coverage
+
+    @Test("Telemetry-first then status-within-window backfills status onto the single snapshot")
+    func statusEnrichesTelemetryOnlySnapshot() async throws {
+        let (service, _) = try await createTestService()
+
+        // Telemetry expanded before status: a telemetry-only snapshot is created.
+        let telemetry = [TelemetrySnapshotEntry(channel: 1, type: "temperature", value: 21.5)]
+        let telemetryID = await service.recordSnapshot(nodePublicKey: testPublicKey, telemetry: telemetry)
+        #expect(telemetryID != nil, "Telemetry-only capture should create a snapshot")
+
+        // Status applied within the window backfills the telemetry-only row
+        // rather than being dropped or creating a duplicate.
+        let statusMetrics = NodeStatusMetrics(
+            batteryMillivolts: 3900,
+            lastSNR: 9.0, lastRSSI: -84, noiseFloor: -119,
+            uptimeSeconds: 7200, rxAirtimeSeconds: 150,
+            packetsSent: 600, packetsReceived: 1200,
+            receiveErrors: 3
+        )
+        let statusID = await service.recordSnapshot(nodePublicKey: testPublicKey, status: statusMetrics)
+        #expect(statusID == telemetryID, "Status enriches the telemetry-only row, no new snapshot")
+
+        let snapshots = await service.fetchSnapshots(for: testPublicKey)
+        #expect(snapshots.count == 1, "Should remain a single snapshot carrying both data sets")
+        #expect(snapshots[0].telemetryEntries?.first?.value == 21.5, "Telemetry should be preserved")
+        #expect(snapshots[0].uptimeSeconds == 7200, "Status counters should be backfilled")
+        #expect(snapshots[0].batteryMillivolts == 3900)
+        #expect(snapshots[0].receiveErrors == 3)
+    }
+
+    @Test("Neighbors captured before any status persist on a fresh snapshot")
+    func neighborsWithoutStatusPersist() async throws {
+        let (service, _) = try await createTestService()
+
+        let neighbors = [
+            NeighborSnapshotEntry(publicKeyPrefix: Data([0x0A, 0x0B, 0x0C, 0x0D]), snr: 4.0, secondsAgo: 90)
+        ]
+        let id = await service.recordSnapshot(nodePublicKey: testPublicKey, neighbors: neighbors)
+        #expect(id != nil, "Neighbors expanded without status must still persist")
+
+        let snapshots = await service.fetchSnapshots(for: testPublicKey)
+        #expect(snapshots.count == 1)
+        #expect(snapshots[0].neighborSnapshots?.count == 1, "Neighbor data should persist on a fresh row")
+        #expect(snapshots[0].uptimeSeconds == nil, "A neighbor-only row carries no status fields yet")
+    }
+
+    @Test("Concurrent in-window captures never duplicate a snapshot")
+    func concurrentCapturesSingleRow() async throws {
+        let (service, _) = try await createTestService()
+
+        // Status and telemetry captured concurrently must collapse onto one
+        // in-window row; the atomic store serializes the read-modify-write.
+        let telemetry = [TelemetrySnapshotEntry(channel: 0, type: "temperature", value: 19.0)]
+        async let statusResult = service.recordSnapshot(
+            nodePublicKey: testPublicKey,
+            status: metrics(battery: 3850, uptime: 3600)
+        )
+        async let telemetryResult = service.recordSnapshot(
+            nodePublicKey: testPublicKey,
+            telemetry: telemetry
+        )
+        let (statusID, telemetryID) = await (statusResult, telemetryResult)
+        #expect(statusID != nil)
+        #expect(telemetryID != nil)
+        #expect(statusID == telemetryID, "Concurrent captures resolve to the same in-window row")
+
+        let snapshots = await service.fetchSnapshots(for: testPublicKey)
+        #expect(snapshots.count == 1, "Atomic record collapses concurrent captures into one row")
     }
 }

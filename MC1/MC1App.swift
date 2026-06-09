@@ -33,8 +33,15 @@ struct MC1App: App {
                 do {
                     container = try PersistenceStore.createContainer()
                 } catch {
-                    logger.fault("Container creation failed after retry: \(error)")
-                    fatalError("ModelContainer creation failed after retry while data is available")
+                    let nsError = error as NSError
+                    logger.fault("""
+                        Container creation failed after retry: \
+                        domain=\(nsError.domain, privacy: .public) \
+                        code=\(nsError.code, privacy: .public) \
+                        desc=\(nsError.localizedDescription, privacy: .public) \
+                        userInfo=\(String(describing: nsError.userInfo), privacy: .public)
+                        """)
+                    fatalError("ModelContainer creation failed after retry while data is available: \(nsError.domain) \(nsError.code)")
                 }
                 _appState = State(initialValue: AppState(modelContainer: container))
                 return
@@ -58,16 +65,33 @@ struct MC1App: App {
         WindowGroup {
             ContentView()
                 .environment(\.appState, appState)
+                .environment(\.appTheme, appState.themeService.current)
+                .tint(appState.themeService.current.chromeTint)
+                .preferredColorScheme(appState.themeService.effectiveColorScheme)
+                .task(id: ObjectIdentifier(appState)) { await appState.storeState.service.load() }
                 .task {
                     if awaitingDataProtection {
                         await waitForProtectedData()
                         do {
                             let container = try PersistenceStore.createContainer()
+                            // Tear down the BFU-bootstrap AppState's StoreService listener Task
+                            // before swapping in the real AppState — otherwise the bootstrap
+                            // instance's Transaction.updates listener leaks for the process
+                            // lifetime and every later transaction event fires `walkCurrentEntitlements`
+                            // twice (once per orphaned StoreService).
+                            appState.shutdown()
                             appState = AppState(modelContainer: container)
                             awaitingDataProtection = false
                         } catch {
-                            logger.fault("Container creation failed after unlock: \(error)")
-                            fatalError("ModelContainer creation failed after protected data became available")
+                            let nsError = error as NSError
+                            logger.fault("""
+                                Container creation failed after unlock: \
+                                domain=\(nsError.domain, privacy: .public) \
+                                code=\(nsError.code, privacy: .public) \
+                                desc=\(nsError.localizedDescription, privacy: .public) \
+                                userInfo=\(String(describing: nsError.userInfo), privacy: .public)
+                                """)
+                            fatalError("ModelContainer creation failed after protected data became available: \(nsError.domain) \(nsError.code)")
                         }
                     }
 
@@ -88,7 +112,7 @@ struct MC1App: App {
                     await runInitialForegroundReconciliationIfNeeded()
                 }
                 .onOpenURL { _ in
-                    // pocketmesh://status — tapped from Live Activity
+                    // meshcoreone://status — tapped from Live Activity
                     // Opening the app is sufficient; future: navigate based on url.host
                 }
                 .onChange(of: scenePhase) { oldPhase, newPhase in
@@ -108,7 +132,7 @@ struct MC1App: App {
         // Persist simulator device ID for auto-reconnect
         UserDefaults.standard.set(
             MockDataProvider.simulatorDeviceID.uuidString,
-            forKey: "com.pocketmesh.lastConnectedDeviceID"
+            forKey: PersistenceKeys.lastConnectedDeviceID
         )
 
         // Initialize app (will auto-connect to simulator device)

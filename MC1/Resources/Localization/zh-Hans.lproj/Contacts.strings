@@ -71,8 +71,14 @@
 /* Location: ContactsViewModel.swift - Purpose: Contacts segment */
 "contacts.segment.contacts" = "联系人";
 
-/* Location: ContactsViewModel.swift - Purpose: Network segment */
-"contacts.segment.network" = "网络";
+/* Location: ContactsViewModel.swift - Purpose: Repeaters segment */
+"contacts.segment.repeaters" = "转发节点";
+
+/* Location: ContactsViewModel.swift - Purpose: Rooms segment */
+"contacts.segment.rooms" = "房间";
+
+/* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
+"contacts.segment.pickerLabel" = "筛选节点";
 
 // MARK: - Sort Order
 
@@ -144,7 +150,7 @@
 "contacts.list.empty.favorites.title" = "暂无收藏";
 
 /* Location: ContactsListView.swift - Purpose: No favorites empty description */
-"contacts.list.empty.favorites.description" = "向右滑动任何节点将其添加到您的收藏";
+"contacts.list.empty.favorites.description" = "长按任何节点将其添加到您的收藏";
 
 /* Location: ContactsListView.swift - Purpose: No contacts empty title */
 "contacts.list.empty.contacts.title" = "无联系人";
@@ -152,11 +158,17 @@
 /* Location: ContactsListView.swift - Purpose: No contacts empty description */
 "contacts.list.empty.contacts.description" = "成功发现 Mesh 网络上的联系人后，他们会显示在这里，如果未自动添加，请前往右上角菜单手动开启发现功能。";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty title */
-"contacts.list.empty.network.title" = "无网络节点";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty title */
+"contacts.list.empty.repeaters.title" = "无转发节点";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty description */
-"contacts.list.empty.network.description" = "转发节点和房间服务器在 Mesh 网络中被发现后，会在此处列出。";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty description */
+"contacts.list.empty.repeaters.description" = "转发节点可扩展 Mesh 网络的覆盖范围。发现后会显示在这里。";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty title */
+"contacts.list.empty.rooms.title" = "无房间";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty description */
+"contacts.list.empty.rooms.description" = "房间是 Mesh 网络上的公共聊天服务器。发现后会显示在这里。";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "无结果";
@@ -180,14 +192,14 @@
 
 // MARK: - Contacts List Swipe Actions
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unfavorite swipe action */
-"contacts.swipe.unfavorite" = "取消收藏";
+/* Location: ContactContextMenuModifier - Purpose: Unfavorite action */
+"contacts.action.unfavorite" = "取消收藏";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Block swipe action */
-"contacts.swipe.block" = "屏蔽";
+/* Location: ContactContextMenuModifier - Purpose: Block action */
+"contacts.action.block" = "屏蔽";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unblock swipe action */
-"contacts.swipe.unblock" = "取消屏蔽";
+/* Location: ContactContextMenuModifier - Purpose: Unblock action */
+"contacts.action.unblock" = "取消屏蔽";
 
 // MARK: - Contact Detail
 
@@ -230,8 +242,8 @@
 /* Location: ContactDetailView.swift - Purpose: Share via advert button */
 "contacts.detail.shareViaAdvert" = "通过广播分享联系人";
 
-/* Location: ContactDetailView.swift - Purpose: Ping repeater button */
-"contacts.detail.pingRepeater" = "Ping 转发节点";
+/* Location: ContactDetailView.swift - Purpose: Share contact error when advert is missing or stale */
+"contacts.detail.shareContactUnavailable" = "无法分享节点。该节点的广播可能缺失或已过期。";
 
 /* Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes */
 "contacts.detail.ping" = "零跳 Ping";
@@ -386,6 +398,7 @@
 
 /* Location: AddContactSheet.swift - Purpose: Navigation title */
 "contacts.add.title" = "添加联系人";
+"contacts.add.nodeTitle" = "添加节点";
 
 /* Location: AddContactSheet.swift - Purpose: Add button */
 "contacts.add.add" = "添加";
@@ -436,7 +449,7 @@
 "contacts.add.pasteURL" = "Paste Contact URL";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL section footer */
-"contacts.add.pasteURLFooter" = "Paste a meshcore:// contact link to auto-fill the fields above";
+"contacts.add.pasteURLFooter" = "粘贴 meshcore:// 联系人链接以自动填写上面的字段";
 
 /* Location: AddContactSheet.swift - Purpose: Invalid paste URL error */
 "contacts.add.error.invalidURL" = "Clipboard does not contain a valid contact URL";
@@ -457,6 +470,12 @@
 
 /* Location: ContactQRShareSheet.swift - Purpose: Share button */
 "contacts.qr.share" = "分享";
+
+/* Location: ContactQRShareSheet.swift - Purpose: Contact label in share text, %@ is contact name */
+"contacts.share.contactLabel" = "MeshCore One Contact: %@";
+
+/* Location: ContactQRShareSheet.swift - Purpose: Key label in share text, %@ is hex public key */
+"contacts.share.keyLabel" = "Key: %@";
 
 // MARK: - Scan Contact QR
 
@@ -490,6 +509,9 @@
 /* Location: ScanContactQRView.swift - Purpose: Invalid public key error */
 "contacts.scan.error.invalidKey" = "无效的二维码：无效的公钥";
 
+/* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
+"contacts.scan.error.importFailed" = "导入联系人失败：%@";
+
 // MARK: - Discovery View
 
 /* Location: DiscoveryView.swift - Purpose: Navigation title */
@@ -519,8 +541,14 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter: Contacts */
 "contacts.discovery.segment.contacts" = "联系人";
 
-/* Location: DiscoveryView.swift - Purpose: Segment filter: Network */
-"contacts.discovery.segment.network" = "网络";
+/* Location: DiscoveryView.swift - Purpose: Segment filter: Repeaters */
+"contacts.discovery.segment.repeaters" = "转发节点";
+
+/* Location: DiscoveryView.swift - Purpose: Segment filter: Rooms */
+"contacts.discovery.segment.rooms" = "房间";
+
+/* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
+"contacts.discovery.segment.pickerLabel" = "筛选发现的节点";
 
 /* Location: DiscoveryView.swift - Purpose: Search prompt */
 "contacts.discovery.searchPrompt" = "搜索发现";
@@ -572,32 +600,119 @@
 /* Location: PathEditingSheet.swift - Purpose: Current path section header */
 "contacts.pathEdit.currentPath" = "当前路径";
 
-/* Location: PathEditingSheet.swift - Purpose: Empty path footer */
-"contacts.pathEdit.emptyFooter" = "未设置路径（直连或泛洪路由）";
-
-/* Location: PathEditingSheet.swift - Purpose: Path instructions footer */
-"contacts.pathEdit.instructionsFooter" = "拖动以重新排序。点击以移除。";
-
-/* Location: PathEditingSheet.swift - Purpose: Add repeater section header */
-"contacts.pathEdit.addRepeater" = "添加转发节点";
-
-/* Location: PathEditingSheet.swift - Purpose: No repeaters empty title */
+/* Location: AddHopPickerView.swift - Purpose: No repeaters empty title */
 "contacts.pathEdit.noRepeaters.title" = "无可用转发节点";
 
-/* Location: PathEditingSheet.swift - Purpose: No repeaters empty description */
+/* Location: AddHopPickerView.swift - Purpose: No repeaters empty description */
 "contacts.pathEdit.noRepeaters.description" = "在您的 Mesh 网络中发现转发节点后，它们会显示在这里。";
-
-/* Location: PathEditingSheet.swift - Purpose: Add repeater footer */
-"contacts.pathEdit.addFooter" = "点击转发节点将其添加到路径";
-
-/* Location: PathEditingSheet.swift - Purpose: Add to path accessibility label */
-"contacts.pathEdit.addToPath" = "将 %@ 添加到路径";
 
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with name */
 "contacts.pathEdit.hopWithName" = "第 %d/%d 跳：%@";
 
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with hex */
 "contacts.pathEdit.hopWithHex" = "第 %d/%d 跳：转发节点 %@";
+
+/* Location: PathEditingSheet.swift - Purpose: Add Hop CTA (primary button when path has >=1 hop) */
+"contacts.pathEdit.addHop" = "添加跳数";
+
+/* Location: AddHopPickerView.swift - Purpose: Paste clipboard text into the hop search field */
+"contacts.pathEdit.paste" = "从剪贴板粘贴";
+
+/* Location: PathEditingSheet.swift - Purpose: Use-direct-routing empty-state button */
+"contacts.pathEdit.useDirectRouting" = "使用直连路由";
+
+/* Location: PathEditingSheet.swift - Purpose: Use-flood-routing empty-state button */
+"contacts.pathEdit.useFloodRouting" = "使用泛洪路由";
+
+/* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert title */
+"contacts.pathEdit.directRouting.confirm.title" = "保存为直连路由?";
+
+/* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name */
+"contacts.pathEdit.directRouting.confirm.message" = "发往 %@ 的消息将直接发送,不通过任何中继器。仅当 %@ 是直连(0 跳)邻居时使用。";
+
+/* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation confirm label */
+"contacts.pathEdit.directRouting.confirm.confirm" = "保存为直连";
+
+/* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation alert title */
+"contacts.pathEdit.floodRouting.confirm.title" = "使用泛洪路由?";
+
+/* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation alert message, %@ is contact name */
+"contacts.pathEdit.floodRouting.confirm.message" = "发往 %@ 的消息将发送给所有附近节点,直到找到路径。当没有已知中继器路由时使用。";
+
+/* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation confirm label */
+"contacts.pathEdit.floodRouting.confirm.confirm" = "使用泛洪路由";
+
+/* Location: AddHopPickerView.swift - Purpose: Position banner when appending, %d is target hop number */
+"contacts.pathEdit.positionAppend" = "作为第 %d 跳添加";
+
+/* Location: AddHopPickerView.swift - Purpose: Search field placeholder */
+"contacts.pathEdit.searchPrompt" = "A1,2B 或名称/ID";
+
+/* Location: PathEditingSheet.swift - Purpose: Section footer hint */
+"contacts.pathEdit.reorderHint" = "拖动排序 · 滑动删除";
+
+/* Location: PathEditingSheet.swift - Purpose: Empty-state title */
+"contacts.pathEdit.empty.title" = "暂无跳数";
+
+/* Location: PathEditingSheet.swift - Purpose: Empty-state description, %@ is contact name */
+"contacts.pathEdit.empty.description" = "添加中继器以控制消息到达 %@ 的路径,或使用泛洪路由(如果没有已知路径)。";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: All filter */
+"contacts.pathEdit.filter.all" = "全部";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: Favorites filter */
+"contacts.pathEdit.filter.favorites" = "收藏";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: Recent filter */
+"contacts.pathEdit.filter.recent" = "最近";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: Discovered filter */
+"contacts.pathEdit.filter.discovered" = "已发现";
+
+/* Location: AddHopPickerView.swift - Purpose: Recent section header */
+"contacts.pathEdit.sections.recent" = "最近";
+
+/* Location: AddHopPickerView.swift - Purpose: Favorites section header */
+"contacts.pathEdit.sections.favorites" = "收藏";
+
+/* Location: AddHopPickerView.swift - Purpose: Contacts section header */
+"contacts.pathEdit.sections.contacts" = "联系人";
+
+/* Location: AddHopPickerView.swift - Purpose: Discovered section header */
+"contacts.pathEdit.sections.discovered" = "已发现";
+
+/* Location: AddHopPickerView.swift - Purpose: Rooms section header */
+"contacts.pathEdit.sections.rooms" = "房间";
+
+/* Location: AddHopPickerView.swift - Purpose: No-match search description */
+"contacts.pathEdit.search.noMatches.description" = "尝试名称或十六进制前缀,如 'a3'。";
+
+/* Location: AddHopPickerView.swift - Purpose: No-match description when a filter other than All is selected and a matching room exists */
+"contacts.pathEdit.search.noMatches.descriptionWithRoomsHint" = "尝试名称或十六进制前缀,如 'a3'。房间仅在“全部”过滤器下显示。";
+
+/* Location: AddHopPickerView.swift - Purpose: Picker row accessibility label, %1$@ is name, %2$d is target hop number */
+"contacts.pathEdit.addToPathAsHop" = "将 %1$@ 添加到路径作为第 %2$d 跳";
+
+/* Location: PathEditingSheet.swift - Purpose: VoiceOver hint for a hop row describing swipe + drag actions */
+"contacts.pathEdit.hopHint" = "滑动以删除。拖动以重新排序。";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: VoiceOver label for the section filter picker */
+"contacts.pathEdit.filterPickerLabel" = "筛选跳数";
+
+/* Location: PathEditingSheet.swift + AddHopPickerView.swift - Purpose: Max-hops reached title */
+"contacts.pathEdit.maxHops.reached" = "已达到最大跳数";
+
+/* Location: AddHopPickerView.swift - Purpose: Max-hops reached description, %d is the cap */
+"contacts.pathEdit.maxHops.description" = "此路径已达到当前哈希模式下 %d 跳的最大值。移除一跳以添加新的。";
+
+/* Location: PathEditingSheet.swift - Purpose: Add Hop CTA footer explaining the hop cap, %d is the cap */
+"contacts.pathEdit.maxHops.footer" = "已达到最大 %d 跳。移除一跳以添加新的。";
+
+/* Location: AddHopPickerView.swift - Purpose: Bulk-add panel strings */
+"contacts.pathEdit.bulkAdd.action" = "添加节点：%@";
+"contacts.pathEdit.bulkAdd.willAdd" = "将添加 %@";
+"contacts.pathEdit.bulkAdd.pathFull" = "%@ 超出跳数限制";
+"contacts.pathEdit.bulkAdd.empty" = "没有可添加的新节点";
 
 // MARK: - Path Discovery Results
 
@@ -762,20 +877,8 @@
 
 // MARK: - Trace Path List View
 
-/* Location: TracePathListView.swift - Purpose: Code input placeholder */
-"contacts.trace.list.codePlaceholder" = "示例：A1、2B";
-
-/* Location: TracePathListView.swift - Purpose: Paste button */
-"contacts.trace.list.paste" = "从剪贴板粘贴";
-
-/* Location: TracePathListView.swift - Purpose: Code input footer */
-"contacts.trace.list.codeFooter" = "按回车键以添加转发节点";
-
-/* Location: TracePathListView.swift - Purpose: Repeaters section label */
-"contacts.trace.list.repeaters" = "转发节点";
-
 /* Location: TracePathListView.swift - Purpose: Empty path instruction */
-"contacts.trace.list.emptyPath" = "点击上方的转发节点以开始构建您的路径";
+"contacts.trace.list.emptyPath" = "添加一跳以开始构建您的路径";
 
 /* Location: TracePathListView.swift - Purpose: Round trip path section header */
 "contacts.trace.list.roundTripPath" = "往返路径";
@@ -794,6 +897,21 @@
 
 /* Location: TracePathListView.swift - Purpose: Traces count label */
 "contacts.trace.list.traces" = "追踪：";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size picker label */
+"contacts.trace.list.hashSize" = "哈希大小";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 1 byte per hop */
+"contacts.trace.list.hashSizeOneByte" = "1 字节";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 2 bytes per hop */
+"contacts.trace.list.hashSizeTwoBytes" = "2 字节";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 4 bytes per hop */
+"contacts.trace.list.hashSizeFourBytes" = "4 字节";
+
+/* Location: PathActionsSectionView.swift - Purpose: Caveat shown for multi-byte trace hash sizes */
+"contacts.trace.list.hashSizeFooter" = "固件版本低于 1.11.0 的转发节点不会转发哈希大小超过 1 字节的追踪。";
 
 /* Location: TracePathListView.swift - Purpose: Copy path button */
 "contacts.trace.list.copyPath" = "复制路径";
@@ -831,21 +949,6 @@
 /* Location: TracePathListView.swift - Purpose: Hop row accessibility hint */
 "contacts.trace.list.hopHint" = "向左滑动以删除，使用拖动手柄以重新排序";
 
-/* Location: TracePathListView.swift - Purpose: Favorites filter toggle label */
-"contacts.trace.list.favoritesOnly" = "仅收藏";
-
-/* Location: TracePathListView.swift - Purpose: Toggle to include room servers in the list */
-"contacts.trace.list.includeRooms" = "包含聊天室";
-
-/* Location: TracePathListView.swift, PathEditingSheet.swift - Purpose: Toggle to include discovered repeaters */
-"contacts.trace.list.includeDiscovered" = "包含已发现";
-
-/* Location: TracePathListView.swift - Purpose: No favorite repeaters empty title */
-"contacts.trace.list.noFavorites.title" = "无收藏的转发节点";
-
-/* Location: TracePathListView.swift - Purpose: No favorite repeaters empty description */
-"contacts.trace.list.noFavorites.description" = "在节点标签中将转发节点标记为收藏以在此处查看";
-
 // MARK: - Trace Path List Accessibility
 
 /* Location: TracePathListView.swift - Accessibility hint when trace is running */
@@ -880,7 +983,6 @@
 
 /* Location: TracePathMapView.swift - Purpose: Hops count in results banner */
 "contacts.trace.map.hops" = "%d 跳";
-
 
 /* Location: TracePathMapView.swift - Purpose: Clear button */
 "contacts.trace.map.clear" = "清除";
@@ -1055,6 +1157,9 @@
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "连接到无线电以删除节点";
 
+/* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
+"contacts.viewModel.removeTimedOut" = "删除节点超时。请重试。";
+
 // MARK: - Path Management ViewModel Errors
 
 /* Location: PathManagementViewModel.swift - Purpose: Save path error prefix */
@@ -1065,6 +1170,10 @@
 
 /* Location: PathManagementViewModel.swift - Purpose: Set path error prefix */
 "contacts.pathManagement.error.setFailed" = "设置路径失败：%@";
+
+"contacts.pathManagement.error.hopResizeRequired" = "路径哈希大小已更改 — 请移除并重新添加跳点以保存。";
+
+"contacts.pathManagement.error.tooManyHops" = "跳点过多。当前哈希模式最多支持 %d 个。";
 
 // MARK: - Code Input Result
 

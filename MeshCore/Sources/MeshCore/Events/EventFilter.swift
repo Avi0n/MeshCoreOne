@@ -51,6 +51,18 @@ public struct EventFilter: Sendable {
 
     // MARK: - Acknowledgement Filters
 
+    /// Matches any acknowledgement event regardless of code.
+    ///
+    /// Use for persistent listeners that must see every incoming ACK. Because
+    /// the filter is evaluated at dispatch time, unrelated events never enter
+    /// the subscription's bounded buffer and cannot evict an ACK.
+    public static var anyAcknowledgement: EventFilter {
+        EventFilter { event in
+            if case .acknowledgement = event { return true }
+            return false
+        }
+    }
+
     /// Creates a filter for acknowledgement events with a specific code.
     ///
     /// - Parameter code: The exact acknowledgement code to match.
@@ -65,6 +77,22 @@ public struct EventFilter: Sendable {
     }
 
     // MARK: - Message Filters
+
+    /// Matches any contact message receipt regardless of sender prefix.
+    public static var anyContactMessage: EventFilter {
+        EventFilter { event in
+            if case .contactMessageReceived = event { return true }
+            return false
+        }
+    }
+
+    /// Matches any channel message receipt.
+    public static var anyChannelMessage: EventFilter {
+        EventFilter { event in
+            if case .channelMessageReceived = event { return true }
+            return false
+        }
+    }
 
     /// Creates a filter for contact messages from a specific sender.
     ///
@@ -123,6 +151,22 @@ public struct EventFilter: Sendable {
     }
 
     // MARK: - Network Event Filters
+
+    /// Matches any rxLogData event.
+    public static var rxLogData: EventFilter {
+        EventFilter { event in
+            if case .rxLogData = event { return true }
+            return false
+        }
+    }
+
+    /// Matches any advertisement regardless of sender prefix.
+    public static var anyAdvertisement: EventFilter {
+        EventFilter { event in
+            if case .advertisement = event { return true }
+            return false
+        }
+    }
 
     /// Creates a filter for advertisement events from a specific node.
     ///
@@ -199,6 +243,24 @@ public struct EventFilter: Sendable {
     public static var messagesWaiting: EventFilter {
         EventFilter { event in
             if case .messagesWaiting = event { return true }
+            return false
+        }
+    }
+
+    // MARK: - Login Filters
+
+    /// Matches any successful login response.
+    public static var anyLoginSuccess: EventFilter {
+        EventFilter { event in
+            if case .loginSuccess = event { return true }
+            return false
+        }
+    }
+
+    /// Matches any failed login response.
+    public static var anyLoginFailed: EventFilter {
+        EventFilter { event in
+            if case .loginFailed = event { return true }
             return false
         }
     }

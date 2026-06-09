@@ -719,8 +719,8 @@ struct RoundTripTests {
         #expect(caps.pathHashMode == 2, "pathHashMode should be 2 (3-byte hashes)")
     }
 
-    @Test("DeviceInfo v10 rejects truncated payload before pathHashMode")
-    func deviceInfoV10RejectsTruncatedPayloadBeforePathHashMode() {
+    @Test("DeviceInfo v10 tolerates missing pathHashMode byte")
+    func deviceInfoV10ToleratesMissingPathHashMode() {
         var data = Data()
         data.append(10)  // fwVer
         data.append(50)  // maxContacts
@@ -729,16 +729,19 @@ struct RoundTripTests {
         data.append(contentsOf: withUnsafeBytes(of: blePin.littleEndian) { Data($0) })
         data.append(Data(repeating: 0, count: 12 + 40 + 20))
         data.append(1)   // client_repeat present
-        #expect(data.count == 80, "v10 payload missing pathHashMode byte should be truncated")
+        #expect(data.count == 80, "v10 payload missing pathHashMode byte")
 
         let event = Parsers.DeviceInfo.parse(data)
 
-        guard case .parseFailure(_, let reason) = event else {
-            Issue.record("Expected .parseFailure event, got \(event)")
+        guard case .deviceInfo(let caps) = event else {
+            Issue.record("Expected .deviceInfo event, got \(event)")
             return
         }
 
-        #expect(reason.contains("missing pathHashMode byte"))
+        #expect(caps.firmwareVersion == 10)
+        #expect(caps.maxContacts == 100)
+        #expect(caps.clientRepeat == true, "client_repeat should be parsed from base block")
+        #expect(caps.pathHashMode == 0, "Missing pathHashMode should default to 0")
     }
 
     @Test("DeviceInfo v9 defaults pathHashMode to 0")
@@ -991,5 +994,65 @@ struct RoundTripTests {
         } else {
             Issue.record("Expected vector3 value for accelerometer")
         }
+    }
+
+    @Test("ChannelMessage v3 empty-text broadcast parses at firmware-minimum size")
+    func channelMessageV3EmptyTextParses() {
+        var data = Data()
+        let snrRaw: Int8 = -20  // -5.0 dB * 4
+        let reserved: UInt16 = 0
+        let channel: UInt8 = 2
+        let pathLen: UInt8 = 0
+        let txtType: UInt8 = 0
+        let timestamp: UInt32 = 1704067200
+
+        data.append(UInt8(bitPattern: snrRaw))
+        data.append(contentsOf: withUnsafeBytes(of: reserved.littleEndian) { Data($0) })
+        data.append(channel)
+        data.append(pathLen)
+        data.append(txtType)
+        data.append(contentsOf: withUnsafeBytes(of: timestamp.littleEndian) { Data($0) })
+        // No text bytes appended: firmware emits this when strlen(text) == 0.
+
+        #expect(data.count == 10)
+
+        let event = Parsers.ChannelMessage.parse(data, version: .v3)
+
+        guard case .channelMessageReceived(let msg) = event else {
+            Issue.record("Expected .channelMessageReceived event for empty-text broadcast, got \(event)")
+            return
+        }
+
+        #expect(msg.channelIndex == channel)
+        #expect(msg.pathLength == pathLen)
+        #expect(msg.text.isEmpty)
+    }
+
+    @Test("ChannelMessage v1 empty-text broadcast parses at firmware-minimum size")
+    func channelMessageV1EmptyTextParses() {
+        var data = Data()
+        let channel: UInt8 = 3
+        let pathLen: UInt8 = 0
+        let txtType: UInt8 = 0
+        let timestamp: UInt32 = 1704067200
+
+        data.append(channel)
+        data.append(pathLen)
+        data.append(txtType)
+        data.append(contentsOf: withUnsafeBytes(of: timestamp.littleEndian) { Data($0) })
+        // No text bytes appended: firmware emits this when strlen(text) == 0.
+
+        #expect(data.count == 7)
+
+        let event = Parsers.ChannelMessage.parse(data, version: .v1)
+
+        guard case .channelMessageReceived(let msg) = event else {
+            Issue.record("Expected .channelMessageReceived event for empty-text broadcast, got \(event)")
+            return
+        }
+
+        #expect(msg.channelIndex == channel)
+        #expect(msg.pathLength == pathLen)
+        #expect(msg.text.isEmpty)
     }
 }

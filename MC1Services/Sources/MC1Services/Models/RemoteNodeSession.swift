@@ -5,14 +5,15 @@ import SwiftData
 /// Used for both room servers and repeater admin connections.
 @Model
 public final class RemoteNodeSession {
-    #Index<RemoteNodeSession>([\.deviceID])
+    #Index<RemoteNodeSession>([\.radioID])
 
     /// Unique session identifier
     @Attribute(.unique)
     public var id: UUID
 
     /// The companion radio used to access this node
-    public var deviceID: UUID
+    @Attribute(originalName: "deviceID")
+    public var radioID: UUID
 
     /// 32-byte remote node's public key
     public var publicKey: Data
@@ -95,7 +96,7 @@ public final class RemoteNodeSession {
 
     public init(
         id: UUID = UUID(),
-        deviceID: UUID,
+        radioID: UUID,
         publicKey: Data,
         name: String,
         role: RemoteNodeRole,
@@ -116,7 +117,7 @@ public final class RemoteNodeSession {
         lastMessageDate: Date? = nil
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.publicKey = publicKey
         self.name = name
         self.roleRawValue = role.rawValue
@@ -137,9 +138,36 @@ public final class RemoteNodeSession {
         self.lastMessageDate = lastMessageDate
     }
 
+    /// Builds a model instance directly from a DTO. Shared by backup batch-insert
+    /// paths so model and DTO can't drift on field coverage.
+    public convenience init(dto: RemoteNodeSessionDTO) {
+        self.init(
+            id: dto.id,
+            radioID: dto.radioID,
+            publicKey: dto.publicKey,
+            name: dto.name,
+            role: dto.role,
+            latitude: dto.latitude,
+            longitude: dto.longitude,
+            isConnected: dto.isConnected,
+            permissionLevel: dto.permissionLevel,
+            lastConnectedDate: dto.lastConnectedDate,
+            lastBatteryMillivolts: dto.lastBatteryMillivolts,
+            lastUptimeSeconds: dto.lastUptimeSeconds,
+            lastNoiseFloor: dto.lastNoiseFloor,
+            unreadCount: dto.unreadCount,
+            notificationLevel: dto.notificationLevel,
+            isFavorite: dto.isFavorite,
+            lastRxAirtimeSeconds: dto.lastRxAirtimeSeconds,
+            neighborCount: dto.neighborCount,
+            lastSyncTimestamp: dto.lastSyncTimestamp,
+            lastMessageDate: dto.lastMessageDate
+        )
+    }
+
     /// Applies all mutable fields from a DTO to this model instance.
     func apply(_ dto: RemoteNodeSessionDTO) {
-        deviceID = dto.deviceID
+        radioID = dto.radioID
         publicKey = dto.publicKey
         name = dto.name
         roleRawValue = dto.role.rawValue
@@ -199,9 +227,9 @@ public extension RemoteNodeSession {
 // MARK: - Sendable DTO
 
 /// A sendable snapshot of RemoteNodeSession for cross-actor transfers
-public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable {
+public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
     public let id: UUID
-    public let deviceID: UUID
+    public var radioID: UUID
     public let publicKey: Data
     public let name: String
     public let role: RemoteNodeRole
@@ -226,7 +254,7 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable 
 
     public init(from model: RemoteNodeSession) {
         self.id = model.id
-        self.deviceID = model.deviceID
+        self.radioID = model.radioID
         self.publicKey = model.publicKey
         self.name = model.name
         self.role = model.role
@@ -239,7 +267,12 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable 
         self.lastUptimeSeconds = model.lastUptimeSeconds
         self.lastNoiseFloor = model.lastNoiseFloor
         self.unreadCount = model.unreadCount
-        self.notificationLevel = model.notificationLevel
+        // Decode the level without invoking the migrating getter's in-memory write-back, keeping
+        // export a pure read (mirrors `ChannelDTO.init(from:)`). An unmigrated -1 sentinel maps
+        // to its migrated value (muted if the legacy isMuted flag was set, else all) exactly as
+        // the getter would, but without dirtying the live row.
+        self.notificationLevel = NotificationLevel(rawValue: model.notificationLevelRawValue)
+            ?? ((model.legacyIsMuted == true) ? .muted : .all)
         self.isFavorite = model.isFavorite
         self.lastRxAirtimeSeconds = model.lastRxAirtimeSeconds
         self.neighborCount = model.neighborCount
@@ -254,7 +287,7 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable 
     /// Memberwise initializer for creating DTOs directly
     public init(
         id: UUID = UUID(),
-        deviceID: UUID,
+        radioID: UUID,
         publicKey: Data,
         name: String,
         role: RemoteNodeRole,
@@ -275,7 +308,7 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable 
         lastMessageDate: Date? = nil
     ) {
         self.id = id
-        self.deviceID = deviceID
+        self.radioID = radioID
         self.publicKey = publicKey
         self.name = name
         self.role = role
@@ -299,7 +332,7 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable 
     /// Returns a copy with only `notificationLevel` changed.
     public func with(notificationLevel: NotificationLevel) -> RemoteNodeSessionDTO {
         RemoteNodeSessionDTO(
-            id: id, deviceID: deviceID, publicKey: publicKey, name: name,
+            id: id, radioID: radioID, publicKey: publicKey, name: name,
             role: role, latitude: latitude, longitude: longitude,
             isConnected: isConnected, permissionLevel: permissionLevel,
             lastConnectedDate: lastConnectedDate,
@@ -315,7 +348,7 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable 
     /// Returns a copy with only `isFavorite` changed.
     public func with(isFavorite: Bool) -> RemoteNodeSessionDTO {
         RemoteNodeSessionDTO(
-            id: id, deviceID: deviceID, publicKey: publicKey, name: name,
+            id: id, radioID: radioID, publicKey: publicKey, name: name,
             role: role, latitude: latitude, longitude: longitude,
             isConnected: isConnected, permissionLevel: permissionLevel,
             lastConnectedDate: lastConnectedDate,

@@ -1,5 +1,6 @@
 import Testing
 @testable import MC1
+@testable import MC1Services
 
 @Suite("RegionNameValidator")
 struct RegionNameValidatorTests {
@@ -11,11 +12,6 @@ struct RegionNameValidatorTests {
     ])
     func validNames(name: String) {
         #expect(RegionNameValidator.isValid(name, existingRegions: []))
-    }
-
-    @Test("accepts unicode region names")
-    func unicodeRegionName() {
-        #expect(RegionNameValidator.isValid("Île-de-France", existingRegions: []))
     }
 
     // MARK: - Invalid Names
@@ -35,14 +31,34 @@ struct RegionNameValidatorTests {
         #expect(RegionNameValidator.validate("my region", existingRegions: []) == .invalidCharacters)
     }
 
-    @Test("rejects hash prefix")
-    func hashPrefixIsInvalid() {
-        #expect(RegionNameValidator.validate("#Europe", existingRegions: []) == .invalidPrefix)
+    @Test("rejects unicode characters")
+    func unicodeIsInvalid() {
+        #expect(RegionNameValidator.validate("Île-de-France", existingRegions: []) == .invalidCharacters)
     }
 
-    @Test("rejects dollar prefix")
-    func dollarPrefixIsInvalid() {
-        #expect(RegionNameValidator.validate("$secret", existingRegions: []) == .invalidPrefix)
+    @Test("rejects special characters", arguments: ["hello!", "foo@bar", "a&b", "test.region", "#Europe", "$secret"])
+    func specialCharsAreInvalid(name: String) {
+        #expect(RegionNameValidator.validate(name, existingRegions: []) == .invalidCharacters)
+    }
+
+    // MARK: - Overlong Names
+
+    @Test("accepts names at the byte cap")
+    func atCapIsValid() {
+        let maxBytes = ProtocolLimits.maxDefaultFloodScopeNameBytes
+        let name = String(repeating: "a", count: maxBytes)
+        #expect(name.utf8.count == maxBytes)
+        #expect(RegionNameValidator.isValid(name, existingRegions: []))
+    }
+
+    @Test("rejects names one byte over the cap")
+    func overCapIsInvalid() {
+        let maxBytes = ProtocolLimits.maxDefaultFloodScopeNameBytes
+        let name = String(repeating: "a", count: maxBytes + 1)
+        #expect(
+            RegionNameValidator.validate(name, existingRegions: [])
+                == .tooLong(maxBytes: maxBytes)
+        )
     }
 
     // MARK: - Duplicates

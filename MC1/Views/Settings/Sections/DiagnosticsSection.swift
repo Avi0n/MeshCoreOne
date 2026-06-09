@@ -4,31 +4,27 @@ import SwiftUI
 /// Settings section for diagnostic tools including log export and clearing
 struct DiagnosticsSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
+    @Binding var exportedFile: ExportedLogFile?
+    let isSidebar: Bool
     @State private var isExporting = false
-    @State private var exportedFileURL: URL?
     @State private var showingClearLogsAlert = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
 
     var body: some View {
         Section {
-            if let url = exportedFileURL {
-                ShareLink(item: url) {
+            Button {
+                exportLogs()
+            } label: {
+                HStack {
                     TintedLabel(L10n.Settings.Diagnostics.exportLogs, systemImage: "square.and.arrow.up")
-                }
-            } else {
-                Button {
-                    exportLogs()
-                } label: {
-                    HStack {
-                        TintedLabel(L10n.Settings.Diagnostics.exportLogs, systemImage: "arrow.up.doc")
-                        Spacer()
-                        if isExporting {
-                            ProgressView()
-                        }
+                    Spacer()
+                    if isExporting {
+                        ProgressView()
                     }
                 }
-                .disabled(isExporting)
             }
+            .disabled(isExporting)
 
             Button(role: .destructive) {
                 showingClearLogsAlert = true
@@ -40,6 +36,7 @@ struct DiagnosticsSection: View {
         } footer: {
             Text(L10n.Settings.Diagnostics.footer)
         }
+        .themedRowBackground(theme, flatten: isSidebar)
         .alert(L10n.Settings.Diagnostics.Alert.Clear.title, isPresented: $showingClearLogsAlert) {
             Button(L10n.Localizable.Common.cancel, role: .cancel) { }
             Button(L10n.Settings.Diagnostics.Alert.Clear.confirm, role: .destructive) {
@@ -48,12 +45,11 @@ struct DiagnosticsSection: View {
         } message: {
             Text(L10n.Settings.Diagnostics.Alert.Clear.message)
         }
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
     }
 
     private func exportLogs() {
         let dataStore = appState.services?.dataStore ?? appState.connectionManager.createStandalonePersistenceStore()
-        exportedFileURL = nil
         isExporting = true
 
         Task { @MainActor in
@@ -61,9 +57,9 @@ struct DiagnosticsSection: View {
                 appState: appState,
                 persistenceStore: dataStore
             ) {
-                exportedFileURL = url
+                exportedFile = ExportedLogFile(url: url)
             } else {
-                showError = L10n.Settings.Diagnostics.Error.exportFailed
+                errorMessage = L10n.Settings.Diagnostics.Error.exportFailed
             }
             isExporting = false
         }
@@ -76,7 +72,7 @@ struct DiagnosticsSection: View {
             do {
                 try await dataStore.clearDebugLogEntries()
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
         }
     }

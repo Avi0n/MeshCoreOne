@@ -4,13 +4,14 @@ import MC1Services
 /// Picker for selecting trusted contacts for telemetry
 struct TrustedContactsPickerView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @State private var contacts: [ContactDTO] = []
     @State private var searchText = ""
     @State private var showFavoritesOnly = false
     @State private var pendingTrustedIDs: Set<UUID> = []
     @State private var initialTrustedIDs: Set<UUID> = []
     @State private var isApplying = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var successTrigger = 0
 
     private var settingsModified: Bool {
@@ -37,6 +38,7 @@ struct TrustedContactsPickerView: View {
             Section {
                 Toggle(L10n.Settings.TrustedContacts.favoritesOnly, isOn: $showFavoritesOnly)
             }
+            .themedRowBackground(theme)
 
             Section {
                 if filteredContacts.isEmpty {
@@ -75,7 +77,9 @@ struct TrustedContactsPickerView: View {
                     }
                 }
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .disabled(isApplying)
         .searchable(text: $searchText, prompt: L10n.Settings.TrustedContacts.searchPrompt)
         .navigationTitle(L10n.Settings.TrustedContacts.title)
@@ -89,17 +93,17 @@ struct TrustedContactsPickerView: View {
             }
         }
         .sensoryFeedback(.success, trigger: successTrigger)
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
         .task {
             await loadContacts()
         }
     }
 
     private func loadContacts() async {
-        guard let deviceID = appState.connectedDevice?.id,
+        guard let radioID = appState.connectedDevice?.radioID,
               let contactService = appState.services?.contactService else { return }
         do {
-            contacts = try await contactService.getContacts(deviceID: deviceID)
+            contacts = try await contactService.getContacts(radioID: radioID)
                 .filter { $0.type == .chat }
             let trusted = Set(
                 contacts
@@ -133,7 +137,7 @@ struct TrustedContactsPickerView: View {
                 initialTrustedIDs = pendingTrustedIDs
                 successTrigger += 1
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
             isApplying = false
         }

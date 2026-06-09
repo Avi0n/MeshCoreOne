@@ -29,8 +29,9 @@ final class RoomStatusViewModel {
     func registerHandlers(appState: AppState) async {
         guard let roomAdminService = appState.services?.roomAdminService else { return }
 
-        await roomAdminService.clearHandlers()
-
+        // Set only the slots this view model owns. The admin service is shared
+        // with the settings/CLI view model, so clearing here would drop its CLI
+        // handler and silently break late CLI-response delivery.
         await roomAdminService.setStatusHandler { [weak self] status in
             await self?.handleStatusResponse(status)
         }
@@ -40,27 +41,36 @@ final class RoomStatusViewModel {
         }
     }
 
+    /// Clear every handler slot on the shared admin service. Only for true
+    /// surface teardown (sheet dismiss); calling it on a segment switch would
+    /// wipe the CLI handler the settings view model relies on.
+    func cleanup(appState: AppState) async {
+        guard let roomAdminService = appState.services?.roomAdminService else { return }
+        await roomAdminService.clearHandlers()
+    }
+
+    /// Clear only this view model's status/telemetry handler slots, leaving the settings view
+    /// model's CLI handler intact. For the merged admin surface's status-segment teardown.
+    func clearStatusHandlers(appState: AppState) async {
+        guard let roomAdminService = appState.services?.roomAdminService else { return }
+        await roomAdminService.clearStatusHandlers()
+    }
+
     // MARK: - Status
 
     func requestStatus(for session: RemoteNodeSessionDTO) async {
         guard let roomAdminService else { return }
-
         if helper.session == nil { helper.session = session }
-        helper.isLoadingStatus = true
-        helper.errorMessage = nil
 
-        do {
-            let response = try await helper.performWithTransientRetries(operationName: "status") { [roomAdminService] timeout in
-                return try await roomAdminService.requestStatus(sessionID: session.id, timeout: timeout)
-            }
-            await handleStatusResponse(response)
-        } catch RemoteNodeError.timeout {
-            helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
-            helper.isLoadingStatus = false
-        } catch {
-            helper.errorMessage = error.localizedDescription
-            helper.isLoadingStatus = false
-        }
+        await helper.runRetryingSectionRequest(
+            operationName: "status",
+            setLoading: { self.helper.isLoadingStatus = $0 },
+            setError: { self.helper.statusSectionError = $0 },
+            operation: { [roomAdminService] timeout in
+                try await roomAdminService.requestStatus(sessionID: session.id, timeout: timeout)
+            },
+            onSuccess: { await self.handleStatusResponse($0) }
+        )
     }
 
     private func handleStatusResponse(_ response: RemoteNodeStatus) async {
@@ -75,23 +85,17 @@ final class RoomStatusViewModel {
 
     func requestTelemetry(for session: RemoteNodeSessionDTO) async {
         guard let roomAdminService else { return }
-
         if helper.session == nil { helper.session = session }
-        helper.isLoadingTelemetry = true
-        helper.errorMessage = nil
 
-        do {
-            let response = try await helper.performWithTransientRetries(operationName: "telemetry") { [roomAdminService] timeout in
-                return try await roomAdminService.requestTelemetry(sessionID: session.id, timeout: timeout)
-            }
-            helper.handleTelemetryResponse(response)
-        } catch RemoteNodeError.timeout {
-            helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
-            helper.isLoadingTelemetry = false
-        } catch {
-            helper.errorMessage = error.localizedDescription
-            helper.isLoadingTelemetry = false
-        }
+        await helper.runRetryingSectionRequest(
+            operationName: "telemetry",
+            setLoading: { self.helper.isLoadingTelemetry = $0 },
+            setError: { self.helper.telemetrySectionError = $0 },
+            operation: { [roomAdminService] timeout in
+                try await roomAdminService.requestTelemetry(sessionID: session.id, timeout: timeout)
+            },
+            onSuccess: { await self.helper.handleTelemetryResponse($0) }
+        )
     }
 
     // MARK: - Room-Only Display

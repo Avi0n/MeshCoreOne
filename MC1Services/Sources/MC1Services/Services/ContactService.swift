@@ -11,6 +11,7 @@ public enum ContactServiceError: Error, Sendable, LocalizedError {
     case syncInterrupted
     case contactNotFound
     case contactTableFull
+    case shareContactUnavailable
     case sessionError(MeshCoreError)
 
     public var errorDescription: String? {
@@ -27,6 +28,8 @@ public enum ContactServiceError: Error, Sendable, LocalizedError {
             return "Contact not found on device"
         case .contactTableFull:
             return "Device node list is full"
+        case .shareContactUnavailable:
+            return "Unable to share node. The node's advertisement may be missing or too old."
         case .sessionError(let error):
             return error.localizedDescription
         }
@@ -118,37 +121,32 @@ public actor ContactService {
 
     /// Sync all contacts from device
     /// - Parameters:
-    ///   - deviceID: The device to sync from
+    ///   - radioID: The device to sync from
     ///   - since: Optional date for incremental sync (only contacts modified after this time)
     /// - Returns: Sync result with count and timestamp
-    public func syncContacts(deviceID: UUID, since: Date? = nil) async throws -> ContactSyncResult {
+    public func syncContacts(radioID: UUID, since: Date? = nil) async throws -> ContactSyncResult {
         do {
             let meshContacts = try await session.getContacts(since: since)
 
             syncProgressHandler?(0, meshContacts.count)
 
-            var receivedCount = 0
-            var lastTimestamp: UInt32 = 0
-
             // Build set of public keys from device for cleanup
             let devicePublicKeys = Set(meshContacts.map(\.publicKey))
 
-            for meshContact in meshContacts {
-                let frame = meshContact.toContactFrame()
-                _ = try await dataStore.saveContact(deviceID: deviceID, from: frame)
-                receivedCount += 1
+            // Persist every received contact in a single transaction rather than one
+            // commit per contact; the per-item save was redundant overhead on every sync.
+            let frames = meshContacts.map { $0.toContactFrame() }
+            let receivedCount = try await dataStore.batchSaveContacts(radioID: radioID, from: frames)
 
-                let modifiedTimestamp = UInt32(meshContact.lastModified.timeIntervalSince1970)
-                if modifiedTimestamp > lastTimestamp {
-                    lastTimestamp = modifiedTimestamp
-                }
+            let lastTimestamp = meshContacts
+                .map { UInt32($0.lastModified.timeIntervalSince1970) }
+                .max() ?? 0
 
-                syncProgressHandler?(receivedCount, meshContacts.count)
-            }
+            syncProgressHandler?(receivedCount, meshContacts.count)
 
             // On full sync, remove local contacts that no longer exist on device
             if since == nil {
-                let localContacts = try await dataStore.fetchContacts(deviceID: deviceID)
+                let localContacts = try await dataStore.fetchContacts(radioID: radioID)
                 let orphans = localContacts.filter { !devicePublicKeys.contains($0.publicKey) }
                 if !orphans.isEmpty {
                     logger.notice("Full sync prune: \(orphans.count) local contact(s) not found on device (device has \(devicePublicKeys.count), local has \(localContacts.count))")
@@ -176,26 +174,26 @@ public actor ContactService {
 
     /// Get a specific contact by public key from local database
     /// - Parameters:
-    ///   - deviceID: The device ID
+    ///   - radioID: The device ID
     ///   - publicKey: The contact's 32-byte public key
     /// - Returns: The contact if found
-    public func getContact(deviceID: UUID, publicKey: Data) async throws -> ContactDTO? {
-        try await dataStore.fetchContact(deviceID: deviceID, publicKey: publicKey)
+    public func getContact(radioID: UUID, publicKey: Data) async throws -> ContactDTO? {
+        try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey)
     }
 
     // MARK: - Add/Update Contact
 
     /// Add or update a contact on the device
     /// - Parameters:
-    ///   - deviceID: The device ID
+    ///   - radioID: The device ID
     ///   - contact: The contact to add/update
-    public func addOrUpdateContact(deviceID: UUID, contact: ContactFrame) async throws {
+    public func addOrUpdateContact(radioID: UUID, contact: ContactFrame) async throws {
         do {
             let meshContact = contact.toMeshContact()
             try await session.addContact(meshContact)
 
             // Save to local database
-            _ = try await dataStore.saveContact(deviceID: deviceID, from: contact)
+            _ = try await dataStore.saveContact(radioID: radioID, from: contact)
 
             // Notify UI to refresh contacts list
             await syncCoordinator?.notifyContactsChanged()
@@ -211,14 +209,14 @@ public actor ContactService {
 
     /// Remove a contact from the device
     /// - Parameters:
-    ///   - deviceID: The device ID
+    ///   - radioID: The device ID
     ///   - publicKey: The contact's 32-byte public key
-    public func removeContact(deviceID: UUID, publicKey: Data) async throws {
+    public func removeContact(radioID: UUID, publicKey: Data) async throws {
         do {
             try await session.removeContact(publicKey: publicKey)
 
             // Remove from local database
-            if let contact = try await dataStore.fetchContact(deviceID: deviceID, publicKey: publicKey) {
+            if let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) {
                 let contactID = contact.id
 
                 // Delete associated messages first
@@ -258,14 +256,14 @@ public actor ContactService {
 
     /// Reset the path for a contact (force rediscovery)
     /// - Parameters:
-    ///   - deviceID: The device ID
+    ///   - radioID: The device ID
     ///   - publicKey: The contact's 32-byte public key
-    public func resetPath(deviceID: UUID, publicKey: Data) async throws {
+    public func resetPath(radioID: UUID, publicKey: Data) async throws {
         do {
             try await session.resetPath(publicKey: publicKey)
 
             // Update local contact to show flood routing
-            if let contact = try await dataStore.fetchContact(deviceID: deviceID, publicKey: publicKey) {
+            if let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) {
                 let frame = ContactFrame(
                     publicKey: contact.publicKey,
                     type: contact.type,
@@ -278,7 +276,7 @@ public actor ContactService {
                     longitude: contact.longitude,
                     lastModified: UInt32(Date().timeIntervalSince1970)
                 )
-                _ = try await dataStore.saveContact(deviceID: deviceID, from: frame)
+                _ = try await dataStore.saveContact(radioID: radioID, from: frame)
             }
         } catch let error as MeshCoreError {
             if case .deviceError(let code) = error, code == ProtocolError.notFound.rawValue {
@@ -292,10 +290,10 @@ public actor ContactService {
 
     /// Send a path discovery request to find optimal route to contact
     /// - Parameters:
-    ///   - deviceID: The device ID
+    ///   - radioID: The device ID
     ///   - publicKey: The contact's 32-byte public key
     /// - Returns: MessageSentInfo containing the estimated timeout from firmware
-    public func sendPathDiscovery(deviceID: UUID, publicKey: Data) async throws -> MessageSentInfo {
+    public func sendPathDiscovery(radioID: UUID, publicKey: Data) async throws -> MessageSentInfo {
         do {
             return try await session.sendPathDiscovery(to: publicKey)
         } catch let error as MeshCoreError {
@@ -310,13 +308,13 @@ public actor ContactService {
 
     /// Set a specific path for a contact
     /// - Parameters:
-    ///   - deviceID: The device ID
+    ///   - radioID: The device ID
     ///   - publicKey: The contact's 32-byte public key
     ///   - path: The path data (repeater hashes)
     ///   - pathLength: Encoded path length byte (0xFF for flood, 0 for direct, >0 for routed)
-    public func setPath(deviceID: UUID, publicKey: Data, path: Data, pathLength: UInt8) async throws {
+    public func setPath(radioID: UUID, publicKey: Data, path: Data, pathLength: UInt8) async throws {
         // Get current contact to preserve other fields
-        guard let existingContact = try await dataStore.fetchContact(deviceID: deviceID, publicKey: publicKey) else {
+        guard let existingContact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) else {
             throw ContactServiceError.contactNotFound
         }
 
@@ -335,7 +333,7 @@ public actor ContactService {
         )
 
         // Send update to device
-        try await addOrUpdateContact(deviceID: deviceID, contact: updatedFrame)
+        try await addOrUpdateContact(radioID: radioID, contact: updatedFrame)
     }
 
     // MARK: - Share Contact
@@ -346,6 +344,9 @@ public actor ContactService {
         do {
             try await session.shareContact(publicKey: publicKey)
         } catch let error as MeshCoreError {
+            if case .deviceError(let code) = error, code == ProtocolError.tableFull.rawValue {
+                throw ContactServiceError.shareContactUnavailable
+            }
             if case .deviceError(let code) = error, code == ProtocolError.notFound.rawValue {
                 throw ContactServiceError.contactNotFound
             }
@@ -367,6 +368,13 @@ public actor ContactService {
         }
     }
 
+    private static let contactURIScheme = "meshcore"
+    private static let contactURIHost = "contact"
+    private static let contactURIPath = "/add"
+    private static let contactURINameKey = "name"
+    private static let contactURIPublicKeyKey = "public_key"
+    private static let contactURITypeKey = "type"
+
     /// Build a shareable contact URI from contact information
     /// - Parameters:
     ///   - name: The contact's advertised name
@@ -374,8 +382,19 @@ public actor ContactService {
     ///   - type: The contact type (chat, repeater, room)
     /// - Returns: Contact URI string in format: meshcore://contact/add?name=...&public_key=...&type=...
     public static func exportContactURI(name: String, publicKey: Data, type: ContactType) -> String {
-        let encodedName = name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        return "meshcore://contact/add?name=\(encodedName)&public_key=\(publicKey.hexString())&type=\(type.rawValue)"
+        // Build via URLComponents so reserved characters in the name (`&`, `=`, `+`, `?`) are
+        // percent-encoded per query item. String interpolation would let a crafted name inject
+        // its own public_key/type and spoof the parsed contact identity.
+        var components = URLComponents()
+        components.scheme = contactURIScheme
+        components.host = contactURIHost
+        components.path = contactURIPath
+        components.queryItems = [
+            URLQueryItem(name: contactURINameKey, value: name),
+            URLQueryItem(name: contactURIPublicKeyKey, value: publicKey.hexString()),
+            URLQueryItem(name: contactURITypeKey, value: String(type.rawValue))
+        ]
+        return components.url?.absoluteString ?? ""
     }
 
     /// Import a contact from card data
@@ -391,13 +410,13 @@ public actor ContactService {
     // MARK: - Local Database Operations
 
     /// Get all contacts for a device from local database
-    public func getContacts(deviceID: UUID) async throws -> [ContactDTO] {
-        try await dataStore.fetchContacts(deviceID: deviceID)
+    public func getContacts(radioID: UUID) async throws -> [ContactDTO] {
+        try await dataStore.fetchContacts(radioID: radioID)
     }
 
     /// Get conversations (contacts with messages) from local database
-    public func getConversations(deviceID: UUID) async throws -> [ContactDTO] {
-        try await dataStore.fetchConversations(deviceID: deviceID)
+    public func getConversations(radioID: UUID) async throws -> [ContactDTO] {
+        try await dataStore.fetchConversations(radioID: radioID)
     }
 
     /// Get a contact by ID from local database
@@ -424,7 +443,7 @@ public actor ContactService {
         let updated = ContactDTO(
             from: Contact(
                 id: existing.id,
-                deviceID: existing.deviceID,
+                radioID: existing.radioID,
                 publicKey: existing.publicKey,
                 name: existing.name,
                 typeRawValue: existing.typeRawValue,
@@ -472,7 +491,7 @@ public actor ContactService {
         let updated = ContactDTO(
             from: Contact(
                 id: existing.id,
-                deviceID: existing.deviceID,
+                radioID: existing.radioID,
                 publicKey: existing.publicKey,
                 name: existing.name,
                 typeRawValue: existing.typeRawValue,
@@ -543,7 +562,7 @@ public actor ContactService {
         let updated = ContactDTO(
             from: Contact(
                 id: existing.id,
-                deviceID: existing.deviceID,
+                radioID: existing.radioID,
                 publicKey: existing.publicKey,
                 name: existing.name,
                 typeRawValue: existing.typeRawValue,
@@ -618,7 +637,7 @@ public actor ContactService {
         let updated = ContactDTO(
             from: Contact(
                 id: existing.id,
-                deviceID: existing.deviceID,
+                radioID: existing.radioID,
                 publicKey: existing.publicKey,
                 name: existing.name,
                 typeRawValue: existing.typeRawValue,
@@ -652,10 +671,10 @@ public actor ContactService {
     /// any contact that is favorite in either location becomes favorite in both.
     /// After migration, device wins for future syncs.
     ///
-    /// - Parameter deviceID: The connected device's UUID.
+    /// - Parameter radioID: The connected device's UUID.
     /// - Returns: Number of contacts migrated to device.
     @discardableResult
-    public func migrateAppFavoritesToDevice(deviceID: UUID) async throws -> Int {
+    public func migrateAppFavoritesToDevice(radioID: UUID) async throws -> Int {
         // Check if already migrated
         if UserDefaults.standard.bool(forKey: Self.favoritesMigrationKey) {
             return 0
@@ -664,7 +683,7 @@ public actor ContactService {
         logger.info("Starting favorites migration to device")
 
         // Find contacts that are favorite in app but not on device
-        let contacts = try await dataStore.fetchContacts(deviceID: deviceID)
+        let contacts = try await dataStore.fetchContacts(radioID: radioID)
         let toMigrate = contacts.filter { contact in
             contact.isFavorite && (contact.flags & 0x01) == 0
         }
@@ -703,7 +722,7 @@ public actor ContactService {
 // MARK: - ContactServiceProtocol Conformance
 
 extension ContactService: ContactServiceProtocol {
-    // Already implements syncContacts(deviceID:since:) -> ContactSyncResult
+    // Already implements syncContacts(radioID:since:) -> ContactSyncResult
 }
 
 // MARK: - MeshContact Extensions
@@ -714,6 +733,7 @@ extension MeshContact {
         ContactFrame(
             publicKey: publicKey,
             type: type,
+            typeRawValue: typeRawValue,
             flags: flags.rawValue,
             outPathLength: outPathLength,
             outPath: outPath,
@@ -735,6 +755,7 @@ extension ContactFrame {
             id: publicKey.hexString(),
             publicKey: publicKey,
             type: type,
+            typeRawValue: typeRawValue,
             flags: ContactFlags(rawValue: flags),
             outPathLength: outPathLength,
             outPath: outPath,

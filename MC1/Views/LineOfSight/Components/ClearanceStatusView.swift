@@ -11,7 +11,7 @@ struct ClearanceStatusView: View {
                 .foregroundStyle(status.color)
                 .font(.body.weight(.semibold))
 
-            Text(status.rawValue)
+            Text(status.localizedName)
                 .font(.headline)
 
             // Show clearance percentage only for non-blocked statuses

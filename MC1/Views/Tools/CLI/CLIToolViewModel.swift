@@ -46,7 +46,7 @@ final class CLIToolViewModel {
     var repeaterAdminService: RepeaterAdminService?
     var remoteNodeService: RemoteNodeService?
     var dataStore: PersistenceStoreProtocol?
-    var deviceID: UUID?
+    var radioID: UUID?
     var localDeviceName: String = ""
 
     // MARK: - Prompt
@@ -81,13 +81,13 @@ final class CLIToolViewModel {
         repeaterAdminService: RepeaterAdminService?,
         remoteNodeService: RemoteNodeService?,
         dataStore: PersistenceStoreProtocol?,
-        deviceID: UUID?,
+        radioID: UUID?,
         localDeviceName: String
     ) {
         self.localDeviceName = localDeviceName
         self.remoteNodeService = remoteNodeService
         self.dataStore = dataStore
-        self.deviceID = deviceID
+        self.radioID = radioID
 
         // Only reset if service instance changed
         if self.repeaterAdminService !== repeaterAdminService {

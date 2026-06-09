@@ -134,10 +134,9 @@ public struct MessageServiceConfig: Sendable {
 
 | Method | Description |
 |--------|-------------|
-| `startAckExpiryChecking(interval:)` | Starts periodic expired ACK checks (default: 5s) |
+| `startAckExpiryChecking(interval:)` | Starts periodic expired ACK checks (default: 5s; wired on connect via `ServiceContainer.startEventMonitoring`) |
 | `stopAckExpiryChecking()` | Stops background ACK checking |
-| `checkExpiredAcks() async throws` | Checks for expired ACKs and marks their messages as failed |
-| `cleanupDeliveredAcks()` | Cleans up old delivered ACK tracking entries |
+| `checkExpiredAcks() async throws` | Marks expired ACKs' messages as `.failed` and pushes codes into the late-ACK ring |
 | `failAllPendingMessages() async throws` | Fails all pending messages that are awaiting ACK |
 | `stopAndFailAllPending() async throws` | Stops ACK checking and fails all pending messages atomically |
 
@@ -389,8 +388,7 @@ The unified interface for SwiftData persistence, shared across all services.
 | `saveMessage(_:) throws` | Save or update a message |
 | `deleteMessage(id:) throws` | Delete a message |
 | `updateMessageStatus(id:status:) throws` | Update message delivery status |
-| `updateMessageAck(id:ackCode:status:) throws` | Update message ACK code and status |
-| `updateMessageByAckCode(_:status:) throws` | Update message by ACK code |
+| `updateMessageAck(id:ackCode:status:roundTripTime:) throws` | Update message ACK code, status, and round-trip time |
 | `updateMessageRetryStatus(id:status:retryAttempt:maxRetryAttempts:) throws` | Update message retry status |
 | `updateMessageHeardRepeats(id:heardRepeats:) throws` | Update message heard repeats count |
 | `markMessagesAsRead(contactID:) throws` | Mark all messages as read for a contact |

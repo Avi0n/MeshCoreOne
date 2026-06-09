@@ -1,6 +1,6 @@
+import Accessibility
 import Foundation
 import MC1Services
-import UIKit
 
 /// Manages connection-related UI state: status pills, sync activity, alerts, and pairing state.
 @Observable
@@ -48,14 +48,31 @@ public final class ConnectionUIState {
     /// Message for connection failure alert
     var connectionFailedMessage: String?
 
+    /// Optional override for the connection-failed alert title. nil falls back
+    /// to L10n.Localizable.Alert.ConnectionFailed.title ("Connection Failed").
+    var connectionFailedTitle: String?
+
+    /// Variant of the pairing-failure alert when `failedPairingDeviceID` is set.
+    /// Drives action-button selection in `ContentView` so the discriminant is an
+    /// explicit semantic signal rather than a "title text happens to be non-nil"
+    /// heuristic. A future caller that sets a title for non-auth reasons can't
+    /// silently flip the user from a non-destructive Try Again into a destructive
+    /// Remove and Try Again — that mistake destroys a working bond.
+    var pairingFailureKind: PairingFailureKind?
+
     /// Device ID that failed pairing (wrong PIN) - for recovery UI
     var failedPairingDeviceID: UUID?
 
     /// Device ID that triggered "connected to other app" warning - alert shown when non-nil
     var otherAppWarningDeviceID: UUID?
 
-    /// Whether device pairing is in progress (ASK picker or connecting after selection)
-    var isPairing = false
+    /// Whether any user-initiated connection attempt is in flight — pairing
+    /// (`AppState.startDeviceScan`), the transient-failure retry path
+    /// (`AppState.retryFailedPairingConnect`), or simulator connect. Drives
+    /// spinners and disabled buttons across pairing and retry flows. Distinct from
+    /// `ConnectionManager.isPairingInProgress`, which is narrowly scoped to the
+    /// `pairNewDevice` flow and is consulted by the BLE-layer reconnect gate.
+    var isBusy = false
 
     /// Whether the device's node storage is full (set by 0x90 push, cleared on delete/overwrite)
     var isNodeStorageFull = false
@@ -91,9 +108,7 @@ public final class ConnectionUIState {
         syncFailedPillTask?.cancel()
         syncFailedPillVisible = true
 
-        if UIAccessibility.isVoiceOverRunning {
-            announceConnectionState(L10n.Localizable.Accessibility.Connection.syncFailedDisconnecting)
-        }
+        announceConnectionState(L10n.Localizable.Accessibility.Connection.syncFailedDisconnecting)
 
         syncFailedPillTask = Task {
             try? await Task.sleep(for: .seconds(7))
@@ -143,13 +158,6 @@ public final class ConnectionUIState {
 
     // MARK: - Activity Tracking
 
-    /// Execute an operation while tracking it as sync activity (shows pill)
-    func withSyncActivity<T>(_ operation: () async throws -> T) async rethrows -> T {
-        syncActivityCount += 1
-        defer { syncActivityCount -= 1 }
-        return try await operation()
-    }
-
 #if DEBUG
     /// Test helper: Simulates sync activity started callback
     func simulateSyncStarted() {
@@ -157,9 +165,12 @@ public final class ConnectionUIState {
     }
 
     /// Test helper: Simulates sync activity ended callback (mirrors actual callback guard logic)
-    func simulateSyncEnded() {
+    func simulateSyncEnded(succeeded: Bool = false) {
         guard syncActivityCount > 0 else { return }
         syncActivityCount -= 1
+        if syncActivityCount == 0 && succeeded {
+            showReadyToastBriefly()
+        }
     }
 #endif
 
@@ -171,9 +182,7 @@ public final class ConnectionUIState {
         lastConnectedDeviceID: UUID?,
         shouldSuppressDisconnectedPill: Bool
     ) {
-        if UIAccessibility.isVoiceOverRunning {
-            announceConnectionState(L10n.Localizable.Accessibility.Connection.deviceConnectionLost)
-        }
+        announceConnectionState(L10n.Localizable.Accessibility.Connection.deviceConnectionLost)
         syncActivityCount = 0
         currentSyncPhase = nil
         hideReadyToast()
@@ -194,9 +203,7 @@ public final class ConnectionUIState {
     ) async {
         hideDisconnectedPill()
 
-        if UIAccessibility.isVoiceOverRunning {
-            announceConnectionState(L10n.Localizable.Accessibility.Connection.deviceReconnected)
-        }
+        announceConnectionState(L10n.Localizable.Accessibility.Connection.deviceReconnected)
 
         // Sync activity callbacks for syncing pill display
         // These are called for contacts and channels phases, NOT for messages
@@ -204,14 +211,14 @@ public final class ConnectionUIState {
             onStarted: { @MainActor [weak self] in
                 self?.syncActivityCount += 1
             },
-            onEnded: { @MainActor [weak self] in
+            onEnded: { @MainActor [weak self] succeeded in
                 guard let self else { return }
                 // Guard against double-decrement: onDisconnected and sync error path
                 // can both call this if WiFi drops or device switch during sync
                 guard self.syncActivityCount > 0 else { return }
                 self.syncActivityCount -= 1
-                // Show "Ready" toast when all sync activity completes
-                if self.syncActivityCount == 0 {
+                // Show "Ready" toast only when all sync activity completes successfully
+                if self.syncActivityCount == 0 && succeeded {
                     self.showReadyToastBriefly()
                 }
             },
@@ -244,6 +251,54 @@ public final class ConnectionUIState {
 
     /// Posts a VoiceOver announcement for connection state changes
     func announceConnectionState(_ message: String) {
-        UIAccessibility.post(notification: .announcement, argument: message)
+        AccessibilityNotification.Announcement(message).post()
     }
+
+    // MARK: - Connection Failure Routing
+
+    /// Routes a generic (non-pairing) connection failure. Clears
+    /// `connectionFailedTitle` and `pairingFailureKind` so a prior
+    /// `presentPairingFailure` can't leak stale state onto an unrelated failure.
+    func presentConnectionFailure(message: String?) {
+        connectionFailedTitle = nil
+        pairingFailureKind = nil
+        connectionFailedMessage = message
+        showingConnectionFailedAlert = true
+    }
+
+    /// Routes a PairingError to the correct alert so every catch site produces
+    /// identical UX across the three pairing-failure paths.
+    func presentPairingFailure(_ error: PairingError) {
+        switch error {
+        case .deviceConnectedToOtherApp(let deviceID):
+            // Routes through the separate "Could Not Connect" alert binding.
+            otherAppWarningDeviceID = deviceID
+
+        case .connectionFailed(let deviceID, _):
+            failedPairingDeviceID = deviceID
+            if error.isAuthenticationFailure {
+                connectionFailedTitle = L10n.Localizable.Alert.PairingFailed.title
+                connectionFailedMessage = L10n.Onboarding.DeviceScan.Error.authenticationFailed
+                pairingFailureKind = .authentication
+            } else {
+                connectionFailedTitle = nil
+                connectionFailedMessage = L10n.Onboarding.DeviceScan.Error.connectionFailed
+                pairingFailureKind = .transient
+            }
+            showingConnectionFailedAlert = true
+        }
+    }
+}
+
+/// Variant of the pairing-failure alert. Determines whether the recovery action
+/// is destructive (auth: must remove the bond) or non-destructive (transient:
+/// keep the bond, just retry).
+public enum PairingFailureKind: Sendable {
+    /// Authentication failed — bond is bad. Recovery requires removing the bond
+    /// and re-pairing.
+    case authentication
+
+    /// Transient connection failure — bond is good. Recovery prefers a plain
+    /// retry, with destructive remove available as a fallback.
+    case transient
 }

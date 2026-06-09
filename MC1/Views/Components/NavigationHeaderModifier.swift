@@ -4,6 +4,11 @@ import SwiftUI
 /// On iOS 26+, uses native `.navigationSubtitle()` which animates with the navigation transition.
 /// On iOS 18-25, uses a custom toolbar principal item that appears after the view renders.
 struct NavigationHeaderModifier: ViewModifier {
+    /// Minimum scale floor for the legacy iOS 18-25 subtitle, anchored on iPhone SE-class
+    /// width (375pt) — caption2 (~12pt) × 0.7 ≈ 8.4pt keeps long region names readable
+    /// rather than clipped.
+    private static let legacySubtitleMinimumScaleFactor: CGFloat = 0.7
+
     let title: String
     let subtitle: String
     let subtitleAccessibilityLabel: String?
@@ -44,6 +49,9 @@ struct NavigationHeaderModifier: ViewModifier {
                             Text(subtitle)
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                                .minimumScaleFactor(Self.legacySubtitleMinimumScaleFactor)
+                                .truncationMode(.tail)
                                 .accessibilityLabel(subtitleAccessibilityLabel ?? subtitle)
                         }
                     }

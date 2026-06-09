@@ -27,14 +27,14 @@ final class SavedPathsViewModel {
 
     func loadSavedPaths() async {
         guard let appState,
-              let deviceID = appState.connectedDevice?.id,
+              let radioID = appState.connectedDevice?.radioID,
               let dataStore = appState.services?.dataStore else { return }
 
         isLoading = true
         errorMessage = nil
 
         do {
-            savedPaths = try await dataStore.fetchSavedTracePaths(deviceID: deviceID)
+            savedPaths = try await dataStore.fetchSavedTracePaths(radioID: radioID)
             logger.info("Loaded \(self.savedPaths.count) saved paths")
         } catch {
             logger.error("Failed to load saved paths: \(error.localizedDescription)")

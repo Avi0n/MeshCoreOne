@@ -6,6 +6,7 @@ struct RoomConversationView: View {
     @Environment(\.appState) private var appState
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.appTheme) private var theme
 
     @State private var session: RemoteNodeSessionDTO
     @State private var viewModel = RoomConversationViewModel()
@@ -15,8 +16,6 @@ struct RoomConversationView: View {
     @State private var isAtBottom = true
     @State private var unreadCount = 0
     @State private var scrollToBottomRequest = 0
-    @State private var eventCursor: Int?
-    @FocusState private var isInputFocused: Bool
 
     init(session: RemoteNodeSessionDTO) {
         self._session = State(initialValue: session)
@@ -24,6 +23,10 @@ struct RoomConversationView: View {
 
     var body: some View {
         makeMessagesView()
+            .mentionTapHandling(
+                contacts: chatViewModel.allContacts,
+                radioID: session.radioID
+            )
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if !session.isConnected {
                     makeDisconnectedBanner()
@@ -53,41 +56,24 @@ struct RoomConversationView: View {
                 }
                 .presentationSizing(.page)
             }
-            .onAppear {
-                eventCursor = appState.messageEventBroadcaster.currentEventSequence
-            }
             .task {
                 viewModel.configure(appState: appState)
                 chatViewModel.configure(appState: appState)
+                await chatViewModel.loadAllContacts(radioID: session.radioID)
                 await viewModel.loadMessages(for: session)
             }
-            .onChange(of: appState.messageEventBroadcaster.newMessageCount) { _, _ in
-                guard let cursor = eventCursor else { return }
-                let (events, newCursor, droppedEvents) = appState.messageEventBroadcaster.events(after: cursor)
-                eventCursor = newCursor
-                var needsReload = droppedEvents
-                for event in events {
-                    switch event {
-                    case .roomMessageReceived(let message, let sessionID) where sessionID == session.id:
-                        viewModel.appendMessageIfNew(message)
-                        needsReload = true
-                    case .roomMessageStatusUpdated(let messageID):
-                        if viewModel.messages.contains(where: { $0.id == messageID }) {
-                            needsReload = true
-                        }
-                    case .roomMessageFailed(let messageID):
-                        if viewModel.messages.contains(where: { $0.id == messageID }) {
-                            needsReload = true
-                        }
-                    default:
-                        break
-                    }
-                }
-                if needsReload {
-                    Task { await viewModel.loadMessages(for: session) }
+            .task(id: appState.servicesVersion) {
+                // Track the active room so foreground banners for it are suppressed.
+                // Keyed on servicesVersion so a reconnect, which mints a fresh
+                // NotificationService, re-asserts this on the new instance.
+                appState.services?.notificationService.setActiveConversation(roomSessionID: session.id)
+            }
+            .task {
+                for await event in appState.messageEventStream.events() {
+                    await viewModel.handleEvent(event)
                 }
             }
-            .onChange(of: appState.messageEventBroadcaster.sessionStateChangeCount) { _, _ in
+            .onChange(of: appState.sessionStateChangeCount) { _, _ in
                 Task {
                     await viewModel.refreshSession()
                     if let updated = viewModel.session {
@@ -112,15 +98,29 @@ struct RoomConversationView: View {
                 }
             }
             .onChange(of: scenePhase) { _, newPhase in
-                if newPhase == .active, session.isConnected {
+                if newPhase == .active {
+                    // Re-clear the tray: notifications usually arrive while
+                    // backgrounded with this room already on screen.
                     Task {
-                        await appState.services?.remoteNodeService.startSessionKeepAlive(
-                            sessionID: session.id, publicKey: session.publicKey
-                        )
+                        await appState.services?.notificationService
+                            .removeDeliveredNotifications(forRoomSessionID: session.id)
+                        await appState.services?.notificationService.updateBadgeCount()
+                    }
+                    if session.isConnected {
+                        Task {
+                            await appState.services?.remoteNodeService.startSessionKeepAlive(
+                                sessionID: session.id, publicKey: session.publicKey
+                            )
+                        }
                     }
                 }
             }
             .onDisappear {
+                // Only clear if this room still owns the active slot; a newer room's
+                // .task may have already claimed it before this view tears down.
+                if appState.services?.notificationService.activeRoomSessionID == session.id {
+                    appState.services?.notificationService.activeRoomSessionID = nil
+                }
                 Task {
                     await appState.services?.remoteNodeService.stopSessionKeepAlive(
                         sessionID: session.id
@@ -146,6 +146,7 @@ struct RoomConversationView: View {
             unreadCount: $unreadCount,
             scrollToBottomRequest: $scrollToBottomRequest,
             session: session,
+            theme: theme,
             onRetry: { id in
                 Task { await viewModel.retryMessage(id: id) }
             }
@@ -155,7 +156,7 @@ struct RoomConversationView: View {
     private func makeInputBar() -> some View {
         ChatInputBar(
             text: $viewModel.composingText,
-            isFocused: $isInputFocused,
+            focusRequest: 0,
             placeholder: L10n.RemoteNodes.RemoteNodes.Room.publicMessage,
             maxBytes: ProtocolLimits.maxDirectMessageLength,
             isEncrypted: false
@@ -197,7 +198,11 @@ private struct MessagesView: View {
     @Binding var unreadCount: Int
     @Binding var scrollToBottomRequest: Int
     let session: RemoteNodeSessionDTO
+    let theme: Theme
     let onRetry: (UUID) -> Void
+
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     var body: some View {
         Group {
@@ -211,7 +216,11 @@ private struct MessagesView: View {
                     items: messages,
                     cellContent: { message in
                         messageBubble(for: message)
+                            .environment(\.appTheme, theme)
                     },
+                    contentBackground: theme.surfaces?.canvas,
+                    themeID: theme.id,
+                    appearanceToken: AppearanceToken.make(colorScheme: colorScheme, contrast: colorSchemeContrast),
                     isAtBottom: $isAtBottom,
                     unreadCount: $unreadCount,
                     scrollToBottomRequest: $scrollToBottomRequest,
@@ -230,6 +239,7 @@ private struct MessagesView: View {
                 }
             }
         }
+        .themedCanvas(theme)
     }
 
     private func messageBubble(for message: RoomMessageDTO) -> some View {
@@ -307,7 +317,7 @@ private struct RoomStatusBanner: View {
     NavigationStack {
         RoomConversationView(
             session: RemoteNodeSessionDTO(
-                deviceID: UUID(),
+                radioID: UUID(),
                 publicKey: Data(repeating: 0x42, count: 32),
                 name: "Test Room",
                 role: .roomServer,

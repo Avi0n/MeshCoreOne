@@ -79,6 +79,9 @@
 /* Tab bar title for the messaging/conversations screen */
 "tabs.chats" = "聊天";
 
+/* VoiceOver value announcing the unread message count on the Chats sidebar icon. %d is the count. */
+"tabs.chatsUnreadAccessibilityValue" = "%d条未读";
+
 /* Tab bar title for the nodes/contacts list screen */
 "tabs.nodes" = "节点";
 
@@ -100,6 +103,9 @@
 /* Alert title when connection cannot be established */
 "alert.couldNotConnect.title" = "无法连接";
 
+/* Alert title when device pairing fails (e.g., wrong PIN) */
+"alert.pairingFailed.title" = "配对失败";
+
 /* Default message when device connection fails */
 "alert.connectionFailed.defaultMessage" = "无法连接到设备";
 
@@ -108,6 +114,9 @@
 
 /* Button to remove failed pairing and retry connection */
 "alert.connectionFailed.removeAndRetry" = "移除并重试";
+
+/* VoiceOver label for the destructive Remove and Try Again button — clarifies that "remove" means removing the device pairing */
+"accessibility.alert.connectionFailed.removeAndRetry" = "移除设备配对并重试";
 
 
 // MARK: - Accessibility
@@ -201,6 +210,11 @@
 
 /* VoiceOver announcement when device reconnects */
 "accessibility.connection.deviceReconnected" = "设备已重新连接";
+
+/* VoiceOver signal-strength descriptors for the device picker signal bars */
+"accessibility.signalStrength.weak" = "弱信号";
+"accessibility.signalStrength.medium" = "中等信号";
+"accessibility.signalStrength.strong" = "强信号";
 
 
 // MARK: - Status Pill

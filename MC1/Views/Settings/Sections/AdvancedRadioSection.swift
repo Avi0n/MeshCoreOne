@@ -4,6 +4,7 @@ import MC1Services
 /// Manual radio parameter configuration
 struct AdvancedRadioSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @State private var frequency: Double?  // MHz
     @State private var bandwidth: UInt32?  // Hz
@@ -14,7 +15,7 @@ struct AdvancedRadioSection: View {
     @State private var hasLoaded = false
     @State private var isApplying = false
     @State private var showSuccess = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var retryAlert = RetryAlertState()
     @FocusState private var focusedField: RadioField?
 
@@ -127,22 +128,11 @@ struct AdvancedRadioSection: View {
             Button {
                 applySettings()
             } label: {
-                HStack {
-                    Spacer()
-                    if isApplying {
-                        ProgressView()
-                    } else if showSuccess {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                            .transition(.scale.combined(with: .opacity))
-                    } else {
-                        Text(L10n.Settings.AdvancedRadio.apply)
-                            .foregroundStyle(canApply ? Color.accentColor : .secondary)
-                            .transition(.opacity)
-                    }
-                    Spacer()
+                AsyncActionLabel(isLoading: isApplying, showSuccess: showSuccess) {
+                    Text(L10n.Settings.AdvancedRadio.apply)
+                        .foregroundStyle(canApply ? Color.accentColor : .secondary)
+                        .transition(.opacity)
                 }
-                .animation(.default, value: showSuccess)
             }
             .radioDisabled(for: appState.connectionState, or: isApplying || showSuccess || !settingsModified)
             }
@@ -151,13 +141,14 @@ struct AdvancedRadioSection: View {
         } footer: {
             Text(L10n.Settings.AdvancedRadio.footer)
         }
+        .themedRowBackground(theme)
         .onAppear {
             loadCurrentSettings()
         }
         .onChange(of: deviceRadioSettingsHash) { _, _ in
             loadCurrentSettings()
         }
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
         .retryAlert(retryAlert)
     }
 
@@ -181,7 +172,7 @@ struct AdvancedRadioSection: View {
               let codeRate = codingRate,
               let power = txPower,
               let settingsService = appState.services?.settingsService else {
-            showError = L10n.Settings.AdvancedRadio.invalidInput
+            errorMessage = L10n.Settings.AdvancedRadio.invalidInput
             return
         }
 
@@ -236,7 +227,7 @@ struct AdvancedRadioSection: View {
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
             isApplying = false
         }

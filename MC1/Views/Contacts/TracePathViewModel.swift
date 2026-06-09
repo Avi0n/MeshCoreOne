@@ -8,7 +8,8 @@ import os.log
 
 private let logger = Logger(subsystem: "com.mc1", category: "TracePath")
 
-@MainActor @Observable
+@Observable
+@MainActor
 final class TracePathViewModel {
 
     // MARK: - Path Building State
@@ -19,6 +20,16 @@ final class TracePathViewModel {
     var autoReturnPath = true
     private var allContacts: [ContactDTO] = []
     var discoveredRepeaters: [DiscoveredNodeDTO] = []
+
+    /// Recently added hop public keys, newest first. Source for the shared
+    /// picker's "Recent" section; persisted per radio via ``RecentHopsStore``.
+    var recentPublicKeys: [Data] = []
+    private let recents: RecentHopsStore
+    private var currentRadioID: UUID?
+
+    init(defaults: UserDefaults = .standard) {
+        self.recents = RecentHopsStore(defaults: defaults)
+    }
 
     /// Combined repeaters and rooms for resolution (hex codes, map pins, etc.)
     var availableNodes: [ContactDTO] {
@@ -160,8 +171,8 @@ final class TracePathViewModel {
             .receive(on: RunLoop.main)
             .sink { [weak self] notification in
                 guard let traceInfo = notification.userInfo?["traceInfo"] as? TraceInfo else { return }
-                let deviceID = notification.userInfo?["deviceID"] as? UUID
-                self?.handleTraceResponse(traceInfo, deviceID: deviceID)
+                let radioID = notification.userInfo?["radioID"] as? UUID
+                self?.handleTraceResponse(traceInfo, radioID: radioID)
             }
             .store(in: &cancellables)
     }
@@ -195,10 +206,20 @@ final class TracePathViewModel {
         Array(fullPathData)
     }
 
-    /// Current hash size from device configuration (1, 2, or 3 bytes per hop)
-    var hashSize: Int {
-        appState?.connectedDevice?.hashSize ?? 1
+    /// Per-trace hash size override (path_sz code 0/1/2). `nil` follows the
+    /// radio's configured `pathHashMode`. Honored by firmware v1.11+.
+    var traceHashMode: UInt8?
+
+    /// Path_sz code used for this trace's flags byte and hop widths: the
+    /// override when set, otherwise the radio's configured `pathHashMode`.
+    var effectiveTraceMode: UInt8 {
+        traceHashMode ?? (appState?.connectedDevice?.pathHashMode ?? 0)
     }
+
+    /// Trace hash size in bytes per hop (1, 2, or 4), derived from the effective
+    /// mode. Trace uses power-of-2 encoding (`1 << mode`), unlike the linear
+    /// 1/2/3-byte routing hash size.
+    var hashSize: Int { 1 << Int(effectiveTraceMode) }
 
     /// Comma-separated path string for display/copy, chunked by hash size
     var fullPathString: String {
@@ -348,15 +369,22 @@ final class TracePathViewModel {
     // MARK: - Data Loading
 
     /// Load contacts for name resolution and available repeaters
-    func loadContacts(deviceID: UUID) async {
+    func loadContacts(radioID: UUID) async {
+        currentRadioID = radioID
+        recentPublicKeys = recents.load(for: radioID)
+        // Drop an override carried from a prior radio the current one can't
+        // honor, so the trace falls back to its pathHashMode.
+        if appState?.connectedDevice?.supportsTraceHashSizeOverride != true {
+            traceHashMode = nil
+        }
         guard let appState,
               let dataStore = appState.services?.dataStore else { return }
         do {
-            let contacts = try await dataStore.fetchContacts(deviceID: deviceID)
+            let contacts = try await dataStore.fetchContacts(radioID: radioID)
             allContacts = contacts
             availableRepeaters = contacts.filter { $0.type == .repeater }
             availableRooms = contacts.filter { $0.type == .room }
-            let nodes = try await dataStore.fetchDiscoveredNodes(deviceID: deviceID)
+            let nodes = try await dataStore.fetchDiscoveredNodes(radioID: radioID)
             discoveredRepeaters = nodes.filter { $0.nodeType == .repeater }
         } catch {
             logger.error("Failed to load contacts: \(error.localizedDescription)")
@@ -380,59 +408,45 @@ final class TracePathViewModel {
         result = nil
     }
 
-    /// Parse comma-separated hex codes and add matching repeaters to the path
+    /// Apply a per-trace hash size override and rebuild every hop to a uniform
+    /// width. Hops with a public key re-prefix exactly; key-less hops (from a
+    /// saved path with an unresolved hop) have nothing to widen from and are
+    /// zero-padded. The width must be uniform because the trace flags byte
+    /// declares a single hash size for the whole path.
+    func setTraceHashMode(_ mode: UInt8) {
+        clearError()
+        traceHashMode = mode
+        let size = hashSize
+        outboundPath = outboundPath.map { hop in
+            var hop = hop
+            let source = hop.publicKey ?? hop.hashBytes
+            var bytes = Data(source.prefix(size))
+            if bytes.count < size {
+                bytes.append(Data(repeating: 0, count: size - bytes.count))
+            }
+            hop.hashBytes = bytes
+            return hop
+        }
+        activeSavedPath = nil
+        pendingPathHash = nil
+        result = nil
+    }
+
+    /// Parse comma-separated hex codes and add matching repeaters to the path.
+    /// Shares ``HopCodeParser`` with the bulk-add preview so the two never diverge.
+    @discardableResult
     func addRepeatersFromCodes(_ input: String) -> CodeInputResult {
         var result = CodeInputResult()
-        let expectedHexLen = hashSize * 2
-
-        let codes = input
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespaces).uppercased() }
-            .filter { !$0.isEmpty }
-
-        // Deduplicate while preserving order
-        var seen = Set<String>()
-        let uniqueCodes = codes.filter { seen.insert($0).inserted }
-
-        let existingHashes = Set(outboundPath.map { $0.hashBytes })
-
-        for code in uniqueCodes {
-            // Validate hex format (must match hash size * 2 hex characters)
-            guard code.count == expectedHexLen,
-                  code.allSatisfy(\.isHexDigit) else {
-                result.invalidFormat.append(code)
-                continue
-            }
-
-            // Parse hex string into bytes
-            var hashData = Data()
-            var idx = code.startIndex
-            while idx < code.endIndex {
-                let nextIdx = code.index(idx, offsetBy: 2)
-                guard let byte = UInt8(code[idx..<nextIdx], radix: 16) else {
-                    break
-                }
-                hashData.append(byte)
-                idx = nextIdx
-            }
-            guard hashData.count == hashSize else {
-                result.invalidFormat.append(code)
-                continue
-            }
-
-            // Check if already in path
-            if existingHashes.contains(hashData) {
-                result.alreadyInPath.append(code)
-                continue
-            }
-
-            // Find matching node (prefer closer or more recent on collisions)
-            if let match = resolveNode(for: hashData) {
-                let hop = PathHop(hashBytes: hashData, publicKey: match.publicKey, resolvedName: match.resolvableName)
+        for entry in classifyCodes(input) {
+            switch entry.status {
+            case .willAdd(let hop):
                 outboundPath.append(hop)
-                result.added.append(code)
-            } else {
-                result.notFound.append(code)
+                if let publicKey = hop.publicKey { recordRecent(publicKey) }
+                result.added.append(entry.code)
+            case .alreadyInPath: result.alreadyInPath.append(entry.code)
+            case .notFound: result.notFound.append(entry.code)
+            case .invalidFormat: result.invalidFormat.append(entry.code)
+            case .pathFull: assertionFailure("trace paths are uncapped, so classifyCodes never yields .pathFull")
             }
         }
 
@@ -498,7 +512,7 @@ final class TracePathViewModel {
     @discardableResult
     func savePath(name: String) async -> Bool {
         guard let appState,
-              let deviceID = appState.connectedDevice?.id,
+              let radioID = appState.connectedDevice?.radioID,
               let dataStore = appState.services?.dataStore else { return false }
 
         // For batch mode, save all completed results
@@ -516,7 +530,7 @@ final class TracePathViewModel {
 
             do {
                 let savedPath = try await dataStore.createSavedTracePath(
-                    deviceID: deviceID,
+                    radioID: radioID,
                     name: name,
                     pathBytes: Data(firstSuccess.tracedPathBytes),
                     hashSize: hashSize,
@@ -563,7 +577,7 @@ final class TracePathViewModel {
 
         do {
             let savedPath = try await dataStore.createSavedTracePath(
-                deviceID: deviceID,
+                radioID: radioID,
                 name: name,
                 pathBytes: Data(result.tracedPathBytes),
                 hashSize: hashSize,
@@ -592,6 +606,15 @@ final class TracePathViewModel {
         let size = savedPath.hashSize
         guard !fullPath.isEmpty else { return }
 
+        // Match the trace hash mode to the saved width (size is 1/2/4 -> code
+        // 0/1/2), but only on a radio that honors the per-trace override;
+        // otherwise the trace follows the configured pathHashMode.
+        if appState?.connectedDevice?.supportsTraceHashSizeOverride == true {
+            traceHashMode = UInt8(size.trailingZeroBitCount)
+        } else {
+            traceHashMode = nil
+        }
+
         // Calculate total hops, then outbound is first half (rounded up)
         let totalHops = fullPath.count / size
         let outboundHopCount = (totalHops + 1) / 2
@@ -619,6 +642,7 @@ final class TracePathViewModel {
         outboundPath.removeAll()
         result = nil
         pendingPathHash = nil
+        traceHashMode = nil
     }
 
     /// Clear active saved path reference if it matches the deleted path
@@ -632,14 +656,14 @@ final class TracePathViewModel {
     /// Returns the most recently used match if multiple exist
     private func findMatchingSavedPath() async -> SavedTracePathDTO? {
         guard let appState,
-              let deviceID = appState.connectedDevice?.id,
+              let radioID = appState.connectedDevice?.radioID,
               let dataStore = appState.services?.dataStore else { return nil }
 
         let pathBytes = fullPathBytes
         guard !pathBytes.isEmpty else { return nil }
 
         do {
-            let savedPaths = try await dataStore.fetchSavedTracePaths(deviceID: deviceID)
+            let savedPaths = try await dataStore.fetchSavedTracePaths(radioID: radioID)
             let matches = savedPaths.filter { $0.pathHashBytes == pathBytes }
 
             // Return most recently used (by latest run date)
@@ -684,7 +708,7 @@ final class TracePathViewModel {
         // Generate random tag for correlation
         let tag = UInt32.random(in: 0...UInt32.max)
         pendingTag = tag
-        pendingDeviceID = appState.connectedDevice?.id  // Capture device
+        pendingDeviceID = appState.connectedDevice?.radioID  // Capture device
         traceStartTime = Date()
 
         // Build path data
@@ -696,7 +720,7 @@ final class TracePathViewModel {
             let sentInfo = try await session.sendTrace(
                 tag: tag,
                 authCode: 0,  // Not used for basic trace
-                flags: UInt8(appState.connectedDevice?.pathHashMode ?? 0),
+                flags: effectiveTraceMode,
                 path: pathData
             )
             timeoutSeconds = Double(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
@@ -853,7 +877,7 @@ final class TracePathViewModel {
         // Generate random tag for correlation
         let tag = UInt32.random(in: 0...UInt32.max)
         pendingTag = tag
-        pendingDeviceID = appState.connectedDevice?.id
+        pendingDeviceID = appState.connectedDevice?.radioID
         traceStartTime = Date()
 
         let pathData = Data(fullPathBytes)
@@ -863,7 +887,7 @@ final class TracePathViewModel {
             let sentInfo = try await session.sendTrace(
                 tag: tag,
                 authCode: 0,
-                flags: UInt8(appState.connectedDevice?.pathHashMode ?? 0),
+                flags: effectiveTraceMode,
                 path: pathData
             )
             timeoutSeconds = Double(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
@@ -965,14 +989,14 @@ final class TracePathViewModel {
     }
 
     /// Handle trace response from event stream
-    func handleTraceResponse(_ traceInfo: TraceInfo, deviceID: UUID?) {
+    func handleTraceResponse(_ traceInfo: TraceInfo, radioID: UUID?) {
         guard traceInfo.tag == pendingTag else {
             logger.debug("Ignoring trace response with non-matching tag \(traceInfo.tag)")
             return
         }
 
         // Validate device ID if both are available; skip if either is nil
-        if let pending = pendingDeviceID, let received = deviceID, pending != received {
+        if let pending = pendingDeviceID, let received = radioID, pending != received {
             logger.warning("Ignoring trace response from different device")
             return
         }
@@ -1126,8 +1150,8 @@ final class TracePathViewModel {
     }
 
     /// Test helper to set pending device ID
-    func setPendingDeviceIDForTesting(_ deviceID: UUID?) {
-        pendingDeviceID = deviceID
+    func setPendingDeviceIDForTesting(_ radioID: UUID?) {
+        pendingDeviceID = radioID
     }
 
     /// Test helper to set pending path hash
@@ -1142,4 +1166,41 @@ final class TracePathViewModel {
         availableRooms = contacts.filter { $0.type == .room }
     }
     #endif
+}
+
+// MARK: - HopPickerSource
+
+extension TracePathViewModel: HopPickerSource {
+    var currentHopCount: Int { outboundPath.count }
+
+    /// Trace paths are uncapped; `nil` tells the shared picker not to gate adds
+    /// (the `HopPickerSource` default then makes `isPathFull` always `false`).
+    var hopLimit: Int? { nil }
+
+    func appendHop(_ node: some RepeaterResolvable) {
+        addNode(node)
+        recordRecent(node.publicKey)
+    }
+
+    func addCodes(_ input: String) -> CodeInputResult {
+        addRepeatersFromCodes(input)
+    }
+
+    func classifyCodes(_ input: String) -> [HopCodeClassification] {
+        let existing = Set(outboundPath.map(\.hashBytes))
+        return HopCodeParser.classify(
+            input: input,
+            hashSize: hashSize,
+            existingHashes: existing,
+            remainingCapacity: nil
+        ) { hash in
+            guard let match = resolveNode(for: hash) else { return nil }
+            return (match.publicKey, match.resolvableName)
+        }
+    }
+
+    func recordRecent(_ publicKey: Data) {
+        guard let radioID = currentRadioID else { return }
+        recentPublicKeys = recents.record(publicKey, into: recentPublicKeys, for: radioID)
+    }
 }

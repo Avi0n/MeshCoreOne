@@ -75,7 +75,7 @@ struct NotificationServiceTests {
             messageID: UUID(),
             contactID: UUID(),
             channelIndex: nil,
-            deviceID: nil
+            radioID: nil
         )
 
         #expect(true)
@@ -93,7 +93,7 @@ struct NotificationServiceTests {
             messageID: UUID(),
             contactID: nil,
             channelIndex: 3,
-            deviceID: UUID()
+            radioID: UUID()
         )
 
         #expect(true)
@@ -131,10 +131,10 @@ struct NotificationServiceTests {
         var receivedDeviceID: UUID?
         var receivedMessageID: UUID?
 
-        service.onReactionNotificationTapped = { contactID, channelIndex, deviceID, messageID in
+        service.onReactionNotificationTapped = { contactID, channelIndex, radioID, messageID in
             receivedContactID = contactID
             receivedChannelIndex = channelIndex
-            receivedDeviceID = deviceID
+            receivedDeviceID = radioID
             receivedMessageID = messageID
         }
 
@@ -160,6 +160,7 @@ struct NotificationServiceTests {
         // Should return without posting (no crash, no notification)
         await service.postRoomMessageNotification(
             roomName: "TestRoom",
+            sessionID: UUID(),
             senderName: "Alice",
             messageText: "Hello",
             messageID: UUID(),
@@ -175,5 +176,100 @@ struct NotificationServiceTests {
         // Verify reaction category exists in the enum
         let category = NotificationCategory.reaction
         #expect(category.rawValue == "REACTION")
+    }
+
+    // MARK: - Room Notification Tests
+
+    @Test("Active room session tracking can be set and cleared")
+    @MainActor
+    func activeRoomSessionTrackingCanBeSetAndCleared() async {
+        let service = NotificationService()
+        let sessionID = UUID()
+
+        #expect(service.activeRoomSessionID == nil)
+
+        service.activeRoomSessionID = sessionID
+        #expect(service.activeRoomSessionID == sessionID)
+
+        service.activeRoomSessionID = nil
+        #expect(service.activeRoomSessionID == nil)
+    }
+
+    @Test("setActiveConversation populates only the passed slot and clears the rest")
+    @MainActor
+    func setActiveConversationIsAtomicAcrossTypes() async {
+        let service = NotificationService()
+        let contactID = UUID()
+        let channelRadioID = UUID()
+        let roomSessionID = UUID()
+
+        // Pre-populate every slot so the setter must clear the unpassed ones.
+        service.activeContactID = contactID
+        service.activeChannelIndex = 3
+        service.activeChannelRadioID = channelRadioID
+        service.activeRoomSessionID = roomSessionID
+
+        // Opening a DM clears channel and room slots.
+        service.setActiveConversation(contactID: contactID)
+        #expect(service.activeContactID == contactID)
+        #expect(service.activeChannelIndex == nil)
+        #expect(service.activeChannelRadioID == nil)
+        #expect(service.activeRoomSessionID == nil)
+
+        // Opening a channel clears the contact slot.
+        service.setActiveConversation(channelIndex: 5, channelRadioID: channelRadioID)
+        #expect(service.activeContactID == nil)
+        #expect(service.activeChannelIndex == 5)
+        #expect(service.activeChannelRadioID == channelRadioID)
+        #expect(service.activeRoomSessionID == nil)
+
+        // Opening a room clears the channel slots.
+        service.setActiveConversation(roomSessionID: roomSessionID)
+        #expect(service.activeContactID == nil)
+        #expect(service.activeChannelIndex == nil)
+        #expect(service.activeChannelRadioID == nil)
+        #expect(service.activeRoomSessionID == roomSessionID)
+    }
+
+    @Test("onRoomMarkAsRead callback can be set and receives parameters")
+    @MainActor
+    func onRoomMarkAsReadCallbackReceivesParameters() async {
+        let service = NotificationService()
+        let expectedSessionID = UUID()
+        let expectedMessageID = UUID()
+
+        var receivedSessionID: UUID?
+        var receivedMessageID: UUID?
+
+        service.onRoomMarkAsRead = { sessionID, messageID in
+            receivedSessionID = sessionID
+            receivedMessageID = messageID
+        }
+
+        #expect(service.onRoomMarkAsRead != nil)
+
+        await service.onRoomMarkAsRead?(expectedSessionID, expectedMessageID)
+
+        #expect(receivedSessionID == expectedSessionID)
+        #expect(receivedMessageID == expectedMessageID)
+    }
+
+    @Test("onRoomNotificationTapped callback can be set and receives the session ID")
+    @MainActor
+    func onRoomNotificationTappedCallbackReceivesSessionID() async {
+        let service = NotificationService()
+        let expectedSessionID = UUID()
+
+        var receivedSessionID: UUID?
+
+        service.onRoomNotificationTapped = { sessionID in
+            receivedSessionID = sessionID
+        }
+
+        #expect(service.onRoomNotificationTapped != nil)
+
+        await service.onRoomNotificationTapped?(expectedSessionID)
+
+        #expect(receivedSessionID == expectedSessionID)
     }
 }

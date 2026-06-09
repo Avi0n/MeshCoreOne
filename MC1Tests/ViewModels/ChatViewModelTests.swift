@@ -6,14 +6,14 @@ import Foundation
 // MARK: - Test Helpers
 
 private func createTestContact(
-    deviceID: UUID = UUID(),
+    radioID: UUID = UUID(),
     name: String = "TestContact",
     type: ContactType = .chat,
     isBlocked: Bool = false
 ) -> ContactDTO {
     let contact = Contact(
         id: UUID(),
-        deviceID: deviceID,
+        radioID: radioID,
         publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) }),
         name: name,
         typeRawValue: type.rawValue,
@@ -32,16 +32,18 @@ private func createTestContact(
 private func createTestMessage(
     timestamp: UInt32,
     createdAt: Date? = nil,
+    sortDate: Date? = nil,
     text: String = "Test message"
 ) -> MessageDTO {
     let resolvedCreatedAt = createdAt ?? Date(timeIntervalSince1970: TimeInterval(timestamp))
     let message = Message(
         id: UUID(),
-        deviceID: UUID(),
+        radioID: UUID(),
         contactID: UUID(),
         text: text,
         timestamp: timestamp,
         createdAt: resolvedCreatedAt,
+        sortDate: sortDate,
         directionRawValue: MessageDirection.outgoing.rawValue,
         statusRawValue: MessageStatus.sent.rawValue
     )
@@ -57,7 +59,7 @@ private func createChannelMessage(
 ) -> MessageDTO {
     MessageDTO(
         id: UUID(),
-        deviceID: UUID(),
+        radioID: UUID(),
         contactID: nil,  // nil = channel message
         channelIndex: 0,
         text: text,
@@ -80,11 +82,31 @@ private func createChannelMessage(
     )
 }
 
+/// Builds a calendar date at a specific day and time in the current calendar.
+private func makeDate(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int = 0) -> Date {
+    Calendar.current.date(from: DateComponents(year: year, month: month, day: day, hour: hour, minute: minute))!
+}
+
+/// Sender-clock timestamp for a day/time. Day-divider detection keys on
+/// `MessageDTO.senderDate`, which derives from `timestamp`, so this drives the real path.
+private func makeTimestamp(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int = 0) -> UInt32 {
+    UInt32(makeDate(year, month, day, hour, minute).timeIntervalSince1970)
+}
+
 // MARK: - ChatViewModel Tests
 
 @Suite("ChatViewModel Tests")
 @MainActor
 struct ChatViewModelTests {
+
+    /// `ChatViewModel.makeBuildInputs` calls `MapSnapshotStore.shared.isResolved`,
+    /// which lazily initializes the process-lifetime singleton. Swift Testing
+    /// constructs a fresh suite instance per `@Test`, so resetting the singleton
+    /// here keeps `resolvedKeys`, `imageEntries`, and `failed` from leaking
+    /// between tests in this suite (and from earlier suites that touched it).
+    init() {
+        MapSnapshotStore.shared.clear()
+    }
 
     // MARK: - Timestamp Logic Tests
 
@@ -143,6 +165,51 @@ struct ChatViewModelTests {
         #expect(ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0]).showTimestamp == false)  // 300 is not > 300
     }
 
+    @Test("Backlog block keys divider grouping on send time, not the shared drain anchor")
+    func backlogBlockGroupsBySendTime() {
+        // Two backlog rows drained together share the anchor as their sortDate, but were
+        // sent ten minutes apart. Grouping must follow send time so the divider still
+        // appears inside the block; keying on the shared sortDate would collapse it.
+        let anchor = Date(timeIntervalSince1970: 5_000_000)
+        let earlier = createTestMessage(timestamp: 1000, sortDate: anchor)
+        let later = createTestMessage(timestamp: 1600, sortDate: anchor)  // +10 min send time
+        #expect(ChatViewModel.computeDisplayFlags(for: later, previous: earlier).showTimestamp == true)
+    }
+
+    @Test("Unread divider lands on the first unread row of the recent block")
+    @MainActor
+    func dividerLandsOnFirstUnreadBlockRow() {
+        // Block-at-reconnect layout: older already-read rows, then a recent unread block
+        // at the tail. The positional divider must land on the block's first row. This also
+        // guards against a regression to a first(where: { !$0.isRead }) scan — every row here
+        // has the default isRead == false, so such a scan would wrongly pick index 0.
+        let vm = ChatViewModel()
+        let readCount = 8
+        let unreadCount = 12
+        var messages: [MessageDTO] = []
+        let readBase = Date(timeIntervalSince1970: 1_000_000)
+        for i in 0..<readCount {
+            messages.append(createTestMessage(
+                timestamp: UInt32(1000 + i),
+                sortDate: readBase.addingTimeInterval(TimeInterval(i)),
+                text: "read \(i)"
+            ))
+        }
+        let anchor = Date(timeIntervalSince1970: 2_000_000)
+        for i in 0..<unreadCount {
+            messages.append(createTestMessage(
+                timestamp: UInt32(5000 + i),
+                sortDate: anchor,
+                text: "unread \(i)"
+            ))
+        }
+        let firstUnread = messages[readCount]
+
+        vm.computeDividerPosition(from: messages, unreadCount: unreadCount)
+
+        #expect(vm.newMessagesDividerMessageID == firstUnread.id)
+    }
+
     @Test("Mixed gaps show correct timestamps")
     func mixedGapsShowCorrectTimestamps() {
         let baseTime: UInt32 = 1000
@@ -163,15 +230,92 @@ struct ChatViewModelTests {
         #expect(ChatViewModel.computeDisplayFlags(for: messages[5], previous: messages[4]).showTimestamp == false)
     }
 
-    @Test("buildDisplayItems with empty messages produces empty output")
-    func buildDisplayItemsEmptyMessages() {
+    @Test("buildItems with empty messages produces empty output")
+    func buildItemsEmptyMessages() async {
         let viewModel = ChatViewModel()
-        viewModel.messages = []
-        viewModel.buildDisplayItems()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
+        coordinator.replaceAll([])
+        viewModel.buildItems()
+        await coordinator.buildItemsTask?.value
 
-        #expect(viewModel.displayItems.isEmpty)
+        #expect(viewModel.items.isEmpty)
         #expect(viewModel.messagesByID.isEmpty)
-        #expect(viewModel.displayItemIndexByID.isEmpty)
+        #expect(viewModel.itemIndexByID.isEmpty)
+    }
+
+    @Test("buildItems clears stale mapPreviewRequestIndex so theme-toggle keys do not leak")
+    func buildItemsClearsStaleMapPreviewIndex() async {
+        let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
+
+        // Outgoing message so coordinate-text path runs without sender-name resolution.
+        let message = createTestMessage(timestamp: 1_000, text: "see 37.7749, -122.4194")
+        viewModel.appendMessageIfNew(message)
+
+        let lightOnline = MapSnapshotRequest(latitude: 37.7749, longitude: -122.4194, isDark: false, isOffline: false)
+        #expect(viewModel.mapPreviewRequestIndex[lightOnline]?.contains(message.id) == true)
+
+        let darkEnv = EnvInputs(
+            showInlineImages: EnvInputs.default.showInlineImages,
+            autoPlayGIFs: EnvInputs.default.autoPlayGIFs,
+            showIncomingPath: EnvInputs.default.showIncomingPath,
+            showIncomingHopCount: EnvInputs.default.showIncomingHopCount,
+            showIncomingRegion: EnvInputs.default.showIncomingRegion,
+            showIncomingSendTime: EnvInputs.default.showIncomingSendTime,
+            previewsEnabled: EnvInputs.default.previewsEnabled,
+            isHighContrast: EnvInputs.default.isHighContrast,
+            isDark: true,
+            showMapPreviews: EnvInputs.default.showMapPreviews,
+            isOffline: EnvInputs.default.isOffline,
+            currentUserName: EnvInputs.default.currentUserName,
+            themeID: EnvInputs.default.themeID
+        )
+        viewModel.applyEnvInputs(darkEnv)
+        await coordinator.buildItemsTask?.value
+
+        // Stale light-mode key must be gone after the rebuild.
+        #expect(viewModel.mapPreviewRequestIndex[lightOnline] == nil)
+        let darkOnline = MapSnapshotRequest(latitude: 37.7749, longitude: -122.4194, isDark: true, isOffline: false)
+        #expect(viewModel.mapPreviewRequestIndex[darkOnline]?.contains(message.id) == true)
+    }
+
+    @Test("a themeID-only EnvInputs change rebuilds items with newly baked theme colors")
+    func themeIDChangeRebakesItemColors() async throws {
+        let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
+
+        // The hashtag run bakes hashtagColor, which differs between default and ember, so a
+        // themeID change must produce a different MessageItem. This guards the deliberate baking of
+        // bubble colors into MessageItem that defeats the theme-switch-needs-chat-reconfigure
+        // landmine, easy to miss because most themes share white outgoing text.
+        let message = createTestMessage(timestamp: 1_000, text: "ping #news")
+        viewModel.appendMessageIfNew(message)
+        let before = try #require(viewModel.items.first)
+
+        let emberEnv = EnvInputs(
+            showInlineImages: EnvInputs.default.showInlineImages,
+            autoPlayGIFs: EnvInputs.default.autoPlayGIFs,
+            showIncomingPath: EnvInputs.default.showIncomingPath,
+            showIncomingHopCount: EnvInputs.default.showIncomingHopCount,
+            showIncomingRegion: EnvInputs.default.showIncomingRegion,
+            showIncomingSendTime: EnvInputs.default.showIncomingSendTime,
+            previewsEnabled: EnvInputs.default.previewsEnabled,
+            isHighContrast: EnvInputs.default.isHighContrast,
+            isDark: EnvInputs.default.isDark,
+            showMapPreviews: EnvInputs.default.showMapPreviews,
+            isOffline: EnvInputs.default.isOffline,
+            currentUserName: EnvInputs.default.currentUserName,
+            themeID: Theme.ember.id
+        )
+        viewModel.applyEnvInputs(emberEnv)
+        await coordinator.buildItemsTask?.value
+
+        let after = try #require(viewModel.items.first)
+        #expect(after.id == before.id)   // same row, re-baked in place
+        #expect(after != before)         // baked colors changed
     }
 
     @Test("computeDisplayFlags with same timestamp messages")
@@ -194,28 +338,22 @@ struct ChatViewModelTests {
         #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showTimestamp == true)
     }
 
-    @Test("Time gap uses createdAt not timestamp when they diverge")
-    func timeGapUsesCreatedAtNotTimestamp() {
-        // Sender timestamps are 10 minutes apart, but messages arrived 1 second apart
-        let base = Date(timeIntervalSince1970: 1000)
-        let msg1 = createTestMessage(timestamp: 1000, createdAt: base)
-        let msg2 = createTestMessage(timestamp: 1600, createdAt: base.addingTimeInterval(1))
-
-        let flags = ChatViewModel.computeDisplayFlags(for: msg2, previous: msg1)
-        // createdAt gap is 1s (no timestamp shown), even though sender timestamps differ by 600s
-        #expect(flags.showTimestamp == false)
+    @Test("Divider grouping hides the header when send times are close despite a large sortDate gap")
+    func groupingHidesHeaderWhenSendTimesCloseDespiteSortDateGap() {
+        // Sent one second apart but assigned far-apart sortDates (e.g. drained in separate
+        // sessions, so distinct anchors). Grouping follows send time, so no header appears.
+        let msg1 = createTestMessage(timestamp: 1000, sortDate: Date(timeIntervalSince1970: 1_000_000))
+        let msg2 = createTestMessage(timestamp: 1001, sortDate: Date(timeIntervalSince1970: 1_000_600))
+        #expect(ChatViewModel.computeDisplayFlags(for: msg2, previous: msg1).showTimestamp == false)
     }
 
-    @Test("Time gap triggers timestamp when createdAt gap is large despite close sender timestamps")
-    func timeGapTriggersOnCreatedAtGap() {
-        // Sender timestamps are 1 second apart, but messages arrived 6 minutes apart
-        let base = Date(timeIntervalSince1970: 1000)
-        let msg1 = createTestMessage(timestamp: 1000, createdAt: base)
-        let msg2 = createTestMessage(timestamp: 1001, createdAt: base.addingTimeInterval(361))
-
-        let flags = ChatViewModel.computeDisplayFlags(for: msg2, previous: msg1)
-        // createdAt gap is 361s (> 300s), so timestamp should show
-        #expect(flags.showTimestamp == true)
+    @Test("Divider grouping ignores drain time: far createdAt with close send times hides the header")
+    func groupingIgnoresCreatedAtWhenSendTimesClose() {
+        // Received ten minutes apart (createdAt) but sent one second apart. Grouping must
+        // follow send time, not drain time, so the rows stay grouped with no header.
+        let msg1 = createTestMessage(timestamp: 1000, createdAt: Date(timeIntervalSince1970: 2_000_000))
+        let msg2 = createTestMessage(timestamp: 1001, createdAt: Date(timeIntervalSince1970: 2_000_600))
+        #expect(ChatViewModel.computeDisplayFlags(for: msg2, previous: msg1).showTimestamp == false)
     }
 
     @Test("Large time gaps show timestamp")
@@ -235,16 +373,17 @@ struct ChatViewModelTests {
     @Test("allConversations excludes repeaters")
     func allConversationsExcludesRepeaters() {
         let viewModel = ChatViewModel()
-        let deviceID = UUID()
+        let radioID = UUID()
 
         // Create a mix of contact types
-        let chatContact = createTestContact(deviceID: deviceID, name: "Alice", type: .chat)
-        let chatContact2 = createTestContact(deviceID: deviceID, name: "Bob", type: .chat)
-        let repeaterContact = createTestContact(deviceID: deviceID, name: "Repeater 1", type: .repeater)
-        let anotherRepeater = createTestContact(deviceID: deviceID, name: "Repeater 2", type: .repeater)
+        let chatContact = createTestContact(radioID: radioID, name: "Alice", type: .chat)
+        let chatContact2 = createTestContact(radioID: radioID, name: "Bob", type: .chat)
+        let repeaterContact = createTestContact(radioID: radioID, name: "Repeater 1", type: .repeater)
+        let anotherRepeater = createTestContact(radioID: radioID, name: "Repeater 2", type: .repeater)
 
         // Set conversations to include repeaters
         viewModel.conversations = [chatContact, chatContact2, repeaterContact, anotherRepeater]
+        viewModel.recomputeSnapshot()
 
         // Verify allConversations excludes repeaters
         let conversations = viewModel.allConversations
@@ -266,13 +405,14 @@ struct ChatViewModelTests {
     @Test("allConversations returns empty when only repeaters exist")
     func allConversationsReturnsEmptyWhenOnlyRepeatersExist() {
         let viewModel = ChatViewModel()
-        let deviceID = UUID()
+        let radioID = UUID()
 
         // Only repeaters in conversations
         viewModel.conversations = [
-            createTestContact(deviceID: deviceID, name: "Repeater 1", type: .repeater),
-            createTestContact(deviceID: deviceID, name: "Repeater 2", type: .repeater)
+            createTestContact(radioID: radioID, name: "Repeater 1", type: .repeater),
+            createTestContact(radioID: radioID, name: "Repeater 2", type: .repeater)
         ]
+        viewModel.recomputeSnapshot()
 
         let conversations = viewModel.allConversations
         #expect(conversations.isEmpty)
@@ -292,6 +432,118 @@ struct ChatViewModelTests {
         #expect(viewModel.isLoading == false)
     }
 
+    @Test("renderState.phase starts .uninitialized when no coordinator is bound")
+    func renderStatePhaseUninitializedBeforeBind() {
+        let viewModel = ChatViewModel()
+        #expect(viewModel.renderState.phase == .uninitialized)
+    }
+
+    @Test("renderState.phase is .loaded after replaceAll on bound coordinator")
+    func renderStatePhaseLoadedAfterReplaceAll() {
+        let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
+
+        coordinator.replaceAll([])
+
+        #expect(viewModel.renderState.phase == .loaded)
+        #expect(viewModel.messages.isEmpty)
+    }
+
+    @Test("loadMessages settles phase to .loaded when dataStore is nil")
+    func loadMessagesMarksLoadedWhenDataStoreNil() async {
+        let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
+
+        await viewModel.loadMessages(for: createTestContact())
+
+        #expect(viewModel.renderState.phase == .loaded)
+    }
+
+    @Test("loadChannelMessages settles phase to .loaded when dataStore is nil")
+    func loadChannelMessagesMarksLoadedWhenDataStoreNil() async {
+        let viewModel = ChatViewModel()
+        let coordinator = ChatCoordinator.makeForTesting()
+        viewModel.coordinator = coordinator
+
+        let channel = ChannelDTO(from: Channel(
+            radioID: UUID(),
+            index: 1,
+            name: "Test"
+        ))
+        await viewModel.loadChannelMessages(for: channel)
+
+        #expect(viewModel.renderState.phase == .loaded)
+    }
+
+    // MARK: - Sender Resolution Tests
+
+    @Test("senderResolutionFor uses message.channelIndex, not currentChannel")
+    func senderResolutionDispatchesOnMessageChannelIndex() {
+        let viewModel = ChatViewModel()
+        // Resolution must dispatch on intrinsic message data, not on
+        // transient view-model state that may not be set during a rebuild.
+        #expect(viewModel.currentChannel == nil)
+
+        let channelMessage = createChannelMessage(
+            timestamp: 1_700_000_000,
+            senderName: "Alice"
+        )
+
+        let resolution = viewModel.senderResolutionFor(channelMessage)
+
+        #expect(resolution.displayName == "Alice")
+        #expect(resolution.matchKind == .exact)
+    }
+
+    @Test("senderResolutionFor returns wire name for channel msg without senderNodeName via hex fallback")
+    func senderResolutionFallsBackToHexForChannelWithoutName() {
+        let viewModel = ChatViewModel()
+        #expect(viewModel.currentChannel == nil)
+
+        let prefixBytes = Data([0xAB, 0xCD])
+        let message = MessageDTO(
+            id: UUID(),
+            radioID: UUID(),
+            contactID: nil,
+            channelIndex: 0,
+            text: "hi",
+            timestamp: 1_700_000_000,
+            createdAt: Date(timeIntervalSince1970: 1_700_000_000),
+            direction: .incoming,
+            status: .delivered,
+            textType: .plain,
+            ackCode: nil,
+            pathLength: 0,
+            snr: nil,
+            senderKeyPrefix: prefixBytes,
+            senderNodeName: nil,
+            isRead: false,
+            replyToID: nil,
+            roundTripTime: nil,
+            heardRepeats: 0,
+            retryAttempt: 0,
+            maxRetryAttempts: 0
+        )
+
+        let resolution = viewModel.senderResolutionFor(message)
+
+        #expect(resolution.displayName == "ABCD")
+        #expect(resolution.matchKind == .unresolved)
+    }
+
+    @Test("senderResolutionFor returns Unknown sentinel for DM messages")
+    func senderResolutionUnknownForDirectMessage() {
+        let viewModel = ChatViewModel()
+        let dmMessage = createTestMessage(timestamp: 1_700_000_000)
+
+        let resolution = viewModel.senderResolutionFor(dmMessage)
+
+        #expect(resolution.displayName == L10n.Chats.Chats.Message.Sender.unknown)
+        #expect(resolution.matchKind == .unresolved)
+    }
+
 }
 
 // MARK: - Blocked Contact Filtering Tests
@@ -302,24 +554,25 @@ struct BlockedContactFilteringTests {
 
     @Test("Blocked contacts are excluded from allConversations")
     func blockedContactsExcludedFromConversations() {
-        let deviceID = UUID()
+        let radioID = UUID()
         let viewModel = ChatViewModel()
 
         // Create contacts - one blocked, one not
         let normalContact = createTestContact(
-            deviceID: deviceID,
+            radioID: radioID,
             name: "Normal",
             type: .chat,
             isBlocked: false
         )
         let blockedContact = createTestContact(
-            deviceID: deviceID,
+            radioID: radioID,
             name: "Blocked",
             type: .chat,
             isBlocked: true
         )
 
         viewModel.conversations = [normalContact, blockedContact]
+        viewModel.recomputeSnapshot()
 
         let conversations = viewModel.allConversations
         #expect(conversations.count == 1)
@@ -332,13 +585,14 @@ struct BlockedContactFilteringTests {
 
     @Test("allConversations returns empty when all contacts are blocked")
     func allConversationsEmptyWhenAllBlocked() {
-        let deviceID = UUID()
+        let radioID = UUID()
         let viewModel = ChatViewModel()
 
         viewModel.conversations = [
-            createTestContact(deviceID: deviceID, name: "Blocked1", type: .chat, isBlocked: true),
-            createTestContact(deviceID: deviceID, name: "Blocked2", type: .chat, isBlocked: true)
+            createTestContact(radioID: radioID, name: "Blocked1", type: .chat, isBlocked: true),
+            createTestContact(radioID: radioID, name: "Blocked2", type: .chat, isBlocked: true)
         ]
+        viewModel.recomputeSnapshot()
 
         let conversations = viewModel.allConversations
         #expect(conversations.isEmpty)
@@ -346,16 +600,17 @@ struct BlockedContactFilteringTests {
 
     @Test("Blocked repeaters are also excluded")
     func blockedRepeatersAlsoExcluded() {
-        let deviceID = UUID()
+        let radioID = UUID()
         let viewModel = ChatViewModel()
 
         // Mix of blocked chat, normal chat, and repeater (blocked or not)
         viewModel.conversations = [
-            createTestContact(deviceID: deviceID, name: "Normal", type: .chat, isBlocked: false),
-            createTestContact(deviceID: deviceID, name: "BlockedChat", type: .chat, isBlocked: true),
-            createTestContact(deviceID: deviceID, name: "Repeater", type: .repeater, isBlocked: false),
-            createTestContact(deviceID: deviceID, name: "BlockedRepeater", type: .repeater, isBlocked: true)
+            createTestContact(radioID: radioID, name: "Normal", type: .chat, isBlocked: false),
+            createTestContact(radioID: radioID, name: "BlockedChat", type: .chat, isBlocked: true),
+            createTestContact(radioID: radioID, name: "Repeater", type: .repeater, isBlocked: false),
+            createTestContact(radioID: radioID, name: "BlockedRepeater", type: .repeater, isBlocked: true)
         ]
+        viewModel.recomputeSnapshot()
 
         let conversations = viewModel.allConversations
         #expect(conversations.count == 1)
@@ -373,7 +628,7 @@ struct BlockedContactFilteringTests {
         let messages = [
             MessageDTO(
                 id: UUID(),
-                deviceID: UUID(),
+                radioID: UUID(),
                 contactID: nil,
                 channelIndex: 0,
                 text: "Hello",
@@ -396,7 +651,7 @@ struct BlockedContactFilteringTests {
             ),
             MessageDTO(
                 id: UUID(),
-                deviceID: UUID(),
+                radioID: UUID(),
                 contactID: nil,
                 channelIndex: 0,
                 text: "Blocked message",
@@ -419,7 +674,7 @@ struct BlockedContactFilteringTests {
             ),
             MessageDTO(
                 id: UUID(),
-                deviceID: UUID(),
+                radioID: UUID(),
                 contactID: nil,
                 channelIndex: 0,
                 text: "My message",
@@ -567,7 +822,7 @@ struct DisplayFlagsTests {
         // Direct messages have contactID set
         let message = Message(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             contactID: UUID(),  // non-nil = direct message
             text: "Test",
             timestamp: 1000,
@@ -592,5 +847,46 @@ struct DisplayFlagsTests {
         #expect(flags0.showDirectionGap == false)
         #expect(flags1.showDirectionGap == true)
         #expect(flags2.showDirectionGap == true)
+    }
+
+    // MARK: - Day Divider
+
+    @Test("First message always shows day divider")
+    func firstMessageShowsDayDivider() {
+        let message = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 10))
+        #expect(ChatViewModel.computeDisplayFlags(for: message, previous: nil).showDayDivider == true)
+    }
+
+    @Test("Same calendar day hides day divider")
+    func sameDayHidesDayDivider() {
+        let m0 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 10, 0))
+        let m1 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 10, 1))
+        #expect(ChatViewModel.computeDisplayFlags(for: m1, previous: m0).showDayDivider == false)
+    }
+
+    @Test("Calendar day change shows day divider")
+    func dayChangeShowsDayDivider() {
+        let m0 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 10))
+        let m1 = createTestMessage(timestamp: makeTimestamp(2024, 5, 2, 10))
+        #expect(ChatViewModel.computeDisplayFlags(for: m1, previous: m0).showDayDivider == true)
+    }
+
+    @Test("Day change detection ignores a shared local receive day")
+    func dayChangeUsesSenderDateNotReceiveDate() {
+        // Both rows were stored locally on the same day (a one-session backlog sync),
+        // but were sent on different days; the divider must key on the send day.
+        let receiveDay = makeDate(2024, 6, 2, 14)
+        let m0 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 10), createdAt: receiveDay)
+        let m1 = createTestMessage(timestamp: makeTimestamp(2024, 5, 2, 10), createdAt: receiveDay)
+        #expect(ChatViewModel.computeDisplayFlags(for: m1, previous: m0).showDayDivider == true)
+    }
+
+    @Test("Day change divides even under the grouping gap")
+    func dayChangeDividesUnderGroupingGap() {
+        // 180s send-time gap is under the 300s grouping threshold, but the two
+        // messages straddle midnight, so the day divider must still show.
+        let m0 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 23, 58))
+        let m1 = createTestMessage(timestamp: makeTimestamp(2024, 5, 2, 0, 1))
+        #expect(ChatViewModel.computeDisplayFlags(for: m1, previous: m0).showDayDivider == true)
     }
 }

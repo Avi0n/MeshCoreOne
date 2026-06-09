@@ -18,7 +18,7 @@ enum ChatConversationType: Sendable {
         }
     }
 
-    var navigationSubtitle: String {
+    func navigationSubtitle(deviceDefaultFloodScopeName: String?) -> String {
         switch self {
         case .dm(let contact):
             if contact.isFloodRouted {
@@ -28,8 +28,11 @@ enum ChatConversationType: Sendable {
             }
         case .channel(let channel):
             let base = channelTypeSubtitle(for: channel)
-            if let region = channel.regionScope {
-                return "\(base) \u{00B7} \(region)"
+            if let region = effectiveRegionName(for: channel, deviceDefaultFloodScopeName: deviceDefaultFloodScopeName) {
+                let regionDisplay = (region == deviceDefaultFloodScopeName)
+                    ? L10n.Chats.Chats.ChannelInfo.Region.scopedDefault(region)
+                    : region
+                return "\(base) \u{00B7} \(regionDisplay)"
             }
             return base
         }
@@ -37,15 +40,19 @@ enum ChatConversationType: Sendable {
 
     /// Accessibility label for the subtitle, providing a VoiceOver-friendly description
     /// when a region scope is active (the middle dot separator may be read literally).
-    var navigationSubtitleAccessibilityLabel: String? {
+    func navigationSubtitleAccessibilityLabel(deviceDefaultFloodScopeName: String?) -> String? {
         switch self {
         case .dm:
             return nil
         case .channel(let channel):
-            guard let region = channel.regionScope else { return nil }
-            return L10n.Chats.Chats.ChannelInfo.Region.scopedAccessibility(
-                channelTypeSubtitle(for: channel), region
-            )
+            guard let region = effectiveRegionName(for: channel, deviceDefaultFloodScopeName: deviceDefaultFloodScopeName) else {
+                return nil
+            }
+            let typeSubtitle = channelTypeSubtitle(for: channel)
+            if region == deviceDefaultFloodScopeName {
+                return L10n.Chats.Chats.ChannelInfo.Region.defaultScopedAccessibility(typeSubtitle, region)
+            }
+            return L10n.Chats.Chats.ChannelInfo.Region.scopedAccessibility(typeSubtitle, region)
         }
     }
 
@@ -61,12 +68,49 @@ enum ChatConversationType: Sendable {
         }
     }
 
+    /// Resolves the region name to display alongside the channel subtitle. Delegates to
+    /// ``ChannelFloodScopeResolver`` so the banner stays in sync with the FloodScope
+    /// actually pushed to the radio.
+    private func effectiveRegionName(
+        for channel: ChannelDTO,
+        deviceDefaultFloodScopeName: String?
+    ) -> String? {
+        let resolved = ChannelFloodScopeResolver.resolve(
+            channelFloodScope: channel.floodScope,
+            deviceDefaultFloodScopeName: deviceDefaultFloodScopeName,
+            supportsUnscopedFloodSend: false
+        )
+        if case .scope(.region(let name)) = resolved { return name }
+        return nil
+    }
+
     var conversationID: UUID {
         switch self {
         case .dm(let contact):
             contact.id
         case .channel(let channel):
             channel.id
+        }
+    }
+
+    /// Stable key for the per-radio draft store. The channel case keys on the slot
+    /// `index`, not `conversationID` (a UUID), to align with the slot-based draft
+    /// cleanup on channel delete, sync prune, and backup-import relocation.
+    var draftConversationID: ChatConversationID {
+        switch self {
+        case .dm(let contact):
+            .dm(radioID: contact.radioID, contactID: contact.id)
+        case .channel(let channel):
+            .channel(radioID: channel.radioID, channelIndex: channel.index)
+        }
+    }
+
+    var radioID: UUID {
+        switch self {
+        case .dm(let contact):
+            contact.radioID
+        case .channel(let channel):
+            channel.radioID
         }
     }
 
@@ -77,6 +121,21 @@ enum ChatConversationType: Sendable {
         case .channel(let channel):
             !channel.isEncryptedChannel
         }
+    }
+
+    /// Channels with this name (case-insensitive) suppress the inline map-preview
+    /// thumbnail, so the app doesn't flood the map API
+    private static let mapPreviewSuppressedChannelName = "wardriving"
+
+    /// Whether map preview thumbnails should be hidden for this conversation,
+    /// independent of the global show-map-previews setting. DMs never suppress.
+    /// Matches case-insensitively and tolerates the leading "#" hashtag-channel
+    /// convention, so both "wardriving" and "#wardriving" suppress.
+    var suppressesMapPreviews: Bool {
+        guard case .channel(let channel) = self else { return false }
+        let trimmed = channel.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalized = trimmed.hasPrefix("#") ? String(trimmed.dropFirst()) : trimmed
+        return normalized.caseInsensitiveCompare(Self.mapPreviewSuppressedChannelName) == .orderedSame
     }
 
     // MARK: - Transforms

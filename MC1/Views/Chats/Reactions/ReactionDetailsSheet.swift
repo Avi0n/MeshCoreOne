@@ -3,11 +3,13 @@ import SwiftUI
 import MC1Services
 import OSLog
 
-/// Element X-style sheet showing who reacted with each emoji.
+/// Sheet showing who reacted with each emoji.
 struct ReactionDetailsSheet: View {
     let messageID: UUID
 
     @Environment(\.appState) private var appState
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appTheme) private var theme
 
     private let logger = Logger(subsystem: "com.mc1", category: "ReactionDetailsSheet")
 
@@ -64,7 +66,7 @@ struct ReactionDetailsSheet: View {
             HStack(spacing: 8) {
                 ForEach(emojiGroups, id: \.emoji) { group in
                     Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
+                        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.2)) {
                             selectedEmoji = group.emoji
                         }
                     } label: {
@@ -93,6 +95,7 @@ struct ReactionDetailsSheet: View {
             }
         }
         .listStyle(.plain)
+        .themedCanvas(theme)
     }
 
     private func loadReactions() async {

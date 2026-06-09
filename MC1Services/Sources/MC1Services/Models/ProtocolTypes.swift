@@ -88,6 +88,10 @@ public enum RoomPermissionLevel: UInt8, Sendable, Comparable, Codable {
 public struct ContactFrame: Sendable, Equatable {
     public let publicKey: Data
     public let type: ContactType
+    /// The raw 1-byte type value as it appears on the wire. Normally equal to `type.rawValue`;
+    /// preserved separately so a contact carrying a type byte not modeled by ``ContactType``
+    /// round-trips to the device verbatim instead of being coerced.
+    public let typeRawValue: UInt8
     public let flags: UInt8
     public let outPathLength: UInt8
     public let outPath: Data
@@ -100,6 +104,7 @@ public struct ContactFrame: Sendable, Equatable {
     public init(
         publicKey: Data,
         type: ContactType,
+        typeRawValue: UInt8? = nil,
         flags: UInt8,
         outPathLength: UInt8,
         outPath: Data,
@@ -111,6 +116,7 @@ public struct ContactFrame: Sendable, Equatable {
     ) {
         self.publicKey = publicKey
         self.type = type
+        self.typeRawValue = typeRawValue ?? type.rawValue
         self.flags = flags
         self.outPathLength = outPathLength
         self.outPath = outPath
@@ -166,6 +172,12 @@ public enum ProtocolLimits {
 
     /// Maximum usable bytes for names (firmware char[32] minus null terminator)
     public static let maxUsableNameBytes = 31
+
+    /// Maximum UTF-8 bytes for the default flood scope name field. The firmware field is 31
+    /// bytes with zero padding and accepts `0 < strlen(name) < 31`, so the effective cap is
+    /// 30. Longer inputs must be truncated before send; otherwise the stored display and the
+    /// full-name-derived scope key would disagree.
+    public static let maxDefaultFloodScopeNameBytes = 30
 
     /// Maximum bytes for direct messages (app-enforced limit per MeshCore spec)
     public static let maxDirectMessageLength = 150

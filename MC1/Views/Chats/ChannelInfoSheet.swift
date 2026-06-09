@@ -10,6 +10,7 @@ struct ChannelInfoSheet: View {
     @Environment(\.appState) private var appState
     @Environment(\.dismiss) private var dismiss
     @Environment(\.chatViewModel) private var viewModel
+    @Environment(\.appTheme) private var theme
 
     let channel: ChannelDTO
     let onClearMessages: () -> Void
@@ -25,7 +26,6 @@ struct ChannelInfoSheet: View {
     @State private var copyHapticTrigger = 0
     @State private var notificationTask: Task<Void, Never>?
     @State private var favoriteTask: Task<Void, Never>?
-    @State private var knownRegions: [String] = []
     @State private var isRegionExpanded = false
     @State private var isDiscoveringRegions = false
     @State private var discoveryMessage: String?
@@ -33,8 +33,7 @@ struct ChannelInfoSheet: View {
     @State private var discoveryTask: Task<Void, Never>?
     @State private var discoveredNewRegions: [String] = []
     @State private var showingDiscoveryResults = false
-    @State private var selectedRegionScope: String?
-    @State private var hasLoadedRegions = false
+    @State private var selectedFloodScope: ChannelFloodScope
 
     init(channel: ChannelDTO, onClearMessages: @escaping () -> Void, onDelete: @escaping () -> Void) {
         self.channel = channel
@@ -42,7 +41,7 @@ struct ChannelInfoSheet: View {
         self.onDelete = onDelete
         self._notificationLevel = State(initialValue: channel.notificationLevel)
         self._isFavorite = State(initialValue: channel.isFavorite)
-        self._selectedRegionScope = State(initialValue: channel.regionScope)
+        self._selectedFloodScope = State(initialValue: channel.floodScope)
     }
 
     var body: some View {
@@ -78,17 +77,11 @@ struct ChannelInfoSheet: View {
                 // Region Scope Section
                 ChannelInfoRegionSection(
                     knownRegions: knownRegions,
-                    selectedRegionScope: selectedRegionScope,
+                    selectedFloodScope: selectedFloodScope,
+                    deviceDefaultFloodScopeName: appState.connectedDevice?.defaultFloodScopeName,
                     isExpanded: $isRegionExpanded,
-                    isDiscovering: $isDiscoveringRegions,
-                    discoveryMessage: $discoveryMessage,
-                    onRegionSelected: { region in
-                        selectRegion(region)
-                    },
-                    onDiscoverTapped: {
-                        runDiscovery { newRegions in
-                            for region in newRegions { addRegion(region) }
-                        }
+                    onFloodScopeSelected: { scope in
+                        Task { await selectFloodScope(scope) }
                     },
                     onManageTapped: {
                         showingRegionManagement = true
@@ -117,6 +110,7 @@ struct ChannelInfoSheet: View {
                             Task { await deleteChannel() }
                         }
                     }
+                    .themedRowBackground(theme)
                 }
 
                 // Actions Section
@@ -128,6 +122,7 @@ struct ChannelInfoSheet: View {
                     showingDeleteConfirmation: $showingDeleteConfirmation
                 )
             }
+            .themedCanvas(theme)
             .navigationTitle(L10n.Chats.Chats.ChannelInfo.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -139,14 +134,14 @@ struct ChannelInfoSheet: View {
             }
             .navigationDestination(isPresented: $showingRegionManagement) {
                 RegionManagementView(
-                    knownRegions: $knownRegions,
+                    knownRegions: knownRegions,
                     isDiscovering: $isDiscoveringRegions,
                     discoveryMessage: $discoveryMessage,
                     onRemoveRegion: { region in
-                        removeRegion(region)
+                        appState.connectionManager.removeKnownRegion(region)
                     },
                     onAddRegion: { region in
-                        addRegion(region)
+                        appState.connectionManager.addKnownRegion(region)
                     },
                     onDiscoverTapped: {
                         runDiscovery { newRegions in
@@ -159,15 +154,8 @@ struct ChannelInfoSheet: View {
             .navigationDestination(isPresented: $showingDiscoveryResults) {
                 RegionDiscoveryResultsView(discoveredRegions: discoveredNewRegions) { selected in
                     for region in selected {
-                        addRegion(region)
+                        appState.connectionManager.addKnownRegion(region)
                     }
-                }
-            }
-            .task {
-                guard !hasLoadedRegions else { return }
-                hasLoadedRegions = true
-                if let device = try? await appState.offlineDataStore?.fetchDevice(id: channel.deviceID) {
-                    knownRegions = device.knownRegions
                 }
             }
         }
@@ -204,16 +192,16 @@ struct ChannelInfoSheet: View {
 
     // MARK: - Private Methods
 
-    private func clearNotificationsForChannel(deviceID: UUID) async {
+    private func clearNotificationsForChannel(radioID: UUID) async {
         await appState.services?.notificationService.removeDeliveredNotifications(
             forChannelIndex: channel.index,
-            deviceID: deviceID
+            radioID: radioID
         )
         await appState.services?.notificationService.updateBadgeCount()
     }
 
     private func deleteChannel() async {
-        guard let deviceID = appState.connectedDevice?.id else {
+        guard let radioID = appState.connectedDevice?.radioID else {
             errorMessage = L10n.Chats.Chats.Error.noDeviceConnected
             return
         }
@@ -230,11 +218,11 @@ struct ChannelInfoSheet: View {
             // Clear channel on device (sends empty name + zero secret via BLE)
             // and deletes from local database
             try await channelService.clearChannel(
-                deviceID: deviceID,
+                radioID: radioID,
                 index: channel.index
             )
 
-            await clearNotificationsForChannel(deviceID: deviceID)
+            await clearNotificationsForChannel(radioID: radioID)
 
             dismiss()
             onDelete()
@@ -245,7 +233,7 @@ struct ChannelInfoSheet: View {
     }
 
     private func clearMessages() async {
-        guard let deviceID = appState.connectedDevice?.id else {
+        guard let radioID = appState.connectedDevice?.radioID else {
             errorMessage = L10n.Chats.Chats.Error.noDeviceConnected
             return
         }
@@ -260,11 +248,11 @@ struct ChannelInfoSheet: View {
 
         do {
             try await channelService.clearChannelMessages(
-                deviceID: deviceID,
+                radioID: radioID,
                 channelIndex: channel.index
             )
 
-            await clearNotificationsForChannel(deviceID: deviceID)
+            await clearNotificationsForChannel(radioID: radioID)
 
             onClearMessages()
             dismiss()
@@ -274,46 +262,37 @@ struct ChannelInfoSheet: View {
         }
     }
 
-    private func selectRegion(_ region: String?) {
-        let previousScope = selectedRegionScope
-        selectedRegionScope = region
+    private func selectFloodScope(_ scope: ChannelFloodScope) async {
+        let previous = selectedFloodScope
+        selectedFloodScope = scope
         do {
-            try appState.offlineDataStore?.setChannelRegionScope(channel.id, regionScope: region)
+            try await appState.offlineDataStore?.setChannelFloodScope(channel.id, floodScope: scope)
         } catch {
-            logger.error("Failed to save region scope: \(error.localizedDescription)")
-            selectedRegionScope = previousScope
+            logger.error("Failed to save flood scope: \(error.localizedDescription)")
+            selectedFloodScope = previous
             return
         }
 
-        Task {
-            if let session = appState.services?.session {
-                let scope: FloodScope = region.map { .region($0) } ?? .disabled
+        if let session = appState.services?.session {
+            let resolved = ChannelFloodScopeResolver.resolve(
+                channelFloodScope: scope,
+                deviceDefaultFloodScopeName: appState.connectedDevice?.defaultFloodScopeName,
+                supportsUnscopedFloodSend: appState.connectedDevice?.supportsUnscopedFloodSend ?? false
+            )
+            switch resolved {
+            case .unscoped:
+                try? await session.setFloodScopeUnscoped()
+            case .scope(let scope):
                 try? await session.setFloodScope(scope)
             }
         }
     }
 
-    private func removeRegion(_ region: String) {
-        do {
-            try appState.offlineDataStore?.removeDeviceKnownRegion(deviceID: channel.deviceID, region: region)
-            knownRegions.removeAll { $0 == region }
-        } catch {
-            logger.error("Failed to remove region: \(error.localizedDescription)")
-        }
+    private var knownRegions: [String] {
+        appState.connectedDevice?.knownRegions ?? []
     }
 
-    private func addRegion(_ region: String) {
-        do {
-            try appState.offlineDataStore?.addDeviceKnownRegion(deviceID: channel.deviceID, region: region)
-            if !knownRegions.contains(region) {
-                knownRegions.append(region)
-            }
-        } catch {
-            logger.error("Failed to add region: \(error.localizedDescription)")
-        }
-    }
-
-    private func runDiscovery(onNewRegions: @escaping ([String]) -> Void) {
+    private func runDiscovery(onNewRegions: @escaping ([String]) async -> Void) {
         discoveryTask?.cancel()
         discoveryTask = Task {
             isDiscoveringRegions = true
@@ -327,9 +306,11 @@ struct ChannelInfoSheet: View {
             }
 
             if newRegions.isEmpty {
-                discoveryMessage = L10n.Chats.Chats.ChannelInfo.Region.noNewRegions
+                if discoveryMessage == nil {
+                    discoveryMessage = L10n.Chats.Chats.ChannelInfo.Region.noNewRegions
+                }
             } else {
-                onNewRegions(newRegions)
+                await onNewRegions(newRegions)
             }
             isDiscoveringRegions = false
         }
@@ -341,75 +322,30 @@ struct ChannelInfoSheet: View {
               let contactService = appState.services?.contactService else {
             return []
         }
-        let deviceID = channel.deviceID
 
-        // Phase 1: Broadcast DISCOVER_REQ to find nearby repeaters (~3s)
-        let discoveredPubkeys: Set<Data>
-        do {
-            let tag = try await session.sendNodeDiscoverRequest(
-                filter: NodeDiscoveryFilter.repeaters.filterValue,
-                prefixOnly: false
-            )
-            let tagData = withUnsafeBytes(of: tag.littleEndian) { Data($0) }
+        let outcome = await RegionDiscoveryService.discover(
+            session: session,
+            contactService: contactService,
+            dataStore: appState.offlineDataStore,
+            radioID: channel.radioID,
+            knownRegions: knownRegions
+        )
 
-            let listenTask = Task { () -> Set<Data> in
-                var keys = Set<Data>()
-                let events = await session.events()
-                for await event in events {
-                    guard !Task.isCancelled else { break }
-                    if case .discoverResponse(let response) = event,
-                       response.tag == tagData {
-                        keys.insert(response.publicKey)
-                    }
-                }
-                return keys
-            }
-
-            try? await Task.sleep(for: .seconds(3))
-            listenTask.cancel()
-            discoveredPubkeys = await listenTask.value
-        } catch {
+        switch outcome {
+        case .sendFailed:
             return []
-        }
-
-        guard !Task.isCancelled else { return [] }
-
-        if discoveredPubkeys.isEmpty {
+        case .noRepeatersResponded:
             discoveryMessage = L10n.Chats.Chats.ChannelInfo.Region.noRepeatersResponded
             return []
-        }
-
-        // Phase 2: Query only responding repeaters for their regions
-        let repeaters: [ContactDTO]
-        do {
-            repeaters = try await contactService.getContacts(deviceID: deviceID)
-                .filter { $0.type == .repeater && discoveredPubkeys.contains($0.publicKey) }
-        } catch {
+        case .errorLoadingRepeaters:
+            discoveryMessage = L10n.Chats.Chats.ChannelInfo.Region.errLoadingRepeaters
             return []
-        }
-
-        if repeaters.isEmpty {
-            discoveryMessage = L10n.Chats.Chats.ChannelInfo.Region.noRepeatersResponded
-            return []
-        }
-
-        var allRegions = Set<String>()
-
-        await withTaskGroup(of: [String].self) { group in
-            for contact in repeaters {
-                guard !Task.isCancelled else { break }
-                let meshContact = contact.toContactFrame().toMeshContact()
-                group.addTask {
-                    (try? await session.requestRegions(from: meshContact)) ?? []
-                }
+        case let .completed(newRegions, allRepeatersTableFull):
+            if newRegions.isEmpty && allRepeatersTableFull {
+                discoveryMessage = L10n.Chats.Chats.ChannelInfo.Region.errRadioContactsFull
             }
-            for await regions in group {
-                allRegions.formUnion(regions)
-            }
+            return newRegions
         }
-
-        let knownSet = Set(knownRegions)
-        return allRegions.subtracting(knownSet).sorted()
     }
 }
 
@@ -451,6 +387,7 @@ private struct ChannelInfoHeaderSection: View {
 }
 
 private struct ChannelInfoQRCodeSection: View {
+    @Environment(\.appTheme) private var theme
     let channel: ChannelDTO
 
     @State private var qrImage: UIImage?
@@ -477,6 +414,7 @@ private struct ChannelInfoQRCodeSection: View {
         } header: {
             Text(L10n.Chats.Chats.ChannelInfo.shareChannel)
         }
+        .themedRowBackground(theme)
         .task {
             qrImage = generateQRCode()
         }
@@ -504,6 +442,7 @@ private struct ChannelInfoQRCodeSection: View {
 }
 
 private struct ChannelInfoSecretKeySection: View {
+    @Environment(\.appTheme) private var theme
     let channel: ChannelDTO
     @Binding var copyHapticTrigger: Int
 
@@ -533,10 +472,12 @@ private struct ChannelInfoSecretKeySection: View {
         } footer: {
             Text(L10n.Chats.Chats.ChannelInfo.manualSharingFooter)
         }
+        .themedRowBackground(theme)
     }
 }
 
 private struct ChannelInfoActionsSection: View {
+    @Environment(\.appTheme) private var theme
     let isActionInProgress: Bool
     let isClearingMessages: Bool
     let isDeleting: Bool
@@ -578,17 +519,17 @@ private struct ChannelInfoActionsSection: View {
         } footer: {
             Text(L10n.Chats.Chats.ChannelInfo.deleteFooter)
         }
+        .themedRowBackground(theme)
     }
 }
 
 private struct ChannelInfoRegionSection: View {
+    @Environment(\.appTheme) private var theme
     let knownRegions: [String]
-    let selectedRegionScope: String?
+    let selectedFloodScope: ChannelFloodScope
+    let deviceDefaultFloodScopeName: String?
     @Binding var isExpanded: Bool
-    @Binding var isDiscovering: Bool
-    @Binding var discoveryMessage: String?
-    let onRegionSelected: (String?) -> Void
-    let onDiscoverTapped: () -> Void
+    let onFloodScopeSelected: (ChannelFloodScope) -> Void
     let onManageTapped: () -> Void
 
     private var sortedPartitioned: (public: [String], private: [String]) {
@@ -600,31 +541,31 @@ private struct ChannelInfoRegionSection: View {
         if knownRegions.isEmpty {
             return L10n.Chats.Chats.ChannelInfo.Region.notConfigured
         }
-        if let scope = selectedRegionScope {
-            return scope
+        switch selectedFloodScope {
+        case .inherit:
+            if let name = deviceDefaultFloodScopeName, !name.isEmpty {
+                return L10n.Chats.Chats.ChannelInfo.Region.useDefaultFormat(name)
+            }
+            return L10n.Chats.Chats.ChannelInfo.Region.allRegions
+        case .allRegions:
+            return L10n.Chats.Chats.ChannelInfo.Region.allRegions
+        case .region(let name):
+            return name
         }
-        return L10n.Chats.Chats.ChannelInfo.Region.allRegions
     }
 
     var body: some View {
         Section {
             DisclosureGroup(isExpanded: $isExpanded) {
                 if knownRegions.isEmpty {
-                    ChannelInfoRegionEmptyContent(
-                        isDiscovering: isDiscovering,
-                        discoveryMessage: discoveryMessage,
-                        onDiscoverTapped: onDiscoverTapped,
-                        onManageTapped: onManageTapped
-                    )
+                    ChannelInfoRegionEmptyContent(onManageTapped: onManageTapped)
                 } else {
                     ChannelInfoRegionPickerContent(
-                        selectedRegionScope: selectedRegionScope,
+                        selectedFloodScope: selectedFloodScope,
+                        deviceDefaultFloodScopeName: deviceDefaultFloodScopeName,
                         publicRegions: sortedPartitioned.public,
                         privateRegions: sortedPartitioned.private,
-                        isDiscovering: isDiscovering,
-                        discoveryMessage: discoveryMessage,
-                        onRegionSelected: onRegionSelected,
-                        onDiscoverTapped: onDiscoverTapped,
+                        onFloodScopeSelected: onFloodScopeSelected,
                         onManageTapped: onManageTapped
                     )
                 }
@@ -632,6 +573,7 @@ private struct ChannelInfoRegionSection: View {
                 ChannelInfoRegionLabel(regionValueLabel: regionValueLabel)
             }
         }
+        .themedRowBackground(theme)
     }
 }
 
@@ -649,29 +591,9 @@ private struct ChannelInfoRegionLabel: View {
 }
 
 private struct ChannelInfoRegionActions: View {
-    let isDiscovering: Bool
-    let discoveryMessage: String?
-    let onDiscoverTapped: () -> Void
     let onManageTapped: () -> Void
 
     var body: some View {
-        if isDiscovering {
-            HStack {
-                ProgressView()
-                Text(L10n.Chats.Chats.ChannelInfo.Region.discovering)
-                    .foregroundStyle(.secondary)
-            }
-        } else if let discoveryMessage {
-            Text(discoveryMessage)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
-
-        Button(L10n.Chats.Chats.ChannelInfo.Region.discover, systemImage: "antenna.radiowaves.left.and.right") {
-            onDiscoverTapped()
-        }
-        .disabled(isDiscovering)
-
         Button(L10n.Chats.Chats.ChannelInfo.Region.manageRegions, systemImage: "list.bullet") {
             onManageTapped()
         }
@@ -679,9 +601,6 @@ private struct ChannelInfoRegionActions: View {
 }
 
 private struct ChannelInfoRegionEmptyContent: View {
-    let isDiscovering: Bool
-    let discoveryMessage: String?
-    let onDiscoverTapped: () -> Void
     let onManageTapped: () -> Void
 
     var body: some View {
@@ -689,61 +608,47 @@ private struct ChannelInfoRegionEmptyContent: View {
             .font(.subheadline)
             .foregroundStyle(.secondary)
 
-        ChannelInfoRegionActions(
-            isDiscovering: isDiscovering,
-            discoveryMessage: discoveryMessage,
-            onDiscoverTapped: onDiscoverTapped,
-            onManageTapped: onManageTapped
-        )
+        ChannelInfoRegionActions(onManageTapped: onManageTapped)
     }
 }
 
 private struct ChannelInfoRegionPickerContent: View {
-    let selectedRegionScope: String?
+    let selectedFloodScope: ChannelFloodScope
+    let deviceDefaultFloodScopeName: String?
     let publicRegions: [String]
     let privateRegions: [String]
-    let isDiscovering: Bool
-    let discoveryMessage: String?
-    let onRegionSelected: (String?) -> Void
-    let onDiscoverTapped: () -> Void
+    let onFloodScopeSelected: (ChannelFloodScope) -> Void
     let onManageTapped: () -> Void
 
+    private var effectiveDefault: String? {
+        guard let name = deviceDefaultFloodScopeName, !name.isEmpty else { return nil }
+        return name
+    }
+
     var body: some View {
-        // "All Regions" option
-        Button {
-            onRegionSelected(nil)
-        } label: {
-            HStack {
-                Text(L10n.Chats.Chats.ChannelInfo.Region.allRegions)
-                Spacer()
-                if selectedRegionScope == nil {
-                    Image(systemName: "checkmark")
-                        .foregroundStyle(.tint)
-                }
-            }
-            .contentShape(.rect)
+        if let defaultName = effectiveDefault {
+            pickerRow(
+                title: L10n.Chats.Chats.ChannelInfo.Region.useDefaultFormat(defaultName),
+                isSelected: selectedFloodScope == .inherit,
+                scope: .inherit
+            )
         }
-        .buttonStyle(.plain)
 
-        // Public regions
+        pickerRow(
+            title: L10n.Chats.Chats.ChannelInfo.Region.allRegions,
+            isSelected: selectedFloodScope == allRegionsSelection,
+            scope: allRegionsSelection
+        )
+
         ForEach(publicRegions, id: \.self) { region in
-            Button {
-                onRegionSelected(region)
-            } label: {
-                HStack {
-                    Text(region)
-                    Spacer()
-                    if selectedRegionScope == region {
-                        Image(systemName: "checkmark")
-                            .foregroundStyle(.tint)
-                    }
-                }
-                .contentShape(.rect)
-            }
-            .buttonStyle(.plain)
+            pickerRow(
+                title: region,
+                isSelected: selectedFloodScope == .region(region),
+                scope: .region(region)
+            )
         }
 
-        // Private regions (shown disabled)
+        // Private regions (shown disabled — can't scope to these)
         ForEach(privateRegions, id: \.self) { region in
             HStack {
                 Text(region)
@@ -755,19 +660,38 @@ private struct ChannelInfoRegionPickerContent: View {
             .foregroundStyle(.secondary)
         }
 
-        ChannelInfoRegionActions(
-            isDiscovering: isDiscovering,
-            discoveryMessage: discoveryMessage,
-            onDiscoverTapped: onDiscoverTapped,
-            onManageTapped: onManageTapped
-        )
+        ChannelInfoRegionActions(onManageTapped: onManageTapped)
+    }
+
+    /// When no device default is set, `.inherit` and `.allRegions` collapse into a
+    /// single row — writing `.inherit` is the conservative choice so a later default
+    /// change flows through naturally.
+    private var allRegionsSelection: ChannelFloodScope {
+        effectiveDefault != nil ? .allRegions : .inherit
+    }
+
+    private func pickerRow(title: String, isSelected: Bool, scope: ChannelFloodScope) -> some View {
+        Button {
+            onFloodScopeSelected(scope)
+        } label: {
+            HStack {
+                Text(title)
+                Spacer()
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .foregroundStyle(.tint)
+                }
+            }
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
     }
 }
 
 #Preview {
     ChannelInfoSheet(
         channel: ChannelDTO(from: Channel(
-            deviceID: UUID(),
+            radioID: UUID(),
             index: 1,
             name: "General",
             secret: Data(repeating: 0xAB, count: 16)

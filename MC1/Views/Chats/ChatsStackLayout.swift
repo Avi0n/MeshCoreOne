@@ -8,7 +8,6 @@ struct ChatsStackLayout<RootContent: View>: View {
     @Binding var navigationPath: NavigationPath
     @Binding var activeRoute: ChatRoute?
 
-    let onLoadConversations: () async -> Void
     @ViewBuilder let rootContent: RootContent
 
     var body: some View {
@@ -39,9 +38,7 @@ struct ChatsStackLayout<RootContent: View>: View {
                     if newPath.isEmpty {
                         activeRoute = nil
                         appState.navigation.tabBarVisibility = .visible
-                        Task {
-                            await onLoadConversations()
-                        }
+                        viewModel.requestConversationReload()
                     }
                 }
                 .toolbarVisibility(appState.navigation.tabBarVisibility, for: .tabBar)

@@ -17,7 +17,7 @@ struct RemoteNodeModelTests {
 
         // Create room session
         let roomSession = RemoteNodeSessionDTO(
-            deviceID: deviceID,
+            radioID: deviceID,
             publicKey: publicKey,
             name: "TestRoom",
             role: .roomServer
@@ -40,7 +40,7 @@ struct RemoteNodeModelTests {
         let publicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
 
         let repeaterSession = RemoteNodeSessionDTO(
-            deviceID: deviceID,
+            radioID: deviceID,
             publicKey: publicKey,
             name: "TestRepeater",
             role: .repeater
@@ -61,7 +61,7 @@ struct RemoteNodeModelTests {
         let publicKey = Data([0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF] + Array(repeating: UInt8(0), count: 26))
 
         let session = RemoteNodeSessionDTO(
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: publicKey,
             name: "Test",
             role: .roomServer,
@@ -89,7 +89,7 @@ struct RemoteNodeModelTests {
     func remoteNodeSessionDTOCanPostRequirements() {
         // Room + guest = can't post
         let guestRoom = RemoteNodeSessionDTO(
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0, count: 32),
             name: "Test",
             role: .roomServer,
@@ -99,7 +99,7 @@ struct RemoteNodeModelTests {
 
         // Repeater + admin = can't post (not a room)
         let adminRepeater = RemoteNodeSessionDTO(
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0, count: 32),
             name: "Test",
             role: .repeater,
@@ -109,7 +109,7 @@ struct RemoteNodeModelTests {
 
         // Room + admin = can post
         let adminRoom = RemoteNodeSessionDTO(
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0, count: 32),
             name: "Test",
             role: .roomServer,
@@ -237,104 +237,5 @@ struct RemoteNodeModelTests {
 
         let expectedDate = Date(timeIntervalSince1970: TimeInterval(timestamp))
         #expect(message.date == expectedDate)
-    }
-
-    // MARK: - KeychainService Tests
-
-    @Test("KeychainService store/retrieve/delete cycle")
-    func keychainServiceStoreRetrieveDeleteCycle() async throws {
-        let keychain = MockKeychainService()
-        let publicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
-        let password = "testpassword123"
-
-        // Store
-        try await keychain.storePassword(password, forNodeKey: publicKey)
-
-        // Retrieve
-        let retrieved = try await keychain.retrievePassword(forNodeKey: publicKey)
-        #expect(retrieved == password)
-
-        // Has password
-        let hasPassword = await keychain.hasPassword(forNodeKey: publicKey)
-        #expect(hasPassword == true)
-
-        // Delete
-        try await keychain.deletePassword(forNodeKey: publicKey)
-
-        // Verify deleted
-        let afterDelete = try await keychain.retrievePassword(forNodeKey: publicKey)
-        #expect(afterDelete == nil)
-
-        let hasPasswordAfterDelete = await keychain.hasPassword(forNodeKey: publicKey)
-        #expect(hasPasswordAfterDelete == false)
-    }
-
-    @Test("KeychainService handles non-existent keys")
-    func keychainServiceHandlesNonExistentKeys() async throws {
-        let keychain = MockKeychainService()
-        let publicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
-
-        let retrieved = try await keychain.retrievePassword(forNodeKey: publicKey)
-        #expect(retrieved == nil)
-
-        let hasPassword = await keychain.hasPassword(forNodeKey: publicKey)
-        #expect(hasPassword == false)
-    }
-
-    @Test("KeychainService replaces existing password")
-    func keychainServiceReplacesExistingPassword() async throws {
-        let keychain = MockKeychainService()
-        let publicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
-
-        // Store first password
-        try await keychain.storePassword("first", forNodeKey: publicKey)
-        var retrieved = try await keychain.retrievePassword(forNodeKey: publicKey)
-        #expect(retrieved == "first")
-
-        // Store second password (should replace)
-        try await keychain.storePassword("second", forNodeKey: publicKey)
-        retrieved = try await keychain.retrievePassword(forNodeKey: publicKey)
-        #expect(retrieved == "second")
-    }
-
-    @Test("KeychainService delete non-existent key does not throw")
-    func keychainServiceDeleteNonExistentKeyNoThrow() async throws {
-        let keychain = MockKeychainService()
-        let publicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
-
-        // Should not throw
-        try await keychain.deletePassword(forNodeKey: publicKey)
-    }
-
-    @Test("MockKeychainService getAllStoredKeys returns all keys")
-    func mockKeychainServiceGetAllStoredKeys() async throws {
-        let keychain = MockKeychainService()
-
-        let key1 = Data(repeating: 0x11, count: 32)
-        let key2 = Data(repeating: 0x22, count: 32)
-        let key3 = Data(repeating: 0x33, count: 32)
-
-        try await keychain.storePassword("pass1", forNodeKey: key1)
-        try await keychain.storePassword("pass2", forNodeKey: key2)
-        try await keychain.storePassword("pass3", forNodeKey: key3)
-
-        let allKeys = await keychain.getAllStoredKeys()
-        #expect(allKeys.count == 3)
-        #expect(allKeys.contains(key1))
-        #expect(allKeys.contains(key2))
-        #expect(allKeys.contains(key3))
-    }
-
-    @Test("MockKeychainService clear removes all passwords")
-    func mockKeychainServiceClearRemovesAll() async throws {
-        let keychain = MockKeychainService()
-
-        try await keychain.storePassword("pass1", forNodeKey: Data(repeating: 0x11, count: 32))
-        try await keychain.storePassword("pass2", forNodeKey: Data(repeating: 0x22, count: 32))
-
-        await keychain.clear()
-
-        let allKeys = await keychain.getAllStoredKeys()
-        #expect(allKeys.isEmpty)
     }
 }

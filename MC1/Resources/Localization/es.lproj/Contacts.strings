@@ -71,8 +71,14 @@
 /* Location: ContactsViewModel.swift - Purpose: Contacts segment */
 "contacts.segment.contacts" = "Contactos";
 
-/* Location: ContactsViewModel.swift - Purpose: Network segment */
-"contacts.segment.network" = "Red";
+/* Location: ContactsViewModel.swift - Purpose: Repeaters segment */
+"contacts.segment.repeaters" = "Repetidores";
+
+/* Location: ContactsViewModel.swift - Purpose: Rooms segment */
+"contacts.segment.rooms" = "Salas";
+
+/* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
+"contacts.segment.pickerLabel" = "Filtrar nodos";
 
 // MARK: - Sort Order
 
@@ -144,7 +150,7 @@
 "contacts.list.empty.favorites.title" = "Sin favoritos aún";
 
 /* Location: ContactsListView.swift - Purpose: No favorites empty description */
-"contacts.list.empty.favorites.description" = "Desliza a la derecha en cualquier nodo para añadirlo a tus favoritos.";
+"contacts.list.empty.favorites.description" = "Mantén pulsado cualquier nodo para añadirlo a tus favoritos.";
 
 /* Location: ContactsListView.swift - Purpose: No contacts empty title */
 "contacts.list.empty.contacts.title" = "Sin contactos";
@@ -152,11 +158,17 @@
 /* Location: ContactsListView.swift - Purpose: No contacts empty description */
 "contacts.list.empty.contacts.description" = "Los contactos aparecen cuando se descubren en la red mesh. Si añadir contactos automáticamente está desactivado, revisa Descubrir en el menú superior derecho.";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty title */
-"contacts.list.empty.network.title" = "Sin nodos de red";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty title */
+"contacts.list.empty.repeaters.title" = "Sin repetidores";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty description */
-"contacts.list.empty.network.description" = "Los repetidores y servidores de sala aparecerán cuando se descubran en la red mesh.";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty description */
+"contacts.list.empty.repeaters.description" = "Los repetidores amplían el alcance de tu red mesh. Aparecerán aquí cuando se descubran.";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty title */
+"contacts.list.empty.rooms.title" = "Sin salas";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty description */
+"contacts.list.empty.rooms.description" = "Las salas son servidores de chat públicos en la red mesh. Aparecerán aquí cuando se descubran.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "Sin resultados";
@@ -180,14 +192,14 @@
 
 // MARK: - Contacts List Swipe Actions
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unfavorite swipe action */
-"contacts.swipe.unfavorite" = "Quitar de favoritos";
+/* Location: ContactContextMenuModifier - Purpose: Unfavorite action */
+"contacts.action.unfavorite" = "Quitar de favoritos";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Block swipe action */
-"contacts.swipe.block" = "Bloquear";
+/* Location: ContactContextMenuModifier - Purpose: Block action */
+"contacts.action.block" = "Bloquear";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unblock swipe action */
-"contacts.swipe.unblock" = "Desbloquear";
+/* Location: ContactContextMenuModifier - Purpose: Unblock action */
+"contacts.action.unblock" = "Desbloquear";
 
 // MARK: - Contact Detail
 
@@ -230,8 +242,8 @@
 /* Location: ContactDetailView.swift - Purpose: Share via advert button */
 "contacts.detail.shareViaAdvert" = "Compartir contacto vía anuncio";
 
-/* Location: ContactDetailView.swift - Purpose: Ping repeater button */
-"contacts.detail.pingRepeater" = "Ping al repetidor";
+/* Location: ContactDetailView.swift - Purpose: Share contact error when advert is missing or stale */
+"contacts.detail.shareContactUnavailable" = "No se puede compartir el nodo. El anuncio del nodo puede faltar o ser demasiado antiguo.";
 
 /* Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes */
 "contacts.detail.ping" = "Ping Zero-Hop";
@@ -386,6 +398,7 @@
 
 /* Location: AddContactSheet.swift - Purpose: Navigation title */
 "contacts.add.title" = "Añadir contacto";
+"contacts.add.nodeTitle" = "Añadir nodo";
 
 /* Location: AddContactSheet.swift - Purpose: Add button */
 "contacts.add.add" = "Añadir";
@@ -436,7 +449,7 @@
 "contacts.add.pasteURL" = "Paste Contact URL";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL section footer */
-"contacts.add.pasteURLFooter" = "Paste a meshcore:// contact link to auto-fill the fields above";
+"contacts.add.pasteURLFooter" = "Pega un enlace de contacto meshcore:// para autocompletar los campos de arriba";
 
 /* Location: AddContactSheet.swift - Purpose: Invalid paste URL error */
 "contacts.add.error.invalidURL" = "Clipboard does not contain a valid contact URL";
@@ -457,6 +470,12 @@
 
 /* Location: ContactQRShareSheet.swift - Purpose: Share button */
 "contacts.qr.share" = "Compartir";
+
+/* Location: ContactQRShareSheet.swift - Purpose: Contact label in share text, %@ is contact name */
+"contacts.share.contactLabel" = "MeshCore One Contact: %@";
+
+/* Location: ContactQRShareSheet.swift - Purpose: Key label in share text, %@ is hex public key */
+"contacts.share.keyLabel" = "Key: %@";
 
 // MARK: - Scan Contact QR
 
@@ -490,6 +509,9 @@
 /* Location: ScanContactQRView.swift - Purpose: Invalid public key error */
 "contacts.scan.error.invalidKey" = "Código QR inválido: clave pública inválida";
 
+/* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
+"contacts.scan.error.importFailed" = "Error al importar el contacto: %@";
+
 // MARK: - Discovery View
 
 /* Location: DiscoveryView.swift - Purpose: Navigation title */
@@ -508,7 +530,7 @@
 "contacts.discovery.added" = "Added";
 
 /* Location: DiscoveryView.swift - Purpose: Accessibility label for added button */
-"contacts.discovery.addedAccessibility" = "Already added to contacts";
+"contacts.discovery.addedAccessibility" = "Ya agregado a los contactos";
 
 /* Location: DiscoveryView.swift - Purpose: Services not available error */
 "contacts.discovery.error.servicesUnavailable" = "Servicios no disponibles";
@@ -519,8 +541,14 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter - Contacts */
 "contacts.discovery.segment.contacts" = "Contactos";
 
-/* Location: DiscoveryView.swift - Purpose: Segment filter - Network */
-"contacts.discovery.segment.network" = "Red";
+/* Location: DiscoveryView.swift - Purpose: Segment filter - Repeaters */
+"contacts.discovery.segment.repeaters" = "Repetidores";
+
+/* Location: DiscoveryView.swift - Purpose: Segment filter - Rooms */
+"contacts.discovery.segment.rooms" = "Salas";
+
+/* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
+"contacts.discovery.segment.pickerLabel" = "Filtrar nodos descubiertos";
 
 /* Location: DiscoveryView.swift - Purpose: Search field placeholder */
 "contacts.discovery.searchPrompt" = "Buscar descubiertos";
@@ -572,32 +600,119 @@
 /* Location: PathEditingSheet.swift - Purpose: Current path section header */
 "contacts.pathEdit.currentPath" = "Ruta actual";
 
-/* Location: PathEditingSheet.swift - Purpose: Empty path footer */
-"contacts.pathEdit.emptyFooter" = "Sin ruta establecida (enrutamiento directo o por inundación)";
-
-/* Location: PathEditingSheet.swift - Purpose: Path instructions footer */
-"contacts.pathEdit.instructionsFooter" = "Arrastra para reordenar. Toca para eliminar.";
-
-/* Location: PathEditingSheet.swift - Purpose: Add repeater section header */
-"contacts.pathEdit.addRepeater" = "Añadir repetidor";
-
-/* Location: PathEditingSheet.swift - Purpose: No repeaters empty title */
+/* Location: AddHopPickerView.swift - Purpose: No repeaters empty title */
 "contacts.pathEdit.noRepeaters.title" = "Sin repetidores disponibles";
 
-/* Location: PathEditingSheet.swift - Purpose: No repeaters empty description */
+/* Location: AddHopPickerView.swift - Purpose: No repeaters empty description */
 "contacts.pathEdit.noRepeaters.description" = "Los repetidores aparecen aquí una vez que se descubren en tu red mesh.";
-
-/* Location: PathEditingSheet.swift - Purpose: Add repeater footer */
-"contacts.pathEdit.addFooter" = "Toca un repetidor para añadirlo a la ruta.";
-
-/* Location: PathEditingSheet.swift - Purpose: Add to path accessibility label */
-"contacts.pathEdit.addToPath" = "Añadir %@ a la ruta";
 
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with name */
 "contacts.pathEdit.hopWithName" = "Salto %d de %d: %@";
 
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with hex */
 "contacts.pathEdit.hopWithHex" = "Salto %d de %d: repetidor %@";
+
+/* Location: PathEditingSheet.swift - Purpose: Add Hop CTA (primary button when path has >=1 hop) */
+"contacts.pathEdit.addHop" = "Añadir salto";
+
+/* Location: AddHopPickerView.swift - Purpose: Paste clipboard text into the hop search field */
+"contacts.pathEdit.paste" = "Pegar del portapapeles";
+
+/* Location: PathEditingSheet.swift - Purpose: Use-direct-routing empty-state button */
+"contacts.pathEdit.useDirectRouting" = "Usar enrutado directo";
+
+/* Location: PathEditingSheet.swift - Purpose: Use-flood-routing empty-state button */
+"contacts.pathEdit.useFloodRouting" = "Usar enrutado flood";
+
+/* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert title */
+"contacts.pathEdit.directRouting.confirm.title" = "¿Guardar como enrutado directo?";
+
+/* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name */
+"contacts.pathEdit.directRouting.confirm.message" = "Los mensajes a %@ se enviarán directamente sin pasar por ningún repetidor. Usa esto solo si %@ es un vecino directo (a 0 saltos).";
+
+/* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation confirm label */
+"contacts.pathEdit.directRouting.confirm.confirm" = "Guardar como directo";
+
+/* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation alert title */
+"contacts.pathEdit.floodRouting.confirm.title" = "¿Usar enrutado flood?";
+
+/* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation alert message, %@ is contact name */
+"contacts.pathEdit.floodRouting.confirm.message" = "Los mensajes a %@ se enviarán a todos los nodos cercanos hasta encontrar una ruta. Úsalo cuando no se conozca ninguna ruta de repetidor.";
+
+/* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation confirm label */
+"contacts.pathEdit.floodRouting.confirm.confirm" = "Usar enrutado flood";
+
+/* Location: AddHopPickerView.swift - Purpose: Position banner when appending, %d is target hop number */
+"contacts.pathEdit.positionAppend" = "Añadiendo como salto %d";
+
+/* Location: AddHopPickerView.swift - Purpose: Search field placeholder */
+"contacts.pathEdit.searchPrompt" = "A1,2B o nombre/ID";
+
+/* Location: PathEditingSheet.swift - Purpose: Section footer hint */
+"contacts.pathEdit.reorderHint" = "Arrastra para reordenar · Desliza para eliminar";
+
+/* Location: PathEditingSheet.swift - Purpose: Empty-state title */
+"contacts.pathEdit.empty.title" = "Aún no hay saltos";
+
+/* Location: PathEditingSheet.swift - Purpose: Empty-state description, %@ is contact name */
+"contacts.pathEdit.empty.description" = "Añade repetidores para controlar cómo llegan los mensajes a %@, o usa enrutado flood si no conoces la ruta.";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: All filter */
+"contacts.pathEdit.filter.all" = "Todos";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: Favorites filter */
+"contacts.pathEdit.filter.favorites" = "Favoritos";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: Recent filter */
+"contacts.pathEdit.filter.recent" = "Recientes";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: Discovered filter */
+"contacts.pathEdit.filter.discovered" = "Nuevos";
+
+/* Location: AddHopPickerView.swift - Purpose: Recent section header */
+"contacts.pathEdit.sections.recent" = "Recientes";
+
+/* Location: AddHopPickerView.swift - Purpose: Favorites section header */
+"contacts.pathEdit.sections.favorites" = "Favoritos";
+
+/* Location: AddHopPickerView.swift - Purpose: Contacts section header */
+"contacts.pathEdit.sections.contacts" = "Contactos";
+
+/* Location: AddHopPickerView.swift - Purpose: Discovered section header */
+"contacts.pathEdit.sections.discovered" = "Descubiertos";
+
+/* Location: AddHopPickerView.swift - Purpose: Rooms section header */
+"contacts.pathEdit.sections.rooms" = "Salas";
+
+/* Location: AddHopPickerView.swift - Purpose: No-match search description */
+"contacts.pathEdit.search.noMatches.description" = "Prueba un nombre o prefijo hex como 'a3'.";
+
+/* Location: AddHopPickerView.swift - Purpose: No-match description when a filter other than All is selected and a matching room exists */
+"contacts.pathEdit.search.noMatches.descriptionWithRoomsHint" = "Prueba un nombre o prefijo hex como 'a3'. Las salas solo aparecen con el filtro Todos.";
+
+/* Location: AddHopPickerView.swift - Purpose: Picker row accessibility label, %1$@ is name, %2$d is target hop number */
+"contacts.pathEdit.addToPathAsHop" = "Añadir %1$@ a la ruta como salto %2$d";
+
+/* Location: PathEditingSheet.swift - Purpose: VoiceOver hint for a hop row describing swipe + drag actions */
+"contacts.pathEdit.hopHint" = "Desliza para eliminar. Arrastra para reordenar.";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: VoiceOver label for the section filter picker */
+"contacts.pathEdit.filterPickerLabel" = "Filtrar saltos";
+
+/* Location: PathEditingSheet.swift + AddHopPickerView.swift - Purpose: Max-hops reached title */
+"contacts.pathEdit.maxHops.reached" = "Máximo de saltos alcanzado";
+
+/* Location: AddHopPickerView.swift - Purpose: Max-hops reached description, %d is the cap */
+"contacts.pathEdit.maxHops.description" = "Esta ruta ha alcanzado el máximo de %d saltos para el modo de hash actual. Elimina un salto para añadir otro.";
+
+/* Location: PathEditingSheet.swift - Purpose: Add Hop CTA footer explaining the hop cap, %d is the cap */
+"contacts.pathEdit.maxHops.footer" = "Máximo de %d saltos alcanzado. Elimina un salto para añadir otro.";
+
+/* Location: AddHopPickerView.swift - Purpose: Bulk-add panel strings */
+"contacts.pathEdit.bulkAdd.action" = "Añadir nodos: %@";
+"contacts.pathEdit.bulkAdd.willAdd" = "%@ se añadirá";
+"contacts.pathEdit.bulkAdd.pathFull" = "%@ supera el límite de saltos";
+"contacts.pathEdit.bulkAdd.empty" = "No hay nodos nuevos para añadir";
 
 // MARK: - Path Discovery Results
 
@@ -792,20 +907,8 @@
 
 // MARK: - Trace Path List View
 
-/* Location: TracePathListView.swift - Purpose: Code input placeholder */
-"contacts.trace.list.codePlaceholder" = "Ejemplo: A1, 2B";
-
-/* Location: TracePathListView.swift - Purpose: Paste button */
-"contacts.trace.list.paste" = "Pegar del portapapeles";
-
-/* Location: TracePathListView.swift - Purpose: Code input footer */
-"contacts.trace.list.codeFooter" = "Presiona Intro para añadir repetidores";
-
-/* Location: TracePathListView.swift - Purpose: Repeaters section label */
-"contacts.trace.list.repeaters" = "Repetidores";
-
 /* Location: TracePathListView.swift - Purpose: Empty path instruction */
-"contacts.trace.list.emptyPath" = "Toca un repetidor arriba para empezar a construir tu ruta";
+"contacts.trace.list.emptyPath" = "Añade un salto para empezar a construir tu ruta.";
 
 /* Location: TracePathListView.swift - Purpose: Round trip path section header */
 "contacts.trace.list.roundTripPath" = "Ruta de ida y vuelta";
@@ -824,6 +927,21 @@
 
 /* Location: TracePathListView.swift - Purpose: Traces count label */
 "contacts.trace.list.traces" = "Trazas:";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size picker label */
+"contacts.trace.list.hashSize" = "Tamaño de hash";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 1 byte per hop */
+"contacts.trace.list.hashSizeOneByte" = "1 byte";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 2 bytes per hop */
+"contacts.trace.list.hashSizeTwoBytes" = "2 bytes";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 4 bytes per hop */
+"contacts.trace.list.hashSizeFourBytes" = "4 bytes";
+
+/* Location: PathActionsSectionView.swift - Purpose: Caveat shown for multi-byte trace hash sizes */
+"contacts.trace.list.hashSizeFooter" = "Los repetidores con firmware anterior a 1.11.0 no reenviarán trazas con un tamaño de hash superior a 1 byte.";
 
 /* Location: TracePathListView.swift - Purpose: Copy path button */
 "contacts.trace.list.copyPath" = "Copiar ruta";
@@ -861,26 +979,10 @@
 /* Location: TracePathListView.swift - Purpose: Hop row accessibility hint */
 "contacts.trace.list.hopHint" = "Desliza a la izquierda para eliminar, usa el control de arrastre para reordenar";
 
-/* Location: TracePathListView.swift - Purpose: Favorites filter toggle label */
-"contacts.trace.list.favoritesOnly" = "Solo favoritos";
-
-/* Location: TracePathListView.swift - Purpose: Toggle to include room servers in the list */
-"contacts.trace.list.includeRooms" = "Incluir salas";
-
-/* Location: TracePathListView.swift, PathEditingSheet.swift - Purpose: Toggle to include discovered repeaters */
-"contacts.trace.list.includeDiscovered" = "Incluir descubiertos";
-
-/* Location: TracePathListView.swift - Purpose: No favorite repeaters empty title */
-"contacts.trace.list.noFavorites.title" = "Sin repetidores favoritos";
-
-/* Location: TracePathListView.swift - Purpose: No favorite repeaters empty description */
-"contacts.trace.list.noFavorites.description" = "Marca repetidores como favoritos en la pestaña Nodos para verlos aquí.";
-
 // MARK: - Trace Path Map View
 
 /* Location: TracePathMapView.swift - Purpose: Hops count in results banner */
 "contacts.trace.map.hops" = "%d saltos";
-
 
 /* Location: TracePathMapView.swift - Purpose: Clear button */
 "contacts.trace.map.clear" = "Limpiar";
@@ -1055,6 +1157,9 @@
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "Conecta una radio para eliminar nodos";
 
+/* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
+"contacts.viewModel.removeTimedOut" = "Se agotó el tiempo al eliminar el nodo. Inténtalo de nuevo.";
+
 // MARK: - Path Management ViewModel Errors
 
 /* Location: PathManagementViewModel.swift - Purpose: Save path error prefix */
@@ -1065,6 +1170,10 @@
 
 /* Location: PathManagementViewModel.swift - Purpose: Set path error prefix */
 "contacts.pathManagement.error.setFailed" = "Error al establecer ruta: %@";
+
+"contacts.pathManagement.error.hopResizeRequired" = "Tamaño de hash de ruta cambiado: elimina y vuelve a agregar los saltos para guardar.";
+
+"contacts.pathManagement.error.tooManyHops" = "Demasiados saltos. El modo hash actual admite un máximo de %d.";
 
 // MARK: - Code Input Result
 

@@ -9,6 +9,22 @@ import Testing
 @MainActor
 struct ConnectionManagerBLEHealthTests {
 
+    // MARK: - Test Helpers
+
+    private func makeServices(
+        deviceID: UUID,
+        startEventMonitoring: Bool = false
+    ) async throws -> (MeshCoreSession, ServiceContainer, DeviceDTO) {
+        let session = MeshCoreSession(transport: SimulatorMockTransport())
+        let services = try await ServiceContainer.forTesting(session: session)
+        let device = DeviceDTO.testDevice(id: deviceID, radioID: deviceID)
+        try await services.dataStore.saveDevice(device)
+        if startEventMonitoring {
+            await services.startEventMonitoring(radioID: device.radioID)
+        }
+        return (session, services, device)
+    }
+
     // MARK: - Early Return Tests
 
     @Test("returns early when transport type is WiFi")
@@ -62,23 +78,35 @@ struct ConnectionManagerBLEHealthTests {
         #expect(manager.connectionState == .ready)
     }
 
-    @Test("returns early when BLE is actually connected")
-    func returnsEarlyWhenBLEConnected() async throws {
+    @Test("returns early when BLE is connected and app stack is healthy")
+    func returnsEarlyWhenBLEConnectedAndAppStackHealthy() async throws {
         let (manager, mock) = try ConnectionManager.createForTesting()
+        let deviceID = UUID()
+        let (session, services, device) = try await makeServices(deviceID: deviceID, startEventMonitoring: true)
+        let tracker = SessionRebuildTracker()
 
         await mock.setStubbedIsConnected(true)
+        await mock.setStubbedConnectedDeviceID(deviceID)
+        manager.rebuildSessionForHealthCheckOverride = { deviceID in
+            await tracker.record(deviceID)
+        }
 
         manager.setTestState(
             connectionState: .ready,
+            services: services,
+            session: session,
+            connectedDevice: device,
             currentTransportType: .bluetooth,
             connectionIntent: .wantsConnection()
         )
-        manager.testLastConnectedDeviceID = UUID()
+        manager.testLastConnectedDeviceID = deviceID
 
         await manager.checkBLEConnectionHealth()
 
-        // Should return early without cleanup since BLE is actually connected
         #expect(manager.connectionState == .ready)
+        #expect(services.isEventMonitoringActive)
+        #expect(await services.messagePollingService.isAutoFetching)
+        #expect(await tracker.recordedCalls().isEmpty)
     }
 
     @Test("skips reconnect during iOS auto-reconnect")
@@ -101,6 +129,27 @@ struct ConnectionManagerBLEHealthTests {
         #expect(manager.connectionState == .connecting)
     }
 
+    @Test("skips foreground reconnect while pairing is in progress")
+    func skipsWhenPairingInProgress() async throws {
+        let (manager, mock) = try ConnectionManager.createForTesting()
+
+        await mock.setStubbedIsConnected(false)
+        await mock.setStubbedIsAutoReconnecting(false)
+
+        manager.setTestState(
+            connectionState: .disconnected,
+            currentTransportType: .bluetooth,
+            connectionIntent: .wantsConnection(),
+            isPairingInProgress: true
+        )
+        manager.testLastConnectedDeviceID = UUID()
+
+        await manager.checkBLEConnectionHealth()
+
+        // Gate fires before connect(to:) — connectionState stays .disconnected
+        #expect(manager.connectionState == .disconnected)
+    }
+
     @Test("skips reconnect while session rebuild is in progress")
     func skipsWhenSessionRebuildInProgress() async throws {
         let (manager, mock) = try ConnectionManager.createForTesting()
@@ -120,6 +169,123 @@ struct ConnectionManagerBLEHealthTests {
         await manager.checkBLEConnectionHealth()
 
         #expect(manager.connectionState == .disconnected)
+        #expect(manager.sessionRebuildDeviceID == deviceID)
+    }
+
+    // MARK: - Connected Transport App-Stack Reconciliation Tests
+
+    @Test("BLE connected with missing session and services rebuilds app stack")
+    func bleConnectedMissingAppStackRebuildsSession() async throws {
+        let (manager, mock) = try ConnectionManager.createForTesting()
+        let deviceID = UUID()
+        let tracker = SessionRebuildTracker()
+
+        await mock.setStubbedIsConnected(true)
+        await mock.setStubbedConnectedDeviceID(deviceID)
+        await mock.setStubbedIsAutoReconnecting(false)
+        manager.rebuildSessionForHealthCheckOverride = { deviceID in
+            await tracker.record(deviceID)
+        }
+
+        manager.setTestState(
+            connectionState: .disconnected,
+            services: nil,
+            session: nil,
+            connectedDevice: nil,
+            currentTransportType: .bluetooth,
+            connectionIntent: .wantsConnection()
+        )
+        manager.testLastConnectedDeviceID = deviceID
+
+        await manager.checkBLEConnectionHealth()
+
+        #expect(await tracker.recordedCalls() == [deviceID])
+    }
+
+    @Test("BLE connected ready state restarts missing event monitoring")
+    func bleConnectedReadyRestartsMissingEventMonitoring() async throws {
+        let (manager, mock) = try ConnectionManager.createForTesting()
+        let deviceID = UUID()
+        let (session, services, device) = try await makeServices(deviceID: deviceID)
+
+        await mock.setStubbedIsConnected(true)
+        await mock.setStubbedConnectedDeviceID(deviceID)
+        await mock.setStubbedIsAutoReconnecting(false)
+        manager.setTestState(
+            connectionState: .ready,
+            services: services,
+            session: session,
+            connectedDevice: device,
+            currentTransportType: .bluetooth,
+            connectionIntent: .wantsConnection()
+        )
+        manager.testLastConnectedDeviceID = deviceID
+
+        #expect(!services.isEventMonitoringActive)
+        #expect(!(await services.messagePollingService.isAutoFetching))
+
+        await manager.checkBLEConnectionHealth()
+
+        #expect(services.isEventMonitoringActive)
+        #expect(await services.messagePollingService.isAutoFetching)
+    }
+
+    @Test("BLE connected with healthy listeners does not rebuild")
+    func bleConnectedHealthyListenersDoesNotRebuild() async throws {
+        let (manager, mock) = try ConnectionManager.createForTesting()
+        let deviceID = UUID()
+        let (session, services, device) = try await makeServices(deviceID: deviceID, startEventMonitoring: true)
+        let tracker = SessionRebuildTracker()
+
+        await mock.setStubbedIsConnected(true)
+        await mock.setStubbedConnectedDeviceID(deviceID)
+        await mock.setStubbedIsAutoReconnecting(false)
+        manager.rebuildSessionForHealthCheckOverride = { deviceID in
+            await tracker.record(deviceID)
+        }
+        manager.setTestState(
+            connectionState: .ready,
+            services: services,
+            session: session,
+            connectedDevice: device,
+            currentTransportType: .bluetooth,
+            connectionIntent: .wantsConnection()
+        )
+        manager.testLastConnectedDeviceID = deviceID
+
+        await manager.checkBLEConnectionHealth()
+
+        #expect(await tracker.recordedCalls().isEmpty)
+        #expect(services.isEventMonitoringActive)
+        #expect(await services.messagePollingService.isAutoFetching)
+    }
+
+    @Test("BLE connected skips duplicate recovery while session rebuild is active")
+    func bleConnectedSkipsDuplicateRecoveryDuringSessionRebuild() async throws {
+        let (manager, mock) = try ConnectionManager.createForTesting()
+        let deviceID = UUID()
+        let tracker = SessionRebuildTracker()
+
+        await mock.setStubbedIsConnected(true)
+        await mock.setStubbedConnectedDeviceID(deviceID)
+        await mock.setStubbedIsAutoReconnecting(false)
+        manager.rebuildSessionForHealthCheckOverride = { deviceID in
+            await tracker.record(deviceID)
+        }
+        manager.setTestState(
+            connectionState: .disconnected,
+            services: nil,
+            session: nil,
+            connectedDevice: nil,
+            currentTransportType: .bluetooth,
+            connectionIntent: .wantsConnection(),
+            sessionRebuildDeviceID: deviceID
+        )
+        manager.testLastConnectedDeviceID = deviceID
+
+        await manager.checkBLEConnectionHealth()
+
+        #expect(await tracker.recordedCalls().isEmpty)
         #expect(manager.sessionRebuildDeviceID == deviceID)
     }
 
@@ -211,6 +377,32 @@ struct ConnectionManagerBLEHealthTests {
         await manager.checkBLEConnectionHealth()
 
         // After detecting stale state and cleanup, connectionState should be .disconnected
+        #expect(manager.connectionState == .disconnected)
+    }
+
+    @Test("detects stale state when connectionState is .syncing but BLE disconnected")
+    func detectsStaleSyncingState() async throws {
+        let (manager, mock) = try ConnectionManager.createForTesting()
+        let deviceID = UUID()
+
+        await mock.setStubbedIsConnected(false)
+        await mock.setStubbedIsAutoReconnecting(false)
+        await mock.setStubbedIsDeviceConnectedToSystem(false)
+
+        manager.setTestState(
+            connectionState: .syncing,
+            services: try await ServiceContainer.forTesting(
+                session: MeshCoreSession(transport: SimulatorMockTransport())
+            ),
+            session: MeshCoreSession(transport: SimulatorMockTransport()),
+            connectedDevice: DeviceDTO.testDevice(id: deviceID),
+            currentTransportType: .bluetooth,
+            connectionIntent: .wantsConnection()
+        )
+        manager.testLastConnectedDeviceID = deviceID
+
+        await manager.checkBLEConnectionHealth()
+
         #expect(manager.connectionState == .disconnected)
     }
 
@@ -401,5 +593,17 @@ private actor ConnectionLostTracker {
 
     func markConnectionLost() {
         connectionLostCalled = true
+    }
+}
+
+private actor SessionRebuildTracker {
+    private var calls: [UUID] = []
+
+    func record(_ deviceID: UUID) {
+        calls.append(deviceID)
+    }
+
+    func recordedCalls() -> [UUID] {
+        calls
     }
 }

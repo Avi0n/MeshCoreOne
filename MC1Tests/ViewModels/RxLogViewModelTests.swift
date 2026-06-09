@@ -73,14 +73,26 @@ struct RxLogViewModelTests {
         #expect(dto.recipientPrefix == Data([0xDD]))
     }
 
-    @Test("senderPrefix extracts correct bytes for hashSize=2")
+    @Test("senderPrefix uses fixed 1-byte payload hashes when path hashSize=2")
     func senderPrefix_hashSize2() {
         // pathLength encodes hashSize=2: mode=1 → (1<<6)|hops = 0x41
-        let payload = Data([0xDD, 0xEE, 0xAA, 0xBB, 0xFF]) // [dest:2][src:2][rest]
+        // DM payload hashes remain 1 byte even when routed path hashes are 2 bytes.
+        let payload = Data([0xDD, 0xAA, 0xFF, 0xFF])
         let dto = makeDTO(routeType: .direct, payloadType: .textMessage, pathLength: 0x41, packetPayload: payload)
 
-        #expect(dto.senderPrefix == Data([0xAA, 0xBB]))
-        #expect(dto.recipientPrefix == Data([0xDD, 0xEE]))
+        #expect(dto.senderPrefix == Data([0xAA]))
+        #expect(dto.recipientPrefix == Data([0xDD]))
+    }
+
+    @Test("senderPrefix uses fixed 1-byte payload hashes when path hashSize=3")
+    func senderPrefix_hashSize3() {
+        // pathLength encodes hashSize=3: mode=2 → (2<<6)|hops = 0x81
+        // DM payload hashes remain 1 byte even when routed path hashes are 3 bytes.
+        let payload = Data([0xDD, 0xAA, 0xFF, 0xFF])
+        let dto = makeDTO(routeType: .direct, payloadType: .textMessage, pathLength: 0x81, packetPayload: payload)
+
+        #expect(dto.senderPrefix == Data([0xAA]))
+        #expect(dto.recipientPrefix == Data([0xDD]))
     }
 
     @Test("senderPrefix returns nil for flood route")
@@ -227,12 +239,13 @@ struct RxLogViewModelTests {
             routeType: routeType,
             payloadType: payloadType,
             payloadVersion: 0,
+            payloadTypeBits: payloadType.rawValue & 0x0F,
             transportCode: nil,
             pathLength: pathLength,
             pathNodes: pathNodes,
             packetPayload: packetPayload
         )
-        return RxLogEntryDTO(deviceID: UUID(), from: parsed)
+        return RxLogEntryDTO(radioID: UUID(), from: parsed)
     }
 
     private func makeContact(
@@ -242,7 +255,7 @@ struct RxLogViewModelTests {
     ) -> ContactDTO {
         ContactDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: publicKey,
             name: name,
             typeRawValue: 0,

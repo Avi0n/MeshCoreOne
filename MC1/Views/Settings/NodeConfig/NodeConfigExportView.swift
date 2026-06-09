@@ -3,6 +3,7 @@ import MC1Services
 
 struct NodeConfigExportView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @State private var viewModel = NodeConfigExportViewModel()
 
     var body: some View {
@@ -54,6 +55,7 @@ struct NodeConfigExportView: View {
                     isOn: $viewModel.sections.contacts
                 )
             }
+            .themedRowBackground(theme)
 
             Section {
                 Button {
@@ -71,14 +73,17 @@ struct NodeConfigExportView: View {
                 }
                 .disabled(viewModel.isExporting || !viewModel.sections.anySectionSelected)
             }
+            .themedRowBackground(theme)
 
             if let error = viewModel.errorMessage {
                 Section {
                     Label(error, systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.red)
                 }
+                .themedRowBackground(theme)
             }
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Settings.ConfigExport.title)
         .fileExporter(
             isPresented: $viewModel.showFileExporter,

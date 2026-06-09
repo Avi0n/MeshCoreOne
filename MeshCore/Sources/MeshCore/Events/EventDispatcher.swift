@@ -1,4 +1,8 @@
 import Foundation
+import os
+
+private let dispatcherLogger = Logger(subsystem: "MeshCore", category: "EventDispatcher")
+private let dispatcherSignposter = OSSignposter(subsystem: "MeshCore", category: "EventDispatcher")
 
 /// Dispatches MeshEvents to subscribers via AsyncStream.
 ///
@@ -30,6 +34,17 @@ public actor EventDispatcher {
 
     /// Stores active subscriptions keyed by a unique identifier.
     private var subscriptions: [UUID: Subscription] = [:]
+
+    /// Running count of events dropped by `.bufferingNewest(100)` when a
+    /// subscriber couldn't keep up. Differentiated from `.terminated` (which
+    /// is expected on subscription cancel) so the drop count is an actionable
+    /// production signal rather than noise.
+    private var droppedCount: Int = 0
+
+    /// Total events dropped across all subscriptions since actor init.
+    ///
+    /// Intended for diagnostics and tests; lifetime is the dispatcher's.
+    public var droppedEventCount: Int { droppedCount }
 
     /// Subscribes to all events using modern AsyncStream API.
     ///
@@ -96,10 +111,26 @@ public actor EventDispatcher {
     ///
     /// - Parameter event: The event to dispatch.
     public func dispatch(_ event: MeshEvent) {
-        for (_, subscription) in subscriptions {
-            // If no filter or filter passes, yield the event
-            if subscription.filter?(event) ?? true {
-                subscription.continuation.yield(event)
+        for (id, subscription) in subscriptions {
+            if !(subscription.filter?(event) ?? true) { continue }
+
+            switch subscription.continuation.yield(event) {
+            case .enqueued:
+                break
+            case .dropped(let dropped):
+                droppedCount &+= 1
+                dispatcherSignposter.emitEvent(
+                    "dispatcher.drop",
+                    "case=\(dropped.caseName) sub=\(id)"
+                )
+                dispatcherLogger.warning(
+                    "dropped event sub=\(id, privacy: .private) case=\(dropped.caseName, privacy: .public) totalDrops=\(self.droppedCount, privacy: .public)"
+                )
+            case .terminated:
+                // Expected on subscription cancel — silent by design.
+                break
+            @unknown default:
+                break
             }
         }
     }
@@ -128,5 +159,14 @@ public actor EventDispatcher {
     /// - Parameter id: The unique identifier of the subscription to remove.
     private func removeSubscription(id: UUID) {
         subscriptions.removeValue(forKey: id)
+    }
+
+    /// Returns the count of active subscriptions. For tests only.
+    ///
+    /// Used by integration tests to synchronize with a listener task's
+    /// `subscribe(filter:)` call before dispatching events — without this,
+    /// a dispatch can race the subscribe and silently vanish.
+    var subscriberCountForTest: Int {
+        subscriptions.count
     }
 }

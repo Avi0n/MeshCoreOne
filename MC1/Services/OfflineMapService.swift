@@ -64,9 +64,10 @@ enum OfflineMapError: LocalizedError {
     }
 }
 
+private let logger = Logger(subsystem: "com.mc1", category: "OfflineMapService")
+
 @MainActor @Observable
 final class OfflineMapService {
-    private static let logger = Logger(subsystem: "com.mc1", category: "OfflineMapService")
 
     private static let minimumDiskSpaceBytes: Int64 = 100_000_000
 
@@ -107,7 +108,7 @@ final class OfflineMapService {
         observationTasks.append(Task { [weak self] in
             for await notification in NotificationCenter.default.notifications(named: .MLNOfflinePackError) {
                 if let error = notification.userInfo?[MLNOfflinePackUserInfoKey.error] as? NSError {
-                    Self.logger.warning("Offline pack error: \(error.localizedDescription)")
+                    logger.warning("Offline pack error: \(error.localizedDescription)")
                     self?.lastPackError = error.localizedDescription
                 }
             }
@@ -116,7 +117,7 @@ final class OfflineMapService {
             for await _ in NotificationCenter.default.notifications(
                 named: .MLNOfflinePackMaximumMapboxTilesReached
             ) {
-                Self.logger.warning("Offline pack tile limit reached")
+                logger.warning("Offline pack tile limit reached")
                 self?.lastPackError = L10n.Settings.OfflineMaps.Error.tileLimitReached
             }
         })
@@ -273,7 +274,7 @@ final class OfflineMapService {
         await withCheckedContinuation { continuation in
             MLNOfflineStorage.shared.removePack(pack.mlnPack) { error in
                 if let error {
-                    Self.logger.error("Failed to delete offline pack: \(error.localizedDescription)")
+                    logger.error("Failed to delete offline pack: \(error.localizedDescription)")
                 }
                 continuation.resume()
             }
@@ -363,7 +364,7 @@ final class OfflineMapService {
         do {
             try url.setResourceValues(values)
         } catch {
-            Self.logger.error("Failed to exclude offline database from backup: \(error.localizedDescription)")
+            logger.error("Failed to exclude offline database from backup: \(error.localizedDescription)")
         }
     }
 }

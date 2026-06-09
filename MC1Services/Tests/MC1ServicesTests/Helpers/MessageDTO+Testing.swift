@@ -7,12 +7,12 @@ extension MessageDTO {
     ///
     /// Usage:
     /// ```
-    /// let message = MessageDTO.testDirectMessage(deviceID: myDeviceID, contactID: contactID)
-    /// let failed = MessageDTO.testDirectMessage(deviceID: id, contactID: cID, status: .failed)
+    /// let message = MessageDTO.testDirectMessage(radioID: myRadioID, contactID: contactID)
+    /// let failed = MessageDTO.testDirectMessage(radioID: id, contactID: cID, status: .failed)
     /// ```
     static func testDirectMessage(
         id: UUID = UUID(),
-        deviceID: UUID = UUID(),
+        radioID: UUID = UUID(),
         contactID: UUID = UUID(),
         text: String = "Test message",
         timestamp: UInt32 = UInt32(Date().timeIntervalSince1970),
@@ -35,7 +35,7 @@ extension MessageDTO {
     ) -> MessageDTO {
         MessageDTO(
             id: id,
-            deviceID: deviceID,
+            radioID: radioID,
             contactID: contactID,
             channelIndex: nil,
             text: text,
@@ -64,11 +64,11 @@ extension MessageDTO {
     ///
     /// Usage:
     /// ```
-    /// let message = MessageDTO.testChannelMessage(deviceID: myDeviceID, channelIndex: 0)
+    /// let message = MessageDTO.testChannelMessage(radioID: myRadioID, channelIndex: 0)
     /// ```
     static func testChannelMessage(
         id: UUID = UUID(),
-        deviceID: UUID = UUID(),
+        radioID: UUID = UUID(),
         channelIndex: UInt8 = 0,
         text: String = "Test channel message",
         timestamp: UInt32 = UInt32(Date().timeIntervalSince1970),
@@ -86,7 +86,7 @@ extension MessageDTO {
     ) -> MessageDTO {
         MessageDTO(
             id: id,
-            deviceID: deviceID,
+            radioID: radioID,
             contactID: nil,
             channelIndex: channelIndex,
             text: text,

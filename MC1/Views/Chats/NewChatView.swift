@@ -4,6 +4,7 @@ import MC1Services
 struct NewChatView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     let onSelectContact: (ContactDTO) -> Void
 
@@ -54,6 +55,7 @@ struct NewChatView: View {
                         }
                         .buttonStyle(.plain)
                     }
+                    .themedCanvas(theme)
                 }
             }
             .navigationTitle(L10n.Chats.Chats.NewChat.title)
@@ -73,10 +75,10 @@ struct NewChatView: View {
     }
 
     private func loadContacts() async {
-        guard let deviceID = appState.connectedDevice?.id else { return }
+        guard let radioID = appState.connectedDevice?.radioID else { return }
 
         isLoading = true
-        contacts = (try? await appState.services?.dataStore.fetchContacts(deviceID: deviceID)) ?? []
+        contacts = (try? await appState.services?.dataStore.fetchContacts(radioID: radioID)) ?? []
         isLoading = false
     }
 

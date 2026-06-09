@@ -32,6 +32,9 @@
 /* Location: ChatsView.swift - Filter option for channels */
 "chats.filter.channels" = "Canaux";
 
+/* Location: ChatsView.swift - Filter option for rooms */
+"chats.filter.rooms" = "Salons";
+
 // MARK: - Compose Menu
 
 /* Location: ChatsView.swift - Button to start a new direct chat */
@@ -69,6 +72,12 @@
 /* Location: ChatsView.swift - Description when no channels */
 "chats.emptyState.noChannels.description" = "Rejoignez ou créez un canal";
 
+/* Location: ChatsView.swift - Title when no rooms exist */
+"chats.emptyState.noRooms.title" = "Aucun salon";
+
+/* Location: ChatsView.swift - Description when no rooms exist */
+"chats.emptyState.noRooms.description" = "Rejoignez un salon depuis les Contacts";
+
 /* Location: ChatsView.swift - Split view placeholder when no conversation selected */
 "chats.emptyState.selectConversation" = "Sélectionnez une conversation";
 
@@ -90,7 +99,10 @@
 
 // MARK: - Message Timestamps
 
-/* Location: MessageTimestampView.swift - Prefix for yesterday's date */
+/* Location: MessageDayDividerView.swift - Label for today's date in the chat day separator */
+"chats.timestamp.today" = "Aujourd'hui";
+
+/* Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator */
 "chats.timestamp.yesterday" = "Hier";
 
 /* Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old */
@@ -110,14 +122,16 @@
 /* Location: ScrollToBottomButton.swift - Accessibility label for scroll to bottom button */
 "chats.scrollButton.scrollToBottom.accessibilityLabel" = "Aller au dernier message";
 
+/* Location: ScrollToBottomButton.swift - Accessibility value for unread message count - %d is the number of unread messages */
+"chats.scrollButton.scrollToBottom.accessibilityValue" = "%d messages non lus";
 /* Location: ScrollToMentionButton.swift, ScrollToBottomButton.swift - Badge text for 99+ unread */
 "chats.scrollButton.badge.overflow" = "99+";
 
 /* Location: ScrollToDividerButton.swift - Accessibility label for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityLabel" = "Scroll to new messages";
+"chats.scrollButton.scrollToDivider.accessibilityLabel" = "Faire défiler jusqu'aux nouveaux messages";
 
 /* Location: ScrollToDividerButton.swift - Accessibility hint for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityHint" = "Double-tap to scroll to the new messages divider";
+"chats.scrollButton.scrollToDivider.accessibilityHint" = "Appuyez deux fois pour faire défiler jusqu'au séparateur de nouveaux messages";
 
 // MARK: - Chat View (Direct Messages)
 
@@ -236,8 +250,20 @@
 /* Location: ChannelInfoSheet.swift - Error when services unavailable */
 "chats.error.servicesUnavailable" = "Services non disponibles";
 
+/* TODO: translate - Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
+"chats.error.notConnectedToDelete" = "Connectez-vous à votre radio pour supprimer cette conversation.";
+
 /* Location: ChatConversationView.swift - Error when loading older messages fails */
-"chats.errors.loadOlderMessagesFailed" = "Échec du chargement des anciens messages";
+"chats.error.loadOlderMessagesFailed" = "Échec du chargement des anciens messages";
+
+/* Location: ErrorBannerModifier.swift - Accessibility hint announcing that tapping the banner dismisses it */
+"chats.error.banner.dismissAccessibilityHint" = "Appuyez pour ignorer";
+
+/* Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error) */
+"chats.error.sendQueuePersistFailed" = "Impossible de mettre votre message en file d'attente. Réessayez.";
+
+/* TODO: translate - Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
+"chats.error.loadConversationsFailed" = "Impossible de charger les conversations.";
 
 // MARK: - Channel Options Sheet
 
@@ -325,20 +351,20 @@
 
 // MARK: - Swipe Actions
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to delete */
-"chats.swipeAction.delete" = "Supprimer";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to delete */
+"chats.action.delete" = "Supprimer";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to unmute */
-"chats.swipeAction.unmute" = "Réactiver";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to unmute */
+"chats.action.unmute" = "Réactiver";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to mute */
-"chats.swipeAction.mute" = "Sourdine";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
+"chats.action.mute" = "Sourdine";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to remove from favorites */
-"chats.swipeAction.unfavorite" = "Retirer des favoris";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to remove from favorites */
+"chats.action.unfavorite" = "Retirer des favoris";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to add to favorites */
-"chats.swipeAction.favorite" = "Favori";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to add to favorites */
+"chats.action.favorite" = "Favori";
 
 // MARK: - Room Conversation Row
 
@@ -548,6 +574,9 @@
 /* Location: UnifiedMessageBubble.swift - Fallback sender name */
 "chats.message.sender.unknown" = "Inconnu";
 
+/* Location: UnifiedMessageBubble.swift - Accessibility text for sender names resolved from a short prefix */
+"chats.message.sender.possibleMatch" = "Correspondance possible, identifiée par un préfixe court";
+
 /* Location: UnifiedMessageBubble.swift - Context menu action to reply */
 "chats.message.action.reply" = "Répondre";
 
@@ -584,6 +613,9 @@
 /* Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct" */
 "chats.message.info.hops" = "Sauts : %@";
 
+/* Location: ActionsDetailsSection.swift - Info row showing the path hash size in bytes - %d is 1, 2, or 3 */
+"chats.message.info.pathHash" = "Hachage du chemin : %d octet";
+
 /* Location: UnifiedMessageBubble.swift - Indicator that timestamp was adjusted */
 "chats.message.info.adjusted" = "(ajusté)";
 
@@ -593,20 +625,53 @@
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for adjusted timestamp */
 "chats.message.info.adjustedHint" = "L'horloge de l'expéditeur était incorrecte";
 
+/* Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date */
+"chats.message.info.originalSendTime" = "Heure d'envoi d'origine: %@";
+
 /* Location: UnifiedMessageBubble.swift - Context menu text showing received time - %@ is formatted date */
 "chats.message.info.received" = "Reçu : %@";
 
 /* Location: UnifiedMessageBubble.swift - Context menu text showing SNR - %@ is formatted value */
 "chats.message.info.snr" = "RSB : %@";
 
+/* Location: MessageActionsSheet.swift - Context menu text showing the radio region the message was flooded under - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
+"chats.message.info.floodedUnder" = "Région : %@";
+
+/* Location: MessageActionsSheet.swift - Details row shown when region could not be resolved */
+"chats.message.info.regionUnresolved" = "Région : Inconnue";
+
 /* Location: UnifiedMessageBubble.swift - Context menu submenu label */
 "chats.message.action.details" = "Détails";
+
+/* Location: ActionsDetailsSection.swift - Accessibility value when the details row is expanded */
+"chats.message.action.expanded" = "Développé";
+
+/* Location: ActionsDetailsSection.swift - Accessibility value when the details row is collapsed */
+"chats.message.action.collapsed" = "Réduit";
 
 /* Location: UnifiedMessageBubble.swift - Context menu action to delete */
 "chats.message.action.delete" = "Supprimer";
 
 /* Location: MessageActionsSheet.swift - Purpose: Block sender action */
 "chats.message.action.blockSender" = "Bloquer l'expéditeur";
+
+/* Location: MessageActionsSheet.swift - Purpose: Action to start a DM with the channel sender */
+"chats.message.action.sendDM" = "Envoyer un DM";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed send */
+"chats.message.action.retry" = "Réessayer";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the reactions detail sheet */
+"chats.message.action.viewReactions" = "Voir les réactions";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL */
+"chats.message.action.openLink" = "Ouvrir le lien";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen */
+"chats.message.action.viewImage" = "Voir l'image";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed image download */
+"chats.message.action.retryImage" = "Recharger l'image";
 
 /* Location: UnifiedMessageBubble.swift - Status row retry button */
 "chats.message.status.retry" = "Réessayer";
@@ -681,6 +746,31 @@
 "chats.input.encrypted" = "Chiffré";
 "chats.input.notEncrypted" = "Non chiffré";
 
+/* Location: ChatShareMenu.swift - Accessibility label for the share (plus) button */
+"chats.input.shareButton.accessibilityLabel" = "Partager";
+
+// MARK: - Share Menu
+
+/* Location: ChatShareMenu.swift - Share menu action to share the current location */
+"chats.share.location" = "Partager la position";
+
+/* Location: ChatShareMenu.swift - Share menu action to share a contact */
+"chats.share.contact" = "Partager le contact";
+
+/* Location: ChatShareMenu.swift - Share menu action to share the user's own node info */
+"chats.share.myInfo" = "Partager mon contact";
+
+// MARK: - Contact Picker
+
+/* Location: ShareContactPickerSheet.swift - Navigation title for the share-contact picker */
+"chats.contactPicker.title" = "Partager le contact";
+
+/* Location: ShareContactPickerSheet.swift - Search placeholder for the contact picker */
+"chats.contactPicker.search.placeholder" = "Rechercher des contacts";
+
+/* Location: ShareContactPickerSheet.swift - Empty state when no contacts are available to share */
+"chats.contactPicker.emptyState" = "Aucun contact à partager";
+
 // MARK: - Message Path Sheet
 
 /* Location: MessagePathSheet.swift - Empty state title */
@@ -723,6 +813,15 @@
 
 /* Location: PathHopRowView.swift - Unknown signal quality */
 "chats.path.hop.signalUnknown" = "Inconnu";
+
+/* Location: FallbackMatchIndicatorView.swift - Accessibility label for possible match indicator */
+"chats.path.hop.possibleMatch" = "Correspondance possible, identifiée par un préfixe court";
+
+/* Location: FallbackMatchIndicatorView.swift - Title for possible match explanation popover */
+"chats.path.hop.possibleMatchTitle" = "Correspondance Possible";
+
+/* Location: FallbackMatchIndicatorView.swift - Explanation of what a possible match means */
+"chats.path.hop.possibleMatchExplanation" = "Plusieurs nœuds partagent ce préfixe. Le nom affiché peut ne pas être correct.";
 
 /* Location: PathHopRowView.swift - Label for receiver (your device) */
 "chats.path.receiver.label" = "Destinataire";
@@ -800,6 +899,8 @@
 
 /* Direct message path (no hops) */
 "chats.message.path.direct" = "Direct";
+/* Routing strategy where the radio rebroadcasts the message to every neighbor (no specific path). UI displays this as a label in the per-message details sheet. Prefer a localized term over the English loanword if one exists in your locale's networking terminology. */
+"chats.message.path.flood" = "Flood";
 
 /* Message path hop count */
 "chats.message.path.hops" = "%d sauts";
@@ -812,6 +913,15 @@
 
 /* Location: UnifiedMessageBubble.swift - Accessibility label for hop count display - %d is count */
 "chats.message.hopCount.accessibilityLabel" = "Nombre de sauts: %d";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
+"chats.message.region.accessibilityLabel" = "Région %@";
+
+/* Location: BubbleFooterRow.swift - Accessibility label for the raw send time footer - %@ is the time */
+"chats.message.sendTime.accessibilityLabel" = "Heure d'envoi: %@";
+
+/* Location: BubbleFooterRow.swift - Accessibility label for the send time footer when the sender's clock was corrected - %@ is the time */
+"chats.message.sendTime.correctedAccessibilityLabel" = "Heure d'envoi: %@, ajustée en raison d'une erreur d'horloge de l'expéditeur";
 
 // MARK: - Reaction Details Sheet
 
@@ -867,13 +977,16 @@
 // MARK: - Tips
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip title introducing device menu */
-"chats.tip.deviceMenu.title" = "Your Device Menu";
+"chats.tip.deviceMenu.title" = "Le menu de votre appareil";
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
-"chats.tip.deviceMenu.message" = "Manage your connection, send advertisements, and check battery. Bluetooth devices stay connected even if the app is closed — tap Disconnect when you're ready to turn off the link.";
+"chats.tip.deviceMenu.message" = "Gérez votre connexion, envoyez des annonces et vérifiez la batterie. La radio reste connectée même après une fermeture forcée. Appuyez sur Déconnecter pour couper le lien.";
 
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Image";
+
+/* Location: InlineImageFragmentView.swift - Accessibility label for loading state */
+"chats.inlineImage.loading" = "Chargement de l'image";
 
 /* Location: InlineImageView.swift - Accessibility label for animated image */
 "chats.inlineImage.animatedAccessibility" = "Image animée";
@@ -882,10 +995,13 @@
 "chats.inlineImage.tapHint" = "Touchez deux fois pour afficher en plein écran";
 
 /* Location: UnifiedMessageBubble.swift - Tap to retry loading failed image */
-"chats.inlineImage.tapToRetry" = "Tap to retry";
+"chats.inlineImage.tapToRetry" = "Appuyez pour réessayer";
 
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for retry button */
-"chats.inlineImage.retryHint" = "Double tap to retry loading image";
+"chats.inlineImage.retryHint" = "Appuyez deux fois pour réessayer de charger l'image";
+
+/* Location: InlineImageFragmentView.swift - VoiceOver identity for a failed inline image */
+"chats.inlineImage.failedLabel" = "Échec du chargement de l'image";
 
 /* Location: FullScreenImageViewer.swift - Close button label */
 "chats.imageViewer.close" = "Fermer";
@@ -910,15 +1026,33 @@
 /* Location: BlockSenderSheet.swift - Purpose: Destructive block button */
 "chats.blockSender.blockAnyway" = "Bloquer";
 
-/* Location: BlockSenderSheet.swift - Purpose: Accessibility value when contact is selected */
-"chats.blockSender.accessibility.selected" = "Sélectionné";
+// MARK: - Contact Match Row
 
-/* Location: BlockSenderSheet.swift - Purpose: Accessibility value when contact is not selected */
-"chats.blockSender.accessibility.notSelected" = "Non sélectionné";
+/* Location: ContactMatchRow.swift - Purpose: Accessibility value when contact is selected */
+"chats.contactMatch.accessibility.selected" = "Sélectionné";
 
-/* Location: BlockSenderSheet.swift - Purpose: Public key label */
-"chats.blockSender.key" = "Clé : %@";
+/* Location: ContactMatchRow.swift - Purpose: Accessibility value when contact is not selected */
+"chats.contactMatch.accessibility.notSelected" = "Non sélectionné";
 
+/* Location: ContactMatchRow.swift - Purpose: Public key label */
+"chats.contactMatch.key" = "Clé : %@";
+
+// MARK: - Send DM Sheet
+
+/* Location: SendDMSheet.swift - Purpose: Sheet title with sender name */
+"chats.sendDM.title" = "Envoyer un DM à \"%@\"";
+
+/* Location: SendDMSheet.swift - Purpose: Name-based matching limitation warning */
+"chats.sendDM.limitation" = "Les messages de canal n'incluent pas l'identité de l'expéditeur. Cette correspondance se fait uniquement par nom — le contact pourrait être quelqu'un d'autre avec le même nom.";
+
+/* Location: SendDMSheet.swift - Purpose: Section header listing matching contacts */
+"chats.sendDM.matchingContacts" = "Sélectionnez un contact à qui envoyer un message :";
+
+/* Location: SendDMSheet.swift - Purpose: Empty-state message when no contact matches */
+"chats.sendDM.noMatches" = "Aucun contact nommé \"%@\" n'a été trouvé.";
+
+/* Location: SendDMSheet.swift - Purpose: Cancel button */
+"chats.sendDM.cancel" = "Annuler";
 
 // MARK: - Message Actions & Notification Level
 
@@ -985,14 +1119,17 @@
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set */
 "chats.channelInfo.region.allRegions" = "All Regions";
 
+/* Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope */
+"chats.channelInfo.region.useDefaultFormat" = "%@ (par défaut)";
+
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no regions configured */
 "chats.channelInfo.region.notConfigured" = "Not configured";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Explanation shown when no regions exist */
-"chats.channelInfo.region.explanation" = "Limit messages to a geographic area";
+"chats.channelInfo.region.explanation" = "Limiter les messages à une zone géographique";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Discover button */
-"chats.channelInfo.region.discover" = "Discover Nearby Regions";
+"chats.channelInfo.region.discover" = "Découvrir les régions à proximité";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Discover button loading state */
 "chats.channelInfo.region.discovering" = "Discovering…";
@@ -1001,7 +1138,7 @@
 "chats.channelInfo.region.manage" = "Regions";
 
 /* Location: RegionManagementView.swift - Purpose: Manage regions link */
-"chats.channelInfo.region.manageRegions" = "Manage Regions";
+"chats.channelInfo.region.manageRegions" = "Gérer les régions";
 
 /* Location: RegionManagementView.swift - Purpose: Add manually button */
 "chats.channelInfo.region.addManually" = "Add Manually";
@@ -1010,13 +1147,19 @@
 "chats.channelInfo.region.noRegions" = "No regions added";
 
 /* Location: RegionManagementView.swift - Purpose: Empty state description */
-"chats.channelInfo.region.noRegionsDescription" = "Discover regions from nearby repeaters or add them manually.";
+"chats.channelInfo.region.noRegionsDescription" = "Découvrez des régions depuis les répéteurs à proximité ou ajoutez-les manuellement.";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: No new regions found */
 "chats.channelInfo.region.noNewRegions" = "No new regions found";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: No repeaters responded */
 "chats.channelInfo.region.noRepeatersResponded" = "No repeaters responded";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Couldn't load nearby repeater list */
+"chats.channelInfo.region.errLoadingRepeaters" = "Impossible de charger les répéteurs à proximité";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Some queries failed because radio contact list is full */
+"chats.channelInfo.region.errRadioContactsFull" = "La liste de contacts de la radio est pleine — certains répéteurs n'ont pas pu être interrogés";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: Add selected regions button */
 "chats.channelInfo.region.addSelected" = "Add";
@@ -1028,13 +1171,47 @@
 "chats.channelInfo.region.addRegionPlaceholder" = "Region name";
 
 /* Location: AddRegionView.swift - Purpose: Validation error */
-"chats.channelInfo.region.invalidName" = "Region names cannot contain spaces or start with # or $.";
+"chats.channelInfo.region.invalidName" = "Les noms de région ne peuvent contenir que des lettres, des chiffres et des traits d'union.";
+
+/* Location: RegionManagementView.swift - Purpose: Validation error when a region name exceeds the firmware byte cap */
+"chats.channelInfo.region.nameTooLong" = "Les noms de région sont limités à %d octets.";
 
 /* Location: AddRegionView.swift - Purpose: Duplicate error */
-"chats.channelInfo.region.duplicate" = "This region is already in your list.";
+"chats.channelInfo.region.duplicate" = "Cette région figure déjà dans votre liste.";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Private region label */
 "chats.channelInfo.region.private" = "Private";
 
 /* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle */
-"chats.channelInfo.region.scopedAccessibility" = "%@, scoped to %@";
+"chats.channelInfo.region.scopedAccessibility" = "%@, limité à %@";
+
+/* Location: ChatConversationType.swift - Purpose: Subtitle suffix when channel region matches the device default flood scope */
+"chats.channelInfo.region.scopedDefault" = "%@ (par défaut)";
+
+/* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle when region matches the device default */
+"chats.channelInfo.region.defaultScopedAccessibility" = "%@, limité à %@ (par défaut)";
+
+// MARK: - Common
+
+/* Location: ChatConversationView.swift - Conversation toolbar Info button */
+"chats.common.info" = "Infos";
+
+// MARK: - Mention Picker
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker navigation title shown with the tapped mention name */
+"chats.mention.picker.title" = "Mention: %@";
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker title when the tapped name matches no saved contact */
+"chats.mention.picker.notSavedTitle" = "Not a saved contact";
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker description when the tapped name matches no saved contact */
+"chats.mention.picker.notSavedSubtitle" = "@%@ ne correspond à aucun contact sur cette radio.";
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker title when the tapped name is the user's own node */
+"chats.mention.picker.selfTitle" = "C'est vous";
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker description when the tapped name is the user's own node */
+"chats.mention.picker.selfSubtitle" = "@%@ est le nom de votre propre nœud.";
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
+"chats.mention.picker.matchingContacts" = "Matching contacts";

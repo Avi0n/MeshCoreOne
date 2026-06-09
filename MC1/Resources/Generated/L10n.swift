@@ -18,6 +18,18 @@ public enum L10n {
         /// Location: ChatsView.swift - VoiceOver announcement when viewing cached data offline
         public static let offlineAnnouncement = L10n.tr("Chats", "chats.accessibility.offlineAnnouncement", fallback: "Viewing cached data. Connect to device for updates.")
       }
+      public enum Action {
+        /// Location: ConversationContextMenuModifier.swift - Context-menu action to delete
+        public static let delete = L10n.tr("Chats", "chats.action.delete", fallback: "Delete")
+        /// Location: ConversationContextMenuModifier.swift - Context-menu action to add to favorites
+        public static let favorite = L10n.tr("Chats", "chats.action.favorite", fallback: "Favorite")
+        /// Location: ConversationContextMenuModifier.swift - Context-menu action to mute
+        public static let mute = L10n.tr("Chats", "chats.action.mute", fallback: "Mute")
+        /// Location: ConversationContextMenuModifier.swift - Context-menu action to remove from favorites
+        public static let unfavorite = L10n.tr("Chats", "chats.action.unfavorite", fallback: "Unfavorite")
+        /// Location: ConversationContextMenuModifier.swift - Context-menu action to unmute
+        public static let unmute = L10n.tr("Chats", "chats.action.unmute", fallback: "Unmute")
+      }
       public enum Alert {
         public enum LeaveRoom {
           /// Location: ChatsView.swift - Button to confirm leaving a room
@@ -39,10 +51,6 @@ public enum L10n {
         public static let blockAnyway = L10n.tr("Chats", "chats.blockSender.blockAnyway", fallback: "Block")
         /// Location: BlockSenderSheet.swift - Purpose: Cancel button
         public static let cancel = L10n.tr("Chats", "chats.blockSender.cancel", fallback: "Cancel")
-        /// Location: BlockSenderSheet.swift - Purpose: Public key label
-        public static func key(_ p1: Any) -> String {
-          return L10n.tr("Chats", "chats.blockSender.key", String(describing: p1), fallback: "Key: %@")
-        }
         /// Location: BlockSenderSheet.swift - Purpose: Explanation of name-based blocking limitation
         public static let limitation = L10n.tr("Chats", "chats.blockSender.limitation", fallback: "Channel messages don't include sender identity. This block matches by name only — the sender could change their name to bypass it.")
         /// Location: BlockSenderSheet.swift - Purpose: Section header when matching contacts found
@@ -50,12 +58,6 @@ public enum L10n {
         /// Location: BlockSenderSheet.swift - Purpose: Sheet title with sender name
         public static func title(_ p1: Any) -> String {
           return L10n.tr("Chats", "chats.blockSender.title", String(describing: p1), fallback: "Block \"%@\"")
-        }
-        public enum Accessibility {
-          /// Location: BlockSenderSheet.swift - Purpose: Accessibility value when contact is not selected
-          public static let notSelected = L10n.tr("Chats", "chats.blockSender.accessibility.notSelected", fallback: "Not selected")
-          /// Location: BlockSenderSheet.swift - Purpose: Accessibility value when contact is selected
-          public static let selected = L10n.tr("Chats", "chats.blockSender.accessibility.selected", fallback: "Selected")
         }
       }
       public enum Channel {
@@ -138,20 +140,32 @@ public enum L10n {
           public static let addSelected = L10n.tr("Chats", "chats.channelInfo.region.addSelected", fallback: "Add")
           /// Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set
           public static let allRegions = L10n.tr("Chats", "chats.channelInfo.region.allRegions", fallback: "All Regions")
+          /// Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle when region matches the device default
+          public static func defaultScopedAccessibility(_ p1: Any, _ p2: Any) -> String {
+            return L10n.tr("Chats", "chats.channelInfo.region.defaultScopedAccessibility", String(describing: p1), String(describing: p2), fallback: "%@, scoped to %@ (default)")
+          }
           /// Location: ChannelInfoSheet.swift - Purpose: Discover button
           public static let discover = L10n.tr("Chats", "chats.channelInfo.region.discover", fallback: "Discover Nearby Regions")
           /// Location: ChannelInfoSheet.swift - Purpose: Discover button loading state
           public static let discovering = L10n.tr("Chats", "chats.channelInfo.region.discovering", fallback: "Discovering…")
           /// Location: AddRegionView.swift - Purpose: Duplicate error
           public static let duplicate = L10n.tr("Chats", "chats.channelInfo.region.duplicate", fallback: "This region is already in your list.")
+          /// Location: ChannelInfoSheet.swift - Purpose: Couldn't load nearby repeater list
+          public static let errLoadingRepeaters = L10n.tr("Chats", "chats.channelInfo.region.errLoadingRepeaters", fallback: "Couldn't load nearby repeaters")
+          /// Location: ChannelInfoSheet.swift - Purpose: Some queries failed because radio contact list is full
+          public static let errRadioContactsFull = L10n.tr("Chats", "chats.channelInfo.region.errRadioContactsFull", fallback: "Radio contact list is full — some repeaters could not be queried")
           /// Location: ChannelInfoSheet.swift - Purpose: Explanation shown when no regions exist
           public static let explanation = L10n.tr("Chats", "chats.channelInfo.region.explanation", fallback: "Limit messages to a geographic area")
           /// Location: AddRegionView.swift - Purpose: Validation error
-          public static let invalidName = L10n.tr("Chats", "chats.channelInfo.region.invalidName", fallback: "Region names cannot contain spaces or start with # or $.")
+          public static let invalidName = L10n.tr("Chats", "chats.channelInfo.region.invalidName", fallback: "Region names can only contain letters, numbers, and hyphens.")
           /// Location: RegionManagementView.swift - Purpose: Navigation title
           public static let manage = L10n.tr("Chats", "chats.channelInfo.region.manage", fallback: "Regions")
           /// Location: RegionManagementView.swift - Purpose: Manage regions link
           public static let manageRegions = L10n.tr("Chats", "chats.channelInfo.region.manageRegions", fallback: "Manage Regions")
+          /// Location: RegionManagementView.swift - Purpose: Validation error when a region name exceeds the firmware byte cap
+          public static func nameTooLong(_ p1: Int) -> String {
+            return L10n.tr("Chats", "chats.channelInfo.region.nameTooLong", p1, fallback: "Region names are limited to %d bytes.")
+          }
           /// Location: RegionDiscoveryResultsView.swift - Purpose: No new regions found
           public static let noNewRegions = L10n.tr("Chats", "chats.channelInfo.region.noNewRegions", fallback: "No new regions found")
           /// Location: RegionManagementView.swift - Purpose: Empty state title
@@ -167,6 +181,14 @@ public enum L10n {
           /// Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle
           public static func scopedAccessibility(_ p1: Any, _ p2: Any) -> String {
             return L10n.tr("Chats", "chats.channelInfo.region.scopedAccessibility", String(describing: p1), String(describing: p2), fallback: "%@, scoped to %@")
+          }
+          /// Location: ChatConversationType.swift - Purpose: Subtitle suffix when channel region matches the device default flood scope
+          public static func scopedDefault(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.channelInfo.region.scopedDefault", String(describing: p1), fallback: "%@ (default)")
+          }
+          /// Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope
+          public static func useDefaultFormat(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.channelInfo.region.useDefaultFormat", String(describing: p1), fallback: "%@ (default)")
           }
         }
       }
@@ -223,6 +245,8 @@ public enum L10n {
         public static let cancel = L10n.tr("Chats", "chats.common.cancel", fallback: "Cancel")
         /// Location: Various - Done button (use L10n.Localizable.Common.done)
         public static let done = L10n.tr("Chats", "chats.common.done", fallback: "Done")
+        /// Location: ChatConversationView.swift - Conversation toolbar Info button
+        public static let info = L10n.tr("Chats", "chats.common.info", fallback: "Info")
         /// Location: Various - OK button (use L10n.Localizable.Common.ok)
         public static let ok = L10n.tr("Chats", "chats.common.ok", fallback: "OK")
       }
@@ -245,6 +269,28 @@ public enum L10n {
       public enum ContactInfo {
         /// Location: ChatConversationView.swift - Label showing contact has location
         public static let hasLocation = L10n.tr("Chats", "chats.contactInfo.hasLocation", fallback: "Has location")
+      }
+      public enum ContactMatch {
+        /// Location: ContactMatchRow.swift - Purpose: Public key label
+        public static func key(_ p1: Any) -> String {
+          return L10n.tr("Chats", "chats.contactMatch.key", String(describing: p1), fallback: "Key: %@")
+        }
+        public enum Accessibility {
+          /// Location: ContactMatchRow.swift - Purpose: Accessibility value when contact is not selected
+          public static let notSelected = L10n.tr("Chats", "chats.contactMatch.accessibility.notSelected", fallback: "Not selected")
+          /// Location: ContactMatchRow.swift - Purpose: Accessibility value when contact is selected
+          public static let selected = L10n.tr("Chats", "chats.contactMatch.accessibility.selected", fallback: "Selected")
+        }
+      }
+      public enum ContactPicker {
+        /// Location: ShareContactPickerSheet.swift - Empty state when no contacts are available to share
+        public static let emptyState = L10n.tr("Chats", "chats.contactPicker.emptyState", fallback: "No contacts to share")
+        /// Location: ShareContactPickerSheet.swift - Navigation title for the share-contact picker
+        public static let title = L10n.tr("Chats", "chats.contactPicker.title", fallback: "Share Contact")
+        public enum Search {
+          /// Location: ShareContactPickerSheet.swift - Search placeholder for the contact picker
+          public static let placeholder = L10n.tr("Chats", "chats.contactPicker.search.placeholder", fallback: "Search contacts")
+        }
       }
       public enum CreatePrivate {
         /// Location: CreatePrivateChannelView.swift - Text field placeholder for channel name
@@ -297,6 +343,12 @@ public enum L10n {
           /// Location: ChatsView.swift - Title when no direct messages
           public static let title = L10n.tr("Chats", "chats.emptyState.noDirectMessages.title", fallback: "No Direct Messages")
         }
+        public enum NoRooms {
+          /// Location: ChatsView.swift - Description when no rooms exist
+          public static let description = L10n.tr("Chats", "chats.emptyState.noRooms.description", fallback: "Join a room from Contacts")
+          /// Location: ChatsView.swift - Title when no rooms exist
+          public static let title = L10n.tr("Chats", "chats.emptyState.noRooms.title", fallback: "No Rooms")
+        }
         public enum NoUnread {
           /// Location: ChatsView.swift - Description when no unread messages
           public static let description = L10n.tr("Chats", "chats.emptyState.noUnread.description", fallback: "You're all caught up")
@@ -305,14 +357,22 @@ public enum L10n {
         }
       }
       public enum Error {
+        /// Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails
+        public static let loadConversationsFailed = L10n.tr("Chats", "chats.error.loadConversationsFailed", fallback: "Couldn't load conversations.")
+        /// Location: ChatConversationView.swift - Error when loading older messages fails
+        public static let loadOlderMessagesFailed = L10n.tr("Chats", "chats.error.loadOlderMessagesFailed", fallback: "Failed to load older messages")
         /// Location: ChannelInfoSheet.swift - Error when device not connected
         public static let noDeviceConnected = L10n.tr("Chats", "chats.error.noDeviceConnected", fallback: "No device connected")
+        /// Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted
+        public static let notConnectedToDelete = L10n.tr("Chats", "chats.error.notConnectedToDelete", fallback: "Connect to your radio to delete this conversation.")
+        /// Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error)
+        public static let sendQueuePersistFailed = L10n.tr("Chats", "chats.error.sendQueuePersistFailed", fallback: "Couldn't queue your message. Try again.")
         /// Location: ChannelInfoSheet.swift - Error when services unavailable
         public static let servicesUnavailable = L10n.tr("Chats", "chats.error.servicesUnavailable", fallback: "Services not available")
-      }
-      public enum Errors {
-        /// Location: ChatConversationView.swift - Error when loading older messages fails
-        public static let loadOlderMessagesFailed = L10n.tr("Chats", "chats.errors.loadOlderMessagesFailed", fallback: "Failed to load older messages")
+        public enum Banner {
+          /// Location: ErrorBannerModifier.swift - Accessibility hint announcing that tapping the banner dismisses it
+          public static let dismissAccessibilityHint = L10n.tr("Chats", "chats.error.banner.dismissAccessibilityHint", fallback: "Tap to dismiss")
+        }
       }
       public enum Filter {
         /// Location: ChatsView.swift - Filter option for all conversations
@@ -323,6 +383,8 @@ public enum L10n {
         public static let clear = L10n.tr("Chats", "chats.filter.clear", fallback: "Clear Filter")
         /// Location: ChatsView.swift - Filter option for direct messages
         public static let directMessages = L10n.tr("Chats", "chats.filter.directMessages", fallback: "DMs")
+        /// Location: ChatsView.swift - Filter option for rooms
+        public static let rooms = L10n.tr("Chats", "chats.filter.rooms", fallback: "Rooms")
         /// Location: ChatsView.swift - Filter menu title
         public static let title = L10n.tr("Chats", "chats.filter.title", fallback: "Filter")
         /// Location: ChatsView.swift - Filter option for unread conversations
@@ -337,8 +399,12 @@ public enum L10n {
       public enum InlineImage {
         /// Location: InlineImageView.swift - Accessibility label for animated image
         public static let animatedAccessibility = L10n.tr("Chats", "chats.inlineImage.animatedAccessibility", fallback: "Animated image")
+        /// Location: InlineImageFragmentView.swift - VoiceOver identity for a failed inline image
+        public static let failedLabel = L10n.tr("Chats", "chats.inlineImage.failedLabel", fallback: "Image failed to load")
         /// Location: InlineImageView.swift - Accessibility label for static image
         public static let imageAccessibility = L10n.tr("Chats", "chats.inlineImage.imageAccessibility", fallback: "Image")
+        /// Location: InlineImageFragmentView.swift - Accessibility label for loading state
+        public static let loading = L10n.tr("Chats", "chats.inlineImage.loading", fallback: "Loading image")
         /// Location: UnifiedMessageBubble.swift - Accessibility hint for retry button
         public static let retryHint = L10n.tr("Chats", "chats.inlineImage.retryHint", fallback: "Double tap to retry loading image")
         /// Location: InlineImageView.swift - Accessibility hint for tap to view full screen
@@ -376,6 +442,10 @@ public enum L10n {
         public enum Placeholder {
           /// Location: ChatConversationView.swift - Input bar placeholder for direct messages
           public static let directMessage = L10n.tr("Chats", "chats.input.placeholder.directMessage", fallback: "Direct Message")
+        }
+        public enum ShareButton {
+          /// Location: ChatShareMenu.swift - Accessibility label for the share (plus) button
+          public static let accessibilityLabel = L10n.tr("Chats", "chats.input.shareButton.accessibilityLabel", fallback: "Share")
         }
       }
       public enum JoinFromMessage {
@@ -499,6 +569,26 @@ public enum L10n {
             return L10n.tr("Chats", "chats.mention.accessibility.label", String(describing: p1), fallback: "Mention %@")
           }
         }
+        public enum Picker {
+          /// Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts
+          public static let matchingContacts = L10n.tr("Chats", "chats.mention.picker.matchingContacts", fallback: "Matching contacts")
+          /// Location: ChatConversationView.swift - Mention picker description when the tapped name matches no saved contact
+          public static func notSavedSubtitle(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.mention.picker.notSavedSubtitle", String(describing: p1), fallback: "@%@ doesn't match any contact on this radio.")
+          }
+          /// Location: ChatConversationView.swift - Mention picker title when the tapped name matches no saved contact
+          public static let notSavedTitle = L10n.tr("Chats", "chats.mention.picker.notSavedTitle", fallback: "Not a saved contact")
+          /// Location: ChatConversationView.swift - Mention picker description when the tapped name is the user's own node
+          public static func selfSubtitle(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.mention.picker.selfSubtitle", String(describing: p1), fallback: "@%@ is your own node name.")
+          }
+          /// Location: ChatConversationView.swift - Mention picker title when the tapped name is the user's own node
+          public static let selfTitle = L10n.tr("Chats", "chats.mention.picker.selfTitle", fallback: "That's you")
+          /// Location: ChatConversationView.swift - Mention picker navigation title shown with the tapped mention name
+          public static func title(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.mention.picker.title", String(describing: p1), fallback: "Mention: %@")
+          }
+        }
       }
       public enum Message {
         /// Location: ChatConversationView.swift - Placeholder when message data is unavailable
@@ -508,22 +598,38 @@ public enum L10n {
         public enum Action {
           /// Location: MessageActionsSheet.swift - Purpose: Block sender action
           public static let blockSender = L10n.tr("Chats", "chats.message.action.blockSender", fallback: "Block Sender")
+          /// Location: ActionsDetailsSection.swift - Accessibility value when the details row is collapsed
+          public static let collapsed = L10n.tr("Chats", "chats.message.action.collapsed", fallback: "Collapsed")
           /// Location: UnifiedMessageBubble.swift - Context menu action to copy
           public static let copy = L10n.tr("Chats", "chats.message.action.copy", fallback: "Copy")
           /// Location: UnifiedMessageBubble.swift - Context menu action to delete
           public static let delete = L10n.tr("Chats", "chats.message.action.delete", fallback: "Delete")
           /// Location: UnifiedMessageBubble.swift - Context menu submenu label
           public static let details = L10n.tr("Chats", "chats.message.action.details", fallback: "Details")
+          /// Location: ActionsDetailsSection.swift - Accessibility value when the details row is expanded
+          public static let expanded = L10n.tr("Chats", "chats.message.action.expanded", fallback: "Expanded")
           /// Location: MessageActionsSheet.swift - Context menu action to mention
           public static let mention = L10n.tr("Chats", "chats.message.action.mention", fallback: "Mention")
+          /// Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL
+          public static let openLink = L10n.tr("Chats", "chats.message.action.openLink", fallback: "Open Link")
           /// Location: UnifiedMessageBubble.swift - Context menu action to view repeat details
           public static let repeatDetails = L10n.tr("Chats", "chats.message.action.repeatDetails", fallback: "Repeat Details")
           /// Location: UnifiedMessageBubble.swift - Context menu action to reply
           public static let reply = L10n.tr("Chats", "chats.message.action.reply", fallback: "Reply")
+          /// Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed send
+          public static let retry = L10n.tr("Chats", "chats.message.action.retry", fallback: "Retry")
+          /// Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed image download
+          public static let retryImage = L10n.tr("Chats", "chats.message.action.retryImage", fallback: "Retry Image")
           /// Location: UnifiedMessageBubble.swift - Context menu action to send again
           public static let sendAgain = L10n.tr("Chats", "chats.message.action.sendAgain", fallback: "Send Again")
+          /// Location: MessageActionsSheet.swift - Purpose: Action to start a DM with the channel sender
+          public static let sendDM = L10n.tr("Chats", "chats.message.action.sendDM", fallback: "Send DM")
+          /// Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen
+          public static let viewImage = L10n.tr("Chats", "chats.message.action.viewImage", fallback: "View Image")
           /// Location: UnifiedMessageBubble.swift - Context menu action to view path
           public static let viewPath = L10n.tr("Chats", "chats.message.action.viewPath", fallback: "View Path")
+          /// Location: UnifiedMessageBubble.swift - VoiceOver action to open the reactions detail sheet
+          public static let viewReactions = L10n.tr("Chats", "chats.message.action.viewReactions", fallback: "View Reactions")
         }
         public enum HopCount {
           /// Location: UnifiedMessageBubble.swift - Accessibility label for hop count display - %d is count
@@ -542,6 +648,10 @@ public enum L10n {
           public static let adjustedAccessibility = L10n.tr("Chats", "chats.message.info.adjustedAccessibility", fallback: "Sent time adjusted due to sender clock error")
           /// Location: UnifiedMessageBubble.swift - Accessibility hint for adjusted timestamp
           public static let adjustedHint = L10n.tr("Chats", "chats.message.info.adjustedHint", fallback: "Sender's clock was incorrect")
+          /// Location: MessageActionsSheet.swift - Details row showing the radio region a flood-routed message was broadcast under - %@ is region name
+          public static func floodedUnder(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.info.floodedUnder", String(describing: p1), fallback: "Region: %@")
+          }
           /// Location: UnifiedMessageBubble.swift - Context menu text showing heard repeats - %d is count, second %@ is "repeat" or "repeats"
           public static func heardRepeats(_ p1: Int, _ p2: Any) -> String {
             return L10n.tr("Chats", "chats.message.info.heardRepeats", p1, String(describing: p2), fallback: "Heard: %d %@")
@@ -550,10 +660,20 @@ public enum L10n {
           public static func hops(_ p1: Any) -> String {
             return L10n.tr("Chats", "chats.message.info.hops", String(describing: p1), fallback: "Hops: %@")
           }
+          /// Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date
+          public static func originalSendTime(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.info.originalSendTime", String(describing: p1), fallback: "Original send time: %@")
+          }
+          /// Location: ActionsDetailsSection.swift - Info row showing the path hash size in bytes - %d is 1, 2, or 3
+          public static func pathHash(_ p1: Int) -> String {
+            return L10n.tr("Chats", "chats.message.info.pathHash", p1, fallback: "Path hash: %d-byte")
+          }
           /// Location: UnifiedMessageBubble.swift - Context menu text showing received time - %@ is formatted date
           public static func received(_ p1: Any) -> String {
             return L10n.tr("Chats", "chats.message.info.received", String(describing: p1), fallback: "Received: %@")
           }
+          /// Location: MessageActionsSheet.swift - Details row shown when region could not be resolved
+          public static let regionUnresolved = L10n.tr("Chats", "chats.message.info.regionUnresolved", fallback: "Region: Unknown")
           /// Location: UnifiedMessageBubble.swift - Context menu text showing round trip time - %d is milliseconds
           public static func roundTrip(_ p1: Int) -> String {
             return L10n.tr("Chats", "chats.message.info.roundTrip", p1, fallback: "Round trip: %dms")
@@ -574,6 +694,8 @@ public enum L10n {
           }
           /// Location: UnifiedMessageBubble.swift - Path footer for direct messages (no hops)
           public static let direct = L10n.tr("Chats", "chats.message.path.direct", fallback: "Direct")
+          /// Routing strategy where the radio rebroadcasts the message to every neighbor (no specific path). UI displays this as a label in the per-message details sheet. Prefer a localized term over the English loanword if one exists in your locale's networking terminology.
+          public static let flood = L10n.tr("Chats", "chats.message.path.flood", fallback: "Flood")
           /// Location: UnifiedMessageBubble.swift - Fallback path showing hop count - %d is number
           public static func hops(_ p1: Int) -> String {
             return L10n.tr("Chats", "chats.message.path.hops", p1, fallback: "%d hops")
@@ -581,13 +703,31 @@ public enum L10n {
           /// Location: MessagePathFormatter.swift - Fallback when path nodes unavailable
           public static let unavailable = L10n.tr("Chats", "chats.message.path.unavailable", fallback: "Unavailable")
         }
+        public enum Region {
+          /// Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name
+          public static func accessibilityLabel(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.region.accessibilityLabel", String(describing: p1), fallback: "Region %@")
+          }
+        }
         public enum Repeat {
           /// Location: UnifiedMessageBubble.swift - Plural form of repeats
           public static let plural = L10n.tr("Chats", "chats.message.repeat.plural", fallback: "repeats")
           /// Location: UnifiedMessageBubble.swift - Singular form of repeat
           public static let singular = L10n.tr("Chats", "chats.message.repeat.singular", fallback: "repeat")
         }
+        public enum SendTime {
+          /// Location: BubbleFooterRow.swift - Accessibility label for the raw send time footer - %@ is the time
+          public static func accessibilityLabel(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.sendTime.accessibilityLabel", String(describing: p1), fallback: "Send time: %@")
+          }
+          /// Location: BubbleFooterRow.swift - Accessibility label for the send time footer when the sender's clock was corrected - %@ is the time
+          public static func correctedAccessibilityLabel(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.sendTime.correctedAccessibilityLabel", String(describing: p1), fallback: "Send time: %@, adjusted due to sender clock error")
+          }
+        }
         public enum Sender {
+          /// Location: UnifiedMessageBubble.swift - Accessibility text for sender names resolved from a short prefix
+          public static let possibleMatch = L10n.tr("Chats", "chats.message.sender.possibleMatch", fallback: "Possible match, matched by short prefix")
           /// Location: UnifiedMessageBubble.swift - Fallback sender name
           public static let unknown = L10n.tr("Chats", "chats.message.sender.unknown", fallback: "Unknown")
         }
@@ -664,6 +804,12 @@ public enum L10n {
           public static func number(_ p1: Int) -> String {
             return L10n.tr("Chats", "chats.path.hop.number", p1, fallback: "Hop %d")
           }
+          /// Location: PathHopRowView.swift - Accessibility text for path hop names resolved from a short prefix
+          public static let possibleMatch = L10n.tr("Chats", "chats.path.hop.possibleMatch", fallback: "Possible match, matched by short prefix")
+          /// Location: FallbackMatchIndicatorView.swift - Explanation of what a possible match means
+          public static let possibleMatchExplanation = L10n.tr("Chats", "chats.path.hop.possibleMatchExplanation", fallback: "Multiple nodes share this prefix. The displayed name may not be correct.")
+          /// Location: FallbackMatchIndicatorView.swift - Title for possible match explanation popover
+          public static let possibleMatchTitle = L10n.tr("Chats", "chats.path.hop.possibleMatchTitle", fallback: "Possible Match")
           /// Location: PathHopRowView.swift - Label for sender (first hop)
           public static let sender = L10n.tr("Chats", "chats.path.hop.sender", fallback: "Sender")
           /// Location: PathHopRowView.swift - Accessibility value format for last hop - %@ is quality, %@ is SNR
@@ -800,6 +946,10 @@ public enum L10n {
         public enum ScrollToBottom {
           /// Location: ScrollToBottomButton.swift - Accessibility label for scroll to bottom button
           public static let accessibilityLabel = L10n.tr("Chats", "chats.scrollButton.scrollToBottom.accessibilityLabel", fallback: "Scroll to latest message")
+          /// Location: ScrollToBottomButton.swift - Accessibility value for unread message count - %d is the number of unread messages
+          public static func accessibilityValue(_ p1: Int) -> String {
+            return L10n.tr("Chats", "chats.scrollButton.scrollToBottom.accessibilityValue", p1, fallback: "%d unread messages")
+          }
         }
         public enum ScrollToDivider {
           /// Location: ScrollToDividerButton.swift - Accessibility hint for scroll to divider button
@@ -828,6 +978,30 @@ public enum L10n {
         /// Location: ConversationListContent.swift - Section accessibility label for favorites
         public static let favorites = L10n.tr("Chats", "chats.section.favorites", fallback: "Favorites")
       }
+      public enum SendDM {
+        /// Location: SendDMSheet.swift - Purpose: Cancel button
+        public static let cancel = L10n.tr("Chats", "chats.sendDM.cancel", fallback: "Cancel")
+        /// Location: SendDMSheet.swift - Purpose: Name-based matching limitation warning
+        public static let limitation = L10n.tr("Chats", "chats.sendDM.limitation", fallback: "Channel messages don't include sender identity. This match is by name only — the contact could be someone else with the same name.")
+        /// Location: SendDMSheet.swift - Purpose: Section header listing matching contacts
+        public static let matchingContacts = L10n.tr("Chats", "chats.sendDM.matchingContacts", fallback: "Select a contact to message:")
+        /// Location: SendDMSheet.swift - Purpose: Empty-state message when no contact matches
+        public static func noMatches(_ p1: Any) -> String {
+          return L10n.tr("Chats", "chats.sendDM.noMatches", String(describing: p1), fallback: "No contact named \"%@\" was found.")
+        }
+        /// Location: SendDMSheet.swift - Purpose: Sheet title with sender name
+        public static func title(_ p1: Any) -> String {
+          return L10n.tr("Chats", "chats.sendDM.title", String(describing: p1), fallback: "Send DM to \"%@\"")
+        }
+      }
+      public enum Share {
+        /// Location: ChatShareMenu.swift - Share menu action to share a contact
+        public static let contact = L10n.tr("Chats", "chats.share.contact", fallback: "Share Contact")
+        /// Location: ChatShareMenu.swift - Share menu action to share the current location
+        public static let location = L10n.tr("Chats", "chats.share.location", fallback: "Share Location")
+        /// Location: ChatShareMenu.swift - Share menu action to share the user's own node info
+        public static let myInfo = L10n.tr("Chats", "chats.share.myInfo", fallback: "Share My Info")
+      }
       public enum Signal {
         /// Location: UnifiedMessageBubble.swift - SNR quality excellent
         public static let excellent = L10n.tr("Chats", "chats.signal.excellent", fallback: "Excellent")
@@ -844,28 +1018,18 @@ public enum L10n {
         /// Location: MentionSuggestionView.swift - Accessibility label for mention suggestions popup
         public static let accessibilityLabel = L10n.tr("Chats", "chats.suggestions.accessibilityLabel", fallback: "Mention suggestions")
       }
-      public enum SwipeAction {
-        /// Location: ConversationSwipeActionsModifier.swift - Swipe action to delete
-        public static let delete = L10n.tr("Chats", "chats.swipeAction.delete", fallback: "Delete")
-        /// Location: ConversationSwipeActionsModifier.swift - Swipe action to add to favorites
-        public static let favorite = L10n.tr("Chats", "chats.swipeAction.favorite", fallback: "Favorite")
-        /// Location: ConversationSwipeActionsModifier.swift - Swipe action to mute
-        public static let mute = L10n.tr("Chats", "chats.swipeAction.mute", fallback: "Mute")
-        /// Location: ConversationSwipeActionsModifier.swift - Swipe action to remove from favorites
-        public static let unfavorite = L10n.tr("Chats", "chats.swipeAction.unfavorite", fallback: "Unfavorite")
-        /// Location: ConversationSwipeActionsModifier.swift - Swipe action to unmute
-        public static let unmute = L10n.tr("Chats", "chats.swipeAction.unmute", fallback: "Unmute")
-      }
       public enum Timestamp {
         /// Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old
         public static let now = L10n.tr("Chats", "chats.timestamp.now", fallback: "Now")
-        /// Location: MessageTimestampView.swift - Prefix for yesterday's date
+        /// Location: MessageDayDividerView.swift - Label for today's date in the chat day separator
+        public static let today = L10n.tr("Chats", "chats.timestamp.today", fallback: "Today")
+        /// Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator
         public static let yesterday = L10n.tr("Chats", "chats.timestamp.yesterday", fallback: "Yesterday")
       }
       public enum Tip {
         public enum DeviceMenu {
           /// Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features
-          public static let message = L10n.tr("Chats", "chats.tip.deviceMenu.message", fallback: "Manage your connection, send advertisements, and check battery. Bluetooth devices stay connected even if the app is closed — tap Disconnect when you're ready to turn off the link.")
+          public static let message = L10n.tr("Chats", "chats.tip.deviceMenu.message", fallback: "Manage your connection, send advertisements, and check battery. The radio stays connected even after force quit. Tap Disconnect to turn off the link.")
           /// Location: DeviceMenuTip.swift - Purpose: Tip title introducing device menu
           public static let title = L10n.tr("Chats", "chats.tip.deviceMenu.title", fallback: "Your Device Menu")
         }
@@ -934,6 +1098,14 @@ public enum L10n {
   }
   public enum Contacts {
     public enum Contacts {
+      public enum Action {
+        /// Location: ContactContextMenuModifier - Purpose: Block action
+        public static let block = L10n.tr("Contacts", "contacts.action.block", fallback: "Block")
+        /// Location: ContactContextMenuModifier - Purpose: Unblock action
+        public static let unblock = L10n.tr("Contacts", "contacts.action.unblock", fallback: "Unblock")
+        /// Location: ContactContextMenuModifier - Purpose: Unfavorite action
+        public static let unfavorite = L10n.tr("Contacts", "contacts.action.unfavorite", fallback: "Unfavorite")
+      }
       public enum Add {
         /// Location: AddContactSheet.swift - Purpose: Add button
         public static let add = L10n.tr("Contacts", "contacts.add.add", fallback: "Add")
@@ -949,6 +1121,8 @@ public enum L10n {
         }
         /// Location: AddContactSheet.swift - Purpose: Name section header
         public static let name = L10n.tr("Contacts", "contacts.add.name", fallback: "Name")
+        /// Add Node
+        public static let nodeTitle = L10n.tr("Contacts", "contacts.add.nodeTitle", fallback: "Add Node")
         /// Location: AddContactSheet.swift - Purpose: Paste URL button label
         public static let pasteURL = L10n.tr("Contacts", "contacts.add.pasteURL", fallback: "Paste Contact URL")
         /// Location: AddContactSheet.swift - Purpose: Paste URL section footer
@@ -1093,8 +1267,6 @@ public enum L10n {
         }
         /// Location: ContactDetailView.swift - Purpose: Ping no response message
         public static let pingNoResponse = L10n.tr("Contacts", "contacts.detail.pingNoResponse", fallback: "No response")
-        /// Location: ContactDetailView.swift - Purpose: Ping repeater button
-        public static let pingRepeater = L10n.tr("Contacts", "contacts.detail.pingRepeater", fallback: "Ping Repeater")
         /// Location: ContactDetailView.swift - Purpose: Ping success VoiceOver announcement
         public static func pingSuccessAnnouncement(_ p1: Int) -> String {
           return L10n.tr("Contacts", "contacts.detail.pingSuccessAnnouncement", p1, fallback: "Ping successful, %d milliseconds")
@@ -1129,6 +1301,8 @@ public enum L10n {
         public static let sendMessage = L10n.tr("Contacts", "contacts.detail.sendMessage", fallback: "Send Message")
         /// Location: ContactDetailView.swift - Purpose: Share contact button
         public static let shareContact = L10n.tr("Contacts", "contacts.detail.shareContact", fallback: "Share Contact")
+        /// Location: ContactDetailView.swift - Purpose: Share contact error when advert is missing or stale
+        public static let shareContactUnavailable = L10n.tr("Contacts", "contacts.detail.shareContactUnavailable", fallback: "Unable to share node. The node's advertisement may be missing or too old.")
         /// Location: ContactDetailView.swift - Purpose: Share via advert button
         public static let shareViaAdvert = L10n.tr("Contacts", "contacts.detail.shareViaAdvert", fallback: "Share Contact via Advert")
         /// Location: ContactDetailView.swift - Purpose: Technical section header
@@ -1224,8 +1398,12 @@ public enum L10n {
           public static let all = L10n.tr("Contacts", "contacts.discovery.segment.all", fallback: "All")
           /// Location: DiscoveryView.swift - Purpose: Segment filter: Contacts
           public static let contacts = L10n.tr("Contacts", "contacts.discovery.segment.contacts", fallback: "Contacts")
-          /// Location: DiscoveryView.swift - Purpose: Segment filter: Network
-          public static let network = L10n.tr("Contacts", "contacts.discovery.segment.network", fallback: "Network")
+          /// Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback)
+          public static let pickerLabel = L10n.tr("Contacts", "contacts.discovery.segment.pickerLabel", fallback: "Filter discovered nodes")
+          /// Location: DiscoveryView.swift - Purpose: Segment filter: Repeaters
+          public static let repeaters = L10n.tr("Contacts", "contacts.discovery.segment.repeaters", fallback: "Repeaters")
+          /// Location: DiscoveryView.swift - Purpose: Segment filter: Rooms
+          public static let rooms = L10n.tr("Contacts", "contacts.discovery.segment.rooms", fallback: "Rooms")
         }
       }
       public enum List {
@@ -1274,15 +1452,21 @@ public enum L10n {
           }
           public enum Favorites {
             /// Location: ContactsListView.swift - Purpose: No favorites empty description
-            public static let description = L10n.tr("Contacts", "contacts.list.empty.favorites.description", fallback: "Swipe right on any node to add it to your favorites.")
+            public static let description = L10n.tr("Contacts", "contacts.list.empty.favorites.description", fallback: "Touch and hold any node to add it to your favorites.")
             /// Location: ContactsListView.swift - Purpose: No favorites empty title
             public static let title = L10n.tr("Contacts", "contacts.list.empty.favorites.title", fallback: "No Favorites Yet")
           }
-          public enum Network {
-            /// Location: ContactsListView.swift - Purpose: No network nodes empty description
-            public static let description = L10n.tr("Contacts", "contacts.list.empty.network.description", fallback: "Repeaters and room servers will appear when discovered on the mesh.")
-            /// Location: ContactsListView.swift - Purpose: No network nodes empty title
-            public static let title = L10n.tr("Contacts", "contacts.list.empty.network.title", fallback: "No Network Nodes")
+          public enum Repeaters {
+            /// Location: ContactsListView.swift - Purpose: No repeaters empty description
+            public static let description = L10n.tr("Contacts", "contacts.list.empty.repeaters.description", fallback: "Repeaters extend your mesh range. They'll appear here when discovered.")
+            /// Location: ContactsListView.swift - Purpose: No repeaters empty title
+            public static let title = L10n.tr("Contacts", "contacts.list.empty.repeaters.title", fallback: "No Repeaters")
+          }
+          public enum Rooms {
+            /// Location: ContactsListView.swift - Purpose: No rooms empty description
+            public static let description = L10n.tr("Contacts", "contacts.list.empty.rooms.description", fallback: "Rooms are public chat servers on the mesh. They'll appear here when discovered.")
+            /// Location: ContactsListView.swift - Purpose: No rooms empty title
+            public static let title = L10n.tr("Contacts", "contacts.list.empty.rooms.title", fallback: "No Rooms")
           }
           public enum Search {
             /// Location: ContactsListView.swift - Purpose: No search results description
@@ -1363,13 +1547,11 @@ public enum L10n {
         }
       }
       public enum PathEdit {
-        /// Location: PathEditingSheet.swift - Purpose: Add repeater footer
-        public static let addFooter = L10n.tr("Contacts", "contacts.pathEdit.addFooter", fallback: "Tap a repeater to add it to the path.")
-        /// Location: PathEditingSheet.swift - Purpose: Add repeater section header
-        public static let addRepeater = L10n.tr("Contacts", "contacts.pathEdit.addRepeater", fallback: "Add Repeater")
-        /// Location: PathEditingSheet.swift - Purpose: Add to path accessibility label
-        public static func addToPath(_ p1: Any) -> String {
-          return L10n.tr("Contacts", "contacts.pathEdit.addToPath", String(describing: p1), fallback: "Add %@ to path")
+        /// Location: PathEditingSheet.swift - Purpose: Add Hop CTA (primary button when path has >=1 hop)
+        public static let addHop = L10n.tr("Contacts", "contacts.pathEdit.addHop", fallback: "Add Hop")
+        /// Location: AddHopPickerView.swift - Purpose: Picker row accessibility label, %1$@ is name, %2$d is target hop number
+        public static func addToPathAsHop(_ p1: Any, _ p2: Int) -> String {
+          return L10n.tr("Contacts", "contacts.pathEdit.addToPathAsHop", String(describing: p1), p2, fallback: "Add %1$@ to path as hop %2$d")
         }
         /// Location: PathEditingSheet.swift - Purpose: Current path section header
         public static let currentPath = L10n.tr("Contacts", "contacts.pathEdit.currentPath", fallback: "Current Path")
@@ -1377,8 +1559,10 @@ public enum L10n {
         public static func description(_ p1: Any) -> String {
           return L10n.tr("Contacts", "contacts.pathEdit.description", String(describing: p1), fallback: "Customize the route messages take to reach %@.")
         }
-        /// Location: PathEditingSheet.swift - Purpose: Empty path footer
-        public static let emptyFooter = L10n.tr("Contacts", "contacts.pathEdit.emptyFooter", fallback: "No path set (direct or flood routing)")
+        /// Location: AddHopSegmentPicker.swift - Purpose: VoiceOver label for the section filter picker
+        public static let filterPickerLabel = L10n.tr("Contacts", "contacts.pathEdit.filterPickerLabel", fallback: "Filter hops")
+        /// Location: PathEditingSheet.swift - Purpose: VoiceOver hint for a hop row describing swipe + drag actions
+        public static let hopHint = L10n.tr("Contacts", "contacts.pathEdit.hopHint", fallback: "Swipe to delete. Drag to reorder.")
         /// Location: PathEditingSheet.swift - Purpose: Hop accessibility with hex
         public static func hopWithHex(_ p1: Int, _ p2: Int, _ p3: Any) -> String {
           return L10n.tr("Contacts", "contacts.pathEdit.hopWithHex", p1, p2, String(describing: p3), fallback: "Hop %d of %d: repeater %@")
@@ -1387,19 +1571,123 @@ public enum L10n {
         public static func hopWithName(_ p1: Int, _ p2: Int, _ p3: Any) -> String {
           return L10n.tr("Contacts", "contacts.pathEdit.hopWithName", p1, p2, String(describing: p3), fallback: "Hop %d of %d: %@")
         }
-        /// Location: PathEditingSheet.swift - Purpose: Path instructions footer
-        public static let instructionsFooter = L10n.tr("Contacts", "contacts.pathEdit.instructionsFooter", fallback: "Drag to reorder. Tap to remove.")
+        /// Location: AddHopPickerView.swift - Purpose: Paste clipboard text into the hop search field
+        public static let paste = L10n.tr("Contacts", "contacts.pathEdit.paste", fallback: "Paste from clipboard")
+        /// Location: AddHopPickerView.swift - Purpose: Position banner when appending, %d is target hop number
+        public static func positionAppend(_ p1: Int) -> String {
+          return L10n.tr("Contacts", "contacts.pathEdit.positionAppend", p1, fallback: "Adding as hop %d")
+        }
+        /// Location: PathEditingSheet.swift - Purpose: Section footer hint
+        public static let reorderHint = L10n.tr("Contacts", "contacts.pathEdit.reorderHint", fallback: "Drag to reorder · Swipe left to remove")
+        /// Location: AddHopPickerView.swift - Purpose: Search field placeholder
+        public static let searchPrompt = L10n.tr("Contacts", "contacts.pathEdit.searchPrompt", fallback: "A1,2B or name/ID")
         /// Location: PathEditingSheet.swift - Purpose: Navigation title
         public static let title = L10n.tr("Contacts", "contacts.pathEdit.title", fallback: "Edit Path")
+        /// Location: PathEditingSheet.swift - Purpose: Use-direct-routing empty-state button
+        public static let useDirectRouting = L10n.tr("Contacts", "contacts.pathEdit.useDirectRouting", fallback: "Use Direct Routing")
+        /// Location: PathEditingSheet.swift - Purpose: Use-flood-routing empty-state button
+        public static let useFloodRouting = L10n.tr("Contacts", "contacts.pathEdit.useFloodRouting", fallback: "Use Flood Routing")
+        public enum BulkAdd {
+          /// Location: AddHopPickerView.swift - Purpose: Bulk-add action button, %@ is the comma-joined codes
+          public static func action(_ p1: Any) -> String {
+            return L10n.tr("Contacts", "contacts.pathEdit.bulkAdd.action", String(describing: p1), fallback: "Add nodes: %@")
+          }
+          /// Location: AddHopPickerView.swift - Purpose: Bulk-add action button when nothing is addable
+          public static let empty = L10n.tr("Contacts", "contacts.pathEdit.bulkAdd.empty", fallback: "No new nodes to add")
+          /// Location: AddHopPickerView.swift - Purpose: Bulk-add row, code skipped past the hop cap, %@ is the code
+          public static func pathFull(_ p1: Any) -> String {
+            return L10n.tr("Contacts", "contacts.pathEdit.bulkAdd.pathFull", String(describing: p1), fallback: "%@ exceeds the hop limit")
+          }
+          /// Location: AddHopPickerView.swift - Purpose: Bulk-add row, code will be added, %@ is the code
+          public static func willAdd(_ p1: Any) -> String {
+            return L10n.tr("Contacts", "contacts.pathEdit.bulkAdd.willAdd", String(describing: p1), fallback: "%@ will be added")
+          }
+        }
+        public enum DirectRouting {
+          public enum Confirm {
+            /// Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation confirm label
+            public static let confirm = L10n.tr("Contacts", "contacts.pathEdit.directRouting.confirm.confirm", fallback: "Save as Direct")
+            /// Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name
+            public static func message(_ p1: Any, _ p2: Any) -> String {
+              return L10n.tr("Contacts", "contacts.pathEdit.directRouting.confirm.message", String(describing: p1), String(describing: p2), fallback: "Messages to %@ will be sent directly without relaying through any repeater. Use this only if %@ is a direct (0-hop) neighbor.")
+            }
+            /// Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert title
+            public static let title = L10n.tr("Contacts", "contacts.pathEdit.directRouting.confirm.title", fallback: "Save as direct routing?")
+          }
+        }
+        public enum Empty {
+          /// Location: PathEditingSheet.swift - Purpose: Empty-state description, %@ is contact name
+          public static func description(_ p1: Any) -> String {
+            return L10n.tr("Contacts", "contacts.pathEdit.empty.description", String(describing: p1), fallback: "Add repeaters to control how messages reach %@, or use flood routing if no path is known.")
+          }
+          /// Location: PathEditingSheet.swift - Purpose: Empty-state title
+          public static let title = L10n.tr("Contacts", "contacts.pathEdit.empty.title", fallback: "No hops yet")
+        }
+        public enum Filter {
+          /// Location: AddHopSegmentPicker.swift - Purpose: All filter
+          public static let all = L10n.tr("Contacts", "contacts.pathEdit.filter.all", fallback: "All")
+          /// Location: AddHopSegmentPicker.swift - Purpose: Discovered filter
+          public static let discovered = L10n.tr("Contacts", "contacts.pathEdit.filter.discovered", fallback: "Discovered")
+          /// Location: AddHopSegmentPicker.swift - Purpose: Favorites filter
+          public static let favorites = L10n.tr("Contacts", "contacts.pathEdit.filter.favorites", fallback: "Favorites")
+          /// Location: AddHopSegmentPicker.swift - Purpose: Recent filter
+          public static let recent = L10n.tr("Contacts", "contacts.pathEdit.filter.recent", fallback: "Recent")
+        }
+        public enum FloodRouting {
+          public enum Confirm {
+            /// Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation confirm label
+            public static let confirm = L10n.tr("Contacts", "contacts.pathEdit.floodRouting.confirm.confirm", fallback: "Use Flood Routing")
+            /// Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation alert message, %@ is contact name
+            public static func message(_ p1: Any) -> String {
+              return L10n.tr("Contacts", "contacts.pathEdit.floodRouting.confirm.message", String(describing: p1), fallback: "Messages to %@ will be sent to every nearby node until a path is found. Use this when no repeater route is known.")
+            }
+            /// Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation alert title
+            public static let title = L10n.tr("Contacts", "contacts.pathEdit.floodRouting.confirm.title", fallback: "Use flood routing?")
+          }
+        }
+        public enum MaxHops {
+          /// Location: AddHopPickerView.swift - Purpose: Max-hops reached description, %d is the cap
+          public static func description(_ p1: Int) -> String {
+            return L10n.tr("Contacts", "contacts.pathEdit.maxHops.description", p1, fallback: "This path has reached the maximum of %d hops for the current hash mode. Remove a hop to add another.")
+          }
+          /// Location: PathEditingSheet.swift - Purpose: Add Hop CTA footer explaining the hop cap, %d is the cap
+          public static func footer(_ p1: Int) -> String {
+            return L10n.tr("Contacts", "contacts.pathEdit.maxHops.footer", p1, fallback: "Maximum %d hops reached. Remove a hop to add another.")
+          }
+          /// Location: PathEditingSheet.swift + AddHopPickerView.swift - Purpose: Max-hops reached title
+          public static let reached = L10n.tr("Contacts", "contacts.pathEdit.maxHops.reached", fallback: "Max hops reached")
+        }
         public enum NoRepeaters {
-          /// Location: PathEditingSheet.swift - Purpose: No repeaters empty description
+          /// Location: AddHopPickerView.swift - Purpose: No repeaters empty description
           public static let description = L10n.tr("Contacts", "contacts.pathEdit.noRepeaters.description", fallback: "Repeaters appear here once they're discovered in your mesh network.")
-          /// Location: PathEditingSheet.swift - Purpose: No repeaters empty title
+          /// Location: AddHopPickerView.swift - Purpose: No repeaters empty title
           public static let title = L10n.tr("Contacts", "contacts.pathEdit.noRepeaters.title", fallback: "No Repeaters Available")
+        }
+        public enum Search {
+          public enum NoMatches {
+            /// Location: AddHopPickerView.swift - Purpose: No-match search description
+            public static let description = L10n.tr("Contacts", "contacts.pathEdit.search.noMatches.description", fallback: "Try a name or hex prefix like 'a3'.")
+            /// Location: AddHopPickerView.swift - Purpose: No-match description when a filter other than All is selected and a matching room exists
+            public static let descriptionWithRoomsHint = L10n.tr("Contacts", "contacts.pathEdit.search.noMatches.descriptionWithRoomsHint", fallback: "Try a name or hex prefix like 'a3'. Rooms only appear under the All filter.")
+          }
+        }
+        public enum Sections {
+          /// Location: AddHopPickerView.swift - Purpose: Contacts section header
+          public static let contacts = L10n.tr("Contacts", "contacts.pathEdit.sections.contacts", fallback: "Contacts")
+          /// Location: AddHopPickerView.swift - Purpose: Discovered section header
+          public static let discovered = L10n.tr("Contacts", "contacts.pathEdit.sections.discovered", fallback: "Discovered")
+          /// Location: AddHopPickerView.swift - Purpose: Favorites section header
+          public static let favorites = L10n.tr("Contacts", "contacts.pathEdit.sections.favorites", fallback: "Favorites")
+          /// Location: AddHopPickerView.swift - Purpose: Recent section header
+          public static let recent = L10n.tr("Contacts", "contacts.pathEdit.sections.recent", fallback: "Recent")
+          /// Location: AddHopPickerView.swift - Purpose: Rooms section header
+          public static let rooms = L10n.tr("Contacts", "contacts.pathEdit.sections.rooms", fallback: "Rooms")
         }
       }
       public enum PathManagement {
         public enum Error {
+          /// Location: PathManagementViewModel.swift - Purpose: Shown when a stored path's hop can't be resized to the device's current hash size
+          public static let hopResizeRequired = L10n.tr("Contacts", "contacts.pathManagement.error.hopResizeRequired", fallback: "Path Hash Size changed — remove and re-add hops to save.")
           /// Location: PathManagementViewModel.swift - Purpose: Reset path error prefix
           public static func resetFailed(_ p1: Any) -> String {
             return L10n.tr("Contacts", "contacts.pathManagement.error.resetFailed", String(describing: p1), fallback: "Reset path failed: %@")
@@ -1411,6 +1699,10 @@ public enum L10n {
           /// Location: PathManagementViewModel.swift - Purpose: Set path error prefix
           public static func setFailed(_ p1: Any) -> String {
             return L10n.tr("Contacts", "contacts.pathManagement.error.setFailed", String(describing: p1), fallback: "Set path failed: %@")
+          }
+          /// Location: PathManagementViewModel.swift - Purpose: Shown when the existing path has more hops than the current hash mode supports
+          public static func tooManyHops(_ p1: Int) -> String {
+            return L10n.tr("Contacts", "contacts.pathManagement.error.tooManyHops", p1, fallback: "Too many hops. Current hash mode supports at most %d.")
           }
         }
       }
@@ -1628,6 +1920,10 @@ public enum L10n {
         /// Location: ScanContactQRView.swift - Purpose: Navigation title
         public static let title = L10n.tr("Contacts", "contacts.scan.title", fallback: "Scan QR Code")
         public enum Error {
+          /// Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description
+          public static func importFailed(_ p1: Any) -> String {
+            return L10n.tr("Contacts", "contacts.scan.error.importFailed", String(describing: p1), fallback: "Failed to import contact: %@")
+          }
           /// Location: ScanContactQRView.swift - Purpose: Invalid QR format error
           public static let invalidFormat = L10n.tr("Contacts", "contacts.scan.error.invalidFormat", fallback: "Invalid QR code format")
           /// Location: ScanContactQRView.swift - Purpose: Invalid public key error
@@ -1653,8 +1949,22 @@ public enum L10n {
         public static let contacts = L10n.tr("Contacts", "contacts.segment.contacts", fallback: "Contacts")
         /// Location: ContactsViewModel.swift - Purpose: Favorites segment
         public static let favorites = L10n.tr("Contacts", "contacts.segment.favorites", fallback: "Favorites")
-        /// Location: ContactsViewModel.swift - Purpose: Network segment
-        public static let network = L10n.tr("Contacts", "contacts.segment.network", fallback: "Network")
+        /// Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback)
+        public static let pickerLabel = L10n.tr("Contacts", "contacts.segment.pickerLabel", fallback: "Filter nodes")
+        /// Location: ContactsViewModel.swift - Purpose: Repeaters segment
+        public static let repeaters = L10n.tr("Contacts", "contacts.segment.repeaters", fallback: "Repeaters")
+        /// Location: ContactsViewModel.swift - Purpose: Rooms segment
+        public static let rooms = L10n.tr("Contacts", "contacts.segment.rooms", fallback: "Rooms")
+      }
+      public enum Share {
+        /// Location: ContactQRShareSheet.swift - Purpose: Contact label in share text, %@ is contact name
+        public static func contactLabel(_ p1: Any) -> String {
+          return L10n.tr("Contacts", "contacts.share.contactLabel", String(describing: p1), fallback: "MeshCore One Contact: %@")
+        }
+        /// Location: ContactQRShareSheet.swift - Purpose: Key label in share text, %@ is hex public key
+        public static func keyLabel(_ p1: Any) -> String {
+          return L10n.tr("Contacts", "contacts.share.keyLabel", String(describing: p1), fallback: "Key: %@")
+        }
       }
       public enum Sort {
         /// Location: ContactsViewModel.swift - Purpose: Distance sort option
@@ -1669,14 +1979,6 @@ public enum L10n {
         public static func accessibility(_ p1: Any, _ p2: Int) -> String {
           return L10n.tr("Contacts", "contacts.statsBadge.accessibility", String(describing: p1), p2, fallback: "Distance: %@, Signal: %d decibels")
         }
-      }
-      public enum Swipe {
-        /// Location: ContactSwipeActionsModifier - Purpose: Block swipe action
-        public static let block = L10n.tr("Contacts", "contacts.swipe.block", fallback: "Block")
-        /// Location: ContactSwipeActionsModifier - Purpose: Unblock swipe action
-        public static let unblock = L10n.tr("Contacts", "contacts.swipe.unblock", fallback: "Unblock")
-        /// Location: ContactSwipeActionsModifier - Purpose: Unfavorite swipe action
-        public static let unfavorite = L10n.tr("Contacts", "contacts.swipe.unfavorite", fallback: "Unfavorite")
       }
       public enum Trace {
         /// Location: TracePathView.swift - Purpose: Clear path dialog title
@@ -1720,32 +2022,28 @@ public enum L10n {
           public static let batchTrace = L10n.tr("Contacts", "contacts.trace.list.batchTrace", fallback: "Batch Trace")
           /// Location: TracePathListView.swift - Purpose: Batch trace toggle description
           public static let batchTraceDescription = L10n.tr("Contacts", "contacts.trace.list.batchTraceDescription", fallback: "Run multiple traces and average the results")
-          /// Location: TracePathListView.swift - Purpose: Code input footer
-          public static let codeFooter = L10n.tr("Contacts", "contacts.trace.list.codeFooter", fallback: "Press Return to add repeaters")
-          /// Location: TracePathListView.swift - Purpose: Code input placeholder
-          public static let codePlaceholder = L10n.tr("Contacts", "contacts.trace.list.codePlaceholder", fallback: "Example: A1, 2B")
           /// Location: TracePathListView.swift - Purpose: Copy path button
           public static let copyPath = L10n.tr("Contacts", "contacts.trace.list.copyPath", fallback: "Copy Path")
           /// Location: TracePathListView.swift - Purpose: Empty path instruction
-          public static let emptyPath = L10n.tr("Contacts", "contacts.trace.list.emptyPath", fallback: "Tap a repeater above to start building your path")
-          /// Location: TracePathListView.swift - Purpose: Favorites filter toggle label
-          public static let favoritesOnly = L10n.tr("Contacts", "contacts.trace.list.favoritesOnly", fallback: "Favorites Only")
+          public static let emptyPath = L10n.tr("Contacts", "contacts.trace.list.emptyPath", fallback: "Add a hop to start building your path.")
+          /// Location: PathActionsSectionView.swift - Purpose: Trace hash size picker label
+          public static let hashSize = L10n.tr("Contacts", "contacts.trace.list.hashSize", fallback: "Hash Size")
+          /// Location: PathActionsSectionView.swift - Purpose: Caveat shown for multi-byte trace hash sizes
+          public static let hashSizeFooter = L10n.tr("Contacts", "contacts.trace.list.hashSizeFooter", fallback: "Repeaters running firmware older than 1.11.0 will not forward traces with a hash size greater than 1 byte.")
+          /// Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 4 bytes per hop
+          public static let hashSizeFourBytes = L10n.tr("Contacts", "contacts.trace.list.hashSizeFourBytes", fallback: "4 Bytes")
+          /// Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 1 byte per hop
+          public static let hashSizeOneByte = L10n.tr("Contacts", "contacts.trace.list.hashSizeOneByte", fallback: "1 Byte")
+          /// Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 2 bytes per hop
+          public static let hashSizeTwoBytes = L10n.tr("Contacts", "contacts.trace.list.hashSizeTwoBytes", fallback: "2 Bytes")
           /// Location: TracePathListView.swift - Purpose: Hop row accessibility hint
           public static let hopHint = L10n.tr("Contacts", "contacts.trace.list.hopHint", fallback: "Swipe left to delete, use drag handle to reorder")
           /// Location: TracePathListView.swift - Purpose: Hop row accessibility label
           public static func hopLabel(_ p1: Int, _ p2: Any) -> String {
             return L10n.tr("Contacts", "contacts.trace.list.hopLabel", p1, String(describing: p2), fallback: "Hop %d: %@")
           }
-          /// Location: TracePathListView.swift, PathEditingSheet.swift - Purpose: Toggle to include discovered repeaters
-          public static let includeDiscovered = L10n.tr("Contacts", "contacts.trace.list.includeDiscovered", fallback: "Include Discovered")
-          /// Location: TracePathListView.swift - Purpose: Toggle to include room servers in the list
-          public static let includeRooms = L10n.tr("Contacts", "contacts.trace.list.includeRooms", fallback: "Include Rooms")
-          /// Location: TracePathListView.swift - Purpose: Paste button
-          public static let paste = L10n.tr("Contacts", "contacts.trace.list.paste", fallback: "Paste from clipboard")
           /// Location: TracePathListView.swift - Purpose: Range warning footer
           public static let rangeWarning = L10n.tr("Contacts", "contacts.trace.list.rangeWarning", fallback: "You must be within range of the last repeater to receive a response.")
-          /// Location: TracePathListView.swift - Purpose: Repeaters section label
-          public static let repeaters = L10n.tr("Contacts", "contacts.trace.list.repeaters", fallback: "Repeaters")
           /// Location: TracePathListView.swift - Purpose: Round trip path section header
           public static let roundTripPath = L10n.tr("Contacts", "contacts.trace.list.roundTripPath", fallback: "Round Trip Path")
           /// Location: TracePathListView.swift - Purpose: Running trace with batch count
@@ -1770,12 +2068,6 @@ public enum L10n {
           public static let singleHint = L10n.tr("Contacts", "contacts.trace.list.singleHint", fallback: "Double tap to trace the path")
           /// Location: TracePathListView.swift - Purpose: Traces count label
           public static let traces = L10n.tr("Contacts", "contacts.trace.list.traces", fallback: "Traces:")
-          public enum NoFavorites {
-            /// Location: TracePathListView.swift - Purpose: No favorite repeaters empty description
-            public static let description = L10n.tr("Contacts", "contacts.trace.list.noFavorites.description", fallback: "Mark repeaters as favorites in the Nodes tab to see them here.")
-            /// Location: TracePathListView.swift - Purpose: No favorite repeaters empty title
-            public static let title = L10n.tr("Contacts", "contacts.trace.list.noFavorites.title", fallback: "No Favorite Repeaters")
-          }
         }
         public enum Map {
           /// Location: TracePathMapView.swift - Purpose: Center on path accessibility
@@ -1843,6 +2135,8 @@ public enum L10n {
       public enum ViewModel {
         /// Location: ContactsViewModel.swift - Purpose: Delete requires connection error
         public static let connectToDelete = L10n.tr("Contacts", "contacts.viewModel.connectToDelete", fallback: "Connect to a radio to delete nodes")
+        /// Location: ContactsViewModel.swift - Purpose: Delete radio command timed out error
+        public static let removeTimedOut = L10n.tr("Contacts", "contacts.viewModel.removeTimedOut", fallback: "Deleting the node timed out. Try again.")
       }
     }
   }
@@ -1854,6 +2148,12 @@ public enum L10n {
       public static let on = L10n.tr("Localizable", "accessibility.on", fallback: "On")
       /// VoiceOver announcement when viewing cached data while disconnected from device
       public static let viewingCachedData = L10n.tr("Localizable", "accessibility.viewingCachedData", fallback: "Viewing cached data. Connect to device for updates.")
+      public enum Alert {
+        public enum ConnectionFailed {
+          /// VoiceOver label for the destructive Remove and Try Again button — clarifies that "remove" means removing the device pairing
+          public static let removeAndRetry = L10n.tr("Localizable", "accessibility.alert.connectionFailed.removeAndRetry", fallback: "Remove device pairing and try again")
+        }
+      }
       public enum Connection {
         /// VoiceOver announcement when device connection is lost
         public static let deviceConnectionLost = L10n.tr("Localizable", "accessibility.connection.deviceConnectionLost", fallback: "Device connection lost")
@@ -1862,13 +2162,21 @@ public enum L10n {
         /// VoiceOver announcement when sync fails and device is disconnecting
         public static let syncFailedDisconnecting = L10n.tr("Localizable", "accessibility.connection.syncFailedDisconnecting", fallback: "Sync failed. Disconnecting.")
       }
+      public enum SignalStrength {
+        /// Medium signal
+        public static let medium = L10n.tr("Localizable", "accessibility.signalStrength.medium", fallback: "Medium signal")
+        /// Strong signal
+        public static let strong = L10n.tr("Localizable", "accessibility.signalStrength.strong", fallback: "Strong signal")
+        /// VoiceOver signal-strength descriptors for the device picker signal bars
+        public static let `weak` = L10n.tr("Localizable", "accessibility.signalStrength.weak", fallback: "Weak signal")
+      }
     }
     public enum Alert {
       public enum ConnectionFailed {
         /// Default message when device connection fails
         public static let defaultMessage = L10n.tr("Localizable", "alert.connectionFailed.defaultMessage", fallback: "Unable to connect to device.")
         /// Button to remove failed pairing and retry connection
-        public static let removeAndRetry = L10n.tr("Localizable", "alert.connectionFailed.removeAndRetry", fallback: "Remove & Try Again")
+        public static let removeAndRetry = L10n.tr("Localizable", "alert.connectionFailed.removeAndRetry", fallback: "Remove and Try Again")
         /// Alert title when device connection fails
         public static let title = L10n.tr("Localizable", "alert.connectionFailed.title", fallback: "Connection Failed")
       }
@@ -1877,6 +2185,10 @@ public enum L10n {
         public static let otherAppMessage = L10n.tr("Localizable", "alert.couldNotConnect.otherAppMessage", fallback: "Ensure no other app is connected to the device, then try again.")
         /// Alert title when connection cannot be established
         public static let title = L10n.tr("Localizable", "alert.couldNotConnect.title", fallback: "Could Not Connect")
+      }
+      public enum PairingFailed {
+        /// Alert title when device pairing fails (e.g., wrong PIN)
+        public static let title = L10n.tr("Localizable", "alert.pairingFailed.title", fallback: "Couldn't Pair")
       }
     }
     public enum Common {
@@ -1990,6 +2302,10 @@ public enum L10n {
     public enum Tabs {
       /// Tab bar title for the messaging/conversations screen
       public static let chats = L10n.tr("Localizable", "tabs.chats", fallback: "Chats")
+      /// VoiceOver value announcing the unread message count on the Chats sidebar icon. %d is the count.
+      public static func chatsUnreadAccessibilityValue(_ p1: Int) -> String {
+        return L10n.tr("Localizable", "tabs.chatsUnreadAccessibilityValue", p1, fallback: "%d unread")
+      }
       /// Tab bar title for the map screen showing node locations
       public static let map = L10n.tr("Localizable", "tabs.map", fallback: "Map")
       /// Tab bar title for the nodes/contacts list screen
@@ -2067,6 +2383,8 @@ public enum L10n {
         public static let name = L10n.tr("Map", "map.detail.name", fallback: "Name")
         /// Location: MapView.swift ContactDetailSheet - Purpose: Label for path length
         public static let pathLength = L10n.tr("Map", "map.detail.pathLength", fallback: "Path Length")
+        /// Location: MapView.swift ContactDetailSheet - Purpose: Label for full public key identifier
+        public static let publicKey = L10n.tr("Map", "map.detail.publicKey", fallback: "Public Key")
         /// Location: MapView.swift ContactDetailSheet - Purpose: Label for routing type
         public static let routing = L10n.tr("Map", "map.detail.routing", fallback: "Routing")
         /// Location: MapView.swift ContactDetailSheet - Purpose: Flood routing type value
@@ -2110,6 +2428,16 @@ public enum L10n {
         /// Label shown on map when device has no internet connection
         public static let label = L10n.tr("Map", "map.offlineBadge.label", fallback: "Offline")
       }
+      public enum Preview {
+        /// Location: MapPreviewFragmentView.swift - Purpose: Accessibility hint for tapping the chat map-location thumbnail
+        public static let accessibilityHint = L10n.tr("Map", "map.preview.accessibilityHint", fallback: "Opens this location on the map")
+        /// Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the chat map-location thumbnail
+        public static let accessibilityLabel = L10n.tr("Map", "map.preview.accessibilityLabel", fallback: "Map location preview")
+        public enum RetryButton {
+          /// Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback
+          public static let accessibilityLabel = L10n.tr("Map", "map.preview.retryButton.accessibilityLabel", fallback: "Retry loading map thumbnail")
+        }
+      }
       public enum Style {
         /// Location: LayersMenu.swift - Purpose: Accessibility label for map style menu
         public static let accessibilityLabel = L10n.tr("Map", "map.style.accessibilityLabel", fallback: "Map style")
@@ -2143,54 +2471,80 @@ public enum L10n {
       /// Location: DeviceScanView.swift - Button to continue in demo mode
       public static let continueDemo = L10n.tr("Onboarding", "deviceScan.continueDemo", fallback: "Continue in Demo Mode")
       /// Location: DeviceScanView.swift - Button for troubleshooting
-      public static let deviceNotAppearing = L10n.tr("Onboarding", "deviceScan.deviceNotAppearing", fallback: "Device not appearing?")
+      public static let deviceNotAppearing = L10n.tr("Onboarding", "deviceScan.deviceNotAppearing", fallback: "Help")
+      /// Location: DeviceScanView.swift - "I don't have a device yet" tertiary
+      public static let noDeviceYet = L10n.tr("Onboarding", "deviceScan.noDeviceYet", fallback: "I don't have a device yet")
       /// Location: DeviceScanView.swift - Button to retry connection after other-app conflict
       public static let retryConnection = L10n.tr("Onboarding", "deviceScan.retryConnection", fallback: "Retry Connection")
       /// Location: DeviceScanView.swift - Subtitle with pairing instructions
-      public static let subtitle = L10n.tr("Onboarding", "deviceScan.subtitle", fallback: "Make sure your MeshCore device is powered on and nearby")
+      public static let subtitle = L10n.tr("Onboarding", "deviceScan.subtitle", fallback: "Power it on, then tap Add Device.")
       /// Location: DeviceScanView.swift - Screen title for device pairing
-      public static let title = L10n.tr("Onboarding", "deviceScan.title", fallback: "Pair Your Device")
+      public static let title = L10n.tr("Onboarding", "deviceScan.title", fallback: "Pair your device")
       public enum DemoModeAlert {
         /// Location: DeviceScanView.swift - Alert message for demo mode
         public static let message = L10n.tr("Onboarding", "deviceScan.demoModeAlert.message", fallback: "You can now continue without a device. Toggle demo mode in Settings anytime.")
         /// Location: DeviceScanView.swift - Alert title when demo mode is unlocked
         public static let title = L10n.tr("Onboarding", "deviceScan.demoModeAlert.title", fallback: "Demo Mode Unlocked")
       }
-      public enum Instruction {
-        /// Location: DeviceScanView.swift - Instruction step 4
-        public static let enterPin = L10n.tr("Onboarding", "deviceScan.instruction.enterPin", fallback: "Enter the PIN when prompted")
-        /// Location: DeviceScanView.swift - Instruction step 1
-        public static let powerOn = L10n.tr("Onboarding", "deviceScan.instruction.powerOn", fallback: "Power on your MeshCore device")
-        /// Location: DeviceScanView.swift - Instruction step 3
-        public static let selectDevice = L10n.tr("Onboarding", "deviceScan.instruction.selectDevice", fallback: "Select your device from the list")
-        /// Location: DeviceScanView.swift - Instruction step 2
-        public static let tapAdd = L10n.tr("Onboarding", "deviceScan.instruction.tapAdd", fallback: "Tap \"Add Device\" below")
+      public enum Error {
+        /// Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages
+        public static let authenticationFailed = L10n.tr("Onboarding", "deviceScan.error.authenticationFailed", fallback: "Couldn't pair the device. Check the PIN, then remove the device and try again.")
+        /// Couldn't connect to the device. Try again, or remove it if the problem continues.
+        public static let connectionFailed = L10n.tr("Onboarding", "deviceScan.error.connectionFailed", fallback: "Couldn't connect to the device. Try again, or remove it if the problem continues.")
+      }
+    }
+    public enum DeviceScanner {
+      /// Location: DeviceScannerSheet.swift - Empty state shown while scanning for devices
+      public static let scanning = L10n.tr("Onboarding", "deviceScanner.scanning", fallback: "Scanning for devices…")
+      /// Location: DeviceScannerSheet.swift - Navigation title for the macOS BLE scanner
+      public static let title = L10n.tr("Onboarding", "deviceScanner.title", fallback: "Select Device")
+      /// Location: DeviceScannerSheet.swift - Placeholder name for peripherals with no advertised name
+      public static let unknownDevice = L10n.tr("Onboarding", "deviceScanner.unknownDevice", fallback: "Unknown Device")
+      public enum BluetoothOff {
+        /// Location: DeviceScannerSheet.swift - Guidance shown when Bluetooth is powered off on the macOS scanner
+        public static let message = L10n.tr("Onboarding", "deviceScanner.bluetoothOff.message", fallback: "Turn on Bluetooth to scan for nearby devices.")
+        /// Location: DeviceScannerSheet.swift - Title shown when Bluetooth is powered off on the macOS scanner
+        public static let title = L10n.tr("Onboarding", "deviceScanner.bluetoothOff.title", fallback: "Bluetooth Is Off")
+      }
+      public enum BluetoothUnauthorized {
+        /// Location: DeviceScannerSheet.swift - Guidance shown when the app is not authorized to use Bluetooth
+        public static let message = L10n.tr("Onboarding", "deviceScanner.bluetoothUnauthorized.message", fallback: "Allow Bluetooth access in Settings to scan for nearby devices.")
+        /// Location: DeviceScannerSheet.swift - Title shown when the app is not authorized to use Bluetooth
+        public static let title = L10n.tr("Onboarding", "deviceScanner.bluetoothUnauthorized.title", fallback: "Bluetooth Access Needed")
       }
     }
     public enum MeshAnimation {
       /// Location: MeshAnimationView.swift - Accessibility label for mesh visualization
       public static let accessibilityLabel = L10n.tr("Onboarding", "meshAnimation.accessibilityLabel", fallback: "Mesh network visualization")
     }
+    public enum NoDevice {
+      public enum Sheet {
+        /// Location: NoDeviceSheet.swift - Sheet body
+        public static let body = L10n.tr("Onboarding", "noDevice.sheet.body", fallback: "You'll need a paired radio to send and receive messages. Explore the app for now and pair anytime from Settings.")
+        /// Location: NoDeviceSheet.swift - Secondary CTA
+        public static let cancel = L10n.tr("Onboarding", "noDevice.sheet.cancel", fallback: "Cancel")
+        /// Location: NoDeviceSheet.swift - Primary CTA
+        public static let confirm = L10n.tr("Onboarding", "noDevice.sheet.confirm", fallback: "Continue")
+        /// Location: NoDeviceSheet.swift - Sheet title
+        public static let title = L10n.tr("Onboarding", "noDevice.sheet.title", fallback: "Take a look around")
+      }
+    }
     public enum Permissions {
       /// Location: PermissionsView.swift - Button to allow a permission
       public static let allow = L10n.tr("Onboarding", "permissions.allow", fallback: "Allow")
-      /// Location: PermissionsView.swift - Button to go back
-      public static let back = L10n.tr("Onboarding", "permissions.back", fallback: "Back")
-      /// Location: PermissionsView.swift - Button when all permissions granted
+      /// Location: PermissionsView.swift - Button to proceed to next step
       public static let `continue` = L10n.tr("Onboarding", "permissions.continue", fallback: "Continue")
       /// Location: PermissionsView.swift - Button to open system settings
       public static let openSettings = L10n.tr("Onboarding", "permissions.openSettings", fallback: "Settings")
       /// Location: PermissionsView.swift - Badge shown for optional permissions
       public static let `optional` = L10n.tr("Onboarding", "permissions.optional", fallback: "Optional")
-      /// Location: PermissionsView.swift - Button when some permissions skipped
-      public static let skipForNow = L10n.tr("Onboarding", "permissions.skipForNow", fallback: "Skip for Now")
       /// Location: PermissionsView.swift - Subtitle encouraging notification permission
-      public static let subtitle = L10n.tr("Onboarding", "permissions.subtitle", fallback: "Allow Notifications for the best experience")
+      public static let subtitle = L10n.tr("Onboarding", "permissions.subtitle", fallback: "Both optional. You can change your mind in Settings anytime.")
       /// Location: PermissionsView.swift - Screen title for permissions
-      public static let title = L10n.tr("Onboarding", "permissions.title", fallback: "Permissions")
+      public static let title = L10n.tr("Onboarding", "permissions.title", fallback: "A couple of permissions")
       public enum Location {
         /// Location: PermissionsView.swift - Permission card description for location
-        public static let description = L10n.tr("Onboarding", "permissions.location.description", fallback: "See your location on the map")
+        public static let description = L10n.tr("Onboarding", "permissions.location.description", fallback: "Suggest local radio presets, show your position on the map, and sort contacts by distance.")
         /// Location: PermissionsView.swift - Permission card title for location
         public static let title = L10n.tr("Onboarding", "permissions.location.title", fallback: "Location")
       }
@@ -2204,26 +2558,80 @@ public enum L10n {
       }
       public enum Notifications {
         /// Location: PermissionsView.swift - Permission card description for notifications
-        public static let description = L10n.tr("Onboarding", "permissions.notifications.description", fallback: "Receive alerts for new messages")
+        public static let description = L10n.tr("Onboarding", "permissions.notifications.description", fallback: "Get alerts for new messages and low battery, even when the app is closed.")
         /// Location: PermissionsView.swift - Permission card title for notifications
         public static let title = L10n.tr("Onboarding", "permissions.notifications.title", fallback: "Notifications")
       }
     }
-    public enum RadioPreset {
-      /// Location: RadioPresetOnboardingView.swift - Button to apply selected preset
-      public static let apply = L10n.tr("Onboarding", "radioPreset.apply", fallback: "Apply")
-      /// Location: RadioPresetOnboardingView.swift - Button label while applying preset
-      public static let applying = L10n.tr("Onboarding", "radioPreset.applying", fallback: "Applying...")
-      /// Location: RadioPresetOnboardingView.swift - Button to continue
-      public static let `continue` = L10n.tr("Onboarding", "radioPreset.continue", fallback: "Continue")
-      /// Location: RadioPresetOnboardingView.swift - Label for custom (non-preset) radio settings
-      public static let custom = L10n.tr("Onboarding", "radioPreset.custom", fallback: "Custom")
-      /// Location: RadioPresetOnboardingView.swift - Button to skip radio setup
-      public static let skip = L10n.tr("Onboarding", "radioPreset.skip", fallback: "Skip")
-      /// Location: RadioPresetOnboardingView.swift - Subtitle with instructions and Discord link
-      public static let subtitle = L10n.tr("Onboarding", "radioPreset.subtitle", fallback: "You can change these settings at any time in MeshCore One's Settings. If you're not sure which preset to use, ask in the [MeshCore Discord](https://meshcore.co.uk/contact.html)")
-      /// Location: RadioPresetOnboardingView.swift - Screen title for radio settings
-      public static let title = L10n.tr("Onboarding", "radioPreset.title", fallback: "Radio Settings")
+    public enum Preset {
+      /// Location: PresetStepView.swift - Generic Continue label used when no preset is selected
+      public static let `continue` = L10n.tr("Onboarding", "preset.continue", fallback: "Continue")
+      /// Location: PresetStepView.swift - Footer help line pointing users to the MeshCore Discord
+      public static let discordHelp = L10n.tr("Onboarding", "preset.discordHelp", fallback: "Not sure which preset to pick? Join the official MeshCore Discord and ask! [https://meshcore.gg](https://meshcore.gg)")
+      /// Location: PresetStepView.swift - Title
+      public static let title = L10n.tr("Onboarding", "preset.title", fallback: "Pick a preset")
+      /// Location: PresetStepView.swift - Apply CTA "Use %@"
+      public static func use(_ p1: Any) -> String {
+        return L10n.tr("Onboarding", "preset.use", String(describing: p1), fallback: "Use %@")
+      }
+      public enum AlreadyConfigured {
+        /// Location: PresetStepView.swift - Already-configured secondary link
+        public static let choose = L10n.tr("Onboarding", "preset.alreadyConfigured.choose", fallback: "Choose a different preset")
+        /// Location: PresetStepView.swift - Already-configured primary CTA
+        public static let done = L10n.tr("Onboarding", "preset.alreadyConfigured.done", fallback: "Done")
+        /// Location: PresetStepView.swift - Already-configured subtitle
+        public static func subtitle(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Onboarding", "preset.alreadyConfigured.subtitle", String(describing: p1), String(describing: p2), fallback: "Your radio is already on %@, the recommended preset for %@.")
+        }
+        /// Location: PresetStepView.swift - Already-configured title
+        public static let title = L10n.tr("Onboarding", "preset.alreadyConfigured.title", fallback: "Already configured")
+      }
+      public enum Error {
+        /// Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring
+        public static let notConnected = L10n.tr("Onboarding", "preset.error.notConnected", fallback: "Connect to your device to apply this preset.")
+      }
+      public enum Row {
+        /// Location: PresetStepView.swift - VoiceOver hint for tapping a preset card
+        public static let accessibilityHint = L10n.tr("Onboarding", "preset.row.accessibilityHint", fallback: "Selects this preset.")
+      }
+      public enum Subtitle {
+        /// Location: PresetStepView.swift - Subtitle for empty-region fallback
+        public static let locale = L10n.tr("Onboarding", "preset.subtitle.locale", fallback: "Pick a preset for your radio.")
+        /// Location: PresetStepView.swift - Subtitle when recommendation exists
+        public static func recommended(_ p1: Any) -> String {
+          return L10n.tr("Onboarding", "preset.subtitle.recommended", String(describing: p1), fallback: "Recommended for %@")
+        }
+      }
+    }
+    public enum Region {
+      /// Location: RegionPickerView.swift - State/Province picker label
+      public static let administrativeArea = L10n.tr("Onboarding", "region.administrativeArea", fallback: "State / Province")
+      /// Location: RegionStepView.swift - "Choose another" link
+      public static let chooseAnother = L10n.tr("Onboarding", "region.chooseAnother", fallback: "Choose another")
+      /// Location: RegionPickerView.swift - Continue CTA in manual picker
+      public static let `continue` = L10n.tr("Onboarding", "region.continue", fallback: "Continue")
+      /// Location: RegionPickerView.swift - Country picker label
+      public static let country = L10n.tr("Onboarding", "region.country", fallback: "Country")
+      /// Location: RegionStepView.swift - "Finding your region…"
+      public static let resolving = L10n.tr("Onboarding", "region.resolving", fallback: "Finding your region…")
+      /// Location: RegionStepView.swift - Subtitle for the region step
+      public static let subtitle = L10n.tr("Onboarding", "region.subtitle", fallback: "We'll show presets that work in your area.")
+      /// Location: RegionStepView.swift - Title (both states)
+      public static let title = L10n.tr("Onboarding", "region.title", fallback: "Choose your region")
+      /// Location: RegionStepView.swift - "Use my location" link in manual state
+      public static let useMyLocation = L10n.tr("Onboarding", "region.useMyLocation", fallback: "Use my location")
+      /// Location: RegionStepView.swift - Primary CTA in detected state
+      public static let useThisRegion = L10n.tr("Onboarding", "region.useThisRegion", fallback: "Use this region")
+      public enum Detected {
+        /// Location: RegionStepView.swift - Caption "From your location"
+        public static let source = L10n.tr("Onboarding", "region.detected.source", fallback: "From your location")
+        /// Location: RegionStepView.swift - "Detected" tag
+        public static let tag = L10n.tr("Onboarding", "region.detected.tag", fallback: "Detected")
+      }
+      public enum UseMyLocation {
+        /// Location: RegionStepView.swift - Error shown when user-initiated retry of "Use my location" cannot resolve a region
+        public static let failure = L10n.tr("Onboarding", "region.useMyLocation.failure", fallback: "Location lookup didn't return a region. Pick manually below.")
+      }
     }
     public enum Troubleshooting {
       /// Location: DeviceScanView.swift - Navigation title for troubleshooting sheet
@@ -2233,6 +2641,8 @@ public enum L10n {
         public static let header = L10n.tr("Onboarding", "troubleshooting.basicChecks.header", fallback: "Basic Checks")
         /// Location: DeviceScanView.swift - Check to move device closer
         public static let moveCloser = L10n.tr("Onboarding", "troubleshooting.basicChecks.moveCloser", fallback: "Move the device closer to your phone")
+        /// Location: TroubleshootingSheet.swift - Check that radio isn't connected elsewhere
+        public static let notConnectedElsewhere = L10n.tr("Onboarding", "troubleshooting.basicChecks.notConnectedElsewhere", fallback: "Make sure your radio isn't connected to another phone or app")
         /// Location: DeviceScanView.swift - Check to ensure device is powered on
         public static let powerOn = L10n.tr("Onboarding", "troubleshooting.basicChecks.powerOn", fallback: "Make sure your device is powered on")
         /// Location: DeviceScanView.swift - Check to restart the device
@@ -2254,11 +2664,19 @@ public enum L10n {
           return L10n.tr("Onboarding", "troubleshooting.factoryReset.pairingsFound", p1, fallback: "Found %d previous pairing(s).")
         }
       }
+      public enum StillNotAppearing {
+        /// Location: TroubleshootingSheet.swift - Body text explaining backup and reflash steps
+        public static let body = L10n.tr("Onboarding", "troubleshooting.stillNotAppearing.body", fallback: "If you've tried everything above, back up your radio's configuration in Liam Cottle's MeshCore app, then erase and reflash it on your computer at https://flasher.meshcore.io")
+        /// Location: TroubleshootingSheet.swift - Section header for last-resort flashing steps
+        public static let header = L10n.tr("Onboarding", "troubleshooting.stillNotAppearing.header", fallback: "Still Not Appearing?")
+      }
       public enum SystemSettings {
         /// Location: DeviceScanView.swift - Section header for system settings info
         public static let header = L10n.tr("Onboarding", "troubleshooting.systemSettings.header", fallback: "System Settings")
         /// Location: DeviceScanView.swift - Info about managing accessories
         public static let manageAccessories = L10n.tr("Onboarding", "troubleshooting.systemSettings.manageAccessories", fallback: "You can also manage Bluetooth accessories in:")
+        /// Location: TroubleshootingSheet.swift - Button that opens iOS Settings
+        public static let openSettings = L10n.tr("Onboarding", "troubleshooting.systemSettings.openSettings", fallback: "Open Settings")
         /// Location: DeviceScanView.swift - Path to accessories in settings
         public static let path = L10n.tr("Onboarding", "troubleshooting.systemSettings.path", fallback: "Settings → Privacy & Security → Accessories")
       }
@@ -2267,23 +2685,9 @@ public enum L10n {
       /// Location: WelcomeView.swift - Button to proceed to next onboarding step
       public static let getStarted = L10n.tr("Onboarding", "welcome.getStarted", fallback: "Get Started")
       /// Location: WelcomeView.swift - Subtitle describing the app
-      public static let subtitle = L10n.tr("Onboarding", "welcome.subtitle", fallback: "A MeshCore client for Apple devices")
+      public static let subtitle = L10n.tr("Onboarding", "welcome.subtitle", fallback: "Send messages through a community built network, even without internet.")
       /// Location: WelcomeView.swift - App title displayed on welcome screen
       public static let title = L10n.tr("Onboarding", "welcome.title", fallback: "MeshCore One")
-      public enum Feature {
-        public enum Community {
-          /// Location: WelcomeView.swift - Feature description for community network
-          public static let description = L10n.tr("Onboarding", "welcome.feature.community.description", fallback: "Network built by users like you")
-          /// Location: WelcomeView.swift - Feature title for community network
-          public static let title = L10n.tr("Onboarding", "welcome.feature.community.title", fallback: "Community Network")
-        }
-        public enum MultiHop {
-          /// Location: WelcomeView.swift - Feature description for multi-hop routing
-          public static let description = L10n.tr("Onboarding", "welcome.feature.multiHop.description", fallback: "Your message finds a path across the mesh")
-          /// Location: WelcomeView.swift - Feature title for multi-hop routing
-          public static let title = L10n.tr("Onboarding", "welcome.feature.multiHop.title", fallback: "Multi-Hop Routing")
-        }
-      }
     }
     public enum WifiConnection {
       /// Location: WiFiConnectionSheet.swift - Button to initiate connection
@@ -2335,6 +2739,8 @@ public enum L10n {
         public static func errorPrefix(_ p1: Any) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.auth.errorPrefix", String(describing: p1), fallback: "Error: %@")
         }
+        /// Location: NodeAuthenticationSheet.swift - Flood routing toggle
+        public static let floodRouting = L10n.tr("RemoteNodes", "remoteNodes.auth.floodRouting", fallback: "Flood Routing")
         /// Location: NodeAuthenticationSheet.swift - Navigation title for room authentication
         public static let joinRoom = L10n.tr("RemoteNodes", "remoteNodes.auth.joinRoom", fallback: "Join Room")
         /// Location: NodeAuthenticationSheet.swift - Navigation title for repeater management
@@ -2343,6 +2749,10 @@ public enum L10n {
         public static let name = L10n.tr("RemoteNodes", "remoteNodes.auth.name", fallback: "Name")
         /// Location: NodeAuthenticationSheet.swift - Node details section header
         public static let nodeDetails = L10n.tr("RemoteNodes", "remoteNodes.auth.nodeDetails", fallback: "Node Details")
+        /// Location: NodeAuthenticationSheet.swift - Path section footer when no route is set
+        public static let noRouteFooter = L10n.tr("RemoteNodes", "remoteNodes.auth.noRouteFooter", fallback: "No known route to this node. The network will find a path automatically.")
+        /// Location: NodeAuthenticationSheet.swift - Label when no route is set
+        public static let noRouteSet = L10n.tr("RemoteNodes", "remoteNodes.auth.noRouteSet", fallback: "No route set")
         /// Location: NodeAuthenticationSheet.swift - Password field placeholder
         public static let password = L10n.tr("RemoteNodes", "remoteNodes.auth.password", fallback: "Password")
         /// Location: NodeAuthenticationSheet.swift - Password too long warning for repeaters
@@ -2353,6 +2763,10 @@ public enum L10n {
         public static func passwordTooLongRooms(_ p1: Int) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.auth.passwordTooLongRooms", p1, fallback: "MeshCore rooms only accept passwords up to %d characters. Extra characters will be ignored.")
         }
+        /// Location: NodeAuthenticationSheet.swift - Path section header
+        public static let path = L10n.tr("RemoteNodes", "remoteNodes.auth.path", fallback: "Path")
+        /// Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists
+        public static let pathFooter = L10n.tr("RemoteNodes", "remoteNodes.auth.pathFooter", fallback: "Use the known route to this node, or switch to flood routing to let the network find a path.")
         /// Location: NodeAuthenticationSheet.swift - Remember password toggle
         public static let rememberPassword = L10n.tr("RemoteNodes", "remoteNodes.auth.rememberPassword", fallback: "Remember Password")
         /// Location: NodeAuthenticationSheet.swift - Countdown text showing seconds remaining
@@ -2456,6 +2870,30 @@ public enum L10n {
           public static let increased = L10n.tr("RemoteNodes", "remoteNodes.history.a11y.increased", fallback: "increased")
         }
       }
+      public enum NodeCli {
+        /// Location: NodeCliView.swift - Banner shown when connected to a node - %@ is node name
+        public static func bannerConnected(_ p1: Any) -> String {
+          return L10n.tr("RemoteNodes", "remoteNodes.nodeCli.bannerConnected", String(describing: p1), fallback: "Connected to %@")
+        }
+        /// Location: NodeCliView.swift - Hint shown below connected banner
+        public static let bannerHint = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.bannerHint", fallback: "Type 'help' for available commands.")
+        /// Location: NodeCliViewModel.swift - Toast after command is cancelled
+        public static let cancelled = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.cancelled", fallback: "Command cancelled")
+        /// Location: NodeCliViewModel.swift - Help entry for 'clear' command
+        public static let helpClear = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.helpClear", fallback: "  clear\n    Clear the terminal")
+        /// Location: NodeCliViewModel.swift - Help entry for 'clear stats' command
+        public static let helpClearStats = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.helpClearStats", fallback: "  clear stats\n    Reset node statistics")
+        /// Location: NodeCliViewModel.swift - Header line in help output
+        public static let helpHeader = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.helpHeader", fallback: "Available commands:")
+        /// Location: NodeCliViewModel.swift - Help entry for 'help' command
+        public static let helpHelp = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.helpHelp", fallback: "  help\n    Show this help")
+        /// Location: NodeCliViewModel.swift - Passthrough note at end of help output
+        public static let helpPassthrough = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.helpPassthrough", fallback: "Any other input is sent to the node.")
+        /// Location: NodeCliViewModel.swift - Help entry for 'reboot' command
+        public static let helpReboot = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.helpReboot", fallback: "  reboot\n    Restart this node")
+        /// Location: NodeCliViewModel.swift - Toast after reboot command succeeds
+        public static let rebootSent = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.rebootSent", fallback: "Reboot command sent")
+      }
       public enum Room {
         /// Location: RoomConversationView.swift - Activity section header
         public static let activity = L10n.tr("RemoteNodes", "remoteNodes.room.activity", fallback: "Activity")
@@ -2517,6 +2955,8 @@ public enum L10n {
         public static let allowReadOnlyFooter = L10n.tr("RemoteNodes", "remoteNodes.roomSettings.allowReadOnlyFooter", fallback: "Allow users without a password to connect in read-only mode.")
         /// Location: RoomSettingsView.swift - Apply room settings button
         public static let applyRoomSettings = L10n.tr("RemoteNodes", "remoteNodes.roomSettings.applyRoomSettings", fallback: "Apply Room Settings")
+        /// Location: RoomSettingsView.swift - Room behavior section footer
+        public static let behaviorFooter = L10n.tr("RemoteNodes", "remoteNodes.roomSettings.behaviorFooter", fallback: "Advertisement intervals and flood hops.")
         /// Location: RoomSettingsView.swift - Clock ahead error
         public static let clockAheadError = L10n.tr("RemoteNodes", "remoteNodes.roomSettings.clockAheadError", fallback: "Room clock is ahead of phone time. If it's too far forward, reboot the room then sync time again.")
         /// Location: RoomSettingsView.swift - Guest password label
@@ -2534,7 +2974,7 @@ public enum L10n {
         /// Location: RoomSettingsView.swift - Reboot confirmation message
         public static let rebootMessage = L10n.tr("RemoteNodes", "remoteNodes.roomSettings.rebootMessage", fallback: "The room will restart and be temporarily unavailable.")
         /// Location: RoomSettingsView.swift - Room settings section footer
-        public static let roomSettingsFooter = L10n.tr("RemoteNodes", "remoteNodes.roomSettings.roomSettingsFooter", fallback: "Guest access, advertisement intervals, and flood hops.")
+        public static let roomSettingsFooter = L10n.tr("RemoteNodes", "remoteNodes.roomSettings.roomSettingsFooter", fallback: "Guest password and read-only access.")
         /// Location: RoomSettingsView.swift - Room settings section header
         public static let roomSettingsSection = L10n.tr("RemoteNodes", "remoteNodes.roomSettings.roomSettingsSection", fallback: "Room Settings")
         /// Location: RoomSettingsView.swift - Navigation title
@@ -2767,8 +3207,20 @@ public enum L10n {
           /// Location: RepeaterSettingsViewModel.swift - Region not found error
           public static let unknownRegion = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.unknownRegion", fallback: "Unknown region")
         }
+        public enum Tab {
+          /// Location: NodeSettingsView.swift - CLI tab label
+          public static let cli = L10n.tr("RemoteNodes", "remoteNodes.settings.tab.cli", fallback: "CLI")
+          /// Location: NodeSettingsView.swift - View mode picker label
+          public static let picker = L10n.tr("RemoteNodes", "remoteNodes.settings.tab.picker", fallback: "View mode")
+          /// Location: NodeSettingsView.swift - Settings tab label
+          public static let settings = L10n.tr("RemoteNodes", "remoteNodes.settings.tab.settings", fallback: "Settings")
+          /// Location: NodeSettingsView.swift - Telemetry tab label
+          public static let telemetry = L10n.tr("RemoteNodes", "remoteNodes.settings.tab.telemetry", fallback: "Telemetry")
+        }
       }
       public enum Status {
+        /// Location: SharedNodeViews.swift - Airtime label
+        public static let airtime = L10n.tr("RemoteNodes", "remoteNodes.status.airtime", fallback: "Airtime")
         /// Location: RepeaterStatusView.swift - Battery label
         public static let battery = L10n.tr("RemoteNodes", "remoteNodes.status.battery", fallback: "Battery")
         /// Location: RepeaterStatusView.swift - Battery curve section label
@@ -2827,9 +3279,15 @@ public enum L10n {
         public static let packetsReceived = L10n.tr("RemoteNodes", "remoteNodes.status.packetsReceived", fallback: "Packets Received")
         /// Location: RepeaterStatusView.swift - Packets sent label
         public static let packetsSent = L10n.tr("RemoteNodes", "remoteNodes.status.packetsSent", fallback: "Packets Sent")
+        /// Location: RepeaterStatusView.swift - Accessibility label for possible match indicator
+        public static let possibleMatch = L10n.tr("RemoteNodes", "remoteNodes.status.possibleMatch", fallback: "Possible match, matched by short prefix")
+        /// Location: RepeaterStatusView.swift - Explanation of what a possible match means
+        public static let possibleMatchExplanation = L10n.tr("RemoteNodes", "remoteNodes.status.possibleMatchExplanation", fallback: "Multiple nodes share this prefix. The displayed name may not be correct.")
+        /// Location: RepeaterStatusView.swift - Title for possible match explanation popover
+        public static let possibleMatchTitle = L10n.tr("RemoteNodes", "remoteNodes.status.possibleMatchTitle", fallback: "Possible Match")
         /// Location: RepeaterStatusView.swift - Receive errors label
         public static let receiveErrors = L10n.tr("RemoteNodes", "remoteNodes.status.receiveErrors", fallback: "Packet Errors Received")
-        /// Location: RepeaterStatusView.swift, RoomStatusView.swift - Refresh button accessibility label
+        /// Location: NodeTelemetryView.swift - Refresh button accessibility label
         public static let refresh = L10n.tr("RemoteNodes", "remoteNodes.status.refresh", fallback: "Refresh")
         /// Location: RepeaterStatusViewModel.swift - Request timed out
         public static let requestTimedOut = L10n.tr("RemoteNodes", "remoteNodes.status.requestTimedOut", fallback: "Request timed out")
@@ -2847,6 +3305,8 @@ public enum L10n {
         public static let telemetry = L10n.tr("RemoteNodes", "remoteNodes.status.telemetry", fallback: "Telemetry")
         /// Location: RepeaterStatusView.swift - Telemetry section footer
         public static let telemetryFooter = L10n.tr("RemoteNodes", "remoteNodes.status.telemetryFooter", fallback: "Sensor readings such as temperature, humidity, and voltage.")
+        /// Timed out or contact has telemetry disabled
+        public static let telemetryTimedOut = L10n.tr("RemoteNodes", "remoteNodes.status.telemetryTimedOut", fallback: "Timed out or contact has telemetry disabled")
         /// Location: RepeaterStatusView.swift - Navigation title
         public static let title = L10n.tr("RemoteNodes", "remoteNodes.status.title", fallback: "Repeater Status")
         /// Location: RepeaterStatusView.swift - Unknown neighbor name
@@ -2869,6 +3329,14 @@ public enum L10n {
         public static func uptimeMinutes(_ p1: Int) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.status.uptimeMinutes", p1, fallback: "%dm")
         }
+        public enum Accessibility {
+          /// Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for owner info
+          public static let reloadOwnerInfo = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadOwnerInfo", fallback: "Reload contact info")
+          /// Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for the status counters
+          public static let reloadStatus = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadStatus", fallback: "Reload status")
+          /// Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for telemetry
+          public static let reloadTelemetry = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadTelemetry", fallback: "Reload telemetry")
+        }
       }
     }
   }
@@ -2884,6 +3352,180 @@ public enum L10n {
     /// Version display prefix with version number
     public static func version(_ p1: Any) -> String {
       return L10n.tr("Settings", "version", String(describing: p1), fallback: "v%@")
+    }
+    public enum Appearance {
+      /// MARK: Appearance (selection) screen
+      public static let title = L10n.tr("Settings", "Appearance.Title", fallback: "Appearance")
+      public enum Accessibility {
+        /// VoiceOver announcement when a refund reverts the active theme to the default
+        public static let themeReverted = L10n.tr("Settings", "Appearance.Accessibility.ThemeReverted", fallback: "Theme reverted to the default.")
+        public enum Swatch {
+          /// %@, dark only
+          public static func darkOnly(_ p1: Any) -> String {
+            return L10n.tr("Settings", "Appearance.Accessibility.Swatch.DarkOnly", String(describing: p1), fallback: "%@, dark only")
+          }
+          /// %@, light and dark variants
+          public static func dualMode(_ p1: Any) -> String {
+            return L10n.tr("Settings", "Appearance.Accessibility.Swatch.DualMode", String(describing: p1), fallback: "%@, light and dark variants")
+          }
+        }
+        public enum ThemeCard {
+          /// Applies this theme
+          public static let ownedHint = L10n.tr("Settings", "Appearance.Accessibility.ThemeCard.OwnedHint", fallback: "Applies this theme")
+          /// MARK: Appearance accessibility
+          public static func ownedLabel(_ p1: Any) -> String {
+            return L10n.tr("Settings", "Appearance.Accessibility.ThemeCard.OwnedLabel", String(describing: p1), fallback: "Theme %@, owned")
+          }
+          /// Theme %@, currently selected
+          public static func selectedLabel(_ p1: Any) -> String {
+            return L10n.tr("Settings", "Appearance.Accessibility.ThemeCard.SelectedLabel", String(describing: p1), fallback: "Theme %@, currently selected")
+          }
+        }
+      }
+      public enum MoreThemes {
+        /// Purchase More Themes
+        public static let link = L10n.tr("Settings", "Appearance.MoreThemes.Link", fallback: "Purchase More Themes")
+      }
+      public enum Scheme {
+        /// Dark
+        public static let dark = L10n.tr("Settings", "Appearance.Scheme.Dark", fallback: "Dark")
+        /// Light/Dark Mode
+        public static let header = L10n.tr("Settings", "Appearance.Scheme.Header", fallback: "Light/Dark Mode")
+        /// Light
+        public static let light = L10n.tr("Settings", "Appearance.Scheme.Light", fallback: "Light")
+        /// System
+        public static let system = L10n.tr("Settings", "Appearance.Scheme.System", fallback: "System")
+      }
+      public enum Themes {
+        /// Choose a theme
+        public static let header = L10n.tr("Settings", "Appearance.Themes.Header", fallback: "Choose a theme")
+        /// Selected
+        public static let selected = L10n.tr("Settings", "Appearance.Themes.Selected", fallback: "Selected")
+      }
+    }
+    public enum Support {
+      /// MARK: Support (purchase) screen
+      public static let title = L10n.tr("Settings", "Support.Title", fallback: "Support Development")
+      public enum Accessibility {
+        /// Thank you for your tip.
+        public static let tipConfirmAnnouncement = L10n.tr("Settings", "Support.Accessibility.TipConfirmAnnouncement", fallback: "Thank you for your tip.")
+        public enum BundleCard {
+          /// All Themes bundle, loading price
+          public static let loadingLabel = L10n.tr("Settings", "Support.Accessibility.BundleCard.LoadingLabel", fallback: "All Themes bundle, loading price")
+          /// Purchases the All Themes bundle
+          public static let lockedHint = L10n.tr("Settings", "Support.Accessibility.BundleCard.LockedHint", fallback: "Purchases the All Themes bundle")
+          /// All Themes bundle, locked, %@
+          public static func lockedLabel(_ p1: Any) -> String {
+            return L10n.tr("Settings", "Support.Accessibility.BundleCard.LockedLabel", String(describing: p1), fallback: "All Themes bundle, locked, %@")
+          }
+        }
+        public enum ContributionRow {
+          /// Sends a thank-you tip
+          public static let hint = L10n.tr("Settings", "Support.Accessibility.ContributionRow.Hint", fallback: "Sends a thank-you tip")
+          /// %1$@, %2$@
+          public static func label(_ p1: Any, _ p2: Any) -> String {
+            return L10n.tr("Settings", "Support.Accessibility.ContributionRow.Label", String(describing: p1), String(describing: p2), fallback: "%1$@, %2$@")
+          }
+        }
+        public enum ThemeCard {
+          /// MARK: Support accessibility (label = identity+state, hint = action)
+          public static func lockedLabel(_ p1: Any) -> String {
+            return L10n.tr("Settings", "Support.Accessibility.ThemeCard.LockedLabel", String(describing: p1), fallback: "Theme %@, locked")
+          }
+          /// Theme %@, owned
+          public static func ownedLabel(_ p1: Any) -> String {
+            return L10n.tr("Settings", "Support.Accessibility.ThemeCard.OwnedLabel", String(describing: p1), fallback: "Theme %@, owned")
+          }
+        }
+      }
+      public enum Bundle {
+        /// Including any themes added later.
+        public static let subtitle = L10n.tr("Settings", "Support.Bundle.Subtitle", fallback: "Including any themes added later.")
+        /// All Themes
+        public static let title = L10n.tr("Settings", "Support.Bundle.Title", fallback: "All Themes")
+      }
+      public enum Contact {
+        /// Email the developer
+        public static let link = L10n.tr("Settings", "Support.Contact.Link", fallback: "Email the developer")
+      }
+      public enum Contributions {
+        /// Contribute %@
+        public static func confirmButton(_ p1: Any) -> String {
+          return L10n.tr("Settings", "Support.Contributions.ConfirmButton", String(describing: p1), fallback: "Contribute %@")
+        }
+        /// Tips are a thank-you and support MC1's development. They don't include any goods, services, or membership benefits.
+        public static let footer = L10n.tr("Settings", "Support.Contributions.Footer", fallback: "Tips are a thank-you and support MC1's development. They don't include any goods, services, or membership benefits.")
+        /// Send a %@?
+        public static func highValueConfirm(_ p1: Any) -> String {
+          return L10n.tr("Settings", "Support.Contributions.HighValueConfirm", String(describing: p1), fallback: "Send a %@?")
+        }
+        /// Tips
+        public static let title = L10n.tr("Settings", "Support.Contributions.Title", fallback: "Tips")
+      }
+      public enum Error {
+        /// Network unavailable.
+        public static let networkUnavailable = L10n.tr("Settings", "Support.Error.NetworkUnavailable", fallback: "Network unavailable.")
+        /// Purchases are restricted on this device. Check Screen Time content restrictions.
+        public static let notEntitled = L10n.tr("Settings", "Support.Error.NotEntitled", fallback: "Purchases are restricted on this device. Check Screen Time content restrictions.")
+        /// Product not found.
+        public static let productNotFound = L10n.tr("Settings", "Support.Error.ProductNotFound", fallback: "Product not found.")
+        /// MARK: Support error messages (mapped from StoreServiceError)
+        public static let productsNotLoaded = L10n.tr("Settings", "Support.Error.ProductsNotLoaded", fallback: "Products could not be loaded.")
+        /// Purchase failed: %@
+        public static func purchaseFailed(_ p1: Any) -> String {
+          return L10n.tr("Settings", "Support.Error.PurchaseFailed", String(describing: p1), fallback: "Purchase failed: %@")
+        }
+        /// This product isn't available in your region.
+        public static let storefrontUnavailable = L10n.tr("Settings", "Support.Error.StorefrontUnavailable", fallback: "This product isn't available in your region.")
+        /// Error shown when applying a theme the user does not own
+        public static let themeNotOwned = L10n.tr("Settings", "Support.Error.ThemeNotOwned", fallback: "You don't own this theme.")
+        /// In-app purchases aren't supported on this device.
+        public static let unsupported = L10n.tr("Settings", "Support.Error.Unsupported", fallback: "In-app purchases aren't supported on this device.")
+        /// Could not verify your purchase.
+        public static let verificationFailed = L10n.tr("Settings", "Support.Error.VerificationFailed", fallback: "Could not verify your purchase.")
+      }
+      public enum Header {
+        /// If you love MC1, here are some ways to support its development! Everything here is optional, just a few tips and some extra themes.
+        public static let body = L10n.tr("Settings", "Support.Header.Body", fallback: "If you love MC1, here are some ways to support its development! Everything here is optional, just a few tips and some extra themes.")
+      }
+      public enum Pending {
+        /// Waiting for approval. Your purchase unlocks as soon as it's approved.
+        public static let banner = L10n.tr("Settings", "Support.Pending.Banner", fallback: "Waiting for approval. Your purchase unlocks as soon as it's approved.")
+        /// Awaiting approval
+        public static let button = L10n.tr("Settings", "Support.Pending.Button", fallback: "Awaiting approval")
+      }
+      public enum Refund {
+        /// Request a refund
+        public static let link = L10n.tr("Settings", "Support.Refund.Link", fallback: "Request a refund")
+      }
+      public enum Restore {
+        /// Restore Purchases
+        public static let button = L10n.tr("Settings", "Support.Restore.Button", fallback: "Restore Purchases")
+        /// Restoring…
+        public static let syncing = L10n.tr("Settings", "Support.Restore.Syncing", fallback: "Restoring…")
+      }
+      public enum Theme {
+        /// MARK: Theme display names
+        public static let `default` = L10n.tr("Settings", "Support.Theme.Default", fallback: "Default")
+        /// Ember
+        public static let ember = L10n.tr("Settings", "Support.Theme.Ember", fallback: "Ember")
+        /// Fern
+        public static let fern = L10n.tr("Settings", "Support.Theme.Fern", fallback: "Fern")
+        /// Lavender
+        public static let lavender = L10n.tr("Settings", "Support.Theme.Lavender", fallback: "Lavender")
+        /// Marine
+        public static let marine = L10n.tr("Settings", "Support.Theme.Marine", fallback: "Marine")
+        /// Olive
+        public static let olive = L10n.tr("Settings", "Support.Theme.Olive", fallback: "Olive")
+      }
+      public enum Themes {
+        /// Owned
+        public static let owned = L10n.tr("Settings", "Support.Themes.Owned", fallback: "Owned")
+        /// Apply your new theme in Settings → Appearance.
+        public static let purchasedFooter = L10n.tr("Settings", "Support.Themes.PurchasedFooter", fallback: "Apply your new theme in Settings → Appearance.")
+        /// Themes
+        public static let title = L10n.tr("Settings", "Support.Themes.Title", fallback: "Themes")
+      }
     }
     public enum About {
       /// Link to GitHub repository
@@ -3003,7 +3645,7 @@ public enum L10n {
         public static let notDescending = L10n.tr("Settings", "batteryCurve.validation.notDescending", fallback: "Values must be in descending order")
         /// Validation error for value out of range - %d is the percentage level
         public static func outOfRange(_ p1: Int) -> String {
-          return L10n.tr("Settings", "batteryCurve.validation.outOfRange", p1, fallback: "Value at %d%% must be 1000-5000 mV")
+          return L10n.tr("Settings", "batteryCurve.validation.outOfRange", p1, fallback: "Value at %d%% must be 1000-9000 mV")
         }
       }
     }
@@ -3043,6 +3685,8 @@ public enum L10n {
         public static let disconnected = L10n.tr("Settings", "bleStatus.status.disconnected", fallback: "Disconnected")
         /// Status shown when device is ready
         public static let ready = L10n.tr("Settings", "bleStatus.status.ready", fallback: "Ready")
+        /// Status shown when device is syncing data
+        public static let syncing = L10n.tr("Settings", "bleStatus.status.syncing", fallback: "Syncing")
       }
     }
     public enum Blocking {
@@ -3190,6 +3834,8 @@ public enum L10n {
       public static let applyButtonOverwrite = L10n.tr("Settings", "configImport.applyButtonOverwrite", fallback: "Overwrite Settings")
       /// Import cancelled
       public static let cancelled = L10n.tr("Settings", "configImport.cancelled", fallback: "Import was cancelled.")
+      /// Import cancelled after one or more settings were already written to the device
+      public static let cancelledPartial = L10n.tr("Settings", "configImport.cancelledPartial", fallback: "Import cancelled, but some settings were already written to the device. Review the device's configuration.")
       /// Cannot access file error
       public static let cannotAccess = L10n.tr("Settings", "configImport.cannotAccess", fallback: "Cannot access the selected file.")
       /// Channel count (param: integer)
@@ -3226,6 +3872,10 @@ public enum L10n {
       public static func current(_ p1: Any) -> String {
         return L10n.tr("Settings", "configImport.current", String(describing: p1), fallback: "Current: %@")
       }
+      /// Import failed after one or more settings were already written; %@ is the underlying error message
+      public static func failedPartial(_ p1: Any) -> String {
+        return L10n.tr("Settings", "configImport.failedPartial", String(describing: p1), fallback: "%@ Some settings may have already been written to the device. Review the device's configuration.")
+      }
       /// Import navigation row label
       public static let importConfig = L10n.tr("Settings", "configImport.importConfig", fallback: "Import Config")
       /// Import success
@@ -3242,8 +3892,68 @@ public enum L10n {
       public static let radioWarning = L10n.tr("Settings", "configImport.radioWarning", fallback: "Changing radio settings will disconnect from the current mesh network")
       /// Select file button
       public static let selectFile = L10n.tr("Settings", "configImport.selectFile", fallback: "Select JSON File")
+      /// Import progress: importing a channel (param: channel name)
+      public static func stepChannel(_ p1: Any) -> String {
+        return L10n.tr("Settings", "configImport.stepChannel", String(describing: p1), fallback: "Importing channel: %@")
+      }
+      /// Import progress: importing a contact (param: contact name)
+      public static func stepContact(_ p1: Any) -> String {
+        return L10n.tr("Settings", "configImport.stepContact", String(describing: p1), fallback: "Importing contact: %@")
+      }
+      /// Import progress: setting the node name
+      public static let stepNodeName = L10n.tr("Settings", "configImport.stepNodeName", fallback: "Setting node name")
+      /// Import progress: applying other parameters
+      public static let stepOtherParameters = L10n.tr("Settings", "configImport.stepOtherParameters", fallback: "Setting other parameters")
+      /// Import progress: applying position
+      public static let stepPosition = L10n.tr("Settings", "configImport.stepPosition", fallback: "Setting position")
+      /// Import progress: importing the private key
+      public static let stepPrivateKey = L10n.tr("Settings", "configImport.stepPrivateKey", fallback: "Importing private key")
+      /// Import progress: applying radio parameters
+      public static let stepRadioParameters = L10n.tr("Settings", "configImport.stepRadioParameters", fallback: "Setting radio parameters")
+      /// Import progress: setting TX power
+      public static let stepTxPower = L10n.tr("Settings", "configImport.stepTxPower", fallback: "Setting TX power")
+      /// Generic device-name fallback used in confirmation messages when the node has no name
+      public static let thisDevice = L10n.tr("Settings", "configImport.thisDevice", fallback: "this device")
       /// Import screen navigation title
       public static let title = L10n.tr("Settings", "configImport.title", fallback: "Import Configuration")
+      public enum Error {
+        /// Validation error: not enough free contact slots (params: needed count, available count)
+        public static func contactCapacityExceeded(_ p1: Int, _ p2: Int) -> String {
+          return L10n.tr("Settings", "configImport.error.contactCapacityExceeded", p1, p2, fallback: "Import needs %d free contact slot(s) but only %d remain on the device")
+        }
+        /// Validation error: contact coordinate invalid (params: contact name, field label)
+        public static func contactCoordinateInvalid(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Settings", "configImport.error.contactCoordinateInvalid", String(describing: p1), String(describing: p2), fallback: "Contact \"%@\" %@ has an invalid or out-of-range coordinate")
+        }
+        /// Validation error: contact has an invalid routing path (param: contact name)
+        public static func invalidOutPath(_ p1: Any) -> String {
+          return L10n.tr("Settings", "configImport.error.invalidOutPath", String(describing: p1), fallback: "Contact \"%@\" has an invalid routing path")
+        }
+        /// Validation error: invalid coordinate (param: field label)
+        public static func positionInvalid(_ p1: Any) -> String {
+          return L10n.tr("Settings", "configImport.error.positionInvalid", String(describing: p1), fallback: "%@ has an invalid or out-of-range coordinate")
+        }
+        /// Validation error: value outside radio's supported range (param: field label)
+        public static func radioOutOfRange(_ p1: Any) -> String {
+          return L10n.tr("Settings", "configImport.error.radioOutOfRange", String(describing: p1), fallback: "%@ is outside the radio's supported range")
+        }
+      }
+      public enum Field {
+        /// Validation field label: radio bandwidth
+        public static let bandwidth = L10n.tr("Settings", "configImport.field.bandwidth", fallback: "Bandwidth")
+        /// Validation field label: coding rate
+        public static let codingRate = L10n.tr("Settings", "configImport.field.codingRate", fallback: "Coding rate")
+        /// Validation field label: radio frequency
+        public static let frequency = L10n.tr("Settings", "configImport.field.frequency", fallback: "Frequency")
+        /// Validation field label: latitude
+        public static let latitude = L10n.tr("Settings", "configImport.field.latitude", fallback: "Latitude")
+        /// Validation field label: longitude
+        public static let longitude = L10n.tr("Settings", "configImport.field.longitude", fallback: "Longitude")
+        /// Validation field label: spreading factor
+        public static let spreadingFactor = L10n.tr("Settings", "configImport.field.spreadingFactor", fallback: "Spreading factor")
+        /// Validation field label: TX power
+        public static let txPower = L10n.tr("Settings", "configImport.field.txPower", fallback: "TX power")
+      }
     }
     public enum Contacts {
       /// Toggle label for auto-add nodes
@@ -3271,14 +3981,6 @@ public enum L10n {
       /// Text shown while resetting
       public static let resetting = L10n.tr("Settings", "dangerZone.resetting", fallback: "Resetting...")
       public enum Alert {
-        public enum Forget {
-          /// Button to confirm forget
-          public static let confirm = L10n.tr("Settings", "dangerZone.alert.forget.confirm", fallback: "Forget")
-          /// Alert message for forget device
-          public static let message = L10n.tr("Settings", "dangerZone.alert.forget.message", fallback: "This will remove the device from your paired devices. You can pair it again later.")
-          /// Alert title for forget device confirmation
-          public static let title = L10n.tr("Settings", "dangerZone.alert.forget.title", fallback: "Forget Device")
-        }
         public enum RemoveUnfavorited {
           /// Button to confirm removal
           public static let confirm = L10n.tr("Settings", "dangerZone.alert.removeUnfavorited.confirm", fallback: "Remove Nodes")
@@ -3306,10 +4008,30 @@ public enum L10n {
           public static let title = L10n.tr("Settings", "dangerZone.alert.reset.title", fallback: "Factory Reset")
         }
       }
+      public enum Dialog {
+        public enum Forget {
+          /// Button to forget device and delete all associated data
+          public static let deleteAll = L10n.tr("Settings", "dangerZone.dialog.forget.deleteAll", fallback: "Forget Device & Delete Data")
+          /// Button to forget device but keep data
+          public static let keepData = L10n.tr("Settings", "dangerZone.dialog.forget.keepData", fallback: "Forget Device")
+          /// Confirmation dialog message for forget device
+          public static let message = L10n.tr("Settings", "dangerZone.dialog.forget.message", fallback: "Your device will be unpaired. You can choose to keep or delete your messages, contacts, and channels.")
+          /// Confirmation dialog title for forget device
+          public static let title = L10n.tr("Settings", "dangerZone.dialog.forget.title", fallback: "Forget Device")
+        }
+      }
       public enum Error {
         /// Error when services are not available
         public static let servicesUnavailable = L10n.tr("Settings", "dangerZone.error.servicesUnavailable", fallback: "Services not available")
       }
+    }
+    public enum DefaultFloodScope {
+      /// Option to clear the persisted default flood scope
+      public static let disabled = L10n.tr("Settings", "defaultFloodScope.disabled", fallback: "None")
+      /// Footer explaining default flood scope
+      public static let footer = L10n.tr("Settings", "defaultFloodScope.footer", fallback: "When set, the device applies this scope to flood sends unless a channel-specific scope overrides it. The scope is saved on the device and survives reboots.")
+      /// Section header for default flood scope picker
+      public static let header = L10n.tr("Settings", "defaultFloodScope.header", fallback: "Default Flood Scope")
     }
     public enum DemoMode {
       /// Toggle label to enable demo mode
@@ -3473,6 +4195,14 @@ public enum L10n {
         public static let exportFailed = L10n.tr("Settings", "diagnostics.error.exportFailed", fallback: "Failed to create export file")
       }
     }
+    public enum DirectMessages {
+      /// Picker label for number of acknowledgments
+      public static let acknowledgments = L10n.tr("Settings", "directMessages.acknowledgments", fallback: "Acknowledgments")
+      /// Footer explaining the acknowledgments setting
+      public static let footer = L10n.tr("Settings", "directMessages.footer", fallback: "Number of acknowledgments sent per direct message. Use 2 for better delivery confirmation over unreliable links.")
+      /// Section header for direct message settings
+      public static let header = L10n.tr("Settings", "directMessages.header", fallback: "Direct Messages")
+    }
     public enum ImportKey {
       /// Button to import the key
       public static let `import` = L10n.tr("Settings", "importKey.import", fallback: "Import Key")
@@ -3575,15 +4305,27 @@ public enum L10n {
       /// Navigation title for location picker
       public static let title = L10n.tr("Settings", "locationPicker.title", fallback: "Set Location")
     }
+    public enum MapPreviews {
+      /// Footer explaining map preview privacy implications
+      public static let footer = L10n.tr("Settings", "mapPreviews.footer", fallback: "Showing map thumbnails fetches map tiles for the coordinate from a third-party server, which may reveal your IP address.")
+      /// Section header for chat map preview settings
+      public static let header = L10n.tr("Settings", "mapPreviews.header", fallback: "Map Previews")
+      /// Toggle label for chat map thumbnails
+      public static let toggle = L10n.tr("Settings", "mapPreviews.toggle", fallback: "Show Map Thumbnails")
+    }
     public enum Messages {
       /// Footer explaining what the message display options show
-      public static let footer = L10n.tr("Settings", "messages.footer", fallback: "Display routing information inside incoming message bubbles.")
-      /// Section header for messages settings in advanced
-      public static let header = L10n.tr("Settings", "messages.header", fallback: "Messages")
+      public static let footer = L10n.tr("Settings", "messages.footer", fallback: "Display routing and timing information inside incoming message bubbles.")
+      /// Section header for message info settings in chats
+      public static let header = L10n.tr("Settings", "messages.header", fallback: "Message Info")
       /// Toggle label for showing hop count on incoming messages
-      public static let showIncomingHopCount = L10n.tr("Settings", "messages.showIncomingHopCount", fallback: "Show Incoming Hop Count")
+      public static let showIncomingHopCount = L10n.tr("Settings", "messages.showIncomingHopCount", fallback: "Incoming Hop Count")
       /// Toggle label for showing routing path on incoming messages
-      public static let showIncomingPath = L10n.tr("Settings", "messages.showIncomingPath", fallback: "Show Incoming Path")
+      public static let showIncomingPath = L10n.tr("Settings", "messages.showIncomingPath", fallback: "Incoming Path")
+      /// Toggle label for showing the radio region an incoming message was flooded under
+      public static let showIncomingRegion = L10n.tr("Settings", "messages.showIncomingRegion", fallback: "Incoming Region")
+      /// Toggle label for showing the raw uncorrected wire send time on incoming messages
+      public static let showIncomingSendTime = L10n.tr("Settings", "messages.showIncomingSendTime", fallback: "Incoming Send Time")
     }
     public enum MyDevice {
       /// Section header for device-specific settings
@@ -3670,12 +4412,12 @@ public enum L10n {
           return L10n.tr("Settings", "nodes.staleCleanup.days", p1, fallback: "%d days")
         }
         /// Footer describing the auto-remove feature (shown when toggle is off)
-        public static let footerDisabled = L10n.tr("Settings", "nodes.staleCleanup.footerDisabled", fallback: "Automatically removes non-favorite nodes that haven't been heard from after a set period. Favorites are never removed.")
+        public static let footerDisabled = L10n.tr("Settings", "nodes.staleCleanup.footerDisabled", fallback: "Automatically removes non-favorite nodes that haven't been modified within a set period. Favorites are never removed.")
         /// Footer when enabled but device is disconnected
         public static let footerDisconnected = L10n.tr("Settings", "nodes.staleCleanup.footerDisconnected", fallback: "Will check for old nodes on next connection. Favorites are never removed.")
         /// Footer when auto-remove is enabled (%d = day count)
         public static func footerEnabled(_ p1: Int) -> String {
-          return L10n.tr("Settings", "nodes.staleCleanup.footerEnabled", p1, fallback: "Non-favorite nodes not heard from in %d days are automatically removed on connection.")
+          return L10n.tr("Settings", "nodes.staleCleanup.footerEnabled", p1, fallback: "Non-favorite nodes not modified within %d days are automatically removed on connection.")
         }
         /// Footer when toggle is on but no threshold selected yet
         public static let footerSelect = L10n.tr("Settings", "nodes.staleCleanup.footerSelect", fallback: "Choose how long to keep nodes. Favorites are never removed.")
@@ -3704,6 +4446,12 @@ public enum L10n {
       public static let contactMessages = L10n.tr("Settings", "notifications.contactMessages", fallback: "Contact Messages")
       /// Label shown when notifications are disabled
       public static let disabled = L10n.tr("Settings", "notifications.disabled", fallback: "Notifications Disabled")
+      /// Toggle label for companion discovery notifications
+      public static let discoveryContact = L10n.tr("Settings", "notifications.discoveryContact", fallback: "Companion")
+      /// Toggle label for repeater discovery notifications
+      public static let discoveryRepeater = L10n.tr("Settings", "notifications.discoveryRepeater", fallback: "Repeater")
+      /// Toggle label for room discovery notifications
+      public static let discoveryRoom = L10n.tr("Settings", "notifications.discoveryRoom", fallback: "Room")
       /// Button to enable notifications
       public static let enable = L10n.tr("Settings", "notifications.enable", fallback: "Enable Notifications")
       /// Footer for notifications navigation row
@@ -3793,7 +4541,7 @@ public enum L10n {
     }
     public enum PathHashMode {
       /// Footer explaining path hash mode tradeoff
-      public static let footer = L10n.tr("Settings", "pathHashMode.footer", fallback: "Larger hashes reduce routing collisions but limit the maximum number of hops per path.")
+      public static let footer = L10n.tr("Settings", "pathHashMode.footer", fallback: "Larger hashes reduce routing collisions but limit the maximum number of hops per path. Repeaters running firmware older than 1.14.0 will not repeat messages with a hash size greater than 1 byte.")
       /// Section header for path hash mode
       public static let header = L10n.tr("Settings", "pathHashMode.header", fallback: "Path Hash Size")
       /// Label for path hash mode picker
@@ -3828,8 +4576,16 @@ public enum L10n {
       public static let footer = L10n.tr("Settings", "radio.footer", fallback: "Choose a preset matching your region. MeshCore devices must use the same radio settings in order to communicate.")
       /// Section header for radio settings
       public static let header = L10n.tr("Settings", "radio.header", fallback: "Radio")
+      /// Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region
+      public static func mismatchHint(_ p1: Any, _ p2: Any) -> String {
+        return L10n.tr("Settings", "radio.mismatchHint", String(describing: p1), String(describing: p2), fallback: "Your radio is on %@, not the recommended preset for %@.")
+      }
       /// Label for radio preset picker
       public static let preset = L10n.tr("Settings", "radio.preset", fallback: "Radio Preset")
+      /// Location: RadioPresetSection.swift - Footer line listing the user's region
+      public static func regionFooter(_ p1: Any) -> String {
+        return L10n.tr("Settings", "radio.regionFooter", String(describing: p1), fallback: "Showing recommended presets for %@.")
+      }
       /// Toggle label for repeat mode
       public static let repeatMode = L10n.tr("Settings", "radio.repeatMode", fallback: "Repeat Mode")
       public enum RepeatMode {
@@ -3899,11 +4655,209 @@ public enum L10n {
         public static let title = L10n.tr("Settings", "regenerateIdentity.sheet.title", fallback: "Regenerate Key")
       }
     }
+    public enum Region {
+      /// Location: SettingsView.swift - Detail row when region is unset
+      public static let notSet = L10n.tr("Settings", "region.notSet", fallback: "Not set")
+      /// Location: RegionSettingsView.swift - Title
+      public static let title = L10n.tr("Settings", "region.title", fallback: "Region")
+      public enum Subdivision {
+        /// Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name
+        public static let auQld = L10n.tr("Settings", "region.subdivision.AU-QLD", fallback: "Queensland")
+        /// Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name
+        public static let auSa = L10n.tr("Settings", "region.subdivision.AU-SA", fallback: "South Australia")
+        /// Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name
+        public static let auWa = L10n.tr("Settings", "region.subdivision.AU-WA", fallback: "Western Australia")
+        /// Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name
+        public static let usCa = L10n.tr("Settings", "region.subdivision.US-CA", fallback: "California")
+      }
+    }
     public enum ReplyWithQuote {
       /// Replying includes a preview of the original message.
       public static let footer = L10n.tr("Settings", "replyWithQuote.footer", fallback: "Replying includes a preview of the original message.")
       /// Reply with Quote
       public static let toggle = L10n.tr("Settings", "replyWithQuote.toggle", fallback: "Reply with Quote")
+    }
+    public enum Settings {
+      public enum Backup {
+        /// Navigation title for backup & restore screen
+        public static let title = L10n.tr("Settings", "settings.backup.title", fallback: "Backup & Restore")
+        public enum Error {
+          /// Backup error: manifest counts do not match arrays
+          public static let corruptedManifest = L10n.tr("Settings", "settings.backup.error.corrupted_manifest", fallback: "The backup file appears to be corrupted. The declared item counts do not match the actual data.")
+          /// Backup error: decompressed size exceeds safety cap; %d is max MB uncompressed
+          public static func decompressedTooLarge(_ p1: Int) -> String {
+            return L10n.tr("Settings", "settings.backup.error.decompressed_too_large", p1, fallback: "The backup file expands past the safe size limit (%d MB uncompressed).")
+          }
+          /// Backup error: export failed; %@ is underlying error
+          public static func exportFailed(_ p1: Any) -> String {
+            return L10n.tr("Settings", "settings.backup.error.export_failed", String(describing: p1), fallback: "Failed to create backup: %@")
+          }
+          /// Backup error: file exceeds parser size cap; %1$d actual MB, %2$d max MB
+          public static func fileTooLarge(_ p1: Int, _ p2: Int) -> String {
+            return L10n.tr("Settings", "settings.backup.error.file_too_large", p1, p2, fallback: "The backup file is too large to import (%1$d MB; limit is %2$d MB).")
+          }
+          /// Backup error: import failed; %@ is underlying error
+          public static func importFailed(_ p1: Any) -> String {
+            return L10n.tr("Settings", "settings.backup.error.import_failed", String(describing: p1), fallback: "Failed to import backup: %@")
+          }
+          /// Backup error: file is corrupt or unreadable
+          public static let invalidFile = L10n.tr("Settings", "settings.backup.error.invalid_file", fallback: "The backup file is invalid or could not be read.")
+          /// Backup error: file version too new; %1$d found, %2$d max supported
+          public static func unsupportedVersion(_ p1: Int, _ p2: Int) -> String {
+            return L10n.tr("Settings", "settings.backup.error.unsupported_version", p1, p2, fallback: "This backup was created with a newer format (version %1$d). This app supports up to version %2$d. Please update the app and try again.")
+          }
+        }
+        public enum Export {
+          /// Default filename for an exported backup; %@ is an ISO-style timestamp
+          public static func defaultFilename(_ p1: Any) -> String {
+            return L10n.tr("Settings", "settings.backup.export.default_filename", String(describing: p1), fallback: "MC1 Backup %@.mc1backup")
+          }
+          /// Export progress label
+          public static let progress = L10n.tr("Settings", "settings.backup.export.progress", fallback: "Preparing backup…")
+          /// Export row subtitle
+          public static let subtitle = L10n.tr("Settings", "settings.backup.export.subtitle", fallback: "Save to a .mc1backup file")
+          /// Export row title
+          public static let title = L10n.tr("Settings", "settings.backup.export.title", fallback: "Export App Data")
+          public enum Alert {
+            /// Export confirmation alert cancel button
+            public static let cancel = L10n.tr("Settings", "settings.backup.export.alert.cancel", fallback: "Cancel")
+            /// Export confirmation alert export button
+            public static let export = L10n.tr("Settings", "settings.backup.export.alert.export", fallback: "Export")
+            /// Export confirmation alert message
+            public static let message = L10n.tr("Settings", "settings.backup.export.alert.message", fallback: "This backup includes channel encryption keys, message history, your contact list, and the WiFi node's local network address and port. Store the exported file securely.")
+            /// Export confirmation alert title
+            public static let title = L10n.tr("Settings", "settings.backup.export.alert.title", fallback: "Security Notice")
+          }
+          public enum Success {
+            /// VoiceOver announcement when the export success sheet appears; %@ is the filename
+            public static func announcement(_ p1: Any) -> String {
+              return L10n.tr("Settings", "settings.backup.export.success.announcement", String(describing: p1), fallback: "Backup saved as %@")
+            }
+            /// Primary button on the export success sheet
+            public static let done = L10n.tr("Settings", "settings.backup.export.success.done", fallback: "Done")
+            /// Section header listing record counts included in the export
+            public static let includedSection = L10n.tr("Settings", "settings.backup.export.success.included_section", fallback: "Included in backup")
+            /// Hero title on the backup export success sheet
+            public static let title = L10n.tr("Settings", "settings.backup.export.success.title", fallback: "Backup saved")
+          }
+        }
+        public enum FileBackup {
+          /// Section footer for file backup
+          public static let footer = L10n.tr("Settings", "settings.backup.file_backup.footer", fallback: "Export or restore messages, contacts, channels, saved paths, and settings. Radio configuration is read from the device on each connection.")
+          /// Section header for file backup
+          public static let header = L10n.tr("Settings", "settings.backup.file_backup.header", fallback: "File Backup")
+        }
+        public enum Import {
+          /// Import cancelling label shown after the user taps Cancel during an active import
+          public static let cancelling = L10n.tr("Settings", "settings.backup.import.cancelling", fallback: "Cancelling…")
+          /// Footer shown above the backup section when a radio is connected, explaining why import is disabled
+          public static let disabledWhenConnected = L10n.tr("Settings", "settings.backup.import.disabled_when_connected", fallback: "Disconnect from your radio before importing a backup.")
+          /// File access error
+          public static let fileAccessError = L10n.tr("Settings", "settings.backup.import.file_access_error", fallback: "Could not access the selected file.")
+          /// Import parsing label
+          public static let parsing = L10n.tr("Settings", "settings.backup.import.parsing", fallback: "Reading backup…")
+          /// Import progress label
+          public static let progress = L10n.tr("Settings", "settings.backup.import.progress", fallback: "Importing data…")
+          /// Import row subtitle
+          public static let subtitle = L10n.tr("Settings", "settings.backup.import.subtitle", fallback: "Restore from a .mc1backup file")
+          /// Import row title
+          public static let title = L10n.tr("Settings", "settings.backup.import.title", fallback: "Import App Data")
+          public enum Cancelled {
+            /// Import cancelled message — rollback ran and nothing on device was changed
+            public static let message = L10n.tr("Settings", "settings.backup.import.cancelled.message", fallback: "No data was changed.")
+            /// Import cancelled title shown after user cancels an import before it commits
+            public static let title = L10n.tr("Settings", "settings.backup.import.cancelled.title", fallback: "Import Cancelled")
+          }
+          public enum Error {
+            /// Import error dismiss button
+            public static let dismiss = L10n.tr("Settings", "settings.backup.import.error.dismiss", fallback: "Dismiss")
+            /// Import failure title
+            public static let title = L10n.tr("Settings", "settings.backup.import.error.title", fallback: "Import Failed")
+          }
+          public enum NothingToImport {
+            /// Import subtitle when the backup had nothing new to add
+            public static let subtitle = L10n.tr("Settings", "settings.backup.import.nothing_to_import.subtitle", fallback: "This backup's contents are already on this device.")
+            /// Import header title when the backup had nothing new to add (every record was skipped)
+            public static let title = L10n.tr("Settings", "settings.backup.import.nothing_to_import.title", fallback: "Everything is already here")
+          }
+          public enum Preview {
+            /// Import preview label: app version
+            public static let appVersion = L10n.tr("Settings", "settings.backup.import.preview.app_version", fallback: "App Version")
+            /// Import preview manifest label: blocked senders
+            public static let blockedSenders = L10n.tr("Settings", "settings.backup.import.preview.blocked_senders", fallback: "Blocked Senders")
+            /// Import preview import button
+            public static let button = L10n.tr("Settings", "settings.backup.import.preview.button", fallback: "Import Data")
+            /// Import preview cancel / dismiss toolbar button
+            public static let cancel = L10n.tr("Settings", "settings.backup.import.preview.cancel", fallback: "Cancel")
+            /// Import preview manifest label: channels
+            public static let channels = L10n.tr("Settings", "settings.backup.import.preview.channels", fallback: "Channels")
+            /// Import preview manifest label: contacts
+            public static let contacts = L10n.tr("Settings", "settings.backup.import.preview.contacts", fallback: "Contacts")
+            /// Import preview section header: contents
+            public static let contents = L10n.tr("Settings", "settings.backup.import.preview.contents", fallback: "Contents")
+            /// Import preview section header: backup details
+            public static let details = L10n.tr("Settings", "settings.backup.import.preview.details", fallback: "Backup Details")
+            /// Import preview manifest label: devices
+            public static let devices = L10n.tr("Settings", "settings.backup.import.preview.devices", fallback: "Devices")
+            /// Import preview label: export date
+            public static let exported = L10n.tr("Settings", "settings.backup.import.preview.exported", fallback: "Export Date")
+            /// Import preview info text
+            public static let info = L10n.tr("Settings", "settings.backup.import.preview.info", fallback: "Only new data is added; existing records aren't overwritten. Contacts you deleted after this backup was made will reappear, and any block, mute, or favorite flags from the backup will be re-applied.")
+            /// Import preview manifest label: message repeats
+            public static let messageRepeats = L10n.tr("Settings", "settings.backup.import.preview.message_repeats", fallback: "Message Repeats")
+            /// Import preview manifest label: messages
+            public static let messages = L10n.tr("Settings", "settings.backup.import.preview.messages", fallback: "Messages")
+            /// Import preview manifest label: node status snapshots
+            public static let nodeStatusSnapshots = L10n.tr("Settings", "settings.backup.import.preview.node_status_snapshots", fallback: "Node Snapshots")
+            /// Import preview manifest label: reactions
+            public static let reactions = L10n.tr("Settings", "settings.backup.import.preview.reactions", fallback: "Reactions")
+            /// Import preview manifest label: remote node sessions
+            public static let remoteNodeSessions = L10n.tr("Settings", "settings.backup.import.preview.remote_node_sessions", fallback: "Remote Node Sessions")
+            /// Import preview manifest label: room messages
+            public static let roomMessages = L10n.tr("Settings", "settings.backup.import.preview.room_messages", fallback: "Room Messages")
+            /// Import preview manifest label: saved paths
+            public static let savedPaths = L10n.tr("Settings", "settings.backup.import.preview.saved_paths", fallback: "Saved Paths")
+            /// Import preview navigation title
+            public static let title = L10n.tr("Settings", "settings.backup.import.preview.title", fallback: "Import Preview")
+          }
+          public enum Success {
+            /// Import success section header: items that were newly added to this device
+            public static let addedSection = L10n.tr("Settings", "settings.backup.import.success.added_section", fallback: "Added to this device")
+            /// Import success section footer: always visible under the "Already on this device" section
+            public static let alreadyHereFooter = L10n.tr("Settings", "settings.backup.import.success.already_here_footer", fallback: "Your device's existing data was kept as-is; nothing was overwritten.")
+            /// Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict)
+            public static func alreadyHereRefreshed(_ p1: Int) -> String {
+              return L10n.tr("Settings", "settings.backup.import.success.already_here_refreshed", p1, fallback: "%d of these were refreshed with newer info from the backup.")
+            }
+            /// Import success section header: items in the backup that were already on this device
+            public static let alreadyHereSection = L10n.tr("Settings", "settings.backup.import.success.already_here_section", fallback: "Already on this device")
+            /// Import success disclosure row summary for the "Already on this device" section (pluralized in .stringsdict)
+            public static func alreadyHereSummary(_ p1: Int) -> String {
+              return L10n.tr("Settings", "settings.backup.import.success.already_here_summary", p1, fallback: "%d items already here")
+            }
+            /// Import success done button
+            public static let done = L10n.tr("Settings", "settings.backup.import.success.done", fallback: "Done")
+            /// Import success footer explaining why some channels couldn't be restored and how to recover them
+            public static let droppedFooter = L10n.tr("Settings", "settings.backup.import.success.dropped_footer", fallback: "These channels had no free slot on this radio, so they and their messages were not imported. Free a channel slot and import again to restore them.")
+            /// Import success section header: channels that had no free local slot and couldn't be restored
+            public static let droppedSection = L10n.tr("Settings", "settings.backup.import.success.dropped_section", fallback: "Couldn't be restored")
+            /// Import success disclosure row summary for the "Couldn't be restored" section
+            public static func droppedSummary(_ p1: Int) -> String {
+              return L10n.tr("Settings", "settings.backup.import.success.dropped_summary", p1, fallback: "%d items couldn't be restored")
+            }
+            /// Import success hero subtitle when new items were added (pluralized in .stringsdict)
+            public static func subtitleAdded(_ p1: Int) -> String {
+              return L10n.tr("Settings", "settings.backup.import.success.subtitle_added", p1, fallback: "%d items added.")
+            }
+            /// Import success hero subtitle when only existing items were refreshed (pluralized in .stringsdict)
+            public static func subtitleRefreshed(_ p1: Int) -> String {
+              return L10n.tr("Settings", "settings.backup.import.success.subtitle_refreshed", p1, fallback: "%d existing items refreshed.")
+            }
+            /// Import success title
+            public static let title = L10n.tr("Settings", "settings.backup.import.success.title", fallback: "Import Complete")
+          }
+        }
+      }
     }
     public enum Telemetry {
       /// Toggle label for allowing telemetry requests
@@ -4307,6 +5261,18 @@ public enum L10n {
           /// Location: LOSRepeaterTargetPinView.swift - Accessibility hint for repeater target
           public static let accessibilityHint = L10n.tr("Tools", "tools.lineOfSight.repeaterTarget.accessibilityHint", fallback: "Repeater placement marker")
         }
+        public enum Status {
+          /// Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: blocked
+          public static let blocked = L10n.tr("Tools", "tools.lineOfSight.status.blocked", fallback: "Blocked")
+          /// Location: ResultsCardView.swift - Subtitle shown when path is blocked
+          public static let blockedSubtitle = L10n.tr("Tools", "tools.lineOfSight.status.blockedSubtitle", fallback: "Direct path intersects terrain")
+          /// Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: clear
+          public static let clear = L10n.tr("Tools", "tools.lineOfSight.status.clear", fallback: "Clear")
+          /// Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: marginal
+          public static let marginal = L10n.tr("Tools", "tools.lineOfSight.status.marginal", fallback: "Marginal")
+          /// Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: partial obstruction
+          public static let partialObstruction = L10n.tr("Tools", "tools.lineOfSight.status.partialObstruction", fallback: "Partial obstruction")
+        }
       }
       public enum NodeDiscovery {
         /// Location: NodeDiscoveryView.swift - Error alert title
@@ -4483,6 +5449,10 @@ public enum L10n {
         public static func receivedTimes(_ p1: Int) -> String {
           return L10n.tr("Tools", "tools.rxLog.receivedTimes", p1, fallback: "Received %lld times")
         }
+        /// Location: RxLogView.swift - Region label
+        public static let regionLabel = L10n.tr("Tools", "tools.rxLog.regionLabel", fallback: "Region:")
+        /// Location: RxLogView.swift - Unresolved region value
+        public static let regionUnresolved = L10n.tr("Tools", "tools.rxLog.regionUnresolved", fallback: "Unknown")
         /// Location: RxLogView.swift - Filter menu section header
         public static let routeType = L10n.tr("Tools", "tools.rxLog.routeType", fallback: "Route Type")
         /// Location: RxLogView.swift - RSSI label

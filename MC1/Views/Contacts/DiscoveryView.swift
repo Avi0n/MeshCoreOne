@@ -5,6 +5,7 @@ import MC1Services
 /// Shows contacts discovered via advertisement that haven't been added to the device
 struct DiscoveryView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @State private var viewModel = DiscoveryViewModel()
     @State private var searchText = ""
     @State private var selectedSegment: DiscoverSegment = .all
@@ -36,32 +37,35 @@ struct DiscoveryView: View {
         )
     }
 
+    /// Segment picker as the pinned section header; `pinnedFilterHeaderBackground` documents the
+    /// per-OS backing.
+    private var pinnedFilterHeader: some View {
+        DiscoverSegmentPicker(selection: $selectedSegment, isSearching: isSearching)
+            .frame(maxWidth: .infinity)
+            .pinnedFilterHeaderBackground(theme)
+    }
+
+    @ViewBuilder
+    private var emptyState: some View {
+        Group {
+            if isSearching {
+                DiscoverySearchEmptyView(searchText: searchText)
+            } else {
+                DiscoveryEmptyView()
+            }
+        }
+        .containerRelativeFrame([.horizontal, .vertical])
+    }
+
     var body: some View {
         Group {
             if !viewModel.hasLoadedOnce {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if filteredNodes.isEmpty && !isSearching {
-                DiscoveryEmptyView(
-                    selectedSegment: $selectedSegment,
-                    isSearching: isSearching
-                )
-            } else if filteredNodes.isEmpty && isSearching {
-                DiscoverySearchEmptyView(
-                    selectedSegment: $selectedSegment,
-                    isSearching: isSearching,
-                    searchText: searchText
-                )
+                loadingBody
             } else {
-                DiscoveryNodesList(
-                    selectedSegment: $selectedSegment,
-                    isSearching: isSearching,
-                    filteredNodes: filteredNodes,
-                    viewModel: viewModel,
-                    addingNodeID: $addingNodeID
-                )
+                loadedBody
             }
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Contacts.Contacts.Discovery.title)
         .toolbar {
             ToolbarItem(placement: .automatic) {
@@ -81,11 +85,8 @@ struct DiscoveryView: View {
             prompt: L10n.Contacts.Contacts.Discovery.searchPrompt
         )
         .onChange(of: searchText) { _, newValue in
-            if !newValue.isEmpty && UIAccessibility.isVoiceOverRunning {
-                UIAccessibility.post(
-                    notification: .announcement,
-                    argument: L10n.Contacts.Contacts.Discovery.searchingAllTypes
-                )
+            if !newValue.isEmpty {
+                AccessibilityNotification.Announcement(L10n.Contacts.Contacts.Discovery.searchingAllTypes).post()
             }
         }
         .task {
@@ -122,106 +123,58 @@ struct DiscoveryView: View {
         }
     }
 
-    private func loadDiscoveredNodes() async {
-        guard let deviceID = appState.connectedDevice?.id else { return }
-        viewModel.configure(appState: appState)
-        await viewModel.loadDiscoveredNodes(deviceID: deviceID)
-    }
+    /// Leading inset for the inter-row divider, aligning it under the row text past the avatar.
+    private static let rowSeparatorLeadingInset: CGFloat = 72
 
-    private func clearAllDiscoveredNodes() async {
-        guard let deviceID = appState.connectedDevice?.id else { return }
-        await viewModel.clearAllDiscoveredNodes(deviceID: deviceID)
-
-        if UIAccessibility.isVoiceOverRunning {
-            UIAccessibility.post(
-                notification: .announcement,
-                argument: L10n.Contacts.Contacts.Discovery.clearedAllNodes
-            )
-        }
-    }
-}
-
-// MARK: - Empty View
-
-private struct DiscoveryEmptyView: View {
-    @Binding var selectedSegment: DiscoverSegment
-    let isSearching: Bool
-
-    var body: some View {
-        VStack {
-            DiscoverSegmentPicker(selection: $selectedSegment, isSearching: isSearching)
-
-            Spacer()
-
-            ContentUnavailableView(
-                L10n.Contacts.Contacts.Discovery.Empty.title,
-                systemImage: "antenna.radiowaves.left.and.right",
-                description: Text(L10n.Contacts.Contacts.Discovery.Empty.description)
-            )
-
-            Spacer()
-        }
-    }
-}
-
-// MARK: - Search Empty View
-
-private struct DiscoverySearchEmptyView: View {
-    @Binding var selectedSegment: DiscoverSegment
-    let isSearching: Bool
-    let searchText: String
-
-    var body: some View {
-        VStack {
-            DiscoverSegmentPicker(selection: $selectedSegment, isSearching: isSearching)
-
-            Spacer()
-
-            ContentUnavailableView(
-                L10n.Contacts.Contacts.Discovery.Empty.Search.title,
-                systemImage: "magnifyingglass",
-                description: Text(L10n.Contacts.Contacts.Discovery.Empty.Search.description(searchText))
-            )
-
-            Spacer()
-        }
-    }
-}
-
-// MARK: - Nodes List
-
-private struct DiscoveryNodesList: View {
-    @Environment(\.appState) private var appState
-    @Binding var selectedSegment: DiscoverSegment
-    let isSearching: Bool
-    let filteredNodes: [DiscoveredNodeDTO]
-    let viewModel: DiscoveryViewModel
-    @Binding var addingNodeID: UUID?
-
-    var body: some View {
-        List {
-            Section {
-                DiscoverSegmentPicker(selection: $selectedSegment, isSearching: isSearching)
+    private var loadingBody: some View {
+        ScrollView {
+            LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+                Section { } header: { pinnedFilterHeader }
             }
-            .listRowInsets(EdgeInsets())
-            .listRowBackground(Color.clear)
-            .listSectionSeparator(.hidden)
+        }
+        .overlay { ProgressView() }
+    }
 
-            ForEach(filteredNodes) { node in
-                DiscoveryNodeRow(
-                    node: node,
-                    isAdded: viewModel.isAdded(node),
-                    isAdding: addingNodeID == node.id,
-                    onAdd: { addNode(node) },
-                    onDelete: {
-                        Task {
-                            await viewModel.deleteDiscoveredNode(node)
-                        }
+    private var loadedBody: some View {
+        ScrollView {
+            LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+                Section {
+                    if filteredNodes.isEmpty {
+                        emptyState
+                    } else {
+                        rows
                     }
-                )
+                } header: {
+                    pinnedFilterHeader
+                }
             }
         }
-        .listStyle(.plain)
+    }
+
+    private var rows: some View {
+        ForEach(Array(filteredNodes.enumerated()), id: \.element.id) { index, node in
+            DiscoveryNodeRow(
+                node: node,
+                isAdded: viewModel.isAdded(node),
+                isAdding: addingNodeID == node.id,
+                onAdd: { addNode(node) },
+                onDelete: {
+                    Task {
+                        await viewModel.deleteDiscoveredNode(node)
+                    }
+                }
+            )
+            .transition(.opacity)
+            if index < filteredNodes.count - 1 {
+                Divider().padding(.leading, Self.rowSeparatorLeadingInset)
+            }
+        }
+    }
+
+    private func loadDiscoveredNodes() async {
+        guard let radioID = appState.connectedDevice?.radioID else { return }
+        viewModel.configure(appState: appState)
+        await viewModel.loadDiscoveredNodes(radioID: radioID)
     }
 
     private func addNode(_ node: DiscoveredNodeDTO) {
@@ -242,8 +195,8 @@ private struct DiscoveryNodesList: View {
                     longitude: node.longitude,
                     lastModified: 0
                 )
-                try await contactService.addOrUpdateContact(deviceID: node.deviceID, contact: frame)
-                await viewModel.loadDiscoveredNodes(deviceID: node.deviceID)
+                try await contactService.addOrUpdateContact(radioID: node.radioID, contact: frame)
+                await viewModel.loadDiscoveredNodes(radioID: node.radioID)
             } catch ContactServiceError.contactTableFull {
                 let maxContacts = appState.connectedDevice?.maxContacts
                 if let maxContacts {
@@ -257,6 +210,45 @@ private struct DiscoveryNodesList: View {
             addingNodeID = nil
         }
     }
+
+    private func clearAllDiscoveredNodes() async {
+        guard let radioID = appState.connectedDevice?.radioID else { return }
+        await viewModel.clearAllDiscoveredNodes(radioID: radioID)
+
+        AccessibilityNotification.Announcement(L10n.Contacts.Contacts.Discovery.clearedAllNodes).post()
+    }
+}
+
+// MARK: - Empty View
+
+private struct DiscoveryEmptyView: View {
+    var body: some View {
+        ContentUnavailableView(
+            L10n.Contacts.Contacts.Discovery.Empty.title,
+            systemImage: "antenna.radiowaves.left.and.right",
+            description: Text(L10n.Contacts.Contacts.Discovery.Empty.description)
+        )
+    }
+}
+
+// MARK: - Search Empty View
+
+private struct DiscoverySearchEmptyView: View {
+    let searchText: String
+
+    var body: some View {
+        ContentUnavailableView(
+            L10n.Contacts.Contacts.Discovery.Empty.Search.title,
+            systemImage: "magnifyingglass",
+            description: Text(L10n.Contacts.Contacts.Discovery.Empty.Search.description(searchText))
+        )
+    }
+}
+
+// MARK: - Row Layout
+
+private enum DiscoveryListLayout {
+    static let rowHorizontalPadding: CGFloat = 16
 }
 
 // MARK: - Node Row
@@ -340,8 +332,11 @@ private struct DiscoveryNodeRow: View {
                 .disabled(isAdding)
             }
         }
+        .padding(.horizontal, DiscoveryListLayout.rowHorizontalPadding)
         .padding(.vertical, 4)
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(.rect)
+        .contextMenu {
             Button(role: .destructive) {
                 onDelete()
             } label: {

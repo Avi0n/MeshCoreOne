@@ -4,6 +4,7 @@ import MC1Services
 /// View for re-adding the public channel on slot 0
 struct JoinPublicChannelView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     let onComplete: (ChannelDTO?) -> Void
 
@@ -33,12 +34,14 @@ struct JoinPublicChannelView: View {
                     Spacer()
                 }
             }
+            .themedRowBackground(theme)
 
             if let errorMessage {
                 Section {
                     Text(errorMessage)
                         .foregroundStyle(.red)
                 }
+                .themedRowBackground(theme)
             }
 
             Section {
@@ -59,13 +62,15 @@ struct JoinPublicChannelView: View {
                 }
                 .disabled(isJoining)
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Chats.Chats.JoinPublic.title)
         .navigationBarTitleDisplayMode(.inline)
     }
 
     private func joinPublicChannel() async {
-        guard let deviceID = appState.connectedDevice?.id else {
+        guard let radioID = appState.connectedDevice?.radioID else {
             errorMessage = L10n.Chats.Chats.Error.noDeviceConnected
             return
         }
@@ -78,11 +83,11 @@ struct JoinPublicChannelView: View {
                 errorMessage = L10n.Chats.Chats.Error.servicesUnavailable
                 return
             }
-            try await channelService.setupPublicChannel(deviceID: deviceID)
+            try await channelService.setupPublicChannel(radioID: radioID)
 
             // Fetch the public channel (slot 0) to return it
             var publicChannel: ChannelDTO?
-            if let channels = try? await appState.services?.dataStore.fetchChannels(deviceID: deviceID) {
+            if let channels = try? await appState.services?.dataStore.fetchChannels(radioID: radioID) {
                 publicChannel = channels.first { $0.index == 0 }
             }
             onComplete(publicChannel)

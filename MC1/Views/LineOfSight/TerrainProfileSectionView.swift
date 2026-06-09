@@ -27,7 +27,7 @@ struct TerrainProfileSectionView: View {
                 profileSamplesRB: viewModel.profileSamplesRB,
                 // Show repeater marker for both on-path and off-path
                 repeaterPathFraction: viewModel.repeaterVisualizationPathFraction,
-                repeaterHeight: viewModel.repeaterPoint.map { Double($0.additionalHeight) },
+                repeaterHeight: viewModel.repeaterPoint.map { $0.additionalHeight },
                 // Only enable drag for on-path repeaters
                 onRepeaterDrag: viewModel.repeaterPoint?.isOnPath == true ? { pathFraction in
                     viewModel.updateRepeaterPosition(pathFraction: pathFraction)

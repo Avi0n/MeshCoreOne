@@ -4,21 +4,97 @@ import MC1Services
 
 extension ChatViewModel {
 
+    // MARK: - Receive-Time Prefetch
+
+    /// Default maximum time the receive pipeline waits for a prefetch to
+    /// resolve before admitting the bubble at its text-only size. After
+    /// this, the bubble may still morph in later when the background
+    /// fetch lands; see `handleDimensionResolution(_:)`.
+    static let defaultPrefetchTimeout: Duration = .seconds(3)
+
+    /// Admit an incoming message to the display-items array after racing
+    /// its URL prefetches against `prefetchTimeout` (default: 3s).
+    /// Messages without URLs admit immediately. Outgoing messages bypass
+    /// this and use the instant-render path in the send methods.
+    func admitIncomingMessage(_ message: MessageDTO, isChannelMessage: Bool) async {
+        guard let prefetcher else {
+            appendMessageIfNew(message)
+            return
+        }
+        guard !LinkPreviewService.extractAllURLs(in: message.text).isEmpty else {
+            appendMessageIfNew(message)
+            return
+        }
+
+        let text = message.text
+        let timeout = prefetchTimeout
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                await prefetcher.prefetch(urlsIn: text, isChannelMessage: isChannelMessage)
+            }
+            group.addTask {
+                try? await Task.sleep(for: timeout)
+            }
+            for await _ in group {
+                group.cancelAll()
+                break
+            }
+        }
+
+        appendMessageIfNew(message)
+    }
+
+    /// Fan-out hook for the inline image dimensions resolution stream.
+    /// Triggered when a probe lands after a message has already been admitted —
+    /// either because the receive-time prefetch hit its timeout, the user
+    /// retried, or the message arrived during background sync. Every message
+    /// whose body contains the resolved URL is rebuilt so the bubble picks up
+    /// the now-known `cachedAspect`.
+    func handleDimensionResolution(_ url: URL) async {
+        guard let coordinator else { return }
+        let target = url.absoluteString
+        let affected = coordinator.messages
+            .filter { $0.text.contains(target) }
+            .map(\.id)
+        for messageID in affected {
+            rebuildDisplayItem(for: messageID)
+        }
+    }
+
+    /// A snapshot finished: rebuild only the rows that show it, found via the
+    /// request-keyed index (O(matches)), never by scanning every loaded message.
+    func handleSnapshotResolution(_ request: MapSnapshotRequest) {
+        guard let messageIDs = mapPreviewRequestIndex[request] else { return }
+        for messageID in messageIDs {
+            rebuildDisplayItem(for: messageID)
+        }
+    }
+
+    /// Outgoing-message exception to the withhold-and-release rule: the
+    /// bubble was added immediately at text-only height for instant send
+    /// feedback, so the prefetch runs in parallel and the cell height
+    /// morphs in via `rebuildDisplayItem` once the prefetch lands. The
+    /// `.easeOut(0.25)` cross-fade lives at the view layer.
+    func schedulePrefetchForOutgoingMessage(_ message: MessageDTO, isChannelMessage: Bool) {
+        guard let prefetcher else { return }
+        guard !LinkPreviewService.extractAllURLs(in: message.text).isEmpty else { return }
+        let messageID = message.id
+        let text = message.text
+        Task { [weak self] in
+            await prefetcher.prefetch(urlsIn: text, isChannelMessage: isChannelMessage)
+            self?.rebuildDisplayItem(for: messageID)
+        }
+    }
+
     // MARK: - Preview State Management
 
     /// Request preview fetch for a message (called when cell becomes visible)
     func requestPreviewFetch(for messageID: UUID) {
-        // Ignore if already fetched or in progress
         guard previewStates[messageID] == nil || previewStates[messageID] == .idle else { return }
+        guard let url = cachedURLs[messageID].flatMap({ $0 }) else { return }
 
-        // Get the display item to check for detected URL
-        guard let displayItem = displayItems.first(where: { $0.messageID == messageID }),
-              let url = displayItem.detectedURL else { return }
-
-        // Check if channel message
         let isChannel = currentChannel != nil
 
-        // Start fetch task
         previewFetchTasks[messageID] = Task {
             await fetchPreview(for: messageID, url: url, isChannelMessage: isChannel)
         }
@@ -58,11 +134,6 @@ extension ChatViewModel {
             await decodeAndStorePreviewImages(from: dto, for: messageID)
             previewStates[messageID] = .loaded
             loadedPreviews[messageID] = dto
-            // VoiceOver announcement for dynamic content
-            if let title = dto.title {
-                AccessibilityNotification.Announcement("Preview loaded: \(title)")
-                    .post()
-            }
 
         case .loading:
             // Still loading (duplicate request), keep current state
@@ -81,8 +152,7 @@ extension ChatViewModel {
 
     /// Manually fetch preview (for tap-to-load when previews disabled)
     func manualFetchPreview(for messageID: UUID) async {
-        guard let displayItem = displayItems.first(where: { $0.messageID == messageID }),
-              let url = displayItem.detectedURL,
+        guard let url = cachedURLs[messageID].flatMap({ $0 }),
               let dataStore,
               let linkPreviewCache else { return }
 
@@ -96,11 +166,6 @@ extension ChatViewModel {
             await decodeAndStorePreviewImages(from: dto, for: messageID)
             previewStates[messageID] = .loaded
             loadedPreviews[messageID] = dto
-            // VoiceOver announcement for dynamic content
-            if let title = dto.title {
-                AccessibilityNotification.Announcement("Preview loaded: \(title)")
-                    .post()
-            }
         case .loading:
             break
         case .noPreviewAvailable, .failed, .disabled:
@@ -121,46 +186,43 @@ extension ChatViewModel {
             return await Task.detached { ImageURLDetector.downsampledImage(from: data) }.value
         }()
         let (hero, icon) = await (heroResult, iconResult)
-        if hero != nil || icon != nil {
-            decodedPreviewAssets[messageID] = DecodedPreviewAssets(image: hero, icon: icon)
+
+        // Warm the process-lifetime cache before the per-VM apply so a
+        // chat-exit mid-decode still surfaces the card on the next visit, and a
+        // later re-entry repaints loaded without re-decoding. Cache every
+        // resolved preview, including title-only cards with no hero or icon, so
+        // those skip the loading shimmer on re-entry too.
+        if let url = URL(string: dto.url) {
+            DecodedPreviewCache.shared.store(
+                CachedDecodedPreview(dto: dto, hero: hero, icon: icon),
+                for: url
+            )
         }
+
+        guard hero != nil || icon != nil else { return }
+        decodedPreviewAssets[messageID] = DecodedPreviewAssets(image: hero, icon: icon)
     }
 
     /// Update a message in place and rebuild its display item.
     func updateMessage(id: UUID, mutation: (inout MessageDTO) -> Void) {
-        guard let index = messages.firstIndex(where: { $0.id == id }),
-              let existing = messagesByID[id] else { return }
-        let updated = existing.copy(mutation)
-        messages[index] = updated
-        messagesByID[id] = updated
+        guard let coordinator,
+              coordinator.messagesByID[id] != nil else { return }
+        coordinator.update(messageID: id, mutation)
         rebuildDisplayItem(for: id)
     }
 
-    /// Rebuild a single display item with current preview state (O(1) lookup)
+    /// Rebuild a single MessageItem with current preview, image, and message
+    /// state. No-ops when the message is no longer present.
     func rebuildDisplayItem(for messageID: UUID) {
-        guard let index = displayItemIndexByID[messageID] else { return }
-        let item = displayItems[index]
-        let message = messagesByID[messageID]
-
-        displayItems[index] = MessageDisplayItem(
-            messageID: item.messageID,
-            showTimestamp: item.showTimestamp,
-            showDirectionGap: item.showDirectionGap,
-            showSenderName: item.showSenderName,
-            showNewMessagesDivider: item.showNewMessagesDivider,
-            detectedURL: item.detectedURL,
-            isImageURL: item.isImageURL,
-            isOutgoing: item.isOutgoing,
-            status: item.status,
-            containsSelfMention: item.containsSelfMention,
-            mentionSeen: item.mentionSeen,
-            heardRepeats: message?.heardRepeats ?? item.heardRepeats,
-            retryAttempt: item.retryAttempt,
-            maxRetryAttempts: item.maxRetryAttempts,
-            reactionSummary: message?.reactionSummary,
-            previewState: previewStates[messageID] ?? .idle,
-            loadedPreview: loadedPreviews[messageID]
-        )
+        guard let coordinator,
+              let message = coordinator.messagesByID[messageID] else {
+            logger.warning("rebuild requested for missing message id \(messageID)")
+            return
+        }
+        let previous = previousMessage(for: messageID)
+        coordinator.updateRenderItem(id: messageID) { _ in
+            makeItem(for: message, previous: previous)
+        }
     }
 
     /// Cancel preview fetch for a message (called when cell scrolls away)
@@ -178,7 +240,7 @@ extension ChatViewModel {
         decodedPreviewAssets.removeAll()
         legacyPreviewDecodeInFlight.removeAll()
         cachedURLs.removeAll()
-        formattedTexts.removeAll()
+        mapPreviewRequestIndex.removeAll()
         clearImageState()
     }
 
@@ -187,13 +249,40 @@ extension ChatViewModel {
         previewStates.removeValue(forKey: messageID)
         loadedPreviews.removeValue(forKey: messageID)
         decodedPreviewAssets.removeValue(forKey: messageID)
-        formattedTexts.removeValue(forKey: messageID)
         previewFetchTasks[messageID]?.cancel()
         previewFetchTasks.removeValue(forKey: messageID)
+        removeFromMapPreviewIndex(messageID)
         cleanupImageState(for: messageID)
     }
 
+    /// Drops a deleted message from every map-preview request bucket so a late
+    /// snapshot resolution does not try to rebuild a row that no longer exists.
+    private func removeFromMapPreviewIndex(_ messageID: UUID) {
+        for request in Array(mapPreviewRequestIndex.keys) {
+            guard var ids = mapPreviewRequestIndex[request], ids.remove(messageID) != nil else { continue }
+            if ids.isEmpty {
+                mapPreviewRequestIndex.removeValue(forKey: request)
+            } else {
+                mapPreviewRequestIndex[request] = ids
+            }
+        }
+    }
+
     // MARK: - Inline Image State Management
+
+    /// Atomically seeds the per-VM image state from a decoded cache entry.
+    /// Restores `loadedImageData` from the entry's raw bytes when available
+    /// so the full-screen viewer and share sheet keep working after
+    /// rehydration. Does not rebuild the render item; the caller owns that
+    /// step.
+    func applyDecodedImage(_ cached: CachedDecodedImage, for messageID: UUID) {
+        decodedImages[messageID] = cached.image
+        imageIsGIF[messageID] = cached.isGIF
+        if let data = cached.data {
+            loadedImageData.setObject(data as NSData, forKey: messageID as NSUUID, cost: data.count)
+        }
+        previewStates[messageID] = .loaded
+    }
 
     /// Returns the pre-decoded UIImage for a message, if available
     func decodedImage(for messageID: UUID) -> UIImage? {
@@ -224,7 +313,7 @@ extension ChatViewModel {
             let iconData = message.linkPreviewIconData
 
             legacyPreviewDecodeInFlight.insert(id)
-            Task {
+            Task { [weak self] in
                 async let heroResult: UIImage? = if needsImageDecode, let imageData {
                     await Task.detached { ImageURLDetector.downsampledImage(from: imageData) }.value
                 } else {
@@ -237,9 +326,10 @@ extension ChatViewModel {
                 }
                 let (hero, icon) = await (heroResult, iconResult)
                 if hero != nil || icon != nil {
-                    self.decodedPreviewAssets[id] = DecodedPreviewAssets(image: hero, icon: icon)
+                    self?.decodedPreviewAssets[id] = DecodedPreviewAssets(image: hero, icon: icon)
+                    self?.rebuildDisplayItem(for: id)
                 }
-                self.legacyPreviewDecodeInFlight.remove(id)
+                self?.legacyPreviewDecodeInFlight.remove(id)
             }
         }
     }
@@ -251,31 +341,40 @@ extension ChatViewModel {
 
     /// Returns the raw image data for a message, if available
     func imageData(for messageID: UUID) -> Data? {
-        loadedImageData[messageID]
+        loadedImageData.object(forKey: messageID as NSUUID).map { Data(referencing: $0) }
     }
 
     /// Clears the negative cache entry for a failed image and re-triggers the fetch.
     func retryImageFetch(for messageID: UUID) async {
         guard previewStates[messageID] != .malwareWarning else { return }
-        guard let displayItem = displayItems.first(where: { $0.messageID == messageID }),
-              let url = displayItem.detectedURL else { return }
+        guard let url = cachedURLs[messageID].flatMap({ $0 }) else { return }
 
-        let directURL = ImageURLDetector.directImageURL(for: url)
+        let directURL = ImageURLClassifier.directImageURL(for: url)
         await InlineImageCache.shared.clearFailure(for: directURL)
 
         previewStates[messageID] = .idle
         rebuildDisplayItem(for: messageID)
-        requestImageFetch(for: messageID, showInlineImages: true)
+        requestImageFetch(for: messageID)
+    }
+
+    /// Whether the `onRequestPreviewFetch` callback should route to image
+    /// fetching instead of link-preview fetching for the given message.
+    /// Encapsulates the cached-URL + image-URL + env-toggle gate so the cell
+    /// callback stays a single line.
+    func shouldRequestImageFetch(for messageID: UUID) -> Bool {
+        guard envInputs.showInlineImages,
+              let url = cachedURLs[messageID].flatMap({ $0 }) else {
+            return false
+        }
+        return ImageURLClassifier.isImageURL(url)
     }
 
     /// Request inline image fetch for a message (called when cell becomes visible)
-    func requestImageFetch(for messageID: UUID, showInlineImages: Bool) {
-        guard showInlineImages else { return }
+    func requestImageFetch(for messageID: UUID) {
+        guard envInputs.showInlineImages else { return }
         guard previewStates[messageID] == nil || previewStates[messageID] == .idle else { return }
-
-        guard let displayItem = displayItems.first(where: { $0.messageID == messageID }),
-              displayItem.isImageURL,
-              let url = displayItem.detectedURL else { return }
+        guard let url = cachedURLs[messageID].flatMap({ $0 }),
+              ImageURLClassifier.isImageURL(url) else { return }
 
         imageFetchTasks[messageID] = Task {
             await fetchInlineImage(for: messageID, url: url)
@@ -284,7 +383,7 @@ extension ChatViewModel {
 
     /// Fetch inline image data and update state
     private func fetchInlineImage(for messageID: UUID, url: URL) async {
-        let directURL = ImageURLDetector.directImageURL(for: url)
+        let directURL = ImageURLClassifier.directImageURL(for: url)
 
         // Check malware domain blocklist before fetching
         if let host = directURL.host(), await MalwareDomainFilter.shared.isBlocked(host) {
@@ -301,7 +400,7 @@ extension ChatViewModel {
             imageFetchTasks.removeValue(forKey: messageID)
             return
         }
-        guard displayItemIndexByID[messageID] != nil else {
+        guard itemIndexByID[messageID] != nil else {
             imageFetchTasks.removeValue(forKey: messageID)
             return
         }
@@ -309,27 +408,32 @@ extension ChatViewModel {
         switch result {
         case .loaded(let data):
             let isGIF = ImageURLDetector.isGIFData(data)
-            imageIsGIF[messageID] = isGIF
-            if !isGIF {
-                loadedImageData[messageID] = data
-            }
-            let decoded: UIImage? = await Task.detached {
-                if isGIF {
-                    return ImageURLDetector.decodeGIFImage(from: data)
-                } else {
-                    return ImageURLDetector.downsampledImage(from: data)
-                }
+            let entry: CachedDecodedImage? = await Task.detached { () -> CachedDecodedImage? in
+                let decoded: UIImage? = isGIF
+                    ? ImageURLDetector.decodeGIFImage(from: data)
+                    : ImageURLDetector.downsampledImage(from: data)
+                guard let decoded else { return nil }
+                return CachedDecodedImage(
+                    image: decoded,
+                    isGIF: isGIF,
+                    data: isGIF ? nil : data
+                )
             }.value
-            guard !Task.isCancelled, let decoded else {
+            // Persist before the cancellation/teardown guards so a
+            // scroll-away or chat-exit mid-decode still surfaces the
+            // pixels on the next chat re-entry.
+            if let entry {
+                InlineImageCache.shared.storeDecoded(entry, for: directURL)
+            }
+            guard !Task.isCancelled, let entry else {
                 imageFetchTasks.removeValue(forKey: messageID)
                 return
             }
-            guard displayItemIndexByID[messageID] != nil else {
+            guard itemIndexByID[messageID] != nil else {
                 imageFetchTasks.removeValue(forKey: messageID)
                 return
             }
-            decodedImages[messageID] = decoded
-            previewStates[messageID] = .loaded
+            applyDecodedImage(entry, for: messageID)
 
         case .loading:
             break
@@ -350,7 +454,7 @@ extension ChatViewModel {
 
     /// Clean up image state for a specific message
     private func cleanupImageState(for messageID: UUID) {
-        loadedImageData.removeValue(forKey: messageID)
+        loadedImageData.removeObject(forKey: messageID as NSUUID)
         decodedImages.removeValue(forKey: messageID)
         imageIsGIF.removeValue(forKey: messageID)
         imageFetchTasks[messageID]?.cancel()
@@ -361,7 +465,7 @@ extension ChatViewModel {
     private func clearImageState() {
         imageFetchTasks.values.forEach { $0.cancel() }
         imageFetchTasks.removeAll()
-        loadedImageData.removeAll()
+        loadedImageData.removeAllObjects()
         decodedImages.removeAll()
         imageIsGIF.removeAll()
     }

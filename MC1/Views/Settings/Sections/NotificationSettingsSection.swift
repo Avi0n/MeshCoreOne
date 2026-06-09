@@ -4,6 +4,7 @@ import UserNotifications
 
 /// Notification toggle settings
 struct NotificationSettingsSection: View {
+    @Environment(\.appTheme) private var theme
     @Environment(\.openURL) private var openURL
     @Environment(\.scenePhase) private var scenePhase
     @State private var preferences = NotificationPreferencesStore()
@@ -45,17 +46,37 @@ struct NotificationSettingsSection: View {
                 Toggle(isOn: $preferences.roomMessagesEnabled) {
                     TintedLabel(L10n.Settings.Notifications.roomMessages, systemImage: "bubble.left.and.bubble.right")
                 }
-                Toggle(isOn: $preferences.newContactDiscoveredEnabled) {
-                    TintedLabel(L10n.Settings.Notifications.newContactDiscovered, systemImage: "person.badge.plus")
-                }
                 Toggle(isOn: $preferences.reactionNotificationsEnabled) {
                     TintedLabel(L10n.Settings.Notifications.reactions, systemImage: "face.smiling")
                 }
                 Toggle(isOn: $preferences.lowBatteryEnabled) {
                     TintedLabel(L10n.Settings.Notifications.lowBattery, systemImage: "battery.25")
                 }
+                Toggle(isOn: Binding(
+                    get: { preferences.newContactDiscoveredEnabled },
+                    set: { newValue in
+                        withAnimation { preferences.newContactDiscoveredEnabled = newValue }
+                    }
+                )) {
+                    TintedLabel(L10n.Settings.Notifications.newContactDiscovered, systemImage: "person.badge.plus")
+                }
+                if preferences.newContactDiscoveredEnabled {
+                    Toggle(isOn: $preferences.discoveryContactEnabled) {
+                        TintedLabel(L10n.Settings.Notifications.discoveryContact, systemImage: "person")
+                    }
+                    .listRowInsets(EdgeInsets(top: 0, leading: 52, bottom: 0, trailing: 20))
+                    Toggle(isOn: $preferences.discoveryRepeaterEnabled) {
+                        TintedLabel(L10n.Settings.Notifications.discoveryRepeater, systemImage: "antenna.radiowaves.left.and.right")
+                    }
+                    .listRowInsets(EdgeInsets(top: 0, leading: 52, bottom: 0, trailing: 20))
+                    Toggle(isOn: $preferences.discoveryRoomEnabled) {
+                        TintedLabel(L10n.Settings.Notifications.discoveryRoom, systemImage: "door.left.hand.open")
+                    }
+                    .listRowInsets(EdgeInsets(top: 0, leading: 52, bottom: 0, trailing: 20))
+                }
             }
         }
+        .themedRowBackground(theme)
         .task {
             await refreshAuthorizationStatus()
         }

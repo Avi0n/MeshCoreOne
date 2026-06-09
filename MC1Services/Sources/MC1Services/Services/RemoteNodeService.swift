@@ -126,6 +126,13 @@ public enum RemoteOperationTimeoutPolicy {
     }
 }
 
+// MARK: - CLI Response Text Type
+
+/// Wire value `0x01` — firmware `TXT_TYPE_CLI_DATA`.
+/// `ContactMessage.textType` is a raw byte on the MeshCore side, so we keep
+/// the constant as a `UInt8` rather than routing through a Swift enum.
+private let cliResponseTextType: UInt8 = 0x01
+
 // MARK: - Remote Node Service
 
 /// Shared service for remote node operations.
@@ -216,7 +223,17 @@ public actor RemoteNodeService {
 
         eventMonitorTask = Task { [weak self] in
             guard let self else { return }
-            let events = await session.events()
+            let filter = EventFilter { event in
+                switch event {
+                case .loginSuccess, .loginFailed:
+                    return true
+                case .contactMessageReceived(let info) where info.textType == cliResponseTextType:
+                    return true
+                default:
+                    return false
+                }
+            }
+            let events = await session.events(filter: filter)
 
             for await event in events {
                 guard !Task.isCancelled else { break }
@@ -257,8 +274,7 @@ public actor RemoteNodeService {
             }
 
         case .contactMessageReceived(let message):
-            // Check if this is a CLI response (textType == 0x01)
-            if message.textType == 0x01 {
+            if message.textType == cliResponseTextType {
                 handleCLIResponse(message)
             }
 
@@ -268,42 +284,38 @@ public actor RemoteNodeService {
     }
 
     /// Handle CLI response from a contact message.
+    /// Content-based matching runs first — raw (FIFO) matching only gets responses
+    /// that no typed query claimed.
     private func handleCLIResponse(_ message: ContactMessage) {
         let prefix = Data(message.senderPublicKeyPrefix.prefix(6))
 
-        // Check raw CLI requests first (FIFO - single pending per sender)
-        // Used by CLI tool for passthrough where any response is accepted
+        // Try content-based matching first for structured requests
+        if var requests = pendingCLIRequests[prefix], !requests.isEmpty {
+            let (matchIndex, matchCount) = findBestMatch(response: message.text, in: requests)
+
+            if let matchIndex {
+                let matched = requests.remove(at: matchIndex)
+                pendingCLIRequests[prefix] = requests.isEmpty ? nil : requests
+                matched.continuation.resume(returning: message.text)
+                return
+            }
+
+            if matchCount > 1 {
+                // Multiple matches (ambiguous like "OK") - fall back to FIFO
+                let oldest = requests.removeFirst()
+                pendingCLIRequests[prefix] = requests.isEmpty ? nil : requests
+                oldest.continuation.resume(returning: message.text)
+                return
+            }
+        }
+
+        // No content match — deliver to raw CLI request if one is pending
         if let continuation = pendingRawCLIRequests.removeValue(forKey: prefix) {
             continuation.resume(returning: message.text)
             return
         }
 
-        // Fall back to content-based matching for structured requests
-        guard var requests = pendingCLIRequests[prefix], !requests.isEmpty else {
-            return
-        }
-
-        // Try content-based matching using CLIResponse.parse()
-        let (matchIndex, matchCount) = findBestMatch(response: message.text, in: requests)
-
-        if let matchIndex {
-            // Exactly one match - deliver to that request
-            let matched = requests.remove(at: matchIndex)
-            pendingCLIRequests[prefix] = requests.isEmpty ? nil : requests
-            matched.continuation.resume(returning: message.text)
-            return
-        }
-
-        if matchCount > 1 {
-            // Multiple matches (ambiguous like "OK") - fall back to FIFO
-            let oldest = requests.removeFirst()
-            pendingCLIRequests[prefix] = requests.isEmpty ? nil : requests
-            oldest.continuation.resume(returning: message.text)
-            return
-        }
-
-        // No matches - likely a late response for a timed-out request
-        // Response still flows to CLI handler for UI display
+        // No pending requests matched
         logger.debug("Unmatched CLI response (no pending request): \(message.text.prefix(50))")
     }
 
@@ -358,14 +370,14 @@ public actor RemoteNodeService {
 
     /// Create a session DTO for a contact, optionally preserving data from an existing session.
     private func makeSessionDTO(
-        deviceID: UUID,
+        radioID: UUID,
         contact: ContactDTO,
         role: RemoteNodeRole,
         preserving existing: RemoteNodeSessionDTO? = nil
     ) -> RemoteNodeSessionDTO {
         RemoteNodeSessionDTO(
             id: existing?.id ?? UUID(),
-            deviceID: deviceID,
+            radioID: radioID,
             publicKey: contact.publicKey,
             name: contact.displayName,
             role: role,
@@ -388,7 +400,7 @@ public actor RemoteNodeService {
 
     /// Create a new session for a remote node.
     public func createSession(
-        deviceID: UUID,
+        radioID: UUID,
         contact: ContactDTO,
         password: String?,
         rememberPassword: Bool = true
@@ -412,7 +424,7 @@ public actor RemoteNodeService {
             logger.info("createSession: creating new session for \(pubKeyHex)")
         }
 
-        let dto = makeSessionDTO(deviceID: deviceID, contact: contact, role: role, preserving: existing)
+        let dto = makeSessionDTO(radioID: radioID, contact: contact, role: role, preserving: existing)
 
         try await dataStore.saveRemoteNodeSessionDTO(dto)
 
@@ -620,27 +632,41 @@ public actor RemoteNodeService {
 
     /// Start periodic keep-alive for a room server session.
     /// Sends an immediate keep-alive on start (for connectivity check + sync_since update),
-    /// then continues at the configured interval.
+    /// then continues at the configured interval. Transient failures are retried up to
+    /// `KeepAliveRetryPolicy.maxConsecutiveFailures` times before disconnecting.
     private func startKeepAlive(sessionID: UUID, publicKey: Data) {
         stopKeepAlive(sessionID: sessionID)
 
         let interval = keepAliveIntervals[sessionID] ?? Self.defaultKeepAliveInterval
 
         let task = Task {
+            var consecutiveFailures = 0
+
             while !Task.isCancelled {
                 do {
                     try await sendKeepAliveIfDirectRouted(sessionID: sessionID, publicKey: publicKey)
-                } catch RemoteNodeError.floodRouted {
-                    logger.info("Skipping keep-alive for flood-routed session \(sessionID)")
+                    KeepAliveRetryPolicy.recordSuccess(consecutiveFailures: &consecutiveFailures)
                 } catch {
-                    logger.warning("Keep-alive failed for session \(sessionID): \(error)")
-                    do {
-                        try await dataStore.markSessionDisconnected(sessionID)
-                    } catch {
-                        logger.error("Failed to persist disconnected state for session \(sessionID): \(error)")
+                    let action = KeepAliveRetryPolicy.evaluate(error: error, consecutiveFailures: &consecutiveFailures)
+                    switch action {
+                    case .stop:
+                        break
+                    case .skip:
+                        logger.info("Skipping keep-alive for flood-routed session \(sessionID)")
+                    case .retryNextInterval:
+                        let reason = KeepAliveRetryPolicy.failureReason(for: error)
+                        logger.warning("Keep-alive \(consecutiveFailures)/\(KeepAliveRetryPolicy.maxConsecutiveFailures) failed for \(sessionID): \(reason)")
+                    case .disconnect, .disconnectNow:
+                        let reason = KeepAliveRetryPolicy.failureReason(for: error)
+                        logger.warning("Keep-alive failed for \(sessionID): \(reason)")
+                        do {
+                            try await dataStore.markSessionDisconnected(sessionID)
+                        } catch {
+                            logger.error("Failed to persist disconnected state for session \(sessionID): \(error)")
+                        }
+                        await sessionStateChangedHandler?(sessionID, false)
                     }
-                    await sessionStateChangedHandler?(sessionID, false)
-                    break
+                    if action.shouldExitLoop { break }
                 }
 
                 try? await Task.sleep(for: interval)
@@ -659,13 +685,13 @@ public actor RemoteNodeService {
 
     /// Send keep-alive only if the session has a direct routing path.
     private func sendKeepAliveIfDirectRouted(sessionID: UUID, publicKey: Data) async throws {
-        // Fetch session to get deviceID
+        // Fetch session to get radioID
         guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
             throw RemoteNodeError.sessionNotFound
         }
 
         // Check contact's routing status
-        guard let contact = try await dataStore.fetchContact(deviceID: remoteSession.deviceID, publicKey: publicKey) else {
+        guard let contact = try await dataStore.fetchContact(radioID: remoteSession.radioID, publicKey: publicKey) else {
             throw RemoteNodeError.contactNotFound
         }
 
@@ -717,7 +743,7 @@ public actor RemoteNodeService {
         }
 
         // Check for direct route
-        guard let contact = try await dataStore.fetchContact(deviceID: remoteSession.deviceID, publicKey: remoteSession.publicKey) else {
+        guard let contact = try await dataStore.fetchContact(radioID: remoteSession.radioID, publicKey: remoteSession.publicKey) else {
             throw RemoteNodeError.contactNotFound
         }
 

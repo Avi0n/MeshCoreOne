@@ -21,9 +21,6 @@ public enum MC1ServicesVersion {
 
 // MARK: - Type Aliases
 
-/// Convenient alias for MeshCoreSession
-public typealias MeshSession = MeshCoreSession
-
 /// Alias for PersistenceStore (backwards compatibility)
 public typealias DataStore = PersistenceStore
 
@@ -280,22 +277,30 @@ extension LPPDataPoint {
     /// Formatted value with appropriate unit suffix
     public var formattedValue: String {
         switch (type, value) {
-        case (.voltage, .float(let v)): return "\(v.formatted(.number.precision(.fractionLength(2)))) V"
-        case (.temperature, .float(let t)): return "\(t.formatted(.number.precision(.fractionLength(1))))\u{00B0}C"
+        case (.voltage, .float(let v)): return "\(v.formatted(.number.precision(.fractionLength(3)))) V"
+        case (.temperature, .float(let t)):
+            let v = type.convertedValue(t)
+            return "\(v.formatted(.number.precision(.fractionLength(type.convertedFractionLength)))) \(type.localizedUnitSymbol)"
         case (.humidity, .float(let h)): return "\(h.formatted(.number.precision(.fractionLength(1))))%"
-        case (.barometer, .float(let p)): return "\(p.formatted(.number.precision(.fractionLength(1)))) hPa"
+        case (.barometer, .float(let p)):
+            let v = type.convertedValue(p)
+            return "\(v.formatted(.number.precision(.fractionLength(type.convertedFractionLength)))) \(type.localizedUnitSymbol)"
         case (.illuminance, .integer(let i)): return "\(i) lux"
         case (.percentage, .integer(let p)): return "\(p)%"
-        case (.current, .float(let c)): return "\(c.formatted(.number.precision(.fractionLength(2)))) A"
+        case (.current, .float(let c)): return "\(c.formatted(.number.precision(.fractionLength(3)))) A"
         case (.power, .float(let p)): return "\(p.formatted(.number.precision(.fractionLength(1)))) W"
         case (.frequency, .float(let f)): return "\(f.formatted(.number.precision(.fractionLength(1)))) Hz"
-        case (.altitude, .float(let a)): return "\(a.formatted(.number.precision(.fractionLength(1)))) m"
-        case (.distance, .float(let d)): return "\(d.formatted(.number.precision(.fractionLength(2)))) m"
-        case (.energy, .float(let e)): return "\(e.formatted(.number.precision(.fractionLength(2)))) kWh"
+        case (.altitude, .float(let a)):
+            let v = type.convertedValue(a)
+            return "\(v.formatted(.number.precision(.fractionLength(type.convertedFractionLength)))) \(type.localizedUnitSymbol)"
+        case (.distance, .float(let d)):
+            let v = type.convertedValue(d)
+            return "\(v.formatted(.number.precision(.fractionLength(type.convertedFractionLength)))) \(type.localizedUnitSymbol)"
+        case (.energy, .float(let e)): return "\(e.formatted(.number.precision(.fractionLength(3)))) kWh"
         case (.direction, .float(let d)): return "\(d.formatted(.number.precision(.fractionLength(0))))\u{00B0}"
         case (_, .digital(let b)): return b ? "On" : "Off"
         case (_, .integer(let i)): return "\(i)"
-        case (_, .float(let f)): return f.formatted(.number.precision(.fractionLength(2)))
+        case (_, .float(let f)): return f.formatted(.number.precision(.fractionLength(3)))
         case (_, .vector3(let x, let y, let z)):
             return "(\(x.formatted(.number.precision(.fractionLength(2)))), \(y.formatted(.number.precision(.fractionLength(2)))), \(z.formatted(.number.precision(.fractionLength(2)))))"
         case (_, .gps(let lat, let lon, let alt)):

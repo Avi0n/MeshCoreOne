@@ -358,7 +358,19 @@
 "pathHashMode.threeBytes" = "3 bytes";
 
 /* Footer explaining path hash mode tradeoff */
-"pathHashMode.footer" = "Grotere hashes verminderen routeringscollisies, maar beperken het maximale aantal hops per pad.";
+"pathHashMode.footer" = "Grotere hashes verminderen routeringscollisies, maar beperken het maximale aantal hops per pad. Repeaters met firmware ouder dan 1.14.0 herhalen geen berichten met een hashgrootte groter dan 1 byte.";
+
+
+// MARK: - Default Flood Scope Section
+
+/* Section header for default flood scope picker */
+"defaultFloodScope.header" = "Standaard flood-bereik";
+
+/* Footer explaining default flood scope */
+"defaultFloodScope.footer" = "Wanneer ingesteld past het apparaat dit bereik toe op flood-verzendingen tenzij een kanaalspecifiek bereik dit overschrijft. Het bereik wordt op het apparaat opgeslagen en blijft behouden na herstart.";
+
+/* Option to clear the persisted default flood scope */
+"defaultFloodScope.disabled" = "Geen";
 
 
 // MARK: - Battery Curve Section
@@ -379,7 +391,7 @@
 "batteryCurve.editValues" = "Waarden bewerken";
 
 /* Validation error for value out of range - %d is the percentage level */
-"batteryCurve.validation.outOfRange" = "Waarde bij %d%% moet 1000-5000 mV zijn";
+"batteryCurve.validation.outOfRange" = "Waarde bij %d%% moet 1000-9000 mV zijn";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "Waarden moeten in aflopende volgorde staan";
@@ -538,10 +550,10 @@
 "nodes.staleCleanup.days" = "%d dagen";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "Niet-favoriete knooppunten die %d dagen niet zijn gehoord, worden automatisch verwijderd bij verbinding.";
+"nodes.staleCleanup.footerEnabled" = "Niet-favoriete knooppunten die %d dagen niet zijn bijgewerkt, worden automatisch verwijderd bij verbinding.";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "Verwijdert automatisch niet-favoriete knooppunten die na een ingestelde periode niet zijn gehoord. Favorieten worden nooit verwijderd.";
+"nodes.staleCleanup.footerDisabled" = "Verwijdert automatisch niet-favoriete knooppunten die binnen een ingestelde periode niet zijn bijgewerkt. Favorieten worden nooit verwijderd.";
 
 /* Footer when toggle is on but no threshold selected yet */
 "nodes.staleCleanup.footerSelect" = "Kies hoe lang knooppunten bewaard worden. Favorieten worden nooit verwijderd.";
@@ -591,14 +603,17 @@
 /* Footer explaining factory reset */
 "dangerZone.footer" = "Fabrieksinstellingen herstellen wist alle contacten, berichten en instellingen op het apparaat.";
 
-/* Alert title for forget device confirmation */
-"dangerZone.alert.forget.title" = "Apparaat vergeten";
+/* Confirmation dialog title for forget device */
+"dangerZone.dialog.forget.title" = "Apparaat vergeten";
 
-/* Button to confirm forget */
-"dangerZone.alert.forget.confirm" = "Vergeten";
+/* Confirmation dialog message for forget device */
+"dangerZone.dialog.forget.message" = "Je apparaat wordt ontkoppeld. Je kunt ervoor kiezen om je berichten, contacten en kanalen te behouden of te verwijderen.";
 
-/* Alert message for forget device */
-"dangerZone.alert.forget.message" = "Dit verwijdert het apparaat uit je gekoppelde apparaten. Je kunt het later opnieuw koppelen.";
+/* Button to forget device but keep data */
+"dangerZone.dialog.forget.keepData" = "Apparaat vergeten";
+
+/* Button to forget device and delete all associated data */
+"dangerZone.dialog.forget.deleteAll" = "Apparaat vergeten en gegevens verwijderen";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "Fabrieksinstellingen herstellen";
@@ -741,6 +756,15 @@
 /* Toggle label for new contact discovered notifications */
 "notifications.newContactDiscovered" = "Nieuw contact ontdekt";
 
+/* Toggle label for companion discovery notifications */
+"notifications.discoveryContact" = "Companion";
+
+/* Toggle label for repeater discovery notifications */
+"notifications.discoveryRepeater" = "Repeater";
+
+/* Toggle label for room discovery notifications */
+"notifications.discoveryRoom" = "Room";
+
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Waarschuwingen lage batterij";
 
@@ -791,6 +815,12 @@
 
 /* Confirmation dialog enable button */
 "radio.repeatMode.confirm.enable" = "Inschakelen";
+
+/* Location: RadioPresetSection.swift - Footer line listing the user's region */
+"radio.regionFooter" = "Aanbevolen presets worden getoond voor %@.";
+
+/* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
+"radio.mismatchHint" = "Je radio gebruikt %@, niet de aanbevolen preset voor %@.";
 
 
 // MARK: - Telemetry Settings Section
@@ -918,17 +948,35 @@
 
 // MARK: - Messages Settings Section
 
-/* Section header for Messages settings */
-"messages.header" = "Berichten";
+/* Section header for message info settings in chats */
+"messages.header" = "Berichtinfo";
+
+/* Toggle label for showing the raw uncorrected wire send time on incoming messages */
+"messages.showIncomingSendTime" = "Inkomende verzendtijd";
 
 /* Toggle label for showing routing path on incoming messages */
-"messages.showIncomingPath" = "Inkomend pad tonen";
+"messages.showIncomingPath" = "Inkomend pad";
 
 /* Toggle label for showing hop count on incoming messages */
-"messages.showIncomingHopCount" = "Inkomend aantal hops tonen";
+"messages.showIncomingHopCount" = "Inkomend aantal hops";
+
+/* Toggle label for showing the radio region an incoming message was flooded under */
+"messages.showIncomingRegion" = "Inkomende regio";
 
 /* Footer explaining what the message display options show */
-"messages.footer" = "Routeringsinformatie weergeven in inkomende berichtballonnen.";
+"messages.footer" = "Routerings- en tijdsinformatie weergeven in inkomende berichtballonnen.";
+
+
+// MARK: - Direct Messages Settings Section
+
+/* Section header for direct message settings */
+"directMessages.header" = "Directe berichten";
+
+/* Picker label for number of acknowledgments */
+"directMessages.acknowledgments" = "Acknowledgments";
+
+/* Footer explaining the acknowledgments setting */
+"directMessages.footer" = "Aantal bevestigingen dat per direct bericht wordt verstuurd. Gebruik 2 voor betere afleverbevestiging via onbetrouwbare verbindingen.";
 
 
 // MARK: - BLE Status Indicator
@@ -953,6 +1001,9 @@
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Verbonden";
+
+/* Status shown when device is syncing data */
+"bleStatus.status.syncing" = "Synchroniseren";
 
 /* Status shown when device is ready */
 "bleStatus.status.ready" = "Gereed";
@@ -1099,6 +1150,12 @@
 /* Import cancelled */
 "configImport.cancelled" = "Import is geannuleerd.";
 
+/* Import cancelled after one or more settings were already written to the device */
+"configImport.cancelledPartial" = "Import is geannuleerd, maar sommige instellingen waren al naar het apparaat geschreven. Controleer de configuratie van het apparaat.";
+
+/* Import failed after one or more settings were already written; %@ is the underlying error message */
+"configImport.failedPartial" = "%@ Sommige instellingen zijn mogelijk al naar het apparaat geschreven. Controleer de configuratie van het apparaat.";
+
 /* Import success */
 "configImport.importSuccess" = "Configuratie succesvol geïmporteerd";
 
@@ -1120,6 +1177,69 @@
 /* Contact count (param: integer) */
 "configImport.contactCount" = "%d contacten worden toegevoegd/bijgewerkt op het apparaat";
 
+/* Generic device-name fallback used in confirmation messages when the node has no name */
+"configImport.thisDevice" = "dit apparaat";
+
+/* Import progress: applying position */
+"configImport.stepPosition" = "Positie instellen";
+
+/* Import progress: applying other parameters */
+"configImport.stepOtherParameters" = "Overige parameters instellen";
+
+/* Import progress: importing the private key */
+"configImport.stepPrivateKey" = "Privésleutel importeren";
+
+/* Import progress: setting the node name */
+"configImport.stepNodeName" = "Knooppuntnaam instellen";
+
+/* Import progress: applying radio parameters */
+"configImport.stepRadioParameters" = "Radioparameters instellen";
+
+/* Import progress: setting TX power */
+"configImport.stepTxPower" = "TX-vermogen instellen";
+
+/* Import progress: importing a channel (param: channel name) */
+"configImport.stepChannel" = "Kanaal importeren: %@";
+
+/* Import progress: importing a contact (param: contact name) */
+"configImport.stepContact" = "Contact importeren: %@";
+
+/* Validation field label: radio frequency */
+"configImport.field.frequency" = "Frequentie";
+
+/* Validation field label: radio bandwidth */
+"configImport.field.bandwidth" = "Bandbreedte";
+
+/* Validation field label: spreading factor */
+"configImport.field.spreadingFactor" = "Spreidingsfactor";
+
+/* Validation field label: coding rate */
+"configImport.field.codingRate" = "Coderingssnelheid";
+
+/* Validation field label: TX power */
+"configImport.field.txPower" = "TX-vermogen";
+
+/* Validation field label: latitude */
+"configImport.field.latitude" = "Breedtegraad";
+
+/* Validation field label: longitude */
+"configImport.field.longitude" = "Lengtegraad";
+
+/* Validation error: value outside radio's supported range (param: field label) */
+"configImport.error.radioOutOfRange" = "%@ valt buiten het ondersteunde bereik van de radio";
+
+/* Validation error: invalid coordinate (param: field label) */
+"configImport.error.positionInvalid" = "%@ heeft een ongeldige coördinaat of een coördinaat buiten bereik";
+
+/* Validation error: contact coordinate invalid (params: contact name, field label) */
+"configImport.error.contactCoordinateInvalid" = "Contact \"%@\" %@ heeft een ongeldige coördinaat of een coördinaat buiten bereik";
+
+/* Validation error: contact has an invalid routing path (param: contact name) */
+"configImport.error.invalidOutPath" = "Contact \"%@\" heeft een ongeldig routeringspad";
+
+/* Validation error: not enough free contact slots (params: needed count, available count) */
+"configImport.error.contactCapacityExceeded" = "Voor de import zijn %d vrije contactplekken nodig, maar er zijn er nog maar %d beschikbaar op het apparaat";
+
 /* Toggle label for inline images */
 "inlineImages.toggle" = "Inline afbeeldingen";
 
@@ -1128,6 +1248,20 @@
 
 /* Footer explaining inline image privacy implications */
 "inlineImages.footer" = "Het ophalen van afbeeldingen via URL's kan uw IP-adres onthullen aan de server die de afbeelding host.";
+
+// MARK: - Map Preview Settings Section
+
+/* Section header for chat map preview settings */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.header" = "Kaartvoorbeelden";
+
+/* Toggle label for chat map thumbnails */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.toggle" = "Kaartminiaturen tonen";
+
+/* Footer explaining map preview privacy implications */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.footer" = "Het tonen van kaartminiaturen haalt kaarttegels voor de coördinaat op bij een externe server, waardoor uw IP-adres kan worden onthuld.";
 
 // MARK: - Blocking Section
 
@@ -1159,6 +1293,25 @@
 "language.title" = "Taal";
 
 
+// MARK: - Region
+
+/* Location: RegionSettingsView.swift - Title */
+"region.title" = "Regio";
+
+/* Location: SettingsView.swift - Detail row when region is unset */
+"region.notSet" = "Niet ingesteld";
+
+/* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
+"region.subdivision.US-CA" = "Californië";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
+"region.subdivision.AU-QLD" = "Queensland";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name */
+"region.subdivision.AU-SA" = "Zuid-Australië";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
+"region.subdivision.AU-WA" = "West-Australië";
 
 // MARK: - Live Activity
 
@@ -1170,7 +1323,6 @@
 
 /* Message for the Live Activity tip */
 "liveActivity.tip.message" = "Je verbinding, batterij en berichten blijven zichtbaar — ook zonder de app te openen.";
-
 
 // MARK: - Regenerate Identity
 
@@ -1231,7 +1383,6 @@
 /* Error when device rejects the key */
 "regenerateIdentity.error.deviceRejected" = "Het apparaat heeft de sleutel geweigerd. Probeer het opnieuw.";
 
-
 // MARK: - Import Key
 
 /* Button label to open import key sheet */
@@ -1262,8 +1413,8 @@
 "importKey.error.invalidKey" = "Geen geldige Ed25519-privésleutel";
 
 // Reply with Quote
-"replyWithQuote.toggle" = "Reply with Quote";
-"replyWithQuote.footer" = "Replying includes a preview of the original message.";
+"replyWithQuote.toggle" = "Antwoorden met citaat";
+"replyWithQuote.footer" = "Bij een antwoord wordt een voorbeeld van het oorspronkelijke bericht toegevoegd.";
 
 // MARK: - Offline Maps
 
@@ -1278,7 +1429,6 @@
 
 /* Button to download a new offline region */
 "offlineMaps.downloadRegion" = "Regio downloaden";
-
 
 /* Section header for storage info */
 "offlineMaps.storage" = "Opslag";
@@ -1358,3 +1508,272 @@
 
 /* Storage section footer */
 "offlineMaps.storageFooter" = "Omvat kaartgegevens en interne indexen. Het totaal kan groter zijn dan de som van de afzonderlijke downloads.";
+
+// MARK: - Backup & Restore
+
+/* Navigation title for backup & restore screen */
+"settings.backup.title" = "Back-up en herstel";
+
+/* Section header for file backup */
+"settings.backup.file_backup.header" = "Bestandsback-up";
+
+/* Section footer for file backup */
+"settings.backup.file_backup.footer" = "Exporteer of herstel berichten, contacten, kanalen, opgeslagen paden en instellingen. De radioconfiguratie wordt bij elke verbinding van het apparaat gelezen.";
+
+/* Export row title */
+"settings.backup.export.title" = "App-gegevens exporteren";
+
+/* Export row subtitle */
+"settings.backup.export.subtitle" = "Opslaan als .mc1backup-bestand";
+
+/* Import row title */
+"settings.backup.import.title" = "App-gegevens importeren";
+
+/* Import row subtitle */
+"settings.backup.import.subtitle" = "Herstellen vanuit een .mc1backup-bestand";
+
+/* Footer shown above the backup section when a radio is connected, explaining why import is disabled */
+"settings.backup.import.disabled_when_connected" = "Verbreek de verbinding met je radio voordat je een back-up importeert.";
+
+/* Export confirmation alert title */
+"settings.backup.export.alert.title" = "Beveiligingsmelding";
+
+/* Export confirmation alert message */
+"settings.backup.export.alert.message" = "Deze back-up bevat kanaalversleutelingssleutels, de berichtgeschiedenis, je contactenlijst en het lokale netwerkadres en de poort van de WiFi-node. Bewaar het geëxporteerde bestand veilig.";
+
+/* Export confirmation alert export button */
+"settings.backup.export.alert.export" = "Exporteren";
+
+/* Export confirmation alert cancel button */
+"settings.backup.export.alert.cancel" = "Annuleren";
+
+/* Export progress label */
+"settings.backup.export.progress" = "Back-up wordt voorbereid…";
+
+/* Import preview navigation title */
+"settings.backup.import.preview.title" = "Importvoorbeeld";
+
+/* Import preview section header: backup details */
+"settings.backup.import.preview.details" = "Back-upgegevens";
+
+/* Import preview label: export date */
+"settings.backup.import.preview.exported" = "Exportdatum";
+
+/* Import preview label: app version */
+"settings.backup.import.preview.app_version" = "App-versie";
+
+/* Import preview section header: contents */
+"settings.backup.import.preview.contents" = "Inhoud";
+
+/* Import preview manifest label: messages */
+"settings.backup.import.preview.messages" = "Berichten";
+
+/* Import preview manifest label: contacts */
+"settings.backup.import.preview.contacts" = "Contacten";
+
+/* Import preview manifest label: channels */
+"settings.backup.import.preview.channels" = "Kanalen";
+
+/* Import preview manifest label: devices */
+"settings.backup.import.preview.devices" = "Apparaten";
+
+/* Import preview manifest label: room messages */
+"settings.backup.import.preview.room_messages" = "Kamerberichten";
+
+/* Import preview manifest label: reactions */
+"settings.backup.import.preview.reactions" = "Reacties";
+
+/* Import preview manifest label: saved paths */
+"settings.backup.import.preview.saved_paths" = "Opgeslagen paden";
+
+/* Import preview manifest label: remote node sessions */
+"settings.backup.import.preview.remote_node_sessions" = "Externe knoopsessies";
+
+/* Import preview info text */
+"settings.backup.import.preview.info" = "Alleen nieuwe gegevens worden toegevoegd; bestaande records worden niet overschreven. Contacten die je na het maken van deze back-up hebt verwijderd, verschijnen opnieuw, en blokkeer-, demp- of favorietmarkeringen uit de back-up worden opnieuw toegepast.";
+
+/* Import preview import button */
+"settings.backup.import.preview.button" = "Gegevens importeren";
+
+/* Import progress label */
+"settings.backup.import.progress" = "Gegevens worden geïmporteerd…";
+/* Import parsing label */
+"settings.backup.import.parsing" = "Back-up wordt gelezen…";
+/* Import cancelling label shown after the user taps Cancel during an active import */
+"settings.backup.import.cancelling" = "Annuleren…";
+/* Import preview cancel / dismiss toolbar button */
+"settings.backup.import.preview.cancel" = "Annuleren";
+
+/* Import success title */
+"settings.backup.import.success.title" = "Import voltooid";
+
+/* Import success section header: items that were newly added to this device */
+"settings.backup.import.success.added_section" = "Toegevoegd aan dit apparaat";
+
+/* Import success section header: items in the backup that were already on this device */
+"settings.backup.import.success.already_here_section" = "Al op dit apparaat";
+
+/* Import success section footer: always visible under the "Already on this iPhone" section */
+"settings.backup.import.success.already_here_footer" = "De bestaande gegevens op dit apparaat zijn ongewijzigd gebleven; er is niets overschreven.";
+
+/* Import success hero subtitle when new items were added (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_added" = "%d items toegevoegd.";
+
+/* Import success hero subtitle when only existing items were refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_refreshed" = "%d bestaande items bijgewerkt.";
+
+/* Import success disclosure row summary for the "Already on this iPhone" section (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_summary" = "%d items al aanwezig";
+
+/* Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_refreshed" = "%d hiervan zijn bijgewerkt met nieuwere informatie uit de back-up.";
+
+/* Import success section header: channels that had no free local slot and couldn't be restored */
+"settings.backup.import.success.dropped_section" = "Kon niet worden hersteld";
+
+/* Import success disclosure row summary for the "Couldn't be restored" section */
+"settings.backup.import.success.dropped_summary" = "%d items konden niet worden hersteld";
+
+/* Import success footer explaining why some channels couldn't be restored and how to recover them */
+"settings.backup.import.success.dropped_footer" = "Deze kanalen hadden geen vrije sleuf op deze radio, dus zij en hun berichten zijn niet geïmporteerd. Maak een kanaalsleuf vrij en importeer opnieuw om ze te herstellen.";
+
+/* Import success done button */
+"settings.backup.import.success.done" = "Gereed";
+
+/* Import failure title */
+"settings.backup.import.error.title" = "Import mislukt";
+
+/* Import error dismiss button */
+"settings.backup.import.error.dismiss" = "Sluiten";
+
+/* Import cancelled title shown after user cancels an import before it commits */
+"settings.backup.import.cancelled.title" = "Import geannuleerd";
+
+/* Import cancelled message — rollback ran and nothing on device was changed */
+"settings.backup.import.cancelled.message" = "Er zijn geen gegevens gewijzigd.";
+
+/* File access error */
+"settings.backup.import.file_access_error" = "Kan het geselecteerde bestand niet openen.";
+
+/* Import preview manifest label: blocked senders */
+"settings.backup.import.preview.blocked_senders" = "Geblokkeerde afzenders";
+
+/* Import preview manifest label: node status snapshots */
+"settings.backup.import.preview.node_status_snapshots" = "Knooppunt-momentopnamen";
+
+/* Import preview manifest label: message repeats */
+"settings.backup.import.preview.message_repeats" = "Berichtherhalingen";
+
+/* Import header title when the backup had nothing new to add (every record was skipped) */
+"settings.backup.import.nothing_to_import.title" = "Alles is er al";
+
+/* Import subtitle when the backup had nothing new to add */
+"settings.backup.import.nothing_to_import.subtitle" = "De inhoud van deze back-up staat al op dit apparaat.";
+
+/* Default filename for an exported backup; %@ is an ISO-style timestamp */
+"settings.backup.export.default_filename" = "MC1 Back-up %@.mc1backup";
+
+/* Backup error: file is corrupt or unreadable */
+"settings.backup.error.invalid_file" = "Het back-upbestand is ongeldig of kan niet worden gelezen.";
+
+/* Backup error: file exceeds parser size cap; %1$d actual MB, %2$d max MB */
+"settings.backup.error.file_too_large" = "Het back-upbestand is te groot om te importeren (%1$d MB; limiet is %2$d MB).";
+
+/* Backup error: decompressed size exceeds safety cap; %d is max MB uncompressed */
+"settings.backup.error.decompressed_too_large" = "Na uitpakken overschrijdt het back-upbestand de veilige groottelimiet (%d MB ongecomprimeerd).";
+
+/* Backup error: file version too new; %1$d found, %2$d max supported */
+"settings.backup.error.unsupported_version" = "Deze back-up is gemaakt met een nieuwere indeling (versie %1$d). Deze app ondersteunt tot versie %2$d. Werk de app bij en probeer het opnieuw.";
+
+/* Backup error: manifest counts do not match arrays */
+"settings.backup.error.corrupted_manifest" = "Het back-upbestand lijkt beschadigd. De opgegeven aantallen komen niet overeen met de werkelijke gegevens.";
+
+/* Backup error: export failed; %@ is underlying error */
+"settings.backup.error.export_failed" = "Back-up maken mislukt: %@";
+
+/* Backup error: import failed; %@ is underlying error */
+"settings.backup.error.import_failed" = "Back-up importeren mislukt: %@";
+
+// MARK: - Export success
+
+/* Hero title on the backup export success sheet */
+"settings.backup.export.success.title" = "Back-up opgeslagen";
+
+/* Section header listing record counts included in the export */
+"settings.backup.export.success.included_section" = "Opgenomen in back-up";
+
+/* Primary button on the export success sheet */
+"settings.backup.export.success.done" = "Gereed";
+
+/* VoiceOver announcement when the export success sheet appears; %@ is the filename */
+"settings.backup.export.success.announcement" = "Back-up opgeslagen als %@";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "Je bezit dit thema niet.";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "Thema teruggezet naar het standaardthema.";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "Ontwikkeling steunen";
+"Support.Header.Body" = "Als je MC1 leuk vindt, zijn hier enkele manieren om de ontwikkeling te steunen! Alles hier is optioneel, gewoon een paar fooien en wat extra thema's.";
+"Support.Themes.Title" = "Thema's";
+"Support.Themes.Owned" = "In bezit";
+"Support.Themes.PurchasedFooter" = "Pas je nieuwe thema toe in Instellingen → Weergave.";
+"Support.Bundle.Title" = "Alle thema's";
+"Support.Bundle.Subtitle" = "Inclusief later toegevoegde thema's.";
+"Support.Contributions.Title" = "Bijdragen";
+"Support.Contributions.Footer" = "Een fooi als bedankje die de ontwikkeling van MC1 steunt. Geen fysieke goederen, geen lidmaatschapsvoordelen.";
+"Support.Contributions.HighValueConfirm" = "Een %@ sturen?";
+"Support.Contributions.ConfirmButton" = "%@ bijdragen";
+"Support.Restore.Button" = "Aankopen herstellen";
+"Support.Restore.Syncing" = "Herstellen…";
+"Support.Refund.Link" = "Terugbetaling aanvragen";
+"Support.Pending.Banner" = "Wacht op goedkeuring — je aankoop wordt geactiveerd zodra deze is goedgekeurd.";
+"Support.Pending.Button" = "Wacht op goedkeuring";
+"Support.Contact.Link" = "Contact opnemen met support";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "Standaard";
+"Support.Theme.Ember" = "Ember";
+"Support.Theme.Fern" = "Fern";
+"Support.Theme.Marine" = "Marine";
+"Support.Theme.Olive" = "Olive";
+"Support.Theme.Lavender" = "Lavender";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "Producten konden niet worden geladen.";
+"Support.Error.ProductNotFound" = "Product niet gevonden.";
+"Support.Error.PurchaseFailed" = "Aankoop mislukt: %@";
+"Support.Error.NetworkUnavailable" = "Netwerk niet beschikbaar.";
+"Support.Error.VerificationFailed" = "Kon je aankoop niet verifiëren.";
+"Support.Error.NotEntitled" = "Aankopen zijn beperkt op dit apparaat. Controleer de inhoudsbeperkingen van Schermtijd.";
+"Support.Error.StorefrontUnavailable" = "Dit product is niet beschikbaar in jouw regio.";
+"Support.Error.Unsupported" = "In-app-aankopen worden niet ondersteund op dit apparaat.";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "Thema %@, vergrendeld";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "Thema %@, in bezit";
+"Support.Accessibility.BundleCard.LockedLabel" = "Pakket Alle thema's, vergrendeld, %@";
+"Support.Accessibility.BundleCard.LockedHint" = "Koopt het pakket Alle thema's";
+"Support.Accessibility.BundleCard.LoadingLabel" = "Alle thema's-bundel, prijs laden";
+"Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
+"Support.Accessibility.ContributionRow.Hint" = "Stuurt een fooi als bedankje";
+"Support.Accessibility.TipConfirmAnnouncement" = "Bedankt voor je fooi.";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "Weergave";
+"Appearance.Scheme.Header" = "Lichte/donkere modus";
+"Appearance.Scheme.System" = "Systeem";
+"Appearance.Scheme.Light" = "Licht";
+"Appearance.Scheme.Dark" = "Donker";
+"Appearance.Themes.Header" = "Kies een thema";
+"Appearance.Themes.Selected" = "Geselecteerd";
+"Appearance.MoreThemes.Link" = "Meer thema's kopen";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "Thema %@, in bezit";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "Past dit thema toe";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "Thema %@, momenteel geselecteerd";
+"Appearance.Accessibility.Swatch.DualMode" = "%@, licht- en donkervarianten";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@, alleen donker";

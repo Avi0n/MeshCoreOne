@@ -1,6 +1,4 @@
-import Accessibility
 import MapKit
-import os
 import MC1Services
 import SwiftUI
 
@@ -8,11 +6,6 @@ import SwiftUI
 enum PingResult {
     case success(latencyMs: Int, snrThere: Double, snrBack: Double)
     case error(String)
-}
-
-private enum PingError: Error {
-    case notConnected
-    case timeout
 }
 
 /// Displays ping result with latency and bidirectional SNR
@@ -50,6 +43,7 @@ struct PingResultRow: View {
 /// Detailed view for a single contact
 struct ContactDetailView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     let contact: ContactDTO
@@ -60,12 +54,14 @@ struct ContactDetailView: View {
         case nodeAuth
         case repeaterStatus(RemoteNodeSessionDTO)
         case roomStatus(RemoteNodeSessionDTO)
+        case nodeTelemetry(ContactDTO)
 
         var id: String {
             switch self {
             case .nodeAuth: return "auth"
             case .repeaterStatus(let session): return "status-\(session.id)"
             case .roomStatus(let session): return "room-status-\(session.id)"
+            case .nodeTelemetry(let contact): return "telemetry-\(contact.id)"
             }
         }
     }
@@ -91,8 +87,8 @@ struct ContactDetailView: View {
     // Ping state
     @State private var isPinging = false
     @State private var pingResult: PingResult?
-
-    private let pingLogger = Logger(subsystem: "com.mc1", category: "Ping")
+    @State private var isSharing = false
+    @State private var showShareSuccess = false
 
     init(contact: ContactDTO, showFromDirectChat: Bool = false) {
         self.contact = contact
@@ -116,7 +112,13 @@ struct ContactDetailView: View {
                 isTogglingFavorite: isTogglingFavorite,
                 pingResult: pingResult,
                 onJoinRoom: { showRoomJoinSheet = true },
-                onShowTelemetry: { activeSheet = .nodeAuth },
+                onShowTelemetry: {
+                    if currentContact.type == .chat {
+                        activeSheet = .nodeTelemetry(currentContact)
+                    } else {
+                        activeSheet = .nodeAuth
+                    }
+                },
                 onShowAdminAccess: {
                     adminSession = nil
                     showRepeaterAdminAuth = true
@@ -124,8 +126,11 @@ struct ContactDetailView: View {
                 onPingRepeater: { Task { await pingRepeater() } },
                 onToggleFavorite: { Task { await toggleFavorite() } },
                 onShareQR: { showQRShareSheet = true },
-                onShareViaAdvert: { Task { await shareContact() } }
+                onShareViaAdvert: { Task { await shareContact() } },
+                isSharing: isSharing,
+                showShareSuccess: showShareSuccess
             )
+            .themedRowBackground(theme)
 
             // Info section
             ContactInfoSection(
@@ -135,24 +140,27 @@ struct ContactDetailView: View {
                 isSaving: isSaving,
                 onSaveNickname: { Task { await saveNickname() } }
             )
+            .themedRowBackground(theme)
 
             // Location section (if available)
             if currentContact.hasLocation {
                 ContactLocationSection(currentContact: currentContact)
+                    .themedRowBackground(theme)
             }
 
             // Network path controls
             ContactNetworkPathSection(
                 currentContact: currentContact,
-                pathViewModel: pathViewModel,
-                onRefreshContact: { Task { await refreshContact() } }
+                pathViewModel: pathViewModel
             )
+            .themedRowBackground(theme)
 
             // Technical details
             ContactTechnicalSection(
                 currentContact: currentContact,
                 contactTypeLabel: contactTypeLabel
             )
+            .themedRowBackground(theme)
 
             // Danger zone
             ContactDangerSection(
@@ -167,13 +175,15 @@ struct ContactDetailView: View {
                 },
                 onDelete: { showingDeleteAlert = true }
             )
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .errorAlert($errorMessage)
         .navigationTitle(contactTypeLabel)
         .navigationBarTitleDisplayMode(.inline)
         .alert(L10n.Contacts.Contacts.Detail.Alert.Block.title, isPresented: $showingBlockAlert) {
             Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) { }
-            Button(L10n.Contacts.Contacts.Swipe.block, role: .destructive) {
+            Button(L10n.Contacts.Contacts.Action.block, role: .destructive) {
                 Task {
                     await toggleBlocked()
                 }
@@ -200,12 +210,12 @@ struct ContactDetailView: View {
                     await refreshContact()
                 }
             }
-            await pathViewModel.loadContacts(deviceID: currentContact.deviceID)
+            await pathViewModel.loadContacts(radioID: currentContact.radioID)
 
             // Fetch fresh contact data from device to catch external changes
             // (e.g., user modified path in official MeshCore app)
             if let freshContact = try? await appState.services?.contactService.getContact(
-                deviceID: currentContact.deviceID,
+                radioID: currentContact.radioID,
                 publicKey: currentContact.publicKey
             ) {
                 currentContact = freshContact
@@ -214,17 +224,26 @@ struct ContactDetailView: View {
             // Wire up path discovery response handler to receive push notifications
             await appState.services?.advertisementService.setPathDiscoveryHandler { [weak pathViewModel] response in
                 Task { @MainActor in
-                    pathViewModel?.handleDiscoveryResponse(hopCount: response.outPath.count)
+                    pathViewModel?.handleDiscoveryResponse(hopCount: response.outHopCount)
                 }
             }
         }
         .onDisappear {
             pathViewModel.cancelDiscovery()
         }
-        .sheet(isPresented: $pathViewModel.showingPathEditor) {
+        .sheet(
+            isPresented: $pathViewModel.showingPathEditor,
+            onDismiss: { pathViewModel.insertionIntent = nil }
+        ) {
             PathEditingSheet(viewModel: pathViewModel, contact: currentContact)
         }
-        .alert(L10n.Contacts.Contacts.Detail.Alert.pathError, isPresented: $pathViewModel.showError) {
+        .alert(
+            L10n.Contacts.Contacts.Detail.Alert.pathError,
+            isPresented: Binding(
+                get: { pathViewModel.errorMessage != nil },
+                set: { if !$0 { pathViewModel.errorMessage = nil } }
+            )
+        ) {
             Button(L10n.Contacts.Contacts.Common.ok, role: .cancel) { }
         } message: {
             Text(pathViewModel.errorMessage ?? L10n.Contacts.Contacts.Common.errorOccurred)
@@ -265,6 +284,8 @@ struct ContactDetailView: View {
                 RepeaterStatusView(session: session)
             case .roomStatus(let session):
                 RoomStatusView(session: session)
+            case .nodeTelemetry(let contact):
+                NodeTelemetryView(contact: contact)
             }
         }
         .sheet(isPresented: $showRepeaterAdminAuth, onDismiss: {
@@ -349,7 +370,7 @@ struct ContactDetailView: View {
     private func deleteContact() async {
         do {
             try await appState.services?.contactService.removeContact(
-                deviceID: currentContact.deviceID,
+                radioID: currentContact.radioID,
                 publicKey: currentContact.publicKey
             )
             dismiss()
@@ -359,9 +380,18 @@ struct ContactDetailView: View {
     }
 
     private func shareContact() async {
+        isSharing = true
         do {
             try await appState.services?.contactService.shareContact(publicKey: currentContact.publicKey)
+            isSharing = false
+            withAnimation { showShareSuccess = true }
+            try? await Task.sleep(for: .seconds(1.5))
+            withAnimation { showShareSuccess = false }
+        } catch ContactServiceError.shareContactUnavailable {
+            isSharing = false
+            errorMessage = L10n.Contacts.Contacts.Detail.shareContactUnavailable
         } catch {
+            isSharing = false
             errorMessage = error.localizedDescription
         }
     }
@@ -370,63 +400,7 @@ struct ContactDetailView: View {
         guard !isPinging else { return }
         isPinging = true
         pingResult = nil
-
-        let startTime = ContinuousClock.now
-        let tag = UInt32.random(in: 0..<UInt32.max)
-
-        do {
-            guard let services = appState.services else {
-                throw PingError.notConnected
-            }
-
-            let device = appState.connectedDevice
-            let pathData = Data(currentContact.publicKey.prefix(device?.traceHashSize ?? 1))
-
-            // Task group: listener starts BEFORE sendTrace to avoid race with fast responses
-            let (snrThere, snrBack) = try await withThrowingTaskGroup(
-                of: (snrThere: Double, snrBack: Double).self
-            ) { group in
-                // Listen for 0x88 rxLogData trace response (arrives before 0x89 traceData)
-                group.addTask {
-                    for await notification in NotificationCenter.default.notifications(named: .rxLogTraceReceived) {
-                        if let notifTag = notification.userInfo?["tag"] as? UInt32, notifTag == tag {
-                            let localSnr = notification.userInfo?["localSnr"] as? Double
-                            let remoteSnr = notification.userInfo?["remoteSnr"] as? Double
-                            return (snrThere: remoteSnr ?? 0, snrBack: localSnr ?? 0)
-                        }
-                    }
-                    throw CancellationError()
-                }
-
-                // Send trace (listeners are already active above)
-                let sentInfo = try await services.binaryProtocolService.sendTrace(tag: tag, flags: device?.pathHashMode ?? 0, path: pathData)
-
-                // Timeout using actual suggested timeout from device
-                group.addTask {
-                    try await Task.sleep(for: .milliseconds(sentInfo.suggestedTimeoutMs))
-                    throw PingError.timeout
-                }
-
-                guard let result = try await group.next() else {
-                    throw PingError.timeout
-                }
-                group.cancelAll()
-                return result
-            }
-
-            let elapsed = ContinuousClock.now - startTime
-            let latencyMs = Int(elapsed / .milliseconds(1))
-
-            pingResult = .success(latencyMs: latencyMs, snrThere: snrThere, snrBack: snrBack)
-            let announcement = L10n.Contacts.Contacts.Detail.pingSuccessAnnouncement(latencyMs)
-            AccessibilityNotification.Announcement(announcement).post()
-        } catch {
-            pingLogger.error("Ping failed: \(error.localizedDescription)")
-            pingResult = .error(L10n.Contacts.Contacts.Detail.pingNoResponse)
-            let announcement = L10n.Contacts.Contacts.Detail.pingFailureAnnouncement
-            AccessibilityNotification.Announcement(announcement).post()
-        }
-
+        pingResult = await PingHelper.zeroHopPing(contact: currentContact, appState: appState)
         isPinging = false
     }
 
@@ -540,6 +514,8 @@ private struct ContactActionsSection: View {
     let onToggleFavorite: () -> Void
     let onShareQR: () -> Void
     let onShareViaAdvert: () -> Void
+    let isSharing: Bool
+    let showShareSuccess: Bool
 
     var body: some View {
         Section {
@@ -565,7 +541,7 @@ private struct ContactActionsSection: View {
             case .repeater:
                 NodeActionRows(
                     contact: currentContact,
-                    pingLabel: L10n.Contacts.Contacts.Detail.pingRepeater,
+                    pingLabel: L10n.Contacts.Contacts.Detail.ping,
                     isPinging: isPinging,
                     pingResult: pingResult,
                     connectionState: appState.connectionState,
@@ -583,6 +559,22 @@ private struct ContactActionsSection: View {
                         Label(L10n.Contacts.Contacts.Detail.sendMessage, systemImage: "message.fill")
                     }
                     .radioDisabled(for: appState.connectionState)
+                }
+
+                Button(action: onShowTelemetry) {
+                    Label(L10n.Contacts.Contacts.Detail.telemetry, systemImage: "chart.line.uptrend.xyaxis")
+                }
+                .radioDisabled(for: appState.connectionState)
+
+                NavigationLink {
+                    TelemetryHistoryOverviewView(
+                        publicKey: currentContact.publicKey,
+                        radioID: currentContact.radioID,
+                        showNeighbors: false
+                    )
+                } label: {
+                    Label(L10n.Contacts.Contacts.Detail.savedHistory, systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+                        .foregroundStyle(.tint)
                 }
             }
 
@@ -609,9 +601,15 @@ private struct ContactActionsSection: View {
 
             // Share Contact via Advert
             Button(action: onShareViaAdvert) {
-                Label(L10n.Contacts.Contacts.Detail.shareViaAdvert, systemImage: "antenna.radiowaves.left.and.right")
+                if isSharing || showShareSuccess {
+                    AsyncActionLabel(isLoading: isSharing, showSuccess: showShareSuccess) {
+                        EmptyView()
+                    }
+                } else {
+                    Label(L10n.Contacts.Contacts.Detail.shareViaAdvert, systemImage: "antenna.radiowaves.left.and.right")
+                }
             }
-            .radioDisabled(for: appState.connectionState)
+            .radioDisabled(for: appState.connectionState, or: isSharing || showShareSuccess)
         }
     }
 }
@@ -635,7 +633,7 @@ private struct NodeActionRows: View {
         NavigationLink {
             TelemetryHistoryOverviewView(
                 publicKey: contact.publicKey,
-                deviceID: contact.deviceID
+                radioID: contact.radioID
             )
         } label: {
             Label(L10n.Contacts.Contacts.Detail.savedHistory, systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
@@ -738,6 +736,7 @@ private struct ContactInfoSection: View {
 private struct ContactLocationSection: View {
     @Environment(\.appState) private var appState
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appTheme) private var theme
 
     let currentContact: ContactDTO
 
@@ -767,8 +766,8 @@ private struct ContactLocationSection: View {
                     span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
                 )),
                 cameraRegionVersion: currentContact.latitude.hashValue ^ currentContact.longitude.hashValue,
-                onPointTap: nil,
-                onMapTap: nil,
+                onPointTap: { _, _ in appState.navigation.navigateToMap(contact: currentContact) },
+                onMapTap: { _ in appState.navigation.navigateToMap(contact: currentContact) },
                 onCameraRegionChange: nil
             )
             .frame(height: 200)
@@ -787,7 +786,7 @@ private struct ContactLocationSection: View {
             }
             .listRowBackground(
                 UnevenRoundedRectangle(topLeadingRadius: 10, topTrailingRadius: 10)
-                    .fill(Color(.secondarySystemGroupedBackground))
+                    .fill(theme.surfaces?.card ?? Color(.secondarySystemGroupedBackground))
             )
 
             // Open in Maps
@@ -813,9 +812,7 @@ private struct ContactNetworkPathSection: View {
 
     let currentContact: ContactDTO
     let pathViewModel: PathManagementViewModel
-    let onRefreshContact: () -> Void
 
-    // Computed property for path display with resolved names
     private var pathDisplayWithNames: String {
         let pathData = currentContact.outPath
         let byteLength = currentContact.pathByteLength
@@ -827,24 +824,22 @@ private struct ContactNetworkPathSection: View {
             let end = min(start + hashSize, relevantPath.count)
             let hopBytes = Data(relevantPath[start..<end])
             if let name = pathViewModel.resolveHashToName(hopBytes) {
-                return "\(name)"
+                return name
             }
             return hopBytes.hexString()
         }.joined(separator: " \u{2192} ")
     }
 
-    // Route display text for simplified view
-    private var routeDisplayText: String {
+    private func routeDisplayText(pathDisplay: String) -> String {
         if currentContact.isFloodRouted {
             return L10n.Contacts.Contacts.Route.flood
         } else if currentContact.pathHopCount == 0 {
             return L10n.Contacts.Contacts.Route.direct
         } else {
-            return pathDisplayWithNames
+            return pathDisplay
         }
     }
 
-    // Footer text for network path section
     private var networkPathFooterText: String {
         if currentContact.isFloodRouted {
             return L10n.Contacts.Contacts.Detail.floodFooter
@@ -853,19 +848,19 @@ private struct ContactNetworkPathSection: View {
         }
     }
 
-    // VoiceOver accessibility label for path
-    private var pathAccessibilityLabel: String {
+    private func pathAccessibilityLabel(pathDisplay: String) -> String {
         if currentContact.isFloodRouted {
             return L10n.Contacts.Contacts.Detail.routeFlood
         } else if currentContact.pathHopCount == 0 {
             return L10n.Contacts.Contacts.Detail.routeDirect
         } else {
-            return L10n.Contacts.Contacts.Detail.routePrefix(pathDisplayWithNames)
+            return L10n.Contacts.Contacts.Detail.routePrefix(pathDisplay)
         }
     }
 
     var body: some View {
-        Section {
+        let pathDisplay = pathDisplayWithNames
+        return Section {
             // Current routing path
             Label {
                 VStack(alignment: .leading, spacing: 4) {
@@ -873,7 +868,7 @@ private struct ContactNetworkPathSection: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
 
-                    Text(routeDisplayText)
+                    Text(routeDisplayText(pathDisplay: pathDisplay))
                         .font(.caption.monospaced())
                         .foregroundStyle(.primary)
                 }
@@ -882,7 +877,7 @@ private struct ContactNetworkPathSection: View {
                     .foregroundStyle(.secondary)
             }
             .accessibilityElement(children: .combine)
-            .accessibilityLabel(pathAccessibilityLabel)
+            .accessibilityLabel(pathAccessibilityLabel(pathDisplay: pathDisplay))
 
             // Hops away (only when path is known)
             if !currentContact.isFloodRouted {
@@ -936,7 +931,7 @@ private struct ContactNetworkPathSection: View {
             // Edit Path button (secondary)
             Button {
                 Task {
-                    await pathViewModel.loadContacts(deviceID: currentContact.deviceID)
+                    await pathViewModel.loadContacts(radioID: currentContact.radioID)
                     pathViewModel.initializeEditablePath(from: currentContact)
                     pathViewModel.showingPathEditor = true
                 }
@@ -949,7 +944,6 @@ private struct ContactNetworkPathSection: View {
             Button(role: .destructive) {
                 Task {
                     await pathViewModel.resetPath(for: currentContact)
-                    onRefreshContact()
                 }
             } label: {
                 HStack {
@@ -1032,7 +1026,7 @@ private struct ContactDangerSection: View {
 #Preview("Default") {
     NavigationStack {
         ContactDetailView(contact: ContactDTO(from: Contact(
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0x42, count: 32),
             name: "Alice",
             latitude: 37.7749,
@@ -1047,7 +1041,7 @@ private struct ContactDangerSection: View {
     NavigationStack {
         ContactDetailView(
             contact: ContactDTO(from: Contact(
-                deviceID: UUID(),
+                radioID: UUID(),
                 publicKey: Data(repeating: 0x42, count: 32),
                 name: "Alice",
                 latitude: 37.7749,

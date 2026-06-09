@@ -1,15 +1,45 @@
 import SwiftUI
-import MC1Services
 
-/// Displays a link preview with image, title, and domain
+/// Displays a link preview with image, title, and domain. The hero frame is
+/// reserved from the image's aspect ratio (clamped to a min/max height) so the
+/// bubble does not jump when image bytes arrive after layout.
 struct LinkPreviewCard: View {
     let url: URL
     let title: String?
     let image: UIImage?
     let icon: UIImage?
+    let imageWidth: Int?
+    let imageHeight: Int?
     let onTap: () -> Void
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @ScaledMetric(relativeTo: .body) private var minHeroHeight: CGFloat = 100
+    @ScaledMetric(relativeTo: .body) private var maxHeroHeight: CGFloat = 250
+
+    private static let fallbackAspect: Double = 16.0 / 9.0
+    private static let cardCornerRadius: CGFloat = 12
+    private static let cardPadding: CGFloat = 10
+    private static let headerSpacing: CGFloat = 8
+    private static let iconSize: CGFloat = 16
+    private static let iconCornerRadius: CGFloat = 4
+
+    init(
+        url: URL,
+        title: String?,
+        image: UIImage?,
+        icon: UIImage?,
+        imageWidth: Int? = nil,
+        imageHeight: Int? = nil,
+        onTap: @escaping () -> Void
+    ) {
+        self.url = url
+        self.title = title
+        self.image = image
+        self.icon = icon
+        self.imageWidth = imageWidth
+        self.imageHeight = imageHeight
+        self.onTap = onTap
+    }
 
     private var domain: String {
         url.host ?? url.absoluteString
@@ -24,26 +54,38 @@ struct LinkPreviewCard: View {
         dynamicTypeSize.isAccessibilitySize ? 2 : 1
     }
 
+    private var heroAspect: CGFloat {
+        guard let imageWidth, let imageHeight, imageWidth > 0, imageHeight > 0 else {
+            return CGFloat(Self.fallbackAspect)
+        }
+        return CGFloat(imageWidth) / CGFloat(imageHeight)
+    }
+
     var body: some View {
         Button(action: onTap) {
             VStack(alignment: .leading, spacing: 0) {
-                // Hero image (if available)
                 if let image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(maxHeight: 150)
-                        .clipShape(.rect(topLeadingRadius: 12, topTrailingRadius: 12))
+                    Color.clear
+                        .aspectRatio(heroAspect, contentMode: .fit)
+                        .frame(minHeight: minHeroHeight, maxHeight: maxHeroHeight)
+                        .frame(maxWidth: .infinity)
+                        .overlay {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                        }
+                        .clipShape(.rect(
+                            topLeadingRadius: Self.cardCornerRadius,
+                            topTrailingRadius: Self.cardCornerRadius
+                        ))
                 }
 
-                // Title and domain
-                HStack(spacing: 8) {
-                    // Icon or globe fallback
+                HStack(spacing: Self.headerSpacing) {
                     if let icon {
                         Image(uiImage: icon)
                             .resizable()
-                            .frame(width: 16, height: 16)
-                            .clipShape(.rect(cornerRadius: 4))
+                            .frame(width: Self.iconSize, height: Self.iconSize)
+                            .clipShape(.rect(cornerRadius: Self.iconCornerRadius))
                     } else {
                         Image(systemName: "globe")
                             .font(.caption)
@@ -67,9 +109,9 @@ struct LinkPreviewCard: View {
 
                     Spacer()
                 }
-                .padding(10)
+                .padding(Self.cardPadding)
             }
-            .background(.regularMaterial, in: .rect(cornerRadius: 12))
+            .background(Color(.secondarySystemBackground), in: .rect(cornerRadius: Self.cardCornerRadius))
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)

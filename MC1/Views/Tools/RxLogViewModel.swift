@@ -73,7 +73,8 @@ final class RxLogViewModel {
             case .failed:
                 guard entry.decryptStatus == .hmacFailed
                     || entry.decryptStatus == .decryptFailed
-                    || entry.decryptStatus == .noMatchingKey else { return false }
+                    || entry.decryptStatus == .noMatchingKey
+                    || entry.decryptStatus == .dmNoMatchingKey else { return false }
             }
 
             return true
@@ -139,9 +140,9 @@ final class RxLogViewModel {
     // MARK: - Node Name Resolution
 
     /// Load contact names for path hop resolution.
-    func loadNodeNames(from dataStore: some PersistenceStoreProtocol, deviceID: UUID) async {
+    func loadNodeNames(from dataStore: some PersistenceStoreProtocol, radioID: UUID) async {
         do {
-            let contacts = try await dataStore.fetchContacts(deviceID: deviceID)
+            let contacts = try await dataStore.fetchContacts(radioID: radioID)
             nodeNames = Self.buildNodeNameMap(from: contacts)
         } catch {
             nodeNames = [:]

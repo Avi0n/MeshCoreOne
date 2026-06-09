@@ -17,15 +17,21 @@ extension Array where Element == CLLocationCoordinate2D {
             maxLon = Swift.max(maxLon, coord.longitude)
         }
 
+        let center = CLLocationCoordinate2D(
+            latitude: (minLat + maxLat) / 2,
+            longitude: (minLon + maxLon) / 2
+        )
+        let rawLatDelta = Swift.max(0.01, (maxLat - minLat) * paddingMultiplier)
+        let rawLonDelta = Swift.max(0.01, (maxLon - minLon) * paddingMultiplier)
+
+        // Clamp spans so center ± span/2 stays within valid coordinate ranges
+        let maxLatDelta = (90 - abs(center.latitude)) * 2
+        let latDelta = Swift.min(rawLatDelta, maxLatDelta)
+        let lonDelta = Swift.min(rawLonDelta, 360)
+
         return MKCoordinateRegion(
-            center: CLLocationCoordinate2D(
-                latitude: (minLat + maxLat) / 2,
-                longitude: (minLon + maxLon) / 2
-            ),
-            span: MKCoordinateSpan(
-                latitudeDelta: Swift.min(180, Swift.max(0.01, (maxLat - minLat) * paddingMultiplier)),
-                longitudeDelta: Swift.min(360, Swift.max(0.01, (maxLon - minLon) * paddingMultiplier))
-            )
+            center: center,
+            span: MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: lonDelta)
         )
     }
 }

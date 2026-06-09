@@ -12,7 +12,7 @@ struct BlockSenderSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     let senderName: String
-    let deviceID: UUID
+    let radioID: UUID
     let onBlock: (_ blockedContactIDs: Set<UUID>) -> Void
 
     @State private var matchingContacts: [ContactDTO] = []
@@ -67,11 +67,12 @@ struct BlockSenderSheet: View {
         }
 
         do {
-            let allContacts = try await store.fetchContacts(deviceID: deviceID)
-            matchingContacts = allContacts.filter { contact in
-                !contact.isBlocked
-                    && contact.name.localizedCaseInsensitiveCompare(senderName) == .orderedSame
-            }
+            let allContacts = try await store.fetchContacts(radioID: radioID)
+            matchingContacts = SenderContactMatcher.filter(
+                contacts: allContacts,
+                senderName: senderName,
+                excludeBlocked: true
+            )
             logger.info("Found \(matchingContacts.count) matching contacts for sender '\(senderName)'")
         } catch {
             logger.error("Failed to fetch contacts for matching: \(error)")
@@ -95,9 +96,9 @@ private struct ContactMatchSection: View {
             ForEach(contacts) { contact in
                 ContactMatchRow(
                     contact: contact,
-                    isSelected: selectedIDs.contains(contact.id),
+                    style: .toggle(isSelected: selectedIDs.contains(contact.id)),
                     userLocation: userLocation,
-                    onToggle: {
+                    action: {
                         if selectedIDs.contains(contact.id) {
                             selectedIDs.remove(contact.id)
                         } else {
@@ -107,89 +108,5 @@ private struct ContactMatchSection: View {
                 )
             }
         }
-    }
-}
-
-// MARK: - Contact Match Row
-
-private struct ContactMatchRow: View {
-    let contact: ContactDTO
-    let isSelected: Bool
-    let userLocation: CLLocation?
-    let onToggle: () -> Void
-
-    var body: some View {
-        Button(action: onToggle) {
-            HStack(alignment: .top, spacing: 12) {
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isSelected ? .blue : .secondary)
-                    .font(.title3)
-
-                ContactAvatar(contact: contact, size: 40)
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(contact.displayName)
-                        .font(.body)
-                        .bold()
-                        .foregroundStyle(.primary)
-
-                    RelativeTimestampText(timestamp: contact.lastAdvertTimestamp)
-
-                    HStack(spacing: 4) {
-                        Text(contactTypeLabel)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-
-                        if contact.hasLocation {
-                            Label(L10n.Contacts.Contacts.Row.location, systemImage: "location.fill")
-                                .labelStyle(.iconOnly)
-                                .font(.caption)
-                                .foregroundStyle(.green)
-
-                            if let distance = distanceText {
-                                Text(distance)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                    }
-
-                    Text(L10n.Chats.Chats.BlockSender.key(contact.publicKey.hexString(separator: " ")))
-                        .font(.caption)
-                        .monospaced()
-                        .foregroundStyle(.tertiary)
-                        .lineLimit(2)
-                }
-            }
-            .contentShape(.rect)
-        }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(contact.displayName)
-        .accessibilityValue(isSelected
-            ? L10n.Chats.Chats.BlockSender.Accessibility.selected
-            : L10n.Chats.Chats.BlockSender.Accessibility.notSelected)
-        .accessibilityAddTraits(.isToggle)
-    }
-
-    private var contactTypeLabel: String {
-        switch contact.type {
-        case .chat: L10n.Contacts.Contacts.NodeKind.contact
-        case .repeater: L10n.Contacts.Contacts.NodeKind.repeater
-        case .room: L10n.Contacts.Contacts.NodeKind.room
-        }
-    }
-
-    private var distanceText: String? {
-        guard let userLocation, contact.hasLocation else { return nil }
-
-        let contactLocation = CLLocation(
-            latitude: contact.latitude,
-            longitude: contact.longitude
-        )
-        let meters = userLocation.distance(from: contactLocation)
-        let measurement = Measurement(value: meters, unit: UnitLength.meters)
-        let formatted = measurement.formatted(.measurement(width: .abbreviated, usage: .road))
-        return L10n.Contacts.Contacts.Row.away(formatted)
     }
 }

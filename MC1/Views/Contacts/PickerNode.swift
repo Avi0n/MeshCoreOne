@@ -41,6 +41,15 @@ enum PickerNode: Identifiable {
         }
     }
 
+    /// True iff this node is a contact flagged as a user favorite.
+    /// Discovered nodes are never favorites — `DiscoveredNodeDTO` has no `isFavorite` field.
+    var isFavorite: Bool {
+        switch self {
+        case .contact(let c): c.isFavorite
+        case .discovered: false
+        }
+    }
+
     /// The underlying DTO for passing to ViewModel methods
     var underlying: any RepeaterResolvable {
         switch self {

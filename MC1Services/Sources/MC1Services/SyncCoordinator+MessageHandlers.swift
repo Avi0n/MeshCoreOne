@@ -37,18 +37,18 @@ extension SyncCoordinator {
         return true
     }
 
-    func wireMessageHandlers(services: ServiceContainer, deviceID: UUID) async {
-        logger.info("Wiring message handlers for device \(deviceID)")
+    func wireMessageHandlers(services: ServiceContainer, radioID: UUID) async {
+        logger.info("Wiring message handlers for device \(radioID)")
 
         // Populate blocked contacts cache
-        await refreshBlockedContactsCache(deviceID: deviceID, dataStore: services.dataStore)
+        await refreshBlockedContactsCache(radioID: radioID, dataStore: services.dataStore)
 
         // Cache device node name for self-mention detection
-        let device = try? await services.dataStore.fetchDevice(id: deviceID)
+        let device = try? await services.dataStore.fetchDevice(radioID: radioID)
         let selfNodeName = device?.nodeName ?? ""
 
-        await wireContactMessageHandler(services: services, deviceID: deviceID, selfNodeName: selfNodeName)
-        await wireChannelMessageHandler(services: services, deviceID: deviceID, selfNodeName: selfNodeName)
+        await wireContactMessageHandler(services: services, radioID: radioID, selfNodeName: selfNodeName)
+        await wireChannelMessageHandler(services: services, radioID: radioID, selfNodeName: selfNodeName)
         await wireSignedMessageHandler(services: services)
         await wireCLIMessageHandler(services: services)
 
@@ -57,8 +57,8 @@ extension SyncCoordinator {
 
     // MARK: - Contact Message Handler
 
-    private func wireContactMessageHandler(services: ServiceContainer, deviceID: UUID, selfNodeName: String) async {
-        await services.messagePollingService.setContactMessageHandler { [weak self] message, contact in
+    private func wireContactMessageHandler(services: ServiceContainer, radioID: UUID, selfNodeName: String) async {
+        await services.messagePollingService.setContactMessageHandler { [weak self] message, contact, context in
             guard let self else { return }
 
             let timestamp = UInt32(message.senderTimestamp.timeIntervalSince1970)
@@ -70,38 +70,40 @@ extension SyncCoordinator {
                 self.logger.debug("Corrected invalid direct message timestamp from \(Date(timeIntervalSince1970: TimeInterval(timestamp))) to \(receiveTime)")
             }
 
+            let sortDate = Self.sortDate(for: context, receiveTime: receiveTime)
+
             // Look up path data from RxLogEntry (for direct messages, channelIndex is nil)
             let rxResult = await self.lookupRxLogEntry(
                 services: services,
                 channelIndex: nil,
                 senderTimestamp: timestamp,
-                defaultPathLength: message.pathLength,
-                contactName: contact?.displayName
+                senderPublicKeyPrefix: message.senderPublicKeyPrefix,
+                defaultPathLength: message.pathLength
             )
 
-            // Compute deduplication key from RX log packet hash, falling back to content hash
-            let deduplicationKey: String
-            if let hash = rxResult.packetHash, !hash.isEmpty {
-                deduplicationKey = hash
-            } else {
-                deduplicationKey = Self.fallbackDeduplicationKey(
-                    contactID: contact?.id, channelIndex: nil,
-                    senderNodeName: nil, timestamp: timestamp, content: message.text
-                )
-            }
+            // Use content-based key for dedup (stable across retry attempts).
+            // The RX log packetHash is per-encrypted-packet and differs between
+            // retries with different attempt counters, so it must not drive dedup.
+            let deduplicationKey = Self.fallbackDeduplicationKey(
+                contactID: contact?.id, channelIndex: nil,
+                senderNodeName: nil, timestamp: timestamp, content: message.text
+            )
 
             // Check for self-mention before creating DTO
             let hasSelfMention = !selfNodeName.isEmpty &&
                 MentionUtilities.containsSelfMention(in: message.text, selfName: selfNodeName)
 
+            // regionScope is incoming-only by data-pipeline design — outgoing
+            // messages do not flow through 0x88 / RxLogEntry correlation.
             let messageDTO = MessageDTO(
                 id: UUID(),
-                deviceID: deviceID,
+                radioID: radioID,
                 contactID: contact?.id,
                 channelIndex: nil,
                 text: message.text,
                 timestamp: finalTimestamp,
                 createdAt: receiveTime,
+                sortDate: sortDate,
                 direction: .incoming,
                 status: .delivered,
                 textType: TextType(rawValue: message.textType) ?? .plain,
@@ -121,12 +123,14 @@ extension SyncCoordinator {
                 containsSelfMention: hasSelfMention,
                 mentionSeen: false,
                 timestampCorrected: timestampCorrected,
-                senderTimestamp: timestampCorrected ? timestamp : nil
+                senderTimestamp: timestampCorrected ? timestamp : nil,
+                routeType: rxResult.routeType,
+                regionScope: rxResult.regionScope
             )
 
             // Check for duplicate before saving
             do {
-                if try await services.dataStore.isDuplicateMessage(deduplicationKey: deduplicationKey) {
+                if try await services.dataStore.isDuplicateMessage(deduplicationKey: deduplicationKey, radioID: radioID) {
                     self.logger.info("Skipping duplicate direct message")
                     return
                 }
@@ -139,7 +143,7 @@ extension SyncCoordinator {
                await self.handleDMReaction(
                    text: message.text,
                    contact: contact,
-                   deviceID: deviceID,
+                   radioID: radioID,
                    services: services
                ) {
                 return
@@ -166,7 +170,7 @@ extension SyncCoordinator {
                             messageHash: pending.parsed.messageHash,
                             rawText: pending.rawText,
                             contactID: contact.id,
-                            deviceID: deviceID
+                            radioID: radioID
                         )
                         if await self.persistReactionIfNew(reactionDTO, services: services) {
                             self.logger.debug("Processed pending DM reaction \(pending.parsed.emoji)")
@@ -194,7 +198,7 @@ extension SyncCoordinator {
                 // Notify UI via SyncCoordinator
                 await self.notifyConversationsChanged()
 
-                // Notify MessageEventBroadcaster for real-time chat updates
+                // Forward to MessageEventStream consumers for real-time chat updates
                 if let contact {
                     await self.onDirectMessageReceived?(messageDTO, contact)
                 }
@@ -206,8 +210,8 @@ extension SyncCoordinator {
 
     // MARK: - Channel Message Handler
 
-    private func wireChannelMessageHandler(services: ServiceContainer, deviceID: UUID, selfNodeName: String) async {
-        await services.messagePollingService.setChannelMessageHandler { [weak self] message, channel in
+    private func wireChannelMessageHandler(services: ServiceContainer, radioID: UUID, selfNodeName: String) async {
+        await services.messagePollingService.setChannelMessageHandler { [weak self] message, channel, context in
             guard let self else { return }
 
             // Parse "NodeName: text" format for sender name
@@ -222,24 +226,22 @@ extension SyncCoordinator {
                 self.logger.debug("Corrected invalid channel message timestamp from \(Date(timeIntervalSince1970: TimeInterval(timestamp))) to \(receiveTime)")
             }
 
+            let sortDate = Self.sortDate(for: context, receiveTime: receiveTime)
+
             // Look up path data from RxLogEntry using sender timestamp (stored during decryption)
             let rxResult = await self.lookupRxLogEntry(
                 services: services,
                 channelIndex: message.channelIndex,
                 senderTimestamp: timestamp,
+                senderPublicKeyPrefix: nil,
                 defaultPathLength: message.pathLength
             )
 
-            // Compute deduplication key from RX log packet hash, falling back to content hash
-            let deduplicationKey: String
-            if let hash = rxResult.packetHash, !hash.isEmpty {
-                deduplicationKey = hash
-            } else {
-                deduplicationKey = Self.fallbackDeduplicationKey(
-                    contactID: nil, channelIndex: message.channelIndex,
-                    senderNodeName: senderNodeName, timestamp: timestamp, content: messageText
-                )
-            }
+            // Use content-based key for dedup (stable across retry attempts).
+            let deduplicationKey = Self.fallbackDeduplicationKey(
+                contactID: nil, channelIndex: message.channelIndex,
+                senderNodeName: senderNodeName, timestamp: timestamp, content: messageText
+            )
 
             // Check for self-mention before creating DTO
             // Filter out messages where user mentions themselves
@@ -249,12 +251,13 @@ extension SyncCoordinator {
 
             let messageDTO = MessageDTO(
                 id: UUID(),
-                deviceID: deviceID,
+                radioID: radioID,
                 contactID: nil,
                 channelIndex: message.channelIndex,
                 text: messageText,
                 timestamp: finalTimestamp,
                 createdAt: receiveTime,
+                sortDate: sortDate,
                 direction: .incoming,
                 status: .delivered,
                 textType: TextType(rawValue: message.textType) ?? .plain,
@@ -274,12 +277,14 @@ extension SyncCoordinator {
                 containsSelfMention: hasSelfMention,
                 mentionSeen: false,
                 timestampCorrected: timestampCorrected,
-                senderTimestamp: timestampCorrected ? timestamp : nil
+                senderTimestamp: timestampCorrected ? timestamp : nil,
+                routeType: rxResult.routeType,
+                regionScope: rxResult.regionScope
             )
 
             // Check for duplicate before saving
             do {
-                if try await services.dataStore.isDuplicateMessage(deduplicationKey: deduplicationKey) {
+                if try await services.dataStore.isDuplicateMessage(deduplicationKey: deduplicationKey, radioID: radioID) {
                     self.logger.info("Skipping duplicate channel message")
                     return
                 }
@@ -299,7 +304,7 @@ extension SyncCoordinator {
                 senderNodeName: senderNodeName,
                 selfNodeName: selfNodeName,
                 receiveTime: receiveTime,
-                deviceID: deviceID,
+                radioID: radioID,
                 services: services
             ) {
                 return
@@ -328,7 +333,7 @@ extension SyncCoordinator {
                             messageHash: pending.parsed.messageHash,
                             rawText: pending.rawText,
                             channelIndex: pending.channelIndex,
-                            deviceID: pending.deviceID
+                            radioID: pending.radioID
                         )
                         await self.persistReactionIfNew(reactionDTO, services: services)
                     }
@@ -349,7 +354,7 @@ extension SyncCoordinator {
                         messageText: messageText,
                         timestamp: timestamp,
                         hasSelfMention: hasSelfMention,
-                        deviceID: deviceID,
+                        radioID: radioID,
                         services: services
                     )
                 }
@@ -392,6 +397,7 @@ extension SyncCoordinator {
                     // Post notification for room message
                     await services.notificationService.postRoomMessageNotification(
                         roomName: session?.name ?? "Room",
+                        sessionID: savedMessage.sessionID,
                         senderName: savedMessage.authorName,
                         messageText: savedMessage.text,
                         messageID: savedMessage.id,
@@ -428,8 +434,8 @@ extension SyncCoordinator {
 
     // MARK: - Discovery Handler Wiring
 
-    func wireDiscoveryHandlers(services: ServiceContainer, deviceID: UUID) async {
-        logger.info("Wiring discovery handlers for device \(deviceID)")
+    func wireDiscoveryHandlers(services: ServiceContainer, radioID: UUID) async {
+        logger.info("Wiring discovery handlers for device \(radioID)")
 
         // New contact discovered handler (manual-add mode)
         // Posts notification when a new contact is discovered via advertisement
@@ -462,6 +468,8 @@ extension SyncCoordinator {
         let pathNodes: Data?
         let pathLength: UInt8
         let packetHash: String?
+        let routeType: RouteType?
+        let regionScope: String?
     }
 
     /// Looks up path data from an RxLogEntry to correlate with an incoming message.
@@ -469,8 +477,8 @@ extension SyncCoordinator {
         services: ServiceContainer,
         channelIndex: UInt8?,
         senderTimestamp: UInt32,
-        defaultPathLength: UInt8,
-        contactName: String? = nil
+        senderPublicKeyPrefix: Data?,
+        defaultPathLength: UInt8
     ) async -> RxLogLookupResult {
         if let channelIndex {
             logger.debug("Looking up RxLogEntry for channel \(channelIndex) with senderTimestamp: \(senderTimestamp)")
@@ -479,9 +487,7 @@ extension SyncCoordinator {
         do {
             if let rxEntry = try await services.dataStore.findRxLogEntry(
                 channelIndex: channelIndex,
-                senderTimestamp: senderTimestamp,
-                withinSeconds: 10,
-                contactName: contactName
+                senderTimestamp: senderTimestamp
             ) {
                 let pathLength = rxEntry.pathLength
                 let pathNodes = rxEntry.pathNodes
@@ -490,13 +496,27 @@ extension SyncCoordinator {
                 } else {
                     logger.debug("Correlated incoming direct message to RxLogEntry, pathLength: \(pathLength), pathNodes: \(pathNodes.count) bytes")
                 }
-                return RxLogLookupResult(pathNodes: pathNodes, pathLength: pathLength, packetHash: rxEntry.packetHash)
-            } else {
-                if channelIndex != nil {
-                    logger.warning("No RxLogEntry found for channel \(channelIndex!), senderTimestamp: \(senderTimestamp)")
-                } else {
-                    logger.debug("No RxLogEntry found for direct message from \(contactName ?? "unknown")")
+                return RxLogLookupResult(pathNodes: pathNodes, pathLength: pathLength, packetHash: rxEntry.packetHash, routeType: rxEntry.routeType, regionScope: rxEntry.regionScope)
+            }
+
+            // Fallback for DMs: if timestamp-based lookup failed (e.g., RxLog decryption
+            // hadn't extracted the timestamp yet), try matching by sender prefix byte
+            // in the raw packet payload within a recent time window.
+            if channelIndex == nil,
+               let prefixByte = senderPublicKeyPrefix?.first {
+                let lookbackWindow = Date().addingTimeInterval(-30)
+                if let rxEntry = try await services.dataStore.findRxLogEntryBySenderPrefix(
+                    senderPrefixByte: prefixByte,
+                    receivedSince: lookbackWindow
+                ) {
+                    logger.debug("Correlated DM to RxLogEntry via sender prefix fallback, pathLength: \(rxEntry.pathLength)")
+                    return RxLogLookupResult(pathNodes: rxEntry.pathNodes, pathLength: rxEntry.pathLength, packetHash: rxEntry.packetHash, routeType: rxEntry.routeType, regionScope: rxEntry.regionScope)
                 }
+                logger.debug("No RxLogEntry found for direct message (primary + fallback), senderTimestamp: \(senderTimestamp)")
+            } else if let channelIndex {
+                logger.warning("No RxLogEntry found for channel \(channelIndex), senderTimestamp: \(senderTimestamp)")
+            } else {
+                logger.debug("No RxLogEntry found for direct message, senderTimestamp: \(senderTimestamp)")
             }
         } catch {
             if channelIndex != nil {
@@ -506,7 +526,7 @@ extension SyncCoordinator {
             }
         }
 
-        return RxLogLookupResult(pathNodes: nil, pathLength: defaultPathLength, packetHash: nil)
+        return RxLogLookupResult(pathNodes: nil, pathLength: defaultPathLength, packetHash: nil, routeType: nil, regionScope: nil)
     }
 
     /// Handles an incoming DM reaction by looking up the target message and persisting the reaction.
@@ -515,7 +535,7 @@ extension SyncCoordinator {
     private func handleDMReaction(
         text: String,
         contact: ContactDTO,
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer
     ) async -> Bool {
         // Try meshcore-open v3 format
@@ -524,7 +544,7 @@ extension SyncCoordinator {
                 mcoReaction,
                 rawText: text,
                 contact: contact,
-                deviceID: deviceID,
+                radioID: radioID,
                 services: services
             )
         }
@@ -535,7 +555,7 @@ extension SyncCoordinator {
                 v1Reaction,
                 rawText: text,
                 contact: contact,
-                deviceID: deviceID,
+                radioID: radioID,
                 services: services
             )
         }
@@ -554,7 +574,7 @@ extension SyncCoordinator {
                 messageHash: parsed.messageHash,
                 rawText: text,
                 contactID: contact.id,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 logger.debug("Saved DM reaction \(parsed.emoji) to message \(targetMessageID)")
@@ -567,7 +587,7 @@ extension SyncCoordinator {
         let timestampWindow = reactionTimestampWindow()
 
         if let targetMessage = try? await services.dataStore.findDMMessageForReaction(
-            deviceID: deviceID,
+            radioID: radioID,
             contactID: contact.id,
             messageHash: parsed.messageHash,
             timestampWindow: timestampWindow,
@@ -580,7 +600,7 @@ extension SyncCoordinator {
                 messageHash: parsed.messageHash,
                 rawText: text,
                 contactID: contact.id,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 logger.debug("Saved DM reaction \(parsed.emoji) to message \(targetMessage.id) (from DB)")
@@ -595,7 +615,7 @@ extension SyncCoordinator {
             contactID: contact.id,
             senderName: contact.displayName,
             rawText: text,
-            deviceID: deviceID
+            radioID: radioID
         )
 
         logger.debug("Queued pending DM reaction \(parsed.emoji)")
@@ -611,7 +631,7 @@ extension SyncCoordinator {
         senderNodeName: String?,
         selfNodeName: String,
         receiveTime: Date,
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer
     ) async -> Bool {
         // Try meshcore-open v3 format
@@ -623,7 +643,7 @@ extension SyncCoordinator {
                 senderNodeName: senderNodeName,
                 selfNodeName: selfNodeName,
                 receiveTime: receiveTime,
-                deviceID: deviceID,
+                radioID: radioID,
                 services: services
             )
         }
@@ -636,7 +656,7 @@ extension SyncCoordinator {
                 channelIndex: channelIndex,
                 senderNodeName: senderNodeName,
                 selfNodeName: selfNodeName,
-                deviceID: deviceID,
+                radioID: radioID,
                 services: services
             )
         }
@@ -656,7 +676,7 @@ extension SyncCoordinator {
                 messageHash: parsed.messageHash,
                 rawText: text,
                 channelIndex: channelIndex,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 logger.debug("Saved reaction \(parsed.emoji) to message \(targetMessageID)")
@@ -670,7 +690,7 @@ extension SyncCoordinator {
         logger.debug("DB lookup: selfNodeName='\(selfNodeName)', targetSender=\(parsed.targetSender), hash=\(parsed.messageHash)")
 
         if let targetMessage = try? await services.dataStore.findChannelMessageForReaction(
-            deviceID: deviceID,
+            radioID: radioID,
             channelIndex: channelIndex,
             parsedReaction: parsed,
             localNodeName: selfNodeName.isEmpty ? nil : selfNodeName,
@@ -685,7 +705,7 @@ extension SyncCoordinator {
                 messageHash: parsed.messageHash,
                 rawText: text,
                 channelIndex: channelIndex,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 let targetSenderName: String?
@@ -719,7 +739,7 @@ extension SyncCoordinator {
             channelIndex: channelIndex,
             senderNodeName: senderName,
             rawText: text,
-            deviceID: deviceID
+            radioID: radioID
         )
         return true
     }
@@ -763,14 +783,14 @@ extension SyncCoordinator {
         messageText: String,
         timestamp: UInt32,
         hasSelfMention: Bool,
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer
     ) async throws {
         if let channelID = channel?.id {
             // Only increment unread if user is NOT currently viewing this channel
             let activeIndex = await services.notificationService.activeChannelIndex
-            let activeDeviceID = await services.notificationService.activeChannelDeviceID
-            let isViewingChannel = activeIndex == channel?.index && activeDeviceID == channel?.deviceID
+            let activeRadioID = await services.notificationService.activeChannelRadioID
+            let isViewingChannel = activeIndex == channel?.index && activeRadioID == channel?.radioID
             if !isViewingChannel {
                 try await services.dataStore.incrementChannelUnreadCount(channelID: channelID)
 
@@ -780,38 +800,38 @@ extension SyncCoordinator {
                 }
             }
         }
-        if channel == nil {
-            recordUnresolvedChannelNotification(
+        if Self.shouldPostChannelNotification(forResolvedChannel: channel) {
+            await services.notificationService.postChannelMessageNotification(
+                channelName: channel?.name ?? "Channel \(channelIndex)",
                 channelIndex: channelIndex,
-                deviceID: deviceID,
+                radioID: radioID,
+                senderName: senderNodeName,
+                messageText: messageText,
+                messageID: messageDTO.id,
+                notificationLevel: channel?.notificationLevel ?? .all,
+                hasSelfMention: hasSelfMention
+            )
+        } else {
+            recordUnresolvedChannel(
+                channelIndex: channelIndex,
+                radioID: radioID,
                 senderTimestamp: timestamp
             )
         }
-
-        await services.notificationService.postChannelMessageNotification(
-            channelName: channel?.name ?? "Channel \(channelIndex)",
-            channelIndex: channelIndex,
-            deviceID: deviceID,
-            senderName: senderNodeName,
-            messageText: messageText,
-            messageID: messageDTO.id,
-            notificationLevel: channel?.notificationLevel ?? .all,
-            hasSelfMention: hasSelfMention
-        )
         await services.notificationService.updateBadgeCount()
 
-        // Notify MessageEventBroadcaster for real-time chat updates
+        // Forward to MessageEventStream consumers for real-time chat updates
         await onChannelMessageReceived?(messageDTO, channelIndex)
     }
 
-    private func recordUnresolvedChannelNotification(
+    private func recordUnresolvedChannel(
         channelIndex: UInt8,
-        deviceID: UUID,
+        radioID: UUID,
         senderTimestamp: UInt32
     ) {
         let isNewIndex = unresolvedChannelIndices.insert(channelIndex).inserted
         logger.warning(
-            "Posting notification for unresolved channel \(channelIndex) on device \(deviceID), senderTimestamp: \(senderTimestamp)"
+            "Suppressing notification for unresolved channel \(channelIndex) on device \(radioID), senderTimestamp: \(senderTimestamp) — no local channel for this slot"
         )
 
         let now = Date()
@@ -827,7 +847,7 @@ extension SyncCoordinator {
         guard shouldEmitSummary else { return }
         let sortedIndices = unresolvedChannelIndices.sorted()
         logger.warning(
-            "Unresolved channel notification summary: total=\(sortedIndices.count), indices=\(sortedIndices)"
+            "Unresolved channel summary: total=\(sortedIndices.count), indices=\(sortedIndices)"
         )
         lastUnresolvedChannelSummaryAt = now
     }
@@ -852,13 +872,13 @@ extension SyncCoordinator {
         _ mcoReaction: ParsedMCOReaction,
         rawText: String,
         contact: ContactDTO,
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer
     ) async -> Bool {
         let timestampWindow = reactionTimestampWindow()
 
         guard let candidates = try? await services.dataStore.fetchDMMessageCandidates(
-            deviceID: deviceID,
+            radioID: radioID,
             contactID: contact.id,
             timestampWindow: timestampWindow,
             limit: 200
@@ -886,7 +906,7 @@ extension SyncCoordinator {
                 messageHash: mcoReaction.dartHash,
                 rawText: rawText,
                 contactID: contact.id,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 logger.debug("Saved MCO DM reaction \(mcoReaction.emoji) to message \(candidate.id)")
@@ -908,14 +928,14 @@ extension SyncCoordinator {
         senderNodeName: String?,
         selfNodeName: String,
         receiveTime: Date,
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer
     ) async -> Bool {
         let senderName = senderNodeName ?? "Unknown"
         let timestampWindow = reactionTimestampWindow(at: receiveTime)
 
         guard let candidates = try? await services.dataStore.fetchChannelMessageCandidates(
-            deviceID: deviceID,
+            radioID: radioID,
             channelIndex: channelIndex,
             timestampWindow: timestampWindow,
             limit: 200
@@ -951,7 +971,7 @@ extension SyncCoordinator {
                 messageHash: mcoReaction.dartHash,
                 rawText: rawText,
                 channelIndex: channelIndex,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 logger.debug("Saved MCO channel reaction \(mcoReaction.emoji) to message \(candidate.id)")
@@ -970,7 +990,7 @@ extension SyncCoordinator {
         _ v1Reaction: ParsedMCOReactionV1,
         rawText: String,
         contact: ContactDTO,
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer
     ) async -> Bool {
         let timestampWindow = reactionTimestampWindow(
@@ -978,7 +998,7 @@ extension SyncCoordinator {
         )
 
         guard let candidates = try? await services.dataStore.fetchDMMessageCandidates(
-            deviceID: deviceID,
+            radioID: radioID,
             contactID: contact.id,
             timestampWindow: timestampWindow,
             limit: 200
@@ -1000,7 +1020,7 @@ extension SyncCoordinator {
                 messageHash: v1Reaction.messageIdHash,
                 rawText: rawText,
                 contactID: contact.id,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 logger.debug("Saved MCO v1 DM reaction \(v1Reaction.emoji) to message \(candidate.id)")
@@ -1019,7 +1039,7 @@ extension SyncCoordinator {
         channelIndex: UInt8,
         senderNodeName: String?,
         selfNodeName: String,
-        deviceID: UUID,
+        radioID: UUID,
         services: ServiceContainer
     ) async -> Bool {
         let senderName = senderNodeName ?? "Unknown"
@@ -1028,7 +1048,7 @@ extension SyncCoordinator {
         )
 
         guard let candidates = try? await services.dataStore.fetchChannelMessageCandidates(
-            deviceID: deviceID,
+            radioID: radioID,
             channelIndex: channelIndex,
             timestampWindow: timestampWindow,
             limit: 200
@@ -1064,7 +1084,7 @@ extension SyncCoordinator {
                 messageHash: v1Reaction.messageIdHash,
                 rawText: rawText,
                 channelIndex: channelIndex,
-                deviceID: deviceID
+                radioID: radioID
             )
             if await persistReactionIfNew(reactionDTO, services: services) {
                 logger.debug("Saved MCO v1 channel reaction \(v1Reaction.emoji) to message \(candidate.id)")
@@ -1083,12 +1103,13 @@ extension SyncCoordinator {
         timestamp: UInt32,
         content: String
     ) -> String {
-        let contentHash = SHA256.hash(data: Data(content.utf8))
-        let hashPrefix = contentHash.prefix(4).map { String(format: "%02X", $0) }.joined()
-        if let channelIndex {
-            return "ch-\(channelIndex)-\(timestamp)-\(senderNodeName ?? "")-\(hashPrefix)"
-        }
-        return "dm-\(contactID?.uuidString ?? "unknown")-\(timestamp)-\(hashPrefix)"
+        DeduplicationKey.contentBased(
+            contactID: contactID,
+            channelIndex: channelIndex,
+            senderNodeName: senderNodeName,
+            timestamp: timestamp,
+            content: content
+        )
     }
 
     nonisolated static func parseChannelMessage(_ text: String) -> (senderNodeName: String?, messageText: String) {
@@ -1099,5 +1120,14 @@ extension SyncCoordinator {
             return (senderName, messageText)
         }
         return (nil, text)
+    }
+
+    /// A received channel message only warrants a user notification when it resolves to a known
+    /// local channel. The radio can report a message on a slot the app has no `Channel` for: the
+    /// firmware decrypts zero-key group traffic on an unconfigured slot and attributes it to the
+    /// first empty slot. Such messages have no openable chat, so they are logged as unresolved
+    /// but never surfaced as a notification.
+    nonisolated static func shouldPostChannelNotification(forResolvedChannel channel: ChannelDTO?) -> Bool {
+        channel != nil
     }
 }

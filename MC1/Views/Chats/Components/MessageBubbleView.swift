@@ -1,86 +1,42 @@
 import SwiftUI
 import MC1Services
 
-/// Constructs a UnifiedMessageBubble for a given display item, resolving message data from the view model
-struct MessageBubbleView: View {
-    let item: MessageDisplayItem
+/// Renders a `UnifiedMessageBubble` for a stored `MessageItem`. Resolves
+/// the message DTO and per-message assets through `BubbleResolver` and
+/// dispatches user interactions through `BubbleActions`. The view does
+/// not hold a reference to `ChatViewModel`, which lets it adopt
+/// `Equatable` on `MessageItem` alone so SwiftUI can skip rebodies when
+/// the row identity and content are unchanged.
+struct MessageBubbleView: View, Equatable {
+    let item: MessageItem
     let contactName: String
     let deviceName: String
     let configuration: MessageBubbleConfiguration
-    @Bindable var viewModel: ChatViewModel
-    let recentEmojisStore: RecentEmojisStore
-    let showInlineImages: Bool
-    let autoPlayGIFs: Bool
-    let showIncomingPath: Bool
-    let showIncomingHopCount: Bool
-    @Binding var selectedMessageForActions: MessageDTO?
-    @Binding var imageViewerData: ImageViewerData?
-    let onRetryMessage: (MessageDTO) -> Void
+    let resolver: BubbleResolver
+    let actions: BubbleActions
 
-    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    nonisolated static func == (lhs: MessageBubbleView, rhs: MessageBubbleView) -> Bool {
+        lhs.item == rhs.item
+    }
 
     var body: some View {
-        if let message = viewModel.message(for: item) {
+        if let message = resolver.message(item) {
             UnifiedMessageBubble(
                 message: message,
                 contactName: contactName,
                 deviceName: deviceName,
                 configuration: configuration,
-                displayState: MessageDisplayState(
-                    showTimestamp: item.showTimestamp,
-                    showDirectionGap: item.showDirectionGap,
-                    showSenderName: item.showSenderName,
-                    showNewMessagesDivider: item.showNewMessagesDivider,
-                    detectedURL: item.detectedURL,
-                    previewState: item.previewState,
-                    loadedPreview: item.loadedPreview,
-                    isImageURL: item.isImageURL,
-                    decodedImage: viewModel.decodedImage(for: message.id),
-                    decodedPreviewImage: viewModel.decodedPreviewImage(for: message.id),
-                    decodedPreviewIcon: viewModel.decodedPreviewIcon(for: message.id),
-                    isGIF: viewModel.isGIFImage(for: message.id),
-                    showInlineImages: showInlineImages,
-                    autoPlayGIFs: autoPlayGIFs,
-                    showIncomingPath: showIncomingPath,
-                    showIncomingHopCount: showIncomingHopCount,
-                    formattedText: viewModel.formattedText(
-                        for: message.id,
-                        text: message.text,
-                        isOutgoing: message.isOutgoing,
-                        currentUserName: deviceName,
-                        isHighContrast: colorSchemeContrast == .increased
-                    )
-                ),
+                item: item,
+                imageResolver: { ref in resolver.image(ref) },
                 callbacks: MessageBubbleCallbacks(
-                    onRetry: { onRetryMessage(message) },
-                    onReaction: { emoji in
-                        recentEmojisStore.recordUsage(emoji)
-                        Task { await viewModel.sendReaction(emoji: emoji, to: message) }
-                    },
-                    onLongPress: { selectedMessageForActions = message },
-                    onImageTap: {
-                        if let data = viewModel.imageData(for: message.id) {
-                            imageViewerData = ImageViewerData(
-                                imageData: data,
-                                isGIF: viewModel.isGIFImage(for: message.id)
-                            )
-                        }
-                    },
-                    onRetryImageFetch: {
-                        Task { await viewModel.retryImageFetch(for: message.id) }
-                    },
-                    onRequestPreviewFetch: {
-                        if item.isImageURL && showInlineImages {
-                            viewModel.requestImageFetch(for: message.id, showInlineImages: showInlineImages)
-                        } else {
-                            viewModel.requestPreviewFetch(for: message.id)
-                        }
-                    },
-                    onManualPreviewFetch: {
-                        Task {
-                            await viewModel.manualFetchPreview(for: message.id)
-                        }
-                    }
+                    onRetry: { actions.onRetryMessage(message) },
+                    onReaction: { emoji in actions.onReaction(emoji, message) },
+                    onLongPress: { actions.onLongPress(message) },
+                    onImageTap: { actions.onImageTap(message) },
+                    onRetryImageFetch: { actions.onRetryImageFetch(message.id) },
+                    onRequestPreviewFetch: { actions.onRequestPreviewFetch(message.id) },
+                    onManualPreviewFetch: { actions.onManualPreviewFetch(message.id) },
+                    onMapPreviewTap: { coordinate in actions.onMapPreviewTap(coordinate) }
                 )
             )
         } else {

@@ -5,6 +5,7 @@ import MC1Services
 @MainActor
 struct JoinHashtagChannelView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
 
     let availableSlots: [UInt8]
     let onComplete: (ChannelDTO?) -> Void
@@ -53,6 +54,7 @@ struct JoinHashtagChannelView: View {
             } footer: {
                 Text(L10n.Chats.Chats.JoinHashtag.footer)
             }
+            .themedRowBackground(theme)
 
             Section {
                 HStack {
@@ -76,12 +78,14 @@ struct JoinHashtagChannelView: View {
                     Spacer()
                 }
             }
+            .themedRowBackground(theme)
 
             if let errorMessage {
                 Section {
                     Text(errorMessage)
                         .foregroundStyle(.red)
                 }
+                .themedRowBackground(theme)
             }
 
             Section {
@@ -117,14 +121,16 @@ struct JoinHashtagChannelView: View {
                         .frame(maxWidth: .infinity)
                 }
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Chats.Chats.JoinHashtag.title)
         .navigationBarTitleDisplayMode(.inline)
         .task {
-            guard let deviceID = appState.connectedDevice?.id,
+            guard let radioID = appState.connectedDevice?.radioID,
                   let dataStore = appState.services?.dataStore else { return }
             do {
-                existingChannels = try await dataStore.fetchChannels(deviceID: deviceID)
+                existingChannels = try await dataStore.fetchChannels(radioID: radioID)
             } catch {
                 // Fail open - allow creation if fetch fails
             }
@@ -132,7 +138,7 @@ struct JoinHashtagChannelView: View {
     }
 
     private func joinChannel() async {
-        guard let deviceID = appState.connectedDevice?.id else {
+        guard let radioID = appState.connectedDevice?.radioID else {
             errorMessage = L10n.Chats.Chats.Error.noDeviceConnected
             return
         }
@@ -149,7 +155,7 @@ struct JoinHashtagChannelView: View {
             // For hashtag channels, hash the full name including "#" prefix
             // to match meshcore spec: sha256("#channelname")[0:16]
             try await channelService.setChannel(
-                deviceID: deviceID,
+                radioID: radioID,
                 index: selectedSlot,
                 name: "#\(channelName)",
                 passphrase: "#\(channelName)"
@@ -157,7 +163,7 @@ struct JoinHashtagChannelView: View {
 
             // Fetch the joined channel to return it
             var joinedChannel: ChannelDTO?
-            if let channels = try? await appState.services?.dataStore.fetchChannels(deviceID: deviceID) {
+            if let channels = try? await appState.services?.dataStore.fetchChannels(radioID: radioID) {
                 joinedChannel = channels.first { $0.index == selectedSlot }
             }
             onComplete(joinedChannel)

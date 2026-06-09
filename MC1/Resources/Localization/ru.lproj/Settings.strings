@@ -358,7 +358,19 @@
 "pathHashMode.threeBytes" = "3 байта";
 
 /* Footer explaining path hash mode tradeoff */
-"pathHashMode.footer" = "Более крупные хеши уменьшают коллизии маршрутизации, но ограничивают максимальное количество переходов на маршруте.";
+"pathHashMode.footer" = "Более крупные хеши уменьшают коллизии маршрутизации, но ограничивают максимальное количество переходов на маршруте. Ретрансляторы с прошивкой старше 1.14.0 не будут повторять сообщения с размером хеша больше 1 байта.";
+
+
+// MARK: - Default Flood Scope Section
+
+/* Section header for default flood scope picker */
+"defaultFloodScope.header" = "Область flood по умолчанию";
+
+/* Footer explaining default flood scope */
+"defaultFloodScope.footer" = "Когда задана, устройство применяет эту область к flood-отправкам, если её не переопределит область, привязанная к каналу. Область сохраняется на устройстве и не теряется после перезагрузки.";
+
+/* Option to clear the persisted default flood scope */
+"defaultFloodScope.disabled" = "Нет";
 
 
 // MARK: - Battery Curve Section
@@ -370,7 +382,7 @@
 "batteryCurve.footer" = "Настройте кривую напряжение-процент для батареи вашего устройства.";
 
 /* Label for preset picker */
-"batteryCurve.preset" = "Пресет";
+"batteryCurve.preset" = "Предустановка";
 
 /* Option for custom battery curve */
 "batteryCurve.custom" = "Пользовательский";
@@ -379,7 +391,7 @@
 "batteryCurve.editValues" = "Редактировать значения";
 
 /* Validation error for value out of range - %d is the percentage level */
-"batteryCurve.validation.outOfRange" = "Значение при %d%% должно быть 1000-5000 мВ";
+"batteryCurve.validation.outOfRange" = "Значение при %d%% должно быть 1000-9000 мВ";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "Значения должны быть в убывающем порядке";
@@ -538,10 +550,10 @@
 "nodes.staleCleanup.days" = "%d дн.";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "Неизбранные узлы, от которых не было сигнала %d дн., автоматически удаляются при подключении.";
+"nodes.staleCleanup.footerEnabled" = "Неизбранные узлы, которые не обновлялись %d дн., автоматически удаляются при подключении.";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "Автоматически удаляет неизбранные узлы, от которых не было сигнала после установленного периода. Избранные никогда не удаляются.";
+"nodes.staleCleanup.footerDisabled" = "Автоматически удаляет неизбранные узлы, которые не обновлялись в течение установленного периода. Избранные никогда не удаляются.";
 
 /* Footer when toggle is on but no threshold selected yet */
 "nodes.staleCleanup.footerSelect" = "Выберите, как долго хранить узлы. Избранные никогда не удаляются.";
@@ -591,14 +603,17 @@
 /* Footer explaining factory reset */
 "dangerZone.footer" = "Сброс до заводских настроек удаляет все контакты, сообщения и настройки на устройстве.";
 
-/* Alert title for forget device confirmation */
-"dangerZone.alert.forget.title" = "Забыть устройство";
+/* Confirmation dialog title for forget device */
+"dangerZone.dialog.forget.title" = "Забыть устройство";
 
-/* Button to confirm forget */
-"dangerZone.alert.forget.confirm" = "Забыть";
+/* Confirmation dialog message for forget device */
+"dangerZone.dialog.forget.message" = "Ваше устройство будет отвязано. Вы можете сохранить или удалить ваши сообщения, контакты и каналы.";
 
-/* Alert message for forget device */
-"dangerZone.alert.forget.message" = "Это удалит устройство из списка сопряжённых. Вы можете сопрячь его снова позже.";
+/* Button to forget device but keep data */
+"dangerZone.dialog.forget.keepData" = "Забыть устройство";
+
+/* Button to forget device and delete all associated data */
+"dangerZone.dialog.forget.deleteAll" = "Забыть устройство и удалить данные";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "Сброс до заводских настроек";
@@ -741,6 +756,15 @@
 /* Toggle label for new contact discovered notifications */
 "notifications.newContactDiscovered" = "Обнаружен новый контакт";
 
+/* Toggle label for companion discovery notifications */
+"notifications.discoveryContact" = "Companion";
+
+/* Toggle label for repeater discovery notifications */
+"notifications.discoveryRepeater" = "Repeater";
+
+/* Toggle label for room discovery notifications */
+"notifications.discoveryRoom" = "Room";
+
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Предупреждения о низком заряде";
 
@@ -769,10 +793,10 @@
 "radio.header" = "Радио";
 
 /* Label for radio preset picker */
-"radio.preset" = "Пресет радио";
+"radio.preset" = "Предустановка радио";
 
 /* Footer explaining radio presets */
-"radio.footer" = "Выберите пресет, соответствующий вашему региону. Устройства MeshCore должны использовать одинаковые настройки радио для связи.";
+"radio.footer" = "Выберите предустановку, соответствующую вашему региону. Устройства MeshCore должны использовать одинаковые настройки радио для связи.";
 
 /* Toggle label for repeat mode */
 "radio.repeatMode" = "Режим ретранслятора";
@@ -791,6 +815,12 @@
 
 /* Confirmation dialog enable button */
 "radio.repeatMode.confirm.enable" = "Включить";
+
+/* Location: RadioPresetSection.swift - Footer line listing the user's region */
+"radio.regionFooter" = "Отображение рекомендуемых предустановок для %@.";
+
+/* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
+"radio.mismatchHint" = "Ваше радио настроено на %@, а не на рекомендуемую предустановку для %@.";
 
 
 // MARK: - Telemetry Settings Section
@@ -918,17 +948,35 @@
 
 // MARK: - Messages Settings Section
 
-/* Section header for Messages settings */
-"messages.header" = "Сообщения";
+/* Section header for message info settings in chats */
+"messages.header" = "Инфо сообщения";
+
+/* Toggle label for showing the raw uncorrected wire send time on incoming messages */
+"messages.showIncomingSendTime" = "Входящее время отправки";
 
 /* Toggle label for showing routing path on incoming messages */
-"messages.showIncomingPath" = "Показывать входящий путь";
+"messages.showIncomingPath" = "Входящий путь";
 
 /* Toggle label for showing hop count on incoming messages */
-"messages.showIncomingHopCount" = "Показывать входящее количество переходов";
+"messages.showIncomingHopCount" = "Входящее количество переходов";
+
+/* Toggle label for showing the radio region an incoming message was flooded under */
+"messages.showIncomingRegion" = "Входящий регион";
 
 /* Footer explaining what the message display options show */
-"messages.footer" = "Показывать информацию о маршрутизации во входящих сообщениях.";
+"messages.footer" = "Показывать информацию о маршрутизации и времени во входящих сообщениях.";
+
+
+// MARK: - Direct Messages Settings Section
+
+/* Section header for direct message settings */
+"directMessages.header" = "Прямые сообщения";
+
+/* Picker label for number of acknowledgments */
+"directMessages.acknowledgments" = "Acknowledgments";
+
+/* Footer explaining the acknowledgments setting */
+"directMessages.footer" = "Количество подтверждений, отправляемых на каждое прямое сообщение. Используйте 2 для лучшего подтверждения доставки по ненадёжным каналам.";
 
 
 // MARK: - BLE Status Indicator
@@ -953,6 +1001,9 @@
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Подключено";
+
+/* Status shown when device is syncing data */
+"bleStatus.status.syncing" = "Синхронизация";
 
 /* Status shown when device is ready */
 "bleStatus.status.ready" = "Готово";
@@ -1099,6 +1150,12 @@
 /* Import cancelled */
 "configImport.cancelled" = "Импорт был отменён.";
 
+/* Import cancelled after one or more settings were already written to the device */
+"configImport.cancelledPartial" = "Импорт отменён, но некоторые настройки уже были записаны на устройство. Проверьте конфигурацию устройства.";
+
+/* Import failed after one or more settings were already written; %@ is the underlying error message */
+"configImport.failedPartial" = "%@ Некоторые настройки могли быть уже записаны на устройство. Проверьте конфигурацию устройства.";
+
 /* Import success */
 "configImport.importSuccess" = "Конфигурация успешно импортирована";
 
@@ -1120,6 +1177,69 @@
 /* Contact count (param: integer) */
 "configImport.contactCount" = "Будет добавлено/обновлено %d контактов на устройстве";
 
+/* Generic device-name fallback used in confirmation messages when the node has no name */
+"configImport.thisDevice" = "это устройство";
+
+/* Import progress: applying position */
+"configImport.stepPosition" = "Установка позиции";
+
+/* Import progress: applying other parameters */
+"configImport.stepOtherParameters" = "Установка прочих параметров";
+
+/* Import progress: importing the private key */
+"configImport.stepPrivateKey" = "Импорт закрытого ключа";
+
+/* Import progress: setting the node name */
+"configImport.stepNodeName" = "Установка имени узла";
+
+/* Import progress: applying radio parameters */
+"configImport.stepRadioParameters" = "Установка параметров радио";
+
+/* Import progress: setting TX power */
+"configImport.stepTxPower" = "Установка мощности TX";
+
+/* Import progress: importing a channel (param: channel name) */
+"configImport.stepChannel" = "Импорт канала: %@";
+
+/* Import progress: importing a contact (param: contact name) */
+"configImport.stepContact" = "Импорт контакта: %@";
+
+/* Validation field label: radio frequency */
+"configImport.field.frequency" = "Частота";
+
+/* Validation field label: radio bandwidth */
+"configImport.field.bandwidth" = "Полоса пропускания";
+
+/* Validation field label: spreading factor */
+"configImport.field.spreadingFactor" = "Коэффициент расширения";
+
+/* Validation field label: coding rate */
+"configImport.field.codingRate" = "Скорость кодирования";
+
+/* Validation field label: TX power */
+"configImport.field.txPower" = "Мощность передачи";
+
+/* Validation field label: latitude */
+"configImport.field.latitude" = "Широта";
+
+/* Validation field label: longitude */
+"configImport.field.longitude" = "Долгота";
+
+/* Validation error: value outside radio's supported range (param: field label) */
+"configImport.error.radioOutOfRange" = "%@ выходит за пределы диапазона, поддерживаемого радиомодулем";
+
+/* Validation error: invalid coordinate (param: field label) */
+"configImport.error.positionInvalid" = "%@ содержит недопустимую координату или координату вне диапазона";
+
+/* Validation error: contact coordinate invalid (params: contact name, field label) */
+"configImport.error.contactCoordinateInvalid" = "Контакт \"%@\": %@ содержит недопустимую координату или координату вне диапазона";
+
+/* Validation error: contact has an invalid routing path (param: contact name) */
+"configImport.error.invalidOutPath" = "Контакт \"%@\" имеет недопустимый маршрут";
+
+/* Validation error: not enough free contact slots (params: needed count, available count) */
+"configImport.error.contactCapacityExceeded" = "Для импорта требуется свободных слотов контактов: %d, но на устройстве осталось только %d";
+
 /* Toggle label for inline images */
 "inlineImages.toggle" = "Встроенные изображения";
 
@@ -1128,6 +1248,20 @@
 
 /* Footer explaining inline image privacy implications */
 "inlineImages.footer" = "Загрузка изображений по URL-адресам может раскрыть ваш IP-адрес серверу, на котором размещено изображение.";
+
+// MARK: - Map Preview Settings Section
+
+/* Section header for chat map preview settings */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.header" = "Превью карты";
+
+/* Toggle label for chat map thumbnails */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.toggle" = "Показывать миниатюры карты";
+
+/* Footer explaining map preview privacy implications */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.footer" = "Отображение миниатюр карты загружает плитки для координаты со стороннего сервера, что может раскрыть ваш IP-адрес.";
 
 // MARK: - Blocking Section
 
@@ -1159,6 +1293,25 @@
 "language.title" = "Язык";
 
 
+// MARK: - Region
+
+/* Location: RegionSettingsView.swift - Title */
+"region.title" = "Регион";
+
+/* Location: SettingsView.swift - Detail row when region is unset */
+"region.notSet" = "Не задан";
+
+/* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
+"region.subdivision.US-CA" = "Калифорния";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
+"region.subdivision.AU-QLD" = "Квинсленд";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name */
+"region.subdivision.AU-SA" = "Южная Австралия";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
+"region.subdivision.AU-WA" = "Западная Австралия";
 
 // MARK: - Live Activity
 
@@ -1170,7 +1323,6 @@
 
 /* Message for the Live Activity tip */
 "liveActivity.tip.message" = "Подключение, батарея и сообщения остаются видимыми — даже без открытия приложения.";
-
 
 // MARK: - Regenerate Identity
 
@@ -1231,7 +1383,6 @@
 /* Error when device rejects the key */
 "regenerateIdentity.error.deviceRejected" = "Устройство отклонило ключ. Пожалуйста, попробуйте снова.";
 
-
 // MARK: - Import Key
 
 /* Button label to open import key sheet */
@@ -1262,8 +1413,8 @@
 "importKey.error.invalidKey" = "Недействительный закрытый ключ Ed25519";
 
 // Reply with Quote
-"replyWithQuote.toggle" = "Reply with Quote";
-"replyWithQuote.footer" = "Replying includes a preview of the original message.";
+"replyWithQuote.toggle" = "Ответ с цитатой";
+"replyWithQuote.footer" = "Ответ включает предпросмотр исходного сообщения.";
 
 // MARK: - Offline Maps
 
@@ -1278,7 +1429,6 @@
 
 /* Button to download a new offline region */
 "offlineMaps.downloadRegion" = "Скачать регион";
-
 
 /* Section header for storage info */
 "offlineMaps.storage" = "Хранилище";
@@ -1358,3 +1508,272 @@
 
 /* Storage section footer */
 "offlineMaps.storageFooter" = "Включает данные карты и внутренние индексы. Общий объём может превышать сумму отдельных загрузок.";
+
+// MARK: - Backup & Restore
+
+/* Navigation title for backup & restore screen */
+"settings.backup.title" = "Резервное копирование";
+
+/* Section header for file backup */
+"settings.backup.file_backup.header" = "Резервная копия";
+
+/* Section footer for file backup */
+"settings.backup.file_backup.footer" = "Экспорт или восстановление сообщений, контактов, каналов, сохранённых маршрутов и настроек. Конфигурация радио считывается с устройства при каждом подключении.";
+
+/* Export row title */
+"settings.backup.export.title" = "Экспорт данных приложения";
+
+/* Export row subtitle */
+"settings.backup.export.subtitle" = "Сохранить как файл .mc1backup";
+
+/* Import row title */
+"settings.backup.import.title" = "Импорт данных приложения";
+
+/* Import row subtitle */
+"settings.backup.import.subtitle" = "Восстановить из файла .mc1backup";
+
+/* Footer shown above the backup section when a radio is connected, explaining why import is disabled */
+"settings.backup.import.disabled_when_connected" = "Отключитесь от радио перед импортом резервной копии.";
+
+/* Export confirmation alert title */
+"settings.backup.export.alert.title" = "Предупреждение о безопасности";
+
+/* Export confirmation alert message */
+"settings.backup.export.alert.message" = "Эта резервная копия содержит ключи шифрования каналов, историю сообщений, список контактов, а также локальный сетевой адрес и порт узла Wi-Fi. Храните экспортированный файл в надёжном месте.";
+
+/* Export confirmation alert export button */
+"settings.backup.export.alert.export" = "Экспортировать";
+
+/* Export confirmation alert cancel button */
+"settings.backup.export.alert.cancel" = "Отмена";
+
+/* Export progress label */
+"settings.backup.export.progress" = "Подготовка резервной копии…";
+
+/* Import preview navigation title */
+"settings.backup.import.preview.title" = "Предпросмотр импорта";
+
+/* Import preview section header: backup details */
+"settings.backup.import.preview.details" = "Сведения о копии";
+
+/* Import preview label: export date */
+"settings.backup.import.preview.exported" = "Дата экспорта";
+
+/* Import preview label: app version */
+"settings.backup.import.preview.app_version" = "Версия приложения";
+
+/* Import preview section header: contents */
+"settings.backup.import.preview.contents" = "Содержимое";
+
+/* Import preview manifest label: messages */
+"settings.backup.import.preview.messages" = "Сообщения";
+
+/* Import preview manifest label: contacts */
+"settings.backup.import.preview.contacts" = "Контакты";
+
+/* Import preview manifest label: channels */
+"settings.backup.import.preview.channels" = "Каналы";
+
+/* Import preview manifest label: devices */
+"settings.backup.import.preview.devices" = "Устройства";
+
+/* Import preview manifest label: room messages */
+"settings.backup.import.preview.room_messages" = "Сообщения комнат";
+
+/* Import preview manifest label: reactions */
+"settings.backup.import.preview.reactions" = "Реакции";
+
+/* Import preview manifest label: saved paths */
+"settings.backup.import.preview.saved_paths" = "Сохранённые маршруты";
+
+/* Import preview manifest label: remote node sessions */
+"settings.backup.import.preview.remote_node_sessions" = "Сеансы удалённых узлов";
+
+/* Import preview info text */
+"settings.backup.import.preview.info" = "Добавляются только новые данные; существующие записи не перезаписываются. Контакты, удалённые после создания этой резервной копии, появятся снова, а отметки блокировки, отключения звука или избранного из копии будут применены повторно.";
+
+/* Import preview import button */
+"settings.backup.import.preview.button" = "Импортировать данные";
+
+/* Import progress label */
+"settings.backup.import.progress" = "Импорт данных…";
+/* Import parsing label */
+"settings.backup.import.parsing" = "Чтение резервной копии…";
+/* Import cancelling label shown after the user taps Cancel during an active import */
+"settings.backup.import.cancelling" = "Отмена…";
+/* Import preview cancel / dismiss toolbar button */
+"settings.backup.import.preview.cancel" = "Отмена";
+
+/* Import success title */
+"settings.backup.import.success.title" = "Импорт завершён";
+
+/* Import success section header: items that were newly added to this device */
+"settings.backup.import.success.added_section" = "Добавлено на это устройство";
+
+/* Import success section header: items in the backup that were already on this device */
+"settings.backup.import.success.already_here_section" = "Уже на этом устройстве";
+
+/* Import success section footer: always visible under the "Already on this iPhone" section */
+"settings.backup.import.success.already_here_footer" = "Существующие данные на устройстве сохранены без изменений; ничего не было перезаписано.";
+
+/* Import success hero subtitle when new items were added (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_added" = "Добавлено %d элементов.";
+
+/* Import success hero subtitle when only existing items were refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_refreshed" = "Обновлено %d существующих элементов.";
+
+/* Import success disclosure row summary for the "Already on this iPhone" section (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_summary" = "%d элементов уже здесь";
+
+/* Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_refreshed" = "%d из них было обновлено новой информацией из резервной копии.";
+
+/* Import success section header: channels that had no free local slot and couldn't be restored */
+"settings.backup.import.success.dropped_section" = "Не удалось восстановить";
+
+/* Import success disclosure row summary for the "Couldn't be restored" section */
+"settings.backup.import.success.dropped_summary" = "Не удалось восстановить %d элементов";
+
+/* Import success footer explaining why some channels couldn't be restored and how to recover them */
+"settings.backup.import.success.dropped_footer" = "Для этих каналов не было свободного слота на этой рации, поэтому они и их сообщения не были импортированы. Освободите слот канала и выполните импорт снова, чтобы восстановить их.";
+
+/* Import success done button */
+"settings.backup.import.success.done" = "Готово";
+
+/* Import failure title */
+"settings.backup.import.error.title" = "Ошибка импорта";
+
+/* Import error dismiss button */
+"settings.backup.import.error.dismiss" = "Закрыть";
+
+/* Import cancelled title shown after user cancels an import before it commits */
+"settings.backup.import.cancelled.title" = "Импорт отменён";
+
+/* Import cancelled message — rollback ran and nothing on device was changed */
+"settings.backup.import.cancelled.message" = "Данные не были изменены.";
+
+/* File access error */
+"settings.backup.import.file_access_error" = "Не удалось получить доступ к выбранному файлу.";
+
+/* Import preview manifest label: blocked senders */
+"settings.backup.import.preview.blocked_senders" = "Заблокированные отправители";
+
+/* Import preview manifest label: node status snapshots */
+"settings.backup.import.preview.node_status_snapshots" = "Снимки состояния узлов";
+
+/* Import preview manifest label: message repeats */
+"settings.backup.import.preview.message_repeats" = "Повторы сообщений";
+
+/* Import header title when the backup had nothing new to add (every record was skipped) */
+"settings.backup.import.nothing_to_import.title" = "Всё уже здесь";
+
+/* Import subtitle when the backup had nothing new to add */
+"settings.backup.import.nothing_to_import.subtitle" = "Содержимое этой резервной копии уже есть на этом устройстве.";
+
+/* Default filename for an exported backup; %@ is an ISO-style timestamp */
+"settings.backup.export.default_filename" = "Резервная копия MC1 %@.mc1backup";
+
+/* Backup error: file is corrupt or unreadable */
+"settings.backup.error.invalid_file" = "Файл резервной копии недействителен или не может быть прочитан.";
+
+/* Backup error: file exceeds parser size cap; %1$d actual MB, %2$d max MB */
+"settings.backup.error.file_too_large" = "Файл резервной копии слишком большой для импорта (%1$d МБ; лимит — %2$d МБ).";
+
+/* Backup error: decompressed size exceeds safety cap; %d is max MB uncompressed */
+"settings.backup.error.decompressed_too_large" = "После распаковки файл резервной копии превышает безопасный предел размера (%d МБ без сжатия).";
+
+/* Backup error: file version too new; %1$d found, %2$d max supported */
+"settings.backup.error.unsupported_version" = "Эта резервная копия создана в более новом формате (версия %1$d). Это приложение поддерживает версии до %2$d. Обновите приложение и попробуйте снова.";
+
+/* Backup error: manifest counts do not match arrays */
+"settings.backup.error.corrupted_manifest" = "Файл резервной копии повреждён. Заявленное количество записей не совпадает с фактическими данными.";
+
+/* Backup error: export failed; %@ is underlying error */
+"settings.backup.error.export_failed" = "Не удалось создать резервную копию: %@";
+
+/* Backup error: import failed; %@ is underlying error */
+"settings.backup.error.import_failed" = "Не удалось импортировать резервную копию: %@";
+
+// MARK: - Export success
+
+/* Hero title on the backup export success sheet */
+"settings.backup.export.success.title" = "Резервная копия сохранена";
+
+/* Section header listing record counts included in the export */
+"settings.backup.export.success.included_section" = "Содержимое резервной копии";
+
+/* Primary button on the export success sheet */
+"settings.backup.export.success.done" = "Готово";
+
+/* VoiceOver announcement when the export success sheet appears; %@ is the filename */
+"settings.backup.export.success.announcement" = "Резервная копия сохранена как %@";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "У вас нет этой темы.";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "Тема возвращена к стандартной.";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "Поддержать разработку";
+"Support.Header.Body" = "Если вам нравится MC1, вот несколько способов поддержать его разработку! Всё здесь необязательно, лишь несколько чаевых и несколько дополнительных тем.";
+"Support.Themes.Title" = "Темы";
+"Support.Themes.Owned" = "Приобретено";
+"Support.Themes.PurchasedFooter" = "Примените новую тему в разделе «Настройки → Внешний вид».";
+"Support.Bundle.Title" = "Все темы";
+"Support.Bundle.Subtitle" = "Включая темы, добавленные позже.";
+"Support.Contributions.Title" = "Пожертвования";
+"Support.Contributions.Footer" = "Благодарственное пожертвование в поддержку разработки MC1. Без физических товаров и привилегий участника.";
+"Support.Contributions.HighValueConfirm" = "Отправить %@?";
+"Support.Contributions.ConfirmButton" = "Пожертвовать %@";
+"Support.Restore.Button" = "Восстановить покупки";
+"Support.Restore.Syncing" = "Восстановление…";
+"Support.Refund.Link" = "Запросить возврат средств";
+"Support.Pending.Banner" = "Ожидает одобрения — покупка активируется после одобрения.";
+"Support.Pending.Button" = "Ожидает одобрения";
+"Support.Contact.Link" = "Связаться с поддержкой";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "Стандартная";
+"Support.Theme.Ember" = "Ember";
+"Support.Theme.Fern" = "Fern";
+"Support.Theme.Marine" = "Marine";
+"Support.Theme.Olive" = "Olive";
+"Support.Theme.Lavender" = "Lavender";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "Не удалось загрузить товары.";
+"Support.Error.ProductNotFound" = "Товар не найден.";
+"Support.Error.PurchaseFailed" = "Не удалось совершить покупку: %@";
+"Support.Error.NetworkUnavailable" = "Сеть недоступна.";
+"Support.Error.VerificationFailed" = "Не удалось подтвердить вашу покупку.";
+"Support.Error.NotEntitled" = "Покупки на этом устройстве ограничены. Проверьте ограничения контента в «Экранном времени».";
+"Support.Error.StorefrontUnavailable" = "Этот товар недоступен в вашем регионе.";
+"Support.Error.Unsupported" = "Встроенные покупки не поддерживаются на этом устройстве.";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "Тема %@, заблокирована";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "Тема %@, приобретена";
+"Support.Accessibility.BundleCard.LockedLabel" = "Набор «Все темы», заблокирован, %@";
+"Support.Accessibility.BundleCard.LockedHint" = "Покупка набора «Все темы»";
+"Support.Accessibility.BundleCard.LoadingLabel" = "Набор «Все темы», загрузка цены";
+"Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
+"Support.Accessibility.ContributionRow.Hint" = "Отправляет благодарственное пожертвование";
+"Support.Accessibility.TipConfirmAnnouncement" = "Спасибо за ваше пожертвование.";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "Внешний вид";
+"Appearance.Scheme.Header" = "Светлый/тёмный режим";
+"Appearance.Scheme.System" = "Системная";
+"Appearance.Scheme.Light" = "Светлая";
+"Appearance.Scheme.Dark" = "Тёмная";
+"Appearance.Themes.Header" = "Выберите тему";
+"Appearance.Themes.Selected" = "Выбрана";
+"Appearance.MoreThemes.Link" = "Купить другие темы";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "Тема %@, приобретена";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "Применяет эту тему";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "Тема %@, выбрана в данный момент";
+"Appearance.Accessibility.Swatch.DualMode" = "%@, светлый и тёмный варианты";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@, только тёмный";

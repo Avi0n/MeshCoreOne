@@ -71,8 +71,14 @@
 /* Location: ContactsViewModel.swift - Purpose: Contacts segment */
 "contacts.segment.contacts" = "Контакти";
 
-/* Location: ContactsViewModel.swift - Purpose: Network segment */
-"contacts.segment.network" = "Мережа";
+/* Location: ContactsViewModel.swift - Purpose: Repeaters segment */
+"contacts.segment.repeaters" = "Ретранслятори";
+
+/* Location: ContactsViewModel.swift - Purpose: Rooms segment */
+"contacts.segment.rooms" = "Кімнати";
+
+/* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
+"contacts.segment.pickerLabel" = "Фільтр вузлів";
 
 // MARK: - Sort Order
 
@@ -144,7 +150,7 @@
 "contacts.list.empty.favorites.title" = "Обраних ще немає";
 
 /* Location: ContactsListView.swift - Purpose: No favorites empty description */
-"contacts.list.empty.favorites.description" = "Проведи вправо по будь-якому вузлу, щоб додати його до обраних.";
+"contacts.list.empty.favorites.description" = "Натисни й утримуй будь-який вузол, щоб додати його до обраних.";
 
 /* Location: ContactsListView.swift - Purpose: No contacts empty title */
 "contacts.list.empty.contacts.title" = "Немає контактів";
@@ -152,11 +158,17 @@
 /* Location: ContactsListView.swift - Purpose: No contacts empty description */
 "contacts.list.empty.contacts.description" = "Контакти з'являються при виявленні в mesh-мережі. Якщо автоматичне додавання контактів вимкнено, перевір розділ Виявлення у меню праворуч вгорі.";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty title */
-"contacts.list.empty.network.title" = "Немає мережевих вузлів";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty title */
+"contacts.list.empty.repeaters.title" = "Немає ретрансляторів";
 
-/* Location: ContactsListView.swift - Purpose: No network nodes empty description */
-"contacts.list.empty.network.description" = "Ретранслятори та сервери кімнат з'являться при виявленні в mesh-мережі.";
+/* Location: ContactsListView.swift - Purpose: No repeaters empty description */
+"contacts.list.empty.repeaters.description" = "Ретранслятори збільшують діапазон mesh-мережі. Вони з'являться тут після виявлення.";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty title */
+"contacts.list.empty.rooms.title" = "Немає кімнат";
+
+/* Location: ContactsListView.swift - Purpose: No rooms empty description */
+"contacts.list.empty.rooms.description" = "Кімнати — це публічні чат-сервери в mesh-мережі. Вони з'являться тут після виявлення.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "Немає результатів";
@@ -180,14 +192,14 @@
 
 // MARK: - Contacts List Swipe Actions
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unfavorite swipe action */
-"contacts.swipe.unfavorite" = "Прибрати з обраних";
+/* Location: ContactContextMenuModifier - Purpose: Unfavorite action */
+"contacts.action.unfavorite" = "Прибрати з обраних";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Block swipe action */
-"contacts.swipe.block" = "Заблокувати";
+/* Location: ContactContextMenuModifier - Purpose: Block action */
+"contacts.action.block" = "Заблокувати";
 
-/* Location: ContactSwipeActionsModifier - Purpose: Unblock swipe action */
-"contacts.swipe.unblock" = "Розблокувати";
+/* Location: ContactContextMenuModifier - Purpose: Unblock action */
+"contacts.action.unblock" = "Розблокувати";
 
 // MARK: - Contact Detail
 
@@ -230,8 +242,8 @@
 /* Location: ContactDetailView.swift - Purpose: Share via advert button */
 "contacts.detail.shareViaAdvert" = "Поділитися контактом через оголошення";
 
-/* Location: ContactDetailView.swift - Purpose: Ping repeater button */
-"contacts.detail.pingRepeater" = "Пінг ретранслятора";
+/* Location: ContactDetailView.swift - Purpose: Share contact error when advert is missing or stale */
+"contacts.detail.shareContactUnavailable" = "Неможливо поділитися вузлом. Оголошення вузла може бути відсутнім або занадто старим.";
 
 /* Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes */
 "contacts.detail.ping" = "Zero-Hop Ping";
@@ -386,6 +398,7 @@
 
 /* Location: AddContactSheet.swift - Purpose: Navigation title */
 "contacts.add.title" = "Додати контакт";
+"contacts.add.nodeTitle" = "Додати вузол";
 
 /* Location: AddContactSheet.swift - Purpose: Add button */
 "contacts.add.add" = "Додати";
@@ -436,7 +449,7 @@
 "contacts.add.pasteURL" = "Paste Contact URL";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL section footer */
-"contacts.add.pasteURLFooter" = "Paste a meshcore:// contact link to auto-fill the fields above";
+"contacts.add.pasteURLFooter" = "Вставте посилання на контакт meshcore://, щоб автоматично заповнити поля вище";
 
 /* Location: AddContactSheet.swift - Purpose: Invalid paste URL error */
 "contacts.add.error.invalidURL" = "Clipboard does not contain a valid contact URL";
@@ -457,6 +470,12 @@
 
 /* Location: ContactQRShareSheet.swift - Purpose: Share button */
 "contacts.qr.share" = "Поділитися";
+
+/* Location: ContactQRShareSheet.swift - Purpose: Contact label in share text, %@ is contact name */
+"contacts.share.contactLabel" = "MeshCore One Contact: %@";
+
+/* Location: ContactQRShareSheet.swift - Purpose: Key label in share text, %@ is hex public key */
+"contacts.share.keyLabel" = "Key: %@";
 
 // MARK: - Scan Contact QR
 
@@ -490,6 +509,9 @@
 /* Location: ScanContactQRView.swift - Purpose: Invalid public key error */
 "contacts.scan.error.invalidKey" = "Недійсний QR-код: недійсний публічний ключ";
 
+/* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
+"contacts.scan.error.importFailed" = "Не вдалося імпортувати контакт: %@";
+
 // MARK: - Discovery View
 
 /* Location: DiscoveryView.swift - Purpose: Navigation title */
@@ -508,7 +530,7 @@
 "contacts.discovery.added" = "Added";
 
 /* Location: DiscoveryView.swift - Purpose: Accessibility label for added button */
-"contacts.discovery.addedAccessibility" = "Already added to contacts";
+"contacts.discovery.addedAccessibility" = "Уже додано до контактів";
 
 /* Location: DiscoveryView.swift - Purpose: Services not available error */
 "contacts.discovery.error.servicesUnavailable" = "Сервіси недоступні";
@@ -519,8 +541,14 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter - Contacts */
 "contacts.discovery.segment.contacts" = "Контакти";
 
-/* Location: DiscoveryView.swift - Purpose: Segment filter - Network */
-"contacts.discovery.segment.network" = "Мережа";
+/* Location: DiscoveryView.swift - Purpose: Segment filter - Repeaters */
+"contacts.discovery.segment.repeaters" = "Ретранслятори";
+
+/* Location: DiscoveryView.swift - Purpose: Segment filter - Rooms */
+"contacts.discovery.segment.rooms" = "Кімнати";
+
+/* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
+"contacts.discovery.segment.pickerLabel" = "Фільтр виявлених вузлів";
 
 /* Location: DiscoveryView.swift - Purpose: Search field placeholder */
 "contacts.discovery.searchPrompt" = "Шукати виявлені";
@@ -589,32 +617,119 @@
 /* Location: PathEditingSheet.swift - Purpose: Current path section header */
 "contacts.pathEdit.currentPath" = "Поточний шлях";
 
-/* Location: PathEditingSheet.swift - Purpose: Empty path footer */
-"contacts.pathEdit.emptyFooter" = "Шлях не встановлено (пряма маршрутизація або розсилка)";
-
-/* Location: PathEditingSheet.swift - Purpose: Path instructions footer */
-"contacts.pathEdit.instructionsFooter" = "Перетягни для зміни порядку. Торкнись для видалення.";
-
-/* Location: PathEditingSheet.swift - Purpose: Add repeater section header */
-"contacts.pathEdit.addRepeater" = "Додати ретранслятор";
-
-/* Location: PathEditingSheet.swift - Purpose: No repeaters empty title */
+/* Location: AddHopPickerView.swift - Purpose: No repeaters empty title */
 "contacts.pathEdit.noRepeaters.title" = "Немає доступних ретрансляторів";
 
-/* Location: PathEditingSheet.swift - Purpose: No repeaters empty description */
+/* Location: AddHopPickerView.swift - Purpose: No repeaters empty description */
 "contacts.pathEdit.noRepeaters.description" = "Ретранслятори з'являться тут після виявлення у вашій mesh-мережі.";
-
-/* Location: PathEditingSheet.swift - Purpose: Add repeater footer */
-"contacts.pathEdit.addFooter" = "Торкнись ретранслятора, щоб додати його до шляху.";
-
-/* Location: PathEditingSheet.swift - Purpose: Add to path accessibility label */
-"contacts.pathEdit.addToPath" = "Додати %@ до шляху";
 
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with name */
 "contacts.pathEdit.hopWithName" = "Перехід %d з %d: %@";
 
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with hex */
 "contacts.pathEdit.hopWithHex" = "Перехід %d з %d: ретранслятор %@";
+
+/* Location: PathEditingSheet.swift - Purpose: Add Hop CTA (primary button when path has >=1 hop) */
+"contacts.pathEdit.addHop" = "Додати вузол";
+
+/* Location: AddHopPickerView.swift - Purpose: Paste clipboard text into the hop search field */
+"contacts.pathEdit.paste" = "Вставити з буфера обміну";
+
+/* Location: PathEditingSheet.swift - Purpose: Use-direct-routing empty-state button */
+"contacts.pathEdit.useDirectRouting" = "Використовувати пряму";
+
+/* Location: PathEditingSheet.swift - Purpose: Use-flood-routing empty-state button */
+"contacts.pathEdit.useFloodRouting" = "Використовувати flood";
+
+/* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert title */
+"contacts.pathEdit.directRouting.confirm.title" = "Зберегти як пряму маршрутизацію?";
+
+/* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name */
+"contacts.pathEdit.directRouting.confirm.message" = "Повідомлення до %@ надсилатимуться безпосередньо без ретрансляції через жоден ретранслятор. Використовуйте лише якщо %@ є прямим сусідом (0 стрибків).";
+
+/* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation confirm label */
+"contacts.pathEdit.directRouting.confirm.confirm" = "Зберегти як пряму";
+
+/* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation alert title */
+"contacts.pathEdit.floodRouting.confirm.title" = "Використовувати flood-маршрутизацію?";
+
+/* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation alert message, %@ is contact name */
+"contacts.pathEdit.floodRouting.confirm.message" = "Повідомлення до %@ надсилатимуться всім найближчим вузлам, доки не буде знайдено шлях. Використовуйте, коли маршрут ретранслятора невідомий.";
+
+/* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation confirm label */
+"contacts.pathEdit.floodRouting.confirm.confirm" = "Використовувати flood";
+
+/* Location: AddHopPickerView.swift - Purpose: Position banner when appending, %d is target hop number */
+"contacts.pathEdit.positionAppend" = "Додавання як вузол %d";
+
+/* Location: AddHopPickerView.swift - Purpose: Search field placeholder */
+"contacts.pathEdit.searchPrompt" = "A1,2B або ім'я/ID";
+
+/* Location: PathEditingSheet.swift - Purpose: Section footer hint */
+"contacts.pathEdit.reorderHint" = "Перетягніть для впорядкування · Проведіть для видалення";
+
+/* Location: PathEditingSheet.swift - Purpose: Empty-state title */
+"contacts.pathEdit.empty.title" = "Поки немає вузлів";
+
+/* Location: PathEditingSheet.swift - Purpose: Empty-state description, %@ is contact name */
+"contacts.pathEdit.empty.description" = "Додайте ретранслятори для контролю маршруту повідомлень до %@, або використовуйте flood-маршрутизацію, якщо маршрут невідомий.";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: All filter */
+"contacts.pathEdit.filter.all" = "Всі";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: Favorites filter */
+"contacts.pathEdit.filter.favorites" = "Обрані";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: Recent filter */
+"contacts.pathEdit.filter.recent" = "Недавні";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: Discovered filter */
+"contacts.pathEdit.filter.discovered" = "Нові";
+
+/* Location: AddHopPickerView.swift - Purpose: Recent section header */
+"contacts.pathEdit.sections.recent" = "Недавні";
+
+/* Location: AddHopPickerView.swift - Purpose: Favorites section header */
+"contacts.pathEdit.sections.favorites" = "Обрані";
+
+/* Location: AddHopPickerView.swift - Purpose: Contacts section header */
+"contacts.pathEdit.sections.contacts" = "Контакти";
+
+/* Location: AddHopPickerView.swift - Purpose: Discovered section header */
+"contacts.pathEdit.sections.discovered" = "Виявлені";
+
+/* Location: AddHopPickerView.swift - Purpose: Rooms section header */
+"contacts.pathEdit.sections.rooms" = "Кімнати";
+
+/* Location: AddHopPickerView.swift - Purpose: No-match search description */
+"contacts.pathEdit.search.noMatches.description" = "Спробуйте ім'я або hex-префікс, наприклад 'a3'.";
+
+/* Location: AddHopPickerView.swift - Purpose: No-match description when a filter other than All is selected and a matching room exists */
+"contacts.pathEdit.search.noMatches.descriptionWithRoomsHint" = "Спробуйте ім'я або hex-префікс, наприклад 'a3'. Кімнати показуються лише під фільтром Всі.";
+
+/* Location: AddHopPickerView.swift - Purpose: Picker row accessibility label, %1$@ is name, %2$d is target hop number */
+"contacts.pathEdit.addToPathAsHop" = "Додати %1$@ до шляху як вузол %2$d";
+
+/* Location: PathEditingSheet.swift - Purpose: VoiceOver hint for a hop row describing swipe + drag actions */
+"contacts.pathEdit.hopHint" = "Проведіть для видалення. Перетягніть для зміни порядку.";
+
+/* Location: AddHopSegmentPicker.swift - Purpose: VoiceOver label for the section filter picker */
+"contacts.pathEdit.filterPickerLabel" = "Фільтр вузлів";
+
+/* Location: PathEditingSheet.swift + AddHopPickerView.swift - Purpose: Max-hops reached title */
+"contacts.pathEdit.maxHops.reached" = "Досягнуто максимуму вузлів";
+
+/* Location: AddHopPickerView.swift - Purpose: Max-hops reached description, %d is the cap */
+"contacts.pathEdit.maxHops.description" = "Цей маршрут досяг максимуму в %d вузлів для поточного режиму хешування. Видаліть вузол, щоб додати новий.";
+
+/* Location: PathEditingSheet.swift - Purpose: Add Hop CTA footer explaining the hop cap, %d is the cap */
+"contacts.pathEdit.maxHops.footer" = "Досягнуто максимуму в %d вузлів. Видаліть вузол, щоб додати новий.";
+
+/* Location: AddHopPickerView.swift - Purpose: Bulk-add panel strings */
+"contacts.pathEdit.bulkAdd.action" = "Додати вузли: %@";
+"contacts.pathEdit.bulkAdd.willAdd" = "%@ буде додано";
+"contacts.pathEdit.bulkAdd.pathFull" = "%@ перевищує ліміт вузлів";
+"contacts.pathEdit.bulkAdd.empty" = "Немає нових вузлів для додавання";
 
 // MARK: - Path Discovery Results
 
@@ -779,20 +894,8 @@
 
 // MARK: - Trace Path List View
 
-/* Location: TracePathListView.swift - Purpose: Code input placeholder */
-"contacts.trace.list.codePlaceholder" = "Приклад: A1, 2B";
-
-/* Location: TracePathListView.swift - Purpose: Paste button */
-"contacts.trace.list.paste" = "Вставити з буфера обміну";
-
-/* Location: TracePathListView.swift - Purpose: Code input footer */
-"contacts.trace.list.codeFooter" = "Натисни Enter для додавання ретрансляторів";
-
-/* Location: TracePathListView.swift - Purpose: Repeaters section label */
-"contacts.trace.list.repeaters" = "Ретранслятори";
-
 /* Location: TracePathListView.swift - Purpose: Empty path instruction */
-"contacts.trace.list.emptyPath" = "Торкнись ретранслятора вище, щоб почати будувати шлях";
+"contacts.trace.list.emptyPath" = "Додай вузол, щоб почати будувати шлях.";
 
 /* Location: TracePathListView.swift - Purpose: Round trip path section header */
 "contacts.trace.list.roundTripPath" = "Маршрут туди й назад";
@@ -811,6 +914,21 @@
 
 /* Location: TracePathListView.swift - Purpose: Traces count label */
 "contacts.trace.list.traces" = "Трасувань:";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size picker label */
+"contacts.trace.list.hashSize" = "Розмір хешу";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 1 byte per hop */
+"contacts.trace.list.hashSizeOneByte" = "1 байт";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 2 bytes per hop */
+"contacts.trace.list.hashSizeTwoBytes" = "2 байти";
+
+/* Location: PathActionsSectionView.swift - Purpose: Trace hash size option, 4 bytes per hop */
+"contacts.trace.list.hashSizeFourBytes" = "4 байти";
+
+/* Location: PathActionsSectionView.swift - Purpose: Caveat shown for multi-byte trace hash sizes */
+"contacts.trace.list.hashSizeFooter" = "Ретранслятори з прошивкою, старішою за 1.11.0, не пересилатимуть трасування з розміром хешу більше 1 байта.";
 
 /* Location: TracePathListView.swift - Purpose: Copy path button */
 "contacts.trace.list.copyPath" = "Копіювати шлях";
@@ -848,26 +966,10 @@
 /* Location: TracePathListView.swift - Purpose: Hop row accessibility hint */
 "contacts.trace.list.hopHint" = "Проведи вліво для видалення, використовуй маркер перетягування для зміни порядку";
 
-/* Location: TracePathListView.swift - Purpose: Favorites filter toggle label */
-"contacts.trace.list.favoritesOnly" = "Лише обрані";
-
-/* Location: TracePathListView.swift - Purpose: Toggle to include room servers in the list */
-"contacts.trace.list.includeRooms" = "Включити кімнати";
-
-/* Location: TracePathListView.swift, PathEditingSheet.swift - Purpose: Toggle to include discovered repeaters */
-"contacts.trace.list.includeDiscovered" = "Включити виявлені";
-
-/* Location: TracePathListView.swift - Purpose: No favorite repeaters empty title */
-"contacts.trace.list.noFavorites.title" = "Немає обраних ретрансляторів";
-
-/* Location: TracePathListView.swift - Purpose: No favorite repeaters empty description */
-"contacts.trace.list.noFavorites.description" = "Познач ретранслятори як обрані у вкладці Вузли, щоб побачити їх тут.";
-
 // MARK: - Trace Path Map View
 
 /* Location: TracePathMapView.swift - Purpose: Hops count in results banner */
 "contacts.trace.map.hops" = "%d переходів";
-
 
 /* Location: TracePathMapView.swift - Purpose: Clear button */
 "contacts.trace.map.clear" = "Очистити";
@@ -1042,6 +1144,9 @@
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "Підключись до радіо для видалення вузлів";
 
+/* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
+"contacts.viewModel.removeTimedOut" = "Час очікування видалення вузла вичерпано. Спробуйте ще раз.";
+
 // MARK: - Path Management ViewModel Errors
 
 /* Location: PathManagementViewModel.swift - Purpose: Save path error prefix */
@@ -1052,6 +1157,10 @@
 
 /* Location: PathManagementViewModel.swift - Purpose: Set path error prefix */
 "contacts.pathManagement.error.setFailed" = "Помилка встановлення шляху: %@";
+
+"contacts.pathManagement.error.hopResizeRequired" = "Розмір хешу шляху змінено — видаліть і додайте вузли знову, щоб зберегти.";
+
+"contacts.pathManagement.error.tooManyHops" = "Забагато вузлів. Поточний режим хешування підтримує щонайбільше %d.";
 
 // MARK: - Code Input Result
 

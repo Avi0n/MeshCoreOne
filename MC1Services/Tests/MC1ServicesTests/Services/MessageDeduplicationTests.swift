@@ -78,21 +78,89 @@ struct MessageDeduplicationTests {
         #expect(key1 != key2)
     }
 
+    // MARK: - Retry Dedup Stability
+
+    @Test("DM retry attempts with same content produce identical dedup keys")
+    func dmRetryAttemptsProduceSameKey() {
+        let contactID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
+        let timestamp: UInt32 = 1704067200
+        let text = "Hello mesh"
+
+        // Simulate two retry attempts: same contact, timestamp, and text
+        let keyAttempt0 = SyncCoordinator.fallbackDeduplicationKey(
+            contactID: contactID, channelIndex: nil,
+            senderNodeName: nil, timestamp: timestamp, content: text
+        )
+        let keyAttempt1 = SyncCoordinator.fallbackDeduplicationKey(
+            contactID: contactID, channelIndex: nil,
+            senderNodeName: nil, timestamp: timestamp, content: text
+        )
+        #expect(keyAttempt0 == keyAttempt1,
+                "Retry attempts with the same content must produce identical dedup keys")
+    }
+
+    @Test("Channel retry attempts with same content produce identical dedup keys")
+    func channelRetryAttemptsProduceSameKey() {
+        let timestamp: UInt32 = 1704067200
+        let text = "Hello channel"
+
+        let keyAttempt0 = SyncCoordinator.fallbackDeduplicationKey(
+            contactID: nil, channelIndex: 2,
+            senderNodeName: "Bob", timestamp: timestamp, content: text
+        )
+        let keyAttempt1 = SyncCoordinator.fallbackDeduplicationKey(
+            contactID: nil, channelIndex: 2,
+            senderNodeName: "Bob", timestamp: timestamp, content: text
+        )
+        #expect(keyAttempt0 == keyAttempt1,
+                "Channel retry attempts with the same content must produce identical dedup keys")
+    }
+
     // MARK: - isDuplicateMessage via MockPersistenceStore
 
     @Test("isDuplicateMessage returns false when no matching key exists")
     func noDuplicateWhenEmpty() async throws {
         let store = MockPersistenceStore()
-        let result = try await store.isDuplicateMessage(deduplicationKey: "test-key")
-        #expect(!result)
+        let result = try await store.isDuplicateMessage(deduplicationKey: "test-key", radioID: UUID())
+        #expect(result == false)
     }
 
-    @Test("isDuplicateMessage returns true when matching key exists")
+    @Test("isDuplicateMessage returns true when matching key exists for the same radio")
     func duplicateWhenKeyExists() async throws {
         let store = MockPersistenceStore()
-        let dto = MessageDTO(
+        let radioID = UUID()
+        let dto = makeChannelMessageDTO(radioID: radioID, deduplicationKey: "test-key")
+        try await store.saveMessage(dto)
+
+        let result = try await store.isDuplicateMessage(deduplicationKey: "test-key", radioID: radioID)
+        #expect(result)
+    }
+
+    @Test("isDuplicateMessage is scoped per-radio so two companions storing the same channel packet both succeed")
+    func duplicateIsScopedPerRadio() async throws {
+        let store = MockPersistenceStore()
+        let radioA = UUID()
+        let radioB = UUID()
+        let sharedKey = SyncCoordinator.fallbackDeduplicationKey(
+            contactID: nil, channelIndex: 0,
+            senderNodeName: "Alice", timestamp: 1704067200, content: "aaaaa"
+        )
+        try await store.saveMessage(makeChannelMessageDTO(radioID: radioA, deduplicationKey: sharedKey))
+
+        let duplicateOnA = try await store.isDuplicateMessage(deduplicationKey: sharedKey, radioID: radioA)
+        let duplicateOnB = try await store.isDuplicateMessage(deduplicationKey: sharedKey, radioID: radioB)
+
+        #expect(duplicateOnA, "Same radio sees the prior save as a duplicate")
+        #expect(duplicateOnB == false,
+                "A different companion radio must not inherit radioA's dedup entry — otherwise the second radio's channel view goes blank after 'change device'")
+    }
+
+    // MARK: - Helpers
+
+    private func makeChannelMessageDTO(radioID: UUID, deduplicationKey: String) -> MessageDTO {
+        MessageDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: radioID,
             contactID: nil,
             channelIndex: 0,
             text: "Hello",
@@ -112,11 +180,7 @@ struct MessageDeduplicationTests {
             heardRepeats: 0,
             retryAttempt: 0,
             maxRetryAttempts: 0,
-            deduplicationKey: "test-key"
+            deduplicationKey: deduplicationKey
         )
-        try await store.saveMessage(dto)
-
-        let result = try await store.isDuplicateMessage(deduplicationKey: "test-key")
-        #expect(result)
     }
 }

@@ -4,10 +4,11 @@ import MC1Services
 /// Radio preset selector with region-based filtering
 struct RadioPresetSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @State private var selectedPresetID: String?
     @State private var isApplying = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var hasInitialized = false
     @State private var retryAlert = RetryAlertState()
     @State private var isRepeatEnabled: Bool = false
@@ -21,7 +22,11 @@ struct RadioPresetSection: View {
     }
 
     private var presets: [RadioPreset] {
-        RadioPresets.presetsForLocale()
+        let region = appState.regionSelection
+        let activeID = currentPreset?.id
+        return RadioPresets.presetsForLocale().filter {
+            RadioPresets.isSelectable($0, in: region) || $0.id == activeID
+        }
     }
 
     private var repeatPresets: [RadioPreset] {
@@ -55,6 +60,16 @@ struct RadioPresetSection: View {
             bandwidthKHz: device.bandwidth,
             spreadingFactor: device.spreadingFactor,
             codingRate: device.codingRate
+        )
+    }
+
+    private var mismatchHint: String? {
+        guard let region = appState.regionSelection,
+              let current = currentPreset else { return nil }
+        let regionPresets = RadioPresets.presets(for: region).map(\.id)
+        guard !regionPresets.contains(current.id) else { return nil }
+        return L10n.Settings.Radio.mismatchHint(
+            current.name, RegionalAreas.displayName(for: region)
         )
     }
 
@@ -142,8 +157,18 @@ struct RadioPresetSection: View {
         } header: {
             Text(L10n.Settings.Radio.header)
         } footer: {
-            Text(L10n.Settings.Radio.footer)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(L10n.Settings.Radio.footer)
+                if let region = appState.regionSelection {
+                    Text(L10n.Settings.Radio.regionFooter(RegionalAreas.displayName(for: region)))
+                }
+                if let mismatch = mismatchHint {
+                    Text(mismatch)
+                        .foregroundStyle(.orange)
+                }
+            }
         }
+        .themedRowBackground(theme)
         .onAppear {
             isRepeatEnabled = appState.connectedDevice?.clientRepeat ?? false
             selectedPresetID = currentMatchingPresetID
@@ -186,7 +211,7 @@ struct RadioPresetSection: View {
                 }
             }
         }
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
         .retryAlert(retryAlert)
         .alert(L10n.Settings.Radio.RepeatMode.Confirm.title, isPresented: $showRepeatConfirmation) {
             Button(L10n.Localizable.Common.cancel, role: .cancel) { }
@@ -229,7 +254,7 @@ struct RadioPresetSection: View {
                         onMaxRetriesExceeded: { dismiss() }
                     )
                 } else {
-                    showError = error.localizedDescription
+                    errorMessage = error.localizedDescription
                 }
             }
             isApplying = false
@@ -293,7 +318,7 @@ struct RadioPresetSection: View {
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
                 isRepeatEnabled = true // Revert
             }
             isApplyingRepeat = false

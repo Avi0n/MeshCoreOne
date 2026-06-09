@@ -358,7 +358,19 @@
 "pathHashMode.threeBytes" = "3 octets";
 
 /* Footer explaining path hash mode tradeoff */
-"pathHashMode.footer" = "Des hashes plus grands réduisent les collisions de routage, mais limitent le nombre maximum de sauts par chemin.";
+"pathHashMode.footer" = "Des hashes plus grands réduisent les collisions de routage, mais limitent le nombre maximum de sauts par chemin. Les répéteurs avec un firmware antérieur à 1.14.0 ne relayeront pas les messages dont la taille de hash dépasse 1 octet.";
+
+
+// MARK: - Default Flood Scope Section
+
+/* Section header for default flood scope picker */
+"defaultFloodScope.header" = "Portée de flood par défaut";
+
+/* Footer explaining default flood scope */
+"defaultFloodScope.footer" = "Lorsqu'elle est définie, l'appareil applique cette portée aux envois flood sauf si une portée spécifique au canal la remplace. La portée est enregistrée sur l'appareil et persiste après redémarrage.";
+
+/* Option to clear the persisted default flood scope */
+"defaultFloodScope.disabled" = "Aucune";
 
 
 // MARK: - Battery Curve Section
@@ -379,7 +391,7 @@
 "batteryCurve.editValues" = "Modifier les valeurs";
 
 /* Validation error for value out of range - %d is the percentage level */
-"batteryCurve.validation.outOfRange" = "La valeur à %d%% doit être entre 1000 et 5000 mV";
+"batteryCurve.validation.outOfRange" = "La valeur à %d%% doit être entre 1000 et 9000 mV";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "Les valeurs doivent être en ordre décroissant";
@@ -538,10 +550,10 @@
 "nodes.staleCleanup.days" = "%d jours";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "Les nœuds non favoris non détectés depuis %d jours sont automatiquement supprimés lors de la connexion.";
+"nodes.staleCleanup.footerEnabled" = "Les nœuds non favoris non mis à jour depuis %d jours sont automatiquement supprimés lors de la connexion.";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "Supprime automatiquement les nœuds non favoris non détectés après une période définie. Les favoris ne sont jamais supprimés.";
+"nodes.staleCleanup.footerDisabled" = "Supprime automatiquement les nœuds non favoris non mis à jour durant une période définie. Les favoris ne sont jamais supprimés.";
 
 /* Footer when toggle is on but no threshold selected yet */
 "nodes.staleCleanup.footerSelect" = "Choisissez combien de temps garder les nœuds. Les favoris ne sont jamais supprimés.";
@@ -591,14 +603,17 @@
 /* Footer explaining factory reset */
 "dangerZone.footer" = "La réinitialisation d'usine efface tous les contacts, messages et réglages de l'appareil.";
 
-/* Alert title for forget device confirmation */
-"dangerZone.alert.forget.title" = "Oublier l'appareil";
+/* Confirmation dialog title for forget device */
+"dangerZone.dialog.forget.title" = "Oublier l'appareil";
 
-/* Button to confirm forget */
-"dangerZone.alert.forget.confirm" = "Oublier";
+/* Confirmation dialog message for forget device */
+"dangerZone.dialog.forget.message" = "Votre appareil sera dissocié. Vous pouvez choisir de conserver ou de supprimer vos messages, contacts et canaux.";
 
-/* Alert message for forget device */
-"dangerZone.alert.forget.message" = "Cela supprimera l'appareil de vos appareils appairés. Vous pourrez l'appairer à nouveau plus tard.";
+/* Button to forget device but keep data */
+"dangerZone.dialog.forget.keepData" = "Oublier l'appareil";
+
+/* Button to forget device and delete all associated data */
+"dangerZone.dialog.forget.deleteAll" = "Oublier l'appareil et supprimer les données";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "Réinitialisation d'usine";
@@ -741,6 +756,15 @@
 /* Toggle label for new contact discovered notifications */
 "notifications.newContactDiscovered" = "Nouveau contact découvert";
 
+/* Toggle label for companion discovery notifications */
+"notifications.discoveryContact" = "Companion";
+
+/* Toggle label for repeater discovery notifications */
+"notifications.discoveryRepeater" = "Repeater";
+
+/* Toggle label for room discovery notifications */
+"notifications.discoveryRoom" = "Room";
+
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Avertissements de batterie faible";
 
@@ -791,6 +815,12 @@
 
 /* Confirmation dialog enable button */
 "radio.repeatMode.confirm.enable" = "Activer";
+
+/* Location: RadioPresetSection.swift - Footer line listing the user's region */
+"radio.regionFooter" = "Affichage des préréglages recommandés pour %@.";
+
+/* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
+"radio.mismatchHint" = "Votre radio est sur %@, pas le préréglage recommandé pour %@.";
 
 
 // MARK: - Telemetry Settings Section
@@ -918,17 +948,35 @@
 
 // MARK: - Messages Settings Section
 
-/* Section header for Messages settings */
-"messages.header" = "Messages";
+/* Section header for message info settings in chats */
+"messages.header" = "Infos du message";
+
+/* Toggle label for showing the raw uncorrected wire send time on incoming messages */
+"messages.showIncomingSendTime" = "Heure d'envoi entrante";
 
 /* Toggle label for showing routing path on incoming messages */
-"messages.showIncomingPath" = "Afficher le chemin entrant";
+"messages.showIncomingPath" = "Chemin entrant";
 
 /* Toggle label for showing hop count on incoming messages */
-"messages.showIncomingHopCount" = "Afficher le nombre de sauts entrant";
+"messages.showIncomingHopCount" = "Nombre de sauts entrant";
+
+/* Toggle label for showing the radio region an incoming message was flooded under */
+"messages.showIncomingRegion" = "Région entrante";
 
 /* Footer explaining what the message display options show */
-"messages.footer" = "Afficher les informations de routage dans les bulles de messages entrants.";
+"messages.footer" = "Afficher les informations de routage et d'horodatage dans les bulles de messages entrants.";
+
+
+// MARK: - Direct Messages Settings Section
+
+/* Section header for direct message settings */
+"directMessages.header" = "Messages directs";
+
+/* Picker label for number of acknowledgments */
+"directMessages.acknowledgments" = "Acknowledgments";
+
+/* Footer explaining the acknowledgments setting */
+"directMessages.footer" = "Nombre d'accusés de réception envoyés par message direct. Utilisez 2 pour une meilleure confirmation de livraison sur les liaisons peu fiables.";
 
 
 // MARK: - BLE Status Indicator
@@ -953,6 +1001,9 @@
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Connecté";
+
+/* Status shown when device is syncing data */
+"bleStatus.status.syncing" = "Synchronisation";
 
 /* Status shown when device is ready */
 "bleStatus.status.ready" = "Prêt";
@@ -1099,6 +1150,12 @@
 /* Import cancelled */
 "configImport.cancelled" = "L'importation a été annulée.";
 
+/* Import cancelled after one or more settings were already written to the device */
+"configImport.cancelledPartial" = "Importation annulée, mais certains paramètres ont déjà été écrits sur l'appareil. Vérifiez la configuration de l'appareil.";
+
+/* Import failed after one or more settings were already written; %@ is the underlying error message */
+"configImport.failedPartial" = "%@ Certains paramètres ont peut-être déjà été écrits sur l'appareil. Vérifiez la configuration de l'appareil.";
+
 /* Import success */
 "configImport.importSuccess" = "Configuration importée avec succès";
 
@@ -1120,6 +1177,69 @@
 /* Contact count (param: integer) */
 "configImport.contactCount" = "%d contacts seront ajoutés/mis à jour sur l'appareil";
 
+/* Generic device-name fallback used in confirmation messages when the node has no name */
+"configImport.thisDevice" = "cet appareil";
+
+/* Import progress: applying position */
+"configImport.stepPosition" = "Définition de la position";
+
+/* Import progress: applying other parameters */
+"configImport.stepOtherParameters" = "Définition des autres paramètres";
+
+/* Import progress: importing the private key */
+"configImport.stepPrivateKey" = "Importation de la clé privée";
+
+/* Import progress: setting the node name */
+"configImport.stepNodeName" = "Définition du nom du nœud";
+
+/* Import progress: applying radio parameters */
+"configImport.stepRadioParameters" = "Définition des paramètres radio";
+
+/* Import progress: setting TX power */
+"configImport.stepTxPower" = "Définition de la puissance TX";
+
+/* Import progress: importing a channel (param: channel name) */
+"configImport.stepChannel" = "Importation du canal : %@";
+
+/* Import progress: importing a contact (param: contact name) */
+"configImport.stepContact" = "Importation du contact : %@";
+
+/* Validation field label: radio frequency */
+"configImport.field.frequency" = "Fréquence";
+
+/* Validation field label: radio bandwidth */
+"configImport.field.bandwidth" = "Largeur de bande";
+
+/* Validation field label: spreading factor */
+"configImport.field.spreadingFactor" = "Facteur d'étalement";
+
+/* Validation field label: coding rate */
+"configImport.field.codingRate" = "Taux de codage";
+
+/* Validation field label: TX power */
+"configImport.field.txPower" = "Puissance TX";
+
+/* Validation field label: latitude */
+"configImport.field.latitude" = "Latitude";
+
+/* Validation field label: longitude */
+"configImport.field.longitude" = "Longitude";
+
+/* Validation error: value outside radio's supported range (param: field label) */
+"configImport.error.radioOutOfRange" = "%@ est en dehors de la plage prise en charge par la radio";
+
+/* Validation error: invalid coordinate (param: field label) */
+"configImport.error.positionInvalid" = "%@ a une coordonnée non valide ou hors plage";
+
+/* Validation error: contact coordinate invalid (params: contact name, field label) */
+"configImport.error.contactCoordinateInvalid" = "Le contact \"%@\" %@ a une coordonnée non valide ou hors plage";
+
+/* Validation error: contact has an invalid routing path (param: contact name) */
+"configImport.error.invalidOutPath" = "Le contact \"%@\" a un chemin de routage non valide";
+
+/* Validation error: not enough free contact slots (params: needed count, available count) */
+"configImport.error.contactCapacityExceeded" = "L'importation nécessite %d emplacement(s) de contact libre(s), mais il n'en reste que %d sur l'appareil";
+
 /* Toggle label for inline images */
 "inlineImages.toggle" = "Images intégrées";
 
@@ -1128,6 +1248,20 @@
 
 /* Footer explaining inline image privacy implications */
 "inlineImages.footer" = "Le chargement d'images à partir d'URL peut révéler votre adresse IP au serveur hébergeant l'image.";
+
+// MARK: - Map Preview Settings Section
+
+/* Section header for chat map preview settings */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.header" = "Aperçus de carte";
+
+/* Toggle label for chat map thumbnails */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.toggle" = "Afficher les vignettes de carte";
+
+/* Footer explaining map preview privacy implications */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.footer" = "L'affichage des vignettes de carte télécharge les tuiles pour la coordonnée depuis un serveur tiers, ce qui peut révéler votre adresse IP.";
 
 // MARK: - Blocking Section
 
@@ -1159,6 +1293,25 @@
 "language.title" = "Langue";
 
 
+// MARK: - Region
+
+/* Location: RegionSettingsView.swift - Title */
+"region.title" = "Région";
+
+/* Location: SettingsView.swift - Detail row when region is unset */
+"region.notSet" = "Non définie";
+
+/* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
+"region.subdivision.US-CA" = "Californie";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
+"region.subdivision.AU-QLD" = "Queensland";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name */
+"region.subdivision.AU-SA" = "Australie-Méridionale";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
+"region.subdivision.AU-WA" = "Australie-Occidentale";
 
 // MARK: - Live Activity
 
@@ -1170,7 +1323,6 @@
 
 /* Message for the Live Activity tip */
 "liveActivity.tip.message" = "Votre connexion, batterie et messages restent visibles — même sans ouvrir l'app.";
-
 
 // MARK: - Regenerate Identity
 
@@ -1231,7 +1383,6 @@
 /* Error when device rejects the key */
 "regenerateIdentity.error.deviceRejected" = "L'appareil a rejeté la clé. Veuillez réessayer.";
 
-
 // MARK: - Import Key
 
 /* Button label to open import key sheet */
@@ -1262,8 +1413,8 @@
 "importKey.error.invalidKey" = "Ce n'est pas une clé privée Ed25519 valide";
 
 // Reply with Quote
-"replyWithQuote.toggle" = "Reply with Quote";
-"replyWithQuote.footer" = "Replying includes a preview of the original message.";
+"replyWithQuote.toggle" = "Répondre avec citation";
+"replyWithQuote.footer" = "La réponse inclut un aperçu du message d'origine.";
 
 // MARK: - Offline Maps
 
@@ -1278,7 +1429,6 @@
 
 /* Button to download a new offline region */
 "offlineMaps.downloadRegion" = "Télécharger une région";
-
 
 /* Section header for storage info */
 "offlineMaps.storage" = "Stockage";
@@ -1358,3 +1508,272 @@
 
 /* Storage section footer */
 "offlineMaps.storageFooter" = "Comprend les données cartographiques et les index internes. Le total peut être supérieur à la somme des téléchargements individuels.";
+
+// MARK: - Backup & Restore
+
+/* Navigation title for backup & restore screen */
+"settings.backup.title" = "Sauvegarde et restauration";
+
+/* Section header for file backup */
+"settings.backup.file_backup.header" = "Sauvegarde de fichier";
+
+/* Section footer for file backup */
+"settings.backup.file_backup.footer" = "Exporter ou restaurer les messages, contacts, canaux, trajets enregistrés et paramètres. La configuration radio est lue depuis l'appareil à chaque connexion.";
+
+/* Export row title */
+"settings.backup.export.title" = "Exporter les données";
+
+/* Export row subtitle */
+"settings.backup.export.subtitle" = "Enregistrer dans un fichier .mc1backup";
+
+/* Import row title */
+"settings.backup.import.title" = "Importer les données";
+
+/* Import row subtitle */
+"settings.backup.import.subtitle" = "Restaurer depuis un fichier .mc1backup";
+
+/* Footer shown above the backup section when a radio is connected, explaining why import is disabled */
+"settings.backup.import.disabled_when_connected" = "Déconnectez-vous de la radio avant d'importer une sauvegarde.";
+
+/* Export confirmation alert title */
+"settings.backup.export.alert.title" = "Avis de sécurité";
+
+/* Export confirmation alert message */
+"settings.backup.export.alert.message" = "Cette sauvegarde inclut les clés de chiffrement des canaux, l'historique des messages, votre liste de contacts ainsi que l'adresse réseau locale et le port du nœud WiFi. Conservez le fichier exporté en lieu sûr.";
+
+/* Export confirmation alert export button */
+"settings.backup.export.alert.export" = "Exporter";
+
+/* Export confirmation alert cancel button */
+"settings.backup.export.alert.cancel" = "Annuler";
+
+/* Export progress label */
+"settings.backup.export.progress" = "Préparation de la sauvegarde…";
+
+/* Import preview navigation title */
+"settings.backup.import.preview.title" = "Aperçu de l'importation";
+
+/* Import preview section header: backup details */
+"settings.backup.import.preview.details" = "Détails de la sauvegarde";
+
+/* Import preview label: export date */
+"settings.backup.import.preview.exported" = "Date d'exportation";
+
+/* Import preview label: app version */
+"settings.backup.import.preview.app_version" = "Version de l'app";
+
+/* Import preview section header: contents */
+"settings.backup.import.preview.contents" = "Contenu";
+
+/* Import preview manifest label: messages */
+"settings.backup.import.preview.messages" = "Messages";
+
+/* Import preview manifest label: contacts */
+"settings.backup.import.preview.contacts" = "Contacts";
+
+/* Import preview manifest label: channels */
+"settings.backup.import.preview.channels" = "Canaux";
+
+/* Import preview manifest label: devices */
+"settings.backup.import.preview.devices" = "Appareils";
+
+/* Import preview manifest label: room messages */
+"settings.backup.import.preview.room_messages" = "Messages de salon";
+
+/* Import preview manifest label: reactions */
+"settings.backup.import.preview.reactions" = "Réactions";
+
+/* Import preview manifest label: saved paths */
+"settings.backup.import.preview.saved_paths" = "Trajets enregistrés";
+
+/* Import preview manifest label: remote node sessions */
+"settings.backup.import.preview.remote_node_sessions" = "Sessions de nœud distant";
+
+/* Import preview info text */
+"settings.backup.import.preview.info" = "Seules les nouvelles données sont ajoutées ; les enregistrements existants ne sont pas écrasés. Les contacts supprimés après la création de cette sauvegarde réapparaîtront, et les marquages de blocage, silence ou favori présents dans la sauvegarde seront de nouveau appliqués.";
+
+/* Import preview import button */
+"settings.backup.import.preview.button" = "Importer les données";
+
+/* Import progress label */
+"settings.backup.import.progress" = "Importation des données…";
+/* Import parsing label */
+"settings.backup.import.parsing" = "Lecture de la sauvegarde…";
+/* Import cancelling label shown after the user taps Cancel during an active import */
+"settings.backup.import.cancelling" = "Annulation…";
+/* Import preview cancel / dismiss toolbar button */
+"settings.backup.import.preview.cancel" = "Annuler";
+
+/* Import success title */
+"settings.backup.import.success.title" = "Importation terminée";
+
+/* Import success section header: items that were newly added to this device */
+"settings.backup.import.success.added_section" = "Ajouté à cet appareil";
+
+/* Import success section header: items in the backup that were already on this device */
+"settings.backup.import.success.already_here_section" = "Déjà sur cet appareil";
+
+/* Import success section footer: always visible under the "Already on this iPhone" section */
+"settings.backup.import.success.already_here_footer" = "Les données existantes de cet appareil ont été conservées telles quelles ; rien n'a été écrasé.";
+
+/* Import success hero subtitle when new items were added (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_added" = "%d éléments ajoutés.";
+
+/* Import success hero subtitle when only existing items were refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_refreshed" = "%d éléments existants actualisés.";
+
+/* Import success disclosure row summary for the "Already on this iPhone" section (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_summary" = "%d éléments déjà présents";
+
+/* Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_refreshed" = "%d d'entre eux ont été actualisés avec des informations plus récentes de la sauvegarde.";
+
+/* Import success section header: channels that had no free local slot and couldn't be restored */
+"settings.backup.import.success.dropped_section" = "Impossible à restaurer";
+
+/* Import success disclosure row summary for the "Couldn't be restored" section */
+"settings.backup.import.success.dropped_summary" = "%d éléments n'ont pas pu être restaurés";
+
+/* Import success footer explaining why some channels couldn't be restored and how to recover them */
+"settings.backup.import.success.dropped_footer" = "Ces canaux n'avaient aucun emplacement libre sur cette radio ; ils n'ont donc pas été importés avec leurs messages. Libérez un emplacement de canal et réimportez pour les restaurer.";
+
+/* Import success done button */
+"settings.backup.import.success.done" = "Terminé";
+
+/* Import failure title */
+"settings.backup.import.error.title" = "Échec de l'importation";
+
+/* Import error dismiss button */
+"settings.backup.import.error.dismiss" = "Fermer";
+
+/* Import cancelled title shown after user cancels an import before it commits */
+"settings.backup.import.cancelled.title" = "Importation annulée";
+
+/* Import cancelled message — rollback ran and nothing on device was changed */
+"settings.backup.import.cancelled.message" = "Aucune donnée n'a été modifiée.";
+
+/* File access error */
+"settings.backup.import.file_access_error" = "Impossible d'accéder au fichier sélectionné.";
+
+/* Import preview manifest label: blocked senders */
+"settings.backup.import.preview.blocked_senders" = "Expéditeurs bloqués";
+
+/* Import preview manifest label: node status snapshots */
+"settings.backup.import.preview.node_status_snapshots" = "Instantanés de nœuds";
+
+/* Import preview manifest label: message repeats */
+"settings.backup.import.preview.message_repeats" = "Répétitions de messages";
+
+/* Import header title when the backup had nothing new to add (every record was skipped) */
+"settings.backup.import.nothing_to_import.title" = "Tout est déjà présent";
+
+/* Import subtitle when the backup had nothing new to add */
+"settings.backup.import.nothing_to_import.subtitle" = "Le contenu de cette sauvegarde est déjà sur cet appareil.";
+
+/* Default filename for an exported backup; %@ is an ISO-style timestamp */
+"settings.backup.export.default_filename" = "Sauvegarde MC1 %@.mc1backup";
+
+/* Backup error: file is corrupt or unreadable */
+"settings.backup.error.invalid_file" = "Le fichier de sauvegarde est invalide ou illisible.";
+
+/* Backup error: file exceeds parser size cap; %1$d actual MB, %2$d max MB */
+"settings.backup.error.file_too_large" = "Le fichier de sauvegarde est trop volumineux pour être importé (%1$d Mo ; limite : %2$d Mo).";
+
+/* Backup error: decompressed size exceeds safety cap; %d is max MB uncompressed */
+"settings.backup.error.decompressed_too_large" = "Une fois décompressé, le fichier de sauvegarde dépasse la taille maximale autorisée (%d Mo non compressés).";
+
+/* Backup error: file version too new; %1$d found, %2$d max supported */
+"settings.backup.error.unsupported_version" = "Cette sauvegarde a été créée avec un format plus récent (version %1$d). Cette app prend en charge jusqu'à la version %2$d. Veuillez mettre à jour l'app et réessayer.";
+
+/* Backup error: manifest counts do not match arrays */
+"settings.backup.error.corrupted_manifest" = "Le fichier de sauvegarde semble corrompu. Les nombres déclarés ne correspondent pas aux données réelles.";
+
+/* Backup error: export failed; %@ is underlying error */
+"settings.backup.error.export_failed" = "Échec de la création de la sauvegarde : %@";
+
+/* Backup error: import failed; %@ is underlying error */
+"settings.backup.error.import_failed" = "Échec de l'importation de la sauvegarde : %@";
+
+// MARK: - Export success
+
+/* Hero title on the backup export success sheet */
+"settings.backup.export.success.title" = "Sauvegarde enregistrée";
+
+/* Section header listing record counts included in the export */
+"settings.backup.export.success.included_section" = "Inclus dans la sauvegarde";
+
+/* Primary button on the export success sheet */
+"settings.backup.export.success.done" = "Terminé";
+
+/* VoiceOver announcement when the export success sheet appears; %@ is the filename */
+"settings.backup.export.success.announcement" = "Sauvegarde enregistrée sous %@";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "Vous ne possédez pas ce thème.";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "Thème rétabli au thème par défaut.";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "Soutenir le développement";
+"Support.Header.Body" = "Si vous aimez MC1, voici quelques façons de soutenir son développement ! Tout ici est facultatif, juste quelques pourboires et quelques thèmes supplémentaires.";
+"Support.Themes.Title" = "Thèmes";
+"Support.Themes.Owned" = "Acquis";
+"Support.Themes.PurchasedFooter" = "Appliquez votre nouveau thème dans Réglages → Apparence.";
+"Support.Bundle.Title" = "Tous les thèmes";
+"Support.Bundle.Subtitle" = "Inclut les thèmes ajoutés ultérieurement.";
+"Support.Contributions.Title" = "Contributions";
+"Support.Contributions.Footer" = "Un pourboire de remerciement qui soutient le développement de MC1. Aucun bien physique, aucun avantage d'adhésion.";
+"Support.Contributions.HighValueConfirm" = "Envoyer un %@ ?";
+"Support.Contributions.ConfirmButton" = "Contribuer %@";
+"Support.Restore.Button" = "Restaurer les achats";
+"Support.Restore.Syncing" = "Restauration…";
+"Support.Refund.Link" = "Demander un remboursement";
+"Support.Pending.Banner" = "En attente d'approbation — votre achat sera activé une fois approuvé.";
+"Support.Pending.Button" = "En attente d'approbation";
+"Support.Contact.Link" = "Contacter l'assistance";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "Par défaut";
+"Support.Theme.Ember" = "Ember";
+"Support.Theme.Fern" = "Fern";
+"Support.Theme.Marine" = "Marine";
+"Support.Theme.Olive" = "Olive";
+"Support.Theme.Lavender" = "Lavender";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "Impossible de charger les produits.";
+"Support.Error.ProductNotFound" = "Produit introuvable.";
+"Support.Error.PurchaseFailed" = "Échec de l'achat : %@";
+"Support.Error.NetworkUnavailable" = "Réseau indisponible.";
+"Support.Error.VerificationFailed" = "Impossible de vérifier votre achat.";
+"Support.Error.NotEntitled" = "Les achats sont restreints sur cet appareil. Vérifiez les restrictions de contenu de Temps d'écran.";
+"Support.Error.StorefrontUnavailable" = "Ce produit n'est pas disponible dans votre région.";
+"Support.Error.Unsupported" = "Les achats intégrés ne sont pas pris en charge sur cet appareil.";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "Thème %@, verrouillé";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "Thème %@, acquis";
+"Support.Accessibility.BundleCard.LockedLabel" = "Pack Tous les thèmes, verrouillé, %@";
+"Support.Accessibility.BundleCard.LockedHint" = "Achète le pack Tous les thèmes";
+"Support.Accessibility.BundleCard.LoadingLabel" = "Pack Tous les thèmes, chargement du prix";
+"Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
+"Support.Accessibility.ContributionRow.Hint" = "Envoie un pourboire de remerciement";
+"Support.Accessibility.TipConfirmAnnouncement" = "Merci pour votre pourboire.";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "Apparence";
+"Appearance.Scheme.Header" = "Mode clair/sombre";
+"Appearance.Scheme.System" = "Système";
+"Appearance.Scheme.Light" = "Clair";
+"Appearance.Scheme.Dark" = "Sombre";
+"Appearance.Themes.Header" = "Choisir un thème";
+"Appearance.Themes.Selected" = "Sélectionné";
+"Appearance.MoreThemes.Link" = "Acheter d'autres thèmes";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "Thème %@, acquis";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "Applique ce thème";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "Thème %@, actuellement sélectionné";
+"Appearance.Accessibility.Swatch.DualMode" = "%@, variantes claire et sombre";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@, sombre uniquement";

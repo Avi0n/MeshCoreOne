@@ -1,6 +1,37 @@
 import Foundation
 import os
 
+/// Tracks progress of a streamed read (the contact notification stream or the windowed
+/// channel-read pipeline) so a watchdog can distinguish "still streaming" from "idle" by
+/// comparing the generation across an inactivity gap.
+private actor StreamProgressTracker {
+    struct Snapshot: Sendable {
+        let generation: Int
+        let elapsed: TimeInterval
+    }
+
+    private var generation = 0
+    private let startedAt = Date()
+
+    func markProgress() {
+        generation += 1
+    }
+
+    func snapshot() -> Snapshot {
+        Snapshot(
+            generation: generation,
+            elapsed: Date().timeIntervalSince(startedAt)
+        )
+    }
+}
+
+/// Result a channel-pipeline task group task contributes: the consumer's collected channels,
+/// or a watchdog tick that has already finished the subscription.
+private enum ChannelPipelineOutcome: Sendable {
+    case collected([UInt8: ChannelInfo])
+    case watchdog
+}
+
 /// Main session actor for MeshCore device communication.
 ///
 /// `MeshCoreSession` coordinates all communication with a MeshCore mesh networking device
@@ -83,7 +114,6 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     private let clock: any Clock<Duration>
     private let dispatcher = EventDispatcher()
     private let pendingRequests = PendingRequests()
-    private let binaryRequestSerializer = BinaryRequestSerializer()
     private let requestResponseSerializer = RequestResponseSerializer()
 
     // State
@@ -99,8 +129,10 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     private var receiveTask: Task<Void, Never>?
     private var autoMessageFetchTask: Task<Void, Never>?
     private var autoMessageDrainTask: Task<Void, Never>?
+    private var autoContactRefreshTask: Task<Void, Never>?
     private var isAutoFetchingMessages = false
     private var autoMessageDrainRequested = false
+    private var autoContactRefreshRequested = false
     private var isGetMessageInFlight = false
     private var getMessageWaiters: [CheckedContinuation<MessageResult, Error>] = []
 
@@ -119,7 +151,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
             // Yield current state immediately
             continuation.yield(_connectionState)
             // Store continuation for future updates
-            Task { await self.addConnectionStateContinuation(id: id, continuation: continuation) }
+            Task { self.addConnectionStateContinuation(id: id, continuation: continuation) }
             continuation.onTermination = { _ in
                 Task { await self.removeConnectionStateContinuation(id: id) }
             }
@@ -226,6 +258,9 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         logger.info("Stopping MeshCore session...")
         isRunning = false
         stopAutoMessageFetching()
+        autoContactRefreshTask?.cancel()
+        autoContactRefreshTask = nil
+        autoContactRefreshRequested = false
         receiveTask?.cancel()
         await dispatcher.finishAllSubscriptions()
         logger.info("Disconnecting transport...")
@@ -243,6 +278,37 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Returns: An async stream of mesh events that yields ``MeshEvent`` values as they are received.
     public func events() async -> AsyncStream<MeshEvent> {
         await dispatcher.subscribe()
+    }
+
+    /// Subscribes to events passing the given filter.
+    ///
+    /// Prefer this over ``events()`` when the consumer only cares about a
+    /// narrow slice of events. The filter is evaluated at dispatch time,
+    /// so non-matching events never enter the subscription's 100-slot
+    /// bounded buffer (`.bufferingNewest`) — unrelated traffic cannot
+    /// evict matching events even if the consumer is slow to drain the stream.
+    ///
+    /// - Parameter filter: The ``EventFilter`` that determines which events reach the stream.
+    /// - Returns: An async stream yielding only events that pass `filter`.
+    public func events(filter: EventFilter) async -> AsyncStream<MeshEvent> {
+        await dispatcher.subscribe(filter: filter.matches)
+    }
+
+    /// Subscribes to all events with an explicit teardown handle.
+    ///
+    /// Use this when the listener has a bounded lifetime (e.g., a timed scan) and needs the
+    /// `for await` loop to exit promptly when the work is done. Pair with ``finishEvents(id:)``.
+    ///
+    /// - Returns: A tuple of the subscription id (pass to ``finishEvents(id:)``) and the event stream.
+    public func eventsTracked() async -> (id: UUID, stream: AsyncStream<MeshEvent>) {
+        await dispatcher.subscribeTracked()
+    }
+
+    /// Finishes a subscription created via ``eventsTracked()``.
+    ///
+    /// Causes the corresponding `for await` loop to exit. Safe to call with an unknown id.
+    public func finishEvents(id: UUID) async {
+        await dispatcher.finishSubscription(id: id)
     }
 
     // MARK: - Contact Management
@@ -409,6 +475,32 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         }
     }
 
+    private func requestAutoContactRefresh() {
+        autoContactRefreshRequested = true
+
+        guard autoContactRefreshTask == nil else { return }
+        autoContactRefreshTask = Task { [weak self] in
+            guard let self else { return }
+            await self.runAutoContactRefreshLoop()
+        }
+    }
+
+    private func runAutoContactRefreshLoop() async {
+        defer { autoContactRefreshTask = nil }
+
+        while autoContactRefreshRequested, !Task.isCancelled {
+            autoContactRefreshRequested = false
+
+            do {
+                _ = try await ensureContacts(force: true)
+            } catch is CancellationError {
+                break
+            } catch {
+                logger.warning("Auto contact refresh failed: \(error.localizedDescription)")
+            }
+        }
+    }
+
     // MARK: - Event Waiting
 
     /// Waits for a specific event type with optional filtering.
@@ -549,6 +641,14 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         }
     }
 
+    /// Standard error matcher that converts `.error` events into ``MeshCoreError/deviceError(code:)``.
+    private static let deviceErrorMatcher: @Sendable (MeshEvent) -> MeshCoreError? = { event in
+        if case .error(let code) = event {
+            return MeshCoreError.deviceError(code: code ?? 0)
+        }
+        return nil
+    }
+
     private enum ResponseDisposition<T: Sendable> {
         case success(T)
         case failure(MeshCoreError)
@@ -563,7 +663,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         try await requestResponseSerializer.withSerialization { [self] in
             let effectiveTimeout = timeout ?? configuration.defaultTimeout
 
-            // Subscribe BEFORE sending to avoid race condition, then ignore all
+            // Subscribe before sending to avoid race condition, then ignore all
             // non-matching events until this request sees its own response.
             let (subscriptionID, events) = await dispatcher.subscribeTracked()
 
@@ -574,8 +674,6 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
                 return try await withThrowingTaskGroup(of: T?.self) { group in
                     group.addTask {
                         for await event in events {
-                            if Task.isCancelled { return nil }
-
                             switch matcher(event) {
                             case .success(let result):
                                 return result
@@ -665,60 +763,95 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
     ///           ``MeshCoreError/deviceError(code:)`` if the device returns an error.
     public func getContacts(since lastModified: Date? = nil) async throws -> [MeshContact] {
-        let data = PacketBuilder.getContacts(since: lastModified)
-        let events = await dispatcher.subscribe()
-        try await transport.send(data)
+        let (contacts, modifiedDate): ([MeshContact], Date?) = try await requestResponseSerializer.withSerialization { [self] in
+            let data = PacketBuilder.getContacts(since: lastModified)
+            let (subscriptionID, events) = await dispatcher.subscribeTracked()
 
-        // Manual timeout pattern (not withTimeout) because:
-        // 1. Uses injected clock for testability
-        // 2. Throws MeshCoreError.timeout for consistency with other session methods
-        // 3. Defers contactManager mutations until after the task group
-        //    to avoid actor-isolation issues in the @Sendable closure.
-        let (contacts, modifiedDate): ([MeshContact], Date?) = try await withThrowingTaskGroup(
-            of: ([MeshContact], Date?).self
-        ) { group in
-            group.addTask {
-                var receivedContacts: [MeshContact] = []
-                var finalModifiedDate: Date?
+            do {
+                try await transport.send(data)
 
-                for await event in events {
-                    if Task.isCancelled {
-                        throw CancellationError()
+                // Manual timeout pattern (not withTimeout) because:
+                // 1. Uses injected clock for testability
+                // 2. Throws MeshCoreError.timeout for consistency with other session methods
+                // 3. Defers contactManager mutations until after the serialization closure
+                //    to avoid actor-isolation issues in the @Sendable closure.
+                return try await withThrowingTaskGroup(
+                    of: ([MeshContact], Date?).self
+                ) { group in
+                    let progressTracker = StreamProgressTracker()
+                    group.addTask {
+                        var receivedContacts: [MeshContact] = []
+                        var finalModifiedDate: Date?
+
+                        for await event in events {
+                            if Task.isCancelled {
+                                throw CancellationError()
+                            }
+
+                            switch event {
+                            case .contactsStart(let count):
+                                await progressTracker.markProgress()
+                                receivedContacts.reserveCapacity(count)
+                            case .contact(let contact):
+                                await progressTracker.markProgress()
+                                receivedContacts.append(contact)
+                            case .contactsEnd(let modifiedDate):
+                                await progressTracker.markProgress()
+                                finalModifiedDate = modifiedDate
+                                return (receivedContacts, finalModifiedDate)
+                            case .error(let code):
+                                throw MeshCoreError.deviceError(code: code ?? 0)
+                            default:
+                                continue
+                            }
+                        }
+
+                        throw MeshCoreError.timeout
                     }
 
-                    switch event {
-                    case .contactsStart(let count):
-                        receivedContacts.reserveCapacity(count)
-                    case .contact(let contact):
-                        receivedContacts.append(contact)
-                    case .contactsEnd(let modifiedDate):
-                        finalModifiedDate = modifiedDate
-                        return (receivedContacts, finalModifiedDate)
-                    case .error(let code):
-                        throw MeshCoreError.deviceError(code: code ?? 0)
-                    default:
-                        continue
+                    let inactivityTimeout = configuration.contactStreamInactivityTimeout
+                    let hardTimeout = configuration.contactStreamHardTimeout
+                    let sessionClock = clock
+                    group.addTask { [sessionClock, inactivityTimeout, hardTimeout] in
+                        while true {
+                            let beforeSleep = await progressTracker.snapshot()
+                            if beforeSleep.elapsed >= hardTimeout {
+                                throw MeshCoreError.timeout
+                            }
+
+                            let remainingHardTimeout = max(0.001, hardTimeout - beforeSleep.elapsed)
+                            let sleepDuration = min(inactivityTimeout, remainingHardTimeout)
+                            try await sessionClock.sleep(for: .seconds(sleepDuration))
+
+                            let afterSleep = await progressTracker.snapshot()
+                            if afterSleep.elapsed >= hardTimeout || afterSleep.generation == beforeSleep.generation {
+                                throw MeshCoreError.timeout
+                            }
+                        }
+                    }
+
+                    do {
+                        guard let result = try await group.next() else {
+                            group.cancelAll()
+                            await dispatcher.finishSubscription(id: subscriptionID)
+                            throw MeshCoreError.timeout
+                        }
+                        group.cancelAll()
+                        await dispatcher.finishSubscription(id: subscriptionID)
+                        return result
+                    } catch {
+                        group.cancelAll()
+                        await dispatcher.finishSubscription(id: subscriptionID)
+                        throw error
                     }
                 }
-
-                throw MeshCoreError.timeout
+            } catch {
+                await dispatcher.finishSubscription(id: subscriptionID)
+                throw error
             }
-
-            group.addTask { [clock = self.clock] in
-                try await clock.sleep(for: .seconds(60))
-                throw MeshCoreError.timeout
-            }
-
-            defer { group.cancelAll() }
-
-            guard let result = try await group.next() else {
-                throw MeshCoreError.timeout
-            }
-
-            return result
         }
 
-        // Update contact manager on the actor after the race completes
+        // Update contact manager on the actor after the serialized exchange completes
         for contact in contacts {
             contactManager.store(contact)
         }
@@ -770,10 +903,14 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         attempt: UInt8 = 0
     ) async throws -> MessageSentInfo {
         let data = PacketBuilder.sendMessage(to: destination, text: text, timestamp: timestamp, attempt: attempt)
-        return try await sendAndWaitWithError(data) { event in
-            if case .messageSent(let info) = event { return info }
-            return nil
-        }
+        return try await sendAndWaitWithError(
+            data,
+            matching: { event in
+                if case .messageSent(let info) = event { return info }
+                return nil
+            },
+            errorMatcher: Self.deviceErrorMatcher
+        )
     }
 
     /// Sends a text message to a destination.
@@ -894,7 +1031,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ///           ``MeshCoreError/invalidResponse`` if an unexpected response is received.
     public func requestStatus(from publicKey: Data) async throws -> StatusResponse {
         try requireFullPublicKey(publicKey, operation: "requestStatus")
-        return try await binaryRequestSerializer.withSerialization { [self] in
+        return try await requestResponseSerializer.withSerialization { [self] in
             try await performStatusRequest(from: publicKey, layout: .repeater)
         }
     }
@@ -914,7 +1051,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ) async throws -> StatusResponse {
         try requireFullPublicKey(publicKey, operation: "requestStatus")
         let layout: StatusResponse.Layout = type == .room ? .roomServer : .repeater
-        return try await binaryRequestSerializer.withSerialization { [self] in
+        return try await requestResponseSerializer.withSerialization { [self] in
             try await performStatusRequest(from: publicKey, layout: layout)
         }
     }
@@ -941,7 +1078,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
         logger.info("Status request to \(prefixHex): sending")
 
-        // Subscribe BEFORE sending to avoid race condition where binaryResponse
+        // Subscribe before sending to avoid race condition where binaryResponse
         // arrives before we can register the pending request
         let events = await dispatcher.subscribe()
 
@@ -1063,10 +1200,14 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         var syncSinceLE = syncSince.littleEndian
         let payload = withUnsafeBytes(of: &syncSinceLE) { Data($0) }
         let data = PacketBuilder.binaryRequest(to: publicKey, type: .keepAlive, payload: payload)
-        return try await sendAndWait(data) { event in
-            if case .messageSent(let info) = event { return info }
-            return nil
-        }
+        return try await sendAndWaitWithError(
+            data,
+            matching: { event in
+                if case .messageSent(let info) = event { return info }
+                return nil
+            },
+            errorMatcher: Self.deviceErrorMatcher
+        )
     }
 
     // MARK: - Device Configuration Commands
@@ -1386,19 +1527,26 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
             if case .disabled = event {
                 return MeshCoreError.featureDisabled
             }
+            if case .error(let code) = event {
+                return MeshCoreError.deviceError(code: code ?? 0)
+            }
             return nil
         }
     }
 
     /// Imports a private key into the device.
     ///
-    /// This replaces the device's cryptographic identity. Use with caution.
+    /// This replaces the device's cryptographic identity and refreshes cached self info.
+    /// Use with caution.
     ///
     /// - Parameter key: The 64-byte expanded private key to import.
     /// - Throws: ``MeshCoreError/featureDisabled`` if the device does not support key import,
     ///   ``MeshCoreError/timeout`` if the device does not acknowledge the import,
     ///   or ``MeshCoreError/deviceError(code:)`` for a matched device error response.
     public func importPrivateKey(_ key: Data) async throws {
+        guard key.count == PacketBuilder.privateKeySize else {
+            throw MeshCoreError.invalidInput("Full \(PacketBuilder.privateKeySize)-byte private key required for importPrivateKey")
+        }
         let succeeded: Bool = try await sendAndWaitWithError(
             PacketBuilder.importPrivateKey(key)
         ) { event in
@@ -1412,6 +1560,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         if !succeeded {
             throw MeshCoreError.featureDisabled
         }
+        selfInfo = try await sendAppStart()
     }
 
     // MARK: - Stats Commands
@@ -1493,9 +1642,14 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         if let publicKey {
             try requireFullPublicKey(publicKey, operation: "exportContact")
         }
+        let requestedKeyHex = publicKey?.hexString
         return try await sendAndWait(PacketBuilder.exportContact(publicKey: publicKey)) { event in
-            if case .contactURI(let uri) = event { return uri }
-            return nil
+            guard case .contactURI(let uri) = event else { return nil }
+            // The exported card begins with the contact's public key, so a card for a
+            // different contact (e.g. an orphan from a cancelled export whose response
+            // lands after this command's timeout) is rejected rather than returned.
+            if let requestedKeyHex, !uri.contains(requestedKeyHex) { return nil }
+            return uri
         }
     }
 
@@ -1555,11 +1709,11 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         }
         data.append(nameData)
 
-        let lastAdvert = UInt32(lastAdvertisement.timeIntervalSince1970)
+        let lastAdvert = PacketBuilder.epochSeconds32(lastAdvertisement)
         data.append(contentsOf: withUnsafeBytes(of: lastAdvert.littleEndian) { Array($0) })
 
-        let lat = Int32(latitude * 1_000_000)
-        let lon = Int32(longitude * 1_000_000)
+        let lat = PacketBuilder.scaledCoordinate(latitude, in: PacketBuilder.latitudeRange)
+        let lon = PacketBuilder.scaledCoordinate(longitude, in: PacketBuilder.longitudeRange)
         data.append(contentsOf: withUnsafeBytes(of: lat.littleEndian) { Array($0) })
         data.append(contentsOf: withUnsafeBytes(of: lon.littleEndian) { Array($0) })
 
@@ -1568,20 +1722,19 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
     /// Adds a contact to the device's contact list.
     ///
+    /// Encodes via ``PacketBuilder/updateContact(_:)``, which forwards the raw
+    /// ``MeshContact/typeRawValue`` byte and uses the saturating coordinate/timestamp
+    /// encoders, so a contact carrying a type byte not modeled by ``ContactType``
+    /// (e.g. from an imported config) reaches the device verbatim instead of being
+    /// coerced. The 147-byte frame is wire-equivalent to the prior 144-byte frame:
+    /// firmware applies the gps_lat/gps_lon coordinates in `[136, 144)` when the
+    /// payload length is at least 144, and intentionally omits last_mod in `[144, 148)`
+    /// (147 is below the 148-byte threshold), so the device restamps it from its RTC.
+    ///
     /// - Parameter contact: The contact to add.
     /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
     public func addContact(_ contact: MeshContact) async throws {
-        try await updateContact(
-            publicKey: contact.publicKey,
-            type: contact.type,
-            flags: contact.flags,
-            outPathLength: contact.outPathLength,
-            outPath: contact.outPath,
-            advertisedName: contact.advertisedName,
-            lastAdvertisement: contact.lastAdvertisement,
-            latitude: contact.latitude,
-            longitude: contact.longitude
-        )
+        try await sendSimpleCommand(PacketBuilder.updateContact(contact))
     }
 
     /// Changes the routing path for a contact.
@@ -1645,7 +1798,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ///
     /// - Parameter timeout: Optional timeout override in seconds. Uses `configuration.defaultTimeout` when `nil`.
     /// - Returns: A ``MessageResult`` containing either a contact message, channel message,
-    ///            or indication that no more messages are waiting.
+    ///            channel datagram (firmware v11+), or ``MessageResult/noMoreMessages``.
     /// - Throws: ``MeshCoreError`` if the fetch fails.
     public func getMessage(timeout: TimeInterval? = nil) async throws -> MessageResult {
         if isGetMessageInFlight {
@@ -1672,7 +1825,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
         let stream = await dispatcher.subscribe { event in
             switch event {
-            case .contactMessageReceived, .channelMessageReceived, .noMoreMessages, .error:
+            case .contactMessageReceived, .channelMessageReceived, .channelDataReceived,
+                 .noMoreMessages, .error:
                 return true
             default:
                 return false
@@ -1694,6 +1848,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
                         return .contactMessage(msg)
                     case .channelMessageReceived(let msg):
                         return .channelMessage(msg)
+                    case .channelDataReceived(let dg):
+                        return .channelDatagram(dg)
                     case .noMoreMessages:
                         return .noMoreMessages
                     case .error(let code):
@@ -1750,10 +1906,14 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         command: String,
         timestamp: Date = Date()
     ) async throws -> MessageSentInfo {
-        try await sendAndWait(PacketBuilder.sendCommand(to: destination, command: command, timestamp: timestamp)) { event in
-            if case .messageSent(let info) = event { return info }
-            return nil
-        }
+        try await sendAndWaitWithError(
+            PacketBuilder.sendCommand(to: destination, command: command, timestamp: timestamp),
+            matching: { event in
+                if case .messageSent(let info) = event { return info }
+                return nil
+            },
+            errorMatcher: Self.deviceErrorMatcher
+        )
     }
 
     /// Sends a message to a channel.
@@ -1773,6 +1933,39 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         try await sendSimpleCommand(PacketBuilder.sendChannelMessage(channel: channel, text: text, timestamp: timestamp))
     }
 
+    /// Sends a binary datagram to a channel.
+    ///
+    /// Requires firmware v11+ (MeshCore v1.15.0+).
+    ///
+    /// - Parameters:
+    ///   - channelIndex: Channel slot index.
+    ///   - dataType: Application data-type namespace. `0x0000` is reserved and rejected by
+    ///     firmware; `0xFFFF` is the developer namespace.
+    ///   - payload: Binary payload (clamped to 163 bytes by ``PacketBuilder/sendChannelData(channelIndex:dataType:payload:pathLength:pathBytes:)``).
+    ///   - pathLength: Encoded `path_len` byte. Defaults to ``PacketBuilder/floodPathSentinel``
+    ///     (`0xFF` = flood). Non-flood values must satisfy firmware's `Packet::isValidPathLen`;
+    ///     callers working from a ``MeshContact`` can pass `contact.outPathLength` directly.
+    ///   - pathBytes: Path bytes written verbatim. Ignored when `pathLength == 0xFF`. Callers
+    ///     working from a ``MeshContact`` can pass `contact.outPath` directly.
+    /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
+    public func sendChannelData(
+        channelIndex: UInt8,
+        dataType: UInt16,
+        payload: Data,
+        pathLength: UInt8 = PacketBuilder.floodPathSentinel,
+        pathBytes: Data = Data()
+    ) async throws {
+        try await sendSimpleCommand(
+            PacketBuilder.sendChannelData(
+                channelIndex: channelIndex,
+                dataType: dataType,
+                payload: payload,
+                pathLength: pathLength,
+                pathBytes: pathBytes
+            )
+        )
+    }
+
     /// Sends a login request to a remote node.
     ///
     /// Authenticates with a password-protected node to gain administrative access.
@@ -1783,10 +1976,14 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Returns: Information about the sent message, including the expected ACK code.
     /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
     public func sendLogin(to destination: Data, password: String) async throws -> MessageSentInfo {
-        try await sendAndWait(PacketBuilder.sendLogin(to: destination, password: password)) { event in
-            if case .messageSent(let info) = event { return info }
-            return nil
-        }
+        try await sendAndWaitWithError(
+            PacketBuilder.sendLogin(to: destination, password: password),
+            matching: { event in
+                if case .messageSent(let info) = event { return info }
+                return nil
+            },
+            errorMatcher: Self.deviceErrorMatcher
+        )
     }
 
     /// Sends a login request to a remote node.
@@ -1817,10 +2014,14 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Returns: Information about the sent message, including the expected ACK code.
     /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
     public func sendStatusRequest(to destination: Data) async throws -> MessageSentInfo {
-        try await sendAndWait(PacketBuilder.sendStatusRequest(to: destination)) { event in
-            if case .messageSent(let info) = event { return info }
-            return nil
-        }
+        try await sendAndWaitWithError(
+            PacketBuilder.sendStatusRequest(to: destination),
+            matching: { event in
+                if case .messageSent(let info) = event { return info }
+                return nil
+            },
+            errorMatcher: Self.deviceErrorMatcher
+        )
     }
 
     /// Requests telemetry data from a remote node.
@@ -1829,10 +2030,14 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Returns: Information about the sent message, including the expected ACK code.
     /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
     public func sendTelemetryRequest(to destination: Data) async throws -> MessageSentInfo {
-        try await sendAndWait(PacketBuilder.getSelfTelemetry(destination: destination)) { event in
-            if case .messageSent(let info) = event { return info }
-            return nil
-        }
+        try await sendAndWaitWithError(
+            PacketBuilder.getSelfTelemetry(destination: destination),
+            matching: { event in
+                if case .messageSent(let info) = event { return info }
+                return nil
+            },
+            errorMatcher: Self.deviceErrorMatcher
+        )
     }
 
     /// Initiates path discovery to a remote node.
@@ -1843,10 +2048,14 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Returns: Information about the sent message, including the expected ACK code.
     /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
     public func sendPathDiscovery(to destination: Data) async throws -> MessageSentInfo {
-        try await sendAndWait(PacketBuilder.sendPathDiscovery(to: destination)) { event in
-            if case .messageSent(let info) = event { return info }
-            return nil
-        }
+        try await sendAndWaitWithError(
+            PacketBuilder.sendPathDiscovery(to: destination),
+            matching: { event in
+                if case .messageSent(let info) = event { return info }
+                return nil
+            },
+            errorMatcher: Self.deviceErrorMatcher
+        )
     }
 
     /// Sends a trace packet through the mesh network.
@@ -1859,6 +2068,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ///   - flags: Trace flags controlling behavior.
     ///   - path: Optional initial path to follow.
     /// - Returns: Information about the sent message, including tag and auth code.
+    /// - Throws: ``MeshCoreError/invalidInput`` if `path` is `nil` or empty; firmware
+    ///   requires at least one path byte and rejects a path-less trace frame.
     /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
     public func sendTrace(
         tag: UInt32? = nil,
@@ -1866,13 +2077,21 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         flags: UInt8 = 0,
         path: Data? = nil
     ) async throws -> MessageSentInfo {
+        guard let path, !path.isEmpty else {
+            throw MeshCoreError.invalidInput("Trace requires at least one path byte")
+        }
+
         let actualTag = tag ?? UInt32.random(in: 1...UInt32.max)
         let actualAuth = authCode ?? UInt32.random(in: 1...UInt32.max)
 
-        return try await sendAndWait(PacketBuilder.sendTrace(tag: actualTag, authCode: actualAuth, flags: flags, path: path)) { event in
-            if case .messageSent(let info) = event { return info }
-            return nil
-        }
+        return try await sendAndWaitWithError(
+            PacketBuilder.sendTrace(tag: actualTag, authCode: actualAuth, flags: flags, path: path),
+            matching: { event in
+                if case .messageSent(let info) = event { return info }
+                return nil
+            },
+            errorMatcher: Self.deviceErrorMatcher
+        )
     }
 
     /// Sets the flood scope using a raw scope key.
@@ -1893,12 +2112,83 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         try await setFloodScope(scopeKey: scope.scopeKey())
     }
 
+    /// Forces un-scoped flood broadcasts, overriding the device's persisted default
+    /// flood scope.
+    ///
+    /// Unlike ``setFloodScope(_:)`` (which resets the session scope and lets the device
+    /// fall back to its default), this sets the firmware `send_unscoped` flag so flood
+    /// packets are sent to all regions regardless of the configured default.
+    ///
+    /// Requires firmware ver 12+. Older firmware has no handler for sub-command 1 and
+    /// rejects the command with `ERR_CODE_UNSUPPORTED_CMD` (surfaced as
+    /// ``MeshCoreError/deviceError(code:)``), so callers must gate on the reported
+    /// firmware version before calling.
+    ///
+    /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
+    public func setFloodScopeUnscoped() async throws {
+        try await sendSimpleCommand(PacketBuilder.setFloodScopeUnscoped())
+    }
+
+    /// Persists the device's default flood scope.
+    ///
+    /// The default scope is applied by the device when sending flood packets if
+    /// no session-scoped key has been set. Passing an empty name clears the persisted
+    /// scope; the `scopeKey` argument is ignored in that case.
+    ///
+    /// Requires firmware v11+ (MeshCore v1.15.0+).
+    ///
+    /// - Parameters:
+    ///   - name: Display name (up to 30 UTF-8 bytes; longer names are truncated). An empty
+    ///     name clears the persisted scope regardless of the `scopeKey` value.
+    ///   - scopeKey: 16-byte scope key (shorter keys are zero-padded). Ignored when `name`
+    ///     is empty.
+    /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
+    public func setDefaultFloodScope(name: String, scopeKey: Data) async throws {
+        try await sendSimpleCommand(
+            PacketBuilder.setDefaultFloodScope(name: name, scopeKey: scopeKey)
+        )
+    }
+
+    /// Persists the device's default flood scope from a ``FloodScope``.
+    ///
+    /// - Parameters:
+    ///   - name: Display name stored on the device.
+    ///   - scope: The scope to persist. Passing ``FloodScope/disabled`` clears the scope.
+    /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
+    public func setDefaultFloodScope(name: String, scope: FloodScope) async throws {
+        try await sendSimpleCommand(
+            PacketBuilder.setDefaultFloodScope(name: name, scope: scope)
+        )
+    }
+
+    /// Fetches the device's persisted default flood scope.
+    ///
+    /// Requires firmware v11+ (MeshCore v1.15.0+). Older firmware will surface the unknown
+    /// opcode as ``MeshCoreError/deviceError(code:)``.
+    ///
+    /// - Returns: The persisted scope, or `nil` if none is configured.
+    /// - Throws: ``MeshCoreError/timeout`` if no response arrives;
+    ///           ``MeshCoreError/deviceError(code:)`` if the device rejected the command.
+    public func getDefaultFloodScope() async throws -> DefaultFloodScope? {
+        let data = PacketBuilder.getDefaultFloodScope()
+        return try await sendAndMatch(data) { event in
+            switch event {
+            case .defaultFloodScope(let scope):
+                return .success(scope)
+            case .error(let code):
+                return .failure(MeshCoreError.deviceError(code: code ?? 0))
+            default:
+                return .ignore
+            }
+        }
+    }
+
     /// Sets the path hash mode on the device.
     ///
     /// - Parameter mode: Hash mode (0=1-byte, 1=2-byte, 2=3-byte hashes).
     /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
     public func setPathHashMode(_ mode: UInt8) async throws {
-        guard mode <= 2 else {
+        guard mode <= UInt8(PathEncoding.maxPathHashMode) else {
             throw MeshCoreError.invalidInput("Path hash mode must be 0, 1, or 2")
         }
         try await sendSimpleCommand(PacketBuilder.setPathHashMode(mode))
@@ -1915,6 +2205,157 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         try await sendAndWait(PacketBuilder.getChannel(index: index)) { event in
             if case .channelInfo(let info) = event, info.index == index { return info }
             return nil
+        }
+    }
+
+    /// Reads multiple channels in a single bounded-window pipeline of unacknowledged requests,
+    /// so the per-request stall — BLE slave latency, or the WiFi per-round-trip TCP delay — is
+    /// amortized across the window instead of paid once per index.
+    ///
+    /// - Returns: `received` are the channels that answered (sorted by index); `missing` are
+    ///   the requested indexes that went unanswered — a dropped BLE Write Command, or a TCP send
+    ///   the radio never replied to. The caller reconciles `missing` with serial acknowledged
+    ///   reads — an unanswered request is data, not a fatal error.
+    /// - Throws: ``MeshCoreError`` only on a hard send failure (e.g. disconnect mid-send); an
+    ///   idle stall returns the partial set rather than throwing.
+    ///
+    /// Falls back to serial ``getChannel(index:)`` reads when the transport does not support
+    /// pipelined reads, so a radio limited to acknowledged serial reads still works.
+    public func getChannels(indices: [UInt8]) async throws -> (received: [ChannelInfo], missing: [UInt8]) {
+        guard !indices.isEmpty else { return (received: [], missing: []) }
+
+        guard await transport.supportsPipelinedReads else {
+            var received: [ChannelInfo] = []
+            for index in indices {
+                received.append(try await getChannel(index: index))
+            }
+            return (received: received, missing: [])
+        }
+
+        // One serializer slot for the whole exchange: late/orphaned channel frames are drained
+        // under the held slot instead of leaking to the next command, even if the caller is
+        // cancelled mid-drain.
+        return try await requestResponseSerializer.withSerialization { [self] in
+            try await runChannelReadPipeline(indices: indices)
+        }
+    }
+
+    private func runChannelReadPipeline(
+        indices: [UInt8]
+    ) async throws -> (received: [ChannelInfo], missing: [UInt8]) {
+        let requested = indices
+        let requestedSet = Set(indices)
+        let window = max(1, configuration.channelPipelineWindow)
+        let idleTimeout = configuration.channelPipelineIdleTimeout
+        let hardTimeout = configuration.channelPipelineHardTimeout
+        let graceTimeout = configuration.channelPipelinePostDrainGrace
+        let sessionClock = clock
+        let sessionTransport = transport
+        let sessionDispatcher = dispatcher
+
+        let (subscriptionID, events) = await dispatcher.subscribeTracked()
+
+        do {
+            // Prime the window before draining so the peripheral's send queue stays non-empty
+            // and it does not re-enter slave latency between responses.
+            //
+            // The nRF52 Nordic UART Service does not preserve ATT-write framing: its receive
+            // path reads every byte currently available into one firmware frame, so adjacent
+            // Write Commands delivered in the same connection event are coalesced and only the
+            // first index in the blob is answered. One write is therefore not a guaranteed
+            // response — coalesced-away indexes surface in `missing` and the caller reconciles
+            // them with acknowledged reads. That reconcile path is load-bearing, not just a
+            // disconnect fallback.
+            let primeCount = min(window, requested.count)
+            for index in requested.prefix(primeCount) {
+                try await sessionTransport.sendWithoutResponse(PacketBuilder.getChannel(index: index))
+            }
+
+            let progressTracker = StreamProgressTracker()
+
+            let received: [UInt8: ChannelInfo] = try await withThrowingTaskGroup(
+                of: ChannelPipelineOutcome.self
+            ) { group in
+                // Consumer: records matching responses, refills the window, returns as soon as
+                // every requested index is in (so completion is not delayed by the idle sleep)
+                // or when the watchdog finishes the subscription.
+                group.addTask {
+                    var collected: [UInt8: ChannelInfo] = [:]
+                    var nextToSend = primeCount
+                    for await event in events {
+                        guard case .channelInfo(let info) = event,
+                              requestedSet.contains(info.index),
+                              collected[info.index] == nil else {
+                            continue
+                        }
+                        await progressTracker.markProgress()
+                        collected[info.index] = info
+                        if nextToSend < requested.count {
+                            let nextIndex = requested[nextToSend]
+                            nextToSend += 1
+                            // A refill failure (disconnect mid-drain) just stops sending; the
+                            // watchdog's idle timeout then returns the partial set.
+                            try? await sessionTransport.sendWithoutResponse(
+                                PacketBuilder.getChannel(index: nextIndex)
+                            )
+                        }
+                        if collected.count == requested.count {
+                            return .collected(collected)
+                        }
+                    }
+                    return .collected(collected)
+                }
+
+                // Watchdog: ends the stream on an inactivity gap or the hard cap so the consumer
+                // returns its partial set. It must not finish the subscription once cancelled —
+                // that path means the consumer already completed and the grace drain owns teardown.
+                group.addTask {
+                    while true {
+                        if Task.isCancelled { return .watchdog }
+                        let before = await progressTracker.snapshot()
+                        if before.elapsed >= hardTimeout {
+                            await sessionDispatcher.finishSubscription(id: subscriptionID)
+                            return .watchdog
+                        }
+                        let remainingHard = max(0.001, hardTimeout - before.elapsed)
+                        let sleepDuration = min(idleTimeout, remainingHard)
+                        try? await sessionClock.sleep(for: .seconds(sleepDuration))
+                        if Task.isCancelled { return .watchdog }
+                        let after = await progressTracker.snapshot()
+                        if after.elapsed >= hardTimeout || after.generation == before.generation {
+                            await sessionDispatcher.finishSubscription(id: subscriptionID)
+                            return .watchdog
+                        }
+                    }
+                }
+
+                var collected: [UInt8: ChannelInfo] = [:]
+                for try await outcome in group {
+                    if case .collected(let dict) = outcome {
+                        collected = dict
+                        group.cancelAll()
+                        break
+                    }
+                    // A watchdog tick already finished the subscription; loop until the
+                    // consumer returns its (possibly partial) collected set.
+                }
+                return collected
+            }
+
+            let missing = requested.filter { received[$0] == nil }
+            if missing.isEmpty {
+                // Every index answered. Hold the slot for the grace window with the subscription
+                // still open so duplicate/straggler frames are absorbed here instead of leaking
+                // into the next command.
+                try? await sessionClock.sleep(for: .seconds(graceTimeout))
+            }
+            await dispatcher.finishSubscription(id: subscriptionID)
+
+            let receivedSorted = received.keys.sorted().compactMap { received[$0] }
+            return (received: receivedSorted, missing: missing)
+        } catch {
+            await dispatcher.finishSubscription(id: subscriptionID)
+            throw error
         }
     }
 
@@ -1955,7 +2396,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     public func requestTelemetry(from publicKey: Data) async throws -> TelemetryResponse {
         try requireFullPublicKey(publicKey, operation: "requestTelemetry")
         // Serialize binary requests to prevent messageSent race conditions
-        return try await binaryRequestSerializer.withSerialization { [self] in
+        return try await requestResponseSerializer.withSerialization { [self] in
             try await performTelemetryRequest(from: publicKey)
         }
     }
@@ -1972,7 +2413,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
         logger.info("Telemetry request to \(prefixHex): sending")
 
-        // Subscribe BEFORE sending to avoid race condition where binaryResponse
+        // Subscribe before sending to avoid race condition where binaryResponse
         // arrives before we can register the pending request
         let events = await dispatcher.subscribe()
 
@@ -2074,7 +2515,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Throws: ``MeshCoreError/timeout`` if no response within timeout period.
     public func requestOwnerInfo(from publicKey: Data) async throws -> OwnerInfoResponse {
         try requireFullPublicKey(publicKey, operation: "requestOwnerInfo")
-        return try await binaryRequestSerializer.withSerialization { [self] in
+        return try await requestResponseSerializer.withSerialization { [self] in
             try await performOwnerInfoRequest(from: publicKey)
         }
     }
@@ -2088,7 +2529,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
         logger.info("Owner info request to \(prefixHex): sending")
 
-        // Subscribe BEFORE sending to avoid race condition where binaryResponse
+        // Subscribe before sending to avoid race condition where binaryResponse
         // arrives before we can register the pending request
         let events = await dispatcher.subscribe()
 
@@ -2176,7 +2617,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ///           ``MeshCoreError/deviceError(code:)`` if the device rejects the request.
     public func requestMMA(from publicKey: Data, start: Date, end: Date) async throws -> MMAResponse {
         try requireFullPublicKey(publicKey, operation: "requestMMA")
-        return try await binaryRequestSerializer.withSerialization { [self] in
+        return try await requestResponseSerializer.withSerialization { [self] in
             try await performMMARequest(from: publicKey, start: start, end: end)
         }
     }
@@ -2194,7 +2635,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         let data = PacketBuilder.binaryRequest(to: publicKey, type: .mma, payload: payload)
         let publicKeyPrefix = Data(publicKey.prefix(6))
 
-        // Subscribe BEFORE sending to avoid race condition
+        // Subscribe before sending to avoid race condition
         let events = await dispatcher.subscribe()
         try await transport.send(data)
 
@@ -2262,7 +2703,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ///           ``MeshCoreError/deviceError(code:)`` if the device rejects the request.
     public func requestACL(from publicKey: Data) async throws -> ACLResponse {
         try requireFullPublicKey(publicKey, operation: "requestACL")
-        return try await binaryRequestSerializer.withSerialization { [self] in
+        return try await requestResponseSerializer.withSerialization { [self] in
             try await performACLRequest(from: publicKey)
         }
     }
@@ -2273,7 +2714,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         let data = PacketBuilder.binaryRequest(to: publicKey, type: .acl, payload: payload)
         let publicKeyPrefix = Data(publicKey.prefix(6))
 
-        // Subscribe BEFORE sending to avoid race condition
+        // Subscribe before sending to avoid race condition
         let events = await dispatcher.subscribe()
         try await transport.send(data)
 
@@ -2351,7 +2792,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         orderBy: UInt8 = 0,
         pubkeyPrefixLength: UInt8 = 4
     ) async throws -> NeighboursResponse {
-        try await binaryRequestSerializer.withSerialization { [self] in
+        try await requestResponseSerializer.withSerialization { [self] in
             try await performNeighboursRequest(
                 from: publicKey,
                 count: count,
@@ -2383,7 +2824,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         let publicKeyPrefix = Data(publicKey.prefix(6))
         let prefixLength = Int(pubkeyPrefixLength)
 
-        // Subscribe BEFORE sending to avoid race condition
+        // Subscribe before sending to avoid race condition
         let events = await dispatcher.subscribe()
         try await transport.send(data)
 
@@ -2459,12 +2900,53 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ///   ``MeshCoreError/deviceError(code:)`` if the firmware rejects the request,
     ///   ``MeshCoreError/parseError(_:)`` if the response is malformed.
     public func requestRegions(from contact: MeshContact) async throws -> [String] {
-        try await binaryRequestSerializer.withSerialization { [self] in
-            try await performRegionsRequest(from: contact)
+        let isFloodRouted = contact.outPathLength == 0xFF
+
+        // Firmware requires isRouteDirect() for region requests. For flood-routed
+        // contacts, temporarily set the contact to zero-hop direct on the firmware,
+        // matching the Python reference (base.py:269-273). The zero-hop write, the
+        // region exchange, and the restore are each their own serialized exchange so
+        // none nests inside the request/response serializer the others acquire.
+        if isFloodRouted {
+            // Route through PacketBuilder.updateContact so the raw type byte survives instead of
+            // being coerced to .chat by the typed overload; the restore below only touches
+            // out_path_len, so any coercion here would be permanent.
+            let directContact = MeshContact(
+                id: contact.id,
+                publicKey: contact.publicKey,
+                type: contact.type,
+                typeRawValue: contact.typeRawValue,
+                flags: contact.flags,
+                outPathLength: 0,
+                outPath: Data(),
+                advertisedName: contact.advertisedName,
+                lastAdvertisement: contact.lastAdvertisement,
+                latitude: contact.latitude,
+                longitude: contact.longitude,
+                lastModified: contact.lastModified
+            )
+            try await sendSimpleCommand(PacketBuilder.updateContact(directContact))
+        }
+
+        do {
+            let result = try await requestResponseSerializer.withSerialization { [self] in
+                try await performRegionsRequest(from: contact)
+            }
+            if isFloodRouted {
+                try? await resetPath(publicKey: contact.publicKey)
+            }
+            return result
+        } catch {
+            if isFloodRouted {
+                try? await resetPath(publicKey: contact.publicKey)
+            }
+            throw error
         }
     }
 
-    /// Internal implementation of regions request, called within serialization.
+    /// Sends the region request and matches its response. Runs inside the
+    /// request/response serializer; flood-route setup and restore are handled by
+    /// ``requestRegions(from:)`` as separate exchanges.
     private func performRegionsRequest(from contact: MeshContact) async throws -> [String] {
         let isFloodRouted = contact.outPathLength == 0xFF
         let pathLength: UInt8
@@ -2480,23 +2962,6 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         let prefixHex = contact.publicKey.prefix(6).map { String(format: "%02x", $0) }.joined()
         let startTime = ContinuousClock.now
 
-        // Firmware requires isRouteDirect() for region requests. For flood-routed
-        // contacts, temporarily set the contact to zero-hop direct on the firmware,
-        // matching the Python reference (base.py:269-273).
-        if isFloodRouted {
-            try await updateContact(
-                publicKey: contact.publicKey,
-                type: contact.type,
-                flags: contact.flags,
-                outPathLength: 0,
-                outPath: Data(),
-                advertisedName: contact.advertisedName,
-                lastAdvertisement: contact.lastAdvertisement,
-                latitude: contact.latitude,
-                longitude: contact.longitude
-            )
-        }
-
         let data = PacketBuilder.sendAnonReq(
             to: contact.publicKey,
             type: .regions,
@@ -2506,83 +2971,67 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
         logger.info("Regions request to \(prefixHex): sending")
 
-        let result: [String]
-        do {
-            // Subscribe before sending to avoid race condition
-            let events = await dispatcher.subscribe()
-            try await transport.send(data)
+        // Subscribe before sending to avoid race condition
+        let events = await dispatcher.subscribe()
+        try await transport.send(data)
 
-            result = try await withThrowingTaskGroup(of: [String]?.self) { group in
-                let (timeoutStream, timeoutContinuation) = AsyncStream<TimeInterval>.makeStream()
+        return try await withThrowingTaskGroup(of: [String]?.self) { group in
+            let (timeoutStream, timeoutContinuation) = AsyncStream<TimeInterval>.makeStream()
 
-                group.addTask { [logger] in
-                    var expectedAck: Data?
+            group.addTask { [logger] in
+                var expectedAck: Data?
 
-                    for await event in events {
-                        if Task.isCancelled { return nil }
+                for await event in events {
+                    if Task.isCancelled { return nil }
 
-                        switch event {
-                        case .messageSent(let info):
-                            expectedAck = info.expectedAck
-                            let timeout = TimeInterval(info.suggestedTimeoutMs) / 1000.0 * 2.0
-                            logger.info("Regions request to \(prefixHex): messageSent received, suggestedTimeoutMs=\(info.suggestedTimeoutMs), effective timeout=\(String(format: "%.1f", timeout))s")
-                            timeoutContinuation.yield(timeout)
-                            timeoutContinuation.finish()
+                    switch event {
+                    case .messageSent(let info):
+                        expectedAck = info.expectedAck
+                        let timeout = TimeInterval(info.suggestedTimeoutMs) / 1000.0 * 2.0
+                        logger.info("Regions request to \(prefixHex): messageSent received, suggestedTimeoutMs=\(info.suggestedTimeoutMs), effective timeout=\(String(format: "%.1f", timeout))s")
+                        timeoutContinuation.yield(timeout)
+                        timeoutContinuation.finish()
 
-                        case .error(let code):
-                            throw MeshCoreError.deviceError(code: code ?? 0)
+                    case .error(let code):
+                        throw MeshCoreError.deviceError(code: code ?? 0)
 
-                        case .binaryResponse(let tag, let responseData):
-                            guard let expected = expectedAck, tag == expected else { continue }
-                            let result = try RegionsParser.parse(responseData)
-                            let elapsed = ContinuousClock.now - startTime
-                            logger.info("Regions request to \(prefixHex): response received in \(elapsed)")
-                            return result
+                    case .binaryResponse(let tag, let responseData):
+                        guard let expected = expectedAck, tag == expected else { continue }
+                        let result = try RegionsParser.parse(responseData)
+                        let elapsed = ContinuousClock.now - startTime
+                        logger.info("Regions request to \(prefixHex): response received in \(elapsed)")
+                        return result
 
-                        default:
-                            continue
-                        }
+                    default:
+                        continue
                     }
-                    timeoutContinuation.finish()
-                    return nil
                 }
+                timeoutContinuation.finish()
+                return nil
+            }
 
-                group.addTask { [logger, clock = self.clock, defaultTimeout = configuration.defaultTimeout] in
-                    var timeout = defaultTimeout
-                    var usedFirmwareTimeout = false
-                    for await t in timeoutStream {
-                        timeout = t
-                        usedFirmwareTimeout = true
-                        break
-                    }
-                    logger.info("Regions request to \(prefixHex): timeout task sleeping for \(String(format: "%.1f", timeout))s (\(usedFirmwareTimeout ? "firmware" : "default"))")
-                    try await clock.sleep(for: .seconds(timeout))
-                    let elapsed = ContinuousClock.now - startTime
-                    logger.warning("Regions request to \(prefixHex): timed out after \(elapsed)")
-                    return nil
+            group.addTask { [logger, clock = self.clock, defaultTimeout = configuration.defaultTimeout] in
+                var timeout = defaultTimeout
+                var usedFirmwareTimeout = false
+                for await t in timeoutStream {
+                    timeout = t
+                    usedFirmwareTimeout = true
+                    break
                 }
+                logger.info("Regions request to \(prefixHex): timeout task sleeping for \(String(format: "%.1f", timeout))s (\(usedFirmwareTimeout ? "firmware" : "default"))")
+                try await clock.sleep(for: .seconds(timeout))
+                let elapsed = ContinuousClock.now - startTime
+                logger.warning("Regions request to \(prefixHex): timed out after \(elapsed)")
+                return nil
+            }
 
-                if let result = try await group.next() ?? nil {
-                    group.cancelAll()
-                    return result
-                }
+            if let result = try await group.next() ?? nil {
                 group.cancelAll()
-                throw MeshCoreError.timeout
+                return result
             }
-        } catch {
-            // Restore flood routing before propagating the error
-            if isFloodRouted {
-                try? await resetPath(publicKey: contact.publicKey)
-            }
-            throw error
+            group.cancelAll()
+            throw MeshCoreError.timeout
         }
-
-        // Restore flood routing after successful request
-        if isFloodRouted {
-            try? await resetPath(publicKey: contact.publicKey)
-        }
-
-        return result
     }
 
     /// Fetches all neighbors from a remote node with automatic pagination.
@@ -2601,31 +3050,15 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         orderBy: UInt8 = 0,
         pubkeyPrefixLength: UInt8 = 4
     ) async throws -> NeighboursResponse {
-        var allNeighbours: [Neighbour] = []
-        var offset: UInt16 = 0
-        var totalCount = 0
-
-        repeat {
-            let response = try await requestNeighbours(
+        try await NeighboursResponse.collectingAllPages { offset in
+            try await requestNeighbours(
                 from: publicKey,
                 count: 255,
                 offset: offset,
                 orderBy: orderBy,
                 pubkeyPrefixLength: pubkeyPrefixLength
             )
-
-            totalCount = response.totalCount
-            allNeighbours.append(contentsOf: response.neighbours)
-            offset = UInt16(allNeighbours.count)
-
-        } while allNeighbours.count < totalCount
-
-        return NeighboursResponse(
-            publicKeyPrefix: publicKey.prefix(6),
-            tag: Data(),
-            totalCount: totalCount,
-            neighbours: allNeighbours
-        )
+        }
     }
 
     // MARK: - Signing Commands
@@ -2765,12 +3198,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
                 }
                 return nil
             },
-            errorMatcher: { event in
-                if case .error(let code) = event {
-                    return MeshCoreError.deviceError(code: code ?? 0)
-                }
-                return nil
-            }
+            errorMatcher: Self.deviceErrorMatcher
         )
     }
 
@@ -2877,9 +3305,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         if contactManager.isAutoUpdateEnabled && contactManager.needsRefresh {
             switch event {
             case .advertisement, .pathUpdate, .newContact:
-                Task { [weak self] in
-                    try? await self?.ensureContacts(force: true)
-                }
+                requestAutoContactRefresh()
             default:
                 break
             }
@@ -2941,6 +3367,28 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         guard publicKey.count == PacketBuilder.publicKeySize else {
             throw MeshCoreError.invalidInput("Full \(PacketBuilder.publicKeySize)-byte public key required for \(operation)")
         }
+    }
+
+    /// Dispatches an event directly to subscribers, bypassing the transport and parser.
+    ///
+    /// For tests only — use to verify subscriber behavior without crafting wire bytes.
+    func dispatchForTesting(_ event: MeshEvent) async {
+        await dispatcher.dispatch(event)
+    }
+
+    /// Seeds `selfInfo` for tests so callers that depend on
+    /// ``currentSelfInfo`` (e.g. ACK precompute) can run without simulating
+    /// an `APP_START` round-trip.
+    func installSelfInfoForTest(_ info: SelfInfo) {
+        selfInfo = info
+    }
+
+    /// Returns the dispatcher's active subscription count. For tests only.
+    ///
+    /// Integration tests use this to synchronize with a listener task's
+    /// subscribe call before dispatching events, avoiding the dispatch-vs-subscribe race.
+    var subscriberCountForTest: Int {
+        get async { await dispatcher.subscriberCountForTest }
     }
 }
 

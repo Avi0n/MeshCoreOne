@@ -3,23 +3,21 @@ import CoreLocation
 import MC1Services
 
 struct ContactRowView: View {
+    @Environment(\.appState) private var appState
     let contact: ContactDTO
     let showTypeLabel: Bool
     let userLocation: CLLocation?
-    let index: Int
     let isTogglingFavorite: Bool
 
     init(
         contact: ContactDTO,
         showTypeLabel: Bool = false,
         userLocation: CLLocation? = nil,
-        index: Int = 0,
         isTogglingFavorite: Bool = false
     ) {
         self.contact = contact
         self.showTypeLabel = showTypeLabel
         self.userLocation = userLocation
-        self.index = index
         self.isTogglingFavorite = isTogglingFavorite
     }
 
@@ -29,9 +27,13 @@ struct ContactRowView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {
-                    Text(contact.displayName)
+                    (Text(idPrefixHex)
+                        .monospaced()
+                        .foregroundStyle(.secondary)
+                        + Text(" \(contact.displayName)")
+                            .fontWeight(.medium))
                         .font(.body)
-                        .fontWeight(.medium)
+                        .accessibilityLabel(contact.displayName)
 
                     if contact.isBlocked {
                         Image(systemName: "hand.raised.fill")
@@ -87,9 +89,6 @@ struct ContactRowView: View {
                     }
                 }
             }
-            .alignmentGuide(.listRowSeparatorLeading) { dimensions in
-                dimensions[.leading]
-            }
         }
         .padding(.vertical, 4)
     }
@@ -100,10 +99,15 @@ struct ContactRowView: View {
         case .chat:
             ContactAvatar(contact: contact, size: 44)
         case .repeater:
-            NodeAvatar(publicKey: contact.publicKey, role: .repeater, size: 44, index: index)
+            NodeAvatar(publicKey: contact.publicKey, role: .repeater, size: 44)
         case .room:
             NodeAvatar(publicKey: contact.publicKey, role: .roomServer, size: 44)
         }
+    }
+
+    private var idPrefixHex: String {
+        let hashSize = appState.connectedDevice?.hashSize ?? 1
+        return contact.publicKey.prefix(hashSize).hexString()
     }
 
     private var contactTypeLabel: String {

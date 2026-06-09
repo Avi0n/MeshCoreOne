@@ -16,6 +16,20 @@ final class NodeStatusHelper {
     /// Current session
     var session: RemoteNodeSessionDTO?
 
+    /// Public key for direct telemetry (no remote session).
+    /// Used for chat nodes that don't require login.
+    private var directPublicKey: Data?
+
+    /// The public key to use for requests and history — prefers session, falls back to direct.
+    var effectivePublicKey: Data? {
+        session?.publicKey ?? directPublicKey
+    }
+
+    /// 6-byte prefix for response matching.
+    var effectivePublicKeyPrefix: Data? {
+        session?.publicKeyPrefix ?? directPublicKey?.prefix(6)
+    }
+
     /// Last received status
     var status: RemoteNodeStatus?
 
@@ -29,14 +43,26 @@ final class NodeStatusHelper {
     var isLoadingStatus = false
     var isLoadingTelemetry = false
 
+    /// Whether a status response has been applied since the sheet opened.
+    /// Drives lazy loading of the status counters section.
+    var statusLoaded = false
+
+    /// Whether the status disclosure group is expanded
+    var statusExpanded = false
+
     /// Whether telemetry has been loaded at least once (for refresh logic)
     var telemetryLoaded = false
 
     /// Whether the telemetry disclosure group is expanded
     var telemetryExpanded = false
 
-    /// Error message if any
-    var errorMessage: String?
+    /// Error text owned by the status counters section, scoped so a status
+    /// failure surfaces only under the status section once sections load independently.
+    var statusSectionError: String?
+
+    /// Error text owned by the telemetry section, scoped so a telemetry
+    /// failure surfaces only under the telemetry section once sections load independently.
+    var telemetrySectionError: String?
 
     // MARK: - OCV Curve Properties
 
@@ -53,16 +79,6 @@ final class NodeStatusHelper {
 
     // MARK: - Snapshot State
 
-    /// ID of the current session's snapshot (for enrichment).
-    /// Because `handleStatusResponse` suspends while saving the snapshot,
-    /// telemetry handlers may fire before this is set.
-    /// In that case, enrichment data is buffered in `pendingTelemetryEntries`
-    /// and flushed once the ID is available.
-    private var currentSnapshotID: UUID?
-
-    /// Buffered enrichment data received before `currentSnapshotID` was set.
-    private var pendingTelemetryEntries: [TelemetrySnapshotEntry]?
-
     /// Previous snapshot for delta display
     private(set) var previousSnapshot: NodeStatusSnapshotDTO?
 
@@ -71,6 +87,12 @@ final class NodeStatusHelper {
     func configure(contactService: ContactService?, nodeSnapshotService: NodeSnapshotService?) {
         self.contactService = contactService
         self.nodeSnapshotService = nodeSnapshotService
+    }
+
+    /// Configure for direct telemetry access (no login session).
+    /// Used for chat nodes that can be queried without authentication.
+    func configureForDirectTelemetry(publicKey: Data) {
+        self.directPublicKey = publicKey
     }
 
     // MARK: - Transient Retry Machinery
@@ -128,6 +150,32 @@ final class NodeStatusHelper {
         }
     }
 
+    /// Drive a section request through the shared retry budget, owning the
+    /// loading flag and section-error scaffold that the admin status view models
+    /// otherwise repeat verbatim. The `setLoading`/`setError` closures target the
+    /// section's own state (some live on this helper, some on the view model);
+    /// `onSuccess` applies the response. A `RemoteNodeError.timeout` surfaces the
+    /// shared timed-out string, any other error its localized description.
+    func runRetryingSectionRequest<T>(
+        operationName: String,
+        setLoading: @MainActor (Bool) -> Void,
+        setError: @MainActor (String?) -> Void,
+        operation: @escaping @Sendable (Duration) async throws -> T,
+        onSuccess: @MainActor (T) async -> Void
+    ) async {
+        setLoading(true)
+        setError(nil)
+        do {
+            let response = try await performWithTransientRetries(operationName: operationName, operation: operation)
+            await onSuccess(response)
+        } catch RemoteNodeError.timeout {
+            setError(L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut)
+        } catch {
+            setError(error.localizedDescription)
+        }
+        setLoading(false)
+    }
+
     // MARK: - Status Response Handling
 
     /// Handle a status response, saving a snapshot with role-specific fields.
@@ -145,70 +193,53 @@ final class NodeStatusHelper {
             return
         }
         self.status = response
+        self.statusLoaded = true
         self.isLoadingStatus = false
+        self.statusSectionError = nil
 
         guard let nodeSnapshotService, let session else { return }
 
-        let prev = await nodeSnapshotService.previousSnapshot(
+        self.previousSnapshot = await nodeSnapshotService.previousSnapshot(
             for: session.publicKey,
             before: .now
         )
-        self.previousSnapshot = prev
 
-        let snapshotID = await nodeSnapshotService.saveStatusSnapshot(
-            nodePublicKey: session.publicKey,
-            batteryMillivolts: response.batteryMillivolts,
-            lastSNR: response.lastSNR,
-            lastRSSI: Int16(clamping: response.lastRSSI),
-            noiseFloor: Int16(clamping: response.noiseFloor),
-            uptimeSeconds: response.uptimeSeconds,
+        let metrics = NodeStatusMetrics(
+            status: response,
             rxAirtimeSeconds: rxAirtimeSeconds,
-            packetsSent: response.packetsSent,
-            packetsReceived: response.packetsReceived,
             receiveErrors: receiveErrors,
             postedCount: postedCount,
             postPushCount: postPushCount
         )
-        if let snapshotID {
-            self.currentSnapshotID = snapshotID
-        } else if let prevID = prev?.id {
-            self.currentSnapshotID = prevID
-        }
-
-        if let enrichmentTarget = self.currentSnapshotID {
-            if let pending = pendingTelemetryEntries {
-                pendingTelemetryEntries = nil
-                Task { await nodeSnapshotService.enrichWithTelemetry(pending, snapshotID: enrichmentTarget) }
-            }
-        }
+        _ = await nodeSnapshotService.recordSnapshot(
+            nodePublicKey: session.publicKey,
+            status: metrics
+        )
     }
 
-    /// Flush buffered neighbor enrichment data. Called by repeater VM after
-    /// status response sets `currentSnapshotID`.
-    func flushPendingNeighborEntries(_ entries: [NeighborSnapshotEntry]) {
-        guard let snapshotID = currentSnapshotID else { return }
-        Task { await nodeSnapshotService?.enrichWithNeighbors(entries, snapshotID: snapshotID) }
-    }
-
-    /// Enrich the current snapshot with neighbor data, or return `false` if
-    /// the snapshot ID isn't ready yet (caller should buffer).
-    func enrichWithNeighbors(_ entries: [NeighborSnapshotEntry]) -> Bool {
-        guard let snapshotID = currentSnapshotID else { return false }
-        Task { await nodeSnapshotService?.enrichWithNeighbors(entries, snapshotID: snapshotID) }
-        return true
+    /// Capture neighbor data onto the node's current in-window snapshot, creating
+    /// one if none exists yet. Safe to call before a status response: the store
+    /// enriches the latest in-window row or inserts a neighbor-bearing snapshot.
+    func enrichNeighbors(_ entries: [NeighborSnapshotEntry]) async {
+        guard let nodeSnapshotService, let nodePublicKey = effectivePublicKey else { return }
+        _ = await nodeSnapshotService.recordSnapshot(
+            nodePublicKey: nodePublicKey,
+            neighbors: entries
+        )
     }
 
     // MARK: - Telemetry Response Handling
 
-    func handleTelemetryResponse(_ response: TelemetryResponse) {
-        guard let expectedPrefix = session?.publicKeyPrefix,
+    func handleTelemetryResponse(_ response: TelemetryResponse) async {
+        guard let expectedPrefix = effectivePublicKeyPrefix,
               response.publicKeyPrefix == expectedPrefix else {
             return
         }
         self.telemetry = response
-        self.cachedDataPoints = response.dataPoints
+        self.cachedDataPoints = response.dataPoints.filter { $0.channel != 0 }
         self.isLoadingTelemetry = false
         self.telemetryLoaded = true
+        self.telemetrySectionError = nil
 
         let entries: [TelemetrySnapshotEntry] = cachedDataPoints.compactMap { dp in
             let numericValue: Double?
@@ -223,13 +254,14 @@ final class NodeStatusHelper {
             guard let value = numericValue else { return nil }
             return TelemetrySnapshotEntry(channel: Int(dp.channel), type: dp.typeName, value: value)
         }
-        if !entries.isEmpty {
-            if let snapshotID = currentSnapshotID {
-                Task { await nodeSnapshotService?.enrichWithTelemetry(entries, snapshotID: snapshotID) }
-            } else {
-                pendingTelemetryEntries = entries
-            }
-        }
+        guard !entries.isEmpty,
+              let nodeSnapshotService,
+              let nodePublicKey = effectivePublicKey else { return }
+
+        _ = await nodeSnapshotService.recordSnapshot(
+            nodePublicKey: nodePublicKey,
+            telemetry: entries
+        )
     }
 
     // MARK: - Telemetry Grouping
@@ -254,9 +286,20 @@ final class NodeStatusHelper {
 
     var uptimeDisplay: String {
         guard let uptime = status?.uptimeSeconds else { return Self.emDash }
-        let days = Int(uptime / Self.secondsPerDay)
-        let hours = Int((uptime % Self.secondsPerDay) / Self.secondsPerHour)
-        let minutes = Int((uptime % Self.secondsPerHour) / Self.secondsPerMinute)
+        return Self.formatDuration(uptime)
+    }
+
+    var airtimeDisplay: String {
+        guard let status else { return Self.emDash }
+        let tx = Self.formatDuration(status.airtime)
+        let rx = Self.formatDuration(status.rxAirtime)
+        return "TX \(tx) / RX \(rx)"
+    }
+
+    private static func formatDuration(_ seconds: UInt32) -> String {
+        let days = Int(seconds / secondsPerDay)
+        let hours = Int((seconds % secondsPerDay) / secondsPerHour)
+        let minutes = Int((seconds % secondsPerHour) / secondsPerMinute)
 
         if days > 0 {
             if days == 1 {
@@ -275,7 +318,7 @@ final class NodeStatusHelper {
         let volts = Double(mv) / 1000.0
         let battery = BatteryInfo(level: Int(mv))
         let percent = battery.percentage(using: ocvValues)
-        return "\(volts.formatted(.number.precision(.fractionLength(2))))V (\(percent)%)"
+        return "\(volts.formatted(.number.precision(.fractionLength(3))))V (\(percent)%)"
     }
 
     var lastRSSIDisplay: String {
@@ -346,22 +389,22 @@ final class NodeStatusHelper {
     // MARK: - History
 
     func fetchHistory() async -> [NodeStatusSnapshotDTO] {
-        guard let nodeSnapshotService, let session else {
-            logger.warning("fetchHistory: nodeSnapshotService or session is nil")
+        guard let nodeSnapshotService, let publicKey = effectivePublicKey else {
+            logger.warning("fetchHistory: nodeSnapshotService or public key is nil")
             return []
         }
-        return await nodeSnapshotService.fetchSnapshots(for: session.publicKey)
+        return await nodeSnapshotService.fetchSnapshots(for: publicKey)
     }
 
     // MARK: - OCV Settings
 
     /// Load OCV settings for a contact by public key. Skips reload if already loaded.
-    func loadOCVSettings(publicKey: Data, deviceID: UUID) async {
+    func loadOCVSettings(publicKey: Data, radioID: UUID) async {
         guard contactID == nil else { return }
         guard let contactService else { return }
 
         do {
-            if let contact = try await contactService.getContact(deviceID: deviceID, publicKey: publicKey) {
+            if let contact = try await contactService.getContact(radioID: radioID, publicKey: publicKey) {
                 contactID = contact.id
 
                 if let presetName = contact.ocvPreset {

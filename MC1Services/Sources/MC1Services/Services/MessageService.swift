@@ -1,115 +1,5 @@
 import Foundation
 import MeshCore
-import os
-
-// MARK: - Message Service Errors
-
-/// Errors that can occur during message operations.
-public enum MessageServiceError: Error, Sendable {
-    /// Not connected to a device
-    case notConnected
-    /// Contact not found in database
-    case contactNotFound
-    /// Channel not found in database
-    case channelNotFound
-    /// Message send operation failed
-    case sendFailed(String)
-    /// Attempted to send message to invalid recipient (e.g., repeater)
-    case invalidRecipient
-    /// Message text exceeds maximum allowed length
-    case messageTooLong
-    /// Underlying MeshCore session error
-    case sessionError(MeshCoreError)
-}
-
-extension MessageServiceError: LocalizedError {
-    public var errorDescription: String? {
-        switch self {
-        case .notConnected: "Not connected to device."
-        case .contactNotFound: "Contact not found."
-        case .channelNotFound: "Channel not found."
-        case .sendFailed(let msg): "Send failed: \(msg)"
-        case .invalidRecipient: "Cannot send messages to this recipient."
-        case .messageTooLong: "Message exceeds the maximum allowed length."
-        case .sessionError(let e): e.localizedDescription
-        }
-    }
-}
-
-// MARK: - Message Service Configuration
-
-/// Configuration for message retry and routing behavior.
-///
-/// Controls how the message service handles delivery failures and routing fallback.
-public struct MessageServiceConfig: Sendable {
-    /// Whether to use flood routing when user manually retries a failed message
-    public let floodFallbackOnRetry: Bool
-
-    /// Maximum total send attempts for automatic retry
-    public let maxAttempts: Int
-
-    /// Maximum attempts to make after switching to flood routing
-    public let maxFloodAttempts: Int
-
-    /// Number of direct attempts before switching to flood routing
-    public let floodAfter: Int
-
-    /// Minimum timeout in seconds (floor for device-suggested timeout)
-    public let minTimeout: TimeInterval
-
-    /// Whether to trigger path discovery after successful flood delivery
-    public let triggerPathDiscoveryAfterFlood: Bool
-
-    public init(
-        floodFallbackOnRetry: Bool = true,
-        maxAttempts: Int = 4,
-        maxFloodAttempts: Int = 2,
-        floodAfter: Int = 2,
-        minTimeout: TimeInterval = 0,
-        triggerPathDiscoveryAfterFlood: Bool = true
-    ) {
-        self.floodFallbackOnRetry = floodFallbackOnRetry
-        self.maxAttempts = maxAttempts
-        self.maxFloodAttempts = maxFloodAttempts
-        self.floodAfter = floodAfter
-        self.minTimeout = minTimeout
-        self.triggerPathDiscoveryAfterFlood = triggerPathDiscoveryAfterFlood
-    }
-
-    public static let `default` = MessageServiceConfig()
-}
-
-// MARK: - Pending ACK Tracker
-
-/// Tracks pending ACKs for message delivery confirmation
-public struct PendingAck: Sendable {
-    public let messageID: UUID
-    public let ackCode: Data
-    public let sentAt: Date
-    public let timeout: TimeInterval
-    public var isDelivered: Bool = false
-
-    /// When true, `checkExpiredAcks` will skip this ACK (retry loop manages expiry)
-    public var isRetryManaged: Bool = false
-
-    public init(messageID: UUID, ackCode: Data, sentAt: Date, timeout: TimeInterval, isRetryManaged: Bool = false) {
-        self.messageID = messageID
-        self.ackCode = ackCode
-        self.sentAt = sentAt
-        self.timeout = timeout
-        self.isRetryManaged = isRetryManaged
-    }
-
-    public var isExpired: Bool {
-        !isDelivered && Date().timeIntervalSince(sentAt) > timeout
-    }
-
-    /// Convert Data ack code to UInt32 for storage
-    public var ackCodeUInt32: UInt32 {
-        guard ackCode.count >= 4 else { return 0 }
-        return ackCode.prefix(4).withUnsafeBytes { $0.load(as: UInt32.self).littleEndian }
-    }
-}
 
 // MARK: - Message Service Actor
 
@@ -156,17 +46,53 @@ public actor MessageService {
     /// Contact service for path management (optional - retry with reset requires this)
     private var contactService: ContactService?
 
-    /// Currently tracked pending ACKs (keyed by Data for MeshCore compatibility)
-    var pendingAcks: [Data: PendingAck] = [:]
+    /// In-flight messages awaiting ACK, keyed by messageID.
+    ///
+    /// One entry per message. Each entry carries the full set of expected-ACK
+    /// CRCs accumulated across retry attempts, so a late ACK from any attempt
+    /// can still mark the message delivered.
+    var pendingAcks: [UUID: PendingAck] = [:]
 
-    /// Continuations waiting for specific ACK codes (for retry loop)
-    private var ackContinuations: [Data: CheckedContinuation<Bool, Never>] = [:]
-
-    /// ACK confirmation callback (ackCode, roundTripTime)
-    private var ackConfirmationHandler: (@Sendable (UInt32, UInt32) -> Void)?
+    /// ACK confirmation callback (messageID).
+    ///
+    /// The handler receives the resolved messageID rather than the raw ackCode,
+    /// so consumers can gate on conversation membership without re-walking
+    /// `pendingAcks`. Round-trip time is persisted to the data store via
+    /// `updateMessageAck` and read back through the DTO; passing it through
+    /// the callback would duplicate that path.
+    ///
+    /// The handler is `async` so `MessageEventDispatcher` can hop to the
+    /// main actor via `await MainActor.run { ... }`, matching the other
+    /// service callbacks and giving FIFO order across multi-ACK bursts.
+    ///
+    /// Status and round-trip time are passed alongside the messageID so the
+    /// UI dispatcher can fold both into the in-place bubble update without
+    /// re-reading the DTO.
+    var ackConfirmationHandler: (@Sendable (UUID, MessageStatus, UInt32?) async -> Void)?
 
     /// Message failure callback (messageID)
     var messageFailedHandler: (@Sendable (UUID) async -> Void)?
+
+    /// Send-success callback (messageID, status, roundTripTime). Fired after
+    /// `updateMessageStatus(.sent)` succeeds in the DM send and original
+    /// channel send paths. Used by the UI event stream to update the rendered
+    /// bubble in place. Channel resends use the separate `messageResentHandler`
+    /// because they mutate `heardRepeats` and `sendCount` and need a full
+    /// DTO refresh.
+    ///
+    /// Distinct from `ackConfirmationHandler`, which fires only on end-to-end
+    /// ACK (DM `.delivered`). Channel broadcasts on LoRa have no recipient,
+    /// so they never raise an ACK — conflating the two handlers would mean
+    /// "the radio queued the broadcast" and "the peer confirmed receipt" both
+    /// arrive on the same wire.
+    var messageSentHandler: (@Sendable (UUID, MessageStatus, UInt32?) async -> Void)?
+
+    /// Channel-resend completion callback (messageID). Fires after
+    /// `resendChannelMessage` writes `.sent` to the DB. Carries no status
+    /// payload because the resend path also mutates `heardRepeats` and
+    /// `sendCount`; consumers must refresh the entire DTO rather than
+    /// applying a status-only in-place update.
+    var messageResentHandler: (@Sendable (UUID) async -> Void)?
 
     /// Event broadcaster for retry status updates (messageID, attempt, maxAttempts)
     var retryStatusHandler: (@Sendable (UUID, Int, Int) async -> Void)?
@@ -218,36 +144,42 @@ public actor MessageService {
 
     // MARK: - Event Listening
 
-    /// Starts listening for session events to process message acknowledgements.
+    /// Starts the session ACK event listener.
     ///
-    /// Call this method after connection is established to begin processing ACKs.
-    /// The service will automatically update message delivery status when ACKs are received.
+    /// Subscribes to `.anyAcknowledgement` events on the session and routes
+    /// each one through `handleAcknowledgement`. Call after the connection is
+    /// established; without this the listener never runs and pending DMs stay
+    /// `.sent` even when ACKs arrive.
     ///
-    /// # Important
-    /// This must be called for ACK tracking to work. Without event monitoring,
-    /// messages will remain in "sent" status even if ACKs are received.
+    /// # Lifecycle scope
+    ///
+    /// This method's counterpart is `stopEventMonitoring()`. It does **not**
+    /// start the periodic ACK expiry checker — that's `startAckExpiryChecking()`,
+    /// which has its own `stopAckExpiryChecking()` / `stopAndFailAllPending()`
+    /// counterparts. `ServiceContainer` pairs both lifecycles together; direct
+    /// callers must do the same.
     public func startEventMonitoring() {
         eventListenerTask?.cancel()
 
         eventListenerTask = Task { [weak self] in
             guard let self else { return }
 
-            for await event in await session.events() {
+            for await event in await session.events(filter: .anyAcknowledgement) {
                 guard !Task.isCancelled else { break }
 
-                switch event {
-                case .acknowledgement(let code, _):
-                    await handleAcknowledgement(code: code)
-                default:
-                    break
+                if case .acknowledgement(let code, let tripTime) = event {
+                    await handleAcknowledgement(code: code, tripTime: tripTime)
                 }
             }
         }
     }
 
-    /// Stops monitoring session events.
+    /// Stops the session ACK event listener.
     ///
-    /// Call this when disconnecting from the device.
+    /// Cancels `eventListenerTask` only. Does **not** cancel the periodic ACK
+    /// expiry checker — for that, call `stopAckExpiryChecking()` (just stop
+    /// the checker, used on a routine disconnect) or `stopAndFailAllPending()`
+    /// (stop the checker and fail every in-flight DM, for explicit full teardown).
     public func stopEventMonitoring() {
         eventListenerTask?.cancel()
         eventListenerTask = nil
@@ -255,43 +187,71 @@ public actor MessageService {
 
     // MARK: - ACK Handling
 
-    /// Processes an acknowledgement from the session event stream
-    private func handleAcknowledgement(code: Data) async {
-        guard pendingAcks[code] != nil else {
+    /// Processes an acknowledgement from the session event stream.
+    ///
+    /// Finds the in-flight message whose accumulated `ackCodes` contains this
+    /// CRC, marks it delivered, writes the delivery status + round-trip time
+    /// to the database, and removes the entry. This is the sole DB writer for
+    /// delivered status on the late-ACK path.
+    func handleAcknowledgement(code: Data, tripTime: UInt32?) async {
+        guard let (messageID, tracking) = pendingAcks.first(where: {
+            $0.value.ackCodes.contains(code) && !$0.value.isDelivered
+        }) else {
+            // Diagnostic: the firmware delivered an end-to-end ACK we have no
+            // live entry for. This is either a genuinely late ACK that arrived
+            // after the message was already failed and removed, or a duplicate
+            // for an already-delivered message. Counting these quantifies how
+            // many delivery confirmations are being lost to premature give-up.
+            logger.warning("[ack-diag] unmatched ACK code=\(code.hexString()) livePending=\(pendingAcks.count) (late post-teardown or duplicate)")
             return
         }
 
-        guard pendingAcks[code]?.isDelivered == false else {
-            // Already delivered, ignore duplicate
-            return
+        pendingAcks[messageID]?.isDelivered = true
+
+        // Persist `tripTime` only when firmware supplied it. Date()-based
+        // fallbacks against `tracking.sentAt` would be wrong in either
+        // direction once retries reset the timestamp, so we prefer a nil
+        // `roundTripTime` over a fabricated value.
+        let ackCodeUInt32 = code.ackCodeUInt32
+
+        do {
+            try await dataStore.updateMessageAck(
+                id: messageID,
+                ackCode: ackCodeUInt32,
+                status: .delivered,
+                roundTripTime: tripTime
+            )
+        } catch {
+            logger.error("Failed to write delivered status: \(error.localizedDescription)")
         }
 
-        pendingAcks[code]?.isDelivered = true
-
-        // Resume any waiting continuation
-        if let continuation = ackContinuations.removeValue(forKey: code) {
-            continuation.resume(returning: true)
+        do {
+            try await dataStore.updateContactLastMessage(contactID: tracking.contactID, date: Date())
+        } catch {
+            logger.error("Failed to update contact lastMessageDate: \(error.localizedDescription)")
         }
 
-        guard let tracking = pendingAcks[code] else { return }
+        pendingAcks.removeValue(forKey: messageID)
 
-        let roundTripMs = UInt32(Date().timeIntervalSince(tracking.sentAt) * 1000)
+        await ackConfirmationHandler?(messageID, .delivered, tripTime)
 
-        try? await dataStore.updateMessageByAckCode(
-            tracking.ackCodeUInt32,
-            status: .delivered,
-            roundTripTime: roundTripMs
-        )
-
-        ackConfirmationHandler?(tracking.ackCodeUInt32, roundTripMs)
-
-        logger.info("ACK received")
+        // Diagnostic: how long the ACK took relative to the last send attempt
+        // (sentAt is re-stamped per retry), the firmware-reported round trip,
+        // and how many other entries were in flight. Distinguishes late-but-
+        // arriving ACKs from never-arriving ones and measures table pressure.
+        let ackDelta = Date().timeIntervalSince(tracking.sentAt)
+        logger.info("[ack-diag] ACK matched deltaSinceLastSend=\(String(format: "%.2f", ackDelta))s firmwareTrip=\(tripTime.map { "\($0)ms" } ?? "nil") livePending=\(pendingAcks.count)")
     }
 
     /// Sets a callback to be invoked when an ACK is received.
     ///
-    /// - Parameter handler: Callback receiving (ackCode, roundTripTimeMs)
-    public func setAckConfirmationHandler(_ handler: @escaping @Sendable (UInt32, UInt32) -> Void) {
+    /// - Parameter handler: Callback receiving the resolved messageID. The
+    ///   handler is awaited inside `handleAcknowledgement`, so consumers
+    ///   that hop to another actor preserve submission order across
+    ///   multi-ACK bursts (each `await MainActor.run { ... }` is a
+    ///   continuation-resume onto the main queue and arrives in
+    ///   submission order).
+    public func setAckConfirmationHandler(_ handler: @escaping @Sendable (UUID, MessageStatus, UInt32?) async -> Void) {
         ackConfirmationHandler = handler
     }
 
@@ -300,6 +260,34 @@ public actor MessageService {
     /// - Parameter handler: Callback receiving the failed message ID
     public func setMessageFailedHandler(_ handler: @escaping @Sendable (UUID) async -> Void) {
         messageFailedHandler = handler
+    }
+
+    /// Fire `messageFailedHandler` from outside the actor. Sole purpose: the
+    /// queue-side terminal catch in `ChatSendQueueService` runs off-actor and
+    /// needs to invoke the handler. Do not grow other callers — the inline
+    /// send paths fire the handler directly because they own the catch.
+    public func notifyMessageFailed(messageID: UUID) async {
+        await messageFailedHandler?(messageID)
+    }
+
+    /// Sets a callback to be invoked after a message reaches `.sent` status.
+    ///
+    /// Fires for both DM and original channel sends once the persistence write
+    /// succeeds. Consumers use it to refresh the rendered bubble for channel
+    /// broadcasts, which have no end-to-end ACK and therefore never fire
+    /// `ackConfirmationHandler`. Channel resends use `messageResentHandler`
+    /// instead because they additionally mutate `heardRepeats` and `sendCount`.
+    ///
+    /// - Parameter handler: Callback receiving messageID, status, and (for ACKs) roundTripTime
+    public func setMessageSentHandler(_ handler: @escaping @Sendable (UUID, MessageStatus, UInt32?) async -> Void) {
+        messageSentHandler = handler
+    }
+
+    /// Sets a callback to be invoked after a channel-message resend completes.
+    ///
+    /// - Parameter handler: Callback receiving the resent message ID
+    public func setMessageResentHandler(_ handler: @escaping @Sendable (UUID) async -> Void) {
+        messageResentHandler = handler
     }
 
     /// Sets a callback to be invoked during retry attempts.

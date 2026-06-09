@@ -7,7 +7,13 @@ final class CLICompletionEngine {
     // MARK: - Command Definitions
 
     private static let builtInCommands = [
-        "help", "clear", "session", "logout"
+        "help", "clear"
+    ]
+
+    // App-CLI session management; the node CLI is single-session and passes
+    // these straight to firmware, which has no such commands.
+    private static let sessionCommands = [
+        "session", "logout"
     ]
 
     private static let localOnlyCommands = [
@@ -19,7 +25,8 @@ final class CLICompletionEngine {
         "ver", "board", "clock", "clkreboot",
         "neighbors", "get", "set", "password",
         "log", "reboot", "advert", "advert.zerohop", "setperm", "tempradio", "neighbor.remove",
-        "region", "gps", "powersaving", "clear", "discover.neighbors"
+        "region", "gps", "powersaving", "clear", "discover.neighbors",
+        "start"
     ]
 
     private static let sessionSubcommands = ["list", "local"]
@@ -32,7 +39,7 @@ final class CLICompletionEngine {
 
     // Per MeshCore CLI Reference - region subcommands
     private static let regionSubcommands = [
-        "load", "get", "put", "remove", "allowf", "denyf", "home", "save"
+        "load", "get", "put", "remove", "allowf", "denyf", "home", "save", "list"
     ]
 
     // Per MeshCore CLI Reference - gps subcommands
@@ -40,20 +47,35 @@ final class CLICompletionEngine {
 
     private static let gpsAdvertValues = ["none", "share", "prefs"]
 
-    private static let powersavingValues = ["on", "off"]
+    private static let startSubcommands = ["ota"]
+
+    private static let regionListValues = ["allowed", "denied"]
+
+    private static let onOffValues = ["on", "off"]
+
+    private static let multiAcksValues = ["0", "1"]
+
+    private static let bridgeSourceValues = ["tx", "rx"]
 
     // Per MeshCore CLI Reference - all get/set parameters
     private static let getSetParams = [
         "acl", "name", "radio", "tx", "repeat", "lat", "lon",
-        "af", "flood.max", "int.thresh", "agc.reset.interval",
+        "af", "dutycycle", "flood.max", "flood.max.advert", "flood.max.unscoped",
+        "int.thresh", "agc.reset.interval",
         "multi.acks", "advert.interval", "flood.advert.interval",
         "guest.password", "allow.read.only",
         "rxdelay", "txdelay", "direct.txdelay",
         "bridge.enabled", "bridge.delay", "bridge.source",
         "bridge.baud", "bridge.secret", "bridge.type",
         "adc.multiplier", "public.key", "prv.key", "role", "freq",
-        "path.hash.mode", "loop.detect", "bootloader.ver"
+        "path.hash.mode", "loop.detect", "bootloader.ver",
+        "owner.info", "radio.rxgain", "bridge.channel",
+        "pwrmgt.support", "pwrmgt.source", "pwrmgt.bootreason", "pwrmgt.bootmv"
     ]
+
+    // Serial-only params excluded from remote session completions
+    private static let serialOnlyGetParams: Set<String> = ["prv.key", "acl"]
+    private static let serialOnlySetParams: Set<String> = ["freq"]
 
     private static let pathHashModeValues = ["0", "1", "2"]
 
@@ -69,12 +91,12 @@ final class CLICompletionEngine {
 
     // MARK: - Completion Logic
 
-    func completions(for input: String, isLocal: Bool) -> [String] {
+    func completions(for input: String, isLocal: Bool, includeSessionCommands: Bool = true) -> [String] {
         let trimmed = input.trimmingCharacters(in: .whitespaces)
 
         // Empty or just spaces - return all applicable commands
         if trimmed.isEmpty {
-            return availableCommands(isLocal: isLocal).sorted()
+            return availableCommands(isLocal: isLocal, includeSessionCommands: includeSessionCommands).sorted()
         }
 
         let parts = trimmed.split(separator: " ", omittingEmptySubsequences: false).map(String.init)
@@ -82,7 +104,7 @@ final class CLICompletionEngine {
 
         // Single word - complete command name
         if parts.count == 1 && !input.hasSuffix(" ") {
-            return availableCommands(isLocal: isLocal)
+            return availableCommands(isLocal: isLocal, includeSessionCommands: includeSessionCommands)
                 .filter { $0.hasPrefix(command) }
                 .sorted()
         }
@@ -106,22 +128,35 @@ final class CLICompletionEngine {
         let argPosition = endsWithSpace ? parts.count : parts.count - 1
 
         switch command {
-        case "session", "login", "log", "powersaving", "clear", "region", "clock":
+        case "session", "login", "log", "powersaving", "clear", "clock", "start":
             // 1-arg commands: only complete when argPosition == 1
             guard argPosition == 1 else { return [] }
             return completeFirstArg(for: command, prefix: prefix)
 
-        case "get", "set":
+        case "get":
             if argPosition == 1 {
-                return Self.getSetParams.filter { $0.hasPrefix(prefix) }.sorted()
+                return Self.getSetParams
+                    .filter { !Self.serialOnlyGetParams.contains($0) }
+                    .filter { $0.hasPrefix(prefix) }.sorted()
             }
-            if command == "set", argPosition == 2, parts.count >= 2 {
+            return []
+
+        case "set":
+            if argPosition == 1 {
+                return Self.getSetParams
+                    .filter { !Self.serialOnlySetParams.contains($0) }
+                    .filter { $0.hasPrefix(prefix) }.sorted()
+            }
+            if argPosition == 2, parts.count >= 2 {
                 return completeSetValue(param: parts[1].lowercased(), prefix: parts.count > 2 ? parts[2].lowercased() : "")
             }
             return []
 
         case "gps":
             return completeGpsArgs(argPosition: argPosition, parts: parts, prefix: prefix)
+
+        case "region":
+            return completeRegionArgs(argPosition: argPosition, parts: parts, prefix: prefix)
 
         default:
             return []
@@ -137,20 +172,24 @@ final class CLICompletionEngine {
         case "log":
             return Self.logSubcommands.filter { $0.hasPrefix(prefix) }.sorted()
         case "powersaving":
-            return Self.powersavingValues.filter { $0.hasPrefix(prefix) }.sorted()
+            return Self.onOffValues.filter { $0.hasPrefix(prefix) }.sorted()
         case "clear":
             return Self.clearSubcommands.filter { $0.hasPrefix(prefix) }.sorted()
-        case "region":
-            return Self.regionSubcommands.filter { $0.hasPrefix(prefix) }.sorted()
         case "clock":
             return Self.clockSubcommands.filter { $0.hasPrefix(prefix) }.sorted()
+        case "start":
+            return Self.startSubcommands.filter { $0.hasPrefix(prefix) }.sorted()
         default:
             return []
         }
     }
 
-    private func availableCommands(isLocal: Bool) -> [String] {
+    private func availableCommands(isLocal: Bool, includeSessionCommands: Bool) -> [String] {
         var commands = Self.builtInCommands
+
+        if includeSessionCommands {
+            commands.append(contentsOf: Self.sessionCommands)
+        }
 
         if isLocal {
             commands.append(contentsOf: Self.localOnlyCommands)
@@ -177,6 +216,24 @@ final class CLICompletionEngine {
             return Self.pathHashModeValues.filter { $0.hasPrefix(prefix) }.sorted()
         case "loop.detect":
             return Self.loopDetectValues.filter { $0.hasPrefix(prefix) }.sorted()
+        case "repeat", "allow.read.only", "bridge.enabled", "radio.rxgain":
+            return Self.onOffValues.filter { $0.hasPrefix(prefix) }.sorted()
+        case "multi.acks":
+            return Self.multiAcksValues.filter { $0.hasPrefix(prefix) }.sorted()
+        case "bridge.source":
+            return Self.bridgeSourceValues.filter { $0.hasPrefix(prefix) }.sorted()
+        default:
+            return []
+        }
+    }
+
+    private func completeRegionArgs(argPosition: Int, parts: [String], prefix: String) -> [String] {
+        switch argPosition {
+        case 1:
+            return Self.regionSubcommands.filter { $0.hasPrefix(prefix) }.sorted()
+        case 2 where parts.count >= 2 && parts[1].lowercased() == "list":
+            let valuePrefix = parts.count > 2 ? parts[2].lowercased() : ""
+            return Self.regionListValues.filter { $0.hasPrefix(valuePrefix) }.sorted()
         default:
             return []
         }

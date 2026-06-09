@@ -339,7 +339,19 @@
 "pathHashMode.threeBytes" = "3 字节";
 
 /* Footer explaining path hash mode tradeoff */
-"pathHashMode.footer" = "较大的哈希值可减少路由冲突，但会限制每条路径的最大跳数。";
+"pathHashMode.footer" = "较大的哈希值可减少路由冲突，但会限制每条路径的最大跳数。固件版本低于 1.14.0 的中继器不会转发哈希大小超过 1 字节的消息。";
+
+
+// MARK: - Default Flood Scope Section
+
+/* Section header for default flood scope picker */
+"defaultFloodScope.header" = "默认泛洪范围";
+
+/* Footer explaining default flood scope */
+"defaultFloodScope.footer" = "设置后，设备会将此范围应用于泛洪发送，除非被特定频道的范围覆盖。该范围会保存在设备上，重启后仍然有效。";
+
+/* Option to clear the persisted default flood scope */
+"defaultFloodScope.disabled" = "无";
 
 
 // MARK: - Battery Curve Section
@@ -369,7 +381,7 @@
 "batteryCurve.editValues" = "编辑曲线";
 
 /* Validation error for value out of range - %d is percentage level */
-"batteryCurve.validation.outOfRange" = "%d%% 处的值必须在 1000-5000 mV 范围内";
+"batteryCurve.validation.outOfRange" = "%d%% 处的值必须在 1000-9000 mV 范围内";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "值必须按降序排列";
@@ -525,10 +537,10 @@
 "nodes.staleCleanup.days" = "%d 天";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "超过 %d 天未收到消息的非收藏节点将在连接时自动移除。";
+"nodes.staleCleanup.footerEnabled" = "超过 %d 天未更新的非收藏节点将在连接时自动移除。";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "自动移除设定时间内未收到消息的非收藏节点。收藏节点不会被移除。";
+"nodes.staleCleanup.footerDisabled" = "自动移除在设定时间内未更新的非收藏节点。收藏节点不会被移除。";
 
 /* Footer when toggle is on but no threshold selected yet */
 "nodes.staleCleanup.footerSelect" = "选择保留节点的时间。收藏节点不会被移除。";
@@ -578,14 +590,17 @@
 /* Footer explaining factory reset */
 "dangerZone.footer" = "恢复出厂设置将擦除设备上的所有联系人、消息和设置。";
 
-/* Alert title for forget device confirmation */
-"dangerZone.alert.forget.title" = "忘记设备";
+/* Confirmation dialog title for forget device */
+"dangerZone.dialog.forget.title" = "忘记设备";
 
-/* Button to confirm forget */
-"dangerZone.alert.forget.confirm" = "忘记";
+/* Confirmation dialog message for forget device */
+"dangerZone.dialog.forget.message" = "您的设备将取消配对。您可以选择保留或删除您的消息、联系人和频道。";
 
-/* Alert message for forget device */
-"dangerZone.alert.forget.message" = "这将从您的配对设备中移除该设备。您可以稍后重新配对。";
+/* Button to forget device but keep data */
+"dangerZone.dialog.forget.keepData" = "忘记设备";
+
+/* Button to forget device and delete all associated data */
+"dangerZone.dialog.forget.deleteAll" = "忘记设备并删除数据";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "恢复出厂设置";
@@ -759,6 +774,15 @@
 /* Toggle label for new contact discovered notifications */
 "notifications.newContactDiscovered" = "发现新联系人";
 
+/* Toggle label for companion discovery notifications */
+"notifications.discoveryContact" = "Companion";
+
+/* Toggle label for repeater discovery notifications */
+"notifications.discoveryRepeater" = "Repeater";
+
+/* Toggle label for room discovery notifications */
+"notifications.discoveryRoom" = "Room";
+
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "低电量警告";
 
@@ -808,6 +832,12 @@
 
 /* Confirmation dialog enable button */
 "radio.repeatMode.confirm.enable" = "启用";
+
+/* Location: RadioPresetSection.swift - Footer line listing the user's region */
+"radio.regionFooter" = "正在显示 %@ 的推荐预设。";
+
+/* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
+"radio.mismatchHint" = "您的无线电当前使用 %@，而非 %@ 的推荐预设。";
 
 // MARK: - Telemetry Settings Section
 
@@ -928,17 +958,36 @@
 
 // MARK: - Messages Settings Section
 
-/* Section header for messages settings in advanced */
-"messages.header" = "消息";
+/* Section header for message info settings in chats */
+"messages.header" = "消息信息";
+
+/* Toggle label for showing the raw uncorrected wire send time on incoming messages */
+"messages.showIncomingSendTime" = "传入发送时间";
 
 /* Toggle label for showing routing path on incoming messages */
-"messages.showIncomingPath" = "显示传入路径";
+"messages.showIncomingPath" = "传入路径";
 
 /* Toggle label for showing hop count on incoming messages */
-"messages.showIncomingHopCount" = "显示传入跳数";
+"messages.showIncomingHopCount" = "传入跳数";
+
+/* Toggle label for showing the radio region an incoming message was flooded under */
+"messages.showIncomingRegion" = "传入区域";
 
 /* Footer explaining what message display options show */
-"messages.footer" = "在传入消息气泡内显示路由信息。";
+"messages.footer" = "在传入消息气泡内显示路由和时间信息。";
+
+
+// MARK: - Direct Messages Settings Section
+
+/* Section header for direct message settings */
+"directMessages.header" = "私信";
+
+/* Picker label for number of acknowledgments */
+"directMessages.acknowledgments" = "Acknowledgments";
+
+/* Footer explaining the acknowledgments setting */
+"directMessages.footer" = "每条私信发送的确认数量。在不可靠的链路上使用 2 以获得更好的送达确认。";
+
 
 // MARK: - BLE Status Indicator
 
@@ -962,6 +1011,9 @@
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "已连接";
+
+/* Status shown when device is syncing data */
+"bleStatus.status.syncing" = "同步中";
 
 /* Status shown when device is ready */
 "bleStatus.status.ready" = "就绪";
@@ -1072,6 +1124,12 @@
 /* Import cancelled */
 "configImport.cancelled" = "导入已取消。";
 
+/* Import cancelled after one or more settings were already written to the device */
+"configImport.cancelledPartial" = "导入已取消，但部分设置已写入设备。请检查设备的配置。";
+
+/* Import failed after one or more settings were already written; %@ is the underlying error message */
+"configImport.failedPartial" = "%@ 部分设置可能已写入设备。请检查设备的配置。";
+
 /* Import success */
 "configImport.importSuccess" = "配置导入成功";
 
@@ -1093,6 +1151,69 @@
 /* Contact count (param: integer) */
 "configImport.contactCount" = "将在设备上添加/更新 %d 个联系人";
 
+/* Generic device-name fallback used in confirmation messages when the node has no name */
+"configImport.thisDevice" = "此设备";
+
+/* Import progress: applying position */
+"configImport.stepPosition" = "正在设置位置";
+
+/* Import progress: applying other parameters */
+"configImport.stepOtherParameters" = "正在设置其他参数";
+
+/* Import progress: importing the private key */
+"configImport.stepPrivateKey" = "正在导入私钥";
+
+/* Import progress: setting the node name */
+"configImport.stepNodeName" = "正在设置节点名称";
+
+/* Import progress: applying radio parameters */
+"configImport.stepRadioParameters" = "正在设置无线电参数";
+
+/* Import progress: setting TX power */
+"configImport.stepTxPower" = "正在设置发射功率";
+
+/* Import progress: importing a channel (param: channel name) */
+"configImport.stepChannel" = "正在导入频道：%@";
+
+/* Import progress: importing a contact (param: contact name) */
+"configImport.stepContact" = "正在导入联系人：%@";
+
+/* Validation field label: radio frequency */
+"configImport.field.frequency" = "频率";
+
+/* Validation field label: radio bandwidth */
+"configImport.field.bandwidth" = "带宽";
+
+/* Validation field label: spreading factor */
+"configImport.field.spreadingFactor" = "扩频因子";
+
+/* Validation field label: coding rate */
+"configImport.field.codingRate" = "编码率";
+
+/* Validation field label: TX power */
+"configImport.field.txPower" = "发射功率";
+
+/* Validation field label: latitude */
+"configImport.field.latitude" = "纬度";
+
+/* Validation field label: longitude */
+"configImport.field.longitude" = "经度";
+
+/* Validation error: value outside radio's supported range (param: field label) */
+"configImport.error.radioOutOfRange" = "%@ 超出无线电支持的范围";
+
+/* Validation error: invalid coordinate (param: field label) */
+"configImport.error.positionInvalid" = "%@ 的坐标无效或超出范围";
+
+/* Validation error: contact coordinate invalid (params: contact name, field label) */
+"configImport.error.contactCoordinateInvalid" = "联系人 \"%@\" 的 %@ 坐标无效或超出范围";
+
+/* Validation error: contact has an invalid routing path (param: contact name) */
+"configImport.error.invalidOutPath" = "联系人 \"%@\" 的路由路径无效";
+
+/* Validation error: not enough free contact slots (params: needed count, available count) */
+"configImport.error.contactCapacityExceeded" = "导入需要 %d 个空闲联系人槽位，但设备上仅剩 %d 个";
+
 /* Toggle label for inline images */
 "inlineImages.toggle" = "内嵌图片消息";
 
@@ -1101,6 +1222,20 @@
 
 /* Footer explaining inline image privacy implications */
 "inlineImages.footer" = "从 URL 获取图片可能会将您的 IP 地址暴露给托管图片的服务器。";
+
+// MARK: - Map Preview Settings Section
+
+/* Section header for chat map preview settings */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.header" = "地图预览";
+
+/* Toggle label for chat map thumbnails */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.toggle" = "显示地图缩略图";
+
+/* Footer explaining map preview privacy implications */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.footer" = "显示地图缩略图会从第三方服务器获取该坐标的地图图块，可能会暴露您的IP地址。";
 
 // MARK: - Blocking Section
 
@@ -1132,6 +1267,25 @@
 "language.title" = "语言";
 
 
+// MARK: - Region
+
+/* Location: RegionSettingsView.swift - Title */
+"region.title" = "地区";
+
+/* Location: SettingsView.swift - Detail row when region is unset */
+"region.notSet" = "未设置";
+
+/* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
+"region.subdivision.US-CA" = "加利福尼亚州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
+"region.subdivision.AU-QLD" = "昆士兰州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name */
+"region.subdivision.AU-SA" = "南澳大利亚州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
+"region.subdivision.AU-WA" = "西澳大利亚州";
 
 // MARK: - Live Activity
 
@@ -1143,7 +1297,6 @@
 
 /* Message for the Live Activity tip */
 "liveActivity.tip.message" = "即使不打开应用，您的连接、电池和消息也清晰可见。";
-
 
 // MARK: - Regenerate Identity
 
@@ -1204,7 +1357,6 @@
 /* Error when device rejects the key */
 "regenerateIdentity.error.deviceRejected" = "设备拒绝了密钥，请重试。";
 
-
 // MARK: - Import Key
 
 /* Button label to open import key sheet */
@@ -1235,8 +1387,8 @@
 "importKey.error.invalidKey" = "不是有效的 Ed25519 私钥";
 
 // Reply with Quote
-"replyWithQuote.toggle" = "Reply with Quote";
-"replyWithQuote.footer" = "Replying includes a preview of the original message.";
+"replyWithQuote.toggle" = "引用回复";
+"replyWithQuote.footer" = "回复时包含原始消息的预览。";
 
 // MARK: - Offline Maps
 
@@ -1251,7 +1403,6 @@
 
 /* Button to download a new offline region */
 "offlineMaps.downloadRegion" = "下载区域";
-
 
 /* Section header for storage info */
 "offlineMaps.storage" = "存储空间";
@@ -1331,3 +1482,272 @@
 
 /* Storage section footer */
 "offlineMaps.storageFooter" = "包括地图数据和内部索引。总大小可能超过各项下载的总和。";
+
+// MARK: - Backup & Restore
+
+/* Navigation title for backup & restore screen */
+"settings.backup.title" = "备份与恢复";
+
+/* Section header for file backup */
+"settings.backup.file_backup.header" = "文件备份";
+
+/* Section footer for file backup */
+"settings.backup.file_backup.footer" = "导出或恢复消息、联系人、频道、保存的路径和设置。无线电配置在每次连接时从设备读取。";
+
+/* Export row title */
+"settings.backup.export.title" = "导出应用数据";
+
+/* Export row subtitle */
+"settings.backup.export.subtitle" = "保存为 .mc1backup 文件";
+
+/* Import row title */
+"settings.backup.import.title" = "导入应用数据";
+
+/* Import row subtitle */
+"settings.backup.import.subtitle" = "从 .mc1backup 文件恢复";
+
+/* Footer shown above the backup section when a radio is connected, explaining why import is disabled */
+"settings.backup.import.disabled_when_connected" = "导入备份前请先断开无线电连接。";
+
+/* Export confirmation alert title */
+"settings.backup.export.alert.title" = "安全提示";
+
+/* Export confirmation alert message */
+"settings.backup.export.alert.message" = "此备份包含频道加密密钥、消息历史、联系人列表以及 WiFi 节点的本地网络地址和端口。请妥善保管导出的文件。";
+
+/* Export confirmation alert export button */
+"settings.backup.export.alert.export" = "导出";
+
+/* Export confirmation alert cancel button */
+"settings.backup.export.alert.cancel" = "取消";
+
+/* Export progress label */
+"settings.backup.export.progress" = "正在准备备份…";
+
+/* Import preview navigation title */
+"settings.backup.import.preview.title" = "导入预览";
+
+/* Import preview section header: backup details */
+"settings.backup.import.preview.details" = "备份详情";
+
+/* Import preview label: export date */
+"settings.backup.import.preview.exported" = "导出日期";
+
+/* Import preview label: app version */
+"settings.backup.import.preview.app_version" = "应用版本";
+
+/* Import preview section header: contents */
+"settings.backup.import.preview.contents" = "内容";
+
+/* Import preview manifest label: messages */
+"settings.backup.import.preview.messages" = "消息";
+
+/* Import preview manifest label: contacts */
+"settings.backup.import.preview.contacts" = "联系人";
+
+/* Import preview manifest label: channels */
+"settings.backup.import.preview.channels" = "频道";
+
+/* Import preview manifest label: devices */
+"settings.backup.import.preview.devices" = "设备";
+
+/* Import preview manifest label: room messages */
+"settings.backup.import.preview.room_messages" = "房间消息";
+
+/* Import preview manifest label: reactions */
+"settings.backup.import.preview.reactions" = "表情回应";
+
+/* Import preview manifest label: saved paths */
+"settings.backup.import.preview.saved_paths" = "保存的路径";
+
+/* Import preview manifest label: remote node sessions */
+"settings.backup.import.preview.remote_node_sessions" = "远程节点会话";
+
+/* Import preview info text */
+"settings.backup.import.preview.info" = "只添加新数据，不会覆盖已有记录。在创建此备份之后删除的联系人会重新出现，备份中设置的屏蔽、静音或收藏标记会再次应用。";
+
+/* Import preview import button */
+"settings.backup.import.preview.button" = "导入数据";
+
+/* Import progress label */
+"settings.backup.import.progress" = "正在导入数据…";
+/* Import parsing label */
+"settings.backup.import.parsing" = "正在读取备份…";
+/* Import cancelling label shown after the user taps Cancel during an active import */
+"settings.backup.import.cancelling" = "正在取消…";
+/* Import preview cancel / dismiss toolbar button */
+"settings.backup.import.preview.cancel" = "取消";
+
+/* Import success title */
+"settings.backup.import.success.title" = "导入完成";
+
+/* Import success section header: items that were newly added to this device */
+"settings.backup.import.success.added_section" = "已添加到此设备";
+
+/* Import success section header: items in the backup that were already on this device */
+"settings.backup.import.success.already_here_section" = "已在此设备上";
+
+/* Import success section footer: always visible under the "Already on this iPhone" section */
+"settings.backup.import.success.already_here_footer" = "此设备上的现有数据保持不变；未覆盖任何内容。";
+
+/* Import success hero subtitle when new items were added (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_added" = "已添加 %d 项。";
+
+/* Import success hero subtitle when only existing items were refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_refreshed" = "已更新 %d 项现有内容。";
+
+/* Import success disclosure row summary for the "Already on this iPhone" section (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_summary" = "%d 项已在此";
+
+/* Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_refreshed" = "其中 %d 项已用备份中的较新信息更新。";
+
+/* Import success section header: channels that had no free local slot and couldn't be restored */
+"settings.backup.import.success.dropped_section" = "无法恢复";
+
+/* Import success disclosure row summary for the "Couldn't be restored" section */
+"settings.backup.import.success.dropped_summary" = "%d 个项目无法恢复";
+
+/* Import success footer explaining why some channels couldn't be restored and how to recover them */
+"settings.backup.import.success.dropped_footer" = "这些频道在此设备上没有空闲的频道位，因此它们及其消息未被导入。请腾出一个频道位后重新导入以恢复它们。";
+
+/* Import success done button */
+"settings.backup.import.success.done" = "完成";
+
+/* Import failure title */
+"settings.backup.import.error.title" = "导入失败";
+
+/* Import error dismiss button */
+"settings.backup.import.error.dismiss" = "关闭";
+
+/* Import cancelled title shown after user cancels an import before it commits */
+"settings.backup.import.cancelled.title" = "导入已取消";
+
+/* Import cancelled message — rollback ran and nothing on device was changed */
+"settings.backup.import.cancelled.message" = "未更改任何数据。";
+
+/* File access error */
+"settings.backup.import.file_access_error" = "无法访问所选文件。";
+
+/* Import preview manifest label: blocked senders */
+"settings.backup.import.preview.blocked_senders" = "已屏蔽的发送者";
+
+/* Import preview manifest label: node status snapshots */
+"settings.backup.import.preview.node_status_snapshots" = "节点快照";
+
+/* Import preview manifest label: message repeats */
+"settings.backup.import.preview.message_repeats" = "消息转发次数";
+
+/* Import header title when the backup had nothing new to add (every record was skipped) */
+"settings.backup.import.nothing_to_import.title" = "所有内容均已在此";
+
+/* Import subtitle when the backup had nothing new to add */
+"settings.backup.import.nothing_to_import.subtitle" = "此备份的内容已在此设备上。";
+
+/* Default filename for an exported backup; %@ is an ISO-style timestamp */
+"settings.backup.export.default_filename" = "MC1 备份 %@.mc1backup";
+
+/* Backup error: file is corrupt or unreadable */
+"settings.backup.error.invalid_file" = "备份文件无效或无法读取。";
+
+/* Backup error: file exceeds parser size cap; %1$d actual MB, %2$d max MB */
+"settings.backup.error.file_too_large" = "备份文件过大，无法导入（%1$d MB；上限为 %2$d MB）。";
+
+/* Backup error: decompressed size exceeds safety cap; %d is max MB uncompressed */
+"settings.backup.error.decompressed_too_large" = "备份文件解压后超过安全大小上限（%d MB 未压缩）。";
+
+/* Backup error: file version too new; %1$d found, %2$d max supported */
+"settings.backup.error.unsupported_version" = "此备份是用更新的格式创建的（版本 %1$d）。此应用支持的最高版本为 %2$d。请更新应用后重试。";
+
+/* Backup error: manifest counts do not match arrays */
+"settings.backup.error.corrupted_manifest" = "备份文件似乎已损坏。声明的条目数量与实际数据不符。";
+
+/* Backup error: export failed; %@ is underlying error */
+"settings.backup.error.export_failed" = "创建备份失败：%@";
+
+/* Backup error: import failed; %@ is underlying error */
+"settings.backup.error.import_failed" = "导入备份失败：%@";
+
+// MARK: - Export success
+
+/* Hero title on the backup export success sheet */
+"settings.backup.export.success.title" = "备份已保存";
+
+/* Section header listing record counts included in the export */
+"settings.backup.export.success.included_section" = "备份包含";
+
+/* Primary button on the export success sheet */
+"settings.backup.export.success.done" = "完成";
+
+/* VoiceOver announcement when the export success sheet appears; %@ is the filename */
+"settings.backup.export.success.announcement" = "备份已保存为 %@";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "你尚未拥有此主题。";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "主题已恢复为默认。";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "支持开发";
+"Support.Header.Body" = "如果你喜欢 MC1，这里有几种支持其开发的方式！这里的一切都是可选的，只有一些打赏和一些额外的主题。";
+"Support.Themes.Title" = "主题";
+"Support.Themes.Owned" = "已拥有";
+"Support.Themes.PurchasedFooter" = "在设置 → 外观中应用你的新主题。";
+"Support.Bundle.Title" = "全部主题";
+"Support.Bundle.Subtitle" = "包括日后新增的主题。";
+"Support.Contributions.Title" = "捐助";
+"Support.Contributions.Footer" = "支持 MC1 开发的感谢式打赏。无实物商品，无会员权益。";
+"Support.Contributions.HighValueConfirm" = "发送 %@？";
+"Support.Contributions.ConfirmButton" = "捐助 %@";
+"Support.Restore.Button" = "恢复购买";
+"Support.Restore.Syncing" = "正在恢复…";
+"Support.Refund.Link" = "申请退款";
+"Support.Pending.Banner" = "等待批准——你的购买将在获批后生效。";
+"Support.Pending.Button" = "等待批准";
+"Support.Contact.Link" = "联系支持";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "默认";
+"Support.Theme.Ember" = "Ember";
+"Support.Theme.Fern" = "Fern";
+"Support.Theme.Marine" = "Marine";
+"Support.Theme.Olive" = "Olive";
+"Support.Theme.Lavender" = "Lavender";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "无法加载商品。";
+"Support.Error.ProductNotFound" = "未找到商品。";
+"Support.Error.PurchaseFailed" = "购买失败：%@";
+"Support.Error.NetworkUnavailable" = "网络不可用。";
+"Support.Error.VerificationFailed" = "无法验证你的购买。";
+"Support.Error.NotEntitled" = "此设备上的购买已受限。请检查屏幕使用时间的内容限制。";
+"Support.Error.StorefrontUnavailable" = "此商品在你所在的地区不可用。";
+"Support.Error.Unsupported" = "此设备不支持应用内购买。";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "主题 %@，已锁定";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "主题 %@，已拥有";
+"Support.Accessibility.BundleCard.LockedLabel" = "全部主题套装，已锁定，%@";
+"Support.Accessibility.BundleCard.LockedHint" = "购买全部主题套装";
+"Support.Accessibility.BundleCard.LoadingLabel" = "全部主题套装，正在加载价格";
+"Support.Accessibility.ContributionRow.Label" = "%1$@，%2$@";
+"Support.Accessibility.ContributionRow.Hint" = "发送感谢式打赏";
+"Support.Accessibility.TipConfirmAnnouncement" = "感谢你的打赏。";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "外观";
+"Appearance.Scheme.Header" = "浅色/深色模式";
+"Appearance.Scheme.System" = "跟随系统";
+"Appearance.Scheme.Light" = "浅色";
+"Appearance.Scheme.Dark" = "深色";
+"Appearance.Themes.Header" = "选择主题";
+"Appearance.Themes.Selected" = "已选择";
+"Appearance.MoreThemes.Link" = "购买更多主题";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "主题 %@，已拥有";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "应用此主题";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "主题 %@，当前已选择";
+"Appearance.Accessibility.Swatch.DualMode" = "%@，浅色和深色变体";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@，仅深色";

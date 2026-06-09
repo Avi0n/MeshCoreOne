@@ -56,7 +56,7 @@
 "map.style.requiresNetwork" = "Requires network connection";
 
 /* Location: LayersMenu.swift - Purpose: Hint when no offline pack covers viewport */
-"map.style.noOfflineCoverage" = "No offline map covers this area";
+"map.style.noOfflineCoverage" = "Ningún mapa sin conexión cubre esta área";
 
 // MARK: - Contact Detail Sheet
 
@@ -77,6 +77,9 @@
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Label for last advertisement timestamp */
 "map.detail.lastAdvert" = "Último anuncio";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for full public key identifier */
+"map.detail.publicKey" = "Clave pública";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Section header for location coordinates */
 "map.detail.section.location" = "Ubicación";
@@ -168,3 +171,14 @@
 
 /* Label shown on map when device has no internet connection */
 "map.offlineBadge.label" = "Sin conexión";
+
+// MARK: - Chat Map Preview
+
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the chat map-location thumbnail */
+"map.preview.accessibilityLabel" = "Vista previa de la ubicación en el mapa";
+
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility hint for tapping the chat map-location thumbnail */
+"map.preview.accessibilityHint" = "Abre esta ubicación en el mapa";
+
+/* TODO: translate - Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback */
+"map.preview.retryButton.accessibilityLabel" = "Reintentar la carga de la miniatura del mapa";

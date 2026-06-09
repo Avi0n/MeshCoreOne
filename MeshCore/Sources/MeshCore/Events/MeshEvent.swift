@@ -110,6 +110,12 @@ public enum MeshEvent: Sendable {
     /// Emitted in response to ``MeshCoreSession/getAutoAddConfig()``.
     case autoAddConfig(AutoAddConfig)
 
+    /// Contains the persisted default flood scope.
+    ///
+    /// Firmware v11+ (MeshCore v1.15.0+). `nil` means no default scope is persisted.
+    /// Emitted in response to ``MeshCoreSession/getDefaultFloodScope()``.
+    case defaultFloodScope(DefaultFloodScope?)
+
     /// Indicates that allowed repeat frequency ranges were received.
     ///
     /// Emitted in response to ``MeshCoreSession/getRepeatFreq()`` (v9+ firmware).
@@ -176,6 +182,13 @@ public enum MeshEvent: Sendable {
     /// Emitted when a message is received on a subscribed channel.
     case channelMessageReceived(ChannelMessage)
 
+    /// Indicates that a binary datagram was received on a channel.
+    ///
+    /// Firmware v11+ (MeshCore v1.15.0+). Emitted when a `PAYLOAD_TYPE_GRP_DATA`
+    /// packet is received. The payload is the raw (encrypted) ciphertext bytes —
+    /// higher layers decrypt with the channel's shared key.
+    case channelDataReceived(ChannelDatagram)
+
     /// Indicates that no more messages are waiting.
     ///
     /// Emitted by ``MeshCoreSession/getMessage()`` when the message queue is empty.
@@ -211,8 +224,8 @@ public enum MeshEvent: Sendable {
     ///
     /// - Parameters:
     ///   - code: The acknowledgement code to match against the expected value.
-    ///   - unsyncedCount: For room server keep-alive ACKs, the number of unsynced messages.
-    case acknowledgement(code: Data, unsyncedCount: UInt8? = nil)
+    ///   - tripTime: Firmware-measured radio round-trip time in milliseconds, if available.
+    case acknowledgement(code: Data, tripTime: UInt32? = nil)
 
     /// Indicates that trace route data was received.
     ///
@@ -363,21 +376,21 @@ public enum MeshEvent: Sendable {
 /// This struct is returned by message-sending methods and contains information
 /// needed to wait for delivery acknowledgement.
 public struct MessageSentInfo: Sendable, Equatable {
-    /// The type of the sent message.
-    public let type: UInt8
+    /// Route flag from the firmware: 1 = flood, 0 = direct.
+    public let route: UInt8
     /// The expected acknowledgement data for correlation.
     public let expectedAck: Data
     /// The suggested timeout in milliseconds to wait for acknowledgement.
     public let suggestedTimeoutMs: UInt32
 
     /// Initializes a new message sent information object.
-    /// 
+    ///
     /// - Parameters:
-    ///   - type: The message type.
+    ///   - route: Route flag from the firmware: 1 = flood, 0 = direct.
     ///   - expectedAck: The expected acknowledgement data.
     ///   - suggestedTimeoutMs: The suggested timeout in milliseconds.
-    public init(type: UInt8, expectedAck: Data, suggestedTimeoutMs: UInt32) {
-        self.type = type
+    public init(route: UInt8, expectedAck: Data, suggestedTimeoutMs: UInt32) {
+        self.route = route
         self.expectedAck = expectedAck
         self.suggestedTimeoutMs = suggestedTimeoutMs
     }
@@ -473,6 +486,63 @@ public struct ChannelMessage: Sendable, Equatable {
         self.senderTimestamp = senderTimestamp
         self.text = text
         self.snr = snr
+    }
+}
+
+/// Represents a binary datagram received on a broadcast channel.
+///
+/// Channel datagrams carry arbitrary application data (`data_type` namespaces
+/// the schema) rather than plain text. Firmware v11+ (MeshCore v1.15.0+).
+public struct ChannelDatagram: Sendable, Equatable {
+    /// The index of the channel on which the datagram was received.
+    public let channelIndex: UInt8
+    /// Encoded path-length byte from the RF packet header.
+    ///
+    /// - `0xFF`: the datagram arrived via direct route; upstream path is unknown to firmware.
+    /// - Otherwise: flood-accumulated path encoding. Upper 2 bits = hash size (1, 2, or 3 bytes
+    ///   per hop); lower 6 bits = hop count. Decode with ``decodePathLen(_:)`` into a
+    ///   ``PathLenDecoded`` for inspecting hops.
+    public let pathLength: UInt8
+    /// Application data-type namespace (see firmware `number_allocations.md`).
+    public let dataType: UInt16
+    /// The raw binary payload (up to 163 bytes).
+    public let data: Data
+    /// The signal-to-noise ratio of the received packet in dB.
+    ///
+    /// `RESP_CODE_CHANNEL_DATA_RECV` always carries SNR at offset 0, so this value
+    /// is always present (unlike ``ChannelMessage/snr`` which is optional because
+    /// v1-era push codes omitted it).
+    public let snr: Double
+
+    /// Initializes a new channel datagram.
+    public init(
+        channelIndex: UInt8,
+        pathLength: UInt8,
+        dataType: UInt16,
+        data: Data,
+        snr: Double
+    ) {
+        self.channelIndex = channelIndex
+        self.pathLength = pathLength
+        self.dataType = dataType
+        self.data = data
+        self.snr = snr
+    }
+}
+
+/// Represents the device's persisted default flood scope.
+///
+/// Firmware v11+ (MeshCore v1.15.0+). The default scope is applied automatically
+/// when sending flood packets if no session-scoped key has been set.
+public struct DefaultFloodScope: Sendable, Equatable {
+    /// Display name (up to 30 UTF-8 bytes on-device).
+    public let name: String
+    /// The 16-byte scope key.
+    public let scopeKey: Data
+
+    public init(name: String, scopeKey: Data) {
+        self.name = name
+        self.scopeKey = scopeKey
     }
 }
 
@@ -816,20 +886,59 @@ public struct TraceNode: Sendable, Equatable {
 public struct PathInfo: Sendable, Equatable {
     /// The public key prefix of the node for which the path was discovered.
     public let publicKeyPrefix: Data
+    /// Raw outbound `path_len` byte as received on the wire. Upper 2 bits encode
+    /// the hash mode, lower 6 bits encode the hop count.
+    public let outPathLength: UInt8
     /// The outbound path data.
     public let outPath: Data
+    /// Raw inbound `path_len` byte as received on the wire.
+    public let inPathLength: UInt8
     /// The inbound path data.
     public let inPath: Data
 
+    /// Hop count decoded from ``outPathLength``. Returns `nil` when the byte uses
+    /// the reserved hash-size mode (upper 2 bits == `11`) so callers can handle
+    /// unknown encodings explicitly instead of defaulting to "direct".
+    public var outHopCount: Int? {
+        decodePathLen(outPathLength)?.hopCount
+    }
+
+    /// Hop count decoded from ``inPathLength``.
+    public var inHopCount: Int? {
+        decodePathLen(inPathLength)?.hopCount
+    }
+
     /// Initializes a new path information object.
-    /// 
+    ///
     /// - Parameters:
     ///   - publicKeyPrefix: The node's public key prefix.
-    ///   - outPath: The outbound path.
-    ///   - inPath: The inbound path.
-    public init(publicKeyPrefix: Data, outPath: Data, inPath: Data) {
+    ///   - outPathLength: Raw `out_path_len` byte from the wire.
+    ///   - outPath: The outbound path bytes. Length must equal the byte length
+    ///     decoded from ``outPathLength`` (`0` when the byte uses the reserved
+    ///     mode).
+    ///   - inPathLength: Raw `in_path_len` byte from the wire.
+    ///   - inPath: The inbound path bytes. Same contract as `outPath`.
+    public init(
+        publicKeyPrefix: Data,
+        outPathLength: UInt8,
+        outPath: Data,
+        inPathLength: UInt8,
+        inPath: Data
+    ) {
+        let outByteLength = decodePathLen(outPathLength)?.byteLength ?? 0
+        let inByteLength = decodePathLen(inPathLength)?.byteLength ?? 0
+        precondition(
+            outPath.count == outByteLength,
+            "PathInfo.outPath size \(outPath.count) does not match outPathLength byte length \(outByteLength)"
+        )
+        precondition(
+            inPath.count == inByteLength,
+            "PathInfo.inPath size \(inPath.count) does not match inPathLength byte length \(inByteLength)"
+        )
         self.publicKeyPrefix = publicKeyPrefix
+        self.outPathLength = outPathLength
         self.outPath = outPath
+        self.inPathLength = inPathLength
         self.inPath = inPath
     }
 }
@@ -1092,7 +1201,7 @@ public struct DiscoverResponse: Sendable, Equatable {
 ///
 /// Bundles the bitmask (which node types to auto-add) with the max hops filter.
 public struct AutoAddConfig: Sendable, Equatable {
-    /// Bitmask controlling auto-add behavior (0x01=overwrite, 0x02=contacts, 0x04=repeaters, 0x08=rooms).
+    /// Bitmask controlling auto-add behavior (0x01=overwrite-oldest, 0x02=Chat, 0x04=Repeater, 0x08=Room Server, 0x10=Sensor).
     public let bitmask: UInt8
     /// Maximum hops for auto-add filtering. 0 = no limit, 1 = direct only, N = up to N-1 hops (max 64).
     public let maxHops: UInt8
@@ -1240,13 +1349,13 @@ extension MeshEvent {
                 "channelIndex": msg.channelIndex,
                 "textType": msg.textType
             ]
-        case .acknowledgement(let code, let unsyncedCount):
+        case .acknowledgement(let code, let tripTime):
             var result: [String: AnyHashable] = ["code": code]
-            if let unsyncedCount { result["unsyncedCount"] = unsyncedCount }
+            if let tripTime { result["tripTime"] = tripTime }
             return result
         case .messageSent(let info):
             return [
-                "type": info.type,
+                "route": info.route,
                 "expectedAck": info.expectedAck
             ]
         case .statusResponse(let resp):
@@ -1268,5 +1377,36 @@ extension MeshEvent {
         default:
             return [:]
         }
+    }
+}
+
+extension MeshEvent {
+    /// Stable, low-cardinality string identifier for the case (no associated values).
+    /// Used for observability output where dumping the full payload would balloon
+    /// log/signpost storage.
+    ///
+    /// For `.acknowledgement(code:, tripTime:)` this yields `"acknowledgement"`;
+    /// for `.contactsFull` it yields `"contactsFull"`. Stays correct as
+    /// `MeshEvent` evolves — adding a new case won't fall through to
+    /// `"unknown"` the way a manual switch would.
+    public var caseName: String {
+        let full = String(describing: self)
+        if let paren = full.firstIndex(of: "(") {
+            return String(full[..<paren])
+        }
+        return full
+    }
+}
+
+extension MeshEvent {
+    /// The typed device error sub-code for an ``error(code:)`` event.
+    ///
+    /// Returns `nil` for non-error events, when the firmware omitted the
+    /// sub-code byte, or when the raw byte falls outside the known
+    /// ``ErrorCode`` range. The raw byte remains available on the
+    /// associated value of ``error(code:)`` for forward compatibility.
+    public var errorCode: ErrorCode? {
+        guard case .error(let code) = self, let code else { return nil }
+        return ErrorCode(rawValue: code)
     }
 }

@@ -16,17 +16,30 @@ enum LogExportService {
             await debugLogBuffer.flush()
         }
 
+        let isConnected = appState.connectedDevice != nil
+        let device: DeviceDTO?
+        if let connectedDevice = appState.connectedDevice {
+            device = connectedDevice
+        } else {
+            do {
+                device = try await persistenceStore.fetchActiveDevice()
+            } catch {
+                logger.error("Failed to fetch active device for export: \(error.localizedDescription)")
+                device = nil
+            }
+        }
+
         var sections: [String] = []
 
         // Header
         sections.append(generateHeader())
 
         // Connection info
-        sections.append(await generateConnectionSection(appState: appState))
+        sections.append(await generateConnectionSection(appState: appState, device: device))
 
-        // Device info (if connected)
-        if let device = appState.connectedDevice {
-            sections.append(generateDeviceSection(device: device))
+        // Device info (connected or last-connected from persistence)
+        if let device {
+            sections.append(generateDeviceSection(device: device, isConnected: isConnected))
         }
 
         // Battery info
@@ -65,8 +78,8 @@ enum LogExportService {
 
     @MainActor
     private static func generateHeader() -> String {
-        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
-        let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
+        let appVersion = Bundle.main.appVersion
+        let buildNumber = Bundle.main.appBuild
         let deviceModel = UIDevice.current.model
         let systemVersion = UIDevice.current.systemVersion
 
@@ -83,13 +96,14 @@ enum LogExportService {
     }
 
     @MainActor
-    private static func generateConnectionSection(appState: AppState) async -> String {
+    private static func generateConnectionSection(appState: AppState, device: DeviceDTO?) async -> String {
         let state = appState.connectionState
         let stateString: String
         switch state {
         case .disconnected: stateString = "disconnected"
         case .connecting: stateString = "connecting"
         case .connected: stateString = "connected"
+        case .syncing: stateString = "syncing"
         case .ready: stateString = "ready"
         }
 
@@ -105,7 +119,7 @@ enum LogExportService {
         lines.append("Last Disconnect Diagnostic: \(disconnectDiagnostic)")
         lines.append(await appState.connectionManager.currentBLEDiagnosticsSummary())
 
-        if let device = appState.connectedDevice {
+        if let device {
             lines.append("Device: \(device.nodeName) (\(device.id.uuidString.prefix(8))...)")
 
             let formatter = ISO8601DateFormatter()
@@ -116,12 +130,13 @@ enum LogExportService {
         return lines.joined(separator: "\n")
     }
 
-    private static func generateDeviceSection(device: DeviceDTO) -> String {
+    private static func generateDeviceSection(device: DeviceDTO, isConnected: Bool) -> String {
         let frequencyMHz = Double(device.frequency) / 1000.0
         let bandwidthKHz = device.bandwidth
+        let header = isConnected ? "=== Device Info ===" : "=== Device Info (Last Connected) ==="
 
         return """
-            === Device Info ===
+            \(header)
             Name: \(device.nodeName)
             Firmware: \(device.firmwareVersionString) (v\(device.firmwareVersion))
             Manufacturer: \(device.manufacturerName)

@@ -3,7 +3,6 @@ import MC1Services
 
 struct ChatsSplitSidebarContent: View {
     @Environment(\.appState) private var appState
-    @State private var reloadTask: Task<Void, Never>?
 
     let viewModel: ChatViewModel
     let filteredFavorites: [Conversation]
@@ -18,10 +17,8 @@ struct ChatsSplitSidebarContent: View {
     @Binding var showingChannelOptions: Bool
     @Binding var roomToAuthenticate: RemoteNodeSessionDTO?
     @Binding var lastSelectedRoomIsConnected: Bool?
-    @Binding var routeBeingDeleted: ChatRoute?
 
     let onDeleteConversation: (Conversation) -> Void
-    let onLoadConversations: () async -> Void
     let onHandlePendingNavigation: () -> Void
     let onHandlePendingChannelNavigation: () -> Void
     let onHandlePendingRoomNavigation: () -> Void
@@ -43,23 +40,16 @@ struct ChatsSplitSidebarContent: View {
             searchText: $searchText,
             showingNewChat: $showingNewChat,
             showingChannelOptions: $showingChannelOptions,
-            routeBeingDeleted: routeBeingDeleted,
-            onLoadConversations: onLoadConversations,
             onAnnounceOfflineStateIfNeeded: onAnnounceOfflineStateIfNeeded,
             onHandlePendingNavigation: onHandlePendingNavigation,
             onHandlePendingChannelNavigation: onHandlePendingChannelNavigation,
             onHandlePendingRoomNavigation: onHandlePendingRoomNavigation
         ))
         .onChange(of: selectedRoute) { oldValue, newValue in
-            // Reload conversations when navigating away (but not when clearing for deletion)
+            // Reload when navigating away from a selection. The funnel and pendingRemovalIDs
+            // keep a delete that cleared the selection from resurrecting the row through this reload.
             if oldValue != nil {
-                let didClearSelectionForDeletion = (newValue == nil && oldValue == routeBeingDeleted)
-                if !didClearSelectionForDeletion {
-                    reloadTask?.cancel()
-                    reloadTask = Task {
-                        await onLoadConversations()
-                    }
-                }
+                viewModel.requestConversationReload()
             }
 
             if case .room(let session) = newValue, !session.isConnected {
@@ -67,17 +57,16 @@ struct ChatsSplitSidebarContent: View {
                 selectedRoute = nil
                 appState.navigation.chatsSelectedRoute = nil
                 lastSelectedRoomIsConnected = nil
-                routeBeingDeleted = nil
                 return
             }
 
             lastSelectedRoomIsConnected = newValue?.roomIsConnected
 
-            // Sync sidebar selection to AppState for detail pane (non-nil only;
-            // nil is handled by deletion methods and disconnected room path)
-            if let newValue {
-                appState.navigation.chatsSelectedRoute = newValue
-            }
+            // Mirror the sidebar selection to AppState so the detail pane tracks it. Assigned
+            // unconditionally, including nil: the disconnected-room reload path clears the local
+            // selection without writing `chatsSelectedRoute`, so mirroring nil here is what dismisses
+            // the now-stale detail pane.
+            appState.navigation.chatsSelectedRoute = newValue
         }
     }
 

@@ -5,6 +5,7 @@ import os
 /// Sheet for manually adding a contact or scanning a QR code
 struct AddContactSheet: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedType: ContactType = .chat
@@ -36,16 +37,20 @@ struct AddContactSheet: View {
         NavigationStack {
             Form {
                 ScannerSection(showScanner: $showScanner)
+                    .themedRowBackground(theme)
 
                 TypePickerSection(selectedType: $selectedType)
+                    .themedRowBackground(theme)
 
                 NameInputSection(contactName: $contactName)
+                    .themedRowBackground(theme)
 
                 PublicKeyInputSection(
                     publicKeyHex: $publicKeyHex,
                     normalizedCount: normalizedPublicKeyHex.count,
                     isValid: isValidPublicKey
                 )
+                .themedRowBackground(theme)
 
                 PasteURLSection { result in
                     contactName = result.name
@@ -53,11 +58,14 @@ struct AddContactSheet: View {
                     selectedType = result.contactType
                     errorMessage = nil
                 }
+                .themedRowBackground(theme)
 
                 if let errorMessage {
                     ErrorSection(message: errorMessage)
+                        .themedRowBackground(theme)
                 }
             }
+            .themedCanvas(theme)
             .navigationTitle(L10n.Contacts.Contacts.Add.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -99,7 +107,7 @@ struct AddContactSheet: View {
             return
         }
 
-        let deviceID = device.id
+        let radioID = device.radioID
         let maxContacts = device.maxContacts
 
         guard let publicKeyData = Data(hexString: normalizedPublicKeyHex) else {
@@ -134,7 +142,7 @@ struct AddContactSheet: View {
             )
 
             logger.info("Adding contact: \(contactName) (\(publicKeyData.hex))")
-            try await services.contactService.addOrUpdateContact(deviceID: deviceID, contact: contactFrame)
+            try await services.contactService.addOrUpdateContact(radioID: radioID, contact: contactFrame)
             logger.info("Contact added successfully")
 
             dismiss()

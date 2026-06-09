@@ -8,24 +8,16 @@ import MeshCoreTestSupport
 @Suite("SyncCoordinator Tests")
 struct SyncCoordinatorTests {
 
-    /// Creates an in-memory persistence store with a test device
     private func createTestDataStore(
-        deviceID: UUID,
+        radioID: UUID,
         maxChannels: UInt8 = 8,
         lastContactSync: UInt32 = 0
     ) async throws -> PersistenceStore {
-        let container = try PersistenceStore.createContainer(inMemory: true)
-        let store = PersistenceStore(modelContainer: container)
-        let device = DeviceDTO.testDevice(
-            id: deviceID,
-            firmwareVersion: 8,
-            firmwareVersionString: "v1.0.0",
+        try await PersistenceStore.createTestDataStore(
+            radioID: radioID,
             maxChannels: maxChannels,
-            multiAcks: 0,
             lastContactSync: lastContactSync
         )
-        try await store.saveDevice(device)
-        return store
     }
 
     @Test("SyncState cases are distinct")
@@ -108,19 +100,19 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         let startedTracker = CallTracker()
         let endedTracker = CallTracker()
 
         await coordinator.setSyncActivityCallbacks(
             onStarted: { startedTracker.markCalled() },
-            onEnded: { endedTracker.markCalled() },
+            onEnded: { _ in endedTracker.markCalled() },
             onPhaseChanged: { _ in }
         )
 
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: mockContactService,
             channelService: mockChannelService,
@@ -131,6 +123,69 @@ struct SyncCoordinatorTests {
         #expect(endedTracker.wasCalled, "onSyncActivityEnded should have been called")
     }
 
+    @Test("Channel phase failure is partial and keeps connection usable")
+    @MainActor
+    func channelFailureIsPartialAndConnectionUsable() async throws {
+        let coordinator = SyncCoordinator()
+        let mockContactService = MockContactService()
+        let mockChannelService = MockChannelService()
+        let mockMessagePollingService = MockMessagePollingService()
+        let testDeviceID = UUID()
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
+
+        await mockChannelService.setStubbedSyncChannelsResult(.failure(
+            ChannelServiceError.circuitBreakerOpen(consecutiveFailures: 3)
+        ))
+
+        let result = try await coordinator.performFullSync(
+            radioID: testDeviceID,
+            dataStore: dataStore,
+            contactService: mockContactService,
+            channelService: mockChannelService,
+            messagePollingService: mockMessagePollingService
+        )
+
+        #expect(result.contacts == .clean)
+        #expect(result.channels == .partial)
+        #expect(result.messages == .clean)
+        #expect(result.isConnectionUsable)
+        #expect(coordinator.state == .synced)
+        #expect(await mockMessagePollingService.pollAllMessagesCallCount == 1)
+    }
+
+    @Test("Message polling failure does not fail contacts and channels")
+    @MainActor
+    func messagePollingFailureDoesNotFailContactsAndChannels() async throws {
+        let coordinator = SyncCoordinator()
+        let mockContactService = MockContactService()
+        let mockChannelService = MockChannelService()
+        let mockMessagePollingService = MockMessagePollingService()
+        let testDeviceID = UUID()
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
+
+        await mockMessagePollingService.setStubbedPollAllMessagesResult(.failure(
+            SyncCoordinatorError.syncFailed("messages saturated")
+        ))
+
+        let result = try await coordinator.performFullSync(
+            radioID: testDeviceID,
+            dataStore: dataStore,
+            contactService: mockContactService,
+            channelService: mockChannelService,
+            messagePollingService: mockMessagePollingService
+        )
+
+        #expect(result.contacts == .clean)
+        #expect(result.channels == .clean)
+        guard case .failed(let reason) = result.messages else {
+            Issue.record("Expected failed message phase, got \(result.messages)")
+            return
+        }
+        #expect(reason.localizedStandardContains("messages saturated"))
+        #expect(result.isConnectionUsable)
+        #expect(coordinator.state == .synced)
+    }
+
     @Test("Sync activity callbacks not double called on error")
     @MainActor
     func syncActivityCallbacksNotDoubleCalledOnError() async throws {
@@ -139,13 +194,13 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         let endedTracker = CallTracker()
 
         await coordinator.setSyncActivityCallbacks(
             onStarted: { },
-            onEnded: { endedTracker.markCalled() },
+            onEnded: { _ in endedTracker.markCalled() },
             onPhaseChanged: { _ in }
         )
 
@@ -154,7 +209,7 @@ struct SyncCoordinatorTests {
 
         do {
             try await coordinator.performFullSync(
-                deviceID: testDeviceID,
+                radioID: testDeviceID,
                 dataStore: dataStore,
                 contactService: mockContactService,
                 channelService: mockChannelService,
@@ -176,11 +231,11 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let orderTracker = OrderTrackingMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         await coordinator.setSyncActivityCallbacks(
             onStarted: { },
-            onEnded: {
+            onEnded: { _ in
                 // Record when activity ended
                 await orderTracker.recordActivityEnded()
             },
@@ -188,14 +243,14 @@ struct SyncCoordinatorTests {
         )
 
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: mockContactService,
             channelService: mockChannelService,
             messagePollingService: orderTracker
         )
 
-        // Verify that activity ended BEFORE message polling started
+        // Verify that activity ended before message polling started
         let activityEndedBeforeMessages = await orderTracker.activityEndedBeforeMessagePoll
         #expect(activityEndedBeforeMessages, "Activity should end before message polling starts")
     }
@@ -246,7 +301,7 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         // Create a test ServiceContainer
         let mockTransport = SimulatorMockTransport()
@@ -258,14 +313,14 @@ struct SyncCoordinatorTests {
 
         await coordinator.setSyncActivityCallbacks(
             onStarted: { startedTracker.markCalled() },
-            onEnded: { endedTracker.markCalled() },
+            onEnded: { _ in endedTracker.markCalled() },
             onPhaseChanged: { _ in }
         )
 
         // Start sync in background task - it will block during contacts phase
         let syncTask = Task {
             try await coordinator.performFullSync(
-                deviceID: testDeviceID,
+                radioID: testDeviceID,
                 dataStore: dataStore,
                 contactService: delayingContactService,
                 channelService: mockChannelService,
@@ -299,10 +354,10 @@ struct SyncCoordinatorTests {
         let mockMessagePollingService = MockMessagePollingService()
         let mockAppStateProvider = MockAppStateProvider(isInForeground: false)
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: mockContactService,
             channelService: mockChannelService,
@@ -328,10 +383,10 @@ struct SyncCoordinatorTests {
         let mockMessagePollingService = MockMessagePollingService()
         let mockAppStateProvider = MockAppStateProvider(isInForeground: true)
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: mockContactService,
             channelService: mockChannelService,
@@ -348,6 +403,55 @@ struct SyncCoordinatorTests {
         #expect(contactInvocations.count == 1, "Contact sync should run in foreground")
     }
 
+    @Test("performFullSync forwards the pipelined-read flag from config into channel sync")
+    @MainActor
+    func performFullSyncForwardsPipelinedReadFlag() async throws {
+        let coordinator = SyncCoordinator()
+        let mockContactService = MockContactService()
+        let mockChannelService = MockChannelService()
+        let mockMessagePollingService = MockMessagePollingService()
+        let testDeviceID = UUID()
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
+
+        try await coordinator.performFullSync(
+            radioID: testDeviceID,
+            dataStore: dataStore,
+            contactService: mockContactService,
+            channelService: mockChannelService,
+            messagePollingService: mockMessagePollingService,
+            appStateProvider: nil,
+            channelSyncConfig: ChannelSyncConfig(usePipelinedChannelRead: true)
+        )
+
+        let channelInvocations = await mockChannelService.syncChannelsInvocations
+        #expect(channelInvocations.count == 1)
+        #expect(channelInvocations.last?.usePipelinedRead == true, "Config flag should reach channel sync")
+    }
+
+    @Test("performFullSync defaults channel sync to the serial read path")
+    @MainActor
+    func performFullSyncDefaultsToSerialRead() async throws {
+        let coordinator = SyncCoordinator()
+        let mockContactService = MockContactService()
+        let mockChannelService = MockChannelService()
+        let mockMessagePollingService = MockMessagePollingService()
+        let testDeviceID = UUID()
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
+
+        try await coordinator.performFullSync(
+            radioID: testDeviceID,
+            dataStore: dataStore,
+            contactService: mockContactService,
+            channelService: mockChannelService,
+            messagePollingService: mockMessagePollingService,
+            appStateProvider: nil
+        )
+
+        let channelInvocations = await mockChannelService.syncChannelsInvocations
+        #expect(channelInvocations.count == 1)
+        #expect(channelInvocations.last?.usePipelinedRead == false, "Default config should use the serial path")
+    }
+
     @Test("Nil appStateProvider defaults to foreground behavior")
     @MainActor
     func nilAppStateProviderDefaultsToForeground() async throws {
@@ -356,10 +460,10 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: mockContactService,
             channelService: mockChannelService,
@@ -384,20 +488,20 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         let startedTracker = CallTracker()
 
         await coordinator.setSyncActivityCallbacks(
             onStarted: { startedTracker.markCalled() },
-            onEnded: { },
+            onEnded: { _ in },
             onPhaseChanged: { _ in }
         )
 
         // Start first sync in background - it will block during contacts phase
         let firstSyncTask = Task {
             try await coordinator.performFullSync(
-                deviceID: testDeviceID,
+                radioID: testDeviceID,
                 dataStore: dataStore,
                 contactService: delayingContactService,
                 channelService: mockChannelService,
@@ -412,7 +516,7 @@ struct SyncCoordinatorTests {
 
         // Try to start a second sync while first is still running
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: delayingContactService,
             channelService: mockChannelService,
@@ -435,19 +539,19 @@ struct SyncCoordinatorTests {
         let delayingChannelService = DelayingChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         let endedTracker = CallTracker()
 
         await coordinator.setSyncActivityCallbacks(
             onStarted: { },
-            onEnded: { endedTracker.markCalled() },
+            onEnded: { _ in endedTracker.markCalled() },
             onPhaseChanged: { _ in }
         )
 
         let syncTask = Task {
             try await coordinator.performFullSync(
-                deviceID: testDeviceID,
+                radioID: testDeviceID,
                 dataStore: dataStore,
                 contactService: mockContactService,
                 channelService: delayingChannelService,
@@ -479,7 +583,7 @@ struct SyncCoordinatorTests {
         let mockChannelService = MockChannelService()
         let mockMessagePollingService = MockMessagePollingService()
         let testDeviceID = UUID()
-        let dataStore = try await createTestDataStore(deviceID: testDeviceID)
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
 
         let mockTransport = SimulatorMockTransport()
         let session = MeshCoreSession(transport: mockTransport)
@@ -490,7 +594,7 @@ struct SyncCoordinatorTests {
         #expect(services.notificationService.isSuppressingNotifications == true)
 
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: mockContactService,
             channelService: mockChannelService,
@@ -514,12 +618,12 @@ struct SyncCoordinatorTests {
         // Create device with a lastContactSync timestamp
         let lastSyncTimestamp: UInt32 = 1704067200 // 2024-01-01 00:00:00 UTC
         let dataStore = try await createTestDataStore(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             lastContactSync: lastSyncTimestamp
         )
 
         try await coordinator.performFullSync(
-            deviceID: testDeviceID,
+            radioID: testDeviceID,
             dataStore: dataStore,
             contactService: mockContactService,
             channelService: mockChannelService,
@@ -538,9 +642,150 @@ struct SyncCoordinatorTests {
         let actualSince = try #require(since, "Should pass lastContactSync as since parameter")
         #expect(actualSince == expectedDate, "Since date should match device lastContactSync")
     }
+    // MARK: - Succeeded Parameter Tests
+
+    @Test("Successful sync passes succeeded: true to onEnded callback")
+    @MainActor
+    func syncActivityEndedWithSuccessPassesTrue() async throws {
+        let coordinator = SyncCoordinator()
+        let mockContactService = MockContactService()
+        let mockChannelService = MockChannelService()
+        let mockMessagePollingService = MockMessagePollingService()
+        let testDeviceID = UUID()
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
+
+        let succeededValues = ValueTracker<Bool>()
+
+        await coordinator.setSyncActivityCallbacks(
+            onStarted: { },
+            onEnded: { succeeded in succeededValues.record(succeeded) },
+            onPhaseChanged: { _ in }
+        )
+
+        try await coordinator.performFullSync(
+            radioID: testDeviceID,
+            dataStore: dataStore,
+            contactService: mockContactService,
+            channelService: mockChannelService,
+            messagePollingService: mockMessagePollingService
+        )
+
+        #expect(succeededValues.values == [true], "Successful sync should pass succeeded: true")
+    }
+
+    @Test("Failed sync passes succeeded: false to onEnded callback")
+    @MainActor
+    func syncActivityEndedWithFailurePassesFalse() async throws {
+        let coordinator = SyncCoordinator()
+        let mockContactService = MockContactService()
+        let mockChannelService = MockChannelService()
+        let mockMessagePollingService = MockMessagePollingService()
+        let testDeviceID = UUID()
+        let dataStore = try await createTestDataStore(radioID: testDeviceID)
+
+        let succeededValues = ValueTracker<Bool>()
+
+        await coordinator.setSyncActivityCallbacks(
+            onStarted: { },
+            onEnded: { succeeded in succeededValues.record(succeeded) },
+            onPhaseChanged: { _ in }
+        )
+
+        await mockContactService.setStubbedSyncContactsResult(.failure(SyncCoordinatorError.syncFailed("Test error")))
+
+        do {
+            try await coordinator.performFullSync(
+                radioID: testDeviceID,
+                dataStore: dataStore,
+                contactService: mockContactService,
+                channelService: mockChannelService,
+                messagePollingService: mockMessagePollingService
+            )
+            Issue.record("Should have thrown error")
+        } catch {
+            // Expected
+        }
+
+        #expect(succeededValues.values == [false], "Failed sync should pass succeeded: false")
+    }
+
+    // MARK: - Resync Activity Bracket Tests
+
+    @Test("beginResyncActivity and endResyncActivity fire the correct callbacks")
+    @MainActor
+    func resyncActivityBracketCallsStartedAndEnded() async {
+        let coordinator = SyncCoordinator()
+
+        let startedTracker = CallTracker()
+        let succeededValues = ValueTracker<Bool>()
+
+        await coordinator.setSyncActivityCallbacks(
+            onStarted: { startedTracker.markCalled() },
+            onEnded: { succeeded in succeededValues.record(succeeded) },
+            onPhaseChanged: { _ in }
+        )
+
+        await coordinator.beginResyncActivity()
+        #expect(startedTracker.callCount == 1, "beginResyncActivity should fire onStarted")
+
+        await coordinator.endResyncActivity(succeeded: true)
+        #expect(succeededValues.values == [true], "endResyncActivity(succeeded: true) should pass true")
+
+        // Call again with false to verify the value is forwarded
+        await coordinator.beginResyncActivity()
+        await coordinator.endResyncActivity(succeeded: false)
+        #expect(succeededValues.values == [true, false], "endResyncActivity(succeeded: false) should pass false")
+    }
+
+    @Test("Disconnect during resync does not double-end the resync bracket")
+    @MainActor
+    func disconnectDuringResyncDoesNotInterfereWithResyncBracket() async throws {
+        let coordinator = SyncCoordinator()
+
+        let mockTransport = SimulatorMockTransport()
+        let session = MeshCoreSession(transport: mockTransport)
+        let services = try await ServiceContainer.forTesting(session: session)
+
+        let succeededValues = ValueTracker<Bool>()
+
+        await coordinator.setSyncActivityCallbacks(
+            onStarted: { },
+            onEnded: { succeeded in succeededValues.record(succeeded) },
+            onPhaseChanged: { _ in }
+        )
+
+        // Simulate resync bracket open
+        await coordinator.beginResyncActivity()
+
+        // Disconnect while resync bracket is open
+        await coordinator.onDisconnected(services: services)
+
+        // onDisconnected calls endSyncActivityOnce, which is for the initial sync bracket,
+        // not the resync bracket. Since no initial sync was started, hasEndedSyncActivity
+        // is already true and endSyncActivityOnce should be a no-op.
+        #expect(succeededValues.values.isEmpty, "onDisconnected should not end the resync bracket")
+    }
 }
 
 // MARK: - Test Helpers
+
+/// Thread-safe value recorder for verifying callback arguments in tests.
+final class ValueTracker<T: Sendable>: @unchecked Sendable {
+    private var _values: [T] = []
+    private let lock = NSLock()
+
+    var values: [T] {
+        lock.lock()
+        defer { lock.unlock() }
+        return _values
+    }
+
+    func record(_ value: T) {
+        lock.lock()
+        defer { lock.unlock() }
+        _values.append(value)
+    }
+}
 
 /// Actor to safely track callback invocations from concurrent closures
 /// Mock that tracks the order of activity ended callback vs message polling
@@ -590,7 +835,7 @@ actor DelayingContactService: ContactServiceProtocol {
         continuation = nil
     }
 
-    func syncContacts(deviceID: UUID, since: Date?) async throws -> ContactSyncResult {
+    func syncContacts(radioID: UUID, since: Date?) async throws -> ContactSyncResult {
         // Signal that sync has started, then wait to be resumed
         await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
             Task {
@@ -615,7 +860,7 @@ actor DelayingChannelService: ChannelServiceProtocol {
         }
     }
 
-    func syncChannels(deviceID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
+    func syncChannels(radioID: UUID, maxChannels: UInt8, usePipelinedRead: Bool) async throws -> ChannelSyncResult {
         hasStarted = true
         while !startWaiters.isEmpty {
             startWaiters.removeFirst().resume()
@@ -627,7 +872,7 @@ actor DelayingChannelService: ChannelServiceProtocol {
         }
     }
 
-    func retryFailedChannels(deviceID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult {
+    func retryFailedChannels(radioID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult {
         ChannelSyncResult(channelsSynced: 0, errors: [])
     }
 }

@@ -11,6 +11,24 @@ enum PinSpriteRenderer {
 
     private static var cachedImages: [String: UIImage]?
 
+    /// Single cached dropped-pin sprite for the chat map thumbnail. Distinct from
+    /// `cachedImages`, which is only populated after the Map tab loads its GL
+    /// style; the chat snapshot path never loads that style.
+    private static var cachedDroppedPin: UIImage?
+
+    /// The dropped-pin sprite (systemPink circle + `mappin`), rendered once and
+    /// reused. Coordinate-independent, so the chat thumbnail composites the exact
+    /// pin the Map tab drops. Must be called on the main actor.
+    static func droppedPinSprite() -> UIImage {
+        if let cached = cachedDroppedPin { return cached }
+        guard let spec = allSpecs.first(where: { $0.name == "pin-dropped" }) else {
+            return UIImage()
+        }
+        let image = render(spec)
+        cachedDroppedPin = image
+        return image
+    }
+
     /// Registers base pin sprites into the style. Hop-ring variants are rendered
     /// lazily via `renderOnDemand(name:into:)` when MapLibre requests a missing image.
     static func renderAll(into style: MLNStyle) {
@@ -107,6 +125,10 @@ enum PinSpriteRenderer {
         // LOS obstruction marker
         SpriteSpec(name: "pin-obstruction", circleColor: .systemRed,
                    iconName: nil, text: nil, ringColor: nil, renderStyle: .obstruction),
+
+        // Chat-dropped coordinate pin
+        SpriteSpec(name: "pin-dropped", circleColor: .systemPink,
+                   iconName: "mappin", text: nil, ringColor: nil, renderStyle: .standard),
     ]
 
     // MARK: - Rendering
@@ -131,11 +153,13 @@ enum PinSpriteRenderer {
             let cgContext = ctx.cgContext
             let centerX = totalWidth / 2
 
-            // Selection ring
+            // Selection ring, centered on the circle head so it encircles the
+            // round portion rather than the triangle tail.
             if let ringColor = spec.ringColor {
+                let circleCenterY = ringPadding + circleSize / 2
                 let ringRect = CGRect(
                     x: centerX - ringSize / 2,
-                    y: ringPadding,
+                    y: circleCenterY - ringSize / 2,
                     width: ringSize,
                     height: ringSize
                 )

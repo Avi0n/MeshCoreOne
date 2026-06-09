@@ -349,7 +349,19 @@
 "pathHashMode.threeBytes" = "3 байти";
 
 /* Footer explaining path hash mode tradeoff */
-"pathHashMode.footer" = "Більші хеші зменшують колізії маршрутизації, але обмежують максимальну кількість переходів на шляху.";
+"pathHashMode.footer" = "Більші хеші зменшують колізії маршрутизації, але обмежують максимальну кількість переходів на шляху. Ретранслятори з прошивкою старшою за 1.14.0 не будуть повторювати повідомлення з розміром хешу більше 1 байта.";
+
+
+// MARK: - Default Flood Scope Section
+
+/* Section header for default flood scope picker */
+"defaultFloodScope.header" = "Область flood за замовчуванням";
+
+/* Footer explaining default flood scope */
+"defaultFloodScope.footer" = "Коли задано, пристрій застосовує цю область до flood-надсилань, якщо її не перевизначить область, прив'язана до каналу. Область зберігається на пристрої та не втрачається після перезавантаження.";
+
+/* Option to clear the persisted default flood scope */
+"defaultFloodScope.disabled" = "Немає";
 
 
 // MARK: - Battery Curve Section
@@ -379,7 +391,7 @@
 "batteryCurve.editValues" = "Редагувати значення";
 
 /* Validation error for value out of range - %d is the percentage level */
-"batteryCurve.validation.outOfRange" = "Значення при %d%% має бути 1000-5000 мВ";
+"batteryCurve.validation.outOfRange" = "Значення при %d%% має бути 1000-9000 мВ";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "Значення повинні бути в порядку спадання";
@@ -538,10 +550,10 @@
 "nodes.staleCleanup.days" = "%d дн.";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "Необрані вузли, від яких не було сигналу %d дн., автоматично видаляються при підключенні.";
+"nodes.staleCleanup.footerEnabled" = "Необрані вузли, які не оновлювалися %d дн., автоматично видаляються при підключенні.";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "Автоматично видаляє необрані вузли, від яких не було сигналу після встановленого періоду. Обрані ніколи не видаляються.";
+"nodes.staleCleanup.footerDisabled" = "Автоматично видаляє необрані вузли, які не оновлювалися протягом встановленого періоду. Обрані ніколи не видаляються.";
 
 /* Footer when toggle is on but no threshold selected yet */
 "nodes.staleCleanup.footerSelect" = "Оберіть, як довго зберігати вузли. Обрані ніколи не видаляються.";
@@ -591,14 +603,17 @@
 /* Footer explaining factory reset */
 "dangerZone.footer" = "Скидання до заводських налаштувань видаляє всі контакти, повідомлення та налаштування на пристрої.";
 
-/* Alert title for forget device confirmation */
-"dangerZone.alert.forget.title" = "Забути пристрій";
+/* Confirmation dialog title for forget device */
+"dangerZone.dialog.forget.title" = "Забути пристрій";
 
-/* Button to confirm forget */
-"dangerZone.alert.forget.confirm" = "Забути";
+/* Confirmation dialog message for forget device */
+"dangerZone.dialog.forget.message" = "Ваш пристрій буде роз'єднано. Ви можете зберегти або видалити свої повідомлення, контакти та канали.";
 
-/* Alert message for forget device */
-"dangerZone.alert.forget.message" = "Це видалить пристрій зі списку сполучених. Ви можете сполучити його знову пізніше.";
+/* Button to forget device but keep data */
+"dangerZone.dialog.forget.keepData" = "Забути пристрій";
+
+/* Button to forget device and delete all associated data */
+"dangerZone.dialog.forget.deleteAll" = "Забути пристрій і видалити дані";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "Скидання до заводських налаштувань";
@@ -741,6 +756,15 @@
 /* Toggle label for new contact discovered notifications */
 "notifications.newContactDiscovered" = "Виявлено новий контакт";
 
+/* Toggle label for companion discovery notifications */
+"notifications.discoveryContact" = "Companion";
+
+/* Toggle label for repeater discovery notifications */
+"notifications.discoveryRepeater" = "Repeater";
+
+/* Toggle label for room discovery notifications */
+"notifications.discoveryRoom" = "Room";
+
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Попередження про низький заряд";
 
@@ -791,6 +815,12 @@
 
 /* Confirmation dialog enable button */
 "radio.repeatMode.confirm.enable" = "Увімкнути";
+
+/* Location: RadioPresetSection.swift - Footer line listing the user's region */
+"radio.regionFooter" = "Відображення рекомендованих пресетів для %@.";
+
+/* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
+"radio.mismatchHint" = "Ваше радіо використовує %@, а не рекомендований пресет для %@.";
 
 
 // MARK: - Telemetry Settings Section
@@ -918,17 +948,35 @@
 
 // MARK: - Messages Settings Section
 
-/* Section header for Messages settings */
-"messages.header" = "Повідомлення";
+/* Section header for message info settings in chats */
+"messages.header" = "Інфо повідомлення";
+
+/* Toggle label for showing the raw uncorrected wire send time on incoming messages */
+"messages.showIncomingSendTime" = "Вхідний час надсилання";
 
 /* Toggle label for showing routing path on incoming messages */
-"messages.showIncomingPath" = "Показувати вхідний шлях";
+"messages.showIncomingPath" = "Вхідний шлях";
 
 /* Toggle label for showing hop count on incoming messages */
-"messages.showIncomingHopCount" = "Показувати вхідну кількість переходів";
+"messages.showIncomingHopCount" = "Вхідна кількість переходів";
+
+/* Toggle label for showing the radio region an incoming message was flooded under */
+"messages.showIncomingRegion" = "Вхідний регіон";
 
 /* Footer explaining what the message display options show */
-"messages.footer" = "Показувати інформацію про маршрутизацію у вхідних повідомленнях.";
+"messages.footer" = "Показувати інформацію про маршрутизацію та час у вхідних повідомленнях.";
+
+
+// MARK: - Direct Messages Settings Section
+
+/* Section header for direct message settings */
+"directMessages.header" = "Особисті повідомлення";
+
+/* Picker label for number of acknowledgments */
+"directMessages.acknowledgments" = "Acknowledgments";
+
+/* Footer explaining the acknowledgments setting */
+"directMessages.footer" = "Кількість підтверджень, що надсилаються на кожне особисте повідомлення. Використовуйте 2 для кращого підтвердження доставки через ненадійні з'єднання.";
 
 
 // MARK: - BLE Status Indicator
@@ -953,6 +1001,9 @@
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Підключено";
+
+/* Status shown when device is syncing data */
+"bleStatus.status.syncing" = "Синхронізація";
 
 /* Status shown when device is ready */
 "bleStatus.status.ready" = "Готово";
@@ -1099,6 +1150,12 @@
 /* Import cancelled */
 "configImport.cancelled" = "Імпорт було скасовано.";
 
+/* Import cancelled after one or more settings were already written to the device */
+"configImport.cancelledPartial" = "Імпорт скасовано, але деякі налаштування вже було записано на пристрій. Перевірте конфігурацію пристрою.";
+
+/* Import failed after one or more settings were already written; %@ is the underlying error message */
+"configImport.failedPartial" = "%@ Деякі налаштування, можливо, вже було записано на пристрій. Перевірте конфігурацію пристрою.";
+
 /* Import success */
 "configImport.importSuccess" = "Конфігурацію успішно імпортовано";
 
@@ -1120,6 +1177,69 @@
 /* Contact count (param: integer) */
 "configImport.contactCount" = "Буде додано/оновлено %d контактів на пристрої";
 
+/* Generic device-name fallback used in confirmation messages when the node has no name */
+"configImport.thisDevice" = "цей пристрій";
+
+/* Import progress: applying position */
+"configImport.stepPosition" = "Встановлення місцезнаходження";
+
+/* Import progress: applying other parameters */
+"configImport.stepOtherParameters" = "Встановлення інших параметрів";
+
+/* Import progress: importing the private key */
+"configImport.stepPrivateKey" = "Імпортування закритого ключа";
+
+/* Import progress: setting the node name */
+"configImport.stepNodeName" = "Встановлення імені вузла";
+
+/* Import progress: applying radio parameters */
+"configImport.stepRadioParameters" = "Встановлення параметрів радіо";
+
+/* Import progress: setting TX power */
+"configImport.stepTxPower" = "Встановлення потужності TX";
+
+/* Import progress: importing a channel (param: channel name) */
+"configImport.stepChannel" = "Імпортування каналу: %@";
+
+/* Import progress: importing a contact (param: contact name) */
+"configImport.stepContact" = "Імпортування контакту: %@";
+
+/* Validation field label: radio frequency */
+"configImport.field.frequency" = "Частота";
+
+/* Validation field label: radio bandwidth */
+"configImport.field.bandwidth" = "Смуга пропускання";
+
+/* Validation field label: spreading factor */
+"configImport.field.spreadingFactor" = "Коефіцієнт розширення";
+
+/* Validation field label: coding rate */
+"configImport.field.codingRate" = "Швидкість кодування";
+
+/* Validation field label: TX power */
+"configImport.field.txPower" = "Потужність TX";
+
+/* Validation field label: latitude */
+"configImport.field.latitude" = "Широта";
+
+/* Validation field label: longitude */
+"configImport.field.longitude" = "Довгота";
+
+/* Validation error: value outside radio's supported range (param: field label) */
+"configImport.error.radioOutOfRange" = "%@ поза підтримуваним діапазоном радіо";
+
+/* Validation error: invalid coordinate (param: field label) */
+"configImport.error.positionInvalid" = "%@ має некоректну координату або координату поза межами діапазону";
+
+/* Validation error: contact coordinate invalid (params: contact name, field label) */
+"configImport.error.contactCoordinateInvalid" = "Контакт \"%@\" %@ має некоректну координату або координату поза межами діапазону";
+
+/* Validation error: contact has an invalid routing path (param: contact name) */
+"configImport.error.invalidOutPath" = "Контакт \"%@\" має некоректний маршрут";
+
+/* Validation error: not enough free contact slots (params: needed count, available count) */
+"configImport.error.contactCapacityExceeded" = "Для імпорту потрібно %d вільних слотів контактів, але на пристрої залишилося лише %d";
+
 /* Toggle label for inline images */
 "inlineImages.toggle" = "Вбудовані зображення";
 
@@ -1128,6 +1248,20 @@
 
 /* Footer explaining inline image privacy implications */
 "inlineImages.footer" = "Завантаження зображень за URL-адресами може розкрити вашу IP-адресу серверу, який розміщує зображення.";
+
+// MARK: - Map Preview Settings Section
+
+/* Section header for chat map preview settings */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.header" = "Попередній перегляд карти";
+
+/* Toggle label for chat map thumbnails */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.toggle" = "Показувати мініатюри карти";
+
+/* Footer explaining map preview privacy implications */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.footer" = "Відображення мініатюр карти завантажує плитки для координати зі стороннього сервера, що може розкрити вашу IP-адресу.";
 
 // MARK: - Blocking Section
 
@@ -1159,6 +1293,25 @@
 "language.title" = "Мова";
 
 
+// MARK: - Region
+
+/* Location: RegionSettingsView.swift - Title */
+"region.title" = "Регіон";
+
+/* Location: SettingsView.swift - Detail row when region is unset */
+"region.notSet" = "Не задано";
+
+/* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
+"region.subdivision.US-CA" = "Каліфорнія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
+"region.subdivision.AU-QLD" = "Квінсленд";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name */
+"region.subdivision.AU-SA" = "Південна Австралія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
+"region.subdivision.AU-WA" = "Західна Австралія";
 
 // MARK: - Live Activity
 
@@ -1170,7 +1323,6 @@
 
 /* Message for the Live Activity tip */
 "liveActivity.tip.message" = "Ваше з'єднання, батарея та повідомлення залишаються видимими — навіть без відкриття застосунку.";
-
 
 // MARK: - Regenerate Identity
 
@@ -1231,7 +1383,6 @@
 /* Error when device rejects the key */
 "regenerateIdentity.error.deviceRejected" = "Пристрій відхилив ключ. Будь ласка, спробуйте ще раз.";
 
-
 // MARK: - Import Key
 
 /* Button label to open import key sheet */
@@ -1262,8 +1413,8 @@
 "importKey.error.invalidKey" = "Недійсний закритий ключ Ed25519";
 
 // Reply with Quote
-"replyWithQuote.toggle" = "Reply with Quote";
-"replyWithQuote.footer" = "Replying includes a preview of the original message.";
+"replyWithQuote.toggle" = "Відповідати з цитатою";
+"replyWithQuote.footer" = "Відповідь включає попередній перегляд оригінального повідомлення.";
 
 // MARK: - Offline Maps
 
@@ -1278,7 +1429,6 @@
 
 /* Button to download a new offline region */
 "offlineMaps.downloadRegion" = "Завантажити регіон";
-
 
 /* Section header for storage info */
 "offlineMaps.storage" = "Сховище";
@@ -1358,3 +1508,272 @@
 
 /* Storage section footer */
 "offlineMaps.storageFooter" = "Включає дані карти та внутрішні індекси. Загальний обсяг може перевищувати суму окремих завантажень.";
+
+// MARK: - Backup & Restore
+
+/* Navigation title for backup & restore screen */
+"settings.backup.title" = "Резервне копіювання";
+
+/* Section header for file backup */
+"settings.backup.file_backup.header" = "Резервна копія";
+
+/* Section footer for file backup */
+"settings.backup.file_backup.footer" = "Експортуйте або відновіть повідомлення, контакти, канали, збережені маршрути та налаштування. Конфігурація радіо зчитуєт��ся з пристрою при кожному з'єднанні.";
+
+/* Export row title */
+"settings.backup.export.title" = "Експорт даних застосунку";
+
+/* Export row subtitle */
+"settings.backup.export.subtitle" = "Зберегти як файл .mc1backup";
+
+/* Import row title */
+"settings.backup.import.title" = "Імпорт даних застосунку";
+
+/* Import row subtitle */
+"settings.backup.import.subtitle" = "Відновити з файлу .mc1backup";
+
+/* Footer shown above the backup section when a radio is connected, explaining why import is disabled */
+"settings.backup.import.disabled_when_connected" = "Відключіться від радіо перед імпортом резервної копії.";
+
+/* Export confirmation alert title */
+"settings.backup.export.alert.title" = "Попередження про безпеку";
+
+/* Export confirmation alert message */
+"settings.backup.export.alert.message" = "Ця резервна копія містить ключі шифрування каналів, історію повідомлень, список контактів, а також локальну мережеву адресу та порт вузла Wi-Fi. Зберігайте експортований файл у безпечному місці.";
+
+/* Export confirmation alert export button */
+"settings.backup.export.alert.export" = "Експортувати";
+
+/* Export confirmation alert cancel button */
+"settings.backup.export.alert.cancel" = "Скасувати";
+
+/* Export progress label */
+"settings.backup.export.progress" = "Підготовка резервної копії…";
+
+/* Import preview navigation title */
+"settings.backup.import.preview.title" = "Попередній перегляд імпорту";
+
+/* Import preview section header: backup details */
+"settings.backup.import.preview.details" = "Відомості про копію";
+
+/* Import preview label: export date */
+"settings.backup.import.preview.exported" = "Дата експорту";
+
+/* Import preview label: app version */
+"settings.backup.import.preview.app_version" = "Версія застосунку";
+
+/* Import preview section header: contents */
+"settings.backup.import.preview.contents" = "Вміст";
+
+/* Import preview manifest label: messages */
+"settings.backup.import.preview.messages" = "Повідомлення";
+
+/* Import preview manifest label: contacts */
+"settings.backup.import.preview.contacts" = "Контакти";
+
+/* Import preview manifest label: channels */
+"settings.backup.import.preview.channels" = "Канали";
+
+/* Import preview manifest label: devices */
+"settings.backup.import.preview.devices" = "Пристрої";
+
+/* Import preview manifest label: room messages */
+"settings.backup.import.preview.room_messages" = "Повідомлення кімнат";
+
+/* Import preview manifest label: reactions */
+"settings.backup.import.preview.reactions" = "Реакції";
+
+/* Import preview manifest label: saved paths */
+"settings.backup.import.preview.saved_paths" = "Збережені маршрути";
+
+/* Import preview manifest label: remote node sessions */
+"settings.backup.import.preview.remote_node_sessions" = "Сеанси віддалених вузлів";
+
+/* Import preview info text */
+"settings.backup.import.preview.info" = "Додаються лише нові дані; наявні записи не перезаписуються. Контакти, видалені після створення цієї резервної копії, з'являться знову, а позначки блокування, приглушення або обраного з копії будуть застосовані повторно.";
+
+/* Import preview import button */
+"settings.backup.import.preview.button" = "Імпортувати дані";
+
+/* Import progress label */
+"settings.backup.import.progress" = "Імпорт даних…";
+/* Import parsing label */
+"settings.backup.import.parsing" = "Читання резервної копії…";
+/* Import cancelling label shown after the user taps Cancel during an active import */
+"settings.backup.import.cancelling" = "Скасування…";
+/* Import preview cancel / dismiss toolbar button */
+"settings.backup.import.preview.cancel" = "Скасувати";
+
+/* Import success title */
+"settings.backup.import.success.title" = "Імпорт завершено";
+
+/* Import success section header: items that were newly added to this device */
+"settings.backup.import.success.added_section" = "Додано на цей пристрій";
+
+/* Import success section header: items in the backup that were already on this device */
+"settings.backup.import.success.already_here_section" = "Уже на цьому пристрої";
+
+/* Import success section footer: always visible under the "Already on this iPhone" section */
+"settings.backup.import.success.already_here_footer" = "Наявні дані на цьому пристрої збережено без змін; нічого не було перезаписано.";
+
+/* Import success hero subtitle when new items were added (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_added" = "Додано %d елементів.";
+
+/* Import success hero subtitle when only existing items were refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_refreshed" = "Оновлено %d наявних елементів.";
+
+/* Import success disclosure row summary for the "Already on this iPhone" section (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_summary" = "%d елементів уже тут";
+
+/* Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_refreshed" = "%d з них було оновлено новими даними з резервної копії.";
+
+/* Import success section header: channels that had no free local slot and couldn't be restored */
+"settings.backup.import.success.dropped_section" = "Не вдалося відновити";
+
+/* Import success disclosure row summary for the "Couldn't be restored" section */
+"settings.backup.import.success.dropped_summary" = "Не вдалося відновити %d елементів";
+
+/* Import success footer explaining why some channels couldn't be restored and how to recover them */
+"settings.backup.import.success.dropped_footer" = "Для цих каналів не було вільного слота на цій рації, тому вони та їхні повідомлення не були імпортовані. Звільніть слот каналу та імпортуйте знову, щоб відновити їх.";
+
+/* Import success done button */
+"settings.backup.import.success.done" = "Готово";
+
+/* Import failure title */
+"settings.backup.import.error.title" = "Помилка імпорту";
+
+/* Import error dismiss button */
+"settings.backup.import.error.dismiss" = "Закрити";
+
+/* Import cancelled title shown after user cancels an import before it commits */
+"settings.backup.import.cancelled.title" = "Імпорт скасовано";
+
+/* Import cancelled message — rollback ran and nothing on device was changed */
+"settings.backup.import.cancelled.message" = "Дані не було змінено.";
+
+/* File access error */
+"settings.backup.import.file_access_error" = "Не вдалося отримати доступ до вибраного файлу.";
+
+/* Import preview manifest label: blocked senders */
+"settings.backup.import.preview.blocked_senders" = "Заблоковані відправники";
+
+/* Import preview manifest label: node status snapshots */
+"settings.backup.import.preview.node_status_snapshots" = "Знімки стану вузлів";
+
+/* Import preview manifest label: message repeats */
+"settings.backup.import.preview.message_repeats" = "Повтори повідомлень";
+
+/* Import header title when the backup had nothing new to add (every record was skipped) */
+"settings.backup.import.nothing_to_import.title" = "Усе вже тут";
+
+/* Import subtitle when the backup had nothing new to add */
+"settings.backup.import.nothing_to_import.subtitle" = "Вміст цієї резервної копії вже є на цьому пристрої.";
+
+/* Default filename for an exported backup; %@ is an ISO-style timestamp */
+"settings.backup.export.default_filename" = "Резервна копія MC1 %@.mc1backup";
+
+/* Backup error: file is corrupt or unreadable */
+"settings.backup.error.invalid_file" = "Файл резервної копії недійсний або не може бути прочитаний.";
+
+/* Backup error: file exceeds parser size cap; %1$d actual MB, %2$d max MB */
+"settings.backup.error.file_too_large" = "Файл резервної копії завеликий для імпорту (%1$d МБ; ліміт — %2$d МБ).";
+
+/* Backup error: decompressed size exceeds safety cap; %d is max MB uncompressed */
+"settings.backup.error.decompressed_too_large" = "Після розпакування файл резервної копії перевищує безпечний ліміт розміру (%d МБ без стиснення).";
+
+/* Backup error: file version too new; %1$d found, %2$d max supported */
+"settings.backup.error.unsupported_version" = "Цю резервну копію створено в новішому форматі (версія %1$d). Цей застосунок підтримує до версії %2$d. Оновіть застосунок і спробуйте знову.";
+
+/* Backup error: manifest counts do not match arrays */
+"settings.backup.error.corrupted_manifest" = "Файл резервної копії пошкоджено. Заявлена кількість записів не збігається з фактичними даними.";
+
+/* Backup error: export failed; %@ is underlying error */
+"settings.backup.error.export_failed" = "Не вдалося створити резервну копію: %@";
+
+/* Backup error: import failed; %@ is underlying error */
+"settings.backup.error.import_failed" = "Не вдалося імпортувати резервну копію: %@";
+
+// MARK: - Export success
+
+/* Hero title on the backup export success sheet */
+"settings.backup.export.success.title" = "Резервну копію збережено";
+
+/* Section header listing record counts included in the export */
+"settings.backup.export.success.included_section" = "Вміст резервної копії";
+
+/* Primary button on the export success sheet */
+"settings.backup.export.success.done" = "Готово";
+
+/* VoiceOver announcement when the export success sheet appears; %@ is the filename */
+"settings.backup.export.success.announcement" = "Резервну копію збережено як %@";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "Ви не володієте цією темою.";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "Тему повернено на стандартну.";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "Підтримати розробку";
+"Support.Header.Body" = "Якщо вам подобається MC1, ось кілька способів підтримати його розробку! Усе тут необов’язкове, лише кілька чайових і кілька додаткових тем.";
+"Support.Themes.Title" = "Теми";
+"Support.Themes.Owned" = "Придбано";
+"Support.Themes.PurchasedFooter" = "Застосуйте нову тему в меню Налаштування → Зовнішній вигляд.";
+"Support.Bundle.Title" = "Усі теми";
+"Support.Bundle.Subtitle" = "Включно з темами, доданими пізніше.";
+"Support.Contributions.Title" = "Внески";
+"Support.Contributions.Footer" = "Подяка-чайові на підтримку розробки MC1. Жодних фізичних товарів, жодних переваг членства.";
+"Support.Contributions.HighValueConfirm" = "Надіслати %@?";
+"Support.Contributions.ConfirmButton" = "Зробити внесок %@";
+"Support.Restore.Button" = "Відновити покупки";
+"Support.Restore.Syncing" = "Відновлення…";
+"Support.Refund.Link" = "Запросити повернення коштів";
+"Support.Pending.Banner" = "Очікує схвалення — ваша покупка активується після схвалення.";
+"Support.Pending.Button" = "Очікує схвалення";
+"Support.Contact.Link" = "Звернутися до підтримки";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "Стандартна";
+"Support.Theme.Ember" = "Ember";
+"Support.Theme.Fern" = "Fern";
+"Support.Theme.Marine" = "Marine";
+"Support.Theme.Olive" = "Olive";
+"Support.Theme.Lavender" = "Lavender";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "Не вдалося завантажити товари.";
+"Support.Error.ProductNotFound" = "Товар не знайдено.";
+"Support.Error.PurchaseFailed" = "Не вдалося здійснити покупку: %@";
+"Support.Error.NetworkUnavailable" = "Мережа недоступна.";
+"Support.Error.VerificationFailed" = "Не вдалося підтвердити вашу покупку.";
+"Support.Error.NotEntitled" = "Покупки на цьому пристрої обмежено. Перевірте обмеження вмісту в «Екранному часі».";
+"Support.Error.StorefrontUnavailable" = "Цей товар недоступний у вашому регіоні.";
+"Support.Error.Unsupported" = "Покупки в застосунку не підтримуються на цьому пристрої.";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "Тема %@, заблоковано";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "Тема %@, придбано";
+"Support.Accessibility.BundleCard.LockedLabel" = "Набір «Усі теми», заблоковано, %@";
+"Support.Accessibility.BundleCard.LockedHint" = "Купує набір «Усі теми»";
+"Support.Accessibility.BundleCard.LoadingLabel" = "Набір «Усі теми», завантаження ціни";
+"Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
+"Support.Accessibility.ContributionRow.Hint" = "Надсилає подяку-чайові";
+"Support.Accessibility.TipConfirmAnnouncement" = "Дякуємо за ваші чайові.";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "Зовнішній вигляд";
+"Appearance.Scheme.Header" = "Світлий/темний режим";
+"Appearance.Scheme.System" = "Системна";
+"Appearance.Scheme.Light" = "Світла";
+"Appearance.Scheme.Dark" = "Темна";
+"Appearance.Themes.Header" = "Виберіть тему";
+"Appearance.Themes.Selected" = "Вибрано";
+"Appearance.MoreThemes.Link" = "Придбати інші теми";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "Тема %@, придбано";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "Застосовує цю тему";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "Тема %@, наразі вибрано";
+"Appearance.Accessibility.Swatch.DualMode" = "%@, світлий і темний варіанти";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@, лише темний";

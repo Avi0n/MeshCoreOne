@@ -16,7 +16,7 @@ struct ChatViewModelConversationTests {
     ) -> ContactDTO {
         ContactDTO(
             id: id,
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(),
             name: name,
             typeRawValue: 0,
@@ -48,6 +48,7 @@ struct ChatViewModelConversationTests {
             makeContact(name: "Bob", isFavorite: false),
             makeContact(name: "Charlie", isFavorite: true)
         ]
+        viewModel.recomputeSnapshot()
 
         let favorites = viewModel.favoriteConversations
 
@@ -65,6 +66,7 @@ struct ChatViewModelConversationTests {
             makeContact(name: "Older", isFavorite: true, lastMessageDate: older),
             makeContact(name: "Newer", isFavorite: true, lastMessageDate: newer)
         ]
+        viewModel.recomputeSnapshot()
 
         let favorites = viewModel.favoriteConversations
 
@@ -80,6 +82,7 @@ struct ChatViewModelConversationTests {
             makeContact(name: "Alice", isFavorite: false),
             makeContact(name: "Bob", isFavorite: false)
         ]
+        viewModel.recomputeSnapshot()
 
         #expect(viewModel.favoriteConversations.isEmpty)
     }
@@ -94,6 +97,7 @@ struct ChatViewModelConversationTests {
             makeContact(name: "Bob", isFavorite: false),
             makeContact(name: "Charlie", isFavorite: false)
         ]
+        viewModel.recomputeSnapshot()
 
         let nonFavorites = viewModel.nonFavoriteConversations
 
@@ -111,6 +115,7 @@ struct ChatViewModelConversationTests {
             makeContact(name: "Older", isFavorite: false, lastMessageDate: older),
             makeContact(name: "Newer", isFavorite: false, lastMessageDate: newer)
         ]
+        viewModel.recomputeSnapshot()
 
         let nonFavorites = viewModel.nonFavoriteConversations
 
@@ -130,6 +135,7 @@ struct ChatViewModelConversationTests {
             makeContact(name: "NonFav", isFavorite: false, lastMessageDate: now),
             makeContact(name: "Fav", isFavorite: true, lastMessageDate: now.addingTimeInterval(-1000))
         ]
+        viewModel.recomputeSnapshot()
 
         let all = viewModel.allConversations
 
@@ -138,13 +144,14 @@ struct ChatViewModelConversationTests {
         #expect(all[1].displayName == "NonFav")
     }
 
-    // MARK: - Cache Invalidation Tests
+    // MARK: - Snapshot Recompute Tests
 
-    @Test("cache invalidates when conversation favorite state changes")
-    func cacheInvalidatesOnFavoriteChange() {
+    @Test("snapshot reflects favorite state changes after recompute")
+    func snapshotReflectsFavoriteChange() {
         let viewModel = ChatViewModel()
         let contact = makeContact(name: "Test", isFavorite: false)
         viewModel.conversations = [contact]
+        viewModel.recomputeSnapshot()
 
         // Initial state
         #expect(viewModel.favoriteConversations.isEmpty)
@@ -154,9 +161,9 @@ struct ChatViewModelConversationTests {
         viewModel.conversations = [
             makeContact(id: contact.id, name: "Test", isFavorite: true)
         ]
-        viewModel.invalidateConversationCache()
+        viewModel.recomputeSnapshot()
 
-        // After invalidation
+        // After recompute
         #expect(viewModel.favoriteConversations.count == 1)
         #expect(viewModel.nonFavoriteConversations.isEmpty)
     }
@@ -169,6 +176,7 @@ struct ChatViewModelConversationTests {
         viewModel.conversations = []
         viewModel.channels = []
         viewModel.roomSessions = []
+        viewModel.recomputeSnapshot()
 
         #expect(viewModel.favoriteConversations.isEmpty)
         #expect(viewModel.nonFavoriteConversations.isEmpty)
@@ -184,10 +192,23 @@ struct ChatViewModelConversationTests {
             makeContact(name: "NoDate", isFavorite: true, lastMessageDate: nil),
             makeContact(name: "HasDate", isFavorite: true, lastMessageDate: withDate)
         ]
+        viewModel.recomputeSnapshot()
 
         let favorites = viewModel.favoriteConversations
 
         #expect(favorites[0].displayName == "HasDate")
         #expect(favorites[1].displayName == "NoDate")
+    }
+
+    // MARK: - errorBannerMessage Tests
+
+    @Test("errorBannerMessage round-trips through setting and clearing")
+    func errorBannerMessageRoundTrip() {
+        let viewModel = ChatViewModel()
+        #expect(viewModel.errorBannerMessage == nil)
+        viewModel.errorBannerMessage = "Test banner"
+        #expect(viewModel.errorBannerMessage == "Test banner")
+        viewModel.errorBannerMessage = nil
+        #expect(viewModel.errorBannerMessage == nil)
     }
 }

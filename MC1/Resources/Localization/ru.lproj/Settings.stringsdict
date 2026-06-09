@@ -50,5 +50,105 @@
             <string>Удалено %1$d из %2$d узла. Соединение было прервано — нажмите кнопку ещё раз, чтобы удалить оставшиеся узлы.</string>
         </dict>
     </dict>
+    <key>settings.backup.import.success.subtitle_added</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Добавлен %d элемент.</string>
+            <key>few</key>
+            <string>Добавлено %d элемента.</string>
+            <key>many</key>
+            <string>Добавлено %d элементов.</string>
+            <key>other</key>
+            <string>Добавлено %d элемента.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.subtitle_refreshed</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Обновлён %d существующий элемент.</string>
+            <key>few</key>
+            <string>Обновлено %d существующих элемента.</string>
+            <key>many</key>
+            <string>Обновлено %d существующих элементов.</string>
+            <key>other</key>
+            <string>Обновлено %d существующих элемента.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.already_here_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d элемент уже здесь</string>
+            <key>few</key>
+            <string>%d элемента уже здесь</string>
+            <key>many</key>
+            <string>%d элементов уже здесь</string>
+            <key>other</key>
+            <string>%d элемента уже здесь</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.already_here_refreshed</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d из них был обновлён новой информацией из резервной копии.</string>
+            <key>few</key>
+            <string>%d из них были обновлены новой информацией из резервной копии.</string>
+            <key>many</key>
+            <string>%d из них было обновлено новой информацией из резервной копии.</string>
+            <key>other</key>
+            <string>%d из них было обновлено новой информацией из резервной копии.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.dropped_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Не удалось восстановить %d элемент</string>
+            <key>few</key>
+            <string>Не удалось восстановить %d элемента</string>
+            <key>many</key>
+            <string>Не удалось восстановить %d элементов</string>
+            <key>other</key>
+            <string>Не удалось восстановить %d элемента</string>
+        </dict>
+    </dict>
 </dict>
 </plist>

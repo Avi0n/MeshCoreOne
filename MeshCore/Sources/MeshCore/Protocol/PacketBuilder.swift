@@ -37,14 +37,61 @@ public enum PacketBuilder: Sendable {
 
     /// Size of a public key in bytes.
     static let publicKeySize = 32
+    /// Size of an expanded private key in bytes (firmware `PRV_KEY_SIZE`).
+    static let privateKeySize = 64
     static let rawDataMaxPathBytes = 64
     static let rawDataMaxPayloadBytes = 184
+    /// Flood sentinel for `path_len` fields: firmware treats `0xFF` as "route via flood".
+    public static let floodPathSentinel: UInt8 = 0xFF
+    /// Maximum payload bytes for `CMD_SEND_CHANNEL_DATA` (`MAX_FRAME_SIZE - 9` per firmware).
+    static let channelDataMaxPayloadBytes = 163
+    /// Default-scope name-field width on the wire (31 bytes, zero-padded).
+    static let defaultScopeNameField = 31
+    /// Default-scope name maximum UTF-8 length (30 bytes; byte 31 is the null terminator
+    /// firmware's `strlen` relies on at `MyMesh.cpp:1895`).
+    static let defaultScopeMaxNameBytes = 30
+    /// Default-scope key width on the wire (16 bytes).
+    static let defaultScopeKeyBytes = 16
+    /// Fixed-point scale firmware applies to latitude/longitude (degrees × 1e6, stored as Int32).
+    static let coordinateScale: Double = 1_000_000
+    /// Valid latitude range in degrees.
+    public static let latitudeRange: ClosedRange<Double> = -90...90
+    /// Valid longitude range in degrees.
+    public static let longitudeRange: ClosedRange<Double> = -180...180
+    /// Valid radio frequency range in kHz, matching firmware `CMD_SET_RADIO_PARAMS`.
+    public static let frequencyRangeKHz: ClosedRange<UInt32> = 150_000...2_500_000
+    /// Valid radio bandwidth range in Hz, matching firmware `CMD_SET_RADIO_PARAMS`.
+    public static let bandwidthRangeHz: ClosedRange<UInt32> = 7_000...500_000
+    /// Valid LoRa spreading factor range, matching firmware `CMD_SET_RADIO_PARAMS`.
+    public static let spreadingFactorRange: ClosedRange<UInt8> = 5...12
+    /// Valid LoRa coding rate range, matching firmware `CMD_SET_RADIO_PARAMS`.
+    public static let codingRateRange: ClosedRange<UInt8> = 5...8
+    /// Minimum LoRa transmit power in dBm (firmware rejects below this). The upper bound is the
+    /// device-reported `maxTxPower`, not a fixed constant, so it is supplied per device.
+    public static let txPowerFloor: Int8 = -9
 
     private static func encodePublicKey(_ publicKey: Data) -> Data {
         if publicKey.count >= publicKeySize {
             return publicKey.prefix(publicKeySize)
         }
         return publicKey + Data(repeating: 0, count: publicKeySize - publicKey.count)
+    }
+
+    /// Scales a coordinate (degrees) into the firmware's `Int32` fixed-point form,
+    /// clamping to a finite, valid range. A NaN, infinite, or out-of-range value
+    /// saturates instead of trapping `Int32(_:)`, so no caller can crash the encoder.
+    static func scaledCoordinate(_ degrees: Double, in range: ClosedRange<Double>) -> Int32 {
+        let clamped = degrees.isFinite ? min(max(degrees, range.lowerBound), range.upperBound) : 0
+        return Int32(clamped * coordinateScale)
+    }
+
+    /// Clamps a date to the firmware's unsigned 32-bit seconds-since-epoch field,
+    /// saturating pre-1970 and post-2106 dates instead of trapping `UInt32(_:)`.
+    static func epochSeconds32(_ date: Date) -> UInt32 {
+        let seconds = date.timeIntervalSince1970
+        guard seconds.isFinite, seconds > 0 else { return 0 }
+        guard seconds < Double(UInt32.max) else { return UInt32.max }
+        return UInt32(seconds)
     }
 
     // MARK: - Device Commands
@@ -140,14 +187,14 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x07` (setCoordinates)
+    /// - Offset 0 (1 byte): Command code `0x0E` (setCoordinates)
     /// - Offset 1 (4 bytes): Latitude scaled by 1,000,000, Little-endian Int32
     /// - Offset 5 (4 bytes): Longitude scaled by 1,000,000, Little-endian Int32
     /// - Offset 9 (4 bytes): Altitude placeholder (zeros)
     public static func setCoordinates(latitude: Double, longitude: Double) -> Data {
         var data = Data([CommandCode.setCoordinates.rawValue])
-        let lat = Int32(latitude * 1_000_000)
-        let lon = Int32(longitude * 1_000_000)
+        let lat = scaledCoordinate(latitude, in: latitudeRange)
+        let lon = scaledCoordinate(longitude, in: longitudeRange)
         data.append(contentsOf: withUnsafeBytes(of: lat.littleEndian) { Array($0) })
         data.append(contentsOf: withUnsafeBytes(of: lon.littleEndian) { Array($0) })
         data.append(contentsOf: [0, 0, 0, 0]) // altitude placeholder
@@ -177,7 +224,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x09` (setRadio)
+    /// - Offset 0 (1 byte): Command code `0x0B` (setRadio)
     /// - Offset 1 (4 bytes): Frequency scaled by 1,000, Little-endian UInt32
     /// - Offset 5 (4 bytes): Bandwidth scaled by 1,000, Little-endian UInt32
     /// - Offset 9 (1 byte): Spreading Factor
@@ -219,7 +266,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x0A` (sendAdvertisement)
+    /// - Offset 0 (1 byte): Command code `0x07` (sendAdvertisement)
     /// - Offset 1 (1 byte, optional): Flood flag (`0x01` if true, omitted if false)
     public static func sendAdvertisement(flood: Bool = false) -> Data {
         flood ? Data([CommandCode.sendAdvertisement.rawValue, 0x01]) : Data([CommandCode.sendAdvertisement.rawValue])
@@ -230,7 +277,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x0B` (reboot)
+    /// - Offset 0 (1 byte): Command code `0x13` (reboot)
     /// - Offset 1 (6 bytes): "reboot" string (UTF-8)
     public static func reboot() -> Data {
         var data = Data([CommandCode.reboot.rawValue])
@@ -246,7 +293,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x0C` (getContacts)
+    /// - Offset 0 (1 byte): Command code `0x04` (getContacts)
     /// - Offset 1 (4 bytes, optional): Last modified timestamp, Little-endian UInt32
     public static func getContacts(since lastModified: Date? = nil) -> Data {
         var data = Data([CommandCode.getContacts.rawValue])
@@ -277,7 +324,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x0E` (removeContact)
+    /// - Offset 0 (1 byte): Command code `0x0F` (removeContact)
     /// - Offset 1 (32 bytes): Full public key
     public static func removeContact(publicKey: Data) -> Data {
         var data = Data([CommandCode.removeContact.rawValue])
@@ -291,7 +338,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x0F` (shareContact)
+    /// - Offset 0 (1 byte): Command code `0x10` (shareContact)
     /// - Offset 1 (32 bytes): Full public key
     public static func shareContact(publicKey: Data) -> Data {
         var data = Data([CommandCode.shareContact.rawValue])
@@ -305,7 +352,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x24` (exportContact)
+    /// - Offset 0 (1 byte): Command code `0x11` (exportContact)
     /// - Offset 1 (32 bytes, optional): Full public key
     public static func exportContact(publicKey: Data? = nil) -> Data {
         var data = Data([CommandCode.exportContact.rawValue])
@@ -497,7 +544,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x21` (setChannel)
+    /// - Offset 0 (1 byte): Command code `0x20` (setChannel)
     /// - Offset 1 (1 byte): Channel index
     /// - Offset 2 (32 bytes): Padded channel name (UTF-8, zero-filled)
     /// - Offset 34 (16 bytes): PSK secret
@@ -564,26 +611,26 @@ public enum PacketBuilder: Sendable {
     public static func updateContact(_ contact: MeshContact) -> Data {
         var data = Data([CommandCode.updateContact.rawValue])              // 1 byte
         data.append(contact.publicKey.paddedOrTruncated(to: 32))           // 32 bytes
-        data.append(contact.type.rawValue)                                   // 1 byte
+        data.append(contact.typeRawValue)                                    // 1 byte
         data.append(contact.flags.rawValue)                                  // 1 byte
         data.append(contact.outPathLength)                                    // 1 byte
         data.append(contact.outPath.paddedOrTruncated(to: 64))              // 64 bytes
         data.append(contact.advertisedName.utf8PaddedOrTruncated(to: 32))   // 32 bytes
 
-        let timestamp = UInt32(contact.lastAdvertisement.timeIntervalSince1970)
+        let timestamp = epochSeconds32(contact.lastAdvertisement)
         data.appendLittleEndian(timestamp)                                  // 4 bytes
 
-        let lat = Int32(contact.latitude * 1_000_000)
+        let lat = scaledCoordinate(contact.latitude, in: latitudeRange)
         data.appendLittleEndian(lat)                                        // 4 bytes
 
-        let lon = Int32(contact.longitude * 1_000_000)
+        let lon = scaledCoordinate(contact.longitude, in: longitudeRange)
         data.appendLittleEndian(lon)                                        // 4 bytes
 
-        // Total: 1 + 32 + 1 + 1 + 1 + 64 + 32 + 4 + 4 + 4 = 144 bytes
-        // Firmware expects 147, so add 3 reserved bytes
+        // Subtotal so far: 1 + 32 + 1 + 1 + 1 + 64 + 32 + 4 + 4 + 4 = 144 bytes.
+        // Firmware expects a 147-byte frame, so pad with 3 reserved bytes.
         data.append(contentsOf: [0x00, 0x00, 0x00])                         // 3 bytes
 
-        return data  // 147 bytes
+        return data  // 144 + 3 = 147 bytes
     }
 
     /// Builds a setTuning command to adjust low-level radio timing.
@@ -594,7 +641,7 @@ public enum PacketBuilder: Sendable {
     /// - Returns: The command packet data.
     ///
     /// ### Binary Format
-    /// - Offset 0 (1 byte): Command code `0x25` (setTuning)
+    /// - Offset 0 (1 byte): Command code `0x15` (setTuning)
     /// - Offset 1 (4 bytes): rxDelay, Little-endian UInt32
     /// - Offset 5 (4 bytes): af, Little-endian UInt32
     /// - Offset 9 (2 bytes): Reserved padding (zeros)
@@ -789,6 +836,142 @@ public enum PacketBuilder: Sendable {
         return data
     }
 
+    /// Builds a setFloodScope command that forces un-scoped flood broadcasts,
+    /// overriding any persisted default flood scope on the device.
+    ///
+    /// Unlike ``setFloodScope(_:)`` (sub-command 0, which resets the session scope
+    /// and falls back to the device default), this emits sub-command 1, which sets
+    /// the firmware `send_unscoped` flag. Requires firmware ver 12+; older firmware has
+    /// no handler for sub-command 1 and rejects the frame with `ERR_CODE_UNSUPPORTED_CMD`,
+    /// so callers must gate on the reported firmware version. No scope key follows the
+    /// sub-command byte.
+    ///
+    /// - Returns: The command packet data.
+    public static func setFloodScopeUnscoped() -> Data {
+        Data([CommandCode.setFloodScope.rawValue, 0x01])
+    }
+
+    /// Builds a `sendChannelData` command for sending a binary datagram to a channel.
+    ///
+    /// Requires firmware v11+ (MeshCore v1.15.0+).
+    ///
+    /// Wire format:
+    /// - Offset 0 (1 byte): Command code `0x3E`
+    /// - Offset 1 (1 byte): Channel index (0–255)
+    /// - Offset 2 (1 byte): Encoded `pathLength` byte (`0xFF` = flood)
+    /// - Offset 3 (pathBytes.count bytes, absent if flood): Path bytes, caller-supplied verbatim
+    /// - Next (2 bytes): `dataType` (little-endian `UInt16`)
+    /// - Remaining: Payload bytes (clamped to 163 bytes)
+    ///
+    /// `pathLength` is the **encoded** path-length byte used by firmware's packet format
+    /// (see `Packet::isValidPathLen` at `MeshCore-references/MeshCore/src/Packet.cpp:13-18`):
+    /// - Upper 2 bits (6–7): hash size mode (0 = 1 byte, 1 = 2 bytes, 2 = 3 bytes, 3 = reserved).
+    /// - Lower 6 bits (0–5): hop count (0–63).
+    /// - Special value `0xFF`: flood routing (no path bytes follow).
+    ///
+    /// The number of bytes consumed from `pathBytes` by firmware is
+    /// `hash_count * hash_size` — NOT `pathBytes.count`. The builder passes both
+    /// `pathLength` and `pathBytes` through verbatim; callers are responsible for
+    /// keeping them consistent. Callers that already have a ``MeshContact`` can pass
+    /// `contact.outPathLength` and `contact.outPath` directly.
+    ///
+    /// - Note: Upstream `companion_protocol.md` §6 documents an incorrect wire format
+    ///   (wrong field order, missing `path_len`) as of v1.15.0. `MyMesh.cpp` is canonical.
+    ///
+    /// - Parameters:
+    ///   - channelIndex: The channel slot index.
+    ///   - dataType: Application data-type namespace. At runtime, firmware rejects only
+    ///     `0x0000` with `ERR_CODE_ILLEGAL_ARG` (see `MyMesh.cpp:1153-1154`). Values
+    ///     `0x0001–0x00FF` are reserved by convention in `number_allocations.md` but are
+    ///     not enforced by firmware; `0xFF00–0xFFFF` is the developer/testing namespace.
+    ///     Custom apps should request an allocation in `0x0100–0xFEFF`.
+    ///   - payload: Binary payload, clamped to ``channelDataMaxPayloadBytes`` (163).
+    ///   - pathLength: Encoded `path_len` byte. Defaults to ``floodPathSentinel`` (`0xFF`).
+    ///     When set to a non-flood value it must satisfy `Packet::isValidPathLen`.
+    ///   - pathBytes: Path bytes, written verbatim after `pathLength`. Pass `Data()` (the
+    ///     default) for flood; firmware ignores any bytes when `pathLength == 0xFF` so the
+    ///     builder omits them.
+    /// - Returns: The command packet bytes.
+    public static func sendChannelData(
+        channelIndex: UInt8,
+        dataType: UInt16,
+        payload: Data,
+        pathLength: UInt8 = floodPathSentinel,
+        pathBytes: Data = Data()
+    ) -> Data {
+        var data = Data([CommandCode.sendChannelData.rawValue, channelIndex, pathLength])
+
+        if pathLength != floodPathSentinel {
+            data.append(pathBytes)
+        }
+
+        data.append(contentsOf: withUnsafeBytes(of: dataType.littleEndian) { Array($0) })
+        data.append(payload.prefix(channelDataMaxPayloadBytes))
+        return data
+    }
+
+    /// Builds a `setDefaultFloodScope` command to persist the device's default flood scope.
+    ///
+    /// The device uses this scope for flood sends when no session-scoped key has been set.
+    /// Passing an empty name clears the persisted scope. Firmware's name-field parse at
+    /// `MyMesh.cpp:1896` accepts only `0 < strlen(name) < 31`, so both empty and 31-plus-byte
+    /// names are rejected with `ERR_CODE_ILLEGAL_ARG`. The builder defends against both:
+    /// empty-name normalises to the single-byte clear form, and the 30-byte UTF-8 cap plus
+    /// zero-padding to 31 guarantees `strlen < 31` for any non-empty input.
+    ///
+    /// Requires firmware v11+ (MeshCore v1.15.0+).
+    ///
+    /// Wire format:
+    /// - `[0x3F]` (1 byte) to clear the default scope.
+    /// - `[0x3F][name:31 zero-padded UTF-8][key:16]` (48 bytes) to set it.
+    ///
+    /// - Parameters:
+    ///   - name: Display name. Encoded to at most 30 UTF-8 bytes; byte 31 is always zero so
+    ///     firmware's `strlen`-based parse terminates. Truncation happens at grapheme-cluster
+    ///     boundaries via ``Swift/String/utf8Prefix(maxBytes:)`` so invalid UTF-8 is never
+    ///     emitted. Passing an empty name clears the scope.
+    ///   - scopeKey: 16-byte scope key. Shorter keys are right-padded with zeros.
+    /// - Returns: The command packet bytes.
+    public static func setDefaultFloodScope(name: String, scopeKey: Data) -> Data {
+        // Firmware rejects n == 0 — normalise empty name to clear, ignoring any key.
+        if name.isEmpty {
+            return Data([CommandCode.setDefaultFloodScope.rawValue])
+        }
+
+        var data = Data([CommandCode.setDefaultFloodScope.rawValue])
+
+        // Cap UTF-8 at 30 bytes (grapheme-cluster safe) then zero-pad to 31. Zero-padding
+        // guarantees at least one null byte in the 31-byte field for firmware's strlen.
+        let truncated = name.utf8Prefix(maxBytes: defaultScopeMaxNameBytes)
+        data.append(Data(truncated.utf8).paddedOrTruncated(to: defaultScopeNameField))
+
+        data.append(scopeKey.paddedOrTruncated(to: defaultScopeKeyBytes))
+
+        return data
+    }
+
+    /// Convenience overload that derives the 16-byte key from a ``FloodScope``.
+    ///
+    /// - Parameters:
+    ///   - name: Display name for the scope (stored on-device).
+    ///   - scope: Any ``FloodScope`` case; `.disabled` clears the scope.
+    /// - Returns: The command packet bytes.
+    public static func setDefaultFloodScope(name: String, scope: FloodScope) -> Data {
+        if case .disabled = scope {
+            return setDefaultFloodScope(name: "", scopeKey: Data())
+        }
+        return setDefaultFloodScope(name: name, scopeKey: scope.scopeKey())
+    }
+
+    /// Builds a getDefaultFloodScope command.
+    ///
+    /// Requires firmware v11+ (MeshCore v1.15.0+).
+    ///
+    /// - Returns: A single-byte command packet.
+    public static func getDefaultFloodScope() -> Data {
+        Data([CommandCode.getDefaultFloodScope.rawValue])
+    }
+
     /// Builds a command to send an anonymous request to a remote node.
     ///
     /// ### Binary Format
@@ -828,7 +1011,7 @@ public enum PacketBuilder: Sendable {
     /// - Offset 1 (1 byte): Reserved `0x00`
     /// - Offset 2 (1 byte): Mode value (0, 1, or 2)
     public static func setPathHashMode(_ mode: UInt8) -> Data {
-        Data([CommandCode.setPathHashMode.rawValue, 0x00, min(mode, 2)])
+        Data([CommandCode.setPathHashMode.rawValue, 0x00, min(mode, UInt8(PathEncoding.maxPathHashMode))])
     }
 
     /// Builds a factoryReset command to wipe all settings and data from the device.

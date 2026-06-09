@@ -43,6 +43,9 @@ public struct ChannelSyncError: Sendable, Equatable {
 
     public enum ErrorType: Sendable, Equatable {
         case timeout
+        case sendTimeout
+        case transportError
+        case circuitBreaker
         case deviceError(code: UInt8)
         case databaseError
         case unknown
@@ -57,9 +60,18 @@ public struct ChannelSyncError: Sendable, Equatable {
     /// Whether this error type is potentially recoverable with retry
     public var isRetryable: Bool {
         switch errorType {
-        case .timeout:
+        case .timeout, .sendTimeout:
             return true
-        case .deviceError, .databaseError, .unknown:
+        case .transportError, .circuitBreaker, .deviceError, .databaseError, .unknown:
+            return false
+        }
+    }
+
+    var countsTowardCircuitBreaker: Bool {
+        switch errorType {
+        case .timeout, .sendTimeout, .transportError:
+            return true
+        case .circuitBreaker, .deviceError, .databaseError, .unknown:
             return false
         }
     }
@@ -73,6 +85,18 @@ public struct ChannelSyncResult: Sendable, Equatable {
 
     /// Whether sync completed without errors
     public var isComplete: Bool { errors.isEmpty }
+
+    public var requestTimeoutCount: Int {
+        errors.filter { $0.errorType == .timeout }.count
+    }
+
+    public var sendTimeoutCount: Int {
+        errors.filter { $0.errorType == .sendTimeout }.count
+    }
+
+    public var circuitBreakerAborted: Bool {
+        errors.contains { $0.errorType == .circuitBreaker }
+    }
 
     /// Indices of channels that failed with retryable errors
     public var retryableIndices: [UInt8] {
@@ -99,6 +123,11 @@ public actor ChannelService {
 
     /// Callback for channel updates
     private var channelUpdateHandler: (@Sendable ([ChannelDTO]) -> Void)?
+
+    /// Callback invoked with the channel slots vacated by a delete or sync prune,
+    /// so the main-actor `DraftStore` can drop any draft keyed to a now-free slot
+    /// before that slot is reused by a different channel.
+    private var draftClearHandler: (@Sendable (UUID, Set<UInt8>) async -> Void)?
 
     /// Tracks whether a sync operation is in progress
     private var isSyncing = false
@@ -148,12 +177,16 @@ public actor ChannelService {
 
     /// Fetches all channels for a device from the remote device.
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - maxChannels: Maximum number of channels to fetch (from device capacity)
     /// - Returns: Sync result with number of channels synced
     /// - Throws: `syncAlreadyInProgress` if another sync is running,
     ///           `circuitBreakerOpen` if too many consecutive timeouts
-    public func syncChannels(deviceID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
+    public func syncChannels(
+        radioID: UUID,
+        maxChannels: UInt8,
+        usePipelinedRead: Bool
+    ) async throws -> ChannelSyncResult {
         // Concurrency guard
         guard !isSyncing else {
             logger.warning("Channel sync already in progress, rejecting concurrent request")
@@ -163,10 +196,13 @@ public actor ChannelService {
         isSyncing = true
         defer { isSyncing = false }
 
-        var syncedCount = 0
+        if usePipelinedRead {
+            return try await syncChannelsPipelined(radioID: radioID, maxChannels: maxChannels)
+        }
+
         var syncErrors: [ChannelSyncError] = []
-        var channels: [ChannelDTO] = []
-        var unconfiguredCount = 0
+        var configured: [ChannelInfo] = []
+        var unconfiguredIndices: [UInt8] = []
         var emptyNameWithSecretIndices: [UInt8] = []
 
         // Circuit breaker state
@@ -181,67 +217,181 @@ public actor ChannelService {
                 for remaining in index..<maxChannels {
                     syncErrors.append(ChannelSyncError(
                         index: remaining,
-                        errorType: .timeout,
+                        errorType: .circuitBreaker,
                         description: "Skipped due to circuit breaker"
                     ))
                 }
-                throw ChannelServiceError.circuitBreakerOpen(consecutiveFailures: consecutiveTimeouts)
+                break
             }
 
             do {
                 if let channelInfo = try await fetchChannel(index: index) {
-                    _ = try await dataStore.saveChannel(deviceID: deviceID, from: channelInfo)
-                    syncedCount += 1
+                    configured.append(channelInfo)
                     consecutiveTimeouts = 0  // Reset on success
                     if channelInfo.name.isEmpty {
                         emptyNameWithSecretIndices.append(index)
                     }
-
-                    // Fetch the saved channel DTO
-                    if let dto = try await dataStore.fetchChannel(deviceID: deviceID, index: index) {
-                        channels.append(dto)
-                    }
                 } else {
-                    // Channel not configured on device - delete any stale local entry
+                    // Channel not configured on device - mark its slot for stale-entry cleanup
                     consecutiveTimeouts = 0  // Not-found is not a timeout
-                    unconfiguredCount += 1
-                    if let staleChannel = try await dataStore.fetchChannel(deviceID: deviceID, index: index) {
-                        try await dataStore.deleteChannel(id: staleChannel.id)
-                    }
+                    unconfiguredIndices.append(index)
                 }
             } catch let error as ChannelServiceError {
-                // Track consecutive timeouts for circuit breaker
-                if case .sessionError(let meshError) = error, case .timeout = meshError {
-                    consecutiveTimeouts += 1
-                } else {
-                    consecutiveTimeouts = 0
-                }
                 let syncError = classifyError(error, forIndex: index)
+                consecutiveTimeouts = nextConsecutiveFailureCount(
+                    after: syncError,
+                    currentCount: consecutiveTimeouts
+                )
                 logger.warning("Failed to sync channel \(index): \(syncError.description)")
                 syncErrors.append(syncError)
             } catch {
-                consecutiveTimeouts = 0
                 let syncError = classifyError(error, forIndex: index)
+                consecutiveTimeouts = nextConsecutiveFailureCount(
+                    after: syncError,
+                    currentCount: consecutiveTimeouts
+                )
                 logger.warning("Failed to sync channel \(index): \(syncError.description)")
                 syncErrors.append(syncError)
             }
         }
 
-        // Clean up orphaned channels (index >= maxChannels)
-        // This handles the case where device capacity decreased
-        do {
-            let allLocalChannels = try await dataStore.fetchChannels(deviceID: deviceID)
-            for channel in allLocalChannels where channel.index >= maxChannels {
-                logger.info("Removing orphaned channel \(channel.index) (maxChannels=\(maxChannels))")
-                try await dataStore.deleteChannel(id: channel.id)
+        // Persist the whole pass in a single transaction. Indices skipped by the circuit breaker
+        // are left in neither list, so they are untouched.
+        return await finalizeChannelSync(
+            radioID: radioID,
+            maxChannels: maxChannels,
+            configured: configured,
+            unconfiguredIndices: unconfiguredIndices,
+            emptyNameWithSecretIndices: emptyNameWithSecretIndices,
+            syncErrors: syncErrors,
+            pipelined: false
+        )
+    }
+
+    /// Pipelined channel read for transports that support it (nRF52 over BLE, ESP32 over WiFi):
+    /// one bounded-window `getChannels` exchange in place of N serial round-trips, then
+    /// acknowledged reconciliation of any dropped requests. Classification and the
+    /// single-transaction persist match the serial path so an index that could not be read lands
+    /// in neither the configured nor the unconfigured list and is therefore never deleted.
+    private func syncChannelsPipelined(radioID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
+        var syncErrors: [ChannelSyncError] = []
+        var configured: [ChannelInfo] = []
+        var unconfiguredIndices: [UInt8] = []
+        var emptyNameWithSecretIndices: [UInt8] = []
+
+        // A hard send failure (e.g. disconnect mid-send) throws here, aborting the round with
+        // nothing persisted; an idle stall returns a partial set to reconcile rather than throwing.
+        let (received, missing) = try await session.getChannels(indices: Array(0..<maxChannels))
+
+        for info in received {
+            if Self.isChannelConfigured(name: info.name, secret: info.secret) {
+                configured.append(info)
+                if info.name.isEmpty {
+                    emptyNameWithSecretIndices.append(info.index)
+                }
+            } else {
+                unconfiguredIndices.append(info.index)
             }
-        } catch {
-            logger.warning("Failed to cleanup orphaned channels: \(error.localizedDescription)")
-            // Non-fatal: continue with sync result
         }
 
+        // Reconcile dropped Write Commands with acknowledged reads. "Consecutive" failures are
+        // meaningful again on this serial sub-loop, so the circuit breaker applies here. An index
+        // still unread after reconcile stays in neither list, so its row is never deleted.
+        var consecutiveTimeouts = 0
+        let circuitBreakerThreshold = 3
+        for index in missing {
+            if consecutiveTimeouts >= circuitBreakerThreshold {
+                logger.error("Reconcile circuit breaker open: \(consecutiveTimeouts) consecutive timeouts, stopping reconcile")
+                for remaining in missing.drop(while: { $0 != index }) {
+                    syncErrors.append(ChannelSyncError(
+                        index: remaining,
+                        errorType: .circuitBreaker,
+                        description: "Skipped due to circuit breaker"
+                    ))
+                }
+                break
+            }
+
+            do {
+                if let channelInfo = try await fetchChannel(index: index) {
+                    configured.append(channelInfo)
+                    consecutiveTimeouts = 0
+                    if channelInfo.name.isEmpty {
+                        emptyNameWithSecretIndices.append(index)
+                    }
+                } else {
+                    consecutiveTimeouts = 0
+                    unconfiguredIndices.append(index)
+                }
+            } catch {
+                let syncError = classifyError(error, forIndex: index)
+                consecutiveTimeouts = nextConsecutiveFailureCount(
+                    after: syncError,
+                    currentCount: consecutiveTimeouts
+                )
+                logger.warning("Reconcile failed for channel \(index): \(syncError.description)")
+                syncErrors.append(syncError)
+            }
+        }
+
+        return await finalizeChannelSync(
+            radioID: radioID,
+            maxChannels: maxChannels,
+            configured: configured,
+            unconfiguredIndices: unconfiguredIndices,
+            emptyNameWithSecretIndices: emptyNameWithSecretIndices,
+            syncErrors: syncErrors,
+            pipelined: true
+        )
+    }
+
+    /// Persists a completed channel-read pass in a single transaction and reports the result.
+    /// Shared by the serial and pipelined paths so their classification-to-persist tail cannot
+    /// drift: it upserts configured channels, deletes stale rows at unconfigured slots, prunes
+    /// orphans beyond capacity, and never touches an index that landed in neither list.
+    private func finalizeChannelSync(
+        radioID: UUID,
+        maxChannels: UInt8,
+        configured: [ChannelInfo],
+        unconfiguredIndices: [UInt8],
+        emptyNameWithSecretIndices: [UInt8],
+        syncErrors: [ChannelSyncError],
+        pipelined: Bool
+    ) async -> ChannelSyncResult {
+        var syncErrors = syncErrors
+
+        // Snapshot occupied slots before the persist so vacated slots (unconfigured on the
+        // radio, or beyond capacity) can be diffed from the survivors and have their drafts
+        // dropped. A failed fetch yields an empty baseline that skips clearing, so log it.
+        let priorChannels = try? await dataStore.fetchChannels(radioID: radioID)
+        if priorChannels == nil {
+            logger.warning("Pre-sync channel snapshot failed for radio \(radioID.uuidString); skipping draft clear for any slots this prune vacates")
+        }
+        let occupiedBeforeSync = Set(priorChannels?.map(\.index) ?? [])
+
+        let channels: [ChannelDTO]
+        do {
+            channels = try await dataStore.batchSaveChannels(
+                radioID: radioID,
+                configured: configured,
+                unconfiguredIndices: unconfiguredIndices,
+                pruneBeyond: maxChannels
+            )
+        } catch {
+            logger.error("Channel batch persist failed: \(error.localizedDescription)")
+            for info in configured {
+                syncErrors.append(ChannelSyncError(
+                    index: info.index,
+                    errorType: .databaseError,
+                    description: "Batch persist failed: \(error.localizedDescription)"
+                ))
+            }
+            return ChannelSyncResult(channelsSynced: 0, errors: syncErrors)
+        }
+
+        let diagnosticsLabel = pipelined ? "Channel sync diagnostics (pipelined)" : "Channel sync diagnostics"
         logger.info(
-            "Channel sync diagnostics: synced=\(syncedCount), unconfigured=\(unconfiguredCount), emptyNameWithSecret=\(emptyNameWithSecretIndices.count), errors=\(syncErrors.count)"
+            "\(diagnosticsLabel): synced=\(configured.count), unconfigured=\(unconfiguredIndices.count), emptyNameWithSecret=\(emptyNameWithSecretIndices.count), errors=\(syncErrors.count)"
         )
         if !emptyNameWithSecretIndices.isEmpty {
             logger.warning(
@@ -249,18 +399,22 @@ public actor ChannelService {
             )
         }
 
-        // Notify handler of updated channels
+        let vacatedSlots = occupiedBeforeSync.subtracting(channels.map(\.index))
+        if !vacatedSlots.isEmpty {
+            await draftClearHandler?(radioID, vacatedSlots)
+        }
+
         channelUpdateHandler?(channels)
 
-        return ChannelSyncResult(channelsSynced: syncedCount, errors: syncErrors)
+        return ChannelSyncResult(channelsSynced: configured.count, errors: syncErrors)
     }
 
     /// Retries syncing only the channels that previously failed.
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - indices: Channel indices to retry
     /// - Returns: Sync result for the retried channels
-    public func retryFailedChannels(deviceID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult {
+    public func retryFailedChannels(radioID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult {
         guard !isSyncing else {
             throw ChannelServiceError.syncAlreadyInProgress
         }
@@ -277,9 +431,8 @@ public actor ChannelService {
         // Brief delay before retry to allow transient issues to resolve
         try await Task.sleep(for: .milliseconds(500))
 
-        var syncedCount = 0
         var syncErrors: [ChannelSyncError] = []
-        var channels: [ChannelDTO] = []
+        var configured: [ChannelInfo] = []
 
         // Circuit breaker for retry (stricter threshold than initial sync)
         var consecutiveTimeouts = 0
@@ -294,7 +447,7 @@ public actor ChannelService {
                 for remaining in remainingIndices {
                     syncErrors.append(ChannelSyncError(
                         index: remaining,
-                        errorType: .timeout,
+                        errorType: .circuitBreaker,
                         description: "Skipped due to retry circuit breaker"
                     ))
                 }
@@ -303,37 +456,51 @@ public actor ChannelService {
 
             do {
                 if let channelInfo = try await fetchChannel(index: index) {
-                    _ = try await dataStore.saveChannel(deviceID: deviceID, from: channelInfo)
-                    syncedCount += 1
+                    configured.append(channelInfo)
                     consecutiveTimeouts = 0  // Reset on success
-
-                    if let dto = try await dataStore.fetchChannel(deviceID: deviceID, index: index) {
-                        channels.append(dto)
-                    }
                     logger.info("Retry succeeded for channel \(index)")
                 } else {
                     consecutiveTimeouts = 0  // Not-found is not a timeout
                 }
             } catch {
                 let syncError = classifyError(error, forIndex: index)
-                // Track consecutive timeouts for circuit breaker
-                if case .timeout = syncError.errorType {
-                    consecutiveTimeouts += 1
-                } else {
-                    consecutiveTimeouts = 0
-                }
+                consecutiveTimeouts = nextConsecutiveFailureCount(
+                    after: syncError,
+                    currentCount: consecutiveTimeouts
+                )
                 logger.warning("Retry failed for channel \(index): \(syncError.description)")
                 syncErrors.append(syncError)
             }
         }
 
-        // Notify handler if we recovered any channels
-        if !channels.isEmpty {
-            let allChannels = try await dataStore.fetchChannels(deviceID: deviceID)
-            channelUpdateHandler?(allChannels)
+        // Nothing recovered: skip the persist round-trip and the handler notification.
+        guard !configured.isEmpty else {
+            return ChannelSyncResult(channelsSynced: 0, errors: syncErrors)
         }
 
-        return ChannelSyncResult(channelsSynced: syncedCount, errors: syncErrors)
+        // Upsert the recovered channels in one transaction. Retry only re-fetches previously
+        // failed slots, so it never deletes unconfigured slots or prunes by capacity.
+        do {
+            let allChannels = try await dataStore.batchSaveChannels(
+                radioID: radioID,
+                configured: configured,
+                unconfiguredIndices: [],
+                pruneBeyond: nil
+            )
+            channelUpdateHandler?(allChannels)
+        } catch {
+            logger.error("Retry batch persist failed: \(error.localizedDescription)")
+            for info in configured {
+                syncErrors.append(ChannelSyncError(
+                    index: info.index,
+                    errorType: .databaseError,
+                    description: "Retry persist failed: \(error.localizedDescription)"
+                ))
+            }
+            return ChannelSyncResult(channelsSynced: 0, errors: syncErrors)
+        }
+
+        return ChannelSyncResult(channelsSynced: configured.count, errors: syncErrors)
     }
 
     /// Fetches a single channel from the device with retry logic for transient BLE failures.
@@ -403,12 +570,12 @@ public actor ChannelService {
 
     /// Sets (creates or updates) a channel on the device.
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - index: The channel index 
     ///   - name: The channel name
     ///   - passphrase: The passphrase to hash into a secret
     public func setChannel(
-        deviceID: UUID,
+        radioID: UUID,
         index: UInt8,
         name: String,
         passphrase: String
@@ -421,10 +588,10 @@ public actor ChannelService {
 
             // Save to local database
             let channelInfo = ChannelInfo(index: index, name: truncatedName, secret: secret)
-            _ = try await dataStore.saveChannel(deviceID: deviceID, from: channelInfo)
+            _ = try await dataStore.saveChannel(radioID: radioID, from: channelInfo)
 
             // Notify handler of update
-            let channels = try await dataStore.fetchChannels(deviceID: deviceID)
+            let channels = try await dataStore.fetchChannels(radioID: radioID)
             channelUpdateHandler?(channels)
         } catch let error as MeshCoreError {
             throw ChannelServiceError.sessionError(error)
@@ -433,12 +600,12 @@ public actor ChannelService {
 
     /// Sets a channel with a pre-computed secret (for advanced use cases).
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - index: The channel index 
     ///   - name: The channel name
     ///   - secret: The 16-byte secret (must be exactly 16 bytes)
     public func setChannelWithSecret(
-        deviceID: UUID,
+        radioID: UUID,
         index: UInt8,
         name: String,
         secret: Data
@@ -454,10 +621,10 @@ public actor ChannelService {
 
             // Save to local database
             let channelInfo = ChannelInfo(index: index, name: truncatedName, secret: secret)
-            _ = try await dataStore.saveChannel(deviceID: deviceID, from: channelInfo)
+            _ = try await dataStore.saveChannel(radioID: radioID, from: channelInfo)
 
             // Notify handler of update
-            let channels = try await dataStore.fetchChannels(deviceID: deviceID)
+            let channels = try await dataStore.fetchChannels(radioID: radioID)
             channelUpdateHandler?(channels)
         } catch let error as MeshCoreError {
             throw ChannelServiceError.sessionError(error)
@@ -466,12 +633,12 @@ public actor ChannelService {
 
     /// Clears a channel by setting it to empty name and zero secret.
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - index: The channel index
-    public func clearChannel(deviceID: UUID, index: UInt8) async throws {
+    public func clearChannel(radioID: UUID, index: UInt8) async throws {
         // Get channel ID before clearing, so we can reliably delete it
         // (fetching after setChannelWithSecret may not find the empty-named channel)
-        let channelToDelete = try await dataStore.fetchChannel(deviceID: deviceID, index: index)
+        let channelToDelete = try await dataStore.fetchChannel(radioID: radioID, index: index)
 
         // Set empty name and zero secret to clear on device
         do {
@@ -485,55 +652,63 @@ public actor ChannelService {
         }
 
         // Delete messages for this channel first
-        try await dataStore.deleteMessagesForChannel(deviceID: deviceID, channelIndex: index)
+        try await dataStore.deleteMessagesForChannel(radioID: radioID, channelIndex: index)
 
         // Delete channel from local database using the ID we captured earlier
         if let channel = channelToDelete {
             try await dataStore.deleteChannel(id: channel.id)
         }
 
+        // Drop any draft keyed to the freed slot so a channel later created at the
+        // same index can't surface this channel's stale draft.
+        await draftClearHandler?(radioID, [index])
+
         // Notify handler that channels changed
-        let channels = try await dataStore.fetchChannels(deviceID: deviceID)
+        let channels = try await dataStore.fetchChannels(radioID: radioID)
         channelUpdateHandler?(channels)
     }
 
     /// Clears all messages for a channel without deleting the channel itself.
     /// Use this for a "Clear Messages" feature that keeps the channel active.
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - channelIndex: The channel index (0-7)
-    public func clearChannelMessages(deviceID: UUID, channelIndex: UInt8) async throws {
-        try await dataStore.deleteMessagesForChannel(deviceID: deviceID, channelIndex: channelIndex)
+    public func clearChannelMessages(radioID: UUID, channelIndex: UInt8) async throws {
+        try await dataStore.deleteMessagesForChannel(radioID: radioID, channelIndex: channelIndex)
 
-        // Clear the last message date so the channel doesn't show a preview
-        if let channel = try await dataStore.fetchChannel(deviceID: deviceID, index: channelIndex) {
+        // Clear the last message date so the channel doesn't show a preview, and zero
+        // both unread counters — leaving them set would inflate the badge for a channel
+        // the user just emptied.
+        if let channel = try await dataStore.fetchChannel(radioID: radioID, index: channelIndex) {
             try await dataStore.updateChannelLastMessage(channelID: channel.id, date: nil)
+            try await dataStore.clearChannelUnreadCount(channelID: channel.id)
+            try await dataStore.clearChannelUnreadMentionCount(channelID: channel.id)
         }
     }
 
     // MARK: - Local Database Operations
 
     /// Gets all channels from local database for a device.
-    /// - Parameter deviceID: The device UUID
+    /// - Parameter radioID: The device UUID
     /// - Returns: Array of channel DTOs
-    public func getChannels(deviceID: UUID) async throws -> [ChannelDTO] {
-        try await dataStore.fetchChannels(deviceID: deviceID)
+    public func getChannels(radioID: UUID) async throws -> [ChannelDTO] {
+        try await dataStore.fetchChannels(radioID: radioID)
     }
 
     /// Gets a specific channel from local database.
     /// - Parameters:
-    ///   - deviceID: The device UUID
+    ///   - radioID: The device UUID
     ///   - index: The channel index
     /// - Returns: Channel DTO if found
-    public func getChannel(deviceID: UUID, index: UInt8) async throws -> ChannelDTO? {
-        try await dataStore.fetchChannel(deviceID: deviceID, index: index)
+    public func getChannel(radioID: UUID, index: UInt8) async throws -> ChannelDTO? {
+        try await dataStore.fetchChannel(radioID: radioID, index: index)
     }
 
     /// Gets channels that have messages (for chat list).
-    /// - Parameter deviceID: The device UUID
+    /// - Parameter radioID: The device UUID
     /// - Returns: Array of channel DTOs with lastMessageDate set
-    public func getActiveChannels(deviceID: UUID) async throws -> [ChannelDTO] {
-        let channels = try await dataStore.fetchChannels(deviceID: deviceID)
+    public func getActiveChannels(radioID: UUID) async throws -> [ChannelDTO] {
+        let channels = try await dataStore.fetchChannels(radioID: radioID)
         return channels.filter { $0.lastMessageDate != nil }
     }
 
@@ -545,10 +720,10 @@ public actor ChannelService {
     ])
 
     /// Creates or resets the public channel (slot 0).
-    /// - Parameter deviceID: The device UUID
-    public func setupPublicChannel(deviceID: UUID) async throws {
+    /// - Parameter radioID: The device UUID
+    public func setupPublicChannel(radioID: UUID) async throws {
         try await setChannelWithSecret(
-            deviceID: deviceID,
+            radioID: radioID,
             index: 0,
             name: "Public",
             secret: Self.publicChannelSecret
@@ -556,10 +731,10 @@ public actor ChannelService {
     }
 
     /// Checks if the public channel exists locally.
-    /// - Parameter deviceID: The device UUID
+    /// - Parameter radioID: The device UUID
     /// - Returns: True if public channel exists
-    public func hasPublicChannel(deviceID: UUID) async throws -> Bool {
-        let channel = try await dataStore.fetchChannel(deviceID: deviceID, index: 0)
+    public func hasPublicChannel(radioID: UUID) async throws -> Bool {
+        let channel = try await dataStore.fetchChannel(radioID: radioID, index: 0)
         return channel != nil
     }
 
@@ -573,12 +748,25 @@ public actor ChannelService {
     /// Whether a channel update handler has been wired via `setChannelUpdateHandler`.
     var hasChannelUpdateHandlerWired: Bool { channelUpdateHandler != nil }
 
+    /// Sets a callback that receives the channel slots vacated by `clearChannel`
+    /// and by the sync prune in `finalizeChannelSync`, so the `DraftStore` can
+    /// clear drafts keyed to a freed slot.
+    public func setDraftClearHandler(_ handler: @escaping @Sendable (UUID, Set<UInt8>) async -> Void) {
+        draftClearHandler = handler
+    }
+
     // MARK: - Private Helpers
 
     /// Classifies an error into a ChannelSyncError for the given index
     private func classifyError(_ error: Error, forIndex index: UInt8) -> ChannelSyncError {
         if let channelError = error as? ChannelServiceError {
             switch channelError {
+            case .circuitBreakerOpen:
+                return ChannelSyncError(
+                    index: index,
+                    errorType: .circuitBreaker,
+                    description: channelError.localizedDescription
+                )
             case .sessionError(let meshError):
                 switch meshError {
                 case .timeout:
@@ -615,6 +803,46 @@ public actor ChannelService {
             }
         }
 
+        if let transportError = error as? WiFiTransportError {
+            switch transportError {
+            case .sendTimeout:
+                return ChannelSyncError(
+                    index: index,
+                    errorType: .sendTimeout,
+                    description: "Send timed out"
+                )
+            case .notConnected, .connectionFailed, .connectionTimeout, .sendFailed:
+                return ChannelSyncError(
+                    index: index,
+                    errorType: .transportError,
+                    description: transportError.localizedDescription
+                )
+            case .invalidHost, .invalidPort, .notConfigured:
+                return ChannelSyncError(
+                    index: index,
+                    errorType: .unknown,
+                    description: transportError.localizedDescription
+                )
+            }
+        }
+
+        if let transportError = error as? MeshTransportError {
+            switch transportError {
+            case .sendFailed:
+                return ChannelSyncError(
+                    index: index,
+                    errorType: .transportError,
+                    description: transportError.localizedDescription
+                )
+            case .notConnected, .connectionFailed, .deviceNotFound, .serviceNotFound, .characteristicNotFound:
+                return ChannelSyncError(
+                    index: index,
+                    errorType: .transportError,
+                    description: transportError.localizedDescription
+                )
+            }
+        }
+
         return ChannelSyncError(
             index: index,
             errorType: .unknown,
@@ -622,10 +850,17 @@ public actor ChannelService {
         )
     }
 
+    private func nextConsecutiveFailureCount(
+        after error: ChannelSyncError,
+        currentCount: Int
+    ) -> Int {
+        error.countsTowardCircuitBreaker ? currentCount + 1 : 0
+    }
+
 }
 
 // MARK: - ChannelServiceProtocol Conformance
 
 extension ChannelService: ChannelServiceProtocol {
-    // Already implements syncChannels(deviceID:maxChannels:) -> ChannelSyncResult
+    // Already implements syncChannels(radioID:maxChannels:) -> ChannelSyncResult
 }

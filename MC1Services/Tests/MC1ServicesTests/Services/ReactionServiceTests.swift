@@ -178,7 +178,7 @@ struct ReactionServiceTests {
     func queuedReactionMatchesWhenMessageIndexed() async {
         let service = ReactionService()
         let messageID = UUID()
-        let deviceID = UUID()
+        let radioID = UUID()
         let timestamp: UInt32 = 1704067200
 
         // Build reaction text for a message that doesn't exist yet
@@ -197,7 +197,7 @@ struct ReactionServiceTests {
             channelIndex: 0,
             senderNodeName: "BetaNode",
             rawText: reactionText,
-            deviceID: deviceID
+            radioID: radioID
         )
 
         // Now index the target message - should return the pending reaction
@@ -218,7 +218,7 @@ struct ReactionServiceTests {
     func multipleReactionsForSameTargetAllMatch() async {
         let service = ReactionService()
         let messageID = UUID()
-        let deviceID = UUID()
+        let radioID = UUID()
         let timestamp: UInt32 = 1704067200
 
         // Queue multiple reactions for the same message
@@ -236,7 +236,7 @@ struct ReactionServiceTests {
                 channelIndex: 0,
                 senderNodeName: "BetaNode",
                 rawText: reactionText,
-                deviceID: deviceID
+                radioID: radioID
             )
         }
 
@@ -258,7 +258,7 @@ struct ReactionServiceTests {
     func hashMismatchPreventsFalseMatch() async {
         let service = ReactionService()
         let messageID = UUID()
-        let deviceID = UUID()
+        let radioID = UUID()
         let timestamp: UInt32 = 1704067200
 
         // Queue a reaction for "Hello world"
@@ -275,7 +275,7 @@ struct ReactionServiceTests {
             channelIndex: 0,
             senderNodeName: "BetaNode",
             rawText: reactionText,
-            deviceID: deviceID
+            radioID: radioID
         )
 
         // Index a different message (different hash)
@@ -295,7 +295,7 @@ struct ReactionServiceTests {
     func clearRemovesAllPending() async {
         let service = ReactionService()
         let messageID = UUID()
-        let deviceID = UUID()
+        let radioID = UUID()
         let timestamp: UInt32 = 1704067200
 
         // Queue a reaction
@@ -312,7 +312,7 @@ struct ReactionServiceTests {
             channelIndex: 0,
             senderNodeName: "BetaNode",
             rawText: reactionText,
-            deviceID: deviceID
+            radioID: radioID
         )
 
         // Clear all pending
@@ -334,7 +334,7 @@ struct ReactionServiceTests {
     func pendingReactionsScopedByChannel() async {
         let service = ReactionService()
         let messageID = UUID()
-        let deviceID = UUID()
+        let radioID = UUID()
         let timestamp: UInt32 = 1704067200
 
         // Queue a reaction for channel 0
@@ -351,7 +351,7 @@ struct ReactionServiceTests {
             channelIndex: 0,
             senderNodeName: "BetaNode",
             rawText: reactionText,
-            deviceID: deviceID
+            radioID: radioID
         )
 
         // Index on channel 1 - should NOT match
@@ -420,7 +420,7 @@ struct ReactionServiceTests {
         let service = ReactionService()
         let messageID = UUID()
         let contactID = UUID()
-        let deviceID = UUID()
+        let radioID = UUID()
         let timestamp: UInt32 = 1704067200
 
         let reactionText = service.buildDMReactionText(
@@ -436,7 +436,7 @@ struct ReactionServiceTests {
             contactID: contactID,
             senderName: "Alice",
             rawText: reactionText,
-            deviceID: deviceID
+            radioID: radioID
         )
 
         let matches = await service.indexDMMessage(
@@ -456,7 +456,7 @@ struct ReactionServiceTests {
         let messageID = UUID()
         let contactID1 = UUID()
         let contactID2 = UUID()
-        let deviceID = UUID()
+        let radioID = UUID()
         let timestamp: UInt32 = 1704067200
 
         let reactionText = service.buildDMReactionText(
@@ -472,7 +472,7 @@ struct ReactionServiceTests {
             contactID: contactID1,
             senderName: "Alice",
             rawText: reactionText,
-            deviceID: deviceID
+            radioID: radioID
         )
 
         // Index for contact2 - should NOT match
@@ -512,7 +512,7 @@ struct ReactionServiceTests {
         let service = ReactionService()
         let messageID = UUID()
         let contactID = UUID()
-        let deviceID = UUID()
+        let radioID = UUID()
         let timestamp: UInt32 = 1704067200
 
         // Queue a reaction for "Hello world"
@@ -528,7 +528,7 @@ struct ReactionServiceTests {
             contactID: contactID,
             senderName: "Alice",
             rawText: reactionText,
-            deviceID: deviceID
+            radioID: radioID
         )
 
         // Index a different message (different hash)
@@ -548,7 +548,7 @@ struct ReactionServiceTests {
         let service = ReactionService()
         let messageID = UUID()
         let contactID = UUID()
-        let deviceID = UUID()
+        let radioID = UUID()
         let timestamp: UInt32 = 1704067200
 
         // Queue a DM reaction
@@ -564,7 +564,7 @@ struct ReactionServiceTests {
             contactID: contactID,
             senderName: "Alice",
             rawText: reactionText,
-            deviceID: deviceID
+            radioID: radioID
         )
 
         // Clear all pending

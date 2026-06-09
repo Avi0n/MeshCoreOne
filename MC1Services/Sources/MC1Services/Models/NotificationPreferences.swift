@@ -6,6 +6,9 @@ public struct NotificationPreferences: Sendable {
     public let channelMessagesEnabled: Bool
     public let roomMessagesEnabled: Bool
     public let newContactDiscoveredEnabled: Bool
+    public let discoveryContactEnabled: Bool
+    public let discoveryRepeaterEnabled: Bool
+    public let discoveryRoomEnabled: Bool
     public let reactionNotificationsEnabled: Bool
     public let soundEnabled: Bool
     public let badgeEnabled: Bool
@@ -17,6 +20,9 @@ public struct NotificationPreferences: Sendable {
         self.channelMessagesEnabled = defaults.object(forKey: "notifyChannelMessages") as? Bool ?? true
         self.roomMessagesEnabled = defaults.object(forKey: "notifyRoomMessages") as? Bool ?? true
         self.newContactDiscoveredEnabled = defaults.object(forKey: "notifyNewContacts") as? Bool ?? true
+        self.discoveryContactEnabled = defaults.object(forKey: "notifyNewContactsContact") as? Bool ?? true
+        self.discoveryRepeaterEnabled = defaults.object(forKey: "notifyNewContactsRepeater") as? Bool ?? true
+        self.discoveryRoomEnabled = defaults.object(forKey: "notifyNewContactsRoom") as? Bool ?? true
         self.reactionNotificationsEnabled = defaults.object(forKey: "notifyReactions") as? Bool ?? true
         self.soundEnabled = defaults.object(forKey: "notificationSoundEnabled") as? Bool ?? true
         self.badgeEnabled = defaults.object(forKey: "notificationBadgeEnabled") as? Bool ?? true
@@ -53,7 +59,39 @@ public final class NotificationPreferencesStore {
     /// Enable notifications when new contacts are discovered
     public var newContactDiscoveredEnabled: Bool {
         get { defaults.object(forKey: "notifyNewContacts") as? Bool ?? true }
-        set { defaults.set(newValue, forKey: "notifyNewContacts") }
+        set {
+            let wasEnabled = defaults.object(forKey: "notifyNewContacts") as? Bool ?? true
+            defaults.set(newValue, forKey: "notifyNewContacts")
+            // Only auto-enable children on first activation (keys never written before)
+            if newValue && !wasEnabled {
+                let hasExistingChoices = defaults.object(forKey: "notifyNewContactsContact") != nil
+                    || defaults.object(forKey: "notifyNewContactsRepeater") != nil
+                    || defaults.object(forKey: "notifyNewContactsRoom") != nil
+                if !hasExistingChoices {
+                    discoveryContactEnabled = true
+                    discoveryRepeaterEnabled = true
+                    discoveryRoomEnabled = true
+                }
+            }
+        }
+    }
+
+    /// Enable discovery notifications for companion (chat) nodes
+    public var discoveryContactEnabled: Bool {
+        get { defaults.object(forKey: "notifyNewContactsContact") as? Bool ?? true }
+        set { defaults.set(newValue, forKey: "notifyNewContactsContact") }
+    }
+
+    /// Enable discovery notifications for repeater nodes
+    public var discoveryRepeaterEnabled: Bool {
+        get { defaults.object(forKey: "notifyNewContactsRepeater") as? Bool ?? true }
+        set { defaults.set(newValue, forKey: "notifyNewContactsRepeater") }
+    }
+
+    /// Enable discovery notifications for room nodes
+    public var discoveryRoomEnabled: Bool {
+        get { defaults.object(forKey: "notifyNewContactsRoom") as? Bool ?? true }
+        set { defaults.set(newValue, forKey: "notifyNewContactsRoom") }
     }
 
     /// Enable notifications when someone reacts to your messages

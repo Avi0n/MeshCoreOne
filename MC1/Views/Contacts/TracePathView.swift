@@ -20,13 +20,9 @@ struct TracePathView: View {
     @State private var viewModel = TracePathViewModel()
 
     // Haptic feedback triggers
-    @State private var addHapticTrigger = 0
     @State private var dragHapticTrigger = 0
     @State private var copyHapticTrigger = 0
     @State private var jumpHapticTrigger = 0
-
-    // Row feedback
-    @State private var recentlyAddedRepeaterID: UUID?
 
     @State private var showingSavedPaths = false
     @State private var presentedResult: TraceResult?
@@ -37,7 +33,7 @@ struct TracePathView: View {
     @AppStorage("tracePathViewMode") private var viewMode: TracePathViewMode = .list
 
     var body: some View {
-        Group {
+        ZStack {
             switch viewMode {
             case .list:
                 listView
@@ -45,6 +41,7 @@ struct TracePathView: View {
                 TracePathMapView(traceViewModel: viewModel, presentedResult: $presentedResult)
             }
         }
+        .animation(nil, value: viewMode)
         .navigationTitle(L10n.Contacts.Contacts.Trace.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -63,7 +60,6 @@ struct TracePathView: View {
                 }
             }
         }
-        .sensoryFeedback(.impact(weight: .light), trigger: addHapticTrigger)
         .sensoryFeedback(.impact(weight: .light), trigger: dragHapticTrigger)
         .sensoryFeedback(.success, trigger: copyHapticTrigger)
         .sensoryFeedback(.error, trigger: viewModel.errorHapticTrigger)
@@ -118,19 +114,12 @@ struct TracePathView: View {
         .task {
             viewModel.configure(appState: appState)
             viewModel.startListening()
-            if let deviceID = appState.connectedDevice?.id {
-                await viewModel.loadContacts(deviceID: deviceID)
+            if let radioID = appState.connectedDevice?.radioID {
+                await viewModel.loadContacts(radioID: radioID)
             }
         }
         .onDisappear {
             viewModel.stopListening()
-        }
-        .task(id: recentlyAddedRepeaterID) {
-            guard recentlyAddedRepeaterID != nil else { return }
-            try? await Task.sleep(for: .seconds(1))
-            if !Task.isCancelled {
-                recentlyAddedRepeaterID = nil
-            }
         }
     }
 
@@ -139,10 +128,8 @@ struct TracePathView: View {
         ScrollViewReader { proxy in
             TracePathListView(
                 viewModel: viewModel,
-                addHapticTrigger: $addHapticTrigger,
                 dragHapticTrigger: $dragHapticTrigger,
                 copyHapticTrigger: $copyHapticTrigger,
-                recentlyAddedRepeaterID: $recentlyAddedRepeaterID,
                 showingClearConfirmation: $showingClearConfirmation,
                 presentedResult: $presentedResult,
                 showJumpToPath: $showJumpToPath

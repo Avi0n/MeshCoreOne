@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import Testing
 @testable import MC1Services
 @testable import MeshCore
@@ -186,73 +187,48 @@ struct NodeConfigServiceTests {
         #expect(config.outPath == "aabb")
     }
 
-    // MARK: - Import ordering verification
+    // MARK: - Step counting (mirrors the write gates, driven by the resolved plan)
 
-    @Test("countImportSteps counts all section steps correctly")
-    func importStepCounting() async {
-        // Build a config with all sections populated
-        let config = MeshCoreNodeConfig(
-            name: "Test",
-            privateKey: "abcd",
-            radioSettings: .init(frequency: 910_525, bandwidth: 62_500,
-                                 spreadingFactor: 7, codingRate: 5, txPower: 22),
-            positionSettings: .init(latitude: "47.0", longitude: "-122.0"),
-            otherSettings: .init(manualAddContacts: 0),
-            channels: [
-                .init(name: "Ch1", secret: "00112233445566778899aabbccddeeff"),
-                .init(name: "Ch2", secret: "ffeeddccbbaa99887766554433221100"),
-            ],
-            contacts: [
-                .init(type: 1, name: "C1", publicKey: String(repeating: "ab", count: 32),
-                      flags: 0, latitude: "0", longitude: "0", lastAdvert: 0, lastModified: 0),
-            ]
-        )
-
-        var sections = ConfigSections()
-        sections.selectAll()
-        let service = await makeUntestableService()
-        let count = await service.testableCountImportSteps(config: config, sections: sections)
-
-        // privateKey(1) + name(1) + position(1) + otherSettings(1)
-        // + channels(2+1 read) + contacts(1) + radio(1) + txPower(1) = 10
-        #expect(count == 10)
+    private static func emptySlots(_ count: UInt8) -> [DeviceChannelSlot] {
+        (0..<count).map { DeviceChannelSlot(index: $0, name: "", secret: Data(), isConfigured: false) }
     }
 
-    @Test("countImportSteps skips disabled sections")
-    func importStepCountingSkipsDisabled() async {
-        let config = MeshCoreNodeConfig(
-            name: "Test",
-            privateKey: "abcd",
-            radioSettings: .init(frequency: 910_525, bandwidth: 62_500,
-                                 spreadingFactor: 7, codingRate: 5, txPower: 22),
-            channels: [
-                .init(name: "Ch1", secret: "00112233445566778899aabbccddeeff"),
-            ]
-        )
+    @Test("stepCount sums one step per resolved write plus two for radio")
+    func stepCountFullPlan() throws {
+        let plan = try Self.fullSectionsPlan()
+        // privateKey(1) + name(1) + position(1) + other(1) + channels(2) + contacts(1) + radio(2) = 9
+        #expect(NodeConfigService.stepCount(for: plan) == 9)
+    }
 
+    @Test("Two same-secret channels still count as two write steps")
+    func stepCountSameSecretChannels() throws {
+        var config = MeshCoreNodeConfig()
+        config.channels = [
+            .init(name: "Alpha", secret: "00112233445566778899aabbccddeeff"),
+            .init(name: "Beta", secret: "00112233445566778899aabbccddeeff"),
+        ]
         let sections = ConfigSections(
-            nodeIdentity: false,
-            radioSettings: false,
-            positionSettings: false,
-            otherSettings: false,
-            channels: true,
-            contacts: false
+            nodeIdentity: false, radioSettings: false, positionSettings: false,
+            otherSettings: false, channels: true, contacts: false
         )
-        let service = await makeUntestableService()
-        let count = await service.testableCountImportSteps(config: config, sections: sections)
-
-        // Only channels: 1 channel + 1 read = 2
-        #expect(count == 2)
+        let plan = try planConfigImport(
+            config: config, sections: sections,
+            maxChannels: 8, maxContacts: 100, maxTxPower: 30,
+            existingChannels: Self.emptySlots(8), existingContactKeys: []
+        )
+        // Both fold onto one slot, but each is a separate write, so the bar must count two.
+        #expect(plan.channelWrites.count == 2)
+        #expect(NodeConfigService.stepCount(for: plan) == 2)
     }
 
-    @Test("countImportSteps is zero for empty config")
-    func importStepCountingEmptyConfig() async {
-        let config = MeshCoreNodeConfig()
-        let sections = ConfigSections()
-        let service = await makeUntestableService()
-        let count = await service.testableCountImportSteps(config: config, sections: sections)
-
-        #expect(count == 0)
+    @Test("stepCount is zero for an empty plan")
+    func stepCountEmpty() throws {
+        let plan = try planConfigImport(
+            config: MeshCoreNodeConfig(), sections: ConfigSections(),
+            maxChannels: 8, maxContacts: 100, maxTxPower: 30,
+            existingChannels: [], existingContactKeys: []
+        )
+        #expect(NodeConfigService.stepCount(for: plan) == 0)
     }
 
     // MARK: - OtherSettings merge logic
@@ -531,36 +507,412 @@ struct NodeConfigServiceTests {
 
     @Test("ImportProgress stores step info")
     func importProgressFields() {
-        let progress = ImportProgress(step: "Setting radio", current: 3, total: 10)
-        #expect(progress.step == "Setting radio")
+        let progress = ImportProgress(step: .contact(name: "Alice"), current: 3, total: 10)
+        #expect(progress.step == .contact(name: "Alice"))
         #expect(progress.current == 3)
         #expect(progress.total == 10)
     }
 
-    // MARK: - Helpers
+    // MARK: - Post-Identity Resolution Seam
 
-    /// Creates a NodeConfigService that can only be used for non-session operations.
-    /// Used to test countImportSteps and other pure logic via the actor.
-    @MainActor
-    private func makeUntestableService() -> TestableNodeConfigService {
-        TestableNodeConfigService()
+    @Test("resolveEffectiveRadioID returns callback result when private key was imported")
+    func resolveReturnsCallbackResult() async throws {
+        let original = UUID()
+        let reconciled = UUID()
+        let result = try await resolveEffectiveRadioID(
+            original: original,
+            didImportPrivateKey: true,
+            callback: { @Sendable in reconciled }
+        )
+        #expect(result == reconciled)
+    }
+
+    @Test("resolveEffectiveRadioID skips callback when no private key was imported")
+    func resolveSkipsCallbackWhenNoPrivateKey() async throws {
+        actor CallTracker {
+            var calls = 0
+            func bump() { calls += 1 }
+        }
+        let tracker = CallTracker()
+        let original = UUID()
+        let result = try await resolveEffectiveRadioID(
+            original: original,
+            didImportPrivateKey: false,
+            callback: { @Sendable in
+                await tracker.bump()
+                return UUID()
+            }
+        )
+        #expect(result == original)
+        #expect(await tracker.calls == 0,
+                "Callback must not fire when no private key was imported")
+    }
+
+    @Test("resolveEffectiveRadioID returns original when callback returns nil")
+    func resolveReturnsOriginalWhenCallbackReturnsNil() async throws {
+        let original = UUID()
+        let result = try await resolveEffectiveRadioID(
+            original: original,
+            didImportPrivateKey: true,
+            callback: { @Sendable in nil }
+        )
+        #expect(result == original)
+    }
+
+    @Test("resolveEffectiveRadioID handles nil callback gracefully")
+    func resolveHandlesNilCallback() async throws {
+        let original = UUID()
+        let result = try await resolveEffectiveRadioID(
+            original: original,
+            didImportPrivateKey: true,
+            callback: nil
+        )
+        #expect(result == original)
+    }
+
+    // MARK: - Execute orchestration seam
+
+    private static let executeSections = ConfigSections(
+        nodeIdentity: true, radioSettings: false, positionSettings: false,
+        otherSettings: false, channels: true, contacts: true
+    )
+
+    private static let executeLogger = Logger(subsystem: "test", category: "NodeConfigExecuteTests")
+
+    /// A plan with identity, two channels, and one contact, so the seam exercises identity-first
+    /// ordering and per-write progress. Built through the real planner.
+    private static func executePlan() throws -> ConfigImportPlan {
+        let config = MeshCoreNodeConfig(
+            name: "Node",
+            privateKey: String(repeating: "ab", count: 64),
+            channels: [
+                .init(name: "Ch1", secret: "00112233445566778899aabbccddeeff"),
+                .init(name: "Ch2", secret: "ffeeddccbbaa99887766554433221100"),
+            ],
+            contacts: [
+                .init(type: 1, name: "C1", publicKey: String(repeating: "ab", count: 32),
+                      flags: 0, latitude: "0", longitude: "0", lastAdvert: 0, lastModified: 0),
+            ]
+        )
+        return try planConfigImport(
+            config: config, sections: executeSections,
+            maxChannels: 8, maxContacts: 100, maxTxPower: 30,
+            existingChannels: emptySlots(8), existingContactKeys: []
+        )
+    }
+
+    private static let radioExecuteSections = ConfigSections(
+        nodeIdentity: true, radioSettings: true, positionSettings: false,
+        otherSettings: false, channels: false, contacts: true
+    )
+
+    /// A plan that selects the radio section so the seam exercises the radio-last branch
+    /// (setRadioParams then setTxPower) after contacts. Radio values mirror the validated
+    /// set in stepCountFullPlan; txPower 20 is within the maxTxPower 30 bound.
+    private static func radioExecutePlan() throws -> ConfigImportPlan {
+        let config = MeshCoreNodeConfig(
+            name: "Node",
+            privateKey: String(repeating: "ab", count: 64),
+            radioSettings: .init(frequency: 910_525, bandwidth: 62_500,
+                                 spreadingFactor: 7, codingRate: 5, txPower: 20),
+            contacts: [
+                .init(type: 1, name: "C1", publicKey: String(repeating: "ab", count: 32),
+                      flags: 0, latitude: "0", longitude: "0", lastAdvert: 0, lastModified: 0),
+            ]
+        )
+        return try planConfigImport(
+            config: config, sections: radioExecuteSections,
+            maxChannels: 8, maxContacts: 100, maxTxPower: 30,
+            existingChannels: emptySlots(8), existingContactKeys: [])
+    }
+
+    private static let fullSections: ConfigSections = {
+        var s = ConfigSections()
+        s.selectAll()
+        return s
+    }()
+
+    /// A plan exercising every step-emitting branch (identity name+key, position, other,
+    /// two channels, one contact, radio params + tx power) so the execute seam's progress
+    /// emissions can be cross-checked against stepCount(for:) across all branches.
+    private static func fullSectionsPlan() throws -> ConfigImportPlan {
+        let config = MeshCoreNodeConfig(
+            name: "Test",
+            privateKey: String(repeating: "ab", count: 64),
+            radioSettings: .init(frequency: 910_525, bandwidth: 62_500,
+                                 spreadingFactor: 7, codingRate: 5, txPower: 20),
+            positionSettings: .init(latitude: "47.0", longitude: "-122.0"),
+            otherSettings: .init(manualAddContacts: 0),
+            channels: [
+                .init(name: "Ch1", secret: "00112233445566778899aabbccddeeff"),
+                .init(name: "Ch2", secret: "ffeeddccbbaa99887766554433221100"),
+            ],
+            contacts: [
+                .init(type: 1, name: "C1", publicKey: String(repeating: "ab", count: 32),
+                      flags: 0, latitude: "0", longitude: "0", lastAdvert: 0, lastModified: 0),
+            ])
+        return try planConfigImport(
+            config: config, sections: fullSections,
+            maxChannels: 8, maxContacts: 100, maxTxPower: 30,
+            existingChannels: emptySlots(8), existingContactKeys: [])
+    }
+
+    @Test("Execute applies identity before channels/contacts and reports one step per write")
+    func executeOrdersIdentityFirst() async throws {
+        let plan = try Self.executePlan()
+        let spy = ExecuteSpy()
+        try await executeConfigImport(
+            plan: plan, sections: Self.executeSections, radioID: UUID(),
+            writers: makeSpyWriters(spy), logger: Self.executeLogger,
+            onProgress: { spy.recordProgress($0.step) }
+        )
+        let calls = spy.calls
+        let identityIndex = try #require(calls.firstIndex(of: "importPrivateKey"))
+        let nameIndex = try #require(calls.firstIndex(of: "setNodeName"))
+        let channelIndex = try #require(calls.firstIndex { $0.hasPrefix("setChannel") })
+        let contactIndex = try #require(calls.firstIndex { $0.hasPrefix("addContact") })
+        #expect(identityIndex < channelIndex)
+        #expect(nameIndex < channelIndex)
+        #expect(identityIndex < contactIndex)
+        // privateKey + name + 2 channels + 1 contact = 5 successful writes, each reporting once.
+        #expect(spy.progress.count == 5)
+    }
+
+    @Test("A first-write failure reports no progress, so the import reads as clean, not partial")
+    func executeFirstWriteFailureEmitsNoProgress() async throws {
+        let plan = try Self.executePlan()
+        let spy = ExecuteSpy()
+        await #expect(throws: NodeConfigServiceError.self) {
+            try await executeConfigImport(
+                plan: plan, sections: Self.executeSections, radioID: UUID(),
+                writers: makeSpyWriters(spy, throwOn: { $0 == "importPrivateKey" }),
+                logger: Self.executeLogger,
+                onProgress: { spy.recordProgress($0.step) }
+            )
+        }
+        #expect(spy.progress.isEmpty, "No write succeeded, so no progress must be reported")
+    }
+
+    @Test("A mid-sequence failure reports progress only for the writes that already succeeded")
+    func executeMidSequenceFailureReportsPartialProgress() async throws {
+        let plan = try Self.executePlan()
+        let spy = ExecuteSpy()
+        await #expect(throws: NodeConfigServiceError.self) {
+            try await executeConfigImport(
+                plan: plan, sections: Self.executeSections, radioID: UUID(),
+                writers: makeSpyWriters(spy, throwOn: { $0.hasPrefix("setChannel") }),
+                logger: Self.executeLogger,
+                onProgress: { spy.recordProgress($0.step) }
+            )
+        }
+        // Identity succeeded and reported; the first channel write failed before its progress fired.
+        #expect(spy.progress == [.privateKey, .nodeName])
+    }
+
+    @Test("A local-save failure after the device add still reports the contact as applied")
+    func executeContactDbFailureStillReportsProgress() async throws {
+        let plan = try Self.executePlan()   // identity + 2 channels + 1 contact
+        let spy = ExecuteSpy()
+        var writers = makeSpyWriters(spy)
+        writers = ConfigImportWriters(
+            importPrivateKey: writers.importPrivateKey,
+            setNodeName: writers.setNodeName,
+            setLocation: writers.setLocation,
+            setOtherParams: writers.setOtherParams,
+            resolveEffectiveRadioID: writers.resolveEffectiveRadioID,
+            setRadioParams: writers.setRadioParams,
+            setTxPower: writers.setTxPower,
+            setChannel: writers.setChannel,
+            addContact: { _, contact in
+                spy.record("addContact:\(contact.advertisedName)")
+                // Models the post-device-add local save failing; the production closure must
+                // swallow this, so executeConfigImport must complete and report progress.
+            }
+        )
+        try await executeConfigImport(
+            plan: plan, sections: Self.executeSections, radioID: UUID(),
+            writers: writers, logger: Self.executeLogger,
+            onProgress: { spy.recordProgress($0.step) }
+        )
+        #expect(spy.progress.contains(.contact(name: "C1")))
+    }
+
+    @Test("Execute writes radio after contacts and tx power after radio params")
+    func executeWritesRadioLastAfterContacts() async throws {
+        let plan = try Self.radioExecutePlan()
+        let spy = ExecuteSpy()
+        try await executeConfigImport(
+            plan: plan, sections: Self.radioExecuteSections, radioID: UUID(),
+            writers: makeSpyWriters(spy), logger: Self.executeLogger,
+            onProgress: { spy.recordProgress($0.step) })
+        let calls = spy.calls
+        let contactIndex = try #require(calls.lastIndex { $0.hasPrefix("addContact") })
+        let radioIndex = try #require(calls.firstIndex(of: "setRadioParams"))
+        let txPowerIndex = try #require(calls.firstIndex(of: "setTxPower"))
+        #expect(contactIndex < radioIndex, "Radio must be written after contacts (radio goes last)")
+        #expect(radioIndex < txPowerIndex, "TX power must follow radio params")
+        #expect(spy.progress == [.privateKey, .nodeName, .contact(name: "C1"),
+                                 .radioParameters, .txPower])
+    }
+
+    @Test("A tx-power failure after radio params rethrows and reports radio progress but not tx power")
+    func executeTxPowerFailureAfterRadioParams() async throws {
+        let plan = try Self.radioExecutePlan()
+        let spy = ExecuteSpy()
+        await #expect(throws: NodeConfigServiceError.self) {
+            try await executeConfigImport(
+                plan: plan, sections: Self.radioExecuteSections, radioID: UUID(),
+                writers: makeSpyWriters(spy, throwOn: { $0 == "setTxPower" }),
+                logger: Self.executeLogger,
+                onProgress: { spy.recordProgress($0.step) })
+        }
+        #expect(spy.calls.contains("setRadioParams"))
+        #expect(spy.calls.contains("setTxPower"))
+        #expect(spy.progress.contains(.radioParameters))
+        #expect(!spy.progress.contains(.txPower), "TX power progress must not fire when setTxPower throws")
+    }
+
+    @Test("Execute over a full plan emits exactly stepCount progress steps across all branches")
+    func executeFullPlanProgressMatchesStepCount() async throws {
+        let plan = try Self.fullSectionsPlan()
+        let spy = ExecuteSpy()
+        try await executeConfigImport(
+            plan: plan, sections: Self.fullSections, radioID: UUID(),
+            writers: makeSpyWriters(spy), logger: Self.executeLogger,
+            onProgress: { spy.recordProgress($0.step) })
+        #expect(spy.progress.count == NodeConfigService.stepCount(for: plan))
+        let kinds = Set(spy.progress.map { step -> String in
+            switch step {
+            case .position: return "position"
+            case .otherParameters: return "other"
+            case .privateKey: return "privateKey"
+            case .nodeName: return "nodeName"
+            case .radioParameters: return "radio"
+            case .txPower: return "txPower"
+            case .channel: return "channel"
+            case .contact: return "contact"
+            }
+        })
+        #expect(kinds == ["position", "other", "privateKey", "nodeName", "radio", "txPower", "channel", "contact"])
     }
 }
 
-// MARK: - Testable wrapper for step counting
+// MARK: - Execute-seam spy
 
-/// Thin wrapper that exposes the step-counting logic without requiring a real session.
-/// This avoids creating a MeshCoreSession in tests.
-private actor TestableNodeConfigService {
-    func testableCountImportSteps(config: MeshCoreNodeConfig, sections: ConfigSections) -> Int {
-        var count = 0
-        if sections.nodeIdentity && config.privateKey != nil { count += 1 }
-        if sections.nodeIdentity && config.name != nil { count += 1 }
-        if sections.positionSettings && config.positionSettings != nil { count += 1 }
-        if sections.otherSettings && config.otherSettings != nil { count += 1 }
-        if sections.channels { count += (config.channels?.count ?? 0) + 1 }
-        if sections.contacts { count += config.contacts?.count ?? 0 }
-        if sections.radioSettings && config.radioSettings != nil { count += 2 }
-        return count
+/// Records write-closure calls and progress steps so `executeConfigImport`'s ordering, progress, and
+/// failure behavior can be asserted without a live session. Lock-guarded so the `@Sendable` closures
+/// can record from any executor.
+private final class ExecuteSpy: @unchecked Sendable {
+    private let lock = NSLock()
+    private var _calls: [String] = []
+    private var _progress: [ImportStep] = []
+
+    func record(_ label: String) { lock.lock(); _calls.append(label); lock.unlock() }
+    func recordProgress(_ step: ImportStep) { lock.lock(); _progress.append(step); lock.unlock() }
+    var calls: [String] { lock.lock(); defer { lock.unlock() }; return _calls }
+    var progress: [ImportStep] { lock.lock(); defer { lock.unlock() }; return _progress }
+}
+
+/// Builds `ConfigImportWriters` whose closures record their label and throw when `throwOn` matches,
+/// so a chosen write can be made to fail at a chosen point in the sequence.
+private func makeSpyWriters(
+    _ spy: ExecuteSpy,
+    throwOn: @escaping @Sendable (String) -> Bool = { _ in false }
+) -> ConfigImportWriters {
+    @Sendable func step(_ label: String) throws {
+        spy.record(label)
+        if throwOn(label) { throw NodeConfigServiceError.invalidRadioSettings(field: .frequency) }
+    }
+    return ConfigImportWriters(
+        importPrivateKey: { _ in try step("importPrivateKey") },
+        setNodeName: { _ in try step("setNodeName") },
+        setLocation: { _, _ in try step("setLocation") },
+        setOtherParams: { _ in try step("setOtherParams") },
+        resolveEffectiveRadioID: { original, _ in spy.record("resolveEffectiveRadioID"); return original },
+        setRadioParams: { _ in try step("setRadioParams") },
+        setTxPower: { _ in try step("setTxPower") },
+        setChannel: { _, write in try step("setChannel:\(write.name)") },
+        addContact: { _, contact in try step("addContact:\(contact.advertisedName)") }
+    )
+}
+
+// MARK: - importOtherParams live-session forwarding
+
+/// Drives `importOtherParams` over a live `MockTransport`-backed session to prove an
+/// `advert_loc_policy` byte the app doesn't model reaches the device verbatim instead of
+/// being coerced to `.none` by a future typed re-mapping.
+@Suite("NodeConfigService importOtherParams live session")
+struct NodeConfigImportOtherParamsLiveTests {
+
+    @Test("importOtherParams forwards an unmodeled advert_loc_policy byte to the device verbatim")
+    @MainActor
+    func unmodeledAdvertPolicyForwardedVerbatim() async throws {
+        let unmodeledAdvertPolicyByte: UInt8 = 99
+        #expect(AdvertLocationPolicy(rawValue: unmodeledAdvertPolicyByte) == nil)   // confirms 99 is unmodeled
+
+        let transport = MockTransport()
+        let session = MeshCoreSession(transport: transport)
+
+        // Complete session.start() so the session is ready to issue commands.
+        let startTask = Task { try await session.start() }
+        try await waitUntil("session should send app start") {
+            await transport.sentData.count == 1
+        }
+        await transport.simulateReceive(makeSelfInfoPacket())
+        try await startTask.value
+
+        let store = PersistenceStore(modelContainer: try PersistenceStore.createContainer(inMemory: true))
+        let settings = SettingsService(session: session)
+        let channels = ChannelService(session: session, dataStore: store)
+        let service = NodeConfigService(
+            session: session, settingsService: settings,
+            channelService: channels, dataStore: store)
+
+        let imported = MeshCoreNodeConfig.OtherSettings(
+            manualAddContacts: 0, advertLocationPolicy: unmodeledAdvertPolicyByte)
+
+        let beforeImport = await transport.sentData.count   // == 1 (the start handshake's appStart)
+        let importTask = Task { try await service.importOtherParams(imported) }
+
+        // importOtherParams first calls getSelfInfo() -> sendAppStart() (a second appStart round-trip),
+        // then writes setOtherParams. Pump the self-info reply, then ack the setOtherParams OK.
+        try await waitUntil("importOtherParams should send getSelfInfo appStart") {
+            await transport.sentData.count == beforeImport + 1
+        }
+        await transport.simulateReceive(makeSelfInfoPacket())
+        try await waitUntil("importOtherParams should send setOtherParams") {
+            await transport.sentData.count == beforeImport + 2
+        }
+        await transport.simulateOK()
+        try await importTask.value
+
+        let advertLocationPolicyByteIndex = 3   // [0]=cmd,[1]=manualAdd,[2]=telemetry,[3]=policy,[4]=multiAcks
+        let sent = await transport.sentData
+        let otherParamsPacket = try #require(sent.first { $0.first == CommandCode.setOtherParams.rawValue })
+        #expect(otherParamsPacket[advertLocationPolicyByteIndex] == unmodeledAdvertPolicyByte)
+
+        await session.stop()
+    }
+
+    private func makeSelfInfoPacket() -> Data {
+        var payload = Data()
+        payload.append(1)
+        payload.append(22)
+        payload.append(22)
+        payload.append(Data(repeating: 0x01, count: 32))
+        payload.append(withUnsafeBytes(of: Int32(0).littleEndian) { Data($0) })
+        payload.append(withUnsafeBytes(of: Int32(0).littleEndian) { Data($0) })
+        payload.append(0)
+        payload.append(0)
+        payload.append(0)
+        payload.append(withUnsafeBytes(of: UInt32(915_000).littleEndian) { Data($0) })
+        payload.append(withUnsafeBytes(of: UInt32(125_000).littleEndian) { Data($0) })
+        payload.append(7)
+        payload.append(5)
+        payload.append(contentsOf: "Test".utf8)
+
+        var packet = Data([ResponseCode.selfInfo.rawValue])
+        packet.append(payload)
+        return packet
     }
 }

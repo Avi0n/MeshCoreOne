@@ -15,7 +15,7 @@ struct NavigationStateTests {
     ) -> ContactDTO {
         ContactDTO(
             id: id,
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0xAA, count: 32),
             name: name,
             typeRawValue: 0x01,
@@ -45,7 +45,7 @@ struct NavigationStateTests {
     ) -> ChannelDTO {
         ChannelDTO(
             id: id,
-            deviceID: UUID(),
+            radioID: UUID(),
             index: index,
             name: name,
             secret: Data(),
@@ -64,7 +64,7 @@ struct NavigationStateTests {
     ) -> RemoteNodeSessionDTO {
         RemoteNodeSessionDTO(
             id: id,
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data(repeating: 0xBB, count: 32),
             name: name,
             role: .roomServer,
@@ -95,6 +95,7 @@ struct NavigationStateTests {
         #expect(appState.navigation.pendingChatContact == nil)
         #expect(appState.navigation.pendingChannel == nil)
         #expect(appState.navigation.pendingRoomSession == nil)
+        #expect(appState.navigation.pendingRoomAuthentication == nil)
         #expect(appState.navigation.pendingDiscoveryNavigation == false)
         #expect(appState.navigation.pendingContactDetail == nil)
         #expect(appState.navigation.pendingScrollToMessageID == nil)
@@ -253,6 +254,16 @@ struct NavigationStateTests {
         appState.navigation.clearPendingRoomNavigation()
 
         #expect(appState.navigation.pendingRoomSession == nil)
+    }
+
+    @Test("clearPendingRoomAuthentication clears room auth session")
+    func clearPendingRoomAuthentication() {
+        let appState = AppState()
+        appState.navigation.pendingRoomAuthentication = Self.makeRoomSession()
+
+        appState.navigation.clearPendingRoomAuthentication()
+
+        #expect(appState.navigation.pendingRoomAuthentication == nil)
     }
 
     @Test("clearPendingChannelNavigation clears channel")

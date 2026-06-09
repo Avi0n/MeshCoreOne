@@ -41,6 +41,10 @@ public actor RepeaterAdminService {
     /// Default pubkey prefix length for neighbor queries.
     public static let defaultPubkeyPrefixLength: UInt8 = 6
 
+    /// Per-request neighbour count used while paginating. A node caps each response to one
+    /// radio frame regardless, so requesting the maximum minimizes the number of round-trips.
+    private static let neighborPageSize: UInt8 = 255
+
     // MARK: - Initialization
 
     public init(
@@ -58,7 +62,7 @@ public actor RepeaterAdminService {
     /// Connect to a repeater as admin by creating a session and authenticating.
     /// - Parameter onTimeoutKnown: Optional callback invoked with timeout in seconds once firmware responds.
     public func connectAsAdmin(
-        deviceID: UUID,
+        radioID: UUID,
         contact: ContactDTO,
         password: String?,
         rememberPassword: Bool = true,
@@ -66,7 +70,7 @@ public actor RepeaterAdminService {
         onTimeoutKnown: (@Sendable (Int) async -> Void)? = nil
     ) async throws -> RemoteNodeSessionDTO {
         let remoteSession = try await remoteNodeService.createSession(
-            deviceID: deviceID,
+            radioID: radioID,
             contact: contact,
             password: password,
             rememberPassword: rememberPassword
@@ -138,22 +142,28 @@ public actor RepeaterAdminService {
     public func fetchAllNeighbors(
         sessionID: UUID,
         orderBy: NeighborSortOrder = .newestFirst,
-        pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength
+        pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength,
+        timeout: Duration? = nil
     ) async throws -> NeighboursResponse {
-        guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID),
-              remoteSession.isRepeater else {
-            throw RemoteNodeError.sessionNotFound
+        // Paginate over the per-page request so each round-trip keeps its audit log entry
+        // and timeout ceiling; a single node response is capped to one radio frame.
+        let response = try await NeighboursResponse.collectingAllPages { offset in
+            try await self.requestNeighbors(
+                sessionID: sessionID,
+                count: Self.neighborPageSize,
+                offset: offset,
+                orderBy: orderBy,
+                pubkeyPrefixLength: pubkeyPrefixLength,
+                timeout: timeout
+            )
         }
 
-        do {
-            return try await session.fetchAllNeighbours(
-                from: remoteSession.publicKey,
-                orderBy: orderBy.rawValue,
-                pubkeyPrefixLength: pubkeyPrefixLength
+        if response.neighbours.count < response.totalCount {
+            logger.warning(
+                "Neighbour pagination returned \(response.neighbours.count) of \(response.totalCount) entries"
             )
-        } catch let error as MeshCoreError {
-            throw RemoteNodeError.sessionError(error)
         }
+        return response
     }
 
     // MARK: - Status
@@ -210,8 +220,8 @@ public actor RepeaterAdminService {
     // MARK: - Session Queries
 
     /// Fetch all repeater sessions for a device.
-    public func fetchRepeaterSessions(deviceID: UUID) async throws -> [RemoteNodeSessionDTO] {
-        let sessions = try await dataStore.fetchRemoteNodeSessions(deviceID: deviceID)
+    public func fetchRepeaterSessions(radioID: UUID) async throws -> [RemoteNodeSessionDTO] {
+        let sessions = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
         return sessions.filter { $0.isRepeater }
     }
 
@@ -316,5 +326,13 @@ public actor RepeaterAdminService {
         self.neighboursResponseHandler = nil
         self.telemetryResponseHandler = nil
         self.cliResponseHandler = nil
+    }
+
+    /// Clears only the status-surface handlers so the merged admin surface can tear down its
+    /// status segment without dropping the settings VM's CLI handler on the shared per-connection service.
+    public func clearStatusHandlers() {
+        self.statusResponseHandler = nil
+        self.neighboursResponseHandler = nil
+        self.telemetryResponseHandler = nil
     }
 }

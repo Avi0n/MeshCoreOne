@@ -16,8 +16,6 @@ public enum BLEError: Error, Sendable {
     case invalidResponse
     case operationTimeout
     case authenticationFailed
-    case authenticationRequired
-    case pairingCancelled
     case pairingFailed(String)
     case deviceConnectedToOtherApp
 }
@@ -51,10 +49,6 @@ extension BLEError: LocalizedError {
             return "Operation timed out. Please try again."
         case .authenticationFailed:
             return "Authentication failed. Please check your device's PIN."
-        case .authenticationRequired:
-            return "Authentication required. Please enter the device PIN when prompted."
-        case .pairingCancelled:
-            return "Bluetooth pairing was cancelled. Please try again."
         case .pairingFailed(let reason):
             return "Bluetooth pairing failed: \(reason)"
         case .deviceConnectedToOtherApp:

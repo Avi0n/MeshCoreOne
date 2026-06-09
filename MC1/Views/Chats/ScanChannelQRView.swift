@@ -10,16 +10,11 @@ struct ScanChannelQRView: View {
     let availableSlots: [UInt8]
     let onComplete: (ChannelDTO?) -> Void
 
-    @State private var scannedChannel: ScannedChannel?
+    @State private var scannedChannel: MeshCoreURLParser.ChannelResult?
     @State private var selectedSlot: UInt8
     @State private var isJoining = false
     @State private var errorMessage: String?
     @State private var cameraPermissionDenied = false
-
-    struct ScannedChannel {
-        let name: String
-        let secret: Data
-    }
 
     init(availableSlots: [UInt8], onComplete: @escaping (ChannelDTO?) -> Void) {
         self.availableSlots = availableSlots
@@ -56,30 +51,15 @@ struct ScanChannelQRView: View {
     // MARK: - Private Methods
 
     private func handleScanResult(_ result: String) {
-        // Parse URL: meshcore://channel/add?name=<name>&secret=<hex>
-        guard let url = URL(string: result),
-              url.scheme == "meshcore",
-              url.host == "channel",
-              url.path == "/add",
-              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              let queryItems = components.queryItems else {
+        guard let parsed = MeshCoreURLParser.parseChannelURL(result) else {
             errorMessage = L10n.Chats.Chats.ScanQR.Error.invalidFormat
             return
         }
-
-        let name = queryItems.first(where: { $0.name == "name" })?.value ?? ""
-        let secretHex = queryItems.first(where: { $0.name == "secret" })?.value ?? ""
-
-        guard !name.isEmpty, let secret = Data(hexString: secretHex), secret.count == 16 else {
-            errorMessage = L10n.Chats.Chats.ScanQR.Error.invalidData
-            return
-        }
-
-        scannedChannel = ScannedChannel(name: name, secret: secret)
+        scannedChannel = parsed
     }
 
     private func joinChannel() async {
-        guard let deviceID = appState.connectedDevice?.id,
+        guard let radioID = appState.connectedDevice?.radioID,
               let channel = scannedChannel else {
             errorMessage = L10n.Chats.Chats.Error.noDeviceConnected
             return
@@ -95,7 +75,7 @@ struct ScanChannelQRView: View {
                 return
             }
             try await channelService.setChannelWithSecret(
-                deviceID: deviceID,
+                radioID: radioID,
                 index: selectedSlot,
                 name: channel.name,
                 secret: channel.secret
@@ -103,7 +83,7 @@ struct ScanChannelQRView: View {
 
             // Fetch the joined channel to return it
             var joinedChannel: ChannelDTO?
-            if let channels = try? await appState.services?.dataStore.fetchChannels(deviceID: deviceID) {
+            if let channels = try? await appState.services?.dataStore.fetchChannels(radioID: radioID) {
                 joinedChannel = channels.first { $0.index == selectedSlot }
             }
             onComplete(joinedChannel)
@@ -159,7 +139,9 @@ private struct ScannerContent: View {
 }
 
 private struct ScanConfirmationContent: View {
-    let scannedChannel: ScanChannelQRView.ScannedChannel
+    @Environment(\.appTheme) private var theme
+
+    let scannedChannel: MeshCoreURLParser.ChannelResult
     let isJoining: Bool
     let errorMessage: String?
     let onJoin: () -> Void
@@ -178,12 +160,14 @@ private struct ScanConfirmationContent: View {
             } header: {
                 Text(L10n.Chats.Chats.CreatePrivate.Section.details)
             }
+            .themedRowBackground(theme)
 
             if let errorMessage {
                 Section {
                     Text(errorMessage)
                         .foregroundStyle(.red)
                 }
+                .themedRowBackground(theme)
             }
 
             Section {
@@ -199,11 +183,19 @@ private struct ScanConfirmationContent: View {
                     }
                 }
                 .disabled(isJoining)
+                .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
 
-                Button(L10n.Chats.Chats.ScanQR.scanAgain, action: onScanAgain)
-                    .foregroundStyle(.secondary)
+                Button(action: onScanAgain) {
+                    HStack {
+                        Spacer()
+                        Text(L10n.Chats.Chats.ScanQR.scanAgain)
+                        Spacer()
+                    }
+                }
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
     }
 }
 

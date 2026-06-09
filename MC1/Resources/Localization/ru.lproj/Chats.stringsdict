@@ -34,6 +34,29 @@
         </dict>
     </dict>
 
+    <key>chats.scrollButton.scrollToMention.accessibilityValue</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>zero</key>
+            <string>Нет непрочитанных упоминаний</string>
+            <key>one</key>
+            <string>%d непрочитанное упоминание</string>
+            <key>few</key>
+            <string>%d непрочитанных упоминания</string>
+            <key>many</key>
+            <string>%d непрочитанных упоминаний</string>
+            <key>other</key>
+            <string>%d непрочитанного упоминания</string>
+        </dict>
+    </dict>
+
     <!-- Unread messages count for accessibility -->
     <key>chats.unreadMessages.accessibilityValue</key>
     <dict>

@@ -455,22 +455,14 @@ private struct LOSMapCanvasView: View {
                                 }
                             }
                         },
-                        showingLayersMenu: $showingMapStyleMenu,
-                        topContent: {
-                            NorthLockButton(isNorthLocked: $viewModel.isNorthLocked)
-                        }
+                        isNorthLocked: $viewModel.isNorthLocked,
+                        showLabels: $showLabels,
+                        showingLayersMenu: $showingMapStyleMenu
                     ) {
-                        LabelsToggleButton(showLabels: $showLabels)
-
                         Button(isDropPinMode ? L10n.Tools.Tools.LineOfSight.cancelDropPin : L10n.Tools.Tools.LineOfSight.dropPin, systemImage: isDropPinMode ? "mappin.slash" : "mappin") {
                             isDropPinMode.toggle()
                         }
-                        .font(.body.weight(.medium))
-                        .foregroundStyle(isDropPinMode ? .blue : .primary)
-                        .frame(width: 44, height: 44)
-                        .contentShape(.rect)
-                        .buttonStyle(.plain)
-                        .labelStyle(.iconOnly)
+                        .mapControlButton(tint: isDropPinMode ? .blue : .primary)
                     }
                 }
             }
@@ -615,7 +607,7 @@ private struct AnalyzeButton: View {
 #Preview("With Contact") {
     let contact = ContactDTO(
         id: UUID(),
-        deviceID: UUID(),
+        radioID: UUID(),
         publicKey: Data(repeating: 0x01, count: 32),
         name: "Test Contact",
         typeRawValue: 0,

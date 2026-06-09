@@ -32,6 +32,9 @@
 /* Location: ChatsView.swift - Filter option for channels */
 "chats.filter.channels" = "频道";
 
+/* Location: ChatsView.swift - Filter option for rooms */
+"chats.filter.rooms" = "房间";
+
 // MARK: - Compose Menu
 
 /* Location: ChatsView.swift - Button to start a new direct chat */
@@ -69,6 +72,12 @@
 /* Location: ChatsView.swift - Description when no channels */
 "chats.emptyState.noChannels.description" = "加入或创建频道";
 
+/* Location: ChatsView.swift - Title when no rooms exist */
+"chats.emptyState.noRooms.title" = "无房间";
+
+/* Location: ChatsView.swift - Description when no rooms exist */
+"chats.emptyState.noRooms.description" = "从联系人加入房间";
+
 /* Location: ChatsView.swift - Split view placeholder when no conversation selected */
 "chats.emptyState.selectConversation" = "选择对话";
 
@@ -90,7 +99,10 @@
 
 // MARK: - Message Timestamps
 
-/* Location: MessageTimestampView.swift - Prefix for yesterday's date */
+/* Location: MessageDayDividerView.swift - Label for today's date in the chat day separator */
+"chats.timestamp.today" = "今天";
+
+/* Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator */
 "chats.timestamp.yesterday" = "昨天";
 
 /* Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old */
@@ -110,14 +122,16 @@
 /* Location: ScrollToBottomButton.swift - Accessibility label for scroll to bottom button */
 "chats.scrollButton.scrollToBottom.accessibilityLabel" = "滚动到最新消息";
 
+/* Location: ScrollToBottomButton.swift - Accessibility value for unread message count - %d is the number of unread messages */
+"chats.scrollButton.scrollToBottom.accessibilityValue" = "%d条未读消息";
 /* Location: ScrollToMentionButton.swift, ScrollToBottomButton.swift - Badge text for 99+ unread */
 "chats.scrollButton.badge.overflow" = "99+";
 
 /* Location: ScrollToDividerButton.swift - Accessibility label for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityLabel" = "Scroll to new messages";
+"chats.scrollButton.scrollToDivider.accessibilityLabel" = "滚动到新消息";
 
 /* Location: ScrollToDividerButton.swift - Accessibility hint for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityHint" = "Double-tap to scroll to the new messages divider";
+"chats.scrollButton.scrollToDivider.accessibilityHint" = "双击以滚动到新消息分隔符";
 
 // MARK: - Chat View (Direct Messages)
 
@@ -125,7 +139,7 @@
 "chats.alert.unableToSend.title" = "无法发送";
 
 /* Location: ChatConversationView.swift - Alert message when message send fails */
-"chats.alert.unableToSend.message" = "请确保您的设备已连接并重试";
+"chats.alert.unableToSend.message" = "请确保您的设备已连接并重试。";
 
 /* Location: ChatConversationView.swift - Connection status for flood routed contacts */
 "chats.connectionStatus.floodRouting" = "泛洪路由";
@@ -236,8 +250,20 @@
 /* Location: ChannelInfoSheet.swift - Error when services unavailable */
 "chats.error.servicesUnavailable" = "服务不可用";
 
+/* TODO: translate - Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
+"chats.error.notConnectedToDelete" = "连接到您的无线电以删除此对话。";
+
 /* Location: ChatConversationView.swift - Error when loading older messages fails */
-"chats.errors.loadOlderMessagesFailed" = "加载更早的消息失败";
+"chats.error.loadOlderMessagesFailed" = "加载更早的消息失败";
+
+/* Location: ErrorBannerModifier.swift - Accessibility hint announcing that tapping the banner dismisses it */
+"chats.error.banner.dismissAccessibilityHint" = "点按以关闭";
+
+/* Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error) */
+"chats.error.sendQueuePersistFailed" = "无法将消息加入队列。请重试。";
+
+/* TODO: translate - Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
+"chats.error.loadConversationsFailed" = "无法加载对话。";
 
 // MARK: - Channel Options Sheet
 
@@ -336,20 +362,20 @@
 
 // MARK: - Swipe Actions
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to delete */
-"chats.swipeAction.delete" = "删除";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to delete */
+"chats.action.delete" = "删除";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to unmute */
-"chats.swipeAction.unmute" = "取消静音";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to unmute */
+"chats.action.unmute" = "取消静音";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to mute */
-"chats.swipeAction.mute" = "静音";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
+"chats.action.mute" = "静音";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to remove from favorites */
-"chats.swipeAction.unfavorite" = "取消收藏";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to remove from favorites */
+"chats.action.unfavorite" = "取消收藏";
 
-/* Location: ConversationSwipeActionsModifier.swift - Swipe action to add to favorites */
-"chats.swipeAction.favorite" = "收藏";
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to add to favorites */
+"chats.action.favorite" = "收藏";
 
 // MARK: - Room Conversation Row
 
@@ -559,6 +585,9 @@
 /* Location: UnifiedMessageBubble.swift - Fallback sender name */
 "chats.message.sender.unknown" = "未知";
 
+/* Location: UnifiedMessageBubble.swift - Accessibility text for sender names resolved from a short prefix */
+"chats.message.sender.possibleMatch" = "可能匹配，通过短前缀匹配";
+
 /* Location: UnifiedMessageBubble.swift - Context menu action to reply */
 "chats.message.action.reply" = "回复";
 
@@ -595,6 +624,9 @@
 /* Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct" */
 "chats.message.info.hops" = "跳数：%@";
 
+/* Location: ActionsDetailsSection.swift - Info row showing the path hash size in bytes - %d is 1, 2, or 3 */
+"chats.message.info.pathHash" = "路径哈希：%d 字节";
+
 /* Location: UnifiedMessageBubble.swift - Indicator that timestamp was adjusted */
 "chats.message.info.adjusted" = "（已调整）";
 
@@ -604,20 +636,53 @@
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for adjusted timestamp */
 "chats.message.info.adjustedHint" = "发送方的时钟不正确";
 
+/* Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date */
+"chats.message.info.originalSendTime" = "原始发送时间：%@";
+
 /* Location: UnifiedMessageBubble.swift - Context menu text showing received time - %@ is formatted date */
 "chats.message.info.received" = "已接收：%@";
 
 /* Location: UnifiedMessageBubble.swift - Context menu text showing SNR - %@ is formatted value */
 "chats.message.info.snr" = "信噪比：%@";
 
+/* Location: MessageActionsSheet.swift - Context menu text showing the radio region the message was flooded under - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
+"chats.message.info.floodedUnder" = "区域：%@";
+
+/* Location: MessageActionsSheet.swift - Details row shown when region could not be resolved */
+"chats.message.info.regionUnresolved" = "区域：未知";
+
 /* Location: UnifiedMessageBubble.swift - Context menu submenu label */
 "chats.message.action.details" = "详情";
+
+/* Location: ActionsDetailsSection.swift - Accessibility value when the details row is expanded */
+"chats.message.action.expanded" = "已展开";
+
+/* Location: ActionsDetailsSection.swift - Accessibility value when the details row is collapsed */
+"chats.message.action.collapsed" = "已折叠";
 
 /* Location: UnifiedMessageBubble.swift - Context menu action to delete */
 "chats.message.action.delete" = "删除";
 
 /* Location: MessageActionsSheet.swift - Purpose: Block sender action */
 "chats.message.action.blockSender" = "屏蔽发送者";
+
+/* Location: MessageActionsSheet.swift - Purpose: Action to start a DM with the channel sender */
+"chats.message.action.sendDM" = "发送私信";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed send */
+"chats.message.action.retry" = "重试";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the reactions detail sheet */
+"chats.message.action.viewReactions" = "查看反应";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL */
+"chats.message.action.openLink" = "打开链接";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen */
+"chats.message.action.viewImage" = "查看图片";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed image download */
+"chats.message.action.retryImage" = "重新加载图片";
 
 /* Location: UnifiedMessageBubble.swift - Status row retry button */
 "chats.message.status.retry" = "重试";
@@ -663,6 +728,8 @@
 
 /* Location: UnifiedMessageBubble.swift - Path footer for direct messages (no hops) */
 "chats.message.path.direct" = "直连";
+/* Routing strategy where the radio rebroadcasts the message to every neighbor (no specific path). UI displays this as a label in the per-message details sheet. Prefer a localized term over the English loanword if one exists in your locale's networking terminology. */
+"chats.message.path.flood" = "Flood";
 
 /* Location: UnifiedMessageBubble.swift - Fallback path showing hop count - %d is number */
 "chats.message.path.hops" = "%d 跳";
@@ -675,6 +742,15 @@
 
 /* Location: UnifiedMessageBubble.swift - Accessibility label for hop count display - %d is count */
 "chats.message.hopCount.accessibilityLabel" = "跳数：%d";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
+"chats.message.region.accessibilityLabel" = "区域 %@";
+
+/* Location: BubbleFooterRow.swift - Accessibility label for the raw send time footer - %@ is the time */
+"chats.message.sendTime.accessibilityLabel" = "发送时间：%@";
+
+/* Location: BubbleFooterRow.swift - Accessibility label for the send time footer when the sender's clock was corrected - %@ is the time */
+"chats.message.sendTime.correctedAccessibilityLabel" = "发送时间：%@，由于发送方时钟错误已调整";
 
 // MARK: - Reactions
 
@@ -747,6 +823,31 @@
 "chats.input.encrypted" = "已加密";
 "chats.input.notEncrypted" = "未加密";
 
+/* Location: ChatShareMenu.swift - Accessibility label for the share (plus) button */
+"chats.input.shareButton.accessibilityLabel" = "分享";
+
+// MARK: - Share Menu
+
+/* Location: ChatShareMenu.swift - Share menu action to share the current location */
+"chats.share.location" = "分享位置";
+
+/* Location: ChatShareMenu.swift - Share menu action to share a contact */
+"chats.share.contact" = "分享联系人";
+
+/* Location: ChatShareMenu.swift - Share menu action to share the user's own node info */
+"chats.share.myInfo" = "分享我的联系人";
+
+// MARK: - Contact Picker
+
+/* Location: ShareContactPickerSheet.swift - Navigation title for the share-contact picker */
+"chats.contactPicker.title" = "分享联系人";
+
+/* Location: ShareContactPickerSheet.swift - Search placeholder for the contact picker */
+"chats.contactPicker.search.placeholder" = "搜索联系人";
+
+/* Location: ShareContactPickerSheet.swift - Empty state when no contacts are available to share */
+"chats.contactPicker.emptyState" = "没有可分享的联系人";
+
 // MARK: - Message Path Sheet
 
 /* Location: MessagePathSheet.swift - Empty state title */
@@ -789,6 +890,15 @@
 
 /* Location: PathHopRowView.swift - Unknown signal quality */
 "chats.path.hop.signalUnknown" = "未知";
+
+/* Location: FallbackMatchIndicatorView.swift - Accessibility label for possible match indicator */
+"chats.path.hop.possibleMatch" = "可能匹配，通过短前缀匹配";
+
+/* Location: FallbackMatchIndicatorView.swift - Title for possible match explanation popover */
+"chats.path.hop.possibleMatchTitle" = "可能匹配";
+
+/* Location: FallbackMatchIndicatorView.swift - Explanation of what a possible match means */
+"chats.path.hop.possibleMatchExplanation" = "多个节点共享此前缀。显示的名称可能不正确。";
 
 /* Location: PathHopRowView.swift - Label for receiver (your device) */
 "chats.path.receiver.label" = "接收者";
@@ -917,13 +1027,16 @@
 // MARK: - Tips
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip title introducing device menu */
-"chats.tip.deviceMenu.title" = "Your Device Menu";
+"chats.tip.deviceMenu.title" = "您的设备菜单";
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
-"chats.tip.deviceMenu.message" = "Manage your connection, send advertisements, and check battery. Bluetooth devices stay connected even if the app is closed — tap Disconnect when you're ready to turn off the link.";
+"chats.tip.deviceMenu.message" = "管理您的连接、发送广播并查看电池电量。即使在强制退出应用后，无线电仍保持连接。点击断开连接以关闭链路。";
 
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "图片";
+
+/* Location: InlineImageFragmentView.swift - Accessibility label for loading state */
+"chats.inlineImage.loading" = "正在加载图片";
 
 /* Location: InlineImageView.swift - Accessibility label for animated image */
 "chats.inlineImage.animatedAccessibility" = "动态图片";
@@ -932,10 +1045,13 @@
 "chats.inlineImage.tapHint" = "双击查看全屏";
 
 /* Location: UnifiedMessageBubble.swift - Tap to retry loading failed image */
-"chats.inlineImage.tapToRetry" = "Tap to retry";
+"chats.inlineImage.tapToRetry" = "点击以重试";
 
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for retry button */
-"chats.inlineImage.retryHint" = "Double tap to retry loading image";
+"chats.inlineImage.retryHint" = "双击以重新加载图片";
+
+/* Location: InlineImageFragmentView.swift - VoiceOver identity for a failed inline image */
+"chats.inlineImage.failedLabel" = "图片加载失败";
 
 /* Location: FullScreenImageViewer.swift - Close button label */
 "chats.imageViewer.close" = "关闭";
@@ -960,14 +1076,33 @@
 /* Location: BlockSenderSheet.swift - Purpose: Destructive block button */
 "chats.blockSender.blockAnyway" = "屏蔽";
 
-/* Location: BlockSenderSheet.swift - Purpose: Accessibility value when contact is selected */
-"chats.blockSender.accessibility.selected" = "已选择";
+// MARK: - Contact Match Row
 
-/* Location: BlockSenderSheet.swift - Purpose: Accessibility value when contact is not selected */
-"chats.blockSender.accessibility.notSelected" = "未选择";
+/* Location: ContactMatchRow.swift - Purpose: Accessibility value when contact is selected */
+"chats.contactMatch.accessibility.selected" = "已选择";
 
-/* Location: BlockSenderSheet.swift - Purpose: Public key label */
-"chats.blockSender.key" = "密钥：%@";
+/* Location: ContactMatchRow.swift - Purpose: Accessibility value when contact is not selected */
+"chats.contactMatch.accessibility.notSelected" = "未选择";
+
+/* Location: ContactMatchRow.swift - Purpose: Public key label */
+"chats.contactMatch.key" = "密钥：%@";
+
+// MARK: - Send DM Sheet
+
+/* Location: SendDMSheet.swift - Purpose: Sheet title with sender name */
+"chats.sendDM.title" = "发送私信给\"%@\"";
+
+/* Location: SendDMSheet.swift - Purpose: Name-based matching limitation warning */
+"chats.sendDM.limitation" = "频道消息不包含发送者身份信息。此匹配仅按名称——该联系人可能是同名的其他人。";
+
+/* Location: SendDMSheet.swift - Purpose: Section header listing matching contacts */
+"chats.sendDM.matchingContacts" = "选择一个联系人发送消息：";
+
+/* Location: SendDMSheet.swift - Purpose: Empty-state message when no contact matches */
+"chats.sendDM.noMatches" = "未找到名为\"%@\"的联系人。";
+
+/* Location: SendDMSheet.swift - Purpose: Cancel button */
+"chats.sendDM.cancel" = "取消";
 
 // MARK: - Malware Warning
 
@@ -985,14 +1120,17 @@
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set */
 "chats.channelInfo.region.allRegions" = "All Regions";
 
+/* Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope */
+"chats.channelInfo.region.useDefaultFormat" = "%@（默认）";
+
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no regions configured */
 "chats.channelInfo.region.notConfigured" = "Not configured";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Explanation shown when no regions exist */
-"chats.channelInfo.region.explanation" = "Limit messages to a geographic area";
+"chats.channelInfo.region.explanation" = "将消息限制在某个地理区域";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Discover button */
-"chats.channelInfo.region.discover" = "Discover Nearby Regions";
+"chats.channelInfo.region.discover" = "发现附近区域";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Discover button loading state */
 "chats.channelInfo.region.discovering" = "Discovering…";
@@ -1001,7 +1139,7 @@
 "chats.channelInfo.region.manage" = "Regions";
 
 /* Location: RegionManagementView.swift - Purpose: Manage regions link */
-"chats.channelInfo.region.manageRegions" = "Manage Regions";
+"chats.channelInfo.region.manageRegions" = "管理区域";
 
 /* Location: RegionManagementView.swift - Purpose: Add manually button */
 "chats.channelInfo.region.addManually" = "Add Manually";
@@ -1010,13 +1148,19 @@
 "chats.channelInfo.region.noRegions" = "No regions added";
 
 /* Location: RegionManagementView.swift - Purpose: Empty state description */
-"chats.channelInfo.region.noRegionsDescription" = "Discover regions from nearby repeaters or add them manually.";
+"chats.channelInfo.region.noRegionsDescription" = "从附近的转发节点发现区域，或手动添加。";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: No new regions found */
 "chats.channelInfo.region.noNewRegions" = "No new regions found";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: No repeaters responded */
 "chats.channelInfo.region.noRepeatersResponded" = "No repeaters responded";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Couldn't load nearby repeater list */
+"chats.channelInfo.region.errLoadingRepeaters" = "无法加载附近的转发节点";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Some queries failed because radio contact list is full */
+"chats.channelInfo.region.errRadioContactsFull" = "无线电联系人列表已满 — 部分转发节点无法查询";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: Add selected regions button */
 "chats.channelInfo.region.addSelected" = "Add";
@@ -1028,13 +1172,47 @@
 "chats.channelInfo.region.addRegionPlaceholder" = "Region name";
 
 /* Location: AddRegionView.swift - Purpose: Validation error */
-"chats.channelInfo.region.invalidName" = "Region names cannot contain spaces or start with # or $.";
+"chats.channelInfo.region.invalidName" = "区域名称只能包含字母、数字和连字符。";
+
+/* Location: RegionManagementView.swift - Purpose: Validation error when a region name exceeds the firmware byte cap */
+"chats.channelInfo.region.nameTooLong" = "区域名称限制为 %d 字节。";
 
 /* Location: AddRegionView.swift - Purpose: Duplicate error */
-"chats.channelInfo.region.duplicate" = "This region is already in your list.";
+"chats.channelInfo.region.duplicate" = "此区域已在您的列表中。";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Private region label */
 "chats.channelInfo.region.private" = "Private";
 
 /* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle */
-"chats.channelInfo.region.scopedAccessibility" = "%@, scoped to %@";
+"chats.channelInfo.region.scopedAccessibility" = "%@，限定为 %@";
+
+/* Location: ChatConversationType.swift - Purpose: Subtitle suffix when channel region matches the device default flood scope */
+"chats.channelInfo.region.scopedDefault" = "%@（默认）";
+
+/* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle when region matches the device default */
+"chats.channelInfo.region.defaultScopedAccessibility" = "%@，限定为 %@（默认）";
+
+// MARK: - Common
+
+/* Location: ChatConversationView.swift - Conversation toolbar Info button */
+"chats.common.info" = "信息";
+
+// MARK: - Mention Picker
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker navigation title shown with the tapped mention name */
+"chats.mention.picker.title" = "Mention: %@";
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker title when the tapped name matches no saved contact */
+"chats.mention.picker.notSavedTitle" = "Not a saved contact";
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker description when the tapped name matches no saved contact */
+"chats.mention.picker.notSavedSubtitle" = "@%@ 不匹配此无线电上的任何联系人。";
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker title when the tapped name is the user's own node */
+"chats.mention.picker.selfTitle" = "这是您自己";
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker description when the tapped name is the user's own node */
+"chats.mention.picker.selfSubtitle" = "@%@ 是您自己的节点名称。";
+
+/* TODO: translate - Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
+"chats.mention.picker.matchingContacts" = "Matching contacts";

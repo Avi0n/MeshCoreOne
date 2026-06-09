@@ -8,12 +8,13 @@ private let deviceInfoLogger = Logger(subsystem: "com.mc1", category: "DeviceInf
 /// Detailed device information screen
 struct DeviceInfoView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @State private var showShareSheet = false
 
     @State private var nodeName: String = ""
     @State private var isEditingName = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var retryAlert = RetryAlertState()
     @State private var isSaving = false
 
@@ -26,6 +27,7 @@ struct DeviceInfoView: View {
                 } header: {
                     Text(L10n.Settings.Device.header)
                 }
+                .themedRowBackground(theme)
 
                 // Node settings (name, public key, share)
                 Section {
@@ -68,6 +70,7 @@ struct DeviceInfoView: View {
                         saveNodeName()
                     }
                 }
+                .themedRowBackground(theme)
 
                 // Connection status
                 Section {
@@ -88,6 +91,7 @@ struct DeviceInfoView: View {
                 } header: {
                     Text(L10n.Settings.DeviceInfo.Connection.header)
                 }
+                .themedRowBackground(theme)
 
                 // Battery and storage
                 Section {
@@ -125,6 +129,7 @@ struct DeviceInfoView: View {
                 } header: {
                     Text(L10n.Settings.DeviceInfo.PowerStorage.header)
                 }
+                .themedRowBackground(theme)
 
                 // Firmware info
                 Section {
@@ -163,6 +168,7 @@ struct DeviceInfoView: View {
                 } header: {
                     Text(L10n.Settings.DeviceInfo.Firmware.header)
                 }
+                .themedRowBackground(theme)
 
                 // Capabilities
                 Section {
@@ -189,6 +195,7 @@ struct DeviceInfoView: View {
                 } header: {
                     Text(L10n.Settings.DeviceInfo.Capabilities.header)
                 }
+                .themedRowBackground(theme)
 
             } else {
                 ContentUnavailableView(
@@ -198,8 +205,9 @@ struct DeviceInfoView: View {
                 )
             }
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Settings.DeviceInfo.title)
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
         .retryAlert(retryAlert)
         .refreshable {
             await appState.batteryMonitor.fetchDeviceBattery(services: appState.services, device: appState.connectedDevice)
@@ -240,7 +248,7 @@ struct DeviceInfoView: View {
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
             isSaving = false
         }
@@ -319,6 +327,7 @@ private struct StorageBar: View {
 private struct PublicKeyView: View {
     let publicKey: Data
 
+    @Environment(\.appTheme) private var theme
     @State private var copyHapticTrigger = 0
 
     var body: some View {
@@ -332,6 +341,7 @@ private struct PublicKeyView: View {
             } footer: {
                 Text(L10n.Settings.PublicKey.footer)
             }
+            .themedRowBackground(theme)
 
             Section {
                 Button {
@@ -349,7 +359,9 @@ private struct PublicKeyView: View {
             } header: {
                 Text(L10n.Settings.PublicKey.Base64.header)
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .navigationTitle(L10n.Settings.PublicKey.title)
         .sensoryFeedback(.success, trigger: copyHapticTrigger)
     }

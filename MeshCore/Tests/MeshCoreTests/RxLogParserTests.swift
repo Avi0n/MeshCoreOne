@@ -184,6 +184,7 @@ struct RxLogParserTests {
         let parsed = ParsedRxLogData(
             snr: 5.0, rssi: -80, rawPayload: Data([0x15, 0x00, 0xAA]),
             routeType: .flood, payloadType: .groupText, payloadVersion: 0,
+            payloadTypeBits: 5,
             transportCode: nil, pathLength: 0, pathNodes: [],
             packetPayload: Data([0xAA])
         )
@@ -196,5 +197,36 @@ struct RxLogParserTests {
         } else {
             Issue.record("Expected rxLogData event")
         }
+    }
+
+    @Test("Parse rejects reserved (mode 3) path length encoding")
+    func parseRejectsReservedPathMode() {
+        // Header: routeType=2 (DIRECT), payloadType=2 (TEXT_MSG), version=0 -> 0x0A
+        // pathLen: bits 7-6 = 0b11 (mode 3, reserved), hopCount=1 -> 0b11_000001 = 0xC1
+        let reservedPathLen: UInt8 = 0xC1
+        let payload = Data([0x0A, reservedPathLen, 0x07, 0x0A, 0xDE, 0xAD])
+
+        let result = RxLogParser.parse(snr: 5.0, rssi: -80, payload: payload)
+
+        #expect(result == nil)
+    }
+
+    @Test("Parse FLOOD TEXT_MSG extracts sender and recipient pubkey hashes")
+    func parseFloodTextMsgExtractsSenderAndRecipient() {
+        // Header: routeType=1 (FLOOD), payloadType=2 (TEXT_MSG), version=0
+        // Header byte: 0b00_0010_01 = 0x09
+        // pathLen=0, then payload: [dest: 1B] [src: 1B] [MAC + encrypted]
+        let destHash: UInt8 = 0x07  // recipient
+        let srcHash: UInt8 = 0x0A   // sender
+        let encryptedContent = Data([0x48, 0x69, 0xAB, 0xCD]) // MAC + content
+        let payload = Data([0x09, 0x00, destHash, srcHash]) + encryptedContent
+
+        let result = RxLogParser.parse(snr: 5.0, rssi: -80, payload: payload)
+
+        #expect(result != nil)
+        #expect(result?.routeType == .flood)
+        #expect(result?.payloadType == .textMessage)
+        #expect(result?.senderPubkeyPrefix == Data([srcHash]))
+        #expect(result?.recipientPubkeyPrefix == Data([destHash]))
     }
 }

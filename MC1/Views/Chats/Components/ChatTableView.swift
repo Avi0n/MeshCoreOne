@@ -4,7 +4,7 @@ import SwiftUI
 /// UIKit table view controller with flipped orientation for chat-style scrolling
 /// Newest messages appear at visual bottom, keyboard handling via native UIKit
 @MainActor
-final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, CellContent: View>: UITableViewController where Item.ID: Sendable {
+final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, CellContent: View>: UITableViewController, UIContextMenuInteractionDelegate where Item.ID == UUID {
 
     // MARK: - Types
 
@@ -15,6 +15,12 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     private struct SnapshotApplyRequest {
         var snapshot: NSDiffableDataSourceSnapshot<Section, Item.ID>
         var animatingDifferences: Bool
+        var completion: (() -> Void)?
+        /// `true` when this request was issued by `reconfigureAllItems` (live theme switch).
+        /// The pending-slot coalescer carries this flag — and a re-applied
+        /// `reconfigureItems(allCurrentIDs)` — forward into any superseding request so the
+        /// reconfigure intent isn't silently dropped when latest-wins overwrites pendingSnapshot.
+        var reconfigureAll: Bool = false
     }
 
     // MARK: - Properties
@@ -25,9 +31,24 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     /// O(1) index lookup for scroll-to-item (replaces O(n) firstIndex(where:))
     private var itemIndexByID: [Item.ID: Int] = [:]
     private var cellContentProvider: ((Item) -> CellContent)?
+    var defaultTableBackgroundColor: UIColor?
     private var dataSource: UITableViewDiffableDataSource<Section, Item.ID>?
-    private var isApplyingSnapshot = false
-    private var pendingSnapshotApplies: [SnapshotApplyRequest] = []
+    /// Snapshot scheduled while a previous apply was still running. Latest
+    /// wins: when a new request arrives mid-apply, it replaces this field
+    /// and the intermediate snapshot is skipped. Diffable data source
+    /// derives the visual result from the final snapshot alone, so
+    /// dropping intermediates is safe.
+    private var pendingSnapshot: SnapshotApplyRequest?
+    /// Completions from snapshot requests whose snapshot was superseded
+    /// before it landed. They still need to run because callers (notably
+    /// the pagination prepend path) use them to restore the anchor row's
+    /// viewport position after layout settles; the anchor row is part of
+    /// the superseding snapshot too, so measuring against the post-apply
+    /// layout is correct. Drained in order after the latest apply lands.
+    private var pendingCompletions: [() -> Void] = []
+
+    /// Bundled interaction/intent/apply/deferred axes for the scroll surface.
+    private(set) var scrollState: ChatScrollState = .idle
 
     /// Tracks scroll position relative to bottom
     private(set) var isAtBottom: Bool = true
@@ -41,14 +62,24 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     /// Callback when scroll state changes
     var onScrollStateChanged: ((Bool, Int) -> Void)?
 
-    /// Callback when user scrolls near the top (oldest messages)
-    var onNearTop: (() -> Void)?
+    /// Callback when user scrolls near the top (oldest messages). The closure receives a release
+    /// callback the consumer must invoke when pagination work completes (success or short-circuit)
+    /// so the request latch clears even when the view model's isLoadingOlder never visibly flips.
+    var onNearTop: ((@escaping @MainActor () -> Void) -> Void)?
 
     /// Whether pagination is in progress (skip auto-scroll during pagination)
     var isLoadingOlderMessages = false
 
+    /// Suppresses duplicate onNearTop fires while the view model's isLoadingOlder propagates back through SwiftUI
+    private var isNearTopRequestInFlight = false
+
     /// Callback when a mention becomes visible
     var onMentionBecameVisible: ((Item.ID) -> Void)?
+
+    /// Callback when a row receives a secondary (right / two-finger trackpad) click.
+    /// Mirrors the bubble's long-press: lets pointer users open the message actions
+    /// sheet on iPad with a trackpad and on the iPad build running on Mac.
+    var onSecondaryClick: ((Item) -> Void)?
 
     /// Closure to check if an item contains an unseen self-mention
     var isUnseenMention: ((Item) -> Bool)?
@@ -65,16 +96,35 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     /// Tracks mention IDs that have already been reported as visible (prevents duplicate callbacks)
     private var markedMentionIDs: Set<Item.ID> = []
 
-    /// Flag to prevent scroll delegate from overriding isAtBottom during programmatic scroll
-    private(set) var isScrollingToBottom = false
-
-    /// Target item ID for programmatic scroll (used to reload cell after scroll completes)
-    private var scrollTargetItemID: Item.ID?
-
     private var pendingScrollTargetID: Item.ID?
     private var pendingScrollTask: Task<Void, Never>?
-    private var isUserInteracting = false
-    private var isScrollingToTarget = false
+    private var checkVisibleMentionsTask: Task<Void, Never>?
+
+    /// Latest-wins buffer for updateItems calls received mid-drag. Applying a
+    /// snapshot mid-drag shifts contentOffset and fights the gesture; draining
+    /// on drag-end lets the offset adjust on settled content.
+    private var deferredItemsApply: (newItems: [Item], animated: Bool)?
+
+    /// Coalesces the four scroll-tracking callbacks
+    /// (`updateIsAtBottom`, `checkVisibleMentions`, `checkDividerVisibility`,
+    /// `checkNearTop`) to at most one invocation per display frame.
+    /// `scrollViewDidScroll` only sets a flag; the display link's tick drains it.
+    private var hasPendingScrollObservation = false
+    private var scrollDisplayLink: CADisplayLink?
+    private let scrollDisplayLinkProxy = ChatScrollDisplayLinkProxy()
+
+    /// Target item ID for programmatic scroll, derived from the active scroll intent.
+    private var scrollTargetItemID: Item.ID? {
+        if case .toTarget(let id) = scrollState.intent { return id }
+        return nil
+    }
+
+    /// True when an auto-scroll-to-bottom was suppressed because the user was interacting.
+    /// Fired on drag end so messages arriving mid-drag aren't silently dropped.
+    var deferredScrollToBottomPending: Bool { scrollState.deferredScroll != nil }
+
+    /// Count of messages deferred while user is interacting; counted as unread if they release scrolled away.
+    var deferredScrollMessageCount: Int { scrollState.deferredScroll?.targetMessageCount ?? 0 }
 
     // MARK: - Lifecycle
 
@@ -89,7 +139,9 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
         // Visual setup
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 80
+        // estimatedRowHeight intentionally unset: UIHostingConfiguration
+        // self-sizing produces an exact contentSize, so pagination prepends
+        // don't shift contentOffset as estimates are replaced with measurements.
 
         // Flipped table (scaleX: 1, y: -1) inverts top/bottom, so automatic
         // content-inset adjustment applies safe-area padding to the wrong edges.
@@ -118,10 +170,71 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
         // Manual keyboard observation (UIKit auto-adjustment doesn't work in SwiftUI embed)
         setupKeyboardObservers()
+
+        // Coalesces scroll-tracking callbacks at display-frame cadence
+        setupScrollDisplayLink()
+
+        // Pointer secondary-click opens the actions sheet, matching the touch long-press.
+        setupSecondaryClickHandling()
     }
 
-    deinit {
+    /// Opens the actions sheet on a pointer secondary-click via each runtime's delivery
+    /// mechanism: a `.secondary` tap on iPad, a context-menu interaction on Mac (where a
+    /// right-click reaches the context-menu system, not a `.secondary` tap).
+    private func setupSecondaryClickHandling() {
+        if ProcessInfo.processInfo.isiOSAppOnMac {
+            tableView.addInteraction(UIContextMenuInteraction(delegate: self))
+        } else {
+            setupSecondaryClickRecognizer()
+        }
+    }
+
+    private func setupSecondaryClickRecognizer() {
+        let recognizer = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleSecondaryClick(_:))
+        )
+        // The secondary button mask keeps this off scrolling and the primary-touch gesture.
+        recognizer.buttonMaskRequired = .secondary
+        recognizer.cancelsTouchesInView = false
+        tableView.addGestureRecognizer(recognizer)
+    }
+
+    @objc private func handleSecondaryClick(_ gesture: UITapGestureRecognizer) {
+        guard let item = itemForRow(at: gesture.location(in: tableView)) else { return }
+        onSecondaryClick?(item)
+    }
+
+    /// Resolves the model item under a point in the table view's coordinate space.
+    private func itemForRow(at point: CGPoint) -> Item? {
+        guard let indexPath = tableView.indexPathForRow(at: point),
+              let itemID = dataSource?.itemIdentifier(for: indexPath) else { return nil }
+        return itemsByID[itemID]
+    }
+
+    // On the class, not an extension: a generic class can carry `@objc` conformance
+    // only in its primary declaration.
+    func contextMenuInteraction(
+        _ interaction: UIContextMenuInteraction,
+        configurationForMenuAtLocation location: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        guard let item = itemForRow(at: location) else { return nil }
+        onSecondaryClick?(item)
+        // No configuration suppresses the native menu, leaving the sheet the only actions surface.
+        return nil
+    }
+
+    // Swift 6.3.2 EarlyPerfInliner crashes (infinite recursion in
+    // `isCallerAndCalleeLayoutConstraintsCompatible`) when optimizing this
+    // generic UITableViewController subclass's deinit under -O. Opting the
+    // deinit out of optimization sidesteps the crash without changing
+    // runtime behavior. Drop the attribute once a future Swift release
+    // fixes the underlying inliner bug.
+    @_optimize(none)
+    isolated deinit {
         NotificationCenter.default.removeObserver(self)
+        scrollDisplayLink?.invalidate()
+        checkVisibleMentionsTask?.cancel()
     }
 
     // MARK: - Keyboard Handling
@@ -135,9 +248,97 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         )
     }
 
+    // MARK: - Scroll Coalescing
+
+    /// Creates the `CADisplayLink` that drains coalesced scroll observations.
+    /// The link retains its target (the proxy), not the controller, so the
+    /// `deinit` path stays clean. Starts paused; `scrollViewDidScroll` unpauses.
+    private func setupScrollDisplayLink() {
+        scrollDisplayLinkProxy.onTick = { [weak self] in
+            self?.coalescedScrollTick()
+        }
+        let link = CADisplayLink(
+            target: scrollDisplayLinkProxy,
+            selector: #selector(ChatScrollDisplayLinkProxy.tick(_:))
+        )
+        link.add(to: .main, forMode: .common)
+        link.isPaused = true
+        scrollDisplayLink = link
+    }
+
+    /// Drains pending scroll observations once per display frame. If a callback
+    /// re-arms the flag during processing, the link stays unpaused so the next
+    /// frame picks it up; otherwise the link pauses to avoid waking the run loop.
+    private func coalescedScrollTick() {
+        let hadWork = hasPendingScrollObservation
+        hasPendingScrollObservation = false
+        if hadWork {
+            updateIsAtBottom()
+            checkVisibleMentions()
+            checkDividerVisibility()
+            checkNearTop()
+        }
+        if !hasPendingScrollObservation {
+            scrollDisplayLink?.isPaused = true
+        }
+    }
+
+    #if DEBUG
+    /// Drains pending scroll observations synchronously. Production code
+    /// relies on the display link; this entry point lets unit tests verify
+    /// scroll callbacks without waiting for a real frame tick.
+    func flushScrollObservationsForTests() {
+        coalescedScrollTick()
+    }
+    #endif
+
+    #if DEBUG
+    /// Exposes snapshot-derived scroll-row resolution so unit tests can assert that
+    /// scroll targets are sourced from the applied snapshot (nil-safe for ids not
+    /// yet applied) rather than the controller's leading items model.
+    func resolvedScrollRowForTests(id: Item.ID) -> IndexPath? {
+        snapshotRow(for: id)
+    }
+    #endif
+
+    #if DEBUG
+    /// Advances the items model (items/itemsByID/itemIndexByID) without applying a
+    /// diffable snapshot, reproducing the model-ahead-of-snapshot state the apply-lag
+    /// window produces — where a model-derived row can exceed the applied row count
+    /// and abort scrollToRow. Tests use this to assert scroll-row resolution reads the
+    /// applied snapshot (nil for ids not yet applied, in-bounds for applied ids)
+    /// rather than the leading model. Mirrors the synchronous model mutation at the
+    /// top of updateItems.
+    func advanceItemsModelWithoutApplyingForTests(_ newItems: [Item]) {
+        items = newItems
+        itemsByID = Dictionary(uniqueKeysWithValues: newItems.map { ($0.id, $0) })
+        itemIndexByID = Dictionary(uniqueKeysWithValues: newItems.enumerated().map { ($0.element.id, $0.offset) })
+    }
+    #endif
+
+    #if DEBUG
+    /// Identifiers reconfigured by every snapshot actually applied, accumulated across applies.
+    /// Lets unit tests assert that a targeted reconfigure survives the pending-slot coalescer
+    /// when its request is superseded mid-apply, reaching an applied snapshot.
+    private(set) var appliedReconfiguredItemIDsForTests: [Item.ID] = []
+
+    /// Forces the controller into the in-flight-apply state so subsequent `updateItems`
+    /// calls park in the pending slot instead of applying immediately. Lets tests open
+    /// the supersession window deterministically without a real animated apply in flight.
+    func beginApplyingForTests() {
+        scrollState.startApplying()
+    }
+
+    /// Drains the pending snapshot queue, applying the surviving request synchronously
+    /// (no window means non-animated applies). Pairs with `beginApplyingForTests`.
+    func drainPendingForTests() {
+        drainSnapshotQueue()
+    }
+    #endif
+
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
-              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+              userInfo[UIResponder.keyboardFrameEndUserInfoKey] is CGRect else {
             return
         }
 
@@ -146,10 +347,10 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         // SwiftUI handles frame changes for keyboard, so we don't add content inset.
         // Just scroll to bottom after layout settles if we were at bottom.
         if wasAtBottom {
-            // Set guard flag now to prevent scroll delegate from reacting to contentOffset
+            // Set intent now to prevent scroll delegate from reacting to contentOffset
             // oscillations during keyboard animation. Critical when content is shorter
             // than visible area - the bouncing would otherwise cause isAtBottom to flip.
-            isScrollingToBottom = true
+            scrollState.startIntent(.toBottom)
 
             // Delay to let SwiftUI complete its layout pass
             Task { @MainActor [weak self] in
@@ -167,6 +368,16 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     // MARK: - Data Source
 
+    /// Row for an item in the *applied* diffable snapshot, or nil if the snapshot
+    /// has not yet caught up with the controller's items model. updateItems mutates
+    /// items/itemIndexByID synchronously while the snapshot apply can lag (queued
+    /// behind an in-flight apply), so model-derived rows can exceed the table's
+    /// applied row count and abort scrollToRow. All scroll-row lookups must go
+    /// through here. Mirrors the snapshot-derived lookup in restorePrependAnchor.
+    private func snapshotRow(for id: Item.ID) -> IndexPath? {
+        dataSource?.indexPath(for: id)
+    }
+
     private func configureDataSource() {
         dataSource = UITableViewDiffableDataSource<Section, Item.ID>(tableView: tableView) { [weak self] tableView, indexPath, itemID in
             guard let self,
@@ -181,6 +392,10 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
             cell.transform = CGAffineTransform(scaleX: 1, y: -1)
             cell.backgroundColor = .clear
             cell.selectionStyle = .none
+            // Allow long-press scale-up and shadow on message bubbles to extend
+            // past the cell frame instead of being clipped at cell edges.
+            cell.clipsToBounds = false
+            cell.contentView.clipsToBounds = false
 
             // Embed SwiftUI content
             if let contentProvider = self.cellContentProvider {
@@ -211,12 +426,49 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     private func applySnapshot(
         _ snapshot: NSDiffableDataSourceSnapshot<Section, Item.ID>,
-        animatingDifferences: Bool
+        animatingDifferences: Bool,
+        completion: (() -> Void)? = nil,
+        reconfigureAll: Bool = false
     ) {
-        let request = SnapshotApplyRequest(snapshot: snapshot, animatingDifferences: animatingDifferences)
+        var request = SnapshotApplyRequest(
+            snapshot: snapshot,
+            animatingDifferences: animatingDifferences,
+            completion: completion,
+            reconfigureAll: reconfigureAll
+        )
 
-        if isApplyingSnapshot {
-            pendingSnapshotApplies.append(request)
+        if scrollState.isApplyingSnapshot {
+            if let existing = pendingSnapshot {
+                // Latest-wins for the snapshot itself, but preserve the superseded
+                // request's completion so prepend anchor restores still fire after
+                // the final apply lands.
+                if let superseded = existing.completion {
+                    pendingCompletions.append(superseded)
+                }
+                // Carry the superseded snapshot's reconfigure intent forward into the
+                // incoming snapshot so latest-wins doesn't silently drop a repaint. A
+                // content-only reconfigure parked here would otherwise never reach an
+                // applied snapshot, stranding its cell on stale content. Only items still
+                // present in the incoming snapshot are carried; superseded-then-deleted
+                // items are gone regardless.
+                let carriedReconfigures = existing.snapshot.reconfiguredItemIdentifiers
+                    .filter { request.snapshot.itemIdentifiers.contains($0) }
+                if !carriedReconfigures.isEmpty {
+                    request.snapshot.reconfigureItems(carriedReconfigures)
+                }
+                // A reconfigure-all (live theme switch) additionally repaints rows added by
+                // the incoming snapshot, so extend the intent to its full identifier set.
+                if existing.reconfigureAll {
+                    request.snapshot.reconfigureItems(request.snapshot.itemIdentifiers)
+                    request.reconfigureAll = true
+                }
+            }
+            // The opposite ordering is intentionally not mirrored: an incoming reconfigure-all
+            // replacing a pending content snapshot adopts the reconfigure's (already-applied)
+            // identifier set, so the superseded snapshot's not-yet-applied items wait for the next
+            // apply. That is safe because a theme change also drives buildItems() with the full
+            // current set within a few frames, so the deferred rows reappear without a visible gap.
+            pendingSnapshot = request
             return
         }
 
@@ -225,34 +477,95 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     private func applySnapshotRequest(_ request: SnapshotApplyRequest) {
         guard let dataSource else {
-            pendingSnapshotApplies.removeAll()
-            isApplyingSnapshot = false
+            pendingSnapshot = nil
+            pendingCompletions.removeAll()
+            scrollState.endApplying()
             return
         }
 
-        isApplyingSnapshot = true
+        #if DEBUG
+        appliedReconfiguredItemIDsForTests.append(contentsOf: request.snapshot.reconfiguredItemIdentifiers)
+        #endif
+
+        scrollState.startApplying()
         let shouldAnimate = request.animatingDifferences && view.window != nil
 
         if shouldAnimate {
             dataSource.apply(request.snapshot, animatingDifferences: true) { [weak self] in
                 Task { @MainActor [weak self] in
+                    request.completion?()
                     self?.drainSnapshotQueue()
                 }
             }
         } else {
             dataSource.apply(request.snapshot, animatingDifferences: false)
+            request.completion?()
             drainSnapshotQueue()
         }
     }
 
     private func drainSnapshotQueue() {
-        isApplyingSnapshot = false
-        guard !pendingSnapshotApplies.isEmpty else { return }
-        let nextRequest = pendingSnapshotApplies.removeFirst()
-        applySnapshotRequest(nextRequest)
+        scrollState.endApplying()
+        // Loop in case a new pending snapshot is enqueued while draining;
+        // each iteration applies the latest request and clears the field.
+        while let next = pendingSnapshot {
+            pendingSnapshot = nil
+            applySnapshotRequest(next)
+        }
+        // Fire superseded completions only when truly idle. An animated apply
+        // re-enters `scrollState.startApplying()` and finishes its drain in an
+        // async callback; firing now would run the completions before the
+        // final layout settles. The async callback will re-enter this method
+        // and reach the idle branch then.
+        if !scrollState.isApplyingSnapshot && !pendingCompletions.isEmpty {
+            let completions = pendingCompletions
+            pendingCompletions.removeAll()
+            for completion in completions {
+                completion()
+            }
+        }
+    }
+
+    private struct PrependAnchor {
+        let itemID: Item.ID
+        /// rect.minY - contentOffset.y at capture time (viewport-relative position)
+        let distanceFromContentOffset: CGFloat
+    }
+
+    private func capturePrependAnchor(in oldItems: [Item]) -> PrependAnchor? {
+        guard let visibleRows = tableView.indexPathsForVisibleRows, !visibleRows.isEmpty else {
+            return nil
+        }
+        let midIndexPath = visibleRows[visibleRows.count / 2]
+        let chronologicalIndex = oldItems.count - 1 - midIndexPath.row
+        guard chronologicalIndex >= 0, chronologicalIndex < oldItems.count else { return nil }
+        let rect = tableView.rectForRow(at: midIndexPath)
+        return PrependAnchor(
+            itemID: oldItems[chronologicalIndex].id,
+            distanceFromContentOffset: rect.minY - tableView.contentOffset.y
+        )
+    }
+
+    private func restorePrependAnchor(_ anchor: PrependAnchor) {
+        // Read the row from the data source's current snapshot, not the controller's mutable items,
+        // because a newer updateItems call may have overwritten items/itemIndexByID while the
+        // queued prepend apply (whose completion fires here) was waiting to drain.
+        guard let dataSource,
+              let indexPath = dataSource.indexPath(for: anchor.itemID) else { return }
+        tableView.layoutIfNeeded()
+        let newRect = tableView.rectForRow(at: indexPath)
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        tableView.contentOffset.y = newRect.minY - anchor.distanceFromContentOffset
+        CATransaction.commit()
     }
 
     func updateItems(_ newItems: [Item], animated: Bool = true) {
+        if tableView.isDragging {
+            deferredItemsApply = (newItems, animated)
+            return
+        }
+
         let previousCount = items.count
         let wasAtBottom = isAtBottom
         let oldItems = items
@@ -262,14 +575,22 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         itemsByID = Dictionary(uniqueKeysWithValues: newItems.map { ($0.id, $0) })
         itemIndexByID = Dictionary(uniqueKeysWithValues: newItems.enumerated().map { ($0.element.id, $0.offset) })
 
-        // Apply snapshot with REVERSED order: newest-first for flipped table
+        // Detect prepend (pagination) vs append (new messages): prepend changes first item ID
+        let hasNewItems = newItems.count > previousCount
+        let wasPrepend = previousCount > 0 && hasNewItems && oldItems.first?.id != newItems.first?.id
+
+        // For prepends, capture a measured anchor row so we can restore the visible
+        // content's screen position after the snapshot apply changes contentSize.
+        let prependAnchor = wasPrepend ? capturePrependAnchor(in: oldItems) : nil
+
+        // Apply snapshot with reversed order: newest-first for flipped table
         // Row 0 = newest message → appears at visual bottom after flip
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item.ID>()
         snapshot.appendSections([.main])
         snapshot.appendItems(newItems.reversed().map(\.id))
 
         // Find items that changed content (same ID, different hash).
-        // Without reloading these, diffable data source won't update cells for items with same ID.
+        // Without reconfiguring these, diffable data source won't update cells for items with same ID.
         let oldItemsByID = Dictionary(uniqueKeysWithValues: oldItems.map { ($0.id, $0) })
         let changedIDs = newItems.compactMap { newItem -> Item.ID? in
             guard let oldItem = oldItemsByID[newItem.id] else { return nil }
@@ -277,50 +598,70 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         }
 
         // Two-phase apply to handle structural changes and content updates differently:
-        // 1. Structural changes (new/deleted items) - animate for smooth UX
+        // 1. Structural changes (new/deleted items) - animate for smooth UX, except prepends
         // 2. Content updates (status changes) - no animation to prevent flash
         let hasStructuralChanges = newItems.count != oldItems.count ||
             Set(newItems.map(\.id)) != Set(oldItems.map(\.id))
 
-        if hasStructuralChanges {
-            // Apply structural changes with animation
-            applySnapshot(snapshot, animatingDifferences: animated && previousCount > 0)
+        // Skip the apply when nothing changed. Otherwise re-renders triggered by
+        // non-content state (e.g. ChatRenderState.isLoadingOlder toggling) reach
+        // applySnapshot without prepend-anchor protection and can shift
+        // contentOffset, producing a visible jump while scrolling.
+        if previousCount > 0 && !hasStructuralChanges && changedIDs.isEmpty {
+            return
+        }
 
-            // Then reload changed items without animation (separate apply)
+        // Prepends apply non-animated so anchor restoration in the apply completion runs
+        // against the post-apply layout, not against a coalesced animation in flight
+        let restoreClosure: (() -> Void)? = prependAnchor.map { anchor in
+            { [weak self] in self?.restorePrependAnchor(anchor) }
+        }
+
+        if hasStructuralChanges {
+            let animateStructural = animated && previousCount > 0 && !wasPrepend
+            let structuralIsLastApply = changedIDs.isEmpty
+            applySnapshot(
+                snapshot,
+                animatingDifferences: animateStructural,
+                completion: structuralIsLastApply ? restoreClosure : nil
+            )
+
             if !changedIDs.isEmpty {
-                var reloadSnapshot = snapshot
-                reloadSnapshot.reloadItems(changedIDs)
-                applySnapshot(reloadSnapshot, animatingDifferences: false)
+                var reconfigureSnapshot = snapshot
+                reconfigureSnapshot.reconfigureItems(changedIDs)
+                applySnapshot(reconfigureSnapshot, animatingDifferences: false, completion: restoreClosure)
             }
         } else if !changedIDs.isEmpty {
-            // No structural changes, just content updates - reload without animation
-            snapshot.reloadItems(changedIDs)
-            applySnapshot(snapshot, animatingDifferences: false)
+            snapshot.reconfigureItems(changedIDs)
+            applySnapshot(snapshot, animatingDifferences: false, completion: restoreClosure)
         } else {
-            // No changes at all, but still apply to sync state
-            applySnapshot(snapshot, animatingDifferences: false)
+            applySnapshot(snapshot, animatingDifferences: false, completion: restoreClosure)
         }
 
         // Handle unread tracking
-        let hasNewItems = newItems.count > previousCount
-        // Detect prepend (pagination) vs append (new messages): prepend changes first item ID
-        let wasPrepend = previousCount > 0 && hasNewItems && oldItems.first?.id != newItems.first?.id
-
         if !wasAtBottom && previousCount > 0 && hasNewItems && !wasPrepend {
             // New messages arrived while scrolled up (not pagination)
             let newMessageCount = newItems.count - previousCount
             unreadCount += newMessageCount
             onScrollStateChanged?(isAtBottom, unreadCount)
-        } else if wasAtBottom && hasNewItems && !skipAutoScroll && !isScrollingToBottom && !wasPrepend {
-            // At bottom with NEW items, auto-scroll to newest
-            // Only scroll if there are actually new items (not just SwiftUI re-renders)
+        } else if wasAtBottom && hasNewItems && !skipAutoScroll && scrollState.intent != .toBottom && !wasPrepend {
             lastSeenItemID = newItems.last?.id
-            scrollToBottom(animated: animated && previousCount > 0)
+            if scrollState.isUserDriven {
+                // Defer until drag ends — scrolling mid-drag fights the gesture and bounces
+                let accumulatedCount = (scrollState.deferredScroll?.targetMessageCount ?? 0) + (newItems.count - previousCount)
+                scrollState.scheduleDeferredScroll(
+                    DeferredScroll(targetMessageCount: accumulatedCount, createdAt: Date())
+                )
+            } else {
+                scrollToBottom(animated: animated && previousCount > 0)
+            }
         }
 
         // Check for visible mentions after layout settles (handles mentions visible on load)
-        Task { @MainActor [weak self] in
+        checkVisibleMentionsTask?.cancel()
+        checkVisibleMentionsTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .milliseconds(100))
+            guard !Task.isCancelled else { return }
             self?.checkVisibleMentions()
         }
 
@@ -336,6 +677,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     func prepareForUserSend() {
         isAtBottom = true
         unreadCount = 0
+        _ = scrollState.consumeDeferredScroll()
         skipAutoScroll = true  // Prevent updateItems from calling scrollToBottom (we'll do it explicitly)
     }
 
@@ -353,23 +695,23 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         // In a flipped table view with short content, scrollToRow miscalculates
         // the target position and over-scrolls, pushing messages off screen.
         if alreadyAtBottom {
-            isScrollingToBottom = false
+            scrollState.clearIntent()
             onScrollStateChanged?(isAtBottom, unreadCount)
             skipAutoScroll = false
             return
         }
 
-        // Only update isScrollingToBottom if not already set (keyboardWillShow may have set it)
-        if !isScrollingToBottom {
-            isScrollingToBottom = animated
+        // Only update intent if not already toBottom (keyboardWillShow may have set it)
+        if scrollState.intent != .toBottom && animated {
+            scrollState.startIntent(.toBottom)
         }
 
         // In flipped table with reversed data: row 0 = newest message
-        // Scroll row 0 to .top anchor (which is visual BOTTOM in flipped table)
+        // Scroll row 0 to .top anchor (which is visual bottom in flipped table)
         tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: animated)
 
         if !animated {
-            isScrollingToBottom = false
+            scrollState.clearIntent()
         }
 
         onScrollStateChanged?(isAtBottom, unreadCount)
@@ -382,8 +724,9 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         // Use O(1) dictionary lookup instead of O(n) firstIndex
         guard itemIndexByID[id] != nil else { return }
 
-        // Track target for post-scroll reload (fixes UIHostingConfiguration layout timing)
-        scrollTargetItemID = id
+        // Set target intent so the computed scrollTargetItemID picks up the post-scroll reload target
+        // and so checkNearTop blocks pagination during the scroll-to-target animation.
+        scrollState.startIntent(.toTarget(id: id))
         pendingScrollTargetID = id
 
         pendingScrollTask?.cancel()
@@ -414,7 +757,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     /// Reloads the scroll target cell to fix UIHostingConfiguration layout timing issues
     private func reloadTargetCell() {
         guard let targetID = scrollTargetItemID else { return }
-        scrollTargetItemID = nil
+        scrollState.clearIntent()
 
         // Force cell reconfiguration via snapshot reload
         var snapshot = dataSource?.snapshot() ?? NSDiffableDataSourceSnapshot<Section, Item.ID>()
@@ -424,41 +767,70 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         }
     }
 
-    private func centerItem(id: Item.ID, animated: Bool) {
-        guard let itemIndex = itemIndexByID[id] else { return }
-        let rowIndex = items.count - 1 - itemIndex
-        let indexPath = IndexPath(row: rowIndex, section: 0)
-        tableView.layoutIfNeeded()
-        isScrollingToTarget = true
-        tableView.scrollToRow(at: indexPath, at: .middle, animated: animated)
-
-        if !animated {
-            Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .milliseconds(100))
-                self?.isScrollingToTarget = false
-            }
-        }
+    /// Reconfigures every current row in place so render-time, non-`MessageItem` styling
+    /// (the themed bubble fill) repaints on a live theme switch. `reconfigureItems` preserves
+    /// identity (no insert/delete, no scroll jump) and routes through the same serialized
+    /// `applySnapshot` path as every other apply.
+    func reconfigureAllItems() {
+        guard let dataSource else { return }
+        var snapshot = dataSource.snapshot()
+        guard !snapshot.itemIdentifiers.isEmpty else { return }
+        snapshot.reconfigureItems(snapshot.itemIdentifiers)
+        applySnapshot(snapshot, animatingDifferences: false, reconfigureAll: true)
     }
 
-    private func schedulePendingScroll(for id: Item.ID, delay: Duration) {
+    /// Returns true if the target was found in the applied snapshot and scrolled.
+    /// Returns false when the snapshot has not yet caught up to the items model,
+    /// letting the caller retry instead of silently dropping the scroll.
+    @discardableResult
+    private func centerItem(id: Item.ID, animated: Bool) -> Bool {
+        guard let indexPath = snapshotRow(for: id) else { return false }
+        tableView.layoutIfNeeded()
+        // Intent is already .toTarget(id:) from scrollToItem; no need to set again here.
+        tableView.scrollToRow(at: indexPath, at: .middle, animated: animated)
+        return true
+    }
+
+    private func schedulePendingScroll(
+        for id: Item.ID,
+        delay: Duration,
+        retriesRemaining: Int = ChatScrollConstants.pendingScrollMaxRetries
+    ) {
         pendingScrollTask?.cancel()
         pendingScrollTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: delay)
             guard let self, !Task.isCancelled else { return }
-            guard self.pendingScrollTargetID == id, !self.isUserInteracting else { return }
-            self.pendingScrollTargetID = nil
-            self.centerItem(id: id, animated: true)
+            guard self.pendingScrollTargetID == id, !self.scrollState.isUserDriven else { return }
             self.pendingScrollTask = nil
+            if self.centerItem(id: id, animated: true) {
+                self.pendingScrollTargetID = nil
+            } else if retriesRemaining > 0 {
+                // The applied snapshot has not caught up to the items model yet.
+                // Keep the target armed and retry once it has had a chance to drain.
+                self.schedulePendingScroll(
+                    for: id,
+                    delay: ChatScrollConstants.pendingScrollRetryDelay,
+                    retriesRemaining: retriesRemaining - 1
+                )
+            } else {
+                // No scrollToRow fired, so reloadTargetCell never clears the .toTarget
+                // intent; clear it here or checkNearTop will block pagination.
+                self.pendingScrollTargetID = nil
+                self.scrollState.clearIntent()
+            }
         }
     }
 
     // MARK: - Scroll Tracking
 
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        updateIsAtBottom()
-        checkVisibleMentions()
-        checkDividerVisibility()
-        checkNearTop()
+        // Arm the coalescer; the display link's next tick drains the callbacks.
+        // Unpause only on the first hit of each burst — flipping `isPaused` is
+        // cheap but unnecessary when already running.
+        if !hasPendingScrollObservation {
+            hasPendingScrollObservation = true
+            scrollDisplayLink?.isPaused = false
+        }
     }
 
     private func checkVisibleMentions() {
@@ -487,9 +859,10 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     private func checkDividerVisibility() {
         guard let dividerItemID,
-              let itemIndex = itemIndexByID[dividerItemID],
+              let indexPath = snapshotRow(for: dividerItemID),
               let onDividerVisibilityChanged else {
-            // No divider configured — report not visible if we previously reported visible
+            // No divider configured or not yet in the applied snapshot — report
+            // not visible if we previously reported visible.
             if lastDividerVisible == true {
                 lastDividerVisible = false
                 self.onDividerVisibilityChanged?(false)
@@ -497,8 +870,6 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
             return
         }
 
-        let rowIndex = items.count - 1 - itemIndex
-        let indexPath = IndexPath(row: rowIndex, section: 0)
         let isVisible = tableView.indexPathsForVisibleRows?.contains(indexPath) ?? false
 
         if isVisible != lastDividerVisible {
@@ -509,25 +880,46 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
-            isUserInteracting = false
-        }
-        if !decelerate {
+            scrollState.endDragging()
             finalizeScrollPosition()
+            fireDeferredScrollIfNeeded()
         }
+        drainDeferredItemsApply()
     }
 
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        isUserInteracting = false
+        scrollState.endDragging()
         finalizeScrollPosition()
+        fireDeferredScrollIfNeeded()
+        drainDeferredItemsApply()
+    }
+
+    private func drainDeferredItemsApply() {
+        guard let deferred = deferredItemsApply else { return }
+        deferredItemsApply = nil
+        updateItems(deferred.newItems, animated: deferred.animated)
+    }
+
+    private func fireDeferredScrollIfNeeded() {
+        guard let deferred = scrollState.consumeDeferredScroll() else { return }
+        if isAtBottom {
+            scrollToBottom(animated: true)
+        } else {
+            // User dragged away mid-message — the messages they didn't see become unread
+            unreadCount += deferred.targetMessageCount
+            onScrollStateChanged?(isAtBottom, unreadCount)
+        }
     }
 
     override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        // Clear flag when programmatic scroll animation completes
-        let wasScrollingToBottom = isScrollingToBottom
-        isScrollingToBottom = false
-        isScrollingToTarget = false
+        // Capture whether the completed animation was a scroll-to-bottom before mutating intent.
+        let wasScrollingToBottom = scrollState.intent == .toBottom
+        if wasScrollingToBottom {
+            scrollState.clearIntent()
+        }
 
-        // Reload target cell after scroll completes to fix UIHostingConfiguration layout timing
+        // Reload target cell after scroll completes to fix UIHostingConfiguration layout timing.
+        // reloadTargetCell clears any .toTarget intent.
         reloadTargetCell()
 
         if wasScrollingToBottom {
@@ -549,8 +941,8 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     private func updateIsAtBottom() {
         // Don't override isAtBottom during programmatic scroll-to-bottom animation
-        // This prevents the FAB from flickering when user sends a message
-        if isScrollingToBottom {
+        // This prevents the scroll-to-bottom button from flickering when user sends a message
+        if scrollState.intent == .toBottom {
             return
         }
 
@@ -575,7 +967,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     /// Check if user has scrolled near the top (oldest messages) and trigger callback
     private func checkNearTop() {
-        if isScrollingToBottom || isScrollingToTarget || scrollTargetItemID != nil {
+        if scrollState.intent != .none || isLoadingOlderMessages || isNearTopRequestInFlight {
             return
         }
         guard let visibleRows = tableView.indexPathsForVisibleRows,
@@ -586,12 +978,15 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
         // Trigger when within 10 messages of the oldest
         if distanceFromTop <= 10 {
-            onNearTop?()
+            isNearTopRequestInFlight = true
+            onNearTop? { @MainActor [weak self] in
+                self?.isNearTopRequestInFlight = false
+            }
         }
     }
 
     override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        isUserInteracting = true
+        scrollState.enterDragging()
         pendingScrollTargetID = nil
         pendingScrollTask?.cancel()
         pendingScrollTask = nil
@@ -601,25 +996,38 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 // MARK: - SwiftUI Wrapper
 
 /// SwiftUI wrapper for ChatTableViewController
-struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: UIViewControllerRepresentable where Item.ID: Sendable {
+struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: UIViewControllerRepresentable where Item.ID == UUID {
 
     let items: [Item]
     let cellContent: (Item) -> Content
+    /// Themed canvas color for themes that paint a canvas (Ember → black, paid themes →
+    /// asset-catalog tint); `nil` leaves the table's default system background untouched, so
+    /// themes without surfaces are unchanged.
+    var contentBackground: Color?
+    /// Active theme id (`Theme.id`). Drives a one-shot reconfigure of all rows on a theme change
+    /// so the render-time bubble fill (`\.appTheme.accentColor`, not part of `MessageItem`) repaints
+    /// even when no baked text changed — e.g. switching between two themes that share white text.
+    var themeID: String = Theme.default.id
+    /// Appearance fingerprint (light/dark + contrast). Like `themeID`, a change reconfigures all rows
+    /// once so identity colors that depend on the appearance repaint in place.
+    var appearanceToken: String = ""
     @Binding var isAtBottom: Bool
     @Binding var unreadCount: Int
     @Binding var scrollToBottomRequest: Int
     @Binding var scrollToMentionRequest: Int
     var isUnseenMention: ((Item) -> Bool)?
     var onMentionBecameVisible: ((Item.ID) -> Void)?
+    var onSecondaryClick: ((Item) -> Void)?
     var mentionTargetID: Item.ID?
     @Binding var scrollToDividerRequest: Int
     var dividerItemID: Item.ID?
     @Binding var isDividerVisible: Bool
-    var onNearTop: (() -> Void)?
+    var onNearTop: ((@escaping @MainActor () -> Void) -> Void)?
     var isLoadingOlderMessages: Bool = false
 
     func makeUIViewController(context: Context) -> ChatTableViewController<Item, Content> {
         let controller = ChatTableViewController<Item, Content>()
+        controller.defaultTableBackgroundColor = controller.tableView.backgroundColor
         controller.configure { item in
             cellContent(item)
         }
@@ -637,6 +1045,18 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
         controller.configure { item in
             cellContent(item)
         }
+        controller.tableView.backgroundColor = contentBackground.map(UIColor.init) ?? controller.defaultTableBackgroundColor
+
+        // Repaint visible bubbles whose render-time accent fill is not part of `MessageItem`:
+        // a theme-id change reconfigures all rows in place once. The gate skips the first
+        // pass (no previous id) so appearance does not trigger a needless reconfigure.
+        let themeChanged = context.coordinator.lastThemeID.map { $0 != themeID } ?? false
+        let appearanceChanged = context.coordinator.lastAppearanceToken.map { $0 != appearanceToken } ?? false
+        if themeChanged || appearanceChanged {
+            controller.reconfigureAllItems()
+        }
+        context.coordinator.lastThemeID = themeID
+        context.coordinator.lastAppearanceToken = appearanceToken
 
         // Store current binding setters in coordinator (updated each render cycle)
         // This ensures deferred callbacks always use fresh bindings
@@ -656,6 +1076,7 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
         // Update mention detection closures
         controller.isUnseenMention = isUnseenMention
         controller.onMentionBecameVisible = onMentionBecameVisible
+        controller.onSecondaryClick = onSecondaryClick
 
         // Update divider visibility tracking
         controller.dividerItemID = dividerItemID
@@ -692,7 +1113,7 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
             context.coordinator.lastDividerScrollRequest = scrollToDividerRequest
         }
 
-        // Check for scroll-to-bottom request BEFORE updating items
+        // Check for scroll-to-bottom request before updating items
         // This ensures user sends don't trigger unread badge
         let shouldForceScroll = scrollToBottomRequest != context.coordinator.lastScrollRequest
 
@@ -727,6 +1148,8 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
         var lastScrollRequest: Int = 0
         var lastMentionRequest: Int = 0
         var lastDividerScrollRequest: Int = 0
+        var lastThemeID: String?
+        var lastAppearanceToken: String?
         var setIsAtBottom: ((Bool) -> Void)?
         var setUnreadCount: ((Int) -> Void)?
         var setIsDividerVisible: ((Bool) -> Void)?

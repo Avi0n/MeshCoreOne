@@ -10,6 +10,9 @@ public final class Device {
     @Attribute(.unique)
     public var id: UUID
 
+    /// New column (not renamed from deviceID), so no @Attribute(originalName:) unlike child models.
+    public var radioID: UUID = UUID()
+
     /// The 32-byte public key of the device
     public var publicKey: Data
 
@@ -67,6 +70,11 @@ public final class Device {
     /// Path hash mode (0=1-byte, 1=2-byte, 2=3-byte hashes). Firmware v10+.
     public var pathHashMode: UInt8 = 0
 
+    /// Name of the device's persisted default flood scope, or `nil` when cleared. Firmware v11+.
+    /// The scope key is derived from this name on-demand via ``MeshCore/FloodScope/region(_:)``;
+    /// only the name is cached here because the user-facing flow selects regions by name.
+    public var defaultFloodScopeName: String?
+
     /// Cached radio settings from before repeat mode was enabled, for restoration on disable.
     /// All 4 fields are set together when enabling repeat mode, and cleared together when disabling.
     public var preRepeatFrequency: UInt32?
@@ -121,6 +129,7 @@ public final class Device {
 
     public init(
         id: UUID = UUID(),
+        radioID: UUID = UUID(),
         publicKey: Data,
         nodeName: String,
         firmwareVersion: UInt8 = 0,
@@ -129,29 +138,30 @@ public final class Device {
         buildDate: String = "",
         maxContacts: UInt16 = 100,
         maxChannels: UInt8 = 8,
-        frequency: UInt32 = 915_000,
-        bandwidth: UInt32 = 250_000,
-        spreadingFactor: UInt8 = 10,
-        codingRate: UInt8 = 5,
-        txPower: Int8 = 20,
-        maxTxPower: Int8 = 20,
-        latitude: Double = 0,
-        longitude: Double = 0,
-        blePin: UInt32 = 0,
-        clientRepeat: Bool = false,
-        pathHashMode: UInt8 = 0,
-        preRepeatFrequency: UInt32? = nil,
-        preRepeatBandwidth: UInt32? = nil,
-        preRepeatSpreadingFactor: UInt8? = nil,
-        preRepeatCodingRate: UInt8? = nil,
-        manualAddContacts: Bool = false,
-        autoAddConfig: UInt8 = 0,
-        autoAddMaxHops: UInt8 = 0,
-        multiAcks: UInt8 = 2,
-        telemetryModeBase: UInt8 = 2,
-        telemetryModeLoc: UInt8 = 0,
-        telemetryModeEnv: UInt8 = 0,
-        advertLocationPolicy: UInt8 = 0,
+        frequency: UInt32 = Device.Defaults.frequency,
+        bandwidth: UInt32 = Device.Defaults.bandwidth,
+        spreadingFactor: UInt8 = Device.Defaults.spreadingFactor,
+        codingRate: UInt8 = Device.Defaults.codingRate,
+        txPower: Int8 = Device.Defaults.txPower,
+        maxTxPower: Int8 = Device.Defaults.maxTxPower,
+        latitude: Double = Device.Defaults.latitude,
+        longitude: Double = Device.Defaults.longitude,
+        blePin: UInt32 = Device.Defaults.blePin,
+        clientRepeat: Bool = Device.Defaults.clientRepeat,
+        pathHashMode: UInt8 = Device.Defaults.pathHashMode,
+        defaultFloodScopeName: String? = Device.Defaults.defaultFloodScopeName,
+        preRepeatFrequency: UInt32? = Device.Defaults.preRepeatFrequency,
+        preRepeatBandwidth: UInt32? = Device.Defaults.preRepeatBandwidth,
+        preRepeatSpreadingFactor: UInt8? = Device.Defaults.preRepeatSpreadingFactor,
+        preRepeatCodingRate: UInt8? = Device.Defaults.preRepeatCodingRate,
+        manualAddContacts: Bool = Device.Defaults.manualAddContacts,
+        autoAddConfig: UInt8 = Device.Defaults.autoAddConfig,
+        autoAddMaxHops: UInt8 = Device.Defaults.autoAddMaxHops,
+        multiAcks: UInt8 = Device.Defaults.multiAcks,
+        telemetryModeBase: UInt8 = Device.Defaults.telemetryModeBase,
+        telemetryModeLoc: UInt8 = Device.Defaults.telemetryModeLoc,
+        telemetryModeEnv: UInt8 = Device.Defaults.telemetryModeEnv,
+        advertLocationPolicy: UInt8 = Device.Defaults.advertLocationPolicy,
         lastConnected: Date = Date(),
         lastContactSync: UInt32 = 0,
         isActive: Bool = false,
@@ -161,6 +171,7 @@ public final class Device {
         knownRegions: [String] = []
     ) {
         self.id = id
+        self.radioID = radioID
         self.publicKey = publicKey
         self.nodeName = nodeName
         self.firmwareVersion = firmwareVersion
@@ -180,6 +191,7 @@ public final class Device {
         self.blePin = blePin
         self.clientRepeat = clientRepeat
         self.pathHashMode = pathHashMode
+        self.defaultFloodScopeName = defaultFloodScopeName
         self.preRepeatFrequency = preRepeatFrequency
         self.preRepeatBandwidth = preRepeatBandwidth
         self.preRepeatSpreadingFactor = preRepeatSpreadingFactor
@@ -201,8 +213,57 @@ public final class Device {
         self.knownRegions = knownRegions
     }
 
+    /// Builds a model instance directly from a DTO. Shared by sync and backup
+    /// batch-insert paths so they can't drift on field coverage.
+    public convenience init(dto: DeviceDTO) {
+        self.init(
+            id: dto.id,
+            radioID: dto.radioID,
+            publicKey: dto.publicKey,
+            nodeName: dto.nodeName,
+            firmwareVersion: dto.firmwareVersion,
+            firmwareVersionString: dto.firmwareVersionString,
+            manufacturerName: dto.manufacturerName,
+            buildDate: dto.buildDate,
+            maxContacts: dto.maxContacts,
+            maxChannels: dto.maxChannels,
+            frequency: dto.frequency,
+            bandwidth: dto.bandwidth,
+            spreadingFactor: dto.spreadingFactor,
+            codingRate: dto.codingRate,
+            txPower: dto.txPower,
+            maxTxPower: dto.maxTxPower,
+            latitude: dto.latitude,
+            longitude: dto.longitude,
+            blePin: dto.blePin,
+            clientRepeat: dto.clientRepeat,
+            pathHashMode: dto.pathHashMode,
+            defaultFloodScopeName: dto.defaultFloodScopeName,
+            preRepeatFrequency: dto.preRepeatFrequency,
+            preRepeatBandwidth: dto.preRepeatBandwidth,
+            preRepeatSpreadingFactor: dto.preRepeatSpreadingFactor,
+            preRepeatCodingRate: dto.preRepeatCodingRate,
+            manualAddContacts: dto.manualAddContacts,
+            autoAddConfig: dto.autoAddConfig,
+            autoAddMaxHops: dto.autoAddMaxHops,
+            multiAcks: dto.multiAcks,
+            telemetryModeBase: dto.telemetryModeBase,
+            telemetryModeLoc: dto.telemetryModeLoc,
+            telemetryModeEnv: dto.telemetryModeEnv,
+            advertLocationPolicy: dto.advertLocationPolicy,
+            lastConnected: dto.lastConnected,
+            lastContactSync: dto.lastContactSync,
+            isActive: dto.isActive,
+            ocvPreset: dto.ocvPreset,
+            customOCVArrayString: dto.customOCVArrayString,
+            connectionMethods: dto.connectionMethods,
+            knownRegions: dto.knownRegions
+        )
+    }
+
     /// Applies all mutable fields from a DTO to this model instance.
     func apply(_ dto: DeviceDTO) {
+        radioID = dto.radioID
         publicKey = dto.publicKey
         nodeName = dto.nodeName
         firmwareVersion = dto.firmwareVersion
@@ -222,6 +283,7 @@ public final class Device {
         blePin = dto.blePin
         clientRepeat = dto.clientRepeat
         pathHashMode = dto.pathHashMode
+        defaultFloodScopeName = dto.defaultFloodScopeName
         preRepeatFrequency = dto.preRepeatFrequency
         preRepeatBandwidth = dto.preRepeatBandwidth
         preRepeatSpreadingFactor = dto.preRepeatSpreadingFactor
@@ -247,8 +309,9 @@ public final class Device {
 // MARK: - Sendable DTO
 
 /// A sendable snapshot of Device for cross-actor transfers
-public struct DeviceDTO: Sendable, Equatable, Identifiable {
+public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
     public var id: UUID
+    public var radioID: UUID
     public var publicKey: Data
     public var nodeName: String
     public var firmwareVersion: UInt8
@@ -268,6 +331,9 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable {
     public var blePin: UInt32
     public var clientRepeat: Bool
     public var pathHashMode: UInt8
+
+    /// Name of the device's persisted default flood scope, or `nil` when cleared. Firmware v11+.
+    public var defaultFloodScopeName: String?
 
     /// The hash size per hop in bytes (1, 2, or 3), derived from ``pathHashMode``.
     public var hashSize: Int { Int(pathHashMode) + 1 }
@@ -340,15 +406,36 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable {
         firmwareVersionString.isAtLeast(major: 1, minor: 14)
     }
 
+    /// Whether the trace command honors a per-trace hash size in its flags byte,
+    /// letting a trace use a hash size different from `pathHashMode`. Added in
+    /// firmware v1.11.0; FIRMWARE_VER_CODE stayed 8 from v1.10.0 through v1.12.0,
+    /// so the version string disambiguates the v1.11/v1.12 window while
+    /// firmwareVersion >= 9 (v1.13+) still holds if a fork rewrites the string.
+    public var supportsTraceHashSizeOverride: Bool {
+        firmwareVersion >= 9 || firmwareVersionString.isAtLeast(major: 1, minor: 11)
+    }
+
     /// Whether this device supports client repeat mode (firmware v9+)
     public var supportsClientRepeat: Bool { firmwareVersion >= 9 }
 
     /// Whether this device supports path hash mode configuration (firmware v10+)
     public var supportsPathHashMode: Bool { firmwareVersion >= 10 }
 
+    /// Whether this device supports the persisted default flood scope (firmware v11+).
+    public var supportsDefaultFloodScope: Bool { firmwareVersion >= 11 }
+
+    /// Whether this device supports forcing un-scoped flood broadcasts that override
+    /// the persisted default flood scope (firmware v12+).
+    public var supportsUnscopedFloodSend: Bool { firmwareVersion >= 12 }
+
     /// Advertisement location policy interpreted from raw value.
     public var advertLocationPolicyMode: AdvertLocationPolicy {
         AdvertLocationPolicy(rawValue: advertLocationPolicy) ?? .none
+    }
+
+    /// Telemetry modes constructed from raw base/location/environment values.
+    public var telemetryModes: TelemetryModes {
+        TelemetryModes(base: telemetryModeBase, location: telemetryModeLoc, environment: telemetryModeEnv)
     }
 
     /// Whether location is shared publicly in advertisements.
@@ -362,6 +449,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable {
 
     public init(
         id: UUID,
+        radioID: UUID = UUID(),
         publicKey: Data,
         nodeName: String,
         firmwareVersion: UInt8,
@@ -381,6 +469,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable {
         blePin: UInt32,
         clientRepeat: Bool = false,
         pathHashMode: UInt8 = 0,
+        defaultFloodScopeName: String? = nil,
         preRepeatFrequency: UInt32? = nil,
         preRepeatBandwidth: UInt32? = nil,
         preRepeatSpreadingFactor: UInt8? = nil,
@@ -402,6 +491,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable {
         knownRegions: [String] = []
     ) {
         self.id = id
+        self.radioID = radioID
         self.publicKey = publicKey
         self.nodeName = nodeName
         self.firmwareVersion = firmwareVersion
@@ -421,6 +511,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable {
         self.blePin = blePin
         self.clientRepeat = clientRepeat
         self.pathHashMode = pathHashMode
+        self.defaultFloodScopeName = defaultFloodScopeName
         self.preRepeatFrequency = preRepeatFrequency
         self.preRepeatBandwidth = preRepeatBandwidth
         self.preRepeatSpreadingFactor = preRepeatSpreadingFactor
@@ -444,6 +535,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable {
 
     public init(from device: Device) {
         self.id = device.id
+        self.radioID = device.radioID
         self.publicKey = device.publicKey
         self.nodeName = device.nodeName
         self.firmwareVersion = device.firmwareVersion
@@ -463,6 +555,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable {
         self.blePin = device.blePin
         self.clientRepeat = device.clientRepeat
         self.pathHashMode = device.pathHashMode
+        self.defaultFloodScopeName = device.defaultFloodScopeName
         self.preRepeatFrequency = device.preRepeatFrequency
         self.preRepeatBandwidth = device.preRepeatBandwidth
         self.preRepeatSpreadingFactor = device.preRepeatSpreadingFactor
@@ -556,6 +649,98 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable {
             $0.preRepeatSpreadingFactor = nil
             $0.preRepeatCodingRate = nil
         }
+    }
+
+    /// Returns a copy with `isActive` cleared and any Bluetooth connection
+    /// methods stripped. Used on backup import so a restored device isn't
+    /// mistaken for the currently-connected radio, and so legacy backups
+    /// that shipped stale `CBPeripheral.identifier` values don't produce a
+    /// permanently-disabled row in `DeviceSelectionSheet`.
+    public func cleanedForImport() -> DeviceDTO {
+        copy {
+            $0.isActive = false
+            $0.connectionMethods = connectionMethods.filter { !$0.isBluetooth }
+        }
+    }
+
+    /// Returns a copy with radio configuration fields reset to safe defaults,
+    /// the surrogate `id` reset to a fresh UUID, and any Bluetooth connection
+    /// methods removed. Used during backup export to avoid exposing BLE PIN,
+    /// frequency, or the source phone's `CBPeripheral.identifier` (the BLE
+    /// `Device.id`) in the .mc1backup file — peripheral UUIDs are only
+    /// meaningful on the phone that paired the radio and are not portable
+    /// across installs. WiFi connection methods are intentionally retained
+    /// (restore-then-reconnect reads them) and are disclosed in the pre-export
+    /// Security Notice. `publicKey`/`radioID` are preserved as the
+    /// reconciliation/partition keys; import re-mints `id` again on insert.
+    public func redactedForBackup() -> DeviceDTO {
+        copy {
+            // Reset the surrogate id so the source phone's CBPeripheral UUID (Device.id for BLE
+            // radios) never travels in a shareable backup. publicKey/radioID are preserved as the
+            // reconciliation/partition keys; import re-mints id again on insert. For WiFi radios
+            // Device.id is DeviceIdentity.deriveUUID(from: publicKey), re-derivable from the
+            // retained publicKey, so the reset is doc-honesty plus BLE-identifier removal.
+            $0.id = UUID()
+            $0.frequency = Device.Defaults.frequency
+            $0.bandwidth = Device.Defaults.bandwidth
+            $0.spreadingFactor = Device.Defaults.spreadingFactor
+            $0.codingRate = Device.Defaults.codingRate
+            $0.txPower = Device.Defaults.txPower
+            $0.maxTxPower = Device.Defaults.maxTxPower
+            $0.latitude = Device.Defaults.latitude
+            $0.longitude = Device.Defaults.longitude
+            $0.blePin = Device.Defaults.blePin
+            $0.clientRepeat = Device.Defaults.clientRepeat
+            $0.pathHashMode = Device.Defaults.pathHashMode
+            $0.preRepeatFrequency = Device.Defaults.preRepeatFrequency
+            $0.preRepeatBandwidth = Device.Defaults.preRepeatBandwidth
+            $0.preRepeatSpreadingFactor = Device.Defaults.preRepeatSpreadingFactor
+            $0.preRepeatCodingRate = Device.Defaults.preRepeatCodingRate
+            $0.manualAddContacts = Device.Defaults.manualAddContacts
+            $0.autoAddConfig = Device.Defaults.autoAddConfig
+            $0.autoAddMaxHops = Device.Defaults.autoAddMaxHops
+            $0.multiAcks = Device.Defaults.multiAcks
+            $0.telemetryModeBase = Device.Defaults.telemetryModeBase
+            $0.telemetryModeLoc = Device.Defaults.telemetryModeLoc
+            $0.telemetryModeEnv = Device.Defaults.telemetryModeEnv
+            $0.advertLocationPolicy = Device.Defaults.advertLocationPolicy
+            $0.connectionMethods = connectionMethods.filter { !$0.isBluetooth }
+        }
+    }
+}
+
+// MARK: - Shared Defaults
+
+extension Device {
+    /// Radio and location defaults used by `Device.init` and by
+    /// `DeviceDTO.redactedForBackup()`. One source of truth keeps the two
+    /// paths from drifting — a future default change will flow through
+    /// exported backups automatically.
+    public enum Defaults {
+        public static let frequency: UInt32 = 915_000
+        public static let bandwidth: UInt32 = 250_000
+        public static let spreadingFactor: UInt8 = 10
+        public static let codingRate: UInt8 = 5
+        public static let txPower: Int8 = 20
+        public static let maxTxPower: Int8 = 20
+        public static let latitude: Double = 0
+        public static let longitude: Double = 0
+        public static let blePin: UInt32 = 0
+        public static let clientRepeat: Bool = false
+        public static let pathHashMode: UInt8 = 0
+        public static let defaultFloodScopeName: String? = nil
+        public static let preRepeatFrequency: UInt32? = nil
+        public static let preRepeatBandwidth: UInt32? = nil
+        public static let preRepeatSpreadingFactor: UInt8? = nil
+        public static let preRepeatCodingRate: UInt8? = nil
+        public static let manualAddContacts: Bool = false
+        public static let autoAddConfig: UInt8 = 0
+        public static let autoAddMaxHops: UInt8 = 0
+        public static let multiAcks: UInt8 = 2
+        public static let telemetryModeBase: UInt8 = 2
+        public static let telemetryModeLoc: UInt8 = 0
+        public static let telemetryModeEnv: UInt8 = 0
+        public static let advertLocationPolicy: UInt8 = 0
     }
 }
 

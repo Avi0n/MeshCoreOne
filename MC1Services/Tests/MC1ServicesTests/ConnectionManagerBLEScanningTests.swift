@@ -17,11 +17,12 @@ struct ConnectionManagerBLEScanningTests {
         try await waitUntil("BLE scanning should start") {
             await mock.isScanning
         }
-        await mock.simulateDiscoveredDevice(id: expectedID, rssi: -68)
+        await mock.simulateDiscoveredDevice(id: expectedID, name: "MeshCore-Test", rssi: -68)
 
         let discovery = await receiveTask.value
-        #expect(discovery?.0 == expectedID)
-        #expect(discovery?.1 == -68)
+        #expect(discovery?.id == expectedID)
+        #expect(discovery?.name == "MeshCore-Test")
+        #expect(discovery?.rssi == -68)
         #expect(await mock.startScanningCallCount == 1)
         #expect(await mock.isScanning)
 
@@ -82,10 +83,10 @@ struct ConnectionManagerBLEScanningTests {
     }
 
     private func nextValue(
-        from stream: AsyncStream<(UUID, Int)>,
+        from stream: AsyncStream<DiscoveredDevice>,
         timeout: Duration
-    ) async -> (UUID, Int)? {
-        await withTaskGroup(of: (UUID, Int)?.self) { group in
+    ) async -> DiscoveredDevice? {
+        await withTaskGroup(of: DiscoveredDevice?.self) { group in
             group.addTask {
                 var iterator = stream.makeAsyncIterator()
                 return await iterator.next()

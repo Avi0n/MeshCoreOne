@@ -101,7 +101,7 @@ public actor RoomServerService {
     /// Join a room server by creating a session and authenticating.
     /// Automatically syncs message history based on local state.
     /// - Parameters:
-    ///   - deviceID: The companion radio device ID
+    ///   - radioID: The companion radio device ID
     ///   - contact: The room server contact
     ///   - password: Authentication password (uses keychain if not provided)
     ///   - rememberPassword: Whether to store password in keychain
@@ -109,7 +109,7 @@ public actor RoomServerService {
     ///   - onTimeoutKnown: Optional callback invoked with timeout in seconds once firmware responds.
     /// - Returns: The authenticated session
     public func joinRoom(
-        deviceID: UUID,
+        radioID: UUID,
         contact: ContactDTO,
         password: String?,
         rememberPassword: Bool = true,
@@ -124,7 +124,7 @@ public actor RoomServerService {
         let syncSince: UInt32 = needsFullSync ? 1 : (existingSession?.lastSyncTimestamp ?? 1)
 
         let remoteSession = try await remoteNodeService.createSession(
-            deviceID: deviceID,
+            radioID: radioID,
             contact: contact,
             password: password,
             rememberPassword: rememberPassword
@@ -520,10 +520,10 @@ public actor RoomServerService {
     // MARK: - Session Queries
 
     /// Fetch all room sessions for a device.
-    /// - Parameter deviceID: The companion radio device ID
+    /// - Parameter radioID: The companion radio device ID
     /// - Returns: Array of room session DTOs
-    public func fetchRoomSessions(deviceID: UUID) async throws -> [RemoteNodeSessionDTO] {
-        let sessions = try await dataStore.fetchRemoteNodeSessions(deviceID: deviceID)
+    public func fetchRoomSessions(radioID: UUID) async throws -> [RemoteNodeSessionDTO] {
+        let sessions = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
         return sessions.filter { $0.isRoom }
     }
 

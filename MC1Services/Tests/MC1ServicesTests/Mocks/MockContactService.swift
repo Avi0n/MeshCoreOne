@@ -18,7 +18,7 @@ public actor MockContactService: ContactServiceProtocol {
     // MARK: - Recorded Invocations
 
     public struct SyncContactsInvocation: Sendable, Equatable {
-        public let deviceID: UUID
+        public let radioID: UUID
         public let since: Date?
     }
 
@@ -30,8 +30,8 @@ public actor MockContactService: ContactServiceProtocol {
 
     // MARK: - Protocol Methods
 
-    public func syncContacts(deviceID: UUID, since: Date? = nil) async throws -> ContactSyncResult {
-        syncContactsInvocations.append(SyncContactsInvocation(deviceID: deviceID, since: since))
+    public func syncContacts(radioID: UUID, since: Date? = nil) async throws -> ContactSyncResult {
+        syncContactsInvocations.append(SyncContactsInvocation(radioID: radioID, since: since))
         switch stubbedSyncContactsResult {
         case .success(let result):
             return result

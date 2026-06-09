@@ -6,6 +6,7 @@ enum ChatFilter: String, CaseIterable, Identifiable {
     case unread
     case directMessages
     case channels
+    case rooms
 
     var id: String { rawValue }
 
@@ -15,6 +16,7 @@ enum ChatFilter: String, CaseIterable, Identifiable {
         case .unread: L10n.Chats.Chats.Filter.unread
         case .directMessages: L10n.Chats.Chats.Filter.directMessages
         case .channels: L10n.Chats.Chats.Filter.channels
+        case .rooms: L10n.Chats.Chats.Filter.rooms
         }
     }
 }

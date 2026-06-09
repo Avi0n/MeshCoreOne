@@ -74,18 +74,28 @@ private struct MetricChartContent: View {
     @Binding var selectedDate: Date?
     let selectedPoint: MetricChartView.DataPoint?
 
+    @State private var isScrubbing = false
+
     var body: some View {
         chart
-            .chartXSelection(value: $selectedDate)
-            .chartGesture { proxy in
-                DragGesture(minimumDistance: 0)
-                    .onChanged { value in
-                        proxy.selectXValue(at: value.location.x)
-                    }
-                    .onEnded { _ in
-                        selectedDate = nil
-                    }
+            .chartOverlay { proxy in
+                GeometryReader { geo in
+                    let plotOriginX = proxy.plotFrame.map { geo[$0].origin.x } ?? 0
+                    Rectangle()
+                        .fill(.clear)
+                        .contentShape(Rectangle())
+                        .gesture(
+                            ChartScrubGesture(
+                                selectedDate: $selectedDate,
+                                isScrubbing: $isScrubbing,
+                                proxy: proxy,
+                                plotOriginX: plotOriginX
+                            )
+                        )
+                }
             }
+            .sensoryFeedback(.impact, trigger: isScrubbing) { old, new in !old && new }
+            .preference(key: ChartScrubbingPreferenceKey.self, value: isScrubbing)
             .chartYAxis {
                 AxisMarks(position: .leading)
             }
@@ -135,13 +145,114 @@ private struct MetricChartContent: View {
     }
 }
 
+// MARK: - Shared Packet-Count Domain
+
+extension [MetricChartView.DataPoint] {
+    /// Returns a common Y-axis domain spanning `0 ... max * 1.05` across all given arrays,
+    /// or `nil` when there is no positive max (empty or all-zero data).
+    static func sharedDomain(for arrays: [[MetricChartView.DataPoint]]) -> ClosedRange<Double>? {
+        let maxVal = arrays.flatMap(\.self).map(\.value).max()
+        guard let maxVal, maxVal > 0 else { return nil }
+        return 0 ... maxVal * 1.05
+    }
+}
+
 // MARK: - OCV Chart Domain
 
 extension Array where Element == Int {
     /// Computes a chart Y-axis domain in volts from millivolt OCV values, with a ±buffer.
-    func voltageChartDomain(bufferMV: Int = 500) -> ClosedRange<Double>? {
-        guard let min = self.min(), let max = self.max() else { return nil }
-        return Double(min - bufferMV) / 1000.0 ... Double(max + bufferMV) / 1000.0
+    /// Unions the OCV range with actual data points so outliers are never clipped.
+    func voltageChartDomain(
+        dataPoints: [MetricChartView.DataPoint] = [],
+        bufferMV: Int = 500
+    ) -> ClosedRange<Double>? {
+        guard let ocvMin = self.min(), let ocvMax = self.max() else { return nil }
+        var lo = Double(ocvMin) / 1000.0
+        var hi = Double(ocvMax) / 1000.0
+        let values = dataPoints.map(\.value)
+        if let dataMin = values.min() { lo = Swift.min(lo, dataMin) }
+        if let dataMax = values.max() { hi = Swift.max(hi, dataMax) }
+        let buffer = Double(bufferMV) / 1000.0
+        return Swift.max(0, lo - buffer) ... hi + buffer
+    }
+}
+
+// MARK: - Chart Scrubbing Scroll Lock
+
+private struct ChartScrubbingPreferenceKey: PreferenceKey {
+    static let defaultValue = false
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = value || nextValue()
+    }
+}
+
+extension View {
+    /// Apply to a `List` or `ScrollView` containing `MetricChartView`s to disable
+    /// scrolling while the user is long-press scrubbing a chart.
+    func chartScrubbingScrollLock() -> some View {
+        modifier(ChartScrubbingScrollLockModifier())
+    }
+}
+
+private struct ChartScrubbingScrollLockModifier: ViewModifier {
+    @State private var isScrubbing = false
+
+    func body(content: Content) -> some View {
+        content
+            .onPreferenceChange(ChartScrubbingPreferenceKey.self) { isScrubbing = $0 }
+            .scrollDisabled(isScrubbing)
+    }
+}
+
+// MARK: - Chart Scrub Gesture
+
+/// UIKit-backed long-press-then-drag gesture for chart scrubbing.
+/// Uses `UILongPressGestureRecognizer` because SwiftUI gestures block the parent
+/// scroll view's pan recognizer regardless of `.simultaneousGesture` usage.
+/// The UIKit recognizer's delegate allows proper simultaneous recognition,
+/// and its `.changed` state reports continuous location updates after recognition.
+private struct ChartScrubGesture: UIGestureRecognizerRepresentable {
+    @Binding var selectedDate: Date?
+    @Binding var isScrubbing: Bool
+    let proxy: ChartProxy
+    let plotOriginX: CGFloat
+
+    func makeUIGestureRecognizer(context: Context) -> UILongPressGestureRecognizer {
+        let recognizer = UILongPressGestureRecognizer()
+        recognizer.minimumPressDuration = 0.25
+        recognizer.delegate = context.coordinator
+        return recognizer
+    }
+
+    func handleUIGestureRecognizerAction(_ recognizer: UILongPressGestureRecognizer, context: Context) {
+        switch recognizer.state {
+        case .began:
+            isScrubbing = true
+            fallthrough
+        case .changed:
+            let x = context.converter.localLocation.x - plotOriginX
+            if let date: Date = proxy.value(atX: x) {
+                selectedDate = date
+            }
+        case .ended, .cancelled, .failed:
+            isScrubbing = false
+            selectedDate = nil
+        default:
+            break
+        }
+    }
+
+    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator {
+        Coordinator()
+    }
+
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        func gestureRecognizer(
+            _ gestureRecognizer: UIGestureRecognizer,
+            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+        ) -> Bool {
+            !(otherGestureRecognizer is UIScreenEdgePanGestureRecognizer)
+        }
     }
 }
 

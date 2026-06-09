@@ -3,16 +3,20 @@ import UIKit
 import MC1Services
 
 /// Reusable chat input bar with configurable styling
-struct ChatInputBar: View {
+struct ChatInputBar<Leading: View>: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Binding var text: String
-    @FocusState.Binding var isFocused: Bool
+    /// Focus-request token forwarded to the composer; see `ChatComposerTextView`.
+    let focusRequest: Int
     let placeholder: String
     let maxBytes: Int
     let isEncrypted: Bool
+    @ViewBuilder let leading: () -> Leading
     let onSend: (String) -> Void
 
     @State private var isCoolingDown = false
+    @State private var sendInvocationCounter: Int = 0
 
     private var byteCount: Int {
         text.utf8.count
@@ -29,7 +33,14 @@ struct ChatInputBar: View {
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 12) {
-            ChatInputTextField(text: $text, placeholder: placeholder, isFocused: $isFocused, isEncrypted: isEncrypted)
+            leading()
+            ChatInputTextField(
+                text: $text,
+                placeholder: placeholder,
+                focusRequest: focusRequest,
+                isEncrypted: isEncrypted,
+                onSend: handleHardwareSend
+            )
             ChatSendButtonWithCounter(
                 canSend: canSend,
                 isOverLimit: isOverLimit,
@@ -43,7 +54,8 @@ struct ChatInputBar: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
-        .inputBarBackground()
+        .inputBarBackground(themedCanvas: theme.surfaces?.canvas)
+        .sensoryFeedback(.start, trigger: sendInvocationCounter)
     }
 
     private var sendAccessibilityLabel: String {
@@ -72,11 +84,23 @@ struct ChatInputBar: View {
         !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isOverLimit
     }
 
+    /// Sends in response to an unmodified hardware Return from the composer,
+    /// honoring the same gating as the send button. Returns `true` when a message
+    /// was sent so the composer consumes the Return; `false` when gated off so the
+    /// composer inserts a newline instead. The composer keeps focus on its own, so
+    /// no re-focus is needed here.
+    private func handleHardwareSend() -> Bool {
+        guard canSend else { return false }
+        send()
+        return true
+    }
+
     private func send() {
         let captured = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !captured.isEmpty else { return }
         isCoolingDown = true
         text = ""
+        sendInvocationCounter &+= 1
         onSend(captured)
         Task {
             try? await Task.sleep(for: .seconds(1))
@@ -85,34 +109,57 @@ struct ChatInputBar: View {
     }
 }
 
+extension ChatInputBar where Leading == EmptyView {
+    /// Builds an input bar with no leading accessory, preserving the original
+    /// call sites that pass only a trailing `onSend` closure.
+    init(
+        text: Binding<String>,
+        focusRequest: Int,
+        placeholder: String,
+        maxBytes: Int,
+        isEncrypted: Bool,
+        onSend: @escaping (String) -> Void
+    ) {
+        self.init(
+            text: text,
+            focusRequest: focusRequest,
+            placeholder: placeholder,
+            maxBytes: maxBytes,
+            isEncrypted: isEncrypted,
+            leading: { EmptyView() },
+            onSend: onSend
+        )
+    }
+}
+
 // MARK: - Extracted Views
 
 private struct ChatInputTextField: View {
     @Binding var text: String
     let placeholder: String
-    @FocusState.Binding var isFocused: Bool
+    let focusRequest: Int
     let isEncrypted: Bool
+    let onSend: () -> Bool
 
     var body: some View {
-        TextField(placeholder, text: $text, axis: .vertical)
-            .background(InlinePredictionFix())
-            .textFieldStyle(.plain)
-            .padding(.leading, 12)
-            .padding(.trailing, 28)
-            .padding(.vertical, 8)
-            .overlay(alignment: .trailing) {
-                Image(systemName: isEncrypted ? "lock.fill" : "lock.open.fill")
-                    .font(.footnote)
-                    .foregroundStyle(isEncrypted ? .blue : .orange)
-                    .padding(.trailing, 10)
-                    .accessibilityHidden(true)
-            }
-            .textFieldBackground()
-            .lineLimit(1...5)
-            .focused($isFocused)
-            .accessibilityLabel(L10n.Chats.Chats.Input.accessibilityLabel)
-            .accessibilityHint(L10n.Chats.Chats.Input.accessibilityHint)
-            .accessibilityValue(isEncrypted ? L10n.Chats.Chats.Input.encrypted : L10n.Chats.Chats.Input.notEncrypted)
+        ChatComposerTextView(
+            text: $text,
+            focusRequest: focusRequest,
+            placeholder: placeholder,
+            isEncrypted: isEncrypted,
+            onSend: onSend
+        )
+        .frame(maxWidth: .infinity)
+        .padding(.leading, 12)
+        .padding(.trailing, 28)
+        .overlay(alignment: .trailing) {
+            Image(systemName: isEncrypted ? "lock.fill" : "lock.open.fill")
+                .font(.footnote)
+                .foregroundStyle(isEncrypted ? .blue : .orange)
+                .padding(.trailing, 10)
+                .accessibilityHidden(true)
+        }
+        .textFieldBackground()
     }
 }
 
@@ -165,6 +212,8 @@ private struct ChatSendButton: View {
     let sendAccessibilityHint: String
     let onSend: () -> Void
 
+    @Environment(\.appTheme) private var theme
+
     private var sendButtonFont: Font {
         if #available(iOS 26.0, *) { .title2 } else { .title }
     }
@@ -173,58 +222,12 @@ private struct ChatSendButton: View {
         Button(action: onSend) {
             Image(systemName: "arrow.up.circle.fill")
                 .font(sendButtonFont)
-                .foregroundStyle(canSend ? AppColors.Message.outgoingBubble : .secondary)
+                .foregroundStyle(canSend ? theme.accentColor : .secondary)
         }
         .sendButtonStyle()
         .disabled(!canSend)
         .accessibilityLabel(sendAccessibilityLabel)
         .accessibilityHint(sendAccessibilityHint)
-    }
-}
-
-// MARK: - Inline Prediction Fix (FB13727682)
-
-/// Finds the backing UITextView of a `TextField(axis: .vertical)` and disables
-/// inline predictions, which leave ghost-text that survives binding clears.
-private struct InlinePredictionFix: UIViewRepresentable {
-    func makeCoordinator() -> Coordinator { Coordinator() }
-
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView(frame: .zero)
-        view.isUserInteractionEnabled = false
-        view.isHidden = true
-        return view
-    }
-
-    func updateUIView(_ uiView: UIView, context: Context) {
-        guard !context.coordinator.applied else { return }
-        DispatchQueue.main.async {
-            if let textView = Self.findTextView(from: uiView) {
-                textView.inlinePredictionType = .no
-                context.coordinator.applied = true
-            }
-        }
-    }
-
-    private static func findTextView(from view: UIView) -> UITextView? {
-        var ancestor: UIView? = view.superview
-        while let parent = ancestor {
-            if let found = firstTextView(in: parent) { return found }
-            ancestor = parent.superview
-        }
-        return nil
-    }
-
-    private static func firstTextView(in view: UIView) -> UITextView? {
-        if let textView = view as? UITextView { return textView }
-        for subview in view.subviews {
-            if let found = firstTextView(in: subview) { return found }
-        }
-        return nil
-    }
-
-    final class Coordinator {
-        var applied = false
     }
 }
 
@@ -252,11 +255,45 @@ private extension View {
     }
 
     @ViewBuilder
-    func inputBarBackground() -> some View {
-        if #available(iOS 26.0, *) {
+    func inputBarBackground(themedCanvas: Color?) -> some View {
+        if let themedCanvas {
+            self.background(themedCanvas)
+        } else if #available(iOS 26.0, *) {
             self
         } else {
             self.background(.bar)
         }
     }
+}
+
+// MARK: - Preview
+
+private struct ChatInputBarPreviewHost: View {
+    @State private var plainText = ""
+    @State private var leadingText = ""
+
+    var body: some View {
+        VStack(spacing: 24) {
+            ChatInputBar(
+                text: $plainText,
+                focusRequest: 0,
+                placeholder: "No leading accessory",
+                maxBytes: 140,
+                isEncrypted: true
+            ) { _ in }
+
+            ChatInputBar(
+                text: $leadingText,
+                focusRequest: 0,
+                placeholder: "With leading accessory",
+                maxBytes: 140,
+                isEncrypted: false,
+                leading: { Image(systemName: "plus") }
+            ) { _ in }
+        }
+    }
+}
+
+#Preview {
+    ChatInputBarPreviewHost()
 }

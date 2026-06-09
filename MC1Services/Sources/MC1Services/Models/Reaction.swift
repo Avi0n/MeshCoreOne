@@ -6,7 +6,7 @@ import SwiftData
 public final class Reaction {
     #Index<Reaction>(
         [\.messageID],
-        [\.deviceID, \.contactID, \.messageID],
+        [\.radioID, \.contactID, \.messageID],
         [\.messageID, \.senderName, \.emoji]
     )
 
@@ -38,7 +38,8 @@ public final class Reaction {
     public var contactID: UUID?
 
     /// Device ID this belongs to
-    public var deviceID: UUID
+    @Attribute(originalName: "deviceID")
+    public var radioID: UUID
 
     public init(
         id: UUID = UUID(),
@@ -50,7 +51,7 @@ public final class Reaction {
         receivedAt: Date = Date(),
         channelIndex: UInt8? = nil,
         contactID: UUID? = nil,
-        deviceID: UUID
+        radioID: UUID
     ) {
         self.id = id
         self.messageID = messageID
@@ -61,23 +62,41 @@ public final class Reaction {
         self.receivedAt = receivedAt
         self.channelIndex = channelIndex
         self.contactID = contactID
-        self.deviceID = deviceID
+        self.radioID = radioID
+    }
+
+    /// Builds a model instance directly from a DTO.
+    public convenience init(dto: ReactionDTO) {
+        self.init(
+            id: dto.id,
+            messageID: dto.messageID,
+            emoji: dto.emoji,
+            senderName: dto.senderName,
+            messageHash: dto.messageHash,
+            rawText: dto.rawText,
+            receivedAt: dto.receivedAt,
+            channelIndex: dto.channelIndex,
+            contactID: dto.contactID,
+            radioID: dto.radioID
+        )
     }
 }
 
 // MARK: - Sendable DTO
 
-public struct ReactionDTO: Sendable, Equatable, Hashable, Identifiable {
+public struct ReactionDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     public let id: UUID
-    public let messageID: UUID
+    public var messageID: UUID
     public let emoji: String
     public let senderName: String
     public let messageHash: String
     public let rawText: String
     public let receivedAt: Date
-    public let channelIndex: UInt8?
-    public let contactID: UUID?
-    public let deviceID: UUID
+    /// Mutable so backup import can rewrite it in lockstep with the parent channel
+    /// message when a channel relocates to a different local slot.
+    public var channelIndex: UInt8?
+    public var contactID: UUID?
+    public var radioID: UUID
 
     public init(from reaction: Reaction) {
         self.id = reaction.id
@@ -89,7 +108,7 @@ public struct ReactionDTO: Sendable, Equatable, Hashable, Identifiable {
         self.receivedAt = reaction.receivedAt
         self.channelIndex = reaction.channelIndex
         self.contactID = reaction.contactID
-        self.deviceID = reaction.deviceID
+        self.radioID = reaction.radioID
     }
 
     public init(
@@ -102,7 +121,7 @@ public struct ReactionDTO: Sendable, Equatable, Hashable, Identifiable {
         receivedAt: Date = Date(),
         channelIndex: UInt8? = nil,
         contactID: UUID? = nil,
-        deviceID: UUID
+        radioID: UUID
     ) {
         self.id = id
         self.messageID = messageID
@@ -113,7 +132,7 @@ public struct ReactionDTO: Sendable, Equatable, Hashable, Identifiable {
         self.receivedAt = receivedAt
         self.channelIndex = channelIndex
         self.contactID = contactID
-        self.deviceID = deviceID
+        self.radioID = radioID
     }
 
 }

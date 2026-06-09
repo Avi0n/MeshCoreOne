@@ -7,14 +7,12 @@ private let nodesListLogger = Logger(subsystem: "com.mc1", category: "NodesListV
 /// List of all contacts discovered on the mesh network
 struct ContactsListView: View {
     @Environment(\.appState) private var appState
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @State private var viewModel = ContactsViewModel()
     @State private var navigationPath = NavigationPath()
-    @State private var selectedContact: ContactDTO?
     @State private var searchText = ""
     @State private var selectedSegment: NodeSegment = .contacts
-    @AppStorage("nodesSortOrder") private var sortOrder: NodeSortOrder = .lastHeard
+    @AppStorage(AppStorageKey.nodesSortOrder.rawValue) private var sortOrder: NodeSortOrder = .lastHeard
     @State private var showDiscovery = false
     @State private var syncSuccessTrigger = false
     @State private var showShareMyContact = false
@@ -22,81 +20,33 @@ struct ContactsListView: View {
     @State private var showLocationDeniedAlert = false
     @State private var showOfflineRefreshAlert = false
 
-    private var filteredContacts: [ContactDTO] {
-        // Fall back to lastHeard sort when distance is selected but location unavailable
-        let effectiveSortOrder = (sortOrder == .distance && appState.bestAvailableLocation == nil)
-            ? .lastHeard
-            : sortOrder
-
-        return viewModel.filteredContacts(
-            searchText: searchText,
-            segment: selectedSegment,
-            sortOrder: effectiveSortOrder,
-            userLocation: appState.bestAvailableLocation
-        )
-    }
-
-    private var isSearching: Bool {
-        !searchText.isEmpty
-    }
-
-    private var searchPrompt: String {
-        let count = viewModel.contacts.count
-        if count > 0 {
-            return L10n.Contacts.Contacts.List.searchPromptWithCount(count)
-        }
-        return L10n.Contacts.Contacts.List.searchPrompt
-    }
-
-    private var shouldUseSplitView: Bool {
-        horizontalSizeClass == .regular
+    private var actions: ContactListActions {
+        ContactListActions(viewModel: viewModel, appState: appState, syncSuccessTrigger: $syncSuccessTrigger)
     }
 
     var body: some View {
-        if shouldUseSplitView {
-            NavigationSplitView {
-                NavigationStack {
-                    sidebarContent
+        NavigationStack(path: $navigationPath) {
+            sidebarContent
+                .navigationDestination(isPresented: $showDiscovery) {
+                    DiscoveryView()
                 }
-            } detail: {
-                NavigationStack {
-                    if showDiscovery {
-                        DiscoveryView()
-                    } else if let selectedContact {
-                        ContactDetailView(contact: selectedContact)
-                            .id(selectedContact.id)
-                    } else {
-                        ContentUnavailableView(L10n.Contacts.Contacts.List.selectNode, systemImage: "flipphone")
-                    }
+                .navigationDestination(for: ContactDTO.self) { contact in
+                    ContactDetailView(contact: contact)
+                        .id(contact.id)
                 }
-            }
-            .onChange(of: selectedContact) { _, newContact in
-                if newContact != nil {
-                    showDiscovery = false
-                }
-            }
-        } else {
-            NavigationStack(path: $navigationPath) {
-                sidebarContent
-                    .navigationDestination(isPresented: $showDiscovery) {
-                        DiscoveryView()
-                    }
-                    .navigationDestination(for: ContactDTO.self) { contact in
-                        ContactDetailView(contact: contact)
-                    }
-            }
         }
     }
 
     private var sidebarContent: some View {
         ContactsSidebarContent(
             viewModel: viewModel,
-            filteredContacts: filteredContacts,
-            isSearching: isSearching,
-            searchPrompt: searchPrompt,
-            shouldUseSplitView: shouldUseSplitView,
+            filteredContacts: actions.filteredContacts(searchText: searchText, segment: selectedSegment, sortOrder: sortOrder),
+            isSearching: !searchText.isEmpty,
+            searchPrompt: actions.searchPrompt,
+            shouldUseSplitView: false,
             selectedSegment: $selectedSegment,
-            selectedContact: $selectedContact,
+            // Split-only: the compact stack navigates via navigationPath, so it has no selection.
+            selectedContact: .constant(nil),
             searchText: $searchText,
             sortOrder: $sortOrder,
             showDiscovery: $showDiscovery,
@@ -106,43 +56,11 @@ struct ContactsListView: View {
             showLocationDeniedAlert: $showLocationDeniedAlert,
             showOfflineRefreshAlert: $showOfflineRefreshAlert,
             navigationPath: $navigationPath,
-            showErrorBinding: showErrorBinding,
-            onLoadContacts: loadContacts,
-            onSyncContacts: syncContacts,
-            onAnnounceOfflineStateIfNeeded: announceOfflineStateIfNeeded
+            showErrorBinding: actions.showErrorBinding,
+            onLoadContacts: actions.loadContacts,
+            onSyncContacts: actions.syncContacts,
+            onAnnounceOfflineStateIfNeeded: actions.announceOfflineStateIfNeeded
         )
-    }
-
-    private var showErrorBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )
-    }
-
-    // MARK: - Actions
-
-    private func loadContacts() async {
-        guard let deviceID = appState.currentDeviceID else { return }
-        viewModel.configure(appState: appState)
-        await viewModel.loadContacts(deviceID: deviceID)
-    }
-
-    private func announceOfflineStateIfNeeded() {
-        guard UIAccessibility.isVoiceOverRunning,
-              appState.connectionState == .disconnected,
-              appState.currentDeviceID != nil else { return }
-
-        UIAccessibility.post(
-            notification: .announcement,
-            argument: L10n.Contacts.Contacts.List.offlineAnnouncement
-        )
-    }
-
-    private func syncContacts() async {
-        guard let deviceID = appState.currentDeviceID else { return }
-        await viewModel.syncContacts(deviceID: deviceID)
-        syncSuccessTrigger.toggle()
     }
 }
 

@@ -15,6 +15,10 @@ final class MapViewModel {
     /// Map points derived from contacts — stored to avoid reallocation on every body eval.
     private(set) var mapPoints: [MapPoint] = []
 
+    /// A user-dropped pin from a chat coordinate tap. Folded into `mapPoints` so it
+    /// survives contact refreshes. Exactly one exists at a time (single-pin invariant).
+    private(set) var focusedPin: MapPoint?
+
     /// Loading state
     var isLoading = false
 
@@ -36,35 +40,41 @@ final class MapViewModel {
     // MARK: - Dependencies
 
     private var dataStore: PersistenceStore?
-    private var deviceID: UUID?
+    private var radioID: UUID?
 
     // MARK: - Initialization
+
+    /// Stable id so the dropped pin does not churn across rebuilds and `onPointTap` can identify it.
+    private static let focusedPinID = UUID()
+
+    /// Span for "exactly here" framing — tighter than `centerOnContact`'s 0.045 (about 1 km across).
+    private static let focusSpan = 0.01
 
     init() {}
 
     /// Configure with services from AppState
     func configure(appState: AppState) {
         self.dataStore = appState.offlineDataStore
-        self.deviceID = appState.currentDeviceID
+        self.radioID = appState.currentRadioID
     }
 
     /// Configure with services (for testing)
-    func configure(dataStore: PersistenceStore, deviceID: UUID?) {
+    func configure(dataStore: PersistenceStore, radioID: UUID?) {
         self.dataStore = dataStore
-        self.deviceID = deviceID
+        self.radioID = radioID
     }
 
     // MARK: - Load Contacts
 
     /// Load contacts with valid locations from the database
     func loadContactsWithLocation() async {
-        guard let dataStore, let deviceID else { return }
+        guard let dataStore, let radioID else { return }
 
         isLoading = true
         errorMessage = nil
 
         do {
-            let allContacts = try await dataStore.fetchContacts(deviceID: deviceID)
+            let allContacts = try await dataStore.fetchContacts(radioID: radioID)
             contactsWithLocation = allContacts.filter(\.hasLocation)
             rebuildMapPoints()
         } catch {
@@ -88,6 +98,9 @@ final class MapViewModel {
                 badgeText: nil
             )
         }
+        if let focusedPin {
+            mapPoints.append(focusedPin)
+        }
     }
 
     // MARK: - Map Interaction
@@ -104,6 +117,28 @@ final class MapViewModel {
         // 5000 meters corresponds to roughly 0.045 degrees latitude span
         let span = MKCoordinateSpan(latitudeDelta: 0.045, longitudeDelta: 0.045)
         setCameraRegion(MKCoordinateRegion(center: contact.coordinate, span: span))
+    }
+
+    /// Drop a distinct pin at `coordinate`, fold it into `mapPoints`, and center the camera on it.
+    func focusOnCoordinate(_ coordinate: CLLocationCoordinate2D) {
+        focusedPin = MapPoint(
+            id: Self.focusedPinID,
+            coordinate: coordinate,
+            pinStyle: .droppedPin,
+            label: nil,
+            isClusterable: false,
+            hopIndex: nil,
+            badgeText: nil
+        )
+        rebuildMapPoints()
+        let span = MKCoordinateSpan(latitudeDelta: Self.focusSpan, longitudeDelta: Self.focusSpan)
+        setCameraRegion(MKCoordinateRegion(center: coordinate, span: span))
+    }
+
+    /// Remove the dropped pin.
+    func clearFocusedPin() {
+        focusedPin = nil
+        rebuildMapPoints()
     }
 
     /// Center map to show all contacts

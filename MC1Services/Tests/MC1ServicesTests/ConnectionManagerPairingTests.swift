@@ -58,6 +58,59 @@ struct ConnectionManagerPairingTests {
         }
     }
 
+    @Test("pairNewDevice rejects re-entry without clearing the outer call's flag")
+    func pairNewDeviceRejectsReEntry() async throws {
+        let (manager, _) = try ConnectionManager.createForTesting()
+
+        // Simulate the outer call having already entered pairNewDevice and
+        // suspended in showPicker.
+        manager.setTestState(isPairingInProgress: true)
+
+        try await #expect {
+            try await manager.pairNewDevice()
+        } throws: { error in
+            guard let e = error as? DevicePairingError, case .alreadyInProgress = e else { return false }
+            return true
+        }
+
+        // The inner call's defer must not unwind the outer call's state.
+        #expect(manager.isPairingInProgress == true)
+    }
+
+    @Test("pairNewDevice stops BLE scanning before showing ASK picker")
+    func pairNewDeviceStopsBLEScanningBeforeShowingPicker() async throws {
+        let env = try ConnectionManager.createForPairingTesting()
+        defer { env.cleanup() }
+
+        let stream = env.manager.startBLEScanning()
+        let scanConsumer = Task {
+            for await _ in stream {}
+        }
+        defer { scanConsumer.cancel() }
+
+        try await waitUntil("BLE scanning should start") {
+            await env.stateMachine.isScanning
+        }
+
+        let pickerEntered = AsyncStream<Void>.makeStream()
+        let pickerGate = AsyncStream<Void>.makeStream()
+        env.accessorySetupKit.pickerEnteredSignal = pickerEntered.continuation
+        env.accessorySetupKit.pickerGate = pickerGate.stream
+        env.accessorySetupKit.setPickerResult(.failure(AccessorySetupKitError.pickerDismissed))
+
+        let pairTask = Task {
+            try? await env.manager.pairNewDevice()
+        }
+
+        for await _ in pickerEntered.stream { break }
+
+        #expect(await env.stateMachine.stopScanningCallCount == 1)
+        #expect(await env.stateMachine.isScanning == false)
+
+        pickerGate.continuation.finish()
+        _ = await pairTask.result
+    }
+
     // MARK: - Device Update Tests
 
     @Test("updateDevice(with:) updates connectedDevice")
@@ -214,5 +267,71 @@ struct ConnectionManagerPairingTests {
         let (manager, _) = try ConnectionManager.createForTesting()
 
         try await manager.deleteDevice(id: UUID())
+    }
+
+    // MARK: - Forget/Resume Signal
+
+    @Test("deleteDevice clears the persisted connection when removing the last-connected radio")
+    func deleteDeviceClearsLastConnectedSignal() async throws {
+        let suiteName = "test.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+        let (manager, _) = try ConnectionManager.createForTesting(defaults: defaults)
+
+        let deviceID = UUID()
+        manager.persistConnection(deviceID: deviceID, radioID: UUID(), deviceName: "Radio")
+        #expect(manager.lastConnectedDeviceID == deviceID)
+
+        try await manager.deleteDevice(id: deviceID)
+
+        // The auto-reconnect / onboarding-resume signal must not survive deleting its own radio.
+        #expect(manager.lastConnectedDeviceID == nil)
+    }
+
+    @Test("deleteDevice preserves the persisted connection when removing a different radio")
+    func deleteDevicePreservesOtherLastConnectedSignal() async throws {
+        let suiteName = "test.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+        let (manager, _) = try ConnectionManager.createForTesting(defaults: defaults)
+
+        let lastConnected = UUID()
+        manager.persistConnection(deviceID: lastConnected, radioID: UUID(), deviceName: "Radio")
+
+        try await manager.deleteDevice(id: UUID())
+
+        #expect(manager.lastConnectedDeviceID == lastConnected)
+    }
+
+    @Test("forgetDevice clears the persisted connection when removing the last-connected radio")
+    func forgetDeviceClearsLastConnectedSignal() async throws {
+        let suiteName = "test.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+        let (manager, _) = try ConnectionManager.createForTesting(defaults: defaults)
+
+        let deviceID = UUID()
+        manager.persistConnection(deviceID: deviceID, radioID: UUID(), deviceName: "Radio")
+        #expect(manager.lastConnectedDeviceID == deviceID)
+
+        await manager.forgetDevice(id: deviceID)
+
+        // The auto-reconnect / onboarding-resume signal must not survive forgetting its own radio.
+        #expect(manager.lastConnectedDeviceID == nil)
+    }
+
+    @Test("forgetDevice preserves the persisted connection when removing a different radio")
+    func forgetDevicePreservesOtherLastConnectedSignal() async throws {
+        let suiteName = "test.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+        let (manager, _) = try ConnectionManager.createForTesting(defaults: defaults)
+
+        let lastConnected = UUID()
+        manager.persistConnection(deviceID: lastConnected, radioID: UUID(), deviceName: "Radio")
+
+        await manager.forgetDevice(id: UUID())
+
+        #expect(manager.lastConnectedDeviceID == lastConnected)
     }
 }

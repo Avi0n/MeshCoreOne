@@ -28,21 +28,24 @@ extension ConnectionManager: BLEReconnectionDelegate {
     }
 
     func teardownSessionForReconnect() async {
-        // Mark room sessions disconnected before tearing down services.
-        let remoteNodeService = services?.remoteNodeService
-        if let remoteNodeService {
-            sessionsAwaitingReauth = await remoteNodeService.handleBLEDisconnection()
-        }
-
-        await services?.stopEventMonitoring()
-        cancelResyncLoop()
-
-        // Reset sync state before destroying services to prevent stuck "Syncing" pill
-        if let services {
-            await services.syncCoordinator.onDisconnected(services: services)
-        }
+        // Capture and clear synchronously so a concurrent rebuildSession can
+        // assume nil-and-rebuild without racing the terminal writes that used
+        // to land at the end of this method. Subsequent awaits operate on the
+        // captured local — they no longer touch self.services / self.session.
+        let oldServices = services
         services = nil
         session = nil
+
+        if let oldServices {
+            sessionsAwaitingReauth = await oldServices.remoteNodeService.handleBLEDisconnection()
+            await oldServices.tearDown()
+        }
+        cancelResyncLoop()
+
+        // Reset sync state on the captured services to prevent stuck "Syncing" pill
+        if let oldServices {
+            await oldServices.syncCoordinator.onDisconnected(services: oldServices)
+        }
     }
 
     // Background execution note: iOS provides ~10s of background execution time.
@@ -113,78 +116,96 @@ extension ConnectionManager: BLEReconnectionDelegate {
             return
         }
 
-        let newServices = ServiceContainer(
+        let (newServices, radioID) = try await buildServicesAndSaveDevice(
+            deviceID: deviceID,
             session: newSession,
-            modelContainer: modelContainer,
-            appStateProvider: appStateProvider
+            selfInfo: selfInfo,
+            capabilities: capabilities
         )
-        await newServices.wireServices()
 
-        // Check after await
+        // Check after await — user may have disconnected or new reconnect cycle started
         guard connectionIntent.wantsConnection else {
             logger.info("User disconnected during service wiring")
             await newSession.stop()
+            await newServices.tearDown()
+            services = nil
+            connectedDevice = nil
+            allowedRepeatFreqRanges = []
             connectionState = .disconnected
             return
         }
         guard reconnectionCoordinator.reconnectGeneration == expectedGeneration else {
             logger.info("[BLE] rebuildSession superseded by new reconnect cycle during service wiring")
             await newSession.stop()
+            await newServices.tearDown()
+            services = nil
+            connectedDevice = nil
+            allowedRepeatFreqRanges = []
             return
         }
 
-        self.services = newServices
-
-        // Fetch existing device and auto-add config concurrently (independent operations)
-        async let existingDeviceResult = newServices.dataStore.fetchDevice(id: deviceID)
-        async let autoAddConfigResult = newSession.getAutoAddConfig()
-        let existingDevice = try? await existingDeviceResult
-        let autoAddConfig = (try? await autoAddConfigResult) ?? MeshCore.AutoAddConfig(bitmask: 0)
-
-        let repeatFreqRanges: [MeshCore.FrequencyRange] = capabilities.clientRepeat
-            ? (try? await newSession.getRepeatFreq()) ?? []
-            : []
-
-        let device = createDevice(deviceID: deviceID, selfInfo: selfInfo, capabilities: capabilities, autoAddConfig: autoAddConfig, existingDevice: existingDevice)
-        try await newServices.dataStore.saveDevice(DeviceDTO(from: device))
-        self.connectedDevice = DeviceDTO(from: device)
-        self.allowedRepeatFreqRanges = repeatFreqRanges
-
-        // Notify observers BEFORE sync starts so they can wire callbacks
+        // Notify observers before sync starts so they can wire callbacks
         await onConnectionReady?()
-        await performInitialSync(deviceID: deviceID, services: newServices, context: "[BLE] iOS auto-reconnect")
-
-        // User may have disconnected or a new reconnect cycle may have started while sync was in progress
+        // onConnectionReady can suspend; a reentrant main-actor disconnect or
+        // reconnect-UI timeout may clear connectedDevice or replace services during
+        // that await. Recheck so an aborted reconnect bails here instead of syncing
+        // a torn-down session.
         guard connectionIntent.wantsConnection,
-              reconnectionCoordinator.reconnectGeneration == expectedGeneration
+              reconnectionCoordinator.reconnectGeneration == expectedGeneration,
+              self.services === newServices,
+              connectedDevice != nil
+        else {
+            logger.info("[BLE] rebuildSession aborted after onConnectionReady: reconnect state changed")
+            await newSession.stop()
+            await newServices.tearDown()
+            services = nil
+            connectedDevice = nil
+            allowedRepeatFreqRanges = []
+            return
+        }
+        let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, context: "[BLE] iOS auto-reconnect")
+
+        // Caller-specific guard: generation check for superseded reconnects
+        guard connectionIntent.wantsConnection,
+              reconnectionCoordinator.reconnectGeneration == expectedGeneration,
+              self.services === newServices
         else {
             await newSession.stop()
             return
         }
 
-        await syncDeviceTimeIfNeeded()
-        guard connectionIntent.wantsConnection,
-              reconnectionCoordinator.reconnectGeneration == expectedGeneration
-        else {
+        if syncSucceeded {
+            // Re-authenticate room sessions (sends BLE commands — skip on failure path).
+            let sessionIDs = sessionsAwaitingReauth
+            await newServices.remoteNodeService.handleBLEReconnection(sessionIDs: sessionIDs)
+
+            guard connectionIntent.wantsConnection,
+                  reconnectionCoordinator.reconnectGeneration == expectedGeneration,
+                  self.services === newServices
+            else {
+                // IDs preserved for next reconnect cycle — new IDs may have
+                // arrived during handleBLEReconnection if BLE dropped mid-reauth.
+                await newSession.stop()
+                return
+            }
+
+            // Only clear consumed IDs after confirming this cycle is still authoritative.
+            // Any IDs appended during the await (via teardownSessionForReconnect) survive.
+            sessionsAwaitingReauth.subtract(sessionIDs)
+        }
+
+        guard await promoteToReady(
+            syncSucceeded: syncSucceeded,
+            expectedServices: newServices,
+            transportType: .bluetooth,
+            additionalGuard: { [reconnectionCoordinator] in
+                reconnectionCoordinator.reconnectGeneration == expectedGeneration
+            }
+        ) else {
             await newSession.stop()
             return
         }
 
-        // Re-authenticate room sessions that were connected before BLE loss
-        let sessionIDs = sessionsAwaitingReauth
-        sessionsAwaitingReauth = []
-        await newServices.remoteNodeService.handleBLEReconnection(sessionIDs: sessionIDs)
-
-        guard connectionIntent.wantsConnection,
-              reconnectionCoordinator.reconnectGeneration == expectedGeneration
-        else {
-            await newSession.stop()
-            return
-        }
-
-        currentTransportType = .bluetooth
-        connectionState = .ready
-        await onDeviceSynced?()
         recordConnectionSuccess()
         stopReconnectionWatchdog()
         logger.info("[BLE] iOS auto-reconnect: session ready, device: \(deviceID.uuidString.prefix(8))")
@@ -205,12 +226,19 @@ extension ConnectionManager: BLEReconnectionDelegate {
     func handleReconnectionFailure() async {
         logger.error("[BLE] Auto-reconnect session rebuild failed")
         await session?.stop()
+        await services?.tearDown()
         session = nil
         services = nil
         await transport.disconnect()
         connectionState = .disconnected
         connectedDevice = nil
         allowedRepeatFreqRanges = []
+
+        // Same callback contract as handleConnectionLoss and the UI-timeout
+        // path in BLEReconnectionCoordinator: route through notifyConnectionLost()
+        // so AppState tears down its observers and the Live Activity transitions
+        // to disconnected. Without this the LA stays in stale "connected" state.
+        await notifyConnectionLost()
 
         // Start watchdog to periodically retry if user still wants connection
         if connectionIntent.wantsConnection {

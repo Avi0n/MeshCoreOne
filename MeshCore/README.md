@@ -24,7 +24,9 @@ dependencies: [
 import MeshCore
 
 // Create a BLE transport and session
-let transport = BLETransport(deviceName: "MeshCore")
+// Pass an address (peripheral UUID string) to target a specific device;
+// omit it to scan for any device advertising the Nordic UART Service.
+let transport = BLETransport()
 let session = MeshCoreSession(transport: transport)
 
 // Start the session
@@ -302,6 +304,21 @@ MeshCore/
     ├── WiFiFrameCodec.swift         # WiFi frame encoding/decoding
     └── WiFiTransport.swift          # WiFi transport implementation
 ```
+
+## Versioning & Distribution
+
+MeshCore ships as a Swift Package consumed from source as a path dependency of
+the MeshCore One app:
+
+```swift
+dependencies: [
+    .package(path: "../MeshCore")
+]
+```
+
+It is built alongside the app rather than published as a standalone,
+independently versioned package, so there are no library-specific release tags
+to pin against.
 
 ## License
 

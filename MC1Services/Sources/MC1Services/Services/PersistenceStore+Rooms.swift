@@ -47,10 +47,10 @@ extension PersistenceStore {
     }
 
     /// Fetch all remote node sessions for a device
-    public func fetchRemoteNodeSessions(deviceID: UUID) throws -> [RemoteNodeSessionDTO] {
-        let targetDeviceID = deviceID
+    public func fetchRemoteNodeSessions(radioID: UUID) throws -> [RemoteNodeSessionDTO] {
+        let targetRadioID = radioID
         let predicate = #Predicate<RemoteNodeSession> { session in
-            session.deviceID == targetDeviceID
+            session.radioID == targetRadioID
         }
         let descriptor = FetchDescriptor(
             predicate: predicate,
@@ -83,7 +83,7 @@ extension PersistenceStore {
             // Create new
             let session = RemoteNodeSession(
                 id: dto.id,
-                deviceID: dto.deviceID,
+                radioID: dto.radioID,
                 publicKey: dto.publicKey,
                 name: dto.name,
                 role: dto.role,
@@ -147,13 +147,12 @@ extension PersistenceStore {
     /// Keeps the session with the specified ID and deletes any others.
     /// This prevents stale sessions from causing connection state issues.
     public func cleanupDuplicateRemoteNodeSessions(publicKey: Data, keepID: UUID) throws {
-        let descriptor = FetchDescriptor<RemoteNodeSession>()
-        let sessions = try modelContext.fetch(descriptor)
-
-        // Find sessions with matching public key but different ID
-        let duplicates = sessions.filter { session in
-            session.publicKey == publicKey && session.id != keepID
+        let targetKey = publicKey
+        let targetKeepID = keepID
+        let predicate = #Predicate<RemoteNodeSession> { session in
+            session.publicKey == targetKey && session.id != targetKeepID
         }
+        let duplicates = try modelContext.fetch(FetchDescriptor(predicate: predicate))
 
         if !duplicates.isEmpty {
             let logger = Logger(subsystem: "com.mc1", category: "PersistenceStore")
@@ -290,6 +289,8 @@ extension PersistenceStore {
             isFromSelf: dto.isFromSelf,
             status: dto.status
         )
+        message.createdAt = dto.createdAt
+        message.deduplicationKey = dto.deduplicationKey
         message.ackCode = dto.ackCode
         message.roundTripTime = dto.roundTripTime
         message.retryAttempt = dto.retryAttempt
@@ -443,7 +444,10 @@ extension PersistenceStore {
         }
         var descriptor = FetchDescriptor(
             predicate: predicate,
-            sortBy: [SortDescriptor(\RoomMessage.timestamp, order: .forward)]
+            sortBy: [
+                SortDescriptor(\RoomMessage.timestamp, order: .forward),
+                SortDescriptor(\RoomMessage.createdAt, order: .forward)
+            ]
         )
         if let limit {
             descriptor.fetchLimit = limit

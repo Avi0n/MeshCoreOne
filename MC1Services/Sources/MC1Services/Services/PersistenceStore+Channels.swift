@@ -7,10 +7,10 @@ extension PersistenceStore {
     // MARK: - Blocked Channel Senders
 
     public func saveBlockedChannelSender(_ dto: BlockedChannelSenderDTO) throws {
-        let targetDeviceID = dto.deviceID
+        let targetRadioID = dto.radioID
         let targetName = dto.name
         let predicate = #Predicate<BlockedChannelSender> { entry in
-            entry.deviceID == targetDeviceID && entry.name == targetName
+            entry.radioID == targetRadioID && entry.name == targetName
         }
         var descriptor = FetchDescriptor(predicate: predicate)
         descriptor.fetchLimit = 1
@@ -21,7 +21,7 @@ extension PersistenceStore {
             let entry = BlockedChannelSender(
                 id: dto.id,
                 name: targetName,
-                deviceID: dto.deviceID,
+                radioID: dto.radioID,
                 dateBlocked: dto.dateBlocked
             )
             modelContext.insert(entry)
@@ -30,11 +30,11 @@ extension PersistenceStore {
         try modelContext.save()
     }
 
-    public func deleteBlockedChannelSender(deviceID: UUID, name: String) throws {
-        let targetDeviceID = deviceID
+    public func deleteBlockedChannelSender(radioID: UUID, name: String) throws {
+        let targetRadioID = radioID
         let targetName = name
         let predicate = #Predicate<BlockedChannelSender> { entry in
-            entry.deviceID == targetDeviceID && entry.name == targetName
+            entry.radioID == targetRadioID && entry.name == targetName
         }
         if let entry = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first {
             modelContext.delete(entry)
@@ -42,10 +42,10 @@ extension PersistenceStore {
         }
     }
 
-    public func fetchBlockedChannelSenders(deviceID: UUID) throws -> [BlockedChannelSenderDTO] {
-        let targetDeviceID = deviceID
+    public func fetchBlockedChannelSenders(radioID: UUID) throws -> [BlockedChannelSenderDTO] {
+        let targetRadioID = radioID
         let predicate = #Predicate<BlockedChannelSender> { entry in
-            entry.deviceID == targetDeviceID
+            entry.radioID == targetRadioID
         }
         let descriptor = FetchDescriptor(
             predicate: predicate,
@@ -96,11 +96,11 @@ extension PersistenceStore {
         try modelContext.save()
     }
 
-    public func fetchUnseenChannelMentionIDs(deviceID: UUID, channelIndex: UInt8) throws -> [UUID] {
-        let targetDeviceID = deviceID
+    public func fetchUnseenChannelMentionIDs(radioID: UUID, channelIndex: UInt8) throws -> [UUID] {
+        let targetRadioID = radioID
         let targetIndex: UInt8? = channelIndex
         let predicate = #Predicate<Message> { message in
-            message.deviceID == targetDeviceID &&
+            message.radioID == targetRadioID &&
             message.channelIndex == targetIndex &&
             message.containsSelfMention == true &&
             message.mentionSeen == false
@@ -115,10 +115,10 @@ extension PersistenceStore {
     // MARK: - Channel Operations
 
     /// Fetch all channels for a device
-    public func fetchChannels(deviceID: UUID) throws -> [ChannelDTO] {
-        let targetDeviceID = deviceID
+    public func fetchChannels(radioID: UUID) throws -> [ChannelDTO] {
+        let targetRadioID = radioID
         let predicate = #Predicate<Channel> { channel in
-            channel.deviceID == targetDeviceID
+            channel.radioID == targetRadioID
         }
         let descriptor = FetchDescriptor(
             predicate: predicate,
@@ -129,11 +129,11 @@ extension PersistenceStore {
     }
 
     /// Fetch a channel by index
-    public func fetchChannel(deviceID: UUID, index: UInt8) throws -> ChannelDTO? {
-        let targetDeviceID = deviceID
+    public func fetchChannel(radioID: UUID, index: UInt8) throws -> ChannelDTO? {
+        let targetRadioID = radioID
         let targetIndex = index
         let predicate = #Predicate<Channel> { channel in
-            channel.deviceID == targetDeviceID && channel.index == targetIndex
+            channel.radioID == targetRadioID && channel.index == targetIndex
         }
         var descriptor = FetchDescriptor(predicate: predicate)
         descriptor.fetchLimit = 1
@@ -152,11 +152,11 @@ extension PersistenceStore {
     }
 
     /// Save or update a channel from ChannelInfo
-    public func saveChannel(deviceID: UUID, from info: ChannelInfo) throws -> UUID {
-        let targetDeviceID = deviceID
+    public func saveChannel(radioID: UUID, from info: ChannelInfo) throws -> UUID {
+        let targetRadioID = radioID
         let targetIndex = info.index
         let predicate = #Predicate<Channel> { channel in
-            channel.deviceID == targetDeviceID && channel.index == targetIndex
+            channel.radioID == targetRadioID && channel.index == targetIndex
         }
         var descriptor = FetchDescriptor(predicate: predicate)
         descriptor.fetchLimit = 1
@@ -166,12 +166,66 @@ extension PersistenceStore {
             existing.update(from: info)
             channel = existing
         } else {
-            channel = Channel(deviceID: deviceID, from: info)
+            channel = Channel(radioID: radioID, from: info)
             modelContext.insert(channel)
         }
 
         try modelContext.save()
         return channel.id
+    }
+
+    /// Persists a full channel-sync pass in a single transaction. See
+    /// ``PersistenceStoreProtocol/batchSaveChannels(radioID:configured:unconfiguredIndices:pruneBeyond:)``
+    /// for the contract. Collapses the per-index `saveChannel`/`deleteChannel` calls — each its
+    /// own commit, plus a redundant re-fetch — into one fetch, one mutation pass, and one
+    /// `save()`. Indices that were neither confirmed configured nor reported unconfigured are
+    /// left untouched, so a circuit-breaker abort never deletes channels it could not read.
+    public func batchSaveChannels(
+        radioID: UUID,
+        configured: [ChannelInfo],
+        unconfiguredIndices: [UInt8],
+        pruneBeyond maxChannels: UInt8?
+    ) throws -> [ChannelDTO] {
+        let targetRadioID = radioID
+        let predicate = #Predicate<Channel> { channel in
+            channel.radioID == targetRadioID
+        }
+        let existing = try modelContext.fetch(FetchDescriptor(predicate: predicate))
+        var byIndex = Dictionary(existing.map { ($0.index, $0) }, uniquingKeysWith: { current, _ in current })
+
+        for info in configured {
+            if let row = byIndex[info.index] {
+                row.update(from: info)
+            } else {
+                let channel = Channel(radioID: radioID, from: info)
+                modelContext.insert(channel)
+                byIndex[info.index] = channel
+            }
+        }
+
+        for index in unconfiguredIndices {
+            if let stale = byIndex[index] {
+                modelContext.delete(stale)
+                byIndex[index] = nil
+            }
+        }
+
+        if let maxChannels {
+            for (index, row) in byIndex where index >= maxChannels {
+                modelContext.delete(row)
+                byIndex[index] = nil
+            }
+        }
+
+        do {
+            try modelContext.save()
+        } catch {
+            // Discard the staged upserts and deletes so a later successful save on this shared
+            // context cannot flush them and delete channels this failed pass meant to keep.
+            modelContext.rollback()
+            throw error
+        }
+        return try fetchChannels(radioID: radioID)
     }
 
     /// Save or update a channel from DTO
@@ -186,21 +240,7 @@ extension PersistenceStore {
         if let existing = try modelContext.fetch(descriptor).first {
             existing.apply(dto)
         } else {
-            let channel = Channel(
-                id: dto.id,
-                deviceID: dto.deviceID,
-                index: dto.index,
-                name: dto.name,
-                secret: dto.secret,
-                isEnabled: dto.isEnabled,
-                lastMessageDate: dto.lastMessageDate,
-                unreadCount: dto.unreadCount,
-                unreadMentionCount: dto.unreadMentionCount,
-                notificationLevel: dto.notificationLevel,
-                isFavorite: dto.isFavorite,
-                regionScope: dto.regionScope
-            )
-            modelContext.insert(channel)
+            modelContext.insert(Channel(dto: dto))
         }
 
         try modelContext.save()
@@ -218,13 +258,37 @@ extension PersistenceStore {
         }
     }
 
-    /// Delete all messages for a channel
-    public func deleteMessagesForChannel(deviceID: UUID, channelIndex: UInt8) throws {
-        let targetDeviceID = deviceID
+    /// Delete all messages for a channel.
+    /// Cascades PendingSend, MessageRepeat, and Reaction rows associated with the deleted
+    /// messages within a single save.
+    public func deleteMessagesForChannel(radioID: UUID, channelIndex: UInt8) throws {
+        let targetRadioID = radioID
         let targetChannelIndex: UInt8? = channelIndex
-        try modelContext.delete(model: Message.self, where: #Predicate {
-            $0.deviceID == targetDeviceID && $0.channelIndex == targetChannelIndex
-        })
+        let messagePredicate = #Predicate<Message> { message in
+            message.radioID == targetRadioID && message.channelIndex == targetChannelIndex
+        }
+
+        let messageIDs = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate)).map(\.id)
+
+        if !messageIDs.isEmpty {
+            try _deletePendingSendsForMessageIDsWithoutSaving(messageIDs: messageIDs)
+            // Cascade MessageRepeat alongside Reaction. Bulk `delete(model:where:)`
+            // bypasses the `@Relationship(deleteRule: .cascade)` declared on
+            // `Message → MessageRepeat`. Chunk both predicates to stay under
+            // SQLITE_MAX_VARIABLE_NUMBER (32766 on iOS 18+).
+            let chunkSize = 500
+            for start in stride(from: 0, to: messageIDs.count, by: chunkSize) {
+                let chunk = Array(messageIDs[start..<min(start + chunkSize, messageIDs.count)])
+                try modelContext.delete(model: Reaction.self, where: #Predicate {
+                    chunk.contains($0.messageID)
+                })
+                try modelContext.delete(model: MessageRepeat.self, where: #Predicate {
+                    chunk.contains($0.messageID)
+                })
+            }
+        }
+
+        try modelContext.delete(model: Message.self, where: messagePredicate)
         try modelContext.save()
     }
 
@@ -275,13 +339,13 @@ extension PersistenceStore {
         }
     }
 
-    /// Clear unread count for a channel by deviceID and index
+    /// Clear unread count for a channel by radioID and index
     /// More efficient than fetching the full channel DTO when only clearing unread
-    public func clearChannelUnreadCount(deviceID: UUID, index: UInt8) throws {
-        let targetDeviceID = deviceID
+    public func clearChannelUnreadCount(radioID: UUID, index: UInt8) throws {
+        let targetRadioID = radioID
         let targetIndex = index
         let predicate = #Predicate<Channel> { channel in
-            channel.deviceID == targetDeviceID && channel.index == targetIndex
+            channel.radioID == targetRadioID && channel.index == targetIndex
         }
         var descriptor = FetchDescriptor<Channel>(predicate: predicate)
         descriptor.fetchLimit = 1
@@ -336,8 +400,10 @@ extension PersistenceStore {
         try modelContext.save()
     }
 
-    /// Sets the region scope for a channel
-    public func setChannelRegionScope(_ channelID: UUID, regionScope: String?) throws {
+    /// Atomically updates the per-channel flood-scope preference. Writes both backing
+    /// storage fields (`floodScopeModeRawValue` and `regionScope`) in one step so
+    /// callers cannot persist a malformed combination.
+    public func setChannelFloodScope(_ channelID: UUID, floodScope: ChannelFloodScope) throws {
         let targetID = channelID
         let predicate = #Predicate<Channel> { $0.id == targetID }
         var descriptor = FetchDescriptor<Channel>(predicate: predicate)
@@ -347,7 +413,7 @@ extension PersistenceStore {
             throw PersistenceStoreError.channelNotFound
         }
 
-        channel.regionScope = regionScope
+        channel.floodScope = floodScope
         try modelContext.save()
     }
 }

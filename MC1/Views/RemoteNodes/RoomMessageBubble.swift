@@ -59,20 +59,6 @@ struct RoomMessageBubble: View {
         )
     }
 
-    private var bubbleBackground: Color {
-        if isFromSelf {
-            return message.status == .failed
-                ? AppColors.Message.outgoingBubbleFailed
-                : AppColors.Message.outgoingBubble
-        } else {
-            return AppColors.Message.incomingBubble
-        }
-    }
-
-    private var textColor: Color {
-        isFromSelf ? .white : .primary
-    }
-
     private var statusText: String {
         switch message.status {
         case .pending, .sending:
@@ -120,18 +106,21 @@ private struct BubbleContent: View {
     let isFromSelf: Bool
     let highContrast: Bool
 
+    @Environment(\.appTheme) private var theme
+    @Environment(\.colorScheme) private var colorScheme
+
     private var bubbleBackground: Color {
         if isFromSelf {
-            return message.status == .failed
-                ? AppColors.Message.outgoingBubbleFailed
-                : AppColors.Message.outgoingBubble
-        } else {
-            return AppColors.Message.incomingBubble
+            if message.status == .failed {
+                return AppColors.Message.outgoingBubbleFailed(highContrast: highContrast)
+            }
+            return theme.accentColor   // matches UnifiedMessageBubble.resolvedBubbleColor
         }
+        return theme.incomingBubbleColor
     }
 
     private var textColor: Color {
-        isFromSelf ? .white : .primary
+        isFromSelf ? theme.outgoingTextColor : .primary
     }
 
     var body: some View {
@@ -140,12 +129,15 @@ private struct BubbleContent: View {
                 Text(message.authorDisplayName)
                     .font(.footnote)
                     .bold()
-                    .foregroundStyle(AppColors.NameColor.color(for: message.authorDisplayName, highContrast: highContrast))
+                    .foregroundStyle(theme.identityColor(
+                        forName: message.authorDisplayName,
+                        colorScheme: colorScheme,
+                        contrast: highContrast ? .increased : .standard
+                    ))
                     .padding(.horizontal, 12)
             }
 
-            Text(message.text)
-                .foregroundStyle(textColor)
+            MessageText(message.text, baseColor: textColor, isOutgoing: isFromSelf)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(bubbleBackground)

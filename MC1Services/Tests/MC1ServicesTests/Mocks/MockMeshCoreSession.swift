@@ -23,7 +23,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
 
     /// Result to return from sendMessage
     public var stubbedSendMessageResult: Result<MessageSentInfo, Error> = .success(
-        MessageSentInfo(type: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 5000)
+        MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 5000)
     )
 
     /// Result to return from sendChannelMessage
@@ -52,7 +52,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
 
     /// Result to return from sendPathDiscovery
     public var stubbedSendPathDiscoveryResult: Result<MessageSentInfo, Error> = .success(
-        MessageSentInfo(type: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 5000)
+        MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 5000)
     )
 
     /// Channel info to return from getChannel, keyed by index
@@ -103,6 +103,14 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
     // MARK: - Initialization
 
     public init() {}
+
+    // MARK: - Test Configuration
+
+    /// Sets the contacts returned by `getContacts(since:)`. Actor isolation forbids writing the
+    /// stub property directly from a test, so configuration goes through this isolated setter.
+    public func setStubbedContacts(_ contacts: [MeshContact]) {
+        stubbedContacts = contacts
+    }
 
     // MARK: - Protocol Methods
 
@@ -180,6 +188,18 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
         }
         // Return a default empty channel
         return ChannelInfo(index: index, name: "", secret: Data(repeating: 0, count: 16))
+    }
+
+    public func getChannels(indices: [UInt8]) async throws -> (received: [ChannelInfo], missing: [UInt8]) {
+        getChannelIndices.append(contentsOf: indices)
+        if let error = stubbedGetChannelError {
+            throw error
+        }
+        // The firmware answers every requested index, so the mock returns one per request.
+        let received = indices.map { index in
+            stubbedChannels[index] ?? ChannelInfo(index: index, name: "", secret: Data(repeating: 0, count: 16))
+        }
+        return (received: received, missing: [])
     }
 
     public func setChannel(index: UInt8, name: String, secret: Data) async throws {

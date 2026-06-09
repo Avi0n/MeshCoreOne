@@ -50,5 +50,105 @@
             <string>Usunięto %1$d z %2$d węzła. Połączenie zostało przerwane — naciśnij przycisk ponownie, aby usunąć pozostałe węzły.</string>
         </dict>
     </dict>
+    <key>settings.backup.import.success.subtitle_added</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Dodano %d element.</string>
+            <key>few</key>
+            <string>Dodano %d elementy.</string>
+            <key>many</key>
+            <string>Dodano %d elementów.</string>
+            <key>other</key>
+            <string>Dodano %d elementu.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.subtitle_refreshed</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Odświeżono %d istniejący element.</string>
+            <key>few</key>
+            <string>Odświeżono %d istniejące elementy.</string>
+            <key>many</key>
+            <string>Odświeżono %d istniejących elementów.</string>
+            <key>other</key>
+            <string>Odświeżono %d istniejącego elementu.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.already_here_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d element już obecny</string>
+            <key>few</key>
+            <string>%d elementy już obecne</string>
+            <key>many</key>
+            <string>%d elementów już obecnych</string>
+            <key>other</key>
+            <string>%d elementu już obecnego</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.already_here_refreshed</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d z nich został odświeżony nowszymi informacjami z kopii zapasowej.</string>
+            <key>few</key>
+            <string>%d z nich zostały odświeżone nowszymi informacjami z kopii zapasowej.</string>
+            <key>many</key>
+            <string>%d z nich zostało odświeżonych nowszymi informacjami z kopii zapasowej.</string>
+            <key>other</key>
+            <string>%d z nich zostało odświeżonych nowszymi informacjami z kopii zapasowej.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.dropped_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Nie można przywrócić %d elementu</string>
+            <key>few</key>
+            <string>Nie można przywrócić %d elementów</string>
+            <key>many</key>
+            <string>Nie można przywrócić %d elementów</string>
+            <key>other</key>
+            <string>Nie można przywrócić %d elementów</string>
+        </dict>
+    </dict>
 </dict>
 </plist>

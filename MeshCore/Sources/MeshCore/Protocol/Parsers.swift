@@ -16,9 +16,9 @@ enum PacketSize {
     /// Minimum size for version 3 contact messages.
     static let contactMessageV3Minimum = 15
     /// Minimum size for version 1 channel messages.
-    static let channelMessageV1Minimum = 8
+    static let channelMessageV1Minimum = 7
     /// Minimum size for version 3 channel messages.
-    static let channelMessageV3Minimum = 11
+    static let channelMessageV3Minimum = 10
     /// Minimum size for private key export.
     static let privateKeyMinimum = 64
     /// Minimum size for basic battery info.
@@ -31,6 +31,8 @@ enum PacketSize {
     static let deviceInfoV3Full = 79
     /// Minimum size for acknowledgement packets.
     static let ackMinimum = 4
+    /// Size for acknowledgement packets that include firmware trip time.
+    static let ackWithTripTime = 8
     /// Minimum size for contact synchronization start.
     static let contactsStartMinimum = 4
     /// Minimum size for core system statistics.
@@ -59,10 +61,12 @@ enum PacketSize {
     /// Format: `reserved(1) + pubkey(6) + out_path_len(1) + in_path_len(1) = 9 bytes`
     static let pathDiscoveryMinimum = 9
     /// Minimum size for login success response (legacy format).
-    /// Format: `[legacyPermissions:1][pubkeyPrefix:6]`
+    /// Format: `[adminIndicator:1][pubkeyPrefix:6]` (companion radio hardcodes `0` for
+    /// legacy "OK" replies).
     static let loginSuccessMinimum = 7
     /// Size for v7+ login success with ACL permissions.
-    /// Format: `[legacyPermissions:1][pubkeyPrefix:6][timestamp:4][aclPermissions:1][fwVersion:1]`
+    /// Format: `[adminIndicator:1][pubkeyPrefix:6][timestamp:4][aclPermissions:1][fwVersion:1]`
+    /// where `adminIndicator == 1` means admin; any other value is non-admin.
     static let loginSuccessExtended = 13
     /// Size for binary response status payload without rxAirtime field (48 bytes).
     static let binaryResponseStatusBase = 48
@@ -70,6 +74,15 @@ enum PacketSize {
     static let binaryResponseStatusWithRxAirtime = 52
     /// Minimum size for binary response status payload with receiveErrors field (56 bytes).
     static let binaryResponseStatusWithReceiveErrors = 56
+    /// Minimum size for channel datagram payload (header fields before data).
+    /// Format: `[snr:1][rsv:2][channel:1][path_len:1][data_type:2][data_len:1]` = 8 bytes.
+    static let channelDatagramMinimum = 8
+    /// Default-scope name-field width on the wire (zero-padded, null-terminated).
+    static let defaultFloodScopeNameField = 31
+    /// Default-scope key width on the wire.
+    static let defaultFloodScopeKeyBytes = 16
+    /// Size for populated default flood scope response (name field + key).
+    static let defaultFloodScopeSet = defaultFloodScopeNameField + defaultFloodScopeKeyBytes
 }
 
 // MARK: - Parser Logger
@@ -77,6 +90,18 @@ enum PacketSize {
 private let parserLogger = Logger(subsystem: "MeshCore", category: "Parsers")
 
 // MARK: - Path Encoding Utilities
+
+/// Limits for the multibyte path-length encoding, shared by ``encodePathLen(hashSize:hopCount:)``,
+/// `setPathHashMode`, and the config-import path validator so the valid ranges live in one place.
+public enum PathEncoding {
+    /// Highest valid path hash-size mode (0 = 1-byte, 1 = 2-byte, 2 = 3-byte hashes; mode 3 is reserved).
+    public static let maxPathHashMode = 2
+    /// Highest hop count representable in the encoded path-length byte's lower 6 bits.
+    public static let maxHopCount = 63
+    /// Maximum encoded out-path length in bytes (firmware `MAX_PATH_SIZE`); firmware
+    /// `isValidPathLen` rejects `hash_count * hash_size` beyond this.
+    public static let maxPathBytes = 64
+}
 
 /// Decoded components of a multibyte-encoded path length byte.
 public struct PathLenDecoded: Sendable {
@@ -115,7 +140,7 @@ public func decodePathLen(_ encoded: UInt8) -> PathLenDecoded? {
 public func encodePathLen(hashSize: Int, hopCount: Int) -> UInt8 {
     precondition(1...3 ~= hashSize, "hashSize must be 1, 2, or 3")
     let mode = UInt8(hashSize - 1)
-    let hops = UInt8(min(hopCount, 63))
+    let hops = UInt8(min(hopCount, PathEncoding.maxHopCount))
     return (mode << 6) | hops
 }
 
@@ -147,7 +172,8 @@ public enum Parsers {
 
         var offset = 0
         let publicKey = Data(data[offset..<offset+32]); offset += 32
-        let type = ContactType(rawValue: data[offset]) ?? .chat; offset += 1
+        let typeByte = data[offset]
+        let type = ContactType(rawValue: typeByte) ?? .chat; offset += 1
         let flags = ContactFlags(rawValue: data[offset]); offset += 1
         let pathLen = data[offset]; offset += 1
         guard pathLen == 0xFF || decodePathLen(pathLen) != nil else { return nil }
@@ -169,6 +195,7 @@ public enum Parsers {
             id: publicKey.hexString,
             publicKey: publicKey,
             type: type,
+            typeRawValue: typeByte,
             flags: flags,
             outPathLength: pathLen,
             outPath: path,
@@ -335,28 +362,16 @@ public enum Parsers {
                 offset += 20
             }
 
-            // v9+: client_repeat byte after version string
+            // v9+: client_repeat byte after version string (tolerant — defaults to false if missing)
             var clientRepeat = false
-            if fwVer >= 9 {
-                guard data.count > offset else {
-                    return .parseFailure(
-                        data: data,
-                        reason: "DeviceInfo v\(fwVer) missing client_repeat byte"
-                    )
-                }
+            if fwVer >= 9 && offset >= PacketSize.deviceInfoV3Full && data.count > offset {
                 clientRepeat = data[offset] != 0
                 offset += 1
             }
 
-            // v10+: path_hash_mode byte after client_repeat
+            // v10+: path_hash_mode byte after client_repeat (tolerant — defaults to 0 if missing)
             var pathHashMode: UInt8 = 0
-            if fwVer >= 10 {
-                guard data.count > offset else {
-                    return .parseFailure(
-                        data: data,
-                        reason: "DeviceInfo v\(fwVer) missing pathHashMode byte"
-                    )
-                }
+            if fwVer >= 10 && offset >= PacketSize.deviceInfoV3Full && data.count > offset {
                 pathHashMode = data[offset]
             }
 
@@ -515,6 +530,102 @@ public enum Parsers {
                 text: text,
                 snr: snr
             ))
+        }
+    }
+
+    // MARK: - ChannelDatagram
+
+    /// Parser for incoming channel binary datagrams. Firmware v11+ (MeshCore v1.15.0+).
+    enum ChannelDatagram {
+        /// Parses a channel datagram.
+        ///
+        /// ### Binary Format (offsets exclude the `0x1B` opcode byte, stripped by ``PacketParser``)
+        /// - Offset 0 (1 byte): SNR scaled by 4 (Int8)
+        /// - Offset 1 (2 bytes): Reserved
+        /// - Offset 3 (1 byte): Channel Index
+        /// - Offset 4 (1 byte): Path Length — `0xFF` = direct route; otherwise flood-accumulated path encoding
+        /// - Offset 5 (2 bytes): Data Type (UInt16 LE)
+        /// - Offset 7 (1 byte): Data Length
+        /// - Offset 8+: Binary payload (length = data_len, clamped to remaining bytes)
+        static func parse(_ data: Data) -> MeshEvent {
+            guard data.count >= PacketSize.channelDatagramMinimum else {
+                return .parseFailure(
+                    data: data,
+                    reason: "ChannelDatagram response too short: \(data.count) < \(PacketSize.channelDatagramMinimum)"
+                )
+            }
+
+            // `PacketParser.parse` already normalises payloads via `Data(data.dropFirst())`,
+            // so `data.startIndex == 0` here; offset-based subscripting is slice-safe.
+            // Matches the convention used by `Parsers.ChannelMessage.parse`.
+            var offset = 0
+            let snr = Double(Int8(bitPattern: data[offset])) / 4.0
+            offset += 1
+            offset += 2 // reserved
+            let channelIndex = data[offset]; offset += 1
+            let pathLen = data[offset]; offset += 1
+            let dataType = data.readUInt16LE(at: offset); offset += 2
+            let declared = Int(data[offset]); offset += 1
+
+            let remaining = data.count - offset
+            let length = min(declared, remaining)
+            let payload = Data(data[offset..<offset + length])
+
+            return .channelDataReceived(MeshCore.ChannelDatagram(
+                channelIndex: channelIndex,
+                pathLength: pathLen,
+                dataType: dataType,
+                data: payload,
+                snr: snr
+            ))
+        }
+    }
+
+    // MARK: - DefaultFloodScope
+
+    /// Parser for the persisted default flood scope. Firmware v11+ (MeshCore v1.15.0+).
+    enum DefaultFloodScope {
+        /// Parses the default flood scope response.
+        ///
+        /// ### Binary Format (offsets exclude the `0x1C` opcode byte, stripped by ``PacketParser``)
+        /// - Empty payload (0 bytes): No default scope configured, emits `.defaultFloodScope(nil)`.
+        /// - Populated (exactly 47 bytes): `[name:31 zero-padded UTF-8][key:16]`.
+        ///
+        /// Firmware emits exactly 0 or 47 bytes (`MyMesh.cpp:1915-1917`); other lengths
+        /// indicate protocol drift and fall through to `parseFailure`.
+        static func parse(_ data: Data) -> MeshEvent {
+            if data.isEmpty {
+                return .defaultFloodScope(nil)
+            }
+            guard data.count == PacketSize.defaultFloodScopeSet else {
+                return .parseFailure(
+                    data: data,
+                    reason: "DefaultFloodScope response wrong size: \(data.count), expected 0 or \(PacketSize.defaultFloodScopeSet)"
+                )
+            }
+
+            // `PacketParser.parse` zero-aligns the payload; use `data` directly,
+            // matching the sibling `Parsers.ChannelMessage.parse` convention.
+            var offset = 0
+            let nameField = Data(data[offset..<(offset + PacketSize.defaultFloodScopeNameField)])
+            offset += PacketSize.defaultFloodScopeNameField
+            let nullIdx = nameField.firstIndex(of: 0) ?? nameField.endIndex
+            let nameBytes = Data(nameField[..<nullIdx])
+
+            // Mirror `ContactMessage` / `ChannelMessage` lossy-UTF-8 handling so a corrupt
+            // name doesn't silently misclassify a populated scope as null — the scope itself
+            // is set, only the display name is garbled.
+            let name: String
+            if let decoded = String(data: nameBytes, encoding: .utf8) {
+                name = decoded
+            } else {
+                parserLogger.warning("DefaultFloodScope: Invalid UTF-8 in name field, using lossy conversion")
+                name = String(decoding: nameBytes, as: UTF8.self)
+            }
+
+            let key = Data(data[offset..<(offset + PacketSize.defaultFloodScopeKeyBytes)])
+
+            return .defaultFloodScope(MeshCore.DefaultFloodScope(name: name, scopeKey: key))
         }
     }
 
@@ -941,15 +1052,26 @@ public enum Parsers {
             let pubkeyPrefix = Data(data[1..<7])
             var offset = 7
 
+            var outPathLength: UInt8 = 0
             var outPath = Data()
+            var inPathLength: UInt8 = 0
             var inPath = Data()
 
-            // Parse outbound path (multibyte encoded)
+            // Parse outbound path (multibyte encoded). Preserve the raw length
+            // byte so the UI can display an accurate hop count without needing
+            // the device's cached `hashSize`. A truncated payload where the
+            // declared byte length runs past the end of `data` is surfaced as
+            // `.parseFailure` so `PathInfo`'s size invariant holds.
             if data.count > offset {
-                let rawLen = data[offset]
+                outPathLength = data[offset]
                 offset += 1
-                if let decoded = decodePathLen(rawLen), decoded.byteLength > 0,
-                   data.count >= offset + decoded.byteLength {
+                if let decoded = decodePathLen(outPathLength), decoded.byteLength > 0 {
+                    guard data.count >= offset + decoded.byteLength else {
+                        return .parseFailure(
+                            data: data,
+                            reason: "PathDiscoveryResponse truncated outbound path: need \(decoded.byteLength) bytes, have \(data.count - offset)"
+                        )
+                    }
                     outPath = Data(data[offset..<offset + decoded.byteLength])
                     offset += decoded.byteLength
                 }
@@ -957,17 +1079,24 @@ public enum Parsers {
 
             // Parse inbound path (multibyte encoded)
             if data.count > offset {
-                let rawLen = data[offset]
+                inPathLength = data[offset]
                 offset += 1
-                if let decoded = decodePathLen(rawLen), decoded.byteLength > 0,
-                   data.count >= offset + decoded.byteLength {
+                if let decoded = decodePathLen(inPathLength), decoded.byteLength > 0 {
+                    guard data.count >= offset + decoded.byteLength else {
+                        return .parseFailure(
+                            data: data,
+                            reason: "PathDiscoveryResponse truncated inbound path: need \(decoded.byteLength) bytes, have \(data.count - offset)"
+                        )
+                    }
                     inPath = Data(data[offset..<offset + decoded.byteLength])
                 }
             }
 
             return .pathResponse(PathInfo(
                 publicKeyPrefix: pubkeyPrefix,
+                outPathLength: outPathLength,
                 outPath: outPath,
+                inPathLength: inPathLength,
                 inPath: inPath
             ))
         }
@@ -1329,25 +1458,34 @@ public enum Parsers {
 
     // MARK: - LoginSuccess
 
-    /// Parser for successful login responses.
+    /// Parser for successful login responses (push opcode 0x85).
     ///
-    /// The LOGIN_SUCCESS packet has two formats:
+    /// After the opcode byte is stripped, two payload formats are seen in the wild:
     ///
     /// **Legacy format (7 bytes):**
-    /// - byte 0: Legacy permission indicator (0=member, 1=admin, 2=guest)
-    /// - bytes 1-6: pubkey prefix
+    /// - byte 0: admin indicator (companion radio hardcodes `0` for legacy "OK" replies).
+    /// - bytes 1–6: pubkey prefix.
     ///
     /// **v7+ extended format (13 bytes):**
-    /// - byte 0: Legacy permission indicator (0=member, 1=admin, 2=guest)
-    /// - bytes 1-6: pubkey prefix
-    /// - bytes 7-10: server timestamp
-    /// - byte 11: Actual ACL permissions (0=guest, 1=readWrite with admin bit, 2=readWrite)
-    /// - byte 12: firmware version level
+    /// - byte 0: admin indicator. Populated by the server and forwarded verbatim by the
+    ///           companion radio. `1` means admin; any other value (including `0` and `2`)
+    ///           means non-admin. The official C++ room server uses a tri-state encoding
+    ///           (`0` / `1` / `2`) where `2` signals guest for downstream role awareness;
+    ///           MC1 must treat `2` as non-admin. Only `== 1` is a safe admin test.
+    /// - bytes 1–6: pubkey prefix.
+    /// - bytes 7–10: server timestamp (not parsed).
+    /// - byte 11: full ACL permissions byte. Encoding is firmware-specific:
+    ///            - Official C++ firmware: `0 = guest`, `1 = read-only`, `2 = read-write`,
+    ///              `3 = admin`.
+    ///            - pyMC: `0x01 = non-admin (guest)`, `0x02 = admin`.
+    ///            MC1 uses byte 0 for the admin gate. For non-admin sessions, only byte 11
+    ///            = 2 maps to `.readWrite`; every other value (including C++ `1 = read-only`)
+    ///            falls back to `.guest` so a non-posting client cannot acquire `canPost`.
+    /// - byte 12: firmware version level (not parsed).
     ///
-    /// The legacy indicator at byte 0 has inverted semantics compared to actual permissions:
-    /// - Legacy 0 = member/readWrite, Legacy 1 = admin, Legacy 2 = guest/readonly
-    ///
-    /// For v7+ we use the actual ACL byte at offset 11 which aligns with RoomPermissionLevel.
+    /// The byte-0 admin indicator is preferred over re-deriving admin status from the
+    /// permissions byte because the latter is encoding-specific and has produced
+    /// cross-implementation bugs.
     enum LoginSuccess {
         /// Parses permissions and admin status.
         static func parse(_ data: Data) -> MeshEvent {
@@ -1357,21 +1495,18 @@ public enum Parsers {
 
             let pubkeyPrefix = Data(data[1..<7])
 
-            // v7+ format: use actual ACL permissions byte at offset 11
-            // Firmware uses: 0x00=guest, 0x01=admin (bit 0), 0x02=readWrite
-            // PocketMesh RoomPermissionLevel uses: 0x00=guest, 0x01=readWrite, 0x02=admin
-            // We normalize here to match RoomPermissionLevel expectations
+            // See type-level doc for byte-0 admin gate and byte-11 coalescing rationale.
             if data.count >= PacketSize.loginSuccessExtended {
+                let isAdmin = data[0] == 1
                 let firmwarePermissions = data[11]
-                let isAdmin = (firmwarePermissions & 0x01) != 0
 
                 let normalizedPermissions: UInt8
                 if isAdmin {
                     normalizedPermissions = 0x02  // RoomPermissionLevel.admin
-                } else if firmwarePermissions == 0x00 {
-                    normalizedPermissions = 0x00  // RoomPermissionLevel.guest
-                } else {
+                } else if firmwarePermissions == 0x02 {
                     normalizedPermissions = 0x01  // RoomPermissionLevel.readWrite
+                } else {
+                    normalizedPermissions = 0x00  // RoomPermissionLevel.guest (read-only / unknowns)
                 }
 
                 return .loginSuccess(LoginInfo(
@@ -1619,11 +1754,11 @@ enum MMAParser {
         case .altitude:
             return Double(readInt16BE(data))
         case .load:
-            return Double(readUInt16BE(data)) / 100.0
+            return Double(readInt24BE(data)) / 1000.0
         case .analogInput, .analogOutput:
             return Double(readInt16BE(data)) / 100.0
         case .genericSensor:
-            return Double(readInt32BE(data))
+            return Double(readUInt32BE(data))
         case .frequency:
             return Double(readUInt32BE(data))
         case .distance, .energy:
@@ -1642,17 +1777,23 @@ enum MMAParser {
         return Int16(data[offset]) << 8 | Int16(data[offset + 1])
     }
 
+    /// Reads a 24-bit signed integer (Big-Endian).
+    private static func readInt24BE(_ data: Data, offset: Int = 0) -> Int32 {
+        guard offset + 3 <= data.count else { return 0 }
+        var value: Int32 = Int32(data[offset]) << 16
+                         | Int32(data[offset + 1]) << 8
+                         | Int32(data[offset + 2])
+        // Sign extend if negative (bit 23 is set)
+        if value & 0x800000 != 0 {
+            value |= Int32(bitPattern: 0xFF000000)
+        }
+        return value
+    }
+
     /// Reads a 16-bit unsigned integer (Big-Endian).
     private static func readUInt16BE(_ data: Data, offset: Int = 0) -> UInt16 {
         guard offset + 2 <= data.count else { return 0 }
         return UInt16(data[offset]) << 8 | UInt16(data[offset + 1])
-    }
-
-    /// Reads a 32-bit signed integer (Big-Endian).
-    private static func readInt32BE(_ data: Data, offset: Int = 0) -> Int32 {
-        guard offset + 4 <= data.count else { return 0 }
-        return Int32(data[offset]) << 24 | Int32(data[offset + 1]) << 16
-             | Int32(data[offset + 2]) << 8 | Int32(data[offset + 3])
     }
 
     /// Reads a 32-bit unsigned integer (Big-Endian).

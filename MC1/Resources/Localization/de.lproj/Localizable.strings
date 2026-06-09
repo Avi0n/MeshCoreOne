@@ -77,6 +77,9 @@
 /* Tab bar title for the messaging/conversations screen */
 "tabs.chats" = "Chats";
 
+/* VoiceOver value announcing the unread message count on the Chats sidebar icon. %d is the count. */
+"tabs.chatsUnreadAccessibilityValue" = "%d ungelesen";
+
 /* Tab bar title for the nodes/contacts list screen */
 "tabs.nodes" = "Knoten";
 
@@ -98,6 +101,9 @@
 /* Alert title when connection cannot be established */
 "alert.couldNotConnect.title" = "Verbindung nicht möglich";
 
+/* Alert title when device pairing fails (e.g., wrong PIN) */
+"alert.pairingFailed.title" = "Kopplung fehlgeschlagen";
+
 /* Default message when device connection fails */
 "alert.connectionFailed.defaultMessage" = "Verbindung zum Gerät nicht möglich.";
 
@@ -105,7 +111,10 @@
 "alert.couldNotConnect.otherAppMessage" = "Stelle sicher, dass keine andere App mit dem Gerät verbunden ist, und versuche es erneut.";
 
 /* Button to remove failed pairing and retry connection */
-"alert.connectionFailed.removeAndRetry" = "Entfernen & Erneut versuchen";
+"alert.connectionFailed.removeAndRetry" = "Entfernen und erneut versuchen";
+
+/* VoiceOver label for the destructive Remove and Try Again button — clarifies that "remove" means removing the device pairing */
+"accessibility.alert.connectionFailed.removeAndRetry" = "Geräte-Pairing entfernen und erneut versuchen";
 
 
 // MARK: - Accessibility
@@ -193,6 +202,11 @@
 
 /* VoiceOver announcement when device reconnects */
 "accessibility.connection.deviceReconnected" = "Gerät wieder verbunden";
+
+/* VoiceOver signal-strength descriptors for the device picker signal bars */
+"accessibility.signalStrength.weak" = "Schwaches Signal";
+"accessibility.signalStrength.medium" = "Mittleres Signal";
+"accessibility.signalStrength.strong" = "Starkes Signal";
 
 
 // MARK: - Status Pill

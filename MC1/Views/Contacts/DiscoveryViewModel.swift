@@ -6,13 +6,15 @@ import MC1Services
 enum DiscoverSegment: String, CaseIterable {
     case all
     case contacts
-    case network
+    case repeaters
+    case rooms
 
     var localizedTitle: String {
         switch self {
         case .all: L10n.Contacts.Contacts.Discovery.Segment.all
         case .contacts: L10n.Contacts.Contacts.Discovery.Segment.contacts
-        case .network: L10n.Contacts.Contacts.Discovery.Segment.network
+        case .repeaters: L10n.Contacts.Contacts.Discovery.Segment.repeaters
+        case .rooms: L10n.Contacts.Contacts.Discovery.Segment.rooms
         }
     }
 }
@@ -59,17 +61,17 @@ final class DiscoveryViewModel {
 
     // MARK: - Load Nodes
 
-    func loadDiscoveredNodes(deviceID: UUID) async {
+    func loadDiscoveredNodes(radioID: UUID) async {
         guard let dataStore else { return }
 
         isLoading = true
         errorMessage = nil
 
         do {
-            let nodes = try await dataStore.fetchDiscoveredNodes(deviceID: deviceID)
+            let nodes = try await dataStore.fetchDiscoveredNodes(radioID: radioID)
 
             // Single batch query for all contact public keys (O(1) vs O(N))
-            let addedKeys = try await dataStore.fetchContactPublicKeys(deviceID: deviceID)
+            let addedKeys = try await dataStore.fetchContactPublicKeys(radioID: radioID)
 
             discoveredNodes = nodes
             addedPublicKeys = addedKeys
@@ -103,11 +105,11 @@ final class DiscoveryViewModel {
         }
     }
 
-    func clearAllDiscoveredNodes(deviceID: UUID) async {
+    func clearAllDiscoveredNodes(radioID: UUID) async {
         guard let dataStore else { return }
 
         do {
-            try await dataStore.clearDiscoveredNodes(deviceID: deviceID)
+            try await dataStore.clearDiscoveredNodes(radioID: radioID)
             discoveredNodes = []
         } catch {
             errorMessage = error.localizedDescription
@@ -130,8 +132,10 @@ final class DiscoveryViewModel {
                 break
             case .contacts:
                 result = result.filter { $0.nodeType == .chat }
-            case .network:
-                result = result.filter { $0.nodeType == .repeater || $0.nodeType == .room }
+            case .repeaters:
+                result = result.filter { $0.nodeType == .repeater }
+            case .rooms:
+                result = result.filter { $0.nodeType == .room }
             }
         } else {
             result = result.filter { node in

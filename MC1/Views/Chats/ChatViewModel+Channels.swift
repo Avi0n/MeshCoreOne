@@ -7,10 +7,16 @@ extension ChatViewModel {
 
     /// Load messages for a channel
     func loadChannelMessages(for channel: ChannelDTO) async {
-        logger.info("loadChannelMessages: start channel=\(channel.index) deviceID=\(channel.deviceID)")
+        logger.info("loadChannelMessages: start channel=\(channel.index) radioID=\(channel.radioID)")
+
+        // Close the per-conversation empty-state gate while the fetch is
+        // in flight. No-op when the coordinator is already past
+        // `.uninitialized` (warm rebind, refresh).
+        coordinator?.beginLoading()
 
         guard let dataStore else {
             logger.info("loadChannelMessages: dataStore is nil, returning early")
+            coordinator?.markLoaded()
             return
         }
 
@@ -26,66 +32,73 @@ extension ChatViewModel {
         currentContact = nil
 
         // Track active channel for notification suppression
-        notificationService?.activeContactID = nil
-        notificationService?.activeChannelIndex = channel.index
-        notificationService?.activeChannelDeviceID = channel.deviceID
+        notificationService?.setActiveConversation(
+            channelIndex: channel.index,
+            channelRadioID: channel.radioID
+        )
 
-        // Set flood scope on device when channel or region changes
-        if lastSetRegionScope == .unknown || lastSetRegionScope != .set(channel.regionScope) {
-            if let session = appState?.services?.session {
-                let scope: FloodScope = channel.regionScope.map { .region($0) } ?? .disabled
-                do {
+        // Sync the device's session-scoped flood key with the effective scope for this
+        // channel. The effective scope combines the per-channel preference with the
+        // device-level default — `.inherit` means "fall through to the default".
+        let deviceDefault = appState?.connectedDevice?.defaultFloodScopeName
+        let desiredState: ChatViewModel.RegionScopeState = .pushed(
+            channel.floodScope,
+            deviceDefault: deviceDefault
+        )
+        if lastSetRegionScope != desiredState, let session = appState?.services?.session {
+            let resolved = ChannelFloodScopeResolver.resolve(
+                channelFloodScope: channel.floodScope,
+                deviceDefaultFloodScopeName: deviceDefault,
+                supportsUnscopedFloodSend: appState?.connectedDevice?.supportsUnscopedFloodSend ?? false
+            )
+            do {
+                switch resolved {
+                case .unscoped:
+                    try await session.setFloodScopeUnscoped()
+                case .scope(let scope):
                     try await session.setFloodScope(scope)
-                    lastSetRegionScope = .set(channel.regionScope)
-                } catch {
-                    logger.error("Failed to set flood scope: \(error.localizedDescription)")
                 }
+                lastSetRegionScope = desiredState
+            } catch is CancellationError {
+                // Benign: a superseding load (reconnect / conversation switch) cancelled this one.
+            } catch {
+                logger.error("Failed to set flood scope: \(error.localizedDescription)")
             }
         }
 
         logger.info("loadChannelMessages: setting isLoading=true, current messages.count=\(self.messages.count)")
         isLoading = true
+        // Dual-reset: this function is shared between passive load and user-initiated
+        // retry paths, so both surfaces must clear at entry to avoid stale state.
         errorMessage = nil
+        errorBannerMessage = nil
 
         // Reset pagination state for new conversation
-        hasMoreMessages = true
-        isLoadingOlder = false
-        totalFetchedCount = 0
+        coordinator?.updateRenderState { $0.with(hasMoreMessages: true, isLoadingOlder: false, totalFetchedCount: 0) }
 
         do {
-            var fetchedMessages = try await dataStore.fetchMessages(deviceID: channel.deviceID, channelIndex: channel.index, limit: pageSize, offset: 0)
+            var fetchedMessages = try await dataStore.fetchMessages(radioID: channel.radioID, channelIndex: channel.index, limit: ChatCoordinator.pageSize, offset: 0)
             let unfilteredCount = fetchedMessages.count
-            totalFetchedCount = unfilteredCount
+            coordinator?.updateRenderState { $0.with(totalFetchedCount: unfilteredCount) }
             logger.info("loadChannelMessages: fetched \(unfilteredCount) messages")
 
             // Compute divider position before filtering, using unfiltered array
             computeDividerPosition(from: fetchedMessages, unreadCount: channel.unreadCount)
 
-            // Filter out messages from blocked senders using SyncCoordinator's cache
-            if let syncCoordinator {
-                let blockedNames = await syncCoordinator.blockedSenderNames()
-                if !blockedNames.isEmpty {
-                    fetchedMessages = fetchedMessages.filter { message in
-                        guard let senderName = message.senderNodeName else { return true }
-                        return !blockedNames.contains(senderName)
-                    }
-                }
-            }
-
             // Hide sent reaction messages (unless failed)
             fetchedMessages = filterOutgoingReactionMessages(fetchedMessages, isDM: false)
 
             // Use unfiltered count to determine if more messages exist
-            hasMoreMessages = unfilteredCount == pageSize
-            messages = fetchedMessages
+            coordinator?.updateRenderState { $0.with(hasMoreMessages: unfilteredCount == ChatCoordinator.pageSize) }
+            coordinator?.replaceAll(fetchedMessages)
 
-            buildChannelSenders(deviceID: channel.deviceID)
-            buildDisplayItems()
+            buildChannelSenders(radioID: channel.radioID)
+            buildItems()
 
             // Index loaded messages for reaction matching and process any pending reactions
             if let reactionService = appState?.services?.reactionService {
                 let localNodeName = appState?.connectedDevice?.nodeName
-                let deviceID = appState?.connectedDevice?.id ?? UUID()
+                let radioID = appState?.connectedDevice?.radioID ?? UUID()
                 for message in fetchedMessages {
                     let senderName: String?
                     if message.isOutgoing {
@@ -118,7 +131,7 @@ extension ChatViewModel {
                                     messageHash: pending.parsed.messageHash,
                                     rawText: pending.rawText,
                                     channelIndex: pending.channelIndex,
-                                    deviceID: deviceID
+                                    radioID: radioID
                                 )
                                 if let result = await reactionService.persistReactionAndUpdateSummary(
                                     reactionDTO,
@@ -139,13 +152,17 @@ extension ChatViewModel {
 
             // Update app badge
             await notificationService?.updateBadgeCount()
+        } catch is CancellationError {
+            // Benign cancellation; the superseding load will refetch.
         } catch {
             logger.info("loadChannelMessages: error - \(error.localizedDescription)")
             errorMessage = error.localizedDescription
         }
 
         logger.info("loadChannelMessages: done, isLoading=false, messages.count=\(self.messages.count)")
-        hasLoadedOnce = true
+        // Ensures the empty-state gate opens even when the fetch threw —
+        // `replaceAll` is the success path; this catches the failure path.
+        coordinator?.markLoaded()
         isLoading = false
     }
 
@@ -161,94 +178,95 @@ extension ChatViewModel {
 
         errorMessage = nil
 
+        let message: MessageDTO
         do {
-            let message = try await messageService.createPendingChannelMessage(
+            message = try await messageService.createPendingChannelMessage(
                 text: text,
                 channelIndex: channel.index,
-                deviceID: channel.deviceID
+                radioID: channel.radioID
             )
             appendMessageIfNew(message)
-
-            channelSendQueue.append(QueuedChannelMessage(messageID: message.id))
-
-            if !isProcessingChannelQueue {
-                channelQueueTask?.cancel()
-                channelQueueTask = Task { await processChannelQueue() }
-            }
+            schedulePrefetchForOutgoingMessage(message, isChannelMessage: true)
         } catch {
             errorMessage = error.localizedDescription
+            return
         }
-    }
 
-    /// Process queued channel messages serially
-    private func processChannelQueue() async {
-        guard let messageService else { return }
-
-        isProcessingChannelQueue = true
-        defer { isProcessingChannelQueue = false }
-
-        let channel = currentChannel
-
-        repeat {
-            while !channelSendQueue.isEmpty {
-                let queued = channelSendQueue.removeFirst()
-
-                do {
-                    try await messageService.sendPendingChannelMessage(messageID: queued.messageID)
-
-                    // Index for reaction matching after successful send
-                    if let message = messagesByID[queued.messageID],
-                       let channelIndex = message.channelIndex,
-                       let reactionService = appState?.services?.reactionService,
-                       let localNodeName = appState?.connectedDevice?.nodeName {
-                        _ = await reactionService.indexMessage(
-                            id: queued.messageID,
-                            channelIndex: channelIndex,
-                            senderName: localNodeName,
-                            text: message.text,
-                            timestamp: message.timestamp
-                        )
-                    }
-                } catch is CancellationError {
-                    channelSendQueue.insert(queued, at: 0)
-                    return
-                } catch {
-                    errorMessage = error.localizedDescription
-                }
-            }
-
-            // Reload after queue drains — syncs statuses and conversation list
-            if let channel {
-                await loadChannelMessages(for: channel)
-                await loadChannels(deviceID: channel.deviceID)
-            }
-        } while !channelSendQueue.isEmpty
-    }
-
-    /// Retry sending a failed channel message in place.
-    func retryChannelMessage(_ message: MessageDTO) async {
-        guard let messageService,
-              let channel = currentChannel,
-              message.channelIndex != nil,
-              !isRetryingChannelMessage else { return }
-
-        isRetryingChannelMessage = true
-        defer { isRetryingChannelMessage = false }
-
-        try? await dataStore?.updateMessageStatus(id: message.id, status: .pending)
-        await loadChannelMessages(for: channel)
-
+        let envelope = ChannelMessageEnvelope(
+            messageID: message.id,
+            channelIndex: channel.index,
+            isResend: false,
+            messageText: message.text,
+            messageTimestamp: message.timestamp,
+            localNodeName: appState?.connectedDevice?.nodeName
+        )
         do {
-            try await messageService.sendPendingChannelMessage(messageID: message.id)
-        } catch is CancellationError {
-            // Fall through to reload so UI reflects current state
+            try await enqueueChannel(envelope)
         } catch {
-            errorMessage = error.localizedDescription
-            showRetryError = true
+            logger.error("enqueueChannel failed for messageID=\(message.id, privacy: .public): \(String(describing: error))")
+            _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .failed)
+            coordinator?.applyStatusUpdate(messageID: message.id, status: .failed)
+            sendErrorMessage = Self.copyForEnqueueFailure(error)
         }
+    }
 
-        await loadChannelMessages(for: channel)
-        await loadChannels(deviceID: channel.deviceID)
+    /// Retry sending a failed channel message in place. The drain stamps a
+    /// fresh timestamp via `resendChannelMessage` so the retry packet hashes
+    /// differently from the original — the mesh dedup table is a 128-slot
+    /// cyclic ring with no time-based eviction, so reusing the original
+    /// timestamp would be silently dropped at every neighbour until 127
+    /// unrelated packets evict the slot. The `retryInFlight` guard prevents
+    /// reentrant double-tap during the synchronous status-update + reload +
+    /// enqueue window. Once status flips to `.pending`, the bubble's retry
+    /// button hides (UI gate), so a fresh tap cannot enqueue again until the
+    /// channel send later fails and the row returns to `.failed`.
+    func retryChannelMessage(_ message: MessageDTO) async {
+        guard messageService != nil,
+              currentChannel != nil,
+              let channelIndex = message.channelIndex,
+              !retryInFlight else { return }
+
+        retryInFlight = true
+        defer { retryInFlight = false }
+
+        // Stand in for the surfaces loadChannelMessages would have reset.
+        errorMessage = nil
+        errorBannerMessage = nil
+
+        // Release any prior queue ownership before enqueuing a fresh
+        // envelope. Channel sends never reach `.delivered` (no end-to-end
+        // ACK), so the `.delivered` clobber risk that motivates the DM
+        // guard doesn't apply here — but the queue's `hasPendingSend` gate
+        // and the symmetric call shape with `retryMessage` are worth the
+        // extra delete. Best-effort; the gate self-corrects.
+        try? await dataStore?.deletePendingSendsForMessage(messageID: message.id)
+
+        // Flip the row in place for instant "Sending" feedback rather than a
+        // full loadChannelMessages refetch, which would also reset paging
+        // state. The coordinator's applyStatusUpdate guards against
+        // downgrading a row that resolved concurrently. Swap to the
+        // unless-delivered variant for shape symmetry with `retryMessage`
+        // and so a stray ACK landing doesn't get clobbered if a future
+        // refactor introduces channel-side delivery.
+        _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .pending)
+        coordinator?.applyStatusUpdate(messageID: message.id, status: .pending, userInitiated: true)
+
+        let envelope = ChannelMessageEnvelope(
+            messageID: message.id,
+            channelIndex: channelIndex,
+            isResend: true,
+            messageText: message.text,
+            messageTimestamp: message.timestamp,
+            localNodeName: appState?.connectedDevice?.nodeName
+        )
+        do {
+            try await enqueueChannel(envelope)
+        } catch {
+            logger.error("enqueueChannel retry failed for messageID=\(message.id, privacy: .public): \(String(describing: error))")
+            _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .failed)
+            coordinator?.applyStatusUpdate(messageID: message.id, status: .failed)
+            sendErrorMessage = Self.copyForEnqueueFailure(error)
+        }
     }
 
     // MARK: - In-Place Updates
@@ -263,7 +281,7 @@ extension ChatViewModel {
     /// Build synthetic contacts from channel message senders not in contacts.
     /// Called after loading channel messages to populate mention picker.
     /// Builds into local collections first to avoid multiple @Observable updates.
-    private func buildChannelSenders(deviceID: UUID) {
+    private func buildChannelSenders(radioID: UUID) {
         var localNames: Set<String> = []
         var localSenders: [ContactDTO] = []
         var localOrder: [String: UInt32] = [:]
@@ -281,7 +299,7 @@ extension ChatViewModel {
                       !localNames.contains(trimmed) else { continue }
 
                 localNames.insert(trimmed)
-                localSenders.append(makeSyntheticContact(name: trimmed, deviceID: deviceID))
+                localSenders.append(makeSyntheticContact(name: trimmed, radioID: radioID))
             }
         }
 
@@ -293,24 +311,28 @@ extension ChatViewModel {
         logger.info("Built \(self.channelSenders.count) synthetic contacts from channel senders")
     }
 
-    /// Add a channel sender as a synthetic contact if not already tracked.
-    /// Used for incremental additions when new messages arrive.
-    func addChannelSenderIfNew(_ name: String, deviceID: UUID) {
+    /// Register a channel sender for the mention picker. Always max-merges the
+    /// timestamp into `channelSenderOrder` so older messages contribute to
+    /// recency ranking; inserts a synthetic contact only when the sender is
+    /// neither a known contact nor already tracked.
+    func addChannelSenderIfNew(_ name: String, radioID: UUID, timestamp: UInt32) {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty,
-              trimmed.count <= 128,
-              !contactNameSet.contains(trimmed),
+        guard !trimmed.isEmpty, trimmed.count <= 128 else { return }
+
+        channelSenderOrder[trimmed] = max(timestamp, channelSenderOrder[trimmed] ?? 0)
+
+        guard !contactNameSet.contains(trimmed),
               !channelSenderNames.contains(trimmed) else { return }
 
         channelSenderNames.insert(trimmed)
-        channelSenders.append(makeSyntheticContact(name: trimmed, deviceID: deviceID))
+        channelSenders.append(makeSyntheticContact(name: trimmed, radioID: radioID))
     }
 
     /// Create a synthetic ContactDTO for a channel sender not in contacts.
-    private func makeSyntheticContact(name: String, deviceID: UUID) -> ContactDTO {
+    private func makeSyntheticContact(name: String, radioID: UUID) -> ContactDTO {
         ContactDTO(
             id: name.stableUUID,
-            deviceID: deviceID,
+            radioID: radioID,
             publicKey: Data(),
             name: name,
             typeRawValue: ContactType.chat.rawValue,

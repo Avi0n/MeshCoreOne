@@ -15,7 +15,7 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
 
     // MARK: - Recorded Invocations
 
-    public private(set) var pollAllMessagesInvocations: Int = 0
+    public private(set) var pollAllMessagesCallCount: Int = 0
     public private(set) var waitForPendingHandlersInvocations: Int = 0
 
     // MARK: - Initialization
@@ -25,7 +25,7 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
     // MARK: - Protocol Methods
 
     public func pollAllMessages() async throws -> Int {
-        pollAllMessagesInvocations += 1
+        pollAllMessagesCallCount += 1
         switch stubbedPollAllMessagesResult {
         case .success(let count):
             return count
@@ -42,10 +42,10 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
     // MARK: - Captured Handlers
 
     /// Captured contact message handler (set via setContactMessageHandler)
-    public private(set) var capturedContactMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
+    public private(set) var capturedContactMessageHandler: (@Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void)?
 
     /// Captured channel message handler (set via setChannelMessageHandler)
-    public private(set) var capturedChannelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?) async -> Void)?
+    public private(set) var capturedChannelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void)?
 
     /// Captured signed message handler (set via setSignedMessageHandler)
     public private(set) var capturedSignedMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
@@ -53,16 +53,13 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
     /// Captured CLI message handler (set via setCLIMessageHandler)
     public private(set) var capturedCLIMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
 
-    /// Captured acknowledgement handler (set via setAcknowledgementHandler)
-    public private(set) var capturedAcknowledgementHandler: (@Sendable (Data) async -> Void)?
-
     // MARK: - Handler Setter Methods (matching MessagePollingService)
 
-    public func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {
+    public func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void) {
         capturedContactMessageHandler = handler
     }
 
-    public func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?) async -> Void) {
+    public func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void) {
         capturedChannelMessageHandler = handler
     }
 
@@ -74,20 +71,19 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
         capturedCLIMessageHandler = handler
     }
 
-    public func setAcknowledgementHandler(_ handler: @escaping @Sendable (Data) async -> Void) {
-        capturedAcknowledgementHandler = handler
-    }
-
     // MARK: - Test Helpers
 
     /// Resets all recorded invocations and captured handlers
     public func reset() {
-        pollAllMessagesInvocations = 0
+        pollAllMessagesCallCount = 0
         waitForPendingHandlersInvocations = 0
         capturedContactMessageHandler = nil
         capturedChannelMessageHandler = nil
         capturedSignedMessageHandler = nil
         capturedCLIMessageHandler = nil
-        capturedAcknowledgementHandler = nil
+    }
+
+    public func setStubbedPollAllMessagesResult(_ result: Result<Int, Error>) {
+        stubbedPollAllMessagesResult = result
     }
 }

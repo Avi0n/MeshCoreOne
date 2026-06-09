@@ -6,13 +6,18 @@ extension MessageService {
 
     /// Starts periodic checking for expired ACKs.
     ///
-    /// This method runs a background task that periodically checks for messages
-    /// that have exceeded their ACK timeout and marks them as failed.
+    /// Runs a background task that periodically marks messages as `.failed`
+    /// once `config.ackGiveUpWindow` has elapsed since the message was last sent.
     ///
     /// - Parameter interval: How often to check for expired ACKs (defaults to 5 seconds)
     ///
-    /// # Important
-    /// This should be started when the connection is established and stopped when disconnecting.
+    /// # Lifecycle scope
+    ///
+    /// Independent from `startEventMonitoring()`. Counterparts are
+    /// `stopAckExpiryChecking()` (stop the checker only) and
+    /// `stopAndFailAllPending()` (stop the checker and fail every in-flight
+    /// DM — the explicit full-teardown variant). `stopEventMonitoring()` does
+    /// **not** stop this task.
     public func startAckExpiryChecking(interval: TimeInterval = 5.0) {
         self.checkInterval = interval
         ackCheckTask?.cancel()
@@ -29,56 +34,54 @@ extension MessageService {
 
                 guard !Task.isCancelled else { break }
 
-                try? await self.checkExpiredAcks()
-                await self.cleanupDeliveredAcks()
+                do {
+                    try await self.checkExpiredAcks()
+                } catch {
+                    self.logger.error("ACK expiry check failed: \(error.localizedDescription)")
+                }
             }
         }
     }
 
     /// Stops the periodic ACK expiry checking.
     ///
-    /// Call this when disconnecting from the device.
+    /// Cancels `ackCheckTask` only. Does not stop the session event listener
+    /// (`stopEventMonitoring()`) and does not fail in-flight DMs
+    /// (`stopAndFailAllPending()` does both). This is the stop variant used on
+    /// a routine disconnect: in-flight DMs stay `.sent` so a reconnect within
+    /// the same session can still receive the ACK.
     public func stopAckExpiryChecking() {
         ackCheckTask?.cancel()
         ackCheckTask = nil
     }
 
-    /// Checks for expired ACKs and marks their messages as failed.
+    /// Checks for expired ACKs and advances their delivery state.
     ///
-    /// This is called automatically by the periodic checker. You can also call it
-    /// manually to force an immediate check.
+    /// Called automatically by the periodic checker, or manually for an
+    /// immediate check. A sent DM stays `.sent` until `config.ackGiveUpWindow`
+    /// elapses since its last send attempt: the `pendingAcks` entry remains so
+    /// an ACK arriving within that window still reconciles via
+    /// `handleAcknowledgement`'s direct lookup. Only after the window elapses
+    /// does the message move to `.failed`, and this is the single place a DM
+    /// awaiting an ACK is failed.
     ///
     /// - Throws: Database errors when updating message status
     public func checkExpiredAcks() async throws {
         let now = Date()
+        let window = config.ackGiveUpWindow
 
-        let expiredCodes = pendingAcks.filter { _, tracking in
-            !tracking.isRetryManaged &&
+        let expiredEntries = pendingAcks.filter { _, tracking in
             !tracking.isDelivered &&
-            now.timeIntervalSince(tracking.sentAt) > tracking.timeout
-        }.keys
-
-        for ackCode in expiredCodes {
-            if let tracking = pendingAcks.removeValue(forKey: ackCode) {
-                try await dataStore.updateMessageStatus(id: tracking.messageID, status: .failed)
-                logger.warning("Message failed - timeout exceeded")
-
-                await messageFailedHandler?(tracking.messageID)
-            }
+            now.timeIntervalSince(tracking.sentAt) > window
         }
-    }
 
-    /// Cleans up delivered ACK tracking entries.
-    ///
-    /// Removes ACK tracking data for messages that were delivered.
-    /// This prevents unbounded memory growth.
-    public func cleanupDeliveredAcks() {
-        let deliveredCodes = pendingAcks.filter { _, tracking in
-            tracking.isDelivered
-        }.keys
+        for (messageID, _) in expiredEntries {
+            let didFail = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
+            guard let removed = pendingAcks.removeValue(forKey: messageID),
+                  !removed.isDelivered, didFail else { continue }
 
-        for ackCode in deliveredCodes {
-            pendingAcks.removeValue(forKey: ackCode)
+            logger.warning("[ack-diag] give-up: failed after \(String(format: "%.1f", now.timeIntervalSince(removed.sentAt)))s window=\(window)s livePending=\(pendingAcks.count)")
+            await messageFailedHandler?(messageID)
         }
     }
 
@@ -88,22 +91,23 @@ extension MessageService {
     ///
     /// - Throws: Database errors when updating message status
     public func failAllPendingMessages() async throws {
-        let pendingCodes = pendingAcks.filter { _, tracking in
-            !tracking.isDelivered
-        }.keys
+        let pending = pendingAcks.filter { !$0.value.isDelivered }
+        pendingAcks.removeAll()
 
-        for ackCode in pendingCodes {
-            if let tracking = pendingAcks.removeValue(forKey: ackCode) {
-                try await dataStore.updateMessageStatus(id: tracking.messageID, status: .failed)
-                await messageFailedHandler?(tracking.messageID)
+        for (messageID, _) in pending {
+            let didFail = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
+            if didFail {
+                await messageFailedHandler?(messageID)
             }
         }
     }
 
     /// Stops ACK checking and fails all pending messages atomically.
     ///
-    /// This is the recommended method to call when disconnecting from a device.
-    /// It ensures the periodic checker is stopped and all pending messages are marked as failed.
+    /// Use this only for an explicit full teardown where in-flight DMs should
+    /// be terminated. A routine disconnect uses `stopAckExpiryChecking()`
+    /// instead, which leaves in-flight DMs `.sent` so a reconnect can still
+    /// receive their ACKs.
     ///
     /// - Throws: Database errors when updating message status
     public func stopAndFailAllPending() async throws {
@@ -115,8 +119,7 @@ extension MessageService {
 
     /// The current number of pending ACKs being tracked.
     ///
-    /// This includes both undelivered messages and recently delivered messages
-    /// still in the grace period for tracking repeats.
+    /// Includes undelivered messages still inside the `ackGiveUpWindow`.
     public var pendingAckCount: Int {
         pendingAcks.count
     }

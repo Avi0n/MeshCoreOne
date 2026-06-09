@@ -3,14 +3,20 @@ import MC1Services
 
 /// SwiftUI content displayed in a popover callout when a map pin is tapped
 struct ContactCalloutContent: View {
+    @Environment(\.appState) private var appState
+    @Environment(\.dismiss) private var dismiss
     let contact: ContactDTO
     let onDetail: () -> Void
     let onMessage: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(contact.displayName)
+            (Text(idPrefixHex)
+                .monospaced()
+                .foregroundStyle(.secondary)
+                + Text(" \(contact.displayName)"))
                 .font(.headline)
+                .accessibilityLabel(contact.displayName)
 
             HStack(spacing: 6) {
                 Image(systemName: contact.type.iconSystemName)
@@ -29,10 +35,15 @@ struct ContactCalloutContent: View {
                     .buttonStyle(.bordered)
                     .accessibilityHint(contact.displayName)
 
-                if contact.type == .chat || contact.type == .room {
-                    Button(L10n.Map.Map.Callout.message, systemImage: "message.fill", action: onMessage)
-                        .buttonStyle(.bordered)
-                        .accessibilityHint(contact.displayName)
+                if contact.type == .chat {
+                    Button {
+                        dismiss()
+                        onMessage()
+                    } label: {
+                        Label(L10n.Map.Map.Callout.message, systemImage: "message.fill")
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityHint(contact.displayName)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -42,6 +53,11 @@ struct ContactCalloutContent: View {
     }
 
     // MARK: - Computed Properties
+
+    private var idPrefixHex: String {
+        let hashSize = appState.connectedDevice?.hashSize ?? 1
+        return contact.publicKey.prefix(hashSize).hexString()
+    }
 
     private var typeDisplayName: String {
         switch contact.type {
@@ -61,7 +77,7 @@ struct ContactCalloutContent: View {
     ContactCalloutContent(
         contact: ContactDTO(
             from: Contact(
-                deviceID: UUID(),
+                radioID: UUID(),
                 publicKey: Data(repeating: 0x01, count: 32),
                 name: "Alice",
                 typeRawValue: 0,

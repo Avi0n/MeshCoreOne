@@ -72,73 +72,34 @@ private func ipv6AddressesOfBroadcastCapableInterfaces() -> [sockaddr_in6] {
 struct WiFiConnectionSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appState) private var appState
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @State private var ipAddress = ""
     @State private var port = "5000"
     @State private var isConnecting = false
     @State private var errorMessage: String?
 
-    @FocusState private var focusedField: Field?
-
-    enum Field {
-        case ip, port
-    }
+    @FocusState private var focusedField: WiFiField?
 
     private var isValidInput: Bool {
-        isValidIPAddress(ipAddress) && isValidPort(port)
+        WiFiAddressFields.isValidIPAddress(ipAddress) && WiFiAddressFields.isValidPort(port)
+    }
+
+    private var usesFullKeyboardInput: Bool {
+        horizontalSizeClass == .regular
     }
 
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    HStack {
-                        TextField(L10n.Onboarding.WifiConnection.IpAddress.placeholder, text: $ipAddress)
-                            .keyboardType(.decimalPad)
-                            .environment(\.locale, Locale(identifier: "en_US"))
-                            .textContentType(.none)
-                            .autocorrectionDisabled()
-                            .focused($focusedField, equals: .ip)
-                            .onChange(of: ipAddress) { _, newValue in
-                                let replaced = newValue.replacing(",", with: ".")
-                                if replaced != newValue {
-                                    ipAddress = replaced
-                                }
-                            }
-
-                        if !ipAddress.isEmpty {
-                            Button {
-                                ipAddress = ""
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(.secondary)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel(L10n.Onboarding.WifiConnection.IpAddress.clearAccessibility)
-                        }
-                    }
-
-                    HStack {
-                        TextField(L10n.Onboarding.WifiConnection.Port.placeholder, text: $port)
-                            .keyboardType(.numberPad)
-                            .focused($focusedField, equals: .port)
-
-                        if !port.isEmpty {
-                            Button {
-                                port = ""
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(.secondary)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel(L10n.Onboarding.WifiConnection.Port.clearAccessibility)
-                        }
-                    }
-                } header: {
-                    Text(L10n.Onboarding.WifiConnection.ConnectionDetails.header)
-                } footer: {
-                    Text(L10n.Onboarding.WifiConnection.ConnectionDetails.footer)
-                }
+                WiFiAddressFields(
+                    ipAddress: $ipAddress,
+                    port: $port,
+                    focusedField: $focusedField,
+                    sectionHeader: L10n.Onboarding.WifiConnection.ConnectionDetails.header,
+                    sectionFooter: L10n.Onboarding.WifiConnection.ConnectionDetails.footer,
+                    onPortSubmit: { connect() }
+                )
 
                 if let errorMessage {
                     Section {
@@ -168,23 +129,12 @@ struct WiFiConnectionSheet: View {
             }
             .navigationTitle(L10n.Onboarding.WifiConnection.title)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.Localizable.Common.cancel) {
-                        dismiss()
-                    }
-                    .disabled(isConnecting)
-                }
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button(L10n.Localizable.Common.done) {
-                        focusedField = nil
-                    }
-                }
-            }
+            .wifiSheetToolbar(focusedField: $focusedField, isProcessing: isConnecting)
             .interactiveDismissDisabled(isConnecting)
             .onAppear {
-                focusedField = .ip
+                if !usesFullKeyboardInput {
+                    focusedField = .ipAddress
+                }
                 triggerLocalNetworkPrivacyAlert()
             }
         }
@@ -192,6 +142,8 @@ struct WiFiConnectionSheet: View {
     }
 
     private func connect() {
+        focusedField = nil
+
         guard let portNumber = UInt16(port) else {
             errorMessage = L10n.Onboarding.WifiConnection.Error.invalidPort
             return
@@ -206,7 +158,7 @@ struct WiFiConnectionSheet: View {
                 await appState.wireServicesIfConnected()
                 dismiss()
                 // Navigate directly to radio settings
-                appState.onboarding.onboardingPath.append(.radioPreset)
+                appState.onboarding.onboardingPath.append(.region)
             } catch {
                 errorMessage = error.localizedDescription
                 isConnecting = false
@@ -214,19 +166,6 @@ struct WiFiConnectionSheet: View {
         }
     }
 
-    private func isValidIPAddress(_ ip: String) -> Bool {
-        let parts = ip.split(separator: ".")
-        guard parts.count == 4 else { return false }
-        return parts.allSatisfy { part in
-            guard let num = Int(part) else { return false }
-            return num >= 0 && num <= 255
-        }
-    }
-
-    private func isValidPort(_ port: String) -> Bool {
-        guard let num = UInt16(port) else { return false }
-        return num > 0
-    }
 }
 
 #Preview {

@@ -2,9 +2,16 @@ import SwiftUI
 
 /// About and links section
 struct AboutSection: View {
+    @Environment(\.appTheme) private var theme
+    let isSidebar: Bool
+
     var body: some View {
         Section {
-            Link(destination: URL(string: "https://meshcore.co.uk")!) {
+            SettingsDetailRow(detail: .support) {
+                TintedLabel(L10n.Settings.Support.title, systemImage: "heart")
+            }
+
+            Link(destination: URL(string: "https://meshcore.io")!) {
                 HStack {
                     TintedLabel(L10n.Settings.About.website, systemImage: "globe")
                     Spacer()
@@ -15,7 +22,7 @@ struct AboutSection: View {
             }
             .foregroundStyle(.primary)
 
-            Link(destination: URL(string: "https://map.meshcore.dev")!) {
+            Link(destination: URL(string: "https://map.meshcore.io/")!) {
                 HStack {
                     TintedLabel(L10n.Settings.About.onlineMap, systemImage: "map")
                     Spacer()
@@ -40,5 +47,6 @@ struct AboutSection: View {
         } header: {
             Text(L10n.Settings.About.header)
         }
+        .themedRowBackground(theme, flatten: isSidebar)
     }
 }

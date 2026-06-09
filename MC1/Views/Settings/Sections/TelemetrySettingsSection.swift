@@ -4,8 +4,9 @@ import MC1Services
 /// Telemetry sharing configuration
 struct TelemetrySettingsSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var retryAlert = RetryAlertState()
     @State private var isSaving = false
 
@@ -67,7 +68,8 @@ struct TelemetrySettingsSection: View {
         } footer: {
             Text(L10n.Settings.Telemetry.footer)
         }
-        .errorAlert($showError)
+        .themedRowBackground(theme)
+        .errorAlert($errorMessage)
         .retryAlert(retryAlert)
     }
 
@@ -134,12 +136,7 @@ struct TelemetrySettingsSection: View {
                     location: location ?? device.telemetryModeLoc,
                     environment: environment ?? device.telemetryModeEnv
                 )
-                _ = try await settingsService.setOtherParamsVerified(
-                    autoAddContacts: !device.manualAddContacts,
-                    telemetryModes: modes,
-                    advertLocationPolicy: AdvertLocationPolicy(rawValue: device.advertLocationPolicy) ?? .none,
-                    multiAcks: device.multiAcks
-                )
+                _ = try await settingsService.setOtherParamsVerified(from: device, telemetryModes: modes)
                 retryAlert.reset()
             } catch let error as SettingsServiceError where error.isRetryable {
                 retryAlert.show(
@@ -148,7 +145,7 @@ struct TelemetrySettingsSection: View {
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
             isSaving = false
         }

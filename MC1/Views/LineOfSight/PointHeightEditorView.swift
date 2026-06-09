@@ -12,7 +12,7 @@ struct PointHeightEditorView: View {
                 get: { point.additionalHeight },
                 set: { viewModel.updateAdditionalHeight(for: pointID, meters: $0) }
             ),
-            range: 0...200
+            range: 0.0...200.0
         )
     }
 }

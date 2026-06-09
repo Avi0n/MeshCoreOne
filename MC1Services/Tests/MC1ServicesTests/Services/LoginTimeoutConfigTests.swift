@@ -7,7 +7,7 @@ import Testing
 struct LoginTimeoutConfigTests {
 
     private func makeSentInfo(timeoutMs: UInt32) -> MessageSentInfo {
-        MessageSentInfo(type: 0, expectedAck: Data([0x00]), suggestedTimeoutMs: timeoutMs)
+        MessageSentInfo(route: 0, expectedAck: Data([0x00]), suggestedTimeoutMs: timeoutMs)
     }
 
     @Test("Direct path (mode 0) uses base timeout only")

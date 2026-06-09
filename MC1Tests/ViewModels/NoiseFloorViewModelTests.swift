@@ -93,7 +93,7 @@ struct NoiseFloorViewModelTests {
         #expect(viewModel.currentReading == nil)
         #expect(viewModel.readings.isEmpty)
         #expect(viewModel.isPolling == false)
-        #expect(viewModel.error == nil)
+        #expect(viewModel.errorMessage == nil)
     }
 
     @Test("statistics returns nil when no readings")

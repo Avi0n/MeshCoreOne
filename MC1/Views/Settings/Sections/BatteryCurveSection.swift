@@ -4,6 +4,7 @@ import MC1Services
 /// Battery curve configuration section
 /// Pure UI component - caller provides data and save callback
 struct BatteryCurveSection: View {
+    @Environment(\.appTheme) private var theme
     let availablePresets: [OCVPreset]
     let headerText: String
     let footerText: String
@@ -70,6 +71,7 @@ struct BatteryCurveSection: View {
                 Text(footerText)
             }
         }
+        .themedRowBackground(theme)
     }
 
     private func handleValueChanged() {
@@ -89,7 +91,7 @@ struct BatteryCurveSection: View {
 
     private func validateVoltageValues() -> String? {
         for (index, value) in voltageValues.enumerated() {
-            if value < 1000 || value > 5000 {
+            if !OCVPreset.validMillivoltRange.contains(value) {
                 return L10n.Settings.BatteryCurve.Validation.outOfRange((10 - index) * 10)
             }
         }
@@ -129,7 +131,7 @@ struct VoltageFieldsGrid: View {
 
     private func fieldHasError(at index: Int) -> Bool {
         let value = voltageValues[index]
-        if value < 1000 || value > 5000 { return true }
+        if !OCVPreset.validMillivoltRange.contains(value) { return true }
         if index > 0 && voltageValues[index - 1] <= value { return true }
         if index < 10 && value <= voltageValues[index + 1] { return true }
         return false

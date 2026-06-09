@@ -9,7 +9,7 @@ import Foundation
 private func createTestSavedPath(runs: [TracePathRunDTO]) -> SavedTracePathDTO {
     SavedTracePathDTO(
         id: UUID(),
-        deviceID: UUID(),
+        radioID: UUID(),
         name: "Test Path",
         pathBytes: Data([0x01, 0x02, 0x01]),
         createdDate: Date(),
@@ -30,7 +30,7 @@ private func createTestRun(date: Date, roundTripMs: Int = 100, success: Bool = t
 private func createTestContact() -> ContactDTO {
     let contact = Contact(
         id: UUID(),
-        deviceID: UUID(),
+        radioID: UUID(),
         publicKey: Data([0xAB] + Array(repeating: UInt8(0x00), count: 31)),
         name: "Test Repeater",
         typeRawValue: ContactType.repeater.rawValue,
@@ -275,7 +275,7 @@ struct TraceResponseHopParsingTests {
 
         // Set up pending tag to match
         viewModel.setPendingTagForTesting(12345)
-        viewModel.handleTraceResponse(traceInfo, deviceID: nil)
+        viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
         guard let result = viewModel.result else {
             Issue.record("Result should not be nil")
@@ -322,7 +322,7 @@ struct TraceResponseHopParsingTests {
         )
 
         viewModel.setPendingTagForTesting(12345)
-        viewModel.handleTraceResponse(traceInfo, deviceID: nil)
+        viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
         guard let result = viewModel.result else {
             Issue.record("Result should not be nil")
@@ -360,7 +360,7 @@ struct TraceResponseHopParsingTests {
         )
 
         viewModel.setPendingTagForTesting(12345)  // Different from traceInfo.tag
-        viewModel.handleTraceResponse(traceInfo, deviceID: nil)
+        viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
         #expect(viewModel.result == nil)
     }
@@ -391,7 +391,7 @@ struct ResultIDBehaviorTests {
         viewModel.setPendingTagForTesting(12345)
         #expect(viewModel.resultID == nil)
 
-        viewModel.handleTraceResponse(traceInfo, deviceID: nil)
+        viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
         #expect(viewModel.resultID != nil)
     }
@@ -412,7 +412,7 @@ struct ResultIDBehaviorTests {
         )
 
         viewModel.setPendingTagForTesting(12345)
-        viewModel.handleTraceResponse(traceInfo, deviceID: nil)
+        viewModel.handleTraceResponse(traceInfo, radioID: nil)
         let firstID = viewModel.resultID
 
         // Run another trace
@@ -427,7 +427,7 @@ struct ResultIDBehaviorTests {
                 TraceNode(hash: nil, snr: 3.0)
             ]
         )
-        viewModel.handleTraceResponse(traceInfo2, deviceID: nil)
+        viewModel.handleTraceResponse(traceInfo2, radioID: nil)
 
         #expect(viewModel.resultID != firstID)
     }
@@ -593,7 +593,7 @@ struct MultiByteHashTests {
         )
 
         viewModel.setPendingTagForTesting(12345)
-        viewModel.handleTraceResponse(traceInfo, deviceID: nil)
+        viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
         guard let result = viewModel.result else {
             Issue.record("Result should not be nil")
@@ -624,7 +624,7 @@ struct MultiByteHashTests {
         )
 
         viewModel.setPendingTagForTesting(12345)
-        viewModel.handleTraceResponse(traceInfo, deviceID: nil)
+        viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
         guard let result = viewModel.result else {
             Issue.record("Result should not be nil")
@@ -648,7 +648,7 @@ struct SavedPathHashSizeTests {
         // Path saved with 2-byte hashes: 4 bytes = 2 hops
         let savedPath = SavedTracePathDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             name: "2-byte hash path",
             pathBytes: Data([0xAA, 0xBB, 0xCC, 0xDD]),
             hashSize: 2,
@@ -671,7 +671,7 @@ struct SavedPathHashSizeTests {
         // Path saved with 2-byte hashes: 6 bytes = 3 total hops, outbound = 2 hops
         let savedPath = SavedTracePathDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             name: "2-byte path",
             pathBytes: Data([0xAA, 0xBB, 0xCC, 0xDD, 0xAA, 0xBB]),
             hashSize: 2,
@@ -694,7 +694,7 @@ struct SavedPathHashSizeTests {
     func loadSavedPathHashSize1() {
         let savedPath = SavedTracePathDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             name: "1-byte hash path",
             pathBytes: Data([0xAA, 0xBB, 0xCC]),
             hashSize: 1,
@@ -737,7 +737,7 @@ struct DeviceIDValidationTests {
 
         viewModel.setPendingTagForTesting(12345)
         viewModel.setPendingDeviceIDForTesting(pendingDevice)
-        viewModel.handleTraceResponse(traceInfo, deviceID: differentDevice)
+        viewModel.handleTraceResponse(traceInfo, radioID: differentDevice)
 
         // Result should be nil - response was ignored
         #expect(viewModel.result == nil)
@@ -761,7 +761,7 @@ struct DeviceIDValidationTests {
 
         viewModel.setPendingTagForTesting(12345)
         viewModel.setPendingDeviceIDForTesting(deviceID)
-        viewModel.handleTraceResponse(traceInfo, deviceID: deviceID)
+        viewModel.handleTraceResponse(traceInfo, radioID: deviceID)
 
         #expect(viewModel.result != nil)
         #expect(viewModel.result?.success == true)
@@ -784,7 +784,7 @@ struct DeviceIDValidationTests {
 
         viewModel.setPendingTagForTesting(12345)
         viewModel.setPendingDeviceIDForTesting(nil)
-        viewModel.handleTraceResponse(traceInfo, deviceID: UUID())
+        viewModel.handleTraceResponse(traceInfo, radioID: UUID())
 
         // Should accept - pendingDeviceID is nil so skip device check
         #expect(viewModel.result != nil)
@@ -807,7 +807,7 @@ struct DeviceIDValidationTests {
 
         viewModel.setPendingTagForTesting(12345)
         viewModel.setPendingDeviceIDForTesting(UUID())
-        viewModel.handleTraceResponse(traceInfo, deviceID: nil)
+        viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
         // Should accept - received deviceID is nil so skip device check
         #expect(viewModel.result != nil)
@@ -840,7 +840,7 @@ struct PathCaptureTests {
             ]
         )
 
-        viewModel.handleTraceResponse(traceInfo, deviceID: nil)
+        viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
         guard let result = viewModel.result else {
             Issue.record("Result should not be nil")
@@ -872,7 +872,7 @@ struct PathCaptureTests {
             ]
         )
 
-        viewModel.handleTraceResponse(traceInfo, deviceID: nil)
+        viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
         // Verify result exists and has correct path
         #expect(viewModel.result?.tracedPathBytes == originalPath)
@@ -880,7 +880,7 @@ struct PathCaptureTests {
         // Now modify the outbound path (simulate user adding another hop)
         let contact = Contact(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data([0xBB] + Array(repeating: UInt8(0x00), count: 31)),
             name: "Different",
             typeRawValue: ContactType.repeater.rawValue,
@@ -906,7 +906,7 @@ struct PathCaptureTests {
         // Add a repeater first so fullPathBytes is populated
         let contact = Contact(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data([0xAA] + Array(repeating: UInt8(0x00), count: 31)),
             name: "Repeater",
             typeRawValue: ContactType.repeater.rawValue,
@@ -938,7 +938,7 @@ struct PathCaptureTests {
             ]
         )
 
-        viewModel.handleTraceResponse(traceInfo, deviceID: nil)
+        viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
         // Path unchanged, result successful - canSavePath should be true
         #expect(viewModel.canSavePath == true)
@@ -1314,7 +1314,7 @@ struct CodeInputParsingTests {
     private func createContact(prefix: UInt8, name: String) -> ContactDTO {
         let contact = Contact(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data([prefix] + Array(repeating: UInt8(0x00), count: 31)),
             name: name,
             typeRawValue: ContactType.repeater.rawValue,
@@ -1510,7 +1510,7 @@ struct OutboundPathNameResolutionTests {
     private func createContact(prefix: UInt8, name: String, lat: Double = 0, lon: Double = 0) -> ContactDTO {
         ContactDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data([prefix] + Array(repeating: UInt8(0), count: 31)),
             name: name,
             typeRawValue: ContactType.repeater.rawValue,
@@ -1542,7 +1542,7 @@ struct OutboundPathNameResolutionTests {
         contact2Key = Data([0x3F, 0x01] + Array(repeating: UInt8(0), count: 30))
         let contact1Modified = ContactDTO(
             id: contact1.id,
-            deviceID: contact1.deviceID,
+            radioID: contact1.radioID,
             publicKey: contact1.publicKey,
             name: contact1.name,
             typeRawValue: contact1.typeRawValue,
@@ -1562,7 +1562,7 @@ struct OutboundPathNameResolutionTests {
         )
         let contact2Modified = ContactDTO(
             id: contact2.id,
-            deviceID: contact2.deviceID,
+            radioID: contact2.radioID,
             publicKey: contact2Key,
             name: "Other Tower",
             typeRawValue: contact2.typeRawValue,
@@ -1599,7 +1599,7 @@ struct OutboundPathNameResolutionTests {
         )
 
         viewModel.setPendingTagForTesting(12345)
-        viewModel.handleTraceResponse(traceInfo, deviceID: nil)
+        viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
         guard let result = viewModel.result else {
             Issue.record("Result should not be nil")
@@ -1629,7 +1629,7 @@ struct OutboundPathNameResolutionTests {
         // Two repeaters with same first byte
         let nearRepeater = ContactDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data([0x3F, 0x01] + Array(repeating: UInt8(0), count: 30)),
             name: "Near Tower",
             typeRawValue: ContactType.repeater.rawValue,
@@ -1649,7 +1649,7 @@ struct OutboundPathNameResolutionTests {
         )
         let farRepeater = ContactDTO(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data([0x3F, 0x02] + Array(repeating: UInt8(0), count: 30)),
             name: "Far Tower",
             typeRawValue: ContactType.repeater.rawValue,
@@ -1685,7 +1685,7 @@ struct OutboundPathNameResolutionTests {
         )
 
         viewModel.setPendingTagForTesting(42)
-        viewModel.handleTraceResponse(traceInfo, deviceID: nil)
+        viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
         guard let result = viewModel.result else {
             Issue.record("Result should not be nil")
@@ -1719,7 +1719,7 @@ struct OutboundPathNameResolutionTests {
         )
 
         viewModel.setPendingTagForTesting(12345)
-        viewModel.handleTraceResponse(traceInfo, deviceID: nil)
+        viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
         guard let result = viewModel.result else {
             Issue.record("Result should not be nil")
@@ -1740,7 +1740,7 @@ struct RoomSupportTests {
     private func createContact(prefix: UInt8, name: String, type: ContactType = .repeater) -> ContactDTO {
         let contact = Contact(
             id: UUID(),
-            deviceID: UUID(),
+            radioID: UUID(),
             publicKey: Data([prefix] + Array(repeating: UInt8(0x00), count: 31)),
             name: name,
             typeRawValue: type.rawValue,
@@ -1807,5 +1807,164 @@ struct RoomSupportTests {
         #expect(result.notFound.isEmpty)
         #expect(viewModel.outboundPath.count == 1)
         #expect(viewModel.outboundPath[0].resolvedName == "Room Server")
+    }
+}
+
+// MARK: - Trace Hash Size Override Tests
+
+@Suite("Trace Hash Size Override")
+@MainActor
+struct TraceHashSizeOverrideTests {
+
+    @Test("setTraceHashMode rebuilds hop hash bytes from the public key prefix")
+    func setTraceHashModeReprefixesHops() {
+        let viewModel = TracePathViewModel()
+        viewModel.addNode(createTestContact())
+
+        // Default (no override, no appState) is mode 0 -> 1 byte per hop.
+        #expect(viewModel.effectiveTraceMode == 0)
+        #expect(viewModel.hashSize == 1)
+        #expect(viewModel.outboundPath[0].hashBytes == Data([0xAB]))
+
+        viewModel.setTraceHashMode(1)
+        #expect(viewModel.effectiveTraceMode == 1)
+        #expect(viewModel.hashSize == 2)
+        #expect(viewModel.outboundPath[0].hashBytes == Data([0xAB, 0x00]))
+
+        viewModel.setTraceHashMode(2)
+        #expect(viewModel.hashSize == 4)
+        #expect(viewModel.outboundPath[0].hashBytes.count == 4)
+        #expect(viewModel.outboundPath[0].hashBytes == Data([0xAB, 0x00, 0x00, 0x00]))
+
+        viewModel.setTraceHashMode(0)
+        #expect(viewModel.hashSize == 1)
+        #expect(viewModel.outboundPath[0].hashBytes == Data([0xAB]))
+    }
+
+    @Test("fullPathData width tracks the active hash mode")
+    func fullPathDataTracksMode() {
+        let viewModel = TracePathViewModel()
+        viewModel.addNode(createTestContact())
+        viewModel.addNode(createTestContact())
+
+        // Two outbound hops with auto-return mirror -> 3 hops on the wire.
+        #expect(viewModel.autoReturnPath)
+        #expect(viewModel.fullPathData.count == 3 * 1)
+
+        viewModel.setTraceHashMode(1)
+        #expect(viewModel.fullPathData.count == 3 * 2)
+
+        viewModel.setTraceHashMode(2)
+        #expect(viewModel.fullPathData.count == 3 * 4)
+    }
+
+    @Test("setTraceHashMode clears a stale result and saved-path reference")
+    func setTraceHashModeClearsState() {
+        let viewModel = TracePathViewModel()
+        viewModel.addNode(createTestContact())
+        viewModel.activeSavedPath = createTestSavedPath(runs: [])
+
+        viewModel.setTraceHashMode(2)
+
+        #expect(viewModel.activeSavedPath == nil)
+        #expect(viewModel.result == nil)
+    }
+
+    @Test("widening zero-pads key-less hops so the wire stays a uniform width")
+    func setTraceHashModePadsKeylessHops() {
+        let viewModel = TracePathViewModel()
+        // Saved path bytes match no known contact, so every hop is key-less.
+        viewModel.loadSavedPath(createTestSavedPath(runs: []))
+        #expect(!viewModel.outboundPath.isEmpty)
+        #expect(viewModel.outboundPath.allSatisfy { $0.publicKey == nil })
+
+        viewModel.setTraceHashMode(2)
+
+        #expect(viewModel.hashSize == 4)
+        #expect(viewModel.outboundPath.allSatisfy { $0.hashBytes.count == 4 })
+        // A short hop would break divisibility and misalign the firmware's parse.
+        #expect(viewModel.fullPathData.count % 4 == 0)
+    }
+
+    @Test("clearPath resets the per-trace hash mode override")
+    func clearPathResetsOverride() {
+        let viewModel = TracePathViewModel()
+        viewModel.addNode(createTestContact())
+        viewModel.setTraceHashMode(2)
+        #expect(viewModel.effectiveTraceMode == 2)
+
+        viewModel.clearPath()
+
+        #expect(viewModel.effectiveTraceMode == 0)
+        #expect(viewModel.outboundPath.isEmpty)
+    }
+
+    @Test("loadSavedPath sets no override when the radio can't honor it")
+    func loadSavedPathNoOverrideWhenUnsupported() {
+        let viewModel = TracePathViewModel()
+        // No appState configured, so supportsTraceHashSizeOverride is not true.
+        viewModel.loadSavedPath(createTestSavedPath(runs: []))
+
+        #expect(viewModel.effectiveTraceMode == 0)
+    }
+}
+
+// MARK: - Trace Hash Size Capability Gate Tests
+
+@Suite("Trace Hash Size Capability Gate")
+struct TraceHashSizeCapabilityGateTests {
+
+    private func makeDevice(firmwareVersion: UInt8, firmwareVersionString: String) -> DeviceDTO {
+        DeviceDTO(
+            id: UUID(),
+            radioID: UUID(),
+            publicKey: Data(repeating: 0x01, count: 32),
+            nodeName: "TestDevice",
+            firmwareVersion: firmwareVersion,
+            firmwareVersionString: firmwareVersionString,
+            manufacturerName: "TestMfg",
+            buildDate: "01 Jan 2025",
+            maxContacts: 100,
+            maxChannels: 8,
+            frequency: 915_000,
+            bandwidth: 250_000,
+            spreadingFactor: 10,
+            codingRate: 5,
+            txPower: 20,
+            maxTxPower: 20,
+            latitude: 0,
+            longitude: 0,
+            blePin: 0,
+            manualAddContacts: false,
+            multiAcks: 2,
+            telemetryModeBase: 2,
+            telemetryModeLoc: 0,
+            telemetryModeEnv: 0,
+            advertLocationPolicy: 0,
+            lastConnected: Date(),
+            lastContactSync: 0,
+            isActive: false,
+            ocvPreset: nil,
+            customOCVArrayString: nil,
+            connectionMethods: []
+        )
+    }
+
+    @Test("VER_CODE 8 disambiguates v1.10 (off) from v1.11/v1.12 (on)")
+    func verCodeSeamUsesVersionString() {
+        // VER_CODE stayed 8 across v1.10.0 (no feature) through v1.12.0 (feature).
+        #expect(makeDevice(firmwareVersion: 8, firmwareVersionString: "v1.10.0").supportsTraceHashSizeOverride == false)
+        #expect(makeDevice(firmwareVersion: 8, firmwareVersionString: "v1.11.0").supportsTraceHashSizeOverride == true)
+        #expect(makeDevice(firmwareVersion: 8, firmwareVersionString: "v1.12.0").supportsTraceHashSizeOverride == true)
+    }
+
+    @Test("VER_CODE >= 9 enables the override even without a usable version string")
+    func verCodeArmEnablesOverride() {
+        #expect(makeDevice(firmwareVersion: 9, firmwareVersionString: "").supportsTraceHashSizeOverride == true)
+    }
+
+    @Test("older firmware does not support the override")
+    func olderFirmwareUnsupported() {
+        #expect(makeDevice(firmwareVersion: 7, firmwareVersionString: "v1.9.0").supportsTraceHashSizeOverride == false)
     }
 }

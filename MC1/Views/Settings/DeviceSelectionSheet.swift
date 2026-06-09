@@ -35,14 +35,34 @@ private enum SelectableDevice: Identifiable, Equatable {
         }
     }
 
-    /// Whether this device connects only via WiFi (no BLE).
-    var isWiFiOnly: Bool {
-        switch self {
-        case .saved(let device):
-            !device.connectionMethods.isEmpty && device.connectionMethods.allSatisfy(\.isWiFi)
-        case .accessory:
-            false
+    /// Whether this device will connect over WiFi (its preferred method is WiFi).
+    /// Such rows stay tappable regardless of BLE advertisement, since the connect
+    /// path routes them to WiFi; only BLE-reachable-only rows gate on a live signal.
+    /// A radio reachable over both transports is included here — its peripheral UUID
+    /// may differ from `id`, so a BLE-signal gate would strand a WiFi-connectable row.
+    var connectsViaWiFi: Bool {
+        primaryConnectionMethod?.isWiFi == true
+    }
+}
+
+/// Filters saved `Device` rows to those the user can actually reach from this phone.
+///
+/// A backup restore inserts "shadow" `Device` rows: their Bluetooth connection methods
+/// were stripped by `cleanedForImport()` and their `id` is a fresh `UUID` that isn't
+/// registered with AccessorySetupKit on this phone. Those rows stay in SwiftData so
+/// `ConnectionManager.buildServicesAndSaveDevice` can reconcile them by `publicKey`
+/// when the user later pairs the radio, but they must not appear in the picker until
+/// then — they look like saved devices but no tap can connect them.
+enum DeviceSelectionFilter {
+    static func isConnectable(_ device: DeviceDTO, pairedAccessoryIDs: Set<UUID>, hasSystemPairingRegistry: Bool = true) -> Bool {
+        if device.connectionMethods.contains(where: \.isWiFi) { return true }
+        guard hasSystemPairingRegistry else {
+            // No AccessorySetupKit registry to validate against (macOS). A real saved BLE
+            // device retains its `.bluetooth` connection method, while demoted ghosts and
+            // backup shadows have it stripped — so the method itself is the reachability signal.
+            return device.connectionMethods.contains(where: \.isBluetooth)
         }
+        return pairedAccessoryIDs.contains(device.id)
     }
 }
 
@@ -55,8 +75,7 @@ struct DeviceSelectionSheet: View {
     @State private var showingWiFiConnection = false
     @State private var editingWiFiDevice: SelectableDevice?
     @State private var devicesConnectedElsewhere: Set<UUID> = []
-    @State private var deviceRSSI: [UUID: (rssi: Int, lastSeen: Date)] = [:]
-    @State private var deviceSignalTier: [UUID: Int] = [:]
+    @State private var tracker = RSSIScanTracker()
 
     var body: some View {
         NavigationStack {
@@ -89,8 +108,7 @@ struct DeviceSelectionSheet: View {
         DeviceListView(
             devices: devices,
             devicesConnectedElsewhere: devicesConnectedElsewhere,
-            deviceSignalTier: deviceSignalTier,
-            deviceRSSI: deviceRSSI,
+            tracker: tracker,
             showingWiFiConnection: $showingWiFiConnection,
             editingWiFiDevice: $editingWiFiDevice,
             onConnect: { connectToDevice($0) },
@@ -109,49 +127,24 @@ struct DeviceSelectionSheet: View {
     // MARK: - Actions
 
     private func startBLEScanning() async {
-        let stream = appState.connectionManager.startBLEScanning()
-
-        // Expire stale RSSI entries every 2 seconds
-        let expiryTask = Task {
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(2))
-                let cutoff = Date.now.addingTimeInterval(-4)
-                for (id, entry) in deviceRSSI where entry.lastSeen < cutoff {
-                    deviceRSSI.removeValue(forKey: id)
-                    deviceSignalTier.removeValue(forKey: id)
-                }
-            }
-        }
-        defer { expiryTask.cancel() }
-
-        for await (deviceID, rssi) in stream {
-            // Filter invalid RSSI values (0, positive, or -127 indicate unavailable)
-            guard rssi < 0, rssi != -127 else { continue }
-
-            let smoothed: Int
-            if let existing = deviceRSSI[deviceID] {
-                smoothed = Int(0.2 * Double(rssi) + 0.8 * Double(existing.rssi))
-            } else {
-                smoothed = rssi
-            }
-            deviceRSSI[deviceID] = (rssi: smoothed, lastSeen: .now)
-            deviceSignalTier[deviceID] = updatedSignalTier(
-                currentTier: deviceSignalTier[deviceID],
-                smoothedRSSI: smoothed
-            )
-        }
+        await tracker.consume(appState.connectionManager.startBLEScanning())
     }
 
     private func loadDevices() async {
         // Try to load from SwiftData first
+        let pairedAccessoryIDs = Set(appState.connectionManager.pairedAccessoryInfos.map(\.id))
+        let hasSystemPairingRegistry = appState.connectionManager.hasSystemPairingRegistry
         do {
             let savedDevices = try await appState.connectionManager.fetchSavedDevices()
-            if !savedDevices.isEmpty {
-                devices = savedDevices.map { .saved($0) }
+            let connectableDevices = savedDevices.filter {
+                DeviceSelectionFilter.isConnectable($0, pairedAccessoryIDs: pairedAccessoryIDs, hasSystemPairingRegistry: hasSystemPairingRegistry)
+            }
+            if !connectableDevices.isEmpty {
+                devices = connectableDevices.map { .saved($0) }
 
                 // Check which devices are connected elsewhere (BLE only)
                 var connectedElsewhere: Set<UUID> = []
-                for device in savedDevices {
+                for device in connectableDevices {
                     // Skip WiFi-only devices
                     let hasBluetooth = device.connectionMethods.isEmpty ||
                         device.connectionMethods.contains { !$0.isWiFi }
@@ -168,7 +161,7 @@ struct DeviceSelectionSheet: View {
             logger.error("Failed to load devices: \(error)")
         }
 
-        // Fall back to ASK accessories when database is empty
+        // Fall back to ASK accessories when the filter drops every saved row (or the DB is empty)
         let accessories = appState.connectionManager.pairedAccessoryInfos
         devices = accessories.map { .accessory(id: $0.id, name: $0.name) }
 
@@ -183,29 +176,10 @@ struct DeviceSelectionSheet: View {
     private func scanForNewDevice() {
         dismiss()
         Task {
+            await appState.connectionManager.stopBLEScanning()
             await appState.disconnect(reason: .switchingDevice)
             // Trigger ASK picker flow via AppState
             appState.startDeviceScan()
-        }
-    }
-
-    /// Computes the signal tier with hysteresis to prevent flickering at boundaries.
-    /// Requires crossing the threshold by 3 dBm before changing tiers.
-    private func updatedSignalTier(currentTier: Int?, smoothedRSSI: Int) -> Int {
-        let hysteresis = 3
-        switch currentTier {
-        case 2: // green — drop only if clearly below threshold
-            return smoothedRSSI < -60 - hysteresis ? (smoothedRSSI < -80 - hysteresis ? 0 : 1) : 2
-        case 1: // yellow — need margin to move up or down
-            if smoothedRSSI >= -60 + hysteresis { return 2 }
-            if smoothedRSSI < -80 - hysteresis { return 0 }
-            return 1
-        case 0: // red — need margin to move up
-            return smoothedRSSI >= -80 + hysteresis ? (smoothedRSSI >= -60 + hysteresis ? 2 : 1) : 0
-        default: // first reading, no hysteresis
-            if smoothedRSSI >= -60 { return 2 }
-            if smoothedRSSI >= -80 { return 1 }
-            return 0
         }
     }
 
@@ -222,8 +196,7 @@ struct DeviceSelectionSheet: View {
             } catch BLEError.deviceConnectedToOtherApp {
                 appState.connectionUI.otherAppWarningDeviceID = device.id
             } catch {
-                appState.connectionUI.connectionFailedMessage = error.localizedDescription
-                appState.connectionUI.showingConnectionFailedAlert = true
+                appState.connectionUI.presentConnectionFailure(message: error.localizedDescription)
             }
         }
     }
@@ -245,10 +218,10 @@ struct DeviceSelectionSheet: View {
 // MARK: - Device List View
 
 private struct DeviceListView: View {
+    @Environment(\.appTheme) private var theme
     let devices: [SelectableDevice]
     let devicesConnectedElsewhere: Set<UUID>
-    let deviceSignalTier: [UUID: Int]
-    let deviceRSSI: [UUID: (rssi: Int, lastSeen: Date)]
+    let tracker: RSSIScanTracker
     @Binding var showingWiFiConnection: Bool
     @Binding var editingWiFiDevice: SelectableDevice?
     let onConnect: (SelectableDevice) -> Void
@@ -259,15 +232,15 @@ private struct DeviceListView: View {
         List {
             Section {
                 ForEach(devices) { device in
-                    let tier = device.isWiFiOnly ? nil : deviceSignalTier[device.id]
-                    let isDisabledByBLE = !device.isWiFiOnly && deviceRSSI[device.id] == nil
+                    let tier = device.connectsViaWiFi ? nil : tracker.signalTier(for: device.id)
+                    let isDisabledByBLE = !device.connectsViaWiFi && !tracker.isAdvertising(device.id)
                     Button {
                         guard !isDisabledByBLE else { return }
                         onConnect(device)
                     } label: {
                         DeviceRow(
                             device: device,
-                            isWiFiOnly: device.isWiFiOnly,
+                            connectsViaWiFi: device.connectsViaWiFi,
                             isConnectedElsewhere: devicesConnectedElsewhere.contains(device.id),
                             signalTier: tier
                         )
@@ -293,6 +266,7 @@ private struct DeviceListView: View {
             } header: {
                 Text(L10n.Settings.DeviceSelection.previouslyPaired)
             }
+            .themedRowBackground(theme)
 
             Section {
                 Button {
@@ -307,7 +281,9 @@ private struct DeviceListView: View {
                     Label(L10n.Settings.DeviceSelection.scanBluetooth, systemImage: "antenna.radiowaves.left.and.right")
                 }
             }
+            .themedRowBackground(theme)
         }
+        .themedCanvas(theme)
         .sheet(isPresented: $showingWiFiConnection) {
             WiFiConnectionSheet()
         }
@@ -358,12 +334,12 @@ private struct EmptyStateView: View {
 
 private struct DeviceRow: View {
     let device: SelectableDevice
-    let isWiFiOnly: Bool
+    let connectsViaWiFi: Bool
     let isConnectedElsewhere: Bool
-    let signalTier: Int?
+    let signalTier: RSSITuning.SignalTier?
 
     private var isUnreachable: Bool {
-        !isWiFiOnly && signalTier == nil
+        !connectsViaWiFi && signalTier == nil
     }
 
     private var transportIcon: String {
@@ -381,7 +357,7 @@ private struct DeviceRow: View {
     }
 
     private var connectionDescription: String {
-        if let method = device.primaryConnectionMethod {
+        if let method = device.primaryConnectionMethod, method.isWiFi {
             return method.shortDescription
         }
         return L10n.Settings.DeviceSelection.bluetooth
@@ -415,10 +391,8 @@ private struct DeviceRow: View {
 
             Spacer()
 
-            if let signalTier {
-                Image(systemName: "cellularbars", variableValue: signalLevel)
-                    .foregroundStyle(signalColor)
-                    .font(.body)
+            if let tier = signalTier {
+                SignalBars(tier: tier)
             }
         }
         .padding(.vertical, 4)
@@ -429,6 +403,7 @@ private struct DeviceRow: View {
         .accessibilityLabel(isConnectedElsewhere
             ? L10n.Settings.DeviceSelection.Accessibility.connectedElsewhereLabel(device.name)
             : L10n.Settings.DeviceSelection.Accessibility.deviceLabel(device.name, connectionDescription))
+        .accessibilityValue(signalDescription)
         .accessibilityHint(isConnectedElsewhere
             ? L10n.Settings.DeviceSelection.Accessibility.connectedElsewhereHint
             : isUnreachable
@@ -438,11 +413,11 @@ private struct DeviceRow: View {
 
     // MARK: - Signal Tier Helpers
 
-    private var signalLevel: Double {
-        switch signalTier { case 2: 1.0; case 1: 0.66; default: 0.33 }
-    }
-
-    private var signalColor: Color {
-        switch signalTier { case 2: .green; case 1: .yellow; default: .red }
+    /// VoiceOver descriptor for the signal tier, announced as the row's accessibility value so
+    /// it survives the explicit `accessibilityLabel` above (which overrides combined children).
+    /// Empty when the device is out of range so VoiceOver announces no value.
+    private var signalDescription: String {
+        guard let tier = signalTier else { return "" }
+        return SignalBars.accessibilityDescription(forTier: tier)
     }
 }

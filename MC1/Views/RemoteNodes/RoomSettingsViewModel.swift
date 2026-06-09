@@ -10,39 +10,50 @@ final class RoomSettingsViewModel {
 
     var helper = NodeSettingsHelper()
 
-    // MARK: - Room-Only: Room Settings
+    // MARK: - Room Access (guest password + read-only)
 
     var guestPassword: String?
     var allowReadOnly: Bool?
+    private var originalGuestPassword: String?
+    private var originalAllowReadOnly: Bool?
+    var isLoadingRoomAccess = false
+    var roomAccessError = false
+    var isApplyingRoomAccess = false
+    var roomAccessApplySuccess = false
+    var isRoomAccessExpanded = false
+
+    var roomAccessLoaded: Bool { guestPassword != nil || allowReadOnly != nil }
+
+    var roomAccessModified: Bool {
+        (guestPassword != nil && guestPassword != originalGuestPassword) ||
+        (allowReadOnly != nil && allowReadOnly != originalAllowReadOnly)
+    }
+
+    // MARK: - Behavior (advert intervals + flood)
+
     var advertIntervalMinutes: Int?
     var floodAdvertIntervalHours: Int?
     var floodMaxHops: Int?
-    private var originalGuestPassword: String?
-    private var originalAllowReadOnly: Bool?
     private var originalAdvertIntervalMinutes: Int?
     private var originalFloodAdvertIntervalHours: Int?
     private var originalFloodMaxHops: Int?
-    var isLoadingRoomSettings = false
-    var roomSettingsError = false
-    var roomSettingsLoaded: Bool { allowReadOnly != nil || advertIntervalMinutes != nil }
+    var isLoadingBehavior = false
+    var behaviorError = false
+    var isApplyingBehavior = false
+    var behaviorApplySuccess = false
+    var isBehaviorExpanded = false
 
     var advertIntervalError: String?
     var floodAdvertIntervalError: String?
     var floodMaxHopsError: String?
 
-    var roomSettingsApplySuccess = false
+    var behaviorLoaded: Bool { advertIntervalMinutes != nil || floodAdvertIntervalHours != nil || floodMaxHops != nil }
 
-    var roomSettingsModified: Bool {
-        (guestPassword != nil && guestPassword != originalGuestPassword) ||
-        (allowReadOnly != nil && allowReadOnly != originalAllowReadOnly) ||
+    var behaviorModified: Bool {
         (advertIntervalMinutes != nil && advertIntervalMinutes != originalAdvertIntervalMinutes) ||
         (floodAdvertIntervalHours != nil && floodAdvertIntervalHours != originalFloodAdvertIntervalHours) ||
         (floodMaxHops != nil && floodMaxHops != originalFloodMaxHops)
     }
-
-    // MARK: - Expansion State (room-only sections)
-
-    var isRoomSettingsExpanded = false
 
     // MARK: - Dependencies
 
@@ -88,14 +99,27 @@ final class RoomSettingsViewModel {
         Task { await helper.fetchDeviceInfo() }
     }
 
+    /// Builds the node-CLI send closure, pre-binding this session's id and
+    /// capturing the private admin service (a thin pass-through to
+    /// `RemoteNodeService.sendRawCLICommand`). Returns nil if not configured.
+    func makeNodeCLISendClosure(
+        session: RemoteNodeSessionDTO
+    ) -> (@MainActor (_ command: String, _ timeout: Duration) async throws -> String)? {
+        guard let roomAdminService else { return nil }
+        return { [roomAdminService, sessionID = session.id] command, timeout in
+            try await roomAdminService.sendRawCommand(
+                sessionID: sessionID, command: command, timeout: timeout)
+        }
+    }
+
     // MARK: - Late Response Handling
 
     private func handleLateResponse(_ response: String) {
         // Try shared sections first
         if helper.handleCommonLateResponse(response) { return }
 
-        // Room settings
-        if !isLoadingRoomSettings && roomSettingsError {
+        // Behavior settings
+        if !isLoadingBehavior && behaviorError {
             if let result = NodeSettingsHelper.parseBehaviorLateResponse(
                 response,
                 hasAdvertInterval: originalAdvertIntervalMinutes != nil,
@@ -113,18 +137,17 @@ final class RoomSettingsViewModel {
                     self.floodMaxHops = hops
                     self.originalFloodMaxHops = hops
                 }
-                self.roomSettingsError = false
+                self.behaviorError = false
                 return
             }
         }
     }
 
-    // MARK: - Room Settings Fetch/Apply
+    // MARK: - Room Access Fetch/Apply
 
-    func fetchRoomSettings() async {
-        isLoadingRoomSettings = true
-        roomSettingsError = false
-        var hadTimeout = false
+    func fetchRoomAccess() async {
+        isLoadingRoomAccess = true
+        roomAccessError = false
 
         do {
             let response = try await helper.sendAndWait("get guest.password", rawMatching: true)
@@ -140,7 +163,7 @@ final class RoomSettingsViewModel {
                 self.originalGuestPassword = value
             }
         } catch {
-            if case RemoteNodeError.timeout = error { hadTimeout = true }
+            if case RemoteNodeError.timeout = error { roomAccessError = true }
             logger.warning("Failed to get guest password: \(error)")
         }
 
@@ -156,9 +179,62 @@ final class RoomSettingsViewModel {
                 break
             }
         } catch {
-            if case RemoteNodeError.timeout = error { hadTimeout = true }
+            if case RemoteNodeError.timeout = error { roomAccessError = true }
             logger.warning("Failed to get allow read only: \(error)")
         }
+
+        isLoadingRoomAccess = false
+    }
+
+    func applyRoomAccess() async {
+        isApplyingRoomAccess = true
+        helper.errorMessage = nil
+
+        do {
+            var allSucceeded = true
+
+            if let guestPassword, guestPassword != originalGuestPassword {
+                let response = try await helper.sendAndWait("set guest.password \(guestPassword)")
+                if case .ok = CLIResponse.parse(response) {
+                    originalGuestPassword = guestPassword
+                } else {
+                    allSucceeded = false
+                }
+            }
+
+            if let allowReadOnly, allowReadOnly != originalAllowReadOnly {
+                let response = try await helper.sendAndWait("set allow.read.only \(allowReadOnly ? "on" : "off")")
+                if case .ok = CLIResponse.parse(response) {
+                    originalAllowReadOnly = allowReadOnly
+                } else {
+                    allSucceeded = false
+                }
+            }
+
+            if allSucceeded {
+                withAnimation {
+                    isApplyingRoomAccess = false
+                    roomAccessApplySuccess = true
+                }
+                try? await Task.sleep(for: .seconds(1.5))
+                withAnimation { roomAccessApplySuccess = false }
+                return
+            } else {
+                helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
+            }
+        } catch {
+            helper.errorMessage = error.localizedDescription
+        }
+
+        isApplyingRoomAccess = false
+    }
+
+    // MARK: - Behavior Fetch/Apply
+
+    func fetchBehaviorSettings() async {
+        isLoadingBehavior = true
+        behaviorError = false
+        var hadTimeout = false
 
         do {
             let response = try await helper.sendAndWait("get advert.interval")
@@ -194,13 +270,13 @@ final class RoomSettingsViewModel {
         }
 
         if hadTimeout {
-            roomSettingsError = true
+            behaviorError = true
         }
 
-        isLoadingRoomSettings = false
+        isLoadingBehavior = false
     }
 
-    func applyRoomSettings() async {
+    func applyBehaviorSettings() async {
         let validation = NodeSettingsHelper.validateBehaviorFields(
             advertInterval: advertIntervalMinutes,
             floodInterval: floodAdvertIntervalHours,
@@ -212,29 +288,11 @@ final class RoomSettingsViewModel {
 
         if validation.hasErrors { return }
 
-        helper.isApplying = true
+        isApplyingBehavior = true
         helper.errorMessage = nil
 
         do {
             var allSucceeded = true
-
-            if let guestPassword, guestPassword != originalGuestPassword {
-                let response = try await helper.sendAndWait("set guest.password \(guestPassword)")
-                if case .ok = CLIResponse.parse(response) {
-                    originalGuestPassword = guestPassword
-                } else {
-                    allSucceeded = false
-                }
-            }
-
-            if let allowReadOnly, allowReadOnly != originalAllowReadOnly {
-                let response = try await helper.sendAndWait("set allow.read.only \(allowReadOnly ? "on" : "off")")
-                if case .ok = CLIResponse.parse(response) {
-                    originalAllowReadOnly = allowReadOnly
-                } else {
-                    allSucceeded = false
-                }
-            }
 
             if let advertIntervalMinutes, advertIntervalMinutes != originalAdvertIntervalMinutes {
                 let response = try await helper.sendAndWait("set advert.interval \(advertIntervalMinutes)")
@@ -265,11 +323,11 @@ final class RoomSettingsViewModel {
 
             if allSucceeded {
                 withAnimation {
-                    helper.isApplying = false
-                    roomSettingsApplySuccess = true
+                    isApplyingBehavior = false
+                    behaviorApplySuccess = true
                 }
                 try? await Task.sleep(for: .seconds(1.5))
-                withAnimation { roomSettingsApplySuccess = false }
+                withAnimation { behaviorApplySuccess = false }
                 return
             } else {
                 helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
@@ -278,7 +336,7 @@ final class RoomSettingsViewModel {
             helper.errorMessage = error.localizedDescription
         }
 
-        helper.isApplying = false
+        isApplyingBehavior = false
     }
 
 }

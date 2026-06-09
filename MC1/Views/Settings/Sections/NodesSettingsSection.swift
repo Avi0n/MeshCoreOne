@@ -4,8 +4,9 @@ import MC1Services
 /// Auto-add mode and type settings for node discovery
 struct NodesSettingsSection: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
-    @State private var showError: String?
+    @State private var errorMessage: String?
     @State private var retryAlert = RetryAlertState()
     @State private var isApplying = false
     @State private var showSuccess = false
@@ -110,22 +111,11 @@ struct NodesSettingsSection: View {
             Button {
                 applySettings()
             } label: {
-                HStack {
-                    Spacer()
-                    if isApplying {
-                        ProgressView()
-                    } else if showSuccess {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                            .transition(.scale.combined(with: .opacity))
-                    } else {
-                        Text(L10n.Settings.AdvancedRadio.apply)
-                            .foregroundStyle(canApply ? Color.accentColor : .secondary)
-                            .transition(.opacity)
-                    }
-                    Spacer()
+                AsyncActionLabel(isLoading: isApplying, showSuccess: showSuccess) {
+                    Text(L10n.Settings.AdvancedRadio.apply)
+                        .foregroundStyle(canApply ? Color.accentColor : .secondary)
+                        .transition(.opacity)
                 }
-                .animation(.default, value: showSuccess)
             }
             .radioDisabled(for: appState.connectionState, or: isApplying || showSuccess || !settingsModified)
         } header: {
@@ -133,6 +123,7 @@ struct NodesSettingsSection: View {
         } footer: {
             Text(footerDescription)
         }
+        .themedRowBackground(theme)
         .radioDisabled(for: appState.connectionState, or: isApplying)
         .onAppear {
             loadFromDevice()
@@ -140,7 +131,7 @@ struct NodesSettingsSection: View {
         .onChange(of: deviceNodeSettingsHash) { _, _ in
             loadFromDevice()
         }
-        .errorAlert($showError)
+        .errorAlert($errorMessage)
         .retryAlert(retryAlert)
     }
 
@@ -194,17 +185,7 @@ struct NodesSettingsSection: View {
                 let manualAdd = autoAddMode != .all
 
                 // Save manualAddContacts (works on all firmware versions)
-                let modes = TelemetryModes(
-                    base: device.telemetryModeBase,
-                    location: device.telemetryModeLoc,
-                    environment: device.telemetryModeEnv
-                )
-                _ = try await settingsService.setOtherParamsVerified(
-                    autoAddContacts: !manualAdd,
-                    telemetryModes: modes,
-                    advertLocationPolicy: AdvertLocationPolicy(rawValue: device.advertLocationPolicy) ?? .none,
-                    multiAcks: device.multiAcks
-                )
+                _ = try await settingsService.setOtherParamsVerified(from: device, autoAddContacts: !manualAdd)
 
                 // Save autoAddConfig only on v1.12+ firmware
                 if device.supportsAutoAddConfig {
@@ -247,7 +228,7 @@ struct NodesSettingsSection: View {
                 )
             } catch {
                 loadFromDevice()
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
             isApplying = false
         }

@@ -56,6 +56,21 @@
 /* Location: NodeAuthenticationSheet.swift - Connect button */
 "remoteNodes.auth.connect" = "Connect";
 
+/* Location: NodeAuthenticationSheet.swift - Path section header */
+"remoteNodes.auth.path" = "Path";
+
+/* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
+"remoteNodes.auth.floodRouting" = "Flood Routing";
+
+/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
+"remoteNodes.auth.pathFooter" = "Use the known route to this node, or switch to flood routing to let the network find a path.";
+
+/* Location: NodeAuthenticationSheet.swift - Label when no route is set */
+"remoteNodes.auth.noRouteSet" = "No route set";
+
+/* Location: NodeAuthenticationSheet.swift - Path section footer when no route is set */
+"remoteNodes.auth.noRouteFooter" = "No known route to this node. The network will find a path automatically.";
+
 /* Location: NodeAuthenticationSheet.swift - Accessibility announcement for countdown */
 "remoteNodes.auth.secondsRemainingAnnouncement" = "%d seconds remaining";
 
@@ -66,6 +81,18 @@
 
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "Done";
+
+/* Location: NodeSettingsView.swift - Settings tab label */
+"remoteNodes.settings.tab.settings" = "Settings";
+
+/* Location: NodeSettingsView.swift - CLI tab label */
+"remoteNodes.settings.tab.cli" = "CLI";
+
+/* Location: NodeSettingsView.swift - Telemetry tab label */
+"remoteNodes.settings.tab.telemetry" = "Telemetry";
+
+/* Location: NodeSettingsView.swift - View mode picker label */
+"remoteNodes.settings.tab.picker" = "View mode";
 
 /* Location: RepeaterSettingsView.swift - Success alert title */
 "remoteNodes.settings.success" = "Success";
@@ -395,6 +422,9 @@
 /* Location: RepeaterStatusView.swift - Uptime label */
 "remoteNodes.status.uptime" = "Uptime";
 
+/* Location: SharedNodeViews.swift - Airtime label */
+"remoteNodes.status.airtime" = "Airtime";
+
 /* Location: RepeaterStatusView.swift - Last RSSI label */
 "remoteNodes.status.lastRssi" = "Last RSSI";
 
@@ -446,10 +476,20 @@
 /* Location: RepeaterStatusView.swift - SNR display format */
 "remoteNodes.status.snrFormat" = "SNR %@dB";
 
+/* Location: RepeaterStatusView.swift - Accessibility label for possible match indicator */
+"remoteNodes.status.possibleMatch" = "Possible match, matched by short prefix";
+
+/* Location: RepeaterStatusView.swift - Title for possible match explanation popover */
+"remoteNodes.status.possibleMatchTitle" = "Possible Match";
+
+/* Location: RepeaterStatusView.swift - Explanation of what a possible match means */
+"remoteNodes.status.possibleMatchExplanation" = "Multiple nodes share this prefix. The displayed name may not be correct.";
+
 // MARK: - Repeater Status ViewModel Messages
 
 /* Location: RepeaterStatusViewModel.swift - Request timed out */
 "remoteNodes.status.requestTimedOut" = "Request timed out";
+"remoteNodes.status.telemetryTimedOut" = "Timed out or contact has telemetry disabled";
 
 /* Location: RepeaterStatusViewModel.swift - Uptime 1 day format */
 "remoteNodes.status.uptime1Day" = "1 day %dh %dm";
@@ -490,8 +530,17 @@
 /* Location: RepeaterStatusView.swift - Battery curve section footer */
 "remoteNodes.status.batteryCurveFooter" = "Voltage-to-percentage mapping used for battery level estimation.";
 
-/* Location: RepeaterStatusView.swift, RoomStatusView.swift - Refresh button accessibility label */
+/* Location: NodeTelemetryView.swift - Refresh button accessibility label */
 "remoteNodes.status.refresh" = "Refresh";
+
+/* Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for the status counters */
+"remoteNodes.status.accessibility.reloadStatus" = "Reload status";
+
+/* Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for telemetry */
+"remoteNodes.status.accessibility.reloadTelemetry" = "Reload telemetry";
+
+/* Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for owner info */
+"remoteNodes.status.accessibility.reloadOwnerInfo" = "Reload contact info";
 
 // MARK: - History
 
@@ -690,7 +739,7 @@
 "remoteNodes.roomSettings.roomSettingsSection" = "Room Settings";
 
 /* Location: RoomSettingsView.swift - Room settings section footer */
-"remoteNodes.roomSettings.roomSettingsFooter" = "Guest access, advertisement intervals, and flood hops.";
+"remoteNodes.roomSettings.roomSettingsFooter" = "Guest password and read-only access.";
 
 /* Location: RoomSettingsView.swift - Guest password label */
 "remoteNodes.roomSettings.guestPassword" = "Guest Password";
@@ -703,6 +752,9 @@
 
 /* Location: RoomSettingsView.swift - Apply room settings button */
 "remoteNodes.roomSettings.applyRoomSettings" = "Apply Room Settings";
+
+/* Location: RoomSettingsView.swift - Room behavior section footer */
+"remoteNodes.roomSettings.behaviorFooter" = "Advertisement intervals and flood hops.";
 
 /* Location: RoomSettingsView.swift - Identity section footer */
 "remoteNodes.roomSettings.identityFooter" = "Room name and GPS coordinates for map display.";
@@ -732,6 +784,38 @@
 
 /* Location: RoomInfoSheet.swift - Management button */
 "remoteNodes.room.management" = "Management";
+
+// MARK: - Node CLI
+
+/* Location: NodeCliView.swift - Banner shown when connected to a node - %@ is node name */
+"remoteNodes.nodeCli.bannerConnected" = "Connected to %@";
+
+/* Location: NodeCliView.swift - Hint shown below connected banner */
+"remoteNodes.nodeCli.bannerHint" = "Type 'help' for available commands.";
+
+/* Location: NodeCliViewModel.swift - Toast after reboot command succeeds */
+"remoteNodes.nodeCli.rebootSent" = "Reboot command sent";
+
+/* Location: NodeCliViewModel.swift - Toast after command is cancelled */
+"remoteNodes.nodeCli.cancelled" = "Command cancelled";
+
+/* Location: NodeCliViewModel.swift - Header line in help output */
+"remoteNodes.nodeCli.helpHeader" = "Available commands:";
+
+/* Location: NodeCliViewModel.swift - Help entry for 'help' command */
+"remoteNodes.nodeCli.helpHelp" = "  help\n    Show this help";
+
+/* Location: NodeCliViewModel.swift - Help entry for 'clear' command */
+"remoteNodes.nodeCli.helpClear" = "  clear\n    Clear the terminal";
+
+/* Location: NodeCliViewModel.swift - Help entry for 'clear stats' command */
+"remoteNodes.nodeCli.helpClearStats" = "  clear stats\n    Reset node statistics";
+
+/* Location: NodeCliViewModel.swift - Help entry for 'reboot' command */
+"remoteNodes.nodeCli.helpReboot" = "  reboot\n    Restart this node";
+
+/* Location: NodeCliViewModel.swift - Passthrough note at end of help output */
+"remoteNodes.nodeCli.helpPassthrough" = "Any other input is sent to the node.";
 
 // MARK: - Shared
 

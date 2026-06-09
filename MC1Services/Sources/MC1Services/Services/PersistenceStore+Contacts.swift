@@ -6,10 +6,10 @@ extension PersistenceStore {
     // MARK: - Contact Operations
 
     /// Fetch all contacts for a device
-    public func fetchContacts(deviceID: UUID) throws -> [ContactDTO] {
-        let targetDeviceID = deviceID
+    public func fetchContacts(radioID: UUID) throws -> [ContactDTO] {
+        let targetRadioID = radioID
         let predicate = #Predicate<Contact> { contact in
-            contact.deviceID == targetDeviceID
+            contact.radioID == targetRadioID
         }
         let descriptor = FetchDescriptor(
             predicate: predicate,
@@ -20,10 +20,10 @@ extension PersistenceStore {
     }
 
     /// Fetch contacts with recent messages (for chat list)
-    public func fetchConversations(deviceID: UUID) throws -> [ContactDTO] {
-        let targetDeviceID = deviceID
+    public func fetchConversations(radioID: UUID) throws -> [ContactDTO] {
+        let targetRadioID = radioID
         let predicate = #Predicate<Contact> { contact in
-            contact.deviceID == targetDeviceID && contact.lastMessageDate != nil
+            contact.radioID == targetRadioID && contact.lastMessageDate != nil
         }
         let descriptor = FetchDescriptor(
             predicate: predicate,
@@ -45,11 +45,11 @@ extension PersistenceStore {
     }
 
     /// Fetch a contact by public key
-    public func fetchContact(deviceID: UUID, publicKey: Data) throws -> ContactDTO? {
-        let targetDeviceID = deviceID
+    public func fetchContact(radioID: UUID, publicKey: Data) throws -> ContactDTO? {
+        let targetRadioID = radioID
         let targetKey = publicKey
         let predicate = #Predicate<Contact> { contact in
-            contact.deviceID == targetDeviceID && contact.publicKey == targetKey
+            contact.radioID == targetRadioID && contact.publicKey == targetKey
         }
         var descriptor = FetchDescriptor(predicate: predicate)
         descriptor.fetchLimit = 1
@@ -57,10 +57,10 @@ extension PersistenceStore {
     }
 
     /// Fetch a contact by public key prefix (6 bytes)
-    public func fetchContact(deviceID: UUID, publicKeyPrefix: Data) throws -> ContactDTO? {
-        let targetDeviceID = deviceID
+    public func fetchContact(radioID: UUID, publicKeyPrefix: Data) throws -> ContactDTO? {
+        let targetRadioID = radioID
         let predicate = #Predicate<Contact> { contact in
-            contact.deviceID == targetDeviceID
+            contact.radioID == targetRadioID
         }
         let contacts = try modelContext.fetch(FetchDescriptor(predicate: predicate))
         return contacts.first { $0.publicKey.prefix(6) == publicKeyPrefix }.map { ContactDTO(from: $0) }
@@ -68,10 +68,10 @@ extension PersistenceStore {
 
     /// Fetch all contacts with their public keys grouped by 1-byte prefix.
     /// Used for crypto operations when looking up contacts by public key prefix.
-    public func fetchContactPublicKeysByPrefix(deviceID: UUID) throws -> [UInt8: [Data]] {
-        let targetDeviceID = deviceID
+    public func fetchContactPublicKeysByPrefix(radioID: UUID) throws -> [UInt8: [Data]] {
+        let targetRadioID = radioID
         let predicate = #Predicate<Contact> { contact in
-            contact.deviceID == targetDeviceID
+            contact.radioID == targetRadioID
         }
         let descriptor = FetchDescriptor(predicate: predicate)
         let contacts = try modelContext.fetch(descriptor)
@@ -86,11 +86,11 @@ extension PersistenceStore {
     }
 
     /// Save or update a contact from a ContactFrame
-    public func saveContact(deviceID: UUID, from frame: ContactFrame) throws -> UUID {
-        let targetDeviceID = deviceID
+    public func saveContact(radioID: UUID, from frame: ContactFrame) throws -> UUID {
+        let targetRadioID = radioID
         let targetKey = frame.publicKey
         let predicate = #Predicate<Contact> { contact in
-            contact.deviceID == targetDeviceID && contact.publicKey == targetKey
+            contact.radioID == targetRadioID && contact.publicKey == targetKey
         }
         var descriptor = FetchDescriptor(predicate: predicate)
         descriptor.fetchLimit = 1
@@ -100,12 +100,41 @@ extension PersistenceStore {
             existing.update(from: frame)
             contact = existing
         } else {
-            contact = Contact(deviceID: deviceID, from: frame)
+            contact = Contact(radioID: radioID, from: frame)
             modelContext.insert(contact)
         }
 
         try modelContext.save()
         return contact.id
+    }
+
+    /// Upserts contacts from frames in a single transaction, matching local rows by
+    /// `(radioID, publicKey)`. Commits once for the whole batch instead of once per contact,
+    /// which is the dominant cost of a full contact sync over BLE. Returns the number of
+    /// frames persisted.
+    @discardableResult
+    public func batchSaveContacts(radioID: UUID, from frames: [ContactFrame]) throws -> Int {
+        guard !frames.isEmpty else { return 0 }
+
+        let targetRadioID = radioID
+        let predicate = #Predicate<Contact> { contact in
+            contact.radioID == targetRadioID
+        }
+        let existing = try modelContext.fetch(FetchDescriptor(predicate: predicate))
+        var byKey = Dictionary(existing.map { ($0.publicKey, $0) }, uniquingKeysWith: { current, _ in current })
+
+        for frame in frames {
+            if let row = byKey[frame.publicKey] {
+                row.update(from: frame)
+            } else {
+                let contact = Contact(radioID: radioID, from: frame)
+                modelContext.insert(contact)
+                byKey[frame.publicKey] = contact
+            }
+        }
+
+        try modelContext.save()
+        return frames.count
     }
 
     /// Save or update a contact from DTO
@@ -120,28 +149,7 @@ extension PersistenceStore {
         if let existing = try modelContext.fetch(descriptor).first {
             existing.apply(dto)
         } else {
-            let contact = Contact(
-                id: dto.id,
-                deviceID: dto.deviceID,
-                publicKey: dto.publicKey,
-                name: dto.name,
-                typeRawValue: dto.typeRawValue,
-                flags: dto.flags,
-                outPathLength: dto.outPathLength,
-                outPath: dto.outPath,
-                lastAdvertTimestamp: dto.lastAdvertTimestamp,
-                latitude: dto.latitude,
-                longitude: dto.longitude,
-                lastModified: dto.lastModified,
-                nickname: dto.nickname,
-                isBlocked: dto.isBlocked,
-                isFavorite: dto.isFavorite,
-                lastMessageDate: dto.lastMessageDate,
-                unreadCount: dto.unreadCount,
-                ocvPreset: dto.ocvPreset,
-                customOCVArrayString: dto.customOCVArrayString
-            )
-            modelContext.insert(contact)
+            modelContext.insert(Contact(dto: dto))
         }
 
         try modelContext.save()
@@ -160,10 +168,10 @@ extension PersistenceStore {
     }
 
     /// Fetch all blocked contacts for a device
-    public func fetchBlockedContacts(deviceID: UUID) throws -> [ContactDTO] {
-        let targetDeviceID = deviceID
+    public func fetchBlockedContacts(radioID: UUID) throws -> [ContactDTO] {
+        let targetRadioID = radioID
         let predicate = #Predicate<Contact> { contact in
-            contact.deviceID == targetDeviceID && contact.isBlocked == true
+            contact.radioID == targetRadioID && contact.isBlocked == true
         }
         let descriptor = FetchDescriptor(
             predicate: predicate,
@@ -186,6 +194,16 @@ extension PersistenceStore {
             contact.lastMessageDate = date
             try modelContext.save()
         }
+    }
+
+    /// Re-derives a contact's lastMessageDate from its newest remaining message,
+    /// clearing it (removing the conversation from the list) when none remain.
+    /// Returns the resulting date so callers can react to removal.
+    @discardableResult
+    public func recomputeContactLastMessageDate(contactID: UUID) throws -> Date? {
+        let newest = try fetchMessages(contactID: contactID, limit: 1, offset: 0).first
+        try updateContactLastMessage(contactID: contactID, date: newest?.date)
+        return newest?.date
     }
 
     /// Increment unread count for a contact
@@ -288,22 +306,43 @@ extension PersistenceStore {
         try modelContext.save()
     }
 
-    /// Delete all messages and reactions for a contact using batch delete
+    /// Delete all messages, reactions, message repeats, and pending sends for a contact
+    /// in a single transactional save.
     public func deleteMessagesForContact(contactID: UUID) throws {
         let targetContactID: UUID? = contactID
+        let messagePredicate = #Predicate<Message> { message in
+            message.contactID == targetContactID
+        }
+
+        let messageIDs = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate)).map(\.id)
+
+        try _deletePendingSendsForMessageIDsWithoutSaving(messageIDs: messageIDs)
+
+        // Reaction is keyed by contactID directly here (single-value predicate) —
+        // no SQLITE_MAX_VARIABLE_NUMBER risk, no chunking needed.
         try modelContext.delete(model: Reaction.self, where: #Predicate {
             $0.contactID == targetContactID
         })
-        try modelContext.delete(model: Message.self, where: #Predicate {
-            $0.contactID == targetContactID
-        })
+        // Cascade MessageRepeat — no contactID column, so key by messageIDs.
+        // Chunk to stay under SQLITE_MAX_VARIABLE_NUMBER (32766 on iOS 18+).
+        if !messageIDs.isEmpty {
+            let chunkSize = 500
+            for start in stride(from: 0, to: messageIDs.count, by: chunkSize) {
+                let chunk = Array(messageIDs[start..<min(start + chunkSize, messageIDs.count)])
+                try modelContext.delete(model: MessageRepeat.self, where: #Predicate {
+                    chunk.contains($0.messageID)
+                })
+            }
+        }
+        try modelContext.delete(model: Message.self, where: messagePredicate)
         try modelContext.save()
     }
 
     // MARK: - Contact Helper Methods
 
     /// Find contact display name by 4-byte or 6-byte public key prefix.
-    /// Returns nil if no matching contact found.
+    /// Searches across all devices — room message authors may only be known
+    /// from a previously-connected radio's contact list.
     public func findContactNameByKeyPrefix(_ prefix: Data) throws -> String? {
         // Fetch all contacts and filter by prefix match
         let contacts = try modelContext.fetch(FetchDescriptor<Contact>())
@@ -313,17 +352,9 @@ extension PersistenceStore {
         }?.displayName
     }
 
-    /// Find contact by 4-byte or 6-byte public key prefix.
-    /// Returns nil if no matching contact found.
-    public func findContactByKeyPrefix(_ prefix: Data) throws -> ContactDTO? {
-        let contacts = try modelContext.fetch(FetchDescriptor<Contact>())
-        let prefixLength = prefix.count
-        return contacts.first { contact in
-            contact.publicKey.prefix(prefixLength) == prefix
-        }.map { ContactDTO(from: $0) }
-    }
-
-    /// Find contact by 32-byte public key
+    /// Find contact by 32-byte public key.
+    /// Searches across all devices — used for routing hints where the contact
+    /// may exist under a different device's ID.
     public func findContactByPublicKey(_ publicKey: Data) throws -> ContactDTO? {
         let targetKey = publicKey
         let predicate = #Predicate<Contact> { contact in
@@ -334,9 +365,9 @@ extension PersistenceStore {
         return try modelContext.fetch(descriptor).first.map { ContactDTO(from: $0) }
     }
 
-    public func fetchContactPublicKeys(deviceID: UUID) throws -> Set<Data> {
-        let targetDeviceID = deviceID
-        let predicate = #Predicate<Contact> { $0.deviceID == targetDeviceID }
+    public func fetchContactPublicKeys(radioID: UUID) throws -> Set<Data> {
+        let targetRadioID = radioID
+        let predicate = #Predicate<Contact> { $0.radioID == targetRadioID }
         let descriptor = FetchDescriptor<Contact>(predicate: predicate)
         let contacts = try modelContext.fetch(descriptor)
         return Set(contacts.map { $0.publicKey })

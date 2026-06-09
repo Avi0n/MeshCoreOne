@@ -32,43 +32,19 @@ struct ContactsSidebarContent: View {
     let onAnnounceOfflineStateIfNeeded: () -> Void
 
     var body: some View {
-        Group {
-            if !viewModel.hasLoadedOnce {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if filteredContacts.isEmpty && !isSearching {
-                ContactsEmptyView(selectedSegment: $selectedSegment, isSearching: isSearching)
-            } else if filteredContacts.isEmpty && isSearching {
-                ContactsSearchEmptyView(
-                    selectedSegment: $selectedSegment,
-                    isSearching: isSearching,
-                    searchText: searchText
-                )
-            } else {
-                if shouldUseSplitView {
-                    ContactsSplitList(
-                        filteredContacts: filteredContacts,
-                        isSearching: isSearching,
-                        viewModel: viewModel,
-                        selectedSegment: $selectedSegment,
-                        selectedContact: $selectedContact
-                    )
-                } else {
-                    ContactsCompactList(
-                        filteredContacts: filteredContacts,
-                        isSearching: isSearching,
-                        viewModel: viewModel,
-                        selectedSegment: $selectedSegment
-                    )
-                }
-            }
-        }
+        ContactsListContent(
+            mode: shouldUseSplitView ? .selection($selectedContact) : .navigation,
+            selectedSegment: $selectedSegment,
+            isSearching: isSearching,
+            searchText: searchText,
+            filteredContacts: filteredContacts,
+            hasLoadedOnce: viewModel.hasLoadedOnce,
+            viewModel: viewModel
+        )
         .navigationTitle(L10n.Contacts.Contacts.List.title)
         .searchable(text: $searchText, prompt: searchPrompt)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                BLEStatusIndicatorView()
-            }
+            bleStatusToolbarItem()
 
             ToolbarItem(placement: .automatic) {
                 Menu {
@@ -186,13 +162,13 @@ struct ContactsSidebarContent: View {
                 await onLoadContacts()
             }
         }
-        .onChange(of: appState.navigation.pendingDiscoveryNavigation) { _, shouldNavigate in
+        .onChange(of: appState.navigation.pendingDiscoveryNavigation, initial: true) { _, shouldNavigate in
             if shouldNavigate {
                 showDiscovery = true
                 appState.navigation.clearPendingDiscoveryNavigation()
             }
         }
-        .onChange(of: appState.navigation.pendingContactDetail) { _, contact in
+        .onChange(of: appState.navigation.pendingContactDetail, initial: true) { _, contact in
             guard let contact else { return }
 
             if shouldUseSplitView {

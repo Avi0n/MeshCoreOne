@@ -5,12 +5,22 @@ import OSLog
 
 private let logger = Logger(subsystem: "com.mc1", category: "ChatConversationView")
 
+/// iPad: lets the action sheet's dismiss animation finish before presenting the
+/// next sheet — otherwise UIKit cancels the new presentation and the user sees
+/// nothing.
+private let messageActionSheetPresentationDelay: Duration = .milliseconds(300)
+
+/// Quiet period after the last keystroke before the composer draft is persisted,
+/// so rapid typing coalesces into a single write.
+private let draftSaveDebounce: Duration = .milliseconds(500)
+
 /// Unified chat conversation view supporting both DMs and Channels.
 struct ChatConversationView: View {
     @Environment(\.appState) private var appState
     @Environment(\.dismiss) private var dismiss
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.linkPreviewCache) private var linkPreviewCache
+    @Environment(\.scenePhase) private var scenePhase
 
     @State private var conversationType: ChatConversationType
     let parentViewModel: ChatViewModel?
@@ -29,27 +39,64 @@ struct ChatConversationView: View {
     @State private var scrollToDividerRequest = 0
     @State private var isDividerVisible = false
 
+    /// Pending debounced draft persist; cancelled and restarted on each keystroke,
+    /// cancelled-then-flushed synchronously on view teardown and app suspension.
+    @State private var draftSaveTask: Task<Void, Never>?
+
     // MARK: - Sheet State
 
     @State private var showingInfo = false
     @State private var selectedMessageForActions: MessageDTO?
     @State private var blockSenderContext: BlockSenderContext?
+    @State private var sendDMContext: SendDMContext?
     @State private var imageViewerData: ImageViewerData?
 
     // MARK: - Other State
 
     @State private var recentEmojisStore = RecentEmojisStore()
     @State private var mentionSenderOrder: [String: UInt32]?
-    @State private var eventCursor: Int?
-    @FocusState private var isInputFocused: Bool
+    /// Focus-request token: each increment asks the composer to raise the
+    /// keyboard once. See `ChatComposerTextView` for why a token, not `@FocusState`.
+    @State private var inputFocusRequest = 0
 
     // MARK: - AppStorage
 
-    @AppStorage("showInlineImages") private var showInlineImages = true
-    @AppStorage("autoPlayGIFs") private var autoPlayGIFs = true
-    @AppStorage("showIncomingPath") private var showIncomingPath = false
-    @AppStorage("showIncomingHopCount") private var showIncomingHopCount = false
-    @AppStorage("replyWithQuote") private var replyWithQuote = false
+    @AppStorage(AppStorageKey.showInlineImages.rawValue) private var showInlineImages = AppStorageKey.defaultShowInlineImages
+    @AppStorage(AppStorageKey.autoPlayGIFs.rawValue) private var autoPlayGIFs = AppStorageKey.defaultAutoPlayGIFs
+    @AppStorage(AppStorageKey.showIncomingPath.rawValue) private var showIncomingPath = AppStorageKey.defaultShowIncomingPath
+    @AppStorage(AppStorageKey.showIncomingHopCount.rawValue) private var showIncomingHopCount = AppStorageKey.defaultShowIncomingHopCount
+    @AppStorage(AppStorageKey.showIncomingRegion.rawValue) private var showIncomingRegion = AppStorageKey.defaultShowIncomingRegion
+    @AppStorage(AppStorageKey.showIncomingSendTime.rawValue) private var showIncomingSendTime = AppStorageKey.defaultShowIncomingSendTime
+    @AppStorage(AppStorageKey.linkPreviewsEnabled.rawValue) private var previewsEnabled = AppStorageKey.defaultLinkPreviewsEnabled
+    @AppStorage(AppStorageKey.replyWithQuote.rawValue) private var replyWithQuote = AppStorageKey.defaultReplyWithQuote
+    @AppStorage(AppStorageKey.showMapPreviewThumbnails.rawValue) private var showMapPreviewThumbnails = AppStorageKey.defaultShowMapPreviewThumbnails
+
+    // MARK: - Environment
+
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appTheme) private var theme
+
+    /// Snapshot of env-derived inputs the view model needs to construct
+    /// MessageItems at write time. Recomputed on every render — Equatable
+    /// drives `.onChange(of: envInputs)` in ChatMessagesTableView.
+    private var currentEnvInputs: EnvInputs {
+        EnvInputs(
+            showInlineImages: showInlineImages,
+            autoPlayGIFs: autoPlayGIFs,
+            showIncomingPath: showIncomingPath,
+            showIncomingHopCount: showIncomingHopCount,
+            showIncomingRegion: showIncomingRegion,
+            showIncomingSendTime: showIncomingSendTime,
+            previewsEnabled: previewsEnabled,
+            isHighContrast: colorSchemeContrast == .increased,
+            isDark: colorScheme == .dark,
+            showMapPreviews: showMapPreviewThumbnails && !conversationType.suppressesMapPreviews,
+            isOffline: !appState.offlineMapService.isNetworkAvailable,
+            currentUserName: appState.localNodeName,
+            themeID: theme.id
+        )
+    }
 
     // MARK: - Init
 
@@ -66,10 +113,7 @@ struct ChatConversationView: View {
             viewModel: chatViewModel,
             deviceName: appState.localNodeName,
             recentEmojisStore: recentEmojisStore,
-            showInlineImages: showInlineImages,
-            autoPlayGIFs: autoPlayGIFs,
-            showIncomingPath: showIncomingPath,
-            showIncomingHopCount: showIncomingHopCount,
+            envInputs: currentEnvInputs,
             isAtBottom: $isAtBottom,
             unreadCount: $unreadCount,
             scrollToBottomRequest: $scrollToBottomRequest,
@@ -85,11 +129,19 @@ struct ChatConversationView: View {
             onScrollToMention: { scrollToNextMention() },
             onRetryMessage: { retryMessage($0) }
         )
+        .mentionTapHandling(
+            contacts: chatViewModel.allContacts,
+            radioID: conversationType.radioID
+        )
+        // Banner is applied innermost so its safe-area inset stacks above the
+        // input bar inset that follows, placing the strip between content and
+        // the input bar (and lifting it with the keyboard).
+        .chatErrorBanner(chatViewModel: chatViewModel)
         .safeAreaInset(edge: .bottom, spacing: 8) {
             ChatConversationInputBar(
                 conversationType: conversationType,
                 composingText: $chatViewModel.composingText,
-                isFocused: $isInputFocused,
+                focusRequest: $inputFocusRequest,
                 nodeNameByteCount: appState.connectedDevice?.nodeName.utf8.count ?? 0,
                 onSend: { text in
                     switch conversationType {
@@ -110,12 +162,16 @@ struct ChatConversationView: View {
         }
         .navigationHeader(
             title: conversationType.navigationTitle,
-            subtitle: conversationType.navigationSubtitle,
-            subtitleAccessibilityLabel: conversationType.navigationSubtitleAccessibilityLabel
+            subtitle: conversationType.navigationSubtitle(
+                deviceDefaultFloodScopeName: appState.connectedDevice?.defaultFloodScopeName
+            ),
+            subtitleAccessibilityLabel: conversationType.navigationSubtitleAccessibilityLabel(
+                deviceDefaultFloodScopeName: appState.connectedDevice?.defaultFloodScopeName
+            )
         )
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("Info", systemImage: "info.circle") {
+                Button(L10n.Chats.Chats.Common.info, systemImage: "info.circle") {
                     showingInfo = true
                 }
             }
@@ -135,12 +191,14 @@ struct ChatConversationView: View {
                 onClearChannelMessages: {
                     guard case .channel(let channel) = conversationType else { return }
                     await chatViewModel.loadChannelMessages(for: channel)
-                    if let parent = parentViewModel {
-                        await parent.loadChannels(deviceID: channel.deviceID)
-                        await parent.loadLastMessagePreviews()
-                    }
+                    parentViewModel?.requestConversationReload()
                 },
-                onDeleteChannel: { dismiss() }
+                onDeleteChannel: {
+                    // Clear the composer so the teardown flush doesn't re-persist a draft for the
+                    // freed slot — a channel later reusing that slot would otherwise surface it.
+                    chatViewModel.composingText = ""
+                    dismiss()
+                }
             )
         })
         // Message actions sheet — shared
@@ -152,28 +210,55 @@ struct ChatConversationView: View {
         .sheet(item: $blockSenderContext) { context in
             BlockSenderSheet(
                 senderName: context.senderName,
-                deviceID: context.deviceID
+                radioID: context.radioID
             ) { blockedContactIDs in
                 Task {
                     await performBlock(
                         senderName: context.senderName,
-                        deviceID: context.deviceID,
+                        radioID: context.radioID,
                         contactIDs: blockedContactIDs
                     )
                 }
             }
         }
+        .sheet(item: $sendDMContext) { context in
+            SendDMSheet(
+                senderName: context.senderName,
+                radioID: context.radioID
+            ) { contact in
+                appState.navigation.navigateToChat(with: contact)
+            }
+        }
         .fullScreenCover(item: $imageViewerData) { data in
             FullScreenImageViewer(data: data)
-        }
-        .onAppear {
-            eventCursor = appState.messageEventBroadcaster.currentEventSequence
         }
         .task(id: appState.servicesVersion) {
             await performInitialLoad()
         }
         .onDisappear {
+            // Load-bearing on iPad: MainSidebarView pins the Chats detail stack with
+            // `.id(chatsSelectedRoute.conversationID)`, so a detail swap tears down this view's
+            // @State (including draftSaveTask) before the debounce fires — flush here.
+            flushDraft()
             performCleanup()
+        }
+        .onChange(of: chatViewModel.composingText) { _, _ in
+            scheduleDraftSave()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            // Notifications usually arrive while the app is backgrounded with this
+            // chat already on screen, so re-clear the tray when we return to the
+            // foreground — the open hook alone never re-fires in that case.
+            switch newPhase {
+            case .active:
+                Task { await clearDeliveredNotifications() }
+            case .background, .inactive:
+                // The OS can suspend the process before the debounce fires, so flush
+                // the draft synchronously here.
+                flushDraft()
+            @unknown default:
+                break
+            }
         }
         .onChange(of: activeMentionQuery != nil) { _, isActive in
             if isActive {
@@ -182,13 +267,26 @@ struct ChatConversationView: View {
                 mentionSenderOrder = nil
             }
         }
-        .onChange(of: appState.messageEventBroadcaster.newMessageCount) { _, _ in
-            drainEvents()
+        .task {
+            for await event in appState.messageEventStream.events() {
+                await chatViewModel.handle(event)
+            }
         }
-        .alert(L10n.Chats.Chats.Alert.UnableToSend.title, isPresented: $chatViewModel.showRetryError) {
-            Button(L10n.Chats.Chats.Common.ok, role: .cancel) { }
-        } message: {
-            Text(L10n.Chats.Chats.Alert.UnableToSend.message)
+        .onChange(of: chatViewModel.contactRefreshSignal) { _, _ in
+            Task { await refreshContact() }
+        }
+        .onChange(of: chatViewModel.lastIncomingMention) { _, newMention in
+            guard let mention = newMention else { return }
+            handleIncomingMentionIfNeeded(mention.messageID)
+        }
+        .chatErrorAlerts(chatViewModel: chatViewModel)
+        // Chrome theming comes from the stack-level themedChrome on the TabView. Re-declaring it
+        // on this pushed destination makes the nav bar appearance re-install after the push, which
+        // reflows the flipped table's top rows.
+        .background {
+            if let canvas = theme.surfaces?.canvas {
+                canvas.ignoresSafeArea()
+            }
         }
     }
 
@@ -205,20 +303,26 @@ struct ChatConversationView: View {
             appState.navigation.clearPendingScrollToMessage()
         }
 
-        chatViewModel.configure(appState: appState, linkPreviewCache: linkPreviewCache)
+        chatViewModel.configure(
+            appState: appState,
+            linkPreviewCache: linkPreviewCache,
+            conversation: conversationType
+        )
+        chatViewModel.applyEnvInputs(currentEnvInputs)
 
         switch conversationType {
         case .dm(let contact):
             await chatViewModel.loadMessages(for: contact)
-            await chatViewModel.loadConversations(deviceID: contact.deviceID)
-            await chatViewModel.loadAllContacts(deviceID: contact.deviceID)
-            chatViewModel.loadDraftIfExists()
+            await chatViewModel.loadConversations(radioID: contact.radioID)
+            await chatViewModel.loadAllContacts(radioID: contact.radioID)
+            chatViewModel.restoreComposerDraft(from: appState.draftStore, id: conversationType.draftConversationID)
 
         case .channel(let channel):
             // Load contacts first so contactNameSet is populated before buildChannelSenders runs
-            await chatViewModel.loadAllContacts(deviceID: channel.deviceID)
+            await chatViewModel.loadAllContacts(radioID: channel.radioID)
             await chatViewModel.loadChannelMessages(for: channel)
-            await chatViewModel.loadConversations(deviceID: channel.deviceID)
+            await chatViewModel.loadConversations(radioID: channel.radioID)
+            chatViewModel.restoreComposerDraft(from: appState.draftStore, id: conversationType.draftConversationID)
         }
 
         await loadUnseenMentions()
@@ -228,6 +332,51 @@ struct ChatConversationView: View {
             scrollToTargetID = targetID
             scrollToMentionRequest += 1
         }
+
+        // Clear any notifications for this conversation still sitting in the tray
+        // (delivered while the app was backgrounded). The load above already
+        // cleared the unread count, so the recomputed badge stays correct.
+        await clearDeliveredNotifications()
+    }
+
+    /// Removes delivered lock-screen / Notification Center notifications for the
+    /// conversation the user just opened, then recomputes the app badge.
+    private func clearDeliveredNotifications() async {
+        guard let notificationService = appState.services?.notificationService else { return }
+        switch conversationType {
+        case .dm(let contact):
+            await notificationService.removeDeliveredNotifications(forContactID: contact.id)
+        case .channel(let channel):
+            await notificationService.removeDeliveredNotifications(
+                forChannelIndex: channel.index,
+                radioID: channel.radioID
+            )
+        }
+        await notificationService.updateBadgeCount()
+    }
+
+    // MARK: - Draft Persistence
+
+    /// Restarts the debounced draft persist. The post-sleep cancellation guard is
+    /// required: `Task.cancel()` only sets a flag and `try?` swallows
+    /// `Task.sleep`'s `CancellationError`, so without it a synchronous flush that
+    /// already saved could be overwritten by the resuming task re-saving stale text.
+    private func scheduleDraftSave() {
+        draftSaveTask?.cancel()
+        let id = conversationType.draftConversationID
+        draftSaveTask = Task {
+            try? await Task.sleep(for: draftSaveDebounce)
+            guard !Task.isCancelled else { return }
+            chatViewModel.saveDraft(to: appState.draftStore, id: id)
+        }
+    }
+
+    /// Cancels any pending debounce and persists the current draft synchronously, reading the
+    /// store from the view's non-optional `@Environment(\.appState)` (matching `performCleanup`).
+    private func flushDraft() {
+        draftSaveTask?.cancel()
+        draftSaveTask = nil
+        chatViewModel.saveDraft(to: appState.draftStore, id: conversationType.draftConversationID)
     }
 
     // MARK: - Cleanup (.onDisappear)
@@ -236,137 +385,38 @@ struct ChatConversationView: View {
         mentionScrollTask?.cancel()
         mentionScrollTask = nil
 
-        // Clear notification suppression
+        // Clear notification suppression only if this conversation still owns the
+        // active slot; a newer conversation's open may have already claimed it
+        // before this view tears down.
+        let service = appState.services?.notificationService
         switch conversationType {
-        case .dm:
-            appState.services?.notificationService.activeContactID = nil
-        case .channel:
-            appState.services?.notificationService.activeChannelIndex = nil
-            appState.services?.notificationService.activeChannelDeviceID = nil
+        case .dm(let contact):
+            if service?.activeContactID == contact.id {
+                service?.activeContactID = nil
+            }
+        case .channel(let channel):
+            if service?.activeChannelIndex == channel.index,
+               service?.activeChannelRadioID == channel.radioID {
+                service?.activeChannelIndex = nil
+                service?.activeChannelRadioID = nil
+            }
         }
 
         // Refresh parent conversation list when leaving
-        if let parent = parentViewModel {
-            Task {
-                guard let deviceID = appState.connectedDevice?.id else { return }
-                await parent.loadConversations(deviceID: deviceID)
-                if case .channel = conversationType {
-                    await parent.loadChannels(deviceID: deviceID)
-                }
-                await parent.loadLastMessagePreviews()
-            }
-        }
+        parentViewModel?.requestConversationReload()
     }
 
-    // MARK: - Event Draining
-
-    private func drainEvents() {
-        guard let cursor = eventCursor else { return }
-        let (events, newCursor, droppedEvents) = appState.messageEventBroadcaster.events(after: cursor)
-        eventCursor = newCursor
-        var needsReload = droppedEvents
-        var needsContactRefresh = false
-
-        switch conversationType {
-        case .dm(let contact):
-            (needsReload, needsContactRefresh) = drainDMEvents(
-                events, contact: contact, needsReload: needsReload
-            )
-        case .channel(let channel):
-            needsReload = drainChannelEvents(events, channel: channel, needsReload: needsReload)
-        }
-
-        if needsReload {
-            reloadMessages()
-        }
-        if case .dm = conversationType, needsContactRefresh || droppedEvents {
-            Task { await refreshContact() }
-        }
-        if droppedEvents {
-            Task { await loadUnseenMentions() }
-        }
-    }
-
-    private func reloadMessages() {
-        Task {
-            switch conversationType {
-            case .dm(let contact):
-                await chatViewModel.loadMessages(for: contact)
-            case .channel(let channel):
-                await chatViewModel.loadChannelMessages(for: channel)
-            }
-        }
-    }
-
-    private func handleIncomingMentionIfNeeded(_ message: MessageDTO) {
-        guard message.containsSelfMention else { return }
+    private func handleIncomingMentionIfNeeded(_ messageID: UUID) {
+        // Self-mention gating happens upstream in
+        // `ChatViewModel.recordIncomingMentionIfNeeded`, which only assigns
+        // `lastIncomingMention` when `containsSelfMention` is true.
         Task {
             if isAtBottom {
-                await markNewArrivalMentionSeen(messageID: message.id)
+                await markNewArrivalMentionSeen(messageID: messageID)
             } else {
                 await loadUnseenMentions()
             }
         }
-    }
-
-    private func drainDMEvents(
-        _ events: [MessageEvent], contact: ContactDTO, needsReload: Bool
-    ) -> (needsReload: Bool, needsContactRefresh: Bool) {
-        var needsReload = needsReload
-        var needsContactRefresh = false
-        for event in events {
-            switch event {
-            case .directMessageReceived(let message, _) where message.contactID == contact.id:
-                chatViewModel.appendMessageIfNew(message)
-                handleIncomingMentionIfNeeded(message)
-            case .messageStatusUpdated, .messageRetrying:
-                needsReload = true
-            case .messageFailed(let messageID):
-                if chatViewModel.messages.contains(where: { $0.id == messageID }) {
-                    needsReload = true
-                }
-            case .routingChanged(let contactID, _) where contactID == contact.id:
-                needsContactRefresh = true
-            case .reactionReceived(let messageID, let summary):
-                if chatViewModel.messages.contains(where: { $0.id == messageID }) {
-                    chatViewModel.updateReactionSummary(for: messageID, summary: summary)
-                }
-            default:
-                break
-            }
-        }
-        return (needsReload, needsContactRefresh)
-    }
-
-    private func drainChannelEvents(
-        _ events: [MessageEvent], channel: ChannelDTO, needsReload: Bool
-    ) -> Bool {
-        var needsReload = needsReload
-        for event in events {
-            switch event {
-            case .channelMessageReceived(let message, let channelIndex)
-                where channelIndex == channel.index && message.deviceID == channel.deviceID:
-                chatViewModel.appendMessageIfNew(message)
-                handleIncomingMentionIfNeeded(message)
-            case .messageStatusUpdated:
-                needsReload = true
-            case .messageFailed(let messageID):
-                if chatViewModel.messages.contains(where: { $0.id == messageID }) {
-                    needsReload = true
-                }
-            case .heardRepeatRecorded(let messageID, let count):
-                if chatViewModel.messages.contains(where: { $0.id == messageID }) {
-                    chatViewModel.updateHeardRepeats(for: messageID, count: count)
-                }
-            case .reactionReceived(let messageID, let summary):
-                if chatViewModel.messages.contains(where: { $0.id == messageID }) {
-                    chatViewModel.updateReactionSummary(for: messageID, summary: summary)
-                }
-            default:
-                break
-            }
-        }
-        return needsReload
     }
 
     // MARK: - Conversation Refresh
@@ -402,7 +452,7 @@ struct ChatConversationView: View {
             guard let services = appState.services else { return }
             do {
                 let allIDs = try await services.dataStore.fetchUnseenChannelMentionIDs(
-                    deviceID: channel.deviceID,
+                    radioID: channel.radioID,
                     channelIndex: channel.index
                 )
 
@@ -450,14 +500,10 @@ struct ChatConversationView: View {
             switch conversationType {
             case .dm(let contact):
                 try await dataStore.decrementUnreadMentionCount(contactID: contact.id)
-                if let parent = parentViewModel, let deviceID = appState.connectedDevice?.id {
-                    await parent.loadConversations(deviceID: deviceID)
-                }
+                parentViewModel?.requestConversationReload()
             case .channel(let channel):
                 try await dataStore.decrementChannelUnreadMentionCount(channelID: channel.id)
-                if let parent = parentViewModel, let deviceID = appState.connectedDevice?.id {
-                    await parent.loadChannels(deviceID: deviceID)
-                }
+                parentViewModel?.requestConversationReload()
             }
             return true
         } catch {
@@ -471,7 +517,7 @@ struct ChatConversationView: View {
     private func scrollToNextMention() {
         guard let targetID = unseenMentionIDs.first else { return }
 
-        if chatViewModel.displayItems.contains(where: { $0.id == targetID }) {
+        if chatViewModel.items.contains(where: { $0.id == targetID }) {
             scrollToTargetID = targetID
             scrollToMentionRequest += 1
             return
@@ -481,7 +527,7 @@ struct ChatConversationView: View {
         mentionScrollTask = Task {
             do {
                 let deadline = ContinuousClock.now + .seconds(10)
-                while !chatViewModel.displayItems.contains(where: { $0.id == targetID }) {
+                while !chatViewModel.items.contains(where: { $0.id == targetID }) {
                     guard chatViewModel.hasMoreMessages else {
                         logger.warning("Mention \(targetID) not found after exhausting history, removing")
                         if let dataStore = appState.services?.dataStore {
@@ -502,7 +548,7 @@ struct ChatConversationView: View {
                     await chatViewModel.loadOlderMessages()
                     try Task.checkCancellation()
                 }
-                if chatViewModel.displayItems.contains(where: { $0.id == targetID }) {
+                if chatViewModel.items.contains(where: { $0.id == targetID }) {
                     scrollToTargetID = targetID
                     scrollToMentionRequest += 1
                 }
@@ -545,64 +591,125 @@ struct ChatConversationView: View {
     // MARK: - Message Actions Sheet
 
     private func messageActionsSheet(for message: MessageDTO) -> some View {
-        let senderName: String = {
+        let senderResolution: NodeNameResolution = {
             if message.isOutgoing {
-                return appState.localNodeName
+                return NodeNameResolution(displayName: appState.localNodeName, matchKind: .exact)
             }
             switch conversationType {
             case .dm(let contact):
-                return contact.displayName
+                return NodeNameResolution(displayName: contact.displayName, matchKind: .exact)
             case .channel:
-                return message.senderNodeName ?? L10n.Chats.Chats.Message.Sender.unknown
+                if let senderName = message.senderNodeName, !senderName.isEmpty {
+                    return NodeNameResolution(displayName: senderName, matchKind: .exact)
+                }
+                if let prefix = message.senderKeyPrefix,
+                   let result = NeighborNameResolver.resolve(
+                    for: prefix,
+                    contacts: chatViewModel.allContacts,
+                    discoveredNodes: [],
+                    userLocation: nil
+                   ) {
+                    return result
+                }
+                return NodeNameResolution(
+                    displayName: L10n.Chats.Chats.Message.Sender.unknown,
+                    matchKind: .unresolved
+                )
             }
         }()
 
         return MessageActionsSheet(
             message: message,
-            senderName: senderName,
+            senderName: senderResolution.displayName,
+            senderMatchKind: senderResolution.matchKind,
             recentEmojis: recentEmojisStore.recentEmojis,
             onAction: { action in
-                handleMessageAction(action, for: message)
+                dispatch(action, for: message)
             }
         )
     }
 
     // MARK: - Message Action Handling
 
-    private func handleMessageAction(_ action: MessageAction, for message: MessageDTO) {
+    /// Dispatches a MessageAction by routing to the appropriate handler. The
+    /// `switch action` body preserves compile-time exhaustiveness — adding a new
+    /// MessageAction case forces this method to handle it. Each case calls an
+    /// extracted private method that captures the view-local context it needs
+    /// (focus state, AppStorage flags, sheet-presentation contexts).
+    private func dispatch(_ action: MessageAction, for message: MessageDTO) {
         switch action {
         case .react(let emoji):
-            recentEmojisStore.recordUsage(emoji)
-            Task { await chatViewModel.sendReaction(emoji: emoji, to: message) }
+            handleReact(emoji: emoji, for: message)
         case .reply:
-            let mentionName: String
-            switch conversationType {
-            case .dm(let contact):
-                mentionName = contact.name
-            case .channel:
-                mentionName = message.senderNodeName ?? L10n.Chats.Chats.Message.Sender.unknown
-            }
-            if replyWithQuote {
-                chatViewModel.composingText = MentionUtilities.buildReplyText(mentionName: mentionName, messageText: message.text)
-            } else {
-                chatViewModel.composingText = MentionUtilities.createMention(for: mentionName) + " "
-            }
-            isInputFocused = true
+            handleReply(for: message)
         case .copy:
-            UIPasteboard.general.string = message.text
+            handleCopy(for: message)
         case .sendAgain:
-            Task { await chatViewModel.sendAgain(message) }
+            handleSendAgain(for: message)
         case .blockSender:
-            guard case .channel(let channel) = conversationType, let name = message.senderNodeName else { return }
-            Task {
-                try? await Task.sleep(for: .milliseconds(300))
-                blockSenderContext = BlockSenderContext(senderName: name, deviceID: channel.deviceID)
-            }
+            handleBlockSender(for: message)
+        case .sendDM:
+            handleSendDM(for: message)
         case .delete:
-            Task { await chatViewModel.deleteMessage(message) }
+            handleDelete(for: message)
         }
     }
 
+    private func handleReact(emoji: String, for message: MessageDTO) {
+        recentEmojisStore.recordUsage(emoji)
+        Task { await chatViewModel.sendReaction(emoji: emoji, to: message) }
+    }
+
+    private func handleReply(for message: MessageDTO) {
+        let mentionName: String
+        switch conversationType {
+        case .dm(let contact):
+            mentionName = contact.name
+        case .channel:
+            mentionName = message.senderNodeName ?? L10n.Chats.Chats.Message.Sender.unknown
+        }
+        if replyWithQuote {
+            chatViewModel.composingText = MentionUtilities.buildReplyText(mentionName: mentionName, messageText: message.text)
+        } else {
+            chatViewModel.composingText = MentionUtilities.createMention(for: mentionName) + " "
+        }
+        // Raise the keyboard only after the actions sheet has finished dismissing;
+        // a focus request issued while the sheet is still animating away is lost.
+        Task {
+            try? await Task.sleep(for: messageActionSheetPresentationDelay)
+            inputFocusRequest += 1
+        }
+    }
+
+    private func handleCopy(for message: MessageDTO) {
+        UIPasteboard.general.string = message.text
+    }
+
+    private func handleSendAgain(for message: MessageDTO) {
+        Task { await chatViewModel.sendAgain(message) }
+    }
+
+    private func handleBlockSender(for message: MessageDTO) {
+        guard case .channel(let channel) = conversationType,
+              let name = message.senderNodeName else { return }
+        Task {
+            try? await Task.sleep(for: messageActionSheetPresentationDelay)
+            blockSenderContext = BlockSenderContext(senderName: name, radioID: channel.radioID)
+        }
+    }
+
+    private func handleSendDM(for message: MessageDTO) {
+        guard case .channel(let channel) = conversationType,
+              let name = message.senderNodeName else { return }
+        Task {
+            try? await Task.sleep(for: messageActionSheetPresentationDelay)
+            sendDMContext = SendDMContext(senderName: name, radioID: channel.radioID)
+        }
+    }
+
+    private func handleDelete(for message: MessageDTO) {
+        Task { await chatViewModel.deleteMessage(message) }
+    }
 
     private func retryMessage(_ message: MessageDTO) {
         Task {
@@ -617,16 +724,19 @@ struct ChatConversationView: View {
 
     // MARK: - Blocking (Channel only)
 
-    private func performBlock(senderName: String, deviceID: UUID, contactIDs: Set<UUID>) async {
+    private func performBlock(senderName: String, radioID: UUID, contactIDs: Set<UUID>) async {
         guard let services = appState.services else { return }
 
-        let dto = BlockedChannelSenderDTO(name: senderName, deviceID: deviceID)
+        let dto = BlockedChannelSenderDTO(name: senderName, radioID: radioID)
         do {
             try await services.dataStore.saveBlockedChannelSender(dto)
         } catch {
             logger.error("Failed to save blocked channel sender: \(error)")
             return
         }
+
+        // Delete existing channel messages from the blocked sender
+        try? await services.dataStore.deleteChannelMessages(fromSender: senderName, radioID: radioID)
 
         for contactID in contactIDs {
             do {
@@ -640,18 +750,44 @@ struct ChatConversationView: View {
         }
 
         await services.syncCoordinator.refreshBlockedContactsCache(
-            deviceID: deviceID,
+            radioID: radioID,
             dataStore: services.dataStore
         )
 
         if !contactIDs.isEmpty {
-            await services.syncCoordinator.notifyContactsChanged()
+            services.syncCoordinator.notifyContactsChanged()
         }
 
         if case .channel(let channel) = conversationType {
             await chatViewModel.loadChannelMessages(for: channel)
         }
-        await services.syncCoordinator.notifyConversationsChanged()
+        services.syncCoordinator.notifyConversationsChanged()
+    }
+}
+
+// MARK: - Error Alerts
+
+private extension View {
+    /// Applies the chat modal-alert surfaces in one modifier so the conversation
+    /// view body stays within the type-checker's expression budget. Two modal
+    /// alerts: generic "Error" for open-conversation load failures (so a
+    /// re-open failure cannot be missed), and "Unable to Send" for queue drain
+    /// failures. The passive banner for pagination failures is mounted
+    /// separately via `chatErrorBanner` so it can sit above the input bar.
+    func chatErrorAlerts(chatViewModel: ChatViewModel) -> some View {
+        @Bindable var vm = chatViewModel
+        return self
+            .errorAlert($vm.errorMessage)
+            .errorAlert($vm.sendErrorMessage, title: L10n.Chats.Chats.Alert.UnableToSend.title)
+    }
+
+    /// Mounts the passive error banner used for background failures (e.g.
+    /// older-message pagination). Applied before the input-bar safe-area inset
+    /// so the banner appears between the message list and the input bar, and
+    /// rises with the keyboard alongside the input bar.
+    func chatErrorBanner(chatViewModel: ChatViewModel) -> some View {
+        @Bindable var vm = chatViewModel
+        return errorBanner($vm.errorBannerMessage)
     }
 }
 
@@ -661,7 +797,7 @@ struct ChatConversationView: View {
     NavigationStack {
         ChatConversationView(
             conversationType: .dm(ContactDTO(from: Contact(
-                deviceID: UUID(),
+                radioID: UUID(),
                 publicKey: Data(repeating: 0x42, count: 32),
                 name: "Alice"
             )))
@@ -674,7 +810,7 @@ struct ChatConversationView: View {
     NavigationStack {
         ChatConversationView(
             conversationType: .channel(ChannelDTO(from: Channel(
-                deviceID: UUID(),
+                radioID: UUID(),
                 index: 1,
                 name: "General"
             )))

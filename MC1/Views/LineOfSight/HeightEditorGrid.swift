@@ -2,9 +2,13 @@ import SwiftUI
 
 struct HeightEditorGrid: View {
     let groundElevation: Double?
-    @Binding var additionalHeight: Int
-    let range: ClosedRange<Int>
+    @Binding var additionalHeight: Double
+    let range: ClosedRange<Double>
     var onHeightChanged: (() -> Void)?
+
+    private var heightStep: Double {
+        Locale.current.measurementSystem != .metric ? 0.3048 : 1.0
+    }
 
     var body: some View {
         Grid(alignment: .leading, verticalSpacing: 8) {
@@ -40,8 +44,8 @@ struct HeightEditorGrid: View {
 
                 Spacer()
 
-                Stepper(value: $additionalHeight, in: range) {
-                    Text(Measurement(value: Double(additionalHeight), unit: UnitLength.meters).formatted(.measurement(width: .abbreviated)))
+                Stepper(value: $additionalHeight, in: range, step: heightStep) {
+                    Text(Measurement(value: additionalHeight, unit: UnitLength.meters).formatted(.measurement(width: .abbreviated)))
                         .font(.caption)
                         .monospacedDigit()
                 }
@@ -62,7 +66,7 @@ struct HeightEditorGrid: View {
 
                     Spacer()
 
-                    Text(Measurement(value: groundElevation + Double(additionalHeight), unit: UnitLength.meters).formatted(.measurement(width: .abbreviated)))
+                    Text(Measurement(value: groundElevation + additionalHeight, unit: UnitLength.meters).formatted(.measurement(width: .abbreviated)))
                         .font(.caption)
                         .monospacedDigit()
                         .bold()

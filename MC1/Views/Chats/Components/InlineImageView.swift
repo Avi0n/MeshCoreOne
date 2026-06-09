@@ -69,13 +69,18 @@ private struct GIFContentView: View {
             Group {
                 if isPlaying {
                     AnimatedGIFView(image: image)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .allowsHitTesting(false)
                 } else {
                     Image(uiImage: staticFrame)
                         .resizable()
-                        .aspectRatio(contentMode: .fill)
+                        .aspectRatio(contentMode: isEmbedded ? .fit : .fill)
                 }
             }
-            .frame(width: displaySize.width, height: displaySize.height)
+            .frame(
+                width: isEmbedded ? nil : displaySize.width,
+                height: isEmbedded ? nil : displaySize.height
+            )
             .overlay {
                 if !isPlaying {
                     ZStack {
@@ -85,6 +90,7 @@ private struct GIFContentView: View {
                             .foregroundStyle(.white)
                             .shadow(radius: 2)
                     }
+                    .allowsHitTesting(false)
                 }
             }
             .background {
@@ -93,6 +99,7 @@ private struct GIFContentView: View {
                 }
             }
             .clipShape(.rect(cornerRadius: isEmbedded ? 0 : 12))
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .onAppear {
@@ -121,8 +128,11 @@ private struct StaticImageContentView: View {
         Button(action: onTap) {
             Image(uiImage: image)
                 .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: displaySize.width, height: displaySize.height)
+                .aspectRatio(contentMode: isEmbedded ? .fit : .fill)
+                .frame(
+                    width: isEmbedded ? nil : displaySize.width,
+                    height: isEmbedded ? nil : displaySize.height
+                )
                 .background {
                     if !isEmbedded {
                         Color.clear.background(.regularMaterial)

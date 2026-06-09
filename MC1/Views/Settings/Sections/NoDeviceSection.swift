@@ -2,7 +2,9 @@ import SwiftUI
 
 /// Shown when no device is connected
 struct NoDeviceSection: View {
+    @Environment(\.appTheme) private var theme
     @Binding var showingDeviceSelection: Bool
+    let isSidebar: Bool
 
     var body: some View {
         Section {
@@ -16,5 +18,6 @@ struct NoDeviceSection: View {
         } footer: {
             Text(L10n.Settings.Device.noDeviceConnected)
         }
+        .themedRowBackground(theme, flatten: isSidebar)
     }
 }

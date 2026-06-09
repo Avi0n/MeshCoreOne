@@ -21,7 +21,7 @@ struct LocationPickerView: View {
     @State private var cameraRegionVersion = 0
     @State private var selectedCoordinate: CLLocationCoordinate2D?
     @State private var isSaving = false
-    @State private var showError: String?
+    @State private var errorMessage: String?
 
     /// Generic initializer for any location-setting context
     init(
@@ -124,7 +124,7 @@ struct LocationPickerView: View {
                 )
                 cameraRegionVersion += 1
             }
-            .errorAlert($showError)
+            .errorAlert($errorMessage)
         }
     }
 
@@ -144,6 +144,7 @@ struct LocationPickerView: View {
     private func loadCurrentLocation() {
         // Case 1: Existing saved location
         if let coord = initialCoordinate,
+           CLLocationCoordinate2DIsValid(coord),
            coord.latitude != 0 || coord.longitude != 0 {
             selectedCoordinate = coord
             cameraRegion = MKCoordinateRegion(
@@ -154,7 +155,13 @@ struct LocationPickerView: View {
             return
         }
 
-        // Case 2: No saved location, check user location
+        // Invalid coordinates (not nil, not zero, but out of range) — show default map
+        if let coord = initialCoordinate,
+           coord.latitude != 0 || coord.longitude != 0 {
+            return
+        }
+
+        // Case 2: No saved location (nil or 0,0), check user location
         let locationService = appState.locationService
         if locationService.isAuthorized {
             if let userLocation = locationService.currentLocation {
@@ -184,7 +191,7 @@ struct LocationPickerView: View {
                 try await onSave(coord)
                 dismiss()
             } catch {
-                showError = error.localizedDescription
+                errorMessage = error.localizedDescription
             }
             isSaving = false
         }

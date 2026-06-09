@@ -136,6 +136,14 @@ public protocol MeshCoreSessionProtocol: Actor {
     /// - Throws: `MeshCoreError` if the channel query fails.
     func getChannel(index: UInt8) async throws -> ChannelInfo
 
+    /// Reads multiple channels in a single pipelined exchange where the transport supports it.
+    ///
+    /// - Parameter indices: The channel indexes to read.
+    /// - Returns: `received` channels that answered, and the `missing` indexes whose request
+    ///   was dropped and must be reconciled with acknowledged reads.
+    /// - Throws: `MeshCoreError` on a hard send failure.
+    func getChannels(indices: [UInt8]) async throws -> (received: [ChannelInfo], missing: [UInt8])
+
     /// Configures a channel's settings.
     ///
     /// - Parameters:

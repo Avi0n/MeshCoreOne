@@ -122,10 +122,10 @@ extension CLIToolViewModel {
     }
 
     func updateNodeNamesForCompletion() async {
-        guard let dataStore, let deviceID else { return }
+        guard let dataStore, let radioID else { return }
 
         do {
-            let contacts = try await dataStore.fetchContacts(deviceID: deviceID)
+            let contacts = try await dataStore.fetchContacts(radioID: radioID)
             let names = contacts
                 .filter { $0.type == .repeater || $0.type == .room }
                 .map(\.name)

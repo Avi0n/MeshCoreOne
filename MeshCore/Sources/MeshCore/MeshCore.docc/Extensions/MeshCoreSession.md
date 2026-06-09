@@ -43,6 +43,7 @@
 - ``sendMessage(to:text:timestamp:)-swift.method``
 - ``sendMessageWithRetry(to:text:timestamp:maxAttempts:floodAfter:maxFloodAttempts:timeout:)``
 - ``sendChannelMessage(channel:text:timestamp:)``
+- ``sendChannelData(channelIndex:dataType:payload:pathLength:pathBytes:)``
 - ``sendCommand(to:command:timestamp:)``
 - ``getMessage()``
 - ``startAutoMessageFetching()``
@@ -60,6 +61,9 @@
 - ``setChannel(index:name:secret:)-swift.method``
 - ``getChannel(index:)``
 - ``setFloodScope(_:)``
+- ``setDefaultFloodScope(name:scopeKey:)``
+- ``setDefaultFloodScope(name:scope:)``
+- ``getDefaultFloodScope()``
 - ``setOtherParams(_:)``
 - ``setDevicePin(_:)``
 - ``setCustomVar(key:value:)``

@@ -76,6 +76,9 @@
 /* Tab bar title for the messaging/conversations screen */
 "tabs.chats" = "Чаты";
 
+/* VoiceOver value announcing the unread message count on the Chats sidebar icon. %d is the count. */
+"tabs.chatsUnreadAccessibilityValue" = "%d непрочитанных";
+
 /* Tab bar title for the nodes/contacts list screen */
 "tabs.nodes" = "Узлы";
 
@@ -97,6 +100,9 @@
 /* Alert title when connection cannot be established */
 "alert.couldNotConnect.title" = "Не удалось подключиться";
 
+/* Alert title when device pairing fails (e.g., wrong PIN) */
+"alert.pairingFailed.title" = "Сбой сопряжения";
+
 /* Default message when device connection fails */
 "alert.connectionFailed.defaultMessage" = "Не удалось подключиться к устройству.";
 
@@ -105,6 +111,9 @@
 
 /* Button to remove failed pairing and retry connection */
 "alert.connectionFailed.removeAndRetry" = "Удалить и попробовать снова";
+
+/* VoiceOver label for the destructive Remove and Try Again button — clarifies that "remove" means removing the device pairing */
+"accessibility.alert.connectionFailed.removeAndRetry" = "Удалить сопряжение устройства и попробовать снова";
 
 
 // MARK: - Accessibility
@@ -183,6 +192,11 @@
 
 /* VoiceOver announcement when device reconnects */
 "accessibility.connection.deviceReconnected" = "Устройство переподключено";
+
+/* VoiceOver signal-strength descriptors for the device picker signal bars */
+"accessibility.signalStrength.weak" = "Слабый сигнал";
+"accessibility.signalStrength.medium" = "Средний сигнал";
+"accessibility.signalStrength.strong" = "Сильный сигнал";
 
 
 // MARK: - Status Pill

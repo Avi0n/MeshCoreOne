@@ -20,19 +20,32 @@ extension ConnectionManager {
 
                 guard let self,
                       self.currentTransportType == .wifi,
-                      self.connectionState == .ready,
+                      self.connectionState.isOperational,
                       let session = self.session else { break }
+
+                if self.shouldPauseWiFiHeartbeatProbe {
+                    self.logger.info("WiFi heartbeat skipped while sync activity is active")
+                    continue
+                }
 
                 // Probe connection with lightweight command
                 do {
                     _ = try await session.getTime()
                 } catch {
+                    if self.shouldPauseWiFiHeartbeatProbe {
+                        self.logger.info("WiFi heartbeat timeout during sync activity treated as inconclusive")
+                        continue
+                    }
                     self.logger.warning("WiFi heartbeat failed: \(error.localizedDescription)")
                     await self.handleWiFiDisconnection(error: error)
                     break
                 }
             }
         }
+    }
+
+    var shouldPauseWiFiHeartbeatProbe: Bool {
+        connectionState == .syncing || resyncTask != nil || channelRetryTask != nil
     }
 
     /// Stops the WiFi heartbeat loop
@@ -68,6 +81,7 @@ extension ConnectionManager {
         stopWiFiHeartbeat()
 
         cancelResyncLoop()
+        cancelChannelRetry()
 
         // Mark room sessions disconnected before tearing down services
         let remoteNodeService = services?.remoteNodeService
@@ -81,7 +95,7 @@ extension ConnectionManager {
         }
 
         // Tear down session (invalid now)
-        await services?.stopEventMonitoring()
+        await services?.tearDown()
         services = nil
         session = nil
 
@@ -197,39 +211,17 @@ extension ConnectionManager {
         deviceID: UUID
     ) async throws {
         let capabilities = try await session.queryDevice()
+        detectAndStorePlatform(model: capabilities.model, transportType: .wifi)
         guard let selfInfo = await session.currentSelfInfo else {
             throw ConnectionError.initializationFailed("No self info")
         }
 
-        let newServices = ServiceContainer(
-            session: session,
-            modelContainer: modelContainer,
-            appStateProvider: appStateProvider
-        )
-        await newServices.wireServices()
-        self.services = newServices
-
-        // Fetch existing device and auto-add config concurrently (independent operations)
-        async let existingDeviceResult = newServices.dataStore.fetchDevice(id: deviceID)
-        async let autoAddConfigResult = session.getAutoAddConfig()
-        let existingDevice = try? await existingDeviceResult
-        let autoAddConfig = (try? await autoAddConfigResult) ?? MeshCore.AutoAddConfig(bitmask: 0)
-
-        let repeatFreqRanges: [MeshCore.FrequencyRange] = capabilities.clientRepeat
-            ? (try? await session.getRepeatFreq()) ?? []
-            : []
-
-        let device = createDevice(
+        let (newServices, radioID) = try await buildServicesAndSaveDevice(
             deviceID: deviceID,
+            session: session,
             selfInfo: selfInfo,
-            capabilities: capabilities,
-            autoAddConfig: autoAddConfig,
-            existingDevice: existingDevice
+            capabilities: capabilities
         )
-
-        try await newServices.dataStore.saveDevice(DeviceDTO(from: device))
-        self.connectedDevice = DeviceDTO(from: device)
-        self.allowedRepeatFreqRanges = repeatFreqRanges
 
         // Wire disconnection handler on new transport
         await transport.setDisconnectionHandler { [weak self] error in
@@ -239,19 +231,29 @@ extension ConnectionManager {
         }
 
         await onConnectionReady?()
-        await performInitialSync(deviceID: deviceID, services: newServices, context: "WiFi reconnect")
+        // onConnectionReady can suspend; a reentrant main-actor WiFi disconnect may
+        // clear connectedDevice or replace services during that await. Recheck so an
+        // aborted reconnect bails here instead of syncing a torn-down session.
+        guard connectionIntent.wantsConnection,
+              self.services === newServices,
+              connectedDevice != nil
+        else {
+            logger.info("[WiFi] reconnect aborted after onConnectionReady: connection state changed")
+            await session.stop()
+            await newServices.tearDown()
+            services = nil
+            connectedDevice = nil
+            allowedRepeatFreqRanges = []
+            return
+        }
+        let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, transportType: .wifi, context: "WiFi reconnect")
 
-        // User may have disconnected while sync was in progress
-        guard connectionIntent.wantsConnection else { return }
+        guard await promoteToReady(syncSucceeded: syncSucceeded, expectedServices: newServices, transportType: .wifi) else { return }
 
-        await syncDeviceTimeIfNeeded()
-        guard connectionIntent.wantsConnection else { return }
-
-        currentTransportType = .wifi
-        connectionState = .ready
-        await onDeviceSynced?()
         stopReconnectionWatchdog()
-        startWiFiHeartbeat()
+        if connectionState == .ready {
+            startWiFiHeartbeat()
+        }
     }
 
     // MARK: - WiFi Connection Health
@@ -266,7 +268,7 @@ extension ConnectionManager {
 
         // Case 1: We think we're connected but the transport died while backgrounded
         if currentTransportType == .wifi,
-           connectionState == .ready,
+           connectionState.isOperational,
            let wifiTransport {
             let isConnected = await wifiTransport.isConnected
             if !isConnected {
@@ -333,71 +335,39 @@ extension ConnectionManager {
             self.session = newSession
 
             let (meshCoreSelfInfo, deviceCapabilities) = try await initializeSession(newSession)
+            detectAndStorePlatform(model: deviceCapabilities.model, transportType: .wifi)
 
             // Derive device ID from public key (WiFi devices don't have Bluetooth UUIDs)
             let deviceID = DeviceIdentity.deriveUUID(from: meshCoreSelfInfo.publicKey)
 
-            // Create services
-            let newServices = ServiceContainer(
-                session: newSession,
-                modelContainer: modelContainer,
-                appStateProvider: appStateProvider
-            )
-            await newServices.wireServices()
-            self.services = newServices
-
-            // Fetch existing device and auto-add config concurrently (independent operations)
-            async let existingDeviceResult = newServices.dataStore.fetchDevice(id: deviceID)
-            async let autoAddConfigResult = newSession.getAutoAddConfig()
-            let existingDevice = try? await existingDeviceResult
-            let autoAddConfig = (try? await autoAddConfigResult) ?? MeshCore.AutoAddConfig(bitmask: 0)
-
-            let repeatFreqRanges: [MeshCore.FrequencyRange] = deviceCapabilities.clientRepeat
-                ? (try? await newSession.getRepeatFreq()) ?? []
-                : []
-
-            // Create WiFi connection method
             let wifiMethod = ConnectionMethod.wifi(host: host, port: port, displayName: nil)
-
-            // Create and save device
-            let device = createDevice(
+            let (newServices, radioID) = try await buildServicesAndSaveDevice(
                 deviceID: deviceID,
+                session: newSession,
                 selfInfo: meshCoreSelfInfo,
                 capabilities: deviceCapabilities,
-                autoAddConfig: autoAddConfig,
-                existingDevice: existingDevice,
                 connectionMethods: [wifiMethod]
             )
 
-            try await newServices.dataStore.saveDevice(DeviceDTO(from: device))
-            self.connectedDevice = DeviceDTO(from: device)
-            self.allowedRepeatFreqRanges = repeatFreqRanges
-
             // Persist connection for potential future use
-            persistConnection(deviceID: deviceID, deviceName: meshCoreSelfInfo.name)
+            persistConnection(deviceID: deviceID, radioID: radioID, deviceName: meshCoreSelfInfo.name)
 
             await onConnectionReady?()
-            await performInitialSync(deviceID: deviceID, services: newServices, forceFullSync: forceFullSync)
+            let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, transportType: .wifi, forceFullSync: forceFullSync)
 
-            // User may have disconnected while sync was in progress
-            guard connectionIntent.wantsConnection else { return }
-
-            await syncDeviceTimeIfNeeded()
-            guard connectionIntent.wantsConnection else { return }
-
-            // Wire disconnection handler for auto-reconnect
+            // Wire disconnection handler before promotion — needed even if promotion fails
             await newWiFiTransport.setDisconnectionHandler { [weak self] error in
                 Task { @MainActor in
                     await self?.handleWiFiDisconnection(error: error)
                 }
             }
 
-            currentTransportType = .wifi
-            connectionState = .ready
-            await onDeviceSynced?()
-            stopReconnectionWatchdog()
+            guard await promoteToReady(syncSucceeded: syncSucceeded, expectedServices: newServices, transportType: .wifi) else { return }
 
-            startWiFiHeartbeat()
+            stopReconnectionWatchdog()
+            if connectionState == .ready {
+                startWiFiHeartbeat()
+            }
             logger.info("WiFi connection complete - device ready")
 
         } catch {

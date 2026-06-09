@@ -61,38 +61,45 @@ extension MC1MapView.Coordinator {
             }
         }
 
-        // Clustered source — deferred creation on first data arrival
-        if let source = clusterSource {
-            source.shape = MLNShapeCollectionFeature(
-                shapes: clusterablePoints.map { pointFeature(for: $0) }
-            )
-        } else if !clusterablePoints.isEmpty {
-            let features = clusterablePoints.map { pointFeature(for: $0) }
-            let source = MLNShapeSource(
-                identifier: MapSourceID.points,
-                features: features,
-                options: [
-                    .clustered: true,
-                    .clusterRadius: 44,
-                    .maximumZoomLevelForClustering: 14,
-                ]
-            )
-            style.addSource(source)
-            self.clusterSource = source
-            addClusteredPointLayers(source: source, style: style)
+        // Clustered (contact) source — rebuild only when the clusterable subset changed,
+        // so toggling a fixed pin (the chat-dropped pin) does not re-cluster all contacts.
+        if clusterablePoints != lastAppliedClusterablePoints {
+            if let source = clusterSource {
+                source.shape = MLNShapeCollectionFeature(
+                    shapes: clusterablePoints.map { pointFeature(for: $0) }
+                )
+            } else if !clusterablePoints.isEmpty {
+                let features = clusterablePoints.map { pointFeature(for: $0) }
+                let source = MLNShapeSource(
+                    identifier: MapSourceID.points,
+                    features: features,
+                    options: [
+                        .clustered: true,
+                        .clusterRadius: 44,
+                        .maximumZoomLevelForClustering: 14,
+                    ]
+                )
+                style.addSource(source)
+                self.clusterSource = source
+                addClusteredPointLayers(source: source, style: style)
+            }
+            lastAppliedClusterablePoints = clusterablePoints
         }
 
-        // Fixed source — deferred creation
-        if let source = fixedSource {
-            source.shape = MLNShapeCollectionFeature(
-                shapes: fixedPoints.map { pointFeature(for: $0) }
-            )
-        } else if !fixedPoints.isEmpty {
-            let features = fixedPoints.map { pointFeature(for: $0) }
-            let source = MLNShapeSource(identifier: MapSourceID.fixedPoints, features: features, options: nil)
-            style.addSource(source)
-            self.fixedSource = source
-            addFixedPointLayers(source: source, style: style)
+        // Fixed source — rebuild only when the fixed subset changed.
+        if fixedPoints != lastAppliedFixedPoints {
+            if let source = fixedSource {
+                source.shape = MLNShapeCollectionFeature(
+                    shapes: fixedPoints.map { pointFeature(for: $0) }
+                )
+            } else if !fixedPoints.isEmpty {
+                let features = fixedPoints.map { pointFeature(for: $0) }
+                let source = MLNShapeSource(identifier: MapSourceID.fixedPoints, features: features, options: nil)
+                style.addSource(source)
+                self.fixedSource = source
+                addFixedPointLayers(source: source, style: style)
+            }
+            lastAppliedFixedPoints = fixedPoints
         }
     }
 
@@ -347,7 +354,7 @@ extension MC1MapView.Coordinator {
     private func configureNameLabelLayer(_ layer: MLNSymbolStyleLayer) {
         layer.iconImageName = NSExpression(forKeyPath: "labelSpriteName")
         layer.iconAnchor = NSExpression(forConstantValue: "bottom")
-        layer.iconOffset = NSExpression(forConstantValue: NSValue(cgVector: CGVector(dx: 0, dy: -48))) // -4.8 ems × 10pt font
+        layer.iconOffset = NSExpression(forConstantValue: NSValue(cgVector: CGVector(dx: 0, dy: -46)))
         layer.symbolSortKey = NSExpression(forKeyPath: "hopIndex")
         layer.iconAllowsOverlap = NSExpression(forConstantValue: true)
         layer.iconIgnoresPlacement = NSExpression(forConstantValue: true)
@@ -409,6 +416,7 @@ extension MC1MapView.Coordinator {
         case .pointB: "pin-point-b"
         case .crosshair: "pin-crosshair"
         case .obstruction: "pin-obstruction"
+        case .droppedPin: "pin-dropped"
         case .badge: "pin-badge"
         }
     }

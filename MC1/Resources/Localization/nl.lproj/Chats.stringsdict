@@ -20,6 +20,24 @@
             <string>%d ongelezen vermeldingen</string>
         </dict>
     </dict>
+    <key>chats.scrollButton.scrollToMention.accessibilityValue</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>zero</key>
+            <string>Geen ongelezen vermeldingen</string>
+            <key>one</key>
+            <string>%d ongelezen vermelding</string>
+            <key>other</key>
+            <string>%d ongelezen vermeldingen</string>
+        </dict>
+    </dict>
     <key>chats.unreadMessages.accessibilityValue</key>
     <dict>
         <key>NSStringLocalizedFormatKey</key>

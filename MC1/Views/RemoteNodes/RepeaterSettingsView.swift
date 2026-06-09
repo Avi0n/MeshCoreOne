@@ -4,41 +4,87 @@ import CoreLocation
 
 struct RepeaterSettingsView: View {
     @Environment(\.appState) private var appState
+    @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: NodeSettingsField?
 
     let session: RemoteNodeSessionDTO
     @State private var viewModel = RepeaterSettingsViewModel()
+    @State private var statusViewModel = RepeaterStatusViewModel()
+    @State private var managementTab: NodeManagementTab = .settings
+    @State private var cliViewModel = NodeCLIViewModel()
     @State private var showRebootConfirmation = false
     @State private var showingLocationPicker = false
+    @State private var telemetryConfigured = false
+    @State private var contacts: [ContactDTO] = []
+    @State private var discoveredNodes: [DiscoveredNodeDTO] = []
 
     var body: some View {
-        Form {
-            NodeSettingsHeaderSection(publicKey: session.publicKey, name: session.name, role: session.role)
-            makeRadioSettingsSection()
-            makeBehaviorSection()
-            makeRegionsSection()
-            makeIdentitySection()
-            makeContactInfoSection()
-            makeSecuritySection()
-            makeDeviceInfoSection()
-            makeActionsSection()
+        // ZStack, not Group: a stable container keeps the toolbar/title hosted on one
+        // view across segment switches. Group would re-host them on each switch branch,
+        // animating a nav-bar item transition.
+        ZStack {
+            switch managementTab {
+            case .settings: settingsForm
+            case .cli: NodeCLIView(viewModel: cliViewModel)
+            case .telemetry:
+                RepeaterStatusContent(
+                    viewModel: statusViewModel,
+                    session: session,
+                    connectionState: appState.connectionState,
+                    contacts: contacts,
+                    discoveredNodes: discoveredNodes,
+                    userLocation: appState.bestAvailableLocation,
+                    connectedDeviceID: appState.connectedDevice?.radioID
+                )
+            }
         }
+        .animation(nil, value: managementTab)
         .navigationTitle(L10n.RemoteNodes.RemoteNodes.Settings.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button(L10n.RemoteNodes.RemoteNodes.Settings.done) {
-                    focusedField = nil
+            if session.isAdmin {
+                ToolbarItem(placement: .principal) {
+                    Picker(L10n.RemoteNodes.RemoteNodes.Settings.Tab.picker, selection: $managementTab) {
+                        ForEach(NodeManagementTab.allCases, id: \.self) { tab in
+                            Text(tab.label).tag(tab)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .fixedSize()
                 }
             }
         }
         .task {
             await viewModel.configure(appState: appState, session: session)
+            if let send = viewModel.makeNodeCLISendClosure(session: session) {
+                cliViewModel.configure(sessionName: session.name, sendRawCommand: send)
+            }
+        }
+        .onChange(of: managementTab) { _, newTab in
+            guard newTab == .telemetry, !telemetryConfigured else { return }
+            telemetryConfigured = true
+            // Configure the status VM on first Telemetry reveal rather than on open:
+            // its handlers populate only the status/telemetry/neighbours slots, leaving the
+            // settings VM's CLI handler intact for the Settings/CLI surface. Guarded by
+            // telemetryConfigured because a segment switch recreates only the content subtree,
+            // so this must not re-run or duplicate handler registration.
+            statusViewModel.configure(appState: appState)
+            Task {
+                await statusViewModel.registerHandlers(appState: appState)
+                if let radioID = appState.connectedDevice?.radioID {
+                    await statusViewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
+                    if let dataStore = appState.services?.dataStore {
+                        contacts = (try? await dataStore.fetchContacts(radioID: radioID)) ?? []
+                        discoveredNodes = (try? await dataStore.fetchDiscoveredNodes(radioID: radioID)) ?? []
+                    }
+                }
+            }
         }
         .onDisappear {
+            statusViewModel.stopDiscovery()
             Task {
+                await statusViewModel.clearStatusHandlers(appState: appState)
                 await viewModel.cleanup()
             }
         }
@@ -58,6 +104,29 @@ struct RepeaterSettingsView: View {
                     latitude: coordinate.latitude,
                     longitude: coordinate.longitude
                 )
+            }
+        }
+    }
+
+    private var settingsForm: some View {
+        Form {
+            NodeSettingsHeaderSection(publicKey: session.publicKey, name: session.name, role: session.role)
+            makeRadioSettingsSection()
+            makeBehaviorSection()
+            makeRegionsSection()
+            makeIdentitySection()
+            makeContactInfoSection()
+            makeSecuritySection()
+            makeDeviceInfoSection()
+            makeActionsSection()
+        }
+        .themedCanvas(theme)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(L10n.RemoteNodes.RemoteNodes.Settings.done) {
+                    focusedField = nil
+                }
             }
         }
     }
@@ -128,12 +197,19 @@ private struct BehaviorSection: View {
                 get: { viewModel.repeaterEnabled ?? false },
                 set: { viewModel.repeaterEnabled = $0 }
             ))
+                .disabled(viewModel.repeaterEnabled == nil)
+                .accessibilityValue(
+                    viewModel.repeaterEnabled == nil
+                        ? (viewModel.isLoadingBehavior ? L10n.RemoteNodes.RemoteNodes.Settings.loading : L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad)
+                        : (viewModel.repeaterEnabled == true ? L10n.Localizable.Accessibility.on : L10n.Localizable.Accessibility.off)
+                )
                 .overlay(alignment: .trailing) {
-                    if viewModel.repeaterEnabled == nil && viewModel.isLoadingBehavior {
-                        Text(L10n.RemoteNodes.RemoteNodes.Settings.loading)
+                    if viewModel.repeaterEnabled == nil {
+                        Text(viewModel.isLoadingBehavior ? L10n.RemoteNodes.RemoteNodes.Settings.loading : (viewModel.behaviorError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : "—"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .padding(.trailing, 60)
+                            .accessibilityHidden(true)
                     }
                 }
 
@@ -221,22 +297,11 @@ private struct BehaviorSection: View {
             Button {
                 Task { await viewModel.applyBehaviorSettings() }
             } label: {
-                HStack {
-                    Spacer()
-                    if viewModel.helper.isApplying {
-                        ProgressView()
-                    } else if viewModel.behaviorApplySuccess {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                            .transition(.scale.combined(with: .opacity))
-                    } else {
-                        Text(L10n.RemoteNodes.RemoteNodes.Settings.applyBehaviorSettings)
-                            .foregroundStyle(viewModel.behaviorSettingsModified ? Color.accentColor : .secondary)
-                            .transition(.opacity)
-                    }
-                    Spacer()
+                AsyncActionLabel(isLoading: viewModel.helper.isApplying, showSuccess: viewModel.behaviorApplySuccess) {
+                    Text(L10n.RemoteNodes.RemoteNodes.Settings.applyBehaviorSettings)
+                        .foregroundStyle(viewModel.behaviorSettingsModified ? Color.accentColor : .secondary)
+                        .transition(.opacity)
                 }
-                .animation(.default, value: viewModel.behaviorApplySuccess)
             }
             .disabled(viewModel.helper.isApplying || viewModel.behaviorApplySuccess || !viewModel.behaviorSettingsModified)
         }
@@ -339,22 +404,11 @@ private struct RegionsSection: View {
                 Button {
                     Task { await viewModel.saveRegions() }
                 } label: {
-                    HStack {
-                        Spacer()
-                        if viewModel.helper.isApplying {
-                            ProgressView()
-                        } else if viewModel.regionsSaveSuccess {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
-                                .transition(.scale.combined(with: .opacity))
-                        } else {
-                            Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.saveToDevice)
-                                .foregroundStyle(viewModel.hasUnsavedRegionChanges ? Color.accentColor : .secondary)
-                                .transition(.opacity)
-                        }
-                        Spacer()
+                    AsyncActionLabel(isLoading: viewModel.helper.isApplying, showSuccess: viewModel.regionsSaveSuccess) {
+                        Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.saveToDevice)
+                            .foregroundStyle(viewModel.hasUnsavedRegionChanges ? Color.accentColor : .secondary)
+                            .transition(.opacity)
                     }
-                    .animation(.default, value: viewModel.regionsSaveSuccess)
                 }
                 .disabled(viewModel.helper.isApplying || viewModel.regionsSaveSuccess || !viewModel.hasUnsavedRegionChanges)
             }
@@ -378,7 +432,7 @@ private struct RegionsSection: View {
         RepeaterSettingsView(
             session: RemoteNodeSessionDTO(
                 id: UUID(),
-                deviceID: UUID(),
+                radioID: UUID(),
                 publicKey: Data(repeating: 0x42, count: 32),
                 name: "Mountain Peak Repeater",
                 role: .repeater,

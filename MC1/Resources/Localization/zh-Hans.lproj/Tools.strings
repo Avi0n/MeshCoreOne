@@ -101,7 +101,7 @@
 "tools.rxLog.rssiLabel" = "RSSI：";
 
 /* Location: RxLogView.swift - SNR label */
-"tools.rxLog.snrLabel"  = "信噪比：";
+"tools.rxLog.snrLabel" = "信噪比：";
 
 /* Location: RxLogView.swift - Type label */
 "tools.rxLog.typeLabel" = "类型：";
@@ -126,6 +126,12 @@
 
 /* Location: RxLogView.swift - Channel name label */
 "tools.rxLog.channelNameLabel" = "频道名称：";
+
+/* Location: RxLogView.swift - Region label */
+"tools.rxLog.regionLabel" = "区域：";
+
+/* Location: RxLogView.swift - Unresolved region value */
+"tools.rxLog.regionUnresolved" = "未知";
 
 /* Location: RxLogView.swift - Text label */
 "tools.rxLog.textLabel" = "文本：";
@@ -425,6 +431,9 @@
 /* Location: LineOfSightView.swift - Repeater location map item name */
 "tools.lineOfSight.repeaterLocation" = "转发节点位置";
 
+/* Location: LineOfSightViewModel.swift - Dropped pin display name */
+"tools.lineOfSight.droppedPin" = "已放置的图钉";
+
 /* Location: LOSRepeaterPinView.swift - Accessibility hint for repeater pins */
 "tools.lineOfSight.repeaterPin.accessibilityHint" = "双击以选择为分析点";
 
@@ -500,6 +509,21 @@
 
 /* Location: ClearanceStatusView.swift - Clearance percentage, %lld is percent */
 "tools.lineOfSight.clearancePercent" = "%lld%% 间隙";
+
+/* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: clear */
+"tools.lineOfSight.status.clear" = "Clear";
+
+/* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: marginal */
+"tools.lineOfSight.status.marginal" = "Marginal";
+
+/* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: partial obstruction */
+"tools.lineOfSight.status.partialObstruction" = "Partial obstruction";
+
+/* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: blocked */
+"tools.lineOfSight.status.blocked" = "Blocked";
+
+/* Location: ResultsCardView.swift - Subtitle shown when path is blocked */
+"tools.lineOfSight.status.blockedSubtitle" = "Direct path intersects terrain";
 
 // MARK: - CLI Tool View
 
