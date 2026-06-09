@@ -605,21 +605,21 @@ struct ChatConversationView: View {
     private func messageContextMenu(for message: MessageDTO) -> some View {
         let availability = MessageActionAvailability(message: message)
 
-        // Quick reactions render as a horizontal palette via `.compactMenu`.
-        // The style caps the row at ~4 items, so show the first four and route
-        // the rest through the "More" picker below.
+        // Quick reactions + "More" render together as a horizontal palette.
         ControlGroup {
             ForEach(Array(recentEmojisStore.recentEmojis.prefix(4)), id: \.self) { emoji in
                 Button(emoji) { dispatch(.react(emoji), for: message) }
             }
+            Button {
+                emojiPickerMessage = message
+            } label: {
+                // Outline variant so it matches the other (unfilled) menu icons;
+                // menu palettes otherwise auto-apply the `.fill` variant.
+                Label(L10n.Chats.Reactions.moreEmojis, systemImage: "face.smiling")
+                    .environment(\.symbolVariants, .none)
+            }
         }
         .controlGroupStyle(.compactMenu)
-
-        Button {
-            emojiPickerMessage = message
-        } label: {
-            Label(L10n.Chats.Reactions.moreEmojis, systemImage: "face.smiling")
-        }
 
         if availability.canReply {
             Button {
