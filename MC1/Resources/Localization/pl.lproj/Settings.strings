@@ -550,10 +550,10 @@
 "nodes.staleCleanup.days" = "%d dni";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "Nieulubione węzły, od których nie było sygnału przez %d dni, są automatycznie usuwane przy połączeniu.";
+"nodes.staleCleanup.footerEnabled" = "Nieulubione węzły, które nie były aktualizowane przez %d dni, są automatycznie usuwane przy połączeniu.";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "Automatycznie usuwa nieulubione węzły, od których nie było sygnału po ustalonym okresie. Ulubione nigdy nie są usuwane.";
+"nodes.staleCleanup.footerDisabled" = "Automatycznie usuwa nieulubione węzły, które nie były aktualizowane w ustalonym okresie. Ulubione nigdy nie są usuwane.";
 
 /* Footer when toggle is on but no threshold selected yet */
 "nodes.staleCleanup.footerSelect" = "Wybierz, jak długo przechowywać węzły. Ulubione nigdy nie są usuwane.";

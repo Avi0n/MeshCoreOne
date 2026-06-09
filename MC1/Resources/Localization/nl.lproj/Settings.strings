@@ -550,10 +550,10 @@
 "nodes.staleCleanup.days" = "%d dagen";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "Niet-favoriete knooppunten die %d dagen niet zijn gehoord, worden automatisch verwijderd bij verbinding.";
+"nodes.staleCleanup.footerEnabled" = "Niet-favoriete knooppunten die %d dagen niet zijn bijgewerkt, worden automatisch verwijderd bij verbinding.";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "Verwijdert automatisch niet-favoriete knooppunten die na een ingestelde periode niet zijn gehoord. Favorieten worden nooit verwijderd.";
+"nodes.staleCleanup.footerDisabled" = "Verwijdert automatisch niet-favoriete knooppunten die binnen een ingestelde periode niet zijn bijgewerkt. Favorieten worden nooit verwijderd.";
 
 /* Footer when toggle is on but no threshold selected yet */
 "nodes.staleCleanup.footerSelect" = "Kies hoe lang knooppunten bewaard worden. Favorieten worden nooit verwijderd.";

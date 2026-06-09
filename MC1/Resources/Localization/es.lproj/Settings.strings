@@ -550,10 +550,10 @@
 "nodes.staleCleanup.days" = "%d días";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "Los nodos no favoritos que no se han detectado en %d días se eliminan automáticamente al conectarse.";
+"nodes.staleCleanup.footerEnabled" = "Los nodos no favoritos que no se han actualizado en %d días se eliminan automáticamente al conectarse.";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "Elimina automáticamente los nodos no favoritos que no se han detectado después de un periodo establecido. Los favoritos nunca se eliminan.";
+"nodes.staleCleanup.footerDisabled" = "Elimina automáticamente los nodos no favoritos que no se han actualizado en un periodo establecido. Los favoritos nunca se eliminan.";
 
 /* Footer when toggle is on but no threshold selected yet */
 "nodes.staleCleanup.footerSelect" = "Elige cuánto tiempo conservar los nodos. Los favoritos nunca se eliminan.";

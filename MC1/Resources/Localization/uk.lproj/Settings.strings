@@ -550,10 +550,10 @@
 "nodes.staleCleanup.days" = "%d дн.";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "Необрані вузли, від яких не було сигналу %d дн., автоматично видаляються при підключенні.";
+"nodes.staleCleanup.footerEnabled" = "Необрані вузли, які не оновлювалися %d дн., автоматично видаляються при підключенні.";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "Автоматично видаляє необрані вузли, від яких не було сигналу після встановленого періоду. Обрані ніколи не видаляються.";
+"nodes.staleCleanup.footerDisabled" = "Автоматично видаляє необрані вузли, які не оновлювалися протягом встановленого періоду. Обрані ніколи не видаляються.";
 
 /* Footer when toggle is on but no threshold selected yet */
 "nodes.staleCleanup.footerSelect" = "Оберіть, як довго зберігати вузли. Обрані ніколи не видаляються.";

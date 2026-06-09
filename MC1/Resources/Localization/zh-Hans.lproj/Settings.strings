@@ -537,10 +537,10 @@
 "nodes.staleCleanup.days" = "%d 天";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "超过 %d 天未收到消息的非收藏节点将在连接时自动移除。";
+"nodes.staleCleanup.footerEnabled" = "超过 %d 天未更新的非收藏节点将在连接时自动移除。";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "自动移除设定时间内未收到消息的非收藏节点。收藏节点不会被移除。";
+"nodes.staleCleanup.footerDisabled" = "自动移除在设定时间内未更新的非收藏节点。收藏节点不会被移除。";
 
 /* Footer when toggle is on but no threshold selected yet */
 "nodes.staleCleanup.footerSelect" = "选择保留节点的时间。收藏节点不会被移除。";

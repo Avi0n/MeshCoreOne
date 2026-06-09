@@ -550,10 +550,10 @@
 "nodes.staleCleanup.days" = "%d jours";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "Les nœuds non favoris non détectés depuis %d jours sont automatiquement supprimés lors de la connexion.";
+"nodes.staleCleanup.footerEnabled" = "Les nœuds non favoris non mis à jour depuis %d jours sont automatiquement supprimés lors de la connexion.";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "Supprime automatiquement les nœuds non favoris non détectés après une période définie. Les favoris ne sont jamais supprimés.";
+"nodes.staleCleanup.footerDisabled" = "Supprime automatiquement les nœuds non favoris non mis à jour durant une période définie. Les favoris ne sont jamais supprimés.";
 
 /* Footer when toggle is on but no threshold selected yet */
 "nodes.staleCleanup.footerSelect" = "Choisissez combien de temps garder les nœuds. Les favoris ne sont jamais supprimés.";

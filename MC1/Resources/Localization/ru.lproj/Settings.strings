@@ -550,10 +550,10 @@
 "nodes.staleCleanup.days" = "%d дн.";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "Неизбранные узлы, от которых не было сигнала %d дн., автоматически удаляются при подключении.";
+"nodes.staleCleanup.footerEnabled" = "Неизбранные узлы, которые не обновлялись %d дн., автоматически удаляются при подключении.";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "Автоматически удаляет неизбранные узлы, от которых не было сигнала после установленного периода. Избранные никогда не удаляются.";
+"nodes.staleCleanup.footerDisabled" = "Автоматически удаляет неизбранные узлы, которые не обновлялись в течение установленного периода. Избранные никогда не удаляются.";
 
 /* Footer when toggle is on but no threshold selected yet */
 "nodes.staleCleanup.footerSelect" = "Выберите, как долго хранить узлы. Избранные никогда не удаляются.";

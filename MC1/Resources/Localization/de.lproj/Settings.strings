@@ -550,10 +550,10 @@
 "nodes.staleCleanup.days" = "%d Tage";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "Nicht favorisierte Knoten, die seit %d Tagen nicht gehört wurden, werden bei Verbindung automatisch entfernt.";
+"nodes.staleCleanup.footerEnabled" = "Nicht favorisierte Knoten, die seit %d Tagen nicht aktualisiert wurden, werden bei Verbindung automatisch entfernt.";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "Entfernt automatisch nicht favorisierte Knoten, die nach einem festgelegten Zeitraum nicht gehört wurden. Favoriten werden nie entfernt.";
+"nodes.staleCleanup.footerDisabled" = "Entfernt automatisch nicht favorisierte Knoten, die innerhalb eines festgelegten Zeitraums nicht aktualisiert wurden. Favoriten werden nie entfernt.";
 
 /* Footer when toggle is on but no threshold selected yet */
 "nodes.staleCleanup.footerSelect" = "Wähle, wie lange Knoten behalten werden sollen. Favoriten werden nie entfernt.";
