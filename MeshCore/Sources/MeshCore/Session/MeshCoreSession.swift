@@ -3050,31 +3050,15 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         orderBy: UInt8 = 0,
         pubkeyPrefixLength: UInt8 = 4
     ) async throws -> NeighboursResponse {
-        var allNeighbours: [Neighbour] = []
-        var offset: UInt16 = 0
-        var totalCount = 0
-
-        repeat {
-            let response = try await requestNeighbours(
+        try await NeighboursResponse.collectingAllPages { offset in
+            try await requestNeighbours(
                 from: publicKey,
                 count: 255,
                 offset: offset,
                 orderBy: orderBy,
                 pubkeyPrefixLength: pubkeyPrefixLength
             )
-
-            totalCount = response.totalCount
-            allNeighbours.append(contentsOf: response.neighbours)
-            offset = UInt16(allNeighbours.count)
-
-        } while allNeighbours.count < totalCount
-
-        return NeighboursResponse(
-            publicKeyPrefix: publicKey.prefix(6),
-            tag: Data(),
-            totalCount: totalCount,
-            neighbours: allNeighbours
-        )
+        }
     }
 
     // MARK: - Signing Commands

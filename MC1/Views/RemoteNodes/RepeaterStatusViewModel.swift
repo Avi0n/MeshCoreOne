@@ -134,7 +134,7 @@ final class RepeaterStatusViewModel {
             setLoading: { self.isLoadingNeighbors = $0 },
             setError: { self.neighborsSectionError = $0 },
             operation: { [repeaterAdminService] timeout in
-                try await repeaterAdminService.requestNeighbors(sessionID: session.id, timeout: timeout)
+                try await repeaterAdminService.fetchAllNeighbors(sessionID: session.id, timeout: timeout)
             },
             onSuccess: { await self.handleNeighboursResponse($0) }
         )

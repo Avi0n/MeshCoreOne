@@ -41,6 +41,10 @@ public actor RepeaterAdminService {
     /// Default pubkey prefix length for neighbor queries.
     public static let defaultPubkeyPrefixLength: UInt8 = 6
 
+    /// Per-request neighbour count used while paginating. A node caps each response to one
+    /// radio frame regardless, so requesting the maximum minimizes the number of round-trips.
+    private static let neighborPageSize: UInt8 = 255
+
     // MARK: - Initialization
 
     public init(
@@ -138,22 +142,28 @@ public actor RepeaterAdminService {
     public func fetchAllNeighbors(
         sessionID: UUID,
         orderBy: NeighborSortOrder = .newestFirst,
-        pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength
+        pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength,
+        timeout: Duration? = nil
     ) async throws -> NeighboursResponse {
-        guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID),
-              remoteSession.isRepeater else {
-            throw RemoteNodeError.sessionNotFound
+        // Paginate over the per-page request so each round-trip keeps its audit log entry
+        // and timeout ceiling; a single node response is capped to one radio frame.
+        let response = try await NeighboursResponse.collectingAllPages { offset in
+            try await self.requestNeighbors(
+                sessionID: sessionID,
+                count: Self.neighborPageSize,
+                offset: offset,
+                orderBy: orderBy,
+                pubkeyPrefixLength: pubkeyPrefixLength,
+                timeout: timeout
+            )
         }
 
-        do {
-            return try await session.fetchAllNeighbours(
-                from: remoteSession.publicKey,
-                orderBy: orderBy.rawValue,
-                pubkeyPrefixLength: pubkeyPrefixLength
+        if response.neighbours.count < response.totalCount {
+            logger.warning(
+                "Neighbour pagination returned \(response.neighbours.count) of \(response.totalCount) entries"
             )
-        } catch let error as MeshCoreError {
-            throw RemoteNodeError.sessionError(error)
         }
+        return response
     }
 
     // MARK: - Status
