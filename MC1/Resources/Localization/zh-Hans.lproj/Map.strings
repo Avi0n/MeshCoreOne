@@ -56,7 +56,7 @@
 "map.style.requiresNetwork" = "Requires network connection";
 
 /* Location: LayersMenu.swift - Purpose: Hint when no offline pack covers viewport */
-"map.style.noOfflineCoverage" = "No offline map covers this area";
+"map.style.noOfflineCoverage" = "没有离线地图覆盖此区域";
 
 // MARK: - Contact Detail Sheet
 
@@ -181,4 +181,4 @@
 "map.preview.accessibilityHint" = "在地图上打开此位置";
 
 /* TODO: translate - Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback */
-"map.preview.retryButton.accessibilityLabel" = "Retry loading map thumbnail";
+"map.preview.retryButton.accessibilityLabel" = "重新加载地图缩略图";

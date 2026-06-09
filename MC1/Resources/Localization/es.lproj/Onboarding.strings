@@ -200,7 +200,7 @@
 "preset.subtitle.locale" = "Elige un preset para tu radio.";
 
 /* Location: PresetStepView.swift - Footer help line pointing users to the MeshCore Discord */
-"preset.discordHelp" = "Not sure which preset to pick? Join the official MeshCore Discord and ask! [https://meshcore.gg](https://meshcore.gg)";
+"preset.discordHelp" = "¿No sabes qué preset elegir? ¡Únete al Discord oficial de MeshCore y pregunta! [https://meshcore.gg](https://meshcore.gg)";
 
 /* Location: PresetStepView.swift - Apply CTA "Use %@" */
 "preset.use" = "Usar %@";
@@ -216,6 +216,9 @@
 
 /* Location: PresetStepView.swift - Already-configured secondary link */
 "preset.alreadyConfigured.choose" = "Elegir un preset diferente";
+
+/* Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring */
+"preset.error.notConnected" = "Conéctate a tu dispositivo para aplicar este preset.";
 
 /* Location: PresetStepView.swift - Generic Continue label used when no preset is selected */
 "preset.continue" = "Continuar";

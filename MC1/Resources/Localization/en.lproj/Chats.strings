@@ -258,7 +258,7 @@
 "chats.error.sendQueuePersistFailed" = "Couldn't queue your message. Try again.";
 
 /* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
-"chats.error.loadConversationsFailed" = "Couldn't load conversations. Pull to retry.";
+"chats.error.loadConversationsFailed" = "Couldn't load conversations.";
 
 // MARK: - Channel Options Sheet
 

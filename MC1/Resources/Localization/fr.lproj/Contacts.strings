@@ -449,7 +449,7 @@
 "contacts.add.pasteURL" = "Paste Contact URL";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL section footer */
-"contacts.add.pasteURLFooter" = "Paste a meshcore:// contact link to auto-fill the fields above";
+"contacts.add.pasteURLFooter" = "Collez un lien de contact meshcore:// pour remplir automatiquement les champs ci-dessus";
 
 /* Location: AddContactSheet.swift - Purpose: Invalid paste URL error */
 "contacts.add.error.invalidURL" = "Clipboard does not contain a valid contact URL";
@@ -510,7 +510,7 @@
 "contacts.scan.error.invalidKey" = "Code QR invalide : clé publique invalide";
 
 /* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
-"contacts.scan.error.importFailed" = "Failed to import contact: %@";
+"contacts.scan.error.importFailed" = "Échec de l'importation du contact : %@";
 
 // MARK: - Discovery View
 
@@ -530,7 +530,7 @@
 "contacts.discovery.added" = "Added";
 
 /* Location: DiscoveryView.swift - Purpose: Accessibility label for added button */
-"contacts.discovery.addedAccessibility" = "Already added to contacts";
+"contacts.discovery.addedAccessibility" = "Déjà ajouté aux contacts";
 
 /* Location: DiscoveryView.swift - Purpose: Services not available error */
 "contacts.discovery.error.servicesUnavailable" = "Services non disponibles";
@@ -1158,7 +1158,7 @@
 "contacts.viewModel.connectToDelete" = "Connectez-vous à une radio pour supprimer des nœuds";
 
 /* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
-"contacts.viewModel.removeTimedOut" = "Deleting the node timed out. Try again.";
+"contacts.viewModel.removeTimedOut" = "Le délai de suppression du nœud a expiré. Réessayez.";
 
 // MARK: - Path Management ViewModel Errors
 

@@ -197,7 +197,7 @@
 "preset.subtitle.locale" = "为您的无线电选择预设。";
 
 /* Location: PresetStepView.swift - Footer help line pointing users to the MeshCore Discord */
-"preset.discordHelp" = "Not sure which preset to pick? Join the official MeshCore Discord and ask! [https://meshcore.gg](https://meshcore.gg)";
+"preset.discordHelp" = "不确定选择哪个预设？加入官方 MeshCore Discord 并询问！[https://meshcore.gg](https://meshcore.gg)";
 
 /* Location: PresetStepView.swift - Apply CTA "Use %@" */
 "preset.use" = "使用 %@";
@@ -213,6 +213,9 @@
 
 /* Location: PresetStepView.swift - Already-configured secondary link */
 "preset.alreadyConfigured.choose" = "选择其他预设";
+
+/* Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring */
+"preset.error.notConnected" = "连接到您的设备以应用此预设。";
 
 /* Location: PresetStepView.swift - Generic Continue label used when no preset is selected */
 "preset.continue" = "继续";

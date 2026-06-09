@@ -607,13 +607,13 @@
 "dangerZone.dialog.forget.title" = "Zapomnij urządzenie";
 
 /* Confirmation dialog message for forget device */
-"dangerZone.dialog.forget.message" = "Your device will be unpaired. You can choose to keep or delete your messages, contacts, and channels.";
+"dangerZone.dialog.forget.message" = "Twoje urządzenie zostanie odparowane. Możesz wybrać, czy zachować, czy usunąć swoje wiadomości, kontakty i kanały.";
 
 /* Button to forget device but keep data */
 "dangerZone.dialog.forget.keepData" = "Zapomnij urządzenie";
 
 /* Button to forget device and delete all associated data */
-"dangerZone.dialog.forget.deleteAll" = "Forget Device & Delete Data";
+"dangerZone.dialog.forget.deleteAll" = "Zapomnij urządzenie i usuń dane";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "Przywróć ustawienia fabryczne";
@@ -970,13 +970,13 @@
 // MARK: - Direct Messages Settings Section
 
 /* Section header for direct message settings */
-"directMessages.header" = "Direct Messages";
+"directMessages.header" = "Wiadomości bezpośrednie";
 
 /* Picker label for number of acknowledgments */
 "directMessages.acknowledgments" = "Acknowledgments";
 
 /* Footer explaining the acknowledgments setting */
-"directMessages.footer" = "Number of acknowledgments sent per direct message. Use 2 for better delivery confirmation over unreliable links.";
+"directMessages.footer" = "Liczba potwierdzeń wysyłanych na wiadomość bezpośrednią. Użyj 2 dla lepszego potwierdzenia dostarczenia przez zawodne łącza.";
 
 
 // MARK: - BLE Status Indicator
@@ -1301,6 +1301,18 @@
 /* Location: SettingsView.swift - Detail row when region is unset */
 "region.notSet" = "Nie ustawiono";
 
+/* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
+"region.subdivision.US-CA" = "Kalifornia";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
+"region.subdivision.AU-QLD" = "Queensland";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name */
+"region.subdivision.AU-SA" = "Australia Południowa";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
+"region.subdivision.AU-WA" = "Australia Zachodnia";
+
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
@@ -1401,8 +1413,8 @@
 "importKey.error.invalidKey" = "To nie jest prawidłowy klucz prywatny Ed25519";
 
 // Reply with Quote
-"replyWithQuote.toggle" = "Reply with Quote";
-"replyWithQuote.footer" = "Replying includes a preview of the original message.";
+"replyWithQuote.toggle" = "Odpowiedz z cytatem";
+"replyWithQuote.footer" = "Odpowiadanie dołącza podgląd oryginalnej wiadomości.";
 
 // MARK: - Offline Maps
 
@@ -1744,7 +1756,7 @@
 "Support.Accessibility.ThemeCard.OwnedLabel" = "Motyw %@, posiadany";
 "Support.Accessibility.BundleCard.LockedLabel" = "Pakiet Wszystkie motywy, zablokowany, %@";
 "Support.Accessibility.BundleCard.LockedHint" = "Kupuje pakiet Wszystkie motywy";
-"Support.Accessibility.BundleCard.LoadingLabel" = "All Themes bundle, loading price";
+"Support.Accessibility.BundleCard.LoadingLabel" = "Pakiet Wszystkie motywy, ładowanie ceny";
 "Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
 "Support.Accessibility.ContributionRow.Hint" = "Wysyła napiwek z podziękowaniem";
 "Support.Accessibility.TipConfirmAnnouncement" = "Dziękujemy za napiwek.";

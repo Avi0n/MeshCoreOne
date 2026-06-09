@@ -449,7 +449,7 @@
 "contacts.add.pasteURL" = "Paste Contact URL";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL section footer */
-"contacts.add.pasteURLFooter" = "Paste a meshcore:// contact link to auto-fill the fields above";
+"contacts.add.pasteURLFooter" = "Вставте посилання на контакт meshcore://, щоб автоматично заповнити поля вище";
 
 /* Location: AddContactSheet.swift - Purpose: Invalid paste URL error */
 "contacts.add.error.invalidURL" = "Clipboard does not contain a valid contact URL";
@@ -510,7 +510,7 @@
 "contacts.scan.error.invalidKey" = "Недійсний QR-код: недійсний публічний ключ";
 
 /* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
-"contacts.scan.error.importFailed" = "Failed to import contact: %@";
+"contacts.scan.error.importFailed" = "Не вдалося імпортувати контакт: %@";
 
 // MARK: - Discovery View
 
@@ -530,7 +530,7 @@
 "contacts.discovery.added" = "Added";
 
 /* Location: DiscoveryView.swift - Purpose: Accessibility label for added button */
-"contacts.discovery.addedAccessibility" = "Already added to contacts";
+"contacts.discovery.addedAccessibility" = "Уже додано до контактів";
 
 /* Location: DiscoveryView.swift - Purpose: Services not available error */
 "contacts.discovery.error.servicesUnavailable" = "Сервіси недоступні";
@@ -1145,7 +1145,7 @@
 "contacts.viewModel.connectToDelete" = "Підключись до радіо для видалення вузлів";
 
 /* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
-"contacts.viewModel.removeTimedOut" = "Deleting the node timed out. Try again.";
+"contacts.viewModel.removeTimedOut" = "Час очікування видалення вузла вичерпано. Спробуйте ще раз.";
 
 // MARK: - Path Management ViewModel Errors
 

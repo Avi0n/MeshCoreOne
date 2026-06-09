@@ -607,13 +607,13 @@
 "dangerZone.dialog.forget.title" = "Apparaat vergeten";
 
 /* Confirmation dialog message for forget device */
-"dangerZone.dialog.forget.message" = "Your device will be unpaired. You can choose to keep or delete your messages, contacts, and channels.";
+"dangerZone.dialog.forget.message" = "Je apparaat wordt ontkoppeld. Je kunt ervoor kiezen om je berichten, contacten en kanalen te behouden of te verwijderen.";
 
 /* Button to forget device but keep data */
 "dangerZone.dialog.forget.keepData" = "Apparaat vergeten";
 
 /* Button to forget device and delete all associated data */
-"dangerZone.dialog.forget.deleteAll" = "Forget Device & Delete Data";
+"dangerZone.dialog.forget.deleteAll" = "Apparaat vergeten en gegevens verwijderen";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "Fabrieksinstellingen herstellen";
@@ -970,13 +970,13 @@
 // MARK: - Direct Messages Settings Section
 
 /* Section header for direct message settings */
-"directMessages.header" = "Direct Messages";
+"directMessages.header" = "Directe berichten";
 
 /* Picker label for number of acknowledgments */
 "directMessages.acknowledgments" = "Acknowledgments";
 
 /* Footer explaining the acknowledgments setting */
-"directMessages.footer" = "Number of acknowledgments sent per direct message. Use 2 for better delivery confirmation over unreliable links.";
+"directMessages.footer" = "Aantal bevestigingen dat per direct bericht wordt verstuurd. Gebruik 2 voor betere afleverbevestiging via onbetrouwbare verbindingen.";
 
 
 // MARK: - BLE Status Indicator
@@ -1301,6 +1301,18 @@
 /* Location: SettingsView.swift - Detail row when region is unset */
 "region.notSet" = "Niet ingesteld";
 
+/* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
+"region.subdivision.US-CA" = "Californië";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
+"region.subdivision.AU-QLD" = "Queensland";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name */
+"region.subdivision.AU-SA" = "Zuid-Australië";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
+"region.subdivision.AU-WA" = "West-Australië";
+
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
@@ -1401,8 +1413,8 @@
 "importKey.error.invalidKey" = "Geen geldige Ed25519-privésleutel";
 
 // Reply with Quote
-"replyWithQuote.toggle" = "Reply with Quote";
-"replyWithQuote.footer" = "Replying includes a preview of the original message.";
+"replyWithQuote.toggle" = "Antwoorden met citaat";
+"replyWithQuote.footer" = "Bij een antwoord wordt een voorbeeld van het oorspronkelijke bericht toegevoegd.";
 
 // MARK: - Offline Maps
 
@@ -1744,7 +1756,7 @@
 "Support.Accessibility.ThemeCard.OwnedLabel" = "Thema %@, in bezit";
 "Support.Accessibility.BundleCard.LockedLabel" = "Pakket Alle thema's, vergrendeld, %@";
 "Support.Accessibility.BundleCard.LockedHint" = "Koopt het pakket Alle thema's";
-"Support.Accessibility.BundleCard.LoadingLabel" = "All Themes bundle, loading price";
+"Support.Accessibility.BundleCard.LoadingLabel" = "Alle thema's-bundel, prijs laden";
 "Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
 "Support.Accessibility.ContributionRow.Hint" = "Stuurt een fooi als bedankje";
 "Support.Accessibility.TipConfirmAnnouncement" = "Bedankt voor je fooi.";

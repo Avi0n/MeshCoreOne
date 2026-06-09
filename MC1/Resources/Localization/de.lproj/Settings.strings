@@ -607,13 +607,13 @@
 "dangerZone.dialog.forget.title" = "Gerät vergessen";
 
 /* Confirmation dialog message for forget device */
-"dangerZone.dialog.forget.message" = "Your device will be unpaired. You can choose to keep or delete your messages, contacts, and channels.";
+"dangerZone.dialog.forget.message" = "Dein Gerät wird entkoppelt. Du kannst wählen, ob du deine Nachrichten, Kontakte und Kanäle behalten oder löschen möchtest.";
 
 /* Button to forget device but keep data */
 "dangerZone.dialog.forget.keepData" = "Gerät vergessen";
 
 /* Button to forget device and delete all associated data */
-"dangerZone.dialog.forget.deleteAll" = "Forget Device & Delete Data";
+"dangerZone.dialog.forget.deleteAll" = "Gerät vergessen & Daten löschen";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "Werkseinstellungen";
@@ -970,13 +970,13 @@
 // MARK: - Direct Messages Settings Section
 
 /* Section header for direct message settings */
-"directMessages.header" = "Direct Messages";
+"directMessages.header" = "Direktnachrichten";
 
 /* Picker label for number of acknowledgments */
 "directMessages.acknowledgments" = "Acknowledgments";
 
 /* Footer explaining the acknowledgments setting */
-"directMessages.footer" = "Number of acknowledgments sent per direct message. Use 2 for better delivery confirmation over unreliable links.";
+"directMessages.footer" = "Anzahl der pro Direktnachricht gesendeten Bestätigungen. Verwende 2 für eine bessere Zustellbestätigung über unzuverlässige Verbindungen.";
 
 
 // MARK: - BLE Status Indicator
@@ -1301,6 +1301,18 @@
 /* Location: SettingsView.swift - Detail row when region is unset */
 "region.notSet" = "Nicht festgelegt";
 
+/* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
+"region.subdivision.US-CA" = "Kalifornien";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
+"region.subdivision.AU-QLD" = "Queensland";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name */
+"region.subdivision.AU-SA" = "Südaustralien";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
+"region.subdivision.AU-WA" = "Westaustralien";
+
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
@@ -1401,8 +1413,8 @@
 "importKey.error.invalidKey" = "Kein gültiger privater Ed25519-Schlüssel";
 
 // Reply with Quote
-"replyWithQuote.toggle" = "Reply with Quote";
-"replyWithQuote.footer" = "Replying includes a preview of the original message.";
+"replyWithQuote.toggle" = "Mit Zitat antworten";
+"replyWithQuote.footer" = "Beim Antworten wird eine Vorschau der ursprünglichen Nachricht eingefügt.";
 
 // MARK: - Offline Maps
 
@@ -1744,7 +1756,7 @@
 "Support.Accessibility.ThemeCard.OwnedLabel" = "Design %@, im Besitz";
 "Support.Accessibility.BundleCard.LockedLabel" = "Paket „Alle Designs“, gesperrt, %@";
 "Support.Accessibility.BundleCard.LockedHint" = "Kauft das Paket „Alle Designs“";
-"Support.Accessibility.BundleCard.LoadingLabel" = "All Themes bundle, loading price";
+"Support.Accessibility.BundleCard.LoadingLabel" = "Paket „Alle Designs“, Preis wird geladen";
 "Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
 "Support.Accessibility.ContributionRow.Hint" = "Sendet ein Dankeschön-Trinkgeld";
 "Support.Accessibility.TipConfirmAnnouncement" = "Danke für dein Trinkgeld.";

@@ -346,7 +346,7 @@
 "remoteNodes.settings.regions" = "Regions";
 
 /* Location: RepeaterSettingsView.swift - Regions section footer */
-"remoteNodes.settings.regionsFooter" = "Save to Repeater to keep changes across restarts.";
+"remoteNodes.settings.regionsFooter" = "Zapisz w przekaźniku, aby zachować zmiany po restartach.";
 
 /* Location: RepeaterSettingsView.swift - Wildcard region display name */
 "remoteNodes.settings.regions.allTraffic" = "All Traffic";
@@ -364,7 +364,7 @@
 "remoteNodes.settings.regions.allowFlood" = "Allow Flood Traffic";
 
 /* Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle */
-"remoteNodes.settings.regions.floodToggleHint" = "When off, flood packets from this region are dropped";
+"remoteNodes.settings.regions.floodToggleHint" = "Gdy wyłączone, pakiety rozproszone z tego regionu są odrzucane";
 
 /* Location: RepeaterSettingsView.swift - Add region button */
 "remoteNodes.settings.regions.addRegion" = "Add Region";
@@ -376,25 +376,25 @@
 "remoteNodes.settings.regions.regionName" = "Region name";
 
 /* Location: RepeaterSettingsView.swift - Save regions to device button */
-"remoteNodes.settings.regions.saveToDevice" = "Save to Repeater";
+"remoteNodes.settings.regions.saveToDevice" = "Zapisz w przekaźniku";
 
 /* Location: RepeaterSettingsViewModel.swift - Region save success */
-"remoteNodes.settings.regions.saveSuccess" = "Regions saved to device";
+"remoteNodes.settings.regions.saveSuccess" = "Regiony zapisane na urządzeniu";
 
 /* Location: RepeaterSettingsViewModel.swift - Region save failure */
-"remoteNodes.settings.regions.saveFailed" = "Failed to save regions";
+"remoteNodes.settings.regions.saveFailed" = "Nie udało się zapisać regionów";
 
 /* Location: RepeaterSettingsViewModel.swift - Region not found error */
 "remoteNodes.settings.regions.unknownRegion" = "Unknown region";
 
 /* Location: RepeaterSettingsViewModel.swift - Region has children error */
-"remoteNodes.settings.regions.notEmpty" = "Remove child regions first";
+"remoteNodes.settings.regions.notEmpty" = "Najpierw usuń regiony podrzędne";
 
 /* Location: RepeaterSettingsViewModel.swift - Region add failure */
-"remoteNodes.settings.regions.addFailed" = "Failed to add region";
+"remoteNodes.settings.regions.addFailed" = "Nie udało się dodać regionu";
 
 /* Location: RepeaterSettingsViewModel.swift - Region remove failure */
-"remoteNodes.settings.regions.removeFailed" = "Failed to remove region";
+"remoteNodes.settings.regions.removeFailed" = "Nie udało się usunąć regionu";
 
 /* Location: RepeaterSettingsViewModel.swift - No regions on device */
 "remoteNodes.settings.regions.empty" = "No regions configured";
@@ -641,10 +641,10 @@
 "remoteNodes.history.neighborsSection" = "Neighbors";
 
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Empty state when no snapshots exist */
-"remoteNodes.history.noSnapshotsMessage" = "Connect to this node at least once to see history.";
+"remoteNodes.history.noSnapshotsMessage" = "Połącz się z tym węzłem co najmniej raz, aby zobaczyć historię.";
 
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Empty state when section data not captured */
-"remoteNodes.history.sectionNotCaptured" = "This data is captured when you view the %@ section during a live telemetry session.";
+"remoteNodes.history.sectionNotCaptured" = "Te dane są przechwytywane, gdy przeglądasz sekcję %@ podczas sesji telemetrii na żywo.";
 
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Navigation title */
 "remoteNodes.history.overviewTitle" = "Telemetry History";
@@ -667,7 +667,7 @@
 "remoteNodes.room.viewOnlyBanner" = "Tylko podgląd - dołącz jako członek, aby publikować";
 
 /* Location: RoomConversationView.swift - Hint text for read-only banner */
-"remoteNodes.room.viewOnlyHint" = "Tap to log in";
+"remoteNodes.room.viewOnlyHint" = "Dotknij, aby się zalogować";
 
 /* Location: RoomConversationView.swift - Room info sheet title */
 "remoteNodes.room.infoTitle" = "Informacje o pokoju";
@@ -703,7 +703,7 @@
 "remoteNodes.room.disconnectedBanner" = "Disconnected";
 
 /* Location: RoomConversationView.swift - Accessibility hint for disconnected banner */
-"remoteNodes.room.disconnectedHint" = "Tap to reconnect";
+"remoteNodes.room.disconnectedHint" = "Dotknij, aby połączyć ponownie";
 
 // MARK: - Room Message Bubble
 
@@ -739,7 +739,7 @@
 "remoteNodes.roomSettings.roomSettingsSection" = "Room Settings";
 
 /* Location: RoomSettingsView.swift - Room settings section footer */
-"remoteNodes.roomSettings.roomSettingsFooter" = "Guest password and read-only access.";
+"remoteNodes.roomSettings.roomSettingsFooter" = "Hasło gościa i dostęp tylko do odczytu.";
 
 /* Location: RoomSettingsView.swift - Guest password label */
 "remoteNodes.roomSettings.guestPassword" = "Guest Password";
@@ -748,34 +748,34 @@
 "remoteNodes.roomSettings.allowReadOnly" = "Allow Read-Only";
 
 /* Location: RoomSettingsView.swift - Allow read-only footer */
-"remoteNodes.roomSettings.allowReadOnlyFooter" = "Allow users without a password to connect in read-only mode.";
+"remoteNodes.roomSettings.allowReadOnlyFooter" = "Zezwól użytkownikom bez hasła na połączenie w trybie tylko do odczytu.";
 
 /* Location: RoomSettingsView.swift - Apply room settings button */
 "remoteNodes.roomSettings.applyRoomSettings" = "Apply Room Settings";
 
 /* Location: RoomSettingsView.swift - Room behavior section footer */
-"remoteNodes.roomSettings.behaviorFooter" = "Advertisement intervals and flood hops.";
+"remoteNodes.roomSettings.behaviorFooter" = "Interwały ogłoszeń i skoki rozproszone.";
 
 /* Location: RoomSettingsView.swift - Identity section footer */
-"remoteNodes.roomSettings.identityFooter" = "Room name and GPS coordinates for map display.";
+"remoteNodes.roomSettings.identityFooter" = "Nazwa pokoju i współrzędne GPS do wyświetlania na mapie.";
 
 /* Location: RoomSettingsView.swift - Reboot confirmation title */
 "remoteNodes.roomSettings.rebootConfirmTitle" = "Reboot Room?";
 
 /* Location: RoomSettingsView.swift - Reboot confirmation message */
-"remoteNodes.roomSettings.rebootMessage" = "The room will restart and be temporarily unavailable.";
+"remoteNodes.roomSettings.rebootMessage" = "Pokój zostanie uruchomiony ponownie i będzie tymczasowo niedostępny.";
 
 /* Location: RoomSettingsView.swift - Radio restart warning */
-"remoteNodes.roomSettings.radioRestartWarning" = "Applying these changes will restart the room";
+"remoteNodes.roomSettings.radioRestartWarning" = "Zastosowanie tych zmian uruchomi ponownie pokój";
 
 /* Location: RoomSettingsView.swift - No service error */
 "remoteNodes.roomSettings.noService" = "Room service not available";
 
 /* Location: RoomSettingsView.swift - Not connected error */
-"remoteNodes.roomSettings.notConnected" = "Not connected to room";
+"remoteNodes.roomSettings.notConnected" = "Nie połączono z pokojem";
 
 /* Location: RoomSettingsView.swift - Clock ahead error */
-"remoteNodes.roomSettings.clockAheadError" = "Room clock is ahead of phone time. If it's too far forward, reboot the room then sync time again.";
+"remoteNodes.roomSettings.clockAheadError" = "Zegar pokoju jest przed czasem telefonu. Jeśli jest zbyt daleko do przodu, uruchom ponownie pokój, a następnie ponownie zsynchronizuj czas.";
 
 // MARK: - Room Info Sheet (additions)
 
@@ -789,11 +789,11 @@
 
 /* Location: NodeCliView.swift - Banner shown when connected to a node - %@ is node name */
 /* TODO: translate */
-"remoteNodes.nodeCli.bannerConnected" = "Connected to %@";
+"remoteNodes.nodeCli.bannerConnected" = "Połączono z %@";
 
 /* Location: NodeCliView.swift - Hint shown below connected banner */
 /* TODO: translate */
-"remoteNodes.nodeCli.bannerHint" = "Type 'help' for available commands.";
+"remoteNodes.nodeCli.bannerHint" = "Wpisz 'help', aby zobaczyć dostępne polecenia.";
 
 /* Location: NodeCliViewModel.swift - Toast after reboot command succeeds */
 /* TODO: translate */
@@ -809,11 +809,11 @@
 
 /* Location: NodeCliViewModel.swift - Help entry for 'help' command */
 /* TODO: translate */
-"remoteNodes.nodeCli.helpHelp" = "  help\n    Show this help";
+"remoteNodes.nodeCli.helpHelp" = "  help\n    Pokaż tę pomoc";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'clear' command */
 /* TODO: translate */
-"remoteNodes.nodeCli.helpClear" = "  clear\n    Clear the terminal";
+"remoteNodes.nodeCli.helpClear" = "  clear\n    Wyczyść terminal";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'clear stats' command */
 /* TODO: translate */
@@ -821,11 +821,11 @@
 
 /* Location: NodeCliViewModel.swift - Help entry for 'reboot' command */
 /* TODO: translate */
-"remoteNodes.nodeCli.helpReboot" = "  reboot\n    Restart this node";
+"remoteNodes.nodeCli.helpReboot" = "  reboot\n    Uruchom ponownie ten węzeł";
 
 /* Location: NodeCliViewModel.swift - Passthrough note at end of help output */
 /* TODO: translate */
-"remoteNodes.nodeCli.helpPassthrough" = "Any other input is sent to the node.";
+"remoteNodes.nodeCli.helpPassthrough" = "Każde inne wejście jest wysyłane do węzła.";
 
 // MARK: - Shared
 

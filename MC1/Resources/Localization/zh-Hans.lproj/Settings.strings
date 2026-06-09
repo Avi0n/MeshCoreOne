@@ -594,13 +594,13 @@
 "dangerZone.dialog.forget.title" = "忘记设备";
 
 /* Confirmation dialog message for forget device */
-"dangerZone.dialog.forget.message" = "Your device will be unpaired. You can choose to keep or delete your messages, contacts, and channels.";
+"dangerZone.dialog.forget.message" = "您的设备将取消配对。您可以选择保留或删除您的消息、联系人和频道。";
 
 /* Button to forget device but keep data */
 "dangerZone.dialog.forget.keepData" = "忘记设备";
 
 /* Button to forget device and delete all associated data */
-"dangerZone.dialog.forget.deleteAll" = "Forget Device & Delete Data";
+"dangerZone.dialog.forget.deleteAll" = "忘记设备并删除数据";
 
 /* Alert title for factory reset confirmation */
 "dangerZone.alert.reset.title" = "恢复出厂设置";
@@ -980,13 +980,13 @@
 // MARK: - Direct Messages Settings Section
 
 /* Section header for direct message settings */
-"directMessages.header" = "Direct Messages";
+"directMessages.header" = "私信";
 
 /* Picker label for number of acknowledgments */
 "directMessages.acknowledgments" = "Acknowledgments";
 
 /* Footer explaining the acknowledgments setting */
-"directMessages.footer" = "Number of acknowledgments sent per direct message. Use 2 for better delivery confirmation over unreliable links.";
+"directMessages.footer" = "每条私信发送的确认数量。在不可靠的链路上使用 2 以获得更好的送达确认。";
 
 
 // MARK: - BLE Status Indicator
@@ -1275,6 +1275,18 @@
 /* Location: SettingsView.swift - Detail row when region is unset */
 "region.notSet" = "未设置";
 
+/* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
+"region.subdivision.US-CA" = "加利福尼亚州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
+"region.subdivision.AU-QLD" = "昆士兰州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name */
+"region.subdivision.AU-SA" = "南澳大利亚州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
+"region.subdivision.AU-WA" = "西澳大利亚州";
+
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
@@ -1375,8 +1387,8 @@
 "importKey.error.invalidKey" = "不是有效的 Ed25519 私钥";
 
 // Reply with Quote
-"replyWithQuote.toggle" = "Reply with Quote";
-"replyWithQuote.footer" = "Replying includes a preview of the original message.";
+"replyWithQuote.toggle" = "引用回复";
+"replyWithQuote.footer" = "回复时包含原始消息的预览。";
 
 // MARK: - Offline Maps
 
@@ -1718,7 +1730,7 @@
 "Support.Accessibility.ThemeCard.OwnedLabel" = "主题 %@，已拥有";
 "Support.Accessibility.BundleCard.LockedLabel" = "全部主题套装，已锁定，%@";
 "Support.Accessibility.BundleCard.LockedHint" = "购买全部主题套装";
-"Support.Accessibility.BundleCard.LoadingLabel" = "All Themes bundle, loading price";
+"Support.Accessibility.BundleCard.LoadingLabel" = "全部主题套装，正在加载价格";
 "Support.Accessibility.ContributionRow.Label" = "%1$@，%2$@";
 "Support.Accessibility.ContributionRow.Hint" = "发送感谢式打赏";
 "Support.Accessibility.TipConfirmAnnouncement" = "感谢你的打赏。";

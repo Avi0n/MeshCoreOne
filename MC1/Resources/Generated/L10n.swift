@@ -358,7 +358,7 @@ public enum L10n {
       }
       public enum Error {
         /// Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails
-        public static let loadConversationsFailed = L10n.tr("Chats", "chats.error.loadConversationsFailed", fallback: "Couldn't load conversations. Pull to retry.")
+        public static let loadConversationsFailed = L10n.tr("Chats", "chats.error.loadConversationsFailed", fallback: "Couldn't load conversations.")
         /// Location: ChatConversationView.swift - Error when loading older messages fails
         public static let loadOlderMessagesFailed = L10n.tr("Chats", "chats.error.loadOlderMessagesFailed", fallback: "Failed to load older messages")
         /// Location: ChannelInfoSheet.swift - Error when device not connected

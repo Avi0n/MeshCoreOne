@@ -449,7 +449,7 @@
 "contacts.add.pasteURL" = "Paste Contact URL";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL section footer */
-"contacts.add.pasteURLFooter" = "Paste a meshcore:// contact link to auto-fill the fields above";
+"contacts.add.pasteURLFooter" = "Plak een meshcore://-contactlink om de bovenstaande velden automatisch in te vullen";
 
 /* Location: AddContactSheet.swift - Purpose: Invalid paste URL error */
 "contacts.add.error.invalidURL" = "Clipboard does not contain a valid contact URL";
@@ -510,7 +510,7 @@
 "contacts.scan.error.invalidKey" = "Ongeldige QR-code: ongeldige publieke sleutel";
 
 /* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
-"contacts.scan.error.importFailed" = "Failed to import contact: %@";
+"contacts.scan.error.importFailed" = "Kan contact niet importeren: %@";
 
 // MARK: - Discovery View
 
@@ -530,7 +530,7 @@
 "contacts.discovery.added" = "Added";
 
 /* Location: DiscoveryView.swift - Purpose: Accessibility label for added button */
-"contacts.discovery.addedAccessibility" = "Already added to contacts";
+"contacts.discovery.addedAccessibility" = "Al toegevoegd aan contacten";
 
 /* Location: DiscoveryView.swift - Purpose: Services not available error */
 "contacts.discovery.error.servicesUnavailable" = "Services niet beschikbaar";
@@ -1158,7 +1158,7 @@
 "contacts.viewModel.connectToDelete" = "Verbind met een radio om nodes te verwijderen";
 
 /* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
-"contacts.viewModel.removeTimedOut" = "Deleting the node timed out. Try again.";
+"contacts.viewModel.removeTimedOut" = "Het verwijderen van het knooppunt is verlopen. Probeer het opnieuw.";
 
 // MARK: - Path Management ViewModel Errors
 
