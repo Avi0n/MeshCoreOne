@@ -18,6 +18,8 @@ plans/
 specs/
 tmp/
 .xcodebuildmcp/
+.codegraph
+.asc
 
 *lock.json
 
@@ -99,3 +101,5 @@ __pycache__
 
 # idea
 .idea/
+# Brainstorming visual companion mockups
+.superpowers/
