@@ -79,7 +79,7 @@
 "tabs.chats" = "Chats";
 
 /* VoiceOver value announcing the unread message count on the Chats sidebar icon. %d is the count. */
-"tabs.chatsUnreadAccessibilityValue" = "%d unread";
+"tabs.chatsUnreadAccessibilityValue" = "%d sin leer";
 
 /* Tab bar title for the nodes/contacts list screen */
 "tabs.nodes" = "Nodos";

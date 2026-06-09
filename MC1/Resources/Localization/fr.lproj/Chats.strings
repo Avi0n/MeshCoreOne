@@ -123,7 +123,7 @@
 "chats.scrollButton.scrollToBottom.accessibilityLabel" = "Aller au dernier message";
 
 /* Location: ScrollToBottomButton.swift - Accessibility value for unread message count - %d is the number of unread messages */
-"chats.scrollButton.scrollToBottom.accessibilityValue" = "%d unread messages";
+"chats.scrollButton.scrollToBottom.accessibilityValue" = "%d messages non lus";
 /* Location: ScrollToMentionButton.swift, ScrollToBottomButton.swift - Badge text for 99+ unread */
 "chats.scrollButton.badge.overflow" = "99+";
 

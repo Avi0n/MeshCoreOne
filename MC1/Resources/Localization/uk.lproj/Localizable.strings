@@ -35,7 +35,7 @@
 "tabs.chats" = "Чати";
 
 /* VoiceOver value announcing the unread message count on the Chats sidebar icon. %d is the count. */
-"tabs.chatsUnreadAccessibilityValue" = "%d unread";
+"tabs.chatsUnreadAccessibilityValue" = "%d непрочитаних";
 
 /* Tab bar title for the nodes/contacts list screen */
 "tabs.nodes" = "Вузли";
