@@ -90,6 +90,13 @@ struct UnifiedMessageBubble: View, Equatable {
                         callbacks: callbacks,
                         imageResolver: imageResolver
                     )
+                    // Shape the lift to the bubble box so the system lifts this
+                    // live view in place. An explicit `preview:` would lift a
+                    // detached re-render the system fades the source to hide,
+                    // which diverges in size and flashes on appear/dismiss.
+                    // Siblings (status row, link and reaction cards) sit outside
+                    // this view, so the lift already excludes them.
+                    .contentShape(.contextMenuPreview, .rect(cornerRadius: BubbleFragmentStack.cornerRadius))
                     .contextMenu {
                         callbacks.makeActionsMenu?()
                     }
