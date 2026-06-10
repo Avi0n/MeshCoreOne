@@ -16,8 +16,6 @@ struct ChatMessagesTableView: View {
     @Binding var scrollToMentionRequest: Int
     @Binding var scrollToDividerRequest: Int
     @Binding var isDividerVisible: Bool
-    @Binding var selectedMessageForActions: MessageDTO?
-    @Binding var selectedMessageForInfo: MessageDTO?
     @Binding var imageViewerData: ImageViewerData?
 
     let unseenMentionIDs: [UUID]
@@ -51,8 +49,6 @@ struct ChatMessagesTableView: View {
                     recentEmojisStore.recordUsage(emoji)
                     Task { await viewModel.sendReaction(emoji: emoji, to: message) }
                 },
-                onTap: { message in selectedMessageForInfo = message },
-                onLongPress: { message in selectedMessageForActions = message },
                 makeActionsMenu: makeActionsMenu,
                 onImageTap: { message in
                     if let data = viewModel.imageData(for: message.id) {
@@ -98,11 +94,6 @@ struct ChatMessagesTableView: View {
             onMentionBecameVisible: { id in
                 Task {
                     await onMentionSeen(id)
-                }
-            },
-            onSecondaryClick: { item in
-                if let message = viewModel.message(for: item) {
-                    selectedMessageForActions = message
                 }
             },
             mentionTargetID: scrollToTargetID,

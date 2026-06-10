@@ -4,6 +4,12 @@ import MC1Services
 import SwiftUI
 
 struct MessagePathMapView: View {
+    /// Span used when the path resolves to a single node, with no bounding box to fit.
+    private static let singleNodeSpanDelta: CLLocationDegrees = 0.05
+    /// Padding around the multi-node bounding region, wider than `boundingRegion`'s
+    /// 1.5 default to leave room for the floating map-style button.
+    private static let pathBoundingPaddingMultiplier: Double = 2.5
+
     @Environment(\.appState) private var appState
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
@@ -80,12 +86,15 @@ struct MessagePathMapView: View {
                 if coords.count == 1 {
                     cameraRegion = MKCoordinateRegion(
                         center: coords[0],
-                        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                        span: MKCoordinateSpan(
+                            latitudeDelta: Self.singleNodeSpanDelta,
+                            longitudeDelta: Self.singleNodeSpanDelta
+                        )
                     )
-                } else if let region = coords.boundingRegion(paddingMultiplier: 2.5) {
+                } else if let region = coords.boundingRegion(paddingMultiplier: Self.pathBoundingPaddingMultiplier) {
                     cameraRegion = region
                 }
-                cameraRegionVersion = 1
+                cameraRegionVersion += 1
             }
         }
     }

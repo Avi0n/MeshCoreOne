@@ -100,14 +100,10 @@ struct UnifiedMessageBubble: View, Equatable {
 
                     if item.footer.showStatusRow {
                         BubbleStatusRow(item: item, onRetry: callbacks.onRetry)
-                            .onTapGesture { callbacks.onTap?() }
                     }
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel(accessibilityMessageLabel)
-                .accessibilityAction {
-                    callbacks.onLongPress?()
-                }
                 .accessibilityActions {
                     if item.footer.showStatusRow,
                        item.footer.status == .failed,

@@ -46,7 +46,6 @@ struct ChatConversationView: View {
     // MARK: - Sheet State
 
     @State private var showingInfo = false
-    @State private var selectedMessageForActions: MessageDTO?
     @State private var selectedMessageForInfo: MessageDTO?
     @State private var emojiPickerMessage: MessageDTO?
     @State private var blockSenderContext: BlockSenderContext?
@@ -125,8 +124,6 @@ struct ChatConversationView: View {
             unseenMentionIDs: unseenMentionIDs,
             scrollToTargetID: scrollToTargetID,
             newMessagesDividerMessageID: chatViewModel.newMessagesDividerMessageID,
-            selectedMessageForActions: $selectedMessageForActions,
-            selectedMessageForInfo: $selectedMessageForInfo,
             imageViewerData: $imageViewerData,
             onMentionSeen: { await markMentionSeen(messageID: $0) },
             onScrollToMention: { scrollToNextMention() },

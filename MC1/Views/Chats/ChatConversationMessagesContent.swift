@@ -35,8 +35,6 @@ struct ChatConversationMessagesContent: View {
 
     // MARK: - Sheet State Bindings
 
-    @Binding var selectedMessageForActions: MessageDTO?
-    @Binding var selectedMessageForInfo: MessageDTO?
     @Binding var imageViewerData: ImageViewerData?
 
     // MARK: - Callbacks
@@ -68,8 +66,6 @@ struct ChatConversationMessagesContent: View {
                     scrollToMentionRequest: $scrollToMentionRequest,
                     scrollToDividerRequest: $scrollToDividerRequest,
                     isDividerVisible: $isDividerVisible,
-                    selectedMessageForActions: $selectedMessageForActions,
-                    selectedMessageForInfo: $selectedMessageForInfo,
                     imageViewerData: $imageViewerData,
                     unseenMentionIDs: unseenMentionIDs,
                     scrollToTargetID: scrollToTargetID,
@@ -190,8 +186,6 @@ private struct ChannelEmptyMessagesView: View {
             unseenMentionIDs: [],
             scrollToTargetID: nil,
             newMessagesDividerMessageID: nil,
-            selectedMessageForActions: .constant(nil),
-            selectedMessageForInfo: .constant(nil),
             imageViewerData: .constant(nil),
             onMentionSeen: { _ in },
             onScrollToMention: {},
@@ -223,8 +217,6 @@ private struct ChannelEmptyMessagesView: View {
             unseenMentionIDs: [],
             scrollToTargetID: nil,
             newMessagesDividerMessageID: nil,
-            selectedMessageForActions: .constant(nil),
-            selectedMessageForInfo: .constant(nil),
             imageViewerData: .constant(nil),
             onMentionSeen: { _ in },
             onScrollToMention: {},

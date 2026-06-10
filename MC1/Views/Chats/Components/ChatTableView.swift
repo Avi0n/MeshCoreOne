@@ -4,7 +4,7 @@ import SwiftUI
 /// UIKit table view controller with flipped orientation for chat-style scrolling
 /// Newest messages appear at visual bottom, keyboard handling via native UIKit
 @MainActor
-final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, CellContent: View>: UITableViewController, UIContextMenuInteractionDelegate where Item.ID == UUID {
+final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, CellContent: View>: UITableViewController where Item.ID == UUID {
 
     // MARK: - Types
 
@@ -75,11 +75,6 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     /// Callback when a mention becomes visible
     var onMentionBecameVisible: ((Item.ID) -> Void)?
-
-    /// Callback when a row receives a secondary (right / two-finger trackpad) click.
-    /// Mirrors the bubble's long-press: lets pointer users open the message actions
-    /// sheet on iPad with a trackpad and on the iPad build running on Mac.
-    var onSecondaryClick: ((Item) -> Void)?
 
     /// Closure to check if an item contains an unseen self-mention
     var isUnseenMention: ((Item) -> Bool)?
@@ -173,55 +168,6 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
         // Coalesces scroll-tracking callbacks at display-frame cadence
         setupScrollDisplayLink()
-
-        // Pointer secondary-click opens the actions sheet, matching the touch long-press.
-        setupSecondaryClickHandling()
-    }
-
-    /// Opens the actions sheet on a pointer secondary-click via each runtime's delivery
-    /// mechanism: a `.secondary` tap on iPad, a context-menu interaction on Mac (where a
-    /// right-click reaches the context-menu system, not a `.secondary` tap).
-    private func setupSecondaryClickHandling() {
-        if ProcessInfo.processInfo.isiOSAppOnMac {
-            tableView.addInteraction(UIContextMenuInteraction(delegate: self))
-        } else {
-            setupSecondaryClickRecognizer()
-        }
-    }
-
-    private func setupSecondaryClickRecognizer() {
-        let recognizer = UITapGestureRecognizer(
-            target: self,
-            action: #selector(handleSecondaryClick(_:))
-        )
-        // The secondary button mask keeps this off scrolling and the primary-touch gesture.
-        recognizer.buttonMaskRequired = .secondary
-        recognizer.cancelsTouchesInView = false
-        tableView.addGestureRecognizer(recognizer)
-    }
-
-    @objc private func handleSecondaryClick(_ gesture: UITapGestureRecognizer) {
-        guard let item = itemForRow(at: gesture.location(in: tableView)) else { return }
-        onSecondaryClick?(item)
-    }
-
-    /// Resolves the model item under a point in the table view's coordinate space.
-    private func itemForRow(at point: CGPoint) -> Item? {
-        guard let indexPath = tableView.indexPathForRow(at: point),
-              let itemID = dataSource?.itemIdentifier(for: indexPath) else { return nil }
-        return itemsByID[itemID]
-    }
-
-    // On the class, not an extension: a generic class can carry `@objc` conformance
-    // only in its primary declaration.
-    func contextMenuInteraction(
-        _ interaction: UIContextMenuInteraction,
-        configurationForMenuAtLocation location: CGPoint
-    ) -> UIContextMenuConfiguration? {
-        guard let item = itemForRow(at: location) else { return nil }
-        onSecondaryClick?(item)
-        // No configuration suppresses the native menu, leaving the sheet the only actions surface.
-        return nil
     }
 
     // Swift 6.3.2 EarlyPerfInliner crashes (infinite recursion in
@@ -1017,7 +963,6 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
     @Binding var scrollToMentionRequest: Int
     var isUnseenMention: ((Item) -> Bool)?
     var onMentionBecameVisible: ((Item.ID) -> Void)?
-    var onSecondaryClick: ((Item) -> Void)?
     var mentionTargetID: Item.ID?
     @Binding var scrollToDividerRequest: Int
     var dividerItemID: Item.ID?
@@ -1076,7 +1021,6 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
         // Update mention detection closures
         controller.isUnseenMention = isUnseenMention
         controller.onMentionBecameVisible = onMentionBecameVisible
-        controller.onSecondaryClick = onSecondaryClick
 
         // Update divider visibility tracking
         controller.dividerItemID = dividerItemID

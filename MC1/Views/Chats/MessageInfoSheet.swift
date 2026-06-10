@@ -8,6 +8,8 @@ struct MessageInfoSheet: View {
     let message: MessageDTO
     let senderName: String
 
+    @State private var detent: PresentationDetent = .medium
+
     /// Owned per presentation so loading state never bleeds between opens.
     @State private var pathViewModel = MessagePathViewModel()
     @State private var showPathMap = false
@@ -50,6 +52,7 @@ struct MessageInfoSheet: View {
                 }
             }
         }
+        .presentationDetents([.medium, .large], selection: $detent)
         .sheet(isPresented: $showPathMap) {
             MessagePathMapView(message: message, pathViewModel: pathViewModel)
         }
