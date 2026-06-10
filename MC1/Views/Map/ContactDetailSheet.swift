@@ -6,6 +6,7 @@ import MC1Services
 struct ContactDetailSheet: View {
     let contact: ContactDTO
     let onMessage: () -> Void
+    let onDelete: () -> Void
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appState) private var appState
 
@@ -32,6 +33,9 @@ struct ContactDetailSheet: View {
     @State private var pendingSheet: ActiveSheet?
     @State private var isPinging = false
     @State private var pingResult: PingResult?
+    @State private var showingDeleteAlert = false
+    @State private var isDeleting = false
+    @State private var errorMessage: String?
 
     var body: some View {
         NavigationStack {
@@ -135,6 +139,23 @@ struct ContactDetailSheet: View {
                         .radioDisabled(for: appState.connectionState)
                     }
                 }
+
+                // Delete section
+                Section {
+                    Button(role: .destructive) {
+                        showingDeleteAlert = true
+                    } label: {
+                        HStack {
+                            Label(L10n.Contacts.Contacts.Common.delete, systemImage: "trash")
+                            if isDeleting {
+                                Spacer()
+                                ProgressView()
+                            }
+                        }
+                    }
+                    .disabled(isDeleting)
+                    .radioDisabled(for: appState.connectionState)
+                }
             }
             .navigationTitle(contact.displayName)
             .navigationBarTitleDisplayMode(.inline)
@@ -196,6 +217,41 @@ struct ContactDetailSheet: View {
                     }
                 }
             }
+            .alert(
+                L10n.Contacts.Contacts.Detail.Alert.Delete.title(typeDisplayName),
+                isPresented: $showingDeleteAlert
+            ) {
+                Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) { }
+                Button(L10n.Contacts.Contacts.Common.delete, role: .destructive) {
+                    Task { await deleteContact() }
+                }
+            } message: {
+                Text(L10n.Contacts.Contacts.Detail.Alert.Delete.message(contact.displayName))
+            }
+            .errorAlert($errorMessage)
+        }
+    }
+
+    // MARK: - Delete
+
+    private func deleteContact() async {
+        guard let contactService = appState.services?.contactService else { return }
+        isDeleting = true
+        defer { isDeleting = false }
+        do {
+            try await contactService.removeContact(radioID: contact.radioID, publicKey: contact.publicKey)
+            dismiss()
+            onDelete()
+        } catch ContactServiceError.contactNotFound {
+            do {
+                try await contactService.removeLocalContact(contactID: contact.id, publicKey: contact.publicKey)
+                dismiss()
+                onDelete()
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        } catch {
+            errorMessage = error.localizedDescription
         }
     }
 

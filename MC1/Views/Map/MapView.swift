@@ -55,7 +55,8 @@ struct MapView: View {
             .sheet(item: $selectedContactForDetail) { contact in
                 ContactDetailSheet(
                     contact: contact,
-                    onMessage: { navigateToChat(with: contact) }
+                    onMessage: { navigateToChat(with: contact) },
+                    onDelete: { Task { await viewModel.loadContactsWithLocation() } }
                 )
                 .presentationDetents([.large])
             }
