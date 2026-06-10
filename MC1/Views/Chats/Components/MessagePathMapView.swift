@@ -17,7 +17,7 @@ struct MessagePathMapView: View {
     let message: MessageDTO
     let pathViewModel: MessagePathViewModel
 
-    @State private var cameraRegion: MKCoordinateRegion? = nil
+    @State private var cameraRegion: MKCoordinateRegion?
     @State private var cameraRegionVersion = 0
     @State private var mapStyle: MapStyleSelection = .standard
     @State private var locatedNodes: [(point: MapPoint, coordinate: CLLocationCoordinate2D)] = []
