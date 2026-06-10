@@ -1659,6 +1659,18 @@ public enum L10n {
           /// Location: PathEditingSheet.swift + AddHopPickerView.swift - Purpose: Max-hops reached title
           public static let reached = L10n.tr("Contacts", "contacts.pathEdit.maxHops.reached", fallback: "Max hops reached")
         }
+        public enum NoFavorites {
+          /// Location: AddHopPickerView.swift - Purpose: No favorite repeaters empty description
+          public static let description = L10n.tr("Contacts", "contacts.pathEdit.noFavorites.description", fallback: "Repeaters you mark as favorites appear here.")
+          /// Location: AddHopPickerView.swift - Purpose: No favorite repeaters empty title
+          public static let title = L10n.tr("Contacts", "contacts.pathEdit.noFavorites.title", fallback: "No Favorite Repeaters")
+        }
+        public enum NoRecent {
+          /// Location: AddHopPickerView.swift - Purpose: No recent repeaters empty description
+          public static let description = L10n.tr("Contacts", "contacts.pathEdit.noRecent.description", fallback: "Repeaters you add to a path appear here.")
+          /// Location: AddHopPickerView.swift - Purpose: No recent repeaters empty title
+          public static let title = L10n.tr("Contacts", "contacts.pathEdit.noRecent.title", fallback: "No Recent Repeaters")
+        }
         public enum NoRepeaters {
           /// Location: AddHopPickerView.swift - Purpose: No repeaters empty description
           public static let description = L10n.tr("Contacts", "contacts.pathEdit.noRepeaters.description", fallback: "Repeaters appear here once they're discovered in your mesh network.")

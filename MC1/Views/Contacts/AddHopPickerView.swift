@@ -189,8 +189,12 @@ struct AddHopPickerView: View {
     }
 
     private func buildResults() -> PickerResults {
-        let recentKeys = Set(sessionRecentKeys)
-        let contactKeys = Set(viewModel.availableRepeaters.map(\.publicKey))
+        // Cross-section dedup only matters in `.all`, where every section is visible
+        // at once. A single-section filter shows nothing else, so excluding recent or
+        // contact keys there would hide a node that has no other section to appear in.
+        let isUnfiltered = filter == .all
+        let recentKeys = isUnfiltered ? Set(sessionRecentKeys) : []
+        let contactKeys = isUnfiltered ? Set(viewModel.availableRepeaters.map(\.publicKey)) : []
         var results = PickerResults()
         if showsRecent { results.recent = recentResults() }
         if showsFavorites { results.favorites = favoriteResults(excluding: recentKeys) }
@@ -262,13 +266,32 @@ struct AddHopPickerView: View {
 
     // MARK: - Row + empty state
 
+    /// Empty-state copy for the active filter. The curated subset filters get
+    /// their own wording; `.all` and `.discovered` share the generic discovery
+    /// copy, which is accurate for both.
+    private var emptyStateTitle: String {
+        switch filter {
+        case .favorites:        L10n.Contacts.Contacts.PathEdit.NoFavorites.title
+        case .recent:           L10n.Contacts.Contacts.PathEdit.NoRecent.title
+        case .all, .discovered: L10n.Contacts.Contacts.PathEdit.NoRepeaters.title
+        }
+    }
+
+    private var emptyStateDescription: String {
+        switch filter {
+        case .favorites:        L10n.Contacts.Contacts.PathEdit.NoFavorites.description
+        case .recent:           L10n.Contacts.Contacts.PathEdit.NoRecent.description
+        case .all, .discovered: L10n.Contacts.Contacts.PathEdit.NoRepeaters.description
+        }
+    }
+
     @ViewBuilder
     private var emptyResultsView: some View {
         if searchText.isEmpty {
             ContentUnavailableView(
-                L10n.Contacts.Contacts.PathEdit.NoRepeaters.title,
+                emptyStateTitle,
                 systemImage: "antenna.radiowaves.left.and.right.slash",
-                description: Text(L10n.Contacts.Contacts.PathEdit.NoRepeaters.description)
+                description: Text(emptyStateDescription)
             )
         } else {
             let roomsWouldMatch = filter != .all && viewModel.availableRooms.contains { room in

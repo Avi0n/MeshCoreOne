@@ -606,6 +606,18 @@
 /* Location: AddHopPickerView.swift - Purpose: No repeaters empty description */
 "contacts.pathEdit.noRepeaters.description" = "Repeaters verschijnen hier zodra ze worden ontdekt in je mesh-netwerk.";
 
+/* Location: AddHopPickerView.swift - Purpose: No favorite repeaters empty title */
+"contacts.pathEdit.noFavorites.title" = "Geen favoriete repeaters";
+
+/* Location: AddHopPickerView.swift - Purpose: No favorite repeaters empty description */
+"contacts.pathEdit.noFavorites.description" = "Repeaters die je als favoriet markeert, verschijnen hier.";
+
+/* Location: AddHopPickerView.swift - Purpose: No recent repeaters empty title */
+"contacts.pathEdit.noRecent.title" = "Geen recente repeaters";
+
+/* Location: AddHopPickerView.swift - Purpose: No recent repeaters empty description */
+"contacts.pathEdit.noRecent.description" = "Repeaters die je aan een pad toevoegt, verschijnen hier.";
+
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with name */
 "contacts.pathEdit.hopWithName" = "Sprong %d van %d: %@";
 
