@@ -24,6 +24,8 @@ struct MessagePathMapView: View {
     @State private var isNorthLocked = false
     @State private var showLabels = true
     @State private var showingLayersMenu = false
+    @State private var isStyleLoaded = false
+    @State private var hasInitiallyFit = false
     @State private var locatedNodes: [(point: MapPoint, coordinate: CLLocationCoordinate2D)] = []
 
     private var mapPoints: [MapPoint] { locatedNodes.map(\.point) }
@@ -62,7 +64,8 @@ struct MessagePathMapView: View {
                             cameraRegionVersion: cameraRegionVersion,
                             onPointTap: nil,
                             onMapTap: nil,
-                            onCameraRegionChange: { cameraRegion = $0 }
+                            onCameraRegionChange: { cameraRegion = $0 },
+                            isStyleLoaded: $isStyleLoaded
                         )
                         .ignoresSafeArea()
 
@@ -110,6 +113,10 @@ struct MessagePathMapView: View {
             }
             .onAppear {
                 locatedNodes = buildLocatedNodes()
+            }
+            .onChange(of: isStyleLoaded) { _, loaded in
+                guard loaded, !hasInitiallyFit else { return }
+                hasInitiallyFit = true
                 fitCameraToPath()
             }
         }
