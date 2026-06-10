@@ -14,6 +14,24 @@ private let messageActionSheetPresentationDelay: Duration = .milliseconds(300)
 /// so rapid typing coalesces into a single write.
 private let draftSaveDebounce: Duration = .milliseconds(500)
 
+/// Point size for emoji glyphs rendered into Mac palette-menu reaction cells.
+/// Smaller than the "More" symbol size because an emoji glyph reads visually
+/// larger than an SF Symbol at the same point size.
+private let emojiPaletteGlyphSize: CGFloat = 14
+
+/// Point size for the "More" SF Symbol, matched to the menu's other glyphs.
+private let morePaletteSymbolSize: CGFloat = 17
+
+/// Number of recent emoji offered as quick reactions before the "More" button.
+private let quickReactionCount = 3
+
+/// SF Symbol for the reaction palette's "More emojis" button.
+private let moreEmojiSymbol = "face.smiling"
+
+/// Square cell each Mac palette reaction is framed to, so every cell shares the
+/// same metrics and the palette centers their glyphs uniformly.
+private let reactionPaletteCellSize: CGFloat = 24
+
 /// Unified chat conversation view supporting both DMs and Channels.
 struct ChatConversationView: View {
     @Environment(\.appState) private var appState
@@ -597,26 +615,105 @@ struct ChatConversationView: View {
 
     // MARK: - Message Actions Sheet
 
+    /// Quick reactions + "More" rendered as a single horizontal palette row.
+    ///
+    /// `.compactMenu` produces the horizontal strip only on iOS/iPadOS; the
+    /// AppKit `NSMenu` that hosts the menu when this iPad app runs on a Mac
+    /// ignores it and stacks each button vertically. `.palette` is the style
+    /// that bridges to the AppKit palette presentation, so the Mac path uses it.
+    @ViewBuilder
+    private func reactionPalette(for message: MessageDTO) -> some View {
+        let isOnMac = ProcessInfo.processInfo.isiOSAppOnMac
+        let group = ControlGroup {
+            ForEach(Array(recentEmojisStore.recentEmojis.prefix(quickReactionCount)), id: \.self) { emoji in
+                Button {
+                    dispatch(.react(emoji), for: message)
+                } label: {
+                    // Mac renders each emoji to an image; iOS/iPadOS draws the Text.
+                    // The image has no implicit label, so VoiceOver is given the
+                    // emoji string the Text branch supplies on its own.
+                    if isOnMac {
+                        emojiPaletteImage(emoji)
+                            .accessibilityLabel(emoji)
+                    } else {
+                        Text(emoji)
+                    }
+                }
+            }
+            Button {
+                dispatch(.moreEmojis, for: message)
+            } label: {
+                // "More" goes through the same image path as the emoji so the
+                // palette sizes and centers it identically; iOS keeps the Label.
+                if isOnMac {
+                    moreEmojiPaletteImage()
+                        .accessibilityLabel(L10n.Chats.Reactions.moreEmojis)
+                } else {
+                    Label(L10n.Chats.Reactions.moreEmojis, systemImage: moreEmojiSymbol)
+                        .environment(\.symbolVariants, .none)
+                }
+            }
+        }
+
+        if isOnMac {
+            group.controlGroupStyle(.palette)
+        } else {
+            group.controlGroupStyle(.compactMenu)
+        }
+    }
+
+    /// Draws an emoji glyph centered in a fixed square canvas for AppKit palette
+    /// menu cells, which draw an item's image rather than its text title.
+    private func emojiPaletteImage(_ emoji: String) -> Image {
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: emojiPaletteGlyphSize)
+        ]
+        let glyph = (emoji as NSString).size(withAttributes: attributes)
+        let uiImage = paletteCellImage { rect in
+            (emoji as NSString).draw(
+                at: CGPoint(x: rect.midX - glyph.width / 2, y: rect.midY - glyph.height / 2),
+                withAttributes: attributes
+            )
+        }
+        return Image(uiImage: uiImage).renderingMode(.original)
+    }
+
+    /// The "More" symbol rendered through the shared palette canvas. Its color is
+    /// baked in because the palette does not tint a pre-rendered bitmap the way it
+    /// tints the `Label` icons; `chromeTint` is nil on the default theme, where the
+    /// icons take the label color like the menu text.
+    private func moreEmojiPaletteImage() -> Image {
+        let config = UIImage.SymbolConfiguration(pointSize: morePaletteSymbolSize)
+        let tintColor = UIColor(theme.chromeTint ?? .primary)
+        let symbol = UIImage(systemName: moreEmojiSymbol, withConfiguration: config)?
+            .withTintColor(tintColor, renderingMode: .alwaysOriginal)
+        let uiImage = paletteCellImage { rect in
+            guard let symbol else { return }
+            symbol.draw(in: CGRect(
+                x: rect.midX - symbol.size.width / 2,
+                y: rect.midY - symbol.size.height / 2,
+                width: symbol.size.width,
+                height: symbol.size.height
+            ))
+        }
+        return Image(uiImage: uiImage).renderingMode(.original)
+    }
+
+    /// Renders `draw` into a fixed square canvas shared by every palette reaction
+    /// cell, so all cells have identical metrics and center their glyphs alike.
+    private func paletteCellImage(_ draw: (CGRect) -> Void) -> UIImage {
+        let size = CGSize(width: reactionPaletteCellSize, height: reactionPaletteCellSize)
+        return UIGraphicsImageRenderer(size: size).image { _ in
+            draw(CGRect(origin: .zero, size: size))
+        }
+    }
+
     /// Native haptic-touch context menu shown on long-press of a bubble.
     @ViewBuilder
     private func messageContextMenu(for message: MessageDTO) -> some View {
         let availability = MessageActionAvailability(message: message)
 
-        // Quick reactions + "More" render together as a horizontal palette.
-        ControlGroup {
-            ForEach(Array(recentEmojisStore.recentEmojis.prefix(4)), id: \.self) { emoji in
-                Button(emoji) { dispatch(.react(emoji), for: message) }
-            }
-            Button {
-                dispatch(.moreEmojis, for: message)
-            } label: {
-                // Outline variant so it matches the other (unfilled) menu icons;
-                // menu palettes otherwise auto-apply the `.fill` variant.
-                Label(L10n.Chats.Reactions.moreEmojis, systemImage: "face.smiling")
-                    .environment(\.symbolVariants, .none)
-            }
-        }
-        .controlGroupStyle(.compactMenu)
+        reactionPalette(for: message)
 
         if availability.canReply {
             Button {
