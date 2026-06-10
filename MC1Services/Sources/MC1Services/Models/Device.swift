@@ -428,6 +428,14 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
     /// the persisted default flood scope (firmware v12+).
     public var supportsUnscopedFloodSend: Bool { firmwareVersion >= 12 }
 
+    /// Whether the radio honors an anonymous request to a non-contact public key,
+    /// auto-adding a temporary zero-hop entry so the app can query a nearby repeater
+    /// (e.g. for region discovery) without first adding it. Added with
+    /// FIRMWARE_VER_CODE 13; the version string covers a fork that leaves it unbumped.
+    public var supportsAdHocRepeaterRequest: Bool {
+        firmwareVersion >= 13 || firmwareVersionString.isAtLeast(major: 1, minor: 16)
+    }
+
     /// Advertisement location policy interpreted from raw value.
     public var advertLocationPolicyMode: AdvertLocationPolicy {
         AdvertLocationPolicy(rawValue: advertLocationPolicy) ?? .none

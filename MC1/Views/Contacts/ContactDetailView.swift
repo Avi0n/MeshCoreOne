@@ -740,42 +740,57 @@ private struct ContactLocationSection: View {
 
     let currentContact: ContactDTO
 
+    @State private var showFullMap = false
+
     var body: some View {
         Section {
             // Mini map
-            MC1MapView(
-                points: [MapPoint(
-                    id: currentContact.id,
-                    coordinate: currentContact.coordinate,
-                    pinStyle: currentContact.type.pinStyle,
-                    label: currentContact.displayName,
-                    isClusterable: false,
-                    hopIndex: nil,
-                    badgeText: nil
-                )],
-                lines: [],
-                mapStyle: .standard,
-                isDarkMode: colorScheme == .dark,
-                isOffline: !appState.offlineMapService.isNetworkAvailable,
-                showLabels: false,
-                showsUserLocation: false,
-                isInteractive: false,
-                showsScale: false,
-                cameraRegion: .constant(MKCoordinateRegion(
-                    center: currentContact.coordinate,
-                    span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
-                )),
-                cameraRegionVersion: currentContact.latitude.hashValue ^ currentContact.longitude.hashValue,
-                onPointTap: { _, _ in appState.navigation.navigateToMap(contact: currentContact) },
-                onMapTap: { _ in appState.navigation.navigateToMap(contact: currentContact) },
-                onCameraRegionChange: nil
-            )
+            ZStack(alignment: .topTrailing) {
+                MC1MapView(
+                    points: [MapPoint(
+                        id: currentContact.id,
+                        coordinate: currentContact.coordinate,
+                        pinStyle: currentContact.type.pinStyle,
+                        label: currentContact.displayName,
+                        isClusterable: false,
+                        hopIndex: nil,
+                        badgeText: nil
+                    )],
+                    lines: [],
+                    mapStyle: .standard,
+                    isDarkMode: colorScheme == .dark,
+                    isOffline: !appState.offlineMapService.isNetworkAvailable,
+                    showLabels: false,
+                    showsUserLocation: false,
+                    isInteractive: false,
+                    showsScale: false,
+                    cameraRegion: .constant(MKCoordinateRegion(
+                        center: currentContact.coordinate,
+                        span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+                    )),
+                    cameraRegionVersion: currentContact.latitude.hashValue ^ currentContact.longitude.hashValue,
+                    onPointTap: { _, _ in showFullMap = true },
+                    onMapTap: { _ in showFullMap = true },
+                    onCameraRegionChange: nil
+                )
+
+                Image(systemName: "arrow.up.left.and.arrow.down.right")
+                    .font(.caption.weight(.semibold))
+                    .padding(6)
+                    .background(.regularMaterial, in: .rect(cornerRadius: 6))
+                    .padding(8)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
             .frame(height: 200)
             .clipShape(.rect(cornerRadius: 12))
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
             .padding(.bottom, 8)
             .listRowSeparator(.hidden)
+            .sheet(isPresented: $showFullMap) {
+                ContactFullMapView(contact: currentContact)
+            }
 
             // Coordinates
             HStack {
@@ -804,6 +819,61 @@ private struct ContactLocationSection: View {
         let mapItem = MKMapItem(placemark: MKPlacemark(coordinate: currentContact.coordinate))
         mapItem.name = currentContact.displayName
         mapItem.openInMaps()
+    }
+}
+
+private struct ContactFullMapView: View {
+    @Environment(\.appState) private var appState
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
+
+    let contact: ContactDTO
+
+    @State private var cameraRegion: MKCoordinateRegion?
+    @State private var cameraRegionVersion = 0
+
+    var body: some View {
+        NavigationStack {
+            MC1MapView(
+                points: [MapPoint(
+                    id: contact.id,
+                    coordinate: contact.coordinate,
+                    pinStyle: contact.type.pinStyle,
+                    label: contact.displayName,
+                    isClusterable: false,
+                    hopIndex: nil,
+                    badgeText: nil
+                )],
+                lines: [],
+                mapStyle: .standard,
+                isDarkMode: colorScheme == .dark,
+                isOffline: !appState.offlineMapService.isNetworkAvailable,
+                showLabels: true,
+                showsUserLocation: true,
+                isInteractive: true,
+                showsScale: true,
+                cameraRegion: $cameraRegion,
+                cameraRegionVersion: cameraRegionVersion,
+                onPointTap: nil,
+                onMapTap: nil,
+                onCameraRegionChange: { cameraRegion = $0 }
+            )
+            .ignoresSafeArea()
+            .navigationTitle(contact.displayName)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(L10n.Localizable.Common.done) { dismiss() }
+                }
+            }
+            .onAppear {
+                cameraRegion = MKCoordinateRegion(
+                    center: contact.coordinate,
+                    span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+                )
+                cameraRegionVersion = 1
+            }
+        }
     }
 }
 

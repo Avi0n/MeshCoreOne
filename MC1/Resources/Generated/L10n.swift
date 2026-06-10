@@ -787,6 +787,8 @@ public enum L10n {
         public static let label = L10n.tr("Chats", "chats.notificationLevel.label", fallback: "Notification level")
       }
       public enum Path {
+        /// Location: MessagePathMapView.swift - Center on path map control accessibility label
+        public static let centerOnPath = L10n.tr("Chats", "chats.path.centerOnPath", fallback: "Center on path")
         /// Location: MessagePathSheet.swift - Accessibility label for copy button
         public static let copyAccessibility = L10n.tr("Chats", "chats.path.copyAccessibility", fallback: "Copy path to clipboard")
         /// Location: MessagePathSheet.swift - Button to copy path
@@ -1656,6 +1658,18 @@ public enum L10n {
           }
           /// Location: PathEditingSheet.swift + AddHopPickerView.swift - Purpose: Max-hops reached title
           public static let reached = L10n.tr("Contacts", "contacts.pathEdit.maxHops.reached", fallback: "Max hops reached")
+        }
+        public enum NoFavorites {
+          /// Location: AddHopPickerView.swift - Purpose: No favorite repeaters empty description
+          public static let description = L10n.tr("Contacts", "contacts.pathEdit.noFavorites.description", fallback: "Repeaters you mark as favorites appear here.")
+          /// Location: AddHopPickerView.swift - Purpose: No favorite repeaters empty title
+          public static let title = L10n.tr("Contacts", "contacts.pathEdit.noFavorites.title", fallback: "No Favorite Repeaters")
+        }
+        public enum NoRecent {
+          /// Location: AddHopPickerView.swift - Purpose: No recent repeaters empty description
+          public static let description = L10n.tr("Contacts", "contacts.pathEdit.noRecent.description", fallback: "Repeaters you add to a path appear here.")
+          /// Location: AddHopPickerView.swift - Purpose: No recent repeaters empty title
+          public static let title = L10n.tr("Contacts", "contacts.pathEdit.noRecent.title", fallback: "No Recent Repeaters")
         }
         public enum NoRepeaters {
           /// Location: AddHopPickerView.swift - Purpose: No repeaters empty description

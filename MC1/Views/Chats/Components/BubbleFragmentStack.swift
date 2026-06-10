@@ -1,10 +1,6 @@
 import SwiftUI
 import MC1Services
 
-/// Corner radius for the message bubble box. Shared by the text-only
-/// shape-fill background and the inline-image clip path.
-private let bubbleCornerRadius: CGFloat = 16
-
 /// The colored, clipped bubble box: text, optional footer, and optional inline
 /// image. Reactions, malware warnings, and link previews are emitted as
 /// siblings by `UnifiedMessageBubble.body` so they sit below the bubble box.
@@ -14,6 +10,11 @@ private let bubbleCornerRadius: CGFloat = 16
 /// invalidate body on every visible cell. Closures and dynamic-type
 /// environment changes propagate through the parent rebody path.
 struct BubbleFragmentStack: View, Equatable {
+    /// Corner radius for the bubble box, shared by the text-only shape-fill
+    /// background, the inline-image clip path, and the context-menu lift shape
+    /// applied by `UnifiedMessageBubble`.
+    static let cornerRadius: CGFloat = 16
+
     let item: MessageItem
     let bubbleColor: Color
     let callbacks: MessageBubbleCallbacks
@@ -78,13 +79,13 @@ struct BubbleFragmentStack: View, Equatable {
             // Text-only bubbles fill a rounded shape directly. Drawing the
             // background as a shape avoids the mask `.clipShape` installs, which
             // forces an offscreen render pass per bubble while scrolling.
-            stack.background(bubbleColor, in: .rect(cornerRadius: bubbleCornerRadius))
+            stack.background(bubbleColor, in: .rect(cornerRadius: Self.cornerRadius))
         } else {
             // Image bubbles keep the clip so the edge-to-edge image inherits the
             // rounded corners.
             stack
                 .background(bubbleColor)
-                .clipShape(.rect(cornerRadius: bubbleCornerRadius))
+                .clipShape(.rect(cornerRadius: Self.cornerRadius))
         }
     }
 }

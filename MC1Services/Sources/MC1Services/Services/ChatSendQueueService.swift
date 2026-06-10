@@ -151,7 +151,6 @@ public final class ChatSendQueueService {
                     // becomes the source of truth for preserveTimestamp. Bump
                     // completes (and modelContext.save() commits) before any
                     // wire-affecting work.
-                    let postBumpCount: Int
                     let preserveTimestamp: Bool
                     do {
                         guard let result = try await ChatSendQueueService.preflightAndBump(
@@ -161,7 +160,6 @@ public final class ChatSendQueueService {
                             logger: loggerRef,
                             osLogger: osLoggerRef
                         ) else { return }
-                        postBumpCount = result.postBumpCount
                         preserveTimestamp = result.preserveTimestamp
                     } catch {
                         _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)

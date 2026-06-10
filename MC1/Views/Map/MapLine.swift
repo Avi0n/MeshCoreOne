@@ -13,6 +13,7 @@ struct MapLine: Identifiable, Equatable {
         case traceWeak
         case traceMedium
         case traceGood
+        case messagePath
     }
 
     static func == (lhs: MapLine, rhs: MapLine) -> Bool {

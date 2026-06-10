@@ -794,6 +794,9 @@
 /* Location: MessagePathSheet.swift - Navigation title */
 "chats.path.title" = "Chemin du message";
 
+/* TODO: translate - Location: MessagePathMapView.swift - Center on path map control accessibility label */
+"chats.path.centerOnPath" = "Center on path";
+
 // MARK: - Path Hop Row View
 
 /* Location: PathHopRowView.swift - Unknown node name */
