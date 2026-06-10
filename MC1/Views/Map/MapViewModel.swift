@@ -47,7 +47,7 @@ final class MapViewModel {
     /// Stable id so the dropped pin does not churn across rebuilds and `onPointTap` can identify it.
     private static let focusedPinID = UUID()
 
-    /// Span for "exactly here" framing — tighter than `centerOnContact`'s 0.045 (about 1 km across).
+    /// Span for "exactly here" framing (about 1 km across).
     private static let focusSpan = 0.01
 
     init() {}
@@ -108,15 +108,6 @@ final class MapViewModel {
     func setCameraRegion(_ region: MKCoordinateRegion?) {
         cameraRegion = region
         cameraRegionVersion += 1
-    }
-
-    /// Center map on a specific contact
-    func centerOnContact(_ contact: ContactDTO) {
-        guard contact.hasLocation else { return }
-
-        // 5000 meters corresponds to roughly 0.045 degrees latitude span
-        let span = MKCoordinateSpan(latitudeDelta: 0.045, longitudeDelta: 0.045)
-        setCameraRegion(MKCoordinateRegion(center: contact.coordinate, span: span))
     }
 
     /// Drop a distinct pin at `coordinate`, fold it into `mapPoints`, and center the camera on it.
