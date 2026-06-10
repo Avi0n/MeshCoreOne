@@ -608,7 +608,7 @@ struct ChatConversationView: View {
                 Button(emoji) { dispatch(.react(emoji), for: message) }
             }
             Button {
-                emojiPickerMessage = message
+                dispatch(.moreEmojis, for: message)
             } label: {
                 // Outline variant so it matches the other (unfilled) menu icons;
                 // menu palettes otherwise auto-apply the `.fill` variant.
@@ -651,7 +651,7 @@ struct ChatConversationView: View {
         }
 
         Button {
-            selectedMessageForInfo = message
+            dispatch(.details, for: message)
         } label: {
             Label(L10n.Chats.Chats.Message.Action.details, systemImage: "info.circle")
         }
@@ -708,12 +708,16 @@ struct ChatConversationView: View {
         switch action {
         case .react(let emoji):
             handleReact(emoji: emoji, for: message)
+        case .moreEmojis:
+            handleMoreEmojis(for: message)
         case .reply:
             handleReply(for: message)
         case .copy:
             handleCopy(for: message)
         case .sendAgain:
             handleSendAgain(for: message)
+        case .details:
+            handleDetails(for: message)
         case .blockSender:
             handleBlockSender(for: message)
         case .sendDM:
@@ -726,6 +730,10 @@ struct ChatConversationView: View {
     private func handleReact(emoji: String, for message: MessageDTO) {
         recentEmojisStore.recordUsage(emoji)
         Task { await chatViewModel.sendReaction(emoji: emoji, to: message) }
+    }
+
+    private func handleMoreEmojis(for message: MessageDTO) {
+        emojiPickerMessage = message
     }
 
     private func handleReply(for message: MessageDTO) {
@@ -755,6 +763,10 @@ struct ChatConversationView: View {
 
     private func handleSendAgain(for message: MessageDTO) {
         Task { await chatViewModel.sendAgain(message) }
+    }
+
+    private func handleDetails(for message: MessageDTO) {
+        selectedMessageForInfo = message
     }
 
     private func handleBlockSender(for message: MessageDTO) {
