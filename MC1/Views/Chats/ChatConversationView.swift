@@ -630,15 +630,13 @@ struct ChatConversationView: View {
                     dispatch(.react(emoji), for: message)
                 } label: {
                     // Mac renders each emoji to an image; iOS/iPadOS draws the Text.
-                    // The image has no implicit label, so VoiceOver is given the
-                    // emoji string the Text branch supplies on its own.
                     if isOnMac {
                         emojiPaletteImage(emoji)
-                            .accessibilityLabel(emoji)
                     } else {
                         Text(emoji)
                     }
                 }
+                .accessibilityLabel(emoji.emojiAccessibilityName)
             }
             Button {
                 dispatch(.moreEmojis, for: message)
