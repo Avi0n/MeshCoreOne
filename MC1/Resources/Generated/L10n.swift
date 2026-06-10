@@ -787,6 +787,8 @@ public enum L10n {
         public static let label = L10n.tr("Chats", "chats.notificationLevel.label", fallback: "Notification level")
       }
       public enum Path {
+        /// Location: MessagePathMapView.swift - Center on path map control accessibility label
+        public static let centerOnPath = L10n.tr("Chats", "chats.path.centerOnPath", fallback: "Center on path")
         /// Location: MessagePathSheet.swift - Accessibility label for copy button
         public static let copyAccessibility = L10n.tr("Chats", "chats.path.copyAccessibility", fallback: "Copy path to clipboard")
         /// Location: MessagePathSheet.swift - Button to copy path

@@ -52,7 +52,12 @@ struct MessageInfoSheet: View {
                 }
             }
         }
+        // A grouped List leaves its background unpainted at the medium detent until a
+        // resize relayout, which .scrolls prevents, so this explicit fill stays opaque.
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .presentationDetents([.medium, .large], selection: $detent)
+        .presentationContentInteraction(.scrolls)
+        .presentationBackground(.background)
         .sheet(isPresented: $showPathMap) {
             MessagePathMapView(message: message, pathViewModel: pathViewModel)
         }

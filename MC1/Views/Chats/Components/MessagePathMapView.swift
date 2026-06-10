@@ -1,5 +1,6 @@
 import CoreLocation
 import MapKit
+import MapLibre
 import MC1Services
 import SwiftUI
 
@@ -7,7 +8,7 @@ struct MessagePathMapView: View {
     /// Span used when the path resolves to a single node, with no bounding box to fit.
     private static let singleNodeSpanDelta: CLLocationDegrees = 0.05
     /// Padding around the multi-node bounding region, wider than `boundingRegion`'s
-    /// 1.5 default to leave room for the floating map-style button.
+    /// 1.5 default to keep the path clear of the floating map-controls toolbar.
     private static let pathBoundingPaddingMultiplier: Double = 2.5
 
     @Environment(\.appState) private var appState
@@ -20,6 +21,9 @@ struct MessagePathMapView: View {
     @State private var cameraRegion: MKCoordinateRegion?
     @State private var cameraRegionVersion = 0
     @State private var mapStyle: MapStyleSelection = .standard
+    @State private var isNorthLocked = false
+    @State private var showLabels = true
+    @State private var showingLayersMenu = false
     @State private var locatedNodes: [(point: MapPoint, coordinate: CLLocationCoordinate2D)] = []
 
     private var mapPoints: [MapPoint] { locatedNodes.map(\.point) }
@@ -49,10 +53,11 @@ struct MessagePathMapView: View {
                             lines: mapLines,
                             mapStyle: mapStyle,
                             isDarkMode: colorScheme == .dark,
-                            showLabels: true,
+                            showLabels: showLabels,
                             showsUserLocation: false,
                             isInteractive: true,
                             showsScale: true,
+                            isNorthLocked: isNorthLocked,
                             cameraRegion: $cameraRegion,
                             cameraRegionVersion: cameraRegionVersion,
                             onPointTap: nil,
@@ -61,15 +66,38 @@ struct MessagePathMapView: View {
                         )
                         .ignoresSafeArea()
 
-                        Button {
-                            mapStyle = mapStyle == .standard ? .satellite : .standard
-                        } label: {
-                            Image(systemName: mapStyle == .standard ? "globe.americas.fill" : "map")
-                                .font(.body.weight(.medium))
-                                .padding(10)
-                                .background(.regularMaterial, in: .circle)
+                        VStack {
+                            Spacer()
+                            HStack {
+                                Spacer()
+                                MapControlsToolbar(
+                                    onLocationTap: centerOnUserLocation,
+                                    isNorthLocked: $isNorthLocked,
+                                    showLabels: $showLabels,
+                                    showingLayersMenu: $showingLayersMenu
+                                ) {
+                                    if !locatedNodes.isEmpty {
+                                        Button(L10n.Chats.Chats.Path.centerOnPath, systemImage: "arrow.up.left.and.arrow.down.right") {
+                                            fitCameraToPath()
+                                        }
+                                        .mapControlButton(tint: .primary)
+                                    }
+                                }
+                            }
                         }
-                        .padding()
+                        .overlay(alignment: .bottomTrailing) {
+                            if showingLayersMenu {
+                                LayersMenu(
+                                    selection: $mapStyle,
+                                    isPresented: $showingLayersMenu,
+                                    viewportBounds: cameraRegion?.toMLNCoordinateBounds()
+                                )
+                                .padding(.trailing, 16)
+                                .padding(.bottom, 160)
+                                .transition(.scale.combined(with: .opacity))
+                            }
+                        }
+                        .animation(.spring(response: 0.3), value: showingLayersMenu)
                     }
                 }
             }
@@ -82,21 +110,40 @@ struct MessagePathMapView: View {
             }
             .onAppear {
                 locatedNodes = buildLocatedNodes()
-                let coords = locatedNodes.map(\.coordinate)
-                if coords.count == 1 {
-                    cameraRegion = MKCoordinateRegion(
-                        center: coords[0],
-                        span: MKCoordinateSpan(
-                            latitudeDelta: Self.singleNodeSpanDelta,
-                            longitudeDelta: Self.singleNodeSpanDelta
-                        )
-                    )
-                } else if let region = coords.boundingRegion(paddingMultiplier: Self.pathBoundingPaddingMultiplier) {
-                    cameraRegion = region
-                }
-                cameraRegionVersion += 1
+                fitCameraToPath()
             }
         }
+    }
+
+    private func fitCameraToPath() {
+        let coords = locatedNodes.map(\.coordinate)
+        if coords.count == 1 {
+            cameraRegion = MKCoordinateRegion(
+                center: coords[0],
+                span: MKCoordinateSpan(
+                    latitudeDelta: Self.singleNodeSpanDelta,
+                    longitudeDelta: Self.singleNodeSpanDelta
+                )
+            )
+        } else if let region = coords.boundingRegion(paddingMultiplier: Self.pathBoundingPaddingMultiplier) {
+            cameraRegion = region
+        }
+        cameraRegionVersion += 1
+    }
+
+    private func centerOnUserLocation() {
+        guard let location = appState.bestAvailableLocation else {
+            appState.locationService.requestLocation()
+            return
+        }
+        cameraRegion = MKCoordinateRegion(
+            center: location.coordinate,
+            span: MKCoordinateSpan(
+                latitudeDelta: Self.singleNodeSpanDelta,
+                longitudeDelta: Self.singleNodeSpanDelta
+            )
+        )
+        cameraRegionVersion += 1
     }
 
     private func buildLocatedNodes() -> [(point: MapPoint, coordinate: CLLocationCoordinate2D)] {
