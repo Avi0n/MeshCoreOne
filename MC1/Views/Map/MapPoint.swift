@@ -15,6 +15,7 @@ struct MapPoint: Identifiable, Equatable {
         case repeaterRingBlue
         case repeaterRingGreen
         case repeaterRingWhite
+        case repeaterHop
         case pointA
         case pointB
         case crosshair

@@ -9,6 +9,10 @@ enum PinSpriteRenderer {
 
     static let labelSpritePrefix = "label-"
 
+    /// Largest hop number a pin badge will render. Hops beyond this clamp to the
+    /// cap rather than failing to resolve a sprite. MeshCore paths top out at 64 hops.
+    static let maxHopBadge = 64
+
     private static var cachedImages: [String: UIImage]?
 
     /// Single cached dropped-pin sprite for the chat map thumbnail. Distinct from
@@ -60,11 +64,19 @@ enum PinSpriteRenderer {
         if name.hasPrefix("pin-repeater-ring-white-hop-") {
             guard let hopString = name.split(separator: "-").last,
                   let hop = Int(hopString),
-                  (1...20).contains(hop),
+                  (1...maxHopBadge).contains(hop),
                   let ringWhiteSpec = allSpecs.first(where: { $0.name == "pin-repeater-ring-white" }) else {
                 return nil
             }
             image = render(ringWhiteSpec, hopIndex: hop)
+        } else if name.hasPrefix("pin-repeater-hop-") {
+            guard let hopString = name.split(separator: "-").last,
+                  let hop = Int(hopString),
+                  (1...maxHopBadge).contains(hop),
+                  let repeaterSpec = allSpecs.first(where: { $0.name == "pin-repeater" }) else {
+                return nil
+            }
+            image = render(repeaterSpec, hopIndex: hop)
         } else if name.hasPrefix(labelSpritePrefix) {
             let text = String(name.dropFirst(labelSpritePrefix.count))
             guard !text.isEmpty else { return nil }
@@ -145,7 +157,11 @@ enum PinSpriteRenderer {
         let triangleSize: CGFloat = 10
         let ringPadding: CGFloat = spec.ringColor != nil ? 4 : 0
         let ringSize: CGFloat = spec.ringColor != nil ? 44 : 0
-        let totalWidth = max(circleSize, ringSize)
+        // A hop badge overhangs the circle's right edge by 4pt; widen the canvas
+        // (symmetrically, to keep the triangle tip horizontally centered on the
+        // coordinate) so a ringless badged pin isn't clipped.
+        let badgeRoom: CGFloat = hopIndex != nil ? 44 : 0
+        let totalWidth = max(circleSize, ringSize, badgeRoom)
         let totalHeight = circleSize + triangleSize - 3 + ringPadding
 
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: totalWidth, height: totalHeight), format: .preferred())
@@ -220,8 +236,8 @@ enum PinSpriteRenderer {
             spec.circleColor.setFill()
             path.fill()
 
-            // Hop badge overlay (ring pins only)
-            if let hopIndex, spec.ringColor != nil {
+            // Hop badge overlay
+            if let hopIndex {
                 let badgeSize: CGFloat = 18
                 let badgeX = circleRect.maxX + 4 - badgeSize
                 let badgeY = circleRect.minY
