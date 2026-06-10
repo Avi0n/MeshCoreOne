@@ -44,12 +44,17 @@ public enum RegionDiscoveryService {
     ///     aren't contacts are matched against the discovered-nodes table.
     ///   - radioID: Radio identifier used to scope contact and discovered-node lookups.
     ///   - knownRegions: Regions the caller already knows about; subtracted from the result.
+    ///   - supportsAdHocRequest: Whether the radio can query a repeater that isn't a
+    ///     contact (firmware v1.16+, `DeviceDTO.supportsAdHocRepeaterRequest`). When
+    ///     `false`, only responders the user has already added as contacts are queried;
+    ///     anonymous requests to non-contact keys would be rejected by the local radio.
     public static func discover(
         session: MeshCoreSession,
         contactService: ContactService,
         dataStore: PersistenceStore?,
         radioID: UUID,
-        knownRegions: [String]
+        knownRegions: [String],
+        supportsAdHocRequest: Bool
     ) async -> Outcome {
         let discoveredPubkeys: Set<Data>
         do {
@@ -91,7 +96,8 @@ public enum RegionDiscoveryService {
             queryTargets = buildRegionQueryTargets(
                 responders: discoveredPubkeys,
                 contacts: contacts,
-                discoveredNodes: discoveredNodes
+                discoveredNodes: discoveredNodes,
+                supportsAdHocRequest: supportsAdHocRequest
             )
         } catch {
             return .errorLoadingRepeaters
@@ -138,15 +144,21 @@ public enum RegionDiscoveryService {
     /// Builds the `MeshContact` query pool used to fetch regions from each responder.
     /// Prefers contact records (they carry direct routing data when available) and fills
     /// in from the discovered-nodes table for responders the user has not added as contacts.
+    ///
+    /// Non-contact responders are only included when `supportsAdHocRequest` is `true`:
+    /// older firmware rejects an anonymous request to a key it doesn't hold as a contact,
+    /// so querying them would only produce spurious failures.
     static func buildRegionQueryTargets(
         responders: Set<Data>,
         contacts: [ContactDTO],
-        discoveredNodes: [DiscoveredNodeDTO]
+        discoveredNodes: [DiscoveredNodeDTO],
+        supportsAdHocRequest: Bool
     ) -> [MeshContact] {
         var byKey: [Data: MeshContact] = [:]
         for contact in contacts where contact.type == .repeater && responders.contains(contact.publicKey) {
             byKey[contact.publicKey] = contact.toContactFrame().toMeshContact()
         }
+        guard supportsAdHocRequest else { return Array(byKey.values) }
         for node in discoveredNodes where node.nodeType == .repeater
             && responders.contains(node.publicKey)
             && byKey[node.publicKey] == nil {

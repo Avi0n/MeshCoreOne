@@ -168,7 +168,8 @@ struct DefaultFloodScopeSection: View {
                 contactService: contactService,
                 dataStore: appState.offlineDataStore,
                 radioID: radioID,
-                knownRegions: appState.connectedDevice?.knownRegions ?? []
+                knownRegions: appState.connectedDevice?.knownRegions ?? [],
+                supportsAdHocRequest: appState.connectedDevice?.supportsAdHocRepeaterRequest ?? false
             )
 
             guard !Task.isCancelled else { return }
