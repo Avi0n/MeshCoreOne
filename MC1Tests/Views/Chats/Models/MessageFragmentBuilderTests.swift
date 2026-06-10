@@ -227,36 +227,37 @@ struct MessageFragmentBuilderTests {
 
     // MARK: - Incoming send time
 
-    @Test("footer shows send time on incoming message when enabled")
-    func footer_showsSendTime_whenEnabledAndIncoming() {
+    @Test("footer shows send time on incoming message")
+    func footer_showsSendTime_onIncoming() {
         let wire: UInt32 = 1_700_000_000
         let message = makeIncomingMessage(timestamp: wire)
         let inputs = makeInputs(messageID: message.id)
         let item = MessageFragmentBuilder.makeItem(
-            for: message, inputs: inputs, envInputs: makeEnvInputs(showIncomingSendTime: true)
+            for: message, inputs: inputs, envInputs: makeEnvInputs()
         )
         #expect(item.footer.sendTimeToShow == Date(timeIntervalSince1970: TimeInterval(wire)))
         #expect(item.footer.sendTimeWasCorrected == false)
     }
 
-    @Test("footer hides send time when the toggle is off")
-    func footer_hidesSendTime_whenDisabled() {
-        let message = makeIncomingMessage(timestamp: 1_700_000_000)
+    @Test("footer shows send time regardless of the legacy showIncomingSendTime flag")
+    func footer_showsSendTime_ignoringLegacyFlag() {
+        let wire: UInt32 = 1_700_000_000
+        let message = makeIncomingMessage(timestamp: wire)
         let inputs = makeInputs(messageID: message.id)
         let item = MessageFragmentBuilder.makeItem(
             for: message, inputs: inputs, envInputs: makeEnvInputs(showIncomingSendTime: false)
         )
-        #expect(item.footer.sendTimeToShow == nil)
+        #expect(item.footer.sendTimeToShow == Date(timeIntervalSince1970: TimeInterval(wire)))
     }
 
-    @Test("footer hides send time on outgoing messages even when enabled")
-    func footer_hidesSendTime_forOutgoing() {
+    @Test("footer shows send time on outgoing messages")
+    func footer_showsSendTime_forOutgoing() {
         let message = makeMessage(text: "hi") // outgoing by default
         let inputs = makeInputs(messageID: message.id)
         let item = MessageFragmentBuilder.makeItem(
-            for: message, inputs: inputs, envInputs: makeEnvInputs(showIncomingSendTime: true)
+            for: message, inputs: inputs, envInputs: makeEnvInputs()
         )
-        #expect(item.footer.sendTimeToShow == nil)
+        #expect(item.footer.sendTimeToShow == message.senderDate)
     }
 
     @Test("footer send time uses the corrected value and flags correction")

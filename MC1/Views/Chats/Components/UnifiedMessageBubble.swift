@@ -80,12 +80,6 @@ struct UnifiedMessageBubble: View, Equatable {
                 MessageDayDividerView(date: item.envelope.date)
             }
 
-            // The day divider already anchors the cluster in time, so a time-only
-            // marker directly beneath it would be redundant; suppress it there.
-            if item.grouping.showTimestamp && !item.grouping.showDayDivider {
-                MessageTimestampView(date: item.envelope.date)
-            }
-
             HStack(alignment: .bottom, spacing: 4) {
                 if item.envelope.isOutgoing {
                     Spacer(minLength: 40)
@@ -105,11 +99,16 @@ struct UnifiedMessageBubble: View, Equatable {
                                 FallbackMatchIndicatorView()
                             }
                         }
+                        // Indent the name to clear the bubble's rounded corner and
+                        // leave breathing room above the bubble it labels.
+                        .padding(.leading, 4)
+                        .padding(.bottom, 3)
                     }
 
                     BubbleFragmentStack(
                         item: item,
                         bubbleColor: resolvedBubbleColor,
+                        timeColor: footerTimeColor,
                         callbacks: callbacks,
                         imageResolver: imageResolver
                     )
@@ -269,9 +268,19 @@ struct UnifiedMessageBubble: View, Equatable {
         )
     }
 
+    /// Color for the send time rendered inside the bubble. `.secondary` reads
+    /// well on the gray incoming bubble; on the accent-colored outgoing bubble it
+    /// would wash out, so use a translucent outgoing-text color instead.
+    private var footerTimeColor: Color {
+        item.envelope.isOutgoing ? theme.outgoingTextColor.opacity(0.7) : .secondary
+    }
+
     private var paddingTop: CGFloat {
-        if item.grouping.showDirectionGap { return 6 }
-        if item.grouping.showSenderName { return 4 }
+        // A direction switch (someone else replying) is the strongest visual
+        // break, then a new named sender within a channel. Same-sender follow-ups
+        // stay tightly stacked.
+        if item.grouping.showDirectionGap { return 14 }
+        if item.grouping.showSenderName { return 8 }
         return item.envelope.isOutgoing ? 1 : 2
     }
 
