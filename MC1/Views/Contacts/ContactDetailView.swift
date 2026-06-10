@@ -780,6 +780,7 @@ private struct ContactLocationSection: View {
                     .background(.regularMaterial, in: .rect(cornerRadius: 6))
                     .padding(8)
                     .allowsHitTesting(false)
+                    .accessibilityHidden(true)
             }
             .frame(height: 200)
             .clipShape(.rect(cornerRadius: 12))
