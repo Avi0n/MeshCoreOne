@@ -1,5 +1,19 @@
-# Makefile — local developer shortcuts.
+# Makefile: local developer shortcuts.
 # Release and CI automation (certs, TestFlight, App Store) live in fastlane/Fastfile.
+
+# The pipefail wiring below relies on .SHELLFLAGS, which GNU Make honors only at 3.82+. Stock
+# macOS /usr/bin/make is 3.81 and ignores .SHELLFLAGS silently, which would let a failed
+# xcodebuild exit through xcsift's 0 status undetected. Refuse to run on such a make rather than
+# build without the guard; install a newer make (Homebrew `make`) and put it ahead on PATH.
+MIN_MAKE_VERSION := 3.82
+ifneq ($(MIN_MAKE_VERSION),$(firstword $(sort $(MAKE_VERSION) $(MIN_MAKE_VERSION))))
+$(error GNU Make $(MIN_MAKE_VERSION)+ required for pipefail support; found $(MAKE_VERSION). Install a newer make, e.g. Homebrew make)
+endif
+
+# `pipefail` makes a `cmd | xcsift` recipe exit with xcodebuild's status, not xcsift's, so a
+# failed build/test isn't masked when xcsift's summary exits 0. Requires bash, not /bin/sh.
+SHELL := /bin/bash
+.SHELLFLAGS := -o pipefail -c
 
 SCHEME  := MC1
 PROJECT := MC1.xcodeproj
@@ -13,7 +27,7 @@ SIM ?= platform=iOS Simulator,name=iPhone 17e
 # `-only-testing` selector also silently runs 0 tests for Swift Testing suites, so the target
 # below pins iOS 18.x and uses suite-level (type-level) filters. These same suites gate on
 # `StoreKitTestAvailability.servesProducts`, so they auto-skip on iOS 26.x in the default
-# run — `test-store` is how you actually exercise them. Override STORE_SIM if your machine
+# run; `test-store` is how you actually exercise them. Override STORE_SIM if your machine
 # has a different iOS 18.x simulator.
 STORE_SIM ?= platform=iOS Simulator,name=iPhone 16e,OS=18.6
 
@@ -27,12 +41,12 @@ STORE_SUITES := \
 	-only-testing:MC1Tests/ThemeServiceOwnershipTests
 
 # Concurrent `xcodebuild test` runs against the same simulator fight over its single
-# test-manager connection and hang ("test runner hung before establishing connection") — the
+# test-manager connection and hang ("test runner hung before establishing connection"), the
 # usual cause of a stuck run when several agent/worktree sessions share one Mac. SIM_LOCK takes
 # a per-simulator host lock so same-sim runs serialize while runs on different sims still
 # proceed in parallel. The lock is an atomic O_EXCL create (shell noclobber); if the holding
 # process is gone (killed run) the stale lock is reclaimed after `ps -p` confirms it is dead,
-# and it is released on exit. Skipped under $CI — runners are single-tenant. macOS `shlock` is
+# and it is released on exit. Skipped under $CI; runners are single-tenant. macOS `shlock` is
 # deliberately avoided here: it does not reclaim a dead-owner lock, so a SIGKILLed run would
 # wedge every later run. The calling recipe sets `dest` first.
 SIM_LOCK = if [ -z "$$CI" ]; then \
