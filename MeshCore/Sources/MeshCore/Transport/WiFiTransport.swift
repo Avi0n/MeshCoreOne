@@ -152,7 +152,7 @@ public actor WiFiTransport: MeshTransport {
                 // Resume the parked connection continuation on every failure path,
                 // including caller-task cancellation; the group cannot finish
                 // tearing down while that child stays suspended.
-                self.cancelPendingConnection()
+                self.cancelPendingConnection(throwing: error)
                 throw error
             }
         }
@@ -175,8 +175,9 @@ public actor WiFiTransport: MeshTransport {
         }
     }
 
-    /// Cancels a pending connection attempt.
-    private func cancelPendingConnection() {
+    /// Cancels a pending connection attempt, resuming the parked
+    /// continuation with the error that caused the failure.
+    private func cancelPendingConnection(throwing error: Error) {
         connection?.stateUpdateHandler = nil
         connection?.cancel()
         connection = nil
@@ -184,7 +185,7 @@ public actor WiFiTransport: MeshTransport {
 
         if let continuation = connectContinuation {
             connectContinuation = nil
-            continuation.resume(throwing: WiFiTransportError.connectionTimeout)
+            continuation.resume(throwing: error)
         }
     }
 
