@@ -527,7 +527,7 @@ public final class ConnectionManager {
     private let lastDeviceIDKey = PersistenceKeys.lastConnectedDeviceID
     private let lastDeviceNameKey = PersistenceKeys.lastConnectedDeviceName
     private let lastRadioIDKey = PersistenceKeys.lastConnectedRadioID
-    private let lastDisconnectDiagnosticKey = "com.pocketmesh.lastDisconnectDiagnostic"
+    private let lastDisconnectDiagnosticKey = PersistenceKeys.lastDisconnectDiagnostic
 
     // MARK: - Simulator Support
 

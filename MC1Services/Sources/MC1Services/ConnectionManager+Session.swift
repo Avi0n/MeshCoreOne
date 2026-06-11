@@ -225,14 +225,22 @@ extension ConnectionManager: BLEReconnectionDelegate {
 
     func handleReconnectionFailure() async {
         logger.error("[BLE] Auto-reconnect session rebuild failed")
-        await session?.stop()
-        await services?.tearDown()
+
+        // Capture and clear synchronously, mirroring teardownSessionForReconnect:
+        // a concurrent rebuild can install a new session and container during the
+        // awaits below, and re-reading self.session / self.services would tear
+        // the replacements down.
+        let oldSession = session
+        let oldServices = services
         session = nil
         services = nil
-        await transport.disconnect()
         connectionState = .disconnected
         connectedDevice = nil
         allowedRepeatFreqRanges = []
+
+        await oldSession?.stop()
+        await oldServices?.tearDown()
+        await transport.disconnect()
 
         // Same callback contract as handleConnectionLoss and the UI-timeout
         // path in BLEReconnectionCoordinator: route through notifyConnectionLost()

@@ -17,7 +17,7 @@ public enum ConnectionIntent: Sendable, Equatable {
 
     // MARK: - Persistence
 
-    private static let persistenceKey = "com.pocketmesh.userExplicitlyDisconnected"
+    private static let persistenceKey = PersistenceKeys.userExplicitlyDisconnected
 
     /// Persists the `userDisconnected` state to UserDefaults.
     /// Only `.userDisconnected` is persisted; other states are transient.
