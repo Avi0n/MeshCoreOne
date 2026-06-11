@@ -120,8 +120,8 @@ public enum CommandCode: UInt8, Sendable {
     case getDefaultFloodScope = 0x40
     /// Injects a raw packet onto the mesh (priority byte followed by the raw packet bytes). Firmware v12+.
     ///
-    /// No builder is provided; MC1 does not use raw-packet injection. The case exists so the
-    /// command table stays complete against firmware.
+    /// No builder is provided; this library does not use raw-packet injection. The case
+    /// exists so the command table stays complete against firmware.
     case sendRawPacket = 0x41
 }
 

@@ -1471,14 +1471,14 @@ public enum Parsers {
     ///           companion radio. `1` means admin; any other value (including `0` and `2`)
     ///           means non-admin. The official C++ room server uses a tri-state encoding
     ///           (`0` / `1` / `2`) where `2` signals guest for downstream role awareness;
-    ///           MC1 must treat `2` as non-admin. Only `== 1` is a safe admin test.
+    ///           clients must treat `2` as non-admin. Only `== 1` is a safe admin test.
     /// - bytes 1–6: pubkey prefix.
     /// - bytes 7–10: server timestamp (not parsed).
     /// - byte 11: full ACL permissions byte. Encoding is firmware-specific:
     ///            - Official C++ firmware: `0 = guest`, `1 = read-only`, `2 = read-write`,
     ///              `3 = admin`.
     ///            - pyMC: `0x01 = non-admin (guest)`, `0x02 = admin`.
-    ///            MC1 uses byte 0 for the admin gate. For non-admin sessions, only byte 11
+    ///            This parser uses byte 0 for the admin gate. For non-admin sessions, only byte 11
     ///            = 2 maps to `.readWrite`; every other value (including C++ `1 = read-only`)
     ///            falls back to `.guest` so a non-posting client cannot acquire `canPost`.
     /// - byte 12: firmware version level (not parsed).
