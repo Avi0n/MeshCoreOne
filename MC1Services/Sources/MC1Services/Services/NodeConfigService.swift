@@ -90,8 +90,11 @@ public actor NodeConfigService {
     private let settingsService: SettingsService
     private let channelService: ChannelService
     private let dataStore: any PersistenceStoreProtocol
+    /// Installed by `ServiceContainer.wireServices`.
     private weak var syncCoordinator: SyncCoordinator?
     private let logger = Logger(subsystem: "com.mc1", category: "NodeConfigService")
+    /// Called after a config import restores a private key, so the connection layer can
+    /// reconcile device identity. Installed by `ConnectionManager.buildServicesAndSaveDevice`.
     private var onPostIdentityImport: (@Sendable () async throws -> UUID?)?
 
     public init(

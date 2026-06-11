@@ -212,6 +212,36 @@ public struct RemoveUnfavoritedResult: Sendable {
 /// - Connection and disconnection
 /// - Auto-reconnect on connection loss
 /// - Last-device persistence for app restoration
+///
+/// ## Connection-state model
+///
+/// Three distinct enums describe "where are we", at three layers, and they do
+/// not collapse into one another:
+///
+/// - `BLEPhase` (on `BLEStateMachine`): the CoreBluetooth link lifecycle
+///   (`idle`, `connecting`, `discoveringServices`, `discoveryComplete`,
+///   `connected`, `autoReconnecting`, ...). Driven by CBCentralManager
+///   callbacks; every transition routes through `BLEStateMachine.transition(to:)`.
+///   Concerns only the BLE transport, and is undefined for WiFi-bridged radios.
+/// - `MeshCore.ConnectionState`: the transport-link state the session publishes
+///   (`disconnected`, `connecting`, `connected`, `reconnecting`, `failed`).
+///   `@_exported import MeshCore` makes its bare name visible app-wide alongside
+///   the enum below, so the two are easy to confuse; this one is the lower layer.
+/// - `ConnectionState` (declared in this file): the app-facing rung
+///   (`disconnected`, `connecting`, `connected`, `syncing`, `ready`). Adds the
+///   post-link `syncing`/`ready` distinction the transport layer has no concept
+///   of. This is the value `connectionState` holds and the one UI gates on.
+///
+/// `ConnectionManager` drives `connectionState` directly from the connect, sync,
+/// disconnect, and reconnect paths; nothing else writes it. The transport layer
+/// reports link events through the lifecycle callbacks wired in `init`
+/// (`setDisconnectionHandler`, `setReconnectionHandler`, the auto-reconnect and
+/// powered-on handlers), which this class translates into `connectionState`
+/// transitions. `ConnectionIntent` is the orthogonal "does the user want to be
+/// connected" axis that gates auto-reconnect, and is the only piece persisted
+/// across launches. In DEBUG, `assertStateInvariants()` enforces that `.syncing`
+/// and `.ready` always carry a live `services`, `session`, and `connectedDevice`,
+/// and that `.userDisconnected` intent only coexists with `.disconnected`.
 @Observable
 @MainActor
 public final class ConnectionManager {
@@ -318,17 +348,21 @@ public final class ConnectionManager {
 
     /// Called when connection is ready and services are available.
     /// Use this to wire up UI observation of services.
+    /// Installed by `AppState` during initialization.
     public var onConnectionReady: (() async -> Void)?
 
     /// Called when connection is lost (disconnection, BLE power off, etc).
     /// Use this to update UI state when services become unavailable.
+    /// Installed by `AppState` during initialization.
     public var onConnectionLost: (() async -> Void)?
 
     /// Called after initial sync completes and connectionState becomes `.ready`.
     /// Use this for work that depends on up-to-date synced data (e.g. stale node cleanup).
+    /// Installed by `AppState` during initialization.
     public var onDeviceSynced: (() async -> Void)?
 
-    /// Provider for app foreground/background state detection
+    /// Provider for app foreground/background state detection.
+    /// Installed by `AppState` during initialization.
     public var appStateProvider: AppStateProvider?
 
     /// Number of devices registered with the system pairing registry (for troubleshooting UI).
@@ -434,6 +468,7 @@ public final class ConnectionManager {
 
     /// Callback when resync fails after all attempts (triggers "Sync Failed" pill)
     /// Note: @Sendable @MainActor ensures safe cross-isolation callback
+    /// Installed by `ConnectionUIState.wireCallbacks`.
     public var onResyncFailed: (@Sendable @MainActor () -> Void)?
 
     // MARK: - Circuit Breaker

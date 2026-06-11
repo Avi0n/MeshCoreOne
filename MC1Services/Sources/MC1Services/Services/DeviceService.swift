@@ -28,6 +28,7 @@ public actor DeviceService {
 
     /// Callback invoked when device data is successfully updated.
     /// Used to refresh ConnectionManager.connectedDevice for UI updates.
+    /// Installed by `AppState.wireDeviceUpdateCallbacks`.
     private var onDeviceUpdated: (@Sendable (DeviceDTO) async -> Void)?
 
     public init(dataStore: PersistenceStore) {

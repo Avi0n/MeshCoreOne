@@ -187,11 +187,13 @@ public actor RemoteNodeService {
     // MARK: - Handlers
 
     /// Handler for keep-alive ACK responses
-    /// Called when ACK with unsynced count is received
+    /// Called when ACK with unsynced count is received.
+    /// Nothing assigns or reads this property today.
     public var keepAliveResponseHandler: (@Sendable (UUID, Int) async -> Void)?
 
     /// Handler for session connection state changes
-    /// Called when session isConnected state changes (sessionID, isConnected)
+    /// Called when session isConnected state changes (sessionID, isConnected).
+    /// Installed by `MessageEventDispatcher.wireSessionState`.
     private var sessionStateChangedHandler: (@Sendable (UUID, Bool) async -> Void)?
 
     /// Set the handler for session connection state changes.

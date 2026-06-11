@@ -251,7 +251,17 @@ extension ConnectionManager {
     // MARK: - BLE Connection Health
 
     /// Attempts BLE reconnection if user expects to be connected but iOS auto-reconnect gave up.
-    /// Call this when the app returns to foreground.
+    /// Called when the app returns to foreground (`appDidBecomeActive`) and from the reconnection
+    /// watchdog loop.
+    ///
+    /// The guards below run as an ordered priority ladder, each ending in an early return so the
+    /// first matching situation wins. Order is load-bearing: cheap stand-down checks (wrong
+    /// transport, pairing, no intent, reconnect already in flight) come first so the expensive
+    /// state-machine queries below them only run when a reconnect is actually warranted; the live
+    /// transport check precedes the disconnected paths so an already-healthy link is reconciled
+    /// rather than torn down; stale-state cleanup runs before the adopt/other-app/reconnect
+    /// strategies so they start from a clean `connectionState`. Reordering can either tear down a
+    /// good connection or attempt a redundant reconnect.
     public func checkBLEConnectionHealth() async {
         // Only check BLE connections
         guard currentTransportType == nil || currentTransportType == .bluetooth else { return }

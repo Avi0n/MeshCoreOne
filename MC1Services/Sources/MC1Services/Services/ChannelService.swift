@@ -121,12 +121,14 @@ public actor ChannelService {
     private let dataStore: PersistenceStore
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "ChannelService")
 
-    /// Callback for channel updates
+    /// Callback for channel updates.
+    /// Installed by `ServiceContainer.wireServices` (forwards channel secrets/names to `RxLogService`).
     private var channelUpdateHandler: (@Sendable ([ChannelDTO]) -> Void)?
 
     /// Callback invoked with the channel slots vacated by a delete or sync prune,
     /// so the main-actor `DraftStore` can drop any draft keyed to a now-free slot
     /// before that slot is reused by a different channel.
+    /// Installed by `AppState.wireServicesIfConnected`.
     private var draftClearHandler: (@Sendable (UUID, Set<UInt8>) async -> Void)?
 
     /// Tracks whether a sync operation is in progress

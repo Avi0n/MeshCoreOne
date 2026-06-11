@@ -18,7 +18,8 @@ public actor HeardRepeatsService {
     /// Local node name for matching sender in decrypted messages
     private var localNodeName: String?
 
-    /// Handler called when a repeat is recorded (messageID, newCount)
+    /// Handler called when a repeat is recorded (messageID, newCount).
+    /// Installed by `MessageEventDispatcher.wireHeardRepeats`.
     private var onRepeatRecorded: HeardRepeatHandler?
 
     public init(dataStore: PersistenceStore) {

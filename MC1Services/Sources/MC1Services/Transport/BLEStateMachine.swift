@@ -155,17 +155,24 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
 
     private var isCurrentlyScanning = false
     private var pendingScanRequest = false
+    /// Installed by `ConnectionManager.startBLEScanning` and reset to a no-op when scanning ends.
     private var onDeviceDiscovered: (@Sendable (UUID, String?, Int) -> Void)?
 
     // MARK: - Callbacks
 
+    /// Installed by `ConnectionManager.init` (via `iOSBLETransport.setDisconnectionHandler`).
     private var onDisconnection: (@Sendable (UUID, Error?) -> Void)?
+    /// Installed by `ConnectionManager.init` (via `iOSBLETransport.setReconnectionHandler`,
+    /// which wraps it to capture the data stream before the handler runs).
     private var onReconnection: (@Sendable (UUID, AsyncStream<Data>) -> Void)?
+    /// Installed by `ConnectionManager.init`.
     private var onBluetoothStateChange: (@Sendable (CBManagerState) -> Void)?
+    /// Installed by `ConnectionManager.init`.
     private var onBluetoothPoweredOn: (@Sendable () -> Void)?
     /// Called when entering iOS auto-reconnecting phase.
     /// The device has disconnected but iOS will attempt automatic reconnection.
     /// Note: The MeshCore session is invalid at this point and will be rebuilt upon successful reconnection.
+    /// Installed by `ConnectionManager.init`.
     private var onAutoReconnecting: (@Sendable (UUID, String) -> Void)?
 
     /// Distinguishes the call site driving `handleRestoredPeripheral` so the function

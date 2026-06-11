@@ -70,16 +70,20 @@ public actor ContactService {
     private let dataStore: any PersistenceStoreProtocol
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "ContactService")
 
-    /// Sync coordinator for UI refresh notifications
+    /// Sync coordinator for UI refresh notifications.
+    /// Installed by `ServiceContainer.wireServices`.
     private weak var syncCoordinator: SyncCoordinator?
 
-    /// Progress handler for sync operations
+    /// Progress handler for sync operations.
+    /// Installed by `ContactsViewModel.syncContacts` for the duration of a sync.
     private var syncProgressHandler: (@Sendable (Int, Int) -> Void)?
 
-    /// Cleanup handler called when a contact is deleted or blocked
+    /// Cleanup handler called when a contact is deleted or blocked.
+    /// Installed by `ServiceContainer.wireServices`.
     private var cleanupHandler: (@Sendable (UUID, ContactCleanupReason, Data) async -> Void)?
 
-    /// Handler called when a node is deleted (for clearing storage full flag)
+    /// Handler called when a node is deleted (for clearing storage full flag).
+    /// Installed by `ConnectionUIState.wireCallbacks`.
     private var nodeDeletedHandler: (@Sendable () async -> Void)?
 
     // MARK: - Initialization

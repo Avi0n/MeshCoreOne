@@ -155,10 +155,12 @@ public actor SyncCoordinator {
 
     /// Called when channel sync completes with zero errors (including retries).
     /// Used by ConnectionManager to track clean channel completions for smart resync.
+    /// Installed by `ConnectionManager.wireCleanChannelSyncCallback`.
     var onCleanChannelSync: (@Sendable (_ radioID: UUID) async -> Void)?
 
     /// Called when a channel sync attempt starts, clean or partial.
     /// Used by ConnectionManager to cool down immediate channel retry loops.
+    /// Installed by `ConnectionManager.wireCleanChannelSyncCallback`.
     var onChannelSyncAttempted: (@Sendable (_ radioID: UUID) async -> Void)?
 
     /// Sets the callback for clean channel sync completion.
@@ -171,10 +173,12 @@ public actor SyncCoordinator {
         onChannelSyncAttempted = callback
     }
 
-    /// Callback when non-message sync activity starts
+    /// Callback when non-message sync activity starts.
+    /// Installed by `ConnectionUIState.wireCallbacks` via `setSyncActivityCallbacks`.
     var onSyncActivityStarted: (@Sendable () async -> Void)?
 
-    /// Callback when non-message sync activity ends
+    /// Callback when non-message sync activity ends.
+    /// Installed by `ConnectionUIState.wireCallbacks` via `setSyncActivityCallbacks`.
     var onSyncActivityEnded: (@Sendable (_ succeeded: Bool) async -> Void)?
 
     /// Tracks whether onSyncActivityEnded has been called for the current sync cycle.
@@ -187,24 +191,31 @@ public actor SyncCoordinator {
     private var suppressionWatchdogTask: Task<Void, Never>?
 
     /// Callback when sync phase changes (for SwiftUI observation).
+    /// Installed by `ConnectionUIState.wireCallbacks` via `setSyncActivityCallbacks`.
     @MainActor private var onPhaseChanged: (@Sendable @MainActor (_ phase: SyncPhase?) -> Void)?
 
     /// Callback when contacts data changes (for SwiftUI observation).
+    /// Installed by `AppState.wireDataChangeCallbacks` via `setDataChangeCallbacks`.
     @MainActor private var onContactsChanged: (@Sendable @MainActor () -> Void)?
 
     /// Callback when conversations data changes (for SwiftUI observation).
+    /// Installed by `AppState.wireDataChangeCallbacks` via `setDataChangeCallbacks`.
     @MainActor private var onConversationsChanged: (@Sendable @MainActor () -> Void)?
 
     /// Callback when a direct message is received (forwarded to `MessageEventStream` consumers).
+    /// Installed by `MessageEventDispatcher` via `setMessageEventCallbacks`.
     var onDirectMessageReceived: (@Sendable (_ message: MessageDTO, _ contact: ContactDTO) async -> Void)?
 
     /// Callback when a channel message is received (forwarded to `MessageEventStream` consumers).
+    /// Installed by `MessageEventDispatcher` via `setMessageEventCallbacks`.
     var onChannelMessageReceived: (@Sendable (_ message: MessageDTO, _ channelIndex: UInt8) async -> Void)?
 
     /// Callback when a room message is received (forwarded to `MessageEventStream` consumers).
+    /// Installed by `MessageEventDispatcher` via `setMessageEventCallbacks`.
     var onRoomMessageReceived: (@Sendable (_ message: RoomMessageDTO) async -> Void)?
 
-    /// Callback when a reaction is received for a channel message
+    /// Callback when a reaction is received for a channel message.
+    /// Installed by `MessageEventDispatcher` via `setMessageEventCallbacks`.
     var onReactionReceived: (@Sendable (_ messageID: UUID, _ summary: String) async -> Void)?
 
     // MARK: - Test Seams

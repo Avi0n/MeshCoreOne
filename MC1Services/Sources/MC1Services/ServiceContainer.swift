@@ -9,6 +9,16 @@ import MeshCore
 /// handling the dependency graph between services. It provides a single point of
 /// initialization for the service layer.
 ///
+/// ## Lifetime
+///
+/// The container is per-connection, not a singleton: `ConnectionManager` builds a
+/// fresh `ServiceContainer` (and a fresh session) on every connection in
+/// `buildServicesAndSaveDevice`, and tears it down via `tearDown()` on disconnect
+/// before nilling its reference. Anything that must survive reconnects (for example
+/// detected platform or last-clean-sync state) lives on `ConnectionManager`, not here.
+/// `init` also reassigns the `DebugLogBuffer.shared` global to this container's buffer,
+/// so a stale container's services must not keep running past teardown.
+///
 /// ## Usage
 ///
 /// ```swift
@@ -60,7 +70,9 @@ public final class ServiceContainer {
     /// Service for managing contacts
     public let contactService: ContactService
 
-    /// Service for sending and receiving messages
+    /// Service for sending messages, retry logic, and ACK/delivery tracking.
+    /// It does not receive: inbound messages arrive through `MessagePollingService`
+    /// and the handlers `SyncCoordinator.wireMessageHandlers` installs there.
     public let messageService: MessageService
 
     /// Service for managing channels (groups)

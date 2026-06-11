@@ -43,7 +43,8 @@ public actor MessageService {
     let dataStore: PersistenceStore
     let config: MessageServiceConfig
 
-    /// Contact service for path management (optional - retry with reset requires this)
+    /// Contact service for path management (optional - retry with reset requires this).
+    /// Installed by `ServiceContainer.wireServices`.
     private var contactService: ContactService?
 
     /// In-flight messages awaiting ACK, keyed by messageID.
@@ -68,9 +69,12 @@ public actor MessageService {
     /// Status and round-trip time are passed alongside the messageID so the
     /// UI dispatcher can fold both into the in-place bubble update without
     /// re-reading the DTO.
+    ///
+    /// Installed by `MessageEventDispatcher.wireMessageService`.
     var ackConfirmationHandler: (@Sendable (UUID, MessageStatus, UInt32?) async -> Void)?
 
-    /// Message failure callback (messageID)
+    /// Message failure callback (messageID).
+    /// Installed by `MessageEventDispatcher.wireMessageService`.
     var messageFailedHandler: (@Sendable (UUID) async -> Void)?
 
     /// Send-success callback (messageID, status, roundTripTime). Fired after
@@ -85,6 +89,8 @@ public actor MessageService {
     /// so they never raise an ACK — conflating the two handlers would mean
     /// "the radio queued the broadcast" and "the peer confirmed receipt" both
     /// arrive on the same wire.
+    ///
+    /// Installed by `MessageEventDispatcher.wireMessageService`.
     var messageSentHandler: (@Sendable (UUID, MessageStatus, UInt32?) async -> Void)?
 
     /// Channel-resend completion callback (messageID). Fires after
@@ -92,12 +98,16 @@ public actor MessageService {
     /// payload because the resend path also mutates `heardRepeats` and
     /// `sendCount`; consumers must refresh the entire DTO rather than
     /// applying a status-only in-place update.
+    ///
+    /// Installed by `MessageEventDispatcher.wireMessageService`.
     var messageResentHandler: (@Sendable (UUID) async -> Void)?
 
-    /// Event broadcaster for retry status updates (messageID, attempt, maxAttempts)
+    /// Event broadcaster for retry status updates (messageID, attempt, maxAttempts).
+    /// Installed by `MessageEventDispatcher.wireMessageService`.
     var retryStatusHandler: (@Sendable (UUID, Int, Int) async -> Void)?
 
-    /// Handler for routing change events (contactID, isFlood)
+    /// Handler for routing change events (contactID, isFlood).
+    /// Installed by `MessageEventDispatcher.wireMessageService`.
     var routingChangedHandler: (@Sendable (UUID, Bool) async -> Void)?
 
     /// Task for periodic ACK expiry checking

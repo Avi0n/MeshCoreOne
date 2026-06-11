@@ -29,7 +29,8 @@ public actor RxLogService {
     // Event monitoring
     private var eventMonitorTask: Task<Void, Never>?
 
-    // Heard repeats processing
+    // Heard repeats processing.
+    // Installed by `ServiceContainer.wireServices`.
     private var heardRepeatsService: HeardRepeatsService?
 
     // Reentrancy guards for reprocessing (separate to avoid mutual blocking)

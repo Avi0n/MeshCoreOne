@@ -47,35 +47,44 @@ public actor AdvertisementService {
     /// The device sends 0x8F (deleted) then shortly after an advert for the new contact.
     private var lastOverwriteDeletion: (name: String, pubKeyHex: String, time: Date)?
 
-    /// Handler for new advertisement events (for UI updates)
+    /// Handler for new advertisement events (for UI updates).
+    /// No installer wires this; `setAdvertHandler` exists but is unused.
     private var advertHandler: (@Sendable (ContactFrame) -> Void)?
 
-    /// Handler for path update events
+    /// Handler for path update events.
+    /// No installer wires this; `setPathUpdateHandler` exists but is unused.
     private var pathUpdateHandler: (@Sendable (Data, Int8) -> Void)?
 
-    /// Handler for path discovery response events
+    /// Handler for path discovery response events.
+    /// Installed by `ContactDetailView` while the path-discovery sheet is open.
     private var pathDiscoveryHandler: (@Sendable (PathInfo) -> Void)?
 
-    /// Handler for routing change events (set by AppState)
+    /// Handler for routing change events.
+    /// No installer wires this; `setRoutingChangedHandler` exists but is unused.
     private var routingChangedHandler: (@Sendable (UUID, Bool) async -> Void)?
 
-    /// Handler for contact update events (for UI refresh)
+    /// Handler for contact update events (for UI refresh).
+    /// Installed by `AppState.wireDeviceUpdateCallbacks`.
     private var contactUpdatedHandler: (@Sendable () async -> Void)?
 
     // MARK: - Discovery Handlers
 
-    /// Handler for new contact discovered events (for notifications)
-    /// Parameters: contactName, contactID, contactType
+    /// Handler for new contact discovered events (for notifications).
+    /// Parameters: contactName, contactID, contactType.
+    /// Installed by `SyncCoordinator.wireDiscoveryHandlers`; cleared by `clearDiscoveryHandlers`.
     private var newContactDiscoveredHandler: (@Sendable (String, UUID, ContactType) async -> Void)?
 
-    /// Handler for contact sync request events (when ADVERT received for unknown contact)
+    /// Handler for contact sync request events (when ADVERT received for unknown contact).
+    /// Installed by `SyncCoordinator.wireDiscoveryHandlers`; cleared by `clearDiscoveryHandlers`.
     private var contactSyncRequestHandler: (@Sendable (UUID) async -> Void)?
 
-    /// Handler for node storage full state changes (true = full, false = has space)
+    /// Handler for node storage full state changes (true = full, false = has space).
+    /// Installed by `ConnectionUIState.wireCallbacks`.
     private var nodeStorageFullChangedHandler: (@Sendable (Bool) async -> Void)?
 
-    /// Handler for contact deleted cleanup (notifications, badge, session)
-    /// Parameters: contactID, publicKey
+    /// Handler for contact deleted cleanup (notifications, badge, session).
+    /// Parameters: contactID, publicKey.
+    /// Installed by `AppState.wireDeviceUpdateCallbacks`.
     private var contactDeletedCleanupHandler: (@Sendable (UUID, Data) async -> Void)?
 
     /// Cache local reception SNR from rxLogData for trace responses (tag → SNR)

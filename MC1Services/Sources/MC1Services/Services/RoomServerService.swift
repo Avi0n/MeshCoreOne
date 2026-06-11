@@ -47,13 +47,16 @@ public actor RoomServerService {
     /// Configuration for retry behavior (shared with MessageService)
     private let config: MessageServiceConfig
 
-    /// Handler for incoming room messages
+    /// Handler for incoming room messages.
+    /// No installer calls `setRoomMessageHandler` today, so this stays nil.
     public var roomMessageHandler: (@Sendable (RoomMessageDTO) async -> Void)?
 
-    /// Handler for status update events (broadcasts to UI)
+    /// Handler for status update events (broadcasts to UI).
+    /// Installed by `MessageEventDispatcher.wireRoomStatus`.
     public var statusUpdateHandler: (@Sendable (UUID, MessageStatus) async -> Void)?
 
-    /// Handler called when an incoming message recovers a disconnected room session
+    /// Handler called when an incoming message recovers a disconnected room session.
+    /// Installed by `MessageEventDispatcher.wireSessionState`.
     public var connectionRecoveryHandler: (@Sendable (UUID) async -> Void)?
 
     /// Tracks message IDs currently being retried to prevent concurrent retry attempts

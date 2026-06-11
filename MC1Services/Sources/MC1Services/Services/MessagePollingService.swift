@@ -32,16 +32,20 @@ public actor MessagePollingService {
     private let dataStore: PersistenceStore
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "MessagePolling")
 
-    /// Handler for incoming contact messages
+    /// Handler for incoming contact messages.
+    /// Installed by `SyncCoordinator.wireMessageHandlers`; cleared by `clearMessageHandlers`.
     private var contactMessageHandler: (@Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void)?
 
-    /// Handler for incoming channel messages
+    /// Handler for incoming channel messages.
+    /// Installed by `SyncCoordinator.wireMessageHandlers`; cleared by `clearMessageHandlers`.
     private var channelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void)?
 
-    /// Handler for signed messages (from room servers)
+    /// Handler for signed messages (from room servers).
+    /// Installed by `SyncCoordinator.wireMessageHandlers`; cleared by `clearMessageHandlers`.
     private var signedMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
 
-    /// Handler for CLI responses (textType = 0x01)
+    /// Handler for CLI responses (textType = 0x01).
+    /// Installed by `SyncCoordinator.wireMessageHandlers`; cleared by `clearMessageHandlers`.
     private var cliMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
 
     /// Event monitoring task
