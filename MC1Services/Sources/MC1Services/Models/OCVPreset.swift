@@ -31,8 +31,8 @@ public enum OCVPreset: String, CaseIterable, Codable, Sendable {
     case custom
 
     /// Valid range for user-entered OCV voltage values (millivolts).
-    /// Upper bound covers 2S Li-Ion packs (e.g., LilyGo T-Beam 1W tops at 7950 mV).
-    public static let validMillivoltRange: ClosedRange<Int> = 1000...9000
+    /// Upper bound accommodates multi-cell series packs
+    public static let validMillivoltRange: ClosedRange<Int> = 1000...99_999
 
     /// The 11-point OCV array in millivolts (100% to 0% in 10% steps)
     public var ocvArray: [Int] {

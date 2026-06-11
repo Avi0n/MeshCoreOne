@@ -391,7 +391,7 @@
 "batteryCurve.editValues" = "Modifier les valeurs";
 
 /* Validation error for value out of range - %d is the percentage level */
-"batteryCurve.validation.outOfRange" = "La valeur à %d%% doit être entre 1000 et 9000 mV";
+"batteryCurve.validation.outOfRange" = "La valeur à %d%% doit être entre 1000 et 99999 mV";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "Les valeurs doivent être en ordre décroissant";

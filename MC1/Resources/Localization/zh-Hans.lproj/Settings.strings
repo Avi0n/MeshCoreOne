@@ -381,7 +381,7 @@
 "batteryCurve.editValues" = "编辑曲线";
 
 /* Validation error for value out of range - %d is percentage level */
-"batteryCurve.validation.outOfRange" = "%d%% 处的值必须在 1000-9000 mV 范围内";
+"batteryCurve.validation.outOfRange" = "%d%% 处的值必须在 1000-99999 mV 范围内";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "值必须按降序排列";

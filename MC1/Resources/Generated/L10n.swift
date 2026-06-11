@@ -3661,7 +3661,7 @@ public enum L10n {
         public static let notDescending = L10n.tr("Settings", "batteryCurve.validation.notDescending", fallback: "Values must be in descending order")
         /// Validation error for value out of range - %d is the percentage level
         public static func outOfRange(_ p1: Int) -> String {
-          return L10n.tr("Settings", "batteryCurve.validation.outOfRange", p1, fallback: "Value at %d%% must be 1000-9000 mV")
+          return L10n.tr("Settings", "batteryCurve.validation.outOfRange", p1, fallback: "Value at %d%% must be 1000-99999 mV")
         }
       }
     }

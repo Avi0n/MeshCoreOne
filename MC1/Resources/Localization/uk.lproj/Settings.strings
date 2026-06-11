@@ -391,7 +391,7 @@
 "batteryCurve.editValues" = "Редагувати значення";
 
 /* Validation error for value out of range - %d is the percentage level */
-"batteryCurve.validation.outOfRange" = "Значення при %d%% має бути 1000-9000 мВ";
+"batteryCurve.validation.outOfRange" = "Значення при %d%% має бути 1000-99999 мВ";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "Значення повинні бути в порядку спадання";
