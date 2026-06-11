@@ -147,6 +147,8 @@ extension MeshCoreSession {
     /// Use ``startAutoMessageFetching()`` to automate this process.
     ///
     /// - Parameter timeout: Optional timeout override in seconds. Uses `configuration.defaultTimeout` when `nil`.
+    ///                      When a fetch is already in flight, the call coalesces onto it and this
+    ///                      value is not observed; the wait is bounded by the in-flight fetch's timeout.
     /// - Returns: A ``MessageResult`` containing either a contact message, channel message,
     ///            channel datagram (firmware v11+), or ``MessageResult/noMoreMessages``.
     /// - Throws: ``MeshCoreError`` if the fetch fails.
