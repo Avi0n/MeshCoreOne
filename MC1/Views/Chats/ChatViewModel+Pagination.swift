@@ -87,94 +87,23 @@ extension ChatViewModel {
             // Index older channel messages for reaction matching and process pending reactions
             if let channel,
                let reactionService = appState?.services?.reactionService {
-                let localNodeName = appState?.connectedDevice?.nodeName
-                // The channel's own radioID, never the live connection's: a mid-load
-                // disconnect would otherwise mint a fresh UUID into persisted rows.
-                let radioID = channel.radioID
-                for message in olderMessages {
-                    let senderName: String?
-                    if message.isOutgoing {
-                        senderName = localNodeName
-                    } else {
-                        senderName = message.senderNodeName
-                    }
-                    if let senderName {
-                        let pendingMatches = await reactionService.indexMessage(
-                            id: message.id,
-                            channelIndex: channel.index,
-                            senderName: senderName,
-                            text: message.text,
-                            timestamp: message.timestamp
-                        )
-
-                        // Process any pending reactions that now have their target
-                        for pending in pendingMatches {
-                            let exists = try? await dataStore.reactionExists(
-                                messageID: message.id,
-                                senderName: pending.senderNodeName,
-                                emoji: pending.parsed.emoji
-                            )
-
-                            if exists != true {
-                                let reactionDTO = ReactionDTO(
-                                    messageID: message.id,
-                                    emoji: pending.parsed.emoji,
-                                    senderName: pending.senderNodeName,
-                                    messageHash: pending.parsed.messageHash,
-                                    rawText: pending.rawText,
-                                    channelIndex: pending.channelIndex,
-                                    radioID: radioID
-                                )
-                                if let result = await reactionService.persistReactionAndUpdateSummary(
-                                    reactionDTO,
-                                    using: dataStore
-                                ) {
-                                    updateReactionSummary(for: result.messageID, summary: result.summary)
-                                }
-                            }
-                        }
-                    }
-                }
+                await indexMessagesForReactions(
+                    olderMessages,
+                    scope: .channel(channel, localNodeName: appState?.connectedDevice?.nodeName),
+                    reactionService: reactionService,
+                    dataStore: dataStore
+                )
             }
 
             // Index older DM messages for reaction matching and process pending reactions
             if let contact,
                let reactionService = appState?.services?.reactionService {
-                for message in olderMessages {
-                    let pendingMatches = await reactionService.indexDMMessage(
-                        id: message.id,
-                        contactID: contact.id,
-                        text: message.text,
-                        timestamp: message.reactionTimestamp
-                    )
-
-                    // Process any pending reactions that now have their target
-                    for pending in pendingMatches {
-                        let exists = try? await dataStore.reactionExists(
-                            messageID: message.id,
-                            senderName: pending.senderName,
-                            emoji: pending.parsed.emoji
-                        )
-
-                        if exists != true {
-                            let reactionDTO = ReactionDTO(
-                                messageID: message.id,
-                                emoji: pending.parsed.emoji,
-                                senderName: pending.senderName,
-                                messageHash: pending.parsed.messageHash,
-                                rawText: pending.rawText,
-                                contactID: contact.id,
-                                radioID: contact.radioID
-                            )
-                            if let result = await reactionService.persistReactionAndUpdateSummary(
-                                reactionDTO,
-                                using: dataStore
-                            ) {
-                                updateReactionSummary(for: result.messageID, summary: result.summary)
-                            }
-                        }
-                    }
-                }
+                await indexMessagesForReactions(
+                    olderMessages,
+                    scope: .direct(contact),
+                    reactionService: reactionService,
+                    dataStore: dataStore
+                )
             }
 
         } catch {

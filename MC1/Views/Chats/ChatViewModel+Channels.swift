@@ -7,15 +7,12 @@ extension ChatViewModel {
 
     /// Load messages for a channel
     func loadChannelMessages(for channel: ChannelDTO) async {
-        logger.info("loadChannelMessages: start channel=\(channel.index) radioID=\(channel.radioID)")
-
         // Close the per-conversation empty-state gate while the fetch is
         // in flight. No-op when the coordinator is already past
         // `.uninitialized` (warm rebind, refresh).
         coordinator?.beginLoading()
 
         guard let dataStore else {
-            logger.info("loadChannelMessages: dataStore is nil, returning early")
             coordinator?.markLoaded()
             return
         }
@@ -66,7 +63,6 @@ extension ChatViewModel {
             }
         }
 
-        logger.info("loadChannelMessages: setting isLoading=true, current messages.count=\(self.messages.count)")
         isLoading = true
         // Dual-reset: this function is shared between passive load and user-initiated
         // retry paths, so both surfaces must clear at entry to avoid stale state.
@@ -80,7 +76,6 @@ extension ChatViewModel {
             var fetchedMessages = try await dataStore.fetchMessages(radioID: channel.radioID, channelIndex: channel.index, limit: ChatCoordinator.pageSize, offset: 0)
             let unfilteredCount = fetchedMessages.count
             coordinator?.updateRenderState { $0.with(totalFetchedCount: unfilteredCount) }
-            logger.info("loadChannelMessages: fetched \(unfilteredCount) messages")
 
             // Compute divider position before filtering, using unfiltered array
             computeDividerPosition(from: fetchedMessages, unreadCount: channel.unreadCount)
@@ -97,54 +92,12 @@ extension ChatViewModel {
 
             // Index loaded messages for reaction matching and process any pending reactions
             if let reactionService = appState?.services?.reactionService {
-                let localNodeName = appState?.connectedDevice?.nodeName
-                // The channel's own radioID, never the live connection's: a mid-load
-                // disconnect would otherwise mint a fresh UUID into persisted rows.
-                let radioID = channel.radioID
-                for message in fetchedMessages {
-                    let senderName: String?
-                    if message.isOutgoing {
-                        senderName = localNodeName
-                    } else {
-                        senderName = message.senderNodeName
-                    }
-                    if let senderName {
-                        let pendingMatches = await reactionService.indexMessage(
-                            id: message.id,
-                            channelIndex: channel.index,
-                            senderName: senderName,
-                            text: message.text,
-                            timestamp: message.timestamp
-                        )
-
-                        // Process any pending reactions that now have their target
-                        for pending in pendingMatches {
-                            let exists = try? await dataStore.reactionExists(
-                                messageID: message.id,
-                                senderName: pending.senderNodeName,
-                                emoji: pending.parsed.emoji
-                            )
-
-                            if exists != true {
-                                let reactionDTO = ReactionDTO(
-                                    messageID: message.id,
-                                    emoji: pending.parsed.emoji,
-                                    senderName: pending.senderNodeName,
-                                    messageHash: pending.parsed.messageHash,
-                                    rawText: pending.rawText,
-                                    channelIndex: pending.channelIndex,
-                                    radioID: radioID
-                                )
-                                if let result = await reactionService.persistReactionAndUpdateSummary(
-                                    reactionDTO,
-                                    using: dataStore
-                                ) {
-                                    updateReactionSummary(for: result.messageID, summary: result.summary)
-                                }
-                            }
-                        }
-                    }
-                }
+                await indexMessagesForReactions(
+                    fetchedMessages,
+                    scope: .channel(channel, localNodeName: appState?.connectedDevice?.nodeName),
+                    reactionService: reactionService,
+                    dataStore: dataStore
+                )
             }
 
             // Clear unread count and mention badge, then notify UI to refresh chat list.
@@ -163,11 +116,9 @@ extension ChatViewModel {
         } catch is CancellationError {
             // Benign cancellation; the superseding load will refetch.
         } catch {
-            logger.info("loadChannelMessages: error - \(error.localizedDescription)")
             errorMessage = error.localizedDescription
         }
 
-        logger.info("loadChannelMessages: done, isLoading=false, messages.count=\(self.messages.count)")
         // Ensures the empty-state gate opens even when the fetch threw —
         // `replaceAll` is the success path; this catches the failure path.
         coordinator?.markLoaded()

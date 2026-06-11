@@ -356,6 +356,7 @@ extension ChatViewModel {
         }
 
         currentContact = contact
+        currentChannel = nil
 
         // Track active conversation for notification suppression
         notificationService?.setActiveConversation(contactID: contact.id)
@@ -380,48 +381,20 @@ extension ChatViewModel {
             // Hide sent reaction messages (unless failed)
             fetchedMessages = filterOutgoingReactionMessages(fetchedMessages, isDM: true)
 
-            coordinator?.replaceAll(fetchedMessages)
+            // Use unfiltered count to determine if more messages exist
             coordinator?.updateRenderState { $0.with(hasMoreMessages: unfilteredCount == ChatCoordinator.pageSize) }
+            coordinator?.replaceAll(fetchedMessages)
 
             buildItems()
 
             // Index loaded messages for reaction matching and process any pending reactions
             if let reactionService = appState?.services?.reactionService {
-                for message in fetchedMessages {
-                    let pendingMatches = await reactionService.indexDMMessage(
-                        id: message.id,
-                        contactID: contact.id,
-                        text: message.text,
-                        timestamp: message.reactionTimestamp
-                    )
-
-                    // Process any pending reactions that now have their target
-                    for pending in pendingMatches {
-                        let exists = try? await dataStore.reactionExists(
-                            messageID: message.id,
-                            senderName: pending.senderName,
-                            emoji: pending.parsed.emoji
-                        )
-
-                        if exists != true {
-                            let reactionDTO = ReactionDTO(
-                                messageID: message.id,
-                                emoji: pending.parsed.emoji,
-                                senderName: pending.senderName,
-                                messageHash: pending.parsed.messageHash,
-                                rawText: pending.rawText,
-                                contactID: contact.id,
-                                radioID: contact.radioID
-                            )
-                            if let result = await reactionService.persistReactionAndUpdateSummary(
-                                reactionDTO,
-                                using: dataStore
-                            ) {
-                                updateReactionSummary(for: result.messageID, summary: result.summary)
-                            }
-                        }
-                    }
-                }
+                await indexMessagesForReactions(
+                    fetchedMessages,
+                    scope: .direct(contact),
+                    reactionService: reactionService,
+                    dataStore: dataStore
+                )
             }
 
             // Clear unread count and mention badge, then notify UI to refresh chat list.
