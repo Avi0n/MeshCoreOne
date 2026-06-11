@@ -218,4 +218,14 @@ struct KeyGenerationServiceTests {
         #expect(error.errorDescription != nil)
         #expect(error.errorDescription?.isEmpty == false)
     }
+
+    @Test("Validation works on a non-zero-based Data slice")
+    func validateNonZeroBasedSlice() async throws {
+        let key = try await KeyGenerationService.generateIdentity(hexPrefix: nil).expandedPrivateKey
+        // A slice keeps its parent's indices, so startIndex is non-zero here.
+        let padded = Data([0xFF, 0xFF, 0xFF, 0xFF]) + key
+        let slice = padded.suffix(key.count)
+        #expect(slice.startIndex != 0)
+        try KeyGenerationService.validateExpandedKey(slice)
+    }
 }

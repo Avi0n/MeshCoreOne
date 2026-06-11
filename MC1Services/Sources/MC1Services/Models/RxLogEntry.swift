@@ -152,21 +152,23 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
         self.receivedAt = model.receivedAt
         self.snr = model.snr
         self.rssi = model.rssi
-        self.routeType = RouteType(rawValue: UInt8(model.routeType)) ?? .flood
-        self.payloadType = PayloadType(rawValue: UInt8(model.payloadType)) ?? .unknown
-        self.payloadVersion = UInt8(model.payloadVersion)
+        // Narrow each stored Int through the failable initializer so a corrupt or
+        // out-of-range row falls back instead of trapping inside the ModelActor.
+        self.routeType = UInt8(exactly: model.routeType).flatMap(RouteType.init(rawValue:)) ?? .flood
+        self.payloadType = UInt8(exactly: model.payloadType).flatMap(PayloadType.init(rawValue:)) ?? .unknown
+        self.payloadVersion = UInt8(exactly: model.payloadVersion) ?? 0
         self.transportCode = model.transportCode
-        self.pathLength = UInt8(model.pathLength)
+        self.pathLength = UInt8(exactly: model.pathLength) ?? 0
         self.pathNodes = model.pathNodes
         self.packetPayload = model.packetPayload
         self.rawPayload = model.rawPayload
         self.packetHash = model.packetHash
-        self.channelIndex = model.channelIndex.map { UInt8($0) }
+        self.channelIndex = model.channelIndex.flatMap { UInt8(exactly: $0) }
         self.channelName = model.channelName
         self.decryptStatus = DecryptStatus(rawValue: model.decryptStatus) ?? .notApplicable
         self.fromContactName = model.fromContactName
         self.toContactName = model.toContactName
-        self.senderTimestamp = model.senderTimestamp.map { UInt32($0) }
+        self.senderTimestamp = model.senderTimestamp.flatMap { UInt32(exactly: $0) }
         self.regionScope = model.regionScope
         self.payloadTypeBits = UInt8(model.payloadTypeBits & 0x0F)
         self.decodedText = model.decodedText

@@ -98,8 +98,10 @@ public actor RxLogService {
     private func loadSecretsFromDatabase(radioID: UUID) async {
         do {
             let channels = try await dataStore.fetchChannels(radioID: radioID)
-            channelSecrets = Dictionary(uniqueKeysWithValues: channels.map { ($0.index, $0.secret) })
-            channelNames = Dictionary(uniqueKeysWithValues: channels.map { ($0.index, $0.name) })
+            // Channels arrive sorted by slot index; a corrupt store can hold duplicate
+            // indices, so keep the first match to mirror fetchChannel(radioID:index:).
+            channelSecrets = Dictionary(channels.map { ($0.index, $0.secret) }, uniquingKeysWith: { first, _ in first })
+            channelNames = Dictionary(channels.map { ($0.index, $0.name) }, uniquingKeysWith: { first, _ in first })
             if !channels.isEmpty {
                 logger.info("Loaded \(channels.count) channel secrets from database")
             }

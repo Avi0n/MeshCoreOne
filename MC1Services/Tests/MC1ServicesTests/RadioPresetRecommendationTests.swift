@@ -188,3 +188,31 @@ struct RadioPresetSelectabilityTests {
         }
     }
 }
+
+@Suite("RadioPreset protocol encoding")
+struct RadioPresetEncodingTests {
+
+    private func preset(frequencyMHz: Double, bandwidthKHz: Double) -> RadioPreset {
+        RadioPreset(
+            id: "test",
+            name: "Test",
+            region: .northAmerica,
+            frequencyMHz: frequencyMHz,
+            bandwidthKHz: bandwidthKHz,
+            spreadingFactor: 7,
+            codingRate: 5,
+            availability: .continent(.northAmerica)
+        )
+    }
+
+    @Test("frequencyKHz rounds to the nearest kHz")
+    func frequencyRounds() {
+        // Truncation would yield 512001; rounding restores the representable 512002.
+        #expect(preset(frequencyMHz: 512.002, bandwidthKHz: 62.5).frequencyKHz == 512_002)
+    }
+
+    @Test("bandwidthHz rounds to the nearest Hz")
+    func bandwidthRounds() {
+        #expect(preset(frequencyMHz: 915.0, bandwidthKHz: 62.501).bandwidthHz == 62_501)
+    }
+}

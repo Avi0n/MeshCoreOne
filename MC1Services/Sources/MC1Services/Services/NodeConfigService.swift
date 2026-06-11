@@ -535,8 +535,8 @@ extension NodeConfigService {
     /// Builds radio settings from SelfInfo.
     public static func buildRadioSettings(from info: SelfInfo) -> MeshCoreNodeConfig.RadioSettings {
         MeshCoreNodeConfig.RadioSettings(
-            frequency: UInt32(info.radioFrequency * 1000),
-            bandwidth: UInt32(info.radioBandwidth * 1000),
+            frequency: UInt32((info.radioFrequency * 1000).rounded()),
+            bandwidth: UInt32((info.radioBandwidth * 1000).rounded()),
             spreadingFactor: info.radioSpreadingFactor,
             codingRate: info.radioCodingRate,
             txPower: info.txPower

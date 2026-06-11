@@ -1951,6 +1951,32 @@ struct PersistenceStoreTests {
         )
     }
 
+    @Test("RxLogEntryDTO(from:) falls back on out-of-range stored values instead of trapping")
+    func rxLogEntryDTOClampsOutOfRangeStoredValues() {
+        let model = RxLogEntry(
+            radioID: UUID(),
+            routeType: 999,
+            payloadType: -1,
+            payloadVersion: 5_000,
+            pathLength: 400,
+            pathNodes: Data(),
+            packetPayload: Data(),
+            rawPayload: Data(),
+            packetHash: "deadbeef",
+            channelIndex: 9_999,
+            senderTimestamp: -10
+        )
+
+        let dto = RxLogEntryDTO(from: model)
+
+        #expect(dto.routeType == .flood)
+        #expect(dto.payloadType == .unknown)
+        #expect(dto.payloadVersion == 0)
+        #expect(dto.pathLength == 0)
+        #expect(dto.channelIndex == nil)
+        #expect(dto.senderTimestamp == nil)
+    }
+
     @Test("Save and fetch RxLogEntry preserves senderTimestamp")
     func saveAndFetchRxLogEntryPreservesSenderTimestamp() async throws {
         let store = try await createTestStore()

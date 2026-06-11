@@ -2627,8 +2627,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     private func performMMARequest(from publicKey: Data, start: Date, end: Date) async throws -> MMAResponse {
         // Build payload
         var payload = Data()
-        let startTimestamp = UInt32(start.timeIntervalSince1970)
-        let endTimestamp = UInt32(end.timeIntervalSince1970)
+        let startTimestamp = PacketBuilder.epochSeconds32(start)
+        let endTimestamp = PacketBuilder.epochSeconds32(end)
         payload.append(contentsOf: withUnsafeBytes(of: startTimestamp.littleEndian) { Array($0) })
         payload.append(contentsOf: withUnsafeBytes(of: endTimestamp.littleEndian) { Array($0) })
         payload.append(contentsOf: [0, 0])
@@ -3166,7 +3166,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         since: Date? = nil
     ) async throws -> UInt32 {
         let actualTag = tag ?? UInt32.random(in: 1...UInt32.max)
-        let sinceTimestamp = since.map { UInt32($0.timeIntervalSince1970) }
+        let sinceTimestamp = since.map { PacketBuilder.epochSeconds32($0) }
         let data = PacketBuilder.sendNodeDiscoverRequest(
             filter: filter,
             prefixOnly: prefixOnly,

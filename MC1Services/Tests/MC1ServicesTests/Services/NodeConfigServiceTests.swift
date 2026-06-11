@@ -98,6 +98,33 @@ struct NodeConfigServiceTests {
         #expect(radio.txPower == 22)
     }
 
+    @Test("buildRadioSettings rounds frequency to the nearest kHz")
+    func buildRadioSettingsRoundsFrequency() {
+        let info = SelfInfo(
+            advertisementType: 1,
+            txPower: 22,
+            maxTxPower: 30,
+            publicKey: Data(repeating: 0xAB, count: 32),
+            latitude: 0,
+            longitude: 0,
+            multiAcks: 0,
+            advertisementLocationPolicy: 0,
+            telemetryModeEnvironment: 0,
+            telemetryModeLocation: 0,
+            telemetryModeBase: 0,
+            manualAddContacts: false,
+            radioFrequency: 512.002,
+            radioBandwidth: 62.5,
+            radioSpreadingFactor: 7,
+            radioCodingRate: 5,
+            name: "TestNode"
+        )
+        let radio = NodeConfigService.buildRadioSettings(from: info)
+
+        // Truncation would yield 512001; rounding restores the representable 512002.
+        #expect(radio.frequency == 512_002)
+    }
+
     // MARK: - buildOtherSettings
 
     @Test("buildOtherSettings maps manualAddContacts=false to 0")

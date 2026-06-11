@@ -854,6 +854,49 @@ struct RoundTripTests {
         #expect(packet.count == 11)
     }
 
+    @Test("setRadio rounds frequency to the nearest kHz")
+    func setRadioRoundsFrequencyToNearestKHz() {
+        let packet = PacketBuilder.setRadio(
+            frequency: 512.002,
+            bandwidth: 250.0,
+            spreadingFactor: 11,
+            codingRate: 8
+        )
+        let freqKHz = packet.readUInt32LE(at: 1)
+        // Truncation would yield 512001; rounding restores the representable 512002.
+        #expect(freqKHz == 512_002)
+    }
+
+    @Test("setRadio clamps out-of-range frequency and bandwidth instead of trapping")
+    func setRadioClampsOutOfRangeValues() {
+        let high = PacketBuilder.setRadio(
+            frequency: 9_999_999.0,
+            bandwidth: 9_999_999.0,
+            spreadingFactor: 11,
+            codingRate: 8
+        )
+        #expect(high.readUInt32LE(at: 1) == PacketBuilder.frequencyRangeKHz.upperBound)
+        #expect(high.readUInt32LE(at: 5) == PacketBuilder.bandwidthRangeHz.upperBound)
+
+        let low = PacketBuilder.setRadio(
+            frequency: -1.0,
+            bandwidth: Double.nan,
+            spreadingFactor: 11,
+            codingRate: 8
+        )
+        #expect(low.readUInt32LE(at: 1) == PacketBuilder.frequencyRangeKHz.lowerBound)
+        #expect(low.readUInt32LE(at: 5) == PacketBuilder.bandwidthRangeHz.lowerBound)
+    }
+
+    @Test("setTime saturates out-of-range dates instead of trapping")
+    func setTimeSaturatesOutOfRangeDates() {
+        let preEpoch = PacketBuilder.setTime(Date(timeIntervalSince1970: -1_000))
+        #expect(preEpoch.readUInt32LE(at: 1) == 0)
+
+        let postRange = PacketBuilder.setTime(Date(timeIntervalSince1970: Double(UInt32.max) + 1_000))
+        #expect(postRange.readUInt32LE(at: 1) == UInt32.max)
+    }
+
     @Test("setTxPower positive power packet format")
     func setTxPowerPositivePowerPacketFormat() {
         let packet = PacketBuilder.setTxPower(20)

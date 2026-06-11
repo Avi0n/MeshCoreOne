@@ -54,6 +54,8 @@ public enum PacketBuilder: Sendable {
     static let defaultScopeKeyBytes = 16
     /// Fixed-point scale firmware applies to latitude/longitude (degrees × 1e6, stored as Int32).
     static let coordinateScale: Double = 1_000_000
+    /// Fixed-point scale firmware applies to radio frequency and bandwidth (MHz/kHz × 1,000).
+    static let radioScale: Double = 1_000
     /// Valid latitude range in degrees.
     public static let latitudeRange: ClosedRange<Double> = -90...90
     /// Valid longitude range in degrees.
@@ -83,6 +85,18 @@ public enum PacketBuilder: Sendable {
     static func scaledCoordinate(_ degrees: Double, in range: ClosedRange<Double>) -> Int32 {
         let clamped = degrees.isFinite ? min(max(degrees, range.lowerBound), range.upperBound) : 0
         return Int32(clamped * coordinateScale)
+    }
+
+    /// Scales a radio value (MHz or kHz) by 1,000 into the firmware's `UInt32` field,
+    /// rounding to the nearest unit and clamping to a finite, valid range. Rounding
+    /// avoids truncating a representable value one unit low; clamping a NaN, infinite,
+    /// or out-of-range value saturates instead of trapping `UInt32(_:)`.
+    static func scaledRadioValue(_ value: Double, in range: ClosedRange<UInt32>) -> UInt32 {
+        guard value.isFinite else { return range.lowerBound }
+        let scaled = (value * radioScale).rounded()
+        let lower = Double(range.lowerBound)
+        let upper = Double(range.upperBound)
+        return UInt32(min(max(scaled, lower), upper))
     }
 
     /// Clamps a date to the firmware's unsigned 32-bit seconds-since-epoch field,
@@ -158,7 +172,7 @@ public enum PacketBuilder: Sendable {
     /// - Offset 1 (4 bytes): Unix timestamp (seconds), Little-endian UInt32
     public static func setTime(_ date: Date) -> Data {
         var data = Data([CommandCode.setTime.rawValue])
-        let timestamp = UInt32(date.timeIntervalSince1970)
+        let timestamp = epochSeconds32(date)
         data.append(contentsOf: withUnsafeBytes(of: timestamp.littleEndian) { Array($0) })
         return data
     }
@@ -238,8 +252,8 @@ public enum PacketBuilder: Sendable {
         clientRepeat: Bool? = nil
     ) -> Data {
         var data = Data([CommandCode.setRadio.rawValue])
-        let freq = UInt32(frequency * 1000)
-        let bw = UInt32(bandwidth * 1000)
+        let freq = scaledRadioValue(frequency, in: frequencyRangeKHz)
+        let bw = scaledRadioValue(bandwidth, in: bandwidthRangeHz)
         data.append(contentsOf: withUnsafeBytes(of: freq.littleEndian) { Array($0) })
         data.append(contentsOf: withUnsafeBytes(of: bw.littleEndian) { Array($0) })
         data.append(spreadingFactor)
@@ -298,7 +312,7 @@ public enum PacketBuilder: Sendable {
     public static func getContacts(since lastModified: Date? = nil) -> Data {
         var data = Data([CommandCode.getContacts.rawValue])
         if let lastMod = lastModified {
-            let timestamp = UInt32(lastMod.timeIntervalSince1970)
+            let timestamp = epochSeconds32(lastMod)
             data.append(contentsOf: withUnsafeBytes(of: timestamp.littleEndian) { Array($0) })
         }
         return data
@@ -397,7 +411,7 @@ public enum PacketBuilder: Sendable {
         attempt: UInt8 = 0
     ) -> Data {
         var data = Data([CommandCode.sendMessage.rawValue, 0x00, attempt])
-        let ts = UInt32(timestamp.timeIntervalSince1970)
+        let ts = epochSeconds32(timestamp)
         data.append(contentsOf: withUnsafeBytes(of: ts.littleEndian) { Array($0) })
         data.append(destination.prefix(6))
         data.append(text.data(using: .utf8) ?? Data())
@@ -425,7 +439,7 @@ public enum PacketBuilder: Sendable {
         timestamp: Date = Date()
     ) -> Data {
         var data = Data([CommandCode.sendMessage.rawValue, 0x01, 0x00])
-        let ts = UInt32(timestamp.timeIntervalSince1970)
+        let ts = epochSeconds32(timestamp)
         data.append(contentsOf: withUnsafeBytes(of: ts.littleEndian) { Array($0) })
         data.append(destination.prefix(6))
         data.append(command.data(using: .utf8) ?? Data())
@@ -452,7 +466,7 @@ public enum PacketBuilder: Sendable {
         timestamp: Date = Date()
     ) -> Data {
         var data = Data([CommandCode.sendChannelMessage.rawValue, 0x00, channel])
-        let ts = UInt32(timestamp.timeIntervalSince1970)
+        let ts = epochSeconds32(timestamp)
         data.append(contentsOf: withUnsafeBytes(of: ts.littleEndian) { Array($0) })
         data.append(text.data(using: .utf8) ?? Data())
         return data

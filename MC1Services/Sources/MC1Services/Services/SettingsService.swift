@@ -108,10 +108,10 @@ public struct RadioPreset: Identifiable, Sendable, Equatable {
     public let recommendationPriority: Int
 
     /// Frequency in kHz for protocol encoding
-    public var frequencyKHz: UInt32 { UInt32(frequencyMHz * 1000) }
+    public var frequencyKHz: UInt32 { UInt32((frequencyMHz * 1000).rounded()) }
 
     /// Bandwidth in Hz for protocol encoding
-    public var bandwidthHz: UInt32 { UInt32(bandwidthKHz * 1000) }
+    public var bandwidthHz: UInt32 { UInt32((bandwidthKHz * 1000).rounded()) }
 
     public init(
         id: String,
