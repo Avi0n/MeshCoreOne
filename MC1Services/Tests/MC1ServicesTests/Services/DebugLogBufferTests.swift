@@ -2,7 +2,9 @@ import Testing
 import Foundation
 @testable import MC1Services
 
-@Suite("DebugLogBuffer Tests")
+// Serialized because both tests reassign the process-global DebugLogBuffer.shared;
+// run in parallel, one test's reassignment breaks the other's final-value assertion.
+@Suite("DebugLogBuffer Tests", .serialized)
 struct DebugLogBufferTests {
 
     private func makeBuffer() async throws -> DebugLogBuffer {
