@@ -4,11 +4,16 @@ import os
 /// Actor for buffering debug log entries and flushing to persistence.
 /// Provides batched saves for performance and backpressure handling.
 public actor DebugLogBuffer {
+    /// Backing storage for the shared buffer. Reassigned on every connection from
+    /// `ServiceContainer.init` while `PersistentLogger` reads it from arbitrary
+    /// actors, so the write and the reads must be synchronized.
+    private static let sharedStorage = OSAllocatedUnfairLock<DebugLogBuffer?>(initialState: nil)
+
     /// Shared buffer instance for app-wide logging.
-    /// Written only during app bootstrap on @MainActor (AppState.init, then ServiceContainer.init),
-    /// before any PersistentLogger reads can occur. Reads happen from any actor via PersistentLogger.
-    /// nonisolated(unsafe) is required because Swift cannot express "set-once-before-use" statically.
-    public nonisolated(unsafe) static var shared: DebugLogBuffer?
+    public static var shared: DebugLogBuffer? {
+        get { sharedStorage.withLock { $0 } }
+        set { sharedStorage.withLock { $0 = newValue } }
+    }
 
     private let dataStore: any PersistenceStoreProtocol
     private var buffer: [DebugLogEntryDTO] = []
