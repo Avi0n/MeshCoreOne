@@ -309,8 +309,8 @@ private actor StubDataStore: PersistenceStoreProtocol {
 
     func fetchContactPublicKeysByPrefix(radioID: UUID) async throws -> [UInt8: [Data]] { [:] }
 
-    func findRxLogEntry(channelIndex: UInt8?, senderTimestamp: UInt32) async throws -> RxLogEntryDTO? { nil }
-    func findRxLogEntryBySenderPrefix(senderPrefixByte: UInt8, receivedSince: Date) async throws -> RxLogEntryDTO? { nil }
+    func findRxLogEntry(radioID: UUID, channelIndex: UInt8?, senderTimestamp: UInt32) async throws -> RxLogEntryDTO? { nil }
+    func findRxLogEntryBySenderPrefix(radioID: UUID, senderPrefixByte: UInt8, receivedSince: Date) async throws -> RxLogEntryDTO? { nil }
 
     func saveRoomMessage(_ dto: RoomMessageDTO) async throws {}
     func fetchRoomMessage(id: UUID) async throws -> RoomMessageDTO? { nil }

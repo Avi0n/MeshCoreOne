@@ -355,6 +355,7 @@ public protocol PersistenceStoreProtocol: Actor {
     /// For channel messages: Correlates by channel index and sender timestamp.
     /// For direct messages: Correlates by sender timestamp and payload type.
     func findRxLogEntry(
+        radioID: UUID,
         channelIndex: UInt8?,
         senderTimestamp: UInt32
     ) async throws -> RxLogEntryDTO?
@@ -362,6 +363,7 @@ public protocol PersistenceStoreProtocol: Actor {
     /// Find a DM RxLogEntry by matching the sender prefix byte in the packet payload.
     /// Fallback for when the primary timestamp-based lookup fails.
     func findRxLogEntryBySenderPrefix(
+        radioID: UUID,
         senderPrefixByte: UInt8,
         receivedSince: Date
     ) async throws -> RxLogEntryDTO?

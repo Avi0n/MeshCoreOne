@@ -75,6 +75,7 @@ extension SyncCoordinator {
             // Look up path data from RxLogEntry (for direct messages, channelIndex is nil)
             let rxResult = await self.lookupRxLogEntry(
                 services: services,
+                radioID: radioID,
                 channelIndex: nil,
                 senderTimestamp: timestamp,
                 senderPublicKeyPrefix: message.senderPublicKeyPrefix,
@@ -231,6 +232,7 @@ extension SyncCoordinator {
             // Look up path data from RxLogEntry using sender timestamp (stored during decryption)
             let rxResult = await self.lookupRxLogEntry(
                 services: services,
+                radioID: radioID,
                 channelIndex: message.channelIndex,
                 senderTimestamp: timestamp,
                 senderPublicKeyPrefix: nil,
@@ -475,6 +477,7 @@ extension SyncCoordinator {
     /// Looks up path data from an RxLogEntry to correlate with an incoming message.
     private func lookupRxLogEntry(
         services: ServiceContainer,
+        radioID: UUID,
         channelIndex: UInt8?,
         senderTimestamp: UInt32,
         senderPublicKeyPrefix: Data?,
@@ -486,6 +489,7 @@ extension SyncCoordinator {
 
         do {
             if let rxEntry = try await services.dataStore.findRxLogEntry(
+                radioID: radioID,
                 channelIndex: channelIndex,
                 senderTimestamp: senderTimestamp
             ) {
@@ -506,6 +510,7 @@ extension SyncCoordinator {
                let prefixByte = senderPublicKeyPrefix?.first {
                 let lookbackWindow = Date().addingTimeInterval(-30)
                 if let rxEntry = try await services.dataStore.findRxLogEntryBySenderPrefix(
+                    radioID: radioID,
                     senderPrefixByte: prefixByte,
                     receivedSince: lookbackWindow
                 ) {

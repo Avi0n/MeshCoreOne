@@ -988,16 +988,19 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
 
     public func findRxLogEntry(
+        radioID: UUID,
         channelIndex: UInt8?,
         senderTimestamp: UInt32
     ) throws -> RxLogEntryDTO? {
         if let channelIndex {
             return mockRxLogEntries.first { entry in
+                entry.radioID == radioID &&
                 entry.channelIndex == channelIndex &&
                 entry.senderTimestamp == senderTimestamp
             }
         } else {
             return mockRxLogEntries.first { entry in
+                entry.radioID == radioID &&
                 entry.senderTimestamp == senderTimestamp &&
                 entry.channelIndex == nil
             }
@@ -1005,10 +1008,12 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
 
     public func findRxLogEntryBySenderPrefix(
+        radioID: UUID,
         senderPrefixByte: UInt8,
         receivedSince: Date
     ) throws -> RxLogEntryDTO? {
         mockRxLogEntries.first { entry in
+            entry.radioID == radioID &&
             entry.channelIndex == nil &&
             entry.payloadType == .textMessage &&
             entry.receivedAt >= receivedSince &&

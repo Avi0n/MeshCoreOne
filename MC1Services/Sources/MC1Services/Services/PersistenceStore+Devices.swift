@@ -389,12 +389,14 @@ extension PersistenceStore {
         let blockedSenders = try modelContext.fetch(FetchDescriptor(predicate: blockedPredicate))
         for blocked in blockedSenders { modelContext.delete(blocked) }
 
-        // Delete RX log entries
+        // Delete RX log entries; drop the count cache so the next save re-seeds
+        // from disk instead of pruning against a stale pre-delete count.
         let rxLogPredicate = #Predicate<RxLogEntry> { entry in
             entry.radioID == targetRadioID
         }
         let rxLogEntries = try modelContext.fetch(FetchDescriptor(predicate: rxLogPredicate))
         for entry in rxLogEntries { modelContext.delete(entry) }
+        rxLogEntryCountsByDevice[targetRadioID] = nil
 
         // Delete discovered nodes
         let discoveredPredicate = #Predicate<DiscoveredNode> { node in
