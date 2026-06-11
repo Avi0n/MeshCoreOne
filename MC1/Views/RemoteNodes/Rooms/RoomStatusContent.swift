@@ -28,6 +28,7 @@ struct RoomStatusContent: View {
                 connectedDeviceID: connectedDeviceID
             )
         }
+        .nodeStatusDestinations(helper: viewModel.helper)
         .themedCanvas(theme)
         .scrollDismissesKeyboard(.interactively)
     }

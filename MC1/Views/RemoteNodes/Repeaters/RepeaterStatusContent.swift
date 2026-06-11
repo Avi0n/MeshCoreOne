@@ -42,6 +42,7 @@ struct RepeaterStatusContent: View {
                 connectedDeviceID: connectedDeviceID
             )
         }
+        .nodeStatusDestinations(helper: viewModel.helper)
         .themedCanvas(theme)
         .scrollDismissesKeyboard(.interactively)
     }
@@ -163,13 +164,10 @@ private struct NeighborsSection: View {
                             discoveredNodes: discoveredNodes,
                             userLocation: userLocation
                         )
-                        NavigationLink {
-                            NeighborSNRChartView(
-                                name: resolution?.displayName ?? L10n.RemoteNodes.RemoteNodes.Status.unknown,
-                                neighborPrefix: neighbor.publicKeyPrefix,
-                                fetchSnapshots: viewModel.helper.fetchHistory
-                            )
-                        } label: {
+                        NavigationLink(value: NodeStatusRoute.neighborChart(
+                            name: resolution?.displayName ?? L10n.RemoteNodes.RemoteNodes.Status.unknown,
+                            neighborPrefix: neighbor.publicKeyPrefix
+                        )) {
                             NeighborRow(
                                 neighbor: neighbor,
                                 displayName: resolution?.displayName ?? L10n.RemoteNodes.RemoteNodes.Status.unknown,

@@ -88,18 +88,27 @@ final class NodeSettingsHelper {
 
     // MARK: - Contact Info
 
+    /// Firmware limit on the `set owner.info` value length.
+    static let ownerInfoMaxLength = 119
+
     var ownerInfo: String?
     private(set) var originalOwnerInfo: String?
     var isLoadingContactInfo = false
     var contactInfoError = false
     var contactInfoLoaded: Bool { originalOwnerInfo != nil }
 
+    /// Gated on `contactInfoLoaded` so the text field's empty pre-fetch value can't
+    /// enable Apply and wipe the node's owner info before the current value arrives.
     var contactInfoSettingsModified: Bool {
-        ownerInfo != originalOwnerInfo
+        contactInfoLoaded && ownerInfo != originalOwnerInfo
     }
 
     var ownerInfoCharCount: Int {
         (ownerInfo ?? "").count
+    }
+
+    var isOwnerInfoTooLong: Bool {
+        ownerInfoCharCount > Self.ownerInfoMaxLength
     }
 
     // MARK: - Security
@@ -334,6 +343,23 @@ final class NodeSettingsHelper {
         isLoadingContactInfo = false
     }
 
+    // MARK: - Success Flash
+
+    /// How long an Apply button shows its success state before returning to idle.
+    static let successFlashDuration: Duration = .seconds(1.5)
+
+    /// Drop the section's applying flag and flash its success indicator for
+    /// `successFlashDuration`. The closures target the section's own state, which
+    /// may live on this helper or on the owning view model.
+    func flashSuccess(setApplying: (Bool) -> Void, setSuccess: (Bool) -> Void) async {
+        withAnimation {
+            setApplying(false)
+            setSuccess(true)
+        }
+        try? await Task.sleep(for: Self.successFlashDuration)
+        withAnimation { setSuccess(false) }
+    }
+
     // MARK: - Apply Methods
 
     func applyRadioSettings() async {
@@ -411,12 +437,10 @@ final class NodeSettingsHelper {
             }
 
             if allSucceeded {
-                withAnimation {
-                    isApplying = false
-                    identityApplySuccess = true
-                }
-                try? await Task.sleep(for: .seconds(1.5))
-                withAnimation { identityApplySuccess = false }
+                await flashSuccess(
+                    setApplying: { isApplying = $0 },
+                    setSuccess: { identityApplySuccess = $0 }
+                )
                 return
             } else {
                 errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
@@ -437,12 +461,10 @@ final class NodeSettingsHelper {
             let response = try await sendAndWait("set owner.info \(pipeText)")
             if case .ok = CLIResponse.parse(response) {
                 originalOwnerInfo = ownerInfo
-                withAnimation {
-                    isApplying = false
-                    contactInfoApplySuccess = true
-                }
-                try? await Task.sleep(for: .seconds(1.5))
-                withAnimation { contactInfoApplySuccess = false }
+                await flashSuccess(
+                    setApplying: { isApplying = $0 },
+                    setSuccess: { contactInfoApplySuccess = $0 }
+                )
                 return
             } else {
                 errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
@@ -488,12 +510,10 @@ final class NodeSettingsHelper {
             if isSuccess {
                 newPassword = ""
                 confirmPassword = ""
-                withAnimation {
-                    isApplying = false
-                    changePasswordSuccess = true
-                }
-                try? await Task.sleep(for: .seconds(1.5))
-                withAnimation { changePasswordSuccess = false }
+                await flashSuccess(
+                    setApplying: { isApplying = $0 },
+                    setSuccess: { changePasswordSuccess = $0 }
+                )
                 return
             } else {
                 errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.passwordChangeFailed
@@ -565,6 +585,12 @@ final class NodeSettingsHelper {
 
     // MARK: - Shared Validation
 
+    /// Firmware-accepted ranges for the behavior fields; 0 means disabled for
+    /// the two intervals and is validated separately.
+    static let advertIntervalMinutesRange = 60...240
+    static let floodIntervalHoursRange = 3...168
+    static let floodMaxHopsRange = 0...64
+
     struct BehaviorValidationErrors {
         var advertInterval: String?
         var floodInterval: String?
@@ -578,13 +604,13 @@ final class NodeSettingsHelper {
         floodMaxHops: Int?
     ) -> BehaviorValidationErrors {
         var errors = BehaviorValidationErrors()
-        if let interval = advertInterval, interval != 0 && (interval < 60 || interval > 240) {
+        if let interval = advertInterval, interval != 0 && !advertIntervalMinutesRange.contains(interval) {
             errors.advertInterval = L10n.RemoteNodes.RemoteNodes.Settings.advertIntervalValidation
         }
-        if let interval = floodInterval, interval != 0 && (interval < 3 || interval > 168) {
+        if let interval = floodInterval, interval != 0 && !floodIntervalHoursRange.contains(interval) {
             errors.floodInterval = L10n.RemoteNodes.RemoteNodes.Settings.floodIntervalValidation
         }
-        if let hops = floodMaxHops, hops < 0 || hops > 64 {
+        if let hops = floodMaxHops, !floodMaxHopsRange.contains(hops) {
             errors.floodMaxHops = L10n.RemoteNodes.RemoteNodes.Settings.floodMaxValidation
         }
         return errors

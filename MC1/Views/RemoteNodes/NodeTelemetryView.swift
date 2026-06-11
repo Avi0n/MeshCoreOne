@@ -16,6 +16,7 @@ struct NodeTelemetryView: View {
                     await viewModel.requestTelemetry()
                 }
             }
+            .nodeStatusDestinations(helper: viewModel.helper)
             .themedCanvas(theme)
             .navigationTitle(contact.displayName)
             .navigationBarTitleDisplayMode(.inline)

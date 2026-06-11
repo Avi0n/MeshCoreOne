@@ -205,9 +205,7 @@ private struct BehaviorSection: View {
                 )
                 .overlay(alignment: .trailing) {
                     if viewModel.repeaterEnabled == nil {
-                        Text(viewModel.isLoadingBehavior ? L10n.RemoteNodes.RemoteNodes.Settings.loading : (viewModel.behaviorError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : "—"))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                        SettingsLoadPlaceholder(isLoading: viewModel.isLoadingBehavior, hasError: viewModel.behaviorError)
                             .padding(.trailing, 60)
                             .accessibilityHidden(true)
                     }
@@ -228,9 +226,7 @@ private struct BehaviorSection: View {
                     Text(L10n.RemoteNodes.RemoteNodes.Settings.min)
                         .foregroundStyle(.secondary)
                 } else {
-                    Text(viewModel.isLoadingBehavior ? L10n.RemoteNodes.RemoteNodes.Settings.loading : (viewModel.behaviorError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : "—"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    SettingsLoadPlaceholder(isLoading: viewModel.isLoadingBehavior, hasError: viewModel.behaviorError)
                 }
             }
 
@@ -255,9 +251,7 @@ private struct BehaviorSection: View {
                     Text(L10n.RemoteNodes.RemoteNodes.Settings.hrs)
                         .foregroundStyle(.secondary)
                 } else {
-                    Text(viewModel.isLoadingBehavior ? L10n.RemoteNodes.RemoteNodes.Settings.loading : (viewModel.behaviorError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : "—"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    SettingsLoadPlaceholder(isLoading: viewModel.isLoadingBehavior, hasError: viewModel.behaviorError)
                 }
             }
 
@@ -282,9 +276,7 @@ private struct BehaviorSection: View {
                     Text(L10n.RemoteNodes.RemoteNodes.Settings.hops)
                         .foregroundStyle(.secondary)
                 } else {
-                    Text(viewModel.isLoadingBehavior ? L10n.RemoteNodes.RemoteNodes.Settings.loading : (viewModel.behaviorError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : "—"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    SettingsLoadPlaceholder(isLoading: viewModel.isLoadingBehavior, hasError: viewModel.behaviorError)
                 }
             }
 

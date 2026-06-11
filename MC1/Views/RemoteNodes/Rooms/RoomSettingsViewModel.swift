@@ -212,12 +212,10 @@ final class RoomSettingsViewModel {
             }
 
             if allSucceeded {
-                withAnimation {
-                    isApplyingRoomAccess = false
-                    roomAccessApplySuccess = true
-                }
-                try? await Task.sleep(for: .seconds(1.5))
-                withAnimation { roomAccessApplySuccess = false }
+                await helper.flashSuccess(
+                    setApplying: { isApplyingRoomAccess = $0 },
+                    setSuccess: { roomAccessApplySuccess = $0 }
+                )
                 return
             } else {
                 helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
@@ -322,12 +320,10 @@ final class RoomSettingsViewModel {
             }
 
             if allSucceeded {
-                withAnimation {
-                    isApplyingBehavior = false
-                    behaviorApplySuccess = true
-                }
-                try? await Task.sleep(for: .seconds(1.5))
-                withAnimation { behaviorApplySuccess = false }
+                await helper.flashSuccess(
+                    setApplying: { isApplyingBehavior = $0 },
+                    setSuccess: { behaviorApplySuccess = $0 }
+                )
                 return
             } else {
                 helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply

@@ -102,9 +102,7 @@ struct NodeStatusSection<Rows: View>: View {
                             .foregroundStyle(.secondary)
                     }
 
-                    NavigationLink {
-                        NodeStatusHistoryView(fetchSnapshots: helper.fetchHistory, ocvArray: helper.ocvValues)
-                    } label: {
+                    NavigationLink(value: NodeStatusRoute.statusHistory) {
                         Text(L10n.RemoteNodes.RemoteNodes.History.title)
                     }
                 }
@@ -269,9 +267,7 @@ struct NodeTelemetryDisclosureSection: View {
                         }
                     }
 
-                    NavigationLink {
-                        TelemetryHistoryView(fetchSnapshots: helper.fetchHistory, ocvArray: helper.ocvValues)
-                    } label: {
+                    NavigationLink(value: NodeStatusRoute.telemetryHistory) {
                         Text(L10n.RemoteNodes.RemoteNodes.History.title)
                     }
                 } else {

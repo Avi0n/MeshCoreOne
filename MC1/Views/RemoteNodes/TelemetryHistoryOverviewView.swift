@@ -77,91 +77,9 @@ struct TelemetryHistoryOverviewView: View {
                     L10n.RemoteNodes.RemoteNodes.History.radioSection,
                     isExpanded: $radioExpanded
                 ) {
-                    let batteryPoints = filtered.compactMap { s in
-                        s.batteryMillivolts.map {
-                            MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0) / 1000.0)
-                        }
+                    RadioMetricCharts(snapshots: filtered, ocvArray: viewModel.ocvArray) { chart in
+                        chart
                     }
-                    metricChart(
-                        title: L10n.RemoteNodes.RemoteNodes.History.battery,
-                        unit: "V", color: .mint,
-                        dataPoints: batteryPoints,
-                        yAxisDomain: viewModel.ocvArray.voltageChartDomain(dataPoints: batteryPoints)
-                    )
-
-                    metricChart(
-                        title: L10n.RemoteNodes.RemoteNodes.History.snr,
-                        unit: "dB", color: .blue,
-                        dataPoints: filtered.compactMap { s in
-                            s.lastSNR.map { .init(id: s.id, date: s.timestamp, value: $0) }
-                        }
-                    )
-
-                    metricChart(
-                        title: L10n.RemoteNodes.RemoteNodes.History.rssi,
-                        unit: "dBm", color: .purple,
-                        dataPoints: filtered.compactMap { s in
-                            s.lastRSSI.map { .init(id: s.id, date: s.timestamp, value: Double($0)) }
-                        }
-                    )
-
-                    metricChart(
-                        title: L10n.RemoteNodes.RemoteNodes.History.noiseFloor,
-                        unit: "dBm", color: .indigo,
-                        dataPoints: filtered.compactMap { s in
-                            s.noiseFloor.map { .init(id: s.id, date: s.timestamp, value: Double($0)) }
-                        }
-                    )
-
-                    let packetsSentPoints = filtered.compactMap { s in
-                        s.packetsSent.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
-                    }
-                    let packetsReceivedPoints = filtered.compactMap { s in
-                        s.packetsReceived.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
-                    }
-                    let receiveErrorPoints = filtered.compactMap { s in
-                        s.receiveErrors.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
-                    }
-                    let postsReceivedPoints = filtered.compactMap { s in
-                        s.postedCount.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
-                    }
-                    let postsPushedPoints = filtered.compactMap { s in
-                        s.postPushCount.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
-                    }
-                    let packetDomain = [MetricChartView.DataPoint].sharedDomain(for: [
-                        packetsSentPoints, packetsReceivedPoints, receiveErrorPoints,
-                        postsReceivedPoints, postsPushedPoints
-                    ])
-
-                    metricChart(
-                        title: L10n.RemoteNodes.RemoteNodes.History.packetsSent,
-                        unit: "", color: .green,
-                        dataPoints: packetsSentPoints, yAxisDomain: packetDomain
-                    )
-
-                    metricChart(
-                        title: L10n.RemoteNodes.RemoteNodes.History.packetsReceived,
-                        unit: "", color: .orange,
-                        dataPoints: packetsReceivedPoints, yAxisDomain: packetDomain
-                    )
-
-                    metricChart(
-                        title: L10n.RemoteNodes.RemoteNodes.History.receiveErrors,
-                        unit: "", color: .red,
-                        dataPoints: receiveErrorPoints, yAxisDomain: packetDomain
-                    )
-
-                    metricChart(
-                        title: L10n.RemoteNodes.RemoteNodes.RoomStatus.postsReceived,
-                        unit: "", color: .purple,
-                        dataPoints: postsReceivedPoints, yAxisDomain: packetDomain
-                    )
-
-                    metricChart(
-                        title: L10n.RemoteNodes.RemoteNodes.RoomStatus.postsPushed,
-                        unit: "", color: .cyan,
-                        dataPoints: postsPushedPoints, yAxisDomain: packetDomain
-                    )
                 }
             }
             .themedRowBackground(theme)
@@ -242,21 +160,6 @@ struct TelemetryHistoryOverviewView: View {
     }
 
     // MARK: - Helpers
-
-    @ViewBuilder
-    private func metricChart(
-        title: String, unit: String, color: Color,
-        dataPoints: [MetricChartView.DataPoint],
-        yAxisDomain: ClosedRange<Double>? = nil
-    ) -> some View {
-        if !dataPoints.isEmpty {
-            MetricChartView(
-                title: title, unit: unit,
-                dataPoints: dataPoints, accentColor: color,
-                yAxisDomain: yAxisDomain
-            )
-        }
-    }
 
     private func chartView(for chart: TelemetryChartGroup) -> MetricChartView {
         MetricChartView(

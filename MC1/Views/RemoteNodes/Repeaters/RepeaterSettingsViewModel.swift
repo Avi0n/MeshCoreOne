@@ -302,12 +302,10 @@ final class RepeaterSettingsViewModel {
             }
 
             if allSucceeded {
-                withAnimation {
-                    helper.isApplying = false
-                    behaviorApplySuccess = true
-                }
-                try? await Task.sleep(for: .seconds(1.5))
-                withAnimation { behaviorApplySuccess = false }
+                await helper.flashSuccess(
+                    setApplying: { helper.isApplying = $0 },
+                    setSuccess: { behaviorApplySuccess = $0 }
+                )
                 return
             } else {
                 helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
@@ -486,12 +484,10 @@ final class RepeaterSettingsViewModel {
             let response = try await helper.sendAndWait("region save")
             if case .ok = CLIResponse.parse(response) {
                 hasUnsavedRegionChanges = false
-                withAnimation {
-                    helper.isApplying = false
-                    regionsSaveSuccess = true
-                }
-                try? await Task.sleep(for: .seconds(1.5))
-                withAnimation { regionsSaveSuccess = false }
+                await helper.flashSuccess(
+                    setApplying: { helper.isApplying = $0 },
+                    setSuccess: { regionsSaveSuccess = $0 }
+                )
                 return
             } else {
                 helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.saveFailed
