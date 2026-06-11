@@ -61,8 +61,8 @@ enum EmojiProviderState {
 }
 
 /// Provides emoji data for the picker with search and frequently-used tracking
-@MainActor
 @Observable
+@MainActor
 final class EmojiProvider {
     private(set) var state: EmojiProviderState = .notLoaded
     private var store: EmojibaseStore?

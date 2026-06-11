@@ -119,7 +119,8 @@ struct LOSRepeaterSelectionInfo {
 
 // MARK: - View Model
 
-@MainActor @Observable
+@Observable
+@MainActor
 final class LineOfSightViewModel {
 
     // MARK: - Stable Map IDs

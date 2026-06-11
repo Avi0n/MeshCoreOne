@@ -1,7 +1,7 @@
 import Foundation
 
-@MainActor
 @Observable
+@MainActor
 final class CLICompletionEngine {
 
     // MARK: - Command Definitions

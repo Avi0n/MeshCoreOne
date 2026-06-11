@@ -63,8 +63,8 @@ enum NoiseFloorQuality: Equatable {
     }
 }
 
-@MainActor
 @Observable
+@MainActor
 final class NoiseFloorViewModel {
     var currentReading: NoiseFloorReading?
     var readings: [NoiseFloorReading] = []

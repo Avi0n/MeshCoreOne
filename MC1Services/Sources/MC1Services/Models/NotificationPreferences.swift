@@ -31,8 +31,8 @@ public struct NotificationPreferences: Sendable {
 }
 
 /// Observable store for notification preferences (used by Settings UI for two-way binding)
-@MainActor
 @Observable
+@MainActor
 public final class NotificationPreferencesStore {
     private let defaults = UserDefaults.standard
 

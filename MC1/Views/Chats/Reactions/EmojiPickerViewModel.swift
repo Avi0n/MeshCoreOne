@@ -2,8 +2,8 @@ import Foundation
 import Observation
 
 /// View model for the emoji picker sheet
-@MainActor
 @Observable
+@MainActor
 final class EmojiPickerViewModel {
     private let provider = EmojiProvider()
     private var searchTask: Task<Void, Never>?

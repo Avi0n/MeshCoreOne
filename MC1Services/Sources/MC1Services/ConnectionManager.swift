@@ -212,8 +212,8 @@ public struct RemoveUnfavoritedResult: Sendable {
 /// - Connection and disconnection
 /// - Auto-reconnect on connection loss
 /// - Last-device persistence for app restoration
-@MainActor
 @Observable
+@MainActor
 public final class ConnectionManager {
 
     // MARK: - Logging

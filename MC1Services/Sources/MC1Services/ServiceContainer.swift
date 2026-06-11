@@ -31,8 +31,8 @@ import MeshCore
 /// 1. Independent services (KeychainService, NotificationService)
 /// 2. Core services (ContactService, MessageService, ChannelService, etc.)
 /// 3. Higher-level services (RemoteNodeService, RepeaterAdminService, RoomServerService)
-@MainActor
 @Observable
+@MainActor
 public final class ServiceContainer {
 
     // MARK: - Core Infrastructure

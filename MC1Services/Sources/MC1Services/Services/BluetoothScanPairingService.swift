@@ -13,8 +13,8 @@ import os
 ///
 /// Every system-registry operation is a no-op: macOS CoreBluetooth manages bonds at the OS
 /// level with no app-visible registry.
-@MainActor
 @Observable
+@MainActor
 public final class BluetoothScanPairingService: DevicePairingService {
     public weak var delegate: (any DevicePairingDelegate)?
 

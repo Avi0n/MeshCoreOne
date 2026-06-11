@@ -66,7 +66,8 @@ enum OfflineMapError: LocalizedError {
 
 private let logger = Logger(subsystem: "com.mc1", category: "OfflineMapService")
 
-@MainActor @Observable
+@Observable
+@MainActor
 final class OfflineMapService {
 
     private static let minimumDiskSpaceBytes: Int64 = 100_000_000

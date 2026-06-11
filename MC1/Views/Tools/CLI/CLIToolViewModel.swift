@@ -3,8 +3,8 @@ import OSLog
 import MC1Services
 import UIKit
 
-@MainActor
 @Observable
+@MainActor
 final class CLIToolViewModel {
     private static let maxOutputLines = 1000
     private static let maxHistoryEntries = 100

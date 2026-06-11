@@ -1,8 +1,8 @@
 import Foundation
 
 /// Stores recently used reaction emojis for quick access
-@MainActor
 @Observable
+@MainActor
 public final class RecentEmojisStore {
     private static let key = "recentReactionEmojis"
     private static let maxRecent = 6

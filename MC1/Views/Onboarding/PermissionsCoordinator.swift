@@ -3,8 +3,8 @@ import UserNotifications
 
 /// Coordinator for managing Location and Notification permission requests and state observation.
 /// Uses delegate callbacks to update permission state immediately when user responds.
-@MainActor
 @Observable
+@MainActor
 final class PermissionsCoordinator: NSObject, CLLocationManagerDelegate {
     var locationAuthorization: CLAuthorizationStatus = .notDetermined
     var notificationAuthorization: UNAuthorizationStatus = .notDetermined

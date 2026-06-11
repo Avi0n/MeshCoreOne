@@ -3,8 +3,8 @@ import os
 
 private let logger = Logger(subsystem: "com.mc1", category: "DemoMode")
 
-@MainActor
 @Observable
+@MainActor
 final class DemoModeManager {
     static let shared = DemoModeManager()
 

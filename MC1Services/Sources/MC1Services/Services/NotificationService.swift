@@ -24,8 +24,8 @@ public enum NotificationAction: String, Sendable {
 
 /// Service for managing local notifications.
 /// Handles message notifications, quick reply actions, and battery warnings.
-@MainActor
 @Observable
+@MainActor
 public final class NotificationService: NSObject {
 
     // MARK: - Properties

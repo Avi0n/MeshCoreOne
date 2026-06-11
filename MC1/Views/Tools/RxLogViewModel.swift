@@ -2,8 +2,8 @@
 import Foundation
 import MC1Services
 
-@MainActor
 @Observable
+@MainActor
 final class RxLogViewModel {
     enum RouteFilter: String, CaseIterable {
         case all

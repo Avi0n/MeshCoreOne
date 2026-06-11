@@ -4,7 +4,8 @@ import os.log
 
 private let logger = Logger(subsystem: "com.mc1", category: "SavedPathDetail")
 
-@MainActor @Observable
+@Observable
+@MainActor
 final class SavedPathDetailViewModel {
 
     // MARK: - State

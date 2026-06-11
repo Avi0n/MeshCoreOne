@@ -28,7 +28,8 @@ public protocol AccessorySetupKitServiceDelegate: AnyObject {
 /// try await accessoryService.activateSession()
 /// let deviceUUID = try await accessoryService.showPicker()
 /// ```
-@MainActor @Observable
+@Observable
+@MainActor
 public final class AccessorySetupKitService {
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "AccessorySetupKit")
 
@@ -505,7 +506,8 @@ public protocol AccessorySetupKitServiceDelegate: AnyObject {
     func accessorySetupKitService(_ service: AccessorySetupKitService, didFailPairingForAccessoryWithID bluetoothID: UUID)
 }
 
-@MainActor @Observable
+@Observable
+@MainActor
 public final class AccessorySetupKitService {
     public private(set) var pairedAccessories: [ASAccessory] = []
     public private(set) var isSessionActive = false

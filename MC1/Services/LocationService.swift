@@ -33,8 +33,8 @@ enum LocationServiceError: Error, LocalizedError, Sendable {
 
 /// App-wide location service for managing location permissions and access.
 /// Used by MapView, LineOfSightView, ContactsListView, and other location-dependent features.
-@MainActor
 @Observable
+@MainActor
 public final class LocationService: NSObject, CLLocationManagerDelegate {
 
     // MARK: - Properties
