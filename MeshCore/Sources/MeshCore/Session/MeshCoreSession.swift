@@ -314,9 +314,12 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         guard !isAutoFetchingMessages else { return }
         isAutoFetchingMessages = true
 
+        // Subscribe before spawning the loop so a messagesWaiting event
+        // dispatched right after this method returns cannot be missed.
+        let events = await dispatcher.subscribe()
         autoMessageFetchTask = Task { [weak self] in
             guard let self else { return }
-            await self.autoMessageFetchLoop()
+            await self.autoMessageFetchLoop(events: events)
         }
 
         // The auto-fetch loop polls messages in response to messagesWaiting events.
@@ -335,8 +338,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         autoMessageDrainTask = nil
     }
 
-    private func autoMessageFetchLoop() async {
-        for await event in await dispatcher.subscribe() {
+    private func autoMessageFetchLoop(events: AsyncStream<MeshEvent>) async {
+        for await event in events {
             guard isAutoFetchingMessages else { break }
 
             if case .messagesWaiting = event {
@@ -409,6 +412,10 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         }
         // Stream ended - transport disconnected
         logger.info("Receive loop ended (stream exhausted)")
+        // Publish the loss only when the stream ended unexpectedly. During stop() or a
+        // failed-start unwind the session has already published its terminal state
+        // (.disconnected or .failed); a late .disconnected here would overwrite it.
+        guard isRunning else { return }
         await dispatcher.dispatch(.connectionStateChanged(.disconnected))
         updateConnectionState(.disconnected)
         isRunning = false
