@@ -30,7 +30,7 @@ struct TracePathView: View {
 
     @State private var showJumpToPath = true
     @State private var pathLoadedFromSheet = false
-    @AppStorage("tracePathViewMode") private var viewMode: TracePathViewMode = .list
+    @AppStorage(AppStorageKey.tracePathViewMode.rawValue) private var viewMode: TracePathViewMode = .list
 
     var body: some View {
         ZStack {

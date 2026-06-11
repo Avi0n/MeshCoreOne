@@ -1,10 +1,11 @@
 import Foundation
+import MC1Services
 
 /// Stores recently used reaction emojis for quick access
 @Observable
 @MainActor
 public final class RecentEmojisStore {
-    private static let key = "recentReactionEmojis"
+    private static let key = AppStorageKey.recentReactionEmojis.rawValue
     private static let maxRecent = 6
 
     /// Default emojis shown before any usage

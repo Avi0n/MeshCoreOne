@@ -1,8 +1,9 @@
+import MC1Services
 import SwiftUI
 
 struct ChatSettingsView: View {
     @Environment(\.appTheme) private var theme
-    @AppStorage("replyWithQuote") private var replyWithQuote = false
+    @AppStorage(AppStorageKey.replyWithQuote.rawValue) private var replyWithQuote = AppStorageKey.defaultReplyWithQuote
 
     var body: some View {
         List {

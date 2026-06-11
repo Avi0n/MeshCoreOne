@@ -16,17 +16,20 @@ public struct NotificationPreferences: Sendable {
 
     public init() {
         let defaults = UserDefaults.standard
-        self.contactMessagesEnabled = defaults.object(forKey: "notifyContactMessages") as? Bool ?? true
-        self.channelMessagesEnabled = defaults.object(forKey: "notifyChannelMessages") as? Bool ?? true
-        self.roomMessagesEnabled = defaults.object(forKey: "notifyRoomMessages") as? Bool ?? true
-        self.newContactDiscoveredEnabled = defaults.object(forKey: "notifyNewContacts") as? Bool ?? true
-        self.discoveryContactEnabled = defaults.object(forKey: "notifyNewContactsContact") as? Bool ?? true
-        self.discoveryRepeaterEnabled = defaults.object(forKey: "notifyNewContactsRepeater") as? Bool ?? true
-        self.discoveryRoomEnabled = defaults.object(forKey: "notifyNewContactsRoom") as? Bool ?? true
-        self.reactionNotificationsEnabled = defaults.object(forKey: "notifyReactions") as? Bool ?? true
-        self.soundEnabled = defaults.object(forKey: "notificationSoundEnabled") as? Bool ?? true
-        self.badgeEnabled = defaults.object(forKey: "notificationBadgeEnabled") as? Bool ?? true
-        self.lowBatteryEnabled = defaults.object(forKey: "notifyLowBattery") as? Bool ?? true
+        func enabled(_ key: AppStorageKey) -> Bool {
+            defaults.object(forKey: key.rawValue) as? Bool ?? AppStorageKey.defaultNotificationEnabled
+        }
+        self.contactMessagesEnabled = enabled(.notifyContactMessages)
+        self.channelMessagesEnabled = enabled(.notifyChannelMessages)
+        self.roomMessagesEnabled = enabled(.notifyRoomMessages)
+        self.newContactDiscoveredEnabled = enabled(.notifyNewContacts)
+        self.discoveryContactEnabled = enabled(.notifyNewContactsContact)
+        self.discoveryRepeaterEnabled = enabled(.notifyNewContactsRepeater)
+        self.discoveryRoomEnabled = enabled(.notifyNewContactsRoom)
+        self.reactionNotificationsEnabled = enabled(.notifyReactions)
+        self.soundEnabled = enabled(.notificationSoundEnabled)
+        self.badgeEnabled = enabled(.notificationBadgeEnabled)
+        self.lowBatteryEnabled = enabled(.notifyLowBattery)
     }
 }
 
@@ -36,37 +39,52 @@ public struct NotificationPreferences: Sendable {
 public final class NotificationPreferencesStore {
     private let defaults = UserDefaults.standard
 
+    /// Observation anchor for the UserDefaults-backed computed properties:
+    /// `@Observable` only instruments stored properties, so every getter reads
+    /// this and every setter bumps it, making writes visible to SwiftUI.
+    private var revision = 0
+
+    private func isEnabled(_ key: AppStorageKey) -> Bool {
+        _ = revision
+        return defaults.object(forKey: key.rawValue) as? Bool ?? AppStorageKey.defaultNotificationEnabled
+    }
+
+    private func setEnabled(_ newValue: Bool, for key: AppStorageKey) {
+        defaults.set(newValue, forKey: key.rawValue)
+        revision += 1
+    }
+
     // MARK: - Message Notifications
 
     /// Enable notifications for contact (direct) messages
     public var contactMessagesEnabled: Bool {
-        get { defaults.object(forKey: "notifyContactMessages") as? Bool ?? true }
-        set { defaults.set(newValue, forKey: "notifyContactMessages") }
+        get { isEnabled(.notifyContactMessages) }
+        set { setEnabled(newValue, for: .notifyContactMessages) }
     }
 
     /// Enable notifications for channel messages
     public var channelMessagesEnabled: Bool {
-        get { defaults.object(forKey: "notifyChannelMessages") as? Bool ?? true }
-        set { defaults.set(newValue, forKey: "notifyChannelMessages") }
+        get { isEnabled(.notifyChannelMessages) }
+        set { setEnabled(newValue, for: .notifyChannelMessages) }
     }
 
     /// Enable notifications for room messages
     public var roomMessagesEnabled: Bool {
-        get { defaults.object(forKey: "notifyRoomMessages") as? Bool ?? true }
-        set { defaults.set(newValue, forKey: "notifyRoomMessages") }
+        get { isEnabled(.notifyRoomMessages) }
+        set { setEnabled(newValue, for: .notifyRoomMessages) }
     }
 
     /// Enable notifications when new contacts are discovered
     public var newContactDiscoveredEnabled: Bool {
-        get { defaults.object(forKey: "notifyNewContacts") as? Bool ?? true }
+        get { isEnabled(.notifyNewContacts) }
         set {
-            let wasEnabled = defaults.object(forKey: "notifyNewContacts") as? Bool ?? true
-            defaults.set(newValue, forKey: "notifyNewContacts")
+            let wasEnabled = isEnabled(.notifyNewContacts)
+            setEnabled(newValue, for: .notifyNewContacts)
             // Only auto-enable children on first activation (keys never written before)
             if newValue && !wasEnabled {
-                let hasExistingChoices = defaults.object(forKey: "notifyNewContactsContact") != nil
-                    || defaults.object(forKey: "notifyNewContactsRepeater") != nil
-                    || defaults.object(forKey: "notifyNewContactsRoom") != nil
+                let hasExistingChoices = defaults.object(forKey: AppStorageKey.notifyNewContactsContact.rawValue) != nil
+                    || defaults.object(forKey: AppStorageKey.notifyNewContactsRepeater.rawValue) != nil
+                    || defaults.object(forKey: AppStorageKey.notifyNewContactsRoom.rawValue) != nil
                 if !hasExistingChoices {
                     discoveryContactEnabled = true
                     discoveryRepeaterEnabled = true
@@ -78,48 +96,48 @@ public final class NotificationPreferencesStore {
 
     /// Enable discovery notifications for companion (chat) nodes
     public var discoveryContactEnabled: Bool {
-        get { defaults.object(forKey: "notifyNewContactsContact") as? Bool ?? true }
-        set { defaults.set(newValue, forKey: "notifyNewContactsContact") }
+        get { isEnabled(.notifyNewContactsContact) }
+        set { setEnabled(newValue, for: .notifyNewContactsContact) }
     }
 
     /// Enable discovery notifications for repeater nodes
     public var discoveryRepeaterEnabled: Bool {
-        get { defaults.object(forKey: "notifyNewContactsRepeater") as? Bool ?? true }
-        set { defaults.set(newValue, forKey: "notifyNewContactsRepeater") }
+        get { isEnabled(.notifyNewContactsRepeater) }
+        set { setEnabled(newValue, for: .notifyNewContactsRepeater) }
     }
 
     /// Enable discovery notifications for room nodes
     public var discoveryRoomEnabled: Bool {
-        get { defaults.object(forKey: "notifyNewContactsRoom") as? Bool ?? true }
-        set { defaults.set(newValue, forKey: "notifyNewContactsRoom") }
+        get { isEnabled(.notifyNewContactsRoom) }
+        set { setEnabled(newValue, for: .notifyNewContactsRoom) }
     }
 
     /// Enable notifications when someone reacts to your messages
     public var reactionNotificationsEnabled: Bool {
-        get { defaults.object(forKey: "notifyReactions") as? Bool ?? true }
-        set { defaults.set(newValue, forKey: "notifyReactions") }
+        get { isEnabled(.notifyReactions) }
+        set { setEnabled(newValue, for: .notifyReactions) }
     }
 
     // MARK: - Sound & Badge
 
     /// Enable notification sounds
     public var soundEnabled: Bool {
-        get { defaults.object(forKey: "notificationSoundEnabled") as? Bool ?? true }
-        set { defaults.set(newValue, forKey: "notificationSoundEnabled") }
+        get { isEnabled(.notificationSoundEnabled) }
+        set { setEnabled(newValue, for: .notificationSoundEnabled) }
     }
 
     /// Enable badge count on app icon
     public var badgeEnabled: Bool {
-        get { defaults.object(forKey: "notificationBadgeEnabled") as? Bool ?? true }
-        set { defaults.set(newValue, forKey: "notificationBadgeEnabled") }
+        get { isEnabled(.notificationBadgeEnabled) }
+        set { setEnabled(newValue, for: .notificationBadgeEnabled) }
     }
 
     // MARK: - Low Battery
 
     /// Enable low battery warning notifications
     public var lowBatteryEnabled: Bool {
-        get { defaults.object(forKey: "notifyLowBattery") as? Bool ?? true }
-        set { defaults.set(newValue, forKey: "notifyLowBattery") }
+        get { isEnabled(.notifyLowBattery) }
+        set { setEnabled(newValue, for: .notifyLowBattery) }
     }
 
     public init() {}

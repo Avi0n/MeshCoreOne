@@ -643,11 +643,11 @@ public final class AppState {
     /// Runs automatic cleanup of stale non-favorite nodes if the threshold is configured.
     /// - Parameter force: When `true`, skips the 6-hour cooldown (used when the user changes the setting).
     func performStaleNodeCleanup(force: Bool = false) {
-        let threshold = UserDefaults.standard.integer(forKey: "autoDeleteStaleNodesDays")
+        let threshold = UserDefaults.standard.integer(forKey: AppStorageKey.autoDeleteStaleNodesDays.rawValue)
         guard threshold > 0 else { return }
 
         if !force {
-            let lastRunTimestamp = UserDefaults.standard.double(forKey: "lastStaleCleanupDate")
+            let lastRunTimestamp = UserDefaults.standard.double(forKey: AppStorageKey.lastStaleCleanupDate.rawValue)
             let lastRun = lastRunTimestamp > 0 ? Date(timeIntervalSinceReferenceDate: lastRunTimestamp) : Date.distantPast
             guard Date().timeIntervalSince(lastRun) >= 3 * 3600 else {
                 logger.debug("Stale node cleanup skipped — cooldown not expired")
@@ -658,7 +658,7 @@ public final class AppState {
         Task {
             do {
                 let result = try await connectionManager.removeStaleNodes(olderThanDays: threshold)
-                UserDefaults.standard.set(Date().timeIntervalSinceReferenceDate, forKey: "lastStaleCleanupDate")
+                UserDefaults.standard.set(Date().timeIntervalSinceReferenceDate, forKey: AppStorageKey.lastStaleCleanupDate.rawValue)
                 if result.total > 0 {
                     logger.info("Stale node cleanup: removed \(result.removed) of \(result.total) nodes older than \(threshold) days")
                 } else {

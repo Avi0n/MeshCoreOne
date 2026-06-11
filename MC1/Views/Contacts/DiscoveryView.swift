@@ -9,7 +9,7 @@ struct DiscoveryView: View {
     @State private var viewModel = DiscoveryViewModel()
     @State private var searchText = ""
     @State private var selectedSegment: DiscoverSegment = .all
-    @AppStorage("discoverySortOrder") private var sortOrder: NodeSortOrder = .lastHeard
+    @AppStorage(AppStorageKey.discoverySortOrder.rawValue) private var sortOrder: NodeSortOrder = .lastHeard
     @State private var addingNodeID: UUID?
     @State private var showClearConfirmation = false
 

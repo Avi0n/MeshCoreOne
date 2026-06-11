@@ -21,7 +21,7 @@ public final class OnboardingState {
     /// Whether onboarding is complete (persisted to UserDefaults)
     var hasCompletedOnboarding: Bool {
         didSet {
-            defaults.set(hasCompletedOnboarding, forKey: "hasCompletedOnboarding")
+            defaults.set(hasCompletedOnboarding, forKey: AppStorageKey.hasCompletedOnboarding.rawValue)
         }
     }
 
@@ -30,7 +30,7 @@ public final class OnboardingState {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        self.hasCompletedOnboarding = defaults.bool(forKey: "hasCompletedOnboarding")
+        self.hasCompletedOnboarding = defaults.bool(forKey: AppStorageKey.hasCompletedOnboarding.rawValue)
     }
 
     /// Mark onboarding as complete

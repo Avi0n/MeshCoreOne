@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import Emojibase
+import MC1Services
 
 /// View data for a single emoji in the picker
 struct EmojiItem: Identifiable, Equatable {
@@ -68,7 +69,7 @@ final class EmojiProvider {
     private var store: EmojibaseStore?
 
     @ObservationIgnored
-    @AppStorage("frequentEmojis") private var frequentEmojisData: Data = Data()
+    @AppStorage(AppStorageKey.frequentEmojis.rawValue) private var frequentEmojisData: Data = Data()
 
     private static let maxFrequentEmojis = 20
     private static let categoryOrder: [EmojibaseCategory] = [

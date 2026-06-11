@@ -1,3 +1,4 @@
+import MC1Services
 import SwiftUI
 import os
 
@@ -11,17 +12,17 @@ final class DemoModeManager {
     private let defaults: UserDefaults
 
     var isUnlocked: Bool {
-        didSet { defaults.set(isUnlocked, forKey: "isDemoModeUnlocked") }
+        didSet { defaults.set(isUnlocked, forKey: AppStorageKey.isDemoModeUnlocked.rawValue) }
     }
 
     var isEnabled: Bool {
-        didSet { defaults.set(isEnabled, forKey: "isDemoModeEnabled") }
+        didSet { defaults.set(isEnabled, forKey: AppStorageKey.isDemoModeEnabled.rawValue) }
     }
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        self.isUnlocked = defaults.bool(forKey: "isDemoModeUnlocked")
-        self.isEnabled = defaults.bool(forKey: "isDemoModeEnabled")
+        self.isUnlocked = defaults.bool(forKey: AppStorageKey.isDemoModeUnlocked.rawValue)
+        self.isEnabled = defaults.bool(forKey: AppStorageKey.isDemoModeEnabled.rawValue)
     }
 
     func unlock() {
