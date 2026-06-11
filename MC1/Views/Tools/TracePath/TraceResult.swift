@@ -8,7 +8,7 @@ struct TraceResult: Identifiable {
     let success: Bool
     let errorMessage: String?
     let tracedPathBytes: [UInt8]  // Path that was actually traced
-    let hashSize: Int             // Bytes per hop (1, 2, or 3)
+    let hashSize: Int             // Bytes per hop (1, 2, or 4)
 
     /// Comma-separated path string for display/copy, chunked by hash size
     var tracedPathString: String {

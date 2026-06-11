@@ -106,11 +106,18 @@ final class NodeStatusHelper {
     ]
 
     func isTransientError(_ error: Error) -> Bool {
-        guard let remoteError = error as? RemoteNodeError,
-              case .sessionError(let meshError) = remoteError,
-              case .deviceError(let code) = meshError else {
+        let meshError: MeshCoreError
+        switch error {
+        case let remoteError as RemoteNodeError:
+            guard case .sessionError(let inner) = remoteError else { return false }
+            meshError = inner
+        case let binaryError as BinaryProtocolError:
+            guard case .sessionError(let inner) = binaryError else { return false }
+            meshError = inner
+        default:
             return false
         }
+        guard case .deviceError(let code) = meshError else { return false }
         return code == FirmwareDeviceErrorCode.remoteNodeNoResponseYet
     }
 

@@ -212,10 +212,11 @@ private struct MessagesView: View {
             } else if messages.isEmpty {
                 EmptyMessagesView(session: session)
             } else {
+                let timestampVisibleIDs = Self.timestampVisibleIDs(in: messages)
                 ChatTableView(
                     items: messages,
                     cellContent: { message in
-                        messageBubble(for: message)
+                        messageBubble(for: message, showTimestamp: timestampVisibleIDs.contains(message.id))
                             .environment(\.appTheme, theme)
                     },
                     contentBackground: theme.surfaces?.canvas,
@@ -242,15 +243,24 @@ private struct MessagesView: View {
         .themedCanvas(theme)
     }
 
-    private func messageBubble(for message: RoomMessageDTO) -> some View {
-        let index = messages.firstIndex(where: { $0.id == message.id }) ?? 0
-        return RoomMessageBubble(
+    private func messageBubble(for message: RoomMessageDTO, showTimestamp: Bool) -> some View {
+        RoomMessageBubble(
             message: message,
-            showTimestamp: RoomConversationViewModel.shouldShowTimestamp(at: index, in: messages),
+            showTimestamp: showTimestamp,
             onRetry: message.status == .failed ? {
                 onRetry(message.id)
             } : nil
         )
+    }
+
+    /// Single pass over the array producing the set of message IDs whose timestamp is shown,
+    /// so each cell does an O(1) lookup instead of an O(n) `firstIndex` per body evaluation.
+    private static func timestampVisibleIDs(in messages: [RoomMessageDTO]) -> Set<UUID> {
+        var visible = Set<UUID>()
+        for index in messages.indices where RoomConversationViewModel.shouldShowTimestamp(at: index, in: messages) {
+            visible.insert(messages[index].id)
+        }
+        return visible
     }
 }
 

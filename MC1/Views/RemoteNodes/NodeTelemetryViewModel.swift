@@ -34,18 +34,27 @@ final class NodeTelemetryViewModel {
     func requestTelemetry() async {
         guard let binaryProtocolService, let publicKey else { return }
 
-        helper.isLoadingTelemetry = true
-        helper.telemetrySectionError = nil
+        await helper.runRetryingSectionRequest(
+            operationName: "telemetry",
+            setLoading: { self.helper.isLoadingTelemetry = $0 },
+            setError: { self.helper.telemetrySectionError = $0 },
+            operation: { [binaryProtocolService, publicKey] _ in
+                // BinaryProtocolService relies on the session's own timeout; it has no
+                // timeout parameter, and reports a timeout as a wrapped session error,
+                // so map that to the telemetry-specific "may be disabled" copy.
+                do {
+                    return try await binaryProtocolService.requestTelemetry(from: publicKey)
+                } catch BinaryProtocolError.sessionError(MeshCoreError.timeout) {
+                    throw RemoteNodeError.timeout
+                }
+            },
+            onSuccess: { await self.helper.handleTelemetryResponse($0) }
+        )
 
-        do {
-            let response = try await binaryProtocolService.requestTelemetry(from: publicKey)
-            await helper.handleTelemetryResponse(response)
-        } catch BinaryProtocolError.sessionError(MeshCoreError.timeout) {
+        // The shared helper renders a generic timed-out string; telemetry has a more
+        // specific cause worth surfacing, so refine that one case.
+        if helper.telemetrySectionError == L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut {
             helper.telemetrySectionError = L10n.RemoteNodes.RemoteNodes.Status.telemetryTimedOut
-            helper.isLoadingTelemetry = false
-        } catch {
-            helper.telemetrySectionError = error.localizedDescription
-            helper.isLoadingTelemetry = false
         }
     }
 }

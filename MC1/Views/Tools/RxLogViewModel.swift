@@ -83,9 +83,12 @@ final class RxLogViewModel {
 
     /// Subscribe to RxLogService for updates while view is visible.
     func subscribe(to service: RxLogService) async {
+        // Cancel any existing stream task so a re-subscribe (a `.task(id:)` re-fire
+        // against the same service) can't leave two streams appending each packet twice.
+        unsubscribe()
+
         // If service changed, reset state
         if rxLogService !== service {
-            unsubscribe()
             entries.removeAll()
             groupCounts.removeAll()
         }

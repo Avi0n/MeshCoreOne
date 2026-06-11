@@ -17,7 +17,7 @@ public final class SavedTracePath {
     /// The full path bytes (outbound + return)
     public var pathBytes: Data
 
-    /// Bytes per hop hash when the path was saved (1, 2, or 3)
+    /// Bytes per hop hash when the path was saved (1, 2, or 4)
     public var hashSize: Int = 1
 
     /// When this path was first saved

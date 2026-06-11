@@ -45,7 +45,7 @@ final class SavedPathDetailViewModel {
 
     private var appState: AppState?
 
-    /// Hash size per hop from when the path was saved (1, 2, or 3 bytes)
+    /// Hash size per hop from when the path was saved (1, 2, or 4 bytes)
     var hashSize: Int {
         savedPath.hashSize
     }

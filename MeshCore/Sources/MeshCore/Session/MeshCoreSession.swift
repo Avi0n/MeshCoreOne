@@ -2812,7 +2812,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         orderBy: UInt8 = 0,
         pubkeyPrefixLength: UInt8 = 4
     ) async throws -> NeighboursResponse {
-        try await requestResponseSerializer.withSerialization { [self] in
+        try requireFullPublicKey(publicKey, operation: "requestNeighbours")
+        return try await requestResponseSerializer.withSerialization { [self] in
             try await performNeighboursRequest(
                 from: publicKey,
                 count: count,

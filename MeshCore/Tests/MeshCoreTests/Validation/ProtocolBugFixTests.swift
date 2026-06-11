@@ -834,4 +834,31 @@ struct ProtocolBugFixTests {
 
         await session.stop()
     }
+
+    @Test("requestNeighbours rejects a short public key before sending")
+    func requestNeighboursRejectsShortPublicKey() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "Test")
+        )
+
+        let shortKey = Data(repeating: 0x31, count: 6)
+        do {
+            _ = try await session.requestNeighbours(from: shortKey)
+            Issue.record("Expected requestNeighbours(from:) to throw for a short key")
+        } catch let error as MeshCoreError {
+            guard case .invalidInput = error else {
+                Issue.record("Expected MeshCoreError.invalidInput, got \(error)")
+                return
+            }
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+
+        // The guard must run before any frame reaches the transport.
+        #expect(await transport.sentData.isEmpty)
+
+        await session.stop()
+    }
 }
