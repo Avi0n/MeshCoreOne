@@ -712,7 +712,7 @@ final class TracePathViewModel {
         let pathData = Data(fullPathBytes)
 
         // Send trace command
-        var timeoutSeconds = 15.0
+        let timeoutSeconds: Double
         do {
             let sentInfo = try await session.sendTrace(
                 tag: tag,
@@ -720,7 +720,7 @@ final class TracePathViewModel {
                 flags: effectiveTraceMode,
                 path: pathData
             )
-            timeoutSeconds = Double(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
+            timeoutSeconds = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: sentInfo.suggestedTimeoutMs)
             logger.info("Sent trace with tag \(tag), path: \(self.fullPathString), timeout: \(timeoutSeconds)s")
         } catch {
             logger.error("Failed to send trace: \(error.localizedDescription)")
@@ -879,7 +879,7 @@ final class TracePathViewModel {
 
         let pathData = Data(fullPathBytes)
 
-        var timeoutSeconds = 15.0
+        let timeoutSeconds: Double
         do {
             let sentInfo = try await session.sendTrace(
                 tag: tag,
@@ -887,7 +887,7 @@ final class TracePathViewModel {
                 flags: effectiveTraceMode,
                 path: pathData
             )
-            timeoutSeconds = Double(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
+            timeoutSeconds = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: sentInfo.suggestedTimeoutMs)
             logger.info("Sent batch trace \(self.currentTraceIndex)/\(self.batchSize) with tag \(tag), timeout: \(timeoutSeconds)s")
         } catch {
             logger.error("Failed to send trace: \(error.localizedDescription)")

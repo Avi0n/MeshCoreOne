@@ -57,9 +57,10 @@ struct CLIToolViewModelTests {
     // MARK: - History Tests
 
     @Test("History navigation up retrieves previous commands")
-    func historyNavigationUp() {
+    func historyNavigationUp() async throws {
         let viewModel = createConfiguredViewModel()
         viewModel.executeCommand("first")
+        try await waitUntil("first command should finish") { !viewModel.isWaitingForResponse }
         viewModel.executeCommand("second")
 
         viewModel.historyUp()
@@ -70,9 +71,10 @@ struct CLIToolViewModelTests {
     }
 
     @Test("History navigation down moves forward through history")
-    func historyNavigationDown() {
+    func historyNavigationDown() async throws {
         let viewModel = createConfiguredViewModel()
         viewModel.executeCommand("first")
+        try await waitUntil("first command should finish") { !viewModel.isWaitingForResponse }
         viewModel.executeCommand("second")
 
         viewModel.historyUp()
@@ -83,10 +85,12 @@ struct CLIToolViewModelTests {
     }
 
     @Test("History is limited to 100 entries")
-    func historyLimitedTo100Entries() {
+    func historyLimitedTo100Entries() async {
         let viewModel = createConfiguredViewModel()
         for i in 0..<150 {
             viewModel.executeCommand("command\(i)")
+            // Let the command task finish and release the busy claim.
+            await Task.yield()
         }
 
         // Navigate to oldest entry
@@ -144,6 +148,8 @@ struct CLIToolViewModelTests {
         let viewModel = createConfiguredViewModel()
         for i in 0..<1100 {
             viewModel.executeCommand("command\(i)")
+            // Let the command task finish and release the busy claim.
+            await Task.yield()
         }
 
         try await waitUntil("output should be trimmed after commands") {

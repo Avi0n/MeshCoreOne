@@ -76,7 +76,9 @@ final class NoiseFloorViewModel {
 
     private weak var appState: AppState?
     private var pollingTask: Task<Void, Never>?
-    private var cachedStatistics: NoiseFloorStatistics?
+    // Ignored so the statistics getter can fill the cache during view body
+    // evaluation without mutating observed state; readings drives invalidation.
+    @ObservationIgnored private var cachedStatistics: NoiseFloorStatistics?
 
     var statistics: NoiseFloorStatistics? {
         if let cached = cachedStatistics { return cached }

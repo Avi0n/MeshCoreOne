@@ -50,23 +50,20 @@ struct PathHop: Identifiable, Equatable {
 
 /// Result of a path discovery operation
 enum PathDiscoveryResult: Equatable {
-    case success(hopCount: Int, fromCache: Bool = false)
+    case success(hopCount: Int)
     case noPathFound
     case failed(String)
 
     var description: String {
         switch self {
-        case .success(let hopCount, let fromCache):
-            let pathType: String
+        case .success(let hopCount):
             if hopCount == 0 {
-                pathType = L10n.Contacts.Contacts.PathDiscovery.direct
+                return L10n.Contacts.Contacts.PathDiscovery.direct
             } else if hopCount == 1 {
-                pathType = L10n.Contacts.Contacts.PathDiscovery.Hops.singular
+                return L10n.Contacts.Contacts.PathDiscovery.Hops.singular
             } else {
-                pathType = L10n.Contacts.Contacts.PathDiscovery.Hops.plural(hopCount)
+                return L10n.Contacts.Contacts.PathDiscovery.Hops.plural(hopCount)
             }
-            let source = fromCache ? L10n.Contacts.Contacts.PathDiscovery.cachedSuffix : ""
-            return "\(pathType)\(source)"
         case .noPathFound:
             return L10n.Contacts.Contacts.PathDiscovery.noResponse
         case .failed(let message):
@@ -78,13 +75,6 @@ enum PathDiscoveryResult: Equatable {
 @Observable
 @MainActor
 final class PathManagementViewModel {
-    private enum DiscoveryTimeout {
-        static let minimumSeconds = 5.0
-        static let maximumSeconds = 60.0
-        static let defaultSeconds = 30.0
-        static let multiplier = 1.2
-    }
-
     // MARK: - State
 
     var isDiscovering = false
@@ -443,19 +433,9 @@ final class PathManagementViewModel {
 
     // MARK: - Path Operations
 
-    nonisolated static func sanitizedDiscoveryTimeoutSeconds(suggestedTimeoutMs: UInt32) -> Double {
-        let candidateSeconds = (Double(suggestedTimeoutMs) / 1000.0) * DiscoveryTimeout.multiplier
-        guard candidateSeconds >= DiscoveryTimeout.minimumSeconds,
-              candidateSeconds <= DiscoveryTimeout.maximumSeconds else {
-            return DiscoveryTimeout.defaultSeconds
-        }
-        return candidateSeconds
-    }
-
-    /// Initiate path discovery for a contact (with cancel support)
-    /// Uses two-tier approach:
-    /// 1. First perform active discovery to get fresh path (requires remote response)
-    /// 2. If timeout, fall back to cached advertisement path
+    /// Initiate path discovery for a contact (with cancel support).
+    /// Reports `.noPathFound` if the remote node doesn't respond before the
+    /// firmware-suggested timeout elapses.
     func discoverPath(for contact: ContactDTO) async {
         guard let appState,
               let contactService = appState.services?.contactService else { return }
@@ -467,7 +447,6 @@ final class PathManagementViewModel {
         discoveryResult = nil
         errorMessage = nil
 
-        // Tier 1: Perform active path discovery (requires remote node response)
         discoveryTask = Task { @MainActor in
             do {
                 let sentResponse = try await contactService.sendPathDiscovery(
@@ -475,9 +454,9 @@ final class PathManagementViewModel {
                     publicKey: contact.publicKey
                 )
 
-                let candidateSeconds = (Double(sentResponse.suggestedTimeoutMs) / 1000.0) * DiscoveryTimeout.multiplier
-                let timeoutSeconds = Self.sanitizedDiscoveryTimeoutSeconds(suggestedTimeoutMs: sentResponse.suggestedTimeoutMs)
-                if timeoutSeconds == DiscoveryTimeout.defaultSeconds && candidateSeconds != timeoutSeconds {
+                let candidateSeconds = FirmwareSuggestedTimeout.candidateSeconds(suggestedTimeoutMs: sentResponse.suggestedTimeoutMs)
+                let timeoutSeconds = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: sentResponse.suggestedTimeoutMs)
+                if timeoutSeconds == FirmwareSuggestedTimeout.defaultSeconds && candidateSeconds != timeoutSeconds {
                     logger.warning(
                         "Path discovery timeout fallback applied: raw=\(sentResponse.suggestedTimeoutMs)ms, candidate=\(candidateSeconds)s, fallback=\(timeoutSeconds)s"
                     )
@@ -496,8 +475,9 @@ final class PathManagementViewModel {
                 // which cancels this task early if a response arrives; sleep throws.
                 try await Task.sleep(for: .seconds(timeoutSeconds))
 
-                // Tier 2: Fall back to cached advertisement path
-                await fallbackToCachedPath(for: contact)
+                // Timeout: the remote node did not respond
+                discoveryResult = .noPathFound
+                showDiscoveryResult = true
             } catch is CancellationError {
                 // Whoever cancelled us (user cancel, push-response handler, or a
                 // fresh discoverPath re-entry) already resolved state. Bail so
@@ -511,13 +491,6 @@ final class PathManagementViewModel {
             isDiscovering = false
             cleanupCountdownState()
         }
-    }
-
-    /// Handle timeout when active discovery doesn't receive a response
-    private func fallbackToCachedPath(for contact: ContactDTO) async {
-        // Active discovery timed out - remote node did not respond
-        discoveryResult = .noPathFound
-        showDiscoveryResult = true
     }
 
     /// Start the countdown task that updates remaining seconds every 5 seconds.
@@ -573,7 +546,7 @@ final class PathManagementViewModel {
         cleanupCountdownState()
 
         if let hopCount {
-            discoveryResult = .success(hopCount: hopCount, fromCache: false)
+            discoveryResult = .success(hopCount: hopCount)
         } else {
             discoveryResult = .noPathFound
         }

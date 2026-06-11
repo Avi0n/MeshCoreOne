@@ -181,7 +181,11 @@ final class CLIToolViewModel {
                 return
             }
 
+            // Claim the busy state synchronously so a second submit can't pass
+            // the guard before the spawned task starts running.
+            isWaitingForResponse = true
             currentCommandTask = Task {
+                defer { isWaitingForResponse = false }
                 await completeLogin(contact: contact, password: trimmed)
             }
             return
@@ -201,7 +205,11 @@ final class CLIToolViewModel {
         let cmd = parts[0].lowercased()
         let args = parts.count > 1 ? parts[1] : ""
 
+        // Claim the busy state synchronously so a second submit can't pass the
+        // guard before the spawned task starts running.
+        isWaitingForResponse = true
         currentCommandTask = Task {
+            defer { isWaitingForResponse = false }
             await handleCommand(cmd, args: args, raw: trimmed)
         }
 

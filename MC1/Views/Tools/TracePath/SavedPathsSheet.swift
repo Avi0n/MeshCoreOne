@@ -37,6 +37,7 @@ struct SavedPathsSheet: View {
                 viewModel.configure(appState: appState)
                 await viewModel.loadSavedPaths()
             }
+            .errorAlert($viewModel.errorMessage)
             .confirmationDialog(
                 L10n.Contacts.Contacts.SavedPaths.deleteTitle,
                 isPresented: .init(

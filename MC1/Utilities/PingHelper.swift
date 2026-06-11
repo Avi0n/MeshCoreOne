@@ -46,8 +46,11 @@ enum PingHelper {
                     path: pathData
                 )
 
+                let timeoutSeconds = FirmwareSuggestedTimeout.sanitizedSeconds(
+                    suggestedTimeoutMs: sentInfo.suggestedTimeoutMs
+                )
                 group.addTask {
-                    try await Task.sleep(for: .milliseconds(sentInfo.suggestedTimeoutMs))
+                    try await Task.sleep(for: .seconds(timeoutSeconds))
                     throw PingError.timeout
                 }
 
