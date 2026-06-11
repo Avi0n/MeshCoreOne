@@ -88,7 +88,9 @@ extension ChatViewModel {
             if let channel,
                let reactionService = appState?.services?.reactionService {
                 let localNodeName = appState?.connectedDevice?.nodeName
-                let radioID = appState?.connectedDevice?.radioID ?? UUID()
+                // The channel's own radioID, never the live connection's: a mid-load
+                // disconnect would otherwise mint a fresh UUID into persisted rows.
+                let radioID = channel.radioID
                 for message in olderMessages {
                     let senderName: String?
                     if message.isOutgoing {

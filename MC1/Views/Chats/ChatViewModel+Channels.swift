@@ -98,7 +98,9 @@ extension ChatViewModel {
             // Index loaded messages for reaction matching and process any pending reactions
             if let reactionService = appState?.services?.reactionService {
                 let localNodeName = appState?.connectedDevice?.nodeName
-                let radioID = appState?.connectedDevice?.radioID ?? UUID()
+                // The channel's own radioID, never the live connection's: a mid-load
+                // disconnect would otherwise mint a fresh UUID into persisted rows.
+                let radioID = channel.radioID
                 for message in fetchedMessages {
                     let senderName: String?
                     if message.isOutgoing {
@@ -145,9 +147,15 @@ extension ChatViewModel {
                 }
             }
 
-            // Clear unread count and mention badge, then notify UI to refresh chat list
-            try await dataStore.clearChannelUnreadCount(channelID: channel.id)
-            try await dataStore.clearChannelUnreadMentionCount(channelID: channel.id)
+            // Clear unread count and mention badge, then notify UI to refresh chat list.
+            // The messages already rendered, so a bookkeeping failure here is logged
+            // rather than surfaced as a load error.
+            do {
+                try await dataStore.clearChannelUnreadCount(channelID: channel.id)
+                try await dataStore.clearChannelUnreadMentionCount(channelID: channel.id)
+            } catch {
+                logger.warning("loadChannelMessages: failed to clear unread counts - \(error.localizedDescription)")
+            }
             syncCoordinator?.notifyConversationsChanged()
 
             // Update app badge

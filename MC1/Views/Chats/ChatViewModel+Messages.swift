@@ -424,13 +424,21 @@ extension ChatViewModel {
                 }
             }
 
-            // Clear unread count and mention badge, then notify UI to refresh chat list
-            try await dataStore.clearUnreadCount(contactID: contact.id)
-            try await dataStore.clearUnreadMentionCount(contactID: contact.id)
+            // Clear unread count and mention badge, then notify UI to refresh chat list.
+            // The messages already rendered, so a bookkeeping failure here is logged
+            // rather than surfaced as a load error.
+            do {
+                try await dataStore.clearUnreadCount(contactID: contact.id)
+                try await dataStore.clearUnreadMentionCount(contactID: contact.id)
+            } catch {
+                logger.warning("loadMessages: failed to clear unread counts - \(error.localizedDescription)")
+            }
             syncCoordinator?.notifyConversationsChanged()
 
             // Update app badge
             await notificationService?.updateBadgeCount()
+        } catch is CancellationError {
+            // Benign cancellation; the superseding load will refetch.
         } catch {
             errorMessage = error.localizedDescription
         }
