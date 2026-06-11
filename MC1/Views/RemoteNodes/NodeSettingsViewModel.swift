@@ -2,14 +2,14 @@ import SwiftUI
 import MC1Services
 import OSLog
 
-private let logger = Logger(subsystem: "com.mc1", category: "NodeSettingsHelper")
+private let logger = Logger(subsystem: "com.mc1", category: "NodeSettingsViewModel")
 
 /// Shared logic for repeater and room settings view models.
 /// Owns CLI transport, device info, radio, identity, contact info,
 /// security, and device action methods.
 @Observable
 @MainActor
-final class NodeSettingsHelper {
+final class NodeSettingsViewModel {
 
     // MARK: - Session
 
@@ -28,26 +28,8 @@ final class NodeSettingsHelper {
         return Self.convertUTCToLocal(utcString)
     }
 
-    // swiftlint:disable:next force_try
-    private static let utcDateRegex = try! Regex(#"(\d{1,2}:\d{2}) - (\d{1,2}/\d{1,2}/\d{4}) UTC"#)
-
-    private static let utcInputFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm d/M/yyyy"
-        formatter.timeZone = TimeZone(identifier: "UTC")
-        return formatter
-    }()
-
     static func convertUTCToLocal(_ utcString: String) -> String {
-        guard let match = utcString.firstMatch(of: utcDateRegex),
-              match.count >= 3 else {
-            return utcString
-        }
-
-        let timeStr = String(match[1].substring ?? "")
-        let dateStr = String(match[2].substring ?? "")
-
-        guard let date = utcInputFormatter.date(from: "\(timeStr) \(dateStr)") else {
+        guard let date = NodeSettingsResponseParser.utcDate(fromClockResponse: utcString) else {
             return utcString
         }
 
@@ -329,7 +311,7 @@ final class NodeSettingsHelper {
         do {
             let response = try await sendAndWait("get owner.info")
             if case .ownerInfo(let info) = CLIResponse.parse(response, forQuery: "get owner.info") {
-                let displayText = info.replacing("|", with: "\n")
+                let displayText = NodeSettingsResponseParser.displayOwnerInfo(fromWire: info)
                 self.ownerInfo = displayText
                 self.originalOwnerInfo = displayText
             }
@@ -350,7 +332,7 @@ final class NodeSettingsHelper {
 
     /// Drop the section's applying flag and flash its success indicator for
     /// `successFlashDuration`. The closures target the section's own state, which
-    /// may live on this helper or on the owning view model.
+    /// may live on this shared view model or on the owning view model.
     func flashSuccess(setApplying: (Bool) -> Void, setSuccess: (Bool) -> Void) async {
         withAnimation {
             setApplying(false)
@@ -457,7 +439,7 @@ final class NodeSettingsHelper {
         errorMessage = nil
 
         do {
-            let pipeText = (ownerInfo ?? "").replacing("\n", with: "|")
+            let pipeText = NodeSettingsResponseParser.wireOwnerInfo(fromDisplay: ownerInfo ?? "")
             let response = try await sendAndWait("set owner.info \(pipeText)")
             if case .ok = CLIResponse.parse(response) {
                 originalOwnerInfo = ownerInfo
@@ -500,14 +482,7 @@ final class NodeSettingsHelper {
 
         do {
             let response = try await sendAndWait("password \(newPassword)", rawMatching: true)
-            let parsed = CLIResponse.parse(response)
-            // Firmware echoes "password now: {pw}" on success, not "OK"
-            let isSuccess: Bool = switch parsed {
-            case .ok: true
-            case .raw(let text) where text.hasPrefix("password now:"): true
-            default: false
-            }
-            if isSuccess {
+            if NodeSettingsResponseParser.isPasswordChangeSuccessful(response) {
                 newPassword = ""
                 confirmPassword = ""
                 await flashSuccess(
@@ -562,18 +537,15 @@ final class NodeSettingsHelper {
 
         do {
             let response = try await sendAndWait("clock sync")
-            switch CLIResponse.parse(response) {
-            case .ok:
+            switch NodeSettingsResponseParser.classifyClockSyncResponse(response) {
+            case .synced:
                 successMessage = L10n.RemoteNodes.RemoteNodes.Settings.timeSynced
                 showSuccessAlert = true
-            case .error(let message):
-                if message.contains("clock cannot go backwards") {
-                    errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.clockAheadError
-                } else {
-                    let cleanMessage = message.replacing("ERR: ", with: "")
-                    errorMessage = cleanMessage.isEmpty ? L10n.RemoteNodes.RemoteNodes.Settings.syncTimeFailed : cleanMessage
-                }
-            default:
+            case .clockAhead:
+                errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.clockAheadError
+            case .failed(let message):
+                errorMessage = message.isEmpty ? L10n.RemoteNodes.RemoteNodes.Settings.syncTimeFailed : message
+            case .unexpected:
                 errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.unexpectedResponse(response)
             }
         } catch {
@@ -616,149 +588,82 @@ final class NodeSettingsHelper {
         return errors
     }
 
-    // MARK: - Shared Late Response Parsing
-
-    enum BehaviorLateResponse {
-        case advertInterval(Int)
-        case floodAdvertInterval(Int)
-        case floodMax(Int)
-    }
-
-    /// Try to parse a late response as one of the shared behavior fields.
-    /// Returns `nil` if the response didn't match any field that's still missing.
-    static func parseBehaviorLateResponse(
-        _ response: String,
-        hasAdvertInterval: Bool,
-        hasFloodInterval: Bool,
-        hasFloodMaxHops: Bool
-    ) -> BehaviorLateResponse? {
-        if !hasAdvertInterval {
-            if case .advertInterval(let interval) = CLIResponse.parse(response, forQuery: "get advert.interval") {
-                return .advertInterval(interval)
-            }
-        }
-        if !hasFloodInterval {
-            if case .floodAdvertInterval(let interval) = CLIResponse.parse(response, forQuery: "get flood.advert.interval") {
-                return .floodAdvertInterval(interval)
-            }
-        }
-        if !hasFloodMaxHops {
-            if case .floodMax(let hops) = CLIResponse.parse(response, forQuery: "get flood.max") {
-                return .floodMax(hops)
-            }
-        }
-        return nil
-    }
-
     // MARK: - Late Response Handling
+
+    /// The settings fields a late response may still fill, ordered so numeric
+    /// fields are tried before the free-form name (which matches any text).
+    private var missingLateResponseFields: [NodeSettingsResponseParser.SettingsField] {
+        var fields: [NodeSettingsResponseParser.SettingsField] = []
+        if !isLoadingRadio && radioError {
+            if frequency == nil { fields.append(.radio) }
+            if txPower == nil { fields.append(.txPower) }
+        }
+        if !isLoadingDeviceInfo && deviceInfoError {
+            if firmwareVersion == nil { fields.append(.firmwareVersion) }
+            if deviceTimeUTC == nil { fields.append(.deviceTime) }
+        }
+        if !isLoadingIdentity && identityError {
+            if originalLatitude == nil { fields.append(.latitude) }
+            if originalLongitude == nil { fields.append(.longitude) }
+            if originalName == nil { fields.append(.name) }
+        }
+        if !isLoadingContactInfo && contactInfoError {
+            if originalOwnerInfo == nil { fields.append(.ownerInfo) }
+        }
+        return fields
+    }
 
     /// Handle late CLI responses for shared sections.
     /// Returns `true` if the response was consumed.
     func handleCommonLateResponse(_ response: String) -> Bool {
-        // Radio settings
-        if !isLoadingRadio && radioError {
-            if frequency == nil {
-                if case .radio(let freq, let bw, let sf, let cr) = CLIResponse.parse(response, forQuery: "get radio") {
-                    self.frequency = freq
-                    self.bandwidth = bw
-                    self.spreadingFactor = sf
-                    self.codingRate = cr
-                    self.radioError = false
-                    logger.info("Late response: received radio settings")
-                    return true
-                }
-            }
+        let value = NodeSettingsResponseParser.firstSettingsValue(
+            in: response,
+            checking: missingLateResponseFields
+        )
+        guard let value else { return false }
 
-            if txPower == nil {
-                if case .txPower(let power) = CLIResponse.parse(response, forQuery: "get tx") {
-                    self.txPower = power
-                    self.radioError = false
-                    logger.info("Late response: received TX power")
-                    return true
-                }
-            }
+        switch value {
+        case .radio(let frequency, let bandwidth, let spreadingFactor, let codingRate):
+            self.frequency = frequency
+            self.bandwidth = bandwidth
+            self.spreadingFactor = spreadingFactor
+            self.codingRate = codingRate
+            self.radioError = false
+            logger.info("Late response: received radio settings")
+        case .txPower(let power):
+            self.txPower = power
+            self.radioError = false
+            logger.info("Late response: received TX power")
+        case .firmwareVersion(let version):
+            self.firmwareVersion = version
+            self.deviceInfoError = false
+            logger.info("Late response: received firmware version")
+        case .deviceTime(let time):
+            self.deviceTimeUTC = time
+            self.deviceInfoError = false
+            logger.info("Late response: received device time")
+        case .latitude(let latitude):
+            self.latitude = latitude
+            self.originalLatitude = latitude
+            self.identityError = false
+            logger.info("Late response: received latitude")
+        case .longitude(let longitude):
+            self.longitude = longitude
+            self.originalLongitude = longitude
+            self.identityError = false
+            logger.info("Late response: received longitude")
+        case .name(let name):
+            self.name = name
+            self.originalName = name
+            self.identityError = false
+            logger.info("Late response: received name")
+        case .ownerInfo(let info):
+            let displayText = NodeSettingsResponseParser.displayOwnerInfo(fromWire: info)
+            self.ownerInfo = displayText
+            self.originalOwnerInfo = displayText
+            self.contactInfoError = false
+            logger.info("Late response: received owner info")
         }
-
-        // Device info
-        if !isLoadingDeviceInfo && deviceInfoError {
-            if firmwareVersion == nil {
-                if case .version(let version) = CLIResponse.parse(response, forQuery: "ver") {
-                    self.firmwareVersion = version
-                    self.deviceInfoError = false
-                    logger.info("Late response: received firmware version")
-                    return true
-                }
-            }
-
-            if deviceTimeUTC == nil {
-                if case .deviceTime(let time) = CLIResponse.parse(response, forQuery: "clock") {
-                    self.deviceTimeUTC = time
-                    self.deviceInfoError = false
-                    logger.info("Late response: received device time")
-                    return true
-                }
-            }
-        }
-
-        // Identity settings (lat/lon before name to avoid numeric capture)
-        if !isLoadingIdentity && identityError {
-            if originalLatitude == nil {
-                if case .latitude(let lat) = CLIResponse.parse(response, forQuery: "get lat") {
-                    self.latitude = lat
-                    self.originalLatitude = lat
-                    self.identityError = false
-                    logger.info("Late response: received latitude")
-                    return true
-                }
-            }
-
-            if originalLongitude == nil {
-                if case .longitude(let lon) = CLIResponse.parse(response, forQuery: "get lon") {
-                    self.longitude = lon
-                    self.originalLongitude = lon
-                    self.identityError = false
-                    logger.info("Late response: received longitude")
-                    return true
-                }
-            }
-
-            if originalName == nil {
-                if case .name(let n) = CLIResponse.parse(response, forQuery: "get name") {
-                    self.name = n
-                    self.originalName = n
-                    self.identityError = false
-                    logger.info("Late response: received name")
-                    return true
-                }
-            }
-        }
-
-        // Contact info
-        if !isLoadingContactInfo && contactInfoError {
-            if originalOwnerInfo == nil {
-                if case .ownerInfo(let info) = CLIResponse.parse(response, forQuery: "get owner.info") {
-                    let displayText = info.replacing("|", with: "\n")
-                    self.ownerInfo = displayText
-                    self.originalOwnerInfo = displayText
-                    self.contactInfoError = false
-                    logger.info("Late response: received owner info")
-                    return true
-                }
-            }
-        }
-
-        return false
-    }
-}
-
-// MARK: - Shared Error Type
-
-enum NodeSettingsError: LocalizedError {
-    case noService
-
-    var errorDescription: String? {
-        switch self {
-        case .noService: return L10n.RemoteNodes.RemoteNodes.Settings.noService
-        }
+        return true
     }
 }

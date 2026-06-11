@@ -1,3 +1,4 @@
+import MC1Services
 import SwiftUI
 
 /// Expandable card showing analysis results with progressive disclosure

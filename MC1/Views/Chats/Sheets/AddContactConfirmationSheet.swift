@@ -153,7 +153,7 @@ private struct ContactAddConfirmationContent: View {
                     .font(.title)
                     .bold()
 
-                Text(contactResult.contactType.displayName)
+                Text(contactResult.contactType.localizedName)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 

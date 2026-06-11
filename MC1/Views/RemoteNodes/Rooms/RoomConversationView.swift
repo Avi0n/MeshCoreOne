@@ -131,7 +131,7 @@ struct RoomConversationView: View {
 
     private var connectionStatus: String {
         if session.isConnected {
-            return session.permissionLevel.displayName
+            return session.permissionLevel.localizedName
         }
         return L10n.RemoteNodes.RemoteNodes.Room.disconnected
     }

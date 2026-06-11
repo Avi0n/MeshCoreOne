@@ -8,7 +8,7 @@ final class RoomStatusViewModel {
 
     // MARK: - Shared Helper
 
-    var helper = NodeStatusHelper()
+    var helper = NodeStatusViewModel()
 
     // MARK: - Dependencies
 
@@ -101,12 +101,12 @@ final class RoomStatusViewModel {
     // MARK: - Room-Only Display
 
     var postsReceivedDisplay: String {
-        guard let count = helper.status?.roomServerPostedCount else { return NodeStatusHelper.emDash }
+        guard let count = helper.status?.roomServerPostedCount else { return NodeStatusViewModel.emDash }
         return count.formatted()
     }
 
     var postsPushedDisplay: String {
-        guard let count = helper.status?.roomServerPostPushCount else { return NodeStatusHelper.emDash }
+        guard let count = helper.status?.roomServerPostPushCount else { return NodeStatusViewModel.emDash }
         return count.formatted()
     }
 }

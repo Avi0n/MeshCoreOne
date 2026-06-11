@@ -125,11 +125,7 @@ struct ShareContactPickerSheet: View {
     }
 
     private func contactTypeLabel(for contact: ContactDTO) -> String {
-        switch contact.type {
-        case .chat: L10n.Contacts.Contacts.NodeKind.contact
-        case .repeater: L10n.Contacts.Contacts.NodeKind.repeater
-        case .room: L10n.Contacts.Contacts.NodeKind.room
-        }
+        contact.type.localizedName
     }
 }
 

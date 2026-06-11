@@ -2,14 +2,14 @@ import OSLog
 import MC1Services
 import SwiftUI
 
-private let logger = Logger(subsystem: "com.mc1", category: "NodeStatusHelper")
+private let logger = Logger(subsystem: "com.mc1", category: "NodeStatusViewModel")
 
 /// Shared logic for repeater and room status view models.
 /// Owns retry machinery, display formatters, delta properties, OCV settings,
 /// telemetry handling, and snapshot persistence.
 @Observable
 @MainActor
-final class NodeStatusHelper {
+final class NodeStatusViewModel {
 
     // MARK: - Properties
 

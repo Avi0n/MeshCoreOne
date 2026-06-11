@@ -1,3 +1,4 @@
+import MC1Services
 import SwiftUI
 
 /// Displays clearance status with appropriate icon, color, and clearance percentage

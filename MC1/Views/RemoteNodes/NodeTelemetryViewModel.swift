@@ -10,7 +10,7 @@ final class NodeTelemetryViewModel {
 
     // MARK: - Shared Helper
 
-    var helper = NodeStatusHelper()
+    var helper = NodeStatusViewModel()
 
     // MARK: - Dependencies
 
@@ -51,7 +51,7 @@ final class NodeTelemetryViewModel {
             onSuccess: { await self.helper.handleTelemetryResponse($0) }
         )
 
-        // The shared helper renders a generic timed-out string; telemetry has a more
+        // The shared NodeStatusViewModel renders a generic timed-out string; telemetry has a more
         // specific cause worth surfacing, so refine that one case.
         if helper.telemetrySectionError == L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut {
             helper.telemetrySectionError = L10n.RemoteNodes.RemoteNodes.Status.telemetryTimedOut

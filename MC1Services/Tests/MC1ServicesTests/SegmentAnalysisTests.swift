@@ -1,7 +1,7 @@
 import CoreLocation
 import Testing
 
-@testable import MC1
+@testable import MC1Services
 
 @Suite("Segment Analysis Types")
 struct SegmentAnalysisTypeTests {

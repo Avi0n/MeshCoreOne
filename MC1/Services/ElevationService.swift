@@ -1,5 +1,6 @@
 import CoreLocation
 import Foundation
+import MC1Services
 import os.log
 
 private let logger = Logger(subsystem: "com.mc1", category: "ElevationService")

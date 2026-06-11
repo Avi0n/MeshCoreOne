@@ -11,7 +11,7 @@ struct SettingsLoadPlaceholder: View {
         Text(
             isLoading
                 ? L10n.RemoteNodes.RemoteNodes.Settings.loading
-                : (hasError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : NodeStatusHelper.emDash)
+                : (hasError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : NodeStatusViewModel.emDash)
         )
         .font(.caption)
         .foregroundStyle(.secondary)

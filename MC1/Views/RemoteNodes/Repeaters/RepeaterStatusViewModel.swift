@@ -11,7 +11,7 @@ final class RepeaterStatusViewModel {
 
     // MARK: - Shared Helper
 
-    var helper = NodeStatusHelper()
+    var helper = NodeStatusViewModel()
 
     // MARK: - Repeater-Only Properties
 

@@ -34,7 +34,7 @@ struct NodeSettingsHeaderSection: View {
 // MARK: - Device Info Section
 
 struct NodeDeviceInfoSection: View {
-    @Bindable var settings: NodeSettingsHelper
+    @Bindable var settings: NodeSettingsViewModel
 
     var body: some View {
         ExpandableSettingsSection(
@@ -47,8 +47,8 @@ struct NodeDeviceInfoSection: View {
             onLoad: { await settings.fetchDeviceInfo() },
             footer: L10n.RemoteNodes.RemoteNodes.Settings.deviceInfoFooter
         ) {
-            LabeledContent(L10n.RemoteNodes.RemoteNodes.Settings.firmware, value: settings.firmwareVersion ?? NodeStatusHelper.emDash)
-            LabeledContent(L10n.RemoteNodes.RemoteNodes.Settings.deviceTime, value: settings.deviceTime ?? NodeStatusHelper.emDash)
+            LabeledContent(L10n.RemoteNodes.RemoteNodes.Settings.firmware, value: settings.firmwareVersion ?? NodeStatusViewModel.emDash)
+            LabeledContent(L10n.RemoteNodes.RemoteNodes.Settings.deviceTime, value: settings.deviceTime ?? NodeStatusViewModel.emDash)
         }
     }
 }
@@ -56,7 +56,7 @@ struct NodeDeviceInfoSection: View {
 // MARK: - Radio Settings Section
 
 struct NodeRadioSettingsSection: View {
-    @Bindable var settings: NodeSettingsHelper
+    @Bindable var settings: NodeSettingsViewModel
     var focusedField: FocusState<NodeSettingsField?>.Binding
     var radioRestartWarning: String = L10n.RemoteNodes.RemoteNodes.Settings.radioRestartWarning
 
@@ -218,7 +218,7 @@ struct NodeRadioSettingsSection: View {
 // MARK: - Identity Section
 
 struct RemoteNodeIdentitySection: View {
-    @Bindable var settings: NodeSettingsHelper
+    @Bindable var settings: NodeSettingsViewModel
     var focusedField: FocusState<NodeSettingsField?>.Binding
     var onPickLocation: () -> Void
 
@@ -299,7 +299,7 @@ struct RemoteNodeIdentitySection: View {
 // MARK: - Contact Info Section
 
 struct NodeContactInfoSection: View {
-    @Bindable var settings: NodeSettingsHelper
+    @Bindable var settings: NodeSettingsViewModel
     var focusedField: FocusState<NodeSettingsField?>.Binding
     @State private var contactText = ""
 
@@ -318,7 +318,7 @@ struct NodeContactInfoSection: View {
                 .lineLimit(3...6)
                 .focused(focusedField, equals: .contactInfo)
                 .overlay(alignment: .bottomTrailing) {
-                    Text("\(settings.ownerInfoCharCount)/\(NodeSettingsHelper.ownerInfoMaxLength)")
+                    Text("\(settings.ownerInfoCharCount)/\(NodeSettingsViewModel.ownerInfoMaxLength)")
                         .font(.caption2)
                         .foregroundStyle(settings.isOwnerInfoTooLong ? .red : .secondary)
                         .padding(4)
@@ -346,7 +346,7 @@ struct NodeContactInfoSection: View {
 
 struct NodeSecuritySection: View {
     @Environment(\.appTheme) private var theme
-    @Bindable var settings: NodeSettingsHelper
+    @Bindable var settings: NodeSettingsViewModel
 
     var body: some View {
         Section {
@@ -376,7 +376,7 @@ struct NodeSecuritySection: View {
 
 struct NodeActionsSection: View {
     @Environment(\.appTheme) private var theme
-    let settings: NodeSettingsHelper
+    let settings: NodeSettingsViewModel
     @Binding var showRebootConfirmation: Bool
     var rebootConfirmTitle: String = L10n.RemoteNodes.RemoteNodes.Settings.rebootConfirmTitle
     var rebootMessage: String = L10n.RemoteNodes.RemoteNodes.Settings.rebootMessage

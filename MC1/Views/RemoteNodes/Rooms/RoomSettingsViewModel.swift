@@ -8,7 +8,7 @@ final class RoomSettingsViewModel {
 
     // MARK: - Shared Helper
 
-    var helper = NodeSettingsHelper()
+    var helper = NodeSettingsViewModel()
 
     // MARK: - Room Access (guest password + read-only)
 
@@ -120,7 +120,7 @@ final class RoomSettingsViewModel {
 
         // Behavior settings
         if !isLoadingBehavior && behaviorError {
-            if let result = NodeSettingsHelper.parseBehaviorLateResponse(
+            if let result = NodeSettingsResponseParser.behaviorLateResponse(
                 response,
                 hasAdvertInterval: originalAdvertIntervalMinutes != nil,
                 hasFloodInterval: originalFloodAdvertIntervalHours != nil,
@@ -275,7 +275,7 @@ final class RoomSettingsViewModel {
     }
 
     func applyBehaviorSettings() async {
-        let validation = NodeSettingsHelper.validateBehaviorFields(
+        let validation = NodeSettingsViewModel.validateBehaviorFields(
             advertInterval: advertIntervalMinutes,
             floodInterval: floodAdvertIntervalHours,
             floodMaxHops: floodMaxHops

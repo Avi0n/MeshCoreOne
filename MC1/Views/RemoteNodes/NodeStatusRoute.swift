@@ -11,10 +11,10 @@ enum NodeStatusRoute: Hashable {
 
 extension View {
     /// Registers the `NodeStatusRoute` destinations on the enclosing navigation stack,
-    /// resolving each route against the host's `NodeStatusHelper`. Apply to the `List`
+    /// resolving each route against the host's `NodeStatusViewModel`. Apply to the `List`
     /// hosting the shared status sections, not to rows inside it.
     @MainActor
-    func nodeStatusDestinations(helper: NodeStatusHelper) -> some View {
+    func nodeStatusDestinations(helper: NodeStatusViewModel) -> some View {
         navigationDestination(for: NodeStatusRoute.self) { route in
             switch route {
             case .statusHistory:

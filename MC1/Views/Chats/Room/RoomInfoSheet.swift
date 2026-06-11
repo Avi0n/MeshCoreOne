@@ -73,7 +73,7 @@ struct RoomInfoSheet: View {
 
                 Section(Strings.details) {
                     LabeledContent(L10n.RemoteNodes.RemoteNodes.name, value: session.name)
-                    LabeledContent(Strings.permission, value: session.permissionLevel.displayName)
+                    LabeledContent(Strings.permission, value: session.permissionLevel.localizedName)
                     if session.isConnected {
                         LabeledContent(Strings.status, value: Strings.connected)
                     }

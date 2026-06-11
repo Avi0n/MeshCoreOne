@@ -25,23 +25,25 @@ enum LOSFormatters {
         Int(max(0, min(100, percent)))
     }
 
-    /// Formats distance in kilometers
+    /// Formats distance using the locale's measurement system
     /// - Parameter meters: Distance in meters to format
-    /// - Returns: Formatted string like "12.4 km"
+    /// - Returns: Formatted string like "12.4 km" or "7.7 mi"
     static func formatDistance(_ meters: Double) -> String {
-        let km = meters / 1000
-        return "\(km.formatted(.number.precision(.fractionLength(1)))) km"
+        Measurement(value: meters, unit: UnitLength.meters)
+            .formatted(.measurement(width: .abbreviated, usage: .road))
     }
 
-    /// Formats frequency for display in assumptions
+    /// Formats frequency with a locale-aware unit symbol
     /// - Parameter mhz: Frequency in MHz
     /// - Returns: Formatted string like "906 MHz" or "915.5 MHz"
     static func formatFrequency(_ mhz: Double) -> String {
-        if mhz.truncatingRemainder(dividingBy: 1) == 0 {
-            return "\(Int(mhz)) MHz"
-        } else {
-            return "\(mhz.formatted(.number.precision(.fractionLength(1)))) MHz"
-        }
+        let fractionDigits = mhz.truncatingRemainder(dividingBy: 1) == 0 ? 0 : 1
+        return Measurement(value: mhz, unit: UnitFrequency.megahertz)
+            .formatted(.measurement(
+                width: .abbreviated,
+                usage: .asProvided,
+                numberFormatStyle: .number.precision(.fractionLength(fractionDigits))
+            ))
     }
 
     /// Formats k-factor for display
@@ -55,8 +57,8 @@ enum LOSFormatters {
     /// - Parameters:
     ///   - frequencyMHz: Operating frequency in MHz
     ///   - k: Refraction k-factor
-    /// - Returns: String like "906 MHz, k=1.33, 60% 1st Fresnel threshold"
+    /// - Returns: Localized string like "906 MHz, k=1.33, 60% 1st Fresnel threshold"
     static func formatAssumptions(frequencyMHz: Double, k: Double) -> String {
-        "\(formatFrequency(frequencyMHz)), \(formatKFactor(k)), 60% 1st Fresnel threshold"
+        L10n.Tools.Tools.LineOfSight.assumptions(formatFrequency(frequencyMHz), formatKFactor(k))
     }
 }

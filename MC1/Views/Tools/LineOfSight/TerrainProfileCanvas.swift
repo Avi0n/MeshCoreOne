@@ -1,3 +1,4 @@
+import MC1Services
 import SwiftUI
 
 /// Canvas-based terrain profile visualization with Fresnel zone
