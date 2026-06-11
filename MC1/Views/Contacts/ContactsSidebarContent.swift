@@ -42,6 +42,17 @@ struct ContactsSidebarContent: View {
             viewModel: viewModel
         )
         .navigationTitle(L10n.Contacts.Contacts.List.title)
+        .navigationDestination(for: ContactRoute.self) { route in
+            switch route {
+            case .detail(let contact):
+                // Prefer the freshest row from the loaded list; fall back to the carried
+                // payload for pushes that precede a load (e.g. a notification deep link).
+                ContactDetailView(contact: viewModel.contacts.first { $0.id == contact.id } ?? contact)
+                    .id(contact.id)
+            case .blockedContacts:
+                BlockedContactsView()
+            }
+        }
         .searchable(text: $searchText, prompt: searchPrompt)
         .toolbar {
             bleStatusToolbarItem()
@@ -66,9 +77,7 @@ struct ContactsSidebarContent: View {
 
             ToolbarItem(placement: .automatic) {
                 Menu {
-                    NavigationLink {
-                        BlockedContactsView()
-                    } label: {
+                    NavigationLink(value: ContactRoute.blockedContacts) {
                         Label(L10n.Contacts.Contacts.List.blockedContacts, systemImage: "hand.raised.fill")
                     }
 
@@ -175,7 +184,7 @@ struct ContactsSidebarContent: View {
                 selectedContact = contact
             } else {
                 navigationPath.removeLast(navigationPath.count)
-                navigationPath.append(contact)
+                navigationPath.append(ContactRoute.detail(contact))
             }
 
             appState.navigation.clearPendingContactDetailNavigation()

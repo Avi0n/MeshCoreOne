@@ -46,9 +46,7 @@ struct BlockedContactsView: View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 ForEach(Array(contacts.enumerated()), id: \.element.id) { index, contact in
-                    NavigationLink {
-                        ContactDetailView(contact: contact)
-                    } label: {
+                    NavigationLink(value: ContactRoute.detail(contact)) {
                         ContactRowView(contact: contact)
                             .padding(.horizontal, Self.rowHorizontalPadding)
                             .padding(.vertical, Self.rowVerticalPadding)

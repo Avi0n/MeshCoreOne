@@ -327,6 +327,13 @@ struct ContactDetailView: View {
                 }
             }
         }
+        .navigationDestination(for: ContactRoute.TelemetryHistory.self) { route in
+            TelemetryHistoryOverviewView(
+                publicKey: route.publicKey,
+                radioID: route.radioID,
+                showNeighbors: route.showNeighbors
+            )
+        }
     }
 
     // MARK: - Sheet Management
@@ -566,13 +573,11 @@ private struct ContactActionsSection: View {
                 }
                 .radioDisabled(for: appState.connectionState)
 
-                NavigationLink {
-                    TelemetryHistoryOverviewView(
-                        publicKey: currentContact.publicKey,
-                        radioID: currentContact.radioID,
-                        showNeighbors: false
-                    )
-                } label: {
+                NavigationLink(value: ContactRoute.TelemetryHistory(
+                    publicKey: currentContact.publicKey,
+                    radioID: currentContact.radioID,
+                    showNeighbors: false
+                )) {
                     Label(L10n.Contacts.Contacts.Detail.savedHistory, systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
                         .foregroundStyle(.tint)
                 }
@@ -630,12 +635,10 @@ private struct NodeActionRows: View {
         }
         .radioDisabled(for: connectionState)
 
-        NavigationLink {
-            TelemetryHistoryOverviewView(
-                publicKey: contact.publicKey,
-                radioID: contact.radioID
-            )
-        } label: {
+        NavigationLink(value: ContactRoute.TelemetryHistory(
+            publicKey: contact.publicKey,
+            radioID: contact.radioID
+        )) {
             Label(L10n.Contacts.Contacts.Detail.savedHistory, systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
                 .foregroundStyle(.tint)
         }

@@ -133,6 +133,8 @@ final class ContactsViewModel {
     /// Sync contacts from device
     func syncContacts(radioID: UUID) async {
         guard let contactService else { return }
+        // Claim the sync synchronously so a re-trigger while one is in flight is a no-op.
+        guard !isSyncing else { return }
 
         isSyncing = true
         syncProgress = nil
@@ -140,11 +142,6 @@ final class ContactsViewModel {
 
         if let advertisementService {
             await advertisementService.setSyncingContacts(true)
-        }
-        defer {
-            if let advertisementService {
-                Task { await advertisementService.setSyncingContacts(false) }
-            }
         }
 
         // Set up progress handler
@@ -164,6 +161,12 @@ final class ContactsViewModel {
             syncProgress = nil
         } catch {
             errorMessage = error.localizedDescription
+        }
+
+        // Awaited rather than deferred to an unstructured Task so this sync's reset cannot
+        // land after a later sync's setSyncingContacts(true) and clear the flag mid-sync.
+        if let advertisementService {
+            await advertisementService.setSyncingContacts(false)
         }
 
         isSyncing = false

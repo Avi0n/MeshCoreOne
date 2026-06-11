@@ -30,10 +30,6 @@ struct ContactsListView: View {
                 .navigationDestination(isPresented: $showDiscovery) {
                     DiscoveryView()
                 }
-                .navigationDestination(for: ContactDTO.self) { contact in
-                    ContactDetailView(contact: contact)
-                        .id(contact.id)
-                }
         }
     }
 
