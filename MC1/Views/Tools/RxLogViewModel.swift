@@ -1,4 +1,3 @@
-// MC1/Views/Tools/RxLogViewModel.swift
 import Foundation
 import MC1Services
 

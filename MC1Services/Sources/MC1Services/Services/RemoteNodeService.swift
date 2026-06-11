@@ -403,9 +403,7 @@ public actor RemoteNodeService {
     /// Create a new session for a remote node.
     public func createSession(
         radioID: UUID,
-        contact: ContactDTO,
-        password: String?,
-        rememberPassword: Bool = true
+        contact: ContactDTO
     ) async throws -> RemoteNodeSessionDTO {
         guard let role = RemoteNodeRole(contactType: contact.type) else {
             throw RemoteNodeError.invalidResponse
@@ -735,7 +733,7 @@ public actor RemoteNodeService {
     // MARK: - History Sync
 
     /// Request message history from a room server.
-    public func requestHistorySync(sessionID: UUID, since: UInt32 = 1) async throws {
+    public func requestHistorySync(sessionID: UUID) async throws {
         guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
             throw RemoteNodeError.sessionNotFound
         }
@@ -761,7 +759,7 @@ public actor RemoteNodeService {
             throw RemoteNodeError.sessionError(error)
         }
 
-        logger.info("Requested history sync for room \(remoteSession.name) since \(since)")
+        logger.info("Requested history sync for room \(remoteSession.name)")
     }
 
     // MARK: - Logout

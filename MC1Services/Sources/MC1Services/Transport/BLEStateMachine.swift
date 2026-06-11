@@ -932,7 +932,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     }
 }
 
-// MARK: - Internal Callback Handlers (stubs for now)
+// MARK: - Internal Callback Handlers
 
 extension BLEStateMachine {
 

@@ -62,9 +62,6 @@ final class TracePathViewModel {
     var currentTraceIndex = 0
     var completedResults: [TraceResult] = []
 
-    /// Task running the batch loop - stored so cancellation works
-    private var batchTask: Task<Void, Never>?
-
     /// Flag to signal batch loop should stop (since we await in the calling context)
     private var batchCancelled = false
 
@@ -966,10 +963,6 @@ final class TracePathViewModel {
     func cancelBatchTrace() {
         // Set cancel flag for batch loop
         batchCancelled = true
-
-        // Cancel batch loop Task
-        batchTask?.cancel()
-        batchTask = nil
 
         // Cancel current trace timeout task
         traceTask?.cancel()

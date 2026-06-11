@@ -71,9 +71,7 @@ public actor RepeaterAdminService {
     ) async throws -> RemoteNodeSessionDTO {
         let remoteSession = try await remoteNodeService.createSession(
             radioID: radioID,
-            contact: contact,
-            password: password,
-            rememberPassword: rememberPassword
+            contact: contact
         )
 
         // Login to the repeater with appropriate timeout

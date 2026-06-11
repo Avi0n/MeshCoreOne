@@ -4,9 +4,7 @@ import CoreLocation
 struct PermissionsView: View {
     @Environment(\.appState) private var appState
     @Environment(\.scenePhase) private var scenePhase
-    @Environment(\.openURL) private var openURL
     @State private var coordinator = PermissionsCoordinator()
-    @State private var showingLocationAlert = false
     @State private var permissionGrantTrigger = false
 
     var body: some View {
@@ -52,13 +50,7 @@ struct PermissionsView: View {
                                     isGranted: coordinator.locationAuthorization == .authorizedWhenInUse
                                               || coordinator.locationAuthorization == .authorizedAlways,
                                     isDenied: coordinator.locationAuthorization == .denied,
-                                    action: {
-                                        if coordinator.locationAuthorization == .denied {
-                                            showingLocationAlert = true
-                                        } else {
-                                            coordinator.requestLocation()
-                                        }
-                                    }
+                                    action: coordinator.requestLocation
                                 )
                             }
                         }
@@ -98,16 +90,6 @@ struct PermissionsView: View {
             if scenePhase == .active {
                 coordinator.checkPermissions()
             }
-        }
-        .alert(L10n.Onboarding.Permissions.LocationAlert.title, isPresented: $showingLocationAlert) {
-            Button(L10n.Onboarding.Permissions.LocationAlert.openSettings) {
-                if let url = URL(string: UIApplication.openSettingsURLString) {
-                    openURL(url)
-                }
-            }
-            Button(L10n.Localizable.Common.cancel, role: .cancel) { }
-        } message: {
-            Text(L10n.Onboarding.Permissions.LocationAlert.message)
         }
     }
 }

@@ -295,7 +295,7 @@ MeshCore/
 ├── Session/
 │   ├── ContactManager.swift         # Contact list management
 │   ├── MeshCoreSession.swift        # Main session actor
-│   ├── RequestContext.swift         # Request/response context
+│   ├── RequestContext.swift         # Command-response serializer
 │   └── SessionConfiguration.swift   # Session configuration
 └── Transport/
     ├── MeshTransport.swift          # Transport protocol

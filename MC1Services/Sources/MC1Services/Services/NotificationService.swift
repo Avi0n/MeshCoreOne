@@ -99,16 +99,6 @@ public final class NotificationService: NSObject {
     /// CRITICAL: Must be @MainActor - see onQuickReply comment.
     public var onChannelQuickReply: (@MainActor @Sendable (_ radioID: UUID, _ channelIndex: UInt8, _ text: String) async -> Void)?
 
-    /// Whether notifications are enabled by user preference
-    private var notificationsEnabled: Bool {
-        get {
-            UserDefaults.standard.object(forKey: "notificationsEnabled") as? Bool ?? true
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: "notificationsEnabled")
-        }
-    }
-
     /// Badge count
     public private(set) var badgeCount: Int = 0
 
@@ -293,7 +283,7 @@ public final class NotificationService: NSObject {
         isMuted: Bool = false
     ) async {
         guard !isMuted else { return }
-        guard isAuthorized && notificationsEnabled else { return }
+        guard isAuthorized else { return }
 
         // Check granular preference (uses cached preferences)
         guard preferences.contactMessagesEnabled else { return }
@@ -351,7 +341,7 @@ public final class NotificationService: NSObject {
     ) async {
         guard notificationLevel != .muted else { return }
         guard notificationLevel != .mentionsOnly || hasSelfMention else { return }
-        guard isAuthorized && notificationsEnabled else { return }
+        guard isAuthorized else { return }
 
         // Check granular preference (uses cached preferences)
         guard preferences.channelMessagesEnabled else { return }
@@ -410,7 +400,7 @@ public final class NotificationService: NSObject {
         notificationLevel: NotificationLevel
     ) async {
         guard notificationLevel != .muted else { return }
-        guard isAuthorized && notificationsEnabled else { return }
+        guard isAuthorized else { return }
 
         // Check granular preference
         guard preferences.roomMessagesEnabled else { return }
@@ -466,7 +456,7 @@ public final class NotificationService: NSObject {
         contactID: UUID,
         contactType: ContactType
     ) async {
-        guard isAuthorized && notificationsEnabled else { return }
+        guard isAuthorized else { return }
 
         // Check granular preference
         guard preferences.newContactDiscoveredEnabled else { return }
@@ -530,7 +520,7 @@ public final class NotificationService: NSObject {
         channelIndex: UInt8?,
         radioID: UUID?
     ) async {
-        guard isAuthorized && notificationsEnabled else { return }
+        guard isAuthorized else { return }
 
         // Check reaction-specific preference
         guard preferences.reactionNotificationsEnabled else { return }

@@ -1,4 +1,3 @@
-// MC1Services/Sources/MC1Services/Services/RxLogService.swift
 import Foundation
 import MeshCore
 import OSLog

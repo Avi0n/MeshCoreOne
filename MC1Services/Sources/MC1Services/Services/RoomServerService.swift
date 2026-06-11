@@ -119,18 +119,9 @@ public actor RoomServerService {
         pathLength: UInt8 = 0,
         onTimeoutKnown: (@Sendable (Int) async -> Void)? = nil
     ) async throws -> RemoteNodeSessionDTO {
-        // Check if this is a new session
-        let existingSession = try? await dataStore.fetchRemoteNodeSession(publicKey: contact.publicKey)
-
-        // Determine sync start point (used after login for history sync)
-        let needsFullSync = existingSession == nil || existingSession?.lastSyncTimestamp == 0
-        let syncSince: UInt32 = needsFullSync ? 1 : (existingSession?.lastSyncTimestamp ?? 1)
-
         let remoteSession = try await remoteNodeService.createSession(
             radioID: radioID,
-            contact: contact,
-            password: password,
-            rememberPassword: rememberPassword
+            contact: contact
         )
 
         // Login to the room
@@ -147,7 +138,7 @@ public actor RoomServerService {
         }
 
         // Attempt additional history sync if needed (non-blocking)
-        await syncHistoryIfPossible(sessionID: remoteSession.id, since: syncSince)
+        await syncHistoryIfPossible(sessionID: remoteSession.id)
 
         guard let updatedSession = try await dataStore.fetchRemoteNodeSession(id: remoteSession.id) else {
             throw RemoteNodeError.sessionNotFound
@@ -174,9 +165,6 @@ public actor RoomServerService {
             throw RemoteNodeError.invalidResponse
         }
 
-        // Compute sync timestamp (used after login for history sync)
-        let syncSince: UInt32 = remoteSession.lastSyncTimestamp > 0 ? remoteSession.lastSyncTimestamp : 1
-
         // Re-authenticate to the room
         _ = try await remoteNodeService.login(
             sessionID: sessionID,
@@ -184,7 +172,7 @@ public actor RoomServerService {
         )
 
         // Attempt additional history sync if needed (non-blocking)
-        await syncHistoryIfPossible(sessionID: sessionID, since: syncSince)
+        await syncHistoryIfPossible(sessionID: sessionID)
 
         guard let updatedSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
             throw RemoteNodeError.sessionNotFound
@@ -550,7 +538,7 @@ public actor RoomServerService {
     }
 
     /// Attempt to sync history, using advert path first, then falling back to path discovery.
-    private func syncHistoryIfPossible(sessionID: UUID, since: UInt32) async {
+    private func syncHistoryIfPossible(sessionID: UUID) async {
         do {
             guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID),
                   let contact = try await dataStore.findContactByPublicKey(remoteSession.publicKey) else {
@@ -566,7 +554,7 @@ public actor RoomServerService {
                 // Contact has a path from advertisement - try it directly
                 logger.info("Trying advert path for room \(remoteSession.name)")
                 do {
-                    try await remoteNodeService.requestHistorySync(sessionID: sessionID, since: since)
+                    try await remoteNodeService.requestHistorySync(sessionID: sessionID)
                     logger.info("History sync succeeded using advert path")
                     return
                 } catch {
@@ -585,7 +573,7 @@ public actor RoomServerService {
             }
 
             // Retry with newly discovered path
-            try await remoteNodeService.requestHistorySync(sessionID: sessionID, since: since)
+            try await remoteNodeService.requestHistorySync(sessionID: sessionID)
             logger.info("History sync succeeded after path discovery")
         } catch {
             logger.warning("Failed to sync history for session \(sessionID): \(error)")

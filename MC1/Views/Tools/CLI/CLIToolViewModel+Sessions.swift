@@ -145,9 +145,7 @@ extension CLIToolViewModel {
             // Create or reuse session
             let remoteSession = try await remoteNodeService.createSession(
                 radioID: radioID,
-                contact: contact,
-                password: password,
-                rememberPassword: true
+                contact: contact
             )
 
             guard !Task.isCancelled else { return }

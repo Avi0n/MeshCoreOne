@@ -114,7 +114,6 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     private let configuration: SessionConfiguration
     private let clock: any Clock<Duration>
     private let dispatcher = EventDispatcher()
-    private let pendingRequests = PendingRequests()
     private let requestResponseSerializer = RequestResponseSerializer()
 
     // Serializes the read-modify-write of the granular "other params" setters. The
@@ -3260,62 +3259,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
             event = Parsers.StatusResponse.parse(Data(data.dropFirst()), layout: .roomServer)
         }
 
-        // Route generic binary response to typed event based on pending request
-        if case .binaryResponse(let tag, let responseData) = event {
-            if let typedEvent = await routeGenericBinaryResponse(tag: tag, data: responseData) {
-                event = typedEvent
-                logger.debug("Routed binary response to typed event: \(String(describing: event))")
-            }
-        }
-
         trackContactChanges(event: event)
-        await routeBinaryResponse(event: event)
         await dispatcher.dispatch(event)
-    }
-
-    /// Routes a generic binary response to a typed event based on pending request type.
-    private func routeGenericBinaryResponse(tag: Data, data: Data) async -> MeshEvent? {
-        guard let (requestType, publicKeyPrefix, context) = await pendingRequests.getBinaryRequestInfo(tag: tag) else {
-            return nil
-        }
-
-        switch requestType {
-        case .mma:
-            let entries = MMAParser.parse(data)
-            return .mmaResponse(MMAResponse(publicKeyPrefix: publicKeyPrefix, tag: tag, data: entries))
-
-        case .acl:
-            let entries = ACLParser.parse(data)
-            return .aclResponse(ACLResponse(publicKeyPrefix: publicKeyPrefix, tag: tag, entries: entries))
-
-        case .neighbours:
-            let prefixLength = context["prefixLength"] ?? 4
-            let response = NeighboursParser.parse(data, publicKeyPrefix: publicKeyPrefix, tag: tag, prefixLength: prefixLength)
-            return .neighboursResponse(response)
-
-        case .status:
-            let layout: StatusResponse.Layout =
-                contactManager.getByKeyPrefix(publicKeyPrefix)?.type == .room
-                    ? .roomServer : .repeater
-            guard let response = Parsers.StatusResponse.parseFromBinaryResponse(
-                data,
-                publicKeyPrefix: publicKeyPrefix,
-                layout: layout
-            ) else {
-                return nil
-            }
-            return .statusResponse(response)
-
-        case .telemetry:
-            let response = Parsers.TelemetryResponse.parseFromBinaryResponse(
-                data,
-                publicKeyPrefix: publicKeyPrefix
-            )
-            return .telemetryResponse(response)
-
-        case .keepAlive, .ownerInfo:
-            return nil
-        }
     }
 
     /// Tracks contact-related changes from received events.
@@ -3339,47 +3284,6 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
             cachedTime = time
         case .selfInfo(let info):
             selfInfo = info
-        default:
-            break
-        }
-    }
-
-    /// Routes binary responses to complete pending requests.
-    private func routeBinaryResponse(event: MeshEvent) async {
-        switch event {
-        case .statusResponse(let response):
-            // Route by publicKeyPrefix + type for proper correlation
-            await pendingRequests.completeBinaryRequest(
-                publicKeyPrefix: response.publicKeyPrefix,
-                type: .status,
-                with: event
-            )
-        case .telemetryResponse(let response):
-            await pendingRequests.completeBinaryRequest(
-                publicKeyPrefix: response.publicKeyPrefix,
-                type: .telemetry,
-                with: event
-            )
-        case .mmaResponse(let response):
-            await pendingRequests.completeBinaryRequest(
-                publicKeyPrefix: response.publicKeyPrefix,
-                type: .mma,
-                with: event
-            )
-        case .aclResponse(let response):
-            await pendingRequests.completeBinaryRequest(
-                publicKeyPrefix: response.publicKeyPrefix,
-                type: .acl,
-                with: event
-            )
-        case .neighboursResponse(let response):
-            await pendingRequests.completeBinaryRequest(
-                publicKeyPrefix: response.publicKeyPrefix,
-                type: .neighbours,
-                with: event
-            )
-        case .acknowledgement(let code, _):
-            await pendingRequests.complete(tag: code, with: event)
         default:
             break
         }

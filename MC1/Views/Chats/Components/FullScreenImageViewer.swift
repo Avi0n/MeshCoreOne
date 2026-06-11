@@ -62,7 +62,7 @@ struct FullScreenImageViewer: View {
                     .tint(.white)
                 }
                 ToolbarItem(placement: .primaryAction) {
-                    ShareLink(item: ShareableImage(data: data.imageData, isGIF: data.isGIF),
+                    ShareLink(item: ShareableImage(data: data.imageData),
                               preview: .init(L10n.Chats.Chats.ImageViewer.share))
                     .tint(.white)
                 }
@@ -231,18 +231,13 @@ struct ZoomableImageView: UIViewRepresentable {
 
 // MARK: - Shareable Image
 
-/// Transferable type that preserves GIF animation when sharing
+/// Transferable type for sharing image data.
 struct ShareableImage: Transferable {
     let data: Data
-    let isGIF: Bool
 
     static var transferRepresentation: some TransferRepresentation {
         DataRepresentation(exportedContentType: .image) { item in
             item.data
         }
-    }
-
-    var contentType: UTType {
-        isGIF ? .gif : .jpeg
     }
 }
