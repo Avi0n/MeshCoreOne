@@ -90,6 +90,10 @@ public actor PersistenceStore: PersistenceStoreProtocol {
     /// - v3→v4: Added PendingSend.attemptCount (Int?, default nil). Existing rows
     ///          lightweight-migrate to NULL; PersistenceStore.warmUp() runs
     ///          purgeLegacyAttemptCountRows() on connect to delete any nil row.
+    /// - v4→v5: Added TracePathRun.id uniqueness (run ids are minted once and
+    ///          immutable, and backup import dedupes them store-wide, so existing
+    ///          stores hold no duplicates) and RxLogEntry [radioID, receivedAt]
+    ///          index.
     public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
         if !inMemory {
             let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!

@@ -262,6 +262,11 @@ public final class Device {
     }
 
     /// Applies all mutable fields from a DTO to this model instance.
+    /// Unlike `Channel.apply` and `Contact.apply`, the identity fields
+    /// `publicKey` and `radioID` are deliberately rewritten: rows are matched
+    /// by the stable `id`, runtime key rotation must persist the new key, and
+    /// ghost reconciliation after a partial backup import depends on the
+    /// overwrite (see `ConnectionManager.reconcileIdentity`).
     func apply(_ dto: DeviceDTO) {
         radioID = dto.radioID
         publicKey = dto.publicKey

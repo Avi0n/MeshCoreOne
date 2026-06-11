@@ -2865,6 +2865,40 @@ struct BackupIntegrationTests {
         #expect(decoded == populated)
     }
 
+    @Test("saveMessage persists send metadata and preview fields through export and import")
+    func saveMessagePreservesMetadataThroughBackupRoundTrip() async throws {
+        let radioID = UUID()
+        let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+        var msg = MessageDTO.testDirectMessage(radioID: radioID, sendCount: 3)
+        msg.deduplicationKey = "save-message-fields-\(UUID())"
+        msg.linkPreviewURL = "https://example.com"
+        msg.linkPreviewTitle = "Example"
+        msg.reactionSummary = "👍:2"
+        try await sourceStore.saveMessage(msg)
+
+        // saveMessage routes through Message(dto:), so the live row keeps every DTO field.
+        let savedRow = try #require(await sourceStore.fetchMessage(id: msg.id))
+        #expect(savedRow.sendCount == 3)
+        #expect(savedRow.linkPreviewURL == "https://example.com")
+        #expect(savedRow.linkPreviewTitle == "Example")
+        #expect(savedRow.reactionSummary == "👍:2")
+
+        let service = AppBackupService()
+        let exportResult = try await service.export(persistenceStore: sourceStore)
+        let envelope = try parseBackup(data: exportResult.data)
+
+        let destContainer = try PersistenceStore.createContainer(inMemory: true)
+        let destStore = PersistenceStore(modelContainer: destContainer)
+        _ = try await service.importBackup(envelope: envelope, into: destStore)
+
+        let imported = try #require(await destStore.fetchMessage(id: msg.id))
+        #expect(imported.sendCount == 3)
+        #expect(imported.linkPreviewURL == "https://example.com")
+        #expect(imported.linkPreviewTitle == "Example")
+        #expect(imported.reactionSummary == "👍:2")
+    }
+
     // MARK: - selectedThemeID backup contract
 
     @Test("selectedThemeID round-trips through encode/decode")

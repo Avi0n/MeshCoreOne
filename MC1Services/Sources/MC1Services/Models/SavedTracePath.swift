@@ -48,6 +48,7 @@ public final class SavedTracePath {
 /// A single execution of a saved trace path
 @Model
 public final class TracePathRun {
+    @Attribute(.unique)
     public var id: UUID
 
     /// When this run occurred

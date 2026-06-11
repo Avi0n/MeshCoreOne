@@ -453,30 +453,32 @@ extension PersistenceStore {
             return try modelContext.fetch(FetchDescriptor(predicate: predicate))
         }
         var existingPathsByKey: [String: SavedTracePath] = [:]
-        var existingRunIDsByPathID: [UUID: Set<UUID>] = [:]
 
         for path in existingPaths {
             let pathKey = savedTracePathKey(radioID: path.radioID, pathBytes: path.pathBytes, hashSize: path.hashSize)
             existingPathsByKey[pathKey] = path
-            existingRunIDsByPathID[path.id] = Set(path.runs.map(\.id))
         }
+
+        // Run ids are globally unique (`TracePathRun.id` is `.unique`), so dedupe
+        // store-wide, not per path: inserting a run whose id already exists
+        // anywhere would upsert the existing row and silently relocate it under
+        // a different path.
+        var seenRunIDs = Set(try modelContext.fetch(FetchDescriptor<TracePathRun>()).map(\.id))
 
         for dto in dtos {
             let key = savedTracePathKey(radioID: dto.radioID, pathBytes: dto.pathBytes, hashSize: dto.hashSize)
             if let existingPath = existingPathsByKey[key] {
                 skipped += 1
-                var existingRunIDs = existingRunIDsByPathID[existingPath.id] ?? []
                 var appendedRun = false
 
-                for runDTO in dto.runs where !existingRunIDs.contains(runDTO.id) {
+                for runDTO in dto.runs where !seenRunIDs.contains(runDTO.id) {
                     let run = try TracePathRun(dto: runDTO)
                     run.savedPath = existingPath
                     modelContext.insert(run)
-                    existingRunIDs.insert(runDTO.id)
+                    seenRunIDs.insert(runDTO.id)
                     appendedRun = true
                 }
 
-                existingRunIDsByPathID[existingPath.id] = existingRunIDs
                 if appendedRun {
                     merged += 1
                 }
@@ -493,17 +495,15 @@ extension PersistenceStore {
             )
             modelContext.insert(path)
 
-            var insertedRunIDs: Set<UUID> = []
             for runDTO in dto.runs {
-                guard !insertedRunIDs.contains(runDTO.id) else { continue }
+                guard !seenRunIDs.contains(runDTO.id) else { continue }
                 let run = try TracePathRun(dto: runDTO)
                 run.savedPath = path
                 modelContext.insert(run)
-                insertedRunIDs.insert(runDTO.id)
+                seenRunIDs.insert(runDTO.id)
             }
 
             existingPathsByKey[key] = path
-            existingRunIDsByPathID[path.id] = insertedRunIDs
             inserted += 1
         }
         return (inserted, skipped, merged)

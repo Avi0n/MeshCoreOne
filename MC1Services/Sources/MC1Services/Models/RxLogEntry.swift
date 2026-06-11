@@ -7,7 +7,8 @@ import SwiftData
 @Model
 public final class RxLogEntry {
     #Index<RxLogEntry>(
-        [\.channelIndex, \.senderTimestamp]
+        [\.channelIndex, \.senderTimestamp],
+        [\.radioID, \.receivedAt]
     )
 
     @Attribute(.unique)
@@ -124,8 +125,12 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     public let packetPayload: Data
     public let rawPayload: Data
     public let packetHash: String
-    public let channelIndex: UInt8?
-    public let channelName: String?
+
+    /// Channel attribution. Mutable so re-decryption of older entries can
+    /// record which channel's secret matched.
+    public var channelIndex: UInt8?
+    public var channelName: String?
+
     public let decryptStatus: DecryptStatus
     public let fromContactName: String?
     public let toContactName: String?

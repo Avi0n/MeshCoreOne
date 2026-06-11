@@ -267,6 +267,8 @@ public final class Message {
             deduplicationKey: dto.deduplicationKey,
             linkPreviewURL: dto.linkPreviewURL,
             linkPreviewTitle: dto.linkPreviewTitle,
+            // External-storage blobs stay nil and fetched stays false so the new
+            // row re-fetches its preview; updateMessageLinkPreview writes them.
             linkPreviewImageData: nil,
             linkPreviewIconData: nil,
             linkPreviewFetched: false,

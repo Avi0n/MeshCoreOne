@@ -151,6 +151,10 @@ public final class Contact {
     }
 
     /// Applies all mutable fields from a DTO to this model instance.
+    /// `radioID` and `publicKey` are identity and stay frozen: this runs in the
+    /// id-matched `saveContact(_:)` upsert, which owns app-side metadata. Key
+    /// changes arrive from the radio as `ContactFrame`s keyed by
+    /// `(radioID, publicKey)`, where a new key is a new contact row.
     func apply(_ dto: ContactDTO) {
         name = dto.name
         typeRawValue = dto.typeRawValue

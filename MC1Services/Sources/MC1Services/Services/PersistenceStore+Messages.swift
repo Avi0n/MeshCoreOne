@@ -272,39 +272,7 @@ extension PersistenceStore {
 
     /// Save a new message
     public func saveMessage(_ dto: MessageDTO) throws {
-        let message = Message(
-            id: dto.id,
-            radioID: dto.radioID,
-            contactID: dto.contactID,
-            channelIndex: dto.channelIndex,
-            text: dto.text,
-            timestamp: dto.timestamp,
-            createdAt: dto.createdAt,
-            sortDate: dto.sortDate,
-            directionRawValue: dto.direction.rawValue,
-            statusRawValue: dto.status.rawValue,
-            textTypeRawValue: dto.textType.rawValue,
-            ackCode: dto.ackCode,
-            pathLength: dto.pathLength,
-            snr: dto.snr,
-            pathNodes: dto.pathNodes,
-            senderKeyPrefix: dto.senderKeyPrefix,
-            senderNodeName: dto.senderNodeName,
-            isRead: dto.isRead,
-            replyToID: dto.replyToID,
-            roundTripTime: dto.roundTripTime,
-            heardRepeats: dto.heardRepeats,
-            retryAttempt: dto.retryAttempt,
-            maxRetryAttempts: dto.maxRetryAttempts,
-            deduplicationKey: dto.deduplicationKey,
-            containsSelfMention: dto.containsSelfMention,
-            mentionSeen: dto.mentionSeen,
-            timestampCorrected: dto.timestampCorrected,
-            senderTimestamp: dto.senderTimestamp,
-            routeTypeRawValue: dto.routeType.map { Int($0.rawValue) } ?? -1,
-            regionScope: dto.regionScope
-        )
-        modelContext.insert(message)
+        modelContext.insert(Message(dto: dto))
         try modelContext.save()
     }
 
@@ -617,18 +585,7 @@ extension PersistenceStore {
             throw PersistenceStoreError.messageNotFound
         }
 
-        let repeat_ = MessageRepeat(
-            id: dto.id,
-            message: parentMessage,
-            messageID: dto.messageID,
-            receivedAt: dto.receivedAt,
-            pathNodes: dto.pathNodes,
-            pathLength: dto.pathLength,
-            snr: dto.snr,
-            rssi: dto.rssi,
-            rxLogEntryID: dto.rxLogEntryID
-        )
-        modelContext.insert(repeat_)
+        modelContext.insert(MessageRepeat(dto: dto, message: parentMessage))
         try modelContext.save()
     }
 
