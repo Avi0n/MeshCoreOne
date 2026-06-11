@@ -19,7 +19,7 @@ SCHEME  := MC1
 PROJECT := MC1.xcodeproj
 
 # The full app suite runs on the project-standard iOS 26 simulator. Override SIM to retarget.
-SIM ?= platform=iOS Simulator,name=iPhone 17e
+SIM ?= platform=iOS Simulator,name=iPhone 17e,OS=26.5
 
 # StoreKit (SKTestSession) suites must run on an iOS 18.x simulator. Under `xcodebuild
 # test`, iOS 26.x simulators deliver 0 products to storekitd (Apple regression
