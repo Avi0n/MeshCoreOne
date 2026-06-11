@@ -950,7 +950,9 @@ public final class AppState {
 
     // MARK: - Notification Handlers
 
-    /// Configure notification handlers once services are available
+    /// Configure notification handlers once services are available.
+    /// The transaction scripts live in `NotificationActionHandler`; this
+    /// installs thin forwarders and injects the app-layer inputs.
     func configureNotificationHandlers() {
         guard let services else { return }
 
@@ -961,180 +963,37 @@ public final class AppState {
             connectedDevice: { [weak self] in self?.connectedDevice }
         )
 
-        services.notificationService.onQuickReply = { [weak self] contactID, text in
-            guard let self else { return }
-            await self.handleQuickReply(services: services, contactID: contactID, text: text)
-        }
-
-        services.notificationService.onChannelQuickReply = { [weak self] radioID, channelIndex, text in
-            guard let self else { return }
-            await self.handleChannelQuickReply(services: services, radioID: radioID, channelIndex: channelIndex, text: text)
-        }
-
-        services.notificationService.onMarkAsRead = { [weak self] contactID, messageID in
-            guard let self else { return }
-            await self.handleMarkAsRead(services: services, contactID: contactID, messageID: messageID)
-        }
-
-        services.notificationService.onChannelMarkAsRead = { [weak self] radioID, channelIndex, messageID in
-            guard let self else { return }
-            await self.handleChannelMarkAsRead(services: services, radioID: radioID, channelIndex: channelIndex, messageID: messageID)
-        }
-
-        services.notificationService.onRoomMarkAsRead = { [weak self] sessionID, messageID in
-            guard let self else { return }
-            await self.handleRoomMarkAsRead(services: services, sessionID: sessionID, messageID: messageID)
-        }
-    }
-
-    private func handleQuickReply(services: ServiceContainer, contactID: UUID, text: String) async {
-        guard let contact = try? await services.dataStore.fetchContact(id: contactID) else { return }
-
-        if connectionState == .ready {
-            do {
-                _ = try await services.messageService.sendDirectMessage(text: text, to: contact)
-
-                // Clear unread state - user replied so they've seen the chat
-                try? await services.dataStore.clearUnreadCount(contactID: contactID)
-                await services.notificationService.removeDeliveredNotifications(forContactID: contactID)
-                await services.notificationService.updateBadgeCount()
-                syncCoordinator?.notifyConversationsChanged()
-                return
-            } catch {
-                // Fall through to draft handling
-            }
-        }
-
-        services.notificationService.saveDraft(for: contactID, text: text)
-        await services.notificationService.postQuickReplyFailedNotification(
-            contactName: contact.displayName,
-            contactID: contactID
+        let handler = services.notificationActionHandler
+        handler.configure(
+            isConnectionReady: { [weak self] in self?.connectionState == .ready },
+            localNodeName: { [weak self] in self?.connectedDevice?.nodeName }
         )
-    }
 
-    private func handleChannelQuickReply(services: ServiceContainer, radioID: UUID, channelIndex: UInt8, text: String) async {
-        // Fetch channel for display name in failure notification
-        let channel = try? await services.dataStore.fetchChannel(radioID: radioID, index: channelIndex)
-        let channelName = channel?.name ?? "Channel \(channelIndex)"
-
-        guard connectionState == .ready else {
-            await services.notificationService.postChannelQuickReplyFailedNotification(
-                channelName: channelName,
-                radioID: radioID,
-                channelIndex: channelIndex
-            )
-            return
+        services.notificationService.onQuickReply = { contactID, text in
+            await handler.handleQuickReply(contactID: contactID, text: text)
         }
 
-        do {
-            _ = try await services.messageService.sendChannelMessage(
-                text: text,
-                channelIndex: channelIndex,
-                radioID: radioID
-            )
-
-            // Clear unread state - user replied so they've seen the channel
-            try? await services.dataStore.clearChannelUnreadCount(radioID: radioID, index: channelIndex)
-            await services.notificationService.removeDeliveredNotifications(
-                forChannelIndex: channelIndex,
-                radioID: radioID
-            )
-            await services.notificationService.updateBadgeCount()
-            syncCoordinator?.notifyConversationsChanged()
-        } catch {
-            await services.notificationService.postChannelQuickReplyFailedNotification(
-                channelName: channelName,
-                radioID: radioID,
-                channelIndex: channelIndex
-            )
+        services.notificationService.onChannelQuickReply = { radioID, channelIndex, text in
+            await handler.handleChannelQuickReply(radioID: radioID, channelIndex: channelIndex, text: text)
         }
-    }
 
-    private func handleMarkAsRead(services: ServiceContainer, contactID: UUID, messageID: UUID) async {
-        do {
-            try await services.dataStore.markMessageAsRead(id: messageID)
-            try await services.dataStore.clearUnreadCount(contactID: contactID)
-            services.notificationService.removeDeliveredNotification(messageID: messageID)
-            await services.notificationService.updateBadgeCount()
-            syncCoordinator?.notifyConversationsChanged()
-        } catch {
-            // Silently ignore
+        services.notificationService.onMarkAsRead = { contactID, messageID in
+            await handler.handleMarkAsRead(contactID: contactID, messageID: messageID)
         }
-    }
 
-    private func handleChannelMarkAsRead(services: ServiceContainer, radioID: UUID, channelIndex: UInt8, messageID: UUID) async {
-        do {
-            try await services.dataStore.markMessageAsRead(id: messageID)
-            try await services.dataStore.clearChannelUnreadCount(radioID: radioID, index: channelIndex)
-            services.notificationService.removeDeliveredNotification(messageID: messageID)
-            await services.notificationService.updateBadgeCount()
-            syncCoordinator?.notifyConversationsChanged()
-        } catch {
-            // Silently ignore
+        services.notificationService.onChannelMarkAsRead = { radioID, channelIndex, messageID in
+            await handler.handleChannelMarkAsRead(radioID: radioID, channelIndex: channelIndex, messageID: messageID)
         }
-    }
 
-    private func handleRoomMarkAsRead(services: ServiceContainer, sessionID: UUID, messageID: UUID) async {
-        do {
-            try await services.roomServerService.markAsRead(sessionID: sessionID)
-            services.notificationService.removeDeliveredNotification(messageID: messageID)
-            await services.notificationService.updateBadgeCount()
-            syncCoordinator?.notifyConversationsChanged()
-        } catch {
-            // Silently ignore
+        services.notificationService.onRoomMarkAsRead = { sessionID, messageID in
+            await handler.handleRoomMarkAsRead(sessionID: sessionID, messageID: messageID)
         }
     }
 
     /// Handle posting a notification when someone reacts to the user's message
     func handleReactionNotification(messageID: UUID) async {
         guard let services else { return }
-
-        // Fetch the message to check if it's outgoing
-        guard let message = try? await services.dataStore.fetchMessage(id: messageID),
-              message.direction == .outgoing else {
-            return
-        }
-
-        // Fetch the latest reaction for this message
-        guard let reactions = try? await services.dataStore.fetchReactions(for: messageID, limit: 1),
-              let latestReaction = reactions.first else {
-            return
-        }
-
-        // Check if this is a self-reaction (user reacting to their own message)
-        if let localNodeName = connectedDevice?.nodeName,
-           latestReaction.senderName == localNodeName {
-            return
-        }
-
-        // Check mute status based on message type
-        let isMuted: Bool
-        if let contactID = message.contactID {
-            let contact = try? await services.dataStore.fetchContact(id: contactID)
-            isMuted = contact?.isMuted ?? false
-        } else if let channelIndex = message.channelIndex {
-            let channel = try? await services.dataStore.fetchChannel(radioID: message.radioID, index: channelIndex)
-            isMuted = channel?.isMuted ?? false
-        } else {
-            isMuted = false
-        }
-
-        guard !isMuted else { return }
-
-        // Truncate preview if too long
-        let truncatedPreview = message.text.count > 50
-            ? String(message.text.prefix(47)) + "..."
-            : message.text
-
-        // Post the notification
-        await services.notificationService.postReactionNotification(
-            reactorName: latestReaction.senderName,
-            body: L10n.Localizable.Notifications.Reaction.body(latestReaction.emoji, truncatedPreview),
-            messageID: messageID,
-            contactID: message.contactID,
-            channelIndex: message.channelIndex,
-            radioID: message.channelIndex != nil ? message.radioID : nil
-        )
+        await services.notificationActionHandler.handleReactionNotification(messageID: messageID)
     }
 }
 

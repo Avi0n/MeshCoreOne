@@ -59,12 +59,12 @@ public struct ChatSendQueueConfig: Sendable {
 ///
 /// Transport-open signal: the drain step suspends via
 /// `withCooperativeTimeout` on the `BLETransportOpenedSignal` actor.
-/// `ConnectionManager` fires the signal when the radio is
-/// `.connected` / `.syncing` / `.ready`. Rows are never deleted while
-/// waiting. `triggers.clear` is called only after a successful send
-/// (not before each attempt) so that a fire signal landing during a
-/// successful send doesn't get wiped before the next failed send
-/// needs it.
+/// The connection-state observation started by `observeConnectionState`
+/// fires the signal on each disconnected-to-connected edge. Rows are
+/// never deleted while waiting. `triggers.clear` is called only after a
+/// successful send (not before each attempt) so that a fire signal
+/// landing during a successful send doesn't get wiped before the next
+/// failed send needs it.
 @MainActor
 public final class ChatSendQueueService {
 
@@ -83,6 +83,10 @@ public final class ChatSendQueueService {
     private let channelQueue: SendQueue<ChannelMessageEnvelope>
 
     private var hasHydrated = false
+
+    /// Task consuming the connection-state stream installed by
+    /// `observeConnectionState`. Cancelled in `shutdown()`.
+    private var connectionStateTask: Task<Void, Never>?
 
     // swiftlint:disable:next function_body_length
     public init(
@@ -415,9 +419,38 @@ public final class ChatSendQueueService {
         await dmQueue.enqueue(envelope)
     }
 
-    /// `ConnectionManager` calls this from its `connectionState.didSet`
-    /// on the `disconnected → connected` edge. Fires the trigger that wakes
-    /// any drain attempt suspended in `withCooperativeTimeout`.
+    /// Starts observing the connection-state stream and fires the
+    /// transport-open trigger exactly once per disconnected-to-connected
+    /// crossing. The initial value covers containers built after the link
+    /// already opened: connect paths reach `.connected` before the container
+    /// exists, so an already-connected `initial` fires immediately, waking
+    /// drains parked in `withCooperativeTimeout` instead of leaving them to
+    /// wait out `transportWaitTimeout`. Calling again replaces the previous
+    /// observation.
+    public func observeConnectionState(
+        initial: DeviceConnectionState,
+        events: AsyncStream<DeviceConnectionState>
+    ) {
+        connectionStateTask?.cancel()
+        if initial.isConnected {
+            transportDidOpen()
+        }
+        connectionStateTask = Task { [weak self] in
+            var previous = initial
+            for await state in events {
+                guard let self else { return }
+                if !previous.isConnected && state.isConnected {
+                    self.transportDidOpen()
+                }
+                previous = state
+            }
+        }
+    }
+
+    /// Fired by the connection-state observation started by
+    /// `observeConnectionState` on each disconnected-to-connected edge.
+    /// Fires the trigger that wakes any drain attempt suspended in
+    /// `withCooperativeTimeout`.
     ///
     /// Fire-and-forget Task is intentional: `triggers.fire` is idempotent
     /// (arming an already-armed bit is a no-op), so a tight reconnect cycle
@@ -673,7 +706,13 @@ public final class ChatSendQueueService {
     /// `triggers`), respawning on every `.notConnected` requeue. `PendingSend`
     /// rows survive in SwiftData, so the next container's `hydrate()` replays
     /// them on reconnect.
+    ///
+    /// Cancelling the connection-state observation unregisters its
+    /// `EventBroadcaster` subscription so a torn-down container never
+    /// receives the next connection's edge.
     public func shutdown() async {
+        connectionStateTask?.cancel()
+        connectionStateTask = nil
         await dmQueue.cancelDrain()
         await channelQueue.cancelDrain()
     }

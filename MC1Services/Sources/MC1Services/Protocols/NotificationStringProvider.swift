@@ -42,4 +42,14 @@ public protocol NotificationStringProvider: Sendable {
 
     /// Returns the localized fallback display name for a discovered contact with no advertised name.
     var unknownContactName: String { get }
+
+    /// Returns the localized fallback display name for a channel with no stored name.
+    /// - Parameter index: The channel's slot index
+    func defaultChannelName(index: Int) -> String
+
+    /// Returns the localized body for a reaction notification.
+    /// - Parameters:
+    ///   - emoji: The reaction emoji
+    ///   - messagePreview: Truncated preview of the reacted-to message
+    func reactionNotificationBody(emoji: String, messagePreview: String) -> String
 }

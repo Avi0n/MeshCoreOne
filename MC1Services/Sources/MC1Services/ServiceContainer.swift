@@ -164,6 +164,14 @@ public final class ServiceContainer {
     /// container exists but the service is `nil`.
     public let chatSendQueueService: ChatSendQueueService
 
+    // MARK: - Notification Actions
+
+    /// Executes the multi-service transactions behind notification actions
+    /// (quick reply, mark-as-read, reactions). `AppState` installs
+    /// `NotificationService` forwarders that delegate here and injects the
+    /// app-layer inputs via `configure(isConnectionReady:localNodeName:)`.
+    public let notificationActionHandler: NotificationActionHandler
+
     // MARK: - App State
 
     /// Provider for checking app foreground/background state
@@ -201,11 +209,20 @@ public final class ServiceContainer {
     ///     chat send queue's pending-send rows so two radios cannot share
     ///     drain state across reconnects.
     ///   - appStateProvider: Optional provider for app foreground/background state
+    ///   - connectionStateEvents: Optional broadcaster of connection-state
+    ///     changes. When provided, the chat send queue observes it to wake
+    ///     parked drains on each disconnected-to-connected edge.
+    ///   - initialConnectionState: The connection state at container build
+    ///     time. Connect paths reach `.connected` before constructing the
+    ///     container, so the queue's edge detection treats an
+    ///     already-connected initial value as a fired edge.
     public init(
         session: MeshCoreSession,
         modelContainer: ModelContainer,
         radioID: UUID,
-        appStateProvider: AppStateProvider? = nil
+        appStateProvider: AppStateProvider? = nil,
+        connectionStateEvents: EventBroadcaster<DeviceConnectionState>? = nil,
+        initialConnectionState: DeviceConnectionState = .disconnected
     ) {
         self.session = session
         self.appStateProvider = appStateProvider
@@ -291,6 +308,19 @@ public final class ServiceContainer {
             channelService: channelService,
             reactionService: reactionService
         )
+        self.notificationActionHandler = NotificationActionHandler(
+            dataStore: dataStore,
+            messageService: messageService,
+            notificationService: notificationService,
+            roomServerService: roomServerService,
+            syncCoordinator: syncCoordinator
+        )
+        if let connectionStateEvents {
+            chatSendQueueService.observeConnectionState(
+                initial: initialConnectionState,
+                events: connectionStateEvents.subscribe()
+            )
+        }
     }
 
     // MARK: - Event Monitoring

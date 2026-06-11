@@ -86,6 +86,10 @@ public final class NotificationService: NSObject {
         self.stringProvider = provider
     }
 
+    /// Read access for same-module collaborators (`NotificationActionHandler`)
+    /// that build localized display strings.
+    var strings: NotificationStringProvider? { stringProvider }
+
     /// Callback for when mark as read action is triggered
     /// Installed by `AppState.configureNotificationHandlers`.
     /// Must be @MainActor; see the onQuickReply comment.

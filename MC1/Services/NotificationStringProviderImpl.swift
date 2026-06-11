@@ -32,4 +32,12 @@ struct NotificationStringProviderImpl: NotificationStringProvider {
     }
 
     var unknownContactName: String { L10n.Localizable.Notifications.Discovery.unknownContact }
+
+    func defaultChannelName(index: Int) -> String {
+        L10n.Chats.Chats.Channel.defaultName(index)
+    }
+
+    func reactionNotificationBody(emoji: String, messagePreview: String) -> String {
+        L10n.Localizable.Notifications.Reaction.body(emoji, messagePreview)
+    }
 }

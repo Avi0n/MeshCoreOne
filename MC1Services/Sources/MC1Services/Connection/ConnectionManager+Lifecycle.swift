@@ -641,7 +641,9 @@ extension ConnectionManager {
                 session: session,
                 modelContainer: modelContainer,
                 radioID: MockDataProvider.simulatorDeviceID,
-                appStateProvider: appStateProvider
+                appStateProvider: appStateProvider,
+                connectionStateEvents: connectionStateEvents,
+                initialConnectionState: connectionState
             )
             await wireCleanChannelSyncCallback(on: newServices)
             await newServices.chatSendQueueService.hydrate()
@@ -709,13 +711,9 @@ extension ConnectionManager {
 
             // Stop current services
             await services?.tearDown()
-            // Drop the torn-down container so the .connected edge below
-            // short-circuits the didSet's `services?.chatSendQueueService.
-            // transportDidOpen()` instead of firing it against a dead
-            // container. The load-bearing wake of parked drains comes from
-            // the explicit `transportDidOpen()` call inside
-            // `buildServicesAndSaveDevice` after the freshly-built container
-            // is installed; this nil keeps the intermediate didSet honest.
+            // tearDown above cancelled the old container's connection-state
+            // subscription; nilling drops the dead reference before the
+            // connect ceremony installs its replacement.
             self.services = nil
             await session?.stop()
 

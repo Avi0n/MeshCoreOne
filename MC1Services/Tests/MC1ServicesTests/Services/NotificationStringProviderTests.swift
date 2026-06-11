@@ -31,6 +31,14 @@ struct NotificationStringProviderTests {
         }
 
         var unknownContactName: String { "Mock Unknown Contact" }
+
+        func defaultChannelName(index: Int) -> String {
+            "Mock Channel \(index)"
+        }
+
+        func reactionNotificationBody(emoji: String, messagePreview: String) -> String {
+            "Mock reacted \(emoji) to \(messagePreview)"
+        }
     }
 
     @Test("Provider returns correct title for chat type")
