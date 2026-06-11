@@ -77,6 +77,14 @@ public final class ConnectionUIState {
     /// Whether the device's node storage is full (set by 0x90 push, cleared on delete/overwrite)
     var isNodeStorageFull = false
 
+    /// Task consuming `AdvertisementService.events()` for storage-full state.
+    /// Re-subscribed per connection in `wireCallbacks`; cancelled on disconnect.
+    private var nodeStorageEventsTask: Task<Void, Never>?
+
+    /// Task consuming `ContactService.events()` for node-deletion events.
+    /// Re-subscribed per connection in `wireCallbacks`; cancelled on disconnect.
+    private var nodeDeletedEventsTask: Task<Void, Never>?
+
     /// Flag indicating ASK picker should be shown when app returns to foreground
     var shouldShowPickerOnForeground = false
 
@@ -183,6 +191,10 @@ public final class ConnectionUIState {
         shouldSuppressDisconnectedPill: Bool
     ) {
         announceConnectionState(L10n.Localizable.Accessibility.Connection.deviceConnectionLost)
+        nodeStorageEventsTask?.cancel()
+        nodeStorageEventsTask = nil
+        nodeDeletedEventsTask?.cancel()
+        nodeDeletedEventsTask = nil
         syncActivityCount = 0
         currentSyncPhase = nil
         hideReadyToast()
@@ -232,17 +244,31 @@ public final class ConnectionUIState {
             self?.showSyncFailedPill()
         }
 
-        // Node storage full callback (0x90 contactsFull or 0x8F contactDeleted push)
-        await advertisementService.setNodeStorageFullChangedHandler { [weak self] isFull in
-            await MainActor.run {
-                self?.isNodeStorageFull = isFull
+        // Node storage full events (0x90 contactsFull or 0x8F contactDeleted push).
+        // Subscribed synchronously so the registration is live before
+        // onConnectionEstablished can emit storage events.
+        nodeStorageEventsTask?.cancel()
+        let advertisementEvents = advertisementService.events()
+        nodeStorageEventsTask = Task { [weak self] in
+            for await event in advertisementEvents {
+                guard let self else { return }
+                if case .nodeStorageFullChanged(let isFull) = event {
+                    self.isNodeStorageFull = isFull
+                }
             }
         }
 
-        // Node deleted callback (clears storage full when user manually deletes a node)
-        await contactService.setNodeDeletedHandler { [weak self] in
-            await MainActor.run {
-                self?.isNodeStorageFull = false
+        // Node deleted events clear the storage-full flag when the user manually
+        // deletes a node. Subscribed synchronously so the registration is live
+        // before a delete can emit.
+        nodeDeletedEventsTask?.cancel()
+        let contactEvents = contactService.events()
+        nodeDeletedEventsTask = Task { [weak self] in
+            for await event in contactEvents {
+                guard let self else { return }
+                if case .nodeDeleted = event {
+                    self.isNodeStorageFull = false
+                }
             }
         }
     }

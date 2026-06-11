@@ -31,7 +31,7 @@ extension SyncCoordinator {
             reactionDTO,
             using: services.dataStore
         ) {
-            await onReactionReceived?(result.messageID, result.summary)
+            dataEventBroadcaster.yield(.reactionReceived(messageID: result.messageID, summary: result.summary))
         }
 
         return true
@@ -297,9 +297,9 @@ extension SyncCoordinator {
             // Notify conversation list of changes
             await notifyConversationsChanged()
 
-            // Forward to MessageEventStream consumers for real-time chat updates
+            // Broadcast for real-time chat updates
             if case .direct(_, let contact) = kind, let contact {
-                await onDirectMessageReceived?(messageDTO, contact)
+                dataEventBroadcaster.yield(.directMessageReceived(message: messageDTO, contact: contact))
             }
         } catch {
             switch kind {
@@ -471,7 +471,7 @@ extension SyncCoordinator {
                 await services.notificationService.updateBadgeCount()
 
                 await notifyConversationsChanged()
-                await onRoomMessageReceived?(savedMessage)
+                dataEventBroadcaster.yield(.roomMessageReceived(savedMessage))
             }
         } catch {
             logger.error("Failed to handle room message: \(error)")
@@ -504,34 +504,45 @@ extension SyncCoordinator {
         }
     }
 
-    // MARK: - Discovery Handler Wiring
+    // MARK: - Discovery Event Monitoring
 
-    func wireDiscoveryHandlers(services: ServiceContainer, radioID: UUID) async {
-        logger.info("Wiring discovery handlers for device \(radioID)")
-
-        // New contact discovered handler (manual-add mode)
-        // Posts notification when a new contact is discovered via advertisement
-        await services.advertisementService.setNewContactDiscoveredHandler { [weak self] contactName, contactID, contactType in
-            guard let self else { return }
-
-            await services.notificationService.postNewContactNotification(
-                contactName: contactName,
-                contactID: contactID,
-                contactType: contactType
-            )
-
-            await self.notifyContactsChanged()
+    /// Consumes the advertisement event stream to post new-contact
+    /// notifications and refresh contact lists. The subscription is
+    /// registered synchronously before this method returns; events yielded
+    /// earlier (during the initial sync) are deliberately not seen.
+    func startDiscoveryEventMonitoring(services: ServiceContainer, radioID: UUID) {
+        logger.info("Starting discovery event monitoring for device \(radioID)")
+        discoveryEventsTask?.cancel()
+        let events = services.advertisementService.events()
+        discoveryEventsTask = Task { [weak self] in
+            for await event in events {
+                guard let self else { return }
+                switch event {
+                case .newContactDiscovered(let name, let contactID, let contactType):
+                    // Manual-add mode: a new contact was discovered via advertisement
+                    await services.notificationService.postNewContactNotification(
+                        contactName: name,
+                        contactID: contactID,
+                        contactType: contactType
+                    )
+                    await self.notifyContactsChanged()
+                case .contactSyncRequested:
+                    // Auto-add mode: AdvertisementService already fetched and
+                    // saved the contact, so only a UI refresh is needed
+                    await self.notifyContactsChanged()
+                case .contactUpdated, .nodeStorageFullChanged, .contactDeletedCleanup,
+                     .pathDiscoveryResponse, .traceResponse, .traceSnrObserved:
+                    break
+                }
+            }
         }
+    }
 
-        // Contact sync request handler (auto-add mode)
-        // AdvertisementService fetches and saves the new contact directly,
-        // this handler just triggers UI refresh
-        await services.advertisementService.setContactSyncRequestHandler { [weak self] _ in
-            guard let self else { return }
-            await self.notifyContactsChanged()
-        }
-
-        logger.info("Discovery handlers wired successfully")
+    /// Cancels the discovery event task so it releases the `ServiceContainer`
+    /// it captures. Called by `ServiceContainer.tearDown()`.
+    func cancelDiscoveryEventMonitoring() {
+        discoveryEventsTask?.cancel()
+        discoveryEventsTask = nil
     }
 
     // MARK: - Message Handler Helpers
@@ -895,8 +906,8 @@ extension SyncCoordinator {
         }
         await services.notificationService.updateBadgeCount()
 
-        // Forward to MessageEventStream consumers for real-time chat updates
-        await onChannelMessageReceived?(messageDTO, channelIndex)
+        // Broadcast for real-time chat updates
+        dataEventBroadcaster.yield(.channelMessageReceived(message: messageDTO, channelIndex: channelIndex))
     }
 
     private func recordUnresolvedChannel(

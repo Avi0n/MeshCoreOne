@@ -121,9 +121,10 @@ public actor ChannelService {
     private let dataStore: PersistenceStore
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "ChannelService")
 
-    /// Callback for channel updates.
-    /// Installed by `ServiceContainer.wireServices` (forwards channel secrets/names to `RxLogService`).
-    private var channelUpdateHandler: (@Sendable ([ChannelDTO]) -> Void)?
+    /// Decryption cache consumer: channel writes and syncs forward the fresh
+    /// channel list so `RxLogService` can decode captured packets.
+    /// Injected by `ServiceContainer` at construction.
+    private let rxLogService: RxLogService?
 
     /// Callback invoked with the channel slots vacated by a delete or sync prune,
     /// so the main-actor `DraftStore` can drop any draft keyed to a now-free slot
@@ -138,11 +139,16 @@ public actor ChannelService {
 
     public init(
         session: MeshCoreSession,
-        dataStore: PersistenceStore
+        dataStore: PersistenceStore,
+        rxLogService: RxLogService?
     ) {
         self.session = session
         self.dataStore = dataStore
+        self.rxLogService = rxLogService
     }
+
+    /// Whether an RX log service was injected at construction.
+    var hasRxLogServiceWired: Bool { rxLogService != nil }
 
     // MARK: - Secret Hashing
 
@@ -406,7 +412,7 @@ public actor ChannelService {
             await draftClearHandler?(radioID, vacatedSlots)
         }
 
-        channelUpdateHandler?(channels)
+        await rxLogService?.updateChannels(from: channels)
 
         return ChannelSyncResult(channelsSynced: configured.count, errors: syncErrors)
     }
@@ -489,7 +495,7 @@ public actor ChannelService {
                 unconfiguredIndices: [],
                 pruneBeyond: nil
             )
-            channelUpdateHandler?(allChannels)
+            await rxLogService?.updateChannels(from: allChannels)
         } catch {
             logger.error("Retry batch persist failed: \(error.localizedDescription)")
             for info in configured {
@@ -592,9 +598,9 @@ public actor ChannelService {
             let channelInfo = ChannelInfo(index: index, name: truncatedName, secret: secret)
             _ = try await dataStore.saveChannel(radioID: radioID, from: channelInfo)
 
-            // Notify handler of update
+            // Refresh the decryption cache with the updated channel list
             let channels = try await dataStore.fetchChannels(radioID: radioID)
-            channelUpdateHandler?(channels)
+            await rxLogService?.updateChannels(from: channels)
         } catch let error as MeshCoreError {
             throw ChannelServiceError.sessionError(error)
         }
@@ -625,9 +631,9 @@ public actor ChannelService {
             let channelInfo = ChannelInfo(index: index, name: truncatedName, secret: secret)
             _ = try await dataStore.saveChannel(radioID: radioID, from: channelInfo)
 
-            // Notify handler of update
+            // Refresh the decryption cache with the updated channel list
             let channels = try await dataStore.fetchChannels(radioID: radioID)
-            channelUpdateHandler?(channels)
+            await rxLogService?.updateChannels(from: channels)
         } catch let error as MeshCoreError {
             throw ChannelServiceError.sessionError(error)
         }
@@ -665,9 +671,9 @@ public actor ChannelService {
         // same index can't surface this channel's stale draft.
         await draftClearHandler?(radioID, [index])
 
-        // Notify handler that channels changed
+        // Refresh the decryption cache with the updated channel list
         let channels = try await dataStore.fetchChannels(radioID: radioID)
-        channelUpdateHandler?(channels)
+        await rxLogService?.updateChannels(from: channels)
     }
 
     /// Clears all messages for a channel without deleting the channel itself.
@@ -741,14 +747,6 @@ public actor ChannelService {
     }
 
     // MARK: - Handlers
-
-    /// Sets a callback for channel updates.
-    public func setChannelUpdateHandler(_ handler: @escaping @Sendable ([ChannelDTO]) -> Void) {
-        channelUpdateHandler = handler
-    }
-
-    /// Whether a channel update handler has been wired via `setChannelUpdateHandler`.
-    var hasChannelUpdateHandlerWired: Bool { channelUpdateHandler != nil }
 
     /// Sets a callback that receives the channel slots vacated by `clearChannel`
     /// and by the sync prune in `finalizeChannelSync`, so the `DraftStore` can

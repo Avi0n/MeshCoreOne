@@ -352,7 +352,7 @@ struct MessageServiceSendTests {
         }
     }
 
-    @Test("resendChannelMessage writes .sent before firing messageResentHandler and refreshes counts")
+    @Test("resendChannelMessage writes .sent before broadcasting .resent and refreshes counts")
     @MainActor
     func resendChannelMessageFiresResentHandlerAfterDBWrite() async throws {
         let transport = MockTransport()
@@ -367,7 +367,7 @@ struct MessageServiceSendTests {
 
         let container = try PersistenceStore.createContainer(inMemory: true)
         let dataStore = PersistenceStore(modelContainer: container)
-        let service = MessageService(session: session, dataStore: dataStore)
+        let service = MessageService(session: session, dataStore: dataStore, contactService: nil)
 
         let messageID = UUID()
         let failed = MessageDTO.testChannelMessage(
@@ -380,10 +380,7 @@ struct MessageServiceSendTests {
         )
         try await dataStore.saveMessage(failed)
 
-        let tracker = MessageResentTracker()
-        await service.setMessageResentHandler { id in
-            await tracker.record(id)
-        }
+        let statusEvents = service.statusEvents()
 
         let resendTask = Task { try await service.resendChannelMessage(messageID: messageID) }
 
@@ -394,16 +391,16 @@ struct MessageServiceSendTests {
 
         _ = try await resendTask.value
 
-        let recorded = await tracker.resentIDs
-        #expect(recorded == [messageID], "messageResentHandler must fire exactly once with the resent ID")
+        let recorded = await service.drainStatusEvents(statusEvents).resentIDs
+        #expect(recorded == [messageID], ".resent must broadcast exactly once with the resent ID")
 
         let stored = try await dataStore.fetchMessage(id: messageID)
-        #expect(stored?.status == .sent, "resend must write .sent to the DB before firing the handler")
+        #expect(stored?.status == .sent, "resend must write .sent to the DB before broadcasting .resent")
         #expect(stored?.heardRepeats == 0, "resend must reset heardRepeats to 0")
         #expect(stored?.sendCount == 2, "resend must increment sendCount from 1 to 2")
     }
 
-    @Test("resendDirectMessage increments sendCount and fires messageResentHandler on a successful resend")
+    @Test("resendDirectMessage increments sendCount and broadcasts .resent on a successful resend")
     @MainActor
     func resendDirectMessageBumpsSendCountAndFiresResentHandler() async throws {
         let transport = MockTransport()
@@ -421,7 +418,7 @@ struct MessageServiceSendTests {
 
         let container = try PersistenceStore.createContainer(inMemory: true)
         let dataStore = PersistenceStore(modelContainer: container)
-        let service = MessageService(session: session, dataStore: dataStore)
+        let service = MessageService(session: session, dataStore: dataStore, contactService: nil)
 
         let messageID = UUID()
         let contactID = UUID()
@@ -437,10 +434,7 @@ struct MessageServiceSendTests {
         )
         try await dataStore.saveMessage(delivered)
 
-        let tracker = MessageResentTracker()
-        await service.setMessageResentHandler { id in
-            await tracker.record(id)
-        }
+        let statusEvents = service.statusEvents()
 
         // Pre-populate the pending-ack entry as already delivered so the
         // retry loop short-circuits after sendMessage returns.
@@ -472,16 +466,16 @@ struct MessageServiceSendTests {
 
         _ = try await resendTask.value
 
-        let recorded = await tracker.resentIDs
+        let recorded = await service.drainStatusEvents(statusEvents).resentIDs
         #expect(recorded == [messageID],
-                "messageResentHandler must fire exactly once on successful DM resend")
+                ".resent must broadcast exactly once on successful DM resend")
 
         let stored = try await dataStore.fetchMessage(id: messageID)
         #expect(stored?.sendCount == 2,
                 "successful resendDirectMessage must increment sendCount from 1 to 2")
     }
 
-    @Test("sendPendingDirectMessage does not bump sendCount or fire messageResentHandler on first send")
+    @Test("sendPendingDirectMessage does not bump sendCount or broadcast .resent on first send")
     @MainActor
     func sendPendingDirectMessageDoesNotBumpSendCount() async throws {
         let transport = MockTransport()
@@ -499,7 +493,7 @@ struct MessageServiceSendTests {
 
         let container = try PersistenceStore.createContainer(inMemory: true)
         let dataStore = PersistenceStore(modelContainer: container)
-        let service = MessageService(session: session, dataStore: dataStore)
+        let service = MessageService(session: session, dataStore: dataStore, contactService: nil)
 
         let messageID = UUID()
         let contactID = UUID()
@@ -515,10 +509,7 @@ struct MessageServiceSendTests {
         )
         try await dataStore.saveMessage(pending)
 
-        let tracker = MessageResentTracker()
-        await service.setMessageResentHandler { id in
-            await tracker.record(id)
-        }
+        let statusEvents = service.statusEvents()
 
         // Pre-populate the pending-ack entry as already delivered so the
         // retry loop short-circuits after sendMessage returns.
@@ -550,9 +541,9 @@ struct MessageServiceSendTests {
 
         _ = try await sendTask.value
 
-        let recorded = await tracker.resentIDs
+        let recorded = await service.drainStatusEvents(statusEvents).resentIDs
         #expect(recorded.isEmpty,
-                "messageResentHandler must not fire on first send")
+                ".resent must not broadcast on first send")
 
         let stored = try await dataStore.fetchMessage(id: messageID)
         #expect(stored?.sendCount == 1,

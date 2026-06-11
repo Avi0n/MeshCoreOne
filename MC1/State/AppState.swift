@@ -170,10 +170,10 @@ public final class AppState {
     }
 
     /// Bumps `conversationsVersion` and drives
-    /// `liveActivityManager.handleUnreadCountChanged`. Used by both data-change
-    /// callbacks (sync coordinator) and session-state callbacks
-    /// (`setSessionStateChangedHandler` / `setConnectionRecoveryHandler`) to
-    /// keep the conversations list and unread badge in lockstep.
+    /// `liveActivityManager.handleUnreadCountChanged`. Used by both the sync
+    /// coordinator's data event stream and the session-state events
+    /// (`RemoteNodeEvent.sessionStateChanged` / `RoomServerEvent.connectionRecovered`)
+    /// to keep the conversations list and unread badge in lockstep.
     private func refreshConversations() {
         conversationsVersion += 1
         Task { @MainActor [weak self] in
@@ -185,7 +185,7 @@ public final class AppState {
 
     /// Signals views observing `contactsVersion` / `conversationsVersion` to reload after
     /// a backup restore writes directly to the persistence store. The normal sync-path
-    /// callbacks don't fire for batch imports, so without this bump any currently-mounted
+    /// events don't fire for batch imports, so without this bump any currently-mounted
     /// tabs keep showing their pre-restore snapshot until reconnect or relaunch.
     /// Also re-reads the persisted region selection — the import wrote it to UserDefaults,
     /// but `regionSelection` is only loaded once during `init`, so Settings → Region and
@@ -220,6 +220,15 @@ public final class AppState {
     /// Task consuming SettingsService event stream, canceled on disconnect
     private var settingsEventsTask: Task<Void, Never>?
 
+    /// Task consuming SyncCoordinator's data event stream, canceled on disconnect
+    private var syncDataEventsTask: Task<Void, Never>?
+
+    /// Task consuming AdvertisementService's event stream, canceled on disconnect
+    private var advertisementEventsTask: Task<Void, Never>?
+
+    /// Task consuming RxLogService's entry stream for Live Activity freshness, canceled on disconnect
+    private var rxLogEventsTask: Task<Void, Never>?
+
 #if DEBUG
     /// Optional test-only hooks for deterministic lifecycle ordering tests.
     private var bleEnterBackgroundOverride: (@MainActor () async -> Void)?
@@ -239,11 +248,12 @@ public final class AppState {
     // MARK: - UI Coordination
 
     /// AsyncStream-based distribution of `MessageEvent` to chat and room
-    /// consumers. Fed by service callbacks wired in `wireMessageEvents`.
+    /// consumers. Fed by the service event streams wired in `wireMessageEvents`.
     let messageEventStream = MessageEventStream()
 
-    /// Routes service callbacks to `messageEventStream` and the session-state
-    /// counter. Lazy because it captures `self` and `messageEventStream`.
+    /// Routes service event streams to `messageEventStream` and the
+    /// session-state counter. Lazy because it captures `self` and
+    /// `messageEventStream`.
     @ObservationIgnored
     private lazy var messageEventDispatcher = MessageEventDispatcher(
         appState: self,
@@ -376,6 +386,13 @@ public final class AppState {
         guard let services else {
             settingsEventsTask?.cancel()
             settingsEventsTask = nil
+            syncDataEventsTask?.cancel()
+            syncDataEventsTask = nil
+            advertisementEventsTask?.cancel()
+            advertisementEventsTask = nil
+            rxLogEventsTask?.cancel()
+            rxLogEventsTask = nil
+            messageEventDispatcher.cancelAll()
             syncCoordinator = nil
             connectionUI.handleDisconnect(
                 connectionState: connectionState,
@@ -431,10 +448,10 @@ public final class AppState {
             chatCoordinatorRegistry = ChatCoordinatorRegistry(dataStore: services.dataStore)
         }
 
-        await wireDataChangeCallbacks(services: services)
+        wireSyncDataEvents(services: services)
         wireSettingsEventStream(services: services)
         await wireDeviceUpdateCallbacks(services: services)
-        await wireMessageEvents(services: services)
+        wireMessageEvents(services: services)
         await wireLiveActivityCallbacks(services: services)
 
         // Drop drafts for channel slots vacated by a delete or sync prune so a
@@ -489,17 +506,25 @@ public final class AppState {
 
     // MARK: - Service Wiring Helpers
 
-    /// Wire data change callbacks for SwiftUI observation
-    /// (actors don't participate in SwiftUI's observation system, so we need callbacks)
-    private func wireDataChangeCallbacks(services: ServiceContainer) async {
-        await services.syncCoordinator.setDataChangeCallbacks(
-            onContactsChanged: { @MainActor [weak self] in
-                self?.contactsVersion += 1
-            },
-            onConversationsChanged: { @MainActor [weak self] in
-                self?.refreshConversations()
+    /// Consume the sync coordinator's data event stream for SwiftUI observation
+    /// (actors don't participate in SwiftUI's observation system).
+    /// Message events are ignored here; `MessageEventDispatcher` owns them.
+    /// Re-subscribes per connection because `ServiceContainer` is rebuilt.
+    private func wireSyncDataEvents(services: ServiceContainer) {
+        syncDataEventsTask?.cancel()
+        syncDataEventsTask = Task { [weak self] in
+            for await event in services.syncCoordinator.dataEvents() {
+                guard let self else { return }
+                switch event {
+                case .contactsChanged:
+                    self.contactsVersion += 1
+                case .conversationsChanged:
+                    self.refreshConversations()
+                case .directMessageReceived, .channelMessageReceived, .roomMessageReceived, .reactionReceived:
+                    break
+                }
             }
-        )
+        }
     }
 
     /// Consume settings service event stream.
@@ -553,32 +578,44 @@ public final class AppState {
             }
         }
 
-        // Wire contact updated callback for real-time Discover page updates
-        await services.advertisementService.setContactUpdatedHandler { @MainActor [weak self] in
-            self?.contactsVersion += 1
-        }
-
-        // Wire contact deleted cleanup callback
-        // Removes notifications and updates badge when device auto-deletes a contact via 0x8F
-        await services.advertisementService.setContactDeletedCleanupHandler { [weak self] contactID, _ in
-            guard let self else { return }
-            self.logger.info("Overwrite oldest: running cleanup for deleted contact \(contactID) - removing notifications and updating badge")
-            await self.services?.notificationService.removeDeliveredNotifications(forContactID: contactID)
-            await self.services?.notificationService.updateBadgeCount()
+        // Contact updates bump contactsVersion for real-time Discover page
+        // updates; contact-deleted cleanup removes notifications and refreshes
+        // the badge when the device auto-deletes a contact via 0x8F.
+        // Re-subscribes per connection because ServiceContainer is rebuilt.
+        advertisementEventsTask?.cancel()
+        advertisementEventsTask = Task { [weak self] in
+            for await event in services.advertisementService.events() {
+                guard let self else { return }
+                switch event {
+                case .contactUpdated:
+                    self.contactsVersion += 1
+                case .contactDeletedCleanup(let contactID, _):
+                    self.logger.info("Overwrite oldest: running cleanup for deleted contact \(contactID) - removing notifications and updating badge")
+                    await self.services?.notificationService.removeDeliveredNotifications(forContactID: contactID)
+                    await self.services?.notificationService.updateBadgeCount()
+                case .newContactDiscovered, .contactSyncRequested, .nodeStorageFullChanged,
+                     .pathDiscoveryResponse, .traceResponse, .traceSnrObserved:
+                    break
+                }
+            }
         }
     }
 
-    /// Wire all message event service callbacks. Delegates to
-    /// `MessageEventDispatcher`, which fans the nine service callbacks out to
-    /// `messageEventStream` and bumps `sessionStateChangeCount`.
-    private func wireMessageEvents(services: ServiceContainer) async {
-        await messageEventDispatcher.wire(services: services)
+    /// Wire the message event streams. Delegates to `MessageEventDispatcher`,
+    /// which subscribes to the service event streams and fans them out to
+    /// `messageEventStream` and `sessionStateChangeCount`.
+    private func wireMessageEvents(services: ServiceContainer) {
+        messageEventDispatcher.wire(services: services)
     }
 
     /// Wire Live Activity callbacks for RX freshness, battery, and connection lifecycle.
     private func wireLiveActivityCallbacks(services: ServiceContainer) async {
-        await services.rxLogService.setPacketReceivedHandler { [weak self] in
-            Task { @MainActor [weak self] in
+        // Every received RF packet refreshes Live Activity freshness and may
+        // trigger an overdue battery read. Re-subscribes per connection
+        // because ServiceContainer is rebuilt.
+        rxLogEventsTask?.cancel()
+        rxLogEventsTask = Task { [weak self] in
+            for await _ in services.rxLogService.entryStream() {
                 guard let self else { return }
                 await self.liveActivityManager.handlePacketReceived()
                 if self.liveActivityManager.hasActiveActivity {

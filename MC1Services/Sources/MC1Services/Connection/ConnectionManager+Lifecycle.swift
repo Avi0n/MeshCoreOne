@@ -643,7 +643,6 @@ extension ConnectionManager {
                 radioID: MockDataProvider.simulatorDeviceID,
                 appStateProvider: appStateProvider
             )
-            await newServices.wireServices()
             await wireCleanChannelSyncCallback(on: newServices)
             await newServices.chatSendQueueService.hydrate()
             self.services = newServices

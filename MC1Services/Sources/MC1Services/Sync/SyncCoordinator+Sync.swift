@@ -225,7 +225,7 @@ extension SyncCoordinator {
                 platformName: platformName
             )
 
-            await wireDiscoveryHandlers(services: services, radioID: radioID)
+            startDiscoveryEventMonitoring(services: services, radioID: radioID)
 
             await drainHandlersAndResumeNotifications(services: services, context: "resync complete")
             logger.info("[Sync] Resuming auto-fetch after resync")
@@ -257,7 +257,7 @@ extension SyncCoordinator {
     /// 1. Wire message handlers first (before events can arrive)
     /// 2. Start event monitoring (handlers are now ready)
     /// 3. Perform full sync (contacts, channels, messages)
-    /// 4. Wire discovery handlers (for ongoing contact discovery)
+    /// 4. Start discovery event monitoring (for ongoing contact discovery)
     ///
     /// - Parameters:
     ///   - radioID: The connected device UUID
@@ -332,10 +332,12 @@ extension SyncCoordinator {
                 platformName: platformName
             )
 
-            // 5. Wire discovery handlers (for ongoing contact discovery)
-            await wireDiscoveryHandlers(services: services, radioID: radioID)
+            // 5. Start discovery event monitoring (for ongoing contact discovery).
+            // Intentionally after the full sync so adverts arriving during sync
+            // do not spam notifications.
+            startDiscoveryEventMonitoring(services: services, radioID: radioID)
 
-            // 6. Flush deferred advert-driven contact fetches now that handlers are wired
+            // 6. Flush deferred advert-driven contact fetches now that discovery monitoring is live
             await services.advertisementService.setSyncingContacts(false)
 
             // 7. Drain pending message handlers and resume notifications

@@ -47,17 +47,8 @@ public actor RoomServerService {
     /// Configuration for retry behavior (shared with MessageService)
     private let config: MessageServiceConfig
 
-    /// Handler for incoming room messages.
-    /// No installer calls `setRoomMessageHandler` today, so this stays nil.
-    public var roomMessageHandler: (@Sendable (RoomMessageDTO) async -> Void)?
-
-    /// Handler for status update events (broadcasts to UI).
-    /// Installed by `MessageEventDispatcher.wireRoomStatus`.
-    public var statusUpdateHandler: (@Sendable (UUID, MessageStatus) async -> Void)?
-
-    /// Handler called when an incoming message recovers a disconnected room session.
-    /// Installed by `MessageEventDispatcher.wireSessionState`.
-    public var connectionRecoveryHandler: (@Sendable (UUID) async -> Void)?
+    /// Multicast broadcaster for status-update and connection-recovery events.
+    private nonisolated let eventBroadcaster = EventBroadcaster<RoomServerEvent>()
 
     /// Tracks message IDs currently being retried to prevent concurrent retry attempts
     private var inFlightRetries: Set<UUID> = []
@@ -82,21 +73,21 @@ public actor RoomServerService {
         self.selfPublicKeyPrefix = prefix.prefix(4)
     }
 
-    // MARK: - Handler Setters
+    // MARK: - Events
 
-    /// Set handler for incoming room messages
-    public func setRoomMessageHandler(_ handler: @escaping @Sendable (RoomMessageDTO) async -> Void) {
-        roomMessageHandler = handler
+    /// Returns a fresh stream of room-server events. Registration is
+    /// synchronous, so events yielded after this call are never dropped.
+    /// Consumers must re-subscribe per connection because the owning
+    /// `ServiceContainer` is rebuilt on every connection.
+    public nonisolated func events() -> AsyncStream<RoomServerEvent> {
+        eventBroadcaster.subscribe()
     }
 
-    /// Set handler for status update events
-    public func setStatusUpdateHandler(_ handler: @escaping @Sendable (UUID, MessageStatus) async -> Void) {
-        statusUpdateHandler = handler
-    }
-
-    /// Set handler for connection recovery events
-    public func setConnectionRecoveryHandler(_ handler: @escaping @Sendable (UUID) async -> Void) {
-        connectionRecoveryHandler = handler
+    /// Ends every `events()` subscriber's for-await loop. Called by
+    /// `ServiceContainer.tearDown()` so consumer tasks release the service
+    /// references they hold.
+    nonisolated func finishEvents() {
+        eventBroadcaster.finish()
     }
 
     // MARK: - Room Management
@@ -260,7 +251,7 @@ public actor RoomServerService {
                     } catch {
                         logger.error("Failed to update message status after successful send: \(error)")
                     }
-                    await statusUpdateHandler?(messageID, .delivered)
+                    eventBroadcaster.yield(.statusUpdated(messageID: messageID, status: .delivered))
                 } else {
                     // All retries exhausted — radio transmitted but no ACK received.
                     // Mark as sent (not failed) since the message likely reached the room server.
@@ -274,7 +265,7 @@ public actor RoomServerService {
                     } catch {
                         logger.error("Failed to update message status to sent: \(error)")
                     }
-                    await statusUpdateHandler?(messageID, .sent)
+                    eventBroadcaster.yield(.statusUpdated(messageID: messageID, status: .sent))
                 }
                 // Update sort date only (no sync bookmark — avoids clock skew issues)
                 try? await dataStore.updateRoomActivity(sessionID)
@@ -290,7 +281,7 @@ public actor RoomServerService {
                 } catch let dbError {
                     logger.error("Failed to update message status after send error: \(dbError)")
                 }
-                await statusUpdateHandler?(messageID, .failed)
+                eventBroadcaster.yield(.statusUpdated(messageID: messageID, status: .failed))
                 logger.warning("Room message send failed: \(error)")
             }
         }
@@ -332,7 +323,7 @@ public actor RoomServerService {
             retryAttempt: newRetryAttempt,
             maxRetryAttempts: config.maxAttempts
         )
-        await statusUpdateHandler?(id, .pending)
+        eventBroadcaster.yield(.statusUpdated(messageID: id, status: .pending))
 
         // Retry send with retry logic
         // NOTE: sendMessageWithRetry requires full 32-byte public key for path reset
@@ -358,7 +349,7 @@ public actor RoomServerService {
                 } catch {
                     logger.error("Failed to update message status after successful retry: \(error)")
                 }
-                await statusUpdateHandler?(id, .delivered)
+                eventBroadcaster.yield(.statusUpdated(messageID: id, status: .delivered))
             } else {
                 // All retries exhausted — radio transmitted but no ACK received.
                 // Mark as sent (not failed) since the message likely reached the room server.
@@ -372,7 +363,7 @@ public actor RoomServerService {
                 } catch {
                     logger.error("Failed to update message status to sent: \(error)")
                 }
-                await statusUpdateHandler?(id, .sent)
+                eventBroadcaster.yield(.statusUpdated(messageID: id, status: .sent))
             }
             // Update sort date so room moves to top of conversation list
             try? await dataStore.updateRoomActivity(message.sessionID)
@@ -387,7 +378,7 @@ public actor RoomServerService {
             } catch let dbError {
                 logger.error("Failed to update message status after retry error: \(dbError)")
             }
-            await statusUpdateHandler?(id, .failed)
+            eventBroadcaster.yield(.statusUpdated(messageID: id, status: .failed))
             logger.warning("Room message retry failed: \(error)")
         }
 
@@ -431,7 +422,7 @@ public actor RoomServerService {
         if !remoteSession.isConnected {
             let recovered = (try? await dataStore.markRoomSessionConnected(remoteSession.id)) ?? false
             if recovered {
-                await connectionRecoveryHandler?(remoteSession.id)
+                eventBroadcaster.yield(.connectionRecovered(sessionID: remoteSession.id))
             }
         }
 
@@ -483,8 +474,6 @@ public actor RoomServerService {
         if !isFromSelf {
             try await dataStore.incrementRoomUnreadCount(remoteSession.id)
         }
-
-        await roomMessageHandler?(messageDTO)
 
         return messageDTO
     }

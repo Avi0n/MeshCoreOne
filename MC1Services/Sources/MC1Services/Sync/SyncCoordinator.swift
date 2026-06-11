@@ -194,29 +194,16 @@ public actor SyncCoordinator {
     /// Installed by `ConnectionUIState.wireCallbacks` via `setSyncActivityCallbacks`.
     @MainActor private var onPhaseChanged: (@Sendable @MainActor (_ phase: SyncPhase?) -> Void)?
 
-    /// Callback when contacts data changes (for SwiftUI observation).
-    /// Installed by `AppState.wireDataChangeCallbacks` via `setDataChangeCallbacks`.
-    @MainActor private var onContactsChanged: (@Sendable @MainActor () -> Void)?
+    /// Multicast broadcaster for data-change and incoming-message events.
+    /// Producers yield synchronously from any isolation; consumers subscribe
+    /// via `dataEvents()`.
+    nonisolated let dataEventBroadcaster = EventBroadcaster<SyncDataEvent>()
 
-    /// Callback when conversations data changes (for SwiftUI observation).
-    /// Installed by `AppState.wireDataChangeCallbacks` via `setDataChangeCallbacks`.
-    @MainActor private var onConversationsChanged: (@Sendable @MainActor () -> Void)?
-
-    /// Callback when a direct message is received (forwarded to `MessageEventStream` consumers).
-    /// Installed by `MessageEventDispatcher` via `setMessageEventCallbacks`.
-    var onDirectMessageReceived: (@Sendable (_ message: MessageDTO, _ contact: ContactDTO) async -> Void)?
-
-    /// Callback when a channel message is received (forwarded to `MessageEventStream` consumers).
-    /// Installed by `MessageEventDispatcher` via `setMessageEventCallbacks`.
-    var onChannelMessageReceived: (@Sendable (_ message: MessageDTO, _ channelIndex: UInt8) async -> Void)?
-
-    /// Callback when a room message is received (forwarded to `MessageEventStream` consumers).
-    /// Installed by `MessageEventDispatcher` via `setMessageEventCallbacks`.
-    var onRoomMessageReceived: (@Sendable (_ message: RoomMessageDTO) async -> Void)?
-
-    /// Callback when a reaction is received for a channel message.
-    /// Installed by `MessageEventDispatcher` via `setMessageEventCallbacks`.
-    var onReactionReceived: (@Sendable (_ messageID: UUID, _ summary: String) async -> Void)?
+    /// Task consuming `AdvertisementService.events()` for ongoing contact
+    /// discovery. Started by `startDiscoveryEventMonitoring` only after the
+    /// initial sync so adverts arriving during sync do not spam notifications;
+    /// cancelled by `ServiceContainer.tearDown()`.
+    var discoveryEventsTask: Task<Void, Never>?
 
     // MARK: - Test Seams
 
@@ -263,28 +250,21 @@ public actor SyncCoordinator {
         await MainActor.run { self.onPhaseChanged = onPhaseChanged }
     }
 
-    /// Sets callbacks for data change notifications (used by AppState for SwiftUI observation)
-    public func setDataChangeCallbacks(
-        onContactsChanged: @escaping @Sendable @MainActor () -> Void,
-        onConversationsChanged: @escaping @Sendable @MainActor () -> Void
-    ) async {
-        await MainActor.run {
-            self.onContactsChanged = onContactsChanged
-            self.onConversationsChanged = onConversationsChanged
-        }
+    // MARK: - Data Events
+
+    /// Returns a fresh stream of data-change and incoming-message events.
+    /// Registration is synchronous, so events yielded after this call are
+    /// never dropped. Consumers must re-subscribe per connection because the
+    /// owning `ServiceContainer` is rebuilt on every connection.
+    public nonisolated func dataEvents() -> AsyncStream<SyncDataEvent> {
+        dataEventBroadcaster.subscribe()
     }
 
-    /// Sets callbacks for message events (used by AppState to feed `MessageEventStream`).
-    public func setMessageEventCallbacks(
-        onDirectMessageReceived: @escaping @Sendable (_ message: MessageDTO, _ contact: ContactDTO) async -> Void,
-        onChannelMessageReceived: @escaping @Sendable (_ message: MessageDTO, _ channelIndex: UInt8) async -> Void,
-        onRoomMessageReceived: @escaping @Sendable (_ message: RoomMessageDTO) async -> Void,
-        onReactionReceived: @escaping @Sendable (_ messageID: UUID, _ summary: String) async -> Void
-    ) {
-        self.onDirectMessageReceived = onDirectMessageReceived
-        self.onChannelMessageReceived = onChannelMessageReceived
-        self.onRoomMessageReceived = onRoomMessageReceived
-        self.onReactionReceived = onReactionReceived
+    /// Ends every `dataEvents()` subscriber's for-await loop. Called by
+    /// `ServiceContainer.tearDown()` so consumer tasks release the service
+    /// references they hold.
+    nonisolated func finishDataEvents() {
+        dataEventBroadcaster.finish()
     }
 
     // MARK: - Sync Activity Tracking
@@ -338,14 +318,14 @@ public actor SyncCoordinator {
     public func notifyContactsChanged() {
         logger.info("notifyContactsChanged: version \(self.contactsVersion) → \(self.contactsVersion + 1)")
         contactsVersion += 1
-        onContactsChanged?()
+        dataEventBroadcaster.yield(.contactsChanged)
     }
 
     /// Notify that conversations data changed (triggers UI refresh)
     @MainActor
     public func notifyConversationsChanged() {
         conversationsVersion += 1
-        onConversationsChanged?()
+        dataEventBroadcaster.yield(.conversationsChanged)
     }
 
     // MARK: - Blocked Contacts Cache

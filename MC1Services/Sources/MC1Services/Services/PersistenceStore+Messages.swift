@@ -295,9 +295,9 @@ extension PersistenceStore {
     ///
     /// - Returns: `true` if the row's status was changed, `false` if no row was
     ///   updated (either the row is already `.delivered`, or no row exists for
-    ///   the given `id`). Callers must gate failure side effects (e.g.,
-    ///   `messageFailedHandler`, UI toasts) on the return value so they do not
-    ///   surface a `.failed` event for a delivered or absent row.
+    ///   the given `id`). Callers must gate failure side effects (e.g., the
+    ///   `MessageStatusEvent.failed` broadcast, UI toasts) on the return value
+    ///   so they do not surface a `.failed` event for a delivered or absent row.
     public func updateMessageStatusUnlessDelivered(id: UUID, status: MessageStatus) throws -> Bool {
         let targetID = id
         let predicate = #Predicate<Message> { message in

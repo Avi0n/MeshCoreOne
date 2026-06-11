@@ -93,7 +93,7 @@ extension MessageService {
                 throw error
             }
         } catch {
-            await messageFailedHandler?(messageID)
+            statusEventBroadcaster.yield(.failed(messageID: messageID))
             try await failMessageAndRethrow(error, messageID: messageID)
         }
 
@@ -127,7 +127,7 @@ extension MessageService {
                 status: .sent
             )
             try await dataStore.updateContactLastMessage(contactID: contact.id, date: Date())
-            await messageSentHandler?(messageID, .sent, nil)
+            statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .sent, roundTripTime: nil))
         } catch {
             logger.warning("DM post-send bookkeeping failed messageID=\(messageID) send already accepted: \(String(describing: error))")
         }
@@ -232,7 +232,7 @@ extension MessageService {
                 initialPathLength: initialPathLength
             )
         } catch {
-            await messageFailedHandler?(messageID)
+            statusEventBroadcaster.yield(.failed(messageID: messageID))
             try await failMessageAndRethrow(error, messageID: messageID)
         }
     }
@@ -276,8 +276,8 @@ extension MessageService {
     }
 
     /// Drains a `.pending` DM through the app-layer retry loop. Does not
-    /// bump `sendCount` or fire `messageResentHandler` — both bubble-
-    /// affecting side effects belong to
+    /// bump `sendCount` or broadcast `.resent`; both bubble-affecting side
+    /// effects belong to
     /// ``resendDirectMessage(messageID:to:preserveTimestamp:)``.
     ///
     /// - Parameter preserveTimestamp: True when a prior drain attempt may
@@ -299,8 +299,8 @@ extension MessageService {
     }
 
     /// Resends an already-sent DM. Re-runs the app-layer retry loop,
-    /// increments `sendCount`, and fires `messageResentHandler` so the
-    /// bubble surfaces "Sent N times".
+    /// increments `sendCount`, and broadcasts `.resent` so the bubble
+    /// surfaces "Sent N times".
     ///
     /// - Parameter preserveTimestamp: True on queue auto-park-and-retry
     ///   of the resend; false on the first drain attempt so the wire
@@ -388,10 +388,10 @@ extension MessageService {
                 initialPathLength: initialPathLength
             )
 
-            // Fire after the DB write so the downstream refetch sees both
+            // Broadcast after the DB write so the downstream refetch sees both
             // the bumped sendCount and the committed terminal status.
             if isResend, sentInfo != nil {
-                await messageResentHandler?(messageID)
+                statusEventBroadcaster.yield(.resent(messageID: messageID))
             }
 
             return message
@@ -407,9 +407,9 @@ extension MessageService {
     /// This function manages the retry loop at the app layer (instead of delegating to MeshCore)
     /// to provide per-attempt UI feedback. On each attempt, it:
     /// - Updates the message status in the database
-    /// - Notifies the UI via `retryStatusHandler`
+    /// - Broadcasts `.retrying` for UI retry progress
     /// - Switches to flood routing after `floodAfter` failed attempts
-    /// - Notifies UI of routing changes via `routingChangedHandler`
+    /// - Broadcasts `.routingChanged` when routing switches
     ///
     /// - Parameters:
     ///   - messageID: The message ID for status updates
@@ -455,7 +455,7 @@ extension MessageService {
                     retryAttempt: attempts - 1,
                     maxRetryAttempts: config.maxAttempts - 1
                 )
-                await retryStatusHandler?(messageID, attempts - 1, config.maxAttempts - 1)
+                statusEventBroadcaster.yield(.retrying(messageID: messageID, attempt: attempts - 1, maxAttempts: config.maxAttempts - 1))
             }
 
             // Switch to flood routing after floodAfter direct attempts
@@ -469,7 +469,7 @@ extension MessageService {
                     if let updatedContact = try await session.getContact(publicKey: publicKey) {
                         _ = try await dataStore.saveContact(radioID: radioID, from: updatedContact.toContactFrame())
                     }
-                    await routingChangedHandler?(contactID, true)
+                    statusEventBroadcaster.yield(.routingChanged(contactID: contactID, isFlood: true))
                 } catch {
                     logger.warning("Failed to reset path: \(error.localizedDescription), continuing...")
                     // Continue anyway - device might handle it
@@ -585,7 +585,7 @@ extension MessageService {
 
     // MARK: - Routing Change Detection
 
-    /// Checks if contact routing changed and notifies handler if so.
+    /// Checks if contact routing changed and broadcasts `.routingChanged` if so.
     ///
     /// Called after sendMessageWithRetry to detect if routing switched
     /// between direct and flood modes during the retry process.
@@ -612,7 +612,7 @@ extension MessageService {
 
                 // Notify UI of routing change
                 let isNowFlood = newPathLength == 0xFF
-                await routingChangedHandler?(contactID, isNowFlood)
+                statusEventBroadcaster.yield(.routingChanged(contactID: contactID, isFlood: isNowFlood))
             }
         } catch {
             logger.warning("Failed to check routing change: \(error.localizedDescription)")
@@ -681,11 +681,11 @@ extension MessageService {
                     status: .delivered
                 )
                 try await dataStore.updateContactLastMessage(contactID: contactID, date: Date())
-                await ackConfirmationHandler?(messageID, .delivered, nil)
+                statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .delivered, roundTripTime: nil))
             } else {
                 let didFail = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
                 if didFail {
-                    await messageFailedHandler?(messageID)
+                    statusEventBroadcaster.yield(.failed(messageID: messageID))
                 }
             }
         }

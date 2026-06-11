@@ -90,7 +90,7 @@ public actor NodeConfigService {
     private let settingsService: SettingsService
     private let channelService: ChannelService
     private let dataStore: any PersistenceStoreProtocol
-    /// Installed by `ServiceContainer.wireServices`.
+    /// Injected by `ServiceContainer` at construction.
     private weak var syncCoordinator: SyncCoordinator?
     private let logger = Logger(subsystem: "com.mc1", category: "NodeConfigService")
     /// Called after a config import restores a private key, so the connection layer can
@@ -101,16 +101,14 @@ public actor NodeConfigService {
         session: MeshCoreSession,
         settingsService: SettingsService,
         channelService: ChannelService,
-        dataStore: any PersistenceStoreProtocol
+        dataStore: any PersistenceStoreProtocol,
+        syncCoordinator: SyncCoordinator?
     ) {
         self.session = session
         self.settingsService = settingsService
         self.channelService = channelService
         self.dataStore = dataStore
-    }
-
-    public func setSyncCoordinator(_ coordinator: SyncCoordinator) {
-        self.syncCoordinator = coordinator
+        self.syncCoordinator = syncCoordinator
     }
 
     /// Wires a late-bound callback that fires after `importIdentity` succeeds.
@@ -124,7 +122,7 @@ public actor NodeConfigService {
         self.onPostIdentityImport = callback
     }
 
-    /// Whether a sync coordinator has been wired via `setSyncCoordinator`.
+    /// Whether a sync coordinator was injected at construction.
     var hasSyncCoordinatorWired: Bool { syncCoordinator != nil }
 
     // MARK: - Export

@@ -20,7 +20,7 @@ extension MessageService {
             transport: transport,
             configuration: SessionConfiguration(defaultTimeout: defaultTimeout)
         )
-        let service = MessageService(session: session, dataStore: dataStore, config: config)
+        let service = MessageService(session: session, dataStore: dataStore, contactService: nil, config: config)
         return (service, dataStore)
     }
 
@@ -32,12 +32,17 @@ extension MessageService {
         pendingAcks[tracking.messageID] = tracking
     }
 
-    func setMessageFailedHandlerForTest(_ handler: @escaping @Sendable (UUID) async -> Void) {
-        messageFailedHandler = handler
-    }
-
-    func setAckConfirmationHandlerForTest(_ handler: @escaping @Sendable (UUID, MessageStatus, UInt32?) async -> Void) {
-        ackConfirmationHandler = handler
+    /// Ends the status-event stream and returns everything `stream` buffered.
+    /// Subscribe via `statusEvents()` before triggering the behavior under
+    /// test: registration is synchronous and production yields happen before
+    /// the triggering call returns, so the drained array is complete.
+    nonisolated func drainStatusEvents(_ stream: AsyncStream<MessageStatusEvent>) async -> [MessageStatusEvent] {
+        finishStatusEvents()
+        var events: [MessageStatusEvent] = []
+        for await event in stream {
+            events.append(event)
+        }
+        return events
     }
 
     var sessionForTest: MeshCoreSession { session }
@@ -97,25 +102,38 @@ extension SelfInfo {
     }
 }
 
-actor AckConfirmationTracker {
-    var confirmedIDs: [UUID] = []
-    func record(_ id: UUID) { confirmedIDs.append(id) }
-}
+extension Array where Element == MessageStatusEvent {
+    /// Message IDs carried by `.failed` events, in yield order.
+    var failedIDs: [UUID] {
+        compactMap {
+            if case .failed(let id) = $0 { return id }
+            return nil
+        }
+    }
 
-actor MessageResentTracker {
-    var resentIDs: [UUID] = []
-    func record(_ id: UUID) { resentIDs.append(id) }
-}
+    /// Message IDs carried by `.resent` events, in yield order.
+    var resentIDs: [UUID] {
+        compactMap {
+            if case .resent(let id) = $0 { return id }
+            return nil
+        }
+    }
 
-actor FailedMessageTracker {
-    var failedIDs: [UUID] = []
-    func record(_ id: UUID) { failedIDs.append(id) }
-}
+    /// Message IDs carried by `.statusResolved` events, in yield order.
+    var resolvedIDs: [UUID] {
+        compactMap {
+            if case .statusResolved(let id, _, _) = $0 { return id }
+            return nil
+        }
+    }
 
-actor RetryStatusTracker {
-    var updates: [(messageID: UUID, attempt: Int, maxAttempts: Int)] = []
-
-    func record(messageID: UUID, attempt: Int, maxAttempts: Int) {
-        updates.append((messageID, attempt, maxAttempts))
+    /// Payloads carried by `.retrying` events, in yield order.
+    var retryUpdates: [(messageID: UUID, attempt: Int, maxAttempts: Int)] {
+        compactMap {
+            if case .retrying(let id, let attempt, let maxAttempts) = $0 {
+                return (id, attempt, maxAttempts)
+            }
+            return nil
+        }
     }
 }

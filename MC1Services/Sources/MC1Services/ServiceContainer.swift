@@ -25,22 +25,42 @@ import MeshCore
 /// // Create container with session and model container
 /// let container = ServiceContainer(
 ///     session: meshCoreSession,
-///     modelContainer: modelContainer
+///     modelContainer: modelContainer,
+///     radioID: radioUUID
 /// )
-///
-/// // Wire up inter-service dependencies
-/// await container.wireServices()
 ///
 /// // Start event monitoring when device is connected
 /// await container.startEventMonitoring(radioID: radioUUID)
 /// ```
 ///
-/// ## Service Dependencies
+/// ## Dependency injection
 ///
-/// Services are initialized in dependency order:
-/// 1. Independent services (KeychainService, NotificationService)
-/// 2. Core services (ContactService, MessageService, ChannelService, etc.)
-/// 3. Higher-level services (RemoteNodeService, RepeaterAdminService, RoomServerService)
+/// `init` constructs services in dependency order, so a fully wired container
+/// exists as soon as `init` returns. Stable one-to-one dependencies are
+/// constructor-injected. One-to-many notifications flow through typed event
+/// streams (`SyncDataEvent`, `AdvertisementEvent`, `MessageStatusEvent`,
+/// `HeardRepeatEvent`, `RemoteNodeEvent`, `RoomServerEvent`,
+/// `ContactServiceEvent`, and the RX log entry stream), every one of which is
+/// finished in `tearDown()` so consumer loops cannot outlive the container.
+///
+/// Setter injection survives only where ordering or a reference cycle forces it:
+/// - `MessagePollingService` ingestion handlers: installed by
+///   `SyncCoordinator.wireMessageHandlers` before event monitoring starts,
+///   cleared in `tearDown()`.
+/// - `SyncCoordinator.setSyncActivityCallbacks`: installed by
+///   `ConnectionUIState.wireCallbacks` before `onConnectionEstablished` so the
+///   count-paired started/ended events keep the sync pill accurate.
+/// - `SyncCoordinator.setCleanChannelSyncCallback` /
+///   `setChannelSyncAttemptedCallback`: installed by
+///   `ConnectionManager.wireCleanChannelSyncCallback` at container build.
+/// - `NotificationService` action closures and `getBadgeCount`: installed by
+///   `AppState` and `NavigationCoordinator` when notification handling is configured.
+/// - `ChannelService.setDraftClearHandler` and
+///   `DeviceService.setDeviceUpdateCallback`: installed by
+///   `AppState.wireServicesIfConnected` per connection.
+/// - `NodeConfigService.setOnPostIdentityImport`: installed by
+///   `ConnectionManager.buildServicesAndSaveDevice`; a cycle-forced upward
+///   call into `ConnectionManager`.
 @Observable
 @MainActor
 public final class ServiceContainer {
@@ -152,9 +172,6 @@ public final class ServiceContainer {
 
     // MARK: - State
 
-    /// Whether services have been wired together
-    private var isWired = false
-
     /// Event-monitoring lifecycle. Tri-state (not a Bool) so start and stop can
     /// claim the transition synchronously before their first await; two callers
     /// interleaving at those suspension points must not double-start or
@@ -198,18 +215,47 @@ public final class ServiceContainer {
         // Independent services (no dependencies)
         self.keychainService = KeychainService()
         self.notificationService = NotificationService()
+        self.syncCoordinator = SyncCoordinator()
 
-        // Core services (depend on session and/or dataStore)
-        self.contactService = ContactService(session: session, dataStore: dataStore)
-        self.messageService = MessageService(session: session, dataStore: dataStore)
-        self.channelService = ChannelService(session: session, dataStore: dataStore)
+        // Core services, constructed so every dependency exists before its consumer
+        self.heardRepeatsService = HeardRepeatsService(dataStore: dataStore)
+        self.rxLogService = RxLogService(
+            session: session,
+            dataStore: dataStore,
+            heardRepeatsService: heardRepeatsService
+        )
+        self.remoteNodeService = RemoteNodeService(
+            session: session,
+            dataStore: dataStore,
+            keychainService: keychainService
+        )
+        let cleanupCoordinator = ContactCleanupCoordinator(
+            dataStore: dataStore,
+            syncCoordinator: syncCoordinator,
+            notificationService: notificationService,
+            remoteNodeService: remoteNodeService
+        )
+        self.contactService = ContactService(
+            session: session,
+            dataStore: dataStore,
+            syncCoordinator: syncCoordinator,
+            cleanupCoordinator: cleanupCoordinator
+        )
+        self.messageService = MessageService(
+            session: session,
+            dataStore: dataStore,
+            contactService: contactService
+        )
+        self.channelService = ChannelService(
+            session: session,
+            dataStore: dataStore,
+            rxLogService: rxLogService
+        )
         self.settingsService = SettingsService(session: session)
         self.deviceService = DeviceService(dataStore: dataStore)
         self.advertisementService = AdvertisementService(session: session, dataStore: dataStore)
         self.messagePollingService = MessagePollingService(session: session, dataStore: dataStore)
         self.binaryProtocolService = BinaryProtocolService(session: session, dataStore: dataStore)
-        self.rxLogService = RxLogService(session: session, dataStore: dataStore)
-        self.heardRepeatsService = HeardRepeatsService(dataStore: dataStore)
         self.debugLogBuffer = DebugLogBuffer(dataStore: dataStore)
         DebugLogBuffer.shared = debugLogBuffer
         self.reactionService = ReactionService()
@@ -217,16 +263,12 @@ public final class ServiceContainer {
             session: session,
             settingsService: settingsService,
             channelService: channelService,
-            dataStore: dataStore
+            dataStore: dataStore,
+            syncCoordinator: syncCoordinator
         )
         self.nodeSnapshotService = NodeSnapshotService(dataStore: dataStore)
 
         // Higher-level services (depend on other services)
-        self.remoteNodeService = RemoteNodeService(
-            session: session,
-            dataStore: dataStore,
-            keychainService: keychainService
-        )
         self.repeaterAdminService = RepeaterAdminService(
             session: session,
             remoteNodeService: remoteNodeService,
@@ -242,9 +284,6 @@ public final class ServiceContainer {
             dataStore: dataStore
         )
 
-        // Sync coordinator (no dependencies on other services)
-        self.syncCoordinator = SyncCoordinator()
-
         self.chatSendQueueService = ChatSendQueueService(
             radioID: radioID,
             dataStore: dataStore,
@@ -252,78 +291,6 @@ public final class ServiceContainer {
             channelService: channelService,
             reactionService: reactionService
         )
-    }
-
-    // MARK: - Service Wiring
-
-    /// Wires up inter-service dependencies.
-    ///
-    /// Call this after initialization to establish connections between services
-    /// that need to communicate with each other.
-    public func wireServices() async {
-        guard !isWired else { return }
-
-        // Wire message service to contact service for path management during retry
-        await messageService.setContactService(contactService)
-
-        // Wire contact service to sync coordinator for UI refresh notifications
-        await contactService.setSyncCoordinator(syncCoordinator)
-
-        // Wire node config service to sync coordinator for contact import notifications
-        await nodeConfigService.setSyncCoordinator(syncCoordinator)
-
-        // Wire contact service cleanup handler for notification/badge/cache/session updates
-        await contactService.setCleanupHandler { [weak self] contactID, reason, publicKey in
-            guard let self else { return }
-
-            // Refresh blocked names cache and delete channel messages on block
-            if reason == .blocked || reason == .unblocked {
-                if let contact = try? await self.dataStore.fetchContact(id: contactID) {
-                    if reason == .blocked {
-                        try? await self.dataStore.deleteChannelMessages(
-                            fromSender: contact.name, radioID: contact.radioID
-                        )
-                    }
-                    await self.syncCoordinator.refreshBlockedContactsCache(
-                        radioID: contact.radioID, dataStore: self.dataStore
-                    )
-                    await self.syncCoordinator.notifyConversationsChanged()
-                }
-            }
-
-            // Remove delivered notifications for this contact (only on block/delete)
-            if reason == .blocked || reason == .deleted {
-                await self.notificationService.removeDeliveredNotifications(forContactID: contactID)
-            }
-
-            // Update badge count
-            await self.notificationService.updateBadgeCount()
-
-            // Clean up any associated remote node session on delete
-            if reason == .deleted {
-                if let session = try? await self.dataStore.fetchRemoteNodeSession(publicKey: publicKey) {
-                    try? await self.remoteNodeService.removeSession(id: session.id, publicKey: publicKey)
-                }
-                await self.syncCoordinator.notifyConversationsChanged()
-            }
-        }
-
-        // Wire channel updates to RxLogService for decryption cache
-        await channelService.setChannelUpdateHandler { [weak self] channels in
-            guard let self else { return }
-            let secrets: [UInt8: Data] = Dictionary(
-                uniqueKeysWithValues: channels.map { ($0.index, $0.secret) }
-            )
-            let names: [UInt8: String] = Dictionary(
-                uniqueKeysWithValues: channels.map { ($0.index, $0.name) }
-            )
-            Task { await self.rxLogService.updateChannels(secrets: secrets, names: names) }
-        }
-
-        // Wire HeardRepeatsService to RxLogService for repeat detection
-        await rxLogService.setHeardRepeatsService(heardRepeatsService)
-
-        isWired = true
     }
 
     // MARK: - Event Monitoring
@@ -427,12 +394,24 @@ public final class ServiceContainer {
     public func tearDown() async {
         await stopEventMonitoring()
 
-        // Break the retain cycles the wired handlers form. The message and
-        // discovery closures capture this container strongly, so without this
-        // the whole service graph leaks on every reconnect. Cleared after
-        // `stopEventMonitoring()` so the event tasks reading them are cancelled.
+        // Break the retain cycles the wired handlers form. The message
+        // closures and the discovery event task capture this container
+        // strongly, so without this the whole service graph leaks on every
+        // reconnect. Cleared after `stopEventMonitoring()` so the event tasks
+        // reading them are cancelled.
         await messagePollingService.clearMessageHandlers()
-        await advertisementService.clearDiscoveryHandlers()
+        await syncCoordinator.cancelDiscoveryEventMonitoring()
+
+        // Finishing the event streams ends every consumer's for-await loop,
+        // releasing the strong service references those loops hold.
+        syncCoordinator.finishDataEvents()
+        advertisementService.finishEvents()
+        messageService.finishStatusEvents()
+        heardRepeatsService.finishEvents()
+        remoteNodeService.finishEvents()
+        roomServerService.finishEvents()
+        contactService.finishEvents()
+        rxLogService.finishEntryStream()
 
         await chatSendQueueService.shutdown()
     }
@@ -460,28 +439,22 @@ extension ServiceContainer {
 
     /// Creates a service container with a new in-memory model container.
     ///
-    /// Useful for testing and previews. By default, inter-service dependencies
-    /// are wired via `wireServices()` so the container matches production behavior.
+    /// Useful for testing and previews. The container is fully wired by `init`,
+    /// matching production behavior.
     ///
     /// - Parameters:
     ///   - session: The MeshCoreSession for device communication
-    ///   - wired: Whether to call `wireServices()` after creation (default `true`)
     ///   - radioID: Radio ID to scope the chat send queue (default: synthesized `UUID()`)
     /// - Returns: A configured ServiceContainer with in-memory storage
     public static func forTesting(
         session: MeshCoreSession,
-        wired: Bool = true,
         radioID: UUID = UUID()
     ) async throws -> ServiceContainer {
         let container = try PersistenceStore.createContainer(inMemory: true)
-        let services = ServiceContainer(
+        return ServiceContainer(
             session: session,
             modelContainer: container,
             radioID: radioID
         )
-        if wired {
-            await services.wireServices()
-        }
-        return services
     }
 }

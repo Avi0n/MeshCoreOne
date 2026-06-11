@@ -929,7 +929,7 @@ public final class ConnectionManager {
 
     // MARK: - Connection Ceremony
 
-    /// Wires a fresh ServiceContainer, fetches device configuration from the radio
+    /// Builds a fresh ServiceContainer, fetches device configuration from the radio
     /// and database, builds and persists the device record, and updates self.
     ///
     /// Each connection path (BLE, WiFi, reconnect, device switch) calls this after
@@ -970,7 +970,6 @@ public final class ConnectionManager {
             radioID: resolvedRadioID,
             appStateProvider: appStateProvider
         )
-        await newServices.wireServices()
         await wireCleanChannelSyncCallback(on: newServices)
         await newServices.nodeConfigService.setOnPostIdentityImport { [weak self, weak newServices] in
             guard let self, let services = newServices else { return nil }

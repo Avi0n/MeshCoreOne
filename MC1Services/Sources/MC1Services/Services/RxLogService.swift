@@ -19,20 +19,16 @@ public actor RxLogService {
     private var myPrivateKey: Data?
     private var contactPublicKeysByPrefix: [UInt8: [Data]] = [:]  // 1-byte prefix -> array of 32-byte public keys
 
-    // Stream for UI updates. The subscription ID lets a replaced subscriber's
-    // onTermination distinguish itself from the subscriber that replaced it.
-    private var streamContinuation: AsyncStream<RxLogEntryDTO>.Continuation?
-    private var streamSubscriptionID: UUID?
-
-    /// Called when any RF packet is received, for Live Activity freshness tracking
-    private var onPacketReceived: (@Sendable @MainActor () -> Void)?
+    /// Multicast broadcaster for newly persisted entries. Consumers subscribe
+    /// via `entryStream()`; finished by `ServiceContainer.tearDown()`.
+    private nonisolated let entryBroadcaster = EventBroadcaster<RxLogEntryDTO>()
 
     // Event monitoring
     private var eventMonitorTask: Task<Void, Never>?
 
     // Heard repeats processing.
-    // Installed by `ServiceContainer.wireServices`.
-    private var heardRepeatsService: HeardRepeatsService?
+    // Injected by `ServiceContainer` at construction.
+    private let heardRepeatsService: HeardRepeatsService?
 
     // Reentrancy guards for reprocessing (separate to avoid mutual blocking)
     private var isReprocessingChannels = false
@@ -49,22 +45,13 @@ public actor RxLogService {
     /// `addKnownRegion` / `removeKnownRegion` sequences do not lose work.
     var regionReprocessDirty = false
 
-    public init(session: MeshCoreSession, dataStore: PersistenceStore) {
+    public init(session: MeshCoreSession, dataStore: PersistenceStore, heardRepeatsService: HeardRepeatsService?) {
         self.session = session
         self.dataStore = dataStore
+        self.heardRepeatsService = heardRepeatsService
     }
 
-    /// Sets the HeardRepeatsService for processing channel message repeats.
-    public func setHeardRepeatsService(_ service: HeardRepeatsService) {
-        self.heardRepeatsService = service
-    }
-
-    /// Sets the callback invoked when any RF packet is received.
-    public func setPacketReceivedHandler(_ handler: (@Sendable @MainActor () -> Void)?) {
-        onPacketReceived = handler
-    }
-
-    /// Whether a heard repeats service has been wired via `setHeardRepeatsService`.
+    /// Whether a heard repeats service was injected at construction.
     var hasHeardRepeatsServiceWired: Bool { heardRepeatsService != nil }
 
     deinit {
@@ -135,38 +122,31 @@ public actor RxLogService {
         eventMonitorTask = nil
     }
 
-    /// Returns a stream of new entries.
-    /// - Note: Only one active subscriber is supported. Subsequent calls replace the previous subscriber.
-    public func entryStream() -> AsyncStream<RxLogEntryDTO> {
-        // Register synchronously so entries yielded right after this call
-        // returns are not dropped behind a registration Task.
-        let (stream, continuation) = AsyncStream.makeStream(of: RxLogEntryDTO.self)
-        let subscriptionID = UUID()
-        setContinuation(continuation, subscriptionID: subscriptionID)
-        continuation.onTermination = { @Sendable _ in
-            Task { await self.clearContinuation(subscriptionID: subscriptionID) }
-        }
-        return stream
+    /// Returns a fresh multicast stream of newly persisted entries.
+    /// Registration is synchronous, so entries yielded after this call returns
+    /// are never dropped, and coexisting subscribers each receive every entry.
+    public nonisolated func entryStream() -> AsyncStream<RxLogEntryDTO> {
+        entryBroadcaster.subscribe()
     }
 
-    private func setContinuation(
-        _ continuation: AsyncStream<RxLogEntryDTO>.Continuation,
-        subscriptionID: UUID
-    ) {
-        if streamContinuation != nil {
-            logger.warning("Replacing existing RX log stream subscriber")
-        }
-        streamContinuation?.finish()
-        streamContinuation = continuation
-        streamSubscriptionID = subscriptionID
+    /// Ends every `entryStream()` subscriber's for-await loop. Called by
+    /// `ServiceContainer.tearDown()` so consumer tasks release their service
+    /// references.
+    nonisolated func finishEntryStream() {
+        entryBroadcaster.finish()
     }
 
-    /// Clears the continuation only while the terminating subscription is still
-    /// current, so a replaced subscriber cannot disconnect its replacement.
-    private func clearContinuation(subscriptionID: UUID) {
-        guard streamSubscriptionID == subscriptionID else { return }
-        streamContinuation = nil
-        streamSubscriptionID = nil
+    /// Rebuilds the channel cache from a fresh channel list.
+    /// `ChannelService` forwards every channel write and sync result here so
+    /// captured packets can be decoded with current secrets.
+    public func updateChannels(from channels: [ChannelDTO]) async {
+        let secrets: [UInt8: Data] = Dictionary(
+            uniqueKeysWithValues: channels.map { ($0.index, $0.secret) }
+        )
+        let names: [UInt8: String] = Dictionary(
+            uniqueKeysWithValues: channels.map { ($0.index, $0.name) }
+        )
+        await updateChannels(secrets: secrets, names: names)
     }
 
     /// Update channel cache (secrets and names).
@@ -435,12 +415,8 @@ public actor RxLogService {
             logger.error("Failed to save RX log entry: \(error.localizedDescription)")
         }
 
-        // Emit to stream
-        streamContinuation?.yield(dto)
-
-        if let onPacketReceived {
-            await onPacketReceived()
-        }
+        // Emit to stream consumers (RX log screens, Live Activity freshness)
+        entryBroadcaster.yield(dto)
 
         // Process for heard repeats (inline await provides natural backpressure,
         // preventing unbounded Task accumulation under high RX volume)

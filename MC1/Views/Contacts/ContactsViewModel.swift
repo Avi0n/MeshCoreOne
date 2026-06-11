@@ -144,12 +144,17 @@ final class ContactsViewModel {
             await advertisementService.setSyncingContacts(true)
         }
 
-        // Set up progress handler
-        await contactService.setSyncProgressHandler { [weak self] current, total in
-            Task { @MainActor in
-                self?.syncProgress = (current, total)
+        // Subscribed synchronously before the sync starts so no progress event
+        // is missed; scoped to this sync and cancelled when it completes.
+        let events = contactService.events()
+        let progressTask = Task { [weak self] in
+            for await event in events {
+                if case .syncProgress(let received, let total) = event {
+                    self?.syncProgress = (received, total)
+                }
             }
         }
+        defer { progressTask.cancel() }
 
         do {
             _ = try await contactService.syncContacts(radioID: radioID)

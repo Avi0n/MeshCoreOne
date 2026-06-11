@@ -53,8 +53,8 @@ public struct ChatSendQueueConfig: Sendable {
 ///
 /// Startup behaviour: `hydrate()` reads `PendingSend` rows from
 /// `PersistenceStore` for the connection's radio and enqueues them.
-/// `ServiceContainer` calls `hydrate()` once after `wireServices()` and
-/// before exposing the container to view models, so two `ChatViewModel`s
+/// `ConnectionManager` calls `hydrate()` once after building the container
+/// and before exposing it to view models, so two `ChatViewModel`s
 /// active during a single connection cannot trigger duplicate replay.
 ///
 /// Transport-open signal: the drain step suspends via
@@ -116,14 +116,14 @@ public final class ChatSendQueueService {
         self.dmQueue = SendQueue<DirectMessageEnvelope>(
             send: { envelope in
                 // Outer catch: the queue-routed catch sites in MessageService
-                // no longer fire `messageFailedHandler` themselves — the
-                // helper `failMessageAndRethrow` only writes the DB state and
+                // do not broadcast `.failed` themselves; the helper
+                // `failMessageAndRethrow` only writes the DB state and
                 // rethrows. Any non-`CancellationError` escape from this
                 // closure is a terminal failure for the envelope, so the
-                // queue fires `notifyMessageFailed` exactly once before
+                // queue calls `notifyMessageFailed` exactly once before
                 // letting `SendQueue.drain` propagate the error to `onError`.
                 // Park-and-requeue branches throw `CancellationError`, hit
-                // the inner re-throw, and bypass the handler fire so a
+                // the inner re-throw, and bypass the broadcast so a
                 // transient error does not produce a `.failed`-then-`.pending`
                 // flicker on the UI.
                 do {
@@ -238,7 +238,7 @@ public final class ChatSendQueueService {
             send: { envelope in
                 // Outer catch: see DM closure for rationale. Park-and-requeue
                 // branches throw `CancellationError`; any other escape is a
-                // terminal failure for the envelope and fires
+                // terminal failure for the envelope and calls
                 // `notifyMessageFailed` exactly once.
                 do {
                     // Pre-send gate + attemptCount bump; see DM closure for rationale.

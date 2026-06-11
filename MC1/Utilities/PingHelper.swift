@@ -26,15 +26,18 @@ enum PingHelper {
             let device = appState.connectedDevice
             let pathData = Data(contact.publicKey.prefix(device?.traceHashSize ?? 1))
 
+            // Subscribe before sending the trace: registration is synchronous,
+            // so a fast radio response cannot arrive ahead of the listener.
+            let events = services.advertisementService.events()
+
             let (snrThere, snrBack) = try await withThrowingTaskGroup(
                 of: (snrThere: Double, snrBack: Double).self
             ) { group in
                 group.addTask {
-                    for await notification in NotificationCenter.default.notifications(named: .rxLogTraceReceived) {
-                        if let notifTag = notification.userInfo?["tag"] as? UInt32, notifTag == tag {
-                            let localSnr = notification.userInfo?["localSnr"] as? Double
-                            let remoteSnr = notification.userInfo?["remoteSnr"] as? Double
-                            return (snrThere: remoteSnr ?? 0, snrBack: localSnr ?? 0)
+                    for await event in events {
+                        if case .traceSnrObserved(let notifTag, let localSnr, let remoteSnr, _) = event,
+                           notifTag == tag {
+                            return (snrThere: remoteSnr ?? 0, snrBack: localSnr)
                         }
                     }
                     throw CancellationError()

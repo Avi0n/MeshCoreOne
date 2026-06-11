@@ -68,7 +68,7 @@ extension MessageService {
                 )
             }
         } catch {
-            await messageFailedHandler?(messageID)
+            statusEventBroadcaster.yield(.failed(messageID: messageID))
             try await failMessageAndRethrow(error, messageID: messageID)
         }
 
@@ -81,7 +81,7 @@ extension MessageService {
         // pathology from the queue-routed path does not apply.
         do {
             try await dataStore.updateMessageStatus(id: messageID, status: .sent)
-            await messageSentHandler?(messageID, .sent, nil)
+            statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .sent, roundTripTime: nil))
             if let channel = try await dataStore.fetchChannel(radioID: radioID, index: channelIndex) {
                 try await dataStore.updateChannelLastMessage(channelID: channel.id, date: Date())
             }
@@ -172,10 +172,10 @@ extension MessageService {
         // Catch 2: post-status bookkeeping. Status is already .sent in DB; the
         // radio broadcast happened. A failure here is logged but does not mark
         // .failed — that would corrupt the user-visible delivery state. The
-        // bookkeeping (channel last-message timestamp, sentHandler signal) is
+        // bookkeeping (channel last-message timestamp, sent event) is
         // best-effort metadata that next-load or next-ack will reconverge.
         do {
-            await messageSentHandler?(messageID, .sent, nil)
+            statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .sent, roundTripTime: nil))
             if let channel = try await dataStore.fetchChannel(radioID: radioID, index: channelIndex) {
                 try await dataStore.updateChannelLastMessage(channelID: channel.id, date: Date())
             }
@@ -200,16 +200,14 @@ extension MessageService {
         messageID: UUID,
         preserveTimestamp: Bool = false
     ) async throws -> UInt32 {
-        // Fire the resent handler only after .sent is committed. The handler
-        // is the only path to messageResent events; the sentCommitted flag
-        // suppresses a spurious fire if catch 1 rethrows. failMessageAndRethrow
-        // always re-throws, so a catch-1 failure exits the function before the
-        // post-catch-2 fire site is reached — the sentCommitted guard is belt-
-        // and-braces. The handler still fires when catch 2 bookkeeping throws,
-        // since sentCommitted is set before catch 2 runs. The fire is awaited
-        // inline (after catch 2, before return) to preserve the synchronous-
-        // before-return contract the resendChannelMessageFiresResentHandlerAfterDBWrite
-        // test asserts.
+        // Broadcast .resent only after .sent is committed. The sentCommitted
+        // flag suppresses a spurious broadcast if catch 1 rethrows;
+        // failMessageAndRethrow always re-throws, so a catch-1 failure exits
+        // the function before the broadcast site is reached and the guard is
+        // belt-and-braces. The event still fires when catch 2 bookkeeping
+        // throws, since sentCommitted is set before catch 2 runs. Yielding
+        // after catch 2 and before return preserves the committed-before-
+        // broadcast ordering the resend tests assert.
         var sentCommitted = false
 
         // Catch 1: validation guards + timestamp update + send + status flip.
@@ -266,7 +264,7 @@ extension MessageService {
         }
 
         if sentCommitted {
-            await messageResentHandler?(messageID)
+            statusEventBroadcaster.yield(.resent(messageID: messageID))
         }
 
         return wireTimestamp

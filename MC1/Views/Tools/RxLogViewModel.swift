@@ -97,7 +97,7 @@ final class RxLogViewModel {
         rebuildGroupCounts()
 
         streamTask = Task {
-            for await entry in await service.entryStream() {
+            for await entry in service.entryStream() {
                 guard !Task.isCancelled else { break }
                 appendEntry(entry)
             }

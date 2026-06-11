@@ -71,55 +71,55 @@ public actor ContactService {
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "ContactService")
 
     /// Sync coordinator for UI refresh notifications.
-    /// Installed by `ServiceContainer.wireServices`.
+    /// Injected by `ServiceContainer` at construction.
     private weak var syncCoordinator: SyncCoordinator?
 
-    /// Progress handler for sync operations.
-    /// Installed by `ContactsViewModel.syncContacts` for the duration of a sync.
-    private var syncProgressHandler: (@Sendable (Int, Int) -> Void)?
+    /// Runs the cross-service cleanup chain when a contact is deleted, blocked, or unblocked.
+    /// Injected by `ServiceContainer` at construction.
+    private let cleanupCoordinator: (any ContactCleanupHandling)?
 
-    /// Cleanup handler called when a contact is deleted or blocked.
-    /// Installed by `ServiceContainer.wireServices`.
-    private var cleanupHandler: (@Sendable (UUID, ContactCleanupReason, Data) async -> Void)?
-
-    /// Handler called when a node is deleted (for clearing storage full flag).
-    /// Installed by `ConnectionUIState.wireCallbacks`.
-    private var nodeDeletedHandler: (@Sendable () async -> Void)?
+    /// Multicast broadcaster for sync progress and node-deletion events.
+    /// Consumers subscribe via `events()`; finished by `ServiceContainer.tearDown()`.
+    private nonisolated let eventBroadcaster = EventBroadcaster<ContactServiceEvent>()
 
     // MARK: - Initialization
 
-    public init(session: any MeshCoreSessionProtocol, dataStore: any PersistenceStoreProtocol) {
+    public init(
+        session: any MeshCoreSessionProtocol,
+        dataStore: any PersistenceStoreProtocol,
+        syncCoordinator: SyncCoordinator?,
+        cleanupCoordinator: (any ContactCleanupHandling)?
+    ) {
         self.session = session
         self.dataStore = dataStore
+        self.syncCoordinator = syncCoordinator
+        self.cleanupCoordinator = cleanupCoordinator
+    }
+
+    // MARK: - Events
+
+    /// Returns a fresh stream of contact service events. Registration is
+    /// synchronous, so events yielded after this call returns are never
+    /// dropped. Consumers re-subscribe per connection because the owning
+    /// `ServiceContainer` is rebuilt.
+    public nonisolated func events() -> AsyncStream<ContactServiceEvent> {
+        eventBroadcaster.subscribe()
+    }
+
+    /// Ends every `events()` subscriber's for-await loop. Called by
+    /// `ServiceContainer.tearDown()` so consumer tasks release their service
+    /// references.
+    nonisolated func finishEvents() {
+        eventBroadcaster.finish()
     }
 
     // MARK: - Configuration
 
-    /// Set the sync coordinator for UI refresh notifications
-    public func setSyncCoordinator(_ coordinator: SyncCoordinator) {
-        self.syncCoordinator = coordinator
-    }
-
-    /// Set progress handler for sync operations
-    public func setSyncProgressHandler(_ handler: @escaping @Sendable (Int, Int) -> Void) {
-        syncProgressHandler = handler
-    }
-
-    /// Set handler for contact cleanup operations (deletion/blocking)
-    public func setCleanupHandler(_ handler: @escaping @Sendable (UUID, ContactCleanupReason, Data) async -> Void) {
-        cleanupHandler = handler
-    }
-
-    /// Whether a sync coordinator has been wired via `setSyncCoordinator`.
+    /// Whether a sync coordinator was injected at construction.
     var hasSyncCoordinatorWired: Bool { syncCoordinator != nil }
 
-    /// Whether a cleanup handler has been wired via `setCleanupHandler`.
-    var hasCleanupHandlerWired: Bool { cleanupHandler != nil }
-
-    /// Set handler for node deletion events (for clearing storage full flag)
-    public func setNodeDeletedHandler(_ handler: @escaping @Sendable () async -> Void) {
-        nodeDeletedHandler = handler
-    }
+    /// Whether a cleanup coordinator was injected at construction.
+    var hasCleanupCoordinatorWired: Bool { cleanupCoordinator != nil }
 
     // MARK: - Contact Sync
 
@@ -132,7 +132,7 @@ public actor ContactService {
         do {
             let meshContacts = try await session.getContacts(since: since)
 
-            syncProgressHandler?(0, meshContacts.count)
+            eventBroadcaster.yield(.syncProgress(received: 0, total: meshContacts.count))
 
             // Build set of public keys from device for cleanup
             let devicePublicKeys = Set(meshContacts.map(\.publicKey))
@@ -146,7 +146,7 @@ public actor ContactService {
                 .map { UInt32($0.lastModified.timeIntervalSince1970) }
                 .max() ?? 0
 
-            syncProgressHandler?(receivedCount, meshContacts.count)
+            eventBroadcaster.yield(.syncProgress(received: receivedCount, total: meshContacts.count))
 
             // On full sync, remove local contacts that no longer exist on device
             if since == nil {
@@ -160,7 +160,9 @@ public actor ContactService {
                     logger.notice("Full sync prune: deleting '\(localContact.name)' [\(keyPrefix)…] (favorite=\(localContact.isFavorite), type=\(localContact.typeRawValue), lastModified=\(localContact.lastModified))")
                     try await dataStore.deleteMessagesForContact(contactID: localContact.id)
                     try await dataStore.deleteContact(id: localContact.id)
-                    await cleanupHandler?(localContact.id, .deleted, localContact.publicKey)
+                    await cleanupCoordinator?.handleCleanup(
+                        contactID: localContact.id, reason: .deleted, publicKey: localContact.publicKey
+                    )
                 }
             }
 
@@ -230,11 +232,11 @@ public actor ContactService {
                 try await dataStore.deleteContact(id: contactID)
 
                 // Trigger cleanup (notifications, badge, session)
-                await cleanupHandler?(contactID, .deleted, publicKey)
+                await cleanupCoordinator?.handleCleanup(contactID: contactID, reason: .deleted, publicKey: publicKey)
             }
 
             // Notify that a node was deleted (for clearing storage full flag)
-            await nodeDeletedHandler?()
+            eventBroadcaster.yield(.nodeDeleted)
 
             // Notify UI to refresh contacts list
             await syncCoordinator?.notifyContactsChanged()
@@ -251,8 +253,8 @@ public actor ContactService {
     public func removeLocalContact(contactID: UUID, publicKey: Data) async throws {
         try await dataStore.deleteMessagesForContact(contactID: contactID)
         try await dataStore.deleteContact(id: contactID)
-        await cleanupHandler?(contactID, .deleted, publicKey)
-        await nodeDeletedHandler?()
+        await cleanupCoordinator?.handleCleanup(contactID: contactID, reason: .deleted, publicKey: publicKey)
+        eventBroadcaster.yield(.nodeDeleted)
         await syncCoordinator?.notifyContactsChanged()
     }
 
@@ -472,9 +474,9 @@ public actor ContactService {
 
         // Trigger cleanup for blocking state changes
         if isBeingBlocked {
-            await cleanupHandler?(contactID, .blocked, existing.publicKey)
+            await cleanupCoordinator?.handleCleanup(contactID: contactID, reason: .blocked, publicKey: existing.publicKey)
         } else if isBeingUnblocked {
-            await cleanupHandler?(contactID, .unblocked, existing.publicKey)
+            await cleanupCoordinator?.handleCleanup(contactID: contactID, reason: .unblocked, publicKey: existing.publicKey)
         }
     }
 

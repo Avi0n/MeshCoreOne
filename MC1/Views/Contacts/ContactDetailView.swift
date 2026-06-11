@@ -221,10 +221,14 @@ struct ContactDetailView: View {
                 currentContact = freshContact
             }
 
-            // Wire up path discovery response handler to receive push notifications
-            await appState.services?.advertisementService.setPathDiscoveryHandler { [weak pathViewModel] response in
-                Task { @MainActor in
-                    pathViewModel?.handleDiscoveryResponse(hopCount: response.outHopCount)
+            // React to path discovery push responses while this view is open.
+            // The view-scoped task cancels the subscription on dismiss; the
+            // stream is multicast, so a second detail column (iPad split view)
+            // can subscribe concurrently.
+            guard let advertisementService = appState.services?.advertisementService else { return }
+            for await event in advertisementService.events() {
+                if case .pathDiscoveryResponse(let response) = event {
+                    pathViewModel.handleDiscoveryResponse(hopCount: response.outHopCount)
                 }
             }
         }

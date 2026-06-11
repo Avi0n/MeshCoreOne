@@ -39,31 +39,37 @@ public final class NotificationService: NSObject {
     public private(set) var authorizationStatus: UNAuthorizationStatus = .notDetermined
 
     /// Callback for when a quick reply action is triggered
-    /// CRITICAL: Must be @MainActor to ensure callback body executes on main thread.
+    /// Installed by `AppState.configureNotificationHandlers`.
+    /// Must be @MainActor so the callback body executes on the main thread.
     /// Without @MainActor, the callback runs on a background executor even when
     /// called from MainActor context, causing "Call must be made on main thread" crashes.
     public var onQuickReply: (@MainActor @Sendable (_ contactID: UUID, _ text: String) async -> Void)?
 
     /// Callback for when a notification is tapped
-    /// CRITICAL: Must be @MainActor - see onQuickReply comment.
+    /// Installed by `NavigationCoordinator.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onNotificationTapped: (@MainActor @Sendable (_ contactID: UUID) async -> Void)?
 
     /// Callback for when a channel notification is tapped
-    /// CRITICAL: Must be @MainActor - see onQuickReply comment.
+    /// Installed by `NavigationCoordinator.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onChannelNotificationTapped: (@MainActor @Sendable (_ radioID: UUID, _ channelIndex: UInt8) async -> Void)?
 
     /// Callback for when a room notification is tapped.
     /// Identified by the room's stable session ID.
+    /// Installed by `NavigationCoordinator.configureNotificationHandlers`.
     /// Must be @MainActor for main-thread callback execution; see onQuickReply.
     public var onRoomNotificationTapped: (@MainActor @Sendable (_ sessionID: UUID) async -> Void)?
 
     /// Callback for when a new contact discovered notification is tapped
-    /// CRITICAL: Must be @MainActor - see onQuickReply comment.
+    /// Installed by `NavigationCoordinator.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onNewContactNotificationTapped: (@MainActor @Sendable (_ contactID: UUID) async -> Void)?
 
     /// Callback for when a reaction notification is tapped
     /// Parameters: contactID (for DM) or nil, channelIndex/radioID (for channel) or nil, and messageID
-    /// CRITICAL: Must be @MainActor - see onQuickReply comment.
+    /// Installed by `NavigationCoordinator.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onReactionNotificationTapped: (@MainActor @Sendable (
         _ contactID: UUID?,
         _ channelIndex: UInt8?,
@@ -81,22 +87,26 @@ public final class NotificationService: NSObject {
     }
 
     /// Callback for when mark as read action is triggered
-    /// CRITICAL: Must be @MainActor - see onQuickReply comment.
+    /// Installed by `AppState.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onMarkAsRead: (@MainActor @Sendable (_ contactID: UUID, _ messageID: UUID) async -> Void)?
 
     /// Callback for when mark as read action is triggered on a channel message
     /// Includes radioID to correctly identify the channel across multiple connected devices
-    /// CRITICAL: Must be @MainActor - see onQuickReply comment.
+    /// Installed by `AppState.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onChannelMarkAsRead: (@MainActor @Sendable (_ radioID: UUID, _ channelIndex: UInt8, _ messageID: UUID) async -> Void)?
 
     /// Callback for when mark as read action is triggered on a room message.
     /// Identified by the room's stable session ID.
-    /// Must be @MainActor - see onQuickReply comment.
+    /// Installed by `AppState.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onRoomMarkAsRead: (@MainActor @Sendable (_ sessionID: UUID, _ messageID: UUID) async -> Void)?
 
     /// Callback for when a quick reply action is triggered on a channel message.
     /// Includes radioID to correctly identify the channel across multiple connected devices.
-    /// CRITICAL: Must be @MainActor - see onQuickReply comment.
+    /// Installed by `AppState.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onChannelQuickReply: (@MainActor @Sendable (_ radioID: UUID, _ channelIndex: UInt8, _ text: String) async -> Void)?
 
     /// Badge count
@@ -140,6 +150,7 @@ public final class NotificationService: NSObject {
 
     /// Callback to get total unread count from data layer
     /// Returns (contactUnread, channelUnread, roomUnread) tuple for preference-aware calculation
+    /// Installed by `AppState.wireServicesIfConnected`.
     public var getBadgeCount: (@Sendable () async -> (contacts: Int, channels: Int, rooms: Int))?
 
     /// Cached notification preferences (refreshed on each badge update)

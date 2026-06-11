@@ -70,10 +70,7 @@ struct MessageServiceACKTests {
         )
         try await dataStore.saveMessage(message)
 
-        let tracker = FailedMessageTracker()
-        await service.setMessageFailedHandlerForTest { id in
-            await tracker.record(id)
-        }
+        let statusEvents = service.statusEvents()
 
         let ackCode = Data([0x01, 0x02, 0x03, 0x04])
         await service.setPendingAckForTest(
@@ -90,7 +87,7 @@ struct MessageServiceACKTests {
         let fetched = try await dataStore.fetchMessage(id: messageID)
         #expect(fetched?.status == .failed)
 
-        let failedIDs = await tracker.failedIDs
+        let failedIDs = await service.drainStatusEvents(statusEvents).failedIDs
         #expect(failedIDs.contains(messageID))
     }
 
@@ -106,18 +103,7 @@ struct MessageServiceACKTests {
         )
         try await dataStore.saveMessage(message)
 
-        let tracker = FailedMessageTracker()
-        let retryTracker = RetryStatusTracker()
-        await service.setMessageFailedHandlerForTest { id in
-            await tracker.record(id)
-        }
-        await service.setRetryStatusHandler { messageID, attempt, maxAttempts in
-            await retryTracker.record(
-                messageID: messageID,
-                attempt: attempt,
-                maxAttempts: maxAttempts
-            )
-        }
+        let statusEvents = service.statusEvents()
 
         let ackCode = Data([0x11, 0x22, 0x33, 0x44])
         await service.setPendingAckForTest(
@@ -136,11 +122,10 @@ struct MessageServiceACKTests {
                 "Grace window must not downgrade to .retrying — nothing is actually retrying")
         #expect(await service.pendingAckCount == 1)
 
-        let failedIDs = await tracker.failedIDs
-        #expect(!failedIDs.contains(messageID))
-        let retryUpdates = await retryTracker.updates
-        #expect(retryUpdates.isEmpty,
-                "Grace window is not a retry; the retry-status handler should not fire")
+        let events = await service.drainStatusEvents(statusEvents)
+        #expect(!events.failedIDs.contains(messageID))
+        #expect(events.retryUpdates.isEmpty,
+                "Grace window is not a retry; no retrying event should fire")
     }
 
     @Test("checkExpiredAcks preserves non-expired ACK")
@@ -176,7 +161,7 @@ struct MessageServiceACKTests {
         #expect(await service.pendingAckCount == 1, "Delivered ACK should not be expired")
     }
 
-    @Test("checkExpiredAcks does not fire failure handler when DB stays delivered")
+    @Test("checkExpiredAcks does not broadcast failure when DB stays delivered")
     func checkExpiredAcksDoesNotFireHandlerOnDeliveredRow() async throws {
         let (service, dataStore) = try await MessageService.createForTesting()
         let messageID = UUID()
@@ -190,10 +175,7 @@ struct MessageServiceACKTests {
                 ackCode: ackCode.ackCodeUInt32
             )
         )
-        let tracker = FailedMessageTracker()
-        await service.setMessageFailedHandlerForTest { id in
-            await tracker.record(id)
-        }
+        let statusEvents = service.statusEvents()
         await service.setPendingAckForTest(
             makePending(
                 messageID: messageID,
@@ -208,9 +190,9 @@ struct MessageServiceACKTests {
         let stored = try await dataStore.fetchMessage(id: messageID)
         #expect(stored?.status == .delivered,
                 "DB layer must absorb .delivered against the .failed write")
-        let failed = await tracker.failedIDs
+        let failed = await service.drainStatusEvents(statusEvents).failedIDs
         #expect(!failed.contains(messageID),
-                "messageFailedHandler must not fire when the DB write is a no-op")
+                ".failed must not be broadcast when the DB write is a no-op")
     }
 
     @Test("checkExpiredAcks fails a DM only after ackGiveUpWindow elapses, ignoring the per-attempt timeout")
@@ -262,8 +244,7 @@ struct MessageServiceACKTests {
             MessageDTO.testDirectMessage(id: messageID, radioID: testDeviceID, status: .sent)
         )
 
-        let tracker = FailedMessageTracker()
-        await service.setMessageFailedHandlerForTest { id in await tracker.record(id) }
+        let statusEvents = service.statusEvents()
 
         await service.setPendingAckForTest(
             makePending(messageID: messageID, ackCodes: [Data([0x09, 0x0A, 0x0B, 0x0C])])
@@ -277,12 +258,12 @@ struct MessageServiceACKTests {
                 "A routine disconnect must not fail in-flight DMs")
         #expect(await service.pendingAckCount == 1,
                 "The pending entry must survive so a reconnect ACK can still reconcile")
-        #expect(await tracker.failedIDs.isEmpty)
+        #expect(await service.drainStatusEvents(statusEvents).failedIDs.isEmpty)
     }
 
     // MARK: - failAllPendingMessages
 
-    @Test("failAllPendingMessages fails all non-delivered and calls handler")
+    @Test("failAllPendingMessages fails all non-delivered and broadcasts .failed")
     func failAllPending() async throws {
         let (service, dataStore) = try await MessageService.createForTesting()
         let messageID1 = UUID()
@@ -295,10 +276,7 @@ struct MessageServiceACKTests {
             MessageDTO.testDirectMessage(id: messageID2, radioID: testDeviceID, status: .sent)
         )
 
-        let tracker = FailedMessageTracker()
-        await service.setMessageFailedHandlerForTest { id in
-            await tracker.record(id)
-        }
+        let statusEvents = service.statusEvents()
 
         await service.setPendingAckForTest(
             makePending(messageID: messageID1, ackCodes: [Data([0x01, 0x02, 0x03, 0x04])])
@@ -314,7 +292,7 @@ struct MessageServiceACKTests {
         #expect(msg1?.status == .failed)
         #expect(msg2?.status == .failed)
 
-        let failedIDs = await tracker.failedIDs
+        let failedIDs = await service.drainStatusEvents(statusEvents).failedIDs
         #expect(failedIDs.count == 2)
         #expect(failedIDs.contains(messageID1))
         #expect(failedIDs.contains(messageID2))
@@ -361,10 +339,7 @@ struct MessageServiceACKTests {
                 ackCode: ackCode.ackCodeUInt32
             )
         )
-        let tracker = FailedMessageTracker()
-        await service.setMessageFailedHandlerForTest { id in
-            await tracker.record(id)
-        }
+        let statusEvents = service.statusEvents()
         await service.setPendingAckForTest(
             makePending(messageID: messageID, ackCodes: [ackCode], isDelivered: false)
         )
@@ -374,9 +349,9 @@ struct MessageServiceACKTests {
         let stored = try await dataStore.fetchMessage(id: messageID)
         #expect(stored?.status == .delivered,
                 "failAllPendingMessages must not downgrade a delivered row")
-        let failed = await tracker.failedIDs
+        let failed = await service.drainStatusEvents(statusEvents).failedIDs
         #expect(!failed.contains(messageID),
-                "messageFailedHandler must not fire when the DB write is a no-op")
+                ".failed must not be broadcast when the DB write is a no-op")
     }
 
     // MARK: - stopAndFailAllPending
@@ -646,7 +621,7 @@ struct MessageServiceACKTests {
                 "finalizeSend must not clobber listener-written RTT with nil")
     }
 
-    @Test("finalizeSend fires ackConfirmationHandler when in-loop waitForEvent wins the ACK race")
+    @Test("finalizeSend broadcasts .statusResolved when in-loop waitForEvent wins the ACK race")
     func finalizeSendFiresAckConfirmationHandler() async throws {
         let (service, dataStore) = try await MessageService.createForTesting()
         let messageID = UUID()
@@ -664,10 +639,7 @@ struct MessageServiceACKTests {
             )
         )
 
-        let tracker = AckConfirmationTracker()
-        await service.setAckConfirmationHandlerForTest { id, _, _ in
-            await tracker.record(id)
-        }
+        let statusEvents = service.statusEvents()
 
         // Seed a non-delivered pendingAcks entry so finalizeSend's `if let sentInfo`
         // branch is taken (isDelivered == false, sentInfo != nil).
@@ -689,11 +661,11 @@ struct MessageServiceACKTests {
             initialPathLength: 0
         )
 
-        let confirmedIDs = await tracker.confirmedIDs
+        let confirmedIDs = await service.drainStatusEvents(statusEvents).resolvedIDs
         #expect(confirmedIDs.count == 1,
-                "ackConfirmationHandler must fire exactly once when finalizeSend wins the ACK")
+                ".statusResolved must broadcast exactly once when finalizeSend wins the ACK")
         #expect(confirmedIDs.contains(messageID),
-                "ackConfirmationHandler must receive the correct message ID")
+                ".statusResolved must carry the correct message ID")
     }
 
     @Test("handleAcknowledgement is a no-op when no entry matches the ackCode")

@@ -24,12 +24,9 @@ struct MessageServiceSendDMBookkeepingTests {
 
         let container = try PersistenceStore.createContainer(inMemory: true)
         let dataStore = PersistenceStore(modelContainer: container)
-        let service = MessageService(session: session, dataStore: dataStore)
+        let service = MessageService(session: session, dataStore: dataStore, contactService: nil)
 
-        let failedTracker = FailedMessageTracker()
-        await service.setMessageFailedHandlerForTest { id in
-            await failedTracker.record(id)
-        }
+        let statusEvents = service.statusEvents()
 
         let contact = ContactDTO.testContact(radioID: UUID())
 
@@ -59,7 +56,7 @@ struct MessageServiceSendDMBookkeepingTests {
 
         #expect(await service.pendingAckCount == 1,
                 "post-send bookkeeping failure must keep the pendingAcks entry alive for the genuine ACK")
-        #expect(await failedTracker.failedIDs.isEmpty,
+        #expect(await service.drainStatusEvents(statusEvents).failedIDs.isEmpty,
                 "post-send bookkeeping failure must not report the DM as failed")
     }
 

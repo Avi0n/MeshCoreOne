@@ -20,7 +20,7 @@ struct RxLogServiceReprocessTests {
         let container = try PersistenceStore.createContainer(inMemory: true)
         let dataStore = PersistenceStore(modelContainer: container)
         let session = MeshCoreSession(transport: MockTransport())
-        let service = RxLogService(session: session, dataStore: dataStore)
+        let service = RxLogService(session: session, dataStore: dataStore, heardRepeatsService: nil)
 
         let channelZeroSecret = Data(repeating: 0x99, count: 16)
         let channelThreeSecret = Data(repeating: 0x42, count: 16)
@@ -65,27 +65,29 @@ struct RxLogServiceReprocessTests {
         #expect(updated.decryptStatus == .success)
     }
 
-    @Test("replacing the entry stream subscriber keeps the replacement connected")
-    func replacedSubscriberKeepsReplacementConnected() async throws {
+    @Test("coexisting entry stream subscribers each receive every entry")
+    func coexistingSubscribersBothReceiveEntries() async throws {
         let radioID = UUID()
         let container = try PersistenceStore.createContainer(inMemory: true)
         let dataStore = PersistenceStore(modelContainer: container)
         let session = MeshCoreSession(transport: MockTransport())
-        let service = RxLogService(session: session, dataStore: dataStore)
+        let service = RxLogService(session: session, dataStore: dataStore, heardRepeatsService: nil)
         await service.startEventMonitoring(radioID: radioID)
         defer { Task { await service.stopEventMonitoring() } }
 
-        let streamA = await service.entryStream()
-        let streamB = await service.entryStream()
+        let streamA = service.entryStream()
+        let streamB = service.entryStream()
 
-        // The second subscription finished A; drain it so its termination
-        // callback has run (it must not disconnect B).
-        for await _ in streamA {}
-
-        let collector = EntryCollector()
-        let collectTask = Task {
+        let collectorA = EntryCollector()
+        let collectorB = EntryCollector()
+        let taskA = Task {
+            for await entry in streamA {
+                await collectorA.record(entry)
+            }
+        }
+        let taskB = Task {
             for await entry in streamB {
-                await collector.record(entry)
+                await collectorB.record(entry)
             }
         }
 
@@ -94,10 +96,38 @@ struct RxLogServiceReprocessTests {
             packetPayload: Data([0x01, 0x02, 0x03, 0x04])
         ))
 
-        try await waitUntil("the replacement subscriber must keep receiving entries") {
-            await collector.count > 0
+        try await waitUntil("the first subscriber must receive the entry") {
+            await collectorA.count > 0
         }
-        collectTask.cancel()
+        try await waitUntil("the second subscriber must also receive the entry") {
+            await collectorB.count > 0
+        }
+        taskA.cancel()
+        taskB.cancel()
+    }
+
+    @Test("finishEntryStream ends every subscriber's iteration")
+    func finishEndsAllSubscribers() async throws {
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let dataStore = PersistenceStore(modelContainer: container)
+        let session = MeshCoreSession(transport: MockTransport())
+        let service = RxLogService(session: session, dataStore: dataStore, heardRepeatsService: nil)
+
+        let streamA = service.entryStream()
+        let streamB = service.entryStream()
+        let iterationA = Task {
+            for await _ in streamA {}
+            return true
+        }
+        let iterationB = Task {
+            for await _ in streamB {}
+            return true
+        }
+
+        service.finishEntryStream()
+
+        #expect(await iterationA.value, "finish must end the first subscriber's loop")
+        #expect(await iterationB.value, "finish must end the second subscriber's loop")
     }
 
     // MARK: - Helpers

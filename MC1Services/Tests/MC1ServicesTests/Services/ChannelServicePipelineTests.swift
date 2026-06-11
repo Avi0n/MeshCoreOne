@@ -19,7 +19,7 @@ struct ChannelServicePipelineTests {
         await transport.setSupportsWriteWithoutResponse(true)
         let session = try await startedSession(transport)
         defer { Task { await session.stop() } }
-        let service = ChannelService(session: session, dataStore: dataStore)
+        let service = ChannelService(session: session, dataStore: dataStore, rxLogService: nil)
 
         let syncTask = Task {
             try await service.syncChannels(radioID: radioID, maxChannels: 8, usePipelinedRead: true)
@@ -62,7 +62,7 @@ struct ChannelServicePipelineTests {
         await transport.setSupportsWriteWithoutResponse(true)
         let session = try await startedSession(transport)
         defer { Task { await session.stop() } }
-        let service = ChannelService(session: session, dataStore: dataStore)
+        let service = ChannelService(session: session, dataStore: dataStore, rxLogService: nil)
 
         let syncTask = Task {
             try await service.syncChannels(radioID: radioID, maxChannels: 4, usePipelinedRead: true)
@@ -105,7 +105,7 @@ struct ChannelServicePipelineTests {
         await transport.setSupportsWriteWithoutResponse(true)
         let session = try await startedSession(transport)
         defer { Task { await session.stop() } }
-        let service = ChannelService(session: session, dataStore: dataStore)
+        let service = ChannelService(session: session, dataStore: dataStore, rxLogService: nil)
 
         // appStart was send #1; fail every send from #2 (the first channel read) onward.
         await transport.failSends(fromSendIndex: 2)
@@ -137,7 +137,7 @@ struct ChannelServicePipelineTests {
         await transport.setSupportsWriteWithoutResponse(true)
         let session = try await startedSession(transport)
         defer { Task { await session.stop() } }
-        let service = ChannelService(session: session, dataStore: dataStore)
+        let service = ChannelService(session: session, dataStore: dataStore, rxLogService: nil)
 
         let syncTask = Task {
             try await service.syncChannels(radioID: radioID, maxChannels: 4, usePipelinedRead: true)
@@ -191,7 +191,7 @@ struct ChannelServicePipelineTests {
         await transport.setSupportsWriteWithoutResponse(true)
         let session = try await startedSession(transport)
         defer { Task { await session.stop() } }
-        let service = ChannelService(session: session, dataStore: dataStore)
+        let service = ChannelService(session: session, dataStore: dataStore, rxLogService: nil)
 
         let syncTask = Task {
             try await service.syncChannels(radioID: radioID, maxChannels: 8, usePipelinedRead: true)
@@ -249,7 +249,7 @@ struct ChannelServicePipelineTests {
         let transport = MockTransport()   // capability defaults to false
         let session = try await startedSession(transport)
         defer { Task { await session.stop() } }
-        let service = ChannelService(session: session, dataStore: dataStore)
+        let service = ChannelService(session: session, dataStore: dataStore, rxLogService: nil)
 
         let syncTask = Task {
             try await service.syncChannels(radioID: radioID, maxChannels: 2, usePipelinedRead: false)

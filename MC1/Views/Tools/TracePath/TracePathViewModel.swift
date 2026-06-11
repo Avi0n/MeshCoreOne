@@ -1,4 +1,3 @@
-import Combine
 import CoreLocation
 import SwiftUI
 import UIKit
@@ -160,23 +159,31 @@ final class TracePathViewModel {
 
     // MARK: - Event Subscription
 
-    private var cancellables = Set<AnyCancellable>()
+    private var traceEventsTask: Task<Void, Never>?
 
-    /// Start listening for trace responses
+    /// Start listening for trace responses on the current connection's
+    /// `AdvertisementService`. Requires `configure(appState:)` first. The
+    /// owning `ServiceContainer` is rebuilt on every connection and finishes
+    /// its event stream on teardown, so the hosting view re-invokes this per
+    /// container (keyed on `AppState.servicesVersion`); while disconnected
+    /// there is no service yet and the call is a no-op until then.
     func startListening() {
-        NotificationCenter.default.publisher(for: .traceDataReceived)
-            .receive(on: RunLoop.main)
-            .sink { [weak self] notification in
-                guard let traceInfo = notification.userInfo?["traceInfo"] as? TraceInfo else { return }
-                let radioID = notification.userInfo?["radioID"] as? UUID
-                self?.handleTraceResponse(traceInfo, radioID: radioID)
+        traceEventsTask?.cancel()
+        guard let advertisementService = appState?.services?.advertisementService else { return }
+        let events = advertisementService.events()
+        traceEventsTask = Task { [weak self] in
+            for await event in events {
+                guard case .traceResponse(let traceInfo, let radioID) = event else { continue }
+                guard let self else { return }
+                self.handleTraceResponse(traceInfo, radioID: radioID)
             }
-            .store(in: &cancellables)
+        }
     }
 
     /// Stop listening for trace responses
     func stopListening() {
-        cancellables.removeAll()
+        traceEventsTask?.cancel()
+        traceEventsTask = nil
     }
 
     // MARK: - Dependencies

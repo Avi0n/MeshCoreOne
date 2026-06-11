@@ -191,14 +191,24 @@ public actor RemoteNodeService {
     /// Nothing assigns or reads this property today.
     public var keepAliveResponseHandler: (@Sendable (UUID, Int) async -> Void)?
 
-    /// Handler for session connection state changes
-    /// Called when session isConnected state changes (sessionID, isConnected).
-    /// Installed by `MessageEventDispatcher.wireSessionState`.
-    private var sessionStateChangedHandler: (@Sendable (UUID, Bool) async -> Void)?
+    // MARK: - Events
 
-    /// Set the handler for session connection state changes.
-    public func setSessionStateChangedHandler(_ handler: @escaping @Sendable (UUID, Bool) async -> Void) {
-        sessionStateChangedHandler = handler
+    /// Multicast broadcaster for session connection-state events.
+    private nonisolated let eventBroadcaster = EventBroadcaster<RemoteNodeEvent>()
+
+    /// Returns a fresh stream of remote-node session events. Registration is
+    /// synchronous, so events yielded after this call are never dropped.
+    /// Consumers must re-subscribe per connection because the owning
+    /// `ServiceContainer` is rebuilt on every connection.
+    public nonisolated func events() -> AsyncStream<RemoteNodeEvent> {
+        eventBroadcaster.subscribe()
+    }
+
+    /// Ends every `events()` subscriber's for-await loop. Called by
+    /// `ServiceContainer.tearDown()` so consumer tasks release the service
+    /// references they hold.
+    nonisolated func finishEvents() {
+        eventBroadcaster.finish()
     }
 
     // MARK: - Initialization
@@ -611,7 +621,7 @@ public actor RemoteNodeService {
                 }
 
                 // Notify UI of session state change
-                await sessionStateChangedHandler?(remoteSession.id, true)
+                eventBroadcaster.yield(.sessionStateChanged(sessionID: remoteSession.id, isConnected: true))
 
                 keepAliveIntervals[remoteSession.id] = Self.defaultKeepAliveInterval
             } catch {
@@ -693,7 +703,7 @@ public actor RemoteNodeService {
                 } catch {
                     logger.error("Failed to persist disconnected state for session \(sessionID): \(error)")
                 }
-                await sessionStateChangedHandler?(sessionID, false)
+                eventBroadcaster.yield(.sessionStateChanged(sessionID: sessionID, isConnected: false))
             }
             return (shouldContinue: !action.shouldExitLoop, consecutiveFailures: failures)
         }
@@ -812,7 +822,7 @@ public actor RemoteNodeService {
         )
 
         // Notify UI of session state change
-        await sessionStateChangedHandler?(sessionID, false)
+        eventBroadcaster.yield(.sessionStateChanged(sessionID: sessionID, isConnected: false))
     }
 
     // MARK: - Status
@@ -1103,14 +1113,14 @@ public actor RemoteNodeService {
         }
 
         // Notify UI of session state change
-        await sessionStateChangedHandler?(sessionID, false)
+        eventBroadcaster.yield(.sessionStateChanged(sessionID: sessionID, isConnected: false))
     }
 
     // MARK: - BLE Disconnection
 
     /// Called when BLE connection is lost.
     /// Marks all connected sessions as disconnected, stops keep-alive timers,
-    /// and notifies UI via `sessionStateChangedHandler`.
+    /// and broadcasts `RemoteNodeEvent.sessionStateChanged` for each.
     /// Returns the set of session IDs that were connected, for re-auth on reconnect.
     public func handleBLEDisconnection() async -> Set<UUID> {
         let connectedSessions: [RemoteNodeSessionDTO]
@@ -1134,7 +1144,7 @@ public actor RemoteNodeService {
             } catch {
                 logger.error("Failed to mark session \(session.id) disconnected: \(error)")
             }
-            await sessionStateChangedHandler?(session.id, false)
+            eventBroadcaster.yield(.sessionStateChanged(sessionID: session.id, isConnected: false))
         }
 
         return sessionIDs
@@ -1184,7 +1194,7 @@ public actor RemoteNodeService {
                                 + "\(previousPermission) -> \(newPermission), marking disconnected"
                             )
                             try? await self.dataStore.markSessionDisconnected(remoteSession.id)
-                            await self.sessionStateChangedHandler?(remoteSession.id, false)
+                            self.eventBroadcaster.yield(.sessionStateChanged(sessionID: remoteSession.id, isConnected: false))
                         }
                     } catch {
                         self.logger.warning("Re-auth failed for session \(remoteSession.id): \(error)")
@@ -1193,7 +1203,7 @@ public actor RemoteNodeService {
                         } catch {
                             self.logger.error("Failed to persist disconnected state for session \(remoteSession.id): \(error)")
                         }
-                        await self.sessionStateChangedHandler?(remoteSession.id, false)
+                        self.eventBroadcaster.yield(.sessionStateChanged(sessionID: remoteSession.id, isConnected: false))
                     }
                 }
             }

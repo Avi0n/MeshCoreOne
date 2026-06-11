@@ -111,7 +111,10 @@ struct TracePathView: View {
                 Text(error)
             }
         }
-        .task {
+        .task(id: appState.servicesVersion) {
+            // Keyed on servicesVersion: a late connect or reconnect rebuilds the
+            // ServiceContainer, so the listener must re-subscribe to the fresh
+            // AdvertisementService or trace responses are silently dropped.
             viewModel.configure(appState: appState)
             viewModel.startListening()
             if let radioID = appState.connectedDevice?.radioID {

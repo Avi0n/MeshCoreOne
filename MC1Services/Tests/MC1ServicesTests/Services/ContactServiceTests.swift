@@ -415,14 +415,23 @@ struct ContactServiceTests {
         #expect(roundTripped == original)
     }
 
-    // MARK: - Cleanup Handler Tests
+    // MARK: - Cleanup Coordinator Tests
 
-    /// Actor to track cleanup handler invocations in a thread-safe manner
+    /// Actor to track cleanup invocations in a thread-safe manner
     private actor CleanupTracker {
         var invocations: [(contactID: UUID, reason: ContactCleanupReason, publicKey: Data)] = []
 
         func record(contactID: UUID, reason: ContactCleanupReason, publicKey: Data) {
             invocations.append((contactID: contactID, reason: reason, publicKey: publicKey))
+        }
+    }
+
+    /// Cleanup coordinator stand-in that records each invocation on a `CleanupTracker`.
+    private struct RecordingCleanupCoordinator: ContactCleanupHandling {
+        let tracker: CleanupTracker
+
+        func handleCleanup(contactID: UUID, reason: ContactCleanupReason, publicKey: Data) async {
+            await tracker.record(contactID: contactID, reason: reason, publicKey: publicKey)
         }
     }
 
@@ -460,10 +469,12 @@ struct ContactServiceTests {
         // Track cleanup handler invocations
         let tracker = CleanupTracker()
 
-        let service = ContactService(session: mockSession, dataStore: mockStore)
-        await service.setCleanupHandler { contactID, reason, publicKey in
-            await tracker.record(contactID: contactID, reason: reason, publicKey: publicKey)
-        }
+        let service = ContactService(
+            session: mockSession,
+            dataStore: mockStore,
+            syncCoordinator: nil,
+            cleanupCoordinator: RecordingCleanupCoordinator(tracker: tracker)
+        )
 
         // Remove the contact
         try await service.removeContact(radioID: radioID, publicKey: testPublicKey)
@@ -513,10 +524,12 @@ struct ContactServiceTests {
         // Track cleanup handler invocations
         let tracker = CleanupTracker()
 
-        let service = ContactService(session: mockSession, dataStore: mockStore)
-        await service.setCleanupHandler { contactID, reason, publicKey in
-            await tracker.record(contactID: contactID, reason: reason, publicKey: publicKey)
-        }
+        let service = ContactService(
+            session: mockSession,
+            dataStore: mockStore,
+            syncCoordinator: nil,
+            cleanupCoordinator: RecordingCleanupCoordinator(tracker: tracker)
+        )
 
         // Block the contact
         try await service.updateContactPreferences(contactID: contactID, isBlocked: true)
@@ -567,10 +580,12 @@ struct ContactServiceTests {
         // Track cleanup handler invocations
         let tracker = CleanupTracker()
 
-        let service = ContactService(session: mockSession, dataStore: mockStore)
-        await service.setCleanupHandler { contactID, reason, publicKey in
-            await tracker.record(contactID: contactID, reason: reason, publicKey: publicKey)
-        }
+        let service = ContactService(
+            session: mockSession,
+            dataStore: mockStore,
+            syncCoordinator: nil,
+            cleanupCoordinator: RecordingCleanupCoordinator(tracker: tracker)
+        )
 
         // Update nickname (not blocking)
         try await service.updateContactPreferences(contactID: contactID, nickname: "NewNickname")
@@ -618,7 +633,12 @@ struct ContactServiceTests {
         )
         try await mockStore.saveContact(contact)
 
-        let service = ContactService(session: mockSession, dataStore: mockStore)
+        let service = ContactService(
+            session: mockSession,
+            dataStore: mockStore,
+            syncCoordinator: nil,
+            cleanupCoordinator: nil
+        )
 
         // Block the contact
         try await service.updateContactPreferences(contactID: contactID, isBlocked: true)
@@ -667,10 +687,12 @@ struct ContactServiceTests {
         // Track cleanup handler invocations
         let tracker = CleanupTracker()
 
-        let service = ContactService(session: mockSession, dataStore: mockStore)
-        await service.setCleanupHandler { contactID, reason, publicKey in
-            await tracker.record(contactID: contactID, reason: reason, publicKey: publicKey)
-        }
+        let service = ContactService(
+            session: mockSession,
+            dataStore: mockStore,
+            syncCoordinator: nil,
+            cleanupCoordinator: RecordingCleanupCoordinator(tracker: tracker)
+        )
 
         // Unblock the contact
         try await service.updateContactPreferences(contactID: contactID, isBlocked: false)

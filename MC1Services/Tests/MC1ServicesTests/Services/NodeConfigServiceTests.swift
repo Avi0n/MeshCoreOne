@@ -890,10 +890,10 @@ struct NodeConfigImportOtherParamsLiveTests {
 
         let store = PersistenceStore(modelContainer: try PersistenceStore.createContainer(inMemory: true))
         let settings = SettingsService(session: session)
-        let channels = ChannelService(session: session, dataStore: store)
+        let channels = ChannelService(session: session, dataStore: store, rxLogService: nil)
         let service = NodeConfigService(
             session: session, settingsService: settings,
-            channelService: channels, dataStore: store)
+            channelService: channels, dataStore: store, syncCoordinator: nil)
 
         let imported = MeshCoreNodeConfig.OtherSettings(
             manualAddContacts: 0, advertLocationPolicy: unmodeledAdvertPolicyByte)

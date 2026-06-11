@@ -203,13 +203,14 @@ struct SyncCoordinatorMessageHandlerTests {
         await coordinator.wireMessageHandlers(services: services, radioID: radioID)
     }
 
-    @Test("wireDiscoveryHandlers completes without error")
-    func wireDiscoveryHandlersSmoke() async throws {
+    @Test("startDiscoveryEventMonitoring completes without error")
+    func startDiscoveryEventMonitoringSmoke() async throws {
         let coordinator = SyncCoordinator()
         let radioID = UUID()
         let (_, services) = try await createTestServices()
 
-        await coordinator.wireDiscoveryHandlers(services: services, radioID: radioID)
+        await coordinator.startDiscoveryEventMonitoring(services: services, radioID: radioID)
+        await coordinator.cancelDiscoveryEventMonitoring()
     }
 
     // MARK: - Unresolved Channel Notification Guard

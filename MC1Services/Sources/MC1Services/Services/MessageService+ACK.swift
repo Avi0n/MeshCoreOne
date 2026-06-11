@@ -81,7 +81,7 @@ extension MessageService {
                   !removed.isDelivered, didFail else { continue }
 
             logger.warning("[ack-diag] give-up: failed after \(String(format: "%.1f", now.timeIntervalSince(removed.sentAt)))s window=\(window)s livePending=\(pendingAcks.count)")
-            await messageFailedHandler?(messageID)
+            statusEventBroadcaster.yield(.failed(messageID: messageID))
         }
     }
 
@@ -97,7 +97,7 @@ extension MessageService {
         for (messageID, _) in pending {
             let didFail = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
             if didFail {
-                await messageFailedHandler?(messageID)
+                statusEventBroadcaster.yield(.failed(messageID: messageID))
             }
         }
     }
