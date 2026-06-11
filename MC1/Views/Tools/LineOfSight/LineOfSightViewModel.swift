@@ -166,6 +166,29 @@ final class LineOfSightViewModel {
         reanalyzeWithCachedProfileIfNeeded()
     }
 
+    // MARK: - Frequency Parsing
+
+    /// Parses a user-entered frequency string into a positive MHz value.
+    ///
+    /// Accepts both "." and "," as the decimal separator so comma-decimal
+    /// locales round-trip, and parses with a fixed separator rather than the
+    /// current locale's. Returns nil for empty, unparseable, or non-positive
+    /// input so callers can ignore it instead of feeding analysis a bad value.
+    func parseFrequency(_ text: String) -> Double? {
+        let normalized = text.replacing(",", with: ".")
+        guard let value = Double(normalized), value > 0 else { return nil }
+        return value
+    }
+
+    /// Renders a frequency value for editing using a locale-stable format,
+    /// so the displayed text always round-trips back through `parseFrequency`.
+    func formatFrequencyForEditing(_ value: Double) -> String {
+        if value.truncatingRemainder(dividingBy: 1) == 0 {
+            return String(Int(value))
+        }
+        return String(format: "%.1f", value)
+    }
+
     // MARK: - Map Display State
 
     var isNorthLocked = false

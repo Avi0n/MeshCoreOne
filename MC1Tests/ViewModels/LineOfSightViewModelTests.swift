@@ -1730,3 +1730,77 @@ struct AnalysisStatusRelayTests {
         #expect(status1 == status2)
     }
 }
+
+// MARK: - Frequency Parsing Tests
+
+@Suite("Frequency Parsing")
+@MainActor
+struct FrequencyParsingTests {
+
+    @Test("Parses a plain dot-decimal value")
+    func parsesDotDecimal() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        #expect(viewModel.parseFrequency("868.5") == 868.5)
+    }
+
+    @Test("Parses a comma-decimal value the same as dot-decimal")
+    func parsesCommaDecimal() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        #expect(viewModel.parseFrequency("868,5") == 868.5)
+    }
+
+    @Test("Parses an integer value")
+    func parsesInteger() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        #expect(viewModel.parseFrequency("906") == 906.0)
+    }
+
+    @Test("Rejects empty input")
+    func rejectsEmpty() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        #expect(viewModel.parseFrequency("") == nil)
+    }
+
+    @Test("Rejects non-numeric input")
+    func rejectsNonNumeric() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        #expect(viewModel.parseFrequency("abc") == nil)
+    }
+
+    @Test("Rejects zero")
+    func rejectsZero() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        #expect(viewModel.parseFrequency("0") == nil)
+    }
+
+    @Test("Rejects negative values")
+    func rejectsNegative() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        #expect(viewModel.parseFrequency("-906") == nil)
+    }
+
+    @Test("Editing format round-trips an integer back through the parser")
+    func integerFormatRoundTrips() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        let formatted = viewModel.formatFrequencyForEditing(906.0)
+        #expect(formatted == "906")
+        #expect(viewModel.parseFrequency(formatted) == 906.0)
+    }
+
+    @Test("Editing format uses a dot decimal separator and round-trips")
+    func fractionalFormatRoundTrips() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        let formatted = viewModel.formatFrequencyForEditing(868.5)
+        #expect(formatted == "868.5")
+        #expect(viewModel.parseFrequency(formatted) == 868.5)
+    }
+}

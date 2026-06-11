@@ -11,8 +11,8 @@ struct TracePathMapView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Bindable var traceViewModel: TracePathViewModel
     @Binding var presentedResult: TraceResult?
-    @AppStorage("mapStyleSelection") private var mapStyleSelection: MapStyleSelection = .standard
-    @AppStorage("mapShowLabels") private var showLabels = true
+    @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
+    @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
     @State private var mapViewModel = TracePathMapViewModel()
 
     @State private var showingSavePrompt = false

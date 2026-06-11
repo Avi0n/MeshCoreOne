@@ -23,6 +23,9 @@ public enum AppStorageKey: String {
     case replyWithQuote
     case showMapPreviewThumbnails
     case nodesSortOrder
+    case mapStyleSelection
+    case mapShowLabels
+    case hasSeenRepeaterDragHint
 
     public static let defaultShowIncomingPath: Bool = false
     public static let defaultShowIncomingHopCount: Bool = false
@@ -33,4 +36,6 @@ public enum AppStorageKey: String {
     public static let defaultAutoPlayGIFs: Bool = true
     public static let defaultReplyWithQuote: Bool = false
     public static let defaultShowMapPreviewThumbnails: Bool = true
+    public static let defaultMapShowLabels: Bool = true
+    public static let defaultHasSeenRepeaterDragHint: Bool = false
 }

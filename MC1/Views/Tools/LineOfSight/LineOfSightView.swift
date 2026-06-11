@@ -20,8 +20,8 @@ struct LineOfSightView: View {
     @State private var showAnalysisSheet: Bool
     @State private var editingPoint: PointID?
     @State private var isDropPinMode = false
-    @AppStorage("mapStyleSelection") private var mapStyleSelection: MapStyleSelection = .topo
-    @AppStorage("mapShowLabels") private var showLabels = true
+    @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
+    @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
     @State private var sheetBottomInset: CGFloat = 220
     @State private var isResultsExpanded = false
     @State private var isRFSettingsExpanded = false
@@ -31,7 +31,7 @@ struct LineOfSightView: View {
     private let layoutMode: LineOfSightLayoutMode
 
     // One-time drag hint tooltip for repeater marker
-    @AppStorage("hasSeenRepeaterDragHint") private var hasSeenDragHint = false
+    @AppStorage(AppStorageKey.hasSeenRepeaterDragHint.rawValue) private var hasSeenDragHint = AppStorageKey.defaultHasSeenRepeaterDragHint
     @State private var showDragHint = false
     @State private var repeaterMarkerCenter: CGPoint?
     @State private var isNavigatingBack = false
@@ -516,10 +516,16 @@ struct FrequencyInputRow: View {
                 .multilineTextAlignment(.trailing)
                 .frame(width: 80)
                 .focused($isFocused)
+                .onChange(of: text) { _, newValue in
+                    let replaced = newValue.replacing(",", with: ".")
+                    if replaced != newValue {
+                        text = replaced
+                    }
+                }
                 .onChange(of: isFocused) { _, focused in
                     if focused {
                         // Sync text from view model when gaining focus
-                        text = formatForEditing(viewModel.frequencyMHz)
+                        text = viewModel.formatFrequencyForEditing(viewModel.frequencyMHz)
                     } else {
                         // Commit when focus is lost
                         commitEdit()
@@ -542,23 +548,19 @@ struct FrequencyInputRow: View {
             }
         }
         .onAppear {
-            text = formatForEditing(viewModel.frequencyMHz)
-        }
-    }
-
-    private func formatForEditing(_ value: Double) -> String {
-        if value.truncatingRemainder(dividingBy: 1) == 0 {
-            return String(Int(value))
-        } else {
-            return value.formatted(.number.precision(.fractionLength(1)))
+            text = viewModel.formatFrequencyForEditing(viewModel.frequencyMHz)
         }
     }
 
     private func commitEdit() {
-        if let parsed = Double(text) {
-            viewModel.frequencyMHz = parsed
-            viewModel.commitFrequencyChange()
+        guard let parsed = viewModel.parseFrequency(text) else {
+            // Reject empty, unparseable, or non-positive input by restoring
+            // the last valid value rather than passing it to analysis.
+            text = viewModel.formatFrequencyForEditing(viewModel.frequencyMHz)
+            return
         }
+        viewModel.frequencyMHz = parsed
+        viewModel.commitFrequencyChange()
     }
 }
 
