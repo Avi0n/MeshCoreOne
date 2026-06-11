@@ -1201,7 +1201,18 @@ public struct DiscoverResponse: Sendable, Equatable {
 ///
 /// Bundles the bitmask (which node types to auto-add) with the max hops filter.
 public struct AutoAddConfig: Sendable, Equatable {
-    /// Bitmask controlling auto-add behavior (0x01=overwrite-oldest, 0x02=Chat, 0x04=Repeater, 0x08=Room Server, 0x10=Sensor).
+    /// ``bitmask`` bit: overwrite the oldest non-favorite node when storage is full.
+    public static let overwriteOldestBit: UInt8 = 0x01
+    /// ``bitmask`` bit: auto-add Chat (contact) nodes.
+    public static let contactsBit: UInt8 = 0x02
+    /// ``bitmask`` bit: auto-add Repeater nodes.
+    public static let repeatersBit: UInt8 = 0x04
+    /// ``bitmask`` bit: auto-add Room Server nodes.
+    public static let roomServersBit: UInt8 = 0x08
+    /// ``bitmask`` bit: auto-add Sensor nodes.
+    public static let sensorsBit: UInt8 = 0x10
+
+    /// Bitmask controlling auto-add behavior; see the `*Bit` constants for the wire format.
     public let bitmask: UInt8
     /// Maximum hops for auto-add filtering. 0 = no limit, 1 = direct only, N = up to N-1 hops (max 64).
     public let maxHops: UInt8
