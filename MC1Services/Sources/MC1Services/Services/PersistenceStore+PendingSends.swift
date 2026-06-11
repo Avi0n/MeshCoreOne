@@ -5,7 +5,7 @@ import SwiftData
 extension PersistenceStore {
 
     private static let pendingSendLogger = Logger(
-        subsystem: "MC1Services",
+        subsystem: "com.mc1",
         category: "PersistenceStore.PendingSends"
     )
 

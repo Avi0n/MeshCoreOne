@@ -124,7 +124,7 @@ public enum OCVPreset: String, CaseIterable, Codable, Sendable {
         return presets
     }
 
-    private static let logger = PersistentLogger(subsystem: "com.mc1.services", category: "OCVPreset")
+    private static let logger = PersistentLogger(subsystem: "com.mc1", category: "OCVPreset")
 
     /// Returns the OCV preset for a known manufacturer name, or nil if no match.
     ///

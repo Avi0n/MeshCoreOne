@@ -614,7 +614,7 @@ private struct AnalyzeButton: View {
         name: "Test Contact",
         typeRawValue: 0,
         flags: 0,
-        outPathLength: 0xFF,
+        outPathLength: PacketBuilder.floodPathSentinel,
         outPath: Data(),
         lastAdvertTimestamp: 0,
         latitude: 37.7749,

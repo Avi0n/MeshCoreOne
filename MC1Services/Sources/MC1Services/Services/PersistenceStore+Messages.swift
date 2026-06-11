@@ -97,7 +97,7 @@ extension PersistenceStore {
         timestampWindow: ClosedRange<UInt32>,
         limit: Int
     ) throws -> MessageDTO? {
-        let logger = Logger(subsystem: "MC1Services", category: "PersistenceStore")
+        let logger = Logger(subsystem: "com.mc1", category: "PersistenceStore")
         // swiftlint:disable:next line_length
         logger.debug("[REACTION-MATCH] Looking for message: targetSender=\(parsedReaction.targetSender), hash=\(parsedReaction.messageHash), localNodeName=\(localNodeName ?? "nil"), window=\(timestampWindow.lowerBound)...\(timestampWindow.upperBound)")
 
@@ -214,7 +214,7 @@ extension PersistenceStore {
         timestampWindow: ClosedRange<UInt32>,
         limit: Int
     ) throws -> MessageDTO? {
-        let logger = Logger(subsystem: "MC1Services", category: "PersistenceStore")
+        let logger = Logger(subsystem: "com.mc1", category: "PersistenceStore")
         logger.debug("[DM-REACTION-MATCH] Looking for DM: hash=\(messageHash), contactID=\(contactID)")
 
         let candidates = try fetchDMMessageCandidates(

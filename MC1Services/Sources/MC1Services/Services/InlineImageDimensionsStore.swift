@@ -22,7 +22,7 @@ public actor InlineImageDimensionsStore {
     private static let storeFilename = "InlineImageDimensions.json"
     private static let resolutionStreamBufferDepth = 64
 
-    private let logger = Logger(subsystem: "com.mc1.services", category: "InlineImageDimensionsStore")
+    private let logger = Logger(subsystem: "com.mc1", category: "InlineImageDimensionsStore")
 
     private let fileURL: URL
     private var entries: [String: Entry] = [:]

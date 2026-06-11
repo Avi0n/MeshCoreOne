@@ -58,7 +58,7 @@ final class RepeaterSettingsViewModel {
     // MARK: - Dependencies
 
     private var repeaterAdminService: RepeaterAdminService?
-    private let logger = Logger(subsystem: "MC1", category: "RepeaterSettings")
+    private let logger = Logger(subsystem: "com.mc1", category: "RepeaterSettings")
 
     // MARK: - Cleanup
 

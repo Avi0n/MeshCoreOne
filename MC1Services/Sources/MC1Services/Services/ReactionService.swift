@@ -30,7 +30,7 @@ public struct ReactionPersistResult: Sendable {
 
 /// Service for handling emoji reactions on channel messages
 public actor ReactionService {
-    private let logger = Logger(subsystem: "MC1Services", category: "ReactionService")
+    private let logger = Logger(subsystem: "com.mc1", category: "ReactionService")
     private let messageCache: MessageLRUCache
 
     private static let maxPendingReactions = 100

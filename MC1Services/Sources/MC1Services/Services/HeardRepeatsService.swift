@@ -10,7 +10,7 @@ public typealias HeardRepeatHandler = @Sendable (UUID, Int) async -> Void
 /// and tracking "heard repeats" - evidence of message propagation through the mesh.
 public actor HeardRepeatsService {
     private let dataStore: PersistenceStore
-    private let logger = PersistentLogger(subsystem: "MC1", category: "HeardRepeatsService")
+    private let logger = PersistentLogger(subsystem: "com.mc1", category: "HeardRepeatsService")
 
     /// Device ID for the current session
     private var radioID: UUID?

@@ -3,7 +3,7 @@ import Foundation
 import MeshCore
 import OSLog
 
-private let logger = PersistentLogger(subsystem: "com.mc1.services", category: "RxLogService")
+private let logger = PersistentLogger(subsystem: "com.mc1", category: "RxLogService")
 
 /// Actor that processes RX log events, decodes channel messages, and persists to database.
 public actor RxLogService {

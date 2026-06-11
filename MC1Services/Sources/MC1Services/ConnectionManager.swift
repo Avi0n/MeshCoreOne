@@ -218,7 +218,7 @@ public final class ConnectionManager {
 
     // MARK: - Logging
 
-    let logger = PersistentLogger(subsystem: "com.mc1.services", category: "ConnectionManager")
+    let logger = PersistentLogger(subsystem: "com.mc1", category: "ConnectionManager")
 
     // MARK: - Observable State
 

@@ -7,7 +7,7 @@ import OSLog
 @MainActor
 public final class SimulatorConnectionMode {
 
-    private let logger = PersistentLogger(subsystem: "com.mc1.services", category: "SimulatorConnectionMode")
+    private let logger = PersistentLogger(subsystem: "com.mc1", category: "SimulatorConnectionMode")
 
     /// Whether simulator is "connected"
     public private(set) var isConnected = false

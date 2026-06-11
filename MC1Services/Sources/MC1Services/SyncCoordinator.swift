@@ -119,7 +119,7 @@ public actor SyncCoordinator {
 
     // MARK: - Logging
 
-    let logger = PersistentLogger(subsystem: "com.mc1.services", category: "SyncCoordinator")
+    let logger = PersistentLogger(subsystem: "com.mc1", category: "SyncCoordinator")
 
     /// Actor-local guard against concurrent sync execution.
     /// Checked and set synchronously (no `await`) to eliminate the TOCTOU window

@@ -120,7 +120,7 @@ public actor PersistenceStore: PersistenceStoreProtocol {
         // the storage. Running both on every connect costs an empty fetch and
         // self-heals the "erase device then re-pair" path — a process-level
         // latch would suppress that recovery.
-        let logger = Logger(subsystem: "MC1Services", category: "PersistenceStore.warmUp")
+        let logger = Logger(subsystem: "com.mc1", category: "PersistenceStore.warmUp")
         do {
             try purgeOrphanPendingSends()
         } catch {

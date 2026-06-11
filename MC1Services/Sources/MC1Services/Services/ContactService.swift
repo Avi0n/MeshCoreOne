@@ -268,7 +268,7 @@ public actor ContactService {
                     publicKey: contact.publicKey,
                     type: contact.type,
                     flags: contact.flags,
-                    outPathLength: 0xFF,  // Flood routing
+                    outPathLength: PacketBuilder.floodPathSentinel,
                     outPath: Data(),
                     name: contact.name,
                     lastAdvertTimestamp: contact.lastAdvertTimestamp,

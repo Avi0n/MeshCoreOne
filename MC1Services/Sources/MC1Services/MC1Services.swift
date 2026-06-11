@@ -63,7 +63,7 @@ extension TelemetryResponse {
 
 import OSLog
 
-private let radioLogger = PersistentLogger(subsystem: "com.mc1.services", category: "radio")
+private let radioLogger = PersistentLogger(subsystem: "com.mc1", category: "radio")
 
 /// Standard LoRa radio parameter options for configuration UI
 public enum RadioOptions {

@@ -345,7 +345,7 @@ extension ChatViewModel {
             name: name,
             typeRawValue: ContactType.chat.rawValue,
             flags: 0,
-            outPathLength: 0xFF,
+            outPathLength: PacketBuilder.floodPathSentinel,
             outPath: Data(),
             lastAdvertTimestamp: 0,
             latitude: 0.0,

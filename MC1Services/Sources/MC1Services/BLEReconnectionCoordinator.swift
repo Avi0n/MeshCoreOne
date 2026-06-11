@@ -10,7 +10,7 @@ import OSLog
 @MainActor
 final class BLEReconnectionCoordinator {
 
-    private let logger = PersistentLogger(subsystem: "com.mc1.services", category: "BLEReconnectionCoordinator")
+    private let logger = PersistentLogger(subsystem: "com.mc1", category: "BLEReconnectionCoordinator")
 
     weak var delegate: BLEReconnectionDelegate?
 

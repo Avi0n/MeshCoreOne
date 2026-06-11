@@ -2,7 +2,7 @@ import Foundation
 import MeshCore
 import OSLog
 
-private let logger = PersistentLogger(subsystem: "com.mc1.services", category: "RxLogService.Region")
+private let logger = PersistentLogger(subsystem: "com.mc1", category: "RxLogService.Region")
 
 extension RxLogService {
 

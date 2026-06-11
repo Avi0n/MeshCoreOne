@@ -148,9 +148,9 @@ struct NodeAuthenticationSheet: View {
                         publicKey: contact.publicKey
                     )
                     didResetPath = true
-                    pathLength = 0xFF
+                    pathLength = PacketBuilder.floodPathSentinel
                 } else if useFloodRouting {
-                    pathLength = 0xFF
+                    pathLength = PacketBuilder.floodPathSentinel
                 } else {
                     pathLength = contact.outPathLength
                 }

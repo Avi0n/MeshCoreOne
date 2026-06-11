@@ -77,7 +77,7 @@ struct AddContactConfirmationSheet: View {
                 publicKey: contactResult.publicKey,
                 type: contactResult.contactType,
                 flags: 0,
-                outPathLength: 0xFF,
+                outPathLength: PacketBuilder.floodPathSentinel,
                 outPath: Data(),
                 name: contactResult.name,
                 lastAdvertTimestamp: 0,

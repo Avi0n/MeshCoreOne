@@ -175,7 +175,7 @@ struct ScanContactQRView: View {
                 publicKey: contact.publicKey,
                 type: contact.contactType,
                 flags: 0,
-                outPathLength: 0xFF,  // Flood routing
+                outPathLength: PacketBuilder.floodPathSentinel,
                 outPath: Data(),
                 name: contact.name,
                 lastAdvertTimestamp: 0,

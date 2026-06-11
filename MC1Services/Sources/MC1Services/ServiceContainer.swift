@@ -322,7 +322,7 @@ public final class ServiceContainer {
     ) async {
         guard !isMonitoringEvents else { return }
 
-        let logger = Logger(subsystem: "com.mc1.services", category: "ServiceContainer")
+        let logger = Logger(subsystem: "com.mc1", category: "ServiceContainer")
 
         // Configure HeardRepeatsService with device info
         do {

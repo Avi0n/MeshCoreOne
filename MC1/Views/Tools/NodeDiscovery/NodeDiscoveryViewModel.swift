@@ -253,7 +253,7 @@ final class NodeDiscoveryViewModel {
                     publicKey: result.publicKey,
                     type: ContactType(rawValue: result.nodeType) ?? .repeater,
                     flags: 0,
-                    outPathLength: 0xFF,
+                    outPathLength: PacketBuilder.floodPathSentinel,
                     outPath: Data(),
                     name: result.name,
                     lastAdvertTimestamp: 0,

@@ -111,7 +111,7 @@ final class NodeStatusHelper {
               case .deviceError(let code) = meshError else {
             return false
         }
-        return code == 10
+        return code == FirmwareDeviceErrorCode.remoteNodeNoResponseYet
     }
 
     private func remainingBudget(until deadline: ContinuousClock.Instant) -> Duration? {

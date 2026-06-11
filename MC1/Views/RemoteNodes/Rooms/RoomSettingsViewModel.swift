@@ -58,7 +58,7 @@ final class RoomSettingsViewModel {
     // MARK: - Dependencies
 
     private var roomAdminService: RoomAdminService?
-    private let logger = Logger(subsystem: "MC1", category: "RoomSettings")
+    private let logger = Logger(subsystem: "com.mc1", category: "RoomSettings")
 
     // MARK: - Cleanup
 

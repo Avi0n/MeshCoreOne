@@ -76,8 +76,8 @@ public final class ChatSendQueueService {
     private let reactionService: ReactionService
     private let triggers: BLETransportOpenedSignal
     private let channelFetchFailureCounter = FailureCounter()
-    private let logger = PersistentLogger(subsystem: "com.mc1.services", category: "ChatSendQueueService")
-    private let osLogger = Logger(subsystem: "com.mc1.services", category: "ChatSendQueueService")
+    private let logger = PersistentLogger(subsystem: "com.mc1", category: "ChatSendQueueService")
+    private let osLogger = Logger(subsystem: "com.mc1", category: "ChatSendQueueService")
 
     private let dmQueue: SendQueue<DirectMessageEnvelope>
     private let channelQueue: SendQueue<ChannelMessageEnvelope>
