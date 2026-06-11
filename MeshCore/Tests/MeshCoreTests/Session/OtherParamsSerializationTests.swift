@@ -127,7 +127,7 @@ private func makeSelfInfoPacket(config: OtherParamsConfig) -> Data {
     payload.append(telemetry)                                 // telemetry mode
     payload.append(config.manualAddContacts ? 1 : 0)          // manual add
     payload.append(contentsOf: withUnsafeBytes(of: UInt32(869525).littleEndian) { Array($0) })  // freq
-    payload.append(contentsOf: withUnsafeBytes(of: UInt32(250).littleEndian) { Array($0) })     // bw
+    payload.append(contentsOf: withUnsafeBytes(of: UInt32(250_000).littleEndian) { Array($0) }) // bw
     payload.append(11)                                         // sf
     payload.append(5)                                          // cr
     return payload
