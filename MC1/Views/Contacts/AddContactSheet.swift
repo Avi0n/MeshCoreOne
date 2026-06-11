@@ -54,7 +54,7 @@ struct AddContactSheet: View {
 
                 PasteURLSection { result in
                     contactName = result.name
-                    publicKeyHex = result.publicKey.hex
+                    publicKeyHex = result.publicKey.hexString
                     selectedType = result.contactType
                     errorMessage = nil
                 }
@@ -141,7 +141,7 @@ struct AddContactSheet: View {
                 lastModified: currentTimestamp
             )
 
-            logger.info("Adding contact: \(contactName) (\(publicKeyData.hex))")
+            logger.info("Adding contact: \(contactName) (\(publicKeyData.hexString))")
             try await services.contactService.addOrUpdateContact(radioID: radioID, contact: contactFrame)
             logger.info("Contact added successfully")
 

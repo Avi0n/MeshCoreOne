@@ -195,7 +195,7 @@ private func planChannelWrites(
             // Index every configured slot by secret, so a same-secret import folds onto it
             // regardless of whether the existing slot is a hashtag channel. Hashtag slots are
             // additionally indexed by their (already device-truncated) name.
-            secretToIndex[slot.secret.hexString().lowercased()] = slot.index
+            secretToIndex[slot.secret.hexString] = slot.index
             if slot.name.hasPrefix("#") {
                 hashtagNameToIndex[slot.name.utf8Prefix(maxBytes: ProtocolLimits.maxUsableNameBytes)] = slot.index
             }
@@ -215,7 +215,7 @@ private func planChannelWrites(
         }
         // Key on the re-hexed parsed bytes (canonical) so a config secret with non-canonical
         // casing still dedups against the device's canonically-keyed slots.
-        let secretKey = secretData.hexString().lowercased()
+        let secretKey = secretData.hexString
         // The device stores names truncated to the firmware field width, so dedup and overwrite
         // comparison must use the truncated form — otherwise a long hashtag name misses its slot.
         let lookupName = channel.name.utf8Prefix(maxBytes: ProtocolLimits.maxUsableNameBytes)
@@ -276,7 +276,7 @@ private func planContactRecords(
               publicKey.count == ProtocolLimits.publicKeySize else {
             throw NodeConfigServiceError.invalidContactPublicKey(name: contact.name)
         }
-        let key = publicKey.hexString().lowercased()
+        let key = publicKey.hexString
         if let existing = byKey[key] {
             if contact.lastModified >= existing.config.lastModified {
                 byKey[key] = (contact, publicKey)

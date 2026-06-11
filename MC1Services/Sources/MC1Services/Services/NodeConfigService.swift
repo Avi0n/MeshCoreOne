@@ -139,14 +139,14 @@ public actor NodeConfigService {
 
         if sections.nodeIdentity {
             config.name = selfInfo.name
-            config.publicKey = selfInfo.publicKey.hexString().lowercased()
+            config.publicKey = selfInfo.publicKey.hexString
             // Hardened firmware disables private-key export (`featureDisabled`). Emit name +
             // public key in that case rather than failing the whole export. Any other failure
             // (transient BLE timeout, device error, cancellation) propagates, so the user sees
             // the export fail and retries instead of saving an identity backup missing its key.
             do {
                 let privateKey = try await settingsService.exportPrivateKey()
-                config.privateKey = privateKey.hexString().lowercased()
+                config.privateKey = privateKey.hexString
             } catch SettingsServiceError.sessionError(.featureDisabled) {
                 logger.warning("Private key export disabled by firmware; exporting identity without it")
             }
@@ -310,7 +310,7 @@ public actor NodeConfigService {
         // Existing contact keys credit firmware updates (which consume no slot) against free capacity,
         // so an over-capacity import is rejected up front instead of failing partway through the writes.
         let existingContactKeys: Set<String> = sections.contacts
-            ? Set(try await session.getContacts(since: nil).map { $0.publicKey.hexString().lowercased() })
+            ? Set(try await session.getContacts(since: nil).map { $0.publicKey.hexString })
             : []
 
         // The txPower upper bound is hardware/build-specific, so read the device's max rather than
@@ -356,7 +356,7 @@ public actor NodeConfigService {
             }
             channels.append(MeshCoreNodeConfig.ChannelConfig(
                 name: info.name,
-                secret: info.secret.hexString().lowercased()
+                secret: info.secret.hexString
             ))
         }
         return channels
@@ -560,7 +560,7 @@ extension NodeConfigService {
         if contact.isFloodPath {
             outPath = nil
         } else if contact.pathByteLength > 0 && !contact.outPath.isEmpty {
-            outPath = contact.outPath.prefix(contact.pathByteLength).hexString().lowercased()
+            outPath = contact.outPath.prefix(contact.pathByteLength).hexString
         } else {
             outPath = ""
         }
@@ -571,7 +571,7 @@ extension NodeConfigService {
         return MeshCoreNodeConfig.ContactConfig(
             type: contact.typeRawValue,
             name: contact.advertisedName,
-            publicKey: contact.publicKey.hexString().lowercased(),
+            publicKey: contact.publicKey.hexString,
             flags: contact.flags.rawValue,
             latitude: String(contact.latitude),
             longitude: String(contact.longitude),

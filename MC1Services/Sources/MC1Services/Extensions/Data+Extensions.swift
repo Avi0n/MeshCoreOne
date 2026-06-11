@@ -7,10 +7,12 @@ import Foundation
 private let zlibDecompressReadChunkSize = 64 * 1024
 
 public extension Data {
-    /// Converts data to uppercase hex string with optional separator between bytes
+    /// Converts data to an uppercase hex string with an optional separator between bytes.
+    /// Display-only formatting; identity comparisons and serialization use the
+    /// lowercase `hexString` property from MeshCore.
     /// - Parameter separator: String to insert between each byte (default: none)
-    /// - Returns: Hex string representation
-    func hexString(separator: String = "") -> String {
+    /// - Returns: Uppercase hex string representation
+    func uppercaseHexString(separator: String = "") -> String {
         map { String(format: "%02X", $0) }.joined(separator: separator)
     }
 
@@ -31,11 +33,6 @@ public extension Data {
         }
 
         self = data
-    }
-
-    /// Lowercase hex string representation (no separator)
-    var hex: String {
-        map { String(format: "%02x", $0) }.joined()
     }
 
     /// Convert first 4 bytes to UInt32 ACK code (little-endian)

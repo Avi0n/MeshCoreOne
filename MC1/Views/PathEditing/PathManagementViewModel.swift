@@ -37,7 +37,7 @@ struct PathHop: Identifiable, Equatable {
     var resolvedName: String?     // Contact name if resolved, nil if unknown
 
     var hashHex: String {
-        hashBytes.hexString()
+        hashBytes.uppercaseHexString()
     }
 
     var displayText: String {

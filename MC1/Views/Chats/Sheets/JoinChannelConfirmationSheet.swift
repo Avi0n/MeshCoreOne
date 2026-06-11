@@ -179,7 +179,7 @@ private struct ChannelJoinConfirmationContent: View {
     let onJoin: () -> Void
 
     private var truncatedSecret: String {
-        let hex = channelResult.secret.hexString()
+        let hex = channelResult.secret.uppercaseHexString()
         guard hex.count >= 16 else { return hex }
         let start = hex.prefix(8)
         let end = hex.suffix(8)

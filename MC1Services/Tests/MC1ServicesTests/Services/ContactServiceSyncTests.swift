@@ -16,7 +16,7 @@ struct ContactServiceSyncTests {
     private func meshContact(_ keyByte: UInt8, name: String, lastModified: Date = Date(timeIntervalSince1970: 0)) -> MeshContact {
         let key = publicKey(keyByte)
         return MeshContact(
-            id: key.hexString(),
+            id: key.uppercaseHexString(),
             publicKey: key,
             type: .chat,
             flags: ContactFlags(rawValue: 0),

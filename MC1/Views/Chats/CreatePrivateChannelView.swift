@@ -131,7 +131,7 @@ private struct CreateChannelFormContent: View {
             Section {
                 if let secret = generatedSecret {
                     LabeledContent(L10n.Chats.Chats.ChannelInfo.secretKey) {
-                        Text(secret.hexString())
+                        Text(secret.uppercaseHexString())
                             .font(.system(.caption, design: .monospaced))
                             .foregroundStyle(.secondary)
                     }
@@ -211,14 +211,14 @@ private struct ShareChannelContent: View {
                             .foregroundStyle(.secondary)
 
                         HStack {
-                            Text(secret.hexString())
+                            Text(secret.uppercaseHexString())
                                 .font(.system(.body, design: .monospaced))
 
                             Spacer()
 
                             Button(L10n.Chats.Chats.ChannelInfo.copy, systemImage: "doc.on.doc") {
                                 copyHapticTrigger += 1
-                                UIPasteboard.general.string = secret.hexString()
+                                UIPasteboard.general.string = secret.uppercaseHexString()
                             }
                             .labelStyle(.iconOnly)
                         }
@@ -237,7 +237,7 @@ private struct ShareChannelContent: View {
         guard let secret = generatedSecret else { return nil }
 
         // Format: meshcore://channel/add?name=<name>&secret=<hex>
-        let urlString = "meshcore://channel/add?name=\(channelName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&secret=\(secret.hexString())"
+        let urlString = "meshcore://channel/add?name=\(channelName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&secret=\(secret.uppercaseHexString())"
 
         let context = CIContext()
         let filter = CIFilter.qrCodeGenerator()

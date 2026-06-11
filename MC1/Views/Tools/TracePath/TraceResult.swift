@@ -15,7 +15,7 @@ struct TraceResult: Identifiable {
         let data = Data(tracedPathBytes)
         return stride(from: 0, to: data.count, by: hashSize).map { start in
             let end = min(start + hashSize, data.count)
-            return data[start..<end].hexString()
+            return data[start..<end].uppercaseHexString()
         }.joined(separator: ",")
     }
 

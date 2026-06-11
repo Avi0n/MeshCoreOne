@@ -345,7 +345,7 @@ struct NodeConfigImportPlannerTests {
     func validPrivateKeyAccepted() async throws {
         let identity = try await KeyGenerationService.generateIdentity(hexPrefix: nil)
         let plan = try Self.plan(
-            privateKey: identity.expandedPrivateKey.hexString().lowercased(),
+            privateKey: identity.expandedPrivateKey.hexString,
             sections: Self.identitySections()
         )
         #expect(plan.importPrivateKey == identity.expandedPrivateKey)
@@ -359,8 +359,8 @@ struct NodeConfigImportPlannerTests {
     func matchingKeyPairAccepted() async throws {
         let identity = try await KeyGenerationService.generateIdentity(hexPrefix: nil)
         let plan = try Self.plan(
-            privateKey: identity.expandedPrivateKey.hexString().lowercased(),
-            publicKey: identity.publicKey.hexString().lowercased(),
+            privateKey: identity.expandedPrivateKey.hexString,
+            publicKey: identity.publicKey.hexString,
             sections: Self.identitySections()
         )
         #expect(plan.importPrivateKey == identity.expandedPrivateKey)

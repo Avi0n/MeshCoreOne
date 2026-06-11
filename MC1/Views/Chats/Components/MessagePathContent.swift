@@ -20,7 +20,7 @@ struct MessagePathContent: View {
         return stride(from: 0, to: pathNodes.count, by: size).map { start in
             let end = min(start + size, pathNodes.count)
             let chunk = Data(pathNodes[start..<end])
-            return (chunk, chunk.hexString())
+            return (chunk, chunk.uppercaseHexString())
         }
     }
 

@@ -302,7 +302,7 @@ final class ContactsViewModel {
             // Filter by search text only
             result = result.filter { contact in
                 contact.displayName.localizedStandardContains(searchText)
-                    || contact.publicKey.hexString().hasPrefix(searchText.uppercased())
+                    || contact.publicKey.uppercaseHexString().hasPrefix(searchText.uppercased())
             }
         }
 

@@ -84,6 +84,12 @@ Read [docs/Architecture.md](docs/Architecture.md) before making changes. It is t
 
 The MC1Services package contains no localization resources by design: strings defined there (service `errorDescription` text, `displayName` enum properties, log messages) are developer-facing English. Anything shown to the user must be mapped to the SwiftGen `L10n` enum at the view layer, either through a small app-target extension on the service type (e.g. `NotificationLevel.localizedName`) or, for strings the service layer must emit itself such as notification content, through the `NotificationStringProvider` bridge.
 
+### Conventions
+
+- **Service concurrency shape**: services are `actor`s by default. Use a `@MainActor class` only when wrapping a framework that requires the main thread, and add `@Observable` only when views observe the type directly.
+- **Error types**: each service's error enum is declared inline at the top of the owning service file. The `Errors/` directory is reserved for retroactive conformances (e.g. `MeshCoreError+LocalizedError`) and error types shared across layers.
+- **Dependency injection**: pass dependencies through the initializer. Use setter injection (a mutable property assigned after construction) only to break a reference cycle between two services.
+
 ### Testing
 
 Two simulators are required, because the suites target different iOS versions:

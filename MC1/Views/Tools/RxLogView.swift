@@ -369,7 +369,7 @@ struct RxLogRowView: View {
     /// For TRACE packets: public key prefix IDs from traceTargetHashes.
     private var traceRouteIdParts: [String] {
         guard let targetHashes = entry.traceTargetHashes else { return [] }
-        return targetHashes.map { $0.hexString() }
+        return targetHashes.map { $0.uppercaseHexString() }
     }
 
     /// For non-TRACE packets: public key prefix IDs for each hop, chunked by hashSize.
@@ -384,7 +384,7 @@ struct RxLogRowView: View {
                 return L10n.Tools.Tools.RxLog.pathYou
             }
 
-            return Data(chunk).hexString()
+            return Data(chunk).uppercaseHexString()
         }
     }
 
@@ -409,7 +409,7 @@ struct RxLogRowView: View {
         if let name = nodeNames[hashBytes] {
             return name
         }
-        return hashBytes.hexString()
+        return hashBytes.uppercaseHexString()
     }
 
     // MARK: - Expanded Content

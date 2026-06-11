@@ -633,7 +633,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
         let size = pathHashSize
         return stride(from: 0, to: pathNodes.count, by: size).compactMap { start in
             let end = min(start + size, pathNodes.count)
-            return pathNodes[start..<end].hexString()
+            return pathNodes[start..<end].uppercaseHexString()
         }
     }
 

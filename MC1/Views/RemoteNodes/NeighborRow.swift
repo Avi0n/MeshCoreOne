@@ -77,7 +77,7 @@ struct NeighborRow: View {
 
     private var firstKeyByte: String {
         guard let firstByte = neighbor.publicKeyPrefix.first else { return "" }
-        return Data([firstByte]).hexString()
+        return Data([firstByte]).uppercaseHexString()
     }
 
     private var lastSeenText: String {

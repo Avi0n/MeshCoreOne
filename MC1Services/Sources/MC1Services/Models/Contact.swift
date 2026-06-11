@@ -403,7 +403,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
         let relevantPath = outPath.prefix(pathByteLength)
         return stride(from: 0, to: relevantPath.count, by: size).compactMap { start in
             let end = min(start + size, relevantPath.count)
-            return relevantPath[start..<end].hexString()
+            return relevantPath[start..<end].uppercaseHexString()
         }
     }
 
@@ -421,7 +421,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     }
 
     public var publicKeyHex: String {
-        publicKey.hexString()
+        publicKey.uppercaseHexString()
     }
 
     /// Returns a copy with only `isMuted` changed.

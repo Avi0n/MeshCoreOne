@@ -31,7 +31,7 @@ struct RecentHopsStore {
 
     /// LRU-insert `pubkey` into `current`, persist for `radioID`, and return the new list.
     /// Moves an existing key to the front rather than duplicating; trims to ``limit``.
-    /// Stores lowercase hex (`Data.hex`), which `Data(hexString:)` round-trips case-insensitively.
+    /// Stores lowercase hex (`Data.hexString`), which `Data(hexString:)` round-trips case-insensitively.
     func record(_ pubkey: Data, into current: [Data], for radioID: UUID) -> [Data] {
         var updated = current
         updated.removeAll { $0 == pubkey }
@@ -39,7 +39,7 @@ struct RecentHopsStore {
         if updated.count > Self.limit {
             updated = Array(updated.prefix(Self.limit))
         }
-        defaults.set(updated.map(\.hex), forKey: Self.defaultsKey(for: radioID))
+        defaults.set(updated.map(\.hexString), forKey: Self.defaultsKey(for: radioID))
         return updated
     }
 }

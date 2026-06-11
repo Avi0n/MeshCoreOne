@@ -212,7 +212,7 @@ public actor MessageService {
             // after the message was already failed and removed, or a duplicate
             // for an already-delivered message. Counting these quantifies how
             // many delivery confirmations are being lost to premature give-up.
-            logger.warning("[ack-diag] unmatched ACK code=\(code.hexString()) livePending=\(pendingAcks.count) (late post-teardown or duplicate)")
+            logger.warning("[ack-diag] unmatched ACK code=\(code.uppercaseHexString()) livePending=\(pendingAcks.count) (late post-teardown or duplicate)")
             return
         }
 

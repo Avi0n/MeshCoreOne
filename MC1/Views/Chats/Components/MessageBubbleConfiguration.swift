@@ -39,7 +39,7 @@ struct MessageBubbleConfiguration: Sendable {
 
         // Fallback to hex representation
         if prefix.count >= 2 {
-            return NodeNameResolution(displayName: prefix.prefix(2).hexString(), matchKind: .unresolved)
+            return NodeNameResolution(displayName: prefix.prefix(2).uppercaseHexString(), matchKind: .unresolved)
         }
         return NodeNameResolution(
             displayName: L10n.Chats.Chats.Message.Sender.unknown,

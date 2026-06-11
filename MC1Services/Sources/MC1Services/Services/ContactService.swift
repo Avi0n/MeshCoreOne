@@ -395,7 +395,7 @@ public actor ContactService {
         components.path = contactURIPath
         components.queryItems = [
             URLQueryItem(name: contactURINameKey, value: name),
-            URLQueryItem(name: contactURIPublicKeyKey, value: publicKey.hexString()),
+            URLQueryItem(name: contactURIPublicKeyKey, value: publicKey.uppercaseHexString()),
             URLQueryItem(name: contactURITypeKey, value: String(type.rawValue))
         ]
         return components.url?.absoluteString ?? ""
@@ -542,7 +542,7 @@ public actor ContactService {
 
         // Build MeshContact for device update
         let meshContact = MeshContact(
-            id: existing.publicKey.hexString(),
+            id: existing.publicKey.uppercaseHexString(),
             publicKey: existing.publicKey,
             type: ContactType(rawValue: existing.typeRawValue) ?? .chat,
             flags: ContactFlags(rawValue: existing.flags),
@@ -617,7 +617,7 @@ public actor ContactService {
 
         // Build MeshContact for device update
         let meshContact = MeshContact(
-            id: existing.publicKey.hexString(),
+            id: existing.publicKey.uppercaseHexString(),
             publicKey: existing.publicKey,
             type: ContactType(rawValue: existing.typeRawValue) ?? .chat,
             flags: ContactFlags(rawValue: existing.flags),
@@ -756,7 +756,7 @@ extension ContactFrame {
     /// Converts a ContactFrame to a MeshContact for session operations
     public func toMeshContact() -> MeshContact {
         MeshContact(
-            id: publicKey.hexString(),
+            id: publicKey.uppercaseHexString(),
             publicKey: publicKey,
             type: type,
             typeRawValue: typeRawValue,

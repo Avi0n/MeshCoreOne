@@ -156,6 +156,6 @@ enum NeighborNameResolver {
     }
 
     static func fallbackName(for prefix: Data) -> String {
-        prefix.prefix(4).hexString()
+        prefix.prefix(4).uppercaseHexString()
     }
 }

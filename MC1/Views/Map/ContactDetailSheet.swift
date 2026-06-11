@@ -72,7 +72,7 @@ struct ContactDetailSheet: View {
                         Text(L10n.Map.Map.Detail.publicKey)
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        Text(contact.publicKey.hexString(separator: " "))
+                        Text(contact.publicKey.uppercaseHexString(separator: " "))
                             .font(.system(.caption, design: .monospaced))
                             .textSelection(.enabled)
                     }

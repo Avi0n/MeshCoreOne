@@ -101,7 +101,7 @@ extension MessageService {
 
         if sentInfo.expectedAck != predictedAck {
             logger.warning(
-                "expectedAck mismatch for \(messageID) attempt 0: predicted \(predictedAck.hexString()) vs firmware \(sentInfo.expectedAck.hexString()); merging firmware code"
+                "expectedAck mismatch for \(messageID) attempt 0: predicted \(predictedAck.uppercaseHexString()) vs firmware \(sentInfo.expectedAck.uppercaseHexString()); merging firmware code"
             )
             trackPendingAck(
                 messageID: messageID,
@@ -540,7 +540,7 @@ extension MessageService {
 
             if sentInfo.expectedAck != predictedAck {
                 logger.warning(
-                    "expectedAck mismatch for \(messageID) attempt \(attempts): predicted \(predictedAck.hexString()) vs firmware \(sentInfo.expectedAck.hexString()); merging firmware code"
+                    "expectedAck mismatch for \(messageID) attempt \(attempts): predicted \(predictedAck.uppercaseHexString()) vs firmware \(sentInfo.expectedAck.uppercaseHexString()); merging firmware code"
                 )
                 trackPendingAck(
                     messageID: messageID,
@@ -634,7 +634,7 @@ extension MessageService {
         // collisions across distinct in-flight messages measures how often a
         // delivery confirmation could be attributed to the wrong message.
         if let colliding = pendingAcks.first(where: { $0.key != messageID && $0.value.ackCodes.contains(ackCode) }) {
-            logger.warning("[ack-diag] ackCode collision: code=\(ackCode.hexString()) shared by messages \(colliding.key) and \(messageID)")
+            logger.warning("[ack-diag] ackCode collision: code=\(ackCode.uppercaseHexString()) shared by messages \(colliding.key) and \(messageID)")
         }
         if var existing = pendingAcks[messageID] {
             existing.ackCodes.insert(ackCode)

@@ -423,7 +423,7 @@ private struct ChannelInfoQRCodeSection: View {
 
     private func generateQRCode() -> UIImage? {
         // Format: meshcore://channel/add?name=<name>&secret=<hex>
-        let urlString = "meshcore://channel/add?name=\(channel.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&secret=\(channel.secret.hexString())"
+        let urlString = "meshcore://channel/add?name=\(channel.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&secret=\(channel.secret.uppercaseHexString())"
 
         let context = CIContext()
         let filter = CIFilter.qrCodeGenerator()
@@ -455,7 +455,7 @@ private struct ChannelInfoSecretKeySection: View {
                     .foregroundStyle(.secondary)
 
                 HStack {
-                    Text(channel.secret.hexString())
+                    Text(channel.secret.uppercaseHexString())
                         .font(.system(.body, design: .monospaced))
                         .textSelection(.enabled)
 
@@ -463,7 +463,7 @@ private struct ChannelInfoSecretKeySection: View {
 
                     Button(L10n.Chats.Chats.ChannelInfo.copy, systemImage: "doc.on.doc") {
                         copyHapticTrigger += 1
-                        UIPasteboard.general.string = channel.secret.hexString()
+                        UIPasteboard.general.string = channel.secret.uppercaseHexString()
                     }
                     .labelStyle(.iconOnly)
                 }

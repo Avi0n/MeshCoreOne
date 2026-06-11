@@ -48,7 +48,7 @@ struct ContactMatchRow: View {
                         }
                     }
 
-                    Text(L10n.Chats.Chats.ContactMatch.key(contact.publicKey.hexString(separator: " ")))
+                    Text(L10n.Chats.Chats.ContactMatch.key(contact.publicKey.uppercaseHexString(separator: " ")))
                         .font(.caption)
                         .monospaced()
                         .foregroundStyle(.tertiary)

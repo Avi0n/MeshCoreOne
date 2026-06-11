@@ -29,7 +29,7 @@ struct ShareContactPickerSheet: View {
         return contacts.filter { contact in
             contact.name.localizedCaseInsensitiveContains(searchText) ||
             (contact.nickname?.localizedCaseInsensitiveContains(searchText) ?? false) ||
-            contact.publicKey.hexString().hasPrefix(searchText.uppercased())
+            contact.publicKey.uppercaseHexString().hasPrefix(searchText.uppercased())
         }
     }
 
@@ -121,7 +121,7 @@ struct ShareContactPickerSheet: View {
 
     private func idPrefixHex(for contact: ContactDTO) -> String {
         let hashSize = appState.connectedDevice?.hashSize ?? 1
-        return contact.publicKey.prefix(hashSize).hexString()
+        return contact.publicKey.prefix(hashSize).uppercaseHexString()
     }
 
     private func contactTypeLabel(for contact: ContactDTO) -> String {

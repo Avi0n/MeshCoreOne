@@ -224,7 +224,7 @@ final class TracePathViewModel {
         let size = outboundPath.first?.hashBytes.count ?? hashSize
         return stride(from: 0, to: data.count, by: size).map { start in
             let end = min(start + size, data.count)
-            return data[start..<end].hexString()
+            return data[start..<end].uppercaseHexString()
         }.joined(separator: ",")
     }
 

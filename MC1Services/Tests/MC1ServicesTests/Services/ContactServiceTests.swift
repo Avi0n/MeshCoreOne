@@ -116,7 +116,7 @@ struct ContactServiceTests {
         let longitude = -122.4194
 
         let meshContact = MeshContact(
-            id: publicKey.hexString(),
+            id: publicKey.uppercaseHexString(),
             publicKey: publicKey,
             type: .chat,
             flags: ContactFlags(rawValue: testFlags),
@@ -151,7 +151,7 @@ struct ContactServiceTests {
 
         // Test chat type
         let chatContact = MeshContact(
-            id: publicKey.hexString(),
+            id: publicKey.uppercaseHexString(),
             publicKey: publicKey,
             type: .chat,
             flags: ContactFlags(rawValue: 0),
@@ -167,7 +167,7 @@ struct ContactServiceTests {
 
         // Test repeater type
         let repeaterContact = MeshContact(
-            id: publicKey.hexString(),
+            id: publicKey.uppercaseHexString(),
             publicKey: publicKey,
             type: .repeater,
             flags: ContactFlags(rawValue: 0),
@@ -183,7 +183,7 @@ struct ContactServiceTests {
 
         // Test room type
         let roomContact = MeshContact(
-            id: publicKey.hexString(),
+            id: publicKey.uppercaseHexString(),
             publicKey: publicKey,
             type: .room,
             flags: ContactFlags(rawValue: 0),
@@ -214,7 +214,7 @@ struct ContactServiceTests {
         let publicKey = Data(repeating: 0x00, count: ProtocolLimits.publicKeySize)
 
         let floodContact = MeshContact(
-            id: publicKey.hexString(),
+            id: publicKey.uppercaseHexString(),
             publicKey: publicKey,
             type: .chat,
             flags: ContactFlags(rawValue: 0),
@@ -262,7 +262,7 @@ struct ContactServiceTests {
         let meshContact = contactFrame.toMeshContact()
 
         // Verify all fields are correctly mapped
-        #expect(meshContact.id == publicKey.hexString())
+        #expect(meshContact.id == publicKey.uppercaseHexString())
         #expect(meshContact.publicKey == publicKey)
         #expect(meshContact.type == .chat)
         #expect(meshContact.flags == ContactFlags(rawValue: testFlags))
@@ -298,7 +298,7 @@ struct ContactServiceTests {
         let meshContact = contactFrame.toMeshContact()
 
         // ID should be hex string of public key (uppercase)
-        let expectedID = publicKey.hexString()
+        let expectedID = publicKey.uppercaseHexString()
         #expect(meshContact.id == expectedID)
     }
 
@@ -359,7 +359,7 @@ struct ContactServiceTests {
         let publicKey = testPublicKey
 
         let original = MeshContact(
-            id: publicKey.hexString(),
+            id: publicKey.uppercaseHexString(),
             publicKey: publicKey,
             type: .repeater,
             flags: ContactFlags(rawValue: 0x05),

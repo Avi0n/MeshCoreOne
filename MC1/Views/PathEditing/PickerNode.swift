@@ -22,8 +22,8 @@ enum PickerNode: Identifiable {
 
     var publicKeyHex: String {
         switch self {
-        case .contact(let c): c.publicKey.hexString()
-        case .discovered(let d): d.publicKey.hexString()
+        case .contact(let c): c.publicKey.uppercaseHexString()
+        case .discovered(let d): d.publicKey.uppercaseHexString()
         }
     }
 

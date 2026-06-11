@@ -107,7 +107,7 @@ struct ContactRowView: View {
 
     private var idPrefixHex: String {
         let hashSize = appState.connectedDevice?.hashSize ?? 1
-        return contact.publicKey.prefix(hashSize).hexString()
+        return contact.publicKey.prefix(hashSize).uppercaseHexString()
     }
 
     private var contactTypeLabel: String {

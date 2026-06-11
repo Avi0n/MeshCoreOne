@@ -895,7 +895,7 @@ private struct ContactNetworkPathSection: View {
             if let name = pathViewModel.resolveHashToName(hopBytes) {
                 return name
             }
-            return hopBytes.hexString()
+            return hopBytes.uppercaseHexString()
         }.joined(separator: " \u{2192} ")
     }
 
@@ -1044,7 +1044,7 @@ private struct ContactTechnicalSection: View {
                 Text(L10n.Contacts.Contacts.Detail.publicKey)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Text(currentContact.publicKey.hexString(separator: " "))
+                Text(currentContact.publicKey.uppercaseHexString(separator: " "))
                     .font(.system(.caption, design: .monospaced))
                     .textSelection(.enabled)
             }

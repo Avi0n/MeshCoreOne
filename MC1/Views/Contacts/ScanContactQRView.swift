@@ -184,7 +184,7 @@ struct ScanContactQRView: View {
                 lastModified: currentTimestamp
             )
 
-            logger.info("Importing contact: \(contact.name) (\(contact.publicKey.hexString()))")
+            logger.info("Importing contact: \(contact.name) (\(contact.publicKey.uppercaseHexString()))")
             try await services.contactService.addOrUpdateContact(radioID: radioID, contact: contactFrame)
             logger.info("Contact imported successfully")
 

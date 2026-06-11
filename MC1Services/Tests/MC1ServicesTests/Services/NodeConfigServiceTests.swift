@@ -30,7 +30,7 @@ struct NodeConfigServiceTests {
     )
 
     private static let testContact = MeshContact(
-        id: Data(repeating: 0x01, count: 32).hexString().lowercased(),
+        id: Data(repeating: 0x01, count: 32).hexString,
         publicKey: Data(repeating: 0x01, count: 32),
         type: .chat,
         flags: ContactFlags(rawValue: 0x02),
@@ -44,7 +44,7 @@ struct NodeConfigServiceTests {
     )
 
     private static let floodContact = MeshContact(
-        id: Data(repeating: 0x02, count: 32).hexString().lowercased(),
+        id: Data(repeating: 0x02, count: 32).hexString,
         publicKey: Data(repeating: 0x02, count: 32),
         type: .repeater,
         flags: [],
@@ -58,7 +58,7 @@ struct NodeConfigServiceTests {
     )
 
     private static let zeroPathContact = MeshContact(
-        id: Data(repeating: 0x03, count: 32).hexString().lowercased(),
+        id: Data(repeating: 0x03, count: 32).hexString,
         publicKey: Data(repeating: 0x03, count: 32),
         type: .chat,
         flags: [],
@@ -171,7 +171,7 @@ struct NodeConfigServiceTests {
 
         #expect(config.type == 1)
         #expect(config.name == "RemoteNode")
-        #expect(config.publicKey == Data(repeating: 0x01, count: 32).hexString().lowercased())
+        #expect(config.publicKey == Data(repeating: 0x01, count: 32).hexString)
         #expect(config.flags == 0x02)
         #expect(config.latitude == "47.43")
         #expect(config.longitude == "-120.36")

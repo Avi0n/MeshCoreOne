@@ -117,7 +117,7 @@ public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterReso
         let relevantPath = outPath.prefix(pathByteLength)
         return stride(from: 0, to: relevantPath.count, by: size).compactMap { start in
             let end = min(start + size, relevantPath.count)
-            return relevantPath[start..<end].hexString()
+            return relevantPath[start..<end].uppercaseHexString()
         }
     }
 

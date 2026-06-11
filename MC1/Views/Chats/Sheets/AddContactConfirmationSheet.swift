@@ -157,7 +157,7 @@ private struct ContactAddConfirmationContent: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
-                Text(contactResult.publicKey.hexString())
+                Text(contactResult.publicKey.uppercaseHexString())
                     .font(.caption)
                     .monospaced()
                     .foregroundStyle(.tertiary)

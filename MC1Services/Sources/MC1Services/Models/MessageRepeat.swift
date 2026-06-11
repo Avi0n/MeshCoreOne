@@ -147,7 +147,7 @@ public struct MessageRepeatDTO: Sendable, Identifiable, Equatable, Hashable, Cod
     /// Repeater hash formatted as hex (e.g., "31" for 1-byte, "31A7" for 2-byte)
     public var repeaterHashFormatted: String {
         guard let hash = repeaterHash else { return "00" }
-        return hash.hexString()
+        return hash.uppercaseHexString()
     }
 
     /// Path nodes as hex strings for display, chunked by hash size
@@ -156,7 +156,7 @@ public struct MessageRepeatDTO: Sendable, Identifiable, Equatable, Hashable, Cod
         guard size > 0 else { return pathNodes.map { String(format: "%02X", $0) } }
         return stride(from: 0, to: pathNodes.count, by: size).compactMap { start in
             let end = min(start + size, pathNodes.count)
-            return pathNodes[start..<end].hexString()
+            return pathNodes[start..<end].uppercaseHexString()
         }
     }
 
