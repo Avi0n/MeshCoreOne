@@ -141,8 +141,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     private var isAutoFetchingMessages = false
     private var autoMessageDrainRequested = false
     private var autoContactRefreshRequested = false
-    private var isGetMessageInFlight = false
-    private var getMessageWaiters: [CheckedContinuation<MessageResult, Error>] = []
+    private var inFlightGetMessage: Task<MessageResult, Error>?
 
     // MARK: - Connection State
 
@@ -156,18 +155,15 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     public var connectionState: AsyncStream<ConnectionState> {
         AsyncStream { continuation in
             let id = UUID()
-            // Yield current state immediately
+            // Yield current state immediately. The build closure runs on the actor,
+            // so registering synchronously here means no transition can slip in
+            // between the first yield and registration.
             continuation.yield(_connectionState)
-            // Store continuation for future updates
-            Task { self.addConnectionStateContinuation(id: id, continuation: continuation) }
+            connectionStateContinuations[id] = continuation
             continuation.onTermination = { _ in
                 Task { await self.removeConnectionStateContinuation(id: id) }
             }
         }
-    }
-
-    private func addConnectionStateContinuation(id: UUID, continuation: AsyncStream<ConnectionState>.Continuation) {
-        connectionStateContinuations[id] = continuation
     }
 
     private func removeConnectionStateContinuation(id: UUID) {
@@ -251,7 +247,19 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
         // Send appstart
         logger.info("Sending appStart command...")
-        selfInfo = try await sendAppStart()
+        do {
+            selfInfo = try await sendAppStart()
+        } catch {
+            // Unwind the half-started session so a retry start() runs the full
+            // handshake instead of hitting the isRunning guard and no-opping.
+            logger.warning("appStart failed: \(error.localizedDescription)")
+            isRunning = false
+            receiveTask?.cancel()
+            receiveTask = nil
+            await transport.disconnect()
+            updateConnectionState(.failed(error as? MeshTransportError ?? .connectionFailed(error.localizedDescription)))
+            throw error
+        }
         logger.info("MeshCore session started")
     }
 
@@ -1813,23 +1821,19 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ///            channel datagram (firmware v11+), or ``MessageResult/noMoreMessages``.
     /// - Throws: ``MeshCoreError`` if the fetch fails.
     public func getMessage(timeout: TimeInterval? = nil) async throws -> MessageResult {
-        if isGetMessageInFlight {
-            return try await withCheckedThrowingContinuation { continuation in
-                getMessageWaiters.append(continuation)
-            }
+        // Calls arriving while a fetch is in flight coalesce onto the same task and
+        // share its outcome, so every coalesced caller's wait is bounded by the
+        // leader's timeout and released on every completion path. The exchange runs
+        // in its own task so a cancelled caller cannot abandon it mid-wire; late
+        // responses still resolve inside the serializer instead of leaking.
+        if let inFlight = inFlightGetMessage {
+            return try await inFlight.value
         }
 
-        isGetMessageInFlight = true
-        defer { isGetMessageInFlight = false }
-
-        do {
-            let result = try await performGetMessage(timeout: timeout)
-            finishGetMessageWaiters(with: .success(result))
-            return result
-        } catch {
-            finishGetMessageWaiters(with: .failure(error))
-            throw error
-        }
+        let task = Task { try await performGetMessage(timeout: timeout) }
+        inFlightGetMessage = task
+        defer { inFlightGetMessage = nil }
+        return try await task.value
     }
 
     private func performGetMessage(timeout: TimeInterval? = nil) async throws -> MessageResult {
@@ -1892,20 +1896,6 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
                 }
 
                 return result
-            }
-        }
-    }
-
-    private func finishGetMessageWaiters(with result: Result<MessageResult, Error>) {
-        let waiters = getMessageWaiters
-        getMessageWaiters.removeAll(keepingCapacity: false)
-
-        for waiter in waiters {
-            switch result {
-            case .success(let messageResult):
-                waiter.resume(returning: messageResult)
-            case .failure(let error):
-                waiter.resume(throwing: error)
             }
         }
     }

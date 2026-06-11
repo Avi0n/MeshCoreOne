@@ -206,4 +206,112 @@ struct WiFiTransportTests {
         }
         listener.cancel()
     }
+
+    @Test("Peer close finishes the stream and fires the disconnection handler")
+    func peerCloseTearsDownConnection() async throws {
+        let acceptedConnections = OSAllocatedUnfairLock<[NWConnection]>(initialState: [])
+        let listener = try await startLocalListener { conn in
+            acceptedConnections.withLock { $0.append(conn) }
+        }
+        defer {
+            acceptedConnections.withLock { conns in
+                for conn in conns { conn.cancel() }
+            }
+            listener.cancel()
+        }
+
+        guard let port = listener.port?.rawValue else {
+            Issue.record("Listener has no port")
+            return
+        }
+
+        let transport = WiFiTransport()
+        let disconnectionTracker = CallTracker()
+        await transport.setDisconnectionHandler { _ in
+            disconnectionTracker.markCalled()
+        }
+        await transport.setConnectionInfo(host: "127.0.0.1", port: port)
+        try await transport.connect()
+
+        let streamEnded = CallTracker()
+        let consumeTask = Task {
+            for await _ in await transport.receivedData {}
+            streamEnded.markCalled()
+        }
+
+        try await waitUntil(timeout: .seconds(2), "Server should accept the connection") {
+            acceptedConnections.withLock { !$0.isEmpty }
+        }
+
+        // The radio closes the TCP stream cleanly (FIN).
+        let serverSide = acceptedConnections.withLock { $0.first }
+        serverSide?.send(
+            content: nil,
+            contentContext: .finalMessage,
+            isComplete: true,
+            completion: .contentProcessed { _ in }
+        )
+
+        try await waitUntil(timeout: .seconds(2), "Peer close should fire the disconnection handler") {
+            disconnectionTracker.wasCalled
+        }
+        try await waitUntil(timeout: .seconds(2), "Peer close should finish the receivedData stream") {
+            streamEnded.wasCalled
+        }
+        #expect(await transport.isConnected == false, "Peer close should mark the transport disconnected")
+
+        consumeTask.cancel()
+        await transport.disconnect()
+    }
+
+    @Test("Cancelling connect() does not leave it parked")
+    func cancellingConnectReturnsPromptly() async throws {
+        let transport = WiFiTransport()
+        // TEST-NET-1 (RFC 5737) is unrouted: the SYN is dropped, so without
+        // cancellation support connect() would park until the system TCP timeout.
+        await transport.setConnectionInfo(host: "192.0.2.1", port: 9)
+
+        let connectTask = Task { try await transport.connect() }
+        try? await Task.sleep(for: .milliseconds(200))
+        connectTask.cancel()
+
+        let completed = CallTracker()
+        Task {
+            _ = await connectTask.result
+            completed.markCalled()
+        }
+        try await waitUntil(timeout: .seconds(3), "connect() should return promptly after cancellation") {
+            completed.wasCalled
+        }
+
+        await #expect(throws: (any Error).self) { try await connectTask.value }
+        #expect(await transport.isConnected == false)
+    }
+}
+
+/// Starts an `NWListener` on an ephemeral localhost port and waits until it is ready.
+private func startLocalListener(
+    onAccept: @escaping @Sendable (NWConnection) -> Void
+) async throws -> NWListener {
+    let listener = try NWListener(using: .tcp)
+    listener.newConnectionHandler = { conn in
+        onAccept(conn)
+        conn.start(queue: .global())
+    }
+
+    let listenerReady = AsyncStream<NWListener.State>.makeStream()
+    listener.stateUpdateHandler = { state in
+        listenerReady.continuation.yield(state)
+    }
+    listener.start(queue: .global(qos: .userInitiated))
+
+    for await state in listenerReady.stream {
+        if state == .ready { break }
+        if case .failed(let error) = state {
+            listenerReady.continuation.finish()
+            throw error
+        }
+    }
+    listenerReady.continuation.finish()
+    return listener
 }

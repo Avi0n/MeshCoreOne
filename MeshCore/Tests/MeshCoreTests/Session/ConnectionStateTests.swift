@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import os
 @testable import MeshCore
 
 @Suite("MeshCoreSession connection state")
@@ -58,6 +59,49 @@ struct ConnectionStateTests {
         #expect(await iterator.next() == .connected)
 
         await session.stop()
+    }
+
+    @Test("failed appStart unwinds start so it can be retried")
+    func failedAppStartUnwindsStart() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 0.05, clientIdentifier: "Test")
+        )
+
+        let observedStates = OSAllocatedUnfairLock<[ConnectionState]>(initialState: [])
+        let observerTask = Task {
+            for await state in await session.connectionState {
+                observedStates.withLock { $0.append(state) }
+            }
+        }
+        try await waitUntil("subscriber should see the initial state") {
+            observedStates.withLock { $0.first == .disconnected }
+        }
+
+        // No selfInfo response arrives, so appStart times out.
+        await #expect(throws: MeshCoreError.self) {
+            try await session.start()
+        }
+
+        try await waitUntil("a failed appStart should publish .failed") {
+            observedStates.withLock { states in
+                if case .failed = states.last { return true }
+                return false
+            }
+        }
+        let states = observedStates.withLock { $0 }
+        #expect(states.contains(.connecting))
+        #expect(states.contains(.connected))
+        #expect(await session.currentSelfInfo == nil)
+
+        // A retry must attempt the handshake again rather than silently no-op.
+        await #expect(throws: MeshCoreError.self) {
+            try await session.start()
+        }
+        #expect(await transport.sentData.count == 2, "retry start() should send a fresh appStart")
+
+        observerTask.cancel()
     }
 
     @Test("getContact rejects short public key before sending")

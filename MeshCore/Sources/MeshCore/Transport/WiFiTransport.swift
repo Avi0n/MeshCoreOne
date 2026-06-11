@@ -149,10 +149,10 @@ public actor WiFiTransport: MeshTransport {
                 group.cancelAll()
             } catch {
                 group.cancelAll()
-                // On timeout, cancel the pending connection
-                if let err = error as? WiFiTransportError, err == .connectionTimeout {
-                    self.cancelPendingConnection()
-                }
+                // Resume the parked connection continuation on every failure path,
+                // including caller-task cancellation; the group cannot finish
+                // tearing down while that child stays suspended.
+                self.cancelPendingConnection()
                 throw error
             }
         }
@@ -322,15 +322,36 @@ public actor WiFiTransport: MeshTransport {
 
                 if let error {
                     self.logger.error("Receive error: \(error.localizedDescription)")
+                    await self.handleReceiveTermination(error)
                     return
                 }
 
-                if !isComplete {
-                    guard await self._isConnected else { return }
-                    await self.startReceiving()
+                if isComplete {
+                    self.logger.info("Connection closed by peer")
+                    await self.handleReceiveTermination(nil)
+                    return
                 }
+
+                guard await self._isConnected else { return }
+                await self.startReceiving()
             }
         }
+    }
+
+    /// Tears down the connection when the receive loop observes the peer closing the
+    /// stream or a receive error, mirroring the `.failed` state transition: the data
+    /// stream finishes so the session's receive loop ends, and the disconnection
+    /// handler fires. Guarded on `_isConnected` so a `.failed` state change and a
+    /// receive error for the same loss notify exactly once.
+    private func handleReceiveTermination(_ error: Error?) {
+        guard _isConnected else { return }
+        _isConnected = false
+        connection?.stateUpdateHandler = nil
+        connection?.cancel()
+        connection = nil
+        frameDecoder.reset()
+        dataContinuation.finish()
+        disconnectionHandler?(error)
     }
 
     private func processReceivedData(_ data: Data) {
