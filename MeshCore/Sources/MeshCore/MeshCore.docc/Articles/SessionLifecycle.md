@@ -97,7 +97,8 @@ func attemptReconnection() async {
 
         do {
             // Create a new session
-            let newTransport = BLETransport(peripheral: peripheral)
+            let newTransport = WiFiTransport()
+            await newTransport.setConnectionInfo(host: host, port: port)
             let newSession = MeshCoreSession(transport: newTransport)
             try await newSession.start()
 

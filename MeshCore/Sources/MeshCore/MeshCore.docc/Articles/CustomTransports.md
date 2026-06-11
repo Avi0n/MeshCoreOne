@@ -112,8 +112,12 @@ try await session.start()
 ## Built-in Transports
 
 MeshCore includes:
-- ``BLETransport``: Bluetooth Low Energy for iOS/macOS
+- ``WiFiTransport``: TCP transport for WiFi-bridged devices
 - ``MockTransport``: In-memory transport for testing
+
+Bluetooth Low Energy is implemented at the app layer, where pairing and
+reconnection policy live: implement ``MeshTransport`` over your platform's
+BLE stack as shown below.
 
 ## Testing with MockTransport
 

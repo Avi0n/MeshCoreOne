@@ -12,14 +12,17 @@ MeshCore communication requires two components: a transport layer and a session.
 
 ```swift
 import MeshCore
-import CoreBluetooth
 
-// Create a BLE transport with a discovered peripheral
-let transport = BLETransport(peripheral: peripheral)
+// Create a WiFi transport pointed at the device
+let transport = WiFiTransport()
+await transport.setConnectionInfo(host: "192.168.1.100", port: 5000)
 
 // Create a session with the transport
 let session = MeshCoreSession(transport: transport)
 ```
+
+For Bluetooth Low Energy, implement ``MeshTransport`` over your platform's BLE
+stack (see <doc:CustomTransports>).
 
 ## Connecting to the Device
 

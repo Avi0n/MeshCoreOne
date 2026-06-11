@@ -47,7 +47,8 @@ private enum ChannelPipelineOutcome: Sendable {
 ///
 /// ```swift
 /// // Create a session with a transport
-/// let transport = BLETransport(peripheral: peripheral)
+/// let transport = WiFiTransport()
+/// await transport.setConnectionInfo(host: "192.168.1.100", port: 5000)
 /// let session = MeshCoreSession(transport: transport)
 ///
 /// // Connect and start the session
@@ -182,7 +183,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// to the device and begin communication.
     ///
     /// - Parameters:
-    ///   - transport: The transport layer for device communication (e.g., ``BLETransport``).
+    ///   - transport: The transport layer for device communication (e.g., ``WiFiTransport``).
     ///   - configuration: Session configuration options. Defaults to ``SessionConfiguration/default``.
     ///   - clock: The clock for timing operations. Defaults to `ContinuousClock` for production use.
     ///            Inject a test clock for deterministic testing of timeouts.

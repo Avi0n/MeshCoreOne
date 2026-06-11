@@ -29,7 +29,7 @@ public actor WiFiTransport: MeshTransport {
     private var connection: NWConnection?
     private var frameDecoder = WiFiFrameDecoder()
 
-    // AsyncStream created in init, matching BLETransport pattern
+    // AsyncStream created in init so receivedData is valid before connect()
     private let dataStream: AsyncStream<Data>
     private let dataContinuation: AsyncStream<Data>.Continuation
 
@@ -70,7 +70,7 @@ public actor WiFiTransport: MeshTransport {
     public var supportsPipelinedReads: Bool { true }
 
     public init() {
-        // Create stream in init, matching BLETransport pattern
+        // Create stream in init so receivedData is valid before connect()
         let (stream, continuation) = AsyncStream<Data>.makeStream()
         self.dataStream = stream
         self.dataContinuation = continuation
@@ -215,7 +215,7 @@ public actor WiFiTransport: MeshTransport {
         try await withThrowingTaskGroup(of: Void.self) { group in
             group.addTask {
                 // Lock-protected continuation prevents double-resume when both
-                // contentProcessed and onCancel fire (matches BLETransport pattern)
+                // contentProcessed and onCancel fire
                 let state = OSAllocatedUnfairLock<CheckedContinuation<Void, Error>?>(initialState: nil)
 
                 try await withTaskCancellationHandler {

@@ -8,8 +8,11 @@ import Foundation
 ///
 /// ## Built-in Implementations
 ///
-/// - ``BLETransport``: Bluetooth Low Energy transport for iOS and macOS.
+/// - ``WiFiTransport``: TCP transport for WiFi-bridged devices.
 /// - ``MockTransport``: In-memory transport for unit testing and simulation.
+///
+/// Bluetooth Low Energy is a platform concern: implement this protocol over your
+/// platform's BLE stack, where pairing and reconnection policy live.
 ///
 /// ## Custom Implementations
 ///

@@ -115,5 +115,5 @@ MeshCore provides a modern Swift API for controlling MeshCore devices from iOS a
 
 ### Transport Implementations
 
-- ``BLETransport``
+- ``WiFiTransport``
 - ``MockTransport``
