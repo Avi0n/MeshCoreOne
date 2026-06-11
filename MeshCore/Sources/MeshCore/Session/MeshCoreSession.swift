@@ -117,6 +117,14 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     private let pendingRequests = PendingRequests()
     private let requestResponseSerializer = RequestResponseSerializer()
 
+    // Serializes the read-modify-write of the granular "other params" setters. The
+    // inner wire exchanges already serialize on requestResponseSerializer, but a
+    // read-modify-write spans several of them, so without this outer guard two
+    // concurrent setters each write back the full config and silently revert each
+    // other's change. This is a distinct lock from requestResponseSerializer, which
+    // is not reentrant; nesting the two would deadlock.
+    private let otherParamsSerializer = RequestResponseSerializer()
+
     // State
     private var contactManager = ContactManager()
     private var selfInfo: SelfInfo?
@@ -1353,9 +1361,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Parameter mode: Telemetry mode value (0-3, higher bits are masked off).
     /// - Throws: ``MeshCoreError/sessionNotStarted`` if device info unavailable.
     public func setTelemetryModeBase(_ mode: UInt8) async throws {
-        var config = try await currentOtherParams()
-        config.telemetryModeBase = mode & 0b11
-        try await applyOtherParams(config)
+        try await mutateOtherParams { $0.telemetryModeBase = mode & 0b11 }
     }
 
     /// Sets the location telemetry mode (preserves other settings).
@@ -1363,9 +1369,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Parameter mode: Telemetry mode value (0-3).
     /// - Throws: ``MeshCoreError/sessionNotStarted`` if device info unavailable.
     public func setTelemetryModeLocation(_ mode: UInt8) async throws {
-        var config = try await currentOtherParams()
-        config.telemetryModeLocation = mode & 0b11
-        try await applyOtherParams(config)
+        try await mutateOtherParams { $0.telemetryModeLocation = mode & 0b11 }
     }
 
     /// Sets the environment telemetry mode (preserves other settings).
@@ -1373,9 +1377,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Parameter mode: Telemetry mode value (0-3).
     /// - Throws: ``MeshCoreError/sessionNotStarted`` if device info unavailable.
     public func setTelemetryModeEnvironment(_ mode: UInt8) async throws {
-        var config = try await currentOtherParams()
-        config.telemetryModeEnvironment = mode & 0b11
-        try await applyOtherParams(config)
+        try await mutateOtherParams { $0.telemetryModeEnvironment = mode & 0b11 }
     }
 
     /// Sets the manual add contacts mode (preserves other settings).
@@ -1386,9 +1388,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Parameter enabled: Whether contacts must be manually approved.
     /// - Throws: ``MeshCoreError/sessionNotStarted`` if device info unavailable.
     public func setManualAddContacts(_ enabled: Bool) async throws {
-        var config = try await currentOtherParams()
-        config.manualAddContacts = enabled
-        try await applyOtherParams(config)
+        try await mutateOtherParams { $0.manualAddContacts = enabled }
     }
 
     /// Sets the multi-acks count (preserves other settings).
@@ -1396,9 +1396,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Parameter count: Number of acknowledgment retries.
     /// - Throws: ``MeshCoreError/sessionNotStarted`` if device info unavailable.
     public func setMultiAcks(_ count: UInt8) async throws {
-        var config = try await currentOtherParams()
-        config.multiAcks = count
-        try await applyOtherParams(config)
+        try await mutateOtherParams { $0.multiAcks = count }
     }
 
     /// Sets the advertisement location policy (preserves other settings).
@@ -1406,9 +1404,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     /// - Parameter policy: Location advertising policy value.
     /// - Throws: ``MeshCoreError/sessionNotStarted`` if device info unavailable.
     public func setAdvertisementLocationPolicy(_ policy: UInt8) async throws {
-        var config = try await currentOtherParams()
-        config.advertisementLocationPolicy = policy
-        try await applyOtherParams(config)
+        try await mutateOtherParams { $0.advertisementLocationPolicy = policy }
     }
 
     /// Gets the current auto-add configuration from the device.
@@ -1429,6 +1425,22 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     ///           ``MeshCoreError/deviceError(code:)`` if the device returns an error.
     public func setAutoAddConfig(_ config: AutoAddConfig) async throws {
         try await sendSimpleCommand(PacketBuilder.setAutoAddConfig(config))
+    }
+
+    /// Serializes a granular "other params" change against any other granular setter.
+    ///
+    /// The read-modify-write (read the current config, apply `transform`, write it back)
+    /// spans several wire exchanges. Holding `otherParamsSerializer` across the whole
+    /// sequence keeps two concurrent setters from each reading the same snapshot and then
+    /// reverting the other's write when they store the full config back.
+    private func mutateOtherParams(
+        _ transform: @escaping @Sendable (inout OtherParamsConfig) -> Void
+    ) async throws {
+        try await otherParamsSerializer.withSerialization { [self] in
+            var config = try await currentOtherParams()
+            transform(&config)
+            try await applyOtherParams(config)
+        }
     }
 
     /// Returns the current device configuration from selfInfo.
@@ -1822,59 +1834,66 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     }
 
     private func performGetMessage(timeout: TimeInterval? = nil) async throws -> MessageResult {
-        let timeoutSeconds = timeout ?? configuration.defaultTimeout
+        try await requestResponseSerializer.withSerialization { [self] in
+            let timeoutSeconds = timeout ?? configuration.defaultTimeout
 
-        let stream = await dispatcher.subscribe { event in
-            switch event {
-            case .contactMessageReceived, .channelMessageReceived, .channelDataReceived,
-                 .noMoreMessages, .error:
-                return true
-            default:
-                return false
+            // Subscribe before sending, then only accept an `.error` once the getMessage
+            // frame has gone out. Holding the serializer makes this the sole exchange in
+            // flight, so the only error that can arrive inside the window is the device's
+            // reply to this request; without that guard a concurrent command's error frame
+            // could be consumed here as a spurious message-fetch failure.
+            let stream = await dispatcher.subscribe { event in
+                switch event {
+                case .contactMessageReceived, .channelMessageReceived, .channelDataReceived,
+                     .noMoreMessages, .error:
+                    return true
+                default:
+                    return false
+                }
             }
-        }
 
-        let data = PacketBuilder.getMessage()
-        try await transport.send(data)
+            let data = PacketBuilder.getMessage()
+            try await transport.send(data)
 
-        return try await withThrowingTaskGroup(of: MessageResult.self) { group in
-            group.addTask {
-                for await event in stream {
-                    if Task.isCancelled {
-                        throw CancellationError()
+            return try await withThrowingTaskGroup(of: MessageResult.self) { group in
+                group.addTask {
+                    for await event in stream {
+                        if Task.isCancelled {
+                            throw CancellationError()
+                        }
+
+                        switch event {
+                        case .contactMessageReceived(let msg):
+                            return .contactMessage(msg)
+                        case .channelMessageReceived(let msg):
+                            return .channelMessage(msg)
+                        case .channelDataReceived(let dg):
+                            return .channelDatagram(dg)
+                        case .noMoreMessages:
+                            return .noMoreMessages
+                        case .error(let code):
+                            throw MeshCoreError.deviceError(code: code ?? 0)
+                        default:
+                            continue
+                        }
                     }
 
-                    switch event {
-                    case .contactMessageReceived(let msg):
-                        return .contactMessage(msg)
-                    case .channelMessageReceived(let msg):
-                        return .channelMessage(msg)
-                    case .channelDataReceived(let dg):
-                        return .channelDatagram(dg)
-                    case .noMoreMessages:
-                        return .noMoreMessages
-                    case .error(let code):
-                        throw MeshCoreError.deviceError(code: code ?? 0)
-                    default:
-                        continue
-                    }
+                    throw MeshCoreError.timeout
                 }
 
-                throw MeshCoreError.timeout
+                group.addTask { [clock = self.clock] in
+                    try await clock.sleep(for: .seconds(timeoutSeconds))
+                    throw MeshCoreError.timeout
+                }
+
+                defer { group.cancelAll() }
+
+                guard let result = try await group.next() else {
+                    throw MeshCoreError.timeout
+                }
+
+                return result
             }
-
-            group.addTask { [clock = self.clock] in
-                try await clock.sleep(for: .seconds(timeoutSeconds))
-                throw MeshCoreError.timeout
-            }
-
-            defer { group.cancelAll() }
-
-            guard let result = try await group.next() else {
-                throw MeshCoreError.timeout
-            }
-
-            return result
         }
     }
 
