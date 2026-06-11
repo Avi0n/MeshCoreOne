@@ -1180,17 +1180,21 @@ public actor RemoteNodeService {
 
     // MARK: - Cleanup
 
-    /// Stop all keep-alive timers and cancel pending login timeouts (call on app termination)
+    /// Stop all keep-alive timers and resume any parked login continuations (call on app termination)
     public func stopAllKeepAlives() {
         for task in keepAliveTasks.values {
             task.cancel()
         }
         keepAliveTasks.removeAll()
 
-        for task in pendingLoginTimeoutTasks.values {
-            task.cancel()
+        // Resume parked logins before dropping their timeout tasks; otherwise the
+        // continuation that would have resumed them is gone and the caller hangs.
+        for prefix in Array(pendingLogins.keys) {
+            cancelPendingLogin(for: prefix)
         }
-        pendingLoginTimeoutTasks.removeAll()
     }
+
+    /// Number of login continuations currently parked. Exposed for teardown tests.
+    var pendingLoginCount: Int { pendingLogins.count }
 
 }

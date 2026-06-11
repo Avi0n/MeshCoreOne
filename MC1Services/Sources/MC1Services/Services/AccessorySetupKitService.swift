@@ -311,9 +311,13 @@ public final class AccessorySetupKitService {
                                 self.resumePickerContinuation(with: .failure(AccessorySetupKitError.connectionFailed))
                             default:
                                 self.logger.error("Unexpected picker error code: \(error.code.rawValue)")
+                                self.pickerOutcome = "connectionFailed"
+                                self.resumePickerContinuation(with: .failure(AccessorySetupKitError.connectionFailed))
                             }
                         } else if let error {
                             self.logger.error("Picker error: \(error.localizedDescription)")
+                            self.pickerOutcome = "pairingFailed"
+                            self.resumePickerContinuation(with: .failure(AccessorySetupKitError.pairingFailed(error.localizedDescription)))
                         }
                     }
                 }
