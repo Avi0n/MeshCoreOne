@@ -84,8 +84,8 @@ struct DiscoveryView: View {
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: L10n.Contacts.Contacts.Discovery.searchPrompt
         )
-        .onChange(of: searchText) { _, newValue in
-            if !newValue.isEmpty {
+        .onChange(of: searchText) { oldValue, newValue in
+            if oldValue.isEmpty, !newValue.isEmpty {
                 AccessibilityNotification.Announcement(L10n.Contacts.Contacts.Discovery.searchingAllTypes).post()
             }
         }

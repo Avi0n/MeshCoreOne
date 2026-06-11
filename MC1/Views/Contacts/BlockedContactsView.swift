@@ -8,6 +8,7 @@ struct BlockedContactsView: View {
 
     @State private var contacts: [ContactDTO] = []
     @State private var isLoading = false
+    @State private var errorMessage: String?
 
     var body: some View {
         Group {
@@ -25,6 +26,7 @@ struct BlockedContactsView: View {
         }
         .themedCanvas(theme)
         .navigationTitle(L10n.Contacts.Contacts.Blocked.title)
+        .errorAlert($errorMessage)
         .task {
             await loadBlockedContacts()
         }
@@ -74,7 +76,7 @@ struct BlockedContactsView: View {
                 radioID: radioID
             )
         } catch {
-            contacts = []
+            errorMessage = error.localizedDescription
         }
     }
 }

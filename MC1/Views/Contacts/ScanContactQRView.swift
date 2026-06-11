@@ -145,6 +145,11 @@ struct ScanContactQRView: View {
 
         scanSuccessTrigger.toggle()
 
+        // Claim the import synchronously so a second DataScanner callback can't slip
+        // past the guard before the async import flips the flag.
+        isImporting = true
+        errorMessage = nil
+
         Task {
             await importContact(parsed)
         }
@@ -156,14 +161,12 @@ struct ScanContactQRView: View {
               let device = appState.connectedDevice else {
             logger.error("Services or device not available")
             errorMessage = L10n.Contacts.Contacts.Add.Error.notConnected
+            isImporting = false
             return
         }
 
         let radioID = device.radioID
         let maxContacts = device.maxContacts
-
-        isImporting = true
-        errorMessage = nil
 
         do {
             let currentTimestamp = UInt32(Date().timeIntervalSince1970)
