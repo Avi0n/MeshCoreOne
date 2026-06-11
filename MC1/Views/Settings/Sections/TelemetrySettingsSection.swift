@@ -1,6 +1,13 @@
 import SwiftUI
 import MC1Services
 
+/// Firmware telemetry permission levels, shared by the base, location, and environment modes.
+private enum TelemetryMode {
+    static let off: UInt8 = 0
+    static let trustedOnly: UInt8 = 1
+    static let everyone: UInt8 = 2
+}
+
 /// Telemetry sharing configuration
 struct TelemetrySettingsSection: View {
     @Environment(\.appState) private var appState
@@ -24,7 +31,7 @@ struct TelemetrySettingsSection: View {
             }
             .radioDisabled(for: appState.connectionState, or: isSaving)
 
-            if device?.telemetryModeBase ?? 0 > 0 {
+            if device?.telemetryModeBase ?? TelemetryMode.off > TelemetryMode.off {
                 Toggle(isOn: locationEnabledBinding) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(L10n.Settings.Telemetry.includeLocation)
@@ -76,44 +83,44 @@ struct TelemetrySettingsSection: View {
     // MARK: - Bindings
 
     private var isFilterByTrusted: Bool {
-        device?.telemetryModeBase == 1
+        device?.telemetryModeBase == TelemetryMode.trustedOnly
     }
 
-    /// Mode value for "enabled" telemetry: 1 if trusted filtering active, 2 otherwise
+    /// Mode value for "enabled" telemetry: trusted-only if trusted filtering is active, everyone otherwise
     private var enabledMode: UInt8 {
-        (device?.telemetryModeBase == 1) ? 1 : 2
+        isFilterByTrusted ? TelemetryMode.trustedOnly : TelemetryMode.everyone
     }
 
     private var telemetryEnabledBinding: Binding<Bool> {
         Binding(
-            get: { device?.telemetryModeBase ?? 0 > 0 },
-            set: { saveTelemetry(base: $0 ? enabledMode : 0) }
+            get: { device?.telemetryModeBase ?? TelemetryMode.off > TelemetryMode.off },
+            set: { saveTelemetry(base: $0 ? enabledMode : TelemetryMode.off) }
         )
     }
 
     private var locationEnabledBinding: Binding<Bool> {
         Binding(
-            get: { device?.telemetryModeLoc ?? 0 > 0 },
-            set: { saveTelemetry(location: $0 ? enabledMode : 0) }
+            get: { device?.telemetryModeLoc ?? TelemetryMode.off > TelemetryMode.off },
+            set: { saveTelemetry(location: $0 ? enabledMode : TelemetryMode.off) }
         )
     }
 
     private var environmentEnabledBinding: Binding<Bool> {
         Binding(
-            get: { device?.telemetryModeEnv ?? 0 > 0 },
-            set: { saveTelemetry(environment: $0 ? enabledMode : 0) }
+            get: { device?.telemetryModeEnv ?? TelemetryMode.off > TelemetryMode.off },
+            set: { saveTelemetry(environment: $0 ? enabledMode : TelemetryMode.off) }
         )
     }
 
     private var filterByTrustedBinding: Binding<Bool> {
         Binding(
-            get: { device?.telemetryModeBase == 1 },
+            get: { device?.telemetryModeBase == TelemetryMode.trustedOnly },
             set: { newValue in
-                let mode: UInt8 = newValue ? 1 : 2
+                let mode: UInt8 = newValue ? TelemetryMode.trustedOnly : TelemetryMode.everyone
                 saveTelemetry(
-                    base: (device?.telemetryModeBase ?? 0) > 0 ? mode : 0,
-                    location: (device?.telemetryModeLoc ?? 0) > 0 ? mode : 0,
-                    environment: (device?.telemetryModeEnv ?? 0) > 0 ? mode : 0
+                    base: (device?.telemetryModeBase ?? TelemetryMode.off) > TelemetryMode.off ? mode : TelemetryMode.off,
+                    location: (device?.telemetryModeLoc ?? TelemetryMode.off) > TelemetryMode.off ? mode : TelemetryMode.off,
+                    environment: (device?.telemetryModeEnv ?? TelemetryMode.off) > TelemetryMode.off ? mode : TelemetryMode.off
                 )
             }
         )

@@ -17,7 +17,6 @@ struct BatteryCurveSection: View {
 
     @State private var isEditingValues = false
     @State private var validationError: String?
-    @State private var isUpdatingFromPreset = false
 
     var body: some View {
         Section {
@@ -32,11 +31,7 @@ struct BatteryCurveSection: View {
             }
             .onChange(of: selectedPreset) { _, newValue in
                 if newValue != .custom {
-                    isUpdatingFromPreset = true
                     voltageValues = newValue.ocvArray
-                    Task { @MainActor in
-                        isUpdatingFromPreset = false
-                    }
                     Task {
                         await onSave(newValue, newValue.ocvArray)
                     }
@@ -51,7 +46,7 @@ struct BatteryCurveSection: View {
                 VoltageFieldsGrid(
                     voltageValues: $voltageValues,
                     validationError: $validationError,
-                    onValueChanged: handleValueChanged
+                    onCommit: handleCommit
                 )
             }
             .disabled(isDisabled)
@@ -74,14 +69,19 @@ struct BatteryCurveSection: View {
         .themedRowBackground(theme)
     }
 
-    private func handleValueChanged() {
-        guard !isUpdatingFromPreset else { return }
-
+    private func handleCommit() {
         if let error = validateVoltageValues() {
             validationError = error
             return
         }
         validationError = nil
+
+        // A commit whose values still match the selected preset is a no-op (e.g. focus
+        // left a field just after a preset switch replaced the values); reclassifying
+        // it as a custom curve would flip the picker and re-save identical values.
+        if selectedPreset != .custom && voltageValues == selectedPreset.ocvArray {
+            return
+        }
 
         selectedPreset = .custom
         Task {
@@ -108,7 +108,7 @@ struct BatteryCurveSection: View {
 struct VoltageFieldsGrid: View {
     @Binding var voltageValues: [Int]
     @Binding var validationError: String?
-    let onValueChanged: () -> Void
+    let onCommit: () -> Void
 
     private let columns = [
         GridItem(.flexible()),
@@ -122,7 +122,7 @@ struct VoltageFieldsGrid: View {
                     percent: (10 - index) * 10,
                     value: $voltageValues[index],
                     hasError: fieldHasError(at: index),
-                    onValueChanged: onValueChanged
+                    onCommit: onCommit
                 )
             }
         }
@@ -138,12 +138,16 @@ struct VoltageFieldsGrid: View {
     }
 }
 
-/// Individual voltage input field
+/// Individual voltage input field. Commits when focus leaves the field (or on submit),
+/// not per keystroke, so transient mid-edit values never reach the device.
 struct VoltageField: View {
     let percent: Int
     @Binding var value: Int
     let hasError: Bool
-    let onValueChanged: () -> Void
+    let onCommit: () -> Void
+
+    @FocusState private var isFocused: Bool
+    @State private var valueWhenFocused: Int?
 
     var body: some View {
         HStack {
@@ -155,13 +159,20 @@ struct VoltageField: View {
             TextField("", value: $value, format: .number)
                 .keyboardType(.numberPad)
                 .textFieldStyle(.roundedBorder)
+                .focused($isFocused)
                 .overlay(
                     RoundedRectangle(cornerRadius: 6)
                         .stroke(hasError ? .red : .clear, lineWidth: 1)
                 )
-                .onChange(of: value) { _, _ in
-                    onValueChanged()
+                .onChange(of: isFocused) { _, focused in
+                    if focused {
+                        valueWhenFocused = value
+                    } else {
+                        commitEdit()
+                        valueWhenFocused = nil
+                    }
                 }
+                .onSubmit(commitEdit)
                 .accessibilityLabel(L10n.Settings.BatteryCurve.Accessibility.voltageLabel(percent))
                 .accessibilityValue(L10n.Settings.BatteryCurve.Accessibility.voltageValue(value))
                 .accessibilityHint(L10n.Settings.BatteryCurve.Accessibility.voltageHint)
@@ -170,6 +181,12 @@ struct VoltageField: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
+    }
+
+    private func commitEdit() {
+        guard valueWhenFocused != value else { return }
+        valueWhenFocused = value
+        onCommit()
     }
 }
 

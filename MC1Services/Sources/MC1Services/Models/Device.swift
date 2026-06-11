@@ -1,5 +1,6 @@
 import CoreLocation
 import Foundation
+import MeshCore
 import SwiftData
 
 /// Represents a connected MeshCore BLE device.
@@ -380,24 +381,24 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
         AutoAddMode.mode(manualAddContacts: manualAddContacts, autoAddConfig: autoAddConfig)
     }
 
-    /// Whether to auto-add Contact type nodes (bit 0x02)
+    /// Whether to auto-add Contact type nodes
     public var autoAddContacts: Bool {
-        autoAddConfig & 0x02 != 0
+        autoAddConfig & AutoAddConfig.contactsBit != 0
     }
 
-    /// Whether to auto-add Repeater type nodes (bit 0x04)
+    /// Whether to auto-add Repeater type nodes
     public var autoAddRepeaters: Bool {
-        autoAddConfig & 0x04 != 0
+        autoAddConfig & AutoAddConfig.repeatersBit != 0
     }
 
-    /// Whether to auto-add Room Server type nodes (bit 0x08)
+    /// Whether to auto-add Room Server type nodes
     public var autoAddRoomServers: Bool {
-        autoAddConfig & 0x08 != 0
+        autoAddConfig & AutoAddConfig.roomServersBit != 0
     }
 
-    /// Whether to overwrite oldest non-favorite when storage is full (bit 0x01)
+    /// Whether to overwrite oldest non-favorite when storage is full
     public var overwriteOldest: Bool {
-        autoAddConfig & 0x01 != 0
+        autoAddConfig & AutoAddConfig.overwriteOldestBit != 0
     }
 
     /// Whether the device supports auto-add configuration (v1.12+)

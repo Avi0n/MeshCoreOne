@@ -50,9 +50,18 @@ private struct SelectFileList: View {
     var body: some View {
         List {
             Section {
-                Button(L10n.Settings.ConfigImport.selectFile) {
+                Button {
                     viewModel.showFilePicker = true
+                } label: {
+                    HStack {
+                        Text(L10n.Settings.ConfigImport.selectFile)
+                        if viewModel.isParsing {
+                            Spacer()
+                            ProgressView()
+                        }
+                    }
                 }
+                .disabled(viewModel.isParsing)
             }
             .themedRowBackground(theme)
 

@@ -212,9 +212,9 @@ struct DeviceInfoView: View {
         .refreshable {
             await appState.batteryMonitor.fetchDeviceBattery(services: appState.services, device: appState.connectedDevice)
         }
-        .onAppear {
+        .task {
             deviceInfoLogger.info("DeviceInfoView: appeared, connectedDevice=\(appState.connectedDevice != nil)")
-            Task { await appState.batteryMonitor.fetchDeviceBattery(services: appState.services, device: appState.connectedDevice) }
+            await appState.batteryMonitor.fetchDeviceBattery(services: appState.services, device: appState.connectedDevice)
         }
         .sheet(isPresented: $showShareSheet) {
             if let device = appState.connectedDevice {

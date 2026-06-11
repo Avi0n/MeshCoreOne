@@ -1,4 +1,5 @@
 import Foundation
+import MeshCore
 
 /// Represents the auto-add behavior for discovered nodes.
 public enum AutoAddMode: String, Codable, Sendable, CaseIterable {
@@ -9,8 +10,11 @@ public enum AutoAddMode: String, Codable, Sendable, CaseIterable {
     /// Auto-add every discovered node.
     case all
 
-    /// Bitmask for all auto-add type bits (contacts=0x02, repeaters=0x04, rooms=0x08, sensors=0x10)
-    private static let typeBitsMask: UInt8 = 0x1E
+    /// Bitmask covering all auto-add type bits.
+    private static let typeBitsMask: UInt8 = AutoAddConfig.contactsBit
+        | AutoAddConfig.repeatersBit
+        | AutoAddConfig.roomServersBit
+        | AutoAddConfig.sensorsBit
 
     /// Computes the auto-add mode from device settings.
     ///

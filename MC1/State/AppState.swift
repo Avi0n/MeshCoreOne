@@ -517,8 +517,8 @@ public final class AppState {
                 case .autoAddConfigUpdated(let config):
                     await MainActor.run {
                         self.connectionManager.updateAutoAddConfig(config)
-                        // Clear storage full flag when overwrite oldest is enabled (bit 0x01)
-                        if config.bitmask & 0x01 != 0 {
+                        // Clear storage full flag when overwrite oldest is enabled
+                        if config.bitmask & AutoAddConfig.overwriteOldestBit != 0 {
                             self.connectionUI.isNodeStorageFull = false
                         }
                     }
