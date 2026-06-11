@@ -216,6 +216,15 @@ final class BLEReconnectionCoordinator {
         // forcing disconnected state. This handles the case where the timeout
         // was armed before suspension and fires immediately on resume.
         let transportAutoReconnecting = await delegate.isTransportAutoReconnecting()
+
+        // Re-validate after the await: handleReconnectionComplete can run to
+        // completion during the suspension, and this timeout must not force
+        // a freshly rebuilt session back to disconnected.
+        guard delegate.connectionState == .connecting,
+              let currentCycle = self.activeCycle,
+              currentCycle.deviceID == deviceID,
+              currentCycle.generation == generation else { return }
+
         if transportAutoReconnecting, elapsed < maxConnectingUIWindow {
             logger.info("[BLE] UI timeout fired but BLE still auto-reconnecting, re-arming (elapsed: \(elapsed.formatted(.number.precision(.fractionLength(1))))s)")
             armTimeout(deviceID: deviceID, generation: generation)

@@ -98,7 +98,11 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     private var pendingWriteContinuation: CheckedContinuation<Void, Error>?
 
     /// Monotonic sequence number for correlating didWriteValue callbacks to the active write.
-    /// Prevents a late callback from write N resuming write N+1's continuation.
+    /// Each write's sequence is recorded with the delegate handler at issue time
+    /// (`recordIssuedWriteSequence`), and the delegate tags each callback with the oldest
+    /// unacknowledged write's sequence. A callback from write N that arrives after N timed
+    /// out therefore carries N, mismatches `pendingWriteSequence` (N+1), and is dropped
+    /// instead of resuming write N+1's continuation with write N's result.
     private var writeSequenceNumber: UInt64 = 0
     private var pendingWriteSequence: UInt64 = 0
 
@@ -470,7 +474,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
                 continuation.resume(throwing: BLEError.connectionFailed("Already in operation"))
                 return
             }
-            phase = .waitingForBluetooth(continuation: continuation)
+            transition(to: .waitingForBluetooth(continuation: continuation))
         }
     }
 
@@ -495,6 +499,14 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
 
         // Wait for Bluetooth
         try await waitForPoweredOn()
+
+        // Re-validate after the suspension: state restoration or a poweredOn
+        // callback can claim the machine (e.g. .autoReconnecting) while waiting,
+        // and proceeding would clobber that phase's armed timeout and CB connect.
+        guard case .idle = phase else {
+            logger.warning("Connect rejected after waitForPoweredOn - phase: \(self.phase.name), requestedDeviceID: \(deviceID)")
+            throw BLEError.connectionFailed("Already in operation: \(phase.name)")
+        }
 
         // Retrieve peripheral
         let peripherals = centralManager.retrievePeripherals(withIdentifiers: [deviceID])
@@ -647,8 +659,9 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
                 let currentSeq = self.writeSequenceNumber
                 self.pendingWriteSequence = currentSeq
                 self.pendingWriteContinuation = continuation
-                // Publish sequence to delegate handler so didWriteValue can tag the callback
-                self.delegateHandler.writeSequenceLock.withLock { $0 = currentSeq }
+                // Record the sequence before issuing the write so didWriteValue
+                // can tag its callback with the originating write
+                self.delegateHandler.recordIssuedWriteSequence(currentSeq)
                 currentPeripheral.writeValue(data, for: currentTx, type: .withResponse)
 
                 // Cancel any previous timeout task and create a new one
@@ -863,7 +876,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
 
         // Disconnect peripheral if connected
         if let peripheral, peripheral.state == .connected || peripheral.state == .connecting {
-            phase = .disconnecting(peripheral: peripheral)
+            transition(to: .disconnecting(peripheral: peripheral))
             centralManager.cancelPeripheralConnection(peripheral)
 
             // Wait briefly for disconnection to complete
@@ -902,11 +915,11 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
                 self.handleConnectionTimeout(for: peripheral)
             }
 
-            phase = .connecting(
+            transition(to: .connecting(
                 peripheral: peripheral,
                 continuation: continuation,
                 timeoutTask: timeoutTask
-            )
+            ))
 
             let options: [String: Any] = [
                 CBConnectPeripheralOptionNotifyOnDisconnectionKey: true,
@@ -1682,6 +1695,10 @@ extension BLEStateMachine {
         writeTimeoutTask = nil
         consecutiveQueuedWrites = 0
         earliestNextWrite = .now
+        // Outstanding write callbacks either never arrive (link dropped) or
+        // find no continuation; their recorded sequences must not survive to
+        // mis-tag the next connection's first write callback.
+        delegateHandler.clearIssuedWriteSequences()
 
         if let pending = pendingWriteContinuation {
             pendingWriteContinuation = nil

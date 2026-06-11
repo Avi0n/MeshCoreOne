@@ -32,9 +32,28 @@ final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheral
     /// Using OSAllocatedUnfairLock ensures thread-safe access from the CBCentralManager queue.
     private let dataContinuationLock = OSAllocatedUnfairLock<AsyncStream<Data>.Continuation?>(initialState: nil)
 
-    /// Write sequence number for correlating didWriteValue callbacks with the active write.
-    /// Set by the actor before calling writeValue, read by the delegate to tag the callback.
-    let writeSequenceLock = OSAllocatedUnfairLock<UInt64>(initialState: 0)
+    /// FIFO of sequence numbers for `.withResponse` writes issued but not yet
+    /// acknowledged. CoreBluetooth delivers exactly one `didWriteValueFor` per
+    /// write request, in issue order, on the serial queue, so popping the head
+    /// tags each callback with the sequence of the write that produced it.
+    /// Tagging at write time (not delivery time) lets a callback that arrives
+    /// after its write already timed out be recognized as the old write instead
+    /// of being mistaken for the current one.
+    private let issuedWriteSequencesLock = OSAllocatedUnfairLock<[UInt64]>(initialState: [])
+
+    /// Records a write's sequence as issued. The actor calls this immediately
+    /// before `writeValue` so the callback can never outrun the record.
+    func recordIssuedWriteSequence(_ sequence: UInt64) {
+        issuedWriteSequencesLock.withLock { $0.append(sequence) }
+    }
+
+    /// Drops all recorded write sequences. Called when pending writes are
+    /// cancelled (disconnect, auto-reconnect teardown), where the outstanding
+    /// callbacks either never arrive or no longer have a continuation; a stale
+    /// entry left behind would mis-tag the next connection's first callback.
+    func clearIssuedWriteSequences() {
+        issuedWriteSequencesLock.withLock { $0.removeAll() }
+    }
 
     /// Sets the data continuation for direct yielding from delegate callbacks.
     /// Call this when transitioning to connected state.
@@ -129,9 +148,14 @@ final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheral
 
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
         guard let sm = stateMachine else { return }
-        // C8: Capture the write sequence at callback time (on the CB queue) to correlate
-        // this callback with the write that triggered it.
-        let seq = writeSequenceLock.withLock { $0 }
+        // Pop the oldest unacknowledged write's sequence (callbacks arrive in
+        // issue order on this serial queue) so the callback is tagged with the
+        // write that produced it, not whichever write is current by delivery time.
+        let seq = issuedWriteSequencesLock.withLock { $0.isEmpty ? nil : $0.removeFirst() }
+        guard let seq else {
+            logger.debug("[BLE] didWriteValueFor with no recorded write, ignoring")
+            return
+        }
         Task { await sm.handleDidWriteValue(peripheral, characteristic: characteristic, error: error, writeSequence: seq) }
     }
 

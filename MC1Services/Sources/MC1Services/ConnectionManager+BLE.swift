@@ -621,26 +621,26 @@ extension ConnectionManager {
 
         cancelResyncLoop()
 
-        // Mark room sessions disconnected before tearing down services
-        let remoteNodeService = services?.remoteNodeService
-        if let remoteNodeService {
-            _ = await remoteNodeService.handleBLEDisconnection()
-        }
-
-        await services?.tearDown()
-
-        // Reset sync state before destroying services to prevent stuck "Syncing" pill
-        if let services {
-            await services.syncCoordinator.onDisconnected(services: services)
-        }
+        // Capture and clear synchronously, mirroring teardownSessionForReconnect:
+        // a same-device rebuild can install a new container during the awaits
+        // below, and re-reading self.services would tear that new container down.
+        let oldServices = services
+        services = nil
+        session = nil
 
         logger.warning("[BLE] State → .disconnected (connection loss for device: \(deviceID.uuidString.prefix(8)))")
         connectionState = .disconnected
         if connectingDeviceID == deviceID { connectingDeviceID = nil }
         connectedDevice = nil
         allowedRepeatFreqRanges = []
-        services = nil
-        session = nil
+
+        if let oldServices {
+            // Mark room sessions disconnected before tearing down services
+            _ = await oldServices.remoteNodeService.handleBLEDisconnection()
+            await oldServices.tearDown()
+            // Reset sync state to prevent stuck "Syncing" pill
+            await oldServices.syncCoordinator.onDisconnected(services: oldServices)
+        }
 
         persistDisconnectDiagnostic(
             "source=handleConnectionLoss, " +

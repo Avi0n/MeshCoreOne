@@ -106,6 +106,12 @@ extension ConnectionManager {
     /// Activates the connection manager on app launch.
     /// Call this once during app initialization.
     public func activate() async {
+        // Ensure lifecycle handlers are installed before anything below can
+        // construct the CBCentralManager; creating the central can fire
+        // restoration callbacks synchronously, and a missed handler would
+        // strand the restored link without a session rebuild.
+        await wireTransportHandlers()
+
         let lastDeviceShort = lastConnectedDeviceID?.uuidString.prefix(8) ?? "none"
         let bleState = await stateMachine.centralManagerStateName
         logger.info("""
@@ -376,18 +382,35 @@ extension ConnectionManager {
             return
         }
 
+        // Claim the attempt before the pre-connect awaits below. Two connect
+        // calls interleaving at those suspension points would otherwise both
+        // pass the guards above and build duplicate sessions over one
+        // transport. The newest claim wins; a superseded call observes the
+        // mismatch after each await and bails.
+        if connectingDeviceID == deviceID {
+            logger.info("Connection already claimed for \(deviceID.uuidString.prefix(8)), ignoring")
+            return
+        }
+        connectingDeviceID = deviceID
+
         // Handle state restoration auto-reconnect
-        if await stateMachine.isAutoReconnecting {
+        let transportAutoReconnecting = await stateMachine.isAutoReconnecting
+        guard connectingDeviceID == deviceID else { throw CancellationError() }
+        if transportAutoReconnecting {
             let restoringDeviceID = await stateMachine.connectedDeviceID
             let blePhase = await stateMachine.currentPhaseName
             let blePeripheralState = await stateMachine.currentPeripheralState ?? "none"
+            guard connectingDeviceID == deviceID else { throw CancellationError() }
 
             if restoringDeviceID != deviceID {
                 logger.info("Cancelling state restoration auto-reconnect to \(restoringDeviceID?.uuidString ?? "unknown") to connect to \(deviceID)")
                 await transport.disconnect()
+                guard connectingDeviceID == deviceID else { throw CancellationError() }
             } else {
                 // Same device - let auto-reconnect complete instead of racing with it.
                 // The reconnection handler will create the session when auto-reconnect succeeds.
+                // Release the claim: the reconnect cycle owns identity tracking from here.
+                connectingDeviceID = nil
                 // Preserve user intent so the watchdog can retry if auto-reconnect fails.
                 connectionIntent = .wantsConnection(forceFullSync: forceFullSync)
                 persistIntent()
@@ -414,14 +437,19 @@ extension ConnectionManager {
                 deviceID: deviceID,
                 context: "connect(to:)"
             ) {
+                // Adoption owns the reconnect cycle now; release the claim.
+                if connectingDeviceID == deviceID { connectingDeviceID = nil }
                 return
             }
+            guard connectingDeviceID == deviceID else { throw CancellationError() }
         }
 
         // Check for other app connection before changing state
         if await isDeviceConnectedToOtherApp(deviceID) {
+            if connectingDeviceID == deviceID { connectingDeviceID = nil }
             throw BLEError.deviceConnectedToOtherApp
         }
+        guard connectingDeviceID == deviceID else { throw CancellationError() }
 
         // Clear intentional disconnect flag before changing state,
         // so the didSet invariant check sees consistent state
@@ -429,8 +457,8 @@ extension ConnectionManager {
         persistIntent()
 
         // Set connecting state for immediate UI feedback
+        // (connectingDeviceID was already claimed above)
         connectionState = .connecting
-        connectingDeviceID = deviceID
 
         logger.info("Connecting to device: \(deviceID)")
 
@@ -527,22 +555,30 @@ extension ConnectionManager {
             break
         }
 
-        // Mark room sessions disconnected before tearing down services
-        let remoteNodeService = services?.remoteNodeService
-        if let remoteNodeService {
-            _ = await remoteNodeService.handleBLEDisconnection()
+        // Capture and clear synchronously, mirroring teardownSessionForReconnect:
+        // a racing connect can install a new container during the awaits below,
+        // and re-reading self.services would tear that new container down.
+        let oldServices = services
+        let oldSession = session
+        services = nil
+        session = nil
+        logger.info("[BLE] disconnect: state → .disconnected")
+        connectionState = .disconnected
+        connectingDeviceID = nil
+        connectedDevice = nil
+        allowedRepeatFreqRanges = []
+
+        if let oldServices {
+            // Mark room sessions disconnected before tearing down services
+            _ = await oldServices.remoteNodeService.handleBLEDisconnection()
             sessionsAwaitingReauth = []
-        }
-
-        await services?.tearDown()
-
-        // Reset sync state and clear notification suppression (safety net)
-        if let services {
-            await services.syncCoordinator.onDisconnected(services: services)
+            await oldServices.tearDown()
+            // Reset sync state and clear notification suppression (safety net)
+            await oldServices.syncCoordinator.onDisconnected(services: oldServices)
         }
 
         // Stop session
-        await session?.stop()
+        await oldSession?.stop()
 
         // Disconnect appropriate transport based on current type
         if let wifiTransport {
@@ -554,9 +590,6 @@ extension ConnectionManager {
 
         // Clear transport type
         currentTransportType = nil
-
-        // Clear state
-        await cleanupConnection()
 
         persistDisconnectDiagnostic(
             "source=disconnect(reason), " +

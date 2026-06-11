@@ -83,21 +83,20 @@ extension ConnectionManager {
         cancelResyncLoop()
         cancelChannelRetry()
 
-        // Mark room sessions disconnected before tearing down services
-        let remoteNodeService = services?.remoteNodeService
-        if let remoteNodeService {
-            _ = await remoteNodeService.handleBLEDisconnection()
-        }
-
-        // Reset sync state before destroying services to prevent stuck "Syncing" pill
-        if let services {
-            await services.syncCoordinator.onDisconnected(services: services)
-        }
-
-        // Tear down session (invalid now)
-        await services?.tearDown()
+        // Capture and clear synchronously, mirroring teardownSessionForReconnect:
+        // a reconnect can install a new container during the awaits below, and
+        // re-reading self.services would tear that new container down.
+        let oldServices = services
         services = nil
         session = nil
+
+        if let oldServices {
+            // Mark room sessions disconnected before tearing down services
+            _ = await oldServices.remoteNodeService.handleBLEDisconnection()
+            // Reset sync state before destroying services to prevent stuck "Syncing" pill
+            await oldServices.syncCoordinator.onDisconnected(services: oldServices)
+            await oldServices.tearDown()
+        }
 
         // Show connecting state (pulsing indicator)
         logger.info("[WiFi] State → .connecting (WiFi disconnection, starting reconnection)")
@@ -130,9 +129,15 @@ extension ConnectionManager {
         wifiReconnectTask?.cancel()
 
         wifiReconnectTask = Task {
+            // Only self-nil when not cancelled: startWiFiReconnection cancels the
+            // old task before assigning a new one, and an unconditional defer in
+            // the cancelled old task would destroy the replacement's handle (the
+            // same pattern resyncTask and channelRetryTask document).
             defer {
-                wifiReconnectTask = nil
-                wifiReconnectAttempt = 0
+                if !Task.isCancelled {
+                    wifiReconnectTask = nil
+                    wifiReconnectAttempt = 0
+                }
             }
 
             let startTime = ContinuousClock.now

@@ -927,116 +927,131 @@ public final class ConnectionManager {
         self.pairing.delegate = self
         reconnectionCoordinator.delegate = self
 
-        // Wire up transport handlers
-        Task { [stateMachine = self.stateMachine, transport = self.transport] in
-            // Handle disconnection events
-            await transport.setDisconnectionHandler { [weak self] deviceID, error in
-                Task { @MainActor in
-                    guard let self else { return }
-                    await self.handleConnectionLoss(deviceID: deviceID, error: error)
-                }
+        // Best-effort early wiring. activate() awaits the same idempotent
+        // method before constructing the CBCentralManager, which is the
+        // ordering guarantee; this Task just installs handlers promptly for
+        // flows that touch the state machine before activate() runs.
+        Task { await self.wireTransportHandlers() }
+    }
+
+    /// Wires the transport and state-machine lifecycle handlers.
+    ///
+    /// Must complete before anything constructs the CBCentralManager:
+    /// creating the central can synchronously fire state-restoration
+    /// callbacks, and a missed auto-reconnect or reconnection handler at
+    /// launch leaves the restored link without a session rebuild. Idempotent;
+    /// re-installing the same handlers is harmless.
+    func wireTransportHandlers() async {
+        let stateMachine = self.stateMachine
+        let transport = self.transport
+
+        // Handle disconnection events
+        await transport.setDisconnectionHandler { [weak self] deviceID, error in
+            Task { @MainActor in
+                guard let self else { return }
+                await self.handleConnectionLoss(deviceID: deviceID, error: error)
             }
+        }
 
-            // Handle entering auto-reconnecting phase
-            await stateMachine.setAutoReconnectingHandler { [weak self] (deviceID: UUID, errorInfo: String) in
-                Task { @MainActor in
-                    guard let self else { return }
+        // Handle entering auto-reconnecting phase
+        await stateMachine.setAutoReconnectingHandler { [weak self] (deviceID: UUID, errorInfo: String) in
+            Task { @MainActor in
+                guard let self else { return }
 
-                    if self.shouldDeferOpportunisticReconnect {
-                        self.logger.info(
-                            "[BLE] Auto-reconnect entry suppressed for \(deviceID.uuidString.prefix(8)) (pairing in progress) — tearing down stale session"
-                        )
-                        // Skip the reconnect-cycle claim and UI timeout (pairing's
-                        // connect(to:) ceremony owns the next state transitions),
-                        // but tear down the prior session so a pairing early-exit
-                        // path doesn't strand the UI on stale `.ready` state.
-                        await self.handleConnectionLoss(deviceID: deviceID, error: nil)
-                        return
-                    }
-
-                    // Snapshot pre-claim state before entering — handleEnteringAutoReconnect
-                    // mutates connectionState to .connecting before its first await.
-                    let initialState = String(describing: self.connectionState)
-                    let transportName = switch self.currentTransportType {
-                    case .bluetooth: "bluetooth"
-                    case .wifi: "wifi"
-                    case nil: "none"
-                    }
-
-                    // Claim before the state-machine queries below. Without this,
-                    // a state-restoration adoption where iOS callbacks land within
-                    // microseconds of each other can fire onReconnection while these
-                    // awaits are still queued, and the strict completion guard would
-                    // drop the completion since reconnectingDeviceID is still nil.
-                    await self.reconnectionCoordinator.handleEnteringAutoReconnect(deviceID: deviceID)
-
-                    let bleState = await self.stateMachine.centralManagerStateName
-                    let blePhase = await self.stateMachine.currentPhaseName
-                    let blePeripheralState = await self.stateMachine.currentPeripheralState ?? "none"
-
-                    self.persistDisconnectDiagnostic(
-                        "source=bleStateMachine.autoReconnectingHandler, " +
-                        "device=\(deviceID.uuidString.prefix(8)), " +
-                        "transport=\(transportName), " +
-                        "initialState=\(initialState), " +
-                        "bleState=\(bleState), " +
-                        "blePhase=\(blePhase), " +
-                        "blePeripheralState=\(blePeripheralState), " +
-                        "error=\(errorInfo), " +
-                        "intent=\(self.connectionIntent)"
+                if self.shouldDeferOpportunisticReconnect {
+                    self.logger.info(
+                        "[BLE] Auto-reconnect entry suppressed for \(deviceID.uuidString.prefix(8)) (pairing in progress) — tearing down stale session"
                     )
+                    // Skip the reconnect-cycle claim and UI timeout (pairing's
+                    // connect(to:) ceremony owns the next state transitions),
+                    // but tear down the prior session so a pairing early-exit
+                    // path doesn't strand the UI on stale `.ready` state.
+                    await self.handleConnectionLoss(deviceID: deviceID, error: nil)
+                    return
                 }
+
+                // Snapshot pre-claim state before entering — handleEnteringAutoReconnect
+                // mutates connectionState to .connecting before its first await.
+                let initialState = String(describing: self.connectionState)
+                let transportName = switch self.currentTransportType {
+                case .bluetooth: "bluetooth"
+                case .wifi: "wifi"
+                case nil: "none"
+                }
+
+                // Claim before the state-machine queries below. Without this,
+                // a state-restoration adoption where iOS callbacks land within
+                // microseconds of each other can fire onReconnection while these
+                // awaits are still queued, and the strict completion guard would
+                // drop the completion since reconnectingDeviceID is still nil.
+                await self.reconnectionCoordinator.handleEnteringAutoReconnect(deviceID: deviceID)
+
+                let bleState = await self.stateMachine.centralManagerStateName
+                let blePhase = await self.stateMachine.currentPhaseName
+                let blePeripheralState = await self.stateMachine.currentPeripheralState ?? "none"
+
+                self.persistDisconnectDiagnostic(
+                    "source=bleStateMachine.autoReconnectingHandler, " +
+                    "device=\(deviceID.uuidString.prefix(8)), " +
+                    "transport=\(transportName), " +
+                    "initialState=\(initialState), " +
+                    "bleState=\(bleState), " +
+                    "blePhase=\(blePhase), " +
+                    "blePeripheralState=\(blePeripheralState), " +
+                    "error=\(errorInfo), " +
+                    "intent=\(self.connectionIntent)"
+                )
             }
+        }
 
-            // Handle iOS auto-reconnect completion
-            // Using transport.setReconnectionHandler ensures the transport captures
-            // the data stream internally before calling our handler
-            await transport.setReconnectionHandler { [weak self] deviceID in
-                Task { @MainActor in
-                    guard let self else { return }
-                    await self.reconnectionCoordinator.handleReconnectionComplete(deviceID: deviceID)
-                }
+        // Handle iOS auto-reconnect completion
+        // Using transport.setReconnectionHandler ensures the transport captures
+        // the data stream internally before calling our handler
+        await transport.setReconnectionHandler { [weak self] deviceID in
+            Task { @MainActor in
+                guard let self else { return }
+                await self.reconnectionCoordinator.handleReconnectionComplete(deviceID: deviceID)
             }
+        }
 
-            // Handle Bluetooth power-cycle recovery
-            await stateMachine.setBluetoothPoweredOnHandler { [weak self] in
-                Task { @MainActor in
-                    guard let self,
-                          self.connectionIntent.wantsConnection,
-                          self.connectionState == .disconnected,
-                          let deviceID = self.lastConnectedDeviceID else { return }
+        // Handle Bluetooth power-cycle recovery
+        await stateMachine.setBluetoothPoweredOnHandler { [weak self] in
+            Task { @MainActor in
+                guard let self,
+                      self.connectionIntent.wantsConnection,
+                      self.connectionState == .disconnected,
+                      let deviceID = self.lastConnectedDeviceID else { return }
 
-                    if self.shouldDeferOpportunisticReconnect {
-                        self.logger.info("[BLE] Bluetooth powered on: standing down (pairing in progress)")
-                        return
-                    }
-
-                    let blePhase = await self.stateMachine.currentPhaseName
-                    let bleConnectedDeviceID = await self.stateMachine.connectedDeviceID
-                    if blePhase != "idle" || bleConnectedDeviceID == deviceID {
-                        self.logger.info(
-                            "[BLE] Bluetooth powered on: BLE already owns reconnect flow for \(deviceID.uuidString.prefix(8)) " +
-                            "(phase: \(blePhase), bleConnectedDevice: \(bleConnectedDeviceID?.uuidString.prefix(8) ?? "none"))"
-                        )
-                        return
-                    }
-
-                    if self.activeReconnectDeviceID == deviceID {
-                        self.logger.info("[BLE] Bluetooth powered on: reconnect/session rebuild already in progress for \(deviceID.uuidString.prefix(8))")
-                        return
-                    }
-
-                    self.logger.info("[BLE] Bluetooth powered on: attempting reconnection to \(deviceID.uuidString.prefix(8))")
-                    await self.attemptOpportunisticReconnect(deviceID: deviceID, reason: "Bluetooth powered on")
+                if self.shouldDeferOpportunisticReconnect {
+                    self.logger.info("[BLE] Bluetooth powered on: standing down (pairing in progress)")
+                    return
                 }
+
+                let blePhase = await self.stateMachine.currentPhaseName
+                let bleConnectedDeviceID = await self.stateMachine.connectedDeviceID
+                if blePhase != "idle" || bleConnectedDeviceID == deviceID {
+                    self.logger.info(
+                        "[BLE] Bluetooth powered on: BLE already owns reconnect flow for \(deviceID.uuidString.prefix(8)) " +
+                        "(phase: \(blePhase), bleConnectedDevice: \(bleConnectedDeviceID?.uuidString.prefix(8) ?? "none"))"
+                    )
+                    return
+                }
+
+                if self.activeReconnectDeviceID == deviceID {
+                    self.logger.info("[BLE] Bluetooth powered on: reconnect/session rebuild already in progress for \(deviceID.uuidString.prefix(8))")
+                    return
+                }
+
+                self.logger.info("[BLE] Bluetooth powered on: attempting reconnection to \(deviceID.uuidString.prefix(8))")
+                await self.attemptOpportunisticReconnect(deviceID: deviceID, reason: "Bluetooth powered on")
             }
+        }
 
-            // Handle Bluetooth state changes for diagnostics
-            await stateMachine.setBluetoothStateChangeHandler { [weak self] state in
-                Task { @MainActor in
-                    guard let self else { return }
-                    self.handleBluetoothStateChange(state)
-                }
+        // Handle Bluetooth state changes for diagnostics
+        await stateMachine.setBluetoothStateChangeHandler { [weak self] state in
+            Task { @MainActor in
+                guard let self else { return }
+                self.handleBluetoothStateChange(state)
             }
         }
     }

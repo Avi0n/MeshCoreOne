@@ -155,12 +155,22 @@ public final class ServiceContainer {
     /// Whether services have been wired together
     private var isWired = false
 
-    /// Whether event monitoring is active
-    private var isMonitoringEvents = false
+    /// Event-monitoring lifecycle. Tri-state (not a Bool) so start and stop can
+    /// claim the transition synchronously before their first await; two callers
+    /// interleaving at those suspension points must not double-start or
+    /// double-stop every per-service monitor.
+    private enum EventMonitoringState {
+        case stopped
+        case starting
+        case active
+        case stopping
+    }
 
-    /// Whether service event listeners are currently active.
+    private var eventMonitoringState: EventMonitoringState = .stopped
+
+    /// Whether service event listeners are active or currently starting.
     public var isEventMonitoringActive: Bool {
-        isMonitoringEvents
+        eventMonitoringState == .starting || eventMonitoringState == .active
     }
 
     // MARK: - Initialization
@@ -332,7 +342,11 @@ public final class ServiceContainer {
         enableAutoFetch: Bool = true,
         enableAdvertisementMonitoring: Bool = true
     ) async {
-        guard !isMonitoringEvents else { return }
+        // Claim synchronously before the awaits below so an overlapping caller
+        // (SyncCoordinator.onConnectionEstablished racing the foreground health
+        // check) cannot pass the guard and double-start every monitor.
+        guard eventMonitoringState == .stopped else { return }
+        eventMonitoringState = .starting
 
         let logger = Logger(subsystem: "com.mc1", category: "ServiceContainer")
 
@@ -376,14 +390,17 @@ public final class ServiceContainer {
             await nodeSnapshotService.pruneOldSnapshots(olderThan: oneYearAgo)
         }
 
-        isMonitoringEvents = true
+        eventMonitoringState = .active
     }
 
     /// Stops event monitoring for all services.
     ///
     /// Call this when disconnecting from a device.
     public func stopEventMonitoring() async {
-        guard isMonitoringEvents else { return }
+        // Claimed synchronously, mirroring startEventMonitoring, so two teardown
+        // paths interleaving at the awaits below cannot double-stop.
+        guard eventMonitoringState == .active else { return }
+        eventMonitoringState = .stopping
 
         await advertisementService.stopEventMonitoring()
         await rxLogService.stopEventMonitoring()
@@ -400,7 +417,7 @@ public final class ServiceContainer {
         // Flush debug log buffer
         await debugLogBuffer.shutdown()
 
-        isMonitoringEvents = false
+        eventMonitoringState = .stopped
     }
 
     /// Full container teardown. Must be awaited before nulling the container

@@ -51,6 +51,38 @@ extension SyncCoordinator {
         isSyncInProgress = true
         defer { isSyncInProgress = false }
 
+        return try await runFullSync(
+            radioID: radioID,
+            dataStore: dataStore,
+            contactService: contactService,
+            channelService: channelService,
+            messagePollingService: messagePollingService,
+            appStateProvider: appStateProvider,
+            rxLogService: rxLogService,
+            notificationService: notificationService,
+            forceFullSync: forceFullSync,
+            channelSyncConfig: channelSyncConfig,
+            platformName: platformName
+        )
+    }
+
+    /// Full-sync body without the `isSyncInProgress` claim. Callers must hold
+    /// the claim already: `performFullSync` takes it per call, while
+    /// `onConnectionEstablished` claims it before its handler-wiring awaits so
+    /// racing connection setups cannot double-wire.
+    private func runFullSync(
+        radioID: UUID,
+        dataStore: PersistenceStore,
+        contactService: some ContactServiceProtocol,
+        channelService: some ChannelServiceProtocol,
+        messagePollingService: some MessagePollingServiceProtocol,
+        appStateProvider: AppStateProvider? = nil,
+        rxLogService: RxLogService? = nil,
+        notificationService: NotificationService? = nil,
+        forceFullSync: Bool = false,
+        channelSyncConfig: ChannelSyncConfig = .none,
+        platformName: String = "unknown"
+    ) async throws -> FullSyncResult {
         logger.info("Starting full sync for device \(radioID)")
         let syncStart = ContinuousClock.now
 
@@ -243,11 +275,15 @@ extension SyncCoordinator {
     ) async throws -> FullSyncResult {
         logger.info("Connection established for device \(radioID)")
 
-        // Prevent duplicate sync if already syncing (race condition during rapid auto-reconnect cycles)
+        // Claim synchronously before the wiring awaits below. A read-only guard
+        // let two racing calls (rapid auto-reconnect cycles) both pass and
+        // double-wire handlers; the claim makes the loser skip immediately.
         guard !isSyncInProgress else {
             logger.warning("onConnectionEstablished called while already syncing, ignoring duplicate")
             return .skipped
         }
+        isSyncInProgress = true
+        defer { isSyncInProgress = false }
 
         // Suppress message notifications during sync to avoid flooding user on reconnect
         // Unread counts and badges still update - only system notifications are suppressed
@@ -280,8 +316,9 @@ extension SyncCoordinator {
                 logger.warning("Failed to export private key: \(error.localizedDescription)")
             }
 
-            // 4. Perform full sync
-            let syncResult = try await performFullSync(
+            // 4. Perform full sync (claim is already held; the guarded entry
+            // point would see its own claim and skip)
+            let syncResult = try await runFullSync(
                 radioID: radioID,
                 dataStore: services.dataStore,
                 contactService: services.contactService,
