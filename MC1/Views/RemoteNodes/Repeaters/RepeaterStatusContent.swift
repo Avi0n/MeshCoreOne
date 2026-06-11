@@ -13,7 +13,7 @@ struct RepeaterStatusContent: View {
 
     let viewModel: RepeaterStatusViewModel
     let session: RemoteNodeSessionDTO
-    let connectionState: ConnectionState
+    let connectionState: DeviceConnectionState
     let contacts: [ContactDTO]
     let discoveredNodes: [DiscoveredNodeDTO]
     let userLocation: CLLocation?
@@ -53,7 +53,7 @@ private struct OwnerInfoSection: View {
     @Environment(\.appTheme) private var theme
     @Bindable var viewModel: RepeaterStatusViewModel
     let session: RemoteNodeSessionDTO
-    let connectionState: ConnectionState
+    let connectionState: DeviceConnectionState
 
     var body: some View {
         Section {
@@ -104,7 +104,7 @@ private struct OwnerInfoSection: View {
 private struct StatusSection: View {
     let viewModel: RepeaterStatusViewModel
     let session: RemoteNodeSessionDTO
-    let connectionState: ConnectionState
+    let connectionState: DeviceConnectionState
 
     var body: some View {
         NodeStatusSection(helper: viewModel.helper, connectionState: connectionState) {
@@ -138,7 +138,7 @@ private struct NeighborsSection: View {
     let contacts: [ContactDTO]
     let discoveredNodes: [DiscoveredNodeDTO]
     let userLocation: CLLocation?
-    let connectionState: ConnectionState
+    let connectionState: DeviceConnectionState
 
     var body: some View {
         Section {

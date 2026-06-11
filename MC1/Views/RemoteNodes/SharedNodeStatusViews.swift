@@ -77,7 +77,7 @@ struct NodeCommonStatusRows: View {
 struct NodeStatusSection<Rows: View>: View {
     @Environment(\.appTheme) private var theme
     @Bindable var helper: NodeStatusHelper
-    let connectionState: ConnectionState
+    let connectionState: DeviceConnectionState
     let onLoad: () async -> Void
     @ViewBuilder let rows: () -> Rows
 
@@ -190,7 +190,7 @@ struct NodeBatteryCurveDisclosureSection: View {
     @Environment(\.appTheme) private var theme
     @Bindable var helper: NodeStatusHelper
     let session: RemoteNodeSessionDTO
-    let connectionState: ConnectionState
+    let connectionState: DeviceConnectionState
     let connectedDeviceID: UUID?
 
     var body: some View {
@@ -233,7 +233,7 @@ struct NodeBatteryCurveDisclosureSection: View {
 struct NodeTelemetryDisclosureSection: View {
     @Environment(\.appTheme) private var theme
     @Bindable var helper: NodeStatusHelper
-    let connectionState: ConnectionState
+    let connectionState: DeviceConnectionState
     let onRequestTelemetry: () async -> Void
 
     var body: some View {

@@ -481,7 +481,7 @@ struct BLEReconnectionCoordinatorTests {
 @MainActor
 private final class MockReconnectionDelegate: BLEReconnectionDelegate {
     var connectionIntent: ConnectionIntent = .none
-    var connectionState: ConnectionState = .disconnected
+    var connectionState: DeviceConnectionState = .disconnected
 
     var teardownSessionCallCount = 0
     var rebuildSessionCalls: [UUID] = []
@@ -492,7 +492,7 @@ private final class MockReconnectionDelegate: BLEReconnectionDelegate {
     var connectedDeviceWasCleared = false
     var stubbedBLEPhaseIsAutoReconnecting = false
 
-    func setConnectionState(_ state: ConnectionState) {
+    func setConnectionState(_ state: DeviceConnectionState) {
         connectionState = state
     }
 

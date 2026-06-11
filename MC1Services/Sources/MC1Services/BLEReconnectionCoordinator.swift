@@ -241,10 +241,10 @@ final class BLEReconnectionCoordinator {
 @MainActor
 protocol BLEReconnectionDelegate: AnyObject {
     var connectionIntent: ConnectionIntent { get }
-    var connectionState: ConnectionState { get }
+    var connectionState: DeviceConnectionState { get }
 
     /// Sets the connection state (used by coordinator for state transitions).
-    func setConnectionState(_ state: ConnectionState)
+    func setConnectionState(_ state: DeviceConnectionState)
 
     /// Sets the connected device (used by coordinator to clear on timeout).
     func setConnectedDevice(_ device: DeviceDTO?)

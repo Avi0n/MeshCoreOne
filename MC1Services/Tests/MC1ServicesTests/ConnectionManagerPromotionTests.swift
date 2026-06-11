@@ -18,7 +18,7 @@ struct ConnectionManagerPromotionTests {
     private func setupForPromotion(
         manager: ConnectionManager,
         services: ServiceContainer,
-        connectionState: ConnectionState = .connected,
+        connectionState: DeviceConnectionState = .connected,
         connectionIntent: ConnectionIntent = .wantsConnection()
     ) {
         let mockTransport = SimulatorMockTransport()

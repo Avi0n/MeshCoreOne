@@ -5,7 +5,7 @@ import MeshCore
 
 extension ConnectionManager: BLEReconnectionDelegate {
 
-    func setConnectionState(_ state: ConnectionState) {
+    func setConnectionState(_ state: DeviceConnectionState) {
         let previousState = connectionState
         connectionState = state
         if state == .disconnected, previousState != .disconnected {

@@ -4,30 +4,6 @@ import SwiftData
 import MeshCore
 import OSLog
 
-/// Connection state for the mesh device
-public enum ConnectionState: Sendable {
-    case disconnected
-    case connecting
-    case connected
-    case syncing
-    case ready
-
-    /// True when session and services are available and the transport is alive.
-    /// Used by internal infrastructure (resync loop, health checks, heartbeat).
-    /// UI code should check `== .ready` to gate user interactions.
-    public var isOperational: Bool {
-        self == .syncing || self == .ready
-    }
-
-    /// True when a transport link is established (session may or may not be synced).
-    public var isConnected: Bool {
-        switch self {
-        case .connected, .syncing, .ready: true
-        case .disconnected, .connecting: false
-        }
-    }
-}
-
 /// Transport type for the mesh connection
 public enum TransportType: Sendable {
     case bluetooth
@@ -225,12 +201,12 @@ public struct RemoveUnfavoritedResult: Sendable {
 ///   Concerns only the BLE transport, and is undefined for WiFi-bridged radios.
 /// - `MeshCore.ConnectionState`: the transport-link state the session publishes
 ///   (`disconnected`, `connecting`, `connected`, `reconnecting`, `failed`).
-///   `@_exported import MeshCore` makes its bare name visible app-wide alongside
-///   the enum below, so the two are easy to confuse; this one is the lower layer.
-/// - `ConnectionState` (declared in this file): the app-facing rung
-///   (`disconnected`, `connecting`, `connected`, `syncing`, `ready`). Adds the
-///   post-link `syncing`/`ready` distinction the transport layer has no concept
-///   of. This is the value `connectionState` holds and the one UI gates on.
+///   `@_exported import MeshCore` makes its bare name visible app-wide; this one
+///   is the lower layer.
+/// - `DeviceConnectionState`: the app-facing rung (`disconnected`, `connecting`,
+///   `connected`, `syncing`, `ready`). Adds the post-link `syncing`/`ready`
+///   distinction the transport layer has no concept of. This is the value
+///   `connectionState` holds and the one UI gates on.
 ///
 /// `ConnectionManager` drives `connectionState` directly from the connect, sync,
 /// disconnect, and reconnect paths; nothing else writes it. The transport layer
@@ -253,7 +229,7 @@ public final class ConnectionManager {
     // MARK: - Observable State
 
     /// Current connection state
-    public internal(set) var connectionState: ConnectionState = .disconnected {
+    public internal(set) var connectionState: DeviceConnectionState = .disconnected {
         didSet {
             // Edge trigger: fire only when crossing from disconnected to
             // connected (.connected / .syncing / .ready). The normal
@@ -1598,7 +1574,7 @@ public final class ConnectionManager {
     #if DEBUG
     /// Sets internal state for testing. Only available in DEBUG builds.
     internal func setTestState(
-        connectionState: ConnectionState? = nil,
+        connectionState: DeviceConnectionState? = nil,
         services: ServiceContainer?? = nil,
         session: MeshCoreSession?? = nil,
         connectedDevice: DeviceDTO?? = nil,

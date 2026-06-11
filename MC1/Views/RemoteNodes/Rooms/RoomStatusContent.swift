@@ -11,7 +11,7 @@ struct RoomStatusContent: View {
 
     let viewModel: RoomStatusViewModel
     let session: RemoteNodeSessionDTO
-    let connectionState: ConnectionState
+    let connectionState: DeviceConnectionState
     let connectedDeviceID: UUID?
 
     var body: some View {
@@ -38,7 +38,7 @@ struct RoomStatusContent: View {
 private struct RoomStatusSection: View {
     let viewModel: RoomStatusViewModel
     let session: RemoteNodeSessionDTO
-    let connectionState: ConnectionState
+    let connectionState: DeviceConnectionState
 
     var body: some View {
         NodeStatusSection(helper: viewModel.helper, connectionState: connectionState) {

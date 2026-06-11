@@ -129,7 +129,7 @@ public final class ConnectionUIState {
     /// Updates disconnected pill visibility based on connection state.
     /// Called when connectionState changes or on app launch.
     func updateDisconnectedPillState(
-        connectionState: MC1Services.ConnectionState,
+        connectionState: MC1Services.DeviceConnectionState,
         lastConnectedDeviceID: UUID?,
         shouldSuppressDisconnectedPill: Bool
     ) {
@@ -178,7 +178,7 @@ public final class ConnectionUIState {
 
     /// Resets connection UI state when services become unavailable (disconnect).
     func handleDisconnect(
-        connectionState: MC1Services.ConnectionState,
+        connectionState: MC1Services.DeviceConnectionState,
         lastConnectedDeviceID: UUID?,
         shouldSuppressDisconnectedPill: Bool
     ) {

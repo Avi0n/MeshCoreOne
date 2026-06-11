@@ -619,7 +619,7 @@ private struct NodeActionRows: View {
     let pingLabel: String
     let isPinging: Bool
     let pingResult: PingResult?
-    let connectionState: ConnectionState
+    let connectionState: DeviceConnectionState
     let onShowTelemetry: () -> Void
     let onShowAdminAccess: () -> Void
     let onPing: () -> Void
