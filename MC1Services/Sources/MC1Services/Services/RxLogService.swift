@@ -19,8 +19,10 @@ public actor RxLogService {
     private var myPrivateKey: Data?
     private var contactPublicKeysByPrefix: [UInt8: [Data]] = [:]  // 1-byte prefix -> array of 32-byte public keys
 
-    // Stream for UI updates
+    // Stream for UI updates. The subscription ID lets a replaced subscriber's
+    // onTermination distinguish itself from the subscriber that replaced it.
     private var streamContinuation: AsyncStream<RxLogEntryDTO>.Continuation?
+    private var streamSubscriptionID: UUID?
 
     /// Called when any RF packet is received, for Live Activity freshness tracking
     private var onPacketReceived: (@Sendable @MainActor () -> Void)?
@@ -136,24 +138,35 @@ public actor RxLogService {
     /// Returns a stream of new entries.
     /// - Note: Only one active subscriber is supported. Subsequent calls replace the previous subscriber.
     public func entryStream() -> AsyncStream<RxLogEntryDTO> {
-        AsyncStream { continuation in
-            Task { self.setContinuation(continuation) }
-            continuation.onTermination = { @Sendable _ in
-                Task { await self.clearContinuation() }
-            }
+        // Register synchronously so entries yielded right after this call
+        // returns are not dropped behind a registration Task.
+        let (stream, continuation) = AsyncStream.makeStream(of: RxLogEntryDTO.self)
+        let subscriptionID = UUID()
+        setContinuation(continuation, subscriptionID: subscriptionID)
+        continuation.onTermination = { @Sendable _ in
+            Task { await self.clearContinuation(subscriptionID: subscriptionID) }
         }
+        return stream
     }
 
-    private func setContinuation(_ continuation: AsyncStream<RxLogEntryDTO>.Continuation) {
+    private func setContinuation(
+        _ continuation: AsyncStream<RxLogEntryDTO>.Continuation,
+        subscriptionID: UUID
+    ) {
         if streamContinuation != nil {
             logger.warning("Replacing existing RX log stream subscriber")
         }
         streamContinuation?.finish()
-        self.streamContinuation = continuation
+        streamContinuation = continuation
+        streamSubscriptionID = subscriptionID
     }
 
-    private func clearContinuation() {
+    /// Clears the continuation only while the terminating subscription is still
+    /// current, so a replaced subscriber cannot disconnect its replacement.
+    private func clearContinuation(subscriptionID: UUID) {
+        guard streamSubscriptionID == subscriptionID else { return }
         streamContinuation = nil
+        streamSubscriptionID = nil
     }
 
     /// Update channel cache (secrets and names).
@@ -201,7 +214,7 @@ public actor RxLogService {
                 updates.append((
                     id: entry.id,
                     channelIndex: decrypted.channelIndex,
-                    channelName: channelNames[decrypted.channelIndex ?? 0],
+                    channelName: decrypted.channelName,
                     senderTimestamp: decrypted.senderTimestamp
                 ))
                 decryptedEntries.append(decrypted)
@@ -499,9 +512,12 @@ public actor RxLogService {
         }
 
         // Slow path: try all secrets (for .noMatchingKey entries or if fast path failed)
-        for (_, secret) in channelSecrets {
+        // and record which channel's secret matched so the entry is attributed correctly.
+        for (index, secret) in channelSecrets {
             let decryptResult = ChannelCrypto.decrypt(payload: encryptedPayload, secret: secret)
             if case .success(let timestamp, _, let text) = decryptResult {
+                result.channelIndex = index
+                result.channelName = channelNames[index] ?? "Channel \(index)"
                 result.senderTimestamp = timestamp
                 result.decodedText = text
                 break
@@ -585,10 +601,11 @@ public actor RxLogService {
             }
         }
 
-        // Slow path: try all secrets
-        for (_, secret) in secrets {
+        // Slow path: try all secrets, recording the matching channel index.
+        for (index, secret) in secrets {
             let decryptResult = ChannelCrypto.decrypt(payload: encryptedPayload, secret: secret)
             if case .success(let timestamp, _, let text) = decryptResult {
+                result.channelIndex = index
                 result.senderTimestamp = timestamp
                 result.decodedText = text
                 break

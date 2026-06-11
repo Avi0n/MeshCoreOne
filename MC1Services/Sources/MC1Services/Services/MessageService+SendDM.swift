@@ -54,6 +54,8 @@ extension MessageService {
         )
         try await dataStore.saveMessage(messageDTO)
 
+        let predictedAck: Data
+        let sentInfo: MessageSentInfo
         do {
             // Precompute the expected ACK before the send so the persistent
             // listener cannot race trackPendingAck on short direct links (same
@@ -62,7 +64,7 @@ extension MessageService {
             guard let senderPublicKey = await session.currentSelfInfo?.publicKey else {
                 throw MessageServiceError.notConnected
             }
-            let predictedAck = AckCodeBuilder.expectedAck(
+            predictedAck = AckCodeBuilder.expectedAck(
                 timestamp: timestamp,
                 attempt: 0,
                 text: text,
@@ -78,7 +80,6 @@ extension MessageService {
                 timeout: checkInterval
             )
 
-            let sentInfo: MessageSentInfo
             do {
                 sentInfo = try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.directMessageTableFull, config: config.poolBackoff, logger: logger) {
                     try await session.sendMessage(
@@ -91,44 +92,50 @@ extension MessageService {
                 pendingAcks.removeValue(forKey: messageID)
                 throw error
             }
-
-            let ackTimeout = TimeInterval(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
-
-            if sentInfo.expectedAck != predictedAck {
-                logger.warning(
-                    "expectedAck mismatch for \(messageID) attempt 0: predicted \(predictedAck.hexString()) vs firmware \(sentInfo.expectedAck.hexString()); merging firmware code"
-                )
-                trackPendingAck(
-                    messageID: messageID,
-                    contactID: contact.id,
-                    ackCode: sentInfo.expectedAck,
-                    timeout: ackTimeout
-                )
-            } else {
-                pendingAcks[messageID]?.timeout = ackTimeout
-                pendingAcks[messageID]?.sentAt = Date()
-            }
-
-            // updateMessageAck preserves `.delivered`, so writing `.sent` here
-            // is a no-op when the listener already won the race.
-            let ackCodeUInt32 = sentInfo.expectedAck.ackCodeUInt32
-            try await dataStore.updateMessageAck(
-                id: messageID,
-                ackCode: ackCodeUInt32,
-                status: .sent
-            )
-
-            try await dataStore.updateContactLastMessage(contactID: contact.id, date: Date())
-            await messageSentHandler?(messageID, .sent, nil)
-
-            guard let message = try await dataStore.fetchMessage(id: messageID) else {
-                throw MessageServiceError.sendFailed("Failed to fetch saved message")
-            }
-            return message
         } catch {
             await messageFailedHandler?(messageID)
             try await failMessageAndRethrow(error, messageID: messageID)
         }
+
+        let ackTimeout = TimeInterval(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
+
+        if sentInfo.expectedAck != predictedAck {
+            logger.warning(
+                "expectedAck mismatch for \(messageID) attempt 0: predicted \(predictedAck.hexString()) vs firmware \(sentInfo.expectedAck.hexString()); merging firmware code"
+            )
+            trackPendingAck(
+                messageID: messageID,
+                contactID: contact.id,
+                ackCode: sentInfo.expectedAck,
+                timeout: ackTimeout
+            )
+        } else {
+            pendingAcks[messageID]?.timeout = ackTimeout
+            pendingAcks[messageID]?.sentAt = Date()
+        }
+
+        // Post-send bookkeeping. The radio accepted the send, so a throw here
+        // must not mark `.failed` or drop the pendingAcks entry; the genuine
+        // end-to-end ACK or the expiry checker owns the terminal state now,
+        // mirroring the channel send path.
+        do {
+            // updateMessageAck preserves `.delivered`, so writing `.sent` here
+            // is a no-op when the listener already won the race.
+            try await dataStore.updateMessageAck(
+                id: messageID,
+                ackCode: sentInfo.expectedAck.ackCodeUInt32,
+                status: .sent
+            )
+            try await dataStore.updateContactLastMessage(contactID: contact.id, date: Date())
+            await messageSentHandler?(messageID, .sent, nil)
+        } catch {
+            logger.warning("DM post-send bookkeeping failed messageID=\(messageID) send already accepted: \(String(describing: error))")
+        }
+
+        guard let message = try await dataStore.fetchMessage(id: messageID) else {
+            throw MessageServiceError.sendFailed("Failed to fetch saved message")
+        }
+        return message
     }
 
     // MARK: - Send with Automatic Retry

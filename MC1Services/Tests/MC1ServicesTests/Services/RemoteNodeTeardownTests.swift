@@ -63,4 +63,43 @@ struct RemoteNodeTeardownTests {
         }
         #expect(await service.pendingLoginCount == 0)
     }
+
+    @Test("keep-alive loop does not retain the service after the last strong reference is dropped")
+    func keepAliveLoopDoesNotRetainService() async throws {
+        let radioID = UUID()
+        let dataStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+        let session = MeshCoreSession(
+            transport: SilentTransport(),
+            configuration: SessionConfiguration(defaultTimeout: 30.0, clientIdentifier: "MCTst")
+        )
+
+        let remoteSession = RemoteNodeSessionDTO.testSession(radioID: radioID)
+        try await dataStore.saveRemoteNodeSessionDTO(remoteSession)
+
+        // A flood-routed contact makes each keep-alive tick a skip, so the
+        // loop stays parked in its inter-tick sleep without touching the session.
+        let contact = ContactDTO.testContact(
+            radioID: radioID,
+            publicKey: remoteSession.publicKey,
+            outPathLength: 0xFF
+        )
+        try await dataStore.saveContact(contact)
+
+        var service: RemoteNodeService? = RemoteNodeService(
+            session: session,
+            dataStore: dataStore,
+            keychainService: KeychainService()
+        )
+        weak var weakService = service
+
+        await service?.startSessionKeepAlive(
+            sessionID: remoteSession.id,
+            publicKey: remoteSession.publicKey
+        )
+        service = nil
+
+        try await waitUntil("keep-alive task must not keep the service alive") {
+            weakService == nil
+        }
+    }
 }

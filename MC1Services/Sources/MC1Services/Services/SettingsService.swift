@@ -436,7 +436,10 @@ public actor SettingsService {
     private let session: MeshCoreSession
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "SettingsService")
 
+    // Event stream subscriber. The subscription ID lets a replaced subscriber's
+    // onTermination distinguish itself from the subscriber that replaced it.
     private var eventContinuation: AsyncStream<SettingsEvent>.Continuation?
+    private var eventSubscriptionID: UUID?
 
     public init(session: MeshCoreSession) {
         self.session = session
@@ -445,24 +448,35 @@ public actor SettingsService {
     /// Stream of settings change events.
     /// Only one active subscriber is supported. Subsequent calls replace the previous subscriber.
     public func events() -> AsyncStream<SettingsEvent> {
-        AsyncStream { continuation in
-            Task { self.setContinuation(continuation) }
-            continuation.onTermination = { @Sendable _ in
-                Task { await self.clearContinuation() }
-            }
+        // Register synchronously so events yielded right after this call
+        // returns are not dropped behind a registration Task.
+        let (stream, continuation) = AsyncStream.makeStream(of: SettingsEvent.self)
+        let subscriptionID = UUID()
+        setContinuation(continuation, subscriptionID: subscriptionID)
+        continuation.onTermination = { @Sendable _ in
+            Task { await self.clearContinuation(subscriptionID: subscriptionID) }
         }
+        return stream
     }
 
-    private func setContinuation(_ continuation: AsyncStream<SettingsEvent>.Continuation) {
+    private func setContinuation(
+        _ continuation: AsyncStream<SettingsEvent>.Continuation,
+        subscriptionID: UUID
+    ) {
         if eventContinuation != nil {
             logger.warning("Replacing existing SettingsService event stream subscriber")
         }
         eventContinuation?.finish()
-        self.eventContinuation = continuation
+        eventContinuation = continuation
+        eventSubscriptionID = subscriptionID
     }
 
-    private func clearContinuation() {
+    /// Clears the continuation only while the terminating subscription is still
+    /// current, so a replaced subscriber cannot disconnect its replacement.
+    private func clearContinuation(subscriptionID: UUID) {
+        guard eventSubscriptionID == subscriptionID else { return }
         eventContinuation = nil
+        eventSubscriptionID = nil
     }
 
     // MARK: - Radio Settings
