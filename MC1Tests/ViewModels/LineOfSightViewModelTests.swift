@@ -12,8 +12,15 @@ actor MockElevationService: ElevationServiceProtocol {
     var fetchCount = 0
     var profileToReturn: [ElevationSample]?
 
+    /// Optional delay before each fetch resolves, used to keep a fetch in flight
+    /// long enough for a test to cancel or supersede it.
+    var fetchDelay: Duration = .zero
+
     func fetchElevation(at coordinate: CLLocationCoordinate2D) async throws -> Double {
         fetchCount += 1
+        if fetchDelay != .zero {
+            try await Task.sleep(for: fetchDelay)
+        }
         if shouldFail {
             throw ElevationServiceError.noData
         }
@@ -22,6 +29,9 @@ actor MockElevationService: ElevationServiceProtocol {
 
     func fetchElevations(along path: [CLLocationCoordinate2D]) async throws -> [ElevationSample] {
         fetchCount += 1
+        if fetchDelay != .zero {
+            try await Task.sleep(for: fetchDelay)
+        }
         if shouldFail {
             throw ElevationServiceError.noData
         }
@@ -51,10 +61,15 @@ actor MockElevationService: ElevationServiceProtocol {
         shouldFail = false
         fetchCount = 0
         profileToReturn = nil
+        fetchDelay = .zero
     }
 
     func setFailure(_ fail: Bool) {
         shouldFail = fail
+    }
+
+    func setFetchDelay(_ delay: Duration) {
+        fetchDelay = delay
     }
 }
 
@@ -1802,5 +1817,139 @@ struct FrequencyParsingTests {
         let formatted = viewModel.formatFrequencyForEditing(868.5)
         #expect(formatted == "868.5")
         #expect(viewModel.parseFrequency(formatted) == 868.5)
+    }
+}
+
+// MARK: - Analysis Task Hygiene Tests
+
+@Suite("Analysis Task Hygiene")
+@MainActor
+struct AnalysisTaskHygieneTests {
+
+    @Test("Re-analysis after an RF change clears isAnalyzing")
+    func reanalyzeClearsIsAnalyzing() async throws {
+        let mockService = MockElevationService()
+        let viewModel = LineOfSightViewModel(elevationService: mockService)
+
+        viewModel.setPointA(coordinate: sanFrancisco)
+        viewModel.setPointB(coordinate: oakland)
+        try await waitForBothPointElevations(viewModel)
+
+        viewModel.analyze()
+        try await waitForAnalysisResult(viewModel)
+
+        // Changing the k-factor re-runs analysis with the cached profile
+        viewModel.refractionK = 4.0 / 3.0
+
+        try await waitUntil("re-analysis should clear isAnalyzing") {
+            !viewModel.isAnalyzing
+        }
+        #expect(viewModel.isAnalyzing == false)
+        if case .result = viewModel.analysisStatus {
+            // expected
+        } else {
+            Issue.record("Expected result status after re-analysis, got: \(viewModel.analysisStatus)")
+        }
+    }
+
+    @Test("Re-analysis that supersedes an in-flight analysis does not strand isAnalyzing")
+    func reanalyzeSupersedingInFlightClearsIsAnalyzing() async throws {
+        let mockService = MockElevationService()
+        let viewModel = LineOfSightViewModel(elevationService: mockService)
+
+        viewModel.setPointA(coordinate: sanFrancisco)
+        viewModel.setPointB(coordinate: oakland)
+        try await waitForBothPointElevations(viewModel)
+
+        // Keep the analysis profile fetch in flight so the RF change cancels it
+        await mockService.setFetchDelay(.milliseconds(300))
+
+        viewModel.analyze()
+        #expect(viewModel.isAnalyzing == true)
+
+        // Seed a cached profile so the RF-change re-analysis path cancels the
+        // still-running analyze task instead of bailing at its guard
+        let profile = [
+            ElevationSample(coordinate: sanFrancisco, elevation: 100, distanceFromAMeters: 0),
+            ElevationSample(coordinate: oakland, elevation: 100, distanceFromAMeters: 1000)
+        ]
+        viewModel.setElevationProfileForTesting(profile)
+
+        viewModel.refractionK = 4.0 / 3.0
+
+        try await waitUntil("superseding re-analysis should clear isAnalyzing") {
+            !viewModel.isAnalyzing
+        }
+        #expect(viewModel.isAnalyzing == false)
+    }
+
+    @Test("clearRepeater cancels the in-flight off-path elevation fetch")
+    func clearRepeaterCancelsElevationFetch() async throws {
+        let mockService = MockElevationService()
+        let viewModel = LineOfSightViewModel(elevationService: mockService)
+
+        viewModel.setPointA(coordinate: sanFrancisco)
+        viewModel.setPointB(coordinate: oakland)
+        try await waitForBothPointElevations(viewModel)
+
+        // Hold the repeater elevation fetch open so we can cancel it mid-flight
+        await mockService.setFetchDelay(.milliseconds(300))
+
+        let originalCoord = CLLocationCoordinate2D(latitude: 37.79, longitude: -122.35)
+        viewModel.setRepeaterOffPath(coordinate: originalCoord)
+        #expect(viewModel.repeaterPoint?.groundElevation == nil)
+
+        // Clearing the repeater must cancel the in-flight fetch
+        viewModel.clearRepeater()
+        #expect(viewModel.repeaterPoint == nil)
+
+        // Re-add an off-path repeater directly (bypassing setRepeaterOffPath, which
+        // would cancel on its own) so a surviving stale fetch would land here
+        let newCoord = CLLocationCoordinate2D(latitude: 37.70, longitude: -122.30)
+        viewModel.repeaterPoint = RepeaterPoint(
+            coordinate: newCoord,
+            groundElevation: nil,
+            isOnPath: false,
+            pathFraction: 0.5
+        )
+
+        // Wait past the original fetch's delay; a cancelled fetch never writes
+        try await Task.sleep(for: .milliseconds(500))
+        #expect(viewModel.repeaterPoint?.groundElevation == nil)
+    }
+
+    @Test("Cancelled off-path analysis does not surface an error or strand isAnalyzing")
+    func offPathAnalysisCancellationIsSilent() async throws {
+        let mockService = MockElevationService()
+        let viewModel = LineOfSightViewModel(elevationService: mockService)
+
+        viewModel.setPointA(coordinate: sanFrancisco)
+        viewModel.setPointB(coordinate: oakland)
+        try await waitForBothPointElevations(viewModel)
+
+        let repeaterCoord = CLLocationCoordinate2D(latitude: 37.79, longitude: -122.35)
+        viewModel.setRepeaterOffPath(coordinate: repeaterCoord)
+        try await waitUntil("repeater elevation should load") {
+            viewModel.repeaterPoint?.groundElevation != nil
+        }
+
+        // Hold the off-path profile fetch open, start it, then cancel via clear().
+        // The off-path task sets isAnalyzing asynchronously, so wait for the start.
+        await mockService.setFetchDelay(.milliseconds(300))
+        viewModel.analyzeWithRepeater()
+        try await waitUntil("off-path analysis should start") {
+            viewModel.isAnalyzing
+        }
+
+        viewModel.clear()
+
+        try await waitUntil("cancelled off-path analysis should clear isAnalyzing") {
+            !viewModel.isAnalyzing
+        }
+        #expect(viewModel.isAnalyzing == false)
+        // clear() resets status to idle; a cancelled fetch must not flip it to error
+        if case .error = viewModel.analysisStatus {
+            Issue.record("Cancelled off-path analysis surfaced a user-visible error")
+        }
     }
 }

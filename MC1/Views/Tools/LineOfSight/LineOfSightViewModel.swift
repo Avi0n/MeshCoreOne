@@ -776,6 +776,11 @@ final class LineOfSightViewModel {
 
     /// Removes repeater and reverts to single-path analysis
     func clearRepeater() {
+        // Cancel any in-flight off-path elevation fetch so it can't write a stale
+        // coordinate's elevation into a repeater added after this clear.
+        repeaterElevationTask?.cancel()
+        repeaterElevationTask = nil
+
         repeaterPoint = nil
         reanalyzeWithCachedProfileIfNeeded()
     }
@@ -866,6 +871,12 @@ final class LineOfSightViewModel {
             async let profileRBTask = elevationService.fetchElevations(along: sampleCoordsRB)
             let (profileAR, profileRB) = try await (profileARTask, profileRBTask)
 
+            // A superseded task must not overwrite newer results
+            if Task.isCancelled {
+                isAnalyzing = false
+                return
+            }
+
             // Offset R→B profile distances to continue from A→R endpoint
             // (fetchElevations returns distances relative to segment start, not global A)
             let profileRBAdjusted = profileRB.map { sample in
@@ -894,6 +905,8 @@ final class LineOfSightViewModel {
 
         } catch {
             isAnalyzing = false
+            // A cancelled fetch is not a user-facing analysis failure
+            if Task.isCancelled { return }
             analysisStatus = .error(error.localizedDescription)
             logger.error("Off-path analysis failed: \(error.localizedDescription)")
         }
@@ -1066,23 +1079,31 @@ final class LineOfSightViewModel {
 
     /// Re-runs analysis using cached elevation profile when RF settings change
     private func reanalyzeWithCachedProfileIfNeeded() {
-        // Only re-analyze if we have a cached profile and both points
+        // Only re-analyze if we have a cached profile and both points.
+        // Clear isAnalyzing on the bail path so a flag left set by a now-stale
+        // analysis (this method runs from a mid-analysis RF-setting change) can't
+        // strand the spinner.
         guard !elevationProfile.isEmpty,
               let pointA = pointA,
               let pointB = pointB,
               pointA.groundElevation != nil,
               pointB.groundElevation != nil else {
+            isAnalyzing = false
             return
         }
 
-        // If repeater is active, use relay analysis to preserve mode
+        // If repeater is active, use relay analysis to preserve mode.
+        // Clear isAnalyzing first: the on-path/cached relay paths resolve
+        // synchronously, and the off-path path re-sets the flag itself.
         if repeaterPoint != nil {
+            isAnalyzing = false
             analyzeWithRepeater()
             return
         }
 
-        // Cancel any existing analysis
+        // Cancel any existing analysis; this task takes over the isAnalyzing flag
         analysisTask?.cancel()
+        isAnalyzing = true
 
         // Capture values for use in task
         let profile = elevationProfile
@@ -1092,6 +1113,8 @@ final class LineOfSightViewModel {
         let k = refractionK
 
         analysisTask = Task {
+            defer { isAnalyzing = false }
+
             let result = await Task.detached {
                 RFCalculator.analyzePath(
                     elevationProfile: profile,
