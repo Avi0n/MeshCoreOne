@@ -10,13 +10,14 @@ struct ToolsView: View {
         NavigationStack {
             List {
                 ForEach(ToolSelection.allCases, id: \.self) { tool in
-                    NavigationLink {
-                        ToolDestinationView(tool: tool) { LineOfSightView() }
-                    } label: {
+                    NavigationLink(value: tool) {
                         Label(tool.title, systemImage: tool.systemImage)
                     }
                 }
                 .themedRowBackground(theme)
+            }
+            .navigationDestination(for: ToolSelection.self) { tool in
+                ToolDestinationView(tool: tool) { LineOfSightView() }
             }
             .themedCanvas(theme)
             .navigationTitle(L10n.Tools.Tools.title)

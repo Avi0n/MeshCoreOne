@@ -7,7 +7,7 @@ private let sidebarLogger = Logger(subsystem: "com.mc1", category: "NodesListVie
 struct ContactsSidebarContent: View {
     @Environment(\.appState) private var appState
 
-    let viewModel: ContactsViewModel
+    @Bindable var viewModel: ContactsViewModel
     let filteredContacts: [ContactDTO]
     let isSearching: Bool
     let searchPrompt: String
@@ -24,8 +24,6 @@ struct ContactsSidebarContent: View {
     @Binding var showLocationDeniedAlert: Bool
     @Binding var showOfflineRefreshAlert: Bool
     @Binding var navigationPath: NavigationPath
-
-    let showErrorBinding: Binding<Bool>
 
     let onLoadContacts: () async -> Void
     let onSyncContacts: () async -> Void
@@ -223,12 +221,6 @@ struct ContactsSidebarContent: View {
         } message: {
             Text(L10n.Contacts.Contacts.List.distanceRequiresLocation)
         }
-        .alert(L10n.Contacts.Contacts.Common.error, isPresented: showErrorBinding) {
-            Button(L10n.Contacts.Contacts.Common.ok, role: .cancel) {
-                viewModel.errorMessage = nil
-            }
-        } message: {
-            Text(viewModel.errorMessage ?? L10n.Contacts.Contacts.Common.errorOccurred)
-        }
+        .errorAlert($viewModel.errorMessage, title: L10n.Contacts.Contacts.Common.error)
     }
 }

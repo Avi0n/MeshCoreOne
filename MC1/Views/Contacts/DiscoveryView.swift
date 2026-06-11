@@ -30,13 +30,6 @@ struct DiscoveryView: View {
         !searchText.isEmpty
     }
 
-    private var showErrorBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )
-    }
-
     /// Segment picker as the pinned section header; `pinnedFilterHeaderBackground` documents the
     /// per-OS backing.
     private var pinnedFilterHeader: some View {
@@ -103,11 +96,7 @@ struct DiscoveryView: View {
                 await loadDiscoveredNodes()
             }
         }
-        .alert(L10n.Contacts.Contacts.Common.error, isPresented: showErrorBinding) {
-            Button(L10n.Contacts.Contacts.Common.ok) { viewModel.errorMessage = nil }
-        } message: {
-            Text(viewModel.errorMessage ?? "")
-        }
+        .errorAlert($viewModel.errorMessage, title: L10n.Contacts.Contacts.Common.error)
         .confirmationDialog(
             L10n.Contacts.Contacts.Discovery.Clear.title,
             isPresented: $showClearConfirmation,
@@ -270,7 +259,7 @@ private struct DiscoveryNodeRow: View {
                     .font(.body)
                     .bold()
 
-                Text(node.publicKey.hexString())
+                Text(node.publicKey.uppercaseHexString())
                     .font(.caption.monospaced())
                     .foregroundStyle(.secondary)
                     .lineLimit(1)

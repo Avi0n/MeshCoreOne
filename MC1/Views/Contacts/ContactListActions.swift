@@ -33,13 +33,6 @@ struct ContactListActions {
             : L10n.Contacts.Contacts.List.searchPrompt
     }
 
-    var showErrorBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )
-    }
-
     func loadContacts() async {
         guard let deviceID = appState.currentRadioID else { return }
         viewModel.configure(appState: appState)

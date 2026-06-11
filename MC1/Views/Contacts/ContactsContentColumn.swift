@@ -48,7 +48,6 @@ struct ContactsContentColumn: View {
             showOfflineRefreshAlert: $showOfflineRefreshAlert,
             // Compact-only navigation, unused on the split path which drives selection via selectedContact.
             navigationPath: .constant(NavigationPath()),
-            showErrorBinding: actions.showErrorBinding,
             onLoadContacts: actions.loadContacts,
             onSyncContacts: actions.syncContacts,
             onAnnounceOfflineStateIfNeeded: actions.announceOfflineStateIfNeeded

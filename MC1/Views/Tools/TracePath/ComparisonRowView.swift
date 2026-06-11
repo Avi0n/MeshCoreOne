@@ -48,9 +48,7 @@ struct ComparisonRowView: View {
 
                 Spacer()
 
-                NavigationLink {
-                    SavedPathDetailView(savedPath: savedPath)
-                } label: {
+                NavigationLink(value: TracePathRoute.savedPathDetail(savedPath)) {
                     Text(L10n.Contacts.Contacts.Results.viewRuns(savedPath.runCount))
                         .font(.caption)
                 }

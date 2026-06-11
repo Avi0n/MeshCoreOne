@@ -7,17 +7,7 @@ struct RegenerateIdentitySheet: View {
     @Environment(\.appState) private var appState
     @Environment(\.appTheme) private var theme
 
-    @State private var hexPrefix = ""
-    @State private var isGenerating = false
-    @State private var isImporting = false
-    @State private var generatedKey: GeneratedKey?
-    @State private var showingReplaceAlert = false
-    @State private var errorMessage: String?
-    @State private var prefixError: String?
-    @State private var generateTask: Task<Void, Never>?
-    @State private var successTrigger = 0
-
-    private var isBusy: Bool { isGenerating || isImporting }
+    @State private var viewModel = RegenerateIdentityViewModel()
 
     var body: some View {
         NavigationStack {
@@ -28,7 +18,7 @@ struct RegenerateIdentitySheet: View {
                     .themedRowBackground(theme)
                 generateSection
                     .themedRowBackground(theme)
-                if let generatedKey {
+                if let generatedKey = viewModel.generatedKey {
                     keyPreviewSection(generatedKey)
                         .themedRowBackground(theme)
                     replaceSection
@@ -43,23 +33,30 @@ struct RegenerateIdentitySheet: View {
                     Button(L10n.Localizable.Common.cancel) {
                         dismiss()
                     }
-                    .disabled(isBusy)
+                    .disabled(viewModel.isBusy)
                 }
             }
-            .interactiveDismissDisabled(isBusy)
-            .alert(L10n.Settings.RegenerateIdentity.Alert.Replace.title, isPresented: $showingReplaceAlert) {
+            .interactiveDismissDisabled(viewModel.isBusy)
+            .alert(
+                L10n.Settings.RegenerateIdentity.Alert.Replace.title,
+                isPresented: $viewModel.showingReplaceAlert
+            ) {
                 Button(L10n.Localizable.Common.cancel, role: .cancel) { }
                 Button(L10n.Settings.RegenerateIdentity.Alert.Replace.confirm, role: .destructive) {
-                    replaceIdentity()
+                    Task {
+                        if await viewModel.replaceIdentity(appState: appState) {
+                            dismiss()
+                        }
+                    }
                 }
             } message: {
                 Text(L10n.Settings.RegenerateIdentity.Alert.Replace.message)
             }
-            .errorAlert($errorMessage)
-            .sensoryFeedback(.success, trigger: successTrigger)
+            .errorAlert($viewModel.errorMessage)
+            .sensoryFeedback(.success, trigger: viewModel.successTrigger)
         }
         .onDisappear {
-            generateTask?.cancel()
+            viewModel.cancelGeneration()
         }
     }
 
@@ -75,19 +72,15 @@ struct RegenerateIdentitySheet: View {
     private var prefixSection: some View {
         Section {
             DisclosureGroup(L10n.Settings.RegenerateIdentity.Prefix.label) {
-                TextField(L10n.Settings.RegenerateIdentity.Prefix.placeholder, text: $hexPrefix)
+                TextField(L10n.Settings.RegenerateIdentity.Prefix.placeholder, text: $viewModel.hexPrefix)
                     .textInputAutocapitalization(.characters)
                     .autocorrectionDisabled()
                     .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-                    .onChange(of: hexPrefix) { _, newValue in
-                        let filtered = String(newValue.uppercased().filter { $0.isASCII && $0.isHexDigit }.prefix(4))
-                        if filtered != newValue {
-                            hexPrefix = filtered
-                        }
-                        prefixError = nil
+                    .onChange(of: viewModel.hexPrefix) { _, newValue in
+                        viewModel.sanitizePrefix(newValue)
                     }
 
-                if let prefixError {
+                if let prefixError = viewModel.prefixError {
                     Label(prefixError, systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.red)
                         .font(.footnote)
@@ -102,11 +95,11 @@ struct RegenerateIdentitySheet: View {
     private var generateSection: some View {
         Section {
             Button {
-                generateKey()
+                viewModel.generateKey()
             } label: {
                 HStack {
                     Spacer()
-                    if isGenerating {
+                    if viewModel.isGenerating {
                         ProgressView()
                             .controlSize(.small)
                             .accessibilityLabel(L10n.Settings.RegenerateIdentity.generating)
@@ -117,11 +110,11 @@ struct RegenerateIdentitySheet: View {
                     Spacer()
                 }
             }
-            .disabled(isBusy)
+            .disabled(viewModel.isBusy)
         }
     }
 
-    private func keyPreviewSection(_ key: GeneratedKey) -> some View {
+    private func keyPreviewSection(_ key: RegenerateIdentityViewModel.GeneratedKey) -> some View {
         Group {
             Section {
                 Text(key.publicKeyHex)
@@ -144,11 +137,11 @@ struct RegenerateIdentitySheet: View {
     private var replaceSection: some View {
         Section {
             Button {
-                showingReplaceAlert = true
+                viewModel.showingReplaceAlert = true
             } label: {
                 HStack {
                     Spacer()
-                    if isImporting {
+                    if viewModel.isImporting {
                         ProgressView()
                             .controlSize(.small)
                         Text(L10n.Settings.RegenerateIdentity.importing)
@@ -158,85 +151,7 @@ struct RegenerateIdentitySheet: View {
                     Spacer()
                 }
             }
-            .disabled(isBusy)
+            .disabled(viewModel.isBusy)
         }
     }
-
-    // MARK: - Actions
-
-    private func generateKey() {
-        prefixError = nil
-
-        // Validate prefix
-        let upper = hexPrefix.uppercased()
-        if !upper.isEmpty {
-            if upper.count >= 2, upper.hasPrefix("00") || upper.hasPrefix("FF") {
-                prefixError = L10n.Settings.RegenerateIdentity.Prefix.Error.reserved
-                return
-            }
-        }
-
-        isGenerating = true
-        generateTask = Task {
-            defer { isGenerating = false }
-            do {
-                let result = try await KeyGenerationService.generateIdentity(
-                    hexPrefix: upper.isEmpty ? nil : upper
-                )
-                withAnimation {
-                    generatedKey = GeneratedKey(
-                        expandedKey: result.expandedPrivateKey,
-                        publicKeyHex: result.publicKey.hexString(separator: " "),
-                        privateKeyHex: result.expandedPrivateKey.hexString(separator: " "),
-                        accessibilityLabel: result.publicKey
-                            .map { String(format: "%02X", $0) }
-                            .joined(separator: ", ")
-                    )
-                }
-            } catch is CancellationError {
-                // Sheet dismissed during generation
-            } catch let error as KeyGenerationError {
-                errorMessage = error.localizedDescription
-            } catch {
-                errorMessage = error.localizedDescription
-            }
-        }
-    }
-
-    private func replaceIdentity() {
-        guard let expandedKey = generatedKey?.expandedKey,
-              let settingsService = appState.services?.settingsService else { return }
-
-        isImporting = true
-        Task {
-            defer { isImporting = false }
-            do {
-                try await settingsService.importPrivateKey(expandedKey)
-                try await settingsService.refreshDeviceInfo()
-                successTrigger += 1
-                dismiss()
-            } catch let error as SettingsServiceError {
-                if case .sessionError(let meshError) = error,
-                   case .featureDisabled = meshError {
-                    errorMessage = L10n.Settings.RegenerateIdentity.Error.featureDisabled
-                } else if case .sessionError(let meshError) = error,
-                          case .deviceError = meshError {
-                    errorMessage = L10n.Settings.RegenerateIdentity.Error.deviceRejected
-                } else {
-                    errorMessage = error.localizedDescription
-                }
-            } catch {
-                errorMessage = error.localizedDescription
-            }
-        }
-    }
-}
-
-// MARK: - Supporting Types
-
-private struct GeneratedKey {
-    let expandedKey: Data
-    let publicKeyHex: String
-    let privateKeyHex: String
-    let accessibilityLabel: String
 }

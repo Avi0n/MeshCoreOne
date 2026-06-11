@@ -42,9 +42,7 @@ struct DeviceInfoView: View {
                     }
                     .radioDisabled(for: appState.connectionState, or: isSaving)
 
-                    NavigationLink {
-                        PublicKeyView(publicKey: device.publicKey)
-                    } label: {
+                    NavigationLink(value: SettingsSubpage.publicKey(device.publicKey)) {
                         Label(L10n.Settings.DeviceInfo.publicKey, systemImage: "key")
                     }
 
@@ -206,6 +204,7 @@ struct DeviceInfoView: View {
             }
         }
         .themedCanvas(theme)
+        .settingsSubpageDestinations()
         .navigationTitle(L10n.Settings.DeviceInfo.title)
         .errorAlert($errorMessage)
         .retryAlert(retryAlert)
@@ -334,51 +333,6 @@ private struct StorageBar: View {
         case 0.7..<0.9: return .orange
         default: return .red
         }
-    }
-}
-
-// MARK: - Public Key View
-
-private struct PublicKeyView: View {
-    let publicKey: Data
-
-    @Environment(\.appTheme) private var theme
-    @State private var copyHapticTrigger = 0
-
-    var body: some View {
-        List {
-            Section {
-                Text(publicKey.hexString(separator: " "))
-                    .font(.system(.body, design: .monospaced))
-                    .textSelection(.enabled)
-            } header: {
-                Text(L10n.Settings.PublicKey.header)
-            } footer: {
-                Text(L10n.Settings.PublicKey.footer)
-            }
-            .themedRowBackground(theme)
-
-            Section {
-                Button {
-                    copyHapticTrigger += 1
-                    UIPasteboard.general.string = publicKey.hexString()
-                } label: {
-                    Label(L10n.Settings.PublicKey.copy, systemImage: "doc.on.doc")
-                }
-
-                // Base64 representation
-                Text(publicKey.base64EncodedString())
-                    .font(.system(.caption, design: .monospaced))
-                    .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
-            } header: {
-                Text(L10n.Settings.PublicKey.Base64.header)
-            }
-            .themedRowBackground(theme)
-        }
-        .themedCanvas(theme)
-        .navigationTitle(L10n.Settings.PublicKey.title)
-        .sensoryFeedback(.success, trigger: copyHapticTrigger)
     }
 }
 

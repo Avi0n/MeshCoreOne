@@ -7,15 +7,11 @@ struct BlockingSection: View {
 
     var body: some View {
         Section {
-            NavigationLink {
-                BlockedChannelSendersView()
-            } label: {
+            NavigationLink(value: SettingsSubpage.blockedChannelSenders) {
                 TintedLabel(L10n.Settings.Blocking.channelSenders, systemImage: "person.crop.circle.badge.xmark")
             }
 
-            NavigationLink {
-                BlockedContactsView()
-            } label: {
+            NavigationLink(value: SettingsSubpage.blockedContacts) {
                 TintedLabel(L10n.Settings.Blocking.contacts, systemImage: "hand.raised.slash")
             }
         } header: {

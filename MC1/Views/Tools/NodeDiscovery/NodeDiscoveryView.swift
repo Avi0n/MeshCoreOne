@@ -29,18 +29,7 @@ struct NodeDiscoveryView: View {
                 SortMenu(viewModel: viewModel)
             }
         }
-        .alert(L10n.Tools.Tools.NodeDiscovery.errorTitle, isPresented: Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )) {
-            Button(L10n.Contacts.Contacts.Common.ok) {
-                viewModel.errorMessage = nil
-            }
-        } message: {
-            if let error = viewModel.errorMessage {
-                Text(error)
-            }
-        }
+        .errorAlert($viewModel.errorMessage, title: L10n.Tools.Tools.NodeDiscovery.errorTitle)
         .sensoryFeedback(.impact(weight: .medium), trigger: viewModel.scanStartHapticTrigger)
         .sensoryFeedback(.success, trigger: viewModel.scanSuccessHapticTrigger)
         .sensoryFeedback(.warning, trigger: viewModel.scanEmptyHapticTrigger)

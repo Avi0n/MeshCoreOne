@@ -26,6 +26,12 @@ struct TraceResultsSheet: View {
                     .themedRowBackground(theme)
             }
             .themedCanvas(theme)
+            .navigationDestination(for: TracePathRoute.self) { route in
+                switch route {
+                case .savedPathDetail(let savedPath):
+                    SavedPathDetailView(savedPath: savedPath)
+                }
+            }
             .navigationTitle(L10n.Contacts.Contacts.Results.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -66,6 +66,7 @@ struct AdvancedSettingsView: View {
             DangerZoneSection()
         }
         .themedCanvas(theme)
+        .settingsSubpageDestinations()
         .sheet(isPresented: $showingImportKeySheet) {
             ImportKeySheet()
         }

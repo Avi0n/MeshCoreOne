@@ -7,12 +7,7 @@ struct ImportKeySheet: View {
     @Environment(\.appState) private var appState
     @Environment(\.appTheme) private var theme
 
-    @State private var hexInput = ""
-    @State private var isImporting = false
-    @State private var showingReplaceAlert = false
-    @State private var errorMessage: String?
-    @State private var successTrigger = 0
-    @State private var validatedKeyData: Data?
+    @State private var viewModel = ImportKeyViewModel()
 
     var body: some View {
         NavigationStack {
@@ -32,20 +27,27 @@ struct ImportKeySheet: View {
                     Button(L10n.Localizable.Common.cancel) {
                         dismiss()
                     }
-                    .disabled(isImporting)
+                    .disabled(viewModel.isImporting)
                 }
             }
-            .interactiveDismissDisabled(isImporting)
-            .alert(L10n.Settings.RegenerateIdentity.Alert.Replace.title, isPresented: $showingReplaceAlert) {
+            .interactiveDismissDisabled(viewModel.isImporting)
+            .alert(
+                L10n.Settings.RegenerateIdentity.Alert.Replace.title,
+                isPresented: $viewModel.showingReplaceAlert
+            ) {
                 Button(L10n.Localizable.Common.cancel, role: .cancel) { }
                 Button(L10n.Settings.RegenerateIdentity.Alert.Replace.confirm, role: .destructive) {
-                    importKey()
+                    Task {
+                        if await viewModel.importKey(appState: appState) {
+                            dismiss()
+                        }
+                    }
                 }
             } message: {
                 Text(L10n.Settings.RegenerateIdentity.Alert.Replace.message)
             }
-            .errorAlert($errorMessage)
-            .sensoryFeedback(.success, trigger: successTrigger)
+            .errorAlert($viewModel.errorMessage)
+            .sensoryFeedback(.success, trigger: viewModel.successTrigger)
         }
     }
 
@@ -60,16 +62,13 @@ struct ImportKeySheet: View {
 
     private var keyInputSection: some View {
         Section {
-            TextField(L10n.Settings.ImportKey.KeyInput.placeholder, text: $hexInput, axis: .vertical)
+            TextField(L10n.Settings.ImportKey.KeyInput.placeholder, text: $viewModel.hexInput, axis: .vertical)
                 .textInputAutocapitalization(.characters)
                 .autocorrectionDisabled()
                 .font(.system(.body, design: .monospaced))
                 .lineLimit(3...6)
-                .onChange(of: hexInput) { _, newValue in
-                    let filtered = String(newValue.uppercased().filter { $0.isASCII && $0.isHexDigit })
-                    if filtered != newValue {
-                        hexInput = filtered
-                    }
+                .onChange(of: viewModel.hexInput) { _, newValue in
+                    viewModel.sanitizeInput(newValue)
                 }
         } header: {
             Text(L10n.Settings.ImportKey.KeyInput.label)
@@ -79,11 +78,11 @@ struct ImportKeySheet: View {
     private var importSection: some View {
         Section {
             Button {
-                validateAndConfirm()
+                viewModel.validateAndConfirm()
             } label: {
                 HStack {
                     Spacer()
-                    if isImporting {
+                    if viewModel.isImporting {
                         ProgressView()
                             .controlSize(.small)
                         Text(L10n.Settings.ImportKey.importing)
@@ -93,57 +92,7 @@ struct ImportKeySheet: View {
                     Spacer()
                 }
             }
-            .disabled(isImporting || hexInput.isEmpty)
-        }
-    }
-
-    // MARK: - Actions
-
-    private func validateAndConfirm() {
-        // Parse hex and validate length
-        guard let keyData = Data(hexString: hexInput),
-              keyData.count == ProtocolLimits.privateKeySize else {
-            errorMessage = L10n.Settings.ImportKey.Error.invalidHex
-            return
-        }
-
-        // Validate Ed25519 clamping
-        do {
-            try KeyGenerationService.validateExpandedKey(keyData)
-        } catch {
-            errorMessage = L10n.Settings.ImportKey.Error.invalidKey
-            return
-        }
-
-        validatedKeyData = keyData
-        showingReplaceAlert = true
-    }
-
-    private func importKey() {
-        guard let keyData = validatedKeyData,
-              let settingsService = appState.services?.settingsService else { return }
-
-        isImporting = true
-        Task {
-            defer { isImporting = false }
-            do {
-                try await settingsService.importPrivateKey(keyData)
-                try await settingsService.refreshDeviceInfo()
-                successTrigger += 1
-                dismiss()
-            } catch let error as SettingsServiceError {
-                if case .sessionError(let meshError) = error,
-                   case .featureDisabled = meshError {
-                    errorMessage = L10n.Settings.RegenerateIdentity.Error.featureDisabled
-                } else if case .sessionError(let meshError) = error,
-                          case .deviceError = meshError {
-                    errorMessage = L10n.Settings.RegenerateIdentity.Error.deviceRejected
-                } else {
-                    errorMessage = error.localizedDescription
-                }
-            } catch {
-                errorMessage = error.localizedDescription
-            }
+            .disabled(viewModel.isImporting || viewModel.hexInput.isEmpty)
         }
     }
 }

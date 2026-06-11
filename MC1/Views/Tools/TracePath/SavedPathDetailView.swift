@@ -21,6 +21,9 @@ struct SavedPathDetailView: View {
                 .themedRowBackground(theme)
         }
         .themedCanvas(theme)
+        .navigationDestination(for: TracePathRoute.RunDetail.self) { route in
+            RunDetailView(run: route.run)
+        }
         .navigationTitle(viewModel.savedPath.name)
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -79,9 +82,7 @@ struct SavedPathDetailView: View {
     private var historySection: some View {
         Section(L10n.Contacts.Contacts.PathDetail.history) {
             ForEach(viewModel.sortedRuns) { run in
-                NavigationLink {
-                    RunDetailView(run: run)
-                } label: {
+                NavigationLink(value: TracePathRoute.RunDetail(run: run)) {
                     HStack {
                         VStack(alignment: .leading) {
                             Text(run.date.formatted(date: .abbreviated, time: .shortened))
@@ -118,7 +119,7 @@ private struct PathChipsView: View {
     private var hopHexStrings: [String] {
         stride(from: 0, to: pathData.count, by: hashSize).map { start in
             let end = min(start + hashSize, pathData.count)
-            return pathData[start..<end].hexString()
+            return pathData[start..<end].uppercaseHexString()
         }
     }
 

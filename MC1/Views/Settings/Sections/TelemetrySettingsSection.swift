@@ -63,9 +63,7 @@ struct TelemetrySettingsSection: View {
                 .radioDisabled(for: appState.connectionState, or: isSaving)
 
                 if isFilterByTrusted {
-                    NavigationLink {
-                        TrustedContactsPickerView()
-                    } label: {
+                    NavigationLink(value: SettingsSubpage.trustedContacts) {
                         Text(L10n.Settings.Telemetry.manageTrusted)
                     }
                 }

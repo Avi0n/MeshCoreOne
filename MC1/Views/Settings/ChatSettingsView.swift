@@ -22,6 +22,7 @@ struct ChatSettingsView: View {
             BlockingSection()
         }
         .themedCanvas(theme)
+        .settingsSubpageDestinations()
         .navigationTitle(L10n.Settings.ChatSettings.title)
         .navigationBarTitleDisplayMode(.inline)
     }

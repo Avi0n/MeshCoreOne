@@ -19,7 +19,7 @@ struct TracePathMapView: View {
     @State private var saveName = ""
     @State private var showingClearConfirmation = false
     @State private var showingSaveSuccess = false
-    @State private var showingSaveError = false
+    @State private var errorMessage: String?
     @State private var pinTapHaptic = 0
     @State private var rejectedTapHaptic = 0
 
@@ -90,7 +90,7 @@ struct TracePathMapView: View {
                     if success {
                         showingSaveSuccess = true
                     } else {
-                        showingSaveError = true
+                        errorMessage = L10n.Contacts.Contacts.Trace.Map.saveFailedMessage
                     }
                 }
             }
@@ -104,11 +104,7 @@ struct TracePathMapView: View {
         } message: {
             Text(L10n.Contacts.Contacts.Trace.Map.savedMessage)
         }
-        .alert(L10n.Contacts.Contacts.Trace.Map.saveFailedTitle, isPresented: $showingSaveError) {
-            Button(L10n.Contacts.Contacts.Common.ok, role: .cancel) {}
-        } message: {
-            Text(L10n.Contacts.Contacts.Trace.Map.saveFailedMessage)
-        }
+        .errorAlert($errorMessage, title: L10n.Contacts.Contacts.Trace.Map.saveFailedTitle)
     }
 
     // MARK: - Map Content
