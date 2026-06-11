@@ -273,7 +273,7 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     /// SNR mapped to 0-1 for SF Symbol cellularbars variableValue.
     public var snrLevel: Double { snrQuality.barLevel }
 
-    /// Human-readable SNR quality label for accessibility.
+    /// Developer-facing English label for logs; UI uses the app target's localized `SNRQuality.localizedLabel`.
     public var snrQualityLabel: String { snrQuality.qualityLabel }
 
     /// Formatted SNR string (no label, includes sign for negative).

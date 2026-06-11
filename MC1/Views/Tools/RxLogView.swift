@@ -279,7 +279,7 @@ struct RxLogRowView: View {
                 if entry.snr != nil {
                     Image(systemName: "cellularbars", variableValue: entry.snrLevel)
                         .foregroundStyle(entry.snrQuality.color)
-                        .accessibilityLabel(L10n.Tools.Tools.RxLog.signalStrength(entry.snrQualityLabel))
+                        .accessibilityLabel(L10n.Tools.Tools.RxLog.signalStrength(entry.snrQuality.localizedLabel))
                 }
             }
 

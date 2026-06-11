@@ -111,6 +111,9 @@
 /* TX power display format with dBm unit */
 "deviceInfo.txPowerFormat" = "%@ dBm";
 
+/* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
+"deviceInfo.firmwareVersionFormat" = "v%@";
+
 /* Section header for identity information */
 "deviceInfo.identity.header" = "身份";
 
@@ -1084,9 +1087,6 @@
 
 /* Select file button */
 "configImport.selectFile" = "选择 JSON 文件";
-
-/* Cannot access file error */
-"configImport.cannotAccess" = "无法访问所选文件。";
 
 /* Confirmation alert title */
 "configImport.confirmTitle" = "应用配置？";

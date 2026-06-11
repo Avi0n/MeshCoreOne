@@ -27,7 +27,7 @@ public enum SNRQuality: Sendable, Equatable {
         }
     }
 
-    /// Human-readable quality label for accessibility.
+    /// Developer-facing English label for logs; UI uses the app target's localized `SNRQuality.localizedLabel`.
     public var qualityLabel: String {
         switch self {
         case .excellent: "Excellent"

@@ -360,6 +360,24 @@
 /* Location: NotificationLevelPicker.swift - Accessibility hint for notification level picker */
 "chats.notificationLevel.hint" = "选择何时接收通知";
 
+/* Location: NotificationLevelPicker.swift - Muted level label */
+"chats.notificationLevel.muted" = "已静音";
+
+/* Location: NotificationLevelPicker.swift - Mentions-only level label */
+"chats.notificationLevel.mentions" = "提及";
+
+/* Location: NotificationLevelPicker.swift - All notifications level label */
+"chats.notificationLevel.all" = "全部";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for muted level */
+"chats.notificationLevel.accessibility.muted" = "已静音，无通知";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for mentions-only level */
+"chats.notificationLevel.accessibility.mentionsOnly" = "仅提及";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for all-notifications level */
+"chats.notificationLevel.accessibility.all" = "所有通知";
+
 // MARK: - Swipe Actions
 
 /* Location: ConversationContextMenuModifier.swift - Context-menu action to delete */

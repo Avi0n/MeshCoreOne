@@ -192,6 +192,15 @@
 /* Notification body for low battery warning - %1$@ is device name, %2$d is battery percentage */
 "notifications.lowBattery.body" = "Batería de %1$@ al %2$d%%";
 
+/* Notification title when a quick reply fails to send */
+"notifications.quickReplyFailed.title" = "Mensaje no enviado";
+
+/* Notification body when a quick reply fails - %@ is the contact or channel name */
+"notifications.quickReplyFailed.body" = "No se pudo enviar tu respuesta a %@.";
+
+/* Fallback display name for a discovered contact with no advertised name */
+"notifications.discovery.unknownContact" = "Contacto desconocido";
+
 /* Notification body for reaction - %1$@ is emoji, %2$@ is message text */
 "notifications.reaction.body" = "Reaccionó %1$@ a tu mensaje: \"%2$@\"";
 

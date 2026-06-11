@@ -104,9 +104,9 @@ struct DeviceInfoView: View {
                         )
                                 .symbolRenderingMode(.multicolor)
                             Spacer()
-                            Text("\(battery.percentage(using: ocvArray))%")
+                            Text(battery.percentage(using: ocvArray), format: .percent)
                                 .foregroundStyle(battery.levelColor(using: ocvArray))
-                            Text("(\(battery.voltage, format: .number.precision(.fractionLength(2)))V)")
+                            Text("(\(formatVoltage(battery.voltage)))")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -138,7 +138,7 @@ struct DeviceInfoView: View {
                         Spacer()
                         Text(
                             device.firmwareVersionString.isEmpty
-                                ? "v\(device.firmwareVersion)"
+                                ? L10n.Settings.DeviceInfo.firmwareVersionFormat(device.firmwareVersion)
                                 : device.firmwareVersionString
                         )
                             .foregroundStyle(.secondary)
@@ -227,8 +227,23 @@ struct DeviceInfoView: View {
         }
     }
 
+    /// Firmware reports storage in binary kilobytes.
+    private static let bytesPerKilobyte = 1024
+
     private func formatStorage(used: Int, total: Int) -> String {
-        "\(used) / \(total) KB"
+        let style = ByteCountFormatStyle(style: .memory)
+        let usedBytes = Int64(used) * Int64(Self.bytesPerKilobyte)
+        let totalBytes = Int64(total) * Int64(Self.bytesPerKilobyte)
+        return "\(usedBytes.formatted(style)) / \(totalBytes.formatted(style))"
+    }
+
+    private func formatVoltage(_ volts: Double) -> String {
+        Measurement(value: volts, unit: UnitElectricPotentialDifference.volts)
+            .formatted(.measurement(
+                width: .abbreviated,
+                usage: .asProvided,
+                numberFormatStyle: .number.precision(.fractionLength(2))
+            ))
     }
 
     private func saveNodeName() {

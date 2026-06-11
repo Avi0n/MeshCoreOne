@@ -11,7 +11,7 @@ public enum DecryptStatus: Int, Codable, Sendable, CaseIterable {
     case pending = 5         // Key found but decryption not yet implemented
     case dmNoMatchingKey = 6 // DM: missing private key or contact public key
 
-    /// Human-readable description for UI display.
+    /// Developer-facing English description for logs; UI uses the app target's localized `DecryptStatus.localizedName`.
     public var displayName: String {
         switch self {
         case .notApplicable: return "N/A"

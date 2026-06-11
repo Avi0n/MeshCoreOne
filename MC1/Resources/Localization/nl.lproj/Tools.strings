@@ -156,6 +156,27 @@
 /* Location: RxLogViewModel.swift - Decrypt filter: failed */
 "tools.rxLog.filter.failed" = "Mislukt";
 
+/* Location: DecryptStatus+Display.swift - Decrypt status: not a decryptable packet */
+"tools.rxLog.decryptStatus.notApplicable" = "N.v.t.";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: no stored channel key matches */
+"tools.rxLog.decryptStatus.noKey" = "Geen sleutel";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: HMAC validation failed */
+"tools.rxLog.decryptStatus.hmacFailed" = "HMAC mislukt";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: AES decryption failed */
+"tools.rxLog.decryptStatus.decryptFailed" = "Ontsleuteling mislukt";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: decrypted successfully */
+"tools.rxLog.decryptStatus.decrypted" = "Ontsleuteld";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: key found, decryption pending */
+"tools.rxLog.decryptStatus.hasKey" = "Sleutel aanwezig";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: missing direct message key */
+"tools.rxLog.decryptStatus.noDmKey" = "Geen DM-sleutel";
+
 /* Location: RxLogRowView - Label for local device in path display */
 "tools.rxLog.pathYou" = "Jij";
 
@@ -507,6 +528,9 @@
 /* Location: ResultsCardView.swift - Worst clearance short label */
 "tools.lineOfSight.worstClearanceShort" = "Slechtste vrijheid";
 
+/* Location: ResultsCardView.swift - Assumptions footnote; %1$@ is frequency, %2$@ is k-factor */
+"tools.lineOfSight.assumptions" = "%1$@, %2$@, drempel van 60 %% van de 1e fresnelzone";
+
 /* Location: ClearanceStatusView.swift - Clearance percentage, %lld is percent */
 "tools.lineOfSight.clearancePercent" = "%lld%% vrijheid";
 
@@ -730,3 +754,14 @@
 
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */
 "tools.cli.completionSuggestionsValue" = "%lld beschikbaar, %@ geselecteerd";
+
+// MARK: - Saved Paths
+
+/* Location: SavedPathsViewModel.swift - Error loading saved paths */
+"tools.savedPaths.loadFailed" = "Kan opgeslagen paden niet laden.";
+
+/* Location: SavedPathsViewModel.swift - Error renaming a saved path */
+"tools.savedPaths.renameFailed" = "Kan pad niet hernoemen.";
+
+/* Location: SavedPathsViewModel.swift - Error deleting a saved path */
+"tools.savedPaths.deleteFailed" = "Kan pad niet verwijderen.";

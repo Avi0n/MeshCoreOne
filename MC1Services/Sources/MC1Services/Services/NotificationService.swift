@@ -474,7 +474,9 @@ public final class NotificationService: NSObject {
 
         let content = UNMutableNotificationContent()
         content.title = title
-        content.body = contactName
+        content.body = contactName.isEmpty
+            ? (stringProvider?.unknownContactName ?? "Unknown Contact")
+            : contactName
         content.sound = preferences.soundEnabled ? .default : nil
         content.threadIdentifier = "discovery"
         content.userInfo = [
@@ -607,8 +609,9 @@ public final class NotificationService: NSObject {
         guard isAuthorized else { return }
 
         let content = UNMutableNotificationContent()
-        content.title = "Message Not Sent"
-        content.body = "Your reply to \(contactName) couldn't be sent."
+        content.title = stringProvider?.quickReplyFailedTitle ?? "Message Not Sent"
+        content.body = stringProvider?.quickReplyFailedBody(conversationName: contactName)
+            ?? "Your reply to \(contactName) couldn't be sent."
         content.sound = .default
         content.categoryIdentifier = NotificationCategory.directMessage.rawValue
         content.userInfo = [
@@ -638,8 +641,9 @@ public final class NotificationService: NSObject {
         guard isAuthorized else { return }
 
         let content = UNMutableNotificationContent()
-        content.title = "Message Not Sent"
-        content.body = "Your reply to \(channelName) couldn't be sent."
+        content.title = stringProvider?.quickReplyFailedTitle ?? "Message Not Sent"
+        content.body = stringProvider?.quickReplyFailedBody(conversationName: channelName)
+            ?? "Your reply to \(channelName) couldn't be sent."
         content.sound = .default
         content.userInfo = [
             "channelIndex": Int(channelIndex),

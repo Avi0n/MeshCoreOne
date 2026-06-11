@@ -39,7 +39,7 @@ final class SavedPathsViewModel {
             logger.info("Loaded \(self.savedPaths.count) saved paths")
         } catch {
             logger.error("Failed to load saved paths: \(error.localizedDescription)")
-            errorMessage = "Failed to load saved paths"
+            errorMessage = L10n.Tools.Tools.SavedPaths.loadFailed
         }
 
         isLoading = false
@@ -55,7 +55,7 @@ final class SavedPathsViewModel {
             await loadSavedPaths()
         } catch {
             logger.error("Failed to rename path: \(error.localizedDescription)")
-            errorMessage = "Failed to rename path"
+            errorMessage = L10n.Tools.Tools.SavedPaths.renameFailed
         }
     }
 
@@ -68,7 +68,7 @@ final class SavedPathsViewModel {
             logger.info("Deleted saved path: \(path.name)")
         } catch {
             logger.error("Failed to delete path: \(error.localizedDescription)")
-            errorMessage = "Failed to delete path"
+            errorMessage = L10n.Tools.Tools.SavedPaths.deleteFailed
         }
     }
 }

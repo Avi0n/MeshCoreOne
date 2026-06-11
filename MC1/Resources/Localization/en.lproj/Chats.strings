@@ -360,6 +360,24 @@
 /* Location: NotificationLevelPicker.swift - Accessibility hint for notification level picker */
 "chats.notificationLevel.hint" = "Choose when to receive notifications";
 
+/* Location: NotificationLevelPicker.swift - Muted level label */
+"chats.notificationLevel.muted" = "Muted";
+
+/* Location: NotificationLevelPicker.swift - Mentions-only level label */
+"chats.notificationLevel.mentions" = "Mentions";
+
+/* Location: NotificationLevelPicker.swift - All notifications level label */
+"chats.notificationLevel.all" = "All";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for muted level */
+"chats.notificationLevel.accessibility.muted" = "Muted, no notifications";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for mentions-only level */
+"chats.notificationLevel.accessibility.mentionsOnly" = "Mentions only";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for all-notifications level */
+"chats.notificationLevel.accessibility.all" = "All notifications";
+
 // MARK: - Swipe Actions
 
 /* Location: ConversationContextMenuModifier.swift - Context-menu action to delete */

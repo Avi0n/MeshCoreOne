@@ -114,6 +114,9 @@
 /* TX power display format with dBm unit */
 "deviceInfo.txPowerFormat" = "%@ дБм";
 
+/* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
+"deviceInfo.firmwareVersionFormat" = "v%@";
+
 /* Section header for identity information */
 "deviceInfo.identity.header" = "Ідентифікація";
 
@@ -1110,9 +1113,6 @@
 
 /* Select file button */
 "configImport.selectFile" = "Вибрати JSON-файл";
-
-/* Cannot access file error */
-"configImport.cannotAccess" = "Неможливо відкрити вибраний файл.";
 
 /* Confirmation alert title */
 "configImport.confirmTitle" = "Застосувати конфігурацію?";

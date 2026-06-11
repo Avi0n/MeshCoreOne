@@ -342,12 +342,16 @@ public actor AdvertisementService {
                             // Also track in DiscoveredNode for Discover page visibility
                             _ = try? await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
 
-                            let contactName = meshContact.advertisedName.isEmpty ? "Unknown Contact" : meshContact.advertisedName
+                            // Empty names pass through raw; NotificationService substitutes a localized fallback.
+                            let contactName = meshContact.advertisedName
                             let contactType = meshContact.type
                             await newContactDiscoveredHandler?(contactName, contactID, contactType)
 
                             // Correlate with recent overwrite-oldest deletion
-                            logOverwriteReplacementIfRecent(newContactName: contactName, newContactType: contactType)
+                            logOverwriteReplacementIfRecent(
+                                newContactName: contactName.isEmpty ? "Unknown Contact" : contactName,
+                                newContactType: contactType
+                            )
                         }
                     } catch {
                         logger.error("Failed to fetch new contact: \(error.localizedDescription)")
@@ -379,7 +383,8 @@ public actor AdvertisementService {
                     // Also track in DiscoveredNode for Discover page visibility
                     _ = try? await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
 
-                    let contactName = meshContact.advertisedName.isEmpty ? "Unknown Contact" : meshContact.advertisedName
+                    // Empty names pass through raw; NotificationService substitutes a localized fallback.
+                    let contactName = meshContact.advertisedName
                     let contactType = meshContact.type
                     await newContactDiscoveredHandler?(contactName, contactID, contactType)
                     await contactSyncRequestHandler?(radioID)

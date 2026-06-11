@@ -31,4 +31,15 @@ public protocol NotificationStringProvider: Sendable {
     ///   - percentage: The current battery percentage
     /// - Returns: Localized notification body
     func lowBatteryBody(deviceName: String, percentage: Int) -> String
+
+    /// Returns the localized title for a failed quick-reply notification.
+    var quickReplyFailedTitle: String { get }
+
+    /// Returns the localized body for a failed quick-reply notification.
+    /// - Parameter conversationName: The contact or channel display name
+    /// - Returns: Localized notification body
+    func quickReplyFailedBody(conversationName: String) -> String
+
+    /// Returns the localized fallback display name for a discovered contact with no advertised name.
+    var unknownContactName: String { get }
 }

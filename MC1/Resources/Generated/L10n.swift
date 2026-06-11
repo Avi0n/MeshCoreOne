@@ -781,10 +781,24 @@ public enum L10n {
         }
       }
       public enum NotificationLevel {
+        /// Location: NotificationLevelPicker.swift - All notifications level label
+        public static let all = L10n.tr("Chats", "chats.notificationLevel.all", fallback: "All")
         /// Location: NotificationLevelPicker.swift - Accessibility hint for notification level picker
         public static let hint = L10n.tr("Chats", "chats.notificationLevel.hint", fallback: "Choose when to receive notifications")
         /// Location: NotificationLevelPicker.swift - Accessibility label for notification level picker
         public static let label = L10n.tr("Chats", "chats.notificationLevel.label", fallback: "Notification level")
+        /// Location: NotificationLevelPicker.swift - Mentions-only level label
+        public static let mentions = L10n.tr("Chats", "chats.notificationLevel.mentions", fallback: "Mentions")
+        /// Location: NotificationLevelPicker.swift - Muted level label
+        public static let muted = L10n.tr("Chats", "chats.notificationLevel.muted", fallback: "Muted")
+        public enum Accessibility {
+          /// Location: NotificationLevelPicker.swift - Accessibility description for all-notifications level
+          public static let all = L10n.tr("Chats", "chats.notificationLevel.accessibility.all", fallback: "All notifications")
+          /// Location: NotificationLevelPicker.swift - Accessibility description for mentions-only level
+          public static let mentionsOnly = L10n.tr("Chats", "chats.notificationLevel.accessibility.mentionsOnly", fallback: "Mentions only")
+          /// Location: NotificationLevelPicker.swift - Accessibility description for muted level
+          public static let muted = L10n.tr("Chats", "chats.notificationLevel.accessibility.muted", fallback: "Muted, no notifications")
+        }
       }
       public enum Path {
         /// Location: MessagePathMapView.swift - Center on path map control accessibility label
@@ -2285,6 +2299,8 @@ public enum L10n {
         public static let repeater = L10n.tr("Localizable", "notifications.discovery.repeater", fallback: "New Repeater Discovered")
         /// Notification title when a new room is discovered on the mesh network
         public static let room = L10n.tr("Localizable", "notifications.discovery.room", fallback: "New Room Discovered")
+        /// Fallback display name for a discovered contact with no advertised name
+        public static let unknownContact = L10n.tr("Localizable", "notifications.discovery.unknownContact", fallback: "Unknown Contact")
       }
       public enum LowBattery {
         /// Notification body for low battery warning - %1$@ is device name, %2$d is battery percentage
@@ -2293,6 +2309,14 @@ public enum L10n {
         }
         /// Notification title for low battery warning
         public static let title = L10n.tr("Localizable", "notifications.lowBattery.title", fallback: "Low Battery")
+      }
+      public enum QuickReplyFailed {
+        /// Notification body when a quick reply fails - %@ is the contact or channel name
+        public static func body(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "notifications.quickReplyFailed.body", String(describing: p1), fallback: "Your reply to %@ couldn't be sent.")
+        }
+        /// Notification title when a quick reply fails to send
+        public static let title = L10n.tr("Localizable", "notifications.quickReplyFailed.title", fallback: "Message Not Sent")
       }
       public enum Reaction {
         /// Notification body when someone reacts to your message - %1$@ is the emoji, %2$@ is the message preview
@@ -2908,6 +2932,14 @@ public enum L10n {
         /// Location: NodeCliViewModel.swift - Toast after reboot command succeeds
         public static let rebootSent = L10n.tr("RemoteNodes", "remoteNodes.nodeCli.rebootSent", fallback: "Reboot command sent")
       }
+      public enum Permission {
+        /// Location: RoomInfoSheet.swift, RoomConversationView.swift - Admin permission level
+        public static let admin = L10n.tr("RemoteNodes", "remoteNodes.permission.admin", fallback: "Admin")
+        /// Location: RoomInfoSheet.swift, RoomConversationView.swift - Guest permission level
+        public static let guest = L10n.tr("RemoteNodes", "remoteNodes.permission.guest", fallback: "Guest")
+        /// Location: RoomInfoSheet.swift, RoomConversationView.swift - Member (read-write) permission level
+        public static let member = L10n.tr("RemoteNodes", "remoteNodes.permission.member", fallback: "Member")
+      }
       public enum Room {
         /// Location: RoomConversationView.swift - Activity section header
         public static let activity = L10n.tr("RemoteNodes", "remoteNodes.room.activity", fallback: "Activity")
@@ -3095,7 +3127,7 @@ public enum L10n {
         public static let min = L10n.tr("RemoteNodes", "remoteNodes.settings.min", fallback: "min")
         /// Location: RepeaterSettingsView.swift - New password placeholder
         public static let newPassword = L10n.tr("RemoteNodes", "remoteNodes.settings.newPassword", fallback: "New Password")
-        /// Location: NodeSettingsHelper.swift - No service error
+        /// Location: NodeSettingsViewModel.swift - No service error
         public static let noService = L10n.tr("RemoteNodes", "remoteNodes.settings.noService", fallback: "Service not available")
         /// Location: RepeaterSettingsViewModel.swift - Not connected error
         public static let notConnected = L10n.tr("RemoteNodes", "remoteNodes.settings.notConnected", fallback: "Not connected to repeater")
@@ -3852,8 +3884,6 @@ public enum L10n {
       public static let cancelled = L10n.tr("Settings", "configImport.cancelled", fallback: "Import was cancelled.")
       /// Import cancelled after one or more settings were already written to the device
       public static let cancelledPartial = L10n.tr("Settings", "configImport.cancelledPartial", fallback: "Import cancelled, but some settings were already written to the device. Review the device's configuration.")
-      /// Cannot access file error
-      public static let cannotAccess = L10n.tr("Settings", "configImport.cannotAccess", fallback: "Cannot access the selected file.")
       /// Channel count (param: integer)
       public static func channelCount(_ p1: Int) -> String {
         return L10n.tr("Settings", "configImport.channelCount", p1, fallback: "Will add/update %d channels on device")
@@ -4096,6 +4126,10 @@ public enum L10n {
       public static let defaultManufacturer = L10n.tr("Settings", "deviceInfo.defaultManufacturer", fallback: "MeshCore Device")
       /// Label for firmware version
       public static let firmwareVersion = L10n.tr("Settings", "deviceInfo.firmwareVersion", fallback: "Firmware Version")
+      /// Firmware version fallback format when no version string is reported - %@ is the numeric version code
+      public static func firmwareVersionFormat(_ p1: Any) -> String {
+        return L10n.tr("Settings", "deviceInfo.firmwareVersionFormat", String(describing: p1), fallback: "v%@")
+      }
       /// Label for manufacturer
       public static let manufacturer = L10n.tr("Settings", "deviceInfo.manufacturer", fallback: "Manufacturer")
       /// Label for max channels capability
@@ -5131,6 +5165,10 @@ public enum L10n {
         public static let analyze = L10n.tr("Tools", "tools.lineOfSight.analyze", fallback: "Analyze Line of Sight")
         /// Location: LineOfSightView.swift - Analyzing progress
         public static let analyzing = L10n.tr("Tools", "tools.lineOfSight.analyzing", fallback: "Analyzing path...")
+        /// Location: ResultsCardView.swift - Assumptions footnote; %1$@ is frequency, %2$@ is k-factor
+        public static func assumptions(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Tools", "tools.lineOfSight.assumptions", String(describing: p1), String(describing: p2), fallback: "%1$@, %2$@, 60%% 1st Fresnel threshold")
+        }
         /// Location: LineOfSightView.swift - Back button label
         public static let back = L10n.tr("Tools", "tools.lineOfSight.back", fallback: "Back")
         /// Location: LineOfSightView.swift - Cancel button
@@ -5489,6 +5527,22 @@ public enum L10n {
         public static let traceRouteLabel = L10n.tr("Tools", "tools.rxLog.traceRouteLabel", fallback: "Route:")
         /// Location: RxLogView.swift - Type label
         public static let typeLabel = L10n.tr("Tools", "tools.rxLog.typeLabel", fallback: "Type:")
+        public enum DecryptStatus {
+          /// Location: DecryptStatus+Display.swift - Decrypt status: decrypted successfully
+          public static let decrypted = L10n.tr("Tools", "tools.rxLog.decryptStatus.decrypted", fallback: "Decrypted")
+          /// Location: DecryptStatus+Display.swift - Decrypt status: AES decryption failed
+          public static let decryptFailed = L10n.tr("Tools", "tools.rxLog.decryptStatus.decryptFailed", fallback: "Decrypt Failed")
+          /// Location: DecryptStatus+Display.swift - Decrypt status: key found, decryption pending
+          public static let hasKey = L10n.tr("Tools", "tools.rxLog.decryptStatus.hasKey", fallback: "Has Key")
+          /// Location: DecryptStatus+Display.swift - Decrypt status: HMAC validation failed
+          public static let hmacFailed = L10n.tr("Tools", "tools.rxLog.decryptStatus.hmacFailed", fallback: "HMAC Failed")
+          /// Location: DecryptStatus+Display.swift - Decrypt status: missing direct message key
+          public static let noDmKey = L10n.tr("Tools", "tools.rxLog.decryptStatus.noDmKey", fallback: "No DM Key")
+          /// Location: DecryptStatus+Display.swift - Decrypt status: no stored channel key matches
+          public static let noKey = L10n.tr("Tools", "tools.rxLog.decryptStatus.noKey", fallback: "No Key")
+          /// Location: DecryptStatus+Display.swift - Decrypt status: not a decryptable packet
+          public static let notApplicable = L10n.tr("Tools", "tools.rxLog.decryptStatus.notApplicable", fallback: "N/A")
+        }
         public enum Filter {
           /// Location: RxLogViewModel.swift - Route filter: all
           public static let all = L10n.tr("Tools", "tools.rxLog.filter.all", fallback: "All")
@@ -5501,6 +5555,14 @@ public enum L10n {
           /// Location: RxLogViewModel.swift - Route filter: flood only
           public static let floodOnly = L10n.tr("Tools", "tools.rxLog.filter.floodOnly", fallback: "Flood Only")
         }
+      }
+      public enum SavedPaths {
+        /// Location: SavedPathsViewModel.swift - Error deleting a saved path
+        public static let deleteFailed = L10n.tr("Tools", "tools.savedPaths.deleteFailed", fallback: "Failed to delete path.")
+        /// Location: SavedPathsViewModel.swift - Error loading saved paths
+        public static let loadFailed = L10n.tr("Tools", "tools.savedPaths.loadFailed", fallback: "Failed to load saved paths.")
+        /// Location: SavedPathsViewModel.swift - Error renaming a saved path
+        public static let renameFailed = L10n.tr("Tools", "tools.savedPaths.renameFailed", fallback: "Failed to rename path.")
       }
     }
   }

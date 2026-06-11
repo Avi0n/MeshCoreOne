@@ -420,11 +420,7 @@ struct ContactDetailView: View {
     // MARK: - Helpers
 
     private var contactTypeLabel: String {
-        switch currentContact.type {
-        case .chat: return L10n.Contacts.Contacts.NodeKind.contact
-        case .repeater: return L10n.Contacts.Contacts.NodeKind.repeater
-        case .room: return L10n.Contacts.Contacts.NodeKind.room
-        }
+        currentContact.type.localizedName
     }
 
     private func saveNickname() async {

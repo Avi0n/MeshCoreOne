@@ -1061,6 +1061,24 @@
 /* Location: NotificationLevelPicker.swift - Purpose: Hint for notification level picker */
 "chats.notificationLevel.hint" = "Оберіть, коли отримувати сповіщення";
 
+/* Location: NotificationLevelPicker.swift - Muted level label */
+"chats.notificationLevel.muted" = "Вимкнено";
+
+/* Location: NotificationLevelPicker.swift - Mentions-only level label */
+"chats.notificationLevel.mentions" = "Згадки";
+
+/* Location: NotificationLevelPicker.swift - All notifications level label */
+"chats.notificationLevel.all" = "Усі";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for muted level */
+"chats.notificationLevel.accessibility.muted" = "Вимкнено, без сповіщень";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for mentions-only level */
+"chats.notificationLevel.accessibility.mentionsOnly" = "Лише згадки";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for all-notifications level */
+"chats.notificationLevel.accessibility.all" = "Усі сповіщення";
+
 /* Location: ConversationRow.swift - Purpose: Mentions-only indicator */
 "chats.row.mentionsOnly" = "Лише згадки";
 

@@ -1062,6 +1062,24 @@
 /* Location: NotificationLevelPicker.swift - Purpose: Picker accessibility hint */
 "chats.notificationLevel.hint" = "Wybierz, kiedy otrzymywać powiadomienia";
 
+/* Location: NotificationLevelPicker.swift - Muted level label */
+"chats.notificationLevel.muted" = "Wyciszone";
+
+/* Location: NotificationLevelPicker.swift - Mentions-only level label */
+"chats.notificationLevel.mentions" = "Wzmianki";
+
+/* Location: NotificationLevelPicker.swift - All notifications level label */
+"chats.notificationLevel.all" = "Wszystkie";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for muted level */
+"chats.notificationLevel.accessibility.muted" = "Wyciszone, brak powiadomień";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for mentions-only level */
+"chats.notificationLevel.accessibility.mentionsOnly" = "Tylko wzmianki";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for all-notifications level */
+"chats.notificationLevel.accessibility.all" = "Wszystkie powiadomienia";
+
 /* Location: ConversationRow.swift - Purpose: Mentions-only indicator */
 "chats.row.mentionsOnly" = "Tylko wzmianki";
 

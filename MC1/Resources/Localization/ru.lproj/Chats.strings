@@ -1059,6 +1059,24 @@
 /* Location: NotificationLevelPicker - Purpose: Accessibility hint */
 "chats.notificationLevel.hint" = "Выберите, когда получать уведомления";
 
+/* Location: NotificationLevelPicker.swift - Muted level label */
+"chats.notificationLevel.muted" = "Отключено";
+
+/* Location: NotificationLevelPicker.swift - Mentions-only level label */
+"chats.notificationLevel.mentions" = "Упоминания";
+
+/* Location: NotificationLevelPicker.swift - All notifications level label */
+"chats.notificationLevel.all" = "Все";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for muted level */
+"chats.notificationLevel.accessibility.muted" = "Отключено, без уведомлений";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for mentions-only level */
+"chats.notificationLevel.accessibility.mentionsOnly" = "Только упоминания";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for all-notifications level */
+"chats.notificationLevel.accessibility.all" = "Все уведомления";
+
 /* Location: ConversationRow.swift - Purpose: Mentions only indicator */
 "chats.row.mentionsOnly" = "Только упоминания";
 

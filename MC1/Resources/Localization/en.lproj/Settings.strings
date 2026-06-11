@@ -114,6 +114,9 @@
 /* TX power display format with dBm unit */
 "deviceInfo.txPowerFormat" = "%@ dBm";
 
+/* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
+"deviceInfo.firmwareVersionFormat" = "v%@";
+
 /* Section header for identity information */
 "deviceInfo.identity.header" = "Identity";
 
@@ -1135,9 +1138,6 @@
 
 /* Select file button */
 "configImport.selectFile" = "Select JSON File";
-
-/* Cannot access file error */
-"configImport.cannotAccess" = "Cannot access the selected file.";
 
 /* Confirmation alert title */
 "configImport.confirmTitle" = "Apply Configuration?";

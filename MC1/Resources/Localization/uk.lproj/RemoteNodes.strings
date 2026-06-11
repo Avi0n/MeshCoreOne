@@ -328,7 +328,7 @@
 /* Location: RepeaterSettingsViewModel.swift - Timeout error */
 "remoteNodes.settings.timeout" = "Час очікування команди вичерпано";
 
-/* Location: NodeSettingsHelper.swift - No service error */
+/* Location: NodeSettingsViewModel.swift - No service error */
 "remoteNodes.settings.noService" = "Сервіс недоступний";
 
 /* Location: RepeaterSettingsViewModel.swift - Advert interval validation error */
@@ -680,6 +680,15 @@
 
 /* Location: RoomConversationView.swift - Permission label */
 "remoteNodes.room.permission" = "Дозвіл";
+
+/* Location: RoomInfoSheet.swift, RoomConversationView.swift - Guest permission level */
+"remoteNodes.permission.guest" = "Гість";
+
+/* Location: RoomInfoSheet.swift, RoomConversationView.swift - Member (read-write) permission level */
+"remoteNodes.permission.member" = "Учасник";
+
+/* Location: RoomInfoSheet.swift, RoomConversationView.swift - Admin permission level */
+"remoteNodes.permission.admin" = "Адміністратор";
 
 /* Location: RoomConversationView.swift - Status label */
 "remoteNodes.room.status" = "Статус";

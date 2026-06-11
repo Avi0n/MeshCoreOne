@@ -156,6 +156,27 @@
 /* Location: RxLogViewModel.swift - Decrypt filter: failed */
 "tools.rxLog.filter.failed" = "Fehlgeschlagen";
 
+/* Location: DecryptStatus+Display.swift - Decrypt status: not a decryptable packet */
+"tools.rxLog.decryptStatus.notApplicable" = "N/A";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: no stored channel key matches */
+"tools.rxLog.decryptStatus.noKey" = "Kein Schlüssel";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: HMAC validation failed */
+"tools.rxLog.decryptStatus.hmacFailed" = "HMAC fehlgeschlagen";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: AES decryption failed */
+"tools.rxLog.decryptStatus.decryptFailed" = "Entschlüsselung fehlgeschlagen";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: decrypted successfully */
+"tools.rxLog.decryptStatus.decrypted" = "Entschlüsselt";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: key found, decryption pending */
+"tools.rxLog.decryptStatus.hasKey" = "Schlüssel vorhanden";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: missing direct message key */
+"tools.rxLog.decryptStatus.noDmKey" = "Kein DM-Schlüssel";
+
 /* Location: RxLogRowView - Label for local device in path display */
 "tools.rxLog.pathYou" = "Du";
 
@@ -507,6 +528,9 @@
 /* Location: ResultsCardView.swift - Worst clearance short label */
 "tools.lineOfSight.worstClearanceShort" = "Schlechteste Freiheit";
 
+/* Location: ResultsCardView.swift - Assumptions footnote; %1$@ is frequency, %2$@ is k-factor */
+"tools.lineOfSight.assumptions" = "%1$@, %2$@, 60 %% Schwelle der 1. Fresnel-Zone";
+
 /* Location: ClearanceStatusView.swift - Clearance percentage, %lld is percent */
 "tools.lineOfSight.clearancePercent" = "%lld%% Freiheit";
 
@@ -730,3 +754,14 @@
 
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */
 "tools.cli.completionSuggestionsValue" = "%lld verfügbar, %@ ausgewählt";
+
+// MARK: - Saved Paths
+
+/* Location: SavedPathsViewModel.swift - Error loading saved paths */
+"tools.savedPaths.loadFailed" = "Gespeicherte Pfade konnten nicht geladen werden.";
+
+/* Location: SavedPathsViewModel.swift - Error renaming a saved path */
+"tools.savedPaths.renameFailed" = "Pfad konnte nicht umbenannt werden.";
+
+/* Location: SavedPathsViewModel.swift - Error deleting a saved path */
+"tools.savedPaths.deleteFailed" = "Pfad konnte nicht gelöscht werden.";

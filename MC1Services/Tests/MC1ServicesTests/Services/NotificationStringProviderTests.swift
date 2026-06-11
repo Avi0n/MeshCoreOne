@@ -23,6 +23,14 @@ struct NotificationStringProviderTests {
         func lowBatteryBody(deviceName: String, percentage: Int) -> String {
             "Mock \(deviceName) at \(percentage)%"
         }
+
+        var quickReplyFailedTitle: String { "Mock Not Sent" }
+
+        func quickReplyFailedBody(conversationName: String) -> String {
+            "Mock reply to \(conversationName) failed"
+        }
+
+        var unknownContactName: String { "Mock Unknown Contact" }
     }
 
     @Test("Provider returns correct title for chat type")

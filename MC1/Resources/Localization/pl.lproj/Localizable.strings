@@ -182,6 +182,15 @@
 /* Notification body for low battery warning - %1$@ is device name, %2$d is battery percentage */
 "notifications.lowBattery.body" = "Bateria %1$@ na poziomie %2$d%%";
 
+/* Notification title when a quick reply fails to send */
+"notifications.quickReplyFailed.title" = "Nie wysłano wiadomości";
+
+/* Notification body when a quick reply fails - %@ is the contact or channel name */
+"notifications.quickReplyFailed.body" = "Nie udało się wysłać odpowiedzi do %@.";
+
+/* Fallback display name for a discovered contact with no advertised name */
+"notifications.discovery.unknownContact" = "Nieznany kontakt";
+
 
 // MARK: - Connection VoiceOver Announcements
 

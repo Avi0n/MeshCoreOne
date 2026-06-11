@@ -80,6 +80,10 @@ Run `make help` for the full list of developer shortcuts.
 
 Read [docs/Architecture.md](docs/Architecture.md) before making changes. It is the project's architecture reference: the three-layer package structure (MeshCore, MC1Services, MC1), ownership and lifecycle, and the conventions a change must follow (localization through `L10n`, the `@Model` to DTO backup round-trip, error handling, and device identity). The [Development Guide](docs/Development.md) covers build, test, and coding-standard details.
 
+### Localization Boundary
+
+The MC1Services package contains no localization resources by design: strings defined there (service `errorDescription` text, `displayName` enum properties, log messages) are developer-facing English. Anything shown to the user must be mapped to the SwiftGen `L10n` enum at the view layer, either through a small app-target extension on the service type (e.g. `NotificationLevel.localizedName`) or, for strings the service layer must emit itself such as notification content, through the `NotificationStringProvider` bridge.
+
 ### Testing
 
 Two simulators are required, because the suites target different iOS versions:

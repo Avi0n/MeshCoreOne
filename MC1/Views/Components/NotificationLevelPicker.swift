@@ -23,7 +23,7 @@ struct NotificationLevelPicker: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel(L10n.Chats.Chats.NotificationLevel.label)
-        .accessibilityValue(selection.accessibilityDescription)
+        .accessibilityValue(selection.localizedAccessibilityDescription)
         .accessibilityHint(L10n.Chats.Chats.NotificationLevel.hint)
     }
 }
@@ -38,7 +38,7 @@ private struct NotificationLevelPill: View {
             VStack(spacing: 4) {
                 Image(systemName: level.iconName)
                     .font(.title3)
-                Text(level.displayName)
+                Text(level.localizedName)
                     .font(.caption)
             }
             .frame(maxWidth: .infinity)
@@ -54,7 +54,7 @@ private struct NotificationLevelPill: View {
             .clipShape(.rect(cornerRadius: 10))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(level.displayName)
+        .accessibilityLabel(level.localizedName)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
