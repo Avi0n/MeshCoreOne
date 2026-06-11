@@ -129,6 +129,19 @@ public actor AdvertisementService {
         contactSyncRequestHandler = handler
     }
 
+    /// Clears the discovery handlers wired by `SyncCoordinator`. Both capture
+    /// the owning `ServiceContainer` strongly, so leaving them in place keeps the
+    /// whole service graph alive after the container is torn down on disconnect.
+    public func clearDiscoveryHandlers() {
+        newContactDiscoveredHandler = nil
+        contactSyncRequestHandler = nil
+    }
+
+    /// Whether any discovery handler is currently wired.
+    var hasDiscoveryHandlersWired: Bool {
+        newContactDiscoveredHandler != nil || contactSyncRequestHandler != nil
+    }
+
     /// Set handler for node storage full state changes (called when 0x90 or 0x8F push received)
     public func setNodeStorageFullChangedHandler(_ handler: @escaping @Sendable (Bool) async -> Void) {
         nodeStorageFullChangedHandler = handler

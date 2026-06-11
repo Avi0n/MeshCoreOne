@@ -79,6 +79,29 @@ struct ServiceContainerWiringTests {
         #expect(!hasHeardRepeats, "rxLogService should not have heardRepeatsService before wiring")
     }
 
+    @Test("tearDown clears the wired message and discovery handlers")
+    @MainActor
+    func tearDownClearsWiredHandlers() async throws {
+        let container = try await makeWiredContainer()
+        let radioID = UUID()
+        try await container.dataStore.saveDevice(
+            DeviceDTO.testDevice(id: radioID, radioID: radioID)
+        )
+
+        await container.syncCoordinator.wireMessageHandlers(services: container, radioID: radioID)
+        await container.syncCoordinator.wireDiscoveryHandlers(services: container, radioID: radioID)
+
+        #expect(await container.messagePollingService.hasMessageHandlersWired)
+        #expect(await container.advertisementService.hasDiscoveryHandlersWired)
+
+        await container.tearDown()
+
+        #expect(await container.messagePollingService.hasMessageHandlersWired == false,
+                "tearDown must clear message handlers to break the container retain cycle")
+        #expect(await container.advertisementService.hasDiscoveryHandlersWired == false,
+                "tearDown must clear discovery handlers to break the container retain cycle")
+    }
+
     @Test("startEventMonitoring activates ACK expiry checker; stopEventMonitoring deactivates it")
     @MainActor
     func startEventMonitoringActivatesAckChecking() async throws {

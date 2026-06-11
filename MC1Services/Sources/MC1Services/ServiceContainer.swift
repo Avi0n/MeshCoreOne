@@ -397,6 +397,14 @@ public final class ServiceContainer {
     /// `stopEventMonitoring()` alone does not cover those.
     public func tearDown() async {
         await stopEventMonitoring()
+
+        // Break the retain cycles the wired handlers form. The message and
+        // discovery closures capture this container strongly, so without this
+        // the whole service graph leaks on every reconnect. Cleared after
+        // `stopEventMonitoring()` so the event tasks reading them are cancelled.
+        await messagePollingService.clearMessageHandlers()
+        await advertisementService.clearDiscoveryHandlers()
+
         await chatSendQueueService.shutdown()
     }
 

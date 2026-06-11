@@ -97,6 +97,22 @@ public actor MessagePollingService {
         cliMessageHandler = handler
     }
 
+    /// Clears all message handlers. The wired handlers capture the owning
+    /// `ServiceContainer` strongly, so leaving them in place keeps the whole
+    /// service graph alive after the container is torn down on disconnect.
+    public func clearMessageHandlers() {
+        contactMessageHandler = nil
+        channelMessageHandler = nil
+        signedMessageHandler = nil
+        cliMessageHandler = nil
+    }
+
+    /// Whether any message handler is currently wired.
+    var hasMessageHandlersWired: Bool {
+        contactMessageHandler != nil || channelMessageHandler != nil
+            || signedMessageHandler != nil || cliMessageHandler != nil
+    }
+
     // MARK: - Event Monitoring
 
     /// Start event monitoring for message handlers without enabling auto-fetch.
