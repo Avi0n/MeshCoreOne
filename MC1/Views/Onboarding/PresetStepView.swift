@@ -233,14 +233,14 @@ struct PresetStepView: View {
                 appState.completeOnboarding()
             } catch let error as SettingsServiceError where error.isRetryable {
                 retryAlert.show(
-                    message: error.errorDescription ?? L10n.Settings.Alert.Retry.fallbackMessage,
+                    message: error.userFacingMessage,
                     onRetry: { apply(id: id) },
                     onMaxRetriesExceeded: {
                         errorMessage = L10n.Settings.Alert.Retry.fallbackMessage
                     }
                 )
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
             isApplying = false
         }

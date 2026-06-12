@@ -142,7 +142,7 @@ final class AppBackupViewModel {
                 exportState = .pending(PendingExport(data: result.data, manifest: result.manifest))
             } catch {
                 exportState = .idle
-                errorMessage = error.backupUserFacingMessage
+                errorMessage = error.userFacingMessage
                 logger.error("Export failed: \(error.localizedDescription)")
             }
         }
@@ -161,7 +161,7 @@ final class AppBackupViewModel {
         case .failure(let error):
             exportState = .idle
             guard !isUserCancelled(error) else { return }
-            errorMessage = error.backupUserFacingMessage
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -178,7 +178,7 @@ final class AppBackupViewModel {
             loadAndParseBackup(from: url)
         case .failure(let error):
             guard !isUserCancelled(error) else { return }
-            errorMessage = error.backupUserFacingMessage
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -207,7 +207,7 @@ final class AppBackupViewModel {
                 // The new invocation owns importState; don't clobber it
                 return
             } catch {
-                await self?.applyParseFailure(error.backupUserFacingMessage, for: taskID)
+                await self?.applyParseFailure(error.userFacingMessage, for: taskID)
             }
         }
     }
@@ -276,7 +276,7 @@ final class AppBackupViewModel {
                 // was changed instead of the sheet closing silently.
                 importState = .cancelled
             } catch {
-                importState = .failed(error.backupUserFacingMessage)
+                importState = .failed(error.userFacingMessage)
                 logger.error("Import failed: \(error.localizedDescription)")
             }
         }

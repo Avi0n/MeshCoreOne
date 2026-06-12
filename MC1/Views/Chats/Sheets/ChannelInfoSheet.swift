@@ -227,7 +227,7 @@ struct ChannelInfoSheet: View {
             dismiss()
             onDelete()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
             isDeleting = false
         }
     }
@@ -257,7 +257,7 @@ struct ChannelInfoSheet: View {
             onClearMessages()
             dismiss()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
             isClearingMessages = false
         }
     }

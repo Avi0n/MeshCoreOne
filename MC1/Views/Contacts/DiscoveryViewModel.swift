@@ -71,7 +71,7 @@ final class DiscoveryViewModel {
             discoveredNodes = nodes
             addedPublicKeys = addedKeys
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         hasLoadedOnce = true
@@ -96,7 +96,7 @@ final class DiscoveryViewModel {
         do {
             try await dataStore.deleteDiscoveredNode(id: node.id)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -107,7 +107,7 @@ final class DiscoveryViewModel {
             try await dataStore.clearDiscoveredNodes(radioID: radioID)
             discoveredNodes = []
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 

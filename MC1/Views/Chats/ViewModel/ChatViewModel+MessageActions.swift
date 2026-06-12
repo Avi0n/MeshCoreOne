@@ -144,7 +144,7 @@ extension ChatViewModel {
                 syncCoordinator?.notifyConversationsChanged()
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 

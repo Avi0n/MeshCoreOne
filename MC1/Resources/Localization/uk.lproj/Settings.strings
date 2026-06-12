@@ -1240,6 +1240,21 @@
 /* Validation error: not enough free contact slots (params: needed count, available count) */
 "configImport.error.contactCapacityExceeded" = "Для імпорту потрібно %d вільних слотів контактів, але на пристрої залишилося лише %d";
 
+/* Validation error: channel secret wrong length (params: channel index, hex char count) */
+"configImport.error.invalidChannelSecret" = "Канал %1$lld має некоректний секретний ключ (%2$lld шістнадцяткових символів, очікувалося 32)";
+
+/* Validation error: contact public key malformed (param: contact name) */
+"configImport.error.invalidContactPublicKey" = "Контакт \"%@\" має некоректний відкритий ключ";
+
+/* Validation error: unsupported path hash mode (params: contact name, mode value) */
+"configImport.error.invalidPathHashMode" = "Контакт \"%1$@\" має непідтримуваний режим хешування шляху %2$lld (очікувалося 0, 1 або 2)";
+
+/* Validation error: private key wrong length (params: hex char count, expected hex char count) */
+"configImport.error.invalidPrivateKey" = "Некоректний приватний ключ (%1$lld шістнадцяткових символів, очікувалося %2$lld)";
+
+/* Validation error: no empty channel slot left (param: channel name) */
+"configImport.error.noAvailableChannelSlot" = "Немає вільного слота каналу для \"%@\"";
+
 /* Toggle label for inline images */
 "inlineImages.toggle" = "Вбудовані зображення";
 

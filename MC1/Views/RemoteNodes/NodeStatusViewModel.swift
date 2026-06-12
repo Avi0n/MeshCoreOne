@@ -162,7 +162,7 @@ final class NodeStatusViewModel {
     /// otherwise repeat verbatim. The `setLoading`/`setError` closures target the
     /// section's own state (some live on this helper, some on the view model);
     /// `onSuccess` applies the response. A `RemoteNodeError.timeout` surfaces the
-    /// shared timed-out string, any other error its localized description.
+    /// shared timed-out string, any other error its user-facing message.
     func runRetryingSectionRequest<T>(
         operationName: String,
         setLoading: @MainActor (Bool) -> Void,
@@ -178,7 +178,7 @@ final class NodeStatusViewModel {
         } catch RemoteNodeError.timeout {
             setError(L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut)
         } catch {
-            setError(error.localizedDescription)
+            setError(error.userFacingMessage)
         }
         setLoading(false)
     }
@@ -467,7 +467,7 @@ final class NodeStatusViewModel {
             selectedOCVPreset = preset
             ocvValues = values
         } catch {
-            ocvError = L10n.RemoteNodes.RemoteNodes.Status.ocvSaveFailed(error.localizedDescription)
+            ocvError = L10n.RemoteNodes.RemoteNodes.Status.ocvSaveFailed(error.userFacingMessage)
         }
     }
 }

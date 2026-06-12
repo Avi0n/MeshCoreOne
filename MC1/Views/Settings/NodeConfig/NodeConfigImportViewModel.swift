@@ -137,7 +137,7 @@ final class NodeConfigImportViewModel {
     private func applyParseFailure(_ error: Error, for taskID: UUID) {
         guard currentParseID == taskID else { return }
         isParsing = false
-        errorMessage = Self.localizedDescription(for: error)
+        errorMessage = error.userFacingMessage
         logger.error("Failed to parse config: \(error.localizedDescription)")
     }
 
@@ -182,7 +182,7 @@ final class NodeConfigImportViewModel {
             } catch is CancellationError {
                 // The user left the screen mid-preview — leave the UI untouched.
             } catch {
-                errorMessage = Self.localizedDescription(for: error)
+                errorMessage = error.userFacingMessage
                 logger.error("Import preview failed: \(error.localizedDescription)")
             }
         }
@@ -281,30 +281,6 @@ final class NodeConfigImportViewModel {
         }
     }
 
-    /// Maps a service-layer ``NodeConfigServiceError`` to a localized message, keeping `L10n` in the
-    /// app layer so the service stays localization-free. Non-config errors fall through to their own
-    /// ``Error/localizedDescription``.
-    static func localizedDescription(for error: Error) -> String {
-        guard let configError = error as? NodeConfigServiceError else { return error.localizedDescription }
-        switch configError {
-        case .invalidRadioSettings(let field):
-            return L10n.Settings.ConfigImport.Error.radioOutOfRange(radioFieldLabel(field))
-        case .invalidCoordinate(let field):
-            switch field {
-            case .positionLatitude, .positionLongitude:
-                return L10n.Settings.ConfigImport.Error.positionInvalid(coordinateLabel(field))
-            case .contactLatitude(let name), .contactLongitude(let name):
-                return L10n.Settings.ConfigImport.Error.contactCoordinateInvalid(name, coordinateLabel(field))
-            }
-        case .invalidOutPath(let name):
-            return L10n.Settings.ConfigImport.Error.invalidOutPath(name)
-        case .contactCapacityExceeded(let needed, let available):
-            return L10n.Settings.ConfigImport.Error.contactCapacityExceeded(needed, available)
-        default:
-            return error.localizedDescription
-        }
-    }
-
     /// Localized message for a cancelled import; distinguishes a clean cancel from one where a
     /// destructive write already landed on the device.
     static func cancellationMessage(didApplyAnyWrite: Bool) -> String {
@@ -317,25 +293,8 @@ final class NodeConfigImportViewModel {
     /// destructive write already landed.
     static func failureMessage(for error: Error, didApplyAnyWrite: Bool) -> String {
         didApplyAnyWrite
-            ? L10n.Settings.ConfigImport.failedPartial(localizedDescription(for: error))
-            : localizedDescription(for: error)
-    }
-
-    private static func radioFieldLabel(_ field: RadioField) -> String {
-        switch field {
-        case .frequency: L10n.Settings.ConfigImport.Field.frequency
-        case .bandwidth: L10n.Settings.ConfigImport.Field.bandwidth
-        case .spreadingFactor: L10n.Settings.ConfigImport.Field.spreadingFactor
-        case .codingRate: L10n.Settings.ConfigImport.Field.codingRate
-        case .txPower: L10n.Settings.ConfigImport.Field.txPower
-        }
-    }
-
-    private static func coordinateLabel(_ field: CoordinateField) -> String {
-        switch field {
-        case .positionLatitude, .contactLatitude: L10n.Settings.ConfigImport.Field.latitude
-        case .positionLongitude, .contactLongitude: L10n.Settings.ConfigImport.Field.longitude
-        }
+            ? L10n.Settings.ConfigImport.failedPartial(error.userFacingMessage)
+            : error.userFacingMessage
     }
 
     /// Reset to the initial file-selection state so the user can import another file.

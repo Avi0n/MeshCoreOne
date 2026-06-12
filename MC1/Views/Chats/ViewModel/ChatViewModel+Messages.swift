@@ -413,7 +413,7 @@ extension ChatViewModel {
         } catch is CancellationError {
             // Benign cancellation; the superseding load will refetch.
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         // Ensures the empty-state gate opens even when the fetch threw —
@@ -476,7 +476,7 @@ extension ChatViewModel {
             schedulePrefetchForOutgoingMessage(message, isChannelMessage: false)
             syncCoordinator?.notifyConversationsChanged()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
             return
         }
 

@@ -61,11 +61,11 @@ final class ImportKeyViewModel {
                       case .deviceError = meshError {
                 errorMessage = L10n.Settings.RegenerateIdentity.Error.deviceRejected
             } else {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
             return false
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
             return false
         }
     }

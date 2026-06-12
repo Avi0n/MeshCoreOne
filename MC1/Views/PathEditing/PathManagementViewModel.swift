@@ -436,7 +436,7 @@ final class PathManagementViewModel {
             )
             onContactNeedsRefresh?()
         } catch {
-            errorMessage = L10n.Contacts.Contacts.PathManagement.Error.saveFailed(error.localizedDescription)
+            errorMessage = L10n.Contacts.Contacts.PathManagement.Error.saveFailed(error.userFacingMessage)
         }
 
         isSettingPath = false
@@ -494,7 +494,7 @@ final class PathManagementViewModel {
                 // this task's tail doesn't clobber the newer run's state.
                 return
             } catch {
-                discoveryResult = .failed(error.localizedDescription)
+                discoveryResult = .failed(error.userFacingMessage)
                 showDiscoveryResult = true
             }
 
@@ -580,7 +580,7 @@ final class PathManagementViewModel {
             )
             onContactNeedsRefresh?()
         } catch {
-            errorMessage = L10n.Contacts.Contacts.PathManagement.Error.resetFailed(error.localizedDescription)
+            errorMessage = L10n.Contacts.Contacts.PathManagement.Error.resetFailed(error.userFacingMessage)
         }
 
         isSettingPath = false
@@ -602,7 +602,7 @@ final class PathManagementViewModel {
             )
             onContactNeedsRefresh?()
         } catch {
-            errorMessage = L10n.Contacts.Contacts.PathManagement.Error.setFailed(error.localizedDescription)
+            errorMessage = L10n.Contacts.Contacts.PathManagement.Error.setFailed(error.userFacingMessage)
         }
 
         isSettingPath = false

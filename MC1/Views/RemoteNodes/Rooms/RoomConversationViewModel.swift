@@ -83,7 +83,7 @@ final class RoomConversationViewModel {
             await notificationService?.updateBadgeCount()
             syncCoordinator?.notifyConversationsChanged()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         hasLoadedOnce = true
@@ -116,7 +116,7 @@ final class RoomConversationViewModel {
             // Add to local array
             messages.append(message)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         isSending = false
@@ -198,7 +198,7 @@ final class RoomConversationViewModel {
                 messages[index] = updatedMessage
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 

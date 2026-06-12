@@ -76,7 +76,7 @@ final class RegenerateIdentityViewModel {
             } catch is CancellationError {
                 // Sheet dismissed during generation
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
         }
     }
@@ -102,11 +102,11 @@ final class RegenerateIdentityViewModel {
                       case .deviceError = meshError {
                 errorMessage = L10n.Settings.RegenerateIdentity.Error.deviceRejected
             } else {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
             return false
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
             return false
         }
     }

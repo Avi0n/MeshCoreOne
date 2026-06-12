@@ -366,7 +366,7 @@ struct ContactDetailView: View {
             )
             await refreshContact()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -378,7 +378,7 @@ struct ContactDetailView: View {
             )
             await refreshContact()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -390,7 +390,7 @@ struct ContactDetailView: View {
             )
             dismiss()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -407,7 +407,7 @@ struct ContactDetailView: View {
             errorMessage = L10n.Contacts.Contacts.Detail.shareContactUnavailable
         } catch {
             isSharing = false
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -440,7 +440,7 @@ struct ContactDetailView: View {
             )
             await refreshContact()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
         isEditingNickname = false
         isSaving = false

@@ -213,7 +213,7 @@ struct BluetoothSection: View {
                     // Expected - device reboots before BLE write callback arrives
                 }
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
                 // Revert
                 hasInitialized = false
                 pinType = currentPinType
@@ -256,7 +256,7 @@ struct BluetoothSection: View {
                     // Expected - device reboots before BLE write callback arrives
                 }
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
                 // Revert
                 hasInitialized = false
                 pinType = currentPinType

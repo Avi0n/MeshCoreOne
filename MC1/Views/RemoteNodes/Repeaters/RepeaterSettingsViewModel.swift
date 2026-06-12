@@ -312,7 +312,7 @@ final class RepeaterSettingsViewModel {
                 helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
             }
         } catch {
-            helper.errorMessage = error.localizedDescription
+            helper.errorMessage = error.userFacingMessage
         }
 
         helper.isApplying = false
@@ -393,7 +393,7 @@ final class RepeaterSettingsViewModel {
                 helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.unknownRegion
             }
         } catch {
-            helper.errorMessage = error.localizedDescription
+            helper.errorMessage = error.userFacingMessage
         }
 
         helper.isApplying = false
@@ -416,7 +416,7 @@ final class RepeaterSettingsViewModel {
                 helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.unknownRegion
             }
         } catch {
-            helper.errorMessage = error.localizedDescription
+            helper.errorMessage = error.userFacingMessage
         }
 
         helper.isApplying = false
@@ -450,7 +450,7 @@ final class RepeaterSettingsViewModel {
                 helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.addFailed
             }
         } catch {
-            helper.errorMessage = error.localizedDescription
+            helper.errorMessage = error.userFacingMessage
         }
 
         helper.isApplying = false
@@ -471,7 +471,7 @@ final class RepeaterSettingsViewModel {
                 helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.removeFailed
             }
         } catch {
-            helper.errorMessage = error.localizedDescription
+            helper.errorMessage = error.userFacingMessage
         }
 
         helper.isApplying = false
@@ -494,7 +494,7 @@ final class RepeaterSettingsViewModel {
                 helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.saveFailed
             }
         } catch {
-            helper.errorMessage = error.localizedDescription
+            helper.errorMessage = error.userFacingMessage
         }
 
         helper.isApplying = false

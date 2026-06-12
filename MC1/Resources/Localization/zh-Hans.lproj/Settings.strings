@@ -1214,6 +1214,21 @@
 /* Validation error: not enough free contact slots (params: needed count, available count) */
 "configImport.error.contactCapacityExceeded" = "导入需要 %d 个空闲联系人槽位，但设备上仅剩 %d 个";
 
+/* Validation error: channel secret wrong length (params: channel index, hex char count) */
+"configImport.error.invalidChannelSecret" = "频道 %1$lld 的密钥无效（%2$lld 个十六进制字符，应为 32 个）";
+
+/* Validation error: contact public key malformed (param: contact name) */
+"configImport.error.invalidContactPublicKey" = "联系人 \"%@\" 的公钥无效";
+
+/* Validation error: unsupported path hash mode (params: contact name, mode value) */
+"configImport.error.invalidPathHashMode" = "联系人 \"%1$@\" 的路径哈希模式 %2$lld 不受支持（应为 0、1 或 2）";
+
+/* Validation error: private key wrong length (params: hex char count, expected hex char count) */
+"configImport.error.invalidPrivateKey" = "私钥无效（%1$lld 个十六进制字符，应为 %2$lld 个）";
+
+/* Validation error: no empty channel slot left (param: channel name) */
+"configImport.error.noAvailableChannelSlot" = "没有可用于 \"%@\" 的空闲频道槽位";
+
 /* Toggle label for inline images */
 "inlineImages.toggle" = "内嵌图片消息";
 

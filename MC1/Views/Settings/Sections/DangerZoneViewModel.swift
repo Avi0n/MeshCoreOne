@@ -32,7 +32,7 @@ final class DangerZoneViewModel {
             try await connectionManager.forgetDevice(deleteData: deleteData)
             return true
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
             return false
         }
     }
@@ -73,7 +73,7 @@ final class DangerZoneViewModel {
                 showingRemoveUnfavoritedAlert = true
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -95,7 +95,7 @@ final class DangerZoneViewModel {
                 }
             } catch {
                 if !(error is CancellationError) {
-                    errorMessage = error.localizedDescription
+                    errorMessage = error.userFacingMessage
                 }
             }
         }

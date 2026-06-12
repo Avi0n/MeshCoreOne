@@ -159,7 +159,7 @@ final class NodeDiscoveryViewModel {
                 // Normal timeout cancellation — not an error
             } catch {
                 Self.logger.error("Node discovery failed: \(error.localizedDescription)")
-                self.errorMessage = error.localizedDescription
+                self.errorMessage = error.userFacingMessage
             }
 
             self.finishScan()
@@ -279,7 +279,7 @@ final class NodeDiscoveryViewModel {
                 }
                 self?.addErrorHapticTrigger += 1
             } catch {
-                self?.errorMessage = error.localizedDescription
+                self?.errorMessage = error.userFacingMessage
                 self?.addErrorHapticTrigger += 1
             }
             self?.addingPublicKey = nil

@@ -123,7 +123,7 @@ struct WiFiEditSheet: View {
                 try await appState.connectViaWiFi(host: ipAddress, port: portNumber, forceFullSync: true)
                 dismiss()
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
                 isReconnecting = false
             }
         }

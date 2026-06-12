@@ -131,7 +131,7 @@ struct JoinChannelConfirmationSheet: View {
             }
         } catch {
             logger.error("Failed to join channel from link: \(error)")
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         isJoining = false

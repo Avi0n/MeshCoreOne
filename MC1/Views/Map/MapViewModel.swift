@@ -72,7 +72,7 @@ final class MapViewModel {
             contactsWithLocation = allContacts.filter(\.hasLocation)
             rebuildMapPoints()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         isLoading = false

@@ -168,7 +168,7 @@ struct JoinHashtagChannelView: View {
             }
             onComplete(joinedChannel)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         isJoining = false

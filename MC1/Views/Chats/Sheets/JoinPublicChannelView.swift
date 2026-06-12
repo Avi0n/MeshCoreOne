@@ -92,7 +92,7 @@ struct JoinPublicChannelView: View {
             }
             onComplete(publicChannel)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         isJoining = false

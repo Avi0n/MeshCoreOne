@@ -199,7 +199,7 @@ struct ScanContactQRView: View {
             isImporting = false
         } catch {
             logger.error("Failed to import contact: \(error.localizedDescription)")
-            errorMessage = L10n.Contacts.Contacts.Scan.Error.importFailed(error.localizedDescription)
+            errorMessage = L10n.Contacts.Contacts.Scan.Error.importFailed(error.userFacingMessage)
             isImporting = false
         }
     }

@@ -249,12 +249,12 @@ struct RadioPresetSection: View {
                 selectedPresetID = currentMatchingPresetID
                 if let retryable = error as? SettingsServiceError, retryable.isRetryable {
                     retryAlert.show(
-                        message: retryable.errorDescription ?? L10n.Settings.Alert.Retry.fallbackMessage,
+                        message: retryable.userFacingMessage,
                         onRetry: { applyPreset(id: id) },
                         onMaxRetriesExceeded: { dismiss() }
                     )
                 } else {
-                    errorMessage = error.localizedDescription
+                    errorMessage = error.userFacingMessage
                 }
             }
             isApplying = false
@@ -313,12 +313,12 @@ struct RadioPresetSection: View {
             } catch let error as SettingsServiceError where error.isRetryable {
                 isRepeatEnabled = true // Revert
                 retryAlert.show(
-                    message: error.errorDescription ?? L10n.Settings.Alert.Retry.fallbackMessage,
+                    message: error.userFacingMessage,
                     onRetry: { disableRepeatMode() },
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
                 isRepeatEnabled = true // Revert
             }
             isApplyingRepeat = false

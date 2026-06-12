@@ -1240,6 +1240,21 @@
 /* Validation error: not enough free contact slots (params: needed count, available count) */
 "configImport.error.contactCapacityExceeded" = "L'importation nécessite %d emplacement(s) de contact libre(s), mais il n'en reste que %d sur l'appareil";
 
+/* Validation error: channel secret wrong length (params: channel index, hex char count) */
+"configImport.error.invalidChannelSecret" = "Le canal %1$lld a une clé secrète non valide (%2$lld caractères hex, 32 attendus)";
+
+/* Validation error: contact public key malformed (param: contact name) */
+"configImport.error.invalidContactPublicKey" = "Le contact \"%@\" a une clé publique non valide";
+
+/* Validation error: unsupported path hash mode (params: contact name, mode value) */
+"configImport.error.invalidPathHashMode" = "Le contact \"%1$@\" a un mode de hachage de chemin non pris en charge : %2$lld (0, 1 ou 2 attendu)";
+
+/* Validation error: private key wrong length (params: hex char count, expected hex char count) */
+"configImport.error.invalidPrivateKey" = "Clé privée non valide (%1$lld caractères hex, %2$lld attendus)";
+
+/* Validation error: no empty channel slot left (param: channel name) */
+"configImport.error.noAvailableChannelSlot" = "Aucun emplacement de canal libre disponible pour \"%@\"";
+
 /* Toggle label for inline images */
 "inlineImages.toggle" = "Images intégrées";
 

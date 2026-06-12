@@ -74,7 +74,7 @@ struct BlockedContactsView: View {
                 radioID: radioID
             )
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 }

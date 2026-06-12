@@ -51,7 +51,7 @@ struct ChatListActions {
                 viewModel.requestConversationReload()
             } catch {
                 viewModel.restoreConversation(.direct(contact))
-                viewModel.errorMessage = error.localizedDescription
+                viewModel.errorMessage = error.userFacingMessage
             }
         }
     }
@@ -72,7 +72,7 @@ struct ChatListActions {
             } catch {
                 channelDeleteFailure.wrappedValue = ChatConversationActions.Failure(
                     channel: channel,
-                    message: error.localizedDescription
+                    message: error.userFacingMessage
                 )
                 showChannelDeleteFailed.wrappedValue = true
             }
@@ -95,7 +95,7 @@ struct ChatListActions {
             viewModel.removeConversation(.room(session))
         } catch {
             chatListActionsLogger.error("Failed to delete room: \(error)")
-            viewModel.errorMessage = error.localizedDescription
+            viewModel.errorMessage = error.userFacingMessage
         }
         viewModel.requestConversationReload()
     }

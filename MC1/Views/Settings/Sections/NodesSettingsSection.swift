@@ -223,13 +223,13 @@ struct NodesSettingsSection: View {
             } catch let error as SettingsServiceError where error.isRetryable {
                 loadFromDevice()
                 retryAlert.show(
-                    message: error.errorDescription ?? L10n.Localizable.Common.Error.connectionError,
+                    message: error.userFacingMessage,
                     onRetry: { applySettings() },
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
                 loadFromDevice()
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
             isApplying = false
         }

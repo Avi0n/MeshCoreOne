@@ -378,7 +378,7 @@ final class NodeSettingsViewModel {
                 errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.radioApplyFailed
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         isApplying = false
@@ -428,7 +428,7 @@ final class NodeSettingsViewModel {
                 errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         isApplying = false
@@ -452,7 +452,7 @@ final class NodeSettingsViewModel {
                 errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         isApplying = false
@@ -494,7 +494,7 @@ final class NodeSettingsViewModel {
                 errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.passwordChangeFailed
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         isApplying = false
@@ -513,7 +513,7 @@ final class NodeSettingsViewModel {
             successMessage = L10n.RemoteNodes.RemoteNodes.Settings.rebootSent
             showSuccessAlert = true
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         isRebooting = false
@@ -527,7 +527,7 @@ final class NodeSettingsViewModel {
             successMessage = L10n.RemoteNodes.RemoteNodes.Settings.advertSent
             showSuccessAlert = true
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -549,7 +549,7 @@ final class NodeSettingsViewModel {
                 errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.unexpectedResponse(response)
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         isApplying = false

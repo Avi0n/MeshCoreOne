@@ -152,7 +152,7 @@ struct AddContactSheet: View {
             isSubmitting = false
         } catch {
             logger.error("Failed to add contact: \(error.localizedDescription)")
-            errorMessage = "\(L10n.Contacts.Contacts.Common.error): \(error.localizedDescription)"
+            errorMessage = "\(L10n.Contacts.Contacts.Common.error): \(error.userFacingMessage)"
             isSubmitting = false
         }
     }

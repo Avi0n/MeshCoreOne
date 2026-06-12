@@ -97,7 +97,7 @@ struct NodeConfigExportView: View {
             defaultFilename: viewModel.exportedDocument?.filename
         ) { result in
             if case .failure(let error) = result {
-                viewModel.errorMessage = error.localizedDescription
+                viewModel.errorMessage = error.userFacingMessage
             }
         }
     }

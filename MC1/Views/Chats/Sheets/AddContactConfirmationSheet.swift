@@ -103,7 +103,7 @@ struct AddContactConfirmationSheet: View {
             }
         } catch {
             logger.error("Failed to add contact from link: \(error)")
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         isAdding = false

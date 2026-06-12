@@ -88,7 +88,7 @@ struct ScanChannelQRView: View {
             }
             onComplete(joinedChannel)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 }

@@ -172,7 +172,7 @@ final class RepeaterStatusViewModel {
                     command: Self.discoverCommand
                 )
             } catch {
-                neighborsSectionError = error.localizedDescription
+                neighborsSectionError = error.userFacingMessage
                 discoverySecondsRemaining = 0
                 discoverTask = nil
                 return

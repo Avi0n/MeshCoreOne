@@ -107,7 +107,7 @@ extension ChatViewModel {
             }
         } catch {
             logger.error("Failed to send channel reaction: \(error)")
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -161,7 +161,7 @@ extension ChatViewModel {
             }
         } catch {
             logger.error("Failed to send DM reaction: \(error)")
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 

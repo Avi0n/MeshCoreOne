@@ -50,7 +50,7 @@ struct DeviceActionsSection: View {
             } catch BLEError.operationTimeout {
                 // Expected - device reboots before BLE write callback arrives
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
         }
     }

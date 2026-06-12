@@ -27,11 +27,3 @@ extension AppBackupError {
         }
     }
 }
-
-extension Error {
-    /// Localized backup-error message when the receiver is an `AppBackupError`,
-    /// otherwise falls back to `localizedDescription`.
-    var backupUserFacingMessage: String {
-        (self as? AppBackupError)?.userFacingMessage ?? localizedDescription
-    }
-}

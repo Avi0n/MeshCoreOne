@@ -190,7 +190,7 @@ struct DeviceScanView: View {
                 failureHapticTrigger.toggle()
                 appState.connectionUI.presentPairingFailure(pairingError)
             } catch {
-                appState.connectionUI.presentConnectionFailure(message: error.localizedDescription)
+                appState.connectionUI.presentConnectionFailure(message: error.userFacingMessage)
             }
         }
     }
@@ -207,7 +207,7 @@ struct DeviceScanView: View {
             } catch BLEError.deviceConnectedToOtherApp {
                 appState.connectionUI.otherAppWarningDeviceID = deviceID
             } catch {
-                appState.connectionUI.presentConnectionFailure(message: error.localizedDescription)
+                appState.connectionUI.presentConnectionFailure(message: error.userFacingMessage)
             }
         }
     }
@@ -223,7 +223,7 @@ struct DeviceScanView: View {
                 pairingSuccessTrigger.toggle()
                 appState.onboarding.onboardingPath.append(.region)
             } catch {
-                appState.connectionUI.presentConnectionFailure(message: error.localizedDescription)
+                appState.connectionUI.presentConnectionFailure(message: error.userFacingMessage)
             }
         }
     }

@@ -191,7 +191,7 @@ struct LocationPickerView: View {
                 try await onSave(coord)
                 dismiss()
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
             isSaving = false
         }

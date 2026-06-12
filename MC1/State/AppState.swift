@@ -736,7 +736,7 @@ public final class AppState {
             } catch let pairingError as PairingError {
                 connectionUI.presentPairingFailure(pairingError)
             } catch {
-                connectionUI.presentConnectionFailure(message: error.localizedDescription)
+                connectionUI.presentConnectionFailure(message: error.userFacingMessage)
             }
         }
     }

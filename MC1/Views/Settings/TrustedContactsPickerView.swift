@@ -137,7 +137,7 @@ struct TrustedContactsPickerView: View {
                 initialTrustedIDs = pendingTrustedIDs
                 successTrigger += 1
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
             isApplying = false
         }

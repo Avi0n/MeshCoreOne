@@ -24,7 +24,7 @@ struct NodeConfigImportView: View {
                 viewModel.parseFile(at: url)
                 Task { await viewModel.loadCurrentDeviceState(settingsService: appState.services?.settingsService) }
             case .failure(let error):
-                viewModel.errorMessage = error.localizedDescription
+                viewModel.errorMessage = error.userFacingMessage
             }
         }
         .alert(

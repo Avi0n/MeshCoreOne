@@ -194,7 +194,7 @@ struct DiscoveryView: View {
                     viewModel.errorMessage = L10n.Contacts.Contacts.Add.Error.nodeListFullSimple
                 }
             } catch {
-                viewModel.errorMessage = error.localizedDescription
+                viewModel.errorMessage = error.userFacingMessage
             }
             addingNodeID = nil
         }

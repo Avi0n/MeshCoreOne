@@ -98,7 +98,7 @@ struct CreatePrivateChannelView: View {
                 createdChannel = channels.first { $0.index == selectedSlot }
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 }

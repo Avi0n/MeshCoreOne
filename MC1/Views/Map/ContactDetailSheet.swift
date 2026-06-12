@@ -248,10 +248,10 @@ struct ContactDetailSheet: View {
                 dismiss()
                 onDelete()
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 

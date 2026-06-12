@@ -223,7 +223,7 @@ struct NodeAuthenticationSheet: View {
                 await MainActor.run {
                     authenticationTask = nil
                     cleanupCountdownState()
-                    errorMessage = error.localizedDescription
+                    errorMessage = error.userFacingMessage
                     isAuthenticating = false
                 }
             }

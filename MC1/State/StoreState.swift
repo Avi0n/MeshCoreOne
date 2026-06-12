@@ -127,17 +127,9 @@ public final class StoreState {
         if isResolved { pendingPurchase = nil }
     }
 
-    /// Internal (not private) as a testability seam — see `StoreStateErrorMappingTests`.
+    /// Internal (not private) as a testability seam (see `StoreStateErrorMappingTests`).
+    /// Delegates to the shared `StoreServiceError.userFacingMessage` mapping.
     func localizedMessage(for error: StoreServiceError) -> String {
-        switch error {
-        case .productsNotLoaded:      L10n.Settings.Support.Error.productsNotLoaded
-        case .productNotFound:        L10n.Settings.Support.Error.productNotFound
-        case .purchaseFailed(let r):  L10n.Settings.Support.Error.purchaseFailed(r)
-        case .verificationFailed:     L10n.Settings.Support.Error.verificationFailed
-        case .notEntitled:            L10n.Settings.Support.Error.notEntitled
-        case .networkUnavailable:     L10n.Settings.Support.Error.networkUnavailable
-        case .storefrontUnavailable:  L10n.Settings.Support.Error.storefrontUnavailable
-        case .unsupported:            L10n.Settings.Support.Error.unsupported
-        }
+        error.userFacingMessage
     }
 }

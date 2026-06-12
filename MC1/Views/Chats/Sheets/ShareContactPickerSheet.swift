@@ -115,7 +115,7 @@ struct ShareContactPickerSheet: View {
             logger.info("Loaded \(contacts.count) contacts for share picker")
         } catch {
             logger.error("Failed to fetch contacts for share picker: \(error)")
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 

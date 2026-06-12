@@ -114,7 +114,7 @@ final class ContactsViewModel {
             // Self-heal the mask: once a deleted row is gone from the fetch, stop masking it.
             pendingRemovalIDs.formIntersection(Set(contacts.map(\.id)))
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         hasLoadedOnce = true
@@ -158,7 +158,7 @@ final class ContactsViewModel {
             // Clear sync progress
             syncProgress = nil
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         // Awaited rather than deferred to an unstructured Task so this sync's reset cannot
@@ -187,7 +187,7 @@ final class ContactsViewModel {
                 await loadContacts(radioID: contact.radioID)
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -204,7 +204,7 @@ final class ContactsViewModel {
             // Update local list
             await loadContacts(radioID: contact.radioID)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -221,7 +221,7 @@ final class ContactsViewModel {
             // Update local list
             await loadContacts(radioID: contact.radioID)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -253,12 +253,12 @@ final class ContactsViewModel {
                 try await contactService.removeLocalContact(contactID: contact.id, publicKey: contact.publicKey)
                 hideDeletedContact(contact)
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
         } catch is TimeoutError {
             errorMessage = L10n.Contacts.Contacts.ViewModel.removeTimedOut
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 

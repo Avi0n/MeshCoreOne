@@ -47,7 +47,7 @@ final class NodeConfigExportViewModel {
             showFileExporter = true
         } catch {
             logger.error("Export failed: \(error.localizedDescription)")
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         isExporting = false

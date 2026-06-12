@@ -222,7 +222,7 @@ final class RoomSettingsViewModel {
                 helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
             }
         } catch {
-            helper.errorMessage = error.localizedDescription
+            helper.errorMessage = error.userFacingMessage
         }
 
         isApplyingRoomAccess = false
@@ -330,7 +330,7 @@ final class RoomSettingsViewModel {
                 helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
             }
         } catch {
-            helper.errorMessage = error.localizedDescription
+            helper.errorMessage = error.userFacingMessage
         }
 
         isApplyingBehavior = false

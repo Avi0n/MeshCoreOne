@@ -2247,8 +2247,6 @@ public enum L10n {
         public static func apiError(_ p1: Any) -> String {
           return L10n.tr("Localizable", "common.error.apiError", String(describing: p1), fallback: "API error: %@")
         }
-        /// Generic connection error title
-        public static let connectionError = L10n.tr("Localizable", "common.error.connectionError", fallback: "Connection error")
         /// Error label when content fails to load
         public static let failedToLoad = L10n.tr("Localizable", "common.error.failedToLoad", fallback: "Failed to load")
         /// Invalid response from API
@@ -2271,6 +2269,390 @@ public enum L10n {
         public static let ready = L10n.tr("Localizable", "common.status.ready", fallback: "Ready")
         /// Location: SyncingPillView.swift - Status shown when syncing data
         public static let syncing = L10n.tr("Localizable", "common.status.syncing", fallback: "Syncing")
+      }
+    }
+    public enum Error {
+      public enum AccessorySetup {
+        /// Location: AccessorySetupKitError+UserFacingMessage.swift - Connection to picked accessory failed
+        public static let connectionFailed = L10n.tr("Localizable", "error.accessorySetup.connectionFailed", fallback: "Could not connect to the device. Please try again.")
+        /// Location: AccessorySetupKitError+UserFacingMessage.swift - Accessory discovery timed out
+        public static let discoveryTimeout = L10n.tr("Localizable", "error.accessorySetup.discoveryTimeout", fallback: "No devices found. Make sure your device is powered on and nearby.")
+        /// Location: AccessorySetupKitError+UserFacingMessage.swift - Picked accessory lacks a Bluetooth identifier
+        public static let noBluetoothIdentifier = L10n.tr("Localizable", "error.accessorySetup.noBluetoothIdentifier", fallback: "Selected device does not support Bluetooth connection.")
+        /// Location: AccessorySetupKitError+UserFacingMessage.swift - Accessory pairing failed - %@ is the failure reason
+        public static func pairingFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.accessorySetup.pairingFailed", String(describing: p1), fallback: "Pairing failed: %@")
+        }
+        /// Location: AccessorySetupKitError+UserFacingMessage.swift - Accessory picker already on screen
+        public static let pickerAlreadyActive = L10n.tr("Localizable", "error.accessorySetup.pickerAlreadyActive", fallback: "Device picker is already showing.")
+        /// Location: AccessorySetupKitError+UserFacingMessage.swift - User dismissed the accessory picker
+        public static let pickerDismissed = L10n.tr("Localizable", "error.accessorySetup.pickerDismissed", fallback: "Device selection was cancelled.")
+        /// Location: AccessorySetupKitError+UserFacingMessage.swift - Accessory picker could not be shown
+        public static let pickerRestricted = L10n.tr("Localizable", "error.accessorySetup.pickerRestricted", fallback: "Cannot show device picker. Please check that Bluetooth is enabled, wait a moment, and try again.")
+        /// Location: AccessorySetupKitError+UserFacingMessage.swift - AccessorySetupKit session invalidated
+        public static let sessionInvalidated = L10n.tr("Localizable", "error.accessorySetup.sessionInvalidated", fallback: "Bluetooth session ended unexpectedly. Please restart the app.")
+        /// Location: AccessorySetupKitError+UserFacingMessage.swift - AccessorySetupKit session not active
+        public static let sessionNotActive = L10n.tr("Localizable", "error.accessorySetup.sessionNotActive", fallback: "Bluetooth is not ready. Please ensure Bluetooth is enabled and try again.")
+      }
+      public enum Advertisement {
+        /// Location: AdvertisementError+UserFacingMessage.swift - Malformed device response to an advertisement command
+        public static let invalidResponse = L10n.tr("Localizable", "error.advertisement.invalidResponse", fallback: "Invalid response from device.")
+        /// Location: AdvertisementError+UserFacingMessage.swift - No active connection to the radio
+        public static let notConnected = L10n.tr("Localizable", "error.advertisement.notConnected", fallback: "Not connected to device.")
+        /// Location: AdvertisementError+UserFacingMessage.swift - Self-advertisement broadcast failed
+        public static let sendFailed = L10n.tr("Localizable", "error.advertisement.sendFailed", fallback: "Failed to send advertisement.")
+      }
+      public enum BinaryProtocol {
+        /// Location: BinaryProtocolError+UserFacingMessage.swift - Malformed device response to a binary request
+        public static let invalidResponse = L10n.tr("Localizable", "error.binaryProtocol.invalidResponse", fallback: "Invalid response from device.")
+        /// Location: BinaryProtocolError+UserFacingMessage.swift - No active connection to the radio
+        public static let notConnected = L10n.tr("Localizable", "error.binaryProtocol.notConnected", fallback: "Not connected to device.")
+        /// Location: BinaryProtocolError+UserFacingMessage.swift - Binary request failed to send
+        public static let sendFailed = L10n.tr("Localizable", "error.binaryProtocol.sendFailed", fallback: "Failed to send request.")
+        /// Location: BinaryProtocolError+UserFacingMessage.swift - Binary request timed out
+        public static let timeout = L10n.tr("Localizable", "error.binaryProtocol.timeout", fallback: "Request timed out.")
+      }
+      public enum Ble {
+        /// Location: BLEError+UserFacingMessage.swift - BLE PIN authentication failed
+        public static let authenticationFailed = L10n.tr("Localizable", "error.ble.authenticationFailed", fallback: "Authentication failed. Please check your device's PIN.")
+        /// Location: BLEError+UserFacingMessage.swift - Bluetooth radio is off
+        public static let bluetoothPoweredOff = L10n.tr("Localizable", "error.ble.bluetoothPoweredOff", fallback: "Bluetooth is turned off. Please enable Bluetooth to connect.")
+        /// Location: BLEError+UserFacingMessage.swift - Bluetooth permission denied
+        public static let bluetoothUnauthorized = L10n.tr("Localizable", "error.ble.bluetoothUnauthorized", fallback: "Bluetooth permission is required. Please enable it in Settings.")
+        /// Location: BLEError+UserFacingMessage.swift - Bluetooth hardware unavailable
+        public static let bluetoothUnavailable = L10n.tr("Localizable", "error.ble.bluetoothUnavailable", fallback: "Bluetooth is not available on this device.")
+        /// Location: BLEError+UserFacingMessage.swift - Required BLE characteristic missing
+        public static let characteristicNotFound = L10n.tr("Localizable", "error.ble.characteristicNotFound", fallback: "Unable to communicate with device. Please try reconnecting.")
+        /// Location: BLEError+UserFacingMessage.swift - BLE connection failed - %@ is the failure detail
+        public static func connectionFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.ble.connectionFailed", String(describing: p1), fallback: "Connection failed: %@")
+        }
+        /// Location: BLEError+UserFacingMessage.swift - BLE connection attempt timed out
+        public static let connectionTimeout = L10n.tr("Localizable", "error.ble.connectionTimeout", fallback: "Connection timed out. Please try again.")
+        /// Location: BLEError+UserFacingMessage.swift - Radio already in use by another app
+        public static let deviceConnectedToOtherApp = L10n.tr("Localizable", "error.ble.deviceConnectedToOtherApp", fallback: "This device is connected to another app. Only one app can use a mesh radio at a time to prevent communication issues.")
+        /// Location: BLEError+UserFacingMessage.swift - Scanned device could not be found
+        public static let deviceNotFound = L10n.tr("Localizable", "error.ble.deviceNotFound", fallback: "Device not found. Please make sure it's powered on and nearby.")
+        /// Location: BLEError+UserFacingMessage.swift - Malformed BLE response
+        public static let invalidResponse = L10n.tr("Localizable", "error.ble.invalidResponse", fallback: "Invalid response from device. Please try again.")
+        /// Location: BLEError+UserFacingMessage.swift - No BLE device connected
+        public static let notConnected = L10n.tr("Localizable", "error.ble.notConnected", fallback: "Not connected to a device.")
+        /// Location: BLEError+UserFacingMessage.swift - BLE operation timed out
+        public static let operationTimeout = L10n.tr("Localizable", "error.ble.operationTimeout", fallback: "Operation timed out. Please try again.")
+        /// Location: BLEError+UserFacingMessage.swift - Bluetooth pairing failed - %@ is the failure reason
+        public static func pairingFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.ble.pairingFailed", String(describing: p1), fallback: "Bluetooth pairing failed: %@")
+        }
+        /// Location: BLEError+UserFacingMessage.swift - BLE write failed - %@ is the failure detail
+        public static func writeError(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.ble.writeError", String(describing: p1), fallback: "Failed to send data: %@")
+        }
+      }
+      public enum ChannelService {
+        /// Location: ChannelServiceError+UserFacingMessage.swift - Channel missing from the database
+        public static let channelNotFound = L10n.tr("Localizable", "error.channelService.channelNotFound", fallback: "Channel not found.")
+        /// Location: ChannelServiceError+UserFacingMessage.swift - Channel sync suspended - %lld is the consecutive failure count
+        public static func circuitBreakerOpen(_ p1: Int) -> String {
+          return L10n.tr("Localizable", "error.channelService.circuitBreakerOpen", p1, fallback: "Channel sync suspended after %lld consecutive failures.")
+        }
+        /// Location: ChannelServiceError+UserFacingMessage.swift - Channel slot index out of range
+        public static let invalidChannelIndex = L10n.tr("Localizable", "error.channelService.invalidChannelIndex", fallback: "Invalid channel index.")
+        /// Location: ChannelServiceError+UserFacingMessage.swift - No active connection to the radio
+        public static let notConnected = L10n.tr("Localizable", "error.channelService.notConnected", fallback: "Not connected to device.")
+        /// Location: ChannelServiceError+UserFacingMessage.swift - Channel save failed - %@ is the failure reason
+        public static func saveFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.channelService.saveFailed", String(describing: p1), fallback: "Failed to save channel: %@")
+        }
+        /// Location: ChannelServiceError+UserFacingMessage.swift - Hashing the channel secret key failed
+        public static let secretHashingFailed = L10n.tr("Localizable", "error.channelService.secretHashingFailed", fallback: "Failed to hash channel secret.")
+        /// Location: ChannelServiceError+UserFacingMessage.swift - Channel message send failed - %@ is the failure reason
+        public static func sendFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.channelService.sendFailed", String(describing: p1), fallback: "Send failed: %@")
+        }
+        /// Location: ChannelServiceError+UserFacingMessage.swift - Channel sync already running
+        public static let syncAlreadyInProgress = L10n.tr("Localizable", "error.channelService.syncAlreadyInProgress", fallback: "Channel sync is already in progress.")
+      }
+      public enum ChatSendQueue {
+        /// Location: ChatSendQueueServiceError+UserFacingMessage.swift - No active connection to the radio
+        public static let notConnected = L10n.tr("Localizable", "error.chatSendQueue.notConnected", fallback: "Not connected to device.")
+        /// Location: ChatSendQueueServiceError+UserFacingMessage.swift - Queueing a message for send failed - %@ is the underlying error message
+        public static func persistFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.chatSendQueue.persistFailed", String(describing: p1), fallback: "Failed to queue message for sending: %@")
+        }
+      }
+      public enum Connection {
+        /// Location: ConnectionError+UserFacingMessage.swift - Connection failed - %@ is the failure reason
+        public static func connectionFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.connection.connectionFailed", String(describing: p1), fallback: "Connection failed: %@")
+        }
+        /// Location: ConnectionError+UserFacingMessage.swift - Device to connect to was not found
+        public static let deviceNotFound = L10n.tr("Localizable", "error.connection.deviceNotFound", fallback: "Device not found")
+        /// Location: ConnectionError+UserFacingMessage.swift - Post-connect device initialization failed - %@ is the failure reason
+        public static func initializationFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.connection.initializationFailed", String(describing: p1), fallback: "Device initialization failed: %@")
+        }
+        /// Location: ConnectionError+UserFacingMessage.swift - No active device connection
+        public static let notConnected = L10n.tr("Localizable", "error.connection.notConnected", fallback: "Not connected to device")
+      }
+      public enum ContactService {
+        /// Location: ContactServiceError+UserFacingMessage.swift - Contact missing from the radio
+        public static let contactNotFound = L10n.tr("Localizable", "error.contactService.contactNotFound", fallback: "Contact not found on device")
+        /// Location: ContactServiceError+UserFacingMessage.swift - Radio node list has no free slots
+        public static let contactTableFull = L10n.tr("Localizable", "error.contactService.contactTableFull", fallback: "Device node list is full")
+        /// Location: ContactServiceError+UserFacingMessage.swift - Malformed device response during a contact operation
+        public static let invalidResponse = L10n.tr("Localizable", "error.contactService.invalidResponse", fallback: "Invalid response from device")
+        /// Location: ContactServiceError+UserFacingMessage.swift - No active connection to the radio
+        public static let notConnected = L10n.tr("Localizable", "error.contactService.notConnected", fallback: "Not connected to radio")
+        /// Location: ContactServiceError+UserFacingMessage.swift - Contact operation message failed to send
+        public static let sendFailed = L10n.tr("Localizable", "error.contactService.sendFailed", fallback: "Failed to send message")
+        /// Location: ContactServiceError+UserFacingMessage.swift - Node advertisement missing or stale, so the node cannot be shared
+        public static let shareContactUnavailable = L10n.tr("Localizable", "error.contactService.shareContactUnavailable", fallback: "Unable to share node. The node's advertisement may be missing or too old.")
+        /// Location: ContactServiceError+UserFacingMessage.swift - Contact sync stopped before finishing
+        public static let syncInterrupted = L10n.tr("Localizable", "error.contactService.syncInterrupted", fallback: "Sync was interrupted")
+      }
+      public enum Device {
+        /// Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: file system error
+        public static let fileSystem = L10n.tr("Localizable", "error.device.fileSystem", fallback: "Device file system error.")
+        /// Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: invalid parameter
+        public static let invalidParameter = L10n.tr("Localizable", "error.device.invalidParameter", fallback: "Invalid parameter sent to device.")
+        /// Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: invalid state
+        public static let invalidState = L10n.tr("Localizable", "error.device.invalidState", fallback: "Device is in an invalid state for this operation.")
+        /// Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: item not found
+        public static let notFound = L10n.tr("Localizable", "error.device.notFound", fallback: "Item not found on device.")
+        /// Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: storage full
+        public static let storageFull = L10n.tr("Localizable", "error.device.storageFull", fallback: "Device storage is full.")
+        /// Location: MeshCoreError+UserFacingMessage.swift - Firmware error code outside the known range - %lld is the raw code
+        public static func unknown(_ p1: Int) -> String {
+          return L10n.tr("Localizable", "error.device.unknown", p1, fallback: "Device error (code %lld).")
+        }
+        /// Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: command unsupported
+        public static let unsupportedCommand = L10n.tr("Localizable", "error.device.unsupportedCommand", fallback: "Command not supported by device firmware.")
+      }
+      public enum DeviceService {
+        /// Location: DeviceServiceError+UserFacingMessage.swift - Device row missing from the database
+        public static let deviceNotFound = L10n.tr("Localizable", "error.deviceService.deviceNotFound", fallback: "Device not found")
+        /// Location: DeviceServiceError+UserFacingMessage.swift - Saving device settings failed - %@ is the failure reason
+        public static func persistenceFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.deviceService.persistenceFailed", String(describing: p1), fallback: "Failed to save device settings: %@")
+        }
+      }
+      public enum KeyGeneration {
+        /// Location: KeyGenerationError+UserFacingMessage.swift - Key data is not a valid Ed25519 expanded private key
+        public static let invalidKey = L10n.tr("Localizable", "error.keyGeneration.invalidKey", fallback: "The key is not a valid Ed25519 private key.")
+        /// Location: KeyGenerationError+UserFacingMessage.swift - Vanity prefix search exhausted its attempt budget
+        public static let maxAttemptsExceeded = L10n.tr("Localizable", "error.keyGeneration.maxAttemptsExceeded", fallback: "Could not generate a key with that prefix. Try a different one.")
+        /// Location: KeyGenerationError+UserFacingMessage.swift - System random number generator failed
+        public static let randomGenerationFailed = L10n.tr("Localizable", "error.keyGeneration.randomGenerationFailed", fallback: "Secure random number generation failed. Please try again.")
+        /// Location: KeyGenerationError+UserFacingMessage.swift - Requested prefix byte is reserved by firmware
+        public static let reservedPrefix = L10n.tr("Localizable", "error.keyGeneration.reservedPrefix", fallback: "That prefix is reserved and cannot be used.")
+      }
+      public enum Keychain {
+        /// Location: KeychainError+UserFacingMessage.swift - Keychain delete failed - %lld is the OSStatus code
+        public static func deletionFailed(_ p1: Int) -> String {
+          return L10n.tr("Localizable", "error.keychain.deletionFailed", p1, fallback: "Failed to delete password (error %lld)")
+        }
+        /// Location: KeychainError+UserFacingMessage.swift - Encoding a password for keychain storage failed
+        public static let encodingFailed = L10n.tr("Localizable", "error.keychain.encodingFailed", fallback: "Failed to encode password")
+        /// Location: KeychainError+UserFacingMessage.swift - Keychain read failed - %lld is the OSStatus code
+        public static func retrievalFailed(_ p1: Int) -> String {
+          return L10n.tr("Localizable", "error.keychain.retrievalFailed", p1, fallback: "Failed to retrieve password (error %lld)")
+        }
+        /// Location: KeychainError+UserFacingMessage.swift - Keychain write failed - %lld is the OSStatus code
+        public static func storageFailed(_ p1: Int) -> String {
+          return L10n.tr("Localizable", "error.keychain.storageFailed", p1, fallback: "Failed to store password (error %lld)")
+        }
+      }
+      public enum MeshCore {
+        /// Location: MeshCoreError+UserFacingMessage.swift - Bluetooth radio is off
+        public static let bluetoothPoweredOff = L10n.tr("Localizable", "error.meshCore.bluetoothPoweredOff", fallback: "Bluetooth is turned off. Please enable Bluetooth to connect.")
+        /// Location: MeshCoreError+UserFacingMessage.swift - Bluetooth permission denied
+        public static let bluetoothUnauthorized = L10n.tr("Localizable", "error.meshCore.bluetoothUnauthorized", fallback: "Bluetooth permission is required. Please enable it in Settings.")
+        /// Location: MeshCoreError+UserFacingMessage.swift - Bluetooth hardware unavailable
+        public static let bluetoothUnavailable = L10n.tr("Localizable", "error.meshCore.bluetoothUnavailable", fallback: "Bluetooth is not available on this device.")
+        /// Location: MeshCoreError+UserFacingMessage.swift - A command failed on the device - %@ is the failure reason
+        public static func commandFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.meshCore.commandFailed", String(describing: p1), fallback: "Command failed: %@")
+        }
+        /// Location: MeshCoreError+UserFacingMessage.swift - Connection lost with detail - %@ is the underlying error message
+        public static func connectionLost(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.meshCore.connectionLost", String(describing: p1), fallback: "Connection to device was lost: %@")
+        }
+        /// Location: MeshCoreError+UserFacingMessage.swift - Connection lost without further detail
+        public static let connectionLostNoDetail = L10n.tr("Localizable", "error.meshCore.connectionLostNoDetail", fallback: "Connection to device was lost.")
+        /// Location: MeshCoreError+UserFacingMessage.swift - Contact missing from the radio
+        public static let contactNotFound = L10n.tr("Localizable", "error.meshCore.contactNotFound", fallback: "Contact not found on device.")
+        /// Location: MeshCoreError+UserFacingMessage.swift - Payload exceeds device limit - %1$lld is the actual size in bytes, %2$lld is the maximum
+        public static func dataTooLarge(_ p1: Int, _ p2: Int) -> String {
+          return L10n.tr("Localizable", "error.meshCore.dataTooLarge", p1, p2, fallback: "Data too large (%1$lld bytes, maximum is %2$lld).")
+        }
+        /// Location: MeshCoreError+UserFacingMessage.swift - Feature disabled in device firmware
+        public static let featureDisabled = L10n.tr("Localizable", "error.meshCore.featureDisabled", fallback: "This feature is disabled on the device.")
+        /// Location: MeshCoreError+UserFacingMessage.swift - Invalid input - %@ is the validation detail
+        public static func invalidInput(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.meshCore.invalidInput", String(describing: p1), fallback: "Invalid input: %@")
+        }
+        /// Location: MeshCoreError+UserFacingMessage.swift - Unexpected device response - %1$@ is the expected response, %2$@ is the received response
+        public static func invalidResponse(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Localizable", "error.meshCore.invalidResponse", String(describing: p1), String(describing: p2), fallback: "Unexpected response from device (expected %1$@, got %2$@).")
+        }
+        /// Location: MeshCoreError+UserFacingMessage.swift - No active connection to the radio
+        public static let notConnected = L10n.tr("Localizable", "error.meshCore.notConnected", fallback: "Not connected to device.")
+        /// Location: MeshCoreError+UserFacingMessage.swift - Device response could not be parsed - %@ is the parse failure detail
+        public static func parseError(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.meshCore.parseError", String(describing: p1), fallback: "Failed to parse device response: %@")
+        }
+        /// Location: MeshCoreError+UserFacingMessage.swift - Session not started
+        public static let sessionNotStarted = L10n.tr("Localizable", "error.meshCore.sessionNotStarted", fallback: "Session has not been started.")
+        /// Location: MeshCoreError+UserFacingMessage.swift - Cryptographic signing failed - %@ is the failure reason
+        public static func signingFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.meshCore.signingFailed", String(describing: p1), fallback: "Signing failed: %@")
+        }
+        /// Location: MeshCoreError+UserFacingMessage.swift - Session operation timed out
+        public static let timeout = L10n.tr("Localizable", "error.meshCore.timeout", fallback: "The operation timed out. Please try again.")
+        /// Location: MeshCoreError+UserFacingMessage.swift - Unknown error - %@ is the error detail
+        public static func unknown(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.meshCore.unknown", String(describing: p1), fallback: "An unknown error occurred: %@")
+        }
+      }
+      public enum MessagePolling {
+        /// Location: MessagePollingError+UserFacingMessage.swift - No active connection to the radio
+        public static let notConnected = L10n.tr("Localizable", "error.messagePolling.notConnected", fallback: "Not connected to device.")
+        /// Location: MessagePollingError+UserFacingMessage.swift - Fetching queued messages from the radio failed
+        public static let pollingFailed = L10n.tr("Localizable", "error.messagePolling.pollingFailed", fallback: "Message polling failed.")
+      }
+      public enum MessageService {
+        /// Location: MessageServiceError+UserFacingMessage.swift - Target channel missing from the database
+        public static let channelNotFound = L10n.tr("Localizable", "error.messageService.channelNotFound", fallback: "Channel not found.")
+        /// Location: MessageServiceError+UserFacingMessage.swift - Recipient contact missing from the database
+        public static let contactNotFound = L10n.tr("Localizable", "error.messageService.contactNotFound", fallback: "Contact not found.")
+        /// Location: MessageServiceError+UserFacingMessage.swift - Recipient cannot receive direct messages
+        public static let invalidRecipient = L10n.tr("Localizable", "error.messageService.invalidRecipient", fallback: "Cannot send messages to this recipient.")
+        /// Location: MessageServiceError+UserFacingMessage.swift - Message text exceeds the maximum length
+        public static let messageTooLong = L10n.tr("Localizable", "error.messageService.messageTooLong", fallback: "Message exceeds the maximum allowed length.")
+        /// Location: MessageServiceError+UserFacingMessage.swift - No active connection to the radio
+        public static let notConnected = L10n.tr("Localizable", "error.messageService.notConnected", fallback: "Not connected to device.")
+        /// Location: MessageServiceError+UserFacingMessage.swift - Message send failed - %@ is the failure reason
+        public static func sendFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.messageService.sendFailed", String(describing: p1), fallback: "Send failed: %@")
+        }
+      }
+      public enum Persistence {
+        /// Location: PersistenceStoreError+UserFacingMessage.swift - Channel row missing from the database
+        public static let channelNotFound = L10n.tr("Localizable", "error.persistence.channelNotFound", fallback: "Channel not found.")
+        /// Location: PersistenceStoreError+UserFacingMessage.swift - Contact row missing from the database
+        public static let contactNotFound = L10n.tr("Localizable", "error.persistence.contactNotFound", fallback: "Contact not found.")
+        /// Location: PersistenceStoreError+UserFacingMessage.swift - Device row missing from the database
+        public static let deviceNotFound = L10n.tr("Localizable", "error.persistence.deviceNotFound", fallback: "Device not found.")
+        /// Location: PersistenceStoreError+UserFacingMessage.swift - Database fetch failed - %@ is the failure reason
+        public static func fetchFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.persistence.fetchFailed", String(describing: p1), fallback: "Failed to fetch: %@")
+        }
+        /// Location: PersistenceStoreError+UserFacingMessage.swift - Stored data is malformed
+        public static let invalidData = L10n.tr("Localizable", "error.persistence.invalidData", fallback: "Invalid data.")
+        /// Location: PersistenceStoreError+UserFacingMessage.swift - Message row missing from the database
+        public static let messageNotFound = L10n.tr("Localizable", "error.persistence.messageNotFound", fallback: "Message not found.")
+        /// Location: PersistenceStoreError+UserFacingMessage.swift - Remote node session row missing from the database
+        public static let remoteNodeSessionNotFound = L10n.tr("Localizable", "error.persistence.remoteNodeSessionNotFound", fallback: "Remote node session not found.")
+        /// Location: PersistenceStoreError+UserFacingMessage.swift - Database save failed - %@ is the failure reason
+        public static func saveFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.persistence.saveFailed", String(describing: p1), fallback: "Failed to save: %@")
+        }
+      }
+      public enum RemoteNode {
+        /// Location: RemoteNodeError+UserFacingMessage.swift - Login attempt cancelled by a duplicate attempt or shutdown
+        public static let cancelled = L10n.tr("Localizable", "error.remoteNode.cancelled", fallback: "Login cancelled")
+        /// Location: RemoteNodeError+UserFacingMessage.swift - Remote node contact missing from the database
+        public static let contactNotFound = L10n.tr("Localizable", "error.remoteNode.contactNotFound", fallback: "Contact not found in database")
+        /// Location: RemoteNodeError+UserFacingMessage.swift - Keep-alive needs a direct path but the route is flood-routed
+        public static let floodRouted = L10n.tr("Localizable", "error.remoteNode.floodRouted", fallback: "Keep-alive requires direct routing path")
+        /// Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node
+        public static let invalidResponse = L10n.tr("Localizable", "error.remoteNode.invalidResponse", fallback: "Invalid response from remote node")
+        /// Location: RemoteNodeError+UserFacingMessage.swift - Remote node login failed - %@ is the failure reason
+        public static func loginFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.remoteNode.loginFailed", String(describing: p1), fallback: "Login failed: %@")
+        }
+        /// Location: RemoteNodeError+UserFacingMessage.swift - No active connection to the mesh radio
+        public static let notConnected = L10n.tr("Localizable", "error.remoteNode.notConnected", fallback: "Not connected to mesh device")
+        /// Location: RemoteNodeError+UserFacingMessage.swift - Saved password missing from the keychain
+        public static let passwordNotFound = L10n.tr("Localizable", "error.remoteNode.passwordNotFound", fallback: "Password not found in keychain")
+        /// Location: RemoteNodeError+UserFacingMessage.swift - Establishing a direct path to the node failed
+        public static let pathDiscoveryFailed = L10n.tr("Localizable", "error.remoteNode.pathDiscoveryFailed", fallback: "Failed to establish direct path")
+        /// Location: RemoteNodeError+UserFacingMessage.swift - Remote node rejected the operation
+        public static let permissionDenied = L10n.tr("Localizable", "error.remoteNode.permissionDenied", fallback: "Permission denied")
+        /// Location: RemoteNodeError+UserFacingMessage.swift - Sending to the remote node failed - %@ is the failure reason
+        public static func sendFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.remoteNode.sendFailed", String(describing: p1), fallback: "Failed to send: %@")
+        }
+        /// Location: RemoteNodeError+UserFacingMessage.swift - No stored session for the remote node
+        public static let sessionNotFound = L10n.tr("Localizable", "error.remoteNode.sessionNotFound", fallback: "Remote node session not found")
+        /// Location: RemoteNodeError+UserFacingMessage.swift - Remote node request timed out
+        public static let timeout = L10n.tr("Localizable", "error.remoteNode.timeout", fallback: "Request timed out")
+      }
+      public enum RoomServer {
+        /// Location: RoomServerError+UserFacingMessage.swift - Malformed device response during a room operation
+        public static let invalidResponse = L10n.tr("Localizable", "error.roomServer.invalidResponse", fallback: "Invalid response from device.")
+        /// Location: RoomServerError+UserFacingMessage.swift - No active connection to the radio
+        public static let notConnected = L10n.tr("Localizable", "error.roomServer.notConnected", fallback: "Not connected to device.")
+        /// Location: RoomServerError+UserFacingMessage.swift - Room server rejected the operation
+        public static let permissionDenied = L10n.tr("Localizable", "error.roomServer.permissionDenied", fallback: "Permission denied.")
+        /// Location: RoomServerError+UserFacingMessage.swift - Room message send failed - %@ is the failure reason
+        public static func sendFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.roomServer.sendFailed", String(describing: p1), fallback: "Send failed: %@")
+        }
+        /// Location: RoomServerError+UserFacingMessage.swift - No stored session for the room server
+        public static let sessionNotFound = L10n.tr("Localizable", "error.roomServer.sessionNotFound", fallback: "Room session not found.")
+      }
+      public enum Settings {
+        /// Location: SettingsServiceError+UserFacingMessage.swift - GPS write-back mismatch when GPS should be off
+        public static let gpsNotSavedExpectedOff = L10n.tr("Localizable", "error.settings.gpsNotSavedExpectedOff", fallback: "Device GPS setting was not saved. Expected 'Off' but device reports 'On'.")
+        /// Location: SettingsServiceError+UserFacingMessage.swift - GPS write-back mismatch when GPS should be on
+        public static let gpsNotSavedExpectedOn = L10n.tr("Localizable", "error.settings.gpsNotSavedExpectedOn", fallback: "Device GPS setting was not saved. Expected 'On' but device reports 'Off'.")
+        /// Location: SettingsServiceError+UserFacingMessage.swift - Malformed device response to a settings command
+        public static let invalidResponse = L10n.tr("Localizable", "error.settings.invalidResponse", fallback: "Invalid response from device")
+        /// Location: SettingsServiceError+UserFacingMessage.swift - No active connection to the radio
+        public static let notConnected = L10n.tr("Localizable", "error.settings.notConnected", fallback: "Device not connected")
+        /// Location: SettingsServiceError+UserFacingMessage.swift - Sending a settings command failed
+        public static let sendFailed = L10n.tr("Localizable", "error.settings.sendFailed", fallback: "Failed to send command")
+        /// Location: SettingsServiceError+UserFacingMessage.swift - Setting write-back mismatch - %1$@ is the expected value, %2$@ is the value the device reports
+        public static func verificationFailed(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Localizable", "error.settings.verificationFailed", String(describing: p1), String(describing: p2), fallback: "Setting was not saved. Expected '%1$@' but device reports '%2$@'.")
+        }
+      }
+      public enum SyncCoordinator {
+        /// Location: SyncCoordinatorError+UserFacingMessage.swift - A sync is already running
+        public static let alreadySyncing = L10n.tr("Localizable", "error.syncCoordinator.alreadySyncing", fallback: "A sync is already in progress.")
+        /// Location: SyncCoordinatorError+UserFacingMessage.swift - No active connection to the radio
+        public static let notConnected = L10n.tr("Localizable", "error.syncCoordinator.notConnected", fallback: "Not connected to device.")
+        /// Location: SyncCoordinatorError+UserFacingMessage.swift - Full sync failed - %@ is the failure reason
+        public static func syncFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.syncCoordinator.syncFailed", String(describing: p1), fallback: "Sync failed: %@")
+        }
+      }
+      public enum Timeout {
+        /// Location: TimeoutError+UserFacingMessage.swift - Generic timeout for async operations
+        public static let operationTimedOut = L10n.tr("Localizable", "error.timeout.operationTimedOut", fallback: "The operation timed out. Please try again.")
+      }
+      public enum Wifi {
+        /// Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection failed - %@ is the failure reason
+        public static func connectionFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.wifi.connectionFailed", String(describing: p1), fallback: "Connection failed: %@")
+        }
+        /// Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection attempt timed out
+        public static let connectionTimeout = L10n.tr("Localizable", "error.wifi.connectionTimeout", fallback: "Connection timed out. Check the IP address and ensure the device is on the same network.")
+        /// Location: WiFiTransportError+UserFacingMessage.swift - Configured IP address is invalid
+        public static let invalidHost = L10n.tr("Localizable", "error.wifi.invalidHost", fallback: "Invalid IP address.")
+        /// Location: WiFiTransportError+UserFacingMessage.swift - Configured port number is invalid
+        public static let invalidPort = L10n.tr("Localizable", "error.wifi.invalidPort", fallback: "Invalid port number.")
+        /// Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection info missing
+        public static let notConfigured = L10n.tr("Localizable", "error.wifi.notConfigured", fallback: "Connection not configured.")
+        /// Location: WiFiTransportError+UserFacingMessage.swift - No active WiFi connection
+        public static let notConnected = L10n.tr("Localizable", "error.wifi.notConnected", fallback: "Not connected to device.")
+        /// Location: WiFiTransportError+UserFacingMessage.swift - WiFi send failed - %@ is the failure reason
+        public static func sendFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "error.wifi.sendFailed", String(describing: p1), fallback: "Failed to send data: %@")
+        }
+        /// Location: WiFiTransportError+UserFacingMessage.swift - WiFi send timed out
+        public static let sendTimeout = L10n.tr("Localizable", "error.wifi.sendTimeout", fallback: "Send operation timed out.")
       }
     }
     public enum NodeType {
@@ -3971,9 +4353,29 @@ public enum L10n {
         public static func contactCoordinateInvalid(_ p1: Any, _ p2: Any) -> String {
           return L10n.tr("Settings", "configImport.error.contactCoordinateInvalid", String(describing: p1), String(describing: p2), fallback: "Contact \"%@\" %@ has an invalid or out-of-range coordinate")
         }
+        /// Validation error: channel secret wrong length (params: channel index, hex char count)
+        public static func invalidChannelSecret(_ p1: Int, _ p2: Int) -> String {
+          return L10n.tr("Settings", "configImport.error.invalidChannelSecret", p1, p2, fallback: "Channel %1$lld has invalid secret (%2$lld hex chars, expected 32)")
+        }
+        /// Validation error: contact public key malformed (param: contact name)
+        public static func invalidContactPublicKey(_ p1: Any) -> String {
+          return L10n.tr("Settings", "configImport.error.invalidContactPublicKey", String(describing: p1), fallback: "Contact \"%@\" has an invalid public key")
+        }
         /// Validation error: contact has an invalid routing path (param: contact name)
         public static func invalidOutPath(_ p1: Any) -> String {
           return L10n.tr("Settings", "configImport.error.invalidOutPath", String(describing: p1), fallback: "Contact \"%@\" has an invalid routing path")
+        }
+        /// Validation error: unsupported path hash mode (params: contact name, mode value)
+        public static func invalidPathHashMode(_ p1: Any, _ p2: Int) -> String {
+          return L10n.tr("Settings", "configImport.error.invalidPathHashMode", String(describing: p1), p2, fallback: "Contact \"%1$@\" has unsupported path hash mode %2$lld (expected 0, 1, or 2)")
+        }
+        /// Validation error: private key wrong length (params: hex char count, expected hex char count)
+        public static func invalidPrivateKey(_ p1: Int, _ p2: Int) -> String {
+          return L10n.tr("Settings", "configImport.error.invalidPrivateKey", p1, p2, fallback: "Invalid private key (%1$lld hex chars, expected %2$lld)")
+        }
+        /// Validation error: no empty channel slot left (param: channel name)
+        public static func noAvailableChannelSlot(_ p1: Any) -> String {
+          return L10n.tr("Settings", "configImport.error.noAvailableChannelSlot", String(describing: p1), fallback: "No empty channel slot available for \"%@\"")
         }
         /// Validation error: invalid coordinate (param: field label)
         public static func positionInvalid(_ p1: Any) -> String {

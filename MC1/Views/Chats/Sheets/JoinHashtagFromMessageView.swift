@@ -144,7 +144,7 @@ struct JoinHashtagFromMessageView: View {
             }
         } catch {
             logger.error("Failed to join channel: \(error)")
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         isJoining = false

@@ -124,7 +124,7 @@ struct JoinPrivateChannelView: View {
             }
             onComplete(joinedChannel)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 }
