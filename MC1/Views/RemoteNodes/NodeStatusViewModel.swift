@@ -74,8 +74,10 @@ final class NodeStatusViewModel {
 
     // MARK: - Dependencies
 
-    private var contactService: ContactService?
-    private(set) var nodeSnapshotService: NodeSnapshotService?
+    private var contactServiceProvider: @MainActor () -> ContactService? = { nil }
+    var contactService: ContactService? { contactServiceProvider() }
+    private var nodeSnapshotServiceProvider: @MainActor () -> NodeSnapshotService? = { nil }
+    var nodeSnapshotService: NodeSnapshotService? { nodeSnapshotServiceProvider() }
 
     // MARK: - Snapshot State
 
@@ -84,9 +86,12 @@ final class NodeStatusViewModel {
 
     // MARK: - Initialization
 
-    func configure(contactService: ContactService?, nodeSnapshotService: NodeSnapshotService?) {
-        self.contactService = contactService
-        self.nodeSnapshotService = nodeSnapshotService
+    func configure(
+        contactService: @escaping @MainActor () -> ContactService?,
+        nodeSnapshotService: @escaping @MainActor () -> NodeSnapshotService?
+    ) {
+        self.contactServiceProvider = contactService
+        self.nodeSnapshotServiceProvider = nodeSnapshotService
     }
 
     /// Configure for direct telemetry access (no login session).

@@ -81,23 +81,27 @@ final class ContactsViewModel {
 
     // MARK: - Dependencies
 
-    private var dataStore: DataStore?
-    private var contactService: ContactService?
-    private var advertisementService: AdvertisementService?
+    private var dataStoreProvider: @MainActor () -> DataStore? = { nil }
+    private var contactServiceProvider: @MainActor () -> ContactService? = { nil }
+    private var advertisementServiceProvider: @MainActor () -> AdvertisementService? = { nil }
+
+    private var dataStore: DataStore? { dataStoreProvider() }
+    private var contactService: ContactService? { contactServiceProvider() }
+    private var advertisementService: AdvertisementService? { advertisementServiceProvider() }
 
     // MARK: - Initialization
 
     init() {}
 
-    /// Configure with the services this view model uses; nil values mirror a disconnected state.
+    /// Configure with the services this view model uses; a provider returning nil mirrors a disconnected state.
     func configure(
-        dataStore: DataStore?,
-        contactService: ContactService?,
-        advertisementService: AdvertisementService? = nil
+        dataStore: @escaping @MainActor () -> DataStore?,
+        contactService: @escaping @MainActor () -> ContactService?,
+        advertisementService: @escaping @MainActor () -> AdvertisementService?
     ) {
-        self.dataStore = dataStore
-        self.contactService = contactService
-        self.advertisementService = advertisementService
+        dataStoreProvider = dataStore
+        contactServiceProvider = contactService
+        advertisementServiceProvider = advertisementService
     }
 
     // MARK: - Load Contacts

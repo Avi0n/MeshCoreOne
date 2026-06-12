@@ -105,8 +105,10 @@ struct ChatViewModelReloadSerializationTests {
         let last = contacts[11]
 
         let viewModel = ChatViewModel()
-        viewModel.currentRadioIDProvider = { radioID }
-        viewModel.dataStore = store
+        viewModel.configureForTesting(dependencies: .testDefaults(
+            dataStore: { store },
+            currentRadioID: { radioID }
+        ))
 
         let arrived = AsyncGate()
         let gate = AsyncGate()

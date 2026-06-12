@@ -40,11 +40,20 @@ final class ImportKeyViewModel {
         showingReplaceAlert = true
     }
 
+    // MARK: - Dependencies
+
+    private var settingsServiceProvider: @MainActor () -> SettingsService? = { nil }
+    var settingsService: SettingsService? { settingsServiceProvider() }
+
+    func configure(settingsService: @escaping @MainActor () -> SettingsService?) {
+        self.settingsServiceProvider = settingsService
+    }
+
     /// Returns true when the key was imported and the sheet should dismiss.
     /// A nil service mirrors a disconnected state and is a no-op.
-    func importKey(settingsService: SettingsService?) async -> Bool {
+    func importKey() async -> Bool {
         guard let keyData = validatedKeyData,
-              let settingsService else { return false }
+              let settingsService = settingsService else { return false }
 
         isImporting = true
         defer { isImporting = false }

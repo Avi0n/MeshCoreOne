@@ -167,8 +167,8 @@ struct LineOfSightView: View {
             .task {
                 appState.locationService.requestPermissionIfNeeded()
                 viewModel.configure(
-                    dataStore: appState.offlineDataStore,
-                    radioID: appState.currentRadioID,
+                    dataStore: { [appState] in appState.offlineDataStore },
+                    radioID: { [appState] in appState.currentRadioID },
                     deviceFrequencyKHz: appState.connectedDevice?.frequency
                 )
                 viewModel.showLabels = showLabels

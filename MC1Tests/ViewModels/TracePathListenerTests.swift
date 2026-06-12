@@ -52,7 +52,13 @@ struct TracePathListenerTests {
     func lateConnectDeliversResponses() async throws {
         var currentServices: ServiceContainer?
         let viewModel = TracePathViewModel()
-        viewModel.configure(advertisementService: { currentServices?.advertisementService })
+        viewModel.configure(dependencies: TracePathViewModel.Dependencies(
+            dataStore: { nil },
+            session: { nil },
+            advertisementService: { currentServices?.advertisementService },
+            connectedDevice: { nil },
+            bestAvailableLocation: { nil }
+        ))
 
         // Opened while disconnected: no services exist, so this subscribes to nothing.
         viewModel.startListening()
@@ -78,7 +84,13 @@ struct TracePathListenerTests {
         var currentServices: ServiceContainer? = oldServices
 
         let viewModel = TracePathViewModel()
-        viewModel.configure(advertisementService: { currentServices?.advertisementService })
+        viewModel.configure(dependencies: TracePathViewModel.Dependencies(
+            dataStore: { nil },
+            session: { nil },
+            advertisementService: { currentServices?.advertisementService },
+            connectedDevice: { nil },
+            bestAvailableLocation: { nil }
+        ))
         viewModel.startListening()
 
         // Transport loss: the old container finishes its event stream and a

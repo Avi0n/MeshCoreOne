@@ -43,10 +43,21 @@ final class CLIToolViewModel {
 
     // MARK: - Dependencies
 
-    var repeaterAdminService: RepeaterAdminService?
-    var remoteNodeService: RemoteNodeService?
-    var dataStore: PersistenceStoreProtocol?
-    var radioID: UUID?
+    private var repeaterAdminServiceProvider: @MainActor () -> RepeaterAdminService? = { nil }
+    private var remoteNodeServiceProvider: @MainActor () -> RemoteNodeService? = { nil }
+    private var dataStoreProvider: @MainActor () -> PersistenceStoreProtocol? = { nil }
+    private var radioIDProvider: @MainActor () -> UUID? = { nil }
+
+    // Both old and new providers read the same live state, so change detection
+    // needs the instance seen at the previous configure. Weak, so a torn-down
+    // container's deallocated service reads as a change.
+    private weak var lastConfiguredAdminService: RepeaterAdminService?
+
+    var repeaterAdminService: RepeaterAdminService? { repeaterAdminServiceProvider() }
+    var remoteNodeService: RemoteNodeService? { remoteNodeServiceProvider() }
+    var dataStore: PersistenceStoreProtocol? { dataStoreProvider() }
+    var radioID: UUID? { radioIDProvider() }
+
     var localDeviceName: String = ""
 
     // MARK: - Prompt
@@ -78,29 +89,30 @@ final class CLIToolViewModel {
     // MARK: - Setup
 
     func configure(
-        repeaterAdminService: RepeaterAdminService?,
-        remoteNodeService: RemoteNodeService?,
-        dataStore: PersistenceStoreProtocol?,
-        radioID: UUID?,
+        repeaterAdminService: @escaping @MainActor () -> RepeaterAdminService?,
+        remoteNodeService: @escaping @MainActor () -> RemoteNodeService?,
+        dataStore: @escaping @MainActor () -> PersistenceStoreProtocol?,
+        radioID: @escaping @MainActor () -> UUID?,
         localDeviceName: String
     ) {
         self.localDeviceName = localDeviceName
-        self.remoteNodeService = remoteNodeService
-        self.dataStore = dataStore
-        self.radioID = radioID
+        remoteNodeServiceProvider = remoteNodeService
+        dataStoreProvider = dataStore
+        radioIDProvider = radioID
 
-        // Only reset if service instance changed
-        if self.repeaterAdminService !== repeaterAdminService {
-            self.repeaterAdminService = repeaterAdminService
+        let incomingService = repeaterAdminService()
+        repeaterAdminServiceProvider = repeaterAdminService
 
-            if repeaterAdminService != nil && activeSession == nil {
+        if lastConfiguredAdminService !== incomingService {
+            if incomingService != nil && activeSession == nil {
                 activeSession = .local(deviceName: localDeviceName)
                 showWelcomeBanner()
-            } else if repeaterAdminService == nil {
+            } else if incomingService == nil {
                 activeSession = nil
                 remoteSessions.removeAll()
             }
         }
+        lastConfiguredAdminService = incomingService
 
         // Update node names for completion
         nodeNamesTask?.cancel()

@@ -79,7 +79,7 @@ struct MapViewModelFocusTests {
         try await dataStore.saveContact(Self.makeLocatedContact(radioID: radioID))
 
         let viewModel = MapViewModel()
-        viewModel.configure(dataStore: dataStore, radioID: radioID)
+        viewModel.configure(dataStore: { dataStore }, radioID: { radioID })
         viewModel.focusOnCoordinate(CLLocationCoordinate2D(latitude: 10, longitude: 20))
 
         await viewModel.loadContactsWithLocation()

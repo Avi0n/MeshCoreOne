@@ -11,7 +11,7 @@ struct DangerZoneSection: View {
     var body: some View {
         Section {
             Button(role: .destructive) {
-                Task { await viewModel.fetchUnfavoritedCount(connectionManager: appState.connectionManager) }
+                Task { await viewModel.fetchUnfavoritedCount() }
             } label: {
                 if viewModel.isRemovingUnfavorited {
                     HStack {
@@ -55,6 +55,13 @@ struct DangerZoneSection: View {
             Text(L10n.Settings.DangerZone.footer)
         }
         .themedRowBackground(theme)
+        .task {
+            viewModel.configure(
+                settingsService: { appState.services?.settingsService },
+                connectedDevice: { appState.connectedDevice },
+                connectionManager: appState.connectionManager
+            )
+        }
         .confirmationDialog(
             L10n.Settings.DangerZone.Dialog.Forget.title,
             isPresented: $viewModel.showingForgetConfirmation,
@@ -74,11 +81,7 @@ struct DangerZoneSection: View {
             Button(L10n.Localizable.Common.cancel, role: .cancel) { }
             Button(L10n.Settings.DangerZone.Alert.Reset.confirm, role: .destructive) {
                 Task {
-                    if await viewModel.factoryReset(
-                        settingsService: appState.services?.settingsService,
-                        deviceID: appState.connectedDevice?.id,
-                        connectionManager: appState.connectionManager
-                    ) {
+                    if await viewModel.factoryReset() {
                         dismiss()
                     }
                 }
@@ -92,7 +95,7 @@ struct DangerZoneSection: View {
         ) {
             Button(L10n.Localizable.Common.cancel, role: .cancel) { }
             Button(L10n.Settings.DangerZone.Alert.RemoveUnfavorited.confirm, role: .destructive) {
-                viewModel.removeUnfavoritedNodes(connectionManager: appState.connectionManager)
+                viewModel.removeUnfavoritedNodes()
             }
         } message: {
             Text(L10n.Settings.DangerZone.Alert.RemoveUnfavorited.message(viewModel.unfavoritedCount))
@@ -111,7 +114,7 @@ struct DangerZoneSection: View {
 
     private func forgetDevice(deleteData: Bool) {
         Task {
-            if await viewModel.forgetDevice(connectionManager: appState.connectionManager, deleteData: deleteData) {
+            if await viewModel.forgetDevice(deleteData: deleteData) {
                 dismiss()
             }
         }

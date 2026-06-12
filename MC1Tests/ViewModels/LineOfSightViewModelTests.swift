@@ -1112,7 +1112,7 @@ struct LoadRepeatersTests {
         await mockDataStore.addContact(roomWithLocation)
 
         let viewModel = LineOfSightViewModel(elevationService: mockService)
-        viewModel.configure(dataStore: mockDataStore, radioID: radioID)
+        viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID })
 
         await viewModel.loadRepeaters()
 
@@ -1146,7 +1146,7 @@ struct LoadRepeatersTests {
         await mockDataStore.addContact(repeater2)
 
         let viewModel = LineOfSightViewModel(elevationService: mockService)
-        viewModel.configure(dataStore: mockDataStore, radioID: radioID)
+        viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID })
 
         await viewModel.loadRepeaters()
 
@@ -1192,7 +1192,7 @@ struct LoadRepeatersTests {
         await mockDataStore.addContact(repeaterDevice2)
 
         let viewModel = LineOfSightViewModel(elevationService: mockService)
-        viewModel.configure(dataStore: mockDataStore, radioID: radioID1)
+        viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID1 })
 
         await viewModel.loadRepeaters()
 

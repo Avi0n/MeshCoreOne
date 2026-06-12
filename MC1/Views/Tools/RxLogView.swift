@@ -27,12 +27,16 @@ struct RxLogView: View {
             toolbarContent
         }
         .task(id: appState.servicesVersion) {
-            guard let service = appState.services?.rxLogService else { return }
-            await viewModel.subscribe(to: service)
-            await loadNodeNames()
+            viewModel.configure(
+                rxLogService: { [appState] in appState.services?.rxLogService },
+                dataStore: { [appState] in appState.services?.dataStore },
+                radioID: { [appState] in appState.currentRadioID }
+            )
+            await viewModel.subscribe()
+            await viewModel.loadNodeNames()
         }
         .onChange(of: appState.contactsVersion) {
-            Task { await loadNodeNames() }
+            Task { await viewModel.loadNodeNames() }
         }
         .onDisappear {
             viewModel.unsubscribe()
@@ -233,12 +237,6 @@ struct RxLogView: View {
             await viewModel.clearLog()
         }
         expandedHashes.removeAll()
-    }
-
-    private func loadNodeNames() async {
-        guard let dataStore = appState.services?.dataStore,
-              let deviceID = appState.currentRadioID else { return }
-        await viewModel.loadNodeNames(from: dataStore, radioID: deviceID)
     }
 }
 

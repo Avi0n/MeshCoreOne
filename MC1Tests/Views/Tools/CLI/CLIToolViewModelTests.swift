@@ -13,10 +13,10 @@ struct CLIToolViewModelTests {
     private func createConfiguredViewModel() -> CLIToolViewModel {
         let viewModel = CLIToolViewModel()
         viewModel.configure(
-            repeaterAdminService: nil,
-            remoteNodeService: nil,
-            dataStore: nil,
-            radioID: nil,
+            repeaterAdminService: { nil },
+            remoteNodeService: { nil },
+            dataStore: { nil },
+            radioID: { nil },
             localDeviceName: "TestDevice"
         )
         return viewModel
@@ -28,10 +28,10 @@ struct CLIToolViewModelTests {
     func promptShowsDisconnectedWhenNoSession() {
         let viewModel = createConfiguredViewModel()
         viewModel.configure(
-            repeaterAdminService: nil,
-            remoteNodeService: nil,
-            dataStore: nil,
-            radioID: nil,
+            repeaterAdminService: { nil },
+            remoteNodeService: { nil },
+            dataStore: { nil },
+            radioID: { nil },
             localDeviceName: "Test"
         )
         #expect(viewModel.promptText.contains("disconnected"))
@@ -43,10 +43,10 @@ struct CLIToolViewModelTests {
 
         // Configure the view model
         viewModel.configure(
-            repeaterAdminService: nil,
-            remoteNodeService: nil,
-            dataStore: nil,
-            radioID: nil,
+            repeaterAdminService: { nil },
+            remoteNodeService: { nil },
+            dataStore: { nil },
+            radioID: { nil },
             localDeviceName: "TestDevice"
         )
 

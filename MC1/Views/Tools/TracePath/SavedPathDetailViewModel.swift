@@ -52,7 +52,7 @@ final class SavedPathDetailViewModel {
 
     /// The provider is read live at its point of use; a provider returning
     /// `nil` mirrors a disconnected state, so unconfigured calls are no-ops.
-    func configure(dataStore: @escaping @MainActor () -> PersistenceStore? = { nil }) {
+    func configure(dataStore: @escaping @MainActor () -> PersistenceStore?) {
         dataStoreProvider = dataStore
     }
 

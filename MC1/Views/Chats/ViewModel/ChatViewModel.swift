@@ -303,24 +303,63 @@ final class ChatViewModel {
 
     // MARK: - Dependencies
 
-    var dataStore: DataStore?
-    var linkPreviewCache: (any LinkPreviewCaching)?
-    var messageService: MessageService?
-    var notificationService: NotificationService?
-    private var channelService: ChannelService?
-    private var roomServerService: RoomServerService?
-    var contactService: ContactService?
-    var syncCoordinator: SyncCoordinator?
+    /// Groups all provider closures for the `configure` call. Provider closures
+    /// are re-evaluated at every use so a disconnect (or a reconnect's fresh
+    /// per-connection services) is picked up live; a nil read means disconnected.
+    struct Dependencies {
+        var dataStore: @MainActor () -> DataStore?
+        var messageService: @MainActor () -> MessageService?
+        var notificationService: @MainActor () -> NotificationService?
+        var channelService: @MainActor () -> ChannelService?
+        var roomServerService: @MainActor () -> RoomServerService?
+        var contactService: @MainActor () -> ContactService?
+        var syncCoordinator: @MainActor () -> SyncCoordinator?
+        var connectionState: @MainActor () -> DeviceConnectionState
+        var connectedDevice: @MainActor () -> DeviceDTO?
+        var currentRadioID: @MainActor () -> UUID?
+        var session: @MainActor () -> MeshCoreSession?
+        var reactionService: @MainActor () -> ReactionService?
+        var chatSendQueueService: @MainActor () -> ChatSendQueueService?
+        var inlineImageDimensionsStore: @MainActor () -> InlineImageDimensionsStore?
+        var prefetchDataStore: @MainActor () -> (any PersistenceStoreProtocol)?
+    }
 
-    // Provider closures are re-evaluated at every use so a disconnect (or a
-    // reconnect's fresh per-connection services) is picked up live; the
-    // defaults mirror a disconnected state.
+    @ObservationIgnored private var dataStoreProvider: @MainActor () -> DataStore? = { nil }
+    var dataStore: DataStore? { dataStoreProvider() }
+
+    @ObservationIgnored private var messageServiceProvider: @MainActor () -> MessageService? = { nil }
+    var messageService: MessageService? { messageServiceProvider() }
+
+    @ObservationIgnored private var notificationServiceProvider: @MainActor () -> NotificationService? = { nil }
+    var notificationService: NotificationService? { notificationServiceProvider() }
+
+    @ObservationIgnored private var channelServiceProvider: @MainActor () -> ChannelService? = { nil }
+    private var channelService: ChannelService? { channelServiceProvider() }
+
+    @ObservationIgnored private var roomServerServiceProvider: @MainActor () -> RoomServerService? = { nil }
+    private var roomServerService: RoomServerService? { roomServerServiceProvider() }
+
+    @ObservationIgnored private var contactServiceProvider: @MainActor () -> ContactService? = { nil }
+    var contactService: ContactService? { contactServiceProvider() }
+
+    @ObservationIgnored private var syncCoordinatorProvider: @MainActor () -> SyncCoordinator? = { nil }
+    var syncCoordinator: SyncCoordinator? { syncCoordinatorProvider() }
+
     @ObservationIgnored var connectionStateProvider: @MainActor () -> DeviceConnectionState = { .disconnected }
     @ObservationIgnored var connectedDeviceProvider: @MainActor () -> DeviceDTO? = { nil }
     @ObservationIgnored var currentRadioIDProvider: @MainActor () -> UUID? = { nil }
     @ObservationIgnored var sessionProvider: @MainActor () -> MeshCoreSession? = { nil }
     @ObservationIgnored var reactionServiceProvider: @MainActor () -> ReactionService? = { nil }
     @ObservationIgnored var chatSendQueueServiceProvider: @MainActor () -> ChatSendQueueService? = { nil }
+
+    @ObservationIgnored private var inlineImageDimensionsStoreProvider: @MainActor () -> InlineImageDimensionsStore? = { nil }
+    var inlineImageDimensionsStore: InlineImageDimensionsStore? { inlineImageDimensionsStoreProvider() }
+
+    @ObservationIgnored private var prefetchDataStoreProvider: @MainActor () -> (any PersistenceStoreProtocol)? = { nil }
+
+    /// App-lifetime cache for link previews. Passed directly from the environment;
+    /// held for the screen's lifetime and used in `fetchPreview` and `manualFetchPreview`.
+    @ObservationIgnored var linkPreviewCache: (any LinkPreviewCaching)?
 
     /// Navigation sink for map-thumbnail taps; nil makes the tap a no-op
     /// (the always-present text link remains the baseline).
@@ -331,11 +370,6 @@ final class ChatViewModel {
     /// paint. Constructed in `configure(...)` when services are available;
     /// nil while disconnected (offline browse never receives new messages).
     @ObservationIgnored var prefetcher: InlineImagePrefetcher?
-
-    /// Backing dimensions store for the prefetcher's image probes. Held so
-    /// the subscription task can read the resolution stream without a
-    /// services round-trip on every emission.
-    @ObservationIgnored var inlineImageDimensionsStore: InlineImageDimensionsStore?
 
     /// Long-running subscription to `InlineImageDimensionsStore.resolutionStream`.
     /// On each emitted URL, every message whose body contains that URL is
@@ -365,54 +399,40 @@ final class ChatViewModel {
         onNavigateToMap?(coordinate)
     }
 
-    /// Configure with the narrow dependencies the chat surfaces use. Nil
-    /// snapshot values and the default providers mirror a disconnected state.
-    /// Conversation views pass `linkPreviewCache` (with the prefetch inputs),
-    /// `chatCoordinatorRegistry`, and `conversation` so the per-conversation
-    /// `ChatCoordinator` is bound before the first view body evaluates;
-    /// list views omit them.
+    /// Configure the chat view model for a conversation list or a specific conversation.
+    /// Conversation views also pass `linkPreviewCache`, `chatCoordinatorRegistry`, and
+    /// `conversation` so the per-conversation `ChatCoordinator` is bound before the
+    /// first view body evaluates; list views omit them.
     func configure(
-        dataStore: DataStore?,
-        messageService: MessageService?,
-        notificationService: NotificationService?,
-        channelService: ChannelService?,
-        roomServerService: RoomServerService?,
-        contactService: ContactService?,
-        syncCoordinator: SyncCoordinator?,
-        connectionState: @escaping @MainActor () -> DeviceConnectionState = { .disconnected },
-        connectedDevice: @escaping @MainActor () -> DeviceDTO? = { nil },
-        currentRadioID: @escaping @MainActor () -> UUID? = { nil },
-        session: @escaping @MainActor () -> MeshCoreSession? = { nil },
-        reactionService: @escaping @MainActor () -> ReactionService? = { nil },
-        chatSendQueueService: @escaping @MainActor () -> ChatSendQueueService? = { nil },
-        onNavigateToMap: ((CLLocationCoordinate2D) -> Void)? = nil,
-        linkPreviewCache: (any LinkPreviewCaching)? = nil,
-        inlineImageDimensionsStore: InlineImageDimensionsStore? = nil,
-        prefetchDataStore: (any PersistenceStoreProtocol)? = nil,
-        chatCoordinatorRegistry: ChatCoordinatorRegistry? = nil,
-        conversation: ChatConversationType? = nil
+        dependencies: Dependencies,
+        onNavigateToMap: ((CLLocationCoordinate2D) -> Void)?,
+        linkPreviewCache: (any LinkPreviewCaching)?,
+        chatCoordinatorRegistry: ChatCoordinatorRegistry?,
+        conversation: ChatConversationType?
     ) {
-        self.dataStore = dataStore
-        self.messageService = messageService
-        self.notificationService = notificationService
-        self.channelService = channelService
-        self.roomServerService = roomServerService
-        self.contactService = contactService
-        self.syncCoordinator = syncCoordinator
-        self.connectionStateProvider = connectionState
-        self.connectedDeviceProvider = connectedDevice
-        self.currentRadioIDProvider = currentRadioID
-        self.sessionProvider = session
-        self.reactionServiceProvider = reactionService
-        self.chatSendQueueServiceProvider = chatSendQueueService
+        self.dataStoreProvider = dependencies.dataStore
+        self.messageServiceProvider = dependencies.messageService
+        self.notificationServiceProvider = dependencies.notificationService
+        self.channelServiceProvider = dependencies.channelService
+        self.roomServerServiceProvider = dependencies.roomServerService
+        self.contactServiceProvider = dependencies.contactService
+        self.syncCoordinatorProvider = dependencies.syncCoordinator
+        self.connectionStateProvider = dependencies.connectionState
+        self.connectedDeviceProvider = dependencies.connectedDevice
+        self.currentRadioIDProvider = dependencies.currentRadioID
+        self.sessionProvider = dependencies.session
+        self.reactionServiceProvider = dependencies.reactionService
+        self.chatSendQueueServiceProvider = dependencies.chatSendQueueService
+        self.inlineImageDimensionsStoreProvider = dependencies.inlineImageDimensionsStore
+        self.prefetchDataStoreProvider = dependencies.prefetchDataStore
         self.onNavigateToMap = onNavigateToMap
         self.lastSetRegionScope = .unknown
         if let linkPreviewCache {
             self.linkPreviewCache = linkPreviewCache
             configurePrefetcher(
                 linkPreviewCache: linkPreviewCache,
-                dimensionsStore: inlineImageDimensionsStore,
-                prefetchDataStore: prefetchDataStore
+                dimensionsStore: inlineImageDimensionsStoreProvider(),
+                prefetchDataStore: prefetchDataStoreProvider()
             )
         }
         bindCoordinator(registry: chatCoordinatorRegistry, conversation: conversation)
@@ -473,12 +493,10 @@ final class ChatViewModel {
 
         guard let dimensionsStore, let prefetchDataStore else {
             prefetcher = nil
-            inlineImageDimensionsStore = nil
             dimensionResolutionTask?.cancel()
             dimensionResolutionTask = nil
             return
         }
-        inlineImageDimensionsStore = dimensionsStore
         prefetcher = InlineImagePrefetcher(
             imageCache: InlineImageCache.shared,
             linkPreviewCache: linkPreviewCache,

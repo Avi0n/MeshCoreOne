@@ -43,13 +43,11 @@ struct RepeaterStatusView: View {
             }
             .task {
                 viewModel.configure(
-                    repeaterAdminService: appState.services?.repeaterAdminService,
-                    contactService: appState.services?.contactService,
-                    nodeSnapshotService: appState.services?.nodeSnapshotService
+                    repeaterAdminService: { appState.services?.repeaterAdminService },
+                    contactService: { appState.services?.contactService },
+                    nodeSnapshotService: { appState.services?.nodeSnapshotService }
                 )
-                await viewModel.registerHandlers(
-                    repeaterAdminService: appState.services?.repeaterAdminService
-                )
+                await viewModel.registerHandlers()
 
                 // Pre-load OCV settings and contacts for neighbor matching
                 if let radioID = appState.connectedDevice?.radioID {
@@ -63,7 +61,7 @@ struct RepeaterStatusView: View {
         }
         .onDisappear {
             viewModel.stopDiscovery()
-            Task { await viewModel.cleanup(repeaterAdminService: appState.services?.repeaterAdminService) }
+            Task { await viewModel.cleanup() }
         }
         .presentationDetents([.large])
     }

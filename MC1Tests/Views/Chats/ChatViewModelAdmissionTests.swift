@@ -23,7 +23,7 @@ struct ChatViewModelAdmissionTests {
         let imageCache = SlowImageProber(delay: .milliseconds(50))
         let linkCache = SlowLinkPreviewFetcher(delay: .milliseconds(50))
         let store = makeStore()
-        viewModel.inlineImageDimensionsStore = store
+        bind(store, to: viewModel)
         viewModel.prefetcher = InlineImagePrefetcher(
             imageCache: imageCache,
             linkPreviewCache: linkCache,
@@ -49,7 +49,7 @@ struct ChatViewModelAdmissionTests {
         let imageCache = SlowImageProber(delay: .milliseconds(50))
         let linkCache = SlowLinkPreviewFetcher(delay: .milliseconds(50))
         let store = makeStore()
-        viewModel.inlineImageDimensionsStore = store
+        bind(store, to: viewModel)
         viewModel.prefetcher = InlineImagePrefetcher(
             imageCache: imageCache,
             linkPreviewCache: linkCache,
@@ -91,7 +91,7 @@ struct ChatViewModelAdmissionTests {
         viewModel.cachedURLs[message.id] = url
 
         let store = InlineImageDimensionsStore(fileURL: Self.makeTempDimensionsURL())
-        viewModel.inlineImageDimensionsStore = store
+        bind(store, to: viewModel)
         await store.save(url: url, size: CGSize(width: 200, height: 100))
 
         await viewModel.handleDimensionResolution(url)
@@ -122,7 +122,7 @@ struct ChatViewModelAdmissionTests {
         let imageCache = SlowImageProber(delay: .seconds(5))
         let linkCache = SlowLinkPreviewFetcher(delay: .seconds(5))
         let store = makeStore()
-        viewModel.inlineImageDimensionsStore = store
+        bind(store, to: viewModel)
         viewModel.prefetcher = InlineImagePrefetcher(
             imageCache: imageCache,
             linkPreviewCache: linkCache,
@@ -152,7 +152,7 @@ struct ChatViewModelAdmissionTests {
         let imageCache = SlowImageProber(delay: .milliseconds(5))
         let linkCache = SlowLinkPreviewFetcher(delay: .milliseconds(5))
         let store = makeStore()
-        viewModel.inlineImageDimensionsStore = store
+        bind(store, to: viewModel)
         viewModel.prefetcher = InlineImagePrefetcher(
             imageCache: imageCache,
             linkPreviewCache: linkCache,
@@ -177,7 +177,7 @@ struct ChatViewModelAdmissionTests {
         let imageCache = SlowImageProber(delay: .milliseconds(10))
         let linkCache = SlowLinkPreviewFetcher(delay: .milliseconds(10))
         let store = makeStore()
-        viewModel.inlineImageDimensionsStore = store
+        bind(store, to: viewModel)
         viewModel.prefetcher = InlineImagePrefetcher(
             imageCache: imageCache,
             linkPreviewCache: linkCache,
@@ -214,6 +214,14 @@ struct ChatViewModelAdmissionTests {
 
     private func makeStore() -> InlineImageDimensionsStore {
         InlineImageDimensionsStore(fileURL: Self.makeTempDimensionsURL())
+    }
+
+    /// Installs the store through `configure` so the provider-backed
+    /// `inlineImageDimensionsStore` property serves it, matching production wiring.
+    private func bind(_ store: InlineImageDimensionsStore, to viewModel: ChatViewModel) {
+        viewModel.configureForTesting(
+            dependencies: .testDefaults(inlineImageDimensionsStore: { store })
+        )
     }
 
     private func makeMessage(

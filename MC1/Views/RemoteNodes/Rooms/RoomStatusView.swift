@@ -38,13 +38,11 @@ struct RoomStatusView: View {
             }
             .task {
                 viewModel.configure(
-                    roomAdminService: appState.services?.roomAdminService,
-                    contactService: appState.services?.contactService,
-                    nodeSnapshotService: appState.services?.nodeSnapshotService
+                    roomAdminService: { appState.services?.roomAdminService },
+                    contactService: { appState.services?.contactService },
+                    nodeSnapshotService: { appState.services?.nodeSnapshotService }
                 )
-                await viewModel.registerHandlers(
-                    roomAdminService: appState.services?.roomAdminService
-                )
+                await viewModel.registerHandlers()
 
                 // Pre-load OCV settings
                 if let radioID = appState.connectedDevice?.radioID {
@@ -53,7 +51,7 @@ struct RoomStatusView: View {
             }
         }
         .onDisappear {
-            Task { await viewModel.cleanup(roomAdminService: appState.services?.roomAdminService) }
+            Task { await viewModel.cleanup() }
         }
         .presentationDetents([.large])
     }

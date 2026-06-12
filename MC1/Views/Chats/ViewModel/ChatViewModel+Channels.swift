@@ -192,6 +192,10 @@ extension ChatViewModel {
         errorMessage = nil
         errorBannerMessage = nil
 
+        // Capture once so the three status-update writes below all target the
+        // same container even if a reconnect fires between the awaits.
+        let dataStore = self.dataStore
+
         // Release any prior queue ownership before enqueuing a fresh
         // envelope. Channel sends never reach `.delivered` (no end-to-end
         // ACK), so the `.delivered` clobber risk that motivates the DM

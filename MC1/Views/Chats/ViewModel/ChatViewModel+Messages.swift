@@ -10,6 +10,10 @@ extension ChatViewModel {
         guard connectionStateProvider() == .ready else { return }
         let originalLevel = conversation.notificationLevel
 
+        // Capture once so the write and the badge update target the same container.
+        let dataStore = self.dataStore
+        let notificationService = self.notificationService
+
         // Optimistic UI update
         updateConversationNotificationLevel(conversation, level: level)
 

@@ -42,7 +42,33 @@ final class RxLogViewModel {
     private(set) var nodeNames: [Data: String] = [:]
 
     private var streamTask: Task<Void, Never>?
-    private var rxLogService: RxLogService?
+
+    // MARK: - Dependencies
+
+    private var rxLogServiceProvider: @MainActor () -> RxLogService? = { nil }
+    private var dataStoreProvider: @MainActor () -> (any PersistenceStoreProtocol)? = { nil }
+    private var radioIDProvider: @MainActor () -> UUID? = { nil }
+
+    private var rxLogService: RxLogService? { rxLogServiceProvider() }
+    private var dataStore: (any PersistenceStoreProtocol)? { dataStoreProvider() }
+    private var radioID: UUID? { radioIDProvider() }
+
+    // The provider reads live state, so change detection needs the instance
+    // seen at the previous subscribe. Weak, so a torn-down container's
+    // deallocated service reads as a change.
+    private weak var subscribedService: RxLogService?
+
+    /// Each provider is read live at its point of use; a provider returning
+    /// nil mirrors a disconnected state, so unconfigured calls are no-ops.
+    func configure(
+        rxLogService: @escaping @MainActor () -> RxLogService?,
+        dataStore: @escaping @MainActor () -> (any PersistenceStoreProtocol)?,
+        radioID: @escaping @MainActor () -> UUID?
+    ) {
+        rxLogServiceProvider = rxLogService
+        dataStoreProvider = dataStore
+        radioIDProvider = radioID
+    }
 
     func setRouteFilter(_ filter: RouteFilter) {
         routeFilter = filter
@@ -80,19 +106,21 @@ final class RxLogViewModel {
         }
     }
 
-    /// Subscribe to RxLogService for updates while view is visible.
-    func subscribe(to service: RxLogService) async {
+    /// Subscribe to the live RxLogService for updates while view is visible.
+    func subscribe() async {
         // Cancel any existing stream task so a re-subscribe (a `.task(id:)` re-fire
         // against the same service) can't leave two streams appending each packet twice.
         unsubscribe()
 
+        guard let service = rxLogService else { return }
+
         // If service changed, reset state
-        if rxLogService !== service {
+        if subscribedService !== service {
             entries.removeAll()
             groupCounts.removeAll()
         }
+        subscribedService = service
 
-        rxLogService = service
         entries = await service.loadExistingEntries()
         rebuildGroupCounts()
 
@@ -141,8 +169,10 @@ final class RxLogViewModel {
 
     // MARK: - Node Name Resolution
 
-    /// Load contact names for path hop resolution.
-    func loadNodeNames(from dataStore: some PersistenceStoreProtocol, radioID: UUID) async {
+    /// Load contact names for path hop resolution. Leaves `nodeNames`
+    /// unchanged while disconnected.
+    func loadNodeNames() async {
+        guard let dataStore, let radioID else { return }
         do {
             let contacts = try await dataStore.fetchContacts(radioID: radioID)
             nodeNames = Self.buildNodeNameMap(from: contacts)

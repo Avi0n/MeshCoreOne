@@ -139,9 +139,9 @@ struct ContactsSidebarContent: View {
         .task {
             sidebarLogger.info("NodesListView: task started, services=\(appState.services != nil)")
             viewModel.configure(
-                dataStore: appState.offlineDataStore,
-                contactService: appState.services?.contactService,
-                advertisementService: appState.services?.advertisementService
+                dataStore: { [appState] in appState.offlineDataStore },
+                contactService: { [appState] in appState.services?.contactService },
+                advertisementService: { [appState] in appState.services?.advertisementService }
             )
             await onLoadContacts()
             sidebarLogger.info("NodesListView: loaded, contacts=\(viewModel.contacts.count)")

@@ -51,7 +51,7 @@ struct RoomSettingsView: View {
         }
         .task {
             await viewModel.configure(
-                roomAdminService: appState.services?.roomAdminService,
+                roomAdminService: { appState.services?.roomAdminService },
                 session: session
             )
             if let send = viewModel.makeNodeCLISendClosure(session: session) {
@@ -67,14 +67,12 @@ struct RoomSettingsView: View {
             // because a segment switch recreates only the content subtree, so this must not
             // re-run or duplicate handler registration.
             statusViewModel.configure(
-                roomAdminService: appState.services?.roomAdminService,
-                contactService: appState.services?.contactService,
-                nodeSnapshotService: appState.services?.nodeSnapshotService
+                roomAdminService: { appState.services?.roomAdminService },
+                contactService: { appState.services?.contactService },
+                nodeSnapshotService: { appState.services?.nodeSnapshotService }
             )
             Task {
-                await statusViewModel.registerHandlers(
-                    roomAdminService: appState.services?.roomAdminService
-                )
+                await statusViewModel.registerHandlers()
                 if let radioID = appState.connectedDevice?.radioID {
                     await statusViewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
                 }
@@ -82,9 +80,7 @@ struct RoomSettingsView: View {
         }
         .onDisappear {
             Task {
-                await statusViewModel.clearStatusHandlers(
-                    roomAdminService: appState.services?.roomAdminService
-                )
+                await statusViewModel.clearStatusHandlers()
                 await viewModel.cleanup()
             }
         }

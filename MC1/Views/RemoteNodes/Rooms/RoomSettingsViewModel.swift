@@ -57,7 +57,8 @@ final class RoomSettingsViewModel {
 
     // MARK: - Dependencies
 
-    private var roomAdminService: RoomAdminService?
+    private var roomAdminServiceProvider: @MainActor () -> RoomAdminService? = { nil }
+    var roomAdminService: RoomAdminService? { roomAdminServiceProvider() }
     private let logger = Logger(subsystem: "com.mc1", category: "RoomSettings")
 
     // MARK: - Cleanup
@@ -70,10 +71,10 @@ final class RoomSettingsViewModel {
     // MARK: - Configuration
 
     /// Nil service mirrors a disconnected state; commands then no-op.
-    func configure(roomAdminService: RoomAdminService?, session: RemoteNodeSessionDTO) async {
-        self.roomAdminService = roomAdminService
+    func configure(roomAdminService: @escaping @MainActor () -> RoomAdminService?, session: RemoteNodeSessionDTO) async {
+        self.roomAdminServiceProvider = roomAdminService
 
-        guard let roomAdminService else { return }
+        guard let roomAdminService = roomAdminService() else { return }
 
         helper.configure(
             session: session,

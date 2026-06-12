@@ -82,7 +82,7 @@ struct RepeaterStatusViewModelTests {
         let session = createTestSession()
 
         let viewModel = RepeaterStatusViewModel()
-        viewModel.helper.configure(contactService: nil, nodeSnapshotService: service)
+        viewModel.helper.configure(contactService: { nil }, nodeSnapshotService: { service })
         viewModel.helper.session = session
 
         // Visit 1: First status response — snapshot saved (not throttled)
@@ -120,7 +120,7 @@ struct RepeaterStatusViewModelTests {
         let session = createTestSession()
 
         let viewModel = RepeaterStatusViewModel()
-        viewModel.helper.configure(contactService: nil, nodeSnapshotService: service)
+        viewModel.helper.configure(contactService: { nil }, nodeSnapshotService: { service })
         viewModel.helper.session = session
 
         #expect(viewModel.helper.statusLoaded == false, "Status should start unloaded")
@@ -144,7 +144,7 @@ struct RepeaterStatusViewModelTests {
         let session = createTestSession()
 
         let viewModel = RepeaterStatusViewModel()
-        viewModel.helper.configure(contactService: nil, nodeSnapshotService: service)
+        viewModel.helper.configure(contactService: { nil }, nodeSnapshotService: { service })
         viewModel.helper.session = session
 
         // No status response applied, so no snapshot exists yet.
@@ -168,7 +168,7 @@ struct RepeaterStatusViewModelTests {
         let session = createTestSession()
 
         let viewModel = RepeaterStatusViewModel()
-        viewModel.helper.configure(contactService: nil, nodeSnapshotService: service)
+        viewModel.helper.configure(contactService: { nil }, nodeSnapshotService: { service })
         viewModel.helper.session = session
 
         let before = await viewModel.helper.fetchHistory()
@@ -191,7 +191,7 @@ struct RepeaterStatusViewModelTests {
         let session = createTestSession()
 
         let viewModel = RepeaterStatusViewModel()
-        viewModel.helper.configure(contactService: nil, nodeSnapshotService: service)
+        viewModel.helper.configure(contactService: { nil }, nodeSnapshotService: { service })
         viewModel.helper.session = session
 
         // Telemetry expanded before status: a telemetry-only snapshot is created

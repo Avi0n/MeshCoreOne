@@ -14,19 +14,20 @@ final class NodeTelemetryViewModel {
 
     // MARK: - Dependencies
 
-    private var binaryProtocolService: BinaryProtocolService?
+    private var binaryProtocolServiceProvider: @MainActor () -> BinaryProtocolService? = { nil }
+    var binaryProtocolService: BinaryProtocolService? { binaryProtocolServiceProvider() }
     private var publicKey: Data?
 
     // MARK: - Initialization
 
     /// Nil services mirror a disconnected state; requests then no-op.
     func configure(
-        binaryProtocolService: BinaryProtocolService?,
-        contactService: ContactService?,
-        nodeSnapshotService: NodeSnapshotService?,
+        binaryProtocolService: @escaping @MainActor () -> BinaryProtocolService?,
+        contactService: @escaping @MainActor () -> ContactService?,
+        nodeSnapshotService: @escaping @MainActor () -> NodeSnapshotService?,
         contact: ContactDTO
     ) {
-        self.binaryProtocolService = binaryProtocolService
+        self.binaryProtocolServiceProvider = binaryProtocolService
         self.publicKey = contact.publicKey
         helper.configure(
             contactService: contactService,
@@ -38,7 +39,7 @@ final class NodeTelemetryViewModel {
     // MARK: - Telemetry
 
     func requestTelemetry() async {
-        guard let binaryProtocolService, let publicKey else { return }
+        guard let binaryProtocolService = binaryProtocolService, let publicKey else { return }
 
         await helper.runRetryingSectionRequest(
             operationName: "telemetry",

@@ -58,26 +58,33 @@ struct RoomConversationView: View {
             }
             .task {
                 viewModel.configure(
-                    roomServerService: appState.services?.roomServerService,
-                    dataStore: appState.services?.dataStore,
-                    syncCoordinator: appState.syncCoordinator,
-                    notificationService: appState.services?.notificationService
+                    roomServerService: { appState.services?.roomServerService },
+                    dataStore: { appState.services?.dataStore },
+                    syncCoordinator: { appState.syncCoordinator },
+                    notificationService: { appState.services?.notificationService }
                 )
                 chatViewModel.configure(
-                    dataStore: appState.offlineDataStore,
-                    messageService: appState.services?.messageService,
-                    notificationService: appState.services?.notificationService,
-                    channelService: appState.services?.channelService,
-                    roomServerService: appState.services?.roomServerService,
-                    contactService: appState.services?.contactService,
-                    syncCoordinator: appState.syncCoordinator,
-                    connectionState: { appState.connectionState },
-                    connectedDevice: { appState.connectedDevice },
-                    currentRadioID: { appState.currentRadioID },
-                    session: { appState.services?.session },
-                    reactionService: { appState.services?.reactionService },
-                    chatSendQueueService: { appState.services?.chatSendQueueService },
-                    onNavigateToMap: { appState.navigation.navigateToMap(coordinate: $0) }
+                    dependencies: ChatViewModel.Dependencies(
+                        dataStore: { appState.offlineDataStore },
+                        messageService: { appState.services?.messageService },
+                        notificationService: { appState.services?.notificationService },
+                        channelService: { appState.services?.channelService },
+                        roomServerService: { appState.services?.roomServerService },
+                        contactService: { appState.services?.contactService },
+                        syncCoordinator: { appState.syncCoordinator },
+                        connectionState: { appState.connectionState },
+                        connectedDevice: { appState.connectedDevice },
+                        currentRadioID: { appState.currentRadioID },
+                        session: { appState.services?.session },
+                        reactionService: { appState.services?.reactionService },
+                        chatSendQueueService: { appState.services?.chatSendQueueService },
+                        inlineImageDimensionsStore: { nil },
+                        prefetchDataStore: { nil }
+                    ),
+                    onNavigateToMap: { appState.navigation.navigateToMap(coordinate: $0) },
+                    linkPreviewCache: nil,
+                    chatCoordinatorRegistry: nil,
+                    conversation: nil
                 )
                 await chatViewModel.loadAllContacts(radioID: session.radioID)
                 await viewModel.loadMessages(for: session)

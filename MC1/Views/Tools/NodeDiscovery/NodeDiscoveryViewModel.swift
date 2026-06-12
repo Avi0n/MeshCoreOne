@@ -77,11 +77,27 @@ final class NodeDiscoveryViewModel {
 
     // MARK: - Dependencies
 
-    private var session: MeshCoreSession?
-    private var dataStore: PersistenceStore?
-    private var radioID: UUID?
-    private var contactService: ContactService?
-    private var maxContacts: UInt16?
+    struct Dependencies {
+        var session: @MainActor () -> MeshCoreSession?
+        var dataStore: @MainActor () -> PersistenceStore?
+        var radioID: @MainActor () -> UUID?
+        var contactService: @MainActor () -> ContactService?
+        var maxContacts: @MainActor () -> UInt16?
+    }
+
+    private var deps = Dependencies(
+        session: { nil },
+        dataStore: { nil },
+        radioID: { nil },
+        contactService: { nil },
+        maxContacts: { nil }
+    )
+
+    private var session: MeshCoreSession? { deps.session() }
+    private var dataStore: PersistenceStore? { deps.dataStore() }
+    private var radioID: UUID? { deps.radioID() }
+    private var contactService: ContactService? { deps.contactService() }
+    private var maxContacts: UInt16? { deps.maxContacts() }
 
     // MARK: - Tasks
 
@@ -94,19 +110,9 @@ final class NodeDiscoveryViewModel {
 
     // MARK: - Configuration
 
-    /// Configure with the session, store, and services this view model uses; nil mirrors a disconnected state.
-    func configure(
-        session: MeshCoreSession?,
-        dataStore: PersistenceStore?,
-        radioID: UUID?,
-        contactService: ContactService?,
-        maxContacts: UInt16?
-    ) {
-        self.session = session
-        self.dataStore = dataStore
-        self.radioID = radioID
-        self.contactService = contactService
-        self.maxContacts = maxContacts
+    /// Configure with the session, store, and services this view model uses; a provider returning nil mirrors a disconnected state.
+    func configure(dependencies: Dependencies) {
+        deps = dependencies
     }
 
     // MARK: - Scan

@@ -40,9 +40,9 @@ struct NodeTelemetryView: View {
             }
             .task {
                 viewModel.configure(
-                    binaryProtocolService: appState.services?.binaryProtocolService,
-                    contactService: appState.services?.contactService,
-                    nodeSnapshotService: appState.services?.nodeSnapshotService,
+                    binaryProtocolService: { appState.services?.binaryProtocolService },
+                    contactService: { appState.services?.contactService },
+                    nodeSnapshotService: { appState.services?.nodeSnapshotService },
                     contact: contact
                 )
 

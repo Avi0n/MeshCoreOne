@@ -84,7 +84,12 @@ struct RemoteNodeStatusHandlerSurvivalTests {
         await service.setCLIHandler { _, _ in flag.set() }
 
         let viewModel = RepeaterStatusViewModel()
-        await viewModel.registerHandlers(repeaterAdminService: service)
+        viewModel.configure(
+            repeaterAdminService: { service },
+            contactService: { nil },
+            nodeSnapshotService: { nil }
+        )
+        await viewModel.registerHandlers()
 
         // The CLI handler set by the settings/CLI surface must still fire.
         await service.invokeCLIHandler(makeContactMessage(), fromContact: makeContact())
@@ -101,7 +106,12 @@ struct RemoteNodeStatusHandlerSurvivalTests {
         await service.setCLIHandler { _, _ in flag.set() }
 
         let viewModel = RoomStatusViewModel()
-        await viewModel.registerHandlers(roomAdminService: service)
+        viewModel.configure(
+            roomAdminService: { service },
+            contactService: { nil },
+            nodeSnapshotService: { nil }
+        )
+        await viewModel.registerHandlers()
 
         await service.invokeCLIHandler(makeContactMessage(), fromContact: makeContact())
 
@@ -142,14 +152,14 @@ struct RemoteNodeStatusHandlerSurvivalTests {
 
         let viewModel = RepeaterStatusViewModel()
         viewModel.configure(
-            repeaterAdminService: service,
-            contactService: services.contactService,
-            nodeSnapshotService: services.nodeSnapshotService
+            repeaterAdminService: { service },
+            contactService: { services.contactService },
+            nodeSnapshotService: { services.nodeSnapshotService }
         )
-        await viewModel.registerHandlers(repeaterAdminService: service)
+        await viewModel.registerHandlers()
         await service.setStatusHandler { _ in statusFlag.set() }
 
-        await viewModel.clearStatusHandlers(repeaterAdminService: service)
+        await viewModel.clearStatusHandlers()
 
         await service.invokeCLIHandler(makeContactMessage(), fromContact: makeContact())
         await service.invokeStatusHandler(makeStatusResponse())
@@ -169,14 +179,14 @@ struct RemoteNodeStatusHandlerSurvivalTests {
 
         let viewModel = RoomStatusViewModel()
         viewModel.configure(
-            roomAdminService: service,
-            contactService: services.contactService,
-            nodeSnapshotService: services.nodeSnapshotService
+            roomAdminService: { service },
+            contactService: { services.contactService },
+            nodeSnapshotService: { services.nodeSnapshotService }
         )
-        await viewModel.registerHandlers(roomAdminService: service)
+        await viewModel.registerHandlers()
         await service.setStatusHandler { _ in statusFlag.set() }
 
-        await viewModel.clearStatusHandlers(roomAdminService: service)
+        await viewModel.clearStatusHandlers()
 
         await service.invokeCLIHandler(makeContactMessage(), fromContact: makeContact())
         await service.invokeStatusHandler(makeStatusResponse())
@@ -195,11 +205,11 @@ struct RemoteNodeStatusHandlerSurvivalTests {
 
         let viewModel = RepeaterStatusViewModel()
         viewModel.configure(
-            repeaterAdminService: service,
-            contactService: services.contactService,
-            nodeSnapshotService: services.nodeSnapshotService
+            repeaterAdminService: { service },
+            contactService: { services.contactService },
+            nodeSnapshotService: { services.nodeSnapshotService }
         )
-        await viewModel.cleanup(repeaterAdminService: service)
+        await viewModel.cleanup()
 
         await service.invokeCLIHandler(makeContactMessage(), fromContact: makeContact())
 

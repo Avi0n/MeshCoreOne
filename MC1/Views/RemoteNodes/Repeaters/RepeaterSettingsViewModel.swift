@@ -57,7 +57,8 @@ final class RepeaterSettingsViewModel {
 
     // MARK: - Dependencies
 
-    private var repeaterAdminService: RepeaterAdminService?
+    private var repeaterAdminServiceProvider: @MainActor () -> RepeaterAdminService? = { nil }
+    var repeaterAdminService: RepeaterAdminService? { repeaterAdminServiceProvider() }
     private let logger = Logger(subsystem: "com.mc1", category: "RepeaterSettings")
 
     // MARK: - Cleanup
@@ -70,10 +71,10 @@ final class RepeaterSettingsViewModel {
     // MARK: - Configuration
 
     /// Nil service mirrors a disconnected state; commands then no-op.
-    func configure(repeaterAdminService: RepeaterAdminService?, session: RemoteNodeSessionDTO) async {
-        self.repeaterAdminService = repeaterAdminService
+    func configure(repeaterAdminService: @escaping @MainActor () -> RepeaterAdminService?, session: RemoteNodeSessionDTO) async {
+        self.repeaterAdminServiceProvider = repeaterAdminService
 
-        guard let repeaterAdminService else { return }
+        guard let repeaterAdminService = repeaterAdminService() else { return }
 
         helper.configure(
             session: session,

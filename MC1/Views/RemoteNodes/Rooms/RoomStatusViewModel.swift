@@ -12,7 +12,8 @@ final class RoomStatusViewModel {
 
     // MARK: - Dependencies
 
-    private var roomAdminService: RoomAdminService?
+    private var roomAdminServiceProvider: @MainActor () -> RoomAdminService? = { nil }
+    var roomAdminService: RoomAdminService? { roomAdminServiceProvider() }
 
     // MARK: - Initialization
 
@@ -20,25 +21,24 @@ final class RoomStatusViewModel {
 
     /// Nil services mirror a disconnected state; requests then no-op.
     func configure(
-        roomAdminService: RoomAdminService?,
-        contactService: ContactService?,
-        nodeSnapshotService: NodeSnapshotService?
+        roomAdminService: @escaping @MainActor () -> RoomAdminService?,
+        contactService: @escaping @MainActor () -> ContactService?,
+        nodeSnapshotService: @escaping @MainActor () -> NodeSnapshotService?
     ) {
-        self.roomAdminService = roomAdminService
+        self.roomAdminServiceProvider = roomAdminService
         helper.configure(
             contactService: contactService,
             nodeSnapshotService: nodeSnapshotService
         )
     }
 
-    /// Takes the service per call so a reconnect-minted instance is read at
-    /// call time rather than the configure-time snapshot.
-    func registerHandlers(roomAdminService: RoomAdminService?) async {
-        guard let roomAdminService else { return }
+    /// Reads the live service from the provider so a reconnect-minted instance
+    /// is used at call time. Sets only the slots this view model owns; the admin
+    /// service is shared with the settings/CLI view model, so clearing here would
+    /// drop its CLI handler and silently break late CLI-response delivery.
+    func registerHandlers() async {
+        guard let roomAdminService = roomAdminService else { return }
 
-        // Set only the slots this view model owns. The admin service is shared
-        // with the settings/CLI view model, so clearing here would drop its CLI
-        // handler and silently break late CLI-response delivery.
         await roomAdminService.setStatusHandler { [weak self] status in
             await self?.handleStatusResponse(status)
         }
@@ -51,15 +51,15 @@ final class RoomStatusViewModel {
     /// Clear every handler slot on the shared admin service. Only for true
     /// surface teardown (sheet dismiss); calling it on a segment switch would
     /// wipe the CLI handler the settings view model relies on.
-    func cleanup(roomAdminService: RoomAdminService?) async {
-        guard let roomAdminService else { return }
+    func cleanup() async {
+        guard let roomAdminService = roomAdminService else { return }
         await roomAdminService.clearHandlers()
     }
 
     /// Clear only this view model's status/telemetry handler slots, leaving the settings view
     /// model's CLI handler intact. For the merged admin surface's status-segment teardown.
-    func clearStatusHandlers(roomAdminService: RoomAdminService?) async {
-        guard let roomAdminService else { return }
+    func clearStatusHandlers() async {
+        guard let roomAdminService = roomAdminService else { return }
         await roomAdminService.clearStatusHandlers()
     }
 

@@ -39,8 +39,11 @@ final class MapViewModel {
 
     // MARK: - Dependencies
 
-    private var dataStore: PersistenceStore?
-    private var radioID: UUID?
+    private var dataStoreProvider: @MainActor () -> PersistenceStore? = { nil }
+    private var radioIDProvider: @MainActor () -> UUID? = { nil }
+
+    private var dataStore: PersistenceStore? { dataStoreProvider() }
+    private var radioID: UUID? { radioIDProvider() }
 
     // MARK: - Initialization
 
@@ -52,10 +55,13 @@ final class MapViewModel {
 
     init() {}
 
-    /// Configure with the data store and radio this view model uses; nil mirrors a disconnected state.
-    func configure(dataStore: PersistenceStore?, radioID: UUID?) {
-        self.dataStore = dataStore
-        self.radioID = radioID
+    /// Configure with the data store and radio this view model uses; a provider returning nil mirrors a disconnected state.
+    func configure(
+        dataStore: @escaping @MainActor () -> PersistenceStore?,
+        radioID: @escaping @MainActor () -> UUID?
+    ) {
+        dataStoreProvider = dataStore
+        radioIDProvider = radioID
     }
 
     // MARK: - Load Contacts

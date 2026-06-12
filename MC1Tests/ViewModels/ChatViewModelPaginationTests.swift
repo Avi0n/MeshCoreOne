@@ -646,7 +646,7 @@ struct ChatViewModelPaginationTests {
         let contactID = UUID()
 
         let viewModel = ChatViewModel()
-        viewModel.dataStore = dataStore
+        viewModel.configureForTesting(dependencies: .testDefaults(dataStore: { dataStore }))
         viewModel.currentContact = createTestContact(id: contactID, radioID: radioID)
         let coordinator = ChatCoordinator.makeForTesting()
         viewModel.coordinator = coordinator

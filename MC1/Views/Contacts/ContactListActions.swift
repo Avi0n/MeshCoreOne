@@ -36,9 +36,9 @@ struct ContactListActions {
     func loadContacts() async {
         guard let deviceID = appState.currentRadioID else { return }
         viewModel.configure(
-            dataStore: appState.offlineDataStore,
-            contactService: appState.services?.contactService,
-            advertisementService: appState.services?.advertisementService
+            dataStore: { [appState] in appState.offlineDataStore },
+            contactService: { [appState] in appState.services?.contactService },
+            advertisementService: { [appState] in appState.services?.advertisementService }
         )
         await viewModel.loadContacts(radioID: deviceID)
     }

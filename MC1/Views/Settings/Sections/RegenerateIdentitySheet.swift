@@ -44,7 +44,7 @@ struct RegenerateIdentitySheet: View {
                 Button(L10n.Localizable.Common.cancel, role: .cancel) { }
                 Button(L10n.Settings.RegenerateIdentity.Alert.Replace.confirm, role: .destructive) {
                     Task {
-                        if await viewModel.replaceIdentity(settingsService: appState.services?.settingsService) {
+                        if await viewModel.replaceIdentity() {
                             dismiss()
                         }
                     }
@@ -54,6 +54,9 @@ struct RegenerateIdentitySheet: View {
             }
             .errorAlert($viewModel.errorMessage)
             .sensoryFeedback(.success, trigger: viewModel.successTrigger)
+            .task {
+                viewModel.configure(settingsService: { appState.services?.settingsService })
+            }
         }
         .onDisappear {
             viewModel.cancelGeneration()

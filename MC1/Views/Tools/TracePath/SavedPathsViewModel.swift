@@ -24,8 +24,8 @@ final class SavedPathsViewModel {
     /// Each provider is read live at its point of use; a provider returning
     /// `nil` mirrors a disconnected state, so unconfigured calls are no-ops.
     func configure(
-        dataStore: @escaping @MainActor () -> PersistenceStore? = { nil },
-        connectedDevice: @escaping @MainActor () -> DeviceDTO? = { nil }
+        dataStore: @escaping @MainActor () -> PersistenceStore?,
+        connectedDevice: @escaping @MainActor () -> DeviceDTO?
     ) {
         dataStoreProvider = dataStore
         connectedDeviceProvider = connectedDevice

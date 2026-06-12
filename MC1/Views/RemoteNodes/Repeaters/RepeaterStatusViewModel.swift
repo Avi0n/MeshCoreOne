@@ -50,7 +50,8 @@ final class RepeaterStatusViewModel {
 
     // MARK: - Dependencies
 
-    private var repeaterAdminService: RepeaterAdminService?
+    private var repeaterAdminServiceProvider: @MainActor () -> RepeaterAdminService? = { nil }
+    var repeaterAdminService: RepeaterAdminService? { repeaterAdminServiceProvider() }
 
     // MARK: - Initialization
 
@@ -58,25 +59,24 @@ final class RepeaterStatusViewModel {
 
     /// Nil services mirror a disconnected state; requests then no-op.
     func configure(
-        repeaterAdminService: RepeaterAdminService?,
-        contactService: ContactService?,
-        nodeSnapshotService: NodeSnapshotService?
+        repeaterAdminService: @escaping @MainActor () -> RepeaterAdminService?,
+        contactService: @escaping @MainActor () -> ContactService?,
+        nodeSnapshotService: @escaping @MainActor () -> NodeSnapshotService?
     ) {
-        self.repeaterAdminService = repeaterAdminService
+        self.repeaterAdminServiceProvider = repeaterAdminService
         helper.configure(
             contactService: contactService,
             nodeSnapshotService: nodeSnapshotService
         )
     }
 
-    /// Takes the service per call so a reconnect-minted instance is read at
-    /// call time rather than the configure-time snapshot.
-    func registerHandlers(repeaterAdminService: RepeaterAdminService?) async {
-        guard let repeaterAdminService else { return }
+    /// Reads the live service from the provider so a reconnect-minted instance
+    /// is used at call time. Sets only the slots this view model owns; the admin
+    /// service is shared with the settings/CLI view model, so clearing here would
+    /// drop its CLI handler and silently break late CLI-response delivery.
+    func registerHandlers() async {
+        guard let repeaterAdminService = repeaterAdminService else { return }
 
-        // Set only the slots this view model owns. The admin service is shared
-        // with the settings/CLI view model, so clearing here would drop its CLI
-        // handler and silently break late CLI-response delivery.
         await repeaterAdminService.setStatusHandler { [weak self] status in
             await self?.handleStatusResponse(status)
         }
@@ -93,15 +93,15 @@ final class RepeaterStatusViewModel {
     /// Clear every handler slot on the shared admin service. Only for true
     /// surface teardown (sheet dismiss); calling it on a segment switch would
     /// wipe the CLI handler the settings view model relies on.
-    func cleanup(repeaterAdminService: RepeaterAdminService?) async {
-        guard let repeaterAdminService else { return }
+    func cleanup() async {
+        guard let repeaterAdminService = repeaterAdminService else { return }
         await repeaterAdminService.clearHandlers()
     }
 
     /// Clear only this view model's status/neighbours/telemetry handler slots, leaving the
     /// settings view model's CLI handler intact. For the merged admin surface's status-segment teardown.
-    func clearStatusHandlers(repeaterAdminService: RepeaterAdminService?) async {
-        guard let repeaterAdminService else { return }
+    func clearStatusHandlers() async {
+        guard let repeaterAdminService = repeaterAdminService else { return }
         await repeaterAdminService.clearStatusHandlers()
     }
 

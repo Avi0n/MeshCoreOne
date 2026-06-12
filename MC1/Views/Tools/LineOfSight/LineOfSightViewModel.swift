@@ -317,8 +317,11 @@ final class LineOfSightViewModel {
     // MARK: - Dependencies
 
     private let elevationService: ElevationServiceProtocol
-    private var dataStore: (any PersistenceStoreProtocol)?
-    private var radioID: UUID?
+    private var dataStoreProvider: @MainActor () -> (any PersistenceStoreProtocol)? = { nil }
+    private var radioIDProvider: @MainActor () -> UUID? = { nil }
+
+    private var dataStore: (any PersistenceStoreProtocol)? { dataStoreProvider() }
+    private var radioID: UUID? { radioIDProvider() }
 
     // MARK: - Computed Properties
 
@@ -518,17 +521,18 @@ final class LineOfSightViewModel {
 
     // MARK: - Configuration
 
-    /// Configure with the data store and radio this view model uses; nil mirrors a disconnected state.
-    /// Pass the connected device's frequency in kHz to seed the analysis frequency.
+    /// Configure with the data store and radio this view model uses; a provider returning nil mirrors a disconnected state.
+    /// Pass the connected device's frequency in kHz as a one-shot seed for the analysis frequency field.
     func configure(
-        dataStore: (any PersistenceStoreProtocol)?,
-        radioID: UUID?,
+        dataStore: @escaping @MainActor () -> (any PersistenceStoreProtocol)?,
+        radioID: @escaping @MainActor () -> UUID?,
         deviceFrequencyKHz: UInt32? = nil
     ) {
-        self.dataStore = dataStore
-        self.radioID = radioID
+        dataStoreProvider = dataStore
+        radioIDProvider = radioID
 
-        // Device frequency is stored in kHz; analysis works in MHz
+        // Device frequency is stored in kHz; analysis works in MHz.
+        // Treated as a one-shot seed: the user edits frequencyMHz independently after this.
         if let deviceFrequencyKHz {
             self.frequencyMHz = Double(deviceFrequencyKHz) / 1000.0
         }

@@ -43,15 +43,16 @@ final class DiscoveryViewModel {
 
     // MARK: - Dependencies
 
-    private var dataStore: DataStore?
+    private var dataStoreProvider: @MainActor () -> DataStore? = { nil }
+    private var dataStore: DataStore? { dataStoreProvider() }
 
     // MARK: - Initialization
 
     init() {}
 
-    /// Configure with the data store this view model uses; nil mirrors a disconnected state.
-    func configure(dataStore: DataStore?) {
-        self.dataStore = dataStore
+    /// Configure with the data store this view model uses; a provider returning nil mirrors a disconnected state.
+    func configure(dataStore: @escaping @MainActor () -> DataStore?) {
+        dataStoreProvider = dataStore
     }
 
     // MARK: - Load Nodes

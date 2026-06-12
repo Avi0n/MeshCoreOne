@@ -17,17 +17,36 @@ final class DangerZoneViewModel {
 
     private var removeTask: Task<Void, Never>?
 
+    // MARK: - Dependencies
+
+    private var settingsServiceProvider: @MainActor () -> SettingsService? = { nil }
+    var settingsService: SettingsService? { settingsServiceProvider() }
+    private var connectedDeviceProvider: @MainActor () -> DeviceDTO? = { nil }
+    var connectedDevice: DeviceDTO? { connectedDeviceProvider() }
+    private var connectionManager: ConnectionManager?
+
     /// Grace period for the radio to reboot after a factory reset before local cleanup.
     private static let resetRebootGracePeriod: Duration = .seconds(1)
     /// How long the transient "Removed" confirmation stays on the button label.
     private static let removeSuccessDisplayDuration: Duration = .seconds(1.5)
+
+    func configure(
+        settingsService: @escaping @MainActor () -> SettingsService?,
+        connectedDevice: @escaping @MainActor () -> DeviceDTO?,
+        connectionManager: ConnectionManager
+    ) {
+        self.settingsServiceProvider = settingsService
+        self.connectedDeviceProvider = connectedDevice
+        self.connectionManager = connectionManager
+    }
 
     func cancelPendingRemoval() {
         removeTask?.cancel()
     }
 
     /// Returns true when the device was forgotten and the hosting page should dismiss.
-    func forgetDevice(connectionManager: ConnectionManager, deleteData: Bool) async -> Bool {
+    func forgetDevice(deleteData: Bool) async -> Bool {
+        guard let connectionManager else { return false }
         do {
             try await connectionManager.forgetDevice(deleteData: deleteData)
             return true
@@ -39,9 +58,10 @@ final class DangerZoneViewModel {
 
     /// Returns true when the reset flow finished and the hosting page should dismiss.
     /// A nil service or device ID mirrors a disconnected state.
-    func factoryReset(settingsService: SettingsService?, deviceID: UUID?, connectionManager: ConnectionManager) async -> Bool {
-        guard let settingsService,
-              let deviceID else {
+    func factoryReset() async -> Bool {
+        guard let settingsService = settingsService,
+              let deviceID = connectedDevice?.id,
+              let connectionManager else {
             errorMessage = L10n.Settings.DangerZone.Error.servicesUnavailable
             return false
         }
@@ -63,7 +83,8 @@ final class DangerZoneViewModel {
         return true
     }
 
-    func fetchUnfavoritedCount(connectionManager: ConnectionManager) async {
+    func fetchUnfavoritedCount() async {
+        guard let connectionManager else { return }
         do {
             unfavoritedCount = try await connectionManager.unfavoritedNodeCount()
             if unfavoritedCount == 0 {
@@ -77,7 +98,8 @@ final class DangerZoneViewModel {
         }
     }
 
-    func removeUnfavoritedNodes(connectionManager: ConnectionManager) {
+    func removeUnfavoritedNodes() {
+        guard let connectionManager else { return }
         isRemovingUnfavorited = true
         removeTask = Task {
             defer { isRemovingUnfavorited = false }

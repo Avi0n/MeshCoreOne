@@ -31,10 +31,14 @@ final class RoomConversationViewModel {
 
     // MARK: - Dependencies
 
-    private var roomServerService: RoomServerService?
-    private var dataStore: DataStore?
-    private var syncCoordinator: SyncCoordinator?
-    private var notificationService: NotificationService?
+    private var roomServerServiceProvider: @MainActor () -> RoomServerService? = { nil }
+    var roomServerService: RoomServerService? { roomServerServiceProvider() }
+    private var dataStoreProvider: @MainActor () -> DataStore? = { nil }
+    var dataStore: DataStore? { dataStoreProvider() }
+    private var syncCoordinatorProvider: @MainActor () -> SyncCoordinator? = { nil }
+    var syncCoordinator: SyncCoordinator? { syncCoordinatorProvider() }
+    private var notificationServiceProvider: @MainActor () -> NotificationService? = { nil }
+    var notificationService: NotificationService? { notificationServiceProvider() }
 
     /// Pending coalesced reload spawned by `handleEvent`. Non-nil while a reload
     /// is scheduled but not yet fired, so a burst of room events triggers a
@@ -52,22 +56,24 @@ final class RoomConversationViewModel {
 
     /// Nil services mirror a disconnected state; operations then no-op.
     func configure(
-        roomServerService: RoomServerService?,
-        dataStore: DataStore?,
-        syncCoordinator: SyncCoordinator?,
-        notificationService: NotificationService?
+        roomServerService: @escaping @MainActor () -> RoomServerService?,
+        dataStore: @escaping @MainActor () -> DataStore?,
+        syncCoordinator: @escaping @MainActor () -> SyncCoordinator?,
+        notificationService: @escaping @MainActor () -> NotificationService?
     ) {
-        self.roomServerService = roomServerService
-        self.dataStore = dataStore
-        self.syncCoordinator = syncCoordinator
-        self.notificationService = notificationService
+        self.roomServerServiceProvider = roomServerService
+        self.dataStoreProvider = dataStore
+        self.syncCoordinatorProvider = syncCoordinator
+        self.notificationServiceProvider = notificationService
     }
 
     // MARK: - Messages
 
     /// Load messages for the current session
     func loadMessages(for session: RemoteNodeSessionDTO) async {
-        guard let roomServerService else { return }
+        guard let roomServerService = roomServerService else { return }
+        let notificationService = notificationService
+        let syncCoordinator = syncCoordinator
 
         self.session = session
         isLoading = true

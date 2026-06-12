@@ -57,7 +57,7 @@ struct RepeaterSettingsView: View {
         }
         .task {
             await viewModel.configure(
-                repeaterAdminService: appState.services?.repeaterAdminService,
+                repeaterAdminService: { appState.services?.repeaterAdminService },
                 session: session
             )
             if let send = viewModel.makeNodeCLISendClosure(session: session) {
@@ -73,14 +73,12 @@ struct RepeaterSettingsView: View {
             // telemetryConfigured because a segment switch recreates only the content subtree,
             // so this must not re-run or duplicate handler registration.
             statusViewModel.configure(
-                repeaterAdminService: appState.services?.repeaterAdminService,
-                contactService: appState.services?.contactService,
-                nodeSnapshotService: appState.services?.nodeSnapshotService
+                repeaterAdminService: { appState.services?.repeaterAdminService },
+                contactService: { appState.services?.contactService },
+                nodeSnapshotService: { appState.services?.nodeSnapshotService }
             )
             Task {
-                await statusViewModel.registerHandlers(
-                    repeaterAdminService: appState.services?.repeaterAdminService
-                )
+                await statusViewModel.registerHandlers()
                 if let radioID = appState.connectedDevice?.radioID {
                     await statusViewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
                     if let dataStore = appState.services?.dataStore {
@@ -93,9 +91,7 @@ struct RepeaterSettingsView: View {
         .onDisappear {
             statusViewModel.stopDiscovery()
             Task {
-                await statusViewModel.clearStatusHandlers(
-                    repeaterAdminService: appState.services?.repeaterAdminService
-                )
+                await statusViewModel.clearStatusHandlers()
                 await viewModel.cleanup()
             }
         }
