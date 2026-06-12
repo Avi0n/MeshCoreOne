@@ -6,6 +6,7 @@ import Foundation
 ///
 /// `PacketParser` acts as a central router that identifies the type of incoming
 /// data based on its `ResponseCode` and delegates parsing to domain-specific handlers.
+/// The leaf parsers it routes to live in the ``Parsers`` namespace.
 ///
 /// Use the ``parse(_:)`` method to convert raw `Data` received from a transport
 /// into a ``MeshEvent``.

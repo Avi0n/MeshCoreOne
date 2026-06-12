@@ -1083,7 +1083,7 @@ public enum PacketBuilder: Sendable {
         return data
     }
 
-    // MARK: - Additional Commands (Issue #1)
+    // MARK: - Raw Data and Query Commands
 
     /// Builds a sendRawData command to send raw data through the mesh.
     ///
