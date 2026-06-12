@@ -11,8 +11,9 @@ extension AppState {
     /// Re-subscribes per connection because `ServiceContainer` is rebuilt.
     func wireSyncDataEvents(services: ServiceContainer) {
         syncDataEventsTask?.cancel()
+        let events = services.syncCoordinator.dataEvents()
         syncDataEventsTask = Task { [weak self] in
-            for await event in services.syncCoordinator.dataEvents() {
+            for await event in events {
                 guard let self else { return }
                 switch event {
                 case .contactsChanged:
@@ -28,11 +29,12 @@ extension AppState {
 
     /// Consume settings service event stream.
     /// Updates connectedDevice when settings are changed via SettingsService.
-    func wireSettingsEventStream(services: ServiceContainer) {
+    func wireSettingsEventStream(services: ServiceContainer) async {
         settingsEventsTask?.cancel()
+        let events = await services.settingsService.events()
         settingsEventsTask = Task { [weak self] in
-            guard let self else { return }
-            for await event in await services.settingsService.events() {
+            for await event in events {
+                guard let self else { return }
                 switch event {
                 case .deviceUpdated(let selfInfo):
                     await MainActor.run {
@@ -82,8 +84,9 @@ extension AppState {
         // the badge when the device auto-deletes a contact via 0x8F.
         // Re-subscribes per connection because ServiceContainer is rebuilt.
         advertisementEventsTask?.cancel()
+        let advertisementEvents = services.advertisementService.events()
         advertisementEventsTask = Task { [weak self] in
-            for await event in services.advertisementService.events() {
+            for await event in advertisementEvents {
                 guard let self else { return }
                 switch event {
                 case .contactUpdated:
@@ -113,8 +116,9 @@ extension AppState {
         // trigger an overdue battery read. Re-subscribes per connection
         // because ServiceContainer is rebuilt.
         rxLogEventsTask?.cancel()
+        let rxLogEntries = services.rxLogService.entryStream()
         rxLogEventsTask = Task { [weak self] in
-            for await _ in services.rxLogService.entryStream() {
+            for await _ in rxLogEntries {
                 guard let self else { return }
                 await self.liveActivityManager.handlePacketReceived()
                 if self.liveActivityManager.hasActiveActivity {

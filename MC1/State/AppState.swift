@@ -449,7 +449,7 @@ final class AppState {
         }
 
         wireSyncDataEvents(services: services)
-        wireSettingsEventStream(services: services)
+        await wireSettingsEventStream(services: services)
         await wireDeviceUpdateCallbacks(services: services)
         wireMessageEvents(services: services)
         await wireLiveActivityCallbacks(services: services)

@@ -14,21 +14,35 @@ import os
 ///   event ordering.
 /// - `finish()` ends every subscriber's for-await loop; the owning container
 ///   calls it on teardown so consumer tasks release their service references.
-///   Subscribing again after `finish()` starts a fresh subscription.
+///   Calling `subscribe()` after `finish()` returns a stream that is already
+///   finished, so its for-await loop exits immediately rather than parking.
 final class EventBroadcaster<Event: Sendable>: Sendable {
 
-    private let continuations = OSAllocatedUnfairLock<[UUID: AsyncStream<Event>.Continuation]>(initialState: [:])
+    private struct State {
+        var continuations: [UUID: AsyncStream<Event>.Continuation] = [:]
+        var isFinished: Bool = false
+    }
+
+    private let state = OSAllocatedUnfairLock<State>(initialState: State())
 
     init() {}
 
-    /// Returns a fresh stream receiving every event yielded after this call.
-    /// Cancelling the consuming task unregisters the subscriber.
+    /// Returns a stream receiving every event yielded after this call.
+    /// If `finish()` has already been called, returns a stream that finishes
+    /// immediately. Cancelling the consuming task unregisters the subscriber.
     func subscribe() -> AsyncStream<Event> {
         let (stream, continuation) = AsyncStream.makeStream(of: Event.self)
-        let id = UUID()
-        continuations.withLock { $0[id] = continuation }
-        continuation.onTermination = { [continuations] _ in
-            continuations.withLock { _ = $0.removeValue(forKey: id) }
+        let alreadyFinished = state.withLock { locked -> Bool in
+            guard !locked.isFinished else { return true }
+            let id = UUID()
+            locked.continuations[id] = continuation
+            continuation.onTermination = { [state] _ in
+                state.withLock { _ = $0.continuations.removeValue(forKey: id) }
+            }
+            return false
+        }
+        if alreadyFinished {
+            continuation.finish()
         }
         return stream
     }
@@ -36,7 +50,7 @@ final class EventBroadcaster<Event: Sendable>: Sendable {
     /// Delivers the event to every active subscriber, pruning any that
     /// terminated without unregistering.
     func yield(_ event: Event) {
-        let snapshot = continuations.withLock { $0 }
+        let snapshot = state.withLock { $0.continuations }
         var staleIDs: [UUID] = []
         for (id, continuation) in snapshot {
             if case .terminated = continuation.yield(event) {
@@ -45,18 +59,20 @@ final class EventBroadcaster<Event: Sendable>: Sendable {
         }
         let staleToPrune = staleIDs
         guard !staleToPrune.isEmpty else { return }
-        continuations.withLock { state in
+        state.withLock { locked in
             for id in staleToPrune {
-                state.removeValue(forKey: id)
+                locked.continuations.removeValue(forKey: id)
             }
         }
     }
 
     /// Ends every subscriber's stream and unregisters them all.
+    /// Any subsequent `subscribe()` call returns an already-finished stream.
     func finish() {
-        let snapshot = continuations.withLock { state in
-            let current = state
-            state.removeAll()
+        let snapshot = state.withLock { locked -> [UUID: AsyncStream<Event>.Continuation] in
+            let current = locked.continuations
+            locked.continuations.removeAll()
+            locked.isFinished = true
             return current
         }
         for continuation in snapshot.values {
@@ -66,6 +82,6 @@ final class EventBroadcaster<Event: Sendable>: Sendable {
 
     /// Number of currently registered subscribers.
     var subscriberCount: Int {
-        continuations.withLock { $0.count }
+        state.withLock { $0.continuations.count }
     }
 }

@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 /// Executes the multi-service transactions behind notification actions:
 /// quick reply, mark-as-read, and reaction notifications. Owned by
@@ -8,6 +9,8 @@ import Foundation
 /// `configure(isConnectionReady:localNodeName:)`.
 @MainActor
 public final class NotificationActionHandler {
+
+    private static let logger = Logger(subsystem: "com.mc1", category: "NotificationActionHandler")
 
     // MARK: - Reaction Preview Truncation
 
@@ -35,9 +38,11 @@ public final class NotificationActionHandler {
     private var isConnectionReady: @MainActor () -> Bool = { false }
 
     /// The connected device's node name, used to suppress self-reaction
-    /// notifications. Injected as a closure because identity reconciliation
+    /// notifications. Nil means `configure` has not yet been called; a
+    /// non-nil closure that returns nil means configured but the device name
+    /// is not yet known. Injected as a closure because identity reconciliation
     /// can refresh the connected device at runtime.
-    private var localNodeName: @MainActor () -> String? = { nil }
+    private var localNodeName: (@MainActor () -> String?)?
 
     public init(
         dataStore: any PersistenceStoreProtocol,
@@ -62,6 +67,10 @@ public final class NotificationActionHandler {
         self.isConnectionReady = isConnectionReady
         self.localNodeName = localNodeName
     }
+
+    /// Whether `configure` has been called. Used to distinguish the pre-wiring
+    /// window from the steady-state where node name may legitimately be nil.
+    var isConfigured: Bool { localNodeName != nil }
 
     // MARK: - Quick Reply
 
@@ -177,6 +186,14 @@ public final class NotificationActionHandler {
 
     /// Handle posting a notification when someone reacts to the user's message
     public func handleReactionNotification(messageID: UUID) async {
+        // Suppress the notification entirely when configure() has not yet been
+        // called. Posting during that window risks notifying the user about their
+        // own reaction; missing a stranger's reaction for a moment is harmless.
+        guard let localNodeNameClosure = localNodeName else {
+            Self.logger.debug("Reaction notification suppressed: handler not yet configured")
+            return
+        }
+
         // Fetch the message to check if it's outgoing
         guard let message = try? await dataStore.fetchMessage(id: messageID),
               message.direction == .outgoing else {
@@ -190,8 +207,8 @@ public final class NotificationActionHandler {
         }
 
         // Check if this is a self-reaction (user reacting to their own message)
-        if let localNodeName = localNodeName(),
-           latestReaction.senderName == localNodeName {
+        if let nodeName = localNodeNameClosure(),
+           latestReaction.senderName == nodeName {
             return
         }
 

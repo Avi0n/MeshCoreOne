@@ -90,19 +90,24 @@ struct EventBroadcasterTests {
         #expect(received == ["first"])
     }
 
-    @Test("subscribing after finish starts a fresh working subscription")
-    func subscribeAfterFinishStillWorks() async {
+    @Test("subscribing after finish returns a stream that completes immediately")
+    func subscribeAfterFinishCompletesImmediately() async {
         let broadcaster = EventBroadcaster<Int>()
         broadcaster.finish()
 
         let stream = broadcaster.subscribe()
-        broadcaster.yield(42)
-        broadcaster.finish()
-
         var received: [Int] = []
         for await value in stream {
             received.append(value)
         }
-        #expect(received == [42])
+        #expect(received.isEmpty)
+    }
+
+    @Test("yield after finish reaches no subscriber")
+    func yieldAfterFinishReachesNobody() async {
+        let broadcaster = EventBroadcaster<Int>()
+        broadcaster.finish()
+        broadcaster.yield(42)
+        #expect(broadcaster.subscriberCount == 0)
     }
 }

@@ -8,11 +8,12 @@ import MC1Services
 /// Holds `AppState` weakly to avoid extending its lifetime; the stream is held
 /// strongly because the dispatcher is the sole producer.
 ///
-/// Each consuming task inherits this class's main-actor isolation, so it
-/// forwards into `MessageEventStream` directly. A task holds its producer
-/// service strongly only while iterating; `ServiceContainer.tearDown()`
-/// finishes every stream and `cancelAll()` cancels the tasks, so neither a
-/// stale container nor a stale subscription can outlive a reconnect.
+/// Each subscription is registered synchronously in the wiring method before
+/// its consuming task starts, so events emitted during the connection-ready /
+/// sync-start window are never dropped. Each consuming task then `for await`s
+/// the captured stream. `ServiceContainer.tearDown()` finishes every stream
+/// and `cancelAll()` cancels the tasks, so neither a stale container nor a
+/// stale subscription can outlive a reconnect.
 @MainActor
 final class MessageEventDispatcher {
     private weak var appState: AppState?
@@ -46,8 +47,9 @@ final class MessageEventDispatcher {
     }
 
     private func wireSyncCoordinator(_ syncCoordinator: SyncCoordinator) {
+        let events = syncCoordinator.dataEvents()
         let task = Task { [weak appState, stream] in
-            for await event in syncCoordinator.dataEvents() {
+            for await event in events {
                 switch event {
                 case .directMessageReceived(let message, let contact):
                     stream.send(.directMessageReceived(message: message, contact: contact))
@@ -67,8 +69,9 @@ final class MessageEventDispatcher {
     }
 
     private func wireHeardRepeats(_ heardRepeatsService: HeardRepeatsService) {
+        let events = heardRepeatsService.events()
         let task = Task { [stream] in
-            for await event in heardRepeatsService.events() {
+            for await event in events {
                 stream.send(.heardRepeatRecorded(messageID: event.messageID, count: event.count))
             }
         }
@@ -76,8 +79,9 @@ final class MessageEventDispatcher {
     }
 
     private func wireRemoteNode(_ remoteNodeService: RemoteNodeService) {
+        let events = remoteNodeService.events()
         let task = Task { [weak appState] in
-            for await event in remoteNodeService.events() {
+            for await event in events {
                 switch event {
                 case .sessionStateChanged:
                     appState?.handleSessionStateChange()
@@ -88,8 +92,9 @@ final class MessageEventDispatcher {
     }
 
     private func wireRoomServer(_ roomServerService: RoomServerService) {
+        let events = roomServerService.events()
         let task = Task { [weak appState, stream] in
-            for await event in roomServerService.events() {
+            for await event in events {
                 switch event {
                 case .statusUpdated(let messageID, let status):
                     if status == .failed {
@@ -106,8 +111,9 @@ final class MessageEventDispatcher {
     }
 
     private func wireMessageService(_ messageService: MessageService) {
+        let events = messageService.statusEvents()
         let task = Task { [stream] in
-            for await event in messageService.statusEvents() {
+            for await event in events {
                 switch event {
                 case .statusResolved(let messageID, let status, let roundTripTime):
                     stream.send(.messageStatusResolved(messageID: messageID, status: status, roundTripTime: roundTripTime))

@@ -20,5 +20,21 @@
             <string>%d sauts</string>
         </dict>
     </dict>
+    <key>error.channelService.circuitBreakerOpen</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>lld</string>
+            <key>one</key>
+            <string>Synchronisation des canaux suspendue après %lld échec consécutif.</string>
+            <key>other</key>
+            <string>Synchronisation des canaux suspendue après %lld échecs consécutifs.</string>
+        </dict>
+    </dict>
 </dict>
 </plist>
