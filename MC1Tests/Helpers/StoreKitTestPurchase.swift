@@ -1,5 +1,5 @@
 import StoreKit
-import MC1Services
+@testable import MC1Services
 
 /// Retries `StoreService.purchase` past the transient `StoreKitError.unknown` that storekitd raises
 /// intermittently under SKTestSession churn (it surfaces as `.purchaseFailed`). A real purchase

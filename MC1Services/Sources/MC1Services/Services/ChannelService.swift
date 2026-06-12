@@ -36,12 +36,12 @@ extension ChannelServiceError: LocalizedError {
 // MARK: - Channel Sync Error Details
 
 /// Detailed error information for a failed channel sync
-public struct ChannelSyncError: Sendable, Equatable {
-    public let index: UInt8
-    public let errorType: ErrorType
-    public let description: String
+struct ChannelSyncError: Sendable, Equatable {
+    let index: UInt8
+    let errorType: ErrorType
+    let description: String
 
-    public enum ErrorType: Sendable, Equatable {
+    enum ErrorType: Sendable, Equatable {
         case timeout
         case sendTimeout
         case transportError
@@ -51,14 +51,8 @@ public struct ChannelSyncError: Sendable, Equatable {
         case unknown
     }
 
-    public init(index: UInt8, errorType: ErrorType, description: String) {
-        self.index = index
-        self.errorType = errorType
-        self.description = description
-    }
-
     /// Whether this error type is potentially recoverable with retry
-    public var isRetryable: Bool {
+    var isRetryable: Bool {
         switch errorType {
         case .timeout, .sendTimeout:
             return true
@@ -79,31 +73,31 @@ public struct ChannelSyncError: Sendable, Equatable {
 
 // MARK: - Channel Sync Result
 
-public struct ChannelSyncResult: Sendable, Equatable {
-    public let channelsSynced: Int
-    public let errors: [ChannelSyncError]
+struct ChannelSyncResult: Sendable, Equatable {
+    let channelsSynced: Int
+    let errors: [ChannelSyncError]
 
     /// Whether sync completed without errors
-    public var isComplete: Bool { errors.isEmpty }
+    var isComplete: Bool { errors.isEmpty }
 
-    public var requestTimeoutCount: Int {
+    var requestTimeoutCount: Int {
         errors.filter { $0.errorType == .timeout }.count
     }
 
-    public var sendTimeoutCount: Int {
+    var sendTimeoutCount: Int {
         errors.filter { $0.errorType == .sendTimeout }.count
     }
 
-    public var circuitBreakerAborted: Bool {
+    var circuitBreakerAborted: Bool {
         errors.contains { $0.errorType == .circuitBreaker }
     }
 
     /// Indices of channels that failed with retryable errors
-    public var retryableIndices: [UInt8] {
+    var retryableIndices: [UInt8] {
         errors.filter { $0.isRetryable }.map { $0.index }
     }
 
-    public init(channelsSynced: Int, errors: [ChannelSyncError] = []) {
+    init(channelsSynced: Int, errors: [ChannelSyncError] = []) {
         self.channelsSynced = channelsSynced
         self.errors = errors
     }
@@ -137,7 +131,7 @@ public actor ChannelService {
 
     // MARK: - Initialization
 
-    public init(
+    init(
         session: any MeshCoreSessionProtocol,
         dataStore: any ChannelPersisting,
         rxLogService: RxLogService?
@@ -190,7 +184,7 @@ public actor ChannelService {
     /// - Returns: Sync result with number of channels synced
     /// - Throws: `syncAlreadyInProgress` if another sync is running,
     ///           `circuitBreakerOpen` if too many consecutive timeouts
-    public func syncChannels(
+    func syncChannels(
         radioID: UUID,
         maxChannels: UInt8,
         usePipelinedRead: Bool
@@ -422,7 +416,7 @@ public actor ChannelService {
     ///   - radioID: The device UUID
     ///   - indices: Channel indices to retry
     /// - Returns: Sync result for the retried channels
-    public func retryFailedChannels(radioID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult {
+    func retryFailedChannels(radioID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult {
         guard !isSyncing else {
             throw ChannelServiceError.syncAlreadyInProgress
         }

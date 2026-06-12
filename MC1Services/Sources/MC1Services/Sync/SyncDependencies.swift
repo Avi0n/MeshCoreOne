@@ -7,53 +7,53 @@ import Foundation
 /// but constructible directly in tests so sync paths can run without the full
 /// container. Members are protocol-typed where a seam protocol exists and
 /// concrete elsewhere.
-public struct SyncDependencies: Sendable {
+struct SyncDependencies: Sendable {
 
     /// Persistence store for device, contact, channel, message, and RX log operations.
-    public let dataStore: any PersistenceStoreProtocol
+    let dataStore: any PersistenceStoreProtocol
 
     /// Service performing the contact sync phase.
-    public let contactService: any ContactServiceProtocol
+    let contactService: any ContactServiceProtocol
 
     /// Service performing the channel sync phase.
-    public let channelService: any ChannelServiceProtocol
+    let channelService: any ChannelServiceProtocol
 
     /// Service for message polling, auto-fetch, and ingestion handler wiring.
-    public let messagePollingService: any MessagePollingServiceProtocol
+    let messagePollingService: any MessagePollingServiceProtocol
 
     /// Service for posting notifications and gating suppression during sync.
-    public let notificationService: NotificationService
+    let notificationService: NotificationService
 
     /// Service handling emoji reactions on direct and channel messages.
-    public let reactionService: ReactionService
+    let reactionService: ReactionService
 
     /// Service for advertisement events and contact discovery.
-    public let advertisementService: AdvertisementService
+    let advertisementService: AdvertisementService
 
     /// Service maintaining the RX log decryption caches (private key, contact
     /// public keys, channel secrets).
-    public let rxLogService: RxLogService
+    let rxLogService: RxLogService
 
     /// Service persisting signed room messages.
-    public let roomServerService: RoomServerService
+    let roomServerService: RoomServerService
 
     /// Service routing CLI responses from room contacts.
-    public let roomAdminService: RoomAdminService
+    let roomAdminService: RoomAdminService
 
     /// Service routing CLI responses from repeater contacts.
-    public let repeaterAdminService: RepeaterAdminService
+    let repeaterAdminService: RepeaterAdminService
 
     /// Optional provider for foreground/background state. When nil, sync
     /// defaults to foreground behavior (channels sync).
-    public let appStateProvider: AppStateProvider?
+    let appStateProvider: AppStateProvider?
 
     /// Starts service event monitoring for the connected radio.
-    public let startEventMonitoring: @Sendable (_ radioID: UUID, _ enableAutoFetch: Bool) async -> Void
+    let startEventMonitoring: @Sendable (_ radioID: UUID, _ enableAutoFetch: Bool) async -> Void
 
     /// Exports the device private key for direct message decryption.
-    public let exportPrivateKey: @Sendable () async throws -> Data
+    let exportPrivateKey: @Sendable () async throws -> Data
 
-    public init(
+    init(
         dataStore: any PersistenceStoreProtocol,
         contactService: any ContactServiceProtocol,
         channelService: any ChannelServiceProtocol,
@@ -93,7 +93,7 @@ extension ServiceContainer {
     /// `startEventMonitoring` captures the container weakly: the wired sync
     /// closures hold a `SyncDependencies` copy, and a strong container capture
     /// here would keep a torn-down service graph alive across reconnects.
-    public var syncDependencies: SyncDependencies {
+    var syncDependencies: SyncDependencies {
         SyncDependencies(
             dataStore: dataStore,
             contactService: contactService,

@@ -83,7 +83,7 @@ public protocol RoomPersisting: Actor {
 
 // MARK: - Default Parameter Values
 
-public extension RoomPersisting {
+extension RoomPersisting {
     /// Update room activity with nil sync timestamp (sort date only)
     func updateRoomActivity(_ sessionID: UUID) async throws {
         try await updateRoomActivity(sessionID, syncTimestamp: nil)

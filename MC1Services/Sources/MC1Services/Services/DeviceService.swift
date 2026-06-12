@@ -31,7 +31,7 @@ public actor DeviceService {
     /// Installed by `AppState.wireDeviceUpdateCallbacks`.
     private var onDeviceUpdated: (@Sendable (DeviceDTO) async -> Void)?
 
-    public init(dataStore: any DevicePersisting) {
+    init(dataStore: any DevicePersisting) {
         self.dataStore = dataStore
     }
 

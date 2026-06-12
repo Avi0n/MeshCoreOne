@@ -1,7 +1,7 @@
 import Foundation
 
 /// Device platform type for BLE write pacing configuration
-public enum DevicePlatform: Sendable {
+enum DevicePlatform: Sendable {
     case esp32
     case nrf52
     case unknown
@@ -20,7 +20,7 @@ public enum DevicePlatform: Sendable {
     /// Uses specific model substrings rather than vendor prefixes, because vendors like
     /// Heltec, RAK, Seeed, and Elecrow ship devices on multiple chip families.
     /// Unrecognized devices fall to `.unknown` (conservative 60ms pacing).
-    public static func detect(from model: String) -> DevicePlatform {
+    static func detect(from model: String) -> DevicePlatform {
         for rule in platformRules {
             if model.localizedStandardContains(rule.substring) {
                 return rule.platform

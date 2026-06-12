@@ -37,7 +37,7 @@ public extension Data {
 
     /// Convert first 4 bytes to UInt32 ACK code (little-endian)
     /// Returns 0 if data has fewer than 4 bytes
-    var ackCodeUInt32: UInt32 {
+    internal var ackCodeUInt32: UInt32 {
         guard count >= 4 else { return 0 }
         return prefix(4).withUnsafeBytes {
             $0.load(as: UInt32.self).littleEndian
@@ -45,7 +45,7 @@ public extension Data {
     }
 
     /// zlib-compress this data. Wraps Foundation's NSData bridge.
-    func zlibCompressed() throws -> Data {
+    internal func zlibCompressed() throws -> Data {
         try (self as NSData).compressed(using: .zlib) as Data
     }
 
@@ -53,7 +53,7 @@ public extension Data {
     /// `maxUncompressedBytes`. Throws `AppBackupError.decompressedTooLarge`
     /// on cap overflow so callers can surface a specific user-facing reason
     /// instead of a generic invalid-file error.
-    func zlibDecompressed(maxUncompressedBytes: Int) throws -> Data {
+    internal func zlibDecompressed(maxUncompressedBytes: Int) throws -> Data {
         var offset = 0
         let source = self
         let inputFilter = try InputFilter(.decompress, using: .zlib) { length -> Data? in

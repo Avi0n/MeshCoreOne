@@ -55,7 +55,7 @@ public actor RoomServerService {
 
     // MARK: - Initialization
 
-    public init(
+    init(
         session: any RemoteAccessSessionOps,
         remoteNodeService: RemoteNodeService,
         dataStore: any PersistenceStoreProtocol,

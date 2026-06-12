@@ -9,7 +9,7 @@ import SwiftUI
 /// All math is pure `Double` work — no UIKit, no SwiftUI environment — so it can run off the main
 /// actor inside the message-text bake. Callers resolve their surface colors to relative-luminance
 /// values and pass them in.
-public struct IdentityGamut: Sendable, Equatable {
+struct IdentityGamut: Sendable, Equatable {
     /// Hue centers (degrees, 0..<360) that define the theme. A name lands near one of these and is
     /// jittered within the gap to its neighbors, so the union covers a continuous slice of the wheel
     /// while every color still reads as on-theme.

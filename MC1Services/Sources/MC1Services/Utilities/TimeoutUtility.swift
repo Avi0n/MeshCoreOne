@@ -36,7 +36,7 @@ public func withTimeout<T: Sendable>(
 /// timeout error. Uses the default `ContinuousClock`, so the deadline keeps
 /// elapsing while the app is suspended. See `raceAgainstDeadline` for the
 /// cancellation contract.
-public func withCooperativeTimeout<T: Sendable>(
+func withCooperativeTimeout<T: Sendable>(
     seconds: TimeInterval,
     operation: @escaping @Sendable () async throws -> T
 ) async throws -> T {

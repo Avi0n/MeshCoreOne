@@ -12,7 +12,7 @@ import TipKit
 /// Handles only UI state, navigation, and notification wiring.
 @Observable
 @MainActor
-public final class AppState {
+final class AppState {
 
     // MARK: - Logging
 
@@ -21,7 +21,7 @@ public final class AppState {
     // MARK: - Location
 
     /// App-wide location service for permission management
-    public let locationService = LocationService()
+    let locationService = LocationService()
 
     // MARK: - Offline Maps
 
@@ -33,10 +33,10 @@ public final class AppState {
     /// Disk-backed store for unsent chat-composer text. Recreated on
     /// before-first-unlock, but reads the same `UserDefaults` key, so the fresh
     /// instance recovers every persisted draft — no in-memory-lifetime dependency.
-    public let draftStore = DraftStore()
+    let draftStore = DraftStore()
 
     /// Best available location for proximity-based disambiguation.
-    public var bestAvailableLocation: CLLocation? {
+    var bestAvailableLocation: CLLocation? {
         if let phoneLocation = locationService.currentLocation {
             return phoneLocation
         }
@@ -55,7 +55,7 @@ public final class AppState {
     /// the same bytes to UserDefaults on every launch.
     @ObservationIgnored private var suppressRegionPersist = false
 
-    public var regionSelection: RegionSelection? {
+    var regionSelection: RegionSelection? {
         didSet {
             guard !suppressRegionPersist else { return }
             persistRegionSelection()
@@ -81,24 +81,24 @@ public final class AppState {
     // MARK: - Connection (via ConnectionManager)
 
     /// The connection manager for device lifecycle
-    public let connectionManager: ConnectionManager
-    public let storeState: StoreState
-    public let themeService: ThemeService
+    let connectionManager: ConnectionManager
+    let storeState: StoreState
+    let themeService: ThemeService
     private let bootstrapDebugLogBuffer: DebugLogBuffer
 
     // Convenience accessors
-    public var connectionState: MC1Services.DeviceConnectionState { connectionManager.connectionState }
-    public var connectedDevice: DeviceDTO? { connectionManager.connectedDevice }
-    public var services: ServiceContainer? { connectionManager.services }
+    var connectionState: MC1Services.DeviceConnectionState { connectionManager.connectionState }
+    var connectedDevice: DeviceDTO? { connectionManager.connectedDevice }
+    var services: ServiceContainer? { connectionManager.services }
 
     /// Local node name with fallback for display purposes.
-    public var localNodeName: String { connectedDevice?.nodeName ?? "Me" }
+    var localNodeName: String { connectedDevice?.nodeName ?? "Me" }
 
     /// The sync coordinator for data synchronization
-    public private(set) var syncCoordinator: SyncCoordinator?
+    private(set) var syncCoordinator: SyncCoordinator?
 
     /// Incremented when services change (device switch, reconnect). Views observe this to reload.
-    public private(set) var servicesVersion: Int = 0
+    private(set) var servicesVersion: Int = 0
 
     /// Identity of the `ServiceContainer` the last `servicesVersion` bump was for,
     /// so redundant re-wires of the same container don't bump it again.
@@ -116,13 +116,13 @@ public final class AppState {
     private var cachedOfflineStore: PersistenceStore?
 
     /// Radio ID for data access - returns connected device's radio ID or last-connected radio ID for offline browsing
-    public var currentRadioID: UUID? {
+    var currentRadioID: UUID? {
         connectedDevice?.radioID ?? connectionManager.lastConnectedRadioID
     }
 
     /// Data store that works regardless of connection state - uses services when connected,
     /// cached standalone store when disconnected
-    public var offlineDataStore: PersistenceStore? {
+    var offlineDataStore: PersistenceStore? {
         if let services {
             cachedOfflineStore = nil  // Clear cache when services available
             return services.dataStore
@@ -151,15 +151,15 @@ public final class AppState {
     }
 
     /// Incremented when contacts data changes. Views observe this to reload contact lists.
-    public internal(set) var contactsVersion: Int = 0
+    var contactsVersion: Int = 0
 
     /// Incremented when conversations data changes. Views observe this to reload chat lists.
-    public private(set) var conversationsVersion: Int = 0
+    private(set) var conversationsVersion: Int = 0
 
     /// Incremented when a remote-node session changes connection state.
     /// `RoomConversationView` observes this counter via `.onChange` to refresh
     /// its session DTO when re-authentication completes.
-    public private(set) var sessionStateChangeCount: Int = 0
+    private(set) var sessionStateChangeCount: Int = 0
 
     /// Called by `MessageEventDispatcher` when a remote-node session changes
     /// connection state. Bundles refreshing conversations and bumping the
@@ -190,7 +190,7 @@ public final class AppState {
     /// Also re-reads the persisted region selection — the import wrote it to UserDefaults,
     /// but `regionSelection` is only loaded once during `init`, so Settings → Region and
     /// the radio-preset views would otherwise show pre-import data until next launch.
-    public func notifyDataRestored() {
+    func notifyDataRestored() {
         contactsVersion += 1
         conversationsVersion += 1
         loadPersistedRegionSelection()

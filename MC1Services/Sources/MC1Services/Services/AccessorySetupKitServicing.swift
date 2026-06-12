@@ -11,7 +11,7 @@ import Foundation
 /// it only narrows the type used by `ConnectionManager` from the concrete class to
 /// a protocol.
 @MainActor
-public protocol AccessorySetupKitServicing: AnyObject {
+protocol AccessorySetupKitServicing: AnyObject {
     var pairedAccessories: [ASAccessory] { get }
     var isSessionActive: Bool { get }
     var delegate: AccessorySetupKitServiceDelegate? { get set }

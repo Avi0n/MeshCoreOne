@@ -138,7 +138,7 @@ public protocol MessagePersisting: Actor {
 
 // MARK: - Default Parameter Values
 
-public extension MessagePersisting {
+extension MessagePersisting {
     /// Update message ACK info with no round-trip time
     func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus) async throws {
         try await updateMessageAck(id: id, ackCode: ackCode, status: status, roundTripTime: nil)

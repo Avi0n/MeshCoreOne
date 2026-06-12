@@ -6,21 +6,21 @@ import Security
 
 /// Secure password storage for remote node authentication.
 /// Passwords are stored device-only (not synced to iCloud).
-public actor KeychainService {
-    public static let shared = KeychainService()
+actor KeychainService {
+    static let shared = KeychainService()
 
     private let service = "com.pocketmesh.nodepasswords"
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "Keychain")
     private let maxRetries = 3
     private let retryDelay: Duration = .milliseconds(100)
 
-    public init() {}
+    init() {}
 
     /// Store a password for a remote node.
     /// - Parameters:
     ///   - password: The password to store
     ///   - publicKey: The 32-byte public key of the remote node
-    public func storePassword(_ password: String, forNodeKey publicKey: Data) async throws {
+    func storePassword(_ password: String, forNodeKey publicKey: Data) async throws {
         let account = publicKey.base64EncodedString()
         guard let passwordData = password.data(using: .utf8) else {
             throw KeychainError.encodingFailed
@@ -61,7 +61,7 @@ public actor KeychainService {
     /// Retrieve a stored password for a remote node.
     /// - Parameter publicKey: The 32-byte public key of the remote node
     /// - Returns: The stored password, or nil if not found
-    public func retrievePassword(forNodeKey publicKey: Data) async throws -> String? {
+    func retrievePassword(forNodeKey publicKey: Data) async throws -> String? {
         let account = publicKey.base64EncodedString()
 
         let query: [String: Any] = [
@@ -90,7 +90,7 @@ public actor KeychainService {
 
     /// Delete a stored password for a remote node.
     /// - Parameter publicKey: The 32-byte public key of the remote node
-    public func deletePassword(forNodeKey publicKey: Data) async throws {
+    func deletePassword(forNodeKey publicKey: Data) async throws {
         let account = publicKey.base64EncodedString()
 
         let query: [String: Any] = [
@@ -108,7 +108,7 @@ public actor KeychainService {
     /// Check if a password exists for a remote node.
     /// - Parameter publicKey: The 32-byte public key of the remote node
     /// - Returns: True if a password is stored
-    public func hasPassword(forNodeKey publicKey: Data) async -> Bool {
+    func hasPassword(forNodeKey publicKey: Data) async -> Bool {
         let account = publicKey.base64EncodedString()
 
         let query: [String: Any] = [

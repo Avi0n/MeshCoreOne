@@ -21,7 +21,7 @@ public protocol ReactionPersisting: Actor {
 
 // MARK: - Default Parameter Values
 
-public extension ReactionPersisting {
+extension ReactionPersisting {
     /// Fetch reactions with default limit of 100
     func fetchReactions(for messageID: UUID) async throws -> [ReactionDTO] {
         try await fetchReactions(for: messageID, limit: 100)

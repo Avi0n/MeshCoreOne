@@ -3,19 +3,19 @@ import SwiftData
 
 /// SwiftData model for persisted debug log entries.
 @Model
-public final class DebugLogEntry {
+final class DebugLogEntry {
     #Index<DebugLogEntry>([\.timestamp])
 
     @Attribute(.unique)
-    public var id: UUID
+    var id: UUID
 
-    public var timestamp: Date
-    public var level: Int
-    public var subsystem: String
-    public var category: String
-    public var message: String
+    var timestamp: Date
+    var level: Int
+    var subsystem: String
+    var category: String
+    var message: String
 
-    public init(
+    init(
         id: UUID = UUID(),
         timestamp: Date = Date(),
         level: Int,
@@ -59,7 +59,7 @@ public struct DebugLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     }
 
     /// Initialize from SwiftData model.
-    public init(from model: DebugLogEntry) {
+    init(from model: DebugLogEntry) {
         self.id = model.id
         self.timestamp = model.timestamp
         self.level = DebugLogLevel(rawValue: model.level) ?? .info

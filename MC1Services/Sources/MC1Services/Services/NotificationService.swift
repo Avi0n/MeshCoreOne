@@ -5,7 +5,7 @@ import os
 // MARK: - Notification Categories
 
 /// Notification category identifiers
-public enum NotificationCategory: String, Sendable {
+enum NotificationCategory: String, Sendable {
     case directMessage = "DIRECT_MESSAGE"
     case channelMessage = "CHANNEL_MESSAGE"
     case roomMessage = "ROOM_MESSAGE"
@@ -14,7 +14,7 @@ public enum NotificationCategory: String, Sendable {
 }
 
 /// Notification action identifiers
-public enum NotificationAction: String, Sendable {
+enum NotificationAction: String, Sendable {
     case reply = "REPLY_ACTION"
     case markRead = "MARK_READ_ACTION"
     case dismiss = "DISMISS_ACTION"

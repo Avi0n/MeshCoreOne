@@ -18,7 +18,7 @@ import MeshCore
 ///     }
 /// }
 /// ```
-public protocol MessagePollingServiceProtocol: Actor {
+protocol MessagePollingServiceProtocol: Actor {
 
     // MARK: - Message Polling
 

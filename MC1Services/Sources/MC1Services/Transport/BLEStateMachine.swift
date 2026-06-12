@@ -8,7 +8,7 @@ import Foundation
 /// All CoreBluetooth operations are modeled as state transitions. Each state
 /// owns its resources (continuations, timeouts), ensuring proper cleanup
 /// on any transition.
-public actor BLEStateMachine: BLEStateMachineProtocol {
+actor BLEStateMachine: BLEStateMachineProtocol {
 
     // MARK: - Logging
 
@@ -50,10 +50,10 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     var connectionGenerationStartTime: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
 
     /// Expose current phase for testing
-    public var currentPhase: BLEPhase { phase }
+    var currentPhase: BLEPhase { phase }
 
     /// Expose current connection generation for testing
-    public var currentConnectionGeneration: UInt64 { connectionGeneration }
+    var currentConnectionGeneration: UInt64 { connectionGeneration }
 
     // MARK: - CoreBluetooth
 
@@ -196,7 +196,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     ///   - autoReconnectDiscoveryTimeout: Timeout for auto-reconnect discovery (default 15s, shorter since no pairing expected)
     ///   - writeTimeout: Timeout for write operations (default 5s)
     ///   - writePacingDelay: Delay between write operations for ESP32 compatibility (default 0 = no pacing)
-    public init(
+    init(
         connectionTimeout: TimeInterval = 10.0,
         serviceDiscoveryTimeout: TimeInterval = 40.0,
         autoReconnectDiscoveryTimeout: TimeInterval = 15.0,
@@ -213,13 +213,13 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
 
     /// Sets the write pacing delay for ESP32 compatibility.
     /// - Parameter delay: Delay in seconds between write operations (0 = no pacing)
-    public func setWritePacingDelay(_ delay: TimeInterval) {
+    func setWritePacingDelay(_ delay: TimeInterval) {
         writePacingDelay = delay
     }
 
     /// Activates the BLE state machine, creating the CBCentralManager.
     /// Call once during app initialization. Safe to call multiple times.
-    public func activate() {
+    func activate() {
         guard !isActivated else { return }
         isActivated = true
         logger.info("[BLE] Activating state machine, instance: \(instanceID), \(processContext)")
@@ -268,16 +268,16 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
         timestamp + tolerance < generationStart
     }
 
-    // MARK: - Public API
+    // MARK: - API
 
     /// Whether the state machine is currently connected to a device
-    public var isConnected: Bool {
+    var isConnected: Bool {
         if case .connected = phase { return true }
         return false
     }
 
     /// Whether the state machine is currently handling iOS auto-reconnect or state restoration
-    public var isAutoReconnecting: Bool {
+    var isAutoReconnecting: Bool {
         switch phase {
         case .autoReconnecting, .restoringState:
             return true
@@ -287,33 +287,33 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     }
 
     /// UUID of the currently connected device, or nil if not connected
-    public var connectedDeviceID: UUID? {
+    var connectedDeviceID: UUID? {
         phase.deviceID
     }
 
     /// Current Bluetooth hardware state
-    public nonisolated var bluetoothState: CBManagerState {
+    nonisolated var bluetoothState: CBManagerState {
         centralManager?.state ?? .unknown
     }
 
     /// Current phase name for diagnostic logging
-    public var currentPhaseName: String {
+    var currentPhaseName: String {
         phase.name
     }
 
     /// Current peripheral state for diagnostic logging (nil if no peripheral)
-    public var currentPeripheralState: String? {
+    var currentPeripheralState: String? {
         guard let peripheral = phase.peripheral else { return nil }
         return peripheralStateString(peripheral.state)
     }
 
     /// Whether the Bluetooth central manager is in the powered-off state.
-    public var isBluetoothPoweredOff: Bool {
+    var isBluetoothPoweredOff: Bool {
         centralManager?.state == .poweredOff
     }
 
     /// Current CBCentralManager state name for diagnostic logging
-    public var centralManagerStateName: String {
+    var centralManagerStateName: String {
         guard let manager = centralManager else { return "notActivated" }
         switch manager.state {
         case .unknown: return "unknown"
@@ -330,7 +330,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     /// Call this before attempting connection when in `.idle` phase.
     /// - Parameter deviceID: The UUID of the device to check
     /// - Returns: `true` if the device is connected to the system
-    public func isDeviceConnectedToSystem(_ deviceID: UUID) -> Bool {
+    func isDeviceConnectedToSystem(_ deviceID: UUID) -> Bool {
         activate()
         let connectedPeripherals = centralManager.retrieveConnectedPeripherals(
             withServices: [nordicUARTServiceUUID]
@@ -338,7 +338,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
         return connectedPeripherals.contains { $0.identifier == deviceID }
     }
 
-    public func systemConnectedPeripheralIDs() -> [UUID] {
+    func systemConnectedPeripheralIDs() -> [UUID] {
         activate()
         return centralManager.retrieveConnectedPeripherals(
             withServices: [nordicUARTServiceUUID]
@@ -354,7 +354,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     ///
     /// - Parameter deviceID: The UUID of the device to adopt.
     /// - Returns: `true` if an adoption attempt was started.
-    public func startAdoptingSystemConnectedPeripheral(_ deviceID: UUID) -> Bool {
+    func startAdoptingSystemConnectedPeripheral(_ deviceID: UUID) -> Bool {
         activate()
 
         guard case .idle = phase else {
@@ -376,29 +376,29 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     // MARK: - Event Handler Registration
 
     /// Sets a handler for disconnection events
-    public func setDisconnectionHandler(_ handler: @escaping @Sendable (UUID, Error?) -> Void) {
+    func setDisconnectionHandler(_ handler: @escaping @Sendable (UUID, Error?) -> Void) {
         onDisconnection = handler
     }
 
     /// Sets a handler for reconnection events.
     /// The handler receives the device ID and the data stream for receiving data.
-    public func setReconnectionHandler(_ handler: @escaping @Sendable (UUID, AsyncStream<Data>) -> Void) {
+    func setReconnectionHandler(_ handler: @escaping @Sendable (UUID, AsyncStream<Data>) -> Void) {
         onReconnection = handler
     }
 
     /// Sets a handler for Bluetooth state changes
-    public func setBluetoothStateChangeHandler(_ handler: @escaping @Sendable (CBManagerState) -> Void) {
+    func setBluetoothStateChangeHandler(_ handler: @escaping @Sendable (CBManagerState) -> Void) {
         onBluetoothStateChange = handler
     }
 
     /// Sets a handler called when Bluetooth powers on
-    public func setBluetoothPoweredOnHandler(_ handler: @escaping @Sendable () -> Void) {
+    func setBluetoothPoweredOnHandler(_ handler: @escaping @Sendable () -> Void) {
         onBluetoothPoweredOn = handler
     }
 
     /// Sets a handler for auto-reconnecting events.
     /// Called when device disconnects but iOS is attempting automatic reconnection.
-    public func setAutoReconnectingHandler(_ handler: @escaping @Sendable (UUID, String) -> Void) {
+    func setAutoReconnectingHandler(_ handler: @escaping @Sendable (UUID, String) -> Void) {
         onAutoReconnecting = handler
     }
 
@@ -406,14 +406,14 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
 
     /// Sets a handler called when a device is discovered during scanning.
     /// - Parameter handler: Callback with (deviceID, advertised name, rssi)
-    public func setDeviceDiscoveredHandler(_ handler: @escaping @Sendable (UUID, String?, Int) -> Void) {
+    func setDeviceDiscoveredHandler(_ handler: @escaping @Sendable (UUID, String?, Int) -> Void) {
         onDeviceDiscovered = handler
     }
 
     /// Starts scanning for BLE peripherals advertising the Nordic UART service.
     /// Scanning is orthogonal to the connection lifecycle — it works while connected.
     /// Requires `activate()` to have been called and Bluetooth to be powered on.
-    public func startScanning() {
+    func startScanning() {
         activate()
         guard centralManager.state == .poweredOn else {
             logger.info("[BLE] Cannot start scanning: Bluetooth not powered on, will start when ready")
@@ -431,7 +431,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     }
 
     /// Stops an active BLE scan.
-    public func stopScanning() {
+    func stopScanning() {
         pendingScanRequest = false
         guard isCurrentlyScanning else { return }
         isCurrentlyScanning = false
@@ -450,7 +450,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     /// - Throws: `BLEError.bluetoothUnavailable` if Bluetooth is not supported
     ///           `BLEError.bluetoothUnauthorized` if access is denied
     ///           `BLEError.bluetoothPoweredOff` if Bluetooth is off and doesn't turn on
-    public func waitForPoweredOn() async throws {
+    func waitForPoweredOn() async throws {
         activate()
 
         // Already powered on
@@ -483,7 +483,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     /// - Parameter deviceID: UUID of the device to connect to
     /// - Returns: AsyncStream of data received from the device
     /// - Throws: BLEError if connection fails
-    public func connect(to deviceID: UUID) async throws -> AsyncStream<Data> {
+    func connect(to deviceID: UUID) async throws -> AsyncStream<Data> {
         logger.info("Connect requested for device: \(deviceID)")
 
         // Ensure we're in idle state
@@ -554,14 +554,14 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     ///
     /// - Parameter data: Data to send
     /// - Throws: BLEError if not connected or write fails
-    public func send(_ data: Data) async throws {
+    func send(_ data: Data) async throws {
         logger.info("[BLE] send: \(data.count) bytes")
         try await claimWriteSlot(data: data)
     }
 
     /// Whether the connected peripheral's write characteristic supports ATT Write Commands.
     /// Drives the transport's `supportsWriteWithoutResponse` capability gate.
-    public var supportsWriteWithoutResponse: Bool { txSupportsWriteWithoutResponse }
+    var supportsWriteWithoutResponse: Bool { txSupportsWriteWithoutResponse }
 
     /// Test observability: whether a `sendWithoutResponse` caller is currently parked
     /// awaiting peripheral readiness. Reflects existing state; does not alter behavior.
@@ -576,7 +576,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     /// deliberately skips `writePacingDelay` — that delay protects the ESP32 RX queue during
     /// `.withResponse` bursts, and Write Commands are an nRF52-only path. A radio whose write
     /// characteristic does not advertise the capability degrades to the acknowledged path.
-    public func sendWithoutResponse(_ data: Data) async throws {
+    func sendWithoutResponse(_ data: Data) async throws {
         let myGeneration = connectionGeneration
 
         guard case .connected(let peripheral, _, _, _) = phase,
@@ -749,7 +749,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
 
     /// Gracefully shuts down the state machine, resuming all pending operations with cancellation.
     /// Call this before dropping the last reference to the actor.
-    public func shutdown() {
+    func shutdown() {
         logger.info("[BLE] Shutting down state machine, instance: \(instanceID)")
 
         stopScanning()
@@ -793,14 +793,14 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
         }
     }
 
-    public func appDidEnterBackground() {
+    func appDidEnterBackground() {
         isAppActive = false
         autoReconnectDiscoveryTimeoutTask?.cancel()
         autoReconnectDiscoveryTimeoutTask = nil
         logger.info("[BLE] App entered background: cancelled auto-reconnect timeout (keepalive persists)")
     }
 
-    public func appDidBecomeActive() {
+    func appDidBecomeActive() {
         isAppActive = true
         logger.info("[BLE] App became active, phase: \(phase.name)")
 
@@ -842,7 +842,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     // callers must call shutdown() explicitly before dropping the actor reference.
 
     /// Disconnects from the current device.
-    public func disconnect() async {
+    func disconnect() async {
         logger.info("Disconnect requested")
 
         // Cancel Bluetooth power-off grace period
@@ -894,7 +894,7 @@ public actor BLEStateMachine: BLEStateMachineProtocol {
     /// - Parameter deviceID: UUID of the new device to connect to
     /// - Returns: AsyncStream of data from the new device
     /// - Throws: BLEError if connection fails
-    public func switchDevice(to deviceID: UUID) async throws -> AsyncStream<Data> {
+    func switchDevice(to deviceID: UUID) async throws -> AsyncStream<Data> {
         logger.info("Switch device requested: \(deviceID)")
 
         // Disconnect current device

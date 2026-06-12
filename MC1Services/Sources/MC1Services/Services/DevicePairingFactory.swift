@@ -7,10 +7,10 @@ import Foundation
 /// isiOSAppOnMac` — `true` when the iOS binary is running on macOS via "Designed for iPad",
 /// where AccessorySetupKit is present but non-functional. Keeping the branch here means no
 /// `#if os(...)` or `isiOSAppOnMac` check leaks into `ConnectionManager` or the views.
-public enum DevicePairingFactory {
+enum DevicePairingFactory {
     /// Builds the pairing service appropriate for the current platform.
     @MainActor
-    public static func make() -> any DevicePairingService {
+    static func make() -> any DevicePairingService {
         if ProcessInfo.processInfo.isiOSAppOnMac {
             return BluetoothScanPairingService()
         }

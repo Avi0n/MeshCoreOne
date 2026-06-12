@@ -4,19 +4,19 @@ import Foundation
 // MARK: - Sync Types
 
 /// Current state of the sync coordinator
-public enum SyncState: Sendable, Equatable {
+enum SyncState: Sendable, Equatable {
     case idle
     case syncing(progress: SyncProgress)
     case synced
     case failed(SyncCoordinatorError)
 
     /// Whether currently syncing
-    public var isSyncing: Bool {
+    var isSyncing: Bool {
         if case .syncing = self { return true }
         return false
     }
 
-    public static func == (lhs: SyncState, rhs: SyncState) -> Bool {
+    static func == (lhs: SyncState, rhs: SyncState) -> Bool {
         switch (lhs, rhs) {
         case (.idle, .idle): return true
         case (.synced, .synced): return true
@@ -28,16 +28,10 @@ public enum SyncState: Sendable, Equatable {
 }
 
 /// Progress information during sync
-public struct SyncProgress: Sendable, Equatable {
-    public let phase: SyncPhase
-    public let current: Int
-    public let total: Int
-
-    public init(phase: SyncPhase, current: Int, total: Int) {
-        self.phase = phase
-        self.current = current
-        self.total = total
-    }
+struct SyncProgress: Sendable, Equatable {
+    let phase: SyncPhase
+    let current: Int
+    let total: Int
 }
 
 /// Phases of the sync process
@@ -48,29 +42,29 @@ public enum SyncPhase: Sendable, Equatable {
 }
 
 /// Phase-level sync outcome.
-public enum SyncPhaseStatus: Sendable, Equatable {
+enum SyncPhaseStatus: Sendable, Equatable {
     case clean
     case partial
     case skipped
     case failed(String)
 
-    public var isClean: Bool {
+    var isClean: Bool {
         self == .clean
     }
 }
 
 /// Structured result for an initial or full sync.
-public struct FullSyncResult: Sendable, Equatable {
-    public let contacts: SyncPhaseStatus
-    public let channels: SyncPhaseStatus
-    public let messages: SyncPhaseStatus
-    public let channelRetryIndices: [UInt8]
+struct FullSyncResult: Sendable, Equatable {
+    let contacts: SyncPhaseStatus
+    let channels: SyncPhaseStatus
+    let messages: SyncPhaseStatus
+    let channelRetryIndices: [UInt8]
 
-    public var isConnectionUsable: Bool {
+    var isConnectionUsable: Bool {
         contacts == .clean
     }
 
-    public init(
+    init(
         contacts: SyncPhaseStatus,
         channels: SyncPhaseStatus,
         messages: SyncPhaseStatus,
@@ -82,7 +76,7 @@ public struct FullSyncResult: Sendable, Equatable {
         self.channelRetryIndices = channelRetryIndices
     }
 
-    public static let skipped = FullSyncResult(
+    static let skipped = FullSyncResult(
         contacts: .skipped,
         channels: .skipped,
         messages: .skipped
@@ -142,16 +136,16 @@ public actor SyncCoordinator {
     // MARK: - Observable State (@MainActor for SwiftUI)
 
     /// Current sync state
-    @MainActor public private(set) var state: SyncState = .idle
+    @MainActor private(set) var state: SyncState = .idle
 
     /// Incremented when contacts data changes
-    @MainActor public private(set) var contactsVersion: Int = 0
+    @MainActor private(set) var contactsVersion: Int = 0
 
     /// Incremented when conversations data changes
-    @MainActor public private(set) var conversationsVersion: Int = 0
+    @MainActor private(set) var conversationsVersion: Int = 0
 
     /// Last successful sync date
-    @MainActor public private(set) var lastSyncDate: Date?
+    @MainActor private(set) var lastSyncDate: Date?
 
     /// Called when channel sync completes with zero errors (including retries).
     /// Used by ConnectionManager to track clean channel completions for smart resync.
@@ -164,12 +158,12 @@ public actor SyncCoordinator {
     var onChannelSyncAttempted: (@Sendable (_ radioID: UUID) async -> Void)?
 
     /// Sets the callback for clean channel sync completion.
-    public func setCleanChannelSyncCallback(_ callback: @escaping @Sendable (_ radioID: UUID) async -> Void) {
+    func setCleanChannelSyncCallback(_ callback: @escaping @Sendable (_ radioID: UUID) async -> Void) {
         onCleanChannelSync = callback
     }
 
     /// Sets the callback for any channel sync attempt.
-    public func setChannelSyncAttemptedCallback(_ callback: @escaping @Sendable (_ radioID: UUID) async -> Void) {
+    func setChannelSyncAttemptedCallback(_ callback: @escaping @Sendable (_ radioID: UUID) async -> Void) {
         onChannelSyncAttempted = callback
     }
 
@@ -212,14 +206,14 @@ public actor SyncCoordinator {
     var performResyncOverride: ((_ radioID: UUID, _ dependencies: SyncDependencies) async -> Bool)?
 
     /// Sets the test override for `performResync`.
-    public func setPerformResyncOverride(_ override: @escaping @Sendable (_ radioID: UUID, _ dependencies: SyncDependencies) async -> Bool) {
+    func setPerformResyncOverride(_ override: @escaping @Sendable (_ radioID: UUID, _ dependencies: SyncDependencies) async -> Bool) {
         performResyncOverride = override
     }
     #endif
 
     // MARK: - Initialization
 
-    public init() {}
+    init() {}
 
     // MARK: - State Setters
 
@@ -345,7 +339,7 @@ public actor SyncCoordinator {
     }
 
     /// Check if a sender name is blocked (O(1) lookup)
-    public func isBlockedSender(_ name: String?) -> Bool {
+    func isBlockedSender(_ name: String?) -> Bool {
         guard let name else { return false }
         return blockedNames.contains(name)
     }

@@ -4,7 +4,7 @@ import Foundation
 
 /// Represents the user's connection intent, replacing three separate flags:
 /// `shouldBeConnected`, `userExplicitlyDisconnected`, and `pendingForceFullSync`.
-public enum ConnectionIntent: Sendable, Equatable {
+enum ConnectionIntent: Sendable, Equatable {
 
     /// No active connection intent (initial state)
     case none

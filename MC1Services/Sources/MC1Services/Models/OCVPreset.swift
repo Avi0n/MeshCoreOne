@@ -1,7 +1,7 @@
 import Foundation
 
 /// Categories for OCV presets
-public enum OCVPresetCategory: Sendable {
+enum OCVPresetCategory: Sendable {
     /// Generic battery chemistry (Li-Ion, LiFePO4, etc.)
     case batteryChemistry
     /// Specific commercial device
@@ -95,7 +95,7 @@ public enum OCVPreset: String, CaseIterable, Codable, Sendable {
     }
 
     /// The category of this preset
-    public var category: OCVPresetCategory {
+    var category: OCVPresetCategory {
         switch self {
         case .liIon, .liFePO4, .leadAcid, .alkaline, .niMH, .lto:
             .batteryChemistry

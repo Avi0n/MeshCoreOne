@@ -113,7 +113,7 @@ public final class PendingSend {
         self.attemptCount = attemptCount
     }
 
-    public var kind: PendingSendKind {
+    var kind: PendingSendKind {
         PendingSendKind(rawValue: kindRawValue) ?? .dm
     }
 }
@@ -124,7 +124,7 @@ public final class PendingSend {
 /// even though `PendingSendDTO` is excluded from `AppBackupEnvelope`, the
 /// discriminator IS persisted via `kindRawValue` and a future case rename
 /// must not silently change the on-disk format.
-public enum PendingSendKind: Int, Sendable {
+enum PendingSendKind: Int, Sendable {
     case dm = 0
     case channel = 1
 }
@@ -141,7 +141,7 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
     public let id: UUID
     public let radioID: UUID
     public let messageID: UUID
-    public let kind: PendingSendKind
+    let kind: PendingSendKind
     public let contactID: UUID?
     public let channelIndex: UInt8?
     public let isResend: Bool
@@ -156,7 +156,7 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
     /// lightweight-migrate to `nil`.
     public let attemptCount: Int?
 
-    public init(
+    init(
         id: UUID,
         radioID: UUID,
         messageID: UUID,

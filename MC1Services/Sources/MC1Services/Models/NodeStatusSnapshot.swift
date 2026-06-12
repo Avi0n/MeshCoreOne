@@ -3,11 +3,11 @@ import MeshCore
 import SwiftData
 
 /// Capture-rate policy for node status snapshots.
-public enum NodeSnapshotPolicy {
+enum NodeSnapshotPolicy {
     /// Minimum interval between persisted snapshots for the same node.
     /// A status, telemetry, or neighbor capture arriving within this window of
     /// the latest snapshot enriches that row rather than inserting a new one.
-    public static let minimumInterval: TimeInterval = 15 * 60
+    static let minimumInterval: TimeInterval = 15 * 60
 }
 
 /// The radio/room status fields captured in a snapshot, clamped to their
@@ -107,46 +107,46 @@ public struct TelemetrySnapshotEntry: Codable, Sendable, Equatable {
 
 /// Point-in-time snapshot of a remote node's status, captured when the user views it.
 @Model
-public final class NodeStatusSnapshot {
+final class NodeStatusSnapshot {
     #Index<NodeStatusSnapshot>([\.nodePublicKey, \.timestamp])
 
     @Attribute(.unique)
-    public var id: UUID
+    var id: UUID
 
     /// When this snapshot was captured
-    public var timestamp: Date
+    var timestamp: Date
 
     /// The node's full public key (32 bytes) -- links to RemoteNodeSession
-    public var nodePublicKey: Data
+    var nodePublicKey: Data
 
     // MARK: - Radio metrics
     // Intentionally excluded: txQueueLength, airtime, sentFlood, sentDirect,
     // receivedFlood, receivedDirect, fullEvents, directDuplicates, floodDuplicates
 
-    public var batteryMillivolts: UInt16?
-    public var lastSNR: Double?
-    public var lastRSSI: Int16?
-    public var noiseFloor: Int16?
-    public var uptimeSeconds: UInt32?
-    public var rxAirtimeSeconds: UInt32?
-    public var packetsSent: UInt32?
-    public var packetsReceived: UInt32?
-    public var receiveErrors: UInt32?
+    var batteryMillivolts: UInt16?
+    var lastSNR: Double?
+    var lastRSSI: Int16?
+    var noiseFloor: Int16?
+    var uptimeSeconds: UInt32?
+    var rxAirtimeSeconds: UInt32?
+    var packetsSent: UInt32?
+    var packetsReceived: UInt32?
+    var receiveErrors: UInt32?
 
     // MARK: - Room server metrics
 
-    public var postedCount: UInt16?
-    public var postPushCount: UInt16?
+    var postedCount: UInt16?
+    var postPushCount: UInt16?
 
     // MARK: - Optional neighbor/telemetry data
 
     /// Neighbor data, only populated if the user expanded the neighbors section.
-    public var neighborSnapshots: [NeighborSnapshotEntry]?
+    var neighborSnapshots: [NeighborSnapshotEntry]?
 
     /// Telemetry data, only populated if the user expanded the telemetry section.
-    public var telemetryEntries: [TelemetrySnapshotEntry]?
+    var telemetryEntries: [TelemetrySnapshotEntry]?
 
-    public init(
+    init(
         id: UUID = UUID(),
         timestamp: Date = .now,
         nodePublicKey: Data,
@@ -199,7 +199,7 @@ public final class NodeStatusSnapshot {
     }
 
     /// Builds a model instance directly from a DTO.
-    public convenience init(dto: NodeStatusSnapshotDTO) {
+    convenience init(dto: NodeStatusSnapshotDTO) {
         self.init(
             id: dto.id,
             timestamp: dto.timestamp,

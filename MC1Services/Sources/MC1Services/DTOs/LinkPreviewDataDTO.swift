@@ -31,7 +31,7 @@ public struct LinkPreviewDataDTO: Identifiable, Sendable, Hashable {
         self.fetchedAt = fetchedAt
     }
 
-    public init(from model: LinkPreviewData) {
+    init(from model: LinkPreviewData) {
         self.id = model.url
         self.url = model.url
         self.title = model.title

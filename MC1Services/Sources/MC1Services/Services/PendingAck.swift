@@ -7,15 +7,15 @@ import Foundation
 /// All attempts for the same message share one `PendingAck` entry.
 ///
 /// DM-only: channel/room broadcasts do not generate ACKs and are not tracked here.
-public struct PendingAck: Sendable {
-    public let messageID: UUID
-    public let contactID: UUID
-    public var ackCodes: Set<Data>
-    public var sentAt: Date
-    public var timeout: TimeInterval
-    public var isDelivered: Bool = false
+struct PendingAck: Sendable {
+    let messageID: UUID
+    let contactID: UUID
+    var ackCodes: Set<Data>
+    var sentAt: Date
+    var timeout: TimeInterval
+    var isDelivered: Bool = false
 
-    public init(
+    init(
         messageID: UUID,
         contactID: UUID,
         ackCodes: Set<Data>,
@@ -31,7 +31,7 @@ public struct PendingAck: Sendable {
         self.isDelivered = isDelivered
     }
 
-    public var isExpired: Bool {
+    var isExpired: Bool {
         !isDelivered && Date().timeIntervalSince(sentAt) > timeout
     }
 }

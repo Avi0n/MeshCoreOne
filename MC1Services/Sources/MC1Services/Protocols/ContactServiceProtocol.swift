@@ -18,7 +18,7 @@ import MeshCore
 ///     }
 /// }
 /// ```
-public protocol ContactServiceProtocol: Actor {
+protocol ContactServiceProtocol: Actor {
 
     // MARK: - Contact Sync
 

@@ -15,15 +15,15 @@ import os
 /// - `finish()` ends every subscriber's for-await loop; the owning container
 ///   calls it on teardown so consumer tasks release their service references.
 ///   Subscribing again after `finish()` starts a fresh subscription.
-public final class EventBroadcaster<Event: Sendable>: Sendable {
+final class EventBroadcaster<Event: Sendable>: Sendable {
 
     private let continuations = OSAllocatedUnfairLock<[UUID: AsyncStream<Event>.Continuation]>(initialState: [:])
 
-    public init() {}
+    init() {}
 
     /// Returns a fresh stream receiving every event yielded after this call.
     /// Cancelling the consuming task unregisters the subscriber.
-    public func subscribe() -> AsyncStream<Event> {
+    func subscribe() -> AsyncStream<Event> {
         let (stream, continuation) = AsyncStream.makeStream(of: Event.self)
         let id = UUID()
         continuations.withLock { $0[id] = continuation }
@@ -35,7 +35,7 @@ public final class EventBroadcaster<Event: Sendable>: Sendable {
 
     /// Delivers the event to every active subscriber, pruning any that
     /// terminated without unregistering.
-    public func yield(_ event: Event) {
+    func yield(_ event: Event) {
         let snapshot = continuations.withLock { $0 }
         var staleIDs: [UUID] = []
         for (id, continuation) in snapshot {
@@ -53,7 +53,7 @@ public final class EventBroadcaster<Event: Sendable>: Sendable {
     }
 
     /// Ends every subscriber's stream and unregisters them all.
-    public func finish() {
+    func finish() {
         let snapshot = continuations.withLock { state in
             let current = state
             state.removeAll()

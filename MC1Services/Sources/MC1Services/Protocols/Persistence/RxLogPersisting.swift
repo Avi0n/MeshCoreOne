@@ -70,7 +70,7 @@ public protocol RxLogPersisting: Actor {
 
 // MARK: - Default Parameter Values
 
-public extension RxLogPersisting {
+extension RxLogPersisting {
     /// Fetch RX log entries with the default limit of 500
     func fetchRxLogEntries(radioID: UUID) async throws -> [RxLogEntryDTO] {
         try await fetchRxLogEntries(radioID: radioID, limit: 500)

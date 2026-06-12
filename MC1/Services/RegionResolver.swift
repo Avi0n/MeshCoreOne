@@ -9,11 +9,11 @@ import OSLog
 /// CoreLocation-free. The resolver is a one-shot orchestrator — views observe
 /// `AppState.regionSelection`, not this object — so it is not `@Observable`.
 @MainActor
-public final class RegionResolver {
+final class RegionResolver {
 
-    public static let locationTimeout: Duration = .seconds(5)
-    public static let geocodeTimeout: Duration = .seconds(5)
-    public static let cacheTTL: TimeInterval = 24 * 60 * 60
+    static let locationTimeout: Duration = .seconds(5)
+    static let geocodeTimeout: Duration = .seconds(5)
+    static let cacheTTL: TimeInterval = 24 * 60 * 60
 
     private static let geocodingLocale = Locale(identifier: "en_US")
     private static let countySuffix = " county"
@@ -23,7 +23,7 @@ public final class RegionResolver {
     private let geocoder: any Geocoder
     private var cache: [CacheKey: CachedResult] = [:]
 
-    public init(location: LocationService, geocoder: any Geocoder = AppleGeocoder()) {
+    init(location: LocationService, geocoder: any Geocoder = AppleGeocoder()) {
         self.location = location
         self.geocoder = geocoder
     }
@@ -31,7 +31,7 @@ public final class RegionResolver {
     /// Returns a `RegionSelection` derived from the device's current location, or
     /// nil for any failure (denied, timeout, no network, nil isoCountryCode).
     /// Failure modes are silent — callers fall through to manual picker.
-    public func resolve() async -> RegionSelection? {
+    func resolve() async -> RegionSelection? {
         guard location.isAuthorized else { return nil }
         do {
             let loc = try await location.requestCurrentLocation(timeout: Self.locationTimeout)

@@ -78,7 +78,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertDevices(
+    func batchInsertDevices(
         _ dtos: [DeviceDTO],
         existingKeys: Set<Data>
     ) throws -> (inserted: Int, skipped: Int) {
@@ -98,7 +98,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertContacts(
+    func batchInsertContacts(
         _ dtos: [ContactDTO],
         radioIDs: Set<UUID>
     ) throws -> (inserted: Int, skipped: Int, merged: Int, contactIDsByKey: [String: UUID]) {
@@ -140,14 +140,14 @@ extension PersistenceStore {
     /// slots whose local channel identity changed, so they — together with `droppedChannelIndices`
     /// — are the slots whose chat drafts the caller must clear. Slots reached via secret/slot
     /// merge are excluded: their occupant is unchanged, so their draft stays valid.
-    public struct ChannelBatchInsertResult: Sendable {
-        public let inserted: Int
-        public let skipped: Int
-        public let merged: Int
-        public let dropped: Int
-        public let channelIndexRemap: [UUID: [UInt8: UInt8]]
-        public let droppedChannelIndices: [UUID: Set<UInt8>]
-        public let insertedLocalIndices: [UUID: Set<UInt8>]
+    struct ChannelBatchInsertResult: Sendable {
+        let inserted: Int
+        let skipped: Int
+        let merged: Int
+        let dropped: Int
+        let channelIndexRemap: [UUID: [UInt8: UInt8]]
+        let droppedChannelIndices: [UUID: Set<UInt8>]
+        let insertedLocalIndices: [UUID: Set<UInt8>]
     }
 
     /// Reconciles backup channels against local channels by stable cryptographic identity
@@ -163,7 +163,7 @@ extension PersistenceStore {
     /// A backup channel with no free slot is dropped and reported via `skipped`; its
     /// messages are dropped by the caller because no placement exists.
     @discardableResult
-    public func batchInsertChannels(
+    func batchInsertChannels(
         _ dtos: [ChannelDTO],
         radioIDs: Set<UUID>,
         maxChannelsByRadioID: [UUID: UInt8] = [:]
@@ -300,7 +300,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertMessages(
+    func batchInsertMessages(
         _ dtos: [MessageDTO],
         existingKeys: Set<String>,
         existingIDsByKey: [String: [UUID]]
@@ -344,7 +344,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertMessageRepeats(
+    func batchInsertMessageRepeats(
         _ dtos: [MessageRepeatDTO],
         existingIDs: Set<UUID>,
         existingMessageIDs: Set<UUID>
@@ -372,7 +372,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertReactions(
+    func batchInsertReactions(
         _ dtos: [ReactionDTO],
         existingKeys: Set<String>,
         existingMessageIDs: Set<UUID>
@@ -389,7 +389,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertRoomMessages(
+    func batchInsertRoomMessages(
         _ dtos: [RoomMessageDTO],
         existingKeys: Set<String>,
         existingSessionIDs: Set<UUID>
@@ -406,7 +406,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertRemoteNodeSessions(
+    func batchInsertRemoteNodeSessions(
         _ dtos: [RemoteNodeSessionDTO],
         radioIDs: Set<UUID>
     ) throws -> (inserted: Int, skipped: Int, merged: Int, sessionIDsByKey: [String: UUID]) {
@@ -439,7 +439,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertSavedTracePaths(
+    func batchInsertSavedTracePaths(
         _ dtos: [SavedTracePathDTO]
     ) throws -> (inserted: Int, skipped: Int, merged: Int) {
         guard !dtos.isEmpty else { return (0, 0, 0) }
@@ -510,7 +510,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertBlockedChannelSenders(
+    func batchInsertBlockedChannelSenders(
         _ dtos: [BlockedChannelSenderDTO],
         existingKeys: Set<String>
     ) throws -> (inserted: Int, skipped: Int) {
@@ -523,7 +523,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertNodeStatusSnapshots(
+    func batchInsertNodeStatusSnapshots(
         _ dtos: [NodeStatusSnapshotDTO],
         existingKeys: Set<String>
     ) throws -> (inserted: Int, skipped: Int) {

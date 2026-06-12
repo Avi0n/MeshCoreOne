@@ -9,8 +9,8 @@
 /// - iOS BLE transport with state restoration and background mode
 /// - Notification, Keychain, and AccessorySetupKit services
 /// - High-level service layer (ContactService, MessageService, ChannelService)
-public enum MC1ServicesVersion {
-    public static let version = "0.1.0"
+enum MC1ServicesVersion {
+    static let version = "0.1.0"
 }
 
 // MARK: - Type Aliases

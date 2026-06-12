@@ -5,7 +5,7 @@ import CoreLocation
 /// Manages tab selection, pending navigation targets, and cross-tab navigation coordination.
 @Observable
 @MainActor
-public final class NavigationCoordinator {
+final class NavigationCoordinator {
 
     /// Selected tab index
     var selectedTab: Int = 0

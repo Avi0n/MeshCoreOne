@@ -156,7 +156,7 @@ public final class Message {
 
     /// Heard repeats for this message (cascade delete)
     @Relationship(deleteRule: .cascade, inverse: \MessageRepeat.message)
-    public var repeats: [MessageRepeat]?
+    var repeats: [MessageRepeat]?
 
     public init(
         id: UUID = UUID(),

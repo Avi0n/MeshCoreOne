@@ -1,6 +1,6 @@
 import SwiftUI
 import UIKit
-import MC1Services
+@testable import MC1Services
 @testable import MC1
 
 /// Shared fixtures for `UnifiedMessageBubble` tests. Pure constructors —

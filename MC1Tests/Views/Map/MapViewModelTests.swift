@@ -1,7 +1,7 @@
 import Testing
 import Foundation
 import CoreLocation
-import MC1Services
+@testable import MC1Services
 @testable import MC1
 
 @Suite("MapViewModel Focus Tests")

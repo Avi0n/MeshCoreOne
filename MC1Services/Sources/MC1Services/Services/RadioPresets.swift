@@ -41,7 +41,7 @@ public enum RadioRegion: String, CaseIterable, Sendable {
 /// Geographic availability tier for a `RadioPreset`. Used by the recommendation
 /// algorithm to choose the most-specific community-curated preset that matches
 /// the user's `RegionSelection`.
-public enum PresetAvailability: Sendable, Equatable {
+enum PresetAvailability: Sendable, Equatable {
     case continent(RadioRegion)
     case countries(Set<String>)                                          // ISO-3166 α-2
     case subRegions(country: String, areas: Set<String>)                 // ISO 3166-2
@@ -60,7 +60,7 @@ public struct RadioPreset: Identifiable, Sendable, Equatable {
 
     /// Section header for repeat mode presets (e.g., "EU/Asia", "US/AU/NZ")
     public let repeatSectionHeader: String?
-    public let availability: PresetAvailability
+    let availability: PresetAvailability
     /// Higher value = preferred within a geographic tier. Standard presets use 100; community-recommended favorites use 110.
     public let recommendationPriority: Int
 
@@ -70,7 +70,7 @@ public struct RadioPreset: Identifiable, Sendable, Equatable {
     /// Bandwidth in Hz for protocol encoding
     public var bandwidthHz: UInt32 { UInt32((bandwidthKHz * 1000).rounded()) }
 
-    public init(
+    init(
         id: String,
         name: String,
         region: RadioRegion,

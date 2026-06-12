@@ -1,9 +1,9 @@
 import Foundation
 
 /// Parsed meshcore-open v3 reaction data
-public struct ParsedMCOReaction: Sendable, Equatable {
-    public let emoji: String
-    public let dartHash: String  // 4 lowercase hex chars
+struct ParsedMCOReaction: Sendable, Equatable {
+    let emoji: String
+    let dartHash: String  // 4 lowercase hex chars
 }
 
 /// Parsed meshcore-open v1 reaction data (pre-Jan 2026 clients)
@@ -11,14 +11,14 @@ public struct ParsedMCOReaction: Sendable, Equatable {
 /// The `senderNameHash` and `textHash` are full Dart VM `String.hashCode` values
 /// (30-bit, decimal-encoded on the wire). For DM reactions, `senderNameHash` is
 /// not verified during matching since DMs have implicit sender context.
-public struct ParsedMCOReactionV1: Sendable, Equatable {
-    public let emoji: String
-    public let timestampSeconds: UInt32
-    public let senderNameHash: UInt32
-    public let textHash: UInt32
+struct ParsedMCOReactionV1: Sendable, Equatable {
+    let emoji: String
+    let timestampSeconds: UInt32
+    let senderNameHash: UInt32
+    let textHash: UInt32
 
     /// Reconstructs the original v1 messageId, used as the opaque reaction hash for dedup.
-    public var messageIdHash: String {
+    var messageIdHash: String {
         "\(timestampSeconds)_\(senderNameHash)_\(textHash)"
     }
 }
@@ -28,7 +28,7 @@ public struct ParsedMCOReactionV1: Sendable, Equatable {
 /// meshcore-open sends reactions as `r:{4-char-hash}:{2-char-emoji-index}`.
 /// The hash is computed using the Dart VM's `String.hashCode` algorithm
 /// masked to 16 bits.
-public enum MeshCoreOpenReactionParser {
+enum MeshCoreOpenReactionParser {
 
     // MARK: - Parsing
 
@@ -36,7 +36,7 @@ public enum MeshCoreOpenReactionParser {
     ///
     /// Format: `r:{4-char-hex-hash}:{2-char-hex-emoji-index}`
     /// - Returns: Parsed emoji and dart hash, or nil if format doesn't match.
-    public static func parse(_ text: String) -> ParsedMCOReaction? {
+    static func parse(_ text: String) -> ParsedMCOReaction? {
         guard text.count == 9,
               text.hasPrefix("r:"),
               text[text.index(text.startIndex, offsetBy: 6)] == ":" else {
@@ -71,7 +71,7 @@ public enum MeshCoreOpenReactionParser {
     /// Format: `r:{millis}_{senderNameHash}_{textHash}:{emoji}`
     /// Used by pre-Jan 2026 meshcore-open clients. The hashes are full Dart
     /// `String.hashCode` values (30-bit, decimal-encoded).
-    public static func parseV1(_ text: String) -> ParsedMCOReactionV1? {
+    static func parseV1(_ text: String) -> ParsedMCOReactionV1? {
         guard text.hasPrefix("r:") else { return nil }
 
         // Split on last ":" to separate messageId from emoji
@@ -124,11 +124,11 @@ public enum MeshCoreOpenReactionParser {
     ///     if hash == 0: hash = 1
     /// ```
     /// Convenience overload that hashes a String's UTF-16 code units directly.
-    public static func dartStringHash(_ string: String) -> UInt32 {
+    static func dartStringHash(_ string: String) -> UInt32 {
         dartStringHash(Array(string.utf16))
     }
 
-    public static func dartStringHash(_ codeUnits: [UInt16]) -> UInt32 {
+    static func dartStringHash(_ codeUnits: [UInt16]) -> UInt32 {
         var hash: UInt32 = 0
 
         for unit in codeUnits {
@@ -160,7 +160,7 @@ public enum MeshCoreOpenReactionParser {
     ///   - senderName: Sender node name (nil for DM reactions)
     ///   - text: Message text content
     /// - Returns: 4-character lowercase hex hash string
-    public static func computeReactionHash(
+    static func computeReactionHash(
         timestamp: UInt32,
         senderName: String?,
         text: String

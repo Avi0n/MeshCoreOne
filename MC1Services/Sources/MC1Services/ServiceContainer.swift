@@ -80,7 +80,7 @@ public final class ServiceContainer {
     // MARK: - Independent Services
 
     /// Keychain service for secure credential storage
-    public let keychainService: KeychainService
+    let keychainService: KeychainService
 
     /// Notification service for local notifications
     public let notificationService: NotificationService
@@ -108,7 +108,7 @@ public final class ServiceContainer {
     public let advertisementService: AdvertisementService
 
     /// Service for polling and routing messages
-    public let messagePollingService: MessagePollingService
+    let messagePollingService: MessagePollingService
 
     /// Service for binary protocol operations (telemetry, status, etc.)
     public let binaryProtocolService: BinaryProtocolService
@@ -176,7 +176,7 @@ public final class ServiceContainer {
 
     /// Provider for checking app foreground/background state
     /// Used to determine sync behavior (full vs incremental)
-    public let appStateProvider: AppStateProvider?
+    let appStateProvider: AppStateProvider?
 
     // MARK: - State
 
@@ -194,7 +194,7 @@ public final class ServiceContainer {
     private var eventMonitoringState: EventMonitoringState = .stopped
 
     /// Whether service event listeners are active or currently starting.
-    public var isEventMonitoringActive: Bool {
+    var isEventMonitoringActive: Bool {
         eventMonitoringState == .starting || eventMonitoringState == .active
     }
 
@@ -216,7 +216,7 @@ public final class ServiceContainer {
     ///     time. Connect paths reach `.connected` before constructing the
     ///     container, so the queue's edge detection treats an
     ///     already-connected initial value as a fired edge.
-    public init(
+    init(
         session: MeshCoreSession,
         modelContainer: ModelContainer,
         radioID: UUID,
@@ -334,7 +334,7 @@ public final class ServiceContainer {
     ///   - radioID: The connected device's radio ID for data scoping
     ///   - enableAutoFetch: Whether to start message auto-fetch immediately (default true)
     ///   - enableAdvertisementMonitoring: Whether to start advertisement monitoring immediately (default true)
-    public func startEventMonitoring(
+    func startEventMonitoring(
         radioID: UUID,
         enableAutoFetch: Bool = true,
         enableAdvertisementMonitoring: Bool = true
@@ -393,7 +393,7 @@ public final class ServiceContainer {
     /// Stops event monitoring for all services.
     ///
     /// Call this when disconnecting from a device.
-    public func stopEventMonitoring() async {
+    func stopEventMonitoring() async {
         // Claimed synchronously, mirroring startEventMonitoring, so two teardown
         // paths interleaving at the awaits below cannot double-stop.
         guard eventMonitoringState == .active else { return }
@@ -421,7 +421,7 @@ public final class ServiceContainer {
     /// so chat send queue drains and chat coordinator off-main builds release
     /// the strong references they hold on `MessageService` and `dataStore`.
     /// `stopEventMonitoring()` alone does not cover those.
-    public func tearDown() async {
+    func tearDown() async {
         await stopEventMonitoring()
 
         // Break the retain cycles the wired handlers form. The message
@@ -451,14 +451,14 @@ public final class ServiceContainer {
     /// Performs initial database warm-up.
     ///
     /// Call this early during app launch to avoid lazy initialization delays.
-    public func warmUp() async throws {
+    func warmUp() async throws {
         try await dataStore.warmUp()
     }
 
     /// Resets all remote node session connections.
     ///
     /// Call this on app launch since connections don't persist across app restarts.
-    public func resetRemoteNodeConnections() async throws {
+    func resetRemoteNodeConnections() async throws {
         try await dataStore.resetAllRemoteNodeSessionConnections()
     }
 }
@@ -476,7 +476,7 @@ extension ServiceContainer {
     ///   - session: The MeshCoreSession for device communication
     ///   - radioID: Radio ID to scope the chat send queue (default: synthesized `UUID()`)
     /// - Returns: A configured ServiceContainer with in-memory storage
-    public static func forTesting(
+    static func forTesting(
         session: MeshCoreSession,
         radioID: UUID = UUID()
     ) async throws -> ServiceContainer {

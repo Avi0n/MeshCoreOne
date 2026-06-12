@@ -7,16 +7,11 @@ import Foundation
 /// this value.
 public struct ChatConversationID: Hashable, Sendable {
     public let radioID: UUID
-    public let conversation: ConversationKey
+    let conversation: ConversationKey
 
-    public enum ConversationKey: Hashable, Sendable {
+    enum ConversationKey: Hashable, Sendable {
         case dm(contactID: UUID)
         case channel(channelIndex: UInt8)
-    }
-
-    public init(radioID: UUID, conversation: ConversationKey) {
-        self.radioID = radioID
-        self.conversation = conversation
     }
 }
 

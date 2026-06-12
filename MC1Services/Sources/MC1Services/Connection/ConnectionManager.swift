@@ -56,7 +56,7 @@ public final class ConnectionManager {
     /// subscription by task cancellation in `tearDown()`. `ConnectionManager`
     /// never calls `finish()`: it lives for the app lifetime, and the next
     /// connection's container subscribes to this same broadcaster.
-    public let connectionStateEvents = EventBroadcaster<DeviceConnectionState>()
+    let connectionStateEvents = EventBroadcaster<DeviceConnectionState>()
 
     /// Current connection state
     public internal(set) var connectionState: DeviceConnectionState = .disconnected {

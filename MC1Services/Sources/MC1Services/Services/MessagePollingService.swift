@@ -24,7 +24,7 @@ extension MessagePollingError: LocalizedError {
 
 /// Service for polling messages from the mesh device.
 /// Handles automatic message fetching and contact message routing.
-public actor MessagePollingService {
+actor MessagePollingService {
 
     // MARK: - Properties
 
@@ -67,7 +67,7 @@ public actor MessagePollingService {
 
     // MARK: - Initialization
 
-    public init(
+    init(
         session: any MeshCoreSessionProtocol,
         dataStore: any PersistenceStoreProtocol
     ) {
@@ -82,29 +82,29 @@ public actor MessagePollingService {
     // MARK: - Event Handlers
 
     /// Set handler for incoming contact messages
-    public func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void) {
+    func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void) {
         contactMessageHandler = handler
     }
 
     /// Set handler for incoming channel messages
-    public func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void) {
+    func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void) {
         channelMessageHandler = handler
     }
 
     /// Set handler for signed messages (from room servers)
-    public func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {
+    func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {
         signedMessageHandler = handler
     }
 
     /// Set handler for CLI responses (textType = 0x01)
-    public func setCLIMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {
+    func setCLIMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {
         cliMessageHandler = handler
     }
 
     /// Clears all message handlers. The wired handlers capture the owning
     /// `ServiceContainer` strongly, so leaving them in place keeps the whole
     /// service graph alive after the container is torn down on disconnect.
-    public func clearMessageHandlers() {
+    func clearMessageHandlers() {
         contactMessageHandler = nil
         channelMessageHandler = nil
         signedMessageHandler = nil
@@ -122,14 +122,14 @@ public actor MessagePollingService {
     /// Start event monitoring for message handlers without enabling auto-fetch.
     /// Call this before sync to ensure handlers are ready for polled messages.
     /// - Parameter radioID: The radio ID for contact lookups
-    public func startMessageEventMonitoring(radioID: UUID) {
+    func startMessageEventMonitoring(radioID: UUID) {
         currentRadioID = radioID
         startEventMonitoring()
         logger.info("Message event monitoring started for radio \(radioID)")
     }
 
     /// Stop event monitoring (also stops auto-fetch if running)
-    public func stopMessageEventMonitoring() async {
+    func stopMessageEventMonitoring() async {
         if isAutoFetchEnabled {
             await stopAutoFetch()
         } else {
@@ -143,7 +143,7 @@ public actor MessagePollingService {
     /// Start automatic message fetching for a device.
     /// This enables the session's auto-fetch feature and monitors for incoming messages.
     /// - Parameter radioID: The radio ID for contact lookups
-    public func startAutoFetch(radioID: UUID) async {
+    func startAutoFetch(radioID: UUID) async {
         guard !isAutoFetchEnabled else { return }
 
         currentRadioID = radioID
@@ -159,7 +159,7 @@ public actor MessagePollingService {
     }
 
     /// Stop automatic message fetching
-    public func stopAutoFetch() async {
+    func stopAutoFetch() async {
         guard isAutoFetchEnabled else { return }
 
         isAutoFetchEnabled = false
@@ -175,19 +175,19 @@ public actor MessagePollingService {
 
     /// Pause session-level auto-fetching without stopping event monitoring.
     /// Used during resync to prevent auto-fetch events from inflating handler counts.
-    public func pauseAutoFetch() async {
+    func pauseAutoFetch() async {
         guard isAutoFetchEnabled else { return }
         await session.stopAutoMessageFetching()
     }
 
     /// Resume session-level auto-fetching after a pause.
-    public func resumeAutoFetch() async {
+    func resumeAutoFetch() async {
         guard isAutoFetchEnabled else { return }
         await session.startAutoMessageFetching()
     }
 
     /// Check if auto-fetch is currently enabled
-    public var isAutoFetching: Bool {
+    var isAutoFetching: Bool {
         isAutoFetchEnabled
     }
 
@@ -195,7 +195,7 @@ public actor MessagePollingService {
 
     /// Manually poll for one message from the device.
     /// - Returns: The message result (contact message, channel message, or no more messages)
-    public func pollMessage() async throws -> MessageResult {
+    func pollMessage() async throws -> MessageResult {
         do {
             return try await session.getMessage()
         } catch let error as MeshCoreError {
@@ -205,7 +205,7 @@ public actor MessagePollingService {
 
     /// Poll all waiting messages from the device.
     /// - Returns: Count of messages retrieved
-    public func pollAllMessages() async throws -> Int {
+    func pollAllMessages() async throws -> Int {
         isPolling = true
         defer { isPolling = false }
         var count = 0
@@ -236,7 +236,7 @@ public actor MessagePollingService {
     /// Wait for all pending message handlers to complete.
     /// Call this after pollAllMessages() to ensure all messages are fully processed
     /// before performing actions that depend on completion (like resuming notifications).
-    public func waitForPendingHandlers(timeout: Duration) async -> Bool {
+    func waitForPendingHandlers(timeout: Duration) async -> Bool {
         let clock = ContinuousClock()
         let deadline = clock.now.advanced(by: timeout)
 
@@ -347,7 +347,7 @@ extension MessagePollingService: MessagePollingServiceProtocol {
 // MARK: - Message Text Type Constants
 
 /// Text type identifiers for mesh messages
-public enum MeshTextType: UInt8 {
+enum MeshTextType: UInt8 {
     case plain = 0x00
     case cliData = 0x01
     case signedPlain = 0x02

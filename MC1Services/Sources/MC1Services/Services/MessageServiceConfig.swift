@@ -2,21 +2,21 @@ import Foundation
 
 /// Tuning for the `withPoolBackoff` helper that absorbs short bursts of
 /// firmware pool-exhaustion errors before parking the envelope.
-public struct PoolBackoffConfig: Sendable {
+struct PoolBackoffConfig: Sendable {
     /// Maximum in-loop retries before re-throwing the transient `deviceError`.
-    public let attemptCap: Int
+    let attemptCap: Int
 
     /// Delay for the first in-loop retry (multiplied by `exponentBase` for
     /// subsequent attempts, then by a value sampled from `jitterRange`).
-    public let baseDelay: TimeInterval
+    let baseDelay: TimeInterval
 
     /// Exponential growth factor applied to `baseDelay` per attempt.
-    public let exponentBase: Double
+    let exponentBase: Double
 
     /// Multiplicative jitter envelope sampled per retry.
-    public let jitterRange: ClosedRange<Double>
+    let jitterRange: ClosedRange<Double>
 
-    public init(
+    init(
         attemptCap: Int = 3,
         baseDelay: TimeInterval = 0.5,
         exponentBase: Double = 2.0,
@@ -28,30 +28,30 @@ public struct PoolBackoffConfig: Sendable {
         self.jitterRange = jitterRange
     }
 
-    public static let `default` = PoolBackoffConfig()
+    static let `default` = PoolBackoffConfig()
 }
 
 /// Configuration for message retry and routing behavior.
 ///
 /// Controls how the message service handles delivery failures and routing fallback.
-public struct MessageServiceConfig: Sendable {
+struct MessageServiceConfig: Sendable {
     /// Whether to use flood routing when user manually retries a failed message
-    public let floodFallbackOnRetry: Bool
+    let floodFallbackOnRetry: Bool
 
     /// Maximum total send attempts for automatic retry
-    public let maxAttempts: Int
+    let maxAttempts: Int
 
     /// Maximum attempts to make after switching to flood routing
-    public let maxFloodAttempts: Int
+    let maxFloodAttempts: Int
 
     /// Number of direct attempts before switching to flood routing
-    public let floodAfter: Int
+    let floodAfter: Int
 
     /// Minimum timeout in seconds (floor for device-suggested timeout)
-    public let minTimeout: TimeInterval
+    let minTimeout: TimeInterval
 
     /// Whether to trigger path discovery after successful flood delivery
-    public let triggerPathDiscoveryAfterFlood: Bool
+    let triggerPathDiscoveryAfterFlood: Bool
 
     /// How long a sent DM waits for its end-to-end ACK before being marked
     /// `.failed`, measured from the last send attempt.
@@ -61,12 +61,12 @@ public struct MessageServiceConfig: Sendable {
     /// deadline rather than the firmware estimate. It must comfortably exceed a
     /// multi-hop round trip while still surfacing a genuinely undeliverable DM
     /// in bounded time.
-    public let ackGiveUpWindow: TimeInterval
+    let ackGiveUpWindow: TimeInterval
 
     /// Tuning for the in-loop pool-exhaustion backoff (`withPoolBackoff`).
-    public let poolBackoff: PoolBackoffConfig
+    let poolBackoff: PoolBackoffConfig
 
-    public init(
+    init(
         floodFallbackOnRetry: Bool = true,
         maxAttempts: Int = 4,
         maxFloodAttempts: Int = 2,
@@ -87,5 +87,5 @@ public struct MessageServiceConfig: Sendable {
         self.poolBackoff = poolBackoff
     }
 
-    public static let `default` = MessageServiceConfig()
+    static let `default` = MessageServiceConfig()
 }

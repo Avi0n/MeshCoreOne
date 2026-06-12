@@ -2,18 +2,18 @@ import Foundation
 
 /// Dedicated logger for command audit trails.
 /// Logs all repeater and room commands with consistent formatting.
-public actor CommandAuditLogger {
+actor CommandAuditLogger {
 
     // MARK: - Types
 
     /// Direction of the command
-    public enum Direction: String, Sendable {
+    enum Direction: String, Sendable {
         case out = "->"
         case `in` = "<-"
     }
 
     /// Target type (repeater or room)
-    public enum Target: String, Sendable {
+    enum Target: String, Sendable {
         case repeater = "REPEATER"
         case room = "ROOM"
     }
@@ -25,30 +25,30 @@ public actor CommandAuditLogger {
 
     // MARK: - Initialization
 
-    public init() {}
+    init() {}
 
     // MARK: - Login/Logout
 
     /// Log a login request being sent
-    public func logLoginRequest(target: Target, publicKey: Data, pathLength: UInt8) {
+    func logLoginRequest(target: Target, publicKey: Data, pathLength: UInt8) {
         let keyHex = LogRedaction.publicKeyHex(publicKey)
         logger.info("\(prefix) \(Direction.out.rawValue) \(target.rawValue) LOGIN to=\(keyHex) pathLen=\(pathLength)")
     }
 
     /// Log a successful login response
-    public func logLoginSuccess(target: Target, publicKey: Data, isAdmin: Bool) {
+    func logLoginSuccess(target: Target, publicKey: Data, isAdmin: Bool) {
         let keyHex = LogRedaction.publicKeyHex(publicKey)
         logger.info("\(prefix) \(Direction.in.rawValue) \(target.rawValue) LOGIN_OK from=\(keyHex) admin=\(isAdmin)")
     }
 
     /// Log a failed login response
-    public func logLoginFailed(target: Target, publicKey: Data, reason: String) {
+    func logLoginFailed(target: Target, publicKey: Data, reason: String) {
         let keyHex = LogRedaction.publicKeyHex(publicKey)
         logger.warning("\(prefix) \(Direction.in.rawValue) \(target.rawValue) LOGIN_FAIL from=\(keyHex) reason=\(reason)")
     }
 
     /// Log a logout request being sent
-    public func logLogout(target: Target, publicKey: Data) {
+    func logLogout(target: Target, publicKey: Data) {
         let keyHex = LogRedaction.publicKeyHex(publicKey)
         logger.info("\(prefix) \(Direction.out.rawValue) \(target.rawValue) LOGOUT to=\(keyHex)")
     }
@@ -56,13 +56,13 @@ public actor CommandAuditLogger {
     // MARK: - Status/Telemetry
 
     /// Log a status request being sent
-    public func logStatusRequest(target: Target, publicKey: Data) {
+    func logStatusRequest(target: Target, publicKey: Data) {
         let keyHex = LogRedaction.publicKeyHex(publicKey)
         logger.info("\(prefix) \(Direction.out.rawValue) \(target.rawValue) STATUS_REQ to=\(keyHex)")
     }
 
     /// Log a status response received
-    public func logStatusResponse(target: Target, publicKey: Data, batteryMv: UInt16?, uptimeSec: UInt32?) {
+    func logStatusResponse(target: Target, publicKey: Data, batteryMv: UInt16?, uptimeSec: UInt32?) {
         let keyHex = LogRedaction.publicKeyHex(publicKey)
         let battery = batteryMv.map { "\($0)mV" } ?? "n/a"
         let uptime = uptimeSec.map { "\($0)s" } ?? "n/a"
@@ -70,13 +70,13 @@ public actor CommandAuditLogger {
     }
 
     /// Log a telemetry request being sent
-    public func logTelemetryRequest(target: Target, publicKey: Data) {
+    func logTelemetryRequest(target: Target, publicKey: Data) {
         let keyHex = LogRedaction.publicKeyHex(publicKey)
         logger.info("\(prefix) \(Direction.out.rawValue) \(target.rawValue) TELEM_REQ to=\(keyHex)")
     }
 
     /// Log a telemetry response received
-    public func logTelemetryResponse(target: Target, publicKey: Data, pointCount: Int) {
+    func logTelemetryResponse(target: Target, publicKey: Data, pointCount: Int) {
         let keyHex = LogRedaction.publicKeyHex(publicKey)
         logger.info("\(prefix) \(Direction.in.rawValue) \(target.rawValue) TELEM from=\(keyHex) points=\(pointCount)")
     }
@@ -84,14 +84,14 @@ public actor CommandAuditLogger {
     // MARK: - CLI Commands (Repeater)
 
     /// Log a CLI command being sent (with password redaction)
-    public func logCLICommand(publicKey: Data, command: String) {
+    func logCLICommand(publicKey: Data, command: String) {
         let keyHex = LogRedaction.publicKeyHex(publicKey)
         let redactedCmd = LogRedaction.cliCommand(command)
         logger.info("\(prefix) \(Direction.out.rawValue) REPEATER CLI to=\(keyHex) cmd=\"\(redactedCmd)\"")
     }
 
     /// Log a CLI response received (full content logged)
-    public func logCLIResponse(publicKey: Data, response: String) {
+    func logCLIResponse(publicKey: Data, response: String) {
         let keyHex = LogRedaction.publicKeyHex(publicKey)
         // Truncate very long responses for readability
         let truncated = response.count <= 100 ? response : String(response.prefix(100)) + "..."
@@ -101,13 +101,13 @@ public actor CommandAuditLogger {
     // MARK: - Neighbors (Repeater)
 
     /// Log a neighbors request being sent
-    public func logNeighborsRequest(publicKey: Data, count: UInt8, offset: UInt16) {
+    func logNeighborsRequest(publicKey: Data, count: UInt8, offset: UInt16) {
         let keyHex = LogRedaction.publicKeyHex(publicKey)
         logger.info("\(prefix) \(Direction.out.rawValue) REPEATER NEIGHBORS_REQ to=\(keyHex) count=\(count) offset=\(offset)")
     }
 
     /// Log a neighbors response received
-    public func logNeighborsResponse(publicKey: Data, totalCount: Int, returnedCount: Int) {
+    func logNeighborsResponse(publicKey: Data, totalCount: Int, returnedCount: Int) {
         let keyHex = LogRedaction.publicKeyHex(publicKey)
         logger.info("\(prefix) \(Direction.in.rawValue) REPEATER NEIGHBORS from=\(keyHex) total=\(totalCount) returned=\(returnedCount)")
     }
@@ -115,13 +115,13 @@ public actor CommandAuditLogger {
     // MARK: - Room Messages (metadata only)
 
     /// Log a room message being posted (no content, only length)
-    public func logRoomMessagePosted(publicKey: Data, messageLength: Int) {
+    func logRoomMessagePosted(publicKey: Data, messageLength: Int) {
         let keyHex = LogRedaction.publicKeyHex(publicKey)
         logger.info("\(prefix) \(Direction.out.rawValue) ROOM MSG to=\(keyHex) len=\(messageLength)")
     }
 
     /// Log a room message received (no content, only metadata)
-    public func logRoomMessageReceived(roomPublicKey: Data, authorPrefix: Data, messageLength: Int) {
+    func logRoomMessageReceived(roomPublicKey: Data, authorPrefix: Data, messageLength: Int) {
         let roomHex = LogRedaction.publicKeyHex(roomPublicKey)
         let authorHex = authorPrefix.map { String(format: "%02x", $0) }.joined()
         logger.info("\(prefix) \(Direction.in.rawValue) ROOM MSG from=\(roomHex) author=\(authorHex) len=\(messageLength)")
@@ -130,7 +130,7 @@ public actor CommandAuditLogger {
     // MARK: - Keep-alive
 
     /// Log a keep-alive request being sent
-    public func logKeepAlive(target: Target, publicKey: Data) {
+    func logKeepAlive(target: Target, publicKey: Data) {
         let keyHex = LogRedaction.publicKeyHex(publicKey)
         logger.info("\(prefix) \(Direction.out.rawValue) \(target.rawValue) KEEPALIVE to=\(keyHex)")
     }

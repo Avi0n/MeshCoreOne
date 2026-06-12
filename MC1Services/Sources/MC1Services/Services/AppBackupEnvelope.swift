@@ -259,7 +259,7 @@ func makeBackupJSONDecoder() -> JSONDecoder {
 
 /// Maximum compressed backup size accepted by `parseBackup`. Larger files are
 /// rejected up front so decompression never runs on clearly-oversized input.
-public let maxBackupCompressedBytes = 50 * 1_048_576
+let maxBackupCompressedBytes = 50 * 1_048_576
 
 /// Maximum uncompressed backup size accepted by `parseBackup`. Streaming
 /// decompression aborts once the output crosses this cap so a highly

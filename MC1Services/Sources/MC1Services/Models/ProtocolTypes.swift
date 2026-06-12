@@ -14,7 +14,7 @@ import MeshCore
 /// Re-exported from MeshCore for backward compatibility. MeshContact now uses these
 /// types directly, eliminating the need for rawValue conversions at the boundary.
 public typealias ContactType = MeshCore.ContactType
-public typealias ContactFlags = MeshCore.ContactFlags
+typealias ContactFlags = MeshCore.ContactFlags
 
 // MARK: - Contact Type UI Extensions
 

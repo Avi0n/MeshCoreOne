@@ -11,11 +11,11 @@ import Foundation
 ///
 /// This is inverted from the Nordic UART Service standard naming, which uses
 /// the peripheral's perspective. The actual UUIDs are correct.
-public enum BLEServiceUUID {
+enum BLEServiceUUID {
     /// Nordic UART Service UUID
-    public static let nordicUART = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
+    static let nordicUART = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
     /// TX Characteristic - central writes to this (Nordic: RX Characteristic)
-    public static let txCharacteristic = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
+    static let txCharacteristic = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
     /// RX Characteristic - central receives notifications (Nordic: TX Characteristic)
-    public static let rxCharacteristic = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+    static let rxCharacteristic = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 }

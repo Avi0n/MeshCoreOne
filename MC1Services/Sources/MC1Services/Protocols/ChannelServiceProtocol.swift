@@ -18,7 +18,7 @@ import MeshCore
 ///     }
 /// }
 /// ```
-public protocol ChannelServiceProtocol: Actor {
+protocol ChannelServiceProtocol: Actor {
 
     // MARK: - Channel Sync
 
@@ -39,7 +39,7 @@ public protocol ChannelServiceProtocol: Actor {
     func retryFailedChannels(radioID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult
 }
 
-public extension ChannelServiceProtocol {
+extension ChannelServiceProtocol {
     /// Convenience that defaults to the serial acknowledged read path. A default argument on
     /// the protocol requirement itself is illegal and ignored by witness matching, so the
     /// 2-arg form lives here while conformers implement only the 3-arg requirement.

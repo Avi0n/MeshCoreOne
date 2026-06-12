@@ -29,7 +29,7 @@ extension SyncCoordinator {
     ///   - rxLogService: Optional service for updating contact public keys after sync.
     ///   - forceFullSync: When true, ignores lastContactSync watermark and fetches all contacts.
     @discardableResult
-    public func performFullSync(
+    func performFullSync(
         radioID: UUID,
         dataStore: any PersistenceStoreProtocol,
         contactService: some ContactServiceProtocol,
@@ -188,7 +188,7 @@ extension SyncCoordinator {
     ///   - channelSyncConfig: Channel sync skip configuration.
     ///   - platformName: Platform name for instrumentation logging.
     /// - Returns: `true` if sync succeeded, `false` if it failed
-    public func performResync(
+    func performResync(
         radioID: UUID,
         dependencies: SyncDependencies,
         forceFullSync: Bool = false,
@@ -274,7 +274,7 @@ extension SyncCoordinator {
     ///   - channelSyncConfig: Channel sync skip configuration.
     ///   - platformName: Platform name for instrumentation logging.
     @discardableResult
-    public func onConnectionEstablished(
+    func onConnectionEstablished(
         radioID: UUID,
         dependencies: SyncDependencies,
         forceFullSync: Bool = false,
@@ -377,7 +377,7 @@ extension SyncCoordinator {
     ///
     /// If disconnect occurs mid-sync (during contacts or channels phase), we must call
     /// onSyncActivityEnded to decrement the activity count, otherwise the pill stays stuck.
-    public func onDisconnected(notificationService: NotificationService) async {
+    func onDisconnected(notificationService: NotificationService) async {
         let currentState = await state
         logger.warning(
             "[Sync] onDisconnected called - syncState: \(String(describing: currentState)), hasEndedSyncActivity: \(hasEndedSyncActivity)"
@@ -613,7 +613,7 @@ extension SyncCoordinator {
 
     /// Retries only unresolved channel indices without replaying contacts/messages.
     @discardableResult
-    public func retryChannels(
+    func retryChannels(
         radioID: UUID,
         channelService: some ChannelServiceProtocol,
         indices: [UInt8]

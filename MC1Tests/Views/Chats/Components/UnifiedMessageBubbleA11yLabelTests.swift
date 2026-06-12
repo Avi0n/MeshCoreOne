@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-import MC1Services
+@testable import MC1Services
 @testable import MC1
 
 @MainActor

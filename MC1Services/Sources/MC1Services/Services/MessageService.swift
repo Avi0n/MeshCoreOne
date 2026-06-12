@@ -82,7 +82,7 @@ public actor MessageService {
     ///   - dataStore: The persistence store for saving messages
     ///   - contactService: Contact service for path management during retry
     ///   - config: Configuration for retry and routing behavior (defaults to `.default`)
-    public init(
+    init(
         session: any MeshCoreSessionProtocol,
         dataStore: any PersistenceStoreProtocol,
         contactService: ContactService?,

@@ -5,62 +5,62 @@ import SwiftData
 
 /// SwiftData model for persisted RX log packets.
 @Model
-public final class RxLogEntry {
+final class RxLogEntry {
     #Index<RxLogEntry>(
         [\.channelIndex, \.senderTimestamp],
         [\.radioID, \.receivedAt]
     )
 
     @Attribute(.unique)
-    public var id: UUID
+    var id: UUID
 
     @Attribute(originalName: "deviceID")
-    public var radioID: UUID
+    var radioID: UUID
 
-    public var receivedAt: Date
+    var receivedAt: Date
 
     // From MeshCore ParsedRxLogData
-    public var snr: Double?
-    public var rssi: Int?
-    public var routeType: Int
-    public var payloadType: Int
-    public var payloadVersion: Int
-    public var transportCode: Data?
-    public var pathLength: Int
-    public var pathNodes: Data  // Raw bytes, 1 byte per hop
-    public var packetPayload: Data
-    public var rawPayload: Data
+    var snr: Double?
+    var rssi: Int?
+    var routeType: Int
+    var payloadType: Int
+    var payloadVersion: Int
+    var transportCode: Data?
+    var pathLength: Int
+    var pathNodes: Data  // Raw bytes, 1 byte per hop
+    var packetPayload: Data
+    var rawPayload: Data
 
     // Correlation key for "heard repeats"
-    public var packetHash: String
+    var packetHash: String
 
     // App-level decoding
     @Attribute(originalName: "channelHash")
-    public var channelIndex: Int?
-    public var channelName: String?
-    public var decryptStatus: Int
-    public var fromContactName: String?
-    public var toContactName: String?
+    var channelIndex: Int?
+    var channelName: String?
+    var decryptStatus: Int
+    var fromContactName: String?
+    var toContactName: String?
 
     /// Sender's timestamp from decrypted payload (Unix epoch seconds).
     /// Only available for successfully decrypted channel messages.
-    public var senderTimestamp: Int?
+    var senderTimestamp: Int?
 
     /// Resolved flood region the sender transmitted under, derived from
     /// `transport_codes[0]` at receive time. Nil when no known region matches.
     /// Local-only: not part of any backup envelope.
-    public var regionScope: String?
+    var regionScope: String?
 
     /// Raw 4-bit payload-type nibble from the wire header. Persisted so the
     /// region resolver can replay the exact firmware HMAC input on back-fill,
     /// even for header values that map to `PayloadType.unknown`.
-    public var payloadTypeBits: Int = 0
+    var payloadTypeBits: Int = 0
 
     // Privacy: Never persisted — decrypted on demand
     @Transient
-    public var decodedText: String?
+    var decodedText: String?
 
-    public init(
+    init(
         id: UUID = UUID(),
         radioID: UUID,
         receivedAt: Date = Date(),
@@ -151,7 +151,7 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     public var decodedText: String?
 
     /// Initialize from SwiftData model.
-    public init(from model: RxLogEntry) {
+    init(from model: RxLogEntry) {
         self.id = model.id
         self.radioID = model.radioID
         self.receivedAt = model.receivedAt

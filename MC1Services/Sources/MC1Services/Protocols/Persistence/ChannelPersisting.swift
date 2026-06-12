@@ -77,7 +77,7 @@ public protocol ChannelPersisting: Actor {
 
 // MARK: - Default Parameter Values
 
-public extension ChannelPersisting {
+extension ChannelPersisting {
     /// Default channel-sync persistence built from the per-item operations. The concrete
     /// `PersistenceStore` overrides this with a single-transaction implementation; this
     /// fallback keeps lightweight test stubs conforming without their own batch logic.

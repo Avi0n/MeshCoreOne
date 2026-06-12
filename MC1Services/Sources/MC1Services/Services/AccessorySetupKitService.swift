@@ -7,7 +7,7 @@ import os
 /// Delegate protocol for accessory state changes
 /// Must be @MainActor since implementations access main-actor-isolated state
 @MainActor
-public protocol AccessorySetupKitServiceDelegate: AnyObject {
+protocol AccessorySetupKitServiceDelegate: AnyObject {
     /// Called when an accessory is removed from Settings > Accessories
     func accessorySetupKitService(_ service: AccessorySetupKitService, didRemoveAccessoryWithID bluetoothID: UUID)
 
@@ -30,19 +30,19 @@ public protocol AccessorySetupKitServiceDelegate: AnyObject {
 /// ```
 @Observable
 @MainActor
-public final class AccessorySetupKitService {
+final class AccessorySetupKitService {
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "AccessorySetupKit")
 
     private var session: ASAccessorySession?
 
     /// Previously paired accessories available after session activation
-    public private(set) var pairedAccessories: [ASAccessory] = []
+    private(set) var pairedAccessories: [ASAccessory] = []
 
     /// Whether the session is currently active
-    public private(set) var isSessionActive = false
+    private(set) var isSessionActive = false
 
     /// Delegate for accessory state changes
-    public weak var delegate: AccessorySetupKitServiceDelegate?
+    weak var delegate: AccessorySetupKitServiceDelegate?
 
     /// Pending picker result continuation (for async/await bridge)
     private var pickerContinuation: CheckedContinuation<UUID, Error>?
@@ -60,7 +60,7 @@ public final class AccessorySetupKitService {
     /// handler to remove the orphaned accessory immediately.
     private var pickerWasCancelled = false
 
-    public init() {}
+    init() {}
 
     // MARK: - Continuation Safety
 
@@ -81,7 +81,7 @@ public final class AccessorySetupKitService {
 
     /// Activate the AccessorySetupKit session
     /// Uses Apple's recommended closure pattern to avoid AsyncStream issues
-    public func activateSession() async throws {
+    func activateSession() async throws {
         guard session == nil else { return }
 
         let newSession = ASAccessorySession()
@@ -249,7 +249,7 @@ public final class AccessorySetupKitService {
 
     /// Show the accessory picker for new device pairing
     /// - Returns: The Bluetooth identifier (UUID) for the paired device
-    public func showPicker() async throws -> UUID {
+    func showPicker() async throws -> UUID {
         guard let session else {
             throw AccessorySetupKitError.sessionNotActive
         }
@@ -350,7 +350,7 @@ public final class AccessorySetupKitService {
 
     /// Remove an accessory from the system
     /// Note: iOS 26 shows a confirmation dialog to the user
-    public func removeAccessory(_ accessory: ASAccessory) async throws {
+    func removeAccessory(_ accessory: ASAccessory) async throws {
         guard let session else {
             throw AccessorySetupKitError.sessionNotActive
         }
@@ -370,7 +370,7 @@ public final class AccessorySetupKitService {
 
     /// Shows the system rename sheet for an accessory
     /// - Parameter accessory: The accessory to rename
-    public func renameAccessory(_ accessory: ASAccessory) async throws {
+    func renameAccessory(_ accessory: ASAccessory) async throws {
         guard let session else {
             throw AccessorySetupKitError.sessionNotActive
         }
@@ -380,12 +380,12 @@ public final class AccessorySetupKitService {
     }
 
     /// Find a paired accessory by its Bluetooth identifier
-    public func accessory(for bluetoothID: UUID) -> ASAccessory? {
+    func accessory(for bluetoothID: UUID) -> ASAccessory? {
         pairedAccessories.first { $0.bluetoothIdentifier == bluetoothID }
     }
 
     /// Invalidate the session
-    public func invalidateSession() {
+    func invalidateSession() {
         pickerContinuation?.resume(throwing: AccessorySetupKitError.sessionInvalidated)
         pickerContinuation = nil
         activationContinuation?.resume(throwing: AccessorySetupKitError.sessionInvalidated)
@@ -495,36 +495,36 @@ public enum AccessorySetupKitError: LocalizedError, Sendable {
 // macOS stubs for compilation
 import Foundation
 
-public struct ASAccessory: Sendable {
-    public var bluetoothIdentifier: UUID?
-    public var displayName: String
-    public init(bluetoothIdentifier: UUID? = nil, displayName: String = "") {
+struct ASAccessory: Sendable {
+    var bluetoothIdentifier: UUID?
+    var displayName: String
+    init(bluetoothIdentifier: UUID? = nil, displayName: String = "") {
         self.bluetoothIdentifier = bluetoothIdentifier
         self.displayName = displayName
     }
 }
 
 @MainActor
-public protocol AccessorySetupKitServiceDelegate: AnyObject {
+protocol AccessorySetupKitServiceDelegate: AnyObject {
     func accessorySetupKitService(_ service: AccessorySetupKitService, didRemoveAccessoryWithID bluetoothID: UUID)
     func accessorySetupKitService(_ service: AccessorySetupKitService, didFailPairingForAccessoryWithID bluetoothID: UUID)
 }
 
 @Observable
 @MainActor
-public final class AccessorySetupKitService {
-    public private(set) var pairedAccessories: [ASAccessory] = []
-    public private(set) var isSessionActive = false
-    public weak var delegate: AccessorySetupKitServiceDelegate?
+final class AccessorySetupKitService {
+    private(set) var pairedAccessories: [ASAccessory] = []
+    private(set) var isSessionActive = false
+    weak var delegate: AccessorySetupKitServiceDelegate?
 
-    public init() {}
+    init() {}
 
-    public func activateSession() async throws {}
-    public func showPicker() async throws -> UUID { throw AccessorySetupKitError.sessionNotActive }
-    public func removeAccessory(_ accessory: ASAccessory) async throws {}
-    public func renameAccessory(_ accessory: ASAccessory) async throws {}
-    public func accessory(for bluetoothID: UUID) -> ASAccessory? { nil }
-    public func invalidateSession() {}
+    func activateSession() async throws {}
+    func showPicker() async throws -> UUID { throw AccessorySetupKitError.sessionNotActive }
+    func removeAccessory(_ accessory: ASAccessory) async throws {}
+    func renameAccessory(_ accessory: ASAccessory) async throws {}
+    func accessory(for bluetoothID: UUID) -> ASAccessory? { nil }
+    func invalidateSession() {}
 }
 
 public enum AccessorySetupKitError: LocalizedError, Sendable {

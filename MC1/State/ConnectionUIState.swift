@@ -5,7 +5,7 @@ import MC1Services
 /// Manages connection-related UI state: status pills, sync activity, alerts, and pairing state.
 @Observable
 @MainActor
-public final class ConnectionUIState {
+final class ConnectionUIState {
 
     // MARK: - Ready Toast
 
@@ -319,7 +319,7 @@ public final class ConnectionUIState {
 /// Variant of the pairing-failure alert. Determines whether the recovery action
 /// is destructive (auth: must remove the bond) or non-destructive (transient:
 /// keep the bond, just retry).
-public enum PairingFailureKind: Sendable {
+enum PairingFailureKind: Sendable {
     /// Authentication failed — bond is bad. Recovery requires removing the bond
     /// and re-pairing.
     case authentication

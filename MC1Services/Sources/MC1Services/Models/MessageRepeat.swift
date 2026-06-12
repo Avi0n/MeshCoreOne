@@ -5,40 +5,40 @@ import SwiftData
 /// Represents a single heard repeat of a sent channel message.
 /// Each repeat is an observation of the message being re-broadcast by a repeater.
 @Model
-public final class MessageRepeat {
+final class MessageRepeat {
     #Index<MessageRepeat>(
         [\.messageID, \.receivedAt],
         [\.rxLogEntryID]
     )
 
     @Attribute(.unique)
-    public var id: UUID
+    var id: UUID
 
     /// The parent message (cascade delete when message is deleted)
-    public var message: Message?
+    var message: Message?
 
     /// The message ID (kept for queries, matches message.id)
-    public var messageID: UUID
+    var messageID: UUID
 
     /// When this repeat was received by the companion radio
-    public var receivedAt: Date
+    var receivedAt: Date
 
     /// Repeater public key prefixes (1–3 bytes per hop depending on hash mode)
-    public var pathNodes: Data
+    var pathNodes: Data
 
     /// Encoded path length byte (upper 2 bits = hash mode, lower 6 bits = hop count)
-    public var pathLength: UInt8 = 0
+    var pathLength: UInt8 = 0
 
     /// Signal-to-noise ratio in dB
-    public var snr: Double?
+    var snr: Double?
 
     /// Received signal strength indicator in dBm
-    public var rssi: Int?
+    var rssi: Int?
 
     /// Link to RxLogEntry for raw packet details
-    public var rxLogEntryID: UUID?
+    var rxLogEntryID: UUID?
 
-    public init(
+    init(
         id: UUID = UUID(),
         message: Message? = nil,
         messageID: UUID,
@@ -63,7 +63,7 @@ public final class MessageRepeat {
     /// Builds a model instance directly from a DTO. The parent `message`
     /// relationship is passed separately because the caller looks it up in
     /// bulk before iterating.
-    public convenience init(dto: MessageRepeatDTO, message: Message?) {
+    convenience init(dto: MessageRepeatDTO, message: Message?) {
         self.init(
             id: dto.id,
             message: message,
@@ -91,7 +91,7 @@ public struct MessageRepeatDTO: Sendable, Identifiable, Equatable, Hashable, Cod
     public let rssi: Int?
     public let rxLogEntryID: UUID?
 
-    public init(from model: MessageRepeat) {
+    init(from model: MessageRepeat) {
         self.id = model.id
         self.messageID = model.messageID
         self.receivedAt = model.receivedAt

@@ -11,26 +11,26 @@ import os
 /// platform-neutral `DevicePairingDelegate`. `ConnectionManager` talks only to the protocol;
 /// this adapter is the one place that knows AccessorySetupKit exists.
 @MainActor
-public final class AccessorySetupPairingService: DevicePairingService {
+final class AccessorySetupPairingService: DevicePairingService {
     private let accessorySetupKit: any AccessorySetupKitServicing
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "AccessorySetupPairing")
-    public weak var delegate: (any DevicePairingDelegate)?
+    weak var delegate: (any DevicePairingDelegate)?
 
-    public init(accessorySetupKit: any AccessorySetupKitServicing) {
+    init(accessorySetupKit: any AccessorySetupKitServicing) {
         self.accessorySetupKit = accessorySetupKit
         self.accessorySetupKit.delegate = self
     }
 
-    public var isSessionActive: Bool { accessorySetupKit.isSessionActive }
-    public var registeredDeviceCount: Int { accessorySetupKit.pairedAccessories.count }
-    public var hasSystemPairingRegistry: Bool { true }
-    public var supportsSystemRename: Bool { true }
+    var isSessionActive: Bool { accessorySetupKit.isSessionActive }
+    var registeredDeviceCount: Int { accessorySetupKit.pairedAccessories.count }
+    var hasSystemPairingRegistry: Bool { true }
+    var supportsSystemRename: Bool { true }
 
-    public func activate() async throws {
+    func activate() async throws {
         try await accessorySetupKit.activateSession()
     }
 
-    public func discoverDevice() async throws -> UUID {
+    func discoverDevice() async throws -> UUID {
         do {
             return try await accessorySetupKit.showPicker()
         } catch AccessorySetupKitError.pickerDismissed {
@@ -40,28 +40,28 @@ public final class AccessorySetupPairingService: DevicePairingService {
         }
     }
 
-    public func isDeviceConnectable(_ id: UUID) -> Bool {
+    func isDeviceConnectable(_ id: UUID) -> Bool {
         accessorySetupKit.accessory(for: id) != nil
     }
 
-    public func registeredDeviceInfos() -> [(id: UUID, name: String)] {
+    func registeredDeviceInfos() -> [(id: UUID, name: String)] {
         accessorySetupKit.pairedAccessories.compactMap { accessory in
             guard let id = accessory.bluetoothIdentifier else { return nil }
             return (id: id, name: accessory.displayName)
         }
     }
 
-    public func removeDevice(_ id: UUID) async throws {
+    func removeDevice(_ id: UUID) async throws {
         guard let accessory = accessorySetupKit.accessory(for: id) else { return }
         try await accessorySetupKit.removeAccessory(accessory)
     }
 
-    public func renameDevice(_ id: UUID) async throws {
+    func renameDevice(_ id: UUID) async throws {
         guard let accessory = accessorySetupKit.accessory(for: id) else { return }
         try await accessorySetupKit.renameAccessory(accessory)
     }
 
-    public func clearStaleRegistrations() async {
+    func clearStaleRegistrations() async {
         for accessory in accessorySetupKit.pairedAccessories {
             do {
                 try await accessorySetupKit.removeAccessory(accessory)
@@ -73,14 +73,14 @@ public final class AccessorySetupPairingService: DevicePairingService {
 }
 
 extension AccessorySetupPairingService: AccessorySetupKitServiceDelegate {
-    public func accessorySetupKitService(
+    func accessorySetupKitService(
         _ service: AccessorySetupKitService,
         didRemoveAccessoryWithID bluetoothID: UUID
     ) {
         delegate?.devicePairing(self, didRemoveDeviceWithID: bluetoothID)
     }
 
-    public func accessorySetupKitService(
+    func accessorySetupKitService(
         _ service: AccessorySetupKitService,
         didFailPairingForAccessoryWithID bluetoothID: UUID
     ) {

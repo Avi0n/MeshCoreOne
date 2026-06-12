@@ -89,7 +89,7 @@ public actor RemoteNodeService {
 
     // MARK: - Initialization
 
-    public init(
+    init(
         session: any RemoteAccessSessionOps & SessionEventStreaming,
         dataStore: any PersistenceStoreProtocol,
         keychainService: KeychainService

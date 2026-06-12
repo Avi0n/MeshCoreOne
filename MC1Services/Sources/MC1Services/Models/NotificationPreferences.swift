@@ -1,20 +1,20 @@
 import Foundation
 
 /// Thread-safe notification preferences (read-only snapshot from UserDefaults)
-public struct NotificationPreferences: Sendable {
-    public let contactMessagesEnabled: Bool
-    public let channelMessagesEnabled: Bool
-    public let roomMessagesEnabled: Bool
-    public let newContactDiscoveredEnabled: Bool
-    public let discoveryContactEnabled: Bool
-    public let discoveryRepeaterEnabled: Bool
-    public let discoveryRoomEnabled: Bool
-    public let reactionNotificationsEnabled: Bool
-    public let soundEnabled: Bool
-    public let badgeEnabled: Bool
-    public let lowBatteryEnabled: Bool
+struct NotificationPreferences: Sendable {
+    let contactMessagesEnabled: Bool
+    let channelMessagesEnabled: Bool
+    let roomMessagesEnabled: Bool
+    let newContactDiscoveredEnabled: Bool
+    let discoveryContactEnabled: Bool
+    let discoveryRepeaterEnabled: Bool
+    let discoveryRoomEnabled: Bool
+    let reactionNotificationsEnabled: Bool
+    let soundEnabled: Bool
+    let badgeEnabled: Bool
+    let lowBatteryEnabled: Bool
 
-    public init() {
+    init() {
         let defaults = UserDefaults.standard
         func enabled(_ key: AppStorageKey) -> Bool {
             defaults.object(forKey: key.rawValue) as? Bool ?? AppStorageKey.defaultNotificationEnabled

@@ -1,37 +1,26 @@
 import Foundation
 
 /// Key for message lookup in LRU cache
-public struct MessageCacheKey: Hashable, Sendable {
-    public let channelIndex: UInt8
-    public let senderName: String
-    public let messageHash: String
-
-    public init(channelIndex: UInt8, senderName: String, messageHash: String) {
-        self.channelIndex = channelIndex
-        self.senderName = senderName
-        self.messageHash = messageHash
-    }
+struct MessageCacheKey: Hashable, Sendable {
+    let channelIndex: UInt8
+    let senderName: String
+    let messageHash: String
 }
 
 /// Key for DM message lookup in LRU cache
-public struct DirectMessageCacheKey: Hashable, Sendable {
-    public let contactID: UUID
-    public let messageHash: String
-
-    public init(contactID: UUID, messageHash: String) {
-        self.contactID = contactID
-        self.messageHash = messageHash
-    }
+struct DirectMessageCacheKey: Hashable, Sendable {
+    let contactID: UUID
+    let messageHash: String
 }
 
 /// Candidate message for reaction matching
-public struct MessageCandidate: Sendable, Equatable {
-    public let messageID: UUID
-    public let text: String
-    public let timestamp: UInt32
-    public let indexedAt: Date
+struct MessageCandidate: Sendable, Equatable {
+    let messageID: UUID
+    let text: String
+    let timestamp: UInt32
+    let indexedAt: Date
 
-    public init(messageID: UUID, text: String, timestamp: UInt32, indexedAt: Date = Date()) {
+    init(messageID: UUID, text: String, timestamp: UInt32, indexedAt: Date = Date()) {
         self.messageID = messageID
         self.text = text
         self.timestamp = timestamp
@@ -40,7 +29,7 @@ public struct MessageCandidate: Sendable, Equatable {
 }
 
 /// LRU cache for recent channel messages to enable reaction matching with collision resolution
-public actor MessageLRUCache {
+actor MessageLRUCache {
     private var cache: [MessageCacheKey: [MessageCandidate]] = [:]
     private var order: [MessageCacheKey] = []
 
@@ -50,13 +39,13 @@ public actor MessageLRUCache {
     private let capacity: Int
     private let maxCandidatesPerKey: Int
 
-    public init(capacity: Int = 500, maxCandidatesPerKey: Int = 5) {
+    init(capacity: Int = 500, maxCandidatesPerKey: Int = 5) {
         self.capacity = capacity
         self.maxCandidatesPerKey = maxCandidatesPerKey
     }
 
     /// Indexes a message for later lookup
-    public func index(messageID: UUID, channelIndex: UInt8, senderName: String, text: String, timestamp: UInt32) {
+    func index(messageID: UUID, channelIndex: UInt8, senderName: String, text: String, timestamp: UInt32) {
         let hash = ReactionParser.generateMessageHash(text: text, timestamp: timestamp)
         let key = MessageCacheKey(channelIndex: channelIndex, senderName: senderName, messageHash: hash)
         let candidate = MessageCandidate(messageID: messageID, text: text, timestamp: timestamp)
@@ -91,13 +80,13 @@ public actor MessageLRUCache {
     }
 
     /// Looks up candidates by cache key
-    public func lookup(channelIndex: UInt8, senderName: String, messageHash: String) -> [MessageCandidate] {
+    func lookup(channelIndex: UInt8, senderName: String, messageHash: String) -> [MessageCandidate] {
         let key = MessageCacheKey(channelIndex: channelIndex, senderName: senderName, messageHash: messageHash)
         return cache[key] ?? []
     }
 
     /// Indexes a DM message for later lookup
-    public func indexDM(messageID: UUID, contactID: UUID, text: String, timestamp: UInt32) {
+    func indexDM(messageID: UUID, contactID: UUID, text: String, timestamp: UInt32) {
         let hash = ReactionParser.generateMessageHash(text: text, timestamp: timestamp)
         let key = DirectMessageCacheKey(contactID: contactID, messageHash: hash)
         let candidate = MessageCandidate(messageID: messageID, text: text, timestamp: timestamp)
@@ -132,13 +121,13 @@ public actor MessageLRUCache {
     }
 
     /// Looks up DM candidates by cache key
-    public func lookupDM(contactID: UUID, messageHash: String) -> [MessageCandidate] {
+    func lookupDM(contactID: UUID, messageHash: String) -> [MessageCandidate] {
         let key = DirectMessageCacheKey(contactID: contactID, messageHash: messageHash)
         return dmCache[key] ?? []
     }
 
     /// Clears the cache
-    public func clear() {
+    func clear() {
         cache.removeAll()
         order.removeAll()
         dmCache.removeAll()

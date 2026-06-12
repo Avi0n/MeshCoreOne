@@ -3,10 +3,10 @@ import Foundation
 /// Utilities for detecting and processing hashtag channel references in messages
 public enum HashtagUtilities {
 
-    public static let hashtagPattern = "#[A-Za-z0-9][A-Za-z0-9-]*"
+    static let hashtagPattern = "#[A-Za-z0-9][A-Za-z0-9-]*"
 
     /// Pre-compiled regex for hashtag matching (avoids recompilation per call)
-    public static let hashtagRegex: NSRegularExpression? = {
+    static let hashtagRegex: NSRegularExpression? = {
         try? NSRegularExpression(pattern: hashtagPattern)
     }()
 
@@ -14,17 +14,12 @@ public enum HashtagUtilities {
     public struct DetectedHashtag: Equatable, Sendable {
         public let name: String
         public let range: Range<String.Index>
-
-        public init(name: String, range: Range<String.Index>) {
-            self.name = name
-            self.range = range
-        }
     }
 
     /// Extracts all valid hashtags from text, excluding those within URLs
     /// - Parameter text: The message text to search
     /// - Returns: Array of detected hashtags with their ranges
-    public static func extractHashtags(from text: String) -> [DetectedHashtag] {
+    static func extractHashtags(from text: String) -> [DetectedHashtag] {
         extractHashtags(from: text, urlRanges: findURLRanges(in: text))
     }
 

@@ -17,7 +17,7 @@ public actor HeardRepeatsService {
     /// Multicast broadcaster for heard-repeat events.
     private nonisolated let eventBroadcaster = EventBroadcaster<HeardRepeatEvent>()
 
-    public init(dataStore: any HeardRepeatPersisting) {
+    init(dataStore: any HeardRepeatPersisting) {
         self.dataStore = dataStore
     }
 

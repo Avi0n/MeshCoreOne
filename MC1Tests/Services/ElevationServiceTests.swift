@@ -2,7 +2,7 @@ import CoreLocation
 import Testing
 
 @testable import MC1
-import MC1Services
+@testable import MC1Services
 
 @Suite("ElevationService Tests")
 struct ElevationServiceTests {

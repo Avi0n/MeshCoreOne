@@ -7,7 +7,7 @@ import MC1Services
 /// speculative or unreachable cases. Consumers should switch
 /// exhaustively (no `default`) so a new case becomes a compile error
 /// rather than a silent skip.
-public enum MessageEvent: Sendable, Equatable {
+enum MessageEvent: Sendable, Equatable {
     case directMessageReceived(message: MessageDTO, contact: ContactDTO)
     case channelMessageReceived(message: MessageDTO, channelIndex: UInt8)
     case roomMessageReceived(message: RoomMessageDTO, sessionID: UUID)

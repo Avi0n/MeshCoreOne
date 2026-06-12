@@ -3,7 +3,7 @@ import Foundation
 /// Cross-service side effects of a contact lifecycle change (block, unblock,
 /// delete). `ContactService` invokes this after its own database writes;
 /// `ContactCleanupCoordinator` is the production implementation.
-public protocol ContactCleanupHandling: Sendable {
+protocol ContactCleanupHandling: Sendable {
 
     /// Runs the cleanup chain for one contact.
     /// - Parameters:

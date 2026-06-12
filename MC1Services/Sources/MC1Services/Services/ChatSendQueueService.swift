@@ -18,22 +18,22 @@ public enum ChatSendQueueServiceError: Error, Sendable, LocalizedError {
 }
 
 /// Retry timing for `ChatSendQueueService`.
-public struct ChatSendQueueConfig: Sendable {
+struct ChatSendQueueConfig: Sendable {
     /// Maximum time to wait for a transport-open trigger before
     /// silently re-attempting the send.
-    public let transportWaitTimeout: TimeInterval
+    let transportWaitTimeout: TimeInterval
 
     /// Number of channel-drain attempts before the queue spends a BLE
     /// round-trip to disambiguate transient NOT_FOUND (pool exhaustion)
     /// from terminal NOT_FOUND (channel deleted on the device).
-    public let disambiguateAfterAttempts: Int
+    let disambiguateAfterAttempts: Int
 
     /// Backstop cap on consecutive `fetchChannel` throws. After this many
     /// the channel drain treats NOT_FOUND as terminal so the user sees
     /// `.failed` and can manually retry.
-    public let maxConsecutiveFetchChannelFailures: Int
+    let maxConsecutiveFetchChannelFailures: Int
 
-    public init(
+    init(
         transportWaitTimeout: TimeInterval = 30,
         disambiguateAfterAttempts: Int = 3,
         maxConsecutiveFetchChannelFailures: Int = 16
@@ -43,7 +43,7 @@ public struct ChatSendQueueConfig: Sendable {
         self.maxConsecutiveFetchChannelFailures = maxConsecutiveFetchChannelFailures
     }
 
-    public static let `default` = ChatSendQueueConfig()
+    static let `default` = ChatSendQueueConfig()
 }
 
 /// Owns the DM and channel send queues for a connection. Replaces the
@@ -68,7 +68,7 @@ public struct ChatSendQueueConfig: Sendable {
 @MainActor
 public final class ChatSendQueueService {
 
-    public let radioID: UUID
+    let radioID: UUID
     private let config: ChatSendQueueConfig
     private let dataStore: any MessagePersisting & ContactPersisting
     private let messageService: MessageService
@@ -89,7 +89,7 @@ public final class ChatSendQueueService {
     private var connectionStateTask: Task<Void, Never>?
 
     // swiftlint:disable:next function_body_length
-    public init(
+    init(
         radioID: UUID,
         dataStore: any MessagePersisting & ContactPersisting,
         messageService: MessageService,
@@ -427,7 +427,7 @@ public final class ChatSendQueueService {
     /// drains parked in `withCooperativeTimeout` instead of leaving them to
     /// wait out `transportWaitTimeout`. Calling again replaces the previous
     /// observation.
-    public func observeConnectionState(
+    func observeConnectionState(
         initial: DeviceConnectionState,
         events: AsyncStream<DeviceConnectionState>
     ) {
@@ -457,7 +457,7 @@ public final class ChatSendQueueService {
     /// (`.connected → .connecting → .connected` within a frame) collapses
     /// to a single armed trigger on the actor. Do not extend this function
     /// with per-call state — the fire-and-forget shape would lose ordering.
-    public func transportDidOpen() {
+    func transportDidOpen() {
         osLogger.debug("transportDidOpen firing trigger")
         Task { [triggers] in
             await triggers.fire()
@@ -666,7 +666,7 @@ public final class ChatSendQueueService {
     /// succeeded, drain bump didn't run) sit at `attemptCount = 0`, bump to
     /// `1`, and `preserveTimestamp` = false — correct, because the recipient
     /// never saw the packet.
-    public func hydrate() async {
+    func hydrate() async {
         guard !hasHydrated else { return }
         hasHydrated = true
         logger.info("hydrate begin radio=\(radioID)")
@@ -710,7 +710,7 @@ public final class ChatSendQueueService {
     /// Cancelling the connection-state observation unregisters its
     /// `EventBroadcaster` subscription so a torn-down container never
     /// receives the next connection's edge.
-    public func shutdown() async {
+    func shutdown() async {
         connectionStateTask?.cancel()
         connectionStateTask = nil
         await dmQueue.cancelDrain()

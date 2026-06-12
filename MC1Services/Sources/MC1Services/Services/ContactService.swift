@@ -37,7 +37,7 @@ public enum ContactServiceError: Error, Sendable, LocalizedError {
 }
 
 /// Reason for contact cleanup (deletion or blocking)
-public enum ContactCleanupReason: Sendable {
+enum ContactCleanupReason: Sendable {
     case deleted
     case blocked
     case unblocked
@@ -84,7 +84,7 @@ public actor ContactService {
 
     // MARK: - Initialization
 
-    public init(
+    init(
         session: any MeshCoreSessionProtocol,
         dataStore: any PersistenceStoreProtocol,
         syncCoordinator: SyncCoordinator?,

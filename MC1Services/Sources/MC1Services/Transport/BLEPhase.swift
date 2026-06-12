@@ -8,7 +8,7 @@ import Foundation
 /// This enum is marked @unchecked Sendable because it contains non-Sendable
 /// CoreBluetooth types (CBPeripheral, CBService, CBCharacteristic). The
 /// BLEStateMachine actor ensures these are only accessed from appropriate contexts.
-public enum BLEPhase: @unchecked Sendable {
+enum BLEPhase: @unchecked Sendable {
 
     /// Initial state, no operations in progress
     case idle
@@ -85,7 +85,7 @@ public enum BLEPhase: @unchecked Sendable {
     // MARK: - Computed Properties
 
     /// Human-readable name for logging
-    public var name: String {
+    var name: String {
         switch self {
         case .idle: "idle"
         case .waitingForBluetooth: "waitingForBluetooth"
@@ -104,7 +104,7 @@ public enum BLEPhase: @unchecked Sendable {
     /// Whether this phase is part of the service/characteristic discovery chain.
     /// Used by `cleanupPhaseResources` to preserve the discovery timeout when
     /// transitioning within the chain.
-    public var isDiscoveryChain: Bool {
+    var isDiscoveryChain: Bool {
         switch self {
         case .discoveringServices, .discoveringCharacteristics, .subscribingToNotifications:
             return true
@@ -114,13 +114,13 @@ public enum BLEPhase: @unchecked Sendable {
     }
 
     /// Whether this phase represents an active operation (not idle)
-    public var isActive: Bool {
+    var isActive: Bool {
         if case .idle = self { return false }
         return true
     }
 
     /// The peripheral associated with this phase, if any
-    public var peripheral: CBPeripheral? {
+    var peripheral: CBPeripheral? {
         switch self {
         case .connecting(let p, _, _),
              .discoveringServices(let p, _),
@@ -138,7 +138,7 @@ public enum BLEPhase: @unchecked Sendable {
     }
 
     /// The device ID associated with this phase, if any
-    public var deviceID: UUID? {
+    var deviceID: UUID? {
         peripheral?.identifier
     }
 

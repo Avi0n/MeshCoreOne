@@ -98,7 +98,7 @@ public protocol ContactPersisting: Actor {
 
 // MARK: - Default Parameter Values
 
-public extension ContactPersisting {
+extension ContactPersisting {
     /// Default batch upsert built from the per-item `saveContact` path. The concrete
     /// `PersistenceStore` overrides this with a single-transaction implementation; this
     /// fallback keeps lightweight test stubs conforming without their own batch logic.

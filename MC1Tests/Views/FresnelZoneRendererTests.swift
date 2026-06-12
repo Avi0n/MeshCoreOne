@@ -1,6 +1,6 @@
 import Testing
 @testable import MC1
-import MC1Services
+@testable import MC1Services
 
 @Suite("FresnelZoneRenderer Tests")
 struct FresnelZoneRendererTests {

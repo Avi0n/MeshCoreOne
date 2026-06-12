@@ -14,7 +14,7 @@ enum OnboardingStep: String, CaseIterable, Hashable, Codable {
 /// Manages onboarding completion flag and navigation path.
 @Observable
 @MainActor
-public final class OnboardingState {
+final class OnboardingState {
 
     private let defaults: UserDefaults
 

@@ -6,7 +6,7 @@ import MC1Services
 
 @Observable
 @MainActor
-public final class LiveActivityManager {
+final class LiveActivityManager {
 
     static let enabledKey = AppStorageKey.liveActivityEnabled.rawValue
 

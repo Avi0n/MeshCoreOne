@@ -6,7 +6,7 @@ public actor NodeSnapshotService {
     private let dataStore: any NodeSnapshotPersisting
     private let logger = Logger(subsystem: "com.mc1", category: "NodeSnapshotService")
 
-    public init(dataStore: any NodeSnapshotPersisting) {
+    init(dataStore: any NodeSnapshotPersisting) {
         self.dataStore = dataStore
     }
 
