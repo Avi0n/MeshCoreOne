@@ -82,9 +82,10 @@ final class RegenerateIdentityViewModel {
     }
 
     /// Returns true when the new identity was imported and the sheet should dismiss.
-    func replaceIdentity(appState: AppState) async -> Bool {
+    /// A nil service mirrors a disconnected state and is a no-op.
+    func replaceIdentity(settingsService: SettingsService?) async -> Bool {
         guard let expandedKey = generatedKey?.expandedKey,
-              let settingsService = appState.services?.settingsService else { return false }
+              let settingsService else { return false }
 
         isImporting = true
         defer { isImporting = false }

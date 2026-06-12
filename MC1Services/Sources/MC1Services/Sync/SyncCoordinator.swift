@@ -209,10 +209,10 @@ public actor SyncCoordinator {
 
     #if DEBUG
     /// Test override for `performResync`. When set, bypasses the real sync path.
-    var performResyncOverride: ((_ radioID: UUID, _ services: ServiceContainer) async -> Bool)?
+    var performResyncOverride: ((_ radioID: UUID, _ dependencies: SyncDependencies) async -> Bool)?
 
     /// Sets the test override for `performResync`.
-    public func setPerformResyncOverride(_ override: @escaping @Sendable (_ radioID: UUID, _ services: ServiceContainer) async -> Bool) {
+    public func setPerformResyncOverride(_ override: @escaping @Sendable (_ radioID: UUID, _ dependencies: SyncDependencies) async -> Bool) {
         performResyncOverride = override
     }
     #endif
@@ -292,16 +292,16 @@ public actor SyncCoordinator {
 
     // MARK: - Notification Suppression Watchdog
 
-    func startSuppressionWatchdog(services: ServiceContainer) {
+    func startSuppressionWatchdog(notificationService: NotificationService) {
         suppressionWatchdogTask?.cancel()
         suppressionWatchdogTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(120))
             guard !Task.isCancelled, let self else { return }
-            let isSuppressing = await services.notificationService.isSuppressingNotifications
+            let isSuppressing = await notificationService.isSuppressingNotifications
             guard isSuppressing else { return }
             self.logger.warning("[Sync] Notification suppression watchdog fired after 120s - force clearing")
             await MainActor.run {
-                services.notificationService.isSuppressingNotifications = false
+                notificationService.isSuppressingNotifications = false
             }
         }
     }
@@ -331,7 +331,7 @@ public actor SyncCoordinator {
     // MARK: - Blocked Contacts Cache
 
     /// Refresh the blocked names cache from the data store (contacts + channel senders)
-    public func refreshBlockedContactsCache(radioID: UUID, dataStore: any PersistenceStoreProtocol) async {
+    public func refreshBlockedContactsCache(radioID: UUID, dataStore: any ContactPersisting) async {
         do {
             let blockedContacts = try await dataStore.fetchBlockedContacts(radioID: radioID)
             let blockedSenders = try await dataStore.fetchBlockedChannelSenders(radioID: radioID)

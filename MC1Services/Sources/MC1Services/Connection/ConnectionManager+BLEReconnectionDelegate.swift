@@ -44,7 +44,7 @@ extension ConnectionManager: BLEReconnectionDelegate {
 
         // Reset sync state on the captured services to prevent stuck "Syncing" pill
         if let oldServices {
-            await oldServices.syncCoordinator.onDisconnected(services: oldServices)
+            await oldServices.syncCoordinator.onDisconnected(notificationService: oldServices.notificationService)
         }
     }
 

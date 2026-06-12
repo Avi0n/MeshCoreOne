@@ -56,7 +56,10 @@ struct RepeaterSettingsView: View {
             }
         }
         .task {
-            await viewModel.configure(appState: appState, session: session)
+            await viewModel.configure(
+                repeaterAdminService: appState.services?.repeaterAdminService,
+                session: session
+            )
             if let send = viewModel.makeNodeCLISendClosure(session: session) {
                 cliViewModel.configure(sessionName: session.name, sendRawCommand: send)
             }
@@ -69,9 +72,15 @@ struct RepeaterSettingsView: View {
             // settings VM's CLI handler intact for the Settings/CLI surface. Guarded by
             // telemetryConfigured because a segment switch recreates only the content subtree,
             // so this must not re-run or duplicate handler registration.
-            statusViewModel.configure(appState: appState)
+            statusViewModel.configure(
+                repeaterAdminService: appState.services?.repeaterAdminService,
+                contactService: appState.services?.contactService,
+                nodeSnapshotService: appState.services?.nodeSnapshotService
+            )
             Task {
-                await statusViewModel.registerHandlers(appState: appState)
+                await statusViewModel.registerHandlers(
+                    repeaterAdminService: appState.services?.repeaterAdminService
+                )
                 if let radioID = appState.connectedDevice?.radioID {
                     await statusViewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
                     if let dataStore = appState.services?.dataStore {
@@ -84,7 +93,9 @@ struct RepeaterSettingsView: View {
         .onDisappear {
             statusViewModel.stopDiscovery()
             Task {
-                await statusViewModel.clearStatusHandlers(appState: appState)
+                await statusViewModel.clearStatusHandlers(
+                    repeaterAdminService: appState.services?.repeaterAdminService
+                )
                 await viewModel.cleanup()
             }
         }

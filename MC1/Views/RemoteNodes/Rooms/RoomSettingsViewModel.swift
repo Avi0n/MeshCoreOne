@@ -69,8 +69,9 @@ final class RoomSettingsViewModel {
 
     // MARK: - Configuration
 
-    func configure(appState: AppState, session: RemoteNodeSessionDTO) async {
-        self.roomAdminService = appState.services?.roomAdminService
+    /// Nil service mirrors a disconnected state; commands then no-op.
+    func configure(roomAdminService: RoomAdminService?, session: RemoteNodeSessionDTO) async {
+        self.roomAdminService = roomAdminService
 
         guard let roomAdminService else { return }
 

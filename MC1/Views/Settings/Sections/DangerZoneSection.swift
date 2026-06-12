@@ -11,7 +11,7 @@ struct DangerZoneSection: View {
     var body: some View {
         Section {
             Button(role: .destructive) {
-                Task { await viewModel.fetchUnfavoritedCount(appState: appState) }
+                Task { await viewModel.fetchUnfavoritedCount(connectionManager: appState.connectionManager) }
             } label: {
                 if viewModel.isRemovingUnfavorited {
                     HStack {
@@ -74,7 +74,11 @@ struct DangerZoneSection: View {
             Button(L10n.Localizable.Common.cancel, role: .cancel) { }
             Button(L10n.Settings.DangerZone.Alert.Reset.confirm, role: .destructive) {
                 Task {
-                    if await viewModel.factoryReset(appState: appState) {
+                    if await viewModel.factoryReset(
+                        settingsService: appState.services?.settingsService,
+                        deviceID: appState.connectedDevice?.id,
+                        connectionManager: appState.connectionManager
+                    ) {
                         dismiss()
                     }
                 }
@@ -88,7 +92,7 @@ struct DangerZoneSection: View {
         ) {
             Button(L10n.Localizable.Common.cancel, role: .cancel) { }
             Button(L10n.Settings.DangerZone.Alert.RemoveUnfavorited.confirm, role: .destructive) {
-                viewModel.removeUnfavoritedNodes(appState: appState)
+                viewModel.removeUnfavoritedNodes(connectionManager: appState.connectionManager)
             }
         } message: {
             Text(L10n.Settings.DangerZone.Alert.RemoveUnfavorited.message(viewModel.unfavoritedCount))
@@ -107,7 +111,7 @@ struct DangerZoneSection: View {
 
     private func forgetDevice(deleteData: Bool) {
         Task {
-            if await viewModel.forgetDevice(appState: appState, deleteData: deleteData) {
+            if await viewModel.forgetDevice(connectionManager: appState.connectionManager, deleteData: deleteData) {
                 dismiss()
             }
         }

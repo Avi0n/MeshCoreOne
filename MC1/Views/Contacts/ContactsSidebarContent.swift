@@ -138,7 +138,11 @@ struct ContactsSidebarContent: View {
         .sensoryFeedback(.success, trigger: syncSuccessTrigger)
         .task {
             sidebarLogger.info("NodesListView: task started, services=\(appState.services != nil)")
-            viewModel.configure(appState: appState)
+            viewModel.configure(
+                dataStore: appState.offlineDataStore,
+                contactService: appState.services?.contactService,
+                advertisementService: appState.services?.advertisementService
+            )
             await onLoadContacts()
             sidebarLogger.info("NodesListView: loaded, contacts=\(viewModel.contacts.count)")
             onAnnounceOfflineStateIfNeeded()

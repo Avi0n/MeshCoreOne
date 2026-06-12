@@ -639,7 +639,7 @@ extension ConnectionManager {
             _ = await oldServices.remoteNodeService.handleBLEDisconnection()
             await oldServices.tearDown()
             // Reset sync state to prevent stuck "Syncing" pill
-            await oldServices.syncCoordinator.onDisconnected(services: oldServices)
+            await oldServices.syncCoordinator.onDisconnected(notificationService: oldServices.notificationService)
         }
 
         persistDisconnectDiagnostic(

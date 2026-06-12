@@ -32,8 +32,8 @@ public actor AdvertisementService {
 
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "Advertisement")
 
-    private let session: MeshCoreSession
-    private let dataStore: PersistenceStore
+    private let session: any AdvertisingSessionOps & SessionEventStreaming
+    private let dataStore: any PersistenceStoreProtocol
 
     /// Task monitoring for events
     private var eventMonitorTask: Task<Void, Never>?
@@ -53,7 +53,7 @@ public actor AdvertisementService {
 
     // MARK: - Initialization
 
-    public init(session: MeshCoreSession, dataStore: PersistenceStore) {
+    public init(session: any AdvertisingSessionOps & SessionEventStreaming, dataStore: any PersistenceStoreProtocol) {
         self.session = session
         self.dataStore = dataStore
     }

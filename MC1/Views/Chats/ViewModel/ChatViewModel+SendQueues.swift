@@ -10,7 +10,7 @@ extension ChatViewModel {
     /// SwiftData write fails. The caller's catch flips the message to
     /// `.failed` and surfaces the error.
     func enqueueDM(_ envelope: DirectMessageEnvelope) async throws {
-        guard let queue = appState?.services?.chatSendQueueService else {
+        guard let queue = chatSendQueueServiceProvider() else {
             throw ChatSendQueueServiceError.notConnected
         }
         try await queue.enqueueDM(envelope)
@@ -19,7 +19,7 @@ extension ChatViewModel {
     /// Route a channel enqueue through the service-owned send queue.
     /// See `enqueueDM` for the error contract.
     func enqueueChannel(_ envelope: ChannelMessageEnvelope) async throws {
-        guard let queue = appState?.services?.chatSendQueueService else {
+        guard let queue = chatSendQueueServiceProvider() else {
             throw ChatSendQueueServiceError.notConnected
         }
         try await queue.enqueueChannel(envelope)
@@ -32,7 +32,7 @@ extension ChatViewModel {
     /// been torn down between the persist and this call — the caller's
     /// catch surfaces the failure via `sendErrorMessage`.
     func signalDMEnqueued(_ envelope: DirectMessageEnvelope) async throws {
-        guard let queue = appState?.services?.chatSendQueueService else {
+        guard let queue = chatSendQueueServiceProvider() else {
             throw ChatSendQueueServiceError.notConnected
         }
         await queue.signalDMEnqueued(envelope)

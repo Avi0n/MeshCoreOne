@@ -38,7 +38,7 @@ struct ImportKeySheet: View {
                 Button(L10n.Localizable.Common.cancel, role: .cancel) { }
                 Button(L10n.Settings.RegenerateIdentity.Alert.Replace.confirm, role: .destructive) {
                     Task {
-                        if await viewModel.importKey(appState: appState) {
+                        if await viewModel.importKey(settingsService: appState.services?.settingsService) {
                             dismiss()
                         }
                     }

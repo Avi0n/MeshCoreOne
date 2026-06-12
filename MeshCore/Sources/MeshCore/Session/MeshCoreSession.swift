@@ -498,3 +498,10 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
         get async { await dispatcher.subscriberCountForTest }
     }
 }
+
+// MARK: - Session Role Conformances
+
+/// The role methods are witnessed by the existing implementations in the
+/// `MeshCoreSession+*` extension files; no additional members are needed.
+extension MeshCoreSession: ConfigurationSessionOps, AdvertisingSessionOps,
+                           DiagnosticsSessionOps, RemoteAccessSessionOps {}

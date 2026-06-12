@@ -70,7 +70,7 @@ public final class ChatSendQueueService {
 
     public let radioID: UUID
     private let config: ChatSendQueueConfig
-    private let dataStore: PersistenceStore
+    private let dataStore: any MessagePersisting & ContactPersisting
     private let messageService: MessageService
     private let channelService: ChannelService
     private let reactionService: ReactionService
@@ -91,7 +91,7 @@ public final class ChatSendQueueService {
     // swiftlint:disable:next function_body_length
     public init(
         radioID: UUID,
-        dataStore: PersistenceStore,
+        dataStore: any MessagePersisting & ContactPersisting,
         messageService: MessageService,
         channelService: ChannelService,
         reactionService: ReactionService,
@@ -496,7 +496,7 @@ public final class ChatSendQueueService {
     /// (terminal — abandon envelope). Throws transient errors so the caller can
     /// park and retry; throws nothing on the gate-missing terminal path.
     nonisolated static func preflightAndBump(
-        dataStore: PersistenceStore,
+        dataStore: any MessagePersisting,
         messageID: UUID,
         kind: String,
         logger: PersistentLogger,

@@ -45,10 +45,17 @@ extension MessageService {
         return events
     }
 
-    var sessionForTest: MeshCoreSession { session }
+    /// The concrete session injected by `createForTesting`, for test-only hooks
+    /// (`dispatchForTesting`, `subscriberCountForTest`) the protocol does not carry.
+    var sessionForTest: MeshCoreSession {
+        guard let concrete = session as? MeshCoreSession else {
+            fatalError("MessageService under test must be built with a concrete MeshCoreSession")
+        }
+        return concrete
+    }
 
     func installSelfInfoForTest(publicKey: Data = Data(repeating: 0xAB, count: 32)) async {
-        await session.installSelfInfoForTest(.testSelfInfo(publicKey: publicKey))
+        await sessionForTest.installSelfInfoForTest(.testSelfInfo(publicKey: publicKey))
     }
 
     /// Waits until the session's dispatcher holds exactly `expectedCount`

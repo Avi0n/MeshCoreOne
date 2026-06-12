@@ -32,16 +32,12 @@ struct RemoteNodeStatusHandlerSurvivalTests {
     private static let contactPublicKey = Data(repeating: 0x7A, count: 32)
     private static let messageText = "cli response"
 
-    private func makeAppState() throws -> (AppState, ServiceContainer) {
-        let radioID = UUID()
-        let services = ServiceContainer(
+    private func makeServices() throws -> ServiceContainer {
+        ServiceContainer(
             session: MeshCoreSession(transport: MockTransport()),
             modelContainer: try PersistenceStore.createContainer(inMemory: true),
-            radioID: radioID
+            radioID: UUID()
         )
-        let appState = AppState(modelContainer: try PersistenceStore.createContainer(inMemory: true))
-        appState.connectionManager.setTestState(services: services)
-        return (appState, services)
     }
 
     private func makeContactMessage() -> ContactMessage {
@@ -81,14 +77,14 @@ struct RemoteNodeStatusHandlerSurvivalTests {
 
     @Test("Repeater registerHandlers preserves a previously-set CLI handler")
     func repeaterRegisterHandlersKeepsCLIHandler() async throws {
-        let (appState, services) = try makeAppState()
+        let services = try makeServices()
         let service = services.repeaterAdminService
 
         let flag = FlagBox()
         await service.setCLIHandler { _, _ in flag.set() }
 
         let viewModel = RepeaterStatusViewModel()
-        await viewModel.registerHandlers(appState: appState)
+        await viewModel.registerHandlers(repeaterAdminService: service)
 
         // The CLI handler set by the settings/CLI surface must still fire.
         await service.invokeCLIHandler(makeContactMessage(), fromContact: makeContact())
@@ -98,14 +94,14 @@ struct RemoteNodeStatusHandlerSurvivalTests {
 
     @Test("Room registerHandlers preserves a previously-set CLI handler")
     func roomRegisterHandlersKeepsCLIHandler() async throws {
-        let (appState, services) = try makeAppState()
+        let services = try makeServices()
         let service = services.roomAdminService
 
         let flag = FlagBox()
         await service.setCLIHandler { _, _ in flag.set() }
 
         let viewModel = RoomStatusViewModel()
-        await viewModel.registerHandlers(appState: appState)
+        await viewModel.registerHandlers(roomAdminService: service)
 
         await service.invokeCLIHandler(makeContactMessage(), fromContact: makeContact())
 
@@ -137,7 +133,7 @@ struct RemoteNodeStatusHandlerSurvivalTests {
 
     @Test("Repeater clearStatusHandlers leaves the CLI handler firing")
     func repeaterClearStatusHandlersKeepsCLIHandler() async throws {
-        let (appState, services) = try makeAppState()
+        let services = try makeServices()
         let service = services.repeaterAdminService
 
         let cliFlag = FlagBox()
@@ -145,11 +141,15 @@ struct RemoteNodeStatusHandlerSurvivalTests {
         await service.setCLIHandler { _, _ in cliFlag.set() }
 
         let viewModel = RepeaterStatusViewModel()
-        viewModel.configure(appState: appState)
-        await viewModel.registerHandlers(appState: appState)
+        viewModel.configure(
+            repeaterAdminService: service,
+            contactService: services.contactService,
+            nodeSnapshotService: services.nodeSnapshotService
+        )
+        await viewModel.registerHandlers(repeaterAdminService: service)
         await service.setStatusHandler { _ in statusFlag.set() }
 
-        await viewModel.clearStatusHandlers(appState: appState)
+        await viewModel.clearStatusHandlers(repeaterAdminService: service)
 
         await service.invokeCLIHandler(makeContactMessage(), fromContact: makeContact())
         await service.invokeStatusHandler(makeStatusResponse())
@@ -160,7 +160,7 @@ struct RemoteNodeStatusHandlerSurvivalTests {
 
     @Test("Room clearStatusHandlers leaves the CLI handler firing")
     func roomClearStatusHandlersKeepsCLIHandler() async throws {
-        let (appState, services) = try makeAppState()
+        let services = try makeServices()
         let service = services.roomAdminService
 
         let cliFlag = FlagBox()
@@ -168,11 +168,15 @@ struct RemoteNodeStatusHandlerSurvivalTests {
         await service.setCLIHandler { _, _ in cliFlag.set() }
 
         let viewModel = RoomStatusViewModel()
-        viewModel.configure(appState: appState)
-        await viewModel.registerHandlers(appState: appState)
+        viewModel.configure(
+            roomAdminService: service,
+            contactService: services.contactService,
+            nodeSnapshotService: services.nodeSnapshotService
+        )
+        await viewModel.registerHandlers(roomAdminService: service)
         await service.setStatusHandler { _ in statusFlag.set() }
 
-        await viewModel.clearStatusHandlers(appState: appState)
+        await viewModel.clearStatusHandlers(roomAdminService: service)
 
         await service.invokeCLIHandler(makeContactMessage(), fromContact: makeContact())
         await service.invokeStatusHandler(makeStatusResponse())
@@ -183,15 +187,19 @@ struct RemoteNodeStatusHandlerSurvivalTests {
 
     @Test("Repeater cleanup clears the CLI handler on true teardown")
     func repeaterCleanupClearsCLIHandler() async throws {
-        let (appState, services) = try makeAppState()
+        let services = try makeServices()
         let service = services.repeaterAdminService
 
         let flag = FlagBox()
         await service.setCLIHandler { _, _ in flag.set() }
 
         let viewModel = RepeaterStatusViewModel()
-        viewModel.configure(appState: appState)
-        await viewModel.cleanup(appState: appState)
+        viewModel.configure(
+            repeaterAdminService: service,
+            contactService: services.contactService,
+            nodeSnapshotService: services.nodeSnapshotService
+        )
+        await viewModel.cleanup(repeaterAdminService: service)
 
         await service.invokeCLIHandler(makeContactMessage(), fromContact: makeContact())
 

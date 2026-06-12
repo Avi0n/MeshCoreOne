@@ -36,7 +36,13 @@ struct NodeDiscoveryView: View {
         .sensoryFeedback(.success, trigger: viewModel.addSuccessHapticTrigger)
         .sensoryFeedback(.error, trigger: viewModel.addErrorHapticTrigger)
         .task(id: appState.servicesVersion) {
-            viewModel.configure(appState: appState)
+            viewModel.configure(
+                session: appState.services?.session,
+                dataStore: appState.offlineDataStore,
+                radioID: appState.connectedDevice?.radioID,
+                contactService: appState.services?.contactService,
+                maxContacts: appState.connectedDevice?.maxContacts
+            )
         }
         .onDisappear {
             viewModel.stopScan()

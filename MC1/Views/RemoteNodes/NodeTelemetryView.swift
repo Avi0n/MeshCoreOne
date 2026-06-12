@@ -39,7 +39,12 @@ struct NodeTelemetryView: View {
                 }
             }
             .task {
-                viewModel.configure(appState: appState, contact: contact)
+                viewModel.configure(
+                    binaryProtocolService: appState.services?.binaryProtocolService,
+                    contactService: appState.services?.contactService,
+                    nodeSnapshotService: appState.services?.nodeSnapshotService,
+                    contact: contact
+                )
 
                 viewModel.helper.telemetryExpanded = true
 

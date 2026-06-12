@@ -86,10 +86,10 @@ extension ChatViewModel {
 
             // Index older channel messages for reaction matching and process pending reactions
             if let channel,
-               let reactionService = appState?.services?.reactionService {
+               let reactionService = reactionServiceProvider() {
                 await indexMessagesForReactions(
                     olderMessages,
-                    scope: .channel(channel, localNodeName: appState?.connectedDevice?.nodeName),
+                    scope: .channel(channel, localNodeName: connectedDeviceProvider()?.nodeName),
                     reactionService: reactionService,
                     dataStore: dataStore
                 )
@@ -97,7 +97,7 @@ extension ChatViewModel {
 
             // Index older DM messages for reaction matching and process pending reactions
             if let contact,
-               let reactionService = appState?.services?.reactionService {
+               let reactionService = reactionServiceProvider() {
                 await indexMessagesForReactions(
                     olderMessages,
                     scope: .direct(contact),

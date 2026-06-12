@@ -49,13 +49,8 @@ final class DiscoveryViewModel {
 
     init() {}
 
-    /// Configure with services from AppState
-    func configure(appState: AppState) {
-        self.dataStore = appState.offlineDataStore
-    }
-
-    /// Configure with services (for testing)
-    func configure(dataStore: DataStore) {
+    /// Configure with the data store this view model uses; nil mirrors a disconnected state.
+    func configure(dataStore: DataStore?) {
         self.dataStore = dataStore
     }
 

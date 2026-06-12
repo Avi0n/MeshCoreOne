@@ -18,16 +18,23 @@ final class RoomStatusViewModel {
 
     init() {}
 
-    func configure(appState: AppState) {
-        self.roomAdminService = appState.services?.roomAdminService
+    /// Nil services mirror a disconnected state; requests then no-op.
+    func configure(
+        roomAdminService: RoomAdminService?,
+        contactService: ContactService?,
+        nodeSnapshotService: NodeSnapshotService?
+    ) {
+        self.roomAdminService = roomAdminService
         helper.configure(
-            contactService: appState.services?.contactService,
-            nodeSnapshotService: appState.services?.nodeSnapshotService
+            contactService: contactService,
+            nodeSnapshotService: nodeSnapshotService
         )
     }
 
-    func registerHandlers(appState: AppState) async {
-        guard let roomAdminService = appState.services?.roomAdminService else { return }
+    /// Takes the service per call so a reconnect-minted instance is read at
+    /// call time rather than the configure-time snapshot.
+    func registerHandlers(roomAdminService: RoomAdminService?) async {
+        guard let roomAdminService else { return }
 
         // Set only the slots this view model owns. The admin service is shared
         // with the settings/CLI view model, so clearing here would drop its CLI
@@ -44,15 +51,15 @@ final class RoomStatusViewModel {
     /// Clear every handler slot on the shared admin service. Only for true
     /// surface teardown (sheet dismiss); calling it on a segment switch would
     /// wipe the CLI handler the settings view model relies on.
-    func cleanup(appState: AppState) async {
-        guard let roomAdminService = appState.services?.roomAdminService else { return }
+    func cleanup(roomAdminService: RoomAdminService?) async {
+        guard let roomAdminService else { return }
         await roomAdminService.clearHandlers()
     }
 
     /// Clear only this view model's status/telemetry handler slots, leaving the settings view
     /// model's CLI handler intact. For the merged admin surface's status-segment teardown.
-    func clearStatusHandlers(appState: AppState) async {
-        guard let roomAdminService = appState.services?.roomAdminService else { return }
+    func clearStatusHandlers(roomAdminService: RoomAdminService?) async {
+        guard let roomAdminService else { return }
         await roomAdminService.clearStatusHandlers()
     }
 

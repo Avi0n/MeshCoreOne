@@ -329,8 +329,24 @@ struct ChatConversationView: View {
         }
 
         chatViewModel.configure(
-            appState: appState,
+            dataStore: appState.offlineDataStore,
+            messageService: appState.services?.messageService,
+            notificationService: appState.services?.notificationService,
+            channelService: appState.services?.channelService,
+            roomServerService: appState.services?.roomServerService,
+            contactService: appState.services?.contactService,
+            syncCoordinator: appState.syncCoordinator,
+            connectionState: { appState.connectionState },
+            connectedDevice: { appState.connectedDevice },
+            currentRadioID: { appState.currentRadioID },
+            session: { appState.services?.session },
+            reactionService: { appState.services?.reactionService },
+            chatSendQueueService: { appState.services?.chatSendQueueService },
+            onNavigateToMap: { appState.navigation.navigateToMap(coordinate: $0) },
             linkPreviewCache: linkPreviewCache,
+            inlineImageDimensionsStore: appState.services?.inlineImageDimensionsStore,
+            prefetchDataStore: appState.services?.dataStore,
+            chatCoordinatorRegistry: appState.ensureChatCoordinatorRegistry(),
             conversation: conversationType
         )
         chatViewModel.applyEnvInputs(currentEnvInputs)

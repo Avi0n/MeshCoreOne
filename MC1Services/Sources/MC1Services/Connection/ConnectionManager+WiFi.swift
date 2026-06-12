@@ -94,7 +94,7 @@ extension ConnectionManager {
             // Mark room sessions disconnected before tearing down services
             _ = await oldServices.remoteNodeService.handleBLEDisconnection()
             // Reset sync state before destroying services to prevent stuck "Syncing" pill
-            await oldServices.syncCoordinator.onDisconnected(services: oldServices)
+            await oldServices.syncCoordinator.onDisconnected(notificationService: oldServices.notificationService)
             await oldServices.tearDown()
         }
 

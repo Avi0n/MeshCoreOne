@@ -187,7 +187,7 @@ public actor ReactionService {
     /// Logs errors instead of silently discarding them.
     public func persistReactionAndUpdateSummary(
         _ reaction: ReactionDTO,
-        using dataStore: PersistenceStore
+        using dataStore: any PersistenceStoreProtocol
     ) async -> ReactionPersistResult? {
         do {
             try await dataStore.saveReaction(reaction)

@@ -141,9 +141,9 @@ final class NodeConfigImportViewModel {
         logger.error("Failed to parse config: \(error.localizedDescription)")
     }
 
-    /// Load current device values for diff display.
-    func loadCurrentDeviceState(appState: AppState) async {
-        guard let settingsService = appState.services?.settingsService else { return }
+    /// Load current device values for diff display. A nil service mirrors a disconnected state.
+    func loadCurrentDeviceState(settingsService: SettingsService?) async {
+        guard let settingsService else { return }
         do {
             let selfInfo = try await settingsService.getSelfInfo()
             currentName = selfInfo.name
@@ -160,10 +160,10 @@ final class NodeConfigImportViewModel {
     /// Runs the non-destructive planner to classify the import (overwrite vs additive) and reject a
     /// malformed config up front, then presents the confirmation alert. Surfacing a planner error here
     /// means a poison file is caught before the user even confirms, and before any write.
-    func prepareConfirmation(appState: AppState) {
+    func prepareConfirmation(nodeConfigService: NodeConfigService?) {
         guard !isPreparingConfirmation, !isApplying else { return }
         guard let config = importedConfig,
-              let service = appState.services?.nodeConfigService else { return }
+              let service = nodeConfigService else { return }
 
         errorMessage = nil
         isPreparingConfirmation = true
@@ -188,12 +188,12 @@ final class NodeConfigImportViewModel {
         }
     }
 
-    /// Apply the imported config to the device.
-    func applyConfig(appState: AppState) {
+    /// Apply the imported config to the device. Nil parameters mirror a disconnected state.
+    func applyConfig(nodeConfigService: NodeConfigService?, settingsService: SettingsService?, radioID: UUID?) {
         guard !isApplying else { return }
         guard let config = importedConfig,
-              let service = appState.services?.nodeConfigService,
-              let radioID = appState.connectedDevice?.radioID else { return }
+              let service = nodeConfigService,
+              let radioID else { return }
 
         isApplying = true
         applyProgress = 0
@@ -224,7 +224,7 @@ final class NodeConfigImportViewModel {
                 progressContinuation.finish()
                 await consumer.value
                 // Refresh cached device state so Settings UI reflects imported values
-                if let settingsService = appState.services?.settingsService {
+                if let settingsService {
                     try? await settingsService.refreshDeviceInfo()
                 }
                 isApplying = false

@@ -74,7 +74,8 @@ final class NoiseFloorViewModel {
     private let maxReadings = 200
     private let pollingInterval: Duration = .seconds(1.5)
 
-    private weak var appState: AppState?
+    // Re-evaluated each poll tick so a disconnect mid-poll surfaces immediately.
+    private var sessionProvider: @MainActor () -> MeshCoreSession? = { nil }
     private var pollingTask: Task<Void, Never>?
     // Ignored so the statistics getter can fill the cache during view body
     // evaluation without mutating observed state; readings drives invalidation.
@@ -108,8 +109,8 @@ final class NoiseFloorViewModel {
         errorMessage = nil
     }
 
-    func startPolling(appState: AppState) {
-        self.appState = appState
+    func startPolling(sessionProvider: @escaping @MainActor () -> MeshCoreSession?) {
+        self.sessionProvider = sessionProvider
         guard pollingTask == nil else { return }
         isPolling = true
 
@@ -133,7 +134,7 @@ final class NoiseFloorViewModel {
     }
 
     private func fetchReading() async {
-        guard let session = appState?.services?.session else {
+        guard let session = sessionProvider() else {
             errorMessage = L10n.Tools.Tools.NoiseFloor.Error.disconnected
             return
         }

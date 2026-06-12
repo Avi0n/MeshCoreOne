@@ -3,10 +3,10 @@ import OSLog
 
 /// Service for managing node status snapshots with throttled capture.
 public actor NodeSnapshotService {
-    private let dataStore: any PersistenceStoreProtocol
+    private let dataStore: any NodeSnapshotPersisting
     private let logger = Logger(subsystem: "com.mc1", category: "NodeSnapshotService")
 
-    public init(dataStore: any PersistenceStoreProtocol) {
+    public init(dataStore: any NodeSnapshotPersisting) {
         self.dataStore = dataStore
     }
 

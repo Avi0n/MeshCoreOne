@@ -34,7 +34,10 @@ struct SavedPathsSheet: View {
                 }
             }
             .task {
-                viewModel.configure(appState: appState)
+                viewModel.configure(
+                    dataStore: { appState.services?.dataStore },
+                    connectedDevice: { appState.connectedDevice }
+                )
                 await viewModel.loadSavedPaths()
             }
             .errorAlert($viewModel.errorMessage)

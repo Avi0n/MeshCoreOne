@@ -311,7 +311,20 @@ final class ChatViewModel {
     private var roomServerService: RoomServerService?
     var contactService: ContactService?
     var syncCoordinator: SyncCoordinator?
-    weak var appState: AppState?
+
+    // Provider closures are re-evaluated at every use so a disconnect (or a
+    // reconnect's fresh per-connection services) is picked up live; the
+    // defaults mirror a disconnected state.
+    @ObservationIgnored var connectionStateProvider: @MainActor () -> DeviceConnectionState = { .disconnected }
+    @ObservationIgnored var connectedDeviceProvider: @MainActor () -> DeviceDTO? = { nil }
+    @ObservationIgnored var currentRadioIDProvider: @MainActor () -> UUID? = { nil }
+    @ObservationIgnored var sessionProvider: @MainActor () -> MeshCoreSession? = { nil }
+    @ObservationIgnored var reactionServiceProvider: @MainActor () -> ReactionService? = { nil }
+    @ObservationIgnored var chatSendQueueServiceProvider: @MainActor () -> ChatSendQueueService? = { nil }
+
+    /// Navigation sink for map-thumbnail taps; nil makes the tap a no-op
+    /// (the always-present text link remains the baseline).
+    @ObservationIgnored var onNavigateToMap: ((CLLocationCoordinate2D) -> Void)?
 
     /// Drives receive-time prefetch of inline image dimensions and link
     /// preview metadata so message bubbles render at final size on first
@@ -346,53 +359,68 @@ final class ChatViewModel {
     init() {}
 
     /// Forwards a map-thumbnail tap to the same navigation sink the coordinate
-    /// text link uses. `appState` is a `weak` optional; if nil, the tap is a
+    /// text link uses. `onNavigateToMap` is optional; if nil, the tap is a
     /// no-op (the always-present text link remains the baseline).
     func navigateToMap(_ coordinate: CLLocationCoordinate2D) {
-        appState?.navigation.navigateToMap(coordinate: coordinate)
+        onNavigateToMap?(coordinate)
     }
 
-    /// Conversation-aware configure. Resolves the per-conversation
-    /// `ChatCoordinator` from the registry before the first view body
-    /// evaluates so the bound coordinator is observed by SwiftUI from
-    /// frame zero. Pass `nil` for views that do not render a single
-    /// conversation (chat list, info sheet).
+    /// Configure with the narrow dependencies the chat surfaces use. Nil
+    /// snapshot values and the default providers mirror a disconnected state.
+    /// Conversation views pass `linkPreviewCache` (with the prefetch inputs),
+    /// `chatCoordinatorRegistry`, and `conversation` so the per-conversation
+    /// `ChatCoordinator` is bound before the first view body evaluates;
+    /// list views omit them.
     func configure(
-        appState: AppState,
-        linkPreviewCache: any LinkPreviewCaching,
-        conversation: ChatConversationType?
+        dataStore: DataStore?,
+        messageService: MessageService?,
+        notificationService: NotificationService?,
+        channelService: ChannelService?,
+        roomServerService: RoomServerService?,
+        contactService: ContactService?,
+        syncCoordinator: SyncCoordinator?,
+        connectionState: @escaping @MainActor () -> DeviceConnectionState = { .disconnected },
+        connectedDevice: @escaping @MainActor () -> DeviceDTO? = { nil },
+        currentRadioID: @escaping @MainActor () -> UUID? = { nil },
+        session: @escaping @MainActor () -> MeshCoreSession? = { nil },
+        reactionService: @escaping @MainActor () -> ReactionService? = { nil },
+        chatSendQueueService: @escaping @MainActor () -> ChatSendQueueService? = { nil },
+        onNavigateToMap: ((CLLocationCoordinate2D) -> Void)? = nil,
+        linkPreviewCache: (any LinkPreviewCaching)? = nil,
+        inlineImageDimensionsStore: InlineImageDimensionsStore? = nil,
+        prefetchDataStore: (any PersistenceStoreProtocol)? = nil,
+        chatCoordinatorRegistry: ChatCoordinatorRegistry? = nil,
+        conversation: ChatConversationType? = nil
     ) {
-        self.appState = appState
-        self.dataStore = appState.offlineDataStore
-        self.messageService = appState.services?.messageService
-        self.notificationService = appState.services?.notificationService
-        self.channelService = appState.services?.channelService
-        self.roomServerService = appState.services?.roomServerService
-        self.contactService = appState.services?.contactService
-        self.syncCoordinator = appState.syncCoordinator
-        self.linkPreviewCache = linkPreviewCache
+        self.dataStore = dataStore
+        self.messageService = messageService
+        self.notificationService = notificationService
+        self.channelService = channelService
+        self.roomServerService = roomServerService
+        self.contactService = contactService
+        self.syncCoordinator = syncCoordinator
+        self.connectionStateProvider = connectionState
+        self.connectedDeviceProvider = connectedDevice
+        self.currentRadioIDProvider = currentRadioID
+        self.sessionProvider = session
+        self.reactionServiceProvider = reactionService
+        self.chatSendQueueServiceProvider = chatSendQueueService
+        self.onNavigateToMap = onNavigateToMap
         self.lastSetRegionScope = .unknown
-        configurePrefetcher(appState: appState, linkPreviewCache: linkPreviewCache)
-        bindCoordinator(appState: appState, conversation: conversation)
+        if let linkPreviewCache {
+            self.linkPreviewCache = linkPreviewCache
+            configurePrefetcher(
+                linkPreviewCache: linkPreviewCache,
+                dimensionsStore: inlineImageDimensionsStore,
+                prefetchDataStore: prefetchDataStore
+            )
+        }
+        bindCoordinator(registry: chatCoordinatorRegistry, conversation: conversation)
     }
 
-    /// Configure with services from AppState (for conversation list views that don't show previews)
-    func configure(appState: AppState) {
-        self.appState = appState
-        self.dataStore = appState.offlineDataStore
-        self.messageService = appState.services?.messageService
-        self.notificationService = appState.services?.notificationService
-        self.channelService = appState.services?.channelService
-        self.roomServerService = appState.services?.roomServerService
-        self.contactService = appState.services?.contactService
-        self.syncCoordinator = appState.syncCoordinator
-        self.lastSetRegionScope = .unknown
-        bindCoordinator(appState: appState, conversation: nil)
-    }
-
-    private func bindCoordinator(appState: AppState, conversation: ChatConversationType?) {
+    private func bindCoordinator(registry: ChatCoordinatorRegistry?, conversation: ChatConversationType?) {
         guard let conversation else { return }
-        guard let registry = appState.ensureChatCoordinatorRegistry() else { return }
+        guard let registry else { return }
         let id: ChatConversationID
         switch conversation {
         case .dm(let contact):
@@ -422,16 +450,18 @@ final class ChatViewModel {
     }
 
     /// Build the receive-time prefetcher and start (or restart) the
-    /// dimension-resolution subscription. Called from both `configure(...)`
-    /// variants. No-op when services are unavailable (offline browse).
+    /// dimension-resolution subscription. Called from `configure(...)` when a
+    /// `linkPreviewCache` is supplied. The per-connection inputs are nil while
+    /// disconnected (offline browse), which tears the prefetcher down.
     private func configurePrefetcher(
-        appState: AppState,
-        linkPreviewCache: any LinkPreviewCaching
+        linkPreviewCache: any LinkPreviewCaching,
+        dimensionsStore: InlineImageDimensionsStore?,
+        prefetchDataStore: (any PersistenceStoreProtocol)?
     ) {
         // The snapshot-resolution stream is a process-lifetime singleton with no
-        // dependency on `services`, so subscribe once regardless of connection
-        // state — offline browse of cached coordinate messages still needs late
-        // snapshot resolutions to refresh their thumbnails.
+        // dependency on per-connection services, so subscribe once regardless of
+        // connection state: offline browse of cached coordinate messages still
+        // needs late snapshot resolutions to refresh their thumbnails.
         if snapshotResolutionTask == nil {
             snapshotResolutionTask = Task { [weak self] in
                 for await request in MapSnapshotStore.shared.resolutionStream() {
@@ -441,22 +471,21 @@ final class ChatViewModel {
             }
         }
 
-        guard let services = appState.services else {
+        guard let dimensionsStore, let prefetchDataStore else {
             prefetcher = nil
             inlineImageDimensionsStore = nil
             dimensionResolutionTask?.cancel()
             dimensionResolutionTask = nil
             return
         }
-        let store = services.inlineImageDimensionsStore
-        inlineImageDimensionsStore = store
+        inlineImageDimensionsStore = dimensionsStore
         prefetcher = InlineImagePrefetcher(
             imageCache: InlineImageCache.shared,
             linkPreviewCache: linkPreviewCache,
-            dimensionsStore: store,
-            dataStore: services.dataStore
+            dimensionsStore: dimensionsStore,
+            dataStore: prefetchDataStore
         )
-        startObservingDimensionResolutions(store: store)
+        startObservingDimensionResolutions(store: dimensionsStore)
     }
 
     private func startObservingDimensionResolutions(store: InlineImageDimensionsStore) {

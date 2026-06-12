@@ -6,8 +6,8 @@ private let logger = PersistentLogger(subsystem: "com.mc1", category: "RxLogServ
 
 /// Actor that processes RX log events, decodes channel messages, and persists to database.
 public actor RxLogService {
-    private let session: MeshCoreSession
-    let dataStore: PersistenceStore
+    private let session: any MeshCoreSessionProtocol
+    let dataStore: any PersistenceStoreProtocol
     var radioID: UUID?
 
     // Caches for fast lookup
@@ -45,7 +45,7 @@ public actor RxLogService {
     /// `addKnownRegion` / `removeKnownRegion` sequences do not lose work.
     var regionReprocessDirty = false
 
-    public init(session: MeshCoreSession, dataStore: PersistenceStore, heardRepeatsService: HeardRepeatsService?) {
+    public init(session: any MeshCoreSessionProtocol, dataStore: any PersistenceStoreProtocol, heardRepeatsService: HeardRepeatsService?) {
         self.session = session
         self.dataStore = dataStore
         self.heardRepeatsService = heardRepeatsService

@@ -37,16 +37,16 @@ extension ChatViewModel {
         // Sync the device's session-scoped flood key with the effective scope for this
         // channel. The effective scope combines the per-channel preference with the
         // device-level default — `.inherit` means "fall through to the default".
-        let deviceDefault = appState?.connectedDevice?.defaultFloodScopeName
+        let deviceDefault = connectedDeviceProvider()?.defaultFloodScopeName
         let desiredState: ChatViewModel.RegionScopeState = .pushed(
             channel.floodScope,
             deviceDefault: deviceDefault
         )
-        if lastSetRegionScope != desiredState, let session = appState?.services?.session {
+        if lastSetRegionScope != desiredState, let session = sessionProvider() {
             let resolved = ChannelFloodScopeResolver.resolve(
                 channelFloodScope: channel.floodScope,
                 deviceDefaultFloodScopeName: deviceDefault,
-                supportsUnscopedFloodSend: appState?.connectedDevice?.supportsUnscopedFloodSend ?? false
+                supportsUnscopedFloodSend: connectedDeviceProvider()?.supportsUnscopedFloodSend ?? false
             )
             do {
                 switch resolved {
@@ -91,10 +91,10 @@ extension ChatViewModel {
             buildItems()
 
             // Index loaded messages for reaction matching and process any pending reactions
-            if let reactionService = appState?.services?.reactionService {
+            if let reactionService = reactionServiceProvider() {
                 await indexMessagesForReactions(
                     fetchedMessages,
-                    scope: .channel(channel, localNodeName: appState?.connectedDevice?.nodeName),
+                    scope: .channel(channel, localNodeName: connectedDeviceProvider()?.nodeName),
                     reactionService: reactionService,
                     dataStore: dataStore
                 )
@@ -157,7 +157,7 @@ extension ChatViewModel {
             isResend: false,
             messageText: message.text,
             messageTimestamp: message.timestamp,
-            localNodeName: appState?.connectedDevice?.nodeName
+            localNodeName: connectedDeviceProvider()?.nodeName
         )
         do {
             try await enqueueChannel(envelope)
@@ -216,7 +216,7 @@ extension ChatViewModel {
             isResend: true,
             messageText: message.text,
             messageTimestamp: message.timestamp,
-            localNodeName: appState?.connectedDevice?.nodeName
+            localNodeName: connectedDeviceProvider()?.nodeName
         )
         do {
             try await enqueueChannel(envelope)

@@ -69,8 +69,9 @@ final class RepeaterSettingsViewModel {
 
     // MARK: - Configuration
 
-    func configure(appState: AppState, session: RemoteNodeSessionDTO) async {
-        self.repeaterAdminService = appState.services?.repeaterAdminService
+    /// Nil service mirrors a disconnected state; commands then no-op.
+    func configure(repeaterAdminService: RepeaterAdminService?, session: RemoteNodeSessionDTO) async {
+        self.repeaterAdminService = repeaterAdminService
 
         guard let repeaterAdminService else { return }
 

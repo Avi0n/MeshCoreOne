@@ -89,17 +89,10 @@ final class ContactsViewModel {
 
     init() {}
 
-    /// Configure with services from AppState
-    func configure(appState: AppState) {
-        self.dataStore = appState.offlineDataStore
-        self.contactService = appState.services?.contactService
-        self.advertisementService = appState.services?.advertisementService
-    }
-
-    /// Configure with services (for testing)
+    /// Configure with the services this view model uses; nil values mirror a disconnected state.
     func configure(
-        dataStore: DataStore,
-        contactService: ContactService,
+        dataStore: DataStore?,
+        contactService: ContactService?,
         advertisementService: AdvertisementService? = nil
     ) {
         self.dataStore = dataStore

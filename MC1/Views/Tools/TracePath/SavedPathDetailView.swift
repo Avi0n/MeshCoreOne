@@ -27,7 +27,7 @@ struct SavedPathDetailView: View {
         .navigationTitle(viewModel.savedPath.name)
         .navigationBarTitleDisplayMode(.inline)
         .task {
-            viewModel.configure(appState: appState)
+            viewModel.configure(dataStore: { appState.services?.dataStore })
         }
         .refreshable {
             await viewModel.refresh()

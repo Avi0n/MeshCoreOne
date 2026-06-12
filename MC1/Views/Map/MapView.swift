@@ -36,7 +36,7 @@ struct MapView: View {
             .task {
                 appState.locationService.requestPermissionIfNeeded()
                 appState.locationService.requestLocation()
-                viewModel.configure(appState: appState)
+                viewModel.configure(dataStore: appState.offlineDataStore, radioID: appState.currentRadioID)
                 await viewModel.loadContactsWithLocation()
                 // Frame all contacts only on a cold open. A focus or contact target aims the camera
                 // and clears its nav flag synchronously before this await resolves, so a non-nil

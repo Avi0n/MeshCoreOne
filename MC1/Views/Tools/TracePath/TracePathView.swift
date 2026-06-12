@@ -115,7 +115,13 @@ struct TracePathView: View {
             // Keyed on servicesVersion: a late connect or reconnect rebuilds the
             // ServiceContainer, so the listener must re-subscribe to the fresh
             // AdvertisementService or trace responses are silently dropped.
-            viewModel.configure(appState: appState)
+            viewModel.configure(
+                dataStore: { appState.services?.dataStore },
+                session: { appState.services?.session },
+                advertisementService: { appState.services?.advertisementService },
+                connectedDevice: { appState.connectedDevice },
+                bestAvailableLocation: { appState.bestAvailableLocation }
+            )
             viewModel.startListening()
             if let radioID = appState.connectedDevice?.radioID {
                 await viewModel.loadContacts(radioID: radioID)

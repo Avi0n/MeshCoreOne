@@ -117,8 +117,8 @@ public actor ChannelService {
 
     // MARK: - Properties
 
-    private let session: MeshCoreSession
-    private let dataStore: PersistenceStore
+    private let session: any MeshCoreSessionProtocol
+    private let dataStore: any ChannelPersisting
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "ChannelService")
 
     /// Decryption cache consumer: channel writes and syncs forward the fresh
@@ -138,8 +138,8 @@ public actor ChannelService {
     // MARK: - Initialization
 
     public init(
-        session: MeshCoreSession,
-        dataStore: PersistenceStore,
+        session: any MeshCoreSessionProtocol,
+        dataStore: any ChannelPersisting,
         rxLogService: RxLogService?
     ) {
         self.session = session

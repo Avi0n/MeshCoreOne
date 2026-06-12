@@ -59,7 +59,12 @@ struct NodeConfigExportView: View {
 
             Section {
                 Button {
-                    Task { await viewModel.exportConfig(appState: appState) }
+                    Task {
+                        await viewModel.exportConfig(
+                            nodeConfigService: appState.services?.nodeConfigService,
+                            deviceNodeName: appState.connectedDevice?.nodeName
+                        )
+                    }
                 } label: {
                     HStack {
                         Text(viewModel.sections.allSelected

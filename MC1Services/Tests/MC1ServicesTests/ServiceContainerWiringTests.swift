@@ -53,8 +53,8 @@ struct ServiceContainerWiringTests {
             DeviceDTO.testDevice(id: radioID, radioID: radioID)
         )
 
-        await container.syncCoordinator.wireMessageHandlers(services: container, radioID: radioID)
-        await container.syncCoordinator.startDiscoveryEventMonitoring(services: container, radioID: radioID)
+        await container.syncCoordinator.wireMessageHandlers(dependencies: container.syncDependencies, radioID: radioID)
+        await container.syncCoordinator.startDiscoveryEventMonitoring(dependencies: container.syncDependencies, radioID: radioID)
 
         #expect(await container.messagePollingService.hasMessageHandlersWired)
         #expect(container.advertisementService.eventBroadcaster.subscriberCount > 0,

@@ -205,7 +205,11 @@ struct ContactDetailView: View {
             nickname = currentContact.nickname ?? ""
         }
         .task {
-            pathViewModel.configure(appState: appState) {
+            pathViewModel.configure(
+                dataStore: { appState.services?.dataStore },
+                contactService: { appState.services?.contactService },
+                connectedDevice: { appState.connectedDevice }
+            ) {
                 Task { @MainActor in
                     await refreshContact()
                 }

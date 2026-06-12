@@ -83,7 +83,7 @@ struct DiscoveryView: View {
             }
         }
         .task {
-            viewModel.configure(appState: appState)
+            viewModel.configure(dataStore: appState.offlineDataStore)
             await loadDiscoveredNodes()
         }
         .onChange(of: appState.servicesVersion) { _, _ in
@@ -162,7 +162,7 @@ struct DiscoveryView: View {
 
     private func loadDiscoveredNodes() async {
         guard let radioID = appState.connectedDevice?.radioID else { return }
-        viewModel.configure(appState: appState)
+        viewModel.configure(dataStore: appState.offlineDataStore)
         await viewModel.loadDiscoveredNodes(radioID: radioID)
     }
 

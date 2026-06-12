@@ -86,7 +86,7 @@ public struct ImportPreview: Sendable {
 /// Exports device configuration to `MeshCoreNodeConfig` and imports it back,
 /// handling section filtering, other-params merging, and safe import ordering.
 public actor NodeConfigService {
-    private let session: MeshCoreSession
+    private let session: any MeshCoreSessionProtocol
     private let settingsService: SettingsService
     private let channelService: ChannelService
     private let dataStore: any PersistenceStoreProtocol
@@ -98,7 +98,7 @@ public actor NodeConfigService {
     private var onPostIdentityImport: (@Sendable () async throws -> UUID?)?
 
     public init(
-        session: MeshCoreSession,
+        session: any MeshCoreSessionProtocol,
         settingsService: SettingsService,
         channelService: ChannelService,
         dataStore: any PersistenceStoreProtocol,

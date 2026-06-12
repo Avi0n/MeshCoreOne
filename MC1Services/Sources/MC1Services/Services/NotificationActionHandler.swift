@@ -24,7 +24,7 @@ public final class NotificationActionHandler {
 
     // MARK: - Dependencies
 
-    private let dataStore: PersistenceStore
+    private let dataStore: any PersistenceStoreProtocol
     private let messageService: MessageService
     private let notificationService: NotificationService
     private let roomServerService: RoomServerService
@@ -40,7 +40,7 @@ public final class NotificationActionHandler {
     private var localNodeName: @MainActor () -> String? = { nil }
 
     public init(
-        dataStore: PersistenceStore,
+        dataStore: any PersistenceStoreProtocol,
         messageService: MessageService,
         notificationService: NotificationService,
         roomServerService: RoomServerService,

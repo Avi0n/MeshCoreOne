@@ -19,12 +19,18 @@ final class NodeTelemetryViewModel {
 
     // MARK: - Initialization
 
-    func configure(appState: AppState, contact: ContactDTO) {
-        self.binaryProtocolService = appState.services?.binaryProtocolService
+    /// Nil services mirror a disconnected state; requests then no-op.
+    func configure(
+        binaryProtocolService: BinaryProtocolService?,
+        contactService: ContactService?,
+        nodeSnapshotService: NodeSnapshotService?,
+        contact: ContactDTO
+    ) {
+        self.binaryProtocolService = binaryProtocolService
         self.publicKey = contact.publicKey
         helper.configure(
-            contactService: appState.services?.contactService,
-            nodeSnapshotService: appState.services?.nodeSnapshotService
+            contactService: contactService,
+            nodeSnapshotService: nodeSnapshotService
         )
         helper.configureForDirectTelemetry(publicKey: contact.publicKey)
     }

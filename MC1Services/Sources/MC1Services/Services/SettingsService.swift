@@ -433,7 +433,7 @@ public enum SettingsEvent: Sendable {
 /// Service for managing device settings via MeshCore session.
 /// Handles radio configuration, node settings, Bluetooth settings, and device info.
 public actor SettingsService {
-    private let session: MeshCoreSession
+    private let session: any ConfigurationSessionOps
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "SettingsService")
 
     // Event stream subscriber. The subscription ID lets a replaced subscriber's
@@ -441,7 +441,7 @@ public actor SettingsService {
     private var eventContinuation: AsyncStream<SettingsEvent>.Continuation?
     private var eventSubscriptionID: UUID?
 
-    public init(session: MeshCoreSession) {
+    public init(session: any ConfigurationSessionOps) {
         self.session = session
     }
 

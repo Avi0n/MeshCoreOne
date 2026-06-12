@@ -574,7 +574,7 @@ extension ConnectionManager {
             sessionsAwaitingReauth = []
             await oldServices.tearDown()
             // Reset sync state and clear notification suppression (safety net)
-            await oldServices.syncCoordinator.onDisconnected(services: oldServices)
+            await oldServices.syncCoordinator.onDisconnected(notificationService: oldServices.notificationService)
         }
 
         // Stop session
@@ -706,7 +706,7 @@ extension ConnectionManager {
 
             // Reset sync state before destroying services to prevent stuck "Syncing" pill
             if let services {
-                await services.syncCoordinator.onDisconnected(services: services)
+                await services.syncCoordinator.onDisconnected(notificationService: services.notificationService)
             }
 
             // Stop current services

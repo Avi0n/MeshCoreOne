@@ -133,7 +133,7 @@ struct ChatViewModelDeleteSequencingTests {
     /// The direct-message delete throws `.notConnected` instead of returning silently, so the
     /// action can roll back the optimistic hide and surface an error.
     @Test func directDeleteThrowsWhenNotConnected() async {
-        let viewModel = ChatViewModel()   // no appState, no dataStore → not connected
+        let viewModel = ChatViewModel()   // default providers, no dataStore → not connected
         let contact = makeContact(name: "Alice")
 
         await #expect(throws: ConversationActionError.self) {

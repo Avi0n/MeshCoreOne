@@ -39,8 +39,8 @@ public actor MessageService {
 
     let logger = PersistentLogger(subsystem: "com.mc1", category: "MessageService")
 
-    let session: MeshCoreSession
-    let dataStore: PersistenceStore
+    let session: any MeshCoreSessionProtocol
+    let dataStore: any PersistenceStoreProtocol
     let config: MessageServiceConfig
 
     /// Contact service for path management (optional - retry with reset requires this).
@@ -83,8 +83,8 @@ public actor MessageService {
     ///   - contactService: Contact service for path management during retry
     ///   - config: Configuration for retry and routing behavior (defaults to `.default`)
     public init(
-        session: MeshCoreSession,
-        dataStore: PersistenceStore,
+        session: any MeshCoreSessionProtocol,
+        dataStore: any PersistenceStoreProtocol,
         contactService: ContactService?,
         config: MessageServiceConfig = .default
     ) {

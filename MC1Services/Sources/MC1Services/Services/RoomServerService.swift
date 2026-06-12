@@ -34,9 +34,9 @@ public actor RoomServerService {
 
     // MARK: - Properties
 
-    private let session: MeshCoreSession
+    private let session: any RemoteAccessSessionOps
     private let remoteNodeService: RemoteNodeService
-    private let dataStore: PersistenceStore
+    private let dataStore: any PersistenceStoreProtocol
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "RoomServer")
     private let auditLogger = CommandAuditLogger()
 
@@ -56,9 +56,9 @@ public actor RoomServerService {
     // MARK: - Initialization
 
     public init(
-        session: MeshCoreSession,
+        session: any RemoteAccessSessionOps,
         remoteNodeService: RemoteNodeService,
-        dataStore: PersistenceStore,
+        dataStore: any PersistenceStoreProtocol,
         config: MessageServiceConfig = MessageServiceConfig()
     ) {
         self.session = session

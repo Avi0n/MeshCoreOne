@@ -50,12 +50,17 @@ final class RoomConversationViewModel {
 
     init() {}
 
-    /// Configure with services from AppState
-    func configure(appState: AppState) {
-        self.roomServerService = appState.services?.roomServerService
-        self.dataStore = appState.services?.dataStore
-        self.syncCoordinator = appState.syncCoordinator
-        self.notificationService = appState.services?.notificationService
+    /// Nil services mirror a disconnected state; operations then no-op.
+    func configure(
+        roomServerService: RoomServerService?,
+        dataStore: DataStore?,
+        syncCoordinator: SyncCoordinator?,
+        notificationService: NotificationService?
+    ) {
+        self.roomServerService = roomServerService
+        self.dataStore = dataStore
+        self.syncCoordinator = syncCoordinator
+        self.notificationService = notificationService
     }
 
     // MARK: - Messages

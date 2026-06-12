@@ -41,9 +41,10 @@ final class ImportKeyViewModel {
     }
 
     /// Returns true when the key was imported and the sheet should dismiss.
-    func importKey(appState: AppState) async -> Bool {
+    /// A nil service mirrors a disconnected state and is a no-op.
+    func importKey(settingsService: SettingsService?) async -> Bool {
         guard let keyData = validatedKeyData,
-              let settingsService = appState.services?.settingsService else { return false }
+              let settingsService else { return false }
 
         isImporting = true
         defer { isImporting = false }

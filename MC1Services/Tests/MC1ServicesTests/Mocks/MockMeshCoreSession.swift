@@ -16,6 +16,57 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
         }
     }
 
+    /// Self info to return from currentSelfInfo. Configure via `setCurrentSelfInfo(_:)`.
+    public private(set) var currentSelfInfo: SelfInfo?
+
+    // MARK: - Event Streaming
+
+    private struct EventSubscription {
+        let filter: EventFilter?
+        let continuation: AsyncStream<MeshEvent>.Continuation
+    }
+
+    /// Active `events()` subscriptions, keyed so a terminated stream can deregister itself.
+    private var eventSubscriptions: [UUID: EventSubscription] = [:]
+
+    public func events() async -> AsyncStream<MeshEvent> {
+        makeEventStream(filter: nil)
+    }
+
+    public func events(filter: EventFilter) async -> AsyncStream<MeshEvent> {
+        makeEventStream(filter: filter)
+    }
+
+    private func makeEventStream(filter: EventFilter?) -> AsyncStream<MeshEvent> {
+        let id = UUID()
+        let (stream, continuation) = AsyncStream<MeshEvent>.makeStream()
+        eventSubscriptions[id] = EventSubscription(filter: filter, continuation: continuation)
+        continuation.onTermination = { [weak self] _ in
+            guard let self else { return }
+            Task { await self.removeEventSubscription(id: id) }
+        }
+        return stream
+    }
+
+    private func removeEventSubscription(id: UUID) {
+        eventSubscriptions[id] = nil
+    }
+
+    /// Yields an event to every active `events()` subscriber whose filter matches.
+    public func yieldEvent(_ event: MeshEvent) {
+        for subscription in eventSubscriptions.values where subscription.filter?.matches(event) != false {
+            subscription.continuation.yield(event)
+        }
+    }
+
+    /// Finishes every active `events()` stream, ending subscribers' for-await loops.
+    public func finishEventStreams() {
+        for subscription in eventSubscriptions.values {
+            subscription.continuation.finish()
+        }
+        eventSubscriptions.removeAll()
+    }
+
     // MARK: - Stubs
 
     /// The connection state to return from connectionState stream
@@ -64,6 +115,12 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
     /// Error to throw from setChannel
     public var stubbedSetChannelError: Error?
 
+    /// Event to return from waitForEvent (nil simulates a timeout)
+    public var stubbedWaitForEventResult: MeshEvent?
+
+    /// Result to return from getMessage
+    public var stubbedGetMessageResult: Result<MessageResult, Error> = .success(.noMoreMessages)
+
     // MARK: - Recorded Invocations
 
     public struct SendMessageInvocation: Sendable, Equatable {
@@ -89,6 +146,11 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
         public let secret: Data
     }
 
+    public struct WaitForEventInvocation: Sendable {
+        public let filter: EventFilter
+        public let timeout: TimeInterval?
+    }
+
     public private(set) var sendMessageInvocations: [SendMessageInvocation] = []
     public private(set) var sendChannelMessageInvocations: [SendChannelMessageInvocation] = []
     public private(set) var getContactsInvocations: [Date?] = []
@@ -99,6 +161,10 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
     public private(set) var sendPathDiscoveryDestinations: [Data] = []
     public private(set) var getChannelIndices: [UInt8] = []
     public private(set) var setChannelInvocations: [SetChannelInvocation] = []
+    public private(set) var waitForEventInvocations: [WaitForEventInvocation] = []
+    public private(set) var getMessageTimeouts: [TimeInterval?] = []
+    public private(set) var startAutoMessageFetchingCallCount = 0
+    public private(set) var stopAutoMessageFetchingCallCount = 0
 
     // MARK: - Initialization
 
@@ -110,6 +176,12 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
     /// stub property directly from a test, so configuration goes through this isolated setter.
     public func setStubbedContacts(_ contacts: [MeshContact]) {
         stubbedContacts = contacts
+    }
+
+    /// Sets the self info returned by `currentSelfInfo`, through an isolated setter
+    /// for the same actor-isolation reason as `setStubbedContacts`.
+    public func setCurrentSelfInfo(_ selfInfo: SelfInfo?) {
+        currentSelfInfo = selfInfo
     }
 
     // MARK: - Protocol Methods
@@ -226,6 +298,29 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
         // Stub - not used in current tests
     }
 
+    public func waitForEvent(filter: EventFilter, timeout: TimeInterval?) async -> MeshEvent? {
+        waitForEventInvocations.append(WaitForEventInvocation(filter: filter, timeout: timeout))
+        return stubbedWaitForEventResult
+    }
+
+    public func getMessage(timeout: TimeInterval?) async throws -> MessageResult {
+        getMessageTimeouts.append(timeout)
+        switch stubbedGetMessageResult {
+        case .success(let result):
+            return result
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    public func startAutoMessageFetching() async {
+        startAutoMessageFetchingCallCount += 1
+    }
+
+    public func stopAutoMessageFetching() {
+        stopAutoMessageFetchingCallCount += 1
+    }
+
     // MARK: - Test Helpers
 
     /// Resets all recorded invocations
@@ -240,5 +335,9 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
         sendPathDiscoveryDestinations = []
         getChannelIndices = []
         setChannelInvocations = []
+        waitForEventInvocations = []
+        getMessageTimeouts = []
+        startAutoMessageFetchingCallCount = 0
+        stopAutoMessageFetchingCallCount = 0
     }
 }

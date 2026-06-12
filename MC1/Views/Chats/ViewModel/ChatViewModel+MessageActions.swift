@@ -68,7 +68,7 @@ extension ChatViewModel {
                 isResend: true,
                 messageText: message.text,
                 messageTimestamp: message.timestamp,
-                localNodeName: appState?.connectedDevice?.nodeName
+                localNodeName: connectedDeviceProvider()?.nodeName
             )
             do {
                 try await enqueueChannel(envelope)
@@ -120,7 +120,7 @@ extension ChatViewModel {
 
     /// Delete a single message
     func deleteMessage(_ message: MessageDTO) async {
-        guard appState?.connectionState == .ready else { return }
+        guard connectionStateProvider() == .ready else { return }
         guard let dataStore else { return }
 
         do {
@@ -152,7 +152,7 @@ extension ChatViewModel {
     /// SwiftData write, no radio command). Throws `ConversationActionError.notConnected` rather
     /// than returning silently so the caller can roll back the optimistic hide and surface an error.
     func deleteDirectConversation(for contact: ContactDTO) async throws {
-        guard appState?.connectionState == .ready, let dataStore else {
+        guard connectionStateProvider() == .ready, let dataStore else {
             throw ConversationActionError.notConnected
         }
 

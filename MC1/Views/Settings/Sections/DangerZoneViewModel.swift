@@ -27,9 +27,9 @@ final class DangerZoneViewModel {
     }
 
     /// Returns true when the device was forgotten and the hosting page should dismiss.
-    func forgetDevice(appState: AppState, deleteData: Bool) async -> Bool {
+    func forgetDevice(connectionManager: ConnectionManager, deleteData: Bool) async -> Bool {
         do {
-            try await appState.connectionManager.forgetDevice(deleteData: deleteData)
+            try await connectionManager.forgetDevice(deleteData: deleteData)
             return true
         } catch {
             errorMessage = error.localizedDescription
@@ -38,9 +38,10 @@ final class DangerZoneViewModel {
     }
 
     /// Returns true when the reset flow finished and the hosting page should dismiss.
-    func factoryReset(appState: AppState) async -> Bool {
-        guard let settingsService = appState.services?.settingsService,
-              let deviceID = appState.connectedDevice?.id else {
+    /// A nil service or device ID mirrors a disconnected state.
+    func factoryReset(settingsService: SettingsService?, deviceID: UUID?, connectionManager: ConnectionManager) async -> Bool {
+        guard let settingsService,
+              let deviceID else {
             errorMessage = L10n.Settings.DangerZone.Error.servicesUnavailable
             return false
         }
@@ -58,13 +59,13 @@ final class DangerZoneViewModel {
         }
 
         // Always clean up: remove from ASK, disconnect, delete from SwiftData
-        await appState.connectionManager.forgetDevice(id: deviceID)
+        await connectionManager.forgetDevice(id: deviceID)
         return true
     }
 
-    func fetchUnfavoritedCount(appState: AppState) async {
+    func fetchUnfavoritedCount(connectionManager: ConnectionManager) async {
         do {
-            unfavoritedCount = try await appState.connectionManager.unfavoritedNodeCount()
+            unfavoritedCount = try await connectionManager.unfavoritedNodeCount()
             if unfavoritedCount == 0 {
                 removeResult = L10n.Settings.DangerZone.Alert.RemoveUnfavorited.noneFound
                 showRemoveResult = true
@@ -76,12 +77,12 @@ final class DangerZoneViewModel {
         }
     }
 
-    func removeUnfavoritedNodes(appState: AppState) {
+    func removeUnfavoritedNodes(connectionManager: ConnectionManager) {
         isRemovingUnfavorited = true
         removeTask = Task {
             defer { isRemovingUnfavorited = false }
             do {
-                let result = try await appState.connectionManager.removeUnfavoritedNodes()
+                let result = try await connectionManager.removeUnfavoritedNodes()
                 isRemovingUnfavorited = false
                 if result.removed == result.total {
                     withAnimation { showRemoveSuccess = true }

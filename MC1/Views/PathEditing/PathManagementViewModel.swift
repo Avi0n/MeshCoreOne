@@ -128,7 +128,11 @@ final class PathManagementViewModel {
 
     // MARK: - Dependencies
 
-    private var appState: AppState?
+    // Provider closures are re-evaluated at every use so a disconnect (or a
+    // container rebuild) between actions is observed live, never a stale snapshot.
+    private var dataStoreProvider: @MainActor () -> PersistenceStore? = { nil }
+    private var contactServiceProvider: @MainActor () -> ContactService? = { nil }
+    private var connectedDeviceProvider: @MainActor () -> DeviceDTO? = { nil }
     private let recents: RecentHopsStore
 
     init(defaults: UserDefaults = .standard) {
@@ -139,7 +143,7 @@ final class PathManagementViewModel {
     /// Clamped to `1...3` so a firmware `pathHashMode` of 3 (reserved) never trips
     /// `encodePathLen`'s `1...3` precondition on save.
     var hashSize: Int {
-        let raw = appState?.connectedDevice?.hashSize ?? 1
+        let raw = connectedDeviceProvider()?.hashSize ?? 1
         return min(max(raw, 1), 3)
     }
 
@@ -163,8 +167,17 @@ final class PathManagementViewModel {
 
     // MARK: - Configuration
 
-    func configure(appState: AppState, onContactNeedsRefresh: @escaping () -> Void) {
-        self.appState = appState
+    /// Each provider is read live at its point of use; a provider returning
+    /// `nil` mirrors a disconnected state, so unconfigured calls are no-ops.
+    func configure(
+        dataStore: @escaping @MainActor () -> PersistenceStore? = { nil },
+        contactService: @escaping @MainActor () -> ContactService? = { nil },
+        connectedDevice: @escaping @MainActor () -> DeviceDTO? = { nil },
+        onContactNeedsRefresh: @escaping () -> Void
+    ) {
+        dataStoreProvider = dataStore
+        contactServiceProvider = contactService
+        connectedDeviceProvider = connectedDevice
         self.onContactNeedsRefresh = onContactNeedsRefresh
     }
 
@@ -220,8 +233,7 @@ final class PathManagementViewModel {
     /// a reused view model picks up the right scope even if the contacts cache
     /// lets us skip the network fetch.
     func loadContacts(radioID: UUID, forceReload: Bool = false) async {
-        guard let appState,
-              let dataStore = appState.services?.dataStore else { return }
+        guard let dataStore = dataStoreProvider() else { return }
 
         loadRecentKeys(for: radioID)
 
@@ -398,8 +410,7 @@ final class PathManagementViewModel {
     /// we can't safely re-encode; otherwise `encodeEditablePath` re-encodes
     /// every hop at the current `hashSize`.
     func saveEditedPath(for contact: ContactDTO) async {
-        guard let appState,
-              let contactService = appState.services?.contactService else { return }
+        guard let contactService = contactServiceProvider() else { return }
 
         errorMessage = nil
         let targetHashSize = hashSize
@@ -437,8 +448,7 @@ final class PathManagementViewModel {
     /// Reports `.noPathFound` if the remote node doesn't respond before the
     /// firmware-suggested timeout elapses.
     func discoverPath(for contact: ContactDTO) async {
-        guard let appState,
-              let contactService = appState.services?.contactService else { return }
+        guard let contactService = contactServiceProvider() else { return }
 
         // Cancel any existing discovery
         discoveryTask?.cancel()
@@ -558,8 +568,7 @@ final class PathManagementViewModel {
 
     /// Reset the path for a contact (force flood routing)
     func resetPath(for contact: ContactDTO) async {
-        guard let appState,
-              let contactService = appState.services?.contactService else { return }
+        guard let contactService = contactServiceProvider() else { return }
 
         isSettingPath = true
         errorMessage = nil
@@ -579,8 +588,7 @@ final class PathManagementViewModel {
 
     /// Set a specific path for a contact
     func setPath(for contact: ContactDTO, path: Data, pathLength: UInt8) async {
-        guard let appState,
-              let contactService = appState.services?.contactService else { return }
+        guard let contactService = contactServiceProvider() else { return }
 
         isSettingPath = true
         errorMessage = nil

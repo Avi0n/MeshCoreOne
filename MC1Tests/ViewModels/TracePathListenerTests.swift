@@ -26,10 +26,6 @@ struct TracePathListenerTests {
         )
     }
 
-    private func makeAppState() throws -> AppState {
-        AppState(modelContainer: try PersistenceStore.createContainer(inMemory: true))
-    }
-
     private func makeTraceInfo(tag: UInt32) -> TraceInfo {
         TraceInfo(
             tag: tag,
@@ -54,9 +50,9 @@ struct TracePathListenerTests {
 
     @Test("Listener established after a late connect receives trace responses")
     func lateConnectDeliversResponses() async throws {
-        let appState = try makeAppState()
+        var currentServices: ServiceContainer?
         let viewModel = TracePathViewModel()
-        viewModel.configure(appState: appState)
+        viewModel.configure(advertisementService: { currentServices?.advertisementService })
 
         // Opened while disconnected: no services exist, so this subscribes to nothing.
         viewModel.startListening()
@@ -64,7 +60,7 @@ struct TracePathListenerTests {
         // Connect: a fresh container appears and the hosting view re-invokes
         // startListening via its servicesVersion-keyed task.
         let services = try makeServices()
-        appState.connectionManager.setTestState(services: services)
+        currentServices = services
         viewModel.startListening()
 
         viewModel.setPendingTagForTesting(Self.testTag)
@@ -78,19 +74,18 @@ struct TracePathListenerTests {
 
     @Test("Listener re-established after a container rebuild receives trace responses")
     func containerRebuildDeliversResponses() async throws {
-        let appState = try makeAppState()
         let oldServices = try makeServices()
-        appState.connectionManager.setTestState(services: oldServices)
+        var currentServices: ServiceContainer? = oldServices
 
         let viewModel = TracePathViewModel()
-        viewModel.configure(appState: appState)
+        viewModel.configure(advertisementService: { currentServices?.advertisementService })
         viewModel.startListening()
 
         // Transport loss: the old container finishes its event stream and a
         // replacement container takes its place.
         oldServices.advertisementService.finishEvents()
         let newServices = try makeServices()
-        appState.connectionManager.setTestState(services: newServices)
+        currentServices = newServices
         viewModel.startListening()
 
         viewModel.setPendingTagForTesting(Self.testTag)

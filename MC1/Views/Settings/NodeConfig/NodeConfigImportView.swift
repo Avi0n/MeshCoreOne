@@ -8,7 +8,7 @@ struct NodeConfigImportView: View {
     var body: some View {
         Group {
             if let config = viewModel.importedConfig {
-                ImportPreviewList(viewModel: viewModel, config: config, appState: appState)
+                ImportPreviewList(viewModel: viewModel, config: config)
             } else {
                 SelectFileList(viewModel: viewModel)
             }
@@ -22,7 +22,7 @@ struct NodeConfigImportView: View {
             switch result {
             case .success(let url):
                 viewModel.parseFile(at: url)
-                Task { await viewModel.loadCurrentDeviceState(appState: appState) }
+                Task { await viewModel.loadCurrentDeviceState(settingsService: appState.services?.settingsService) }
             case .failure(let error):
                 viewModel.errorMessage = error.localizedDescription
             }
@@ -32,7 +32,11 @@ struct NodeConfigImportView: View {
             isPresented: $viewModel.showConfirmation
         ) {
             Button(viewModel.applyButtonLabel) {
-                viewModel.applyConfig(appState: appState)
+                viewModel.applyConfig(
+                    nodeConfigService: appState.services?.nodeConfigService,
+                    settingsService: appState.services?.settingsService,
+                    radioID: appState.connectedDevice?.radioID
+                )
             }
             Button(L10n.Localizable.Common.cancel, role: .cancel) {}
         } message: {
@@ -83,7 +87,6 @@ private struct ImportPreviewList: View {
     @Environment(\.appTheme) private var theme
     @Bindable var viewModel: NodeConfigImportViewModel
     let config: MeshCoreNodeConfig
-    let appState: AppState
 
     var body: some View {
         List {
@@ -284,7 +287,7 @@ private struct ApplySection: View {
                 }
             } else if !viewModel.importComplete {
                 Button(viewModel.applyButtonLabel) {
-                    viewModel.prepareConfirmation(appState: appState)
+                    viewModel.prepareConfirmation(nodeConfigService: appState.services?.nodeConfigService)
                 }
                 .disabled(viewModel.isPreparingConfirmation)
             }

@@ -56,7 +56,7 @@ extension ConnectionManager {
         do {
             let result = try await services.syncCoordinator.onConnectionEstablished(
                 radioID: radioID,
-                services: services,
+                dependencies: services.syncDependencies,
                 forceFullSync: forceFullSync,
                 channelSyncConfig: channelSyncConfig,
                 platformName: "\(self.detectedPlatform)"
@@ -128,7 +128,7 @@ extension ConnectionManager {
                 let channelSyncConfig = self.currentChannelSyncConfig(for: radioID, transportType: transportType)
                 let success = await services.syncCoordinator.performResync(
                     radioID: radioID,
-                    services: services,
+                    dependencies: services.syncDependencies,
                     forceFullSync: forceFullSync,
                     channelSyncConfig: channelSyncConfig,
                     platformName: "\(self.detectedPlatform)"

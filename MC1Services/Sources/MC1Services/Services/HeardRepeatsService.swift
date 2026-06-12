@@ -5,7 +5,7 @@ import OSLog
 /// Service for correlating RX log entries to sent channel messages
 /// and tracking "heard repeats" - evidence of message propagation through the mesh.
 public actor HeardRepeatsService {
-    private let dataStore: PersistenceStore
+    private let dataStore: any HeardRepeatPersisting
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "HeardRepeatsService")
 
     /// Device ID for the current session
@@ -17,7 +17,7 @@ public actor HeardRepeatsService {
     /// Multicast broadcaster for heard-repeat events.
     private nonisolated let eventBroadcaster = EventBroadcaster<HeardRepeatEvent>()
 
-    public init(dataStore: PersistenceStore) {
+    public init(dataStore: any HeardRepeatPersisting) {
         self.dataStore = dataStore
     }
 

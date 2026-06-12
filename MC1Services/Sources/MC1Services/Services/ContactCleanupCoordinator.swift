@@ -9,13 +9,13 @@ import Foundation
 /// so a torn-down container cannot be kept alive through this coordinator.
 public struct ContactCleanupCoordinator: ContactCleanupHandling {
 
-    private let dataStore: PersistenceStore
+    private let dataStore: any ContactPersisting & RoomPersisting
     private let syncCoordinator: SyncCoordinator
     private let notificationService: NotificationService
     private let remoteNodeService: RemoteNodeService
 
     public init(
-        dataStore: PersistenceStore,
+        dataStore: any ContactPersisting & RoomPersisting,
         syncCoordinator: SyncCoordinator,
         notificationService: NotificationService,
         remoteNodeService: RemoteNodeService

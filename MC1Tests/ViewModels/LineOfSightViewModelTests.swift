@@ -137,6 +137,7 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
     func updateChannelLastMessage(channelID: UUID, date: Date?) async throws {}
     func incrementChannelUnreadCount(channelID: UUID) async throws {}
     func clearChannelUnreadCount(channelID: UUID) async throws {}
+    func clearChannelUnreadCount(radioID: UUID, index: UInt8) async throws {}
     func fetchSavedTracePaths(radioID: UUID) async throws -> [SavedTracePathDTO] { [] }
     func fetchSavedTracePath(id: UUID) async throws -> SavedTracePathDTO? { nil }
     func createSavedTracePath(radioID: UUID, name: String, pathBytes: Data, hashSize: Int, initialRun: TracePathRunDTO?) async throws -> SavedTracePathDTO {
@@ -216,8 +217,38 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
 
     func setChannelNotificationLevel(_ channelID: UUID, level: NotificationLevel) async throws {}
     func setSessionNotificationLevel(_ sessionID: UUID, level: NotificationLevel) async throws {}
+    func fetchDevice(id: UUID) async throws -> DeviceDTO? { nil }
+    func fetchDevice(radioID: UUID) async throws -> DeviceDTO? { nil }
+    func updateDeviceLastContactSync(radioID: UUID, timestamp: UInt32) async throws {}
+    func fetchRemoteNodeSession(id: UUID) async throws -> RemoteNodeSessionDTO? { nil }
+    func fetchRemoteNodeSession(publicKey: Data) async throws -> RemoteNodeSessionDTO? { nil }
     func markSessionDisconnected(_ sessionID: UUID) async throws {}
     func markRoomSessionConnected(_ sessionID: UUID) async throws -> Bool { false }
+    func updateMessageStatusUnlessDelivered(id: UUID, status: MessageStatus) async throws -> Bool { false }
+    func markMessageAsRead(id: UUID) async throws {}
+    func incrementPendingSendAttemptCount(messageID: UUID) async throws -> Int? { nil }
+    func saveDevice(_ dto: DeviceDTO) async throws {}
+    func fetchRemoteNodeSessionByPrefix(_ prefix: Data) async throws -> RemoteNodeSessionDTO? { nil }
+    func fetchRemoteNodeSessions(radioID: UUID) async throws -> [RemoteNodeSessionDTO] { [] }
+    func fetchConnectedRemoteNodeSessions() async throws -> [RemoteNodeSessionDTO] { [] }
+    func saveRemoteNodeSessionDTO(_ dto: RemoteNodeSessionDTO) async throws {}
+    func updateRemoteNodeSessionConnection(id: UUID, isConnected: Bool, permissionLevel: RoomPermissionLevel) async throws {}
+    func cleanupDuplicateRemoteNodeSessions(publicKey: Data, keepID: UUID) async throws {}
+    func deleteRemoteNodeSession(id: UUID) async throws {}
+    func incrementRoomUnreadCount(_ sessionID: UUID) async throws {}
+    func resetRoomUnreadCount(_ sessionID: UUID) async throws {}
+    func findContactByPublicKey(_ publicKey: Data) async throws -> ContactDTO? { nil }
+    func findContactNameByKeyPrefix(_ prefix: Data) async throws -> String? { nil }
+    func saveRxLogEntry(_ dto: RxLogEntryDTO) async throws {}
+    func fetchRxLogEntries(radioID: UUID, limit: Int) async throws -> [RxLogEntryDTO] { [] }
+    func clearRxLogEntries(radioID: UUID) async throws {}
+    func pruneRxLogEntries(radioID: UUID, keepCount: Int, pruneThreshold: Int) async throws {}
+    func fetchEntriesWithMissingRegion(radioID: UUID) async throws -> [RxLogEntryDTO] { [] }
+    func fetchRecentEntriesByDecryptStatus(radioID: UUID, status: DecryptStatus, since: Date) async throws -> [RxLogEntryDTO] { [] }
+    func batchUpdateRxLogRegion(updates: [(id: UUID, regionScope: String?)]) async throws {}
+    func batchUpdateRxLogDecryption(_ updates: [(id: UUID, channelIndex: UInt8?, channelName: String?, senderTimestamp: UInt32?)]) async throws {}
+    func batchUpdateChannelMessageRegion(radioID: UUID, updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)]) async throws {}
+    func batchUpdateDMMessageRegion(radioID: UUID, updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)]) async throws {}
 
     // MARK: - Channel Message Deletion (stubs)
 

@@ -162,14 +162,14 @@ final class TracePathViewModel {
     private var traceEventsTask: Task<Void, Never>?
 
     /// Start listening for trace responses on the current connection's
-    /// `AdvertisementService`. Requires `configure(appState:)` first. The
-    /// owning `ServiceContainer` is rebuilt on every connection and finishes
+    /// `AdvertisementService`. Requires `configure` first. The owning
+    /// `ServiceContainer` is rebuilt on every connection and finishes
     /// its event stream on teardown, so the hosting view re-invokes this per
     /// container (keyed on `AppState.servicesVersion`); while disconnected
     /// there is no service yet and the call is a no-op until then.
     func startListening() {
         traceEventsTask?.cancel()
-        guard let advertisementService = appState?.services?.advertisementService else { return }
+        guard let advertisementService = advertisementServiceProvider() else { return }
         let events = advertisementService.events()
         traceEventsTask = Task { [weak self] in
             for await event in events {
@@ -188,7 +188,13 @@ final class TracePathViewModel {
 
     // MARK: - Dependencies
 
-    private var appState: AppState?
+    // Provider closures are re-evaluated at every use so a disconnect (or a
+    // container rebuild) mid-trace is observed live, never a stale snapshot.
+    private var dataStoreProvider: @MainActor () -> PersistenceStore? = { nil }
+    private var sessionProvider: @MainActor () -> MeshCoreSession? = { nil }
+    private var advertisementServiceProvider: @MainActor () -> AdvertisementService? = { nil }
+    private var connectedDeviceProvider: @MainActor () -> DeviceDTO? = { nil }
+    private var bestAvailableLocationProvider: @MainActor () -> CLLocation? = { nil }
 
     // MARK: - Computed Properties
 
@@ -217,7 +223,7 @@ final class TracePathViewModel {
     /// Path_sz code used for this trace's flags byte and hop widths: the
     /// override when set, otherwise the radio's configured `pathHashMode`.
     var effectiveTraceMode: UInt8 {
-        traceHashMode ?? (appState?.connectedDevice?.pathHashMode ?? 0)
+        traceHashMode ?? (connectedDeviceProvider()?.pathHashMode ?? 0)
     }
 
     /// Trace hash size in bytes per hop (1, 2, or 4), derived from the effective
@@ -317,8 +323,20 @@ final class TracePathViewModel {
 
     // MARK: - Configuration
 
-    func configure(appState: AppState) {
-        self.appState = appState
+    /// Each provider is read live at its point of use; a provider returning
+    /// `nil` mirrors a disconnected state, so unconfigured calls are no-ops.
+    func configure(
+        dataStore: @escaping @MainActor () -> PersistenceStore? = { nil },
+        session: @escaping @MainActor () -> MeshCoreSession? = { nil },
+        advertisementService: @escaping @MainActor () -> AdvertisementService? = { nil },
+        connectedDevice: @escaping @MainActor () -> DeviceDTO? = { nil },
+        bestAvailableLocation: @escaping @MainActor () -> CLLocation? = { nil }
+    ) {
+        dataStoreProvider = dataStore
+        sessionProvider = session
+        advertisementServiceProvider = advertisementService
+        connectedDeviceProvider = connectedDevice
+        bestAvailableLocationProvider = bestAvailableLocation
     }
 
     // MARK: - Error Handling
@@ -351,7 +369,7 @@ final class TracePathViewModel {
     }
 
     private var currentUserLocation: CLLocation? {
-        appState?.bestAvailableLocation
+        bestAvailableLocationProvider()
     }
 
     /// Try contacts first, then discovered nodes. Returns the best match from either source.
@@ -378,11 +396,10 @@ final class TracePathViewModel {
         recentPublicKeys = recents.load(for: radioID)
         // Drop an override carried from a prior radio the current one can't
         // honor, so the trace falls back to its pathHashMode.
-        if appState?.connectedDevice?.supportsTraceHashSizeOverride != true {
+        if connectedDeviceProvider()?.supportsTraceHashSizeOverride != true {
             traceHashMode = nil
         }
-        guard let appState,
-              let dataStore = appState.services?.dataStore else { return }
+        guard let dataStore = dataStoreProvider() else { return }
         do {
             let contacts = try await dataStore.fetchContacts(radioID: radioID)
             allContacts = contacts
@@ -515,9 +532,8 @@ final class TracePathViewModel {
     /// - Returns: `true` if save succeeded, `false` otherwise
     @discardableResult
     func savePath(name: String) async -> Bool {
-        guard let appState,
-              let radioID = appState.connectedDevice?.radioID,
-              let dataStore = appState.services?.dataStore else { return false }
+        guard let radioID = connectedDeviceProvider()?.radioID,
+              let dataStore = dataStoreProvider() else { return false }
 
         // For batch mode, save all completed results
         if batchEnabled && !completedResults.isEmpty {
@@ -613,7 +629,7 @@ final class TracePathViewModel {
         // Match the trace hash mode to the saved width (size is 1/2/4 -> code
         // 0/1/2), but only on a radio that honors the per-trace override;
         // otherwise the trace follows the configured pathHashMode.
-        if appState?.connectedDevice?.supportsTraceHashSizeOverride == true {
+        if connectedDeviceProvider()?.supportsTraceHashSizeOverride == true {
             traceHashMode = UInt8(size.trailingZeroBitCount)
         } else {
             traceHashMode = nil
@@ -659,9 +675,8 @@ final class TracePathViewModel {
     /// Find a saved path matching the current path bytes
     /// Returns the most recently used match if multiple exist
     private func findMatchingSavedPath() async -> SavedTracePathDTO? {
-        guard let appState,
-              let radioID = appState.connectedDevice?.radioID,
-              let dataStore = appState.services?.dataStore else { return nil }
+        guard let radioID = connectedDeviceProvider()?.radioID,
+              let dataStore = dataStoreProvider() else { return nil }
 
         let pathBytes = fullPathBytes
         guard !pathBytes.isEmpty else { return nil }
@@ -686,8 +701,7 @@ final class TracePathViewModel {
 
     /// Execute the trace and wait for response
     func runTrace() async {
-        guard let appState,
-              let session = appState.services?.session,
+        guard let session = sessionProvider(),
               !outboundPath.isEmpty else { return }
 
         // Cancel any pending trace
@@ -712,7 +726,7 @@ final class TracePathViewModel {
         // Generate random tag for correlation
         let tag = UInt32.random(in: 0...UInt32.max)
         pendingTag = tag
-        pendingDeviceID = appState.connectedDevice?.radioID  // Capture device
+        pendingDeviceID = connectedDeviceProvider()?.radioID  // Capture device
         traceStartTime = Date()
 
         // Build path data
@@ -736,7 +750,7 @@ final class TracePathViewModel {
 
             // Record failed run for saved paths
             if let savedPath = activeSavedPath,
-               let dataStore = appState.services?.dataStore {
+               let dataStore = dataStoreProvider() {
                 let failedRun = TracePathRunDTO(
                     id: UUID(),
                     date: Date(),
@@ -775,7 +789,7 @@ final class TracePathViewModel {
 
                     // Record failed run for saved paths
                     if let savedPath = activeSavedPath,
-                       let dataStore = appState.services?.dataStore {
+                       let dataStore = dataStoreProvider() {
                         let failedRun = TracePathRunDTO(
                             id: UUID(),
                             date: Date(),
@@ -818,8 +832,7 @@ final class TracePathViewModel {
         resultID = nil
         clearError()
 
-        guard let appState,
-              let session = appState.services?.session,
+        guard let session = sessionProvider(),
               !outboundPath.isEmpty else { return }
 
         // Match to saved path if not already running one
@@ -835,13 +848,13 @@ final class TracePathViewModel {
 
         // Execute traces sequentially
         for traceIndex in 1...batchSize {
-            // Check cancellation BEFORE starting next trace
+            // Check cancellation before starting the next trace
             if batchCancelled { break }
 
             currentTraceIndex = traceIndex
 
             // Run single trace and wait for result
-            await executeSingleTrace(session: session, appState: appState)
+            await executeSingleTrace(session: session)
 
             // Check if we got a successful result to show the sheet
             if let latestResult = completedResults.last, latestResult.success {
@@ -857,10 +870,10 @@ final class TracePathViewModel {
 
             // Small buffer between traces (unless this is the last one)
             if traceIndex < batchSize {
-                // Check cancellation BEFORE sleeping
+                // Check cancellation before sleeping
                 if batchCancelled { break }
                 try? await Task.sleep(for: .milliseconds(Self.interTraceBufferMs))
-                // Check cancellation AFTER sleeping
+                // Check cancellation after sleeping
                 if batchCancelled { break }
             }
         }
@@ -875,13 +888,13 @@ final class TracePathViewModel {
     }
 
     /// Execute a single trace within a batch, storing result in completedResults
-    private func executeSingleTrace(session: MeshCoreSession, appState: AppState) async {
+    private func executeSingleTrace(session: MeshCoreSession) async {
         pendingPathHash = fullPathBytes
 
         // Generate random tag for correlation
         let tag = UInt32.random(in: 0...UInt32.max)
         pendingTag = tag
-        pendingDeviceID = appState.connectedDevice?.radioID
+        pendingDeviceID = connectedDeviceProvider()?.radioID
         traceStartTime = Date()
 
         let pathData = Data(fullPathBytes)
@@ -904,7 +917,7 @@ final class TracePathViewModel {
                 hashSize: hashSize
             )
             completedResults.append(failedResult)
-            recordFailedRun(appState: appState)
+            recordFailedRun()
             pendingPathHash = nil
             pendingTag = nil
             return
@@ -924,7 +937,7 @@ final class TracePathViewModel {
                         logger.warning("Batch trace timeout for tag \(tag) after \(timeoutSeconds)s")
                         let timeoutResult = TraceResult.timeout(attemptedPath: pendingPathHash ?? [], hashSize: hashSize)
                         completedResults.append(timeoutResult)
-                        recordFailedRun(appState: appState)
+                        recordFailedRun()
                         pendingPathHash = nil
                         pendingTag = nil
 
@@ -942,9 +955,9 @@ final class TracePathViewModel {
     }
 
     /// Record a failed run for saved paths
-    private func recordFailedRun(appState: AppState) {
+    private func recordFailedRun() {
         guard let savedPath = activeSavedPath,
-              let dataStore = appState.services?.dataStore else { return }
+              let dataStore = dataStoreProvider() else { return }
 
         let failedRun = TracePathRunDTO(
             id: UUID(),
@@ -1017,10 +1030,10 @@ final class TracePathViewModel {
         // Each node's SNR shows what it measured when receiving.
         // This answers "how well did this node receive the signal?"
         var hops: [TraceHop] = []
-        let deviceName = appState?.connectedDevice?.nodeName ?? L10n.Contacts.Contacts.Results.Hop.myDevice
+        let deviceName = connectedDeviceProvider()?.nodeName ?? L10n.Contacts.Contacts.Results.Hop.myDevice
         let path = traceInfo.path
 
-        let deviceLocation = appState?.bestAvailableLocation
+        let deviceLocation = bestAvailableLocationProvider()
         let deviceLat = deviceLocation?.coordinate.latitude
         let deviceLon = deviceLocation?.coordinate.longitude
 
@@ -1112,7 +1125,7 @@ final class TracePathViewModel {
 
         // Auto-append run if this is a saved path
         if let savedPath = activeSavedPath,
-           let dataStore = appState?.services?.dataStore {
+           let dataStore = dataStoreProvider() {
             let hopsSNR = hops
                 .filter { !$0.isStartNode && !$0.isEndNode }
                 .map { $0.snr }

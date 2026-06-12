@@ -15,7 +15,7 @@ public actor DebugLogBuffer {
         set { sharedStorage.withLock { $0 = newValue } }
     }
 
-    private let dataStore: any PersistenceStoreProtocol
+    private let dataStore: any DebugLogPersisting
     private var buffer: [DebugLogEntryDTO] = []
     private var flushTask: Task<Void, Never>?
     private var isFlushScheduled = false
@@ -24,7 +24,7 @@ public actor DebugLogBuffer {
 
     private static let logger = Logger(subsystem: "com.mc1", category: "DebugLogBuffer")
 
-    public init(dataStore: any PersistenceStoreProtocol) {
+    public init(dataStore: any DebugLogPersisting) {
         self.dataStore = dataStore
     }
 

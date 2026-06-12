@@ -7,7 +7,7 @@ extension ChatViewModel {
 
     /// Send a reaction emoji to a message (channel or DM)
     func sendReaction(emoji: String, to message: MessageDTO) async {
-        guard appState?.services?.reactionService != nil,
+        guard reactionServiceProvider() != nil,
               messageService != nil,
               let dataStore else {
             return
@@ -22,7 +22,7 @@ extension ChatViewModel {
         inFlightReactions.insert(reactionKey)
         defer { inFlightReactions.remove(reactionKey) }
 
-        let localNodeName = appState?.localNodeName ?? "Me"
+        let localNodeName = connectedDeviceProvider()?.nodeName ?? "Me"
 
         // Check if user already reacted with this emoji
         if let alreadyReacted = try? await dataStore.reactionExists(
@@ -58,7 +58,7 @@ extension ChatViewModel {
         channelIndex: UInt8,
         localNodeName: String
     ) async {
-        guard let reactionService = appState?.services?.reactionService,
+        guard let reactionService = reactionServiceProvider(),
               let messageService,
               let dataStore else { return }
 
@@ -117,7 +117,7 @@ extension ChatViewModel {
         contactID: UUID,
         localNodeName: String
     ) async {
-        guard let reactionService = appState?.services?.reactionService,
+        guard let reactionService = reactionServiceProvider(),
               let messageService,
               let dataStore else { return }
 

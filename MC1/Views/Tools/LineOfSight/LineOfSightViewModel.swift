@@ -518,20 +518,20 @@ final class LineOfSightViewModel {
 
     // MARK: - Configuration
 
-    func configure(appState: AppState) {
-        // Use offline-capable data store and device ID to support browsing cached data when disconnected
-        self.dataStore = appState.offlineDataStore
-        self.radioID = appState.currentRadioID
-
-        // Initialize frequency from connected device (stored in kHz, convert to MHz)
-        if let deviceFrequencyKHz = appState.connectedDevice?.frequency {
-            self.frequencyMHz = Double(deviceFrequencyKHz) / 1000.0
-        }
-    }
-
-    func configure(dataStore: any PersistenceStoreProtocol, radioID: UUID?) {
+    /// Configure with the data store and radio this view model uses; nil mirrors a disconnected state.
+    /// Pass the connected device's frequency in kHz to seed the analysis frequency.
+    func configure(
+        dataStore: (any PersistenceStoreProtocol)?,
+        radioID: UUID?,
+        deviceFrequencyKHz: UInt32? = nil
+    ) {
         self.dataStore = dataStore
         self.radioID = radioID
+
+        // Device frequency is stored in kHz; analysis works in MHz
+        if let deviceFrequencyKHz {
+            self.frequencyMHz = Double(deviceFrequencyKHz) / 1000.0
+        }
     }
 
     // MARK: - Load Repeaters

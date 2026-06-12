@@ -31,7 +31,7 @@ extension SyncCoordinator {
     @discardableResult
     public func performFullSync(
         radioID: UUID,
-        dataStore: PersistenceStore,
+        dataStore: any PersistenceStoreProtocol,
         contactService: some ContactServiceProtocol,
         channelService: some ChannelServiceProtocol,
         messagePollingService: some MessagePollingServiceProtocol,
@@ -72,7 +72,7 @@ extension SyncCoordinator {
     /// racing connection setups cannot double-wire.
     private func runFullSync(
         radioID: UUID,
-        dataStore: PersistenceStore,
+        dataStore: any PersistenceStoreProtocol,
         contactService: some ContactServiceProtocol,
         channelService: some ChannelServiceProtocol,
         messagePollingService: some MessagePollingServiceProtocol,
@@ -183,53 +183,57 @@ extension SyncCoordinator {
     /// Unlike onConnectionEstablished, does not rewire handlers or restart event monitoring.
     /// - Parameters:
     ///   - radioID: The connected device UUID
-    ///   - services: The ServiceContainer with all services
+    ///   - dependencies: The sync dependency surface
     ///   - forceFullSync: When true, forces a full contact sync instead of incremental.
     ///   - channelSyncConfig: Channel sync skip configuration.
     ///   - platformName: Platform name for instrumentation logging.
     /// - Returns: `true` if sync succeeded, `false` if it failed
     public func performResync(
         radioID: UUID,
-        services: ServiceContainer,
+        dependencies: SyncDependencies,
         forceFullSync: Bool = false,
         channelSyncConfig: ChannelSyncConfig = .none,
         platformName: String = "unknown"
     ) async -> Bool {
         #if DEBUG
         if let override = performResyncOverride {
-            return await override(radioID, services)
+            return await override(radioID, dependencies)
         }
         #endif
         logger.info("Attempting resync for device \(radioID)")
 
         await MainActor.run {
             logger.info("Suppressing message notifications during resync")
-            services.notificationService.isSuppressingNotifications = true
+            dependencies.notificationService.isSuppressingNotifications = true
         }
-        startSuppressionWatchdog(services: services)
+        startSuppressionWatchdog(notificationService: dependencies.notificationService)
         logger.info("[Sync] Pausing auto-fetch for resync")
-        await services.messagePollingService.pauseAutoFetch()
+        await dependencies.messagePollingService.pauseAutoFetch()
 
         do {
             let result = try await performFullSync(
                 radioID: radioID,
-                dataStore: services.dataStore,
-                contactService: services.contactService,
-                channelService: services.channelService,
-                messagePollingService: services.messagePollingService,
-                appStateProvider: services.appStateProvider,
-                rxLogService: services.rxLogService,
-                notificationService: services.notificationService,
+                dataStore: dependencies.dataStore,
+                contactService: dependencies.contactService,
+                channelService: dependencies.channelService,
+                messagePollingService: dependencies.messagePollingService,
+                appStateProvider: dependencies.appStateProvider,
+                rxLogService: dependencies.rxLogService,
+                notificationService: dependencies.notificationService,
                 forceFullSync: forceFullSync,
                 channelSyncConfig: channelSyncConfig,
                 platformName: platformName
             )
 
-            startDiscoveryEventMonitoring(services: services, radioID: radioID)
+            startDiscoveryEventMonitoring(dependencies: dependencies, radioID: radioID)
 
-            await drainHandlersAndResumeNotifications(services: services, context: "resync complete")
+            await drainHandlersAndResumeNotifications(
+                notificationService: dependencies.notificationService,
+                messagePollingService: dependencies.messagePollingService,
+                context: "resync complete"
+            )
             logger.info("[Sync] Resuming auto-fetch after resync")
-            await services.messagePollingService.resumeAutoFetch()
+            await dependencies.messagePollingService.resumeAutoFetch()
 
             if result.isConnectionUsable {
                 logger.info("Resync succeeded")
@@ -239,8 +243,12 @@ extension SyncCoordinator {
             logger.warning("Resync completed without usable contacts")
             return false
         } catch {
-            await drainHandlersAndResumeNotifications(services: services, context: "resync failed")
-            await services.messagePollingService.resumeAutoFetch()
+            await drainHandlersAndResumeNotifications(
+                notificationService: dependencies.notificationService,
+                messagePollingService: dependencies.messagePollingService,
+                context: "resync failed"
+            )
+            await dependencies.messagePollingService.resumeAutoFetch()
 
             logger.warning("Resync failed: \(error.localizedDescription)")
             await setState(.failed(.syncFailed(error.localizedDescription)))
@@ -261,14 +269,14 @@ extension SyncCoordinator {
     ///
     /// - Parameters:
     ///   - radioID: The connected device UUID
-    ///   - services: The ServiceContainer with all services
+    ///   - dependencies: The sync dependency surface
     ///   - forceFullSync: When true, forces a full contact sync instead of incremental.
     ///   - channelSyncConfig: Channel sync skip configuration.
     ///   - platformName: Platform name for instrumentation logging.
     @discardableResult
     public func onConnectionEstablished(
         radioID: UUID,
-        services: ServiceContainer,
+        dependencies: SyncDependencies,
         forceFullSync: Bool = false,
         channelSyncConfig: ChannelSyncConfig = .none,
         platformName: String = "unknown"
@@ -289,28 +297,28 @@ extension SyncCoordinator {
         // Unread counts and badges still update - only system notifications are suppressed
         await MainActor.run {
             logger.info("Suppressing message notifications during sync")
-            services.notificationService.isSuppressingNotifications = true
+            dependencies.notificationService.isSuppressingNotifications = true
         }
-        startSuppressionWatchdog(services: services)
+        startSuppressionWatchdog(notificationService: dependencies.notificationService)
 
         do {
             // Defer advert-driven contact fetches during sync to avoid BLE contention
-            await services.advertisementService.setSyncingContacts(true)
+            await dependencies.advertisementService.setSyncingContacts(true)
 
             // 1. Wire message handlers first (before events can arrive)
-            await wireMessageHandlers(services: services, radioID: radioID)
+            await wireMessageHandlers(dependencies: dependencies, radioID: radioID)
 
             // Clean up legacy blocked sender messages still in DB from older app versions
-            await deleteBlockedSenderMessages(radioID: radioID, dataStore: services.dataStore)
+            await deleteBlockedSenderMessages(radioID: radioID, dataStore: dependencies.dataStore)
 
             // 2. Now start event monitoring (handlers are ready), but delay auto-fetch and advert monitoring until after sync
             logger.info("[Sync] Starting event monitoring for device \(radioID.uuidString.prefix(8))")
-            await services.startEventMonitoring(radioID: radioID, enableAutoFetch: false)
+            await dependencies.startEventMonitoring(radioID, false)
 
             // 3. Export device private key for direct message decryption
             do {
-                let privateKey = try await services.session.exportPrivateKey()
-                await services.rxLogService.updatePrivateKey(privateKey)
+                let privateKey = try await dependencies.exportPrivateKey()
+                await dependencies.rxLogService.updatePrivateKey(privateKey)
                 logger.debug("Device private key exported for direct message decryption")
             } catch {
                 logger.warning("Failed to export private key: \(error.localizedDescription)")
@@ -320,13 +328,13 @@ extension SyncCoordinator {
             // point would see its own claim and skip)
             let syncResult = try await runFullSync(
                 radioID: radioID,
-                dataStore: services.dataStore,
-                contactService: services.contactService,
-                channelService: services.channelService,
-                messagePollingService: services.messagePollingService,
-                appStateProvider: services.appStateProvider,
-                rxLogService: services.rxLogService,
-                notificationService: services.notificationService,
+                dataStore: dependencies.dataStore,
+                contactService: dependencies.contactService,
+                channelService: dependencies.channelService,
+                messagePollingService: dependencies.messagePollingService,
+                appStateProvider: dependencies.appStateProvider,
+                rxLogService: dependencies.rxLogService,
+                notificationService: dependencies.notificationService,
                 forceFullSync: forceFullSync,
                 channelSyncConfig: channelSyncConfig,
                 platformName: platformName
@@ -335,24 +343,32 @@ extension SyncCoordinator {
             // 5. Start discovery event monitoring (for ongoing contact discovery).
             // Intentionally after the full sync so adverts arriving during sync
             // do not spam notifications.
-            startDiscoveryEventMonitoring(services: services, radioID: radioID)
+            startDiscoveryEventMonitoring(dependencies: dependencies, radioID: radioID)
 
             // 6. Flush deferred advert-driven contact fetches now that discovery monitoring is live
-            await services.advertisementService.setSyncingContacts(false)
+            await dependencies.advertisementService.setSyncingContacts(false)
 
             // 7. Drain pending message handlers and resume notifications
-            await drainHandlersAndResumeNotifications(services: services, context: "sync complete")
+            await drainHandlersAndResumeNotifications(
+                notificationService: dependencies.notificationService,
+                messagePollingService: dependencies.messagePollingService,
+                context: "sync complete"
+            )
 
             // 8. Start auto-fetch after suppression is cleared to avoid notification spam
             logger.info("[Sync] Starting auto-fetch for device \(radioID.uuidString.prefix(8))")
-            await services.messagePollingService.startAutoFetch(radioID: radioID)
+            await dependencies.messagePollingService.startAutoFetch(radioID: radioID)
 
             logger.info("Connection setup complete for device \(radioID)")
             return syncResult
         } catch {
             // Drain pending message handlers and resume notifications
-            await drainHandlersAndResumeNotifications(services: services, context: "sync failed")
-            await services.advertisementService.setSyncingContacts(false)
+            await drainHandlersAndResumeNotifications(
+                notificationService: dependencies.notificationService,
+                messagePollingService: dependencies.messagePollingService,
+                context: "sync failed"
+            )
+            await dependencies.advertisementService.setSyncingContacts(false)
             throw error
         }
     }
@@ -361,7 +377,7 @@ extension SyncCoordinator {
     ///
     /// If disconnect occurs mid-sync (during contacts or channels phase), we must call
     /// onSyncActivityEnded to decrement the activity count, otherwise the pill stays stuck.
-    public func onDisconnected(services: ServiceContainer) async {
+    public func onDisconnected(notificationService: NotificationService) async {
         let currentState = await state
         logger.warning(
             "[Sync] onDisconnected called - syncState: \(String(describing: currentState)), hasEndedSyncActivity: \(hasEndedSyncActivity)"
@@ -391,7 +407,7 @@ extension SyncCoordinator {
         // Handles edge cases like connection dropping mid-sync or force-quit
         cancelSuppressionWatchdog()
         await MainActor.run {
-            services.notificationService.isSuppressingNotifications = false
+            notificationService.isSuppressingNotifications = false
         }
 
         logger.info("Disconnected, sync state reset to idle")
@@ -402,7 +418,7 @@ extension SyncCoordinator {
     /// Syncs contacts and channels from the device (phases 1 and 2 of full sync).
     private func syncContactsAndChannels(
         radioID: UUID,
-        dataStore: PersistenceStore,
+        dataStore: any PersistenceStoreProtocol,
         contactService: some ContactServiceProtocol,
         channelService: some ChannelServiceProtocol,
         appStateProvider: AppStateProvider?,
@@ -665,21 +681,25 @@ extension SyncCoordinator {
     /// message handlers to drain. Suppression is cleared first as defense-in-depth for
     /// error paths where `performFullSync` throws before reaching `pollAllMessages()`.
     /// Both operations are idempotent, so double-clearing from the happy path is harmless.
-    private func drainHandlersAndResumeNotifications(services: ServiceContainer, context: String) async {
+    private func drainHandlersAndResumeNotifications(
+        notificationService: NotificationService,
+        messagePollingService: any MessagePollingServiceProtocol,
+        context: String
+    ) async {
         cancelSuppressionWatchdog()
         await MainActor.run {
             logger.info("Resuming message notifications (\(context))")
-            services.notificationService.isSuppressingNotifications = false
+            notificationService.isSuppressingNotifications = false
         }
 
         let pendingHandlerDrainTimeout: Duration = .seconds(30)
-        let didDrainPendingHandlers = await services.messagePollingService.waitForPendingHandlers(timeout: pendingHandlerDrainTimeout)
+        let didDrainPendingHandlers = await messagePollingService.waitForPendingHandlers(timeout: pendingHandlerDrainTimeout)
         if !didDrainPendingHandlers {
             logger.warning("Timed out waiting for pending message handlers")
         }
     }
 
-    private func logPostSyncChannelDiagnostics(radioID: UUID, dataStore: PersistenceStore) async {
+    private func logPostSyncChannelDiagnostics(radioID: UUID, dataStore: any PersistenceStoreProtocol) async {
         do {
             let channels = try await dataStore.fetchChannels(radioID: radioID)
             let emptyNameWithSecretIndices = channels
@@ -701,7 +721,7 @@ extension SyncCoordinator {
 
     private func refreshRxLogChannels(
         radioID: UUID,
-        dataStore: PersistenceStore,
+        dataStore: any PersistenceStoreProtocol,
         rxLogService: RxLogService
     ) async {
         do {

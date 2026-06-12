@@ -56,16 +56,23 @@ final class RepeaterStatusViewModel {
 
     init() {}
 
-    func configure(appState: AppState) {
-        self.repeaterAdminService = appState.services?.repeaterAdminService
+    /// Nil services mirror a disconnected state; requests then no-op.
+    func configure(
+        repeaterAdminService: RepeaterAdminService?,
+        contactService: ContactService?,
+        nodeSnapshotService: NodeSnapshotService?
+    ) {
+        self.repeaterAdminService = repeaterAdminService
         helper.configure(
-            contactService: appState.services?.contactService,
-            nodeSnapshotService: appState.services?.nodeSnapshotService
+            contactService: contactService,
+            nodeSnapshotService: nodeSnapshotService
         )
     }
 
-    func registerHandlers(appState: AppState) async {
-        guard let repeaterAdminService = appState.services?.repeaterAdminService else { return }
+    /// Takes the service per call so a reconnect-minted instance is read at
+    /// call time rather than the configure-time snapshot.
+    func registerHandlers(repeaterAdminService: RepeaterAdminService?) async {
+        guard let repeaterAdminService else { return }
 
         // Set only the slots this view model owns. The admin service is shared
         // with the settings/CLI view model, so clearing here would drop its CLI
@@ -86,15 +93,15 @@ final class RepeaterStatusViewModel {
     /// Clear every handler slot on the shared admin service. Only for true
     /// surface teardown (sheet dismiss); calling it on a segment switch would
     /// wipe the CLI handler the settings view model relies on.
-    func cleanup(appState: AppState) async {
-        guard let repeaterAdminService = appState.services?.repeaterAdminService else { return }
+    func cleanup(repeaterAdminService: RepeaterAdminService?) async {
+        guard let repeaterAdminService else { return }
         await repeaterAdminService.clearHandlers()
     }
 
     /// Clear only this view model's status/neighbours/telemetry handler slots, leaving the
     /// settings view model's CLI handler intact. For the merged admin surface's status-segment teardown.
-    func clearStatusHandlers(appState: AppState) async {
-        guard let repeaterAdminService = appState.services?.repeaterAdminService else { return }
+    func clearStatusHandlers(repeaterAdminService: RepeaterAdminService?) async {
+        guard let repeaterAdminService else { return }
         await repeaterAdminService.clearStatusHandlers()
     }
 

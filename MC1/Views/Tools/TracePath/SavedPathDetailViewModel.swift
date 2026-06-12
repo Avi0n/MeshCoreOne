@@ -43,21 +43,23 @@ final class SavedPathDetailViewModel {
 
     // MARK: - Dependencies
 
-    private var appState: AppState?
+    private var dataStoreProvider: @MainActor () -> PersistenceStore? = { nil }
 
     /// Hash size per hop from when the path was saved (1, 2, or 4 bytes)
     var hashSize: Int {
         savedPath.hashSize
     }
 
-    func configure(appState: AppState) {
-        self.appState = appState
+    /// The provider is read live at its point of use; a provider returning
+    /// `nil` mirrors a disconnected state, so unconfigured calls are no-ops.
+    func configure(dataStore: @escaping @MainActor () -> PersistenceStore? = { nil }) {
+        dataStoreProvider = dataStore
     }
 
     // MARK: - Actions
 
     func refresh() async {
-        guard let dataStore = appState?.services?.dataStore else { return }
+        guard let dataStore = dataStoreProvider() else { return }
 
         isLoading = true
         do {

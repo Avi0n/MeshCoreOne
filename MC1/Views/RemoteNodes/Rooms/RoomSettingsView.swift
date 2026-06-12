@@ -50,7 +50,10 @@ struct RoomSettingsView: View {
             }
         }
         .task {
-            await viewModel.configure(appState: appState, session: session)
+            await viewModel.configure(
+                roomAdminService: appState.services?.roomAdminService,
+                session: session
+            )
             if let send = viewModel.makeNodeCLISendClosure(session: session) {
                 cliViewModel.configure(sessionName: session.name, sendRawCommand: send)
             }
@@ -63,9 +66,15 @@ struct RoomSettingsView: View {
             // CLI handler intact for the Settings/CLI surface. Guarded by telemetryConfigured
             // because a segment switch recreates only the content subtree, so this must not
             // re-run or duplicate handler registration.
-            statusViewModel.configure(appState: appState)
+            statusViewModel.configure(
+                roomAdminService: appState.services?.roomAdminService,
+                contactService: appState.services?.contactService,
+                nodeSnapshotService: appState.services?.nodeSnapshotService
+            )
             Task {
-                await statusViewModel.registerHandlers(appState: appState)
+                await statusViewModel.registerHandlers(
+                    roomAdminService: appState.services?.roomAdminService
+                )
                 if let radioID = appState.connectedDevice?.radioID {
                     await statusViewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
                 }
@@ -73,7 +82,9 @@ struct RoomSettingsView: View {
         }
         .onDisappear {
             Task {
-                await statusViewModel.clearStatusHandlers(appState: appState)
+                await statusViewModel.clearStatusHandlers(
+                    roomAdminService: appState.services?.roomAdminService
+                )
                 await viewModel.cleanup()
             }
         }

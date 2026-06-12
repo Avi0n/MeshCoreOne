@@ -20,9 +20,9 @@ public actor RepeaterAdminService {
 
     // MARK: - Properties
 
-    private let session: MeshCoreSession
+    private let session: any RemoteAccessSessionOps
     private let remoteNodeService: RemoteNodeService
-    private let dataStore: PersistenceStore
+    private let dataStore: any PersistenceStoreProtocol
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "RepeaterAdmin")
     private let auditLogger = CommandAuditLogger()
 
@@ -48,9 +48,9 @@ public actor RepeaterAdminService {
     // MARK: - Initialization
 
     public init(
-        session: MeshCoreSession,
+        session: any RemoteAccessSessionOps,
         remoteNodeService: RemoteNodeService,
-        dataStore: PersistenceStore
+        dataStore: any PersistenceStoreProtocol
     ) {
         self.session = session
         self.remoteNodeService = remoteNodeService

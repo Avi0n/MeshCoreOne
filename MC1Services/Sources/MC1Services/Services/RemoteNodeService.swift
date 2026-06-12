@@ -141,8 +141,8 @@ public actor RemoteNodeService {
 
     // MARK: - Properties
 
-    private let session: MeshCoreSession
-    private let dataStore: PersistenceStore
+    private let session: any RemoteAccessSessionOps & SessionEventStreaming
+    private let dataStore: any PersistenceStoreProtocol
     private let keychainService: KeychainService
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "RemoteNode")
     private let auditLogger = CommandAuditLogger()
@@ -214,8 +214,8 @@ public actor RemoteNodeService {
     // MARK: - Initialization
 
     public init(
-        session: MeshCoreSession,
-        dataStore: PersistenceStore,
+        session: any RemoteAccessSessionOps & SessionEventStreaming,
+        dataStore: any PersistenceStoreProtocol,
         keychainService: KeychainService
     ) {
         self.session = session

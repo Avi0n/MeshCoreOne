@@ -94,12 +94,19 @@ final class NodeDiscoveryViewModel {
 
     // MARK: - Configuration
 
-    func configure(appState: AppState) {
-        self.session = appState.services?.session
-        self.dataStore = appState.offlineDataStore
-        self.radioID = appState.connectedDevice?.radioID
-        self.contactService = appState.services?.contactService
-        self.maxContacts = appState.connectedDevice?.maxContacts
+    /// Configure with the session, store, and services this view model uses; nil mirrors a disconnected state.
+    func configure(
+        session: MeshCoreSession?,
+        dataStore: PersistenceStore?,
+        radioID: UUID?,
+        contactService: ContactService?,
+        maxContacts: UInt16?
+    ) {
+        self.session = session
+        self.dataStore = dataStore
+        self.radioID = radioID
+        self.contactService = contactService
+        self.maxContacts = maxContacts
     }
 
     // MARK: - Scan

@@ -16,20 +16,26 @@ final class SavedPathsViewModel {
 
     // MARK: - Dependencies
 
-    private var appState: AppState?
+    private var dataStoreProvider: @MainActor () -> PersistenceStore? = { nil }
+    private var connectedDeviceProvider: @MainActor () -> DeviceDTO? = { nil }
 
     // MARK: - Configuration
 
-    func configure(appState: AppState) {
-        self.appState = appState
+    /// Each provider is read live at its point of use; a provider returning
+    /// `nil` mirrors a disconnected state, so unconfigured calls are no-ops.
+    func configure(
+        dataStore: @escaping @MainActor () -> PersistenceStore? = { nil },
+        connectedDevice: @escaping @MainActor () -> DeviceDTO? = { nil }
+    ) {
+        dataStoreProvider = dataStore
+        connectedDeviceProvider = connectedDevice
     }
 
     // MARK: - Data Loading
 
     func loadSavedPaths() async {
-        guard let appState,
-              let radioID = appState.connectedDevice?.radioID,
-              let dataStore = appState.services?.dataStore else { return }
+        guard let radioID = connectedDeviceProvider()?.radioID,
+              let dataStore = dataStoreProvider() else { return }
 
         isLoading = true
         errorMessage = nil
@@ -48,7 +54,7 @@ final class SavedPathsViewModel {
     // MARK: - Actions
 
     func renamePath(_ path: SavedTracePathDTO, to newName: String) async {
-        guard let dataStore = appState?.services?.dataStore else { return }
+        guard let dataStore = dataStoreProvider() else { return }
 
         do {
             try await dataStore.updateSavedTracePathName(id: path.id, name: newName)
@@ -60,7 +66,7 @@ final class SavedPathsViewModel {
     }
 
     func deletePath(_ path: SavedTracePathDTO) async {
-        guard let dataStore = appState?.services?.dataStore else { return }
+        guard let dataStore = dataStoreProvider() else { return }
 
         do {
             try await dataStore.deleteSavedTracePath(id: path.id)

@@ -52,14 +52,8 @@ final class MapViewModel {
 
     init() {}
 
-    /// Configure with services from AppState
-    func configure(appState: AppState) {
-        self.dataStore = appState.offlineDataStore
-        self.radioID = appState.currentRadioID
-    }
-
-    /// Configure with services (for testing)
-    func configure(dataStore: PersistenceStore, radioID: UUID?) {
+    /// Configure with the data store and radio this view model uses; nil mirrors a disconnected state.
+    func configure(dataStore: PersistenceStore?, radioID: UUID?) {
         self.dataStore = dataStore
         self.radioID = radioID
     }

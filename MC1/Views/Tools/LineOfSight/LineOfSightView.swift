@@ -166,7 +166,11 @@ struct LineOfSightView: View {
             }
             .task {
                 appState.locationService.requestPermissionIfNeeded()
-                viewModel.configure(appState: appState)
+                viewModel.configure(
+                    dataStore: appState.offlineDataStore,
+                    radioID: appState.currentRadioID,
+                    deviceFrequencyKHz: appState.connectedDevice?.frequency
+                )
                 viewModel.showLabels = showLabels
                 await viewModel.loadRepeaters()
                 viewModel.centerOnAllRepeaters()

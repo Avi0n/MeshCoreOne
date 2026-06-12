@@ -44,7 +44,7 @@ struct RegenerateIdentitySheet: View {
                 Button(L10n.Localizable.Common.cancel, role: .cancel) { }
                 Button(L10n.Settings.RegenerateIdentity.Alert.Replace.confirm, role: .destructive) {
                     Task {
-                        if await viewModel.replaceIdentity(appState: appState) {
+                        if await viewModel.replaceIdentity(settingsService: appState.services?.settingsService) {
                             dismiss()
                         }
                     }

@@ -7,7 +7,7 @@ extension ChatViewModel {
 
     /// Sets notification level for a conversation with optimistic UI update
     func setNotificationLevel(_ conversation: Conversation, level: NotificationLevel) async {
-        guard appState?.connectionState == .ready else { return }
+        guard connectionStateProvider() == .ready else { return }
         let originalLevel = conversation.notificationLevel
 
         // Optimistic UI update
@@ -60,7 +60,7 @@ extension ChatViewModel {
 
     /// Sets favorite state for a conversation with optimistic UI update
     func setFavorite(_ conversation: Conversation, isFavorite: Bool) async {
-        guard appState?.connectionState == .ready else { return }
+        guard connectionStateProvider() == .ready else { return }
         guard conversation.isFavorite != isFavorite else { return }
 
         // Reuse existing toggle logic
@@ -78,7 +78,7 @@ extension ChatViewModel {
     ///   - disableAnimation: When true, disables SwiftUI List animations to prevent
     ///     conflicts with swipe action dismissal animations
     func toggleFavorite(_ conversation: Conversation, disableAnimation: Bool = false) async {
-        guard appState?.connectionState == .ready else { return }
+        guard connectionStateProvider() == .ready else { return }
         let originalState = conversation.isFavorite
         let newState = !originalState
 
@@ -278,7 +278,7 @@ extension ChatViewModel {
     @discardableResult
     func requestConversationReload() -> Task<Void, Never>? {
         reloadTask?.cancel()
-        guard let radioID = appState?.currentRadioID else {
+        guard let radioID = currentRadioIDProvider() else {
             reloadTask = nil
             clearConversations()
             return nil
@@ -388,7 +388,7 @@ extension ChatViewModel {
             buildItems()
 
             // Index loaded messages for reaction matching and process any pending reactions
-            if let reactionService = appState?.services?.reactionService {
+            if let reactionService = reactionServiceProvider() {
                 await indexMessagesForReactions(
                     fetchedMessages,
                     scope: .direct(contact),
@@ -445,8 +445,8 @@ extension ChatViewModel {
 
     /// Restores the persisted composer draft for `id`, but only when the field is empty — so a
     /// reconnect-driven reload can't clobber in-progress text and a quick-reply draft applied
-    /// first keeps precedence. The store is passed in from the view's environment, never the
-    /// view model's weak `appState`, so a niled reference can't silently skip the restore.
+    /// first keeps precedence. The store is passed in from the view's environment, never a
+    /// stored dependency, so a stale configure can't silently skip the restore.
     func loadDraft(from store: DraftStore, id: ChatConversationID) {
         if let restored = store.draftToApply(over: composingText, for: id) {
             composingText = restored

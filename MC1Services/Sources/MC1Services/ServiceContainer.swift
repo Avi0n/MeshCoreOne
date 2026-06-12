@@ -425,10 +425,10 @@ public final class ServiceContainer {
         await stopEventMonitoring()
 
         // Break the retain cycles the wired handlers form. The message
-        // closures and the discovery event task capture this container
-        // strongly, so without this the whole service graph leaks on every
-        // reconnect. Cleared after `stopEventMonitoring()` so the event tasks
-        // reading them are cancelled.
+        // closures and the discovery event task capture this container's
+        // services strongly (via SyncDependencies), so without this the whole
+        // service graph leaks on every reconnect. Cleared after
+        // `stopEventMonitoring()` so the event tasks reading them are cancelled.
         await messagePollingService.clearMessageHandlers()
         await syncCoordinator.cancelDiscoveryEventMonitoring()
 
