@@ -444,8 +444,8 @@
 /* Location: MessageServiceError+UserFacingMessage.swift - Target channel missing from the database */
 "error.messageService.channelNotFound" = "Канал не найден.";
 
-/* Location: MessageServiceError+UserFacingMessage.swift - Message send failed - %@ is the failure reason */
-"error.messageService.sendFailed" = "Не удалось отправить: %@";
+/* Location: MessageServiceError+UserFacingMessage.swift - Message send failed */
+"error.messageService.sendFailed" = "Не удалось отправить.";
 
 /* Location: MessageServiceError+UserFacingMessage.swift - Recipient cannot receive direct messages */
 "error.messageService.invalidRecipient" = "Невозможно отправлять сообщения этому получателю.";
@@ -501,11 +501,11 @@
 /* Location: RemoteNodeError+UserFacingMessage.swift - No active connection to the mesh radio */
 "error.remoteNode.notConnected" = "Нет подключения к устройству mesh";
 
-/* Location: RemoteNodeError+UserFacingMessage.swift - Remote node login failed - %@ is the failure reason */
-"error.remoteNode.loginFailed" = "Не удалось войти: %@";
+/* Location: RemoteNodeError+UserFacingMessage.swift - Remote node login failed */
+"error.remoteNode.loginFailed" = "Не удалось войти.";
 
-/* Location: RemoteNodeError+UserFacingMessage.swift - Sending to the remote node failed - %@ is the failure reason */
-"error.remoteNode.sendFailed" = "Не удалось отправить: %@";
+/* Location: RemoteNodeError+UserFacingMessage.swift - Sending to the remote node failed */
+"error.remoteNode.sendFailed" = "Не удалось отправить.";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node */
 "error.remoteNode.invalidResponse" = "Недопустимый ответ удалённого узла";
@@ -540,8 +540,8 @@
 /* Location: RoomServerError+UserFacingMessage.swift - No stored session for the room server */
 "error.roomServer.sessionNotFound" = "Сеанс комнаты не найден.";
 
-/* Location: RoomServerError+UserFacingMessage.swift - Room message send failed - %@ is the failure reason */
-"error.roomServer.sendFailed" = "Не удалось отправить: %@";
+/* Location: RoomServerError+UserFacingMessage.swift - Room message send failed */
+"error.roomServer.sendFailed" = "Не удалось отправить.";
 
 /* Location: RoomServerError+UserFacingMessage.swift - Room server rejected the operation */
 "error.roomServer.permissionDenied" = "Доступ запрещён.";

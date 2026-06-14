@@ -737,9 +737,6 @@
 /* Location: PathManagementViewModel.swift - Purpose: Hop count result plural */
 "contacts.pathDiscovery.hops.plural" = "%d skoków";
 
-/* Location: PathManagementViewModel.swift - Purpose: Cached path suffix */
-"contacts.pathDiscovery.cachedSuffix" = ". Użyto informacji z pamięci podręcznej z ogłoszenia. Węzeł może mieć wyłączoną telemetrię.";
-
 /* Location: PathManagementViewModel.swift - Purpose: No response message */
 "contacts.pathDiscovery.noResponse" = "Zdalny węzeł nie odpowiedział. Węzły muszą mieć włączone żądania telemetrii, aby odpowiedzieć na odkrywanie ścieżki.";
 

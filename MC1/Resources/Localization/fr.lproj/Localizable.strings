@@ -446,8 +446,8 @@
 /* Location: MessageServiceError+UserFacingMessage.swift - Target channel missing from the database */
 "error.messageService.channelNotFound" = "Canal introuvable.";
 
-/* Location: MessageServiceError+UserFacingMessage.swift - Message send failed - %@ is the failure reason */
-"error.messageService.sendFailed" = "Échec de l'envoi : %@";
+/* Location: MessageServiceError+UserFacingMessage.swift - Message send failed */
+"error.messageService.sendFailed" = "Échec de l'envoi.";
 
 /* Location: MessageServiceError+UserFacingMessage.swift - Recipient cannot receive direct messages */
 "error.messageService.invalidRecipient" = "Impossible d'envoyer des messages à ce destinataire.";
@@ -503,11 +503,11 @@
 /* Location: RemoteNodeError+UserFacingMessage.swift - No active connection to the mesh radio */
 "error.remoteNode.notConnected" = "Non connecté à l'appareil mesh";
 
-/* Location: RemoteNodeError+UserFacingMessage.swift - Remote node login failed - %@ is the failure reason */
-"error.remoteNode.loginFailed" = "Échec de la connexion : %@";
+/* Location: RemoteNodeError+UserFacingMessage.swift - Remote node login failed */
+"error.remoteNode.loginFailed" = "Échec de la connexion.";
 
-/* Location: RemoteNodeError+UserFacingMessage.swift - Sending to the remote node failed - %@ is the failure reason */
-"error.remoteNode.sendFailed" = "Échec de l'envoi : %@";
+/* Location: RemoteNodeError+UserFacingMessage.swift - Sending to the remote node failed */
+"error.remoteNode.sendFailed" = "Échec de l'envoi.";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node */
 "error.remoteNode.invalidResponse" = "Réponse non valide du nœud distant";
@@ -542,8 +542,8 @@
 /* Location: RoomServerError+UserFacingMessage.swift - No stored session for the room server */
 "error.roomServer.sessionNotFound" = "Session du salon introuvable.";
 
-/* Location: RoomServerError+UserFacingMessage.swift - Room message send failed - %@ is the failure reason */
-"error.roomServer.sendFailed" = "Échec de l'envoi : %@";
+/* Location: RoomServerError+UserFacingMessage.swift - Room message send failed */
+"error.roomServer.sendFailed" = "Échec de l'envoi.";
 
 /* Location: RoomServerError+UserFacingMessage.swift - Room server rejected the operation */
 "error.roomServer.permissionDenied" = "Autorisation refusée.";

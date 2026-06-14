@@ -7,10 +7,10 @@ extension RemoteNodeError {
         switch self {
         case .notConnected:
             L10n.Localizable.Error.RemoteNode.notConnected
-        case .loginFailed(let reason):
-            L10n.Localizable.Error.RemoteNode.loginFailed(reason)
-        case .sendFailed(let reason):
-            L10n.Localizable.Error.RemoteNode.sendFailed(reason)
+        case .loginFailed:
+            L10n.Localizable.Error.RemoteNode.loginFailed
+        case .sendFailed:
+            L10n.Localizable.Error.RemoteNode.sendFailed
         case .invalidResponse:
             L10n.Localizable.Error.RemoteNode.invalidResponse
         case .permissionDenied:

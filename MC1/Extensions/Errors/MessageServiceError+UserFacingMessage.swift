@@ -11,8 +11,8 @@ extension MessageServiceError {
             L10n.Localizable.Error.MessageService.contactNotFound
         case .channelNotFound:
             L10n.Localizable.Error.MessageService.channelNotFound
-        case .sendFailed(let reason):
-            L10n.Localizable.Error.MessageService.sendFailed(reason)
+        case .sendFailed:
+            L10n.Localizable.Error.MessageService.sendFailed
         case .invalidRecipient:
             L10n.Localizable.Error.MessageService.invalidRecipient
         case .messageTooLong:

@@ -737,9 +737,6 @@
 /* Location: PathManagementViewModel.swift - Purpose: Hop count result plural */
 "contacts.pathDiscovery.hops.plural" = "%d saltos";
 
-/* Location: PathManagementViewModel.swift - Purpose: Cached path suffix */
-"contacts.pathDiscovery.cachedSuffix" = ". Usando info en caché del anuncio. El nodo puede tener la telemetría desactivada.";
-
 /* Location: PathManagementViewModel.swift - Purpose: No response message */
 "contacts.pathDiscovery.noResponse" = "El nodo remoto no respondió. Los nodos deben tener las solicitudes de telemetría activadas para responder al descubrimiento de rutas.";
 

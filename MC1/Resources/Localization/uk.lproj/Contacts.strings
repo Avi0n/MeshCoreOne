@@ -754,9 +754,6 @@
 /* Location: PathManagementViewModel.swift - Purpose: Hop count result plural */
 "contacts.pathDiscovery.hops.plural" = "%d переходів";
 
-/* Location: PathManagementViewModel.swift - Purpose: Cached path suffix */
-"contacts.pathDiscovery.cachedSuffix" = ". Використовується кешована інформація з оголошення. Вузол може мати вимкнену телеметрію.";
-
 /* Location: PathManagementViewModel.swift - Purpose: No response message */
 "contacts.pathDiscovery.noResponse" = "Віддалений вузол не відповів. Вузли повинні мати увімкнені запити телеметрії для відповіді на пошук шляху.";
 

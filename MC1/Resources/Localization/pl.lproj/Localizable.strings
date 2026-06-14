@@ -445,8 +445,8 @@
 /* Location: MessageServiceError+UserFacingMessage.swift - Target channel missing from the database */
 "error.messageService.channelNotFound" = "Nie znaleziono kanału.";
 
-/* Location: MessageServiceError+UserFacingMessage.swift - Message send failed - %@ is the failure reason */
-"error.messageService.sendFailed" = "Wysyłanie nie powiodło się: %@";
+/* Location: MessageServiceError+UserFacingMessage.swift - Message send failed */
+"error.messageService.sendFailed" = "Wysyłanie nie powiodło się.";
 
 /* Location: MessageServiceError+UserFacingMessage.swift - Recipient cannot receive direct messages */
 "error.messageService.invalidRecipient" = "Nie można wysyłać wiadomości do tego odbiorcy.";
@@ -502,11 +502,11 @@
 /* Location: RemoteNodeError+UserFacingMessage.swift - No active connection to the mesh radio */
 "error.remoteNode.notConnected" = "Brak połączenia z urządzeniem mesh";
 
-/* Location: RemoteNodeError+UserFacingMessage.swift - Remote node login failed - %@ is the failure reason */
-"error.remoteNode.loginFailed" = "Logowanie nie powiodło się: %@";
+/* Location: RemoteNodeError+UserFacingMessage.swift - Remote node login failed */
+"error.remoteNode.loginFailed" = "Logowanie nie powiodło się.";
 
-/* Location: RemoteNodeError+UserFacingMessage.swift - Sending to the remote node failed - %@ is the failure reason */
-"error.remoteNode.sendFailed" = "Nie udało się wysłać: %@";
+/* Location: RemoteNodeError+UserFacingMessage.swift - Sending to the remote node failed */
+"error.remoteNode.sendFailed" = "Nie udało się wysłać.";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node */
 "error.remoteNode.invalidResponse" = "Nieprawidłowa odpowiedź zdalnego węzła";
@@ -541,8 +541,8 @@
 /* Location: RoomServerError+UserFacingMessage.swift - No stored session for the room server */
 "error.roomServer.sessionNotFound" = "Nie znaleziono sesji pokoju.";
 
-/* Location: RoomServerError+UserFacingMessage.swift - Room message send failed - %@ is the failure reason */
-"error.roomServer.sendFailed" = "Wysyłanie nie powiodło się: %@";
+/* Location: RoomServerError+UserFacingMessage.swift - Room message send failed */
+"error.roomServer.sendFailed" = "Wysyłanie nie powiodło się.";
 
 /* Location: RoomServerError+UserFacingMessage.swift - Room server rejected the operation */
 "error.roomServer.permissionDenied" = "Odmowa dostępu.";

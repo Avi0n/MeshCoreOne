@@ -737,9 +737,6 @@
 /* Location: PathManagementViewModel.swift - Purpose: Hop count result plural */
 "contacts.pathDiscovery.hops.plural" = "%d Sprünge";
 
-/* Location: PathManagementViewModel.swift - Purpose: Cached path suffix */
-"contacts.pathDiscovery.cachedSuffix" = ". Zwischengespeicherte Info aus Ankündigung wird verwendet. Knoten hat möglicherweise Telemetrie deaktiviert.";
-
 /* Location: PathManagementViewModel.swift - Purpose: No response message */
 "contacts.pathDiscovery.noResponse" = "Remote-Knoten hat nicht geantwortet. Knoten müssen Telemetrie-Anfragen aktiviert haben, um auf Pfadermittlung zu antworten.";
 

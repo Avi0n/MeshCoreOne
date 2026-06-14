@@ -737,9 +737,6 @@
 /* Location: PathManagementViewModel.swift - Purpose: Hop count result plural */
 "contacts.pathDiscovery.hops.plural" = "%d sprongen";
 
-/* Location: PathManagementViewModel.swift - Purpose: Cached path suffix */
-"contacts.pathDiscovery.cachedSuffix" = ". Gebruik opgeslagen info van advertentie. Node heeft mogelijk telemetrie uitgeschakeld.";
-
 /* Location: PathManagementViewModel.swift - Purpose: No response message */
 "contacts.pathDiscovery.noResponse" = "Externe node reageerde niet. Nodes moeten telemetrieverzoeken ingeschakeld hebben om te reageren op padontdekking.";
 

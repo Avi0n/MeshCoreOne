@@ -737,9 +737,6 @@
 /* Location: PathManagementViewModel.swift - Purpose: Hop count result plural */
 "contacts.pathDiscovery.hops.plural" = "%d sauts";
 
-/* Location: PathManagementViewModel.swift - Purpose: Cached path suffix */
-"contacts.pathDiscovery.cachedSuffix" = ". Utilisation des infos en cache de l'annonce. Le nœud peut avoir la télémétrie désactivée.";
-
 /* Location: PathManagementViewModel.swift - Purpose: No response message */
 "contacts.pathDiscovery.noResponse" = "Le nœud distant n'a pas répondu. Les nœuds doivent avoir les demandes de télémétrie activées pour répondre à la découverte de chemin.";
 

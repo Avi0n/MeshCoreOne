@@ -58,7 +58,8 @@ struct ErrorUserFacingMessageTests {
     @Test func messageServiceErrorDispatchesToConcreteMapping() {
         let reason = "queue rejected"
         let error: any Error = MessageServiceError.sendFailed(reason)
-        #expect(error.userFacingMessage == L10n.Localizable.Error.MessageService.sendFailed(reason))
+        #expect(error.userFacingMessage == L10n.Localizable.Error.MessageService.sendFailed)
+        #expect(!error.userFacingMessage.contains(reason))
     }
 
     @Test func channelServiceErrorDispatchesToConcreteMapping() {
@@ -83,14 +84,22 @@ struct ErrorUserFacingMessageTests {
     }
 
     @Test func remoteNodeErrorDispatchesToConcreteMapping() {
-        let reason = "authentication rejected"
+        let reason = "authentication failed"
         let error: any Error = RemoteNodeError.loginFailed(reason)
-        #expect(error.userFacingMessage == L10n.Localizable.Error.RemoteNode.loginFailed(reason))
+        #expect(error.userFacingMessage == L10n.Localizable.Error.RemoteNode.loginFailed)
+        #expect(!error.userFacingMessage.contains(reason))
     }
 
     @Test func roomServerErrorDispatchesToConcreteMapping() {
         let error: any Error = RoomServerError.sessionNotFound
         #expect(error.userFacingMessage == L10n.Localizable.Error.RoomServer.sessionNotFound)
+    }
+
+    @Test func roomServerSendFailedDropsRawReason() {
+        let reason = "Retry already in progress"
+        let error: any Error = RoomServerError.sendFailed(reason)
+        #expect(error.userFacingMessage == L10n.Localizable.Error.RoomServer.sendFailed)
+        #expect(!error.userFacingMessage.contains(reason))
     }
 
     @Test func binaryProtocolErrorDispatchesToConcreteMapping() {

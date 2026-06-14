@@ -754,9 +754,6 @@
 /* Location: PathManagementViewModel.swift - Purpose: Hop count result plural */
 "contacts.pathDiscovery.hops.plural" = "%d переходов";
 
-/* Location: PathManagementViewModel.swift - Purpose: Cached path suffix */
-"contacts.pathDiscovery.cachedSuffix" = ". Используется кэшированная информация из объявления. Телеметрия узла может быть отключена.";
-
 /* Location: PathManagementViewModel.swift - Purpose: No response message */
 "contacts.pathDiscovery.noResponse" = "Удалённый узел не ответил. Для ответа на запросы поиска пути у узлов должна быть включена телеметрия.";
 

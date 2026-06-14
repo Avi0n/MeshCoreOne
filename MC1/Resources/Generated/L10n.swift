@@ -1543,8 +1543,6 @@ public enum L10n {
         public static let success = L10n.tr("Contacts", "contacts.pathDetail.success", fallback: "Success")
       }
       public enum PathDiscovery {
-        /// Location: PathManagementViewModel.swift - Purpose: Cached path suffix
-        public static let cachedSuffix = L10n.tr("Contacts", "contacts.pathDiscovery.cachedSuffix", fallback: ". Using cached info from advertisement. Node may have telemetry disabled.")
         /// Location: PathManagementViewModel.swift - Purpose: Direct path result
         public static let direct = L10n.tr("Contacts", "contacts.pathDiscovery.direct", fallback: "Direct")
         /// Location: PathManagementViewModel.swift - Purpose: Failed prefix
@@ -2531,10 +2529,8 @@ public enum L10n {
         public static let messageTooLong = L10n.tr("Localizable", "error.messageService.messageTooLong", fallback: "Message exceeds the maximum allowed length.")
         /// Location: MessageServiceError+UserFacingMessage.swift - No active connection to the radio
         public static let notConnected = L10n.tr("Localizable", "error.messageService.notConnected", fallback: "Not connected to device.")
-        /// Location: MessageServiceError+UserFacingMessage.swift - Message send failed - %@ is the failure reason
-        public static func sendFailed(_ p1: Any) -> String {
-          return L10n.tr("Localizable", "error.messageService.sendFailed", String(describing: p1), fallback: "Send failed: %@")
-        }
+        /// Location: MessageServiceError+UserFacingMessage.swift - Message send failed
+        public static let sendFailed = L10n.tr("Localizable", "error.messageService.sendFailed", fallback: "Send failed.")
       }
       public enum Persistence {
         /// Location: PersistenceStoreError+UserFacingMessage.swift - Channel row missing from the database
@@ -2567,10 +2563,8 @@ public enum L10n {
         public static let floodRouted = L10n.tr("Localizable", "error.remoteNode.floodRouted", fallback: "Keep-alive requires direct routing path")
         /// Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node
         public static let invalidResponse = L10n.tr("Localizable", "error.remoteNode.invalidResponse", fallback: "Invalid response from remote node")
-        /// Location: RemoteNodeError+UserFacingMessage.swift - Remote node login failed - %@ is the failure reason
-        public static func loginFailed(_ p1: Any) -> String {
-          return L10n.tr("Localizable", "error.remoteNode.loginFailed", String(describing: p1), fallback: "Login failed: %@")
-        }
+        /// Location: RemoteNodeError+UserFacingMessage.swift - Remote node login failed
+        public static let loginFailed = L10n.tr("Localizable", "error.remoteNode.loginFailed", fallback: "Login failed.")
         /// Location: RemoteNodeError+UserFacingMessage.swift - No active connection to the mesh radio
         public static let notConnected = L10n.tr("Localizable", "error.remoteNode.notConnected", fallback: "Not connected to mesh device")
         /// Location: RemoteNodeError+UserFacingMessage.swift - Saved password missing from the keychain
@@ -2579,10 +2573,8 @@ public enum L10n {
         public static let pathDiscoveryFailed = L10n.tr("Localizable", "error.remoteNode.pathDiscoveryFailed", fallback: "Failed to establish direct path")
         /// Location: RemoteNodeError+UserFacingMessage.swift - Remote node rejected the operation
         public static let permissionDenied = L10n.tr("Localizable", "error.remoteNode.permissionDenied", fallback: "Permission denied")
-        /// Location: RemoteNodeError+UserFacingMessage.swift - Sending to the remote node failed - %@ is the failure reason
-        public static func sendFailed(_ p1: Any) -> String {
-          return L10n.tr("Localizable", "error.remoteNode.sendFailed", String(describing: p1), fallback: "Failed to send: %@")
-        }
+        /// Location: RemoteNodeError+UserFacingMessage.swift - Sending to the remote node failed
+        public static let sendFailed = L10n.tr("Localizable", "error.remoteNode.sendFailed", fallback: "Failed to send.")
         /// Location: RemoteNodeError+UserFacingMessage.swift - No stored session for the remote node
         public static let sessionNotFound = L10n.tr("Localizable", "error.remoteNode.sessionNotFound", fallback: "Remote node session not found")
         /// Location: RemoteNodeError+UserFacingMessage.swift - Remote node request timed out
@@ -2595,10 +2587,8 @@ public enum L10n {
         public static let notConnected = L10n.tr("Localizable", "error.roomServer.notConnected", fallback: "Not connected to device.")
         /// Location: RoomServerError+UserFacingMessage.swift - Room server rejected the operation
         public static let permissionDenied = L10n.tr("Localizable", "error.roomServer.permissionDenied", fallback: "Permission denied.")
-        /// Location: RoomServerError+UserFacingMessage.swift - Room message send failed - %@ is the failure reason
-        public static func sendFailed(_ p1: Any) -> String {
-          return L10n.tr("Localizable", "error.roomServer.sendFailed", String(describing: p1), fallback: "Send failed: %@")
-        }
+        /// Location: RoomServerError+UserFacingMessage.swift - Room message send failed
+        public static let sendFailed = L10n.tr("Localizable", "error.roomServer.sendFailed", fallback: "Send failed.")
         /// Location: RoomServerError+UserFacingMessage.swift - No stored session for the room server
         public static let sessionNotFound = L10n.tr("Localizable", "error.roomServer.sessionNotFound", fallback: "Room session not found.")
       }

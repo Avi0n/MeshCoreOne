@@ -9,8 +9,8 @@ extension RoomServerError {
             L10n.Localizable.Error.RoomServer.notConnected
         case .sessionNotFound:
             L10n.Localizable.Error.RoomServer.sessionNotFound
-        case .sendFailed(let reason):
-            L10n.Localizable.Error.RoomServer.sendFailed(reason)
+        case .sendFailed:
+            L10n.Localizable.Error.RoomServer.sendFailed
         case .permissionDenied:
             L10n.Localizable.Error.RoomServer.permissionDenied
         case .invalidResponse:
