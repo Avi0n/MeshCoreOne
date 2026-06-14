@@ -54,7 +54,9 @@ import MeshCore
 ///   `setChannelSyncAttemptedCallback`: installed by
 ///   `ConnectionManager.wireCleanChannelSyncCallback` at container build.
 /// - `NotificationService` action closures and `getBadgeCount`: installed by
-///   `AppState` and `NavigationCoordinator` when notification handling is configured.
+///   `AppState` and `NavigationCoordinator` when notification handling is
+///   configured. The action closures are cleared in `tearDown()` because they
+///   capture `NotificationActionHandler`, which strong-holds the service back.
 /// - `ChannelService.setDraftClearHandler` and
 ///   `DeviceService.setDeviceUpdateCallback`: installed by
 ///   `AppState.wireServicesIfConnected` per connection.
@@ -442,6 +444,16 @@ public final class ServiceContainer {
         roomServerService.finishEvents()
         contactService.finishEvents()
         rxLogService.finishEntryStream()
+
+        // The action forwarders AppState installs capture notificationActionHandler
+        // strongly, and the handler strong-holds notificationService back, forming a
+        // cycle that outlives the container. Clear them so the per-connection service
+        // graph is released on teardown.
+        notificationService.onQuickReply = nil
+        notificationService.onChannelQuickReply = nil
+        notificationService.onMarkAsRead = nil
+        notificationService.onChannelMarkAsRead = nil
+        notificationService.onRoomMarkAsRead = nil
 
         await chatSendQueueService.shutdown()
     }

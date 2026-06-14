@@ -68,6 +68,39 @@ struct ServiceContainerWiringTests {
                 "tearDown must end every advertisement event subscription to break the container retain cycle")
     }
 
+    @Test("tearDown clears the notification action forwarders that capture the handler")
+    @MainActor
+    func tearDownClearsNotificationActionForwarders() async throws {
+        let container = try await makeContainer()
+        let handler = container.notificationActionHandler
+
+        // Mirror AppState's forwarders: each captures the handler strongly, so a
+        // dropped nil-out leaves the notificationService <-> handler cycle alive.
+        container.notificationService.onQuickReply = { contactID, text in
+            await handler.handleQuickReply(contactID: contactID, text: text)
+        }
+        container.notificationService.onChannelQuickReply = { radioID, channelIndex, text in
+            await handler.handleChannelQuickReply(radioID: radioID, channelIndex: channelIndex, text: text)
+        }
+        container.notificationService.onMarkAsRead = { contactID, messageID in
+            await handler.handleMarkAsRead(contactID: contactID, messageID: messageID)
+        }
+        container.notificationService.onChannelMarkAsRead = { radioID, channelIndex, messageID in
+            await handler.handleChannelMarkAsRead(radioID: radioID, channelIndex: channelIndex, messageID: messageID)
+        }
+        container.notificationService.onRoomMarkAsRead = { sessionID, messageID in
+            await handler.handleRoomMarkAsRead(sessionID: sessionID, messageID: messageID)
+        }
+
+        await container.tearDown()
+
+        #expect(container.notificationService.onQuickReply == nil)
+        #expect(container.notificationService.onChannelQuickReply == nil)
+        #expect(container.notificationService.onMarkAsRead == nil)
+        #expect(container.notificationService.onChannelMarkAsRead == nil)
+        #expect(container.notificationService.onRoomMarkAsRead == nil)
+    }
+
     @Test("startEventMonitoring activates ACK expiry checker; stopEventMonitoring deactivates it")
     @MainActor
     func startEventMonitoringActivatesAckChecking() async throws {
