@@ -42,7 +42,7 @@ public enum StoreServiceError: LocalizedError, Sendable, Equatable {
         case .notEntitled:                 return .notEntitled
         case .systemError(let underlying): return .purchaseFailed(reason: String(describing: underlying))
         case .unknown:                     return .purchaseFailed(reason: "Unknown StoreKit error")
-        @unknown default:                  return .purchaseFailed(reason: "Unhandled StoreKit error")
+        default:                           return .purchaseFailed(reason: "Unhandled StoreKit error")
         }
     }
 }

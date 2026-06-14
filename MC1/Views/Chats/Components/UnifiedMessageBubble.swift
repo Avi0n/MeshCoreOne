@@ -1,26 +1,6 @@
 import SwiftUI
 import MC1Services
 
-/// Seconds the user must hold a bubble before the actions sheet is presented.
-/// Tuned together with `longPressSpringResponse` so the press-in spring is
-/// visually settled by the time the sheet starts presenting. SwiftUI's
-/// `.sheet` snapshots the underlying view using model layer values; if the
-/// spring is still in flight when the snapshot is taken, the bubble jumps to
-/// its final scale ("snap on present"). This duration is calibrated so the
-/// spring reaches target before the snapshot is captured.
-private let longPressConfirmDuration: Double = 0.6
-
-/// Spring `response` (natural period) for the press-in/release animation.
-/// Paired with the default damping fraction: the slight overshoot lets the
-/// spring visually reach the target during its natural settle period, before
-/// `longPressConfirmDuration` fires.
-private let longPressSpringResponse: Double = 0.7
-
-/// Delay before the press-in spring starts. Suppresses visual feedback for
-/// brief accidental taps. No delay is applied on release so the bubble
-/// retracts immediately when the user lifts.
-private let longPressInDelay: Double = 0.1
-
 /// Unified message bubble for both direct and channel messages.
 ///
 /// Conforms to `Equatable` with comparison on `item` alone. Closures
@@ -40,12 +20,9 @@ struct UnifiedMessageBubble: View, Equatable {
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.openURL) private var openURL
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.appTheme) private var theme
 
     @State private var showingReactionDetails = false
-    @State private var isLongPressing = false
-    @State private var longPressTrigger = 0
 
     nonisolated static func == (lhs: UnifiedMessageBubble, rhs: UnifiedMessageBubble) -> Bool {
         lhs.item == rhs.item
@@ -112,28 +89,16 @@ struct UnifiedMessageBubble: View, Equatable {
                         callbacks: callbacks,
                         imageResolver: imageResolver
                     )
-                    .shadow(
-                        color: Color.black.opacity(isLongPressing ? 0.10 : 0),
-                        radius: 3,
-                        x: 0,
-                        y: 1
-                    )
-                    .shadow(
-                        color: Color.black.opacity(isLongPressing ? 0.20 : 0),
-                        radius: 12,
-                        x: 0,
-                        y: 4
-                    )
-                    .onLongPressGesture(
-                        minimumDuration: longPressConfirmDuration,
-                        perform: {
-                            longPressTrigger += 1
-                            callbacks.onLongPress?()
-                        },
-                        onPressingChanged: { pressing in
-                            isLongPressing = pressing
-                        }
-                    )
+                    // Shape the lift to the bubble box so the system lifts this
+                    // live view in place. An explicit `preview:` would lift a
+                    // detached re-render the system fades the source to hide,
+                    // which diverges in size and flashes on appear/dismiss.
+                    // Siblings (status row, link and reaction cards) sit outside
+                    // this view, so the lift already excludes them.
+                    .contentShape(.contextMenuPreview, .rect(cornerRadius: BubbleFragmentStack.cornerRadius))
+                    .contextMenu {
+                        callbacks.makeActionsMenu?()
+                    }
 
                     ForEach(Array(item.content.enumerated()), id: \.offset) { _, fragment in
                         siblingFragmentView(fragment)
@@ -145,9 +110,6 @@ struct UnifiedMessageBubble: View, Equatable {
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel(accessibilityMessageLabel)
-                .accessibilityAction {
-                    callbacks.onLongPress?()
-                }
                 .accessibilityActions {
                     if item.footer.showStatusRow,
                        item.footer.status == .failed,
@@ -179,15 +141,6 @@ struct UnifiedMessageBubble: View, Equatable {
                         }
                     }
                 }
-                .scaleEffect(isLongPressing ? 1.05 : 1.0)
-                .animation(
-                    reduceMotion
-                        ? nil
-                        : .spring(response: longPressSpringResponse)
-                            .delay(isLongPressing ? longPressInDelay : 0),
-                    value: isLongPressing
-                )
-                .sensoryFeedback(.impact(flexibility: .solid), trigger: longPressTrigger)
 
                 if !item.envelope.isOutgoing {
                     Spacer(minLength: 40)

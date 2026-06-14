@@ -606,6 +606,18 @@
 /* Location: AddHopPickerView.swift - Purpose: No repeaters empty description */
 "contacts.pathEdit.noRepeaters.description" = "Przekaźniki pojawią się tutaj po wykryciu w sieci mesh.";
 
+/* Location: AddHopPickerView.swift - Purpose: No favorite repeaters empty title */
+"contacts.pathEdit.noFavorites.title" = "Brak ulubionych przekaźników";
+
+/* Location: AddHopPickerView.swift - Purpose: No favorite repeaters empty description */
+"contacts.pathEdit.noFavorites.description" = "Przekaźniki oznaczone jako ulubione pojawią się tutaj.";
+
+/* Location: AddHopPickerView.swift - Purpose: No recent repeaters empty title */
+"contacts.pathEdit.noRecent.title" = "Brak ostatnich przekaźników";
+
+/* Location: AddHopPickerView.swift - Purpose: No recent repeaters empty description */
+"contacts.pathEdit.noRecent.description" = "Przekaźniki dodane do ścieżki pojawią się tutaj.";
+
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with name */
 "contacts.pathEdit.hopWithName" = "Skok %d z %d: %@";
 

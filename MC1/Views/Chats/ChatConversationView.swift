@@ -14,6 +14,24 @@ private let messageActionSheetPresentationDelay: Duration = .milliseconds(300)
 /// so rapid typing coalesces into a single write.
 private let draftSaveDebounce: Duration = .milliseconds(500)
 
+/// Point size for emoji glyphs rendered into Mac palette-menu reaction cells.
+/// Smaller than the "More" symbol size because an emoji glyph reads visually
+/// larger than an SF Symbol at the same point size.
+private let emojiPaletteGlyphSize: CGFloat = 14
+
+/// Point size for the "More" SF Symbol, matched to the menu's other glyphs.
+private let morePaletteSymbolSize: CGFloat = 17
+
+/// Number of recent emoji offered as quick reactions before the "More" button.
+private let quickReactionCount = 3
+
+/// SF Symbol for the reaction palette's "More emojis" button.
+private let moreEmojiSymbol = "face.smiling"
+
+/// Square cell each Mac palette reaction is framed to, so every cell shares the
+/// same metrics and the palette centers their glyphs uniformly.
+private let reactionPaletteCellSize: CGFloat = 24
+
 /// Unified chat conversation view supporting both DMs and Channels.
 struct ChatConversationView: View {
     @Environment(\.appState) private var appState
@@ -46,7 +64,8 @@ struct ChatConversationView: View {
     // MARK: - Sheet State
 
     @State private var showingInfo = false
-    @State private var selectedMessageForActions: MessageDTO?
+    @State private var selectedMessageForInfo: MessageDTO?
+    @State private var emojiPickerMessage: MessageDTO?
     @State private var blockSenderContext: BlockSenderContext?
     @State private var sendDMContext: SendDMContext?
     @State private var imageViewerData: ImageViewerData?
@@ -123,11 +142,11 @@ struct ChatConversationView: View {
             unseenMentionIDs: unseenMentionIDs,
             scrollToTargetID: scrollToTargetID,
             newMessagesDividerMessageID: chatViewModel.newMessagesDividerMessageID,
-            selectedMessageForActions: $selectedMessageForActions,
             imageViewerData: $imageViewerData,
             onMentionSeen: { await markMentionSeen(messageID: $0) },
             onScrollToMention: { scrollToNextMention() },
-            onRetryMessage: { retryMessage($0) }
+            onRetryMessage: { retryMessage($0) },
+            makeActionsMenu: { AnyView(messageContextMenu(for: $0)) }
         )
         .mentionTapHandling(
             contacts: chatViewModel.allContacts,
@@ -201,10 +220,16 @@ struct ChatConversationView: View {
                 }
             )
         })
-        // Message actions sheet — shared
-        .sheet(item: $selectedMessageForActions) { message in
-            messageActionsSheet(for: message)
-                .environment(\.horizontalSizeClass, horizontalSizeClass)
+        // "More reactions" emoji picker, opened from the context menu.
+        .sheet(item: $emojiPickerMessage) { message in
+            EmojiPickerSheet(onSelect: { emoji in dispatch(.react(emoji), for: message) })
+        }
+        // Message info sheet — tap on message status row
+        .sheet(item: $selectedMessageForInfo) { message in
+            MessageInfoSheet(
+                message: message,
+                senderName: resolveSenderName(for: message)
+            )
         }
         // Block sender sheet — channel only
         .sheet(item: $blockSenderContext) { context in
@@ -590,43 +615,181 @@ struct ChatConversationView: View {
 
     // MARK: - Message Actions Sheet
 
-    private func messageActionsSheet(for message: MessageDTO) -> some View {
-        let senderResolution: NodeNameResolution = {
-            if message.isOutgoing {
-                return NodeNameResolution(displayName: appState.localNodeName, matchKind: .exact)
+    /// Quick reactions + "More" rendered as a single horizontal palette row.
+    ///
+    /// `.compactMenu` produces the horizontal strip only on iOS/iPadOS; the
+    /// AppKit `NSMenu` that hosts the menu when this iPad app runs on a Mac
+    /// ignores it and stacks each button vertically. `.palette` is the style
+    /// that bridges to the AppKit palette presentation, so the Mac path uses it.
+    @ViewBuilder
+    private func reactionPalette(for message: MessageDTO) -> some View {
+        let isOnMac = ProcessInfo.processInfo.isiOSAppOnMac
+        let group = ControlGroup {
+            ForEach(Array(recentEmojisStore.recentEmojis.prefix(quickReactionCount)), id: \.self) { emoji in
+                Button {
+                    dispatch(.react(emoji), for: message)
+                } label: {
+                    // Mac renders each emoji to an image; iOS/iPadOS draws the Text.
+                    if isOnMac {
+                        emojiPaletteImage(emoji)
+                    } else {
+                        Text(emoji)
+                    }
+                }
+                .accessibilityLabel(emoji.emojiAccessibilityName)
             }
-            switch conversationType {
-            case .dm(let contact):
-                return NodeNameResolution(displayName: contact.displayName, matchKind: .exact)
-            case .channel:
-                if let senderName = message.senderNodeName, !senderName.isEmpty {
-                    return NodeNameResolution(displayName: senderName, matchKind: .exact)
+            Button {
+                dispatch(.moreEmojis, for: message)
+            } label: {
+                // "More" goes through the same image path as the emoji so the
+                // palette sizes and centers it identically; iOS keeps the Label.
+                if isOnMac {
+                    moreEmojiPaletteImage()
+                        .accessibilityLabel(L10n.Chats.Reactions.moreEmojis)
+                } else {
+                    Label(L10n.Chats.Reactions.moreEmojis, systemImage: moreEmojiSymbol)
+                        .environment(\.symbolVariants, .none)
                 }
-                if let prefix = message.senderKeyPrefix,
-                   let result = NeighborNameResolver.resolve(
-                    for: prefix,
-                    contacts: chatViewModel.allContacts,
-                    discoveredNodes: [],
-                    userLocation: nil
-                   ) {
-                    return result
-                }
-                return NodeNameResolution(
-                    displayName: L10n.Chats.Chats.Message.Sender.unknown,
-                    matchKind: .unresolved
+            }
+        }
+
+        if isOnMac {
+            group.controlGroupStyle(.palette)
+        } else {
+            group.controlGroupStyle(.compactMenu)
+        }
+    }
+
+    /// Draws an emoji glyph centered in a fixed square canvas for AppKit palette
+    /// menu cells, which draw an item's image rather than its text title.
+    private func emojiPaletteImage(_ emoji: String) -> Image {
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: emojiPaletteGlyphSize)
+        ]
+        let glyph = (emoji as NSString).size(withAttributes: attributes)
+        let uiImage = paletteCellImage { rect in
+            (emoji as NSString).draw(
+                at: CGPoint(x: rect.midX - glyph.width / 2, y: rect.midY - glyph.height / 2),
+                withAttributes: attributes
+            )
+        }
+        return Image(uiImage: uiImage).renderingMode(.original)
+    }
+
+    /// The "More" symbol rendered through the shared palette canvas. Its color is
+    /// baked in because the palette does not tint a pre-rendered bitmap the way it
+    /// tints the `Label` icons; `chromeTint` is nil on the default theme, where the
+    /// icons take the label color like the menu text.
+    private func moreEmojiPaletteImage() -> Image {
+        let config = UIImage.SymbolConfiguration(pointSize: morePaletteSymbolSize)
+        let tintColor = UIColor(theme.chromeTint ?? .primary)
+        let symbol = UIImage(systemName: moreEmojiSymbol, withConfiguration: config)?
+            .withTintColor(tintColor, renderingMode: .alwaysOriginal)
+        let uiImage = paletteCellImage { rect in
+            guard let symbol else { return }
+            symbol.draw(in: CGRect(
+                x: rect.midX - symbol.size.width / 2,
+                y: rect.midY - symbol.size.height / 2,
+                width: symbol.size.width,
+                height: symbol.size.height
+            ))
+        }
+        return Image(uiImage: uiImage).renderingMode(.original)
+    }
+
+    /// Renders `draw` into a fixed square canvas shared by every palette reaction
+    /// cell, so all cells have identical metrics and center their glyphs alike.
+    private func paletteCellImage(_ draw: (CGRect) -> Void) -> UIImage {
+        let size = CGSize(width: reactionPaletteCellSize, height: reactionPaletteCellSize)
+        return UIGraphicsImageRenderer(size: size).image { _ in
+            draw(CGRect(origin: .zero, size: size))
+        }
+    }
+
+    /// Native haptic-touch context menu shown on long-press of a bubble.
+    @ViewBuilder
+    private func messageContextMenu(for message: MessageDTO) -> some View {
+        let availability = MessageActionAvailability(message: message)
+
+        reactionPalette(for: message)
+
+        if availability.canReply {
+            Button {
+                dispatch(.reply, for: message)
+            } label: {
+                Label(
+                    replyWithQuote
+                        ? L10n.Chats.Chats.Message.Action.reply
+                        : L10n.Chats.Chats.Message.Action.mention,
+                    systemImage: "arrowshape.turn.up.left"
                 )
             }
-        }()
-
-        return MessageActionsSheet(
-            message: message,
-            senderName: senderResolution.displayName,
-            senderMatchKind: senderResolution.matchKind,
-            recentEmojis: recentEmojisStore.recentEmojis,
-            onAction: { action in
-                dispatch(action, for: message)
+        }
+        if availability.canSendDM {
+            Button {
+                dispatch(.sendDM, for: message)
+            } label: {
+                Label(L10n.Chats.Chats.Message.Action.sendDM, systemImage: "bubble.left.and.bubble.right")
             }
-        )
+        }
+        Button {
+            dispatch(.copy, for: message)
+        } label: {
+            Label(L10n.Chats.Chats.Message.Action.copy, systemImage: "doc.on.doc")
+        }
+        if availability.canSendAgain {
+            Button {
+                dispatch(.sendAgain, for: message)
+            } label: {
+                Label(L10n.Chats.Chats.Message.Action.sendAgain, systemImage: "arrow.uturn.forward")
+            }
+        }
+
+        Button {
+            dispatch(.details, for: message)
+        } label: {
+            Label(L10n.Chats.Chats.Message.Action.details, systemImage: "info.circle")
+        }
+
+        Section {
+            if availability.canBlockSender {
+                Button(role: .destructive) {
+                    dispatch(.blockSender, for: message)
+                } label: {
+                    Label(L10n.Chats.Chats.Message.Action.blockSender, systemImage: "hand.raised")
+                }
+            }
+            Button(role: .destructive) {
+                dispatch(.delete, for: message)
+            } label: {
+                Label(L10n.Chats.Chats.Message.Action.delete, systemImage: "trash")
+            }
+        }
+    }
+
+    private func senderResolution(for message: MessageDTO) -> NodeNameResolution {
+        if message.isOutgoing {
+            return NodeNameResolution(displayName: appState.localNodeName, matchKind: .exact)
+        }
+        switch conversationType {
+        case .dm(let contact):
+            return NodeNameResolution(displayName: contact.displayName, matchKind: .exact)
+        case .channel:
+            if let name = message.senderNodeName, !name.isEmpty {
+                return NodeNameResolution(displayName: name, matchKind: .exact)
+            }
+            if let prefix = message.senderKeyPrefix,
+               let result = NeighborNameResolver.resolve(
+                for: prefix, contacts: chatViewModel.allContacts, discoveredNodes: [], userLocation: nil) {
+                return result
+            }
+            return NodeNameResolution(
+                displayName: L10n.Chats.Chats.Message.Sender.unknown, matchKind: .unresolved)
+        }
+    }
+
+    private func resolveSenderName(for message: MessageDTO) -> String {
+        senderResolution(for: message).displayName
     }
 
     // MARK: - Message Action Handling
@@ -640,12 +803,16 @@ struct ChatConversationView: View {
         switch action {
         case .react(let emoji):
             handleReact(emoji: emoji, for: message)
+        case .moreEmojis:
+            handleMoreEmojis(for: message)
         case .reply:
             handleReply(for: message)
         case .copy:
             handleCopy(for: message)
         case .sendAgain:
             handleSendAgain(for: message)
+        case .details:
+            handleDetails(for: message)
         case .blockSender:
             handleBlockSender(for: message)
         case .sendDM:
@@ -658,6 +825,10 @@ struct ChatConversationView: View {
     private func handleReact(emoji: String, for message: MessageDTO) {
         recentEmojisStore.recordUsage(emoji)
         Task { await chatViewModel.sendReaction(emoji: emoji, to: message) }
+    }
+
+    private func handleMoreEmojis(for message: MessageDTO) {
+        emojiPickerMessage = message
     }
 
     private func handleReply(for message: MessageDTO) {
@@ -687,6 +858,10 @@ struct ChatConversationView: View {
 
     private func handleSendAgain(for message: MessageDTO) {
         Task { await chatViewModel.sendAgain(message) }
+    }
+
+    private func handleDetails(for message: MessageDTO) {
+        selectedMessageForInfo = message
     }
 
     private func handleBlockSender(for message: MessageDTO) {

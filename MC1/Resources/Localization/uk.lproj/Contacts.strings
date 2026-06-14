@@ -623,6 +623,18 @@
 /* Location: AddHopPickerView.swift - Purpose: No repeaters empty description */
 "contacts.pathEdit.noRepeaters.description" = "Ретранслятори з'являться тут після виявлення у вашій mesh-мережі.";
 
+/* Location: AddHopPickerView.swift - Purpose: No favorite repeaters empty title */
+"contacts.pathEdit.noFavorites.title" = "Немає обраних ретрансляторів";
+
+/* Location: AddHopPickerView.swift - Purpose: No favorite repeaters empty description */
+"contacts.pathEdit.noFavorites.description" = "Ретранслятори, які ви позначите як обрані, з'являться тут.";
+
+/* Location: AddHopPickerView.swift - Purpose: No recent repeaters empty title */
+"contacts.pathEdit.noRecent.title" = "Немає недавніх ретрансляторів";
+
+/* Location: AddHopPickerView.swift - Purpose: No recent repeaters empty description */
+"contacts.pathEdit.noRecent.description" = "Ретранслятори, які ви додасте до шляху, з'являться тут.";
+
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with name */
 "contacts.pathEdit.hopWithName" = "Перехід %d з %d: %@";
 

@@ -606,6 +606,18 @@
 /* Location: AddHopPickerView.swift - Purpose: No repeaters empty description */
 "contacts.pathEdit.noRepeaters.description" = "在您的 Mesh 网络中发现转发节点后，它们会显示在这里。";
 
+/* Location: AddHopPickerView.swift - Purpose: No favorite repeaters empty title */
+"contacts.pathEdit.noFavorites.title" = "无收藏的转发节点";
+
+/* Location: AddHopPickerView.swift - Purpose: No favorite repeaters empty description */
+"contacts.pathEdit.noFavorites.description" = "您收藏的转发节点会显示在这里。";
+
+/* Location: AddHopPickerView.swift - Purpose: No recent repeaters empty title */
+"contacts.pathEdit.noRecent.title" = "无最近使用的转发节点";
+
+/* Location: AddHopPickerView.swift - Purpose: No recent repeaters empty description */
+"contacts.pathEdit.noRecent.description" = "您添加到路径中的转发节点会显示在这里。";
+
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with name */
 "contacts.pathEdit.hopWithName" = "第 %d/%d 跳：%@";
 

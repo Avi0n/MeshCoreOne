@@ -52,11 +52,6 @@ struct MapView: View {
                 viewModel.focusOnCoordinate(request.coordinate)
                 appState.navigation.clearPendingMapFocus()
             }
-            .onChange(of: appState.navigation.pendingMapContact, initial: true) { _, contact in
-                guard let contact else { return }
-                viewModel.centerOnContact(contact)
-                appState.navigation.clearPendingMapContact()
-            }
             .sheet(item: $selectedContactForDetail) { contact in
                 ContactDetailSheet(
                     contact: contact,

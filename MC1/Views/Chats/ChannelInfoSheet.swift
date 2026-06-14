@@ -328,7 +328,8 @@ struct ChannelInfoSheet: View {
             contactService: contactService,
             dataStore: appState.offlineDataStore,
             radioID: channel.radioID,
-            knownRegions: knownRegions
+            knownRegions: knownRegions,
+            supportsAdHocRequest: appState.connectedDevice?.supportsAdHocRepeaterRequest ?? false
         )
 
         switch outcome {
