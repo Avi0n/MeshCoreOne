@@ -547,6 +547,63 @@ struct BackupIntegrationTests {
         #expect(Set(deduplicatedPath.runs.map(\.id)) == Set([existingRun.id, importedRun.id]))
     }
 
+    // MARK: - Test 9b: Cross-path run id reuse never relocates a run
+
+    @Test("Import reusing a local run's id under a different path drops the duplicate run rather than relocating it")
+    func importReusingRunIDUnderDifferentPath_DropsDuplicate() async throws {
+        let radioID = UUID()
+        let pathABytes = Data([0x12, 0x34, 0x56, 0x78])
+        let pathBBytes = Data([0xAB, 0xCD, 0xEF, 0x01])
+        let sharedRunID = UUID()
+
+        let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+        // Local path A owns run R.
+        let runR = TracePathRunDTO.testRun(id: sharedRunID, roundTripMs: 180)
+        let pathA = try await destStore.createSavedTracePath(
+            radioID: radioID,
+            name: "Path A",
+            pathBytes: pathABytes,
+            hashSize: 1,
+            initialRun: runR
+        )
+
+        // Backup path B is a distinct path whose run reuses R's id.
+        let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+        let backupPathB = SavedTracePathDTO.testPath(
+            radioID: radioID,
+            name: "Path B",
+            pathBytes: pathBBytes,
+            hashSize: 1,
+            runs: [TracePathRunDTO.testRun(id: sharedRunID, roundTripMs: 999)]
+        )
+        let envelope = AppBackupEnvelope.test(
+            devices: [device],
+            savedTracePaths: [backupPathB]
+        )
+
+        let service = AppBackupService()
+        let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+        // Path B is a new path, but its duplicate-id run is dropped store-wide.
+        #expect(result.savedTracePathsInserted == 1)
+
+        let allPaths = try await destStore.fetchSavedTracePaths(radioID: radioID)
+        #expect(allPaths.count == 2)
+
+        // Run R stays under path A; path B gains no run.
+        let pathAAfter = try #require(await destStore.fetchSavedTracePath(id: pathA.id))
+        #expect(pathAAfter.runs.count == 1)
+        #expect(pathAAfter.runs.first?.id == sharedRunID)
+
+        let pathBAfter = try #require(allPaths.first { $0.pathBytes == pathBBytes })
+        #expect(pathBAfter.runs.isEmpty)
+
+        // The run exists exactly once in the whole store.
+        let totalRuns = allPaths.reduce(0) { $0 + $1.runs.count }
+        #expect(totalRuns == 1)
+    }
+
     // MARK: - Test 10: Orphaned radio-scoped data survives export/import
 
     @Test("Export preserves orphaned radio-scoped data after device-only delete")

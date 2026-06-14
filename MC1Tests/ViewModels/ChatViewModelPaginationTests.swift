@@ -766,6 +766,43 @@ struct ChatViewModelChannelPaginationTests {
         // The key insight: unfiltered count (50) == pageSize means hasMoreMessages = true
         #expect(messages.count == 50, "Unfiltered count should drive pagination decision")
     }
+
+    @Test("Switching from a channel to a DM clears the channel axis so an incoming channel message is not admitted into the open DM")
+    func channelToDMSwitchRejectsLateChannelMessage() async throws {
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let dataStore = PersistenceStore(modelContainer: container)
+        let radioID = UUID()
+        let channelIndex: UInt8 = 1
+        let contactID = UUID()
+
+        let viewModel = ChatViewModel()
+        viewModel.configureForTesting(dependencies: .testDefaults(dataStore: { dataStore }))
+        viewModel.coordinator = ChatCoordinator.makeForTesting()
+
+        let channel = createTestChannel(radioID: radioID, index: channelIndex, name: "General")
+        let contact = createTestContact(id: contactID, radioID: radioID)
+
+        // Open the channel, then switch to the DM. loadMessages(for:) must clear currentChannel.
+        await viewModel.loadChannelMessages(for: channel)
+        #expect(viewModel.currentChannel?.index == channelIndex)
+
+        await viewModel.loadMessages(for: contact)
+        #expect(viewModel.currentChannel == nil, "Loading a DM must clear the channel axis")
+        #expect(viewModel.currentContact?.id == contactID)
+
+        let baselineCount = viewModel.messages.count
+
+        // A channel message for the channel that was just open must not enter the open DM.
+        let channelMessage = createChannelMessage(
+            radioID: radioID,
+            channelIndex: channelIndex,
+            timestamp: 2_000
+        )
+        await viewModel.handle(.channelMessageReceived(message: channelMessage, channelIndex: channelIndex))
+
+        #expect(viewModel.messages.count == baselineCount,
+                "An incoming channel message must not be admitted into the open DM after the axis switch")
+    }
 }
 
 // MARK: - Display Items Tests

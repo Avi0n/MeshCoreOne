@@ -2084,6 +2084,40 @@ struct PersistenceStoreTests {
         #expect(entries.first?.senderTimestamp == 42)
     }
 
+    @Test("A store rebuilt over a populated container seeds its prune cache from disk")
+    func rxLogPruneSeedsCacheFromDiskOnRebuiltStore() async throws {
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let radioID = UUID()
+
+        let storeA = PersistenceStore(modelContainer: container)
+        try await storeA.saveDevice(createTestDevice().copy { $0.id = radioID; $0.radioID = radioID })
+
+        // Fill to the retention cap (keepCount + pruneThreshold) without exceeding it.
+        for index in 0..<1_100 {
+            try await storeA.saveRxLogEntry(
+                createTestRxLogEntryDTO(radioID: radioID, senderTimestamp: UInt32(index))
+            )
+            try await storeA.pruneRxLogEntries(radioID: radioID)
+        }
+        let beforeReconnect = try await storeA.fetchRxLogEntries(radioID: radioID, limit: 1_200)
+        #expect(beforeReconnect.count == 1_100)
+
+        // Reconnect: a new store over the same container starts with a cold cache.
+        // Writing one full prune cycle past the cap drives the count back to keepCount
+        // only if storeB seeded from disk; a cold-from-zero cache never trips the gate.
+        let storeB = PersistenceStore(modelContainer: container)
+        for index in 1_100..<1_202 {
+            try await storeB.saveRxLogEntry(
+                createTestRxLogEntryDTO(radioID: radioID, senderTimestamp: UInt32(index))
+            )
+            try await storeB.pruneRxLogEntries(radioID: radioID)
+        }
+
+        // Pruning only fires if storeB seeded its count from disk rather than from zero.
+        let afterReconnect = try await storeB.fetchRxLogEntries(radioID: radioID, limit: 1_300)
+        #expect(afterReconnect.count == 1_000)
+    }
+
     // MARK: - Region Scope Tests
 
     @Test("saveRxLogEntry forwards regionScope to the persisted model")
