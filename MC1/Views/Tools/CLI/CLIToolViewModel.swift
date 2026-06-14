@@ -196,10 +196,12 @@ final class CLIToolViewModel {
             // Claim the busy state synchronously so a second submit can't pass
             // the guard before the spawned task starts running.
             isWaitingForResponse = true
-            currentCommandTask = Task {
-                defer { isWaitingForResponse = false }
+            var task: Task<Void, Never>!
+            task = Task {
+                defer { clearWaitingIfCurrent(task) }
                 await completeLogin(contact: contact, password: trimmed)
             }
+            currentCommandTask = task
             return
         }
 
@@ -220,10 +222,12 @@ final class CLIToolViewModel {
         // Claim the busy state synchronously so a second submit can't pass the
         // guard before the spawned task starts running.
         isWaitingForResponse = true
-        currentCommandTask = Task {
-            defer { isWaitingForResponse = false }
+        var task: Task<Void, Never>!
+        task = Task {
+            defer { clearWaitingIfCurrent(task) }
             await handleCommand(cmd, args: args, raw: trimmed)
         }
+        currentCommandTask = task
 
         currentInput = ""
     }
@@ -235,6 +239,14 @@ final class CLIToolViewModel {
             isWaitingForResponse = false
             appendOutput(L10n.Tools.Tools.Cli.cancelled, type: .error)
         }
+    }
+
+    private func clearWaitingIfCurrent(_ task: Task<Void, Never>) {
+        // A cancelled older command can resume after a newer one claimed the
+        // busy flag; only the task still owning currentCommandTask may clear it.
+        guard currentCommandTask == task else { return }
+        currentCommandTask = nil
+        isWaitingForResponse = false
     }
 
     private func addToHistory(_ command: String) {
