@@ -55,7 +55,7 @@ final class DiscoveredNode {
         lastAdvertTimestamp: UInt32,
         latitude: Double = 0,
         longitude: Double = 0,
-        outPathLength: UInt8 = 0xFF,
+        outPathLength: UInt8 = PacketBuilder.floodPathSentinel,
         outPath: Data = Data()
     ) {
         self.id = id
@@ -97,7 +97,7 @@ public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterReso
     }
 
     public var isFloodRouted: Bool {
-        outPathLength == 0xFF
+        outPathLength == PacketBuilder.floodPathSentinel
     }
 
     public var pathHashSize: Int {

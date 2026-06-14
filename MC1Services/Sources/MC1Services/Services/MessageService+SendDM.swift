@@ -611,7 +611,7 @@ extension MessageService {
                 _ = try await dataStore.saveContact(radioID: radioID, from: updatedContact.toContactFrame())
 
                 // Notify UI of routing change
-                let isNowFlood = newPathLength == 0xFF
+                let isNowFlood = newPathLength == PacketBuilder.floodPathSentinel
                 statusEventBroadcaster.yield(.routingChanged(contactID: contactID, isFlood: isNowFlood))
             }
         } catch {

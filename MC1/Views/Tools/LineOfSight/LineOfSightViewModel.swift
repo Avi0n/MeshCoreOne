@@ -908,9 +908,9 @@ final class LineOfSightViewModel {
             isAnalyzing = false
 
         } catch {
-            isAnalyzing = false
             // A cancelled fetch is not a user-facing analysis failure
             if Task.isCancelled { return }
+            isAnalyzing = false
             analysisStatus = .error(error.localizedDescription)
             logger.error("Off-path analysis failed: \(error.localizedDescription)")
         }

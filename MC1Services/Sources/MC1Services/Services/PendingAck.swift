@@ -14,24 +14,4 @@ struct PendingAck: Sendable {
     var sentAt: Date
     var timeout: TimeInterval
     var isDelivered: Bool = false
-
-    init(
-        messageID: UUID,
-        contactID: UUID,
-        ackCodes: Set<Data>,
-        sentAt: Date,
-        timeout: TimeInterval,
-        isDelivered: Bool = false
-    ) {
-        self.messageID = messageID
-        self.contactID = contactID
-        self.ackCodes = ackCodes
-        self.sentAt = sentAt
-        self.timeout = timeout
-        self.isDelivered = isDelivered
-    }
-
-    var isExpired: Bool {
-        !isDelivered && Date().timeIntervalSince(sentAt) > timeout
-    }
 }

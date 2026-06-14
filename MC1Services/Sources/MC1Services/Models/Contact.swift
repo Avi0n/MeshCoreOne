@@ -1,5 +1,6 @@
 import CoreLocation
 import Foundation
+import MeshCore
 import SwiftData
 
 /// Represents a contact discovered on the mesh network.
@@ -83,7 +84,7 @@ public final class Contact {
         name: String,
         typeRawValue: UInt8 = 0,
         flags: UInt8 = 0,
-        outPathLength: UInt8 = 0xFF,
+        outPathLength: UInt8 = PacketBuilder.floodPathSentinel,
         outPath: Data = Data(),
         lastAdvertTimestamp: UInt32 = 0,
         latitude: Double = 0,
@@ -215,7 +216,7 @@ public extension Contact {
 
     /// Whether this contact uses flood routing
     var isFloodRouted: Bool {
-        outPathLength == 0xFF
+        outPathLength == PacketBuilder.floodPathSentinel
     }
 
     /// Whether this contact has a known, valid location
@@ -379,7 +380,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     }
 
     public var isFloodRouted: Bool {
-        outPathLength == 0xFF
+        outPathLength == PacketBuilder.floodPathSentinel
     }
 
     /// The hash size per hop in bytes (1, 2, or 3), derived from the upper 2 bits of ``outPathLength``.

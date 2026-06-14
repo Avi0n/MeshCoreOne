@@ -1,4 +1,5 @@
 import Foundation
+import MeshCore
 import SwiftData
 
 /// Message delivery status
@@ -608,7 +609,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     public var isFloodRouted: Bool {
         if channelIndex != nil { return true }
         if let routeType { return routeType == .flood || routeType == .tcFlood }
-        return pathLength != 0xFF
+        return pathLength != PacketBuilder.floodPathSentinel
     }
 
     /// Whether this message was direct-routed (pre-built path, hops consumed in transit).

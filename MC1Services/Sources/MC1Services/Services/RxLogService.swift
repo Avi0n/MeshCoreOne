@@ -88,7 +88,7 @@ public actor RxLogService {
         do {
             let channels = try await dataStore.fetchChannels(radioID: radioID)
             // Channels arrive sorted by slot index; a corrupt store can hold duplicate
-            // indices, so keep the first match to mirror fetchChannel(radioID:index:).
+            // indices, so keep the first match for a deterministic choice.
             channelSecrets = Dictionary(channels.map { ($0.index, $0.secret) }, uniquingKeysWith: { first, _ in first })
             channelNames = Dictionary(channels.map { ($0.index, $0.name) }, uniquingKeysWith: { first, _ in first })
             if !channels.isEmpty {
@@ -494,94 +494,6 @@ public actor RxLogService {
             if case .success(let timestamp, _, let text) = decryptResult {
                 result.channelIndex = index
                 result.channelName = channelNames[index] ?? "Channel \(index)"
-                result.senderTimestamp = timestamp
-                result.decodedText = text
-                break
-            }
-        }
-
-        return result
-    }
-
-    /// Decrypt multiple entries concurrently. Useful for batch export.
-    /// Uses parallel processing for better performance with large datasets.
-    public func decryptEntries(_ entries: [RxLogEntryDTO]) async -> [RxLogEntryDTO] {
-        // Capture secrets for concurrent access
-        let secrets = channelSecrets
-        let privateKey = myPrivateKey
-        let contactKeys = contactPublicKeysByPrefix
-
-        return await withTaskGroup(of: (Int, RxLogEntryDTO).self) { group in
-            for (index, entry) in entries.enumerated() {
-                group.addTask {
-                    let decrypted = Self.decryptEntry(
-                        entry,
-                        secrets: secrets,
-                        myPrivateKey: privateKey,
-                        contactPublicKeysByPrefix: contactKeys
-                    )
-                    return (index, decrypted)
-                }
-            }
-
-            var results = entries
-            for await (index, decrypted) in group {
-                results[index] = decrypted
-            }
-            return results
-        }
-    }
-
-    /// Static decryption for concurrent use (no actor isolation).
-    private static func decryptEntry(
-        _ entry: RxLogEntryDTO,
-        secrets: [UInt8: Data],
-        myPrivateKey: Data?,
-        contactPublicKeysByPrefix: [UInt8: [Data]]
-    ) -> RxLogEntryDTO {
-        var result = entry
-
-        // Attempt DM decryption for direct text messages
-        if entry.payloadType == .textMessage,
-           entry.routeType == .direct || entry.routeType == .tcDirect {
-            if let myPrivateKey,
-               let dmResult = tryDecryptDM(
-                   payload: entry.packetPayload,
-                   myPrivateKey: myPrivateKey,
-                   contactPublicKeysByPrefix: contactPublicKeysByPrefix
-               ) {
-                result.senderTimestamp = dmResult.timestamp
-                result.decodedText = dmResult.text
-            }
-            return result
-        }
-
-        guard entry.payloadType == .groupText || entry.payloadType == .groupData else {
-            return result
-        }
-
-        guard entry.packetPayload.count >= 1 + ChannelCrypto.macSize + 16 else {
-            return result
-        }
-
-        let encryptedPayload = Data(entry.packetPayload.dropFirst(1))
-
-        // Fast path: use stored channel index
-        if entry.decryptStatus == .success, let channelIndex = entry.channelIndex,
-           let secret = secrets[channelIndex] {
-            let decryptResult = ChannelCrypto.decrypt(payload: encryptedPayload, secret: secret)
-            if case .success(let timestamp, _, let text) = decryptResult {
-                result.senderTimestamp = timestamp
-                result.decodedText = text
-                return result
-            }
-        }
-
-        // Slow path: try all secrets, recording the matching channel index.
-        for (index, secret) in secrets {
-            let decryptResult = ChannelCrypto.decrypt(payload: encryptedPayload, secret: secret)
-            if case .success(let timestamp, _, let text) = decryptResult {
-                result.channelIndex = index
                 result.senderTimestamp = timestamp
                 result.decodedText = text
                 break
