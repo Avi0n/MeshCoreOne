@@ -34,6 +34,22 @@ struct LifecycleTransitionTests {
         ])
     }
 
+    @Test("Explicit disconnect runs the per-session teardown the loss path performs")
+    func explicitDisconnectTearsDownSessionState() async {
+        let appState = AppState()
+        appState.settingsEventsTask = Task {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(60))
+            }
+        }
+        appState.navigation.nodesShowingDiscovery = true
+
+        await appState.disconnect()
+
+        #expect(appState.settingsEventsTask == nil)
+        #expect(appState.navigation.nodesShowingDiscovery == false)
+    }
+
     @Test("rapid background-active bounces keep BLE transitions ordered")
     func rapidBouncesKeepTransitionsOrdered() async {
         let appState = AppState()

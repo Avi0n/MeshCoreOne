@@ -381,18 +381,29 @@ final class AppState {
         )
     }
 
+    /// Per-session teardown shared by the connection-loss path and explicit
+    /// disconnect, which does not fire onConnectionLost. Cancels the event tasks
+    /// and releases the per-connection coordinators so a suspended task or a
+    /// torn-down store reference cannot survive into the next session.
+    func tearDownAppStateSessionState() {
+        settingsEventsTask?.cancel()
+        settingsEventsTask = nil
+        syncDataEventsTask?.cancel()
+        syncDataEventsTask = nil
+        advertisementEventsTask?.cancel()
+        advertisementEventsTask = nil
+        rxLogEventsTask?.cancel()
+        rxLogEventsTask = nil
+        messageEventDispatcher.cancelAll()
+        chatCoordinatorRegistry?.tearDown()
+        chatCoordinatorRegistry = nil
+        navigation.clearPendingLinks()
+    }
+
     /// Wire services-dependent callbacks after a successful connection.
     func wireServicesIfConnected() async {
         guard let services else {
-            settingsEventsTask?.cancel()
-            settingsEventsTask = nil
-            syncDataEventsTask?.cancel()
-            syncDataEventsTask = nil
-            advertisementEventsTask?.cancel()
-            advertisementEventsTask = nil
-            rxLogEventsTask?.cancel()
-            rxLogEventsTask = nil
-            messageEventDispatcher.cancelAll()
+            tearDownAppStateSessionState()
             syncCoordinator = nil
             connectionUI.handleDisconnect(
                 connectionState: connectionState,
@@ -403,9 +414,6 @@ final class AppState {
             batteryMonitor.stop()
             batteryMonitor.clearThresholds()
             await liveActivityManager.handleConnectionLost()
-            chatCoordinatorRegistry?.tearDown()
-            chatCoordinatorRegistry = nil
-            navigation.clearPendingLinks()
             lastBumpedServicesID = nil
             return
         }

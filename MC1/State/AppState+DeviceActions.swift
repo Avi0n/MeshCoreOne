@@ -95,6 +95,9 @@ extension AppState {
     func disconnect(reason: DisconnectReason = .userInitiated) async {
         await connectionManager.disconnect(reason: reason)
         await liveActivityManager.endActivity()
+        // Explicit disconnect does not fire onConnectionLost, so run the same
+        // per-session teardown the loss path performs in wireServicesIfConnected.
+        tearDownAppStateSessionState()
     }
 
     /// Connect to a device via WiFi/TCP
