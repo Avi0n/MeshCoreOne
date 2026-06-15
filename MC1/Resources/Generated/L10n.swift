@@ -809,8 +809,8 @@ public enum L10n {
         public static let copyButton = L10n.tr("Chats", "chats.path.copyButton", fallback: "Copy Path")
         /// Location: MessagePathSheet.swift - Accessibility hint for copy button
         public static let copyHint = L10n.tr("Chats", "chats.path.copyHint", fallback: "Copies node IDs as hexadecimal values")
-        /// Location: MessagePathSheet.swift - Navigation title
-        public static let title = L10n.tr("Chats", "chats.path.title", fallback: "Message Path")
+        /// Location: MessagePathMapView.swift - Path map button and sheet navigation title
+        public static let map = L10n.tr("Chats", "chats.path.map", fallback: "Path Map")
         public enum Hop {
           /// Location: PathHopRowView.swift - Accessibility value format for non-last hops - %@ is hex ID
           public static func nodeId(_ p1: Any) -> String {

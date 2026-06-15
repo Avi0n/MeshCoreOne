@@ -123,6 +123,7 @@ extension ChatViewModel {
             mapPreviewLongitude: formatted.mapCoordinate?.longitude,
             isMapPreviewReady: isMapPreviewReady,
             formattedText: formatted.text,
+            soleURL: MessageText.soleURL(in: message.text),
             baseColor: message.isOutgoing ? .outgoing : .incoming,
             formattedPath: (envInputs.showIncomingPath && !message.isOutgoing)
                 ? MessagePathFormatter.format(message)

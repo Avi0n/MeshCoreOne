@@ -13,6 +13,11 @@ struct MentionTapHandler: ViewModifier {
 
     let contacts: [ContactDTO]
     let radioID: UUID
+    /// A secondary (right) click that opens the actions sheet also activates the
+    /// link-preview card's `Button`, which routes its open through this same
+    /// action. This returns true while the sheet is presenting so that trailing
+    /// open is discarded instead of navigating away over the sheet.
+    let shouldSuppressOpen: () -> Bool
 
     @State private var pickerContext: MentionPickerContext?
     @State private var resolverTask: Task<Void, Never>?
@@ -20,6 +25,7 @@ struct MentionTapHandler: ViewModifier {
     func body(content: Content) -> some View {
         content
             .environment(\.openURL, OpenURLAction { url in
+                if shouldSuppressOpen() { return .discarded }
                 if let mentionName = MentionDeeplinkSupport.name(from: url) {
                     handleMentionTap(name: mentionName)
                     return .handled
@@ -69,7 +75,15 @@ extension View {
     /// Routes mention-link taps through `MentionTapEvaluator` and forwards every
     /// other chat URL to `ChatLinkRouter`. Apply to any chat surface that renders
     /// `MessageText`.
-    func mentionTapHandling(contacts: [ContactDTO], radioID: UUID) -> some View {
-        modifier(MentionTapHandler(contacts: contacts, radioID: radioID))
+    func mentionTapHandling(
+        contacts: [ContactDTO],
+        radioID: UUID,
+        shouldSuppressOpen: @escaping () -> Bool
+    ) -> some View {
+        modifier(MentionTapHandler(
+            contacts: contacts,
+            radioID: radioID,
+            shouldSuppressOpen: shouldSuppressOpen
+        ))
     }
 }

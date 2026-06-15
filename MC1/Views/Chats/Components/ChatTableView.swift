@@ -4,7 +4,7 @@ import SwiftUI
 /// UIKit table view controller with flipped orientation for chat-style scrolling
 /// Newest messages appear at visual bottom, keyboard handling via native UIKit
 @MainActor
-final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, CellContent: View>: UITableViewController where Item.ID == UUID {
+final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, CellContent: View>: UITableViewController, UIContextMenuInteractionDelegate where Item.ID == UUID {
 
     // MARK: - Types
 
@@ -75,6 +75,19 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     /// Callback when a mention becomes visible
     var onMentionBecameVisible: ((Item.ID) -> Void)?
+
+    /// Callback when a row receives a secondary (right) click on Mac, where a
+    /// right-click reaches the context-menu system rather than a `.secondary`
+    /// tap. iPad and touch secondary clicks are handled per-bubble alongside the
+    /// long-press; this covers only the Mac path. Surfaces that leave this nil
+    /// never install the interaction, so they don't suppress the native context
+    /// menu in exchange for nothing.
+    var onSecondaryClick: ((Item) -> Void)? {
+        didSet { installMacSecondaryClickIfNeeded() }
+    }
+
+    /// Guards the one-time install of the Mac secondary-click interaction.
+    private var hasInstalledMacSecondaryClick = false
 
     /// Closure to check if an item contains an unseen self-mention
     var isUnseenMention: ((Item) -> Bool)?
@@ -168,6 +181,36 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
         // Coalesces scroll-tracking callbacks at display-frame cadence
         setupScrollDisplayLink()
+    }
+
+    /// Installs the Mac secondary-click interaction the first time a handler is
+    /// set. Gated on Mac and on a handler existing, so iPad (handled per-bubble)
+    /// never installs it and a surface without a handler (a room with no actions
+    /// sheet) leaves the native context menu untouched.
+    private func installMacSecondaryClickIfNeeded() {
+        guard ProcessInfo.processInfo.isiOSAppOnMac,
+              !hasInstalledMacSecondaryClick, onSecondaryClick != nil, isViewLoaded else { return }
+        hasInstalledMacSecondaryClick = true
+        tableView.addInteraction(UIContextMenuInteraction(delegate: self))
+    }
+
+    /// Resolves the model item under a point in the table view's coordinate space.
+    private func itemForRow(at point: CGPoint) -> Item? {
+        guard let indexPath = tableView.indexPathForRow(at: point),
+              let itemID = dataSource?.itemIdentifier(for: indexPath) else { return nil }
+        return itemsByID[itemID]
+    }
+
+    // On the class, not an extension: a generic class can carry `@objc` conformance
+    // only in its primary declaration.
+    func contextMenuInteraction(
+        _ interaction: UIContextMenuInteraction,
+        configurationForMenuAtLocation location: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        guard let item = itemForRow(at: location) else { return nil }
+        onSecondaryClick?(item)
+        // No configuration suppresses the native menu, leaving the sheet the only actions surface.
+        return nil
     }
 
     // Swift 6.3.2 EarlyPerfInliner crashes (infinite recursion in
@@ -963,6 +1006,7 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
     @Binding var scrollToMentionRequest: Int
     var isUnseenMention: ((Item) -> Bool)?
     var onMentionBecameVisible: ((Item.ID) -> Void)?
+    var onSecondaryClick: ((Item) -> Void)?
     var mentionTargetID: Item.ID?
     @Binding var scrollToDividerRequest: Int
     var dividerItemID: Item.ID?
@@ -1021,6 +1065,7 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
         // Update mention detection closures
         controller.isUnseenMention = isUnseenMention
         controller.onMentionBecameVisible = onMentionBecameVisible
+        controller.onSecondaryClick = onSecondaryClick
 
         // Update divider visibility tracking
         controller.dividerItemID = dividerItemID

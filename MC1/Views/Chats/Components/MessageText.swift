@@ -29,12 +29,46 @@ struct MessageText: View {
     }
 
     var body: some View {
-        Text(precomputedText ?? formattedText)
+        Text(displayText)
+    }
+
+    /// A URL-only message renders as a full-width `Text` link whose SwiftUI
+    /// gesture would otherwise swallow the bubble's long-press. Drop the live
+    /// link (keeping its color and underline) so the press reaches the bubble,
+    /// which opens the URL through its own tap recognizer.
+    private var displayText: AttributedString {
+        var result = precomputedText ?? formattedText
+        if MessageText.soleURL(in: text) != nil {
+            result.link = nil
+        }
+        return result
+    }
+
+    /// Returns the lone http/https URL when the entire message is exactly that
+    /// URL, otherwise nil. Shared with the bubble so the render-time link strip
+    /// and the tap that reopens it agree on what counts as URL-only.
+    static func soleURL(in text: String) -> URL? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, let detector = urlDetector else { return nil }
+        let range = NSRange(trimmed.startIndex..., in: trimmed)
+        let matches = detector.matches(in: trimmed, options: [], range: range)
+        guard matches.count == 1,
+              let match = matches.first,
+              match.range == range,
+              let url = match.url,
+              let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https" else { return nil }
+        return url
     }
 
     /// Exposes formatted text for testing
     var testableFormattedText: AttributedString {
         formattedText
+    }
+
+    /// Exposes the rendered text (post link-strip) for testing
+    var testableDisplayText: AttributedString {
+        displayText
     }
 
     private var formattedText: AttributedString {

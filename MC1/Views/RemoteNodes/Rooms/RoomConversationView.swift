@@ -25,7 +25,8 @@ struct RoomConversationView: View {
         makeMessagesView()
             .mentionTapHandling(
                 contacts: chatViewModel.allContacts,
-                radioID: session.radioID
+                radioID: session.radioID,
+                shouldSuppressOpen: { false }
             )
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if !session.isConnected {

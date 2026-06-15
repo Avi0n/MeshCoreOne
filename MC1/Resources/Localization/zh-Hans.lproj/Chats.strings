@@ -886,8 +886,9 @@
 /* Location: MessagePathSheet.swift - Section header for path */
 "chats.path.section.header" = "路径";
 
-/* Location: MessagePathSheet.swift - Navigation title */
-"chats.path.title" = "消息路径";
+
+/* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
+"chats.path.map" = "路径地图";
 
 /* TODO: translate - Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "Center on path";
