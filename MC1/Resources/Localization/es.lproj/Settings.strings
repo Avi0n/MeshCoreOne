@@ -385,7 +385,7 @@
 "batteryCurve.footer" = "Configura la curva voltaje-porcentaje para la batería de tu dispositivo.";
 
 /* Label for preset picker */
-"batteryCurve.preset" = "Preset";
+"batteryCurve.preset" = "Predefinido";
 
 /* Option for custom battery curve */
 "batteryCurve.custom" = "Personalizado";
@@ -763,10 +763,10 @@
 "notifications.discoveryContact" = "Companion";
 
 /* Toggle label for repeater discovery notifications */
-"notifications.discoveryRepeater" = "Repeater";
+"notifications.discoveryRepeater" = "Repetidor";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Room";
+"notifications.discoveryRoom" = "Sala";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Avisos de batería baja";
@@ -976,7 +976,7 @@
 "directMessages.header" = "Mensajes directos";
 
 /* Picker label for number of acknowledgments */
-"directMessages.acknowledgments" = "Acknowledgments";
+"directMessages.acknowledgments" = "Confirmaciones";
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Número de acuses de recibo enviados por mensaje directo. Usa 2 para una mejor confirmación de entrega en enlaces poco fiables.";
@@ -1331,7 +1331,7 @@
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
-"liveActivity.title" = "Live Activity";
+"liveActivity.title" = "Actividad en vivo";
 
 /* Title for the Live Activity tip shown after first connection */
 "liveActivity.tip.title" = "Estado de la radio de un vistazo";
@@ -1735,6 +1735,7 @@
 "Support.Themes.Title" = "Temas";
 "Support.Themes.Owned" = "Adquirido";
 "Support.Themes.PurchasedFooter" = "Aplica tu nuevo tema en Ajustes → Apariencia.";
+"Support.Themes.AllUnlocked" = "¡Todos los temas desbloqueados!";
 "Support.Bundle.Title" = "Todos los temas";
 "Support.Bundle.Subtitle" = "Incluye los temas que se añadan en el futuro.";
 "Support.Contributions.Title" = "Contribuciones";
@@ -1750,11 +1751,11 @@
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Predeterminado";
-"Support.Theme.Ember" = "Ember";
-"Support.Theme.Fern" = "Fern";
-"Support.Theme.Marine" = "Marine";
-"Support.Theme.Olive" = "Olive";
-"Support.Theme.Lavender" = "Lavender";
+"Support.Theme.Ember" = "Brasa";
+"Support.Theme.Fern" = "Helecho";
+"Support.Theme.Marine" = "Marino";
+"Support.Theme.Olive" = "Oliva";
+"Support.Theme.Lavender" = "Lavanda";
 
 /* MARK: Support error messages (mapped from StoreServiceError) */
 "Support.Error.ProductsNotLoaded" = "No se pudieron cargar los productos.";

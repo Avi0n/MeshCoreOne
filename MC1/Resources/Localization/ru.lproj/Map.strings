@@ -50,10 +50,10 @@
 "map.style.topo" = "Топография";
 
 /* Location: LayersMenu.swift - Purpose: Accessibility label for map style menu */
-"map.style.accessibilityLabel" = "Map style";
+"map.style.accessibilityLabel" = "Стиль карты";
 
 /* Location: LayersMenu.swift - Purpose: Hint when style requires network */
-"map.style.requiresNetwork" = "Requires network connection";
+"map.style.requiresNetwork" = "Требуется подключение к сети";
 
 /* Location: LayersMenu.swift - Purpose: Hint when no offline pack covers viewport */
 "map.style.noOfflineCoverage" = "Эту область не покрывает ни одна офлайн-карта";
@@ -114,7 +114,7 @@
 "map.detail.action.telemetry" = "Телеметрия";
 
 /* Location: MapView.swift - Purpose: Saved History button for offline telemetry */
-"map.detail.action.savedHistory" = "Saved History";
+"map.detail.action.savedHistory" = "Сохранённая история";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Sheet title for telemetry authentication */
 "map.detail.action.telemetryAccessTitle" = "Доступ к телеметрии";

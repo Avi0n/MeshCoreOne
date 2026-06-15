@@ -327,7 +327,7 @@
 "tools.lineOfSight.mapStyle.standard" = "Standard";
 
 /* Location: LineOfSightView.swift - Map style: terrain */
-"tools.lineOfSight.mapStyle.terrain" = "Terrain";
+"tools.lineOfSight.mapStyle.terrain" = "Relief";
 
 /* Location: LineOfSightView.swift - Back button label */
 "tools.lineOfSight.back" = "Retour";
@@ -473,7 +473,7 @@
 "tools.lineOfSight.selectTwoPoints" = "Sélectionnez deux points pour analyser";
 
 /* Location: TerrainProfileCanvas.swift - Legend: terrain */
-"tools.lineOfSight.legend.terrain" = "Terrain";
+"tools.lineOfSight.legend.terrain" = "Relief";
 
 /* Location: TerrainProfileCanvas.swift - Legend: line of sight */
 "tools.lineOfSight.legend.los" = "LDV";
@@ -535,19 +535,19 @@
 "tools.lineOfSight.clearancePercent" = "%lld%% de dégagement";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: clear */
-"tools.lineOfSight.status.clear" = "Clear";
+"tools.lineOfSight.status.clear" = "Dégagé";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: marginal */
-"tools.lineOfSight.status.marginal" = "Marginal";
+"tools.lineOfSight.status.marginal" = "Limite";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: partial obstruction */
-"tools.lineOfSight.status.partialObstruction" = "Partial obstruction";
+"tools.lineOfSight.status.partialObstruction" = "Obstruction partielle";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: blocked */
-"tools.lineOfSight.status.blocked" = "Blocked";
+"tools.lineOfSight.status.blocked" = "Bloqué";
 
 /* Location: ResultsCardView.swift - Subtitle shown when path is blocked */
-"tools.lineOfSight.status.blockedSubtitle" = "Direct path intersects terrain";
+"tools.lineOfSight.status.blockedSubtitle" = "Le chemin direct croise le relief";
 
 // MARK: - CLI Tool View
 

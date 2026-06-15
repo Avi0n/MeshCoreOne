@@ -535,19 +535,19 @@
 "tools.lineOfSight.clearancePercent" = "%lld%% vrijheid";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: clear */
-"tools.lineOfSight.status.clear" = "Clear";
+"tools.lineOfSight.status.clear" = "Vrij";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: marginal */
-"tools.lineOfSight.status.marginal" = "Marginal";
+"tools.lineOfSight.status.marginal" = "Marginaal";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: partial obstruction */
-"tools.lineOfSight.status.partialObstruction" = "Partial obstruction";
+"tools.lineOfSight.status.partialObstruction" = "Gedeeltelijke obstructie";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: blocked */
-"tools.lineOfSight.status.blocked" = "Blocked";
+"tools.lineOfSight.status.blocked" = "Geblokkeerd";
 
 /* Location: ResultsCardView.swift - Subtitle shown when path is blocked */
-"tools.lineOfSight.status.blockedSubtitle" = "Direct path intersects terrain";
+"tools.lineOfSight.status.blockedSubtitle" = "Direct pad kruist terrein";
 
 // MARK: - CLI Tool View
 
@@ -576,7 +576,7 @@
 "tools.cli.sessionListHeader" = "Actieve sessies:";
 
 /* Location: CLIToolView.swift - Local session label */
-"tools.cli.sessionLocal" = "local";
+"tools.cli.sessionLocal" = "lokaal";
 
 /* Location: CLIToolView.swift - No sessions message */
 "tools.cli.noSessions" = "Geen actieve sessies";

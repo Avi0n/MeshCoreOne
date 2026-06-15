@@ -3757,6 +3757,62 @@ public enum L10n {
           /// Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for telemetry
           public static let reloadTelemetry = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadTelemetry", fallback: "Reload telemetry")
         }
+        public enum Sensor {
+          /// Accelerometer
+          public static let accelerometer = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.accelerometer", fallback: "Accelerometer")
+          /// Altitude
+          public static let altitude = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.altitude", fallback: "Altitude")
+          /// Analog Input
+          public static let analogInput = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.analogInput", fallback: "Analog Input")
+          /// Analog Output
+          public static let analogOutput = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.analogOutput", fallback: "Analog Output")
+          /// Pressure
+          public static let barometer = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.barometer", fallback: "Pressure")
+          /// Colour
+          public static let colour = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.colour", fallback: "Colour")
+          /// Concentration
+          public static let concentration = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.concentration", fallback: "Concentration")
+          /// Current
+          public static let current = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.current", fallback: "Current")
+          /// Location: SharedNodeStatusViews.swift - Telemetry sensor type display labels
+          public static let digitalInput = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.digitalInput", fallback: "Digital Input")
+          /// Digital Output
+          public static let digitalOutput = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.digitalOutput", fallback: "Digital Output")
+          /// Direction
+          public static let direction = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.direction", fallback: "Direction")
+          /// Distance
+          public static let distance = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.distance", fallback: "Distance")
+          /// Energy
+          public static let energy = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.energy", fallback: "Energy")
+          /// Frequency
+          public static let frequency = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.frequency", fallback: "Frequency")
+          /// Sensor
+          public static let genericSensor = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.genericSensor", fallback: "Sensor")
+          /// GPS
+          public static let gps = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.gps", fallback: "GPS")
+          /// Gyrometer
+          public static let gyrometer = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.gyrometer", fallback: "Gyrometer")
+          /// Humidity
+          public static let humidity = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.humidity", fallback: "Humidity")
+          /// Illuminance
+          public static let illuminance = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.illuminance", fallback: "Illuminance")
+          /// Load
+          public static let load = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.load", fallback: "Load")
+          /// Percentage
+          public static let percentage = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.percentage", fallback: "Percentage")
+          /// Power
+          public static let power = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.power", fallback: "Power")
+          /// Presence
+          public static let presence = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.presence", fallback: "Presence")
+          /// Switch
+          public static let switchValue = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.switchValue", fallback: "Switch")
+          /// Temperature
+          public static let temperature = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.temperature", fallback: "Temperature")
+          /// Time
+          public static let unixTime = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.unixTime", fallback: "Time")
+          /// Voltage
+          public static let voltage = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.voltage", fallback: "Voltage")
+        }
       }
     }
   }

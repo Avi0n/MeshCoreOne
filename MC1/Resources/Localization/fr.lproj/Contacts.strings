@@ -219,7 +219,7 @@
 "contacts.detail.telemetry" = "Télémétrie";
 
 /* Location: ContactDetailView.swift - Purpose: Saved History button for offline telemetry */
-"contacts.detail.savedHistory" = "Telemetry History";
+"contacts.detail.savedHistory" = "Historique de télémétrie";
 
 /* Location: ContactDetailView.swift - Purpose: Telemetry access sheet title */
 "contacts.detail.telemetryAccess" = "Accès à la télémétrie";
@@ -300,7 +300,7 @@
 "contacts.detail.networkPath" = "Chemin réseau";
 
 /* Location: ContactDetailView.swift - Purpose: Route label */
-"contacts.detail.route" = "Route";
+"contacts.detail.route" = "Itinéraire";
 
 /* Location: ContactDetailView.swift - Purpose: Hops away label */
 "contacts.detail.hopsAway" = "Sauts";
@@ -443,16 +443,16 @@
 "contacts.add.error.nodeListFull" = "La liste de nœuds est pleine (max %d nœuds)";
 
 /* Location: AddContactSheet.swift, DiscoveryView.swift - Purpose: Node list full error without max count */
-"contacts.add.error.nodeListFullSimple" = "Node list is full";
+"contacts.add.error.nodeListFullSimple" = "La liste de nœuds est pleine";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL button label */
-"contacts.add.pasteURL" = "Paste Contact URL";
+"contacts.add.pasteURL" = "Coller l'URL du contact";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL section footer */
 "contacts.add.pasteURLFooter" = "Collez un lien de contact meshcore:// pour remplir automatiquement les champs ci-dessus";
 
 /* Location: AddContactSheet.swift - Purpose: Invalid paste URL error */
-"contacts.add.error.invalidURL" = "Clipboard does not contain a valid contact URL";
+"contacts.add.error.invalidURL" = "Le presse-papiers ne contient pas d'URL de contact valide";
 
 // MARK: - Contact QR Share Sheet
 
@@ -472,10 +472,10 @@
 "contacts.qr.share" = "Partager";
 
 /* Location: ContactQRShareSheet.swift - Purpose: Contact label in share text, %@ is contact name */
-"contacts.share.contactLabel" = "MeshCore One Contact: %@";
+"contacts.share.contactLabel" = "Contact MeshCore One : %@";
 
 /* Location: ContactQRShareSheet.swift - Purpose: Key label in share text, %@ is hex public key */
-"contacts.share.keyLabel" = "Key: %@";
+"contacts.share.keyLabel" = "Clé : %@";
 
 // MARK: - Scan Contact QR
 
@@ -527,7 +527,7 @@
 "contacts.discovery.add" = "Ajouter";
 
 /* Location: DiscoveryView.swift - Purpose: Button label when node is already added */
-"contacts.discovery.added" = "Added";
+"contacts.discovery.added" = "Ajouté";
 
 /* Location: DiscoveryView.swift - Purpose: Accessibility label for added button */
 "contacts.discovery.addedAccessibility" = "Déjà ajouté aux contacts";
@@ -838,7 +838,7 @@
 "contacts.pathDetail.path" = "Chemin";
 
 /* Location: SavedPathDetailView.swift - Purpose: Performance section header */
-"contacts.pathDetail.performance" = "Performance";
+"contacts.pathDetail.performance" = "Performances";
 
 /* Location: SavedPathDetailView.swift - Purpose: Chart Y axis label */
 "contacts.pathDetail.roundTripMs" = "Aller-retour (ms)";

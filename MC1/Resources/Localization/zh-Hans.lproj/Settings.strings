@@ -778,13 +778,13 @@
 "notifications.newContactDiscovered" = "发现新联系人";
 
 /* Toggle label for companion discovery notifications */
-"notifications.discoveryContact" = "Companion";
+"notifications.discoveryContact" = "伴侣节点";
 
 /* Toggle label for repeater discovery notifications */
-"notifications.discoveryRepeater" = "Repeater";
+"notifications.discoveryRepeater" = "中继器";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Room";
+"notifications.discoveryRoom" = "聊天室";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "低电量警告";
@@ -986,7 +986,7 @@
 "directMessages.header" = "私信";
 
 /* Picker label for number of acknowledgments */
-"directMessages.acknowledgments" = "Acknowledgments";
+"directMessages.acknowledgments" = "确认回执";
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "每条私信发送的确认数量。在不可靠的链路上使用 2 以获得更好的送达确认。";
@@ -1709,6 +1709,7 @@
 "Support.Themes.Title" = "主题";
 "Support.Themes.Owned" = "已拥有";
 "Support.Themes.PurchasedFooter" = "在设置 → 外观中应用你的新主题。";
+"Support.Themes.AllUnlocked" = "已解锁所有主题！";
 "Support.Bundle.Title" = "全部主题";
 "Support.Bundle.Subtitle" = "包括日后新增的主题。";
 "Support.Contributions.Title" = "捐助";
@@ -1724,11 +1725,11 @@
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "默认";
-"Support.Theme.Ember" = "Ember";
-"Support.Theme.Fern" = "Fern";
-"Support.Theme.Marine" = "Marine";
-"Support.Theme.Olive" = "Olive";
-"Support.Theme.Lavender" = "Lavender";
+"Support.Theme.Ember" = "余烬";
+"Support.Theme.Fern" = "蕨绿";
+"Support.Theme.Marine" = "海蓝";
+"Support.Theme.Olive" = "橄榄";
+"Support.Theme.Lavender" = "薰衣草";
 
 /* MARK: Support error messages (mapped from StoreServiceError) */
 "Support.Error.ProductsNotLoaded" = "无法加载商品。";

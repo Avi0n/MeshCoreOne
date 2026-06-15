@@ -385,7 +385,7 @@
 "batteryCurve.footer" = "Skonfiguruj krzywą napięcie-procent dla baterii urządzenia.";
 
 /* Label for preset picker */
-"batteryCurve.preset" = "Preset";
+"batteryCurve.preset" = "Ustawienie";
 
 /* Option for custom battery curve */
 "batteryCurve.custom" = "Niestandardowy";
@@ -766,7 +766,7 @@
 "notifications.discoveryRepeater" = "Repeater";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Room";
+"notifications.discoveryRoom" = "Pokój";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Ostrzeżenia o niskim stanie baterii";
@@ -976,7 +976,7 @@
 "directMessages.header" = "Wiadomości bezpośrednie";
 
 /* Picker label for number of acknowledgments */
-"directMessages.acknowledgments" = "Acknowledgments";
+"directMessages.acknowledgments" = "Potwierdzenia";
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Liczba potwierdzeń wysyłanych na wiadomość bezpośrednią. Użyj 2 dla lepszego potwierdzenia dostarczenia przez zawodne łącza.";
@@ -1331,7 +1331,7 @@
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
-"liveActivity.title" = "Live Activity";
+"liveActivity.title" = "Aktywność na żywo";
 
 /* Title for the Live Activity tip shown after first connection */
 "liveActivity.tip.title" = "Stan radia w jednym rzucie oka";
@@ -1735,6 +1735,7 @@
 "Support.Themes.Title" = "Motywy";
 "Support.Themes.Owned" = "Posiadane";
 "Support.Themes.PurchasedFooter" = "Zastosuj nowy motyw w Ustawienia → Wygląd.";
+"Support.Themes.AllUnlocked" = "Wszystkie motywy odblokowane!";
 "Support.Bundle.Title" = "Wszystkie motywy";
 "Support.Bundle.Subtitle" = "Obejmuje motywy dodane w przyszłości.";
 "Support.Contributions.Title" = "Wpłaty";
@@ -1750,11 +1751,11 @@
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Domyślny";
-"Support.Theme.Ember" = "Ember";
-"Support.Theme.Fern" = "Fern";
-"Support.Theme.Marine" = "Marine";
-"Support.Theme.Olive" = "Olive";
-"Support.Theme.Lavender" = "Lavender";
+"Support.Theme.Ember" = "Żar";
+"Support.Theme.Fern" = "Paproć";
+"Support.Theme.Marine" = "Morski";
+"Support.Theme.Olive" = "Oliwka";
+"Support.Theme.Lavender" = "Lawenda";
 
 /* MARK: Support error messages (mapped from StoreServiceError) */
 "Support.Error.ProductsNotLoaded" = "Nie udało się wczytać produktów.";

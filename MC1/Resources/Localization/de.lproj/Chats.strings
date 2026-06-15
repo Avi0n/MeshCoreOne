@@ -402,7 +402,7 @@
 "chats.mention.accessibility.hintContact" = "Gespeicherter Kontakt. Doppeltippen zum Erwähnen";
 
 /* Location: MentionSuggestionView.swift - Accessibility label for mention suggestions popup */
-"chats.suggestions.accessibilityLabel" = "Mention suggestions";
+"chats.suggestions.accessibilityLabel" = "Erwähnungsvorschläge";
 
 // MARK: - Create Private Channel View
 
@@ -581,7 +581,7 @@
 "chats.message.action.reply" = "Antworten";
 
 /* Location: MessageActionsSheet.swift - Context menu action to mention */
-"chats.message.action.mention" = "Mention";
+"chats.message.action.mention" = "Erwähnen";
 
 /* Location: UnifiedMessageBubble.swift - Context menu action to copy */
 "chats.message.action.copy" = "Kopieren";
@@ -796,7 +796,7 @@
 "chats.path.map" = "Pfadkarte";
 
 /* TODO: translate - Location: MessagePathMapView.swift - Center on path map control accessibility label */
-"chats.path.centerOnPath" = "Center on path";
+"chats.path.centerOnPath" = "Auf Pfad zentrieren";
 
 // MARK: - Path Hop Row View
 
@@ -1143,13 +1143,13 @@
 "chats.channelInfo.region" = "Region";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set */
-"chats.channelInfo.region.allRegions" = "All Regions";
+"chats.channelInfo.region.allRegions" = "Alle Regionen";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope */
 "chats.channelInfo.region.useDefaultFormat" = "%@ (Standard)";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no regions configured */
-"chats.channelInfo.region.notConfigured" = "Not configured";
+"chats.channelInfo.region.notConfigured" = "Nicht konfiguriert";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Explanation shown when no regions exist */
 "chats.channelInfo.region.explanation" = "Nachrichten auf ein geografisches Gebiet begrenzen";
@@ -1158,28 +1158,28 @@
 "chats.channelInfo.region.discover" = "Regionen in der Nähe entdecken";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Discover button loading state */
-"chats.channelInfo.region.discovering" = "Discovering…";
+"chats.channelInfo.region.discovering" = "Suche läuft…";
 
 /* Location: RegionManagementView.swift - Purpose: Navigation title */
-"chats.channelInfo.region.manage" = "Regions";
+"chats.channelInfo.region.manage" = "Regionen";
 
 /* Location: RegionManagementView.swift - Purpose: Manage regions link */
 "chats.channelInfo.region.manageRegions" = "Regionen verwalten";
 
 /* Location: RegionManagementView.swift - Purpose: Add manually button */
-"chats.channelInfo.region.addManually" = "Add Manually";
+"chats.channelInfo.region.addManually" = "Manuell hinzufügen";
 
 /* Location: RegionManagementView.swift - Purpose: Empty state title */
-"chats.channelInfo.region.noRegions" = "No regions added";
+"chats.channelInfo.region.noRegions" = "Keine Regionen hinzugefügt";
 
 /* Location: RegionManagementView.swift - Purpose: Empty state description */
 "chats.channelInfo.region.noRegionsDescription" = "Entdecke Regionen von Repeatern in der Nähe oder füge sie manuell hinzu.";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: No new regions found */
-"chats.channelInfo.region.noNewRegions" = "No new regions found";
+"chats.channelInfo.region.noNewRegions" = "Keine neuen Regionen gefunden";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: No repeaters responded */
-"chats.channelInfo.region.noRepeatersResponded" = "No repeaters responded";
+"chats.channelInfo.region.noRepeatersResponded" = "Keine Repeater haben geantwortet";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Couldn't load nearby repeater list */
 "chats.channelInfo.region.errLoadingRepeaters" = "Repeater in der Nähe konnten nicht geladen werden";
@@ -1188,13 +1188,13 @@
 "chats.channelInfo.region.errRadioContactsFull" = "Die Kontaktliste des Funkgeräts ist voll — einige Repeater konnten nicht abgefragt werden";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: Add selected regions button */
-"chats.channelInfo.region.addSelected" = "Add";
+"chats.channelInfo.region.addSelected" = "Hinzufügen";
 
 /* Location: AddRegionView.swift - Purpose: Navigation title */
-"chats.channelInfo.region.addRegionTitle" = "Add Region";
+"chats.channelInfo.region.addRegionTitle" = "Region hinzufügen";
 
 /* Location: AddRegionView.swift - Purpose: Text field placeholder */
-"chats.channelInfo.region.addRegionPlaceholder" = "Region name";
+"chats.channelInfo.region.addRegionPlaceholder" = "Regionsname";
 
 /* Location: AddRegionView.swift - Purpose: Validation error */
 "chats.channelInfo.region.invalidName" = "Regionsnamen dürfen nur Buchstaben, Zahlen und Bindestriche enthalten.";
@@ -1206,7 +1206,7 @@
 "chats.channelInfo.region.duplicate" = "Diese Region ist bereits in deiner Liste.";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Private region label */
-"chats.channelInfo.region.private" = "Private";
+"chats.channelInfo.region.private" = "Privat";
 
 /* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle */
 "chats.channelInfo.region.scopedAccessibility" = "%@, begrenzt auf %@";
@@ -1225,10 +1225,10 @@
 // MARK: - Mention Picker
 
 /* TODO: translate - Location: ChatConversationView.swift - Mention picker navigation title shown with the tapped mention name */
-"chats.mention.picker.title" = "Mention: %@";
+"chats.mention.picker.title" = "Erwähnen: %@";
 
 /* TODO: translate - Location: ChatConversationView.swift - Mention picker title when the tapped name matches no saved contact */
-"chats.mention.picker.notSavedTitle" = "Not a saved contact";
+"chats.mention.picker.notSavedTitle" = "Kein gespeicherter Kontakt";
 
 /* TODO: translate - Location: ChatConversationView.swift - Mention picker description when the tapped name matches no saved contact */
 "chats.mention.picker.notSavedSubtitle" = "@%@ entspricht keinem Kontakt auf diesem Funkgerät.";
@@ -1240,4 +1240,4 @@
 "chats.mention.picker.selfSubtitle" = "@%@ ist dein eigener Knotenname.";
 
 /* TODO: translate - Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
-"chats.mention.picker.matchingContacts" = "Matching contacts";
+"chats.mention.picker.matchingContacts" = "Passende Kontakte";

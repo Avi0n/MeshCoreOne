@@ -976,7 +976,7 @@
 "directMessages.header" = "Directe berichten";
 
 /* Picker label for number of acknowledgments */
-"directMessages.acknowledgments" = "Acknowledgments";
+"directMessages.acknowledgments" = "Bevestigingen";
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Aantal bevestigingen dat per direct bericht wordt verstuurd. Gebruik 2 voor betere afleverbevestiging via onbetrouwbare verbindingen.";
@@ -1735,6 +1735,7 @@
 "Support.Themes.Title" = "Thema's";
 "Support.Themes.Owned" = "In bezit";
 "Support.Themes.PurchasedFooter" = "Pas je nieuwe thema toe in Instellingen → Weergave.";
+"Support.Themes.AllUnlocked" = "Alle thema's ontgrendeld!";
 "Support.Bundle.Title" = "Alle thema's";
 "Support.Bundle.Subtitle" = "Inclusief later toegevoegde thema's.";
 "Support.Contributions.Title" = "Bijdragen";

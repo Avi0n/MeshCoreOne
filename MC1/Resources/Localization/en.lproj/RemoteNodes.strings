@@ -518,6 +518,35 @@
 /* Location: RepeaterStatusView.swift - Telemetry section footer */
 "remoteNodes.status.telemetryFooter" = "Sensor readings such as temperature, humidity, and voltage.";
 
+/* Location: SharedNodeStatusViews.swift - Telemetry sensor type display labels */
+"remoteNodes.status.sensor.digitalInput" = "Digital Input";
+"remoteNodes.status.sensor.digitalOutput" = "Digital Output";
+"remoteNodes.status.sensor.analogInput" = "Analog Input";
+"remoteNodes.status.sensor.analogOutput" = "Analog Output";
+"remoteNodes.status.sensor.genericSensor" = "Sensor";
+"remoteNodes.status.sensor.illuminance" = "Illuminance";
+"remoteNodes.status.sensor.presence" = "Presence";
+"remoteNodes.status.sensor.temperature" = "Temperature";
+"remoteNodes.status.sensor.humidity" = "Humidity";
+"remoteNodes.status.sensor.accelerometer" = "Accelerometer";
+"remoteNodes.status.sensor.barometer" = "Pressure";
+"remoteNodes.status.sensor.voltage" = "Voltage";
+"remoteNodes.status.sensor.current" = "Current";
+"remoteNodes.status.sensor.frequency" = "Frequency";
+"remoteNodes.status.sensor.percentage" = "Percentage";
+"remoteNodes.status.sensor.altitude" = "Altitude";
+"remoteNodes.status.sensor.load" = "Load";
+"remoteNodes.status.sensor.concentration" = "Concentration";
+"remoteNodes.status.sensor.power" = "Power";
+"remoteNodes.status.sensor.distance" = "Distance";
+"remoteNodes.status.sensor.energy" = "Energy";
+"remoteNodes.status.sensor.direction" = "Direction";
+"remoteNodes.status.sensor.unixTime" = "Time";
+"remoteNodes.status.sensor.gyrometer" = "Gyrometer";
+"remoteNodes.status.sensor.colour" = "Colour";
+"remoteNodes.status.sensor.gps" = "GPS";
+"remoteNodes.status.sensor.switchValue" = "Switch";
+
 /* Location: RepeaterStatusView.swift - Neighbors section footer */
 "remoteNodes.status.neighborsFooter" = "Other nodes discovered by this repeater and their signal quality.";
 

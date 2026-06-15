@@ -760,13 +760,13 @@
 "notifications.newContactDiscovered" = "Виявлено новий контакт";
 
 /* Toggle label for companion discovery notifications */
-"notifications.discoveryContact" = "Companion";
+"notifications.discoveryContact" = "Компаньйон";
 
 /* Toggle label for repeater discovery notifications */
-"notifications.discoveryRepeater" = "Repeater";
+"notifications.discoveryRepeater" = "Ретранслятор";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Room";
+"notifications.discoveryRoom" = "Кімната";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Попередження про низький заряд";
@@ -976,7 +976,7 @@
 "directMessages.header" = "Особисті повідомлення";
 
 /* Picker label for number of acknowledgments */
-"directMessages.acknowledgments" = "Acknowledgments";
+"directMessages.acknowledgments" = "Підтвердження";
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Кількість підтверджень, що надсилаються на кожне особисте повідомлення. Використовуйте 2 для кращого підтвердження доставки через ненадійні з'єднання.";
@@ -1735,6 +1735,7 @@
 "Support.Themes.Title" = "Теми";
 "Support.Themes.Owned" = "Придбано";
 "Support.Themes.PurchasedFooter" = "Застосуйте нову тему в меню Налаштування → Зовнішній вигляд.";
+"Support.Themes.AllUnlocked" = "Усі теми розблоковано!";
 "Support.Bundle.Title" = "Усі теми";
 "Support.Bundle.Subtitle" = "Включно з темами, доданими пізніше.";
 "Support.Contributions.Title" = "Внески";
@@ -1750,11 +1751,11 @@
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Стандартна";
-"Support.Theme.Ember" = "Ember";
-"Support.Theme.Fern" = "Fern";
-"Support.Theme.Marine" = "Marine";
-"Support.Theme.Olive" = "Olive";
-"Support.Theme.Lavender" = "Lavender";
+"Support.Theme.Ember" = "Жар";
+"Support.Theme.Fern" = "Папороть";
+"Support.Theme.Marine" = "Морський";
+"Support.Theme.Olive" = "Оливковий";
+"Support.Theme.Lavender" = "Лаванда";
 
 /* MARK: Support error messages (mapped from StoreServiceError) */
 "Support.Error.ProductsNotLoaded" = "Не вдалося завантажити товари.";

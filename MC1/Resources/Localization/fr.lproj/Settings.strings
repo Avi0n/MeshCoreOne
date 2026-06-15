@@ -85,7 +85,7 @@
 "deviceInfo.batteryAndStorage" = "Batterie et stockage";
 
 /* Section header for firmware information */
-"deviceInfo.firmware.header" = "Firmware";
+"deviceInfo.firmware.header" = "Micrologiciel";
 
 /* Label for firmware version */
 "deviceInfo.firmwareVersion" = "Version du firmware";
@@ -688,7 +688,7 @@
 // MARK: - Chat Settings
 
 /* Navigation title for chat settings page */
-"chatSettings.title" = "Chats";
+"chatSettings.title" = "Discussions";
 
 
 // MARK: - Link Preview Settings Section
@@ -760,13 +760,13 @@
 "notifications.newContactDiscovered" = "Nouveau contact découvert";
 
 /* Toggle label for companion discovery notifications */
-"notifications.discoveryContact" = "Companion";
+"notifications.discoveryContact" = "Compagnon";
 
 /* Toggle label for repeater discovery notifications */
-"notifications.discoveryRepeater" = "Repeater";
+"notifications.discoveryRepeater" = "Répéteur";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Room";
+"notifications.discoveryRoom" = "Salle";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Avertissements de batterie faible";
@@ -976,7 +976,7 @@
 "directMessages.header" = "Messages directs";
 
 /* Picker label for number of acknowledgments */
-"directMessages.acknowledgments" = "Acknowledgments";
+"directMessages.acknowledgments" = "Accusés de réception";
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Nombre d'accusés de réception envoyés par message direct. Utilisez 2 pour une meilleure confirmation de livraison sur les liaisons peu fiables.";
@@ -1331,7 +1331,7 @@
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
-"liveActivity.title" = "Live Activity";
+"liveActivity.title" = "Activité en direct";
 
 /* Title for the Live Activity tip shown after first connection */
 "liveActivity.tip.title" = "État radio en un coup d'œil";
@@ -1488,7 +1488,7 @@
 "offlineMaps.error.tileLimitReached" = "La limite de tuiles pour ce téléchargement a été atteinte.";
 
 /* Pause download button */
-"offlineMaps.pause" = "Pause";
+"offlineMaps.pause" = "Suspendre";
 
 /* Resume download button */
 "offlineMaps.resume" = "Reprendre";
@@ -1735,6 +1735,7 @@
 "Support.Themes.Title" = "Thèmes";
 "Support.Themes.Owned" = "Acquis";
 "Support.Themes.PurchasedFooter" = "Appliquez votre nouveau thème dans Réglages → Apparence.";
+"Support.Themes.AllUnlocked" = "Tous les thèmes débloqués !";
 "Support.Bundle.Title" = "Tous les thèmes";
 "Support.Bundle.Subtitle" = "Inclut les thèmes ajoutés ultérieurement.";
 "Support.Contributions.Title" = "Contributions";
@@ -1750,11 +1751,11 @@
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Par défaut";
-"Support.Theme.Ember" = "Ember";
-"Support.Theme.Fern" = "Fern";
+"Support.Theme.Ember" = "Braise";
+"Support.Theme.Fern" = "Fougère";
 "Support.Theme.Marine" = "Marine";
 "Support.Theme.Olive" = "Olive";
-"Support.Theme.Lavender" = "Lavender";
+"Support.Theme.Lavender" = "Lavande";
 
 /* MARK: Support error messages (mapped from StoreServiceError) */
 "Support.Error.ProductsNotLoaded" = "Impossible de charger les produits.";

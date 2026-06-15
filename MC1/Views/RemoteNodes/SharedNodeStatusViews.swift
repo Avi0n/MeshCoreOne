@@ -168,7 +168,7 @@ struct NodeTelemetryRow: View {
             let battery = BatteryInfo(level: millivolts)
             let percentage = battery.percentage(using: ocvArray)
 
-            LabeledContent(dataPoint.typeName) {
+            LabeledContent(dataPoint.type.localizedName) {
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(dataPoint.formattedValue)
                     Text("\(percentage)%")
@@ -177,7 +177,7 @@ struct NodeTelemetryRow: View {
                 }
             }
         } else {
-            LabeledContent(dataPoint.typeName, value: dataPoint.formattedValue)
+            LabeledContent(dataPoint.type.localizedName, value: dataPoint.formattedValue)
         }
     }
 }

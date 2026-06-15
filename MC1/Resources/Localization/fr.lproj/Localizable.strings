@@ -166,7 +166,7 @@
 "notifications.action.send" = "Envoyer";
 
 /* Notification action placeholder for quick reply text input */
-"notifications.action.messagePlaceholder" = "Message...";
+"notifications.action.messagePlaceholder" = "Message…";
 
 /* Notification action button to mark a message as read */
 "notifications.action.markAsRead" = "Marquer comme lu";

@@ -27,7 +27,7 @@ struct ChannelGroup: Identifiable {
             )
 
             channelTypeGroups[channel, default: [:]][type, default: TelemetryChartGroup(
-                key: "\(channel)-\(type)", title: type, sensorType: sensorType, dataPoints: []
+                key: "\(channel)-\(type)", title: sensorType?.localizedName ?? type, sensorType: sensorType, dataPoints: []
             )].dataPoints.append(point)
         }
 

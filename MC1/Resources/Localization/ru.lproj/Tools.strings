@@ -535,19 +535,19 @@
 "tools.lineOfSight.clearancePercent" = "%lld%% зазора";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: clear */
-"tools.lineOfSight.status.clear" = "Clear";
+"tools.lineOfSight.status.clear" = "Открыто";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: marginal */
-"tools.lineOfSight.status.marginal" = "Marginal";
+"tools.lineOfSight.status.marginal" = "На грани";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: partial obstruction */
-"tools.lineOfSight.status.partialObstruction" = "Partial obstruction";
+"tools.lineOfSight.status.partialObstruction" = "Частичное препятствие";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: blocked */
-"tools.lineOfSight.status.blocked" = "Blocked";
+"tools.lineOfSight.status.blocked" = "Заблокировано";
 
 /* Location: ResultsCardView.swift - Subtitle shown when path is blocked */
-"tools.lineOfSight.status.blockedSubtitle" = "Direct path intersects terrain";
+"tools.lineOfSight.status.blockedSubtitle" = "Прямой путь пересекает рельеф";
 
 // MARK: - CLI Tool View
 
@@ -576,7 +576,7 @@
 "tools.cli.sessionListHeader" = "Активные сессии:";
 
 /* Location: CLIToolView.swift - Local session label */
-"tools.cli.sessionLocal" = "local";
+"tools.cli.sessionLocal" = "локально";
 
 /* Location: CLIToolView.swift - No sessions message */
 "tools.cli.noSessions" = "Нет активных сессий";

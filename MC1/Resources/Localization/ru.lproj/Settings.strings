@@ -760,13 +760,13 @@
 "notifications.newContactDiscovered" = "Обнаружен новый контакт";
 
 /* Toggle label for companion discovery notifications */
-"notifications.discoveryContact" = "Companion";
+"notifications.discoveryContact" = "Компаньон";
 
 /* Toggle label for repeater discovery notifications */
-"notifications.discoveryRepeater" = "Repeater";
+"notifications.discoveryRepeater" = "Ретранслятор";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Room";
+"notifications.discoveryRoom" = "Комната";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Предупреждения о низком заряде";
@@ -976,7 +976,7 @@
 "directMessages.header" = "Прямые сообщения";
 
 /* Picker label for number of acknowledgments */
-"directMessages.acknowledgments" = "Acknowledgments";
+"directMessages.acknowledgments" = "Подтверждения";
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Количество подтверждений, отправляемых на каждое прямое сообщение. Используйте 2 для лучшего подтверждения доставки по ненадёжным каналам.";
@@ -1735,6 +1735,7 @@
 "Support.Themes.Title" = "Темы";
 "Support.Themes.Owned" = "Приобретено";
 "Support.Themes.PurchasedFooter" = "Примените новую тему в разделе «Настройки → Внешний вид».";
+"Support.Themes.AllUnlocked" = "Все темы разблокированы!";
 "Support.Bundle.Title" = "Все темы";
 "Support.Bundle.Subtitle" = "Включая темы, добавленные позже.";
 "Support.Contributions.Title" = "Пожертвования";
@@ -1750,11 +1751,11 @@
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Стандартная";
-"Support.Theme.Ember" = "Ember";
-"Support.Theme.Fern" = "Fern";
-"Support.Theme.Marine" = "Marine";
-"Support.Theme.Olive" = "Olive";
-"Support.Theme.Lavender" = "Lavender";
+"Support.Theme.Ember" = "Уголь";
+"Support.Theme.Fern" = "Папоротник";
+"Support.Theme.Marine" = "Морская";
+"Support.Theme.Olive" = "Оливковая";
+"Support.Theme.Lavender" = "Лаванда";
 
 /* MARK: Support error messages (mapped from StoreServiceError) */
 "Support.Error.ProductsNotLoaded" = "Не удалось загрузить товары.";
