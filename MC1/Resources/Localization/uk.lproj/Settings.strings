@@ -1331,7 +1331,7 @@
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
-"liveActivity.title" = "Live Activity";
+"liveActivity.title" = "Онлайн-активність";
 
 /* Title for the Live Activity tip shown after first connection */
 "liveActivity.tip.title" = "Стан радіо з першого погляду";

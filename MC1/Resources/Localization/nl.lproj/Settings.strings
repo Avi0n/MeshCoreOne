@@ -766,7 +766,7 @@
 "notifications.discoveryRepeater" = "Repeater";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Room";
+"notifications.discoveryRoom" = "Kamer";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Waarschuwingen lage batterij";

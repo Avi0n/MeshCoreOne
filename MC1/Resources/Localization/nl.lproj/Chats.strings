@@ -907,7 +907,7 @@
 "chats.message.path.flood" = "Flood";
 
 /* Message path hop count */
-"chats.message.path.hops" = "%d hops";
+"chats.message.path.hops" = "%d sprongen";
 
 /* Fallback when path nodes unavailable */
 "chats.message.path.unavailable" = "Niet beschikbaar";

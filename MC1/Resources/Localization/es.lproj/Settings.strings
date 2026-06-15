@@ -760,7 +760,7 @@
 "notifications.newContactDiscovered" = "Nuevo contacto descubierto";
 
 /* Toggle label for companion discovery notifications */
-"notifications.discoveryContact" = "Companion";
+"notifications.discoveryContact" = "Acompañante";
 
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "Repetidor";

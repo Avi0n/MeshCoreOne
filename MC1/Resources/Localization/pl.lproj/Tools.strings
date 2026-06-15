@@ -113,7 +113,7 @@
 "tools.rxLog.pathLabel" = "Ścieżka:";
 
 /* Location: RxLogView.swift - Hash label */
-"tools.rxLog.hashLabel" = "Hash:";
+"tools.rxLog.hashLabel" = "Skrót:";
 
 /* Location: RxLogView.swift - From label */
 "tools.rxLog.fromLabel" = "Od:";

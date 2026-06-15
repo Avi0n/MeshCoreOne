@@ -423,7 +423,7 @@
 "remoteNodes.status.battery" = "Batterij";
 
 /* Location: RepeaterStatusView.swift - Uptime label */
-"remoteNodes.status.uptime" = "Uptime";
+"remoteNodes.status.uptime" = "Bedrijfstijd";
 
 /* Location: SharedNodeViews.swift - Airtime label */
 "remoteNodes.status.airtime" = "Zendtijd";
@@ -867,7 +867,7 @@
 "remoteNodes.status.sensor.energy" = "Energie";
 "remoteNodes.status.sensor.direction" = "Richting";
 "remoteNodes.status.sensor.unixTime" = "Tijd";
-"remoteNodes.status.sensor.gyrometer" = "Gyrometer";
+"remoteNodes.status.sensor.gyrometer" = "Gyroscoop";
 "remoteNodes.status.sensor.colour" = "Kleur";
 "remoteNodes.status.sensor.gps" = "GPS";
 "remoteNodes.status.sensor.switchValue" = "Schakelaar";

@@ -824,8 +824,7 @@
 "remoteNodes.nodeCli.helpClear" = "  clear\n    清除终端";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'clear stats' command */
-/* TODO: translate */
-"remoteNodes.nodeCli.helpClearStats" = "  clear stats\n    Reset node statistics";
+"remoteNodes.nodeCli.helpClearStats" = "  clear stats\n    重置节点统计信息";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'reboot' command */
 "remoteNodes.nodeCli.helpReboot" = "  reboot\n    重启此节点";
