@@ -398,14 +398,21 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
         decodePathLen(outPathLength)?.byteLength ?? 0
     }
 
-    /// Each hop's hash as a hex string, e.g. `["A3", "7F", "42"]`.
-    public var pathNodesHex: [String] {
+    /// Each hop as its raw hash bytes plus uppercase hex, e.g. `[(0xA3, "A3"), (0x7F, "7F")]`.
+    /// The raw bytes are needed to match a hop against a repeater's public-key prefix.
+    public var pathHops: [(data: Data, hex: String)] {
         let size = pathHashSize
         let relevantPath = outPath.prefix(pathByteLength)
-        return stride(from: 0, to: relevantPath.count, by: size).compactMap { start in
+        return stride(from: 0, to: relevantPath.count, by: size).map { start in
             let end = min(start + size, relevantPath.count)
-            return relevantPath[start..<end].uppercaseHexString()
+            let chunk = Data(relevantPath[start..<end])
+            return (chunk, chunk.uppercaseHexString())
         }
+    }
+
+    /// Each hop's hash as a hex string, e.g. `["A3", "7F", "42"]`.
+    public var pathNodesHex: [String] {
+        pathHops.map(\.hex)
     }
 
     /// Human-readable path string with arrow separators, e.g. `"A3 → 7F → 42"`.
