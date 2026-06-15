@@ -3995,6 +3995,8 @@ public enum L10n {
         public static let olive = L10n.tr("Settings", "Support.Theme.Olive", fallback: "Olive")
       }
       public enum Themes {
+        /// All themes unlocked!
+        public static let allUnlocked = L10n.tr("Settings", "Support.Themes.AllUnlocked", fallback: "All themes unlocked!")
         /// Owned
         public static let owned = L10n.tr("Settings", "Support.Themes.Owned", fallback: "Owned")
         /// Apply your new theme in Settings → Appearance.

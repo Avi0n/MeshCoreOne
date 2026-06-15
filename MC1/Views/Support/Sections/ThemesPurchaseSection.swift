@@ -25,16 +25,18 @@ struct ThemesPurchaseSection: View {
 
     var body: some View {
         Section {
-            LazyVGrid(columns: columns, spacing: ThemeCardMetrics.gridSpacing) {
-                ForEach(purchasableThemes) { theme in
-                    ThemePreviewCard(theme: theme, isOwned: isOwned(theme))
+            if ownsEveryTheme {
+                allUnlockedCard
+            } else {
+                LazyVGrid(columns: columns, spacing: ThemeCardMetrics.gridSpacing) {
+                    ForEach(purchasableThemes) { theme in
+                        ThemePreviewCard(theme: theme, isOwned: isOwned(theme))
+                    }
                 }
-            }
-            .listRowInsets(ThemeCardMetrics.gridRowInsets)
-            .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
+                .listRowInsets(ThemeCardMetrics.gridRowInsets)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
 
-            if !ownsEveryTheme {
                 ThemeBundleCard(
                     isPending: storeState.pendingPurchase?.productID == StoreCatalog.Theme.bundleAll,
                     displayPrice: storeState.service.product(for: StoreCatalog.Theme.bundleAll)?.displayPrice,
@@ -51,6 +53,21 @@ struct ThemesPurchaseSection: View {
                 Text(L10n.Settings.Support.Themes.purchasedFooter)
             }
         }
+    }
+
+    private var allUnlockedCard: some View {
+        VStack(spacing: ThemeCardMetrics.allUnlockedSpacing) {
+            Text(verbatim: "🎉")
+                .font(.system(size: ThemeCardMetrics.allUnlockedEmojiSize))
+            Text(L10n.Settings.Support.Themes.allUnlocked)
+                .font(.headline)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, ThemeCardMetrics.allUnlockedVerticalPadding)
+        .listRowInsets(ThemeCardMetrics.gridRowInsets)
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+        .accessibilityElement(children: .combine)
     }
 
     private func isOwned(_ theme: Theme) -> Bool {

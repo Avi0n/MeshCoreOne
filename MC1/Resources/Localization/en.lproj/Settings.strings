@@ -1738,6 +1738,7 @@
 "Support.Themes.Title" = "Themes";
 "Support.Themes.Owned" = "Owned";
 "Support.Themes.PurchasedFooter" = "Apply your new theme in Settings → Appearance.";
+"Support.Themes.AllUnlocked" = "All themes unlocked!";
 "Support.Bundle.Title" = "All Themes";
 "Support.Bundle.Subtitle" = "Including any themes added later.";
 "Support.Contributions.Title" = "Tips";
