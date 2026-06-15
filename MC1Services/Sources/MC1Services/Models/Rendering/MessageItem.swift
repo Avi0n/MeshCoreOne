@@ -23,10 +23,6 @@ public struct MessageItem: Identifiable, Sendable, Hashable {
     public let footer: MessageFooter
     public let grouping: GroupingFlags
     public let shouldRequestPreviewFetch: Bool
-    /// The lone http/https URL when the whole message is exactly that link, else
-    /// nil. Precomputed so the bubble's link-only gesture handling reads it from
-    /// the item rather than re-detecting it from `message.text` on every render.
-    public let soleURL: URL?
 
     public init(
         id: UUID,
@@ -34,8 +30,7 @@ public struct MessageItem: Identifiable, Sendable, Hashable {
         content: [MessageFragment],
         footer: MessageFooter,
         grouping: GroupingFlags,
-        shouldRequestPreviewFetch: Bool,
-        soleURL: URL? = nil
+        shouldRequestPreviewFetch: Bool
     ) {
         self.id = id
         self.envelope = envelope
@@ -43,7 +38,6 @@ public struct MessageItem: Identifiable, Sendable, Hashable {
         self.footer = footer
         self.grouping = grouping
         self.shouldRequestPreviewFetch = shouldRequestPreviewFetch
-        self.soleURL = soleURL
     }
 
     /// Returns a new item with the supplied envelope and/or footer overridden.
@@ -58,8 +52,7 @@ public struct MessageItem: Identifiable, Sendable, Hashable {
             content: content,
             footer: footer ?? self.footer,
             grouping: grouping,
-            shouldRequestPreviewFetch: shouldRequestPreviewFetch,
-            soleURL: soleURL
+            shouldRequestPreviewFetch: shouldRequestPreviewFetch
         )
     }
 }

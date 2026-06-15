@@ -228,6 +228,7 @@ private struct MessagesView: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         Group {
@@ -243,6 +244,7 @@ private struct MessagesView: View {
                     cellContent: { message in
                         messageBubble(for: message, showTimestamp: timestampVisibleIDs.contains(message.id))
                             .environment(\.appTheme, theme)
+                            .environment(\.openURL, openURL)
                     },
                     contentBackground: theme.surfaces?.canvas,
                     themeID: theme.id,

@@ -122,56 +122,6 @@ struct MessageTextTests {
         #expect(decoded == "Alice Smith")
     }
 
-    // MARK: - Sole URL Detection
-
-    @Test("A message that is exactly one http/https URL is reported as URL-only")
-    func soleURLDetectsBareURL() {
-        #expect(MessageText.soleURL(in: "https://example.com")?.absoluteString == "https://example.com")
-        #expect(MessageText.soleURL(in: "http://example.com/path?q=1")?.absoluteString == "http://example.com/path?q=1")
-    }
-
-    @Test("Surrounding whitespace and newlines do not disqualify a URL-only message")
-    func soleURLTrimsWhitespace() {
-        #expect(MessageText.soleURL(in: "  https://example.com\n")?.absoluteString == "https://example.com")
-    }
-
-    @Test("A URL with surrounding text is not URL-only")
-    func soleURLRejectsURLWithText() {
-        #expect(MessageText.soleURL(in: "Check https://example.com now") == nil)
-        #expect(MessageText.soleURL(in: "https://example.com here") == nil)
-    }
-
-    @Test("Plain text, multiple URLs, and non-http schemes are not URL-only")
-    func soleURLRejectsNonURLOnly() {
-        #expect(MessageText.soleURL(in: "just some text") == nil)
-        #expect(MessageText.soleURL(in: "") == nil)
-        #expect(MessageText.soleURL(in: "https://a.com https://b.com") == nil)
-        #expect(MessageText.soleURL(in: "meshcore://contact/abc") == nil)
-        #expect(MessageText.soleURL(in: "mailto:user@example.com") == nil)
-    }
-
-    @Test("A URL-only message renders without a live link so the bubble long-press wins the touch")
-    func urlOnlyMessageStripsRenderedLink() {
-        let messageText = MessageText("https://example.com")
-        // The formatting pass still detects the link; the render strips it so the
-        // bubble's UIKit gestures, not SwiftUI's link gesture, own the touch.
-        #expect(link(for: "https://example.com", in: messageText.testableFormattedText)?.scheme == "https")
-        #expect(link(for: "https://example.com", in: messageText.testableDisplayText) == nil)
-    }
-
-    @Test("A link-with-text message keeps its live link in the rendered text")
-    func mixedMessageKeepsRenderedLink() {
-        let displayed = MessageText("Check https://example.com now").testableDisplayText
-        #expect(link(for: "https://example.com", in: displayed)?.scheme == "https")
-    }
-
-    @Test("A schemeless bare domain is URL-only and renders without a live link")
-    func schemelessBareDomainIsURLOnly() {
-        #expect(MessageText.soleURL(in: "x.com") != nil)
-        let displayed = MessageText("x.com").testableDisplayText
-        #expect(link(for: "x.com", in: displayed) == nil)
-    }
-
     // MARK: - Coordinate Detection
 
     /// Reads the `.link` attribute on the first occurrence of `substring`.

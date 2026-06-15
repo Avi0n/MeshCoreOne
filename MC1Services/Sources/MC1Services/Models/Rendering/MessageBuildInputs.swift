@@ -29,10 +29,6 @@ public struct MessageBuildInputs: Sendable, Hashable {
     /// `UIHostingConfiguration` cell only re-evaluates when its item changes.
     public let isMapPreviewReady: Bool
     public let formattedText: AttributedString?
-    /// The lone http/https URL when the whole message is exactly that link, else
-    /// nil. Detected once at build time so the bubble's link-only gesture handling
-    /// never re-runs `NSDataDetector` on the render path.
-    public let soleURL: URL?
     public let baseColor: BaseColorSlot
     public let formattedPath: String?
     public let senderResolution: NodeNameResolution
@@ -57,7 +53,6 @@ public struct MessageBuildInputs: Sendable, Hashable {
         mapPreviewLongitude: Double? = nil,
         isMapPreviewReady: Bool = false,
         formattedText: AttributedString?,
-        soleURL: URL? = nil,
         baseColor: BaseColorSlot,
         formattedPath: String?,
         senderResolution: NodeNameResolution,
@@ -80,7 +75,6 @@ public struct MessageBuildInputs: Sendable, Hashable {
         self.mapPreviewLongitude = mapPreviewLongitude
         self.isMapPreviewReady = isMapPreviewReady
         self.formattedText = formattedText
-        self.soleURL = soleURL
         self.baseColor = baseColor
         self.formattedPath = formattedPath
         self.senderResolution = senderResolution

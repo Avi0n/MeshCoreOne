@@ -30,6 +30,7 @@ struct ChatMessagesTableView: View {
     @Environment(\.appTheme) private var theme
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.openURL) private var openURL
 
     private var showDividerFAB: Bool {
         newMessagesDividerMessageID != nil && !isDividerVisible && !hasDismissedDividerFAB
@@ -42,6 +43,7 @@ struct ChatMessagesTableView: View {
             deviceName: deviceName,
             configuration: configuration,
             theme: theme,
+            openURL: openURL,
             resolver: BubbleResolver(viewModel: viewModel),
             actions: BubbleActions(
                 onRetryMessage: onRetryMessage,

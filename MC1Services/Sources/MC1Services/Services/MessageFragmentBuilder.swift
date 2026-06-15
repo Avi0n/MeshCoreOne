@@ -25,8 +25,7 @@ public enum MessageFragmentBuilder {
             shouldRequestPreviewFetch: shouldRequestPreviewFetch(
                 inputs: inputs,
                 message: message
-            ),
-            soleURL: inputs.soleURL
+            )
         )
     }
 
