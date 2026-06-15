@@ -161,6 +161,8 @@ final class ContactsViewModel {
 
             // Clear sync progress
             syncProgress = nil
+        } catch is CancellationError {
+            // Pull-to-refresh interrupted (tab switch, view teardown); not a failure to report.
         } catch {
             errorMessage = error.userFacingMessage
         }

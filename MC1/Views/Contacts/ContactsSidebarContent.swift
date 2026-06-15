@@ -127,7 +127,11 @@ struct ContactsSidebarContent: View {
             if appState.connectionState != .ready {
                 showOfflineRefreshAlert = true
             } else {
-                await onSyncContacts()
+                // SwiftUI cancels a ScrollView's `.refreshable` task when observed state mutates
+                // mid-refresh (syncContacts sets `isSyncing`, re-evaluating this view), aborting the
+                // sync within a frame. Running it in a detached task shields it from that cancellation;
+                // awaiting the value keeps the refresh spinner up until the sync finishes.
+                await Task { await onSyncContacts() }.value
             }
         }
         .alert(L10n.Contacts.Contacts.List.cannotRefresh, isPresented: $showOfflineRefreshAlert) {
