@@ -32,6 +32,10 @@ extension MessageService {
         pendingAcks[tracking.messageID] = tracking
     }
 
+    func pendingAckForTest(_ messageID: UUID) -> PendingAck? {
+        pendingAcks[messageID]
+    }
+
     /// Ends the status-event stream and returns everything `stream` buffered.
     /// Subscribe via `statusEvents()` before triggering the behavior under
     /// test: registration is synchronous and production yields happen before

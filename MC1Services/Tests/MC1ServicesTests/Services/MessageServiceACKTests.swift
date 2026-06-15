@@ -775,4 +775,214 @@ struct MessageServiceACKTests {
         let stored = try await dataStore.fetchMessage(id: messageID)
         #expect(stored?.status == .delivered)
     }
+
+    // MARK: - finalizeSend nil-branch (no premature failure)
+
+    @Test("finalizeSend delivered branch writes .delivered, updates contact, yields .statusResolved, removes entry")
+    func finalizeSendDeliveredBranchUnchanged() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        let contactID = UUID()
+        let radioID = testDeviceID
+        let ackCode = Data([0x10, 0x20, 0x30, 0x40])
+
+        try await dataStore.saveContact(ContactDTO.testContact(id: contactID, radioID: radioID, lastMessageDate: nil))
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(id: messageID, radioID: radioID, contactID: contactID, status: .sent)
+        )
+        await service.setPendingAckForTest(
+            makePending(messageID: messageID, contactID: contactID, ackCodes: [ackCode])
+        )
+
+        let statusEvents = service.statusEvents()
+        _ = try await service.finalizeSend(
+            messageID: messageID,
+            contactID: contactID,
+            radioID: radioID,
+            publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
+            sentInfo: MessageSentInfo(route: 0, expectedAck: ackCode, suggestedTimeoutMs: 5000),
+            initialPathLength: 0
+        )
+
+        #expect(try await dataStore.fetchMessage(id: messageID)?.status == .delivered)
+        #expect(try await dataStore.fetchContact(id: contactID)?.lastMessageDate != nil)
+        #expect(await service.pendingAckCount == 0, "delivered branch must take ownership and remove the entry")
+        #expect(await service.drainStatusEvents(statusEvents).resolvedIDs == [messageID])
+    }
+
+    @Test("finalizeSend nil branch skips the DB write when the listener already delivered")
+    func finalizeSendSkipsWhenListenerAlreadyDelivered() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        let ackCode = Data([0x55, 0x66, 0x77, 0x88])
+
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(id: messageID, radioID: testDeviceID, status: .delivered, ackCode: ackCode.ackCodeUInt32)
+        )
+        await service.setPendingAckForTest(
+            makePending(messageID: messageID, ackCodes: [ackCode], isDelivered: true)
+        )
+
+        let statusEvents = service.statusEvents()
+        _ = try await service.finalizeSend(
+            messageID: messageID,
+            contactID: UUID(),
+            radioID: testDeviceID,
+            publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
+            sentInfo: nil,
+            initialPathLength: 0
+        )
+
+        #expect(try await dataStore.fetchMessage(id: messageID)?.status == .delivered,
+                "an already-delivered row must not be downgraded by the nil branch")
+        let events = await service.drainStatusEvents(statusEvents)
+        #expect(events.failedIDs.isEmpty)
+        #expect(events.resolvedIDs.isEmpty, "no status event when the listener already owns delivery")
+    }
+
+    @Test("finalizeSend nil branch does not re-stamp the pending entry's sentAt")
+    func nilBranchDoesNotReStampSentAt() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        let originalSentAt = Date().addingTimeInterval(-12)
+
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(id: messageID, radioID: testDeviceID, status: .sent)
+        )
+        await service.setPendingAckForTest(
+            makePending(messageID: messageID, ackCodes: [Data([0x01, 0x02, 0x03, 0x04])], sentAt: originalSentAt, timeout: 30)
+        )
+
+        _ = try await service.finalizeSend(
+            messageID: messageID,
+            contactID: UUID(),
+            radioID: testDeviceID,
+            publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
+            sentInfo: nil,
+            initialPathLength: 0
+        )
+
+        let entry = await service.pendingAckForTest(messageID)
+        #expect(entry != nil, "nil branch must leave the entry for checkExpiredAcks to own the give-up")
+        #expect(entry?.sentAt == originalSentAt,
+                "re-stamping at give-up would restart the ackGiveUpWindow a second time")
+    }
+
+    @Test("finalizeSend nil branch over an already-.failed row leaves it .failed")
+    func finalizeSendNilBranchOverAlreadyFailedStaysFailed() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(id: messageID, radioID: testDeviceID, status: .failed)
+        )
+        // The live interleave: the checker wrote .failed but the entry is still present.
+        await service.setPendingAckForTest(
+            makePending(messageID: messageID, ackCodes: [Data([0xAA, 0xBB, 0xCC, 0xDD])], isDelivered: false)
+        )
+
+        let statusEvents = service.statusEvents()
+        _ = try await service.finalizeSend(
+            messageID: messageID,
+            contactID: UUID(),
+            radioID: testDeviceID,
+            publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
+            sentInfo: nil,
+            initialPathLength: 0
+        )
+
+        #expect(try await dataStore.fetchMessage(id: messageID)?.status == .failed,
+                "clearRetryingToSent must no-op on a checker-failed row (failed -> sent is FORBIDDEN)")
+        let events = await service.drainStatusEvents(statusEvents)
+        #expect(events.resolvedIDs.isEmpty, "no .sent yield when clearRetryingToSent returns false")
+        #expect(events.failedIDs.isEmpty)
+    }
+
+    @Test("finalizeSend nil branch yields .statusResolved(.sent) from a non-terminal row and gates off on a terminal one")
+    func nilBranchYieldsStatusResolvedSent() async throws {
+        // Part A: a .retrying row moves to .sent and yields exactly one event.
+        let (serviceA, storeA) = try await MessageService.createForTesting()
+        let idA = UUID()
+        try await storeA.saveMessage(
+            MessageDTO.testDirectMessage(id: idA, radioID: testDeviceID, status: .retrying)
+        )
+        await serviceA.setPendingAckForTest(
+            makePending(messageID: idA, ackCodes: [Data([0x01, 0x02, 0x03, 0x04])])
+        )
+        let eventsA = serviceA.statusEvents()
+        _ = try await serviceA.finalizeSend(
+            messageID: idA,
+            contactID: UUID(),
+            radioID: testDeviceID,
+            publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
+            sentInfo: nil,
+            initialPathLength: 0
+        )
+        #expect(try await storeA.fetchMessage(id: idA)?.status == .sent)
+        let resolvedA = await serviceA.drainStatusEvents(eventsA).resolvedIDs
+        #expect(resolvedA == [idA], "exactly one .statusResolved(.sent) must fire so the bubble leaves 'Retrying'")
+
+        // Part B: an already-.failed row yields nothing and stays .failed.
+        let (serviceB, storeB) = try await MessageService.createForTesting()
+        let idB = UUID()
+        try await storeB.saveMessage(
+            MessageDTO.testDirectMessage(id: idB, radioID: testDeviceID, status: .failed)
+        )
+        await serviceB.setPendingAckForTest(
+            makePending(messageID: idB, ackCodes: [Data([0x05, 0x06, 0x07, 0x08])])
+        )
+        let eventsB = serviceB.statusEvents()
+        _ = try await serviceB.finalizeSend(
+            messageID: idB,
+            contactID: UUID(),
+            radioID: testDeviceID,
+            publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
+            sentInfo: nil,
+            initialPathLength: 0
+        )
+        #expect(try await storeB.fetchMessage(id: idB)?.status == .failed)
+        #expect(await serviceB.drainStatusEvents(eventsB).resolvedIDs.isEmpty)
+    }
+
+    @Test("late ACK landing in the checker's await-gap cannot flip a just-failed row to .delivered")
+    func lateAckDuringCheckerGapStaysFailed() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+        let contactID = UUID()
+        let ackCode = Data([0x9A, 0xBC, 0xDE, 0xF0])
+
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(id: messageID, radioID: testDeviceID, contactID: contactID, status: .sent)
+        )
+        await service.setPendingAckForTest(
+            makePending(messageID: messageID, contactID: contactID, ackCodes: [ackCode])
+        )
+
+        // Simulate the checker's `.failed` write while leaving the entry in
+        // place (the checker is suspended at its cross-actor await before the
+        // removeValue).
+        _ = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
+
+        // A late 0x82 ACK reaches the listener while the entry is still present.
+        await service.handleAcknowledgement(code: ackCode, tripTime: 200)
+
+        #expect(try await dataStore.fetchMessage(id: messageID)?.status == .failed,
+                "the updateMessageAck terminal guard must refuse .delivered over .failed")
+    }
+
+    @Test("late ACK after the row is already .failed with no live entry stays .failed")
+    func lateAckAfterFailedStaysFailed() async throws {
+        let (service, dataStore) = try await MessageService.createForTesting()
+        let messageID = UUID()
+
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(id: messageID, radioID: testDeviceID, status: .failed, ackCode: 0xABCDEF01)
+        )
+
+        await service.handleAcknowledgement(code: Data([0x01, 0xEF, 0xCD, 0xAB]), tripTime: 300)
+
+        #expect(try await dataStore.fetchMessage(id: messageID)?.status == .failed,
+                "an unmatched late ACK must not resurrect a failed-and-removed row")
+        #expect(await service.pendingAckCount == 0)
+    }
 }

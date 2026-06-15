@@ -665,28 +665,38 @@ extension MessageService {
         sentInfo: MessageSentInfo?,
         initialPathLength: UInt8
     ) async throws -> MessageDTO {
-        // Atomically take ownership of the pendingAcks entry. A missing entry
+        // Peek the pendingAcks entry without taking ownership. A missing entry
         // means `handleAcknowledgement` already processed the ACK (it removes
-        // the entry on delivery); an `isDelivered == true` entry means the
-        // listener marked it mid-flight. In both cases the listener owns the
-        // `.delivered` write (including `roundTripTime`) and we skip the DB
-        // update here to avoid clobbering it with a nil RTT.
-        let tracking = pendingAcks.removeValue(forKey: messageID)
+        // the entry on delivery) or `checkExpiredAcks` already failed and
+        // removed it; an `isDelivered == true` entry means the listener marked
+        // it mid-flight. In those cases the owner holds the terminal write
+        // (including `roundTripTime`) and we drop any residual entry and skip
+        // the DB update here.
+        let tracking = pendingAcks[messageID]
 
-        if tracking?.isDelivered == false {
-            if let sentInfo {
-                try await dataStore.updateMessageAck(
-                    id: messageID,
-                    ackCode: sentInfo.expectedAck.ackCodeUInt32,
-                    status: .delivered
-                )
-                try await dataStore.updateContactLastMessage(contactID: contactID, date: Date())
-                statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .delivered, roundTripTime: nil))
-            } else {
-                let didFail = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
-                if didFail {
-                    statusEventBroadcaster.yield(.failed(messageID: messageID))
-                }
+        if tracking == nil || tracking?.isDelivered == true {
+            pendingAcks.removeValue(forKey: messageID)
+        } else if let sentInfo {
+            // The retry loop's waitForEvent matched the ACK. Take ownership and
+            // record the legitimate `.sent` -> `.delivered` upgrade.
+            pendingAcks.removeValue(forKey: messageID)
+            try await dataStore.updateMessageAck(
+                id: messageID,
+                ackCode: sentInfo.expectedAck.ackCodeUInt32,
+                status: .delivered
+            )
+            try await dataStore.updateContactLastMessage(contactID: contactID, date: Date())
+            statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .delivered, roundTripTime: nil))
+        } else {
+            // Retry budget spent without an ACK. Neither fail the row nor remove
+            // the entry: `checkExpiredAcks` owns the single `ackGiveUpWindow`
+            // give-up so a late-but-legitimate ACK can still upgrade the row.
+            // `clearRetryingToSent` rolls any `.retrying` status back to `.sent`
+            // and is terminal-safe: it no-ops if the checker already failed the
+            // row in the loop's await-gap, so the row stays `.failed` there.
+            let movedToSent = try await dataStore.clearRetryingToSent(id: messageID)
+            if movedToSent {
+                statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .sent, roundTripTime: nil))
             }
         }
         await checkAndNotifyRoutingChange(

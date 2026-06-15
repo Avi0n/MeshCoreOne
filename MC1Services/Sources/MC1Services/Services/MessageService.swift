@@ -155,9 +155,12 @@ public actor MessageService {
             // Diagnostic: the firmware delivered an end-to-end ACK we have no
             // live entry for. This is either a genuinely late ACK that arrived
             // after the message was already failed and removed, or a duplicate
-            // for an already-delivered message. Counting these quantifies how
-            // many delivery confirmations are being lost to premature give-up.
-            logger.warning("[ack-diag] unmatched ACK code=\(code.uppercaseHexString()) livePending=\(pendingAcks.count) (late post-teardown or duplicate)")
+            // for an already-delivered message. `orphanSentRow` flags a `.sent`
+            // DM that lost its pending entry to a teardown and would otherwise
+            // show "Sent" forever; its field rate informs whether a
+            // reconnect-time orphan sweep is worth adding.
+            let orphanSentRow = (try? await dataStore.hasOutgoingSentDM(ackCode: code.ackCodeUInt32)) ?? false
+            logger.warning("[ack-diag] unmatched ACK code=\(code.uppercaseHexString()) livePending=\(pendingAcks.count) orphanSentRow=\(orphanSentRow) (late post-teardown or duplicate)")
             return
         }
 
