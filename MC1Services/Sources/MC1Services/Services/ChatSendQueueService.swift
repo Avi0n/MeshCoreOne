@@ -60,7 +60,7 @@ struct ChatSendQueueConfig: Sendable {
 /// Transport-open signal: the drain step suspends via
 /// `withCooperativeTimeout` on the `BLETransportOpenedSignal` actor.
 /// The connection-state observation started by `observeConnectionState`
-/// fires the signal on each disconnected-to-connected edge. Rows are
+/// fires the signal each time the connection enters `.ready`. Rows are
 /// never deleted while waiting. `triggers.clear` is called only after a
 /// successful send (not before each attempt) so that a fire signal
 /// landing during a successful send doesn't get wiped before the next
@@ -361,9 +361,8 @@ public final class ChatSendQueueService {
                             // exhaustion is ~37s (3.5s withPoolBackoff in-loop +
                             // 3.5s fetchChannel disambiguation + 30s
                             // transportWaitTimeout park). Transport-open only fires
-                            // on the disconnected→connected edge, so under a
-                            // healthy connection the 30s park is what bounds the
-                            // retry rate.
+                            // on entering `.ready`, so under a healthy connection
+                            // the 30s park is what bounds the retry rate.
                         }
                         loggerRef.info("channel drain transient messageID=\(envelope.messageID) error=\(String(describing: error))")
                         _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
@@ -420,26 +419,30 @@ public final class ChatSendQueueService {
     }
 
     /// Starts observing the connection-state stream and fires the
-    /// transport-open trigger exactly once per disconnected-to-connected
-    /// crossing. The initial value covers containers built after the link
-    /// already opened: connect paths reach `.connected` before the container
-    /// exists, so an already-connected `initial` fires immediately, waking
-    /// drains parked in `withCooperativeTimeout` instead of leaving them to
-    /// wait out `transportWaitTimeout`. Calling again replaces the previous
-    /// observation.
+    /// transport-open trigger exactly once each time the connection enters
+    /// `.ready`. Gating on `.ready` (not the first `isConnected` edge) keeps
+    /// hydrated sends parked through the initial-sync window, so they do not
+    /// contend with sync's reads on the radio's link. In production the container
+    /// is built while still `.connected`, so the `.ready` wake arrives on the
+    /// event stream; the initial-value check only fires when the observation is
+    /// (re)started against an already-`.ready` connection, waking drains parked in
+    /// `withCooperativeTimeout` instead of leaving them to wait out
+    /// `transportWaitTimeout`. Firing on "entered `.ready`" covers both the success
+    /// edge (`.connected → .ready`) and the failure-recovery edge
+    /// (`.syncing → .ready`). Calling again replaces the previous observation.
     func observeConnectionState(
         initial: DeviceConnectionState,
         events: AsyncStream<DeviceConnectionState>
     ) {
         connectionStateTask?.cancel()
-        if initial.isConnected {
+        if initial.canDrainSendQueue {
             transportDidOpen()
         }
         connectionStateTask = Task { [weak self] in
             var previous = initial
             for await state in events {
                 guard let self else { return }
-                if !previous.isConnected && state.isConnected {
+                if !previous.canDrainSendQueue && state.canDrainSendQueue {
                     self.transportDidOpen()
                 }
                 previous = state
@@ -448,7 +451,7 @@ public final class ChatSendQueueService {
     }
 
     /// Fired by the connection-state observation started by
-    /// `observeConnectionState` on each disconnected-to-connected edge.
+    /// `observeConnectionState` each time the connection enters `.ready`.
     /// Fires the trigger that wakes any drain attempt suspended in
     /// `withCooperativeTimeout`.
     ///

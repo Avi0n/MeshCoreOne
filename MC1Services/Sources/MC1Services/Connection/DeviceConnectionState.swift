@@ -25,4 +25,11 @@ public enum DeviceConnectionState: Sendable {
         case .disconnected, .connecting: false
         }
     }
+
+    /// True only once initial sync has cleared, so the chat send queue may drain without
+    /// contending with sync's contact/channel/message reads on the radio's link. `.connected`
+    /// (link up, sync not yet run) deliberately excludes the queue from the vulnerable window.
+    public var canDrainSendQueue: Bool {
+        self == .ready
+    }
 }

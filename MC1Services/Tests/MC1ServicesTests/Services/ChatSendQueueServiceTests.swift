@@ -870,13 +870,13 @@ struct ChatSendQueueServiceTests {
         #expect(ids.first == harness.messageID, ".failed must carry the failed envelope's messageID")
     }
 
-    /// A container built after the transport already opened receives the
-    /// edge through `observeConnectionState`'s initial value: an
-    /// already-connected initial state must fire the trigger so a drain
-    /// parked in `withCooperativeTimeout` wakes (observable as a second
-    /// attemptCount bump) instead of waiting out `transportWaitTimeout`.
-    @Test("observeConnectionState fires the trigger for an already-connected initial state")
-    func observeConnectionState_ConnectedInitial_WakesParkedDrain() async throws {
+    /// A container built after the connection already reached `.ready` receives
+    /// the edge through `observeConnectionState`'s initial value: an already-ready
+    /// initial state must fire the trigger so a drain parked in
+    /// `withCooperativeTimeout` wakes (observable as a second attemptCount bump)
+    /// instead of waiting out `transportWaitTimeout`.
+    @Test("observeConnectionState fires the trigger for an already-ready initial state")
+    func observeConnectionState_ReadyInitial_WakesParkedDrain() async throws {
         let messageConfig = MessageServiceConfig(
             poolBackoff: PoolBackoffConfig(attemptCap: 2, baseDelay: 0.01)
         )
@@ -889,7 +889,7 @@ struct ChatSendQueueServiceTests {
         await harness.drainOnceAllowingPark()
 
         harness.queue.observeConnectionState(
-            initial: .connected,
+            initial: .ready,
             events: AsyncStream { $0.finish() }
         )
 
@@ -900,12 +900,50 @@ struct ChatSendQueueServiceTests {
         }
     }
 
+    /// `.connected` (link up, initial sync not yet cleared) must NOT wake a
+    /// parked drain: hydrated sends stay parked through the sync window so they
+    /// do not contend with sync's reads. The drain only wakes once `.ready`
+    /// arrives on the stream.
+    @Test("observeConnectionState keeps a drain parked through .connected and wakes it on .ready")
+    func observeConnectionState_ConnectedDoesNotWake_ReadyDoes() async throws {
+        let messageConfig = MessageServiceConfig(
+            poolBackoff: PoolBackoffConfig(attemptCap: 2, baseDelay: 0.01)
+        )
+        let harness = try await Self.setUpDMHarness(messageConfig: messageConfig)
+        defer { Task { await harness.tearDown() } }
+
+        await harness.setSendDirectMessageFailureMode(
+            .deviceError(FirmwareDeviceErrorCode.directMessageTableFull)
+        )
+
+        let (stream, continuation) = AsyncStream.makeStream(of: DeviceConnectionState.self)
+        harness.queue.observeConnectionState(initial: .connected, events: stream)
+
+        await harness.drainOnceAllowingPark()
+
+        // `.connected` alone must not arm the trigger: the parked drain stays at one attempt.
+        continuation.yield(.connected)
+        try await Task.sleep(for: .seconds(1))
+        let parkedRow = try await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
+            .first(where: { $0.messageID == harness.messageID })
+        #expect(parkedRow?.attemptCount == 1, ".connected must not wake the drain during the sync window")
+
+        // Entering `.ready` fires the trigger and the drain wakes for its second attempt.
+        continuation.yield(.ready)
+        continuation.finish()
+        try await Self.waitForCondition(timeout: .seconds(10)) {
+            let row = try await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
+                .first(where: { $0.messageID == harness.messageID })
+            return (row?.attemptCount ?? 0) >= 2
+        }
+    }
+
     /// Edge-trigger contract across the connected ramp: a stream driving
-    /// disconnected, connected, syncing, ready crosses the
-    /// disconnected-to-connected boundary once, so the trigger fires once.
-    /// The signal's armed-bit consumption makes a double fire observable:
-    /// re-arming on `.syncing` or `.ready` would wake the second park
-    /// without a new edge, surfacing as a third attemptCount bump.
+    /// disconnected, connected, syncing, ready crosses into `.ready` once, so
+    /// the trigger fires once on that entry. The signal's armed-bit consumption
+    /// makes a double fire observable: re-arming on a non-`.ready` rung would
+    /// wake the second park without a new edge, surfacing as a third
+    /// attemptCount bump.
     @Test("connection-state ramp fires the trigger exactly once")
     func observeConnectionState_ConnectedRamp_FiresExactlyOnce() async throws {
         let messageConfig = MessageServiceConfig(
