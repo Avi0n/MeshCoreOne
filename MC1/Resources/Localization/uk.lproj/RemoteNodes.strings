@@ -86,18 +86,15 @@
 "remoteNodes.settings.done" = "Готово";
 
 /* Location: NodeSettingsView.swift - Settings tab label */
-/* TODO: translate */
 "remoteNodes.settings.tab.settings" = "Параметри";
 
 /* Location: NodeSettingsView.swift - CLI tab label */
-/* TODO: translate */
 "remoteNodes.settings.tab.cli" = "CLI";
 
 /* Location: NodeSettingsView.swift - Telemetry tab label */
 "remoteNodes.settings.tab.telemetry" = "Телеметрія";
 
 /* Location: NodeSettingsView.swift - View mode picker label */
-/* TODO: translate */
 "remoteNodes.settings.tab.picker" = "Режим перегляду";
 
 /* Location: RepeaterSettingsView.swift - Success alert title */
@@ -803,43 +800,33 @@
 // MARK: - Node CLI
 
 /* Location: NodeCliView.swift - Banner shown when connected to a node - %@ is node name */
-/* TODO: translate */
 "remoteNodes.nodeCli.bannerConnected" = "Підключено до %@";
 
 /* Location: NodeCliView.swift - Hint shown below connected banner */
-/* TODO: translate */
 "remoteNodes.nodeCli.bannerHint" = "Введіть «help» для перегляду доступних команд.";
 
 /* Location: NodeCliViewModel.swift - Toast after reboot command succeeds */
-/* TODO: translate */
 "remoteNodes.nodeCli.rebootSent" = "Команду перезавантаження надіслано";
 
 /* Location: NodeCliViewModel.swift - Toast after command is cancelled */
-/* TODO: translate */
 "remoteNodes.nodeCli.cancelled" = "Команду скасовано";
 
 /* Location: NodeCliViewModel.swift - Header line in help output */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpHeader" = "Доступні команди:";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'help' command */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpHelp" = "  help\n    Показати цю довідку";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'clear' command */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpClear" = "  clear\n    Очистити термінал";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'clear stats' command */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpClearStats" = "  clear stats\n    Скинути статистику вузла";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'reboot' command */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpReboot" = "  reboot\n    Перезапустити цей вузол";
 
 /* Location: NodeCliViewModel.swift - Passthrough note at end of help output */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpPassthrough" = "Будь-яке інше введення надсилається на вузол.";
 
 // MARK: - Shared

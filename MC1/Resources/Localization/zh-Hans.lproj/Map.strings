@@ -180,5 +180,5 @@
 /* Location: MapPreviewFragmentView.swift - Purpose: Accessibility hint for tapping the chat map-location thumbnail */
 "map.preview.accessibilityHint" = "在地图上打开此位置";
 
-/* TODO: translate - Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback */
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback */
 "map.preview.retryButton.accessibilityLabel" = "重新加载地图缩略图";

@@ -86,18 +86,15 @@
 "remoteNodes.settings.done" = "Gotowe";
 
 /* Location: NodeSettingsView.swift - Settings tab label */
-/* TODO: translate */
 "remoteNodes.settings.tab.settings" = "Ustawienia";
 
 /* Location: NodeSettingsView.swift - CLI tab label */
-/* TODO: translate */
 "remoteNodes.settings.tab.cli" = "CLI";
 
 /* Location: NodeSettingsView.swift - Telemetry tab label */
 "remoteNodes.settings.tab.telemetry" = "Telemetria";
 
 /* Location: NodeSettingsView.swift - View mode picker label */
-/* TODO: translate */
 "remoteNodes.settings.tab.picker" = "Tryb widoku";
 
 /* Location: RepeaterSettingsView.swift - Success alert title */
@@ -803,43 +800,33 @@
 // MARK: - Node CLI
 
 /* Location: NodeCliView.swift - Banner shown when connected to a node - %@ is node name */
-/* TODO: translate */
 "remoteNodes.nodeCli.bannerConnected" = "Połączono z %@";
 
 /* Location: NodeCliView.swift - Hint shown below connected banner */
-/* TODO: translate */
 "remoteNodes.nodeCli.bannerHint" = "Wpisz 'help', aby zobaczyć dostępne polecenia.";
 
 /* Location: NodeCliViewModel.swift - Toast after reboot command succeeds */
-/* TODO: translate */
 "remoteNodes.nodeCli.rebootSent" = "Wysłano polecenie restartu";
 
 /* Location: NodeCliViewModel.swift - Toast after command is cancelled */
-/* TODO: translate */
 "remoteNodes.nodeCli.cancelled" = "Anulowano polecenie";
 
 /* Location: NodeCliViewModel.swift - Header line in help output */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpHeader" = "Dostępne polecenia:";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'help' command */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpHelp" = "  help\n    Pokaż tę pomoc";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'clear' command */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpClear" = "  clear\n    Wyczyść terminal";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'clear stats' command */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpClearStats" = "  clear stats\n    Resetuj statystyki węzła";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'reboot' command */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpReboot" = "  reboot\n    Uruchom ponownie ten węzeł";
 
 /* Location: NodeCliViewModel.swift - Passthrough note at end of help output */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpPassthrough" = "Każde inne wejście jest wysyłane do węzła.";
 
 // MARK: - Shared

@@ -250,7 +250,7 @@
 /* Location: ChannelInfoSheet.swift - Error when services unavailable */
 "chats.error.servicesUnavailable" = "服务不可用";
 
-/* TODO: translate - Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
+/* Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
 "chats.error.notConnectedToDelete" = "连接到您的无线电以删除此对话。";
 
 /* Location: ChatConversationView.swift - Error when loading older messages fails */
@@ -262,7 +262,7 @@
 /* Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error) */
 "chats.error.sendQueuePersistFailed" = "无法将消息加入队列。请重试。";
 
-/* TODO: translate - Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
+/* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
 "chats.error.loadConversationsFailed" = "无法加载对话。";
 
 // MARK: - Channel Options Sheet
@@ -890,7 +890,7 @@
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "路径地图";
 
-/* TODO: translate - Location: MessagePathMapView.swift - Center on path map control accessibility label */
+/* Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "在路径上居中";
 
 // MARK: - Path Hop Row View
@@ -1221,20 +1221,20 @@
 
 // MARK: - Mention Picker
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker navigation title shown with the tapped mention name */
+/* Location: ChatConversationView.swift - Mention picker navigation title shown with the tapped mention name */
 "chats.mention.picker.title" = "提及：%@";
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker title when the tapped name matches no saved contact */
+/* Location: ChatConversationView.swift - Mention picker title when the tapped name matches no saved contact */
 "chats.mention.picker.notSavedTitle" = "非已保存的联系人";
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker description when the tapped name matches no saved contact */
+/* Location: ChatConversationView.swift - Mention picker description when the tapped name matches no saved contact */
 "chats.mention.picker.notSavedSubtitle" = "@%@ 不匹配此无线电上的任何联系人。";
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker title when the tapped name is the user's own node */
+/* Location: ChatConversationView.swift - Mention picker title when the tapped name is the user's own node */
 "chats.mention.picker.selfTitle" = "这是您自己";
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker description when the tapped name is the user's own node */
+/* Location: ChatConversationView.swift - Mention picker description when the tapped name is the user's own node */
 "chats.mention.picker.selfSubtitle" = "@%@ 是您自己的节点名称。";
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
+/* Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
 "chats.mention.picker.matchingContacts" = "匹配的联系人";

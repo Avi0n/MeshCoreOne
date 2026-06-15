@@ -1166,7 +1166,7 @@
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "Mit Funk verbinden, um Knoten zu löschen";
 
-/* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
+/* Location: ContactsViewModel.swift - Delete radio command timed out error */
 "contacts.viewModel.removeTimedOut" = "Zeitüberschreitung beim Löschen des Knotens. Versuche es erneut.";
 
 // MARK: - Path Management ViewModel Errors

@@ -1166,7 +1166,7 @@
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "连接到无线电以删除节点";
 
-/* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
+/* Location: ContactsViewModel.swift - Delete radio command timed out error */
 "contacts.viewModel.removeTimedOut" = "删除节点超时。请重试。";
 
 // MARK: - Path Management ViewModel Errors

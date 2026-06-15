@@ -86,18 +86,15 @@
 "remoteNodes.settings.done" = "完成";
 
 /* Location: NodeSettingsView.swift - Settings tab label */
-/* TODO: translate */
 "remoteNodes.settings.tab.settings" = "设置";
 
 /* Location: NodeSettingsView.swift - CLI tab label */
-/* TODO: translate */
 "remoteNodes.settings.tab.cli" = "CLI";
 
 /* Location: NodeSettingsView.swift - Telemetry tab label */
 "remoteNodes.settings.tab.telemetry" = "遥测";
 
 /* Location: NodeSettingsView.swift - View mode picker label */
-/* TODO: translate */
 "remoteNodes.settings.tab.picker" = "查看模式";
 
 /* Location: RepeaterSettingsView.swift - Success alert title */
@@ -806,31 +803,24 @@
 // MARK: - Node CLI
 
 /* Location: NodeCliView.swift - Banner shown when connected to a node - %@ is node name */
-/* TODO: translate */
 "remoteNodes.nodeCli.bannerConnected" = "已连接到 %@";
 
 /* Location: NodeCliView.swift - Hint shown below connected banner */
-/* TODO: translate */
 "remoteNodes.nodeCli.bannerHint" = "输入“help”查看可用命令。";
 
 /* Location: NodeCliViewModel.swift - Toast after reboot command succeeds */
-/* TODO: translate */
 "remoteNodes.nodeCli.rebootSent" = "重启命令已发送";
 
 /* Location: NodeCliViewModel.swift - Toast after command is cancelled */
-/* TODO: translate */
 "remoteNodes.nodeCli.cancelled" = "命令已取消";
 
 /* Location: NodeCliViewModel.swift - Header line in help output */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpHeader" = "可用命令：";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'help' command */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpHelp" = "  help\n    显示此帮助";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'clear' command */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpClear" = "  clear\n    清除终端";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'clear stats' command */
@@ -838,11 +828,9 @@
 "remoteNodes.nodeCli.helpClearStats" = "  clear stats\n    Reset node statistics";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'reboot' command */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpReboot" = "  reboot\n    重启此节点";
 
 /* Location: NodeCliViewModel.swift - Passthrough note at end of help output */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpPassthrough" = "任何其他输入都将发送到节点。";
 
 // MARK: - Shared

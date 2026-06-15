@@ -1153,7 +1153,7 @@
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "Підключись до радіо для видалення вузлів";
 
-/* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
+/* Location: ContactsViewModel.swift - Delete radio command timed out error */
 "contacts.viewModel.removeTimedOut" = "Час очікування видалення вузла вичерпано. Спробуйте ще раз.";
 
 // MARK: - Path Management ViewModel Errors

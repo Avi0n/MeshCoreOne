@@ -250,7 +250,7 @@
 /* Location: ChannelInfoSheet.swift - Error when services unavailable */
 "chats.error.servicesUnavailable" = "Servicios no disponibles";
 
-/* TODO: translate - Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
+/* Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
 "chats.error.notConnectedToDelete" = "Conéctate a tu radio para eliminar esta conversación.";
 
 /* Location: ChatConversationView.swift - Error when loading older messages fails */
@@ -262,7 +262,7 @@
 /* Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error) */
 "chats.error.sendQueuePersistFailed" = "No se pudo poner tu mensaje en cola. Inténtalo de nuevo.";
 
-/* TODO: translate - Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
+/* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
 "chats.error.loadConversationsFailed" = "No se pudieron cargar las conversaciones.";
 
 // MARK: - Channel Options Sheet
@@ -795,7 +795,7 @@
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "Mapa de ruta";
 
-/* TODO: translate - Location: MessagePathMapView.swift - Center on path map control accessibility label */
+/* Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "Centrar en la ruta";
 
 // MARK: - Path Hop Row View
@@ -1220,20 +1220,20 @@
 
 // MARK: - Mention Picker
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker navigation title shown with the tapped mention name */
+/* Location: ChatConversationView.swift - Mention picker navigation title shown with the tapped mention name */
 "chats.mention.picker.title" = "Mencionar: %@";
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker title when the tapped name matches no saved contact */
+/* Location: ChatConversationView.swift - Mention picker title when the tapped name matches no saved contact */
 "chats.mention.picker.notSavedTitle" = "No es un contacto guardado";
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker description when the tapped name matches no saved contact */
+/* Location: ChatConversationView.swift - Mention picker description when the tapped name matches no saved contact */
 "chats.mention.picker.notSavedSubtitle" = "@%@ no coincide con ningún contacto en esta radio.";
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker title when the tapped name is the user's own node */
+/* Location: ChatConversationView.swift - Mention picker title when the tapped name is the user's own node */
 "chats.mention.picker.selfTitle" = "Eres tú";
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker description when the tapped name is the user's own node */
+/* Location: ChatConversationView.swift - Mention picker description when the tapped name is the user's own node */
 "chats.mention.picker.selfSubtitle" = "@%@ es el nombre de tu propio nodo.";
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
+/* Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
 "chats.mention.picker.matchingContacts" = "Contactos coincidentes";

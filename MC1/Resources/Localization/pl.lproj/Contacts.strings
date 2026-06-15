@@ -1153,7 +1153,7 @@
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "Połącz się z radiem, aby usunąć węzły";
 
-/* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
+/* Location: ContactsViewModel.swift - Delete radio command timed out error */
 "contacts.viewModel.removeTimedOut" = "Upłynął limit czasu usuwania węzła. Spróbuj ponownie.";
 
 // MARK: - Path Management ViewModel Errors

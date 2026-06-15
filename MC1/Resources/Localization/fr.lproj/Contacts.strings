@@ -1166,7 +1166,7 @@
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "Connectez-vous à une radio pour supprimer des nœuds";
 
-/* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
+/* Location: ContactsViewModel.swift - Delete radio command timed out error */
 "contacts.viewModel.removeTimedOut" = "Le délai de suppression du nœud a expiré. Réessayez.";
 
 // MARK: - Path Management ViewModel Errors
