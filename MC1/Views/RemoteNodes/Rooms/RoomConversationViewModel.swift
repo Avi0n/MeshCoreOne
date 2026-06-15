@@ -128,12 +128,6 @@ final class RoomConversationViewModel {
         isSending = false
     }
 
-    /// Refresh messages for current session
-    func refreshMessages() async {
-        guard let session else { return }
-        await loadMessages(for: session)
-    }
-
     /// Refresh session state from database
     func refreshSession() async {
         guard let session, let dataStore else { return }

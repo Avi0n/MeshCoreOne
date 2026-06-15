@@ -109,9 +109,6 @@ struct RoomConversationView: View {
                     }
                 }
             }
-            .refreshable {
-                await viewModel.refreshMessages()
-            }
             .task(id: session.isConnected) {
                 guard session.isConnected else { return }
                 await appState.services?.remoteNodeService.startSessionKeepAlive(
