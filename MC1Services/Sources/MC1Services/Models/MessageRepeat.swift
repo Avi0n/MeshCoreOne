@@ -152,12 +152,7 @@ public struct MessageRepeatDTO: Sendable, Identifiable, Equatable, Hashable, Cod
 
     /// Path nodes as hex strings for display, chunked by hash size
     public var pathNodesHex: [String] {
-        let size = hashSize
-        guard size > 0 else { return pathNodes.map { String(format: "%02X", $0) } }
-        return stride(from: 0, to: pathNodes.count, by: size).compactMap { start in
-            let end = min(start + size, pathNodes.count)
-            return pathNodes[start..<end].uppercaseHexString()
-        }
+        pathNodes.pathHops(hashSize: hashSize).map(\.hex)
     }
 
     /// Classified signal quality based on SNR thresholds.

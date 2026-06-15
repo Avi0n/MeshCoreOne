@@ -16,6 +16,20 @@ public extension Data {
         map { String(format: "%02X", $0) }.joined(separator: separator)
     }
 
+    /// Splits a path's hop bytes into per-hop `(rawBytes, uppercaseHex)` pairs, chunking by
+    /// `hashSize`; callers pass only the valid slice. A non-positive `hashSize` returns no hops,
+    /// avoiding a `stride(by:)` trap, and each chunk is re-based to its own `Data` so a slice
+    /// with a non-zero `startIndex` indexes correctly.
+    internal func pathHops(hashSize: Int) -> [(data: Data, hex: String)] {
+        guard hashSize > 0 else { return [] }
+        return stride(from: 0, to: count, by: hashSize).map { offset in
+            let start = index(startIndex, offsetBy: offset)
+            let end = index(start, offsetBy: Swift.min(hashSize, count - offset))
+            let chunk = Data(self[start..<end])
+            return (chunk, chunk.uppercaseHexString())
+        }
+    }
+
     /// Initialize Data from a hex string
     /// - Parameter hexString: Hex string (e.g., "AABBCC" or "AA BB CC")
     init?(hexString: String) {

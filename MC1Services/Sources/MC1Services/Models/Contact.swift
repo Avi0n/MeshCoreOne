@@ -401,13 +401,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     /// Each hop as its raw hash bytes plus uppercase hex, e.g. `[(0xA3, "A3"), (0x7F, "7F")]`.
     /// The raw bytes are needed to match a hop against a repeater's public-key prefix.
     public var pathHops: [(data: Data, hex: String)] {
-        let size = pathHashSize
-        let relevantPath = outPath.prefix(pathByteLength)
-        return stride(from: 0, to: relevantPath.count, by: size).map { start in
-            let end = min(start + size, relevantPath.count)
-            let chunk = Data(relevantPath[start..<end])
-            return (chunk, chunk.uppercaseHexString())
-        }
+        outPath.prefix(pathByteLength).pathHops(hashSize: pathHashSize)
     }
 
     /// Each hop's hash as a hex string, e.g. `["A3", "7F", "42"]`.

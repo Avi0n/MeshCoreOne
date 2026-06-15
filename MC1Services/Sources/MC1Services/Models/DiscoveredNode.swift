@@ -113,12 +113,7 @@ public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterReso
     }
 
     public var pathNodesHex: [String] {
-        let size = pathHashSize
-        let relevantPath = outPath.prefix(pathByteLength)
-        return stride(from: 0, to: relevantPath.count, by: size).compactMap { start in
-            let end = min(start + size, relevantPath.count)
-            return relevantPath[start..<end].uppercaseHexString()
-        }
+        outPath.prefix(pathByteLength).pathHops(hashSize: pathHashSize).map(\.hex)
     }
 
     public var recencyDate: Date { lastHeard }

@@ -628,14 +628,16 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
         decodePathLen(pathLength)?.hashSize
     }
 
+    /// Each hop as its raw hash bytes plus uppercase hex, e.g. `[(0xA3, "A3"), (0x7F, "7F")]`.
+    /// The raw bytes are needed to match a hop against a repeater's public-key prefix.
+    public var pathHops: [(data: Data, hex: String)] {
+        guard let pathNodes else { return [] }
+        return pathNodes.pathHops(hashSize: pathHashSize)
+    }
+
     /// Path nodes as hex strings for display, chunked by hash size
     public var pathNodesHex: [String] {
-        guard let pathNodes else { return [] }
-        let size = pathHashSize
-        return stride(from: 0, to: pathNodes.count, by: size).compactMap { start in
-            let end = min(start + size, pathNodes.count)
-            return pathNodes[start..<end].uppercaseHexString()
-        }
+        pathHops.map(\.hex)
     }
 
     /// Path as arrow-separated string (e.g., "A3 → 7F → 42")
