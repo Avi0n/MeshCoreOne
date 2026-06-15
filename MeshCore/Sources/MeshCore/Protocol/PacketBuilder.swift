@@ -397,9 +397,15 @@ public enum PacketBuilder: Sendable {
     ///   - attempt: Retry attempt number (for duplicate detection).
     /// - Returns: The command packet data.
     ///
+    /// The message type byte is fixed to `0x00` (PLAIN). For a direct message
+    /// the firmware accepts only PLAIN or CLI_DATA: SIGNED_PLAIN is rejected,
+    /// and CLI_DATA sets `expected_ack = 0`, which would defeat the end-to-end
+    /// ACK correlation this send path depends on. PLAIN is the only type that
+    /// preserves the ACK design, so it is not exposed as a parameter.
+    ///
     /// ### Binary Format
     /// - Offset 0 (1 byte): Command code `0x02` (sendMessage)
-    /// - Offset 1 (1 byte): Message type `0x00` (text)
+    /// - Offset 1 (1 byte): Message type `0x00` (PLAIN text)
     /// - Offset 2 (1 byte): Retry attempt counter
     /// - Offset 3 (4 bytes): Unix timestamp (seconds), Little-endian UInt32
     /// - Offset 7 (6 bytes): Destination public key prefix

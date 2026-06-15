@@ -26,7 +26,9 @@ public enum ProtocolLimits {
     /// full-name-derived scope key would disagree.
     public static let maxDefaultFloodScopeNameBytes = 30
 
-    /// Maximum bytes for direct messages (app-enforced limit per MeshCore spec)
+    /// Maximum UTF-8 bytes for direct message text. App-enforced at 150, which
+    /// sits under the firmware's binding `MAX_TEXT_LEN` of 160 so the message
+    /// always fits the wire buffer.
     public static let maxDirectMessageLength = 150
 
     /// Total limit for channel messages including "NodeName: " prefix

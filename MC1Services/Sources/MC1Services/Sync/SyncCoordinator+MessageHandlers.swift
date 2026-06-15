@@ -96,6 +96,9 @@ extension SyncCoordinator {
         let senderKeyPrefix: Data?
         switch kind {
         case .direct(let message, let contact):
+            // The firmware cannot surface a self-DM here: decrypt runs against a
+            // contact's ECDH shared secret and the local self_id is never in
+            // contacts[], so an echo of the user's own DM never reaches this arm.
             text = message.text
             senderNodeName = nil
             senderTimestampDate = message.senderTimestamp
@@ -160,6 +163,18 @@ extension SyncCoordinator {
                 MentionUtilities.containsSelfMention(in: text, selfName: selfNodeName)
         }
 
+        // Clamp an unknown wire textType to .plain. MessageDTO decodes textType
+        // non-optionally, so an out-of-range raw value would throw and fail the
+        // whole envelope decode on backup round-trip; guaranteeing only the
+        // known cases reach persistence keeps that round-trip safe.
+        let resolvedTextType: TextType
+        if let parsed = TextType(rawValue: textTypeRaw) {
+            resolvedTextType = parsed
+        } else {
+            logger.warning("Unknown \(kind.logLabel) message textType raw=\(textTypeRaw); clamping to .plain")
+            resolvedTextType = .plain
+        }
+
         // regionScope is incoming-only by data-pipeline design — outgoing
         // messages do not flow through 0x88 / RxLogEntry correlation.
         let messageDTO = MessageDTO(
@@ -173,7 +188,7 @@ extension SyncCoordinator {
             sortDate: sortDate,
             direction: .incoming,
             status: .delivered,
-            textType: TextType(rawValue: textTypeRaw) ?? .plain,
+            textType: resolvedTextType,
             ackCode: nil,
             pathLength: rxResult.pathLength,
             snr: snr,

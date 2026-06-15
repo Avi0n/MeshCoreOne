@@ -16,13 +16,15 @@ private let ackCodeByteCount = 4
 ///
 /// - **Recipient is not in the hash.** Same sender + same text + same UInt32
 ///   timestamp + same `attempt & 0x03` produces an identical ACK code across
-///   *every* contact. Currently unreachable through the UI because each
-///   `ChatConversationView` owns its own serialized `sendQueue`, so two sends
-///   cannot finish in the same wall-clock second from the same conversation,
-///   and parallel conversations cannot share text + timestamp. Any future
-///   feature that dispatches identical-text sends in parallel (bulk send,
-///   broadcast-to-many, scripted sends) must either serialize with ≥1s
-///   spacing or replace `pendingAcks`'s ackCode lookup with a
+///   *every* contact. Currently low-risk because regular DMs are serialized
+///   through a per-radioID `dmQueue` (`SendQueue<DirectMessageEnvelope>`), so
+///   two regular DMs cannot complete in the same wall-clock second on one
+///   radio; the reaction path bypasses that queue via the single-shot send,
+///   but each reaction carries a per-target message-hash discriminator. Any
+///   future feature that dispatches identical-text sends in parallel (bulk
+///   send, broadcast-to-many, scripted sends, or any pipelined DM path that
+///   removes the serialized `dmQueue` guarantee) must either serialize with
+///   ≥1s spacing or replace `pendingAcks`'s ackCode lookup with a
 ///   `[Data: Set<UUID>]` index in `MessageService.handleAcknowledgement`.
 /// - **Attempt index is masked to two bits.** Firmware applies `& 0x03`, so
 ///   only four distinct ACK codes exist for a given (text, timestamp, sender)
