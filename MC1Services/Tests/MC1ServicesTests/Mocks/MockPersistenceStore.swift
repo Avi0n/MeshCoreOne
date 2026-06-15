@@ -258,6 +258,20 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         return true
     }
 
+    public func clearRetryingToSent(id: UUID) async throws -> Bool {
+        guard let message = messages[id],
+              message.status != .delivered,
+              message.status != .failed else { return false }
+        try await updateMessageStatus(id: id, status: .sent)
+        return true
+    }
+
+    public func hasOutgoingSentDM(ackCode: UInt32) async throws -> Bool {
+        messages.values.contains {
+            $0.ackCode == ackCode && $0.status == .sent && $0.direction == .outgoing && $0.channelIndex == nil
+        }
+    }
+
     public func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {
         updatedMessageAcks.append((id: id, ackCode: ackCode, status: status, roundTripTime: roundTripTime))
         if let error = stubbedUpdateMessageStatusError {

@@ -349,6 +349,8 @@ private actor StubDataStore: PersistenceStoreProtocol {
     func markSessionDisconnected(_ sessionID: UUID) async throws {}
     func markRoomSessionConnected(_ sessionID: UUID) async throws -> Bool { false }
     func updateMessageStatusUnlessDelivered(id: UUID, status: MessageStatus) async throws -> Bool { false }
+    func clearRetryingToSent(id: UUID) async throws -> Bool { false }
+    func hasOutgoingSentDM(ackCode: UInt32) async throws -> Bool { false }
     func markMessageAsRead(id: UUID) async throws {}
     func incrementPendingSendAttemptCount(messageID: UUID) async throws -> Int? { nil }
     func saveDevice(_ dto: DeviceDTO) async throws {}

@@ -314,6 +314,31 @@ extension PersistenceStore {
         return true
     }
 
+    /// Clears a retry-loop status (`.retrying`/`.pending`) back to `.sent` when
+    /// the app-layer retry budget is spent but the end-to-end ACK may still
+    /// arrive within `ackGiveUpWindow`.
+    ///
+    /// Terminal-safe: no-ops and returns `false` on a `.delivered` or `.failed`
+    /// row, so it can never resurrect a row the expiry checker already failed or
+    /// downgrade a delivered row. Returns `true` when the row moved to `.sent`.
+    public func clearRetryingToSent(id: UUID) throws -> Bool {
+        let targetID = id
+        let predicate = #Predicate<Message> { message in
+            message.id == targetID
+        }
+        var descriptor = FetchDescriptor(predicate: predicate)
+        descriptor.fetchLimit = 1
+
+        guard let message = try modelContext.fetch(descriptor).first,
+              message.status != .delivered,
+              message.status != .failed else {
+            return false
+        }
+        message.status = .sent
+        try modelContext.save()
+        return true
+    }
+
     /// Update message status with retry attempt information.
     ///
     /// Skips the write when the message is already `.delivered` so a stale
@@ -357,10 +382,13 @@ extension PersistenceStore {
 
     /// Update message ACK info.
     ///
-    /// Never downgrades a `.delivered` message to a lower status: once the
+    /// Both `.delivered` and `.failed` are terminal for this write: once the
     /// listener (or `finalizeSend`) writes `.delivered` + `roundTripTime`, a
     /// later `.sent` write from the send-return path is skipped so the
-    /// authoritative delivery state is preserved.
+    /// authoritative delivery state is preserved; and once the expiry checker
+    /// writes `.failed`, a late ACK landing in the checker's await-gap cannot
+    /// flip the row to `.delivered`. The only late transition this write allows
+    /// is the legitimate `.sent` -> `.delivered` upgrade.
     public func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32? = nil) throws {
         let targetID = id
         let predicate = #Predicate<Message> { message in
@@ -370,12 +398,27 @@ extension PersistenceStore {
         descriptor.fetchLimit = 1
 
         if let message = try modelContext.fetch(descriptor).first {
-            if message.status == .delivered && status != .delivered { return }
+            if (message.status == .delivered || message.status == .failed) && status != message.status { return }
             message.ackCode = ackCode
             message.status = status
             message.roundTripTime = roundTripTime
             try modelContext.save()
         }
+    }
+
+    /// Read-only diagnostic: whether an outgoing DM row persists `.sent` with
+    /// this `ackCode`.
+    public func hasOutgoingSentDM(ackCode: UInt32) throws -> Bool {
+        let target: UInt32? = ackCode
+        let sentRaw = MessageStatus.sent.rawValue
+        let outgoingRaw = MessageDirection.outgoing.rawValue
+        let predicate = #Predicate<Message> { message in
+            message.ackCode == target &&
+            message.statusRawValue == sentRaw &&
+            message.directionRawValue == outgoingRaw &&
+            message.channelIndex == nil
+        }
+        return try modelContext.fetchCount(FetchDescriptor(predicate: predicate)) > 0
     }
 
     /// Mark a message as read

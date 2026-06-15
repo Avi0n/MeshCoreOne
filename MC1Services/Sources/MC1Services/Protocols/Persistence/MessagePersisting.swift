@@ -80,6 +80,24 @@ public protocol MessagePersisting: Actor {
     ///   so they do not surface a `.failed` event for a delivered or absent row.
     func updateMessageStatusUnlessDelivered(id: UUID, status: MessageStatus) async throws -> Bool
 
+    /// Clear a spent retry-loop status back to `.sent`, leaving terminal rows
+    /// untouched.
+    ///
+    /// Writes `.sent` only when the row is neither `.delivered` nor `.failed`,
+    /// so a late ACK can still upgrade the surviving `.sent` row to `.delivered`
+    /// while the expiry checker remains the single `.failed` writer.
+    ///
+    /// - Returns: `true` if the row moved to `.sent`, `false` if it was already
+    ///   terminal (`.delivered`/`.failed`) or no row exists. Callers must gate
+    ///   the `.sent` status broadcast on the return value.
+    func clearRetryingToSent(id: UUID) async throws -> Bool
+
+    /// Read-only diagnostic: whether an outgoing direct-message row persists
+    /// `.sent` with this `ackCode`. Used to flag a stuck-`.sent` orphan (a DM
+    /// that lost its `pendingAcks` entry to a teardown) when a late ACK arrives
+    /// with no live pending entry. Observability only; never gates behavior.
+    func hasOutgoingSentDM(ackCode: UInt32) async throws -> Bool
+
     /// Update message ACK info
     func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws
 
