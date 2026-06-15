@@ -82,7 +82,11 @@ public enum PacketBuilder: Sendable {
     /// Scales a coordinate (degrees) into the firmware's `Int32` fixed-point form,
     /// clamping to a finite, valid range. A NaN, infinite, or out-of-range value
     /// saturates instead of trapping `Int32(_:)`, so no caller can crash the encoder.
-    static func scaledCoordinate(_ degrees: Double, in range: ClosedRange<Double>) -> Int32 {
+    ///
+    /// Public so config-import diffing can compare two coordinates by the integer the
+    /// device actually persists, sidestepping float-equality noise between values that
+    /// encode identically.
+    public static func scaledCoordinate(_ degrees: Double, in range: ClosedRange<Double>) -> Int32 {
         let clamped = degrees.isFinite ? min(max(degrees, range.lowerBound), range.upperBound) : 0
         return Int32(clamped * coordinateScale)
     }

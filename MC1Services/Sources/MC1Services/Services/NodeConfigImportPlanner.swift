@@ -66,7 +66,7 @@ func planConfigImport(
     maxContacts: Int,
     maxTxPower: Int8,
     existingChannels: [DeviceChannelSlot],
-    existingContactKeys: Set<String>
+    existingContacts: [String: MeshContact]
 ) throws -> ConfigImportPlan {
     var plan = ConfigImportPlan(
         importPrivateKey: nil,
@@ -108,7 +108,7 @@ func planConfigImport(
 
     if sections.contacts, let contacts = config.contacts {
         plan.contactRecords = try planContactRecords(
-            contacts, maxContacts: maxContacts, existingContactKeys: existingContactKeys
+            contacts, maxContacts: maxContacts, existingContacts: existingContacts
         )
     }
 
@@ -206,6 +206,10 @@ private func planChannelWrites(
 
     var writes: [ConfigImportPlan.ChannelWrite] = []
     var overwrite = false
+    // The value each slot will hold given the writes planned so far, seeded from the device's
+    // configured slots. The no-op skip compares against this, not the frozen `existingByIndex`, so
+    // a later duplicate that restores a slot an earlier write changed is not dropped.
+    var plannedByIndex = existingByIndex
 
     for (i, channel) in channels.enumerated() {
         guard channel.secret.allSatisfy(\.isHexDigit),
@@ -238,18 +242,28 @@ private func planChannelWrites(
             throw NodeConfigServiceError.noAvailableChannelSlot(name: channel.name)
         }
 
-        // Overwrite of a slot that was configured on the device with a different name or secret,
-        // comparing the truncated name the device actually stores.
-        if let prior = existingByIndex[targetIndex], prior.name != lookupName || prior.secret != secretData {
+        // Skip the write when the slot's effective value already matches, comparing the truncated
+        // name the device actually stores. Writing it would re-commit /channels2 for no change.
+        if let planned = plannedByIndex[targetIndex], planned.name == lookupName, planned.secret == secretData {
+            // Keep the lookup tables current so a later same-key import still folds onto this slot.
+            if channel.name.hasPrefix("#") { hashtagNameToIndex[lookupName] = targetIndex }
+            secretToIndex[secretKey] = targetIndex
+            continue
+        }
+
+        // An overwrite is a change to a slot the device itself had configured, so it keys off the
+        // original device state rather than the in-progress planned state.
+        if let original = existingByIndex[targetIndex], original.name != lookupName || original.secret != secretData {
             overwrite = true
         }
 
         // Update lookup tables so a later same-name/same-secret import folds onto this slot
-        // instead of consuming a fresh one.
+        // instead of consuming a fresh one, and record the slot's new effective value.
         if channel.name.hasPrefix("#") {
             hashtagNameToIndex[lookupName] = targetIndex
         }
         secretToIndex[secretKey] = targetIndex
+        plannedByIndex[targetIndex] = (lookupName, secretData)
 
         writes.append(ConfigImportPlan.ChannelWrite(index: targetIndex, name: channel.name, secret: secretData))
     }
@@ -260,12 +274,13 @@ private func planChannelWrites(
 // MARK: - Contacts
 
 /// Validates and deduplicates the contacts array, returning ready-to-write records.
-/// Dedups by public key (newest by `last_modified` wins), enforces device capacity, and rejects
-/// invalid keys, path modes, coordinates, and routing paths before any write.
+/// Dedups by public key (newest by `last_modified` wins), enforces device capacity, drops records
+/// the device already stores byte-for-byte, and rejects invalid keys, path modes, coordinates, and
+/// routing paths before any write.
 private func planContactRecords(
     _ contacts: [MeshCoreNodeConfig.ContactConfig],
     maxContacts: Int,
-    existingContactKeys: Set<String>
+    existingContacts: [String: MeshContact]
 ) throws -> [MeshContact] {
     var byKey: [String: (config: MeshCoreNodeConfig.ContactConfig, publicKey: Data)] = [:]
     var order: [String] = []
@@ -292,17 +307,46 @@ private func planContactRecords(
     // lets the non-destructive preview reject an overflow up front instead of failing partway
     // through the contact writes with `TABLE_FULL`, after identity and channels have committed.
     let newKeyCount = order.reduce(0) { count, key in
-        existingContactKeys.contains(key) ? count : count + 1
+        existingContacts.keys.contains(key) ? count : count + 1
     }
-    let availableSlots = maxContacts - existingContactKeys.count
+    let availableSlots = maxContacts - existingContacts.count
     guard newKeyCount <= availableSlots else {
         throw NodeConfigServiceError.contactCapacityExceeded(needed: newKeyCount, available: availableSlots)
     }
 
-    return try order.map { key in
+    // Drop a record the device already stores byte-for-byte: re-adding it would arm a
+    // /contacts3 rewrite for no change. A dropped record was an existing key, so it never
+    // counted against free capacity above.
+    return try order.compactMap { key in
         let entry = byKey[key]!
-        return try buildContactRecord(entry.config, publicKey: entry.publicKey, hexKey: key)
+        let record = try buildContactRecord(entry.config, publicKey: entry.publicKey, hexKey: key)
+        if let existing = existingContacts[key], persistedContactFieldsMatch(existing, record) {
+            return nil
+        }
+        return record
     }
+}
+
+/// True when `existing` (a device-resident contact) already stores exactly what `record` would
+/// write, so the contact-add would re-commit `/contacts3` for nothing. Compares only the fields the
+/// add frame carries and the firmware persists; `lastAdvertisement` is excluded (volatile,
+/// advert-driven). A genuine edit always bumps `lastModified`, so a changed contact is never
+/// skipped. Names compare at the firmware field width, and coordinates by the integer the device
+/// actually stores, so a difference the device cannot represent is treated as equal.
+private func persistedContactFieldsMatch(_ existing: MeshContact, _ record: MeshContact) -> Bool {
+    guard existing.typeRawValue == record.typeRawValue,
+          existing.flags == record.flags,
+          existing.outPathLength == record.outPathLength,
+          existing.advertisedName.utf8Prefix(maxBytes: ProtocolLimits.maxUsableNameBytes)
+            == record.advertisedName.utf8Prefix(maxBytes: ProtocolLimits.maxUsableNameBytes),
+          existing.outPath.prefix(existing.pathByteLength) == record.outPath.prefix(record.pathByteLength),
+          Int(existing.lastModified.timeIntervalSince1970) == Int(record.lastModified.timeIntervalSince1970) else {
+        return false
+    }
+    return PacketBuilder.scaledCoordinate(existing.latitude, in: PacketBuilder.latitudeRange)
+            == PacketBuilder.scaledCoordinate(record.latitude, in: PacketBuilder.latitudeRange)
+        && PacketBuilder.scaledCoordinate(existing.longitude, in: PacketBuilder.longitudeRange)
+            == PacketBuilder.scaledCoordinate(record.longitude, in: PacketBuilder.longitudeRange)
 }
 
 /// Builds one validated contact record. `publicKey` and `hexKey` are the already-decoded key

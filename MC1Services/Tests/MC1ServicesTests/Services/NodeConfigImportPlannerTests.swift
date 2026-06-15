@@ -81,7 +81,7 @@ struct NodeConfigImportPlannerTests {
         maxContacts: Int = 100,
         maxTxPower: Int8 = 30,
         existingChannels: [DeviceChannelSlot] = emptySlots(8),
-        existingContactKeys: Set<String> = []
+        existingContacts: [String: MeshContact] = [:]
     ) throws -> ConfigImportPlan {
         var config = MeshCoreNodeConfig()
         config.channels = channels
@@ -94,8 +94,29 @@ struct NodeConfigImportPlannerTests {
         return try planConfigImport(
             config: config, sections: sections,
             maxChannels: maxChannels, maxContacts: maxContacts, maxTxPower: maxTxPower,
-            existingChannels: existingChannels, existingContactKeys: existingContactKeys
+            existingChannels: existingChannels, existingContacts: existingContacts
         )
+    }
+
+    /// A present-key entry for the existing-contacts map whose fields deliberately differ from the
+    /// capacity tests' imports, so the key counts toward capacity without triggering an M2 skip.
+    /// The stored `publicKey` is irrelevant to capacity accounting (which keys on the map), so a
+    /// placeholder avoids the cross-module `Data(hexString:)` ambiguity.
+    private static func presentContact(keyedAs hexKey: String) -> (String, MeshContact) {
+        let contact = MeshContact(
+            id: hexKey,
+            publicKey: Data(repeating: 0, count: 32),
+            type: .chat,
+            flags: ContactFlags(rawValue: 0),
+            outPathLength: 0xFF,
+            outPath: Data(),
+            advertisedName: "Existing",
+            lastAdvertisement: Date(timeIntervalSince1970: 0),
+            latitude: 0,
+            longitude: 0,
+            lastModified: Date(timeIntervalSince1970: 0)
+        )
+        return (hexKey, contact)
     }
 
     // MARK: - Coordinate validation
@@ -284,10 +305,11 @@ struct NodeConfigImportPlannerTests {
         slots[0] = DeviceChannelSlot(index: 0, name: "Existing", secret: Self.secretBytesA, isConfigured: true)
 
         // Same secret bytes as the existing slot but written in uppercase, a non-canonical casing a
-        // hand-edited backup might use. Still all-hex, so the strict parser accepts it, and it must
-        // dedup against the device's lowercase-canonical key rather than consume a fresh slot.
+        // hand-edited backup might use, paired with a changed name so the fold still produces a write
+        // (a byte-identical import would correctly skip). It must dedup against the device's
+        // lowercase-canonical key rather than consume a fresh slot.
         let uppercased = Self.validChannelSecretA.uppercased()
-        let channels = [MeshCoreNodeConfig.ChannelConfig(name: "Existing", secret: uppercased)]
+        let channels = [MeshCoreNodeConfig.ChannelConfig(name: "Renamed", secret: uppercased)]
         let plan = try Self.plan(channels: channels, sections: Self.channelSections(), existingChannels: slots)
 
         #expect(plan.channelWrites.count == 1)
@@ -517,7 +539,7 @@ struct NodeConfigImportPlannerTests {
             contacts: [Self.contact(name: "Update", publicKey: Self.pubKeyHexA)],
             sections: Self.contactSections(),
             maxContacts: 1,
-            existingContactKeys: [Self.pubKeyHexA.lowercased()]
+            existingContacts: Dictionary(uniqueKeysWithValues: [Self.presentContact(keyedAs: Self.pubKeyHexA.lowercased())])
         )
         #expect(plan.contactRecords.count == 1)
     }
@@ -529,7 +551,7 @@ struct NodeConfigImportPlannerTests {
                 contacts: [Self.contact(name: "New", publicKey: Self.pubKeyHexB)],
                 sections: Self.contactSections(),
                 maxContacts: 1,
-                existingContactKeys: [Self.pubKeyHexA.lowercased()]
+                existingContacts: Dictionary(uniqueKeysWithValues: [Self.presentContact(keyedAs: Self.pubKeyHexA.lowercased())])
             )
         } throws: { error in
             if case NodeConfigServiceError.contactCapacityExceeded = error { return true }
@@ -640,6 +662,191 @@ struct NodeConfigImportPlannerTests {
     func identityCarriesNodeName() throws {
         let plan = try Self.plan(name: "Rescue Base", sections: Self.identitySections())
         #expect(plan.nodeName == "Rescue Base")
+    }
+
+    // MARK: - M1: byte-identical channel slot skip
+
+    @Test("A channel byte-identical to its resolved slot plans no write")
+    func identicalChannelSlotSkipped() throws {
+        var slots = Self.emptySlots(8)
+        slots[0] = DeviceChannelSlot(index: 0, name: "Alpha", secret: Self.secretBytesA, isConfigured: true)
+
+        let channels = [MeshCoreNodeConfig.ChannelConfig(name: "Alpha", secret: Self.validChannelSecretA)]
+        let plan = try Self.plan(channels: channels, sections: Self.channelSections(), existingChannels: slots)
+
+        #expect(plan.channelWrites.isEmpty, "An identical slot must not re-commit /channels2")
+        #expect(plan.channelsOverwriteExisting == false)
+    }
+
+    @Test("A name-only diff, secret-only diff, and secret relocation each still plan one write")
+    func channelDiffsStillWrite() throws {
+        var nameDiff = Self.emptySlots(8)
+        nameDiff[0] = DeviceChannelSlot(index: 0, name: "Old", secret: Self.secretBytesA, isConfigured: true)
+        let nameDiffPlan = try Self.plan(
+            channels: [MeshCoreNodeConfig.ChannelConfig(name: "New", secret: Self.validChannelSecretA)],
+            sections: Self.channelSections(), existingChannels: nameDiff)
+        #expect(nameDiffPlan.channelWrites.count == 1, "A name change must still write")
+
+        var secretDiff = Self.emptySlots(8)
+        secretDiff[0] = DeviceChannelSlot(index: 0, name: "Alpha", secret: Self.secretBytesA, isConfigured: true)
+        let secretDiffPlan = try Self.plan(
+            channels: [MeshCoreNodeConfig.ChannelConfig(name: "Alpha", secret: Self.validChannelSecretB)],
+            sections: Self.channelSections(), existingChannels: secretDiff)
+        #expect(secretDiffPlan.channelWrites.count == 1, "A secret change must still write")
+
+        // Secret A is homed at slot 2 under a different name: the import folds onto that slot and
+        // writes because the name differs, so the skip must not swallow it.
+        var relocate = Self.emptySlots(8)
+        relocate[2] = DeviceChannelSlot(index: 2, name: "Alpha", secret: Self.secretBytesA, isConfigured: true)
+        let relocatePlan = try Self.plan(
+            channels: [MeshCoreNodeConfig.ChannelConfig(name: "Renamed", secret: Self.validChannelSecretA)],
+            sections: Self.channelSections(), existingChannels: relocate)
+        #expect(relocatePlan.channelWrites.count == 1, "A name change on the secret's existing slot still writes")
+        #expect(relocatePlan.channelWrites.first?.index == 2, "It folds onto the secret's existing slot")
+    }
+
+    @Test("A brand-new channel into an empty slot still plans one write")
+    func newChannelStillWrites() throws {
+        let channels = [MeshCoreNodeConfig.ChannelConfig(name: "#new", secret: Self.validChannelSecretA)]
+        let plan = try Self.plan(channels: channels, sections: Self.channelSections())
+        #expect(plan.channelWrites.count == 1)
+    }
+
+    @Test("A duplicate restoring a slot an earlier write changed is not swallowed by the skip")
+    func duplicateRestoringFoldedSlotStillWrites() throws {
+        // Same #hashtag homed at slot 0: the first entry changes the secret, the second restores
+        // the device's original secret. The skip must compare against the slot's planned value, not
+        // the frozen original, so the restoring write survives and wins last (slot ends at S1).
+        var hashtagSlots = Self.emptySlots(8)
+        hashtagSlots[0] = DeviceChannelSlot(index: 0, name: "#general", secret: Self.secretBytesA, isConfigured: true)
+        let hashtagPlan = try Self.plan(
+            channels: [
+                MeshCoreNodeConfig.ChannelConfig(name: "#general", secret: Self.validChannelSecretB),
+                MeshCoreNodeConfig.ChannelConfig(name: "#general", secret: Self.validChannelSecretA),
+            ],
+            sections: Self.channelSections(), existingChannels: hashtagSlots)
+        #expect(hashtagPlan.channelWrites.count == 2, "Both folded writes are planned, last wins")
+        #expect(hashtagPlan.channelWrites.last?.secret == Self.secretBytesA, "The restoring write must win, not be dropped")
+
+        // Same-secret name fold: the first entry renames the slot, the second restores the device's
+        // original name. The restoring write must survive so the slot ends at "Foo", not "Bar".
+        var secretSlots = Self.emptySlots(8)
+        secretSlots[0] = DeviceChannelSlot(index: 0, name: "Foo", secret: Self.secretBytesA, isConfigured: true)
+        let secretPlan = try Self.plan(
+            channels: [
+                MeshCoreNodeConfig.ChannelConfig(name: "Bar", secret: Self.validChannelSecretA),
+                MeshCoreNodeConfig.ChannelConfig(name: "Foo", secret: Self.validChannelSecretA),
+            ],
+            sections: Self.channelSections(), existingChannels: secretSlots)
+        #expect(secretPlan.channelWrites.count == 2, "Both folded writes are planned, last wins")
+        #expect(secretPlan.channelWrites.last?.name == "Foo", "The restoring write must win, not be dropped")
+    }
+
+    // MARK: - M2: byte-identical contact skip
+
+    /// Models the device-resident form of a contact `session.getContacts` would report: the planner's
+    /// record encoded to the wire and decoded back through the same `parseContactData` the live read
+    /// uses, so the fixture reflects the device's stored bytes (name trimmed to the field width, coords
+    /// scaled, path sliced) rather than the planner's own `buildContactRecord` output. `lastModified`
+    /// models the firmware restamp the sub-148-byte add frame triggers: it defaults to the record's own
+    /// value (the same-device export/re-import round-trip the skip targets), or pass a different value to
+    /// model a foreign config the firmware re-stamped.
+    private func deviceStored(_ record: MeshContact, lastModified deviceLastModified: Date? = nil) -> MeshContact {
+        // The add frame omits last_modified (3 reserved bytes); the contact-response frame carries it at
+        // offset 143. Reuse the add encoder for offsets 0..<143, then append the device's last_modified.
+        var frame = Data(PacketBuilder.updateContact(record).dropFirst(1).prefix(143))
+        frame.appendLittleEndian(UInt32((deviceLastModified ?? record.lastModified).timeIntervalSince1970))
+        return Parsers.parseContactData(frame)!
+    }
+
+    /// Runs the import once against an empty device to capture the record the planner builds, then
+    /// returns the device-resident form `getContacts` would report for it.
+    private func recordFor(_ contact: MeshCoreNodeConfig.ContactConfig) throws -> MeshContact {
+        let plan = try Self.plan(contacts: [contact], sections: Self.contactSections())
+        return deviceStored(try #require(plan.contactRecords.first))
+    }
+
+    @Test("A contact equal on all persisted fields is dropped")
+    func identicalContactDropped() throws {
+        let config = Self.contact(
+            name: "Bravo", publicKey: Self.pubKeyHexA, latitude: "47.5", longitude: "-122.5",
+            lastModified: 1000, outPath: "aabb", pathHashMode: 0)
+        let existing = try recordFor(config)
+
+        let plan = try Self.plan(
+            contacts: [config], sections: Self.contactSections(),
+            existingContacts: [existing.id: existing])
+        #expect(plan.contactRecords.isEmpty, "A byte-identical contact must not re-commit /contacts3")
+    }
+
+    @Test("A diff in any single persisted field still emits the contact")
+    func contactFieldDiffStillEmits() throws {
+        let base = Self.contact(
+            name: "Bravo", publicKey: Self.pubKeyHexA, latitude: "47.5", longitude: "-122.5",
+            lastModified: 1000, outPath: "aabb", pathHashMode: 0)
+        let existing = try recordFor(base)
+
+        let variants: [(label: String, config: MeshCoreNodeConfig.ContactConfig)] = [
+            ("type", Self.contact(type: 2, name: "Bravo", publicKey: Self.pubKeyHexA, latitude: "47.5", longitude: "-122.5", lastModified: 1000, outPath: "aabb", pathHashMode: 0)),
+            ("name", Self.contact(name: "Charlie", publicKey: Self.pubKeyHexA, latitude: "47.5", longitude: "-122.5", lastModified: 1000, outPath: "aabb", pathHashMode: 0)),
+            ("path", Self.contact(name: "Bravo", publicKey: Self.pubKeyHexA, latitude: "47.5", longitude: "-122.5", lastModified: 1000, outPath: "ccdd", pathHashMode: 0)),
+            ("coords", Self.contact(name: "Bravo", publicKey: Self.pubKeyHexA, latitude: "48.0", longitude: "-122.5", lastModified: 1000, outPath: "aabb", pathHashMode: 0)),
+            ("lastModified", Self.contact(name: "Bravo", publicKey: Self.pubKeyHexA, latitude: "47.5", longitude: "-122.5", lastModified: 2000, outPath: "aabb", pathHashMode: 0)),
+        ]
+        for variant in variants {
+            let plan = try Self.plan(
+                contacts: [variant.config], sections: Self.contactSections(),
+                existingContacts: [existing.id: existing])
+            #expect(plan.contactRecords.count == 1, "A \(variant.label) diff must still write the contact")
+        }
+    }
+
+    @Test("A name differing only past the firmware field width is treated as equal and dropped")
+    func contactNameDiffPastFieldWidthDropped() throws {
+        let shortConfig = Self.contact(
+            name: "#" + String(repeating: "a", count: 30), publicKey: Self.pubKeyHexA)
+        let existing = try recordFor(shortConfig)   // 31-byte name, what the device stores
+
+        // Import the same contact whose name only diverges past the 31-byte field width.
+        let longConfig = Self.contact(
+            name: "#" + String(repeating: "a", count: 30) + "EXTRA", publicKey: Self.pubKeyHexA)
+        let plan = try Self.plan(
+            contacts: [longConfig], sections: Self.contactSections(),
+            existingContacts: [existing.id: existing])
+        #expect(plan.contactRecords.isEmpty, "A name the device cannot represent differently must be treated as equal")
+    }
+
+    @Test("A new contact is unaffected by the skip and capacity stays correct")
+    func newContactStillEmittedWithSkip() throws {
+        // One existing key matches its import (dropped); a second key is new (emitted).
+        let matchConfig = Self.contact(name: "Match", publicKey: Self.pubKeyHexA, lastModified: 5)
+        let existing = try recordFor(matchConfig)
+        let newConfig = Self.contact(name: "Fresh", publicKey: Self.pubKeyHexB, lastModified: 5)
+
+        let plan = try Self.plan(
+            contacts: [matchConfig, newConfig], sections: Self.contactSections(),
+            existingContacts: [existing.id: existing])
+        #expect(plan.contactRecords.count == 1, "Only the unchanged contact is dropped")
+        #expect(plan.contactRecords.first?.advertisedName == "Fresh")
+    }
+
+    @Test("A contact the firmware re-stamped is re-emitted, not dropped (skip is safe-fail)")
+    func restampedContactReEmitted() throws {
+        // The sub-148-byte contact-add frame carries no last_modified, so firmware stamps its own clock.
+        // For a config exported from a different device, the device-read last_modified therefore differs
+        // from the config's, and the skip must re-emit rather than drop: the optimization only fires for
+        // a same-device export/re-import round-trip, never for a foreign config the firmware re-stamped.
+        let config = Self.contact(
+            name: "Bravo", publicKey: Self.pubKeyHexA, latitude: "47.5", longitude: "-122.5",
+            lastModified: 1000, outPath: "aabb", pathHashMode: 0)
+        let record = try #require(
+            try Self.plan(contacts: [config], sections: Self.contactSections()).contactRecords.first)
+        let existing = deviceStored(record, lastModified: Date(timeIntervalSince1970: 9_999))
+
+        let plan = try Self.plan(
+            contacts: [config], sections: Self.contactSections(),
+            existingContacts: [existing.id: existing])
+        #expect(plan.contactRecords.count == 1, "A re-stamped last_modified must re-emit, never silently drop")
     }
 }
 

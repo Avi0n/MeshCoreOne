@@ -241,7 +241,7 @@ struct NodeConfigServiceTests {
         let plan = try planConfigImport(
             config: config, sections: sections,
             maxChannels: 8, maxContacts: 100, maxTxPower: 30,
-            existingChannels: Self.emptySlots(8), existingContactKeys: []
+            existingChannels: Self.emptySlots(8), existingContacts: [:]
         )
         // Both fold onto one slot, but each is a separate write, so the bar must count two.
         #expect(plan.channelWrites.count == 2)
@@ -253,7 +253,7 @@ struct NodeConfigServiceTests {
         let plan = try planConfigImport(
             config: MeshCoreNodeConfig(), sections: ConfigSections(),
             maxChannels: 8, maxContacts: 100, maxTxPower: 30,
-            existingChannels: [], existingContactKeys: []
+            existingChannels: [], existingContacts: [:]
         )
         #expect(NodeConfigService.stepCount(for: plan) == 0)
     }
@@ -624,7 +624,7 @@ struct NodeConfigServiceTests {
         return try planConfigImport(
             config: config, sections: executeSections,
             maxChannels: 8, maxContacts: 100, maxTxPower: 30,
-            existingChannels: emptySlots(8), existingContactKeys: []
+            existingChannels: emptySlots(8), existingContacts: [:]
         )
     }
 
@@ -650,7 +650,7 @@ struct NodeConfigServiceTests {
         return try planConfigImport(
             config: config, sections: radioExecuteSections,
             maxChannels: 8, maxContacts: 100, maxTxPower: 30,
-            existingChannels: emptySlots(8), existingContactKeys: [])
+            existingChannels: emptySlots(8), existingContacts: [:])
     }
 
     private static let fullSections: ConfigSections = {
@@ -681,7 +681,7 @@ struct NodeConfigServiceTests {
         return try planConfigImport(
             config: config, sections: fullSections,
             maxChannels: 8, maxContacts: 100, maxTxPower: 30,
-            existingChannels: emptySlots(8), existingContactKeys: [])
+            existingChannels: emptySlots(8), existingContacts: [:])
     }
 
     @Test("Execute applies identity before channels/contacts and reports one step per write")
@@ -742,6 +742,7 @@ struct NodeConfigServiceTests {
         let spy = ExecuteSpy()
         var writers = makeSpyWriters(spy)
         writers = ConfigImportWriters(
+            getSelfInfo: writers.getSelfInfo,
             importPrivateKey: writers.importPrivateKey,
             setNodeName: writers.setNodeName,
             setLocation: writers.setLocation,
@@ -822,6 +823,97 @@ struct NodeConfigServiceTests {
         })
         #expect(kinds == ["position", "other", "privateKey", "nodeName", "radio", "txPower", "channel", "contact"])
     }
+
+    // MARK: - M3: pref/radio diff gates
+
+    /// A `SelfInfo` matching `fullSectionsPlan` on every diff-gated field, with the overridable
+    /// fields a single test needs to perturb.
+    private static func matchingSelfInfo(
+        name: String = "Test",
+        latitude: Double = 47.0,
+        longitude: Double = -122.0,
+        radioFrequencyMHz: Double = 910.525,
+        radioBandwidthKHz: Double = 62.5,
+        spreadingFactor: UInt8 = 7,
+        codingRate: UInt8 = 5,
+        txPower: Int8 = 20
+    ) -> SelfInfo {
+        SelfInfo(
+            advertisementType: 0, txPower: txPower, maxTxPower: 30,
+            publicKey: Data(repeating: 0, count: 32),
+            latitude: latitude, longitude: longitude,
+            multiAcks: 0, advertisementLocationPolicy: 0,
+            telemetryModeEnvironment: 0, telemetryModeLocation: 0, telemetryModeBase: 0,
+            manualAddContacts: false,
+            radioFrequency: radioFrequencyMHz, radioBandwidth: radioBandwidthKHz,
+            radioSpreadingFactor: spreadingFactor, radioCodingRate: codingRate,
+            name: name
+        )
+    }
+
+    @Test("Pref decision gates: each setter fires only when its field differs from the device")
+    func prefDecisionGates() {
+        let info = Self.matchingSelfInfo()
+        let radio = MeshCoreNodeConfig.RadioSettings(
+            frequency: 910_525, bandwidth: 62_500, spreadingFactor: 7, codingRate: 5, txPower: 20)
+
+        #expect(nodeNameNeedsWrite("Test", current: info) == false)
+        #expect(nodeNameNeedsWrite("Renamed", current: info) == true)
+
+        // setNodeName truncates to the firmware field width, so a name differing only past that
+        // width stores identically on the device and must not re-commit.
+        let storedName = String(repeating: "a", count: ProtocolLimits.maxUsableNameBytes)
+        let longNameInfo = Self.matchingSelfInfo(name: storedName)
+        #expect(nodeNameNeedsWrite(storedName + "EXTRA", current: longNameInfo) == false)
+
+        #expect(locationNeedsWrite(.init(latitude: 47.0, longitude: -122.0), current: info) == false)
+        #expect(locationNeedsWrite(.init(latitude: 47.5, longitude: -122.0), current: info) == true)
+
+        #expect(radioParamsNeedWrite(radio, current: info) == false)
+        var sfChanged = radio
+        sfChanged = .init(frequency: 910_525, bandwidth: 62_500, spreadingFactor: 8, codingRate: 5, txPower: 20)
+        #expect(radioParamsNeedWrite(sfChanged, current: info) == true)
+
+        #expect(txPowerNeedsWrite(radio, current: info) == false)
+        #expect(txPowerNeedsWrite(.init(frequency: 910_525, bandwidth: 62_500, spreadingFactor: 7, codingRate: 5, txPower: 19), current: info) == true)
+    }
+
+    @Test("An unchanged config skips every pref/radio device write but still reports progress")
+    func executeIdenticalConfigSkipsPrefWrites() async throws {
+        let plan = try Self.fullSectionsPlan()
+        let spy = ExecuteSpy()
+        let info = Self.matchingSelfInfo()
+        try await executeConfigImport(
+            plan: plan, sections: Self.fullSections, radioID: UUID(),
+            writers: makeSpyWriters(spy, selfInfo: { info }), logger: Self.executeLogger,
+            onProgress: { spy.recordProgress($0.step) })
+
+        #expect(!spy.calls.contains("setNodeName"), "Unchanged name must not commit prefs")
+        #expect(!spy.calls.contains("setLocation"), "Unchanged position must not commit prefs")
+        #expect(!spy.calls.contains("setRadioParams"), "Unchanged radio params must not commit prefs")
+        #expect(!spy.calls.contains("setTxPower"), "Unchanged TX power must not commit prefs")
+        // Progress still completes so the bar reaches 100%; the skipped commits are the only change.
+        #expect(spy.progress.count == NodeConfigService.stepCount(for: plan))
+        #expect(spy.progress.contains(.nodeName))
+        #expect(spy.progress.contains(.radioParameters))
+        #expect(spy.progress.contains(.txPower))
+    }
+
+    @Test("A TX-power-only change writes only setTxPower among the radio writes")
+    func executeTxPowerOnlyChangeGatesRadioParams() async throws {
+        let plan = try Self.radioExecutePlan()   // name "Node", radio txPower 20
+        let spy = ExecuteSpy()
+        // Match name and radio params, but a different TX power.
+        let info = Self.matchingSelfInfo(name: "Node", txPower: 15)
+        try await executeConfigImport(
+            plan: plan, sections: Self.radioExecuteSections, radioID: UUID(),
+            writers: makeSpyWriters(spy, selfInfo: { info }), logger: Self.executeLogger,
+            onProgress: { spy.recordProgress($0.step) })
+
+        #expect(!spy.calls.contains("setNodeName"), "Matching name must be skipped")
+        #expect(!spy.calls.contains("setRadioParams"), "Matching radio params must be skipped")
+        #expect(spy.calls.contains("setTxPower"), "The differing TX power must still write")
+    }
 }
 
 // MARK: - Execute-seam spy
@@ -840,10 +932,26 @@ private final class ExecuteSpy: @unchecked Sendable {
     var progress: [ImportStep] { lock.lock(); defer { lock.unlock() }; return _progress }
 }
 
+/// A `SelfInfo` whose every diff-gated field differs from the execute-seam test plans, so the M3
+/// pref/radio gates never skip and the ordering/progress assertions see every write.
+func nonMatchingSelfInfo() -> SelfInfo {
+    SelfInfo(
+        advertisementType: 0, txPower: 0, maxTxPower: 30,
+        publicKey: Data(repeating: 0, count: 32),
+        latitude: 0, longitude: 0,
+        multiAcks: 0, advertisementLocationPolicy: 0,
+        telemetryModeEnvironment: 0, telemetryModeLocation: 0, telemetryModeBase: 0,
+        manualAddContacts: false,
+        radioFrequency: 1, radioBandwidth: 1, radioSpreadingFactor: 1, radioCodingRate: 1,
+        name: "\u{0}unset"
+    )
+}
+
 /// Builds `ConfigImportWriters` whose closures record their label and throw when `throwOn` matches,
 /// so a chosen write can be made to fail at a chosen point in the sequence.
 private func makeSpyWriters(
     _ spy: ExecuteSpy,
+    selfInfo: @escaping @Sendable () -> SelfInfo = { nonMatchingSelfInfo() },
     throwOn: @escaping @Sendable (String) -> Bool = { _ in false }
 ) -> ConfigImportWriters {
     @Sendable func step(_ label: String) throws {
@@ -851,6 +959,7 @@ private func makeSpyWriters(
         if throwOn(label) { throw NodeConfigServiceError.invalidRadioSettings(field: .frequency) }
     }
     return ConfigImportWriters(
+        getSelfInfo: { spy.record("getSelfInfo"); return selfInfo() },
         importPrivateKey: { _ in try step("importPrivateKey") },
         setNodeName: { _ in try step("setNodeName") },
         setLocation: { _, _ in try step("setLocation") },
@@ -917,6 +1026,44 @@ struct NodeConfigImportOtherParamsLiveTests {
         let sent = await transport.sentData
         let otherParamsPacket = try #require(sent.first { $0.first == CommandCode.setOtherParams.rawValue })
         #expect(otherParamsPacket[advertLocationPolicyByteIndex] == unmodeledAdvertPolicyByte)
+
+        await session.stop()
+    }
+
+    @Test("importOtherParams whose merge matches the device sends no setOtherParams commit")
+    @MainActor
+    func unchangedOtherParamsSkipsCommit() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(transport: transport)
+
+        let startTask = Task { try await session.start() }
+        try await waitUntil("session should send app start") {
+            await transport.sentData.count == 1
+        }
+        await transport.simulateReceive(makeSelfInfoPacket())
+        try await startTask.value
+
+        let store = PersistenceStore(modelContainer: try PersistenceStore.createContainer(inMemory: true))
+        let settings = SettingsService(session: session)
+        let channels = ChannelService(session: session, dataStore: store, rxLogService: nil)
+        let service = NodeConfigService(
+            session: session, settingsService: settings,
+            channelService: channels, dataStore: store, syncCoordinator: nil)
+
+        // All-nil import: every merged field falls back to the device's current value, so the
+        // result equals current and the commit must be elided.
+        let beforeImport = await transport.sentData.count
+        let importTask = Task { try await service.importOtherParams(MeshCoreNodeConfig.OtherSettings()) }
+
+        try await waitUntil("importOtherParams should fetch getSelfInfo") {
+            await transport.sentData.count == beforeImport + 1
+        }
+        await transport.simulateReceive(makeSelfInfoPacket())
+        try await importTask.value
+
+        let sent = await transport.sentData
+        #expect(!sent.contains { $0.first == CommandCode.setOtherParams.rawValue },
+                "A no-op merge must not commit /new_prefs")
 
         await session.stop()
     }
