@@ -14,13 +14,13 @@ private let dimmedOpacity: Double = 0.5
 ///
 /// Designed to be hosted via `.safeAreaInset(edge: .top)` so list content
 /// scrolls behind the glass on iOS 26.
-struct GlassFilterBar<Filter: Hashable & CaseIterable>: View
+struct GlassFilterBar<Filter: Hashable & CaseIterable & Sendable>: View
 where Filter.AllCases: RandomAccessCollection {
 
     @Binding var selection: Filter
     let isSearching: Bool
     let pickerLabel: String
-    let title: (Filter) -> String
+    let title: @Sendable (Filter) -> String
 
     var body: some View {
         Group {
