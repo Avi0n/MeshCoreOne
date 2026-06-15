@@ -6,14 +6,7 @@ import SwiftUI
 @Observable
 @MainActor
 final class NodeAuthPathViewModel {
-    /// A single routing hop resolved to a repeater name, ready to display.
-    struct ResolvedHop: Identifiable {
-        let id: Int
-        let hex: String
-        let resolution: NodeNameResolution
-    }
-
-    private(set) var hops: [ResolvedHop] = []
+    private(set) var hops: [ResolvedPathHop] = []
 
     private let logger = Logger(subsystem: "com.mc1", category: "NodeAuthPathViewModel")
 
@@ -29,23 +22,15 @@ final class NodeAuthPathViewModel {
         }
 
         do {
-            let repeaters = try await services.dataStore.fetchContacts(radioID: radioID)
-                .filter { $0.type == .repeater }
-            let discoveredRepeaters = try await services.dataStore.fetchDiscoveredNodes(radioID: radioID)
-                .filter { $0.nodeType == .repeater }
+            let contacts = try await services.dataStore.fetchContacts(radioID: radioID)
+            let discoveredNodes = try await services.dataStore.fetchDiscoveredNodes(radioID: radioID)
 
-            hops = contact.pathHops.enumerated().map { index, hop in
-                let resolution = NeighborNameResolver.resolve(
-                    for: hop.data,
-                    contacts: repeaters,
-                    discoveredNodes: discoveredRepeaters,
-                    userLocation: userLocation
-                ) ?? NodeNameResolution(
-                    displayName: L10n.RemoteNodes.RemoteNodes.Auth.pathHopUnknown,
-                    matchKind: .unresolved
-                )
-                return ResolvedHop(id: index, hex: hop.hex, resolution: resolution)
-            }
+            hops = NeighborNameResolver.resolvePath(
+                contact.pathHops,
+                contacts: contacts,
+                discoveredNodes: discoveredNodes,
+                userLocation: userLocation
+            )
         } catch {
             logger.error("Failed to resolve path hops: \(error.localizedDescription)")
             hops = []

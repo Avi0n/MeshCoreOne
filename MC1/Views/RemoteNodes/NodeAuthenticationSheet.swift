@@ -366,50 +366,19 @@ private struct PathSection: View {
         !contact.isFloodRouted
     }
 
-    private var pathDisplayText: String {
-        if contact.pathHopCount == 0 {
-            return L10n.Contacts.Contacts.Route.direct
-        } else {
-            return contact.pathString
-        }
-    }
-
-    private var pathAccessibilityLabel: String {
-        if contact.pathHopCount == 0 {
-            return L10n.Contacts.Contacts.Detail.routeDirect
-        } else {
-            return L10n.Contacts.Contacts.Detail.routePrefix(pathDisplayText)
-        }
-    }
-
-    @ViewBuilder
-    private var pathSummaryLabel: some View {
-        Label {
-            Text(pathDisplayText)
-                .font(.caption.monospaced())
-                .foregroundStyle(.primary)
-                .lineLimit(nil)
-        } icon: {
-            Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
-                .foregroundStyle(.secondary)
-                .accessibilityHidden(true)
-        }
-        .accessibilityLabel(pathAccessibilityLabel)
-    }
-
     var body: some View {
         Section {
             if hasStoredPath && !useFloodRouting {
                 if !pathViewModel.hops.isEmpty {
                     DisclosureGroup(isExpanded: $isPathExpanded) {
                         ForEach(pathViewModel.hops) { hop in
-                            PathHopResolvedRow(hop: hop)
+                            NodePathHopRow(hex: hop.hex, resolution: hop.resolution)
                         }
                     } label: {
-                        pathSummaryLabel
+                        NodePathSummaryLabel(contact: contact)
                     }
                 } else {
-                    pathSummaryLabel
+                    NodePathSummaryLabel(contact: contact)
                 }
             } else if !hasStoredPath {
                 Label {
@@ -437,32 +406,6 @@ private struct PathSection: View {
         }
         .themedRowBackground(theme)
         .animation(.default, value: useFloodRouting)
-    }
-}
-
-// MARK: - Path Hop Row
-
-private struct PathHopResolvedRow: View {
-    let hop: NodeAuthPathViewModel.ResolvedHop
-
-    var body: some View {
-        HStack(spacing: 6) {
-            Text(hop.hex)
-                .font(.body.monospaced())
-                .foregroundStyle(.secondary)
-
-            Text(hop.resolution.displayName)
-
-            if hop.resolution.matchKind == .fallback {
-                FallbackMatchIndicatorView(
-                    accessibilityLabel: L10n.RemoteNodes.RemoteNodes.Status.possibleMatch,
-                    accessibilityHint: L10n.RemoteNodes.RemoteNodes.Status.possibleMatchExplanation,
-                    title: L10n.RemoteNodes.RemoteNodes.Status.possibleMatchTitle,
-                    explanation: L10n.RemoteNodes.RemoteNodes.Status.possibleMatchExplanation
-                )
-            }
-        }
-        .accessibilityElement(children: .combine)
     }
 }
 
