@@ -91,6 +91,8 @@ extension AppState {
                 switch event {
                 case .contactUpdated:
                     self.contactsVersion += 1
+                    PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
+                        .info("B4 contactUpdated bump contactsVersion=\(self.contactsVersion)")
                 case .contactDeletedCleanup(let contactID, _):
                     self.logger.info("Overwrite oldest: running cleanup for deleted contact \(contactID) - removing notifications and updating badge")
                     await self.services?.notificationService.removeDeliveredNotifications(forContactID: contactID)

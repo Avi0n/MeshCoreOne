@@ -491,6 +491,8 @@ extension SyncCoordinator {
                 switch event {
                 case .newContactDiscovered(let name, let contactID, let contactType):
                     // Manual-add mode: a new contact was discovered via advertisement
+                    PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
+                        .info("B4 relay newContactDiscovered \(contactID) -> notifyContactsChanged")
                     await dependencies.notificationService.postNewContactNotification(
                         contactName: name,
                         contactID: contactID,
@@ -500,6 +502,8 @@ extension SyncCoordinator {
                 case .contactSyncRequested:
                     // Auto-add mode: AdvertisementService already fetched and
                     // saved the contact, so only a UI refresh is needed
+                    PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
+                        .info("B4 relay contactSyncRequested -> notifyContactsChanged")
                     await self.notifyContactsChanged()
                 case .contactUpdated, .nodeStorageFullChanged, .contactDeletedCleanup,
                      .pathDiscoveryResponse, .traceResponse, .traceSnrObserved:

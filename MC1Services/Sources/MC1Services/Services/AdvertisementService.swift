@@ -32,6 +32,11 @@ public actor AdvertisementService {
 
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "Advertisement")
 
+    /// Temporary end-to-end Discover trace. Filter by category "discover-trace"
+    /// to follow a single advert from push receipt through persistence to the
+    /// view reload. Remove once the "no new nodes after clear" report is closed.
+    private let discoverTrace = PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
+
     private let session: any AdvertisingSessionOps & SessionEventStreaming
     private let dataStore: any PersistenceStoreProtocol
 
@@ -206,6 +211,7 @@ public actor AdvertisementService {
     private func handleAdvertEvent(publicKey: Data, radioID: UUID) async {
         let pubKeyHex = publicKey.map { String(format: "%02X", $0) }.joined()
         logger.debug("Advert event for \(pubKeyHex)")
+        discoverTrace.info("B1 0x80 ADVERT received key=\(pubKeyHex)")
 
         let timestamp = UInt32(Date().timeIntervalSince1970)
 
@@ -227,11 +233,17 @@ public actor AdvertisementService {
                 _ = try await dataStore.saveContact(radioID: radioID, from: frame)
 
                 // Also track in DiscoveredNode for Discover page visibility
-                _ = try? await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
+                do {
+                    let (_, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
+                    discoverTrace.info("B2 0x80 known-contact upsert key=\(pubKeyHex) isNew=\(isNew)")
+                } catch {
+                    discoverTrace.error("B2 0x80 known-contact upsert FAILED key=\(pubKeyHex): \(error.localizedDescription)")
+                }
 
                 // Notify UI of contact update
                 eventBroadcaster.yield(.contactUpdated)
             } else {
+                discoverTrace.info("B2 0x80 no local contact key=\(pubKeyHex) syncing=\(isSyncingContacts)")
                 if isSyncingContacts {
                     pendingUnknownContactKeys.insert(publicKey)
                     logger.info("ADVERT received for unknown contact during sync - deferring fetch")
@@ -245,7 +257,12 @@ public actor AdvertisementService {
                             let contactID = try await dataStore.saveContact(radioID: radioID, from: frame)
 
                             // Also track in DiscoveredNode for Discover page visibility
-                            _ = try? await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
+                            do {
+                                let (_, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
+                                discoverTrace.info("B2 0x80 getContact OK upsert key=\(pubKeyHex) isNew=\(isNew)")
+                            } catch {
+                                discoverTrace.error("B2 0x80 getContact-path upsert FAILED key=\(pubKeyHex): \(error.localizedDescription)")
+                            }
 
                             // Empty names pass through raw; NotificationService substitutes a localized fallback.
                             let contactName = meshContact.advertisedName
@@ -257,9 +274,12 @@ public actor AdvertisementService {
                                 newContactName: contactName.isEmpty ? "Unknown Contact" : contactName,
                                 newContactType: contactType
                             )
+                        } else {
+                            discoverTrace.notice("B2 0x80 getContact returned nil key=\(pubKeyHex)")
                         }
                     } catch {
                         logger.error("Failed to fetch new contact: \(error.localizedDescription)")
+                        discoverTrace.error("B2 0x80 getContact THREW key=\(pubKeyHex): \(error.localizedDescription)")
                     }
                     eventBroadcaster.yield(.contactSyncRequested(radioID: radioID))
                 }
@@ -281,12 +301,18 @@ public actor AdvertisementService {
 
         for publicKey in pendingKeys {
             do {
+                let pubKeyHex = publicKey.map { String(format: "%02X", $0) }.joined()
                 if let meshContact = try await session.getContact(publicKey: publicKey) {
                     let frame = meshContact.toContactFrame()
                     let contactID = try await dataStore.saveContact(radioID: radioID, from: frame)
 
                     // Also track in DiscoveredNode for Discover page visibility
-                    _ = try? await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
+                    do {
+                        let (_, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
+                        discoverTrace.info("B2 deferred-drain upsert key=\(pubKeyHex) isNew=\(isNew)")
+                    } catch {
+                        discoverTrace.error("B2 deferred-drain upsert FAILED key=\(pubKeyHex): \(error.localizedDescription)")
+                    }
 
                     // Empty names pass through raw; NotificationService substitutes a localized fallback.
                     let contactName = meshContact.advertisedName
@@ -304,9 +330,12 @@ public actor AdvertisementService {
     /// Handle new advertisement event - New contact discovered (manual add mode)
     private func handleNewAdvertEvent(contact: MeshContact, radioID: UUID) async {
         let contactFrame = contact.toContactFrame()
+        let pubKeyHex = contactFrame.publicKey.map { String(format: "%02X", $0) }.joined()
+        discoverTrace.info("B1 0x8A NEW_ADVERT received key=\(pubKeyHex)")
 
         do {
             let (node, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: contactFrame)
+            discoverTrace.info("B2 0x8A upsert key=\(pubKeyHex) isNew=\(isNew)")
 
             // Notify UI of discovered node update
             eventBroadcaster.yield(.contactUpdated)
@@ -322,6 +351,7 @@ public actor AdvertisementService {
             }
         } catch {
             logger.error("Error handling new advert event: \(error.localizedDescription)")
+            discoverTrace.error("B2 0x8A upsert FAILED key=\(pubKeyHex): \(error.localizedDescription)")
         }
     }
 

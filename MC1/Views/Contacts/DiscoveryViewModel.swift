@@ -46,6 +46,10 @@ final class DiscoveryViewModel {
     private var dataStoreProvider: @MainActor () -> DataStore? = { nil }
     private var dataStore: DataStore? { dataStoreProvider() }
 
+    /// Temporary Discover trace; filter by category "discover-trace". Remove
+    /// once the "no new nodes after clear" report is closed.
+    private let discoverTrace = PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
+
     // MARK: - Initialization
 
     init() {}
@@ -71,8 +75,10 @@ final class DiscoveryViewModel {
 
             discoveredNodes = nodes
             addedPublicKeys = addedKeys
+            discoverTrace.info("B4 view reload loaded=\(nodes.count) addedKeys=\(addedKeys.count) radio=\(radioID)")
         } catch {
             errorMessage = error.userFacingMessage
+            discoverTrace.error("B4 view reload FAILED radio=\(radioID): \(error.localizedDescription)")
         }
 
         hasLoadedOnce = true

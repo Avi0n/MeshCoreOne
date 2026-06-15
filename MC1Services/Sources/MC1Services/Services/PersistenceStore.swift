@@ -183,6 +183,16 @@ public actor PersistenceStore: PersistenceStoreProtocol {
         }
 
         try modelContext.save()
+
+        // Temporary Discover trace: confirm the row committed and report the
+        // post-save row count for this radio (catches silent cap eviction).
+        // Filter by category "discover-trace"; remove with the matching probes.
+        let radioRows = (try? modelContext.fetchCount(
+            FetchDescriptor<DiscoveredNode>(predicate: #Predicate { $0.radioID == targetRadioID })
+        )) ?? -1
+        PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
+            .info("B3 persisted DiscoveredNode isNew=\(isNew) radioRows=\(radioRows)/\(maxDiscoveredNodes)")
+
         return (node: DiscoveredNodeDTO(from: node), isNew: isNew)
     }
 
