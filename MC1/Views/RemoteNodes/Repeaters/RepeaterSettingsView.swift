@@ -18,6 +18,9 @@ struct RepeaterSettingsView: View {
     @State private var telemetryConfigured = false
     @State private var contacts: [ContactDTO] = []
     @State private var discoveredNodes: [DiscoveredNodeDTO] = []
+    /// The node's contact, kept live so the route section reflects the path the firmware learns after
+    /// a flood login (delivered asynchronously as a contact update).
+    @State private var routeContact: ContactDTO?
 
     var body: some View {
         // ZStack, not Group: a stable container keeps the toolbar/title hosted on one
@@ -35,7 +38,8 @@ struct RepeaterSettingsView: View {
                     contacts: contacts,
                     discoveredNodes: discoveredNodes,
                     userLocation: appState.bestAvailableLocation,
-                    connectedDeviceID: appState.connectedDevice?.radioID
+                    connectedDeviceID: appState.connectedDevice?.radioID,
+                    routePathContact: routeContact
                 )
             }
         }
@@ -63,6 +67,17 @@ struct RepeaterSettingsView: View {
             if let send = viewModel.makeNodeCLISendClosure(session: session) {
                 cliViewModel.configure(sessionName: session.name, sendRawCommand: send)
             }
+            // Loaded up front (not just on Telemetry reveal) so the Settings-tab route section can
+            // resolve hop hashes to repeater names.
+            if let radioID = appState.connectedDevice?.radioID,
+               let dataStore = appState.services?.dataStore {
+                contacts = (try? await dataStore.fetchContacts(radioID: radioID)) ?? []
+                discoveredNodes = (try? await dataStore.fetchDiscoveredNodes(radioID: radioID)) ?? []
+            }
+            await refreshRouteContact()
+        }
+        .onChange(of: appState.contactsVersion) {
+            Task { await refreshRouteContact() }
         }
         .onChange(of: managementTab) { _, newTab in
             guard newTab == .telemetry, !telemetryConfigured else { return }
@@ -81,10 +96,6 @@ struct RepeaterSettingsView: View {
                 await statusViewModel.registerHandlers()
                 if let radioID = appState.connectedDevice?.radioID {
                     await statusViewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
-                    if let dataStore = appState.services?.dataStore {
-                        contacts = (try? await dataStore.fetchContacts(radioID: radioID)) ?? []
-                        discoveredNodes = (try? await dataStore.fetchDiscoveredNodes(radioID: radioID)) ?? []
-                    }
                 }
             }
         }
@@ -126,6 +137,14 @@ struct RepeaterSettingsView: View {
             makeSecuritySection()
             makeDeviceInfoSection()
             makeActionsSection()
+            if let routeContact {
+                NodeRoutePathSection(
+                    contact: routeContact,
+                    contacts: contacts,
+                    discoveredNodes: discoveredNodes,
+                    userLocation: appState.bestAvailableLocation
+                )
+            }
         }
         .themedCanvas(theme)
         .toolbar {
@@ -180,6 +199,16 @@ struct RepeaterSettingsView: View {
             settings: viewModel.helper,
             showRebootConfirmation: $showRebootConfirmation
         )
+    }
+
+    private func refreshRouteContact() async {
+        guard let dataStore = appState.services?.dataStore else { return }
+        if let updated = (try? await dataStore.fetchContact(
+            radioID: session.radioID,
+            publicKey: session.publicKey
+        )).flatMap({ $0 }) {
+            routeContact = updated
+        }
     }
 }
 

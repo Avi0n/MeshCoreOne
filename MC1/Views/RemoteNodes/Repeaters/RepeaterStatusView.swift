@@ -10,6 +10,9 @@ struct RepeaterStatusView: View {
     @State private var viewModel = RepeaterStatusViewModel()
     @State private var contacts: [ContactDTO] = []
     @State private var discoveredNodes: [DiscoveredNodeDTO] = []
+    /// The node's contact, kept live so the route section reflects the path the firmware learns after
+    /// a flood login (delivered asynchronously as a contact update).
+    @State private var routeContact: ContactDTO?
 
     var body: some View {
         NavigationStack {
@@ -20,7 +23,8 @@ struct RepeaterStatusView: View {
                 contacts: contacts,
                 discoveredNodes: discoveredNodes,
                 userLocation: appState.bestAvailableLocation,
-                connectedDeviceID: appState.connectedDevice?.radioID
+                connectedDeviceID: appState.connectedDevice?.radioID,
+                routePathContact: routeContact
             )
             .navigationTitle(L10n.RemoteNodes.RemoteNodes.Status.title)
             .navigationBarTitleDisplayMode(.inline)
@@ -57,6 +61,10 @@ struct RepeaterStatusView: View {
                         discoveredNodes = (try? await dataStore.fetchDiscoveredNodes(radioID: radioID)) ?? []
                     }
                 }
+                await refreshRouteContact()
+            }
+            .onChange(of: appState.contactsVersion) {
+                Task { await refreshRouteContact() }
             }
         }
         .onDisappear {
@@ -64,6 +72,16 @@ struct RepeaterStatusView: View {
             Task { await viewModel.cleanup() }
         }
         .presentationDetents([.large])
+    }
+
+    private func refreshRouteContact() async {
+        guard let dataStore = appState.services?.dataStore else { return }
+        if let updated = (try? await dataStore.fetchContact(
+            radioID: session.radioID,
+            publicKey: session.publicKey
+        )).flatMap({ $0 }) {
+            routeContact = updated
+        }
     }
 }
 

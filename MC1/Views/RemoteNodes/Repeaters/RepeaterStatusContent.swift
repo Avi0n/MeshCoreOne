@@ -18,6 +18,8 @@ struct RepeaterStatusContent: View {
     let discoveredNodes: [DiscoveredNodeDTO]
     let userLocation: CLLocation?
     let connectedDeviceID: UUID?
+    /// Contact whose login route is shown at the bottom; nil hides the route section.
+    var routePathContact: ContactDTO?
 
     var body: some View {
         List {
@@ -41,6 +43,14 @@ struct RepeaterStatusContent: View {
                 connectionState: connectionState,
                 connectedDeviceID: connectedDeviceID
             )
+            if let routePathContact {
+                NodeRoutePathSection(
+                    contact: routePathContact,
+                    contacts: contacts,
+                    discoveredNodes: discoveredNodes,
+                    userLocation: userLocation
+                )
+            }
         }
         .nodeStatusDestinations(helper: viewModel.helper)
         .themedCanvas(theme)
