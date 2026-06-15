@@ -25,6 +25,7 @@ struct NodeAuthenticationSheet: View {
     @State private var isAuthenticating = false
     @State private var errorMessage: String?
     @State private var hasSavedPassword = false
+    @State private var pathViewModel = NodeAuthPathViewModel()
 
     // Countdown state
     @State private var authSecondsRemaining: Int?
@@ -77,6 +78,16 @@ struct NodeAuthenticationSheet: View {
                     hasSavedPassword = true
                 }
             }
+            .task {
+                guard !contact.isFloodRouted, contact.pathHopCount > 0,
+                      let radioID = appState.connectedDevice?.radioID else { return }
+                await pathViewModel.load(
+                    contact: contact,
+                    services: appState.services,
+                    radioID: radioID,
+                    userLocation: appState.bestAvailableLocation
+                )
+            }
             .sensoryFeedback(.error, trigger: errorMessage)
             .onDisappear {
                 authenticationTask?.cancel()
@@ -108,7 +119,8 @@ struct NodeAuthenticationSheet: View {
     private func makePathSection() -> some View {
         PathSection(
             contact: contact,
-            useFloodRouting: $useFloodRouting
+            useFloodRouting: $useFloodRouting,
+            pathViewModel: pathViewModel
         )
     }
 
@@ -346,6 +358,9 @@ private struct PathSection: View {
     @Environment(\.appTheme) private var theme
     let contact: ContactDTO
     @Binding var useFloodRouting: Bool
+    let pathViewModel: NodeAuthPathViewModel
+
+    @State private var isPathExpanded = false
 
     private var hasStoredPath: Bool {
         !contact.isFloodRouted
@@ -367,20 +382,35 @@ private struct PathSection: View {
         }
     }
 
+    @ViewBuilder
+    private var pathSummaryLabel: some View {
+        Label {
+            Text(pathDisplayText)
+                .font(.caption.monospaced())
+                .foregroundStyle(.primary)
+                .lineLimit(nil)
+        } icon: {
+            Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+        }
+        .accessibilityLabel(pathAccessibilityLabel)
+    }
+
     var body: some View {
         Section {
             if hasStoredPath && !useFloodRouting {
-                Label {
-                    Text(pathDisplayText)
-                        .font(.caption.monospaced())
-                        .foregroundStyle(.primary)
-                        .lineLimit(nil)
-                } icon: {
-                    Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
-                        .foregroundStyle(.secondary)
-                        .accessibilityHidden(true)
+                if !pathViewModel.hops.isEmpty {
+                    DisclosureGroup(isExpanded: $isPathExpanded) {
+                        ForEach(pathViewModel.hops) { hop in
+                            PathHopResolvedRow(hop: hop)
+                        }
+                    } label: {
+                        pathSummaryLabel
+                    }
+                } else {
+                    pathSummaryLabel
                 }
-                .accessibilityLabel(pathAccessibilityLabel)
             } else if !hasStoredPath {
                 Label {
                     Text(L10n.RemoteNodes.RemoteNodes.Auth.noRouteSet)
@@ -407,6 +437,32 @@ private struct PathSection: View {
         }
         .themedRowBackground(theme)
         .animation(.default, value: useFloodRouting)
+    }
+}
+
+// MARK: - Path Hop Row
+
+private struct PathHopResolvedRow: View {
+    let hop: NodeAuthPathViewModel.ResolvedHop
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Text(hop.hex)
+                .font(.body.monospaced())
+                .foregroundStyle(.secondary)
+
+            Text(hop.resolution.displayName)
+
+            if hop.resolution.matchKind == .fallback {
+                FallbackMatchIndicatorView(
+                    accessibilityLabel: L10n.RemoteNodes.RemoteNodes.Status.possibleMatch,
+                    accessibilityHint: L10n.RemoteNodes.RemoteNodes.Status.possibleMatchExplanation,
+                    title: L10n.RemoteNodes.RemoteNodes.Status.possibleMatchTitle,
+                    explanation: L10n.RemoteNodes.RemoteNodes.Status.possibleMatchExplanation
+                )
+            }
+        }
+        .accessibilityElement(children: .combine)
     }
 }
 

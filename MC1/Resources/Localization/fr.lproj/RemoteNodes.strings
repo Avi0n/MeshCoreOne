@@ -65,6 +65,9 @@
 /* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
 "remoteNodes.auth.pathFooter" = "Utilisez le chemin connu vers ce nœud ou activez le routage flood pour laisser le réseau trouver un chemin.";
 
+/* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
+"remoteNodes.auth.pathHopUnknown" = "<inconnu>";
+
 /* Location: NodeAuthenticationSheet.swift - Label when no route is set */
 "remoteNodes.auth.noRouteSet" = "Aucun chemin défini";
 

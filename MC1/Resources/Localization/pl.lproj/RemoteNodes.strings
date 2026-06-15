@@ -65,6 +65,9 @@
 /* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
 "remoteNodes.auth.pathFooter" = "Użyj znanej trasy do tego węzła lub przełącz na routing flood, aby sieć sama znalazła ścieżkę.";
 
+/* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
+"remoteNodes.auth.pathHopUnknown" = "<nieznany>";
+
 /* Location: NodeAuthenticationSheet.swift - Label when no route is set */
 "remoteNodes.auth.noRouteSet" = "Brak ustawionej trasy";
 

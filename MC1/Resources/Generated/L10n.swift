@@ -3177,6 +3177,8 @@ public enum L10n {
         public static let path = L10n.tr("RemoteNodes", "remoteNodes.auth.path", fallback: "Path")
         /// Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists
         public static let pathFooter = L10n.tr("RemoteNodes", "remoteNodes.auth.pathFooter", fallback: "Use the known route to this node, or switch to flood routing to let the network find a path.")
+        /// Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known
+        public static let pathHopUnknown = L10n.tr("RemoteNodes", "remoteNodes.auth.pathHopUnknown", fallback: "<unknown>")
         /// Location: NodeAuthenticationSheet.swift - Remember password toggle
         public static let rememberPassword = L10n.tr("RemoteNodes", "remoteNodes.auth.rememberPassword", fallback: "Remember Password")
         /// Location: NodeAuthenticationSheet.swift - Countdown text showing seconds remaining
