@@ -10,6 +10,13 @@ struct ContactDetailSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appState) private var appState
 
+    init(contact: ContactDTO, onMessage: @escaping () -> Void, onDelete: @escaping () -> Void) {
+        self.contact = contact
+        self.onMessage = onMessage
+        self.onDelete = onDelete
+        _isFavorite = State(initialValue: contact.isFavorite)
+    }
+
     /// Sheet types for repeater flows
     private enum ActiveSheet: Identifiable, Hashable {
         case telemetryAuth
@@ -35,6 +42,8 @@ struct ContactDetailSheet: View {
     @State private var pingResult: PingResult?
     @State private var showingDeleteAlert = false
     @State private var isDeleting = false
+    @State private var isFavorite: Bool
+    @State private var isTogglingFavorite = false
     @State private var errorMessage: String?
 
     var body: some View {
@@ -52,7 +61,7 @@ struct ContactDetailSheet: View {
                         .foregroundStyle(contact.type.displayColor)
                     }
 
-                    if contact.isFavorite {
+                    if isFavorite {
                         LabeledContent(L10n.Map.Map.Detail.status) {
                             HStack {
                                 Image(systemName: "star.fill")
@@ -138,6 +147,26 @@ struct ContactDetailSheet: View {
                         }
                         .radioDisabled(for: appState.connectionState)
                     }
+                }
+
+                // Favorite section
+                Section {
+                    Button {
+                        Task { await toggleFavorite() }
+                    } label: {
+                        HStack {
+                            Label(
+                                isFavorite ? L10n.Contacts.Contacts.Detail.removeFromFavorites : L10n.Contacts.Contacts.Detail.addToFavorites,
+                                systemImage: isFavorite ? "star.slash" : "star"
+                            )
+                            if isTogglingFavorite {
+                                Spacer()
+                                ProgressView()
+                            }
+                        }
+                    }
+                    .disabled(isTogglingFavorite)
+                    .radioDisabled(for: appState.connectionState)
                 }
 
                 // Delete section
@@ -229,6 +258,20 @@ struct ContactDetailSheet: View {
                 Text(L10n.Contacts.Contacts.Detail.Alert.Delete.message(contact.displayName))
             }
             .errorAlert($errorMessage)
+        }
+    }
+
+    // MARK: - Favorite
+
+    private func toggleFavorite() async {
+        isTogglingFavorite = true
+        defer { isTogglingFavorite = false }
+        let newValue = !isFavorite
+        do {
+            try await appState.services?.contactService.setContactFavorite(contact.id, isFavorite: newValue)
+            isFavorite = newValue
+        } catch {
+            errorMessage = error.userFacingMessage
         }
     }
 
