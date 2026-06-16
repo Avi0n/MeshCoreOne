@@ -162,7 +162,9 @@ final class ContactsViewModel {
             // Clear sync progress
             syncProgress = nil
         } catch {
-            errorMessage = error.userFacingMessage
+            if !(error is CancellationError) {
+                errorMessage = error.userFacingMessage
+            }
         }
 
         // Awaited rather than deferred to an unstructured Task so this sync's reset cannot

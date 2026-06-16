@@ -47,10 +47,7 @@ struct ContactsContentColumn: View {
             showLocationDeniedAlert: $showLocationDeniedAlert,
             showOfflineRefreshAlert: $showOfflineRefreshAlert,
             // Compact-only navigation, unused on the split path which drives selection via selectedContact.
-            navigationPath: .constant(NavigationPath()),
-            onLoadContacts: actions.loadContacts,
-            onSyncContacts: actions.syncContacts,
-            onAnnounceOfflineStateIfNeeded: actions.announceOfflineStateIfNeeded
+            navigationPath: .constant(NavigationPath())
         )
         .onChange(of: appState.navigation.selectedContact) { _, newContact in
             if newContact != nil {

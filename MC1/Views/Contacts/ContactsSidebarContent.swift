@@ -25,10 +25,6 @@ struct ContactsSidebarContent: View {
     @Binding var showOfflineRefreshAlert: Bool
     @Binding var navigationPath: NavigationPath
 
-    let onLoadContacts: () async -> Void
-    let onSyncContacts: () async -> Void
-    let onAnnounceOfflineStateIfNeeded: () -> Void
-
     var body: some View {
         ContactsListContent(
             mode: shouldUseSplitView ? .selection($selectedContact) : .navigation,
@@ -111,7 +107,7 @@ struct ContactsSidebarContent: View {
                             if appState.connectionState != .ready {
                                 showOfflineRefreshAlert = true
                             } else {
-                                await onSyncContacts()
+                                await syncContacts()
                             }
                         }
                     } label: {
@@ -127,7 +123,7 @@ struct ContactsSidebarContent: View {
             if appState.connectionState != .ready {
                 showOfflineRefreshAlert = true
             } else {
-                await onSyncContacts()
+                await syncContacts()
             }
         }
         .alert(L10n.Contacts.Contacts.List.cannotRefresh, isPresented: $showOfflineRefreshAlert) {
@@ -143,9 +139,9 @@ struct ContactsSidebarContent: View {
                 contactService: { [appState] in appState.services?.contactService },
                 advertisementService: { [appState] in appState.services?.advertisementService }
             )
-            await onLoadContacts()
+            await loadContacts()
             sidebarLogger.info("NodesListView: loaded, contacts=\(viewModel.contacts.count)")
-            onAnnounceOfflineStateIfNeeded()
+            announceOfflineStateIfNeeded()
 
             // Request location for distance display (only if already authorized)
             if appState.locationService.isAuthorized {
@@ -165,12 +161,12 @@ struct ContactsSidebarContent: View {
         }
         .onChange(of: appState.servicesVersion) { _, _ in
             Task {
-                await onLoadContacts()
+                await loadContacts()
             }
         }
         .onChange(of: appState.contactsVersion) { _, _ in
             Task {
-                await onLoadContacts()
+                await loadContacts()
             }
         }
         .onChange(of: appState.navigation.pendingDiscoveryNavigation, initial: true) { _, shouldNavigate in
@@ -226,5 +222,29 @@ struct ContactsSidebarContent: View {
             Text(L10n.Contacts.Contacts.List.distanceRequiresLocation)
         }
         .errorAlert($viewModel.errorMessage, title: L10n.Contacts.Contacts.Common.error)
+    }
+
+    // MARK: - Actions
+
+    private func loadContacts() async {
+        guard let deviceID = appState.currentRadioID else { return }
+        viewModel.configure(
+            dataStore: { [appState] in appState.offlineDataStore },
+            contactService: { [appState] in appState.services?.contactService },
+            advertisementService: { [appState] in appState.services?.advertisementService }
+        )
+        await viewModel.loadContacts(radioID: deviceID)
+    }
+
+    private func syncContacts() async {
+        guard let deviceID = appState.currentRadioID else { return }
+        await viewModel.syncContacts(radioID: deviceID)
+        syncSuccessTrigger.toggle()
+    }
+
+    private func announceOfflineStateIfNeeded() {
+        guard appState.connectionState == .disconnected,
+              appState.currentRadioID != nil else { return }
+        AccessibilityNotification.Announcement(L10n.Contacts.Contacts.List.offlineAnnouncement).post()
     }
 }

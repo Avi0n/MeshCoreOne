@@ -51,10 +51,7 @@ struct ContactsListView: View {
             showAddContact: $showAddContact,
             showLocationDeniedAlert: $showLocationDeniedAlert,
             showOfflineRefreshAlert: $showOfflineRefreshAlert,
-            navigationPath: $navigationPath,
-            onLoadContacts: actions.loadContacts,
-            onSyncContacts: actions.syncContacts,
-            onAnnounceOfflineStateIfNeeded: actions.announceOfflineStateIfNeeded
+            navigationPath: $navigationPath
         )
     }
 }
