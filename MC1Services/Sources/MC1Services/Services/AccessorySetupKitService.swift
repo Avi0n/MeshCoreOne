@@ -60,6 +60,21 @@ final class AccessorySetupKitService {
     /// handler to remove the orphaned accessory immediately.
     private var pickerWasCancelled = false
 
+    /// Display items accumulated across `accessoryDiscovered` events and re-sent in full on
+    /// each `updatePicker`. Keyed by the accessory, not `bluetoothIdentifier` (a discovery
+    /// lacks one until it pairs); `AnyHashable` keeps the iOS 26.1 type off the property.
+    private var discoveredDisplayItems: [AnyHashable: ASPickerDisplayItem] = [:]
+
+    /// Whether the active picker opted into filtered discovery; drives the dismissal log.
+    private var usedFilteredDiscovery = false
+
+    /// Product image rendered once per `showPicker` and reused by the discovery handler.
+    private var currentProductImage: UIImage?
+
+    /// Static label used on systems without filtered discovery and as the fallback when a
+    /// discovered accessory advertises no local name. Mirrors `Settings.deviceInfo.defaultManufacturer`.
+    private static let defaultAccessoryName = "MeshCore Device"
+
     init() {}
 
     // MARK: - Continuation Safety
@@ -178,8 +193,11 @@ final class AccessorySetupKitService {
             logger.info("Accessory changed")
 
         case .accessoryDiscovered:
-            // Default ASK picker flow handles discovery UI itself.
-            break
+            // Under filtered discovery (iOS 26.1+) the picker hands each match to us so we can
+            // relabel it with the device's advertised name before it appears for selection.
+            if #available(iOS 26.1, *), usedFilteredDiscovery {
+                handleDiscoveredAccessory(event.accessory)
+            }
 
         case .pickerDidPresent:
             logger.info("Picker presented")
@@ -190,7 +208,7 @@ final class AccessorySetupKitService {
                     outcome: pickerOutcome,
                     pairedCount: pairedAccessories.count,
                     elapsed: pickerElapsedTime,
-                    filteredDiscovery: AccessorySetupKitDiscoveryCriteria.usesFilteredDiscovery
+                    filteredDiscovery: usedFilteredDiscovery
                 )
             )
             pickerPresentedAt = nil
@@ -258,13 +276,22 @@ final class AccessorySetupKitService {
             throw AccessorySetupKitError.pickerAlreadyActive
         }
 
-        if #available(iOS 26.0, *) {
+        discoveredDisplayItems.removeAll()
+        usedFilteredDiscovery = false
+
+        if #available(iOS 26.1, *), AccessorySetupKitDiscoveryCriteria.usesFilteredDiscovery {
+            let settings = session.pickerDisplaySettings ?? ASPickerDisplaySettings()
+            settings.options.insert(.filterDiscoveryResults)
+            session.pickerDisplaySettings = settings
+            usedFilteredDiscovery = true
+        } else if #available(iOS 26.0, *) {
             if session.pickerDisplaySettings == nil {
                 session.pickerDisplaySettings = ASPickerDisplaySettings()
             }
         }
 
         let productImage = createGenericProductImage()
+        currentProductImage = productImage
         let displayItems = makePickerDisplayItems(productImage: productImage)
         pickerPresentedAt = Date()
         pickerOutcome = "presented"
@@ -275,7 +302,7 @@ final class AccessorySetupKitService {
             sessionActive: \(isSessionActive), \
             pairedCount: \(pairedAccessories.count), \
             displayItems: \(displayItems.count), \
-            filteredDiscovery: \(AccessorySetupKitDiscoveryCriteria.usesFilteredDiscovery), \
+            filteredDiscovery: \(usedFilteredDiscovery), \
             criteria: \(AccessorySetupKitLogFormatter.criteriaSummary(AccessorySetupKitDiscoveryCriteria.supportedBluetoothCriteria))
             """
         )
@@ -414,10 +441,40 @@ final class AccessorySetupKitService {
             descriptor.bluetoothNameSubstring = criterion.bluetoothNameSubstring
 
             return ASPickerDisplayItem(
-                name: "MeshCore Device",
+                name: Self.defaultAccessoryName,
                 productImage: productImage,
                 descriptor: descriptor
             )
+        }
+    }
+
+    /// Relabels a filtered-discovery match with its advertised BLE name, falling back to
+    /// `defaultAccessoryName` when the advertisement carries no usable local name.
+    @available(iOS 26.1, *)
+    private func handleDiscoveredAccessory(_ accessory: ASAccessory?) {
+        guard let session,
+              let discovered = accessory as? ASDiscoveredAccessory else { return }
+
+        let advertisedName = (discovered.bluetoothAdvertisementData?[CBAdvertisementDataLocalNameKey] as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let name = advertisedName.flatMap { $0.isEmpty ? nil : $0 } ?? Self.defaultAccessoryName
+        let productImage = currentProductImage ?? createGenericProductImage()
+
+        logger.info("[ASK] Discovered accessory '\(name)', RSSI: \(discovered.bluetoothRSSI.map(String.init) ?? "n/a")")
+
+        discoveredDisplayItems[AnyHashable(discovered)] = ASDiscoveredDisplayItem(
+            name: name,
+            productImage: productImage,
+            accessory: discovered
+        )
+
+        let items = discoveredDisplayItems.values.compactMap { $0 as? ASDiscoveredDisplayItem }
+        logger.info("[ASK] updatePicker with \(items.count) discovered item(s)")
+        session.updatePicker(showing: items) { [weak self] error in
+            guard let error else { return }
+            Task { @MainActor in
+                self?.logger.warning("[ASK] updatePicker failed: \(error.localizedDescription)")
+            }
         }
     }
 

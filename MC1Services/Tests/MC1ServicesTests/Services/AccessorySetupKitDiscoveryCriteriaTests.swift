@@ -36,8 +36,8 @@ struct AccessorySetupKitDiscoveryCriteriaTests {
         #expect(Set(criteria.map(\.bluetoothNameSubstring)).count == criteria.count)
     }
 
-    @Test("picker uses system default discovery instead of custom filtered discovery")
-    func pickerUsesSystemDefaultDiscovery() {
-        #expect(AccessorySetupKitDiscoveryCriteria.usesFilteredDiscovery == false)
+    @Test("picker opts into filtered discovery so matches can be relabeled with advertised names")
+    func pickerUsesFilteredDiscovery() {
+        #expect(AccessorySetupKitDiscoveryCriteria.usesFilteredDiscovery == true)
     }
 }
