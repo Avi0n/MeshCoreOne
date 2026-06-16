@@ -228,6 +228,7 @@ private struct MessagesView: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.openURL) private var openURL
 
     var body: some View {
@@ -248,7 +249,11 @@ private struct MessagesView: View {
                     },
                     contentBackground: theme.surfaces?.canvas,
                     themeID: theme.id,
-                    appearanceToken: AppearanceToken.make(colorScheme: colorScheme, contrast: colorSchemeContrast),
+                    appearanceToken: AppearanceToken.make(
+                        colorScheme: colorScheme,
+                        contrast: colorSchemeContrast,
+                        dynamicTypeSize: dynamicTypeSize
+                    ),
                     isAtBottom: $isAtBottom,
                     unreadCount: $unreadCount,
                     scrollToBottomRequest: $scrollToBottomRequest,

@@ -30,6 +30,7 @@ struct ChatMessagesTableView: View {
     @Environment(\.appTheme) private var theme
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.openURL) private var openURL
 
     private var showDividerFAB: Bool {
@@ -60,7 +61,7 @@ struct ChatMessagesTableView: View {
                         )
                     }
                 },
-                onRetryImageFetch: { messageID in
+                onRetryInlineImage: { messageID in
                     Task { await viewModel.retryImageFetch(for: messageID) }
                 },
                 onRequestPreviewFetch: { messageID in
@@ -75,7 +76,10 @@ struct ChatMessagesTableView: View {
                 },
                 onMapPreviewTap: { coordinate in
                     viewModel.navigateToMap(coordinate)
-                }
+                },
+                snapshotResolver: { MapSnapshotStore.shared.image(for: $0) },
+                requestSnapshot: { MapSnapshotStore.shared.request($0) },
+                retrySnapshot: { MapSnapshotStore.shared.retry($0) }
             )
         )
         ChatTableView(
@@ -83,7 +87,11 @@ struct ChatMessagesTableView: View {
             cellContent: factory.makeContent(for:),
             contentBackground: theme.surfaces?.canvas,
             themeID: theme.id,
-            appearanceToken: AppearanceToken.make(colorScheme: colorScheme, contrast: colorSchemeContrast),
+            appearanceToken: AppearanceToken.make(
+                colorScheme: colorScheme,
+                contrast: colorSchemeContrast,
+                dynamicTypeSize: dynamicTypeSize
+            ),
             isAtBottom: $isAtBottom,
             unreadCount: $unreadCount,
             scrollToBottomRequest: $scrollToBottomRequest,

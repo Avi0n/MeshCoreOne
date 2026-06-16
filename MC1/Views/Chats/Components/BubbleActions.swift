@@ -1,5 +1,6 @@
 import CoreLocation
 import SwiftUI
+import UIKit
 import MC1Services
 
 /// Per-row action wiring for `MessageBubbleView`. Each closure is invoked
@@ -21,8 +22,13 @@ struct BubbleActions {
     let onReaction: (String, MessageDTO) -> Void
     let onLongPress: (MessageDTO) -> Void
     let onImageTap: (MessageDTO) -> Void
-    let onRetryImageFetch: (UUID) -> Void
+    let onRetryInlineImage: (UUID) -> Void
     let onRequestPreviewFetch: (UUID) -> Void
     let onManualPreviewFetch: (UUID) -> Void
     let onMapPreviewTap: (CLLocationCoordinate2D) -> Void
+    /// Map snapshot providers, injected so the bubble resolves, requests, and
+    /// retries thumbnails without reaching `MapSnapshotStore.shared`.
+    let snapshotResolver: (MapSnapshotRequest) -> UIImage?
+    let requestSnapshot: (MapSnapshotRequest) -> Void
+    let retrySnapshot: (MapSnapshotRequest) -> Void
 }

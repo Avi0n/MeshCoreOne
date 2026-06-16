@@ -42,6 +42,10 @@ struct UnifiedMessageBubble: View, Equatable {
     let deviceName: String
     let configuration: MessageBubbleConfiguration
     let item: MessageItem
+    /// Box-vs-sibling partition derived once in `MessageBubbleView.body`.
+    /// Excluded from `==` (which stays `item`-only): it is a pure function of
+    /// `item.content`, so equal items yield equal layouts.
+    let layout: FragmentLayout
     let imageResolver: (ImageReference) -> UIImage?
     let callbacks: MessageBubbleCallbacks
 
@@ -65,6 +69,7 @@ struct UnifiedMessageBubble: View, Equatable {
         deviceName: String = "Me",
         configuration: MessageBubbleConfiguration,
         item: MessageItem,
+        layout: FragmentLayout,
         imageResolver: @escaping (ImageReference) -> UIImage? = { _ in nil },
         callbacks: MessageBubbleCallbacks = .init()
     ) {
@@ -73,6 +78,7 @@ struct UnifiedMessageBubble: View, Equatable {
         self.deviceName = deviceName
         self.configuration = configuration
         self.item = item
+        self.layout = layout
         self.imageResolver = imageResolver
         self.callbacks = callbacks
     }
@@ -115,36 +121,29 @@ struct UnifiedMessageBubble: View, Equatable {
                         }
                     }
 
-                    BubbleFragmentStack(
-                        item: item,
-                        bubbleColor: resolvedBubbleColor,
-                        callbacks: callbacks,
-                        imageResolver: imageResolver
-                    )
-                    .shadow(
-                        color: Color.black.opacity(isLongPressing ? liftContactShadowOpacity : 0),
-                        radius: liftContactShadowRadius,
-                        x: 0,
-                        y: liftContactShadowYOffset
-                    )
-                    .shadow(
-                        color: Color.black.opacity(isLongPressing ? liftAmbientShadowOpacity : 0),
-                        radius: liftAmbientShadowRadius,
-                        x: 0,
-                        y: liftAmbientShadowYOffset
-                    )
-                    .onLongPressGesture(
-                        minimumDuration: longPressConfirmDuration,
-                        perform: {
-                            longPressTrigger += 1
-                            callbacks.onLongPress?()
-                        },
-                        onPressingChanged: { pressing in
-                            isLongPressing = pressing
-                        }
+                    bubbleActionsLongPress(
+                        BubbleFragmentStack(
+                            item: item,
+                            layout: layout,
+                            bubbleColor: resolvedBubbleColor,
+                            callbacks: callbacks,
+                            imageResolver: imageResolver
+                        )
+                        .shadow(
+                            color: Color.black.opacity(isLongPressing ? liftContactShadowOpacity : 0),
+                            radius: liftContactShadowRadius,
+                            x: 0,
+                            y: liftContactShadowYOffset
+                        )
+                        .shadow(
+                            color: Color.black.opacity(isLongPressing ? liftAmbientShadowOpacity : 0),
+                            radius: liftAmbientShadowRadius,
+                            x: 0,
+                            y: liftAmbientShadowYOffset
+                        )
                     )
 
-                    ForEach(Array(item.content.enumerated()), id: \.offset) { _, fragment in
+                    ForEach(Array(layout.siblings.enumerated()), id: \.offset) { _, fragment in
                         siblingFragmentView(fragment)
                     }
 
@@ -168,10 +167,11 @@ struct UnifiedMessageBubble: View, Equatable {
                             showingReactionDetails = true
                         }
                     }
-                    if let url = linkPreviewURL {
-                        Button(L10n.Chats.Chats.Message.Action.openLink) {
-                            openURL(url)
-                        }
+                    ForEach(MessageLinkAccessibility.actions(
+                        previewURL: linkPreviewURL,
+                        formatted: layout.textPayload?.formatted
+                    )) { action in
+                        Button(action.name) { openURL(action.url) }
                     }
                     if let inline = inlineImage {
                         switch inline.state {
@@ -180,8 +180,8 @@ struct UnifiedMessageBubble: View, Equatable {
                                 Button(L10n.Chats.Chats.Message.Action.viewImage) { onImageTap() }
                             }
                         case .failed:
-                            if let onRetryImageFetch = callbacks.onRetryImageFetch {
-                                Button(L10n.Chats.Chats.Message.Action.retryImage) { onRetryImageFetch() }
+                            if let onRetryInlineImage = callbacks.onRetryInlineImage {
+                                Button(L10n.Chats.Chats.Message.Action.retryImage) { onRetryInlineImage() }
                             }
                         case .loading, .idle:
                             EmptyView()
@@ -218,12 +218,39 @@ struct UnifiedMessageBubble: View, Equatable {
         }
     }
 
-    /// Renders the sibling fragments that live below the colored bubble box:
-    /// reactions, malware warning, link preview. Inline image fragments are
-    /// rendered inside `BubbleFragmentStack` (attached to the bubble box) and
-    /// are skipped here; the text fragment is also rendered inside the box.
+    /// Applies the bubble's actions-sheet long-press: a sustained press fires `onLongPress`, drives
+    /// the lift, and bumps the haptic trigger. Shared by the box and the content-card siblings so a
+    /// press anywhere on the bubble opens the same sheet.
+    private func bubbleActionsLongPress(_ content: some View) -> some View {
+        content.onLongPressGesture(
+            minimumDuration: longPressConfirmDuration,
+            perform: {
+                longPressTrigger += 1
+                callbacks.onLongPress?()
+            },
+            onPressingChanged: { pressing in
+                isLongPressing = pressing
+            }
+        )
+    }
+
+    /// Renders one fragment from `layout.siblings` (reactions, malware warning, link preview, map
+    /// preview). Content cards carry the bubble's long-press so a press anywhere opens the actions
+    /// sheet; reactions keep their own. The text and inline-image kinds never reach the sibling list
+    /// (they render inside `BubbleFragmentStack`), so their arm exists only to keep the switch
+    /// exhaustive.
     @ViewBuilder
     private func siblingFragmentView(_ fragment: MessageFragment) -> some View {
+        let content = siblingFragmentBody(fragment)
+        if Self.siblingWantsActionsLongPress(fragment) {
+            bubbleActionsLongPress(content)
+        } else {
+            content
+        }
+    }
+
+    @ViewBuilder
+    private func siblingFragmentBody(_ fragment: MessageFragment) -> some View {
         switch fragment {
         case .reactionSummary(let summary):
             ReactionsFragmentView(
@@ -242,13 +269,25 @@ struct UnifiedMessageBubble: View, Equatable {
         case .mapPreview(let state):
             MapPreviewFragmentView(
                 state: state,
-                snapshotResolver: { MapSnapshotStore.shared.image(for: $0) },
+                snapshotResolver: { callbacks.snapshotResolver?($0) },
                 onTap: { callbacks.onMapPreviewTap?($0) },
-                onRequestSnapshot: { MapSnapshotStore.shared.request($0) },
-                onRetry: { MapSnapshotStore.shared.retry($0) }
+                onRequestSnapshot: { callbacks.requestSnapshot?($0) },
+                onRetry: { callbacks.retrySnapshot?($0) }
             )
         case .text, .inlineImage:
             EmptyView()
+        }
+    }
+
+    /// Whether a sibling fragment carries the bubble's actions-sheet long-press. Content cards
+    /// (link, map, malware) do, so a press anywhere on the bubble opens the sheet. Reactions keep
+    /// their own long-press; text and inline image render in the box, which already carries it.
+    static func siblingWantsActionsLongPress(_ fragment: MessageFragment) -> Bool {
+        switch fragment {
+        case .linkPreview, .mapPreview, .malwareWarning:
+            return true
+        case .reactionSummary, .text, .inlineImage:
+            return false
         }
     }
 
@@ -309,30 +348,17 @@ struct UnifiedMessageBubble: View, Equatable {
 
 private extension UnifiedMessageBubble {
     var inlineImage: InlineImage? {
-        for fragment in item.content {
-            if case .inlineImage(let inline) = fragment { return inline }
-        }
-        return nil
+        layout.inlineImage
     }
 
     var hasReactionSummary: Bool {
-        for fragment in item.content {
-            if case .reactionSummary = fragment { return true }
-        }
-        return false
+        layout.siblings.contains { if case .reactionSummary = $0 { return true } else { return false } }
     }
 
     var linkPreviewURL: URL? {
-        for fragment in item.content {
+        for fragment in layout.siblings {
             if case .linkPreview(let state) = fragment {
-                switch state.mode {
-                case .loaded(let dto, _, _):
-                    return URL(string: dto.url)
-                case .legacy(let url, _, _, _):
-                    return url
-                case .idle, .loading, .noPreview, .disabled:
-                    return nil
-                }
+                return state.primaryURL
             }
         }
         return nil

@@ -596,6 +596,10 @@ public enum L10n {
         /// Location: ChatConversationView.swift - Accessibility label for unavailable message
         public static let unavailableAccessibility = L10n.tr("Chats", "chats.message.unavailableAccessibility", fallback: "Message could not be loaded")
         public enum Action {
+          /// Location: MessageLinkAccessibility.swift - VoiceOver action to add a shared contact, %@ is the contact name
+          public static func addContact(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.action.addContact", String(describing: p1), fallback: "Add Contact: %@")
+          }
           /// Location: MessageActionsSheet.swift - Purpose: Block sender action
           public static let blockSender = L10n.tr("Chats", "chats.message.action.blockSender", fallback: "Block Sender")
           /// Location: ActionsDetailsSection.swift - Accessibility value when the details row is collapsed
@@ -610,8 +614,26 @@ public enum L10n {
           public static let expanded = L10n.tr("Chats", "chats.message.action.expanded", fallback: "Expanded")
           /// Location: MessageActionsSheet.swift - Context menu action to mention
           public static let mention = L10n.tr("Chats", "chats.message.action.mention", fallback: "Mention")
+          /// Location: MessageLinkAccessibility.swift - VoiceOver action to open a shared channel link, %@ is the channel name
+          public static func openChannel(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.action.openChannel", String(describing: p1), fallback: "Open Channel: %@")
+          }
+          /// Location: MessageLinkAccessibility.swift - VoiceOver action to open a hashtag channel, %@ is the channel name
+          public static func openHashtag(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.action.openHashtag", String(describing: p1), fallback: "Open #%@")
+          }
           /// Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL
           public static let openLink = L10n.tr("Chats", "chats.message.action.openLink", fallback: "Open Link")
+          /// Location: MessageLinkAccessibility.swift - VoiceOver action to open a shared map coordinate
+          public static let openMapLink = L10n.tr("Chats", "chats.message.action.openMapLink", fallback: "Open Map")
+          /// Location: MessageLinkAccessibility.swift - VoiceOver action to open a mention, %@ is the mentioned name
+          public static func openMention(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.action.openMention", String(describing: p1), fallback: "Mention: %@")
+          }
+          /// Location: MessageLinkAccessibility.swift - VoiceOver action to open a web link, %@ is the host
+          public static func openWebLink(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.action.openWebLink", String(describing: p1), fallback: "Open Link: %@")
+          }
           /// Location: UnifiedMessageBubble.swift - Context menu action to view repeat details
           public static let repeatDetails = L10n.tr("Chats", "chats.message.action.repeatDetails", fallback: "Repeat Details")
           /// Location: UnifiedMessageBubble.swift - Context menu action to reply

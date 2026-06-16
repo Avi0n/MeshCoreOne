@@ -27,16 +27,20 @@ struct MessageBubbleView: View, Equatable {
                 deviceName: deviceName,
                 configuration: configuration,
                 item: item,
+                layout: FragmentLayout(content: item.content),
                 imageResolver: { ref in resolver.image(ref) },
                 callbacks: MessageBubbleCallbacks(
                     onRetry: { actions.onRetryMessage(message) },
                     onReaction: { emoji in actions.onReaction(emoji, message) },
                     onLongPress: { actions.onLongPress(message) },
                     onImageTap: { actions.onImageTap(message) },
-                    onRetryImageFetch: { actions.onRetryImageFetch(message.id) },
+                    onRetryInlineImage: { actions.onRetryInlineImage(message.id) },
                     onRequestPreviewFetch: { actions.onRequestPreviewFetch(message.id) },
                     onManualPreviewFetch: { actions.onManualPreviewFetch(message.id) },
-                    onMapPreviewTap: { coordinate in actions.onMapPreviewTap(coordinate) }
+                    onMapPreviewTap: { coordinate in actions.onMapPreviewTap(coordinate) },
+                    snapshotResolver: actions.snapshotResolver,
+                    requestSnapshot: actions.requestSnapshot,
+                    retrySnapshot: actions.retrySnapshot
                 )
             )
         } else {

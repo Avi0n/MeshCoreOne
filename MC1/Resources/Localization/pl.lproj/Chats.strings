@@ -662,6 +662,24 @@
 /* Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL */
 "chats.message.action.openLink" = "Otwórz łącze";
 
+/* TODO(translate) - VoiceOver action to open a web link, %@ is the host */
+"chats.message.action.openWebLink" = "Open Link: %@";
+
+/* TODO(translate) - VoiceOver action to open a shared map coordinate */
+"chats.message.action.openMapLink" = "Open Map";
+
+/* TODO(translate) - VoiceOver action to open a mention, %@ is the mentioned name */
+"chats.message.action.openMention" = "Mention: %@";
+
+/* TODO(translate) - VoiceOver action to open a hashtag channel, %@ is the channel name */
+"chats.message.action.openHashtag" = "Open #%@";
+
+/* TODO(translate) - VoiceOver action to add a shared contact, %@ is the contact name */
+"chats.message.action.addContact" = "Add Contact: %@";
+
+/* TODO(translate) - VoiceOver action to open a shared channel link, %@ is the channel name */
+"chats.message.action.openChannel" = "Open Channel: %@";
+
 /* Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen */
 "chats.message.action.viewImage" = "Pokaż obraz";
 

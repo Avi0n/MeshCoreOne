@@ -16,6 +16,10 @@ struct BubbleFragmentStack: View, Equatable {
     static let cornerRadius: CGFloat = 16
 
     let item: MessageItem
+    /// The box-resident text and inline image from the shared partition.
+    /// Excluded from `==` (which stays `item`/`bubbleColor`): it is a pure
+    /// function of `item.content`, so equal items yield equal box fragments.
+    let layout: FragmentLayout
     let bubbleColor: Color
     let callbacks: MessageBubbleCallbacks
     let imageResolver: (ImageReference) -> UIImage?
@@ -33,28 +37,10 @@ struct BubbleFragmentStack: View, Equatable {
             || item.footer.regionToShow != nil
     }
 
-    private var inlineImageFragment: InlineImage? {
-        for fragment in item.content {
-            if case .inlineImage(let inlineImage) = fragment {
-                return inlineImage
-            }
-        }
-        return nil
-    }
-
-    private var textPayload: MessageTextPayload? {
-        for fragment in item.content {
-            if case .text(let payload) = fragment {
-                return payload
-            }
-        }
-        return nil
-    }
-
     var body: some View {
         let stack = VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
-                if let textPayload {
+                if let textPayload = layout.textPayload {
                     MessageTextView(text: textPayload)
                 }
 
@@ -64,18 +50,18 @@ struct BubbleFragmentStack: View, Equatable {
             }
             .bubbleContentPadding()
 
-            if let inlineImage = inlineImageFragment {
+            if let inlineImage = layout.inlineImage {
                 InlineImageFragmentView(
                     inlineImage: inlineImage,
                     isOutgoing: item.envelope.isOutgoing,
                     imageResolver: imageResolver,
                     onTap: { callbacks.onImageTap?() },
-                    onRetry: { callbacks.onRetryImageFetch?() }
+                    onRetry: { callbacks.onRetryInlineImage?() }
                 )
             }
         }
 
-        if inlineImageFragment == nil {
+        if layout.inlineImage == nil {
             // Text-only bubbles fill a rounded shape directly. Drawing the
             // background as a shape avoids the mask `.clipShape` installs, which
             // forces an offscreen render pass per bubble while scrolling.

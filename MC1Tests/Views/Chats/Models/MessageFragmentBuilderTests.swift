@@ -495,7 +495,8 @@ struct MessageFragmentBuilderTests {
             showMapPreviews: showMapPreviews,
             isOffline: isOffline,
             currentUserName: currentUserName,
-            themeID: "default"
+            themeID: "default",
+            contentSizeCategory: EnvInputs.defaultContentSizeCategory
         )
     }
 

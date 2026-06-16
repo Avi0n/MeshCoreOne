@@ -1,18 +1,24 @@
 import SwiftUI
 import MC1Services
 
-/// Fragment-level wrapper over the existing `MessageText` SwiftUI view, driven
-/// by a typed MessageTextPayload data carrier.
+/// Fragment-level wrapper over the body text renderer, driven by a typed `MessageTextPayload`
+/// data carrier. Renders through `MessageBodyTextView` (a `UITextView`-backed representable) so
+/// the bubble's long-press wins over link interaction while link taps still route; the SwiftUI
+/// `Text(AttributedString)` path it replaced installed its own long-press link menu that
+/// out-prioritized the bubble's gesture.
 struct MessageTextView: View {
     let text: MessageTextPayload
 
+    // Reflow of already-visible bubbles on a Dynamic Type change is driven primarily by the
+    // AppearanceToken reconfigure re-host; this per-view token is a secondary discriminator that
+    // guards the in-Coordinator size cache so a recycled view cannot reuse a height from another size.
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     var body: some View {
-        MessageText(
-            text.raw,
+        MessageBodyTextView(
+            attributedString: text.formatted ?? AttributedString(text.raw),
             baseColor: text.baseColor.swiftUIColor,
-            isOutgoing: text.isOutgoing,
-            currentUserName: text.currentUserName,
-            precomputedText: text.formatted
+            contentSizeCategoryToken: AppearanceToken.contentSizeCategoryToken(dynamicTypeSize)
         )
     }
 }

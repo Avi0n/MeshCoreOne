@@ -2,9 +2,9 @@ import CoreLocation
 import Foundation
 
 /// Single source of truth for detecting decimal-degree coordinate pairs in
-/// message text. The linkifier (`MessageText.applyCoordinateFormatting`) and the
-/// map-preview fragment builder both route through this type, so the tappable
-/// text link and the thumbnail never disagree about what counts as a coordinate.
+/// message text. The linkifier (`MessageLinkTokenizer`) and the map-preview
+/// fragment builder both route through this type, so the tappable text link and
+/// the thumbnail never disagree about what counts as a coordinate.
 ///
 /// The `-90...90` / `-180...180` clamp is the sole validity gate for the
 /// thumbnail path: the thumbnail forwards the parsed coordinate straight to the

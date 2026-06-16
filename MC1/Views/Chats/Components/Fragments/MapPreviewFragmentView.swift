@@ -15,8 +15,6 @@ struct MapPreviewFragmentView: View {
     let onRequestSnapshot: (MapSnapshotRequest) -> Void
     let onRetry: (MapSnapshotRequest) -> Void
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
     private static let retryControlPadding: CGFloat = 8
 
     private var request: MapSnapshotRequest {
@@ -42,19 +40,17 @@ struct MapPreviewFragmentView: View {
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            Button {
-                onTap(state.coordinate)
-            } label: {
-                content
-                    .frame(width: MapSnapshotLayout.width, height: MapSnapshotLayout.height)
-                    .clipShape(.rect(cornerRadius: MapSnapshotLayout.cornerRadius))
-            }
-            .buttonStyle(.plain)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(L10n.Map.Map.Preview.accessibilityLabel)
-            .accessibilityValue(coordinateText)
-            .accessibilityHint(L10n.Map.Map.Preview.accessibilityHint)
-            .accessibilityAddTraits(.isButton)
+            content
+                .frame(width: MapSnapshotLayout.width, height: MapSnapshotLayout.height)
+                .clipShape(.rect(cornerRadius: MapSnapshotLayout.cornerRadius))
+                .contentShape(Rectangle())
+                .tapYieldingToLongPress { onTap(state.coordinate) }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(L10n.Map.Map.Preview.accessibilityLabel)
+                .accessibilityValue(coordinateText)
+                .accessibilityHint(L10n.Map.Map.Preview.accessibilityHint)
+                .accessibilityAddTraits(.isButton)
+                .accessibilityAction { onTap(state.coordinate) }
 
             if isShowingFallback {
                 retryButton
@@ -103,10 +99,7 @@ struct MapPreviewFragmentView: View {
     }
 
     private var skeleton: some View {
-        RoundedRectangle(cornerRadius: MapSnapshotLayout.cornerRadius, style: .continuous)
-            .fill(Color(.tertiarySystemFill))
-            .modifier(Shimmer(isActive: !reduceMotion))
-            .accessibilityHidden(true)
+        PreviewSkeleton(cornerRadius: MapSnapshotLayout.cornerRadius)
     }
 
     private var fallback: some View {

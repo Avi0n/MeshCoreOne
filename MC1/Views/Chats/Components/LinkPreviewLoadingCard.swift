@@ -8,12 +8,9 @@ import MC1Services
 struct LinkPreviewLoadingCard: View {
     let state: LinkPreviewFragmentState
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @ScaledMetric(relativeTo: .body) private var minHeroHeight: CGFloat = 100
-    @ScaledMetric(relativeTo: .body) private var maxHeroHeight: CGFloat = 250
+    @ScaledMetric(relativeTo: .body) private var minHeroHeight: CGFloat = RichPreviewMetrics.minHeroHeight
+    @ScaledMetric(relativeTo: .body) private var maxHeroHeight: CGFloat = RichPreviewMetrics.maxHeroHeight
 
-    private static let fallbackAspect: Double = 16.0 / 9.0
-    private static let cardCornerRadius: CGFloat = 12
     private static let shimmerCornerRadius: CGFloat = 4
     private static let cardPadding: CGFloat = 10
     private static let textRowSpacing: CGFloat = 6
@@ -41,11 +38,7 @@ struct LinkPreviewLoadingCard: View {
     private func unknownImageCard(url: URL?) -> some View {
         let host = url?.host ?? ""
         VStack(alignment: .leading, spacing: 0) {
-            shimmerHero(aspect: CGFloat(Self.fallbackAspect))
-                .clipShape(.rect(
-                    topLeadingRadius: Self.cardCornerRadius,
-                    topTrailingRadius: Self.cardCornerRadius
-                ))
+            shimmerHero(aspect: CGFloat(RichPreviewMetrics.fallbackAspect))
 
             VStack(alignment: .leading, spacing: Self.textRowSpacing) {
                 shimmerRow(height: Self.titleRowHeight, widthFraction: Self.titleRowWidthFraction)
@@ -53,7 +46,7 @@ struct LinkPreviewLoadingCard: View {
             }
             .padding(Self.cardPadding)
         }
-        .background(Color(.secondarySystemBackground), in: .rect(cornerRadius: Self.cardCornerRadius))
+        .background(Color(.secondarySystemBackground), in: .rect(cornerRadius: RichPreviewMetrics.cornerRadius))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L10n.Chats.Chats.Preview.loadingAccessibility(host))
         .accessibilityHint(L10n.Chats.Chats.Preview.loadingHint)
@@ -66,14 +59,10 @@ struct LinkPreviewLoadingCard: View {
         let host = url?.host ?? preview.url
 
         VStack(alignment: .leading, spacing: 0) {
-            shimmerHero(aspect: heroAspect(
+            shimmerHero(aspect: RichPreviewMetrics.heroAspect(
                 imageWidth: preview.imageWidth,
                 imageHeight: preview.imageHeight
             ))
-                .clipShape(.rect(
-                    topLeadingRadius: Self.cardCornerRadius,
-                    topTrailingRadius: Self.cardCornerRadius
-                ))
 
             HStack(spacing: Self.headerSpacing) {
                 Image(systemName: "globe")
@@ -98,40 +87,31 @@ struct LinkPreviewLoadingCard: View {
             }
             .padding(Self.cardPadding)
         }
-        .background(Color(.secondarySystemBackground), in: .rect(cornerRadius: Self.cardCornerRadius))
+        .background(Color(.secondarySystemBackground), in: .rect(cornerRadius: RichPreviewMetrics.cornerRadius))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L10n.Chats.Chats.Preview.loadingAccessibility(host))
         .accessibilityHint(L10n.Chats.Chats.Preview.loadingHint)
     }
 
-    private func heroAspect(imageWidth: Int?, imageHeight: Int?) -> CGFloat {
-        guard let imageWidth, let imageHeight, imageWidth > 0, imageHeight > 0 else {
-            return CGFloat(Self.fallbackAspect)
-        }
-        return CGFloat(imageWidth) / CGFloat(imageHeight)
-    }
-
+    // The hero placeholder reserves the eventual image's footprint. Top corners
+    // are rounded; the bottom meets the in-card text rows squarely.
     @ViewBuilder
     private func shimmerHero(aspect: CGFloat) -> some View {
-        Color.clear
-            .aspectRatio(aspect, contentMode: .fit)
-            .frame(minHeight: minHeroHeight, maxHeight: maxHeroHeight)
-            .frame(maxWidth: .infinity)
-            .overlay {
-                Rectangle()
-                    .fill(Color(.tertiarySystemFill))
-                    .modifier(Shimmer(isActive: !reduceMotion))
-            }
-            .accessibilityHidden(true)
+        RichPreviewCard(
+            aspect: aspect,
+            minHeight: minHeroHeight,
+            maxHeight: maxHeroHeight,
+            cornerStyle: .top
+        ) {
+            PreviewSkeleton(cornerRadius: 0)
+        }
     }
 
     @ViewBuilder
     private func shimmerRow(height: CGFloat, widthFraction: CGFloat) -> some View {
         GeometryReader { proxy in
-            RoundedRectangle(cornerRadius: Self.shimmerCornerRadius, style: .continuous)
-                .fill(Color(.tertiarySystemFill))
+            PreviewSkeleton(cornerRadius: Self.shimmerCornerRadius)
                 .frame(width: proxy.size.width * widthFraction, height: height)
-                .modifier(Shimmer(isActive: !reduceMotion))
         }
         .frame(height: height)
         .accessibilityHidden(true)

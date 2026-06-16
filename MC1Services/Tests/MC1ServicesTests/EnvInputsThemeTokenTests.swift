@@ -18,7 +18,8 @@ struct EnvInputsThemeTokenTests {
             showMapPreviews: true,
             isOffline: false,
             currentUserName: "Tester",
-            themeID: themeID
+            themeID: themeID,
+            contentSizeCategory: EnvInputs.defaultContentSizeCategory
         )
     }
 

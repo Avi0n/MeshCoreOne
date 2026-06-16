@@ -13,11 +13,9 @@ struct LinkPreviewCard: View {
     let onTap: () -> Void
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @ScaledMetric(relativeTo: .body) private var minHeroHeight: CGFloat = 100
-    @ScaledMetric(relativeTo: .body) private var maxHeroHeight: CGFloat = 250
+    @ScaledMetric(relativeTo: .body) private var minHeroHeight: CGFloat = RichPreviewMetrics.minHeroHeight
+    @ScaledMetric(relativeTo: .body) private var maxHeroHeight: CGFloat = RichPreviewMetrics.maxHeroHeight
 
-    private static let fallbackAspect: Double = 16.0 / 9.0
-    private static let cardCornerRadius: CGFloat = 12
     private static let cardPadding: CGFloat = 10
     private static let headerSpacing: CGFloat = 8
     private static let iconSize: CGFloat = 16
@@ -55,68 +53,63 @@ struct LinkPreviewCard: View {
     }
 
     private var heroAspect: CGFloat {
-        guard let imageWidth, let imageHeight, imageWidth > 0, imageHeight > 0 else {
-            return CGFloat(Self.fallbackAspect)
-        }
-        return CGFloat(imageWidth) / CGFloat(imageHeight)
+        RichPreviewMetrics.heroAspect(imageWidth: imageWidth, imageHeight: imageHeight)
     }
 
     var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 0) {
-                if let image {
-                    Color.clear
-                        .aspectRatio(heroAspect, contentMode: .fit)
-                        .frame(minHeight: minHeroHeight, maxHeight: maxHeroHeight)
-                        .frame(maxWidth: .infinity)
-                        .overlay {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFill()
-                        }
-                        .clipShape(.rect(
-                            topLeadingRadius: Self.cardCornerRadius,
-                            topTrailingRadius: Self.cardCornerRadius
-                        ))
+        VStack(alignment: .leading, spacing: 0) {
+            if let image {
+                RichPreviewCard(
+                    aspect: heroAspect,
+                    minHeight: minHeroHeight,
+                    maxHeight: maxHeroHeight,
+                    cornerStyle: .top
+                ) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
                 }
-
-                HStack(spacing: Self.headerSpacing) {
-                    if let icon {
-                        Image(uiImage: icon)
-                            .resizable()
-                            .frame(width: Self.iconSize, height: Self.iconSize)
-                            .clipShape(.rect(cornerRadius: Self.iconCornerRadius))
-                    } else {
-                        Image(systemName: "globe")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        if let title, !title.isEmpty {
-                            Text(title)
-                                .font(.subheadline)
-                                .bold()
-                                .lineLimit(titleLineLimit)
-                                .foregroundStyle(.primary)
-                        }
-
-                        Text(domain)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(domainLineLimit)
-                    }
-
-                    Spacer()
-                }
-                .padding(Self.cardPadding)
             }
-            .background(Color(.secondarySystemBackground), in: .rect(cornerRadius: Self.cardCornerRadius))
+
+            HStack(spacing: Self.headerSpacing) {
+                if let icon {
+                    Image(uiImage: icon)
+                        .resizable()
+                        .frame(width: Self.iconSize, height: Self.iconSize)
+                        .clipShape(.rect(cornerRadius: Self.iconCornerRadius))
+                } else {
+                    Image(systemName: "globe")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    if let title, !title.isEmpty {
+                        Text(title)
+                            .font(.subheadline)
+                            .bold()
+                            .lineLimit(titleLineLimit)
+                            .foregroundStyle(.primary)
+                    }
+
+                    Text(domain)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(domainLineLimit)
+                }
+
+                Spacer()
+            }
+            .padding(Self.cardPadding)
         }
-        .buttonStyle(.plain)
+        .background(Color(.secondarySystemBackground), in: .rect(cornerRadius: RichPreviewMetrics.cornerRadius))
+        .contentShape(Rectangle())
+        .tapYieldingToLongPress { onTap() }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(L10n.Chats.Chats.LinkPreview.Accessibility.label(title ?? domain, domain))
         .accessibilityHint(L10n.Chats.Chats.LinkPreview.Accessibility.hint)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { onTap() }
     }
 }
 

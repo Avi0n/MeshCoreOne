@@ -4,7 +4,7 @@ import SwiftUI
 /// UIKit table view controller with flipped orientation for chat-style scrolling
 /// Newest messages appear at visual bottom, keyboard handling via native UIKit
 @MainActor
-final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, CellContent: View>: UITableViewController, UIContextMenuInteractionDelegate where Item.ID == UUID {
+final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, CellContent: View>: UITableViewController, UIContextMenuInteractionDelegate, UIGestureRecognizerDelegate where Item.ID == UUID {
 
     // MARK: - Types
 
@@ -76,18 +76,24 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     /// Callback when a mention becomes visible
     var onMentionBecameVisible: ((Item.ID) -> Void)?
 
-    /// Callback when a row receives a secondary (right) click on Mac, where a
-    /// right-click reaches the context-menu system rather than a `.secondary`
-    /// tap. iPad and touch secondary clicks are handled per-bubble alongside the
-    /// long-press; this covers only the Mac path. Surfaces that leave this nil
-    /// never install the interaction, so they don't suppress the native context
-    /// menu in exchange for nothing.
+    /// Callback when a row receives a secondary (right) click from a pointer. On Mac the click
+    /// reaches the context-menu system (`UIContextMenuInteraction`); on iPad a trackpad or mouse
+    /// secondary click arrives as an indirect-pointer tap, handled by a dedicated recognizer. Touch
+    /// long-press is never routed here (it opens the sheet through the bubble's own gesture), so the
+    /// two paths can't double-trigger. Surfaces that leave this nil install neither, so they don't
+    /// suppress the native context menu in exchange for nothing.
     var onSecondaryClick: ((Item) -> Void)? {
-        didSet { installMacSecondaryClickIfNeeded() }
+        didSet {
+            installMacSecondaryClickIfNeeded()
+            installIPadSecondaryClickIfNeeded()
+        }
     }
 
     /// Guards the one-time install of the Mac secondary-click interaction.
     private var hasInstalledMacSecondaryClick = false
+
+    /// Guards the one-time install of the iPad secondary-click recognizer.
+    private var hasInstalledIPadSecondaryClick = false
 
     /// Closure to check if an item contains an unseen self-mention
     var isUnseenMention: ((Item) -> Bool)?
@@ -183,15 +189,31 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         setupScrollDisplayLink()
     }
 
-    /// Installs the Mac secondary-click interaction the first time a handler is
-    /// set. Gated on Mac and on a handler existing, so iPad (handled per-bubble)
-    /// never installs it and a surface without a handler (a room with no actions
-    /// sheet) leaves the native context menu untouched.
+    /// Installs the Mac secondary-click interaction the first time a handler is set. Gated on Mac and
+    /// on a handler existing, so iPad uses its own recognizer instead and a surface without a handler
+    /// (a room with no actions sheet) leaves the native context menu untouched.
     private func installMacSecondaryClickIfNeeded() {
         guard ProcessInfo.processInfo.isiOSAppOnMac,
               !hasInstalledMacSecondaryClick, onSecondaryClick != nil, isViewLoaded else { return }
         hasInstalledMacSecondaryClick = true
         tableView.addInteraction(UIContextMenuInteraction(delegate: self))
+    }
+
+    /// Installs the iPad secondary-click recognizer the first time a handler is set. A trackpad or
+    /// mouse secondary click arrives as an indirect-pointer event, not through the context-menu
+    /// system, so the Mac `UIContextMenuInteraction` never fires for it. `buttonMaskRequired` plus
+    /// the `shouldReceive` guard scope the recognizer to a sole secondary click, so a finger touch
+    /// (including the bubble long-press) is never delivered here and the two paths can't
+    /// double-trigger the sheet.
+    private func installIPadSecondaryClickIfNeeded() {
+        guard !ProcessInfo.processInfo.isiOSAppOnMac,
+              !hasInstalledIPadSecondaryClick, onSecondaryClick != nil, isViewLoaded else { return }
+        hasInstalledIPadSecondaryClick = true
+        let recognizer = UITapGestureRecognizer(target: self, action: #selector(handleSecondaryClick(_:)))
+        recognizer.buttonMaskRequired = .secondary
+        recognizer.cancelsTouchesInView = false
+        recognizer.delegate = self
+        tableView.addGestureRecognizer(recognizer)
     }
 
     /// Resolves the model item under a point in the table view's coordinate space.
@@ -211,6 +233,26 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         onSecondaryClick?(item)
         // No configuration suppresses the native menu, leaving the sheet the only actions surface.
         return nil
+    }
+
+    @objc private func handleSecondaryClick(_ recognizer: UITapGestureRecognizer) {
+        guard let item = itemForRow(at: recognizer.location(in: tableView)) else { return }
+        onSecondaryClick?(item)
+    }
+
+    // Scope the iPad recognizer to a sole secondary-button click. A direct touch reports an empty
+    // button mask, so this rejects finger presses (and the bubble long-press), leaving an
+    // indirect-pointer secondary click the only event that reaches `handleSecondaryClick`. The mask
+    // is read from the event because the recognizer's own mask isn't updated with it yet here.
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive event: UIEvent) -> Bool {
+        event.buttonMask == .secondary
+    }
+
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
+        true
     }
 
     // Swift 6.3.2 EarlyPerfInliner crashes (infinite recursion in

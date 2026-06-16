@@ -35,6 +35,14 @@ public struct EnvInputs: Sendable, Hashable {
     /// resolves it back to a `Theme` to bake outgoing-text/hashtag colors into `MessageTextPayload`.
     public let themeID: String
 
+    /// Dynamic Type size fingerprint. A `Sendable, Hashable` token (a `DynamicTypeSize` case
+    /// name string supplied by the MC1 side, never the SwiftUI type itself) so a Dynamic Type
+    /// change bumps the `EnvInputs` equality fingerprint like `themeID` and `isHighContrast` do,
+    /// forcing a full `buildItems()` rebuild. It does not key the bubble text view's size cache:
+    /// that cache is keyed on the `dynamicTypeSize` the renderer reads directly from its own
+    /// `@Environment`. Reflow of already-visible cells is driven by the appearance reconfigure path.
+    public let contentSizeCategory: String
+
     public init(
         showInlineImages: Bool,
         autoPlayGIFs: Bool,
@@ -48,7 +56,8 @@ public struct EnvInputs: Sendable, Hashable {
         showMapPreviews: Bool,
         isOffline: Bool,
         currentUserName: String,
-        themeID: String
+        themeID: String,
+        contentSizeCategory: String
     ) {
         self.showInlineImages = showInlineImages
         self.autoPlayGIFs = autoPlayGIFs
@@ -63,11 +72,17 @@ public struct EnvInputs: Sendable, Hashable {
         self.isOffline = isOffline
         self.currentUserName = currentUserName
         self.themeID = themeID
+        self.contentSizeCategory = contentSizeCategory
     }
 
     /// Identifier of the built-in default theme. Shared so `EnvInputs.default` and `Theme.default.id`
     /// (defined in the MC1 layer, which cannot see `Theme` from here) cannot drift apart.
     public static let defaultThemeID = "default"
+
+    /// The system's unscaled Dynamic Type baseline (`DynamicTypeSize.large`). Shared so
+    /// `EnvInputs.default` and the MC1-side token mapper agree on the baseline string and
+    /// cannot drift apart.
+    public static let defaultContentSizeCategory = "large"
 
     public static let `default` = EnvInputs(
         showInlineImages: AppStorageKey.defaultShowInlineImages,
@@ -82,6 +97,7 @@ public struct EnvInputs: Sendable, Hashable {
         showMapPreviews: AppStorageKey.defaultShowMapPreviewThumbnails,
         isOffline: false,
         currentUserName: "",
-        themeID: defaultThemeID
+        themeID: defaultThemeID,
+        contentSizeCategory: defaultContentSizeCategory
     )
 }
