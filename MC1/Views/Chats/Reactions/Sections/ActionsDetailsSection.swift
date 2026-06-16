@@ -226,25 +226,3 @@ private struct ActionsIncomingDetailsRows: View {
         return "\(message.hopCount)"
     }
 }
-
-private struct ActionInfoRow: View {
-    let text: String
-    var icon: String?
-
-    var body: some View {
-        HStack {
-            if let icon {
-                Image(systemName: icon)
-                    .foregroundStyle(.secondary)
-            }
-            Text(text)
-            Spacer()
-        }
-        .font(.subheadline)
-        .foregroundStyle(.secondary)
-        .padding(.horizontal)
-        .padding(.vertical, 6)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(text)
-    }
-}
