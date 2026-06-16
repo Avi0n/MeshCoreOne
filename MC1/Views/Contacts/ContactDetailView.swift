@@ -55,6 +55,7 @@ struct ContactDetailView: View {
         case repeaterStatus(RemoteNodeSessionDTO)
         case roomStatus(RemoteNodeSessionDTO)
         case nodeTelemetry(ContactDTO)
+        case adminSettings(RemoteNodeSessionDTO)
 
         var id: String {
             switch self {
@@ -62,6 +63,7 @@ struct ContactDetailView: View {
             case .repeaterStatus(let session): return "status-\(session.id)"
             case .roomStatus(let session): return "room-status-\(session.id)"
             case .nodeTelemetry(let contact): return "telemetry-\(contact.id)"
+            case .adminSettings(let session): return "admin-settings-\(session.id)"
             }
         }
     }
@@ -81,7 +83,6 @@ struct ContactDetailView: View {
     // Admin access navigation state (separate from telemetry sheet flow)
     @State private var showRepeaterAdminAuth = false
     @State private var adminSession: RemoteNodeSessionDTO?
-    @State private var navigateToSettings = false
     // QR sharing state
     @State private var showQRShareSheet = false
     // Ping state
@@ -294,13 +295,32 @@ struct ContactDetailView: View {
                 RoomStatusView(session: session)
             case .nodeTelemetry(let contact):
                 NodeTelemetryView(contact: contact)
+            case .adminSettings(let session):
+                // A sheet with its own stack, not a push onto the value/path-based Contacts stack:
+                // the telemetry tab's history graphs push value-based routes, and pushing this screen
+                // there instead would rebuild it and reset the selected tab whenever a graph is tapped.
+                NavigationStack {
+                    Group {
+                        if session.isRoom {
+                            RoomSettingsView(session: session)
+                        } else {
+                            RepeaterSettingsView(session: session)
+                        }
+                    }
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button(L10n.RemoteNodes.RemoteNodes.done) { activeSheet = nil }
+                        }
+                    }
+                }
+                .presentationSizing(.page)
             }
         }
         .sheet(isPresented: $showRepeaterAdminAuth, onDismiss: {
             // Trigger navigation after sheet is fully dismissed to avoid race conditions
             if let session = adminSession {
                 if session.isAdmin {
-                    navigateToSettings = true
+                    activeSheet = .adminSettings(session)
                 } else if session.isRoom {
                     activeSheet = .roomStatus(session)
                 } else {
@@ -325,15 +345,6 @@ struct ContactDetailView: View {
             )
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
-        }
-        .navigationDestination(isPresented: $navigateToSettings) {
-            if let session = adminSession {
-                if session.isRoom {
-                    RoomSettingsView(session: session)
-                } else {
-                    RepeaterSettingsView(session: session)
-                }
-            }
         }
         .navigationDestination(for: ContactRoute.TelemetryHistory.self) { route in
             TelemetryHistoryOverviewView(
