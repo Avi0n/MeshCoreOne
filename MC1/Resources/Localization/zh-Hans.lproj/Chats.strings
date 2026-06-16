@@ -696,23 +696,23 @@
 /* Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL */
 "chats.message.action.openLink" = "打开链接";
 
-/* TODO(translate) - VoiceOver action to open a web link, %@ is the host */
-"chats.message.action.openWebLink" = "Open Link: %@";
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a web link, %@ is the host */
+"chats.message.action.openWebLink" = "打开链接：%@";
 
-/* TODO(translate) - VoiceOver action to open a shared map coordinate */
-"chats.message.action.openMapLink" = "Open Map";
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a shared map coordinate */
+"chats.message.action.openMapLink" = "打开地图";
 
-/* TODO(translate) - VoiceOver action to open a mention, %@ is the mentioned name */
-"chats.message.action.openMention" = "Mention: %@";
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a mention, %@ is the mentioned name */
+"chats.message.action.openMention" = "提及：%@";
 
-/* TODO(translate) - VoiceOver action to open a hashtag channel, %@ is the channel name */
-"chats.message.action.openHashtag" = "Open #%@";
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a hashtag channel, %@ is the channel name */
+"chats.message.action.openHashtag" = "打开 #%@";
 
-/* TODO(translate) - VoiceOver action to add a shared contact, %@ is the contact name */
-"chats.message.action.addContact" = "Add Contact: %@";
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to add a shared contact, %@ is the contact name */
+"chats.message.action.addContact" = "添加联系人：%@";
 
-/* TODO(translate) - VoiceOver action to open a shared channel link, %@ is the channel name */
-"chats.message.action.openChannel" = "Open Channel: %@";
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a shared channel link, %@ is the channel name */
+"chats.message.action.openChannel" = "打开频道：%@";
 
 /* Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen */
 "chats.message.action.viewImage" = "查看图片";

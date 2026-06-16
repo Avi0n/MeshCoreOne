@@ -667,23 +667,23 @@
 /* Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL */
 "chats.message.action.openLink" = "Ouvrir le lien";
 
-/* TODO(translate) - VoiceOver action to open a web link, %@ is the host */
-"chats.message.action.openWebLink" = "Open Link: %@";
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a web link, %@ is the host */
+"chats.message.action.openWebLink" = "Ouvrir le lien : %@";
 
-/* TODO(translate) - VoiceOver action to open a shared map coordinate */
-"chats.message.action.openMapLink" = "Open Map";
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a shared map coordinate */
+"chats.message.action.openMapLink" = "Ouvrir la carte";
 
-/* TODO(translate) - VoiceOver action to open a mention, %@ is the mentioned name */
-"chats.message.action.openMention" = "Mention: %@";
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a mention, %@ is the mentioned name */
+"chats.message.action.openMention" = "Mentionner : %@";
 
-/* TODO(translate) - VoiceOver action to open a hashtag channel, %@ is the channel name */
-"chats.message.action.openHashtag" = "Open #%@";
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a hashtag channel, %@ is the channel name */
+"chats.message.action.openHashtag" = "Ouvrir #%@";
 
-/* TODO(translate) - VoiceOver action to add a shared contact, %@ is the contact name */
-"chats.message.action.addContact" = "Add Contact: %@";
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to add a shared contact, %@ is the contact name */
+"chats.message.action.addContact" = "Ajouter un contact : %@";
 
-/* TODO(translate) - VoiceOver action to open a shared channel link, %@ is the channel name */
-"chats.message.action.openChannel" = "Open Channel: %@";
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a shared channel link, %@ is the channel name */
+"chats.message.action.openChannel" = "Ouvrir le canal : %@";
 
 /* Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen */
 "chats.message.action.viewImage" = "Voir l'image";
