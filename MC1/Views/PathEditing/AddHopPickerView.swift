@@ -62,6 +62,12 @@ struct AddHopPickerView: View {
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: L10n.Contacts.Contacts.PathEdit.searchPrompt
         )
+        .onChange(of: searchText) { _, newValue in
+            // A pasted bulk path can use a different hash width than the current
+            // default; adopt it before the bulk preview re-renders so the codes
+            // read as addable instead of invalid.
+            if newValue.contains(",") { viewModel.adoptHashSize(forPastedCodes: newValue) }
+        }
         .safeAreaInset(edge: .top, spacing: 0) {
             AddHopSegmentPicker(selection: $filter)
         }

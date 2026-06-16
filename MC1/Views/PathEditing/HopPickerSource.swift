@@ -26,6 +26,10 @@ protocol HopPickerSource: AnyObject {
     /// Classify a comma-separated bulk entry per code without mutating the path,
     /// for the bulk-add preview panel.
     func classifyCodes(_ input: String) -> [HopCodeClassification]
+
+    /// Adopt a hash size inferred from a bulk paste when the source supports a
+    /// per-entry override (trace). Fixed-width sources ignore it.
+    func adoptHashSize(forPastedCodes input: String)
 }
 
 extension HopPickerSource {
@@ -34,4 +38,7 @@ extension HopPickerSource {
         guard let hopLimit else { return false }
         return currentHopCount >= hopLimit
     }
+
+    /// Sources with a fixed hash size (the contact path editor) take no action.
+    func adoptHashSize(forPastedCodes input: String) {}
 }

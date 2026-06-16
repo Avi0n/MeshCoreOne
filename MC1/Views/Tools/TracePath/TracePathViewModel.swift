@@ -1214,6 +1214,41 @@ extension TracePathViewModel: HopPickerSource {
         }
     }
 
+    /// Trace hop widths the firmware accepts, in bytes (power-of-2 encoding).
+    private static let validTraceHashSizes = [1, 2, 4]
+
+    /// When a pasted bulk entry's codes all share one valid trace width that the
+    /// radio can honor and differs from the active width, switch to it so the
+    /// codes parse instead of failing as invalid. Skips mixed-width, malformed,
+    /// or already-matching input so it never wipes a result redundantly.
+    func adoptHashSize(forPastedCodes input: String) {
+        guard connectedDevice?.supportsTraceHashSizeOverride == true,
+              let mode = Self.inferredTraceHashMode(from: input),
+              mode != effectiveTraceMode else { return }
+        setTraceHashMode(mode)
+    }
+
+    /// The single trace hash mode (0/1/2 for 1/2/4 bytes) implied by a
+    /// comma-separated bulk paste, or `nil` when the codes are empty, non-hex,
+    /// odd-length, mixed-width, or not a valid power-of-2 trace width.
+    static func inferredTraceHashMode(from input: String) -> UInt8? {
+        let tokens = input
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+        guard !tokens.isEmpty else { return nil }
+
+        var width: Int?
+        for token in tokens {
+            guard token.count.isMultiple(of: 2), token.allSatisfy(\.isHexDigit) else { return nil }
+            let bytes = token.count / 2
+            if let width, width != bytes { return nil }
+            width = bytes
+        }
+        guard let width, validTraceHashSizes.contains(width) else { return nil }
+        return UInt8(width.trailingZeroBitCount)
+    }
+
     func recordRecent(_ publicKey: Data) {
         guard let radioID = currentRadioID else { return }
         recentPublicKeys = recents.record(publicKey, into: recentPublicKeys, for: radioID)
