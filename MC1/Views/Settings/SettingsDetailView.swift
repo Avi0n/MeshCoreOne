@@ -19,6 +19,8 @@ struct SettingsDetailView: View {
             ConnectionSettingsView()
         case .advanced:
             AdvancedSettingsView()
+        case .battery:
+            BatterySettingsView()
         case .notifications:
             NotificationSettingsView()
         case .chats:

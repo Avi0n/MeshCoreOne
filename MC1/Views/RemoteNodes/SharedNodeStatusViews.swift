@@ -191,6 +191,8 @@ struct NodeBatteryCurveDisclosureSection: View {
     let connectionState: DeviceConnectionState
     let connectedDeviceID: UUID?
 
+    @State private var showingCurveEditor = false
+
     var body: some View {
         Section {
             DisclosureGroup(isExpanded: $helper.isBatteryCurveExpanded) {
@@ -201,7 +203,8 @@ struct NodeBatteryCurveDisclosureSection: View {
                     selectedPreset: $helper.selectedOCVPreset,
                     voltageValues: $helper.ocvValues,
                     onSave: helper.saveOCVSettings,
-                    isDisabled: connectionState != .ready
+                    isDisabled: connectionState != .ready,
+                    onEditCurve: { showingCurveEditor = true }
                 )
 
                 if let error = helper.ocvError {
@@ -221,6 +224,19 @@ struct NodeBatteryCurveDisclosureSection: View {
             }
         } footer: {
             Text(L10n.RemoteNodes.RemoteNodes.Status.batteryCurveFooter)
+        }
+        // Sheet on the Section (not inside any List cell) to avoid UICollectionView
+        // "invalid reuse after initialization failure" with cell-level sheet modifiers.
+        .sheet(isPresented: $showingCurveEditor) {
+            BatteryCurveEditorView(
+                ocvArray: helper.ocvValues,
+                referenceOCVArray: helper.selectedOCVPreset == .custom ? nil : helper.selectedOCVPreset.ocvArray,
+                onDone: { newValues in
+                    helper.ocvValues = newValues
+                    helper.selectedOCVPreset = .custom
+                    Task { await helper.saveOCVSettings(preset: .custom, values: newValues) }
+                }
+            )
         }
         .themedRowBackground(theme)
     }

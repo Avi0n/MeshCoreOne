@@ -7,8 +7,6 @@ struct AdvancedSettingsView: View {
     @Environment(\.appTheme) private var theme
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selectedOCVPreset: OCVPreset = .liIon
-    @State private var ocvValues: [Int] = OCVPreset.liIon.ocvArray
     @State private var showingImportKeySheet = false
     @State private var showingRegenerateSheet = false
 
@@ -38,17 +36,6 @@ struct AdvancedSettingsView: View {
 
             // Direct Messages Settings
             DirectMessagesSettingsSection()
-
-            // Battery Curve
-            BatteryCurveSection(
-                availablePresets: OCVPreset.selectablePresets,
-                headerText: L10n.Settings.BatteryCurve.header,
-                footerText: L10n.Settings.BatteryCurve.footer,
-                selectedPreset: $selectedOCVPreset,
-                voltageValues: $ocvValues,
-                onSave: saveOCVToDevice,
-                isDisabled: appState.connectionState != .ready
-            )
 
             // Config Export/Import
             ConfigExportImportSection()
@@ -92,9 +79,6 @@ struct AdvancedSettingsView: View {
         .task(id: refreshTaskID) {
             await refreshDeviceSettings()
         }
-        .task(id: appState.connectedDevice?.id) {
-            loadOCVFromDevice()
-        }
         .onChange(of: appState.connectedDevice) { _, newDevice in
             if newDevice == nil {
                 dismiss()
@@ -125,47 +109,4 @@ struct AdvancedSettingsView: View {
         }
     }
 
-    private func loadOCVFromDevice() {
-        guard let device = appState.connectedDevice else { return }
-
-        if let presetName = device.ocvPreset {
-            if presetName == OCVPreset.custom.rawValue, let customString = device.customOCVArrayString {
-                let parsed = customString.split(separator: ",")
-                    .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
-                if parsed.count == 11 {
-                    ocvValues = parsed
-                    selectedOCVPreset = .custom
-                    return
-                }
-            }
-            if let preset = OCVPreset(rawValue: presetName) {
-                selectedOCVPreset = preset
-                ocvValues = preset.ocvArray
-                return
-            }
-        }
-
-        selectedOCVPreset = .liIon
-        ocvValues = OCVPreset.liIon.ocvArray
-    }
-
-    private func saveOCVToDevice(preset: OCVPreset, values: [Int]) async {
-        guard let deviceService = appState.services?.deviceService,
-              let deviceID = appState.connectedDevice?.id else { return }
-
-        if preset == .custom {
-            let customString = values.map(String.init).joined(separator: ",")
-            try? await deviceService.updateOCVSettings(
-                deviceID: deviceID,
-                preset: OCVPreset.custom.rawValue,
-                customArray: customString
-            )
-        } else {
-            try? await deviceService.updateOCVSettings(
-                deviceID: deviceID,
-                preset: preset.rawValue,
-                customArray: nil
-            )
-        }
-    }
 }

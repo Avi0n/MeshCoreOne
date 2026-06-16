@@ -200,6 +200,10 @@ private struct MyDeviceSection: View {
                 )
             }
 
+            SettingsDetailRow(detail: .battery) {
+                TintedLabel(L10n.Settings.Battery.title, systemImage: "battery.100")
+            }
+
             SettingsDetailRow(detail: .advanced) {
                 TintedLabel(L10n.Settings.AdvancedSettings.title, systemImage: "gearshape.2")
             }

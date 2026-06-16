@@ -10,6 +10,7 @@ enum SettingsDetail: Hashable {
     case location
     case connection
     case advanced
+    case battery
     case notifications
     case chats
     case appearance
@@ -21,7 +22,7 @@ enum SettingsDetail: Hashable {
     /// disconnect or a radio switch keeps the detail pane from stranding a now-gone device page.
     var requiresDevice: Bool {
         switch self {
-        case .deviceInfo, .radio, .location, .connection, .advanced:
+        case .deviceInfo, .radio, .location, .connection, .advanced, .battery:
             true
         case .notifications, .chats, .appearance, .offlineMaps, .backup, .support:
             false

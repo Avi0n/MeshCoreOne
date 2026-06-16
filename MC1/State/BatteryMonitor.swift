@@ -25,8 +25,11 @@ final class BatteryMonitor {
     /// Tracks last successful battery fetch for background piggybacking
     private var lastSuccessfulFetchDate: Date?
 
-    /// Battery warning threshold levels (percentage)
-    private let batteryWarningThresholds = [20, 10, 5]
+    /// Battery percentage levels that trigger a warning. Driven by the
+    /// user-configurable low-battery threshold (Settings ▸ Battery).
+    private var batteryWarningThresholds: [Int] {
+        [NotificationPreferencesStore.lowBatteryWarningThreshold()]
+    }
 
     /// Called when battery info is updated, for Live Activity
     var onBatteryChanged: ((_ battery: BatteryInfo) -> Void)?
