@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import MC1Services
 
 /// Full room chat interface
@@ -13,9 +14,14 @@ struct RoomConversationView: View {
     @State private var chatViewModel = ChatViewModel()
     @State private var showingRoomInfo = false
     @State private var roomToAuthenticate: RemoteNodeSessionDTO?
+    @State private var selectedRoomMessage: RoomMessageDTO?
+    @State private var sendDMContext: SendDMContext?
+    @State private var inputFocusRequest = 0
     @State private var isAtBottom = true
     @State private var unreadCount = 0
     @State private var scrollToBottomRequest = 0
+
+    @AppStorage(AppStorageKey.replyWithQuote.rawValue) private var replyWithQuote = AppStorageKey.defaultReplyWithQuote
 
     init(session: RemoteNodeSessionDTO) {
         self._session = State(initialValue: session)
@@ -26,7 +32,7 @@ struct RoomConversationView: View {
             .mentionTapHandling(
                 contacts: chatViewModel.allContacts,
                 radioID: session.radioID,
-                shouldSuppressOpen: { false }
+                shouldSuppressOpen: { selectedRoomMessage != nil }
             )
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if !session.isConnected {
@@ -56,6 +62,18 @@ struct RoomConversationView: View {
                     session = authenticatedSession
                 }
                 .presentationSizing(.page)
+            }
+            .sheet(item: $selectedRoomMessage) { message in
+                RoomMessageActionsSheet(
+                    message: message,
+                    availability: RoomMessageActionAvailability(message: message, session: session),
+                    onAction: { dispatch($0, for: message) }
+                )
+            }
+            .sheet(item: $sendDMContext) { context in
+                SendDMSheet(senderName: context.senderName, radioID: context.radioID) { contact in
+                    appState.navigation.navigateToChat(with: contact)
+                }
             }
             .task {
                 viewModel.configure(
@@ -174,14 +192,15 @@ struct RoomConversationView: View {
             theme: theme,
             onRetry: { id in
                 Task { await viewModel.retryMessage(id: id) }
-            }
+            },
+            onLongPress: { selectedRoomMessage = $0 }
         )
     }
 
     private func makeInputBar() -> some View {
         ChatInputBar(
             text: $viewModel.composingText,
-            focusRequest: 0,
+            focusRequest: inputFocusRequest,
             placeholder: L10n.RemoteNodes.RemoteNodes.Room.publicMessage,
             maxBytes: ProtocolLimits.maxDirectMessageLength,
             isEncrypted: false
@@ -214,6 +233,45 @@ struct RoomConversationView: View {
     }
 }
 
+// MARK: - Message Actions
+
+extension RoomConversationView {
+    private func dispatch(_ action: RoomMessageAction, for message: RoomMessageDTO) {
+        switch action {
+        case .copy:
+            UIPasteboard.general.string = message.text
+        case .reply:
+            handleReply(for: message)
+        case .sendDM:
+            handleSendDM(for: message)
+        case .sendAgain:
+            Task { await viewModel.sendMessage(text: message.text) }
+        }
+    }
+
+    private func handleReply(for message: RoomMessageDTO) {
+        if replyWithQuote {
+            viewModel.composingText = MentionUtilities.buildReplyText(
+                mentionName: message.authorDisplayName, messageText: message.text)
+        } else {
+            viewModel.composingText = MentionUtilities.createMention(for: message.authorDisplayName) + " "
+        }
+        // Raise the keyboard only after the actions sheet has finished dismissing;
+        // a focus request issued while it is still animating away is lost.
+        Task {
+            try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
+            inputFocusRequest += 1
+        }
+    }
+
+    private func handleSendDM(for message: RoomMessageDTO) {
+        Task {
+            try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
+            sendDMContext = SendDMContext(senderName: message.authorDisplayName, radioID: session.radioID)
+        }
+    }
+}
+
 // MARK: - Messages View
 
 private struct MessagesView: View {
@@ -225,6 +283,7 @@ private struct MessagesView: View {
     let session: RemoteNodeSessionDTO
     let theme: Theme
     let onRetry: (UUID) -> Void
+    let onLongPress: (RoomMessageDTO) -> Void
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
@@ -258,6 +317,7 @@ private struct MessagesView: View {
                     unreadCount: $unreadCount,
                     scrollToBottomRequest: $scrollToBottomRequest,
                     scrollToMentionRequest: .constant(0),
+                    onSecondaryClick: onLongPress,
                     scrollToDividerRequest: .constant(0),
                     isDividerVisible: .constant(false)
                 )
@@ -281,7 +341,8 @@ private struct MessagesView: View {
             showTimestamp: showTimestamp,
             onRetry: message.status == .failed ? {
                 onRetry(message.id)
-            } : nil
+            } : nil,
+            onLongPress: onLongPress
         )
     }
 

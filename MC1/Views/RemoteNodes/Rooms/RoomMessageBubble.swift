@@ -6,8 +6,12 @@ struct RoomMessageBubble: View {
     let message: RoomMessageDTO
     let showTimestamp: Bool
     var onRetry: (() -> Void)?
+    var onLongPress: ((RoomMessageDTO) -> Void)?
 
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+
+    @State private var isLongPressing = false
+    @State private var longPressTrigger = 0
 
     private var isFromSelf: Bool { message.isFromSelf }
 
@@ -47,42 +51,22 @@ struct RoomMessageBubble: View {
             isFromSelf: isFromSelf,
             highContrast: colorSchemeContrast == .increased
         )
+        .messageBubbleLongPressGesture(
+            isPressing: $isLongPressing,
+            trigger: $longPressTrigger,
+            onFire: { onLongPress?(message) }
+        )
+        .messageBubbleLongPressEffect(isPressing: isLongPressing, trigger: longPressTrigger)
     }
 
     private func makeStatusIndicator() -> some View {
         StatusIndicator(
             message: message,
             isFromSelf: isFromSelf,
-            statusText: statusText,
-            accessibilityStatusLabel: accessibilityStatusLabel,
+            statusText: message.localizedStatusText,
+            accessibilityStatusLabel: message.accessibilityStatusLabel,
             onRetry: onRetry
         )
-    }
-
-    private var statusText: String {
-        switch message.status {
-        case .pending, .sending:
-            return L10n.Chats.Chats.Message.Status.sending
-        case .sent:
-            return L10n.Chats.Chats.Message.Status.sent
-        case .delivered:
-            return L10n.Chats.Chats.Message.Status.delivered
-        case .failed:
-            return L10n.Chats.Chats.Message.Status.failed
-        case .retrying:
-            return L10n.Chats.Chats.Message.Status.retrying
-        }
-    }
-
-    private var accessibilityStatusLabel: String {
-        switch message.status {
-        case .failed:
-            return L10n.RemoteNodes.RemoteNodes.Room.Message.Status.failedLabel
-        case .pending, .sending, .retrying:
-            return L10n.RemoteNodes.RemoteNodes.Room.Message.Status.sendingLabel
-        default:
-            return L10n.RemoteNodes.RemoteNodes.Room.Message.Status.deliveredLabel
-        }
     }
 }
 
