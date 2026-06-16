@@ -403,6 +403,43 @@
 "batteryCurve.mV" = "мВ";
 
 
+
+/* Column label for the percentage stepper in the curve editor */
+"batteryCurve.percent" = "Percent";
+
+/* Title of the battery curve editor sheet */
+"batteryCurve.editor.title" = "Battery curve";
+
+/* Section header listing the editable curve anchors */
+"batteryCurve.anchors" = "Anchors";
+
+/* Button that adds a new anchor to the curve */
+"batteryCurve.addAnchor" = "Add anchor";
+
+/* Button that opens the battery curve editor */
+"batteryCurve.editCurve" = "Edit curve";
+
+/* Caption above the editor chart */
+"batteryCurve.referenceCaption" = "Solid line is your curve, dashed line is the chemistry curve for this variant.";
+
+/* Footer explaining the curve editor constraints */
+"batteryCurve.editorFooter" = "Voltages must be strictly increasing; percentages non-decreasing. Insert adds an anchor at the midpoint of the largest gap.";
+
+
+// MARK: - Battery Section
+
+/* Title for the Battery settings menu point and page */
+"battery.title" = "Battery";
+
+/* Section header for the low battery warning setting */
+"battery.lowWarning.header" = "Low Battery Warning";
+
+/* Label for the low battery warning threshold control */
+"battery.lowWarning.title" = "Warn At";
+
+/* Footer explaining the low battery warning threshold */
+"battery.lowWarning.footer" = "Get notified when this device's battery drops to or below this level.";
+
 // MARK: - Bluetooth Section
 
 /* Section header for Bluetooth settings */

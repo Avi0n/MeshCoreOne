@@ -4093,9 +4093,29 @@ public enum L10n {
       /// Section header for app-level settings
       public static let header = L10n.tr("Settings", "appSettings.header", fallback: "App Settings")
     }
+    public enum Battery {
+      /// Title for the Battery settings menu point and page
+      public static let title = L10n.tr("Settings", "battery.title", fallback: "Battery")
+      public enum LowWarning {
+        /// Footer explaining the low battery warning threshold
+        public static let footer = L10n.tr("Settings", "battery.lowWarning.footer", fallback: "Get notified when this device's battery drops to or below this level.")
+        /// Section header for the low battery warning setting
+        public static let header = L10n.tr("Settings", "battery.lowWarning.header", fallback: "Low Battery Warning")
+        /// Label for the low battery warning threshold control
+        public static let title = L10n.tr("Settings", "battery.lowWarning.title", fallback: "Warn At")
+      }
+    }
     public enum BatteryCurve {
+      /// Button that adds a new anchor to the curve
+      public static let addAnchor = L10n.tr("Settings", "batteryCurve.addAnchor", fallback: "Add anchor")
+      /// Section header listing the editable curve anchors
+      public static let anchors = L10n.tr("Settings", "batteryCurve.anchors", fallback: "Anchors")
       /// Option for custom battery curve
       public static let custom = L10n.tr("Settings", "batteryCurve.custom", fallback: "Custom")
+      /// Button that opens the battery curve editor
+      public static let editCurve = L10n.tr("Settings", "batteryCurve.editCurve", fallback: "Edit curve")
+      /// Footer explaining the curve editor constraints
+      public static let editorFooter = L10n.tr("Settings", "batteryCurve.editorFooter", fallback: "Voltages must be strictly increasing; percentages non-decreasing. Insert adds an anchor at the midpoint of the largest gap.")
       /// Disclosure group label for editing values
       public static let editValues = L10n.tr("Settings", "batteryCurve.editValues", fallback: "Edit Values")
       /// Footer explaining battery curve configuration
@@ -4104,8 +4124,12 @@ public enum L10n {
       public static let header = L10n.tr("Settings", "batteryCurve.header", fallback: "Battery Curve")
       /// Unit label for millivolts
       public static let mv = L10n.tr("Settings", "batteryCurve.mV", fallback: "mV")
+      /// Column label for the percentage stepper in the curve editor
+      public static let percent = L10n.tr("Settings", "batteryCurve.percent", fallback: "Percent")
       /// Label for preset picker
       public static let preset = L10n.tr("Settings", "batteryCurve.preset", fallback: "Preset")
+      /// Caption above the editor chart explaining the two plotted lines
+      public static let referenceCaption = L10n.tr("Settings", "batteryCurve.referenceCaption", fallback: "Solid line is your curve, dashed line is the chemistry curve for this variant.")
       public enum Accessibility {
         /// Accessibility hint for voltage text field
         public static let voltageHint = L10n.tr("Settings", "batteryCurve.accessibility.voltageHint", fallback: "Enter the expected voltage at this charge level")
@@ -4117,6 +4141,10 @@ public enum L10n {
         public static func voltageValue(_ p1: Int) -> String {
           return L10n.tr("Settings", "batteryCurve.accessibility.voltageValue", p1, fallback: "%d millivolts")
         }
+      }
+      public enum Editor {
+        /// Title of the battery curve editor sheet
+        public static let title = L10n.tr("Settings", "batteryCurve.editor.title", fallback: "Battery curve")
       }
       public enum Validation {
         /// Validation error for non-descending values
