@@ -8,7 +8,7 @@ struct NeighborSNRChartView: View {
     let fetchSnapshots: @Sendable () async -> [NodeStatusSnapshotDTO]
 
     @State private var allDataPoints: [MetricChartView.DataPoint] = []
-    @State private var timeRange: HistoryTimeRange = .all
+    @State private var timeRange: HistoryTimeRange = .default
 
     private var filteredDataPoints: [MetricChartView.DataPoint] {
         guard let start = timeRange.startDate else { return allDataPoints }

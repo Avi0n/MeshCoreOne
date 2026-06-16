@@ -8,7 +8,7 @@ struct NodeStatusHistoryView: View {
     let ocvArray: [Int]
 
     @State private var snapshots: [NodeStatusSnapshotDTO] = []
-    @State private var timeRange: HistoryTimeRange = .all
+    @State private var timeRange: HistoryTimeRange = .default
 
     private var filteredSnapshots: [NodeStatusSnapshotDTO] {
         guard let start = timeRange.startDate else { return snapshots }
