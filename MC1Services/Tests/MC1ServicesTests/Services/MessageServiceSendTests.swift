@@ -832,9 +832,10 @@ struct MessageServiceSendTests {
 
         let container = try PersistenceStore.createContainer(inMemory: true)
         let dataStore = PersistenceStore(modelContainer: container)
-        // Default ackGiveUpWindow (45s) comfortably exceeds the per-attempt loop
-        // budget here, so the global checker must not fire while the loop holds a
-        // freshly re-stamped entry.
+        // The manual checkExpiredAcks call runs immediately after the send, so
+        // the elapsed time since the just-re-stamped sentAt is ~0s, far under the
+        // default give-up window; the global checker must not fire while the loop
+        // holds a freshly re-stamped entry.
         let service = MessageService(
             session: session,
             dataStore: dataStore,
@@ -871,6 +872,69 @@ struct MessageServiceSendTests {
         #expect(await service.pendingAckCount == 1, "the in-flight entry must survive the checker tick")
 
         // Unblock the loop so it completes cleanly (delivered).
+        await session.dispatchForTesting(.acknowledgement(code: ackCode, tripTime: 100))
+        let delivered = try await sendTask.value
+        #expect(delivered.status == .delivered)
+    }
+
+    @Test("checkExpiredAcks respects a slow-preset per-attempt timeout that exceeds a tiny give-up window")
+    @MainActor
+    func giveUpRespectsSlowPresetTimeout() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 20)
+        )
+        let startTask = Task { try await session.start() }
+        try await waitUntil("session should send app start") {
+            await transport.sentData.count == 1
+        }
+        await transport.simulateReceive(makeSelfInfoPacket())
+        try await startTask.value
+        defer { Task { await session.stop() } }
+
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let dataStore = PersistenceStore(modelContainer: container)
+        // give-up window 1s; per-attempt timeout derives from suggestedTimeoutMs 15_000 (~18s).
+        // After a 2s real wait the elapsed exceeds the 1s window but is inside the 18s attempt
+        // timeout, so max(1, 18) = 18 and the checker must leave the entry alive.
+        let service = MessageService(
+            session: session,
+            dataStore: dataStore,
+            contactService: nil,
+            config: MessageServiceConfig(maxAttempts: 2, floodAfter: 5, ackGiveUpWindow: 1)
+        )
+
+        let contactID = UUID()
+        let contact = ContactDTO.testContact(id: contactID, radioID: testDeviceID)
+        let ackCode = Data([0x7A, 0x7B, 0x7C, 0x7D])
+
+        let sendTask = Task { try await service.sendMessageWithRetry(text: "slow preset", to: contact) }
+
+        try await waitUntil("attempt 0 should send") {
+            await transport.sentData.count == 2
+        }
+        var msgSent = Data([ResponseCode.messageSent.rawValue])
+        msgSent.append(0)
+        msgSent.append(ackCode)
+        msgSent.append(uint32Bytes(15_000)) // ~18s window: the loop stays parked
+        await transport.simulateReceive(msgSent)
+
+        await service.waitForSubscriberCount(1)
+
+        // Wait 2 real seconds so elapsed > 1s window, then run the checker.
+        // Under max(1, 18) = 18 the entry must survive.
+        try await Task.sleep(for: .seconds(2))
+        try await service.checkExpiredAcks()
+
+        let midLoop = try await dataStore.fetchMessages(contactID: contactID, limit: 1, offset: 0).first
+        #expect(midLoop?.status != .failed,
+                "checkExpiredAcks must not fail a DM still inside its per-attempt ACK timeout")
+        #expect(await service.pendingAckCount == 1, "the in-flight entry must survive when timeout > window")
+
+        // Unblock the loop; it returns once the listener flips isDelivered. The
+        // in-flight waitForEvent still parks its full per-attempt timeout rather than
+        // hanging, and that timeout must exceed the give-up window to stay meaningful.
         await session.dispatchForTesting(.acknowledgement(code: ackCode, tripTime: 100))
         let delivered = try await sendTask.value
         #expect(delivered.status == .delivered)

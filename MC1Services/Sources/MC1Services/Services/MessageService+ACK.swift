@@ -6,8 +6,9 @@ extension MessageService {
 
     /// Starts periodic checking for expired ACKs.
     ///
-    /// Runs a background task that periodically marks messages as `.failed`
-    /// once `config.ackGiveUpWindow` has elapsed since the message was last sent.
+    /// Runs a background task that periodically fails a DM awaiting an ACK once
+    /// its per-entry give-up deadline elapses; `checkExpiredAcks` defines that
+    /// deadline.
     ///
     /// - Parameter interval: How often to check for expired ACKs (defaults to 5 seconds)
     ///
@@ -58,12 +59,12 @@ extension MessageService {
     /// Checks for expired ACKs and advances their delivery state.
     ///
     /// Called automatically by the periodic checker, or manually for an
-    /// immediate check. A sent DM stays `.sent` until `config.ackGiveUpWindow`
-    /// elapses since its last send attempt: the `pendingAcks` entry remains so
-    /// an ACK arriving within that window still reconciles via
-    /// `handleAcknowledgement`'s direct lookup. Only after the window elapses
-    /// does the message move to `.failed`, and this is the single place a DM
-    /// awaiting an ACK is failed.
+    /// immediate check. The give-up deadline for each entry is
+    /// `max(ackGiveUpWindow, tracking.timeout)`: the window acts as a floor
+    /// and post-loop grace on fast presets, while on slow high-spreading-factor
+    /// presets the deadline follows the attempt's own ACK wait so the checker
+    /// never fires mid-attempt while the retry loop is still legitimately
+    /// parked in `waitForEvent`.
     ///
     /// - Throws: Database errors when updating message status
     public func checkExpiredAcks() async throws {
@@ -72,7 +73,7 @@ extension MessageService {
 
         let expiredEntries = pendingAcks.filter { _, tracking in
             !tracking.isDelivered &&
-            now.timeIntervalSince(tracking.sentAt) > window
+            now.timeIntervalSince(tracking.sentAt) > max(window, tracking.timeout)
         }
 
         for (messageID, _) in expiredEntries {
@@ -80,7 +81,8 @@ extension MessageService {
             guard let removed = pendingAcks.removeValue(forKey: messageID),
                   !removed.isDelivered, didFail else { continue }
 
-            logger.warning("[ack-diag] give-up: failed after \(String(format: "%.1f", now.timeIntervalSince(removed.sentAt)))s window=\(window)s livePending=\(pendingAcks.count)")
+            let deadline = max(window, removed.timeout)
+            logger.warning("[ack-diag] give-up: failed after \(String(format: "%.1f", now.timeIntervalSince(removed.sentAt)))s window=\(window)s deadline=\(String(format: "%.1f", deadline))s livePending=\(pendingAcks.count)")
             statusEventBroadcaster.yield(.failed(messageID: messageID))
         }
     }

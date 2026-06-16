@@ -199,9 +199,10 @@ struct MessageServiceACKTests {
                 ".failed must not be broadcast when the DB write is a no-op")
     }
 
-    @Test("checkExpiredAcks fails a DM only after ackGiveUpWindow elapses, ignoring the per-attempt timeout")
-    func checkExpiredAcksUsesAckGiveUpWindow() async throws {
+    @Test("checkExpiredAcks fails a DM after max(ackGiveUpWindow, per-attempt timeout); the window is the floor")
+    func checkExpiredAcksUsesAckGiveUpWindowAsFloor() async throws {
         let window: TimeInterval = 20
+        let shortTimeout: TimeInterval = 5
         let (service, dataStore) = try await MessageService.createForTesting(
             config: MessageServiceConfig(ackGiveUpWindow: window)
         )
@@ -210,13 +211,13 @@ struct MessageServiceACKTests {
         try await dataStore.saveMessage(
             MessageDTO.testDirectMessage(id: survivingID, radioID: testDeviceID, status: .sent)
         )
-        // Sent inside the window: must stay .sent even though the per-attempt
-        // timeout (30s, the makePending default) is already exceeded.
+        // Past the per-attempt timeout but inside the window floor: stays .sent.
         await service.setPendingAckForTest(
             makePending(
                 messageID: survivingID,
                 ackCodes: [Data([0x01, 0x02, 0x03, 0x04])],
-                sentAt: Date().addingTimeInterval(-(window - 5))
+                sentAt: Date().addingTimeInterval(-(window - 5)),
+                timeout: shortTimeout
             )
         )
 
@@ -228,16 +229,63 @@ struct MessageServiceACKTests {
             makePending(
                 messageID: expiredID,
                 ackCodes: [Data([0x05, 0x06, 0x07, 0x08])],
-                sentAt: Date().addingTimeInterval(-(window + 5))
+                sentAt: Date().addingTimeInterval(-(window + 5)),
+                timeout: shortTimeout
             )
         )
 
         try await service.checkExpiredAcks()
 
         #expect(try await dataStore.fetchMessage(id: survivingID)?.status == .sent,
-                "DM still inside ackGiveUpWindow must not be failed")
+                "DM still inside the window floor must not be failed")
         #expect(try await dataStore.fetchMessage(id: expiredID)?.status == .failed,
-                "DM past ackGiveUpWindow must be failed")
+                "DM past the window floor must be failed")
+    }
+
+    @Test("checkExpiredAcks honors a per-attempt timeout longer than the give-up window (slow preset)")
+    func checkExpiredAcksHonorsLongPerAttemptTimeout() async throws {
+        let window: TimeInterval = 20
+        let longTimeout: TimeInterval = 60
+        let (service, dataStore) = try await MessageService.createForTesting(
+            config: MessageServiceConfig(ackGiveUpWindow: window)
+        )
+
+        // Past the give-up window but still inside the attempt's own ACK wait:
+        // the loop is legitimately waiting for a slow round-trip, so the checker
+        // must not fail it.
+        let waitingID = UUID()
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(id: waitingID, radioID: testDeviceID, status: .sent)
+        )
+        await service.setPendingAckForTest(
+            makePending(
+                messageID: waitingID,
+                ackCodes: [Data([0x01, 0x02, 0x03, 0x04])],
+                sentAt: Date().addingTimeInterval(-(window + 10)),
+                timeout: longTimeout
+            )
+        )
+
+        // Past both the window and the attempt timeout: genuinely undeliverable.
+        let expiredID = UUID()
+        try await dataStore.saveMessage(
+            MessageDTO.testDirectMessage(id: expiredID, radioID: testDeviceID, status: .sent)
+        )
+        await service.setPendingAckForTest(
+            makePending(
+                messageID: expiredID,
+                ackCodes: [Data([0x05, 0x06, 0x07, 0x08])],
+                sentAt: Date().addingTimeInterval(-(longTimeout + 10)),
+                timeout: longTimeout
+            )
+        )
+
+        try await service.checkExpiredAcks()
+
+        #expect(try await dataStore.fetchMessage(id: waitingID)?.status == .sent,
+                "a DM still inside its per-attempt ACK timeout must not be failed even past the window")
+        #expect(try await dataStore.fetchMessage(id: expiredID)?.status == .failed,
+                "a DM past max(window, per-attempt timeout) must be failed")
     }
 
     @Test("stopAckExpiryChecking leaves in-flight DMs .sent instead of failing them")

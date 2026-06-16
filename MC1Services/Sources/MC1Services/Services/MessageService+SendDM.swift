@@ -689,8 +689,9 @@ extension MessageService {
             statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .delivered, roundTripTime: nil))
         } else {
             // Retry budget spent without an ACK. Neither fail the row nor remove
-            // the entry: `checkExpiredAcks` owns the single `ackGiveUpWindow`
-            // give-up so a late-but-legitimate ACK can still upgrade the row.
+            // the entry: `checkExpiredAcks` owns the give-up at
+            // max(ackGiveUpWindow, last attempt's ACK timeout), so a
+            // late-but-legitimate ACK can still upgrade the row.
             // `clearRetryingToSent` rolls any `.retrying` status back to `.sent`
             // and is terminal-safe: it no-ops if the checker already failed the
             // row in the loop's await-gap, so the row stays `.failed` there.

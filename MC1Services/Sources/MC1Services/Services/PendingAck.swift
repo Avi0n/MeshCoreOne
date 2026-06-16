@@ -12,6 +12,9 @@ struct PendingAck: Sendable {
     let contactID: UUID
     var ackCodes: Set<Data>
     var sentAt: Date
+    /// The latest send attempt's ACK-wait derived from the firmware's `est_timeout` hint.
+    /// `checkExpiredAcks` reads this as the per-attempt floor on the give-up deadline
+    /// so a slow high-spreading-factor round-trip is not failed while still in flight.
     var timeout: TimeInterval
     var isDelivered: Bool = false
 }
