@@ -148,30 +148,21 @@ public enum RFCalculator {
         return diffractionLossFromV(vParam)
     }
 
+    /// Fresnel-Kirchhoff parameter at or below which the path has full clearance and no knife-edge loss.
+    private static let diffractionClearThresholdV: Double = -0.78
+
     /// Calculates diffraction loss from the Fresnel-Kirchhoff v parameter.
     ///
-    /// Uses a polynomial approximation of the ITU-R P.526 knife-edge diffraction model.
+    /// Uses the ITU-R P.526 single-equation knife-edge diffraction model. A single
+    /// expression keeps the loss continuous and monotonic across the whole obstruction
+    /// range, avoiding the branch-join drift of the piecewise polynomial approximations.
     ///
     /// - Parameter vParam: The Fresnel-Kirchhoff diffraction parameter.
     /// - Returns: The diffraction loss in dB.
     private static func diffractionLossFromV(_ vParam: Double) -> Double {
-        if vParam < -1 {
-            // Clear line-of-sight with good clearance
-            // Negligible loss (small gain possible)
-            return 0
-        } else if vParam <= 0 {
-            // Grazing or slight clearance
-            // Approximately: L = 6.02 + 9.11*v + 1.27*v^2
-            return max(0, 6.02 + 9.11 * vParam + 1.27 * vParam * vParam)
-        } else if vParam <= 2.4 {
-            // Moderate obstruction
-            // Approximately: L = 6.02 + 9.11*v + 1.27*v^2
-            return 6.02 + 9.11 * vParam + 1.27 * vParam * vParam
-        } else {
-            // Severe obstruction
-            // Approximately: L = 12.95 + 20*log10(v)
-            return 12.95 + 20 * log10(vParam)
-        }
+        guard vParam > diffractionClearThresholdV else { return 0 }
+        let shifted = vParam - 0.1
+        return 6.9 + 20 * log10(sqrt(shifted * shifted + 1) + shifted)
     }
 
     // MARK: - Distance Calculation

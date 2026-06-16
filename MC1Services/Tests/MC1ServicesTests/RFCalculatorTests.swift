@@ -208,7 +208,7 @@ struct RFCalculatorTests {
 
     // MARK: - Diffraction Loss Tests
 
-    @Test("Diffraction loss is near zero for clear line-of-sight (v < -1)")
+    @Test("Diffraction loss is zero for clear line-of-sight (v below grazing)")
     func diffractionLossClearLOS() {
         // Large negative obstruction height = clear path well below LOS
         let loss = RFCalculator.diffractionLoss(
@@ -245,9 +245,8 @@ struct RFCalculatorTests {
             distanceToBMeters: 3000,
             frequencyMHz: 910
         )
-        // At v≈1: L ≈ 6.02 + 9.11*1 + 1.27*1 ≈ 16.4 dB
-        #expect(loss > 15)
-        #expect(loss < 20)
+        // ITU-R P.526 J(v) at v ≈ 1 is ≈ 13.9 dB
+        #expect(abs(loss - 13.9) < 0.5)
     }
 
     @Test("Diffraction loss is greater for larger obstructions")
@@ -275,6 +274,19 @@ struct RFCalculatorTests {
 
         #expect(lossMedium > lossSmall)
         #expect(lossLarge > lossMedium)
+    }
+
+    @Test("Diffraction loss matches ITU-R P.526 reference value at strong obstruction (v ≈ 2.4)")
+    func diffractionLossMatchesITUReferenceAtV24() {
+        // h ≈ 37.7m gives v ≈ 2.4 for 6km at 910MHz; ITU-R P.526 J(2.4) ≈ 20.5 dB.
+        // A wrong-sign polynomial approximation reads ≈ 35 dB here, so this anchors the regime.
+        let loss = RFCalculator.diffractionLoss(
+            obstructionHeightMeters: 37.7,
+            distanceToAMeters: 3000,
+            distanceToBMeters: 3000,
+            frequencyMHz: 910
+        )
+        #expect(abs(loss - 20.5) < 0.7)
     }
 
     @Test("Diffraction loss returns 0 for invalid inputs")
