@@ -5,11 +5,6 @@ import OSLog
 
 private let logger = Logger(subsystem: "com.mc1", category: "ChatConversationView")
 
-/// iPad: lets the action sheet's dismiss animation finish before presenting the
-/// next sheet — otherwise UIKit cancels the new presentation and the user sees
-/// nothing.
-private let messageActionSheetPresentationDelay: Duration = .milliseconds(300)
-
 /// Quiet period after the last keystroke before the composer draft is persisted,
 /// so rapid typing coalesces into a single write.
 private let draftSaveDebounce: Duration = .milliseconds(500)
@@ -697,7 +692,7 @@ struct ChatConversationView: View {
         // Raise the keyboard only after the actions sheet has finished dismissing;
         // a focus request issued while the sheet is still animating away is lost.
         Task {
-            try? await Task.sleep(for: messageActionSheetPresentationDelay)
+            try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
             inputFocusRequest += 1
         }
     }
@@ -714,7 +709,7 @@ struct ChatConversationView: View {
         guard case .channel(let channel) = conversationType,
               let name = message.senderNodeName else { return }
         Task {
-            try? await Task.sleep(for: messageActionSheetPresentationDelay)
+            try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
             blockSenderContext = BlockSenderContext(senderName: name, radioID: channel.radioID)
         }
     }
@@ -723,7 +718,7 @@ struct ChatConversationView: View {
         guard case .channel(let channel) = conversationType,
               let name = message.senderNodeName else { return }
         Task {
-            try? await Task.sleep(for: messageActionSheetPresentationDelay)
+            try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
             sendDMContext = SendDMContext(senderName: name, radioID: channel.radioID)
         }
     }

@@ -1,21 +1,6 @@
 import SwiftUI
 import MC1Services
 
-/// Seconds the user must hold a bubble before the actions sheet is presented.
-/// Long enough that a quick tap can never reach it, short enough that a
-/// deliberate hold still feels responsive.
-private let longPressConfirmDuration: Double = 0.6
-
-/// Spring `response` (natural period) for the press-in/release scale animation.
-private let longPressSpringResponse: Double = 0.7
-
-/// Delay before the press-in lift animates, so a brief accidental tap shows no
-/// lift. No delay is applied on release so the bubble retracts immediately.
-private let longPressInDelay: Double = 0.1
-
-/// Scale the bubble shrinks to while pressed, before the actions sheet opens.
-private let longPressPressedScale: CGFloat = 0.95
-
 /// Two-layer drop shadow shown only while the bubble is lifted: a tight contact
 /// shadow under the bubble plus a softer ambient one for depth.
 private let liftContactShadowOpacity: Double = 0.10
@@ -52,7 +37,6 @@ struct UnifiedMessageBubble: View, Equatable {
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.openURL) private var openURL
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.appTheme) private var theme
 
     @State private var showingReactionDetails = false
@@ -188,12 +172,7 @@ struct UnifiedMessageBubble: View, Equatable {
                         }
                     }
                 }
-                .scaleEffect(isLongPressing ? longPressPressedScale : 1.0)
-                .animation(
-                    reduceMotion ? nil : .spring(response: longPressSpringResponse).delay(isLongPressing ? longPressInDelay : 0),
-                    value: isLongPressing
-                )
-                .sensoryFeedback(.impact(flexibility: .solid), trigger: longPressTrigger)
+                .messageBubbleLongPressEffect(isPressing: isLongPressing, trigger: longPressTrigger)
 
                 if !item.envelope.isOutgoing {
                     Spacer(minLength: bubbleRowOppositeEdgeMinInset)
@@ -222,15 +201,10 @@ struct UnifiedMessageBubble: View, Equatable {
     /// the lift, and bumps the haptic trigger. Shared by the box and the content-card siblings so a
     /// press anywhere on the bubble opens the same sheet.
     private func bubbleActionsLongPress(_ content: some View) -> some View {
-        content.onLongPressGesture(
-            minimumDuration: longPressConfirmDuration,
-            perform: {
-                longPressTrigger += 1
-                callbacks.onLongPress?()
-            },
-            onPressingChanged: { pressing in
-                isLongPressing = pressing
-            }
+        content.messageBubbleLongPressGesture(
+            isPressing: $isLongPressing,
+            trigger: $longPressTrigger,
+            onFire: { callbacks.onLongPress?() }
         )
     }
 
