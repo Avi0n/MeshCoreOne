@@ -93,7 +93,11 @@ struct MessageServiceACKTests {
 
     @Test("ACK timeout keeps message .sent through the grace window so a late ACK can still reconcile")
     func ackTimeoutStaysSentDuringGraceWindow() async throws {
-        let (service, dataStore) = try await MessageService.createForTesting()
+        // Pin the give-up window so the test exercises "past per-attempt timeout
+        // but inside the give-up window" independent of the product default.
+        let (service, dataStore) = try await MessageService.createForTesting(
+            config: MessageServiceConfig(ackGiveUpWindow: 45)
+        )
         let messageID = UUID()
 
         let message = MessageDTO.testDirectMessage(
@@ -743,7 +747,11 @@ struct MessageServiceACKTests {
 
     @Test("ACK within grace window reconciles .sent → .delivered via the in-memory pending entry")
     func ackWithinGraceReconciles() async throws {
-        let (service, dataStore) = try await MessageService.createForTesting()
+        // Pin the give-up window so the late ACK lands inside it regardless of
+        // the product default.
+        let (service, dataStore) = try await MessageService.createForTesting(
+            config: MessageServiceConfig(ackGiveUpWindow: 45)
+        )
         let messageID = UUID()
         let contactID = UUID()
         let ackCode = Data([0xDE, 0xAD, 0xBE, 0xEF])

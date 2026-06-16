@@ -240,6 +240,7 @@ private func makeFakeMessageItem(id: UUID, senderName: String) -> MessageItem {
             sendTimeWasCorrected: false,
             showStatusRow: false,
             status: .sent,
+            isChannelMessage: false,
             heardRepeats: 0,
             retryAttempt: 0,
             maxRetryAttempts: 0,

@@ -53,14 +53,14 @@ struct MessageServiceConfig: Sendable {
     /// Whether to trigger path discovery after successful flood delivery
     let triggerPathDiscoveryAfterFlood: Bool
 
-    /// How long a sent DM waits for its end-to-end ACK before being marked
-    /// `.failed`, measured from the last send attempt.
+    /// Floor and post-loop grace for the give-up deadline on fast presets.
     ///
-    /// The firmware reports delivery whenever the ACK returns, even long after
-    /// its own `est_timeout` hint, so this is a generous client-side give-up
-    /// deadline rather than the firmware estimate. It must comfortably exceed a
-    /// multi-hop round trip while still surfacing a genuinely undeliverable DM
-    /// in bounded time.
+    /// The effective deadline for each pending entry is `max(ackGiveUpWindow,
+    /// PendingAck.timeout)`, so on slow high-spreading-factor presets the
+    /// deadline follows the attempt's real round-trip and the checker never
+    /// fires mid-attempt. On fast presets where `est_timeout` is small this
+    /// value is the binding deadline, set large enough for a late ACK to still
+    /// reconcile yet short enough to keep the silent "sending" tail brief.
     let ackGiveUpWindow: TimeInterval
 
     /// Tuning for the in-loop pool-exhaustion backoff (`withPoolBackoff`).
@@ -68,15 +68,17 @@ struct MessageServiceConfig: Sendable {
 
     init(
         floodFallbackOnRetry: Bool = true,
-        maxAttempts: Int = 4,
-        maxFloodAttempts: Int = 2,
-        floodAfter: Int = 2,
+        maxAttempts: Int = 5,
+        maxFloodAttempts: Int = 1,
+        floodAfter: Int = 4,
         minTimeout: TimeInterval = 0,
         triggerPathDiscoveryAfterFlood: Bool = true,
-        ackGiveUpWindow: TimeInterval = 45,
+        ackGiveUpWindow: TimeInterval = 30,
         poolBackoff: PoolBackoffConfig = .default
     ) {
-        precondition(maxAttempts <= 4, "firmware AckCodeBuilder masks attempt & 0x03 — values > 4 produce ambiguous ACKs")
+        // 5 = 4 direct + 1 flood. AckCodeBuilder.expectedAck documents why attempt
+        // indices through 4 stay ACK-unambiguous; past that the cap bounds airtime.
+        precondition(maxAttempts <= 5, "maxAttempts must be <= 5 (4 direct + 1 flood)")
         self.floodFallbackOnRetry = floodFallbackOnRetry
         self.maxAttempts = maxAttempts
         self.maxFloodAttempts = maxFloodAttempts

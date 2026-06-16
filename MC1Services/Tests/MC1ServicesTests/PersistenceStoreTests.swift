@@ -100,6 +100,54 @@ struct PersistenceStoreTests {
         #expect(device1Fetched?.isActive == false)
     }
 
+    // MARK: - Message status terminal-safety
+
+    @Test("updateMessageRetryStatus does not resurrect a .failed row")
+    func retryStatusDoesNotResurrectFailed() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let contactID = try await store.saveContact(radioID: radioID, from: createTestContactFrame())
+
+        let message = MessageDTO(from: Message(
+            radioID: radioID,
+            contactID: contactID,
+            text: "give-up race",
+            timestamp: UInt32(Date().timeIntervalSince1970),
+            directionRawValue: MessageDirection.outgoing.rawValue
+        ))
+        try await store.saveMessage(message)
+
+        // The expiry checker fails the row in the loop's await-gap.
+        try await store.updateMessageStatus(id: message.id, status: .failed)
+
+        // A stale retry iteration must not flip it back to .retrying.
+        try await store.updateMessageRetryStatus(id: message.id, status: .retrying, retryAttempt: 1, maxRetryAttempts: 4)
+
+        let fetched = try await store.fetchMessage(id: message.id)
+        #expect(fetched?.status == .failed)
+    }
+
+    @Test("updateMessageRetryStatus still advances a non-terminal row")
+    func retryStatusAdvancesInFlightRow() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let contactID = try await store.saveContact(radioID: radioID, from: createTestContactFrame())
+
+        let message = MessageDTO(from: Message(
+            radioID: radioID,
+            contactID: contactID,
+            text: "in flight",
+            timestamp: UInt32(Date().timeIntervalSince1970),
+            directionRawValue: MessageDirection.outgoing.rawValue
+        ))
+        try await store.saveMessage(message)
+
+        try await store.updateMessageRetryStatus(id: message.id, status: .retrying, retryAttempt: 0, maxRetryAttempts: 4)
+
+        let fetched = try await store.fetchMessage(id: message.id)
+        #expect(fetched?.status == .retrying)
+    }
+
     /// Seeds all entity types for a device and returns IDs needed for verification.
     private func seedAllEntityTypes(store: PersistenceStore, radioID: UUID) async throws -> (
         contactID: UUID, messageID: UUID, channelID: UUID, sessionID: UUID

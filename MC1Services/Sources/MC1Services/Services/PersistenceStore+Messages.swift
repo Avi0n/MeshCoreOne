@@ -341,9 +341,11 @@ extension PersistenceStore {
 
     /// Update message status with retry attempt information.
     ///
-    /// Skips the write when the message is already `.delivered` so a stale
-    /// retry iteration (e.g., one racing the persistent ACK listener) cannot
-    /// clobber a winning ACK.
+    /// Skips the write on a terminal row (`.delivered` or `.failed`) so a stale
+    /// retry iteration cannot clobber a winning ACK, nor resurrect a row the
+    /// expiry checker already failed in the loop's `waitForEvent` await-gap.
+    /// This matches the terminal-safety of `clearRetryingToSent` and
+    /// `updateMessageAck`.
     public func updateMessageRetryStatus(
         id: UUID,
         status: MessageStatus,
@@ -357,7 +359,9 @@ extension PersistenceStore {
         var descriptor = FetchDescriptor(predicate: predicate)
         descriptor.fetchLimit = 1
 
-        if let message = try modelContext.fetch(descriptor).first, message.status != .delivered {
+        if let message = try modelContext.fetch(descriptor).first,
+           message.status != .delivered,
+           message.status != .failed {
             message.status = status
             message.retryAttempt = retryAttempt
             message.maxRetryAttempts = maxRetryAttempts

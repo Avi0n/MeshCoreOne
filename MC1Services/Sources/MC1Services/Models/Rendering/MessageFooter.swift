@@ -29,6 +29,10 @@ public struct MessageFooter: Sendable, Hashable {
     public let sendTimeWasCorrected: Bool
     public let showStatusRow: Bool
     public let status: MessageStatus
+    /// Distinguishes a channel broadcast from a DM at render time. `BubbleStatusRow`
+    /// uses it so a DM's transient `.sent` reads as "Sending..." while a channel's
+    /// `.sent` stays terminal success. Render-only, never persisted.
+    public let isChannelMessage: Bool
     public let heardRepeats: Int
     public let retryAttempt: Int
     public let maxRetryAttempts: Int
@@ -43,6 +47,7 @@ public struct MessageFooter: Sendable, Hashable {
         sendTimeWasCorrected: Bool,
         showStatusRow: Bool,
         status: MessageStatus,
+        isChannelMessage: Bool,
         heardRepeats: Int,
         retryAttempt: Int,
         maxRetryAttempts: Int,
@@ -56,6 +61,7 @@ public struct MessageFooter: Sendable, Hashable {
         self.sendTimeWasCorrected = sendTimeWasCorrected
         self.showStatusRow = showStatusRow
         self.status = status
+        self.isChannelMessage = isChannelMessage
         self.heardRepeats = heardRepeats
         self.retryAttempt = retryAttempt
         self.maxRetryAttempts = maxRetryAttempts
@@ -74,6 +80,7 @@ public struct MessageFooter: Sendable, Hashable {
             sendTimeWasCorrected: sendTimeWasCorrected,
             showStatusRow: showStatusRow,
             status: status,
+            isChannelMessage: isChannelMessage,
             heardRepeats: heardRepeats,
             retryAttempt: retryAttempt,
             maxRetryAttempts: maxRetryAttempts,

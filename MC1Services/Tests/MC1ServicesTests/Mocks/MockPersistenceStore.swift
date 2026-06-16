@@ -278,6 +278,10 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
             throw error
         }
         if var message = messages[id] {
+            // Mirror PersistenceStore.updateMessageAck: a terminal row
+            // (.delivered/.failed) is not flipped by a late ACK; only the
+            // legitimate .sent -> .delivered upgrade is allowed through.
+            if (message.status == .delivered || message.status == .failed) && status != message.status { return }
             messages[id] = MessageDTO(
                 id: message.id,
                 radioID: message.radioID,
@@ -308,7 +312,9 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let error = stubbedUpdateMessageStatusError {
             throw error
         }
-        if let message = messages[id] {
+        // Mirror PersistenceStore: a terminal row (.delivered/.failed) is not
+        // overwritten by a stale retry iteration.
+        if let message = messages[id], message.status != .delivered, message.status != .failed {
             messages[id] = MessageDTO(
                 id: message.id,
                 radioID: message.radioID,
