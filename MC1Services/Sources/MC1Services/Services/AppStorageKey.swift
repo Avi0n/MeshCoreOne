@@ -53,6 +53,8 @@ public enum AppStorageKey: String {
     case notificationSoundEnabled = "notificationSoundEnabled"
     case notificationBadgeEnabled = "notificationBadgeEnabled"
     case notifyLowBattery = "notifyLowBattery"
+    /// Battery percentage at or below which a low-battery warning fires.
+    case lowBatteryWarningThreshold = "lowBatteryWarningThreshold"
     // swiftlint:enable redundant_string_enum_value
 
     public static let defaultShowIncomingPath: Bool = false
@@ -75,4 +77,10 @@ public enum AppStorageKey: String {
     public static let defaultLastStaleCleanupDate: Double = 0
     /// Shared default for every notification toggle case.
     public static let defaultNotificationEnabled: Bool = true
+    /// Default battery percentage that triggers a low-battery warning.
+    public static let defaultLowBatteryWarningThreshold: Int = 20
+    /// Selectable range for the low-battery warning threshold (percent).
+    public static let lowBatteryWarningThresholdRange: ClosedRange<Int> = 5...50
+    /// Step between selectable low-battery warning thresholds (percent).
+    public static let lowBatteryWarningThresholdStep: Int = 5
 }

@@ -13,6 +13,8 @@ struct NotificationPreferences: Sendable {
     let soundEnabled: Bool
     let badgeEnabled: Bool
     let lowBatteryEnabled: Bool
+    /// Battery percentage at or below which a low-battery warning fires.
+    let lowBatteryWarningThreshold: Int
 
     init() {
         let defaults = UserDefaults.standard
@@ -30,6 +32,7 @@ struct NotificationPreferences: Sendable {
         self.soundEnabled = enabled(.notificationSoundEnabled)
         self.badgeEnabled = enabled(.notificationBadgeEnabled)
         self.lowBatteryEnabled = enabled(.notifyLowBattery)
+        self.lowBatteryWarningThreshold = NotificationPreferencesStore.lowBatteryWarningThreshold(from: defaults)
     }
 }
 
@@ -52,6 +55,32 @@ public final class NotificationPreferencesStore {
     private func setEnabled(_ newValue: Bool, for key: AppStorageKey) {
         defaults.set(newValue, forKey: key.rawValue)
         revision += 1
+    }
+
+    /// Reads the configured low-battery warning threshold, falling back to the
+    /// default when unset. Shared by `NotificationPreferences` and `BatteryMonitor`.
+    nonisolated public static func lowBatteryWarningThreshold(from defaults: UserDefaults = .standard) -> Int {
+        guard defaults.object(forKey: AppStorageKey.lowBatteryWarningThreshold.rawValue) != nil else {
+            return AppStorageKey.defaultLowBatteryWarningThreshold
+        }
+        return defaults.integer(forKey: AppStorageKey.lowBatteryWarningThreshold.rawValue)
+    }
+
+    /// Battery percentage at or below which a low-battery warning fires.
+    /// Clamped to `AppStorageKey.lowBatteryWarningThresholdRange` on write.
+    public var lowBatteryWarningThreshold: Int {
+        get {
+            _ = revision
+            return Self.lowBatteryWarningThreshold(from: defaults)
+        }
+        set {
+            let clamped = min(
+                max(newValue, AppStorageKey.lowBatteryWarningThresholdRange.lowerBound),
+                AppStorageKey.lowBatteryWarningThresholdRange.upperBound
+            )
+            defaults.set(clamped, forKey: AppStorageKey.lowBatteryWarningThreshold.rawValue)
+            revision += 1
+        }
     }
 
     // MARK: - Message Notifications

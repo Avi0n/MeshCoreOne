@@ -45,12 +45,14 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     public var notificationSoundEnabled: Bool?
     public var notificationBadgeEnabled: Bool?
     public var notifyLowBattery: Bool?
+    public var lowBatteryWarningThreshold: Int?
 
     public init() {}
 
     // MARK: - UserDefaults keys for special-cased (non-Bool/String) properties
 
     private static let autoDeleteStaleNodesDaysKey = AppStorageKey.autoDeleteStaleNodesDays.rawValue
+    private static let lowBatteryWarningThresholdKey = AppStorageKey.lowBatteryWarningThreshold.rawValue
     private static let frequentEmojisKey = AppStorageKey.frequentEmojis.rawValue
     private static let recentReactionEmojisKey = AppStorageKey.recentReactionEmojis.rawValue
     /// Public so `AppState` (and tests) can persist via the same key without a duplicated literal.
@@ -61,6 +63,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     /// do not consume from non-test code.
     internal static let specialCasedPropertyNames: Set<String> = [
         "autoDeleteStaleNodesDays",
+        "lowBatteryWarningThreshold",
         "frequentEmojis",
         "recentEmojis",
         "regionSelection"
@@ -170,6 +173,10 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
             result.autoDeleteStaleNodesDays = defaults.integer(forKey: Self.autoDeleteStaleNodesDaysKey)
         }
 
+        if defaults.object(forKey: Self.lowBatteryWarningThresholdKey) != nil {
+            result.lowBatteryWarningThreshold = defaults.integer(forKey: Self.lowBatteryWarningThresholdKey)
+        }
+
         // frequentEmojis is stored as JSON-encoded [String] via @AppStorage Data binding
         if let data = defaults.data(forKey: Self.frequentEmojisKey),
            let decoded = try? JSONDecoder().decode([String].self, from: data) {
@@ -211,6 +218,12 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
            defaults.object(forKey: Self.autoDeleteStaleNodesDaysKey) == nil {
             defaults.set(value, forKey: Self.autoDeleteStaleNodesDaysKey)
             setKeys.append(Self.autoDeleteStaleNodesDaysKey)
+        }
+
+        if let value = lowBatteryWarningThreshold,
+           defaults.object(forKey: Self.lowBatteryWarningThresholdKey) == nil {
+            defaults.set(value, forKey: Self.lowBatteryWarningThresholdKey)
+            setKeys.append(Self.lowBatteryWarningThresholdKey)
         }
 
         if let emojis = frequentEmojis, defaults.object(forKey: Self.frequentEmojisKey) == nil {
