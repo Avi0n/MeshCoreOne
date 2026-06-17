@@ -45,14 +45,13 @@ struct PointsSummarySectionView: View {
 
                 // Repeater row (placeholder or full, positioned between A and B)
                 // Inline check for repeaterPoint to ensure SwiftUI properly tracks the dependency
-                if let repeater = viewModel.repeaterPoint {
+                if viewModel.repeaterPoint != nil {
                     RepeaterRowView(
                         viewModel: viewModel,
                         copyHapticTrigger: $copyHapticTrigger,
                         editingPoint: $editingPoint,
                         onRelocate: onRelocate
                     )
-                        .id("repeater-\(repeater.coordinate.latitude)-\(repeater.coordinate.longitude)")
                 } else if viewModel.shouldShowRepeaterPlaceholder {
                     AddRepeaterRowView {
                         viewModel.addRepeater()
