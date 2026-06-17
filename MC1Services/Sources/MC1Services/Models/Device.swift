@@ -308,7 +308,10 @@ public final class Device {
         ocvPreset = dto.ocvPreset
         customOCVArrayString = dto.customOCVArrayString
         connectionMethods = dto.connectionMethods
-        knownRegions = dto.knownRegions
+        // knownRegions is app-only state owned solely by addDeviceKnownRegion/
+        // removeDeviceKnownRegion. It is excluded from this full overwrite so a
+        // stale or empty DTO from a read-snapshot-then-save caller cannot erase
+        // regions the targeted path committed. First write is Device(dto:) at insert.
     }
 }
 

@@ -402,9 +402,12 @@ struct AppBackupServiceTests {
                 .bluetooth(peripheralUUID: UUID(), displayName: "BT"),
                 .wifi(host: "10.0.0.2", port: 5000, displayName: "WiFi")
             ]
-            $0.knownRegions = ["US", "EU"]
         }
         try await store.saveDevice(device)
+
+        // knownRegions is owned by the targeted add path, not saveDevice's overwrite.
+        try await store.addDeviceKnownRegion(radioID: radioID, region: "US")
+        try await store.addDeviceKnownRegion(radioID: radioID, region: "EU")
 
         let service = AppBackupService()
         let result = try await service.export(persistenceStore: store)
