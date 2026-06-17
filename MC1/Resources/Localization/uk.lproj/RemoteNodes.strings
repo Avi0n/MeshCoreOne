@@ -425,6 +425,9 @@
 /* Location: SharedNodeViews.swift - Airtime label */
 "remoteNodes.status.airtime" = "Ефірний час";
 
+/* Location: SharedNodeViews.swift - Airtime percent label */
+"remoteNodes.status.airtimePercent" = "Ефірний час %";
+
 /* Location: RepeaterStatusView.swift - Last RSSI label */
 "remoteNodes.status.lastRssi" = "Останній RSSI";
 

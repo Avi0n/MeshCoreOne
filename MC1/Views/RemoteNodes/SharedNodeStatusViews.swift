@@ -46,6 +46,8 @@ struct NodeCommonStatusRows: View {
 
         LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.airtime, value: helper.airtimeDisplay)
 
+        LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.airtimePercent, value: helper.airtimePercentDisplay)
+
         NodeMetricRow(
             label: L10n.RemoteNodes.RemoteNodes.Status.lastRssi,
             value: helper.lastRSSIDisplay,
@@ -92,7 +94,7 @@ struct NodeStatusSection<Rows: View>: View {
                     }
                 } else if let errorMessage = helper.statusSectionError, helper.status == nil {
                     Text(errorMessage)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(.orange)
                 } else if helper.status != nil {
                     rows()
 
@@ -207,7 +209,7 @@ struct NodeBatteryCurveDisclosureSection: View {
                 if let error = helper.ocvError {
                     Text(error)
                         .font(.caption)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(.orange)
                 }
             } label: {
                 Text(L10n.RemoteNodes.RemoteNodes.Status.batteryCurve)

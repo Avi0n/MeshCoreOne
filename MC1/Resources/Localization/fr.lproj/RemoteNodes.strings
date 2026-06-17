@@ -428,6 +428,9 @@
 /* Location: SharedNodeViews.swift - Airtime label */
 "remoteNodes.status.airtime" = "Temps d'antenne";
 
+/* Location: SharedNodeViews.swift - Airtime percent label */
+"remoteNodes.status.airtimePercent" = "Temps d'antenne %";
+
 /* Location: RepeaterStatusView.swift - Last RSSI label */
 "remoteNodes.status.lastRssi" = "Dernier RSSI";
 

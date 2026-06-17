@@ -308,6 +308,20 @@ final class NodeStatusViewModel {
         return "TX \(tx) / RX \(rx)"
     }
 
+    private static let airtimePercentFractionDigits = 1
+
+    var airtimePercentDisplay: String {
+        guard let status, status.uptimeSeconds > 0 else { return Self.emDash }
+        let denom = Double(status.uptimeSeconds)
+        let txPercent = Double(status.airtime) / denom * 100
+        let rxPercent = Double(status.rxAirtime) / denom * 100
+        return "TX \(Self.formatPercent(txPercent)) / RX \(Self.formatPercent(rxPercent))"
+    }
+
+    private static func formatPercent(_ value: Double) -> String {
+        value.formatted(.number.precision(.fractionLength(airtimePercentFractionDigits))) + "%"
+    }
+
     private static func formatDuration(_ seconds: UInt32) -> String {
         let days = Int(seconds / secondsPerDay)
         let hours = Int((seconds % secondsPerDay) / secondsPerHour)

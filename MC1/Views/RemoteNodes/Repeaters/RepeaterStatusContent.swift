@@ -77,7 +77,7 @@ private struct OwnerInfoSection: View {
                     }
                 } else if let error = viewModel.ownerInfoError {
                     Text(error)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(.orange)
                 } else if let info = viewModel.ownerInfo, !info.isEmpty {
                     Text(info)
                 } else {
@@ -162,7 +162,7 @@ private struct NeighborsSection: View {
                     }
                 } else if let error = viewModel.neighborsSectionError, !viewModel.isDiscovering {
                     Text(error)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(.orange)
                 } else if viewModel.neighbors.isEmpty && !viewModel.isDiscovering {
                     Text(L10n.RemoteNodes.RemoteNodes.Status.noNeighbors)
                         .foregroundStyle(.secondary)
