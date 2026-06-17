@@ -249,6 +249,11 @@ struct MessageBodyAttributeBridgingTests {
         assertBridgedAllTraits("Hey @[Me] there", currentUserName: "Me", "self-mention")
     }
 
+    @Test("Outgoing self-mention message bridges")
+    func outgoingSelfMention() {
+        assertBridgedAllTraits("Hey @[Me] there", isOutgoing: true, currentUserName: "Me", "outgoing-self-mention")
+    }
+
     @Test("RTL text with a URL bridges")
     func rightToLeft() {
         assertBridgedAllTraits("مرحبا https://example.com شكرا", "rtl")

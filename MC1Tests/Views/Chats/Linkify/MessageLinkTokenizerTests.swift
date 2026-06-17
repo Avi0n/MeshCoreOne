@@ -146,6 +146,18 @@ struct MessageLinkTokenizerTests {
         #expect(!result.tokens.contains { $0.kind == .meshcoreLink })
     }
 
+    @Test("A hashtag inside a meshcore contact link also wins the overlap and drops the link")
+    func hashtagOutranksMeshcoreContactLink() {
+        let key = String(repeating: "AB", count: 32)
+        let text = "meshcore://contact/add?public_key=\(key)#ops"
+        let result = tokenize(text)
+        // Same hashtag-wins precedence as the channel variant: the embedded #ops resolves to a
+        // hashtag token and the surrounding contact link contributes no token.
+        let hashtag = token(result, covering: "#ops", in: text)
+        #expect(hashtag?.kind == .hashtag)
+        #expect(!result.tokens.contains { $0.kind == .meshcoreLink })
+    }
+
     // MARK: - mapCoordinate derivation
 
     @Test("mapCoordinate is the first surviving coordinate in document order")
