@@ -23,9 +23,9 @@ struct RepeaterSettingsView: View {
     @State private var routeContact: ContactDTO?
 
     var body: some View {
-        // ZStack, not Group: a stable container keeps the toolbar/title hosted on one
-        // view across segment switches. Group would re-host them on each switch branch,
-        // animating a nav-bar item transition.
+        // ZStack, not Group: a stable container keeps the navigation title hosted on one
+        // view across segment switches. Group would re-host it on each branch, animating
+        // a nav-bar item transition.
         ZStack {
             switch managementTab {
             case .settings: settingsForm
@@ -46,17 +46,11 @@ struct RepeaterSettingsView: View {
         .animation(nil, value: managementTab)
         .navigationTitle(L10n.RemoteNodes.RemoteNodes.Settings.title)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
+        .safeAreaInset(edge: .top, spacing: 0) {
             if session.isAdmin {
-                ToolbarItem(placement: .principal) {
-                    Picker(L10n.RemoteNodes.RemoteNodes.Settings.Tab.picker, selection: $managementTab) {
-                        ForEach(NodeManagementTab.allCases, id: \.self) { tab in
-                            Text(tab.label).tag(tab)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .fixedSize()
-                }
+                NodeManagementTabPicker(selection: $managementTab)
+                    .frame(maxWidth: .infinity)
+                    .pinnedFilterHeaderBackground(theme)
             }
         }
         .task {
