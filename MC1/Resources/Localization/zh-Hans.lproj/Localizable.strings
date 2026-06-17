@@ -124,6 +124,9 @@
 /* VoiceOver announcement when viewing cached data while disconnected from device */
 "accessibility.viewingCachedData" = "正在查看缓存数据。连接设备以获取更新。";
 
+/* Location: View+RadioDisabled.swift - VoiceOver hint when a control is disabled because the radio is not connected */
+"accessibility.requiresRadioConnection" = "请先开启设备连接";
+
 /* Accessibility value for toggle in On state */
 "accessibility.on" = "开启";
 

@@ -21,7 +21,7 @@ extension View {
             self
                 .disabled(true)
                 .foregroundStyle(.secondary)
-                .accessibilityHint("Requires radio connection")
+                .accessibilityHint(L10n.Localizable.Accessibility.requiresRadioConnection)
         } else {
             self.disabled(otherCondition)
         }

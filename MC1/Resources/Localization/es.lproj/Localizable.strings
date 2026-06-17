@@ -123,6 +123,9 @@
 /* VoiceOver announcement when viewing cached data while disconnected from device */
 "accessibility.viewingCachedData" = "Mostrando datos en caché. Conéctate al dispositivo para actualizar.";
 
+/* Location: View+RadioDisabled.swift - VoiceOver hint when a control is disabled because the radio is not connected */
+"accessibility.requiresRadioConnection" = "Requiere conexión de radio";
+
 /* Accessibility label for off state */
 "accessibility.off" = "Desactivado";
 

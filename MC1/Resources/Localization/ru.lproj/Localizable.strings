@@ -118,6 +118,9 @@
 /* VoiceOver announcement when viewing cached data while disconnected from device */
 "accessibility.viewingCachedData" = "Просмотр кэшированных данных. Подключись к устройству для обновления.";
 
+/* Location: View+RadioDisabled.swift - VoiceOver hint when a control is disabled because the radio is not connected */
+"accessibility.requiresRadioConnection" = "Требуется подключение к радио";
+
 
 // MARK: - Node Types
 

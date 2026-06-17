@@ -2194,6 +2194,8 @@ public enum L10n {
       public static let off = L10n.tr("Localizable", "accessibility.off", fallback: "Off")
       /// Accessibility value for toggle in On state
       public static let on = L10n.tr("Localizable", "accessibility.on", fallback: "On")
+      /// Location: View+RadioDisabled.swift - VoiceOver hint when a control is disabled because the radio is not connected
+      public static let requiresRadioConnection = L10n.tr("Localizable", "accessibility.requiresRadioConnection", fallback: "Requires radio connection")
       /// VoiceOver announcement when viewing cached data while disconnected from device
       public static let viewingCachedData = L10n.tr("Localizable", "accessibility.viewingCachedData", fallback: "Viewing cached data. Connect to device for updates.")
       public enum Alert {

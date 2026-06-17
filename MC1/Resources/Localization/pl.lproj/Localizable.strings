@@ -119,6 +119,9 @@
 /* VoiceOver announcement when viewing cached data while disconnected from device */
 "accessibility.viewingCachedData" = "Wyświetlanie danych z pamięci podręcznej. Połącz z urządzeniem, aby uzyskać aktualizacje.";
 
+/* Location: View+RadioDisabled.swift - VoiceOver hint when a control is disabled because the radio is not connected */
+"accessibility.requiresRadioConnection" = "Wymaga połączenia radiowego";
+
 
 // MARK: - Node Types
 
