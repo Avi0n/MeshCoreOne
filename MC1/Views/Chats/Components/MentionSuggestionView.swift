@@ -10,8 +10,12 @@ struct MentionSuggestionView: View {
     private let rowHeight: CGFloat = 48  // Avatar 32 + vertical padding 16
     private let maxSuggestions = 20
 
+    private var suggestions: ArraySlice<ContactDTO> {
+        contacts.prefix(maxSuggestions)
+    }
+
     private var contentHeight: CGFloat {
-        let count = min(contacts.count, maxSuggestions)
+        let count = suggestions.count
         let dividerHeight: CGFloat = 1
         let totalHeight = CGFloat(count) * rowHeight + CGFloat(max(0, count - 1)) * dividerHeight
         return min(totalHeight, maxHeight)
@@ -20,17 +24,19 @@ struct MentionSuggestionView: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
-                ForEach(contacts.prefix(maxSuggestions)) { contact in
-                    Button {
-                        onSelect(contact)
-                    } label: {
-                        MentionSuggestionRow(contact: contact)
-                    }
-                    .buttonStyle(.plain)
+                ForEach(suggestions) { contact in
+                    VStack(spacing: 0) {
+                        Button {
+                            onSelect(contact)
+                        } label: {
+                            MentionSuggestionRow(contact: contact)
+                        }
+                        .buttonStyle(.plain)
 
-                    if contact.id != contacts.prefix(maxSuggestions).last?.id {
-                        Divider()
-                            .padding(.leading, 44)
+                        if contact.id != suggestions.last?.id {
+                            Divider()
+                                .padding(.leading, 44)
+                        }
                     }
                 }
             }
