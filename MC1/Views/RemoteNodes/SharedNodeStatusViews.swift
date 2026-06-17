@@ -25,7 +25,9 @@ struct NodeStatusHeaderSection: View {
                 Spacer()
             }
             .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
         }
+        .listSectionSpacing(.compact)
     }
 }
 

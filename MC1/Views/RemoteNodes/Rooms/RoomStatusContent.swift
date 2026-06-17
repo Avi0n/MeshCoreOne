@@ -30,6 +30,7 @@ struct RoomStatusContent: View {
         }
         .nodeStatusDestinations(helper: viewModel.helper)
         .themedCanvas(theme)
+        .nodeManagementHeaderTopMargin()
         .scrollDismissesKeyboard(.interactively)
     }
 }

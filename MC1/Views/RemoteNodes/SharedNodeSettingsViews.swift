@@ -10,6 +10,17 @@ enum NodeSettingsField: Hashable {
 
 // MARK: - Settings Header
 
+private let nodeHeaderTopContentMargin: CGFloat = 8
+
+extension View {
+    /// Trims the grouped scroll view's default top inset so the node header avatar sits close to
+    /// the pinned management tab picker. Applied to the settings `Form` and telemetry `List` that
+    /// host `NodeSettingsHeaderSection` / `NodeStatusHeaderSection`.
+    func nodeManagementHeaderTopMargin() -> some View {
+        contentMargins(.top, nodeHeaderTopContentMargin, for: .scrollContent)
+    }
+}
+
 struct NodeSettingsHeaderSection: View {
     let publicKey: Data
     let name: String
@@ -27,7 +38,9 @@ struct NodeSettingsHeaderSection: View {
                 Spacer()
             }
             .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
         }
+        .listSectionSpacing(.compact)
     }
 }
 

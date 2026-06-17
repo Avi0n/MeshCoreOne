@@ -54,6 +54,7 @@ struct RepeaterStatusContent: View {
         }
         .nodeStatusDestinations(helper: viewModel.helper)
         .themedCanvas(theme)
+        .nodeManagementHeaderTopMargin()
         .scrollDismissesKeyboard(.interactively)
     }
 }

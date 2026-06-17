@@ -141,6 +141,7 @@ struct RepeaterSettingsView: View {
             }
         }
         .themedCanvas(theme)
+        .nodeManagementHeaderTopMargin()
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
