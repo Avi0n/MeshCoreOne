@@ -123,6 +123,47 @@ struct BackupIntegrationTests {
         #expect(destContacts.first?.type == .chat)
     }
 
+    // MARK: - Test 1c: Device knownRegions survives backup
+
+    /// `DeviceDTO.knownRegions` is a non-optional `[String]` that shipped before the
+    /// backup feature, so no envelope can predate it: the contract is a plain encode →
+    /// decode round-trip, not a `decodeIfPresent` legacy path. This locks that contract
+    /// at the DTO boundary so a future refactor can't drop the field from the wire format.
+    @Test("Device knownRegions survives DTO encode → decode round-trip")
+    func knownRegionsSurvivesCodableRoundTrip() throws {
+        let dto = DeviceDTO.testDevice().copy { $0.knownRegions = ["US915", "EU868"] }
+        let encoded = try JSONEncoder().encode(dto)
+        let decoded = try JSONDecoder().decode(DeviceDTO.self, from: encoded)
+        #expect(decoded.knownRegions == ["US915", "EU868"])
+    }
+
+    /// Full envelope path: regions added through the targeted, list-owning writer must
+    /// survive export → import into a fresh store, exercising the `Device(dto:)` insert
+    /// seeding the restore relies on.
+    @Test("Device knownRegions survives full backup export → import into a fresh store")
+    func knownRegionsSurvivesBackupPipeline() async throws {
+        let radioID = UUID()
+        let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+        // Discovery owns knownRegions through the targeted add path, not a full saveDevice.
+        try await sourceStore.addDeviceKnownRegion(radioID: radioID, region: "US915")
+        try await sourceStore.addDeviceKnownRegion(radioID: radioID, region: "EU868")
+
+        let service = AppBackupService()
+        let exportResult = try await service.export(persistenceStore: sourceStore)
+        let envelope = try parseBackup(data: exportResult.data)
+        #expect(envelope.devices.first?.knownRegions == ["US915", "EU868"])
+
+        let destContainer = try PersistenceStore.createContainer(inMemory: true)
+        let destStore = PersistenceStore(modelContainer: destContainer)
+        let result = try await service.importBackup(envelope: envelope, into: destStore)
+        #expect(result.devicesInserted == 1)
+
+        // Import re-mints Device.id; radioID is the surviving partition key.
+        let restored = try #require(await destStore.fetchDevice(radioID: radioID))
+        #expect(restored.knownRegions == ["US915", "EU868"])
+    }
+
     // MARK: - Test 2: Cross-bundle radioID remapping
 
     /// When the target store contains a device with the same publicKey as the backup but a
