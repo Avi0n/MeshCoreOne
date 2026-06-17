@@ -108,6 +108,11 @@ struct RoomConversationView: View {
                 await chatViewModel.loadAllContacts(radioID: session.radioID)
                 await viewModel.loadMessages(for: session)
             }
+            .onChange(of: appState.contactsVersion) { _, _ in
+                // Keep the mention-resolution snapshot fresh: a contact added after the
+                // room opened must be tappable without reopening the screen.
+                Task { await chatViewModel.loadAllContacts(radioID: session.radioID) }
+            }
             .task(id: appState.servicesVersion) {
                 // Track the active room so foreground banners for it are suppressed.
                 // Keyed on servicesVersion so a reconnect, which mints a fresh

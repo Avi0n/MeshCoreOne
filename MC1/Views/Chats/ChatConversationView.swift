@@ -278,6 +278,11 @@ struct ChatConversationView: View {
             guard let mention = newMention else { return }
             handleIncomingMentionIfNeeded(mention.messageID)
         }
+        .onChange(of: appState.contactsVersion) { _, _ in
+            // Keep the mention-resolution snapshot fresh: a contact added after the
+            // chat opened must be tappable without reopening the screen.
+            Task { await chatViewModel.loadAllContacts(radioID: conversationType.radioID) }
+        }
         .chatErrorAlerts(chatViewModel: chatViewModel)
         // Chrome theming comes from the stack-level themedChrome on the TabView. Re-declaring it
         // on this pushed destination makes the nav bar appearance re-install after the push, which
