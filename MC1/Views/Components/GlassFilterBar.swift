@@ -7,7 +7,15 @@ private let barBottomPadding: CGFloat = 8
 /// The segmented `Picker` has no intrinsic vertical padding, so the glass pills' negative top
 /// inset would clip its top edge. It gets a positive inset matching the bottom for even spacing.
 private let segmentedTopPadding: CGFloat = 8
+private let regularPillHorizontalPadding: CGFloat = 14
+private let regularPillVerticalPadding: CGFloat = 6
+private let largePillHorizontalPadding: CGFloat = 18
+private let largePillVerticalPadding: CGFloat = 9
 private let dimmedOpacity: Double = 0.5
+/// Hueless tint marking the selected pill, flipped by color scheme (darker in light, lighter in
+/// dark) so the selection holds contrast on every theme canvas without a hue that clashes with one.
+private let selectedSegmentTintLight = Color.black.opacity(0.12)
+private let selectedSegmentTintDark = Color.white.opacity(0.16)
 
 /// Pinned filter bar that renders as Liquid Glass capsule pills on iOS 26 and
 /// falls back to a standard segmented `Picker` on iOS 18.
@@ -17,10 +25,54 @@ private let dimmedOpacity: Double = 0.5
 struct GlassFilterBar<Filter: Hashable & CaseIterable & Sendable>: View
 where Filter.AllCases: RandomAccessCollection {
 
+    /// Pill sizing. `regular` is the compact default for the chat/contact filters;
+    /// `large` gives the roomier pills used by the node management sheet.
+    enum Size {
+        case regular
+        case large
+
+        var horizontalPadding: CGFloat {
+            switch self {
+            case .regular: regularPillHorizontalPadding
+            case .large: largePillHorizontalPadding
+            }
+        }
+
+        var verticalPadding: CGFloat {
+            switch self {
+            case .regular: regularPillVerticalPadding
+            case .large: largePillVerticalPadding
+            }
+        }
+
+        var font: Font {
+            switch self {
+            case .regular: .subheadline
+            case .large: .callout
+            }
+        }
+
+        var controlSize: ControlSize {
+            switch self {
+            case .regular: .regular
+            case .large: .large
+            }
+        }
+    }
+
     @Binding var selection: Filter
     let isSearching: Bool
     let pickerLabel: String
     let title: @Sendable (Filter) -> String
+    var size: Size = .regular
+
+    @Namespace private var glassNamespace
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var selectedSegmentTint: Color {
+        colorScheme == .dark ? selectedSegmentTintDark : selectedSegmentTintLight
+    }
 
     var body: some View {
         Group {
@@ -63,15 +115,26 @@ where Filter.AllCases: RandomAccessCollection {
     @available(iOS 26.0, *)
     @ViewBuilder
     private func pill(for filter: Filter) -> some View {
+        let isSelected = selection == filter
         Button {
-            selection = filter
+            withAnimation(reduceMotion ? nil : .smooth) {
+                selection = filter
+            }
         } label: {
             Text(title(filter))
                 .lineLimit(1)
-                .font(.subheadline)
+                .font(size.font)
+                .foregroundStyle(.primary)
+                .padding(.horizontal, size.horizontalPadding)
+                .padding(.vertical, size.verticalPadding)
+                .contentShape(.capsule)
         }
-        .controlSize(.small)
-        .pillButtonStyle(isSelected: selection == filter)
+        .buttonStyle(.plain)
+        .glassEffect(
+            isSelected ? .regular.tint(selectedSegmentTint).interactive() : .regular.interactive(),
+            in: .capsule
+        )
+        .glassEffectID(filter, in: glassNamespace)
     }
 
     private var segmentedFallback: some View {
@@ -81,20 +144,10 @@ where Filter.AllCases: RandomAccessCollection {
             }
         }
         .pickerStyle(.segmented)
+        .controlSize(size.controlSize)
         .padding(.horizontal, barHorizontalPadding)
         .padding(.top, segmentedTopPadding)
         .padding(.bottom, barBottomPadding)
-    }
-}
-
-private extension View {
-    @ViewBuilder
-    func pillButtonStyle(isSelected: Bool) -> some View {
-        if isSelected {
-            self.liquidGlassProminentButtonStyle()
-        } else {
-            self.liquidGlassSecondaryButtonStyle()
-        }
     }
 }
 
@@ -109,5 +162,36 @@ extension View {
         } else {
             background(theme.surfaces?.canvas ?? Color(.systemBackground))
         }
+    }
+}
+
+private enum FilterBarPreviewFilter: String, CaseIterable, Sendable {
+    case all, unread, dms, channels, rooms
+
+    var label: String {
+        switch self {
+        case .all: "All"
+        case .unread: "Unread"
+        case .dms: "DMs"
+        case .channels: "Channels"
+        case .rooms: "Rooms"
+        }
+    }
+}
+
+#Preview {
+    @Previewable @State var selection = FilterBarPreviewFilter.all
+
+    List(0..<20) { row in
+        Text("Row \(row)")
+    }
+    .safeAreaInset(edge: .top, spacing: 0) {
+        GlassFilterBar(
+            selection: $selection,
+            isSearching: false,
+            pickerLabel: "View",
+            title: { $0.label }
+        )
+        .frame(maxWidth: .infinity)
     }
 }
