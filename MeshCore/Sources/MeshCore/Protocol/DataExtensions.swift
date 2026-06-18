@@ -144,6 +144,24 @@ extension Data {
     public mutating func appendLittleEndian(_ value: Int32) {
         Swift.withUnsafeBytes(of: value.littleEndian) { append(contentsOf: $0) }
     }
+
+    /// Decodes the longest UTF-8-valid prefix of these bytes as a `String`.
+    ///
+    /// Firmware name fields are fixed C-strings truncated byte-wise, so a field can end
+    /// mid-codepoint; this drops the trailing partial sequence rather than fail the whole
+    /// name. Decode-side counterpart to ``String.utf8Prefix(maxBytes:)``.
+    public func decodingLongestValidUTF8Prefix() -> String {
+        if let valid = String(data: self, encoding: .utf8) {
+            return valid
+        }
+        // Truncation only ever damages the tail, so walk back to the last clean boundary.
+        for length in stride(from: count - 1, through: 1, by: -1) {
+            if let valid = String(data: prefix(length), encoding: .utf8) {
+                return valid
+            }
+        }
+        return ""
+    }
 }
 
 extension String {

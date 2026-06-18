@@ -33,9 +33,13 @@ extension Parsers {
         let pathBytes = Data(data[offset..<offset+64])
         let path = actualPathLen > 0 ? Data(pathBytes.prefix(actualPathLen)) : Data()
         offset += 64
-        let nameData = data[offset..<offset+32]
-        let name = String(data: nameData, encoding: .utf8)?
-            .trimmingCharacters(in: .controlCharacters) ?? ""
+        let nameField = data[offset..<offset+32]
+        // Null-terminated C-string in a fixed 32-byte field; firmware truncates byte-wise,
+        // so trim at the first null and decode the longest UTF-8-valid prefix.
+        let nullIndex = nameField.firstIndex(of: 0) ?? nameField.endIndex
+        let name = Data(nameField[nameField.startIndex..<nullIndex])
+            .decodingLongestValidUTF8Prefix()
+            .trimmingCharacters(in: .controlCharacters)
         offset += 32
         let lastAdvert = Date(timeIntervalSince1970: TimeInterval(data.readUInt32LE(at: offset))); offset += 4
         let lat = Double(data.readInt32LE(at: offset)) / 1_000_000; offset += 4

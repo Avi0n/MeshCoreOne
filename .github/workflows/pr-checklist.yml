@@ -1,0 +1,107 @@
+name: PR Checklist
+
+# Enforce that opened PRs check the required boxes in the PR template.
+# Uses pull_request_target so the token is writable for fork PRs; the job only
+# reads the PR body from the event payload and never checks out or runs PR code.
+on:
+  pull_request_target:
+    types: [opened, edited, reopened]
+    branches:
+      - main
+      - dev
+
+permissions:
+  pull-requests: write
+
+concurrency:
+  group: pr-checklist-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  checklist:
+    name: Required checklist
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify required checkboxes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const MARKER = '<!-- pr-checklist-bot -->';
+
+            // Each requirement matches a template list item by a stable phrase and
+            // captures its checkbox state, so light rewording still validates.
+            const REQUIREMENTS = [
+              { label: 'I have read `CONTRIBUTING.md`', regex: /^\s*-\s*\[([ xX])\].*CONTRIBUTING\.md/m },
+              { label: 'Testing steps are documented above.', regex: /^\s*-\s*\[([ xX])\].*[Tt]esting steps are documented/m },
+            ];
+
+            const pr = context.payload.pull_request;
+            if (pr.draft) {
+              core.info('Draft PR; skipping checklist enforcement.');
+              return;
+            }
+
+            /*
+            const PRIVILEGED = ['OWNER', 'MEMBER', 'COLLABORATOR'];
+            if (PRIVILEGED.includes(pr.author_association)) {
+              core.info(`Author association ${pr.author_association} is privileged; skipping.`);
+              return;
+            }
+            */
+
+            const body = pr.body || '';
+            const missing = REQUIREMENTS.filter((req) => {
+              const match = body.match(req.regex);
+              return !match || match[1] === ' ';
+            });
+
+            const common = { owner: context.repo.owner, repo: context.repo.repo, issue_number: pr.number };
+
+            // Was this PR previously closed by the bot? Only those are eligible for auto-reopen.
+            const comments = await github.paginate(github.rest.issues.listComments, { ...common, per_page: 100 });
+            const botClosed = comments.some((c) => c.body && c.body.includes(MARKER));
+
+            if (missing.length > 0) {
+              if (pr.state !== 'open') {
+                core.info('Requirements unmet but PR is already closed; nothing to do.');
+                return;
+              }
+              const checklist = missing.map((req) => `- [ ] ${req.label}`).join('\n');
+              await github.rest.issues.createComment({
+                ...common,
+                body: [
+                  MARKER,
+                  `Hi @${pr.user.login}, thanks for the contribution! This PR is being closed automatically because the required checklist items are not checked:`,
+                  '',
+                  checklist,
+                  '',
+                  'Please verify you have completed the checkbox items, then edit the PR description to include them. If this PR was submitted via API, please be sure to include the testing steps and devices you tested on. The PR will reopen automatically once both are checked.',
+                ].join('\n'),
+              });
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                state: 'closed',
+              });
+              core.setFailed(`Closed PR #${pr.number}: missing ${missing.length} required checklist item(s).`);
+              return;
+            }
+
+            // All requirements met. Reopen if we previously closed it.
+            if (pr.state !== 'open' && botClosed) {
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                state: 'open',
+              });
+              await github.rest.issues.createComment({
+                ...common,
+                body: `${MARKER}\nAll required checklist items are now checked. Reopening — thanks @${pr.user.login}!`,
+              });
+              core.info(`Reopened PR #${pr.number}.`);
+              return;
+            }
+
+            core.info('All required checklist items are checked.');
