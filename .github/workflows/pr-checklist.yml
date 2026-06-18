@@ -27,6 +27,26 @@ jobs:
         with:
           script: |
             const MARKER = '<!-- pr-checklist-bot -->';
+            const BODY_MARKER = '<!-- pr-checklist-template -->';
+
+            // PRs opened via the API/CLI (incl. AI agents) bypass the repository
+            // template, so the checklist never appears. When it is absent we inject
+            // this into the body once; editing the body re-fires this workflow,
+            // which then enforces the checkbox state.
+            const TEMPLATE = [
+              BODY_MARKER,
+              '## Tested on',
+              '- [ ] iOS [version]',
+              '- [ ] iPadOS [version]',
+              '- [ ] macOS [version]',
+              '',
+              '## Checklist',
+              '',
+              '- [ ] This PR was discussed with the maintainer either via GitHub issue or other means (Also check the box if this PR is small enough not to need discussion e.g. typo fix)',
+              '- [ ] I have read `CONTRIBUTING.md`',
+              '- [ ] Testing steps are documented above.',
+              '- [ ] This change was "vibe coded" (please be truthful)',
+            ].join('\n');
 
             // Each requirement matches a template list item by a stable phrase and
             // captures its checkbox state, so light rewording still validates.
@@ -48,12 +68,28 @@ jobs:
             }
 
             const body = pr.body || '';
-            const missing = REQUIREMENTS.filter((req) => {
+            const evaluated = REQUIREMENTS.map((req) => {
               const match = body.match(req.regex);
-              return !match || match[1] === ' ';
+              return { req, present: !!match, checked: !!match && match[1] !== ' ' };
             });
+            const allPresent = evaluated.every((e) => e.present);
+            const missing = evaluated.filter((e) => !e.checked).map((e) => e.req);
 
             const common = { owner: context.repo.owner, repo: context.repo.repo, issue_number: pr.number };
+
+            // The checklist is partly or wholly absent (template was bypassed).
+            // Inject it once so the contributor actually sees the boxes; the
+            // resulting body edit re-fires this workflow to enforce them.
+            if (pr.state === 'open' && !allPresent && !body.includes(BODY_MARKER)) {
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                body: body ? `${body}\n\n${TEMPLATE}` : TEMPLATE,
+              });
+              core.info(`Injected checklist template into PR #${pr.number}; awaiting completion.`);
+              return;
+            }
 
             // Was this PR previously closed by the bot? Only those are eligible for auto-reopen.
             const comments = await github.paginate(github.rest.issues.listComments, { ...common, per_page: 100 });
@@ -73,7 +109,7 @@ jobs:
                   '',
                   checklist,
                   '',
-                  'Please verify you have completed the checkbox items, then edit the PR description to include them. If this PR was not submitted via the web, please be sure to include the devices you tested on and whether or not AI was used to "vibe code" it. The PR will reopen automatically once the above are addressed.',
+                  'Please verify you have completed these items, then check the corresponding boxes in the PR description (the checklist has been added there for you). The PR will reopen automatically once the above are addressed.',
                 ].join('\n'),
               });
               await github.rest.pulls.update({
