@@ -4,7 +4,7 @@ To make the contribution process smooth and respectful of everyone's time, pleas
 
 ### Before Starting Work
 - **Discuss your idea first**: Reach out so we can coordinate. This helps avoid duplicate effort, as I might already be working on something similar.
-- [MeshCore Discord](https://meshcore.gg) — look for the MeshCore One forum post.
+- [MeshCore Discord](https://meshcore.gg) — look for the MeshCore One forum post. IF YOU DO NOT FOLLOW THIS STEP, YOUR PR MAY BE CLOSED WITHOUT COMMENT.
 - Or message me on Matrix @avion:matrix.org
 
 ### Pull Request Requirements
