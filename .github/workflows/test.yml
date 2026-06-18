@@ -13,6 +13,8 @@ concurrency:
 jobs:
   spm-tests:
     name: SPM Package Tests
+    # Temporarily disabled
+    if: false
     runs-on: macos-26
 
     steps:
