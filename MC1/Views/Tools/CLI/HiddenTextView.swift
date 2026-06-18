@@ -11,6 +11,7 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
     var onHistoryUp: () -> Void
     var onHistoryDown: () -> Void
     var onRightArrowAtEnd: () -> Void
+    var onTabComplete: () -> Void
 
     func makeUIView(context: Context) -> FocusableTextView {
         let textView = FocusableTextView()
@@ -65,7 +66,8 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
             onSubmit: onSubmit,
             onHistoryUp: onHistoryUp,
             onHistoryDown: onHistoryDown,
-            onRightArrowAtEnd: onRightArrowAtEnd
+            onRightArrowAtEnd: onRightArrowAtEnd,
+            onTabComplete: onTabComplete
         )
     }
 
@@ -77,6 +79,7 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
         let onHistoryUp: () -> Void
         let onHistoryDown: () -> Void
         let onRightArrowAtEnd: () -> Void
+        let onTabComplete: () -> Void
 
         init(
             text: Binding<String>,
@@ -85,7 +88,8 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
             onSubmit: @escaping () -> Void,
             onHistoryUp: @escaping () -> Void,
             onHistoryDown: @escaping () -> Void,
-            onRightArrowAtEnd: @escaping () -> Void
+            onRightArrowAtEnd: @escaping () -> Void,
+            onTabComplete: @escaping () -> Void
         ) {
             _text = text
             _isFocused = isFocused
@@ -94,6 +98,7 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
             self.onHistoryUp = onHistoryUp
             self.onHistoryDown = onHistoryDown
             self.onRightArrowAtEnd = onRightArrowAtEnd
+            self.onTabComplete = onTabComplete
         }
 
         func textViewDidChange(_ textView: UITextView) {
@@ -161,6 +166,10 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
         func rightArrowAtEnd() {
             onRightArrowAtEnd()
         }
+
+        func tabComplete() {
+            onTabComplete()
+        }
     }
 }
 
@@ -172,6 +181,7 @@ protocol FocusableTextViewDelegate: UITextViewDelegate {
     func moveCursor(by offset: Int, in textView: FocusableTextView)
     func moveCursorToEnd(in textView: FocusableTextView)
     func rightArrowAtEnd()
+    func tabComplete()
 }
 
 class FocusableTextView: UITextView {
@@ -180,9 +190,16 @@ class FocusableTextView: UITextView {
     }
 
     override var keyCommands: [UIKeyCommand]? {
-        [
+        // Tab is a reserved focus-traversal key: the UIKit focus engine claims it
+        // before SwiftUI's .onKeyPress can see it (notably when running the iPad
+        // build on a Mac), so it must be intercepted here on the first responder
+        // with priority over the focus system.
+        let tab = UIKeyCommand(input: "\t", modifierFlags: [], action: #selector(handleTab))
+        tab.wantsPriorityOverSystemBehavior = true
+        return [
             UIKeyCommand(input: UIKeyCommand.inputUpArrow, modifierFlags: [], action: #selector(handleUpArrow)),
-            UIKeyCommand(input: UIKeyCommand.inputDownArrow, modifierFlags: [], action: #selector(handleDownArrow))
+            UIKeyCommand(input: UIKeyCommand.inputDownArrow, modifierFlags: [], action: #selector(handleDownArrow)),
+            tab
         ]
         // Note: Left/right arrows handled via pressesBegan to intercept before UITextView's default handling
     }
@@ -193,6 +210,10 @@ class FocusableTextView: UITextView {
 
     @objc private func handleDownArrow() {
         customDelegate?.historyDown()
+    }
+
+    @objc private func handleTab() {
+        customDelegate?.tabComplete()
     }
 
     // MARK: - Hardware Keyboard Press Handling

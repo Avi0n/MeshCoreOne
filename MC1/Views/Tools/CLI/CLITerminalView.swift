@@ -120,7 +120,8 @@ struct CLITerminalView: View {
                 onSubmit: onSubmit,
                 onHistoryUp: onHistoryUp,
                 onHistoryDown: onHistoryDown,
-                onRightArrowAtEnd: onRightArrowAtEnd
+                onRightArrowAtEnd: onRightArrowAtEnd,
+                onTabComplete: onTabComplete
             )
             .frame(width: 1, height: 1)
             .opacity(0.01)
