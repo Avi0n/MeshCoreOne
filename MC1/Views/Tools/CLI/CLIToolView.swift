@@ -57,10 +57,10 @@ private struct CLIToolContent: View {
         .liquidGlassToolbarBackground()
         .task(id: appState.servicesVersion) {
             viewModel.configure(
-                repeaterAdminService: appState.services?.repeaterAdminService,
-                remoteNodeService: appState.services?.remoteNodeService,
-                dataStore: appState.services?.dataStore,
-                radioID: appState.connectedDevice?.radioID,
+                repeaterAdminService: { [appState] in appState.services?.repeaterAdminService },
+                remoteNodeService: { [appState] in appState.services?.remoteNodeService },
+                dataStore: { [appState] in appState.services?.dataStore },
+                radioID: { [appState] in appState.connectedDevice?.radioID },
                 localDeviceName: appState.connectedDevice?.nodeName ?? L10n.Tools.Tools.Cli.defaultDevice
             )
         }

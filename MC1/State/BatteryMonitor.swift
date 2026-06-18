@@ -6,7 +6,7 @@ import OSLog
 /// Manages device battery polling, threshold checks, and low-battery notifications.
 @Observable
 @MainActor
-public final class BatteryMonitor {
+final class BatteryMonitor {
 
     private let logger = Logger(subsystem: "com.mc1", category: "BatteryMonitor")
 

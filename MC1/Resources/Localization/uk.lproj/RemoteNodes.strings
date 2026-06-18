@@ -65,6 +65,9 @@
 /* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
 "remoteNodes.auth.pathFooter" = "Використовуйте відомий маршрут до цього вузла або перемкніться на flood-маршрутизацію, щоб мережа знайшла шлях.";
 
+/* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
+"remoteNodes.auth.pathHopUnknown" = "<невідомо>";
+
 /* Location: NodeAuthenticationSheet.swift - Label when no route is set */
 "remoteNodes.auth.noRouteSet" = "Маршрут не встановлено";
 
@@ -83,19 +86,16 @@
 "remoteNodes.settings.done" = "Готово";
 
 /* Location: NodeSettingsView.swift - Settings tab label */
-/* TODO: translate */
-"remoteNodes.settings.tab.settings" = "Settings";
+"remoteNodes.settings.tab.settings" = "Параметри";
 
 /* Location: NodeSettingsView.swift - CLI tab label */
-/* TODO: translate */
 "remoteNodes.settings.tab.cli" = "CLI";
 
 /* Location: NodeSettingsView.swift - Telemetry tab label */
 "remoteNodes.settings.tab.telemetry" = "Телеметрія";
 
 /* Location: NodeSettingsView.swift - View mode picker label */
-/* TODO: translate */
-"remoteNodes.settings.tab.picker" = "View mode";
+"remoteNodes.settings.tab.picker" = "Режим перегляду";
 
 /* Location: RepeaterSettingsView.swift - Success alert title */
 "remoteNodes.settings.success" = "Успішно";
@@ -328,7 +328,7 @@
 /* Location: RepeaterSettingsViewModel.swift - Timeout error */
 "remoteNodes.settings.timeout" = "Час очікування команди вичерпано";
 
-/* Location: NodeSettingsHelper.swift - No service error */
+/* Location: NodeSettingsViewModel.swift - No service error */
 "remoteNodes.settings.noService" = "Сервіс недоступний";
 
 /* Location: RepeaterSettingsViewModel.swift - Advert interval validation error */
@@ -343,37 +343,37 @@
 // MARK: - Repeater Settings: Regions
 
 /* Location: RepeaterSettingsView.swift - Regions section title */
-"remoteNodes.settings.regions" = "Regions";
+"remoteNodes.settings.regions" = "Регіони";
 
 /* Location: RepeaterSettingsView.swift - Regions section footer */
 "remoteNodes.settings.regionsFooter" = "Збережіть на ретранслятор, щоб зберегти зміни після перезавантажень.";
 
 /* Location: RepeaterSettingsView.swift - Wildcard region display name */
-"remoteNodes.settings.regions.allTraffic" = "All Traffic";
+"remoteNodes.settings.regions.allTraffic" = "Увесь трафік";
 
 /* Location: RepeaterSettingsView.swift - Wildcard with asterisk display */
-"remoteNodes.settings.regions.allTrafficWildcard" = "* (All Traffic)";
+"remoteNodes.settings.regions.allTrafficWildcard" = "* (Увесь трафік)";
 
 /* Location: RepeaterSettingsView.swift - Home region picker label */
-"remoteNodes.settings.regions.homeRegion" = "Home Region";
+"remoteNodes.settings.regions.homeRegion" = "Домашній регіон";
 
 /* Location: RepeaterSettingsView.swift - No home region set */
-"remoteNodes.settings.regions.noHome" = "None";
+"remoteNodes.settings.regions.noHome" = "Немає";
 
 /* Location: RepeaterSettingsView.swift - Toggle label for flood allow per region */
-"remoteNodes.settings.regions.allowFlood" = "Allow Flood Traffic";
+"remoteNodes.settings.regions.allowFlood" = "Дозволити флуд-трафік";
 
 /* Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle */
 "remoteNodes.settings.regions.floodToggleHint" = "Коли вимкнено, flood-пакети з цього регіону відхиляються";
 
 /* Location: RepeaterSettingsView.swift - Add region button */
-"remoteNodes.settings.regions.addRegion" = "Add Region";
+"remoteNodes.settings.regions.addRegion" = "Додати регіон";
 
 /* Location: RepeaterSettingsView.swift - Add region alert title */
-"remoteNodes.settings.regions.addRegionTitle" = "Add Region";
+"remoteNodes.settings.regions.addRegionTitle" = "Додати регіон";
 
 /* Location: RepeaterSettingsView.swift - Region name placeholder */
-"remoteNodes.settings.regions.regionName" = "Region name";
+"remoteNodes.settings.regions.regionName" = "Назва регіону";
 
 /* Location: RepeaterSettingsView.swift - Save regions to device button */
 "remoteNodes.settings.regions.saveToDevice" = "Зберегти на ретранслятор";
@@ -385,7 +385,7 @@
 "remoteNodes.settings.regions.saveFailed" = "Не вдалося зберегти регіони";
 
 /* Location: RepeaterSettingsViewModel.swift - Region not found error */
-"remoteNodes.settings.regions.unknownRegion" = "Unknown region";
+"remoteNodes.settings.regions.unknownRegion" = "Невідомий регіон";
 
 /* Location: RepeaterSettingsViewModel.swift - Region has children error */
 "remoteNodes.settings.regions.notEmpty" = "Спочатку видаліть дочірні регіони";
@@ -397,7 +397,7 @@
 "remoteNodes.settings.regions.removeFailed" = "Не вдалося видалити регіон";
 
 /* Location: RepeaterSettingsViewModel.swift - No regions on device */
-"remoteNodes.settings.regions.empty" = "No regions configured";
+"remoteNodes.settings.regions.empty" = "Регіони не налаштовано";
 
 // MARK: - Repeater Status
 
@@ -424,6 +424,9 @@
 
 /* Location: SharedNodeViews.swift - Airtime label */
 "remoteNodes.status.airtime" = "Ефірний час";
+
+/* Location: SharedNodeViews.swift - Airtime percent label */
+"remoteNodes.status.airtimePercent" = "Ефірний час %%";
 
 /* Location: RepeaterStatusView.swift - Last RSSI label */
 "remoteNodes.status.lastRssi" = "Останній RSSI";
@@ -635,13 +638,13 @@
 "remoteNodes.history.retentionNotice" = "Дані історії старіші за один рік автоматично видаляються.";
 
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Radio section header */
-"remoteNodes.history.radioSection" = "Radio";
+"remoteNodes.history.radioSection" = "Радіо";
 
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Sensors section header */
-"remoteNodes.history.sensorsSection" = "Sensors";
+"remoteNodes.history.sensorsSection" = "Датчики";
 
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Neighbors section header */
-"remoteNodes.history.neighborsSection" = "Neighbors";
+"remoteNodes.history.neighborsSection" = "Сусіди";
 
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Empty state when no snapshots exist */
 "remoteNodes.history.noSnapshotsMessage" = "Підключіться до цього вузла принаймні раз, щоб побачити історію.";
@@ -650,7 +653,7 @@
 "remoteNodes.history.sectionNotCaptured" = "Ці дані записуються, коли ви переглядаєте розділ %@ під час сеансу живої телеметрії.";
 
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Navigation title */
-"remoteNodes.history.overviewTitle" = "Telemetry History";
+"remoteNodes.history.overviewTitle" = "Історія телеметрії";
 
 // MARK: - Room Conversation
 
@@ -681,6 +684,15 @@
 /* Location: RoomConversationView.swift - Permission label */
 "remoteNodes.room.permission" = "Дозвіл";
 
+/* Location: RoomInfoSheet.swift, RoomConversationView.swift - Guest permission level */
+"remoteNodes.permission.guest" = "Гість";
+
+/* Location: RoomInfoSheet.swift, RoomConversationView.swift - Member (read-write) permission level */
+"remoteNodes.permission.member" = "Учасник";
+
+/* Location: RoomInfoSheet.swift, RoomConversationView.swift - Admin permission level */
+"remoteNodes.permission.admin" = "Адміністратор";
+
 /* Location: RoomConversationView.swift - Status label */
 "remoteNodes.room.status" = "Статус";
 
@@ -703,7 +715,7 @@
 "remoteNodes.room.reconnected" = "Кімнату перепідключено";
 
 /* Location: RoomConversationView.swift - Disconnected banner text */
-"remoteNodes.room.disconnectedBanner" = "Disconnected";
+"remoteNodes.room.disconnectedBanner" = "Від'єднано";
 
 /* Location: RoomConversationView.swift - Accessibility hint for disconnected banner */
 "remoteNodes.room.disconnectedHint" = "Торкніться, щоб перепідключитися";
@@ -725,36 +737,36 @@
 // MARK: - Room Status
 
 /* Location: RoomStatusView.swift - Navigation title */
-"remoteNodes.roomStatus.title" = "Room Status";
+"remoteNodes.roomStatus.title" = "Стан кімнати";
 
 /* Location: RoomStatusView.swift - Posts received label */
-"remoteNodes.roomStatus.postsReceived" = "Posts Received";
+"remoteNodes.roomStatus.postsReceived" = "Отримано дописів";
 
 /* Location: RoomStatusView.swift - Posts pushed label */
-"remoteNodes.roomStatus.postsPushed" = "Posts Pushed";
+"remoteNodes.roomStatus.postsPushed" = "Надіслано дописів";
 
 // MARK: - Room Settings
 
 /* Location: RoomSettingsView.swift - Navigation title */
-"remoteNodes.roomSettings.title" = "Room Settings";
+"remoteNodes.roomSettings.title" = "Параметри кімнати";
 
 /* Location: RoomSettingsView.swift - Room settings section header */
-"remoteNodes.roomSettings.roomSettingsSection" = "Room Settings";
+"remoteNodes.roomSettings.roomSettingsSection" = "Параметри кімнати";
 
 /* Location: RoomSettingsView.swift - Room settings section footer */
 "remoteNodes.roomSettings.roomSettingsFooter" = "Гостьовий пароль і доступ лише для читання.";
 
 /* Location: RoomSettingsView.swift - Guest password label */
-"remoteNodes.roomSettings.guestPassword" = "Guest Password";
+"remoteNodes.roomSettings.guestPassword" = "Гостьовий пароль";
 
 /* Location: RoomSettingsView.swift - Allow read-only toggle label */
-"remoteNodes.roomSettings.allowReadOnly" = "Allow Read-Only";
+"remoteNodes.roomSettings.allowReadOnly" = "Дозволити лише читання";
 
 /* Location: RoomSettingsView.swift - Allow read-only footer */
 "remoteNodes.roomSettings.allowReadOnlyFooter" = "Дозволити користувачам без пароля підключатися в режимі лише для читання.";
 
 /* Location: RoomSettingsView.swift - Apply room settings button */
-"remoteNodes.roomSettings.applyRoomSettings" = "Apply Room Settings";
+"remoteNodes.roomSettings.applyRoomSettings" = "Застосувати параметри кімнати";
 
 /* Location: RoomSettingsView.swift - Room behavior section footer */
 "remoteNodes.roomSettings.behaviorFooter" = "Інтервали оголошень та переходи розсилки.";
@@ -763,7 +775,7 @@
 "remoteNodes.roomSettings.identityFooter" = "Назва кімнати та GPS-координати для відображення на карті.";
 
 /* Location: RoomSettingsView.swift - Reboot confirmation title */
-"remoteNodes.roomSettings.rebootConfirmTitle" = "Reboot Room?";
+"remoteNodes.roomSettings.rebootConfirmTitle" = "Перезавантажити кімнату?";
 
 /* Location: RoomSettingsView.swift - Reboot confirmation message */
 "remoteNodes.roomSettings.rebootMessage" = "Кімната перезапуститься і буде тимчасово недоступна.";
@@ -772,7 +784,7 @@
 "remoteNodes.roomSettings.radioRestartWarning" = "Застосування цих змін перезапустить кімнату";
 
 /* Location: RoomSettingsView.swift - No service error */
-"remoteNodes.roomSettings.noService" = "Room service not available";
+"remoteNodes.roomSettings.noService" = "Служба кімнати недоступна";
 
 /* Location: RoomSettingsView.swift - Not connected error */
 "remoteNodes.roomSettings.notConnected" = "Не підключено до кімнати";
@@ -783,51 +795,41 @@
 // MARK: - Room Info Sheet (additions)
 
 /* Location: RoomInfoSheet.swift - Telemetry button */
-"remoteNodes.room.telemetry" = "Telemetry";
+"remoteNodes.room.telemetry" = "Телеметрія";
 
 /* Location: RoomInfoSheet.swift - Management button */
-"remoteNodes.room.management" = "Management";
+"remoteNodes.room.management" = "Керування";
 
 // MARK: - Node CLI
 
 /* Location: NodeCliView.swift - Banner shown when connected to a node - %@ is node name */
-/* TODO: translate */
 "remoteNodes.nodeCli.bannerConnected" = "Підключено до %@";
 
 /* Location: NodeCliView.swift - Hint shown below connected banner */
-/* TODO: translate */
 "remoteNodes.nodeCli.bannerHint" = "Введіть «help» для перегляду доступних команд.";
 
 /* Location: NodeCliViewModel.swift - Toast after reboot command succeeds */
-/* TODO: translate */
-"remoteNodes.nodeCli.rebootSent" = "Reboot command sent";
+"remoteNodes.nodeCli.rebootSent" = "Команду перезавантаження надіслано";
 
 /* Location: NodeCliViewModel.swift - Toast after command is cancelled */
-/* TODO: translate */
-"remoteNodes.nodeCli.cancelled" = "Command cancelled";
+"remoteNodes.nodeCli.cancelled" = "Команду скасовано";
 
 /* Location: NodeCliViewModel.swift - Header line in help output */
-/* TODO: translate */
-"remoteNodes.nodeCli.helpHeader" = "Available commands:";
+"remoteNodes.nodeCli.helpHeader" = "Доступні команди:";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'help' command */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpHelp" = "  help\n    Показати цю довідку";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'clear' command */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpClear" = "  clear\n    Очистити термінал";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'clear stats' command */
-/* TODO: translate */
-"remoteNodes.nodeCli.helpClearStats" = "  clear stats\n    Reset node statistics";
+"remoteNodes.nodeCli.helpClearStats" = "  clear stats\n    Скинути статистику вузла";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'reboot' command */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpReboot" = "  reboot\n    Перезапустити цей вузол";
 
 /* Location: NodeCliViewModel.swift - Passthrough note at end of help output */
-/* TODO: translate */
 "remoteNodes.nodeCli.helpPassthrough" = "Будь-яке інше введення надсилається на вузол.";
 
 // MARK: - Shared
@@ -840,3 +842,32 @@
 
 /* Location: Multiple files - Name label */
 "remoteNodes.name" = "Ім'я";
+
+/* Telemetry sensor type display labels */
+"remoteNodes.status.sensor.digitalInput" = "Цифровий вхід";
+"remoteNodes.status.sensor.digitalOutput" = "Цифровий вихід";
+"remoteNodes.status.sensor.analogInput" = "Аналоговий вхід";
+"remoteNodes.status.sensor.analogOutput" = "Аналоговий вихід";
+"remoteNodes.status.sensor.genericSensor" = "Датчик";
+"remoteNodes.status.sensor.illuminance" = "Освітленість";
+"remoteNodes.status.sensor.presence" = "Присутність";
+"remoteNodes.status.sensor.temperature" = "Температура";
+"remoteNodes.status.sensor.humidity" = "Вологість";
+"remoteNodes.status.sensor.accelerometer" = "Акселерометр";
+"remoteNodes.status.sensor.barometer" = "Тиск";
+"remoteNodes.status.sensor.voltage" = "Напруга";
+"remoteNodes.status.sensor.current" = "Струм";
+"remoteNodes.status.sensor.frequency" = "Частота";
+"remoteNodes.status.sensor.percentage" = "Відсоток";
+"remoteNodes.status.sensor.altitude" = "Висота";
+"remoteNodes.status.sensor.load" = "Навантаження";
+"remoteNodes.status.sensor.concentration" = "Концентрація";
+"remoteNodes.status.sensor.power" = "Потужність";
+"remoteNodes.status.sensor.distance" = "Відстань";
+"remoteNodes.status.sensor.energy" = "Енергія";
+"remoteNodes.status.sensor.direction" = "Напрямок";
+"remoteNodes.status.sensor.unixTime" = "Час";
+"remoteNodes.status.sensor.gyrometer" = "Гіроскоп";
+"remoteNodes.status.sensor.colour" = "Колір";
+"remoteNodes.status.sensor.gps" = "GPS";
+"remoteNodes.status.sensor.switchValue" = "Перемикач";

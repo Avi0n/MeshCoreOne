@@ -1,4 +1,3 @@
-// MC1/Views/Tools/RxLogView.swift
 import SwiftUI
 import UIKit
 import MC1Services
@@ -28,12 +27,16 @@ struct RxLogView: View {
             toolbarContent
         }
         .task(id: appState.servicesVersion) {
-            guard let service = appState.services?.rxLogService else { return }
-            await viewModel.subscribe(to: service)
-            await loadNodeNames()
+            viewModel.configure(
+                rxLogService: { [appState] in appState.services?.rxLogService },
+                dataStore: { [appState] in appState.services?.dataStore },
+                radioID: { [appState] in appState.currentRadioID }
+            )
+            await viewModel.subscribe()
+            await viewModel.loadNodeNames()
         }
         .onChange(of: appState.contactsVersion) {
-            Task { await loadNodeNames() }
+            Task { await viewModel.loadNodeNames() }
         }
         .onDisappear {
             viewModel.unsubscribe()
@@ -235,12 +238,6 @@ struct RxLogView: View {
         }
         expandedHashes.removeAll()
     }
-
-    private func loadNodeNames() async {
-        guard let dataStore = appState.services?.dataStore,
-              let deviceID = appState.currentRadioID else { return }
-        await viewModel.loadNodeNames(from: dataStore, radioID: deviceID)
-    }
 }
 
 // MARK: - Row View
@@ -280,7 +277,7 @@ struct RxLogRowView: View {
                 if entry.snr != nil {
                     Image(systemName: "cellularbars", variableValue: entry.snrLevel)
                         .foregroundStyle(entry.snrQuality.color)
-                        .accessibilityLabel(L10n.Tools.Tools.RxLog.signalStrength(entry.snrQualityLabel))
+                        .accessibilityLabel(L10n.Tools.Tools.RxLog.signalStrength(entry.snrQuality.localizedLabel))
                 }
             }
 
@@ -370,7 +367,7 @@ struct RxLogRowView: View {
     /// For TRACE packets: public key prefix IDs from traceTargetHashes.
     private var traceRouteIdParts: [String] {
         guard let targetHashes = entry.traceTargetHashes else { return [] }
-        return targetHashes.map { $0.hexString() }
+        return targetHashes.map { $0.uppercaseHexString() }
     }
 
     /// For non-TRACE packets: public key prefix IDs for each hop, chunked by hashSize.
@@ -385,7 +382,7 @@ struct RxLogRowView: View {
                 return L10n.Tools.Tools.RxLog.pathYou
             }
 
-            return Data(chunk).hexString()
+            return Data(chunk).uppercaseHexString()
         }
     }
 
@@ -410,7 +407,7 @@ struct RxLogRowView: View {
         if let name = nodeNames[hashBytes] {
             return name
         }
-        return hashBytes.hexString()
+        return hashBytes.uppercaseHexString()
     }
 
     // MARK: - Expanded Content

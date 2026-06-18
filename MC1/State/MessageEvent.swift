@@ -3,11 +3,11 @@ import MC1Services
 
 /// Events emitted by mesh subsystems and consumed by chat / room views via
 /// `MessageEventStream`. Each case is sourced from a concrete service
-/// callback wired in `AppState.wireMessageEvents` — there are no
+/// event stream consumed by `MessageEventDispatcher`; there are no
 /// speculative or unreachable cases. Consumers should switch
 /// exhaustively (no `default`) so a new case becomes a compile error
 /// rather than a silent skip.
-public enum MessageEvent: Sendable, Equatable {
+enum MessageEvent: Sendable, Equatable {
     case directMessageReceived(message: MessageDTO, contact: ContactDTO)
     case channelMessageReceived(message: MessageDTO, channelIndex: UInt8)
     case roomMessageReceived(message: RoomMessageDTO, sessionID: UUID)

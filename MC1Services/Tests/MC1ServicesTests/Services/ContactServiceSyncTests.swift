@@ -16,7 +16,7 @@ struct ContactServiceSyncTests {
     private func meshContact(_ keyByte: UInt8, name: String, lastModified: Date = Date(timeIntervalSince1970: 0)) -> MeshContact {
         let key = publicKey(keyByte)
         return MeshContact(
-            id: key.hexString(),
+            id: key.uppercaseHexString(),
             publicKey: key,
             type: .chat,
             flags: ContactFlags(rawValue: 0),
@@ -59,7 +59,7 @@ struct ContactServiceSyncTests {
             meshContact(0xBB, name: "Bob")
         ])
 
-        let service = ContactService(session: session, dataStore: store)
+        let service = ContactService(session: session, dataStore: store, syncCoordinator: nil, cleanupCoordinator: nil)
         let result = try await service.syncContacts(radioID: radioID, since: nil)
 
         #expect(result.contactsReceived == 2)
@@ -82,7 +82,7 @@ struct ContactServiceSyncTests {
         let session = MockMeshCoreSession()
         await session.setStubbedContacts([meshContact(0xAA, name: "Alice")])
 
-        let service = ContactService(session: session, dataStore: store)
+        let service = ContactService(session: session, dataStore: store, syncCoordinator: nil, cleanupCoordinator: nil)
         let result = try await service.syncContacts(radioID: radioID, since: Date(timeIntervalSince1970: 100))
 
         #expect(result.contactsReceived == 1)

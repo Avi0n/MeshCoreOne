@@ -5,8 +5,8 @@ import MC1Services
 /// Map view displaying contacts with their locations
 struct MapView: View {
     @Environment(\.appState) private var appState
-    @AppStorage("mapStyleSelection") private var mapStyleSelection: MapStyleSelection = .standard
-    @AppStorage("mapShowLabels") private var showLabels = true
+    @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
+    @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
     @State private var viewModel = MapViewModel()
     @State private var selectedCalloutContact: ContactDTO?
     @State private var selectedPointScreenPosition: CGPoint?
@@ -36,7 +36,10 @@ struct MapView: View {
             .task {
                 appState.locationService.requestPermissionIfNeeded()
                 appState.locationService.requestLocation()
-                viewModel.configure(appState: appState)
+                viewModel.configure(
+                    dataStore: { [appState] in appState.offlineDataStore },
+                    radioID: { [appState] in appState.currentRadioID }
+                )
                 await viewModel.loadContactsWithLocation()
                 // Frame all contacts only on a cold open. A focus or contact target aims the camera
                 // and clears its nav flag synchronously before this await resolves, so a non-nil
@@ -55,7 +58,8 @@ struct MapView: View {
             .sheet(item: $selectedContactForDetail) { contact in
                 ContactDetailSheet(
                     contact: contact,
-                    onMessage: { navigateToChat(with: contact) }
+                    onMessage: { navigateToChat(with: contact) },
+                    onDelete: { Task { await viewModel.loadContactsWithLocation() } }
                 )
                 .presentationDetents([.large])
             }

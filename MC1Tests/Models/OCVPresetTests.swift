@@ -46,7 +46,7 @@ struct OCVPresetTests {
 
     @Test("WisMesh Tag preset has expected values")
     func wisMeshTagPresetValues() {
-        let expected = [4240, 4112, 4029, 3970, 3906, 3846, 3824, 3802, 3776, 3650, 3072]
+        let expected = [4160, 4020, 3940, 3870, 3810, 3760, 3740, 3720, 3680, 3620, 2990]
         #expect(OCVPreset.wisMeshTag.ocvArray == expected)
     }
 

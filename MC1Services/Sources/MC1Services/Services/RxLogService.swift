@@ -1,14 +1,13 @@
-// MC1Services/Sources/MC1Services/Services/RxLogService.swift
 import Foundation
 import MeshCore
 import OSLog
 
-private let logger = PersistentLogger(subsystem: "com.mc1.services", category: "RxLogService")
+private let logger = PersistentLogger(subsystem: "com.mc1", category: "RxLogService")
 
 /// Actor that processes RX log events, decodes channel messages, and persists to database.
 public actor RxLogService {
-    private let session: MeshCoreSession
-    let dataStore: PersistenceStore
+    private let session: any MeshCoreSessionProtocol
+    let dataStore: any PersistenceStoreProtocol
     var radioID: UUID?
 
     // Caches for fast lookup
@@ -20,17 +19,16 @@ public actor RxLogService {
     private var myPrivateKey: Data?
     private var contactPublicKeysByPrefix: [UInt8: [Data]] = [:]  // 1-byte prefix -> array of 32-byte public keys
 
-    // Stream for UI updates
-    private var streamContinuation: AsyncStream<RxLogEntryDTO>.Continuation?
-
-    /// Called when any RF packet is received, for Live Activity freshness tracking
-    private var onPacketReceived: (@Sendable @MainActor () -> Void)?
+    /// Multicast broadcaster for newly persisted entries. Consumers subscribe
+    /// via `entryStream()`; finished by `ServiceContainer.tearDown()`.
+    private nonisolated let entryBroadcaster = EventBroadcaster<RxLogEntryDTO>()
 
     // Event monitoring
     private var eventMonitorTask: Task<Void, Never>?
 
-    // Heard repeats processing
-    private var heardRepeatsService: HeardRepeatsService?
+    // Heard repeats processing.
+    // Injected by `ServiceContainer` at construction.
+    private let heardRepeatsService: HeardRepeatsService?
 
     // Reentrancy guards for reprocessing (separate to avoid mutual blocking)
     private var isReprocessingChannels = false
@@ -47,22 +45,13 @@ public actor RxLogService {
     /// `addKnownRegion` / `removeKnownRegion` sequences do not lose work.
     var regionReprocessDirty = false
 
-    public init(session: MeshCoreSession, dataStore: PersistenceStore) {
+    public init(session: any MeshCoreSessionProtocol, dataStore: any PersistenceStoreProtocol, heardRepeatsService: HeardRepeatsService?) {
         self.session = session
         self.dataStore = dataStore
+        self.heardRepeatsService = heardRepeatsService
     }
 
-    /// Sets the HeardRepeatsService for processing channel message repeats.
-    public func setHeardRepeatsService(_ service: HeardRepeatsService) {
-        self.heardRepeatsService = service
-    }
-
-    /// Sets the callback invoked when any RF packet is received.
-    public func setPacketReceivedHandler(_ handler: (@Sendable @MainActor () -> Void)?) {
-        onPacketReceived = handler
-    }
-
-    /// Whether a heard repeats service has been wired via `setHeardRepeatsService`.
+    /// Whether a heard repeats service was injected at construction.
     var hasHeardRepeatsServiceWired: Bool { heardRepeatsService != nil }
 
     deinit {
@@ -98,8 +87,10 @@ public actor RxLogService {
     private func loadSecretsFromDatabase(radioID: UUID) async {
         do {
             let channels = try await dataStore.fetchChannels(radioID: radioID)
-            channelSecrets = Dictionary(uniqueKeysWithValues: channels.map { ($0.index, $0.secret) })
-            channelNames = Dictionary(uniqueKeysWithValues: channels.map { ($0.index, $0.name) })
+            // Channels arrive sorted by slot index; a corrupt store can hold duplicate
+            // indices, so keep the first match for a deterministic choice.
+            channelSecrets = Dictionary(channels.map { ($0.index, $0.secret) }, uniquingKeysWith: { first, _ in first })
+            channelNames = Dictionary(channels.map { ($0.index, $0.name) }, uniquingKeysWith: { first, _ in first })
             if !channels.isEmpty {
                 logger.info("Loaded \(channels.count) channel secrets from database")
             }
@@ -131,27 +122,31 @@ public actor RxLogService {
         eventMonitorTask = nil
     }
 
-    /// Returns a stream of new entries.
-    /// - Note: Only one active subscriber is supported. Subsequent calls replace the previous subscriber.
-    public func entryStream() -> AsyncStream<RxLogEntryDTO> {
-        AsyncStream { continuation in
-            Task { self.setContinuation(continuation) }
-            continuation.onTermination = { @Sendable _ in
-                Task { await self.clearContinuation() }
-            }
-        }
+    /// Returns a fresh multicast stream of newly persisted entries.
+    /// Registration is synchronous, so entries yielded after this call returns
+    /// are never dropped, and coexisting subscribers each receive every entry.
+    public nonisolated func entryStream() -> AsyncStream<RxLogEntryDTO> {
+        entryBroadcaster.subscribe()
     }
 
-    private func setContinuation(_ continuation: AsyncStream<RxLogEntryDTO>.Continuation) {
-        if streamContinuation != nil {
-            logger.warning("Replacing existing RX log stream subscriber")
-        }
-        streamContinuation?.finish()
-        self.streamContinuation = continuation
+    /// Ends every `entryStream()` subscriber's for-await loop. Called by
+    /// `ServiceContainer.tearDown()` so consumer tasks release their service
+    /// references.
+    nonisolated func finishEntryStream() {
+        entryBroadcaster.finish()
     }
 
-    private func clearContinuation() {
-        streamContinuation = nil
+    /// Rebuilds the channel cache from a fresh channel list.
+    /// `ChannelService` forwards every channel write and sync result here so
+    /// captured packets can be decoded with current secrets.
+    public func updateChannels(from channels: [ChannelDTO]) async {
+        let secrets: [UInt8: Data] = Dictionary(
+            uniqueKeysWithValues: channels.map { ($0.index, $0.secret) }
+        )
+        let names: [UInt8: String] = Dictionary(
+            uniqueKeysWithValues: channels.map { ($0.index, $0.name) }
+        )
+        await updateChannels(secrets: secrets, names: names)
     }
 
     /// Update channel cache (secrets and names).
@@ -199,7 +194,7 @@ public actor RxLogService {
                 updates.append((
                     id: entry.id,
                     channelIndex: decrypted.channelIndex,
-                    channelName: channelNames[decrypted.channelIndex ?? 0],
+                    channelName: decrypted.channelName,
                     senderTimestamp: decrypted.senderTimestamp
                 ))
                 decryptedEntries.append(decrypted)
@@ -420,12 +415,8 @@ public actor RxLogService {
             logger.error("Failed to save RX log entry: \(error.localizedDescription)")
         }
 
-        // Emit to stream
-        streamContinuation?.yield(dto)
-
-        if let onPacketReceived {
-            await onPacketReceived()
-        }
+        // Emit to stream consumers (RX log screens, Live Activity freshness)
+        entryBroadcaster.yield(dto)
 
         // Process for heard repeats (inline await provides natural backpressure,
         // preventing unbounded Task accumulation under high RX volume)
@@ -497,96 +488,12 @@ public actor RxLogService {
         }
 
         // Slow path: try all secrets (for .noMatchingKey entries or if fast path failed)
-        for (_, secret) in channelSecrets {
+        // and record which channel's secret matched so the entry is attributed correctly.
+        for (index, secret) in channelSecrets {
             let decryptResult = ChannelCrypto.decrypt(payload: encryptedPayload, secret: secret)
             if case .success(let timestamp, _, let text) = decryptResult {
-                result.senderTimestamp = timestamp
-                result.decodedText = text
-                break
-            }
-        }
-
-        return result
-    }
-
-    /// Decrypt multiple entries concurrently. Useful for batch export.
-    /// Uses parallel processing for better performance with large datasets.
-    public func decryptEntries(_ entries: [RxLogEntryDTO]) async -> [RxLogEntryDTO] {
-        // Capture secrets for concurrent access
-        let secrets = channelSecrets
-        let privateKey = myPrivateKey
-        let contactKeys = contactPublicKeysByPrefix
-
-        return await withTaskGroup(of: (Int, RxLogEntryDTO).self) { group in
-            for (index, entry) in entries.enumerated() {
-                group.addTask {
-                    let decrypted = Self.decryptEntry(
-                        entry,
-                        secrets: secrets,
-                        myPrivateKey: privateKey,
-                        contactPublicKeysByPrefix: contactKeys
-                    )
-                    return (index, decrypted)
-                }
-            }
-
-            var results = entries
-            for await (index, decrypted) in group {
-                results[index] = decrypted
-            }
-            return results
-        }
-    }
-
-    /// Static decryption for concurrent use (no actor isolation).
-    private static func decryptEntry(
-        _ entry: RxLogEntryDTO,
-        secrets: [UInt8: Data],
-        myPrivateKey: Data?,
-        contactPublicKeysByPrefix: [UInt8: [Data]]
-    ) -> RxLogEntryDTO {
-        var result = entry
-
-        // Attempt DM decryption for direct text messages
-        if entry.payloadType == .textMessage,
-           entry.routeType == .direct || entry.routeType == .tcDirect {
-            if let myPrivateKey,
-               let dmResult = tryDecryptDM(
-                   payload: entry.packetPayload,
-                   myPrivateKey: myPrivateKey,
-                   contactPublicKeysByPrefix: contactPublicKeysByPrefix
-               ) {
-                result.senderTimestamp = dmResult.timestamp
-                result.decodedText = dmResult.text
-            }
-            return result
-        }
-
-        guard entry.payloadType == .groupText || entry.payloadType == .groupData else {
-            return result
-        }
-
-        guard entry.packetPayload.count >= 1 + ChannelCrypto.macSize + 16 else {
-            return result
-        }
-
-        let encryptedPayload = Data(entry.packetPayload.dropFirst(1))
-
-        // Fast path: use stored channel index
-        if entry.decryptStatus == .success, let channelIndex = entry.channelIndex,
-           let secret = secrets[channelIndex] {
-            let decryptResult = ChannelCrypto.decrypt(payload: encryptedPayload, secret: secret)
-            if case .success(let timestamp, _, let text) = decryptResult {
-                result.senderTimestamp = timestamp
-                result.decodedText = text
-                return result
-            }
-        }
-
-        // Slow path: try all secrets
-        for (_, secret) in secrets {
-            let decryptResult = ChannelCrypto.decrypt(payload: encryptedPayload, secret: secret)
-            if case .success(let timestamp, _, let text) = decryptResult {
+                result.channelIndex = index
+                result.channelName = channelNames[index] ?? "Channel \(index)"
                 result.senderTimestamp = timestamp
                 result.decodedText = text
                 break

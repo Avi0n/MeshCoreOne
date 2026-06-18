@@ -79,14 +79,14 @@ struct ContactQRShareSheet: View {
     private var shareText: String {
         """
         \(L10n.Contacts.Contacts.Share.contactLabel(contactName))
-        \(L10n.Contacts.Contacts.Share.keyLabel(publicKey.hexString().lowercased()))
+        \(L10n.Contacts.Contacts.Share.keyLabel(publicKey.hexString))
         \(contactURI)
         """
     }
 
     private func copyToClipboard() {
         copyHapticTrigger += 1
-        UIPasteboard.general.string = publicKey.hexString().lowercased()
+        UIPasteboard.general.string = publicKey.hexString
         showCopyFeedback = true
 
         Task {
@@ -146,7 +146,7 @@ private struct ContactInfoSection: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
-                Text(publicKey.hexString(separator: " "))
+                Text(publicKey.uppercaseHexString(separator: " "))
                     .font(.system(.body, design: .monospaced))
                     .textSelection(.enabled)
             }

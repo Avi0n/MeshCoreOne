@@ -21,17 +21,17 @@ import Foundation
 /// The drain `Task` captures the actor strongly so the actor lives until
 /// the drain completes — a popped owner mid-drain cannot strand an
 /// in-flight send. Strong capture is broken naturally by Task completion.
-public actor SendQueue<Envelope: Sendable> {
+actor SendQueue<Envelope: Sendable> {
 
-    public typealias Sender  = @Sendable (Envelope) async throws -> Void
-    public typealias OnError = @Sendable (Error, Envelope) async -> Void
+    typealias Sender  = @Sendable (Envelope) async throws -> Void
+    typealias OnError = @Sendable (Error, Envelope) async -> Void
 
     /// Fires once per drain pass after the inner `while !pending.isEmpty`
     /// completes. The parameter is the most recent non-cancellation
     /// `Error` raised by `send(_:)` during this drain (or `nil` if no
     /// envelope failed). Last-error-wins matches the original
     /// `processQueue`'s `var pendingError: String?` semantics.
-    public typealias OnDrain = @Sendable (Error?) async -> Void
+    typealias OnDrain = @Sendable (Error?) async -> Void
 
     private var pending: [Envelope] = []
     private var processingTask: Task<Void, Never>?
@@ -39,7 +39,7 @@ public actor SendQueue<Envelope: Sendable> {
     private let onError: OnError
     private let onDrain: OnDrain
 
-    public init(
+    init(
         send: @escaping Sender,
         onError: @escaping OnError,
         onDrain: @escaping OnDrain
@@ -50,20 +50,20 @@ public actor SendQueue<Envelope: Sendable> {
     }
 
     /// Append an envelope and ensure a drain task is running.
-    public func enqueue(_ envelope: Envelope) {
+    func enqueue(_ envelope: Envelope) {
         pending.append(envelope)
         ensureDraining()
     }
 
     #if DEBUG
     /// Number of envelopes waiting. Exposed for tests; no view consumer.
-    public var count: Int { pending.count }
+    var count: Int { pending.count }
 
     /// Await the current drain pass to completion. If no drain is in
     /// progress this returns immediately. Used by tests to synchronize
     /// on the drain task without polling — production consumers observe
     /// drain completion via the `onDrain` callback.
-    public func awaitDrainCompletion() async {
+    func awaitDrainCompletion() async {
         await processingTask?.value
     }
     #endif
@@ -80,7 +80,7 @@ public actor SendQueue<Envelope: Sendable> {
     /// Provided so test teardown can release a SendQueue whose send
     /// closure suspends, and so a future production teardown does not
     /// leak the actor through an unbounded respawn cycle.
-    public func cancelDrain() {
+    func cancelDrain() {
         processingTask?.cancel()
     }
 

@@ -2,11 +2,11 @@ import Foundation
 import CryptoKit
 
 /// Utilities for deriving stable device identity from cryptographic keys.
-public enum DeviceIdentity: Sendable {
+enum DeviceIdentity: Sendable {
 
     /// Derives a stable UUID from a device's Ed25519 public key.
     /// Uses SHA256 hash of the public key, taking first 16 bytes as UUID.
-    public static func deriveUUID(from publicKey: Data) -> UUID {
+    static func deriveUUID(from publicKey: Data) -> UUID {
         let hash = SHA256.hash(data: publicKey)
         let hashBytes = Array(hash)
 

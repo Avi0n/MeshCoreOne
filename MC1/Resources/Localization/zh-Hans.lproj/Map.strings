@@ -50,10 +50,10 @@
 "map.style.topo" = "地形";
 
 /* Location: LayersMenu.swift - Purpose: Accessibility label for map style menu */
-"map.style.accessibilityLabel" = "Map style";
+"map.style.accessibilityLabel" = "地图样式";
 
 /* Location: LayersMenu.swift - Purpose: Hint when style requires network */
-"map.style.requiresNetwork" = "Requires network connection";
+"map.style.requiresNetwork" = "需要网络连接";
 
 /* Location: LayersMenu.swift - Purpose: Hint when no offline pack covers viewport */
 "map.style.noOfflineCoverage" = "没有离线地图覆盖此区域";
@@ -114,7 +114,7 @@
 "map.detail.action.telemetry" = "遥测数据";
 
 /* Location: MapView.swift - Purpose: Saved History button for offline telemetry */
-"map.detail.action.savedHistory" = "Saved History";
+"map.detail.action.savedHistory" = "已保存历史";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Sheet title for telemetry authentication */
 "map.detail.action.telemetryAccessTitle" = "遥测数据访问权限";
@@ -180,5 +180,5 @@
 /* Location: MapPreviewFragmentView.swift - Purpose: Accessibility hint for tapping the chat map-location thumbnail */
 "map.preview.accessibilityHint" = "在地图上打开此位置";
 
-/* TODO: translate - Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback */
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback */
 "map.preview.retryButton.accessibilityLabel" = "重新加载地图缩略图";

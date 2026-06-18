@@ -50,10 +50,10 @@
 "map.style.topo" = "Topografia";
 
 /* Location: LayersMenu.swift - Purpose: Accessibility label for map style menu */
-"map.style.accessibilityLabel" = "Map style";
+"map.style.accessibilityLabel" = "Styl mapy";
 
 /* Location: LayersMenu.swift - Purpose: Hint when style requires network */
-"map.style.requiresNetwork" = "Requires network connection";
+"map.style.requiresNetwork" = "Wymaga połączenia z siecią";
 
 /* Location: LayersMenu.swift - Purpose: Hint when no offline pack covers viewport */
 "map.style.noOfflineCoverage" = "Żadna mapa offline nie obejmuje tego obszaru";
@@ -94,7 +94,7 @@
 "map.detail.section.networkPath" = "Ścieżka sieciowa";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Label for routing type */
-"map.detail.routing" = "Routing";
+"map.detail.routing" = "Trasowanie";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Flood routing type value */
 "map.detail.routingFlood" = "Rozproszony";
@@ -114,7 +114,7 @@
 "map.detail.action.telemetry" = "Telemetria";
 
 /* Location: MapView.swift - Purpose: Saved History button for offline telemetry */
-"map.detail.action.savedHistory" = "Saved History";
+"map.detail.action.savedHistory" = "Zapisana historia";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Sheet title for telemetry authentication */
 "map.detail.action.telemetryAccessTitle" = "Dostęp do telemetrii";
@@ -180,5 +180,5 @@
 /* Location: MapPreviewFragmentView.swift - Purpose: Accessibility hint for tapping the chat map-location thumbnail */
 "map.preview.accessibilityHint" = "Otwiera tę lokalizację na mapie";
 
-/* TODO: translate - Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback */
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback */
 "map.preview.retryButton.accessibilityLabel" = "Ponów ładowanie miniatury mapy";

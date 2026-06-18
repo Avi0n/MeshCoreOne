@@ -1,11 +1,14 @@
+import MC1Services
 import SwiftUI
 
 /// Settings section for automatic cleanup of stale non-favorite nodes
 struct StaleNodeCleanupSection: View {
     @Environment(\.appState) private var appState
     @Environment(\.appTheme) private var theme
-    @AppStorage("autoDeleteStaleNodesDays") private var threshold: Int = 0
-    @AppStorage("lastStaleCleanupDate") private var lastCleanupTimestamp: Double = 0
+    @AppStorage(AppStorageKey.autoDeleteStaleNodesDays.rawValue)
+    private var threshold: Int = AppStorageKey.defaultAutoDeleteStaleNodesDays
+    @AppStorage(AppStorageKey.lastStaleCleanupDate.rawValue)
+    private var lastCleanupTimestamp: Double = AppStorageKey.defaultLastStaleCleanupDate
 
     @State private var isEnabled = false
 

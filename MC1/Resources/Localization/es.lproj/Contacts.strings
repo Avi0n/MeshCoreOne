@@ -219,7 +219,7 @@
 "contacts.detail.telemetry" = "Telemetría";
 
 /* Location: ContactDetailView.swift - Purpose: Saved History button for offline telemetry */
-"contacts.detail.savedHistory" = "Telemetry History";
+"contacts.detail.savedHistory" = "Historial de telemetría";
 
 /* Location: ContactDetailView.swift - Purpose: Telemetry access sheet title */
 "contacts.detail.telemetryAccess" = "Acceso a telemetría";
@@ -266,7 +266,7 @@
 // MARK: - Contact Detail Info Section
 
 /* Location: ContactDetailView.swift - Purpose: Info section header */
-"contacts.detail.info" = "Info";
+"contacts.detail.info" = "Información";
 
 /* Location: ContactDetailView.swift - Purpose: Nickname label */
 "contacts.detail.nickname" = "Apodo";
@@ -443,16 +443,16 @@
 "contacts.add.error.nodeListFull" = "La lista de nodos está llena (máximo %d nodos)";
 
 /* Location: AddContactSheet.swift, DiscoveryView.swift - Purpose: Node list full error without max count */
-"contacts.add.error.nodeListFullSimple" = "Node list is full";
+"contacts.add.error.nodeListFullSimple" = "La lista de nodos está llena";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL button label */
-"contacts.add.pasteURL" = "Paste Contact URL";
+"contacts.add.pasteURL" = "Pegar URL de contacto";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL section footer */
 "contacts.add.pasteURLFooter" = "Pega un enlace de contacto meshcore:// para autocompletar los campos de arriba";
 
 /* Location: AddContactSheet.swift - Purpose: Invalid paste URL error */
-"contacts.add.error.invalidURL" = "Clipboard does not contain a valid contact URL";
+"contacts.add.error.invalidURL" = "El portapapeles no contiene una URL de contacto válida";
 
 // MARK: - Contact QR Share Sheet
 
@@ -472,10 +472,10 @@
 "contacts.qr.share" = "Compartir";
 
 /* Location: ContactQRShareSheet.swift - Purpose: Contact label in share text, %@ is contact name */
-"contacts.share.contactLabel" = "MeshCore One Contact: %@";
+"contacts.share.contactLabel" = "Contacto de MeshCore One: %@";
 
 /* Location: ContactQRShareSheet.swift - Purpose: Key label in share text, %@ is hex public key */
-"contacts.share.keyLabel" = "Key: %@";
+"contacts.share.keyLabel" = "Clave: %@";
 
 // MARK: - Scan Contact QR
 
@@ -527,7 +527,7 @@
 "contacts.discovery.add" = "Añadir";
 
 /* Location: DiscoveryView.swift - Purpose: Button label when node is already added */
-"contacts.discovery.added" = "Added";
+"contacts.discovery.added" = "Añadido";
 
 /* Location: DiscoveryView.swift - Purpose: Accessibility label for added button */
 "contacts.discovery.addedAccessibility" = "Ya agregado a los contactos";
@@ -736,9 +736,6 @@
 
 /* Location: PathManagementViewModel.swift - Purpose: Hop count result plural */
 "contacts.pathDiscovery.hops.plural" = "%d saltos";
-
-/* Location: PathManagementViewModel.swift - Purpose: Cached path suffix */
-"contacts.pathDiscovery.cachedSuffix" = ". Usando info en caché del anuncio. El nodo puede tener la telemetría desactivada.";
 
 /* Location: PathManagementViewModel.swift - Purpose: No response message */
 "contacts.pathDiscovery.noResponse" = "El nodo remoto no respondió. Los nodos deben tener las solicitudes de telemetría activadas para responder al descubrimiento de rutas.";
@@ -1169,7 +1166,7 @@
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "Conecta una radio para eliminar nodos";
 
-/* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
+/* Location: ContactsViewModel.swift - Delete radio command timed out error */
 "contacts.viewModel.removeTimedOut" = "Se agotó el tiempo al eliminar el nodo. Inténtalo de nuevo.";
 
 // MARK: - Path Management ViewModel Errors

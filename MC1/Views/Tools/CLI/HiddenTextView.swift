@@ -97,7 +97,11 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
         }
 
         func textViewDidChange(_ textView: UITextView) {
-            if textView.text.contains("\n") {
+            let currentText = textView.text ?? ""
+            if let newlineIndex = currentText.firstIndex(of: "\n") {
+                // A paste can deliver the command and its newline in one change;
+                // sync the binding before clearing so onSubmit reads the full text.
+                text = String(currentText[..<newlineIndex])
                 textView.text = ""
                 Task { @MainActor in
                     // Call onSubmit first while tab selection state is still valid

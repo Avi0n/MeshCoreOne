@@ -275,6 +275,7 @@ actor PaginationTestDataStore: PersistenceStoreProtocol {
     func updateChannelLastMessage(channelID: UUID, date: Date?) async throws {}
     func incrementChannelUnreadCount(channelID: UUID) async throws {}
     func clearChannelUnreadCount(channelID: UUID) async throws {}
+    func clearChannelUnreadCount(radioID: UUID, index: UInt8) async throws {}
 
     // MARK: - Saved Trace Paths
 
@@ -333,10 +334,11 @@ actor PaginationTestDataStore: PersistenceStoreProtocol {
     // MARK: - RxLogEntry Lookup
 
     func findRxLogEntry(
+        radioID: UUID,
         channelIndex: UInt8?,
         senderTimestamp: UInt32
     ) async throws -> RxLogEntryDTO? { nil }
-    func findRxLogEntryBySenderPrefix(senderPrefixByte: UInt8, receivedSince: Date) async throws -> RxLogEntryDTO? { nil }
+    func findRxLogEntryBySenderPrefix(radioID: UUID, senderPrefixByte: UInt8, receivedSince: Date) async throws -> RxLogEntryDTO? { nil }
 
     // MARK: - Discovered Nodes
 
@@ -361,8 +363,40 @@ actor PaginationTestDataStore: PersistenceStoreProtocol {
 
     func setChannelNotificationLevel(_ channelID: UUID, level: NotificationLevel) async throws {}
     func setSessionNotificationLevel(_ sessionID: UUID, level: NotificationLevel) async throws {}
+    func fetchDevice(id: UUID) async throws -> DeviceDTO? { nil }
+    func fetchDevice(radioID: UUID) async throws -> DeviceDTO? { nil }
+    func updateDeviceLastContactSync(radioID: UUID, timestamp: UInt32) async throws {}
+    func fetchRemoteNodeSession(id: UUID) async throws -> RemoteNodeSessionDTO? { nil }
+    func fetchRemoteNodeSession(publicKey: Data) async throws -> RemoteNodeSessionDTO? { nil }
     func markSessionDisconnected(_ sessionID: UUID) async throws {}
     func markRoomSessionConnected(_ sessionID: UUID) async throws -> Bool { false }
+    func updateMessageStatusUnlessDelivered(id: UUID, status: MessageStatus) async throws -> Bool { false }
+    func clearRetryingToSent(id: UUID) async throws -> Bool { false }
+    func hasOutgoingSentDM(ackCode: UInt32) async throws -> Bool { false }
+    func markMessageAsRead(id: UUID) async throws {}
+    func incrementPendingSendAttemptCount(messageID: UUID) async throws -> Int? { nil }
+    func saveDevice(_ dto: DeviceDTO) async throws {}
+    func fetchRemoteNodeSessionByPrefix(_ prefix: Data) async throws -> RemoteNodeSessionDTO? { nil }
+    func fetchRemoteNodeSessions(radioID: UUID) async throws -> [RemoteNodeSessionDTO] { [] }
+    func fetchConnectedRemoteNodeSessions() async throws -> [RemoteNodeSessionDTO] { [] }
+    func saveRemoteNodeSessionDTO(_ dto: RemoteNodeSessionDTO) async throws {}
+    func updateRemoteNodeSessionConnection(id: UUID, isConnected: Bool, permissionLevel: RoomPermissionLevel) async throws {}
+    func cleanupDuplicateRemoteNodeSessions(publicKey: Data, keepID: UUID) async throws {}
+    func deleteRemoteNodeSession(id: UUID) async throws {}
+    func incrementRoomUnreadCount(_ sessionID: UUID) async throws {}
+    func resetRoomUnreadCount(_ sessionID: UUID) async throws {}
+    func findContactByPublicKey(_ publicKey: Data) async throws -> ContactDTO? { nil }
+    func findContactNameByKeyPrefix(_ prefix: Data) async throws -> String? { nil }
+    func saveRxLogEntry(_ dto: RxLogEntryDTO) async throws {}
+    func fetchRxLogEntries(radioID: UUID, limit: Int) async throws -> [RxLogEntryDTO] { [] }
+    func clearRxLogEntries(radioID: UUID) async throws {}
+    func pruneRxLogEntries(radioID: UUID, keepCount: Int, pruneThreshold: Int) async throws {}
+    func fetchEntriesWithMissingRegion(radioID: UUID) async throws -> [RxLogEntryDTO] { [] }
+    func fetchRecentEntriesByDecryptStatus(radioID: UUID, status: DecryptStatus, since: Date) async throws -> [RxLogEntryDTO] { [] }
+    func batchUpdateRxLogRegion(updates: [(id: UUID, regionScope: String?)]) async throws {}
+    func batchUpdateRxLogDecryption(_ updates: [(id: UUID, channelIndex: UInt8?, channelName: String?, senderTimestamp: UInt32?)]) async throws {}
+    func batchUpdateChannelMessageRegion(radioID: UUID, updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)]) async throws {}
+    func batchUpdateDMMessageRegion(radioID: UUID, updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)]) async throws {}
 
     // MARK: - Channel Message Deletion
 
@@ -598,8 +632,8 @@ struct ChatViewModelPaginationTests {
     /// busy channel. The structural ordering is enforced in
     /// `ChatViewModel.loadOlderMessages`: the spinner is cleared immediately
     /// after `buildItems()` and before the channel/DM reaction-indexing
-    /// blocks. This test exercises the success path with `appState` unset
-    /// (so the indexing loops are skipped) and asserts the post-return
+    /// blocks. This test exercises the success path with the reaction-service
+    /// provider at its nil default (so the indexing loops are skipped) and asserts the post-return
     /// state matches the documented contract — `isLoadingOlder == false`,
     /// older messages prepended, no error surfaced. The deeper "spinner
     /// already false while indexing still running" property is verified by
@@ -614,7 +648,7 @@ struct ChatViewModelPaginationTests {
         let contactID = UUID()
 
         let viewModel = ChatViewModel()
-        viewModel.dataStore = dataStore
+        viewModel.configureForTesting(dependencies: .testDefaults(dataStore: { dataStore }))
         viewModel.currentContact = createTestContact(id: contactID, radioID: radioID)
         let coordinator = ChatCoordinator.makeForTesting()
         viewModel.coordinator = coordinator
@@ -733,6 +767,43 @@ struct ChatViewModelChannelPaginationTests {
 
         // The key insight: unfiltered count (50) == pageSize means hasMoreMessages = true
         #expect(messages.count == 50, "Unfiltered count should drive pagination decision")
+    }
+
+    @Test("Switching from a channel to a DM clears the channel axis so an incoming channel message is not admitted into the open DM")
+    func channelToDMSwitchRejectsLateChannelMessage() async throws {
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let dataStore = PersistenceStore(modelContainer: container)
+        let radioID = UUID()
+        let channelIndex: UInt8 = 1
+        let contactID = UUID()
+
+        let viewModel = ChatViewModel()
+        viewModel.configureForTesting(dependencies: .testDefaults(dataStore: { dataStore }))
+        viewModel.coordinator = ChatCoordinator.makeForTesting()
+
+        let channel = createTestChannel(radioID: radioID, index: channelIndex, name: "General")
+        let contact = createTestContact(id: contactID, radioID: radioID)
+
+        // Open the channel, then switch to the DM. loadMessages(for:) must clear currentChannel.
+        await viewModel.loadChannelMessages(for: channel)
+        #expect(viewModel.currentChannel?.index == channelIndex)
+
+        await viewModel.loadMessages(for: contact)
+        #expect(viewModel.currentChannel == nil, "Loading a DM must clear the channel axis")
+        #expect(viewModel.currentContact?.id == contactID)
+
+        let baselineCount = viewModel.messages.count
+
+        // A channel message for the channel that was just open must not enter the open DM.
+        let channelMessage = createChannelMessage(
+            radioID: radioID,
+            channelIndex: channelIndex,
+            timestamp: 2_000
+        )
+        await viewModel.handle(.channelMessageReceived(message: channelMessage, channelIndex: channelIndex))
+
+        #expect(viewModel.messages.count == baselineCount,
+                "An incoming channel message must not be admitted into the open DM after the axis switch")
     }
 }
 

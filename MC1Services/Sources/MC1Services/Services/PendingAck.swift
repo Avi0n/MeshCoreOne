@@ -7,31 +7,14 @@ import Foundation
 /// All attempts for the same message share one `PendingAck` entry.
 ///
 /// DM-only: channel/room broadcasts do not generate ACKs and are not tracked here.
-public struct PendingAck: Sendable {
-    public let messageID: UUID
-    public let contactID: UUID
-    public var ackCodes: Set<Data>
-    public var sentAt: Date
-    public var timeout: TimeInterval
-    public var isDelivered: Bool = false
-
-    public init(
-        messageID: UUID,
-        contactID: UUID,
-        ackCodes: Set<Data>,
-        sentAt: Date,
-        timeout: TimeInterval,
-        isDelivered: Bool = false
-    ) {
-        self.messageID = messageID
-        self.contactID = contactID
-        self.ackCodes = ackCodes
-        self.sentAt = sentAt
-        self.timeout = timeout
-        self.isDelivered = isDelivered
-    }
-
-    public var isExpired: Bool {
-        !isDelivered && Date().timeIntervalSince(sentAt) > timeout
-    }
+struct PendingAck: Sendable {
+    let messageID: UUID
+    let contactID: UUID
+    var ackCodes: Set<Data>
+    var sentAt: Date
+    /// The latest send attempt's ACK-wait derived from the firmware's `est_timeout` hint.
+    /// `checkExpiredAcks` reads this as the per-attempt floor on the give-up deadline
+    /// so a slow high-spreading-factor round-trip is not failed while still in flight.
+    var timeout: TimeInterval
+    var isDelivered: Bool = false
 }

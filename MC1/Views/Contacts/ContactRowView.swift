@@ -107,15 +107,11 @@ struct ContactRowView: View {
 
     private var idPrefixHex: String {
         let hashSize = appState.connectedDevice?.hashSize ?? 1
-        return contact.publicKey.prefix(hashSize).hexString()
+        return contact.publicKey.prefix(hashSize).uppercaseHexString()
     }
 
     private var contactTypeLabel: String {
-        switch contact.type {
-        case .chat: return L10n.Contacts.Contacts.NodeKind.contact
-        case .repeater: return L10n.Contacts.Contacts.NodeKind.repeater
-        case .room: return L10n.Contacts.Contacts.NodeKind.room
-        }
+        contact.type.localizedName
     }
 
     private var routeLabel: String {

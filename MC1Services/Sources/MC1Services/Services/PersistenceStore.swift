@@ -90,6 +90,10 @@ public actor PersistenceStore: PersistenceStoreProtocol {
     /// - v3→v4: Added PendingSend.attemptCount (Int?, default nil). Existing rows
     ///          lightweight-migrate to NULL; PersistenceStore.warmUp() runs
     ///          purgeLegacyAttemptCountRows() on connect to delete any nil row.
+    /// - v4→v5: Added TracePathRun.id uniqueness (run ids are minted once and
+    ///          immutable, and backup import dedupes them store-wide, so existing
+    ///          stores hold no duplicates) and RxLogEntry [radioID, receivedAt]
+    ///          index.
     public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
         if !inMemory {
             let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
@@ -120,7 +124,7 @@ public actor PersistenceStore: PersistenceStoreProtocol {
         // the storage. Running both on every connect costs an empty fetch and
         // self-heals the "erase device then re-pair" path — a process-level
         // latch would suppress that recovery.
-        let logger = Logger(subsystem: "MC1Services", category: "PersistenceStore.warmUp")
+        let logger = Logger(subsystem: "com.mc1", category: "PersistenceStore.warmUp")
         do {
             try purgeOrphanPendingSends()
         } catch {
@@ -179,6 +183,16 @@ public actor PersistenceStore: PersistenceStoreProtocol {
         }
 
         try modelContext.save()
+
+        // Temporary Discover trace: confirm the row committed and report the
+        // post-save row count for this radio (catches silent cap eviction).
+        // Filter by category "discover-trace"; remove with the matching probes.
+        let radioRows = (try? modelContext.fetchCount(
+            FetchDescriptor<DiscoveredNode>(predicate: #Predicate { $0.radioID == targetRadioID })
+        )) ?? -1
+        PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
+            .info("B3 persisted DiscoveredNode isNew=\(isNew) radioRows=\(radioRows)/\(maxDiscoveredNodes)")
+
         return (node: DiscoveredNodeDTO(from: node), isNew: isNew)
     }
 

@@ -16,19 +16,26 @@ private let ackCodeByteCount = 4
 ///
 /// - **Recipient is not in the hash.** Same sender + same text + same UInt32
 ///   timestamp + same `attempt & 0x03` produces an identical ACK code across
-///   *every* contact. Currently unreachable through the UI because each
-///   `ChatConversationView` owns its own serialized `sendQueue`, so two sends
-///   cannot finish in the same wall-clock second from the same conversation,
-///   and parallel conversations cannot share text + timestamp. Any future
-///   feature that dispatches identical-text sends in parallel (bulk send,
-///   broadcast-to-many, scripted sends) must either serialize with ≥1s
-///   spacing or replace `pendingAcks`'s ackCode lookup with a
+///   *every* contact. Currently low-risk because regular DMs are serialized
+///   through a per-radioID `dmQueue` (`SendQueue<DirectMessageEnvelope>`), so
+///   two regular DMs cannot complete in the same wall-clock second on one
+///   radio; the reaction path bypasses that queue via the single-shot send,
+///   but each reaction carries a per-target message-hash discriminator. Any
+///   future feature that dispatches identical-text sends in parallel (bulk
+///   send, broadcast-to-many, scripted sends, or any pipelined DM path that
+///   removes the serialized `dmQueue` guarantee) must either serialize with
+///   ≥1s spacing or replace `pendingAcks`'s ackCode lookup with a
 ///   `[Data: Set<UUID>]` index in `MessageService.handleAcknowledgement`.
-/// - **Attempt index is masked to two bits.** Firmware applies `& 0x03`, so
-///   only four distinct ACK codes exist for a given (text, timestamp, sender)
-///   tuple. Attempt 4 collides with attempt 0, attempt 5 with attempt 1, etc.
-///   `expectedAck` rejects `attempt >= 4` outright; `MessageServiceConfig`
-///   must keep `maxAttempts <= 4`.
+/// - **Attempt index is masked to two bits.** Firmware hashes `attempt & 0x03`,
+///   so attempt 4 reuses attempt 0's code. This is benign for delivery
+///   detection: a single message accumulates its attempt codes in a `Set`
+///   (`pendingAcks` `ackCodes`), so the wrap is a no-op re-add and any returned
+///   ACK still matches the right message. Firmware deliberately supports
+///   `attempt > 3` in `composeMsgPacket`, appending the full attempt byte after
+///   the hash so `packet_hash` stays unique. `expectedAck` allows `attempt < 5`
+///   (4 direct + 1 flood); `MessageServiceConfig` keeps `maxAttempts <= 5`.
+///   Cross-*message* collision is unaffected by the wrap and stays mitigated by
+///   the per-radioID `dmQueue` serialization.
 enum AckCodeBuilder {
     static func expectedAck(
         timestamp: UInt32,
@@ -37,8 +44,8 @@ enum AckCodeBuilder {
         senderPublicKey: Data
     ) -> Data {
         precondition(
-            attempt < 4,
-            "firmware masks attempt & 0x03; attempt \(attempt) would collide with attempt \(attempt & attemptMask)"
+            attempt < 5,
+            "MessageServiceConfig caps maxAttempts at 5 (4 direct + 1 flood); attempt \(attempt) exceeds the index range and would over-wrap the & 0x03 ACK mask"
         )
         var input = Data()
         var le = timestamp.littleEndian

@@ -160,7 +160,7 @@ struct WiFiConnectionSheet: View {
                 // Navigate directly to radio settings
                 appState.onboarding.onboardingPath.append(.region)
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
                 isConnecting = false
             }
         }

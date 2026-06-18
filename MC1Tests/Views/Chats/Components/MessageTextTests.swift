@@ -1,7 +1,7 @@
 import Testing
 import SwiftUI
 import CoreLocation
-import MC1Services
+@testable import MC1Services
 @testable import MC1
 
 @Suite("MessageText Tests")

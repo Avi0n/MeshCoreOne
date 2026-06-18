@@ -219,7 +219,7 @@
 "contacts.detail.telemetry" = "Telemetria";
 
 /* Location: ContactDetailView.swift - Purpose: Saved History button for offline telemetry */
-"contacts.detail.savedHistory" = "Telemetry History";
+"contacts.detail.savedHistory" = "Historia telemetrii";
 
 /* Location: ContactDetailView.swift - Purpose: Telemetry access sheet title */
 "contacts.detail.telemetryAccess" = "Dostęp do telemetrii";
@@ -443,16 +443,16 @@
 "contacts.add.error.nodeListFull" = "Lista węzłów jest pełna (maks. %d węzłów)";
 
 /* Location: AddContactSheet.swift, DiscoveryView.swift - Purpose: Node list full error without max count */
-"contacts.add.error.nodeListFullSimple" = "Node list is full";
+"contacts.add.error.nodeListFullSimple" = "Lista węzłów jest pełna";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL button label */
-"contacts.add.pasteURL" = "Paste Contact URL";
+"contacts.add.pasteURL" = "Wklej adres URL kontaktu";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL section footer */
 "contacts.add.pasteURLFooter" = "Wklej link kontaktowy meshcore://, aby automatycznie wypełnić powyższe pola";
 
 /* Location: AddContactSheet.swift - Purpose: Invalid paste URL error */
-"contacts.add.error.invalidURL" = "Clipboard does not contain a valid contact URL";
+"contacts.add.error.invalidURL" = "Schowek nie zawiera prawidłowego adresu URL kontaktu";
 
 // MARK: - Contact QR Share Sheet
 
@@ -472,10 +472,10 @@
 "contacts.qr.share" = "Udostępnij";
 
 /* Location: ContactQRShareSheet.swift - Purpose: Contact label in share text, %@ is contact name */
-"contacts.share.contactLabel" = "MeshCore One Contact: %@";
+"contacts.share.contactLabel" = "Kontakt MeshCore One: %@";
 
 /* Location: ContactQRShareSheet.swift - Purpose: Key label in share text, %@ is hex public key */
-"contacts.share.keyLabel" = "Key: %@";
+"contacts.share.keyLabel" = "Klucz: %@";
 
 // MARK: - Scan Contact QR
 
@@ -527,7 +527,7 @@
 "contacts.discovery.add" = "Dodaj";
 
 /* Location: DiscoveryView.swift - Purpose: Button label when node is already added */
-"contacts.discovery.added" = "Added";
+"contacts.discovery.added" = "Dodano";
 
 /* Location: DiscoveryView.swift - Purpose: Accessibility label for added button */
 "contacts.discovery.addedAccessibility" = "Już dodano do kontaktów";
@@ -736,9 +736,6 @@
 
 /* Location: PathManagementViewModel.swift - Purpose: Hop count result plural */
 "contacts.pathDiscovery.hops.plural" = "%d skoków";
-
-/* Location: PathManagementViewModel.swift - Purpose: Cached path suffix */
-"contacts.pathDiscovery.cachedSuffix" = ". Użyto informacji z pamięci podręcznej z ogłoszenia. Węzeł może mieć wyłączoną telemetrię.";
 
 /* Location: PathManagementViewModel.swift - Purpose: No response message */
 "contacts.pathDiscovery.noResponse" = "Zdalny węzeł nie odpowiedział. Węzły muszą mieć włączone żądania telemetrii, aby odpowiedzieć na odkrywanie ścieżki.";
@@ -1156,7 +1153,7 @@
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "Połącz się z radiem, aby usunąć węzły";
 
-/* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
+/* Location: ContactsViewModel.swift - Delete radio command timed out error */
 "contacts.viewModel.removeTimedOut" = "Upłynął limit czasu usuwania węzła. Spróbuj ponownie.";
 
 // MARK: - Path Management ViewModel Errors

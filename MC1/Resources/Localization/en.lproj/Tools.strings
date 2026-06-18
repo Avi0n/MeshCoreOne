@@ -156,6 +156,27 @@
 /* Location: RxLogViewModel.swift - Decrypt filter: failed */
 "tools.rxLog.filter.failed" = "Failed";
 
+/* Location: DecryptStatus+Display.swift - Decrypt status: not a decryptable packet */
+"tools.rxLog.decryptStatus.notApplicable" = "N/A";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: no stored channel key matches */
+"tools.rxLog.decryptStatus.noKey" = "No Key";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: HMAC validation failed */
+"tools.rxLog.decryptStatus.hmacFailed" = "HMAC Failed";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: AES decryption failed */
+"tools.rxLog.decryptStatus.decryptFailed" = "Decrypt Failed";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: decrypted successfully */
+"tools.rxLog.decryptStatus.decrypted" = "Decrypted";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: key found, decryption pending */
+"tools.rxLog.decryptStatus.hasKey" = "Has Key";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: missing direct message key */
+"tools.rxLog.decryptStatus.noDmKey" = "No DM Key";
+
 /* Location: RxLogRowView - Label for local device in path display */
 "tools.rxLog.pathYou" = "You";
 
@@ -492,9 +513,6 @@
 /* Location: ResultsCardView.swift - Clearance section title */
 "tools.lineOfSight.clearance" = "Clearance";
 
-/* Location: ResultsCardView.swift - Worst clearance label */
-"tools.lineOfSight.worstClearance" = "Worst clearance (% of 1st Fresnel)";
-
 /* Location: ResultsCardView.swift - Obstructions found label */
 "tools.lineOfSight.obstructionsFound" = "Obstructions found";
 
@@ -506,6 +524,9 @@
 
 /* Location: ResultsCardView.swift - Worst clearance short label */
 "tools.lineOfSight.worstClearanceShort" = "Worst clearance";
+
+/* Location: ResultsCardView.swift - Assumptions footnote; %1$@ is frequency, %2$@ is k-factor */
+"tools.lineOfSight.assumptions" = "%1$@, %2$@, 60%% 1st Fresnel threshold";
 
 /* Location: ClearanceStatusView.swift - Clearance percentage, %lld is percent */
 "tools.lineOfSight.clearancePercent" = "%lld%% clearance";
@@ -730,3 +751,14 @@
 
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */
 "tools.cli.completionSuggestionsValue" = "%lld available, %@ selected";
+
+// MARK: - Saved Paths
+
+/* Location: SavedPathsViewModel.swift - Error loading saved paths */
+"tools.savedPaths.loadFailed" = "Failed to load saved paths.";
+
+/* Location: SavedPathsViewModel.swift - Error renaming a saved path */
+"tools.savedPaths.renameFailed" = "Failed to rename path.";
+
+/* Location: SavedPathsViewModel.swift - Error deleting a saved path */
+"tools.savedPaths.deleteFailed" = "Failed to delete path.";

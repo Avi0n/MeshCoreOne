@@ -23,10 +23,10 @@ dependencies: [
 ```swift
 import MeshCore
 
-// Create a BLE transport and session
-// Pass an address (peripheral UUID string) to target a specific device;
-// omit it to scan for any device advertising the Nordic UART Service.
-let transport = BLETransport()
+// Create a WiFi transport and session.
+// For Bluetooth LE, implement MeshTransport over your platform's BLE stack.
+let transport = WiFiTransport()
+await transport.setConnectionInfo(host: "192.168.1.100", port: 5000)
 let session = MeshCoreSession(transport: transport)
 
 // Start the session
@@ -295,10 +295,9 @@ MeshCore/
 ├── Session/
 │   ├── ContactManager.swift         # Contact list management
 │   ├── MeshCoreSession.swift        # Main session actor
-│   ├── RequestContext.swift         # Request/response context
+│   ├── RequestContext.swift         # Command-response serializer
 │   └── SessionConfiguration.swift   # Session configuration
 └── Transport/
-    ├── BLETransport.swift           # CoreBluetooth implementation
     ├── MeshTransport.swift          # Transport protocol
     ├── MockTransport.swift          # Testing mock
     ├── WiFiFrameCodec.swift         # WiFi frame encoding/decoding
@@ -307,8 +306,7 @@ MeshCore/
 
 ## Versioning & Distribution
 
-MeshCore ships as a Swift Package consumed from source as a path dependency of
-the MeshCore One app:
+MeshCore ships as a Swift Package consumed from source as a path dependency:
 
 ```swift
 dependencies: [
@@ -316,7 +314,7 @@ dependencies: [
 ]
 ```
 
-It is built alongside the app rather than published as a standalone,
+It is built alongside the consuming app rather than published as a standalone,
 independently versioned package, so there are no library-specific release tags
 to pin against.
 

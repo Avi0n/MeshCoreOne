@@ -219,7 +219,7 @@
 "contacts.detail.telemetry" = "Telemetrie";
 
 /* Location: ContactDetailView.swift - Purpose: Saved History button for offline telemetry */
-"contacts.detail.savedHistory" = "Telemetry History";
+"contacts.detail.savedHistory" = "Telemetrie-Verlauf";
 
 /* Location: ContactDetailView.swift - Purpose: Telemetry access sheet title */
 "contacts.detail.telemetryAccess" = "Telemetriezugriff";
@@ -443,16 +443,16 @@
 "contacts.add.error.nodeListFull" = "Knotenliste ist voll (max. %d Knoten)";
 
 /* Location: AddContactSheet.swift, DiscoveryView.swift - Purpose: Node list full error without max count */
-"contacts.add.error.nodeListFullSimple" = "Node list is full";
+"contacts.add.error.nodeListFullSimple" = "Knotenliste ist voll";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL button label */
-"contacts.add.pasteURL" = "Paste Contact URL";
+"contacts.add.pasteURL" = "Kontakt-URL einfügen";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL section footer */
 "contacts.add.pasteURLFooter" = "Füge einen meshcore:// Kontaktlink ein, um die Felder oben automatisch auszufüllen";
 
 /* Location: AddContactSheet.swift - Purpose: Invalid paste URL error */
-"contacts.add.error.invalidURL" = "Clipboard does not contain a valid contact URL";
+"contacts.add.error.invalidURL" = "Die Zwischenablage enthält keine gültige Kontakt-URL";
 
 // MARK: - Contact QR Share Sheet
 
@@ -472,10 +472,10 @@
 "contacts.qr.share" = "Teilen";
 
 /* Location: ContactQRShareSheet.swift - Purpose: Contact label in share text, %@ is contact name */
-"contacts.share.contactLabel" = "MeshCore One Contact: %@";
+"contacts.share.contactLabel" = "MeshCore One Kontakt: %@";
 
 /* Location: ContactQRShareSheet.swift - Purpose: Key label in share text, %@ is hex public key */
-"contacts.share.keyLabel" = "Key: %@";
+"contacts.share.keyLabel" = "Schlüssel: %@";
 
 // MARK: - Scan Contact QR
 
@@ -527,7 +527,7 @@
 "contacts.discovery.add" = "Hinzufügen";
 
 /* Location: DiscoveryView.swift - Purpose: Button label when node is already added */
-"contacts.discovery.added" = "Added";
+"contacts.discovery.added" = "Hinzugefügt";
 
 /* Location: DiscoveryView.swift - Purpose: Accessibility label for added button */
 "contacts.discovery.addedAccessibility" = "Bereits zu Kontakten hinzugefügt";
@@ -736,9 +736,6 @@
 
 /* Location: PathManagementViewModel.swift - Purpose: Hop count result plural */
 "contacts.pathDiscovery.hops.plural" = "%d Sprünge";
-
-/* Location: PathManagementViewModel.swift - Purpose: Cached path suffix */
-"contacts.pathDiscovery.cachedSuffix" = ". Zwischengespeicherte Info aus Ankündigung wird verwendet. Knoten hat möglicherweise Telemetrie deaktiviert.";
 
 /* Location: PathManagementViewModel.swift - Purpose: No response message */
 "contacts.pathDiscovery.noResponse" = "Remote-Knoten hat nicht geantwortet. Knoten müssen Telemetrie-Anfragen aktiviert haben, um auf Pfadermittlung zu antworten.";
@@ -1169,7 +1166,7 @@
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "Mit Funk verbinden, um Knoten zu löschen";
 
-/* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
+/* Location: ContactsViewModel.swift - Delete radio command timed out error */
 "contacts.viewModel.removeTimedOut" = "Zeitüberschreitung beim Löschen des Knotens. Versuche es erneut.";
 
 // MARK: - Path Management ViewModel Errors

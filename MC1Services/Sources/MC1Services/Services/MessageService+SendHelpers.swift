@@ -44,12 +44,12 @@ extension MessageService {
         // Persistence layer absorbs `.delivered`: if the listener won the race
         // before the throw path runs, the row stays delivered. Same invariant as
         // updateMessageRetryStatus and updateMessageAck. The Bool return is
-        // intentionally discarded — caller observes the failure via the
-        // rethrown error. The caller is responsible for firing
-        // `messageFailedHandler` — inline non-queue catch sites fire it one
-        // line above this call; queue-routed catch sites delegate to the
-        // queue's outer catch, which fires `notifyMessageFailed` exactly
-        // once on any non-`CancellationError` escape.
+        // intentionally discarded; the caller observes the failure via the
+        // rethrown error. The caller is responsible for broadcasting the
+        // `.failed` event: inline non-queue catch sites yield it one line
+        // above this call; queue-routed catch sites delegate to the queue's
+        // outer catch, which calls `notifyMessageFailed` exactly once on any
+        // non-`CancellationError` escape.
         _ = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
         if let meshError = error as? MeshCoreError {
             throw MessageServiceError.sessionError(meshError)

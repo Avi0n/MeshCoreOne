@@ -80,29 +80,7 @@ extension PersistenceStore {
             try modelContext.save()
             return existing
         } else {
-            // Create new
-            let session = RemoteNodeSession(
-                id: dto.id,
-                radioID: dto.radioID,
-                publicKey: dto.publicKey,
-                name: dto.name,
-                role: dto.role,
-                latitude: dto.latitude,
-                longitude: dto.longitude,
-                isConnected: dto.isConnected,
-                permissionLevel: dto.permissionLevel,
-                lastConnectedDate: dto.lastConnectedDate,
-                lastBatteryMillivolts: dto.lastBatteryMillivolts,
-                lastUptimeSeconds: dto.lastUptimeSeconds,
-                lastNoiseFloor: dto.lastNoiseFloor,
-                unreadCount: dto.unreadCount,
-                notificationLevel: dto.notificationLevel,
-                isFavorite: dto.isFavorite,
-                lastRxAirtimeSeconds: dto.lastRxAirtimeSeconds,
-                neighborCount: dto.neighborCount,
-                lastSyncTimestamp: dto.lastSyncTimestamp,
-                lastMessageDate: dto.lastMessageDate
-            )
+            let session = RemoteNodeSession(dto: dto)
             modelContext.insert(session)
             try modelContext.save()
             return session
@@ -279,23 +257,7 @@ extension PersistenceStore {
             return  // Silently ignore duplicates
         }
 
-        let message = RoomMessage(
-            id: dto.id,
-            sessionID: dto.sessionID,
-            authorKeyPrefix: dto.authorKeyPrefix,
-            authorName: dto.authorName,
-            text: dto.text,
-            timestamp: dto.timestamp,
-            isFromSelf: dto.isFromSelf,
-            status: dto.status
-        )
-        message.createdAt = dto.createdAt
-        message.deduplicationKey = dto.deduplicationKey
-        message.ackCode = dto.ackCode
-        message.roundTripTime = dto.roundTripTime
-        message.retryAttempt = dto.retryAttempt
-        message.maxRetryAttempts = dto.maxRetryAttempts
-        modelContext.insert(message)
+        modelContext.insert(RoomMessage(dto: dto))
         try modelContext.save()
     }
 

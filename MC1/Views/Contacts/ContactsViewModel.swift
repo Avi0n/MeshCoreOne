@@ -81,30 +81,27 @@ final class ContactsViewModel {
 
     // MARK: - Dependencies
 
-    private var dataStore: DataStore?
-    private var contactService: ContactService?
-    private var advertisementService: AdvertisementService?
+    private var dataStoreProvider: @MainActor () -> DataStore? = { nil }
+    private var contactServiceProvider: @MainActor () -> ContactService? = { nil }
+    private var advertisementServiceProvider: @MainActor () -> AdvertisementService? = { nil }
+
+    private var dataStore: DataStore? { dataStoreProvider() }
+    private var contactService: ContactService? { contactServiceProvider() }
+    private var advertisementService: AdvertisementService? { advertisementServiceProvider() }
 
     // MARK: - Initialization
 
     init() {}
 
-    /// Configure with services from AppState
-    func configure(appState: AppState) {
-        self.dataStore = appState.offlineDataStore
-        self.contactService = appState.services?.contactService
-        self.advertisementService = appState.services?.advertisementService
-    }
-
-    /// Configure with services (for testing)
+    /// Configure with the services this view model uses; a provider returning nil mirrors a disconnected state.
     func configure(
-        dataStore: DataStore,
-        contactService: ContactService,
-        advertisementService: AdvertisementService? = nil
+        dataStore: @escaping @MainActor () -> DataStore?,
+        contactService: @escaping @MainActor () -> ContactService?,
+        advertisementService: @escaping @MainActor () -> AdvertisementService?
     ) {
-        self.dataStore = dataStore
-        self.contactService = contactService
-        self.advertisementService = advertisementService
+        dataStoreProvider = dataStore
+        contactServiceProvider = contactService
+        advertisementServiceProvider = advertisementService
     }
 
     // MARK: - Load Contacts
@@ -121,7 +118,7 @@ final class ContactsViewModel {
             // Self-heal the mask: once a deleted row is gone from the fetch, stop masking it.
             pendingRemovalIDs.formIntersection(Set(contacts.map(\.id)))
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         hasLoadedOnce = true
@@ -133,6 +130,8 @@ final class ContactsViewModel {
     /// Sync contacts from device
     func syncContacts(radioID: UUID) async {
         guard let contactService else { return }
+        // Claim the sync synchronously so a re-trigger while one is in flight is a no-op.
+        guard !isSyncing else { return }
 
         isSyncing = true
         syncProgress = nil
@@ -141,18 +140,18 @@ final class ContactsViewModel {
         if let advertisementService {
             await advertisementService.setSyncingContacts(true)
         }
-        defer {
-            if let advertisementService {
-                Task { await advertisementService.setSyncingContacts(false) }
-            }
-        }
 
-        // Set up progress handler
-        await contactService.setSyncProgressHandler { [weak self] current, total in
-            Task { @MainActor in
-                self?.syncProgress = (current, total)
+        // Subscribed synchronously before the sync starts so no progress event
+        // is missed; scoped to this sync and cancelled when it completes.
+        let events = contactService.events()
+        let progressTask = Task { [weak self] in
+            for await event in events {
+                if case .syncProgress(let received, let total) = event {
+                    self?.syncProgress = (received, total)
+                }
             }
         }
+        defer { progressTask.cancel() }
 
         do {
             _ = try await contactService.syncContacts(radioID: radioID)
@@ -162,8 +161,16 @@ final class ContactsViewModel {
 
             // Clear sync progress
             syncProgress = nil
+        } catch is CancellationError {
+            // Pull-to-refresh interrupted (tab switch, view teardown); not a failure to report.
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
+        }
+
+        // Awaited rather than deferred to an unstructured Task so this sync's reset cannot
+        // land after a later sync's setSyncingContacts(true) and clear the flag mid-sync.
+        if let advertisementService {
+            await advertisementService.setSyncingContacts(false)
         }
 
         isSyncing = false
@@ -186,7 +193,7 @@ final class ContactsViewModel {
                 await loadContacts(radioID: contact.radioID)
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -203,7 +210,7 @@ final class ContactsViewModel {
             // Update local list
             await loadContacts(radioID: contact.radioID)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -220,7 +227,7 @@ final class ContactsViewModel {
             // Update local list
             await loadContacts(radioID: contact.radioID)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -252,12 +259,12 @@ final class ContactsViewModel {
                 try await contactService.removeLocalContact(contactID: contact.id, publicKey: contact.publicKey)
                 hideDeletedContact(contact)
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
         } catch is TimeoutError {
             errorMessage = L10n.Contacts.Contacts.ViewModel.removeTimedOut
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -299,7 +306,7 @@ final class ContactsViewModel {
             // Filter by search text only
             result = result.filter { contact in
                 contact.displayName.localizedStandardContains(searchText)
-                    || contact.publicKey.hexString().hasPrefix(searchText.uppercased())
+                    || contact.publicKey.uppercaseHexString().hasPrefix(searchText.uppercased())
             }
         }
 

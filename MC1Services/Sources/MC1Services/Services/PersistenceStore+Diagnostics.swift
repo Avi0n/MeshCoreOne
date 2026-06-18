@@ -93,6 +93,10 @@ extension PersistenceStore {
 
     /// Save a new RX log entry.
     public func saveRxLogEntry(_ dto: RxLogEntryDTO) throws {
+        // Seed the count cache from disk before the insert; incrementing a
+        // missing entry from zero would undercount rows persisted by earlier
+        // sessions and suppress pruning indefinitely.
+        let countBeforeInsert = try cachedRxLogEntryCount(radioID: dto.radioID)
         let entry = RxLogEntry(
             id: dto.id,
             radioID: dto.radioID,
@@ -119,7 +123,7 @@ extension PersistenceStore {
         )
         modelContext.insert(entry)
         try modelContext.save()
-        rxLogEntryCountsByDevice[dto.radioID, default: 0] += 1
+        rxLogEntryCountsByDevice[dto.radioID] = countBeforeInsert + 1
     }
 
     /// Fetch RX log entries for a device, most recent first.
@@ -201,9 +205,11 @@ extension PersistenceStore {
     /// For channel messages: Correlates by channel index and sender timestamp.
     /// For direct messages: Correlates by sender timestamp and payload type.
     public func findRxLogEntry(
+        radioID: UUID,
         channelIndex: UInt8?,
         senderTimestamp: UInt32
     ) throws -> RxLogEntryDTO? {
+        let targetRadioID = radioID
         let targetTimestamp = Int(senderTimestamp)
 
         if let channelIndex {
@@ -211,6 +217,7 @@ extension PersistenceStore {
             let channelIndexInt = Int(channelIndex)
 
             let predicate = #Predicate<RxLogEntry> { entry in
+                entry.radioID == targetRadioID &&
                 entry.channelIndex == channelIndexInt &&
                 entry.senderTimestamp == targetTimestamp
             }
@@ -226,6 +233,7 @@ extension PersistenceStore {
             let textMessageType = Int(PayloadType.textMessage.rawValue)
 
             let predicate = #Predicate<RxLogEntry> { entry in
+                entry.radioID == targetRadioID &&
                 entry.senderTimestamp == targetTimestamp &&
                 entry.channelIndex == nil &&
                 entry.payloadType == textMessageType
@@ -246,13 +254,16 @@ extension PersistenceStore {
     /// DM decryption hadn't succeeded yet (senderTimestamp was nil). Matches on the
     /// unencrypted srcHash byte at `packetPayload[1]` and a receive-time window.
     public func findRxLogEntryBySenderPrefix(
+        radioID: UUID,
         senderPrefixByte: UInt8,
         receivedSince: Date
     ) throws -> RxLogEntryDTO? {
+        let targetRadioID = radioID
         let textMessageType = Int(PayloadType.textMessage.rawValue)
         let cutoff = receivedSince
 
         let predicate = #Predicate<RxLogEntry> { entry in
+            entry.radioID == targetRadioID &&
             entry.channelIndex == nil &&
             entry.payloadType == textMessageType &&
             entry.receivedAt >= cutoff

@@ -4,8 +4,8 @@ import MC1Services
 /// Distributes already-resolved MC1 `MessageEvent` values to chat and room
 /// consumers.
 ///
-/// Owned by `AppState`. Service callbacks wired in
-/// `AppState.wireMessageEvents` feed events into this stream. Consumers
+/// Owned by `AppState`. `MessageEventDispatcher`'s stream-consuming tasks
+/// feed events into this stream. Consumers
 /// obtain a fresh `AsyncStream` from `events()` and consume it from a
 /// SwiftUI `.task` block — lifecycle is bound to the view, so cancellation
 /// propagates automatically on view disappear.

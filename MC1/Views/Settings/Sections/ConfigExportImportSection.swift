@@ -11,16 +11,12 @@ struct ConfigExportImportSection: View {
 
     var body: some View {
         Section {
-            NavigationLink {
-                NodeConfigExportView()
-            } label: {
+            NavigationLink(value: SettingsSubpage.configExport) {
                 TintedLabel(L10n.Settings.ConfigExport.export, systemImage: "square.and.arrow.up")
             }
             .disabled(isDisabled)
 
-            NavigationLink {
-                NodeConfigImportView()
-            } label: {
+            NavigationLink(value: SettingsSubpage.configImport) {
                 TintedLabel(L10n.Settings.ConfigImport.importConfig, systemImage: "square.and.arrow.down")
             }
             .disabled(isDisabled)

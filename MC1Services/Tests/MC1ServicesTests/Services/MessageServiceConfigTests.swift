@@ -2,23 +2,24 @@ import Foundation
 import Testing
 @testable import MC1Services
 
-/// MessageServiceConfig guards against `maxAttempts > 4` via a precondition.
-/// Firmware AckCodeBuilder masks attempts with `& 0x03`, so values above 4
-/// collide on the wire and produce ambiguous ACKs. Swift Testing has no
-/// precondition matcher, so the failing case is documented inline rather
-/// than asserted at runtime; the boundary case is exercised here.
+/// MessageServiceConfig guards against `maxAttempts > 5` via a precondition.
+/// The firmware ACK hash masks the attempt index with `& 0x03`; a single
+/// message's `ackCodes` set dedupes the attempt-4 wrap, so 5 (4 direct + 1
+/// flood) stays unambiguous, and the cap then bounds mesh airtime. Swift
+/// Testing has no precondition matcher, so the failing case is documented
+/// inline rather than asserted at runtime; the boundary case is exercised here.
 @Suite("MessageServiceConfig precondition")
 struct MessageServiceConfigTests {
 
-    @Test("maxAttempts == 4 is accepted at the precondition boundary")
+    @Test("maxAttempts == 5 is accepted at the precondition boundary")
     func boundaryValueIsAccepted() {
-        let config = MessageServiceConfig(maxAttempts: 4)
-        #expect(config.maxAttempts == 4)
+        let config = MessageServiceConfig(maxAttempts: 5)
+        #expect(config.maxAttempts == 5)
     }
 
     @Test("Default config respects the maxAttempts ceiling")
     func defaultConfigHonoursCeiling() {
         let config = MessageServiceConfig()
-        #expect(config.maxAttempts <= 4)
+        #expect(config.maxAttempts <= 5)
     }
 }

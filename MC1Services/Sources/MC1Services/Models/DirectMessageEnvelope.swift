@@ -9,7 +9,7 @@ import Foundation
 /// user-initiated resend of an already-sent DM. The DM queue drain
 /// branches on this flag between `sendPendingDirectMessage` (no
 /// `sendCount` bump) and `resendDirectMessage` (bumps `sendCount`,
-/// fires `messageResentHandler`).
+/// broadcasts `MessageStatusEvent.resent`).
 public struct DirectMessageEnvelope: Sendable {
     public let messageID: UUID
     public let contactID: UUID

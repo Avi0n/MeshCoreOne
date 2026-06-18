@@ -6,8 +6,16 @@ import MC1Services
 struct ContactDetailSheet: View {
     let contact: ContactDTO
     let onMessage: () -> Void
+    let onDelete: () -> Void
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appState) private var appState
+
+    init(contact: ContactDTO, onMessage: @escaping () -> Void, onDelete: @escaping () -> Void) {
+        self.contact = contact
+        self.onMessage = onMessage
+        self.onDelete = onDelete
+        _isFavorite = State(initialValue: contact.isFavorite)
+    }
 
     /// Sheet types for repeater flows
     private enum ActiveSheet: Identifiable, Hashable {
@@ -32,6 +40,11 @@ struct ContactDetailSheet: View {
     @State private var pendingSheet: ActiveSheet?
     @State private var isPinging = false
     @State private var pingResult: PingResult?
+    @State private var showingDeleteAlert = false
+    @State private var isDeleting = false
+    @State private var isFavorite: Bool
+    @State private var isTogglingFavorite = false
+    @State private var errorMessage: String?
 
     var body: some View {
         NavigationStack {
@@ -48,7 +61,7 @@ struct ContactDetailSheet: View {
                         .foregroundStyle(contact.type.displayColor)
                     }
 
-                    if contact.isFavorite {
+                    if isFavorite {
                         LabeledContent(L10n.Map.Map.Detail.status) {
                             HStack {
                                 Image(systemName: "star.fill")
@@ -68,7 +81,7 @@ struct ContactDetailSheet: View {
                         Text(L10n.Map.Map.Detail.publicKey)
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        Text(contact.publicKey.hexString(separator: " "))
+                        Text(contact.publicKey.uppercaseHexString(separator: " "))
                             .font(.system(.caption, design: .monospaced))
                             .textSelection(.enabled)
                     }
@@ -135,6 +148,43 @@ struct ContactDetailSheet: View {
                         .radioDisabled(for: appState.connectionState)
                     }
                 }
+
+                // Favorite section
+                Section {
+                    Button {
+                        Task { await toggleFavorite() }
+                    } label: {
+                        HStack {
+                            Label(
+                                isFavorite ? L10n.Contacts.Contacts.Detail.removeFromFavorites : L10n.Contacts.Contacts.Detail.addToFavorites,
+                                systemImage: isFavorite ? "star.slash" : "star"
+                            )
+                            if isTogglingFavorite {
+                                Spacer()
+                                ProgressView()
+                            }
+                        }
+                    }
+                    .disabled(isTogglingFavorite)
+                    .radioDisabled(for: appState.connectionState)
+                }
+
+                // Delete section
+                Section {
+                    Button(role: .destructive) {
+                        showingDeleteAlert = true
+                    } label: {
+                        HStack {
+                            Label(L10n.Contacts.Contacts.Common.delete, systemImage: "trash")
+                            if isDeleting {
+                                Spacer()
+                                ProgressView()
+                            }
+                        }
+                    }
+                    .disabled(isDeleting)
+                    .radioDisabled(for: appState.connectionState)
+                }
             }
             .navigationTitle(contact.displayName)
             .navigationBarTitleDisplayMode(.inline)
@@ -196,6 +246,55 @@ struct ContactDetailSheet: View {
                     }
                 }
             }
+            .alert(
+                L10n.Contacts.Contacts.Detail.Alert.Delete.title(typeDisplayName),
+                isPresented: $showingDeleteAlert
+            ) {
+                Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) { }
+                Button(L10n.Contacts.Contacts.Common.delete, role: .destructive) {
+                    Task { await deleteContact() }
+                }
+            } message: {
+                Text(L10n.Contacts.Contacts.Detail.Alert.Delete.message(contact.displayName))
+            }
+            .errorAlert($errorMessage)
+        }
+    }
+
+    // MARK: - Favorite
+
+    private func toggleFavorite() async {
+        isTogglingFavorite = true
+        defer { isTogglingFavorite = false }
+        let newValue = !isFavorite
+        do {
+            try await appState.services?.contactService.setContactFavorite(contact.id, isFavorite: newValue)
+            isFavorite = newValue
+        } catch {
+            errorMessage = error.userFacingMessage
+        }
+    }
+
+    // MARK: - Delete
+
+    private func deleteContact() async {
+        guard let contactService = appState.services?.contactService else { return }
+        isDeleting = true
+        defer { isDeleting = false }
+        do {
+            try await contactService.removeContact(radioID: contact.radioID, publicKey: contact.publicKey)
+            dismiss()
+            onDelete()
+        } catch ContactServiceError.contactNotFound {
+            do {
+                try await contactService.removeLocalContact(contactID: contact.id, publicKey: contact.publicKey)
+                dismiss()
+                onDelete()
+            } catch {
+                errorMessage = error.userFacingMessage
+            }
+        } catch {
+            errorMessage = error.userFacingMessage
         }
     }
 

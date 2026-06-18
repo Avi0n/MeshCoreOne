@@ -1,5 +1,5 @@
 import Testing
-import MC1Services
+@testable import MC1Services
 @testable import MC1
 
 @Suite("StatusPillState Tests")

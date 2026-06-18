@@ -3,18 +3,18 @@ import MC1Services
 
 /// A cosmetic theme: accent + chat colors + optional surfaces + optional forced color scheme.
 /// Built-in themes are static factory values (below), not subtypes.
-public struct Theme: Sendable, Identifiable, Equatable {
-    public let id: String
+struct Theme: Sendable, Identifiable, Equatable {
+    let id: String
     /// SwiftGen key path (`Settings.Support.Theme.X`) for themes whose name is localized. `nil` for
     /// proper-noun themes (Sakura, Solarized, Nord, Catppuccin) that are never translated and resolve
     /// their fixed name from the explicit `localizedName` switch instead.
-    public let displayNameKey: String?
-    public let productID: String?
-    public let accentColor: Color
-    public let outgoingTextColor: Color
-    public let hashtagColor: Color
-    public let preferredColorScheme: ColorScheme?
-    public let surfaces: Surfaces?
+    let displayNameKey: String?
+    let productID: String?
+    let accentColor: Color
+    let outgoingTextColor: Color
+    let hashtagColor: Color
+    let preferredColorScheme: ColorScheme?
+    let surfaces: Surfaces?
     /// The theme's identity-color space for contact avatars, channel sender names, and mentions.
     /// Varied per identity, drawn from the theme's character hues.
     let identityGamut: IdentityGamut
@@ -25,7 +25,7 @@ public struct Theme: Sendable, Identifiable, Equatable {
     /// anchors to be on-palette and distinct. `nil` falls back to a distinct auto-anchor pick.
     let categoryHues: CategoryHues?
 
-    public init(
+    init(
         id: String,
         displayNameKey: String?,
         productID: String?,
@@ -55,11 +55,11 @@ public struct Theme: Sendable, Identifiable, Equatable {
 extension Theme {
     /// Canvas (system grouped replacement) + card (secondary system grouped replacement) for paid themes.
     /// `card == nil` means "paint the canvas but leave card rows on the system tier" (Ember).
-    public struct Surfaces: Sendable, Equatable {
-        public let canvas: Color
-        public let card: Color?
+    struct Surfaces: Sendable, Equatable {
+        let canvas: Color
+        let card: Color?
 
-        public init(canvas: Color, card: Color? = nil) {
+        init(canvas: Color, card: Color? = nil) {
             self.canvas = canvas
             self.card = card
         }
@@ -89,7 +89,7 @@ extension Theme {
     }
 }
 
-public extension Theme {
+extension Theme {
     static let `default` = Theme(
         id: EnvInputs.defaultThemeID,
         displayNameKey: "Settings.Support.Theme.Default",

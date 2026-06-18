@@ -114,6 +114,9 @@
 /* TX power display format with dBm unit */
 "deviceInfo.txPowerFormat" = "%@ дБм";
 
+/* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
+"deviceInfo.firmwareVersionFormat" = "v%@";
+
 /* Section header for identity information */
 "deviceInfo.identity.header" = "Идентификация";
 
@@ -391,7 +394,7 @@
 "batteryCurve.editValues" = "Редактировать значения";
 
 /* Validation error for value out of range - %d is the percentage level */
-"batteryCurve.validation.outOfRange" = "Значение при %d%% должно быть 1000-9000 мВ";
+"batteryCurve.validation.outOfRange" = "Значение при %d%% должно быть 1000-99999 мВ";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "Значения должны быть в убывающем порядке";
@@ -757,13 +760,13 @@
 "notifications.newContactDiscovered" = "Обнаружен новый контакт";
 
 /* Toggle label for companion discovery notifications */
-"notifications.discoveryContact" = "Companion";
+"notifications.discoveryContact" = "Компаньон";
 
 /* Toggle label for repeater discovery notifications */
-"notifications.discoveryRepeater" = "Repeater";
+"notifications.discoveryRepeater" = "Ретранслятор";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Room";
+"notifications.discoveryRoom" = "Комната";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Предупреждения о низком заряде";
@@ -973,7 +976,7 @@
 "directMessages.header" = "Прямые сообщения";
 
 /* Picker label for number of acknowledgments */
-"directMessages.acknowledgments" = "Acknowledgments";
+"directMessages.acknowledgments" = "Подтверждения";
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Количество подтверждений, отправляемых на каждое прямое сообщение. Используйте 2 для лучшего подтверждения доставки по ненадёжным каналам.";
@@ -1111,9 +1114,6 @@
 /* Select file button */
 "configImport.selectFile" = "Выбрать JSON-файл";
 
-/* Cannot access file error */
-"configImport.cannotAccess" = "Не удаётся открыть выбранный файл.";
-
 /* Confirmation alert title */
 "configImport.confirmTitle" = "Применить конфигурацию?";
 
@@ -1239,6 +1239,21 @@
 
 /* Validation error: not enough free contact slots (params: needed count, available count) */
 "configImport.error.contactCapacityExceeded" = "Для импорта требуется свободных слотов контактов: %d, но на устройстве осталось только %d";
+
+/* Validation error: channel secret wrong length (params: channel index, hex char count) */
+"configImport.error.invalidChannelSecret" = "Канал %1$lld имеет недопустимый секретный ключ (%2$lld шестнадцатеричных символов, ожидалось 32)";
+
+/* Validation error: contact public key malformed (param: contact name) */
+"configImport.error.invalidContactPublicKey" = "Контакт \"%@\" имеет недопустимый открытый ключ";
+
+/* Validation error: unsupported path hash mode (params: contact name, mode value) */
+"configImport.error.invalidPathHashMode" = "Контакт \"%1$@\" имеет неподдерживаемый режим хеширования пути %2$lld (ожидалось 0, 1 или 2)";
+
+/* Validation error: private key wrong length (params: hex char count, expected hex char count) */
+"configImport.error.invalidPrivateKey" = "Недопустимый закрытый ключ (%1$lld шестнадцатеричных символов, ожидалось %2$lld)";
+
+/* Validation error: no empty channel slot left (param: channel name) */
+"configImport.error.noAvailableChannelSlot" = "Нет свободного слота канала для \"%@\"";
 
 /* Toggle label for inline images */
 "inlineImages.toggle" = "Встроенные изображения";
@@ -1720,6 +1735,7 @@
 "Support.Themes.Title" = "Темы";
 "Support.Themes.Owned" = "Приобретено";
 "Support.Themes.PurchasedFooter" = "Примените новую тему в разделе «Настройки → Внешний вид».";
+"Support.Themes.AllUnlocked" = "Все темы разблокированы!";
 "Support.Bundle.Title" = "Все темы";
 "Support.Bundle.Subtitle" = "Включая темы, добавленные позже.";
 "Support.Contributions.Title" = "Пожертвования";
@@ -1735,11 +1751,11 @@
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Стандартная";
-"Support.Theme.Ember" = "Ember";
-"Support.Theme.Fern" = "Fern";
-"Support.Theme.Marine" = "Marine";
-"Support.Theme.Olive" = "Olive";
-"Support.Theme.Lavender" = "Lavender";
+"Support.Theme.Ember" = "Уголь";
+"Support.Theme.Fern" = "Папоротник";
+"Support.Theme.Marine" = "Морская";
+"Support.Theme.Olive" = "Оливковая";
+"Support.Theme.Lavender" = "Лаванда";
 
 /* MARK: Support error messages (mapped from StoreServiceError) */
 "Support.Error.ProductsNotLoaded" = "Не удалось загрузить товары.";

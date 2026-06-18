@@ -360,6 +360,24 @@
 /* Location: NotificationLevelPicker.swift - Accessibility hint for notification level picker */
 "chats.notificationLevel.hint" = "Choose when to receive notifications";
 
+/* Location: NotificationLevelPicker.swift - Muted level label */
+"chats.notificationLevel.muted" = "Muted";
+
+/* Location: NotificationLevelPicker.swift - Mentions-only level label */
+"chats.notificationLevel.mentions" = "Mentions";
+
+/* Location: NotificationLevelPicker.swift - All notifications level label */
+"chats.notificationLevel.all" = "All";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for muted level */
+"chats.notificationLevel.accessibility.muted" = "Muted, no notifications";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for mentions-only level */
+"chats.notificationLevel.accessibility.mentionsOnly" = "Mentions only";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for all-notifications level */
+"chats.notificationLevel.accessibility.all" = "All notifications";
+
 // MARK: - Swipe Actions
 
 /* Location: ConversationContextMenuModifier.swift - Context-menu action to delete */
@@ -678,6 +696,24 @@
 /* Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL */
 "chats.message.action.openLink" = "Open Link";
 
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a web link, %@ is the host */
+"chats.message.action.openWebLink" = "Open Link: %@";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a shared map coordinate */
+"chats.message.action.openMapLink" = "Open Map";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a mention, %@ is the mentioned name */
+"chats.message.action.openMention" = "Mention: %@";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a hashtag channel, %@ is the channel name */
+"chats.message.action.openHashtag" = "Open #%@";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to add a shared contact, %@ is the contact name */
+"chats.message.action.addContact" = "Add Contact: %@";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a shared channel link, %@ is the channel name */
+"chats.message.action.openChannel" = "Open Channel: %@";
+
 /* Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen */
 "chats.message.action.viewImage" = "View Image";
 
@@ -872,8 +908,9 @@
 /* Location: MessagePathSheet.swift - Section header for path */
 "chats.path.section.header" = "Path";
 
-/* Location: MessagePathSheet.swift - Navigation title */
-"chats.path.title" = "Message Path";
+
+/* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
+"chats.path.map" = "Path Map";
 
 /* Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "Center on path";

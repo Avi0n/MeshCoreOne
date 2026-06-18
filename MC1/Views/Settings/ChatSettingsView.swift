@@ -1,8 +1,9 @@
+import MC1Services
 import SwiftUI
 
 struct ChatSettingsView: View {
     @Environment(\.appTheme) private var theme
-    @AppStorage("replyWithQuote") private var replyWithQuote = false
+    @AppStorage(AppStorageKey.replyWithQuote.rawValue) private var replyWithQuote = AppStorageKey.defaultReplyWithQuote
 
     var body: some View {
         List {
@@ -21,6 +22,7 @@ struct ChatSettingsView: View {
             BlockingSection()
         }
         .themedCanvas(theme)
+        .settingsSubpageDestinations()
         .navigationTitle(L10n.Settings.ChatSettings.title)
         .navigationBarTitleDisplayMode(.inline)
     }

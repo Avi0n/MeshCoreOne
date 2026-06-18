@@ -1,7 +1,7 @@
 import Foundation
 
 /// Categories for OCV presets
-public enum OCVPresetCategory: Sendable {
+enum OCVPresetCategory: Sendable {
     /// Generic battery chemistry (Li-Ion, LiFePO4, etc.)
     case batteryChemistry
     /// Specific commercial device
@@ -31,8 +31,8 @@ public enum OCVPreset: String, CaseIterable, Codable, Sendable {
     case custom
 
     /// Valid range for user-entered OCV voltage values (millivolts).
-    /// Upper bound covers 2S Li-Ion packs (e.g., LilyGo T-Beam 1W tops at 7950 mV).
-    public static let validMillivoltRange: ClosedRange<Int> = 1000...9000
+    /// Upper bound accommodates multi-cell series packs
+    public static let validMillivoltRange: ClosedRange<Int> = 1000...99_999
 
     /// The 11-point OCV array in millivolts (100% to 0% in 10% steps)
     public var ocvArray: [Int] {
@@ -62,7 +62,7 @@ public enum OCVPreset: String, CaseIterable, Codable, Sendable {
         case .r1Neo:
             [4120, 4020, 4000, 3940, 3870, 3820, 3750, 3630, 3550, 3450, 3100]
         case .wisMeshTag:
-            [4240, 4112, 4029, 3970, 3906, 3846, 3824, 3802, 3776, 3650, 3072]
+            [4160, 4020, 3940, 3870, 3810, 3760, 3740, 3720, 3680, 3620, 2990]
         case .lilyGoTBeam1W:
             [7950, 7850, 7750, 7580, 7440, 7310, 7150, 7005, 6860, 6685, 6000]
         case .thinkNodeM6:
@@ -95,7 +95,7 @@ public enum OCVPreset: String, CaseIterable, Codable, Sendable {
     }
 
     /// The category of this preset
-    public var category: OCVPresetCategory {
+    var category: OCVPresetCategory {
         switch self {
         case .liIon, .liFePO4, .leadAcid, .alkaline, .niMH, .lto:
             .batteryChemistry
@@ -124,7 +124,7 @@ public enum OCVPreset: String, CaseIterable, Codable, Sendable {
         return presets
     }
 
-    private static let logger = PersistentLogger(subsystem: "com.mc1.services", category: "OCVPreset")
+    private static let logger = PersistentLogger(subsystem: "com.mc1", category: "OCVPreset")
 
     /// Returns the OCV preset for a known manufacturer name, or nil if no match.
     ///

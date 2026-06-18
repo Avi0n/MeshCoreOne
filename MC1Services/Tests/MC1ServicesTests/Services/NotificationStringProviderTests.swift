@@ -23,6 +23,22 @@ struct NotificationStringProviderTests {
         func lowBatteryBody(deviceName: String, percentage: Int) -> String {
             "Mock \(deviceName) at \(percentage)%"
         }
+
+        var quickReplyFailedTitle: String { "Mock Not Sent" }
+
+        func quickReplyFailedBody(conversationName: String) -> String {
+            "Mock reply to \(conversationName) failed"
+        }
+
+        var unknownContactName: String { "Mock Unknown Contact" }
+
+        func defaultChannelName(index: Int) -> String {
+            "Mock Channel \(index)"
+        }
+
+        func reactionNotificationBody(emoji: String, messagePreview: String) -> String {
+            "Mock reacted \(emoji) to \(messagePreview)"
+        }
     }
 
     @Test("Provider returns correct title for chat type")

@@ -1,7 +1,7 @@
 import Testing
 import Foundation
 import SwiftUI
-import MC1Services
+@testable import MC1Services
 @testable import MC1
 
 @Suite("ChatLinkRouter Tests")

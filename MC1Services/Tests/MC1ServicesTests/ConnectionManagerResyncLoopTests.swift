@@ -22,7 +22,7 @@ struct ConnectionManagerResyncLoopTests {
             transport: transport,
             configuration: SessionConfiguration(defaultTimeout: 0.5, clientIdentifier: "ResyncTest")
         )
-        let services = try await ServiceContainer.forTesting(session: session, wired: false)
+        let services = try await ServiceContainer.forTesting(session: session)
 
         // Insert a device so fetchDevice doesn't fail inside performFullSync
         let device = DeviceDTO.testDevice(id: deviceID)

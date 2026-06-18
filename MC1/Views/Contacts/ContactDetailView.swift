@@ -55,6 +55,7 @@ struct ContactDetailView: View {
         case repeaterStatus(RemoteNodeSessionDTO)
         case roomStatus(RemoteNodeSessionDTO)
         case nodeTelemetry(ContactDTO)
+        case adminSettings(RemoteNodeSessionDTO)
 
         var id: String {
             switch self {
@@ -62,6 +63,7 @@ struct ContactDetailView: View {
             case .repeaterStatus(let session): return "status-\(session.id)"
             case .roomStatus(let session): return "room-status-\(session.id)"
             case .nodeTelemetry(let contact): return "telemetry-\(contact.id)"
+            case .adminSettings(let session): return "admin-settings-\(session.id)"
             }
         }
     }
@@ -81,7 +83,6 @@ struct ContactDetailView: View {
     // Admin access navigation state (separate from telemetry sheet flow)
     @State private var showRepeaterAdminAuth = false
     @State private var adminSession: RemoteNodeSessionDTO?
-    @State private var navigateToSettings = false
     // QR sharing state
     @State private var showQRShareSheet = false
     // Ping state
@@ -205,7 +206,11 @@ struct ContactDetailView: View {
             nickname = currentContact.nickname ?? ""
         }
         .task {
-            pathViewModel.configure(appState: appState) {
+            pathViewModel.configure(
+                dataStore: { appState.services?.dataStore },
+                contactService: { appState.services?.contactService },
+                connectedDevice: { appState.connectedDevice }
+            ) {
                 Task { @MainActor in
                     await refreshContact()
                 }
@@ -221,10 +226,14 @@ struct ContactDetailView: View {
                 currentContact = freshContact
             }
 
-            // Wire up path discovery response handler to receive push notifications
-            await appState.services?.advertisementService.setPathDiscoveryHandler { [weak pathViewModel] response in
-                Task { @MainActor in
-                    pathViewModel?.handleDiscoveryResponse(hopCount: response.outHopCount)
+            // React to path discovery push responses while this view is open.
+            // The view-scoped task cancels the subscription on dismiss; the
+            // stream is multicast, so a second detail column (iPad split view)
+            // can subscribe concurrently.
+            guard let advertisementService = appState.services?.advertisementService else { return }
+            for await event in advertisementService.events() {
+                if case .pathDiscoveryResponse(let response) = event {
+                    pathViewModel.handleDiscoveryResponse(hopCount: response.outHopCount)
                 }
             }
         }
@@ -286,13 +295,32 @@ struct ContactDetailView: View {
                 RoomStatusView(session: session)
             case .nodeTelemetry(let contact):
                 NodeTelemetryView(contact: contact)
+            case .adminSettings(let session):
+                // A sheet with its own stack, not a push onto the value/path-based Contacts stack:
+                // the telemetry tab's history graphs push value-based routes, and pushing this screen
+                // there instead would rebuild it and reset the selected tab whenever a graph is tapped.
+                NavigationStack {
+                    Group {
+                        if session.isRoom {
+                            RoomSettingsView(session: session)
+                        } else {
+                            RepeaterSettingsView(session: session)
+                        }
+                    }
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button(L10n.RemoteNodes.RemoteNodes.done) { activeSheet = nil }
+                        }
+                    }
+                }
+                .presentationSizing(.page)
             }
         }
         .sheet(isPresented: $showRepeaterAdminAuth, onDismiss: {
             // Trigger navigation after sheet is fully dismissed to avoid race conditions
             if let session = adminSession {
                 if session.isAdmin {
-                    navigateToSettings = true
+                    activeSheet = .adminSettings(session)
                 } else if session.isRoom {
                     activeSheet = .roomStatus(session)
                 } else {
@@ -318,14 +346,12 @@ struct ContactDetailView: View {
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
         }
-        .navigationDestination(isPresented: $navigateToSettings) {
-            if let session = adminSession {
-                if session.isRoom {
-                    RoomSettingsView(session: session)
-                } else {
-                    RepeaterSettingsView(session: session)
-                }
-            }
+        .navigationDestination(for: ContactRoute.TelemetryHistory.self) { route in
+            TelemetryHistoryOverviewView(
+                publicKey: route.publicKey,
+                radioID: route.radioID,
+                showNeighbors: route.showNeighbors
+            )
         }
     }
 
@@ -351,7 +377,7 @@ struct ContactDetailView: View {
             )
             await refreshContact()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -363,7 +389,7 @@ struct ContactDetailView: View {
             )
             await refreshContact()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -375,7 +401,7 @@ struct ContactDetailView: View {
             )
             dismiss()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -392,7 +418,7 @@ struct ContactDetailView: View {
             errorMessage = L10n.Contacts.Contacts.Detail.shareContactUnavailable
         } catch {
             isSharing = false
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -413,11 +439,7 @@ struct ContactDetailView: View {
     // MARK: - Helpers
 
     private var contactTypeLabel: String {
-        switch currentContact.type {
-        case .chat: return L10n.Contacts.Contacts.NodeKind.contact
-        case .repeater: return L10n.Contacts.Contacts.NodeKind.repeater
-        case .room: return L10n.Contacts.Contacts.NodeKind.room
-        }
+        currentContact.type.localizedName
     }
 
     private func saveNickname() async {
@@ -429,7 +451,7 @@ struct ContactDetailView: View {
             )
             await refreshContact()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
         isEditingNickname = false
         isSaving = false
@@ -566,13 +588,11 @@ private struct ContactActionsSection: View {
                 }
                 .radioDisabled(for: appState.connectionState)
 
-                NavigationLink {
-                    TelemetryHistoryOverviewView(
-                        publicKey: currentContact.publicKey,
-                        radioID: currentContact.radioID,
-                        showNeighbors: false
-                    )
-                } label: {
+                NavigationLink(value: ContactRoute.TelemetryHistory(
+                    publicKey: currentContact.publicKey,
+                    radioID: currentContact.radioID,
+                    showNeighbors: false
+                )) {
                     Label(L10n.Contacts.Contacts.Detail.savedHistory, systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
                         .foregroundStyle(.tint)
                 }
@@ -619,7 +639,7 @@ private struct NodeActionRows: View {
     let pingLabel: String
     let isPinging: Bool
     let pingResult: PingResult?
-    let connectionState: ConnectionState
+    let connectionState: DeviceConnectionState
     let onShowTelemetry: () -> Void
     let onShowAdminAccess: () -> Void
     let onPing: () -> Void
@@ -630,12 +650,10 @@ private struct NodeActionRows: View {
         }
         .radioDisabled(for: connectionState)
 
-        NavigationLink {
-            TelemetryHistoryOverviewView(
-                publicKey: contact.publicKey,
-                radioID: contact.radioID
-            )
-        } label: {
+        NavigationLink(value: ContactRoute.TelemetryHistory(
+            publicKey: contact.publicKey,
+            radioID: contact.radioID
+        )) {
             Label(L10n.Contacts.Contacts.Detail.savedHistory, systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
                 .foregroundStyle(.tint)
         }
@@ -896,7 +914,7 @@ private struct ContactNetworkPathSection: View {
             if let name = pathViewModel.resolveHashToName(hopBytes) {
                 return name
             }
-            return hopBytes.hexString()
+            return hopBytes.uppercaseHexString()
         }.joined(separator: " \u{2192} ")
     }
 
@@ -1045,7 +1063,7 @@ private struct ContactTechnicalSection: View {
                 Text(L10n.Contacts.Contacts.Detail.publicKey)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Text(currentContact.publicKey.hexString(separator: " "))
+                Text(currentContact.publicKey.uppercaseHexString(separator: " "))
                     .font(.system(.caption, design: .monospaced))
                     .textSelection(.enabled)
             }

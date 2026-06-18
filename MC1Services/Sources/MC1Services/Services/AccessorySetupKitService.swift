@@ -7,7 +7,7 @@ import os
 /// Delegate protocol for accessory state changes
 /// Must be @MainActor since implementations access main-actor-isolated state
 @MainActor
-public protocol AccessorySetupKitServiceDelegate: AnyObject {
+protocol AccessorySetupKitServiceDelegate: AnyObject {
     /// Called when an accessory is removed from Settings > Accessories
     func accessorySetupKitService(_ service: AccessorySetupKitService, didRemoveAccessoryWithID bluetoothID: UUID)
 
@@ -28,20 +28,21 @@ public protocol AccessorySetupKitServiceDelegate: AnyObject {
 /// try await accessoryService.activateSession()
 /// let deviceUUID = try await accessoryService.showPicker()
 /// ```
-@MainActor @Observable
-public final class AccessorySetupKitService {
+@Observable
+@MainActor
+final class AccessorySetupKitService {
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "AccessorySetupKit")
 
     private var session: ASAccessorySession?
 
     /// Previously paired accessories available after session activation
-    public private(set) var pairedAccessories: [ASAccessory] = []
+    private(set) var pairedAccessories: [ASAccessory] = []
 
     /// Whether the session is currently active
-    public private(set) var isSessionActive = false
+    private(set) var isSessionActive = false
 
     /// Delegate for accessory state changes
-    public weak var delegate: AccessorySetupKitServiceDelegate?
+    weak var delegate: AccessorySetupKitServiceDelegate?
 
     /// Pending picker result continuation (for async/await bridge)
     private var pickerContinuation: CheckedContinuation<UUID, Error>?
@@ -59,7 +60,22 @@ public final class AccessorySetupKitService {
     /// handler to remove the orphaned accessory immediately.
     private var pickerWasCancelled = false
 
-    public init() {}
+    /// Display items accumulated across `accessoryDiscovered` events and re-sent in full on
+    /// each `updatePicker`. Keyed by the accessory, not `bluetoothIdentifier` (a discovery
+    /// lacks one until it pairs); `AnyHashable` keeps the iOS 26.1 type off the property.
+    private var discoveredDisplayItems: [AnyHashable: ASPickerDisplayItem] = [:]
+
+    /// Whether the active picker opted into filtered discovery; drives the dismissal log.
+    private var usedFilteredDiscovery = false
+
+    /// Product image rendered once per `showPicker` and reused by the discovery handler.
+    private var currentProductImage: UIImage?
+
+    /// Static label used on systems without filtered discovery and as the fallback when a
+    /// discovered accessory advertises no local name. Mirrors `Settings.deviceInfo.defaultManufacturer`.
+    private static let defaultAccessoryName = "MeshCore Device"
+
+    init() {}
 
     // MARK: - Continuation Safety
 
@@ -80,7 +96,7 @@ public final class AccessorySetupKitService {
 
     /// Activate the AccessorySetupKit session
     /// Uses Apple's recommended closure pattern to avoid AsyncStream issues
-    public func activateSession() async throws {
+    func activateSession() async throws {
         guard session == nil else { return }
 
         let newSession = ASAccessorySession()
@@ -177,8 +193,11 @@ public final class AccessorySetupKitService {
             logger.info("Accessory changed")
 
         case .accessoryDiscovered:
-            // Default ASK picker flow handles discovery UI itself.
-            break
+            // Under filtered discovery (iOS 26.1+) the picker hands each match to us so we can
+            // relabel it with the device's advertised name before it appears for selection.
+            if #available(iOS 26.1, *), usedFilteredDiscovery {
+                handleDiscoveredAccessory(event.accessory)
+            }
 
         case .pickerDidPresent:
             logger.info("Picker presented")
@@ -189,7 +208,7 @@ public final class AccessorySetupKitService {
                     outcome: pickerOutcome,
                     pairedCount: pairedAccessories.count,
                     elapsed: pickerElapsedTime,
-                    filteredDiscovery: AccessorySetupKitDiscoveryCriteria.usesFilteredDiscovery
+                    filteredDiscovery: usedFilteredDiscovery
                 )
             )
             pickerPresentedAt = nil
@@ -248,7 +267,7 @@ public final class AccessorySetupKitService {
 
     /// Show the accessory picker for new device pairing
     /// - Returns: The Bluetooth identifier (UUID) for the paired device
-    public func showPicker() async throws -> UUID {
+    func showPicker() async throws -> UUID {
         guard let session else {
             throw AccessorySetupKitError.sessionNotActive
         }
@@ -257,13 +276,22 @@ public final class AccessorySetupKitService {
             throw AccessorySetupKitError.pickerAlreadyActive
         }
 
-        if #available(iOS 26.0, *) {
+        discoveredDisplayItems.removeAll()
+        usedFilteredDiscovery = false
+
+        if #available(iOS 26.1, *), AccessorySetupKitDiscoveryCriteria.usesFilteredDiscovery {
+            let settings = session.pickerDisplaySettings ?? ASPickerDisplaySettings()
+            settings.options.insert(.filterDiscoveryResults)
+            session.pickerDisplaySettings = settings
+            usedFilteredDiscovery = true
+        } else if #available(iOS 26.0, *) {
             if session.pickerDisplaySettings == nil {
                 session.pickerDisplaySettings = ASPickerDisplaySettings()
             }
         }
 
         let productImage = createGenericProductImage()
+        currentProductImage = productImage
         let displayItems = makePickerDisplayItems(productImage: productImage)
         pickerPresentedAt = Date()
         pickerOutcome = "presented"
@@ -274,7 +302,7 @@ public final class AccessorySetupKitService {
             sessionActive: \(isSessionActive), \
             pairedCount: \(pairedAccessories.count), \
             displayItems: \(displayItems.count), \
-            filteredDiscovery: \(AccessorySetupKitDiscoveryCriteria.usesFilteredDiscovery), \
+            filteredDiscovery: \(usedFilteredDiscovery), \
             criteria: \(AccessorySetupKitLogFormatter.criteriaSummary(AccessorySetupKitDiscoveryCriteria.supportedBluetoothCriteria))
             """
         )
@@ -310,9 +338,13 @@ public final class AccessorySetupKitService {
                                 self.resumePickerContinuation(with: .failure(AccessorySetupKitError.connectionFailed))
                             default:
                                 self.logger.error("Unexpected picker error code: \(error.code.rawValue)")
+                                self.pickerOutcome = "connectionFailed"
+                                self.resumePickerContinuation(with: .failure(AccessorySetupKitError.connectionFailed))
                             }
                         } else if let error {
                             self.logger.error("Picker error: \(error.localizedDescription)")
+                            self.pickerOutcome = "pairingFailed"
+                            self.resumePickerContinuation(with: .failure(AccessorySetupKitError.pairingFailed(error.localizedDescription)))
                         }
                     }
                 }
@@ -345,7 +377,7 @@ public final class AccessorySetupKitService {
 
     /// Remove an accessory from the system
     /// Note: iOS 26 shows a confirmation dialog to the user
-    public func removeAccessory(_ accessory: ASAccessory) async throws {
+    func removeAccessory(_ accessory: ASAccessory) async throws {
         guard let session else {
             throw AccessorySetupKitError.sessionNotActive
         }
@@ -365,7 +397,7 @@ public final class AccessorySetupKitService {
 
     /// Shows the system rename sheet for an accessory
     /// - Parameter accessory: The accessory to rename
-    public func renameAccessory(_ accessory: ASAccessory) async throws {
+    func renameAccessory(_ accessory: ASAccessory) async throws {
         guard let session else {
             throw AccessorySetupKitError.sessionNotActive
         }
@@ -375,12 +407,12 @@ public final class AccessorySetupKitService {
     }
 
     /// Find a paired accessory by its Bluetooth identifier
-    public func accessory(for bluetoothID: UUID) -> ASAccessory? {
+    func accessory(for bluetoothID: UUID) -> ASAccessory? {
         pairedAccessories.first { $0.bluetoothIdentifier == bluetoothID }
     }
 
     /// Invalidate the session
-    public func invalidateSession() {
+    func invalidateSession() {
         pickerContinuation?.resume(throwing: AccessorySetupKitError.sessionInvalidated)
         pickerContinuation = nil
         activationContinuation?.resume(throwing: AccessorySetupKitError.sessionInvalidated)
@@ -409,10 +441,40 @@ public final class AccessorySetupKitService {
             descriptor.bluetoothNameSubstring = criterion.bluetoothNameSubstring
 
             return ASPickerDisplayItem(
-                name: "MeshCore Device",
+                name: Self.defaultAccessoryName,
                 productImage: productImage,
                 descriptor: descriptor
             )
+        }
+    }
+
+    /// Relabels a filtered-discovery match with its advertised BLE name, falling back to
+    /// `defaultAccessoryName` when the advertisement carries no usable local name.
+    @available(iOS 26.1, *)
+    private func handleDiscoveredAccessory(_ accessory: ASAccessory?) {
+        guard let session,
+              let discovered = accessory as? ASDiscoveredAccessory else { return }
+
+        let advertisedName = (discovered.bluetoothAdvertisementData?[CBAdvertisementDataLocalNameKey] as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let name = advertisedName.flatMap { $0.isEmpty ? nil : $0 } ?? Self.defaultAccessoryName
+        let productImage = currentProductImage ?? createGenericProductImage()
+
+        logger.info("[ASK] Discovered accessory '\(name)', RSSI: \(discovered.bluetoothRSSI.map(String.init) ?? "n/a")")
+
+        discoveredDisplayItems[AnyHashable(discovered)] = ASDiscoveredDisplayItem(
+            name: name,
+            productImage: productImage,
+            accessory: discovered
+        )
+
+        let items = discoveredDisplayItems.values.compactMap { $0 as? ASDiscoveredDisplayItem }
+        logger.info("[ASK] updatePicker with \(items.count) discovered item(s)")
+        session.updatePicker(showing: items) { [weak self] error in
+            guard let error else { return }
+            Task { @MainActor in
+                self?.logger.warning("[ASK] updatePicker failed: \(error.localizedDescription)")
+            }
         }
     }
 
@@ -490,35 +552,36 @@ public enum AccessorySetupKitError: LocalizedError, Sendable {
 // macOS stubs for compilation
 import Foundation
 
-public struct ASAccessory: Sendable {
-    public var bluetoothIdentifier: UUID?
-    public var displayName: String
-    public init(bluetoothIdentifier: UUID? = nil, displayName: String = "") {
+struct ASAccessory: Sendable {
+    var bluetoothIdentifier: UUID?
+    var displayName: String
+    init(bluetoothIdentifier: UUID? = nil, displayName: String = "") {
         self.bluetoothIdentifier = bluetoothIdentifier
         self.displayName = displayName
     }
 }
 
 @MainActor
-public protocol AccessorySetupKitServiceDelegate: AnyObject {
+protocol AccessorySetupKitServiceDelegate: AnyObject {
     func accessorySetupKitService(_ service: AccessorySetupKitService, didRemoveAccessoryWithID bluetoothID: UUID)
     func accessorySetupKitService(_ service: AccessorySetupKitService, didFailPairingForAccessoryWithID bluetoothID: UUID)
 }
 
-@MainActor @Observable
-public final class AccessorySetupKitService {
-    public private(set) var pairedAccessories: [ASAccessory] = []
-    public private(set) var isSessionActive = false
-    public weak var delegate: AccessorySetupKitServiceDelegate?
+@Observable
+@MainActor
+final class AccessorySetupKitService {
+    private(set) var pairedAccessories: [ASAccessory] = []
+    private(set) var isSessionActive = false
+    weak var delegate: AccessorySetupKitServiceDelegate?
 
-    public init() {}
+    init() {}
 
-    public func activateSession() async throws {}
-    public func showPicker() async throws -> UUID { throw AccessorySetupKitError.sessionNotActive }
-    public func removeAccessory(_ accessory: ASAccessory) async throws {}
-    public func renameAccessory(_ accessory: ASAccessory) async throws {}
-    public func accessory(for bluetoothID: UUID) -> ASAccessory? { nil }
-    public func invalidateSession() {}
+    func activateSession() async throws {}
+    func showPicker() async throws -> UUID { throw AccessorySetupKitError.sessionNotActive }
+    func removeAccessory(_ accessory: ASAccessory) async throws {}
+    func renameAccessory(_ accessory: ASAccessory) async throws {}
+    func accessory(for bluetoothID: UUID) -> ASAccessory? { nil }
+    func invalidateSession() {}
 }
 
 public enum AccessorySetupKitError: LocalizedError, Sendable {

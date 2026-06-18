@@ -133,7 +133,7 @@ struct ChannelServiceTests {
             transport: transport,
             configuration: SessionConfiguration(defaultTimeout: 0.01, clientIdentifier: "MCTst")
         )
-        let service = ChannelService(session: session, dataStore: dataStore)
+        let service = ChannelService(session: session, dataStore: dataStore, rxLogService: nil)
 
         let result = try await service.syncChannels(radioID: radioID, maxChannels: 6)
 

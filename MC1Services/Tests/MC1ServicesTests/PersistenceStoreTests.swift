@@ -100,6 +100,54 @@ struct PersistenceStoreTests {
         #expect(device1Fetched?.isActive == false)
     }
 
+    // MARK: - Message status terminal-safety
+
+    @Test("updateMessageRetryStatus does not resurrect a .failed row")
+    func retryStatusDoesNotResurrectFailed() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let contactID = try await store.saveContact(radioID: radioID, from: createTestContactFrame())
+
+        let message = MessageDTO(from: Message(
+            radioID: radioID,
+            contactID: contactID,
+            text: "give-up race",
+            timestamp: UInt32(Date().timeIntervalSince1970),
+            directionRawValue: MessageDirection.outgoing.rawValue
+        ))
+        try await store.saveMessage(message)
+
+        // The expiry checker fails the row in the loop's await-gap.
+        try await store.updateMessageStatus(id: message.id, status: .failed)
+
+        // A stale retry iteration must not flip it back to .retrying.
+        try await store.updateMessageRetryStatus(id: message.id, status: .retrying, retryAttempt: 1, maxRetryAttempts: 4)
+
+        let fetched = try await store.fetchMessage(id: message.id)
+        #expect(fetched?.status == .failed)
+    }
+
+    @Test("updateMessageRetryStatus still advances a non-terminal row")
+    func retryStatusAdvancesInFlightRow() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let contactID = try await store.saveContact(radioID: radioID, from: createTestContactFrame())
+
+        let message = MessageDTO(from: Message(
+            radioID: radioID,
+            contactID: contactID,
+            text: "in flight",
+            timestamp: UInt32(Date().timeIntervalSince1970),
+            directionRawValue: MessageDirection.outgoing.rawValue
+        ))
+        try await store.saveMessage(message)
+
+        try await store.updateMessageRetryStatus(id: message.id, status: .retrying, retryAttempt: 0, maxRetryAttempts: 4)
+
+        let fetched = try await store.fetchMessage(id: message.id)
+        #expect(fetched?.status == .retrying)
+    }
+
     /// Seeds all entity types for a device and returns IDs needed for verification.
     private func seedAllEntityTypes(store: PersistenceStore, radioID: UUID) async throws -> (
         contactID: UUID, messageID: UUID, channelID: UUID, sessionID: UUID
@@ -1951,6 +1999,32 @@ struct PersistenceStoreTests {
         )
     }
 
+    @Test("RxLogEntryDTO(from:) falls back on out-of-range stored values instead of trapping")
+    func rxLogEntryDTOClampsOutOfRangeStoredValues() {
+        let model = RxLogEntry(
+            radioID: UUID(),
+            routeType: 999,
+            payloadType: -1,
+            payloadVersion: 5_000,
+            pathLength: 400,
+            pathNodes: Data(),
+            packetPayload: Data(),
+            rawPayload: Data(),
+            packetHash: "deadbeef",
+            channelIndex: 9_999,
+            senderTimestamp: -10
+        )
+
+        let dto = RxLogEntryDTO(from: model)
+
+        #expect(dto.routeType == .flood)
+        #expect(dto.payloadType == .unknown)
+        #expect(dto.payloadVersion == 0)
+        #expect(dto.pathLength == 0)
+        #expect(dto.channelIndex == nil)
+        #expect(dto.senderTimestamp == nil)
+    }
+
     @Test("Save and fetch RxLogEntry preserves senderTimestamp")
     func saveAndFetchRxLogEntryPreservesSenderTimestamp() async throws {
         let store = try await createTestStore()
@@ -2056,6 +2130,40 @@ struct PersistenceStoreTests {
         let entries = try await store.fetchRxLogEntries(radioID: device.id)
         #expect(entries.count == 1)
         #expect(entries.first?.senderTimestamp == 42)
+    }
+
+    @Test("A store rebuilt over a populated container seeds its prune cache from disk")
+    func rxLogPruneSeedsCacheFromDiskOnRebuiltStore() async throws {
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let radioID = UUID()
+
+        let storeA = PersistenceStore(modelContainer: container)
+        try await storeA.saveDevice(createTestDevice().copy { $0.id = radioID; $0.radioID = radioID })
+
+        // Fill to the retention cap (keepCount + pruneThreshold) without exceeding it.
+        for index in 0..<1_100 {
+            try await storeA.saveRxLogEntry(
+                createTestRxLogEntryDTO(radioID: radioID, senderTimestamp: UInt32(index))
+            )
+            try await storeA.pruneRxLogEntries(radioID: radioID)
+        }
+        let beforeReconnect = try await storeA.fetchRxLogEntries(radioID: radioID, limit: 1_200)
+        #expect(beforeReconnect.count == 1_100)
+
+        // Reconnect: a new store over the same container starts with a cold cache.
+        // Writing one full prune cycle past the cap drives the count back to keepCount
+        // only if storeB seeded from disk; a cold-from-zero cache never trips the gate.
+        let storeB = PersistenceStore(modelContainer: container)
+        for index in 1_100..<1_202 {
+            try await storeB.saveRxLogEntry(
+                createTestRxLogEntryDTO(radioID: radioID, senderTimestamp: UInt32(index))
+            )
+            try await storeB.pruneRxLogEntries(radioID: radioID)
+        }
+
+        // Pruning only fires if storeB seeded its count from disk rather than from zero.
+        let afterReconnect = try await storeB.fetchRxLogEntries(radioID: radioID, limit: 1_300)
+        #expect(afterReconnect.count == 1_000)
     }
 
     // MARK: - Region Scope Tests
@@ -2510,5 +2618,97 @@ struct PersistenceStoreTests {
 
         let ghostLookup = try await store.fetchDevice(id: ghost.id)
         #expect(ghostLookup == nil)
+    }
+
+    // MARK: - Terminal-State Guards (DM ACK machine)
+
+    @Test("updateMessageAck refuses to write .delivered onto a .failed row")
+    func updateMessageAckRefusesDeliveredOverFailed() async throws {
+        let store = try await createTestStore()
+        let messageID = UUID()
+        try await store.saveMessage(
+            MessageDTO.testDirectMessage(id: messageID, status: .failed)
+        )
+
+        try await store.updateMessageAck(id: messageID, ackCode: 0xDEADBEEF, status: .delivered)
+
+        let stored = try await store.fetchMessage(id: messageID)
+        #expect(stored?.status == .failed,
+                ".failed is terminal for the ACK-delivery write; a late ACK must not flip it to .delivered")
+    }
+
+    @Test("clearRetryingToSent no-ops on .failed but promotes .retrying and .pending to .sent")
+    func clearRetryingToSentRefusesOverFailed() async throws {
+        let store = try await createTestStore()
+
+        let failedID = UUID()
+        try await store.saveMessage(MessageDTO.testDirectMessage(id: failedID, status: .failed))
+        let failedMoved = try await store.clearRetryingToSent(id: failedID)
+        #expect(failedMoved == false, "must not resurrect a checker-failed row")
+        #expect(try await store.fetchMessage(id: failedID)?.status == .failed)
+
+        let retryingID = UUID()
+        try await store.saveMessage(MessageDTO.testDirectMessage(id: retryingID, status: .retrying))
+        let retryingMoved = try await store.clearRetryingToSent(id: retryingID)
+        #expect(retryingMoved == true)
+        #expect(try await store.fetchMessage(id: retryingID)?.status == .sent)
+
+        let pendingID = UUID()
+        try await store.saveMessage(MessageDTO.testDirectMessage(id: pendingID, status: .pending))
+        let pendingMoved = try await store.clearRetryingToSent(id: pendingID)
+        #expect(pendingMoved == true,
+                "a single-attempt row still .pending at give-up must also promote to .sent")
+        #expect(try await store.fetchMessage(id: pendingID)?.status == .sent)
+    }
+
+    @Test("clearRetryingToSent no-ops on a .delivered row")
+    func clearRetryingToSentRefusesOverDelivered() async throws {
+        let store = try await createTestStore()
+        let messageID = UUID()
+        try await store.saveMessage(MessageDTO.testDirectMessage(id: messageID, status: .delivered))
+
+        let moved = try await store.clearRetryingToSent(id: messageID)
+        #expect(moved == false)
+        #expect(try await store.fetchMessage(id: messageID)?.status == .delivered)
+    }
+
+    @Test("shared updateMessageStatusUnlessDelivered still remaps .failed to .pending for the offline queue")
+    func queueRemapFailedToPendingStillWorks() async throws {
+        let store = try await createTestStore()
+        let messageID = UUID()
+        try await store.saveMessage(MessageDTO.testDirectMessage(id: messageID, status: .failed))
+
+        // The offline send queue's transient-recovery remap must keep working;
+        // .failed -> .pending is not a constraint violation because the row can
+        // only ever reach .delivered by going forward through .sent again.
+        let remapped = try await store.updateMessageStatusUnlessDelivered(id: messageID, status: .pending)
+        #expect(remapped == true)
+        #expect(try await store.fetchMessage(id: messageID)?.status == .pending)
+
+        // A subsequent successful redelivery still reaches .delivered.
+        try await store.updateMessageAck(id: messageID, ackCode: 0x12345678, status: .delivered)
+        #expect(try await store.fetchMessage(id: messageID)?.status == .delivered)
+    }
+
+    @Test("hasOutgoingSentDM flags a stuck .sent DM by ackCode and ignores other rows")
+    func hasOutgoingSentDMDetectsOrphan() async throws {
+        let store = try await createTestStore()
+        let ackCode: UInt32 = 0xCAFEF00D
+
+        let sentID = UUID()
+        try await store.saveMessage(
+            MessageDTO.testDirectMessage(id: sentID, status: .sent, ackCode: ackCode)
+        )
+        #expect(try await store.hasOutgoingSentDM(ackCode: ackCode) == true)
+
+        // A different ackCode must not match.
+        #expect(try await store.hasOutgoingSentDM(ackCode: 0x00000001) == false)
+
+        // A delivered row with the same ackCode is not an orphan.
+        let deliveredID = UUID()
+        try await store.saveMessage(
+            MessageDTO.testDirectMessage(id: deliveredID, status: .delivered, ackCode: 0xBADC0DE5)
+        )
+        #expect(try await store.hasOutgoingSentDM(ackCode: 0xBADC0DE5) == false)
     }
 }

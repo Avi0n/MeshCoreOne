@@ -108,12 +108,15 @@ public enum KeyGenerationService: Sendable {
         guard data.count == ProtocolLimits.privateKeySize else {
             throw KeyGenerationError.invalidKey
         }
+        // Index relative to startIndex so a non-zero-based slice validates the right bytes.
+        let scalarFirst = data[data.startIndex]
+        let scalarLast = data[data.index(data.startIndex, offsetBy: 31)]
         // RFC 8032 clamping: lowest 3 bits of byte 0 must be clear
-        guard data[0] & 0x07 == 0 else {
+        guard scalarFirst & 0x07 == 0 else {
             throw KeyGenerationError.invalidKey
         }
         // Byte 31: highest bit clear, second-highest set
-        guard data[31] & 0x80 == 0, data[31] & 0x40 == 0x40 else {
+        guard scalarLast & 0x80 == 0, scalarLast & 0x40 == 0x40 else {
             throw KeyGenerationError.invalidKey
         }
     }

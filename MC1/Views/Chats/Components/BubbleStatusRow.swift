@@ -49,6 +49,13 @@ struct BubbleStatusRow: View {
         case .pending, .sending:
             return L10n.Chats.Chats.Message.Status.sending
         case .sent:
+            // A DM `.sent` means only that the radio queued the packet, not that it
+            // was delivered; a missing end-to-end ACK later flips the row to `.failed`.
+            // Render it as in-progress so the user never sees a settled "Sent" that
+            // becomes "Failed". A channel `.sent` has no ACK and is terminal success.
+            guard item.footer.isChannelMessage else {
+                return L10n.Chats.Chats.Message.Status.sending
+            }
             var parts: [String] = []
             if item.footer.heardRepeats > 0 {
                 let repeatWord = item.footer.heardRepeats == 1

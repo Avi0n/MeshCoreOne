@@ -9,7 +9,7 @@ struct DiscoveryView: View {
     @State private var viewModel = DiscoveryViewModel()
     @State private var searchText = ""
     @State private var selectedSegment: DiscoverSegment = .all
-    @AppStorage("discoverySortOrder") private var sortOrder: NodeSortOrder = .lastHeard
+    @AppStorage(AppStorageKey.discoverySortOrder.rawValue) private var sortOrder: NodeSortOrder = .lastHeard
     @State private var addingNodeID: UUID?
     @State private var showClearConfirmation = false
 
@@ -28,13 +28,6 @@ struct DiscoveryView: View {
 
     private var isSearching: Bool {
         !searchText.isEmpty
-    }
-
-    private var showErrorBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )
     }
 
     /// Segment picker as the pinned section header; `pinnedFilterHeaderBackground` documents the
@@ -84,13 +77,13 @@ struct DiscoveryView: View {
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: L10n.Contacts.Contacts.Discovery.searchPrompt
         )
-        .onChange(of: searchText) { _, newValue in
-            if !newValue.isEmpty {
+        .onChange(of: searchText) { oldValue, newValue in
+            if oldValue.isEmpty, !newValue.isEmpty {
                 AccessibilityNotification.Announcement(L10n.Contacts.Contacts.Discovery.searchingAllTypes).post()
             }
         }
         .task {
-            viewModel.configure(appState: appState)
+            viewModel.configure(dataStore: { [appState] in appState.offlineDataStore })
             await loadDiscoveredNodes()
         }
         .onChange(of: appState.servicesVersion) { _, _ in
@@ -103,11 +96,7 @@ struct DiscoveryView: View {
                 await loadDiscoveredNodes()
             }
         }
-        .alert(L10n.Contacts.Contacts.Common.error, isPresented: showErrorBinding) {
-            Button(L10n.Contacts.Contacts.Common.ok) { viewModel.errorMessage = nil }
-        } message: {
-            Text(viewModel.errorMessage ?? "")
-        }
+        .errorAlert($viewModel.errorMessage, title: L10n.Contacts.Contacts.Common.error)
         .confirmationDialog(
             L10n.Contacts.Contacts.Discovery.Clear.title,
             isPresented: $showClearConfirmation,
@@ -173,7 +162,7 @@ struct DiscoveryView: View {
 
     private func loadDiscoveredNodes() async {
         guard let radioID = appState.connectedDevice?.radioID else { return }
-        viewModel.configure(appState: appState)
+        viewModel.configure(dataStore: { [appState] in appState.offlineDataStore })
         await viewModel.loadDiscoveredNodes(radioID: radioID)
     }
 
@@ -193,7 +182,7 @@ struct DiscoveryView: View {
                     lastAdvertTimestamp: node.lastAdvertTimestamp,
                     latitude: node.latitude,
                     longitude: node.longitude,
-                    lastModified: 0
+                    lastModified: UInt32(Date().timeIntervalSince1970)
                 )
                 try await contactService.addOrUpdateContact(radioID: node.radioID, contact: frame)
                 await viewModel.loadDiscoveredNodes(radioID: node.radioID)
@@ -205,7 +194,7 @@ struct DiscoveryView: View {
                     viewModel.errorMessage = L10n.Contacts.Contacts.Add.Error.nodeListFullSimple
                 }
             } catch {
-                viewModel.errorMessage = error.localizedDescription
+                viewModel.errorMessage = error.userFacingMessage
             }
             addingNodeID = nil
         }
@@ -270,7 +259,7 @@ private struct DiscoveryNodeRow: View {
                     .font(.body)
                     .bold()
 
-                Text(node.publicKey.hexString())
+                Text(node.publicKey.uppercaseHexString())
                     .font(.caption.monospaced())
                     .foregroundStyle(.secondary)
                     .lineLimit(1)

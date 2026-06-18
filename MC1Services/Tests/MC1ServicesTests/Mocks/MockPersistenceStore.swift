@@ -252,12 +252,36 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         }
     }
 
+    public func updateMessageStatusUnlessDelivered(id: UUID, status: MessageStatus) async throws -> Bool {
+        guard let message = messages[id], message.status != .delivered else { return false }
+        try await updateMessageStatus(id: id, status: status)
+        return true
+    }
+
+    public func clearRetryingToSent(id: UUID) async throws -> Bool {
+        guard let message = messages[id],
+              message.status != .delivered,
+              message.status != .failed else { return false }
+        try await updateMessageStatus(id: id, status: .sent)
+        return true
+    }
+
+    public func hasOutgoingSentDM(ackCode: UInt32) async throws -> Bool {
+        messages.values.contains {
+            $0.ackCode == ackCode && $0.status == .sent && $0.direction == .outgoing && $0.channelIndex == nil
+        }
+    }
+
     public func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {
         updatedMessageAcks.append((id: id, ackCode: ackCode, status: status, roundTripTime: roundTripTime))
         if let error = stubbedUpdateMessageStatusError {
             throw error
         }
         if var message = messages[id] {
+            // Mirror PersistenceStore.updateMessageAck: a terminal row
+            // (.delivered/.failed) is not flipped by a late ACK; only the
+            // legitimate .sent -> .delivered upgrade is allowed through.
+            if (message.status == .delivered || message.status == .failed) && status != message.status { return }
             messages[id] = MessageDTO(
                 id: message.id,
                 radioID: message.radioID,
@@ -288,7 +312,9 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         if let error = stubbedUpdateMessageStatusError {
             throw error
         }
-        if let message = messages[id] {
+        // Mirror PersistenceStore: a terminal row (.delivered/.failed) is not
+        // overwritten by a stale retry iteration.
+        if let message = messages[id], message.status != .delivered, message.status != .failed {
             messages[id] = MessageDTO(
                 id: message.id,
                 radioID: message.radioID,
@@ -370,6 +396,13 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
                 retryAttempt: message.retryAttempt,
                 maxRetryAttempts: message.maxRetryAttempts
             )
+        }
+    }
+
+    public func markMessageAsRead(id: UUID) async throws {
+        if var message = messages[id] {
+            message.isRead = true
+            messages[id] = message
         }
     }
 
@@ -463,6 +496,20 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
             result[prefix, default: []].append(contact.publicKey)
         }
         return result
+    }
+
+    public func findContactNameByKeyPrefix(_ prefix: Data) async throws -> String? {
+        if let error = stubbedFetchContactError {
+            throw error
+        }
+        return contacts.values.first { $0.publicKey.prefix(prefix.count) == prefix }?.displayName
+    }
+
+    public func findContactByPublicKey(_ publicKey: Data) async throws -> ContactDTO? {
+        if let error = stubbedFetchContactError {
+            throw error
+        }
+        return contacts.values.first { $0.publicKey == publicKey }
     }
 
     @discardableResult
@@ -939,6 +986,12 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         }
     }
 
+    public func clearChannelUnreadCount(radioID: UUID, index: UInt8) async throws {
+        if let channel = channels.values.first(where: { $0.radioID == radioID && $0.index == index }) {
+            try await clearChannelUnreadCount(channelID: channel.id)
+        }
+    }
+
     public func clearChannelUnreadCount(channelID: UUID) async throws {
         if let channel = channels[channelID] {
             channels[channelID] = ChannelDTO(
@@ -988,16 +1041,19 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
 
     public func findRxLogEntry(
+        radioID: UUID,
         channelIndex: UInt8?,
         senderTimestamp: UInt32
     ) throws -> RxLogEntryDTO? {
         if let channelIndex {
             return mockRxLogEntries.first { entry in
+                entry.radioID == radioID &&
                 entry.channelIndex == channelIndex &&
                 entry.senderTimestamp == senderTimestamp
             }
         } else {
             return mockRxLogEntries.first { entry in
+                entry.radioID == radioID &&
                 entry.senderTimestamp == senderTimestamp &&
                 entry.channelIndex == nil
             }
@@ -1005,16 +1061,85 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
 
     public func findRxLogEntryBySenderPrefix(
+        radioID: UUID,
         senderPrefixByte: UInt8,
         receivedSince: Date
     ) throws -> RxLogEntryDTO? {
         mockRxLogEntries.first { entry in
+            entry.radioID == radioID &&
             entry.channelIndex == nil &&
             entry.payloadType == .textMessage &&
             entry.receivedAt >= receivedSince &&
             entry.packetPayload.count >= 2 &&
             entry.packetPayload[1] == senderPrefixByte
         }
+    }
+
+    // MARK: - RX Log
+
+    public private(set) var updatedRxLogRegions: [(id: UUID, regionScope: String?)] = []
+    public private(set) var updatedChannelMessageRegions: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)] = []
+    public private(set) var updatedDMMessageRegions: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)] = []
+
+    public func saveRxLogEntry(_ dto: RxLogEntryDTO) async throws {
+        mockRxLogEntries.append(dto)
+    }
+
+    public func fetchRxLogEntries(radioID: UUID, limit: Int) async throws -> [RxLogEntryDTO] {
+        Array(
+            mockRxLogEntries
+                .filter { $0.radioID == radioID }
+                .sorted { $0.receivedAt > $1.receivedAt }
+                .prefix(limit)
+        )
+    }
+
+    public func clearRxLogEntries(radioID: UUID) async throws {
+        mockRxLogEntries.removeAll { $0.radioID == radioID }
+    }
+
+    public func pruneRxLogEntries(radioID: UUID, keepCount: Int, pruneThreshold: Int) async throws {
+        let entries = mockRxLogEntries.filter { $0.radioID == radioID }
+        guard entries.count > keepCount + pruneThreshold else { return }
+        let keptIDs = Set(entries.sorted { $0.receivedAt > $1.receivedAt }.prefix(keepCount).map(\.id))
+        mockRxLogEntries.removeAll { $0.radioID == radioID && !keptIDs.contains($0.id) }
+    }
+
+    public func fetchEntriesWithMissingRegion(radioID: UUID) async throws -> [RxLogEntryDTO] {
+        mockRxLogEntries.filter { $0.radioID == radioID && $0.transportCode != nil && $0.regionScope == nil }
+    }
+
+    public func fetchRecentEntriesByDecryptStatus(radioID: UUID, status: DecryptStatus, since: Date) async throws -> [RxLogEntryDTO] {
+        mockRxLogEntries.filter { $0.radioID == radioID && $0.decryptStatus == status && $0.receivedAt >= since }
+    }
+
+    public func batchUpdateRxLogRegion(updates: [(id: UUID, regionScope: String?)]) async throws {
+        updatedRxLogRegions.append(contentsOf: updates)
+    }
+
+    public func batchUpdateRxLogDecryption(
+        _ updates: [(id: UUID, channelIndex: UInt8?, channelName: String?, senderTimestamp: UInt32?)]
+    ) async throws {
+        for update in updates {
+            guard let index = mockRxLogEntries.firstIndex(where: { $0.id == update.id }) else { continue }
+            mockRxLogEntries[index].channelIndex = update.channelIndex
+            mockRxLogEntries[index].channelName = update.channelName
+            mockRxLogEntries[index].senderTimestamp = update.senderTimestamp
+        }
+    }
+
+    public func batchUpdateChannelMessageRegion(
+        radioID: UUID,
+        updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)]
+    ) async throws {
+        updatedChannelMessageRegions.append(contentsOf: updates)
+    }
+
+    public func batchUpdateDMMessageRegion(
+        radioID: UUID,
+        updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)]
+    ) async throws {
+        updatedDMMessageRegions.append(contentsOf: updates)
     }
 
     // MARK: - Saved Trace Paths
@@ -1192,11 +1317,108 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         linkPreviews[dto.url] = dto
     }
 
+    // MARK: - Device Operations
+
+    /// Devices keyed by radio ID
+    public var devices: [UUID: DeviceDTO] = [:]
+    public private(set) var updatedLastContactSyncs: [(radioID: UUID, timestamp: UInt32)] = []
+
+    public func fetchDevice(id: UUID) async throws -> DeviceDTO? {
+        devices.values.first { $0.id == id }
+    }
+
+    public func fetchDevice(radioID: UUID) async throws -> DeviceDTO? {
+        devices[radioID]
+    }
+
+    public func updateDeviceLastContactSync(radioID: UUID, timestamp: UInt32) async throws {
+        updatedLastContactSyncs.append((radioID: radioID, timestamp: timestamp))
+        if var device = devices[radioID] {
+            device.lastContactSync = timestamp
+            devices[radioID] = device
+        }
+    }
+
+    public func saveDevice(_ dto: DeviceDTO) async throws {
+        devices[dto.radioID] = dto
+    }
+
     // MARK: - Room Session State
 
+    public var remoteNodeSessions: [UUID: RemoteNodeSessionDTO] = [:]
     public private(set) var markedDisconnectedSessionIDs: [UUID] = []
     public private(set) var markedConnectedSessionIDs: [UUID] = []
     public private(set) var updatedRoomActivitySessionIDs: [UUID] = []
+    public private(set) var savedRemoteNodeSessions: [RemoteNodeSessionDTO] = []
+    public private(set) var updatedSessionConnections: [(id: UUID, isConnected: Bool, permissionLevel: RoomPermissionLevel)] = []
+    public private(set) var deletedRemoteNodeSessionIDs: [UUID] = []
+
+    public func fetchRemoteNodeSession(id: UUID) async throws -> RemoteNodeSessionDTO? {
+        remoteNodeSessions[id]
+    }
+
+    public func fetchRemoteNodeSession(publicKey: Data) async throws -> RemoteNodeSessionDTO? {
+        remoteNodeSessions.values.first { $0.publicKey == publicKey }
+    }
+
+    public func fetchRemoteNodeSessionByPrefix(_ prefix: Data) async throws -> RemoteNodeSessionDTO? {
+        remoteNodeSessions.values.first { $0.publicKey.prefix(6) == prefix }
+    }
+
+    public func fetchRemoteNodeSessions(radioID: UUID) async throws -> [RemoteNodeSessionDTO] {
+        remoteNodeSessions.values.filter { $0.radioID == radioID }
+    }
+
+    public func fetchConnectedRemoteNodeSessions() async throws -> [RemoteNodeSessionDTO] {
+        remoteNodeSessions.values.filter(\.isConnected)
+    }
+
+    public func saveRemoteNodeSessionDTO(_ dto: RemoteNodeSessionDTO) async throws {
+        savedRemoteNodeSessions.append(dto)
+        remoteNodeSessions[dto.id] = dto
+    }
+
+    public func updateRemoteNodeSessionConnection(id: UUID, isConnected: Bool, permissionLevel: RoomPermissionLevel) async throws {
+        updatedSessionConnections.append((id: id, isConnected: isConnected, permissionLevel: permissionLevel))
+        if let session = remoteNodeSessions[id] {
+            remoteNodeSessions[id] = RemoteNodeSessionDTO(
+                id: session.id,
+                radioID: session.radioID,
+                publicKey: session.publicKey,
+                name: session.name,
+                role: session.role,
+                latitude: session.latitude,
+                longitude: session.longitude,
+                isConnected: isConnected,
+                permissionLevel: permissionLevel,
+                lastConnectedDate: session.lastConnectedDate,
+                lastBatteryMillivolts: session.lastBatteryMillivolts,
+                lastUptimeSeconds: session.lastUptimeSeconds,
+                lastNoiseFloor: session.lastNoiseFloor,
+                unreadCount: session.unreadCount,
+                notificationLevel: session.notificationLevel,
+                lastRxAirtimeSeconds: session.lastRxAirtimeSeconds,
+                neighborCount: session.neighborCount,
+                lastSyncTimestamp: session.lastSyncTimestamp,
+                lastMessageDate: session.lastMessageDate
+            )
+        }
+    }
+
+    public func cleanupDuplicateRemoteNodeSessions(publicKey: Data, keepID: UUID) async throws {
+        let duplicateIDs = remoteNodeSessions.values
+            .filter { $0.publicKey == publicKey && $0.id != keepID }
+            .map(\.id)
+        for id in duplicateIDs {
+            remoteNodeSessions.removeValue(forKey: id)
+        }
+    }
+
+    public func deleteRemoteNodeSession(id: UUID) async throws {
+        deletedRemoteNodeSessionIDs.append(id)
+        remoteNodeSessions.removeValue(forKey: id)
+        roomMessages = roomMessages.filter { $0.value.sessionID != id }
+    }
 
     public func markSessionDisconnected(_ sessionID: UUID) throws {
         markedDisconnectedSessionIDs.append(sessionID)
@@ -1293,6 +1515,17 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
                 maxRetryAttempts: maxRetryAttempts
             )
         }
+    }
+
+    public private(set) var incrementedRoomUnreadSessionIDs: [UUID] = []
+    public private(set) var resetRoomUnreadSessionIDs: [UUID] = []
+
+    public func incrementRoomUnreadCount(_ sessionID: UUID) async throws {
+        incrementedRoomUnreadSessionIDs.append(sessionID)
+    }
+
+    public func resetRoomUnreadCount(_ sessionID: UUID) async throws {
+        resetRoomUnreadSessionIDs.append(sessionID)
     }
 
     // MARK: - Discovered Nodes
@@ -1623,6 +1856,28 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
     public func hasPendingSend(messageID: UUID) async throws -> Bool {
         pendingSends.values.contains { $0.messageID == messageID }
+    }
+
+    @discardableResult
+    public func incrementPendingSendAttemptCount(messageID: UUID) async throws -> Int? {
+        guard let row = pendingSends.values.first(where: { $0.messageID == messageID }) else { return nil }
+        let nextCount = (row.attemptCount ?? 0) + 1
+        pendingSends[row.id] = PendingSendDTO(
+            id: row.id,
+            radioID: row.radioID,
+            messageID: row.messageID,
+            kind: row.kind,
+            contactID: row.contactID,
+            channelIndex: row.channelIndex,
+            isResend: row.isResend,
+            messageText: row.messageText,
+            messageTimestamp: row.messageTimestamp,
+            localNodeName: row.localNodeName,
+            sequence: row.sequence,
+            enqueuedAt: row.enqueuedAt,
+            attemptCount: nextCount
+        )
+        return nextCount
     }
 
     // MARK: - Test Helpers

@@ -5,61 +5,62 @@ import SwiftData
 
 /// SwiftData model for persisted RX log packets.
 @Model
-public final class RxLogEntry {
+final class RxLogEntry {
     #Index<RxLogEntry>(
-        [\.channelIndex, \.senderTimestamp]
+        [\.channelIndex, \.senderTimestamp],
+        [\.radioID, \.receivedAt]
     )
 
     @Attribute(.unique)
-    public var id: UUID
+    var id: UUID
 
     @Attribute(originalName: "deviceID")
-    public var radioID: UUID
+    var radioID: UUID
 
-    public var receivedAt: Date
+    var receivedAt: Date
 
     // From MeshCore ParsedRxLogData
-    public var snr: Double?
-    public var rssi: Int?
-    public var routeType: Int
-    public var payloadType: Int
-    public var payloadVersion: Int
-    public var transportCode: Data?
-    public var pathLength: Int
-    public var pathNodes: Data  // Raw bytes, 1 byte per hop
-    public var packetPayload: Data
-    public var rawPayload: Data
+    var snr: Double?
+    var rssi: Int?
+    var routeType: Int
+    var payloadType: Int
+    var payloadVersion: Int
+    var transportCode: Data?
+    var pathLength: Int
+    var pathNodes: Data  // Raw bytes, 1 byte per hop
+    var packetPayload: Data
+    var rawPayload: Data
 
     // Correlation key for "heard repeats"
-    public var packetHash: String
+    var packetHash: String
 
     // App-level decoding
     @Attribute(originalName: "channelHash")
-    public var channelIndex: Int?
-    public var channelName: String?
-    public var decryptStatus: Int
-    public var fromContactName: String?
-    public var toContactName: String?
+    var channelIndex: Int?
+    var channelName: String?
+    var decryptStatus: Int
+    var fromContactName: String?
+    var toContactName: String?
 
     /// Sender's timestamp from decrypted payload (Unix epoch seconds).
     /// Only available for successfully decrypted channel messages.
-    public var senderTimestamp: Int?
+    var senderTimestamp: Int?
 
     /// Resolved flood region the sender transmitted under, derived from
     /// `transport_codes[0]` at receive time. Nil when no known region matches.
     /// Local-only: not part of any backup envelope.
-    public var regionScope: String?
+    var regionScope: String?
 
     /// Raw 4-bit payload-type nibble from the wire header. Persisted so the
     /// region resolver can replay the exact firmware HMAC input on back-fill,
     /// even for header values that map to `PayloadType.unknown`.
-    public var payloadTypeBits: Int = 0
+    var payloadTypeBits: Int = 0
 
     // Privacy: Never persisted — decrypted on demand
     @Transient
-    public var decodedText: String?
+    var decodedText: String?
 
-    public init(
+    init(
         id: UUID = UUID(),
         radioID: UUID,
         receivedAt: Date = Date(),
@@ -124,8 +125,12 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     public let packetPayload: Data
     public let rawPayload: Data
     public let packetHash: String
-    public let channelIndex: UInt8?
-    public let channelName: String?
+
+    /// Channel attribution. Mutable so re-decryption of older entries can
+    /// record which channel's secret matched.
+    public var channelIndex: UInt8?
+    public var channelName: String?
+
     public let decryptStatus: DecryptStatus
     public let fromContactName: String?
     public let toContactName: String?
@@ -146,27 +151,29 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     public var decodedText: String?
 
     /// Initialize from SwiftData model.
-    public init(from model: RxLogEntry) {
+    init(from model: RxLogEntry) {
         self.id = model.id
         self.radioID = model.radioID
         self.receivedAt = model.receivedAt
         self.snr = model.snr
         self.rssi = model.rssi
-        self.routeType = RouteType(rawValue: UInt8(model.routeType)) ?? .flood
-        self.payloadType = PayloadType(rawValue: UInt8(model.payloadType)) ?? .unknown
-        self.payloadVersion = UInt8(model.payloadVersion)
+        // Narrow each stored Int through the failable initializer so a corrupt or
+        // out-of-range row falls back instead of trapping inside the ModelActor.
+        self.routeType = UInt8(exactly: model.routeType).flatMap(RouteType.init(rawValue:)) ?? .flood
+        self.payloadType = UInt8(exactly: model.payloadType).flatMap(PayloadType.init(rawValue:)) ?? .unknown
+        self.payloadVersion = UInt8(exactly: model.payloadVersion) ?? 0
         self.transportCode = model.transportCode
-        self.pathLength = UInt8(model.pathLength)
+        self.pathLength = UInt8(exactly: model.pathLength) ?? 0
         self.pathNodes = model.pathNodes
         self.packetPayload = model.packetPayload
         self.rawPayload = model.rawPayload
         self.packetHash = model.packetHash
-        self.channelIndex = model.channelIndex.map { UInt8($0) }
+        self.channelIndex = model.channelIndex.flatMap { UInt8(exactly: $0) }
         self.channelName = model.channelName
         self.decryptStatus = DecryptStatus(rawValue: model.decryptStatus) ?? .notApplicable
         self.fromContactName = model.fromContactName
         self.toContactName = model.toContactName
-        self.senderTimestamp = model.senderTimestamp.map { UInt32($0) }
+        self.senderTimestamp = model.senderTimestamp.flatMap { UInt32(exactly: $0) }
         self.regionScope = model.regionScope
         self.payloadTypeBits = UInt8(model.payloadTypeBits & 0x0F)
         self.decodedText = model.decodedText
@@ -266,7 +273,7 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     /// SNR mapped to 0-1 for SF Symbol cellularbars variableValue.
     public var snrLevel: Double { snrQuality.barLevel }
 
-    /// Human-readable SNR quality label for accessibility.
+    /// Developer-facing English label for logs; UI uses the app target's localized `SNRQuality.localizedLabel`.
     public var snrQualityLabel: String { snrQuality.qualityLabel }
 
     /// Formatted SNR string (no label, includes sign for negative).

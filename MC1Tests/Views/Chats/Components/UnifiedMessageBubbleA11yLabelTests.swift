@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-import MC1Services
+@testable import MC1Services
 @testable import MC1
 
 @MainActor
@@ -30,6 +30,7 @@ struct UnifiedMessageBubbleA11yLabelTests {
             deviceName: "Me",
             configuration: configuration,
             item: bundle.item,
+            layout: FragmentLayout(content: bundle.item.content),
             imageResolver: bundle.imageResolver
         )
 
@@ -50,6 +51,7 @@ struct UnifiedMessageBubbleA11yLabelTests {
             deviceName: "Me",
             configuration: .directMessage,
             item: bundle.item,
+            layout: FragmentLayout(content: bundle.item.content),
             imageResolver: bundle.imageResolver
         )
         let label = bubble.accessibilityMessageLabel
@@ -72,6 +74,7 @@ struct UnifiedMessageBubbleA11yLabelTests {
             deviceName: "Me",
             configuration: configuration,
             item: bundle.item,
+            layout: FragmentLayout(content: bundle.item.content),
             imageResolver: bundle.imageResolver
         )
         let label = bubble.accessibilityMessageLabel
@@ -89,6 +92,7 @@ struct UnifiedMessageBubbleA11yLabelTests {
             deviceName: "Me",
             configuration: .directMessage,
             item: bundle.item,
+            layout: FragmentLayout(content: bundle.item.content),
             imageResolver: bundle.imageResolver
         )
         let first = bubble.accessibilityMessageLabel

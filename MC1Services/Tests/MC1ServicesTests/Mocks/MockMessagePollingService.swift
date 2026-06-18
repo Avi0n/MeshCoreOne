@@ -17,6 +17,9 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
 
     public private(set) var pollAllMessagesCallCount: Int = 0
     public private(set) var waitForPendingHandlersInvocations: Int = 0
+    public private(set) var startAutoFetchRadioIDs: [UUID] = []
+    public private(set) var pauseAutoFetchCallCount: Int = 0
+    public private(set) var resumeAutoFetchCallCount: Int = 0
 
     // MARK: - Initialization
 
@@ -37,6 +40,18 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
     public func waitForPendingHandlers(timeout: Duration) async -> Bool {
         waitForPendingHandlersInvocations += 1
         return true
+    }
+
+    public func startAutoFetch(radioID: UUID) async {
+        startAutoFetchRadioIDs.append(radioID)
+    }
+
+    public func pauseAutoFetch() async {
+        pauseAutoFetchCallCount += 1
+    }
+
+    public func resumeAutoFetch() async {
+        resumeAutoFetchCallCount += 1
     }
 
     // MARK: - Captured Handlers
@@ -77,6 +92,9 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
     public func reset() {
         pollAllMessagesCallCount = 0
         waitForPendingHandlersInvocations = 0
+        startAutoFetchRadioIDs = []
+        pauseAutoFetchCallCount = 0
+        resumeAutoFetchCallCount = 0
         capturedContactMessageHandler = nil
         capturedChannelMessageHandler = nil
         capturedSignedMessageHandler = nil

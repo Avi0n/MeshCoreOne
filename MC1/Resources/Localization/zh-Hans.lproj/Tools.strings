@@ -156,6 +156,27 @@
 /* Location: RxLogViewModel.swift - Decrypt filter: failed */
 "tools.rxLog.filter.failed" = "失败";
 
+/* Location: DecryptStatus+Display.swift - Decrypt status: not a decryptable packet */
+"tools.rxLog.decryptStatus.notApplicable" = "不适用";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: no stored channel key matches */
+"tools.rxLog.decryptStatus.noKey" = "无密钥";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: HMAC validation failed */
+"tools.rxLog.decryptStatus.hmacFailed" = "HMAC 校验失败";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: AES decryption failed */
+"tools.rxLog.decryptStatus.decryptFailed" = "解密失败";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: decrypted successfully */
+"tools.rxLog.decryptStatus.decrypted" = "已解密";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: key found, decryption pending */
+"tools.rxLog.decryptStatus.hasKey" = "有密钥";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: missing direct message key */
+"tools.rxLog.decryptStatus.noDmKey" = "无私信密钥";
+
 /* Location: RxLogRowView - Label for local device in path display */
 "tools.rxLog.pathYou" = "你";
 
@@ -492,9 +513,6 @@
 /* Location: ResultsCardView.swift - Clearance section title */
 "tools.lineOfSight.clearance" = "间隙";
 
-/* Location: ResultsCardView.swift - Worst clearance label */
-"tools.lineOfSight.worstClearance" = "最差间隙（第 1 菲涅尔区的 %@）";
-
 /* Location: ResultsCardView.swift - Obstructions found label */
 "tools.lineOfSight.obstructionsFound" = "发现障碍物";
 
@@ -507,23 +525,26 @@
 /* Location: ResultsCardView.swift - Worst clearance short label */
 "tools.lineOfSight.worstClearanceShort" = "最差间隙";
 
+/* Location: ResultsCardView.swift - Assumptions footnote; %1$@ is frequency, %2$@ is k-factor */
+"tools.lineOfSight.assumptions" = "%1$@、%2$@、第 1 菲涅尔区 60%% 阈值";
+
 /* Location: ClearanceStatusView.swift - Clearance percentage, %lld is percent */
 "tools.lineOfSight.clearancePercent" = "%lld%% 间隙";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: clear */
-"tools.lineOfSight.status.clear" = "Clear";
+"tools.lineOfSight.status.clear" = "通畅";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: marginal */
-"tools.lineOfSight.status.marginal" = "Marginal";
+"tools.lineOfSight.status.marginal" = "勉强可用";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: partial obstruction */
-"tools.lineOfSight.status.partialObstruction" = "Partial obstruction";
+"tools.lineOfSight.status.partialObstruction" = "部分遮挡";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: blocked */
-"tools.lineOfSight.status.blocked" = "Blocked";
+"tools.lineOfSight.status.blocked" = "受阻";
 
 /* Location: ResultsCardView.swift - Subtitle shown when path is blocked */
-"tools.lineOfSight.status.blockedSubtitle" = "Direct path intersects terrain";
+"tools.lineOfSight.status.blockedSubtitle" = "直线路径与地形相交";
 
 // MARK: - CLI Tool View
 
@@ -730,3 +751,14 @@
 
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */
 "tools.cli.completionSuggestionsValue" = "%lld 个可用，%@ 已选择";
+
+// MARK: - Saved Paths
+
+/* Location: SavedPathsViewModel.swift - Error loading saved paths */
+"tools.savedPaths.loadFailed" = "无法加载已保存的路径。";
+
+/* Location: SavedPathsViewModel.swift - Error renaming a saved path */
+"tools.savedPaths.renameFailed" = "无法重命名路径。";
+
+/* Location: SavedPathsViewModel.swift - Error deleting a saved path */
+"tools.savedPaths.deleteFailed" = "无法删除路径。";

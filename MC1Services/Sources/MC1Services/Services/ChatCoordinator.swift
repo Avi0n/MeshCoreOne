@@ -23,7 +23,7 @@ public final class ChatCoordinator {
     public let conversationID: ChatConversationID
 
     @ObservationIgnored
-    let logger = Logger(subsystem: "com.mc1.services", category: "ChatCoordinator")
+    let logger = Logger(subsystem: "com.mc1", category: "ChatCoordinator")
 
     /// Canonical loaded-messages list. Mutated only inside this class;
     /// every reader either reads `messagesByID` (O(1) lookup) or

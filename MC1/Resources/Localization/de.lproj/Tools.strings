@@ -156,6 +156,27 @@
 /* Location: RxLogViewModel.swift - Decrypt filter: failed */
 "tools.rxLog.filter.failed" = "Fehlgeschlagen";
 
+/* Location: DecryptStatus+Display.swift - Decrypt status: not a decryptable packet */
+"tools.rxLog.decryptStatus.notApplicable" = "N/V";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: no stored channel key matches */
+"tools.rxLog.decryptStatus.noKey" = "Kein Schlüssel";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: HMAC validation failed */
+"tools.rxLog.decryptStatus.hmacFailed" = "HMAC fehlgeschlagen";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: AES decryption failed */
+"tools.rxLog.decryptStatus.decryptFailed" = "Entschlüsselung fehlgeschlagen";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: decrypted successfully */
+"tools.rxLog.decryptStatus.decrypted" = "Entschlüsselt";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: key found, decryption pending */
+"tools.rxLog.decryptStatus.hasKey" = "Schlüssel vorhanden";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: missing direct message key */
+"tools.rxLog.decryptStatus.noDmKey" = "Kein DM-Schlüssel";
+
 /* Location: RxLogRowView - Label for local device in path display */
 "tools.rxLog.pathYou" = "Du";
 
@@ -492,9 +513,6 @@
 /* Location: ResultsCardView.swift - Clearance section title */
 "tools.lineOfSight.clearance" = "Freiheit";
 
-/* Location: ResultsCardView.swift - Worst clearance label */
-"tools.lineOfSight.worstClearance" = "Schlechteste Freiheit (% der 1. Fresnel-Zone)";
-
 /* Location: ResultsCardView.swift - Obstructions found label */
 "tools.lineOfSight.obstructionsFound" = "Hindernisse gefunden";
 
@@ -507,23 +525,26 @@
 /* Location: ResultsCardView.swift - Worst clearance short label */
 "tools.lineOfSight.worstClearanceShort" = "Schlechteste Freiheit";
 
+/* Location: ResultsCardView.swift - Assumptions footnote; %1$@ is frequency, %2$@ is k-factor */
+"tools.lineOfSight.assumptions" = "%1$@, %2$@, 60 %% Schwelle der 1. Fresnel-Zone";
+
 /* Location: ClearanceStatusView.swift - Clearance percentage, %lld is percent */
 "tools.lineOfSight.clearancePercent" = "%lld%% Freiheit";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: clear */
-"tools.lineOfSight.status.clear" = "Clear";
+"tools.lineOfSight.status.clear" = "Frei";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: marginal */
-"tools.lineOfSight.status.marginal" = "Marginal";
+"tools.lineOfSight.status.marginal" = "Grenzwertig";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: partial obstruction */
-"tools.lineOfSight.status.partialObstruction" = "Partial obstruction";
+"tools.lineOfSight.status.partialObstruction" = "Teilweise Verdeckung";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: blocked */
-"tools.lineOfSight.status.blocked" = "Blocked";
+"tools.lineOfSight.status.blocked" = "Blockiert";
 
 /* Location: ResultsCardView.swift - Subtitle shown when path is blocked */
-"tools.lineOfSight.status.blockedSubtitle" = "Direct path intersects terrain";
+"tools.lineOfSight.status.blockedSubtitle" = "Direkter Pfad schneidet Gelände";
 
 // MARK: - CLI Tool View
 
@@ -552,7 +573,7 @@
 "tools.cli.sessionListHeader" = "Aktive Sitzungen:";
 
 /* Location: CLIToolView.swift - Local session label */
-"tools.cli.sessionLocal" = "local";
+"tools.cli.sessionLocal" = "lokal";
 
 /* Location: CLIToolView.swift - No sessions message */
 "tools.cli.noSessions" = "Keine aktiven Sitzungen";
@@ -730,3 +751,14 @@
 
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */
 "tools.cli.completionSuggestionsValue" = "%lld verfügbar, %@ ausgewählt";
+
+// MARK: - Saved Paths
+
+/* Location: SavedPathsViewModel.swift - Error loading saved paths */
+"tools.savedPaths.loadFailed" = "Gespeicherte Pfade konnten nicht geladen werden.";
+
+/* Location: SavedPathsViewModel.swift - Error renaming a saved path */
+"tools.savedPaths.renameFailed" = "Pfad konnte nicht umbenannt werden.";
+
+/* Location: SavedPathsViewModel.swift - Error deleting a saved path */
+"tools.savedPaths.deleteFailed" = "Pfad konnte nicht gelöscht werden.";

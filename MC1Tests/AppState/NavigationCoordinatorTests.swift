@@ -1,7 +1,7 @@
 import Testing
 import Foundation
 import CoreLocation
-import MC1Services
+@testable import MC1Services
 @testable import MC1
 
 @Suite("Navigation Coordinator Notification Handler Tests")
@@ -281,18 +281,18 @@ struct NavigationCoordinatorMapTests {
 
     @Test("ChatViewModel.navigateToMap forwards the coordinate to the navigation sink")
     func chatViewModelForwardsToNavigationSink() {
-        let appState = AppState()
+        let coordinator = NavigationCoordinator()
         let viewModel = ChatViewModel()
-        viewModel.appState = appState
+        viewModel.onNavigateToMap = { coordinator.navigateToMap(coordinate: $0) }
         let coordinate = CLLocationCoordinate2D(latitude: 51.5074, longitude: -0.1278)
 
         // The thumbnail tap path ends at ChatViewModel.navigateToMap, which forwards
         // to the same navigation sink ChatsView.handleMeshCoreLink uses for the text link.
         viewModel.navigateToMap(coordinate)
 
-        #expect(appState.navigation.pendingMapFocus?.latitude == 51.5074)
-        #expect(appState.navigation.pendingMapFocus?.longitude == -0.1278)
-        #expect(appState.navigation.selectedTab == AppTab.map.rawValue)
+        #expect(coordinator.pendingMapFocus?.latitude == 51.5074)
+        #expect(coordinator.pendingMapFocus?.longitude == -0.1278)
+        #expect(coordinator.selectedTab == AppTab.map.rawValue)
     }
 
     @Test("clearPendingMapFocus resets the pending focus")

@@ -24,4 +24,20 @@ struct NotificationStringProviderImpl: NotificationStringProvider {
     func lowBatteryBody(deviceName: String, percentage: Int) -> String {
         L10n.Localizable.Notifications.LowBattery.body(deviceName, percentage)
     }
+
+    var quickReplyFailedTitle: String { L10n.Localizable.Notifications.QuickReplyFailed.title }
+
+    func quickReplyFailedBody(conversationName: String) -> String {
+        L10n.Localizable.Notifications.QuickReplyFailed.body(conversationName)
+    }
+
+    var unknownContactName: String { L10n.Localizable.Notifications.Discovery.unknownContact }
+
+    func defaultChannelName(index: Int) -> String {
+        L10n.Chats.Chats.Channel.defaultName(index)
+    }
+
+    func reactionNotificationBody(emoji: String, messagePreview: String) -> String {
+        L10n.Localizable.Notifications.Reaction.body(emoji, messagePreview)
+    }
 }

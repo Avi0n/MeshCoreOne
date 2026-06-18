@@ -30,7 +30,7 @@ public struct ReactionPersistResult: Sendable {
 
 /// Service for handling emoji reactions on channel messages
 public actor ReactionService {
-    private let logger = Logger(subsystem: "MC1Services", category: "ReactionService")
+    private let logger = Logger(subsystem: "com.mc1", category: "ReactionService")
     private let messageCache: MessageLRUCache
 
     private static let maxPendingReactions = 100
@@ -53,7 +53,7 @@ public actor ReactionService {
     private var pendingDMReactions: [PendingDMReactionKey: [PendingDMReaction]] = [:]
     private var pendingDMOrder: [PendingDMReactionKey] = []
 
-    public init(messageCache: MessageLRUCache = MessageLRUCache()) {
+    init(messageCache: MessageLRUCache = MessageLRUCache()) {
         self.messageCache = messageCache
     }
 
@@ -118,7 +118,7 @@ public actor ReactionService {
     }
 
     /// Finds target message ID for a parsed reaction using hash-based lookup
-    public func findTargetMessage(parsed: ParsedReaction, channelIndex: UInt8) async -> UUID? {
+    func findTargetMessage(parsed: ParsedReaction, channelIndex: UInt8) async -> UUID? {
         let candidates = await messageCache.lookup(
             channelIndex: channelIndex,
             senderName: parsed.targetSender,
@@ -131,12 +131,12 @@ public actor ReactionService {
 
     /// Attempts to process incoming text as a reaction
     /// Returns true if handled as reaction, false to process as regular message
-    public nonisolated func tryProcessAsReaction(_ text: String) -> ParsedReaction? {
+    nonisolated func tryProcessAsReaction(_ text: String) -> ParsedReaction? {
         ReactionParser.parse(text)
     }
 
     /// Queues a reaction that couldn't find its target message
-    public func queuePendingReaction(
+    func queuePendingReaction(
         parsed: ParsedReaction,
         channelIndex: UInt8,
         senderNodeName: String,
@@ -169,7 +169,7 @@ public actor ReactionService {
     }
 
     /// Clears all pending reactions (call on disconnect)
-    public func clearPendingReactions() {
+    func clearPendingReactions() {
         let count = pendingReactions.values.reduce(0) { $0 + $1.count }
         let dmCount = pendingDMReactions.values.reduce(0) { $0 + $1.count }
         pendingReactions.removeAll()
@@ -187,7 +187,7 @@ public actor ReactionService {
     /// Logs errors instead of silently discarding them.
     public func persistReactionAndUpdateSummary(
         _ reaction: ReactionDTO,
-        using dataStore: PersistenceStore
+        using dataStore: any PersistenceStoreProtocol
     ) async -> ReactionPersistResult? {
         do {
             try await dataStore.saveReaction(reaction)
@@ -247,13 +247,13 @@ public actor ReactionService {
     }
 
     /// Finds target DM message ID by hash and contact
-    public func findDMTargetMessage(messageHash: String, contactID: UUID) async -> UUID? {
+    func findDMTargetMessage(messageHash: String, contactID: UUID) async -> UUID? {
         let candidates = await messageCache.lookupDM(contactID: contactID, messageHash: messageHash)
         return candidates.max(by: { $0.indexedAt < $1.indexedAt })?.messageID
     }
 
     /// Queues a DM reaction that couldn't find its target message
-    public func queuePendingDMReaction(
+    func queuePendingDMReaction(
         parsed: ParsedDMReaction,
         contactID: UUID,
         senderName: String,

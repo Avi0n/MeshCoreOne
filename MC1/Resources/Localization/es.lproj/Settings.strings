@@ -114,6 +114,9 @@
 /* TX power display format with dBm unit */
 "deviceInfo.txPowerFormat" = "%@ dBm";
 
+/* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
+"deviceInfo.firmwareVersionFormat" = "v%@";
+
 /* Section header for identity information */
 "deviceInfo.identity.header" = "Identidad";
 
@@ -382,7 +385,7 @@
 "batteryCurve.footer" = "Configura la curva voltaje-porcentaje para la batería de tu dispositivo.";
 
 /* Label for preset picker */
-"batteryCurve.preset" = "Preset";
+"batteryCurve.preset" = "Predefinido";
 
 /* Option for custom battery curve */
 "batteryCurve.custom" = "Personalizado";
@@ -391,7 +394,7 @@
 "batteryCurve.editValues" = "Editar valores";
 
 /* Validation error for value out of range - %d is the percentage level */
-"batteryCurve.validation.outOfRange" = "El valor en %d%% debe estar entre 1000-9000 mV";
+"batteryCurve.validation.outOfRange" = "El valor en %d%% debe estar entre 1000-99999 mV";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "Los valores deben estar en orden descendente";
@@ -757,13 +760,13 @@
 "notifications.newContactDiscovered" = "Nuevo contacto descubierto";
 
 /* Toggle label for companion discovery notifications */
-"notifications.discoveryContact" = "Companion";
+"notifications.discoveryContact" = "Acompañante";
 
 /* Toggle label for repeater discovery notifications */
-"notifications.discoveryRepeater" = "Repeater";
+"notifications.discoveryRepeater" = "Repetidor";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Room";
+"notifications.discoveryRoom" = "Sala";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Avisos de batería baja";
@@ -973,7 +976,7 @@
 "directMessages.header" = "Mensajes directos";
 
 /* Picker label for number of acknowledgments */
-"directMessages.acknowledgments" = "Acknowledgments";
+"directMessages.acknowledgments" = "Confirmaciones";
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Número de acuses de recibo enviados por mensaje directo. Usa 2 para una mejor confirmación de entrega en enlaces poco fiables.";
@@ -1111,9 +1114,6 @@
 /* Select file button */
 "configImport.selectFile" = "Seleccionar archivo JSON";
 
-/* Cannot access file error */
-"configImport.cannotAccess" = "No se puede acceder al archivo seleccionado.";
-
 /* Confirmation alert title */
 "configImport.confirmTitle" = "¿Aplicar configuración?";
 
@@ -1240,6 +1240,21 @@
 /* Validation error: not enough free contact slots (params: needed count, available count) */
 "configImport.error.contactCapacityExceeded" = "La importación necesita %d espacio(s) de contacto libre(s), pero solo quedan %d en el dispositivo";
 
+/* Validation error: channel secret wrong length (params: channel index, hex char count) */
+"configImport.error.invalidChannelSecret" = "El canal %1$lld tiene una clave secreta no válida (%2$lld caracteres hex, se esperaban 32)";
+
+/* Validation error: contact public key malformed (param: contact name) */
+"configImport.error.invalidContactPublicKey" = "El contacto \"%@\" tiene una clave pública no válida";
+
+/* Validation error: unsupported path hash mode (params: contact name, mode value) */
+"configImport.error.invalidPathHashMode" = "El contacto \"%1$@\" tiene un modo de hash de ruta no compatible: %2$lld (se esperaba 0, 1 o 2)";
+
+/* Validation error: private key wrong length (params: hex char count, expected hex char count) */
+"configImport.error.invalidPrivateKey" = "Clave privada no válida (%1$lld caracteres hex, se esperaban %2$lld)";
+
+/* Validation error: no empty channel slot left (param: channel name) */
+"configImport.error.noAvailableChannelSlot" = "No hay ningún espacio de canal libre disponible para \"%@\"";
+
 /* Toggle label for inline images */
 "inlineImages.toggle" = "Imágenes en línea";
 
@@ -1316,7 +1331,7 @@
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
-"liveActivity.title" = "Live Activity";
+"liveActivity.title" = "Actividad en vivo";
 
 /* Title for the Live Activity tip shown after first connection */
 "liveActivity.tip.title" = "Estado de la radio de un vistazo";
@@ -1720,6 +1735,7 @@
 "Support.Themes.Title" = "Temas";
 "Support.Themes.Owned" = "Adquirido";
 "Support.Themes.PurchasedFooter" = "Aplica tu nuevo tema en Ajustes → Apariencia.";
+"Support.Themes.AllUnlocked" = "¡Todos los temas desbloqueados!";
 "Support.Bundle.Title" = "Todos los temas";
 "Support.Bundle.Subtitle" = "Incluye los temas que se añadan en el futuro.";
 "Support.Contributions.Title" = "Contribuciones";
@@ -1735,11 +1751,11 @@
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Predeterminado";
-"Support.Theme.Ember" = "Ember";
-"Support.Theme.Fern" = "Fern";
-"Support.Theme.Marine" = "Marine";
-"Support.Theme.Olive" = "Olive";
-"Support.Theme.Lavender" = "Lavender";
+"Support.Theme.Ember" = "Brasa";
+"Support.Theme.Fern" = "Helecho";
+"Support.Theme.Marine" = "Marino";
+"Support.Theme.Olive" = "Oliva";
+"Support.Theme.Lavender" = "Lavanda";
 
 /* MARK: Support error messages (mapped from StoreServiceError) */
 "Support.Error.ProductsNotLoaded" = "No se pudieron cargar los productos.";

@@ -87,41 +87,6 @@ struct ChatViewModelReloadSerializationTests {
         )
     }
 
-    private func makeDevice(radioID: UUID) -> DeviceDTO {
-        DeviceDTO(
-            id: UUID(),
-            radioID: radioID,
-            publicKey: Data(repeating: 0xBB, count: 32),
-            nodeName: "TestNode",
-            firmwareVersion: 1,
-            firmwareVersionString: "1.12.0",
-            manufacturerName: "Test",
-            buildDate: "2025-01-01",
-            maxContacts: 100,
-            maxChannels: 8,
-            frequency: 915_000,
-            bandwidth: 250_000,
-            spreadingFactor: 10,
-            codingRate: 5,
-            txPower: 20,
-            maxTxPower: 20,
-            latitude: 0,
-            longitude: 0,
-            blePin: 0,
-            manualAddContacts: false,
-            multiAcks: 2,
-            telemetryModeBase: 2,
-            telemetryModeLoc: 0,
-            telemetryModeEnv: 0,
-            advertLocationPolicy: 0,
-            lastConnected: Date(),
-            lastContactSync: 0,
-            isActive: true,
-            ocvPreset: nil,
-            customOCVArrayString: nil
-        )
-    }
-
     // MARK: - Serialization
 
     /// reload #1 suspends in the interleave hook; reload #2 commits first with one
@@ -139,12 +104,11 @@ struct ChatViewModelReloadSerializationTests {
         }
         let last = contacts[11]
 
-        let appState = AppState(modelContainer: try PersistenceStore.createContainer(inMemory: true))
-        appState.connectionManager.setTestState(connectedDevice: makeDevice(radioID: radioID))
-
         let viewModel = ChatViewModel()
-        viewModel.appState = appState
-        viewModel.dataStore = store
+        viewModel.configureForTesting(dependencies: .testDefaults(
+            dataStore: { store },
+            currentRadioID: { radioID }
+        ))
 
         let arrived = AsyncGate()
         let gate = AsyncGate()

@@ -63,45 +63,41 @@ private struct GIFContentView: View {
     }
 
     var body: some View {
-        Button {
-            isPlaying.toggle()
-        } label: {
-            Group {
-                if isPlaying {
-                    AnimatedGIFView(image: image)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .allowsHitTesting(false)
-                } else {
-                    Image(uiImage: staticFrame)
-                        .resizable()
-                        .aspectRatio(contentMode: isEmbedded ? .fit : .fill)
-                }
-            }
-            .frame(
-                width: isEmbedded ? nil : displaySize.width,
-                height: isEmbedded ? nil : displaySize.height
-            )
-            .overlay {
-                if !isPlaying {
-                    ZStack {
-                        Color.black.opacity(0.3)
-                        Image(systemName: "play.circle.fill")
-                            .font(.system(size: 44))
-                            .foregroundStyle(.white)
-                            .shadow(radius: 2)
-                    }
+        Group {
+            if isPlaying {
+                AnimatedGIFView(image: image)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .allowsHitTesting(false)
-                }
+            } else {
+                Image(uiImage: staticFrame)
+                    .resizable()
+                    .aspectRatio(contentMode: isEmbedded ? .fit : .fill)
             }
-            .background {
-                if !isEmbedded {
-                    Color.clear.background(.regularMaterial)
-                }
-            }
-            .clipShape(.rect(cornerRadius: isEmbedded ? 0 : 12))
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .frame(
+            width: isEmbedded ? nil : displaySize.width,
+            height: isEmbedded ? nil : displaySize.height
+        )
+        .overlay {
+            if !isPlaying {
+                ZStack {
+                    Color.black.opacity(0.3)
+                    Image(systemName: "play.circle.fill")
+                        .font(.system(size: 44))
+                        .foregroundStyle(.white)
+                        .shadow(radius: 2)
+                }
+                .allowsHitTesting(false)
+            }
+        }
+        .background {
+            if !isEmbedded {
+                Color.clear.background(.regularMaterial)
+            }
+        }
+        .clipShape(.rect(cornerRadius: isEmbedded ? 0 : 12))
+        .contentShape(Rectangle())
+        .tapYieldingToLongPress { isPlaying.toggle() }
         .onAppear {
             isPlaying = autoPlayGIFs && !reduceMotion
         }
@@ -113,6 +109,8 @@ private struct GIFContentView: View {
         }
         .accessibilityLabel(L10n.Chats.Chats.InlineImage.animatedAccessibility)
         .accessibilityHint(L10n.Chats.Chats.InlineImage.tapHint)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { isPlaying.toggle() }
     }
 }
 
@@ -125,23 +123,24 @@ private struct StaticImageContentView: View {
     let onTap: () -> Void
 
     var body: some View {
-        Button(action: onTap) {
-            Image(uiImage: image)
-                .resizable()
-                .aspectRatio(contentMode: isEmbedded ? .fit : .fill)
-                .frame(
-                    width: isEmbedded ? nil : displaySize.width,
-                    height: isEmbedded ? nil : displaySize.height
-                )
-                .background {
-                    if !isEmbedded {
-                        Color.clear.background(.regularMaterial)
-                    }
+        Image(uiImage: image)
+            .resizable()
+            .aspectRatio(contentMode: isEmbedded ? .fit : .fill)
+            .frame(
+                width: isEmbedded ? nil : displaySize.width,
+                height: isEmbedded ? nil : displaySize.height
+            )
+            .background {
+                if !isEmbedded {
+                    Color.clear.background(.regularMaterial)
                 }
-                .clipShape(.rect(cornerRadius: isEmbedded ? 0 : 12))
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(L10n.Chats.Chats.InlineImage.imageAccessibility)
-        .accessibilityHint(L10n.Chats.Chats.InlineImage.tapHint)
+            }
+            .clipShape(.rect(cornerRadius: isEmbedded ? 0 : 12))
+            .contentShape(Rectangle())
+            .tapYieldingToLongPress { onTap() }
+            .accessibilityLabel(L10n.Chats.Chats.InlineImage.imageAccessibility)
+            .accessibilityHint(L10n.Chats.Chats.InlineImage.tapHint)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction { onTap() }
     }
 }

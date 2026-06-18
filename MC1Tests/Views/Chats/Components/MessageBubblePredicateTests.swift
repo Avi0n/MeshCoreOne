@@ -145,6 +145,7 @@ struct MessageBubblePredicateTests {
             contactName: "Alice",
             configuration: .directMessage,
             item: bundle.item,
+            layout: FragmentLayout(content: bundle.item.content),
             imageResolver: bundle.imageResolver
         )
         let regionFragment = L10n.Chats.Chats.Message.Region.accessibilityLabel("United States")
@@ -164,6 +165,7 @@ struct MessageBubblePredicateTests {
             contactName: "Alice",
             configuration: .directMessage,
             item: bundle.item,
+            layout: FragmentLayout(content: bundle.item.content),
             imageResolver: bundle.imageResolver
         )
         let regionFragment = L10n.Chats.Chats.Message.Region.accessibilityLabel("United States")

@@ -7,19 +7,19 @@ import MC1Services
 /// `StoreServiceError` (English, from MC1Services) to localized copy at this layer.
 @Observable
 @MainActor
-public final class StoreState {
-    public let service: StoreService
+final class StoreState {
+    let service: StoreService
 
-    public var errorMessage: String?
-    public var restoreState: RestoreState = .idle
-    public var pendingPurchase: PendingPurchase?
+    var errorMessage: String?
+    var restoreState: RestoreState = .idle
+    var pendingPurchase: PendingPurchase?
 
     /// Persisted so purchase diagnostics reach the Settings "Export Debug Logs" output for
     /// triaging failures reported from TestFlight. `StoreService` logs the StoreKit-side flow;
     /// this logs the view-driven entry, guards, and outcome.
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "Store")
 
-    public init(service: StoreService) {
+    init(service: StoreService) {
         self.service = service
         // Out-of-band consumable resolution: an Ask-to-Buy-approved tip is finished by
         // `applyTransactionUpdate` but does not enter `ownedThemeIDs`, so `reconcilePendingPurchase`
@@ -47,7 +47,7 @@ public final class StoreState {
     /// makes a bare `Product.purchase()` return a spurious `.userCancelled` on iOS 18.2+. Taking it as
     /// a closure keeps this method testable, since `PurchaseAction` cannot be constructed off a view.
     @discardableResult
-    public func purchase(
+    func purchase(
         productID: String,
         purchase: (Product) async throws -> Product.PurchaseResult
     ) async -> Bool {
@@ -99,7 +99,7 @@ public final class StoreState {
         }
     }
 
-    public func restorePurchases() async {
+    func restorePurchases() async {
         restoreState = .syncing
         do {
             switch try await service.restorePurchases() {
@@ -118,7 +118,7 @@ public final class StoreState {
     /// Clears the pending banner once the pending product's entitlement has arrived. Driven by the
     /// view's `.onChange(of: service.ownedThemeIDs)`. The bundle expands to every purchasable theme
     /// ID (its own product ID never appears in `ownedThemeIDs`), so it resolves via a superset check.
-    public func reconcilePendingPurchase() {
+    func reconcilePendingPurchase() {
         guard let pending = pendingPurchase else { return }
         let owned = service.ownedThemeIDs
         let isResolved = pending.productID == StoreCatalog.Theme.bundleAll
@@ -127,17 +127,9 @@ public final class StoreState {
         if isResolved { pendingPurchase = nil }
     }
 
-    /// Internal (not private) as a testability seam — see `StoreStateErrorMappingTests`.
+    /// Internal (not private) as a testability seam (see `StoreStateErrorMappingTests`).
+    /// Delegates to the shared `StoreServiceError.userFacingMessage` mapping.
     func localizedMessage(for error: StoreServiceError) -> String {
-        switch error {
-        case .productsNotLoaded:      L10n.Settings.Support.Error.productsNotLoaded
-        case .productNotFound:        L10n.Settings.Support.Error.productNotFound
-        case .purchaseFailed(let r):  L10n.Settings.Support.Error.purchaseFailed(r)
-        case .verificationFailed:     L10n.Settings.Support.Error.verificationFailed
-        case .notEntitled:            L10n.Settings.Support.Error.notEntitled
-        case .networkUnavailable:     L10n.Settings.Support.Error.networkUnavailable
-        case .storefrontUnavailable:  L10n.Settings.Support.Error.storefrontUnavailable
-        case .unsupported:            L10n.Settings.Support.Error.unsupported
-        }
+        error.userFacingMessage
     }
 }

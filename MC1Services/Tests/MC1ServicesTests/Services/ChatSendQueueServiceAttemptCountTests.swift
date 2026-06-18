@@ -65,7 +65,7 @@ struct ChatSendQueueServiceAttemptCountTests {
 
         let transport = SimulatorMockTransport()
         let session = MeshCoreSession(transport: transport)
-        let messageService = MessageService(session: session, dataStore: store)
+        let messageService = MessageService(session: session, dataStore: store, contactService: nil)
         let pending = try await messageService.createPendingMessage(text: "Hello", to: contactDTO)
 
         let pinnedTimestamp = UInt32(Date().addingTimeInterval(-3600).timeIntervalSince1970)
@@ -90,7 +90,7 @@ struct ChatSendQueueServiceAttemptCountTests {
         )
         try await store.upsertPendingSend(dto)
 
-        let channelService = ChannelService(session: session, dataStore: store)
+        let channelService = ChannelService(session: session, dataStore: store, rxLogService: nil)
         let service = ChatSendQueueService(
             radioID: radioID,
             dataStore: store,

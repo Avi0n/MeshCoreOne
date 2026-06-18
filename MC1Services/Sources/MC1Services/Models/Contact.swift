@@ -1,5 +1,6 @@
 import CoreLocation
 import Foundation
+import MeshCore
 import SwiftData
 
 /// Represents a contact discovered on the mesh network.
@@ -83,7 +84,7 @@ public final class Contact {
         name: String,
         typeRawValue: UInt8 = 0,
         flags: UInt8 = 0,
-        outPathLength: UInt8 = 0xFF,
+        outPathLength: UInt8 = PacketBuilder.floodPathSentinel,
         outPath: Data = Data(),
         lastAdvertTimestamp: UInt32 = 0,
         latitude: Double = 0,
@@ -151,6 +152,10 @@ public final class Contact {
     }
 
     /// Applies all mutable fields from a DTO to this model instance.
+    /// `radioID` and `publicKey` are identity and stay frozen: this runs in the
+    /// id-matched `saveContact(_:)` upsert, which owns app-side metadata. Key
+    /// changes arrive from the radio as `ContactFrame`s keyed by
+    /// `(radioID, publicKey)`, where a new key is a new contact row.
     func apply(_ dto: ContactDTO) {
         name = dto.name
         typeRawValue = dto.typeRawValue
@@ -211,7 +216,7 @@ public extension Contact {
 
     /// Whether this contact uses flood routing
     var isFloodRouted: Bool {
-        outPathLength == 0xFF
+        outPathLength == PacketBuilder.floodPathSentinel
     }
 
     /// Whether this contact has a known, valid location
@@ -375,7 +380,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     }
 
     public var isFloodRouted: Bool {
-        outPathLength == 0xFF
+        outPathLength == PacketBuilder.floodPathSentinel
     }
 
     /// The hash size per hop in bytes (1, 2, or 3), derived from the upper 2 bits of ``outPathLength``.
@@ -393,14 +398,15 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
         decodePathLen(outPathLength)?.byteLength ?? 0
     }
 
+    /// Each hop as its raw hash bytes plus uppercase hex, e.g. `[(0xA3, "A3"), (0x7F, "7F")]`.
+    /// The raw bytes are needed to match a hop against a repeater's public-key prefix.
+    public var pathHops: [(data: Data, hex: String)] {
+        outPath.prefix(pathByteLength).pathHops(hashSize: pathHashSize)
+    }
+
     /// Each hop's hash as a hex string, e.g. `["A3", "7F", "42"]`.
     public var pathNodesHex: [String] {
-        let size = pathHashSize
-        let relevantPath = outPath.prefix(pathByteLength)
-        return stride(from: 0, to: relevantPath.count, by: size).compactMap { start in
-            let end = min(start + size, relevantPath.count)
-            return relevantPath[start..<end].hexString()
-        }
+        pathHops.map(\.hex)
     }
 
     /// Human-readable path string with arrow separators, e.g. `"A3 → 7F → 42"`.
@@ -417,7 +423,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     }
 
     public var publicKeyHex: String {
-        publicKey.hexString()
+        publicKey.uppercaseHexString()
     }
 
     /// Returns a copy with only `isMuted` changed.

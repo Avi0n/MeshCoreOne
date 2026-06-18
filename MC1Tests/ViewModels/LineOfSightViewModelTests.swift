@@ -12,8 +12,15 @@ actor MockElevationService: ElevationServiceProtocol {
     var fetchCount = 0
     var profileToReturn: [ElevationSample]?
 
+    /// Optional delay before each fetch resolves, used to keep a fetch in flight
+    /// long enough for a test to cancel or supersede it.
+    var fetchDelay: Duration = .zero
+
     func fetchElevation(at coordinate: CLLocationCoordinate2D) async throws -> Double {
         fetchCount += 1
+        if fetchDelay != .zero {
+            try await Task.sleep(for: fetchDelay)
+        }
         if shouldFail {
             throw ElevationServiceError.noData
         }
@@ -22,6 +29,9 @@ actor MockElevationService: ElevationServiceProtocol {
 
     func fetchElevations(along path: [CLLocationCoordinate2D]) async throws -> [ElevationSample] {
         fetchCount += 1
+        if fetchDelay != .zero {
+            try await Task.sleep(for: fetchDelay)
+        }
         if shouldFail {
             throw ElevationServiceError.noData
         }
@@ -51,10 +61,15 @@ actor MockElevationService: ElevationServiceProtocol {
         shouldFail = false
         fetchCount = 0
         profileToReturn = nil
+        fetchDelay = .zero
     }
 
     func setFailure(_ fail: Bool) {
         shouldFail = fail
+    }
+
+    func setFetchDelay(_ delay: Duration) {
+        fetchDelay = delay
     }
 }
 
@@ -122,6 +137,7 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
     func updateChannelLastMessage(channelID: UUID, date: Date?) async throws {}
     func incrementChannelUnreadCount(channelID: UUID) async throws {}
     func clearChannelUnreadCount(channelID: UUID) async throws {}
+    func clearChannelUnreadCount(radioID: UUID, index: UInt8) async throws {}
     func fetchSavedTracePaths(radioID: UUID) async throws -> [SavedTracePathDTO] { [] }
     func fetchSavedTracePath(id: UUID) async throws -> SavedTracePathDTO? { nil }
     func createSavedTracePath(radioID: UUID, name: String, pathBytes: Data, hashSize: Int, initialRun: TracePathRunDTO?) async throws -> SavedTracePathDTO {
@@ -161,8 +177,8 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
 
     // MARK: - RxLogEntry Lookup (stubs)
 
-    func findRxLogEntry(channelIndex: UInt8?, senderTimestamp: UInt32) async throws -> RxLogEntryDTO? { nil }
-    func findRxLogEntryBySenderPrefix(senderPrefixByte: UInt8, receivedSince: Date) async throws -> RxLogEntryDTO? { nil }
+    func findRxLogEntry(radioID: UUID, channelIndex: UInt8?, senderTimestamp: UInt32) async throws -> RxLogEntryDTO? { nil }
+    func findRxLogEntryBySenderPrefix(radioID: UUID, senderPrefixByte: UInt8, receivedSince: Date) async throws -> RxLogEntryDTO? { nil }
 
     // MARK: - Room Message Operations (stubs)
 
@@ -201,8 +217,40 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
 
     func setChannelNotificationLevel(_ channelID: UUID, level: NotificationLevel) async throws {}
     func setSessionNotificationLevel(_ sessionID: UUID, level: NotificationLevel) async throws {}
+    func fetchDevice(id: UUID) async throws -> DeviceDTO? { nil }
+    func fetchDevice(radioID: UUID) async throws -> DeviceDTO? { nil }
+    func updateDeviceLastContactSync(radioID: UUID, timestamp: UInt32) async throws {}
+    func fetchRemoteNodeSession(id: UUID) async throws -> RemoteNodeSessionDTO? { nil }
+    func fetchRemoteNodeSession(publicKey: Data) async throws -> RemoteNodeSessionDTO? { nil }
     func markSessionDisconnected(_ sessionID: UUID) async throws {}
     func markRoomSessionConnected(_ sessionID: UUID) async throws -> Bool { false }
+    func updateMessageStatusUnlessDelivered(id: UUID, status: MessageStatus) async throws -> Bool { false }
+    func clearRetryingToSent(id: UUID) async throws -> Bool { false }
+    func hasOutgoingSentDM(ackCode: UInt32) async throws -> Bool { false }
+    func markMessageAsRead(id: UUID) async throws {}
+    func incrementPendingSendAttemptCount(messageID: UUID) async throws -> Int? { nil }
+    func saveDevice(_ dto: DeviceDTO) async throws {}
+    func fetchRemoteNodeSessionByPrefix(_ prefix: Data) async throws -> RemoteNodeSessionDTO? { nil }
+    func fetchRemoteNodeSessions(radioID: UUID) async throws -> [RemoteNodeSessionDTO] { [] }
+    func fetchConnectedRemoteNodeSessions() async throws -> [RemoteNodeSessionDTO] { [] }
+    func saveRemoteNodeSessionDTO(_ dto: RemoteNodeSessionDTO) async throws {}
+    func updateRemoteNodeSessionConnection(id: UUID, isConnected: Bool, permissionLevel: RoomPermissionLevel) async throws {}
+    func cleanupDuplicateRemoteNodeSessions(publicKey: Data, keepID: UUID) async throws {}
+    func deleteRemoteNodeSession(id: UUID) async throws {}
+    func incrementRoomUnreadCount(_ sessionID: UUID) async throws {}
+    func resetRoomUnreadCount(_ sessionID: UUID) async throws {}
+    func findContactByPublicKey(_ publicKey: Data) async throws -> ContactDTO? { nil }
+    func findContactNameByKeyPrefix(_ prefix: Data) async throws -> String? { nil }
+    func saveRxLogEntry(_ dto: RxLogEntryDTO) async throws {}
+    func fetchRxLogEntries(radioID: UUID, limit: Int) async throws -> [RxLogEntryDTO] { [] }
+    func clearRxLogEntries(radioID: UUID) async throws {}
+    func pruneRxLogEntries(radioID: UUID, keepCount: Int, pruneThreshold: Int) async throws {}
+    func fetchEntriesWithMissingRegion(radioID: UUID) async throws -> [RxLogEntryDTO] { [] }
+    func fetchRecentEntriesByDecryptStatus(radioID: UUID, status: DecryptStatus, since: Date) async throws -> [RxLogEntryDTO] { [] }
+    func batchUpdateRxLogRegion(updates: [(id: UUID, regionScope: String?)]) async throws {}
+    func batchUpdateRxLogDecryption(_ updates: [(id: UUID, channelIndex: UInt8?, channelName: String?, senderTimestamp: UInt32?)]) async throws {}
+    func batchUpdateChannelMessageRegion(radioID: UUID, updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)]) async throws {}
+    func batchUpdateDMMessageRegion(radioID: UUID, updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)]) async throws {}
 
     // MARK: - Channel Message Deletion (stubs)
 
@@ -1066,7 +1114,7 @@ struct LoadRepeatersTests {
         await mockDataStore.addContact(roomWithLocation)
 
         let viewModel = LineOfSightViewModel(elevationService: mockService)
-        viewModel.configure(dataStore: mockDataStore, radioID: radioID)
+        viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID })
 
         await viewModel.loadRepeaters()
 
@@ -1100,7 +1148,7 @@ struct LoadRepeatersTests {
         await mockDataStore.addContact(repeater2)
 
         let viewModel = LineOfSightViewModel(elevationService: mockService)
-        viewModel.configure(dataStore: mockDataStore, radioID: radioID)
+        viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID })
 
         await viewModel.loadRepeaters()
 
@@ -1146,7 +1194,7 @@ struct LoadRepeatersTests {
         await mockDataStore.addContact(repeaterDevice2)
 
         let viewModel = LineOfSightViewModel(elevationService: mockService)
-        viewModel.configure(dataStore: mockDataStore, radioID: radioID1)
+        viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID1 })
 
         await viewModel.loadRepeaters()
 
@@ -1728,5 +1776,213 @@ struct AnalysisStatusRelayTests {
         let status2 = AnalysisStatus.relayResult(relayResult)
 
         #expect(status1 == status2)
+    }
+}
+
+// MARK: - Frequency Parsing Tests
+
+@Suite("Frequency Parsing")
+@MainActor
+struct FrequencyParsingTests {
+
+    @Test("Parses a plain dot-decimal value")
+    func parsesDotDecimal() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        #expect(viewModel.parseFrequency("868.5") == 868.5)
+    }
+
+    @Test("Parses a comma-decimal value the same as dot-decimal")
+    func parsesCommaDecimal() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        #expect(viewModel.parseFrequency("868,5") == 868.5)
+    }
+
+    @Test("Parses an integer value")
+    func parsesInteger() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        #expect(viewModel.parseFrequency("906") == 906.0)
+    }
+
+    @Test("Rejects empty input")
+    func rejectsEmpty() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        #expect(viewModel.parseFrequency("") == nil)
+    }
+
+    @Test("Rejects non-numeric input")
+    func rejectsNonNumeric() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        #expect(viewModel.parseFrequency("abc") == nil)
+    }
+
+    @Test("Rejects zero")
+    func rejectsZero() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        #expect(viewModel.parseFrequency("0") == nil)
+    }
+
+    @Test("Rejects negative values")
+    func rejectsNegative() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        #expect(viewModel.parseFrequency("-906") == nil)
+    }
+
+    @Test("Editing format round-trips an integer back through the parser")
+    func integerFormatRoundTrips() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        let formatted = viewModel.formatFrequencyForEditing(906.0)
+        #expect(formatted == "906")
+        #expect(viewModel.parseFrequency(formatted) == 906.0)
+    }
+
+    @Test("Editing format uses a dot decimal separator and round-trips")
+    func fractionalFormatRoundTrips() {
+        let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+        let formatted = viewModel.formatFrequencyForEditing(868.5)
+        #expect(formatted == "868.5")
+        #expect(viewModel.parseFrequency(formatted) == 868.5)
+    }
+}
+
+// MARK: - Analysis Task Hygiene Tests
+
+@Suite("Analysis Task Hygiene")
+@MainActor
+struct AnalysisTaskHygieneTests {
+
+    @Test("Re-analysis after an RF change clears isAnalyzing")
+    func reanalyzeClearsIsAnalyzing() async throws {
+        let mockService = MockElevationService()
+        let viewModel = LineOfSightViewModel(elevationService: mockService)
+
+        viewModel.setPointA(coordinate: sanFrancisco)
+        viewModel.setPointB(coordinate: oakland)
+        try await waitForBothPointElevations(viewModel)
+
+        viewModel.analyze()
+        try await waitForAnalysisResult(viewModel)
+
+        // Changing the k-factor re-runs analysis with the cached profile
+        viewModel.refractionK = 4.0 / 3.0
+
+        try await waitUntil("re-analysis should clear isAnalyzing") {
+            !viewModel.isAnalyzing
+        }
+        #expect(viewModel.isAnalyzing == false)
+        if case .result = viewModel.analysisStatus {
+            // expected
+        } else {
+            Issue.record("Expected result status after re-analysis, got: \(viewModel.analysisStatus)")
+        }
+    }
+
+    @Test("Re-analysis that supersedes an in-flight analysis does not strand isAnalyzing")
+    func reanalyzeSupersedingInFlightClearsIsAnalyzing() async throws {
+        let mockService = MockElevationService()
+        let viewModel = LineOfSightViewModel(elevationService: mockService)
+
+        viewModel.setPointA(coordinate: sanFrancisco)
+        viewModel.setPointB(coordinate: oakland)
+        try await waitForBothPointElevations(viewModel)
+
+        // Keep the analysis profile fetch in flight so the RF change cancels it
+        await mockService.setFetchDelay(.milliseconds(300))
+
+        viewModel.analyze()
+        #expect(viewModel.isAnalyzing == true)
+
+        // Seed a cached profile so the RF-change re-analysis path cancels the
+        // still-running analyze task instead of bailing at its guard
+        let profile = [
+            ElevationSample(coordinate: sanFrancisco, elevation: 100, distanceFromAMeters: 0),
+            ElevationSample(coordinate: oakland, elevation: 100, distanceFromAMeters: 1000)
+        ]
+        viewModel.setElevationProfileForTesting(profile)
+
+        viewModel.refractionK = 4.0 / 3.0
+
+        try await waitUntil("superseding re-analysis should clear isAnalyzing") {
+            !viewModel.isAnalyzing
+        }
+        #expect(viewModel.isAnalyzing == false)
+    }
+
+    @Test("clearRepeater cancels the in-flight off-path elevation fetch")
+    func clearRepeaterCancelsElevationFetch() async throws {
+        let mockService = MockElevationService()
+        let viewModel = LineOfSightViewModel(elevationService: mockService)
+
+        viewModel.setPointA(coordinate: sanFrancisco)
+        viewModel.setPointB(coordinate: oakland)
+        try await waitForBothPointElevations(viewModel)
+
+        // Hold the repeater elevation fetch open so we can cancel it mid-flight
+        await mockService.setFetchDelay(.milliseconds(300))
+
+        let originalCoord = CLLocationCoordinate2D(latitude: 37.79, longitude: -122.35)
+        viewModel.setRepeaterOffPath(coordinate: originalCoord)
+        #expect(viewModel.repeaterPoint?.groundElevation == nil)
+
+        // Clearing the repeater must cancel the in-flight fetch
+        viewModel.clearRepeater()
+        #expect(viewModel.repeaterPoint == nil)
+
+        // Re-add an off-path repeater directly (bypassing setRepeaterOffPath, which
+        // would cancel on its own) so a surviving stale fetch would land here
+        let newCoord = CLLocationCoordinate2D(latitude: 37.70, longitude: -122.30)
+        viewModel.repeaterPoint = RepeaterPoint(
+            coordinate: newCoord,
+            groundElevation: nil,
+            isOnPath: false,
+            pathFraction: 0.5
+        )
+
+        // Wait past the original fetch's delay; a cancelled fetch never writes
+        try await Task.sleep(for: .milliseconds(500))
+        #expect(viewModel.repeaterPoint?.groundElevation == nil)
+    }
+
+    @Test("Cancelled off-path analysis does not surface an error or strand isAnalyzing")
+    func offPathAnalysisCancellationIsSilent() async throws {
+        let mockService = MockElevationService()
+        let viewModel = LineOfSightViewModel(elevationService: mockService)
+
+        viewModel.setPointA(coordinate: sanFrancisco)
+        viewModel.setPointB(coordinate: oakland)
+        try await waitForBothPointElevations(viewModel)
+
+        let repeaterCoord = CLLocationCoordinate2D(latitude: 37.79, longitude: -122.35)
+        viewModel.setRepeaterOffPath(coordinate: repeaterCoord)
+        try await waitUntil("repeater elevation should load") {
+            viewModel.repeaterPoint?.groundElevation != nil
+        }
+
+        // Hold the off-path profile fetch open, start it, then cancel via clear().
+        // The off-path task sets isAnalyzing asynchronously, so wait for the start.
+        await mockService.setFetchDelay(.milliseconds(300))
+        viewModel.analyzeWithRepeater()
+        try await waitUntil("off-path analysis should start") {
+            viewModel.isAnalyzing
+        }
+
+        viewModel.clear()
+
+        try await waitUntil("cancelled off-path analysis should clear isAnalyzing") {
+            !viewModel.isAnalyzing
+        }
+        #expect(viewModel.isAnalyzing == false)
+        // clear() resets status to idle; a cancelled fetch must not flip it to error
+        if case .error = viewModel.analysisStatus {
+            Issue.record("Cancelled off-path analysis surfaced a user-visible error")
+        }
     }
 }

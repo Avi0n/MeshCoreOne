@@ -30,10 +30,6 @@ struct ContactsListView: View {
                 .navigationDestination(isPresented: $showDiscovery) {
                     DiscoveryView()
                 }
-                .navigationDestination(for: ContactDTO.self) { contact in
-                    ContactDetailView(contact: contact)
-                        .id(contact.id)
-                }
         }
     }
 
@@ -56,7 +52,6 @@ struct ContactsListView: View {
             showLocationDeniedAlert: $showLocationDeniedAlert,
             showOfflineRefreshAlert: $showOfflineRefreshAlert,
             navigationPath: $navigationPath,
-            showErrorBinding: actions.showErrorBinding,
             onLoadContacts: actions.loadContacts,
             onSyncContacts: actions.syncContacts,
             onAnnounceOfflineStateIfNeeded: actions.announceOfflineStateIfNeeded

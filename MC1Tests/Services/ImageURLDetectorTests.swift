@@ -1,7 +1,7 @@
 import Testing
 import Foundation
 @testable import MC1
-import MC1Services
+@testable import MC1Services
 
 struct ImageURLDetectorTests {
 

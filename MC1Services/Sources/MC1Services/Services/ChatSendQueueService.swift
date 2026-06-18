@@ -18,22 +18,22 @@ public enum ChatSendQueueServiceError: Error, Sendable, LocalizedError {
 }
 
 /// Retry timing for `ChatSendQueueService`.
-public struct ChatSendQueueConfig: Sendable {
+struct ChatSendQueueConfig: Sendable {
     /// Maximum time to wait for a transport-open trigger before
     /// silently re-attempting the send.
-    public let transportWaitTimeout: TimeInterval
+    let transportWaitTimeout: TimeInterval
 
     /// Number of channel-drain attempts before the queue spends a BLE
     /// round-trip to disambiguate transient NOT_FOUND (pool exhaustion)
     /// from terminal NOT_FOUND (channel deleted on the device).
-    public let disambiguateAfterAttempts: Int
+    let disambiguateAfterAttempts: Int
 
     /// Backstop cap on consecutive `fetchChannel` throws. After this many
     /// the channel drain treats NOT_FOUND as terminal so the user sees
     /// `.failed` and can manually retry.
-    public let maxConsecutiveFetchChannelFailures: Int
+    let maxConsecutiveFetchChannelFailures: Int
 
-    public init(
+    init(
         transportWaitTimeout: TimeInterval = 30,
         disambiguateAfterAttempts: Int = 3,
         maxConsecutiveFetchChannelFailures: Int = 16
@@ -43,7 +43,7 @@ public struct ChatSendQueueConfig: Sendable {
         self.maxConsecutiveFetchChannelFailures = maxConsecutiveFetchChannelFailures
     }
 
-    public static let `default` = ChatSendQueueConfig()
+    static let `default` = ChatSendQueueConfig()
 }
 
 /// Owns the DM and channel send queues for a connection. Replaces the
@@ -53,41 +53,45 @@ public struct ChatSendQueueConfig: Sendable {
 ///
 /// Startup behaviour: `hydrate()` reads `PendingSend` rows from
 /// `PersistenceStore` for the connection's radio and enqueues them.
-/// `ServiceContainer` calls `hydrate()` once after `wireServices()` and
-/// before exposing the container to view models, so two `ChatViewModel`s
+/// `ConnectionManager` calls `hydrate()` once after building the container
+/// and before exposing it to view models, so two `ChatViewModel`s
 /// active during a single connection cannot trigger duplicate replay.
 ///
 /// Transport-open signal: the drain step suspends via
 /// `withCooperativeTimeout` on the `BLETransportOpenedSignal` actor.
-/// `ConnectionManager` fires the signal when the radio is
-/// `.connected` / `.syncing` / `.ready`. Rows are never deleted while
-/// waiting. `triggers.clear` is called only after a successful send
-/// (not before each attempt) so that a fire signal landing during a
-/// successful send doesn't get wiped before the next failed send
-/// needs it.
+/// The connection-state observation started by `observeConnectionState`
+/// fires the signal each time the connection enters `.ready`. Rows are
+/// never deleted while waiting. `triggers.clear` is called only after a
+/// successful send (not before each attempt) so that a fire signal
+/// landing during a successful send doesn't get wiped before the next
+/// failed send needs it.
 @MainActor
 public final class ChatSendQueueService {
 
-    public let radioID: UUID
+    let radioID: UUID
     private let config: ChatSendQueueConfig
-    private let dataStore: PersistenceStore
+    private let dataStore: any MessagePersisting & ContactPersisting
     private let messageService: MessageService
     private let channelService: ChannelService
     private let reactionService: ReactionService
     private let triggers: BLETransportOpenedSignal
     private let channelFetchFailureCounter = FailureCounter()
-    private let logger = PersistentLogger(subsystem: "com.mc1.services", category: "ChatSendQueueService")
-    private let osLogger = Logger(subsystem: "com.mc1.services", category: "ChatSendQueueService")
+    private let logger = PersistentLogger(subsystem: "com.mc1", category: "ChatSendQueueService")
+    private let osLogger = Logger(subsystem: "com.mc1", category: "ChatSendQueueService")
 
     private let dmQueue: SendQueue<DirectMessageEnvelope>
     private let channelQueue: SendQueue<ChannelMessageEnvelope>
 
     private var hasHydrated = false
 
+    /// Task consuming the connection-state stream installed by
+    /// `observeConnectionState`. Cancelled in `shutdown()`.
+    private var connectionStateTask: Task<Void, Never>?
+
     // swiftlint:disable:next function_body_length
-    public init(
+    init(
         radioID: UUID,
-        dataStore: PersistenceStore,
+        dataStore: any MessagePersisting & ContactPersisting,
         messageService: MessageService,
         channelService: ChannelService,
         reactionService: ReactionService,
@@ -116,14 +120,14 @@ public final class ChatSendQueueService {
         self.dmQueue = SendQueue<DirectMessageEnvelope>(
             send: { envelope in
                 // Outer catch: the queue-routed catch sites in MessageService
-                // no longer fire `messageFailedHandler` themselves — the
-                // helper `failMessageAndRethrow` only writes the DB state and
+                // do not broadcast `.failed` themselves; the helper
+                // `failMessageAndRethrow` only writes the DB state and
                 // rethrows. Any non-`CancellationError` escape from this
                 // closure is a terminal failure for the envelope, so the
-                // queue fires `notifyMessageFailed` exactly once before
+                // queue calls `notifyMessageFailed` exactly once before
                 // letting `SendQueue.drain` propagate the error to `onError`.
                 // Park-and-requeue branches throw `CancellationError`, hit
-                // the inner re-throw, and bypass the handler fire so a
+                // the inner re-throw, and bypass the broadcast so a
                 // transient error does not produce a `.failed`-then-`.pending`
                 // flicker on the UI.
                 do {
@@ -238,7 +242,7 @@ public final class ChatSendQueueService {
             send: { envelope in
                 // Outer catch: see DM closure for rationale. Park-and-requeue
                 // branches throw `CancellationError`; any other escape is a
-                // terminal failure for the envelope and fires
+                // terminal failure for the envelope and calls
                 // `notifyMessageFailed` exactly once.
                 do {
                     // Pre-send gate + attemptCount bump; see DM closure for rationale.
@@ -357,9 +361,8 @@ public final class ChatSendQueueService {
                             // exhaustion is ~37s (3.5s withPoolBackoff in-loop +
                             // 3.5s fetchChannel disambiguation + 30s
                             // transportWaitTimeout park). Transport-open only fires
-                            // on the disconnected→connected edge, so under a
-                            // healthy connection the 30s park is what bounds the
-                            // retry rate.
+                            // on entering `.ready`, so under a healthy connection
+                            // the 30s park is what bounds the retry rate.
                         }
                         loggerRef.info("channel drain transient messageID=\(envelope.messageID) error=\(String(describing: error))")
                         _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
@@ -415,16 +418,49 @@ public final class ChatSendQueueService {
         await dmQueue.enqueue(envelope)
     }
 
-    /// `ConnectionManager` calls this from its `connectionState.didSet`
-    /// on the `disconnected → connected` edge. Fires the trigger that wakes
-    /// any drain attempt suspended in `withCooperativeTimeout`.
+    /// Starts observing the connection-state stream and fires the
+    /// transport-open trigger exactly once each time the connection enters
+    /// `.ready`. Gating on `.ready` (not the first `isConnected` edge) keeps
+    /// hydrated sends parked through the initial-sync window, so they do not
+    /// contend with sync's reads on the radio's link. In production the container
+    /// is built while still `.connected`, so the `.ready` wake arrives on the
+    /// event stream; the initial-value check only fires when the observation is
+    /// (re)started against an already-`.ready` connection, waking drains parked in
+    /// `withCooperativeTimeout` instead of leaving them to wait out
+    /// `transportWaitTimeout`. Firing on "entered `.ready`" covers both the success
+    /// edge (`.connected → .ready`) and the failure-recovery edge
+    /// (`.syncing → .ready`). Calling again replaces the previous observation.
+    func observeConnectionState(
+        initial: DeviceConnectionState,
+        events: AsyncStream<DeviceConnectionState>
+    ) {
+        connectionStateTask?.cancel()
+        if initial.canDrainSendQueue {
+            transportDidOpen()
+        }
+        connectionStateTask = Task { [weak self] in
+            var previous = initial
+            for await state in events {
+                guard let self else { return }
+                if !previous.canDrainSendQueue && state.canDrainSendQueue {
+                    self.transportDidOpen()
+                }
+                previous = state
+            }
+        }
+    }
+
+    /// Fired by the connection-state observation started by
+    /// `observeConnectionState` each time the connection enters `.ready`.
+    /// Fires the trigger that wakes any drain attempt suspended in
+    /// `withCooperativeTimeout`.
     ///
     /// Fire-and-forget Task is intentional: `triggers.fire` is idempotent
     /// (arming an already-armed bit is a no-op), so a tight reconnect cycle
     /// (`.connected → .connecting → .connected` within a frame) collapses
     /// to a single armed trigger on the actor. Do not extend this function
     /// with per-call state — the fire-and-forget shape would lose ordering.
-    public func transportDidOpen() {
+    func transportDidOpen() {
         osLogger.debug("transportDidOpen firing trigger")
         Task { [triggers] in
             await triggers.fire()
@@ -463,7 +499,7 @@ public final class ChatSendQueueService {
     /// (terminal — abandon envelope). Throws transient errors so the caller can
     /// park and retry; throws nothing on the gate-missing terminal path.
     nonisolated static func preflightAndBump(
-        dataStore: PersistenceStore,
+        dataStore: any MessagePersisting,
         messageID: UUID,
         kind: String,
         logger: PersistentLogger,
@@ -633,7 +669,7 @@ public final class ChatSendQueueService {
     /// succeeded, drain bump didn't run) sit at `attemptCount = 0`, bump to
     /// `1`, and `preserveTimestamp` = false — correct, because the recipient
     /// never saw the packet.
-    public func hydrate() async {
+    func hydrate() async {
         guard !hasHydrated else { return }
         hasHydrated = true
         logger.info("hydrate begin radio=\(radioID)")
@@ -673,7 +709,13 @@ public final class ChatSendQueueService {
     /// `triggers`), respawning on every `.notConnected` requeue. `PendingSend`
     /// rows survive in SwiftData, so the next container's `hydrate()` replays
     /// them on reconnect.
-    public func shutdown() async {
+    ///
+    /// Cancelling the connection-state observation unregisters its
+    /// `EventBroadcaster` subscription so a torn-down container never
+    /// receives the next connection's edge.
+    func shutdown() async {
+        connectionStateTask?.cancel()
+        connectionStateTask = nil
         await dmQueue.cancelDrain()
         await channelQueue.cancelDrain()
     }

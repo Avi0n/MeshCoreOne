@@ -32,8 +32,13 @@ public actor AdvertisementService {
 
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "Advertisement")
 
-    private let session: MeshCoreSession
-    private let dataStore: PersistenceStore
+    /// Temporary end-to-end Discover trace. Filter by category "discover-trace"
+    /// to follow a single advert from push receipt through persistence to the
+    /// view reload. Remove once the "no new nodes after clear" report is closed.
+    private let discoverTrace = PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
+
+    private let session: any AdvertisingSessionOps & SessionEventStreaming
+    private let dataStore: any PersistenceStoreProtocol
 
     /// Task monitoring for events
     private var eventMonitorTask: Task<Void, Never>?
@@ -47,43 +52,13 @@ public actor AdvertisementService {
     /// The device sends 0x8F (deleted) then shortly after an advert for the new contact.
     private var lastOverwriteDeletion: (name: String, pubKeyHex: String, time: Date)?
 
-    /// Handler for new advertisement events (for UI updates)
-    private var advertHandler: (@Sendable (ContactFrame) -> Void)?
-
-    /// Handler for path update events
-    private var pathUpdateHandler: (@Sendable (Data, Int8) -> Void)?
-
-    /// Handler for path discovery response events
-    private var pathDiscoveryHandler: (@Sendable (PathInfo) -> Void)?
-
-    /// Handler for routing change events (set by AppState)
-    private var routingChangedHandler: (@Sendable (UUID, Bool) async -> Void)?
-
-    /// Handler for contact update events (for UI refresh)
-    private var contactUpdatedHandler: (@Sendable () async -> Void)?
-
-    // MARK: - Discovery Handlers
-
-    /// Handler for new contact discovered events (for notifications)
-    /// Parameters: contactName, contactID, contactType
-    private var newContactDiscoveredHandler: (@Sendable (String, UUID, ContactType) async -> Void)?
-
-    /// Handler for contact sync request events (when ADVERT received for unknown contact)
-    private var contactSyncRequestHandler: (@Sendable (UUID) async -> Void)?
-
-    /// Handler for node storage full state changes (true = full, false = has space)
-    private var nodeStorageFullChangedHandler: (@Sendable (Bool) async -> Void)?
-
-    /// Handler for contact deleted cleanup (notifications, badge, session)
-    /// Parameters: contactID, publicKey
-    private var contactDeletedCleanupHandler: (@Sendable (UUID, Data) async -> Void)?
-
-    /// Cache local reception SNR from rxLogData for trace responses (tag → SNR)
-    private var traceLocalSnr: [UInt32: Double] = [:]
+    /// Multicast broadcaster for advertisement and discovery events.
+    /// Producers yield synchronously; consumers subscribe via `events()`.
+    nonisolated let eventBroadcaster = EventBroadcaster<AdvertisementEvent>()
 
     // MARK: - Initialization
 
-    public init(session: MeshCoreSession, dataStore: PersistenceStore) {
+    public init(session: any AdvertisingSessionOps & SessionEventStreaming, dataStore: any PersistenceStoreProtocol) {
         self.session = session
         self.dataStore = dataStore
     }
@@ -92,51 +67,21 @@ public actor AdvertisementService {
         eventMonitorTask?.cancel()
     }
 
-    // MARK: - Event Handlers
+    // MARK: - Events
 
-    /// Set handler for new advertisement events
-    public func setAdvertHandler(_ handler: @escaping @Sendable (ContactFrame) -> Void) {
-        advertHandler = handler
+    /// Returns a fresh stream of advertisement and discovery events.
+    /// Registration is synchronous, so events yielded after this call are
+    /// never dropped. Consumers must re-subscribe per connection because the
+    /// owning `ServiceContainer` is rebuilt on every connection.
+    public nonisolated func events() -> AsyncStream<AdvertisementEvent> {
+        eventBroadcaster.subscribe()
     }
 
-    /// Set handler for path update events
-    public func setPathUpdateHandler(_ handler: @escaping @Sendable (Data, Int8) -> Void) {
-        pathUpdateHandler = handler
-    }
-
-    /// Set handler for path discovery response events
-    public func setPathDiscoveryHandler(_ handler: @escaping @Sendable (PathInfo) -> Void) {
-        pathDiscoveryHandler = handler
-    }
-
-    /// Set handler for routing change events
-    public func setRoutingChangedHandler(_ handler: @escaping @Sendable (UUID, Bool) async -> Void) {
-        routingChangedHandler = handler
-    }
-
-    /// Set handler for contact update events (called when contacts change)
-    public func setContactUpdatedHandler(_ handler: @escaping @Sendable () async -> Void) {
-        contactUpdatedHandler = handler
-    }
-
-    /// Set handler for new contact discovered events (for posting notifications)
-    public func setNewContactDiscoveredHandler(_ handler: @escaping @Sendable (String, UUID, ContactType) async -> Void) {
-        newContactDiscoveredHandler = handler
-    }
-
-    /// Set handler for contact sync requests (called when ADVERT received for unknown contact)
-    public func setContactSyncRequestHandler(_ handler: @escaping @Sendable (UUID) async -> Void) {
-        contactSyncRequestHandler = handler
-    }
-
-    /// Set handler for node storage full state changes (called when 0x90 or 0x8F push received)
-    public func setNodeStorageFullChangedHandler(_ handler: @escaping @Sendable (Bool) async -> Void) {
-        nodeStorageFullChangedHandler = handler
-    }
-
-    /// Set handler for contact deleted cleanup (called when device auto-deletes via 0x8F)
-    public func setContactDeletedCleanupHandler(_ handler: @escaping @Sendable (UUID, Data) async -> Void) {
-        contactDeletedCleanupHandler = handler
+    /// Ends every `events()` subscriber's for-await loop. Called by
+    /// `ServiceContainer.tearDown()` so consumer tasks release the service
+    /// references they hold.
+    nonisolated func finishEvents() {
+        eventBroadcaster.finish()
     }
 
     // MARK: - Event Monitoring
@@ -204,21 +149,10 @@ public actor AdvertisementService {
         case .rxLogData(let logData) where logData.payloadType == .trace:
             if logData.packetPayload.count >= 4, let snr = logData.snr {
                 let tag = logData.packetPayload.readUInt32LE(at: 0)
-                traceLocalSnr[tag] = snr
                 let remoteSnr: Double? = logData.pathNodes.last.map {
                     Double(Int8(bitPattern: $0)) / 4.0
                 }
-                await MainActor.run {
-                    var userInfo: [String: Any] = ["tag": tag, "localSnr": snr, "radioID": radioID]
-                    if let remoteSnr {
-                        userInfo["remoteSnr"] = remoteSnr
-                    }
-                    NotificationCenter.default.post(
-                        name: .rxLogTraceReceived,
-                        object: nil,
-                        userInfo: userInfo
-                    )
-                }
+                eventBroadcaster.yield(.traceSnrObserved(tag: tag, localSnr: snr, remoteSnr: remoteSnr, radioID: radioID))
             }
 
         case .contactDeleted(let publicKey):
@@ -277,6 +211,7 @@ public actor AdvertisementService {
     private func handleAdvertEvent(publicKey: Data, radioID: UUID) async {
         let pubKeyHex = publicKey.map { String(format: "%02X", $0) }.joined()
         logger.debug("Advert event for \(pubKeyHex)")
+        discoverTrace.info("B1 0x80 ADVERT received key=\(pubKeyHex)")
 
         let timestamp = UInt32(Date().timeIntervalSince1970)
 
@@ -298,13 +233,17 @@ public actor AdvertisementService {
                 _ = try await dataStore.saveContact(radioID: radioID, from: frame)
 
                 // Also track in DiscoveredNode for Discover page visibility
-                _ = try? await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
-
-                advertHandler?(frame)
+                do {
+                    let (_, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
+                    discoverTrace.info("B2 0x80 known-contact upsert key=\(pubKeyHex) isNew=\(isNew)")
+                } catch {
+                    discoverTrace.error("B2 0x80 known-contact upsert FAILED key=\(pubKeyHex): \(error.localizedDescription)")
+                }
 
                 // Notify UI of contact update
-                await contactUpdatedHandler?()
+                eventBroadcaster.yield(.contactUpdated)
             } else {
+                discoverTrace.info("B2 0x80 no local contact key=\(pubKeyHex) syncing=\(isSyncingContacts)")
                 if isSyncingContacts {
                     pendingUnknownContactKeys.insert(publicKey)
                     logger.info("ADVERT received for unknown contact during sync - deferring fetch")
@@ -318,19 +257,31 @@ public actor AdvertisementService {
                             let contactID = try await dataStore.saveContact(radioID: radioID, from: frame)
 
                             // Also track in DiscoveredNode for Discover page visibility
-                            _ = try? await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
+                            do {
+                                let (_, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
+                                discoverTrace.info("B2 0x80 getContact OK upsert key=\(pubKeyHex) isNew=\(isNew)")
+                            } catch {
+                                discoverTrace.error("B2 0x80 getContact-path upsert FAILED key=\(pubKeyHex): \(error.localizedDescription)")
+                            }
 
-                            let contactName = meshContact.advertisedName.isEmpty ? "Unknown Contact" : meshContact.advertisedName
+                            // Empty names pass through raw; NotificationService substitutes a localized fallback.
+                            let contactName = meshContact.advertisedName
                             let contactType = meshContact.type
-                            await newContactDiscoveredHandler?(contactName, contactID, contactType)
+                            eventBroadcaster.yield(.newContactDiscovered(name: contactName, contactID: contactID, contactType: contactType))
 
                             // Correlate with recent overwrite-oldest deletion
-                            logOverwriteReplacementIfRecent(newContactName: contactName, newContactType: contactType)
+                            logOverwriteReplacementIfRecent(
+                                newContactName: contactName.isEmpty ? "Unknown Contact" : contactName,
+                                newContactType: contactType
+                            )
+                        } else {
+                            discoverTrace.notice("B2 0x80 getContact returned nil key=\(pubKeyHex)")
                         }
                     } catch {
                         logger.error("Failed to fetch new contact: \(error.localizedDescription)")
+                        discoverTrace.error("B2 0x80 getContact THREW key=\(pubKeyHex): \(error.localizedDescription)")
                     }
-                    await contactSyncRequestHandler?(radioID)
+                    eventBroadcaster.yield(.contactSyncRequested(radioID: radioID))
                 }
             }
         } catch {
@@ -350,17 +301,24 @@ public actor AdvertisementService {
 
         for publicKey in pendingKeys {
             do {
+                let pubKeyHex = publicKey.map { String(format: "%02X", $0) }.joined()
                 if let meshContact = try await session.getContact(publicKey: publicKey) {
                     let frame = meshContact.toContactFrame()
                     let contactID = try await dataStore.saveContact(radioID: radioID, from: frame)
 
                     // Also track in DiscoveredNode for Discover page visibility
-                    _ = try? await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
+                    do {
+                        let (_, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
+                        discoverTrace.info("B2 deferred-drain upsert key=\(pubKeyHex) isNew=\(isNew)")
+                    } catch {
+                        discoverTrace.error("B2 deferred-drain upsert FAILED key=\(pubKeyHex): \(error.localizedDescription)")
+                    }
 
-                    let contactName = meshContact.advertisedName.isEmpty ? "Unknown Contact" : meshContact.advertisedName
+                    // Empty names pass through raw; NotificationService substitutes a localized fallback.
+                    let contactName = meshContact.advertisedName
                     let contactType = meshContact.type
-                    await newContactDiscoveredHandler?(contactName, contactID, contactType)
-                    await contactSyncRequestHandler?(radioID)
+                    eventBroadcaster.yield(.newContactDiscovered(name: contactName, contactID: contactID, contactType: contactType))
+                    eventBroadcaster.yield(.contactSyncRequested(radioID: radioID))
                 }
             } catch {
                 pendingUnknownContactKeys.insert(publicKey)
@@ -372,25 +330,28 @@ public actor AdvertisementService {
     /// Handle new advertisement event - New contact discovered (manual add mode)
     private func handleNewAdvertEvent(contact: MeshContact, radioID: UUID) async {
         let contactFrame = contact.toContactFrame()
+        let pubKeyHex = contactFrame.publicKey.map { String(format: "%02X", $0) }.joined()
+        discoverTrace.info("B1 0x8A NEW_ADVERT received key=\(pubKeyHex)")
 
         do {
             let (node, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: contactFrame)
-            advertHandler?(contactFrame)
+            discoverTrace.info("B2 0x8A upsert key=\(pubKeyHex) isNew=\(isNew)")
 
             // Notify UI of discovered node update
-            await contactUpdatedHandler?()
+            eventBroadcaster.yield(.contactUpdated)
 
             // Only post notification for NEW discoveries (not repeat adverts from same contact)
             if isNew {
                 let contactName = node.name
                 let contactType = node.nodeType
-                await newContactDiscoveredHandler?(contactName, node.id, contactType)
+                eventBroadcaster.yield(.newContactDiscovered(name: contactName, contactID: node.id, contactType: contactType))
 
                 // Correlate with recent overwrite-oldest deletion
                 logOverwriteReplacementIfRecent(newContactName: contactName, newContactType: contactType)
             }
         } catch {
             logger.error("Error handling new advert event: \(error.localizedDescription)")
+            discoverTrace.error("B2 0x8A upsert FAILED key=\(pubKeyHex): \(error.localizedDescription)")
         }
     }
 
@@ -413,7 +374,7 @@ public actor AdvertisementService {
             logger.debug("Refreshed contact path: \(meshContact.advertisedName.isEmpty ? "unnamed" : meshContact.advertisedName)")
 
             // Notify UI of contact update
-            await contactUpdatedHandler?()
+            eventBroadcaster.yield(.contactUpdated)
 
         } catch {
             logger.error("Error refreshing contact path: \(error.localizedDescription)")
@@ -441,8 +402,6 @@ public actor AdvertisementService {
         do {
             // Update contact with discovered outbound path (inbound is handled by firmware)
             if let contact = try await dataStore.fetchContact(radioID: radioID, publicKeyPrefix: result.publicKeyPrefix) {
-                let wasFlood = contact.isFloodRouted  // Capture before database write
-
                 // Trust the wire's self-describing length byte over the device's
                 // cached hashSize — the response's own encoding is authoritative.
                 let frame = ContactFrame(
@@ -458,17 +417,9 @@ public actor AdvertisementService {
                     lastModified: UInt32(Date().timeIntervalSince1970)
                 )
                 _ = try await dataStore.saveContact(radioID: radioID, from: frame)
-
-                // Path discovery success = we have a direct route now (not flood)
-                let isNowFlood = false
-
-                // Notify UI if routing status changed (flood → direct after path discovery)
-                if wasFlood && !isNowFlood {
-                    await routingChangedHandler?(contact.id, isNowFlood)
-                }
             }
 
-            pathDiscoveryHandler?(result)
+            eventBroadcaster.yield(.pathDiscoveryResponse(result))
         } catch {
             logger.error("Error handling path discovery response: \(error.localizedDescription)")
         }
@@ -476,19 +427,8 @@ public actor AdvertisementService {
 
     /// Handle trace data response
     private func handleTraceData(traceInfo: TraceInfo, radioID: UUID) async {
-        let localSnr = traceLocalSnr.removeValue(forKey: traceInfo.tag)
         logger.info("Received trace data: tag=\(traceInfo.tag), hops=\(traceInfo.path.count)")
-        await MainActor.run {
-            var userInfo: [String: Any] = ["traceInfo": traceInfo, "radioID": radioID]
-            if let localSnr {
-                userInfo["localSnr"] = localSnr
-            }
-            NotificationCenter.default.post(
-                name: .traceDataReceived,
-                object: nil,
-                userInfo: userInfo
-            )
-        }
+        eventBroadcaster.yield(.traceResponse(traceInfo: traceInfo, radioID: radioID))
     }
 
     /// Handle contact deleted event (0x8F) - device auto-deleted a contact via overwrite oldest
@@ -531,14 +471,14 @@ public actor AdvertisementService {
             logger.info("Overwrite oldest: deleted contact '\(contactName)' from local database")
 
             // Trigger cleanup (notifications, badge, session)
-            await contactDeletedCleanupHandler?(contactID, publicKey)
+            eventBroadcaster.yield(.contactDeletedCleanup(contactID: contactID, publicKey: publicKey))
 
             // Storage now has room - clear the full flag
-            await nodeStorageFullChangedHandler?(false)
+            eventBroadcaster.yield(.nodeStorageFullChanged(isFull: false))
             logger.info("Overwrite oldest: cleanup complete for '\(contactName)', storage full flag cleared")
 
             // Notify UI to refresh contacts list
-            await contactUpdatedHandler?()
+            eventBroadcaster.yield(.contactUpdated)
         } catch {
             logger.error("Overwrite oldest: failed to delete contact \(pubKeyPrefix)...: \(error.localizedDescription)")
         }
@@ -556,6 +496,6 @@ public actor AdvertisementService {
     /// Handle contacts full event (0x90) - device storage is full
     private func handleContactsFullEvent() async {
         logger.warning("Device node storage is full - if overwrite oldest is enabled, the next new node will trigger auto-deletion of the oldest non-favorite contact")
-        await nodeStorageFullChangedHandler?(true)
+        eventBroadcaster.yield(.nodeStorageFullChanged(isFull: true))
     }
 }

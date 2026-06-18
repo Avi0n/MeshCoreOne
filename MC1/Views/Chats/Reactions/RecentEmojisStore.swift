@@ -1,19 +1,20 @@
 import Foundation
+import MC1Services
 
 /// Stores recently used reaction emojis for quick access
-@MainActor
 @Observable
-public final class RecentEmojisStore {
-    private static let key = "recentReactionEmojis"
+@MainActor
+final class RecentEmojisStore {
+    private static let key = AppStorageKey.recentReactionEmojis.rawValue
     private static let maxRecent = 6
 
     /// Default emojis shown before any usage
-    public static let defaultEmojis = ["👍", "👎", "❤️", "😂", "😮", "😢"]
+    static let defaultEmojis = ["👍", "👎", "❤️", "😂", "😮", "😢"]
 
     /// Recently used emojis (most recent first), falls back to defaults
-    public private(set) var recentEmojis: [String]
+    private(set) var recentEmojis: [String]
 
-    public init() {
+    init() {
         if let stored = UserDefaults.standard.stringArray(forKey: Self.key), !stored.isEmpty {
             self.recentEmojis = stored
         } else {
@@ -22,7 +23,7 @@ public final class RecentEmojisStore {
     }
 
     /// Records emoji usage, moving it to front of recent list
-    public func recordUsage(_ emoji: String) {
+    func recordUsage(_ emoji: String) {
         var recent = recentEmojis
         recent.removeAll { $0 == emoji }
         recent.insert(emoji, at: 0)

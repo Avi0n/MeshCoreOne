@@ -97,7 +97,7 @@ extension PersistenceStore {
         timestampWindow: ClosedRange<UInt32>,
         limit: Int
     ) throws -> MessageDTO? {
-        let logger = Logger(subsystem: "MC1Services", category: "PersistenceStore")
+        let logger = Logger(subsystem: "com.mc1", category: "PersistenceStore")
         // swiftlint:disable:next line_length
         logger.debug("[REACTION-MATCH] Looking for message: targetSender=\(parsedReaction.targetSender), hash=\(parsedReaction.messageHash), localNodeName=\(localNodeName ?? "nil"), window=\(timestampWindow.lowerBound)...\(timestampWindow.upperBound)")
 
@@ -214,7 +214,7 @@ extension PersistenceStore {
         timestampWindow: ClosedRange<UInt32>,
         limit: Int
     ) throws -> MessageDTO? {
-        let logger = Logger(subsystem: "MC1Services", category: "PersistenceStore")
+        let logger = Logger(subsystem: "com.mc1", category: "PersistenceStore")
         logger.debug("[DM-REACTION-MATCH] Looking for DM: hash=\(messageHash), contactID=\(contactID)")
 
         let candidates = try fetchDMMessageCandidates(
@@ -272,39 +272,7 @@ extension PersistenceStore {
 
     /// Save a new message
     public func saveMessage(_ dto: MessageDTO) throws {
-        let message = Message(
-            id: dto.id,
-            radioID: dto.radioID,
-            contactID: dto.contactID,
-            channelIndex: dto.channelIndex,
-            text: dto.text,
-            timestamp: dto.timestamp,
-            createdAt: dto.createdAt,
-            sortDate: dto.sortDate,
-            directionRawValue: dto.direction.rawValue,
-            statusRawValue: dto.status.rawValue,
-            textTypeRawValue: dto.textType.rawValue,
-            ackCode: dto.ackCode,
-            pathLength: dto.pathLength,
-            snr: dto.snr,
-            pathNodes: dto.pathNodes,
-            senderKeyPrefix: dto.senderKeyPrefix,
-            senderNodeName: dto.senderNodeName,
-            isRead: dto.isRead,
-            replyToID: dto.replyToID,
-            roundTripTime: dto.roundTripTime,
-            heardRepeats: dto.heardRepeats,
-            retryAttempt: dto.retryAttempt,
-            maxRetryAttempts: dto.maxRetryAttempts,
-            deduplicationKey: dto.deduplicationKey,
-            containsSelfMention: dto.containsSelfMention,
-            mentionSeen: dto.mentionSeen,
-            timestampCorrected: dto.timestampCorrected,
-            senderTimestamp: dto.senderTimestamp,
-            routeTypeRawValue: dto.routeType.map { Int($0.rawValue) } ?? -1,
-            regionScope: dto.regionScope
-        )
-        modelContext.insert(message)
+        modelContext.insert(Message(dto: dto))
         try modelContext.save()
     }
 
@@ -327,9 +295,9 @@ extension PersistenceStore {
     ///
     /// - Returns: `true` if the row's status was changed, `false` if no row was
     ///   updated (either the row is already `.delivered`, or no row exists for
-    ///   the given `id`). Callers must gate failure side effects (e.g.,
-    ///   `messageFailedHandler`, UI toasts) on the return value so they do not
-    ///   surface a `.failed` event for a delivered or absent row.
+    ///   the given `id`). Callers must gate failure side effects (e.g., the
+    ///   `MessageStatusEvent.failed` broadcast, UI toasts) on the return value
+    ///   so they do not surface a `.failed` event for a delivered or absent row.
     public func updateMessageStatusUnlessDelivered(id: UUID, status: MessageStatus) throws -> Bool {
         let targetID = id
         let predicate = #Predicate<Message> { message in
@@ -346,11 +314,38 @@ extension PersistenceStore {
         return true
     }
 
+    /// Clears a retry-loop status (`.retrying`/`.pending`) back to `.sent` when
+    /// the app-layer retry budget is spent but the end-to-end ACK may still
+    /// arrive within `ackGiveUpWindow`.
+    ///
+    /// Terminal-safe: no-ops and returns `false` on a `.delivered` or `.failed`
+    /// row, so it can never resurrect a row the expiry checker already failed or
+    /// downgrade a delivered row. Returns `true` when the row moved to `.sent`.
+    public func clearRetryingToSent(id: UUID) throws -> Bool {
+        let targetID = id
+        let predicate = #Predicate<Message> { message in
+            message.id == targetID
+        }
+        var descriptor = FetchDescriptor(predicate: predicate)
+        descriptor.fetchLimit = 1
+
+        guard let message = try modelContext.fetch(descriptor).first,
+              message.status != .delivered,
+              message.status != .failed else {
+            return false
+        }
+        message.status = .sent
+        try modelContext.save()
+        return true
+    }
+
     /// Update message status with retry attempt information.
     ///
-    /// Skips the write when the message is already `.delivered` so a stale
-    /// retry iteration (e.g., one racing the persistent ACK listener) cannot
-    /// clobber a winning ACK.
+    /// Skips the write on a terminal row (`.delivered` or `.failed`) so a stale
+    /// retry iteration cannot clobber a winning ACK, nor resurrect a row the
+    /// expiry checker already failed in the loop's `waitForEvent` await-gap.
+    /// This matches the terminal-safety of `clearRetryingToSent` and
+    /// `updateMessageAck`.
     public func updateMessageRetryStatus(
         id: UUID,
         status: MessageStatus,
@@ -364,7 +359,9 @@ extension PersistenceStore {
         var descriptor = FetchDescriptor(predicate: predicate)
         descriptor.fetchLimit = 1
 
-        if let message = try modelContext.fetch(descriptor).first, message.status != .delivered {
+        if let message = try modelContext.fetch(descriptor).first,
+           message.status != .delivered,
+           message.status != .failed {
             message.status = status
             message.retryAttempt = retryAttempt
             message.maxRetryAttempts = maxRetryAttempts
@@ -389,10 +386,13 @@ extension PersistenceStore {
 
     /// Update message ACK info.
     ///
-    /// Never downgrades a `.delivered` message to a lower status: once the
+    /// Both `.delivered` and `.failed` are terminal for this write: once the
     /// listener (or `finalizeSend`) writes `.delivered` + `roundTripTime`, a
     /// later `.sent` write from the send-return path is skipped so the
-    /// authoritative delivery state is preserved.
+    /// authoritative delivery state is preserved; and once the expiry checker
+    /// writes `.failed`, a late ACK landing in the checker's await-gap cannot
+    /// flip the row to `.delivered`. The only late transition this write allows
+    /// is the legitimate `.sent` -> `.delivered` upgrade.
     public func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32? = nil) throws {
         let targetID = id
         let predicate = #Predicate<Message> { message in
@@ -402,12 +402,27 @@ extension PersistenceStore {
         descriptor.fetchLimit = 1
 
         if let message = try modelContext.fetch(descriptor).first {
-            if message.status == .delivered && status != .delivered { return }
+            if (message.status == .delivered || message.status == .failed) && status != message.status { return }
             message.ackCode = ackCode
             message.status = status
             message.roundTripTime = roundTripTime
             try modelContext.save()
         }
+    }
+
+    /// Read-only diagnostic: whether an outgoing DM row persists `.sent` with
+    /// this `ackCode`.
+    public func hasOutgoingSentDM(ackCode: UInt32) throws -> Bool {
+        let target: UInt32? = ackCode
+        let sentRaw = MessageStatus.sent.rawValue
+        let outgoingRaw = MessageDirection.outgoing.rawValue
+        let predicate = #Predicate<Message> { message in
+            message.ackCode == target &&
+            message.statusRawValue == sentRaw &&
+            message.directionRawValue == outgoingRaw &&
+            message.channelIndex == nil
+        }
+        return try modelContext.fetchCount(FetchDescriptor(predicate: predicate)) > 0
     }
 
     /// Mark a message as read
@@ -617,18 +632,7 @@ extension PersistenceStore {
             throw PersistenceStoreError.messageNotFound
         }
 
-        let repeat_ = MessageRepeat(
-            id: dto.id,
-            message: parentMessage,
-            messageID: dto.messageID,
-            receivedAt: dto.receivedAt,
-            pathNodes: dto.pathNodes,
-            pathLength: dto.pathLength,
-            snr: dto.snr,
-            rssi: dto.rssi,
-            rxLogEntryID: dto.rxLogEntryID
-        )
-        modelContext.insert(repeat_)
+        modelContext.insert(MessageRepeat(dto: dto, message: parentMessage))
         try modelContext.save()
     }
 

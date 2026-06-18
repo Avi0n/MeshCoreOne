@@ -23,7 +23,7 @@ struct NoiseFloorView: View {
         }
         .task(id: appState.servicesVersion) {
             chartStartTime = Date()
-            viewModel.startPolling(appState: appState)
+            viewModel.startPolling { appState.services?.session }
         }
         .onDisappear {
             viewModel.stopPolling()

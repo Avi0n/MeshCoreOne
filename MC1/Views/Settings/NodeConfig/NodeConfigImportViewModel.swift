@@ -9,6 +9,7 @@ final class NodeConfigImportViewModel {
     var importedConfig: MeshCoreNodeConfig?
     var errorMessage: String?
     var showFilePicker = false
+    var isParsing = false
 
     // Section selection
     var sections = ConfigSections()
@@ -36,6 +37,11 @@ final class NodeConfigImportViewModel {
     private var didApplyAnyWrite = false
 
     private var importTask: Task<Void, Never>?
+
+    /// Handle for the in-flight file parse, plus the ID guard that lets a newer parse
+    /// (or a dismissal) invalidate a stale result that raced past cancellation.
+    private var parseTask: Task<Void, Never>?
+    private var currentParseID: UUID?
 
     /// Handle for the in-flight preview, which does a real BLE round-trip via `previewImport`.
     /// Stored so it can be cancelled if the user leaves the screen or supersedes it.
@@ -79,36 +85,65 @@ final class NodeConfigImportViewModel {
         }
     }
 
-    /// Parse a JSON file from a security-scoped URL.
+    /// Parse a JSON file from a security-scoped URL. The read and decode run detached
+    /// because the URL can point at an undownloaded iCloud Drive file, where a
+    /// synchronous read on the main actor blocks the UI for the whole download.
     func parseFile(at url: URL) {
-        guard url.startAccessingSecurityScopedResource() else {
-            errorMessage = L10n.Settings.ConfigImport.cannotAccess
-            return
-        }
-        defer { url.stopAccessingSecurityScopedResource() }
+        parseTask?.cancel()
+        isParsing = true
+        errorMessage = nil
+        let taskID = UUID()
+        currentParseID = taskID
+        let didAccessSecurityScope = url.startAccessingSecurityScopedResource()
 
-        do {
-            let data = try Data(contentsOf: url)
-            let config = try JSONDecoder().decode(MeshCoreNodeConfig.self, from: data)
-            importedConfig = config
-            errorMessage = nil
-
-            // Auto-select only sections present in the file
-            sections.nodeIdentity = config.name != nil || config.publicKey != nil || config.privateKey != nil
-            sections.radioSettings = config.radioSettings != nil
-            sections.positionSettings = config.positionSettings != nil && !(config.positionSettings?.isZero ?? true)
-            sections.otherSettings = config.otherSettings != nil
-            sections.channels = config.channels != nil
-            sections.contacts = config.contacts != nil
-        } catch {
-            errorMessage = Self.localizedDescription(for: error)
-            logger.error("Failed to parse config: \(error.localizedDescription)")
+        parseTask = Task.detached(priority: .userInitiated) { [weak self, url, didAccessSecurityScope] in
+            defer {
+                if didAccessSecurityScope {
+                    url.stopAccessingSecurityScopedResource()
+                }
+            }
+            do {
+                // .mappedIfSafe lets the OS page-cache the read rather than
+                // copying the whole file into the heap.
+                let data = try Data(contentsOf: url, options: .mappedIfSafe)
+                try Task.checkCancellation()
+                let config = try JSONDecoder().decode(MeshCoreNodeConfig.self, from: data)
+                try Task.checkCancellation()
+                await self?.applyParseSuccess(config, for: taskID)
+            } catch is CancellationError {
+                // The new invocation or the dismissal owns the parse state; don't clobber it.
+                return
+            } catch {
+                await self?.applyParseFailure(error, for: taskID)
+            }
         }
     }
 
-    /// Load current device values for diff display.
-    func loadCurrentDeviceState(appState: AppState) async {
-        guard let settingsService = appState.services?.settingsService else { return }
+    private func applyParseSuccess(_ config: MeshCoreNodeConfig, for taskID: UUID) {
+        guard currentParseID == taskID else { return }
+        isParsing = false
+        importedConfig = config
+        errorMessage = nil
+
+        // Auto-select only sections present in the file
+        sections.nodeIdentity = config.name != nil || config.publicKey != nil || config.privateKey != nil
+        sections.radioSettings = config.radioSettings != nil
+        sections.positionSettings = config.positionSettings != nil && !(config.positionSettings?.isZero ?? true)
+        sections.otherSettings = config.otherSettings != nil
+        sections.channels = config.channels != nil
+        sections.contacts = config.contacts != nil
+    }
+
+    private func applyParseFailure(_ error: Error, for taskID: UUID) {
+        guard currentParseID == taskID else { return }
+        isParsing = false
+        errorMessage = error.userFacingMessage
+        logger.error("Failed to parse config: \(error.localizedDescription)")
+    }
+
+    /// Load current device values for diff display. A nil service mirrors a disconnected state.
+    func loadCurrentDeviceState(settingsService: SettingsService?) async {
+        guard let settingsService else { return }
         do {
             let selfInfo = try await settingsService.getSelfInfo()
             currentName = selfInfo.name
@@ -125,10 +160,10 @@ final class NodeConfigImportViewModel {
     /// Runs the non-destructive planner to classify the import (overwrite vs additive) and reject a
     /// malformed config up front, then presents the confirmation alert. Surfacing a planner error here
     /// means a poison file is caught before the user even confirms, and before any write.
-    func prepareConfirmation(appState: AppState) {
+    func prepareConfirmation(nodeConfigService: NodeConfigService?) {
         guard !isPreparingConfirmation, !isApplying else { return }
         guard let config = importedConfig,
-              let service = appState.services?.nodeConfigService else { return }
+              let service = nodeConfigService else { return }
 
         errorMessage = nil
         isPreparingConfirmation = true
@@ -147,18 +182,18 @@ final class NodeConfigImportViewModel {
             } catch is CancellationError {
                 // The user left the screen mid-preview — leave the UI untouched.
             } catch {
-                errorMessage = Self.localizedDescription(for: error)
+                errorMessage = error.userFacingMessage
                 logger.error("Import preview failed: \(error.localizedDescription)")
             }
         }
     }
 
-    /// Apply the imported config to the device.
-    func applyConfig(appState: AppState) {
+    /// Apply the imported config to the device. Nil parameters mirror a disconnected state.
+    func applyConfig(nodeConfigService: NodeConfigService?, settingsService: SettingsService?, radioID: UUID?) {
         guard !isApplying else { return }
         guard let config = importedConfig,
-              let service = appState.services?.nodeConfigService,
-              let radioID = appState.connectedDevice?.radioID else { return }
+              let service = nodeConfigService,
+              let radioID else { return }
 
         isApplying = true
         applyProgress = 0
@@ -189,7 +224,7 @@ final class NodeConfigImportViewModel {
                 progressContinuation.finish()
                 await consumer.value
                 // Refresh cached device state so Settings UI reflects imported values
-                if let settingsService = appState.services?.settingsService {
+                if let settingsService {
                     try? await settingsService.refreshDeviceInfo()
                 }
                 isApplying = false
@@ -224,6 +259,8 @@ final class NodeConfigImportViewModel {
     /// its own explicit cancel control, so a transient view disappearance must neither abort it
     /// mid-write nor hide its result from a user who returns.
     func handleDismissal() {
+        parseTask?.cancel()
+        currentParseID = nil
         previewTask?.cancel()
         guard !isApplying else { return }
         resetToFileSelection()
@@ -244,30 +281,6 @@ final class NodeConfigImportViewModel {
         }
     }
 
-    /// Maps a service-layer ``NodeConfigServiceError`` to a localized message, keeping `L10n` in the
-    /// app layer so the service stays localization-free. Non-config errors fall through to their own
-    /// ``Error/localizedDescription``.
-    static func localizedDescription(for error: Error) -> String {
-        guard let configError = error as? NodeConfigServiceError else { return error.localizedDescription }
-        switch configError {
-        case .invalidRadioSettings(let field):
-            return L10n.Settings.ConfigImport.Error.radioOutOfRange(radioFieldLabel(field))
-        case .invalidCoordinate(let field):
-            switch field {
-            case .positionLatitude, .positionLongitude:
-                return L10n.Settings.ConfigImport.Error.positionInvalid(coordinateLabel(field))
-            case .contactLatitude(let name), .contactLongitude(let name):
-                return L10n.Settings.ConfigImport.Error.contactCoordinateInvalid(name, coordinateLabel(field))
-            }
-        case .invalidOutPath(let name):
-            return L10n.Settings.ConfigImport.Error.invalidOutPath(name)
-        case .contactCapacityExceeded(let needed, let available):
-            return L10n.Settings.ConfigImport.Error.contactCapacityExceeded(needed, available)
-        default:
-            return error.localizedDescription
-        }
-    }
-
     /// Localized message for a cancelled import; distinguishes a clean cancel from one where a
     /// destructive write already landed on the device.
     static func cancellationMessage(didApplyAnyWrite: Bool) -> String {
@@ -280,31 +293,15 @@ final class NodeConfigImportViewModel {
     /// destructive write already landed.
     static func failureMessage(for error: Error, didApplyAnyWrite: Bool) -> String {
         didApplyAnyWrite
-            ? L10n.Settings.ConfigImport.failedPartial(localizedDescription(for: error))
-            : localizedDescription(for: error)
-    }
-
-    private static func radioFieldLabel(_ field: RadioField) -> String {
-        switch field {
-        case .frequency: L10n.Settings.ConfigImport.Field.frequency
-        case .bandwidth: L10n.Settings.ConfigImport.Field.bandwidth
-        case .spreadingFactor: L10n.Settings.ConfigImport.Field.spreadingFactor
-        case .codingRate: L10n.Settings.ConfigImport.Field.codingRate
-        case .txPower: L10n.Settings.ConfigImport.Field.txPower
-        }
-    }
-
-    private static func coordinateLabel(_ field: CoordinateField) -> String {
-        switch field {
-        case .positionLatitude, .contactLatitude: L10n.Settings.ConfigImport.Field.latitude
-        case .positionLongitude, .contactLongitude: L10n.Settings.ConfigImport.Field.longitude
-        }
+            ? L10n.Settings.ConfigImport.failedPartial(error.userFacingMessage)
+            : error.userFacingMessage
     }
 
     /// Reset to the initial file-selection state so the user can import another file.
     private func resetToFileSelection() {
         importedConfig = nil
         errorMessage = nil
+        isParsing = false
         sections = ConfigSections()
         currentName = nil
         currentRadio = nil

@@ -16,13 +16,13 @@ struct ChatSendQueueServiceTests {
     private static func makeMessageService(dataStore: PersistenceStore) async -> MessageService {
         let transport = SimulatorMockTransport()
         let session = MeshCoreSession(transport: transport)
-        return MessageService(session: session, dataStore: dataStore)
+        return MessageService(session: session, dataStore: dataStore, contactService: nil)
     }
 
     private static func makeChannelService(dataStore: PersistenceStore) async -> ChannelService {
         let transport = SimulatorMockTransport()
         let session = MeshCoreSession(transport: transport)
-        return ChannelService(session: session, dataStore: dataStore)
+        return ChannelService(session: session, dataStore: dataStore, rxLogService: nil)
     }
 
     /// PendingSend row pointing at a contact that was deleted between
@@ -90,7 +90,7 @@ struct ChatSendQueueServiceTests {
 
         let transport = SimulatorMockTransport()
         let session = MeshCoreSession(transport: transport)
-        let messageService = MessageService(session: session, dataStore: store)
+        let messageService = MessageService(session: session, dataStore: store, contactService: nil)
         let message = try await messageService.createPendingMessage(text: "Hello", to: contactDTO)
 
         let envelope = DirectMessageEnvelope(messageID: message.id, contactID: contactDTO.id)
@@ -98,7 +98,7 @@ struct ChatSendQueueServiceTests {
             PendingSendDTO(envelope: envelope, radioID: radioID)
         )
 
-        let channelService = ChannelService(session: session, dataStore: store)
+        let channelService = ChannelService(session: session, dataStore: store, rxLogService: nil)
         let service = ChatSendQueueService(
             radioID: radioID,
             dataStore: store,
@@ -638,7 +638,7 @@ struct ChatSendQueueServiceTests {
             transport: transport,
             configuration: SessionConfiguration(defaultTimeout: 0.2)
         )
-        let messageService = MessageService(session: session, dataStore: store, config: messageConfig)
+        let messageService = MessageService(session: session, dataStore: store, contactService: nil, config: messageConfig)
 
         let pending = try await messageService.createPendingChannelMessage(
             text: "Hello channel",
@@ -688,7 +688,7 @@ struct ChatSendQueueServiceTests {
             localNodeName: "Test Radio"
         )
 
-        let channelService = ChannelService(session: session, dataStore: store)
+        let channelService = ChannelService(session: session, dataStore: store, rxLogService: nil)
         let queueService = ChatSendQueueService(
             radioID: radioID,
             dataStore: store,
@@ -809,13 +809,13 @@ struct ChatSendQueueServiceTests {
 
     /// Regression: when a DM send fails with a transient firmware code
     /// (e.g. `directMessageTableFull`), `failMessageAndRethrow` writes
-    /// `.failed` and fires `messageFailedHandler` before the queue's
+    /// `.failed` and broadcasts the failure before the queue's
     /// catch reclassifies the error and remaps the status back to
-    /// `.pending`. The handler fire propagates an in-memory `.failed`
+    /// `.pending`. The broadcast propagates an in-memory `.failed`
     /// snapshot to the UI even though the persisted state is `.pending`,
     /// causing the bubble to flicker "Failed" while the queue is parked.
-    /// Transient errors must not fire the failure handler at all.
-    @Test("Transient DM send error must not fire messageFailedHandler")
+    /// Transient errors must not broadcast `.failed` at all.
+    @Test("Transient DM send error must not broadcast .failed")
     func transientDMError_DoesNotFireFailedHandler() async throws {
         // Tight pool-backoff so the failure surfaces fast. The invariant
         // under test is independent of backoff duration.
@@ -825,15 +825,7 @@ struct ChatSendQueueServiceTests {
         let harness = try await Self.setUpDMHarness(messageConfig: messageConfig)
         defer { Task { await harness.tearDown() } }
 
-        actor Collector {
-            var ids: [UUID] = []
-            func record(_ id: UUID) { ids.append(id) }
-            func snapshot() -> [UUID] { ids }
-        }
-        let collector = Collector()
-        await harness.messageService.setMessageFailedHandler { messageID in
-            await collector.record(messageID)
-        }
+        let statusEvents = harness.messageService.statusEvents()
 
         // Configure session to throw a transient error code on send.
         // The persisted PendingSend row is drained by hydrate() inside
@@ -850,40 +842,145 @@ struct ChatSendQueueServiceTests {
         // failMessageAndRethrow has definitively run before we assert.
         try await Task.sleep(for: .milliseconds(300))
 
-        let observed = await collector.snapshot()
-        #expect(observed.count == 0, "Transient errors must not fire messageFailedHandler; got \(observed.count) calls")
+        let observed = await harness.messageService.drainStatusEvents(statusEvents).failedIDs
+        #expect(observed.count == 0, "Transient errors must not broadcast .failed; got \(observed.count) events")
     }
 
     /// Complement to `transientDMError_DoesNotFireFailedHandler`. A truly
-    /// terminal DM send error must still surface to the UI via the failure
-    /// handler — exactly once. Guards against accidentally suppressing the
-    /// fire on the queue-routed path now that `failMessageAndRethrow` no
-    /// longer fires the handler itself.
-    @Test("Terminal DM send error fires messageFailedHandler exactly once")
+    /// terminal DM send error must still surface to the UI via the `.failed`
+    /// broadcast, exactly once. Guards against accidentally suppressing the
+    /// broadcast on the queue-routed path given that `failMessageAndRethrow`
+    /// does not broadcast itself.
+    @Test("Terminal DM send error broadcasts .failed exactly once")
     func terminalDMError_FiresFailedHandlerExactlyOnce() async throws {
         let harness = try await Self.setUpDMHarness()
         defer { Task { await harness.tearDown() } }
 
-        actor Collector {
-            var ids: [UUID] = []
-            func record(_ id: UUID) { ids.append(id) }
-            func snapshot() -> [UUID] { ids }
-        }
-        let collector = Collector()
-        await harness.messageService.setMessageFailedHandler { messageID in
-            await collector.record(messageID)
-        }
+        let statusEvents = harness.messageService.statusEvents()
 
         // Non-transient firmware code so the drain's classifier treats the
         // error as terminal and rethrows from the inner catch, hitting the
-        // outer catch in the queue closure that fires `notifyMessageFailed`.
+        // outer catch in the queue closure that calls `notifyMessageFailed`.
         await harness.setSendDirectMessageFailureMode(.invalidInput)
 
         await harness.drainOnce()
 
-        let ids = await collector.snapshot()
-        #expect(ids.count == 1, "Terminal errors must fire handler exactly once; got \(ids.count)")
-        #expect(ids.first == harness.messageID, "Handler must fire for the failed envelope's messageID")
+        let ids = await harness.messageService.drainStatusEvents(statusEvents).failedIDs
+        #expect(ids.count == 1, "Terminal errors must broadcast .failed exactly once; got \(ids.count)")
+        #expect(ids.first == harness.messageID, ".failed must carry the failed envelope's messageID")
+    }
+
+    /// A container built after the connection already reached `.ready` receives
+    /// the edge through `observeConnectionState`'s initial value: an already-ready
+    /// initial state must fire the trigger so a drain parked in
+    /// `withCooperativeTimeout` wakes (observable as a second attemptCount bump)
+    /// instead of waiting out `transportWaitTimeout`.
+    @Test("observeConnectionState fires the trigger for an already-ready initial state")
+    func observeConnectionState_ReadyInitial_WakesParkedDrain() async throws {
+        let messageConfig = MessageServiceConfig(
+            poolBackoff: PoolBackoffConfig(attemptCap: 2, baseDelay: 0.01)
+        )
+        let harness = try await Self.setUpDMHarness(messageConfig: messageConfig)
+        defer { Task { await harness.tearDown() } }
+
+        await harness.setSendDirectMessageFailureMode(
+            .deviceError(FirmwareDeviceErrorCode.directMessageTableFull)
+        )
+        await harness.drainOnceAllowingPark()
+
+        harness.queue.observeConnectionState(
+            initial: .ready,
+            events: AsyncStream { $0.finish() }
+        )
+
+        try await Self.waitForCondition(timeout: .seconds(10)) {
+            let row = try await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
+                .first(where: { $0.messageID == harness.messageID })
+            return (row?.attemptCount ?? 0) >= 2
+        }
+    }
+
+    /// `.connected` (link up, initial sync not yet cleared) must NOT wake a
+    /// parked drain: hydrated sends stay parked through the sync window so they
+    /// do not contend with sync's reads. The drain only wakes once `.ready`
+    /// arrives on the stream.
+    @Test("observeConnectionState keeps a drain parked through .connected and wakes it on .ready")
+    func observeConnectionState_ConnectedDoesNotWake_ReadyDoes() async throws {
+        let messageConfig = MessageServiceConfig(
+            poolBackoff: PoolBackoffConfig(attemptCap: 2, baseDelay: 0.01)
+        )
+        let harness = try await Self.setUpDMHarness(messageConfig: messageConfig)
+        defer { Task { await harness.tearDown() } }
+
+        await harness.setSendDirectMessageFailureMode(
+            .deviceError(FirmwareDeviceErrorCode.directMessageTableFull)
+        )
+
+        let (stream, continuation) = AsyncStream.makeStream(of: DeviceConnectionState.self)
+        harness.queue.observeConnectionState(initial: .connected, events: stream)
+
+        await harness.drainOnceAllowingPark()
+
+        // `.connected` alone must not arm the trigger: the parked drain stays at one attempt.
+        continuation.yield(.connected)
+        try await Task.sleep(for: .seconds(1))
+        let parkedRow = try await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
+            .first(where: { $0.messageID == harness.messageID })
+        #expect(parkedRow?.attemptCount == 1, ".connected must not wake the drain during the sync window")
+
+        // Entering `.ready` fires the trigger and the drain wakes for its second attempt.
+        continuation.yield(.ready)
+        continuation.finish()
+        try await Self.waitForCondition(timeout: .seconds(10)) {
+            let row = try await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
+                .first(where: { $0.messageID == harness.messageID })
+            return (row?.attemptCount ?? 0) >= 2
+        }
+    }
+
+    /// Edge-trigger contract across the connected ramp: a stream driving
+    /// disconnected, connected, syncing, ready crosses into `.ready` once, so
+    /// the trigger fires once on that entry. The signal's armed-bit consumption
+    /// makes a double fire observable: re-arming on a non-`.ready` rung would
+    /// wake the second park without a new edge, surfacing as a third
+    /// attemptCount bump.
+    @Test("connection-state ramp fires the trigger exactly once")
+    func observeConnectionState_ConnectedRamp_FiresExactlyOnce() async throws {
+        let messageConfig = MessageServiceConfig(
+            poolBackoff: PoolBackoffConfig(attemptCap: 2, baseDelay: 0.01)
+        )
+        let harness = try await Self.setUpDMHarness(messageConfig: messageConfig)
+        defer { Task { await harness.tearDown() } }
+
+        await harness.setSendDirectMessageFailureMode(
+            .deviceError(FirmwareDeviceErrorCode.directMessageTableFull)
+        )
+
+        let (stream, continuation) = AsyncStream.makeStream(of: DeviceConnectionState.self)
+        harness.queue.observeConnectionState(initial: .disconnected, events: stream)
+
+        await harness.drainOnceAllowingPark()
+
+        continuation.yield(.disconnected)
+        continuation.yield(.connected)
+        continuation.yield(.syncing)
+        continuation.yield(.ready)
+        continuation.finish()
+
+        // The single edge wakes the parked drain once: attempt 2 runs,
+        // fails transiently, and parks again.
+        try await Self.waitForCondition(timeout: .seconds(10)) {
+            let row = try await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
+                .first(where: { $0.messageID == harness.messageID })
+            return (row?.attemptCount ?? 0) >= 2
+        }
+
+        // Steady state: no further wake without a new edge.
+        try await Task.sleep(for: .seconds(1))
+        let row = try await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
+            .first(where: { $0.messageID == harness.messageID })
+        #expect(row?.attemptCount == 2,
+                "the connected ramp must fire the transport-open trigger exactly once")
     }
 
     // MARK: - DM drain helpers
@@ -1069,7 +1166,7 @@ struct ChatSendQueueServiceTests {
             transport: transport,
             configuration: SessionConfiguration(defaultTimeout: 0.2)
         )
-        let messageService = MessageService(session: session, dataStore: dataStore, config: messageConfig)
+        let messageService = MessageService(session: session, dataStore: dataStore, contactService: nil, config: messageConfig)
         await messageService.installSelfInfoForTest()
         let pending = try await messageService.createPendingMessage(text: "Hello", to: contactDTO)
 
@@ -1078,7 +1175,7 @@ struct ChatSendQueueServiceTests {
             PendingSendDTO(envelope: envelope, radioID: radioID)
         )
 
-        let channelService = ChannelService(session: session, dataStore: dataStore)
+        let channelService = ChannelService(session: session, dataStore: dataStore, rxLogService: nil)
         let queue = ChatSendQueueService(
             radioID: radioID,
             dataStore: dataStore,

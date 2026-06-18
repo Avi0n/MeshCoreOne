@@ -296,8 +296,8 @@ The app requires Bluetooth and location permissions plus background BLE mode:
 
 ## BLE Transport Architecture
 
-- **MeshCore/Sources/MeshCore/Transport/BLETransport.swift**: Base BLE transport protocol implementation
-- **MC1Services/Transport/iOSBLETransport.swift**: iOS-specific BLE transport with CoreBluetooth integration
+- **MeshCore/Sources/MeshCore/Transport/MeshTransport.swift**: Transport protocol the BLE stack plugs into
+- **MC1Services/Transport/iOSBLETransport.swift**: iOS BLE transport with CoreBluetooth integration
 - **MC1Services/Transport/BLEStateMachine.swift**: Connection state management
 - **MC1Services/Services/AccessorySetupKitService.swift**: iOS 18+ pairing flow
 

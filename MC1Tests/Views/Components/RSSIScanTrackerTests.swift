@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 @testable import MC1
-import MC1Services
+@testable import MC1Services
 
 /// Behavioral coverage for `RSSIScanTracker`, the scan-orchestration model shared by the iOS
 /// device picker (`DeviceSelectionSheet`) and the macOS scan picker (`DeviceScannerSheet`). The

@@ -13,41 +13,43 @@ struct InlineImageFragmentView: View {
     let onRetry: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @ScaledMetric(relativeTo: .body) private var minHeight: CGFloat = 100
-    @ScaledMetric(relativeTo: .body) private var maxHeight: CGFloat = 250
+    @ScaledMetric(relativeTo: .body) private var minHeight: CGFloat = RichPreviewMetrics.minHeroHeight
+    @ScaledMetric(relativeTo: .body) private var maxHeight: CGFloat = RichPreviewMetrics.maxHeroHeight
 
-    private static let fallbackAspect: Double = 16.0 / 9.0
     private static let crossFadeDuration: Double = 0.2
-    private static let skeletonCornerRadius: CGFloat = 12
+    private static let skeletonCornerRadius: CGFloat = RichPreviewMetrics.cornerRadius
     private static let retryIconSpacing: CGFloat = 8
     private static let retryForegroundOpacity: Double = 0.7
 
     private var aspect: Double {
-        inlineImage.cachedAspect ?? Self.fallbackAspect
+        inlineImage.cachedAspect ?? RichPreviewMetrics.fallbackAspect
     }
 
     var body: some View {
-        Color.clear
-            .aspectRatio(CGFloat(aspect), contentMode: .fit)
-            .frame(minHeight: minHeight, maxHeight: maxHeight)
-            .frame(maxWidth: .infinity)
-            .overlay {
-                ZStack {
-                    skeletonLayer
-                        .opacity(isLoaded ? 0 : 1)
+        // No card chrome here: the inline image is edge-to-edge in the bubble
+        // box, which supplies the rounding and the surface, so the reserved
+        // frame carries no corner clip or background of its own.
+        RichPreviewCard(
+            aspect: CGFloat(aspect),
+            minHeight: minHeight,
+            maxHeight: maxHeight
+        ) {
+            ZStack {
+                PreviewSkeleton()
+                    .opacity(isLoaded ? 0 : 1)
 
-                    loadedLayer
-                        .opacity(isLoaded ? 1 : 0)
+                loadedLayer
+                    .opacity(isLoaded ? 1 : 0)
 
-                    if case .failed = inlineImage.state {
-                        retryLayer
-                    }
+                if case .failed = inlineImage.state {
+                    retryLayer
                 }
             }
-            .animation(
-                reduceMotion ? nil : .easeOut(duration: Self.crossFadeDuration),
-                value: isLoaded
-            )
+        }
+        .animation(
+            reduceMotion ? nil : .easeOut(duration: Self.crossFadeDuration),
+            value: isLoaded
+        )
     }
 
     private var isLoaded: Bool {
@@ -56,14 +58,6 @@ struct InlineImageFragmentView: View {
             return true
         }
         return false
-    }
-
-    @ViewBuilder
-    private var skeletonLayer: some View {
-        RoundedRectangle(cornerRadius: Self.skeletonCornerRadius, style: .continuous)
-            .fill(Color(.tertiarySystemFill))
-            .modifier(Shimmer(isActive: !reduceMotion))
-            .accessibilityHidden(true)
     }
 
     @ViewBuilder

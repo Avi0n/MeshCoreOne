@@ -54,6 +54,8 @@ extension MessageService {
         )
         try await dataStore.saveMessage(messageDTO)
 
+        let predictedAck: Data
+        let sentInfo: MessageSentInfo
         do {
             // Precompute the expected ACK before the send so the persistent
             // listener cannot race trackPendingAck on short direct links (same
@@ -62,7 +64,7 @@ extension MessageService {
             guard let senderPublicKey = await session.currentSelfInfo?.publicKey else {
                 throw MessageServiceError.notConnected
             }
-            let predictedAck = AckCodeBuilder.expectedAck(
+            predictedAck = AckCodeBuilder.expectedAck(
                 timestamp: timestamp,
                 attempt: 0,
                 text: text,
@@ -78,7 +80,6 @@ extension MessageService {
                 timeout: checkInterval
             )
 
-            let sentInfo: MessageSentInfo
             do {
                 sentInfo = try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.directMessageTableFull, config: config.poolBackoff, logger: logger) {
                     try await session.sendMessage(
@@ -91,44 +92,50 @@ extension MessageService {
                 pendingAcks.removeValue(forKey: messageID)
                 throw error
             }
-
-            let ackTimeout = TimeInterval(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
-
-            if sentInfo.expectedAck != predictedAck {
-                logger.warning(
-                    "expectedAck mismatch for \(messageID) attempt 0: predicted \(predictedAck.hexString()) vs firmware \(sentInfo.expectedAck.hexString()); merging firmware code"
-                )
-                trackPendingAck(
-                    messageID: messageID,
-                    contactID: contact.id,
-                    ackCode: sentInfo.expectedAck,
-                    timeout: ackTimeout
-                )
-            } else {
-                pendingAcks[messageID]?.timeout = ackTimeout
-                pendingAcks[messageID]?.sentAt = Date()
-            }
-
-            // updateMessageAck preserves `.delivered`, so writing `.sent` here
-            // is a no-op when the listener already won the race.
-            let ackCodeUInt32 = sentInfo.expectedAck.ackCodeUInt32
-            try await dataStore.updateMessageAck(
-                id: messageID,
-                ackCode: ackCodeUInt32,
-                status: .sent
-            )
-
-            try await dataStore.updateContactLastMessage(contactID: contact.id, date: Date())
-            await messageSentHandler?(messageID, .sent, nil)
-
-            guard let message = try await dataStore.fetchMessage(id: messageID) else {
-                throw MessageServiceError.sendFailed("Failed to fetch saved message")
-            }
-            return message
         } catch {
-            await messageFailedHandler?(messageID)
+            statusEventBroadcaster.yield(.failed(messageID: messageID))
             try await failMessageAndRethrow(error, messageID: messageID)
         }
+
+        let ackTimeout = TimeInterval(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
+
+        if sentInfo.expectedAck != predictedAck {
+            logger.warning(
+                "expectedAck mismatch for \(messageID) attempt 0: predicted \(predictedAck.uppercaseHexString()) vs firmware \(sentInfo.expectedAck.uppercaseHexString()); merging firmware code"
+            )
+            trackPendingAck(
+                messageID: messageID,
+                contactID: contact.id,
+                ackCode: sentInfo.expectedAck,
+                timeout: ackTimeout
+            )
+        } else {
+            pendingAcks[messageID]?.timeout = ackTimeout
+            pendingAcks[messageID]?.sentAt = Date()
+        }
+
+        // Post-send bookkeeping. The radio accepted the send, so a throw here
+        // must not mark `.failed` or drop the pendingAcks entry; the genuine
+        // end-to-end ACK or the expiry checker owns the terminal state now,
+        // mirroring the channel send path.
+        do {
+            // updateMessageAck preserves `.delivered`, so writing `.sent` here
+            // is a no-op when the listener already won the race.
+            try await dataStore.updateMessageAck(
+                id: messageID,
+                ackCode: sentInfo.expectedAck.ackCodeUInt32,
+                status: .sent
+            )
+            try await dataStore.updateContactLastMessage(contactID: contact.id, date: Date())
+            statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .sent, roundTripTime: nil))
+        } catch {
+            logger.warning("DM post-send bookkeeping failed messageID=\(messageID) send already accepted: \(String(describing: error))")
+        }
+
+        guard let message = try await dataStore.fetchMessage(id: messageID) else {
+            throw MessageServiceError.sendFailed("Failed to fetch saved message")
+        }
+        return message
     }
 
     // MARK: - Send with Automatic Retry
@@ -225,7 +232,7 @@ extension MessageService {
                 initialPathLength: initialPathLength
             )
         } catch {
-            await messageFailedHandler?(messageID)
+            statusEventBroadcaster.yield(.failed(messageID: messageID))
             try await failMessageAndRethrow(error, messageID: messageID)
         }
     }
@@ -269,8 +276,8 @@ extension MessageService {
     }
 
     /// Drains a `.pending` DM through the app-layer retry loop. Does not
-    /// bump `sendCount` or fire `messageResentHandler` — both bubble-
-    /// affecting side effects belong to
+    /// bump `sendCount` or broadcast `.resent`; both bubble-affecting side
+    /// effects belong to
     /// ``resendDirectMessage(messageID:to:preserveTimestamp:)``.
     ///
     /// - Parameter preserveTimestamp: True when a prior drain attempt may
@@ -292,8 +299,8 @@ extension MessageService {
     }
 
     /// Resends an already-sent DM. Re-runs the app-layer retry loop,
-    /// increments `sendCount`, and fires `messageResentHandler` so the
-    /// bubble surfaces "Sent N times".
+    /// increments `sendCount`, and broadcasts `.resent` so the bubble
+    /// surfaces "Sent N times".
     ///
     /// - Parameter preserveTimestamp: True on queue auto-park-and-retry
     ///   of the resend; false on the first drain attempt so the wire
@@ -381,10 +388,10 @@ extension MessageService {
                 initialPathLength: initialPathLength
             )
 
-            // Fire after the DB write so the downstream refetch sees both
+            // Broadcast after the DB write so the downstream refetch sees both
             // the bumped sendCount and the committed terminal status.
             if isResend, sentInfo != nil {
-                await messageResentHandler?(messageID)
+                statusEventBroadcaster.yield(.resent(messageID: messageID))
             }
 
             return message
@@ -400,9 +407,9 @@ extension MessageService {
     /// This function manages the retry loop at the app layer (instead of delegating to MeshCore)
     /// to provide per-attempt UI feedback. On each attempt, it:
     /// - Updates the message status in the database
-    /// - Notifies the UI via `retryStatusHandler`
+    /// - Broadcasts `.retrying` for UI retry progress
     /// - Switches to flood routing after `floodAfter` failed attempts
-    /// - Notifies UI of routing changes via `routingChangedHandler`
+    /// - Broadcasts `.routingChanged` when routing switches
     ///
     /// - Parameters:
     ///   - messageID: The message ID for status updates
@@ -448,7 +455,7 @@ extension MessageService {
                     retryAttempt: attempts - 1,
                     maxRetryAttempts: config.maxAttempts - 1
                 )
-                await retryStatusHandler?(messageID, attempts - 1, config.maxAttempts - 1)
+                statusEventBroadcaster.yield(.retrying(messageID: messageID, attempt: attempts - 1, maxAttempts: config.maxAttempts - 1))
             }
 
             // Switch to flood routing after floodAfter direct attempts
@@ -462,7 +469,7 @@ extension MessageService {
                     if let updatedContact = try await session.getContact(publicKey: publicKey) {
                         _ = try await dataStore.saveContact(radioID: radioID, from: updatedContact.toContactFrame())
                     }
-                    await routingChangedHandler?(contactID, true)
+                    statusEventBroadcaster.yield(.routingChanged(contactID: contactID, isFlood: true))
                 } catch {
                     logger.warning("Failed to reset path: \(error.localizedDescription), continuing...")
                     // Continue anyway - device might handle it
@@ -533,7 +540,7 @@ extension MessageService {
 
             if sentInfo.expectedAck != predictedAck {
                 logger.warning(
-                    "expectedAck mismatch for \(messageID) attempt \(attempts): predicted \(predictedAck.hexString()) vs firmware \(sentInfo.expectedAck.hexString()); merging firmware code"
+                    "expectedAck mismatch for \(messageID) attempt \(attempts): predicted \(predictedAck.uppercaseHexString()) vs firmware \(sentInfo.expectedAck.uppercaseHexString()); merging firmware code"
                 )
                 trackPendingAck(
                     messageID: messageID,
@@ -578,7 +585,7 @@ extension MessageService {
 
     // MARK: - Routing Change Detection
 
-    /// Checks if contact routing changed and notifies handler if so.
+    /// Checks if contact routing changed and broadcasts `.routingChanged` if so.
     ///
     /// Called after sendMessageWithRetry to detect if routing switched
     /// between direct and flood modes during the retry process.
@@ -604,8 +611,8 @@ extension MessageService {
                 _ = try await dataStore.saveContact(radioID: radioID, from: updatedContact.toContactFrame())
 
                 // Notify UI of routing change
-                let isNowFlood = newPathLength == 0xFF
-                await routingChangedHandler?(contactID, isNowFlood)
+                let isNowFlood = newPathLength == PacketBuilder.floodPathSentinel
+                statusEventBroadcaster.yield(.routingChanged(contactID: contactID, isFlood: isNowFlood))
             }
         } catch {
             logger.warning("Failed to check routing change: \(error.localizedDescription)")
@@ -627,7 +634,7 @@ extension MessageService {
         // collisions across distinct in-flight messages measures how often a
         // delivery confirmation could be attributed to the wrong message.
         if let colliding = pendingAcks.first(where: { $0.key != messageID && $0.value.ackCodes.contains(ackCode) }) {
-            logger.warning("[ack-diag] ackCode collision: code=\(ackCode.hexString()) shared by messages \(colliding.key) and \(messageID)")
+            logger.warning("[ack-diag] ackCode collision: code=\(ackCode.uppercaseHexString()) shared by messages \(colliding.key) and \(messageID)")
         }
         if var existing = pendingAcks[messageID] {
             existing.ackCodes.insert(ackCode)
@@ -658,28 +665,39 @@ extension MessageService {
         sentInfo: MessageSentInfo?,
         initialPathLength: UInt8
     ) async throws -> MessageDTO {
-        // Atomically take ownership of the pendingAcks entry. A missing entry
+        // Peek the pendingAcks entry without taking ownership. A missing entry
         // means `handleAcknowledgement` already processed the ACK (it removes
-        // the entry on delivery); an `isDelivered == true` entry means the
-        // listener marked it mid-flight. In both cases the listener owns the
-        // `.delivered` write (including `roundTripTime`) and we skip the DB
-        // update here to avoid clobbering it with a nil RTT.
-        let tracking = pendingAcks.removeValue(forKey: messageID)
+        // the entry on delivery) or `checkExpiredAcks` already failed and
+        // removed it; an `isDelivered == true` entry means the listener marked
+        // it mid-flight. In those cases the owner holds the terminal write
+        // (including `roundTripTime`) and we drop any residual entry and skip
+        // the DB update here.
+        let tracking = pendingAcks[messageID]
 
-        if tracking?.isDelivered == false {
-            if let sentInfo {
-                try await dataStore.updateMessageAck(
-                    id: messageID,
-                    ackCode: sentInfo.expectedAck.ackCodeUInt32,
-                    status: .delivered
-                )
-                try await dataStore.updateContactLastMessage(contactID: contactID, date: Date())
-                await ackConfirmationHandler?(messageID, .delivered, nil)
-            } else {
-                let didFail = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
-                if didFail {
-                    await messageFailedHandler?(messageID)
-                }
+        if tracking == nil || tracking?.isDelivered == true {
+            pendingAcks.removeValue(forKey: messageID)
+        } else if let sentInfo {
+            // The retry loop's waitForEvent matched the ACK. Take ownership and
+            // record the legitimate `.sent` -> `.delivered` upgrade.
+            pendingAcks.removeValue(forKey: messageID)
+            try await dataStore.updateMessageAck(
+                id: messageID,
+                ackCode: sentInfo.expectedAck.ackCodeUInt32,
+                status: .delivered
+            )
+            try await dataStore.updateContactLastMessage(contactID: contactID, date: Date())
+            statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .delivered, roundTripTime: nil))
+        } else {
+            // Retry budget spent without an ACK. Neither fail the row nor remove
+            // the entry: `checkExpiredAcks` owns the give-up at
+            // max(ackGiveUpWindow, last attempt's ACK timeout), so a
+            // late-but-legitimate ACK can still upgrade the row.
+            // `clearRetryingToSent` rolls any `.retrying` status back to `.sent`
+            // and is terminal-safe: it no-ops if the checker already failed the
+            // row in the loop's await-gap, so the row stays `.failed` there.
+            let movedToSent = try await dataStore.clearRetryingToSent(id: messageID)
+            if movedToSent {
+                statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .sent, roundTripTime: nil))
             }
         }
         await checkAndNotifyRoutingChange(

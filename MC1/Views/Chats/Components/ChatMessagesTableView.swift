@@ -16,6 +16,7 @@ struct ChatMessagesTableView: View {
     @Binding var scrollToMentionRequest: Int
     @Binding var scrollToDividerRequest: Int
     @Binding var isDividerVisible: Bool
+    @Binding var selectedMessageForActions: MessageDTO?
     @Binding var imageViewerData: ImageViewerData?
 
     let unseenMentionIDs: [UUID]
@@ -24,12 +25,13 @@ struct ChatMessagesTableView: View {
     let onMentionSeen: (UUID) async -> Void
     let onScrollToMention: () -> Void
     let onRetryMessage: (MessageDTO) -> Void
-    let makeActionsMenu: (MessageDTO) -> AnyView
 
     @State private var hasDismissedDividerFAB = false
     @Environment(\.appTheme) private var theme
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.openURL) private var openURL
 
     private var showDividerFAB: Bool {
         newMessagesDividerMessageID != nil && !isDividerVisible && !hasDismissedDividerFAB
@@ -42,6 +44,7 @@ struct ChatMessagesTableView: View {
             deviceName: deviceName,
             configuration: configuration,
             theme: theme,
+            openURL: openURL,
             resolver: BubbleResolver(viewModel: viewModel),
             actions: BubbleActions(
                 onRetryMessage: onRetryMessage,
@@ -49,7 +52,7 @@ struct ChatMessagesTableView: View {
                     recentEmojisStore.recordUsage(emoji)
                     Task { await viewModel.sendReaction(emoji: emoji, to: message) }
                 },
-                makeActionsMenu: makeActionsMenu,
+                onLongPress: { message in selectedMessageForActions = message },
                 onImageTap: { message in
                     if let data = viewModel.imageData(for: message.id) {
                         imageViewerData = ImageViewerData(
@@ -58,7 +61,7 @@ struct ChatMessagesTableView: View {
                         )
                     }
                 },
-                onRetryImageFetch: { messageID in
+                onRetryInlineImage: { messageID in
                     Task { await viewModel.retryImageFetch(for: messageID) }
                 },
                 onRequestPreviewFetch: { messageID in
@@ -73,7 +76,10 @@ struct ChatMessagesTableView: View {
                 },
                 onMapPreviewTap: { coordinate in
                     viewModel.navigateToMap(coordinate)
-                }
+                },
+                snapshotResolver: { MapSnapshotStore.shared.image(for: $0) },
+                requestSnapshot: { MapSnapshotStore.shared.request($0) },
+                retrySnapshot: { MapSnapshotStore.shared.retry($0) }
             )
         )
         ChatTableView(
@@ -81,7 +87,11 @@ struct ChatMessagesTableView: View {
             cellContent: factory.makeContent(for:),
             contentBackground: theme.surfaces?.canvas,
             themeID: theme.id,
-            appearanceToken: AppearanceToken.make(colorScheme: colorScheme, contrast: colorSchemeContrast),
+            appearanceToken: AppearanceToken.make(
+                colorScheme: colorScheme,
+                contrast: colorSchemeContrast,
+                dynamicTypeSize: dynamicTypeSize
+            ),
             isAtBottom: $isAtBottom,
             unreadCount: $unreadCount,
             scrollToBottomRequest: $scrollToBottomRequest,
@@ -94,6 +104,11 @@ struct ChatMessagesTableView: View {
             onMentionBecameVisible: { id in
                 Task {
                     await onMentionSeen(id)
+                }
+            },
+            onSecondaryClick: { item in
+                if let message = viewModel.message(for: item) {
+                    selectedMessageForActions = message
                 }
             },
             mentionTargetID: scrollToTargetID,

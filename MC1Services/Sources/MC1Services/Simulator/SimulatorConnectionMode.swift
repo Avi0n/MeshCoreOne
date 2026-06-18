@@ -5,22 +5,22 @@ import OSLog
 /// Connection mode for simulator and demo mode on device.
 /// Provides mock data and simulated connections without requiring real hardware.
 @MainActor
-public final class SimulatorConnectionMode {
+final class SimulatorConnectionMode {
 
-    private let logger = PersistentLogger(subsystem: "com.mc1.services", category: "SimulatorConnectionMode")
+    private let logger = PersistentLogger(subsystem: "com.mc1", category: "SimulatorConnectionMode")
 
     /// Whether simulator is "connected"
-    public private(set) var isConnected = false
+    private(set) var isConnected = false
 
     /// The simulated device
-    public var device: DeviceDTO? {
+    var device: DeviceDTO? {
         isConnected ? MockDataProvider.simulatorDevice : nil
     }
 
-    public init() {}
+    init() {}
 
     /// Simulates connecting to the simulator device
-    public func connect() async {
+    func connect() async {
         logger.info("Simulator: connecting to mock device")
         try? await Task.sleep(for: .milliseconds(200))  // Brief delay
         isConnected = true
@@ -28,7 +28,7 @@ public final class SimulatorConnectionMode {
     }
 
     /// Simulates disconnecting
-    public func disconnect() async {
+    func disconnect() async {
         logger.info("Simulator: disconnecting")
         isConnected = false
     }
@@ -37,7 +37,7 @@ public final class SimulatorConnectionMode {
     /// link-preview, reaction, and repeat rows: `saveMessage` does not persist the
     /// link-preview or `reactionSummary` columns, and `saveMessageRepeat` needs the
     /// parent present. Re-seeding upserts on each row's unique `id`, so it is idempotent.
-    public func seedDataStore(_ dataStore: PersistenceStore) async throws {
+    func seedDataStore(_ dataStore: PersistenceStore) async throws {
         try await dataStore.saveDevice(MockDataProvider.simulatorDevice)
 
         for contact in MockDataProvider.contacts {

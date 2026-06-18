@@ -249,7 +249,7 @@
 /* Location: ChannelInfoSheet.swift - Error when services unavailable */
 "chats.error.servicesUnavailable" = "Сервисы недоступны";
 
-/* TODO: translate - Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
+/* Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
 "chats.error.notConnectedToDelete" = "Подключитесь к радио, чтобы удалить этот разговор.";
 
 /* Location: ChatConversationView.swift - Error when loading older messages fails */
@@ -261,7 +261,7 @@
 /* Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error) */
 "chats.error.sendQueuePersistFailed" = "Не удалось поставить сообщение в очередь. Повторите попытку.";
 
-/* TODO: translate - Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
+/* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
 "chats.error.loadConversationsFailed" = "Не удалось загрузить разговоры.";
 
 // MARK: - Channel Options Sheet
@@ -396,7 +396,7 @@
 "chats.mention.accessibility.hintContact" = "Сохранённый контакт. Нажмите дважды, чтобы упомянуть";
 
 /* Location: MentionSuggestionView.swift - Accessibility label for mention suggestions popup */
-"chats.suggestions.accessibilityLabel" = "Mention suggestions";
+"chats.suggestions.accessibilityLabel" = "Предложения упоминаний";
 
 // MARK: - Create Private Channel View
 
@@ -575,7 +575,7 @@
 "chats.message.action.reply" = "Ответить";
 
 /* Location: MessageActionsSheet.swift - Context menu action to mention */
-"chats.message.action.mention" = "Mention";
+"chats.message.action.mention" = "Упомянуть";
 
 /* Location: UnifiedMessageBubble.swift - Context menu action to copy */
 "chats.message.action.copy" = "Копировать";
@@ -660,6 +660,24 @@
 
 /* Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL */
 "chats.message.action.openLink" = "Открыть ссылку";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a web link, %@ is the host */
+"chats.message.action.openWebLink" = "Открыть ссылку: %@";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a shared map coordinate */
+"chats.message.action.openMapLink" = "Открыть карту";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a mention, %@ is the mentioned name */
+"chats.message.action.openMention" = "Упомянуть: %@";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a hashtag channel, %@ is the channel name */
+"chats.message.action.openHashtag" = "Открыть #%@";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to add a shared contact, %@ is the contact name */
+"chats.message.action.addContact" = "Добавить контакт: %@";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a shared channel link, %@ is the channel name */
+"chats.message.action.openChannel" = "Открыть канал: %@";
 
 /* Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen */
 "chats.message.action.viewImage" = "Показать изображение";
@@ -785,11 +803,12 @@
 /* Location: MessagePathSheet.swift - Section header for path */
 "chats.path.section.header" = "Путь";
 
-/* Location: MessagePathSheet.swift - Navigation title */
-"chats.path.title" = "Путь сообщения";
 
-/* TODO: translate - Location: MessagePathMapView.swift - Center on path map control accessibility label */
-"chats.path.centerOnPath" = "Center on path";
+/* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
+"chats.path.map" = "Карта пути";
+
+/* Location: MessagePathMapView.swift - Center on path map control accessibility label */
+"chats.path.centerOnPath" = "Центрировать по маршруту";
 
 // MARK: - Path Hop Row View
 
@@ -894,7 +913,7 @@
 /* Direct message path (no hops) */
 "chats.message.path.direct" = "Напрямую";
 /* Routing strategy where the radio rebroadcasts the message to every neighbor (no specific path). UI displays this as a label in the per-message details sheet. Prefer a localized term over the English loanword if one exists in your locale's networking terminology. */
-"chats.message.path.flood" = "Flood";
+"chats.message.path.flood" = "Флуд";
 
 /* Message path hop count */
 "chats.message.path.hops" = "%d переходов";
@@ -1059,6 +1078,24 @@
 /* Location: NotificationLevelPicker - Purpose: Accessibility hint */
 "chats.notificationLevel.hint" = "Выберите, когда получать уведомления";
 
+/* Location: NotificationLevelPicker.swift - Muted level label */
+"chats.notificationLevel.muted" = "Отключено";
+
+/* Location: NotificationLevelPicker.swift - Mentions-only level label */
+"chats.notificationLevel.mentions" = "Упоминания";
+
+/* Location: NotificationLevelPicker.swift - All notifications level label */
+"chats.notificationLevel.all" = "Все";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for muted level */
+"chats.notificationLevel.accessibility.muted" = "Отключено, без уведомлений";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for mentions-only level */
+"chats.notificationLevel.accessibility.mentionsOnly" = "Только упоминания";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for all-notifications level */
+"chats.notificationLevel.accessibility.all" = "Все уведомления";
+
 /* Location: ConversationRow.swift - Purpose: Mentions only indicator */
 "chats.row.mentionsOnly" = "Только упоминания";
 
@@ -1108,16 +1145,16 @@
 // MARK: - Region Filtering
 
 /* Location: ChannelInfoSheet.swift - Purpose: Region row label */
-"chats.channelInfo.region" = "Region";
+"chats.channelInfo.region" = "Регион";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set */
-"chats.channelInfo.region.allRegions" = "All Regions";
+"chats.channelInfo.region.allRegions" = "Все регионы";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope */
 "chats.channelInfo.region.useDefaultFormat" = "%@ (по умолчанию)";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no regions configured */
-"chats.channelInfo.region.notConfigured" = "Not configured";
+"chats.channelInfo.region.notConfigured" = "Не настроено";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Explanation shown when no regions exist */
 "chats.channelInfo.region.explanation" = "Ограничить сообщения географической областью";
@@ -1126,28 +1163,28 @@
 "chats.channelInfo.region.discover" = "Найти регионы поблизости";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Discover button loading state */
-"chats.channelInfo.region.discovering" = "Discovering…";
+"chats.channelInfo.region.discovering" = "Поиск…";
 
 /* Location: RegionManagementView.swift - Purpose: Navigation title */
-"chats.channelInfo.region.manage" = "Regions";
+"chats.channelInfo.region.manage" = "Регионы";
 
 /* Location: RegionManagementView.swift - Purpose: Manage regions link */
 "chats.channelInfo.region.manageRegions" = "Управление регионами";
 
 /* Location: RegionManagementView.swift - Purpose: Add manually button */
-"chats.channelInfo.region.addManually" = "Add Manually";
+"chats.channelInfo.region.addManually" = "Добавить вручную";
 
 /* Location: RegionManagementView.swift - Purpose: Empty state title */
-"chats.channelInfo.region.noRegions" = "No regions added";
+"chats.channelInfo.region.noRegions" = "Регионы не добавлены";
 
 /* Location: RegionManagementView.swift - Purpose: Empty state description */
 "chats.channelInfo.region.noRegionsDescription" = "Найдите регионы у ближайших ретрансляторов или добавьте их вручную.";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: No new regions found */
-"chats.channelInfo.region.noNewRegions" = "No new regions found";
+"chats.channelInfo.region.noNewRegions" = "Новые регионы не найдены";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: No repeaters responded */
-"chats.channelInfo.region.noRepeatersResponded" = "No repeaters responded";
+"chats.channelInfo.region.noRepeatersResponded" = "Ни один ретранслятор не ответил";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Couldn't load nearby repeater list */
 "chats.channelInfo.region.errLoadingRepeaters" = "Не удалось загрузить ближайшие ретрансляторы";
@@ -1156,13 +1193,13 @@
 "chats.channelInfo.region.errRadioContactsFull" = "Список контактов радио заполнен — некоторые ретрансляторы не удалось опросить";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: Add selected regions button */
-"chats.channelInfo.region.addSelected" = "Add";
+"chats.channelInfo.region.addSelected" = "Добавить";
 
 /* Location: AddRegionView.swift - Purpose: Navigation title */
-"chats.channelInfo.region.addRegionTitle" = "Add Region";
+"chats.channelInfo.region.addRegionTitle" = "Добавить регион";
 
 /* Location: AddRegionView.swift - Purpose: Text field placeholder */
-"chats.channelInfo.region.addRegionPlaceholder" = "Region name";
+"chats.channelInfo.region.addRegionPlaceholder" = "Название региона";
 
 /* Location: AddRegionView.swift - Purpose: Validation error */
 "chats.channelInfo.region.invalidName" = "Названия регионов могут содержать только буквы, цифры и дефисы.";
@@ -1174,7 +1211,7 @@
 "chats.channelInfo.region.duplicate" = "Этот регион уже есть в вашем списке.";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Private region label */
-"chats.channelInfo.region.private" = "Private";
+"chats.channelInfo.region.private" = "Частный";
 
 /* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle */
 "chats.channelInfo.region.scopedAccessibility" = "%@, ограничено областью %@";
@@ -1192,20 +1229,20 @@
 
 // MARK: - Mention Picker
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker navigation title shown with the tapped mention name */
-"chats.mention.picker.title" = "Mention: %@";
+/* Location: ChatConversationView.swift - Mention picker navigation title shown with the tapped mention name */
+"chats.mention.picker.title" = "Упомянуть: %@";
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker title when the tapped name matches no saved contact */
-"chats.mention.picker.notSavedTitle" = "Not a saved contact";
+/* Location: ChatConversationView.swift - Mention picker title when the tapped name matches no saved contact */
+"chats.mention.picker.notSavedTitle" = "Не сохранённый контакт";
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker description when the tapped name matches no saved contact */
+/* Location: ChatConversationView.swift - Mention picker description when the tapped name matches no saved contact */
 "chats.mention.picker.notSavedSubtitle" = "@%@ не соответствует ни одному контакту на этом радио.";
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker title when the tapped name is the user's own node */
+/* Location: ChatConversationView.swift - Mention picker title when the tapped name is the user's own node */
 "chats.mention.picker.selfTitle" = "Это вы";
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker description when the tapped name is the user's own node */
+/* Location: ChatConversationView.swift - Mention picker description when the tapped name is the user's own node */
 "chats.mention.picker.selfSubtitle" = "@%@ — имя вашего собственного узла.";
 
-/* TODO: translate - Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
-"chats.mention.picker.matchingContacts" = "Matching contacts";
+/* Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
+"chats.mention.picker.matchingContacts" = "Подходящие контакты";

@@ -40,7 +40,7 @@ public enum ContactShareUtilities {
     /// - Returns: A `<publicKeyHex:type:name>` token.
     public static func formatShare(publicKey: Data, type: ContactType, name: String) -> String {
         let sanitizedName = name.filter { $0 != tokenClose }
-        return "\(tokenOpen)\(publicKey.hexString())\(fieldSeparator)\(type.rawValue)\(fieldSeparator)\(sanitizedName)\(tokenClose)"
+        return "\(tokenOpen)\(publicKey.uppercaseHexString())\(fieldSeparator)\(type.rawValue)\(fieldSeparator)\(sanitizedName)\(tokenClose)"
     }
 
     /// Parses the first contact share token found in the input.

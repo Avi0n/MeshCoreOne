@@ -36,12 +36,12 @@ extension ChannelServiceError: LocalizedError {
 // MARK: - Channel Sync Error Details
 
 /// Detailed error information for a failed channel sync
-public struct ChannelSyncError: Sendable, Equatable {
-    public let index: UInt8
-    public let errorType: ErrorType
-    public let description: String
+struct ChannelSyncError: Sendable, Equatable {
+    let index: UInt8
+    let errorType: ErrorType
+    let description: String
 
-    public enum ErrorType: Sendable, Equatable {
+    enum ErrorType: Sendable, Equatable {
         case timeout
         case sendTimeout
         case transportError
@@ -51,14 +51,8 @@ public struct ChannelSyncError: Sendable, Equatable {
         case unknown
     }
 
-    public init(index: UInt8, errorType: ErrorType, description: String) {
-        self.index = index
-        self.errorType = errorType
-        self.description = description
-    }
-
     /// Whether this error type is potentially recoverable with retry
-    public var isRetryable: Bool {
+    var isRetryable: Bool {
         switch errorType {
         case .timeout, .sendTimeout:
             return true
@@ -79,31 +73,31 @@ public struct ChannelSyncError: Sendable, Equatable {
 
 // MARK: - Channel Sync Result
 
-public struct ChannelSyncResult: Sendable, Equatable {
-    public let channelsSynced: Int
-    public let errors: [ChannelSyncError]
+struct ChannelSyncResult: Sendable, Equatable {
+    let channelsSynced: Int
+    let errors: [ChannelSyncError]
 
     /// Whether sync completed without errors
-    public var isComplete: Bool { errors.isEmpty }
+    var isComplete: Bool { errors.isEmpty }
 
-    public var requestTimeoutCount: Int {
+    var requestTimeoutCount: Int {
         errors.filter { $0.errorType == .timeout }.count
     }
 
-    public var sendTimeoutCount: Int {
+    var sendTimeoutCount: Int {
         errors.filter { $0.errorType == .sendTimeout }.count
     }
 
-    public var circuitBreakerAborted: Bool {
+    var circuitBreakerAborted: Bool {
         errors.contains { $0.errorType == .circuitBreaker }
     }
 
     /// Indices of channels that failed with retryable errors
-    public var retryableIndices: [UInt8] {
+    var retryableIndices: [UInt8] {
         errors.filter { $0.isRetryable }.map { $0.index }
     }
 
-    public init(channelsSynced: Int, errors: [ChannelSyncError] = []) {
+    init(channelsSynced: Int, errors: [ChannelSyncError] = []) {
         self.channelsSynced = channelsSynced
         self.errors = errors
     }
@@ -117,16 +111,19 @@ public actor ChannelService {
 
     // MARK: - Properties
 
-    private let session: MeshCoreSession
-    private let dataStore: PersistenceStore
+    private let session: any MeshCoreSessionProtocol
+    private let dataStore: any ChannelPersisting
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "ChannelService")
 
-    /// Callback for channel updates
-    private var channelUpdateHandler: (@Sendable ([ChannelDTO]) -> Void)?
+    /// Decryption cache consumer: channel writes and syncs forward the fresh
+    /// channel list so `RxLogService` can decode captured packets.
+    /// Injected by `ServiceContainer` at construction.
+    private let rxLogService: RxLogService?
 
     /// Callback invoked with the channel slots vacated by a delete or sync prune,
     /// so the main-actor `DraftStore` can drop any draft keyed to a now-free slot
     /// before that slot is reused by a different channel.
+    /// Installed by `AppState.wireServicesIfConnected`.
     private var draftClearHandler: (@Sendable (UUID, Set<UInt8>) async -> Void)?
 
     /// Tracks whether a sync operation is in progress
@@ -134,13 +131,18 @@ public actor ChannelService {
 
     // MARK: - Initialization
 
-    public init(
-        session: MeshCoreSession,
-        dataStore: PersistenceStore
+    init(
+        session: any MeshCoreSessionProtocol,
+        dataStore: any ChannelPersisting,
+        rxLogService: RxLogService?
     ) {
         self.session = session
         self.dataStore = dataStore
+        self.rxLogService = rxLogService
     }
+
+    /// Whether an RX log service was injected at construction.
+    var hasRxLogServiceWired: Bool { rxLogService != nil }
 
     // MARK: - Secret Hashing
 
@@ -182,7 +184,7 @@ public actor ChannelService {
     /// - Returns: Sync result with number of channels synced
     /// - Throws: `syncAlreadyInProgress` if another sync is running,
     ///           `circuitBreakerOpen` if too many consecutive timeouts
-    public func syncChannels(
+    func syncChannels(
         radioID: UUID,
         maxChannels: UInt8,
         usePipelinedRead: Bool
@@ -404,7 +406,7 @@ public actor ChannelService {
             await draftClearHandler?(radioID, vacatedSlots)
         }
 
-        channelUpdateHandler?(channels)
+        await rxLogService?.updateChannels(from: channels)
 
         return ChannelSyncResult(channelsSynced: configured.count, errors: syncErrors)
     }
@@ -414,7 +416,7 @@ public actor ChannelService {
     ///   - radioID: The device UUID
     ///   - indices: Channel indices to retry
     /// - Returns: Sync result for the retried channels
-    public func retryFailedChannels(radioID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult {
+    func retryFailedChannels(radioID: UUID, indices: [UInt8]) async throws -> ChannelSyncResult {
         guard !isSyncing else {
             throw ChannelServiceError.syncAlreadyInProgress
         }
@@ -487,7 +489,7 @@ public actor ChannelService {
                 unconfiguredIndices: [],
                 pruneBeyond: nil
             )
-            channelUpdateHandler?(allChannels)
+            await rxLogService?.updateChannels(from: allChannels)
         } catch {
             logger.error("Retry batch persist failed: \(error.localizedDescription)")
             for info in configured {
@@ -590,9 +592,9 @@ public actor ChannelService {
             let channelInfo = ChannelInfo(index: index, name: truncatedName, secret: secret)
             _ = try await dataStore.saveChannel(radioID: radioID, from: channelInfo)
 
-            // Notify handler of update
+            // Refresh the decryption cache with the updated channel list
             let channels = try await dataStore.fetchChannels(radioID: radioID)
-            channelUpdateHandler?(channels)
+            await rxLogService?.updateChannels(from: channels)
         } catch let error as MeshCoreError {
             throw ChannelServiceError.sessionError(error)
         }
@@ -623,9 +625,9 @@ public actor ChannelService {
             let channelInfo = ChannelInfo(index: index, name: truncatedName, secret: secret)
             _ = try await dataStore.saveChannel(radioID: radioID, from: channelInfo)
 
-            // Notify handler of update
+            // Refresh the decryption cache with the updated channel list
             let channels = try await dataStore.fetchChannels(radioID: radioID)
-            channelUpdateHandler?(channels)
+            await rxLogService?.updateChannels(from: channels)
         } catch let error as MeshCoreError {
             throw ChannelServiceError.sessionError(error)
         }
@@ -663,9 +665,9 @@ public actor ChannelService {
         // same index can't surface this channel's stale draft.
         await draftClearHandler?(radioID, [index])
 
-        // Notify handler that channels changed
+        // Refresh the decryption cache with the updated channel list
         let channels = try await dataStore.fetchChannels(radioID: radioID)
-        channelUpdateHandler?(channels)
+        await rxLogService?.updateChannels(from: channels)
     }
 
     /// Clears all messages for a channel without deleting the channel itself.
@@ -739,14 +741,6 @@ public actor ChannelService {
     }
 
     // MARK: - Handlers
-
-    /// Sets a callback for channel updates.
-    public func setChannelUpdateHandler(_ handler: @escaping @Sendable ([ChannelDTO]) -> Void) {
-        channelUpdateHandler = handler
-    }
-
-    /// Whether a channel update handler has been wired via `setChannelUpdateHandler`.
-    var hasChannelUpdateHandlerWired: Bool { channelUpdateHandler != nil }
 
     /// Sets a callback that receives the channel slots vacated by `clearChannel`
     /// and by the sync prune in `finalizeChannelSync`, so the `DraftStore` can

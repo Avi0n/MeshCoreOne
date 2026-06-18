@@ -4,32 +4,32 @@ import SwiftData
 /// Cached link preview metadata, keyed by URL for cross-message deduplication.
 /// Multiple messages with the same URL reference a single LinkPreviewData row.
 @Model
-public final class LinkPreviewData {
+final class LinkPreviewData {
     /// The URL this preview is for (unique key)
     @Attribute(.unique)
-    public var url: String
+    var url: String
 
     /// Title from link metadata
-    public var title: String?
+    var title: String?
 
     /// Preview image data (hero image)
     @Attribute(.externalStorage)
-    public var imageData: Data?
+    var imageData: Data?
 
     /// Icon/favicon data
     @Attribute(.externalStorage)
-    public var iconData: Data?
+    var iconData: Data?
 
     /// Hero image pixel width, recorded at fetch time
-    public var imageWidth: Int?
+    var imageWidth: Int?
 
     /// Hero image pixel height, recorded at fetch time
-    public var imageHeight: Int?
+    var imageHeight: Int?
 
     /// When this preview was fetched
-    public var fetchedAt: Date
+    var fetchedAt: Date
 
-    public init(
+    init(
         url: String,
         title: String? = nil,
         imageData: Data? = nil,

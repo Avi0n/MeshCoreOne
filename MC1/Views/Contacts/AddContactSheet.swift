@@ -54,7 +54,7 @@ struct AddContactSheet: View {
 
                 PasteURLSection { result in
                     contactName = result.name
-                    publicKeyHex = result.publicKey.hex
+                    publicKeyHex = result.publicKey.hexString
                     selectedType = result.contactType
                     errorMessage = nil
                 }
@@ -132,7 +132,7 @@ struct AddContactSheet: View {
                 publicKey: publicKeyData,
                 type: selectedType,
                 flags: 0,
-                outPathLength: 0xFF,  // Flood routing
+                outPathLength: PacketBuilder.floodPathSentinel,
                 outPath: Data(),
                 name: contactName,
                 lastAdvertTimestamp: 0,  // Never advertised
@@ -141,7 +141,7 @@ struct AddContactSheet: View {
                 lastModified: currentTimestamp
             )
 
-            logger.info("Adding contact: \(contactName) (\(publicKeyData.hex))")
+            logger.info("Adding contact: \(contactName) (\(publicKeyData.hexString))")
             try await services.contactService.addOrUpdateContact(radioID: radioID, contact: contactFrame)
             logger.info("Contact added successfully")
 
@@ -152,7 +152,7 @@ struct AddContactSheet: View {
             isSubmitting = false
         } catch {
             logger.error("Failed to add contact: \(error.localizedDescription)")
-            errorMessage = "\(L10n.Contacts.Contacts.Common.error): \(error.localizedDescription)"
+            errorMessage = "\(L10n.Contacts.Contacts.Common.error): \(error.userFacingMessage)"
             isSubmitting = false
         }
     }

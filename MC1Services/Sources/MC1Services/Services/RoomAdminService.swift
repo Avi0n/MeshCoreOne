@@ -10,7 +10,7 @@ public actor RoomAdminService {
     // MARK: - Properties
 
     private let remoteNodeService: RemoteNodeService
-    private let dataStore: PersistenceStore
+    private let dataStore: any PersistenceStoreProtocol
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "RoomAdmin")
     private let auditLogger = CommandAuditLogger()
 
@@ -22,7 +22,7 @@ public actor RoomAdminService {
 
     public init(
         remoteNodeService: RemoteNodeService,
-        dataStore: PersistenceStore
+        dataStore: any PersistenceStoreProtocol
     ) {
         self.remoteNodeService = remoteNodeService
         self.dataStore = dataStore

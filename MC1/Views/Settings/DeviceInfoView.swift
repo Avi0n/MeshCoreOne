@@ -42,9 +42,7 @@ struct DeviceInfoView: View {
                     }
                     .radioDisabled(for: appState.connectionState, or: isSaving)
 
-                    NavigationLink {
-                        PublicKeyView(publicKey: device.publicKey)
-                    } label: {
+                    NavigationLink(value: SettingsSubpage.publicKey(device.publicKey)) {
                         Label(L10n.Settings.DeviceInfo.publicKey, systemImage: "key")
                     }
 
@@ -104,9 +102,9 @@ struct DeviceInfoView: View {
                         )
                                 .symbolRenderingMode(.multicolor)
                             Spacer()
-                            Text("\(battery.percentage(using: ocvArray))%")
+                            Text(battery.percentage(using: ocvArray), format: .percent)
                                 .foregroundStyle(battery.levelColor(using: ocvArray))
-                            Text("(\(battery.voltage, format: .number.precision(.fractionLength(2)))V)")
+                            Text("(\(formatVoltage(battery.voltage)))")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -138,7 +136,7 @@ struct DeviceInfoView: View {
                         Spacer()
                         Text(
                             device.firmwareVersionString.isEmpty
-                                ? "v\(device.firmwareVersion)"
+                                ? L10n.Settings.DeviceInfo.firmwareVersionFormat(device.firmwareVersion)
                                 : device.firmwareVersionString
                         )
                             .foregroundStyle(.secondary)
@@ -206,15 +204,16 @@ struct DeviceInfoView: View {
             }
         }
         .themedCanvas(theme)
+        .settingsSubpageDestinations()
         .navigationTitle(L10n.Settings.DeviceInfo.title)
         .errorAlert($errorMessage)
         .retryAlert(retryAlert)
         .refreshable {
             await appState.batteryMonitor.fetchDeviceBattery(services: appState.services, device: appState.connectedDevice)
         }
-        .onAppear {
+        .task {
             deviceInfoLogger.info("DeviceInfoView: appeared, connectedDevice=\(appState.connectedDevice != nil)")
-            Task { await appState.batteryMonitor.fetchDeviceBattery(services: appState.services, device: appState.connectedDevice) }
+            await appState.batteryMonitor.fetchDeviceBattery(services: appState.services, device: appState.connectedDevice)
         }
         .sheet(isPresented: $showShareSheet) {
             if let device = appState.connectedDevice {
@@ -227,8 +226,23 @@ struct DeviceInfoView: View {
         }
     }
 
+    /// Firmware reports storage in binary kilobytes.
+    private static let bytesPerKilobyte = 1024
+
     private func formatStorage(used: Int, total: Int) -> String {
-        "\(used) / \(total) KB"
+        let style = ByteCountFormatStyle(style: .memory)
+        let usedBytes = Int64(used) * Int64(Self.bytesPerKilobyte)
+        let totalBytes = Int64(total) * Int64(Self.bytesPerKilobyte)
+        return "\(usedBytes.formatted(style)) / \(totalBytes.formatted(style))"
+    }
+
+    private func formatVoltage(_ volts: Double) -> String {
+        Measurement(value: volts, unit: UnitElectricPotentialDifference.volts)
+            .formatted(.measurement(
+                width: .abbreviated,
+                usage: .asProvided,
+                numberFormatStyle: .number.precision(.fractionLength(2))
+            ))
     }
 
     private func saveNodeName() {
@@ -243,12 +257,12 @@ struct DeviceInfoView: View {
                 retryAlert.reset()
             } catch let error as SettingsServiceError where error.isRetryable {
                 retryAlert.show(
-                    message: error.errorDescription ?? L10n.Settings.Alert.Retry.fallbackMessage,
+                    message: error.userFacingMessage,
                     onRetry: { saveNodeName() },
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
             isSaving = false
         }
@@ -319,51 +333,6 @@ private struct StorageBar: View {
         case 0.7..<0.9: return .orange
         default: return .red
         }
-    }
-}
-
-// MARK: - Public Key View
-
-private struct PublicKeyView: View {
-    let publicKey: Data
-
-    @Environment(\.appTheme) private var theme
-    @State private var copyHapticTrigger = 0
-
-    var body: some View {
-        List {
-            Section {
-                Text(publicKey.hexString(separator: " "))
-                    .font(.system(.body, design: .monospaced))
-                    .textSelection(.enabled)
-            } header: {
-                Text(L10n.Settings.PublicKey.header)
-            } footer: {
-                Text(L10n.Settings.PublicKey.footer)
-            }
-            .themedRowBackground(theme)
-
-            Section {
-                Button {
-                    copyHapticTrigger += 1
-                    UIPasteboard.general.string = publicKey.hexString()
-                } label: {
-                    Label(L10n.Settings.PublicKey.copy, systemImage: "doc.on.doc")
-                }
-
-                // Base64 representation
-                Text(publicKey.base64EncodedString())
-                    .font(.system(.caption, design: .monospaced))
-                    .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
-            } header: {
-                Text(L10n.Settings.PublicKey.Base64.header)
-            }
-            .themedRowBackground(theme)
-        }
-        .themedCanvas(theme)
-        .navigationTitle(L10n.Settings.PublicKey.title)
-        .sensoryFeedback(.success, trigger: copyHapticTrigger)
     }
 }
 

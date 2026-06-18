@@ -4,6 +4,8 @@ import SwiftUI
 enum HistoryTimeRange: String, CaseIterable {
     case week, month, threeMonths, all
 
+    static let `default`: HistoryTimeRange = .month
+
     var label: String {
         switch self {
         case .week: L10n.RemoteNodes.RemoteNodes.History.week

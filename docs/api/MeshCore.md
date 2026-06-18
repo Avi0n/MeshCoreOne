@@ -197,9 +197,10 @@ public protocol MeshTransport: Sendable {
 
 | Type | Description |
 |------|-------------|
-| `BLETransport` (public, actor) | CoreBluetooth-based transport for physical devices |
 | `WiFiTransport` (public, actor) | Network framework-based transport for WiFi devices |
 | `MockTransport` (public, actor) | Deterministic transport for unit testing |
+
+Bluetooth Low Energy is implemented at the app layer: `iOSBLETransport` in MC1Services conforms to `MeshTransport` over CoreBluetooth.
 
 ### WiFi Transport Implementation
 

@@ -7,13 +7,13 @@ import MC1Services
 /// isolation — matching `BackupUserDefaults`'s existing `defaults:` parameter convention.
 @Observable
 @MainActor
-public final class ThemeService {
-    public private(set) var current: Theme
-    public private(set) var colorSchemePreference: AppColorSchemePreference
+final class ThemeService {
+    private(set) var current: Theme
+    private(set) var colorSchemePreference: AppColorSchemePreference
     private let store: StoreService
     private let defaults: UserDefaults
 
-    public init(store: StoreService, defaults: UserDefaults = .standard) {
+    init(store: StoreService, defaults: UserDefaults = .standard) {
         self.store = store
         self.defaults = defaults
 
@@ -49,7 +49,7 @@ public final class ThemeService {
         }
     }
 
-    public func setCurrent(_ theme: Theme) throws {
+    func setCurrent(_ theme: Theme) throws {
         guard Self.isAccessible(theme, store: store) else {
             throw ThemeServiceError.notOwned(productID: theme.productID ?? "")
         }
@@ -57,17 +57,17 @@ public final class ThemeService {
         defaults.set(theme.id, forKey: PersistenceKeys.selectedThemeID)
     }
 
-    public func setColorSchemePreference(_ preference: AppColorSchemePreference) {
+    func setColorSchemePreference(_ preference: AppColorSchemePreference) {
         colorSchemePreference = preference
         defaults.set(preference.rawValue, forKey: PersistenceKeys.appColorSchemePreference)
     }
 
     /// Theme-forced override wins; otherwise the user's global preference applies.
-    public var effectiveColorScheme: ColorScheme? {
+    var effectiveColorScheme: ColorScheme? {
         current.preferredColorScheme ?? colorSchemePreference.colorScheme
     }
 
-    public func availableToCurrentUser() -> [Theme] {
+    func availableToCurrentUser() -> [Theme] {
         ThemeRegistry.allThemes.filter { Self.isAccessible($0, store: store) }
     }
 
@@ -78,7 +78,7 @@ public final class ThemeService {
     /// the paid theme would render for free until the next entitlement walk (which never fires
     /// on the restore path). Unknown stored values are corrected with a write-back, mirroring
     /// `init`'s ladder.
-    public func refreshFromUserDefaults() {
+    func refreshFromUserDefaults() {
         let resolvedTheme = resolveThemeFromDefaults()
         if resolvedTheme.id != current.id {
             current = resolvedTheme

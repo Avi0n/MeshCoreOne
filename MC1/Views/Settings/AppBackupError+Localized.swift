@@ -21,17 +21,9 @@ extension AppBackupError {
         case .corruptedManifest:
             return L10n.Settings.Settings.Backup.Error.corruptedManifest
         case .exportFailed(let underlying):
-            return L10n.Settings.Settings.Backup.Error.exportFailed(underlying.localizedDescription)
+            return L10n.Settings.Settings.Backup.Error.exportFailed(underlying.userFacingMessage)
         case .importFailed(let underlying):
-            return L10n.Settings.Settings.Backup.Error.importFailed(underlying.localizedDescription)
+            return L10n.Settings.Settings.Backup.Error.importFailed(underlying.userFacingMessage)
         }
-    }
-}
-
-extension Error {
-    /// Localized backup-error message when the receiver is an `AppBackupError`,
-    /// otherwise falls back to `localizedDescription`.
-    var backupUserFacingMessage: String {
-        (self as? AppBackupError)?.userFacingMessage ?? localizedDescription
     }
 }

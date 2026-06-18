@@ -35,6 +35,7 @@ struct ChatConversationMessagesContent: View {
 
     // MARK: - Sheet State Bindings
 
+    @Binding var selectedMessageForActions: MessageDTO?
     @Binding var imageViewerData: ImageViewerData?
 
     // MARK: - Callbacks
@@ -42,7 +43,6 @@ struct ChatConversationMessagesContent: View {
     let onMentionSeen: (UUID) async -> Void
     let onScrollToMention: () -> Void
     let onRetryMessage: (MessageDTO) -> Void
-    let makeActionsMenu: (MessageDTO) -> AnyView
 
     // MARK: - Body
 
@@ -66,14 +66,14 @@ struct ChatConversationMessagesContent: View {
                     scrollToMentionRequest: $scrollToMentionRequest,
                     scrollToDividerRequest: $scrollToDividerRequest,
                     isDividerVisible: $isDividerVisible,
+                    selectedMessageForActions: $selectedMessageForActions,
                     imageViewerData: $imageViewerData,
                     unseenMentionIDs: unseenMentionIDs,
                     scrollToTargetID: scrollToTargetID,
                     newMessagesDividerMessageID: newMessagesDividerMessageID,
                     onMentionSeen: onMentionSeen,
                     onScrollToMention: onScrollToMention,
-                    onRetryMessage: onRetryMessage,
-                    makeActionsMenu: makeActionsMenu
+                    onRetryMessage: onRetryMessage
                 )
             }
         }
@@ -186,11 +186,11 @@ private struct ChannelEmptyMessagesView: View {
             unseenMentionIDs: [],
             scrollToTargetID: nil,
             newMessagesDividerMessageID: nil,
+            selectedMessageForActions: .constant(nil),
             imageViewerData: .constant(nil),
             onMentionSeen: { _ in },
             onScrollToMention: {},
-            onRetryMessage: { _ in },
-            makeActionsMenu: { _ in AnyView(EmptyView()) }
+            onRetryMessage: { _ in }
         )
     }
     .environment(\.appState, AppState())
@@ -217,11 +217,11 @@ private struct ChannelEmptyMessagesView: View {
             unseenMentionIDs: [],
             scrollToTargetID: nil,
             newMessagesDividerMessageID: nil,
+            selectedMessageForActions: .constant(nil),
             imageViewerData: .constant(nil),
             onMentionSeen: { _ in },
             onScrollToMention: {},
-            onRetryMessage: { _ in },
-            makeActionsMenu: { _ in AnyView(EmptyView()) }
+            onRetryMessage: { _ in }
         )
     }
     .environment(\.appState, AppState())

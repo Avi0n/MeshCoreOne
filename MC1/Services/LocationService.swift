@@ -33,9 +33,9 @@ enum LocationServiceError: Error, LocalizedError, Sendable {
 
 /// App-wide location service for managing location permissions and access.
 /// Used by MapView, LineOfSightView, ContactsListView, and other location-dependent features.
-@MainActor
 @Observable
-public final class LocationService: NSObject, CLLocationManagerDelegate {
+@MainActor
+final class LocationService: NSObject, CLLocationManagerDelegate {
 
     // MARK: - Properties
 
@@ -49,32 +49,32 @@ public final class LocationService: NSObject, CLLocationManagerDelegate {
     private var permissionTimeoutTask: Task<Void, Never>?
 
     /// Current authorization status
-    public private(set) var authorizationStatus: CLAuthorizationStatus
+    private(set) var authorizationStatus: CLAuthorizationStatus
 
     /// Current device location (nil if unavailable or not yet determined)
-    public private(set) var currentLocation: CLLocation?
+    private(set) var currentLocation: CLLocation?
 
     /// Whether a location request is in progress
-    public private(set) var isRequestingLocation = false
+    private(set) var isRequestingLocation = false
 
     /// Whether location services are authorized for use
-    public var isAuthorized: Bool {
+    var isAuthorized: Bool {
         authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways
     }
 
     /// Whether permission has been determined (not .notDetermined)
-    public var hasRequestedPermission: Bool {
+    var hasRequestedPermission: Bool {
         authorizationStatus != .notDetermined
     }
 
     /// Whether location is denied or restricted
-    public var isLocationDenied: Bool {
+    var isLocationDenied: Bool {
         authorizationStatus == .denied || authorizationStatus == .restricted
     }
 
     // MARK: - Initialization
 
-    public override init() {
+    override init() {
         locationManager = CLLocationManager()
         authorizationStatus = locationManager.authorizationStatus
         super.init()
@@ -86,7 +86,7 @@ public final class LocationService: NSObject, CLLocationManagerDelegate {
 
     /// Request location permission if not already determined.
     /// Call this when a location-dependent feature is accessed.
-    public func requestPermissionIfNeeded() {
+    func requestPermissionIfNeeded() {
         guard authorizationStatus == .notDetermined else {
             let raw = self.authorizationStatus.rawValue
             logger.debug("Location permission already determined: \(String(describing: raw))")
@@ -99,7 +99,7 @@ public final class LocationService: NSObject, CLLocationManagerDelegate {
 
     /// Request a one-shot location update.
     /// Call this when you need the current location (e.g., for distance sorting).
-    public func requestLocation() {
+    func requestLocation() {
         guard isAuthorized else {
             logger.debug("Cannot request location: not authorized")
             requestPermissionIfNeeded()
@@ -118,7 +118,7 @@ public final class LocationService: NSObject, CLLocationManagerDelegate {
 
     /// Request current location asynchronously with timeout.
     /// Handles permission prompting if needed.
-    public func requestCurrentLocation(timeout: Duration = .seconds(10)) async throws -> CLLocation {
+    func requestCurrentLocation(timeout: Duration = .seconds(10)) async throws -> CLLocation {
         guard requestContinuation == nil, authorizationContinuation == nil else {
             throw LocationServiceError.requestInProgress
         }
@@ -184,7 +184,7 @@ public final class LocationService: NSObject, CLLocationManagerDelegate {
 
     // MARK: - CLLocationManagerDelegate
 
-    nonisolated public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+    nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let status = manager.authorizationStatus
         Task { @MainActor in
             self.authorizationStatus = status
@@ -209,7 +209,7 @@ public final class LocationService: NSObject, CLLocationManagerDelegate {
         }
     }
 
-    nonisolated public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         Task { @MainActor in
             self.currentLocation = location
@@ -226,7 +226,7 @@ public final class LocationService: NSObject, CLLocationManagerDelegate {
         }
     }
 
-    nonisolated public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         Task { @MainActor in
             self.isRequestingLocation = false
             self.logger.error("Location request failed: \(error.localizedDescription)")

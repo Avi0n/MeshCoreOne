@@ -75,27 +75,12 @@ public struct ParsedReaction: Sendable, Equatable {
     public let emoji: String
     public let targetSender: String
     public let messageHash: String  // 8 Crockford Base32 chars (lowercase)
-
-    public init(
-        emoji: String,
-        targetSender: String,
-        messageHash: String
-    ) {
-        self.emoji = emoji
-        self.targetSender = targetSender
-        self.messageHash = messageHash
-    }
 }
 
 /// Parsed DM reaction data (shorter format without sender)
 public struct ParsedDMReaction: Sendable, Equatable {
     public let emoji: String
     public let messageHash: String  // 8 Crockford Base32 chars (lowercase)
-
-    public init(emoji: String, messageHash: String) {
-        self.emoji = emoji
-        self.messageHash = messageHash
-    }
 }
 
 /// Parses reaction wire format using end-to-start strategy.
@@ -103,7 +88,7 @@ public struct ParsedDMReaction: Sendable, Equatable {
 public enum ReactionParser {
 
     /// Returns true if the text matches any known reaction format (PocketMesh or meshcore-open).
-    public static func isReactionText(_ text: String, isDM: Bool) -> Bool {
+    static func isReactionText(_ text: String, isDM: Bool) -> Bool {
         if MeshCoreOpenReactionParser.parse(text) != nil { return true }
         if MeshCoreOpenReactionParser.parseV1(text) != nil { return true }
         return isDM ? parseDM(text) != nil : parse(text) != nil
@@ -189,7 +174,7 @@ public enum ReactionParser {
 
     /// Builds DM reaction text in wire format.
     /// Format: `{emoji}\n{hash}`
-    public static func buildDMReactionText(
+    static func buildDMReactionText(
         emoji: String,
         targetText: String,
         targetTimestamp: UInt32
@@ -208,7 +193,7 @@ public enum ReactionParser {
     }
 
     /// Builds summary string from emoji counts, sorted by count descending
-    public static func buildSummary(from reactions: [(emoji: String, count: Int)]) -> String {
+    static func buildSummary(from reactions: [(emoji: String, count: Int)]) -> String {
         reactions
             .sorted { $0.count > $1.count }
             .map { "\($0.emoji):\($0.count)" }
@@ -217,7 +202,7 @@ public enum ReactionParser {
 
     /// Builds summary string from reaction DTOs.
     /// Sorts by count descending, then by earliest timestamp ascending for tie-breaker.
-    public static func buildSummary(from reactions: [ReactionDTO]) -> String {
+    static func buildSummary(from reactions: [ReactionDTO]) -> String {
         let grouped = Dictionary(grouping: reactions, by: \.emoji)
         let sorted = grouped.map { emoji, items in
             (emoji: emoji, count: items.count, earliest: items.map(\.receivedAt).min() ?? Date.distantPast)

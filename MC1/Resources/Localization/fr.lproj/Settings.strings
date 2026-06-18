@@ -85,7 +85,7 @@
 "deviceInfo.batteryAndStorage" = "Batterie et stockage";
 
 /* Section header for firmware information */
-"deviceInfo.firmware.header" = "Firmware";
+"deviceInfo.firmware.header" = "Micrologiciel";
 
 /* Label for firmware version */
 "deviceInfo.firmwareVersion" = "Version du firmware";
@@ -113,6 +113,9 @@
 
 /* TX power display format with dBm unit */
 "deviceInfo.txPowerFormat" = "%@ dBm";
+
+/* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
+"deviceInfo.firmwareVersionFormat" = "v%@";
 
 /* Section header for identity information */
 "deviceInfo.identity.header" = "Identité";
@@ -391,7 +394,7 @@
 "batteryCurve.editValues" = "Modifier les valeurs";
 
 /* Validation error for value out of range - %d is the percentage level */
-"batteryCurve.validation.outOfRange" = "La valeur à %d%% doit être entre 1000 et 9000 mV";
+"batteryCurve.validation.outOfRange" = "La valeur à %d%% doit être entre 1000 et 99999 mV";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "Les valeurs doivent être en ordre décroissant";
@@ -685,7 +688,7 @@
 // MARK: - Chat Settings
 
 /* Navigation title for chat settings page */
-"chatSettings.title" = "Chats";
+"chatSettings.title" = "Discussions";
 
 
 // MARK: - Link Preview Settings Section
@@ -757,13 +760,13 @@
 "notifications.newContactDiscovered" = "Nouveau contact découvert";
 
 /* Toggle label for companion discovery notifications */
-"notifications.discoveryContact" = "Companion";
+"notifications.discoveryContact" = "Compagnon";
 
 /* Toggle label for repeater discovery notifications */
-"notifications.discoveryRepeater" = "Repeater";
+"notifications.discoveryRepeater" = "Répéteur";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Room";
+"notifications.discoveryRoom" = "Salle";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Avertissements de batterie faible";
@@ -973,7 +976,7 @@
 "directMessages.header" = "Messages directs";
 
 /* Picker label for number of acknowledgments */
-"directMessages.acknowledgments" = "Acknowledgments";
+"directMessages.acknowledgments" = "Accusés de réception";
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Nombre d'accusés de réception envoyés par message direct. Utilisez 2 pour une meilleure confirmation de livraison sur les liaisons peu fiables.";
@@ -1111,9 +1114,6 @@
 /* Select file button */
 "configImport.selectFile" = "Sélectionner un fichier JSON";
 
-/* Cannot access file error */
-"configImport.cannotAccess" = "Impossible d'accéder au fichier sélectionné.";
-
 /* Confirmation alert title */
 "configImport.confirmTitle" = "Appliquer la configuration ?";
 
@@ -1240,6 +1240,21 @@
 /* Validation error: not enough free contact slots (params: needed count, available count) */
 "configImport.error.contactCapacityExceeded" = "L'importation nécessite %d emplacement(s) de contact libre(s), mais il n'en reste que %d sur l'appareil";
 
+/* Validation error: channel secret wrong length (params: channel index, hex char count) */
+"configImport.error.invalidChannelSecret" = "Le canal %1$lld a une clé secrète non valide (%2$lld caractères hex, 32 attendus)";
+
+/* Validation error: contact public key malformed (param: contact name) */
+"configImport.error.invalidContactPublicKey" = "Le contact \"%@\" a une clé publique non valide";
+
+/* Validation error: unsupported path hash mode (params: contact name, mode value) */
+"configImport.error.invalidPathHashMode" = "Le contact \"%1$@\" a un mode de hachage de chemin non pris en charge : %2$lld (0, 1 ou 2 attendu)";
+
+/* Validation error: private key wrong length (params: hex char count, expected hex char count) */
+"configImport.error.invalidPrivateKey" = "Clé privée non valide (%1$lld caractères hex, %2$lld attendus)";
+
+/* Validation error: no empty channel slot left (param: channel name) */
+"configImport.error.noAvailableChannelSlot" = "Aucun emplacement de canal libre disponible pour \"%@\"";
+
 /* Toggle label for inline images */
 "inlineImages.toggle" = "Images intégrées";
 
@@ -1316,7 +1331,7 @@
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
-"liveActivity.title" = "Live Activity";
+"liveActivity.title" = "Activité en direct";
 
 /* Title for the Live Activity tip shown after first connection */
 "liveActivity.tip.title" = "État radio en un coup d'œil";
@@ -1473,7 +1488,7 @@
 "offlineMaps.error.tileLimitReached" = "La limite de tuiles pour ce téléchargement a été atteinte.";
 
 /* Pause download button */
-"offlineMaps.pause" = "Pause";
+"offlineMaps.pause" = "Suspendre";
 
 /* Resume download button */
 "offlineMaps.resume" = "Reprendre";
@@ -1720,6 +1735,7 @@
 "Support.Themes.Title" = "Thèmes";
 "Support.Themes.Owned" = "Acquis";
 "Support.Themes.PurchasedFooter" = "Appliquez votre nouveau thème dans Réglages → Apparence.";
+"Support.Themes.AllUnlocked" = "Tous les thèmes débloqués !";
 "Support.Bundle.Title" = "Tous les thèmes";
 "Support.Bundle.Subtitle" = "Inclut les thèmes ajoutés ultérieurement.";
 "Support.Contributions.Title" = "Contributions";
@@ -1735,11 +1751,11 @@
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Par défaut";
-"Support.Theme.Ember" = "Ember";
-"Support.Theme.Fern" = "Fern";
+"Support.Theme.Ember" = "Braise";
+"Support.Theme.Fern" = "Fougère";
 "Support.Theme.Marine" = "Marine";
 "Support.Theme.Olive" = "Olive";
-"Support.Theme.Lavender" = "Lavender";
+"Support.Theme.Lavender" = "Lavande";
 
 /* MARK: Support error messages (mapped from StoreServiceError) */
 "Support.Error.ProductsNotLoaded" = "Impossible de charger les produits.";

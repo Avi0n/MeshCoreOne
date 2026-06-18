@@ -43,20 +43,20 @@ final class DiscoveryViewModel {
 
     // MARK: - Dependencies
 
-    private var dataStore: DataStore?
+    private var dataStoreProvider: @MainActor () -> DataStore? = { nil }
+    private var dataStore: DataStore? { dataStoreProvider() }
+
+    /// Temporary Discover trace; filter by category "discover-trace". Remove
+    /// once the "no new nodes after clear" report is closed.
+    private let discoverTrace = PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
 
     // MARK: - Initialization
 
     init() {}
 
-    /// Configure with services from AppState
-    func configure(appState: AppState) {
-        self.dataStore = appState.offlineDataStore
-    }
-
-    /// Configure with services (for testing)
-    func configure(dataStore: DataStore) {
-        self.dataStore = dataStore
+    /// Configure with the data store this view model uses; a provider returning nil mirrors a disconnected state.
+    func configure(dataStore: @escaping @MainActor () -> DataStore?) {
+        dataStoreProvider = dataStore
     }
 
     // MARK: - Load Nodes
@@ -75,8 +75,10 @@ final class DiscoveryViewModel {
 
             discoveredNodes = nodes
             addedPublicKeys = addedKeys
+            discoverTrace.info("B4 view reload loaded=\(nodes.count) addedKeys=\(addedKeys.count) radio=\(radioID)")
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
+            discoverTrace.error("B4 view reload FAILED radio=\(radioID): \(error.localizedDescription)")
         }
 
         hasLoadedOnce = true
@@ -101,7 +103,7 @@ final class DiscoveryViewModel {
         do {
             try await dataStore.deleteDiscoveredNode(id: node.id)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -112,7 +114,7 @@ final class DiscoveryViewModel {
             try await dataStore.clearDiscoveredNodes(radioID: radioID)
             discoveredNodes = []
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 
@@ -140,7 +142,7 @@ final class DiscoveryViewModel {
         } else {
             result = result.filter { node in
                 node.name.localizedStandardContains(searchText)
-                    || node.publicKey.hexString().hasPrefix(searchText.uppercased())
+                    || node.publicKey.uppercaseHexString().hasPrefix(searchText.uppercased())
             }
         }
 

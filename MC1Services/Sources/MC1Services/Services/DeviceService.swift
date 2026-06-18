@@ -23,14 +23,15 @@ public enum DeviceServiceError: Error, LocalizedError, Sendable {
 /// Service for managing device-level data and settings persistence.
 /// Handles local device configuration that doesn't require MeshCore communication.
 public actor DeviceService {
-    private let dataStore: PersistenceStore
-    private let logger = PersistentLogger(subsystem: "com.mc1.services", category: "DeviceService")
+    private let dataStore: any DevicePersisting
+    private let logger = PersistentLogger(subsystem: "com.mc1", category: "DeviceService")
 
     /// Callback invoked when device data is successfully updated.
     /// Used to refresh ConnectionManager.connectedDevice for UI updates.
+    /// Installed by `AppState.wireDeviceUpdateCallbacks`.
     private var onDeviceUpdated: (@Sendable (DeviceDTO) async -> Void)?
 
-    public init(dataStore: PersistenceStore) {
+    init(dataStore: any DevicePersisting) {
         self.dataStore = dataStore
     }
 

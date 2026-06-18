@@ -2,130 +2,6 @@ import Foundation
 import MeshCore
 import os
 
-// MARK: - Remote Node Errors
-
-public enum RemoteNodeError: Error, LocalizedError, Sendable {
-    case notConnected
-    case loginFailed(String)
-    case sendFailed(String)
-    case invalidResponse
-    case permissionDenied
-    case timeout
-    case sessionNotFound
-    case passwordNotFound
-    case floodRouted  // Keep-alive requires direct path
-    case pathDiscoveryFailed
-    case contactNotFound
-    case cancelled  // Login cancelled due to duplicate attempt or shutdown
-    case sessionError(MeshCoreError)
-
-    public var errorDescription: String? {
-        switch self {
-        case .notConnected:
-            return "Not connected to mesh device"
-        case .loginFailed(let reason):
-            return "Login failed: \(reason)"
-        case .sendFailed(let reason):
-            return "Failed to send: \(reason)"
-        case .invalidResponse:
-            return "Invalid response from remote node"
-        case .permissionDenied:
-            return "Permission denied"
-        case .timeout:
-            return "Request timed out"
-        case .sessionNotFound:
-            return "Remote node session not found"
-        case .passwordNotFound:
-            return "Password not found in keychain"
-        case .floodRouted:
-            return "Keep-alive requires direct routing path"
-        case .pathDiscoveryFailed:
-            return "Failed to establish direct path"
-        case .contactNotFound:
-            return "Contact not found in database"
-        case .cancelled:
-            return "Login cancelled"
-        case .sessionError(let error):
-            return error.localizedDescription
-        }
-    }
-
-    public var isRetryable: Bool {
-        switch self {
-        case .timeout, .notConnected, .floodRouted:
-            return true
-        default:
-            return false
-        }
-    }
-}
-
-// MARK: - Login Result
-
-public struct LoginResult: Sendable {
-    public let success: Bool
-    public let isAdmin: Bool
-    public let aclPermissions: UInt8?
-    public let publicKeyPrefix: Data
-
-    public init(success: Bool, isAdmin: Bool, aclPermissions: UInt8?, publicKeyPrefix: Data) {
-        self.success = success
-        self.isAdmin = isAdmin
-        self.aclPermissions = aclPermissions
-        self.publicKeyPrefix = publicKeyPrefix
-    }
-
-    public var permissionLevel: RoomPermissionLevel {
-        isAdmin ? .admin : (RoomPermissionLevel(rawValue: aclPermissions ?? 0) ?? .guest)
-    }
-}
-
-// MARK: - Login Timeout Configuration
-
-/// Configuration for login timeout based on path length
-public enum LoginTimeoutConfig {
-    /// Base timeout for direct (0-hop) connections
-    public static let directTimeout: Duration = .seconds(5)
-
-    /// Additional timeout per hop in the path
-    public static let perHopTimeout: Duration = .seconds(10)
-
-    /// Maximum timeout regardless of path length
-    public static let maximumTimeout: Duration = .seconds(60)
-
-    /// Calculate appropriate timeout based on path length
-    public static func timeout(forPathLength pathLength: UInt8) -> Duration {
-        let base = directTimeout
-        let hopCount = decodePathLen(pathLength)?.hopCount ?? 0
-        let additional = perHopTimeout * hopCount
-        let total = base + additional
-        return min(total, maximumTimeout)
-    }
-}
-
-// MARK: - Remote Timeout Policy
-
-public enum RemoteOperationTimeoutPolicy {
-    static let firmwareRoundTripMultiplier = 2
-    static let loginMaximum: Duration = .seconds(20)
-    public static let binaryMaximum: Duration = .seconds(15)
-    static let cliMaximum: Duration = .seconds(15)
-    static let fireAndForgetCLI: Duration = .seconds(2)
-    static let pollInterval: Duration = .milliseconds(500)
-
-    static func firmwareRoundTripTimeout(from sentInfo: MessageSentInfo) -> Duration {
-        .milliseconds(Int(sentInfo.suggestedTimeoutMs) * firmwareRoundTripMultiplier)
-    }
-
-    static func loginTimeout(for sentInfo: MessageSentInfo, pathLength: UInt8) -> Duration {
-        min(max(firmwareRoundTripTimeout(from: sentInfo), LoginTimeoutConfig.timeout(forPathLength: pathLength)), loginMaximum)
-    }
-
-    static func cliTimeout(for sentInfo: MessageSentInfo, requestedTimeout: Duration) -> Duration {
-        min(max(requestedTimeout, firmwareRoundTripTimeout(from: sentInfo)), cliMaximum)
-    }
-}
-
 // MARK: - CLI Response Text Type
 
 /// Wire value `0x01` — firmware `TXT_TYPE_CLI_DATA`.
@@ -141,22 +17,22 @@ public actor RemoteNodeService {
 
     // MARK: - Properties
 
-    private let session: MeshCoreSession
-    private let dataStore: PersistenceStore
-    private let keychainService: KeychainService
-    private let logger = PersistentLogger(subsystem: "com.mc1", category: "RemoteNode")
-    private let auditLogger = CommandAuditLogger()
+    let session: any RemoteAccessSessionOps & SessionEventStreaming
+    let dataStore: any PersistenceStoreProtocol
+    let keychainService: KeychainService
+    let logger = PersistentLogger(subsystem: "com.mc1", category: "RemoteNode")
+    let auditLogger = CommandAuditLogger()
 
     /// Pending login continuations keyed by 6-byte public key prefix.
     /// Using 6-byte prefix matches MeshCore protocol format for login results.
-    private var pendingLogins: [Data: CheckedContinuation<LoginResult, Error>] = [:]
+    var pendingLogins: [Data: CheckedContinuation<LoginResult, Error>] = [:]
 
     /// Timeout tasks for pending logins, keyed by 6-byte public key prefix.
     /// Cancelled when login succeeds/fails before timeout.
-    private var pendingLoginTimeoutTasks: [Data: Task<Void, Never>] = [:]
+    var pendingLoginTimeoutTasks: [Data: Task<Void, Never>] = [:]
 
     /// Pending CLI request with command info for content-based response matching
-    private struct PendingCLIRequest {
+    struct PendingCLIRequest {
         let command: String
         let continuation: CheckedContinuation<String, Error>
         let timestamp: Date
@@ -164,22 +40,22 @@ public actor RemoteNodeService {
 
     /// Pending CLI requests keyed by 6-byte public key prefix.
     /// Multiple requests per destination stored in order for FIFO fallback.
-    private var pendingCLIRequests: [Data: [PendingCLIRequest]] = [:]
+    var pendingCLIRequests: [Data: [PendingCLIRequest]] = [:]
 
     /// Pending raw CLI requests for passthrough (FIFO matching, single request per sender).
     /// Used by CLI tool where any response should be delivered without content-based matching.
-    private var pendingRawCLIRequests: [Data: CheckedContinuation<String, Error>] = [:]
+    var pendingRawCLIRequests: [Data: CheckedContinuation<String, Error>] = [:]
 
     /// Keep-alive timer tasks
-    private var keepAliveTasks: [UUID: Task<Void, Never>] = [:]
+    var keepAliveTasks: [UUID: Task<Void, Never>] = [:]
 
     /// Keep-alive intervals per session (from login response, in seconds)
     /// Default to 90 seconds if not specified
-    private var keepAliveIntervals: [UUID: Duration] = [:]
-    private static let defaultKeepAliveInterval: Duration = .seconds(90)
+    var keepAliveIntervals: [UUID: Duration] = [:]
+    static let defaultKeepAliveInterval: Duration = .seconds(90)
 
     /// Reentrancy guard for BLE reconnection handling
-    private var isReauthenticating = false
+    var isReauthenticating = false
 
     /// Event monitoring task
     private var eventMonitorTask: Task<Void, Never>?
@@ -187,23 +63,35 @@ public actor RemoteNodeService {
     // MARK: - Handlers
 
     /// Handler for keep-alive ACK responses
-    /// Called when ACK with unsynced count is received
+    /// Called when ACK with unsynced count is received.
+    /// Nothing assigns or reads this property today.
     public var keepAliveResponseHandler: (@Sendable (UUID, Int) async -> Void)?
 
-    /// Handler for session connection state changes
-    /// Called when session isConnected state changes (sessionID, isConnected)
-    private var sessionStateChangedHandler: (@Sendable (UUID, Bool) async -> Void)?
+    // MARK: - Events
 
-    /// Set the handler for session connection state changes.
-    public func setSessionStateChangedHandler(_ handler: @escaping @Sendable (UUID, Bool) async -> Void) {
-        sessionStateChangedHandler = handler
+    /// Multicast broadcaster for session connection-state events.
+    nonisolated let eventBroadcaster = EventBroadcaster<RemoteNodeEvent>()
+
+    /// Returns a fresh stream of remote-node session events. Registration is
+    /// synchronous, so events yielded after this call are never dropped.
+    /// Consumers must re-subscribe per connection because the owning
+    /// `ServiceContainer` is rebuilt on every connection.
+    public nonisolated func events() -> AsyncStream<RemoteNodeEvent> {
+        eventBroadcaster.subscribe()
+    }
+
+    /// Ends every `events()` subscriber's for-await loop. Called by
+    /// `ServiceContainer.tearDown()` so consumer tasks release the service
+    /// references they hold.
+    nonisolated func finishEvents() {
+        eventBroadcaster.finish()
     }
 
     // MARK: - Initialization
 
-    public init(
-        session: MeshCoreSession,
-        dataStore: PersistenceStore,
+    init(
+        session: any RemoteAccessSessionOps & SessionEventStreaming,
+        dataStore: any PersistenceStoreProtocol,
         keychainService: KeychainService
     ) {
         self.session = session
@@ -213,6 +101,9 @@ public actor RemoteNodeService {
 
     deinit {
         eventMonitorTask?.cancel()
+        for task in keepAliveTasks.values {
+            task.cancel()
+        }
     }
 
     // MARK: - Event Monitoring
@@ -343,19 +234,19 @@ public actor RemoteNodeService {
         return (nil, matchingIndices.count)
     }
 
-    private func timeInterval(for duration: Duration) -> TimeInterval {
+    func timeInterval(for duration: Duration) -> TimeInterval {
         let (seconds, attoseconds) = duration.components
         return TimeInterval(seconds) + TimeInterval(attoseconds) / 1e18
     }
 
-    private func cancelPendingLogin(for prefix: Data) {
+    func cancelPendingLogin(for prefix: Data) {
         pendingLoginTimeoutTasks.removeValue(forKey: prefix)?.cancel()
         if let continuation = pendingLogins.removeValue(forKey: prefix) {
             continuation.resume(throwing: RemoteNodeError.cancelled)
         }
     }
 
-    private func cancelPendingCLIRequest(for prefix: Data, timestamp: Date) {
+    func cancelPendingCLIRequest(for prefix: Data, timestamp: Date) {
         guard var requests = pendingCLIRequests[prefix],
               let index = requests.firstIndex(where: { $0.timestamp == timestamp }) else {
             return
@@ -401,9 +292,7 @@ public actor RemoteNodeService {
     /// Create a new session for a remote node.
     public func createSession(
         radioID: UUID,
-        contact: ContactDTO,
-        password: String?,
-        rememberPassword: Bool = true
+        contact: ContactDTO
     ) async throws -> RemoteNodeSessionDTO {
         guard let role = RemoteNodeRole(contactType: contact.type) else {
             throw RemoteNodeError.invalidResponse
@@ -468,607 +357,6 @@ public actor RemoteNodeService {
         try await keychainService.deletePassword(forNodeKey: contact.publicKey)
     }
 
-    // MARK: - Login
-
-    /// Login to a remote node.
-    /// Works for both room servers and repeaters.
-    /// - Parameters:
-    ///   - sessionID: The remote session ID.
-    ///   - password: Optional password (uses stored password if nil).
-    ///   - pathLength: Path length hint for timeout calculation.
-    ///   - onTimeoutKnown: Optional callback invoked with timeout in seconds once firmware responds.
-    public func login(
-        sessionID: UUID,
-        password: String? = nil,
-        pathLength: UInt8 = 0,
-        onTimeoutKnown: (@Sendable (Int) async -> Void)? = nil
-    ) async throws -> LoginResult {
-        guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
-            throw RemoteNodeError.sessionNotFound
-        }
-
-        // Get password from parameter or keychain
-        let pwd: String
-        if let password {
-            pwd = password
-        } else if let stored = try await keychainService.retrievePassword(forNodeKey: remoteSession.publicKey) {
-            pwd = stored
-        } else {
-            throw RemoteNodeError.passwordNotFound
-        }
-
-        let prefix = Data(remoteSession.publicKey.prefix(6))
-
-        // Cancel any existing pending login for this prefix
-        if let existing = pendingLogins.removeValue(forKey: prefix) {
-            let prefixHex = prefix.map { String(format: "%02x", $0) }.joined()
-            logger.warning("Overwriting pending login for prefix \(prefixHex)")
-            pendingLoginTimeoutTasks.removeValue(forKey: prefix)?.cancel()
-            existing.resume(throwing: RemoteNodeError.cancelled)
-        }
-
-        // Log login request
-        let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
-        await auditLogger.logLoginRequest(target: targetType, publicKey: remoteSession.publicKey, pathLength: pathLength)
-
-        // Register continuation BEFORE sending to avoid race condition with loginSuccess event
-        let prefixHex = prefix.map { String(format: "%02x", $0) }.joined()
-        logger.info("login: registering pending login for prefix \(prefixHex)")
-        return try await withTaskCancellationHandler {
-            try await withCheckedThrowingContinuation { continuation in
-                pendingLogins[prefix] = continuation
-
-                let timeoutTask = Task { [self] in
-                    let sentInfo: MessageSentInfo
-                    do {
-                        sentInfo = try await session.sendLogin(to: remoteSession.publicKey, password: pwd)
-                    } catch {
-                        pendingLoginTimeoutTasks.removeValue(forKey: prefix)
-                        if let pending = pendingLogins.removeValue(forKey: prefix) {
-                            let meshError = error as? MeshCoreError ?? MeshCoreError.connectionLost(underlying: error)
-                            pending.resume(throwing: RemoteNodeError.sessionError(meshError))
-                        }
-                        return
-                    }
-
-                    let timeout = RemoteOperationTimeoutPolicy.loginTimeout(for: sentInfo, pathLength: pathLength)
-                    logger.info("login: send succeeded, starting \(timeout) timeout for prefix \(prefixHex)")
-
-                    if let onTimeoutKnown {
-                        let timeoutSeconds = max(1, Int(timeInterval(for: timeout).rounded(.up)))
-                        await onTimeoutKnown(timeoutSeconds)
-                    }
-                    try? await Task.sleep(for: timeout)
-                    guard !Task.isCancelled else { return }
-                    if let pending = pendingLogins.removeValue(forKey: prefix) {
-                        logger.warning("Login timeout after \(timeout) for session \(sessionID), prefix \(prefixHex)")
-                        pendingLoginTimeoutTasks.removeValue(forKey: prefix)
-                        pending.resume(throwing: RemoteNodeError.timeout)
-                    } else {
-                        logger.info("login: timeout elapsed but continuation already consumed for prefix \(prefixHex)")
-                    }
-                }
-                pendingLoginTimeoutTasks[prefix] = timeoutTask
-            }
-        } onCancel: { [weak self] in
-            Task { [weak self] in
-                await self?.cancelPendingLogin(for: prefix)
-            }
-        }
-    }
-
-    /// Handle login result push from device.
-    private func handleLoginResult(_ result: LoginResult, fromPublicKeyPrefix: Data) async {
-        guard fromPublicKeyPrefix.count >= 6 else {
-            logger.warning("Login result has invalid prefix length: \(fromPublicKeyPrefix.count)")
-            return
-        }
-
-        let prefix = Data(fromPublicKeyPrefix.prefix(6))
-        let prefixHex = prefix.map { String(format: "%02x", $0) }.joined()
-        let pendingKeys = pendingLogins.keys.map { $0.map { String(format: "%02x", $0) }.joined() }
-        logger.info("handleLoginResult: looking for prefix \(prefixHex), pending keys: \(pendingKeys)")
-        guard let continuation = pendingLogins.removeValue(forKey: prefix) else {
-            logger.warning("Login result with no pending request. Prefix: \(prefixHex)")
-            return
-        }
-        pendingLoginTimeoutTasks.removeValue(forKey: prefix)?.cancel()
-        logger.info("handleLoginResult: found continuation for prefix \(prefixHex)")
-
-        if result.success {
-            // Update session state
-            do {
-                guard let remoteSession = try await dataStore.fetchRemoteNodeSessionByPrefix(prefix) else {
-                    logger.error("handleLoginResult: no session found for prefix \(prefixHex) - database may be corrupted")
-                    continuation.resume(returning: result)
-                    return
-                }
-
-                // Log successful login
-                let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
-                await auditLogger.logLoginSuccess(target: targetType, publicKey: prefix, isAdmin: result.isAdmin)
-
-                let permission = result.permissionLevel
-
-                logger.info("handleLoginResult: updating session \(remoteSession.id) isConnected=true, permission=\(permission.rawValue)")
-
-                try await dataStore.updateRemoteNodeSessionConnection(
-                    id: remoteSession.id,
-                    isConnected: true,
-                    permissionLevel: permission
-                )
-
-                // Verify the update succeeded
-                if let verifySession = try await dataStore.fetchRemoteNodeSession(id: remoteSession.id) {
-                    if verifySession.isConnected {
-                        logger.info("handleLoginResult: verified session \(remoteSession.id) isConnected=true")
-                    } else {
-                        logger.error("handleLoginResult: session \(remoteSession.id) still shows isConnected=false after update!")
-                    }
-                }
-
-                // Notify UI of session state change
-                await sessionStateChangedHandler?(remoteSession.id, true)
-
-                keepAliveIntervals[remoteSession.id] = Self.defaultKeepAliveInterval
-            } catch {
-                logger.error("handleLoginResult: failed to update session state: \(error)")
-            }
-            continuation.resume(returning: result)
-        } else {
-            // Log failed login
-            // Try to determine target type from existing session
-            if let remoteSession = try? await dataStore.fetchRemoteNodeSessionByPrefix(prefix) {
-                let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
-                await auditLogger.logLoginFailed(target: targetType, publicKey: prefix, reason: "authentication failed")
-            } else {
-                await auditLogger.logLoginFailed(target: .repeater, publicKey: prefix, reason: "authentication failed")
-            }
-            continuation.resume(throwing: RemoteNodeError.loginFailed("authentication failed"))
-        }
-    }
-
-    // MARK: - Keep-Alive (Room Servers)
-
-    /// Start periodic keep-alive for a room server session.
-    /// Sends an immediate keep-alive on start (for connectivity check + sync_since update),
-    /// then continues at the configured interval. Transient failures are retried up to
-    /// `KeepAliveRetryPolicy.maxConsecutiveFailures` times before disconnecting.
-    private func startKeepAlive(sessionID: UUID, publicKey: Data) {
-        stopKeepAlive(sessionID: sessionID)
-
-        let interval = keepAliveIntervals[sessionID] ?? Self.defaultKeepAliveInterval
-
-        let task = Task {
-            var consecutiveFailures = 0
-
-            while !Task.isCancelled {
-                do {
-                    try await sendKeepAliveIfDirectRouted(sessionID: sessionID, publicKey: publicKey)
-                    KeepAliveRetryPolicy.recordSuccess(consecutiveFailures: &consecutiveFailures)
-                } catch {
-                    let action = KeepAliveRetryPolicy.evaluate(error: error, consecutiveFailures: &consecutiveFailures)
-                    switch action {
-                    case .stop:
-                        break
-                    case .skip:
-                        logger.info("Skipping keep-alive for flood-routed session \(sessionID)")
-                    case .retryNextInterval:
-                        let reason = KeepAliveRetryPolicy.failureReason(for: error)
-                        logger.warning("Keep-alive \(consecutiveFailures)/\(KeepAliveRetryPolicy.maxConsecutiveFailures) failed for \(sessionID): \(reason)")
-                    case .disconnect, .disconnectNow:
-                        let reason = KeepAliveRetryPolicy.failureReason(for: error)
-                        logger.warning("Keep-alive failed for \(sessionID): \(reason)")
-                        do {
-                            try await dataStore.markSessionDisconnected(sessionID)
-                        } catch {
-                            logger.error("Failed to persist disconnected state for session \(sessionID): \(error)")
-                        }
-                        await sessionStateChangedHandler?(sessionID, false)
-                    }
-                    if action.shouldExitLoop { break }
-                }
-
-                try? await Task.sleep(for: interval)
-                guard !Task.isCancelled else { break }
-            }
-        }
-
-        keepAliveTasks[sessionID] = task
-    }
-
-    /// Stop keep-alive for a session
-    private func stopKeepAlive(sessionID: UUID) {
-        keepAliveTasks[sessionID]?.cancel()
-        keepAliveTasks.removeValue(forKey: sessionID)
-    }
-
-    /// Send keep-alive only if the session has a direct routing path.
-    private func sendKeepAliveIfDirectRouted(sessionID: UUID, publicKey: Data) async throws {
-        // Fetch session to get radioID
-        guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
-            throw RemoteNodeError.sessionNotFound
-        }
-
-        // Check contact's routing status
-        guard let contact = try await dataStore.fetchContact(radioID: remoteSession.radioID, publicKey: publicKey) else {
-            throw RemoteNodeError.contactNotFound
-        }
-
-        // Keep-alive only works with direct routing
-        if contact.isFloodRouted {
-            throw RemoteNodeError.floodRouted
-        }
-
-        // Log keep-alive
-        let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
-        await auditLogger.logKeepAlive(target: targetType, publicKey: publicKey)
-
-        // Send keep-alive with sync_since for force-resync hint
-        do {
-            _ = try await session.sendKeepAlive(to: publicKey, syncSince: remoteSession.lastSyncTimestamp)
-        } catch let error as MeshCoreError {
-            throw RemoteNodeError.sessionError(error)
-        }
-    }
-
-    /// Public method to send keep-alive (for manual refresh).
-    public func sendKeepAlive(sessionID: UUID) async throws {
-        guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
-            throw RemoteNodeError.sessionNotFound
-        }
-        try await sendKeepAliveIfDirectRouted(sessionID: sessionID, publicKey: remoteSession.publicKey)
-    }
-
-    /// Start keep-alive for a room session (called when room view appears).
-    public func startSessionKeepAlive(sessionID: UUID, publicKey: Data) {
-        startKeepAlive(sessionID: sessionID, publicKey: publicKey)
-    }
-
-    /// Stop keep-alive for a room session (called when room view disappears).
-    public func stopSessionKeepAlive(sessionID: UUID) {
-        stopKeepAlive(sessionID: sessionID)
-    }
-
-    // MARK: - History Sync
-
-    /// Request message history from a room server.
-    public func requestHistorySync(sessionID: UUID, since: UInt32 = 1) async throws {
-        guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
-            throw RemoteNodeError.sessionNotFound
-        }
-
-        guard remoteSession.isRoom else {
-            throw RemoteNodeError.invalidResponse
-        }
-
-        // Check for direct route
-        guard let contact = try await dataStore.fetchContact(radioID: remoteSession.radioID, publicKey: remoteSession.publicKey) else {
-            throw RemoteNodeError.contactNotFound
-        }
-
-        if contact.isFloodRouted {
-            throw RemoteNodeError.floodRouted
-        }
-
-        // Request status (which triggers sync)
-        do {
-            let contactType: ContactType = remoteSession.isRoom ? .room : .repeater
-            _ = try await session.requestStatus(from: remoteSession.publicKey, type: contactType)
-        } catch let error as MeshCoreError {
-            throw RemoteNodeError.sessionError(error)
-        }
-
-        logger.info("Requested history sync for room \(remoteSession.name) since \(since)")
-    }
-
-    // MARK: - Logout
-
-    /// Explicitly logout from a remote node.
-    public func logout(sessionID: UUID) async throws {
-        guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
-            throw RemoteNodeError.sessionNotFound
-        }
-
-        // Log logout
-        let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
-        await auditLogger.logLogout(target: targetType, publicKey: remoteSession.publicKey)
-
-        stopKeepAlive(sessionID: sessionID)
-
-        do {
-            try await session.sendLogout(to: remoteSession.publicKey)
-        } catch {
-            // Ignore errors - we're disconnecting anyway
-            logger.info("Logout send failed (ignoring): \(error)")
-        }
-
-        try await dataStore.updateRemoteNodeSessionConnection(
-            id: sessionID,
-            isConnected: false,
-            permissionLevel: .guest
-        )
-
-        // Notify UI of session state change
-        await sessionStateChangedHandler?(sessionID, false)
-    }
-
-    // MARK: - Status
-
-    /// Request status from a remote node.
-    public func requestStatus(sessionID: UUID, timeout: Duration? = nil) async throws -> StatusResponse {
-        guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
-            throw RemoteNodeError.sessionNotFound
-        }
-
-        // Log status request
-        let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
-        await auditLogger.logStatusRequest(target: targetType, publicKey: remoteSession.publicKey)
-
-        do {
-            let effectiveTimeout = timeout ?? RemoteOperationTimeoutPolicy.binaryMaximum
-            return try await withTimeout(effectiveTimeout, operationName: "remoteStatus") {
-                let contactType: ContactType = remoteSession.isRoom ? .room : .repeater
-                return try await self.session.requestStatus(from: remoteSession.publicKey, type: contactType)
-            }
-        } catch is TimeoutError {
-            throw RemoteNodeError.timeout
-        } catch let error as MeshCoreError {
-            throw RemoteNodeError.sessionError(error)
-        }
-    }
-
-    // MARK: - Telemetry
-
-    /// Request telemetry from a remote node
-    public func requestTelemetry(sessionID: UUID, timeout: Duration? = nil) async throws -> TelemetryResponse {
-        guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
-            throw RemoteNodeError.sessionNotFound
-        }
-
-        // Log telemetry request
-        let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
-        await auditLogger.logTelemetryRequest(target: targetType, publicKey: remoteSession.publicKey)
-
-        do {
-            let effectiveTimeout = timeout ?? RemoteOperationTimeoutPolicy.binaryMaximum
-            return try await withTimeout(effectiveTimeout, operationName: "remoteTelemetry") {
-                try await self.session.requestTelemetry(from: remoteSession.publicKey)
-            }
-        } catch is TimeoutError {
-            throw RemoteNodeError.timeout
-        } catch let error as MeshCoreError {
-            throw RemoteNodeError.sessionError(error)
-        }
-    }
-
-    // MARK: - Owner Info
-
-    /// Request owner info from a repeater using binary protocol.
-    public func requestOwnerInfo(sessionID: UUID, timeout: Duration? = nil) async throws -> OwnerInfoResponse {
-        guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
-            throw RemoteNodeError.sessionNotFound
-        }
-
-        do {
-            let effectiveTimeout = timeout ?? RemoteOperationTimeoutPolicy.binaryMaximum
-            return try await withTimeout(effectiveTimeout, operationName: "remoteOwnerInfo") {
-                try await self.session.requestOwnerInfo(from: remoteSession.publicKey)
-            }
-        } catch is TimeoutError {
-            throw RemoteNodeError.timeout
-        } catch let error as MeshCoreError {
-            throw RemoteNodeError.sessionError(error)
-        }
-    }
-
-    // MARK: - CLI Commands
-
-    /// Send a CLI command to a remote node and wait for response (admin only).
-    /// - Parameters:
-    ///   - sessionID: The remote node session ID.
-    ///   - command: The CLI command to send.
-    ///   - timeout: Hard maximum time to wait for response (default 10 seconds).
-    /// - Returns: The CLI response text from the remote node.
-    public func sendCLICommand(
-        sessionID: UUID,
-        command: String,
-        timeout: Duration = .seconds(10)
-    ) async throws -> String {
-        guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
-            throw RemoteNodeError.sessionNotFound
-        }
-
-        guard remoteSession.isAdmin else {
-            throw RemoteNodeError.permissionDenied
-        }
-
-        // Log CLI command (with password redaction)
-        await auditLogger.logCLICommand(publicKey: remoteSession.publicKey, command: command)
-
-        let destinationPrefix = Data(remoteSession.publicKey.prefix(6))
-        let requestTimestamp = Date()
-
-        return try await withTaskCancellationHandler {
-            try await withCheckedThrowingContinuation { continuation in
-                let request = PendingCLIRequest(
-                    command: command,
-                    continuation: continuation,
-                    timestamp: requestTimestamp
-                )
-
-                if pendingCLIRequests[destinationPrefix] == nil {
-                    pendingCLIRequests[destinationPrefix] = []
-                }
-                pendingCLIRequests[destinationPrefix]!.append(request)
-
-                Task { [self] in
-                    let sentInfo: MessageSentInfo
-                    do {
-                        sentInfo = try await session.sendCommand(to: remoteSession.publicKey, command: command)
-                    } catch {
-                        if var requests = pendingCLIRequests[destinationPrefix],
-                           let index = requests.firstIndex(where: { $0.timestamp == requestTimestamp }) {
-                            let failed = requests.remove(at: index)
-                            pendingCLIRequests[destinationPrefix] = requests.isEmpty ? nil : requests
-                            let meshError = error as? MeshCoreError ?? MeshCoreError.connectionLost(underlying: error)
-                            failed.continuation.resume(throwing: RemoteNodeError.sessionError(meshError))
-                        }
-                        return
-                    }
-
-                    let effectiveTimeout = RemoteOperationTimeoutPolicy.cliTimeout(for: sentInfo, requestedTimeout: timeout)
-                    let deadline = ContinuousClock.now.advanced(by: effectiveTimeout)
-                    while ContinuousClock.now < deadline {
-                        if let requests = pendingCLIRequests[destinationPrefix],
-                           !requests.contains(where: { $0.timestamp == requestTimestamp }) {
-                            return
-                        } else if pendingCLIRequests[destinationPrefix] == nil {
-                            return
-                        }
-
-                        let remaining = deadline - .now
-                        let pollDuration = min(RemoteOperationTimeoutPolicy.pollInterval, remaining)
-                        _ = try? await session.getMessage(timeout: max(0.1, timeInterval(for: pollDuration)))
-                    }
-
-                    if var requests = pendingCLIRequests[destinationPrefix],
-                       let index = requests.firstIndex(where: { $0.timestamp == requestTimestamp }) {
-                        let timedOut = requests.remove(at: index)
-                        pendingCLIRequests[destinationPrefix] = requests.isEmpty ? nil : requests
-                        timedOut.continuation.resume(throwing: RemoteNodeError.timeout)
-                    }
-                }
-            }
-        } onCancel: { [weak self] in
-            Task { [weak self] in
-                await self?.cancelPendingCLIRequest(for: destinationPrefix, timestamp: requestTimestamp)
-            }
-        }
-    }
-
-    /// Send a raw CLI command to a remote node using FIFO response matching (admin only).
-    /// Unlike `sendCLICommand`, this method accepts any response from the target node
-    /// without content-based matching. Used by CLI tool for passthrough commands.
-    /// - Parameters:
-    ///   - sessionID: The remote node session ID.
-    ///   - command: The CLI command to send.
-    ///   - timeout: Hard maximum time to wait for response (default 10 seconds).
-    /// - Returns: The raw response text from the remote node.
-    public func sendRawCLICommand(
-        sessionID: UUID,
-        command: String,
-        timeout: Duration = .seconds(10)
-    ) async throws -> String {
-        guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
-            throw RemoteNodeError.sessionNotFound
-        }
-
-        guard remoteSession.isAdmin else {
-            throw RemoteNodeError.permissionDenied
-        }
-
-        // Log CLI command (with password redaction)
-        await auditLogger.logCLICommand(publicKey: remoteSession.publicKey, command: command)
-
-        let destinationPrefix = Data(remoteSession.publicKey.prefix(6))
-
-        // Only one raw CLI request per sender at a time (FIFO matching)
-        guard pendingRawCLIRequests[destinationPrefix] == nil else {
-            throw RemoteNodeError.sessionError(.connectionLost(underlying: nil))
-        }
-
-        // Register continuation BEFORE sending to avoid race condition
-        // Use withTaskCancellationHandler to clean up pending request if caller cancels
-        let response = try await withTaskCancellationHandler {
-            try await withCheckedThrowingContinuation { continuation in
-                pendingRawCLIRequests[destinationPrefix] = continuation
-
-                Task { [self] in
-                    // Send CLI command
-                    let sentInfo: MessageSentInfo
-                    do {
-                        sentInfo = try await session.sendCommand(to: remoteSession.publicKey, command: command)
-                    } catch {
-                        // Send failed - remove pending request and resume with error
-                        if let pending = pendingRawCLIRequests.removeValue(forKey: destinationPrefix) {
-                            let meshError = error as? MeshCoreError ?? MeshCoreError.connectionLost(underlying: error)
-                            pending.resume(throwing: RemoteNodeError.sessionError(meshError))
-                        }
-                        return
-                    }
-
-                    let effectiveTimeout = RemoteOperationTimeoutPolicy.cliTimeout(for: sentInfo, requestedTimeout: timeout)
-
-                    // Poll for response
-                    let deadline = ContinuousClock.now.advanced(by: effectiveTimeout)
-                    while ContinuousClock.now < deadline {
-                        // Check if our request was already satisfied
-                        guard pendingRawCLIRequests[destinationPrefix] != nil else {
-                            return  // Request was matched and removed by handleCLIResponse
-                        }
-
-                        // Check for task cancellation
-                        if Task.isCancelled {
-                            if let cancelled = pendingRawCLIRequests.removeValue(forKey: destinationPrefix) {
-                                cancelled.resume(throwing: CancellationError())
-                            }
-                            return
-                        }
-
-                        // Poll device for pending messages
-                        let remaining = deadline - .now
-                        let pollDuration = min(RemoteOperationTimeoutPolicy.pollInterval, remaining)
-                        _ = try? await session.getMessage(timeout: max(0.1, timeInterval(for: pollDuration)))
-                    }
-
-                    // Timeout - remove pending request and resume with error
-                    if let timedOut = pendingRawCLIRequests.removeValue(forKey: destinationPrefix) {
-                        timedOut.resume(throwing: RemoteNodeError.timeout)
-                    }
-                }
-            }
-        } onCancel: { [weak self] in
-            Task { [weak self] in
-                await self?.cancelPendingRawCLIRequest(for: destinationPrefix)
-            }
-        }
-
-        // Clear stored password after admin password change
-        await handlePasswordChangeIfNeeded(command: command, sessionID: sessionID)
-
-        return response
-    }
-
-    /// Clear stored password if command is an admin password change.
-    private func handlePasswordChangeIfNeeded(command: String, sessionID: UUID) async {
-        let lower = command.lowercased().trimmingCharacters(in: .whitespaces)
-
-        // Only admin password changes, not guest
-        guard lower.hasPrefix("password ") && !lower.contains("guest.password") else {
-            return
-        }
-
-        guard let session = try? await dataStore.fetchRemoteNodeSession(id: sessionID) else {
-            return
-        }
-
-        do {
-            try await keychainService.deletePassword(forNodeKey: session.publicKey)
-            logger.info("Cleared stored password after password change for session \(sessionID)")
-        } catch {
-            logger.warning("Failed to clear stored password for session \(sessionID): \(error)")
-            // Next login fails naturally - user re-enters password, overwrites stale credential
-        }
-    }
-
-    /// Cancel a pending raw CLI request when the calling task is cancelled.
-    private func cancelPendingRawCLIRequest(for prefix: Data) {
-        if let cancelled = pendingRawCLIRequests.removeValue(forKey: prefix) {
-            cancelled.resume(throwing: CancellationError())
-        }
-    }
-
     // MARK: - Disconnect
 
     /// Mark session as disconnected without sending logout.
@@ -1081,116 +369,26 @@ public actor RemoteNodeService {
         }
 
         // Notify UI of session state change
-        await sessionStateChangedHandler?(sessionID, false)
-    }
-
-    // MARK: - BLE Disconnection
-
-    /// Called when BLE connection is lost.
-    /// Marks all connected sessions as disconnected, stops keep-alive timers,
-    /// and notifies UI via `sessionStateChangedHandler`.
-    /// Returns the set of session IDs that were connected, for re-auth on reconnect.
-    public func handleBLEDisconnection() async -> Set<UUID> {
-        let connectedSessions: [RemoteNodeSessionDTO]
-        do {
-            connectedSessions = try await dataStore.fetchConnectedRemoteNodeSessions()
-        } catch {
-            logger.error("Failed to fetch connected sessions for BLE disconnection: \(error)")
-            return []
-        }
-
-        guard !connectedSessions.isEmpty else { return [] }
-
-        logger.info("BLE disconnection: marking \(connectedSessions.count) session(s) disconnected")
-        var sessionIDs: Set<UUID> = []
-
-        for session in connectedSessions {
-            sessionIDs.insert(session.id)
-            stopKeepAlive(sessionID: session.id)
-            do {
-                try await dataStore.markSessionDisconnected(session.id)
-            } catch {
-                logger.error("Failed to mark session \(session.id) disconnected: \(error)")
-            }
-            await sessionStateChangedHandler?(session.id, false)
-        }
-
-        return sessionIDs
-    }
-
-    // MARK: - BLE Reconnection
-
-    /// Called when BLE connection is re-established.
-    /// Re-authenticates sessions that were connected before BLE loss.
-    /// - Parameter sessionIDs: Session IDs from `handleBLEDisconnection()`.
-    ///   If empty (e.g., after app restart), no sessions are re-authenticated;
-    ///   the user can manually reconnect.
-    public func handleBLEReconnection(sessionIDs: Set<UUID>) async {
-        guard !isReauthenticating else {
-            logger.info("Skipping re-auth: already in progress")
-            return
-        }
-
-        guard !sessionIDs.isEmpty else { return }
-
-        // Fetch current session state for each ID
-        var sessionsToReauth: [RemoteNodeSessionDTO] = []
-        for id in sessionIDs {
-            if let session = try? await dataStore.fetchRemoteNodeSession(id: id) {
-                sessionsToReauth.append(session)
-            } else {
-                logger.warning("Session \(id) not found for re-auth, skipping")
-            }
-        }
-
-        guard !sessionsToReauth.isEmpty else { return }
-
-        logger.info("BLE reconnection: re-authenticating \(sessionsToReauth.count) session(s)")
-        isReauthenticating = true
-        defer { isReauthenticating = false }
-
-        await withTaskGroup(of: Void.self) { group in
-            for remoteSession in sessionsToReauth {
-                group.addTask { [self] in
-                    let previousPermission = remoteSession.permissionLevel
-                    do {
-                        let result = try await self.login(sessionID: remoteSession.id)
-                        let newPermission = result.permissionLevel
-                        if newPermission < previousPermission {
-                            self.logger.warning(
-                                "Re-auth returned degraded permission for session \(remoteSession.id): "
-                                + "\(previousPermission) -> \(newPermission), marking disconnected"
-                            )
-                            try? await self.dataStore.markSessionDisconnected(remoteSession.id)
-                            await self.sessionStateChangedHandler?(remoteSession.id, false)
-                        }
-                    } catch {
-                        self.logger.warning("Re-auth failed for session \(remoteSession.id): \(error)")
-                        do {
-                            try await self.dataStore.markSessionDisconnected(remoteSession.id)
-                        } catch {
-                            self.logger.error("Failed to persist disconnected state for session \(remoteSession.id): \(error)")
-                        }
-                        await self.sessionStateChangedHandler?(remoteSession.id, false)
-                    }
-                }
-            }
-        }
+        eventBroadcaster.yield(.sessionStateChanged(sessionID: sessionID, isConnected: false))
     }
 
     // MARK: - Cleanup
 
-    /// Stop all keep-alive timers and cancel pending login timeouts (call on app termination)
+    /// Stop all keep-alive timers and resume any parked login continuations (call on app termination)
     public func stopAllKeepAlives() {
         for task in keepAliveTasks.values {
             task.cancel()
         }
         keepAliveTasks.removeAll()
 
-        for task in pendingLoginTimeoutTasks.values {
-            task.cancel()
+        // Resume parked logins before dropping their timeout tasks; otherwise the
+        // continuation that would have resumed them is gone and the caller hangs.
+        for prefix in Array(pendingLogins.keys) {
+            cancelPendingLogin(for: prefix)
         }
-        pendingLoginTimeoutTasks.removeAll()
     }
+
+    /// Number of login continuations currently parked. Exposed for teardown tests.
+    var pendingLoginCount: Int { pendingLogins.count }
 
 }

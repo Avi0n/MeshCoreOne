@@ -41,4 +41,25 @@ struct AckCodeBuilderTests {
         let b = AckCodeBuilder.expectedAck(timestamp: 1, attempt: 0, text: "bye", senderPublicKey: pubkey)
         #expect(a != b)
     }
+
+    @Test("attempts 0..3 produce four distinct codes")
+    func directAttemptsDistinct() {
+        let pubkey = Data(repeating: 0x02, count: 32)
+        let codes = (0..<4).map {
+            AckCodeBuilder.expectedAck(timestamp: 100, attempt: UInt8($0), text: "hi", senderPublicKey: pubkey)
+        }
+        #expect(Set(codes).count == 4)
+    }
+
+    // The firmware masks the attempt index with & 0x03, so the flood attempt
+    // (index 4) intentionally reuses attempt 0's code. This is safe: a single
+    // message accumulates its codes in a Set, so the wrap is a no-op re-add and
+    // any returned ACK still matches the right message.
+    @Test("attempt 4 wraps to attempt 0's code")
+    func floodAttemptWrapsToAttemptZero() {
+        let pubkey = Data(repeating: 0x03, count: 32)
+        let attempt0 = AckCodeBuilder.expectedAck(timestamp: 100, attempt: 0, text: "hi", senderPublicKey: pubkey)
+        let attempt4 = AckCodeBuilder.expectedAck(timestamp: 100, attempt: 4, text: "hi", senderPublicKey: pubkey)
+        #expect(attempt0 == attempt4)
+    }
 }

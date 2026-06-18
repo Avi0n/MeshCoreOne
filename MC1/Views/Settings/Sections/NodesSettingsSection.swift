@@ -74,8 +74,9 @@ struct NodesSettingsSection: View {
             }
             .pickerStyle(.menu)
             .onChange(of: autoAddMode) { _, newValue in
+                // Mode changes reveal or hide the type and hop rows below the picker.
                 if newValue != .manual {
-                    UIAccessibility.post(notification: .screenChanged, argument: nil)
+                    AccessibilityNotification.LayoutChanged().post()
                 }
             }
 
@@ -190,15 +191,15 @@ struct NodesSettingsSection: View {
                 // Save autoAddConfig only on v1.12+ firmware
                 if device.supportsAutoAddConfig {
                     var config: UInt8 = 0
-                    if overwriteOldest { config |= 0x01 }
+                    if overwriteOldest { config |= AutoAddConfig.overwriteOldestBit }
 
                     switch autoAddMode {
                     case .manual:
                         break
                     case .selectedTypes:
-                        if autoAddContacts { config |= 0x02 }
-                        if autoAddRepeaters { config |= 0x04 }
-                        if autoAddRoomServers { config |= 0x08 }
+                        if autoAddContacts { config |= AutoAddConfig.contactsBit }
+                        if autoAddRepeaters { config |= AutoAddConfig.repeatersBit }
+                        if autoAddRoomServers { config |= AutoAddConfig.roomServersBit }
                     case .all:
                         break
                     }
@@ -222,13 +223,13 @@ struct NodesSettingsSection: View {
             } catch let error as SettingsServiceError where error.isRetryable {
                 loadFromDevice()
                 retryAlert.show(
-                    message: error.errorDescription ?? L10n.Localizable.Common.Error.connectionError,
+                    message: error.userFacingMessage,
                     onRetry: { applySettings() },
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
                 loadFromDevice()
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
             isApplying = false
         }

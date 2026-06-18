@@ -72,7 +72,7 @@ struct DiagnosticsSection: View {
             do {
                 try await dataStore.clearDebugLogEntries()
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
         }
     }

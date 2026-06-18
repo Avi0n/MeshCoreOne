@@ -114,6 +114,9 @@
 /* TX power display format with dBm unit */
 "deviceInfo.txPowerFormat" = "%@ дБм";
 
+/* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
+"deviceInfo.firmwareVersionFormat" = "v%@";
+
 /* Section header for identity information */
 "deviceInfo.identity.header" = "Ідентифікація";
 
@@ -391,7 +394,7 @@
 "batteryCurve.editValues" = "Редагувати значення";
 
 /* Validation error for value out of range - %d is the percentage level */
-"batteryCurve.validation.outOfRange" = "Значення при %d%% має бути 1000-9000 мВ";
+"batteryCurve.validation.outOfRange" = "Значення при %d%% має бути 1000-99999 мВ";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "Значення повинні бути в порядку спадання";
@@ -757,13 +760,13 @@
 "notifications.newContactDiscovered" = "Виявлено новий контакт";
 
 /* Toggle label for companion discovery notifications */
-"notifications.discoveryContact" = "Companion";
+"notifications.discoveryContact" = "Компаньйон";
 
 /* Toggle label for repeater discovery notifications */
-"notifications.discoveryRepeater" = "Repeater";
+"notifications.discoveryRepeater" = "Ретранслятор";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Room";
+"notifications.discoveryRoom" = "Кімната";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Попередження про низький заряд";
@@ -973,7 +976,7 @@
 "directMessages.header" = "Особисті повідомлення";
 
 /* Picker label for number of acknowledgments */
-"directMessages.acknowledgments" = "Acknowledgments";
+"directMessages.acknowledgments" = "Підтвердження";
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Кількість підтверджень, що надсилаються на кожне особисте повідомлення. Використовуйте 2 для кращого підтвердження доставки через ненадійні з'єднання.";
@@ -1111,9 +1114,6 @@
 /* Select file button */
 "configImport.selectFile" = "Вибрати JSON-файл";
 
-/* Cannot access file error */
-"configImport.cannotAccess" = "Неможливо відкрити вибраний файл.";
-
 /* Confirmation alert title */
 "configImport.confirmTitle" = "Застосувати конфігурацію?";
 
@@ -1240,6 +1240,21 @@
 /* Validation error: not enough free contact slots (params: needed count, available count) */
 "configImport.error.contactCapacityExceeded" = "Для імпорту потрібно %d вільних слотів контактів, але на пристрої залишилося лише %d";
 
+/* Validation error: channel secret wrong length (params: channel index, hex char count) */
+"configImport.error.invalidChannelSecret" = "Канал %1$lld має некоректний секретний ключ (%2$lld шістнадцяткових символів, очікувалося 32)";
+
+/* Validation error: contact public key malformed (param: contact name) */
+"configImport.error.invalidContactPublicKey" = "Контакт \"%@\" має некоректний відкритий ключ";
+
+/* Validation error: unsupported path hash mode (params: contact name, mode value) */
+"configImport.error.invalidPathHashMode" = "Контакт \"%1$@\" має непідтримуваний режим хешування шляху %2$lld (очікувалося 0, 1 або 2)";
+
+/* Validation error: private key wrong length (params: hex char count, expected hex char count) */
+"configImport.error.invalidPrivateKey" = "Некоректний приватний ключ (%1$lld шістнадцяткових символів, очікувалося %2$lld)";
+
+/* Validation error: no empty channel slot left (param: channel name) */
+"configImport.error.noAvailableChannelSlot" = "Немає вільного слота каналу для \"%@\"";
+
 /* Toggle label for inline images */
 "inlineImages.toggle" = "Вбудовані зображення";
 
@@ -1316,7 +1331,7 @@
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
-"liveActivity.title" = "Live Activity";
+"liveActivity.title" = "Онлайн-активність";
 
 /* Title for the Live Activity tip shown after first connection */
 "liveActivity.tip.title" = "Стан радіо з першого погляду";
@@ -1720,6 +1735,7 @@
 "Support.Themes.Title" = "Теми";
 "Support.Themes.Owned" = "Придбано";
 "Support.Themes.PurchasedFooter" = "Застосуйте нову тему в меню Налаштування → Зовнішній вигляд.";
+"Support.Themes.AllUnlocked" = "Усі теми розблоковано!";
 "Support.Bundle.Title" = "Усі теми";
 "Support.Bundle.Subtitle" = "Включно з темами, доданими пізніше.";
 "Support.Contributions.Title" = "Внески";
@@ -1735,11 +1751,11 @@
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Стандартна";
-"Support.Theme.Ember" = "Ember";
-"Support.Theme.Fern" = "Fern";
-"Support.Theme.Marine" = "Marine";
-"Support.Theme.Olive" = "Olive";
-"Support.Theme.Lavender" = "Lavender";
+"Support.Theme.Ember" = "Жар";
+"Support.Theme.Fern" = "Папороть";
+"Support.Theme.Marine" = "Морський";
+"Support.Theme.Olive" = "Оливковий";
+"Support.Theme.Lavender" = "Лаванда";
 
 /* MARK: Support error messages (mapped from StoreServiceError) */
 "Support.Error.ProductsNotLoaded" = "Не вдалося завантажити товари.";

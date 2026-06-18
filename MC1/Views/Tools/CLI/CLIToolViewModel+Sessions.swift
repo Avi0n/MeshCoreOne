@@ -135,19 +135,13 @@ extension CLIToolViewModel {
             return
         }
 
-        isWaitingForResponse = true
-        defer {
-            isWaitingForResponse = false
-            stopCountdown()
-        }
+        defer { stopCountdown() }
 
         do {
             // Create or reuse session
             let remoteSession = try await remoteNodeService.createSession(
                 radioID: radioID,
-                contact: contact,
-                password: password,
-                rememberPassword: true
+                contact: contact
             )
 
             guard !Task.isCancelled else { return }
@@ -211,9 +205,6 @@ extension CLIToolViewModel {
             return
         }
 
-        isWaitingForResponse = true
-        defer { isWaitingForResponse = false }
-
         // Logout via RemoteNodeService (errors ignored per protocol design)
         if let remoteNodeService {
             try? await remoteNodeService.logout(sessionID: session.id)
@@ -236,8 +227,6 @@ extension CLIToolViewModel {
 
         // Reboot won't return a response - treat timeout as success
         if command.lowercased().hasPrefix("reboot") {
-            isWaitingForResponse = true
-            defer { isWaitingForResponse = false }
             do {
                 _ = try await service.sendRawCommand(
                     sessionID: session.id,
@@ -252,9 +241,6 @@ extension CLIToolViewModel {
             }
             return
         }
-
-        isWaitingForResponse = true
-        defer { isWaitingForResponse = false }
 
         do {
             let response = try await service.sendRawCommand(sessionID: session.id, command: command)

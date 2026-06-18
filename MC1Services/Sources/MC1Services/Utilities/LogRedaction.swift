@@ -1,7 +1,7 @@
 import Foundation
 
 /// Centralized redaction utility for logging sensitive data.
-public enum LogRedaction {
+enum LogRedaction {
 
     /// Formats public key prefix as hex string.
     /// Public keys are NOT redacted since they're public.
@@ -9,14 +9,14 @@ public enum LogRedaction {
     ///   - key: The public key data
     ///   - prefixLength: Number of bytes to include (default 6)
     /// - Returns: Hex string representation
-    public static func publicKeyHex(_ key: Data, prefixLength: Int = 6) -> String {
+    static func publicKeyHex(_ key: Data, prefixLength: Int = 6) -> String {
         key.prefix(prefixLength).map { String(format: "%02x", $0) }.joined()
     }
 
     /// Redacts a node/room name to first 3 chars + "***".
     /// - Parameter name: The node or room name
     /// - Returns: Redacted name
-    public static func nodeName(_ name: String) -> String {
+    static func nodeName(_ name: String) -> String {
         guard name.count > 3 else { return "***" }
         return String(name.prefix(3)) + "***"
     }
@@ -24,7 +24,7 @@ public enum LogRedaction {
     /// Redacts sensitive parts of CLI commands (passwords).
     /// - Parameter command: The CLI command string
     /// - Returns: Command with password values redacted
-    public static func cliCommand(_ command: String) -> String {
+    static func cliCommand(_ command: String) -> String {
         let lower = command.lowercased()
         // Redact password values in CLI commands like "set password XYZ" or "password XYZ"
         if lower.hasPrefix("password") || lower.contains("set password") {
@@ -38,5 +38,5 @@ public enum LogRedaction {
     }
 
     /// Placeholder for password values that should never be logged.
-    public static let passwordPlaceholder = "[REDACTED]"
+    static let passwordPlaceholder = "[REDACTED]"
 }

@@ -15,7 +15,7 @@ public enum NotificationLevel: Int, Sendable, Codable, CaseIterable {
         }
     }
 
-    /// Display label for UI
+    /// Developer-facing English label for logs; UI uses the app target's localized `NotificationLevel.localizedName`.
     public var displayName: String {
         switch self {
         case .muted: "Muted"
@@ -24,7 +24,7 @@ public enum NotificationLevel: Int, Sendable, Codable, CaseIterable {
         }
     }
 
-    /// Accessibility description
+    /// Developer-facing English description; UI uses the app target's localized `NotificationLevel.localizedAccessibilityDescription`.
     public var accessibilityDescription: String {
         switch self {
         case .muted: "Muted, no notifications"

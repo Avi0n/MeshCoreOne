@@ -14,14 +14,14 @@ enum OnboardingStep: String, CaseIterable, Hashable, Codable {
 /// Manages onboarding completion flag and navigation path.
 @Observable
 @MainActor
-public final class OnboardingState {
+final class OnboardingState {
 
     private let defaults: UserDefaults
 
     /// Whether onboarding is complete (persisted to UserDefaults)
     var hasCompletedOnboarding: Bool {
         didSet {
-            defaults.set(hasCompletedOnboarding, forKey: "hasCompletedOnboarding")
+            defaults.set(hasCompletedOnboarding, forKey: AppStorageKey.hasCompletedOnboarding.rawValue)
         }
     }
 
@@ -30,7 +30,7 @@ public final class OnboardingState {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        self.hasCompletedOnboarding = defaults.bool(forKey: "hasCompletedOnboarding")
+        self.hasCompletedOnboarding = defaults.bool(forKey: AppStorageKey.hasCompletedOnboarding.rawValue)
     }
 
     /// Mark onboarding as complete

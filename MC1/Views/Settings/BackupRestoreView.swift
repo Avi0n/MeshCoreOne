@@ -50,7 +50,14 @@ struct BackupRestoreView: View {
         .fileExporter(
             isPresented: Binding(
                 get: { viewModel.pendingExport != nil },
-                set: { _ in }
+                // A dismissal that only writes the binding must still resolve the pending
+                // export, or the export row stays wedged for the rest of the session.
+                // handleExportResult is idempotent, so a later onCompletion is a no-op.
+                set: { isPresented in
+                    if !isPresented, viewModel.pendingExport != nil {
+                        viewModel.handleExportResult(.failure(CocoaError(.userCancelled)))
+                    }
+                }
             ),
             document: exportDocument,
             contentType: .mc1Backup,

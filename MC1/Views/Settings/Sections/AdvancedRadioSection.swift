@@ -176,7 +176,23 @@ struct AdvancedRadioSection: View {
             return
         }
 
-        // Pickers enforce valid values, no range validation needed for bandwidth, SF, CR
+        // Pickers enforce bandwidth, SF, and CR; frequency and TX power are free-text, so
+        // validate them with non-trapping conversions before scaling into the wire fields.
+        let scaledFreqKHz = (freqMHz * 1000).rounded()
+        let freqInRange = freqMHz.isFinite
+            && scaledFreqKHz >= Double(PacketBuilder.frequencyRangeKHz.lowerBound)
+            && scaledFreqKHz <= Double(PacketBuilder.frequencyRangeKHz.upperBound)
+        let maxTxPower = appState.connectedDevice?.maxTxPower ?? PacketBuilder.txPowerFloor
+        guard freqInRange,
+              let frequencyKHz = UInt32(exactly: scaledFreqKHz),
+              let spreadFactorByte = UInt8(exactly: spreadFactor),
+              let codeRateByte = UInt8(exactly: codeRate),
+              let powerLevel = Int8(exactly: power),
+              powerLevel >= PacketBuilder.txPowerFloor,
+              powerLevel <= maxTxPower else {
+            errorMessage = L10n.Settings.AdvancedRadio.invalidInput
+            return
+        }
 
         isApplying = true
         Task {
@@ -190,12 +206,12 @@ struct AdvancedRadioSection: View {
 
                 // Set radio params first
                 _ = try await settingsService.setRadioParamsVerified(
-                    frequencyKHz: UInt32((freqMHz * 1000).rounded()),
+                    frequencyKHz: frequencyKHz,
                     // Note: Parameter is misleadingly named "bandwidthKHz" but expects Hz.
                     // bandwidthHz is already UInt32 Hz from the picker, pass directly.
                     bandwidthKHz: bandwidthHz,
-                    spreadingFactor: UInt8(spreadFactor),
-                    codingRate: UInt8(codeRate),
+                    spreadingFactor: spreadFactorByte,
+                    codingRate: codeRateByte,
                     clientRepeat: clientRepeat
                 )
 
@@ -205,7 +221,7 @@ struct AdvancedRadioSection: View {
                 }
 
                 // Then set TX power
-                _ = try await settingsService.setTxPowerVerified(Int8(power))
+                _ = try await settingsService.setTxPowerVerified(powerLevel)
 
                 focusedField = nil  // Dismiss keyboard on success
                 retryAlert.reset()
@@ -222,12 +238,12 @@ struct AdvancedRadioSection: View {
                 return  // Skip the isApplying = false at the end
             } catch let error as SettingsServiceError where error.isRetryable {
                 retryAlert.show(
-                    message: error.errorDescription ?? L10n.Settings.Alert.Retry.fallbackMessage,
+                    message: error.userFacingMessage,
                     onRetry: { applySettings() },
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
             isApplying = false
         }

@@ -50,10 +50,10 @@
 "map.style.topo" = "Topographie";
 
 /* Location: LayersMenu.swift - Purpose: Accessibility label for map style menu */
-"map.style.accessibilityLabel" = "Map style";
+"map.style.accessibilityLabel" = "Style de carte";
 
 /* Location: LayersMenu.swift - Purpose: Hint when style requires network */
-"map.style.requiresNetwork" = "Requires network connection";
+"map.style.requiresNetwork" = "Nécessite une connexion réseau";
 
 /* Location: LayersMenu.swift - Purpose: Hint when no offline pack covers viewport */
 "map.style.noOfflineCoverage" = "Aucune carte hors ligne ne couvre cette zone";
@@ -114,7 +114,7 @@
 "map.detail.action.telemetry" = "Télémétrie";
 
 /* Location: MapView.swift - Purpose: Saved History button for offline telemetry */
-"map.detail.action.savedHistory" = "Saved History";
+"map.detail.action.savedHistory" = "Historique enregistré";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Sheet title for telemetry authentication */
 "map.detail.action.telemetryAccessTitle" = "Accès à la télémétrie";
@@ -180,5 +180,5 @@
 /* Location: MapPreviewFragmentView.swift - Purpose: Accessibility hint for tapping the chat map-location thumbnail */
 "map.preview.accessibilityHint" = "Ouvre cet emplacement sur la carte";
 
-/* TODO: translate - Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback */
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback */
 "map.preview.retryButton.accessibilityLabel" = "Réessayer de charger la miniature de la carte";

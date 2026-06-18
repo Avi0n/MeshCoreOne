@@ -34,9 +34,9 @@ public actor RoomServerService {
 
     // MARK: - Properties
 
-    private let session: MeshCoreSession
+    private let session: any RemoteAccessSessionOps
     private let remoteNodeService: RemoteNodeService
-    private let dataStore: PersistenceStore
+    private let dataStore: any PersistenceStoreProtocol
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "RoomServer")
     private let auditLogger = CommandAuditLogger()
 
@@ -47,24 +47,18 @@ public actor RoomServerService {
     /// Configuration for retry behavior (shared with MessageService)
     private let config: MessageServiceConfig
 
-    /// Handler for incoming room messages
-    public var roomMessageHandler: (@Sendable (RoomMessageDTO) async -> Void)?
-
-    /// Handler for status update events (broadcasts to UI)
-    public var statusUpdateHandler: (@Sendable (UUID, MessageStatus) async -> Void)?
-
-    /// Handler called when an incoming message recovers a disconnected room session
-    public var connectionRecoveryHandler: (@Sendable (UUID) async -> Void)?
+    /// Multicast broadcaster for status-update and connection-recovery events.
+    private nonisolated let eventBroadcaster = EventBroadcaster<RoomServerEvent>()
 
     /// Tracks message IDs currently being retried to prevent concurrent retry attempts
     private var inFlightRetries: Set<UUID> = []
 
     // MARK: - Initialization
 
-    public init(
-        session: MeshCoreSession,
+    init(
+        session: any RemoteAccessSessionOps,
         remoteNodeService: RemoteNodeService,
-        dataStore: PersistenceStore,
+        dataStore: any PersistenceStoreProtocol,
         config: MessageServiceConfig = MessageServiceConfig()
     ) {
         self.session = session
@@ -79,21 +73,21 @@ public actor RoomServerService {
         self.selfPublicKeyPrefix = prefix.prefix(4)
     }
 
-    // MARK: - Handler Setters
+    // MARK: - Events
 
-    /// Set handler for incoming room messages
-    public func setRoomMessageHandler(_ handler: @escaping @Sendable (RoomMessageDTO) async -> Void) {
-        roomMessageHandler = handler
+    /// Returns a fresh stream of room-server events. Registration is
+    /// synchronous, so events yielded after this call are never dropped.
+    /// Consumers must re-subscribe per connection because the owning
+    /// `ServiceContainer` is rebuilt on every connection.
+    public nonisolated func events() -> AsyncStream<RoomServerEvent> {
+        eventBroadcaster.subscribe()
     }
 
-    /// Set handler for status update events
-    public func setStatusUpdateHandler(_ handler: @escaping @Sendable (UUID, MessageStatus) async -> Void) {
-        statusUpdateHandler = handler
-    }
-
-    /// Set handler for connection recovery events
-    public func setConnectionRecoveryHandler(_ handler: @escaping @Sendable (UUID) async -> Void) {
-        connectionRecoveryHandler = handler
+    /// Ends every `events()` subscriber's for-await loop. Called by
+    /// `ServiceContainer.tearDown()` so consumer tasks release the service
+    /// references they hold.
+    nonisolated func finishEvents() {
+        eventBroadcaster.finish()
     }
 
     // MARK: - Room Management
@@ -116,18 +110,9 @@ public actor RoomServerService {
         pathLength: UInt8 = 0,
         onTimeoutKnown: (@Sendable (Int) async -> Void)? = nil
     ) async throws -> RemoteNodeSessionDTO {
-        // Check if this is a new session
-        let existingSession = try? await dataStore.fetchRemoteNodeSession(publicKey: contact.publicKey)
-
-        // Determine sync start point (used after login for history sync)
-        let needsFullSync = existingSession == nil || existingSession?.lastSyncTimestamp == 0
-        let syncSince: UInt32 = needsFullSync ? 1 : (existingSession?.lastSyncTimestamp ?? 1)
-
         let remoteSession = try await remoteNodeService.createSession(
             radioID: radioID,
-            contact: contact,
-            password: password,
-            rememberPassword: rememberPassword
+            contact: contact
         )
 
         // Login to the room
@@ -144,7 +129,7 @@ public actor RoomServerService {
         }
 
         // Attempt additional history sync if needed (non-blocking)
-        await syncHistoryIfPossible(sessionID: remoteSession.id, since: syncSince)
+        await syncHistoryIfPossible(sessionID: remoteSession.id)
 
         guard let updatedSession = try await dataStore.fetchRemoteNodeSession(id: remoteSession.id) else {
             throw RemoteNodeError.sessionNotFound
@@ -171,9 +156,6 @@ public actor RoomServerService {
             throw RemoteNodeError.invalidResponse
         }
 
-        // Compute sync timestamp (used after login for history sync)
-        let syncSince: UInt32 = remoteSession.lastSyncTimestamp > 0 ? remoteSession.lastSyncTimestamp : 1
-
         // Re-authenticate to the room
         _ = try await remoteNodeService.login(
             sessionID: sessionID,
@@ -181,7 +163,7 @@ public actor RoomServerService {
         )
 
         // Attempt additional history sync if needed (non-blocking)
-        await syncHistoryIfPossible(sessionID: sessionID, since: syncSince)
+        await syncHistoryIfPossible(sessionID: sessionID)
 
         guard let updatedSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
             throw RemoteNodeError.sessionNotFound
@@ -269,7 +251,7 @@ public actor RoomServerService {
                     } catch {
                         logger.error("Failed to update message status after successful send: \(error)")
                     }
-                    await statusUpdateHandler?(messageID, .delivered)
+                    eventBroadcaster.yield(.statusUpdated(messageID: messageID, status: .delivered))
                 } else {
                     // All retries exhausted — radio transmitted but no ACK received.
                     // Mark as sent (not failed) since the message likely reached the room server.
@@ -283,7 +265,7 @@ public actor RoomServerService {
                     } catch {
                         logger.error("Failed to update message status to sent: \(error)")
                     }
-                    await statusUpdateHandler?(messageID, .sent)
+                    eventBroadcaster.yield(.statusUpdated(messageID: messageID, status: .sent))
                 }
                 // Update sort date only (no sync bookmark — avoids clock skew issues)
                 try? await dataStore.updateRoomActivity(sessionID)
@@ -299,7 +281,7 @@ public actor RoomServerService {
                 } catch let dbError {
                     logger.error("Failed to update message status after send error: \(dbError)")
                 }
-                await statusUpdateHandler?(messageID, .failed)
+                eventBroadcaster.yield(.statusUpdated(messageID: messageID, status: .failed))
                 logger.warning("Room message send failed: \(error)")
             }
         }
@@ -341,7 +323,7 @@ public actor RoomServerService {
             retryAttempt: newRetryAttempt,
             maxRetryAttempts: config.maxAttempts
         )
-        await statusUpdateHandler?(id, .pending)
+        eventBroadcaster.yield(.statusUpdated(messageID: id, status: .pending))
 
         // Retry send with retry logic
         // NOTE: sendMessageWithRetry requires full 32-byte public key for path reset
@@ -367,7 +349,7 @@ public actor RoomServerService {
                 } catch {
                     logger.error("Failed to update message status after successful retry: \(error)")
                 }
-                await statusUpdateHandler?(id, .delivered)
+                eventBroadcaster.yield(.statusUpdated(messageID: id, status: .delivered))
             } else {
                 // All retries exhausted — radio transmitted but no ACK received.
                 // Mark as sent (not failed) since the message likely reached the room server.
@@ -381,7 +363,7 @@ public actor RoomServerService {
                 } catch {
                     logger.error("Failed to update message status to sent: \(error)")
                 }
-                await statusUpdateHandler?(id, .sent)
+                eventBroadcaster.yield(.statusUpdated(messageID: id, status: .sent))
             }
             // Update sort date so room moves to top of conversation list
             try? await dataStore.updateRoomActivity(message.sessionID)
@@ -396,7 +378,7 @@ public actor RoomServerService {
             } catch let dbError {
                 logger.error("Failed to update message status after retry error: \(dbError)")
             }
-            await statusUpdateHandler?(id, .failed)
+            eventBroadcaster.yield(.statusUpdated(messageID: id, status: .failed))
             logger.warning("Room message retry failed: \(error)")
         }
 
@@ -440,7 +422,7 @@ public actor RoomServerService {
         if !remoteSession.isConnected {
             let recovered = (try? await dataStore.markRoomSessionConnected(remoteSession.id)) ?? false
             if recovered {
-                await connectionRecoveryHandler?(remoteSession.id)
+                eventBroadcaster.yield(.connectionRecovered(sessionID: remoteSession.id))
             }
         }
 
@@ -492,8 +474,6 @@ public actor RoomServerService {
         if !isFromSelf {
             try await dataStore.incrementRoomUnreadCount(remoteSession.id)
         }
-
-        await roomMessageHandler?(messageDTO)
 
         return messageDTO
     }
@@ -547,7 +527,7 @@ public actor RoomServerService {
     }
 
     /// Attempt to sync history, using advert path first, then falling back to path discovery.
-    private func syncHistoryIfPossible(sessionID: UUID, since: UInt32) async {
+    private func syncHistoryIfPossible(sessionID: UUID) async {
         do {
             guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID),
                   let contact = try await dataStore.findContactByPublicKey(remoteSession.publicKey) else {
@@ -563,7 +543,7 @@ public actor RoomServerService {
                 // Contact has a path from advertisement - try it directly
                 logger.info("Trying advert path for room \(remoteSession.name)")
                 do {
-                    try await remoteNodeService.requestHistorySync(sessionID: sessionID, since: since)
+                    try await remoteNodeService.requestHistorySync(sessionID: sessionID)
                     logger.info("History sync succeeded using advert path")
                     return
                 } catch {
@@ -582,7 +562,7 @@ public actor RoomServerService {
             }
 
             // Retry with newly discovered path
-            try await remoteNodeService.requestHistorySync(sessionID: sessionID, since: since)
+            try await remoteNodeService.requestHistorySync(sessionID: sessionID)
             logger.info("History sync succeeded after path discovery")
         } catch {
             logger.warning("Failed to sync history for session \(sessionID): \(error)")

@@ -230,6 +230,7 @@ public enum MessageFragmentBuilder {
             sendTimeWasCorrected: message.timestampCorrected,
             showStatusRow: message.isOutgoing,
             status: message.status,
+            isChannelMessage: message.isChannelMessage,
             heardRepeats: message.heardRepeats,
             retryAttempt: message.retryAttempt,
             maxRetryAttempts: message.maxRetryAttempts,

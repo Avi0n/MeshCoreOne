@@ -13,17 +13,6 @@ struct MessagePathContent: View {
 
     @State private var copyHapticTrigger = 0
 
-    /// Path hops chunked by hash size, each as (hashData, hexString) pair
-    private var pathHops: [(data: Data, hex: String)] {
-        guard let pathNodes = message.pathNodes else { return [] }
-        let size = message.pathHashSize
-        return stride(from: 0, to: pathNodes.count, by: size).map { start in
-            let end = min(start + size, pathNodes.count)
-            let chunk = Data(pathNodes[start..<end])
-            return (chunk, chunk.hexString())
-        }
-    }
-
     var body: some View {
         if viewModel.isLoading {
             ProgressView()
@@ -37,6 +26,7 @@ struct MessagePathContent: View {
             )
         } else {
             let senderResolution = viewModel.senderResolution(for: message)
+            let pathHops = message.pathHops
 
             // Sender
             PathHopRowView(

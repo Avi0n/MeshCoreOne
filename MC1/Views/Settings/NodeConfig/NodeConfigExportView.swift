@@ -59,7 +59,12 @@ struct NodeConfigExportView: View {
 
             Section {
                 Button {
-                    Task { await viewModel.exportConfig(appState: appState) }
+                    Task {
+                        await viewModel.exportConfig(
+                            nodeConfigService: appState.services?.nodeConfigService,
+                            deviceNodeName: appState.connectedDevice?.nodeName
+                        )
+                    }
                 } label: {
                     HStack {
                         Text(viewModel.sections.allSelected
@@ -92,7 +97,7 @@ struct NodeConfigExportView: View {
             defaultFilename: viewModel.exportedDocument?.filename
         ) { result in
             if case .failure(let error) = result {
-                viewModel.errorMessage = error.localizedDescription
+                viewModel.errorMessage = error.userFacingMessage
             }
         }
     }

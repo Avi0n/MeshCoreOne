@@ -43,7 +43,29 @@ struct ChatsListModifiers: ViewModifier {
                 }
             }
             .task {
-                viewModel.configure(appState: appState)
+                viewModel.configure(
+                    dependencies: ChatViewModel.Dependencies(
+                        dataStore: { appState.offlineDataStore },
+                        messageService: { appState.services?.messageService },
+                        notificationService: { appState.services?.notificationService },
+                        channelService: { appState.services?.channelService },
+                        roomServerService: { appState.services?.roomServerService },
+                        contactService: { appState.services?.contactService },
+                        syncCoordinator: { appState.syncCoordinator },
+                        connectionState: { appState.connectionState },
+                        connectedDevice: { appState.connectedDevice },
+                        currentRadioID: { appState.currentRadioID },
+                        session: { appState.services?.session },
+                        reactionService: { appState.services?.reactionService },
+                        chatSendQueueService: { appState.services?.chatSendQueueService },
+                        inlineImageDimensionsStore: { nil },
+                        prefetchDataStore: { nil }
+                    ),
+                    onNavigateToMap: { appState.navigation.navigateToMap(coordinate: $0) },
+                    linkPreviewCache: nil,
+                    chatCoordinatorRegistry: nil,
+                    conversation: nil
+                )
                 await viewModel.requestConversationReload()?.value
                 onAnnounceOfflineStateIfNeeded()
                 onHandlePendingNavigation()

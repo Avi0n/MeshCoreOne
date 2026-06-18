@@ -161,6 +161,10 @@ public final class Channel {
 
     /// Applies all mutable fields from a DTO to this model instance.
     /// Copies raw flood-scope storage fields verbatim; see ``init(dto:)``.
+    /// `radioID` and `index` are identity and stay frozen: this runs in the
+    /// id-matched `saveChannel(_:)` upsert, which owns app-side metadata. Slot
+    /// changes come from the radio keyed by `(radioID, index)`, and backup
+    /// relocation inserts a fresh row via ``init(dto:)``.
     func apply(_ dto: ChannelDTO) {
         name = dto.name
         secret = dto.secret

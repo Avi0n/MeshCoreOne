@@ -177,7 +177,7 @@ private struct ContactNavigationRow: View {
     private var isDeleting: Bool { viewModel.deletingIDs.contains(contact.id) }
 
     var body: some View {
-        NavigationLink(value: contact) {
+        NavigationLink(value: ContactRoute.detail(contact)) {
             ContactListRowLabel(contact: contact, viewModel: viewModel, isSearching: isSearching, userLocation: userLocation)
         }
         .buttonStyle(.plain)

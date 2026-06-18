@@ -62,6 +62,17 @@ public struct SessionConfiguration: Sendable {
 
     /// The default configuration instance.
     public static let `default` = SessionConfiguration()
+
+    /// Conversion factor between `MessageSentInfo.suggestedTimeoutMs` and seconds.
+    static let millisecondsPerSecond: TimeInterval = 1000
+
+    /// Headroom multiplier applied to the firmware-suggested round-trip time when
+    /// deriving the effective wait for a binary-protocol response.
+    static let binaryRequestTimeoutMultiplier: Double = 2.0
+
+    /// Headroom multiplier applied to the firmware-suggested round-trip time when
+    /// waiting for a delivery acknowledgement during retry sends.
+    static let retryAckTimeoutMultiplier: Double = 1.2
 }
 
 /// Represents errors that can occur during mesh core operations.

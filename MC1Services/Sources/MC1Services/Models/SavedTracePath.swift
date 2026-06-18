@@ -3,31 +3,31 @@ import SwiftData
 
 /// A saved trace path configuration for re-use
 @Model
-public final class SavedTracePath {
+final class SavedTracePath {
     @Attribute(.unique)
-    public var id: UUID
+    var id: UUID
 
     /// The device this path belongs to
     @Attribute(originalName: "deviceID")
-    public var radioID: UUID
+    var radioID: UUID
 
     /// User-editable name (e.g., "Tower → Barn → Ridge")
-    public var name: String
+    var name: String
 
     /// The full path bytes (outbound + return)
-    public var pathBytes: Data
+    var pathBytes: Data
 
-    /// Bytes per hop hash when the path was saved (1, 2, or 3)
-    public var hashSize: Int = 1
+    /// Bytes per hop hash when the path was saved (1, 2, or 4)
+    var hashSize: Int = 1
 
     /// When this path was first saved
-    public var createdDate: Date
+    var createdDate: Date
 
     /// Historical runs of this path
     @Relationship(deleteRule: .cascade, inverse: \TracePathRun.savedPath)
-    public var runs: [TracePathRun]
+    var runs: [TracePathRun]
 
-    public init(
+    init(
         id: UUID = UUID(),
         radioID: UUID,
         name: String,
@@ -47,25 +47,26 @@ public final class SavedTracePath {
 
 /// A single execution of a saved trace path
 @Model
-public final class TracePathRun {
-    public var id: UUID
+final class TracePathRun {
+    @Attribute(.unique)
+    var id: UUID
 
     /// When this run occurred
-    public var date: Date
+    var date: Date
 
     /// Whether the trace completed successfully
-    public var success: Bool
+    var success: Bool
 
     /// Round-trip time in milliseconds (0 if failed)
-    public var roundTripMs: Int
+    var roundTripMs: Int
 
     /// Encoded per-hop SNR data (JSON array of doubles)
-    public var hopsData: Data
+    var hopsData: Data
 
     /// The saved path this run belongs to
-    public var savedPath: SavedTracePath?
+    var savedPath: SavedTracePath?
 
-    public init(
+    init(
         id: UUID = UUID(),
         date: Date = Date(),
         success: Bool,
@@ -82,7 +83,7 @@ public final class TracePathRun {
     /// Builds a model instance directly from a DTO, re-encoding `hopsSNR` to
     /// the JSON-array format used by `hopsData` storage. Shared by the
     /// diagnostics and backup insert paths so the encoding stays consistent.
-    public convenience init(dto: TracePathRunDTO) throws {
+    convenience init(dto: TracePathRunDTO) throws {
         let hopsData = try JSONEncoder().encode(dto.hopsSNR)
         self.init(
             id: dto.id,
@@ -96,7 +97,7 @@ public final class TracePathRun {
 
 // MARK: - Computed Properties
 
-public extension SavedTracePath {
+extension SavedTracePath {
     /// Number of runs for this path
     var runCount: Int { runs.count }
 
@@ -121,7 +122,7 @@ public extension SavedTracePath {
     }
 }
 
-public extension TracePathRun {
+extension TracePathRun {
     /// Decode hops SNR data to array of doubles
     var hopsSNR: [Double] {
         guard let decoded = try? JSONDecoder().decode([Double].self, from: hopsData) else {
@@ -143,7 +144,7 @@ public struct SavedTracePathDTO: Sendable, Identifiable, Equatable, Hashable, Co
     public let createdDate: Date
     public let runs: [TracePathRunDTO]
 
-    public init(from model: SavedTracePath) {
+    init(from model: SavedTracePath) {
         self.id = model.id
         self.radioID = model.radioID
         self.name = model.name
@@ -213,7 +214,7 @@ public struct TracePathRunDTO: Sendable, Identifiable, Equatable, Hashable, Coda
     public let roundTripMs: Int
     public let hopsSNR: [Double]
 
-    public init(from model: TracePathRun) {
+    init(from model: TracePathRun) {
         self.id = model.id
         self.date = model.date
         self.success = model.success

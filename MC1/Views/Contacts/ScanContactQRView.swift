@@ -145,6 +145,11 @@ struct ScanContactQRView: View {
 
         scanSuccessTrigger.toggle()
 
+        // Claim the import synchronously so a second DataScanner callback can't slip
+        // past the guard before the async import flips the flag.
+        isImporting = true
+        errorMessage = nil
+
         Task {
             await importContact(parsed)
         }
@@ -156,14 +161,12 @@ struct ScanContactQRView: View {
               let device = appState.connectedDevice else {
             logger.error("Services or device not available")
             errorMessage = L10n.Contacts.Contacts.Add.Error.notConnected
+            isImporting = false
             return
         }
 
         let radioID = device.radioID
         let maxContacts = device.maxContacts
-
-        isImporting = true
-        errorMessage = nil
 
         do {
             let currentTimestamp = UInt32(Date().timeIntervalSince1970)
@@ -172,7 +175,7 @@ struct ScanContactQRView: View {
                 publicKey: contact.publicKey,
                 type: contact.contactType,
                 flags: 0,
-                outPathLength: 0xFF,  // Flood routing
+                outPathLength: PacketBuilder.floodPathSentinel,
                 outPath: Data(),
                 name: contact.name,
                 lastAdvertTimestamp: 0,
@@ -181,7 +184,7 @@ struct ScanContactQRView: View {
                 lastModified: currentTimestamp
             )
 
-            logger.info("Importing contact: \(contact.name) (\(contact.publicKey.hexString()))")
+            logger.info("Importing contact: \(contact.name) (\(contact.publicKey.uppercaseHexString()))")
             try await services.contactService.addOrUpdateContact(radioID: radioID, contact: contactFrame)
             logger.info("Contact imported successfully")
 
@@ -196,7 +199,7 @@ struct ScanContactQRView: View {
             isImporting = false
         } catch {
             logger.error("Failed to import contact: \(error.localizedDescription)")
-            errorMessage = L10n.Contacts.Contacts.Scan.Error.importFailed(error.localizedDescription)
+            errorMessage = L10n.Contacts.Contacts.Scan.Error.importFailed(error.userFacingMessage)
             isImporting = false
         }
     }

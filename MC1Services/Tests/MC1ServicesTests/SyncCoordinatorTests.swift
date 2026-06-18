@@ -270,7 +270,7 @@ struct SyncCoordinatorTests {
         #expect(services.notificationService.isSuppressingNotifications == true)
 
         // Call onDisconnected
-        await coordinator.onDisconnected(services: services)
+        await coordinator.onDisconnected(notificationService: services.notificationService)
 
         // Verify flag is cleared
         #expect(services.notificationService.isSuppressingNotifications == false)
@@ -287,7 +287,7 @@ struct SyncCoordinatorTests {
         let services = try await ServiceContainer.forTesting(session: session)
 
         // Call onDisconnected
-        await coordinator.onDisconnected(services: services)
+        await coordinator.onDisconnected(notificationService: services.notificationService)
 
         // Verify state is idle
         #expect(coordinator.state == .idle)
@@ -335,7 +335,7 @@ struct SyncCoordinatorTests {
         #expect(startedTracker.wasCalled, "Sync activity should have started")
 
         // Call onDisconnected while sync is in contacts phase
-        await coordinator.onDisconnected(services: services)
+        await coordinator.onDisconnected(notificationService: services.notificationService)
 
         // Verify onSyncActivityEnded was called by onDisconnected
         #expect(endedTracker.wasCalled, "onSyncActivityEnded should be called when disconnecting mid-sync")
@@ -758,7 +758,7 @@ struct SyncCoordinatorTests {
         await coordinator.beginResyncActivity()
 
         // Disconnect while resync bracket is open
-        await coordinator.onDisconnected(services: services)
+        await coordinator.onDisconnected(notificationService: services.notificationService)
 
         // onDisconnected calls endSyncActivityOnce, which is for the initial sync bracket,
         // not the resync bracket. Since no initial sync was started, hasEndedSyncActivity
@@ -816,6 +816,20 @@ actor OrderTrackingMessagePollingService: MessagePollingServiceProtocol {
     func waitForPendingHandlers(timeout: Duration) async -> Bool {
         true
     }
+
+    func startAutoFetch(radioID: UUID) async {}
+
+    func pauseAutoFetch() async {}
+
+    func resumeAutoFetch() async {}
+
+    func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void) {}
+
+    func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void) {}
+
+    func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {}
+
+    func setCLIMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {}
 }
 
 /// Mock contact service that delays and signals when sync has started

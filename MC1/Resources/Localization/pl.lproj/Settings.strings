@@ -114,6 +114,9 @@
 /* TX power display format with dBm unit */
 "deviceInfo.txPowerFormat" = "%@ dBm";
 
+/* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
+"deviceInfo.firmwareVersionFormat" = "v%@";
+
 /* Section header for identity information */
 "deviceInfo.identity.header" = "Tożsamość";
 
@@ -382,7 +385,7 @@
 "batteryCurve.footer" = "Skonfiguruj krzywą napięcie-procent dla baterii urządzenia.";
 
 /* Label for preset picker */
-"batteryCurve.preset" = "Preset";
+"batteryCurve.preset" = "Ustawienie";
 
 /* Option for custom battery curve */
 "batteryCurve.custom" = "Niestandardowy";
@@ -391,7 +394,7 @@
 "batteryCurve.editValues" = "Edytuj wartości";
 
 /* Validation error for value out of range - %d is the percentage level */
-"batteryCurve.validation.outOfRange" = "Wartość przy %d%% musi wynosić 1000-9000 mV";
+"batteryCurve.validation.outOfRange" = "Wartość przy %d%% musi wynosić 1000-99999 mV";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "Wartości muszą być w kolejności malejącej";
@@ -757,13 +760,13 @@
 "notifications.newContactDiscovered" = "Odkryto nowy kontakt";
 
 /* Toggle label for companion discovery notifications */
-"notifications.discoveryContact" = "Companion";
+"notifications.discoveryContact" = "Towarzysz";
 
 /* Toggle label for repeater discovery notifications */
-"notifications.discoveryRepeater" = "Repeater";
+"notifications.discoveryRepeater" = "Przekaźnik";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Room";
+"notifications.discoveryRoom" = "Pokój";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Ostrzeżenia o niskim stanie baterii";
@@ -973,7 +976,7 @@
 "directMessages.header" = "Wiadomości bezpośrednie";
 
 /* Picker label for number of acknowledgments */
-"directMessages.acknowledgments" = "Acknowledgments";
+"directMessages.acknowledgments" = "Potwierdzenia";
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Liczba potwierdzeń wysyłanych na wiadomość bezpośrednią. Użyj 2 dla lepszego potwierdzenia dostarczenia przez zawodne łącza.";
@@ -1111,9 +1114,6 @@
 /* Select file button */
 "configImport.selectFile" = "Wybierz plik JSON";
 
-/* Cannot access file error */
-"configImport.cannotAccess" = "Nie można uzyskać dostępu do wybranego pliku.";
-
 /* Confirmation alert title */
 "configImport.confirmTitle" = "Zastosować konfigurację?";
 
@@ -1240,6 +1240,21 @@
 /* Validation error: not enough free contact slots (params: needed count, available count) */
 "configImport.error.contactCapacityExceeded" = "Import wymaga %d wolnych miejsc na kontakty, ale na urządzeniu pozostało tylko %d";
 
+/* Validation error: channel secret wrong length (params: channel index, hex char count) */
+"configImport.error.invalidChannelSecret" = "Kanał %1$lld ma nieprawidłowy klucz tajny (%2$lld znaków hex, oczekiwano 32)";
+
+/* Validation error: contact public key malformed (param: contact name) */
+"configImport.error.invalidContactPublicKey" = "Kontakt \"%@\" ma nieprawidłowy klucz publiczny";
+
+/* Validation error: unsupported path hash mode (params: contact name, mode value) */
+"configImport.error.invalidPathHashMode" = "Kontakt \"%1$@\" ma nieobsługiwany tryb hasha ścieżki %2$lld (oczekiwano 0, 1 lub 2)";
+
+/* Validation error: private key wrong length (params: hex char count, expected hex char count) */
+"configImport.error.invalidPrivateKey" = "Nieprawidłowy klucz prywatny (%1$lld znaków hex, oczekiwano %2$lld)";
+
+/* Validation error: no empty channel slot left (param: channel name) */
+"configImport.error.noAvailableChannelSlot" = "Brak wolnego miejsca na kanał dla \"%@\"";
+
 /* Toggle label for inline images */
 "inlineImages.toggle" = "Obrazy w wiadomościach";
 
@@ -1316,7 +1331,7 @@
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
-"liveActivity.title" = "Live Activity";
+"liveActivity.title" = "Aktywność na żywo";
 
 /* Title for the Live Activity tip shown after first connection */
 "liveActivity.tip.title" = "Stan radia w jednym rzucie oka";
@@ -1720,6 +1735,7 @@
 "Support.Themes.Title" = "Motywy";
 "Support.Themes.Owned" = "Posiadane";
 "Support.Themes.PurchasedFooter" = "Zastosuj nowy motyw w Ustawienia → Wygląd.";
+"Support.Themes.AllUnlocked" = "Wszystkie motywy odblokowane!";
 "Support.Bundle.Title" = "Wszystkie motywy";
 "Support.Bundle.Subtitle" = "Obejmuje motywy dodane w przyszłości.";
 "Support.Contributions.Title" = "Wpłaty";
@@ -1735,11 +1751,11 @@
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Domyślny";
-"Support.Theme.Ember" = "Ember";
-"Support.Theme.Fern" = "Fern";
-"Support.Theme.Marine" = "Marine";
-"Support.Theme.Olive" = "Olive";
-"Support.Theme.Lavender" = "Lavender";
+"Support.Theme.Ember" = "Żar";
+"Support.Theme.Fern" = "Paproć";
+"Support.Theme.Marine" = "Morski";
+"Support.Theme.Olive" = "Oliwka";
+"Support.Theme.Lavender" = "Lawenda";
 
 /* MARK: Support error messages (mapped from StoreServiceError) */
 "Support.Error.ProductsNotLoaded" = "Nie udało się wczytać produktów.";

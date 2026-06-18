@@ -12,7 +12,7 @@ final class TelemetryHistoryOverviewViewModel {
     private(set) var ocvArray: [Int] = OCVPreset.liIon.ocvArray
     private(set) var contacts: [ContactDTO] = []
     private(set) var discoveredNodes: [DiscoveredNodeDTO] = []
-    var timeRange: HistoryTimeRange = .all
+    var timeRange: HistoryTimeRange = .default
 
     // MARK: - Computed
 

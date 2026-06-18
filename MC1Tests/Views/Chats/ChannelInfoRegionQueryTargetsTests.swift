@@ -20,7 +20,8 @@ struct ChannelInfoRegionQueryTargetsTests {
         let targets = RegionDiscoveryService.buildRegionQueryTargets(
             responders: responders,
             contacts: [],
-            discoveredNodes: [Self.makeDiscoveredNode(publicKey: Self.keyA, type: .repeater)]
+            discoveredNodes: [Self.makeDiscoveredNode(publicKey: Self.keyA, type: .repeater)],
+            supportsAdHocRequest: true
         )
 
         #expect(targets.count == 1)
@@ -33,7 +34,8 @@ struct ChannelInfoRegionQueryTargetsTests {
         let targets = RegionDiscoveryService.buildRegionQueryTargets(
             responders: responders,
             contacts: [Self.makeContact(publicKey: Self.keyA, type: .repeater, name: "from-contact")],
-            discoveredNodes: [Self.makeDiscoveredNode(publicKey: Self.keyA, type: .repeater, name: "from-discovery")]
+            discoveredNodes: [Self.makeDiscoveredNode(publicKey: Self.keyA, type: .repeater, name: "from-discovery")],
+            supportsAdHocRequest: true
         )
 
         #expect(targets.count == 1)
@@ -50,7 +52,8 @@ struct ChannelInfoRegionQueryTargetsTests {
                 Self.makeDiscoveredNode(publicKey: Self.keyA, type: .repeater),
                 Self.makeDiscoveredNode(publicKey: Self.keyB, type: .repeater),
                 Self.makeDiscoveredNode(publicKey: Self.keyC, type: .repeater)
-            ]
+            ],
+            supportsAdHocRequest: true
         )
 
         let keys = Set(targets.map { $0.publicKey })
@@ -69,7 +72,8 @@ struct ChannelInfoRegionQueryTargetsTests {
             discoveredNodes: [
                 Self.makeDiscoveredNode(publicKey: Self.keyC, type: .room),
                 Self.makeDiscoveredNode(publicKey: Self.keyD, type: .repeater)
-            ]
+            ],
+            supportsAdHocRequest: true
         )
 
         let keys = Set(targets.map { $0.publicKey })
@@ -82,7 +86,8 @@ struct ChannelInfoRegionQueryTargetsTests {
         let targets = RegionDiscoveryService.buildRegionQueryTargets(
             responders: responders,
             contacts: [Self.makeContact(publicKey: Self.keyA, type: .repeater)],
-            discoveredNodes: []
+            discoveredNodes: [],
+            supportsAdHocRequest: true
         )
 
         #expect(targets.map(\.publicKey) == [Self.keyA])
@@ -97,7 +102,8 @@ struct ChannelInfoRegionQueryTargetsTests {
                 Self.makeContact(publicKey: Self.keyA, type: .repeater),
                 Self.makeContact(publicKey: Self.keyB, type: .repeater)
             ],
-            discoveredNodes: []
+            discoveredNodes: [],
+            supportsAdHocRequest: true
         )
 
         #expect(targets.map(\.publicKey) == [Self.keyA])
@@ -117,7 +123,8 @@ struct ChannelInfoRegionQueryTargetsTests {
                     outPath: contactPath
                 )
             ],
-            discoveredNodes: []
+            discoveredNodes: [],
+            supportsAdHocRequest: true
         )
 
         #expect(targets.first?.outPathLength == UInt8(contactPath.count))
@@ -138,7 +145,8 @@ struct ChannelInfoRegionQueryTargetsTests {
                     outPathLength: UInt8(nodePath.count),
                     outPath: nodePath
                 )
-            ]
+            ],
+            supportsAdHocRequest: true
         )
 
         #expect(targets.first?.outPathLength == UInt8(nodePath.count))
@@ -167,7 +175,8 @@ struct ChannelInfoRegionQueryTargetsTests {
                     outPathLength: UInt8(nodePath.count),
                     outPath: nodePath
                 )
-            ]
+            ],
+            supportsAdHocRequest: true
         )
 
         #expect(targets.first?.outPathLength == UInt8(contactPath.count))

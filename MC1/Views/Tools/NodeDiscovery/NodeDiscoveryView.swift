@@ -29,25 +29,20 @@ struct NodeDiscoveryView: View {
                 SortMenu(viewModel: viewModel)
             }
         }
-        .alert(L10n.Tools.Tools.NodeDiscovery.errorTitle, isPresented: Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )) {
-            Button(L10n.Contacts.Contacts.Common.ok) {
-                viewModel.errorMessage = nil
-            }
-        } message: {
-            if let error = viewModel.errorMessage {
-                Text(error)
-            }
-        }
+        .errorAlert($viewModel.errorMessage, title: L10n.Tools.Tools.NodeDiscovery.errorTitle)
         .sensoryFeedback(.impact(weight: .medium), trigger: viewModel.scanStartHapticTrigger)
         .sensoryFeedback(.success, trigger: viewModel.scanSuccessHapticTrigger)
         .sensoryFeedback(.warning, trigger: viewModel.scanEmptyHapticTrigger)
         .sensoryFeedback(.success, trigger: viewModel.addSuccessHapticTrigger)
         .sensoryFeedback(.error, trigger: viewModel.addErrorHapticTrigger)
         .task(id: appState.servicesVersion) {
-            viewModel.configure(appState: appState)
+            viewModel.configure(dependencies: NodeDiscoveryViewModel.Dependencies(
+                session: { [appState] in appState.services?.session },
+                dataStore: { [appState] in appState.offlineDataStore },
+                radioID: { [appState] in appState.connectedDevice?.radioID },
+                contactService: { [appState] in appState.services?.contactService },
+                maxContacts: { [appState] in appState.connectedDevice?.maxContacts }
+            ))
         }
         .onDisappear {
             viewModel.stopScan()

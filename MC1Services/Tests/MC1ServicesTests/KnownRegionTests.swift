@@ -134,4 +134,32 @@ struct KnownRegionTests {
             try await store.removeDeviceKnownRegion(radioID: UUID(), region: "US915")
         }
     }
+
+    /// knownRegions is app-only state the radio never reports, owned solely by
+    /// the targeted add/remove methods. A full saveDevice carrying a stale or
+    /// empty list (an in-flight updateDevice* Task, or a connect-time rebuild
+    /// whose snapshot predates the add) must not overwrite it, or the user's
+    /// discovered regions silently vanish.
+    @Test("Full saveDevice does not clobber regions added via the targeted path")
+    func staleSaveDeviceDoesNotClobberKnownRegions() async throws {
+        let store = try await createTestStore()
+
+        let bleUUID = UUID()
+        let radioID = UUID()
+        // The snapshot a long-lived caller holds, captured before any region
+        // was added; its knownRegions is still empty.
+        let staleSnapshot = DeviceDTO.testDevice(id: bleUUID, radioID: radioID)
+        try await store.saveDevice(staleSnapshot)
+
+        // Discovery adds regions through the targeted, list-owning path.
+        try await store.addDeviceKnownRegion(radioID: radioID, region: "US915")
+        try await store.addDeviceKnownRegion(radioID: radioID, region: "EU868")
+
+        // The stale snapshot is written back as a full overwrite. The regions
+        // added above must survive.
+        try await store.saveDevice(staleSnapshot)
+
+        let fetched = try await store.fetchDevice(id: bleUUID)
+        #expect(fetched?.knownRegions == ["US915", "EU868"])
+    }
 }

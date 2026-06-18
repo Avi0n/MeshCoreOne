@@ -1,13 +1,14 @@
+import MC1Services
 import SwiftUI
 
 /// Settings section for link preview preferences
 struct LinkPreviewSettingsSection: View {
     @Environment(\.appTheme) private var theme
-    @AppStorage("linkPreviewsEnabled") private var previewsEnabled = false
-    @AppStorage("linkPreviewsAutoResolveDM") private var autoResolveDM = true
-    @AppStorage("linkPreviewsAutoResolveChannels") private var autoResolveChannels = true
-    @AppStorage("showInlineImages") private var showInlineImages = true
-    @AppStorage("autoPlayGIFs") private var autoPlayGIFs = true
+    @AppStorage(AppStorageKey.linkPreviewsEnabled.rawValue) private var previewsEnabled = AppStorageKey.defaultLinkPreviewsEnabled
+    @AppStorage(AppStorageKey.linkPreviewsAutoResolveDM.rawValue) private var autoResolveDM = AppStorageKey.defaultLinkPreviewsAutoResolveDM
+    @AppStorage(AppStorageKey.linkPreviewsAutoResolveChannels.rawValue) private var autoResolveChannels = AppStorageKey.defaultLinkPreviewsAutoResolveChannels
+    @AppStorage(AppStorageKey.showInlineImages.rawValue) private var showInlineImages = AppStorageKey.defaultShowInlineImages
+    @AppStorage(AppStorageKey.autoPlayGIFs.rawValue) private var autoPlayGIFs = AppStorageKey.defaultAutoPlayGIFs
 
     var body: some View {
         Section {

@@ -25,7 +25,7 @@ import os
 /// // Switch to a different device
 /// try await transport.switchDevice(to: otherDeviceUUID)
 /// ```
-public actor iOSBLETransport: MeshTransport {
+actor iOSBLETransport: MeshTransport {
 
     private let logger = PersistentLogger(subsystem: "com.mc1", category: "iOSBLETransport")
 
@@ -41,7 +41,7 @@ public actor iOSBLETransport: MeshTransport {
     /// Creates an iOS BLE transport with an optional shared state machine.
     ///
     /// - Parameter stateMachine: The BLE state machine to use. If nil, creates a new one.
-    public init(stateMachine: BLEStateMachine? = nil) {
+    init(stateMachine: BLEStateMachine? = nil) {
         self.stateMachine = stateMachine ?? BLEStateMachine()
     }
 
@@ -50,14 +50,14 @@ public actor iOSBLETransport: MeshTransport {
     /// Sets the device UUID to connect to.
     ///
     /// - Parameter id: The UUID of the BLE device.
-    public func setDeviceID(_ id: UUID) {
+    func setDeviceID(_ id: UUID) {
         deviceID = id
     }
 
     /// Sets a handler for disconnection events.
     ///
     /// - Parameter handler: Called when the device disconnects, with the device ID and optional error.
-    public func setDisconnectionHandler(_ handler: @escaping @Sendable (UUID, Error?) -> Void) async {
+    func setDisconnectionHandler(_ handler: @escaping @Sendable (UUID, Error?) -> Void) async {
         await stateMachine.setDisconnectionHandler(handler)
     }
 
@@ -68,7 +68,7 @@ public actor iOSBLETransport: MeshTransport {
     /// when your handler is called.
     ///
     /// - Parameter handler: Called when iOS auto-reconnect completes successfully.
-    public func setReconnectionHandler(_ handler: @escaping @Sendable (UUID) -> Void) async {
+    func setReconnectionHandler(_ handler: @escaping @Sendable (UUID) -> Void) async {
         await stateMachine.setReconnectionHandler { [dataStreamLock, logger] deviceID, stream in
             // Capture the stream synchronously using lock (no Task spawning).
             // This ensures the stream is available before any handler code runs.
@@ -81,14 +81,14 @@ public actor iOSBLETransport: MeshTransport {
     // MARK: - MeshTransport Protocol
 
     /// Whether the transport is currently connected to a device.
-    public var isConnected: Bool {
+    var isConnected: Bool {
         get async { await stateMachine.isConnected }
     }
 
     /// Async stream of data received from the connected device.
     ///
     /// Returns an empty stream if not connected.
-    public var receivedData: AsyncStream<Data> {
+    var receivedData: AsyncStream<Data> {
         dataStreamLock.withLock { $0 } ?? AsyncStream { $0.finish() }
     }
 
@@ -100,7 +100,7 @@ public actor iOSBLETransport: MeshTransport {
     /// - Throws: `BLEError.deviceNotFound` if no device ID is set.
     /// - Throws: `BLEError.connectionFailed` if connected to a different device.
     /// - Throws: `BLEError` for connection failures.
-    public func connect() async throws {
+    func connect() async throws {
         let connectedID = await stateMachine.connectedDeviceID
         let effectiveDeviceID = self.deviceID ?? connectedID
 
@@ -126,7 +126,7 @@ public actor iOSBLETransport: MeshTransport {
     }
 
     /// Disconnects from the current device.
-    public func disconnect() async {
+    func disconnect() async {
         logger.info("Disconnecting")
         await stateMachine.disconnect()
         dataStreamLock.withLock { $0 = nil }
@@ -137,12 +137,12 @@ public actor iOSBLETransport: MeshTransport {
     /// - Parameter data: The data to send.
     /// - Throws: `BLEError.notConnected` if not connected.
     /// - Throws: `BLEError.writeError` if the write fails.
-    public func send(_ data: Data) async throws {
+    func send(_ data: Data) async throws {
         try await stateMachine.send(data)
     }
 
     /// Whether the connected radio's write characteristic advertises Write-Without-Response.
-    public var supportsWriteWithoutResponse: Bool {
+    var supportsWriteWithoutResponse: Bool {
         get async { await stateMachine.supportsWriteWithoutResponse }
     }
 
@@ -150,14 +150,14 @@ public actor iOSBLETransport: MeshTransport {
     ///
     /// - Parameter data: The data to send.
     /// - Throws: `BLEError.notConnected` if not connected.
-    public func sendWithoutResponse(_ data: Data) async throws {
+    func sendWithoutResponse(_ data: Data) async throws {
         try await stateMachine.sendWithoutResponse(data)
     }
 
     // MARK: - Extended API
 
     /// UUID of the currently connected device, or nil if not connected.
-    public var connectedDeviceID: UUID? {
+    var connectedDeviceID: UUID? {
         get async { await stateMachine.connectedDeviceID }
     }
 
@@ -168,7 +168,7 @@ public actor iOSBLETransport: MeshTransport {
     ///
     /// - Parameter deviceID: UUID of the new device to connect to.
     /// - Throws: `BLEError` if connection fails.
-    public func switchDevice(to deviceID: UUID) async throws {
+    func switchDevice(to deviceID: UUID) async throws {
         logger.info("Switching to device: \(deviceID)")
         self.deviceID = deviceID
         let stream = try await stateMachine.switchDevice(to: deviceID)

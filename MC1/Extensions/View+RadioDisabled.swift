@@ -15,13 +15,13 @@ extension View {
     ///     .radioDisabled(for: appState.connectionState, or: isSaving)
     /// ```
     @ViewBuilder
-    func radioDisabled(for connectionState: ConnectionState, or otherCondition: Bool = false) -> some View {
+    func radioDisabled(for connectionState: DeviceConnectionState, or otherCondition: Bool = false) -> some View {
         let isNotReady = connectionState != .ready
         if isNotReady {
             self
                 .disabled(true)
                 .foregroundStyle(.secondary)
-                .accessibilityHint("Requires radio connection")
+                .accessibilityHint(L10n.Localizable.Accessibility.requiresRadioConnection)
         } else {
             self.disabled(otherCondition)
         }

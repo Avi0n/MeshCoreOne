@@ -1,16 +1,12 @@
-// MC1Services/Sources/MC1Services/Services/HeardRepeatsService.swift
 import Foundation
 import MeshCore
 import OSLog
 
-/// Callback signature for when a heard repeat is recorded
-public typealias HeardRepeatHandler = @Sendable (UUID, Int) async -> Void
-
 /// Service for correlating RX log entries to sent channel messages
 /// and tracking "heard repeats" - evidence of message propagation through the mesh.
 public actor HeardRepeatsService {
-    private let dataStore: PersistenceStore
-    private let logger = PersistentLogger(subsystem: "MC1", category: "HeardRepeatsService")
+    private let dataStore: any HeardRepeatPersisting
+    private let logger = PersistentLogger(subsystem: "com.mc1", category: "HeardRepeatsService")
 
     /// Device ID for the current session
     private var radioID: UUID?
@@ -18,16 +14,26 @@ public actor HeardRepeatsService {
     /// Local node name for matching sender in decrypted messages
     private var localNodeName: String?
 
-    /// Handler called when a repeat is recorded (messageID, newCount)
-    private var onRepeatRecorded: HeardRepeatHandler?
+    /// Multicast broadcaster for heard-repeat events.
+    private nonisolated let eventBroadcaster = EventBroadcaster<HeardRepeatEvent>()
 
-    public init(dataStore: PersistenceStore) {
+    init(dataStore: any HeardRepeatPersisting) {
         self.dataStore = dataStore
     }
 
-    /// Sets the handler called when a repeat is recorded.
-    public func setRepeatRecordedHandler(_ handler: @escaping HeardRepeatHandler) {
-        self.onRepeatRecorded = handler
+    /// Returns a fresh stream of heard-repeat events. Registration is
+    /// synchronous, so events yielded after this call are never dropped.
+    /// Consumers must re-subscribe per connection because the owning
+    /// `ServiceContainer` is rebuilt on every connection.
+    public nonisolated func events() -> AsyncStream<HeardRepeatEvent> {
+        eventBroadcaster.subscribe()
+    }
+
+    /// Ends every `events()` subscriber's for-await loop. Called by
+    /// `ServiceContainer.tearDown()` so consumer tasks release the service
+    /// references they hold.
+    nonisolated func finishEvents() {
+        eventBroadcaster.finish()
     }
 
     /// Configure the service with device context.
@@ -112,10 +118,7 @@ public actor HeardRepeatsService {
 
             logger.info("Recorded repeat #\(newCount) for message \(message.id)")
 
-            // Notify handler
-            if let handler = onRepeatRecorded {
-                await handler(message.id, newCount)
-            }
+            eventBroadcaster.yield(HeardRepeatEvent(messageID: message.id, count: newCount))
 
             return newCount
 

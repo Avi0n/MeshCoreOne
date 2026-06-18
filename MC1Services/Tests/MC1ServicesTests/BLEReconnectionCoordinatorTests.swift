@@ -459,6 +459,37 @@ struct BLEReconnectionCoordinatorTests {
         #expect(delegate.notifyConnectionLostCallCount == 1)
     }
 
+    @Test("UI timeout aborts when reconnection completes during its transport query")
+    func uiTimeoutAbortsWhenCompletionInterleaves() async throws {
+        let deviceID = UUID()
+        let (coordinator, delegate) = createCoordinator(uiTimeoutDuration: 0.05)
+        delegate.connectionIntent = .wantsConnection()
+        delegate.connectionState = .ready
+        delegate.stubbedBLEPhaseIsAutoReconnecting = false
+
+        await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
+
+        // Run handleReconnectionComplete while the timeout body is suspended on
+        // isTransportAutoReconnecting(), the reentrancy window where a stale
+        // timeout could clobber the freshly completed reconnection.
+        delegate.onIsTransportAutoReconnecting = { [weak coordinator, weak delegate] in
+            delegate?.onIsTransportAutoReconnecting = nil
+            await coordinator?.handleReconnectionComplete(deviceID: deviceID)
+        }
+
+        try await waitUntil("completion should run during the timeout suspension") {
+            delegate.rebuildSessionCalls == [deviceID]
+        }
+
+        // Fixed sleep: negative assertion: give the resumed timeout body a
+        // chance to (incorrectly) force disconnected state.
+        try await Task.sleep(for: .milliseconds(150))
+
+        #expect(delegate.connectionState == .connecting, "Stale timeout must not clobber the completed reconnection")
+        #expect(delegate.notifyConnectionLostCallCount == 0)
+        #expect(delegate.connectedDeviceWasCleared == false)
+    }
+
     @Test("cancelTimeout prevents timeout from firing")
     func cancelTimeoutPreventsTimeout() async throws {
         let (coordinator, delegate) = createCoordinator(uiTimeoutDuration: 0.1)
@@ -481,7 +512,7 @@ struct BLEReconnectionCoordinatorTests {
 @MainActor
 private final class MockReconnectionDelegate: BLEReconnectionDelegate {
     var connectionIntent: ConnectionIntent = .none
-    var connectionState: ConnectionState = .disconnected
+    var connectionState: DeviceConnectionState = .disconnected
 
     var teardownSessionCallCount = 0
     var rebuildSessionCalls: [UUID] = []
@@ -491,8 +522,11 @@ private final class MockReconnectionDelegate: BLEReconnectionDelegate {
     var handleReconnectionFailureCallCount = 0
     var connectedDeviceWasCleared = false
     var stubbedBLEPhaseIsAutoReconnecting = false
+    /// Runs inside `isTransportAutoReconnecting()` so tests can interleave work
+    /// at that suspension point before the stubbed value is returned.
+    var onIsTransportAutoReconnecting: (@MainActor () async -> Void)?
 
-    func setConnectionState(_ state: ConnectionState) {
+    func setConnectionState(_ state: DeviceConnectionState) {
         connectionState = state
     }
 
@@ -526,7 +560,10 @@ private final class MockReconnectionDelegate: BLEReconnectionDelegate {
     }
 
     func isTransportAutoReconnecting() async -> Bool {
-        stubbedBLEPhaseIsAutoReconnecting
+        if let hook = onIsTransportAutoReconnecting {
+            await hook()
+        }
+        return stubbedBLEPhaseIsAutoReconnecting
     }
 }
 

@@ -10,6 +10,17 @@ enum NodeSettingsField: Hashable {
 
 // MARK: - Settings Header
 
+private let nodeHeaderTopContentMargin: CGFloat = 8
+
+extension View {
+    /// Trims the grouped scroll view's default top inset so the node header avatar sits close to
+    /// the pinned management tab picker. Applied to the settings `Form` and telemetry `List` that
+    /// host `NodeSettingsHeaderSection` / `NodeStatusHeaderSection`.
+    func nodeManagementHeaderTopMargin() -> some View {
+        contentMargins(.top, nodeHeaderTopContentMargin, for: .scrollContent)
+    }
+}
+
 struct NodeSettingsHeaderSection: View {
     let publicKey: Data
     let name: String
@@ -27,14 +38,16 @@ struct NodeSettingsHeaderSection: View {
                 Spacer()
             }
             .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
         }
+        .listSectionSpacing(.compact)
     }
 }
 
 // MARK: - Device Info Section
 
 struct NodeDeviceInfoSection: View {
-    @Bindable var settings: NodeSettingsHelper
+    @Bindable var settings: NodeSettingsViewModel
 
     var body: some View {
         ExpandableSettingsSection(
@@ -47,8 +60,8 @@ struct NodeDeviceInfoSection: View {
             onLoad: { await settings.fetchDeviceInfo() },
             footer: L10n.RemoteNodes.RemoteNodes.Settings.deviceInfoFooter
         ) {
-            LabeledContent(L10n.RemoteNodes.RemoteNodes.Settings.firmware, value: settings.firmwareVersion ?? "\u{2014}")
-            LabeledContent(L10n.RemoteNodes.RemoteNodes.Settings.deviceTime, value: settings.deviceTime ?? "\u{2014}")
+            LabeledContent(L10n.RemoteNodes.RemoteNodes.Settings.firmware, value: settings.firmwareVersion ?? NodeStatusViewModel.emDash)
+            LabeledContent(L10n.RemoteNodes.RemoteNodes.Settings.deviceTime, value: settings.deviceTime ?? NodeStatusViewModel.emDash)
         }
     }
 }
@@ -56,7 +69,7 @@ struct NodeDeviceInfoSection: View {
 // MARK: - Radio Settings Section
 
 struct NodeRadioSettingsSection: View {
-    @Bindable var settings: NodeSettingsHelper
+    @Bindable var settings: NodeSettingsViewModel
     var focusedField: FocusState<NodeSettingsField?>.Binding
     var radioRestartWarning: String = L10n.RemoteNodes.RemoteNodes.Settings.radioRestartWarning
 
@@ -100,9 +113,7 @@ struct NodeRadioSettingsSection: View {
                             settings.radioSettingsModified = true
                         }
                 } else {
-                    Text(settings.isLoadingRadio ? L10n.RemoteNodes.RemoteNodes.Settings.loading : (settings.radioError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : "—"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    SettingsLoadPlaceholder(isLoading: settings.isLoadingRadio, hasError: settings.radioError)
                         .frame(width: 100, alignment: .trailing)
                 }
             }
@@ -128,9 +139,7 @@ struct NodeRadioSettingsSection: View {
                 HStack {
                     Text(L10n.RemoteNodes.RemoteNodes.Settings.bandwidthKHz)
                     Spacer()
-                    Text(settings.isLoadingRadio ? L10n.RemoteNodes.RemoteNodes.Settings.loading : (settings.radioError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : "—"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    SettingsLoadPlaceholder(isLoading: settings.isLoadingRadio, hasError: settings.radioError)
                 }
             }
 
@@ -155,9 +164,7 @@ struct NodeRadioSettingsSection: View {
                 HStack {
                     Text(L10n.RemoteNodes.RemoteNodes.Settings.spreadingFactor)
                     Spacer()
-                    Text(settings.isLoadingRadio ? L10n.RemoteNodes.RemoteNodes.Settings.loading : (settings.radioError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : "—"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    SettingsLoadPlaceholder(isLoading: settings.isLoadingRadio, hasError: settings.radioError)
                 }
             }
 
@@ -182,9 +189,7 @@ struct NodeRadioSettingsSection: View {
                 HStack {
                     Text(L10n.RemoteNodes.RemoteNodes.Settings.codingRate)
                     Spacer()
-                    Text(settings.isLoadingRadio ? L10n.RemoteNodes.RemoteNodes.Settings.loading : (settings.radioError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : "—"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    SettingsLoadPlaceholder(isLoading: settings.isLoadingRadio, hasError: settings.radioError)
                 }
             }
 
@@ -204,9 +209,7 @@ struct NodeRadioSettingsSection: View {
                             settings.radioSettingsModified = true
                         }
                 } else {
-                    Text(settings.isLoadingRadio ? L10n.RemoteNodes.RemoteNodes.Settings.loading : (settings.radioError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : "—"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    SettingsLoadPlaceholder(isLoading: settings.isLoadingRadio, hasError: settings.radioError)
                         .frame(width: 80, alignment: .trailing)
                 }
             }
@@ -228,7 +231,7 @@ struct NodeRadioSettingsSection: View {
 // MARK: - Identity Section
 
 struct RemoteNodeIdentitySection: View {
-    @Bindable var settings: NodeSettingsHelper
+    @Bindable var settings: NodeSettingsViewModel
     var focusedField: FocusState<NodeSettingsField?>.Binding
     var onPickLocation: () -> Void
 
@@ -254,9 +257,7 @@ struct RemoteNodeIdentitySection: View {
                     .multilineTextAlignment(.trailing)
                     .focused(focusedField, equals: .identityName)
                 } else {
-                    Text(settings.isLoadingIdentity ? L10n.RemoteNodes.RemoteNodes.Settings.loading : (settings.identityError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : "—"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    SettingsLoadPlaceholder(isLoading: settings.isLoadingIdentity, hasError: settings.identityError)
                 }
             }
 
@@ -272,9 +273,7 @@ struct RemoteNodeIdentitySection: View {
                         .multilineTextAlignment(.trailing)
                         .frame(width: 140)
                 } else {
-                    Text(settings.isLoadingIdentity ? L10n.RemoteNodes.RemoteNodes.Settings.loading : (settings.identityError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : "—"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    SettingsLoadPlaceholder(isLoading: settings.isLoadingIdentity, hasError: settings.identityError)
                 }
             }
 
@@ -290,9 +289,7 @@ struct RemoteNodeIdentitySection: View {
                         .multilineTextAlignment(.trailing)
                         .frame(width: 140)
                 } else {
-                    Text(settings.isLoadingIdentity ? L10n.RemoteNodes.RemoteNodes.Settings.loading : (settings.identityError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : "—"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    SettingsLoadPlaceholder(isLoading: settings.isLoadingIdentity, hasError: settings.identityError)
                 }
             }
 
@@ -315,7 +312,7 @@ struct RemoteNodeIdentitySection: View {
 // MARK: - Contact Info Section
 
 struct NodeContactInfoSection: View {
-    @Bindable var settings: NodeSettingsHelper
+    @Bindable var settings: NodeSettingsViewModel
     var focusedField: FocusState<NodeSettingsField?>.Binding
     @State private var contactText = ""
 
@@ -334,9 +331,9 @@ struct NodeContactInfoSection: View {
                 .lineLimit(3...6)
                 .focused(focusedField, equals: .contactInfo)
                 .overlay(alignment: .bottomTrailing) {
-                    Text("\(settings.ownerInfoCharCount)/119")
+                    Text("\(settings.ownerInfoCharCount)/\(NodeSettingsViewModel.ownerInfoMaxLength)")
                         .font(.caption2)
-                        .foregroundStyle(settings.ownerInfoCharCount > 119 ? .red : .secondary)
+                        .foregroundStyle(settings.isOwnerInfoTooLong ? .red : .secondary)
                         .padding(4)
                 }
                 .onChange(of: settings.ownerInfo, initial: true) { _, newValue in
@@ -353,7 +350,7 @@ struct NodeContactInfoSection: View {
                     Text(L10n.RemoteNodes.RemoteNodes.Settings.applyContactInfo)
                 }
             }
-            .disabled(!settings.contactInfoSettingsModified || settings.isApplying || settings.ownerInfoCharCount > 119)
+            .disabled(!settings.contactInfoSettingsModified || settings.isApplying || settings.isOwnerInfoTooLong)
         }
     }
 }
@@ -362,7 +359,7 @@ struct NodeContactInfoSection: View {
 
 struct NodeSecuritySection: View {
     @Environment(\.appTheme) private var theme
-    @Bindable var settings: NodeSettingsHelper
+    @Bindable var settings: NodeSettingsViewModel
 
     var body: some View {
         Section {
@@ -392,7 +389,7 @@ struct NodeSecuritySection: View {
 
 struct NodeActionsSection: View {
     @Environment(\.appTheme) private var theme
-    let settings: NodeSettingsHelper
+    let settings: NodeSettingsViewModel
     @Binding var showRebootConfirmation: Bool
     var rebootConfirmTitle: String = L10n.RemoteNodes.RemoteNodes.Settings.rebootConfirmTitle
     var rebootMessage: String = L10n.RemoteNodes.RemoteNodes.Settings.rebootMessage

@@ -25,14 +25,16 @@ struct NodeStatusHeaderSection: View {
                 Spacer()
             }
             .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
         }
+        .listSectionSpacing(.compact)
     }
 }
 
 // MARK: - Common Status Rows
 
 struct NodeCommonStatusRows: View {
-    let helper: NodeStatusHelper
+    let helper: NodeStatusViewModel
 
     var body: some View {
         NodeMetricRow(
@@ -45,6 +47,8 @@ struct NodeCommonStatusRows: View {
         LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.uptime, value: helper.uptimeDisplay)
 
         LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.airtime, value: helper.airtimeDisplay)
+
+        LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.airtimePercent, value: helper.airtimePercentDisplay)
 
         NodeMetricRow(
             label: L10n.RemoteNodes.RemoteNodes.Status.lastRssi,
@@ -76,8 +80,8 @@ struct NodeCommonStatusRows: View {
 
 struct NodeStatusSection<Rows: View>: View {
     @Environment(\.appTheme) private var theme
-    @Bindable var helper: NodeStatusHelper
-    let connectionState: ConnectionState
+    @Bindable var helper: NodeStatusViewModel
+    let connectionState: DeviceConnectionState
     let onLoad: () async -> Void
     @ViewBuilder let rows: () -> Rows
 
@@ -92,7 +96,7 @@ struct NodeStatusSection<Rows: View>: View {
                     }
                 } else if let errorMessage = helper.statusSectionError, helper.status == nil {
                     Text(errorMessage)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(.orange)
                 } else if helper.status != nil {
                     rows()
 
@@ -102,9 +106,7 @@ struct NodeStatusSection<Rows: View>: View {
                             .foregroundStyle(.secondary)
                     }
 
-                    NavigationLink {
-                        NodeStatusHistoryView(fetchSnapshots: helper.fetchHistory, ocvArray: helper.ocvValues)
-                    } label: {
+                    NavigationLink(value: NodeStatusRoute.statusHistory) {
                         Text(L10n.RemoteNodes.RemoteNodes.History.title)
                     }
                 }
@@ -170,7 +172,7 @@ struct NodeTelemetryRow: View {
             let battery = BatteryInfo(level: millivolts)
             let percentage = battery.percentage(using: ocvArray)
 
-            LabeledContent(dataPoint.typeName) {
+            LabeledContent(dataPoint.type.localizedName) {
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(dataPoint.formattedValue)
                     Text("\(percentage)%")
@@ -179,7 +181,7 @@ struct NodeTelemetryRow: View {
                 }
             }
         } else {
-            LabeledContent(dataPoint.typeName, value: dataPoint.formattedValue)
+            LabeledContent(dataPoint.type.localizedName, value: dataPoint.formattedValue)
         }
     }
 }
@@ -188,9 +190,9 @@ struct NodeTelemetryRow: View {
 
 struct NodeBatteryCurveDisclosureSection: View {
     @Environment(\.appTheme) private var theme
-    @Bindable var helper: NodeStatusHelper
+    @Bindable var helper: NodeStatusViewModel
     let session: RemoteNodeSessionDTO
-    let connectionState: ConnectionState
+    let connectionState: DeviceConnectionState
     let connectedDeviceID: UUID?
 
     var body: some View {
@@ -209,7 +211,7 @@ struct NodeBatteryCurveDisclosureSection: View {
                 if let error = helper.ocvError {
                     Text(error)
                         .font(.caption)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(.orange)
                 }
             } label: {
                 Text(L10n.RemoteNodes.RemoteNodes.Status.batteryCurve)
@@ -232,8 +234,8 @@ struct NodeBatteryCurveDisclosureSection: View {
 
 struct NodeTelemetryDisclosureSection: View {
     @Environment(\.appTheme) private var theme
-    @Bindable var helper: NodeStatusHelper
-    let connectionState: ConnectionState
+    @Bindable var helper: NodeStatusViewModel
+    let connectionState: DeviceConnectionState
     let onRequestTelemetry: () async -> Void
 
     var body: some View {
@@ -269,9 +271,7 @@ struct NodeTelemetryDisclosureSection: View {
                         }
                     }
 
-                    NavigationLink {
-                        TelemetryHistoryView(fetchSnapshots: helper.fetchHistory, ocvArray: helper.ocvValues)
-                    } label: {
+                    NavigationLink(value: NodeStatusRoute.telemetryHistory) {
                         Text(L10n.RemoteNodes.RemoteNodes.History.title)
                     }
                 } else {

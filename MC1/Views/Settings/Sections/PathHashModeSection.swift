@@ -58,12 +58,12 @@ struct PathHashModeSection: View {
             } catch let error as SettingsServiceError where error.isRetryable {
                 selectedMode = appState.connectedDevice?.pathHashMode ?? 0
                 retryAlert.show(
-                    message: error.errorDescription ?? L10n.Settings.Alert.Retry.fallbackMessage,
+                    message: error.userFacingMessage,
                     onRetry: { applyMode(mode) },
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
                 selectedMode = appState.connectedDevice?.pathHashMode ?? 0
             }
             isApplying = false

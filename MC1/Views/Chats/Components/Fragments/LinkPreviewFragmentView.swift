@@ -26,7 +26,7 @@ struct LinkPreviewFragmentView: View {
     var body: some View {
         switch state.mode {
         case .loaded(let preview, let imageRef, let iconRef):
-            if let url = URL(string: preview.url) {
+            if let url = state.primaryURL {
                 let resolvedImage = imageRef.flatMap(imageResolver)
                 if imageRef != nil && resolvedImage == nil {
                     // Image bytes still downloading — reserve hero space.
@@ -51,16 +51,18 @@ struct LinkPreviewFragmentView: View {
                 isLoading: false,
                 onTap: { onManualPreviewFetch?() }
             )
-        case .legacy(let url, let title, let imageRef, let iconRef):
-            LinkPreviewCard(
-                url: url,
-                title: title,
-                image: imageRef.flatMap(imageResolver),
-                icon: iconRef.flatMap(imageResolver),
-                imageWidth: nil,
-                imageHeight: nil,
-                onTap: { openURL(url) }
-            )
+        case .legacy(_, let title, let imageRef, let iconRef):
+            if let url = state.primaryURL {
+                LinkPreviewCard(
+                    url: url,
+                    title: title,
+                    image: imageRef.flatMap(imageResolver),
+                    icon: iconRef.flatMap(imageResolver),
+                    imageWidth: nil,
+                    imageHeight: nil,
+                    onTap: { openURL(url) }
+                )
+            }
         case .idle, .noPreview:
             EmptyView()
         }

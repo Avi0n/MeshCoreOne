@@ -1,10 +1,11 @@
 import Foundation
+import MC1Services
 
 /// User preferences for link preview behavior
 struct LinkPreviewPreferences: @unchecked Sendable {
-    private static let enabledKey = "linkPreviewsEnabled"
-    private static let autoResolveDMKey = "linkPreviewsAutoResolveDM"
-    private static let autoResolveChannelsKey = "linkPreviewsAutoResolveChannels"
+    private static let enabledKey = AppStorageKey.linkPreviewsEnabled.rawValue
+    private static let autoResolveDMKey = AppStorageKey.linkPreviewsAutoResolveDM.rawValue
+    private static let autoResolveChannelsKey = AppStorageKey.linkPreviewsAutoResolveChannels.rawValue
 
     private let defaults: UserDefaults
 
@@ -13,11 +14,11 @@ struct LinkPreviewPreferences: @unchecked Sendable {
         nonmutating set { defaults.set(newValue, forKey: Self.enabledKey) }
     }
     var autoResolveDM: Bool {
-        get { defaults.object(forKey: Self.autoResolveDMKey) as? Bool ?? true }
+        get { defaults.object(forKey: Self.autoResolveDMKey) as? Bool ?? AppStorageKey.defaultLinkPreviewsAutoResolveDM }
         nonmutating set { defaults.set(newValue, forKey: Self.autoResolveDMKey) }
     }
     var autoResolveChannels: Bool {
-        get { defaults.object(forKey: Self.autoResolveChannelsKey) as? Bool ?? true }
+        get { defaults.object(forKey: Self.autoResolveChannelsKey) as? Bool ?? AppStorageKey.defaultLinkPreviewsAutoResolveChannels }
         nonmutating set { defaults.set(newValue, forKey: Self.autoResolveChannelsKey) }
     }
 

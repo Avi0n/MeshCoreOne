@@ -1,5 +1,6 @@
 import CoreLocation
 import Foundation
+import MeshCore
 import SwiftData
 
 /// Represents a connected MeshCore BLE device.
@@ -262,6 +263,11 @@ public final class Device {
     }
 
     /// Applies all mutable fields from a DTO to this model instance.
+    /// Unlike `Channel.apply` and `Contact.apply`, the identity fields
+    /// `publicKey` and `radioID` are deliberately rewritten: rows are matched
+    /// by the stable `id`, runtime key rotation must persist the new key, and
+    /// ghost reconciliation after a partial backup import depends on the
+    /// overwrite (see `ConnectionManager.reconcileIdentity`).
     func apply(_ dto: DeviceDTO) {
         radioID = dto.radioID
         publicKey = dto.publicKey
@@ -302,7 +308,10 @@ public final class Device {
         ocvPreset = dto.ocvPreset
         customOCVArrayString = dto.customOCVArrayString
         connectionMethods = dto.connectionMethods
-        knownRegions = dto.knownRegions
+        // knownRegions is app-only state owned solely by addDeviceKnownRegion/
+        // removeDeviceKnownRegion. It is excluded from this full overwrite so a
+        // stale or empty DTO from a read-snapshot-then-save caller cannot erase
+        // regions the targeted path committed. First write is Device(dto:) at insert.
     }
 }
 
@@ -375,24 +384,24 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
         AutoAddMode.mode(manualAddContacts: manualAddContacts, autoAddConfig: autoAddConfig)
     }
 
-    /// Whether to auto-add Contact type nodes (bit 0x02)
+    /// Whether to auto-add Contact type nodes
     public var autoAddContacts: Bool {
-        autoAddConfig & 0x02 != 0
+        autoAddConfig & AutoAddConfig.contactsBit != 0
     }
 
-    /// Whether to auto-add Repeater type nodes (bit 0x04)
+    /// Whether to auto-add Repeater type nodes
     public var autoAddRepeaters: Bool {
-        autoAddConfig & 0x04 != 0
+        autoAddConfig & AutoAddConfig.repeatersBit != 0
     }
 
-    /// Whether to auto-add Room Server type nodes (bit 0x08)
+    /// Whether to auto-add Room Server type nodes
     public var autoAddRoomServers: Bool {
-        autoAddConfig & 0x08 != 0
+        autoAddConfig & AutoAddConfig.roomServersBit != 0
     }
 
-    /// Whether to overwrite oldest non-favorite when storage is full (bit 0x01)
+    /// Whether to overwrite oldest non-favorite when storage is full
     public var overwriteOldest: Bool {
-        autoAddConfig & 0x01 != 0
+        autoAddConfig & AutoAddConfig.overwriteOldestBit != 0
     }
 
     /// Whether the device supports auto-add configuration (v1.12+)

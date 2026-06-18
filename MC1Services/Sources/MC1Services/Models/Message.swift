@@ -1,4 +1,5 @@
 import Foundation
+import MeshCore
 import SwiftData
 
 /// Message delivery status
@@ -156,7 +157,7 @@ public final class Message {
 
     /// Heard repeats for this message (cascade delete)
     @Relationship(deleteRule: .cascade, inverse: \MessageRepeat.message)
-    public var repeats: [MessageRepeat]?
+    var repeats: [MessageRepeat]?
 
     public init(
         id: UUID = UUID(),
@@ -267,6 +268,8 @@ public final class Message {
             deduplicationKey: dto.deduplicationKey,
             linkPreviewURL: dto.linkPreviewURL,
             linkPreviewTitle: dto.linkPreviewTitle,
+            // External-storage blobs stay nil and fetched stays false so the new
+            // row re-fetches its preview; updateMessageLinkPreview writes them.
             linkPreviewImageData: nil,
             linkPreviewIconData: nil,
             linkPreviewFetched: false,
@@ -606,7 +609,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     public var isFloodRouted: Bool {
         if channelIndex != nil { return true }
         if let routeType { return routeType == .flood || routeType == .tcFlood }
-        return pathLength != 0xFF
+        return pathLength != PacketBuilder.floodPathSentinel
     }
 
     /// Whether this message was direct-routed (pre-built path, hops consumed in transit).
@@ -625,14 +628,16 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
         decodePathLen(pathLength)?.hashSize
     }
 
+    /// Each hop as its raw hash bytes plus uppercase hex, e.g. `[(0xA3, "A3"), (0x7F, "7F")]`.
+    /// The raw bytes are needed to match a hop against a repeater's public-key prefix.
+    public var pathHops: [(data: Data, hex: String)] {
+        guard let pathNodes else { return [] }
+        return pathNodes.pathHops(hashSize: pathHashSize)
+    }
+
     /// Path nodes as hex strings for display, chunked by hash size
     public var pathNodesHex: [String] {
-        guard let pathNodes else { return [] }
-        let size = pathHashSize
-        return stride(from: 0, to: pathNodes.count, by: size).compactMap { start in
-            let end = min(start + size, pathNodes.count)
-            return pathNodes[start..<end].hexString()
-        }
+        pathHops.map(\.hex)
     }
 
     /// Path as arrow-separated string (e.g., "A3 → 7F → 42")

@@ -219,7 +219,7 @@
 "contacts.detail.telemetry" = "Телеметрия";
 
 /* Location: ContactDetailView.swift - Purpose: Saved History button for offline telemetry */
-"contacts.detail.savedHistory" = "Telemetry History";
+"contacts.detail.savedHistory" = "История телеметрии";
 
 /* Location: ContactDetailView.swift - Purpose: Telemetry access sheet title */
 "contacts.detail.telemetryAccess" = "Доступ к телеметрии";
@@ -246,7 +246,7 @@
 "contacts.detail.shareContactUnavailable" = "Не удалось поделиться узлом. Объявление узла может отсутствовать или быть устаревшим.";
 
 /* Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes */
-"contacts.detail.ping" = "Zero-Hop Ping";
+"contacts.detail.ping" = "Пинг без переходов";
 
 /* Location: ContactDetailView.swift - Purpose: Ping no response message */
 "contacts.detail.pingNoResponse" = "Нет ответа";
@@ -443,16 +443,16 @@
 "contacts.add.error.nodeListFull" = "Список узлов заполнен (максимум %d узлов)";
 
 /* Location: AddContactSheet.swift, DiscoveryView.swift - Purpose: Node list full error without max count */
-"contacts.add.error.nodeListFullSimple" = "Node list is full";
+"contacts.add.error.nodeListFullSimple" = "Список узлов заполнен";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL button label */
-"contacts.add.pasteURL" = "Paste Contact URL";
+"contacts.add.pasteURL" = "Вставить URL контакта";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL section footer */
 "contacts.add.pasteURLFooter" = "Вставьте ссылку на контакт meshcore://, чтобы автоматически заполнить поля выше";
 
 /* Location: AddContactSheet.swift - Purpose: Invalid paste URL error */
-"contacts.add.error.invalidURL" = "Clipboard does not contain a valid contact URL";
+"contacts.add.error.invalidURL" = "Буфер обмена не содержит действительного URL контакта";
 
 // MARK: - Contact QR Share Sheet
 
@@ -472,10 +472,10 @@
 "contacts.qr.share" = "Поделиться";
 
 /* Location: ContactQRShareSheet.swift - Purpose: Contact label in share text, %@ is contact name */
-"contacts.share.contactLabel" = "MeshCore One Contact: %@";
+"contacts.share.contactLabel" = "Контакт MeshCore One: %@";
 
 /* Location: ContactQRShareSheet.swift - Purpose: Key label in share text, %@ is hex public key */
-"contacts.share.keyLabel" = "Key: %@";
+"contacts.share.keyLabel" = "Ключ: %@";
 
 // MARK: - Scan Contact QR
 
@@ -527,7 +527,7 @@
 "contacts.discovery.add" = "Добавить";
 
 /* Location: DiscoveryView.swift - Purpose: Button label when node is already added */
-"contacts.discovery.added" = "Added";
+"contacts.discovery.added" = "Добавлено";
 
 /* Location: DiscoveryView.swift - Purpose: Accessibility label for added button */
 "contacts.discovery.addedAccessibility" = "Уже добавлено в контакты";
@@ -753,9 +753,6 @@
 
 /* Location: PathManagementViewModel.swift - Purpose: Hop count result plural */
 "contacts.pathDiscovery.hops.plural" = "%d переходов";
-
-/* Location: PathManagementViewModel.swift - Purpose: Cached path suffix */
-"contacts.pathDiscovery.cachedSuffix" = ". Используется кэшированная информация из объявления. Телеметрия узла может быть отключена.";
 
 /* Location: PathManagementViewModel.swift - Purpose: No response message */
 "contacts.pathDiscovery.noResponse" = "Удалённый узел не ответил. Для ответа на запросы поиска пути у узлов должна быть включена телеметрия.";
@@ -1156,7 +1153,7 @@
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
 "contacts.viewModel.connectToDelete" = "Подключись к радио для удаления узлов";
 
-/* TODO: translate - Location: ContactsViewModel.swift - Delete radio command timed out error */
+/* Location: ContactsViewModel.swift - Delete radio command timed out error */
 "contacts.viewModel.removeTimedOut" = "Истекло время ожидания при удалении узла. Попробуйте снова.";
 
 // MARK: - Path Management ViewModel Errors

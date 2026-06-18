@@ -114,6 +114,9 @@
 /* TX power display format with dBm unit */
 "deviceInfo.txPowerFormat" = "%@ dBm";
 
+/* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
+"deviceInfo.firmwareVersionFormat" = "v%@";
+
 /* Section header for identity information */
 "deviceInfo.identity.header" = "Identität";
 
@@ -391,7 +394,7 @@
 "batteryCurve.editValues" = "Werte bearbeiten";
 
 /* Validation error for value out of range - %d is the percentage level */
-"batteryCurve.validation.outOfRange" = "Wert bei %d%% muss 1000-9000 mV sein";
+"batteryCurve.validation.outOfRange" = "Wert bei %d%% muss 1000-99999 mV sein";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "Werte müssen in absteigender Reihenfolge sein";
@@ -763,7 +766,7 @@
 "notifications.discoveryRepeater" = "Repeater";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Room";
+"notifications.discoveryRoom" = "Raum";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Akkustandswarnungen";
@@ -973,7 +976,7 @@
 "directMessages.header" = "Direktnachrichten";
 
 /* Picker label for number of acknowledgments */
-"directMessages.acknowledgments" = "Acknowledgments";
+"directMessages.acknowledgments" = "Bestätigungen";
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Anzahl der pro Direktnachricht gesendeten Bestätigungen. Verwende 2 für eine bessere Zustellbestätigung über unzuverlässige Verbindungen.";
@@ -1111,9 +1114,6 @@
 /* Select file button */
 "configImport.selectFile" = "JSON-Datei auswählen";
 
-/* Cannot access file error */
-"configImport.cannotAccess" = "Die ausgewählte Datei kann nicht geöffnet werden.";
-
 /* Confirmation alert title */
 "configImport.confirmTitle" = "Konfiguration anwenden?";
 
@@ -1240,6 +1240,21 @@
 /* Validation error: not enough free contact slots (params: needed count, available count) */
 "configImport.error.contactCapacityExceeded" = "Der Import benötigt %d freie Kontaktplätze, aber auf dem Gerät sind nur noch %d übrig";
 
+/* Validation error: channel secret wrong length (params: channel index, hex char count) */
+"configImport.error.invalidChannelSecret" = "Kanal %1$lld hat einen ungültigen geheimen Schlüssel (%2$lld Hex-Zeichen, erwartet 32)";
+
+/* Validation error: contact public key malformed (param: contact name) */
+"configImport.error.invalidContactPublicKey" = "Kontakt \"%@\" hat einen ungültigen öffentlichen Schlüssel";
+
+/* Validation error: unsupported path hash mode (params: contact name, mode value) */
+"configImport.error.invalidPathHashMode" = "Kontakt \"%1$@\" hat den nicht unterstützten Pfad-Hash-Modus %2$lld (erwartet 0, 1 oder 2)";
+
+/* Validation error: private key wrong length (params: hex char count, expected hex char count) */
+"configImport.error.invalidPrivateKey" = "Ungültiger privater Schlüssel (%1$lld Hex-Zeichen, erwartet %2$lld)";
+
+/* Validation error: no empty channel slot left (param: channel name) */
+"configImport.error.noAvailableChannelSlot" = "Kein freier Kanalplatz für \"%@\" verfügbar";
+
 /* Toggle label for inline images */
 "inlineImages.toggle" = "Inline-Bilder";
 
@@ -1316,7 +1331,7 @@
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
-"liveActivity.title" = "Live Activity";
+"liveActivity.title" = "Live-Aktivität";
 
 /* Title for the Live Activity tip shown after first connection */
 "liveActivity.tip.title" = "Funkstatus auf einen Blick";
@@ -1473,7 +1488,7 @@
 "offlineMaps.error.tileLimitReached" = "Das Kachel-Limit für diesen Download wurde erreicht.";
 
 /* Pause download button */
-"offlineMaps.pause" = "Pause";
+"offlineMaps.pause" = "Pausieren";
 
 /* Resume download button */
 "offlineMaps.resume" = "Fortsetzen";
@@ -1720,6 +1735,7 @@
 "Support.Themes.Title" = "Designs";
 "Support.Themes.Owned" = "Im Besitz";
 "Support.Themes.PurchasedFooter" = "Wende dein neues Design unter Einstellungen → Erscheinungsbild an.";
+"Support.Themes.AllUnlocked" = "Alle Designs freigeschaltet!";
 "Support.Bundle.Title" = "Alle Designs";
 "Support.Bundle.Subtitle" = "Einschließlich später hinzugefügter Designs.";
 "Support.Contributions.Title" = "Beiträge";

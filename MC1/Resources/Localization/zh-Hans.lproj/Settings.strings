@@ -111,6 +111,9 @@
 /* TX power display format with dBm unit */
 "deviceInfo.txPowerFormat" = "%@ dBm";
 
+/* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
+"deviceInfo.firmwareVersionFormat" = "v%@";
+
 /* Section header for identity information */
 "deviceInfo.identity.header" = "身份";
 
@@ -381,7 +384,7 @@
 "batteryCurve.editValues" = "编辑曲线";
 
 /* Validation error for value out of range - %d is percentage level */
-"batteryCurve.validation.outOfRange" = "%d%% 处的值必须在 1000-9000 mV 范围内";
+"batteryCurve.validation.outOfRange" = "%d%% 处的值必须在 1000-99999 mV 范围内";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "值必须按降序排列";
@@ -775,13 +778,13 @@
 "notifications.newContactDiscovered" = "发现新联系人";
 
 /* Toggle label for companion discovery notifications */
-"notifications.discoveryContact" = "Companion";
+"notifications.discoveryContact" = "伴侣节点";
 
 /* Toggle label for repeater discovery notifications */
-"notifications.discoveryRepeater" = "Repeater";
+"notifications.discoveryRepeater" = "中继器";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Room";
+"notifications.discoveryRoom" = "聊天室";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "低电量警告";
@@ -983,7 +986,7 @@
 "directMessages.header" = "私信";
 
 /* Picker label for number of acknowledgments */
-"directMessages.acknowledgments" = "Acknowledgments";
+"directMessages.acknowledgments" = "确认回执";
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "每条私信发送的确认数量。在不可靠的链路上使用 2 以获得更好的送达确认。";
@@ -1084,9 +1087,6 @@
 
 /* Select file button */
 "configImport.selectFile" = "选择 JSON 文件";
-
-/* Cannot access file error */
-"configImport.cannotAccess" = "无法访问所选文件。";
 
 /* Confirmation alert title */
 "configImport.confirmTitle" = "应用配置？";
@@ -1213,6 +1213,21 @@
 
 /* Validation error: not enough free contact slots (params: needed count, available count) */
 "configImport.error.contactCapacityExceeded" = "导入需要 %d 个空闲联系人槽位，但设备上仅剩 %d 个";
+
+/* Validation error: channel secret wrong length (params: channel index, hex char count) */
+"configImport.error.invalidChannelSecret" = "频道 %1$lld 的密钥无效（%2$lld 个十六进制字符，应为 32 个）";
+
+/* Validation error: contact public key malformed (param: contact name) */
+"configImport.error.invalidContactPublicKey" = "联系人 \"%@\" 的公钥无效";
+
+/* Validation error: unsupported path hash mode (params: contact name, mode value) */
+"configImport.error.invalidPathHashMode" = "联系人 \"%1$@\" 的路径哈希模式 %2$lld 不受支持（应为 0、1 或 2）";
+
+/* Validation error: private key wrong length (params: hex char count, expected hex char count) */
+"configImport.error.invalidPrivateKey" = "私钥无效（%1$lld 个十六进制字符，应为 %2$lld 个）";
+
+/* Validation error: no empty channel slot left (param: channel name) */
+"configImport.error.noAvailableChannelSlot" = "没有可用于 \"%@\" 的空闲频道槽位";
 
 /* Toggle label for inline images */
 "inlineImages.toggle" = "内嵌图片消息";
@@ -1694,6 +1709,7 @@
 "Support.Themes.Title" = "主题";
 "Support.Themes.Owned" = "已拥有";
 "Support.Themes.PurchasedFooter" = "在设置 → 外观中应用你的新主题。";
+"Support.Themes.AllUnlocked" = "已解锁所有主题！";
 "Support.Bundle.Title" = "全部主题";
 "Support.Bundle.Subtitle" = "包括日后新增的主题。";
 "Support.Contributions.Title" = "捐助";
@@ -1709,11 +1725,11 @@
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "默认";
-"Support.Theme.Ember" = "Ember";
-"Support.Theme.Fern" = "Fern";
-"Support.Theme.Marine" = "Marine";
-"Support.Theme.Olive" = "Olive";
-"Support.Theme.Lavender" = "Lavender";
+"Support.Theme.Ember" = "余烬";
+"Support.Theme.Fern" = "蕨绿";
+"Support.Theme.Marine" = "海蓝";
+"Support.Theme.Olive" = "橄榄";
+"Support.Theme.Lavender" = "薰衣草";
 
 /* MARK: Support error messages (mapped from StoreServiceError) */
 "Support.Error.ProductsNotLoaded" = "无法加载商品。";

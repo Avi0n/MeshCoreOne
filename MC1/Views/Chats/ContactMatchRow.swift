@@ -48,7 +48,7 @@ struct ContactMatchRow: View {
                         }
                     }
 
-                    Text(L10n.Chats.Chats.ContactMatch.key(contact.publicKey.hexString(separator: " ")))
+                    Text(L10n.Chats.Chats.ContactMatch.key(contact.publicKey.uppercaseHexString(separator: " ")))
                         .font(.caption)
                         .monospaced()
                         .foregroundStyle(.tertiary)
@@ -104,11 +104,7 @@ struct ContactMatchRow: View {
     }
 
     private var contactTypeLabel: String {
-        switch contact.type {
-        case .chat: L10n.Contacts.Contacts.NodeKind.contact
-        case .repeater: L10n.Contacts.Contacts.NodeKind.repeater
-        case .room: L10n.Contacts.Contacts.NodeKind.room
-        }
+        contact.type.localizedName
     }
 
     private var distanceText: String? {

@@ -5,47 +5,47 @@ import SwiftData
 /// Represents a node discovered via advertisement.
 /// Separate from Contact - this is ephemeral, app-only, capped at 1000 per device.
 @Model
-public final class DiscoveredNode {
+final class DiscoveredNode {
     #Index<DiscoveredNode>(
         [\.radioID, \.publicKey],
         [\.radioID, \.lastHeard]
     )
 
     @Attribute(.unique)
-    public var id: UUID
+    var id: UUID
 
     /// Parent device ID
     @Attribute(originalName: "deviceID")
-    public var radioID: UUID
+    var radioID: UUID
 
     /// 32-byte public key identifier
-    public var publicKey: Data
+    var publicKey: Data
 
     /// Advertised node name
-    public var name: String
+    var name: String
 
     /// Node type (1=chat, 2=repeater, 3=room)
-    public var typeRawValue: UInt8
+    var typeRawValue: UInt8
 
     /// When we last received an advertisement from this node
-    public var lastHeard: Date
+    var lastHeard: Date
 
     /// Firmware advertisement timestamp
-    public var lastAdvertTimestamp: UInt32
+    var lastAdvertTimestamp: UInt32
 
     /// Node latitude
-    public var latitude: Double
+    var latitude: Double
 
     /// Node longitude
-    public var longitude: Double
+    var longitude: Double
 
     /// Encoded routing path length (0xFF = flood)
-    public var outPathLength: UInt8
+    var outPathLength: UInt8
 
     /// Routing path data (up to 64 bytes)
-    public var outPath: Data
+    var outPath: Data
 
-    public init(
+    init(
         id: UUID = UUID(),
         radioID: UUID,
         publicKey: Data,
@@ -55,7 +55,7 @@ public final class DiscoveredNode {
         lastAdvertTimestamp: UInt32,
         latitude: Double = 0,
         longitude: Double = 0,
-        outPathLength: UInt8 = 0xFF,
+        outPathLength: UInt8 = PacketBuilder.floodPathSentinel,
         outPath: Data = Data()
     ) {
         self.id = id
@@ -97,7 +97,7 @@ public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterReso
     }
 
     public var isFloodRouted: Bool {
-        outPathLength == 0xFF
+        outPathLength == PacketBuilder.floodPathSentinel
     }
 
     public var pathHashSize: Int {
@@ -113,12 +113,7 @@ public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterReso
     }
 
     public var pathNodesHex: [String] {
-        let size = pathHashSize
-        let relevantPath = outPath.prefix(pathByteLength)
-        return stride(from: 0, to: relevantPath.count, by: size).compactMap { start in
-            let end = min(start + size, relevantPath.count)
-            return relevantPath[start..<end].hexString()
-        }
+        outPath.prefix(pathByteLength).pathHops(hashSize: pathHashSize).map(\.hex)
     }
 
     public var recencyDate: Date { lastHeard }
@@ -150,7 +145,7 @@ public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterReso
         self.outPath = outPath
     }
 
-    public init(from node: DiscoveredNode) {
+    init(from node: DiscoveredNode) {
         self.id = node.id
         self.radioID = node.radioID
         self.publicKey = node.publicKey

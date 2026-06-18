@@ -320,7 +320,7 @@ private struct RegionPickerSheet: View {
                 )
                 dismiss()
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
         }
     }

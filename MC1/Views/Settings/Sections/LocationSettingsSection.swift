@@ -271,13 +271,13 @@ struct LocationSettingsSection: View {
             } catch let error as SettingsServiceError where error.isRetryable {
                 shareLocation = !share
                 retryAlert.show(
-                    message: error.errorDescription ?? L10n.Settings.Alert.Retry.fallbackMessage,
+                    message: error.userFacingMessage,
                     onRetry: { updateShareLocation(share) },
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
                 shareLocation = !share
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
             isSaving = false
         }
@@ -314,14 +314,14 @@ struct LocationSettingsSection: View {
                 deviceGPSEnabled = previousEnabled
                 onFailure?()
                 retryAlert.show(
-                    message: error.errorDescription ?? L10n.Settings.Alert.Retry.fallbackMessage,
+                    message: error.userFacingMessage,
                     onRetry: { saveDeviceGPS(enabled, onSuccess: onSuccess, onFailure: onFailure) },
                     onMaxRetriesExceeded: { dismiss() }
                 )
             } catch {
                 deviceGPSEnabled = previousEnabled
                 onFailure?()
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
             }
             isSaving = false
         }

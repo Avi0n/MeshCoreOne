@@ -1909,6 +1909,157 @@ struct TraceHashSizeOverrideTests {
     }
 }
 
+// MARK: - Inferred Trace Hash Mode Tests
+
+@Suite("Inferred Trace Hash Mode")
+@MainActor
+struct InferredTraceHashModeTests {
+
+    @Test("Uniform 1-byte codes infer mode 0")
+    func oneByte() {
+        #expect(TracePathViewModel.inferredTraceHashMode(from: "1A,2B") == 0)
+    }
+
+    @Test("Uniform 2-byte codes infer mode 1")
+    func twoByte() {
+        #expect(TracePathViewModel.inferredTraceHashMode(from: "1A2B,3C4D") == 1)
+    }
+
+    @Test("Uniform 4-byte codes infer mode 2")
+    func fourByte() {
+        #expect(TracePathViewModel.inferredTraceHashMode(from: "AABBCCDD,11223344") == 2)
+    }
+
+    @Test("Whitespace around codes is tolerated")
+    func whitespaceTolerated() {
+        #expect(TracePathViewModel.inferredTraceHashMode(from: " 1A , 2B ") == 0)
+    }
+
+    @Test("Mixed widths infer nothing")
+    func mixedWidths() {
+        #expect(TracePathViewModel.inferredTraceHashMode(from: "1A,2B3C") == nil)
+    }
+
+    @Test("Odd-length code infers nothing")
+    func oddLength() {
+        #expect(TracePathViewModel.inferredTraceHashMode(from: "1A,2") == nil)
+    }
+
+    @Test("Non-hex code infers nothing")
+    func nonHex() {
+        #expect(TracePathViewModel.inferredTraceHashMode(from: "1A,ZZ") == nil)
+    }
+
+    @Test("Uniform but non-power-of-2 width (3 bytes) infers nothing")
+    func nonPowerOfTwoWidth() {
+        #expect(TracePathViewModel.inferredTraceHashMode(from: "1A2B3C,4D5E6F") == nil)
+    }
+
+    @Test("Empty and separator-only input infer nothing")
+    func emptyInput() {
+        #expect(TracePathViewModel.inferredTraceHashMode(from: "") == nil)
+        #expect(TracePathViewModel.inferredTraceHashMode(from: ",") == nil)
+    }
+}
+
+// MARK: - Adopt Hash Size From Paste Tests
+
+@Suite("Adopt Hash Size From Paste")
+@MainActor
+struct AdoptHashSizeFromPasteTests {
+
+    private func makeViewModel(supportsOverride: Bool) -> TracePathViewModel {
+        let device = DeviceDTO(
+            id: UUID(),
+            radioID: UUID(),
+            publicKey: Data(repeating: 0x01, count: 32),
+            nodeName: "TestDevice",
+            firmwareVersion: 8,
+            firmwareVersionString: supportsOverride ? "v1.11.0" : "v1.10.0",
+            manufacturerName: "TestMfg",
+            buildDate: "01 Jan 2025",
+            maxContacts: 100,
+            maxChannels: 8,
+            frequency: 915_000,
+            bandwidth: 250_000,
+            spreadingFactor: 10,
+            codingRate: 5,
+            txPower: 20,
+            maxTxPower: 20,
+            latitude: 0,
+            longitude: 0,
+            blePin: 0,
+            manualAddContacts: false,
+            multiAcks: 2,
+            telemetryModeBase: 2,
+            telemetryModeLoc: 0,
+            telemetryModeEnv: 0,
+            advertLocationPolicy: 0,
+            lastConnected: Date(),
+            lastContactSync: 0,
+            isActive: false,
+            ocvPreset: nil,
+            customOCVArrayString: nil,
+            connectionMethods: []
+        )
+        let viewModel = TracePathViewModel()
+        viewModel.configure(dependencies: TracePathViewModel.Dependencies(
+            dataStore: { nil },
+            session: { nil },
+            advertisementService: { nil },
+            connectedDevice: { device },
+            bestAvailableLocation: { nil }
+        ))
+        return viewModel
+    }
+
+    @Test("Pasting narrower codes switches the active hash size down")
+    func adoptsNarrowerWidth() {
+        let viewModel = makeViewModel(supportsOverride: true)
+        viewModel.addNode(createTestContact())
+        viewModel.setTraceHashMode(1)
+        #expect(viewModel.hashSize == 2)
+
+        viewModel.adoptHashSize(forPastedCodes: "1A,2B")
+
+        #expect(viewModel.effectiveTraceMode == 0)
+        #expect(viewModel.hashSize == 1)
+    }
+
+    @Test("Pasting the active width leaves a stale saved-path reference intact")
+    func sameWidthPreservesState() {
+        let viewModel = makeViewModel(supportsOverride: true)
+        viewModel.addNode(createTestContact())
+        viewModel.setTraceHashMode(1)
+        viewModel.activeSavedPath = createTestSavedPath(runs: [])
+
+        viewModel.adoptHashSize(forPastedCodes: "1A2B,3C4D")
+
+        #expect(viewModel.effectiveTraceMode == 1)
+        #expect(viewModel.activeSavedPath != nil)
+    }
+
+    @Test("Mixed-width paste leaves the active hash size unchanged")
+    func mixedWidthIgnored() {
+        let viewModel = makeViewModel(supportsOverride: true)
+        viewModel.setTraceHashMode(1)
+
+        viewModel.adoptHashSize(forPastedCodes: "1A,2B3C")
+
+        #expect(viewModel.effectiveTraceMode == 1)
+    }
+
+    @Test("Unsupported firmware ignores the pasted width")
+    func unsupportedFirmwareIgnores() {
+        let viewModel = makeViewModel(supportsOverride: false)
+        viewModel.setTraceHashMode(1)
+
+        viewModel.adoptHashSize(forPastedCodes: "1A,2B")
+
+        #expect(viewModel.effectiveTraceMode == 1)
+    }
+}
+
 // MARK: - Trace Hash Size Capability Gate Tests
 
 @Suite("Trace Hash Size Capability Gate")

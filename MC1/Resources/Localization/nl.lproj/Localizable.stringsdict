@@ -20,5 +20,21 @@
             <string>%d sprongen</string>
         </dict>
     </dict>
+    <key>error.channelService.circuitBreakerOpen</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>lld</string>
+            <key>one</key>
+            <string>Kanaalsynchronisatie opgeschort na %lld opeenvolgende fout.</string>
+            <key>other</key>
+            <string>Kanaalsynchronisatie opgeschort na %lld opeenvolgende fouten.</string>
+        </dict>
+    </dict>
 </dict>
 </plist>

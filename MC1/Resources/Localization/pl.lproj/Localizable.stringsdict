@@ -24,5 +24,25 @@
             <string>%d skoku</string>
         </dict>
     </dict>
+    <key>error.channelService.circuitBreakerOpen</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>lld</string>
+            <key>one</key>
+            <string>Synchronizacja kanałów wstrzymana po %lld kolejnym niepowodzeniu.</string>
+            <key>few</key>
+            <string>Synchronizacja kanałów wstrzymana po %lld kolejnych niepowodzeniach.</string>
+            <key>many</key>
+            <string>Synchronizacja kanałów wstrzymana po %lld kolejnych niepowodzeniach.</string>
+            <key>other</key>
+            <string>Synchronizacja kanałów wstrzymana po %lld kolejnych niepowodzeniach.</string>
+        </dict>
+    </dict>
 </dict>
 </plist>

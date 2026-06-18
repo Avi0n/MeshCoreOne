@@ -6,9 +6,9 @@ import MC1Services
 
 @Observable
 @MainActor
-public final class LiveActivityManager {
+final class LiveActivityManager {
 
-    static let enabledKey = "liveActivityEnabled"
+    static let enabledKey = AppStorageKey.liveActivityEnabled.rawValue
 
     private let logger = Logger(subsystem: "com.mc1", category: "LiveActivityManager")
 
@@ -46,7 +46,7 @@ public final class LiveActivityManager {
     }
 
     init() {
-        isEnabled = UserDefaults.standard.object(forKey: Self.enabledKey) as? Bool ?? true
+        isEnabled = UserDefaults.standard.object(forKey: Self.enabledKey) as? Bool ?? AppStorageKey.defaultLiveActivityEnabled
     }
 
     // MARK: - Pending Update

@@ -5,7 +5,7 @@ import os
 // MARK: - Notification Categories
 
 /// Notification category identifiers
-public enum NotificationCategory: String, Sendable {
+enum NotificationCategory: String, Sendable {
     case directMessage = "DIRECT_MESSAGE"
     case channelMessage = "CHANNEL_MESSAGE"
     case roomMessage = "ROOM_MESSAGE"
@@ -14,7 +14,7 @@ public enum NotificationCategory: String, Sendable {
 }
 
 /// Notification action identifiers
-public enum NotificationAction: String, Sendable {
+enum NotificationAction: String, Sendable {
     case reply = "REPLY_ACTION"
     case markRead = "MARK_READ_ACTION"
     case dismiss = "DISMISS_ACTION"
@@ -24,8 +24,8 @@ public enum NotificationAction: String, Sendable {
 
 /// Service for managing local notifications.
 /// Handles message notifications, quick reply actions, and battery warnings.
-@MainActor
 @Observable
+@MainActor
 public final class NotificationService: NSObject {
 
     // MARK: - Properties
@@ -39,31 +39,37 @@ public final class NotificationService: NSObject {
     public private(set) var authorizationStatus: UNAuthorizationStatus = .notDetermined
 
     /// Callback for when a quick reply action is triggered
-    /// CRITICAL: Must be @MainActor to ensure callback body executes on main thread.
+    /// Installed by `AppState.configureNotificationHandlers`.
+    /// Must be @MainActor so the callback body executes on the main thread.
     /// Without @MainActor, the callback runs on a background executor even when
     /// called from MainActor context, causing "Call must be made on main thread" crashes.
     public var onQuickReply: (@MainActor @Sendable (_ contactID: UUID, _ text: String) async -> Void)?
 
     /// Callback for when a notification is tapped
-    /// CRITICAL: Must be @MainActor - see onQuickReply comment.
+    /// Installed by `NavigationCoordinator.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onNotificationTapped: (@MainActor @Sendable (_ contactID: UUID) async -> Void)?
 
     /// Callback for when a channel notification is tapped
-    /// CRITICAL: Must be @MainActor - see onQuickReply comment.
+    /// Installed by `NavigationCoordinator.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onChannelNotificationTapped: (@MainActor @Sendable (_ radioID: UUID, _ channelIndex: UInt8) async -> Void)?
 
     /// Callback for when a room notification is tapped.
     /// Identified by the room's stable session ID.
+    /// Installed by `NavigationCoordinator.configureNotificationHandlers`.
     /// Must be @MainActor for main-thread callback execution; see onQuickReply.
     public var onRoomNotificationTapped: (@MainActor @Sendable (_ sessionID: UUID) async -> Void)?
 
     /// Callback for when a new contact discovered notification is tapped
-    /// CRITICAL: Must be @MainActor - see onQuickReply comment.
+    /// Installed by `NavigationCoordinator.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onNewContactNotificationTapped: (@MainActor @Sendable (_ contactID: UUID) async -> Void)?
 
     /// Callback for when a reaction notification is tapped
     /// Parameters: contactID (for DM) or nil, channelIndex/radioID (for channel) or nil, and messageID
-    /// CRITICAL: Must be @MainActor - see onQuickReply comment.
+    /// Installed by `NavigationCoordinator.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onReactionNotificationTapped: (@MainActor @Sendable (
         _ contactID: UUID?,
         _ channelIndex: UInt8?,
@@ -80,34 +86,32 @@ public final class NotificationService: NSObject {
         self.stringProvider = provider
     }
 
+    /// Read access for same-module collaborators (`NotificationActionHandler`)
+    /// that build localized display strings.
+    var strings: NotificationStringProvider? { stringProvider }
+
     /// Callback for when mark as read action is triggered
-    /// CRITICAL: Must be @MainActor - see onQuickReply comment.
+    /// Installed by `AppState.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onMarkAsRead: (@MainActor @Sendable (_ contactID: UUID, _ messageID: UUID) async -> Void)?
 
     /// Callback for when mark as read action is triggered on a channel message
     /// Includes radioID to correctly identify the channel across multiple connected devices
-    /// CRITICAL: Must be @MainActor - see onQuickReply comment.
+    /// Installed by `AppState.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onChannelMarkAsRead: (@MainActor @Sendable (_ radioID: UUID, _ channelIndex: UInt8, _ messageID: UUID) async -> Void)?
 
     /// Callback for when mark as read action is triggered on a room message.
     /// Identified by the room's stable session ID.
-    /// Must be @MainActor - see onQuickReply comment.
+    /// Installed by `AppState.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onRoomMarkAsRead: (@MainActor @Sendable (_ sessionID: UUID, _ messageID: UUID) async -> Void)?
 
     /// Callback for when a quick reply action is triggered on a channel message.
     /// Includes radioID to correctly identify the channel across multiple connected devices.
-    /// CRITICAL: Must be @MainActor - see onQuickReply comment.
+    /// Installed by `AppState.configureNotificationHandlers`.
+    /// Must be @MainActor; see the onQuickReply comment.
     public var onChannelQuickReply: (@MainActor @Sendable (_ radioID: UUID, _ channelIndex: UInt8, _ text: String) async -> Void)?
-
-    /// Whether notifications are enabled by user preference
-    private var notificationsEnabled: Bool {
-        get {
-            UserDefaults.standard.object(forKey: "notificationsEnabled") as? Bool ?? true
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: "notificationsEnabled")
-        }
-    }
 
     /// Badge count
     public private(set) var badgeCount: Int = 0
@@ -150,6 +154,7 @@ public final class NotificationService: NSObject {
 
     /// Callback to get total unread count from data layer
     /// Returns (contactUnread, channelUnread, roomUnread) tuple for preference-aware calculation
+    /// Installed by `AppState.wireServicesIfConnected`.
     public var getBadgeCount: (@Sendable () async -> (contacts: Int, channels: Int, rooms: Int))?
 
     /// Cached notification preferences (refreshed on each badge update)
@@ -293,7 +298,7 @@ public final class NotificationService: NSObject {
         isMuted: Bool = false
     ) async {
         guard !isMuted else { return }
-        guard isAuthorized && notificationsEnabled else { return }
+        guard isAuthorized else { return }
 
         // Check granular preference (uses cached preferences)
         guard preferences.contactMessagesEnabled else { return }
@@ -351,7 +356,7 @@ public final class NotificationService: NSObject {
     ) async {
         guard notificationLevel != .muted else { return }
         guard notificationLevel != .mentionsOnly || hasSelfMention else { return }
-        guard isAuthorized && notificationsEnabled else { return }
+        guard isAuthorized else { return }
 
         // Check granular preference (uses cached preferences)
         guard preferences.channelMessagesEnabled else { return }
@@ -410,7 +415,7 @@ public final class NotificationService: NSObject {
         notificationLevel: NotificationLevel
     ) async {
         guard notificationLevel != .muted else { return }
-        guard isAuthorized && notificationsEnabled else { return }
+        guard isAuthorized else { return }
 
         // Check granular preference
         guard preferences.roomMessagesEnabled else { return }
@@ -466,7 +471,7 @@ public final class NotificationService: NSObject {
         contactID: UUID,
         contactType: ContactType
     ) async {
-        guard isAuthorized && notificationsEnabled else { return }
+        guard isAuthorized else { return }
 
         // Check granular preference
         guard preferences.newContactDiscoveredEnabled else { return }
@@ -484,7 +489,9 @@ public final class NotificationService: NSObject {
 
         let content = UNMutableNotificationContent()
         content.title = title
-        content.body = contactName
+        content.body = contactName.isEmpty
+            ? (stringProvider?.unknownContactName ?? "Unknown Contact")
+            : contactName
         content.sound = preferences.soundEnabled ? .default : nil
         content.threadIdentifier = "discovery"
         content.userInfo = [
@@ -530,7 +537,7 @@ public final class NotificationService: NSObject {
         channelIndex: UInt8?,
         radioID: UUID?
     ) async {
-        guard isAuthorized && notificationsEnabled else { return }
+        guard isAuthorized else { return }
 
         // Check reaction-specific preference
         guard preferences.reactionNotificationsEnabled else { return }
@@ -617,8 +624,9 @@ public final class NotificationService: NSObject {
         guard isAuthorized else { return }
 
         let content = UNMutableNotificationContent()
-        content.title = "Message Not Sent"
-        content.body = "Your reply to \(contactName) couldn't be sent."
+        content.title = stringProvider?.quickReplyFailedTitle ?? "Message Not Sent"
+        content.body = stringProvider?.quickReplyFailedBody(conversationName: contactName)
+            ?? "Your reply to \(contactName) couldn't be sent."
         content.sound = .default
         content.categoryIdentifier = NotificationCategory.directMessage.rawValue
         content.userInfo = [
@@ -648,8 +656,9 @@ public final class NotificationService: NSObject {
         guard isAuthorized else { return }
 
         let content = UNMutableNotificationContent()
-        content.title = "Message Not Sent"
-        content.body = "Your reply to \(channelName) couldn't be sent."
+        content.title = stringProvider?.quickReplyFailedTitle ?? "Message Not Sent"
+        content.body = stringProvider?.quickReplyFailedBody(conversationName: channelName)
+            ?? "Your reply to \(channelName) couldn't be sent."
         content.sound = .default
         content.userInfo = [
             "channelIndex": Int(channelIndex),

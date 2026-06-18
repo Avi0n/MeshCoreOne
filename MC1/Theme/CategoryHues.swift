@@ -4,7 +4,7 @@ import Foundation
 /// theme's own anchors to look good and stay distinct. The System theme pins full colors via
 /// `CategoryAvatarColors` and leaves this `nil`; a gamut theme that also leaves it `nil` falls back
 /// to a distinct on-anchor pick.
-public struct CategoryHues: Sendable, Equatable {
+struct CategoryHues: Sendable, Equatable {
     let channel: Double
     let repeater: Double
     let room: Double

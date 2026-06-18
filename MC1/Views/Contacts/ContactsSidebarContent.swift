@@ -7,7 +7,7 @@ private let sidebarLogger = Logger(subsystem: "com.mc1", category: "NodesListVie
 struct ContactsSidebarContent: View {
     @Environment(\.appState) private var appState
 
-    let viewModel: ContactsViewModel
+    @Bindable var viewModel: ContactsViewModel
     let filteredContacts: [ContactDTO]
     let isSearching: Bool
     let searchPrompt: String
@@ -25,8 +25,6 @@ struct ContactsSidebarContent: View {
     @Binding var showOfflineRefreshAlert: Bool
     @Binding var navigationPath: NavigationPath
 
-    let showErrorBinding: Binding<Bool>
-
     let onLoadContacts: () async -> Void
     let onSyncContacts: () async -> Void
     let onAnnounceOfflineStateIfNeeded: () -> Void
@@ -42,6 +40,17 @@ struct ContactsSidebarContent: View {
             viewModel: viewModel
         )
         .navigationTitle(L10n.Contacts.Contacts.List.title)
+        .navigationDestination(for: ContactRoute.self) { route in
+            switch route {
+            case .detail(let contact):
+                // Prefer the freshest row from the loaded list; fall back to the carried
+                // payload for pushes that precede a load (e.g. a notification deep link).
+                ContactDetailView(contact: viewModel.contacts.first { $0.id == contact.id } ?? contact)
+                    .id(contact.id)
+            case .blockedContacts:
+                BlockedContactsView()
+            }
+        }
         .searchable(text: $searchText, prompt: searchPrompt)
         .toolbar {
             bleStatusToolbarItem()
@@ -66,9 +75,7 @@ struct ContactsSidebarContent: View {
 
             ToolbarItem(placement: .automatic) {
                 Menu {
-                    NavigationLink {
-                        BlockedContactsView()
-                    } label: {
+                    NavigationLink(value: ContactRoute.blockedContacts) {
                         Label(L10n.Contacts.Contacts.List.blockedContacts, systemImage: "hand.raised.fill")
                     }
 
@@ -120,7 +127,11 @@ struct ContactsSidebarContent: View {
             if appState.connectionState != .ready {
                 showOfflineRefreshAlert = true
             } else {
-                await onSyncContacts()
+                // SwiftUI cancels a ScrollView's `.refreshable` task when observed state mutates
+                // mid-refresh (syncContacts sets `isSyncing`, re-evaluating this view), aborting the
+                // sync within a frame. Running it in a detached task shields it from that cancellation;
+                // awaiting the value keeps the refresh spinner up until the sync finishes.
+                await Task { await onSyncContacts() }.value
             }
         }
         .alert(L10n.Contacts.Contacts.List.cannotRefresh, isPresented: $showOfflineRefreshAlert) {
@@ -131,7 +142,11 @@ struct ContactsSidebarContent: View {
         .sensoryFeedback(.success, trigger: syncSuccessTrigger)
         .task {
             sidebarLogger.info("NodesListView: task started, services=\(appState.services != nil)")
-            viewModel.configure(appState: appState)
+            viewModel.configure(
+                dataStore: { [appState] in appState.offlineDataStore },
+                contactService: { [appState] in appState.services?.contactService },
+                advertisementService: { [appState] in appState.services?.advertisementService }
+            )
             await onLoadContacts()
             sidebarLogger.info("NodesListView: loaded, contacts=\(viewModel.contacts.count)")
             onAnnounceOfflineStateIfNeeded()
@@ -175,7 +190,7 @@ struct ContactsSidebarContent: View {
                 selectedContact = contact
             } else {
                 navigationPath.removeLast(navigationPath.count)
-                navigationPath.append(contact)
+                navigationPath.append(ContactRoute.detail(contact))
             }
 
             appState.navigation.clearPendingContactDetailNavigation()
@@ -214,12 +229,6 @@ struct ContactsSidebarContent: View {
         } message: {
             Text(L10n.Contacts.Contacts.List.distanceRequiresLocation)
         }
-        .alert(L10n.Contacts.Contacts.Common.error, isPresented: showErrorBinding) {
-            Button(L10n.Contacts.Contacts.Common.ok, role: .cancel) {
-                viewModel.errorMessage = nil
-            }
-        } message: {
-            Text(viewModel.errorMessage ?? L10n.Contacts.Contacts.Common.errorOccurred)
-        }
+        .errorAlert($viewModel.errorMessage, title: L10n.Contacts.Contacts.Common.error)
     }
 }

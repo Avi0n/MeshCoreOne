@@ -4,7 +4,7 @@ import SwiftData
 
 extension PersistenceStore {
 
-    private static let migrationLogger = Logger(subsystem: "com.pocketmesh.mc1services", category: "RadioIDMigration")
+    private static let migrationLogger = Logger(subsystem: "com.mc1", category: "RadioIDMigration")
     private static let migrationKey = "hasPopulatedRadioIDs"
 
     /// One-time migration: populate radioID on all Devices and propagate to children,
@@ -100,7 +100,7 @@ extension PersistenceStore {
 
     private static let floodScopeMigrationKey = "hasMigratedChannelFloodScope"
     private static let floodScopeMigrationLogger = Logger(
-        subsystem: "com.pocketmesh.mc1services",
+        subsystem: "com.mc1",
         category: "ChannelFloodScopeMigration"
     )
 
@@ -140,7 +140,7 @@ extension PersistenceStore {
 
     private static let repeaterUnreadMigrationKey = "hasMigratedRepeaterUnreadCounts"
     private static let repeaterUnreadMigrationLogger = Logger(
-        subsystem: "com.pocketmesh.mc1services",
+        subsystem: "com.mc1",
         category: "RepeaterUnreadMigration"
     )
 
@@ -210,7 +210,7 @@ extension PersistenceStore {
 
     private static let sortDateBackfillMigrationKey = "hasBackfilledMessageSortDate"
     private static let sortDateBackfillMigrationLogger = Logger(
-        subsystem: "com.pocketmesh.mc1services",
+        subsystem: "com.mc1",
         category: "SortDateBackfillMigration"
     )
 
@@ -236,7 +236,7 @@ extension PersistenceStore {
 
     private static let sortDateResetMigrationKey = "hasResetMessageSortDate"
     private static let sortDateResetMigrationLogger = Logger(
-        subsystem: "com.pocketmesh.mc1services",
+        subsystem: "com.mc1",
         category: "SortDateResetMigration"
     )
 

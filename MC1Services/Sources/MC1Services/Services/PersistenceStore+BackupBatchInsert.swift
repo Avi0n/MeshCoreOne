@@ -78,7 +78,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertDevices(
+    func batchInsertDevices(
         _ dtos: [DeviceDTO],
         existingKeys: Set<Data>
     ) throws -> (inserted: Int, skipped: Int) {
@@ -98,7 +98,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertContacts(
+    func batchInsertContacts(
         _ dtos: [ContactDTO],
         radioIDs: Set<UUID>
     ) throws -> (inserted: Int, skipped: Int, merged: Int, contactIDsByKey: [String: UUID]) {
@@ -140,14 +140,14 @@ extension PersistenceStore {
     /// slots whose local channel identity changed, so they — together with `droppedChannelIndices`
     /// — are the slots whose chat drafts the caller must clear. Slots reached via secret/slot
     /// merge are excluded: their occupant is unchanged, so their draft stays valid.
-    public struct ChannelBatchInsertResult: Sendable {
-        public let inserted: Int
-        public let skipped: Int
-        public let merged: Int
-        public let dropped: Int
-        public let channelIndexRemap: [UUID: [UInt8: UInt8]]
-        public let droppedChannelIndices: [UUID: Set<UInt8>]
-        public let insertedLocalIndices: [UUID: Set<UInt8>]
+    struct ChannelBatchInsertResult: Sendable {
+        let inserted: Int
+        let skipped: Int
+        let merged: Int
+        let dropped: Int
+        let channelIndexRemap: [UUID: [UInt8: UInt8]]
+        let droppedChannelIndices: [UUID: Set<UInt8>]
+        let insertedLocalIndices: [UUID: Set<UInt8>]
     }
 
     /// Reconciles backup channels against local channels by stable cryptographic identity
@@ -163,7 +163,7 @@ extension PersistenceStore {
     /// A backup channel with no free slot is dropped and reported via `skipped`; its
     /// messages are dropped by the caller because no placement exists.
     @discardableResult
-    public func batchInsertChannels(
+    func batchInsertChannels(
         _ dtos: [ChannelDTO],
         radioIDs: Set<UUID>,
         maxChannelsByRadioID: [UUID: UInt8] = [:]
@@ -300,7 +300,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertMessages(
+    func batchInsertMessages(
         _ dtos: [MessageDTO],
         existingKeys: Set<String>,
         existingIDsByKey: [String: [UUID]]
@@ -344,7 +344,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertMessageRepeats(
+    func batchInsertMessageRepeats(
         _ dtos: [MessageRepeatDTO],
         existingIDs: Set<UUID>,
         existingMessageIDs: Set<UUID>
@@ -372,7 +372,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertReactions(
+    func batchInsertReactions(
         _ dtos: [ReactionDTO],
         existingKeys: Set<String>,
         existingMessageIDs: Set<UUID>
@@ -389,7 +389,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertRoomMessages(
+    func batchInsertRoomMessages(
         _ dtos: [RoomMessageDTO],
         existingKeys: Set<String>,
         existingSessionIDs: Set<UUID>
@@ -406,7 +406,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertRemoteNodeSessions(
+    func batchInsertRemoteNodeSessions(
         _ dtos: [RemoteNodeSessionDTO],
         radioIDs: Set<UUID>
     ) throws -> (inserted: Int, skipped: Int, merged: Int, sessionIDsByKey: [String: UUID]) {
@@ -439,7 +439,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertSavedTracePaths(
+    func batchInsertSavedTracePaths(
         _ dtos: [SavedTracePathDTO]
     ) throws -> (inserted: Int, skipped: Int, merged: Int) {
         guard !dtos.isEmpty else { return (0, 0, 0) }
@@ -453,30 +453,32 @@ extension PersistenceStore {
             return try modelContext.fetch(FetchDescriptor(predicate: predicate))
         }
         var existingPathsByKey: [String: SavedTracePath] = [:]
-        var existingRunIDsByPathID: [UUID: Set<UUID>] = [:]
 
         for path in existingPaths {
             let pathKey = savedTracePathKey(radioID: path.radioID, pathBytes: path.pathBytes, hashSize: path.hashSize)
             existingPathsByKey[pathKey] = path
-            existingRunIDsByPathID[path.id] = Set(path.runs.map(\.id))
         }
+
+        // Run ids are globally unique (`TracePathRun.id` is `.unique`), so dedupe
+        // store-wide, not per path: inserting a run whose id already exists
+        // anywhere would upsert the existing row and silently relocate it under
+        // a different path.
+        var seenRunIDs = Set(try modelContext.fetch(FetchDescriptor<TracePathRun>()).map(\.id))
 
         for dto in dtos {
             let key = savedTracePathKey(radioID: dto.radioID, pathBytes: dto.pathBytes, hashSize: dto.hashSize)
             if let existingPath = existingPathsByKey[key] {
                 skipped += 1
-                var existingRunIDs = existingRunIDsByPathID[existingPath.id] ?? []
                 var appendedRun = false
 
-                for runDTO in dto.runs where !existingRunIDs.contains(runDTO.id) {
+                for runDTO in dto.runs where !seenRunIDs.contains(runDTO.id) {
                     let run = try TracePathRun(dto: runDTO)
                     run.savedPath = existingPath
                     modelContext.insert(run)
-                    existingRunIDs.insert(runDTO.id)
+                    seenRunIDs.insert(runDTO.id)
                     appendedRun = true
                 }
 
-                existingRunIDsByPathID[existingPath.id] = existingRunIDs
                 if appendedRun {
                     merged += 1
                 }
@@ -493,24 +495,22 @@ extension PersistenceStore {
             )
             modelContext.insert(path)
 
-            var insertedRunIDs: Set<UUID> = []
             for runDTO in dto.runs {
-                guard !insertedRunIDs.contains(runDTO.id) else { continue }
+                guard !seenRunIDs.contains(runDTO.id) else { continue }
                 let run = try TracePathRun(dto: runDTO)
                 run.savedPath = path
                 modelContext.insert(run)
-                insertedRunIDs.insert(runDTO.id)
+                seenRunIDs.insert(runDTO.id)
             }
 
             existingPathsByKey[key] = path
-            existingRunIDsByPathID[path.id] = insertedRunIDs
             inserted += 1
         }
         return (inserted, skipped, merged)
     }
 
     @discardableResult
-    public func batchInsertBlockedChannelSenders(
+    func batchInsertBlockedChannelSenders(
         _ dtos: [BlockedChannelSenderDTO],
         existingKeys: Set<String>
     ) throws -> (inserted: Int, skipped: Int) {
@@ -523,7 +523,7 @@ extension PersistenceStore {
     }
 
     @discardableResult
-    public func batchInsertNodeStatusSnapshots(
+    func batchInsertNodeStatusSnapshots(
         _ dtos: [NodeStatusSnapshotDTO],
         existingKeys: Set<String>
     ) throws -> (inserted: Int, skipped: Int) {

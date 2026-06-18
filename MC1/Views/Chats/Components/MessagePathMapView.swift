@@ -104,7 +104,7 @@ struct MessagePathMapView: View {
                     }
                 }
             }
-            .navigationTitle(L10n.Chats.Chats.Path.title)
+            .navigationTitle(L10n.Chats.Chats.Path.map)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

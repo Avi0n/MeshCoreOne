@@ -156,6 +156,27 @@
 /* Location: RxLogViewModel.swift - Decrypt filter: failed */
 "tools.rxLog.filter.failed" = "Неудачные";
 
+/* Location: DecryptStatus+Display.swift - Decrypt status: not a decryptable packet */
+"tools.rxLog.decryptStatus.notApplicable" = "Н/Д";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: no stored channel key matches */
+"tools.rxLog.decryptStatus.noKey" = "Нет ключа";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: HMAC validation failed */
+"tools.rxLog.decryptStatus.hmacFailed" = "Ошибка HMAC";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: AES decryption failed */
+"tools.rxLog.decryptStatus.decryptFailed" = "Ошибка расшифровки";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: decrypted successfully */
+"tools.rxLog.decryptStatus.decrypted" = "Расшифровано";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: key found, decryption pending */
+"tools.rxLog.decryptStatus.hasKey" = "Есть ключ";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: missing direct message key */
+"tools.rxLog.decryptStatus.noDmKey" = "Нет ключа ЛС";
+
 /* Location: RxLogRowView - Label for local device in path display */
 "tools.rxLog.pathYou" = "Вы";
 
@@ -492,9 +513,6 @@
 /* Location: ResultsCardView.swift - Clearance section title */
 "tools.lineOfSight.clearance" = "Зазор";
 
-/* Location: ResultsCardView.swift - Worst clearance label */
-"tools.lineOfSight.worstClearance" = "Наименьший зазор (% от 1-й зоны Френеля)";
-
 /* Location: ResultsCardView.swift - Obstructions found label */
 "tools.lineOfSight.obstructionsFound" = "Найдено препятствий";
 
@@ -507,23 +525,26 @@
 /* Location: ResultsCardView.swift - Worst clearance short label */
 "tools.lineOfSight.worstClearanceShort" = "Наименьший зазор";
 
+/* Location: ResultsCardView.swift - Assumptions footnote; %1$@ is frequency, %2$@ is k-factor */
+"tools.lineOfSight.assumptions" = "%1$@, %2$@, порог 60 %% 1-й зоны Френеля";
+
 /* Location: ClearanceStatusView.swift - Clearance percentage, %lld is percent */
 "tools.lineOfSight.clearancePercent" = "%lld%% зазора";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: clear */
-"tools.lineOfSight.status.clear" = "Clear";
+"tools.lineOfSight.status.clear" = "Открыто";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: marginal */
-"tools.lineOfSight.status.marginal" = "Marginal";
+"tools.lineOfSight.status.marginal" = "На грани";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: partial obstruction */
-"tools.lineOfSight.status.partialObstruction" = "Partial obstruction";
+"tools.lineOfSight.status.partialObstruction" = "Частичное препятствие";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: blocked */
-"tools.lineOfSight.status.blocked" = "Blocked";
+"tools.lineOfSight.status.blocked" = "Заблокировано";
 
 /* Location: ResultsCardView.swift - Subtitle shown when path is blocked */
-"tools.lineOfSight.status.blockedSubtitle" = "Direct path intersects terrain";
+"tools.lineOfSight.status.blockedSubtitle" = "Прямой путь пересекает рельеф";
 
 // MARK: - CLI Tool View
 
@@ -552,7 +573,7 @@
 "tools.cli.sessionListHeader" = "Активные сессии:";
 
 /* Location: CLIToolView.swift - Local session label */
-"tools.cli.sessionLocal" = "local";
+"tools.cli.sessionLocal" = "локально";
 
 /* Location: CLIToolView.swift - No sessions message */
 "tools.cli.noSessions" = "Нет активных сессий";
@@ -730,3 +751,14 @@
 
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */
 "tools.cli.completionSuggestionsValue" = "%lld доступно, %@ выбрано";
+
+// MARK: - Saved Paths
+
+/* Location: SavedPathsViewModel.swift - Error loading saved paths */
+"tools.savedPaths.loadFailed" = "Не удалось загрузить сохранённые пути.";
+
+/* Location: SavedPathsViewModel.swift - Error renaming a saved path */
+"tools.savedPaths.renameFailed" = "Не удалось переименовать путь.";
+
+/* Location: SavedPathsViewModel.swift - Error deleting a saved path */
+"tools.savedPaths.deleteFailed" = "Не удалось удалить путь.";

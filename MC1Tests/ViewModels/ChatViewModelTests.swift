@@ -270,7 +270,8 @@ struct ChatViewModelTests {
             showMapPreviews: EnvInputs.default.showMapPreviews,
             isOffline: EnvInputs.default.isOffline,
             currentUserName: EnvInputs.default.currentUserName,
-            themeID: EnvInputs.default.themeID
+            themeID: EnvInputs.default.themeID,
+            contentSizeCategory: EnvInputs.default.contentSizeCategory
         )
         viewModel.applyEnvInputs(darkEnv)
         await coordinator.buildItemsTask?.value
@@ -308,7 +309,8 @@ struct ChatViewModelTests {
             showMapPreviews: EnvInputs.default.showMapPreviews,
             isOffline: EnvInputs.default.isOffline,
             currentUserName: EnvInputs.default.currentUserName,
-            themeID: Theme.ember.id
+            themeID: Theme.ember.id,
+            contentSizeCategory: EnvInputs.default.contentSizeCategory
         )
         viewModel.applyEnvInputs(emberEnv)
         await coordinator.buildItemsTask?.value

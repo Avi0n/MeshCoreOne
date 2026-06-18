@@ -77,11 +77,27 @@ final class NodeDiscoveryViewModel {
 
     // MARK: - Dependencies
 
-    private var session: MeshCoreSession?
-    private var dataStore: PersistenceStore?
-    private var radioID: UUID?
-    private var contactService: ContactService?
-    private var maxContacts: UInt16?
+    struct Dependencies {
+        var session: @MainActor () -> MeshCoreSession?
+        var dataStore: @MainActor () -> PersistenceStore?
+        var radioID: @MainActor () -> UUID?
+        var contactService: @MainActor () -> ContactService?
+        var maxContacts: @MainActor () -> UInt16?
+    }
+
+    private var deps = Dependencies(
+        session: { nil },
+        dataStore: { nil },
+        radioID: { nil },
+        contactService: { nil },
+        maxContacts: { nil }
+    )
+
+    private var session: MeshCoreSession? { deps.session() }
+    private var dataStore: PersistenceStore? { deps.dataStore() }
+    private var radioID: UUID? { deps.radioID() }
+    private var contactService: ContactService? { deps.contactService() }
+    private var maxContacts: UInt16? { deps.maxContacts() }
 
     // MARK: - Tasks
 
@@ -94,12 +110,9 @@ final class NodeDiscoveryViewModel {
 
     // MARK: - Configuration
 
-    func configure(appState: AppState) {
-        self.session = appState.services?.session
-        self.dataStore = appState.offlineDataStore
-        self.radioID = appState.connectedDevice?.radioID
-        self.contactService = appState.services?.contactService
-        self.maxContacts = appState.connectedDevice?.maxContacts
+    /// Configure with the session, store, and services this view model uses; a provider returning nil mirrors a disconnected state.
+    func configure(dependencies: Dependencies) {
+        deps = dependencies
     }
 
     // MARK: - Scan
@@ -152,7 +165,7 @@ final class NodeDiscoveryViewModel {
                 // Normal timeout cancellation — not an error
             } catch {
                 Self.logger.error("Node discovery failed: \(error.localizedDescription)")
-                self.errorMessage = error.localizedDescription
+                self.errorMessage = error.userFacingMessage
             }
 
             self.finishScan()
@@ -253,7 +266,7 @@ final class NodeDiscoveryViewModel {
                     publicKey: result.publicKey,
                     type: ContactType(rawValue: result.nodeType) ?? .repeater,
                     flags: 0,
-                    outPathLength: 0xFF,
+                    outPathLength: PacketBuilder.floodPathSentinel,
                     outPath: Data(),
                     name: result.name,
                     lastAdvertTimestamp: 0,
@@ -272,7 +285,7 @@ final class NodeDiscoveryViewModel {
                 }
                 self?.addErrorHapticTrigger += 1
             } catch {
-                self?.errorMessage = error.localizedDescription
+                self?.errorMessage = error.userFacingMessage
                 self?.addErrorHapticTrigger += 1
             }
             self?.addingPublicKey = nil

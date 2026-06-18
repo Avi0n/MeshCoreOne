@@ -33,5 +33,26 @@
             <string>%d переходу</string>
         </dict>
     </dict>
+    <!-- Circuit-breaker error: plural form of consecutive failures -->
+    <key>error.channelService.circuitBreakerOpen</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>lld</string>
+            <key>one</key>
+            <string>Синхронізацію каналів призупинено після %lld послідовного збою.</string>
+            <key>few</key>
+            <string>Синхронізацію каналів призупинено після %lld послідовних збоїв.</string>
+            <key>many</key>
+            <string>Синхронізацію каналів призупинено після %lld послідовних збоїв.</string>
+            <key>other</key>
+            <string>Синхронізацію каналів призупинено після %lld послідовних збоїв.</string>
+        </dict>
+    </dict>
 </dict>
 </plist>

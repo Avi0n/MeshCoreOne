@@ -1,7 +1,7 @@
 import Testing
 import CoreLocation
 import Foundation
-import MC1Services
+@testable import MC1Services
 @testable import MC1
 
 @Suite("ChatShareMenu predicate tests")

@@ -352,7 +352,7 @@ struct MessageServiceSendTests {
         }
     }
 
-    @Test("resendChannelMessage writes .sent before firing messageResentHandler and refreshes counts")
+    @Test("resendChannelMessage writes .sent before broadcasting .resent and refreshes counts")
     @MainActor
     func resendChannelMessageFiresResentHandlerAfterDBWrite() async throws {
         let transport = MockTransport()
@@ -367,7 +367,7 @@ struct MessageServiceSendTests {
 
         let container = try PersistenceStore.createContainer(inMemory: true)
         let dataStore = PersistenceStore(modelContainer: container)
-        let service = MessageService(session: session, dataStore: dataStore)
+        let service = MessageService(session: session, dataStore: dataStore, contactService: nil)
 
         let messageID = UUID()
         let failed = MessageDTO.testChannelMessage(
@@ -380,10 +380,7 @@ struct MessageServiceSendTests {
         )
         try await dataStore.saveMessage(failed)
 
-        let tracker = MessageResentTracker()
-        await service.setMessageResentHandler { id in
-            await tracker.record(id)
-        }
+        let statusEvents = service.statusEvents()
 
         let resendTask = Task { try await service.resendChannelMessage(messageID: messageID) }
 
@@ -394,16 +391,16 @@ struct MessageServiceSendTests {
 
         _ = try await resendTask.value
 
-        let recorded = await tracker.resentIDs
-        #expect(recorded == [messageID], "messageResentHandler must fire exactly once with the resent ID")
+        let recorded = await service.drainStatusEvents(statusEvents).resentIDs
+        #expect(recorded == [messageID], ".resent must broadcast exactly once with the resent ID")
 
         let stored = try await dataStore.fetchMessage(id: messageID)
-        #expect(stored?.status == .sent, "resend must write .sent to the DB before firing the handler")
+        #expect(stored?.status == .sent, "resend must write .sent to the DB before broadcasting .resent")
         #expect(stored?.heardRepeats == 0, "resend must reset heardRepeats to 0")
         #expect(stored?.sendCount == 2, "resend must increment sendCount from 1 to 2")
     }
 
-    @Test("resendDirectMessage increments sendCount and fires messageResentHandler on a successful resend")
+    @Test("resendDirectMessage increments sendCount and broadcasts .resent on a successful resend")
     @MainActor
     func resendDirectMessageBumpsSendCountAndFiresResentHandler() async throws {
         let transport = MockTransport()
@@ -421,7 +418,7 @@ struct MessageServiceSendTests {
 
         let container = try PersistenceStore.createContainer(inMemory: true)
         let dataStore = PersistenceStore(modelContainer: container)
-        let service = MessageService(session: session, dataStore: dataStore)
+        let service = MessageService(session: session, dataStore: dataStore, contactService: nil)
 
         let messageID = UUID()
         let contactID = UUID()
@@ -437,10 +434,7 @@ struct MessageServiceSendTests {
         )
         try await dataStore.saveMessage(delivered)
 
-        let tracker = MessageResentTracker()
-        await service.setMessageResentHandler { id in
-            await tracker.record(id)
-        }
+        let statusEvents = service.statusEvents()
 
         // Pre-populate the pending-ack entry as already delivered so the
         // retry loop short-circuits after sendMessage returns.
@@ -472,16 +466,16 @@ struct MessageServiceSendTests {
 
         _ = try await resendTask.value
 
-        let recorded = await tracker.resentIDs
+        let recorded = await service.drainStatusEvents(statusEvents).resentIDs
         #expect(recorded == [messageID],
-                "messageResentHandler must fire exactly once on successful DM resend")
+                ".resent must broadcast exactly once on successful DM resend")
 
         let stored = try await dataStore.fetchMessage(id: messageID)
         #expect(stored?.sendCount == 2,
                 "successful resendDirectMessage must increment sendCount from 1 to 2")
     }
 
-    @Test("sendPendingDirectMessage does not bump sendCount or fire messageResentHandler on first send")
+    @Test("sendPendingDirectMessage does not bump sendCount or broadcast .resent on first send")
     @MainActor
     func sendPendingDirectMessageDoesNotBumpSendCount() async throws {
         let transport = MockTransport()
@@ -499,7 +493,7 @@ struct MessageServiceSendTests {
 
         let container = try PersistenceStore.createContainer(inMemory: true)
         let dataStore = PersistenceStore(modelContainer: container)
-        let service = MessageService(session: session, dataStore: dataStore)
+        let service = MessageService(session: session, dataStore: dataStore, contactService: nil)
 
         let messageID = UUID()
         let contactID = UUID()
@@ -515,10 +509,7 @@ struct MessageServiceSendTests {
         )
         try await dataStore.saveMessage(pending)
 
-        let tracker = MessageResentTracker()
-        await service.setMessageResentHandler { id in
-            await tracker.record(id)
-        }
+        let statusEvents = service.statusEvents()
 
         // Pre-populate the pending-ack entry as already delivered so the
         // retry loop short-circuits after sendMessage returns.
@@ -550,9 +541,9 @@ struct MessageServiceSendTests {
 
         _ = try await sendTask.value
 
-        let recorded = await tracker.resentIDs
+        let recorded = await service.drainStatusEvents(statusEvents).resentIDs
         #expect(recorded.isEmpty,
-                "messageResentHandler must not fire on first send")
+                ".resent must not broadcast on first send")
 
         let stored = try await dataStore.fetchMessage(id: messageID)
         #expect(stored?.sendCount == 1,
@@ -722,5 +713,230 @@ struct MessageServiceSendTests {
         let stored = try await dataStore.fetchMessage(id: messageID)
         #expect(stored?.status == .delivered,
                 "finalizeSend exhaustion path must not downgrade a delivered row")
+    }
+
+    // MARK: - Retry exhaustion leaves .sent, never premature .failed
+
+    @Test("retry exhaustion leaves the DM .sent with its pending entry alive, never prematurely .failed")
+    @MainActor
+    func retryExhaustionLeavesSentNotFailed() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 10)
+        )
+        let startTask = Task { try await session.start() }
+        try await waitUntil("session should send app start") {
+            await transport.sentData.count == 1
+        }
+        await transport.simulateReceive(makeSelfInfoPacket())
+        try await startTask.value
+        defer { Task { await session.stop() } }
+
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let dataStore = PersistenceStore(modelContainer: container)
+        // maxAttempts 2 so the loop writes .retrying once; floodAfter high so no path reset fires.
+        let service = MessageService(
+            session: session,
+            dataStore: dataStore,
+            contactService: nil,
+            config: MessageServiceConfig(maxAttempts: 2, floodAfter: 5, minTimeout: 0)
+        )
+
+        let contact = ContactDTO.testContact(id: UUID(), radioID: testDeviceID)
+        let statusEvents = service.statusEvents()
+        let ackCode = Data([0xA1, 0xB2, 0xC3, 0xD4])
+
+        // Accept every CMD_SEND_TXT_MSG with a messageSent frame so session.sendMessage
+        // returns, but never emit the end-to-end 0x82 ACK, so each attempt's
+        // waitForEvent times out and the loop exhausts to nil.
+        let responder = Task {
+            var responded = 1 // app start already accounted for
+            while !Task.isCancelled {
+                let count = await transport.sentData.count
+                if count > responded {
+                    responded = count
+                    var msgSent = Data([ResponseCode.messageSent.rawValue])
+                    msgSent.append(0)
+                    msgSent.append(ackCode)
+                    msgSent.append(uint32Bytes(10)) // ~12ms ack window
+                    await transport.simulateReceive(msgSent)
+                }
+                await Task.yield()
+            }
+        }
+        defer { responder.cancel() }
+
+        let sent = try await service.sendMessageWithRetry(text: "exhaust me", to: contact)
+
+        #expect(sent.status == .sent, "retry exhaustion must leave the row .sent, not .failed")
+        #expect(try await dataStore.fetchMessage(id: sent.id)?.status == .sent)
+        #expect(await service.pendingAckCount == 1,
+                "the pending entry must survive so checkExpiredAcks owns the single give-up")
+
+        let events = await service.drainStatusEvents(statusEvents)
+        #expect(!events.failedIDs.contains(sent.id), "no premature .failed on retry exhaustion")
+        #expect(!events.retryUpdates.isEmpty, "at least one .retrying must have fired (drove >1 attempt)")
+        #expect(events.resolvedIDs.contains(sent.id), "the nil branch must yield .statusResolved(.sent)")
+    }
+
+    @Test("a genuine send exception still fails the DM through the outer catch")
+    @MainActor
+    func genuineSendFailureStillFails() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 10)
+        )
+        let startTask = Task { try await session.start() }
+        try await waitUntil("session should send app start") {
+            await transport.sentData.count == 1
+        }
+        await transport.simulateReceive(makeSelfInfoPacket())
+        try await startTask.value
+        defer { Task { await session.stop() } }
+
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let dataStore = PersistenceStore(modelContainer: container)
+        let service = MessageService(session: session, dataStore: dataStore, contactService: nil)
+
+        let contact = ContactDTO.testContact(id: UUID(), radioID: testDeviceID)
+
+        // Every send after app start throws, simulating a transport drop.
+        await transport.failSends(fromSendIndex: 2)
+
+        await #expect(throws: (any Error).self) {
+            _ = try await service.sendMessageWithRetry(text: "boom", to: contact)
+        }
+
+        let stored = try await dataStore.fetchMessages(contactID: contact.id, limit: 10, offset: 0).first
+        #expect(stored?.status == .failed,
+                "a genuine send failure must still reach .failed via the outer catch")
+    }
+
+    @Test("checkExpiredAcks cannot fail a DM while its retry loop is still inside waitForEvent")
+    @MainActor
+    func giveUpCannotFireMidLoop() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 20)
+        )
+        let startTask = Task { try await session.start() }
+        try await waitUntil("session should send app start") {
+            await transport.sentData.count == 1
+        }
+        await transport.simulateReceive(makeSelfInfoPacket())
+        try await startTask.value
+        defer { Task { await session.stop() } }
+
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let dataStore = PersistenceStore(modelContainer: container)
+        // The manual checkExpiredAcks call runs immediately after the send, so
+        // the elapsed time since the just-re-stamped sentAt is ~0s, far under the
+        // default give-up window; the global checker must not fire while the loop
+        // holds a freshly re-stamped entry.
+        let service = MessageService(
+            session: session,
+            dataStore: dataStore,
+            contactService: nil,
+            config: MessageServiceConfig(maxAttempts: 2, floodAfter: 5)
+        )
+
+        let contactID = UUID()
+        let contact = ContactDTO.testContact(id: contactID, radioID: testDeviceID)
+        let ackCode = Data([0x7A, 0x7B, 0x7C, 0x7D])
+
+        let sendTask = Task { try await service.sendMessageWithRetry(text: "in flight", to: contact) }
+
+        // Attempt 0's send goes out; feed a messageSent with a long ack window so
+        // the loop parks in waitForEvent with a just-re-stamped sentAt.
+        try await waitUntil("attempt 0 should send") {
+            await transport.sentData.count == 2
+        }
+        var msgSent = Data([ResponseCode.messageSent.rawValue])
+        msgSent.append(0)
+        msgSent.append(ackCode)
+        msgSent.append(uint32Bytes(15_000)) // ~18s window: the loop stays parked
+        await transport.simulateReceive(msgSent)
+
+        // Readiness: the loop's waitForEvent subscription is active.
+        await service.waitForSubscriberCount(1)
+
+        // Run the global checker mid-loop: it must not fail the in-flight DM.
+        try await service.checkExpiredAcks()
+
+        let midLoop = try await dataStore.fetchMessages(contactID: contactID, limit: 1, offset: 0).first
+        #expect(midLoop?.status != .failed,
+                "checkExpiredAcks must not fail a DM whose retry loop is still in flight")
+        #expect(await service.pendingAckCount == 1, "the in-flight entry must survive the checker tick")
+
+        // Unblock the loop so it completes cleanly (delivered).
+        await session.dispatchForTesting(.acknowledgement(code: ackCode, tripTime: 100))
+        let delivered = try await sendTask.value
+        #expect(delivered.status == .delivered)
+    }
+
+    @Test("checkExpiredAcks respects a slow-preset per-attempt timeout that exceeds a tiny give-up window")
+    @MainActor
+    func giveUpRespectsSlowPresetTimeout() async throws {
+        let transport = MockTransport()
+        let session = MeshCoreSession(
+            transport: transport,
+            configuration: SessionConfiguration(defaultTimeout: 20)
+        )
+        let startTask = Task { try await session.start() }
+        try await waitUntil("session should send app start") {
+            await transport.sentData.count == 1
+        }
+        await transport.simulateReceive(makeSelfInfoPacket())
+        try await startTask.value
+        defer { Task { await session.stop() } }
+
+        let container = try PersistenceStore.createContainer(inMemory: true)
+        let dataStore = PersistenceStore(modelContainer: container)
+        // give-up window 1s; per-attempt timeout derives from suggestedTimeoutMs 15_000 (~18s).
+        // After a 2s real wait the elapsed exceeds the 1s window but is inside the 18s attempt
+        // timeout, so max(1, 18) = 18 and the checker must leave the entry alive.
+        let service = MessageService(
+            session: session,
+            dataStore: dataStore,
+            contactService: nil,
+            config: MessageServiceConfig(maxAttempts: 2, floodAfter: 5, ackGiveUpWindow: 1)
+        )
+
+        let contactID = UUID()
+        let contact = ContactDTO.testContact(id: contactID, radioID: testDeviceID)
+        let ackCode = Data([0x7A, 0x7B, 0x7C, 0x7D])
+
+        let sendTask = Task { try await service.sendMessageWithRetry(text: "slow preset", to: contact) }
+
+        try await waitUntil("attempt 0 should send") {
+            await transport.sentData.count == 2
+        }
+        var msgSent = Data([ResponseCode.messageSent.rawValue])
+        msgSent.append(0)
+        msgSent.append(ackCode)
+        msgSent.append(uint32Bytes(15_000)) // ~18s window: the loop stays parked
+        await transport.simulateReceive(msgSent)
+
+        await service.waitForSubscriberCount(1)
+
+        // Wait 2 real seconds so elapsed > 1s window, then run the checker.
+        // Under max(1, 18) = 18 the entry must survive.
+        try await Task.sleep(for: .seconds(2))
+        try await service.checkExpiredAcks()
+
+        let midLoop = try await dataStore.fetchMessages(contactID: contactID, limit: 1, offset: 0).first
+        #expect(midLoop?.status != .failed,
+                "checkExpiredAcks must not fail a DM still inside its per-attempt ACK timeout")
+        #expect(await service.pendingAckCount == 1, "the in-flight entry must survive when timeout > window")
+
+        // Unblock the loop; it returns once the listener flips isDelivered. The
+        // in-flight waitForEvent still parks its full per-attempt timeout rather than
+        // hanging, and that timeout must exceed the give-up window to stay meaningful.
+        await session.dispatchForTesting(.acknowledgement(code: ackCode, tripTime: 100))
+        let delivered = try await sendTask.value
+        #expect(delivered.status == .delivered)
     }
 }

@@ -5,7 +5,7 @@ import Foundation
 /// `wait()` throws `CancellationError` when the calling task is
 /// cancelled before `fire()` lands; callers handle the throw with the
 /// same logic as a timeout (park the envelope, requeue).
-public actor BLETransportOpenedSignal {
+actor BLETransportOpenedSignal {
 
     private struct Waiter {
         let id: UInt64
@@ -16,13 +16,13 @@ public actor BLETransportOpenedSignal {
     private var waiters: [Waiter] = []
     private var nextWaiterID: UInt64 = 0
 
-    public init() {}
+    init() {}
 
     /// Suspend until `fire()` lands. If the signal is already armed at
     /// call time, the call returns immediately and consumes the armed
     /// flag. Throws `CancellationError` if the calling task is cancelled
     /// before the signal fires.
-    public func wait() async throws {
+    func wait() async throws {
         if armed {
             armed = false
             return
@@ -46,7 +46,7 @@ public actor BLETransportOpenedSignal {
 
     /// Mark the signal as fired. Wakes every waiter; arms the flag for
     /// the next `wait()` call if no waiters are currently suspended.
-    public func fire() {
+    func fire() {
         var anyResumed = false
         for waiter in waiters {
             waiter.continuation.resume()
@@ -62,7 +62,7 @@ public actor BLETransportOpenedSignal {
     /// send, not before each attempt. The consume-on-wait semantic in
     /// `wait()` already handles "fire landed during the previous attempt"
     /// cleanly.
-    public func clear() {
+    func clear() {
         armed = false
     }
 

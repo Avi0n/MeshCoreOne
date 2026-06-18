@@ -13,4 +13,10 @@ enum ThemeCardMetrics {
     static let gridItemMinimum: CGFloat = 160
     static let gridSpacing: CGFloat = 12
     static let gridRowInsets = EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
+
+    /// Layout for the "all themes unlocked" celebration that replaces the card grid once every
+    /// purchasable theme is owned.
+    static let allUnlockedEmojiSize: CGFloat = 56
+    static let allUnlockedSpacing: CGFloat = 12
+    static let allUnlockedVerticalPadding: CGFloat = 24
 }

@@ -5,32 +5,9 @@ import OSLog
 
 private let logger = Logger(subsystem: "com.mc1", category: "ChatConversationView")
 
-/// iPad: lets the action sheet's dismiss animation finish before presenting the
-/// next sheet — otherwise UIKit cancels the new presentation and the user sees
-/// nothing.
-private let messageActionSheetPresentationDelay: Duration = .milliseconds(300)
-
 /// Quiet period after the last keystroke before the composer draft is persisted,
 /// so rapid typing coalesces into a single write.
 private let draftSaveDebounce: Duration = .milliseconds(500)
-
-/// Point size for emoji glyphs rendered into Mac palette-menu reaction cells.
-/// Smaller than the "More" symbol size because an emoji glyph reads visually
-/// larger than an SF Symbol at the same point size.
-private let emojiPaletteGlyphSize: CGFloat = 14
-
-/// Point size for the "More" SF Symbol, matched to the menu's other glyphs.
-private let morePaletteSymbolSize: CGFloat = 17
-
-/// Number of recent emoji offered as quick reactions before the "More" button.
-private let quickReactionCount = 3
-
-/// SF Symbol for the reaction palette's "More emojis" button.
-private let moreEmojiSymbol = "face.smiling"
-
-/// Square cell each Mac palette reaction is framed to, so every cell shares the
-/// same metrics and the palette centers their glyphs uniformly.
-private let reactionPaletteCellSize: CGFloat = 24
 
 /// Unified chat conversation view supporting both DMs and Channels.
 struct ChatConversationView: View {
@@ -64,8 +41,7 @@ struct ChatConversationView: View {
     // MARK: - Sheet State
 
     @State private var showingInfo = false
-    @State private var selectedMessageForInfo: MessageDTO?
-    @State private var emojiPickerMessage: MessageDTO?
+    @State private var selectedMessageForActions: MessageDTO?
     @State private var blockSenderContext: BlockSenderContext?
     @State private var sendDMContext: SendDMContext?
     @State private var imageViewerData: ImageViewerData?
@@ -94,6 +70,7 @@ struct ChatConversationView: View {
 
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.appTheme) private var theme
 
     /// Snapshot of env-derived inputs the view model needs to construct
@@ -113,7 +90,8 @@ struct ChatConversationView: View {
             showMapPreviews: showMapPreviewThumbnails && !conversationType.suppressesMapPreviews,
             isOffline: !appState.offlineMapService.isNetworkAvailable,
             currentUserName: appState.localNodeName,
-            themeID: theme.id
+            themeID: theme.id,
+            contentSizeCategory: AppearanceToken.contentSizeCategoryToken(dynamicTypeSize)
         )
     }
 
@@ -142,15 +120,16 @@ struct ChatConversationView: View {
             unseenMentionIDs: unseenMentionIDs,
             scrollToTargetID: scrollToTargetID,
             newMessagesDividerMessageID: chatViewModel.newMessagesDividerMessageID,
+            selectedMessageForActions: $selectedMessageForActions,
             imageViewerData: $imageViewerData,
             onMentionSeen: { await markMentionSeen(messageID: $0) },
             onScrollToMention: { scrollToNextMention() },
-            onRetryMessage: { retryMessage($0) },
-            makeActionsMenu: { AnyView(messageContextMenu(for: $0)) }
+            onRetryMessage: { retryMessage($0) }
         )
         .mentionTapHandling(
             contacts: chatViewModel.allContacts,
-            radioID: conversationType.radioID
+            radioID: conversationType.radioID,
+            shouldSuppressOpen: { selectedMessageForActions != nil }
         )
         // Banner is applied innermost so its safe-area inset stacks above the
         // input bar inset that follows, placing the strip between content and
@@ -220,16 +199,11 @@ struct ChatConversationView: View {
                 }
             )
         })
-        // "More reactions" emoji picker, opened from the context menu.
-        .sheet(item: $emojiPickerMessage) { message in
-            EmojiPickerSheet(onSelect: { emoji in dispatch(.react(emoji), for: message) })
-        }
-        // Message info sheet — tap on message status row
-        .sheet(item: $selectedMessageForInfo) { message in
-            MessageInfoSheet(
-                message: message,
-                senderName: resolveSenderName(for: message)
-            )
+        // Long-press / secondary-click actions sheet. Bound to a captured value, so
+        // messages arriving behind it never re-anchor it to a different bubble.
+        .sheet(item: $selectedMessageForActions) { message in
+            messageActionsSheet(for: message)
+                .environment(\.horizontalSizeClass, horizontalSizeClass)
         }
         // Block sender sheet — channel only
         .sheet(item: $blockSenderContext) { context in
@@ -304,6 +278,11 @@ struct ChatConversationView: View {
             guard let mention = newMention else { return }
             handleIncomingMentionIfNeeded(mention.messageID)
         }
+        .onChange(of: appState.contactsVersion) { _, _ in
+            // Keep the mention-resolution snapshot fresh: a contact added after the
+            // chat opened must be tappable without reopening the screen.
+            Task { await chatViewModel.loadAllContacts(radioID: conversationType.radioID) }
+        }
         .chatErrorAlerts(chatViewModel: chatViewModel)
         // Chrome theming comes from the stack-level themedChrome on the TabView. Re-declaring it
         // on this pushed destination makes the nav bar appearance re-install after the push, which
@@ -329,8 +308,26 @@ struct ChatConversationView: View {
         }
 
         chatViewModel.configure(
-            appState: appState,
+            dependencies: ChatViewModel.Dependencies(
+                dataStore: { appState.offlineDataStore },
+                messageService: { appState.services?.messageService },
+                notificationService: { appState.services?.notificationService },
+                channelService: { appState.services?.channelService },
+                roomServerService: { appState.services?.roomServerService },
+                contactService: { appState.services?.contactService },
+                syncCoordinator: { appState.syncCoordinator },
+                connectionState: { appState.connectionState },
+                connectedDevice: { appState.connectedDevice },
+                currentRadioID: { appState.currentRadioID },
+                session: { appState.services?.session },
+                reactionService: { appState.services?.reactionService },
+                chatSendQueueService: { appState.services?.chatSendQueueService },
+                inlineImageDimensionsStore: { appState.services?.inlineImageDimensionsStore },
+                prefetchDataStore: { appState.services?.dataStore }
+            ),
+            onNavigateToMap: { appState.navigation.navigateToMap(coordinate: $0) },
             linkPreviewCache: linkPreviewCache,
+            chatCoordinatorRegistry: appState.ensureChatCoordinatorRegistry(),
             conversation: conversationType
         )
         chatViewModel.applyEnvInputs(currentEnvInputs)
@@ -615,156 +612,21 @@ struct ChatConversationView: View {
 
     // MARK: - Message Actions Sheet
 
-    /// Quick reactions + "More" rendered as a single horizontal palette row.
-    ///
-    /// `.compactMenu` produces the horizontal strip only on iOS/iPadOS; the
-    /// AppKit `NSMenu` that hosts the menu when this iPad app runs on a Mac
-    /// ignores it and stacks each button vertically. `.palette` is the style
-    /// that bridges to the AppKit palette presentation, so the Mac path uses it.
-    @ViewBuilder
-    private func reactionPalette(for message: MessageDTO) -> some View {
-        let isOnMac = ProcessInfo.processInfo.isiOSAppOnMac
-        let group = ControlGroup {
-            ForEach(Array(recentEmojisStore.recentEmojis.prefix(quickReactionCount)), id: \.self) { emoji in
-                Button {
-                    dispatch(.react(emoji), for: message)
-                } label: {
-                    // Mac renders each emoji to an image; iOS/iPadOS draws the Text.
-                    if isOnMac {
-                        emojiPaletteImage(emoji)
-                    } else {
-                        Text(emoji)
-                    }
-                }
-                .accessibilityLabel(emoji.emojiAccessibilityName)
+    /// Builds the drift-proof message actions sheet for a captured message value.
+    /// Presented via `.sheet(item:)`, which binds to the value rather than a cell,
+    /// so incoming messages reorder the table behind the modal without re-anchoring
+    /// it to a different bubble.
+    private func messageActionsSheet(for message: MessageDTO) -> MessageActionsSheet {
+        let resolution = senderResolution(for: message)
+        return MessageActionsSheet(
+            message: message,
+            senderName: resolution.displayName,
+            senderMatchKind: resolution.matchKind,
+            recentEmojis: recentEmojisStore.recentEmojis,
+            onAction: { action in
+                dispatch(action, for: message)
             }
-            Button {
-                dispatch(.moreEmojis, for: message)
-            } label: {
-                // "More" goes through the same image path as the emoji so the
-                // palette sizes and centers it identically; iOS keeps the Label.
-                if isOnMac {
-                    moreEmojiPaletteImage()
-                        .accessibilityLabel(L10n.Chats.Reactions.moreEmojis)
-                } else {
-                    Label(L10n.Chats.Reactions.moreEmojis, systemImage: moreEmojiSymbol)
-                        .environment(\.symbolVariants, .none)
-                }
-            }
-        }
-
-        if isOnMac {
-            group.controlGroupStyle(.palette)
-        } else {
-            group.controlGroupStyle(.compactMenu)
-        }
-    }
-
-    /// Draws an emoji glyph centered in a fixed square canvas for AppKit palette
-    /// menu cells, which draw an item's image rather than its text title.
-    private func emojiPaletteImage(_ emoji: String) -> Image {
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: emojiPaletteGlyphSize)
-        ]
-        let glyph = (emoji as NSString).size(withAttributes: attributes)
-        let uiImage = paletteCellImage { rect in
-            (emoji as NSString).draw(
-                at: CGPoint(x: rect.midX - glyph.width / 2, y: rect.midY - glyph.height / 2),
-                withAttributes: attributes
-            )
-        }
-        return Image(uiImage: uiImage).renderingMode(.original)
-    }
-
-    /// The "More" symbol rendered through the shared palette canvas. Its color is
-    /// baked in because the palette does not tint a pre-rendered bitmap the way it
-    /// tints the `Label` icons; `chromeTint` is nil on the default theme, where the
-    /// icons take the label color like the menu text.
-    private func moreEmojiPaletteImage() -> Image {
-        let config = UIImage.SymbolConfiguration(pointSize: morePaletteSymbolSize)
-        let tintColor = UIColor(theme.chromeTint ?? .primary)
-        let symbol = UIImage(systemName: moreEmojiSymbol, withConfiguration: config)?
-            .withTintColor(tintColor, renderingMode: .alwaysOriginal)
-        let uiImage = paletteCellImage { rect in
-            guard let symbol else { return }
-            symbol.draw(in: CGRect(
-                x: rect.midX - symbol.size.width / 2,
-                y: rect.midY - symbol.size.height / 2,
-                width: symbol.size.width,
-                height: symbol.size.height
-            ))
-        }
-        return Image(uiImage: uiImage).renderingMode(.original)
-    }
-
-    /// Renders `draw` into a fixed square canvas shared by every palette reaction
-    /// cell, so all cells have identical metrics and center their glyphs alike.
-    private func paletteCellImage(_ draw: (CGRect) -> Void) -> UIImage {
-        let size = CGSize(width: reactionPaletteCellSize, height: reactionPaletteCellSize)
-        return UIGraphicsImageRenderer(size: size).image { _ in
-            draw(CGRect(origin: .zero, size: size))
-        }
-    }
-
-    /// Native haptic-touch context menu shown on long-press of a bubble.
-    @ViewBuilder
-    private func messageContextMenu(for message: MessageDTO) -> some View {
-        let availability = MessageActionAvailability(message: message)
-
-        reactionPalette(for: message)
-
-        if availability.canReply {
-            Button {
-                dispatch(.reply, for: message)
-            } label: {
-                Label(
-                    replyWithQuote
-                        ? L10n.Chats.Chats.Message.Action.reply
-                        : L10n.Chats.Chats.Message.Action.mention,
-                    systemImage: "arrowshape.turn.up.left"
-                )
-            }
-        }
-        if availability.canSendDM {
-            Button {
-                dispatch(.sendDM, for: message)
-            } label: {
-                Label(L10n.Chats.Chats.Message.Action.sendDM, systemImage: "bubble.left.and.bubble.right")
-            }
-        }
-        Button {
-            dispatch(.copy, for: message)
-        } label: {
-            Label(L10n.Chats.Chats.Message.Action.copy, systemImage: "doc.on.doc")
-        }
-        if availability.canSendAgain {
-            Button {
-                dispatch(.sendAgain, for: message)
-            } label: {
-                Label(L10n.Chats.Chats.Message.Action.sendAgain, systemImage: "arrow.uturn.forward")
-            }
-        }
-
-        Button {
-            dispatch(.details, for: message)
-        } label: {
-            Label(L10n.Chats.Chats.Message.Action.details, systemImage: "info.circle")
-        }
-
-        Section {
-            if availability.canBlockSender {
-                Button(role: .destructive) {
-                    dispatch(.blockSender, for: message)
-                } label: {
-                    Label(L10n.Chats.Chats.Message.Action.blockSender, systemImage: "hand.raised")
-                }
-            }
-            Button(role: .destructive) {
-                dispatch(.delete, for: message)
-            } label: {
-                Label(L10n.Chats.Chats.Message.Action.delete, systemImage: "trash")
-            }
-        }
+        )
     }
 
     private func senderResolution(for message: MessageDTO) -> NodeNameResolution {
@@ -788,10 +650,6 @@ struct ChatConversationView: View {
         }
     }
 
-    private func resolveSenderName(for message: MessageDTO) -> String {
-        senderResolution(for: message).displayName
-    }
-
     // MARK: - Message Action Handling
 
     /// Dispatches a MessageAction by routing to the appropriate handler. The
@@ -803,16 +661,12 @@ struct ChatConversationView: View {
         switch action {
         case .react(let emoji):
             handleReact(emoji: emoji, for: message)
-        case .moreEmojis:
-            handleMoreEmojis(for: message)
         case .reply:
             handleReply(for: message)
         case .copy:
             handleCopy(for: message)
         case .sendAgain:
             handleSendAgain(for: message)
-        case .details:
-            handleDetails(for: message)
         case .blockSender:
             handleBlockSender(for: message)
         case .sendDM:
@@ -825,10 +679,6 @@ struct ChatConversationView: View {
     private func handleReact(emoji: String, for message: MessageDTO) {
         recentEmojisStore.recordUsage(emoji)
         Task { await chatViewModel.sendReaction(emoji: emoji, to: message) }
-    }
-
-    private func handleMoreEmojis(for message: MessageDTO) {
-        emojiPickerMessage = message
     }
 
     private func handleReply(for message: MessageDTO) {
@@ -847,7 +697,7 @@ struct ChatConversationView: View {
         // Raise the keyboard only after the actions sheet has finished dismissing;
         // a focus request issued while the sheet is still animating away is lost.
         Task {
-            try? await Task.sleep(for: messageActionSheetPresentationDelay)
+            try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
             inputFocusRequest += 1
         }
     }
@@ -860,15 +710,11 @@ struct ChatConversationView: View {
         Task { await chatViewModel.sendAgain(message) }
     }
 
-    private func handleDetails(for message: MessageDTO) {
-        selectedMessageForInfo = message
-    }
-
     private func handleBlockSender(for message: MessageDTO) {
         guard case .channel(let channel) = conversationType,
               let name = message.senderNodeName else { return }
         Task {
-            try? await Task.sleep(for: messageActionSheetPresentationDelay)
+            try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
             blockSenderContext = BlockSenderContext(senderName: name, radioID: channel.radioID)
         }
     }
@@ -877,7 +723,7 @@ struct ChatConversationView: View {
         guard case .channel(let channel) = conversationType,
               let name = message.senderNodeName else { return }
         Task {
-            try? await Task.sleep(for: messageActionSheetPresentationDelay)
+            try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
             sendDMContext = SendDMContext(senderName: name, radioID: channel.radioID)
         }
     }

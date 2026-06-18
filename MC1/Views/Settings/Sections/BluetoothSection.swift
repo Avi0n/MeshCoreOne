@@ -1,6 +1,15 @@
 import SwiftUI
 import MC1Services
 
+/// Firmware BLE pairing PIN protocol values. The firmware treats both the factory
+/// default and zero as "no custom PIN configured".
+private enum BLEPin {
+    static let firmwareDefault: UInt32 = 123456
+    static let unset: UInt32 = 0
+    /// A custom PIN must be exactly six digits.
+    static let customRange: ClosedRange<UInt32> = 100000...999999
+}
+
 /// Bluetooth PIN configuration
 struct BluetoothSection: View {
     @Environment(\.appState) private var appState
@@ -33,7 +42,7 @@ struct BluetoothSection: View {
 
     private var currentPinType: BluetoothPinType {
         guard let device = appState.connectedDevice else { return .default }
-        if device.blePin == 0 || device.blePin == 123456 {
+        if device.blePin == BLEPin.unset || device.blePin == BLEPin.firmwareDefault {
             return .default
         } else {
             return .custom
@@ -184,7 +193,7 @@ struct BluetoothSection: View {
         guard let pending = pendingPinType else { return }
         pendingPinType = nil
 
-        let pinValue: UInt32 = pending == .default ? 123456 : 0
+        let pinValue: UInt32 = pending == .default ? BLEPin.firmwareDefault : BLEPin.unset
 
         isChangingPin = true
         Task {
@@ -204,7 +213,7 @@ struct BluetoothSection: View {
                     // Expected - device reboots before BLE write callback arrives
                 }
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
                 // Revert
                 hasInitialized = false
                 pinType = currentPinType
@@ -217,7 +226,7 @@ struct BluetoothSection: View {
     }
 
     private func setCustomPin() {
-        guard let pin = UInt32(customPin), pin >= 100000, pin <= 999999 else {
+        guard let pin = UInt32(customPin), BLEPin.customRange.contains(pin) else {
             errorMessage = L10n.Settings.Bluetooth.Error.invalidPin
             customPin = ""
             // Revert
@@ -247,7 +256,7 @@ struct BluetoothSection: View {
                     // Expected - device reboots before BLE write callback arrives
                 }
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFacingMessage
                 // Revert
                 hasInitialized = false
                 pinType = currentPinType

@@ -14,8 +14,9 @@ final class NodeConfigExportViewModel {
 
     private let logger = Logger(subsystem: "com.mc1", category: "NodeConfigExportVM")
 
-    func exportConfig(appState: AppState) async {
-        guard let service = appState.services?.nodeConfigService else { return }
+    /// A nil service mirrors a disconnected state and is a no-op.
+    func exportConfig(nodeConfigService: NodeConfigService?, deviceNodeName: String?) async {
+        guard let service = nodeConfigService else { return }
 
         isExporting = true
         errorMessage = nil
@@ -27,7 +28,7 @@ final class NodeConfigExportViewModel {
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             let data = try encoder.encode(config)
 
-            let nodeName = appState.connectedDevice?.nodeName ?? config.name ?? "unknown"
+            let nodeName = deviceNodeName ?? config.name ?? "unknown"
             let sanitized = nodeName
                 .replacing(/[^a-zA-Z0-9_-]/, with: "_")
                 .replacing(/^_+|_+$/, with: "")
@@ -46,7 +47,7 @@ final class NodeConfigExportViewModel {
             showFileExporter = true
         } catch {
             logger.error("Export failed: \(error.localizedDescription)")
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
 
         isExporting = false

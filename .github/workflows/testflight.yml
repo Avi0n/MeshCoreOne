@@ -31,7 +31,7 @@ jobs:
         run: |
           brew tap FelixHerrmann/tap
           brew install xcodegen swiftgen swift-package-list
-          gem install fastlane -v 2.235.0
+          gem install fastlane -v 2.236.1
 
       - name: Setup SSH for Match
         uses: webfactory/ssh-agent@v0.10.0

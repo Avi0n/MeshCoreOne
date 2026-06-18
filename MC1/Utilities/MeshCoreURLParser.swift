@@ -12,7 +12,7 @@ enum MeshCoreURLParser {
         let name: String
         let secret: Data
 
-        var id: String { secret.hexString() }
+        var id: String { secret.uppercaseHexString() }
     }
 
     /// Parsed contact data from a meshcore://contact/add URL.

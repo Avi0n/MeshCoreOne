@@ -29,7 +29,7 @@ public actor WiFiTransport: MeshTransport {
     private var connection: NWConnection?
     private var frameDecoder = WiFiFrameDecoder()
 
-    // AsyncStream created in init, matching BLETransport pattern
+    // AsyncStream created in init so receivedData is valid before connect()
     private let dataStream: AsyncStream<Data>
     private let dataContinuation: AsyncStream<Data>.Continuation
 
@@ -70,7 +70,7 @@ public actor WiFiTransport: MeshTransport {
     public var supportsPipelinedReads: Bool { true }
 
     public init() {
-        // Create stream in init, matching BLETransport pattern
+        // Create stream in init so receivedData is valid before connect()
         let (stream, continuation) = AsyncStream<Data>.makeStream()
         self.dataStream = stream
         self.dataContinuation = continuation
@@ -149,10 +149,10 @@ public actor WiFiTransport: MeshTransport {
                 group.cancelAll()
             } catch {
                 group.cancelAll()
-                // On timeout, cancel the pending connection
-                if let err = error as? WiFiTransportError, err == .connectionTimeout {
-                    self.cancelPendingConnection()
-                }
+                // Resume the parked connection continuation on every failure path,
+                // including caller-task cancellation; the group cannot finish
+                // tearing down while that child stays suspended.
+                self.cancelPendingConnection(throwing: error)
                 throw error
             }
         }
@@ -175,8 +175,9 @@ public actor WiFiTransport: MeshTransport {
         }
     }
 
-    /// Cancels a pending connection attempt.
-    private func cancelPendingConnection() {
+    /// Cancels a pending connection attempt, resuming the parked
+    /// continuation with the error that caused the failure.
+    private func cancelPendingConnection(throwing error: Error) {
         connection?.stateUpdateHandler = nil
         connection?.cancel()
         connection = nil
@@ -184,7 +185,7 @@ public actor WiFiTransport: MeshTransport {
 
         if let continuation = connectContinuation {
             connectContinuation = nil
-            continuation.resume(throwing: WiFiTransportError.connectionTimeout)
+            continuation.resume(throwing: error)
         }
     }
 
@@ -215,7 +216,7 @@ public actor WiFiTransport: MeshTransport {
         try await withThrowingTaskGroup(of: Void.self) { group in
             group.addTask {
                 // Lock-protected continuation prevents double-resume when both
-                // contentProcessed and onCancel fire (matches BLETransport pattern)
+                // contentProcessed and onCancel fire
                 let state = OSAllocatedUnfairLock<CheckedContinuation<Void, Error>?>(initialState: nil)
 
                 try await withTaskCancellationHandler {
@@ -322,15 +323,36 @@ public actor WiFiTransport: MeshTransport {
 
                 if let error {
                     self.logger.error("Receive error: \(error.localizedDescription)")
+                    await self.handleReceiveTermination(error)
                     return
                 }
 
-                if !isComplete {
-                    guard await self._isConnected else { return }
-                    await self.startReceiving()
+                if isComplete {
+                    self.logger.info("Connection closed by peer")
+                    await self.handleReceiveTermination(nil)
+                    return
                 }
+
+                guard await self._isConnected else { return }
+                await self.startReceiving()
             }
         }
+    }
+
+    /// Tears down the connection when the receive loop observes the peer closing the
+    /// stream or a receive error, mirroring the `.failed` state transition: the data
+    /// stream finishes so the session's receive loop ends, and the disconnection
+    /// handler fires. Guarded on `_isConnected` so a `.failed` state change and a
+    /// receive error for the same loss notify exactly once.
+    private func handleReceiveTermination(_ error: Error?) {
+        guard _isConnected else { return }
+        _isConnected = false
+        connection?.stateUpdateHandler = nil
+        connection?.cancel()
+        connection = nil
+        frameDecoder.reset()
+        dataContinuation.finish()
+        disconnectionHandler?(error)
     }
 
     private func processReceivedData(_ data: Data) {

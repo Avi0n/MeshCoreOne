@@ -123,6 +123,47 @@ struct BackupIntegrationTests {
         #expect(destContacts.first?.type == .chat)
     }
 
+    // MARK: - Test 1c: Device knownRegions survives backup
+
+    /// `DeviceDTO.knownRegions` is a non-optional `[String]` that shipped before the
+    /// backup feature, so no envelope can predate it: the contract is a plain encode →
+    /// decode round-trip, not a `decodeIfPresent` legacy path. This locks that contract
+    /// at the DTO boundary so a future refactor can't drop the field from the wire format.
+    @Test("Device knownRegions survives DTO encode → decode round-trip")
+    func knownRegionsSurvivesCodableRoundTrip() throws {
+        let dto = DeviceDTO.testDevice().copy { $0.knownRegions = ["US915", "EU868"] }
+        let encoded = try JSONEncoder().encode(dto)
+        let decoded = try JSONDecoder().decode(DeviceDTO.self, from: encoded)
+        #expect(decoded.knownRegions == ["US915", "EU868"])
+    }
+
+    /// Full envelope path: regions added through the targeted, list-owning writer must
+    /// survive export → import into a fresh store, exercising the `Device(dto:)` insert
+    /// seeding the restore relies on.
+    @Test("Device knownRegions survives full backup export → import into a fresh store")
+    func knownRegionsSurvivesBackupPipeline() async throws {
+        let radioID = UUID()
+        let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+        // Discovery owns knownRegions through the targeted add path, not a full saveDevice.
+        try await sourceStore.addDeviceKnownRegion(radioID: radioID, region: "US915")
+        try await sourceStore.addDeviceKnownRegion(radioID: radioID, region: "EU868")
+
+        let service = AppBackupService()
+        let exportResult = try await service.export(persistenceStore: sourceStore)
+        let envelope = try parseBackup(data: exportResult.data)
+        #expect(envelope.devices.first?.knownRegions == ["US915", "EU868"])
+
+        let destContainer = try PersistenceStore.createContainer(inMemory: true)
+        let destStore = PersistenceStore(modelContainer: destContainer)
+        let result = try await service.importBackup(envelope: envelope, into: destStore)
+        #expect(result.devicesInserted == 1)
+
+        // Import re-mints Device.id; radioID is the surviving partition key.
+        let restored = try #require(await destStore.fetchDevice(radioID: radioID))
+        #expect(restored.knownRegions == ["US915", "EU868"])
+    }
+
     // MARK: - Test 2: Cross-bundle radioID remapping
 
     /// When the target store contains a device with the same publicKey as the backup but a
@@ -545,6 +586,63 @@ struct BackupIntegrationTests {
         let deduplicatedPath = try #require(await destStore.fetchSavedTracePath(id: existingPath.id))
         #expect(deduplicatedPath.runs.count == 2)
         #expect(Set(deduplicatedPath.runs.map(\.id)) == Set([existingRun.id, importedRun.id]))
+    }
+
+    // MARK: - Test 9b: Cross-path run id reuse never relocates a run
+
+    @Test("Import reusing a local run's id under a different path drops the duplicate run rather than relocating it")
+    func importReusingRunIDUnderDifferentPath_DropsDuplicate() async throws {
+        let radioID = UUID()
+        let pathABytes = Data([0x12, 0x34, 0x56, 0x78])
+        let pathBBytes = Data([0xAB, 0xCD, 0xEF, 0x01])
+        let sharedRunID = UUID()
+
+        let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+        // Local path A owns run R.
+        let runR = TracePathRunDTO.testRun(id: sharedRunID, roundTripMs: 180)
+        let pathA = try await destStore.createSavedTracePath(
+            radioID: radioID,
+            name: "Path A",
+            pathBytes: pathABytes,
+            hashSize: 1,
+            initialRun: runR
+        )
+
+        // Backup path B is a distinct path whose run reuses R's id.
+        let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+        let backupPathB = SavedTracePathDTO.testPath(
+            radioID: radioID,
+            name: "Path B",
+            pathBytes: pathBBytes,
+            hashSize: 1,
+            runs: [TracePathRunDTO.testRun(id: sharedRunID, roundTripMs: 999)]
+        )
+        let envelope = AppBackupEnvelope.test(
+            devices: [device],
+            savedTracePaths: [backupPathB]
+        )
+
+        let service = AppBackupService()
+        let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+        // Path B is a new path, but its duplicate-id run is dropped store-wide.
+        #expect(result.savedTracePathsInserted == 1)
+
+        let allPaths = try await destStore.fetchSavedTracePaths(radioID: radioID)
+        #expect(allPaths.count == 2)
+
+        // Run R stays under path A; path B gains no run.
+        let pathAAfter = try #require(await destStore.fetchSavedTracePath(id: pathA.id))
+        #expect(pathAAfter.runs.count == 1)
+        #expect(pathAAfter.runs.first?.id == sharedRunID)
+
+        let pathBAfter = try #require(allPaths.first { $0.pathBytes == pathBBytes })
+        #expect(pathBAfter.runs.isEmpty)
+
+        // The run exists exactly once in the whole store.
+        let totalRuns = allPaths.reduce(0) { $0 + $1.runs.count }
+        #expect(totalRuns == 1)
     }
 
     // MARK: - Test 10: Orphaned radio-scoped data survives export/import
@@ -2863,6 +2961,40 @@ struct BackupIntegrationTests {
         let encoded = try JSONEncoder().encode(populated)
         let decoded = try JSONDecoder().decode(MessageDTO.self, from: encoded)
         #expect(decoded == populated)
+    }
+
+    @Test("saveMessage persists send metadata and preview fields through export and import")
+    func saveMessagePreservesMetadataThroughBackupRoundTrip() async throws {
+        let radioID = UUID()
+        let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+        var msg = MessageDTO.testDirectMessage(radioID: radioID, sendCount: 3)
+        msg.deduplicationKey = "save-message-fields-\(UUID())"
+        msg.linkPreviewURL = "https://example.com"
+        msg.linkPreviewTitle = "Example"
+        msg.reactionSummary = "👍:2"
+        try await sourceStore.saveMessage(msg)
+
+        // saveMessage routes through Message(dto:), so the live row keeps every DTO field.
+        let savedRow = try #require(await sourceStore.fetchMessage(id: msg.id))
+        #expect(savedRow.sendCount == 3)
+        #expect(savedRow.linkPreviewURL == "https://example.com")
+        #expect(savedRow.linkPreviewTitle == "Example")
+        #expect(savedRow.reactionSummary == "👍:2")
+
+        let service = AppBackupService()
+        let exportResult = try await service.export(persistenceStore: sourceStore)
+        let envelope = try parseBackup(data: exportResult.data)
+
+        let destContainer = try PersistenceStore.createContainer(inMemory: true)
+        let destStore = PersistenceStore(modelContainer: destContainer)
+        _ = try await service.importBackup(envelope: envelope, into: destStore)
+
+        let imported = try #require(await destStore.fetchMessage(id: msg.id))
+        #expect(imported.sendCount == 3)
+        #expect(imported.linkPreviewURL == "https://example.com")
+        #expect(imported.linkPreviewTitle == "Example")
+        #expect(imported.reactionSummary == "👍:2")
     }
 
     // MARK: - selectedThemeID backup contract

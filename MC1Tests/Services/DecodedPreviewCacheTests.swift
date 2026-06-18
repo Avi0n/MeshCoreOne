@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 import UIKit
-import MC1Services
+@testable import MC1Services
 @testable import MC1
 
 @Suite("DecodedPreviewCache Tests")

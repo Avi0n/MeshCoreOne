@@ -7,6 +7,13 @@ struct ResolvedNode<T: RepeaterResolvable>: Sendable {
     let matchKind: NodeNameMatchKind
 }
 
+/// A single routing hop (hash bytes shown as hex) resolved to a repeater name, ready to display.
+struct ResolvedPathHop: Identifiable, Sendable {
+    let id: Int
+    let hex: String
+    let resolution: NodeNameResolution
+}
+
 /// Resolves repeater collisions by proximity and recency.
 enum RepeaterResolver {
     private static let exactPrefixLength = 6
@@ -156,6 +163,32 @@ enum NeighborNameResolver {
     }
 
     static func fallbackName(for prefix: Data) -> String {
-        prefix.prefix(4).hexString()
+        prefix.prefix(4).uppercaseHexString()
+    }
+
+    /// Resolves every hop of a node's stored path to a repeater name, falling back to a placeholder
+    /// when no repeater matches a hop. Only repeaters can relay, so contacts and discovered nodes are
+    /// narrowed to repeaters before matching, matching the login sheet's path display.
+    static func resolvePath(
+        _ hops: [(data: Data, hex: String)],
+        contacts: [ContactDTO],
+        discoveredNodes: [DiscoveredNodeDTO],
+        userLocation: CLLocation?
+    ) -> [ResolvedPathHop] {
+        let repeaters = contacts.filter { $0.type == .repeater }
+        let discoveredRepeaters = discoveredNodes.filter { $0.nodeType == .repeater }
+
+        return hops.enumerated().map { index, hop in
+            let resolution = resolve(
+                for: hop.data,
+                contacts: repeaters,
+                discoveredNodes: discoveredRepeaters,
+                userLocation: userLocation
+            ) ?? NodeNameResolution(
+                displayName: L10n.RemoteNodes.RemoteNodes.Auth.pathHopUnknown,
+                matchKind: .unresolved
+            )
+            return ResolvedPathHop(id: index, hex: hop.hex, resolution: resolution)
+        }
     }
 }

@@ -25,6 +25,7 @@ struct NodeAuthenticationSheet: View {
     @State private var isAuthenticating = false
     @State private var errorMessage: String?
     @State private var hasSavedPassword = false
+    @State private var pathViewModel = NodeAuthPathViewModel()
 
     // Countdown state
     @State private var authSecondsRemaining: Int?
@@ -77,6 +78,16 @@ struct NodeAuthenticationSheet: View {
                     hasSavedPassword = true
                 }
             }
+            .task {
+                guard !contact.isFloodRouted, contact.pathHopCount > 0,
+                      let radioID = appState.connectedDevice?.radioID else { return }
+                await pathViewModel.load(
+                    contact: contact,
+                    services: appState.services,
+                    radioID: radioID,
+                    userLocation: appState.bestAvailableLocation
+                )
+            }
             .sensoryFeedback(.error, trigger: errorMessage)
             .onDisappear {
                 authenticationTask?.cancel()
@@ -108,7 +119,8 @@ struct NodeAuthenticationSheet: View {
     private func makePathSection() -> some View {
         PathSection(
             contact: contact,
-            useFloodRouting: $useFloodRouting
+            useFloodRouting: $useFloodRouting,
+            pathViewModel: pathViewModel
         )
     }
 
@@ -148,9 +160,9 @@ struct NodeAuthenticationSheet: View {
                         publicKey: contact.publicKey
                     )
                     didResetPath = true
-                    pathLength = 0xFF
+                    pathLength = PacketBuilder.floodPathSentinel
                 } else if useFloodRouting {
-                    pathLength = 0xFF
+                    pathLength = PacketBuilder.floodPathSentinel
                 } else {
                     pathLength = contact.outPathLength
                 }
@@ -223,7 +235,7 @@ struct NodeAuthenticationSheet: View {
                 await MainActor.run {
                     authenticationTask = nil
                     cleanupCountdownState()
-                    errorMessage = error.localizedDescription
+                    errorMessage = error.userFacingMessage
                     isAuthenticating = false
                 }
             }
@@ -232,11 +244,13 @@ struct NodeAuthenticationSheet: View {
 
     // MARK: - Countdown
 
+    private static let countdownTickInterval: Duration = .seconds(1)
+
     private func startCountdownTask() {
         countdownTask = Task {
             while !Task.isCancelled, let timeout = authTimeoutSeconds, let startTime = authStartTime {
                 do {
-                    try await Task.sleep(for: .seconds(5))
+                    try await Task.sleep(for: Self.countdownTickInterval)
                 } catch {
                     break
                 }
@@ -244,6 +258,9 @@ struct NodeAuthenticationSheet: View {
                 let elapsed = Date.now.timeIntervalSince(startTime)
                 let remaining = max(0, timeout - Int(elapsed))
                 authSecondsRemaining = remaining
+                if remaining == 0 {
+                    break
+                }
             }
         }
     }
@@ -278,6 +295,11 @@ private struct NodeDetailsSection: View {
 // MARK: - Authentication Section
 
 private struct AuthenticationSection: View {
+    /// Countdown values at which VoiceOver gets a time-remaining announcement.
+    private static let announcementThresholds = [30, 15, 10]
+    /// Below this many seconds, every countdown tick is announced.
+    private static let finalCountdownSeconds = 5
+
     @Environment(\.appTheme) private var theme
     @Binding var password: String
     @Binding var rememberPassword: Bool
@@ -317,7 +339,12 @@ private struct AuthenticationSection: View {
         }
         .onChange(of: authSecondsRemaining) { oldValue, newValue in
             guard let remaining = newValue, remaining > 0 else { return }
-            let shouldAnnounce = oldValue == nil || remaining == 30 || remaining == 15 || remaining == 10 || remaining <= 5
+            // Threshold-crossing rather than exact equality so a skipped tick
+            // can't silently drop an announcement.
+            let crossedThreshold = Self.announcementThresholds.contains { threshold in
+                remaining <= threshold && (oldValue ?? Int.max) > threshold
+            }
+            let shouldAnnounce = oldValue == nil || crossedThreshold || remaining <= Self.finalCountdownSeconds
             if shouldAnnounce {
                 AccessibilityNotification.Announcement(L10n.RemoteNodes.RemoteNodes.Auth.secondsRemainingAnnouncement(remaining)).post()
             }
@@ -331,41 +358,28 @@ private struct PathSection: View {
     @Environment(\.appTheme) private var theme
     let contact: ContactDTO
     @Binding var useFloodRouting: Bool
+    let pathViewModel: NodeAuthPathViewModel
+
+    @State private var isPathExpanded = false
 
     private var hasStoredPath: Bool {
         !contact.isFloodRouted
     }
 
-    private var pathDisplayText: String {
-        if contact.pathHopCount == 0 {
-            return L10n.Contacts.Contacts.Route.direct
-        } else {
-            return contact.pathString
-        }
-    }
-
-    private var pathAccessibilityLabel: String {
-        if contact.pathHopCount == 0 {
-            return L10n.Contacts.Contacts.Detail.routeDirect
-        } else {
-            return L10n.Contacts.Contacts.Detail.routePrefix(pathDisplayText)
-        }
-    }
-
     var body: some View {
         Section {
             if hasStoredPath && !useFloodRouting {
-                Label {
-                    Text(pathDisplayText)
-                        .font(.caption.monospaced())
-                        .foregroundStyle(.primary)
-                        .lineLimit(nil)
-                } icon: {
-                    Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
-                        .foregroundStyle(.secondary)
-                        .accessibilityHidden(true)
+                if !pathViewModel.hops.isEmpty {
+                    DisclosureGroup(isExpanded: $isPathExpanded) {
+                        ForEach(pathViewModel.hops) { hop in
+                            NodePathHopRow(hex: hop.hex, resolution: hop.resolution)
+                        }
+                    } label: {
+                        NodePathSummaryLabel(contact: contact)
+                    }
+                } else {
+                    NodePathSummaryLabel(contact: contact)
                 }
-                .accessibilityLabel(pathAccessibilityLabel)
             } else if !hasStoredPath {
                 Label {
                     Text(L10n.RemoteNodes.RemoteNodes.Auth.noRouteSet)

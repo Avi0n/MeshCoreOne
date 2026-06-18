@@ -200,16 +200,17 @@ struct SyncCoordinatorMessageHandlerTests {
         let (_, services) = try await createTestServices()
         try await services.dataStore.saveDevice(DeviceDTO.testDevice(id: radioID, nodeName: "TestNode"))
 
-        await coordinator.wireMessageHandlers(services: services, radioID: radioID)
+        await coordinator.wireMessageHandlers(dependencies: services.syncDependencies, radioID: radioID)
     }
 
-    @Test("wireDiscoveryHandlers completes without error")
-    func wireDiscoveryHandlersSmoke() async throws {
+    @Test("startDiscoveryEventMonitoring completes without error")
+    func startDiscoveryEventMonitoringSmoke() async throws {
         let coordinator = SyncCoordinator()
         let radioID = UUID()
         let (_, services) = try await createTestServices()
 
-        await coordinator.wireDiscoveryHandlers(services: services, radioID: radioID)
+        await coordinator.startDiscoveryEventMonitoring(dependencies: services.syncDependencies, radioID: radioID)
+        await coordinator.cancelDiscoveryEventMonitoring()
     }
 
     // MARK: - Unresolved Channel Notification Guard

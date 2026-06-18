@@ -114,6 +114,9 @@
 /* TX power display format with dBm unit */
 "deviceInfo.txPowerFormat" = "%@ dBm";
 
+/* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
+"deviceInfo.firmwareVersionFormat" = "v%@";
+
 /* Section header for identity information */
 "deviceInfo.identity.header" = "Identiteit";
 
@@ -391,7 +394,7 @@
 "batteryCurve.editValues" = "Waarden bewerken";
 
 /* Validation error for value out of range - %d is the percentage level */
-"batteryCurve.validation.outOfRange" = "Waarde bij %d%% moet 1000-9000 mV zijn";
+"batteryCurve.validation.outOfRange" = "Waarde bij %d%% moet 1000-99999 mV zijn";
 
 /* Validation error for non-descending values */
 "batteryCurve.validation.notDescending" = "Waarden moeten in aflopende volgorde staan";
@@ -763,7 +766,7 @@
 "notifications.discoveryRepeater" = "Repeater";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Room";
+"notifications.discoveryRoom" = "Kamer";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Waarschuwingen lage batterij";
@@ -973,7 +976,7 @@
 "directMessages.header" = "Directe berichten";
 
 /* Picker label for number of acknowledgments */
-"directMessages.acknowledgments" = "Acknowledgments";
+"directMessages.acknowledgments" = "Bevestigingen";
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Aantal bevestigingen dat per direct bericht wordt verstuurd. Gebruik 2 voor betere afleverbevestiging via onbetrouwbare verbindingen.";
@@ -1111,9 +1114,6 @@
 /* Select file button */
 "configImport.selectFile" = "JSON-bestand selecteren";
 
-/* Cannot access file error */
-"configImport.cannotAccess" = "Kan het geselecteerde bestand niet openen.";
-
 /* Confirmation alert title */
 "configImport.confirmTitle" = "Configuratie toepassen?";
 
@@ -1239,6 +1239,21 @@
 
 /* Validation error: not enough free contact slots (params: needed count, available count) */
 "configImport.error.contactCapacityExceeded" = "Voor de import zijn %d vrije contactplekken nodig, maar er zijn er nog maar %d beschikbaar op het apparaat";
+
+/* Validation error: channel secret wrong length (params: channel index, hex char count) */
+"configImport.error.invalidChannelSecret" = "Kanaal %1$lld heeft een ongeldige geheime sleutel (%2$lld hex-tekens, 32 verwacht)";
+
+/* Validation error: contact public key malformed (param: contact name) */
+"configImport.error.invalidContactPublicKey" = "Contact \"%@\" heeft een ongeldige openbare sleutel";
+
+/* Validation error: unsupported path hash mode (params: contact name, mode value) */
+"configImport.error.invalidPathHashMode" = "Contact \"%1$@\" heeft een niet-ondersteunde pad-hashmodus %2$lld (0, 1 of 2 verwacht)";
+
+/* Validation error: private key wrong length (params: hex char count, expected hex char count) */
+"configImport.error.invalidPrivateKey" = "Ongeldige privésleutel (%1$lld hex-tekens, %2$lld verwacht)";
+
+/* Validation error: no empty channel slot left (param: channel name) */
+"configImport.error.noAvailableChannelSlot" = "Geen lege kanaalplek beschikbaar voor \"%@\"";
 
 /* Toggle label for inline images */
 "inlineImages.toggle" = "Inline afbeeldingen";
@@ -1720,6 +1735,7 @@
 "Support.Themes.Title" = "Thema's";
 "Support.Themes.Owned" = "In bezit";
 "Support.Themes.PurchasedFooter" = "Pas je nieuwe thema toe in Instellingen → Weergave.";
+"Support.Themes.AllUnlocked" = "Alle thema's ontgrendeld!";
 "Support.Bundle.Title" = "Alle thema's";
 "Support.Bundle.Subtitle" = "Inclusief later toegevoegde thema's.";
 "Support.Contributions.Title" = "Bijdragen";

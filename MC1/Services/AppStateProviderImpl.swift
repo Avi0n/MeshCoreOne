@@ -6,11 +6,11 @@ import MC1Services
 /// Checks UIApplication.shared.applicationState to determine if app is in foreground.
 /// MainActor-isolated with async getter to allow cross-actor access.
 @MainActor
-public final class AppStateProviderImpl: AppStateProvider {
+final class AppStateProviderImpl: AppStateProvider {
 
-    public init() {}
+    init() {}
 
-    nonisolated public var isInForeground: Bool {
+    nonisolated var isInForeground: Bool {
         get async {
             await MainActor.run {
                 UIApplication.shared.applicationState != .background

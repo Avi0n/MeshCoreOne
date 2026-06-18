@@ -69,51 +69,7 @@ extension PersistenceStore {
         if let existing = try modelContext.fetch(descriptor).first {
             existing.apply(dto)
         } else {
-            // Create new
-            let device = Device(
-                id: dto.id,
-                radioID: dto.radioID,
-                publicKey: dto.publicKey,
-                nodeName: dto.nodeName,
-                firmwareVersion: dto.firmwareVersion,
-                firmwareVersionString: dto.firmwareVersionString,
-                manufacturerName: dto.manufacturerName,
-                buildDate: dto.buildDate,
-                maxContacts: dto.maxContacts,
-                maxChannels: dto.maxChannels,
-                frequency: dto.frequency,
-                bandwidth: dto.bandwidth,
-                spreadingFactor: dto.spreadingFactor,
-                codingRate: dto.codingRate,
-                txPower: dto.txPower,
-                maxTxPower: dto.maxTxPower,
-                latitude: dto.latitude,
-                longitude: dto.longitude,
-                blePin: dto.blePin,
-                clientRepeat: dto.clientRepeat,
-                pathHashMode: dto.pathHashMode,
-                defaultFloodScopeName: dto.defaultFloodScopeName,
-                preRepeatFrequency: dto.preRepeatFrequency,
-                preRepeatBandwidth: dto.preRepeatBandwidth,
-                preRepeatSpreadingFactor: dto.preRepeatSpreadingFactor,
-                preRepeatCodingRate: dto.preRepeatCodingRate,
-                manualAddContacts: dto.manualAddContacts,
-                autoAddConfig: dto.autoAddConfig,
-                autoAddMaxHops: dto.autoAddMaxHops,
-                multiAcks: dto.multiAcks,
-                telemetryModeBase: dto.telemetryModeBase,
-                telemetryModeLoc: dto.telemetryModeLoc,
-                telemetryModeEnv: dto.telemetryModeEnv,
-                advertLocationPolicy: dto.advertLocationPolicy,
-                lastConnected: dto.lastConnected,
-                lastContactSync: dto.lastContactSync,
-                isActive: dto.isActive,
-                ocvPreset: dto.ocvPreset,
-                customOCVArrayString: dto.customOCVArrayString,
-                connectionMethods: dto.connectionMethods,
-                knownRegions: dto.knownRegions
-            )
-            modelContext.insert(device)
+            modelContext.insert(Device(dto: dto))
         }
 
         try modelContext.save()
@@ -389,12 +345,14 @@ extension PersistenceStore {
         let blockedSenders = try modelContext.fetch(FetchDescriptor(predicate: blockedPredicate))
         for blocked in blockedSenders { modelContext.delete(blocked) }
 
-        // Delete RX log entries
+        // Delete RX log entries; drop the count cache so the next save re-seeds
+        // from disk instead of pruning against a stale pre-delete count.
         let rxLogPredicate = #Predicate<RxLogEntry> { entry in
             entry.radioID == targetRadioID
         }
         let rxLogEntries = try modelContext.fetch(FetchDescriptor(predicate: rxLogPredicate))
         for entry in rxLogEntries { modelContext.delete(entry) }
+        rxLogEntryCountsByDevice[targetRadioID] = nil
 
         // Delete discovered nodes
         let discoveredPredicate = #Predicate<DiscoveredNode> { node in

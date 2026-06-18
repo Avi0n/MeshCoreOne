@@ -50,9 +50,9 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
 
     // MARK: - UserDefaults keys for special-cased (non-Bool/String) properties
 
-    private static let autoDeleteStaleNodesDaysKey = "autoDeleteStaleNodesDays"
-    private static let frequentEmojisKey = "frequentEmojis"
-    private static let recentReactionEmojisKey = "recentReactionEmojis"
+    private static let autoDeleteStaleNodesDaysKey = AppStorageKey.autoDeleteStaleNodesDays.rawValue
+    private static let frequentEmojisKey = AppStorageKey.frequentEmojis.rawValue
+    private static let recentReactionEmojisKey = AppStorageKey.recentReactionEmojis.rawValue
     /// Public so `AppState` (and tests) can persist via the same key without a duplicated literal.
     public static let regionSelectionKey = "userPrefs.region"
 
@@ -97,32 +97,32 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     /// Safe here: the array is a `let` initialised once at module load and only
     /// read afterwards (never mutated); no cross-actor write race can occur.
     nonisolated(unsafe) private static let boolMappings: [(WritableKeyPath<BackupUserDefaults, Bool?>, String)] = [
-        (\.hasCompletedOnboarding, "hasCompletedOnboarding"),
-        (\.liveActivityEnabled, "liveActivityEnabled"),
-        (\.mapShowLabels, "mapShowLabels"),
-        (\.replyWithQuote, "replyWithQuote"),
-        (\.showInlineImages, "showInlineImages"),
-        (\.autoPlayGIFs, "autoPlayGIFs"),
+        (\.hasCompletedOnboarding, AppStorageKey.hasCompletedOnboarding.rawValue),
+        (\.liveActivityEnabled, AppStorageKey.liveActivityEnabled.rawValue),
+        (\.mapShowLabels, AppStorageKey.mapShowLabels.rawValue),
+        (\.replyWithQuote, AppStorageKey.replyWithQuote.rawValue),
+        (\.showInlineImages, AppStorageKey.showInlineImages.rawValue),
+        (\.autoPlayGIFs, AppStorageKey.autoPlayGIFs.rawValue),
         (\.showIncomingPath, AppStorageKey.showIncomingPath.rawValue),
         (\.showIncomingHopCount, AppStorageKey.showIncomingHopCount.rawValue),
         (\.showIncomingRegion, AppStorageKey.showIncomingRegion.rawValue),
         (\.showIncomingSendTime, AppStorageKey.showIncomingSendTime.rawValue),
-        (\.linkPreviewsEnabled, "linkPreviewsEnabled"),
-        (\.linkPreviewsAutoResolveDM, "linkPreviewsAutoResolveDM"),
-        (\.linkPreviewsAutoResolveChannels, "linkPreviewsAutoResolveChannels"),
+        (\.linkPreviewsEnabled, AppStorageKey.linkPreviewsEnabled.rawValue),
+        (\.linkPreviewsAutoResolveDM, AppStorageKey.linkPreviewsAutoResolveDM.rawValue),
+        (\.linkPreviewsAutoResolveChannels, AppStorageKey.linkPreviewsAutoResolveChannels.rawValue),
         (\.showMapPreviewThumbnails, AppStorageKey.showMapPreviewThumbnails.rawValue),
-        (\.hasSeenRepeaterDragHint, "hasSeenRepeaterDragHint"),
-        (\.notifyContactMessages, "notifyContactMessages"),
-        (\.notifyChannelMessages, "notifyChannelMessages"),
-        (\.notifyRoomMessages, "notifyRoomMessages"),
-        (\.notifyNewContacts, "notifyNewContacts"),
-        (\.notifyNewContactsContact, "notifyNewContactsContact"),
-        (\.notifyNewContactsRepeater, "notifyNewContactsRepeater"),
-        (\.notifyNewContactsRoom, "notifyNewContactsRoom"),
-        (\.notifyReactions, "notifyReactions"),
-        (\.notificationSoundEnabled, "notificationSoundEnabled"),
-        (\.notificationBadgeEnabled, "notificationBadgeEnabled"),
-        (\.notifyLowBattery, "notifyLowBattery"),
+        (\.hasSeenRepeaterDragHint, AppStorageKey.hasSeenRepeaterDragHint.rawValue),
+        (\.notifyContactMessages, AppStorageKey.notifyContactMessages.rawValue),
+        (\.notifyChannelMessages, AppStorageKey.notifyChannelMessages.rawValue),
+        (\.notifyRoomMessages, AppStorageKey.notifyRoomMessages.rawValue),
+        (\.notifyNewContacts, AppStorageKey.notifyNewContacts.rawValue),
+        (\.notifyNewContactsContact, AppStorageKey.notifyNewContactsContact.rawValue),
+        (\.notifyNewContactsRepeater, AppStorageKey.notifyNewContactsRepeater.rawValue),
+        (\.notifyNewContactsRoom, AppStorageKey.notifyNewContactsRoom.rawValue),
+        (\.notifyReactions, AppStorageKey.notifyReactions.rawValue),
+        (\.notificationSoundEnabled, AppStorageKey.notificationSoundEnabled.rawValue),
+        (\.notificationBadgeEnabled, AppStorageKey.notificationBadgeEnabled.rawValue),
+        (\.notifyLowBattery, AppStorageKey.notifyLowBattery.rawValue),
     ]
 
     /// Key strings used by `boolMappings`. Internal solely for testability —
@@ -133,10 +133,10 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
 
     /// See `boolMappings` for the `nonisolated(unsafe)` rationale.
     nonisolated(unsafe) private static let stringMappings: [(WritableKeyPath<BackupUserDefaults, String?>, String)] = [
-        (\.mapStyleSelection, "mapStyleSelection"),
-        (\.discoverySortOrder, "discoverySortOrder"),
+        (\.mapStyleSelection, AppStorageKey.mapStyleSelection.rawValue),
+        (\.discoverySortOrder, AppStorageKey.discoverySortOrder.rawValue),
         (\.nodesSortOrder, AppStorageKey.nodesSortOrder.rawValue),
-        (\.tracePathViewMode, "tracePathViewMode"),
+        (\.tracePathViewMode, AppStorageKey.tracePathViewMode.rawValue),
         (\.selectedThemeID, PersistenceKeys.selectedThemeID),
         (\.appColorSchemePreference, PersistenceKeys.appColorSchemePreference),
     ]

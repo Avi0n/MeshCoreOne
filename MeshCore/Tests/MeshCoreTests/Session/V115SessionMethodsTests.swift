@@ -366,7 +366,7 @@ private func makeSelfInfoPacket() -> Data {
     payload.append(0)                                          // telemetry mode
     payload.append(0)                                          // manual add
     payload.append(contentsOf: withUnsafeBytes(of: UInt32(869525).littleEndian) { Array($0) })  // freq
-    payload.append(contentsOf: withUnsafeBytes(of: UInt32(250).littleEndian) { Array($0) })     // bw
+    payload.append(contentsOf: withUnsafeBytes(of: UInt32(250_000).littleEndian) { Array($0) }) // bw
     payload.append(11)                                         // sf
     payload.append(5)                                          // cr
     return payload

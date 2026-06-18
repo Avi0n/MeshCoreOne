@@ -22,6 +22,13 @@ struct ChatCellContentFactory {
     /// `reconfigureAllItems()`, which the table fires when its tracked theme id changes — or
     /// recycled; re-wiring the cell closure alone does not re-host live cells.
     let theme: Theme
+    /// The chat-content link router, injected into each hosted cell. Like `\.appTheme`, the
+    /// `\.openURL` action does not cross the `UIHostingConfiguration` boundary, so a message
+    /// link (coordinate, mention, hashtag, contact, channel) would otherwise reach the default
+    /// system handler and never route through `ChatLinkRouter`. The factory carries the action
+    /// the surrounding `mentionTapHandling` installed; a live cell adopts a change only on
+    /// reconfigure or recycle, matching the theme injection.
+    let openURL: OpenURLAction
     let resolver: BubbleResolver
     let actions: BubbleActions
 
@@ -35,5 +42,6 @@ struct ChatCellContentFactory {
             actions: actions
         )
         .environment(\.appTheme, theme)
+        .environment(\.openURL, openURL)
     }
 }

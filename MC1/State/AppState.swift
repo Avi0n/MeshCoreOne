@@ -12,16 +12,16 @@ import TipKit
 /// Handles only UI state, navigation, and notification wiring.
 @Observable
 @MainActor
-public final class AppState {
+final class AppState {
 
     // MARK: - Logging
 
-    private let logger = Logger(subsystem: "com.mc1", category: "AppState")
+    let logger = Logger(subsystem: "com.mc1", category: "AppState")
 
     // MARK: - Location
 
     /// App-wide location service for permission management
-    public let locationService = LocationService()
+    let locationService = LocationService()
 
     // MARK: - Offline Maps
 
@@ -33,10 +33,10 @@ public final class AppState {
     /// Disk-backed store for unsent chat-composer text. Recreated on
     /// before-first-unlock, but reads the same `UserDefaults` key, so the fresh
     /// instance recovers every persisted draft — no in-memory-lifetime dependency.
-    public let draftStore = DraftStore()
+    let draftStore = DraftStore()
 
     /// Best available location for proximity-based disambiguation.
-    public var bestAvailableLocation: CLLocation? {
+    var bestAvailableLocation: CLLocation? {
         if let phoneLocation = locationService.currentLocation {
             return phoneLocation
         }
@@ -55,7 +55,7 @@ public final class AppState {
     /// the same bytes to UserDefaults on every launch.
     @ObservationIgnored private var suppressRegionPersist = false
 
-    public var regionSelection: RegionSelection? {
+    var regionSelection: RegionSelection? {
         didSet {
             guard !suppressRegionPersist else { return }
             persistRegionSelection()
@@ -81,24 +81,24 @@ public final class AppState {
     // MARK: - Connection (via ConnectionManager)
 
     /// The connection manager for device lifecycle
-    public let connectionManager: ConnectionManager
-    public let storeState: StoreState
-    public let themeService: ThemeService
+    let connectionManager: ConnectionManager
+    let storeState: StoreState
+    let themeService: ThemeService
     private let bootstrapDebugLogBuffer: DebugLogBuffer
 
     // Convenience accessors
-    public var connectionState: MC1Services.ConnectionState { connectionManager.connectionState }
-    public var connectedDevice: DeviceDTO? { connectionManager.connectedDevice }
-    public var services: ServiceContainer? { connectionManager.services }
+    var connectionState: MC1Services.DeviceConnectionState { connectionManager.connectionState }
+    var connectedDevice: DeviceDTO? { connectionManager.connectedDevice }
+    var services: ServiceContainer? { connectionManager.services }
 
     /// Local node name with fallback for display purposes.
-    public var localNodeName: String { connectedDevice?.nodeName ?? "Me" }
+    var localNodeName: String { connectedDevice?.nodeName ?? "Me" }
 
     /// The sync coordinator for data synchronization
-    public private(set) var syncCoordinator: SyncCoordinator?
+    private(set) var syncCoordinator: SyncCoordinator?
 
     /// Incremented when services change (device switch, reconnect). Views observe this to reload.
-    public private(set) var servicesVersion: Int = 0
+    private(set) var servicesVersion: Int = 0
 
     /// Identity of the `ServiceContainer` the last `servicesVersion` bump was for,
     /// so redundant re-wires of the same container don't bump it again.
@@ -116,13 +116,13 @@ public final class AppState {
     private var cachedOfflineStore: PersistenceStore?
 
     /// Radio ID for data access - returns connected device's radio ID or last-connected radio ID for offline browsing
-    public var currentRadioID: UUID? {
+    var currentRadioID: UUID? {
         connectedDevice?.radioID ?? connectionManager.lastConnectedRadioID
     }
 
     /// Data store that works regardless of connection state - uses services when connected,
     /// cached standalone store when disconnected
-    public var offlineDataStore: PersistenceStore? {
+    var offlineDataStore: PersistenceStore? {
         if let services {
             cachedOfflineStore = nil  // Clear cache when services available
             return services.dataStore
@@ -151,15 +151,15 @@ public final class AppState {
     }
 
     /// Incremented when contacts data changes. Views observe this to reload contact lists.
-    public private(set) var contactsVersion: Int = 0
+    var contactsVersion: Int = 0
 
     /// Incremented when conversations data changes. Views observe this to reload chat lists.
-    public private(set) var conversationsVersion: Int = 0
+    private(set) var conversationsVersion: Int = 0
 
     /// Incremented when a remote-node session changes connection state.
     /// `RoomConversationView` observes this counter via `.onChange` to refresh
     /// its session DTO when re-authentication completes.
-    public private(set) var sessionStateChangeCount: Int = 0
+    private(set) var sessionStateChangeCount: Int = 0
 
     /// Called by `MessageEventDispatcher` when a remote-node session changes
     /// connection state. Bundles refreshing conversations and bumping the
@@ -170,11 +170,11 @@ public final class AppState {
     }
 
     /// Bumps `conversationsVersion` and drives
-    /// `liveActivityManager.handleUnreadCountChanged`. Used by both data-change
-    /// callbacks (sync coordinator) and session-state callbacks
-    /// (`setSessionStateChangedHandler` / `setConnectionRecoveryHandler`) to
-    /// keep the conversations list and unread badge in lockstep.
-    private func refreshConversations() {
+    /// `liveActivityManager.handleUnreadCountChanged`. Used by both the sync
+    /// coordinator's data event stream and the session-state events
+    /// (`RemoteNodeEvent.sessionStateChanged` / `RoomServerEvent.connectionRecovered`)
+    /// to keep the conversations list and unread badge in lockstep.
+    func refreshConversations() {
         conversationsVersion += 1
         Task { @MainActor [weak self] in
             guard let self, let services = self.services else { return }
@@ -185,12 +185,12 @@ public final class AppState {
 
     /// Signals views observing `contactsVersion` / `conversationsVersion` to reload after
     /// a backup restore writes directly to the persistence store. The normal sync-path
-    /// callbacks don't fire for batch imports, so without this bump any currently-mounted
+    /// events don't fire for batch imports, so without this bump any currently-mounted
     /// tabs keep showing their pre-restore snapshot until reconnect or relaunch.
     /// Also re-reads the persisted region selection — the import wrote it to UserDefaults,
     /// but `regionSelection` is only loaded once during `init`, so Settings → Region and
     /// the radio-preset views would otherwise show pre-import data until next launch.
-    public func notifyDataRestored() {
+    func notifyDataRestored() {
         contactsVersion += 1
         conversationsVersion += 1
         loadPersistedRegionSelection()
@@ -211,19 +211,28 @@ public final class AppState {
     /// Task chain that serializes BLE lifecycle transitions across scene-phase changes.
     /// Do not cancel this task externally -- cancelling breaks the serialization
     /// guarantee because Task<Void, Never>.value returns immediately on cancellation.
-    private var bleLifecycleTransitionTask: Task<Void, Never>?
+    var bleLifecycleTransitionTask: Task<Void, Never>?
 
     /// Fallback task that re-runs foreground recovery shortly after activation when the
     /// app is still disconnected. Covers edge cases where scene-phase callbacks are missed.
-    private var activeRecoveryFallbackTask: Task<Void, Never>?
+    var activeRecoveryFallbackTask: Task<Void, Never>?
 
     /// Task consuming SettingsService event stream, canceled on disconnect
-    private var settingsEventsTask: Task<Void, Never>?
+    var settingsEventsTask: Task<Void, Never>?
+
+    /// Task consuming SyncCoordinator's data event stream, canceled on disconnect
+    var syncDataEventsTask: Task<Void, Never>?
+
+    /// Task consuming AdvertisementService's event stream, canceled on disconnect
+    var advertisementEventsTask: Task<Void, Never>?
+
+    /// Task consuming RxLogService's entry stream for Live Activity freshness, canceled on disconnect
+    var rxLogEventsTask: Task<Void, Never>?
 
 #if DEBUG
     /// Optional test-only hooks for deterministic lifecycle ordering tests.
-    private var bleEnterBackgroundOverride: (@MainActor () async -> Void)?
-    private var bleBecomeActiveOverride: (@MainActor () async -> Void)?
+    var bleEnterBackgroundOverride: (@MainActor () async -> Void)?
+    var bleBecomeActiveOverride: (@MainActor () async -> Void)?
 #endif
 
     // MARK: - Onboarding State
@@ -239,13 +248,14 @@ public final class AppState {
     // MARK: - UI Coordination
 
     /// AsyncStream-based distribution of `MessageEvent` to chat and room
-    /// consumers. Fed by service callbacks wired in `wireMessageEvents`.
+    /// consumers. Fed by the service event streams wired in `wireMessageEvents`.
     let messageEventStream = MessageEventStream()
 
-    /// Routes service callbacks to `messageEventStream` and the session-state
-    /// counter. Lazy because it captures `self` and `messageEventStream`.
+    /// Routes service event streams to `messageEventStream` and the
+    /// session-state counter. Lazy because it captures `self` and
+    /// `messageEventStream`.
     @ObservationIgnored
-    private lazy var messageEventDispatcher = MessageEventDispatcher(
+    lazy var messageEventDispatcher = MessageEventDispatcher(
         appState: self,
         stream: messageEventStream
     )
@@ -371,11 +381,29 @@ public final class AppState {
         )
     }
 
+    /// Per-session teardown shared by the connection-loss path and explicit
+    /// disconnect, which does not fire onConnectionLost. Cancels the event tasks
+    /// and releases the per-connection coordinators so a suspended task or a
+    /// torn-down store reference cannot survive into the next session.
+    func tearDownAppStateSessionState() {
+        settingsEventsTask?.cancel()
+        settingsEventsTask = nil
+        syncDataEventsTask?.cancel()
+        syncDataEventsTask = nil
+        advertisementEventsTask?.cancel()
+        advertisementEventsTask = nil
+        rxLogEventsTask?.cancel()
+        rxLogEventsTask = nil
+        messageEventDispatcher.cancelAll()
+        chatCoordinatorRegistry?.tearDown()
+        chatCoordinatorRegistry = nil
+        navigation.clearPendingLinks()
+    }
+
     /// Wire services-dependent callbacks after a successful connection.
     func wireServicesIfConnected() async {
         guard let services else {
-            settingsEventsTask?.cancel()
-            settingsEventsTask = nil
+            tearDownAppStateSessionState()
             syncCoordinator = nil
             connectionUI.handleDisconnect(
                 connectionState: connectionState,
@@ -386,9 +414,6 @@ public final class AppState {
             batteryMonitor.stop()
             batteryMonitor.clearThresholds()
             await liveActivityManager.handleConnectionLost()
-            chatCoordinatorRegistry?.tearDown()
-            chatCoordinatorRegistry = nil
-            navigation.clearPendingLinks()
             lastBumpedServicesID = nil
             return
         }
@@ -431,10 +456,10 @@ public final class AppState {
             chatCoordinatorRegistry = ChatCoordinatorRegistry(dataStore: services.dataStore)
         }
 
-        await wireDataChangeCallbacks(services: services)
-        wireSettingsEventStream(services: services)
+        wireSyncDataEvents(services: services)
+        await wireSettingsEventStream(services: services)
         await wireDeviceUpdateCallbacks(services: services)
-        await wireMessageEvents(services: services)
+        wireMessageEvents(services: services)
         await wireLiveActivityCallbacks(services: services)
 
         // Drop drafts for channel slots vacated by a delete or sync prune so a
@@ -487,167 +512,16 @@ public final class AppState {
 
     }
 
-    // MARK: - Service Wiring Helpers
-
-    /// Wire data change callbacks for SwiftUI observation
-    /// (actors don't participate in SwiftUI's observation system, so we need callbacks)
-    private func wireDataChangeCallbacks(services: ServiceContainer) async {
-        await services.syncCoordinator.setDataChangeCallbacks(
-            onContactsChanged: { @MainActor [weak self] in
-                self?.contactsVersion += 1
-            },
-            onConversationsChanged: { @MainActor [weak self] in
-                self?.refreshConversations()
-            }
-        )
-    }
-
-    /// Consume settings service event stream.
-    /// Updates connectedDevice when settings are changed via SettingsService.
-    private func wireSettingsEventStream(services: ServiceContainer) {
-        settingsEventsTask?.cancel()
-        settingsEventsTask = Task { [weak self] in
-            guard let self else { return }
-            for await event in await services.settingsService.events() {
-                switch event {
-                case .deviceUpdated(let selfInfo):
-                    await MainActor.run {
-                        self.connectionManager.updateDevice(from: selfInfo)
-                    }
-                case .autoAddConfigUpdated(let config):
-                    await MainActor.run {
-                        self.connectionManager.updateAutoAddConfig(config)
-                        // Clear storage full flag when overwrite oldest is enabled (bit 0x01)
-                        if config.bitmask & 0x01 != 0 {
-                            self.connectionUI.isNodeStorageFull = false
-                        }
-                    }
-                case .clientRepeatUpdated(let enabled):
-                    await MainActor.run {
-                        self.connectionManager.updateClientRepeat(enabled)
-                    }
-                case .pathHashModeUpdated(let mode):
-                    await MainActor.run {
-                        self.connectionManager.updatePathHashMode(mode)
-                    }
-                case .allowedRepeatFreqUpdated(let ranges):
-                    await MainActor.run {
-                        self.connectionManager.allowedRepeatFreqRanges = ranges
-                    }
-                case .defaultFloodScopeUpdated(let name):
-                    await MainActor.run {
-                        self.connectionManager.updateDefaultFloodScopeName(name)
-                    }
-                }
-            }
-        }
-    }
-
-    /// Wire device update and contact change callbacks.
-    /// Updates connectedDevice when local device settings (like OCV) are changed via DeviceService,
-    /// and handles contact updates/deletions for real-time Discover page updates.
-    private func wireDeviceUpdateCallbacks(services: ServiceContainer) async {
-        await services.deviceService.setDeviceUpdateCallback { [weak self] deviceDTO in
-            await MainActor.run {
-                self?.connectionManager.updateDevice(with: deviceDTO)
-            }
-        }
-
-        // Wire contact updated callback for real-time Discover page updates
-        await services.advertisementService.setContactUpdatedHandler { @MainActor [weak self] in
-            self?.contactsVersion += 1
-        }
-
-        // Wire contact deleted cleanup callback
-        // Removes notifications and updates badge when device auto-deletes a contact via 0x8F
-        await services.advertisementService.setContactDeletedCleanupHandler { [weak self] contactID, _ in
-            guard let self else { return }
-            self.logger.info("Overwrite oldest: running cleanup for deleted contact \(contactID) - removing notifications and updating badge")
-            await self.services?.notificationService.removeDeliveredNotifications(forContactID: contactID)
-            await self.services?.notificationService.updateBadgeCount()
-        }
-    }
-
-    /// Wire all message event service callbacks. Delegates to
-    /// `MessageEventDispatcher`, which fans the nine service callbacks out to
-    /// `messageEventStream` and bumps `sessionStateChangeCount`.
-    private func wireMessageEvents(services: ServiceContainer) async {
-        await messageEventDispatcher.wire(services: services)
-    }
-
-    /// Wire Live Activity callbacks for RX freshness, battery, and connection lifecycle.
-    private func wireLiveActivityCallbacks(services: ServiceContainer) async {
-        await services.rxLogService.setPacketReceivedHandler { [weak self] in
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                await self.liveActivityManager.handlePacketReceived()
-                if self.liveActivityManager.hasActiveActivity {
-                    await self.batteryMonitor.fetchBatteryIfOverdue(
-                        services: self.services, device: self.connectedDevice
-                    )
-                }
-            }
-        }
-
-        batteryMonitor.onBatteryChanged = { [weak self] battery in
-            Task { @MainActor [weak self] in
-                await self?.liveActivityManager.handleBatteryChanged(battery: battery)
-            }
-        }
-
-        let device = connectedDevice
-        let ocvArray = batteryMonitor.activeBatteryOCVArray(for: device)
-        let unreadCount = await totalUnreadCount(from: services)
-
-        if let device {
-            await liveActivityManager.handleConnectionReady(
-                device: device,
-                ocvArray: ocvArray,
-                unreadCount: unreadCount
-            )
-        }
-    }
-
-    /// `Activity.request` only succeeds in the foreground, so a `startActivity`
-    /// triggered from background (e.g. BLE auto-reconnect after the disconnect
-    /// grace timer fired) throws and leaves `currentActivity` nil. iOS may also
-    /// end an activity from background — 8-hour active cap, 12-hour total, or
-    /// memory pressure — in which case the `.dismissed` branch in
-    /// `validateActivityState` clears the reference without restarting. Both
-    /// leave the radio connected with no LA on screen.
-    private func restartLiveActivityIfMissing() async {
-        guard connectionState.isConnected,
-              liveActivityManager.isEnabled,
-              !liveActivityManager.hasActiveActivity,
-              let device = connectedDevice,
-              let services else { return }
-
-        let ocvArray = batteryMonitor.activeBatteryOCVArray(for: device)
-        let unreadCount = await totalUnreadCount(from: services)
-        await liveActivityManager.handleConnectionReady(
-            device: device,
-            ocvArray: ocvArray,
-            unreadCount: unreadCount
-        )
-    }
-
-    private func totalUnreadCount(from services: ServiceContainer) async -> Int {
-        guard let radioID = currentRadioID else { return 0 }
-        let counts = (try? await services.dataStore.getTotalUnreadCounts(radioID: radioID))
-            ?? (contacts: 0, channels: 0, rooms: 0)
-        return counts.contacts + counts.channels + counts.rooms
-    }
-
     // MARK: - Stale Node Cleanup
 
     /// Runs automatic cleanup of stale non-favorite nodes if the threshold is configured.
     /// - Parameter force: When `true`, skips the 6-hour cooldown (used when the user changes the setting).
     func performStaleNodeCleanup(force: Bool = false) {
-        let threshold = UserDefaults.standard.integer(forKey: "autoDeleteStaleNodesDays")
+        let threshold = UserDefaults.standard.integer(forKey: AppStorageKey.autoDeleteStaleNodesDays.rawValue)
         guard threshold > 0 else { return }
 
         if !force {
-            let lastRunTimestamp = UserDefaults.standard.double(forKey: "lastStaleCleanupDate")
+            let lastRunTimestamp = UserDefaults.standard.double(forKey: AppStorageKey.lastStaleCleanupDate.rawValue)
             let lastRun = lastRunTimestamp > 0 ? Date(timeIntervalSinceReferenceDate: lastRunTimestamp) : Date.distantPast
             guard Date().timeIntervalSince(lastRun) >= 3 * 3600 else {
                 logger.debug("Stale node cleanup skipped — cooldown not expired")
@@ -658,7 +532,7 @@ public final class AppState {
         Task {
             do {
                 let result = try await connectionManager.removeStaleNodes(olderThanDays: threshold)
-                UserDefaults.standard.set(Date().timeIntervalSinceReferenceDate, forKey: "lastStaleCleanupDate")
+                UserDefaults.standard.set(Date().timeIntervalSinceReferenceDate, forKey: AppStorageKey.lastStaleCleanupDate.rawValue)
                 if result.total > 0 {
                     logger.info("Stale node cleanup: removed \(result.removed) of \(result.total) nodes older than \(threshold) days")
                 } else {
@@ -668,208 +542,6 @@ public final class AppState {
                 logger.warning("Stale node cleanup failed: \(error.localizedDescription)")
             }
         }
-    }
-
-    // MARK: - Device Actions
-
-    /// Start device scan/pairing
-    func startDeviceScan() {
-        // Hide disconnected pill when starting new connection
-        connectionUI.hideDisconnectedPill()
-        // Clear any previous pairing failure state
-        connectionUI.failedPairingDeviceID = nil
-        connectionUI.isBusy = true
-
-        Task {
-            defer { connectionUI.isBusy = false }
-
-            do {
-                // pairNewDevice() triggers onConnectionReady callback on success
-                try await connectionManager.pairNewDevice()
-                await wireServicesIfConnected()
-
-                // If still in onboarding, navigate to region step; otherwise mark complete
-                if !onboarding.hasCompletedOnboarding {
-                    onboarding.onboardingPath.append(.region)
-                }
-            } catch DevicePairingError.cancelled {
-                // User cancelled - no error
-            } catch DevicePairingError.alreadyInProgress {
-                // Picker is already showing - ignore
-            } catch let pairingError as PairingError {
-                connectionUI.presentPairingFailure(pairingError)
-            } catch {
-                connectionUI.presentConnectionFailure(message: error.localizedDescription)
-            }
-        }
-    }
-
-    /// Remove a device that failed pairing (wrong PIN) and automatically retry
-    func removeFailedPairingAndRetry() {
-        guard let deviceID = connectionUI.failedPairingDeviceID else { return }
-
-        Task {
-            await connectionManager.removeFailedPairing(deviceID: deviceID)
-            connectionUI.failedPairingDeviceID = nil
-            // Set flag - View observing scenePhase will trigger startDeviceScan when active
-            connectionUI.shouldShowPickerOnForeground = true
-        }
-    }
-
-    /// Retry connecting to the device that just failed without removing the bond.
-    /// Used for transient pairing failures where the bond is still good — radio out of range,
-    /// brief BLE flap, etc. Auth-failure paths route through `removeFailedPairingAndRetry`
-    /// because the bond itself needs to be torn down before retrying.
-    func retryFailedPairingConnect() async {
-        guard let deviceID = connectionUI.failedPairingDeviceID else { return }
-        connectionUI.isBusy = true
-        defer { connectionUI.isBusy = false }
-
-        do {
-            try await connectionManager.connect(to: deviceID, forceReconnect: true)
-            connectionUI.failedPairingDeviceID = nil
-            await wireServicesIfConnected()
-        } catch BLEError.deviceConnectedToOtherApp {
-            connectionUI.failedPairingDeviceID = nil
-            connectionUI.presentPairingFailure(.deviceConnectedToOtherApp(deviceID: deviceID))
-        } catch {
-            connectionUI.presentPairingFailure(.connectionFailed(deviceID: deviceID, underlying: error))
-        }
-    }
-
-    /// Called by View when scenePhase becomes active and shouldShowPickerOnForeground is true
-    func handleBecameActive() {
-        if connectionUI.shouldShowPickerOnForeground {
-            connectionUI.shouldShowPickerOnForeground = false
-            startDeviceScan()
-        }
-
-        activeRecoveryFallbackTask?.cancel()
-        activeRecoveryFallbackTask = Task { @MainActor [weak self] in
-            guard let self else { return }
-            try? await Task.sleep(for: .seconds(1))
-            guard !Task.isCancelled else { return }
-            guard self.connectionState == .disconnected,
-                  self.connectionManager.lastConnectedDeviceID != nil else { return }
-
-            self.logger.info("[BLE] Active fallback: disconnected after activation, running foreground reconciliation")
-            await self.handleReturnToForeground()
-        }
-    }
-
-    /// Disconnect from device
-    /// - Parameter reason: The reason for disconnecting (for debugging)
-    func disconnect(reason: DisconnectReason = .userInitiated) async {
-        await connectionManager.disconnect(reason: reason)
-        await liveActivityManager.endActivity()
-    }
-
-    /// Connect to a device via WiFi/TCP
-    func connectViaWiFi(host: String, port: UInt16, forceFullSync: Bool = false) async throws {
-        // Hide disconnected pill when starting new connection
-        connectionUI.hideDisconnectedPill()
-        try await connectionManager.connectViaWiFi(host: host, port: port, forceFullSync: forceFullSync)
-        await wireServicesIfConnected()
-    }
-
-    // MARK: - App Lifecycle
-
-    private enum BLELifecycleTransition {
-        case enterBackground
-        case becomeActive
-    }
-
-    @discardableResult
-    private func enqueueBLELifecycleTransition(_ transition: BLELifecycleTransition) -> Task<Void, Never> {
-        let priorTask = bleLifecycleTransitionTask
-        let manager = connectionManager
-
-        let transitionTask = Task { @MainActor in
-            await priorTask?.value
-
-#if DEBUG
-            switch transition {
-            case .enterBackground:
-                if let override = bleEnterBackgroundOverride {
-                    await override()
-                    return
-                }
-            case .becomeActive:
-                if let override = bleBecomeActiveOverride {
-                    await override()
-                    return
-                }
-            }
-#endif
-
-            switch transition {
-            case .enterBackground:
-                await manager.appDidEnterBackground()
-            case .becomeActive:
-                await manager.appDidBecomeActive()
-            }
-        }
-
-        bleLifecycleTransitionTask = transitionTask
-        return transitionTask
-    }
-
-    /// Called when app enters background
-    func handleEnterBackground() {
-        activeRecoveryFallbackTask?.cancel()
-        activeRecoveryFallbackTask = nil
-
-        liveActivityManager.handleEnterBackground()
-
-        // Keep battery polling alive when the live activity is visible on the lock screen
-        if !liveActivityManager.hasActiveActivity {
-            batteryMonitor.stop()
-        }
-
-        // Stop room keepalives to save battery/bandwidth
-        Task {
-            await services?.remoteNodeService.stopAllKeepAlives()
-        }
-
-        // Queue BLE lifecycle transition so background/foreground hooks stay ordered.
-        enqueueBLELifecycleTransition(.enterBackground)
-    }
-
-    /// Called when app returns to foreground
-    func handleReturnToForeground() async {
-        // Update badge count from database
-        await services?.notificationService.updateBadgeCount()
-
-        // Room keepalives are managed by RoomConversationView lifecycle
-        // (started on view appear, stopped on disappear, restarted via scenePhase)
-
-        // Reconcile transport state first (WiFi check + BLE lifecycle transition,
-        // which internally fires checkBLEConnectionHealth) so any stale "connected"
-        // state gets cleaned up via
-        // handleConnectionLoss → onConnectionLost → liveActivityManager.handleConnectionLost
-        // before the Live Activity tries to validate or restart.
-        await connectionManager.checkWiFiConnectionHealth()
-        await enqueueBLELifecycleTransition(.becomeActive).value
-
-        liveActivityManager.handleReturnToForeground()
-        await liveActivityManager.validateActivityState()
-        await restartLiveActivityIfMissing()
-
-        // Check for expired ACKs
-        if connectionState == .ready {
-            try? await services?.messageService.checkExpiredAcks()
-        }
-
-        // Trigger resync if sync failed while connected
-        await connectionManager.checkSyncHealth()
-
-        // Check for missed battery thresholds and restart polling if connected
-        if let services {
-            await batteryMonitor.checkMissedBatteryThreshold(device: connectedDevice, services: services)
-            batteryMonitor.startRefreshLoop(services: services, device: connectedDevice)
-        }
-
-        offlineMapService.resumeAllPacks()
     }
 
     // MARK: - Onboarding
@@ -910,195 +582,6 @@ public final class AppState {
         bleBecomeActiveOverride = becomeActive
     }
 #endif
-
-    // MARK: - Notification Handlers
-
-    /// Configure notification handlers once services are available
-    func configureNotificationHandlers() {
-        guard let services else { return }
-
-        // Navigation-related notification tap handlers (delegated to NavigationCoordinator)
-        navigation.configureNotificationHandlers(
-            notificationService: services.notificationService,
-            dataStore: services.dataStore,
-            connectedDevice: { [weak self] in self?.connectedDevice }
-        )
-
-        services.notificationService.onQuickReply = { [weak self] contactID, text in
-            guard let self else { return }
-            await self.handleQuickReply(services: services, contactID: contactID, text: text)
-        }
-
-        services.notificationService.onChannelQuickReply = { [weak self] radioID, channelIndex, text in
-            guard let self else { return }
-            await self.handleChannelQuickReply(services: services, radioID: radioID, channelIndex: channelIndex, text: text)
-        }
-
-        services.notificationService.onMarkAsRead = { [weak self] contactID, messageID in
-            guard let self else { return }
-            await self.handleMarkAsRead(services: services, contactID: contactID, messageID: messageID)
-        }
-
-        services.notificationService.onChannelMarkAsRead = { [weak self] radioID, channelIndex, messageID in
-            guard let self else { return }
-            await self.handleChannelMarkAsRead(services: services, radioID: radioID, channelIndex: channelIndex, messageID: messageID)
-        }
-
-        services.notificationService.onRoomMarkAsRead = { [weak self] sessionID, messageID in
-            guard let self else { return }
-            await self.handleRoomMarkAsRead(services: services, sessionID: sessionID, messageID: messageID)
-        }
-    }
-
-    private func handleQuickReply(services: ServiceContainer, contactID: UUID, text: String) async {
-        guard let contact = try? await services.dataStore.fetchContact(id: contactID) else { return }
-
-        if connectionState == .ready {
-            do {
-                _ = try await services.messageService.sendDirectMessage(text: text, to: contact)
-
-                // Clear unread state - user replied so they've seen the chat
-                try? await services.dataStore.clearUnreadCount(contactID: contactID)
-                await services.notificationService.removeDeliveredNotifications(forContactID: contactID)
-                await services.notificationService.updateBadgeCount()
-                syncCoordinator?.notifyConversationsChanged()
-                return
-            } catch {
-                // Fall through to draft handling
-            }
-        }
-
-        services.notificationService.saveDraft(for: contactID, text: text)
-        await services.notificationService.postQuickReplyFailedNotification(
-            contactName: contact.displayName,
-            contactID: contactID
-        )
-    }
-
-    private func handleChannelQuickReply(services: ServiceContainer, radioID: UUID, channelIndex: UInt8, text: String) async {
-        // Fetch channel for display name in failure notification
-        let channel = try? await services.dataStore.fetchChannel(radioID: radioID, index: channelIndex)
-        let channelName = channel?.name ?? "Channel \(channelIndex)"
-
-        guard connectionState == .ready else {
-            await services.notificationService.postChannelQuickReplyFailedNotification(
-                channelName: channelName,
-                radioID: radioID,
-                channelIndex: channelIndex
-            )
-            return
-        }
-
-        do {
-            _ = try await services.messageService.sendChannelMessage(
-                text: text,
-                channelIndex: channelIndex,
-                radioID: radioID
-            )
-
-            // Clear unread state - user replied so they've seen the channel
-            try? await services.dataStore.clearChannelUnreadCount(radioID: radioID, index: channelIndex)
-            await services.notificationService.removeDeliveredNotifications(
-                forChannelIndex: channelIndex,
-                radioID: radioID
-            )
-            await services.notificationService.updateBadgeCount()
-            syncCoordinator?.notifyConversationsChanged()
-        } catch {
-            await services.notificationService.postChannelQuickReplyFailedNotification(
-                channelName: channelName,
-                radioID: radioID,
-                channelIndex: channelIndex
-            )
-        }
-    }
-
-    private func handleMarkAsRead(services: ServiceContainer, contactID: UUID, messageID: UUID) async {
-        do {
-            try await services.dataStore.markMessageAsRead(id: messageID)
-            try await services.dataStore.clearUnreadCount(contactID: contactID)
-            services.notificationService.removeDeliveredNotification(messageID: messageID)
-            await services.notificationService.updateBadgeCount()
-            syncCoordinator?.notifyConversationsChanged()
-        } catch {
-            // Silently ignore
-        }
-    }
-
-    private func handleChannelMarkAsRead(services: ServiceContainer, radioID: UUID, channelIndex: UInt8, messageID: UUID) async {
-        do {
-            try await services.dataStore.markMessageAsRead(id: messageID)
-            try await services.dataStore.clearChannelUnreadCount(radioID: radioID, index: channelIndex)
-            services.notificationService.removeDeliveredNotification(messageID: messageID)
-            await services.notificationService.updateBadgeCount()
-            syncCoordinator?.notifyConversationsChanged()
-        } catch {
-            // Silently ignore
-        }
-    }
-
-    private func handleRoomMarkAsRead(services: ServiceContainer, sessionID: UUID, messageID: UUID) async {
-        do {
-            try await services.roomServerService.markAsRead(sessionID: sessionID)
-            services.notificationService.removeDeliveredNotification(messageID: messageID)
-            await services.notificationService.updateBadgeCount()
-            syncCoordinator?.notifyConversationsChanged()
-        } catch {
-            // Silently ignore
-        }
-    }
-
-    /// Handle posting a notification when someone reacts to the user's message
-    func handleReactionNotification(messageID: UUID) async {
-        guard let services else { return }
-
-        // Fetch the message to check if it's outgoing
-        guard let message = try? await services.dataStore.fetchMessage(id: messageID),
-              message.direction == .outgoing else {
-            return
-        }
-
-        // Fetch the latest reaction for this message
-        guard let reactions = try? await services.dataStore.fetchReactions(for: messageID, limit: 1),
-              let latestReaction = reactions.first else {
-            return
-        }
-
-        // Check if this is a self-reaction (user reacting to their own message)
-        if let localNodeName = connectedDevice?.nodeName,
-           latestReaction.senderName == localNodeName {
-            return
-        }
-
-        // Check mute status based on message type
-        let isMuted: Bool
-        if let contactID = message.contactID {
-            let contact = try? await services.dataStore.fetchContact(id: contactID)
-            isMuted = contact?.isMuted ?? false
-        } else if let channelIndex = message.channelIndex {
-            let channel = try? await services.dataStore.fetchChannel(radioID: message.radioID, index: channelIndex)
-            isMuted = channel?.isMuted ?? false
-        } else {
-            isMuted = false
-        }
-
-        guard !isMuted else { return }
-
-        // Truncate preview if too long
-        let truncatedPreview = message.text.count > 50
-            ? String(message.text.prefix(47)) + "..."
-            : message.text
-
-        // Post the notification
-        await services.notificationService.postReactionNotification(
-            reactorName: latestReaction.senderName,
-            body: L10n.Localizable.Notifications.Reaction.body(latestReaction.emoji, truncatedPreview),
-            messageID: messageID,
-            contactID: message.contactID,
-            channelIndex: message.channelIndex,
-            radioID: message.channelIndex != nil ? message.radioID : nil
-        )
-    }
 }
 
 // MARK: - Preview Support

@@ -88,7 +88,7 @@ struct ScanChannelQRView: View {
             }
             onComplete(joinedChannel)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.userFacingMessage
         }
     }
 }
@@ -153,7 +153,7 @@ private struct ScanConfirmationContent: View {
                 LabeledContent(L10n.Chats.Chats.CreatePrivate.channelName, value: scannedChannel.name)
 
                 LabeledContent(L10n.Chats.Chats.ChannelInfo.secretKey) {
-                    Text(scannedChannel.secret.hexString())
+                    Text(scannedChannel.secret.uppercaseHexString())
                         .font(.system(.caption, design: .monospaced))
                         .foregroundStyle(.secondary)
                 }

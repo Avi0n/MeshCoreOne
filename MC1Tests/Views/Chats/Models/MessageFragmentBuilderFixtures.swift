@@ -140,7 +140,8 @@ enum MessageFragmentBuilderFixtures {
             showMapPreviews: true,
             isOffline: false,
             currentUserName: isOutgoing ? "Me" : "Sender",
-            themeID: "default"
+            themeID: "default",
+            contentSizeCategory: EnvInputs.defaultContentSizeCategory
         )
     }
 }
