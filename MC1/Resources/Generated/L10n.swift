@@ -3666,7 +3666,7 @@ public enum L10n {
         /// Location: SharedNodeViews.swift - Airtime label
         public static let airtime = L10n.tr("RemoteNodes", "remoteNodes.status.airtime", fallback: "Airtime")
         /// Location: SharedNodeViews.swift - Airtime percent label
-        public static let airtimePercent = L10n.tr("RemoteNodes", "remoteNodes.status.airtimePercent", fallback: "Airtime %")
+        public static let airtimePercent = L10n.tr("RemoteNodes", "remoteNodes.status.airtimePercent", fallback: "Airtime %%")
         /// Location: RepeaterStatusView.swift - Battery label
         public static let battery = L10n.tr("RemoteNodes", "remoteNodes.status.battery", fallback: "Battery")
         /// Location: RepeaterStatusView.swift - Battery curve section label
