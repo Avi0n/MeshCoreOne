@@ -182,7 +182,7 @@ struct DiscoveryView: View {
                     lastAdvertTimestamp: node.lastAdvertTimestamp,
                     latitude: node.latitude,
                     longitude: node.longitude,
-                    lastModified: 0
+                    lastModified: UInt32(Date().timeIntervalSince1970)
                 )
                 try await contactService.addOrUpdateContact(radioID: node.radioID, contact: frame)
                 await viewModel.loadDiscoveredNodes(radioID: node.radioID)
