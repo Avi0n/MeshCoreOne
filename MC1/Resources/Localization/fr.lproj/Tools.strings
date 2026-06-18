@@ -513,9 +513,6 @@
 /* Location: ResultsCardView.swift - Clearance section title */
 "tools.lineOfSight.clearance" = "Dégagement";
 
-/* Location: ResultsCardView.swift - Worst clearance label */
-"tools.lineOfSight.worstClearance" = "Pire dégagement (% du 1er Fresnel)";
-
 /* Location: ResultsCardView.swift - Obstructions found label */
 "tools.lineOfSight.obstructionsFound" = "Obstructions trouvées";
 

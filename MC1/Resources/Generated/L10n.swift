@@ -5751,10 +5751,6 @@ public enum L10n {
         public static let total = L10n.tr("Tools", "tools.lineOfSight.total", fallback: "Total")
         /// Location: LineOfSightView.swift - Total height label
         public static let totalHeight = L10n.tr("Tools", "tools.lineOfSight.totalHeight", fallback: "Total height")
-        /// Location: ResultsCardView.swift - Worst clearance label
-        public static func worstClearance(_ p1: Int) -> String {
-          return L10n.tr("Tools", "tools.lineOfSight.worstClearance", p1, fallback: "Worst clearance (% of 1st Fresnel)")
-        }
         /// Location: ResultsCardView.swift - Worst clearance short label
         public static let worstClearanceShort = L10n.tr("Tools", "tools.lineOfSight.worstClearanceShort", fallback: "Worst clearance")
         public enum Legend {
