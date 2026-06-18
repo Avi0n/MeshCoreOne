@@ -41,13 +41,11 @@ jobs:
               return;
             }
 
-            /*
             const PRIVILEGED = ['OWNER', 'MEMBER', 'COLLABORATOR'];
             if (PRIVILEGED.includes(pr.author_association)) {
               core.info(`Author association ${pr.author_association} is privileged; skipping.`);
               return;
             }
-            */
 
             const body = pr.body || '';
             const missing = REQUIREMENTS.filter((req) => {
@@ -75,7 +73,7 @@ jobs:
                   '',
                   checklist,
                   '',
-                  'Please verify you have completed the checkbox items, then edit the PR description to include them. If this PR was submitted via API, please be sure to include the testing steps and devices you tested on. The PR will reopen automatically once both are checked.',
+                  'Please verify you have completed the checkbox items, then edit the PR description to include them. If this PR was not submitted via the web, please be sure to include the devices you tested on and whether or not AI was used to "vibe code" it. The PR will reopen automatically once the above are addressed.',
                 ].join('\n'),
               });
               await github.rest.pulls.update({
@@ -98,7 +96,7 @@ jobs:
               });
               await github.rest.issues.createComment({
                 ...common,
-                body: `${MARKER}\nAll required checklist items are now checked. Reopening — thanks @${pr.user.login}!`,
+                body: `${MARKER}\nAll required checklist items are now checked, reopening. Thanks @${pr.user.login}!`,
               });
               core.info(`Reopened PR #${pr.number}.`);
               return;
