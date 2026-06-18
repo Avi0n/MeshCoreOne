@@ -41,13 +41,11 @@ jobs:
               return;
             }
 
-            /*
             const PRIVILEGED = ['OWNER', 'MEMBER', 'COLLABORATOR'];
             if (PRIVILEGED.includes(pr.author_association)) {
               core.info(`Author association ${pr.author_association} is privileged; skipping.`);
               return;
             }
-            */
 
             const body = pr.body || '';
             const missing = REQUIREMENTS.filter((req) => {
