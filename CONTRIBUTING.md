@@ -11,9 +11,38 @@ To make the contribution process smooth and respectful of everyone's time, pleas
 When submitting a PR, please:
 - Include a clear description of the feature or fix.
 - Include an overview of the changes made.
+- Keep the PR to a single logical change. Don't bundle unrelated commits, drive-by refactors, or stray edits; open a separate PR for those so each can be reviewed on its own.
 - Run `swiftlint lint` and fix any warnings or errors.
 - Run the test suite and confirm all tests pass.
 - Describe the testing steps you performed.
+
+> **If you (or your AI agent) open the PR from the command line or an API** (`gh pr create`, the GitHub REST API, or any bot), the required checklist will be missing and an automated check will close the PR until it is added. Paste the block below into your PR description and complete every item:
+
+```markdown
+## Description
+
+<!-- What does this PR do, and why are you making the change? -->
+
+## Overview of Changes
+
+<!-- A short summary of the changes made. -->
+
+## Testing
+
+<!-- Describe the testing steps you performed, including any edge cases. -->
+
+## Tested on
+- [ ] iOS [version]
+- [ ] iPadOS [version]
+- [ ] macOS [version]
+
+## Checklist
+
+- [ ] This PR was discussed with the maintainer either via GitHub issue or other means (Also check the box if this PR is small enough not to need discussion e.g. typo fix)
+- [ ] I have read `CONTRIBUTING.md`
+- [ ] Testing steps are documented above.
+- [ ] This change was "vibe coded" (please be truthful)
+```
 
 ### Important Note for AI-Assisted Contributions
 If you're an experienced software engineer and did not rely heavily on AI for your contribution, skip to Getting Started.
