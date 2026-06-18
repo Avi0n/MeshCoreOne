@@ -96,6 +96,9 @@ where Filter.AllCases: RandomAccessCollection {
             .scrollClipDisabled()
         }
         .frame(maxWidth: .infinity)
+        // Scope the pill morph to the bar so it doesn't leak a transaction into consumer
+        // content (a list's row transitions would otherwise animate on every filter tap).
+        .animation(reduceMotion ? nil : .smooth, value: selection)
     }
 
     @available(iOS 26.0, *)
@@ -117,9 +120,7 @@ where Filter.AllCases: RandomAccessCollection {
     private func pill(for filter: Filter) -> some View {
         let isSelected = selection == filter
         Button {
-            withAnimation(reduceMotion ? nil : .smooth) {
-                selection = filter
-            }
+            selection = filter
         } label: {
             Text(title(filter))
                 .lineLimit(1)
