@@ -10,6 +10,11 @@
 
 <!-- Describe the testing steps you performed, including any edge cases. -->
 
+## Tested on
+- [ ] iOS [version]
+- [ ] iPadOS [version]
+- [ ] macOS [version]
+
 ## Checklist
 
 - [ ] This PR was discussed with the maintainer either via GitHub issue or other means (Also check if this PR is small enough not to need discussion e.g. typo fix)
