@@ -120,35 +120,6 @@ struct NodeSnapshotServiceTests {
         #expect(latest?.telemetryEntries?.first?.value == 32.5)
     }
 
-    @Test("Fetch previous snapshot returns correct result")
-    func previousSnapshot() async throws {
-        let (service, store) = try await createTestService()
-        let t1 = Date.now.addingTimeInterval(-20)
-        let t2 = Date.now.addingTimeInterval(-10)
-
-        _ = try await store.saveNodeStatusSnapshot(
-            timestamp: t1,
-            nodePublicKey: testPublicKey,
-            batteryMillivolts: 3700,
-            lastSNR: nil, lastRSSI: nil, noiseFloor: nil,
-            uptimeSeconds: nil, rxAirtimeSeconds: nil,
-            packetsSent: nil, packetsReceived: nil,
-            receiveErrors: nil
-        )
-        _ = try await store.saveNodeStatusSnapshot(
-            timestamp: t2,
-            nodePublicKey: testPublicKey,
-            batteryMillivolts: 3850,
-            lastSNR: nil, lastRSSI: nil, noiseFloor: nil,
-            uptimeSeconds: nil, rxAirtimeSeconds: nil,
-            packetsSent: nil, packetsReceived: nil,
-            receiveErrors: nil
-        )
-
-        let previous = await service.previousSnapshot(for: testPublicKey, before: .now)
-        #expect(previous?.batteryMillivolts == 3850)
-    }
-
     @Test("Fetch snapshots returns ascending order")
     func fetchSnapshotsOrdering() async throws {
         let (service, store) = try await createTestService()
@@ -399,6 +370,170 @@ struct NodeSnapshotServiceTests {
         #expect(snapshots.count == 1)
         #expect(snapshots[0].neighborSnapshots?.count == 1, "Neighbor data should persist on a fresh row")
         #expect(snapshots[0].uptimeSeconds == nil, "A neighbor-only row carries no status fields yet")
+    }
+
+    // MARK: - Neighbor delta baseline
+
+    @Test("Previous neighbor snapshot skips a more recent status-only row")
+    func previousNeighborSkipsStatusOnly() async throws {
+        let (service, store) = try await createTestService()
+        let older = Date.now.addingTimeInterval(-3600)
+        let recent = Date.now.addingTimeInterval(-1800)
+
+        let neighborID = try await store.saveNodeStatusSnapshot(
+            timestamp: older,
+            nodePublicKey: testPublicKey,
+            batteryMillivolts: 3700,
+            lastSNR: 6.0, lastRSSI: -90, noiseFloor: -120,
+            uptimeSeconds: 3600, rxAirtimeSeconds: nil,
+            packetsSent: nil, packetsReceived: nil,
+            receiveErrors: nil
+        )
+        try await store.updateSnapshotNeighbors(id: neighborID, neighbors: [
+            NeighborSnapshotEntry(publicKeyPrefix: Data([0x01, 0x02, 0x03, 0x04]), snr: 6.0, secondsAgo: 30)
+        ])
+        _ = try await store.saveNodeStatusSnapshot(
+            timestamp: recent,
+            nodePublicKey: testPublicKey,
+            batteryMillivolts: 3850,
+            lastSNR: 8.0, lastRSSI: -85, noiseFloor: -118,
+            uptimeSeconds: 7200, rxAirtimeSeconds: nil,
+            packetsSent: nil, packetsReceived: nil,
+            receiveErrors: nil
+        )
+
+        let previous = await service.previousNeighborSnapshot(for: testPublicKey)
+        #expect(previous?.neighborSnapshots?.first?.snr == 6.0,
+                "Returns the neighbor-bearing row, not the newer status-only row")
+    }
+
+    @Test("Previous neighbor snapshot excludes the current in-window capture")
+    func previousNeighborExcludesCurrentWindow() async throws {
+        let (service, store) = try await createTestService()
+        let older = Date.now.addingTimeInterval(-3600)
+
+        let priorID = try await store.saveNodeStatusSnapshot(
+            timestamp: older,
+            nodePublicKey: testPublicKey,
+            batteryMillivolts: 3700,
+            lastSNR: 6.0, lastRSSI: -90, noiseFloor: -120,
+            uptimeSeconds: 3600, rxAirtimeSeconds: nil,
+            packetsSent: nil, packetsReceived: nil,
+            receiveErrors: nil
+        )
+        try await store.updateSnapshotNeighbors(id: priorID, neighbors: [
+            NeighborSnapshotEntry(publicKeyPrefix: Data([0x01, 0x02, 0x03, 0x04]), snr: 6.0, secondsAgo: 30)
+        ])
+        // The reading being viewed now lands on a fresh in-window row.
+        _ = await service.recordSnapshot(nodePublicKey: testPublicKey, neighbors: [
+            NeighborSnapshotEntry(publicKeyPrefix: Data([0x01, 0x02, 0x03, 0x04]), snr: 9.0, secondsAgo: 5)
+        ])
+
+        let previous = await service.previousNeighborSnapshot(for: testPublicKey)
+        #expect(previous?.neighborSnapshots?.first?.snr == 6.0,
+                "The current in-window row is excluded; baseline is the prior neighbor capture")
+    }
+
+    @Test("Previous neighbor snapshot is nil when no prior neighbor data exists")
+    func previousNeighborNilWithoutHistory() async throws {
+        let (service, _) = try await createTestService()
+
+        _ = await service.recordSnapshot(
+            nodePublicKey: testPublicKey,
+            status: metrics(battery: 3850, uptime: 3600)
+        )
+
+        let previous = await service.previousNeighborSnapshot(for: testPublicKey)
+        #expect(previous == nil, "Status-only history yields no neighbor baseline")
+    }
+
+    @Test("Previous neighbor snapshot returns an out-of-window neighbor row as the baseline")
+    func previousNeighborReturnsOutOfWindowRow() async throws {
+        let (service, store) = try await createTestService()
+        let older = Date.now.addingTimeInterval(-3600)
+
+        let priorID = try await store.saveNodeStatusSnapshot(
+            timestamp: older,
+            nodePublicKey: testPublicKey,
+            batteryMillivolts: 3700,
+            lastSNR: 6.0, lastRSSI: -90, noiseFloor: -120,
+            uptimeSeconds: 3600, rxAirtimeSeconds: nil,
+            packetsSent: nil, packetsReceived: nil,
+            receiveErrors: nil
+        )
+        try await store.updateSnapshotNeighbors(id: priorID, neighbors: [
+            NeighborSnapshotEntry(publicKeyPrefix: Data([0x01, 0x02, 0x03, 0x04]), snr: 6.0, secondsAgo: 30)
+        ])
+
+        let previous = await service.previousNeighborSnapshot(for: testPublicKey)
+        #expect(previous?.neighborSnapshots?.first?.snr == 6.0,
+                "With the latest row outside the in-window cutoff, it is the baseline")
+    }
+
+    @Test("Previous neighbor snapshot is nil when the only neighbor row is the in-window capture")
+    func previousNeighborNilWhenOnlyInWindowCapture() async throws {
+        let (service, _) = try await createTestService()
+
+        // A single fresh in-window neighbor capture is its own reading, so it has no baseline.
+        _ = await service.recordSnapshot(nodePublicKey: testPublicKey, neighbors: [
+            NeighborSnapshotEntry(publicKeyPrefix: Data([0x01, 0x02, 0x03, 0x04]), snr: 9.0, secondsAgo: 5)
+        ])
+
+        let previous = await service.previousNeighborSnapshot(for: testPublicKey)
+        #expect(previous == nil, "The in-window capture is excluded and there is no prior neighbor row")
+    }
+
+    // MARK: - Status delta baseline
+
+    @Test("Previous status snapshot skips a more recent neighbor-only row")
+    func previousStatusSkipsNeighborOnly() async throws {
+        let (service, store) = try await createTestService()
+        let older = Date.now.addingTimeInterval(-3600)
+
+        _ = try await store.saveNodeStatusSnapshot(
+            timestamp: older,
+            nodePublicKey: testPublicKey,
+            batteryMillivolts: 3700,
+            lastSNR: 6.0, lastRSSI: -90, noiseFloor: -120,
+            uptimeSeconds: 3600, rxAirtimeSeconds: nil,
+            packetsSent: nil, packetsReceived: nil,
+            receiveErrors: nil
+        )
+        // A newer neighbor-only capture carries no status fields.
+        _ = await service.recordSnapshot(nodePublicKey: testPublicKey, neighbors: [
+            NeighborSnapshotEntry(publicKeyPrefix: Data([0x01, 0x02, 0x03, 0x04]), snr: 9.0, secondsAgo: 5)
+        ])
+
+        let previous = await service.previousStatusSnapshot(for: testPublicKey, before: .now)
+        #expect(previous?.uptimeSeconds == 3600,
+                "Returns the status-bearing row, not the newer neighbor-only row")
+    }
+
+    @Test("Previous status snapshot includes an in-window status capture")
+    func previousStatusIncludesInWindowCapture() async throws {
+        let (service, _) = try await createTestService()
+
+        // Unlike the neighbor baseline, an early in-window status reading is a valid
+        // baseline: status capture is throttled and never overwrites itself.
+        _ = await service.recordSnapshot(
+            nodePublicKey: testPublicKey,
+            status: metrics(battery: 3850, uptime: 3600)
+        )
+
+        let previous = await service.previousStatusSnapshot(for: testPublicKey, before: .now)
+        #expect(previous?.uptimeSeconds == 3600, "The in-window status row is a usable baseline")
+    }
+
+    @Test("Previous status snapshot is nil when only neighbor data exists")
+    func previousStatusNilWithoutStatusHistory() async throws {
+        let (service, _) = try await createTestService()
+
+        _ = await service.recordSnapshot(nodePublicKey: testPublicKey, neighbors: [
+            NeighborSnapshotEntry(publicKeyPrefix: Data([0x01, 0x02, 0x03, 0x04]), snr: 9.0, secondsAgo: 5)
+        ])
+
+        let previous = await service.previousStatusSnapshot(for: testPublicKey, before: .now)
+        #expect(previous == nil, "Neighbor-only history yields no status baseline")
     }
 
     @Test("Concurrent in-window captures never duplicate a snapshot")

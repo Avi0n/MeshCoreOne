@@ -571,15 +571,6 @@ extension PersistenceStore {
         return try modelContext.fetch(descriptor).map(NodeStatusSnapshotDTO.init)
     }
 
-    public func fetchPreviousNodeStatusSnapshot(nodePublicKey: Data, before: Date) throws -> NodeStatusSnapshotDTO? {
-        var descriptor = FetchDescriptor<NodeStatusSnapshot>(
-            predicate: #Predicate { $0.nodePublicKey == nodePublicKey && $0.timestamp < before },
-            sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
-        )
-        descriptor.fetchLimit = 1
-        return try modelContext.fetch(descriptor).first.map(NodeStatusSnapshotDTO.init)
-    }
-
     public func updateSnapshotNeighbors(id: UUID, neighbors: [NeighborSnapshotEntry]) throws {
         var descriptor = FetchDescriptor<NodeStatusSnapshot>(
             predicate: #Predicate { $0.id == id }

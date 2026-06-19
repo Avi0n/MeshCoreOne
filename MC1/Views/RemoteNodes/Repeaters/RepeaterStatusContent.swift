@@ -183,15 +183,15 @@ private struct NeighborsSection: View {
                                 neighbor: neighbor,
                                 displayName: resolution?.displayName ?? L10n.RemoteNodes.RemoteNodes.Status.unknown,
                                 matchKind: resolution?.matchKind ?? .unresolved,
-                                previousNeighbor: viewModel.helper.previousSnapshot?.neighborSnapshots?.first {
+                                previousNeighbor: viewModel.helper.previousNeighborSnapshot?.neighborSnapshots?.first {
                                     $0.publicKeyPrefix == neighbor.publicKeyPrefix
                                 },
-                                hasPreviousSnapshot: viewModel.helper.previousSnapshot?.neighborSnapshots != nil
+                                hasPreviousSnapshot: viewModel.helper.previousNeighborSnapshot?.neighborSnapshots != nil
                             )
                         }
                     }
 
-                    if let previousNeighbors = viewModel.helper.previousSnapshot?.neighborSnapshots {
+                    if let previousNeighbors = viewModel.helper.previousNeighborSnapshot?.neighborSnapshots {
                         let currentPrefixes = Set(viewModel.neighbors.map(\.publicKeyPrefix))
                         let disappeared = previousNeighbors.filter { !currentPrefixes.contains($0.publicKeyPrefix) }
                         ForEach(disappeared, id: \.publicKeyPrefix) { old in

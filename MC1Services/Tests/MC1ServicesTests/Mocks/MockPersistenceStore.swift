@@ -1698,13 +1698,6 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
             .sorted { $0.timestamp < $1.timestamp }
     }
 
-    public func fetchPreviousNodeStatusSnapshot(nodePublicKey: Data, before: Date) async throws -> NodeStatusSnapshotDTO? {
-        nodeStatusSnapshots
-            .filter { $0.nodePublicKey == nodePublicKey && $0.timestamp < before }
-            .sorted { $0.timestamp > $1.timestamp }
-            .first
-    }
-
     public func saveTelemetryOnlySnapshot(
         nodePublicKey: Data,
         telemetryEntries: [TelemetrySnapshotEntry]
