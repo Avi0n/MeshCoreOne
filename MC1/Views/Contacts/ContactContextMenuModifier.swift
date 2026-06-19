@@ -25,17 +25,19 @@ struct ContactContextMenuModifier: ViewModifier {
             }
             .disabled(!isConnected || viewModel.isDeletePending(contact.id))
 
-            Button {
-                Task {
-                    await viewModel.toggleBlocked(contact: contact)
+            if contact.type == .chat {
+                Button {
+                    Task {
+                        await viewModel.toggleBlocked(contact: contact)
+                    }
+                } label: {
+                    Label(
+                        contact.isBlocked ? L10n.Contacts.Contacts.Action.unblock : L10n.Contacts.Contacts.Action.block,
+                        systemImage: contact.isBlocked ? "hand.raised.slash" : "hand.raised"
+                    )
                 }
-            } label: {
-                Label(
-                    contact.isBlocked ? L10n.Contacts.Contacts.Action.unblock : L10n.Contacts.Contacts.Action.block,
-                    systemImage: contact.isBlocked ? "hand.raised.slash" : "hand.raised"
-                )
+                .disabled(!isConnected)
             }
-            .disabled(!isConnected)
 
             Button {
                 Task {
