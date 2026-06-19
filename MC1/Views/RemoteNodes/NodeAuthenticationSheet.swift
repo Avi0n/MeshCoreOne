@@ -320,7 +320,7 @@ private struct AuthenticationSection: View {
         } footer: {
             if let errorMessage {
                 Label(errorMessage, systemImage: "exclamationmark.circle.fill")
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.orange)
                     .accessibilityLabel(L10n.RemoteNodes.RemoteNodes.Auth.errorPrefix(errorMessage))
             } else if password.count > maxPasswordLength {
                 Text(role == .repeater ? L10n.RemoteNodes.RemoteNodes.Auth.passwordTooLongRepeaters(maxPasswordLength) : L10n.RemoteNodes.RemoteNodes.Auth.passwordTooLongRooms(maxPasswordLength))
