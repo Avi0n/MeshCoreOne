@@ -339,4 +339,28 @@ struct ContactsViewModelTests {
 
         #expect(result.map(\.name) == ["OneHop", "ThreeHop", "Flood"])
     }
+
+    @Test("filteredContacts sorted by hops breaks ties by distance, including the flood group")
+    func filteredContactsSortedByHopsTieBreaksByDistance() {
+        let viewModel = ContactsViewModel()
+        let deviceID = UUID()
+        let floodSentinel: UInt8 = 0xFF
+        let userLocation = CLLocation(latitude: 0, longitude: 0)
+        viewModel.contacts = [
+            createContact(radioID: deviceID, name: "FarFlood", type: .chat, latitude: 0, longitude: 5, outPathLength: floodSentinel),
+            createContact(radioID: deviceID, name: "FarSameHop", type: .chat, latitude: 0, longitude: 1, outPathLength: 2),
+            createContact(radioID: deviceID, name: "NearSameHop", type: .chat, latitude: 0, longitude: 0.1, outPathLength: 2),
+            createContact(radioID: deviceID, name: "NearFlood", type: .chat, latitude: 0, longitude: 0.5, outPathLength: floodSentinel)
+        ]
+
+        let result = viewModel.filteredContacts(
+            searchText: "",
+            segment: .contacts,
+            sortOrder: .hops,
+            userLocation: userLocation
+        )
+
+        // Direct nodes first, nearest-first; flood group last, nearest-first.
+        #expect(result.map(\.name) == ["NearSameHop", "FarSameHop", "NearFlood", "FarFlood"])
+    }
 }
