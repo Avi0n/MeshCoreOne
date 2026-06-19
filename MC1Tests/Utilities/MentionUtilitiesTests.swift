@@ -25,6 +25,26 @@ struct MentionUtilitiesTests {
         #expect(mention == "@[Node-123]")
     }
 
+    // MARK: - appendMention Tests
+
+    @Test("appendMention into empty draft yields just the mention")
+    func testAppendMentionEmptyDraft() {
+        let result = MentionUtilities.appendMention(for: "Alice", to: "")
+        #expect(result == "@[Alice] ")
+    }
+
+    @Test("appendMention preserves draft and adds a separating space")
+    func testAppendMentionPreservesDraftWithoutTrailingSpace() {
+        let result = MentionUtilities.appendMention(for: "Alice", to: "hello")
+        #expect(result == "hello @[Alice] ")
+    }
+
+    @Test("appendMention does not double the space when draft ends in whitespace")
+    func testAppendMentionDraftWithTrailingSpace() {
+        let result = MentionUtilities.appendMention(for: "Alice", to: "hello ")
+        #expect(result == "hello @[Alice] ")
+    }
+
     @Test("createMention handles empty name")
     func testCreateMentionEmpty() {
         let mention = MentionUtilities.createMention(for: "")
