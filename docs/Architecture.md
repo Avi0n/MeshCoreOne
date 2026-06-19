@@ -275,6 +275,10 @@ let messageDTOs = await messageService.fetchMessages(radioID: radioID)
 
 See: [MC1Services API Reference](api/MC1Services.md) | [Sync Guide](guides/Sync.md) | [Messaging Guide](guides/Messaging.md)
 
+### Localization Boundary
+
+The MC1Services package contains no localization resources by design: strings defined there (service `errorDescription` text, `displayName` enum properties, log messages) are developer-facing English. Anything shown to the user must be mapped to the SwiftGen `L10n` enum at the view layer, either through a small app-target extension on the service type (e.g. `NotificationLevel.localizedName`) or, for strings the service layer must emit itself such as notification content, through the `NotificationStringProvider` bridge.
+
 ---
 
 ## 3. MeshCore One (UI Layer)

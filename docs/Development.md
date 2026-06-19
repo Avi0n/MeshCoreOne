@@ -193,6 +193,18 @@ struct MessageServiceTests {
 - **SwiftData**: All persistence should use SwiftData models defined in `MC1Services`.
 - **No Direct Store Access**: Services should interact with data via the `PersistenceStore` actor.
 
+### Service Concurrency Shape
+
+Services are `actor`s by default. Use a `@MainActor class` only when wrapping a framework that requires the main thread, and add `@Observable` only when views observe the type directly.
+
+### Error Types
+
+A service's error enum is declared either inline at the top of the owning service file (`ChannelServiceError`, `ContactServiceError`) or in its own file under `Errors/` (`SettingsServiceError`, `RemoteNodeError`, `StoreServiceError`). The `Errors/` directory also holds retroactive conformances (e.g. `MeshCoreError+LocalizedError`) and error types shared across layers (`ConnectionError`, `BLEError`).
+
+### Dependency Injection
+
+Pass dependencies through the initializer. Use setter injection (a mutable property assigned after construction) only to break a reference cycle between two services.
+
 ## Linting and Formatting
 
 ### SwiftLint
