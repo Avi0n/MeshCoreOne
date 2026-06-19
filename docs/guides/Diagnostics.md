@@ -18,10 +18,12 @@ Line of Sight analysis helps determine if a reliable RF link is possible between
 
 ### Accessing Line of Sight Tool
 
-1. Go to **Nodes** tab
-2. Find a contact or repeater you want to analyze
-3. Tap to open detail view
-4. Tap **Line of Sight** button in toolbar
+1. Go to **Tools** tab
+2. Tap **Line of Sight**
+3. Drop or select the two points (A and B) to analyze on the map
+4. Tap **Analyze**
+
+Line of Sight runs entirely offline and does not require a connected radio.
 
 ### Understanding the Analysis
 
@@ -140,7 +142,7 @@ Calculated signal metrics for the proposed link:
 3. For each sample point, check if terrain elevation exceeds line-of-sight elevation
 4. Calculate Fresnel zone radius at each sample point
 5. Determine percentage of path with clear Fresnel zone
-6. Apply Earth curvature correction for long distances (>5km)
+6. Apply Earth curvature (bulge) correction at each sample point
 
 **Fresnel Zone Calculation**:
 - Frequency-dependent (higher frequency = smaller Fresnel zone)
@@ -155,10 +157,10 @@ Trace Path discovers optimal routing paths through your mesh network by analyzin
 
 ### Accessing Trace Path
 
-1. Go to **Nodes** tab
-2. Tap **Trace Path** button in toolbar
-3. Select target contact or enter coordinates
-4. Review discovered paths and signal quality
+1. Go to **Tools** tab
+2. Tap **Trace Path**
+3. Build a path by selecting and ordering repeaters (hops)
+4. Run the trace and review signal quality
 
 ### Understanding Trace Path Results
 
@@ -172,11 +174,11 @@ Each discovered path shows:
 - More hops = higher reliability but potential delays
 
 **Signal Quality**:
-- Average signal-to-noise ratio (SNR) across all hops
-- Color-coded:
-  - 🟢 Green: SNR > 15 dB (excellent)
-  - 🟡 Yellow: SNR 10-15 dB (good)
-  - 🔴 Red: SNR < 10 dB (poor)
+- Signal-to-noise ratio (SNR) reported per hop
+- Color-coded (shared signal-quality scale):
+  - 🟢 Green: SNR > 0 dB (good or excellent)
+  - 🟡 Yellow: SNR > -6 dB (fair)
+  - 🔴 Red: SNR ≤ -6 dB (poor)
 
 **Total Distance**:
 - Sum of distances for all hops
@@ -184,17 +186,15 @@ Each discovered path shows:
 
 #### Per-Hop Details
 
-Expand each hop to see:
+Each hop in the result lists:
 
-**Repeater Information**:
-- Name and public key prefix
-- Node type (Repeater, Chat, Room)
-- Last seen time
+**Node Identity**:
+- Resolved contact name when known, otherwise the public-key hash prefix
+- A status label: started (your device), repeated (relay), or received (target)
 
 **Signal Metrics**:
-- **RSSI**: Received signal strength (negative dBm, closer to 0 is better)
-- **SNR**: Signal-to-noise ratio (higher is better)
-- **Distance**: Distance from previous hop
+- **SNR**: Signal-to-noise ratio for the hop (higher is better), shown with a signal-bars indicator
+- When the trace is run repeatedly (batch mode), the SNR is shown as average with min/max range
 
 ### Saving Paths
 
@@ -207,8 +207,8 @@ Save useful paths for future use:
 
 ### Managing Saved Paths
 
-1. Go to **Nodes** tab
-2. Tap **Trace Path** > **Saved Paths**
+1. Go to **Tools** tab
+2. Tap **Trace Path**, then the **Saved Paths** (bookmark) button in the toolbar
 3. View all saved paths with statistics:
    - Path name
    - Total hops and distance
@@ -265,86 +265,58 @@ RX Log viewer captures and displays live RF traffic for network debugging and an
 
 ### Understanding RX Log
 
-Each packet entry shows:
+Each packet entry is a collapsible row. Collapsed, it shows route type, time, path, and signal; expanded, it adds detail rows.
 
 **Timestamp**:
 - When packet was received
-- Format: HH:MM:SS.mmm
-- Sorted chronologically
+- Newest packets appear at the top
 
-**Source**:
-- Node ID that sent the packet
-- Format: First 8 characters of public key
-- Tap to view contact details if known
+**Route Type**:
+- Routing mode parsed from the packet header: FLOOD, DIRECT, TC_FLOOD, or TC_DIRECT
+- Flood routes are tinted green; direct routes blue
 
-**Destination**:
-- Target node ID for the packet
-- May be broadcast (all nodes) or specific node
+**Path**:
+- The hop path visualization, with each hop shown as a public-key prefix (or "You" for the local device)
+- Direct (no path) packets are labelled accordingly
+- For direct text messages, the From → To prefixes are also shown
 
 **Packet Type**:
-- Category of packet:
-  - **Message**: User message data
-  - **Control**: Network control commands
-  - **Telemetry**: Sensor data
-  - **Status**: Device status updates
-  - **ACK**: Acknowledgment packets
-  - **NACK**: Negative acknowledgment
+- The payload type parsed from the header, shown by its short name, for example:
+  - **TEXT_MSG**: User text message
+  - **ACK**: Acknowledgment packet
+  - **ADVERT**: Advertisement
+  - **GROUP_TEXT** / **GROUP_DATA**: Channel/group traffic
+  - **PATH**, **TRACE**, **REQUEST**, **RESPONSE**, **ANON_REQ**, **MULTIPART**, **CONTROL**, **RAW_CUSTOM**, **UNKNOWN**
 
 **Signal Metrics**:
 - **RSSI**: Received signal strength indicator (dBm, closer to 0 is better)
 - **SNR**: Signal-to-noise ratio (dB, higher is better)
-- Color-coded:
-  - 🟢 Green: Good signal (RSSI > -70 dBm, SNR > 10 dB)
-  - 🟡 Yellow: Fair signal (RSSI -70 to -85 dBm, SNR 5-10 dB)
-  - 🔴 Red: Poor signal (RSSI < -85 dBm, SNR < 5 dB)
+- A signal-bars glyph reflects the SNR-based quality classification:
+  - 🟢 Excellent: SNR > +6 dB
+  - 🟢 Good: SNR > 0 dB
+  - 🟡 Fair: SNR > -6 dB
+  - 🔴 Poor: SNR ≤ -6 dB
 
 **Payload**:
-- Packet content (if readable)
-- Truncated for large packets
-- May show:
-  - Message text (for message packets)
-  - Telemetry values (for telemetry packets)
-  - Error codes (for control packets)
+- Decoded message text is shown when the packet decrypts successfully
+- Otherwise the row shows the payload type and byte size
+- The expanded row includes the raw payload as hex (truncated, with a Copy button) plus packet hash, and channel info when decrypted
 
 ### RX Log Features
 
 #### Live Capture
 
-- **Auto-Scroll**: Automatically scrolls to newest packets
-- **Capture Toggle**: Pause/resume packet capture
-- **Clear Logs**: Clear all captured packets
-- **Packet Counter**: Shows total packets captured
+- **Live Status**: A status pill shows whether capture is live (connected) or offline, with a packet counter
+- **Newest First**: New packets are inserted at the top of the list
+- **Group Duplicates**: Collapse repeated copies of the same packet into a single row with a count badge
+- **Delete Logs**: Clear all captured packets (confirmation required)
 
 #### Filtering
 
-Filter logs to find specific events:
+Filter logs from the toolbar filter menu:
 
-- **Filter by Packet Type**: Show only messages, telemetry, or control packets
-- **Filter by Source**: Show only packets from specific node
-- **Filter by Destination**: Show only packets to specific destination
-- **Signal Threshold**: Show only packets above/below signal threshold
-
-#### Export
-
-Save logs for offline analysis:
-
-1. Tap **Export** button
-2. Select time range (1-24 hours)
-3. Logs are exported as structured JSON
-4. Share via email, Files app, or other sharing options
-
-**Export Format**:
-```json
-{
-  "timestamp": "2026-01-12T14:30:15.123Z",
-  "source": "A1B2C3D4",
-  "destination": "E5F6G7H8",
-  "packet_type": "message",
-  "rssi": -72,
-  "snr": 14,
-  "payload": "Hello world"
-}
-```
+- **Route Type**: All, Flood Only, or Direct Only
+- **Decrypt Status**: All, Decrypted, or Failed
 
 ### Using RX Log for Troubleshooting
 
@@ -373,9 +345,9 @@ Save logs for offline analysis:
 ### RX Log Implementation
 
 **Packet Capture**:
-- Listens to transport layer packet stream
+- Listens to the radio's RX log event stream
 - Captures all received packets (including failed decodes)
-- Stores in memory buffer with configurable max size
+- Persists entries to the local database (scoped per radio), pruning old entries to a recent cap; the live view also holds the most recent entries in memory
 
 **Performance Considerations**:
 - **Memory**: Log entries are lightweight (~200 bytes each)

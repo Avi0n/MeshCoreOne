@@ -8,24 +8,24 @@ When MeshCore One connects to a MeshCore device, it must synchronize local data 
 
 ## SyncCoordinator
 
-**File:** `MC1Services/Sources/MC1Services/SyncCoordinator.swift`
+**File:** `MC1Services/Sources/MC1Services/Sync/SyncCoordinator.swift`
 
 ```swift
 public actor SyncCoordinator {
-    public var lastSyncDate: Date?
+    @MainActor private(set) var lastSyncDate: Date?
 }
 
-public enum SyncState: Sendable, Equatable {
+enum SyncState: Sendable, Equatable {
     case idle
     case syncing(progress: SyncProgress)
     case synced
     case failed(SyncCoordinatorError)
 }
 
-public struct SyncProgress: Sendable, Equatable {
-    public let phase: SyncPhase
-    public let current: Int
-    public let total: Int
+struct SyncProgress: Sendable, Equatable {
+    let phase: SyncPhase
+    let current: Int
+    let total: Int
 }
 
 public enum SyncPhase: Sendable, Equatable {
@@ -74,13 +74,7 @@ BLE Connected
       │
       ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  5. START AUTO-FETCH                                        │
-│     Reduce BLE contention by starting after sync            │
-└─────────────────────────────────────────────────────────────┘
-      │
-      ▼
-┌─────────────────────────────────────────────────────────────┐
-│  6. WIRE DISCOVERY HANDLERS                                 │
+│  5. START DISCOVERY EVENT MONITORING                        │
 │     Set up callbacks for ongoing discovery:                 │
 │     • New contact discovered                                │
 │     • Contact sync request (auto-add mode)                  │
@@ -88,8 +82,20 @@ BLE Connected
       │
       ▼
 ┌─────────────────────────────────────────────────────────────┐
+│  6. FLUSH DEFERRED ADVERT FETCHES                           │
+│     Stop suppressing advert-driven contact fetches          │
+└─────────────────────────────────────────────────────────────┘
+      │
+      ▼
+┌─────────────────────────────────────────────────────────────┐
 │  7. DRAIN PENDING HANDLERS                                  │
-│     Wait up to 2s so sync-time messages don't notify        │
+│     Wait up to 30s, then resume notifications               │
+└─────────────────────────────────────────────────────────────┘
+      │
+      ▼
+┌─────────────────────────────────────────────────────────────┐
+│  8. START AUTO-FETCH                                        │
+│     After suppression is cleared, to avoid notification spam│
 └─────────────────────────────────────────────────────────────┘
       │
       ▼
@@ -104,9 +110,10 @@ The order is critical:
 2. **Event monitoring second:** Start monitoring with auto-fetch disabled
 3. **Export private key:** Needed for direct message decryption in RxLogService
 4. **Sync:** Pull current state from device (contacts → channels → messages)
-5. **Auto-fetch after sync:** Avoids BLE contention during initial sync
-6. **Discovery handlers last:** For ongoing contact discovery after initial sync
-7. **Drain pending handlers:** Ensures suppressed notifications stay suppressed during sync
+5. **Discovery monitoring after sync:** For ongoing contact discovery after initial sync
+6. **Flush deferred advert fetches:** Stop suppressing advert-driven contact fetches now that monitoring is live
+7. **Drain pending handlers:** Wait for in-flight handlers, then resume notifications so sync-time messages stay suppressed
+8. **Auto-fetch last:** Starts after suppression is cleared to avoid notification spam
 
 ## Sync Phases
 
@@ -118,7 +125,7 @@ syncState = .syncing(progress: SyncProgress(phase: .contacts, current: 0, total:
 await onSyncStarted?()  // Shows UI pill
 
 let result = try await contactService.syncContacts(
-    deviceID: deviceID,
+    radioID: radioID,
     since: lastContactSync  // Incremental if available
 )
 ```
@@ -135,7 +142,7 @@ var lastTimestamp: UInt32 = 0
 // Save each to local database
 for meshContact in meshContacts {
     let frame = meshContact.toContactFrame()
-    _ = try await dataStore.saveContact(deviceID: deviceID, from: frame)
+    _ = try await dataStore.saveContact(radioID: radioID, from: frame)
     receivedCount += 1
 
     let modifiedTimestamp = UInt32(meshContact.lastModified.timeIntervalSince1970)
@@ -158,7 +165,7 @@ syncState = .syncing(progress: SyncProgress(phase: .channels, current: 0, total:
 
 let maxChannels = device?.maxChannels ?? 0
 let result = try await channelService.syncChannels(
-    deviceID: deviceID,
+    radioID: radioID,
     maxChannels: maxChannels
 )
 ```
@@ -166,12 +173,12 @@ let result = try await channelService.syncChannels(
 **ChannelService.syncChannels:**
 
 ```swift
-// Query each slot (0-7)
-for index in 0..<maxChannels {
-    let config = try await session.getChannel(index: UInt8(index))
+// Query each slot up to the device's channel capacity
+for index: UInt8 in 0..<maxChannels {
+    let config = try await session.getChannel(index: index)
 
     if let config {
-        try await dataStore.saveChannel(deviceID: deviceID, index: index, config: config)
+        try await dataStore.saveChannel(radioID: radioID, index: index, config: config)
     }
 }
 
@@ -208,6 +215,11 @@ while true {
     case .channelMessage(let message):
         // Handled by event monitoring handlers
         count += 1
+
+    case .channelDatagram:
+        // Binary datagram (firmware v11+); not a user-visible message,
+        // so drain the queue without counting it
+        break
     }
 }
 ```
@@ -250,23 +262,20 @@ The coordinator provides callbacks for UI feedback:
 ```swift
 public func setSyncActivityCallbacks(
     onStarted: @escaping @Sendable () async -> Void,
-    onEnded: @escaping @Sendable () async -> Void
-)
+    onEnded: @escaping @Sendable (_ succeeded: Bool) async -> Void,
+    onPhaseChanged: @escaping @Sendable @MainActor (_ phase: SyncPhase?) -> Void
+) async
 ```
 
 ### UI Pill Display
 
 ```swift
-// AppState tracks sync activity via counter
-private var syncActivityCount: Int = 0
-
-var shouldShowSyncingPill: Bool {
-    syncActivityCount > 0
-}
+// ConnectionUIState tracks sync activity via counter; pill shows when > 0
+var syncActivityCount: Int = 0
 
 // SyncCoordinator calls these during contacts/channels phases
-await onSyncActivityStarted?()  // syncActivityCount += 1
-await onSyncActivityEnded?()    // syncActivityCount -= 1
+await onSyncActivityStarted?()           // syncActivityCount += 1
+await onSyncActivityEnded?(succeeded)    // syncActivityCount -= 1
 ```
 
 The pill is shown for:
@@ -296,7 +305,8 @@ public enum SyncCoordinatorError: Error, Sendable {
 ```swift
 do {
     try await performFullSync(
-        deviceID: deviceID,
+        radioID: radioID,
+        dataStore: dataStore,
         contactService: contactService,
         channelService: channelService,
         messagePollingService: messagePollingService
@@ -320,15 +330,17 @@ On failure:
 
 ### Contact Message Handler
 
+The contact and channel handlers both forward into a shared `handleIncomingMessage` pipeline (timestamp correction, RX-log path correlation, dedup, reaction short-circuit, persistence, unread/notification updates, UI refresh). The snippet below illustrates the direct-message path:
+
 ```swift
 // Handles direct messages from contacts (textType = 0x00)
-await messagePollingService.setContactMessageHandler { message, contact in
+await messagePollingService.setContactMessageHandler { message, contact, context in
     let timestamp = UInt32(message.senderTimestamp.timeIntervalSince1970)
 
     // Create DTO
     let messageDTO = MessageDTO(
         id: UUID(),
-        deviceID: deviceID,
+        radioID: radioID,
         contactID: contact?.id,
         channelIndex: nil,
         text: message.text,
@@ -373,9 +385,9 @@ await messagePollingService.setContactMessageHandler { message, contact in
     // Notify UI via SyncCoordinator
     await syncCoordinator.notifyConversationsChanged()
 
-    // Notify MessageEventBroadcaster for real-time chat updates
+    // Broadcast for real-time chat updates via the data event stream
     if let contact {
-        await onDirectMessageReceived?(messageDTO, contact)
+        dataEventBroadcaster.yield(.directMessageReceived(message: messageDTO, contact: contact))
     }
 }
 ```
@@ -384,14 +396,14 @@ await messagePollingService.setContactMessageHandler { message, contact in
 
 ```swift
 // Handles channel broadcast messages (textType = 0x03)
-await messagePollingService.setChannelMessageHandler { message, channel in
+await messagePollingService.setChannelMessageHandler { message, channel, context in
     // Parse "NodeName: text" format for sender name
     let (senderNodeName, messageText) = parseChannelMessage(message.text)
 
     let timestamp = UInt32(message.senderTimestamp.timeIntervalSince1970)
     let messageDTO = MessageDTO(
         id: UUID(),
-        deviceID: deviceID,
+        radioID: radioID,
         contactID: nil,
         channelIndex: message.channelIndex,
         text: messageText,
@@ -426,7 +438,7 @@ await messagePollingService.setChannelMessageHandler { message, channel in
     await services.notificationService.postChannelMessageNotification(
         channelName: channel?.name ?? "Channel \(message.channelIndex)",
         channelIndex: message.channelIndex,
-        deviceID: deviceID,
+        radioID: radioID,
         senderName: senderNodeName,
         messageText: messageText,
         messageID: messageDTO.id
@@ -436,8 +448,8 @@ await messagePollingService.setChannelMessageHandler { message, channel in
     // Notify UI via SyncCoordinator
     await syncCoordinator.notifyConversationsChanged()
 
-    // Notify MessageEventBroadcaster for real-time chat updates
-    await onChannelMessageReceived?(messageDTO, message.channelIndex)
+    // Broadcast for real-time chat updates via the data event stream
+    dataEventBroadcaster.yield(.channelMessageReceived(message: messageDTO, channelIndex: message.channelIndex))
 }
 
 // Helper function to parse channel messages
@@ -478,11 +490,16 @@ await messagePollingService.setSignedMessageHandler { message, contact in
 ### CLI Message Handler
 
 ```swift
-// Handles CLI messages from repeater admin (textType = 0x01)
+// Handles CLI messages from repeater/room admin (textType = 0x01)
 await messagePollingService.setCLIMessageHandler { message, contact in
-    // Process repeater administrative responses
+    // Route CLI responses by contact type: rooms to roomAdminService,
+    // everything else (repeaters) to repeaterAdminService
     if let contact {
-        await repeaterAdminService.invokeCLIHandler(message, fromContact: contact)
+        if contact.type == .room {
+            await roomAdminService.invokeCLIHandler(message, fromContact: contact)
+        } else {
+            await repeaterAdminService.invokeCLIHandler(message, fromContact: contact)
+        }
     } else {
         logger.warning("Dropping CLI response: no contact found for sender")
     }
@@ -491,26 +508,30 @@ await messagePollingService.setCLIMessageHandler { message, contact in
 
 ## Message Event Callbacks
 
-The SyncCoordinator provides callbacks for real-time UI updates when messages arrive. These are separate from the handlers above and are used by the MessageEventBroadcaster for live chat updates.
+The SyncCoordinator yields incoming-message events on the same `dataEvents()` broadcaster used for data-change events. These are separate from the handlers above and are consumed by `MessageEventDispatcher` for live chat updates.
 
-### Wiring Event Callbacks
+### Wiring the Message Event Stream
 
 ```swift
-// Wire message event callbacks for real-time chat updates
-await syncCoordinator.setMessageEventCallbacks(
-    onDirectMessageReceived: { [weak self] message, contact in
-        await self?.messageEventBroadcaster.handleDirectMessage(message, from: contact)
-    },
-    onChannelMessageReceived: { [weak self] message, channelIndex in
-        await self?.messageEventBroadcaster.handleChannelMessage(message, channelIndex: channelIndex)
-    },
-    onRoomMessageReceived: { [weak self] message in
-        await self?.messageEventBroadcaster.handleRoomMessage(message)
-    },
-    onReactionReceived: { [weak self] messageID, summary in
-        await self?.messageEventBroadcaster.handleReactionReceived(messageID: messageID, summary: summary)
+// MessageEventDispatcher.wireSyncCoordinator subscribes to the data event stream
+let events = syncCoordinator.dataEvents()
+let task = Task { [weak appState, stream] in
+    for await event in events {
+        switch event {
+        case .directMessageReceived(let message, let contact):
+            stream.send(.directMessageReceived(message: message, contact: contact))
+        case .channelMessageReceived(let message, let channelIndex):
+            stream.send(.channelMessageReceived(message: message, channelIndex: channelIndex))
+        case .roomMessageReceived(let message):
+            stream.send(.roomMessageReceived(message: message, sessionID: message.sessionID))
+        case .reactionReceived(let messageID, let summary):
+            stream.send(.reactionReceived(messageID: messageID, summary: summary))
+            await appState?.handleReactionNotification(messageID: messageID)
+        case .contactsChanged, .conversationsChanged:
+            break
+        }
     }
-)
+}
 ```
 
 ### How Event Callbacks Work
@@ -523,7 +544,7 @@ When a message arrives:
    - Posts system notification
    - Updates UI refresh counters
 
-2. **Event Callback** (to MessageEventBroadcaster):
+2. **Event Stream** (consumed by MessageEventDispatcher):
    - Broadcasts to open chat views
    - Updates message lists in real-time
    - Handles message status updates
@@ -542,33 +563,32 @@ This separation ensures:
 
 ## Discovery Handlers
 
-### New Contact Discovered
+Discovery is consumed as an event stream in `SyncCoordinator.startDiscoveryEventMonitoring`, started only after the initial sync so adverts arriving during sync do not spam notifications:
 
 ```swift
-// Triggered when device advertises a new contact (manual-add mode)
-await advertisementService.setNewContactDiscoveredHandler { contactName, contactID in
-    // Post notification for manual-add UI
-    await services.notificationService.postNewContactNotification(
-        contactName: contactName,
-        contactID: contactID
-    )
-
-    // Refresh contact list
-    await syncCoordinator.notifyContactsChanged()
-}
-```
-
-### Auto-Add Mode
-
-```swift
-// Triggered when device wants us to sync contacts (auto-add mode)
-await advertisementService.setContactSyncRequestHandler { _ in
-    // Sync contacts from device
-    do {
-        _ = try await services.contactService.syncContacts(deviceID: deviceID)
-        await syncCoordinator.notifyContactsChanged()
-    } catch {
-        logger.warning("Auto-sync after discovery failed: \(error.localizedDescription)")
+func startDiscoveryEventMonitoring(dependencies: SyncDependencies, radioID: UUID) {
+    discoveryEventsTask?.cancel()
+    let events = dependencies.advertisementService.events()
+    discoveryEventsTask = Task { [weak self] in
+        for await event in events {
+            guard let self else { return }
+            switch event {
+            case .newContactDiscovered(let name, let contactID, let contactType):
+                // Manual-add mode: a new contact was discovered via advertisement
+                await dependencies.notificationService.postNewContactNotification(
+                    contactName: name,
+                    contactID: contactID,
+                    contactType: contactType
+                )
+                await self.notifyContactsChanged()
+            case .contactSyncRequested:
+                // Auto-add mode: AdvertisementService already fetched and saved
+                // the contact, so only a UI refresh is needed
+                await self.notifyContactsChanged()
+            default:
+                break
+            }
+        }
     }
 }
 ```
@@ -579,20 +599,21 @@ When the device disconnects, the sync state resets:
 
 ```swift
 // Called by ConnectionManager when disconnecting
-await syncCoordinator.onDisconnected()
+await syncCoordinator.onDisconnected(notificationService: notificationService)
 
-// In SyncCoordinator:
-public func onDisconnected() async {
+// In SyncCoordinator (decrements activity if mid-sync, then resets state):
+func onDisconnected(notificationService: NotificationService) async {
+    // ... end sync activity if mid-contacts/channels, clear guards ...
     await setState(.idle)
-    logger.info("Disconnected, sync state reset to idle")
 }
 
 // In AppState.wireServicesIfConnected:
 guard let services else {
+    tearDownAppStateSessionState()
     // Clear syncCoordinator when services are nil
     syncCoordinator = nil
-    // Reset sync activity count to prevent stuck pill
-    syncActivityCount = 0
+    // handleDisconnect resets syncActivityCount = 0 to prevent a stuck pill
+    connectionUI.handleDisconnect(...)
     return
 }
 ```
@@ -606,40 +627,46 @@ This ensures:
 
 ## Observable State for SwiftUI
 
-The coordinator provides observable counters for SwiftUI updates. Since actors don't participate in SwiftUI's observation system, we use callbacks to update version counters in AppState.
+The coordinator provides observable counters for SwiftUI updates. Since actors don't participate in SwiftUI's observation system, the coordinator yields data-change events on a broadcaster that AppState consumes to bump its own version counters.
 
 ### SyncCoordinator Version Counters
 
 ```swift
 // In SyncCoordinator (actor)
-@MainActor public private(set) var contactsVersion: Int = 0
-@MainActor public private(set) var conversationsVersion: Int = 0
+@MainActor private(set) var contactsVersion: Int = 0
+@MainActor private(set) var conversationsVersion: Int = 0
 
 @MainActor
 public func notifyContactsChanged() {
     contactsVersion += 1
-    onContactsChanged?()  // Calls back to AppState
+    dataEventBroadcaster.yield(.contactsChanged)
 }
 
 @MainActor
 public func notifyConversationsChanged() {
     conversationsVersion += 1
-    onConversationsChanged?()  // Calls back to AppState
+    dataEventBroadcaster.yield(.conversationsChanged)
 }
 ```
 
-### Wiring Callbacks to AppState
+### Wiring the Data Event Stream to AppState
 
 ```swift
-// In AppState.wireServicesIfConnected
-await services.syncCoordinator.setDataChangeCallbacks(
-    onContactsChanged: { @MainActor [weak self] in
-        self?.contactsVersion += 1
-    },
-    onConversationsChanged: { @MainActor [weak self] in
-        self?.conversationsVersion += 1
+// In AppState.wireSyncDataEvents
+let events = services.syncCoordinator.dataEvents()
+syncDataEventsTask = Task { [weak self] in
+    for await event in events {
+        guard let self else { return }
+        switch event {
+        case .contactsChanged:
+            self.contactsVersion += 1
+        case .conversationsChanged:
+            self.refreshConversations()
+        case .directMessageReceived, .channelMessageReceived, .roomMessageReceived, .reactionReceived:
+            break  // owned by MessageEventDispatcher
+        }
     }
-)
+}
 ```
 
 ### SwiftUI Views Observing Changes

@@ -8,7 +8,7 @@ MeshCore One uses CoreBluetooth to communicate with MeshCore devices over Blueto
 
 **Important:** Both `iOSBLETransport` and `BLEStateMachine` are Swift actors, not classes. This means all property access and method calls require `await`, providing automatic thread-safety and isolation guarantees under Swift's concurrency model.
 
-**Note:** MeshCore contains a separate, simpler `BLETransport` implementation that uses a delegate-based pattern. This is distinct from the more complex `iOSBLETransport + BLEStateMachine` implementation in MC1Services, which provides full state machine management, auto-reconnection, and production features.
+**Note:** The BLE transport is a platform concern: `MeshTransport` deliberately omits BLE, and the iOS-specific `iOSBLETransport + BLEStateMachine` pair in MC1Services provides the production implementation with full state machine management, auto-reconnection, and other production features. The MeshCore package ships only the cross-platform `WiFiTransport` and `MockTransport`.
 
 ## Architecture
 
@@ -57,11 +57,14 @@ MeshCore One uses CoreBluetooth to communicate with MeshCore devices over Blueto
 
 ```swift
 public protocol MeshTransport: Sendable {
-    var receivedData: AsyncStream<Data> { get async }
-    var isConnected: Bool { get async }
     func connect() async throws
     func disconnect() async
     func send(_ data: Data) async throws
+    func sendWithoutResponse(_ data: Data) async throws
+    var supportsWriteWithoutResponse: Bool { get async }
+    var supportsPipelinedReads: Bool { get async }
+    var receivedData: AsyncStream<Data> { get async }
+    var isConnected: Bool { get async }
 }
 ```
 
@@ -176,14 +179,13 @@ connected
 **File:** `MC1Services/Sources/MC1Services/Transport/iOSBLETransport.swift`
 
 ```swift
-public func setReconnectionHandler(_ handler: @escaping @Sendable (UUID) -> Void) async {
-    await stateMachine.setReconnectionHandler { [weak self] deviceID, stream in
-        Task {
-            // First capture the new data stream
-            await self?.setDataStream(stream)
-            // Then notify handler (stream is ready)
-            handler(deviceID)
-        }
+func setReconnectionHandler(_ handler: @escaping @Sendable (UUID) -> Void) async {
+    await stateMachine.setReconnectionHandler { [dataStreamLock, logger] deviceID, stream in
+        // Capture the stream synchronously using lock (no Task spawning).
+        // This ensures the stream is available before any handler code runs.
+        logger.info("[BLE] Auto-reconnect stream captured for device: \(deviceID.uuidString.prefix(8))")
+        dataStreamLock.withLock { $0 = stream }
+        handler(deviceID)
     }
 }
 ```
@@ -192,8 +194,9 @@ The `ConnectionManager` uses this to re-wire services after reconnection:
 
 ```swift
 await transport.setReconnectionHandler { [weak self] deviceID in
-    Task {
-        await self?.handleReconnection(deviceID: deviceID)
+    Task { @MainActor in
+        guard let self else { return }
+        await self.reconnectionCoordinator.handleReconnectionComplete(deviceID: deviceID)
     }
 }
 ```
@@ -273,13 +276,14 @@ The `MockTransport` maintains:
 
 ## Connection States in UI
 
-The `ConnectionManager` exposes connection state for UI:
+The `ConnectionManager` exposes `DeviceConnectionState` for UI:
 
 | State | Description | UI Indicator |
 |-------|-------------|--------------|
 | `.disconnected` | No connection | Red dot |
 | `.connecting` | Connection in progress | Yellow dot, spinner |
 | `.connected` | BLE connected, services loading | Yellow dot |
+| `.syncing` | Connected, initial data sync in progress | Yellow dot |
 | `.ready` | Fully operational | Green dot |
 
 ## Troubleshooting
@@ -311,35 +315,40 @@ If a write operation takes too long (default: 5 seconds), the state machine:
 ### Service Discovery Failure
 
 If Nordic UART Service is not found during discovery:
-1. Disconnects the peripheral
-2. Transitions to `idle`
-3. Throws `BLEError.characteristicNotFound`
+1. Transitions to `idle`
+2. Throws `BLEError.characteristicNotFound`
 
-**Source:** `BLEStateMachine.swift:630-633`
+The CoreBluetooth peripheral connection is left open on this path; only the service-discovery *timeout* path cancels the peripheral connection.
+
+**Source:** `BLEStateMachine.swift`
 
 ### Characteristic Not Found
 
 If TX or RX characteristics are missing:
-1. Disconnects the peripheral
-2. Transitions to `idle`
-3. Throws `BLEError.characteristicNotFound`
+1. Transitions to `idle`
+2. Throws `BLEError.characteristicNotFound`
+
+The peripheral is not disconnected by this code path.
 
 ### Pairing Errors
 
-BLE devices may require pairing for secure communication. The state machine detects pairing failures through CBATTError codes:
+BLE devices may require pairing for secure communication. `makeConnectionError` detects pairing/encryption failures by mapping the underlying CoreBluetooth error codes to a typed `BLEError`, so detection survives iOS localizing the error description in any locale:
 
-**Pairing-related error codes:**
-- `5` - insufficientAuthentication (pairing required but not completed)
-- `8` - insufficientAuthorization (authorization failed)
-- `14` - unlikelyError (peer removed pairing information)
-- `15` - insufficientEncryption (encryption failed)
+**Auth/encryption error codes mapped to `BLEError.authenticationFailed`:**
+- `CBATTError.insufficientAuthentication` (pairing required but not completed)
+- `CBATTError.insufficientAuthorization` (authorization failed)
+- `CBATTError.insufficientEncryption` (encryption failed)
+- `CBATTError.insufficientEncryptionKeySize` (encryption key too short)
+- `CBError.encryptionTimedOut` (encryption negotiation timed out)
 
-When a pairing failure is detected:
-1. The error is wrapped as `BLEError.pairingFailed(reason)`
+When such a failure is detected:
+1. The error is returned as `BLEError.authenticationFailed`
 2. Connection may be closed
 3. User should be prompted to pair in iOS Settings
 
-**Source:** `BLEError.swift:77-96`
+Any other CoreBluetooth error falls back to `BLEError.connectionFailed(_:)` carrying the localized description.
+
+**Source:** `BLEStateMachine+CallbackHandlers.swift` (`makeConnectionError`), `BLEError.swift`
 
 ## Event Handlers
 
@@ -372,8 +381,8 @@ await stateMachine.setReconnectionHandler { deviceID, dataStream in
 Called when device disconnects but iOS is attempting automatic reconnection:
 
 ```swift
-await stateMachine.setAutoReconnectingHandler { deviceID in
-    logger.info("Device \(deviceID) entering auto-reconnect")
+await stateMachine.setAutoReconnectingHandler { deviceID, reason in
+    logger.info("Device \(deviceID) entering auto-reconnect: \(reason)")
     // Show "Connecting..." in UI
     // Note: MeshCore session is invalid at this point
 }
@@ -405,7 +414,7 @@ await stateMachine.setBluetoothPoweredOnHandler {
 }
 ```
 
-**Source:** `BLEStateMachine.swift:122-149`
+**Source:** `BLEStateMachine.swift`
 
 ## Timeouts and Configuration
 
@@ -415,6 +424,7 @@ The `BLEStateMachine` actor uses configurable timeouts:
 |-----------|---------|---------|
 | Connection | 10s | Initial peripheral connection |
 | Service Discovery | 40s | Service/characteristic discovery (allows for pairing dialog) |
+| Auto-Reconnect Discovery | 15s | Service/characteristic re-discovery after iOS auto-reconnect |
 | Write | 5s | Individual write operations |
 
 These can be customized during initialization:
@@ -423,11 +433,13 @@ These can be customized during initialization:
 let stateMachine = BLEStateMachine(
     connectionTimeout: 15.0,
     serviceDiscoveryTimeout: 60.0,
-    writeTimeout: 10.0
+    autoReconnectDiscoveryTimeout: 20.0,
+    writeTimeout: 10.0,
+    writePacingDelay: 0
 )
 ```
 
-**Source:** `BLEStateMachine.swift:66-78`
+**Source:** `BLEStateMachine.swift`
 
 ## See Also
 

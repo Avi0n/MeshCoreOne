@@ -15,7 +15,8 @@ MeshCore One is a messaging app designed for off-grid communication using MeshCo
 2. **Permissions**: Grant permissions for **Notifications** and **Location**. Location is needed for sharing your position with other mesh users.
 3. **Discovery**: The app will scan for nearby MeshCore devices using AccessorySetupKit. Select your device from the list.
 4. **Pairing**: Follow the on-screen instructions to pair your device. Bluetooth permission is requested automatically by AccessorySetupKit during device discovery. You may be prompted to enter a device PIN (device-specific).
-5. **Radio Preset**: Choose a starter radio preset to configure frequency, power, and bandwidth quickly.
+5. **Region**: Choose your region (detected from your location when available, or selected manually). This narrows the radio presets shown to ones that work in your area.
+6. **Radio Preset**: Choose a starter radio preset to configure frequency, power, and bandwidth quickly.
 
 ---
 
@@ -28,9 +29,9 @@ MeshCore One is a messaging app designed for off-grid communication using MeshCo
 - Type your message and tap **Send**.
 - **Delivery Status** (shown as text labels below outgoing messages):
   - **"Sending..."**: Message is pending or being transmitted to your radio.
-  - **"Sent"**: The message has been successfully transmitted by your radio.
+  - **"Sent"**: Your radio has accepted the message and queued it for transmission.
   - **"Delivered"**: The recipient's radio has confirmed receipt of message.
-  - **"Retrying..."**: The app is attempting to resend using flood routing (with spinner indicator).
+  - **"Retrying..."**: The app is attempting to resend (first via direct routing, then falling back to flood routing once the direct attempts are exhausted), shown with a spinner indicator.
   - **"Failed"**: The message could not be delivered after multiple attempts (red bubble background with exclamation icon).
 
 ### @Mentions
@@ -56,11 +57,12 @@ MeshCore One automatically generates rich previews for URLs shared in messages:
 2. The app will fetch metadata (title, description, image) when the message is sent.
 3. Recipients see a preview card instead of just the raw URL.
 4. Tap the preview card to open the link in Safari.
-5. Toggle link previews on/off in **Settings** > **Link Preview Settings**.
+5. Toggle link previews on/off in **Settings** > **Chats**.
 
-**Link Preview Settings**:
-- **Enable Link Previews**: Turn automatic preview generation on/off.
-- **Always Fetch Previews**: Fetch previews even when using WiFi or cellular data (for testing).
+**Link Preview Settings** (Settings > Chats):
+- **Link Previews**: Turn automatic preview generation on/off.
+- **Show in Direct Messages**: Fetch and show previews in direct messages.
+- **Show in Channels**: Fetch and show previews in channels.
 - Preview cards are fetched on-demand when messages are loaded.
 
 ### Reactions
@@ -83,11 +85,11 @@ Long-press a message to view more context without leaving the sheet:
 
 Mute notifications for individual conversations to reduce distractions:
 
-1. In the **Chats** list, swipe left on the conversation you want to mute.
+1. In the **Chats** list, long-press the conversation you want to mute to open its context menu.
 2. Tap **Mute**.
 3. The conversation will show a **muted bell icon** to indicate it's muted.
 4. You'll still receive messages, but no notifications will appear.
-5. Swipe left again and tap **Unmute** to re-enable notifications.
+5. Long-press the conversation again and tap **Unmute** to re-enable notifications.
 
 **Note**: Muted conversations still display unread message badges in the app, just not push notifications.
 
@@ -95,21 +97,21 @@ Mute notifications for individual conversations to reduce distractions:
 
 Block unwanted contacts to prevent receiving messages from them:
 
-1. In the **Nodes** list, swipe left on the contact you want to block.
+1. In the **Nodes** list, long-press the contact you want to block to open its context menu.
 2. Tap **Block**.
 3. The contact will be moved to **Blocked Contacts** section.
 4. Blocked contacts cannot send you messages.
 5. You can view and manage blocked contacts from the **Nodes** tab.
-6. Swipe left on a blocked contact and tap **Unblock** to allow messages again.
+6. Long-press a blocked contact and tap **Unblock** to allow messages again.
 
-**Note**: Repeaters and room servers cannot be blocked (block option is hidden for these contact types).
+**Note**: The Block option appears only for chat-type contacts; repeaters and room servers cannot be blocked (the option is hidden for these contact types).
 
 ### Retrying Failed Messages
 
 If a message fails to deliver:
 
 1. Tap the **Retry** button that appears below the failed message.
-2. The app will attempt to resend using flood routing (broadcast to all nearby nodes).
+2. The app re-attempts direct routing first, then falls back to flood routing (broadcast to all nearby nodes) only after the direct attempts are exhausted (by default, 4 direct attempts followed by 1 flood attempt).
 3. You'll see retry progress: "Retrying 1/4...", "Retrying 2/4...", etc.
 
 ### Group Channels
@@ -147,7 +149,7 @@ When connecting to a room that requires authentication:
 - Room servers can be public or require authentication.
 - **Read-only** guests can view but not send messages.
 - **Read/Write** guests can participate fully.
-- To leave a room, swipe left on the room conversation in the Chats list and select **Delete**. This will remove the room, delete all messages, and remove the associated contact.
+- To leave a room, long-press the room conversation in the Chats list to open its context menu and select **Delete**. This will remove the room, delete all messages, and remove the associated contact.
 
 ---
 
@@ -156,7 +158,7 @@ When connecting to a room that requires authentication:
 ### Discovering Contacts
 
 - Contacts are discovered when they "advertise" their presence on the mesh network.
-- You can manually send an advertisement from the **Nodes** tab by going to the **ellipsis menu** (top right) > **Discovery**.
+- You can manually send an advertisement from the **Nodes** tab by going to the **ellipsis menu** (top right) > **Discover**.
 
 ### QR Code Sharing
 
@@ -198,10 +200,11 @@ Share your contact info or a channel via QR code:
 
 ### Contact Actions
 
-You can perform quick actions on contacts using swipe gestures:
+Long-press a node row to open its context menu, where you can perform quick actions:
 
-- **Swipe right**: Mark as **Favorite** (or remove from favorites).
-- **Swipe left**: **Block** or **Delete** the contact.
+- **Favorite / Unfavorite**: Mark the contact as a favorite or remove it from favorites.
+- **Block / Unblock**: Block or unblock the contact (available only for chat-type contacts).
+- **Delete**: Remove the contact.
 
 ### Discovery View
 
@@ -209,7 +212,7 @@ The Discovery view shows contacts that have been discovered on the mesh but not 
 
 1. Go to **Nodes** tab.
 2. Tap the **ellipsis menu** (top right).
-3. Select **Discovery**.
+3. Select **Discover** (this opens the Discovery view).
 4. You'll see a list of discovered contacts with an **Add** button next to each.
 5. Tap **Add** to add a contact to your device.
 
@@ -241,12 +244,12 @@ The status section displays:
 - **Packets Sent**: Total packets transmitted.
 - **Packets Received**: Total packets received.
 
-### Ping Repeater
+### Zero-Hop Ping
 
-Use **Ping Repeater** to measure direct-link health:
+Use **Zero-Hop Ping** to measure direct-link health:
 
 1. Open the repeater detail view.
-2. Tap **Ping Repeater**.
+2. Tap **Zero-Hop Ping**.
 3. A result row shows round-trip time and SNR (if the repeater is directly reachable).
 
 ### Viewing Neighbors
@@ -313,10 +316,9 @@ The Line of Sight (LoS) tool analyzes radio propagation between two points to he
 
 #### Accessing Line of Sight
 
-1. Go to **Nodes** tab.
-2. Find the contact or repeater you want to analyze.
-3. Tap to open detail view.
-4. Tap **Line of Sight** button in the toolbar.
+1. Go to **Tools** tab.
+2. Tap **Line of Sight**.
+3. Choose the two points to analyze (your location, a contact, or a repeater).
 
 #### Understanding the Analysis
 
@@ -329,10 +331,10 @@ The tool provides:
   - **Yellow**: Partial obstruction, signal may be degraded
   - **Red**: Obstructed path, poor signal or no connection likely
 - **RF Parameters**: Calculated signal metrics:
-  - **Path Loss**: Expected signal attenuation (in dB)
-  - **Signal Strength**: Estimated received signal at target
-  - **First Fresnel Zone**: Percentage of clear Fresnel zone
-  - **Maximum Range**: Theoretical maximum communication distance
+  - **Path Loss**: Total path loss (free-space plus diffraction breakdown, in dB)
+  - **Distance**: Distance between the two points
+  - **First Fresnel Zone**: Worst Fresnel zone clearance percentage
+  - **Obstructions**: Number of obstruction points along the path
 
 #### Tips for Better Results
 
@@ -347,8 +349,8 @@ Discover optimal routing paths through your mesh network with the Trace Path too
 
 #### Using Trace Path
 
-1. Go to **Nodes** tab.
-2. Tap **Trace Path** in the toolbar.
+1. Go to **Tools** tab.
+2. Tap **Trace Path**.
 3. The app will discover available routes through repeaters to your target.
 4. Review the suggested path with signal quality indicators.
 5. Tap **Save Path** to store the route for future use.
@@ -367,7 +369,7 @@ Each path shows:
 
 #### Saved Paths
 
-1. Go to **Nodes** tab.
+1. Go to **Tools** tab.
 2. Tap **Trace Path** > **Saved Paths**.
 3. View all saved routing paths with statistics.
 4. Tap a saved path to see details:
@@ -401,9 +403,10 @@ The log shows:
 #### Features
 
 - **Live Capture**: Real-time packet stream
-- **Auto-Scroll**: Automatically scrolls to newest packets
-- **Filter**: Filter by packet type, source, or destination
-- **Export**: Save logs for analysis
+- **Filter**: Filter by route and decryption status
+- **Group Duplicates**: Collapse repeated packets into a single entry
+- **Copy Payload**: Copy a packet's raw payload hex to the clipboard
+- **Clear Log**: Delete the captured logs
 
 #### Tips
 
@@ -449,7 +452,7 @@ On iPad, the app uses a split-view layout:
 
 ### Orientation Support
 
-- **Portrait**: Stacked panels (list on top, detail below)
+- **Portrait / narrow widths**: The split view collapses to a single column (showing the list, with the sidebar overlaid or pushed in)
 - **Landscape**: Side-by-side panels (list on left, detail on right)
 - **Resize**: Drag divider to adjust panel sizes (when supported by iOS)
 
