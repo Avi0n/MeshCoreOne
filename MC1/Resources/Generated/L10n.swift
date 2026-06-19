@@ -2017,6 +2017,8 @@ public enum L10n {
       public enum Sort {
         /// Location: ContactsViewModel.swift - Purpose: Distance sort option
         public static let distance = L10n.tr("Contacts", "contacts.sort.distance", fallback: "Distance")
+        /// Location: ContactsViewModel.swift - Purpose: Hops sort option
+        public static let hops = L10n.tr("Contacts", "contacts.sort.hops", fallback: "Hops")
         /// Location: ContactsViewModel.swift - Purpose: Last heard sort option
         public static let lastHeard = L10n.tr("Contacts", "contacts.sort.lastHeard", fallback: "Last Modified")
         /// Location: ContactsViewModel.swift - Purpose: Name sort option

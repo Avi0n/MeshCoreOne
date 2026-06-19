@@ -184,6 +184,17 @@ final class DiscoveryViewModel {
 
                 return lhsLocation.distance(from: userLocation) < rhsLocation.distance(from: userLocation)
             }
+        case .hops:
+            return nodes.sorted { lhs, rhs in
+                // Flood-routed nodes have no known hop count; sort them to the bottom.
+                if lhs.isFloodRouted != rhs.isFloodRouted {
+                    return !lhs.isFloodRouted
+                }
+                if lhs.pathHopCount != rhs.pathHopCount {
+                    return lhs.pathHopCount < rhs.pathHopCount
+                }
+                return lhs.name.localizedCompare(rhs.name) == .orderedAscending
+            }
         }
     }
 }

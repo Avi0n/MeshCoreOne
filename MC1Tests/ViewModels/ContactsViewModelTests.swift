@@ -15,7 +15,8 @@ private func createContact(
     lastAdvertTimestamp: UInt32 = 0,
     latitude: Double = 0,
     longitude: Double = 0,
-    lastModified: UInt32 = 0
+    lastModified: UInt32 = 0,
+    outPathLength: UInt8 = 0
 ) -> ContactDTO {
     ContactDTO(
         id: UUID(),
@@ -24,7 +25,7 @@ private func createContact(
         name: name,
         typeRawValue: type.rawValue,
         flags: 0,
-        outPathLength: 0,
+        outPathLength: outPathLength,
         outPath: Data(),
         lastAdvertTimestamp: lastAdvertTimestamp,
         latitude: latitude,
@@ -316,5 +317,26 @@ struct ContactsViewModelTests {
 
         #expect(result.first?.name == "Nearby")
         #expect(result.last?.name == "FarAway")
+    }
+
+    @Test("filteredContacts sorted by hops returns fewest first with flood-routed last")
+    func filteredContactsSortedByHops() {
+        let viewModel = ContactsViewModel()
+        let deviceID = UUID()
+        let floodSentinel: UInt8 = 0xFF
+        viewModel.contacts = [
+            createContact(radioID: deviceID, name: "ThreeHop", type: .chat, outPathLength: 3),
+            createContact(radioID: deviceID, name: "Flood", type: .chat, outPathLength: floodSentinel),
+            createContact(radioID: deviceID, name: "OneHop", type: .chat, outPathLength: 1)
+        ]
+
+        let result = viewModel.filteredContacts(
+            searchText: "",
+            segment: .contacts,
+            sortOrder: .hops,
+            userLocation: nil
+        )
+
+        #expect(result.map(\.name) == ["OneHop", "ThreeHop", "Flood"])
     }
 }

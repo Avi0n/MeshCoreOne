@@ -24,12 +24,14 @@ enum NodeSortOrder: String, CaseIterable {
     case lastHeard
     case name
     case distance
+    case hops
 
     var localizedTitle: String {
         switch self {
         case .lastHeard: L10n.Contacts.Contacts.Sort.lastHeard
         case .name: L10n.Contacts.Contacts.Sort.name
         case .distance: L10n.Contacts.Contacts.Sort.distance
+        case .hops: L10n.Contacts.Contacts.Sort.hops
         }
     }
 }
@@ -352,6 +354,17 @@ final class ContactsViewModel {
                 let rhsLocation = CLLocation(latitude: rhs.latitude, longitude: rhs.longitude)
 
                 return lhsLocation.distance(from: userLocation) < rhsLocation.distance(from: userLocation)
+            }
+        case .hops:
+            return contacts.sorted { lhs, rhs in
+                // Flood-routed nodes have no known hop count; sort them to the bottom.
+                if lhs.isFloodRouted != rhs.isFloodRouted {
+                    return !lhs.isFloodRouted
+                }
+                if lhs.pathHopCount != rhs.pathHopCount {
+                    return lhs.pathHopCount < rhs.pathHopCount
+                }
+                return lhs.displayName.localizedCompare(rhs.displayName) == .orderedAscending
             }
         }
     }

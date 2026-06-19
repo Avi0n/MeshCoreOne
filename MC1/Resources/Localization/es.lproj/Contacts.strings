@@ -91,6 +91,9 @@
 /* Location: ContactsViewModel.swift - Purpose: Distance sort option */
 "contacts.sort.distance" = "Distancia";
 
+/* Location: ContactsViewModel.swift - Purpose: Hops sort option */
+"contacts.sort.hops" = "Saltos";
+
 // MARK: - Contacts List
 
 /* Location: ContactsListView.swift - Purpose: Navigation title */
