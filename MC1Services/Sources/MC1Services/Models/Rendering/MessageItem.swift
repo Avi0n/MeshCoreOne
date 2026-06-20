@@ -40,6 +40,16 @@ public struct MessageItem: Identifiable, Sendable, Hashable {
         self.shouldRequestPreviewFetch = shouldRequestPreviewFetch
     }
 
+    /// Message-scoped identity for the bubble's preview-fetch `.task(id:)`. Holds
+    /// the message id while a fetch is wanted, `nil` otherwise. The task keys on
+    /// this rather than the bare `shouldRequestPreviewFetch` flag because a reused
+    /// `UIHostingConfiguration` cell preserves the task's last id: two successive
+    /// fetch-wanting messages both keyed on `true` produce no id edge, so the
+    /// second message's fetch would never start. A per-message id forces the edge.
+    public var previewFetchTaskID: UUID? {
+        shouldRequestPreviewFetch ? id : nil
+    }
+
     /// Returns a new item with the supplied envelope and/or footer overridden.
     /// Eliminates the 6-field rebuild at single-row mutation sites.
     public func with(
