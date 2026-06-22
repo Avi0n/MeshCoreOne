@@ -26,6 +26,12 @@ enum NodeSortOrder: String, CaseIterable {
     case distance
     case hops
 
+    /// Orders offered in the sort menus. Excludes `.hops` while the merged inbound/out-path hop
+    /// count is still in development; the case and its sorting stay so a persisted value keeps working.
+    static var menuCases: [NodeSortOrder] {
+        allCases.filter { $0 != .hops }
+    }
+
     var localizedTitle: String {
         switch self {
         case .lastHeard: L10n.Contacts.Contacts.Sort.lastHeard

@@ -57,7 +57,7 @@ struct ContactsSidebarContent: View {
 
             ToolbarItem(placement: .automatic) {
                 Menu {
-                    ForEach(NodeSortOrder.allCases, id: \.self) { order in
+                    ForEach(NodeSortOrder.menuCases, id: \.self) { order in
                         Button {
                             sortOrder = order
                         } label: {
