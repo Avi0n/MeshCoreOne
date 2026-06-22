@@ -172,4 +172,47 @@ struct PairingWhileConnectedTests {
         #expect(manager.connectedDevice == nil, "switchDevice catch must clear stale device")
         #expect(manager.services == nil, "switchDevice catch must clear stale services")
     }
+
+    /// `cleanupConnection` in switchDevice's catch resets state without firing
+    /// `onConnectionLost`, so AppState observers — and the old radio's Live Activity —
+    /// would stay stranded on the prior device's connected state. The catch must route
+    /// through `onConnectionLost` like the transport-loss and reconnect-failure paths.
+    @Test("failed switchDevice fires onConnectionLost so observers tear down")
+    func switchDeviceFailureFiresConnectionLost() async throws {
+        let env = try ConnectionManager.createForPairingTesting()
+        defer { env.cleanup() }
+        let manager = env.manager
+        let mockASK = env.accessorySetupKit
+        let oldDeviceID = UUID()
+        let newDeviceID = UUID()
+
+        mockASK.setPickerResult(.success(newDeviceID))
+        manager.otherAppWaitStrategyOverride = { _ in false }
+
+        manager.testLastConnectedDeviceID = oldDeviceID
+        manager.setTestState(
+            connectionState: .ready,
+            connectedDevice: DeviceDTO.testDevice(id: oldDeviceID),
+            currentTransportType: .bluetooth,
+            connectionIntent: .wantsConnection()
+        )
+
+        let tracker = SwitchFailureLostTracker()
+        manager.onConnectionLost = { await tracker.markConnectionLost() }
+
+        await #expect(throws: PairingError.self) {
+            try await manager.pairNewDevice()
+        }
+
+        let wasCalled = await tracker.connectionLostCalled
+        #expect(wasCalled, "switchDevice catch must fire onConnectionLost so AppState retires the orphaned Live Activity")
+    }
+}
+
+private actor SwitchFailureLostTracker {
+    var connectionLostCalled = false
+
+    func markConnectionLost() {
+        connectionLostCalled = true
+    }
 }

@@ -760,6 +760,11 @@ extension ConnectionManager {
             // actions need clean state.
             await cleanupConnection()
             await transport.disconnect()
+            // cleanupConnection tore down the session without firing onConnectionLost,
+            // so observers (and the radio's Live Activity) would otherwise be stranded
+            // on the old device's "connected" state. Route through the same callback the
+            // transport-loss and reconnect-failure paths use.
+            await onConnectionLost?()
             throw error
         }
     }

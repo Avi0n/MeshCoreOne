@@ -82,7 +82,8 @@ final class LiveActivityManager {
 
         // If reconnecting to same device within grace period, restore connected state
         if let activity = currentActivity,
-           activity.attributes.deviceName == device.nodeName {
+           let activityRadioID = activity.attributes.radioID,
+           activityRadioID == device.radioID {
             disconnectTimer?.cancel()
             disconnectTimer = nil
             recentPacketTimestamps = []
@@ -106,6 +107,7 @@ final class LiveActivityManager {
 
         await startActivity(
             deviceName: device.nodeName,
+            radioID: device.radioID,
             unreadCount: unreadCount
         )
         startDecayTimer()
@@ -267,6 +269,7 @@ final class LiveActivityManager {
 
     private func startActivity(
         deviceName: String,
+        radioID: UUID?,
         unreadCount: Int
     ) async {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
@@ -297,7 +300,7 @@ final class LiveActivityManager {
             return
         }
 
-        let attributes = MeshStatusAttributes(deviceName: deviceName)
+        let attributes = MeshStatusAttributes(deviceName: deviceName, radioID: radioID)
         let state = MeshStatusAttributes.ContentState(
             isConnected: true,
             batteryPercent: nil,
@@ -334,6 +337,7 @@ final class LiveActivityManager {
                 case .ended:
                     let lastState = activity.content.state
                     let deviceName = activity.attributes.deviceName
+                    let radioID = activity.attributes.radioID
 
                     // Clear the field synchronously before any await so a
                     // re-entrant @MainActor caller (e.g. handleConnectionReady)
@@ -351,7 +355,7 @@ final class LiveActivityManager {
                     let isCurrentlyConnected = self.connectionStateProvider?() ?? false
                     if isCurrentlyConnected {
                         logger.info("System ended Live Activity, restarting (radio still connected)")
-                        await self.startActivity(deviceName: deviceName, unreadCount: lastState.unreadCount)
+                        await self.startActivity(deviceName: deviceName, radioID: radioID, unreadCount: lastState.unreadCount)
                         self.startDecayTimer()
                     } else {
                         logger.info("System ended Live Activity, not restarting (radio disconnected)")
@@ -487,6 +491,7 @@ final class LiveActivityManager {
         case .ended:
             let lastState = activity.content.state
             let deviceName = activity.attributes.deviceName
+            let radioID = activity.attributes.radioID
 
             // Clear the field synchronously before the await so a re-entrant
             // main-actor caller can't have its replacement currentActivity
@@ -497,7 +502,7 @@ final class LiveActivityManager {
             let isCurrentlyConnected = connectionStateProvider?() ?? false
             if isCurrentlyConnected {
                 logger.info("Detected ended Live Activity on foreground, restarting (radio still connected)")
-                await startActivity(deviceName: deviceName, unreadCount: lastState.unreadCount)
+                await startActivity(deviceName: deviceName, radioID: radioID, unreadCount: lastState.unreadCount)
                 startDecayTimer()
             } else {
                 logger.info("Detected ended Live Activity on foreground, not restarting (radio disconnected)")
