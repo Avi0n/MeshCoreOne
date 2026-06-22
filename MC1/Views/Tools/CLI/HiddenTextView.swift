@@ -48,10 +48,16 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
             }
         }
 
-        // Manage focus
+        // Manage focus. The accessory bar is gated on `isFocused`, which the
+        // delegate clears only via `textViewDidEndEditing`. That never fires when
+        // the responder request can't be honored (view not yet in a window), so
+        // reconcile the binding here to keep the bar from stranding with no keyboard.
         if isFocused && !textView.isFirstResponder {
             Task { @MainActor in
-                textView.becomeFirstResponder()
+                guard textView.window != nil, textView.becomeFirstResponder() else {
+                    isFocused = false
+                    return
+                }
             }
         } else if !isFocused && textView.isFirstResponder {
             textView.resignFirstResponder()

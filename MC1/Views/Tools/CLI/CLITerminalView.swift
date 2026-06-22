@@ -191,6 +191,11 @@ struct CLITerminalView: View {
         .onAppear {
             isKeyboardFocused = true
         }
+        .onDisappear {
+            // Clear the focus request when leaving so the gated accessory bar
+            // can't persist across navigation and re-mount on return.
+            isKeyboardFocused = false
+        }
     }
 
     private var inlinePrompt: some View {
