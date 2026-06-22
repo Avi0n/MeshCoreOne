@@ -2711,4 +2711,182 @@ struct PersistenceStoreTests {
         )
         #expect(try await store.hasOutgoingSentDM(ackCode: 0xBADC0DE5) == false)
     }
+
+    // MARK: - Inbound Advert Hop Count
+
+    @Test("setInboundHopCount round-trips onto an existing discovered node")
+    func setInboundHopCountRoundTrips() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let frame = createTestContactFrame(name: "Advertiser")
+        let (node, _) = try await store.upsertDiscoveredNode(radioID: radioID, from: frame)
+
+        try await store.setInboundHopCount(radioID: radioID, publicKey: node.publicKey, hopCount: 4, advertTimestamp: 100)
+
+        let fetched = try await store.fetchDiscoveredNodes(radioID: radioID)
+        #expect(fetched.count == 1)
+        #expect(fetched.first?.inboundHopCount == 4)
+        #expect(fetched.first?.inboundHopAdvertTimestamp == 100)
+    }
+
+    @Test("setInboundHopCount is a no-op when no matching row exists")
+    func setInboundHopCountNoRowNoOp() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let unknownKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
+
+        try await store.setInboundHopCount(radioID: radioID, publicKey: unknownKey, hopCount: 2, advertTimestamp: nil)
+
+        let fetched = try await store.fetchDiscoveredNodes(radioID: radioID)
+        #expect(fetched.isEmpty, "No row should be created for an unknown pubkey")
+    }
+
+    @Test("setInboundHopCount keeps the closest copy within the same broadcast")
+    func setInboundHopCountKeepsClosestSameBroadcast() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let frame = createTestContactFrame(name: "Advertiser")
+        let (node, _) = try await store.upsertDiscoveredNode(radioID: radioID, from: frame)
+        let ts: UInt32 = 200
+
+        try await store.setInboundHopCount(radioID: radioID, publicKey: node.publicKey, hopCount: 3, advertTimestamp: ts)
+        try await store.setInboundHopCount(radioID: radioID, publicKey: node.publicKey, hopCount: 0, advertTimestamp: ts)
+        #expect(try await store.fetchDiscoveredNodes(radioID: radioID).first?.inboundHopCount == 0)
+
+        // A farther copy of the same broadcast must not raise the stored count.
+        try await store.setInboundHopCount(radioID: radioID, publicKey: node.publicKey, hopCount: 5, advertTimestamp: ts)
+        #expect(try await store.fetchDiscoveredNodes(radioID: radioID).first?.inboundHopCount == 0)
+    }
+
+    @Test("a newer advert timestamp raises the inbound hop count")
+    func setInboundHopCountNewerAdvertRaisesHops() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let frame = createTestContactFrame(name: "Advertiser")
+        let (node, _) = try await store.upsertDiscoveredNode(radioID: radioID, from: frame)
+
+        // First advert: heard directly (0 hops).
+        try await store.setInboundHopCount(radioID: radioID, publicKey: node.publicKey, hopCount: 0, advertTimestamp: 100)
+        #expect(try await store.fetchDiscoveredNodes(radioID: radioID).first?.inboundHopCount == 0)
+
+        // Second advert with a newer timestamp: the node is now farther away. Must update.
+        try await store.setInboundHopCount(radioID: radioID, publicKey: node.publicKey, hopCount: 3, advertTimestamp: 200)
+        let fetched = try await store.fetchDiscoveredNodes(radioID: radioID)
+        #expect(fetched.first?.inboundHopCount == 3)
+        #expect(fetched.first?.inboundHopAdvertTimestamp == 200)
+    }
+
+    @Test("an older advert timestamp is a no-op even when it has a closer hop count")
+    func setInboundHopCountOlderAdvertIsNoOp() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let frame = createTestContactFrame(name: "Advertiser")
+        let (node, _) = try await store.upsertDiscoveredNode(radioID: radioID, from: frame)
+
+        // Current state: 3 hops, timestamp 200.
+        try await store.setInboundHopCount(radioID: radioID, publicKey: node.publicKey, hopCount: 3, advertTimestamp: 200)
+
+        // Stale copy with an older timestamp but closer hops must not replace the current state.
+        try await store.setInboundHopCount(radioID: radioID, publicKey: node.publicKey, hopCount: 1, advertTimestamp: 100)
+        let fetched = try await store.fetchDiscoveredNodes(radioID: radioID)
+        #expect(fetched.first?.inboundHopCount == 3)
+        #expect(fetched.first?.inboundHopAdvertTimestamp == 200)
+    }
+
+    @Test("upsertDiscoveredNode does not reset a stored inbound hop count")
+    func inboundHopCountSurvivesOutPathUpsert() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let frame = createTestContactFrame(name: "Advertiser")
+        let (node, _) = try await store.upsertDiscoveredNode(radioID: radioID, from: frame)
+        try await store.setInboundHopCount(radioID: radioID, publicKey: node.publicKey, hopCount: 2, advertTimestamp: 50)
+
+        // Re-upsert the same node (a fresh out-path advert) keyed by the same pubkey.
+        let updatedFrame = ContactFrame(
+            publicKey: node.publicKey,
+            type: .chat,
+            flags: 0,
+            outPathLength: PacketBuilder.floodPathSentinel,
+            outPath: Data(),
+            name: "Advertiser",
+            lastAdvertTimestamp: UInt32(Date().timeIntervalSince1970),
+            latitude: 0,
+            longitude: 0,
+            lastModified: UInt32(Date().timeIntervalSince1970)
+        )
+        _ = try await store.upsertDiscoveredNode(radioID: radioID, from: updatedFrame)
+
+        #expect(try await store.fetchDiscoveredNodes(radioID: radioID).first?.inboundHopCount == 2)
+    }
+
+    @Test("an inbound hop heard before the node row exists is applied when the advert upsert lands")
+    func inboundHopBufferedBeforeRowAppliesOnUpsert() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let frame = createTestContactFrame(name: "Advertiser")
+
+        // Firmware emits the RX-log packet (hop count) before the advert push that creates the
+        // row, so this write lands first while no row exists.
+        try await store.setInboundHopCount(radioID: radioID, publicKey: frame.publicKey, hopCount: 3, advertTimestamp: 100)
+        #expect(try await store.fetchDiscoveredNodes(radioID: radioID).isEmpty)
+
+        // The advert upsert then creates the row and must adopt the buffered hop count on first
+        // contact, not wait for a second advert.
+        let (node, isNew) = try await store.upsertDiscoveredNode(radioID: radioID, from: frame)
+        #expect(isNew)
+        #expect(node.inboundHopCount == 3)
+        #expect(try await store.fetchDiscoveredNodes(radioID: radioID).first?.inboundHopCount == 3)
+    }
+
+    @Test("a buffered inbound hop keeps the closest copy of the same broadcast before the row lands")
+    func inboundHopBufferKeepsClosestSameBroadcast() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let frame = createTestContactFrame(name: "Advertiser")
+        let ts: UInt32 = 100
+
+        try await store.setInboundHopCount(radioID: radioID, publicKey: frame.publicKey, hopCount: 4, advertTimestamp: ts)
+        try await store.setInboundHopCount(radioID: radioID, publicKey: frame.publicKey, hopCount: 1, advertTimestamp: ts)
+        // A farther copy of the same buffered broadcast must not raise the count.
+        try await store.setInboundHopCount(radioID: radioID, publicKey: frame.publicKey, hopCount: 6, advertTimestamp: ts)
+
+        let (node, _) = try await store.upsertDiscoveredNode(radioID: radioID, from: frame)
+        #expect(node.inboundHopCount == 1)
+    }
+
+    // MARK: - DiscoveredNodeDTO
+
+    @Test("DiscoveredNodeDTO carries inboundHopCount and equality discriminates on it")
+    func discoveredNodeDTOInboundHopCountEquality() async throws {
+        let store = try await createTestStore()
+        let radioID = UUID()
+        let frame = createTestContactFrame(name: "Advertiser")
+        let (node, _) = try await store.upsertDiscoveredNode(radioID: radioID, from: frame)
+        try await store.setInboundHopCount(radioID: radioID, publicKey: node.publicKey, hopCount: 1, advertTimestamp: nil)
+
+        let withHop = try await store.fetchDiscoveredNodes(radioID: radioID).first
+        #expect(withHop?.inboundHopCount == 1)
+
+        // Two DTOs differing only in inboundHopCount must not be equal.
+        guard let base = withHop else {
+            Issue.record("Expected a fetched discovered node")
+            return
+        }
+        let mutated = DiscoveredNodeDTO(
+            id: base.id,
+            radioID: base.radioID,
+            publicKey: base.publicKey,
+            name: base.name,
+            typeRawValue: base.typeRawValue,
+            lastHeard: base.lastHeard,
+            lastAdvertTimestamp: base.lastAdvertTimestamp,
+            latitude: base.latitude,
+            longitude: base.longitude,
+            outPathLength: base.outPathLength,
+            outPath: base.outPath,
+            inboundHopCount: 99,
+            inboundHopAdvertTimestamp: nil
+        )
+        #expect(base != mutated)
+    }
 }

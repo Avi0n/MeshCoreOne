@@ -135,6 +135,8 @@ actor PaginationTestDataStore: PersistenceStoreProtocol {
 
     // MARK: - Message Operations
 
+    func setInboundHopCount(radioID: UUID, publicKey: Data, hopCount: Int, advertTimestamp: UInt32?) async throws {}
+
     func saveMessage(_ dto: MessageDTO) async throws {
         messages[dto.id] = dto
     }

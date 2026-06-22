@@ -232,7 +232,9 @@ struct ChannelInfoRegionQueryTargetsTests {
             latitude: 0,
             longitude: 0,
             outPathLength: outPathLength,
-            outPath: outPath
+            outPath: outPath,
+            inboundHopCount: nil,
+            inboundHopAdvertTimestamp: nil
         )
     }
 }

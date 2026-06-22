@@ -623,7 +623,9 @@ extension DiscoveredNodeDTO {
             latitude: 0,
             longitude: 0,
             outPathLength: 0xFF,
-            outPath: Data()
+            outPath: Data(),
+            inboundHopCount: nil,
+            inboundHopAdvertTimestamp: nil
         )
     }
 }

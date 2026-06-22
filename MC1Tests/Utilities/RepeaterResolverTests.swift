@@ -158,7 +158,9 @@ struct RepeaterResolverTests {
             latitude: latitude,
             longitude: longitude,
             outPathLength: 0,
-            outPath: Data()
+            outPath: Data(),
+            inboundHopCount: nil,
+            inboundHopAdvertTimestamp: nil
         )
     }
 
@@ -276,7 +278,9 @@ struct RepeaterResolverTests {
             latitude: 0,
             longitude: 0,
             outPathLength: 0,
-            outPath: Data()
+            outPath: Data(),
+            inboundHopCount: nil,
+            inboundHopAdvertTimestamp: nil
         )
 
         let name = NeighborNameResolver.resolveName(
@@ -302,7 +306,9 @@ struct RepeaterResolverTests {
             latitude: 0,
             longitude: 0,
             outPathLength: 0,
-            outPath: Data()
+            outPath: Data(),
+            inboundHopCount: nil,
+            inboundHopAdvertTimestamp: nil
         )
 
         let result = NeighborNameResolver.resolve(
@@ -359,7 +365,9 @@ struct RepeaterResolverTests {
             latitude: 0,
             longitude: 0,
             outPathLength: 0,
-            outPath: Data()
+            outPath: Data(),
+            inboundHopCount: nil,
+            inboundHopAdvertTimestamp: nil
         )
 
         let name = NeighborNameResolver.resolveName(
@@ -393,7 +401,9 @@ struct RepeaterResolverTests {
             latitude: 0,
             longitude: 0,
             outPathLength: 0,
-            outPath: Data()
+            outPath: Data(),
+            inboundHopCount: nil,
+            inboundHopAdvertTimestamp: nil
         )
 
         let result = NeighborNameResolver.resolve(
@@ -420,7 +430,9 @@ struct RepeaterResolverTests {
             latitude: 0,
             longitude: 0,
             outPathLength: 0,
-            outPath: Data()
+            outPath: Data(),
+            inboundHopCount: nil,
+            inboundHopAdvertTimestamp: nil
         )
         let newer = DiscoveredNodeDTO(
             id: UUID(),
@@ -433,7 +445,9 @@ struct RepeaterResolverTests {
             latitude: 0,
             longitude: 0,
             outPathLength: 0,
-            outPath: Data()
+            outPath: Data(),
+            inboundHopCount: nil,
+            inboundHopAdvertTimestamp: nil
         )
 
         let name = NeighborNameResolver.resolveName(
@@ -459,7 +473,9 @@ struct RepeaterResolverTests {
             latitude: 0,
             longitude: 0,
             outPathLength: 0,
-            outPath: Data()
+            outPath: Data(),
+            inboundHopCount: nil,
+            inboundHopAdvertTimestamp: nil
         )
         let newer = DiscoveredNodeDTO(
             id: UUID(),
@@ -472,7 +488,9 @@ struct RepeaterResolverTests {
             latitude: 0,
             longitude: 0,
             outPathLength: 0,
-            outPath: Data()
+            outPath: Data(),
+            inboundHopCount: nil,
+            inboundHopAdvertTimestamp: nil
         )
 
         let result = NeighborNameResolver.resolve(
