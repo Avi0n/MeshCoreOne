@@ -273,6 +273,9 @@
 /* Link to GitHub repository */
 "about.github" = "GitHub";
 
+/* Link to the privacy policy */
+"about.privacyPolicy" = "Privacy Policy";
+
 
 // MARK: - Advanced Radio Section
 

@@ -4042,6 +4042,8 @@ public enum L10n {
       public static let header = L10n.tr("Settings", "about.header", fallback: "About")
       /// Link to MeshCore online map
       public static let onlineMap = L10n.tr("Settings", "about.onlineMap", fallback: "MeshCore Online Map")
+      /// Link to the privacy policy
+      public static let privacyPolicy = L10n.tr("Settings", "about.privacyPolicy", fallback: "Privacy Policy")
       /// Link to MeshCore website
       public static let website = L10n.tr("Settings", "about.website", fallback: "MeshCore Website")
     }
