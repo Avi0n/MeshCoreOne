@@ -299,8 +299,8 @@
 
 // MARK: - Contact Detail Network Path Section
 
-/* Location: ContactDetailView.swift - Purpose: Network path section header */
-"contacts.detail.networkPath" = "Chemin réseau";
+/* Location: ContactDetailView.swift - Purpose: Outbound path section header */
+"contacts.detail.outboundPath" = "Chemin sortant";
 
 /* Location: ContactDetailView.swift - Purpose: Route label */
 "contacts.detail.route" = "Itinéraire";

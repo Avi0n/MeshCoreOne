@@ -26,12 +26,6 @@ enum NodeSortOrder: String, CaseIterable {
     case distance
     case hops
 
-    /// Orders offered in the sort menus. Excludes `.hops` while the merged inbound/out-path hop
-    /// count is still in development; the case and its sorting stay so a persisted value keeps working.
-    static var menuCases: [NodeSortOrder] {
-        allCases.filter { $0 != .hops }
-    }
-
     var localizedTitle: String {
         switch self {
         case .lastHeard: L10n.Contacts.Contacts.Sort.lastHeard
@@ -51,6 +45,11 @@ final class ContactsViewModel {
 
     /// All contacts
     var contacts: [ContactDTO] = []
+
+    /// Inbound advert hop count per contact public key, sourced from the volatile discovered-node
+    /// table and refreshed on each load. A contact's "Hops" falls back to this when it has no
+    /// out-path; absence (evicted or never heard via advert) just leaves the fallback unavailable.
+    var inboundHopByKey: [Data: Int] = [:]
 
     /// Loading state
     var isLoading = false
@@ -128,6 +127,13 @@ final class ContactsViewModel {
         } catch {
             errorMessage = error.userFacingMessage
         }
+
+        // Best-effort inbound-hop fallback from the volatile discovered-node table; a failure here
+        // must not fail the contact load, so it is fetched outside the throwing load path.
+        inboundHopByKey = (try? await dataStore.fetchDiscoveredNodes(radioID: radioID))?
+            .reduce(into: [:]) { map, node in
+                if let inbound = node.inboundHopCount { map[node.publicKey] = inbound }
+            } ?? [:]
 
         hasLoadedOnce = true
         isLoading = false
@@ -341,12 +347,14 @@ final class ContactsViewModel {
             return contacts.sorted { orderedByDistanceThenName($0, $1, from: userLocation) }
         case .hops:
             return contacts.sorted { lhs, rhs in
-                // Flood-routed nodes have no known hop count; sort them to the bottom.
-                if lhs.isFloodRouted != rhs.isFloodRouted {
-                    return !lhs.isFloodRouted
+                let lhsHops = lhs.displayedHopCount(inboundHopCount: inboundHopByKey[lhs.publicKey])
+                let rhsHops = rhs.displayedHopCount(inboundHopCount: inboundHopByKey[rhs.publicKey])
+                // A nil hop count (flood-routed and never heard via advert) sorts to the bottom.
+                if (lhsHops == nil) != (rhsHops == nil) {
+                    return lhsHops != nil
                 }
-                if lhs.pathHopCount != rhs.pathHopCount {
-                    return lhs.pathHopCount < rhs.pathHopCount
+                if let lhsHops, let rhsHops, lhsHops != rhsHops {
+                    return lhsHops < rhsHops
                 }
                 return orderedByDistanceThenName(lhs, rhs, from: userLocation)
             }

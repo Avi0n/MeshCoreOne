@@ -1285,14 +1285,14 @@ public enum L10n {
         public static let management = L10n.tr("Contacts", "contacts.detail.management", fallback: "Management")
         /// Location: ContactDetailView.swift - Purpose: Name label
         public static let name = L10n.tr("Contacts", "contacts.detail.name", fallback: "Name")
-        /// Location: ContactDetailView.swift - Purpose: Network path section header
-        public static let networkPath = L10n.tr("Contacts", "contacts.detail.networkPath", fallback: "Network Path")
         /// Location: ContactDetailView.swift - Purpose: Nickname label
         public static let nickname = L10n.tr("Contacts", "contacts.detail.nickname", fallback: "Nickname")
         /// Location: ContactDetailView.swift - Purpose: No nickname placeholder
         public static let nicknameNone = L10n.tr("Contacts", "contacts.detail.nicknameNone", fallback: "None")
         /// Location: ContactDetailView.swift - Purpose: Open in Maps button
         public static let openInMaps = L10n.tr("Contacts", "contacts.detail.openInMaps", fallback: "Open in Maps")
+        /// Location: ContactDetailView.swift - Purpose: Outbound path section header
+        public static let outboundPath = L10n.tr("Contacts", "contacts.detail.outboundPath", fallback: "Outbound Path")
         /// Location: ContactDetailView.swift - Purpose: Footer for path routing
         public static let pathFooter = L10n.tr("Contacts", "contacts.detail.pathFooter", fallback: "Messages route through the path shown. Reset Path to use flood routing instead.")
         /// Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes
@@ -2848,8 +2848,8 @@ public enum L10n {
           public static let contactInfo = L10n.tr("Map", "map.detail.section.contactInfo", fallback: "Contact Info")
           /// Location: MapView.swift ContactDetailSheet - Purpose: Section header for location coordinates
           public static let location = L10n.tr("Map", "map.detail.section.location", fallback: "Location")
-          /// Location: MapView.swift ContactDetailSheet - Purpose: Section header for network path info
-          public static let networkPath = L10n.tr("Map", "map.detail.section.networkPath", fallback: "Network Path")
+          /// Location: MapView.swift ContactDetailSheet - Purpose: Section header for outbound path info
+          public static let outboundPath = L10n.tr("Map", "map.detail.section.outboundPath", fallback: "Outbound Path")
         }
       }
       public enum NodeKind {

@@ -3,6 +3,7 @@ import Foundation
 /// Protocol size limits and constants
 public enum ProtocolLimits {
     public static let publicKeySize = 32
+    public static let advertTimestampSize = 4
     public static let privateKeySize = 64
     public static let maxPathSize = 64
     public static let maxFrameSize = 172
