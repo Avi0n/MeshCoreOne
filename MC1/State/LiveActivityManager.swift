@@ -28,15 +28,29 @@ final class LiveActivityManager {
     private var lastFlushDate: Date = .distantPast
 
     static let decayInterval: TimeInterval = 15
-    static let packetWindowSeconds: TimeInterval = 15
+    static let packetWindowSeconds: TimeInterval = 60
     static let secondsPerMinute: TimeInterval = 60
     static let connectedStaleInterval: TimeInterval = 30
     static let disconnectGracePeriod: TimeInterval = 300
     static let updateInterval: TimeInterval = 15
 
-    /// Projects the short-window packet count to a per-minute rate.
-    private var projectedPacketsPerMinute: Int {
-        Int((Double(recentPacketTimestamps.count) * Self.secondsPerMinute / Self.packetWindowSeconds).rounded())
+    /// Packets in the trailing `packetWindowSeconds` as a per-minute rate. A
+    /// full-minute window makes this the true count for that minute, so the
+    /// displayed value matches the RX Log instead of extrapolating a burst.
+    private var recentPacketsPerMinute: Int {
+        Self.packetsPerMinute(timestamps: recentPacketTimestamps, now: .now)
+    }
+
+    /// Packets within `window` ending at `now` as a per-minute rate. Pure so the
+    /// rate math is unit-testable without an `Activity`.
+    static func packetsPerMinute(
+        timestamps: [Date],
+        now: Date,
+        window: TimeInterval = packetWindowSeconds
+    ) -> Int {
+        let cutoff = now.addingTimeInterval(-window)
+        let count = timestamps.filter { $0 >= cutoff }.count
+        return Int((Double(count) * secondsPerMinute / window).rounded())
     }
 
     var hasActiveActivity: Bool { currentActivity != nil }
@@ -152,7 +166,7 @@ final class LiveActivityManager {
         recentPacketTimestamps.append(now)
         let cutoff = now.addingTimeInterval(-Self.packetWindowSeconds)
         recentPacketTimestamps.removeAll { $0 < cutoff }
-        await scheduleUpdate(packetsPerMinute: projectedPacketsPerMinute)
+        await scheduleUpdate(packetsPerMinute: recentPacketsPerMinute)
     }
 
     func handleBatteryChanged(battery: BatteryInfo) async {
@@ -240,7 +254,7 @@ final class LiveActivityManager {
                 guard !Task.isCancelled, let self else { return }
                 let cutoff = Date.now.addingTimeInterval(-Self.packetWindowSeconds)
                 self.recentPacketTimestamps.removeAll { $0 < cutoff }
-                await self.scheduleUpdate(packetsPerMinute: self.projectedPacketsPerMinute)
+                await self.scheduleUpdate(packetsPerMinute: self.recentPacketsPerMinute)
             }
         }
     }
