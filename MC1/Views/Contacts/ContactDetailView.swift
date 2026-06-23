@@ -76,7 +76,6 @@ struct ContactDetailView: View {
     @State private var isSaving = false
     @State private var isTogglingFavorite = false
     @State private var errorMessage: String?
-    @State private var inboundHopCount: Int?
     @State private var pathViewModel = PathManagementViewModel()
     @State private var showRoomJoinSheet = false
     @State private var activeSheet: ActiveSheet?
@@ -153,8 +152,7 @@ struct ContactDetailView: View {
             // Network path controls
             ContactNetworkPathSection(
                 currentContact: currentContact,
-                pathViewModel: pathViewModel,
-                inboundHopCount: inboundHopCount
+                pathViewModel: pathViewModel
             )
             .themedRowBackground(theme)
 
@@ -226,12 +224,6 @@ struct ContactDetailView: View {
                 publicKey: currentContact.publicKey
             ) {
                 currentContact = freshContact
-            }
-
-            // Inbound advert hops live on the volatile discovered-node table, keyed by public key,
-            // and back the "Hops away" fallback when this contact has no deliberate out-path.
-            if let nodes = try? await appState.services?.dataStore.fetchDiscoveredNodes(radioID: currentContact.radioID) {
-                inboundHopCount = nodes.first { $0.publicKey == currentContact.publicKey }?.inboundHopCount
             }
 
             // React to path discovery push responses while this view is open.
@@ -908,7 +900,6 @@ private struct ContactNetworkPathSection: View {
 
     let currentContact: ContactDTO
     let pathViewModel: PathManagementViewModel
-    let inboundHopCount: Int?
 
     private var pathDisplayWithNames: String {
         let pathData = currentContact.outPath
@@ -976,15 +967,16 @@ private struct ContactNetworkPathSection: View {
             .accessibilityElement(children: .combine)
             .accessibilityLabel(pathAccessibilityLabel(pathDisplay: pathDisplay))
 
-            // Hops away: the out-path hops when a route is set, else the inbound advert hops
-            if let hops = currentContact.displayedHopCount(inboundHopCount: inboundHopCount) {
+            // Hops away: only when a deliberate or discovered out-path exists, not the passively
+            // heard inbound advert hops
+            if !currentContact.isFloodRouted {
                 Label {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(L10n.Contacts.Contacts.Detail.hopsAway)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
 
-                        Text(hops, format: .number)
+                        Text(currentContact.pathHopCount, format: .number)
                             .font(.caption.monospaced())
                             .foregroundStyle(.primary)
                     }
