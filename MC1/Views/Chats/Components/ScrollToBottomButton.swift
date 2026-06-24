@@ -16,7 +16,7 @@ struct ScrollToBottomButton: View {
         .contentShape(.circle)
         .liquidGlassInteractive(in: .circle)
         .overlay(alignment: .topTrailing) {
-            unreadBadge
+            UnreadBadge(count: unreadCount, tint: .blue)
         }
         .opacity(isVisible ? 1 : 0)
         .scaleEffect(isVisible ? 1 : 0.5)
@@ -24,19 +24,6 @@ struct ScrollToBottomButton: View {
         .accessibilityLabel(L10n.Chats.Chats.ScrollButton.ScrollToBottom.accessibilityLabel)
         .accessibilityValue(unreadCount > 0 ? L10n.Chats.Chats.ScrollButton.ScrollToBottom.accessibilityValue(unreadCount) : "")
         .accessibilityHidden(!isVisible)
-    }
-
-    @ViewBuilder
-    private var unreadBadge: some View {
-        if unreadCount > 0 {
-            Text(unreadCount > 99 ? L10n.Chats.Chats.ScrollButton.Badge.overflow : "\(unreadCount)")
-                .font(.caption2.bold())
-                .foregroundStyle(.white)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(.blue, in: .capsule)
-                .offset(x: 8, y: -8)
-        }
     }
 }
 

@@ -24,7 +24,6 @@ enum ApplyState: Equatable, Sendable {
 /// ends.
 struct DeferredScroll: Equatable, Sendable {
     let targetMessageCount: Int
-    let createdAt: Date
 }
 
 /// Container that bundles the three axes plus DeferredScroll for atomic

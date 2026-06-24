@@ -280,8 +280,8 @@ final class ChatViewModel {
     /// Whether the divider position has been computed for the current conversation
     var dividerComputed = false
 
-    /// Minimum unread count before showing the "New Messages" divider
-    private let newMessagesDividerMinUnreadCount = 10
+    /// Unread count above which the "New Messages" divider is shown (strictly greater).
+    private let newMessagesDividerThreshold = 10
 
     /// Computes the divider message ID from a fetched (unfiltered) message array.
     /// Must be called before filtering. Sets `dividerComputed = true`.
@@ -292,9 +292,17 @@ final class ChatViewModel {
     /// already-read row, so unread always sorts to the tail. Do not switch this to a
     /// `first(where: { !$0.isRead })` scan: per-message `isRead` is not maintained on chat open
     /// (only the unread counter is cleared), so the scan would land on the first row of the page.
-    func computeDividerPosition(from messages: [MessageDTO], unreadCount: Int) {
-        guard !dividerComputed, unreadCount > newMessagesDividerMinUnreadCount else { return }
-        let dividerIndex = max(0, messages.count - unreadCount)
+    ///
+    /// The boundary row may be a sent outgoing reaction that `filterOutgoingReactionMessages`
+    /// drops before the items are built; the divider id must survive that filter, so advance
+    /// past any hidden row to the next visible one (toward newer), which renders at the same
+    /// visual position.
+    func computeDividerPosition(from messages: [MessageDTO], unreadCount: Int, isDM: Bool) {
+        guard !dividerComputed, unreadCount > newMessagesDividerThreshold else { return }
+        var dividerIndex = max(0, messages.count - unreadCount)
+        while dividerIndex < messages.count, isHiddenOutgoingReaction(messages[dividerIndex], isDM: isDM) {
+            dividerIndex += 1
+        }
         if dividerIndex < messages.count {
             newMessagesDividerMessageID = messages[dividerIndex].id
         }

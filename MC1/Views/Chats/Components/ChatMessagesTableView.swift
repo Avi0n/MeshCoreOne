@@ -1,7 +1,7 @@
 import SwiftUI
 import MC1Services
 
-/// Messages table with ChatTableView, overlay FABs, and divider state management
+/// Messages table with ChatTableView, overlay scroll buttons, and divider state management
 struct ChatMessagesTableView: View {
     @Bindable var viewModel: ChatViewModel
     let contactName: String
@@ -22,19 +22,19 @@ struct ChatMessagesTableView: View {
     let unseenMentionIDs: [UUID]
     let scrollToTargetID: UUID?
     let newMessagesDividerMessageID: UUID?
-    let onMentionSeen: (UUID) async -> Void
+    let onMentionSeen: (UUID) async -> Bool
     let onScrollToMention: () -> Void
     let onRetryMessage: (MessageDTO) -> Void
 
-    @State private var hasDismissedDividerFAB = false
+    @State private var hasDismissedDividerButton = false
     @Environment(\.appTheme) private var theme
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.openURL) private var openURL
 
-    private var showDividerFAB: Bool {
-        newMessagesDividerMessageID != nil && !isDividerVisible && !hasDismissedDividerFAB
+    private var showDividerButton: Bool {
+        newMessagesDividerMessageID != nil && !isDividerVisible && !hasDismissedDividerButton
     }
 
     var body: some View {
@@ -102,9 +102,7 @@ struct ChatMessagesTableView: View {
                     && mentionIDSet.contains(item.id)
             },
             onMentionBecameVisible: { id in
-                Task {
-                    await onMentionSeen(id)
-                }
+                await onMentionSeen(id)
             },
             onSecondaryClick: { item in
                 if let message = viewModel.message(for: item) {
@@ -125,11 +123,11 @@ struct ChatMessagesTableView: View {
         )
         .overlay(alignment: .bottomTrailing) {
             VStack(spacing: 12) {
-                if showDividerFAB {
+                if showDividerButton {
                     ScrollToDividerButton(
                         onTap: {
                             scrollToDividerRequest += 1
-                            hasDismissedDividerFAB = true
+                            hasDismissedDividerButton = true
                         }
                     )
                     .transition(.scale.combined(with: .opacity))
@@ -149,13 +147,13 @@ struct ChatMessagesTableView: View {
                     onTap: { scrollToBottomRequest += 1 }
                 )
             }
-            .animation(.snappy(duration: 0.2), value: showDividerFAB)
+            .animation(.snappy(duration: 0.2), value: showDividerButton)
             .animation(.snappy(duration: 0.2), value: unseenMentionIDs.isEmpty)
             .padding(.trailing, 16)
             .padding(.bottom, 8)
         }
         .onChange(of: newMessagesDividerMessageID) { _, _ in
-            hasDismissedDividerFAB = false
+            hasDismissedDividerButton = false
         }
         .onChange(of: envInputs) { _, new in
             viewModel.applyEnvInputs(new)

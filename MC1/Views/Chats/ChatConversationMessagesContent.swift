@@ -40,7 +40,7 @@ struct ChatConversationMessagesContent: View {
 
     // MARK: - Callbacks
 
-    let onMentionSeen: (UUID) async -> Void
+    let onMentionSeen: (UUID) async -> Bool
     let onScrollToMention: () -> Void
     let onRetryMessage: (MessageDTO) -> Void
 
@@ -188,7 +188,7 @@ private struct ChannelEmptyMessagesView: View {
             newMessagesDividerMessageID: nil,
             selectedMessageForActions: .constant(nil),
             imageViewerData: .constant(nil),
-            onMentionSeen: { _ in },
+            onMentionSeen: { _ in true },
             onScrollToMention: {},
             onRetryMessage: { _ in }
         )
@@ -219,7 +219,7 @@ private struct ChannelEmptyMessagesView: View {
             newMessagesDividerMessageID: nil,
             selectedMessageForActions: .constant(nil),
             imageViewerData: .constant(nil),
-            onMentionSeen: { _ in },
+            onMentionSeen: { _ in true },
             onScrollToMention: {},
             onRetryMessage: { _ in }
         )

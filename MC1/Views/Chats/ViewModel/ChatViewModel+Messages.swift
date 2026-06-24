@@ -380,7 +380,7 @@ extension ChatViewModel {
             coordinator?.updateRenderState { $0.with(totalFetchedCount: unfilteredCount) }
 
             // Compute divider position before filtering, using unfiltered array
-            computeDividerPosition(from: fetchedMessages, unreadCount: contact.unreadCount)
+            computeDividerPosition(from: fetchedMessages, unreadCount: contact.unreadCount, isDM: true)
 
             // Hide sent reaction messages (unless failed)
             fetchedMessages = filterOutgoingReactionMessages(fetchedMessages, isDM: true)

@@ -205,9 +205,52 @@ struct ChatViewModelTests {
         }
         let firstUnread = messages[readCount]
 
-        vm.computeDividerPosition(from: messages, unreadCount: unreadCount)
+        vm.computeDividerPosition(from: messages, unreadCount: unreadCount, isDM: true)
 
         #expect(vm.newMessagesDividerMessageID == firstUnread.id)
+    }
+
+    @Test("Divider id advances past a filtered-out outgoing reaction at the boundary")
+    @MainActor
+    func dividerAdvancesPastFilteredBoundaryRow() {
+        // The positional boundary can land on a sent outgoing reaction, which
+        // filterOutgoingReactionMessages drops before buildItems. Keying the divider on that
+        // id yields a visible-but-dead button (scrollToItem early-returns on the missing id), so
+        // the divider must advance to the next visible row.
+        let vm = ChatViewModel()
+        let unreadCount = 11
+        var messages: [MessageDTO] = []
+        for i in 0..<2 {
+            messages.append(createTestMessage(timestamp: UInt32(1000 + i), text: "older \(i)"))
+        }
+        // boundaryIndex = count(13) - unreadCount(11) = 2 → this hidden reaction row.
+        let reaction = createTestMessage(timestamp: 1002, text: "👍\nABCDEFGH")
+        messages.append(reaction)
+        let firstVisibleUnread = createTestMessage(timestamp: 1003, text: "unread visible")
+        messages.append(firstVisibleUnread)
+        for i in 0..<9 {
+            messages.append(createTestMessage(timestamp: UInt32(1004 + i), text: "unread \(i)"))
+        }
+        // Guard the fixture: the boundary row must actually be a hidden outgoing reaction.
+        #expect(vm.isHiddenOutgoingReaction(reaction, isDM: true))
+
+        vm.computeDividerPosition(from: messages, unreadCount: unreadCount, isDM: true)
+
+        #expect(vm.newMessagesDividerMessageID == firstVisibleUnread.id)
+    }
+
+    @Test("Divider clamps to the oldest loaded row when unread exceeds the first page")
+    @MainActor
+    func dividerClampsWhenUnreadExceedsLoadedPage() {
+        // computeDividerPosition sees only the first page while unreadCount is uncapped. When
+        // unread >= the loaded count, the positional index clamps to 0, anchoring the divider on
+        // the oldest loaded row. Documents that behavior; pagination does not recompute it.
+        let vm = ChatViewModel()
+        let messages = (0..<30).map { createTestMessage(timestamp: UInt32(1000 + $0), text: "m\($0)") }
+
+        vm.computeDividerPosition(from: messages, unreadCount: 50, isDM: true)
+
+        #expect(vm.newMessagesDividerMessageID == messages[0].id)
     }
 
     @Test("Mixed gaps show correct timestamps")
