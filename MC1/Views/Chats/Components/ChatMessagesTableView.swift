@@ -20,6 +20,7 @@ struct ChatMessagesTableView: View {
     @Binding var imageViewerData: ImageViewerData?
 
     let unseenMentionIDs: [UUID]
+    @Binding var offscreenMentionIDs: [UUID]
     let scrollToTargetID: UUID?
     let newMessagesDividerMessageID: UUID?
     let onMentionSeen: (UUID) async -> Bool
@@ -101,6 +102,8 @@ struct ChatMessagesTableView: View {
                     && !item.envelope.mentionSeen
                     && mentionIDSet.contains(item.id)
             },
+            unseenMentionIDs: unseenMentionIDs,
+            offscreenMentionIDs: $offscreenMentionIDs,
             onMentionBecameVisible: { id in
                 await onMentionSeen(id)
             },
@@ -133,9 +136,9 @@ struct ChatMessagesTableView: View {
                     .transition(.scale.combined(with: .opacity))
                 }
 
-                if !unseenMentionIDs.isEmpty {
+                if !offscreenMentionIDs.isEmpty {
                     ScrollToMentionButton(
-                        unreadMentionCount: unseenMentionIDs.count,
+                        unreadMentionCount: offscreenMentionIDs.count,
                         onTap: { onScrollToMention() }
                     )
                     .transition(.scale.combined(with: .opacity))
@@ -148,7 +151,7 @@ struct ChatMessagesTableView: View {
                 )
             }
             .animation(.snappy(duration: 0.2), value: showDividerButton)
-            .animation(.snappy(duration: 0.2), value: unseenMentionIDs.isEmpty)
+            .animation(.snappy(duration: 0.2), value: offscreenMentionIDs.isEmpty)
             .padding(.trailing, 16)
             .padding(.bottom, 8)
         }

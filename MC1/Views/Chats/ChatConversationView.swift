@@ -29,6 +29,9 @@ struct ChatConversationView: View {
     @State private var scrollToBottomRequest = 0
     @State private var scrollToMentionRequest = 0
     @State private var unseenMentionIDs: [UUID] = []
+    /// The subset of `unseenMentionIDs` currently off screen, reported up by the chat table.
+    /// Drives the scroll-to-mention button and is the source for its tap target.
+    @State private var offscreenMentionIDs: [UUID] = []
     @State private var scrollToTargetID: UUID?
     @State private var mentionScrollTask: Task<Void, Never>?
     @State private var scrollToDividerRequest = 0
@@ -118,6 +121,7 @@ struct ChatConversationView: View {
             scrollToDividerRequest: $scrollToDividerRequest,
             isDividerVisible: $isDividerVisible,
             unseenMentionIDs: unseenMentionIDs,
+            offscreenMentionIDs: $offscreenMentionIDs,
             scrollToTargetID: scrollToTargetID,
             newMessagesDividerMessageID: chatViewModel.newMessagesDividerMessageID,
             selectedMessageForActions: $selectedMessageForActions,
@@ -547,7 +551,11 @@ struct ChatConversationView: View {
     // MARK: - Mention Navigation
 
     private func scrollToNextMention() {
-        guard let targetID = unseenMentionIDs.first else { return }
+        // Target the newest off-screen mention so the first tap lands on the latest unread the
+        // user hasn't reached; repeated taps walk upward through older mentions, showing the
+        // earliest last. An on-screen mention is already in view and would make the tap a no-op,
+        // so the off-screen subset is the right source.
+        guard let targetID = ChatScrollToMentionPolicy.nextTarget(offscreenMentions: offscreenMentionIDs) else { return }
 
         if chatViewModel.items.contains(where: { $0.id == targetID }) {
             issueMentionScroll(to: targetID)
@@ -572,6 +580,8 @@ struct ChatConversationView: View {
                         unseenMentionIDs.removeAll { $0 == targetID }
                         break
                     }
+                    // offscreenMentionIDs is an async mirror; a target marked seen mid-paging is
+                    // already gone from unseenMentionIDs, so stop rather than page for a read mention.
                     guard unseenMentionIDs.contains(targetID) else { break }
                     guard ContinuousClock.now < deadline else {
                         logger.warning("Mention \(targetID) paging timed out")
