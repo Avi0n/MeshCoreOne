@@ -48,6 +48,7 @@ struct ContactDetailView: View {
 
     let contact: ContactDTO
     let showFromDirectChat: Bool
+    let onClearMessages: () -> Void
 
     /// Sheet types for the contact detail view
     private enum ActiveSheet: Identifiable, Hashable {
@@ -73,6 +74,8 @@ struct ContactDetailView: View {
     @State private var isEditingNickname = false
     @State private var showingBlockAlert = false
     @State private var showingDeleteAlert = false
+    @State private var showingClearMessagesAlert = false
+    @State private var isClearingMessages = false
     @State private var isSaving = false
     @State private var isTogglingFavorite = false
     @State private var errorMessage: String?
@@ -91,9 +94,10 @@ struct ContactDetailView: View {
     @State private var isSharing = false
     @State private var showShareSuccess = false
 
-    init(contact: ContactDTO, showFromDirectChat: Bool = false) {
+    init(contact: ContactDTO, showFromDirectChat: Bool = false, onClearMessages: @escaping () -> Void = {}) {
         self.contact = contact
         self.showFromDirectChat = showFromDirectChat
+        self.onClearMessages = onClearMessages
         self._currentContact = State(initialValue: contact)
     }
 
@@ -167,6 +171,8 @@ struct ContactDetailView: View {
             ContactDangerSection(
                 currentContact: currentContact,
                 contactTypeLabel: contactTypeLabel,
+                isClearingMessages: isClearingMessages,
+                onClearMessages: { showingClearMessagesAlert = true },
                 onToggleBlock: {
                     if currentContact.isBlocked {
                         Task { await toggleBlocked() }
@@ -201,6 +207,16 @@ struct ContactDetailView: View {
             }
         } message: {
             Text(L10n.Contacts.Contacts.Detail.Alert.Delete.message(currentContact.displayName))
+        }
+        .alert(L10n.Contacts.Contacts.Detail.Alert.ClearMessages.title, isPresented: $showingClearMessagesAlert) {
+            Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) { }
+            Button(L10n.Contacts.Contacts.Detail.clearMessages, role: .destructive) {
+                Task {
+                    await clearMessages()
+                }
+            }
+        } message: {
+            Text(L10n.Contacts.Contacts.Detail.Alert.ClearMessages.message(currentContact.displayName))
         }
         .onAppear {
             nickname = currentContact.nickname ?? ""
@@ -402,6 +418,27 @@ struct ContactDetailView: View {
             dismiss()
         } catch {
             errorMessage = error.userFacingMessage
+        }
+    }
+
+    private func clearMessages() async {
+        guard let contactService = appState.services?.contactService else {
+            errorMessage = L10n.Contacts.Contacts.Detail.Error.servicesUnavailable
+            return
+        }
+
+        isClearingMessages = true
+        errorMessage = nil
+
+        do {
+            try await contactService.clearContactMessages(contactID: currentContact.id)
+            await appState.services?.notificationService.removeDeliveredNotifications(forContactID: currentContact.id)
+            await appState.services?.notificationService.updateBadgeCount()
+            onClearMessages()
+            dismiss()
+        } catch {
+            errorMessage = error.userFacingMessage
+            isClearingMessages = false
         }
     }
 
@@ -1087,12 +1124,25 @@ private struct ContactDangerSection: View {
 
     let currentContact: ContactDTO
     let contactTypeLabel: String
+    let isClearingMessages: Bool
+    let onClearMessages: () -> Void
     let onToggleBlock: () -> Void
     let onDelete: () -> Void
 
     var body: some View {
         Section {
             if currentContact.type == .chat {
+                Button(role: .destructive, action: onClearMessages) {
+                    HStack {
+                        Label(L10n.Contacts.Contacts.Detail.clearMessages, systemImage: "xmark.circle")
+                        if isClearingMessages {
+                            Spacer()
+                            ProgressView()
+                        }
+                    }
+                }
+                .disabled(isClearingMessages)
+
                 Button(action: onToggleBlock) {
                     Label(
                         currentContact.isBlocked ? L10n.Contacts.Contacts.Detail.unblockContact : L10n.Contacts.Contacts.Detail.blockContact,

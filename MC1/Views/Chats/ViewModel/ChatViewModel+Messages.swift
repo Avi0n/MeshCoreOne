@@ -518,10 +518,8 @@ extension ChatViewModel {
             do {
                 let contactMessages = try await dataStore.fetchLastMessages(contactIDs: conversations.map(\.id), limit: 10)
                 for contact in conversations {
-                    guard let messages = contactMessages[contact.id] else { continue }
-
                     // Find the last non-reaction message (skip outgoing reactions unless failed)
-                    let lastMessage = messages.last { message in
+                    let lastMessage = contactMessages[contact.id]?.last { message in
                         guard message.direction == .outgoing,
                               ReactionParser.parseDM(message.text) != nil else {
                             return true
@@ -529,8 +527,13 @@ extension ChatViewModel {
                         return message.status == .failed
                     }
 
+                    // Evict the cached preview only when no messages remain, so a cleared DM
+                    // (still listed via lastMessageDate) shows "No messages"; a contact whose
+                    // recent messages are all filtered-out reactions keeps its prior preview.
                     if let lastMessage {
                         lastMessageCache[contact.id] = lastMessage
+                    } else if contactMessages[contact.id]?.isEmpty ?? true {
+                        lastMessageCache.removeValue(forKey: contact.id)
                     }
                 }
             } catch {

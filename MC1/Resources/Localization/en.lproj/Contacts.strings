@@ -354,6 +354,12 @@
 /* Location: ContactDetailView.swift - Purpose: Danger zone section header */
 "contacts.detail.dangerZone" = "Danger Zone";
 
+/* Location: ContactDetailView.swift - Purpose: Clear messages button */
+"contacts.detail.clearMessages" = "Clear Messages";
+
+/* Location: ContactDetailView.swift - Purpose: Clear messages services-unavailable error */
+"contacts.detail.error.servicesUnavailable" = "Services not available";
+
 /* Location: ContactDetailView.swift - Purpose: Block contact button */
 "contacts.detail.blockContact" = "Block Contact";
 
@@ -376,6 +382,12 @@
 
 /* Location: ContactDetailView.swift - Purpose: Delete contact alert message */
 "contacts.detail.alert.delete.message" = "This will remove %@ and delete all associated data. This action cannot be undone.";
+
+/* Location: ContactDetailView.swift - Purpose: Clear messages alert title */
+"contacts.detail.alert.clearMessages.title" = "Clear Messages?";
+
+/* Location: ContactDetailView.swift - Purpose: Clear messages alert message */
+"contacts.detail.alert.clearMessages.message" = "All messages with %@ will be permanently deleted.";
 
 /* Location: ContactDetailView.swift - Purpose: Path error alert title */
 "contacts.detail.alert.pathError" = "Path Error";

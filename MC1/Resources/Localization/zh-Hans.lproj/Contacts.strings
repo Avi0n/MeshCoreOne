@@ -354,6 +354,12 @@
 /* Location: ContactDetailView.swift - Purpose: Danger zone section header */
 "contacts.detail.dangerZone" = "危险区域";
 
+/* Location: ContactDetailView.swift - Purpose: Clear messages button */
+"contacts.detail.clearMessages" = "清除消息";
+
+/* Location: ContactDetailView.swift - Purpose: Clear messages services-unavailable error */
+"contacts.detail.error.servicesUnavailable" = "服务不可用";
+
 /* Location: ContactDetailView.swift - Purpose: Block contact button */
 "contacts.detail.blockContact" = "屏蔽联系人";
 
@@ -376,6 +382,12 @@
 
 /* Location: ContactDetailView.swift - Purpose: Delete contact alert message */
 "contacts.detail.alert.delete.message" = "这将移除 %@ 并删除所有相关数据。此操作无法撤销。";
+
+/* Location: ContactDetailView.swift - Purpose: Clear messages alert title */
+"contacts.detail.alert.clearMessages.title" = "清除消息？";
+
+/* Location: ContactDetailView.swift - Purpose: Clear messages alert message */
+"contacts.detail.alert.clearMessages.message" = "与 %@ 的所有消息将被永久删除。";
 
 /* Location: ContactDetailView.swift - Purpose: Path error alert title */
 "contacts.detail.alert.pathError" = "路径错误";

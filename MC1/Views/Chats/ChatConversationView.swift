@@ -191,6 +191,11 @@ struct ChatConversationView: View {
                     await chatViewModel.loadChannelMessages(for: channel)
                     parentViewModel?.requestConversationReload()
                 },
+                onClearDirectMessages: {
+                    guard case .dm(let contact) = conversationType else { return }
+                    await chatViewModel.loadMessages(for: contact)
+                    parentViewModel?.requestConversationReload()
+                },
                 onDeleteChannel: {
                     // Clear the composer so the teardown flush doesn't re-persist a draft for the
                     // freed slot — a channel later reusing that slot would otherwise surface it.

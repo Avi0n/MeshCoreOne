@@ -354,6 +354,12 @@
 /* Location: ContactDetailView.swift - Purpose: Danger zone section header */
 "contacts.detail.dangerZone" = "Gevarenzone";
 
+/* Location: ContactDetailView.swift - Purpose: Clear messages button */
+"contacts.detail.clearMessages" = "Berichten wissen";
+
+/* Location: ContactDetailView.swift - Purpose: Clear messages services-unavailable error */
+"contacts.detail.error.servicesUnavailable" = "Services niet beschikbaar";
+
 /* Location: ContactDetailView.swift - Purpose: Block contact button */
 "contacts.detail.blockContact" = "Contact blokkeren";
 
@@ -376,6 +382,12 @@
 
 /* Location: ContactDetailView.swift - Purpose: Delete contact alert message */
 "contacts.detail.alert.delete.message" = "Dit verwijdert %@ en wist alle bijbehorende gegevens. Deze actie kan niet ongedaan worden gemaakt.";
+
+/* Location: ContactDetailView.swift - Purpose: Clear messages alert title */
+"contacts.detail.alert.clearMessages.title" = "Berichten wissen?";
+
+/* Location: ContactDetailView.swift - Purpose: Clear messages alert message */
+"contacts.detail.alert.clearMessages.message" = "Alle berichten met %@ worden permanent verwijderd.";
 
 /* Location: ContactDetailView.swift - Purpose: Path error alert title */
 "contacts.detail.alert.pathError" = "Padfout";

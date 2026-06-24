@@ -1251,6 +1251,8 @@ public enum L10n {
         public static let blockContact = L10n.tr("Contacts", "contacts.detail.blockContact", fallback: "Block Contact")
         /// Location: ContactDetailView.swift - Purpose: Blocked status indicator
         public static let blocked = L10n.tr("Contacts", "contacts.detail.blocked", fallback: "Blocked")
+        /// Location: ContactDetailView.swift - Purpose: Clear messages button
+        public static let clearMessages = L10n.tr("Contacts", "contacts.detail.clearMessages", fallback: "Clear Messages")
         /// Location: ContactDetailView.swift - Purpose: Coordinates label
         public static let coordinates = L10n.tr("Contacts", "contacts.detail.coordinates", fallback: "Coordinates")
         /// Location: ContactDetailView.swift - Purpose: Danger zone section header
@@ -1368,6 +1370,14 @@ public enum L10n {
             /// Location: ContactDetailView.swift - Purpose: Block contact alert title
             public static let title = L10n.tr("Contacts", "contacts.detail.alert.block.title", fallback: "Block Contact")
           }
+          public enum ClearMessages {
+            /// Location: ContactDetailView.swift - Purpose: Clear messages alert message
+            public static func message(_ p1: Any) -> String {
+              return L10n.tr("Contacts", "contacts.detail.alert.clearMessages.message", String(describing: p1), fallback: "All messages with %@ will be permanently deleted.")
+            }
+            /// Location: ContactDetailView.swift - Purpose: Clear messages alert title
+            public static let title = L10n.tr("Contacts", "contacts.detail.alert.clearMessages.title", fallback: "Clear Messages?")
+          }
           public enum Delete {
             /// Location: ContactDetailView.swift - Purpose: Delete contact alert message
             public static func message(_ p1: Any) -> String {
@@ -1378,6 +1388,10 @@ public enum L10n {
               return L10n.tr("Contacts", "contacts.detail.alert.delete.title", String(describing: p1), fallback: "Delete %@")
             }
           }
+        }
+        public enum Error {
+          /// Location: ContactDetailView.swift - Purpose: Clear messages services-unavailable error
+          public static let servicesUnavailable = L10n.tr("Contacts", "contacts.detail.error.servicesUnavailable", fallback: "Services not available")
         }
       }
       public enum Discovery {
