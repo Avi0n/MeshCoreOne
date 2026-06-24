@@ -1,7 +1,6 @@
 import OSLog
 import SwiftUI
 import TipKit
-import CoreLocation
 import MC1Services
 
 private let logger = Logger(subsystem: "com.mc1", category: "BLEStatus")
@@ -17,7 +16,6 @@ struct BLEStatusIndicatorView: View {
     @State private var errorFeedbackTrigger = false
 
     private let deviceMenuTip = DeviceMenuTip()
-    private let devicePreferenceStore = DevicePreferenceStore()
 
     // One always-present Menu, never an if/else between a Menu and a Button: SwiftUI
     // gives a branch's two arms distinct identities, so toggling on connection state
@@ -174,62 +172,19 @@ struct BLEStatusIndicatorView: View {
 
     // MARK: - Actions
 
-    private var autoUpdateGPSSource: GPSSource? {
-        guard let device = appState.connectedDevice,
-              device.advertLocationPolicy > 0,
-              devicePreferenceStore.isAutoUpdateLocationEnabled(deviceID: device.id) else {
-            return nil
-        }
-        return devicePreferenceStore.gpsSource(deviceID: device.id)
-    }
-
     private func sendAdvert(flood: Bool) {
         guard !isSendingAdvert else { return }
         isSendingAdvert = true
 
         Task {
-            // Update location from GPS before sending if enabled
-            if let source = autoUpdateGPSSource {
-                await updateLocationFromGPS(source: source)
-            }
-
             do {
-                _ = try await appState.services?.advertisementService.sendSelfAdvertisement(flood: flood)
+                try await appState.sendSelfAdvert(flood: flood)
                 successFeedbackTrigger.toggle()
             } catch {
                 logger.error("Failed to send advert (flood=\(flood)): \(error.localizedDescription)")
                 errorFeedbackTrigger.toggle()
             }
             isSendingAdvert = false
-        }
-    }
-
-    private func updateLocationFromGPS(source: GPSSource) async {
-        let settingsService = appState.services?.settingsService
-        do {
-            switch source {
-            case .phone:
-                let location: CLLocation
-                do {
-                    location = try await appState.locationService.requestCurrentLocation()
-                } catch {
-                    guard let currentLocation = appState.locationService.currentLocation else {
-                        throw error
-                    }
-                    location = currentLocation
-                }
-                _ = try await settingsService?.setLocationVerified(
-                    latitude: location.coordinate.latitude,
-                    longitude: location.coordinate.longitude
-                )
-            case .device:
-                let gpsState = try await settingsService?.getDeviceGPSState()
-                if gpsState?.isEnabled != true {
-                    _ = try await settingsService?.setDeviceGPSEnabledVerified(true)
-                }
-            }
-        } catch {
-            logger.warning("Failed to update location from GPS: \(error.localizedDescription)")
         }
     }
 }

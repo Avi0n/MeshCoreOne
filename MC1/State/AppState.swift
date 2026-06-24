@@ -480,6 +480,12 @@ final class AppState {
         if lastBumpedServicesID != servicesID {
             lastBumpedServicesID = servicesID
             servicesVersion += 1
+
+            // A real services change is the one moment the addressable contact/channel
+            // set can differ from what saved shortcuts were resolved against, so re-resolve
+            // the App Intents parameter queries here (debounced by this same guard, and past
+            // the connection-lost early return so it never fires on disconnect).
+            refreshAppShortcutParameters()
         }
 
         // Set up notification center delegate, wire localized strings, then register categories

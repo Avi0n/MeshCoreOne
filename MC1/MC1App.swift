@@ -1,4 +1,5 @@
 import os
+import AppIntents
 import SwiftUI
 import SwiftData
 import TipKit
@@ -12,6 +13,11 @@ struct MC1App: App {
     @State private var awaitingDataProtection = false
     @Environment(\.scenePhase) private var scenePhase
 
+    /// Stable holder that App Intents read through `AppDependencyManager`. It
+    /// must outlive the before-first-unlock `AppState` swap, so it is a plain
+    /// stored property registered once in `init()`, not `@State`.
+    private let intentBridge = IntentBridge()
+
     #if DEBUG
     /// Whether running in screenshot mode for App Store screenshots
     private var isScreenshotMode: Bool {
@@ -20,6 +26,18 @@ struct MC1App: App {
     #endif
 
     init() {
+        // Register the bridge synchronously here: a background-launched intent
+        // runs only `App.init` (no scene, no `.task`), so a deferred
+        // registration could let its `@Dependency` read throw before it lands.
+        // Capture into a local so the escaping autoclosure does not capture the
+        // still-initializing `self`.
+        let intentBridge = self.intentBridge
+        AppDependencyManager.shared.add(dependency: intentBridge)
+
+        // True only on the before-first-unlock path, where the normal init site
+        // holds an in-memory throwaway the bridge must not adopt.
+        var usingThrowawayStore = false
+
         let container: ModelContainer
         do {
             container = try PersistenceStore.createContainer()
@@ -43,7 +61,9 @@ struct MC1App: App {
                         """)
                     fatalError("ModelContainer creation failed after retry while data is available: \(nsError.domain) \(nsError.code)")
                 }
-                _appState = State(initialValue: AppState(modelContainer: container))
+                let appState = AppState(modelContainer: container)
+                _appState = State(initialValue: appState)
+                intentBridge.adopt(appState)
                 return
             }
 
@@ -57,8 +77,15 @@ struct MC1App: App {
                 fatalError("In-memory ModelContainer creation failed: \(error)")
             }
             _awaitingDataProtection = State(initialValue: true)
+            usingThrowawayStore = true
         }
-        _appState = State(initialValue: AppState(modelContainer: container))
+        let appState = AppState(modelContainer: container)
+        _appState = State(initialValue: appState)
+        // BFU throwaway: defer adoption to the post-unlock swap so a pre-unlock
+        // intent reads nil, not an empty store.
+        if !usingThrowawayStore {
+            intentBridge.adopt(appState)
+        }
     }
 
     var body: some Scene {
@@ -82,7 +109,11 @@ struct MC1App: App {
                             // lifetime and every later transaction event fires `walkCurrentEntitlements`
                             // twice (once per orphaned StoreService).
                             appState.shutdown()
-                            appState = AppState(modelContainer: container)
+                            let realAppState = AppState(modelContainer: container)
+                            appState = realAppState
+                            // First real store on the BFU path; the bridge was
+                            // left nil in `init()` until now.
+                            intentBridge.adopt(realAppState)
                             awaitingDataProtection = false
                         } catch {
                             let nsError = error as NSError

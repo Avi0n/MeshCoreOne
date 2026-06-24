@@ -5,5 +5,6 @@ import WidgetKit
 struct MC1WidgetsBundle: WidgetBundle {
     var body: some Widget {
         MeshStatusLiveActivity()
+        MC1RadioControl()
     }
 }

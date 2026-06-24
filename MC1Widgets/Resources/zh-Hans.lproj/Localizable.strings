@@ -3,3 +3,6 @@
 "Disconnected" = "已断开";
 "%lld packets per minute" = "每分钟 %lld 个数据包";
 "Battery %lld percent" = "电量 %lld%%";
+
+/* Control Center button: opens the app */
+"Open MeshCore One" = "打开 MeshCore One";
