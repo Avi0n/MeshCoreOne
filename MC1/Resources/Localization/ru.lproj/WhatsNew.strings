@@ -13,9 +13,9 @@
 /* Button to dismiss the What's New sheet */
 "whatsNew.continueButton" = "Продолжить";
 
-/* What's New v1.1 - Siri & Shortcuts feature, title */
-"whatsNew.siriShortcuts.title" = "Siri и Быстрые команды";
-/* What's New v1.1 - Siri & Shortcuts feature, description */
+/* What's New v1.1 - Shortcuts feature, title */
+"whatsNew.siriShortcuts.title" = "Быстрые команды";
+/* What's New v1.1 - Shortcuts feature, description */
 "whatsNew.siriShortcuts.description" = "Проверяйте состояние рации, отправляйте сообщения и рассылайте объявления.";
 
 /* What's New v1.1 - Clear Messages feature, title */

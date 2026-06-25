@@ -13,9 +13,9 @@
 /* Button to dismiss the What's New sheet */
 "whatsNew.continueButton" = "Weiter";
 
-/* What's New v1.1 - Siri & Shortcuts feature, title */
-"whatsNew.siriShortcuts.title" = "Siri & Kurzbefehle";
-/* What's New v1.1 - Siri & Shortcuts feature, description */
+/* What's New v1.1 - Shortcuts feature, title */
+"whatsNew.siriShortcuts.title" = "Kurzbefehle";
+/* What's New v1.1 - Shortcuts feature, description */
 "whatsNew.siriShortcuts.description" = "Frage den Status deines Funkgeräts ab, sende Nachrichten und Ankündigungen.";
 
 /* What's New v1.1 - Clear Messages feature, title */
