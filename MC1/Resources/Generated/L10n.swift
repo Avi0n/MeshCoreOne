@@ -2966,14 +2966,14 @@ public enum L10n {
       }
     }
     public enum Permissions {
-      /// Location: PermissionsView.swift - Button to allow a permission
-      public static let allow = L10n.tr("Onboarding", "permissions.allow", fallback: "Allow")
       /// Location: PermissionsView.swift - Button to proceed to next step
       public static let `continue` = L10n.tr("Onboarding", "permissions.continue", fallback: "Continue")
       /// Location: PermissionsView.swift - Button to open system settings
       public static let openSettings = L10n.tr("Onboarding", "permissions.openSettings", fallback: "Settings")
       /// Location: PermissionsView.swift - Badge shown for optional permissions
       public static let `optional` = L10n.tr("Onboarding", "permissions.optional", fallback: "Optional")
+      /// Location: PermissionsView.swift - Button to begin a permission request
+      public static let request = L10n.tr("Onboarding", "permissions.request", fallback: "Continue")
       /// Location: PermissionsView.swift - Subtitle encouraging notification permission
       public static let subtitle = L10n.tr("Onboarding", "permissions.subtitle", fallback: "Both optional. You can change your mind in Settings anytime.")
       /// Location: PermissionsView.swift - Screen title for permissions
