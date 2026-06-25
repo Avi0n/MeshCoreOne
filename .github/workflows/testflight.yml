@@ -30,6 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew tap FelixHerrmann/tap
+          brew trust FelixHerrmann/tap
           brew install xcodegen swiftgen swift-package-list
           gem install fastlane -v 2.236.1
 
