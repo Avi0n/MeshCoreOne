@@ -162,6 +162,7 @@ struct PersistenceStoreTests {
             timestamp: UInt32(Date().timeIntervalSince1970)
         ))
         try await store.saveMessage(message)
+        try await store.saveMessageRepeat(.testRepeat(messageID: message.id))
 
         let channelInfo = ChannelInfo(index: 1, name: "Private", secret: Data(repeating: 0x42, count: 16))
         let channelID = try await store.saveChannel(radioID: radioID, from: channelInfo)
@@ -242,6 +243,8 @@ struct PersistenceStoreTests {
         #expect(rxEntries.isEmpty, "Expected no RX log entries")
         let discoveredNodes = try await store.fetchDiscoveredNodes(radioID: radioID)
         #expect(discoveredNodes.isEmpty, "Expected no discovered nodes")
+        let repeats = try await store.fetchMessageRepeats(messageID: messageID)
+        #expect(repeats.isEmpty, "Expected no message repeats")
     }
 
     @Test("deleteDevice removes only device record, preserves all associated data")
@@ -299,6 +302,58 @@ struct PersistenceStoreTests {
             store: store, radioID: device.id,
             sessionID: ids.sessionID, messageID: ids.messageID
         )
+    }
+
+    @Test("deleteDeviceAndData does not trap when a message has heard repeats (cascade-vs-batch)")
+    func deleteDeviceAndDataWithMessageRepeatsDoesNotTrap() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let contactID = try await store.saveContact(radioID: device.id, from: createTestContactFrame())
+        let message = MessageDTO(from: Message(
+            radioID: device.id,
+            contactID: contactID,
+            text: "broadcast",
+            timestamp: UInt32(Date().timeIntervalSince1970),
+            directionRawValue: MessageDirection.outgoing.rawValue
+        ))
+        try await store.saveMessage(message)
+        // Two heard repeats wire up message.repeats so the delete exercises cascade
+        // propagation over a relationship whose child rows were batch-deleted first.
+        try await store.saveMessageRepeat(.testRepeat(messageID: message.id))
+        try await store.saveMessageRepeat(.testRepeat(messageID: message.id))
+
+        try await store.deleteDeviceAndData(id: device.id)
+
+        #expect(try await store.fetchDevice(id: device.id) == nil)
+        #expect(try await store.fetchMessage(id: message.id) == nil)
+        #expect(try await store.fetchMessageRepeats(messageID: message.id).isEmpty)
+    }
+
+    @Test("deleteDeviceData reaps a message and its heard repeats while preserving the device")
+    func deleteDeviceDataWithMessageRepeatsPreservesDevice() async throws {
+        let store = try await createTestStore()
+        let device = createTestDevice()
+        try await store.saveDevice(device)
+
+        let contactID = try await store.saveContact(radioID: device.id, from: createTestContactFrame())
+        let message = MessageDTO(from: Message(
+            radioID: device.id,
+            contactID: contactID,
+            text: "broadcast",
+            timestamp: UInt32(Date().timeIntervalSince1970),
+            directionRawValue: MessageDirection.outgoing.rawValue
+        ))
+        try await store.saveMessage(message)
+        try await store.saveMessageRepeat(.testRepeat(messageID: message.id))
+        try await store.saveMessageRepeat(.testRepeat(messageID: message.id))
+
+        try await store.deleteDeviceData(id: device.id)
+
+        #expect(try await store.fetchDevice(id: device.id) != nil)
+        #expect(try await store.fetchMessage(id: message.id) == nil)
+        #expect(try await store.fetchMessageRepeats(messageID: message.id).isEmpty)
     }
 
     @Test("deleteDeviceData for non-existent device does not throw")
