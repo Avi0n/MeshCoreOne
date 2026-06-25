@@ -1,3 +1,4 @@
+import MapKit
 import MapLibre
 import SwiftUI
 import MC1Services
@@ -15,6 +16,7 @@ struct MapCanvasView: View {
     let onNavigateToChat: (ContactDTO) -> Void
     let onCenterOnUser: () -> Void
     let onClearSelection: () -> Void
+    let onPersistCamera: (MKCoordinateRegion) -> Void
 
     var body: some View {
         ZStack {
@@ -26,7 +28,8 @@ struct MapCanvasView: View {
                 selectedPointScreenPosition: $selectedPointScreenPosition,
                 isStyleLoaded: $isStyleLoaded,
                 onShowContactDetail: onShowContactDetail,
-                onNavigateToChat: onNavigateToChat
+                onNavigateToChat: onNavigateToChat,
+                onPersistCamera: onPersistCamera
             )
             .ignoresSafeArea()
 

@@ -7,6 +7,7 @@ struct MapView: View {
     @Environment(\.appState) private var appState
     @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
     @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
+    @SceneStorage(SceneStorageKey.mapCameraRegion.rawValue) private var savedCameraRegion = ""
     @State private var viewModel = MapViewModel()
     @State private var selectedCalloutContact: ContactDTO?
     @State private var selectedPointScreenPosition: CGPoint?
@@ -25,7 +26,8 @@ struct MapView: View {
                 onShowContactDetail: { showContactDetail($0) },
                 onNavigateToChat: { navigateToChat(with: $0) },
                 onCenterOnUser: { centerOnUserLocation() },
-                onClearSelection: { clearSelection() }
+                onClearSelection: { clearSelection() },
+                onPersistCamera: { savedCameraRegion = MapCameraStore.encode($0) }
             )
             .toolbar {
                 bleStatusToolbarItem()
@@ -41,14 +43,12 @@ struct MapView: View {
                     radioID: { [appState] in appState.currentRadioID }
                 )
                 await viewModel.loadContactsWithLocation()
-                // Frame all contacts only on a cold open. A focus or contact target aims the camera
-                // and clears its nav flag synchronously before this await resolves, so a non-nil
-                // camera region is the load-bearing signal that a target already owns the framing.
-                if appState.navigation.pendingMapFocus == nil
-                    && viewModel.focusedPin == nil
-                    && viewModel.cameraRegion == nil {
-                    viewModel.centerOnAllContacts()
-                }
+                // On first appearance the view model has no camera region; restoring here
+                // keeps the map where the user left it across launches instead of re-framing.
+                viewModel.applyInitialCamera(
+                    saved: MapCameraStore.decode(savedCameraRegion),
+                    hasPendingFocus: appState.navigation.pendingMapFocus != nil
+                )
             }
             .onChange(of: appState.navigation.pendingMapFocus, initial: true) { _, request in
                 guard let request else { return }
