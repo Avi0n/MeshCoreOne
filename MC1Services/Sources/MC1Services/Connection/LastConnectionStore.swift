@@ -32,6 +32,11 @@ struct LastConnectionStore {
         return UUID(uuidString: uuidString)
     }
 
+    /// The last connected device name (for offline display when disconnected).
+    var deviceName: String? {
+        defaults.string(forKey: PersistenceKeys.lastConnectedDeviceName)
+    }
+
     /// Records a successful connection for future restoration.
     func persist(deviceID: UUID, radioID: UUID, deviceName: String) {
         defaults.set(deviceID.uuidString, forKey: PersistenceKeys.lastConnectedDeviceID)

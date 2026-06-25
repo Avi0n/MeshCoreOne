@@ -3,3 +3,6 @@
 "Disconnected" = "Від'єднано";
 "%lld packets per minute" = "%lld пакетів за хвилину";
 "Battery %lld percent" = "Батарея %lld відсотків";
+
+/* Control Center button: opens the app */
+"Open MeshCore One" = "Відкрити MeshCore One";

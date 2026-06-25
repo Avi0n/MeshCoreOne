@@ -9,3 +9,6 @@
 
 /* Accessibility: battery level */
 "Battery %lld percent" = "Battery %lld percent";
+
+/* Control Center button: opens the app */
+"Open MeshCore One" = "Open MeshCore One";
