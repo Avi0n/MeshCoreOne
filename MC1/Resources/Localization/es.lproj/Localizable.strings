@@ -661,3 +661,33 @@
 
 /* Button to dismiss the What's New sheet */
 "whatsNew.continueButton" = "Continuar";
+
+/* What's New v1.1 - Siri & Shortcuts feature, title */
+"whatsNew.siriShortcuts.title" = "Siri y Atajos";
+/* What's New v1.1 - Siri & Shortcuts feature, description */
+"whatsNew.siriShortcuts.description" = "Consulta el estado de tu radio, envía mensajes y difunde anuncios con las manos libres.";
+
+/* What's New v1.1 - Map position memory feature, title */
+"whatsNew.mapMemory.title" = "El mapa recuerda su posición";
+/* What's New v1.1 - Map position memory feature, description */
+"whatsNew.mapMemory.description" = "Tu mapa se vuelve a abrir siempre en la misma posición y nivel de zoom.";
+
+/* What's New v1.1 - Clear Messages feature, title */
+"whatsNew.clearMessages.title" = "Vaciar una conversación";
+/* What's New v1.1 - Clear Messages feature, description */
+"whatsNew.clearMessages.description" = "Borra el historial de cualquier mensaje directo con Borrar mensajes.";
+
+/* What's New v1.1 - Jump to mentions feature, title */
+"whatsNew.jumpToMentions.title" = "Ir a las menciones";
+/* What's New v1.1 - Jump to mentions feature, description */
+"whatsNew.jumpToMentions.description" = "Un nuevo botón @ te lleva directo a las menciones que aún no has visto.";
+
+/* What's New v1.1 - Inbound hop counts feature, title */
+"whatsNew.inboundHops.title" = "Saltos de entrada";
+/* What's New v1.1 - Inbound hop counts feature, description */
+"whatsNew.inboundHops.description" = "Los detalles del contacto ahora muestran en cuántos saltos te alcanza un nodo.";
+
+/* What's New v1.1 - Composing improvements feature, title */
+"whatsNew.composing.title" = "Redacción más fluida";
+/* What's New v1.1 - Composing improvements feature, description */
+"whatsNew.composing.description" = "Mejor texto de marcador, gestión del teclado y entrada en todos los idiomas.";

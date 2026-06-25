@@ -2782,6 +2782,42 @@ public enum L10n {
       public static let continueButton = L10n.tr("Localizable", "whatsNew.continueButton", fallback: "Continue")
       /// Title of the What's New sheet shown once after an app update
       public static let title = L10n.tr("Localizable", "whatsNew.title", fallback: "What's New")
+      public enum ClearMessages {
+        /// What's New v1.1 - Clear Messages feature, description
+        public static let description = L10n.tr("Localizable", "whatsNew.clearMessages.description", fallback: "Wipe the message history of any direct message with Clear Messages.")
+        /// What's New v1.1 - Clear Messages feature, title
+        public static let title = L10n.tr("Localizable", "whatsNew.clearMessages.title", fallback: "Clear a Conversation")
+      }
+      public enum Composing {
+        /// What's New v1.1 - Composing improvements feature, description
+        public static let description = L10n.tr("Localizable", "whatsNew.composing.description", fallback: "Better placeholder text, keyboard handling, and input in every language.")
+        /// What's New v1.1 - Composing improvements feature, title
+        public static let title = L10n.tr("Localizable", "whatsNew.composing.title", fallback: "Smoother Composing")
+      }
+      public enum InboundHops {
+        /// What's New v1.1 - Inbound hop counts feature, description
+        public static let description = L10n.tr("Localizable", "whatsNew.inboundHops.description", fallback: "Contact details now show how many hops a node takes to reach you.")
+        /// What's New v1.1 - Inbound hop counts feature, title
+        public static let title = L10n.tr("Localizable", "whatsNew.inboundHops.title", fallback: "Inbound Hop Counts")
+      }
+      public enum JumpToMentions {
+        /// What's New v1.1 - Jump to mentions feature, description
+        public static let description = L10n.tr("Localizable", "whatsNew.jumpToMentions.description", fallback: "A new @ button takes you straight to mentions you haven't seen yet.")
+        /// What's New v1.1 - Jump to mentions feature, title
+        public static let title = L10n.tr("Localizable", "whatsNew.jumpToMentions.title", fallback: "Jump to Mentions")
+      }
+      public enum MapMemory {
+        /// What's New v1.1 - Map position memory feature, description
+        public static let description = L10n.tr("Localizable", "whatsNew.mapMemory.description", fallback: "Your map reopens to the same position and zoom every time.")
+        /// What's New v1.1 - Map position memory feature, title
+        public static let title = L10n.tr("Localizable", "whatsNew.mapMemory.title", fallback: "Map Remembers Its Place")
+      }
+      public enum SiriShortcuts {
+        /// What's New v1.1 - Siri & Shortcuts feature, description
+        public static let description = L10n.tr("Localizable", "whatsNew.siriShortcuts.description", fallback: "Check your radio's status, send messages, and broadcast adverts hands-free.")
+        /// What's New v1.1 - Siri & Shortcuts feature, title
+        public static let title = L10n.tr("Localizable", "whatsNew.siriShortcuts.title", fallback: "Siri & Shortcuts")
+      }
     }
   }
   public enum Map {

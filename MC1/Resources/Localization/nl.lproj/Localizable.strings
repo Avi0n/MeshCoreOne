@@ -672,3 +672,33 @@
 
 /* Button to dismiss the What's New sheet */
 "whatsNew.continueButton" = "Doorgaan";
+
+/* What's New v1.1 - Siri & Shortcuts feature, title */
+"whatsNew.siriShortcuts.title" = "Siri en Opdrachten";
+/* What's New v1.1 - Siri & Shortcuts feature, description */
+"whatsNew.siriShortcuts.description" = "Controleer de status van je radio, verstuur berichten en zend advertenties uit, handsfree.";
+
+/* What's New v1.1 - Map position memory feature, title */
+"whatsNew.mapMemory.title" = "Kaart onthoudt zijn positie";
+/* What's New v1.1 - Map position memory feature, description */
+"whatsNew.mapMemory.description" = "Je kaart opent elke keer op dezelfde positie en zoomniveau.";
+
+/* What's New v1.1 - Clear Messages feature, title */
+"whatsNew.clearMessages.title" = "Gesprek wissen";
+/* What's New v1.1 - Clear Messages feature, description */
+"whatsNew.clearMessages.description" = "Wis de berichtgeschiedenis van elk direct bericht met Berichten wissen.";
+
+/* What's New v1.1 - Jump to mentions feature, title */
+"whatsNew.jumpToMentions.title" = "Ga naar vermeldingen";
+/* What's New v1.1 - Jump to mentions feature, description */
+"whatsNew.jumpToMentions.description" = "Een nieuwe @-knop brengt je direct naar vermeldingen die je nog niet hebt gezien.";
+
+/* What's New v1.1 - Inbound hop counts feature, title */
+"whatsNew.inboundHops.title" = "Inkomende sprongen";
+/* What's New v1.1 - Inbound hop counts feature, description */
+"whatsNew.inboundHops.description" = "Contactgegevens tonen nu via hoeveel sprongen een node jou bereikt.";
+
+/* What's New v1.1 - Composing improvements feature, title */
+"whatsNew.composing.title" = "Vlotter opstellen";
+/* What's New v1.1 - Composing improvements feature, description */
+"whatsNew.composing.description" = "Betere tijdelijke tekst, toetsenbordafhandeling en invoer in elke taal.";

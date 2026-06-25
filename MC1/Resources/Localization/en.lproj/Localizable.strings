@@ -665,3 +665,33 @@
 
 /* Button to dismiss the What's New sheet */
 "whatsNew.continueButton" = "Continue";
+
+/* What's New v1.1 - Siri & Shortcuts feature, title */
+"whatsNew.siriShortcuts.title" = "Siri & Shortcuts";
+/* What's New v1.1 - Siri & Shortcuts feature, description */
+"whatsNew.siriShortcuts.description" = "Check your radio's status, send messages, and broadcast adverts hands-free.";
+
+/* What's New v1.1 - Map position memory feature, title */
+"whatsNew.mapMemory.title" = "Map Remembers Its Place";
+/* What's New v1.1 - Map position memory feature, description */
+"whatsNew.mapMemory.description" = "Your map reopens to the same position and zoom every time.";
+
+/* What's New v1.1 - Clear Messages feature, title */
+"whatsNew.clearMessages.title" = "Clear a Conversation";
+/* What's New v1.1 - Clear Messages feature, description */
+"whatsNew.clearMessages.description" = "Wipe the message history of any direct message with Clear Messages.";
+
+/* What's New v1.1 - Jump to mentions feature, title */
+"whatsNew.jumpToMentions.title" = "Jump to Mentions";
+/* What's New v1.1 - Jump to mentions feature, description */
+"whatsNew.jumpToMentions.description" = "A new @ button takes you straight to mentions you haven't seen yet.";
+
+/* What's New v1.1 - Inbound hop counts feature, title */
+"whatsNew.inboundHops.title" = "Inbound Hop Counts";
+/* What's New v1.1 - Inbound hop counts feature, description */
+"whatsNew.inboundHops.description" = "Contact details now show how many hops a node takes to reach you.";
+
+/* What's New v1.1 - Composing improvements feature, title */
+"whatsNew.composing.title" = "Smoother Composing";
+/* What's New v1.1 - Composing improvements feature, description */
+"whatsNew.composing.description" = "Better placeholder text, keyboard handling, and input in every language.";

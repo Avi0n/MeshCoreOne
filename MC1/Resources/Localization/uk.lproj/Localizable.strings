@@ -665,3 +665,33 @@
 
 /* Button to dismiss the What's New sheet */
 "whatsNew.continueButton" = "Продовжити";
+
+/* What's New v1.1 - Siri & Shortcuts feature, title */
+"whatsNew.siriShortcuts.title" = "Siri та Швидкі команди";
+/* What's New v1.1 - Siri & Shortcuts feature, description */
+"whatsNew.siriShortcuts.description" = "Перевіряйте стан рації, надсилайте повідомлення та розсилайте оголошення без рук.";
+
+/* What's New v1.1 - Map position memory feature, title */
+"whatsNew.mapMemory.title" = "Карта запам'ятовує положення";
+/* What's New v1.1 - Map position memory feature, description */
+"whatsNew.mapMemory.description" = "Ваша карта щоразу відкривається в тому самому положенні та масштабі.";
+
+/* What's New v1.1 - Clear Messages feature, title */
+"whatsNew.clearMessages.title" = "Очистити розмову";
+/* What's New v1.1 - Clear Messages feature, description */
+"whatsNew.clearMessages.description" = "Видаляйте історію будь-якого прямого повідомлення за допомогою «Очистити повідомлення».";
+
+/* What's New v1.1 - Jump to mentions feature, title */
+"whatsNew.jumpToMentions.title" = "Перехід до згадок";
+/* What's New v1.1 - Jump to mentions feature, description */
+"whatsNew.jumpToMentions.description" = "Нова кнопка @ веде прямо до згадок, які ви ще не бачили.";
+
+/* What's New v1.1 - Inbound hop counts feature, title */
+"whatsNew.inboundHops.title" = "Вхідні переходи";
+/* What's New v1.1 - Inbound hop counts feature, description */
+"whatsNew.inboundHops.description" = "У відомостях про контакт тепер видно, за скільки переходів до вас доходить вузол.";
+
+/* What's New v1.1 - Composing improvements feature, title */
+"whatsNew.composing.title" = "Зручніше набирати";
+/* What's New v1.1 - Composing improvements feature, description */
+"whatsNew.composing.description" = "Кращий текст-підказка, робота з клавіатурою та введення будь-якою мовою.";
