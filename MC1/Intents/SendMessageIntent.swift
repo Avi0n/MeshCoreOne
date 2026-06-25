@@ -191,6 +191,10 @@ struct SendMessageIntent: AppIntent {
             _ = try? await services.dataStore.updateMessageStatusUnlessDelivered(id: pending.id, status: .failed)
             throw mapToIntentError(error)
         }
+        // A headless send never crosses the chat view model that an in-app send
+        // refreshes through, so announce the change here or the Chats list keeps
+        // its cached preview until an unrelated reload fires.
+        appState.refreshConversations()
         return .queued
     }
 

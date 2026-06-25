@@ -254,6 +254,41 @@ struct SendMessageIntentTests {
         #expect(pending.count == 1)
     }
 
+    // MARK: - Conversation list refresh
+
+    @Test func readySendBumpsConversationsVersionSoTheListRefreshes() async throws {
+        // A headless send writes the message row but, unlike an in-app send, never
+        // crosses the chat view model. Without an explicit refresh the Chats list
+        // keeps its cached snapshot, so the preview stays stale until an unrelated
+        // reload fires. The send must announce the change itself.
+        let appState = AppState()
+        let services = try seedReady(appState, state: .ready)
+        let contact = Self.makeContact(name: "Alice")
+        try await services.dataStore.saveContact(contact)
+        let before = appState.conversationsVersion
+
+        let outcome = try await SendMessageIntent.performSend(
+            message: "on my way", recipient: .contact(contact), in: appState
+        )
+
+        #expect(outcome == .queued)
+        #expect(appState.conversationsVersion > before)
+    }
+
+    @Test func mustForegroundDoesNotBumpConversationsVersion() async throws {
+        // A nil-services re-read returns `.mustForeground` before any write, so
+        // there is nothing to announce and the list must not be reloaded.
+        let appState = AppState()
+        let before = appState.conversationsVersion
+
+        let outcome = try await SendMessageIntent.performSend(
+            message: "on my way", recipient: .contact(Self.makeContact()), in: appState
+        )
+
+        #expect(outcome == .mustForeground)
+        #expect(appState.conversationsVersion == before)
+    }
+
     // MARK: - .ready channel enqueue (durable write)
 
     @Test func readyChannelEnqueuesPendingSend() async throws {
