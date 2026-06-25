@@ -23,7 +23,7 @@ struct MessageTargetEntity: AppEntity {
         let symbol: String
         switch kind {
         case .contact: symbol = "person.fill"
-        case .channel: symbol = "number"
+        case .channel: symbol = "person.3.fill"
         }
         return DisplayRepresentation(
             title: "\(displayName)",
