@@ -5537,6 +5537,10 @@ public enum L10n {
         public static let target = L10n.tr("Tools", "intent.entity.target", fallback: "Recipient")
       }
       public enum Send {
+        /// Location: SendMessageIntent.swift - Confirmation prompt shown before sending; %@ is the recipient name
+        public static func confirm(_ p1: Any) -> String {
+          return L10n.tr("Tools", "intent.send.confirm", String(describing: p1), fallback: "Send this message to %@?")
+        }
         /// Location: SendMessageIntent.swift - App Intents: description of the send message intent
         public static let description = L10n.tr("Tools", "intent.send.description", fallback: "Send text to a contact or a channel on your radio.")
         /// Location: SendMessageIntent.swift - Spoken when the app must come to the foreground to send (still connecting or reconnecting)
@@ -5545,20 +5549,6 @@ public enum L10n {
         public static let shortTitle = L10n.tr("Tools", "intent.send.shortTitle", fallback: "Send message")
         /// Location: SendMessageIntent.swift - App Intents: title of the send message intent
         public static let title = L10n.tr("Tools", "intent.send.title", fallback: "Send a message")
-        public enum Dialog {
-          /// Location: SendMessageIntent.swift - Spoken when the message is queued while the radio is still syncing; %@ is the recipient name
-          public static func queuedAfterSync(_ p1: Any) -> String {
-            return L10n.tr("Tools", "intent.send.dialog.queuedAfterSync", String(describing: p1), fallback: "Queued. It will send to %@ once your radio finishes syncing.")
-          }
-          /// Location: SendMessageIntent.swift - Spoken after a channel message is queued on the radio; %@ is the channel name
-          public static func queuedChannel(_ p1: Any) -> String {
-            return L10n.tr("Tools", "intent.send.dialog.queuedChannel", String(describing: p1), fallback: "Queued to send to %@.")
-          }
-          /// Location: SendMessageIntent.swift - Spoken after a direct message is queued on the radio; %@ is the contact name
-          public static func queuedDM(_ p1: Any) -> String {
-            return L10n.tr("Tools", "intent.send.dialog.queuedDM", String(describing: p1), fallback: "Queued to send to %@.")
-          }
-        }
         public enum Param {
           /// Location: SendMessageIntent.swift - App Intents: title of the message text parameter
           public static let message = L10n.tr("Tools", "intent.send.param.message", fallback: "Message")

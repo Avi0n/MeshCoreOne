@@ -6,11 +6,11 @@ import Testing
 
 /// `SendMessageIntent` is the safety-critical send: a message reported as sent
 /// that wasn't is a safety lie. These tests pin the routing decision, the
-/// dialog wording (always "queued", never "sent"/"delivered"), the durable-queue
-/// write, and the fail-safe paths where services are nil. The send's pure
-/// classification/dialog seam and the `performSend` durable-write seam are
-/// exercised with real assertions; the framework-driven confirmation and
-/// foreground handoff are verified on device.
+/// durable-queue write, and the fail-safe paths where services are nil. A
+/// successful send returns no spoken result, so the only honesty surface left is
+/// the durable row and its real status. The send's pure classification seam and
+/// the `performSend` durable-write seam are exercised with real assertions; the
+/// framework-driven confirmation and foreground handoff are verified on device.
 @MainActor
 struct SendMessageIntentTests {
 
@@ -236,50 +236,36 @@ struct SendMessageIntentTests {
         #expect(isCase(SendMessageIntent.mapToIntentError(unknown), .sendFailed))
     }
 
-    // MARK: - .ready DM enqueue (durable write, "queued" dialog)
+    // MARK: - .ready DM enqueue (durable write)
 
-    @Test func readyDMEnqueuesPendingSendAndSpeaksQueuedNeverSent() async throws {
+    @Test func readyDMEnqueuesPendingSend() async throws {
         let appState = AppState()
         let services = try seedReady(appState, state: .ready)
         let contact = Self.makeContact(name: "Alice")
         try await services.dataStore.saveContact(contact)
 
         let outcome = try await SendMessageIntent.performSend(
-            message: "on my way", recipient: .contact(contact), in: appState, afterSync: false
+            message: "on my way", recipient: .contact(contact), in: appState
         )
-
-        guard case .queued(let dialog) = outcome else {
-            Issue.record("expected a queued outcome, got \(outcome)")
-            return
-        }
-        #expect(dialog == L10n.Tools.Intent.Send.Dialog.queuedDM("Alice"))
-        // A queued message must never be spoken as sent or delivered.
-        #expect(!dialog.lowercased().contains("sent"))
-        #expect(!dialog.lowercased().contains("deliver"))
+        #expect(outcome == .queued)
 
         // The durable PendingSend row is what survives a drop and drains at .ready.
         let pending = try await services.dataStore.fetchPendingSends(radioID: Self.radioID)
         #expect(pending.count == 1)
     }
 
-    // MARK: - .ready channel enqueue (durable, never claims delivery)
+    // MARK: - .ready channel enqueue (durable write)
 
-    @Test func readyChannelEnqueuesPendingSendAndNeverClaimsDelivery() async throws {
+    @Test func readyChannelEnqueuesPendingSend() async throws {
         let appState = AppState()
         let services = try seedReady(appState, state: .ready)
         let channel = Self.makeChannel(name: "Ops")
         try await services.dataStore.saveChannel(channel)
 
         let outcome = try await SendMessageIntent.performSend(
-            message: "radio check", recipient: .channel(channel), in: appState, afterSync: false
+            message: "radio check", recipient: .channel(channel), in: appState
         )
-
-        guard case .queued(let dialog) = outcome else {
-            Issue.record("expected a queued outcome, got \(outcome)")
-            return
-        }
-        #expect(dialog == L10n.Tools.Intent.Send.Dialog.queuedChannel("Ops"))
-        #expect(!dialog.lowercased().contains("deliver"))
+        #expect(outcome == .queued)
 
         let pending = try await services.dataStore.fetchPendingSends(radioID: Self.radioID)
         #expect(pending.count == 1)
@@ -301,7 +287,7 @@ struct SendMessageIntentTests {
 
         let thrown = await #expect(throws: IntentError.self) {
             try await SendMessageIntent.performSend(
-                message: overBudget, recipient: .channel(channel), in: appState, afterSync: false
+                message: overBudget, recipient: .channel(channel), in: appState
             )
         }
         #expect(isCase(try #require(thrown), .messageTooLong))
@@ -342,26 +328,21 @@ struct SendMessageIntentTests {
         #expect(try await services.dataStore.fetchMessage(id: delivered.id)?.status == .delivered)
     }
 
-    // MARK: - .syncing takes the queue with the after-sync dialog
+    // MARK: - .syncing takes the queue
 
-    @Test func syncingEnqueuesWithAfterSyncDialog() async throws {
+    @Test func syncingEnqueuesPendingSend() async throws {
         let appState = AppState()
         let services = try seedReady(appState, state: .syncing)
         let contact = Self.makeContact(name: "Bravo")
         try await services.dataStore.saveContact(contact)
 
-        // The .syncing rung classifies as .queueAfterSync, so perform() passes
-        // afterSync: true; this mirrors that derivation rather than re-reading state.
+        // The .syncing rung classifies as .queueAfterSync, which shares the queue
+        // branch with .ready: the durable row is written either way.
         #expect(SendMessageIntent.route(for: .syncing) == .queueAfterSync)
         let outcome = try await SendMessageIntent.performSend(
-            message: "staging", recipient: .contact(contact), in: appState, afterSync: true
+            message: "staging", recipient: .contact(contact), in: appState
         )
-
-        guard case .queued(let dialog) = outcome else {
-            Issue.record("expected a queued outcome, got \(outcome)")
-            return
-        }
-        #expect(dialog == L10n.Tools.Intent.Send.Dialog.queuedAfterSync("Bravo"))
+        #expect(outcome == .queued)
 
         let pending = try await services.dataStore.fetchPendingSends(radioID: Self.radioID)
         #expect(pending.count == 1)
@@ -379,7 +360,7 @@ struct SendMessageIntentTests {
         appState.connectionManager.setTestState(services: .some(nil))
 
         let outcome = try await SendMessageIntent.performSend(
-            message: "dropped", recipient: .contact(contact), in: appState, afterSync: false
+            message: "dropped", recipient: .contact(contact), in: appState
         )
         #expect(outcome == .mustForeground)
     }
@@ -397,7 +378,7 @@ struct SendMessageIntentTests {
         let contact = Self.makeContact(radioID: otherRadioID)
 
         let outcome = try await SendMessageIntent.performSend(
-            message: "switched radios", recipient: .contact(contact), in: appState, afterSync: false
+            message: "switched radios", recipient: .contact(contact), in: appState
         )
         #expect(outcome == .mustForeground)
 
@@ -420,20 +401,8 @@ struct SendMessageIntentTests {
         #expect(SendMessageIntent.route(for: .connected) == .foregroundEscalate)
 
         let outcome = try await SendMessageIntent.performSend(
-            message: "nope", recipient: .contact(Self.makeContact()), in: appState, afterSync: false
+            message: "nope", recipient: .contact(Self.makeContact()), in: appState
         )
         #expect(outcome == .mustForeground)
-    }
-
-    // MARK: - Dialog builder honesty
-
-    @Test func queuedDialogNeverClaimsSentOrDelivered() {
-        for recipient in [MessageRecipient.contact(Self.makeContact()), .channel(Self.makeChannel())] {
-            for afterSync in [false, true] {
-                let dialog = SendMessageIntent.queuedDialog(for: recipient, afterSync: afterSync)
-                #expect(!dialog.lowercased().contains("sent"))
-                #expect(!dialog.lowercased().contains("deliver"))
-            }
-        }
     }
 }

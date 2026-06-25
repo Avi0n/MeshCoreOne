@@ -819,15 +819,6 @@
 /* Location: SendMessageIntent.swift - Confirmation prompt shown before sending; %@ is the recipient name */
 "intent.send.confirm" = "Envoyer ce message à %@ ?";
 
-/* Location: SendMessageIntent.swift - Spoken after a direct message is queued on the radio; %@ is the contact name */
-"intent.send.dialog.queuedDM" = "En file d'attente pour l'envoi à %@.";
-
-/* Location: SendMessageIntent.swift - Spoken after a channel message is queued on the radio; %@ is the channel name */
-"intent.send.dialog.queuedChannel" = "En file d'attente pour l'envoi à %@.";
-
-/* Location: SendMessageIntent.swift - Spoken when the message is queued while the radio is still syncing; %@ is the recipient name */
-"intent.send.dialog.queuedAfterSync" = "En file d'attente. L'envoi à %@ se fera dès que votre radio aura terminé sa synchronisation.";
-
 /* Location: SendMessageIntent.swift - Spoken when the app must come to the foreground to send (still connecting or reconnecting) */
 "intent.send.foreground" = "Ouvrez MeshCore One pour terminer l'envoi de ce message.";
 

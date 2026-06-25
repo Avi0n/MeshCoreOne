@@ -48,22 +48,6 @@ extension SendMessageIntent {
         L10n.Tools.Intent.Send.confirm(recipientName(for: recipient))
     }
 
-    /// The post-enqueue dialog. It only ever says "queued"; the enqueue returns
-    /// before the radio ACK (DMs) and a channel broadcast has no ACK, so neither
-    /// "sent" nor "delivered" is ever claimed here. `afterSync` reflects the route
-    /// that classified this send, not a fresh state read, so the spoken line stays
-    /// consistent with the path actually taken.
-    static func queuedDialog(for recipient: MessageRecipient, afterSync: Bool) -> String {
-        let name = recipientName(for: recipient)
-        if afterSync {
-            return L10n.Tools.Intent.Send.Dialog.queuedAfterSync(name)
-        }
-        switch recipient {
-        case .contact: return L10n.Tools.Intent.Send.Dialog.queuedDM(name)
-        case .channel: return L10n.Tools.Intent.Send.Dialog.queuedChannel(name)
-        }
-    }
-
     /// Rewraps a reused-service error into a localized `IntentError` so Siri
     /// never speaks a raw `MessageServiceError`/`ChannelServiceError`/
     /// `ChatSendQueueServiceError`. A failure to persist or enqueue a connected

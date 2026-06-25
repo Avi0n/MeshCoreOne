@@ -819,15 +819,6 @@
 /* Location: SendMessageIntent.swift - Confirmation prompt shown before sending; %@ is the recipient name */
 "intent.send.confirm" = "Надіслати це повідомлення для %@?";
 
-/* Location: SendMessageIntent.swift - Spoken after a direct message is queued on the radio; %@ is the contact name */
-"intent.send.dialog.queuedDM" = "У черзі на надсилання для %@.";
-
-/* Location: SendMessageIntent.swift - Spoken after a channel message is queued on the radio; %@ is the channel name */
-"intent.send.dialog.queuedChannel" = "У черзі на надсилання для %@.";
-
-/* Location: SendMessageIntent.swift - Spoken when the message is queued while the radio is still syncing; %@ is the recipient name */
-"intent.send.dialog.queuedAfterSync" = "У черзі. Повідомлення надішлеться для %@, коли рація завершить синхронізацію.";
-
 /* Location: SendMessageIntent.swift - Spoken when the app must come to the foreground to send (still connecting or reconnecting) */
 "intent.send.foreground" = "Відкрийте MeshCore One, щоб завершити надсилання цього повідомлення.";
 

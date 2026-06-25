@@ -33,19 +33,20 @@ struct SendMessageIntent: AppIntent {
     }
 
     @MainActor
-    func perform() async throws -> some IntentResult & ProvidesDialog {
-        let dialog = try await resolveDialog()
-        return .result(dialog: IntentDialog(stringLiteral: dialog))
+    func perform() async throws -> some IntentResult {
+        try await executeSend()
+        return .result()
     }
 
-    /// Drives the readiness matrix to a single spoken line, or throws a localized
-    /// `IntentError`. Returning a `String` (rather than an `IntentResult`) keeps
-    /// `perform()`'s opaque return one concrete type and isolates every
-    /// framework-handoff await (confirmation, foreground continuation) here.
+    /// Drives the readiness matrix to a confirmation-gated send, a foreground
+    /// handoff, or a thrown localized `IntentError`. A successful queue returns
+    /// no spoken result: the confirmation prompt is the only interaction, and the
+    /// message's true status surfaces in the chat rather than as a second popup.
     @MainActor
-    private func resolveDialog() async throws -> String {
+    private func executeSend() async throws {
         guard let appState = bridge.appState else {
-            return try await continueInForeground()
+            try await continueInForeground()
+            return
         }
 
         // Classify the route before resolving a recipient: only the queue paths
@@ -60,24 +61,19 @@ struct SendMessageIntent: AppIntent {
             let nodeNameByteCount = appState.connectedDevice?.nodeName.utf8.count ?? 0
             try Self.validate(message: message, for: recipient, nodeNameByteCount: nodeNameByteCount)
             try await requestConfirmation(dialog: IntentDialog(stringLiteral: Self.confirmText(for: recipient)))
-            switch try await Self.performSend(
-                message: message,
-                recipient: recipient,
-                in: appState,
-                afterSync: route == .queueAfterSync
-            ) {
-            case .queued(let dialog):
-                return dialog
+            switch try await Self.performSend(message: message, recipient: recipient, in: appState) {
+            case .queued:
+                return
             case .mustForeground:
-                return try await continueInForeground()
+                try await continueInForeground()
             }
         case .foregroundEscalate:
-            return try await continueInForeground()
+            try await continueInForeground()
         case .notConnected:
             let hasRestorableRadio = appState.connectionManager.lastConnectedRadioID != nil
             switch Self.disconnectedRoute(hasRestorableRadio: hasRestorableRadio) {
             case .foregroundEscalate:
-                return try await continueInForeground()
+                try await continueInForeground()
             default:
                 throw IntentError.notConnected
             }
@@ -130,14 +126,13 @@ struct SendMessageIntent: AppIntent {
     /// first. `requestConfirmation` is an unbounded user-driven await, and a drop
     /// during it nils `services` synchronously, so a nil read here means the
     /// radio is no longer ready: the send returns `.mustForeground` so the caller
-    /// escalates rather than fabricating a "queued" for an enqueue that never
-    /// ran. Reached only with a confirmed-live decision; carries Sendable DTOs.
+    /// escalates rather than reporting a queued message that never enqueued.
+    /// Reached only with a confirmed-live decision; carries Sendable DTOs.
     @MainActor
     static func performSend(
         message: String,
         recipient: MessageRecipient,
-        in appState: AppState,
-        afterSync: Bool
+        in appState: AppState
     ) async throws -> SendOutcome {
         guard let services = appState.services else { return .mustForeground }
         // The recipient was resolved against one radio before the confirmation
@@ -196,18 +191,18 @@ struct SendMessageIntent: AppIntent {
             _ = try? await services.dataStore.updateMessageStatusUnlessDelivered(id: pending.id, status: .failed)
             throw mapToIntentError(error)
         }
-        return .queued(queuedDialog(for: recipient, afterSync: afterSync))
+        return .queued
     }
 
     /// Foregrounds the app (still launching, connecting, or a restorable
-    /// disconnect) and speaks the same line returned as the result, so the user
-    /// can finish the send there. The dictated text is not carried across: this
+    /// disconnect) so the user can finish the send there, speaking the handoff
+    /// prompt as it hands off. The dictated text is not carried across: this
     /// hands control to the app rather than enqueuing the message itself.
     @MainActor
-    private func continueInForeground() async throws -> String {
-        let foreground = L10n.Tools.Intent.Send.foreground
-        try await requestToContinueInForeground(IntentDialog(stringLiteral: foreground))
-        return foreground
+    private func continueInForeground() async throws {
+        try await requestToContinueInForeground(
+            IntentDialog(stringLiteral: L10n.Tools.Intent.Send.foreground)
+        )
     }
 }
 
