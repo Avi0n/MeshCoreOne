@@ -9,33 +9,18 @@ enum WhatsNewCatalog {
             items: [
                 WhatsNewItem(
                     symbol: "wand.and.rays",
-                    title: L10n.Localizable.WhatsNew.SiriShortcuts.title,
-                    description: L10n.Localizable.WhatsNew.SiriShortcuts.description
-                ),
-                WhatsNewItem(
-                    symbol: "map.fill",
-                    title: L10n.Localizable.WhatsNew.MapMemory.title,
-                    description: L10n.Localizable.WhatsNew.MapMemory.description
+                    title: L10n.WhatsNew.WhatsNew.SiriShortcuts.title,
+                    description: L10n.WhatsNew.WhatsNew.SiriShortcuts.description
                 ),
                 WhatsNewItem(
                     symbol: "trash",
-                    title: L10n.Localizable.WhatsNew.ClearMessages.title,
-                    description: L10n.Localizable.WhatsNew.ClearMessages.description
-                ),
-                WhatsNewItem(
-                    symbol: "at",
-                    title: L10n.Localizable.WhatsNew.JumpToMentions.title,
-                    description: L10n.Localizable.WhatsNew.JumpToMentions.description
+                    title: L10n.WhatsNew.WhatsNew.ClearMessages.title,
+                    description: L10n.WhatsNew.WhatsNew.ClearMessages.description
                 ),
                 WhatsNewItem(
                     symbol: "antenna.radiowaves.left.and.right",
-                    title: L10n.Localizable.WhatsNew.InboundHops.title,
-                    description: L10n.Localizable.WhatsNew.InboundHops.description
-                ),
-                WhatsNewItem(
-                    symbol: "keyboard",
-                    title: L10n.Localizable.WhatsNew.Composing.title,
-                    description: L10n.Localizable.WhatsNew.Composing.description
+                    title: L10n.WhatsNew.WhatsNew.InboundHops.title,
+                    description: L10n.WhatsNew.WhatsNew.InboundHops.description
                 )
             ]
         )

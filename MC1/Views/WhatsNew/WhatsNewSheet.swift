@@ -19,8 +19,10 @@ struct WhatsNewSheet: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Metrics.titleToRowsSpacing) {
-                Text(L10n.Localizable.WhatsNew.title)
+                Text(L10n.WhatsNew.WhatsNew.title)
                     .font(.largeTitle.bold())
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, alignment: .center)
                     .accessibilityHeading(.h1)
                     .padding(.top, Metrics.titleTopPadding)
 
@@ -36,7 +38,7 @@ struct WhatsNewSheet: View {
             Button {
                 dismiss()
             } label: {
-                Text(L10n.Localizable.WhatsNew.continueButton)
+                Text(L10n.WhatsNew.WhatsNew.continueButton)
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding()

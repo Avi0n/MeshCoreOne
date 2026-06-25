@@ -1,0 +1,29 @@
+/*
+  WhatsNew.strings
+  MC1
+
+  Strings for the "What's New" sheet shown once after a major update.
+  Update these every major release: edit the per-feature title/description
+  pairs (add or remove a block) and keep WhatsNewCatalog.swift in sync.
+*/
+
+/* Title of the What's New sheet shown once after an app update */
+"whatsNew.title" = "Novedades";
+
+/* Button to dismiss the What's New sheet */
+"whatsNew.continueButton" = "Continuar";
+
+/* What's New v1.1 - Siri & Shortcuts feature, title */
+"whatsNew.siriShortcuts.title" = "Siri y Atajos";
+/* What's New v1.1 - Siri & Shortcuts feature, description */
+"whatsNew.siriShortcuts.description" = "Consulta el estado de tu radio, envía mensajes y difunde anuncios.";
+
+/* What's New v1.1 - Clear Messages feature, title */
+"whatsNew.clearMessages.title" = "Vaciar una conversación de MD";
+/* What's New v1.1 - Clear Messages feature, description */
+"whatsNew.clearMessages.description" = "Borra el historial de cualquier mensaje directo.";
+
+/* What's New v1.1 - Inbound hop counts feature, title */
+"whatsNew.inboundHops.title" = "Ordenar por saltos";
+/* What's New v1.1 - Inbound hop counts feature, description */
+"whatsNew.inboundHops.description" = "La pestaña Nodos ahora correlaciona los saltos de entrada con los anuncios del Registro RX.";
