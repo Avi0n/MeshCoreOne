@@ -646,3 +646,12 @@
 
 /* Location: KeyGenerationError+UserFacingMessage.swift - Key data is not a valid Ed25519 expanded private key */
 "error.keyGeneration.invalidKey" = "La clé n'est pas une clé privée Ed25519 valide.";
+
+
+// MARK: - What's New
+
+/* Title of the What's New sheet shown once after an app update */
+"whatsNew.title" = "Nouveautés";
+
+/* Button to dismiss the What's New sheet */
+"whatsNew.continueButton" = "Continuer";

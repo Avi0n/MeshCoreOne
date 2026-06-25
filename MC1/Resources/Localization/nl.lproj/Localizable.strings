@@ -648,3 +648,12 @@
 
 /* Location: KeyGenerationError+UserFacingMessage.swift - Key data is not a valid Ed25519 expanded private key */
 "error.keyGeneration.invalidKey" = "De sleutel is geen geldige Ed25519-privésleutel.";
+
+
+// MARK: - What's New
+
+/* Title of the What's New sheet shown once after an app update */
+"whatsNew.title" = "Nieuw";
+
+/* Button to dismiss the What's New sheet */
+"whatsNew.continueButton" = "Doorgaan";

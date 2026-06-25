@@ -2765,6 +2765,12 @@ public enum L10n {
       /// Tab bar title for the tools/utilities screen
       public static let tools = L10n.tr("Localizable", "tabs.tools", fallback: "Tools")
     }
+    public enum WhatsNew {
+      /// Button to dismiss the What's New sheet
+      public static let continueButton = L10n.tr("Localizable", "whatsNew.continueButton", fallback: "Continue")
+      /// Title of the What's New sheet shown once after an app update
+      public static let title = L10n.tr("Localizable", "whatsNew.title", fallback: "What's New")
+    }
   }
   public enum Map {
     public enum Map {

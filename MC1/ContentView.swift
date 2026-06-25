@@ -87,6 +87,22 @@ struct ContentView: View {
                 DeviceScannerSheet(picker: scanPicker)
             }
         }
+        // SwiftUI does not reliably co-present a sheet and an alert from the same host,
+        // so the binding yields a release only while the connection UI above is quiescent;
+        // `pendingRelease` stays set and re-presents on the next render once any alert clears.
+        .sheet(item: Binding(
+            get: { connectionUIQuiescent ? appState.whatsNew.pendingRelease : nil },
+            set: { if $0 == nil { appState.whatsNew.markShown() } }
+        )) { release in
+            WhatsNewSheet(release: release)
+        }
+    }
+
+    /// True when no connection alert or scan picker from this host is presenting.
+    private var connectionUIQuiescent: Bool {
+        !appState.connectionUI.showingConnectionFailedAlert
+            && appState.connectionUI.otherAppWarningDeviceID == nil
+            && !(appState.connectionManager.bluetoothScanPicker?.isPresenting ?? false)
     }
 }
 

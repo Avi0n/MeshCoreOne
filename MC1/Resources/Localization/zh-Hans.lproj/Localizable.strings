@@ -641,3 +641,12 @@
 
 /* Location: KeyGenerationError+UserFacingMessage.swift - Key data is not a valid Ed25519 expanded private key */
 "error.keyGeneration.invalidKey" = "该密钥不是有效的 Ed25519 私钥。";
+
+
+// MARK: - What's New
+
+/* Title of the What's New sheet shown once after an app update */
+"whatsNew.title" = "新功能";
+
+/* Button to dismiss the What's New sheet */
+"whatsNew.continueButton" = "继续";

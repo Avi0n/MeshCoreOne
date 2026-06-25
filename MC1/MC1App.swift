@@ -12,13 +12,6 @@ struct MC1App: App {
     @State private var awaitingDataProtection = false
     @Environment(\.scenePhase) private var scenePhase
 
-    #if DEBUG
-    /// Whether running in screenshot mode for App Store screenshots
-    private var isScreenshotMode: Bool {
-        ProcessInfo.processInfo.arguments.contains("-screenshotMode")
-    }
-    #endif
-
     init() {
         let container: ModelContainer
         do {
@@ -102,7 +95,7 @@ struct MC1App: App {
                     ])
 
                     #if DEBUG
-                    if isScreenshotMode {
+                    if ProcessInfo.processInfo.isScreenshotMode {
                         await setupScreenshotMode()
                     } else {
                         await appState.initialize()

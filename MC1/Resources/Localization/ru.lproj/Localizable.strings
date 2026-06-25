@@ -644,3 +644,12 @@
 
 /* Location: KeyGenerationError+UserFacingMessage.swift - Key data is not a valid Ed25519 expanded private key */
 "error.keyGeneration.invalidKey" = "Ключ не является допустимым закрытым ключом Ed25519.";
+
+
+// MARK: - What's New
+
+/* Title of the What's New sheet shown once after an app update */
+"whatsNew.title" = "Что нового";
+
+/* Button to dismiss the What's New sheet */
+"whatsNew.continueButton" = "Продолжить";
