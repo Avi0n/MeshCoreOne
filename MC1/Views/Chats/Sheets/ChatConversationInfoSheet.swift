@@ -6,13 +6,18 @@ struct ChatConversationInfoSheet: View {
     let conversationType: ChatConversationType
     let chatViewModel: ChatViewModel
     let onClearChannelMessages: () async -> Void
+    let onClearDirectMessages: () async -> Void
     let onDeleteChannel: () -> Void
 
     var body: some View {
         switch conversationType {
         case .dm(let contact):
             NavigationStack {
-                ContactDetailView(contact: contact, showFromDirectChat: true)
+                ContactDetailView(
+                    contact: contact,
+                    showFromDirectChat: true,
+                    onClearMessages: { Task { await onClearDirectMessages() } }
+                )
             }
 
         case .channel(let channel):

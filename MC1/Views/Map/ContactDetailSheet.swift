@@ -99,7 +99,7 @@ struct ContactDetailSheet: View {
                 }
 
                 // Path info section
-                Section(L10n.Map.Map.Detail.Section.networkPath) {
+                Section(L10n.Map.Map.Detail.Section.outboundPath) {
                     if contact.isFloodRouted {
                         LabeledContent(L10n.Map.Map.Detail.routing, value: L10n.Map.Map.Detail.routingFlood)
                     } else {

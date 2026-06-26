@@ -3,3 +3,6 @@
 "Disconnected" = "Niet verbonden";
 "%lld packets per minute" = "%lld pakketten per minuut";
 "Battery %lld percent" = "Batterij %lld procent";
+
+/* Control Center button: opens the app */
+"Open MeshCore One" = "MeshCore One openen";

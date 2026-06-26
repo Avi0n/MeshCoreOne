@@ -90,8 +90,8 @@
 /* Location: MapView.swift ContactDetailSheet - Purpose: Label for longitude coordinate */
 "map.detail.longitude" = "经度";
 
-/* Location: MapView.swift ContactDetailSheet - Purpose: Section header for network path info */
-"map.detail.section.networkPath" = "网络链路";
+/* Location: MapView.swift ContactDetailSheet - Purpose: Section header for outbound path info */
+"map.detail.section.outboundPath" = "出站路径";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Label for routing type */
 "map.detail.routing" = "路由";

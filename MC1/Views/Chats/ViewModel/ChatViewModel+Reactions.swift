@@ -174,17 +174,22 @@ extension ChatViewModel {
     ///   - isDM: Whether these are DM messages (uses parseDM) or channel messages (uses parse)
     /// - Returns: Filtered messages with successful outgoing reactions removed
     func filterOutgoingReactionMessages(_ messages: [MessageDTO], isDM: Bool) -> [MessageDTO] {
-        messages.filter { message in
-            guard message.direction == .outgoing else { return true }
+        messages.filter { !isHiddenOutgoingReaction($0, isDM: isDM) }
+    }
 
-            let isReaction = isDM
-                ? ReactionParser.parseDM(message.text) != nil
-                : ReactionParser.parse(message.text) != nil
+    /// Whether a message is a successfully-sent outgoing reaction, which is rendered
+    /// as a badge and so hidden from the timeline by `filterOutgoingReactionMessages`.
+    /// Failed reactions stay visible so the user can retry them.
+    func isHiddenOutgoingReaction(_ message: MessageDTO, isDM: Bool) -> Bool {
+        guard message.direction == .outgoing else { return false }
 
-            guard isReaction else { return true }
+        let isReaction = isDM
+            ? ReactionParser.parseDM(message.text) != nil
+            : ReactionParser.parse(message.text) != nil
 
-            return message.status == .failed
-        }
+        guard isReaction else { return false }
+
+        return message.status != .failed
     }
 
     // MARK: - Reaction Updates

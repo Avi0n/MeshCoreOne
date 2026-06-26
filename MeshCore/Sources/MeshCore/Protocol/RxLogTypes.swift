@@ -14,6 +14,13 @@ public enum RouteType: UInt8, Sendable, Codable, CaseIterable {
         self == .tcFlood || self == .tcDirect
     }
 
+    /// Whether the packet was flood-routed, accumulating each relay's hash into its path.
+    /// Direct-routed packets carry the remaining route instead, so their path length is not
+    /// a count of hops traversed.
+    public var isFlood: Bool {
+        self == .flood || self == .tcFlood
+    }
+
     /// Human-readable display name.
     public var displayName: String {
         switch self {

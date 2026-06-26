@@ -8,6 +8,12 @@ public protocol DiscoveredNodePersisting: Actor {
     /// - Returns: Tuple of (DiscoveredNodeDTO, isNew) where isNew is true only if node was newly created
     func upsertDiscoveredNode(radioID: UUID, from frame: ContactFrame) async throws -> (node: DiscoveredNodeDTO, isNew: Bool)
 
+    /// Stamp the inbound advert hop count onto an existing discovered node, keyed by public key.
+    /// Tracks the latest advert: a newer advertTimestamp always replaces the stored count;
+    /// equal timestamps keep the closest copy of that broadcast. No-op if no matching row exists;
+    /// the next advert upsert creates it.
+    func setInboundHopCount(radioID: UUID, publicKey: Data, hopCount: Int, advertTimestamp: UInt32?) async throws
+
     /// Fetch all discovered nodes for a device.
     func fetchDiscoveredNodes(radioID: UUID) async throws -> [DiscoveredNodeDTO]
 

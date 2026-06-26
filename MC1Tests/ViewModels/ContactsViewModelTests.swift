@@ -363,4 +363,29 @@ struct ContactsViewModelTests {
         // Direct nodes first, nearest-first; flood group last, nearest-first.
         #expect(result.map(\.name) == ["NearSameHop", "FarSameHop", "NearFlood", "FarFlood"])
     }
+
+    @Test("filteredContacts sorted by hops orders a flood node by its known inbound hop count")
+    func filteredContactsSortedByHopsUsesInboundHopCount() {
+        let viewModel = ContactsViewModel()
+        let deviceID = UUID()
+        let floodSentinel: UInt8 = 0xFF
+        let oneHop = createContact(radioID: deviceID, name: "OneHop", type: .chat, outPathLength: 1)
+        let floodTwoInbound = createContact(radioID: deviceID, name: "FloodTwoInbound", type: .chat, outPathLength: floodSentinel)
+        let threeHop = createContact(radioID: deviceID, name: "ThreeHop", type: .chat, outPathLength: 3)
+        let floodUnknown = createContact(radioID: deviceID, name: "FloodUnknown", type: .chat, outPathLength: floodSentinel)
+        viewModel.contacts = [floodUnknown, threeHop, floodTwoInbound, oneHop]
+
+        // One flood node was heard two hops away via an advert; the other never was.
+        viewModel.inboundHopByKey = [floodTwoInbound.publicKey: 2]
+
+        let result = viewModel.filteredContacts(
+            searchText: "",
+            segment: .contacts,
+            sortOrder: .hops,
+            userLocation: nil
+        )
+
+        // The flood node interleaves by its inbound count; only the unknown flood node sorts last.
+        #expect(result.map(\.name) == ["OneHop", "FloodTwoInbound", "ThreeHop", "FloodUnknown"])
+    }
 }

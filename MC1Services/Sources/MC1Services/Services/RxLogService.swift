@@ -392,6 +392,31 @@ public actor RxLogService {
             }?.value
         }
 
+        // The advert payload carries the sender's full pubkey at offset 0, followed by the advert
+        // timestamp at offset 32. The inbound hop count is an exact keyed write, not a timing
+        // correlation. A reserved or truncated encoding skips the write rather than stamping a
+        // wrong value. Only flood-routed adverts accumulate a hop path; a direct-routed advert's
+        // path length is the remaining route, not hops traversed, so it is excluded.
+        if parsed.payloadType == .advert, parsed.routeType.isFlood {
+            let payloadBytes = parsed.packetPayload.count
+            if payloadBytes >= ProtocolLimits.publicKeySize, let inboundHops = decodePathLen(parsed.pathLength)?.hopCount {
+                let advertiserPubKey = Data(parsed.packetPayload.prefix(ProtocolLimits.publicKeySize))
+                let advertTimestamp: UInt32? = payloadBytes >= ProtocolLimits.publicKeySize + ProtocolLimits.advertTimestampSize
+                    ? parsed.packetPayload.readUInt32LE(at: ProtocolLimits.publicKeySize)
+                    : nil
+                do {
+                    try await dataStore.setInboundHopCount(
+                        radioID: radioID,
+                        publicKey: advertiserPubKey,
+                        hopCount: inboundHops,
+                        advertTimestamp: advertTimestamp
+                    )
+                } catch {
+                    logger.error("Failed to stamp inbound hop count: \(error.localizedDescription)")
+                }
+            }
+        }
+
         let regionScope = resolveRegionScope(for: parsed)
 
         // Create DTO

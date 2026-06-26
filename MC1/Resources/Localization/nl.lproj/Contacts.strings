@@ -299,11 +299,14 @@
 
 // MARK: - Contact Detail Network Path Section
 
-/* Location: ContactDetailView.swift - Purpose: Network path section header */
-"contacts.detail.networkPath" = "Netwerkpad";
+/* Location: ContactDetailView.swift - Purpose: Outbound path section header */
+"contacts.detail.outboundPath" = "Uitgaand pad";
 
 /* Location: ContactDetailView.swift - Purpose: Route label */
 "contacts.detail.route" = "Route";
+
+/* Location: ContactDetailView.swift - Purpose: Copy route to clipboard */
+"contacts.detail.copyRoute" = "Route kopiëren";
 
 /* Location: ContactDetailView.swift - Purpose: Hops away label */
 "contacts.detail.hopsAway" = "Sprongen weg";
@@ -354,6 +357,12 @@
 /* Location: ContactDetailView.swift - Purpose: Danger zone section header */
 "contacts.detail.dangerZone" = "Gevarenzone";
 
+/* Location: ContactDetailView.swift - Purpose: Clear messages button */
+"contacts.detail.clearMessages" = "Berichten wissen";
+
+/* Location: ContactDetailView.swift - Purpose: Clear messages services-unavailable error */
+"contacts.detail.error.servicesUnavailable" = "Services niet beschikbaar";
+
 /* Location: ContactDetailView.swift - Purpose: Block contact button */
 "contacts.detail.blockContact" = "Contact blokkeren";
 
@@ -376,6 +385,12 @@
 
 /* Location: ContactDetailView.swift - Purpose: Delete contact alert message */
 "contacts.detail.alert.delete.message" = "Dit verwijdert %@ en wist alle bijbehorende gegevens. Deze actie kan niet ongedaan worden gemaakt.";
+
+/* Location: ContactDetailView.swift - Purpose: Clear messages alert title */
+"contacts.detail.alert.clearMessages.title" = "Berichten wissen?";
+
+/* Location: ContactDetailView.swift - Purpose: Clear messages alert message */
+"contacts.detail.alert.clearMessages.message" = "Alle berichten met %@ worden permanent verwijderd.";
 
 /* Location: ContactDetailView.swift - Purpose: Path error alert title */
 "contacts.detail.alert.pathError" = "Padfout";

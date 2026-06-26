@@ -1251,8 +1251,12 @@ public enum L10n {
         public static let blockContact = L10n.tr("Contacts", "contacts.detail.blockContact", fallback: "Block Contact")
         /// Location: ContactDetailView.swift - Purpose: Blocked status indicator
         public static let blocked = L10n.tr("Contacts", "contacts.detail.blocked", fallback: "Blocked")
+        /// Location: ContactDetailView.swift - Purpose: Clear messages button
+        public static let clearMessages = L10n.tr("Contacts", "contacts.detail.clearMessages", fallback: "Clear Messages")
         /// Location: ContactDetailView.swift - Purpose: Coordinates label
         public static let coordinates = L10n.tr("Contacts", "contacts.detail.coordinates", fallback: "Coordinates")
+        /// Location: ContactDetailView.swift - Purpose: Copy route to clipboard
+        public static let copyRoute = L10n.tr("Contacts", "contacts.detail.copyRoute", fallback: "Copy Route")
         /// Location: ContactDetailView.swift - Purpose: Danger zone section header
         public static let dangerZone = L10n.tr("Contacts", "contacts.detail.dangerZone", fallback: "Danger Zone")
         /// Location: ContactDetailView.swift - Purpose: Delete button with type
@@ -1285,14 +1289,14 @@ public enum L10n {
         public static let management = L10n.tr("Contacts", "contacts.detail.management", fallback: "Management")
         /// Location: ContactDetailView.swift - Purpose: Name label
         public static let name = L10n.tr("Contacts", "contacts.detail.name", fallback: "Name")
-        /// Location: ContactDetailView.swift - Purpose: Network path section header
-        public static let networkPath = L10n.tr("Contacts", "contacts.detail.networkPath", fallback: "Network Path")
         /// Location: ContactDetailView.swift - Purpose: Nickname label
         public static let nickname = L10n.tr("Contacts", "contacts.detail.nickname", fallback: "Nickname")
         /// Location: ContactDetailView.swift - Purpose: No nickname placeholder
         public static let nicknameNone = L10n.tr("Contacts", "contacts.detail.nicknameNone", fallback: "None")
         /// Location: ContactDetailView.swift - Purpose: Open in Maps button
         public static let openInMaps = L10n.tr("Contacts", "contacts.detail.openInMaps", fallback: "Open in Maps")
+        /// Location: ContactDetailView.swift - Purpose: Outbound path section header
+        public static let outboundPath = L10n.tr("Contacts", "contacts.detail.outboundPath", fallback: "Outbound Path")
         /// Location: ContactDetailView.swift - Purpose: Footer for path routing
         public static let pathFooter = L10n.tr("Contacts", "contacts.detail.pathFooter", fallback: "Messages route through the path shown. Reset Path to use flood routing instead.")
         /// Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes
@@ -1368,6 +1372,14 @@ public enum L10n {
             /// Location: ContactDetailView.swift - Purpose: Block contact alert title
             public static let title = L10n.tr("Contacts", "contacts.detail.alert.block.title", fallback: "Block Contact")
           }
+          public enum ClearMessages {
+            /// Location: ContactDetailView.swift - Purpose: Clear messages alert message
+            public static func message(_ p1: Any) -> String {
+              return L10n.tr("Contacts", "contacts.detail.alert.clearMessages.message", String(describing: p1), fallback: "All messages with %@ will be permanently deleted.")
+            }
+            /// Location: ContactDetailView.swift - Purpose: Clear messages alert title
+            public static let title = L10n.tr("Contacts", "contacts.detail.alert.clearMessages.title", fallback: "Clear Messages?")
+          }
           public enum Delete {
             /// Location: ContactDetailView.swift - Purpose: Delete contact alert message
             public static func message(_ p1: Any) -> String {
@@ -1378,6 +1390,10 @@ public enum L10n {
               return L10n.tr("Contacts", "contacts.detail.alert.delete.title", String(describing: p1), fallback: "Delete %@")
             }
           }
+        }
+        public enum Error {
+          /// Location: ContactDetailView.swift - Purpose: Clear messages services-unavailable error
+          public static let servicesUnavailable = L10n.tr("Contacts", "contacts.detail.error.servicesUnavailable", fallback: "Services not available")
         }
       }
       public enum Discovery {
@@ -2191,6 +2207,8 @@ public enum L10n {
     }
   }
   public enum Localizable {
+    /// Title of the radio-status Control Center control that opens the app; resolved in the app process
+    public static let openMeshCoreOne = L10n.tr("Localizable", "Open MeshCore One", fallback: "Open MeshCore One")
     public enum Accessibility {
       /// Accessibility value for toggle in Off state
       public static let off = L10n.tr("Localizable", "accessibility.off", fallback: "Off")
@@ -2459,6 +2477,16 @@ public enum L10n {
         public static func persistenceFailed(_ p1: Any) -> String {
           return L10n.tr("Localizable", "error.deviceService.persistenceFailed", String(describing: p1), fallback: "Failed to save device settings: %@")
         }
+      }
+      public enum Intent {
+        /// Location: IntentError.swift - No single valid recipient was chosen (none, both, or a recipient that cannot receive messages)
+        public static let invalidRecipient = L10n.tr("Localizable", "error.intent.invalidRecipient", fallback: "Choose one recipient, either a contact or a channel that can receive messages.")
+        /// Location: IntentError.swift - The message text exceeds the maximum length the radio can send
+        public static let messageTooLong = L10n.tr("Localizable", "error.intent.messageTooLong", fallback: "The message is too long to send.")
+        /// Location: IntentError.swift - No radio is connected, so retrying alone will not help until one is connected
+        public static let notConnected = L10n.tr("Localizable", "error.intent.notConnected", fallback: "No radio is connected. Connect a radio in MeshCore One, then try again.")
+        /// Location: IntentError.swift - Persisting the message to the send queue failed, so it was never queued
+        public static let sendFailed = L10n.tr("Localizable", "error.intent.sendFailed", fallback: "The message couldn't be queued to send. Try again.")
       }
       public enum KeyGeneration {
         /// Location: KeyGenerationError+UserFacingMessage.swift - Key data is not a valid Ed25519 expanded private key
@@ -2848,8 +2876,8 @@ public enum L10n {
           public static let contactInfo = L10n.tr("Map", "map.detail.section.contactInfo", fallback: "Contact Info")
           /// Location: MapView.swift ContactDetailSheet - Purpose: Section header for location coordinates
           public static let location = L10n.tr("Map", "map.detail.section.location", fallback: "Location")
-          /// Location: MapView.swift ContactDetailSheet - Purpose: Section header for network path info
-          public static let networkPath = L10n.tr("Map", "map.detail.section.networkPath", fallback: "Network Path")
+          /// Location: MapView.swift ContactDetailSheet - Purpose: Section header for outbound path info
+          public static let outboundPath = L10n.tr("Map", "map.detail.section.outboundPath", fallback: "Outbound Path")
         }
       }
       public enum NodeKind {
@@ -5473,6 +5501,96 @@ public enum L10n {
     }
   }
   public enum Tools {
+    /// Location: SendMessageIntent.swift - App Intents parameter summary shown in the shortcut editor; ${message} and ${target} are framework parameter tokens
+    public static let sendMessageToTarget = L10n.tr("Tools", "Send ${message} to ${target}", fallback: "Send ${message} to ${target}")
+    /// Location: SendAdvertIntent.swift - App Intents parameter summary shown in the shortcut editor; ${reach} is the framework parameter token
+    public static let sendAReachAdvert = L10n.tr("Tools", "Send a ${reach} advert", fallback: "Send a ${reach} advert")
+    public enum Intent {
+      public enum Advert {
+        /// Location: SendAdvertIntent.swift - App Intents: description of the send advert intent
+        public static let description = L10n.tr("Tools", "intent.advert.description", fallback: "Broadcast a self-advertisement so nearby mesh nodes can discover your radio.")
+        /// Location: MC1AppShortcutsProvider.swift - App Shortcuts: short title for the send advert shortcut
+        public static let shortTitle = L10n.tr("Tools", "intent.advert.shortTitle", fallback: "Send advert")
+        /// Location: SendAdvertIntent.swift - App Intents: title of the send advert intent
+        public static let title = L10n.tr("Tools", "intent.advert.title", fallback: "Send an advert")
+        public enum Dialog {
+          /// Location: SendAdvertIntent.swift - Spoken after a flood advert is sent
+          public static let sentFlood = L10n.tr("Tools", "intent.advert.dialog.sentFlood", fallback: "Sent your advert across the mesh.")
+          /// Location: SendAdvertIntent.swift - Spoken after a zero-hop advert is sent
+          public static let sentZeroHop = L10n.tr("Tools", "intent.advert.dialog.sentZeroHop", fallback: "Sent your advert to nearby nodes.")
+        }
+        public enum Param {
+          /// Location: SendAdvertIntent.swift - App Intents: title of the advert reach parameter (zero-hop or flood)
+          public static let reach = L10n.tr("Tools", "intent.advert.param.reach", fallback: "Reach")
+        }
+        public enum Reach {
+          /// Location: AdvertReach.swift - App Intents: flood reach case (entire mesh)
+          public static let flood = L10n.tr("Tools", "intent.advert.reach.flood", fallback: "Flood")
+          /// Location: AdvertReach.swift - App Intents: type name for the advert reach enum
+          public static let type = L10n.tr("Tools", "intent.advert.reach.type", fallback: "Advert reach")
+          /// Location: AdvertReach.swift - App Intents: zero-hop reach case (direct neighbors only)
+          public static let zeroHop = L10n.tr("Tools", "intent.advert.reach.zeroHop", fallback: "Zero-hop")
+        }
+      }
+      public enum Entity {
+        /// Location: MessageTargetEntity.swift - App Intents recipient-picker subtitle marking a channel (broadcast) target
+        public static let channel = L10n.tr("Tools", "intent.entity.channel", fallback: "Channel")
+        /// Location: MessageTargetEntity.swift - App Intents entity type name for a send target (a contact DM or a channel broadcast)
+        public static let target = L10n.tr("Tools", "intent.entity.target", fallback: "Recipient")
+      }
+      public enum Send {
+        /// Location: SendMessageIntent.swift - Confirmation prompt shown before sending; %@ is the recipient name
+        public static func confirm(_ p1: Any) -> String {
+          return L10n.tr("Tools", "intent.send.confirm", String(describing: p1), fallback: "Send this message to %@?")
+        }
+        /// Location: SendMessageIntent.swift - App Intents: description of the send message intent
+        public static let description = L10n.tr("Tools", "intent.send.description", fallback: "Send text to a contact or a channel on your radio.")
+        /// Location: SendMessageIntent.swift - Spoken when the app must come to the foreground to send (still connecting or reconnecting)
+        public static let foreground = L10n.tr("Tools", "intent.send.foreground", fallback: "Open MeshCore One to finish sending this message.")
+        /// Location: MC1AppShortcutsProvider.swift - App Shortcuts: short title for the send message shortcut
+        public static let shortTitle = L10n.tr("Tools", "intent.send.shortTitle", fallback: "Send message")
+        /// Location: SendMessageIntent.swift - App Intents: title of the send message intent
+        public static let title = L10n.tr("Tools", "intent.send.title", fallback: "Send a message")
+        public enum Param {
+          /// Location: SendMessageIntent.swift - App Intents: title of the message text parameter
+          public static let message = L10n.tr("Tools", "intent.send.param.message", fallback: "Message")
+          /// Location: SendMessageIntent.swift - App Intents: title of the recipient parameter (a contact or a channel)
+          public static let target = L10n.tr("Tools", "intent.send.param.target", fallback: "Recipient")
+        }
+      }
+      public enum Status {
+        /// Location: StatusQueryIntent.swift - App Intents: description of the radio status query intent
+        public static let description = L10n.tr("Tools", "intent.status.description", fallback: "Report your connected radio's name, connection state, and last known battery level.")
+        /// Location: StatusQueryIntent.swift - Generic radio name used when no device name is known
+        public static let radioFallbackName = L10n.tr("Tools", "intent.status.radioFallbackName", fallback: "Your radio")
+        /// Location: MC1AppShortcutsProvider.swift - App Shortcuts: short title for the radio status shortcut
+        public static let shortTitle = L10n.tr("Tools", "intent.status.shortTitle", fallback: "Radio status")
+        /// Location: StatusQueryIntent.swift - App Intents: title of the radio status query intent
+        public static let title = L10n.tr("Tools", "intent.status.title", fallback: "Check radio status")
+        public enum Dialog {
+          /// Location: StatusQueryIntent.swift - Spoken when connected but no battery reading is available; %@ is the radio name
+          public static func connectedNoBattery(_ p1: Any) -> String {
+            return L10n.tr("Tools", "intent.status.dialog.connectedNoBattery", String(describing: p1), fallback: "%@ is connected. No battery reading is available.")
+          }
+          /// Location: StatusQueryIntent.swift - Spoken when connected; %1$@ is the radio name, %2$lld is the cached battery percent
+          public static func connectedWithBattery(_ p1: Any, _ p2: Int) -> String {
+            return L10n.tr("Tools", "intent.status.dialog.connectedWithBattery", String(describing: p1), p2, fallback: "%1$@ is connected. Battery is about %2$lld%%, as of the last reading.")
+          }
+          /// Location: StatusQueryIntent.swift - Spoken while the radio is connecting; %@ is the radio name
+          public static func connecting(_ p1: Any) -> String {
+            return L10n.tr("Tools", "intent.status.dialog.connecting", String(describing: p1), fallback: "%@ is connecting.")
+          }
+          /// Location: StatusQueryIntent.swift - Spoken when not connected and a last radio name is known; %@ is the radio name
+          public static func disconnectedNamed(_ p1: Any) -> String {
+            return L10n.tr("Tools", "intent.status.dialog.disconnectedNamed", String(describing: p1), fallback: "%@ is not connected.")
+          }
+          /// Location: StatusQueryIntent.swift - Spoken when not connected and no radio has been connected before
+          public static let disconnectedUnknown = L10n.tr("Tools", "intent.status.dialog.disconnectedUnknown", fallback: "No radio is connected.")
+          /// Location: StatusQueryIntent.swift - Spoken when the app is still launching and has no state to read yet
+          public static let notReady = L10n.tr("Tools", "intent.status.dialog.notReady", fallback: "MeshCore One is still starting up. Try again in a moment.")
+        }
+      }
+    }
     public enum Tools {
       /// Location: CLIToolView.swift - Tool selection label
       public static let cli = L10n.tr("Tools", "tools.cli", fallback: "CLI")
@@ -6041,6 +6159,32 @@ public enum L10n {
         public static let loadFailed = L10n.tr("Tools", "tools.savedPaths.loadFailed", fallback: "Failed to load saved paths.")
         /// Location: SavedPathsViewModel.swift - Error renaming a saved path
         public static let renameFailed = L10n.tr("Tools", "tools.savedPaths.renameFailed", fallback: "Failed to rename path.")
+      }
+    }
+  }
+  public enum WhatsNew {
+    public enum WhatsNew {
+      /// Button to dismiss the What's New sheet
+      public static let continueButton = L10n.tr("WhatsNew", "whatsNew.continueButton", fallback: "Continue")
+      /// Title of the What's New sheet shown once after an app update
+      public static let title = L10n.tr("WhatsNew", "whatsNew.title", fallback: "What's New")
+      public enum ClearMessages {
+        /// What's New v1.1 - Clear Messages feature, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.clearMessages.description", fallback: "Wipe the message history of any DM.")
+        /// What's New v1.1 - Clear Messages feature, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.clearMessages.title", fallback: "Clear a DM Conversation")
+      }
+      public enum InboundHops {
+        /// What's New v1.1 - Inbound hop counts feature, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.inboundHops.description", fallback: "Nodes tab now correlates inbound hops from adverts in the RX Log.")
+        /// What's New v1.1 - Inbound hop counts feature, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.inboundHops.title", fallback: "Sort by hops")
+      }
+      public enum SiriShortcuts {
+        /// What's New v1.1 - Shortcuts feature, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.siriShortcuts.description", fallback: "Check your radio's status, send messages, and broadcast adverts.")
+        /// What's New v1.1 - Shortcuts feature, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.siriShortcuts.title", fallback: "Shortcuts")
       }
     }
   }

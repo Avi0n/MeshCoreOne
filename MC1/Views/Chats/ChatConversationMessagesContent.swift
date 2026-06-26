@@ -27,9 +27,10 @@ struct ChatConversationMessagesContent: View {
     @Binding var scrollToDividerRequest: Int
     @Binding var isDividerVisible: Bool
 
-    // MARK: - Mention State (read-only)
+    // MARK: - Mention State
 
     let unseenMentionIDs: [UUID]
+    @Binding var offscreenMentionIDs: [UUID]
     let scrollToTargetID: UUID?
     let newMessagesDividerMessageID: UUID?
 
@@ -40,7 +41,7 @@ struct ChatConversationMessagesContent: View {
 
     // MARK: - Callbacks
 
-    let onMentionSeen: (UUID) async -> Void
+    let onMentionSeen: (UUID) async -> Bool
     let onScrollToMention: () -> Void
     let onRetryMessage: (MessageDTO) -> Void
 
@@ -69,6 +70,7 @@ struct ChatConversationMessagesContent: View {
                     selectedMessageForActions: $selectedMessageForActions,
                     imageViewerData: $imageViewerData,
                     unseenMentionIDs: unseenMentionIDs,
+                    offscreenMentionIDs: $offscreenMentionIDs,
                     scrollToTargetID: scrollToTargetID,
                     newMessagesDividerMessageID: newMessagesDividerMessageID,
                     onMentionSeen: onMentionSeen,
@@ -184,11 +186,12 @@ private struct ChannelEmptyMessagesView: View {
             scrollToDividerRequest: .constant(0),
             isDividerVisible: .constant(false),
             unseenMentionIDs: [],
+            offscreenMentionIDs: .constant([]),
             scrollToTargetID: nil,
             newMessagesDividerMessageID: nil,
             selectedMessageForActions: .constant(nil),
             imageViewerData: .constant(nil),
-            onMentionSeen: { _ in },
+            onMentionSeen: { _ in true },
             onScrollToMention: {},
             onRetryMessage: { _ in }
         )
@@ -215,11 +218,12 @@ private struct ChannelEmptyMessagesView: View {
             scrollToDividerRequest: .constant(0),
             isDividerVisible: .constant(false),
             unseenMentionIDs: [],
+            offscreenMentionIDs: .constant([]),
             scrollToTargetID: nil,
             newMessagesDividerMessageID: nil,
             selectedMessageForActions: .constant(nil),
             imageViewerData: .constant(nil),
-            onMentionSeen: { _ in },
+            onMentionSeen: { _ in true },
             onScrollToMention: {},
             onRetryMessage: { _ in }
         )

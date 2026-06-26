@@ -317,6 +317,7 @@ private actor AdmissionStubDataStore: PersistenceStoreProtocol {
 
     // MARK: - Required Protocol Stubs
 
+    func setInboundHopCount(radioID: UUID, publicKey: Data, hopCount: Int, advertTimestamp: UInt32?) async throws {}
     func isDuplicateMessage(deduplicationKey: String, radioID: UUID) async throws -> Bool { false }
     func saveMessage(_ dto: MessageDTO) async throws {}
     func fetchMessage(id: UUID) async throws -> MessageDTO? { nil }

@@ -1545,7 +1545,9 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
                 latitude: frame.latitude,
                 longitude: frame.longitude,
                 outPathLength: frame.outPathLength,
-                outPath: frame.outPath
+                outPath: frame.outPath,
+                inboundHopCount: existing.inboundHopCount,
+                inboundHopAdvertTimestamp: existing.inboundHopAdvertTimestamp
             )
             discoveredNodes[existing.id] = updated
             return (node: updated, isNew: false)
@@ -1563,10 +1565,44 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
             latitude: frame.latitude,
             longitude: frame.longitude,
             outPathLength: frame.outPathLength,
-            outPath: frame.outPath
+            outPath: frame.outPath,
+            inboundHopCount: nil,
+            inboundHopAdvertTimestamp: nil
         )
         discoveredNodes[id] = dto
         return (node: dto, isNew: true)
+    }
+
+    /// Records every `setInboundHopCount` call for assertion and applies the same adopt rule as the
+    /// production store so tests can observe the resulting stored value via `discoveredNodes`.
+    public private(set) var inboundHopCountCalls: [(radioID: UUID, publicKey: Data, hopCount: Int, advertTimestamp: UInt32?)] = []
+
+    public func setInboundHopCount(radioID: UUID, publicKey: Data, hopCount: Int, advertTimestamp: UInt32?) async throws {
+        inboundHopCountCalls.append((radioID: radioID, publicKey: publicKey, hopCount: hopCount, advertTimestamp: advertTimestamp))
+        guard let existing = discoveredNodes.values.first(where: {
+            $0.radioID == radioID && $0.publicKey == publicKey
+        }) else { return }
+        guard let adopted = adoptInboundHop(
+            storedHops: existing.inboundHopCount,
+            storedTimestamp: existing.inboundHopAdvertTimestamp,
+            incomingHops: hopCount,
+            incomingTimestamp: advertTimestamp
+        ) else { return }
+        discoveredNodes[existing.id] = DiscoveredNodeDTO(
+            id: existing.id,
+            radioID: existing.radioID,
+            publicKey: existing.publicKey,
+            name: existing.name,
+            typeRawValue: existing.typeRawValue,
+            lastHeard: existing.lastHeard,
+            lastAdvertTimestamp: existing.lastAdvertTimestamp,
+            latitude: existing.latitude,
+            longitude: existing.longitude,
+            outPathLength: existing.outPathLength,
+            outPath: existing.outPath,
+            inboundHopCount: adopted.hopCount,
+            inboundHopAdvertTimestamp: adopted.advertTimestamp
+        )
     }
 
     public func fetchDiscoveredNodes(radioID: UUID) async throws -> [DiscoveredNodeDTO] {

@@ -258,6 +258,17 @@ public actor ContactService {
         await syncCoordinator?.notifyContactsChanged()
     }
 
+    /// Clears all messages for a direct conversation without deleting the contact.
+    /// Preserves `lastMessageDate` so the now-empty conversation stays in the chats list
+    /// (showing "No messages"), unlike delete-conversation which nils the date. Also clears
+    /// both unread counters and notifies observers so no stale badge or preview survives.
+    public func clearContactMessages(contactID: UUID) async throws {
+        try await dataStore.deleteMessagesForContact(contactID: contactID)
+        try await dataStore.clearUnreadCount(contactID: contactID)
+        try await dataStore.clearUnreadMentionCount(contactID: contactID)
+        await syncCoordinator?.notifyConversationsChanged()
+    }
+
     // MARK: - Reset Path
 
     /// Reset the path for a contact (force rediscovery)

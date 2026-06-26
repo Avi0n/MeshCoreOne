@@ -29,6 +29,9 @@ struct ChatConversationView: View {
     @State private var scrollToBottomRequest = 0
     @State private var scrollToMentionRequest = 0
     @State private var unseenMentionIDs: [UUID] = []
+    /// The subset of `unseenMentionIDs` currently off screen, reported up by the chat table.
+    /// Drives the scroll-to-mention button and is the source for its tap target.
+    @State private var offscreenMentionIDs: [UUID] = []
     @State private var scrollToTargetID: UUID?
     @State private var mentionScrollTask: Task<Void, Never>?
     @State private var scrollToDividerRequest = 0
@@ -118,6 +121,7 @@ struct ChatConversationView: View {
             scrollToDividerRequest: $scrollToDividerRequest,
             isDividerVisible: $isDividerVisible,
             unseenMentionIDs: unseenMentionIDs,
+            offscreenMentionIDs: $offscreenMentionIDs,
             scrollToTargetID: scrollToTargetID,
             newMessagesDividerMessageID: chatViewModel.newMessagesDividerMessageID,
             selectedMessageForActions: $selectedMessageForActions,
@@ -189,6 +193,11 @@ struct ChatConversationView: View {
                 onClearChannelMessages: {
                     guard case .channel(let channel) = conversationType else { return }
                     await chatViewModel.loadChannelMessages(for: channel)
+                    parentViewModel?.requestConversationReload()
+                },
+                onClearDirectMessages: {
+                    guard case .dm(let contact) = conversationType else { return }
+                    await chatViewModel.loadMessages(for: contact)
                     parentViewModel?.requestConversationReload()
                 },
                 onDeleteChannel: {
@@ -505,10 +514,15 @@ struct ChatConversationView: View {
         }
     }
 
-    private func markMentionSeen(messageID: UUID) async {
-        guard unseenMentionIDs.contains(messageID) else { return }
-        guard await persistMentionSeen(messageID: messageID) else { return }
+    /// Marks a mention seen and reports whether the result is settled. Returns true when the
+    /// mention was already seen or the persist succeeded; false only when the persist failed,
+    /// so the caller can re-attempt rather than treat the id as handled.
+    @discardableResult
+    private func markMentionSeen(messageID: UUID) async -> Bool {
+        guard unseenMentionIDs.contains(messageID) else { return true }
+        guard await persistMentionSeen(messageID: messageID) else { return false }
         unseenMentionIDs.removeAll { $0 == messageID }
+        return true
     }
 
     private func markNewArrivalMentionSeen(messageID: UUID) async {
@@ -537,11 +551,14 @@ struct ChatConversationView: View {
     // MARK: - Mention Navigation
 
     private func scrollToNextMention() {
-        guard let targetID = unseenMentionIDs.first else { return }
+        // Target the newest off-screen mention so the first tap lands on the latest unread the
+        // user hasn't reached; repeated taps walk upward through older mentions, showing the
+        // earliest last. An on-screen mention is already in view and would make the tap a no-op,
+        // so the off-screen subset is the right source.
+        guard let targetID = ChatScrollToMentionPolicy.nextTarget(offscreenMentions: offscreenMentionIDs) else { return }
 
         if chatViewModel.items.contains(where: { $0.id == targetID }) {
-            scrollToTargetID = targetID
-            scrollToMentionRequest += 1
+            issueMentionScroll(to: targetID)
             return
         }
 
@@ -549,7 +566,12 @@ struct ChatConversationView: View {
         mentionScrollTask = Task {
             do {
                 let deadline = ContinuousClock.now + .seconds(10)
-                while !chatViewModel.items.contains(where: { $0.id == targetID }) {
+                // Page on the authoritative coordinator-backed messages, not the lagging
+                // rendered items. loadOlderMessages mutates messages synchronously but only
+                // schedules the off-main items rebuild, so gating on items overshoots a page
+                // per spin and can exhaust history before a render lands, tripping the
+                // destructive not-found branch that hides a real unread mention.
+                while !chatViewModel.messages.contains(where: { $0.id == targetID }) {
                     guard chatViewModel.hasMoreMessages else {
                         logger.warning("Mention \(targetID) not found after exhausting history, removing")
                         if let dataStore = appState.services?.dataStore {
@@ -558,6 +580,8 @@ struct ChatConversationView: View {
                         unseenMentionIDs.removeAll { $0 == targetID }
                         break
                     }
+                    // offscreenMentionIDs is an async mirror; a target marked seen mid-paging is
+                    // already gone from unseenMentionIDs, so stop rather than page for a read mention.
                     guard unseenMentionIDs.contains(targetID) else { break }
                     guard ContinuousClock.now < deadline else {
                         logger.warning("Mention \(targetID) paging timed out")
@@ -570,9 +594,18 @@ struct ChatConversationView: View {
                     await chatViewModel.loadOlderMessages()
                     try Task.checkCancellation()
                 }
+
+                // Target is in the model; wait (bounded) for the rebuild to surface it in the
+                // rendered items, which scrollToItem addresses by row, before scrolling.
+                while chatViewModel.messages.contains(where: { $0.id == targetID }),
+                      !chatViewModel.items.contains(where: { $0.id == targetID }),
+                      ContinuousClock.now < deadline {
+                    try await Task.sleep(for: .milliseconds(50))
+                    try Task.checkCancellation()
+                }
+
                 if chatViewModel.items.contains(where: { $0.id == targetID }) {
-                    scrollToTargetID = targetID
-                    scrollToMentionRequest += 1
+                    issueMentionScroll(to: targetID)
                 }
             } catch is CancellationError {
                 // Expected when view disappears during paging
@@ -580,6 +613,15 @@ struct ChatConversationView: View {
                 logger.error("Failed to scroll to mention: \(error)")
             }
         }
+    }
+
+    /// Scrolls to a mention and advances the queue. The seen-transition is driven directly
+    /// rather than waiting for the row's visibility tick, which never fires when the target
+    /// is already centered (scrollToRow does not move contentOffset), leaving the tap a no-op.
+    private func issueMentionScroll(to targetID: UUID) {
+        scrollToTargetID = targetID
+        scrollToMentionRequest += 1
+        Task { await markMentionSeen(messageID: targetID) }
     }
 
     // MARK: - Mention Suggestions

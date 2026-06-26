@@ -42,7 +42,9 @@ struct RegionDiscoveryServiceTests {
             latitude: 0,
             longitude: 0,
             outPathLength: 0,
-            outPath: Data()
+            outPath: Data(),
+            inboundHopCount: nil,
+            inboundHopAdvertTimestamp: nil
         )
     }
 

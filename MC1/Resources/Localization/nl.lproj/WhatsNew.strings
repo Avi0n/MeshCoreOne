@@ -1,0 +1,29 @@
+/*
+  WhatsNew.strings
+  MC1
+
+  Strings for the "What's New" sheet shown once after a major update.
+  Update these every major release: edit the per-feature title/description
+  pairs (add or remove a block) and keep WhatsNewCatalog.swift in sync.
+*/
+
+/* Title of the What's New sheet shown once after an app update */
+"whatsNew.title" = "Nieuw";
+
+/* Button to dismiss the What's New sheet */
+"whatsNew.continueButton" = "Doorgaan";
+
+/* What's New v1.1 - Shortcuts feature, title */
+"whatsNew.siriShortcuts.title" = "Opdrachten";
+/* What's New v1.1 - Shortcuts feature, description */
+"whatsNew.siriShortcuts.description" = "Controleer de status van je radio, verstuur berichten en zend advertenties uit.";
+
+/* What's New v1.1 - Clear Messages feature, title */
+"whatsNew.clearMessages.title" = "DM-gesprek wissen";
+/* What's New v1.1 - Clear Messages feature, description */
+"whatsNew.clearMessages.description" = "Wis de berichtgeschiedenis van elk direct bericht.";
+
+/* What's New v1.1 - Inbound hop counts feature, title */
+"whatsNew.inboundHops.title" = "Sorteren op sprongen";
+/* What's New v1.1 - Inbound hop counts feature, description */
+"whatsNew.inboundHops.description" = "Het tabblad Nodes koppelt inkomende sprongen nu aan advertenties in het RX-logboek.";

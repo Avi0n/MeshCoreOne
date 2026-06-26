@@ -39,6 +39,10 @@ public enum AppStorageKey: String {
     case recentReactionEmojis = "recentReactionEmojis"
     case isDemoModeUnlocked = "isDemoModeUnlocked"
     case isDemoModeEnabled = "isDemoModeEnabled"
+    // Intentionally device-local: not registered in BackupUserDefaults so restored
+    // hardware still shows the current release's notes once. Registering it would
+    // suppress the sheet on a genuinely new device.
+    case lastShownWhatsNewVersion = "lastShownWhatsNewVersion"
 
     // Notification toggles read by NotificationPreferences and
     // NotificationPreferencesStore; all share defaultNotificationEnabled.

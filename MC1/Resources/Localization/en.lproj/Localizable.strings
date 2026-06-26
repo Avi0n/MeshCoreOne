@@ -477,6 +477,21 @@
 /* Location: ChannelServiceError+UserFacingMessage.swift - Channel sync suspended - %lld is the consecutive failure count */
 "error.channelService.circuitBreakerOpen" = "Channel sync suspended after %lld consecutive failures.";
 
+/* Location: IntentError.swift - No radio is connected, so retrying alone will not help until one is connected */
+"error.intent.notConnected" = "No radio is connected. Connect a radio in MeshCore One, then try again.";
+
+/* Location: IntentError.swift - No single valid recipient was chosen (none, both, or a recipient that cannot receive messages) */
+"error.intent.invalidRecipient" = "Choose one recipient, either a contact or a channel that can receive messages.";
+
+/* Location: IntentError.swift - The message text exceeds the maximum length the radio can send */
+"error.intent.messageTooLong" = "The message is too long to send.";
+
+/* Location: IntentError.swift - Persisting the message to the send queue failed, so it was never queued */
+"error.intent.sendFailed" = "The message couldn't be queued to send. Try again.";
+
+/* Title of the radio-status Control Center control that opens the app; resolved in the app process */
+"Open MeshCore One" = "Open MeshCore One";
+
 /* Location: ChatSendQueueServiceError+UserFacingMessage.swift - Queueing a message for send failed - %@ is the underlying error message */
 "error.chatSendQueue.persistFailed" = "Failed to queue message for sending: %@";
 

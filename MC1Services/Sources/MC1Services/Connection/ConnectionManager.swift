@@ -390,6 +390,11 @@ public final class ConnectionManager {
         lastConnectionStore.radioID
     }
 
+    /// The last connected device name (for offline display when disconnected)
+    public var lastConnectedDeviceName: String? {
+        lastConnectionStore.deviceName
+    }
+
     /// Records a successful connection for future restoration
     func persistConnection(deviceID: UUID, radioID: UUID, deviceName: String) {
         lastConnectionStore.persist(deviceID: deviceID, radioID: radioID, deviceName: deviceName)

@@ -1,3 +1,4 @@
+import CoreBluetooth
 import Foundation
 import Testing
 @testable import MC1Services
@@ -206,6 +207,52 @@ struct BLEStateMachineTests {
         )
 
         #expect(isStale)  // 198.5 + 1.0 = 199.5 < 200 → stale
+    }
+
+    // MARK: - Discovery Timeout Extension Tests
+
+    @Test("extend predicate allows extension while connected and within budget")
+    func extendPredicateAllowsExtensionWhileConnected() {
+        let shouldExtend = BLEStateMachine.shouldExtendDiscoveryTimeout(
+            peripheralState: .connected,
+            extensions: 0,
+            maxExtensions: BLEStateMachine.maxDiscoveryTimeoutExtensions
+        )
+
+        #expect(shouldExtend)  // link is up; a didConnect/discovery callback is in flight
+    }
+
+    @Test("extend predicate rejects extension when peripheral is not connected")
+    func extendPredicateRejectsExtensionWhenNotConnected() {
+        for state in [CBPeripheralState.connecting, .disconnected, .disconnecting] {
+            let shouldExtend = BLEStateMachine.shouldExtendDiscoveryTimeout(
+                peripheralState: state,
+                extensions: 0,
+                maxExtensions: BLEStateMachine.maxDiscoveryTimeoutExtensions
+            )
+
+            #expect(!shouldExtend, "state \(state.rawValue) should tear down, not extend")
+        }
+    }
+
+    @Test("extend predicate rejects extension once the budget is spent")
+    func extendPredicateRejectsExtensionAtBudget() {
+        let max = BLEStateMachine.maxDiscoveryTimeoutExtensions
+
+        #expect(BLEStateMachine.shouldExtendDiscoveryTimeout(peripheralState: .connected, extensions: max - 1, maxExtensions: max))
+        #expect(!BLEStateMachine.shouldExtendDiscoveryTimeout(peripheralState: .connected, extensions: max, maxExtensions: max))
+    }
+
+    @Test("advancing the connection generation resets the discovery-extension budget")
+    func advanceConnectionGenerationResetsDiscoveryExtensions() async {
+        let sm = BLEStateMachine()
+        await sm.recordDiscoveryTimeoutExtension()
+        await sm.recordDiscoveryTimeoutExtension()
+        #expect(await sm.currentDiscoveryTimeoutExtensions == BLEStateMachine.maxDiscoveryTimeoutExtensions)
+
+        await sm.advanceConnectionGeneration()
+
+        #expect(await sm.currentDiscoveryTimeoutExtensions == 0)
     }
 
     @Test("disconnect callback is accepted when timestamp is at or after generation start")

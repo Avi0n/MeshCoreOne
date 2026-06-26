@@ -59,6 +59,7 @@ targets:
           - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/Tools.strings
           - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/Onboarding.strings
           - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/RemoteNodes.strings
+          - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/WhatsNew.strings
         outputFiles:
           - $(PROJECT_DIR)/MC1/Resources/Generated/L10n.swift
         basedOnDependencyAnalysis: false
@@ -66,7 +67,7 @@ targets:
       base:
         SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        MARKETING_VERSION: 1.0.1
+        MARKETING_VERSION: 1.1.0
         CURRENT_PROJECT_VERSION: 1
         VERSIONING_SYSTEM: apple-generic
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -101,7 +102,7 @@ targets:
       configs:
         Debug:
           INFOPLIST_FILE: MC1/Info-Debug.plist
-          PRODUCT_BUNDLE_IDENTIFIER: io.pocketmesh.app.debug
+          PRODUCT_BUNDLE_IDENTIFIER: io.pocketmeshtest.app
         Release:
           INFOPLIST_FILE: MC1/Info.plist
           PRODUCT_BUNDLE_IDENTIFIER: io.pocketmesh.app
@@ -116,7 +117,7 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: MC1Tests/Info.plist
-        MARKETING_VERSION: 1.0.1
+        MARKETING_VERSION: 1.1.0
         CURRENT_PROJECT_VERSION: 1
         VERSIONING_SYSTEM: apple-generic
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/MC1.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MC1"
@@ -130,14 +131,14 @@ targets:
       - path: Shared
     settings:
       base:
-        MARKETING_VERSION: 1.0.1
+        MARKETING_VERSION: 1.1.0
         CURRENT_PROJECT_VERSION: 1
         VERSIONING_SYSTEM: apple-generic
         TARGETED_DEVICE_FAMILY: "1,2"
       configs:
         Debug:
           INFOPLIST_FILE: MC1Widgets/Info.plist
-          PRODUCT_BUNDLE_IDENTIFIER: io.pocketmesh.app.debug.widgets
+          PRODUCT_BUNDLE_IDENTIFIER: io.pocketmeshtest.app.widgets
         Release:
           INFOPLIST_FILE: MC1Widgets/Info.plist
           PRODUCT_BUNDLE_IDENTIFIER: io.pocketmesh.app.widgets

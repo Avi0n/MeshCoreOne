@@ -167,12 +167,14 @@ final class DiscoveryViewModel {
             return nodes.sorted { orderedByDistanceThenName($0, $1, from: userLocation) }
         case .hops:
             return nodes.sorted { lhs, rhs in
-                // Flood-routed nodes have no known hop count; sort them to the bottom.
-                if lhs.isFloodRouted != rhs.isFloodRouted {
-                    return !lhs.isFloodRouted
+                let lhsHops = lhs.displayedHopCount
+                let rhsHops = rhs.displayedHopCount
+                // A nil hop count (flood-routed and never heard via advert) sorts to the bottom.
+                if (lhsHops == nil) != (rhsHops == nil) {
+                    return lhsHops != nil
                 }
-                if lhs.pathHopCount != rhs.pathHopCount {
-                    return lhs.pathHopCount < rhs.pathHopCount
+                if let lhsHops, let rhsHops, lhsHops != rhsHops {
+                    return lhsHops < rhsHops
                 }
                 return orderedByDistanceThenName(lhs, rhs, from: userLocation)
             }

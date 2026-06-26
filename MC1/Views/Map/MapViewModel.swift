@@ -142,4 +142,16 @@ final class MapViewModel {
         let coordinates = contactsWithLocation.map(\.coordinate)
         setCameraRegion(coordinates.boundingRegion())
     }
+
+    /// On entering the map, restore the user's saved camera if present, otherwise frame all
+    /// contacts. A focus or dropped-pin target sets `cameraRegion` synchronously before this
+    /// runs, so a non-nil region or an existing pin means a target already owns the framing.
+    func applyInitialCamera(saved: MKCoordinateRegion?, hasPendingFocus: Bool) {
+        guard !hasPendingFocus, focusedPin == nil, cameraRegion == nil else { return }
+        if let saved {
+            setCameraRegion(saved)
+        } else {
+            centerOnAllContacts()
+        }
+    }
 }

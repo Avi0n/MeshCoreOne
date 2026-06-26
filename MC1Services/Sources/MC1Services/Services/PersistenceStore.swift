@@ -141,6 +141,23 @@ public actor PersistenceStore: PersistenceStoreProtocol {
 
     private let maxDiscoveredNodes = 1000
 
+    /// Inbound advert hop counts heard via the RX log before the matching node row exists.
+    /// The firmware emits the 0x88 RX packet before the 0x80 advert push that creates the row,
+    /// so a keyed write would otherwise miss on first contact. Buffered here and drained by the
+    /// upsert when the row lands. Bounded; the partner advert normally drains an entry at once.
+    private var pendingInboundHops: [PendingHopKey: PendingHop] = [:]
+    private let maxPendingInboundHops = 256
+
+    private struct PendingHopKey: Hashable {
+        let radioID: UUID
+        let publicKey: Data
+    }
+
+    private struct PendingHop {
+        let hopCount: Int
+        let advertTimestamp: UInt32?
+    }
+
     public func upsertDiscoveredNode(radioID: UUID, from frame: ContactFrame) throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
         let targetRadioID = radioID
         let publicKey = frame.publicKey
@@ -182,6 +199,8 @@ public actor PersistenceStore: PersistenceStoreProtocol {
             try enforceDiscoveredNodeCap(radioID: radioID)
         }
 
+        applyPendingInboundHop(to: node)
+
         try modelContext.save()
 
         // Temporary Discover trace: confirm the row committed and report the
@@ -194,6 +213,67 @@ public actor PersistenceStore: PersistenceStoreProtocol {
             .info("B3 persisted DiscoveredNode isNew=\(isNew) radioRows=\(radioRows)/\(maxDiscoveredNodes)")
 
         return (node: DiscoveredNodeDTO(from: node), isNew: isNew)
+    }
+
+    public func setInboundHopCount(radioID: UUID, publicKey: Data, hopCount: Int, advertTimestamp: UInt32?) throws {
+        let targetRadioID = radioID
+        let targetKey = publicKey
+        let predicate = #Predicate<DiscoveredNode> { node in
+            node.radioID == targetRadioID && node.publicKey == targetKey
+        }
+        var descriptor = FetchDescriptor<DiscoveredNode>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        // No row yet: buffer the pair so the advert upsert drains it on first contact.
+        guard let node = try modelContext.fetch(descriptor).first else {
+            bufferPendingInboundHop(radioID: targetRadioID, publicKey: targetKey, hopCount: hopCount, advertTimestamp: advertTimestamp)
+            return
+        }
+        guard let adopted = adoptInboundHop(
+            storedHops: node.inboundHopCount,
+            storedTimestamp: node.inboundHopAdvertTimestamp,
+            incomingHops: hopCount,
+            incomingTimestamp: advertTimestamp
+        ) else {
+            return
+        }
+        node.inboundHopCount = adopted.hopCount
+        node.inboundHopAdvertTimestamp = adopted.advertTimestamp
+        try modelContext.save()
+    }
+
+    /// Stash an inbound hop count heard before its node row exists. Applies the same adopt rule
+    /// as the live-row path. Evicts an arbitrary entry past the cap so a flood of never-resolved
+    /// adverts can't grow this without bound.
+    private func bufferPendingInboundHop(radioID: UUID, publicKey: Data, hopCount: Int, advertTimestamp: UInt32?) {
+        let key = PendingHopKey(radioID: radioID, publicKey: publicKey)
+        let existing = pendingInboundHops[key]
+        guard let adopted = adoptInboundHop(
+            storedHops: existing?.hopCount,
+            storedTimestamp: existing?.advertTimestamp,
+            incomingHops: hopCount,
+            incomingTimestamp: advertTimestamp
+        ) else { return }
+        if existing == nil,
+           pendingInboundHops.count >= maxPendingInboundHops,
+           let evicted = pendingInboundHops.keys.first {
+            pendingInboundHops.removeValue(forKey: evicted)
+        }
+        pendingInboundHops[key] = PendingHop(hopCount: adopted.hopCount, advertTimestamp: adopted.advertTimestamp)
+    }
+
+    /// Apply and clear any inbound hop count buffered before this row existed.
+    private func applyPendingInboundHop(to node: DiscoveredNode) {
+        let key = PendingHopKey(radioID: node.radioID, publicKey: node.publicKey)
+        guard let buffered = pendingInboundHops.removeValue(forKey: key) else { return }
+        if let adopted = adoptInboundHop(
+            storedHops: node.inboundHopCount,
+            storedTimestamp: node.inboundHopAdvertTimestamp,
+            incomingHops: buffered.hopCount,
+            incomingTimestamp: buffered.advertTimestamp
+        ) {
+            node.inboundHopCount = adopted.hopCount
+            node.inboundHopAdvertTimestamp = adopted.advertTimestamp
+        }
     }
 
     private func enforceDiscoveredNodeCap(radioID: UUID) throws {

@@ -60,8 +60,7 @@ struct RadioMetricCharts<ChartContainer: View>: View {
             s.postPushCount.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
         }
         let packetDomain = [MetricChartView.DataPoint].sharedDomain(for: [
-            packetsSentPoints, packetsReceivedPoints, receiveErrorPoints,
-            postsReceivedPoints, postsPushedPoints
+            packetsSentPoints, packetsReceivedPoints, receiveErrorPoints
         ])
 
         chart(
@@ -81,12 +80,12 @@ struct RadioMetricCharts<ChartContainer: View>: View {
 
         chart(
             title: L10n.RemoteNodes.RemoteNodes.RoomStatus.postsReceived, unit: "", color: .purple,
-            dataPoints: postsReceivedPoints, yAxisDomain: packetDomain
+            dataPoints: postsReceivedPoints
         )
 
         chart(
             title: L10n.RemoteNodes.RemoteNodes.RoomStatus.postsPushed, unit: "", color: .cyan,
-            dataPoints: postsPushedPoints, yAxisDomain: packetDomain
+            dataPoints: postsPushedPoints
         )
     }
 

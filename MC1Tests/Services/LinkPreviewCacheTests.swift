@@ -403,6 +403,7 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     func upsertDiscoveredNode(radioID: UUID, from frame: ContactFrame) async throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
         fatalError("Not implemented")
     }
+    func setInboundHopCount(radioID: UUID, publicKey: Data, hopCount: Int, advertTimestamp: UInt32?) async throws {}
     func fetchDiscoveredNodes(radioID: UUID) async throws -> [DiscoveredNodeDTO] { [] }
     func deleteDiscoveredNode(id: UUID) async throws {}
     func clearDiscoveredNodes(radioID: UUID) async throws {}
