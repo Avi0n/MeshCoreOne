@@ -49,11 +49,24 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     /// Disconnect callbacks older than this belong to a previous generation.
     var connectionGenerationStartTime: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
 
+    /// Number of times a discovery watchdog has deferred teardown within the
+    /// current generation because the peripheral was already connected. Reset
+    /// per generation in `advanceConnectionGeneration()`.
+    var discoveryTimeoutExtensions = 0
+
+    /// Max times a discovery watchdog defers teardown while the peripheral is
+    /// already connected, before forcing a reconnect. Bounds recovery so a
+    /// genuinely wedged-but-connected link still tears down eventually.
+    static let maxDiscoveryTimeoutExtensions = 2
+
     /// Expose current phase for testing
     var currentPhase: BLEPhase { phase }
 
     /// Expose current connection generation for testing
     var currentConnectionGeneration: UInt64 { connectionGeneration }
+
+    /// Expose the per-generation discovery-extension count for testing
+    var currentDiscoveryTimeoutExtensions: Int { discoveryTimeoutExtensions }
 
     // MARK: - CoreBluetooth
 
@@ -254,6 +267,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     func advanceConnectionGeneration() {
         connectionGeneration &+= 1
         connectionGenerationStartTime = CFAbsoluteTimeGetCurrent()
+        discoveryTimeoutExtensions = 0
     }
 
     /// Returns true when a disconnect callback's timestamp predates the current generation boundary.
@@ -1091,6 +1105,34 @@ extension BLEStateMachine {
         centralManager.cancelPeripheralConnection(peripheral)
     }
 
+    /// Decides whether a discovery-phase watchdog should extend its window
+    /// rather than tear the link down. When the peripheral is already
+    /// `.connected` the BLE link is up and a `didConnect`/discovery callback is
+    /// in flight or merely slow; tearing it down kills a working reconnection.
+    /// Extend a bounded number of times so a genuinely wedged link still
+    /// recovers via reconnect.
+    static func shouldExtendDiscoveryTimeout(
+        peripheralState: CBPeripheralState,
+        extensions: Int,
+        maxExtensions: Int
+    ) -> Bool {
+        peripheralState == .connected && extensions < maxExtensions
+    }
+
+    /// Counts one watchdog deferral against the current generation's budget.
+    func recordDiscoveryTimeoutExtension() {
+        discoveryTimeoutExtensions += 1
+    }
+
+    func armServiceDiscoveryTimeout(for peripheral: CBPeripheral) {
+        serviceDiscoveryTimeoutTask?.cancel()
+        serviceDiscoveryTimeoutTask = Task {
+            try? await Task.sleep(for: .seconds(serviceDiscoveryTimeout))
+            guard !Task.isCancelled else { return }
+            handleServiceDiscoveryTimeout(for: peripheral)
+        }
+    }
+
     func handleServiceDiscoveryTimeout(for peripheral: CBPeripheral) {
         // Guard against stale timeout: if the normal path already cleared the
         // task reference, this timeout fired after cancellation took effect.
@@ -1104,6 +1146,18 @@ extension BLEStateMachine {
             let pState = peripheralStateString(peripheral.state)
             let elapsed = Date().timeIntervalSince(phaseStartTime)
             logger.warning("[BLE] Service discovery timeout: \(peripheral.identifier.uuidString.prefix(8)), phase: \(self.phase.name), peripheralState: \(pState), elapsed: \(elapsed.formatted(.number.precision(.fractionLength(2))))s")
+
+            if Self.shouldExtendDiscoveryTimeout(
+                peripheralState: peripheral.state,
+                extensions: discoveryTimeoutExtensions,
+                maxExtensions: Self.maxDiscoveryTimeoutExtensions
+            ) {
+                recordDiscoveryTimeoutExtension()
+                logger.warning("[BLE] Peripheral still connected; extending service discovery window (\(self.discoveryTimeoutExtensions)/\(Self.maxDiscoveryTimeoutExtensions)) instead of failing")
+                armServiceDiscoveryTimeout(for: peripheral)
+                return
+            }
+
             centralManager.cancelPeripheralConnection(peripheral)
             transition(to: .idle)
             c.resume(throwing: BLEError.connectionTimeout)
@@ -1139,6 +1193,21 @@ extension BLEStateMachine {
         logger.warning(
             "[BLE] Auto-reconnect discovery timeout: \(peripheral.identifier.uuidString.prefix(8)), peripheralState: \(pState), elapsed: \(elapsed.formatted(.number.precision(.fractionLength(2))))s"
         )
+
+        // iOS may flip the peripheral to .connected before delivering didConnect.
+        // Tearing the link down here cancels a reconnection that actually
+        // succeeded, after which the late didConnect lands in .idle and is
+        // rejected. Give discovery another window instead of destroying it.
+        if Self.shouldExtendDiscoveryTimeout(
+            peripheralState: peripheral.state,
+            extensions: discoveryTimeoutExtensions,
+            maxExtensions: Self.maxDiscoveryTimeoutExtensions
+        ) {
+            recordDiscoveryTimeoutExtension()
+            logger.warning("[BLE] Peripheral still connected; extending auto-reconnect discovery window (\(self.discoveryTimeoutExtensions)/\(Self.maxDiscoveryTimeoutExtensions)) instead of tearing down")
+            armAutoReconnectDiscoveryTimeout(for: peripheral, generation: generation)
+            return
+        }
 
         centralManager.cancelPeripheralConnection(peripheral)
         transition(to: .idle)
