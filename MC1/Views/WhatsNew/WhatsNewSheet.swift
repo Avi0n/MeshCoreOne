@@ -14,12 +14,13 @@ struct WhatsNewSheet: View {
         static let symbolColumnWidth: CGFloat = 44
         static let symbolToTextSpacing: CGFloat = 16
         static let titleToBodySpacing: CGFloat = 4
+        static let buttonSpacing: CGFloat = 8
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Metrics.titleToRowsSpacing) {
-                Text(L10n.WhatsNew.WhatsNew.title)
+                Text(release.title ?? L10n.WhatsNew.WhatsNew.title)
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -31,22 +32,50 @@ struct WhatsNewSheet: View {
                         WhatsNewRow(item: item)
                     }
                 }
+
+                if let footer = release.footer {
+                    Text(footer)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
             }
             .padding()
         }
         .safeAreaInset(edge: .bottom) {
-            Button {
-                dismiss()
-            } label: {
-                Text(L10n.WhatsNew.WhatsNew.continueButton)
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
+            VStack(spacing: Metrics.buttonSpacing) {
+                if let actionURL = release.actionURL, let actionTitle = release.actionTitle {
+                    Link(destination: actionURL) {
+                        filledLabel(actionTitle)
+                    }
+                    .liquidGlassProminentButtonStyle()
+
+                    Button(role: .cancel) {
+                        dismiss()
+                    } label: {
+                        Text(L10n.WhatsNew.WhatsNew.continueButton)
+                            .font(.headline)
+                    }
+                } else {
+                    Button {
+                        dismiss()
+                    } label: {
+                        filledLabel(L10n.WhatsNew.WhatsNew.continueButton)
+                    }
+                    .liquidGlassProminentButtonStyle()
+                }
             }
-            .liquidGlassProminentButtonStyle()
             .padding()
         }
         .presentationDragIndicator(.hidden)
+    }
+
+    private func filledLabel(_ text: String) -> some View {
+        Text(text)
+            .font(.headline)
+            .frame(maxWidth: .infinity)
+            .padding()
     }
 }
 
@@ -85,7 +114,7 @@ private struct WhatsNewRow: View {
 
 private extension WhatsNewRelease {
     static let preview = WhatsNewRelease(
-        version: WhatsNewVersion(major: 1, minor: 1),
+        build: 164,
         items: [
             WhatsNewItem(
                 symbol: "sparkles",

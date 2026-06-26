@@ -27,3 +27,32 @@
 "whatsNew.inboundHops.title" = "Sort by hops";
 /* What's New v1.1 - Inbound hop counts feature, description */
 "whatsNew.inboundHops.description" = "Nodes tab now correlates inbound hops from adverts in the RX Log.";
+
+/* What's New build 164 - App Store launch notice, sheet title */
+"whatsNew.appStoreLaunch.title" = "App Store release!";
+
+/* What's New build 164 - App Store launch, announcement title */
+"whatsNew.appStoreLaunch.live.title" = "Live on the App Store";
+/* What's New build 164 - App Store launch, announcement description */
+"whatsNew.appStoreLaunch.live.description" = "This is the last public TestFlight build, download the App Store version to keep getting updates.";
+
+/* What's New build 164 - App Store launch, disconnect step title */
+"whatsNew.appStoreLaunch.disconnect.title" = "Disconnect your radio";
+/* What's New build 164 - App Store launch, disconnect step description */
+"whatsNew.appStoreLaunch.disconnect.description" = "Disconnect from your radio first, so the App Store version can connect to it once you switch.";
+
+/* What's New build 164 - App Store launch, backup step title */
+"whatsNew.appStoreLaunch.backup.title" = "Back up your data";
+/* What's New build 164 - App Store launch, backup step description */
+"whatsNew.appStoreLaunch.backup.description" = "Open Settings > Backup and export your data, so you can restore everything in the App Store version.";
+
+/* What's New build 164 - App Store launch, install step title */
+"whatsNew.appStoreLaunch.install.title" = "Install the App Store version";
+/* What's New build 164 - App Store launch, install step description */
+"whatsNew.appStoreLaunch.install.description" = "Tap below to get MeshCore One from the App Store, then import the backup you just made.";
+
+/* What's New build 164 - App Store launch, footer asking for a review */
+"whatsNew.appStoreLaunch.footer" = "If you're enjoying MC1, please leave a review on the App Store!";
+
+/* What's New build 164 - App Store launch, App Store link button */
+"whatsNew.appStoreLaunch.action" = "Get it on the App Store";

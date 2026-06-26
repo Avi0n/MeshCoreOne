@@ -27,3 +27,34 @@
 "whatsNew.inboundHops.title" = "Sorteren op sprongen";
 /* What's New v1.1 - Inbound hop counts feature, description */
 "whatsNew.inboundHops.description" = "Het tabblad Nodes koppelt inkomende sprongen nu aan advertenties in het RX-logboek.";
+
+/* What's New build 164 - App Store launch notice. AI-translated - please verify with native speakers. */
+
+/* What's New build 164 - App Store launch notice, sheet title */
+"whatsNew.appStoreLaunch.title" = "App Store-release!";
+
+/* What's New build 164 - App Store launch, announcement title */
+"whatsNew.appStoreLaunch.live.title" = "Nu in de App Store";
+/* What's New build 164 - App Store launch, announcement description */
+"whatsNew.appStoreLaunch.live.description" = "Dit is de laatste openbare TestFlight-build. Download de App Store-versie om updates te blijven ontvangen.";
+
+/* What's New build 164 - App Store launch, disconnect step title */
+"whatsNew.appStoreLaunch.disconnect.title" = "Verbreek de verbinding met je radio";
+/* What's New build 164 - App Store launch, disconnect step description */
+"whatsNew.appStoreLaunch.disconnect.description" = "Verbreek eerst de verbinding met je radio, zodat de App Store-versie er verbinding mee kan maken zodra je overstapt.";
+
+/* What's New build 164 - App Store launch, backup step title */
+"whatsNew.appStoreLaunch.backup.title" = "Maak een back-up van je gegevens";
+/* What's New build 164 - App Store launch, backup step description */
+"whatsNew.appStoreLaunch.backup.description" = "Open Instellingen > Back-up en herstel en exporteer je gegevens, zodat je alles in de App Store-versie kunt herstellen.";
+
+/* What's New build 164 - App Store launch, install step title */
+"whatsNew.appStoreLaunch.install.title" = "Installeer de App Store-versie";
+/* What's New build 164 - App Store launch, install step description */
+"whatsNew.appStoreLaunch.install.description" = "Tik hieronder om MeshCore One uit de App Store te halen en importeer vervolgens de back-up die je zojuist hebt gemaakt.";
+
+/* What's New build 164 - App Store launch, footer asking for a review */
+"whatsNew.appStoreLaunch.footer" = "Vind je MC1 leuk? Laat dan een beoordeling achter in de App Store!";
+
+/* What's New build 164 - App Store launch, App Store link button */
+"whatsNew.appStoreLaunch.action" = "Download in de App Store";

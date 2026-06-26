@@ -6168,6 +6168,38 @@ public enum L10n {
       public static let continueButton = L10n.tr("WhatsNew", "whatsNew.continueButton", fallback: "Continue")
       /// Title of the What's New sheet shown once after an app update
       public static let title = L10n.tr("WhatsNew", "whatsNew.title", fallback: "What's New")
+      public enum AppStoreLaunch {
+        /// What's New build 164 - App Store launch, App Store link button
+        public static let action = L10n.tr("WhatsNew", "whatsNew.appStoreLaunch.action", fallback: "Get it on the App Store")
+        /// What's New build 164 - App Store launch, footer asking for a review
+        public static let footer = L10n.tr("WhatsNew", "whatsNew.appStoreLaunch.footer", fallback: "If you're enjoying MC1, please leave a review on the App Store!")
+        /// What's New build 164 - App Store launch notice, sheet title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.appStoreLaunch.title", fallback: "App Store release!")
+        public enum Backup {
+          /// What's New build 164 - App Store launch, backup step description
+          public static let description = L10n.tr("WhatsNew", "whatsNew.appStoreLaunch.backup.description", fallback: "Open Settings > Backup and export your data, so you can restore everything in the App Store version.")
+          /// What's New build 164 - App Store launch, backup step title
+          public static let title = L10n.tr("WhatsNew", "whatsNew.appStoreLaunch.backup.title", fallback: "Back up your data")
+        }
+        public enum Disconnect {
+          /// What's New build 164 - App Store launch, disconnect step description
+          public static let description = L10n.tr("WhatsNew", "whatsNew.appStoreLaunch.disconnect.description", fallback: "Disconnect from your radio first, so the App Store version can connect to it once you switch.")
+          /// What's New build 164 - App Store launch, disconnect step title
+          public static let title = L10n.tr("WhatsNew", "whatsNew.appStoreLaunch.disconnect.title", fallback: "Disconnect your radio")
+        }
+        public enum Install {
+          /// What's New build 164 - App Store launch, install step description
+          public static let description = L10n.tr("WhatsNew", "whatsNew.appStoreLaunch.install.description", fallback: "Tap below to get MeshCore One from the App Store, then import the backup you just made.")
+          /// What's New build 164 - App Store launch, install step title
+          public static let title = L10n.tr("WhatsNew", "whatsNew.appStoreLaunch.install.title", fallback: "Install the App Store version")
+        }
+        public enum Live {
+          /// What's New build 164 - App Store launch, announcement description
+          public static let description = L10n.tr("WhatsNew", "whatsNew.appStoreLaunch.live.description", fallback: "This is the last public TestFlight build, download the App Store version to keep getting updates.")
+          /// What's New build 164 - App Store launch, announcement title
+          public static let title = L10n.tr("WhatsNew", "whatsNew.appStoreLaunch.live.title", fallback: "Live on the App Store")
+        }
+      }
       public enum ClearMessages {
         /// What's New v1.1 - Clear Messages feature, description
         public static let description = L10n.tr("WhatsNew", "whatsNew.clearMessages.description", fallback: "Wipe the message history of any DM.")

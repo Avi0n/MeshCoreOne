@@ -27,3 +27,34 @@
 "whatsNew.inboundHops.title" = "Сортування за переходами";
 /* What's New v1.1 - Inbound hop counts feature, description */
 "whatsNew.inboundHops.description" = "Вкладка «Вузли» тепер зіставляє вхідні переходи з оголошеннями в Журналі RX.";
+
+/* What's New build 164 - App Store launch notice. AI-translated - please verify with native speakers. */
+
+/* What's New build 164 - App Store launch notice, sheet title */
+"whatsNew.appStoreLaunch.title" = "Реліз в App Store!";
+
+/* What's New build 164 - App Store launch, announcement title */
+"whatsNew.appStoreLaunch.live.title" = "Уже в App Store";
+/* What's New build 164 - App Store launch, announcement description */
+"whatsNew.appStoreLaunch.live.description" = "Це остання публічна збірка TestFlight. Завантажте версію з App Store, щоб і далі отримувати оновлення.";
+
+/* What's New build 164 - App Store launch, disconnect step title */
+"whatsNew.appStoreLaunch.disconnect.title" = "Відключіть радіо";
+/* What's New build 164 - App Store launch, disconnect step description */
+"whatsNew.appStoreLaunch.disconnect.description" = "Спершу відключіться від радіо, щоб версія з App Store змогла під'єднатися до нього після переходу.";
+
+/* What's New build 164 - App Store launch, backup step title */
+"whatsNew.appStoreLaunch.backup.title" = "Зробіть резервну копію даних";
+/* What's New build 164 - App Store launch, backup step description */
+"whatsNew.appStoreLaunch.backup.description" = "Відкрийте Налаштування > Резервне копіювання та експортуйте свої дані, щоб відновити все у версії з App Store.";
+
+/* What's New build 164 - App Store launch, install step title */
+"whatsNew.appStoreLaunch.install.title" = "Встановіть версію з App Store";
+/* What's New build 164 - App Store launch, install step description */
+"whatsNew.appStoreLaunch.install.description" = "Натисніть нижче, щоб завантажити MeshCore One з App Store, а потім імпортуйте щойно створену резервну копію.";
+
+/* What's New build 164 - App Store launch, footer asking for a review */
+"whatsNew.appStoreLaunch.footer" = "Якщо вам подобається MC1, залиште, будь ласка, відгук в App Store!";
+
+/* What's New build 164 - App Store launch, App Store link button */
+"whatsNew.appStoreLaunch.action" = "Завантажити з App Store";

@@ -7,7 +7,7 @@ import Testing
 @MainActor
 final class WhatsNewStateTests {
 
-    private let baselineKey = AppStorageKey.lastShownWhatsNewVersion.rawValue
+    private let baselineKey = AppStorageKey.lastShownWhatsNewBuild.rawValue
     private let suiteName = "test.\(UUID().uuidString)"
     private let defaults: UserDefaults
 
@@ -19,13 +19,9 @@ final class WhatsNewStateTests {
         UserDefaults().removePersistentDomain(forName: suiteName)
     }
 
-    private func version(_ string: String) -> WhatsNewVersion {
-        WhatsNewVersion(marketingVersion: string)!
-    }
-
-    private func release(_ major: Int, _ minor: Int, items: Int = 1) -> WhatsNewRelease {
+    private func release(_ build: Int, items: Int = 1) -> WhatsNewRelease {
         WhatsNewRelease(
-            version: WhatsNewVersion(major: major, minor: minor),
+            build: build,
             items: (0..<items).map { WhatsNewItem(symbol: "star", title: "t\($0)", description: "d\($0)") }
         )
     }
@@ -35,8 +31,8 @@ final class WhatsNewStateTests {
     @Test("new install (not onboarded, no baseline) suppresses")
     func newInstallSuppresses() {
         let result = WhatsNewState.resolve(
-            current: version("1.1"), baselineString: nil,
-            isOnboarded: false, catalog: [release(1, 1)]
+            currentBuild: 163, baseline: nil,
+            isOnboarded: false, catalog: [release(163)]
         )
         #expect(result == nil)
     }
@@ -44,53 +40,26 @@ final class WhatsNewStateTests {
     @Test("upgrader (onboarded, no baseline, entry exists) shows")
     func upgraderShows() {
         let result = WhatsNewState.resolve(
-            current: version("1.1"), baselineString: nil,
-            isOnboarded: true, catalog: [release(1, 1)]
+            currentBuild: 163, baseline: nil,
+            isOnboarded: true, catalog: [release(163)]
         )
-        #expect(result?.id == WhatsNewVersion(major: 1, minor: 1))
+        #expect(result?.id == 163)
     }
 
-    @Test("patch bump suppresses")
-    func patchBumpSuppresses() {
+    @Test("build bump shows")
+    func buildBumpShows() {
         let result = WhatsNewState.resolve(
-            current: version("1.0.2"), baselineString: "1.0",
-            isOnboarded: true, catalog: [release(1, 0)]
+            currentBuild: 163, baseline: 160,
+            isOnboarded: true, catalog: [release(163)]
         )
-        #expect(result == nil)
+        #expect(result?.id == 163)
     }
 
-    @Test("minor bump shows")
-    func minorBumpShows() {
-        let result = WhatsNewState.resolve(
-            current: version("1.1"), baselineString: "1.0",
-            isOnboarded: true, catalog: [release(1, 1)]
-        )
-        #expect(result?.id == WhatsNewVersion(major: 1, minor: 1))
-    }
-
-    @Test("major bump shows")
-    func majorBumpShows() {
-        let result = WhatsNewState.resolve(
-            current: version("2.0"), baselineString: "1.9",
-            isOnboarded: true, catalog: [release(2, 0)]
-        )
-        #expect(result?.id == WhatsNewVersion(major: 2, minor: 0))
-    }
-
-    @Test("skipped version shows the current release's entry")
-    func skippedVersionShowsCurrentEntry() {
-        let result = WhatsNewState.resolve(
-            current: version("1.2"), baselineString: "1.0",
-            isOnboarded: true, catalog: [release(1, 1), release(1, 2)]
-        )
-        #expect(result?.id == WhatsNewVersion(major: 1, minor: 2))
-    }
-
-    @Test("no catalog entry for current version suppresses")
+    @Test("no catalog entry for current build suppresses")
     func noEntrySuppresses() {
         let result = WhatsNewState.resolve(
-            current: version("1.3"), baselineString: "1.0",
-            isOnboarded: true, catalog: [release(1, 1), release(1, 2)]
+            currentBuild: 164, baseline: 160,
+            isOnboarded: true, catalog: [release(162), release(163)]
         )
         #expect(result == nil)
     }
@@ -98,8 +67,8 @@ final class WhatsNewStateTests {
     @Test("matched entry with empty items suppresses")
     func emptyItemsSuppresses() {
         let result = WhatsNewState.resolve(
-            current: version("1.1"), baselineString: nil,
-            isOnboarded: true, catalog: [release(1, 1, items: 0)]
+            currentBuild: 163, baseline: nil,
+            isOnboarded: true, catalog: [release(163, items: 0)]
         )
         #expect(result == nil)
     }
@@ -107,8 +76,8 @@ final class WhatsNewStateTests {
     @Test("re-launch after a show (baseline equals current) does not re-show")
     func reLaunchDoesNotReShow() {
         let result = WhatsNewState.resolve(
-            current: version("1.1"), baselineString: "1.1",
-            isOnboarded: true, catalog: [release(1, 1)]
+            currentBuild: 163, baseline: 163,
+            isOnboarded: true, catalog: [release(163)]
         )
         #expect(result == nil)
     }
@@ -121,7 +90,7 @@ final class WhatsNewStateTests {
 
         state.evaluate(
             isOnboarded: true, isScreenshotMode: true,
-            currentVersionString: "1.1", catalog: [release(1, 1)]
+            currentBuildString: "163", catalog: [release(163)]
         )
 
         #expect(state.pendingRelease == nil)
@@ -134,10 +103,10 @@ final class WhatsNewStateTests {
 
         state.evaluate(
             isOnboarded: true, isScreenshotMode: false,
-            currentVersionString: "1.1", catalog: [release(1, 1)]
+            currentBuildString: "163", catalog: [release(163)]
         )
 
-        #expect(state.pendingRelease?.id == WhatsNewVersion(major: 1, minor: 1))
+        #expect(state.pendingRelease?.id == 163)
         #expect(defaults.string(forKey: baselineKey) == nil)
     }
 
@@ -147,34 +116,34 @@ final class WhatsNewStateTests {
 
         state.evaluate(
             isOnboarded: true, isScreenshotMode: false,
-            currentVersionString: "1.1", catalog: []
+            currentBuildString: "163", catalog: []
         )
 
         #expect(state.pendingRelease == nil)
-        #expect(defaults.string(forKey: baselineKey) == "1.1")
+        #expect(defaults.string(forKey: baselineKey) == "163")
     }
 
-    @Test("unparseable version fails closed: neither shows nor writes a baseline")
+    @Test("unparseable build fails closed: neither shows nor writes a baseline")
     func unparseableFailsClosed() {
         let state = WhatsNewState(defaults: defaults)
 
         state.evaluate(
             isOnboarded: true, isScreenshotMode: false,
-            currentVersionString: "unknown", catalog: [release(1, 1)]
+            currentBuildString: "unknown", catalog: [release(163)]
         )
 
         #expect(state.pendingRelease == nil)
         #expect(defaults.string(forKey: baselineKey) == nil)
     }
 
-    @Test("markShown persists the running version and clears the pending release")
+    @Test("markShown persists the running build and clears the pending release")
     func markShownPersistsAndClears() {
         let state = WhatsNewState(defaults: defaults)
-        state.pendingRelease = release(9, 9)
+        state.pendingRelease = release(99)
 
         state.markShown()
 
         #expect(state.pendingRelease == nil)
-        #expect(defaults.string(forKey: baselineKey) == Bundle.main.appVersion)
+        #expect(defaults.string(forKey: baselineKey) == Bundle.main.appBuild)
     }
 }

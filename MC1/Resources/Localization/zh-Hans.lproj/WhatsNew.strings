@@ -27,3 +27,34 @@
 "whatsNew.inboundHops.title" = "按跳数排序";
 /* What's New v1.1 - Inbound hop counts feature, description */
 "whatsNew.inboundHops.description" = "“节点”标签页现在会将接收日志中通告的入站跳数关联起来。";
+
+/* What's New build 164 - App Store launch notice. AI-translated - please verify with native speakers. */
+
+/* What's New build 164 - App Store launch notice, sheet title */
+"whatsNew.appStoreLaunch.title" = "App Store 正式上架！";
+
+/* What's New build 164 - App Store launch, announcement title */
+"whatsNew.appStoreLaunch.live.title" = "已在 App Store 上线";
+/* What's New build 164 - App Store launch, announcement description */
+"whatsNew.appStoreLaunch.live.description" = "这是最后一个公开 TestFlight 版本，请下载 App Store 版本以继续获取更新。";
+
+/* What's New build 164 - App Store launch, disconnect step title */
+"whatsNew.appStoreLaunch.disconnect.title" = "断开无线电连接";
+/* What's New build 164 - App Store launch, disconnect step description */
+"whatsNew.appStoreLaunch.disconnect.description" = "请先断开与无线电的连接，以便切换后 App Store 版本能够连接到它。";
+
+/* What's New build 164 - App Store launch, backup step title */
+"whatsNew.appStoreLaunch.backup.title" = "备份你的数据";
+/* What's New build 164 - App Store launch, backup step description */
+"whatsNew.appStoreLaunch.backup.description" = "打开“设置 > 备份与恢复”并导出你的数据，这样你就能在 App Store 版本中恢复全部内容。";
+
+/* What's New build 164 - App Store launch, install step title */
+"whatsNew.appStoreLaunch.install.title" = "安装 App Store 版本";
+/* What's New build 164 - App Store launch, install step description */
+"whatsNew.appStoreLaunch.install.description" = "点击下方从 App Store 获取 MeshCore One，然后导入你刚才创建的备份。";
+
+/* What's New build 164 - App Store launch, footer asking for a review */
+"whatsNew.appStoreLaunch.footer" = "如果你喜欢 MC1，欢迎在 App Store 上留下评价！";
+
+/* What's New build 164 - App Store launch, App Store link button */
+"whatsNew.appStoreLaunch.action" = "前往 App Store 获取";

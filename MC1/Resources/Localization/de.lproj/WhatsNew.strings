@@ -27,3 +27,34 @@
 "whatsNew.inboundHops.title" = "Nach Sprüngen sortieren";
 /* What's New v1.1 - Inbound hop counts feature, description */
 "whatsNew.inboundHops.description" = "Der Tab „Knoten“ ordnet eingehende Sprünge jetzt anhand der Ankündigungen im RX-Protokoll zu.";
+
+/* What's New build 164 - App Store launch notice. AI-translated - please verify with native speakers. */
+
+/* What's New build 164 - App Store launch notice, sheet title */
+"whatsNew.appStoreLaunch.title" = "Jetzt im App Store!";
+
+/* What's New build 164 - App Store launch, announcement title */
+"whatsNew.appStoreLaunch.live.title" = "Live im App Store";
+/* What's New build 164 - App Store launch, announcement description */
+"whatsNew.appStoreLaunch.live.description" = "Dies ist der letzte öffentliche TestFlight-Build. Lade die App-Store-Version herunter, um weiterhin Updates zu erhalten.";
+
+/* What's New build 164 - App Store launch, disconnect step title */
+"whatsNew.appStoreLaunch.disconnect.title" = "Funkgerät trennen";
+/* What's New build 164 - App Store launch, disconnect step description */
+"whatsNew.appStoreLaunch.disconnect.description" = "Trenne zuerst die Verbindung zu deinem Funkgerät, damit die App-Store-Version sich nach dem Wechsel damit verbinden kann.";
+
+/* What's New build 164 - App Store launch, backup step title */
+"whatsNew.appStoreLaunch.backup.title" = "Daten sichern";
+/* What's New build 164 - App Store launch, backup step description */
+"whatsNew.appStoreLaunch.backup.description" = "Öffne „Einstellungen“ > „Sicherung & Wiederherstellung“ und exportiere deine Daten, damit du in der App-Store-Version alles wiederherstellen kannst.";
+
+/* What's New build 164 - App Store launch, install step title */
+"whatsNew.appStoreLaunch.install.title" = "App-Store-Version installieren";
+/* What's New build 164 - App Store launch, install step description */
+"whatsNew.appStoreLaunch.install.description" = "Tippe unten, um MeshCore One aus dem App Store zu laden, und importiere anschließend die soeben erstellte Sicherung.";
+
+/* What's New build 164 - App Store launch, footer asking for a review */
+"whatsNew.appStoreLaunch.footer" = "Wenn dir MC1 gefällt, hinterlasse bitte eine Bewertung im App Store!";
+
+/* What's New build 164 - App Store launch, App Store link button */
+"whatsNew.appStoreLaunch.action" = "Im App Store laden";
