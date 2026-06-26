@@ -45,7 +45,7 @@ When submitting a PR, please:
 - [ ] This PR was discussed with the maintainer either via GitHub issue or other means (Also check the box if this PR is small enough not to need discussion e.g. typo fix)
 - [ ] I have read `CONTRIBUTING.md`
 - [ ] Testing steps are documented above.
-- [ ] This change was "vibe coded" (please be truthful)
+- [ ] This change is not low effort and I took the time to test it
 ```
 
 ### Important Note for AI-Assisted Contributions

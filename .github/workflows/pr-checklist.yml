@@ -45,14 +45,14 @@ jobs:
               '- [ ] This PR was discussed with the maintainer either via GitHub issue or other means (Also check the box if this PR is small enough not to need discussion e.g. typo fix)',
               '- [ ] I have read `CONTRIBUTING.md`',
               '- [ ] Testing steps are documented above.',
-              '- [ ] This change was "vibe coded" (please be truthful)',
+              '- [ ] This change is not low effort and I took the time to test it',
             ].join('\n');
 
             // Each requirement matches a template list item by a stable phrase and
             // captures its checkbox state, so light rewording still validates.
             const REQUIREMENTS = [
               { label: 'I have read `CONTRIBUTING.md`', regex: /^\s*-\s*\[([ xX])\].*CONTRIBUTING\.md/m },
-              { label: 'Testing steps are documented above.', regex: /^\s*-\s*\[([ xX])\].*[Tt]esting steps are documented/m },
+              { label: 'This change is not low effort and I took the time to test it', regex: /^\s*-\s*\[([ xX])\].*not low effort/m },
             ];
 
             const pr = context.payload.pull_request;
