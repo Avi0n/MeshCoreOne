@@ -81,8 +81,15 @@ final class NodeStatusViewModel {
 
     // MARK: - Snapshot State
 
-    /// Previous snapshot for delta display
-    private(set) var previousSnapshot: NodeStatusSnapshotDTO?
+    /// Previous status-bearing snapshot for the status deltas, sourced from the last
+    /// snapshot that actually captured status so a neighbor- or telemetry-only row
+    /// can't blank the delta.
+    private(set) var previousStatusSnapshot: NodeStatusSnapshotDTO?
+
+    /// Previous neighbor-bearing snapshot for the neighbor SNR delta. Owned by the
+    /// neighbor load path so the delta does not depend on the status section being
+    /// expanded, and sourced from the last snapshot that actually captured neighbors.
+    private(set) var previousNeighborSnapshot: NodeStatusSnapshotDTO?
 
     // MARK: - Initialization
 
@@ -211,7 +218,7 @@ final class NodeStatusViewModel {
 
         guard let nodeSnapshotService, let session else { return }
 
-        self.previousSnapshot = await nodeSnapshotService.previousSnapshot(
+        self.previousStatusSnapshot = await nodeSnapshotService.previousStatusSnapshot(
             for: session.publicKey,
             before: .now
         )
@@ -234,6 +241,9 @@ final class NodeStatusViewModel {
     /// enriches the latest in-window row or inserts a neighbor-bearing snapshot.
     func enrichNeighbors(_ entries: [NeighborSnapshotEntry]) async {
         guard let nodeSnapshotService, let nodePublicKey = effectivePublicKey else { return }
+        // Capture the prior neighbor-bearing snapshot before persisting this reading,
+        // so the delta baseline is the previous distinct capture, not this one.
+        self.previousNeighborSnapshot = await nodeSnapshotService.previousNeighborSnapshot(for: nodePublicKey)
         _ = await nodeSnapshotService.recordSnapshot(
             nodePublicKey: nodePublicKey,
             neighbors: entries
@@ -375,7 +385,7 @@ final class NodeStatusViewModel {
     // MARK: - Delta Display
 
     var previousSnapshotTimestamp: String? {
-        guard let prev = previousSnapshot else { return nil }
+        guard let prev = previousStatusSnapshot else { return nil }
         let interval = prev.timestamp.distance(to: .now)
         let secondsPerHour = TimeInterval(Self.secondsPerHour)
         let secondsPerDay = TimeInterval(Self.secondsPerDay)
@@ -390,25 +400,25 @@ final class NodeStatusViewModel {
 
     var batteryDeltaMV: Int? {
         guard let current = status?.batteryMillivolts,
-              let previous = previousSnapshot?.batteryMillivolts else { return nil }
+              let previous = previousStatusSnapshot?.batteryMillivolts else { return nil }
         return Int(current) - Int(previous)
     }
 
     var snrDelta: Double? {
         guard let current = status?.lastSNR,
-              let previous = previousSnapshot?.lastSNR else { return nil }
+              let previous = previousStatusSnapshot?.lastSNR else { return nil }
         return current - previous
     }
 
     var rssiDelta: Int? {
         guard let current = status?.lastRSSI,
-              let previous = previousSnapshot?.lastRSSI else { return nil }
+              let previous = previousStatusSnapshot?.lastRSSI else { return nil }
         return Int(current) - Int(previous)
     }
 
     var noiseFloorDelta: Int? {
         guard let current = status?.noiseFloor,
-              let previous = previousSnapshot?.noiseFloor else { return nil }
+              let previous = previousStatusSnapshot?.noiseFloor else { return nil }
         return Int(current) - Int(previous)
     }
 

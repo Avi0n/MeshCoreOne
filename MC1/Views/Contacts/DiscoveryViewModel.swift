@@ -164,26 +164,40 @@ final class DiscoveryViewModel {
                 $0.name.localizedCompare($1.name) == .orderedAscending
             }
         case .distance:
-            guard let userLocation else {
-                return sorted(nodes, by: .name, userLocation: nil)
-            }
+            return nodes.sorted { orderedByDistanceThenName($0, $1, from: userLocation) }
+        case .hops:
             return nodes.sorted { lhs, rhs in
-                let lhsHasLocation = lhs.hasLocation
-                let rhsHasLocation = rhs.hasLocation
-
-                if lhsHasLocation != rhsHasLocation {
-                    return lhsHasLocation
+                // Flood-routed nodes have no known hop count; sort them to the bottom.
+                if lhs.isFloodRouted != rhs.isFloodRouted {
+                    return !lhs.isFloodRouted
                 }
-
-                guard lhsHasLocation && rhsHasLocation else {
-                    return lhs.name.localizedCompare(rhs.name) == .orderedAscending
+                if lhs.pathHopCount != rhs.pathHopCount {
+                    return lhs.pathHopCount < rhs.pathHopCount
                 }
-
-                let lhsLocation = CLLocation(latitude: lhs.latitude, longitude: lhs.longitude)
-                let rhsLocation = CLLocation(latitude: rhs.latitude, longitude: rhs.longitude)
-
-                return lhsLocation.distance(from: userLocation) < rhsLocation.distance(from: userLocation)
+                return orderedByDistanceThenName(lhs, rhs, from: userLocation)
             }
         }
+    }
+
+    /// Located nodes first, then nearest to `userLocation`, then by name. Falls back to name when
+    /// there is no user location, neither node has coordinates, or the distances tie.
+    private func orderedByDistanceThenName(
+        _ lhs: DiscoveredNodeDTO,
+        _ rhs: DiscoveredNodeDTO,
+        from userLocation: CLLocation?
+    ) -> Bool {
+        if let userLocation {
+            if lhs.hasLocation != rhs.hasLocation {
+                return lhs.hasLocation
+            }
+            if lhs.hasLocation {
+                let lhsDistance = CLLocation(latitude: lhs.latitude, longitude: lhs.longitude).distance(from: userLocation)
+                let rhsDistance = CLLocation(latitude: rhs.latitude, longitude: rhs.longitude).distance(from: userLocation)
+                if lhsDistance != rhsDistance {
+                    return lhsDistance < rhsDistance
+                }
+            }
+        }
+        return lhs.name.localizedCompare(rhs.name) == .orderedAscending
     }
 }

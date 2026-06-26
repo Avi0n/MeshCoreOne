@@ -57,7 +57,7 @@ struct PermissionCard: View {
                 .buttonStyle(.bordered)
                 .controlSize(.small)
             } else {
-                Button(L10n.Onboarding.Permissions.allow) {
+                Button(L10n.Onboarding.Permissions.request) {
                     action()
                 }
                 .buttonStyle(.borderedProminent)

@@ -273,6 +273,10 @@
 /* Link to GitHub repository */
 "about.github" = "GitHub";
 
+/* Link to the privacy policy */
+/* AI-translated - please verify with native speakers. */
+"about.privacyPolicy" = "Політика конфіденційності";
+
 
 // MARK: - Advanced Radio Section
 

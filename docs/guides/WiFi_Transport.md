@@ -15,7 +15,7 @@ WiFi is configured manually (host + port) and is typically used for fixed instal
 
 - MeshCore transport: `MeshCore/Sources/MeshCore/Transport/WiFiTransport.swift`
 - WiFi frame codec: `MeshCore/Sources/MeshCore/Transport/WiFiFrameCodec.swift`
-- MeshCore One connection orchestration: `MC1Services/Sources/MC1Services/ConnectionManager.swift`
+- MeshCore One connection orchestration: `MC1Services/Sources/MC1Services/Connection/ConnectionManager.swift` (WiFi-specific logic in `MC1Services/Sources/MC1Services/Connection/ConnectionManager+WiFi.swift`)
 - UI for entering connection details: `MC1/Views/Onboarding/WiFiConnectionSheet.swift`
 - UI for editing connection details while connected: `MC1/Views/Settings/Sections/WiFiEditSheet.swift`
 

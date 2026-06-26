@@ -57,6 +57,17 @@ struct AboutSection: View {
             }
             .foregroundStyle(.primary)
 
+            Link(destination: URL(string: "https://meshcoreone.com/privacy.html")!) {
+                HStack {
+                    TintedLabel(L10n.Settings.About.privacyPolicy, systemImage: "hand.raised")
+                    Spacer()
+                    Image(systemName: "arrow.up.right")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+            .foregroundStyle(.primary)
+
         } header: {
             Text(L10n.Settings.About.header)
         }

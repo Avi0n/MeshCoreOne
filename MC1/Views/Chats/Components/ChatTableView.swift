@@ -1,5 +1,10 @@
 import UIKit
 import SwiftUI
+import os
+
+// Logs the bottom safe-area inset across keyboard transitions so a residual
+// inset that fails to collapse after dismissal can be diagnosed.
+private let chatKeyboardLogger = Logger(subsystem: "com.mc1", category: "ChatKeyboard")
 
 /// UIKit table view controller with flipped orientation for chat-style scrolling
 /// Newest messages appear at visual bottom, keyboard handling via native UIKit
@@ -277,6 +282,43 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
             name: UIResponder.keyboardWillShowNotification,
             object: nil
         )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide(_:)),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillChangeFrame(_:)),
+            name: UIResponder.keyboardWillChangeFrameNotification,
+            object: nil
+        )
+    }
+
+    private func keyboardFrameEnd(_ notification: Notification) -> CGRect? {
+        notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect
+    }
+
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        let frameEnd = keyboardFrameEnd(notification) ?? .null
+        chatKeyboardLogger.debug(
+            "keyboardWillHide frameEnd=\(frameEnd.debugDescription, privacy: .public) safeAreaBottom=\(self.view.safeAreaInsets.bottom, privacy: .public)"
+        )
+    }
+
+    @objc private func keyboardWillChangeFrame(_ notification: Notification) {
+        let frameEnd = keyboardFrameEnd(notification) ?? .null
+        chatKeyboardLogger.debug(
+            "keyboardWillChangeFrame frameEnd=\(frameEnd.debugDescription, privacy: .public) safeAreaBottom=\(self.view.safeAreaInsets.bottom, privacy: .public)"
+        )
+    }
+
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+        chatKeyboardLogger.debug(
+            "viewSafeAreaInsetsDidChange bottom=\(self.view.safeAreaInsets.bottom, privacy: .public)"
+        )
     }
 
     // MARK: - Scroll Coalescing
@@ -372,6 +414,10 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
               userInfo[UIResponder.keyboardFrameEndUserInfoKey] is CGRect else {
             return
         }
+
+        chatKeyboardLogger.debug(
+            "keyboardWillShow frameEnd=\((userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect ?? .null).debugDescription, privacy: .public) safeAreaBottom=\(self.view.safeAreaInsets.bottom, privacy: .public)"
+        )
 
         let wasAtBottom = isAtBottom
 

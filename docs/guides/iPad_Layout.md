@@ -4,7 +4,12 @@ This guide describes how MeshCore One adapts its UI for iPad.
 
 ## Overview
 
-MeshCore One uses a `TabView` (see `MC1/ContentView.swift`) with five tabs:
+`ContentView` (see `MC1/ContentView.swift`) branches on horizontal size class:
+
+- `MainSidebarView` when the size class is `.regular` (common on iPad)
+- `MainTabView` when the size class is `.compact` (iPhone, iPad in split view)
+
+Both paths address the same five sections, identified by the `AppTab` enum (`MC1/State/AppTab.swift`), whose `Int` raw value is the selection index shared with `NavigationCoordinator.selectedTab`:
 
 - Chats (0)
 - Nodes (1)
@@ -12,45 +17,43 @@ MeshCore One uses a `TabView` (see `MC1/ContentView.swift`) with five tabs:
 - Tools (3)
 - Settings (4)
 
-Within each tab, the root view typically chooses between:
-
-- `NavigationSplitView` when horizontal size class is `.regular` (common on iPad)
-- `NavigationStack` when horizontal size class is `.compact` (iPhone, iPad in split view)
-
-This keeps iPad navigation efficient without maintaining a separate iPad-only navigation model.
+`MainTabView` presents these as a `TabView` of five `Tab`s (the iPhone / compact layout). `MainSidebarView` presents the same sections as a single iPad `NavigationSplitView` shell, choosing the layout once at the `ContentView` level rather than maintaining a per-tab navigation model.
 
 ## Split View Pattern
 
-In regular size class, split views follow a consistent pattern:
+`MainSidebarView` (`MC1/Views/MainSidebarView.swift`) hosts one shared `NavigationSplitView` whose shape depends on the selected `AppTab`:
 
-- Left column: list/selection
-- Right column: detail content (or an empty placeholder until a selection exists)
+- Sidebar column: `AppSidebar` (`MC1/Views/AppSidebar.swift`), the five icon-only `AppTab` rows. Selecting a row collapses the sidebar Mail-style.
+- The list sections (Chats, Nodes, Settings, Tools) use a three-column split: a content column plus a detail column.
+- The Map section uses a two-column split (sidebar plus detail), rendering `MapView` directly in the detail column.
 
-Concrete implementations in this repo:
+The shared view models (`ChatViewModel`, `LineOfSightViewModel`) are hosted on `MainSidebarView` so each section's content and detail columns read one instance; per-section selection that must survive a section switch lives in `NavigationCoordinator`.
+
+The content and detail columns are dedicated sidebar views (`ChatsContentColumn`, `ContactsContentColumn`, `SettingsListContent`, `ToolsContentColumn`, and the matching detail columns), not the standalone tab views. The standalone views below are the `MainTabView` (compact) section roots:
 
 - Chats: `MC1/Views/Chats/ChatsView.swift`
 - Nodes: `MC1/Views/Contacts/ContactsListView.swift`
 - Tools: `MC1/Views/Tools/ToolsView.swift`
 - Settings: `MC1/Views/Settings/SettingsView.swift`
 
-The Map tab uses a single `NavigationStack` for all size classes:
+The Map section uses `MapView` (its own `NavigationStack`) in both paths:
 
 - Map: `MC1/Views/Map/MapView.swift`
 
 ## Testing
 
-Use an iPad simulator destination when running from the command line:
+Run the app test suite through the `make` target, which pins the standard simulator destination (iPhone 17e / iOS 26):
 
 ```bash
-xcodebuild test -project MC1.xcodeproj \
-  -scheme MeshCore One \
-  -destination "platform=iOS Simulator,name=iPad Pro (13-inch)"
+make test-app
 ```
+
+The sidebar layout logic is covered by `MC1Tests/SidebarNavigationLayoutTests.swift`, which exercises `MainSidebarView.sidebarVisibility(isWide:toolCollapsesSidebar:sectionCollapsed:)` directly (it is `nonisolated` so the test can call it). This is an xcodegen project, so the simulator-vs-stack branching is best verified on a running iPad simulator.
 
 ## Common Pitfalls
 
 - Ensure app-wide state is accessed via `@Environment(\.appState)`.
-- Avoid coupling selection state between tabs; each tab owns its own split-view selection.
+- Per-section selection that must survive a section switch lives in `NavigationCoordinator`, not in the views; the iPad shell tears down and rebuilds a section's columns when `AppTab` changes.
 
 ## Further Reading
 

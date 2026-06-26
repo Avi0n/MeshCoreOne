@@ -5,6 +5,11 @@ import TipKit
 struct DeviceMenuTip: Tip {
     static let hasCompletedOnboarding = Tips.Event(id: "hasCompletedOnboarding")
 
+    /// Live connection state. The tip introduces the connected device menu, so it
+    /// must stay hidden while disconnected, when the menu offers only Connect Device.
+    @Parameter
+    static var isConnected: Bool = false
+
     var title: Text {
         Text(L10n.Chats.Chats.Tip.DeviceMenu.title)
     }
@@ -23,5 +28,6 @@ struct DeviceMenuTip: Tip {
 
     var rules: [Rule] {
         #Rule(Self.hasCompletedOnboarding) { $0.donations.count >= 1 }
+        #Rule(Self.$isConnected) { $0 == true }
     }
 }

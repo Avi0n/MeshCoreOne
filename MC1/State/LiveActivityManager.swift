@@ -28,15 +28,29 @@ final class LiveActivityManager {
     private var lastFlushDate: Date = .distantPast
 
     static let decayInterval: TimeInterval = 15
-    static let packetWindowSeconds: TimeInterval = 15
+    static let packetWindowSeconds: TimeInterval = 60
     static let secondsPerMinute: TimeInterval = 60
     static let connectedStaleInterval: TimeInterval = 30
     static let disconnectGracePeriod: TimeInterval = 300
     static let updateInterval: TimeInterval = 15
 
-    /// Projects the short-window packet count to a per-minute rate.
-    private var projectedPacketsPerMinute: Int {
-        Int((Double(recentPacketTimestamps.count) * Self.secondsPerMinute / Self.packetWindowSeconds).rounded())
+    /// Packets in the trailing `packetWindowSeconds` as a per-minute rate. A
+    /// full-minute window makes this the true count for that minute, so the
+    /// displayed value matches the RX Log instead of extrapolating a burst.
+    private var recentPacketsPerMinute: Int {
+        Self.packetsPerMinute(timestamps: recentPacketTimestamps, now: .now)
+    }
+
+    /// Packets within `window` ending at `now` as a per-minute rate. Pure so the
+    /// rate math is unit-testable without an `Activity`.
+    static func packetsPerMinute(
+        timestamps: [Date],
+        now: Date,
+        window: TimeInterval = packetWindowSeconds
+    ) -> Int {
+        let cutoff = now.addingTimeInterval(-window)
+        let count = timestamps.filter { $0 >= cutoff }.count
+        return Int((Double(count) * secondsPerMinute / window).rounded())
     }
 
     var hasActiveActivity: Bool { currentActivity != nil }
@@ -82,7 +96,8 @@ final class LiveActivityManager {
 
         // If reconnecting to same device within grace period, restore connected state
         if let activity = currentActivity,
-           activity.attributes.deviceName == device.nodeName {
+           let activityRadioID = activity.attributes.radioID,
+           activityRadioID == device.radioID {
             disconnectTimer?.cancel()
             disconnectTimer = nil
             recentPacketTimestamps = []
@@ -106,6 +121,7 @@ final class LiveActivityManager {
 
         await startActivity(
             deviceName: device.nodeName,
+            radioID: device.radioID,
             unreadCount: unreadCount
         )
         startDecayTimer()
@@ -150,7 +166,7 @@ final class LiveActivityManager {
         recentPacketTimestamps.append(now)
         let cutoff = now.addingTimeInterval(-Self.packetWindowSeconds)
         recentPacketTimestamps.removeAll { $0 < cutoff }
-        await scheduleUpdate(packetsPerMinute: projectedPacketsPerMinute)
+        await scheduleUpdate(packetsPerMinute: recentPacketsPerMinute)
     }
 
     func handleBatteryChanged(battery: BatteryInfo) async {
@@ -238,7 +254,7 @@ final class LiveActivityManager {
                 guard !Task.isCancelled, let self else { return }
                 let cutoff = Date.now.addingTimeInterval(-Self.packetWindowSeconds)
                 self.recentPacketTimestamps.removeAll { $0 < cutoff }
-                await self.scheduleUpdate(packetsPerMinute: self.projectedPacketsPerMinute)
+                await self.scheduleUpdate(packetsPerMinute: self.recentPacketsPerMinute)
             }
         }
     }
@@ -267,6 +283,7 @@ final class LiveActivityManager {
 
     private func startActivity(
         deviceName: String,
+        radioID: UUID?,
         unreadCount: Int
     ) async {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
@@ -297,7 +314,7 @@ final class LiveActivityManager {
             return
         }
 
-        let attributes = MeshStatusAttributes(deviceName: deviceName)
+        let attributes = MeshStatusAttributes(deviceName: deviceName, radioID: radioID)
         let state = MeshStatusAttributes.ContentState(
             isConnected: true,
             batteryPercent: nil,
@@ -334,6 +351,7 @@ final class LiveActivityManager {
                 case .ended:
                     let lastState = activity.content.state
                     let deviceName = activity.attributes.deviceName
+                    let radioID = activity.attributes.radioID
 
                     // Clear the field synchronously before any await so a
                     // re-entrant @MainActor caller (e.g. handleConnectionReady)
@@ -351,7 +369,7 @@ final class LiveActivityManager {
                     let isCurrentlyConnected = self.connectionStateProvider?() ?? false
                     if isCurrentlyConnected {
                         logger.info("System ended Live Activity, restarting (radio still connected)")
-                        await self.startActivity(deviceName: deviceName, unreadCount: lastState.unreadCount)
+                        await self.startActivity(deviceName: deviceName, radioID: radioID, unreadCount: lastState.unreadCount)
                         self.startDecayTimer()
                     } else {
                         logger.info("System ended Live Activity, not restarting (radio disconnected)")
@@ -487,6 +505,7 @@ final class LiveActivityManager {
         case .ended:
             let lastState = activity.content.state
             let deviceName = activity.attributes.deviceName
+            let radioID = activity.attributes.radioID
 
             // Clear the field synchronously before the await so a re-entrant
             // main-actor caller can't have its replacement currentActivity
@@ -497,7 +516,7 @@ final class LiveActivityManager {
             let isCurrentlyConnected = connectionStateProvider?() ?? false
             if isCurrentlyConnected {
                 logger.info("Detected ended Live Activity on foreground, restarting (radio still connected)")
-                await startActivity(deviceName: deviceName, unreadCount: lastState.unreadCount)
+                await startActivity(deviceName: deviceName, radioID: radioID, unreadCount: lastState.unreadCount)
                 startDecayTimer()
             } else {
                 logger.info("Detected ended Live Activity on foreground, not restarting (radio disconnected)")

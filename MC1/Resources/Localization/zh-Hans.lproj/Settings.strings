@@ -265,6 +265,10 @@
 /* Link to GitHub repository */
 "about.github" = "GitHub";
 
+/* Link to the privacy policy */
+/* AI-translated - please verify with native speakers. */
+"about.privacyPolicy" = "隐私政策";
+
 // MARK: - Advanced Radio Section
 
 /* Section header for radio configuration */

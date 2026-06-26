@@ -34,12 +34,25 @@ public actor NodeSnapshotService {
         }
     }
 
-    /// Fetch the most recent snapshot before the given date (for delta calculation).
-    public func previousSnapshot(for nodePublicKey: Data, before date: Date) async -> NodeStatusSnapshotDTO? {
+    /// Fetch the most recent snapshot carrying neighbor data, for neighbor delta
+    /// display. Skips status- or telemetry-only rows and the current in-window capture.
+    public func previousNeighborSnapshot(for nodePublicKey: Data) async -> NodeStatusSnapshotDTO? {
         do {
-            return try await dataStore.fetchPreviousNodeStatusSnapshot(nodePublicKey: nodePublicKey, before: date)
+            return try await dataStore.fetchPreviousNeighborSnapshot(nodePublicKey: nodePublicKey)
         } catch {
-            logger.error("Failed to fetch previous snapshot: \(error)")
+            logger.error("Failed to fetch previous neighbor snapshot: \(error)")
+            return nil
+        }
+    }
+
+    /// Fetch the most recent snapshot carrying status fields, for the status delta.
+    /// Skips neighbor- or telemetry-only rows so the delta is taken against the
+    /// previous actual status reading rather than blanking out.
+    public func previousStatusSnapshot(for nodePublicKey: Data, before date: Date) async -> NodeStatusSnapshotDTO? {
+        do {
+            return try await dataStore.fetchPreviousStatusSnapshot(nodePublicKey: nodePublicKey, before: date)
+        } catch {
+            logger.error("Failed to fetch previous status snapshot: \(error)")
             return nil
         }
     }

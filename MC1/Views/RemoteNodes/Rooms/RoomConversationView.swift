@@ -259,7 +259,10 @@ extension RoomConversationView {
             viewModel.composingText = MentionUtilities.buildReplyText(
                 mentionName: message.authorDisplayName, messageText: message.text)
         } else {
-            viewModel.composingText = MentionUtilities.createMention(for: message.authorDisplayName) + " "
+            viewModel.composingText = MentionUtilities.appendMention(
+                for: message.authorDisplayName,
+                to: viewModel.composingText
+            )
         }
         // Raise the keyboard only after the actions sheet has finished dismissing;
         // a focus request issued while it is still animating away is lost.

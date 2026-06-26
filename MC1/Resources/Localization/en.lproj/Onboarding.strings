@@ -48,8 +48,8 @@
 /* Location: PermissionsView.swift - Button to open system settings */
 "permissions.openSettings" = "Settings";
 
-/* Location: PermissionsView.swift - Button to allow a permission */
-"permissions.allow" = "Allow";
+/* Location: PermissionsView.swift - Button to begin a permission request */
+"permissions.request" = "Continue";
 
 /* Location: PermissionsView.swift - Alert title for location permission */
 "permissions.locationAlert.title" = "Location Permission";

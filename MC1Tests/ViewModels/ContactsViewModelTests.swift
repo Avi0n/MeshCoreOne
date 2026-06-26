@@ -15,7 +15,8 @@ private func createContact(
     lastAdvertTimestamp: UInt32 = 0,
     latitude: Double = 0,
     longitude: Double = 0,
-    lastModified: UInt32 = 0
+    lastModified: UInt32 = 0,
+    outPathLength: UInt8 = 0
 ) -> ContactDTO {
     ContactDTO(
         id: UUID(),
@@ -24,7 +25,7 @@ private func createContact(
         name: name,
         typeRawValue: type.rawValue,
         flags: 0,
-        outPathLength: 0,
+        outPathLength: outPathLength,
         outPath: Data(),
         lastAdvertTimestamp: lastAdvertTimestamp,
         latitude: latitude,
@@ -316,5 +317,50 @@ struct ContactsViewModelTests {
 
         #expect(result.first?.name == "Nearby")
         #expect(result.last?.name == "FarAway")
+    }
+
+    @Test("filteredContacts sorted by hops returns fewest first with flood-routed last")
+    func filteredContactsSortedByHops() {
+        let viewModel = ContactsViewModel()
+        let deviceID = UUID()
+        let floodSentinel: UInt8 = 0xFF
+        viewModel.contacts = [
+            createContact(radioID: deviceID, name: "ThreeHop", type: .chat, outPathLength: 3),
+            createContact(radioID: deviceID, name: "Flood", type: .chat, outPathLength: floodSentinel),
+            createContact(radioID: deviceID, name: "OneHop", type: .chat, outPathLength: 1)
+        ]
+
+        let result = viewModel.filteredContacts(
+            searchText: "",
+            segment: .contacts,
+            sortOrder: .hops,
+            userLocation: nil
+        )
+
+        #expect(result.map(\.name) == ["OneHop", "ThreeHop", "Flood"])
+    }
+
+    @Test("filteredContacts sorted by hops breaks ties by distance, including the flood group")
+    func filteredContactsSortedByHopsTieBreaksByDistance() {
+        let viewModel = ContactsViewModel()
+        let deviceID = UUID()
+        let floodSentinel: UInt8 = 0xFF
+        let userLocation = CLLocation(latitude: 0, longitude: 0)
+        viewModel.contacts = [
+            createContact(radioID: deviceID, name: "FarFlood", type: .chat, latitude: 0, longitude: 5, outPathLength: floodSentinel),
+            createContact(radioID: deviceID, name: "FarSameHop", type: .chat, latitude: 0, longitude: 1, outPathLength: 2),
+            createContact(radioID: deviceID, name: "NearSameHop", type: .chat, latitude: 0, longitude: 0.1, outPathLength: 2),
+            createContact(radioID: deviceID, name: "NearFlood", type: .chat, latitude: 0, longitude: 0.5, outPathLength: floodSentinel)
+        ]
+
+        let result = viewModel.filteredContacts(
+            searchText: "",
+            segment: .contacts,
+            sortOrder: .hops,
+            userLocation: userLocation
+        )
+
+        // Direct nodes first, nearest-first; flood group last, nearest-first.
+        #expect(result.map(\.name) == ["NearSameHop", "FarSameHop", "NearFlood", "FarFlood"])
     }
 }

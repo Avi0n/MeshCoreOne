@@ -2017,6 +2017,8 @@ public enum L10n {
       public enum Sort {
         /// Location: ContactsViewModel.swift - Purpose: Distance sort option
         public static let distance = L10n.tr("Contacts", "contacts.sort.distance", fallback: "Distance")
+        /// Location: ContactsViewModel.swift - Purpose: Hops sort option
+        public static let hops = L10n.tr("Contacts", "contacts.sort.hops", fallback: "Hops")
         /// Location: ContactsViewModel.swift - Purpose: Last heard sort option
         public static let lastHeard = L10n.tr("Contacts", "contacts.sort.lastHeard", fallback: "Last Modified")
         /// Location: ContactsViewModel.swift - Purpose: Name sort option
@@ -2964,14 +2966,14 @@ public enum L10n {
       }
     }
     public enum Permissions {
-      /// Location: PermissionsView.swift - Button to allow a permission
-      public static let allow = L10n.tr("Onboarding", "permissions.allow", fallback: "Allow")
       /// Location: PermissionsView.swift - Button to proceed to next step
       public static let `continue` = L10n.tr("Onboarding", "permissions.continue", fallback: "Continue")
       /// Location: PermissionsView.swift - Button to open system settings
       public static let openSettings = L10n.tr("Onboarding", "permissions.openSettings", fallback: "Settings")
       /// Location: PermissionsView.swift - Badge shown for optional permissions
       public static let `optional` = L10n.tr("Onboarding", "permissions.optional", fallback: "Optional")
+      /// Location: PermissionsView.swift - Button to begin a permission request
+      public static let request = L10n.tr("Onboarding", "permissions.request", fallback: "Continue")
       /// Location: PermissionsView.swift - Subtitle encouraging notification permission
       public static let subtitle = L10n.tr("Onboarding", "permissions.subtitle", fallback: "Both optional. You can change your mind in Settings anytime.")
       /// Location: PermissionsView.swift - Screen title for permissions
@@ -4040,6 +4042,8 @@ public enum L10n {
       public static let header = L10n.tr("Settings", "about.header", fallback: "About")
       /// Link to MeshCore online map
       public static let onlineMap = L10n.tr("Settings", "about.onlineMap", fallback: "MeshCore Online Map")
+      /// Link to the privacy policy
+      public static let privacyPolicy = L10n.tr("Settings", "about.privacyPolicy", fallback: "Privacy Policy")
       /// Link to MeshCore website
       public static let website = L10n.tr("Settings", "about.website", fallback: "MeshCore Website")
     }

@@ -17,6 +17,16 @@ public enum MentionUtilities {
         "@[\(name)]"
     }
 
+    /// Appends a mention to the existing composer draft, preserving it. Inserts a
+    /// separating space only when the draft does not already end in whitespace, and
+    /// always leaves a trailing space.
+    public static func appendMention(for name: String, to draft: String) -> String {
+        let mention = createMention(for: name)
+        guard !draft.isEmpty else { return mention + " " }
+        let separator = draft.last?.isWhitespace == true ? "" : " "
+        return draft + separator + mention + " "
+    }
+
     /// Extracts all mentions from message text
     /// - Parameter text: The message text to parse
     /// - Returns: Array of mentioned contact names (without @[] wrapper)

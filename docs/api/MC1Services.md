@@ -12,7 +12,7 @@ The `MC1Services` layer provides actor-isolated business logic, managing service
 
 ## ConnectionManager (public, @MainActor, @Observable class)
 
-**File:** `MC1Services/Sources/MC1Services/ConnectionManager.swift`
+**File:** `MC1Services/Sources/MC1Services/Connection/ConnectionManager.swift` (split across `Connection/ConnectionManager+Lifecycle.swift`, `+BLE.swift`, `+Pairing.swift`, `+WiFi.swift`, and `Sync/ConnectionManager+SyncRetry.swift`)
 
 The primary entry point for managing the connection to a MeshCore device and coordinating services.
 
@@ -20,7 +20,7 @@ The primary entry point for managing the connection to a MeshCore device and coo
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `connectionState` | `ConnectionState` | Current state: `.disconnected`, `.connecting`, `.connected`, `.ready` |
+| `connectionState` | `DeviceConnectionState` | Current state: `.disconnected`, `.connecting`, `.connected`, `.syncing`, `.ready` |
 | `connectedDevice` | `DeviceDTO?` | Currently connected device info |
 | `services` | `ServiceContainer?` | Business logic services (available when `.ready`) |
 | `currentTransportType` | `TransportType?` | Active transport type (`.bluetooth` or `.wifi`) |
@@ -31,9 +31,10 @@ The primary entry point for managing the connection to a MeshCore device and coo
 |--------|-------------|
 | `activate() async` | Initializes and attempts auto-reconnect to last device |
 | `pairNewDevice() async throws` | Starts AccessorySetupKit pairing flow |
-| `connect(to:) async throws` | Connects to a previously paired device |
-| `disconnect() async` | Gracefully disconnects and stops services |
-| `forgetDevice() async throws` | Removes device from app and system pairings |
+| `connect(to:forceFullSync:forceReconnect:) async throws` | Connects to a previously paired device |
+| `disconnect(reason:) async` | Gracefully disconnects and stops services |
+| `forgetDevice(deleteData:) async throws` | Removes device from app and system pairings |
+| `forgetDevice(id:) async` | Removes a device by ID (non-throwing) |
 | `switchDevice(to:) async throws` | Switches to a different device |
 | `connectViaWiFi(host:port:forceFullSync:) async throws` | Connects to a device over WiFi/TCP |
 | `clearStalePairings() async` | Clears all stale pairings from AccessorySetupKit |
@@ -54,7 +55,7 @@ The primary entry point for managing the connection to a MeshCore device and coo
 
 ## SyncCoordinator (public, actor)
 
-**File:** `MC1Services/Sources/MC1Services/SyncCoordinator.swift`
+**File:** `MC1Services/Sources/MC1Services/Sync/SyncCoordinator.swift` (split across `Sync/SyncCoordinator+Sync.swift`, `+MessageHandlers.swift`, `+ReactionHandlers.swift`, `+HandlerHelpers.swift`)
 
 Orchestrates data synchronization between the MeshCore device and local database through three phases.
 
@@ -71,7 +72,7 @@ public enum SyncPhase: Sendable, Equatable {
 ### Sync State
 
 ```swift
-public enum SyncState: Sendable, Equatable {
+enum SyncState: Sendable, Equatable {  // internal, not public
     case idle
     case syncing(progress: SyncProgress)
     case synced
@@ -83,9 +84,9 @@ public enum SyncState: Sendable, Equatable {
 
 | Method | Description |
 |--------|-------------|
-| `performFullSync(services:deviceID:) async throws` | Executes contacts → channels → messages sync |
-| `onConnectionEstablished(deviceID:services:) async throws` | Called after BLE connection; wires handlers and syncs |
-| `setSyncActivityCallbacks(onStarted:onEnded:)` | Sets UI callbacks for sync pill display |
+| `performFullSync(radioID:dataStore:contactService:channelService:messagePollingService:...) async throws -> FullSyncResult` | Executes contacts → channels → messages sync (internal) |
+| `onConnectionEstablished(radioID:dependencies:...) async throws -> FullSyncResult` | Called after a connection; wires handlers and syncs (internal) |
+| `setSyncActivityCallbacks(onStarted:onEnded:onPhaseChanged:) async` | Sets UI callbacks for sync pill display |
 
 ### Connection Lifecycle
 
@@ -98,19 +99,22 @@ public enum SyncState: Sendable, Equatable {
 
 ## MessageService (public, actor)
 
-**File:** `MC1Services/Sources/MC1Services/Services/MessageService.swift`
+**File:** `MC1Services/Sources/MC1Services/Services/MessageService.swift` (sends split across `MessageService+SendDM.swift`, `+SendChannel.swift`, `+SendHelpers.swift`; ACK tracking in `MessageService+ACK.swift`)
 
 Handles message sending with automatic retry logic, flood routing fallback, and ACK tracking.
 
 ### Configuration
 
 ```swift
-public struct MessageServiceConfig: Sendable {
-    let maxAttempts: Int           // Total attempts (default: 4)
-    let floodAfter: Int            // Switch to flood after N (default: 2)
-    let maxFloodAttempts: Int      // Max flood attempts (default: 2)
-    let minTimeout: TimeInterval   // Minimum timeout seconds
-    let floodFallbackOnRetry: Bool // Use flood on manual retry
+struct MessageServiceConfig: Sendable {  // internal; defined in MessageServiceConfig.swift
+    let floodFallbackOnRetry: Bool        // Use flood on manual retry (default: true)
+    let maxAttempts: Int                  // Total attempts (default: 5; capped at 5 = 4 direct + 1 flood)
+    let maxFloodAttempts: Int             // Max flood attempts (default: 1)
+    let floodAfter: Int                   // Switch to flood after N direct attempts (default: 4)
+    let minTimeout: TimeInterval          // Minimum timeout seconds (default: 0)
+    let triggerPathDiscoveryAfterFlood: Bool // Trigger path discovery after a successful flood
+    let ackGiveUpWindow: TimeInterval     // Give-up floor for the ACK deadline on fast presets
+    let poolBackoff: PoolBackoffConfig    // In-loop pool-exhaustion backoff tuning
 }
 ```
 
@@ -120,8 +124,9 @@ public struct MessageServiceConfig: Sendable {
 |--------|-------------|
 | `sendMessageWithRetry(text:to:...) async throws -> MessageDTO` | Sends with auto-retry and flood fallback |
 | `sendDirectMessage(text:to:...) async throws -> MessageDTO` | Single attempt send |
-| `sendChannelMessage(text:channelIndex:...) async throws -> UUID` | Broadcasts to channel |
-| `retryDirectMessage(messageID:to:) async throws -> MessageDTO` | Manual retry of failed message |
+| `sendChannelMessage(text:channelIndex:...) async throws -> (id: UUID, timestamp: UInt32)` | Broadcasts to channel |
+| `resendDirectMessage(messageID:to:) async throws -> MessageDTO` | Manual retry of a failed direct message |
+| `resendChannelMessage(messageID:preserveTimestamp:) async throws -> UInt32` | Manual retry of a failed channel message (returns the timestamp) |
 
 ### Event Monitoring
 
@@ -147,20 +152,14 @@ public struct MessageServiceConfig: Sendable {
 | `pendingAckCount` | `Int` | Current number of pending ACKs being tracked |
 | `isAckExpiryCheckingActive` | `Bool` | Whether ACK expiry checking is currently active |
 
-### Handlers
+### Dependencies
 
-| Method | Description |
-|--------|-------------|
-| `setContactService(_:)` | Sets the contact service for path management during retry |
-| `setAckConfirmationHandler(_:)` | Sets callback invoked when an ACK is received |
-| `setMessageFailedHandler(_:)` | Sets callback invoked when a message fails after all retries |
-| `setRetryStatusHandler(_:)` | Sets callback invoked during retry attempts |
-| `setRoutingChangedHandler(_:)` | Sets callback invoked when routing mode changes during retry |
+The `ContactService` used for path management during retry is injected via `MessageService`'s initializer (no public setter). Status updates flow through `ChatCoordinator`, `MessageStatusEvent`, and the `PersistenceStore` rather than per-callback handler setters on the service.
 
 ### Retry Flow
 
-1. Attempts 1-2: Direct routing (using contact's outbound path)
-2. Attempts 3-4: Flood routing (broadcast to all nearby nodes)
+1. Direct routing for the first `floodAfter` attempts (using the contact's outbound path)
+2. Flood routing thereafter (broadcast to all nearby nodes), up to `maxAttempts` (capped at 5 = 4 direct + 1 flood)
 3. Returns immediately when ACK received
 4. Marks failed if all attempts exhausted
 
@@ -176,32 +175,30 @@ Manages discovery, synchronization, and storage of mesh contacts.
 
 | Method | Description |
 |--------|-------------|
-| `syncContacts(deviceID:since:) async throws -> ContactSyncResult` | Incremental or full contact sync |
-| `setSyncCoordinator(_:)` | Set the sync coordinator for UI refresh notifications |
-| `setSyncProgressHandler(_:)` | Set progress handler for sync operations |
+| `syncContacts(radioID:since:) async throws -> ContactSyncResult` | Incremental or full contact sync |
 
 ### Contact Management
 
 | Method | Description |
 |--------|-------------|
-| `getContact(deviceID:publicKey:) async throws -> ContactDTO?` | Get a specific contact by public key from local database |
-| `addOrUpdateContact(deviceID:contact:) async throws` | Adds/updates contact on device and local store |
-| `removeContact(deviceID:publicKey:) async throws` | Deletes from device and local store |
+| `getContact(radioID:publicKey:) async throws -> ContactDTO?` | Get a specific contact by public key from local database |
+| `addOrUpdateContact(radioID:contact:) async throws` | Adds/updates contact on device and local store |
+| `removeContact(radioID:publicKey:) async throws` | Deletes from device and local store |
 
 ### Path Discovery & Routing
 
 | Method | Description |
 |--------|-------------|
-| `sendPathDiscovery(deviceID:publicKey:) async throws -> MessageSentInfo` | Initiates route discovery |
-| `resetPath(deviceID:publicKey:) async throws` | Resets routing, forces mesh rediscovery |
-| `setPath(deviceID:publicKey:path:pathLength:) async throws` | Set a specific path for a contact |
+| `sendPathDiscovery(radioID:publicKey:) async throws -> MessageSentInfo` | Initiates route discovery |
+| `resetPath(radioID:publicKey:) async throws` | Resets routing, forces mesh rediscovery |
+| `setPath(radioID:publicKey:path:pathLength:) async throws` | Set a specific path for a contact |
 
 ### Contact Sharing
 
 | Method | Description |
 |--------|-------------|
 | `shareContact(publicKey:) async throws` | Share a contact via zero-hop broadcast |
-| `exportContact(publicKey:) async throws -> String` | Export a contact to a shareable URI (deprecated) |
+| `exportContact(publicKey:) async throws -> String` | Export a contact to a shareable URI |
 | `exportContactURI(name:publicKey:type:) -> String` | Build a shareable contact URI (static method) |
 | `importContact(cardData:) async throws` | Import a contact from card data |
 
@@ -209,12 +206,10 @@ Manages discovery, synchronization, and storage of mesh contacts.
 
 | Method | Description |
 |--------|-------------|
-| `getContacts(deviceID:) async throws -> [ContactDTO]` | Get all contacts for a device from local database |
-| `getConversations(deviceID:) async throws -> [ContactDTO]` | Get conversations (contacts with messages) from local database |
+| `getContacts(radioID:) async throws -> [ContactDTO]` | Get all contacts for a device from local database |
+| `getConversations(radioID:) async throws -> [ContactDTO]` | Get conversations (contacts with messages) from local database |
 | `getContactByID(_:) async throws -> ContactDTO?` | Get a contact by ID from local database |
 | `updateContactPreferences(contactID:nickname:isBlocked:isFavorite:) async throws` | Update local contact preferences |
-| `getDiscoveredContacts(deviceID:) async throws -> [ContactDTO]` | Get discovered contacts (from NEW_ADVERT push, not yet added to device) |
-| `confirmContact(id:) async throws` | Confirm a discovered contact (mark as added to device) |
 
 ---
 
@@ -228,39 +223,32 @@ Manages group messaging channels and secure slot configuration.
 
 | Method | Description |
 |--------|-------------|
-| `syncChannels(deviceID:maxChannels:) async throws -> ChannelSyncResult` | Syncs all channel slot configurations |
+| `syncChannels(radioID:maxChannels:usePipelinedRead:) async throws -> ChannelSyncResult` | Syncs all channel slot configurations (internal) |
 
 ### Channel CRUD Operations
 
 | Method | Description |
 |--------|-------------|
 | `fetchChannel(index:) async throws -> ChannelInfo?` | Fetches a single channel from the device |
-| `setChannel(deviceID:index:name:passphrase:) async throws` | Configures slot with passphrase (SHA-256 hashed) |
-| `setChannelWithSecret(deviceID:index:name:secret:) async throws` | Sets a channel with a pre-computed secret |
-| `clearChannel(deviceID:index:) async throws` | Resets a channel slot |
+| `setChannel(radioID:index:name:passphrase:) async throws` | Configures slot with passphrase (SHA-256 hashed) |
+| `setChannelWithSecret(radioID:index:name:secret:) async throws` | Sets a channel with a pre-computed secret |
+| `clearChannel(radioID:index:) async throws` | Resets a channel slot |
 
 ### Local Database Operations
 
 | Method | Description |
 |--------|-------------|
-| `getChannels(deviceID:) async throws -> [ChannelDTO]` | Gets all channels from local database for a device |
-| `getChannel(deviceID:index:) async throws -> ChannelDTO?` | Gets a specific channel from local database |
-| `getActiveChannels(deviceID:) async throws -> [ChannelDTO]` | Gets channels that have messages (for chat list) |
-| `setChannelEnabled(channelID:isEnabled:) async throws` | Updates a channel's enabled state locally |
-| `clearUnreadCount(channelID:) async throws` | Clears unread count for a channel |
+| `getChannels(radioID:) async throws -> [ChannelDTO]` | Gets all channels from local database for a device |
+| `getChannel(radioID:index:) async throws -> ChannelDTO?` | Gets a specific channel from local database |
+| `getActiveChannels(radioID:) async throws -> [ChannelDTO]` | Gets channels that have messages (for chat list) |
+| `clearChannelMessages(radioID:channelIndex:) async throws` | Deletes local messages for a channel |
 
 ### Public Channel (Slot 0)
 
 | Method | Description |
 |--------|-------------|
-| `setupPublicChannel(deviceID:) async throws` | Initializes default public channel on slot 0 |
-| `hasPublicChannel(deviceID:) async throws -> Bool` | Checks if the public channel exists locally |
-
-### Handlers
-
-| Method | Description |
-|--------|-------------|
-| `setChannelUpdateHandler(_:)` | Sets a callback for channel updates |
+| `setupPublicChannel(radioID:) async throws` | Initializes default public channel on slot 0 |
+| `hasPublicChannel(radioID:) async throws -> Bool` | Checks if the public channel exists locally |
 
 ### Static Utilities
 
@@ -281,7 +269,7 @@ Queries remote mesh nodes using the binary protocol.
 
 | Method | Description |
 |--------|-------------|
-| `createSession(deviceID:contact:password:rememberPassword:) async throws -> RemoteNodeSessionDTO` | Create a new session for a remote node |
+| `createSession(radioID:contact:) async throws -> RemoteNodeSessionDTO` | Create a new session for a remote node |
 | `removeSession(id:publicKey:) async throws` | Remove a session and its associated data |
 | `hasPassword(forContact:) async -> Bool` | Check if a password is stored for a contact's public key |
 | `storePassword(_:forNodeKey:) async throws` | Store a password for a remote node |
@@ -312,7 +300,7 @@ Queries remote mesh nodes using the binary protocol.
 |--------|-------------|
 | `requestStatus(sessionID:) async throws -> StatusResponse` | Gets battery, uptime, SNR from remote |
 | `requestTelemetry(sessionID:) async throws -> TelemetryResponse` | Gets sensor telemetry from remote |
-| `requestHistorySync(sessionID:since:) async throws` | Request message history from a room server |
+| `requestHistorySync(sessionID:) async throws` | Request message history from a room server |
 
 ### CLI Commands
 
@@ -325,7 +313,7 @@ Queries remote mesh nodes using the binary protocol.
 | Method | Description |
 |--------|-------------|
 | `disconnect(sessionID:) async` | Mark session as disconnected without sending logout |
-| `handleBLEReconnection() async` | Called when BLE connection is re-established |
+| `handleBLEReconnection(sessionIDs:) async` | Called when BLE connection is re-established |
 | `stopAllKeepAlives()` | Stop all keep-alive timers (call on app termination) |
 
 ### Handlers
@@ -367,23 +355,21 @@ The unified interface for SwiftData persistence, shared across all services.
 
 | Method | Description |
 |--------|-------------|
-| `fetchContacts(deviceID:) throws -> [ContactDTO]` | Fetch all contacts for a device |
+| `fetchContacts(radioID:) throws -> [ContactDTO]` | Fetch all contacts for a device |
 | `fetchContact(id:) throws -> ContactDTO?` | Fetch a contact by ID |
-| `fetchContact(deviceID:publicKey:) throws -> ContactDTO?` | Fetch a contact by public key |
-| `fetchConversations(deviceID:) throws -> [ContactDTO]` | Fetch contacts with messages |
-| `fetchDiscoveredContacts(deviceID:) throws -> [ContactDTO]` | Fetch discovered contacts not yet added to device |
+| `fetchContact(radioID:publicKey:) throws -> ContactDTO?` | Fetch a contact by public key |
+| `fetchConversations(radioID:) throws -> [ContactDTO]` | Fetch contacts with messages |
 | `saveContact(_:) throws` | Save or update a contact |
-| `saveContact(deviceID:from:) throws -> UUID` | Save contact from ContactFrame |
+| `saveContact(radioID:from:) throws -> UUID` | Save contact from ContactFrame |
 | `deleteContact(id:) throws` | Delete a contact |
 | `updateContactLastMessage(contactID:date:) throws` | Update contact's last message date |
-| `confirmContact(id:) throws` | Mark discovered contact as confirmed |
 
 ### Message Operations
 
 | Method | Description |
 |--------|-------------|
 | `fetchMessages(contactID:) throws -> [MessageDTO]` | Fetch all messages for a contact |
-| `fetchMessages(deviceID:channelIndex:) throws -> [MessageDTO]` | Fetch all messages for a channel |
+| `fetchMessages(radioID:channelIndex:) throws -> [MessageDTO]` | Fetch all messages for a channel |
 | `fetchMessage(id:) throws -> MessageDTO?` | Fetch a message by ID |
 | `saveMessage(_:) throws` | Save or update a message |
 | `deleteMessage(id:) throws` | Delete a message |
@@ -391,17 +377,17 @@ The unified interface for SwiftData persistence, shared across all services.
 | `updateMessageAck(id:ackCode:status:roundTripTime:) throws` | Update message ACK code, status, and round-trip time |
 | `updateMessageRetryStatus(id:status:retryAttempt:maxRetryAttempts:) throws` | Update message retry status |
 | `updateMessageHeardRepeats(id:heardRepeats:) throws` | Update message heard repeats count |
-| `markMessagesAsRead(contactID:) throws` | Mark all messages as read for a contact |
+| `markMessageAsRead(id:) throws` | Mark a single message as read by message ID |
 
 ### Channel Operations
 
 | Method | Description |
 |--------|-------------|
-| `fetchChannels(deviceID:) throws -> [ChannelDTO]` | Fetch all channels for a device |
+| `fetchChannels(radioID:) throws -> [ChannelDTO]` | Fetch all channels for a device |
 | `fetchChannel(id:) throws -> ChannelDTO?` | Fetch a channel by ID |
-| `fetchChannel(deviceID:index:) throws -> ChannelDTO?` | Fetch a channel by index |
+| `fetchChannel(radioID:index:) throws -> ChannelDTO?` | Fetch a channel by index |
 | `saveChannel(_:) throws` | Save or update a channel |
-| `saveChannel(deviceID:from:) throws -> UUID` | Save channel from ChannelInfo |
+| `saveChannel(radioID:from:) throws -> UUID` | Save channel from ChannelInfo |
 | `deleteChannel(id:) throws` | Delete a channel |
 | `updateChannelLastMessage(channelID:date:) throws` | Update channel's last message date |
 
@@ -464,9 +450,9 @@ Notes:
 
 ### DeviceDTO (public, struct)
 
-**File:** `MC1Services/Sources/MC1Services/Models/Device.swift:152`
+**File:** `MC1Services/Sources/MC1Services/Models/Device.swift` (search for `public struct DeviceDTO`)
 
-A sendable snapshot of Device for cross-actor transfers. Total: 27 properties.
+A sendable snapshot of Device for cross-actor transfers. The DTO carries `radioID` (the data-partition key) in addition to `id`, and gains fields over time (OCV settings, flood scope, connection methods, known regions, repeater pre-repeat radio config), so the table below lists the core fields rather than the full set.
 
 | Property | Type | Description |
 |----------|------|-------------|
@@ -477,19 +463,19 @@ A sendable snapshot of Device for cross-actor transfers. Total: 27 properties.
 | `firmwareVersionString` | `String` | Firmware version string |
 | `manufacturerName` | `String` | Manufacturer name |
 | `buildDate` | `String` | Firmware build date |
-| `maxContacts` | `UInt8` | Maximum contacts supported |
+| `maxContacts` | `UInt16` | Maximum contacts supported |
 | `maxChannels` | `UInt8` | Maximum channels supported |
 | `frequency` | `UInt32` | Radio frequency (kHz) |
 | `bandwidth` | `UInt32` | Radio bandwidth (Hz) |
 | `spreadingFactor` | `UInt8` | LoRa spreading factor |
 | `codingRate` | `UInt8` | LoRa coding rate |
-| `txPower` | `UInt8` | Transmit power (dBm) |
-| `maxTxPower` | `UInt8` | Maximum transmit power (dBm) |
+| `txPower` | `Int8` | Transmit power (dBm) |
+| `maxTxPower` | `Int8` | Maximum transmit power (dBm) |
 | `latitude` | `Double` | Device location latitude |
 | `longitude` | `Double` | Device location longitude |
 | `blePin` | `UInt32` | BLE pairing PIN |
 | `manualAddContacts` | `Bool` | Manual contact add mode |
-| `multiAcks` | `Bool` | Multiple ACKs enabled |
+| `multiAcks` | `UInt8` | Multiple ACKs mode |
 | `telemetryModeBase` | `UInt8` | Base telemetry mode |
 | `telemetryModeLoc` | `UInt8` | Location telemetry mode |
 | `telemetryModeEnv` | `UInt8` | Environment telemetry mode |
@@ -506,20 +492,24 @@ A sendable snapshot of Device for cross-actor transfers. Total: 27 properties.
 
 ### ChannelDTO (public, struct)
 
-**File:** `MC1Services/Sources/MC1Services/Models/Channel.swift:92`
+**File:** `MC1Services/Sources/MC1Services/Models/Channel.swift` (search for `public struct ChannelDTO`)
 
-A sendable snapshot of Channel for cross-actor transfers. Total: 8 properties.
+A sendable snapshot of Channel for cross-actor transfers. Core fields:
 
 | Property | Type | Description |
 |----------|------|-------------|
 | `id` | `UUID` | Local identifier |
-| `deviceID` | `UUID` | Associated device |
+| `radioID` | `UUID` | Associated device (data-partition key) |
 | `index` | `UInt8` | Slot number (0-7) |
 | `name` | `String` | Channel name |
 | `secret` | `Data` | Channel encryption secret (16 bytes) |
 | `isEnabled` | `Bool` | Channel enabled status |
 | `lastMessageDate` | `Date?` | Most recent message date |
 | `unreadCount` | `Int` | Unread messages |
+| `unreadMentionCount` | `Int` | Unread @-mentions |
+| `notificationLevel` | `NotificationLevel` | Per-channel notification preference |
+| `isFavorite` | `Bool` | Favorite flag |
+| `floodScopeModeRawValue` | `String` | Flood-scope mode (raw) |
 
 ### Computed Properties
 
@@ -527,45 +517,28 @@ A sendable snapshot of Channel for cross-actor transfers. Total: 8 properties.
 |----------|------|-------------|
 | `isPublicChannel` | `Bool` | True if this is slot 0 (the public channel slot) |
 
-### ChatFilterDTO (public, struct)
-
-**File:** `MC1Services/Sources/MC1Services/Models/ChatFilter.swift`
-
-User preferences for filtering chat/conversation lists.
-
-**Properties:**
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `id` | `UUID` | Unique identifier |
-| `deviceID` | `UUID` | Associated device |
-| `filterUnreadOnly` | `Bool` | Show only conversations with unread messages |
-| `filterDirectMessagesOnly` | `Bool` | Show only direct message conversations (hide channels) |
-| `filterMutedConversations` | `Bool` | Exclude muted conversations |
-| `filterBlockedContacts` | `Bool` | Exclude conversations with blocked contacts |
-
 ---
 
 ## Additional Services
 
 | Service | Type | Description |
 |---------|------|-------------|
-| `MessagePollingService` | public, actor | Polls device for pending messages, routes to handlers |
+| `MessagePollingService` | internal, actor | Polls device for pending messages, routes to handlers |
 | `SettingsService` | public, actor | Manages device settings (name, location, radio) |
 | `AdvertisementService` | public, actor | Sends advertisements to mesh |
 | `RoomServerService` | public, actor | Handles room server messaging |
 | `RepeaterAdminService` | public, actor | Admin commands for repeater nodes |
 | `BinaryProtocolService` | public, actor | Binary protocol encoding/decoding |
-| `KeychainService` | public, actor | Secure credential storage |
+| `KeychainService` | internal, actor | Secure credential storage |
 | `NotificationService` | public, @MainActor, @Observable class | Local notification scheduling |
 | `ReactionService` | public, actor | Parses and persists emoji reactions |
 | `RxLogService` | public, actor | Captures RF packets for network diagnostics |
 | `PersistentLogger` | public, struct | Writes to OSLog and enqueues buffered debug log entries |
 | `DebugLogBuffer` | public, actor | Batches debug logs and writes to SwiftData |
-| `CommandAuditLogger` | public, actor | Audits CLI commands sent to devices for security and debugging |
-| `DeviceService` | public, actor | Provides device information and management operations |
-| `HeardRepeatsService` | public, actor | Tracks message repeat counts for channel message propagation |
-| `ServiceContainer` | public, class | Holds all service instances |
+| `CommandAuditLogger` | internal, actor | Structured logging of remote-node operations (login, status, telemetry, CLI, keep-alive) for diagnostics |
+| `DeviceService` | public, actor | Device update callback and OCV settings persistence |
+| `HeardRepeatsService` | public, actor | Tracks channel-message repeat counts for propagation analysis |
+| `ServiceContainer` | @MainActor, public final class | Holds all service instances |
 
 ---
 
@@ -581,11 +554,12 @@ Captures and stores RF packet log entries for network diagnostics.
 
 | Method | Description |
 |--------|-------------|
-| `startCapture() async` | Starts capturing RF packets from transport |
-| `stopCapture() async` | Stops packet capture |
-| `getRecentLogs(limit:) async throws -> [RxLogEntryDTO]` | Gets recent log entries |
-| `clearLogs() async throws` | Clears all log entries |
-| `getFilteredLogs(type:source:destination:limit:) async throws -> [RxLogEntryDTO]` | Gets logs with optional filters |
+| `startEventMonitoring(radioID:)` | Starts capturing RF packets from transport events |
+| `stopEventMonitoring()` | Stops packet capture |
+| `process(_:) async` | Processes a parsed RX-log packet into a stored entry |
+| `loadExistingEntries() async -> [RxLogEntryDTO]` | Loads stored log entries |
+| `decryptEntry(_:) -> RxLogEntryDTO` | Decrypts a stored entry's payload |
+| `clearEntries() async` | Clears all log entries |
 
 **Capture Features:**
 - Real-time packet monitoring
@@ -627,41 +601,36 @@ Buffered log sink that batches debug log entries and writes to SwiftData.
 - Batched persistence (flush interval: 5 seconds or 50 entries)
 - Thread-safe actor isolation
 
-### CommandAuditLogger (public, actor)
+### CommandAuditLogger (internal, actor)
 
 **File:** `MC1Services/Sources/MC1Services/Services/CommandAuditLogger.swift`
 
-Audits CLI commands sent to devices for security and debugging.
+Structured `Logger`-based logging of remote-node operations for diagnostics. It logs events rather than persisting an auditable history; there is no `CommandAuditEntryDTO` and no query API.
 
-**Methods:**
+**Methods (selection):**
 
 | Method | Description |
 |--------|-------------|
-| `logCommand(deviceID:command:response:) async` | Logs a CLI command and its response |
-| `getAuditedCommands(deviceID:since:limit:) async throws -> [CommandAuditEntryDTO]` | Gets audited commands with filters |
-| `clearOldCommands(olderThan:) async throws` | Deletes commands older than specified date |
-
-**Audit Features:**
-- SwiftData persistence for command history
-- Command/response correlation tracking
-- Timestamp recording for troubleshooting
-- Configurable retention (default: 30 days)
+| `logLoginRequest(target:publicKey:pathLength:)` | Logs a remote-node login attempt |
+| `logLoginSuccess(target:publicKey:isAdmin:)` | Logs a successful login |
+| `logLoginFailed(target:publicKey:reason:)` | Logs a failed login |
+| `logCLICommand(publicKey:command:)` | Logs a CLI command sent to a node |
+| `logCLIResponse(publicKey:response:)` | Logs a CLI command response |
+| `logStatusRequest(target:publicKey:)` / `logTelemetryRequest(target:publicKey:)` | Logs status/telemetry queries |
+| `logKeepAlive(target:publicKey:)` | Logs a keep-alive |
 
 ### DeviceService (public, actor)
 
 **File:** `MC1Services/Sources/MC1Services/Services/DeviceService.swift`
 
-Provides device information and management operations.
+Wires a device-update callback and persists OCV battery-curve settings. General device fetches go through `PersistenceStore` directly.
 
 **Methods:**
 
 | Method | Description |
 |--------|-------------|
-| `getDevice(deviceID:) async throws -> DeviceDTO?` | Gets device by ID |
-| `getActiveDevice() async throws -> DeviceDTO?` | Gets currently active device |
-| `getDevices() async throws -> [DeviceDTO]` | Gets all devices |
-| `updateDeviceLastSeen(deviceID:) async throws` | Updates device's last seen timestamp |
-| `getActiveDeviceTransportType() async throws -> TransportType?` | Gets transport type (BLE or WiFi) |
+| `setDeviceUpdateCallback(_:)` | Registers a callback invoked when the device DTO changes |
+| `updateOCVSettings(deviceID:preset:customArray:) async throws` | Persists the OCV preset and custom curve for a device |
 
 ### HeardRepeatsService (public, actor)
 
@@ -673,9 +642,10 @@ Tracks message repeat counts for channel message propagation analysis.
 
 | Method | Description |
 |--------|-------------|
-| `incrementRepeats(messageID:) async throws` | Increments heard repeats count for a message |
-| `getRepeats(messageID:) async throws -> Int?` | Gets heard repeats count for a message |
-| `resetRepeats(messageID:) async throws` | Resets repeats count to zero |
+| `configure(radioID:localNodeName:)` | Configures the service for the active radio |
+| `events() -> AsyncStream<HeardRepeatEvent>` | Stream of heard-repeat events for UI updates |
+| `processForRepeats(_:) async -> Int?` | Counts a repeat from a parsed RX-log entry, returning the new count |
+| `refreshRepeats(for:) async -> [MessageRepeatDTO]` | Returns the recorded repeats for a message |
 
 **Repeats Features:**
 - Real-time tracking of message propagation
@@ -699,14 +669,20 @@ A sendable snapshot of RF packet log entry.
 | Property | Type | Description |
 |----------|------|-------------|
 | `id` | `UUID` | Unique identifier |
-| `deviceID` | `UUID` | Associated device |
-| `timestamp` | `Date` | When packet was received |
-| `sourcePrefix` | `Data` | First 6 bytes of sender's public key |
-| `destinationPrefix` | `Data` | First 6 bytes of destination's public key |
-| `packetType` | `String` | Type of packet (message, control, telemetry, status, ACK, NACK) |
-| `rssi` | `Int?` | Received signal strength indicator in dBm |
+| `radioID` | `UUID` | Associated device (data-partition key) |
+| `receivedAt` | `Date` | When packet was received |
 | `snr` | `Double?` | Signal-to-noise ratio in dB |
-| `payload` | `Data?` | Packet payload (if readable) |
+| `rssi` | `Int?` | Received signal strength indicator in dBm |
+| `routeType` | `RouteType` | Route type (flood vs. direct) |
+| `payloadType` | `PayloadType` | Decoded packet payload type |
+| `pathLength` | `UInt8` | Routing path length |
+| `pathNodes` | `Data` | Routing path bytes |
+| `packetPayload` | `Data` | Decoded payload bytes |
+| `rawPayload` | `Data` | Raw on-air payload bytes |
+| `packetHash` | `String` | Packet hash |
+| `decryptStatus` | `DecryptStatus` | Whether the payload decrypted |
+
+Sender/recipient key prefixes are exposed as the computed `senderPrefix` / `recipientPrefix` properties.
 
 ### DebugLogEntryDTO (public, struct)
 
@@ -736,7 +712,7 @@ A sendable snapshot of a discovered node (advertisement cache for Discovery).
 | Property | Type | Description |
 |----------|------|-------------|
 | `id` | `UUID` | Unique identifier |
-| `deviceID` | `UUID` | Associated device |
+| `radioID` | `UUID` | Associated device (data-partition key) |
 | `publicKey` | `Data` | 32-byte public key |
 | `name` | `String` | Advertised node name |
 | `typeRawValue` | `UInt8` | Node type raw value |
@@ -744,7 +720,7 @@ A sendable snapshot of a discovered node (advertisement cache for Discovery).
 | `lastAdvertTimestamp` | `UInt32` | Firmware advertisement timestamp |
 | `latitude` | `Double` | Node latitude |
 | `longitude` | `Double` | Node longitude |
-| `outPathLength` | `Int8` | Routing path length (-1 = flood) |
+| `outPathLength` | `UInt8` | Routing path length |
 | `outPath` | `Data` | Routing path data |
 
 ### ReactionDTO (public, struct)
@@ -766,29 +742,11 @@ A sendable snapshot of a reaction on a message.
 | `receivedAt` | `Date` | Received timestamp |
 | `channelIndex` | `UInt8?` | Channel index (nil for DM) |
 | `contactID` | `UUID?` | Contact ID (DM only) |
-| `deviceID` | `UUID` | Associated device |
-
-### CommandAuditEntryDTO (public, struct)
-
-**File:** `MC1Services/Sources/MC1Services/Models/CommandAuditEntry.swift`
-
-A sendable snapshot of a CLI command audit entry.
-
-**Properties:**
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `id` | `UUID` | Unique identifier |
-| `deviceID` | `UUID` | Associated device |
-| `timestamp` | `Date` | When command was sent |
-| `command` | `String` | CLI command that was sent |
-| `response` | `String?` | Command response from device |
-| `targetNodePrefix` | `Data?` | First 6 bytes of target node's public key |
-| `success` | `Bool` | Whether command succeeded |
+| `radioID` | `UUID` | Associated device (data-partition key) |
 
 ### ElevationSample (public, struct)
 
-**File:** `MC1Services/Sources/MC1Services/Models/ElevationSample.swift`
+**File:** `MC1Services/Sources/MC1Services/RF/ElevationSample.swift`
 
 Represents a terrain elevation data point.
 
@@ -800,82 +758,11 @@ Represents a terrain elevation data point.
 | `elevation` | `Double` | Elevation in meters above sea level |
 | `distanceFromAMeters` | `Double` | Distance from point A in meters |
 
-### OCVPresetDTO (public, struct)
+### OCVPreset (public, enum)
 
 **File:** `MC1Services/Sources/MC1Services/Models/OCVPreset.swift`
 
-Represents an Open Circuit Voltage (OCV) battery discharge curve preset.
-
-**Properties:**
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `id` | `UUID` | Unique identifier |
-| `name` | `String` | Preset name (e.g., "LiFePO4", "Li-Ion NMC") |
-| `manufacturer` | `String` | Battery manufacturer |
-| `curveData` | `[Double]` | OCV curve points (voltage, percentage) |
-
-### NotificationPreferencesDTO (public, struct)
-
-**File:** `MC1Services/Sources/MC1Services/Models/NotificationPreferences.swift`
-
-User notification preferences.
-
-**Properties:**
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `id` | `UUID` | Unique identifier |
-| `deviceID` | `UUID` | Associated device |
-| `enabled` | `Bool` | Whether notifications are enabled |
-| `soundEnabled` | `Bool` | Whether sound is enabled |
-| `vibrateEnabled` | `Bool` | Whether vibration is enabled |
-
-### TrustedContactsDTO (public, struct)
-
-**File:** `MC1Services/Sources/MC1Services/Models/TrustedContacts.swift`
-
-List of trusted contacts for enhanced security features.
-
-**Properties:**
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `id` | `UUID` | Unique identifier |
-| `deviceID` | `UUID` | Associated device |
-| `trustedContactIDs` | `[UUID]` | List of trusted contact IDs |
-
-### LinkPreviewPreferencesDTO (public, struct)
-
-**File:** `MC1Services/Sources/MC1Services/Models/LinkPreviewPreferences.swift`
-
-User preferences for link preview behavior.
-
-**Properties:**
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `id` | `UUID` | Unique identifier |
-| `deviceID` | `UUID` | Associated device |
-| `enabled` | `Bool` | Whether link previews are enabled |
-| `alwaysFetchPreviews` | `Bool` | Fetch previews even when using WiFi/cellular (for testing) |
-
-### ChatFilterDTO (public, struct)
-
-**File:** `MC1Services/Sources/MC1Services/Models/ChatFilter.swift`
-
-User preferences for filtering chat/conversation lists.
-
-**Properties:**
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `id` | `UUID` | Unique identifier |
-| `deviceID` | `UUID` | Associated device |
-| `filterUnreadOnly` | `Bool` | Show only conversations with unread messages |
-| `filterDirectMessagesOnly` | `Bool` | Show only direct message conversations (hide channels) |
-| `filterMutedConversations` | `Bool` | Exclude muted conversations |
-| `filterBlockedContacts` | `Bool` | Exclude conversations with blocked contacts |
+`String`-raw-valued, `CaseIterable`, `Codable`, `Sendable` enum of built-in Open Circuit Voltage (OCV) battery discharge curve presets. It is an enum, not a DTO struct.
 
 ---
 

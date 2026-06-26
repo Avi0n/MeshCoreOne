@@ -3,11 +3,15 @@
 To make the contribution process smooth and respectful of everyone's time, please follow these guidelines:
 
 ### Before Starting Work
-- **Discuss your idea first**: Reach out so we can coordinate. This helps avoid duplicate effort, as I might already be working on something similar.
-- [MeshCore Discord](https://meshcore.gg) — look for the MeshCore One forum post. IF YOU DO NOT FOLLOW THIS STEP, YOUR PR MAY BE CLOSED WITHOUT COMMENT.
+**Discuss your idea first**: IF YOU DO NOT FOLLOW THIS STEP, YOUR PR MAY BE CLOSED WITHOUT COMMENT.   
+Any of the following options are available:
+- File a GitHub issue with your idea
+- [MeshCore Discord](https://meshcore.gg): Look for the MeshCore One forum post.
 - Or message me on Matrix @avion:matrix.org
 
 ### Pull Request Requirements
+If your PR looks like it hasn't gone through sufficient planning, testing, and review, it will be closed.
+
 When submitting a PR, please:
 - Include a clear description of the feature or fix.
 - Include an overview of the changes made.
@@ -104,20 +108,6 @@ It's usually easier to simply create a feature request GitHub issue with your id
 3. **Open `MC1.xcodeproj`**.
 
 Run `make help` for the full list of developer shortcuts.
-
-### Architecture and Working Rules
-
-Read [docs/Architecture.md](docs/Architecture.md) before making changes. It is the project's architecture reference: the three-layer package structure (MeshCore, MC1Services, MC1), ownership and lifecycle, and the conventions a change must follow (localization through `L10n`, the `@Model` to DTO backup round-trip, error handling, and device identity). The [Development Guide](docs/Development.md) covers build, test, and coding-standard details.
-
-### Localization Boundary
-
-The MC1Services package contains no localization resources by design: strings defined there (service `errorDescription` text, `displayName` enum properties, log messages) are developer-facing English. Anything shown to the user must be mapped to the SwiftGen `L10n` enum at the view layer, either through a small app-target extension on the service type (e.g. `NotificationLevel.localizedName`) or, for strings the service layer must emit itself such as notification content, through the `NotificationStringProvider` bridge.
-
-### Conventions
-
-- **Service concurrency shape**: services are `actor`s by default. Use a `@MainActor class` only when wrapping a framework that requires the main thread, and add `@Observable` only when views observe the type directly.
-- **Error types**: each service's error enum is declared inline at the top of the owning service file. The `Errors/` directory is reserved for retroactive conformances (e.g. `MeshCoreError+LocalizedError`) and error types shared across layers.
-- **Dependency injection**: pass dependencies through the initializer. Use setter injection (a mutable property assigned after construction) only to break a reference cycle between two services.
 
 ### Testing
 

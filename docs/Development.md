@@ -43,8 +43,8 @@ MeshCore One uses a modular structure with Swift Packages:
 
 ```bash
 xcodebuild -project MC1.xcodeproj \
-  -scheme MeshCore One \
-  -destination "platform=iOS Simulator,name=iPhone 16e" \
+  -scheme MC1 \
+  -destination "platform=iOS Simulator,name=iPhone 17e,OS=26.5" \
   build
 ```
 
@@ -81,11 +81,26 @@ MeshCore One emphasizes comprehensive testing at all layers.
 
 ### Running Tests
 
+Prefer the `make` targets: they regenerate the project, pin the correct simulator, and take a per-simulator lock so concurrent sessions serialize instead of hanging.
+
 ```bash
-# Run all tests
+# Full app suite on iOS 26 (StoreKit suites auto-skip here)
+make test-app
+
+# StoreKit/IAP SKTestSession suites on iOS 18
+make test-store
+
+# Everything: app suite + StoreKit suites
+make test
+```
+
+The app suite runs on `iPhone 17e, OS=26.5`; the StoreKit suites run on `iPhone 16e, OS=18.6` (SKTestSession serves no products under iOS 26.x). To invoke `xcodebuild` directly (for a single suite, bypassing the make lock):
+
+```bash
+# Run the app suite on iOS 26
 xcodebuild test -project MC1.xcodeproj \
-  -scheme MeshCore One \
-  -destination "platform=iOS Simulator,name=iPhone 16e"
+  -scheme MC1 \
+  -destination "platform=iOS Simulator,name=iPhone 17e,OS=26.5"
 
 # With xcsift for concise output
 xcodebuild test 2>&1 | xcsift
@@ -126,7 +141,7 @@ For testing services without SwiftData:
 
 ```swift
 let mockStore = MockPersistenceStore()
-let service = MessageService(session: session, dataStore: mockStore)
+let service = MessageService(session: session, dataStore: mockStore, contactService: nil)
 
 // Verify persistence calls
 #expect(mockStore.savedMessages.count == 1)
@@ -177,6 +192,18 @@ struct MessageServiceTests {
 
 - **SwiftData**: All persistence should use SwiftData models defined in `MC1Services`.
 - **No Direct Store Access**: Services should interact with data via the `PersistenceStore` actor.
+
+### Service Concurrency Shape
+
+Services are `actor`s by default. Use a `@MainActor class` only when wrapping a framework that requires the main thread, and add `@Observable` only when views observe the type directly.
+
+### Error Types
+
+A service's error enum is declared either inline at the top of the owning service file (`ChannelServiceError`, `ContactServiceError`) or in its own file under `Errors/` (`SettingsServiceError`, `RemoteNodeError`, `StoreServiceError`). The `Errors/` directory also holds retroactive conformances (e.g. `MeshCoreError+LocalizedError`) and error types shared across layers (`ConnectionError`, `BLEError`).
+
+### Dependency Injection
+
+Pass dependencies through the initializer. Use setter injection (a mutable property assigned after construction) only to break a reference cycle between two services.
 
 ## Linting and Formatting
 
@@ -249,6 +276,20 @@ Required Info.plist keys:
 <key>NSAccessorySetupBluetoothNames</key>
 <array>
     <string>MeshCore-</string>
+    <string>Whisper-</string>
+    <string>WisCore</string>
+    <string>XIAO</string>
+    <string>elecrow</string>
+    <string>HT-n5262</string>
+    <string>Seeed</string>
+    <string>BQ</string>
+    <string>ProMicro</string>
+    <string>Keepteen</string>
+    <string>Meshtiny</string>
+    <string>T1000-E-BOOT</string>
+    <string>me25ls01-BOOT</string>
+    <string>NRF52 DK</string>
+    <string>T-Impulse</string>
 </array>
 ```
 
@@ -287,7 +328,7 @@ The app requires Bluetooth and location permissions plus background BLE mode:
 <key>NSBluetoothPeripheralUsageDescription</key>
 <string>MeshCore One uses Bluetooth to connect to MeshCore radio devices for mesh messaging.</string>
 <key>NSLocationWhenInUseUsageDescription</key>
-<string>MeshCore One can share your location with contacts on the mesh network.</string>
+<string>MeshCore One uses your location to suggest a recommended radio preset for your area, show your position on maps, and sort contacts by distance. When you enable location sharing, MeshCore One also advertises your location to your mesh contacts.</string>
 <key>UIBackgroundModes</key>
 <array>
     <string>bluetooth-central</string>
@@ -297,9 +338,9 @@ The app requires Bluetooth and location permissions plus background BLE mode:
 ## BLE Transport Architecture
 
 - **MeshCore/Sources/MeshCore/Transport/MeshTransport.swift**: Transport protocol the BLE stack plugs into
-- **MC1Services/Transport/iOSBLETransport.swift**: iOS BLE transport with CoreBluetooth integration
-- **MC1Services/Transport/BLEStateMachine.swift**: Connection state management
-- **MC1Services/Services/AccessorySetupKitService.swift**: iOS 18+ pairing flow
+- **MC1Services/Sources/MC1Services/Transport/iOSBLETransport.swift**: iOS BLE transport with CoreBluetooth integration
+- **MC1Services/Sources/MC1Services/Transport/BLEStateMachine.swift**: Connection state management
+- **MC1Services/Sources/MC1Services/Services/AccessorySetupKitService.swift**: iOS 18+ pairing flow
 
 ### WiFi Transport
 
@@ -351,7 +392,7 @@ The iPad interface uses split-view navigation:
 # Build for iPad Simulator
 xcodebuild test \
   -project MC1.xcodeproj \
-  -scheme MeshCore One \
+  -scheme MC1 \
   -destination "platform=iOS Simulator,name=iPad Pro (13-inch)"
 
 # Test on physical iPad (requires development team)

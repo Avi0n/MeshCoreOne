@@ -27,9 +27,6 @@ public protocol NodeSnapshotPersisting: Actor {
     /// Fetch snapshots for a node within a date range, sorted by timestamp ascending
     func fetchNodeStatusSnapshots(nodePublicKey: Data, since: Date?) async throws -> [NodeStatusSnapshotDTO]
 
-    /// Fetch the most recent snapshot before the given date for a node
-    func fetchPreviousNodeStatusSnapshot(nodePublicKey: Data, before: Date) async throws -> NodeStatusSnapshotDTO?
-
     /// Update neighbor data on an existing snapshot
     func updateSnapshotNeighbors(id: UUID, neighbors: [NeighborSnapshotEntry]) async throws
 
@@ -55,4 +52,36 @@ public protocol NodeSnapshotPersisting: Actor {
 
     /// Delete snapshots older than the given date
     func deleteOldNodeStatusSnapshots(olderThan date: Date) async throws
+}
+
+public extension NodeSnapshotPersisting {
+
+    /// The most recent snapshot that actually carries neighbor data, for neighbor
+    /// delta display. Neighbor arrays are sparse (a snapshot holds them only when the
+    /// user expanded the neighbors section), so the generic previous snapshot
+    /// frequently has none; this skips status- or telemetry-only rows. The current
+    /// in-window capture is excluded so the reading being viewed is never diffed
+    /// against itself.
+    func fetchPreviousNeighborSnapshot(nodePublicKey: Data) async throws -> NodeStatusSnapshotDTO? {
+        let all = try await fetchNodeStatusSnapshots(nodePublicKey: nodePublicKey, since: nil)
+        let cutoff: Date
+        if let latest = all.last,
+           latest.timestamp.distance(to: .now) < NodeSnapshotPolicy.minimumInterval {
+            cutoff = latest.timestamp
+        } else {
+            cutoff = .now
+        }
+        return all.last { $0.timestamp < cutoff && $0.neighborSnapshots != nil }
+    }
+
+    /// The most recent snapshot carrying status fields before the given date, for the
+    /// status delta. A neighbor- or telemetry-only capture inserts a row with no
+    /// status; skipping those (the `uptimeSeconds` marker the in-window throttle uses)
+    /// keeps such a row from blanking the delta. The in-window capture is kept, unlike
+    /// the neighbor baseline: status is throttled and never overwrites itself, so an
+    /// early reading in the current window is still a valid baseline.
+    func fetchPreviousStatusSnapshot(nodePublicKey: Data, before: Date) async throws -> NodeStatusSnapshotDTO? {
+        let all = try await fetchNodeStatusSnapshots(nodePublicKey: nodePublicKey, since: nil)
+        return all.last { $0.timestamp < before && $0.uptimeSeconds != nil }
+    }
 }

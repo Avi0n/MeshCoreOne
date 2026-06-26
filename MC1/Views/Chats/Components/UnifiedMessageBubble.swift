@@ -182,12 +182,12 @@ struct UnifiedMessageBubble: View, Equatable {
         .padding(.horizontal, 12)
         .padding(.top, paddingTop)
         .padding(.bottom, 0)
-        // Keyed on `shouldRequestPreviewFetch` rather than `.onAppear`: the URL
-        // that satisfies the fetch precondition is detected asynchronously and
-        // lands as a reconfigure after the cell has already appeared, so a
-        // one-shot appear trigger never starts the fetch. `task(id:)` re-runs
-        // when the flag flips, while staying lazy to cells in the view tree.
-        .task(id: item.shouldRequestPreviewFetch) {
+        // Keyed on `previewFetchTaskID` rather than `.onAppear`: the URL that
+        // satisfies the fetch precondition is detected asynchronously and lands
+        // as a reconfigure after the cell has already appeared, so a one-shot
+        // appear trigger never starts the fetch. The id is message-scoped so
+        // cell reuse can't drop the trigger.
+        .task(id: item.previewFetchTaskID) {
             if item.shouldRequestPreviewFetch {
                 callbacks.onRequestPreviewFetch?()
             }

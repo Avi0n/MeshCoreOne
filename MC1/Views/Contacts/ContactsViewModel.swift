@@ -24,12 +24,20 @@ enum NodeSortOrder: String, CaseIterable {
     case lastHeard
     case name
     case distance
+    case hops
+
+    /// Orders offered in the sort menus. Excludes `.hops` while the merged inbound/out-path hop
+    /// count is still in development; the case and its sorting stay so a persisted value keeps working.
+    static var menuCases: [NodeSortOrder] {
+        allCases.filter { $0 != .hops }
+    }
 
     var localizedTitle: String {
         switch self {
         case .lastHeard: L10n.Contacts.Contacts.Sort.lastHeard
         case .name: L10n.Contacts.Contacts.Sort.name
         case .distance: L10n.Contacts.Contacts.Sort.distance
+        case .hops: L10n.Contacts.Contacts.Sort.hops
         }
     }
 }
@@ -330,30 +338,41 @@ final class ContactsViewModel {
                 $0.displayName.localizedCompare($1.displayName) == .orderedAscending
             }
         case .distance:
-            guard let userLocation else {
-                // No user location, fall back to name sort
-                return sorted(contacts, by: .name, userLocation: nil)
-            }
+            return contacts.sorted { orderedByDistanceThenName($0, $1, from: userLocation) }
+        case .hops:
             return contacts.sorted { lhs, rhs in
-                let lhsHasLocation = lhs.hasLocation
-                let rhsHasLocation = rhs.hasLocation
-
-                // Nodes without location sort to bottom
-                if lhsHasLocation != rhsHasLocation {
-                    return lhsHasLocation
+                // Flood-routed nodes have no known hop count; sort them to the bottom.
+                if lhs.isFloodRouted != rhs.isFloodRouted {
+                    return !lhs.isFloodRouted
                 }
-
-                guard lhsHasLocation && rhsHasLocation else {
-                    // Both have no location, sort by name
-                    return lhs.displayName.localizedCompare(rhs.displayName) == .orderedAscending
+                if lhs.pathHopCount != rhs.pathHopCount {
+                    return lhs.pathHopCount < rhs.pathHopCount
                 }
-
-                let lhsLocation = CLLocation(latitude: lhs.latitude, longitude: lhs.longitude)
-                let rhsLocation = CLLocation(latitude: rhs.latitude, longitude: rhs.longitude)
-
-                return lhsLocation.distance(from: userLocation) < rhsLocation.distance(from: userLocation)
+                return orderedByDistanceThenName(lhs, rhs, from: userLocation)
             }
         }
+    }
+
+    /// Located nodes first, then nearest to `userLocation`, then by name. Falls back to name when
+    /// there is no user location, neither node has coordinates, or the distances tie.
+    private func orderedByDistanceThenName(
+        _ lhs: ContactDTO,
+        _ rhs: ContactDTO,
+        from userLocation: CLLocation?
+    ) -> Bool {
+        if let userLocation {
+            if lhs.hasLocation != rhs.hasLocation {
+                return lhs.hasLocation
+            }
+            if lhs.hasLocation {
+                let lhsDistance = CLLocation(latitude: lhs.latitude, longitude: lhs.longitude).distance(from: userLocation)
+                let rhsDistance = CLLocation(latitude: rhs.latitude, longitude: rhs.longitude).distance(from: userLocation)
+                if lhsDistance != rhsDistance {
+                    return lhsDistance < rhsDistance
+                }
+            }
+        }
+        return lhs.displayName.localizedCompare(rhs.displayName) == .orderedAscending
     }
 
 }

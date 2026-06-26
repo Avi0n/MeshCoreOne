@@ -325,6 +325,54 @@ struct MessageFragmentBuilderTests {
         #expect(a.hashValue != b.hashValue)
     }
 
+    // MARK: - Preview fetch task identity
+
+    /// `previewFetchTaskID` must be message-scoped so the bubble's fetch
+    /// `.task(id:)` produces an edge when a reused `UIHostingConfiguration` cell
+    /// moves from one fetch-wanting message to another. Keying on the bare
+    /// `shouldRequestPreviewFetch` flag collides (`true` equals `true`) and
+    /// strands the second message's fetch until the chat is re-entered.
+    @Test("preview fetch task id is distinct per fetch-wanting message")
+    func previewFetchTaskID_distinctPerMessage() {
+        let url = URL(string: "https://example.com")!
+        let env = makeEnvInputs(previewsEnabled: true)
+        let messageA = makeMessage(text: "see https://example.com")
+        let messageB = makeMessage(text: "also https://example.com")
+        let inputsA = makeInputs(messageID: messageA.id, previewState: .idle, cachedURL: url, previewsEnabled: true)
+        let inputsB = makeInputs(messageID: messageB.id, previewState: .idle, cachedURL: url, previewsEnabled: true)
+        let itemA = MessageFragmentBuilder.makeItem(for: messageA, inputs: inputsA, envInputs: env)
+        let itemB = MessageFragmentBuilder.makeItem(for: messageB, inputs: inputsB, envInputs: env)
+
+        #expect(itemA.shouldRequestPreviewFetch)
+        #expect(itemB.shouldRequestPreviewFetch)
+        // The bare flag collides across the two messages; the task id does not.
+        #expect(itemA.shouldRequestPreviewFetch == itemB.shouldRequestPreviewFetch)
+        #expect(itemA.previewFetchTaskID == itemA.id)
+        #expect(itemB.previewFetchTaskID == itemB.id)
+        #expect(itemA.previewFetchTaskID != itemB.previewFetchTaskID)
+    }
+
+    /// No fetch wanted means a nil task id, and the idle-to-loading transition
+    /// flips the id so a same-cell reconfigure still re-runs the task once.
+    @Test("preview fetch task id is nil when no fetch is wanted")
+    func previewFetchTaskID_nilWhenNotFetching() {
+        let messageID = UUID()
+        let message = makeMessage(id: messageID, text: "hi")
+        let url = URL(string: "https://example.com")!
+        let env = makeEnvInputs(previewsEnabled: true)
+        let idle = makeInputs(messageID: messageID, previewState: .idle, cachedURL: url, previewsEnabled: true)
+        let loading = makeInputs(messageID: messageID, previewState: .loading, cachedURL: url, previewsEnabled: true)
+        let noURL = makeInputs(messageID: messageID, previewState: .idle, previewsEnabled: true)
+
+        let idleItem = MessageFragmentBuilder.makeItem(for: message, inputs: idle, envInputs: env)
+        let loadingItem = MessageFragmentBuilder.makeItem(for: message, inputs: loading, envInputs: env)
+        let noURLItem = MessageFragmentBuilder.makeItem(for: message, inputs: noURL, envInputs: env)
+
+        #expect(idleItem.previewFetchTaskID == messageID)
+        #expect(loadingItem.previewFetchTaskID == nil)
+        #expect(noURLItem.previewFetchTaskID == nil)
+    }
+
     @Test("MessageDTO field change flips the item hash", arguments: hashFlipScenarios)
     func messageFieldChange_flipsHash(scenario: HashFlipScenario) {
         let messageID = UUID()

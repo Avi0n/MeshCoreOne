@@ -692,7 +692,10 @@ struct ChatConversationView: View {
         if replyWithQuote {
             chatViewModel.composingText = MentionUtilities.buildReplyText(mentionName: mentionName, messageText: message.text)
         } else {
-            chatViewModel.composingText = MentionUtilities.createMention(for: mentionName) + " "
+            chatViewModel.composingText = MentionUtilities.appendMention(
+                for: mentionName,
+                to: chatViewModel.composingText
+            )
         }
         // Raise the keyboard only after the actions sheet has finished dismissing;
         // a focus request issued while the sheet is still animating away is lost.

@@ -7,8 +7,8 @@ The `MeshCore` framework provides the low-level protocol implementation for Mesh
 ## Package Information
 
 - **Location:** `MeshCore/`
-- **Type:** Swift Package (single library target)
-- **Dependencies:** None (pure Swift)
+- **Type:** Swift Package (MeshCore library plus a MeshCoreTestSupport library target)
+- **Dependencies:** No runtime dependencies (a swift-docc-plugin build/documentation dependency only)
 
 ---
 
@@ -62,7 +62,7 @@ The primary entry point for communicating with a MeshCore device. Serializes all
 | `sendTelemetryRequest(to:) async throws -> MessageSentInfo` | Requests telemetry data from a remote node |
 | `sendPathDiscovery(to:) async throws -> MessageSentInfo` | Initiates path discovery to a remote node |
 | `sendTrace(tag:authCode:flags:path:) async throws -> MessageSentInfo` | Sends a trace packet through the mesh network for debugging |
-| `getMessage() async throws -> MessageResult` | Fetches next pending message from device queue |
+| `getMessage(timeout:) async throws -> MessageResult` | Fetches next pending message from device queue |
 | `startAutoMessageFetching() async` | Begins automatically fetching messages on notifications |
 | `stopAutoMessageFetching()` | Stops automatic message fetching |
 
@@ -109,8 +109,8 @@ The primary entry point for communicating with a MeshCore device. Serializes all
 | `setManualAddContacts(_:) async throws` | Sets manual contact approval mode, preserving other settings |
 | `setMultiAcks(_:) async throws` | Sets multi-acks count, preserving other settings |
 | `setAdvertisementLocationPolicy(_:) async throws` | Sets advertisement location policy, preserving other settings |
-| `getAutoAddConfig() async throws -> UInt8` | Returns auto-add config bitmask (v1.12+) |
-| `setAutoAddConfig(_:) async throws` | Sets auto-add config bitmask (v1.12+) |
+| `getAutoAddConfig() async throws -> AutoAddConfig` | Returns auto-add config (bitmask plus max-hops) (v1.12+) |
+| `setAutoAddConfig(_:) async throws` | Sets auto-add config (v1.12+) |
 | `setDevicePin(_:) async throws` | Sets the device PIN for administrative access (4-digit as UInt32) |
 | `reboot() async throws` | Reboots the device (session will be disconnected) |
 
@@ -190,6 +190,11 @@ public protocol MeshTransport: Sendable {
     func connect() async throws
     func disconnect() async
     func send(_ data: Data) async throws
+    // Unacknowledged write (ATT Write Command); default impl routes to send(_:).
+    func sendWithoutResponse(_ data: Data) async throws
+    // Capability flags; default to false / supportsWriteWithoutResponse.
+    var supportsWriteWithoutResponse: Bool { get async }
+    var supportsPipelinedReads: Bool { get async }
 }
 ```
 
@@ -289,6 +294,9 @@ Represents any event received from the device. Events are organized into categor
 | `.statsCore` | `CoreStats` | Core statistics received |
 | `.statsRadio` | `RadioStats` | Radio statistics received |
 | `.statsPackets` | `PacketStats` | Packet statistics received |
+| `.autoAddConfig` | `AutoAddConfig` | Auto-add configuration received (v1.12+) |
+| `.defaultFloodScope` | `DefaultFloodScope?` | Persisted default flood scope (firmware v11+); `nil` = none persisted |
+| `.allowedRepeatFreq` | `[FrequencyRange]` | Allowed repeat frequency ranges (v9+ firmware) |
 
 ### Contact Management
 
@@ -298,6 +306,8 @@ Represents any event received from the device. Events are organized into categor
 | `.contact` | `MeshContact` | A contact was received |
 | `.contactsEnd` | `lastModified: Date` | Contact list transfer completed |
 | `.newContact` | `MeshContact` | A new contact was discovered |
+| `.contactDeleted` | `publicKey: Data` | A contact was auto-deleted by the device (storage limit) |
+| `.contactsFull` | - | The device's contact storage is full |
 | `.contactURI` | `String` | Contact URI was received |
 
 ### Messaging
@@ -307,6 +317,7 @@ Represents any event received from the device. Events are organized into categor
 | `.messageSent` | `MessageSentInfo` | Message was queued for sending |
 | `.contactMessageReceived` | `ContactMessage` | Direct message received from a contact |
 | `.channelMessageReceived` | `ChannelMessage` | Channel broadcast message received |
+| `.channelDataReceived` | `ChannelDatagram` | Binary datagram received on a channel (firmware v11+) |
 | `.noMoreMessages` | - | No more messages waiting |
 | `.messagesWaiting` | - | Messages are waiting to be fetched |
 
@@ -316,7 +327,7 @@ Represents any event received from the device. Events are organized into categor
 |------|---------|-------------|
 | `.advertisement` | `publicKey: Data` | Advertisement received from a node |
 | `.pathUpdate` | `publicKey: Data` | Routing path was updated |
-| `.acknowledgement` | `code: Data` | Message delivery acknowledgement |
+| `.acknowledgement` | `code: Data, tripTime: UInt32?` | Message delivery acknowledgement (`tripTime` is firmware round-trip ms, if available) |
 | `.traceData` | `TraceInfo` | Trace route data received |
 | `.pathResponse` | `PathInfo` | Path discovery response |
 
@@ -355,6 +366,8 @@ Represents any event received from the device. Events are organized into categor
 | `.logData` | `LogDataInfo` | Emitted for diagnostic logs and malformed RX payloads that failed parsing |
 | `.controlData` | `ControlDataInfo` | Control protocol data received |
 | `.discoverResponse` | `DiscoverResponse` | Node discovery response |
+| `.advertPathResponse` | `AdvertPathResponse` | Advertisement path response (0x16) |
+| `.tuningParamsResponse` | `TuningParamsResponse` | Tuning parameters response (0x17) |
 
 ### Key Management
 
@@ -380,11 +393,12 @@ Represents a contact in the mesh network.
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `id` | `String` | Unique identifier |
+| `id` | `String` | Unique identifier (hex string of the public key) |
 | `publicKey` | `Data` | 32-byte public key |
-| `type` | `UInt8` | Node type: 0=Chat, 1=Repeater, 2=Room |
-| `flags` | `UInt8` | Contact flags |
-| `outPathLength` | `Int8` | Hop count (-1 = flood) |
+| `type` | `ContactType` | Node type: `.chat` (0x01), `.repeater` (0x02), `.room` (0x03) |
+| `typeRawValue` | `UInt8` | Raw 1-byte wire type, preserved for types not modeled by `ContactType` |
+| `flags` | `ContactFlags` | Contact flags |
+| `outPathLength` | `UInt8` | Encoded path-length byte (`0xFF` = flood; upper 2 bits = hash-size mode, lower 6 bits = hop count) |
 | `outPath` | `Data` | Routing information |
 | `advertisedName` | `String` | Display name from advertisement |
 | `lastAdvertisement` | `Date` | Last advertisement timestamp |
@@ -394,7 +408,7 @@ Represents a contact in the mesh network.
 
 ### ContactMessage (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift:354`
+**File:** `MeshCore/Sources/MeshCore/Events/MessagingPayloads.swift`
 
 Represents a direct message from a contact.
 
@@ -410,13 +424,13 @@ Represents a direct message from a contact.
 
 ### ChannelMessage (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift:403`
+**File:** `MeshCore/Sources/MeshCore/Events/MessagingPayloads.swift`
 
 Represents a message received on a channel.
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `channelIndex` | `UInt8` | Channel slot (0-7) |
+| `channelIndex` | `UInt8` | Channel slot |
 | `pathLength` | `UInt8` | Hop count |
 | `textType` | `UInt8` | Message type |
 | `senderTimestamp` | `Date` | Sender's timestamp |
@@ -440,7 +454,7 @@ Configuration options for `MeshCoreSession`.
 
 ### OtherParamsConfig (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Session/MeshCoreSession.swift`
+**File:** `MeshCore/Sources/MeshCore/Session/OtherParamsConfig.swift`
 
 Configuration for device "other params" settings. Used by granular configuration setters to implement read-modify-write pattern.
 
@@ -463,6 +477,7 @@ Result of a message fetch operation.
 |------|-------------|
 | `.contactMessage(ContactMessage)` | A contact message was received |
 | `.channelMessage(ChannelMessage)` | A channel message was received |
+| `.channelDatagram(ChannelDatagram)` | A binary datagram was received on a channel (firmware v11+) |
 | `.noMoreMessages` | No more messages available in queue |
 
 ### Destination (public, enum)
@@ -492,6 +507,7 @@ Defines the scope for flood routing in the mesh network.
 | `.disabled` | - | Flood routing is disabled |
 | `.channelName(String)` | Channel name | Scope derived from channel name hash |
 | `.rawKey(Data)` | 16-byte key | Scope using explicit key |
+| `.region(String)` | Region name | Scope from `SHA256("#" + name).prefix(16)`; `#` prefix added automatically |
 
 **Methods:**
 - `scopeKey() -> Data` - Generates a 16-byte scope key
@@ -558,6 +574,7 @@ Errors that can occur during mesh operations.
 | `.bluetoothPoweredOff` | Bluetooth is powered off |
 | `.connectionLost(underlying: Error?)` | The connection was lost |
 | `.sessionNotStarted` | The session has not been started |
+| `.featureDisabled` | The requested feature is disabled on the device |
 
 ### SelfInfo (public, struct)
 
@@ -568,8 +585,8 @@ Information about the local device, received after session start.
 | Property | Type | Description |
 |----------|------|-------------|
 | `advertisementType` | `UInt8` | The type of advertisement used by the device |
-| `txPower` | `UInt8` | The current transmit power level |
-| `maxTxPower` | `UInt8` | The maximum supported transmit power level |
+| `txPower` | `Int8` | The current transmit power level |
+| `maxTxPower` | `Int8` | The maximum supported transmit power level |
 | `publicKey` | `Data` | The node's 32-byte public key |
 | `latitude` | `Double` | The current latitude coordinate |
 | `longitude` | `Double` | The current longitude coordinate |
@@ -615,19 +632,19 @@ Battery status information from the device.
 
 ### MessageSentInfo (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/MessagingPayloads.swift`
 
 Information returned after successfully sending a message.
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `type` | `UInt8` | The type of the sent message |
+| `route` | `UInt8` | Route flag from firmware: 1 = flood, 0 = direct |
 | `expectedAck` | `Data` | Expected acknowledgment code for this message |
 | `suggestedTimeoutMs` | `UInt32` | Suggested timeout in milliseconds for waiting for ACK |
 
 ### ChannelInfo (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/ChannelPayloads.swift`
 
 Configuration information for a broadcast channel.
 
@@ -639,7 +656,7 @@ Configuration information for a broadcast channel.
 
 ### CoreStats (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/StatsPayloads.swift`
 
 Core device statistics from the local device.
 
@@ -652,7 +669,7 @@ Core device statistics from the local device.
 
 ### RadioStats (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/StatsPayloads.swift`
 
 Radio statistics from the local device.
 
@@ -666,7 +683,7 @@ Radio statistics from the local device.
 
 ### PacketStats (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/StatsPayloads.swift`
 
 Packet statistics from the local device.
 
@@ -681,7 +698,7 @@ Packet statistics from the local device.
 
 ### StatusResponse (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/DevicePayloads.swift`
 
 Status response from a remote node via binary protocol.
 
@@ -708,7 +725,7 @@ Status response from a remote node via binary protocol.
 
 ### TelemetryResponse (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift`
 
 Telemetry response from a remote node via binary protocol.
 
@@ -721,7 +738,7 @@ Telemetry response from a remote node via binary protocol.
 
 ### MMAResponse (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift`
 
 Min-Max-Average response from a remote node.
 
@@ -733,7 +750,7 @@ Min-Max-Average response from a remote node.
 
 ### MMAEntry (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift`
 
 Single entry in MMA response data.
 
@@ -747,7 +764,7 @@ Single entry in MMA response data.
 
 ### ACLResponse (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift`
 
 Access Control List response from a remote node.
 
@@ -759,7 +776,7 @@ Access Control List response from a remote node.
 
 ### ACLEntry (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift`
 
 Single entry in ACL response data.
 
@@ -770,7 +787,7 @@ Single entry in ACL response data.
 
 ### NeighboursResponse (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift`
 
 Neighbour list response from a remote node.
 
@@ -783,7 +800,7 @@ Neighbour list response from a remote node.
 
 ### Neighbour (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift`
 
 Information about a neighbouring node.
 
@@ -795,7 +812,7 @@ Information about a neighbouring node.
 
 ### ConnectionState (public, enum)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/ConnectionState.swift`
 
 Represents the current connection state of a MeshCore session.
 
@@ -809,7 +826,7 @@ Represents the current connection state of a MeshCore session.
 
 ### MeshTransportError (public, enum)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/MeshTransportError.swift`
 
 Errors that can occur at the transport layer.
 
@@ -824,7 +841,7 @@ Errors that can occur at the transport layer.
 
 ### TraceInfo (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift`
 
 Trace route information received from the mesh network.
 
@@ -838,30 +855,33 @@ Trace route information received from the mesh network.
 
 ### TraceNode (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift`
 
 A node in a trace path.
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `hash` | `UInt8?` | Hash of the node's public key |
+| `hashBytes` | `Data?` | Hash bytes of the node's public key (1, 2, 4, or 8 bytes per path_sz; nil for destination) |
+| `hash` | `UInt8?` | Legacy accessor: first byte of `hashBytes`, or nil |
 | `snr` | `Double` | Signal-to-noise ratio at this hop |
 
 ### PathInfo (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift`
 
 Path discovery information.
 
 | Property | Type | Description |
 |----------|------|-------------|
 | `publicKeyPrefix` | `Data` | Public key prefix of the destination node |
+| `outPathLength` | `UInt8` | Raw outbound `path_len` byte (upper 2 bits = hash mode, lower 6 = hop count) |
 | `outPath` | `Data` | Outbound path data |
+| `inPathLength` | `UInt8` | Raw inbound `path_len` byte |
 | `inPath` | `Data` | Inbound path data |
 
 ### LoginInfo (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift`
 
 Login success information.
 
@@ -873,7 +893,7 @@ Login success information.
 
 ### RawDataInfo (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift`
 
 Raw data received from the device.
 
@@ -885,7 +905,7 @@ Raw data received from the device.
 
 ### LogDataInfo (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift`
 
 Log data received from the device.
 
@@ -907,18 +927,18 @@ Parsed RF packet data from `rxLogData` events.
 | `rssi` | `Int?` | RSSI in dBm |
 | `rawPayload` | `Data` | Original unparsed payload bytes |
 | `routeType` | `RouteType` | Routing method (flood, direct, tc_flood, tc_direct) |
-| `payloadType` | `PayloadType` | Message type (header bits 2-5; values 12-15 map to `.unknown`) |
+| `payloadType` | `PayloadType` | Message type (header bits 2-5; values 12-14 map to `.unknown`, 15 maps to `.rawCustom`) |
 | `payloadVersion` | `UInt8` | Protocol version (0-3) |
 | `transportCode` | `Data?` | 4-byte transport code if route type requires it |
 | `pathLength` | `UInt8` | Number of path nodes |
 | `pathNodes` | `[UInt8]` | Path node identifiers (1 byte each) as emitted by firmware |
 | `packetPayload` | `Data` | Payload after header/path extraction |
 | `packetHash` | `String` | First 8 bytes of SHA-256 of `packetPayload`, as 16-char hex |
-| `senderPubkeyPrefix` | `Data?` | 6-byte sender pubkey for direct text messages |
+| `senderPubkeyPrefix` | `Data?` | 1-byte sender pubkey hash for direct text messages |
 
 ### ControlDataInfo (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift`
 
 Control protocol data received from the device.
 
@@ -932,7 +952,7 @@ Control protocol data received from the device.
 
 ### DiscoverResponse (public, struct)
 
-**File:** `MeshCore/Sources/MeshCore/Events/MeshEvent.swift`
+**File:** `MeshCore/Sources/MeshCore/Events/ContactPayloads.swift`
 
 Node discovery response.
 

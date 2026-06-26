@@ -22,7 +22,8 @@ graph TD
     subgraph MeshCore One [UI Layer]
         AppState[AppState @Observable @MainActor]
         Views[SwiftUI Views]
-        MEB[MessageEventBroadcaster]
+        MEB[MessageEventDispatcher @MainActor]
+        LSVM[LineOfSightViewModel]
         ES[ElevationService actor]
         LS[LocationService @MainActor @Observable class]
         LPS[LinkPreviewService final class]
@@ -82,7 +83,7 @@ graph TD
     Views --> AppState
     AppState --> CM
     AppState --> MEB
-    AppState --> ES
+    LSVM --> ES
     AppState --> LS
     CM --> ServiceContainer
     CM --> SC
@@ -108,7 +109,7 @@ graph TD
     SC --> CS
     SC --> CH
     SC --> MPS
-    MEB --> MS
+    MEB --> SC
     MS --> MCS
     CS --> MCS
     CH --> MCS
@@ -150,7 +151,7 @@ The foundation of the project, responsible for low-level communication with Mesh
 - **Actor-Based**: `MeshCoreSession` is an actor that serializes all device communication, ensuring thread safety.
 - **Event-Driven**: Uses an `EventDispatcher` to broadcast `MeshEvent`s via `AsyncStream`.
 - **Stateless Protocol Handlers**: `PacketBuilder` and `PacketParser` are stateless enums that handle the binary encoding/decoding of the Companion Radio Protocol.
-- **Transport Abstraction**: The `MeshTransport` protocol allows for different underlying transports. `MockTransport`, `BLETransport`, and `WiFiTransport` live in MeshCore. MC1Services provides `iOSBLETransport` (CoreBluetooth + `BLEStateMachine`) for production BLE on iOS.
+- **Transport Abstraction**: The `MeshTransport` protocol allows for different underlying transports. `MockTransport` and `WiFiTransport` live in MeshCore. MC1Services provides `iOSBLETransport` (CoreBluetooth + `BLEStateMachine`) for production BLE on iOS, plus `SimulatorMockTransport` for the simulator.
 - **Dual Transport Support**: Supports both Bluetooth Low Energy (BLE) and WiFi transports simultaneously. Each transport has its own state machine for managing connection lifecycle.
 - **Auto-Reconnection**: Both transports automatically reconnect when connection is lost, with configurable retry logic and backoff strategies.
 - **LPP Telemetry**: Includes a full implementation of the Cayenne Low Power Payload (LPP) for efficient sensor data transmission.
@@ -167,7 +168,7 @@ Bridges the protocol layer and the UI, handling complex business rules and data 
 - **Dependency Injection**: `ServiceContainer` manages the creation and wiring of all services, providing a single point of initialization for the service layer.
 - **Sync Coordination**: `SyncCoordinator` orchestrates the connection lifecycle and data synchronization through contacts, channels, and messages phases.
 - **Actor Isolation**: Every service is an actor, protecting internal state and coordinating asynchronous operations safely.
-- **Persistence**: Uses **SwiftData** for local storage. Data is isolated per device using the `deviceID: UUID` field (the device's BLE peripheral UUID) as a namespace, ensuring each device has its own isolated data.
+- **Persistence**: Uses **SwiftData** for local storage. Data is isolated per radio using the `radioID: UUID` field (an opaque partition key minted once on first pair, distinct from the volatile BLE peripheral UUID) as a namespace, ensuring each radio has its own isolated data.
 - **DTO Pattern**: Sendable Data Transfer Objects (`MessageDTO`, `ContactDTO`, `DeviceDTO`, etc.) enable safe cross-actor data transfer while maintaining strict concurrency compliance.
 - **Connection Management**: `ConnectionManager` (a `@MainActor` observable class) manages the lifecycle of the connection, including AccessorySetupKit pairing, BLE/WiFi transport selection, auto-reconnection, and service wiring.
 - **Message Polling**: `MessagePollingService` pulls messages from the device queue and routes them to appropriate handlers.
@@ -203,59 +204,39 @@ Note: `ElevationService`, `LocationService`, `LinkPreviewService`, and `LogExpor
 
 **Three-Phase Lifecycle**:
 
-ServiceContainer uses a deliberate three-phase initialization because services have circular runtime dependencies that can't be resolved in a single `init`. Phase 1 creates all services with their constructor dependencies. Phase 2 wires cross-service callbacks that couldn't be passed at init time. Phase 3 activates event listeners once a device is connected.
+ServiceContainer is fully wired by its `init`: all services and their cross-service callbacks are created and connected during construction (constructor injection, with shared coordinators like `SyncCoordinator` and `ContactCleanupCoordinator` passed into the services that need them). A separate event-monitoring phase activates the live device-event listeners once a radio is connected.
 
 ```swift
-// Phase 1: Create all services (constructor injection)
+// Construction: create and wire all services (constructor injection)
 let container = ServiceContainer(session: meshCoreSession, modelContainer: modelContainer)
 
-// Phase 2: Wire inter-service dependencies (callback injection)
-await container.wireServices()
-
-// Phase 3: Start event monitoring when device connects
-await container.startEventMonitoring(deviceID: deviceUUID)
-
-// Then perform initial sync
-await container.performInitialSync(deviceID: deviceUUID)
+// Start event monitoring when device connects
+await container.startEventMonitoring(radioID: radioID)
 ```
 
-**Phase 1 — Construction** (`init`):
+**Construction** (`init`):
 
-All services are created with their direct dependencies (session, dataStore, other services). The dependency order is:
+All services are created with their direct dependencies (session, dataStore, shared coordinators, other services). The dependency order is:
 1. `PersistenceStore` (from modelContainer)
-2. Independent services: `KeychainService`, `NotificationService`
-3. Core services: `ContactService`, `MessageService`, `ChannelService`, `SettingsService`, `DeviceService`, `AdvertisementService`, `MessagePollingService`, `BinaryProtocolService`, `RxLogService`, `HeardRepeatsService`, `DebugLogBuffer`, `ReactionService`, `NodeConfigService`, `NodeSnapshotService`
-4. Remote Node services: `RemoteNodeService` (needs keychainService), `RepeaterAdminService` (needs remoteNodeService), `RoomServerService` (needs remoteNodeService)
-5. `SyncCoordinator` (no constructor dependencies)
+2. Independent services: `KeychainService`, `NotificationService`, `SyncCoordinator`
+3. Core services: `HeardRepeatsService`, `RxLogService`, `RemoteNodeService`, `ContactService` (with `SyncCoordinator` and a `ContactCleanupCoordinator`), `MessageService`, `ChannelService`, `SettingsService`, `DeviceService`, `AdvertisementService`, `MessagePollingService`, `BinaryProtocolService`, `DebugLogBuffer`, `ReactionService`, `NodeConfigService`, `NodeSnapshotService`
+4. Remote Node services: `RepeaterAdminService`, `RoomServerService` (need `RemoteNodeService`)
 
-Also sets `DebugLogBuffer.shared = debugLogBuffer` so `PersistentLogger` can enqueue entries from anywhere.
+Cross-service connections that can't be plain constructor scalars (path management during message retry, UI-refresh notifications via `SyncCoordinator`, the contact cleanup coordinator, pushing channel secrets to `RxLogService`, forwarding heard-repeat events) are all established here during construction. `init` also sets `DebugLogBuffer.shared = debugLogBuffer` so `PersistentLogger` can enqueue entries from anywhere.
 
-**Phase 2 — Wiring** (`wireServices()`):
+Per-connection callbacks that depend on app-layer state (notification action forwarders, the channel-update handler, ConnectionUI sync-activity callbacks) are installed separately by `AppState.wireServicesIfConnected()` on each connection, not by `ServiceContainer.init`.
 
-Six cross-service connections that can't be expressed as constructor parameters:
+**Event Monitoring** (`startEventMonitoring(radioID:)`):
 
-| # | Connection | Purpose |
-|---|-----------|---------|
-| 1 | `messageService.setContactService(contactService)` | Path management during message retry (needs contact's last-known path) |
-| 2 | `contactService.setSyncCoordinator(syncCoordinator)` | UI refresh notifications when contacts change |
-| 3 | `nodeConfigService.setSyncCoordinator(syncCoordinator)` | UI refresh notifications after config import adds contacts |
-| 4 | `contactService.setCleanupHandler { ... }` | On contact block/delete: invalidate blocked-contacts cache, remove notifications, update badge, clean up remote node sessions |
-| 5 | `channelService.setChannelUpdateHandler { ... }` | Push channel secrets to RxLogService for packet decryption |
-| 6 | `rxLogService.setHeardRepeatsService(heardRepeatsService)` | Forward heard-repeat events for channel propagation analysis |
+Activates event listeners on services that process live device events. Guarded by a tri-state lifecycle (`stopped`/`starting`/`active`/`stopping`) so overlapping callers cannot double-start. Only called after a device is connected:
 
-Wiring is idempotent — the `isWired` guard prevents double-wiring.
-
-**Phase 3 — Event Monitoring** (`startEventMonitoring(deviceID:)`):
-
-Activates event listeners on services that process live device events. Only called after a device is connected:
-
-- `HeardRepeatsService.configure(deviceID:localNodeName:)` — needs device info for local node identification
-- `AdvertisementService.startEventMonitoring(deviceID:)` — listens for advertisement/path discovery events
-- `RxLogService.startEventMonitoring(deviceID:)` — captures RF packets for diagnostic viewer
-- `MessageService.startEventMonitoring()` — listens for ACK events during send-with-retry
-- `RemoteNodeService.startEventMonitoring()` — listens for remote node session events
-- `MessagePollingService.startMessageEventMonitoring(deviceID:)` — routes polled messages to handlers
-- `MessagePollingService.startAutoFetch(deviceID:)` — begins periodic message polling
+- `HeardRepeatsService.configure(radioID:localNodeName:)`: needs device info for local node identification
+- `AdvertisementService.startEventMonitoring(radioID:)`: listens for advertisement/path discovery events (gated on `enableAdvertisementMonitoring`)
+- `RxLogService.startEventMonitoring(radioID:)`: captures RF packets for diagnostic viewer
+- `MessageService.startEventMonitoring()` and `startAckExpiryChecking()`: listen for ACK events and expire stale sends during send-with-retry
+- `RemoteNodeService.startEventMonitoring()`: listens for remote node session events
+- `MessagePollingService.startMessageEventMonitoring(radioID:)`: routes polled messages to handlers
+- `MessagePollingService.startAutoFetch(radioID:)`: begins periodic message polling (gated on `enableAutoFetch`)
 - Debug log pruning (keeps most recent 1,000 entries)
 - Node snapshot pruning (removes snapshots older than 1 year)
 
@@ -276,13 +257,13 @@ To comply with Swift 6's strict concurrency model, all SwiftData models have cor
 **Usage Pattern**:
 ```swift
 // In actor-isolated service
-func fetchMessages(deviceID: UUID) async -> [MessageDTO] {
-    let messages = await dataStore.fetchMessages(deviceID: deviceID)
+func fetchMessages(radioID: UUID) async -> [MessageDTO] {
+    let messages = await dataStore.fetchMessages(radioID: radioID)
     return messages.map { MessageDTO(from: $0) }
 }
 
 // In @MainActor UI code
-let messageDTOs = await messageService.fetchMessages(deviceID: deviceID)
+let messageDTOs = await messageService.fetchMessages(radioID: radioID)
 // DTOs are Sendable, safe to use across actor boundaries
 ```
 
@@ -294,6 +275,10 @@ let messageDTOs = await messageService.fetchMessages(deviceID: deviceID)
 
 See: [MC1Services API Reference](api/MC1Services.md) | [Sync Guide](guides/Sync.md) | [Messaging Guide](guides/Messaging.md)
 
+### Localization Boundary
+
+The MC1Services package contains no localization resources by design: strings defined there (service `errorDescription` text, `displayName` enum properties, log messages) are developer-facing English. Anything shown to the user must be mapped to the SwiftGen `L10n` enum at the view layer, either through a small app-target extension on the service type (e.g. `NotificationLevel.localizedName`) or, for strings the service layer must emit itself such as notification content, through the `NotificationStringProvider` bridge.
+
 ---
 
 ## 3. MeshCore One (UI Layer)
@@ -301,7 +286,7 @@ See: [MC1Services API Reference](api/MC1Services.md) | [Sync Guide](guides/Sync.
 A modern SwiftUI application that provides a user-friendly experience for mesh messaging.
 
 - **AppState**: A central `@Observable` class that manages app-wide state, navigation, and coordination between the UI and services.
-- **MessageEventBroadcaster**: Bridges service layer callbacks to SwiftUI's `@MainActor` context for real-time UI updates.
+- **MessageEventDispatcher**: A `@MainActor` object that subscribes to `SyncCoordinator.dataEvents()` and feeds a `MessageEventStream`, bridging service-layer events to SwiftUI's `@MainActor` context for real-time UI updates.
 - **SwiftUI & Modern APIs**: Built with the latest SwiftUI features, utilizing `@Observable`, environment injection, and modern navigation.
 - **Onboarding Flow**: A guided experience for permissions, discovery, and device pairing.
 - **iMessage-Style Chat**: Rich messaging interface with delivery status, timestamps, and metadata (SNR, path length).
@@ -318,28 +303,25 @@ See: [MeshCore One API Reference](api/MeshCore One.md) | [User Guide](User_Guide
 MeshCore One strictly adheres to the **Swift 6 concurrency model**:
 
 - **Actors**: Used for all services and session management to prevent data races.
-- **MainActor**: UI updates, `ConnectionManager`, and `MessageEventBroadcaster` are isolated to the main thread.
+- **MainActor**: UI updates, `ConnectionManager`, and `MessageEventDispatcher` are isolated to the main thread.
 - **AsyncStream**: Used for all event-driven communication (BLE data -> Protocol events -> Business events -> UI updates).
 - **Structured Concurrency**: Utilizes `TaskGroups` for complex asynchronous flows like message retries and contact synchronization.
 
 ### `nonisolated(unsafe)` Invariants
 
-The codebase has four uses of `nonisolated(unsafe)`. Each bypasses Swift's actor isolation checking for a specific reason, with safety maintained by convention:
+The service-layer packages use `nonisolated(unsafe)` only where Swift's isolation checking can't be satisfied another way, with safety maintained by convention:
 
-**SyncCoordinator** — 3 callback properties (`SyncCoordinator.swift`):
-- `onPhaseChanged`, `onContactsChanged`, `onConversationsChanged`
-- **Pattern**: Set once during Phase 2 wiring (before event monitoring starts), then only called from `@MainActor` methods
-- **Safety**: Write-once semantics with no concurrent reads during the write. After wiring, the closures are effectively immutable
-
-**DebugLogBuffer** — static singleton (`DebugLogBuffer.swift`):
-- `static var shared: DebugLogBuffer?`
-- **Pattern**: Set once by `ServiceContainer.init`, read by `PersistentLogger` from any context
-- **Safety**: Written during app startup before any logging occurs. After assignment, the reference is never changed — only the actor-isolated internals are mutated (which are protected by actor isolation)
-
-**BLEStateMachine** — CBCentralManager (`BLEStateMachine.swift`):
+**BLEStateMachine**, CBCentralManager (`BLEStateMachine.swift`):
 - `var centralManager: CBCentralManager!`
 - **Pattern**: CBCentralManager is not `Sendable`, but needs nonisolated access for the `bluetoothState` computed property
 - **Safety**: Mutated once during initialization (assigned in init). All subsequent access is either from the actor's isolated context or from the `bluetoothState` property, which reads the atomic `state` property of CBCentralManager. Returns `.unknown` during the brief window before assignment
+
+**BackupUserDefaults**, static keypath mapping tables (`BackupUserDefaults.swift`):
+- `static let boolMappings` / `stringMappings`
+- **Pattern**: `WritableKeyPath` is not `Sendable`, so the constant mapping tables are marked `nonisolated(unsafe)`
+- **Safety**: Immutable `let` constants, never mutated after initialization
+
+(`SyncCoordinator`'s callbacks are now `@MainActor`-isolated with setter methods, and `DebugLogBuffer.shared` is backed by an `OSAllocatedUnfairLock`, so neither uses `nonisolated(unsafe)` any longer. The MeshCore One app layer carries one additional use for a map font-name constant.)
 
 ### Data Flow (Receiving a Message)
 
@@ -347,14 +329,14 @@ The codebase has four uses of `nonisolated(unsafe)`. Each bypasses Swift's actor
 2. **Session Parser**: `MeshCoreSession` receives the data, uses `PacketParser` to create a `MeshEvent`, and dispatches it via `EventDispatcher`.
 3. **Service Processing**: `MessagePollingService` receives the event, routes it to the appropriate handler based on message type.
 4. **Persistence**: The handler creates a `MessageDTO` and saves it to `PersistenceStore`.
-5. **UI Update**: `MessageEventBroadcaster` receives the callback, updates observable state, triggering SwiftUI view updates.
+5. **UI Update**: `SyncCoordinator` yields a `SyncDataEvent`; `MessageEventDispatcher` receives it, feeds the `MessageEventStream`, updating observable state and triggering SwiftUI view updates.
 
 ### Data Flow (Sending a Message)
 
 1. **User Action**: User types message in `ChatConversationView` and taps send.
 2. **Service Call**: `MessageService.sendMessageWithRetry()` is called.
 3. **Queue**: Message is saved to `PersistenceStore` with status `.pending`.
-4. **Retry Loop**: `MeshCoreSession.sendMessageWithRetry()` attempts delivery (up to 4 times by default, switching to flood after 2 failed direct attempts).
+4. **Retry Loop**: `MessageService.sendMessageWithRetry()` attempts delivery using `MessageServiceConfig.default` (up to 5 attempts: 4 direct, switching to flood routing after 4 failed direct attempts, then 1 flood attempt).
 5. **ACK Tracking**: Each send attempt waits inline for ACK using `waitForEvent()` with configurable timeout.
 6. **Completion**: ACK received -> `.delivered`, or all attempts exhausted -> `.failed`.
 
@@ -363,12 +345,12 @@ The codebase has four uses of `nonisolated(unsafe)`. Each bypasses Swift's actor
 ## Persistence Layer
 
 - **Technology**: SwiftData
-- **Isolation**: Each MeshCore device has its own isolated data store using `deviceID: UUID` (the BLE peripheral UUID) as the namespace, ensuring privacy and preventing data mixing.
+- **Isolation**: Each MeshCore radio has its own isolated data store using `radioID: UUID` (an opaque partition key minted once on first pair) as the namespace, ensuring privacy and preventing data mixing.
 - **Models**:
-  - `Device`: Metadata, radio parameters, and capabilities. The `id` field is derived from the BLE peripheral identifier.
-  - `Contact`: Public keys, names, types (Chat, Repeater, Room), and location data. Contains `deviceID` for isolation.
-  - `Message`: Content, timestamps, delivery status, and mesh metadata (SNR, Path). Contains `deviceID` for isolation.
-  - `Channel`: Slot-based configuration for group messaging. Contains `deviceID` for isolation.
+  - `Device`: Metadata, radio parameters, and capabilities. The `id` field is the live-connection handle (BLE peripheral identifier, or a derived UUID for WiFi-bridged radios) and is volatile; `publicKey` and `radioID` survive re-pair and backup round-trips.
+  - `Contact`: Public keys, names, types (Chat, Repeater, Room), and location data. Contains `radioID` for isolation.
+  - `Message`: Content, timestamps, delivery status, and mesh metadata (SNR, Path). Contains `radioID` for isolation.
+  - `Channel`: Slot-based configuration for group messaging. Contains `radioID` for isolation.
   - `RemoteNodeSession`: Tracks authenticated sessions with remote repeater/room nodes.
   - `RoomMessage`: Messages exchanged in room server conversations.
 - **DTOs**: Each model has a corresponding `Sendable` DTO for safe cross-actor transfers.
