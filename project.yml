@@ -65,6 +65,7 @@ targets:
         basedOnDependencyAnalysis: false
     settings:
       base:
+        CODE_SIGN_ENTITLEMENTS: MC1/MC1.entitlements
         SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         MARKETING_VERSION: 1.1.0
@@ -102,7 +103,7 @@ targets:
       configs:
         Debug:
           INFOPLIST_FILE: MC1/Info-Debug.plist
-          PRODUCT_BUNDLE_IDENTIFIER: io.pocketmesh.app.debug
+          PRODUCT_BUNDLE_IDENTIFIER: io.pocketmeshtest.app
         Release:
           INFOPLIST_FILE: MC1/Info.plist
           PRODUCT_BUNDLE_IDENTIFIER: io.pocketmesh.app
@@ -138,7 +139,7 @@ targets:
       configs:
         Debug:
           INFOPLIST_FILE: MC1Widgets/Info.plist
-          PRODUCT_BUNDLE_IDENTIFIER: io.pocketmesh.app.debug.widgets
+          PRODUCT_BUNDLE_IDENTIFIER: io.pocketmeshtest.app.widgets
         Release:
           INFOPLIST_FILE: MC1Widgets/Info.plist
           PRODUCT_BUNDLE_IDENTIFIER: io.pocketmesh.app.widgets
