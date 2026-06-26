@@ -393,6 +393,13 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
         decodePathLen(outPathLength)?.hopCount ?? 0
     }
 
+    /// The hop count to surface in the UI: the deliberately-set out-path hops when a route exists,
+    /// otherwise the passively-heard inbound advert hops, which a contact does not store and the
+    /// caller looks up live from the discovered-node list. nil when flood-routed and none is known.
+    public func displayedHopCount(inboundHopCount: Int?) -> Int? {
+        isFloodRouted ? inboundHopCount : pathHopCount
+    }
+
     /// The total byte length of the path data (`pathHopCount * pathHashSize`).
     public var pathByteLength: Int {
         decodePathLen(outPathLength)?.byteLength ?? 0

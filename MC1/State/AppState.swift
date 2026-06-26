@@ -240,6 +240,11 @@ final class AppState {
     /// Onboarding state (completion flag, navigation path)
     let onboarding = OnboardingState()
 
+    // MARK: - What's New
+
+    /// What's New presentation gate (device-local baseline, pending release)
+    let whatsNew = WhatsNewState()
+
     // MARK: - Navigation State
 
     /// Navigation coordinator (tab selection, pending targets, cross-tab navigation)
@@ -368,6 +373,19 @@ final class AppState {
 
     /// Initialize on app launch
     func initialize() async {
+        // Decide What's New before activate() can drive any connection alert. The
+        // value of `hasCompletedOnboarding` read here is the "was onboarded at
+        // launch" signal that distinguishes a brand-new install from an upgrader.
+        #if DEBUG
+        let isScreenshotMode = ProcessInfo.processInfo.isScreenshotMode
+        #else
+        let isScreenshotMode = false
+        #endif
+        whatsNew.evaluate(
+            isOnboarded: onboarding.hasCompletedOnboarding,
+            isScreenshotMode: isScreenshotMode
+        )
+
         // Recover any existing Live Activity before activate() so that onConnectionReady
         // (which fires during activate) finds currentActivity populated and can update it.
         await liveActivityManager.recoverExistingActivity()
@@ -480,6 +498,12 @@ final class AppState {
         if lastBumpedServicesID != servicesID {
             lastBumpedServicesID = servicesID
             servicesVersion += 1
+
+            // A real services change is the one moment the addressable contact/channel
+            // set can differ from what saved shortcuts were resolved against, so re-resolve
+            // the App Intents parameter queries here (debounced by this same guard, and past
+            // the connection-lost early return so it never fires on disconnect).
+            refreshAppShortcutParameters()
         }
 
         // Set up notification center delegate, wire localized strings, then register categories

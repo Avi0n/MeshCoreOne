@@ -1,0 +1,29 @@
+/*
+  WhatsNew.strings
+  MC1
+
+  Strings for the "What's New" sheet shown once after a major update.
+  Update these every major release: edit the per-feature title/description
+  pairs (add or remove a block) and keep WhatsNewCatalog.swift in sync.
+*/
+
+/* Title of the What's New sheet shown once after an app update */
+"whatsNew.title" = "Что нового";
+
+/* Button to dismiss the What's New sheet */
+"whatsNew.continueButton" = "Продолжить";
+
+/* What's New v1.1 - Shortcuts feature, title */
+"whatsNew.siriShortcuts.title" = "Быстрые команды";
+/* What's New v1.1 - Shortcuts feature, description */
+"whatsNew.siriShortcuts.description" = "Проверяйте состояние рации, отправляйте сообщения и рассылайте объявления.";
+
+/* What's New v1.1 - Clear Messages feature, title */
+"whatsNew.clearMessages.title" = "Очистить личную переписку";
+/* What's New v1.1 - Clear Messages feature, description */
+"whatsNew.clearMessages.description" = "Удаляйте историю любого личного сообщения.";
+
+/* What's New v1.1 - Inbound hop counts feature, title */
+"whatsNew.inboundHops.title" = "Сортировка по переходам";
+/* What's New v1.1 - Inbound hop counts feature, description */
+"whatsNew.inboundHops.description" = "Вкладка «Узлы» теперь сопоставляет входящие переходы с объявлениями в Журнале RX.";

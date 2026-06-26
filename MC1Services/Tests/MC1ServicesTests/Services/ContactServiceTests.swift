@@ -490,6 +490,87 @@ struct ContactServiceTests {
         #expect(invocations[0].reason == .deleted)
     }
 
+    @Test("clearContactMessages deletes messages and zeroes both unread counters while preserving lastMessageDate")
+    func clearContactMessagesPreservesLastMessageDate() async throws {
+        let mockSession = MockMeshCoreSession()
+        let mockStore = MockPersistenceStore()
+
+        let radioID = UUID()
+        let contactID = UUID()
+        let lastMessageDate = Date(timeIntervalSince1970: TimeInterval(testTimestamp))
+
+        let contact = ContactDTO(
+            id: contactID,
+            radioID: radioID,
+            publicKey: testPublicKey,
+            name: "TestContact",
+            typeRawValue: ContactType.chat.rawValue,
+            flags: 0,
+            outPathLength: 0,
+            outPath: Data(),
+            lastAdvertTimestamp: 0,
+            latitude: 0,
+            longitude: 0,
+            lastModified: 0,
+            nickname: nil,
+            isBlocked: false,
+            isMuted: false,
+            isFavorite: false,
+            lastMessageDate: lastMessageDate,
+            unreadCount: 4,
+            unreadMentionCount: 2
+        )
+        try await mockStore.saveContact(contact)
+
+        // Seed real message rows so deletion is observable, not just forwarded.
+        for offset in 0..<3 {
+            try await mockStore.saveMessage(MessageDTO(
+                id: UUID(),
+                radioID: radioID,
+                contactID: contactID,
+                channelIndex: nil,
+                text: "msg \(offset)",
+                timestamp: testTimestamp + UInt32(offset),
+                createdAt: lastMessageDate,
+                direction: .incoming,
+                status: .delivered,
+                textType: .plain,
+                ackCode: nil,
+                pathLength: 0,
+                snr: nil,
+                senderKeyPrefix: nil,
+                senderNodeName: "TestContact",
+                isRead: false,
+                replyToID: nil,
+                roundTripTime: nil,
+                heardRepeats: 0,
+                retryAttempt: 0,
+                maxRetryAttempts: 0
+            ))
+        }
+
+        let service = ContactService(
+            session: mockSession,
+            dataStore: mockStore,
+            syncCoordinator: nil,
+            cleanupCoordinator: nil
+        )
+
+        try await service.clearContactMessages(contactID: contactID)
+
+        // Messages are actually gone, not merely reported deleted.
+        let deletedForContacts = await mockStore.deletedMessagesForContactIDs
+        #expect(deletedForContacts == [contactID])
+        let remaining = try await mockStore.fetchMessages(contactID: contactID, limit: 10, offset: 0)
+        #expect(remaining.isEmpty)
+
+        // The conversation stays listed: lastMessageDate is preserved, both unread counters zeroed.
+        let updated = try await mockStore.fetchContact(id: contactID)
+        #expect(updated?.lastMessageDate == lastMessageDate)
+        #expect(updated?.unreadCount == 0)
+        #expect(updated?.unreadMentionCount == 0)
+    }
+
     @Test("updateContactPreferences clears unread when blocking")
     func updateContactPreferencesClearsUnreadWhenBlocking() async throws {
         let mockSession = MockMeshCoreSession()

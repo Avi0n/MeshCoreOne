@@ -1,3 +1,4 @@
+import CoreLocation
 import Foundation
 import MC1Services
 
@@ -106,5 +107,67 @@ extension AppState {
         connectionUI.hideDisconnectedPill()
         try await connectionManager.connectViaWiFi(host: host, port: port, forceFullSync: forceFullSync)
         await wireServicesIfConnected()
+    }
+
+    // MARK: - Advertising
+
+    /// Broadcast a self-advertisement from the connected radio, refreshing GPS
+    /// location first when the device's policy and the user's per-device
+    /// preference allow it. `allowLocationPrompt` is false from the App Intent: a
+    /// background Siri context cannot present a location-permission dialog, so the
+    /// refresh there uses only already-authorized location instead of stalling on
+    /// a prompt that can never resolve.
+    func sendSelfAdvert(flood: Bool, allowLocationPrompt: Bool = true) async throws {
+        if let source = advertGPSSource(device: connectedDevice, store: DevicePreferenceStore()) {
+            await updateLocationFromGPS(source: source, allowLocationPrompt: allowLocationPrompt)
+        }
+        guard let advertisementService = services?.advertisementService else {
+            throw AdvertisementError.notConnected
+        }
+        try await advertisementService.sendSelfAdvertisement(flood: flood)
+    }
+
+    /// The GPS source to refresh before an advert, or nil when the device's advert
+    /// policy or the user's per-device preference disables auto-update. Pure over
+    /// its inputs so the privacy gate is testable with an injected store.
+    func advertGPSSource(device: DeviceDTO?, store: DevicePreferenceStore) -> GPSSource? {
+        guard let device,
+              device.sharesLocationPublicly,
+              store.isAutoUpdateLocationEnabled(deviceID: device.id) else {
+            return nil
+        }
+        return store.gpsSource(deviceID: device.id)
+    }
+
+    private func updateLocationFromGPS(source: GPSSource, allowLocationPrompt: Bool) async {
+        let settingsService = services?.settingsService
+        do {
+            switch source {
+            case .phone:
+                let location: CLLocation
+                if allowLocationPrompt || locationService.isAuthorized {
+                    do {
+                        location = try await locationService.requestCurrentLocation()
+                    } catch {
+                        guard let cached = locationService.currentLocation else { throw error }
+                        location = cached
+                    }
+                } else {
+                    guard let cached = locationService.currentLocation else { return }
+                    location = cached
+                }
+                _ = try await settingsService?.setLocationVerified(
+                    latitude: location.coordinate.latitude,
+                    longitude: location.coordinate.longitude
+                )
+            case .device:
+                let gpsState = try await settingsService?.getDeviceGPSState()
+                if gpsState?.isEnabled != true {
+                    _ = try await settingsService?.setDeviceGPSEnabledVerified(true)
+                }
+            }
+        } catch {
+            logger.warning("Failed to update location from GPS: \(error.localizedDescription)")
+        }
     }
 }

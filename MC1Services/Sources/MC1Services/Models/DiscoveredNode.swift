@@ -45,6 +45,16 @@ final class DiscoveredNode {
     /// Routing path data (up to 64 bytes)
     var outPath: Data
 
+    /// Hops the advert traversed to reach this phone (inbound), decoded from the heard
+    /// RX-log packet's path length. nil = never heard via an advert RX-log entry; 0 = heard
+    /// directly. Distinct from outPath/outPathLength, the route used to send to this node.
+    var inboundHopCount: Int?
+
+    /// The firmware advert timestamp that was current when inboundHopCount was last written.
+    /// Paired with inboundHopCount to implement latest-advert semantics: a newer timestamp
+    /// always replaces the stored count; equal timestamps keep the closest copy of that broadcast.
+    var inboundHopAdvertTimestamp: UInt32?
+
     init(
         id: UUID = UUID(),
         radioID: UUID,
@@ -56,7 +66,9 @@ final class DiscoveredNode {
         latitude: Double = 0,
         longitude: Double = 0,
         outPathLength: UInt8 = PacketBuilder.floodPathSentinel,
-        outPath: Data = Data()
+        outPath: Data = Data(),
+        inboundHopCount: Int? = nil,
+        inboundHopAdvertTimestamp: UInt32? = nil
     ) {
         self.id = id
         self.radioID = radioID
@@ -69,6 +81,8 @@ final class DiscoveredNode {
         self.longitude = longitude
         self.outPathLength = outPathLength
         self.outPath = outPath
+        self.inboundHopCount = inboundHopCount
+        self.inboundHopAdvertTimestamp = inboundHopAdvertTimestamp
     }
 }
 
@@ -87,6 +101,8 @@ public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterReso
     public let longitude: Double
     public let outPathLength: UInt8
     public let outPath: Data
+    public let inboundHopCount: Int?
+    public let inboundHopAdvertTimestamp: UInt32?
 
     public var nodeType: ContactType {
         ContactType(rawValue: typeRawValue) ?? .chat
@@ -106,6 +122,13 @@ public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterReso
 
     public var pathHopCount: Int {
         decodePathLen(outPathLength)?.hopCount ?? 0
+    }
+
+    /// The hop count to surface in the UI: the deliberately-set out-path hops when a route exists,
+    /// otherwise the passively-heard inbound advert hops stored on this row. nil when flood-routed
+    /// and no advert hop count is known.
+    public var displayedHopCount: Int? {
+        isFloodRouted ? inboundHopCount : pathHopCount
     }
 
     public var pathByteLength: Int {
@@ -130,7 +153,9 @@ public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterReso
         latitude: Double,
         longitude: Double,
         outPathLength: UInt8,
-        outPath: Data
+        outPath: Data,
+        inboundHopCount: Int?,
+        inboundHopAdvertTimestamp: UInt32?
     ) {
         self.id = id
         self.radioID = radioID
@@ -143,6 +168,8 @@ public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterReso
         self.longitude = longitude
         self.outPathLength = outPathLength
         self.outPath = outPath
+        self.inboundHopCount = inboundHopCount
+        self.inboundHopAdvertTimestamp = inboundHopAdvertTimestamp
     }
 
     init(from node: DiscoveredNode) {
@@ -157,5 +184,7 @@ public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterReso
         self.longitude = node.longitude
         self.outPathLength = node.outPathLength
         self.outPath = node.outPath
+        self.inboundHopCount = node.inboundHopCount
+        self.inboundHopAdvertTimestamp = node.inboundHopAdvertTimestamp
     }
 }

@@ -8,17 +8,20 @@ struct ContactRowView: View {
     let showTypeLabel: Bool
     let userLocation: CLLocation?
     let isTogglingFavorite: Bool
+    let inboundHopCount: Int?
 
     init(
         contact: ContactDTO,
         showTypeLabel: Bool = false,
         userLocation: CLLocation? = nil,
-        isTogglingFavorite: Bool = false
+        isTogglingFavorite: Bool = false,
+        inboundHopCount: Int? = nil
     ) {
         self.contact = contact
         self.showTypeLabel = showTypeLabel
         self.userLocation = userLocation
         self.isTogglingFavorite = isTogglingFavorite
+        self.inboundHopCount = inboundHopCount
     }
 
     var body: some View {
@@ -115,12 +118,12 @@ struct ContactRowView: View {
     }
 
     private var routeLabel: String {
-        if contact.isFloodRouted {
-            return L10n.Contacts.Contacts.Route.flood
-        } else if contact.pathHopCount == 0 {
+        if !contact.isFloodRouted, contact.pathHopCount == 0 {
             return L10n.Contacts.Contacts.Route.direct
+        } else if let hops = contact.displayedHopCount(inboundHopCount: inboundHopCount) {
+            return L10n.Contacts.Contacts.Route.hops(hops)
         } else {
-            return L10n.Contacts.Contacts.Route.hops(contact.pathHopCount)
+            return L10n.Contacts.Contacts.Route.flood
         }
     }
 

@@ -3,3 +3,6 @@
 "Disconnected" = "Déconnecté";
 "%lld packets per minute" = "%lld paquets par minute";
 "Battery %lld percent" = "Batterie %lld pour cent";
+
+/* Control Center button: opens the app */
+"Open MeshCore One" = "Ouvrir MeshCore One";

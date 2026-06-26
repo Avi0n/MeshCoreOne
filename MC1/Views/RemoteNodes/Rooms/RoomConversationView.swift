@@ -325,6 +325,7 @@ private struct MessagesView: View {
                     unreadCount: $unreadCount,
                     scrollToBottomRequest: $scrollToBottomRequest,
                     scrollToMentionRequest: .constant(0),
+                    offscreenMentionIDs: .constant([]),
                     onSecondaryClick: onLongPress,
                     scrollToDividerRequest: .constant(0),
                     isDividerVisible: .constant(false)

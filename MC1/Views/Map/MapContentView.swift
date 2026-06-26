@@ -1,6 +1,7 @@
 import SwiftUI
 import MC1Services
 import CoreLocation
+import MapKit
 
 /// Map content displaying MC1MapView with contact points and popover callouts
 struct MapContentView: View {
@@ -14,6 +15,7 @@ struct MapContentView: View {
     @Binding var isStyleLoaded: Bool
     let onShowContactDetail: (ContactDTO) -> Void
     let onNavigateToChat: (ContactDTO) -> Void
+    let onPersistCamera: (MKCoordinateRegion) -> Void
 
     @State private var selectedDroppedPin: DroppedPinSelection?
 
@@ -48,6 +50,7 @@ struct MapContentView: View {
             },
             onCameraRegionChange: { region in
                 viewModel.cameraRegion = region
+                onPersistCamera(region)
                 if selectedCalloutContact != nil || selectedDroppedPin != nil {
                     selectedCalloutContact = nil
                     selectedDroppedPin = nil

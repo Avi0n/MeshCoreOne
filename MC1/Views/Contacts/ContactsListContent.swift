@@ -135,7 +135,8 @@ private struct ContactListRowLabel: View {
             contact: contact,
             showTypeLabel: isSearching,
             userLocation: userLocation,
-            isTogglingFavorite: viewModel.togglingFavoriteID == contact.id
+            isTogglingFavorite: viewModel.togglingFavoriteID == contact.id,
+            inboundHopCount: viewModel.inboundHopByKey[contact.publicKey]
         )
         .padding(.horizontal, ContactRowLayout.horizontalPadding)
         .padding(.vertical, ContactRowLayout.verticalPadding)

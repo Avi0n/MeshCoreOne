@@ -78,8 +78,9 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     /// Suppresses duplicate onNearTop fires while the view model's isLoadingOlder propagates back through SwiftUI
     private var isNearTopRequestInFlight = false
 
-    /// Callback when a mention becomes visible
-    var onMentionBecameVisible: ((Item.ID) -> Void)?
+    /// Callback when a mention becomes visible. Returns whether the seen-state was
+    /// persisted; a false result means the id must not stay marked, so it can re-fire.
+    var onMentionBecameVisible: ((Item.ID) async -> Bool)?
 
     /// Callback when a row receives a secondary (right) click from a pointer. On Mac the click
     /// reaches the context-menu system (`UIContextMenuInteraction`); on iPad a trackpad or mouse
@@ -111,6 +112,17 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
     /// Last reported divider visibility (change detection to avoid redundant callbacks)
     private var lastDividerVisible: Bool?
+
+    /// The full set of unseen self-mention ids, the source for the off-screen subset.
+    var unseenMentionIDs: [Item.ID] = []
+
+    /// Reports the unseen mentions not currently on screen, ordered oldest-to-newest as in
+    /// `unseenMentionIDs`. Their count drives the scroll-to-mention button; the last (newest) is
+    /// its scroll target.
+    var onOffscreenMentionsChanged: (([Item.ID]) -> Void)?
+
+    /// Last reported off-screen mentions (change detection to avoid redundant callbacks)
+    private var lastReportedOffscreenMentionIDs: [Item.ID]?
 
     /// Tracks mention IDs that have already been reported as visible (prevents duplicate callbacks)
     private var markedMentionIDs: Set<Item.ID> = []
@@ -347,7 +359,9 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         hasPendingScrollObservation = false
         if hadWork {
             updateIsAtBottom()
-            checkVisibleMentions()
+            let visible = visibleItems()
+            checkVisibleMentions(visible: visible)
+            reportOffscreenMentions(visible: visible)
             checkDividerVisibility()
             checkNearTop()
         }
@@ -431,7 +445,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
             // Delay to let SwiftUI complete its layout pass
             Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .milliseconds(100))
+                try? await Task.sleep(for: ChatScrollConstants.layoutSettleDelay)
                 self?.scrollToBottom(animated: true)
             }
         }
@@ -652,9 +666,13 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         itemsByID = Dictionary(uniqueKeysWithValues: newItems.map { ($0.id, $0) })
         itemIndexByID = Dictionary(uniqueKeysWithValues: newItems.enumerated().map { ($0.element.id, $0.offset) })
 
-        // Detect prepend (pagination) vs append (new messages): prepend changes first item ID
+        // Detect prepend (pagination) vs append (new messages). A pure prepend changes the
+        // first id but not the last; requiring an unchanged tail keeps a combined prepend+append
+        // from being misclassified as prepend, which would skip the unread and auto-scroll branches.
         let hasNewItems = newItems.count > previousCount
-        let wasPrepend = previousCount > 0 && hasNewItems && oldItems.first?.id != newItems.first?.id
+        let wasPrepend = previousCount > 0 && hasNewItems
+            && oldItems.first?.id != newItems.first?.id
+            && oldItems.last?.id == newItems.last?.id
 
         // For prepends, capture a measured anchor row so we can restore the visible
         // content's screen position after the snapshot apply changes contentSize.
@@ -727,23 +745,20 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
                 // Defer until drag ends — scrolling mid-drag fights the gesture and bounces
                 let accumulatedCount = (scrollState.deferredScroll?.targetMessageCount ?? 0) + (newItems.count - previousCount)
                 scrollState.scheduleDeferredScroll(
-                    DeferredScroll(targetMessageCount: accumulatedCount, createdAt: Date())
+                    DeferredScroll(targetMessageCount: accumulatedCount)
                 )
             } else {
                 scrollToBottom(animated: animated && previousCount > 0)
             }
         }
 
-        // Check for visible mentions after layout settles (handles mentions visible on load)
-        checkVisibleMentionsTask?.cancel()
-        checkVisibleMentionsTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(100))
-            guard !Task.isCancelled else { return }
-            self?.checkVisibleMentions()
-        }
+        // Re-evaluate visible mentions and divider after layout settles. Both initialize
+        // assuming a scroll will correct them; without this an on-load viewport that already
+        // contains the divider or a mention is never reconciled until the first scroll.
+        scheduleVisibleMentionsRecheck()
 
         if let pendingID = pendingScrollTargetID {
-            schedulePendingScroll(for: pendingID, delay: .milliseconds(120))
+            schedulePendingScroll(for: pendingID, delay: ChatScrollConstants.pendingScrollInitialDelay)
         }
     }
 
@@ -761,7 +776,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     func scrollToBottom(animated: Bool) {
         guard !items.isEmpty else { return }
 
-        let alreadyAtBottom = tableView.contentOffset.y <= 1
+        let alreadyAtBottom = tableView.contentOffset.y <= ChatScrollConstants.bottomDetectionEpsilon
 
         // Set state before scroll to prevent scroll delegate from overriding
         isAtBottom = true
@@ -810,7 +825,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         pendingScrollTask = nil
 
         if animated {
-            schedulePendingScroll(for: id, delay: .milliseconds(180))
+            schedulePendingScroll(for: id, delay: ChatScrollConstants.scrollToTargetDelay)
         } else {
             pendingScrollTargetID = nil
             centerItem(id: id, animated: false)
@@ -910,28 +925,63 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         }
     }
 
-    private func checkVisibleMentions() {
-        guard let visibleIndexPaths = tableView.indexPathsForVisibleRows,
-              let isUnseenMention,
-              let onMentionBecameVisible else { return }
-
-        for indexPath in visibleIndexPaths {
-            guard indexPath.row < items.count else { continue }
-            // Items are reversed in table: row 0 = newest (items.last)
-            let reversedIndex = items.count - 1 - indexPath.row
-            guard reversedIndex >= 0 else { continue }
-            let item = items[reversedIndex]
-            // Only report each mention once per session
-            if !markedMentionIDs.contains(item.id) && isUnseenMention(item) {
-                markedMentionIDs.insert(item.id)
-                onMentionBecameVisible(item.id)
-            }
+    /// Re-checks mention and divider state after layout settles. The settle delay lets a snapshot
+    /// apply or a freshly loaded `unseenMentionIDs` finish before row positions are read.
+    func scheduleVisibleMentionsRecheck() {
+        checkVisibleMentionsTask?.cancel()
+        checkVisibleMentionsTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: ChatScrollConstants.layoutSettleDelay)
+            guard let self, !Task.isCancelled else { return }
+            let visible = self.visibleItems()
+            self.checkVisibleMentions(visible: visible)
+            self.reportOffscreenMentions(visible: visible)
+            self.checkDividerVisibility()
         }
     }
 
-    /// Resets the debouncing state (call when conversation changes)
-    func resetMarkedMentions() {
-        markedMentionIDs.removeAll()
+    /// Items backing the currently visible rows, resolved through the applied snapshot so a model
+    /// that is momentarily ahead of its snapshot can't map a visible row to the wrong item.
+    private func visibleItems() -> [Item] {
+        guard let visibleIndexPaths = tableView.indexPathsForVisibleRows else { return [] }
+        return visibleIndexPaths.compactMap { indexPath in
+            guard let id = dataSource?.itemIdentifier(for: indexPath) else { return nil }
+            return itemsByID[id]
+        }
+    }
+
+    /// Reports the unseen mentions not currently on screen, the subset that drives the
+    /// scroll-to-mention button; a mention already in view is excluded.
+    private func reportOffscreenMentions(visible: [Item]) {
+        guard let onOffscreenMentionsChanged else { return }
+        let offscreen: [Item.ID]
+        if unseenMentionIDs.isEmpty {
+            offscreen = []
+        } else {
+            let visibleIDs = Set(visible.map(\.id))
+            offscreen = unseenMentionIDs.filter { !visibleIDs.contains($0) }
+        }
+        if offscreen != lastReportedOffscreenMentionIDs {
+            lastReportedOffscreenMentionIDs = offscreen
+            onOffscreenMentionsChanged(offscreen)
+        }
+    }
+
+    private func checkVisibleMentions(visible: [Item]) {
+        guard let isUnseenMention, let onMentionBecameVisible else { return }
+
+        for item in visible {
+            // Report each mention once per session. Mark optimistically to debounce in-flight
+            // reports, then drop the mark if the async seen-persist fails, so a failed save does
+            // not strand a still-unread mention that a later scroll could otherwise re-fire.
+            if !markedMentionIDs.contains(item.id) && isUnseenMention(item) {
+                let id = item.id
+                markedMentionIDs.insert(id)
+                Task { @MainActor [weak self] in
+                    let persisted = await onMentionBecameVisible(id)
+                    if !persisted { self?.markedMentionIDs.remove(id) }
+                }
+            }
+        }
     }
 
     private func checkDividerVisibility() {
@@ -1002,7 +1052,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         if wasScrollingToBottom {
             // We just finished a programmatic scroll-to-bottom
             // Use larger threshold since animation might not land exactly at 0
-            let atBottom = scrollView.contentOffset.y <= 10
+            let atBottom = scrollView.contentOffset.y <= ChatScrollConstants.bottomLandingEpsilon
             if atBottom {
                 // Confirm we're at bottom - this is authoritative
                 isAtBottom = true
@@ -1025,7 +1075,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
 
         // In flipped table, visual bottom = contentOffset.y near 0
         // Use small threshold to handle float imprecision
-        let newIsAtBottom = tableView.contentOffset.y <= 1
+        let newIsAtBottom = tableView.contentOffset.y <= ChatScrollConstants.bottomDetectionEpsilon
 
         if newIsAtBottom != isAtBottom {
             isAtBottom = newIsAtBottom
@@ -1053,8 +1103,8 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
         let totalRows = items.count
         let distanceFromTop = totalRows - highestRow
 
-        // Trigger when within 10 messages of the oldest
-        if distanceFromTop <= 10 {
+        // Trigger when within nearTopTriggerDistance messages of the oldest
+        if distanceFromTop <= ChatScrollConstants.nearTopTriggerDistance {
             isNearTopRequestInFlight = true
             onNearTop? { @MainActor [weak self] in
                 self?.isNearTopRequestInFlight = false
@@ -1093,7 +1143,13 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
     @Binding var scrollToBottomRequest: Int
     @Binding var scrollToMentionRequest: Int
     var isUnseenMention: ((Item) -> Bool)?
-    var onMentionBecameVisible: ((Item.ID) -> Void)?
+    /// The current unseen self-mention ids. Feeds the controller's off-screen subset and
+    /// triggers a recheck when the set changes; the per-row test goes through `isUnseenMention`.
+    var unseenMentionIDs: [Item.ID] = []
+    /// Unseen mentions currently off screen, reported up from the controller; drives the
+    /// scroll-to-mention button's visibility, count, and scroll target.
+    @Binding var offscreenMentionIDs: [Item.ID]
+    var onMentionBecameVisible: ((Item.ID) async -> Bool)?
     var onSecondaryClick: ((Item) -> Void)?
     var mentionTargetID: Item.ID?
     @Binding var scrollToDividerRequest: Int
@@ -1152,8 +1208,24 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
 
         // Update mention detection closures
         controller.isUnseenMention = isUnseenMention
+        controller.unseenMentionIDs = unseenMentionIDs
         controller.onMentionBecameVisible = onMentionBecameVisible
         controller.onSecondaryClick = onSecondaryClick
+
+        context.coordinator.setOffscreenMentionIDs = { [self] in offscreenMentionIDs = $0 }
+        controller.onOffscreenMentionsChanged = { [weak coordinator = context.coordinator] ids in
+            // Defer: SwiftUI forbids binding writes during updateUIViewController.
+            Task { @MainActor in
+                coordinator?.setOffscreenMentionIDs?(ids)
+            }
+        }
+
+        // unseenMentionIDs can load after the first render, with no item change to trigger the
+        // recheck inside updateItems. Re-run it here so the off-screen set reflects the new ids.
+        if context.coordinator.lastUnseenMentionIDs != unseenMentionIDs {
+            context.coordinator.lastUnseenMentionIDs = unseenMentionIDs
+            controller.scheduleVisibleMentionsRecheck()
+        }
 
         // Update divider visibility tracking
         controller.dividerItemID = dividerItemID
@@ -1179,8 +1251,8 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
 
             let newestItemID = items.last?.id
             shouldScrollMentionToBottom = ChatScrollToMentionPolicy.shouldScrollToBottom(
-                mentionTargetID: mentionTargetID.map { AnyHashable($0) },
-                newestItemID: newestItemID.map { AnyHashable($0) }
+                mentionTargetID: mentionTargetID,
+                newestItemID: newestItemID
             )
         }
 
@@ -1230,5 +1302,7 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
         var setIsAtBottom: ((Bool) -> Void)?
         var setUnreadCount: ((Int) -> Void)?
         var setIsDividerVisible: ((Bool) -> Void)?
+        var setOffscreenMentionIDs: (([Item.ID]) -> Void)?
+        var lastUnseenMentionIDs: [Item.ID] = []
     }
 }

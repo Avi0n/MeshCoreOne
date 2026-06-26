@@ -27,7 +27,7 @@ struct ChatScrollStateTests {
     @Test("deferred scroll is consumed exactly once")
     func deferredScroll_consumedExactlyOnce() {
         var state: ChatScrollState = .idle
-        state.scheduleDeferredScroll(DeferredScroll(targetMessageCount: 3, createdAt: Date()))
+        state.scheduleDeferredScroll(DeferredScroll(targetMessageCount: 3))
         let first = state.consumeDeferredScroll()
         let second = state.consumeDeferredScroll()
         #expect(first?.targetMessageCount == 3)

@@ -285,19 +285,19 @@ private struct DiscoveryNodeRow: View {
 
                 HStack(spacing: 4) {
                     Image(systemName: "arrowshape.bounce.right")
-                    if node.isFloodRouted {
-                        Text(L10n.Contacts.Contacts.Route.flood)
-                    } else if node.pathHopCount == 0 {
+                    if !node.isFloodRouted, node.pathHopCount == 0 {
                         Text(L10n.Contacts.Contacts.Route.direct)
-                    } else {
-                        let pathNodes = node.pathNodesHex
-                        Text("\(node.pathHopCount)")
+                    } else if let hops = node.displayedHopCount {
+                        Text("\(hops)")
 
-                        if !pathNodes.isEmpty {
+                        let pathNodes = node.pathNodesHex
+                        if !node.isFloodRouted, !pathNodes.isEmpty {
                             Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
                             Text(formattedPath(pathNodes))
                                 .monospaced()
                         }
+                    } else {
+                        Text(L10n.Contacts.Contacts.Route.flood)
                     }
                 }
                 .font(.caption2)
@@ -389,7 +389,7 @@ private struct DiscoverySortMenu: View {
 
     var body: some View {
         Menu {
-            ForEach(NodeSortOrder.menuCases, id: \.self) { order in
+            ForEach(NodeSortOrder.allCases, id: \.self) { order in
                 Button {
                     sortOrder = order
                 } label: {

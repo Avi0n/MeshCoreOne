@@ -193,11 +193,7 @@ extension BLEStateMachine {
 
         // Arm discovery timeout before starting discovery so the callback
         // window between discoverServices() and timeout creation is closed.
-        serviceDiscoveryTimeoutTask = Task {
-            try? await Task.sleep(for: .seconds(serviceDiscoveryTimeout))
-            guard !Task.isCancelled else { return }
-            handleServiceDiscoveryTimeout(for: peripheral)
-        }
+        armServiceDiscoveryTimeout(for: peripheral)
 
         transition(to: .discoveringServices(
             peripheral: peripheral,

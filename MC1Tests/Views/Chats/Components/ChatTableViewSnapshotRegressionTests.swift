@@ -371,4 +371,110 @@ struct ChatTableViewSnapshotRegressionTests {
             "X's content reconfigure must survive supersession and reach an applied snapshot"
         )
     }
+
+    // MARK: - Off-screen mention reporting
+
+    /// Builds a controller with more rows than fit a 600pt viewport, so the flipped table rests at
+    /// the bottom with the newest item visible and the oldest off the top, and asserts that split so
+    /// every off-screen test shares the precondition: shifted row metrics fail here, not below.
+    private func makeOffscreenMentionController() throws
+        -> (controller: ChatTableViewController<TestMessageItem, Text>, items: [TestMessageItem]) {
+        let controller = ChatTableViewController<TestMessageItem, Text>()
+        controller.configure { Text($0.text) }
+        controller.loadViewIfNeeded()
+        controller.tableView.frame = CGRect(x: 0, y: 0, width: 320, height: 600)
+
+        let items = (0..<50).map { TestMessageItem(id: UUID(), text: "Message \($0)", revision: 0) }
+        controller.updateItems(items, animated: false)
+        controller.tableView.layoutIfNeeded()
+
+        // Read row visibility directly rather than driving onOffscreenMentionsChanged, so the
+        // precondition does not seed the report change-detection the tests rely on starting clean.
+        let visibleRows = Set(controller.tableView.indexPathsForVisibleRows ?? [])
+        let newestRow = try #require(controller.resolvedScrollRowForTests(id: items[items.count - 1].id))
+        let oldestRow = try #require(controller.resolvedScrollRowForTests(id: items[0].id))
+        #expect(visibleRows.contains(newestRow), "Precondition: newest item must be visible at rest")
+        #expect(!visibleRows.contains(oldestRow), "Precondition: oldest item must be off screen at rest")
+
+        return (controller, items)
+    }
+
+    @Test("A mention that is currently visible is not reported off screen")
+    func visibleMentionReportsNoneOffscreen() async throws {
+        let (controller, items) = try makeOffscreenMentionController()
+
+        var reported: [UUID]?
+        controller.onOffscreenMentionsChanged = { reported = $0 }
+        controller.unseenMentionIDs = [items[items.count - 1].id]   // newest, on screen
+
+        controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
+
+        #expect(reported == [], "A visible mention must not be reported off screen")
+    }
+
+    @Test("A mention scrolled off screen is reported by id")
+    func offscreenMentionReportsID() async throws {
+        let (controller, items) = try makeOffscreenMentionController()
+
+        var reported: [UUID]?
+        controller.onOffscreenMentionsChanged = { reported = $0 }
+        controller.unseenMentionIDs = [items[0].id]   // oldest, above the viewport
+
+        controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
+
+        #expect(reported == [items[0].id], "A mention above the viewport must be reported off screen")
+    }
+
+    @Test("Only the off-screen mentions are reported, in order")
+    func mixedMentionsReportOnlyOffscreen() async throws {
+        let (controller, items) = try makeOffscreenMentionController()
+
+        var reported: [UUID]?
+        controller.onOffscreenMentionsChanged = { reported = $0 }
+        controller.unseenMentionIDs = [items[0].id, items[items.count - 1].id]
+
+        controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
+
+        // The visible newest is excluded; the off-screen oldest is the scroll target the button taps.
+        #expect(reported == [items[0].id], "Only the off-screen mention is reported")
+    }
+
+    @Test("Off-screen report empties when the unseen set empties")
+    func emptyingSetReportsEmpty() async throws {
+        let (controller, items) = try makeOffscreenMentionController()
+
+        var reported: [UUID]?
+        controller.onOffscreenMentionsChanged = { reported = $0 }
+        controller.unseenMentionIDs = [items[0].id]
+        controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
+        #expect(reported == [items[0].id])
+
+        controller.unseenMentionIDs = []
+        controller.scrollViewDidScroll(controller.tableView)
+        controller.flushScrollObservationsForTests()
+        #expect(reported == [], "Clearing the unseen set must hide the @ button")
+    }
+
+    @Test("The settle-delay recheck reports an off-screen mention on load")
+    func asyncRecheckReportsOffscreenOnLoad() async throws {
+        let (controller, items) = try makeOffscreenMentionController()
+
+        var reported: [UUID]?
+        controller.onOffscreenMentionsChanged = { reported = $0 }
+        controller.unseenMentionIDs = [items[0].id]   // oldest, above the viewport
+
+        // Exercise the layout-settle async path that actually fires on first load, not the
+        // synchronous scroll drain the other tests use.
+        controller.scheduleVisibleMentionsRecheck()
+
+        try await waitUntil("settle-delay recheck should report the off-screen mention") {
+            reported != nil
+        }
+
+        #expect(reported == [items[0].id], "The settle-delay recheck must report the off-screen mention")
+    }
 }

@@ -17,6 +17,7 @@ struct ChatInputBar<Leading: View>: View {
 
     @State private var isCoolingDown = false
     @State private var sendInvocationCounter: Int = 0
+    @State private var composerProxy = ChatComposerProxy()
 
     private var byteCount: Int {
         text.utf8.count
@@ -39,6 +40,7 @@ struct ChatInputBar<Leading: View>: View {
                 placeholder: placeholder,
                 focusRequest: focusRequest,
                 isEncrypted: isEncrypted,
+                proxy: composerProxy,
                 onSend: handleHardwareSend
             )
             ChatSendButtonWithCounter(
@@ -96,6 +98,7 @@ struct ChatInputBar<Leading: View>: View {
     }
 
     private func send() {
+        composerProxy.commitPendingInput()
         let captured = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !captured.isEmpty else { return }
         isCoolingDown = true
@@ -139,17 +142,28 @@ private struct ChatInputTextField: View {
     let placeholder: String
     let focusRequest: Int
     let isEncrypted: Bool
+    let proxy: ChatComposerProxy
     let onSend: () -> Bool
 
     var body: some View {
         ChatComposerTextView(
             text: $text,
             focusRequest: focusRequest,
-            placeholder: placeholder,
             isEncrypted: isEncrypted,
+            proxy: proxy,
             onSend: onSend
         )
         .frame(maxWidth: .infinity)
+        .overlay(alignment: .topLeading) {
+            if text.isEmpty {
+                Text(placeholder)
+                    .font(.body)
+                    .foregroundStyle(Color(uiColor: .placeholderText))
+                    .padding(.top, ChatComposerUITextView.verticalInset)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+        }
         .padding(.leading, 12)
         .padding(.trailing, 28)
         .overlay(alignment: .trailing) {

@@ -299,11 +299,14 @@
 
 // MARK: - Contact Detail Network Path Section
 
-/* Location: ContactDetailView.swift - Purpose: Network path section header */
-"contacts.detail.networkPath" = "Netzwerkpfad";
+/* Location: ContactDetailView.swift - Purpose: Outbound path section header */
+"contacts.detail.outboundPath" = "Ausgehender Pfad";
 
 /* Location: ContactDetailView.swift - Purpose: Route label */
 "contacts.detail.route" = "Route";
+
+/* Location: ContactDetailView.swift - Purpose: Copy route to clipboard */
+"contacts.detail.copyRoute" = "Route kopieren";
 
 /* Location: ContactDetailView.swift - Purpose: Hops away label */
 "contacts.detail.hopsAway" = "Sprünge entfernt";
@@ -354,6 +357,12 @@
 /* Location: ContactDetailView.swift - Purpose: Danger zone section header */
 "contacts.detail.dangerZone" = "Gefahrenzone";
 
+/* Location: ContactDetailView.swift - Purpose: Clear messages button */
+"contacts.detail.clearMessages" = "Nachrichten löschen";
+
+/* Location: ContactDetailView.swift - Purpose: Clear messages services-unavailable error */
+"contacts.detail.error.servicesUnavailable" = "Dienste nicht verfügbar";
+
 /* Location: ContactDetailView.swift - Purpose: Block contact button */
 "contacts.detail.blockContact" = "Kontakt blockieren";
 
@@ -376,6 +385,12 @@
 
 /* Location: ContactDetailView.swift - Purpose: Delete contact alert message */
 "contacts.detail.alert.delete.message" = "%@ und alle zugehörigen Daten werden entfernt. Diese Aktion kann nicht rückgängig gemacht werden.";
+
+/* Location: ContactDetailView.swift - Purpose: Clear messages alert title */
+"contacts.detail.alert.clearMessages.title" = "Nachrichten löschen?";
+
+/* Location: ContactDetailView.swift - Purpose: Clear messages alert message */
+"contacts.detail.alert.clearMessages.message" = "Alle Nachrichten mit %@ werden dauerhaft gelöscht.";
 
 /* Location: ContactDetailView.swift - Purpose: Path error alert title */
 "contacts.detail.alert.pathError" = "Pfadfehler";

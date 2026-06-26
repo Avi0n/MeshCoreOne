@@ -395,7 +395,10 @@ extension PersistenceStore {
         try modelContext.delete(model: PendingSend.self, where: #Predicate<PendingSend> { row in
             row.radioID == targetRadioID
         })
-        for message in messages { modelContext.delete(message) }
+        // Delete Message rows with a store-level batch, not per-object: a per-object delete
+        // enters cascade propagation over Message.repeats and traps resolving the
+        // already-batch-deleted MessageRepeat rows.
+        try modelContext.delete(model: Message.self, where: messagePredicate)
 
         // Delete channels
         let channelPredicate = #Predicate<Channel> { channel in

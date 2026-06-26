@@ -10,7 +10,7 @@ import UIKit
 /// (byte limit, disconnected, cooling down) inserts a newline rather than nothing.
 ///
 /// Programmatic focus is driven by the `focusRequest` token: each new value
-/// raises the keyboard once. There is no resign path — dismissal happens natively.
+/// raises the keyboard once. There is no resign path; dismissal happens natively.
 /// A token is used rather than `@FocusState`/`Bool` because focus is a one-shot
 /// intent: a `@FocusState` with no `.focused()` consumer is reset by the focus
 /// engine and never drives `becomeFirstResponder()`, and a sticky `Bool` would
@@ -24,8 +24,10 @@ struct ChatComposerTextView: UIViewRepresentable {
     /// Incremented by the parent to request focus; compared against the
     /// coordinator's last-applied value so each request fires exactly once.
     let focusRequest: Int
-    let placeholder: String
     let isEncrypted: Bool
+    /// Receives the text view on creation so the parent can finalize IME
+    /// composition before reading the text to send.
+    let proxy: ChatComposerProxy
     /// Attempts a send. Returns `true` when a message was sent (Return is then
     /// consumed and focus retained), `false` when gated off (Return inserts a
     /// newline instead).
@@ -38,7 +40,7 @@ struct ChatComposerTextView: UIViewRepresentable {
         textView.font = UIFont.preferredFont(forTextStyle: .body)
         textView.adjustsFontForContentSizeCategory = true
         textView.backgroundColor = .clear
-        textView.inlinePredictionType = .no
+        textView.inlinePredictionType = .default
         // Keep scrolling enabled at all sizes. When it is disabled, UITextView's
         // private scroll-to-visible adjusts the containing scroll view instead of
         // itself, which throws the caret outside the field while it collapses after
@@ -55,20 +57,7 @@ struct ChatComposerTextView: UIViewRepresentable {
         textView.textContainer.lineFragmentPadding = 0
         textView.setContentHuggingPriority(.defaultLow, for: .horizontal)
         textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-
-        let placeholderLabel = UILabel()
-        placeholderLabel.text = placeholder
-        placeholderLabel.font = textView.font
-        placeholderLabel.textColor = .placeholderText
-        placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
-        textView.addSubview(placeholderLabel)
-        NSLayoutConstraint.activate([
-            placeholderLabel.topAnchor.constraint(equalTo: textView.topAnchor, constant: ChatComposerUITextView.verticalInset),
-            placeholderLabel.leadingAnchor.constraint(equalTo: textView.leadingAnchor),
-            placeholderLabel.trailingAnchor.constraint(lessThanOrEqualTo: textView.trailingAnchor)
-        ])
-        context.coordinator.placeholderLabel = placeholderLabel
-        placeholderLabel.isHidden = !text.isEmpty
+        proxy.textView = textView
 
         textView.accessibilityLabel = L10n.Chats.Chats.Input.accessibilityLabel
         textView.accessibilityHint = L10n.Chats.Chats.Input.accessibilityHint
@@ -88,7 +77,6 @@ struct ChatComposerTextView: UIViewRepresentable {
             } else {
                 textView.text = text
             }
-            context.coordinator.placeholderLabel?.isHidden = !text.isEmpty
         }
 
         // Become first responder once per token increment. There is no resign
@@ -119,7 +107,6 @@ struct ChatComposerTextView: UIViewRepresentable {
     @MainActor
     final class Coordinator: NSObject, UITextViewDelegate {
         var parent: ChatComposerTextView
-        weak var placeholderLabel: UILabel?
         /// Last `focusRequest` value acted on, so a request fires only once.
         var lastFocusRequest: Int
 
@@ -136,7 +123,6 @@ struct ChatComposerTextView: UIViewRepresentable {
             if parent.text != textView.text {
                 parent.text = textView.text
             }
-            placeholderLabel?.isHidden = !textView.text.isEmpty
         }
     }
 }
@@ -162,12 +148,31 @@ final class ChatComposerUITextView: UITextView {
     /// moves the caret as a discrete edit, the same as deleting, which keeps it
     /// from animating to the start as the field collapses. `unmarkText` first
     /// commits any in-progress IME composition so the replace deletes everything.
+    ///
+    /// The `inputDelegate` notifications bracket the edit so the keyboard resyncs
+    /// its prediction context to the empty document; otherwise the edit bypasses the
+    /// text-input pipeline and leaves stale ghost-text or extends the last sent word.
     func clearAfterSend() {
+        inputDelegate?.textWillChange(self)
+        inputDelegate?.selectionWillChange(self)
         unmarkText()
         if let fullRange = textRange(from: beginningOfDocument, to: endOfDocument) {
             replace(fullRange, withText: "")
         }
+        inputDelegate?.selectionDidChange(self)
+        inputDelegate?.textDidChange(self)
         contentOffset = .zero
+    }
+
+    /// Commits a marked IME composition and any pending autocorrect so a send
+    /// captures what the field shows. The input-delegate notifications flush the
+    /// autocorrect candidate; `unmarkText` commits the composition. Both are
+    /// synchronous, so the bound text is current the moment this returns.
+    func commitPendingInput() {
+        guard isFirstResponder else { return }
+        inputDelegate?.selectionWillChange(self)
+        inputDelegate?.selectionDidChange(self)
+        unmarkText()
     }
 
     private var lineHeight: CGFloat {
@@ -214,6 +219,13 @@ final class ChatComposerUITextView: UITextView {
     }
 
     @objc private func handleReturnCommand(_ command: UIKeyCommand) {
+        // A live composition takes Return as a candidate commit, never a send or
+        // newline. Re-checked here because the command list is built ahead of
+        // dispatch and may be served from before composition began.
+        guard markedTextRange == nil else {
+            unmarkText()
+            return
+        }
         // Shift+Return and Option+Return insert a newline; an unmodified Return or
         // numpad Enter sends, falling back to a newline when the send is gated off.
         let insertsNewline = !command.modifierFlags.isDisjoint(with: [.shift, .alternate])

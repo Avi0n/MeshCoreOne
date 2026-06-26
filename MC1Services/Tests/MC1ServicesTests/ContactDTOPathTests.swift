@@ -51,4 +51,45 @@ struct ContactDTOPathTests {
         #expect(contact.pathHops.isEmpty)
         #expect(contact.pathNodesHex.isEmpty)
     }
+
+    @Test("Displayed hops use the out-path count when a route is set, ignoring inbound")
+    func displayedHopsPrefersOutPath() {
+        let contact = ContactDTO.testContact(
+            outPathLength: encodePathLen(hashSize: 1, hopCount: 3),
+            outPath: Data([0x1A, 0x2B, 0x3C])
+        )
+
+        #expect(contact.displayedHopCount(inboundHopCount: 5) == 3)
+    }
+
+    @Test("A set out-path of zero hops displays zero, not the inbound fallback")
+    func displayedHopsOutPathZeroWins() {
+        let contact = ContactDTO.testContact(
+            outPathLength: encodePathLen(hashSize: 1, hopCount: 0)
+        )
+
+        #expect(!contact.isFloodRouted)
+        #expect(contact.displayedHopCount(inboundHopCount: 5) == 0)
+    }
+
+    @Test("A flood-routed contact falls back to the inbound advert hops")
+    func displayedHopsFloodFallsBackToInbound() {
+        let contact = ContactDTO.testContact(outPathLength: PacketBuilder.floodPathSentinel)
+
+        #expect(contact.displayedHopCount(inboundHopCount: 2) == 2)
+    }
+
+    @Test("An inbound zero is a real value, not nil")
+    func displayedHopsInboundZeroIsPresent() {
+        let contact = ContactDTO.testContact(outPathLength: PacketBuilder.floodPathSentinel)
+
+        #expect(contact.displayedHopCount(inboundHopCount: 0) == 0)
+    }
+
+    @Test("Flood-routed with no inbound reception has no displayed hops")
+    func displayedHopsFloodWithoutInboundIsNil() {
+        let contact = ContactDTO.testContact(outPathLength: PacketBuilder.floodPathSentinel)
+
+        #expect(contact.displayedHopCount(inboundHopCount: nil) == nil)
+    }
 }
