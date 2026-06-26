@@ -1,6 +1,7 @@
 import MapKit
 import MC1Services
 import SwiftUI
+import UIKit
 
 /// Result of a ping operation
 enum PingResult {
@@ -985,6 +986,8 @@ private struct ContactNetworkPathSection: View {
 
     var body: some View {
         let pathDisplay = pathDisplayWithNames
+        let isRoutePopulated = !currentContact.isFloodRouted && currentContact.pathHopCount > 0
+        let routeIDPrefixes = currentContact.pathNodesHex.joined(separator: ",")
         return Section {
             // Current routing path
             Label {
@@ -1003,6 +1006,10 @@ private struct ContactNetworkPathSection: View {
             }
             .accessibilityElement(children: .combine)
             .accessibilityLabel(pathAccessibilityLabel(pathDisplay: pathDisplay))
+            .copyRouteContextMenu(route: routeIDPrefixes, enabled: isRoutePopulated)
+            .accessibilityAction(named: L10n.Contacts.Contacts.Detail.copyRoute) {
+                if isRoutePopulated { UIPasteboard.general.string = routeIDPrefixes }
+            }
 
             // Hops away: only when a deliberate or discovered out-path exists, not the passively
             // heard inbound advert hops
@@ -1191,4 +1198,23 @@ private struct ContactDangerSection: View {
         )
     }
     .environment(\.appState, AppState())
+}
+
+private extension View {
+    /// Gates the whole `contextMenu`, not the button inside it: an always-present
+    /// menu with an empty body still triggers the press-and-hold lift with no items.
+    @ViewBuilder
+    func copyRouteContextMenu(route: String, enabled: Bool) -> some View {
+        if enabled {
+            contextMenu {
+                Button {
+                    UIPasteboard.general.string = route
+                } label: {
+                    Label(L10n.Contacts.Contacts.Detail.copyRoute, systemImage: "doc.on.doc")
+                }
+            }
+        } else {
+            self
+        }
+    }
 }

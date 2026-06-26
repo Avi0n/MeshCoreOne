@@ -305,6 +305,9 @@
 /* Location: ContactDetailView.swift - Purpose: Route label */
 "contacts.detail.route" = "Trasa";
 
+/* Location: ContactDetailView.swift - Purpose: Copy route to clipboard */
+"contacts.detail.copyRoute" = "Kopiuj trasę";
+
 /* Location: ContactDetailView.swift - Purpose: Hops away label */
 "contacts.detail.hopsAway" = "Skoków dalej";
 

@@ -1255,6 +1255,8 @@ public enum L10n {
         public static let clearMessages = L10n.tr("Contacts", "contacts.detail.clearMessages", fallback: "Clear Messages")
         /// Location: ContactDetailView.swift - Purpose: Coordinates label
         public static let coordinates = L10n.tr("Contacts", "contacts.detail.coordinates", fallback: "Coordinates")
+        /// Location: ContactDetailView.swift - Purpose: Copy route to clipboard
+        public static let copyRoute = L10n.tr("Contacts", "contacts.detail.copyRoute", fallback: "Copy Route")
         /// Location: ContactDetailView.swift - Purpose: Danger zone section header
         public static let dangerZone = L10n.tr("Contacts", "contacts.detail.dangerZone", fallback: "Danger Zone")
         /// Location: ContactDetailView.swift - Purpose: Delete button with type
@@ -6179,10 +6181,10 @@ public enum L10n {
         public static let title = L10n.tr("WhatsNew", "whatsNew.inboundHops.title", fallback: "Sort by hops")
       }
       public enum SiriShortcuts {
-        /// What's New v1.1 - Siri & Shortcuts feature, description
+        /// What's New v1.1 - Shortcuts feature, description
         public static let description = L10n.tr("WhatsNew", "whatsNew.siriShortcuts.description", fallback: "Check your radio's status, send messages, and broadcast adverts.")
-        /// What's New v1.1 - Siri & Shortcuts feature, title
-        public static let title = L10n.tr("WhatsNew", "whatsNew.siriShortcuts.title", fallback: "Siri & Shortcuts")
+        /// What's New v1.1 - Shortcuts feature, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.siriShortcuts.title", fallback: "Shortcuts")
       }
     }
   }
