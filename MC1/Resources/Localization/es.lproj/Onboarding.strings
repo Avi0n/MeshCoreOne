@@ -67,7 +67,7 @@
 "deviceScan.title" = "Empareja tu dispositivo";
 
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
-"deviceScan.subtitle" = "Enciéndelo y toca Añadir dispositivo.";
+"deviceScan.subtitle" = "Enciende tu radio, desconéctala de todas las demás apps y dispositivos y, a continuación, toca Añadir dispositivo.";
 
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "Tu dispositivo ya está emparejado";

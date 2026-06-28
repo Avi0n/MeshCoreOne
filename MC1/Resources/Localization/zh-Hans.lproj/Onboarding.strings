@@ -65,7 +65,7 @@
 "deviceScan.title" = "配对您的设备";
 
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
-"deviceScan.subtitle" = "开启设备，然后点击「添加设备」。";
+"deviceScan.subtitle" = "开启设备，断开它与所有其他应用和设备的连接，然后点击「添加设备」。";
 
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "您的设备已配对";
