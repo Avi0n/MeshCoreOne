@@ -28,33 +28,23 @@
 /* What's New v1.1 - Inbound hop counts feature, description */
 "whatsNew.inboundHops.description" = "Вкладка «Узлы» теперь сопоставляет входящие переходы с объявлениями в Журнале RX.";
 
-/* What's New build 164 - App Store launch notice. AI-translated - please verify with native speakers. */
+/* What's New build 165 - App Store launch notice. AI-translated - please verify with native speakers. */
 
-/* What's New build 164 - App Store launch notice, sheet title */
+/* What's New build 165 - App Store launch notice, sheet title */
 "whatsNew.appStoreLaunch.title" = "Релиз в App Store!";
 
-/* What's New build 164 - App Store launch, announcement title */
-"whatsNew.appStoreLaunch.live.title" = "Уже в App Store";
-/* What's New build 164 - App Store launch, announcement description */
-"whatsNew.appStoreLaunch.live.description" = "Это последняя публичная сборка в TestFlight. Загрузите версию из App Store, чтобы продолжать получать обновления.";
+/* What's New build 165 - App Store launch, sheet subtitle under the title */
+"whatsNew.appStoreLaunch.subtitle" = "Это последняя публичная сборка в TestFlight. Загрузите версию из App Store, чтобы продолжать получать обновления.";
 
-/* What's New build 164 - App Store launch, disconnect step title */
-"whatsNew.appStoreLaunch.disconnect.title" = "Отключите рацию";
-/* What's New build 164 - App Store launch, disconnect step description */
-"whatsNew.appStoreLaunch.disconnect.description" = "Сначала отключитесь от рации, чтобы версия из App Store смогла подключиться к ней после перехода.";
+/* What's New build 165 - App Store launch, thank-you title */
+"whatsNew.appStoreLaunch.thanks.title" = "Спасибо, тестировщики!";
+/* What's New build 165 - App Store launch, thank-you description */
+"whatsNew.appStoreLaunch.thanks.description" = "Большое спасибо за то, что вы тестируете MeshCore One! Без вас я бы не зашёл так далеко. Если вам понравилось пользоваться MC1, пожалуйста, подумайте о том, чтобы оставить оценку в App Store, я был бы очень признателен!";
 
-/* What's New build 164 - App Store launch, backup step title */
-"whatsNew.appStoreLaunch.backup.title" = "Сделайте резервную копию данных";
-/* What's New build 164 - App Store launch, backup step description */
-"whatsNew.appStoreLaunch.backup.description" = "Откройте «Настройки» > «Резервное копирование» и экспортируйте данные, чтобы восстановить всё в версии из App Store.";
+/* What's New build 165 - App Store launch, TestFlight feedback group title */
+"whatsNew.appStoreLaunch.feedback.title" = "Закрытый TestFlight";
+/* What's New build 165 - App Store launch, TestFlight feedback group description */
+"whatsNew.appStoreLaunch.feedback.description" = "Если вы раньше отправляли отзывы через TestFlight, вы останетесь в закрытой группе TestFlight, потому что я очень ценю ваши отзывы. Если вас удалят по ошибке, отправьте хотя бы один из ранее оставленных отзывов на info@meshcoreone.com, и я снова добавлю вас в группу TestFlight. Спасибо!";
 
-/* What's New build 164 - App Store launch, install step title */
-"whatsNew.appStoreLaunch.install.title" = "Установите версию из App Store";
-/* What's New build 164 - App Store launch, install step description */
-"whatsNew.appStoreLaunch.install.description" = "Нажмите ниже, чтобы загрузить MeshCore One из App Store, затем импортируйте только что созданную резервную копию.";
-
-/* What's New build 164 - App Store launch, footer asking for a review */
-"whatsNew.appStoreLaunch.footer" = "Если вам нравится MC1, пожалуйста, оставьте отзыв в App Store!";
-
-/* What's New build 164 - App Store launch, App Store link button */
-"whatsNew.appStoreLaunch.action" = "Загрузить в App Store";
+/* What's New build 165 - App Store launch, App Store link button */
+"whatsNew.appStoreLaunch.action" = "Обновить в App Store";

@@ -11,6 +11,7 @@ struct WhatsNewSheet: View {
         static let titleTopPadding: CGFloat = 32
         static let rowSpacing: CGFloat = 28
         static let titleToRowsSpacing: CGFloat = 36
+        static let titleToSubtitleSpacing: CGFloat = 12
         static let symbolColumnWidth: CGFloat = 44
         static let symbolToTextSpacing: CGFloat = 16
         static let titleToBodySpacing: CGFloat = 4
@@ -20,12 +21,21 @@ struct WhatsNewSheet: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Metrics.titleToRowsSpacing) {
-                Text(release.title ?? L10n.WhatsNew.WhatsNew.title)
-                    .font(.largeTitle.bold())
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .accessibilityHeading(.h1)
-                    .padding(.top, Metrics.titleTopPadding)
+                VStack(spacing: Metrics.titleToSubtitleSpacing) {
+                    Text(release.title ?? L10n.WhatsNew.WhatsNew.title)
+                        .font(.largeTitle.bold())
+                        .multilineTextAlignment(.center)
+                        .accessibilityHeading(.h1)
+
+                    if let subtitle = release.subtitle {
+                        Text(subtitle)
+                            .font(.body)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, Metrics.titleTopPadding)
 
                 VStack(alignment: .leading, spacing: Metrics.rowSpacing) {
                     ForEach(release.items) { item in
@@ -67,6 +77,8 @@ struct WhatsNewSheet: View {
                 }
             }
             .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color(.systemBackground))
         }
         .presentationDragIndicator(.hidden)
     }

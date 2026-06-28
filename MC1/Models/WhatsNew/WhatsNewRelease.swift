@@ -6,6 +6,8 @@ struct WhatsNewRelease: Identifiable {
     let items: [WhatsNewItem]
     /// Overrides the default "What's New" sheet title when set.
     var title: String?
+    /// Optional line shown under the title, above the items.
+    var subtitle: String?
     /// Optional closing line shown under the last item.
     var footer: String?
     /// When set, the sheet shows a prominent link button alongside Continue.
