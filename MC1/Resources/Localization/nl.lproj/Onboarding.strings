@@ -67,7 +67,7 @@
 "deviceScan.title" = "Koppel je apparaat";
 
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
-"deviceScan.subtitle" = "Schakel het in en tik op Apparaat toevoegen.";
+"deviceScan.subtitle" = "Schakel je radio in, koppel deze los van alle andere apps en apparaten en tik vervolgens op Apparaat toevoegen.";
 
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "Je apparaat is al gekoppeld";

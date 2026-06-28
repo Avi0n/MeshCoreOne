@@ -67,7 +67,7 @@
 "deviceScan.title" = "Сполучення пристрою";
 
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
-"deviceScan.subtitle" = "Увімкніть його, а потім торкніться «Додати пристрій».";
+"deviceScan.subtitle" = "Увімкніть рацію, від'єднайте її від усіх інших додатків і пристроїв, а потім торкніться «Додати пристрій».";
 
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "Ваш пристрій вже сполучено";

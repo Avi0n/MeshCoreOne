@@ -67,7 +67,7 @@
 "deviceScan.title" = "Pair your device";
 
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
-"deviceScan.subtitle" = "Power it on, then tap Add Device.";
+"deviceScan.subtitle" = "Power your radio on, disconnect it from all other apps and devices, then tap Add Device.";
 
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "Your device is already paired";

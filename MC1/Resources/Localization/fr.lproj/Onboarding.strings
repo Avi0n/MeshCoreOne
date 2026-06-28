@@ -67,7 +67,7 @@
 "deviceScan.title" = "Associer votre appareil";
 
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
-"deviceScan.subtitle" = "Allumez-le, puis appuyez sur Ajouter un appareil.";
+"deviceScan.subtitle" = "Allumez votre radio, déconnectez-la de toutes les autres applications et de tous les autres appareils, puis appuyez sur Ajouter un appareil.";
 
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "Votre appareil est déjà associé";

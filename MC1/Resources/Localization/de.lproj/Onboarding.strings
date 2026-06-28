@@ -67,7 +67,7 @@
 "deviceScan.title" = "Gerät koppeln";
 
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
-"deviceScan.subtitle" = "Schalte es ein, dann tippe auf \"Gerät hinzufügen\".";
+"deviceScan.subtitle" = "Schalte dein Funkgerät ein, trenne es von allen anderen Apps und Geräten und tippe dann auf \"Gerät hinzufügen\".";
 
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "Dein Gerät ist bereits gekoppelt";
