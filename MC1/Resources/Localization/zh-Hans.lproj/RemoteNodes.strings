@@ -530,6 +530,15 @@
 /* Location: RepeaterStatusView.swift - Discover neighbours button label */
 "remoteNodes.status.discoverNeighbors" = "发现邻居";
 
+/* Location: NeighborMapView.swift - Button label and navigation title */
+"remoteNodes.status.neighborMap" = "Neighbor Map";
+
+/* Location: NeighborMapView.swift - Empty state title */
+"remoteNodes.status.neighborMap.unavailable.title" = "No Locations Available";
+
+/* Location: NeighborMapView.swift - Empty state description */
+"remoteNodes.status.neighborMap.unavailable.description" = "None of the discovered neighbors have a known GPS position.";
+
 /* Location: RepeaterStatusView.swift - Discovery in progress with countdown */
 "remoteNodes.status.discoveringSeconds" = "发现中... %d秒";
 

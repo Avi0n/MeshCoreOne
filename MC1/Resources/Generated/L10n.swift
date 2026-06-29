@@ -2941,7 +2941,7 @@ public enum L10n {
       /// Location: DeviceScanView.swift - Button to retry connection after other-app conflict
       public static let retryConnection = L10n.tr("Onboarding", "deviceScan.retryConnection", fallback: "Retry Connection")
       /// Location: DeviceScanView.swift - Subtitle with pairing instructions
-      public static let subtitle = L10n.tr("Onboarding", "deviceScan.subtitle", fallback: "Power it on, then tap Add Device.")
+      public static let subtitle = L10n.tr("Onboarding", "deviceScan.subtitle", fallback: "Power your radio on, disconnect it from all other apps and devices, then tap Add Device.")
       /// Location: DeviceScanView.swift - Screen title for device pairing
       public static let title = L10n.tr("Onboarding", "deviceScan.title", fallback: "Pair your device")
       public enum DemoModeAlert {
@@ -3727,6 +3727,8 @@ public enum L10n {
         public static func minutesAgo(_ p1: Int) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.status.minutesAgo", p1, fallback: "%dm ago")
         }
+        /// Location: NeighborMapView.swift - Button label and navigation title
+        public static let neighborMap = L10n.tr("RemoteNodes", "remoteNodes.status.neighborMap", fallback: "Neighbor Map")
         /// Location: RepeaterStatusView.swift - Neighbors section label
         public static let neighbors = L10n.tr("RemoteNodes", "remoteNodes.status.neighbors", fallback: "Neighbors")
         /// Location: RepeaterStatusView.swift - Neighbors section footer
@@ -3814,6 +3816,14 @@ public enum L10n {
           public static let reloadStatus = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadStatus", fallback: "Reload status")
           /// Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for telemetry
           public static let reloadTelemetry = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadTelemetry", fallback: "Reload telemetry")
+        }
+        public enum NeighborMap {
+          public enum Unavailable {
+            /// Location: NeighborMapView.swift - Empty state description
+            public static let description = L10n.tr("RemoteNodes", "remoteNodes.status.neighborMap.unavailable.description", fallback: "None of the discovered neighbors have a known GPS position.")
+            /// Location: NeighborMapView.swift - Empty state title
+            public static let title = L10n.tr("RemoteNodes", "remoteNodes.status.neighborMap.unavailable.title", fallback: "No Locations Available")
+          }
         }
         public enum Sensor {
           /// Accelerometer
