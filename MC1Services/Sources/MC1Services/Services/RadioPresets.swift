@@ -166,6 +166,7 @@ public enum RadioPresets {
                     ])),
 
         // South America
+        // Chile: community-standard settings from the MeshChile network (https://meshchile.cl).
         RadioPreset(id: "cl", name: "Chile", region: .southAmerica,
                     frequencyMHz: 927.875, bandwidthKHz: 62.5, spreadingFactor: 8, codingRate: 5,
                     availability: .countries(["CL"])),
