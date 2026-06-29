@@ -72,6 +72,22 @@ struct RadioPresetRecommendationTests {
         #expect(RadioPresets.recommended(for: region)?.id == "nl")
     }
 
+    @Test("Chile → cl")
+    func chileGetsCL() {
+        let region = RegionSelection(countryCode: "CL", source: .location)
+        #expect(RadioPresets.recommended(for: region)?.id == "cl")
+    }
+
+    @Test("Chile preset carries the expected radio parameters")
+    func chilePresetParameters() throws {
+        let preset = try #require(RadioPresets.all.first(where: { $0.id == "cl" }))
+        #expect(preset.frequencyMHz == 927.875)
+        #expect(preset.bandwidthKHz == 62.5)
+        #expect(preset.spreadingFactor == 8)
+        #expect(preset.codingRate == 5)
+        #expect(preset.region == .southAmerica)
+    }
+
     // MARK: - Tier 3 (continent)
 
     @Test("Berlin (DE) → eu-narrow (priority 110 beats eu-lr)")
