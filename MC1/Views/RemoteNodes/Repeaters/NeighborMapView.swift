@@ -24,6 +24,7 @@ struct NeighborMapView: View {
     @State private var showingLayersMenu = false
     @State private var isStyleLoaded = false
     @State private var hasInitiallyFit = false
+    @State private var didLoad = false
 
     private static let singleNodeSpanDelta: CLLocationDegrees = 0.05
     private static let boundingPaddingMultiplier: Double = 2.0
@@ -31,7 +32,9 @@ struct NeighborMapView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if mapPoints.isEmpty {
+                if !didLoad {
+                    Color.clear
+                } else if mapPoints.isEmpty {
                     ContentUnavailableView(
                         L10n.RemoteNodes.RemoteNodes.Status.NeighborMap.Unavailable.title,
                         systemImage: "map",
@@ -101,6 +104,7 @@ struct NeighborMapView: View {
             }
             .onAppear {
                 buildOverlays()
+                didLoad = true
             }
             .onChange(of: isStyleLoaded) { _, loaded in
                 guard loaded, !hasInitiallyFit else { return }
@@ -144,7 +148,7 @@ struct NeighborMapView: View {
             guard let neighborCoord = resolvedCoordinate(for: neighbor.publicKeyPrefix) else { continue }
 
             points.append(MapPoint(
-                id: UUID(),
+                id: UUID(neighborPin: neighbor.publicKeyPrefix),
                 coordinate: neighborCoord,
                 pinStyle: .repeater,
                 label: displayName,
@@ -167,7 +171,7 @@ struct NeighborMapView: View {
                 )
                 let snrText = neighbor.snr.formatted(.number.precision(.fractionLength(1))) + " dB"
                 points.append(MapPoint(
-                    id: UUID(),
+                    id: UUID(neighborBadge: neighbor.publicKeyPrefix),
                     coordinate: mid,
                     pinStyle: .badge,
                     label: nil,
@@ -231,5 +235,21 @@ struct NeighborMapView: View {
             )
         )
         cameraRegionVersion += 1
+    }
+}
+
+// MARK: - Deterministic UUIDs
+
+private extension UUID {
+    init(neighborPin prefix: Data) {
+        let hex = String(prefix.prefix(6).uppercaseHexString().prefix(12))
+        let padded = String(repeating: "0", count: max(0, 12 - hex.count)) + hex
+        self = UUID(uuidString: "11111111-1111-1111-1111-\(padded)") ?? UUID()
+    }
+
+    init(neighborBadge prefix: Data) {
+        let hex = String(prefix.prefix(6).uppercaseHexString().prefix(12))
+        let padded = String(repeating: "0", count: max(0, 12 - hex.count)) + hex
+        self = UUID(uuidString: "22222222-2222-2222-2222-\(padded)") ?? UUID()
     }
 }

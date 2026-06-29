@@ -531,13 +531,13 @@
 "remoteNodes.status.discoverNeighbors" = "Buren ontdekken";
 
 /* Location: NeighborMapView.swift - Button label and navigation title */
-"remoteNodes.status.neighborMap" = "Neighbor Map";
+"remoteNodes.status.neighborMap" = "";
 
 /* Location: NeighborMapView.swift - Empty state title */
-"remoteNodes.status.neighborMap.unavailable.title" = "No Locations Available";
+"remoteNodes.status.neighborMap.unavailable.title" = "";
 
 /* Location: NeighborMapView.swift - Empty state description */
-"remoteNodes.status.neighborMap.unavailable.description" = "None of the discovered neighbors have a known GPS position.";
+"remoteNodes.status.neighborMap.unavailable.description" = "";
 
 /* Location: RepeaterStatusView.swift - Discovery in progress with countdown */
 "remoteNodes.status.discoveringSeconds" = "Ontdekken... %ds";
