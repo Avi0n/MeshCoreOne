@@ -152,6 +152,8 @@ private struct NeighborsSection: View {
     let userLocation: CLLocation?
     let connectionState: DeviceConnectionState
 
+    @State private var showingNeighborMap = false
+
     var body: some View {
         Section {
             DisclosureGroup(isExpanded: $viewModel.neighborsExpanded) {
@@ -208,6 +210,14 @@ private struct NeighborsSection: View {
                             )
                         }
                     }
+
+                    if !viewModel.neighbors.isEmpty {
+                        Button {
+                            showingNeighborMap = true
+                        } label: {
+                            Label(L10n.RemoteNodes.RemoteNodes.Status.neighborMap, systemImage: "map")
+                        }
+                    }
                 }
 
                 if session.isAdmin {
@@ -259,5 +269,14 @@ private struct NeighborsSection: View {
             Text(L10n.RemoteNodes.RemoteNodes.Status.neighborsFooter)
         }
         .themedRowBackground(theme)
+        .sheet(isPresented: $showingNeighborMap) {
+            NeighborMapView(
+                session: session,
+                neighbors: viewModel.neighbors,
+                contacts: contacts,
+                discoveredNodes: discoveredNodes,
+                userLocation: userLocation
+            )
+        }
     }
 }
