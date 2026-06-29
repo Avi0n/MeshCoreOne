@@ -47,12 +47,14 @@ public enum RegionalAreas {
                     nameKey: "region.subdivision.AU-WA"),
     ]
 
-    /// ISO α-2 → `RadioRegion` mapping. Mexico (MX), Africa, and
-    /// South America are intentionally absent — these countries fall through
-    /// `recommended(for:)` to the empty-region fallback.
+    /// ISO α-2 → `RadioRegion` mapping. Mexico (MX) and Africa are intentionally
+    /// absent — those countries fall through `recommended(for:)` to the
+    /// empty-region fallback. South America is currently limited to Chile (CL).
     public static let continents: [String: RadioRegion] = [
         // North America
         "US": .northAmerica, "CA": .northAmerica,
+        // South America
+        "CL": .southAmerica,
         // Europe
         "GB": .europe, "IE": .europe, "DE": .europe, "FR": .europe,
         "IT": .europe, "ES": .europe, "PT": .europe, "NL": .europe,
@@ -76,6 +78,7 @@ public enum RegionalAreas {
     public static let countries: [Country] = [
         Country(id: "US", subdivisions: usSubdivisions),
         Country(id: "CA", subdivisions: nil),
+        Country(id: "CL", subdivisions: nil),
         Country(id: "AU", subdivisions: auSubdivisions),
         Country(id: "NZ", subdivisions: nil),
         Country(id: "GB", subdivisions: nil),

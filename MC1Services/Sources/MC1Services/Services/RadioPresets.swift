@@ -3,6 +3,7 @@ import Foundation
 /// Geographic regions for radio preset filtering
 public enum RadioRegion: String, CaseIterable, Sendable {
     case northAmerica = "North America"
+    case southAmerica = "South America"
     case europe = "Europe"
     case oceania = "Oceania"
     case asia = "Asia"
@@ -22,6 +23,8 @@ public enum RadioRegion: String, CaseIterable, Sendable {
             return [.europe, .northAmerica, .oceania, .asia]
         case "VN", "TH", "MY", "SG", "PH", "ID":
             return [.asia, .oceania, .europe, .northAmerica]
+        case "CL":
+            return [.southAmerica, .northAmerica, .europe, .oceania, .asia]
         default:
             return RadioRegion.allCases
         }
@@ -31,6 +34,7 @@ public enum RadioRegion: String, CaseIterable, Sendable {
     public var shortCode: String {
         switch self {
         case .northAmerica: return "NA"
+        case .southAmerica: return "SA"
         case .europe: return "EU"
         case .oceania: return "AU"
         case .asia: return "AS"
@@ -160,6 +164,11 @@ public enum RadioPresets {
                         "los angeles", "orange", "san diego", "riverside", "san bernardino",
                         "ventura", "imperial", "kern", "santa barbara", "san luis obispo",
                     ])),
+
+        // South America
+        RadioPreset(id: "cl", name: "Chile", region: .southAmerica,
+                    frequencyMHz: 927.875, bandwidthKHz: 62.5, spreadingFactor: 8, codingRate: 5,
+                    availability: .countries(["CL"])),
 
         // Asia
         RadioPreset(id: "vn-narrow", name: "Vietnam (Narrow)", region: .asia,
