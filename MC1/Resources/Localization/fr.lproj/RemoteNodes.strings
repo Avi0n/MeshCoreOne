@@ -876,3 +876,9 @@
 "remoteNodes.status.sensor.colour" = "Couleur";
 "remoteNodes.status.sensor.gps" = "GPS";
 "remoteNodes.status.sensor.switchValue" = "Commutateur";
+
+/* Location: RepeaterStatusView.swift - Show on map button label */
+"remoteNodes.status.showOnMap" = "Afficher sur la carte";
+
+/* Location: NeighborMapView.swift - Navigation title */
+"remoteNodes.status.neighborMapTitle" = "Carte des voisins";

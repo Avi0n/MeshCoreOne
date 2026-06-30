@@ -874,3 +874,9 @@
 
 /* Location: Multiple files - Name label */
 "remoteNodes.name" = "Name";
+
+/* Location: RepeaterStatusView.swift - Show on map button label */
+"remoteNodes.status.showOnMap" = "Show on Map";
+
+/* Location: NeighborMapView.swift - Navigation title */
+"remoteNodes.status.neighborMapTitle" = "Neighbor Map";

@@ -21,6 +21,8 @@ struct RepeaterStatusContent: View {
     /// Contact whose login route is shown at the bottom; nil hides the route section.
     var routePathContact: ContactDTO?
 
+    @State private var showingNeighborMap = false
+
     var body: some View {
         List {
             NodeStatusHeaderSection(session: session)
@@ -34,7 +36,8 @@ struct RepeaterStatusContent: View {
                 contacts: contacts,
                 discoveredNodes: discoveredNodes,
                 userLocation: userLocation,
-                connectionState: connectionState
+                connectionState: connectionState,
+                showingNeighborMap: $showingNeighborMap
             )
             OwnerInfoSection(viewModel: viewModel, session: session, connectionState: connectionState)
             NodeBatteryCurveDisclosureSection(
@@ -56,6 +59,19 @@ struct RepeaterStatusContent: View {
         .themedCanvas(theme)
         .nodeManagementHeaderTopMargin()
         .scrollDismissesKeyboard(.interactively)
+        .sheet(isPresented: $showingNeighborMap) {
+            NavigationStack {
+                NeighborMapView(
+                    repeaterSession: session,
+                    neighbors: viewModel.neighbors,
+                    contacts: contacts,
+                    discoveredNodes: discoveredNodes,
+                    userLocation: userLocation
+                )
+            }
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+        }
     }
 }
 
@@ -152,6 +168,8 @@ private struct NeighborsSection: View {
     let userLocation: CLLocation?
     let connectionState: DeviceConnectionState
 
+    @Binding var showingNeighborMap: Bool
+
     var body: some View {
         Section {
             DisclosureGroup(isExpanded: $viewModel.neighborsExpanded) {
@@ -207,6 +225,14 @@ private struct NeighborsSection: View {
                                 matchKind: resolution?.matchKind ?? .unresolved
                             )
                         }
+                    }
+                }
+
+                if !viewModel.neighbors.isEmpty {
+                    Button {
+                        showingNeighborMap = true
+                    } label: {
+                        Label(L10n.RemoteNodes.RemoteNodes.Status.showOnMap, systemImage: "map")
                     }
                 }
 

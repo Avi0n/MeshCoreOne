@@ -2941,7 +2941,7 @@ public enum L10n {
       /// Location: DeviceScanView.swift - Button to retry connection after other-app conflict
       public static let retryConnection = L10n.tr("Onboarding", "deviceScan.retryConnection", fallback: "Retry Connection")
       /// Location: DeviceScanView.swift - Subtitle with pairing instructions
-      public static let subtitle = L10n.tr("Onboarding", "deviceScan.subtitle", fallback: "Power it on, then tap Add Device.")
+      public static let subtitle = L10n.tr("Onboarding", "deviceScan.subtitle", fallback: "Power your radio on, disconnect it from all other apps and devices, then tap Add Device.")
       /// Location: DeviceScanView.swift - Screen title for device pairing
       public static let title = L10n.tr("Onboarding", "deviceScan.title", fallback: "Pair your device")
       public enum DemoModeAlert {
@@ -3727,6 +3727,8 @@ public enum L10n {
         public static func minutesAgo(_ p1: Int) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.status.minutesAgo", p1, fallback: "%dm ago")
         }
+        /// Location: NeighborMapView.swift - Navigation title
+        public static let neighborMapTitle = L10n.tr("RemoteNodes", "remoteNodes.status.neighborMapTitle", fallback: "Neighbor Map")
         /// Location: RepeaterStatusView.swift - Neighbors section label
         public static let neighbors = L10n.tr("RemoteNodes", "remoteNodes.status.neighbors", fallback: "Neighbors")
         /// Location: RepeaterStatusView.swift - Neighbors section footer
@@ -3771,6 +3773,8 @@ public enum L10n {
         public static func secondsAgo(_ p1: Int) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.status.secondsAgo", p1, fallback: "%ds ago")
         }
+        /// Location: RepeaterStatusView.swift - Show on map button label
+        public static let showOnMap = L10n.tr("RemoteNodes", "remoteNodes.status.showOnMap", fallback: "Show on Map")
         /// Location: RepeaterStatusView.swift - SNR display format
         public static func snrFormat(_ p1: Any) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.status.snrFormat", String(describing: p1), fallback: "SNR %@dB")

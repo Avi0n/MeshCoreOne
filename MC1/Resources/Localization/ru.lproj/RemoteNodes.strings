@@ -871,3 +871,9 @@
 "remoteNodes.status.sensor.colour" = "Цвет";
 "remoteNodes.status.sensor.gps" = "GPS";
 "remoteNodes.status.sensor.switchValue" = "Переключатель";
+
+/* Location: RepeaterStatusView.swift - Show on map button label */
+"remoteNodes.status.showOnMap" = "Показать на карте";
+
+/* Location: NeighborMapView.swift - Navigation title */
+"remoteNodes.status.neighborMapTitle" = "Карта соседей";
