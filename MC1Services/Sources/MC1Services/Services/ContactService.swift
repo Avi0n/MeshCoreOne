@@ -281,18 +281,7 @@ public actor ContactService {
 
             // Update local contact to show flood routing
             if let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) {
-                let frame = ContactFrame(
-                    publicKey: contact.publicKey,
-                    type: contact.type,
-                    flags: contact.flags,
-                    outPathLength: PacketBuilder.floodPathSentinel,
-                    outPath: Data(),
-                    name: contact.name,
-                    lastAdvertTimestamp: contact.lastAdvertTimestamp,
-                    latitude: contact.latitude,
-                    longitude: contact.longitude,
-                    lastModified: UInt32(Date().timeIntervalSince1970)
-                )
+                let frame = contact.floodedContactFrame(asOf: UInt32(Date().timeIntervalSince1970))
                 _ = try await dataStore.saveContact(radioID: radioID, from: frame)
             }
         } catch let error as MeshCoreError {

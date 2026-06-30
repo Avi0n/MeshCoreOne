@@ -27,6 +27,8 @@ extension RemoteNodeError {
             L10n.Localizable.Error.RemoteNode.pathDiscoveryFailed
         case .contactNotFound:
             L10n.Localizable.Error.RemoteNode.contactNotFound
+        case .radioContactsFull:
+            L10n.Localizable.Error.RemoteNode.radioContactsFull
         case .cancelled:
             L10n.Localizable.Error.RemoteNode.cancelled
         case .sessionError(let error):

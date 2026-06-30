@@ -13,6 +13,7 @@ public enum RemoteNodeError: Error, LocalizedError, Sendable {
     case floodRouted  // Keep-alive requires direct path
     case pathDiscoveryFailed
     case contactNotFound
+    case radioContactsFull  // Radio's contact table is full; cannot auto-add a missing node
     case cancelled  // Login cancelled due to duplicate attempt or shutdown
     case sessionError(MeshCoreError)
 
@@ -40,6 +41,8 @@ public enum RemoteNodeError: Error, LocalizedError, Sendable {
             return "Failed to establish direct path"
         case .contactNotFound:
             return "Contact not found in database"
+        case .radioContactsFull:
+            return "Radio contact list is full"
         case .cancelled:
             return "Login cancelled"
         case .sessionError(let error):

@@ -527,7 +527,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
             radioID: radioID,
             publicKey: frame.publicKey,
             name: frame.name,
-            typeRawValue: frame.type.rawValue,
+            typeRawValue: frame.typeRawValue,
             flags: frame.flags,
             outPathLength: frame.outPathLength,
             outPath: frame.outPath,

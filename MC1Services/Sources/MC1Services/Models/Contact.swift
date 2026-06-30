@@ -505,4 +505,23 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
             lastModified: lastModified
         )
     }
+
+    /// A frame for this contact with the path reset to flood routing. A contact the radio doesn't
+    /// know has no valid stored path, so flooding is the only route that can reach it; the firmware
+    /// rediscovers the direct path from the first response.
+    public func floodedContactFrame(asOf now: UInt32) -> ContactFrame {
+        ContactFrame(
+            publicKey: publicKey,
+            type: type,
+            typeRawValue: typeRawValue,
+            flags: flags,
+            outPathLength: PacketBuilder.floodPathSentinel,
+            outPath: Data(),
+            name: name,
+            lastAdvertTimestamp: lastAdvertTimestamp,
+            latitude: latitude,
+            longitude: longitude,
+            lastModified: now
+        )
+    }
 }

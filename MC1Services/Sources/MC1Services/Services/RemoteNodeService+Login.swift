@@ -56,12 +56,21 @@ extension RemoteNodeService {
                 let timeoutTask = Task { [self] in
                     let sentInfo: MessageSentInfo
                     do {
-                        sentInfo = try await session.sendLogin(to: remoteSession.publicKey, password: pwd)
+                        sentInfo = try await sendLoginHealingIfNeeded(
+                            publicKey: remoteSession.publicKey,
+                            radioID: remoteSession.radioID,
+                            password: pwd
+                        )
                     } catch {
+                        // Cancellation means this task no longer owns the continuation: whoever
+                        // cancelled it (an overlapping login for this prefix, or cancelPendingLogin
+                        // on outer-task cancellation) has already resumed and removed it.
+                        guard !Task.isCancelled else { return }
                         pendingLoginTimeoutTasks.removeValue(forKey: prefix)
                         if let pending = pendingLogins.removeValue(forKey: prefix) {
-                            let meshError = error as? MeshCoreError ?? MeshCoreError.connectionLost(underlying: error)
-                            pending.resume(throwing: RemoteNodeError.sessionError(meshError))
+                            let rnError = (error as? RemoteNodeError)
+                                ?? .sessionError(error as? MeshCoreError ?? .connectionLost(underlying: error))
+                            pending.resume(throwing: rnError)
                         }
                         return
                     }
@@ -90,6 +99,55 @@ extension RemoteNodeService {
                 await self?.cancelPendingLogin(for: prefix)
             }
         }
+    }
+
+    /// Sends the login; if the radio reports the contact is missing from its table, pushes the local
+    /// copy (flood-routed) and retries once. A contact can be in the app database but absent on the
+    /// radio after a backup restore or a radio swap, which the firmware answers with notFound (0x02).
+    /// The parked login continuation is covered here by the session commands' own timeouts, not the
+    /// login timeout, which only starts after this returns.
+    func sendLoginHealingIfNeeded(
+        publicKey: Data,
+        radioID: UUID,
+        password: String
+    ) async throws -> MessageSentInfo {
+        do {
+            return try await session.sendLogin(to: publicKey, password: password)
+        } catch let error as MeshCoreError {
+            guard case .deviceError(let code) = error, code == ProtocolError.notFound.rawValue else {
+                throw error
+            }
+            try Task.checkCancellation()
+            try await addLocalContactToRadio(publicKey: publicKey, radioID: radioID)
+            // Bounded to a single retry: a second notFound after a successful add is a firmware
+            // inconsistency, left to propagate rather than loop.
+            return try await session.sendLogin(to: publicKey, password: password)
+        }
+    }
+
+    /// Pushes the local contact to the radio's contact table with flood routing, then reconciles the
+    /// local row so keep-alive routing agrees with the radio.
+    private func addLocalContactToRadio(publicKey: Data, radioID: UUID) async throws {
+        guard let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) else {
+            throw RemoteNodeError.contactNotFound
+        }
+        let frame = contact.floodedContactFrame(asOf: UInt32(Date().timeIntervalSince1970))
+        do {
+            try await session.addContact(frame.toMeshContact())
+        } catch let error as MeshCoreError {
+            guard case .deviceError(let code) = error, code == ProtocolError.tableFull.rawValue else {
+                throw error
+            }
+            throw RemoteNodeError.radioContactsFull
+        }
+        // The radio is healed; failing to sync the local row is a bookkeeping issue that must not
+        // abort the login retry. Keep-alive routing self-corrects on the next contact refresh.
+        do {
+            _ = try await dataStore.saveContact(radioID: radioID, from: frame)
+        } catch {
+            logger.warning("Re-added contact to radio but failed to sync local row: \(error)")
+        }
+        logger.info("Re-added missing contact to radio during login")
     }
 
     /// Handle login result push from device.

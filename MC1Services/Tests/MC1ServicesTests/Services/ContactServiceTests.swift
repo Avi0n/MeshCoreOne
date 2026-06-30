@@ -789,4 +789,38 @@ struct ContactServiceTests {
         #expect(invocations[0].reason == .unblocked)
     }
 
+    // MARK: - Reset Path
+
+    @Test("resetPath flood-routes the contact while preserving an unmodeled type byte")
+    func resetPathPreservesUnmodeledTypeByte() async throws {
+        let radioID = UUID()
+        // The real store round-trips the raw type byte; the mock store normalizes it, so this uses
+        // a real PersistenceStore to observe what resetPath actually persists.
+        let dataStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+        let unmodeledType: UInt8 = 0x7F
+        let contact = ContactDTO.testContact(
+            radioID: radioID,
+            publicKey: testPublicKey,
+            typeRawValue: unmodeledType,
+            outPathLength: 2,
+            outPath: testOutPath
+        )
+        try await dataStore.saveContact(contact)
+
+        let session = MockMeshCoreSession()
+        let service = ContactService(
+            session: session,
+            dataStore: dataStore,
+            syncCoordinator: nil,
+            cleanupCoordinator: nil
+        )
+
+        try await service.resetPath(radioID: radioID, publicKey: testPublicKey)
+
+        #expect(await session.resetPathPublicKeys == [testPublicKey])
+        let reset = try await dataStore.fetchContact(radioID: radioID, publicKey: testPublicKey)
+        #expect(reset?.isFloodRouted == true)
+        #expect(reset?.typeRawValue == unmodeledType)
+    }
+
 }

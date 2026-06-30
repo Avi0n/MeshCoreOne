@@ -2627,6 +2627,8 @@ public enum L10n {
         public static let pathDiscoveryFailed = L10n.tr("Localizable", "error.remoteNode.pathDiscoveryFailed", fallback: "Failed to establish direct path")
         /// Location: RemoteNodeError+UserFacingMessage.swift - Remote node rejected the operation
         public static let permissionDenied = L10n.tr("Localizable", "error.remoteNode.permissionDenied", fallback: "Permission denied")
+        /// Location: RemoteNodeError+UserFacingMessage.swift - Radio contact table full; cannot auto-add the node during login
+        public static let radioContactsFull = L10n.tr("Localizable", "error.remoteNode.radioContactsFull", fallback: "Your radio is out of contact slots. Remove a contact you no longer need, then retry sign-in.")
         /// Location: RemoteNodeError+UserFacingMessage.swift - Sending to the remote node failed
         public static let sendFailed = L10n.tr("Localizable", "error.remoteNode.sendFailed", fallback: "Failed to send.")
         /// Location: RemoteNodeError+UserFacingMessage.swift - No stored session for the remote node
@@ -2941,7 +2943,7 @@ public enum L10n {
       /// Location: DeviceScanView.swift - Button to retry connection after other-app conflict
       public static let retryConnection = L10n.tr("Onboarding", "deviceScan.retryConnection", fallback: "Retry Connection")
       /// Location: DeviceScanView.swift - Subtitle with pairing instructions
-      public static let subtitle = L10n.tr("Onboarding", "deviceScan.subtitle", fallback: "Power it on, then tap Add Device.")
+      public static let subtitle = L10n.tr("Onboarding", "deviceScan.subtitle", fallback: "Power your radio on, disconnect it from all other apps and devices, then tap Add Device.")
       /// Location: DeviceScanView.swift - Screen title for device pairing
       public static let title = L10n.tr("Onboarding", "deviceScan.title", fallback: "Pair your device")
       public enum DemoModeAlert {

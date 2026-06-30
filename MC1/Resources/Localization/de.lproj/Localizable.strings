@@ -538,6 +538,9 @@
 /* Location: RemoteNodeError+UserFacingMessage.swift - Remote node contact missing from the database */
 "error.remoteNode.contactNotFound" = "Kontakt nicht in der Datenbank gefunden";
 
+/* Location: RemoteNodeError+UserFacingMessage.swift - Radio contact table full; cannot auto-add the node during login */
+"error.remoteNode.radioContactsFull" = "Auf deinem Funkgerät sind keine Kontaktplätze mehr frei. Entferne einen Kontakt, den du nicht mehr brauchst, und versuche dann erneut, dich anzumelden.";
+
 /* Location: RemoteNodeError+UserFacingMessage.swift - Login attempt cancelled by a duplicate attempt or shutdown */
 "error.remoteNode.cancelled" = "Anmeldung abgebrochen";
 

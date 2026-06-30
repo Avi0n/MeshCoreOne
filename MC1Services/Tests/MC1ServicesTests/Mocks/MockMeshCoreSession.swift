@@ -121,6 +121,9 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
     /// Result to return from getMessage
     public var stubbedGetMessageResult: Result<MessageResult, Error> = .success(.noMoreMessages)
 
+    /// Results to return from successive `sendLogin` calls, consumed FIFO.
+    public var stubbedSendLoginResults: [Result<MessageSentInfo, Error>] = []
+
     // MARK: - Recorded Invocations
 
     public struct SendMessageInvocation: Sendable, Equatable {
@@ -140,6 +143,11 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
         public let contact: MeshContact
     }
 
+    public struct SendLoginInvocation: Sendable, Equatable {
+        public let destination: Data
+        public let password: String
+    }
+
     public struct SetChannelInvocation: Sendable, Equatable {
         public let index: UInt8
         public let name: String
@@ -156,6 +164,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
     public private(set) var getContactsInvocations: [Date?] = []
     public private(set) var getContactPublicKeys: [Data] = []
     public private(set) var addContactInvocations: [AddContactInvocation] = []
+    public private(set) var sendLoginInvocations: [SendLoginInvocation] = []
     public private(set) var removeContactPublicKeys: [Data] = []
     public private(set) var resetPathPublicKeys: [Data] = []
     public private(set) var sendPathDiscoveryDestinations: [Data] = []
@@ -182,6 +191,16 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
     /// for the same actor-isolation reason as `setStubbedContacts`.
     public func setCurrentSelfInfo(_ selfInfo: SelfInfo?) {
         currentSelfInfo = selfInfo
+    }
+
+    /// Sets the results returned by successive `sendLogin` calls (isolated setter).
+    public func setSendLoginResults(_ results: [Result<MessageSentInfo, Error>]) {
+        stubbedSendLoginResults = results
+    }
+
+    /// Sets the error thrown by `addContact` (isolated setter).
+    public func setAddContactError(_ error: Error?) {
+        stubbedAddContactError = error
     }
 
     // MARK: - Protocol Methods
@@ -323,6 +342,9 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
 
     // MARK: - Test Helpers
 
+    /// Error thrown by remote-access methods that a given test has not configured.
+    enum NotStubbed: Error { case method(String) }
+
     /// Resets all recorded invocations
     public func reset() {
         sendMessageInvocations = []
@@ -330,6 +352,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
         getContactsInvocations = []
         getContactPublicKeys = []
         addContactInvocations = []
+        sendLoginInvocations = []
         removeContactPublicKeys = []
         resetPathPublicKeys = []
         sendPathDiscoveryDestinations = []
@@ -339,5 +362,63 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
         getMessageTimeouts = []
         startAutoMessageFetchingCallCount = 0
         stopAutoMessageFetchingCallCount = 0
+    }
+}
+
+// MARK: - RemoteAccessSessionOps
+
+extension MockMeshCoreSession: RemoteAccessSessionOps {
+
+    public func sendLogin(to destination: Data, password: String) async throws -> MessageSentInfo {
+        sendLoginInvocations.append(SendLoginInvocation(destination: destination, password: password))
+        guard !stubbedSendLoginResults.isEmpty else { throw NotStubbed.method("sendLogin") }
+        switch stubbedSendLoginResults.removeFirst() {
+        case .success(let info): return info
+        case .failure(let error): throw error
+        }
+    }
+
+    public func sendLogout(to destination: Data) async throws {}
+
+    public func sendCommand(to destination: Data, command: String, timestamp: Date) async throws -> MessageSentInfo {
+        throw NotStubbed.method("sendCommand")
+    }
+
+    public func sendKeepAlive(to publicKey: Data, syncSince: UInt32) async throws -> MessageSentInfo {
+        throw NotStubbed.method("sendKeepAlive")
+    }
+
+    public func requestOwnerInfo(from publicKey: Data) async throws -> OwnerInfoResponse {
+        throw NotStubbed.method("requestOwnerInfo")
+    }
+
+    public func requestStatus(from publicKey: Data, type: ContactType) async throws -> StatusResponse {
+        throw NotStubbed.method("requestStatus")
+    }
+
+    public func requestTelemetry(from publicKey: Data) async throws -> TelemetryResponse {
+        throw NotStubbed.method("requestTelemetry")
+    }
+
+    public func requestNeighbours(
+        from publicKey: Data,
+        count: UInt8,
+        offset: UInt16,
+        orderBy: UInt8,
+        pubkeyPrefixLength: UInt8
+    ) async throws -> NeighboursResponse {
+        throw NotStubbed.method("requestNeighbours")
+    }
+
+    public func sendMessageWithRetry(
+        to destination: Data,
+        text: String,
+        timestamp: Date,
+        maxAttempts: Int,
+        floodAfter: Int,
+        maxFloodAttempts: Int,
+        timeout: TimeInterval?
+    ) async throws -> MessageSentInfo? {
+        throw NotStubbed.method("sendMessageWithRetry")
     }
 }

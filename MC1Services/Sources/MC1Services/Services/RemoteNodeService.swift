@@ -17,7 +17,7 @@ public actor RemoteNodeService {
 
     // MARK: - Properties
 
-    let session: any RemoteAccessSessionOps & SessionEventStreaming
+    let session: any RemoteAccessSessionOps & SessionEventStreaming & ContactSessionOps
     let dataStore: any PersistenceStoreProtocol
     let keychainService: KeychainService
     let logger = PersistentLogger(subsystem: "com.mc1", category: "RemoteNode")
@@ -90,7 +90,7 @@ public actor RemoteNodeService {
     // MARK: - Initialization
 
     init(
-        session: any RemoteAccessSessionOps & SessionEventStreaming,
+        session: any RemoteAccessSessionOps & SessionEventStreaming & ContactSessionOps,
         dataStore: any PersistenceStoreProtocol,
         keychainService: KeychainService
     ) {
