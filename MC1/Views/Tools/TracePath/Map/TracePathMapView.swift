@@ -31,8 +31,8 @@ struct TracePathMapView: View {
 
             // Results banner at top
             if let result = mapViewModel.result, result.success {
-                TracePathResultsBanner(
-                    result: result,
+                PathDistanceBanner(
+                    hopCount: result.hops.count - 2,
                     totalPathDistance: traceViewModel.totalPathDistance
                 )
             }
@@ -142,35 +142,4 @@ struct TracePathMapView: View {
         .ignoresSafeArea()
     }
 
-}
-
-// MARK: - Results Banner
-
-private struct TracePathResultsBanner: View {
-    let result: TraceResult
-    let totalPathDistance: Double?
-
-    var body: some View {
-        VStack {
-            HStack {
-                let hopCount = result.hops.count - 2
-                Text(L10n.Contacts.Contacts.Trace.Map.hops(hopCount))
-
-                if let distance = totalPathDistance {
-                    Text("•")
-                    Text(Measurement(value: distance, unit: UnitLength.meters),
-                         format: .measurement(width: .abbreviated, usage: .road))
-                }
-            }
-            .font(.subheadline.weight(.medium))
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .liquidGlass(in: .capsule)
-
-            Spacer()
-        }
-        .safeAreaPadding(.top)
-        .transition(.move(edge: .top).combined(with: .opacity))
-        .animation(.spring(response: 0.3), value: result.id)
-    }
 }

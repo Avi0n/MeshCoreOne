@@ -36,6 +36,18 @@ struct MessagePathMapView: View {
         return [MapLine(id: "message-path", coordinates: coords, style: .messagePath, opacity: 1.0)]
     }
 
+    /// Length of the drawn path, over only the nodes we could place. Nil until at
+    /// least two nodes resolve to coordinates, so the pill's distance always
+    /// matches the polyline in `mapLines`.
+    private var totalPathDistance: CLLocationDistance? {
+        locatedNodes.map(\.coordinate).totalDistance()
+    }
+
+    /// Total intermediate-hop count from the message's path, including hops too
+    /// ambiguous to plot. A `nil` `pathNodes` yields 0, which is indistinguishable
+    /// between a genuine direct message and firmware that omits path data.
+    private var hopCount: Int { message.pathHops.count }
+
     var body: some View {
         NavigationStack {
             Group {
@@ -68,6 +80,11 @@ struct MessagePathMapView: View {
                             isStyleLoaded: $isStyleLoaded
                         )
                         .ignoresSafeArea()
+
+                        PathDistanceBanner(
+                            hopCount: hopCount,
+                            totalPathDistance: totalPathDistance
+                        )
 
                         VStack {
                             Spacer()
