@@ -1,3 +1,4 @@
+import CoreLocation
 import Foundation
 import SwiftData
 
@@ -374,4 +375,19 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable,
     public var canPost: Bool { isRoom && permissionLevel.canPost }
 
     public var isAdmin: Bool { permissionLevel.isAdmin }
+
+    /// Whether the node reported a usable location. Latitude/longitude default to (0,0) when GPS was
+    /// never shared, so the sentinel and validity check are guarded here, mirroring `ContactDTO`.
+    public var hasLocation: Bool {
+        let hasNonZero = latitude != 0 || longitude != 0
+        guard hasNonZero else { return false }
+        return CLLocationCoordinate2DIsValid(
+            CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        )
+    }
+
+    public var coordinate: CLLocationCoordinate2D? {
+        guard hasLocation else { return nil }
+        return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
 }

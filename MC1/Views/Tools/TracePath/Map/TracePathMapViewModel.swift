@@ -261,7 +261,7 @@ final class TracePathMapViewModel {
             let hopIndex = pathIndex + 1
             if hopIndex < result.hops.count {
                 let hop = result.hops[hopIndex]
-                let style = lineStyle(for: hop.snr)
+                let style = MapLine.LineStyle.forSNR(hop.snr)
 
                 updatedLines.append(MapLine(
                     id: line.id,
@@ -273,24 +273,11 @@ final class TracePathMapViewModel {
 
                 // Badge at midpoint
                 if line.coordinates.count >= 2 {
-                    let mid = CLLocationCoordinate2D(
-                        latitude: (line.coordinates[0].latitude + line.coordinates[1].latitude) / 2,
-                        longitude: (line.coordinates[0].longitude + line.coordinates[1].longitude) / 2
-                    )
-                    let distance = CLLocation(latitude: line.coordinates[0].latitude, longitude: line.coordinates[0].longitude)
-                        .distance(from: CLLocation(latitude: line.coordinates[1].latitude, longitude: line.coordinates[1].longitude))
-                    let distFormatted = Measurement(value: distance, unit: UnitLength.meters)
-                        .formatted(.measurement(width: .abbreviated, usage: .road))
-                    let snrFormatted = hop.snr.formatted(.number.precision(.fractionLength(1)))
-
-                    badgePoints.append(MapPoint(
+                    badgePoints.append(MapLine.snrBadge(
                         id: UUID(hopIndex: hopIndex),
-                        coordinate: mid,
-                        pinStyle: .badge,
-                        label: nil,
-                        isClusterable: false,
-                        hopIndex: nil,
-                        badgeText: "\(distFormatted) · \(snrFormatted) dB"
+                        from: line.coordinates[0],
+                        to: line.coordinates[1],
+                        snr: hop.snr
                     ))
                 }
             } else {
@@ -300,17 +287,6 @@ final class TracePathMapViewModel {
 
         mapLines = updatedLines
         rebuildMapPoints()
-    }
-
-    // MARK: - Signal Quality
-
-    private func lineStyle(for snr: Double?) -> MapLine.LineStyle {
-        switch SNRQuality(snr: snr) {
-        case .excellent, .good: .traceGood
-        case .fair: .traceMedium
-        case .poor: .traceWeak
-        case .unknown: .traceUntraced
-        }
     }
 
     /// Clear all overlays

@@ -53,11 +53,25 @@ struct RepeaterStatusContent: View {
             }
         }
         .nodeStatusDestinations(helper: viewModel.helper)
+        .navigationDestination(for: NeighborMapRoute.self) { _ in
+            NeighborSNRMapView(
+                session: session,
+                neighbors: viewModel.neighbors,
+                contacts: contacts,
+                discoveredNodes: discoveredNodes,
+                userLocation: userLocation
+            )
+        }
         .themedCanvas(theme)
         .nodeManagementHeaderTopMargin()
         .scrollDismissesKeyboard(.interactively)
     }
 }
+
+/// Value-based push identity for the neighbors map. Carries no payload: the destination
+/// reads the live neighbor, contact, and location data in scope where it is registered,
+/// keeping heavy arrays out of the navigation path.
+private struct NeighborMapRoute: Hashable {}
 
 // MARK: - Owner Info Section
 
@@ -168,6 +182,13 @@ private struct NeighborsSection: View {
                     Text(L10n.RemoteNodes.RemoteNodes.Status.noNeighbors)
                         .foregroundStyle(.secondary)
                 } else {
+                    if !viewModel.neighbors.isEmpty {
+                        NavigationLink(value: NeighborMapRoute()) {
+                            Label(L10n.RemoteNodes.RemoteNodes.Status.viewOnMap, systemImage: "map")
+                        }
+                        .accessibilityLabel(L10n.RemoteNodes.RemoteNodes.Status.Accessibility.viewNeighborsOnMap)
+                    }
+
                     ForEach(viewModel.neighbors, id: \.publicKeyPrefix) { neighbor in
                         let resolution = NeighborNameResolver.resolve(
                             for: neighbor.publicKeyPrefix,

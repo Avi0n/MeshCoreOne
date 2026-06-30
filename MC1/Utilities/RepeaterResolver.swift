@@ -7,6 +7,22 @@ struct ResolvedNode<T: RepeaterResolvable>: Sendable {
     let matchKind: NodeNameMatchKind
 }
 
+/// A neighbor resolution that also carries the resolved node's location so callers
+/// (the SNR map) can place it. The coordinate is stored as the `Double` pair (not
+/// `CLLocationCoordinate2D`, which is neither `Sendable` nor `Hashable`) so the struct
+/// stays `Sendable`, matching its file siblings.
+struct ResolvedNeighbor: Sendable {
+    let displayName: String
+    let matchKind: NodeNameMatchKind
+    let latitude: Double?
+    let longitude: Double?
+
+    var coordinate: CLLocationCoordinate2D? {
+        guard let latitude, let longitude else { return nil }
+        return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+}
+
 /// A single routing hop (hash bytes shown as hex) resolved to a repeater name, ready to display.
 struct ResolvedPathHop: Identifiable, Sendable {
     let id: Int
@@ -105,27 +121,67 @@ enum RepeaterResolver {
 }
 
 enum NeighborNameResolver {
+    /// Single resolution core: resolves a neighbor prefix to a name, match confidence, and the
+    /// resolved node's location. Contacts are preferred over discovered nodes, and the cross-source
+    /// `matchKind` refinement is applied here so every caller reads identical name/matchKind/coordinate.
+    static func resolveLocated(
+        for prefix: Data,
+        contacts: [ContactDTO],
+        discoveredNodes: [DiscoveredNodeDTO],
+        userLocation: CLLocation?
+    ) -> ResolvedNeighbor? {
+        if let contact = RepeaterResolver.resolve(for: prefix, in: contacts, userLocation: userLocation) {
+            return located(
+                node: contact.node,
+                resolvedMatchKind: contact.matchKind,
+                prefix: prefix,
+                contacts: contacts,
+                discoveredNodes: discoveredNodes
+            )
+        }
+
+        if let node = RepeaterResolver.resolve(for: prefix, in: discoveredNodes, userLocation: userLocation) {
+            return located(
+                node: node.node,
+                resolvedMatchKind: node.matchKind,
+                prefix: prefix,
+                contacts: contacts,
+                discoveredNodes: discoveredNodes
+            )
+        }
+
+        return nil
+    }
+
+    private static func located<T: RepeaterResolvable>(
+        node: T,
+        resolvedMatchKind: NodeNameMatchKind,
+        prefix: Data,
+        contacts: [ContactDTO],
+        discoveredNodes: [DiscoveredNodeDTO]
+    ) -> ResolvedNeighbor {
+        ResolvedNeighbor(
+            displayName: node.resolvableName,
+            matchKind: matchKind(for: prefix, resolvedMatchKind: resolvedMatchKind, contacts: contacts, discoveredNodes: discoveredNodes),
+            latitude: node.hasLocation ? node.latitude : nil,
+            longitude: node.hasLocation ? node.longitude : nil
+        )
+    }
+
     static func resolve(
         for prefix: Data,
         contacts: [ContactDTO],
         discoveredNodes: [DiscoveredNodeDTO],
         userLocation: CLLocation?
     ) -> NodeNameResolution? {
-        if let contact = RepeaterResolver.resolve(for: prefix, in: contacts, userLocation: userLocation) {
-            return NodeNameResolution(
-                displayName: contact.node.resolvableName,
-                matchKind: matchKind(for: prefix, resolvedMatchKind: contact.matchKind, contacts: contacts, discoveredNodes: discoveredNodes)
-            )
-        }
+        guard let resolved = resolveLocated(
+            for: prefix,
+            contacts: contacts,
+            discoveredNodes: discoveredNodes,
+            userLocation: userLocation
+        ) else { return nil }
 
-        if let node = RepeaterResolver.resolve(for: prefix, in: discoveredNodes, userLocation: userLocation) {
-            return NodeNameResolution(
-                displayName: node.node.resolvableName,
-                matchKind: matchKind(for: prefix, resolvedMatchKind: node.matchKind, contacts: contacts, discoveredNodes: discoveredNodes)
-            )
-        }
-
-        return nil
+        return NodeNameResolution(displayName: resolved.displayName, matchKind: resolved.matchKind)
     }
 
     private static func matchKind(

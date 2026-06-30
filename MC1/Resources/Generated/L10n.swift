@@ -3733,6 +3733,12 @@ public enum L10n {
         public static let neighbors = L10n.tr("RemoteNodes", "remoteNodes.status.neighbors", fallback: "Neighbors")
         /// Location: RepeaterStatusView.swift - Neighbors section footer
         public static let neighborsFooter = L10n.tr("RemoteNodes", "remoteNodes.status.neighborsFooter", fallback: "Other nodes discovered by this repeater and their signal quality.")
+        /// Location: NeighborSNRMapView.swift - Navigation title for the neighbors map
+        public static let neighborsMapTitle = L10n.tr("RemoteNodes", "remoteNodes.status.neighborsMapTitle", fallback: "Neighbors Map")
+        /// Location: NeighborSNRMapView.swift - Map pill and pushed-list title counting neighbors that could not be plotted - %d is the count
+        public static func neighborsNotShown(_ p1: Int) -> String {
+          return L10n.tr("RemoteNodes", "remoteNodes.status.neighborsNotShown", p1, fallback: "%d neighbors not shown")
+        }
         /// Location: RepeaterStatusView.swift - Noise floor label
         public static let noiseFloor = L10n.tr("RemoteNodes", "remoteNodes.status.noiseFloor", fallback: "Noise Floor")
         /// Location: RepeaterStatusView.swift - No neighbors empty state
@@ -3773,6 +3779,8 @@ public enum L10n {
         public static func secondsAgo(_ p1: Int) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.status.secondsAgo", p1, fallback: "%ds ago")
         }
+        /// Location: NeighborSNRMapBuilder.swift - Unit suffix for the SNR value in the map midpoint badge, matching the "<distance> · <snr> dB" form
+        public static let snrBadgeUnit = L10n.tr("RemoteNodes", "remoteNodes.status.snrBadgeUnit", fallback: "dB")
         /// Location: RepeaterStatusView.swift - SNR display format
         public static func snrFormat(_ p1: Any) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.status.snrFormat", String(describing: p1), fallback: "SNR %@dB")
@@ -3807,6 +3815,8 @@ public enum L10n {
         public static func uptimeMinutes(_ p1: Int) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.status.uptimeMinutes", p1, fallback: "%dm")
         }
+        /// Location: RepeaterStatusContent.swift - View on Map button in the Neighbors section
+        public static let viewOnMap = L10n.tr("RemoteNodes", "remoteNodes.status.viewOnMap", fallback: "View on Map")
         public enum Accessibility {
           /// Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for neighbors
           public static let reloadNeighbors = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadNeighbors", fallback: "Reload neighbors")
@@ -3816,6 +3826,8 @@ public enum L10n {
           public static let reloadStatus = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadStatus", fallback: "Reload status")
           /// Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for telemetry
           public static let reloadTelemetry = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadTelemetry", fallback: "Reload telemetry")
+          /// Location: RepeaterStatusContent.swift - Accessibility label for the View on Map button
+          public static let viewNeighborsOnMap = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.viewNeighborsOnMap", fallback: "View neighbors on map")
         }
         public enum Sensor {
           /// Accelerometer
