@@ -79,14 +79,12 @@ public actor AppBackupService {
   /// - Parameters:
   ///   - envelope: The decoded backup envelope.
   ///   - persistenceStore: The store to insert records into.
-  ///   - defaults: UserDefaults instance for preference restore (defaults to `.standard`).
   /// - Returns: An `ImportResult` with per-model inserted/skipped counts.
   /// - Throws: `AppBackupError.importFailed` on failure.
   @discardableResult
   public func importBackup(
     envelope: AppBackupEnvelope,
-    into persistenceStore: PersistenceStore,
-    defaults: UserDefaults = .standard
+    into persistenceStore: PersistenceStore
   ) async throws -> ImportResult {
     do {
       var result = try await persistenceStore.importBackupDatabase(envelope)
@@ -96,7 +94,7 @@ public actor AppBackupService {
       // write-if-missing no-op on re-run, so finishing the side effect is
       // safer than reporting cancellation while the DB is persisted.
       if let userDefaultsSnapshot = envelope.userDefaults {
-        let addedKeys = userDefaultsSnapshot.restore(to: defaults)
+        let addedKeys = userDefaultsSnapshot.restore(to: .standard)
         result.userDefaultsRestored = !addedKeys.isEmpty
       }
 

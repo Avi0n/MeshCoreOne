@@ -6,6 +6,11 @@ on:
       - main
       - dev
 
+  push:
+    branches:
+      - main
+      - dev
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -43,6 +48,7 @@ jobs:
         run: |
           command -v xcodegen >/dev/null 2>&1 || brew install xcodegen
           command -v swiftgen >/dev/null 2>&1 || brew install swiftgen
+          command -v xcbeautify >/dev/null 2>&1 || brew install xcbeautify
 
       - name: Generate Xcode project
         run: xcodegen generate
@@ -63,7 +69,8 @@ jobs:
             -scheme MC1 \
             -destination "generic/platform=iOS Simulator" \
             -derivedDataPath .derivedData \
+            -quiet \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            COMPILER_INDEX_STORE_ENABLE=NO
+            COMPILER_INDEX_STORE_ENABLE=NO | xcbeautify
