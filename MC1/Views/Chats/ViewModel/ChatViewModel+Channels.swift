@@ -270,7 +270,7 @@ extension ChatViewModel {
     channelSenders = localSenders
     channelSenderOrder = localOrder
 
-    logger.info("Built \(channelSenders.count) synthetic contacts from channel senders")
+    logger.info("Built \(self.channelSenders.count) synthetic contacts from channel senders")
   }
 
   /// Register a channel sender for the mention picker. Always max-merges the

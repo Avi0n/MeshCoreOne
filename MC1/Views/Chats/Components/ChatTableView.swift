@@ -318,21 +318,21 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
   @objc private func keyboardWillHide(_ notification: Notification) {
     let frameEnd = keyboardFrameEnd(notification) ?? .null
     chatKeyboardLogger.debug(
-      "keyboardWillHide frameEnd=\(frameEnd.debugDescription, privacy: .public) safeAreaBottom=\(view.safeAreaInsets.bottom, privacy: .public)"
+      "keyboardWillHide frameEnd=\(frameEnd.debugDescription, privacy: .public) safeAreaBottom=\(self.view.safeAreaInsets.bottom, privacy: .public)"
     )
   }
 
   @objc private func keyboardWillChangeFrame(_ notification: Notification) {
     let frameEnd = keyboardFrameEnd(notification) ?? .null
     chatKeyboardLogger.debug(
-      "keyboardWillChangeFrame frameEnd=\(frameEnd.debugDescription, privacy: .public) safeAreaBottom=\(view.safeAreaInsets.bottom, privacy: .public)"
+      "keyboardWillChangeFrame frameEnd=\(frameEnd.debugDescription, privacy: .public) safeAreaBottom=\(self.view.safeAreaInsets.bottom, privacy: .public)"
     )
   }
 
   override func viewSafeAreaInsetsDidChange() {
     super.viewSafeAreaInsetsDidChange()
     chatKeyboardLogger.debug(
-      "viewSafeAreaInsetsDidChange bottom=\(view.safeAreaInsets.bottom, privacy: .public)"
+      "viewSafeAreaInsetsDidChange bottom=\(self.view.safeAreaInsets.bottom, privacy: .public)"
     )
   }
 
@@ -433,7 +433,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     }
 
     chatKeyboardLogger.debug(
-      "keyboardWillShow frameEnd=\((userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect ?? .null).debugDescription, privacy: .public) safeAreaBottom=\(view.safeAreaInsets.bottom, privacy: .public)"
+      "keyboardWillShow frameEnd=\((userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect ?? .null).debugDescription, privacy: .public) safeAreaBottom=\(self.view.safeAreaInsets.bottom, privacy: .public)"
     )
 
     let wasAtBottom = isAtBottom

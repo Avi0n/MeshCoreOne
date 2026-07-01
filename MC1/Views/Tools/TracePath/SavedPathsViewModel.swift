@@ -41,7 +41,7 @@ final class SavedPathsViewModel {
 
     do {
       savedPaths = try await dataStore.fetchSavedTracePaths(radioID: radioID)
-      logger.info("Loaded \(savedPaths.count) saved paths")
+      logger.info("Loaded \(self.savedPaths.count) saved paths")
     } catch {
       logger.error("Failed to load saved paths: \(error.localizedDescription)")
       errorMessage = L10n.Tools.Tools.SavedPaths.loadFailed

@@ -126,7 +126,7 @@ public actor EventDispatcher {
           "case=\(dropped.caseName) sub=\(id)"
         )
         dispatcherLogger.warning(
-          "dropped event sub=\(id, privacy: .private) case=\(dropped.caseName, privacy: .public) totalDrops=\(droppedCount, privacy: .public)"
+          "dropped event sub=\(id, privacy: .private) case=\(dropped.caseName, privacy: .public) totalDrops=\(self.droppedCount, privacy: .public)"
         )
       case .terminated:
         // Expected on subscription cancel — silent by design.
