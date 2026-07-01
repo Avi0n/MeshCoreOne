@@ -268,8 +268,8 @@ struct RemoteNodeIdentitySection: View {
           TextField(L10n.RemoteNodes.RemoteNodes.Settings.latitude, value: Binding(
             get: { latitude },
             set: { settings.latitude = $0 }
-          ), format: .number.precision(.fractionLength(6)))
-            .keyboardType(.decimalPad)
+          ), format: .number.precision(.fractionLength(6)).locale(.posix))
+            .keyboardType(.numbersAndPunctuation)
             .multilineTextAlignment(.trailing)
             .frame(width: 140)
         } else {
@@ -284,8 +284,8 @@ struct RemoteNodeIdentitySection: View {
           TextField(L10n.RemoteNodes.RemoteNodes.Settings.longitude, value: Binding(
             get: { longitude },
             set: { settings.longitude = $0 }
-          ), format: .number.precision(.fractionLength(6)))
-            .keyboardType(.decimalPad)
+          ), format: .number.precision(.fractionLength(6)).locale(.posix))
+            .keyboardType(.numbersAndPunctuation)
             .multilineTextAlignment(.trailing)
             .frame(width: 140)
         } else {
