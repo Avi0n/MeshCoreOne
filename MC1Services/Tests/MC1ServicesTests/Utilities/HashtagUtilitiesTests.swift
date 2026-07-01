@@ -8,7 +8,6 @@ struct HashtagUtilitiesTests {
 
   @Test(arguments: ["#general", "#General", "#test-channel", "#abc123", "#a"])
   func `hashtag pattern matches valid hashtags`(text: String) throws {
-    // swiftlint:disable:next force_try
     let regex = try NSRegularExpression(pattern: HashtagUtilities.hashtagPattern)
     let range = NSRange(text.startIndex..., in: text)
     let matches = regex.matches(in: text, range: range)
@@ -19,7 +18,6 @@ struct HashtagUtilitiesTests {
   func `hashtag pattern rejects invalid hashtags`(text: String) throws {
     // Use anchored pattern for full-string validation (extraction pattern finds partial matches)
     let anchoredPattern = "^" + HashtagUtilities.hashtagPattern + "$"
-    // swiftlint:disable:next force_try
     let regex = try NSRegularExpression(pattern: anchoredPattern)
     let range = NSRange(text.startIndex..., in: text)
     let matches = regex.matches(in: text, range: range)

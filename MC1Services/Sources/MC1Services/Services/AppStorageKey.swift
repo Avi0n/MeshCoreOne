@@ -13,7 +13,6 @@ import Foundation
 /// it in `BackupUserDefaults` (a mapping row or a special-cased branch)
 /// unless the value is intentionally device-local.
 public enum AppStorageKey: String {
-  // swiftlint:disable redundant_string_enum_value
   case hasCompletedOnboarding
   case liveActivityEnabled
   case showIncomingPath
@@ -57,7 +56,6 @@ public enum AppStorageKey: String {
   case notificationSoundEnabled
   case notificationBadgeEnabled
   case notifyLowBattery
-  // swiftlint:enable redundant_string_enum_value
 
   public static let defaultShowIncomingPath: Bool = false
   public static let defaultShowIncomingHopCount: Bool = false

@@ -18,11 +18,9 @@ enum ChannelFloodScopeStorage {
   enum Mode: String {
     // Raw values are pinned so a case rename can't silently change what's
     // persisted to SwiftData, written into backups, or matched by the migration predicate.
-    // swiftlint:disable redundant_string_enum_value
     case inherit
     case allRegions
     case specific
-    // swiftlint:enable redundant_string_enum_value
   }
 
   static func decompose(_ scope: ChannelFloodScope) -> (mode: Mode, regionName: String?) {

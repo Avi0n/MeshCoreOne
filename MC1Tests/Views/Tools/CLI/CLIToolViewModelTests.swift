@@ -799,7 +799,7 @@ actor ParkingContactStore: PersistenceStoreProtocol {
   func batchUpdateChannelMessageRegion(radioID: UUID, updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)]) async throws {}
   func batchUpdateDMMessageRegion(radioID: UUID, updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)]) async throws {}
   func deleteMessagesForChannel(radioID: UUID, channelIndex: UInt8) async throws {}
-  // swiftlint:disable:next line_length function_parameter_count
+  // swiftlint:disable:next function_parameter_count
   func saveNodeStatusSnapshot(
     nodePublicKey: Data,
     batteryMillivolts: UInt16?,

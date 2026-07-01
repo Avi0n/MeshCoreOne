@@ -9,11 +9,9 @@ public struct RegionSelection: Codable, Sendable, Equatable {
   public let source: Source
 
   public enum Source: String, Codable, Sendable {
-    // swiftlint:disable redundant_string_enum_value
     // Raw values pinned per backup contract: a future case rename must not silently change the on-disk format.
     case location
     case manual
-    // swiftlint:enable redundant_string_enum_value
   }
 
   public init(

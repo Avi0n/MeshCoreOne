@@ -512,7 +512,6 @@ extension BLEStateMachine {
   }
 
   func handleDidUpdateNotificationState(_ peripheral: CBPeripheral, characteristic: CBCharacteristic, error: Error?) {
-    // swiftlint:disable:next line_length
     logger.info("[BLE] Did update notification state: \(peripheral.identifier.uuidString.prefix(8)), isNotifying: \(characteristic.isNotifying), charUUID: \(characteristic.uuid.uuidString.prefix(8)), error: \(error?.localizedDescription ?? "none")")
 
     guard case let .subscribingToNotifications(expected, tx, rx, continuation) = phase,

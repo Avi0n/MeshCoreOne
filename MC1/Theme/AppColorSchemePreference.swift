@@ -3,11 +3,9 @@ import SwiftUI
 /// Global app appearance preference, independent of which theme is selected.
 /// Raw values are pinned (persisted + backed up); a rename must not change the on-disk format.
 enum AppColorSchemePreference: String, CaseIterable, Identifiable {
-  // swiftlint:disable redundant_string_enum_value
   case system
   case light
   case dark
-  // swiftlint:enable redundant_string_enum_value
 
   var id: String {
     rawValue

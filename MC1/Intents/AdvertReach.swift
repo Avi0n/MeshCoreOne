@@ -6,10 +6,8 @@ import AppIntents
 /// saved shortcut persists, so a case must never be renamed without preserving
 /// its raw value.
 enum AdvertReach: String, AppEnum {
-  // swiftlint:disable redundant_string_enum_value
   case zeroHop
   case flood
-  // swiftlint:enable redundant_string_enum_value
 
   static let typeDisplayRepresentation = TypeDisplayRepresentation(
     name: LocalizedStringResource("intent.advert.reach.type", table: "Tools")

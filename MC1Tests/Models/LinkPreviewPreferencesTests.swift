@@ -50,7 +50,7 @@ struct LinkPreviewPreferencesTests {
   }
 
   @Test
-  func `shouldShowPreview reflects master toggle`() {
+  func `shouldShowPreview reflects global toggle`() {
     var prefs = LinkPreviewPreferences(defaults: defaults)
 
     prefs.previewsEnabled = true

@@ -97,7 +97,6 @@ public extension PersistenceStore {
     limit: Int
   ) throws -> MessageDTO? {
     let logger = Logger(subsystem: "com.mc1", category: "PersistenceStore")
-    // swiftlint:disable:next line_length
     logger.debug("[REACTION-MATCH] Looking for message: targetSender=\(parsedReaction.targetSender), hash=\(parsedReaction.messageHash), localNodeName=\(localNodeName ?? "nil"), window=\(timestampWindow.lowerBound)...\(timestampWindow.upperBound)")
 
     let candidates = try fetchChannelMessageCandidates(

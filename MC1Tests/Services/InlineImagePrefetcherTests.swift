@@ -560,7 +560,7 @@ private actor StubDataStore: PersistenceStoreProtocol {
 
   func deleteMessagesForChannel(radioID: UUID, channelIndex: UInt8) async throws {}
 
-  // swiftlint:disable:next line_length function_parameter_count
+  // swiftlint:disable:next function_parameter_count
   func saveNodeStatusSnapshot(
     nodePublicKey: Data,
     batteryMillivolts: UInt16?,

@@ -585,7 +585,7 @@ actor PaginationTestDataStore: PersistenceStoreProtocol {
 
   // MARK: - Node Status Snapshots
 
-  // swiftlint:disable:next line_length function_parameter_count
+  // swiftlint:disable:next function_parameter_count
   func saveNodeStatusSnapshot(
     nodePublicKey: Data,
     batteryMillivolts: UInt16?,
