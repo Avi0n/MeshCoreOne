@@ -2941,7 +2941,7 @@ public enum L10n {
       /// Location: DeviceScanView.swift - Button to retry connection after other-app conflict
       public static let retryConnection = L10n.tr("Onboarding", "deviceScan.retryConnection", fallback: "Retry Connection")
       /// Location: DeviceScanView.swift - Subtitle with pairing instructions
-      public static let subtitle = L10n.tr("Onboarding", "deviceScan.subtitle", fallback: "Power it on, then tap Add Device.")
+      public static let subtitle = L10n.tr("Onboarding", "deviceScan.subtitle", fallback: "Power your radio on, disconnect it from all other apps and devices, then tap Add Device.")
       /// Location: DeviceScanView.swift - Screen title for device pairing
       public static let title = L10n.tr("Onboarding", "deviceScan.title", fallback: "Pair your device")
       public enum DemoModeAlert {
