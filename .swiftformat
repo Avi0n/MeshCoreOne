@@ -46,6 +46,7 @@
 --disable markTypes        # code does not MARK every type declaration
 --disable trailingCommas   # matches SwiftLint disabling trailing_comma
 --disable wrapMultilineStatementBraces
+--disable redundantSelf    # bugged: https://github.com/nicklockwood/SwiftFormat/issues/1732
 
 # Leave file headers untouched
 --header ignore
