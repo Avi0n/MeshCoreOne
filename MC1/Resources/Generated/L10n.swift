@@ -3543,18 +3543,26 @@ public enum L10n {
         public static let lat = L10n.tr("RemoteNodes", "remoteNodes.settings.lat", fallback: "Lat")
         /// Location: RepeaterSettingsView.swift - Latitude label
         public static let latitude = L10n.tr("RemoteNodes", "remoteNodes.settings.latitude", fallback: "Latitude")
+        /// Location: NodeSettingsViewModel.swift - Latitude range validation error
+        public static let latitudeValidation = L10n.tr("RemoteNodes", "remoteNodes.settings.latitudeValidation", fallback: "Accepts -90 to 90")
         /// Location: RepeaterSettingsView.swift - Loading placeholder
         public static let loading = L10n.tr("RemoteNodes", "remoteNodes.settings.loading", fallback: "Loading...")
         /// Location: RepeaterSettingsView.swift - Lon placeholder
         public static let lon = L10n.tr("RemoteNodes", "remoteNodes.settings.lon", fallback: "Lon")
         /// Location: RepeaterSettingsView.swift - Longitude label
         public static let longitude = L10n.tr("RemoteNodes", "remoteNodes.settings.longitude", fallback: "Longitude")
+        /// Location: NodeSettingsViewModel.swift - Longitude range validation error
+        public static let longitudeValidation = L10n.tr("RemoteNodes", "remoteNodes.settings.longitudeValidation", fallback: "Accepts -180 to 180")
         /// Location: RepeaterSettingsView.swift - Max flood hops label
         public static let maxFloodHops = L10n.tr("RemoteNodes", "remoteNodes.settings.maxFloodHops", fallback: "Max Flood Hops")
         /// Location: RepeaterSettingsView.swift - MHz placeholder
         public static let mhz = L10n.tr("RemoteNodes", "remoteNodes.settings.mhz", fallback: "MHz")
         /// Location: RepeaterSettingsView.swift - Minutes unit
         public static let min = L10n.tr("RemoteNodes", "remoteNodes.settings.min", fallback: "min")
+        /// Location: NodeSettingsViewModel.swift - Node name length validation error
+        public static func nameValidation(_ p1: Int) -> String {
+          return L10n.tr("RemoteNodes", "remoteNodes.settings.nameValidation", p1, fallback: "Accepts up to %d bytes")
+        }
         /// Location: RepeaterSettingsView.swift - New password placeholder
         public static let newPassword = L10n.tr("RemoteNodes", "remoteNodes.settings.newPassword", fallback: "New Password")
         /// Location: NodeSettingsViewModel.swift - No service error

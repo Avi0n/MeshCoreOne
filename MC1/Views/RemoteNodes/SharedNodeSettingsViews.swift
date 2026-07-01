@@ -261,6 +261,12 @@ struct RemoteNodeIdentitySection: View {
         }
       }
 
+      if let error = settings.nameError {
+        Text(error)
+          .font(.caption)
+          .foregroundStyle(.red)
+      }
+
       HStack {
         Text(L10n.RemoteNodes.RemoteNodes.Settings.latitude)
         Spacer()
@@ -277,6 +283,12 @@ struct RemoteNodeIdentitySection: View {
         }
       }
 
+      if let error = settings.latitudeError {
+        Text(error)
+          .font(.caption)
+          .foregroundStyle(.red)
+      }
+
       HStack {
         Text(L10n.RemoteNodes.RemoteNodes.Settings.longitude)
         Spacer()
@@ -291,6 +303,12 @@ struct RemoteNodeIdentitySection: View {
         } else {
           SettingsLoadPlaceholder(isLoading: settings.isLoadingIdentity, hasError: settings.identityError)
         }
+      }
+
+      if let error = settings.longitudeError {
+        Text(error)
+          .font(.caption)
+          .foregroundStyle(.red)
       }
 
       Button(L10n.RemoteNodes.RemoteNodes.Settings.pickOnMap, systemImage: "map") {

@@ -59,6 +59,10 @@ final class NodeSettingsViewModel {
       (longitude != nil && longitude != originalLongitude)
   }
 
+  var nameError: String?
+  var latitudeError: String?
+  var longitudeError: String?
+
   // MARK: - Radio
 
   var frequency: Double?
@@ -393,6 +397,12 @@ final class NodeSettingsViewModel {
   }
 
   func applyIdentitySettings() async {
+    let validation = Self.validateIdentityFields(name: name, latitude: latitude, longitude: longitude)
+    nameError = validation.name
+    latitudeError = validation.latitude
+    longitudeError = validation.longitude
+    if validation.hasErrors { return }
+
     isApplying = true
     errorMessage = nil
 
@@ -594,6 +604,36 @@ final class NodeSettingsViewModel {
     }
     if let hops = floodMaxHops, !floodMaxHopsRange.contains(hops) {
       errors.floodMaxHops = L10n.RemoteNodes.RemoteNodes.Settings.floodMaxValidation
+    }
+    return errors
+  }
+
+  struct IdentityValidationErrors {
+    var name: String?
+    var latitude: String?
+    var longitude: String?
+    var hasErrors: Bool {
+      name != nil || latitude != nil || longitude != nil
+    }
+  }
+
+  /// Rejects out-of-range coordinates rather than clamping, so a mistyped value surfaces to the
+  /// user instead of firmware silently normalizing it. Ranges and the name byte cap come from
+  /// `PacketBuilder` and `ProtocolLimits`, matching the binary write path.
+  static func validateIdentityFields(
+    name: String?,
+    latitude: Double?,
+    longitude: Double?
+  ) -> IdentityValidationErrors {
+    var errors = IdentityValidationErrors()
+    if let name, name.utf8.count > ProtocolLimits.maxUsableNameBytes {
+      errors.name = L10n.RemoteNodes.RemoteNodes.Settings.nameValidation(ProtocolLimits.maxUsableNameBytes)
+    }
+    if let latitude, !latitude.isFinite || !PacketBuilder.latitudeRange.contains(latitude) {
+      errors.latitude = L10n.RemoteNodes.RemoteNodes.Settings.latitudeValidation
+    }
+    if let longitude, !longitude.isFinite || !PacketBuilder.longitudeRange.contains(longitude) {
+      errors.longitude = L10n.RemoteNodes.RemoteNodes.Settings.longitudeValidation
     }
     return errors
   }
