@@ -597,7 +597,7 @@ final class TracePathViewModel {
         if let updated = try await dataStore.fetchSavedTracePath(id: savedPath.id) {
           activeSavedPath = updated
         }
-        logger.info("Saved batch path: \(name) with \(completedResults.count) runs")
+        logger.info("Saved batch path: \(name) with \(self.completedResults.count) runs")
         return true
       } catch {
         logger.error("Failed to save batch path: \(error.localizedDescription)")
@@ -673,7 +673,7 @@ final class TracePathViewModel {
     }
 
     activeSavedPath = savedPath
-    logger.info("Loaded saved path: \(savedPath.name) with \(outboundPath.count) hops")
+    logger.info("Loaded saved path: \(savedPath.name) with \(self.outboundPath.count) hops")
   }
 
   /// Clear the path (resets to empty state)
@@ -763,7 +763,7 @@ final class TracePathViewModel {
         path: pathData
       )
       timeoutSeconds = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: sentInfo.suggestedTimeoutMs)
-      logger.info("Sent trace with tag \(tag), path: \(fullPathString), timeout: \(timeoutSeconds)s")
+      logger.info("Sent trace with tag \(tag), path: \(self.fullPathString), timeout: \(timeoutSeconds)s")
     } catch {
       logger.error("Failed to send trace: \(error.localizedDescription)")
       setError(L10n.Contacts.Contacts.Trace.Error.sendFailed)
@@ -929,7 +929,7 @@ final class TracePathViewModel {
         path: pathData
       )
       timeoutSeconds = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: sentInfo.suggestedTimeoutMs)
-      logger.info("Sent batch trace \(currentTraceIndex)/\(batchSize) with tag \(tag), timeout: \(timeoutSeconds)s")
+      logger.info("Sent batch trace \(self.currentTraceIndex)/\(self.batchSize) with tag \(tag), timeout: \(timeoutSeconds)s")
     } catch {
       logger.error("Failed to send trace: \(error.localizedDescription)")
       let failedResult = TraceResult.sendFailed(
