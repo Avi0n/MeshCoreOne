@@ -1,66 +1,65 @@
-import Testing
 import Foundation
 @testable import MC1Services
+import Testing
 
 @Suite("Mention Insertion Tests")
 struct MentionInsertionTests {
+  @Test
+  func `insertMention replaces @query with mention format`() throws {
+    var text = "hey @ali"
+    let query = try #require(MentionUtilities.detectActiveMention(in: text))
+    let searchPattern = "@" + query
 
-    @Test("insertMention replaces @query with mention format")
-    func testInsertMention() {
-        var text = "hey @ali"
-        let query = MentionUtilities.detectActiveMention(in: text)!
-        let searchPattern = "@" + query
-
-        if let range = text.range(of: searchPattern, options: .backwards) {
-            let mention = MentionUtilities.createMention(for: "Alice")
-            text.replaceSubrange(range, with: mention + " ")
-        }
-
-        #expect(text == "hey @[Alice] ")
+    if let range = text.range(of: searchPattern, options: .backwards) {
+      let mention = MentionUtilities.createMention(for: "Alice")
+      text.replaceSubrange(range, with: mention + " ")
     }
 
-    @Test("insertMention handles query at start of text")
-    func testInsertMentionAtStart() {
-        var text = "@bob"
-        let query = MentionUtilities.detectActiveMention(in: text)!
-        let searchPattern = "@" + query
+    #expect(text == "hey @[Alice] ")
+  }
 
-        if let range = text.range(of: searchPattern, options: .backwards) {
-            let mention = MentionUtilities.createMention(for: "Bob")
-            text.replaceSubrange(range, with: mention + " ")
-        }
+  @Test
+  func `insertMention handles query at start of text`() throws {
+    var text = "@bob"
+    let query = try #require(MentionUtilities.detectActiveMention(in: text))
+    let searchPattern = "@" + query
 
-        #expect(text == "@[Bob] ")
+    if let range = text.range(of: searchPattern, options: .backwards) {
+      let mention = MentionUtilities.createMention(for: "Bob")
+      text.replaceSubrange(range, with: mention + " ")
     }
 
-    @Test("insertMention preserves preceding text")
-    func testInsertMentionPreservesText() {
-        var text = "Hello @[Alice] and @jo"
-        let query = MentionUtilities.detectActiveMention(in: text)!
-        let searchPattern = "@" + query
+    #expect(text == "@[Bob] ")
+  }
 
-        if let range = text.range(of: searchPattern, options: .backwards) {
-            let mention = MentionUtilities.createMention(for: "John")
-            text.replaceSubrange(range, with: mention + " ")
-        }
+  @Test
+  func `insertMention preserves preceding text`() throws {
+    var text = "Hello @[Alice] and @jo"
+    let query = try #require(MentionUtilities.detectActiveMention(in: text))
+    let searchPattern = "@" + query
 
-        #expect(text == "Hello @[Alice] and @[John] ")
+    if let range = text.range(of: searchPattern, options: .backwards) {
+      let mention = MentionUtilities.createMention(for: "John")
+      text.replaceSubrange(range, with: mention + " ")
     }
 
-    @Test("insertMention uses contact name not nickname")
-    func testInsertMentionUsesNodeName() {
-        // Simulates: user searches "Bob" (nickname), selects contact with name "Bob's Solar Node"
-        var text = "@bob"
-        let contactNodeName = "Bob's Solar Node"
+    #expect(text == "Hello @[Alice] and @[John] ")
+  }
 
-        let query = MentionUtilities.detectActiveMention(in: text)!
-        let searchPattern = "@" + query
+  @Test
+  func `insertMention uses contact name not nickname`() throws {
+    // Simulates: user searches "Bob" (nickname), selects contact with name "Bob's Solar Node"
+    var text = "@bob"
+    let contactNodeName = "Bob's Solar Node"
 
-        if let range = text.range(of: searchPattern, options: .backwards) {
-            let mention = MentionUtilities.createMention(for: contactNodeName)
-            text.replaceSubrange(range, with: mention + " ")
-        }
+    let query = try #require(MentionUtilities.detectActiveMention(in: text))
+    let searchPattern = "@" + query
 
-        #expect(text == "@[Bob's Solar Node] ")
+    if let range = text.range(of: searchPattern, options: .backwards) {
+      let mention = MentionUtilities.createMention(for: contactNodeName)
+      text.replaceSubrange(range, with: mention + " ")
     }
+
+    #expect(text == "@[Bob's Solar Node] ")
+  }
 }

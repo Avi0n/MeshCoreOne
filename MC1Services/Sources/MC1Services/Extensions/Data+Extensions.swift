@@ -7,85 +7,85 @@ import Foundation
 private let zlibDecompressReadChunkSize = 64 * 1024
 
 public extension Data {
-    /// Converts data to an uppercase hex string with an optional separator between bytes.
-    /// Display-only formatting; identity comparisons and serialization use the
-    /// lowercase `hexString` property from MeshCore.
-    /// - Parameter separator: String to insert between each byte (default: none)
-    /// - Returns: Uppercase hex string representation
-    func uppercaseHexString(separator: String = "") -> String {
-        map { String(format: "%02X", $0) }.joined(separator: separator)
+  /// Converts data to an uppercase hex string with an optional separator between bytes.
+  /// Display-only formatting; identity comparisons and serialization use the
+  /// lowercase `hexString` property from MeshCore.
+  /// - Parameter separator: String to insert between each byte (default: none)
+  /// - Returns: Uppercase hex string representation
+  func uppercaseHexString(separator: String = "") -> String {
+    map { String(format: "%02X", $0) }.joined(separator: separator)
+  }
+
+  /// Splits a path's hop bytes into per-hop `(rawBytes, uppercaseHex)` pairs, chunking by
+  /// `hashSize`; callers pass only the valid slice. A non-positive `hashSize` returns no hops,
+  /// avoiding a `stride(by:)` trap, and each chunk is re-based to its own `Data` so a slice
+  /// with a non-zero `startIndex` indexes correctly.
+  internal func pathHops(hashSize: Int) -> [(data: Data, hex: String)] {
+    guard hashSize > 0 else { return [] }
+    return stride(from: 0, to: count, by: hashSize).map { offset in
+      let start = index(startIndex, offsetBy: offset)
+      let end = index(start, offsetBy: Swift.min(hashSize, count - offset))
+      let chunk = Data(self[start..<end])
+      return (chunk, chunk.uppercaseHexString())
+    }
+  }
+
+  /// Initialize Data from a hex string
+  /// - Parameter hexString: Hex string (e.g., "AABBCC" or "AA BB CC")
+  init?(hexString: String) {
+    let hex = hexString.filter(\.isHexDigit).uppercased()
+    guard hex.count % 2 == 0 else { return nil }
+
+    var data = Data()
+    var index = hex.startIndex
+
+    while index < hex.endIndex {
+      let nextIndex = hex.index(index, offsetBy: 2)
+      guard let byte = UInt8(hex[index..<nextIndex], radix: 16) else { return nil }
+      data.append(byte)
+      index = nextIndex
     }
 
-    /// Splits a path's hop bytes into per-hop `(rawBytes, uppercaseHex)` pairs, chunking by
-    /// `hashSize`; callers pass only the valid slice. A non-positive `hashSize` returns no hops,
-    /// avoiding a `stride(by:)` trap, and each chunk is re-based to its own `Data` so a slice
-    /// with a non-zero `startIndex` indexes correctly.
-    internal func pathHops(hashSize: Int) -> [(data: Data, hex: String)] {
-        guard hashSize > 0 else { return [] }
-        return stride(from: 0, to: count, by: hashSize).map { offset in
-            let start = index(startIndex, offsetBy: offset)
-            let end = index(start, offsetBy: Swift.min(hashSize, count - offset))
-            let chunk = Data(self[start..<end])
-            return (chunk, chunk.uppercaseHexString())
-        }
+    self = data
+  }
+
+  /// Convert first 4 bytes to UInt32 ACK code (little-endian)
+  /// Returns 0 if data has fewer than 4 bytes
+  internal var ackCodeUInt32: UInt32 {
+    guard count >= 4 else { return 0 }
+    return prefix(4).withUnsafeBytes {
+      $0.load(as: UInt32.self).littleEndian
+    }
+  }
+
+  /// zlib-compress this data. Wraps Foundation's NSData bridge.
+  internal func zlibCompressed() throws -> Data {
+    try (self as NSData).compressed(using: .zlib) as Data
+  }
+
+  /// Stream-decompress a zlib payload, aborting once the output crosses
+  /// `maxUncompressedBytes`. Throws `AppBackupError.decompressedTooLarge`
+  /// on cap overflow so callers can surface a specific user-facing reason
+  /// instead of a generic invalid-file error.
+  internal func zlibDecompressed(maxUncompressedBytes: Int) throws -> Data {
+    var offset = 0
+    let source = self
+    let inputFilter = try InputFilter(.decompress, using: .zlib) { length -> Data? in
+      let remaining = source.count - offset
+      guard remaining > 0 else { return nil }
+      let take = Swift.min(length, remaining)
+      let chunk = source.subdata(in: offset..<(offset + take))
+      offset += take
+      return chunk
     }
 
-    /// Initialize Data from a hex string
-    /// - Parameter hexString: Hex string (e.g., "AABBCC" or "AA BB CC")
-    init?(hexString: String) {
-        let hex = hexString.filter { $0.isHexDigit }.uppercased()
-        guard hex.count % 2 == 0 else { return nil }
-
-        var data = Data()
-        var index = hex.startIndex
-
-        while index < hex.endIndex {
-            let nextIndex = hex.index(index, offsetBy: 2)
-            guard let byte = UInt8(hex[index..<nextIndex], radix: 16) else { return nil }
-            data.append(byte)
-            index = nextIndex
-        }
-
-        self = data
+    var output = Data()
+    while let chunk = try inputFilter.readData(ofLength: zlibDecompressReadChunkSize), !chunk.isEmpty {
+      if output.count + chunk.count > maxUncompressedBytes {
+        throw AppBackupError.decompressedTooLarge(maxBytes: maxUncompressedBytes)
+      }
+      output.append(chunk)
     }
-
-    /// Convert first 4 bytes to UInt32 ACK code (little-endian)
-    /// Returns 0 if data has fewer than 4 bytes
-    internal var ackCodeUInt32: UInt32 {
-        guard count >= 4 else { return 0 }
-        return prefix(4).withUnsafeBytes {
-            $0.load(as: UInt32.self).littleEndian
-        }
-    }
-
-    /// zlib-compress this data. Wraps Foundation's NSData bridge.
-    internal func zlibCompressed() throws -> Data {
-        try (self as NSData).compressed(using: .zlib) as Data
-    }
-
-    /// Stream-decompress a zlib payload, aborting once the output crosses
-    /// `maxUncompressedBytes`. Throws `AppBackupError.decompressedTooLarge`
-    /// on cap overflow so callers can surface a specific user-facing reason
-    /// instead of a generic invalid-file error.
-    internal func zlibDecompressed(maxUncompressedBytes: Int) throws -> Data {
-        var offset = 0
-        let source = self
-        let inputFilter = try InputFilter(.decompress, using: .zlib) { length -> Data? in
-            let remaining = source.count - offset
-            guard remaining > 0 else { return nil }
-            let take = Swift.min(length, remaining)
-            let chunk = source.subdata(in: offset..<(offset + take))
-            offset += take
-            return chunk
-        }
-
-        var output = Data()
-        while let chunk = try inputFilter.readData(ofLength: zlibDecompressReadChunkSize), !chunk.isEmpty {
-            if output.count + chunk.count > maxUncompressedBytes {
-                throw AppBackupError.decompressedTooLarge(maxBytes: maxUncompressedBytes)
-            }
-            output.append(chunk)
-        }
-        return output
-    }
+    return output
+  }
 }

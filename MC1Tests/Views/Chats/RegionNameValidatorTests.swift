@@ -1,87 +1,86 @@
-import Testing
 @testable import MC1
 @testable import MC1Services
+import Testing
 
 @Suite("RegionNameValidator")
 struct RegionNameValidatorTests {
+  // MARK: - Valid Names
 
-    // MARK: - Valid Names
+  @Test(arguments: [
+    "Europe", "UK", "France", "sample-city", "region-1"
+  ])
+  func `accepts standard region names`(name: String) {
+    #expect(RegionNameValidator.isValid(name, existingRegions: []))
+  }
 
-    @Test("accepts standard region names", arguments: [
-        "Europe", "UK", "France", "sample-city", "region-1"
-    ])
-    func validNames(name: String) {
-        #expect(RegionNameValidator.isValid(name, existingRegions: []))
-    }
+  // MARK: - Invalid Names
 
-    // MARK: - Invalid Names
+  @Test
+  func `rejects empty name`() {
+    #expect(RegionNameValidator.validate("", existingRegions: []) == .empty)
+  }
 
-    @Test("rejects empty name")
-    func emptyNameIsInvalid() {
-        #expect(RegionNameValidator.validate("", existingRegions: []) == .empty)
-    }
+  @Test
+  func `rejects whitespace-only name`() {
+    #expect(RegionNameValidator.validate("   ", existingRegions: []) == .empty)
+  }
 
-    @Test("rejects whitespace-only name")
-    func whitespaceOnlyIsInvalid() {
-        #expect(RegionNameValidator.validate("   ", existingRegions: []) == .empty)
-    }
+  @Test
+  func `rejects name with spaces`() {
+    #expect(RegionNameValidator.validate("my region", existingRegions: []) == .invalidCharacters)
+  }
 
-    @Test("rejects name with spaces")
-    func spacesInNameAreInvalid() {
-        #expect(RegionNameValidator.validate("my region", existingRegions: []) == .invalidCharacters)
-    }
+  @Test
+  func `rejects unicode characters`() {
+    #expect(RegionNameValidator.validate("Île-de-France", existingRegions: []) == .invalidCharacters)
+  }
 
-    @Test("rejects unicode characters")
-    func unicodeIsInvalid() {
-        #expect(RegionNameValidator.validate("Île-de-France", existingRegions: []) == .invalidCharacters)
-    }
+  @Test(arguments: ["hello!", "foo@bar", "a&b", "test.region", "#Europe", "$secret"])
+  func `rejects special characters`(name: String) {
+    #expect(RegionNameValidator.validate(name, existingRegions: []) == .invalidCharacters)
+  }
 
-    @Test("rejects special characters", arguments: ["hello!", "foo@bar", "a&b", "test.region", "#Europe", "$secret"])
-    func specialCharsAreInvalid(name: String) {
-        #expect(RegionNameValidator.validate(name, existingRegions: []) == .invalidCharacters)
-    }
+  // MARK: - Overlong Names
 
-    // MARK: - Overlong Names
+  @Test
+  func `accepts names at the byte cap`() {
+    let maxBytes = ProtocolLimits.maxDefaultFloodScopeNameBytes
+    let name = String(repeating: "a", count: maxBytes)
+    #expect(name.utf8.count == maxBytes)
+    #expect(RegionNameValidator.isValid(name, existingRegions: []))
+  }
 
-    @Test("accepts names at the byte cap")
-    func atCapIsValid() {
-        let maxBytes = ProtocolLimits.maxDefaultFloodScopeNameBytes
-        let name = String(repeating: "a", count: maxBytes)
-        #expect(name.utf8.count == maxBytes)
-        #expect(RegionNameValidator.isValid(name, existingRegions: []))
-    }
+  @Test
+  func `rejects names one byte over the cap`() {
+    let maxBytes = ProtocolLimits.maxDefaultFloodScopeNameBytes
+    let name = String(repeating: "a", count: maxBytes + 1)
+    #expect(
+      RegionNameValidator.validate(name, existingRegions: [])
+        == .tooLong(maxBytes: maxBytes)
+    )
+  }
 
-    @Test("rejects names one byte over the cap")
-    func overCapIsInvalid() {
-        let maxBytes = ProtocolLimits.maxDefaultFloodScopeNameBytes
-        let name = String(repeating: "a", count: maxBytes + 1)
-        #expect(
-            RegionNameValidator.validate(name, existingRegions: [])
-                == .tooLong(maxBytes: maxBytes)
-        )
-    }
+  // MARK: - Duplicates
 
-    // MARK: - Duplicates
+  @Test
+  func `rejects duplicate region name`() {
+    #expect(RegionNameValidator.validate("Europe", existingRegions: ["Europe"]) == .duplicate)
+  }
 
-    @Test("rejects duplicate region name")
-    func duplicateIsInvalid() {
-        #expect(RegionNameValidator.validate("Europe", existingRegions: ["Europe"]) == .duplicate)
-    }
+  @Test
+  func `duplicate check is case-sensitive`() {
+    #expect(RegionNameValidator.isValid("europe", existingRegions: ["Europe"]))
+  }
 
-    @Test("duplicate check is case-sensitive")
-    func caseSensitiveDuplicateCheck() {
-        #expect(RegionNameValidator.isValid("europe", existingRegions: ["Europe"]))
-    }
+  // MARK: - isValid convenience
 
-    // MARK: - isValid convenience
+  @Test
+  func `isValid returns true for valid name`() {
+    #expect(RegionNameValidator.isValid("Europe", existingRegions: []))
+  }
 
-    @Test("isValid returns true for valid name")
-    func isValidReturnsTrue() {
-        #expect(RegionNameValidator.isValid("Europe", existingRegions: []))
-    }
-
-    @Test("isValid returns false for invalid name")
-    func isValidReturnsFalse() {
-        #expect(!RegionNameValidator.isValid("", existingRegions: []))
-    }
+  @Test
+  func `isValid returns false for invalid name`() {
+    #expect(!RegionNameValidator.isValid("", existingRegions: []))
+  }
 }

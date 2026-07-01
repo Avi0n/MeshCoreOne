@@ -7,9 +7,9 @@ import MC1Services
 /// surface. Single-match resolutions never construct one — they navigate
 /// directly.
 struct MentionPickerContext: Identifiable {
-    let id = UUID()
-    let name: String
-    let radioID: UUID
-    let matches: [ContactDTO]
-    let isSelfMention: Bool
+  let id = UUID()
+  let name: String
+  let radioID: UUID
+  let matches: [ContactDTO]
+  let isSelfMention: Bool
 }

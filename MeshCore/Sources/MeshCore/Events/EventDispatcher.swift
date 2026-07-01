@@ -24,149 +24,151 @@ private let dispatcherSignposter = OSSignposter(subsystem: "MeshCore", category:
 /// }
 /// ```
 public actor EventDispatcher {
-    /// Represents an internal subscription storage with an optional filter predicate.
-    private struct Subscription: Sendable {
-        /// The continuation used to yield events to the async stream.
-        let continuation: AsyncStream<MeshEvent>.Continuation
-        /// The optional predicate used to filter events before yielding.
-        let filter: (@Sendable (MeshEvent) -> Bool)?
+  /// Represents an internal subscription storage with an optional filter predicate.
+  private struct Subscription {
+    /// The continuation used to yield events to the async stream.
+    let continuation: AsyncStream<MeshEvent>.Continuation
+    /// The optional predicate used to filter events before yielding.
+    let filter: (@Sendable (MeshEvent) -> Bool)?
+  }
+
+  /// Stores active subscriptions keyed by a unique identifier.
+  private var subscriptions: [UUID: Subscription] = [:]
+
+  /// Running count of events dropped by `.bufferingNewest(100)` when a
+  /// subscriber couldn't keep up. Differentiated from `.terminated` (which
+  /// is expected on subscription cancel) so the drop count is an actionable
+  /// production signal rather than noise.
+  private var droppedCount: Int = 0
+
+  /// Total events dropped across all subscriptions since actor init.
+  ///
+  /// Intended for diagnostics and tests; lifetime is the dispatcher's.
+  public var droppedEventCount: Int {
+    droppedCount
+  }
+
+  /// Subscribes to all events using modern AsyncStream API.
+  ///
+  /// Uses bounded buffering to prevent memory issues with high-throughput events.
+  ///
+  /// - Returns: An async stream of all mesh events.
+  ///
+  /// - Important: Uses `.bufferingNewest(100)` which means if a subscriber processes
+  ///   events slower than they arrive, older events may be dropped. For critical event
+  ///   processing (e.g., debugging with `parseFailure` events), ensure your handler is
+  ///   fast or process events asynchronously.
+  public func subscribe() -> AsyncStream<MeshEvent> {
+    subscribe(filter: nil)
+  }
+
+  /// Subscribes to events matching a filter predicate.
+  ///
+  /// Only events for which the filter returns `true` will be yielded to the stream.
+  /// If no filter is provided (nil), all events are yielded.
+  ///
+  /// - Parameter filter: An optional predicate to filter events. Pass `nil` for all events.
+  /// - Returns: An async stream of matching events.
+  ///
+  /// - Important: Uses `.bufferingNewest(100)` which means if a subscriber processes
+  ///   events slower than they arrive, older events may be dropped.
+  public func subscribe(
+    filter: (@Sendable (MeshEvent) -> Bool)?
+  ) -> AsyncStream<MeshEvent> {
+    subscribeTracked(filter: filter).stream
+  }
+
+  /// Subscribes to events and returns the stream together with a handle that can
+  /// be finished explicitly by the caller.
+  ///
+  /// Explicit finishing is useful for timeout races, where a waiting task may
+  /// otherwise remain suspended on the stream after the caller has already moved on.
+  public func subscribeTracked(
+    filter: (@Sendable (MeshEvent) -> Bool)? = nil
+  ) -> (id: UUID, stream: AsyncStream<MeshEvent>) {
+    let (stream, continuation) = AsyncStream.makeStream(
+      of: MeshEvent.self,
+      bufferingPolicy: .bufferingNewest(100)
+    )
+    let id = UUID()
+
+    subscriptions[id] = Subscription(
+      continuation: continuation,
+      filter: filter
+    )
+
+    continuation.onTermination = { [weak self] _ in
+      Task { [weak self] in
+        await self?.removeSubscription(id: id)
+      }
     }
 
-    /// Stores active subscriptions keyed by a unique identifier.
-    private var subscriptions: [UUID: Subscription] = [:]
+    return (id, stream)
+  }
 
-    /// Running count of events dropped by `.bufferingNewest(100)` when a
-    /// subscriber couldn't keep up. Differentiated from `.terminated` (which
-    /// is expected on subscription cancel) so the drop count is an actionable
-    /// production signal rather than noise.
-    private var droppedCount: Int = 0
+  /// Dispatches an event to all subscribers, applying filters.
+  ///
+  /// Each subscription's filter (if any) is evaluated. The event is only
+  /// yielded to subscribers whose filter returns `true` or who have no filter.
+  ///
+  /// - Parameter event: The event to dispatch.
+  public func dispatch(_ event: MeshEvent) {
+    for (id, subscription) in subscriptions {
+      if !(subscription.filter?(event) ?? true) { continue }
 
-    /// Total events dropped across all subscriptions since actor init.
-    ///
-    /// Intended for diagnostics and tests; lifetime is the dispatcher's.
-    public var droppedEventCount: Int { droppedCount }
-
-    /// Subscribes to all events using modern AsyncStream API.
-    ///
-    /// Uses bounded buffering to prevent memory issues with high-throughput events.
-    ///
-    /// - Returns: An async stream of all mesh events.
-    ///
-    /// - Important: Uses `.bufferingNewest(100)` which means if a subscriber processes
-    ///   events slower than they arrive, older events may be dropped. For critical event
-    ///   processing (e.g., debugging with `parseFailure` events), ensure your handler is
-    ///   fast or process events asynchronously.
-    public func subscribe() -> AsyncStream<MeshEvent> {
-        subscribe(filter: nil)
-    }
-
-    /// Subscribes to events matching a filter predicate.
-    ///
-    /// Only events for which the filter returns `true` will be yielded to the stream.
-    /// If no filter is provided (nil), all events are yielded.
-    ///
-    /// - Parameter filter: An optional predicate to filter events. Pass `nil` for all events.
-    /// - Returns: An async stream of matching events.
-    ///
-    /// - Important: Uses `.bufferingNewest(100)` which means if a subscriber processes
-    ///   events slower than they arrive, older events may be dropped.
-    public func subscribe(
-        filter: (@Sendable (MeshEvent) -> Bool)?
-    ) -> AsyncStream<MeshEvent> {
-        subscribeTracked(filter: filter).stream
-    }
-
-    /// Subscribes to events and returns the stream together with a handle that can
-    /// be finished explicitly by the caller.
-    ///
-    /// Explicit finishing is useful for timeout races, where a waiting task may
-    /// otherwise remain suspended on the stream after the caller has already moved on.
-    public func subscribeTracked(
-        filter: (@Sendable (MeshEvent) -> Bool)? = nil
-    ) -> (id: UUID, stream: AsyncStream<MeshEvent>) {
-        let (stream, continuation) = AsyncStream.makeStream(
-            of: MeshEvent.self,
-            bufferingPolicy: .bufferingNewest(100)
+      switch subscription.continuation.yield(event) {
+      case .enqueued:
+        break
+      case let .dropped(dropped):
+        droppedCount &+= 1
+        dispatcherSignposter.emitEvent(
+          "dispatcher.drop",
+          "case=\(dropped.caseName) sub=\(id)"
         )
-        let id = UUID()
-
-        subscriptions[id] = Subscription(
-            continuation: continuation,
-            filter: filter
+        dispatcherLogger.warning(
+          "dropped event sub=\(id, privacy: .private) case=\(dropped.caseName, privacy: .public) totalDrops=\(droppedCount, privacy: .public)"
         )
-
-        continuation.onTermination = { [weak self] _ in
-            Task { [weak self] in
-                await self?.removeSubscription(id: id)
-            }
-        }
-
-        return (id, stream)
+      case .terminated:
+        // Expected on subscription cancel — silent by design.
+        break
+      @unknown default:
+        break
+      }
     }
+  }
 
-    /// Dispatches an event to all subscribers, applying filters.
-    ///
-    /// Each subscription's filter (if any) is evaluated. The event is only
-    /// yielded to subscribers whose filter returns `true` or who have no filter.
-    ///
-    /// - Parameter event: The event to dispatch.
-    public func dispatch(_ event: MeshEvent) {
-        for (id, subscription) in subscriptions {
-            if !(subscription.filter?(event) ?? true) { continue }
-
-            switch subscription.continuation.yield(event) {
-            case .enqueued:
-                break
-            case .dropped(let dropped):
-                droppedCount &+= 1
-                dispatcherSignposter.emitEvent(
-                    "dispatcher.drop",
-                    "case=\(dropped.caseName) sub=\(id)"
-                )
-                dispatcherLogger.warning(
-                    "dropped event sub=\(id, privacy: .private) case=\(dropped.caseName, privacy: .public) totalDrops=\(self.droppedCount, privacy: .public)"
-                )
-            case .terminated:
-                // Expected on subscription cancel — silent by design.
-                break
-            @unknown default:
-                break
-            }
-        }
+  /// Finishes all active subscriptions, causing their async streams to terminate.
+  ///
+  /// Call this during session teardown so that any `for await` loops consuming
+  /// event streams exit promptly instead of hanging until deallocation.
+  public func finishAllSubscriptions() {
+    for (_, subscription) in subscriptions {
+      subscription.continuation.finish()
     }
+    subscriptions.removeAll()
+  }
 
-    /// Finishes all active subscriptions, causing their async streams to terminate.
-    ///
-    /// Call this during session teardown so that any `for await` loops consuming
-    /// event streams exit promptly instead of hanging until deallocation.
-    public func finishAllSubscriptions() {
-        for (_, subscription) in subscriptions {
-            subscription.continuation.finish()
-        }
-        subscriptions.removeAll()
-    }
+  /// Finishes and removes a specific subscription.
+  ///
+  /// Safe to call multiple times; unknown ids are ignored.
+  public func finishSubscription(id: UUID) {
+    guard let subscription = subscriptions.removeValue(forKey: id) else { return }
+    subscription.continuation.finish()
+  }
 
-    /// Finishes and removes a specific subscription.
-    ///
-    /// Safe to call multiple times; unknown ids are ignored.
-    public func finishSubscription(id: UUID) {
-        guard let subscription = subscriptions.removeValue(forKey: id) else { return }
-        subscription.continuation.finish()
-    }
+  /// Removes a subscription from the dispatcher.
+  ///
+  /// - Parameter id: The unique identifier of the subscription to remove.
+  private func removeSubscription(id: UUID) {
+    subscriptions.removeValue(forKey: id)
+  }
 
-    /// Removes a subscription from the dispatcher.
-    ///
-    /// - Parameter id: The unique identifier of the subscription to remove.
-    private func removeSubscription(id: UUID) {
-        subscriptions.removeValue(forKey: id)
-    }
-
-    /// Returns the count of active subscriptions. For tests only.
-    ///
-    /// Used by integration tests to synchronize with a listener task's
-    /// `subscribe(filter:)` call before dispatching events — without this,
-    /// a dispatch can race the subscribe and silently vanish.
-    var subscriberCountForTest: Int {
-        subscriptions.count
-    }
+  /// Returns the count of active subscriptions. For tests only.
+  ///
+  /// Used by integration tests to synchronize with a listener task's
+  /// `subscribe(filter:)` call before dispatching events — without this,
+  /// a dispatch can race the subscribe and silently vanish.
+  var subscriberCountForTest: Int {
+    subscriptions.count
+  }
 }

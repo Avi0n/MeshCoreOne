@@ -6,19 +6,21 @@ import AppIntents
 /// saved shortcut persists, so a case must never be renamed without preserving
 /// its raw value.
 enum AdvertReach: String, AppEnum {
-    // swiftlint:disable redundant_string_enum_value
-    case zeroHop = "zeroHop"
-    case flood = "flood"
-    // swiftlint:enable redundant_string_enum_value
+  // swiftlint:disable redundant_string_enum_value
+  case zeroHop
+  case flood
+  // swiftlint:enable redundant_string_enum_value
 
-    static let typeDisplayRepresentation = TypeDisplayRepresentation(
-        name: LocalizedStringResource("intent.advert.reach.type", table: "Tools")
-    )
+  static let typeDisplayRepresentation = TypeDisplayRepresentation(
+    name: LocalizedStringResource("intent.advert.reach.type", table: "Tools")
+  )
 
-    static let caseDisplayRepresentations: [AdvertReach: DisplayRepresentation] = [
-        .zeroHop: DisplayRepresentation(title: LocalizedStringResource("intent.advert.reach.zeroHop", table: "Tools")),
-        .flood: DisplayRepresentation(title: LocalizedStringResource("intent.advert.reach.flood", table: "Tools"))
-    ]
+  static let caseDisplayRepresentations: [AdvertReach: DisplayRepresentation] = [
+    .zeroHop: DisplayRepresentation(title: LocalizedStringResource("intent.advert.reach.zeroHop", table: "Tools")),
+    .flood: DisplayRepresentation(title: LocalizedStringResource("intent.advert.reach.flood", table: "Tools"))
+  ]
 
-    var sendsFlood: Bool { self == .flood }
+  var sendsFlood: Bool {
+    self == .flood
+  }
 }

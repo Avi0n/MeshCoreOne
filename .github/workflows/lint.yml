@@ -32,6 +32,9 @@ jobs:
       - name: Lint
         run: swiftlint lint --strict
 
+      - name: Format
+        run: swiftformat --lint --strict .
+
   codegen:
     name: Code Generation Checks
     runs-on: macos-26

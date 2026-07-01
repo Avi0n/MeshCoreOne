@@ -1,5 +1,5 @@
 #if canImport(UIKit)
-import AccessorySetupKit
+  import AccessorySetupKit
 #endif
 import Foundation
 
@@ -12,15 +12,15 @@ import Foundation
 /// a protocol.
 @MainActor
 protocol AccessorySetupKitServicing: AnyObject {
-    var pairedAccessories: [ASAccessory] { get }
-    var isSessionActive: Bool { get }
-    var delegate: AccessorySetupKitServiceDelegate? { get set }
-    func activateSession() async throws
-    func showPicker() async throws -> UUID
-    func removeAccessory(_ accessory: ASAccessory) async throws
-    func renameAccessory(_ accessory: ASAccessory) async throws
-    func accessory(for bluetoothID: UUID) -> ASAccessory?
-    func invalidateSession()
+  var pairedAccessories: [ASAccessory] { get }
+  var isSessionActive: Bool { get }
+  var delegate: AccessorySetupKitServiceDelegate? { get set }
+  func activateSession() async throws
+  func showPicker() async throws -> UUID
+  func removeAccessory(_ accessory: ASAccessory) async throws
+  func renameAccessory(_ accessory: ASAccessory) async throws
+  func accessory(for bluetoothID: UUID) -> ASAccessory?
+  func invalidateSession()
 }
 
 extension AccessorySetupKitService: AccessorySetupKitServicing {}

@@ -1,72 +1,71 @@
-import SwiftUI
 import MC1Services
+import SwiftUI
 
 struct SupportDevelopmentView: View {
-    @Environment(\.appState) private var appState
-    @Environment(\.appTheme) private var theme
+  @Environment(\.appState) private var appState
+  @Environment(\.appTheme) private var theme
 
-    @State private var hasRetriedThisAppearance = false
-    @State private var restoreSuccessTrigger = 0
+  @State private var hasRetriedThisAppearance = false
+  @State private var restoreSuccessTrigger = 0
 
-    var body: some View {
-        // A `@Bindable` local is required to project `$storeState.errorMessage` from the
-        // environment-owned `@Observable` (a plain computed property cannot supply a Binding).
-        @Bindable var storeState = appState.storeState
+  var body: some View {
+    // A `@Bindable` local is required to project `$storeState.errorMessage` from the
+    // environment-owned `@Observable` (a plain computed property cannot supply a Binding).
+    @Bindable var storeState = appState.storeState
 
-        return List {
-            SupportHeaderSection()
+    return List {
+      SupportHeaderSection()
 
-            if storeState.pendingPurchase != nil {
-                PendingPurchaseBanner()
-            }
+      if storeState.pendingPurchase != nil {
+        PendingPurchaseBanner()
+      }
 
-            ThemesPurchaseSection()
-            ContributionsSection()
-            restoreSection(storeState)
-            RefundLinkSection()
-            SupportContactSection()
-        }
-        .themedCanvas(theme)
-        .navigationTitle(L10n.Settings.Support.title)
-        .navigationBarTitleDisplayMode(.inline)
-        .errorAlert($storeState.errorMessage, retryAction: { Task { await storeState.service.load() } })
-        .sensoryFeedback(.success, trigger: restoreSuccessTrigger)
-        .onChange(of: storeState.service.ownedThemeIDs) {
-            storeState.reconcilePendingPurchase()
-        }
-        .onChange(of: storeState.restoreState) { _, newValue in
-            if newValue == .completed { restoreSuccessTrigger += 1 }
-        }
-        .onAppear {
-            // Clear a pending banner whose entitlement already arrived while this screen was
-            // off-screen: the `.onChange(of: ownedThemeIDs)` above fires only on a live change,
-            // not on re-entry, so an Ask-to-Buy approval received elsewhere would otherwise leave
-            // a stale "Awaiting approval" banner until app close.
-            storeState.reconcilePendingPurchase()
-            if storeState.service.loadState == .failed, !hasRetriedThisAppearance {
-                hasRetriedThisAppearance = true
-                Task { await storeState.service.load() }
-            }
-        }
-        .onDisappear { hasRetriedThisAppearance = false }
+      ThemesPurchaseSection()
+      ContributionsSection()
+      restoreSection(storeState)
+      RefundLinkSection()
+      SupportContactSection()
     }
-
-    @ViewBuilder
-    private func restoreSection(_ storeState: StoreState) -> some View {
-        Section {
-            Button {
-                Task { await storeState.restorePurchases() }
-            } label: {
-                HStack {
-                    Text(storeState.restoreState == .syncing
-                         ? L10n.Settings.Support.Restore.syncing
-                         : L10n.Settings.Support.Restore.button)
-                    Spacer()
-                    if storeState.restoreState == .syncing { ProgressView() }
-                }
-            }
-            .disabled(storeState.restoreState == .syncing)
-        }
-        .themedRowBackground(theme)
+    .themedCanvas(theme)
+    .navigationTitle(L10n.Settings.Support.title)
+    .navigationBarTitleDisplayMode(.inline)
+    .errorAlert($storeState.errorMessage, retryAction: { Task { await storeState.service.load() } })
+    .sensoryFeedback(.success, trigger: restoreSuccessTrigger)
+    .onChange(of: storeState.service.ownedThemeIDs) {
+      storeState.reconcilePendingPurchase()
     }
+    .onChange(of: storeState.restoreState) { _, newValue in
+      if newValue == .completed { restoreSuccessTrigger += 1 }
+    }
+    .onAppear {
+      // Clear a pending banner whose entitlement already arrived while this screen was
+      // off-screen: the `.onChange(of: ownedThemeIDs)` above fires only on a live change,
+      // not on re-entry, so an Ask-to-Buy approval received elsewhere would otherwise leave
+      // a stale "Awaiting approval" banner until app close.
+      storeState.reconcilePendingPurchase()
+      if storeState.service.loadState == .failed, !hasRetriedThisAppearance {
+        hasRetriedThisAppearance = true
+        Task { await storeState.service.load() }
+      }
+    }
+    .onDisappear { hasRetriedThisAppearance = false }
+  }
+
+  private func restoreSection(_ storeState: StoreState) -> some View {
+    Section {
+      Button {
+        Task { await storeState.restorePurchases() }
+      } label: {
+        HStack {
+          Text(storeState.restoreState == .syncing
+            ? L10n.Settings.Support.Restore.syncing
+            : L10n.Settings.Support.Restore.button)
+          Spacer()
+          if storeState.restoreState == .syncing { ProgressView() }
+        }
+      }
+      .disabled(storeState.restoreState == .syncing)
+    }
+    .themedRowBackground(theme)
+  }
 }

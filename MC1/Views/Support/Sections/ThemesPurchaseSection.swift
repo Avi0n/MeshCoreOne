@@ -1,77 +1,79 @@
-import SwiftUI
-import StoreKit
 import MC1Services
+import StoreKit
+import SwiftUI
 
 struct ThemesPurchaseSection: View {
-    @Environment(\.appState) private var appState
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @Environment(\.purchase) private var purchase
+  @Environment(\.appState) private var appState
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+  @Environment(\.purchase) private var purchase
 
-    private var storeState: StoreState { appState.storeState }
+  private var storeState: StoreState {
+    appState.storeState
+  }
 
-    private var purchasableThemes: [Theme] {
-        ThemeRegistry.allThemes.filter { $0.productID != nil }
-    }
+  private var purchasableThemes: [Theme] {
+    ThemeRegistry.allThemes.filter { $0.productID != nil }
+  }
 
-    private var ownsEveryTheme: Bool {
-        storeState.service.ownedThemeIDs.isSuperset(of: StoreCatalog.Theme.bundledThemeIDs)
-    }
+  private var ownsEveryTheme: Bool {
+    storeState.service.ownedThemeIDs.isSuperset(of: StoreCatalog.Theme.bundledThemeIDs)
+  }
 
-    private var columns: [GridItem] {
-        dynamicTypeSize.isAccessibilitySize
-            ? [GridItem(.flexible())]
-            : [GridItem(.adaptive(minimum: ThemeCardMetrics.gridItemMinimum), spacing: ThemeCardMetrics.gridSpacing)]
-    }
+  private var columns: [GridItem] {
+    dynamicTypeSize.isAccessibilitySize
+      ? [GridItem(.flexible())]
+      : [GridItem(.adaptive(minimum: ThemeCardMetrics.gridItemMinimum), spacing: ThemeCardMetrics.gridSpacing)]
+  }
 
-    var body: some View {
-        Section {
-            if ownsEveryTheme {
-                allUnlockedCard
-            } else {
-                LazyVGrid(columns: columns, spacing: ThemeCardMetrics.gridSpacing) {
-                    ForEach(purchasableThemes) { theme in
-                        ThemePreviewCard(theme: theme, isOwned: isOwned(theme))
-                    }
-                }
-                .listRowInsets(ThemeCardMetrics.gridRowInsets)
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-
-                ThemeBundleCard(
-                    isPending: storeState.pendingPurchase?.productID == StoreCatalog.Theme.bundleAll,
-                    displayPrice: storeState.service.product(for: StoreCatalog.Theme.bundleAll)?.displayPrice,
-                    onPurchase: { await storeState.purchase(productID: StoreCatalog.Theme.bundleAll) { try await purchase($0) } }
-                )
-                .listRowInsets(ThemeCardMetrics.gridRowInsets)
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-            }
-        } header: {
-            Text(L10n.Settings.Support.Themes.title)
-        } footer: {
-            if !appState.themeService.availableToCurrentUser().filter({ $0.productID != nil }).isEmpty {
-                Text(L10n.Settings.Support.Themes.purchasedFooter)
-            }
+  var body: some View {
+    Section {
+      if ownsEveryTheme {
+        allUnlockedCard
+      } else {
+        LazyVGrid(columns: columns, spacing: ThemeCardMetrics.gridSpacing) {
+          ForEach(purchasableThemes) { theme in
+            ThemePreviewCard(theme: theme, isOwned: isOwned(theme))
+          }
         }
-    }
-
-    private var allUnlockedCard: some View {
-        VStack(spacing: ThemeCardMetrics.allUnlockedSpacing) {
-            Text(verbatim: "🎉")
-                .font(.system(size: ThemeCardMetrics.allUnlockedEmojiSize))
-            Text(L10n.Settings.Support.Themes.allUnlocked)
-                .font(.headline)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, ThemeCardMetrics.allUnlockedVerticalPadding)
         .listRowInsets(ThemeCardMetrics.gridRowInsets)
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
-        .accessibilityElement(children: .combine)
-    }
 
-    private func isOwned(_ theme: Theme) -> Bool {
-        guard let productID = theme.productID else { return true }
-        return storeState.service.ownedThemeIDs.contains(productID)
+        ThemeBundleCard(
+          isPending: storeState.pendingPurchase?.productID == StoreCatalog.Theme.bundleAll,
+          displayPrice: storeState.service.product(for: StoreCatalog.Theme.bundleAll)?.displayPrice,
+          onPurchase: { await storeState.purchase(productID: StoreCatalog.Theme.bundleAll) { try await purchase($0) } }
+        )
+        .listRowInsets(ThemeCardMetrics.gridRowInsets)
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+      }
+    } header: {
+      Text(L10n.Settings.Support.Themes.title)
+    } footer: {
+      if !appState.themeService.availableToCurrentUser().filter({ $0.productID != nil }).isEmpty {
+        Text(L10n.Settings.Support.Themes.purchasedFooter)
+      }
     }
+  }
+
+  private var allUnlockedCard: some View {
+    VStack(spacing: ThemeCardMetrics.allUnlockedSpacing) {
+      Text(verbatim: "🎉")
+        .font(.system(size: ThemeCardMetrics.allUnlockedEmojiSize))
+      Text(L10n.Settings.Support.Themes.allUnlocked)
+        .font(.headline)
+    }
+    .frame(maxWidth: .infinity)
+    .padding(.vertical, ThemeCardMetrics.allUnlockedVerticalPadding)
+    .listRowInsets(ThemeCardMetrics.gridRowInsets)
+    .listRowBackground(Color.clear)
+    .listRowSeparator(.hidden)
+    .accessibilityElement(children: .combine)
+  }
+
+  private func isOwned(_ theme: Theme) -> Bool {
+    guard let productID = theme.productID else { return true }
+    return storeState.service.ownedThemeIDs.contains(productID)
+  }
 }

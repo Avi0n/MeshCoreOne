@@ -1,6 +1,6 @@
 import Foundation
-import Testing
 @testable import MC1Services
+import Testing
 
 /// MessageServiceConfig guards against `maxAttempts > 5` via a precondition.
 /// The firmware ACK hash masks the attempt index with `& 0x03`; a single
@@ -10,16 +10,15 @@ import Testing
 /// inline rather than asserted at runtime; the boundary case is exercised here.
 @Suite("MessageServiceConfig precondition")
 struct MessageServiceConfigTests {
+  @Test
+  func `maxAttempts == 5 is accepted at the precondition boundary`() {
+    let config = MessageServiceConfig(maxAttempts: 5)
+    #expect(config.maxAttempts == 5)
+  }
 
-    @Test("maxAttempts == 5 is accepted at the precondition boundary")
-    func boundaryValueIsAccepted() {
-        let config = MessageServiceConfig(maxAttempts: 5)
-        #expect(config.maxAttempts == 5)
-    }
-
-    @Test("Default config respects the maxAttempts ceiling")
-    func defaultConfigHonoursCeiling() {
-        let config = MessageServiceConfig()
-        #expect(config.maxAttempts <= 5)
-    }
+  @Test
+  func `Default config respects the maxAttempts ceiling`() {
+    let config = MessageServiceConfig()
+    #expect(config.maxAttempts <= 5)
+  }
 }

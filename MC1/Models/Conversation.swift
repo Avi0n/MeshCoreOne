@@ -3,78 +3,77 @@ import MC1Services
 
 /// Represents a conversation in the chat list - direct chat, channel, or room
 enum Conversation: Identifiable, Hashable {
-    case direct(ContactDTO)
-    case channel(ChannelDTO)
-    case room(RemoteNodeSessionDTO)
+  case direct(ContactDTO)
+  case channel(ChannelDTO)
+  case room(RemoteNodeSessionDTO)
 
-    var id: UUID {
-        switch self {
-        case .direct(let contact):
-            return contact.id
-        case .channel(let channel):
-            return channel.id
-        case .room(let session):
-            return session.id
-        }
+  var id: UUID {
+    switch self {
+    case let .direct(contact):
+      contact.id
+    case let .channel(channel):
+      channel.id
+    case let .room(session):
+      session.id
     }
+  }
 
-    var displayName: String {
-        switch self {
-        case .direct(let contact):
-            return contact.displayName
-        case .channel(let channel):
-            return channel.displayName
-        case .room(let session):
-            return session.name
-        }
+  var displayName: String {
+    switch self {
+    case let .direct(contact):
+      contact.displayName
+    case let .channel(channel):
+      channel.displayName
+    case let .room(session):
+      session.name
     }
+  }
 
-    var lastMessageDate: Date? {
-        switch self {
-        case .direct(let contact):
-            return contact.lastMessageDate
-        case .channel(let channel):
-            return channel.lastMessageDate
-        case .room(let session):
-            return session.lastMessageDate
-        }
+  var lastMessageDate: Date? {
+    switch self {
+    case let .direct(contact):
+      contact.lastMessageDate
+    case let .channel(channel):
+      channel.lastMessageDate
+    case let .room(session):
+      session.lastMessageDate
     }
+  }
 
-    var unreadCount: Int {
-        switch self {
-        case .direct(let contact):
-            return contact.unreadCount
-        case .channel(let channel):
-            return channel.unreadCount
-        case .room(let session):
-            return session.unreadCount
-        }
+  var unreadCount: Int {
+    switch self {
+    case let .direct(contact):
+      contact.unreadCount
+    case let .channel(channel):
+      channel.unreadCount
+    case let .room(session):
+      session.unreadCount
     }
+  }
 
-    var notificationLevel: NotificationLevel {
-        switch self {
-        case .direct(let contact):
-            return contact.isMuted ? .muted : .all
-        case .channel(let channel):
-            return channel.notificationLevel
-        case .room(let session):
-            return session.notificationLevel
-        }
+  var notificationLevel: NotificationLevel {
+    switch self {
+    case let .direct(contact):
+      contact.isMuted ? .muted : .all
+    case let .channel(channel):
+      channel.notificationLevel
+    case let .room(session):
+      session.notificationLevel
     }
+  }
 
-    var isMuted: Bool {
-        notificationLevel == .muted
+  var isMuted: Bool {
+    notificationLevel == .muted
+  }
+
+  var isFavorite: Bool {
+    switch self {
+    case let .direct(contact):
+      contact.isFavorite
+    case let .channel(channel):
+      channel.isFavorite
+    case let .room(session):
+      session.isFavorite
     }
-
-    var isFavorite: Bool {
-        switch self {
-        case .direct(let contact):
-            return contact.isFavorite
-        case .channel(let channel):
-            return channel.isFavorite
-        case .room(let session):
-            return session.isFavorite
-        }
-    }
-
+  }
 }

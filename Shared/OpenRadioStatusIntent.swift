@@ -10,13 +10,13 @@ import AppIntents
 /// belt-and-suspenders UX choice; the real send gate lives on
 /// `SendMessageIntent` in the app process.
 struct OpenRadioStatusIntent: AppIntent {
-    static let title = LocalizedStringResource("Open MeshCore One")
-    static let openAppWhenRun = true
-    static let isDiscoverable = false
+  static let title = LocalizedStringResource("Open MeshCore One")
+  static let openAppWhenRun = true
+  static let isDiscoverable = false
 
-    static let authenticationPolicy: IntentAuthenticationPolicy = .requiresAuthentication
+  static let authenticationPolicy: IntentAuthenticationPolicy = .requiresAuthentication
 
-    func perform() async throws -> some IntentResult {
-        .result()
-    }
+  func perform() async throws -> some IntentResult {
+    .result()
+  }
 }

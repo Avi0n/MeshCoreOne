@@ -21,16 +21,16 @@
 /// }
 /// ```
 public protocol PersistenceStoreProtocol:
-    MessagePersisting,
-    DevicePersisting,
-    ContactPersisting,
-    ChannelPersisting,
-    TracePathPersisting,
-    HeardRepeatPersisting,
-    DebugLogPersisting,
-    LinkPreviewPersisting,
-    RxLogPersisting,
-    RoomPersisting,
-    DiscoveredNodePersisting,
-    ReactionPersisting,
-    NodeSnapshotPersisting {}
+  MessagePersisting,
+  DevicePersisting,
+  ContactPersisting,
+  ChannelPersisting,
+  TracePathPersisting,
+  HeardRepeatPersisting,
+  DebugLogPersisting,
+  LinkPreviewPersisting,
+  RxLogPersisting,
+  RoomPersisting,
+  DiscoveredNodePersisting,
+  ReactionPersisting,
+  NodeSnapshotPersisting {}

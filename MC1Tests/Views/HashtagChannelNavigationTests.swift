@@ -1,118 +1,117 @@
-import Testing
 import Foundation
 @testable import MC1
 @testable import MC1Services
+import Testing
 
 @Suite("Hashtag Channel Navigation Tests")
 struct HashtagChannelNavigationTests {
+  // MARK: - Channel Lookup Tests
 
-    // MARK: - Channel Lookup Tests
+  @Test
+  func `findChannelByName matches case-insensitively`() {
+    let channels = [
+      makeChannel(name: "#general", index: 1),
+      makeChannel(name: "#events", index: 2)
+    ]
 
-    @Test("findChannelByName matches case-insensitively")
-    func testCaseInsensitiveMatch() {
-        let channels = [
-            makeChannel(name: "#general", index: 1),
-            makeChannel(name: "#events", index: 2)
-        ]
-
-        let result = channels.first { channel in
-            channel.name.localizedCaseInsensitiveCompare("#GENERAL") == .orderedSame
-        }
-
-        #expect(result?.name == "#general")
+    let result = channels.first { channel in
+      channel.name.localizedCaseInsensitiveCompare("#GENERAL") == .orderedSame
     }
 
-    @Test("findChannelByName returns nil for no match")
-    func testNoMatch() {
-        let channels = [
-            makeChannel(name: "#general", index: 1)
-        ]
+    #expect(result?.name == "#general")
+  }
 
-        let result = channels.first { channel in
-            channel.name.localizedCaseInsensitiveCompare("#events") == .orderedSame
-        }
+  @Test
+  func `findChannelByName returns nil for no match`() {
+    let channels = [
+      makeChannel(name: "#general", index: 1)
+    ]
 
-        #expect(result == nil)
+    let result = channels.first { channel in
+      channel.name.localizedCaseInsensitiveCompare("#events") == .orderedSame
     }
 
-    @Test("findChannelByName handles empty channel list")
-    func testEmptyChannelList() {
-        let channels: [ChannelDTO] = []
+    #expect(result == nil)
+  }
 
-        let result = channels.first { channel in
-            channel.name.localizedCaseInsensitiveCompare("#general") == .orderedSame
-        }
+  @Test
+  func `findChannelByName handles empty channel list`() {
+    let channels: [ChannelDTO] = []
 
-        #expect(result == nil)
+    let result = channels.first { channel in
+      channel.name.localizedCaseInsensitiveCompare("#general") == .orderedSame
     }
 
-    @Test("findChannelByName matches with mixed case in list")
-    func testMixedCaseInList() {
-        let channels = [
-            makeChannel(name: "#General", index: 1),
-            makeChannel(name: "#EVENTS", index: 2),
-            makeChannel(name: "#news", index: 3)
-        ]
+    #expect(result == nil)
+  }
 
-        let generalResult = channels.first { channel in
-            channel.name.localizedCaseInsensitiveCompare("#general") == .orderedSame
-        }
-        let eventsResult = channels.first { channel in
-            channel.name.localizedCaseInsensitiveCompare("#events") == .orderedSame
-        }
-        let newsResult = channels.first { channel in
-            channel.name.localizedCaseInsensitiveCompare("#NEWS") == .orderedSame
-        }
+  @Test
+  func `findChannelByName matches with mixed case in list`() {
+    let channels = [
+      makeChannel(name: "#General", index: 1),
+      makeChannel(name: "#EVENTS", index: 2),
+      makeChannel(name: "#news", index: 3)
+    ]
 
-        #expect(generalResult?.name == "#General")
-        #expect(eventsResult?.name == "#EVENTS")
-        #expect(newsResult?.name == "#news")
+    let generalResult = channels.first { channel in
+      channel.name.localizedCaseInsensitiveCompare("#general") == .orderedSame
+    }
+    let eventsResult = channels.first { channel in
+      channel.name.localizedCaseInsensitiveCompare("#events") == .orderedSame
+    }
+    let newsResult = channels.first { channel in
+      channel.name.localizedCaseInsensitiveCompare("#NEWS") == .orderedSame
     }
 
-    // MARK: - Secret Derivation Consistency Tests
+    #expect(generalResult?.name == "#General")
+    #expect(eventsResult?.name == "#EVENTS")
+    #expect(newsResult?.name == "#news")
+  }
 
-    @Test("normalized names produce consistent secrets")
-    func testSecretDerivationConsistency() {
-        // All should normalize to "general" and produce same passphrase
-        let name1 = HashtagUtilities.normalizeHashtagName("#General")
-        let name2 = HashtagUtilities.normalizeHashtagName("#GENERAL")
-        let name3 = HashtagUtilities.normalizeHashtagName("general")
-        let name4 = HashtagUtilities.normalizeHashtagName("#general")
+  // MARK: - Secret Derivation Consistency Tests
 
-        #expect(name1 == name2)
-        #expect(name2 == name3)
-        #expect(name3 == name4)
+  @Test
+  func `normalized names produce consistent secrets`() {
+    // All should normalize to "general" and produce same passphrase
+    let name1 = HashtagUtilities.normalizeHashtagName("#General")
+    let name2 = HashtagUtilities.normalizeHashtagName("#GENERAL")
+    let name3 = HashtagUtilities.normalizeHashtagName("general")
+    let name4 = HashtagUtilities.normalizeHashtagName("#general")
 
-        // The passphrase should be "#general" (lowercase with prefix)
-        let passphrase = "#\(name1)"
-        #expect(passphrase == "#general")
-    }
+    #expect(name1 == name2)
+    #expect(name2 == name3)
+    #expect(name3 == name4)
 
-    // MARK: - URL Scheme Tests
+    // The passphrase should be "#general" (lowercase with prefix)
+    let passphrase = "#\(name1)"
+    #expect(passphrase == "#general")
+  }
 
-    @Test("URL scheme encodes and decodes channel name correctly")
-    func testURLSchemeRoundTrip() {
-        let channelName = "general"
-        let url = URL(string: "meshcoreone://hashtag/\(channelName)")
+  // MARK: - URL Scheme Tests
 
-        #expect(url?.scheme == "meshcoreone")
-        #expect(url?.host == "hashtag")
-        #expect(url?.pathComponents.dropFirst().first == channelName)
-    }
+  @Test
+  func `URL scheme encodes and decodes channel name correctly`() {
+    let channelName = "general"
+    let url = URL(string: "meshcoreone://hashtag/\(channelName)")
 
-    // MARK: - Helpers
+    #expect(url?.scheme == "meshcoreone")
+    #expect(url?.host == "hashtag")
+    #expect(url?.pathComponents.dropFirst().first == channelName)
+  }
 
-    private func makeChannel(name: String, index: UInt8) -> ChannelDTO {
-        ChannelDTO(
-            id: UUID(),
-            radioID: UUID(),
-            index: index,
-            name: name,
-            secret: Data(repeating: 0, count: 16),
-            isEnabled: true,
-            lastMessageDate: nil,
-            unreadCount: 0,
-            notificationLevel: .all
-        )
-    }
+  // MARK: - Helpers
+
+  private func makeChannel(name: String, index: UInt8) -> ChannelDTO {
+    ChannelDTO(
+      id: UUID(),
+      radioID: UUID(),
+      index: index,
+      name: name,
+      secret: Data(repeating: 0, count: 16),
+      isEnabled: true,
+      lastMessageDate: nil,
+      unreadCount: 0,
+      notificationLevel: .all
+    )
+  }
 }

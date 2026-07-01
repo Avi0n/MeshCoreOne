@@ -6,19 +6,19 @@ import SwiftUI
 /// collapsing the SF Symbol to zero width; the spacers center the intrinsic-width
 /// pair within the stretched frame.
 struct PathEditCTALabel: View {
-    let title: String
-    let systemImage: String
+  let title: String
+  let systemImage: String
 
-    var body: some View {
-        HStack(spacing: PathEditMetrics.ctaIconSpacing) {
-            Spacer()
-            Image(systemName: systemImage)
-                .font(.body.weight(.semibold))
-                .frame(width: PathEditMetrics.ctaIconSize, height: PathEditMetrics.ctaIconSize)
-            Text(title)
-                .font(.body.weight(.semibold))
-            Spacer()
-        }
-        .frame(maxWidth: .infinity)
+  var body: some View {
+    HStack(spacing: PathEditMetrics.ctaIconSpacing) {
+      Spacer()
+      Image(systemName: systemImage)
+        .font(.body.weight(.semibold))
+        .frame(width: PathEditMetrics.ctaIconSize, height: PathEditMetrics.ctaIconSize)
+      Text(title)
+        .font(.body.weight(.semibold))
+      Spacer()
     }
+    .frame(maxWidth: .infinity)
+  }
 }

@@ -4,16 +4,16 @@ import SwiftUI
 /// fetch resolves: "Loading…" while in flight, "Failed to load" on error, an em
 /// dash otherwise.
 struct SettingsLoadPlaceholder: View {
-    let isLoading: Bool
-    let hasError: Bool
+  let isLoading: Bool
+  let hasError: Bool
 
-    var body: some View {
-        Text(
-            isLoading
-                ? L10n.RemoteNodes.RemoteNodes.Settings.loading
-                : (hasError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : NodeStatusViewModel.emDash)
-        )
-        .font(.caption)
-        .foregroundStyle(.secondary)
-    }
+  var body: some View {
+    Text(
+      isLoading
+        ? L10n.RemoteNodes.RemoteNodes.Settings.loading
+        : (hasError ? L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad : NodeStatusViewModel.emDash)
+    )
+    .font(.caption)
+    .foregroundStyle(.secondary)
+  }
 }

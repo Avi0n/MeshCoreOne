@@ -1,7 +1,7 @@
 import CoreLocation
+import MC1Services
 import SwiftUI
 import UIKit
-import MC1Services
 
 /// Per-row action wiring for `MessageBubbleView`. Each closure is invoked
 /// in response to a user interaction on a bubble and forwards to the
@@ -18,17 +18,17 @@ import MC1Services
 /// message identity, which is captured by `MessageItem.id`.
 @MainActor
 struct BubbleActions {
-    let onRetryMessage: (MessageDTO) -> Void
-    let onReaction: (String, MessageDTO) -> Void
-    let onLongPress: (MessageDTO) -> Void
-    let onImageTap: (MessageDTO) -> Void
-    let onRetryInlineImage: (UUID) -> Void
-    let onRequestPreviewFetch: (UUID) -> Void
-    let onManualPreviewFetch: (UUID) -> Void
-    let onMapPreviewTap: (CLLocationCoordinate2D) -> Void
-    /// Map snapshot providers, injected so the bubble resolves, requests, and
-    /// retries thumbnails without reaching `MapSnapshotStore.shared`.
-    let snapshotResolver: (MapSnapshotRequest) -> UIImage?
-    let requestSnapshot: (MapSnapshotRequest) -> Void
-    let retrySnapshot: (MapSnapshotRequest) -> Void
+  let onRetryMessage: (MessageDTO) -> Void
+  let onReaction: (String, MessageDTO) -> Void
+  let onLongPress: (MessageDTO) -> Void
+  let onImageTap: (MessageDTO) -> Void
+  let onRetryInlineImage: (UUID) -> Void
+  let onRequestPreviewFetch: (UUID) -> Void
+  let onManualPreviewFetch: (UUID) -> Void
+  let onMapPreviewTap: (CLLocationCoordinate2D) -> Void
+  /// Map snapshot providers, injected so the bubble resolves, requests, and
+  /// retries thumbnails without reaching `MapSnapshotStore.shared`.
+  let snapshotResolver: (MapSnapshotRequest) -> UIImage?
+  let requestSnapshot: (MapSnapshotRequest) -> Void
+  let retrySnapshot: (MapSnapshotRequest) -> Void
 }

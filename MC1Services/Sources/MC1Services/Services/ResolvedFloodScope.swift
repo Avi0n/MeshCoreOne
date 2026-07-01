@@ -8,9 +8,9 @@ import MeshCore
 /// resets the session scope and lets the device fall back to its persisted default, so it
 /// cannot stand in for an explicit "all regions" override on firmware that supports one.
 public enum ResolvedFloodScope: Sendable, Equatable {
-    /// Force un-scoped flood broadcasts, overriding the device default. Push via
-    /// ``MeshCoreSession/setFloodScopeUnscoped()``. Requires firmware v12+.
-    case unscoped
-    /// Push a concrete ``FloodScope`` via ``MeshCoreSession/setFloodScope(_:)``.
-    case scope(FloodScope)
+  /// Force un-scoped flood broadcasts, overriding the device default. Push via
+  /// ``MeshCoreSession/setFloodScopeUnscoped()``. Requires firmware v12+.
+  case unscoped
+  /// Push a concrete ``FloodScope`` via ``MeshCoreSession/setFloodScope(_:)``.
+  case scope(FloodScope)
 }

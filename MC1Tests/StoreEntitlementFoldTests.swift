@@ -1,5 +1,5 @@
-import Testing
 @testable import MC1Services
+import Testing
 
 /// Exercises `StoreService.applyEntitlement(productID:isRevoked:)` directly — the additive fold
 /// that grants a purchase from its returned transaction instead of re-reading
@@ -9,46 +9,46 @@ import Testing
 @MainActor
 @Suite("StoreService entitlement fold")
 struct StoreEntitlementFoldTests {
-    /// A service with its `Transaction.updates` listener cancelled — the fold logic needs no
-    /// live StoreKit, and detaching avoids an idle listener Task outliving the test.
-    private func makeService() -> StoreService {
-        let service = StoreService()
-        service.shutdown()
-        return service
-    }
+  /// A service with its `Transaction.updates` listener cancelled — the fold logic needs no
+  /// live StoreKit, and detaching avoids an idle listener Task outliving the test.
+  private func makeService() -> StoreService {
+    let service = StoreService()
+    service.shutdown()
+    return service
+  }
 
-    @Test("granting the bundle unlocks every bundled theme")
-    func grantBundle() {
-        let service = makeService()
-        service.applyEntitlement(productID: StoreCatalog.Theme.bundleAll, isRevoked: false)
-        #expect(service.ownedThemeIDs == StoreCatalog.Theme.bundledThemeIDs)
-    }
+  @Test
+  func `granting the bundle unlocks every bundled theme`() {
+    let service = makeService()
+    service.applyEntitlement(productID: StoreCatalog.Theme.bundleAll, isRevoked: false)
+    #expect(service.ownedThemeIDs == StoreCatalog.Theme.bundledThemeIDs)
+  }
 
-    @Test("revoking the bundle removes every theme it granted")
-    func revokeBundle() {
-        let service = makeService()
-        service.applyEntitlement(productID: StoreCatalog.Theme.bundleAll, isRevoked: false)
-        service.applyEntitlement(productID: StoreCatalog.Theme.bundleAll, isRevoked: true)
-        #expect(service.ownedThemeIDs.isEmpty)
-    }
+  @Test
+  func `revoking the bundle removes every theme it granted`() {
+    let service = makeService()
+    service.applyEntitlement(productID: StoreCatalog.Theme.bundleAll, isRevoked: false)
+    service.applyEntitlement(productID: StoreCatalog.Theme.bundleAll, isRevoked: true)
+    #expect(service.ownedThemeIDs.isEmpty)
+  }
 
-    @Test("a consumable tip product grants no theme entitlement")
-    func tipGrantsNothing() {
-        let service = makeService()
-        service.applyEntitlement(productID: StoreCatalog.Tip.coffee, isRevoked: false)
-        #expect(service.ownedThemeIDs.isEmpty)
-    }
+  @Test
+  func `a consumable tip product grants no theme entitlement`() {
+    let service = makeService()
+    service.applyEntitlement(productID: StoreCatalog.Tip.coffee, isRevoked: false)
+    #expect(service.ownedThemeIDs.isEmpty)
+  }
 
-    @Test("the entitlements-changed callback fires only on a real change")
-    func callbackFiresOnChangeOnly() {
-        let service = makeService()
-        let count = MutableBox(0)
-        service.onEntitlementsChanged = { count.value += 1 }
+  @Test
+  func `the entitlements-changed callback fires only on a real change`() {
+    let service = makeService()
+    let count = MutableBox(0)
+    service.onEntitlementsChanged = { count.value += 1 }
 
-        service.applyEntitlement(productID: StoreCatalog.Theme.bundleAll, isRevoked: false)
-        service.applyEntitlement(productID: StoreCatalog.Theme.bundleAll, isRevoked: false)   // already owned
+    service.applyEntitlement(productID: StoreCatalog.Theme.bundleAll, isRevoked: false)
+    service.applyEntitlement(productID: StoreCatalog.Theme.bundleAll, isRevoked: false) // already owned
 
-        #expect(service.ownedThemeIDs == StoreCatalog.Theme.bundledThemeIDs)
-        #expect(count.value == 1)
-    }
+    #expect(service.ownedThemeIDs == StoreCatalog.Theme.bundledThemeIDs)
+    #expect(count.value == 1)
+  }
 }

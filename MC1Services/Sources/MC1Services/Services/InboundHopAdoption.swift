@@ -20,22 +20,22 @@ import Foundation
 /// freezing the stored count until the row ages out of the discovered-node cap. Reset detection is
 /// out of scope.
 func adoptInboundHop(
-    storedHops: Int?,
-    storedTimestamp: UInt32?,
-    incomingHops: Int,
-    incomingTimestamp: UInt32?
+  storedHops: Int?,
+  storedTimestamp: UInt32?,
+  incomingHops: Int,
+  incomingTimestamp: UInt32?
 ) -> (hopCount: Int, advertTimestamp: UInt32?)? {
-    guard let storedTimestamp else {
-        return (hopCount: incomingHops, advertTimestamp: incomingTimestamp)
-    }
-    guard let incomingTimestamp else {
-        return nil
-    }
-    if incomingTimestamp > storedTimestamp {
-        return (hopCount: incomingHops, advertTimestamp: incomingTimestamp)
-    }
-    if incomingTimestamp == storedTimestamp, incomingHops < (storedHops ?? Int.max) {
-        return (hopCount: incomingHops, advertTimestamp: incomingTimestamp)
-    }
+  guard let storedTimestamp else {
+    return (hopCount: incomingHops, advertTimestamp: incomingTimestamp)
+  }
+  guard let incomingTimestamp else {
     return nil
+  }
+  if incomingTimestamp > storedTimestamp {
+    return (hopCount: incomingHops, advertTimestamp: incomingTimestamp)
+  }
+  if incomingTimestamp == storedTimestamp, incomingHops < (storedHops ?? Int.max) {
+    return (hopCount: incomingHops, advertTimestamp: incomingTimestamp)
+  }
+  return nil
 }

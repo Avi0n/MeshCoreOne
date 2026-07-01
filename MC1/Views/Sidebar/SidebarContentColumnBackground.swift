@@ -10,22 +10,21 @@ import SwiftUI
 /// no-op; the floating sidebar simply overlays the unmodified system surface there. The leading
 /// inset keeps row content clear of the floating glass in both cases.
 struct SidebarContentColumnBackground: ViewModifier {
-    let theme: Theme
+  let theme: Theme
 
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        if let canvas = theme.surfaces?.canvas {
-            content
-                .scrollContentBackground(.hidden)
-                .safeAreaPadding(.leading, sidebarContentLeadingInset)
-                .background {
-                    canvas
-                        .ignoresSafeArea()
-                        .sidebarBackgroundExtension()
-                }
-        } else {
-            content
-                .safeAreaPadding(.leading, sidebarContentLeadingInset)
+  func body(content: Content) -> some View {
+    if let canvas = theme.surfaces?.canvas {
+      content
+        .scrollContentBackground(.hidden)
+        .safeAreaPadding(.leading, sidebarContentLeadingInset)
+        .background {
+          canvas
+            .ignoresSafeArea()
+            .sidebarBackgroundExtension()
         }
+    } else {
+      content
+        .safeAreaPadding(.leading, sidebarContentLeadingInset)
     }
+  }
 }
