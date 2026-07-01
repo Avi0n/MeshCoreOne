@@ -14,34 +14,34 @@ import MC1Services
 /// a plain value. It is never stored on `MessageItem` and never participates in
 /// any bubble view's `==`, so the item-only Equatable seam stays intact.
 struct FragmentLayout {
-    /// The single text fragment that fills the bubble box, if any.
-    let textPayload: MessageTextPayload?
+  /// The single text fragment that fills the bubble box, if any.
+  let textPayload: MessageTextPayload?
 
-    /// The single inline image attached to the bubble box, if any.
-    let inlineImage: InlineImage?
+  /// The single inline image attached to the bubble box, if any.
+  let inlineImage: InlineImage?
 
-    /// Fragments rendered below the box, in document order. Excludes the
-    /// box-resident text and inline image.
-    let siblings: [MessageFragment]
+  /// Fragments rendered below the box, in document order. Excludes the
+  /// box-resident text and inline image.
+  let siblings: [MessageFragment]
 
-    init(content: [MessageFragment]) {
-        var textPayload: MessageTextPayload?
-        var inlineImage: InlineImage?
-        var siblings: [MessageFragment] = []
+  init(content: [MessageFragment]) {
+    var textPayload: MessageTextPayload?
+    var inlineImage: InlineImage?
+    var siblings: [MessageFragment] = []
 
-        for fragment in content {
-            switch fragment {
-            case .text(let payload):
-                if textPayload == nil { textPayload = payload }
-            case .inlineImage(let image):
-                if inlineImage == nil { inlineImage = image }
-            case .linkPreview, .mapPreview, .malwareWarning, .reactionSummary:
-                siblings.append(fragment)
-            }
-        }
-
-        self.textPayload = textPayload
-        self.inlineImage = inlineImage
-        self.siblings = siblings
+    for fragment in content {
+      switch fragment {
+      case let .text(payload):
+        if textPayload == nil { textPayload = payload }
+      case let .inlineImage(image):
+        if inlineImage == nil { inlineImage = image }
+      case .linkPreview, .mapPreview, .malwareWarning, .reactionSummary:
+        siblings.append(fragment)
+      }
     }
+
+    self.textPayload = textPayload
+    self.inlineImage = inlineImage
+    self.siblings = siblings
+  }
 }

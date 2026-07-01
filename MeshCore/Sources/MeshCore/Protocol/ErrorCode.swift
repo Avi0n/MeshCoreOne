@@ -11,16 +11,16 @@ import Foundation
 /// ``MeshEvent/errorCode`` to obtain the typed value when the byte is one of the
 /// known codes.
 public enum ErrorCode: UInt8, Sendable {
-    /// Unknown or unsupported command byte / sub-command.
-    case unsupportedCommand = 1
-    /// Target not found (channel, contact, message, etc.).
-    case notFound = 2
-    /// Internal queue or table is full; retry later.
-    case tableFull = 3
-    /// Operation not valid in the current device state (e.g. iterator already running).
-    case badState = 4
-    /// Filesystem or storage I/O failure.
-    case fileIOError = 5
-    /// Invalid argument (bad length, out-of-range value, reserved field, etc.).
-    case illegalArgument = 6
+  /// Unknown or unsupported command byte / sub-command.
+  case unsupportedCommand = 1
+  /// Target not found (channel, contact, message, etc.).
+  case notFound = 2
+  /// Internal queue or table is full; retry later.
+  case tableFull = 3
+  /// Operation not valid in the current device state (e.g. iterator already running).
+  case badState = 4
+  /// Filesystem or storage I/O failure.
+  case fileIOError = 5
+  /// Invalid argument (bad length, out-of-range value, reserved field, etc.).
+  case illegalArgument = 6
 }

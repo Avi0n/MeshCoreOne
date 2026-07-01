@@ -13,17 +13,17 @@ import UIKit
 /// Animation-specific aggregation (e.g. summing GIF frames) stays at the
 /// caller, which invokes `bytes(for:)` once per frame.
 enum ImageByteCost {
-    private static let bytesPerPixelRGBA = 4
+  private static let bytesPerPixelRGBA = 4
 
-    static func bytes(for image: UIImage) -> Int {
-        if let cgImage = image.cgImage {
-            return cgImage.bytesPerRow * cgImage.height
-        }
-        return Int(image.size.width * image.size.height) * bytesPerPixelRGBA
+  static func bytes(for image: UIImage) -> Int {
+    if let cgImage = image.cgImage {
+      return cgImage.bytesPerRow * cgImage.height
     }
+    return Int(image.size.width * image.size.height) * bytesPerPixelRGBA
+  }
 
-    static func bytes(for image: UIImage?) -> Int {
-        guard let image else { return 0 }
-        return bytes(for: image)
-    }
+  static func bytes(for image: UIImage?) -> Int {
+    guard let image else { return 0 }
+    return bytes(for: image)
+  }
 }

@@ -5,12 +5,12 @@ import SwiftUI
 /// `List(selection:)` binding (`NavigationCoordinator.selectedSetting`, read by `SettingsDetailView`
 /// in the detail column).
 struct SettingsDetailRow<Label: View>: View {
-    let detail: SettingsDetail
-    @ViewBuilder let label: () -> Label
+  let detail: SettingsDetail
+  @ViewBuilder let label: () -> Label
 
-    var body: some View {
-        NavigationLink(value: detail) {
-            label()
-        }
+  var body: some View {
+    NavigationLink(value: detail) {
+      label()
     }
+  }
 }

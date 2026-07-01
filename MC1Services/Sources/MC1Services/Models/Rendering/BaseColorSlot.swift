@@ -7,6 +7,6 @@ import Foundation
 /// rest of the chat content model to live in MC1Services without a
 /// SwiftUI dependency.
 public enum BaseColorSlot: Sendable, Hashable {
-    case outgoing
-    case incoming
+  case outgoing
+  case incoming
 }

@@ -8,14 +8,14 @@ import SwiftUI
 /// `Shimmer(isActive:)` wiring, and is accessibility-hidden because it carries
 /// no information of its own.
 struct PreviewSkeleton: View {
-    var cornerRadius: CGFloat = RichPreviewMetrics.cornerRadius
+  var cornerRadius: CGFloat = RichPreviewMetrics.cornerRadius
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    var body: some View {
-        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            .fill(Color(.tertiarySystemFill))
-            .modifier(Shimmer(isActive: !reduceMotion))
-            .accessibilityHidden(true)
-    }
+  var body: some View {
+    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+      .fill(Color(.tertiarySystemFill))
+      .modifier(Shimmer(isActive: !reduceMotion))
+      .accessibilityHidden(true)
+  }
 }

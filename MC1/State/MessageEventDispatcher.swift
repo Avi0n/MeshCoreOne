@@ -16,118 +16,118 @@ import MC1Services
 /// stale subscription can outlive a reconnect.
 @MainActor
 final class MessageEventDispatcher {
-    private weak var appState: AppState?
-    private let stream: MessageEventStream
+  private weak var appState: AppState?
+  private let stream: MessageEventStream
 
-    /// Stream-consuming tasks, cancelled on re-wire and on disconnect.
-    /// Each consumed stream also ends when its `ServiceContainer` is torn down.
-    private var tasks: [Task<Void, Never>] = []
+  /// Stream-consuming tasks, cancelled on re-wire and on disconnect.
+  /// Each consumed stream also ends when its `ServiceContainer` is torn down.
+  private var tasks: [Task<Void, Never>] = []
 
-    init(appState: AppState, stream: MessageEventStream) {
-        self.appState = appState
-        self.stream = stream
+  init(appState: AppState, stream: MessageEventStream) {
+    self.appState = appState
+    self.stream = stream
+  }
+
+  func wire(services: ServiceContainer) {
+    cancelAll()
+    wireSyncCoordinator(services.syncCoordinator)
+    wireHeardRepeats(services.heardRepeatsService)
+    wireRemoteNode(services.remoteNodeService)
+    wireRoomServer(services.roomServerService)
+    wireMessageService(services.messageService)
+  }
+
+  /// Cancels every stream-consuming task. Called before re-wiring against a
+  /// fresh `ServiceContainer` and from `AppState`'s disconnect teardown.
+  func cancelAll() {
+    for task in tasks {
+      task.cancel()
     }
+    tasks.removeAll()
+  }
 
-    func wire(services: ServiceContainer) {
-        cancelAll()
-        wireSyncCoordinator(services.syncCoordinator)
-        wireHeardRepeats(services.heardRepeatsService)
-        wireRemoteNode(services.remoteNodeService)
-        wireRoomServer(services.roomServerService)
-        wireMessageService(services.messageService)
-    }
-
-    /// Cancels every stream-consuming task. Called before re-wiring against a
-    /// fresh `ServiceContainer` and from `AppState`'s disconnect teardown.
-    func cancelAll() {
-        for task in tasks {
-            task.cancel()
+  private func wireSyncCoordinator(_ syncCoordinator: SyncCoordinator) {
+    let events = syncCoordinator.dataEvents()
+    let task = Task { [weak appState, stream] in
+      for await event in events {
+        switch event {
+        case let .directMessageReceived(message, contact):
+          stream.send(.directMessageReceived(message: message, contact: contact))
+        case let .channelMessageReceived(message, channelIndex):
+          stream.send(.channelMessageReceived(message: message, channelIndex: channelIndex))
+        case let .roomMessageReceived(message):
+          stream.send(.roomMessageReceived(message: message, sessionID: message.sessionID))
+        case let .reactionReceived(messageID, summary):
+          stream.send(.reactionReceived(messageID: messageID, summary: summary))
+          await appState?.handleReactionNotification(messageID: messageID)
+        case .contactsChanged, .conversationsChanged:
+          break
         }
-        tasks.removeAll()
+      }
     }
+    tasks.append(task)
+  }
 
-    private func wireSyncCoordinator(_ syncCoordinator: SyncCoordinator) {
-        let events = syncCoordinator.dataEvents()
-        let task = Task { [weak appState, stream] in
-            for await event in events {
-                switch event {
-                case .directMessageReceived(let message, let contact):
-                    stream.send(.directMessageReceived(message: message, contact: contact))
-                case .channelMessageReceived(let message, let channelIndex):
-                    stream.send(.channelMessageReceived(message: message, channelIndex: channelIndex))
-                case .roomMessageReceived(let message):
-                    stream.send(.roomMessageReceived(message: message, sessionID: message.sessionID))
-                case .reactionReceived(let messageID, let summary):
-                    stream.send(.reactionReceived(messageID: messageID, summary: summary))
-                    await appState?.handleReactionNotification(messageID: messageID)
-                case .contactsChanged, .conversationsChanged:
-                    break
-                }
-            }
-        }
-        tasks.append(task)
+  private func wireHeardRepeats(_ heardRepeatsService: HeardRepeatsService) {
+    let events = heardRepeatsService.events()
+    let task = Task { [stream] in
+      for await event in events {
+        stream.send(.heardRepeatRecorded(messageID: event.messageID, count: event.count))
+      }
     }
+    tasks.append(task)
+  }
 
-    private func wireHeardRepeats(_ heardRepeatsService: HeardRepeatsService) {
-        let events = heardRepeatsService.events()
-        let task = Task { [stream] in
-            for await event in events {
-                stream.send(.heardRepeatRecorded(messageID: event.messageID, count: event.count))
-            }
+  private func wireRemoteNode(_ remoteNodeService: RemoteNodeService) {
+    let events = remoteNodeService.events()
+    let task = Task { [weak appState] in
+      for await event in events {
+        switch event {
+        case .sessionStateChanged:
+          appState?.handleSessionStateChange()
         }
-        tasks.append(task)
+      }
     }
+    tasks.append(task)
+  }
 
-    private func wireRemoteNode(_ remoteNodeService: RemoteNodeService) {
-        let events = remoteNodeService.events()
-        let task = Task { [weak appState] in
-            for await event in events {
-                switch event {
-                case .sessionStateChanged:
-                    appState?.handleSessionStateChange()
-                }
-            }
+  private func wireRoomServer(_ roomServerService: RoomServerService) {
+    let events = roomServerService.events()
+    let task = Task { [weak appState, stream] in
+      for await event in events {
+        switch event {
+        case let .statusUpdated(messageID, status):
+          if status == .failed {
+            stream.send(.roomMessageFailed(messageID: messageID))
+          } else {
+            stream.send(.roomMessageStatusUpdated(messageID: messageID))
+          }
+        case .connectionRecovered:
+          appState?.handleSessionStateChange()
         }
-        tasks.append(task)
+      }
     }
+    tasks.append(task)
+  }
 
-    private func wireRoomServer(_ roomServerService: RoomServerService) {
-        let events = roomServerService.events()
-        let task = Task { [weak appState, stream] in
-            for await event in events {
-                switch event {
-                case .statusUpdated(let messageID, let status):
-                    if status == .failed {
-                        stream.send(.roomMessageFailed(messageID: messageID))
-                    } else {
-                        stream.send(.roomMessageStatusUpdated(messageID: messageID))
-                    }
-                case .connectionRecovered:
-                    appState?.handleSessionStateChange()
-                }
-            }
+  private func wireMessageService(_ messageService: MessageService) {
+    let events = messageService.statusEvents()
+    let task = Task { [stream] in
+      for await event in events {
+        switch event {
+        case let .statusResolved(messageID, status, roundTripTime):
+          stream.send(.messageStatusResolved(messageID: messageID, status: status, roundTripTime: roundTripTime))
+        case let .resent(messageID):
+          stream.send(.messageResent(messageID: messageID))
+        case let .retrying(messageID, attempt, maxAttempts):
+          stream.send(.messageRetrying(messageID: messageID, attempt: attempt, maxAttempts: maxAttempts))
+        case let .routingChanged(contactID, isFlood):
+          stream.send(.routingChanged(contactID: contactID, isFlood: isFlood))
+        case let .failed(messageID):
+          stream.send(.messageFailed(messageID: messageID))
         }
-        tasks.append(task)
+      }
     }
-
-    private func wireMessageService(_ messageService: MessageService) {
-        let events = messageService.statusEvents()
-        let task = Task { [stream] in
-            for await event in events {
-                switch event {
-                case .statusResolved(let messageID, let status, let roundTripTime):
-                    stream.send(.messageStatusResolved(messageID: messageID, status: status, roundTripTime: roundTripTime))
-                case .resent(let messageID):
-                    stream.send(.messageResent(messageID: messageID))
-                case .retrying(let messageID, let attempt, let maxAttempts):
-                    stream.send(.messageRetrying(messageID: messageID, attempt: attempt, maxAttempts: maxAttempts))
-                case .routingChanged(let contactID, let isFlood):
-                    stream.send(.routingChanged(contactID: contactID, isFlood: isFlood))
-                case .failed(let messageID):
-                    stream.send(.messageFailed(messageID: messageID))
-                }
-            }
-        }
-        tasks.append(task)
-    }
+    tasks.append(task)
+  }
 }

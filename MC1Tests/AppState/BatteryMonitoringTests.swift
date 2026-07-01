@@ -1,68 +1,67 @@
-import Testing
 import Foundation
-import MeshCore
-@testable import MC1Services
 @testable import MC1
+@testable import MC1Services
+import MeshCore
+import Testing
 
 @Suite("Battery Monitoring Tests")
 @MainActor
 struct BatteryMonitoringTests {
+  // MARK: - Default State
 
-    // MARK: - Default State
+  @Test
+  func `deviceBattery is nil by default`() {
+    let appState = AppState()
+    #expect(appState.batteryMonitor.deviceBattery == nil)
+  }
 
-    @Test("deviceBattery is nil by default")
-    func deviceBatteryDefault() {
-        let appState = AppState()
-        #expect(appState.batteryMonitor.deviceBattery == nil)
-    }
+  @Test
+  func `activeBatteryOCVArray returns liIon default when no device connected`() {
+    let appState = AppState()
+    #expect(appState.batteryMonitor.activeBatteryOCVArray(for: appState.connectedDevice) == OCVPreset.liIon.ocvArray)
+  }
 
-    @Test("activeBatteryOCVArray returns liIon default when no device connected")
-    func activeBatteryOCVArrayDefault() {
-        let appState = AppState()
-        #expect(appState.batteryMonitor.activeBatteryOCVArray(for: appState.connectedDevice) == OCVPreset.liIon.ocvArray)
-    }
+  // MARK: - fetchDeviceBattery
 
-    // MARK: - fetchDeviceBattery
+  @Test
+  func `fetchDeviceBattery is no-op when services is nil`() async {
+    let appState = AppState()
 
-    @Test("fetchDeviceBattery is no-op when services is nil")
-    func fetchDeviceBatteryNoServices() async {
-        let appState = AppState()
+    await appState.batteryMonitor.fetchDeviceBattery(services: appState.services, device: appState.connectedDevice)
 
-        await appState.batteryMonitor.fetchDeviceBattery(services: appState.services, device: appState.connectedDevice)
+    #expect(appState.batteryMonitor.deviceBattery == nil)
+  }
 
-        #expect(appState.batteryMonitor.deviceBattery == nil)
-    }
+  @Test
+  func `fetchDeviceBattery does not crash when called on fresh state`() async {
+    let appState = AppState()
+    #expect(appState.services == nil)
 
-    @Test("fetchDeviceBattery does not crash when called on fresh state")
-    func fetchDeviceBatterySafe() async {
-        let appState = AppState()
-        #expect(appState.services == nil)
+    // Should not throw or crash
+    await appState.batteryMonitor.fetchDeviceBattery(services: appState.services, device: appState.connectedDevice)
+    #expect(appState.batteryMonitor.deviceBattery == nil)
+  }
 
-        // Should not throw or crash
-        await appState.batteryMonitor.fetchDeviceBattery(services: appState.services, device: appState.connectedDevice)
-        #expect(appState.batteryMonitor.deviceBattery == nil)
-    }
+  // MARK: - Battery State Observation
 
-    // MARK: - Battery State Observation
+  @Test
+  func `deviceBattery can be set directly for testing`() {
+    let appState = AppState()
+    let battery = BatteryInfo(level: 3700)
 
-    @Test("deviceBattery can be set directly for testing")
-    func deviceBatterySettable() {
-        let appState = AppState()
-        let battery = BatteryInfo(level: 3700)
+    appState.batteryMonitor.deviceBattery = battery
 
-        appState.batteryMonitor.deviceBattery = battery
+    #expect(appState.batteryMonitor.deviceBattery == battery)
+    #expect(appState.batteryMonitor.deviceBattery?.level == 3700)
+  }
 
-        #expect(appState.batteryMonitor.deviceBattery == battery)
-        #expect(appState.batteryMonitor.deviceBattery?.level == 3700)
-    }
+  @Test
+  func `deviceBattery can be cleared`() {
+    let appState = AppState()
+    appState.batteryMonitor.deviceBattery = BatteryInfo(level: 3700)
 
-    @Test("deviceBattery can be cleared")
-    func deviceBatteryClearable() {
-        let appState = AppState()
-        appState.batteryMonitor.deviceBattery = BatteryInfo(level: 3700)
+    appState.batteryMonitor.deviceBattery = nil
 
-        appState.batteryMonitor.deviceBattery = nil
-
-        #expect(appState.batteryMonitor.deviceBattery == nil)
-    }
+    #expect(appState.batteryMonitor.deviceBattery == nil)
+  }
 }

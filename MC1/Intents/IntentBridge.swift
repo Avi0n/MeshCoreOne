@@ -9,9 +9,9 @@ import MC1Services
 @Observable
 @MainActor
 final class IntentBridge {
-    private(set) var appState: AppState?
+  private(set) var appState: AppState?
 
-    func adopt(_ appState: AppState) {
-        self.appState = appState
-    }
+  func adopt(_ appState: AppState) {
+    self.appState = appState
+  }
 }

@@ -5,26 +5,26 @@ import SwiftUI
 /// (`SettingsListContent` list selection + `SettingsDetailView` detail), and persisted as the
 /// active selection on `NavigationCoordinator`.
 enum SettingsDetail: Hashable {
-    case deviceInfo
-    case radio
-    case location
-    case connection
-    case advanced
-    case notifications
-    case chats
-    case appearance
-    case offlineMaps
-    case backup
-    case support
+  case deviceInfo
+  case radio
+  case location
+  case connection
+  case advanced
+  case notifications
+  case chats
+  case appearance
+  case offlineMaps
+  case backup
+  case support
 
-    /// The My Device rows only exist while a radio is connected; clearing their selection on
-    /// disconnect or a radio switch keeps the detail pane from stranding a now-gone device page.
-    var requiresDevice: Bool {
-        switch self {
-        case .deviceInfo, .radio, .location, .connection, .advanced:
-            true
-        case .notifications, .chats, .appearance, .offlineMaps, .backup, .support:
-            false
-        }
+  /// The My Device rows only exist while a radio is connected; clearing their selection on
+  /// disconnect or a radio switch keeps the detail pane from stranding a now-gone device page.
+  var requiresDevice: Bool {
+    switch self {
+    case .deviceInfo, .radio, .location, .connection, .advanced:
+      true
+    case .notifications, .chats, .appearance, .offlineMaps, .backup, .support:
+      false
     }
+  }
 }

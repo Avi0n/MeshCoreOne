@@ -11,35 +11,35 @@ import SwiftUI
 /// use glass because they must stay readable under outdoor glare and in
 /// high-contrast modes.
 struct RichPreviewCard<Content: View>: View {
-    /// Which corners receive the card radius.
-    enum CornerStyle {
-        /// Top corners only, for a hero stacked above in-card text rows.
-        case top
-        /// No clip; the enclosing view supplies the rounding.
-        case none
+  /// Which corners receive the card radius.
+  enum CornerStyle {
+    /// Top corners only, for a hero stacked above in-card text rows.
+    case top
+    /// No clip; the enclosing view supplies the rounding.
+    case none
+  }
+
+  let aspect: CGFloat
+  let minHeight: CGFloat
+  let maxHeight: CGFloat
+  var cornerStyle: CornerStyle = .none
+  @ViewBuilder let content: () -> Content
+
+  var body: some View {
+    let hero = Color.clear
+      .aspectRatio(aspect, contentMode: .fit)
+      .frame(minHeight: minHeight, maxHeight: maxHeight)
+      .frame(maxWidth: .infinity)
+      .overlay { content() }
+
+    switch cornerStyle {
+    case .top:
+      hero.clipShape(.rect(
+        topLeadingRadius: RichPreviewMetrics.cornerRadius,
+        topTrailingRadius: RichPreviewMetrics.cornerRadius
+      ))
+    case .none:
+      hero
     }
-
-    let aspect: CGFloat
-    let minHeight: CGFloat
-    let maxHeight: CGFloat
-    var cornerStyle: CornerStyle = .none
-    @ViewBuilder let content: () -> Content
-
-    var body: some View {
-        let hero = Color.clear
-            .aspectRatio(aspect, contentMode: .fit)
-            .frame(minHeight: minHeight, maxHeight: maxHeight)
-            .frame(maxWidth: .infinity)
-            .overlay { content() }
-
-        switch cornerStyle {
-        case .top:
-            hero.clipShape(.rect(
-                topLeadingRadius: RichPreviewMetrics.cornerRadius,
-                topTrailingRadius: RichPreviewMetrics.cornerRadius
-            ))
-        case .none:
-            hero
-        }
-    }
+  }
 }

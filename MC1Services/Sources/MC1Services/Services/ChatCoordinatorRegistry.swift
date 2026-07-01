@@ -15,53 +15,52 @@ import Foundation
 /// no view should observe its internal entries.
 @MainActor
 public final class ChatCoordinatorRegistry {
+  public static let defaultCapacity = 16
 
-    public static let defaultCapacity = 16
+  private var entries: [(id: ChatConversationID, coordinator: ChatCoordinator)] = []
+  private let capacity: Int
+  private(set) var dataStore: PersistenceStore
 
-    private var entries: [(id: ChatConversationID, coordinator: ChatCoordinator)] = []
-    private let capacity: Int
-    private(set) var dataStore: PersistenceStore
+  public init(
+    dataStore: PersistenceStore,
+    capacity: Int = ChatCoordinatorRegistry.defaultCapacity
+  ) {
+    self.dataStore = dataStore
+    self.capacity = capacity
+  }
 
-    public init(
-        dataStore: PersistenceStore,
-        capacity: Int = ChatCoordinatorRegistry.defaultCapacity
-    ) {
-        self.dataStore = dataStore
-        self.capacity = capacity
+  /// Returns the coordinator for the given conversation, creating one on
+  /// first request. Repeat reads promote the entry to most-recently-used.
+  /// Two view models pointing at the same conversation share one coordinator.
+  public func coordinator(for id: ChatConversationID) -> ChatCoordinator {
+    if let index = entries.firstIndex(where: { $0.id == id }) {
+      let entry = entries.remove(at: index)
+      entries.append(entry)
+      return entry.coordinator
     }
-
-    /// Returns the coordinator for the given conversation, creating one on
-    /// first request. Repeat reads promote the entry to most-recently-used.
-    /// Two view models pointing at the same conversation share one coordinator.
-    public func coordinator(for id: ChatConversationID) -> ChatCoordinator {
-        if let index = entries.firstIndex(where: { $0.id == id }) {
-            let entry = entries.remove(at: index)
-            entries.append(entry)
-            return entry.coordinator
-        }
-        let coordinator = ChatCoordinator(
-            conversationID: id,
-            dataStore: dataStore
-        )
-        entries.append((id, coordinator))
-        while entries.count > capacity {
-            let evicted = entries.removeFirst()
-            evicted.coordinator.cancelInFlight()
-        }
-        return coordinator
+    let coordinator = ChatCoordinator(
+      conversationID: id,
+      dataStore: dataStore
+    )
+    entries.append((id, coordinator))
+    while entries.count > capacity {
+      let evicted = entries.removeFirst()
+      evicted.coordinator.cancelInFlight()
     }
+    return coordinator
+  }
 
-    public func rebind(dataStore: PersistenceStore) {
-        tearDown()
-        self.dataStore = dataStore
-    }
+  public func rebind(dataStore: PersistenceStore) {
+    tearDown()
+    self.dataStore = dataStore
+  }
 
-    /// Cancel in-flight builds and drain Tasks on every coordinator and
-    /// drop all entries.
-    public func tearDown() {
-        for entry in entries {
-            entry.coordinator.cancelInFlight()
-        }
-        entries.removeAll()
+  /// Cancel in-flight builds and drain Tasks on every coordinator and
+  /// drop all entries.
+  public func tearDown() {
+    for entry in entries {
+      entry.coordinator.cancelInFlight()
     }
+    entries.removeAll()
+  }
 }

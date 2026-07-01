@@ -1,5 +1,5 @@
-import UIKit
 import MC1Services
+import UIKit
 
 /// UIKit-based implementation of AppStateProvider.
 ///
@@ -7,14 +7,13 @@ import MC1Services
 /// MainActor-isolated with async getter to allow cross-actor access.
 @MainActor
 final class AppStateProviderImpl: AppStateProvider {
+  init() {}
 
-    init() {}
-
-    nonisolated var isInForeground: Bool {
-        get async {
-            await MainActor.run {
-                UIApplication.shared.applicationState != .background
-            }
-        }
+  nonisolated var isInForeground: Bool {
+    get async {
+      await MainActor.run {
+        UIApplication.shared.applicationState != .background
+      }
     }
+  }
 }

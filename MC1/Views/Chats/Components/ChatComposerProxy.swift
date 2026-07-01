@@ -5,9 +5,9 @@ import UIKit
 /// send. `ChatComposerTextView` wires its text view in on creation.
 @MainActor
 final class ChatComposerProxy {
-    weak var textView: ChatComposerUITextView?
+  weak var textView: ChatComposerUITextView?
 
-    func commitPendingInput() {
-        textView?.commitPendingInput()
-    }
+  func commitPendingInput() {
+    textView?.commitPendingInput()
+  }
 }

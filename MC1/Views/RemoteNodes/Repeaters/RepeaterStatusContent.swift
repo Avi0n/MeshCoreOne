@@ -9,63 +9,63 @@ import SwiftUI
 /// view model so switching hosts or segments preserves it. The content view does not own the discovery
 /// lifecycle either: only the guest host stops discovery on dismiss.
 struct RepeaterStatusContent: View {
-    @Environment(\.appTheme) private var theme
+  @Environment(\.appTheme) private var theme
 
-    let viewModel: RepeaterStatusViewModel
-    let session: RemoteNodeSessionDTO
-    let connectionState: DeviceConnectionState
-    let contacts: [ContactDTO]
-    let discoveredNodes: [DiscoveredNodeDTO]
-    let userLocation: CLLocation?
-    let connectedDeviceID: UUID?
-    /// Contact whose login route is shown at the bottom; nil hides the route section.
-    var routePathContact: ContactDTO?
+  let viewModel: RepeaterStatusViewModel
+  let session: RemoteNodeSessionDTO
+  let connectionState: DeviceConnectionState
+  let contacts: [ContactDTO]
+  let discoveredNodes: [DiscoveredNodeDTO]
+  let userLocation: CLLocation?
+  let connectedDeviceID: UUID?
+  /// Contact whose login route is shown at the bottom; nil hides the route section.
+  var routePathContact: ContactDTO?
 
-    var body: some View {
-        List {
-            NodeStatusHeaderSection(session: session)
-            StatusSection(viewModel: viewModel, session: session, connectionState: connectionState)
-            NodeTelemetryDisclosureSection(helper: viewModel.helper, connectionState: connectionState) {
-                await viewModel.requestTelemetry(for: session)
-            }
-            NeighborsSection(
-                viewModel: viewModel,
-                session: session,
-                contacts: contacts,
-                discoveredNodes: discoveredNodes,
-                userLocation: userLocation,
-                connectionState: connectionState
-            )
-            OwnerInfoSection(viewModel: viewModel, session: session, connectionState: connectionState)
-            NodeBatteryCurveDisclosureSection(
-                helper: viewModel.helper,
-                session: session,
-                connectionState: connectionState,
-                connectedDeviceID: connectedDeviceID
-            )
-            if let routePathContact {
-                NodeRoutePathSection(
-                    contact: routePathContact,
-                    contacts: contacts,
-                    discoveredNodes: discoveredNodes,
-                    userLocation: userLocation
-                )
-            }
-        }
-        .nodeStatusDestinations(helper: viewModel.helper)
-        .navigationDestination(for: NeighborMapRoute.self) { _ in
-            NeighborSNRMapView(
-                session: session,
-                neighbors: viewModel.neighbors,
-                contacts: contacts,
-                discoveredNodes: discoveredNodes,
-                userLocation: userLocation
-            )
-        }
-        .themedCanvas(theme)
-        .nodeManagementHeaderTopMargin()
-        .scrollDismissesKeyboard(.interactively)
+  var body: some View {
+    List {
+      NodeStatusHeaderSection(session: session)
+      StatusSection(viewModel: viewModel, session: session, connectionState: connectionState)
+      NodeTelemetryDisclosureSection(helper: viewModel.helper, connectionState: connectionState) {
+        await viewModel.requestTelemetry(for: session)
+      }
+      NeighborsSection(
+        viewModel: viewModel,
+        session: session,
+        contacts: contacts,
+        discoveredNodes: discoveredNodes,
+        userLocation: userLocation,
+        connectionState: connectionState
+      )
+      OwnerInfoSection(viewModel: viewModel, session: session, connectionState: connectionState)
+      NodeBatteryCurveDisclosureSection(
+        helper: viewModel.helper,
+        session: session,
+        connectionState: connectionState,
+        connectedDeviceID: connectedDeviceID
+      )
+      if let routePathContact {
+        NodeRoutePathSection(
+          contact: routePathContact,
+          contacts: contacts,
+          discoveredNodes: discoveredNodes,
+          userLocation: userLocation
+        )
+      }
     }
+    .nodeStatusDestinations(helper: viewModel.helper)
+    .navigationDestination(for: NeighborMapRoute.self) { _ in
+      NeighborSNRMapView(
+        session: session,
+        neighbors: viewModel.neighbors,
+        contacts: contacts,
+        discoveredNodes: discoveredNodes,
+        userLocation: userLocation
+      )
+    }
+    .themedCanvas(theme)
+    .nodeManagementHeaderTopMargin()
+    .scrollDismissesKeyboard(.interactively)
+  }
 }
 
 /// Value-based push identity for the neighbors map. Carries no payload: the destination
@@ -76,209 +76,209 @@ private struct NeighborMapRoute: Hashable {}
 // MARK: - Owner Info Section
 
 private struct OwnerInfoSection: View {
-    @Environment(\.appTheme) private var theme
-    @Bindable var viewModel: RepeaterStatusViewModel
-    let session: RemoteNodeSessionDTO
-    let connectionState: DeviceConnectionState
+  @Environment(\.appTheme) private var theme
+  @Bindable var viewModel: RepeaterStatusViewModel
+  let session: RemoteNodeSessionDTO
+  let connectionState: DeviceConnectionState
 
-    var body: some View {
-        Section {
-            DisclosureGroup(isExpanded: $viewModel.ownerInfoExpanded) {
-                if viewModel.isLoadingOwnerInfo {
-                    HStack {
-                        Spacer()
-                        ProgressView()
-                        Spacer()
-                    }
-                } else if let error = viewModel.ownerInfoError {
-                    Text(error)
-                        .foregroundStyle(.orange)
-                } else if let info = viewModel.ownerInfo, !info.isEmpty {
-                    Text(info)
-                } else {
-                    Text(L10n.RemoteNodes.RemoteNodes.Status.noOwnerInfo)
-                        .foregroundStyle(.secondary)
-                }
-            } label: {
-                HStack {
-                    Text(L10n.RemoteNodes.RemoteNodes.Status.ownerInfo)
-                    Spacer()
-                    SectionReloadButton(
-                        isLoading: viewModel.isLoadingOwnerInfo,
-                        isLoaded: viewModel.ownerInfoLoaded,
-                        hasError: viewModel.ownerInfoError != nil,
-                        isDisabled: connectionState != .ready,
-                        accessibilityLabel: L10n.RemoteNodes.RemoteNodes.Status.Accessibility.reloadOwnerInfo,
-                        onReload: { await viewModel.requestOwnerInfo(for: session) }
-                    )
-                }
-            }
-            .onChange(of: viewModel.ownerInfoExpanded) { _, isExpanded in
-                if isExpanded && !viewModel.ownerInfoLoaded && !viewModel.isLoadingOwnerInfo {
-                    Task {
-                        await viewModel.requestOwnerInfo(for: session)
-                    }
-                }
-            }
+  var body: some View {
+    Section {
+      DisclosureGroup(isExpanded: $viewModel.ownerInfoExpanded) {
+        if viewModel.isLoadingOwnerInfo {
+          HStack {
+            Spacer()
+            ProgressView()
+            Spacer()
+          }
+        } else if let error = viewModel.ownerInfoError {
+          Text(error)
+            .foregroundStyle(.orange)
+        } else if let info = viewModel.ownerInfo, !info.isEmpty {
+          Text(info)
+        } else {
+          Text(L10n.RemoteNodes.RemoteNodes.Status.noOwnerInfo)
+            .foregroundStyle(.secondary)
         }
-        .themedRowBackground(theme)
+      } label: {
+        HStack {
+          Text(L10n.RemoteNodes.RemoteNodes.Status.ownerInfo)
+          Spacer()
+          SectionReloadButton(
+            isLoading: viewModel.isLoadingOwnerInfo,
+            isLoaded: viewModel.ownerInfoLoaded,
+            hasError: viewModel.ownerInfoError != nil,
+            isDisabled: connectionState != .ready,
+            accessibilityLabel: L10n.RemoteNodes.RemoteNodes.Status.Accessibility.reloadOwnerInfo,
+            onReload: { await viewModel.requestOwnerInfo(for: session) }
+          )
+        }
+      }
+      .onChange(of: viewModel.ownerInfoExpanded) { _, isExpanded in
+        if isExpanded, !viewModel.ownerInfoLoaded, !viewModel.isLoadingOwnerInfo {
+          Task {
+            await viewModel.requestOwnerInfo(for: session)
+          }
+        }
+      }
     }
+    .themedRowBackground(theme)
+  }
 }
 
 // MARK: - Status Section
 
 private struct StatusSection: View {
-    let viewModel: RepeaterStatusViewModel
-    let session: RemoteNodeSessionDTO
-    let connectionState: DeviceConnectionState
+  let viewModel: RepeaterStatusViewModel
+  let session: RemoteNodeSessionDTO
+  let connectionState: DeviceConnectionState
 
-    var body: some View {
-        NodeStatusSection(helper: viewModel.helper, connectionState: connectionState) {
-            await viewModel.requestStatus(for: session)
-        } rows: {
-            StatusRows(viewModel: viewModel)
-        }
+  var body: some View {
+    NodeStatusSection(helper: viewModel.helper, connectionState: connectionState) {
+      await viewModel.requestStatus(for: session)
+    } rows: {
+      StatusRows(viewModel: viewModel)
     }
+  }
 }
 
 // MARK: - Status Rows
 
 private struct StatusRows: View {
-    let viewModel: RepeaterStatusViewModel
+  let viewModel: RepeaterStatusViewModel
 
-    var body: some View {
-        NodeCommonStatusRows(helper: viewModel.helper)
+  var body: some View {
+    NodeCommonStatusRows(helper: viewModel.helper)
 
-        if let receiveErrors = viewModel.receiveErrorsDisplay {
-            LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.receiveErrors, value: receiveErrors)
-        }
+    if let receiveErrors = viewModel.receiveErrorsDisplay {
+      LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.receiveErrors, value: receiveErrors)
     }
+  }
 }
 
 // MARK: - Neighbors Section
 
 private struct NeighborsSection: View {
-    @Environment(\.appTheme) private var theme
-    @Bindable var viewModel: RepeaterStatusViewModel
-    let session: RemoteNodeSessionDTO
-    let contacts: [ContactDTO]
-    let discoveredNodes: [DiscoveredNodeDTO]
-    let userLocation: CLLocation?
-    let connectionState: DeviceConnectionState
+  @Environment(\.appTheme) private var theme
+  @Bindable var viewModel: RepeaterStatusViewModel
+  let session: RemoteNodeSessionDTO
+  let contacts: [ContactDTO]
+  let discoveredNodes: [DiscoveredNodeDTO]
+  let userLocation: CLLocation?
+  let connectionState: DeviceConnectionState
 
-    var body: some View {
-        Section {
-            DisclosureGroup(isExpanded: $viewModel.neighborsExpanded) {
-                if viewModel.isLoadingNeighbors && !viewModel.isDiscovering {
-                    HStack {
-                        Spacer()
-                        ProgressView()
-                        Spacer()
-                    }
-                } else if let error = viewModel.neighborsSectionError, !viewModel.isDiscovering {
-                    Text(error)
-                        .foregroundStyle(.orange)
-                } else if viewModel.neighbors.isEmpty && !viewModel.isDiscovering {
-                    Text(L10n.RemoteNodes.RemoteNodes.Status.noNeighbors)
-                        .foregroundStyle(.secondary)
-                } else {
-                    if !viewModel.neighbors.isEmpty {
-                        NavigationLink(value: NeighborMapRoute()) {
-                            Label(L10n.RemoteNodes.RemoteNodes.Status.viewOnMap, systemImage: "map")
-                        }
-                        .accessibilityLabel(L10n.RemoteNodes.RemoteNodes.Status.Accessibility.viewNeighborsOnMap)
-                    }
-
-                    ForEach(viewModel.neighbors, id: \.publicKeyPrefix) { neighbor in
-                        let resolution = NeighborNameResolver.resolve(
-                            for: neighbor.publicKeyPrefix,
-                            contacts: contacts,
-                            discoveredNodes: discoveredNodes,
-                            userLocation: userLocation
-                        )
-                        NavigationLink(value: NodeStatusRoute.neighborChart(
-                            name: resolution?.displayName ?? L10n.RemoteNodes.RemoteNodes.Status.unknown,
-                            neighborPrefix: neighbor.publicKeyPrefix
-                        )) {
-                            NeighborRow(
-                                neighbor: neighbor,
-                                displayName: resolution?.displayName ?? L10n.RemoteNodes.RemoteNodes.Status.unknown,
-                                matchKind: resolution?.matchKind ?? .unresolved,
-                                previousNeighbor: viewModel.helper.previousNeighborSnapshot?.neighborSnapshots?.first {
-                                    $0.publicKeyPrefix == neighbor.publicKeyPrefix
-                                },
-                                hasPreviousSnapshot: viewModel.helper.previousNeighborSnapshot?.neighborSnapshots != nil
-                            )
-                        }
-                    }
-
-                    if let previousNeighbors = viewModel.helper.previousNeighborSnapshot?.neighborSnapshots {
-                        let currentPrefixes = Set(viewModel.neighbors.map(\.publicKeyPrefix))
-                        let disappeared = previousNeighbors.filter { !currentPrefixes.contains($0.publicKeyPrefix) }
-                        ForEach(disappeared, id: \.publicKeyPrefix) { old in
-                            let resolution = NeighborNameResolver.resolve(
-                                for: old.publicKeyPrefix,
-                                contacts: contacts,
-                                discoveredNodes: discoveredNodes,
-                                userLocation: userLocation
-                            )
-                            DisappearedNeighborRow(
-                                neighbor: old,
-                                displayName: resolution?.displayName ?? NeighborNameResolver.fallbackName(for: old.publicKeyPrefix),
-                                matchKind: resolution?.matchKind ?? .unresolved
-                            )
-                        }
-                    }
-                }
-
-                if session.isAdmin {
-                    Button {
-                        if viewModel.isDiscovering {
-                            viewModel.stopDiscovery()
-                        } else {
-                            viewModel.startDiscovery(for: session)
-                        }
-                    } label: {
-                        HStack {
-                            if viewModel.isDiscovering {
-                                ProgressView()
-                                    .controlSize(.small)
-                                Text(L10n.RemoteNodes.RemoteNodes.Status.discoveringSeconds(viewModel.discoverySecondsRemaining))
-                            } else {
-                                Label(L10n.RemoteNodes.RemoteNodes.Status.discoverNeighbors, systemImage: "antenna.radiowaves.left.and.right")
-                            }
-                        }
-                    }
-                    .radioDisabled(for: connectionState, or: viewModel.isLoadingNeighbors && !viewModel.isDiscovering)
-                }
-            } label: {
-                HStack {
-                    Text(L10n.RemoteNodes.RemoteNodes.Status.neighbors)
-                    Spacer()
-                    if viewModel.neighborsLoaded {
-                        Text("\(viewModel.neighbors.count)")
-                            .foregroundStyle(.secondary)
-                    }
-                    SectionReloadButton(
-                        isLoading: viewModel.isLoadingNeighbors && !viewModel.isDiscovering,
-                        isLoaded: viewModel.neighborsLoaded,
-                        hasError: viewModel.neighborsSectionError != nil,
-                        isDisabled: connectionState != .ready || viewModel.isDiscovering,
-                        accessibilityLabel: L10n.RemoteNodes.RemoteNodes.Status.Accessibility.reloadNeighbors,
-                        onReload: { await viewModel.requestNeighbors(for: session) }
-                    )
-                }
+  var body: some View {
+    Section {
+      DisclosureGroup(isExpanded: $viewModel.neighborsExpanded) {
+        if viewModel.isLoadingNeighbors, !viewModel.isDiscovering {
+          HStack {
+            Spacer()
+            ProgressView()
+            Spacer()
+          }
+        } else if let error = viewModel.neighborsSectionError, !viewModel.isDiscovering {
+          Text(error)
+            .foregroundStyle(.orange)
+        } else if viewModel.neighbors.isEmpty, !viewModel.isDiscovering {
+          Text(L10n.RemoteNodes.RemoteNodes.Status.noNeighbors)
+            .foregroundStyle(.secondary)
+        } else {
+          if !viewModel.neighbors.isEmpty {
+            NavigationLink(value: NeighborMapRoute()) {
+              Label(L10n.RemoteNodes.RemoteNodes.Status.viewOnMap, systemImage: "map")
             }
-            .onChange(of: viewModel.neighborsExpanded) { _, isExpanded in
-                if isExpanded && !viewModel.neighborsLoaded && !viewModel.isLoadingNeighbors {
-                    Task {
-                        await viewModel.requestNeighbors(for: session)
-                    }
-                }
+            .accessibilityLabel(L10n.RemoteNodes.RemoteNodes.Status.Accessibility.viewNeighborsOnMap)
+          }
+
+          ForEach(viewModel.neighbors, id: \.publicKeyPrefix) { neighbor in
+            let resolution = NeighborNameResolver.resolve(
+              for: neighbor.publicKeyPrefix,
+              contacts: contacts,
+              discoveredNodes: discoveredNodes,
+              userLocation: userLocation
+            )
+            NavigationLink(value: NodeStatusRoute.neighborChart(
+              name: resolution?.displayName ?? L10n.RemoteNodes.RemoteNodes.Status.unknown,
+              neighborPrefix: neighbor.publicKeyPrefix
+            )) {
+              NeighborRow(
+                neighbor: neighbor,
+                displayName: resolution?.displayName ?? L10n.RemoteNodes.RemoteNodes.Status.unknown,
+                matchKind: resolution?.matchKind ?? .unresolved,
+                previousNeighbor: viewModel.helper.previousNeighborSnapshot?.neighborSnapshots?.first {
+                  $0.publicKeyPrefix == neighbor.publicKeyPrefix
+                },
+                hasPreviousSnapshot: viewModel.helper.previousNeighborSnapshot?.neighborSnapshots != nil
+              )
             }
-        } footer: {
-            Text(L10n.RemoteNodes.RemoteNodes.Status.neighborsFooter)
+          }
+
+          if let previousNeighbors = viewModel.helper.previousNeighborSnapshot?.neighborSnapshots {
+            let currentPrefixes = Set(viewModel.neighbors.map(\.publicKeyPrefix))
+            let disappeared = previousNeighbors.filter { !currentPrefixes.contains($0.publicKeyPrefix) }
+            ForEach(disappeared, id: \.publicKeyPrefix) { old in
+              let resolution = NeighborNameResolver.resolve(
+                for: old.publicKeyPrefix,
+                contacts: contacts,
+                discoveredNodes: discoveredNodes,
+                userLocation: userLocation
+              )
+              DisappearedNeighborRow(
+                neighbor: old,
+                displayName: resolution?.displayName ?? NeighborNameResolver.fallbackName(for: old.publicKeyPrefix),
+                matchKind: resolution?.matchKind ?? .unresolved
+              )
+            }
+          }
         }
-        .themedRowBackground(theme)
+
+        if session.isAdmin {
+          Button {
+            if viewModel.isDiscovering {
+              viewModel.stopDiscovery()
+            } else {
+              viewModel.startDiscovery(for: session)
+            }
+          } label: {
+            HStack {
+              if viewModel.isDiscovering {
+                ProgressView()
+                  .controlSize(.small)
+                Text(L10n.RemoteNodes.RemoteNodes.Status.discoveringSeconds(viewModel.discoverySecondsRemaining))
+              } else {
+                Label(L10n.RemoteNodes.RemoteNodes.Status.discoverNeighbors, systemImage: "antenna.radiowaves.left.and.right")
+              }
+            }
+          }
+          .radioDisabled(for: connectionState, or: viewModel.isLoadingNeighbors && !viewModel.isDiscovering)
+        }
+      } label: {
+        HStack {
+          Text(L10n.RemoteNodes.RemoteNodes.Status.neighbors)
+          Spacer()
+          if viewModel.neighborsLoaded {
+            Text("\(viewModel.neighbors.count)")
+              .foregroundStyle(.secondary)
+          }
+          SectionReloadButton(
+            isLoading: viewModel.isLoadingNeighbors && !viewModel.isDiscovering,
+            isLoaded: viewModel.neighborsLoaded,
+            hasError: viewModel.neighborsSectionError != nil,
+            isDisabled: connectionState != .ready || viewModel.isDiscovering,
+            accessibilityLabel: L10n.RemoteNodes.RemoteNodes.Status.Accessibility.reloadNeighbors,
+            onReload: { await viewModel.requestNeighbors(for: session) }
+          )
+        }
+      }
+      .onChange(of: viewModel.neighborsExpanded) { _, isExpanded in
+        if isExpanded, !viewModel.neighborsLoaded, !viewModel.isLoadingNeighbors {
+          Task {
+            await viewModel.requestNeighbors(for: session)
+          }
+        }
+      }
+    } footer: {
+      Text(L10n.RemoteNodes.RemoteNodes.Status.neighborsFooter)
     }
+    .themedRowBackground(theme)
+  }
 }

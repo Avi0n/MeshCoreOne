@@ -11,13 +11,13 @@ import Foundation
 /// `sendCount` bump) and `resendDirectMessage` (bumps `sendCount`,
 /// broadcasts `MessageStatusEvent.resent`).
 public struct DirectMessageEnvelope: Sendable {
-    public let messageID: UUID
-    public let contactID: UUID
-    public let isResend: Bool
+  public let messageID: UUID
+  public let contactID: UUID
+  public let isResend: Bool
 
-    public init(messageID: UUID, contactID: UUID, isResend: Bool = false) {
-        self.messageID = messageID
-        self.contactID = contactID
-        self.isResend = isResend
-    }
+  public init(messageID: UUID, contactID: UUID, isResend: Bool = false) {
+    self.messageID = messageID
+    self.contactID = contactID
+    self.isResend = isResend
+  }
 }

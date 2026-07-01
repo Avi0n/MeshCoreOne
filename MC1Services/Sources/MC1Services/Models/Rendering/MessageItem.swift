@@ -17,52 +17,52 @@ import Foundation
 /// return stale renders. Verify the rebuild path still writes the full set of
 /// inputs before changing this invariant.
 public struct MessageItem: Identifiable, Sendable, Hashable {
-    public let id: UUID
-    public let envelope: MessageEnvelope
-    public let content: [MessageFragment]
-    public let footer: MessageFooter
-    public let grouping: GroupingFlags
-    public let shouldRequestPreviewFetch: Bool
+  public let id: UUID
+  public let envelope: MessageEnvelope
+  public let content: [MessageFragment]
+  public let footer: MessageFooter
+  public let grouping: GroupingFlags
+  public let shouldRequestPreviewFetch: Bool
 
-    public init(
-        id: UUID,
-        envelope: MessageEnvelope,
-        content: [MessageFragment],
-        footer: MessageFooter,
-        grouping: GroupingFlags,
-        shouldRequestPreviewFetch: Bool
-    ) {
-        self.id = id
-        self.envelope = envelope
-        self.content = content
-        self.footer = footer
-        self.grouping = grouping
-        self.shouldRequestPreviewFetch = shouldRequestPreviewFetch
-    }
+  public init(
+    id: UUID,
+    envelope: MessageEnvelope,
+    content: [MessageFragment],
+    footer: MessageFooter,
+    grouping: GroupingFlags,
+    shouldRequestPreviewFetch: Bool
+  ) {
+    self.id = id
+    self.envelope = envelope
+    self.content = content
+    self.footer = footer
+    self.grouping = grouping
+    self.shouldRequestPreviewFetch = shouldRequestPreviewFetch
+  }
 
-    /// Message-scoped identity for the bubble's preview-fetch `.task(id:)`. Holds
-    /// the message id while a fetch is wanted, `nil` otherwise. The task keys on
-    /// this rather than the bare `shouldRequestPreviewFetch` flag because a reused
-    /// `UIHostingConfiguration` cell preserves the task's last id: two successive
-    /// fetch-wanting messages both keyed on `true` produce no id edge, so the
-    /// second message's fetch would never start. A per-message id forces the edge.
-    public var previewFetchTaskID: UUID? {
-        shouldRequestPreviewFetch ? id : nil
-    }
+  /// Message-scoped identity for the bubble's preview-fetch `.task(id:)`. Holds
+  /// the message id while a fetch is wanted, `nil` otherwise. The task keys on
+  /// this rather than the bare `shouldRequestPreviewFetch` flag because a reused
+  /// `UIHostingConfiguration` cell preserves the task's last id: two successive
+  /// fetch-wanting messages both keyed on `true` produce no id edge, so the
+  /// second message's fetch would never start. A per-message id forces the edge.
+  public var previewFetchTaskID: UUID? {
+    shouldRequestPreviewFetch ? id : nil
+  }
 
-    /// Returns a new item with the supplied envelope and/or footer overridden.
-    /// Eliminates the 6-field rebuild at single-row mutation sites.
-    public func with(
-        envelope: MessageEnvelope? = nil,
-        footer: MessageFooter? = nil
-    ) -> MessageItem {
-        MessageItem(
-            id: id,
-            envelope: envelope ?? self.envelope,
-            content: content,
-            footer: footer ?? self.footer,
-            grouping: grouping,
-            shouldRequestPreviewFetch: shouldRequestPreviewFetch
-        )
-    }
+  /// Returns a new item with the supplied envelope and/or footer overridden.
+  /// Eliminates the 6-field rebuild at single-row mutation sites.
+  public func with(
+    envelope: MessageEnvelope? = nil,
+    footer: MessageFooter? = nil
+  ) -> MessageItem {
+    MessageItem(
+      id: id,
+      envelope: envelope ?? self.envelope,
+      content: content,
+      footer: footer ?? self.footer,
+      grouping: grouping,
+      shouldRequestPreviewFetch: shouldRequestPreviewFetch
+    )
+  }
 }

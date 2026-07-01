@@ -13,164 +13,164 @@ import SwiftUI
 /// sheet on the telemetry sheet that hosts it collapses both presentations. The no-location list is
 /// likewise a push, not a sheet, for the same reason.
 struct NeighborSNRMapView: View {
-    @Environment(\.appState) private var appState
-    @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.appState) private var appState
+  @Environment(\.colorScheme) private var colorScheme
 
-    let session: RemoteNodeSessionDTO
-    let neighbors: [NeighbourInfo]
-    let contacts: [ContactDTO]
-    let discoveredNodes: [DiscoveredNodeDTO]
-    let userLocation: CLLocation?
+  let session: RemoteNodeSessionDTO
+  let neighbors: [NeighbourInfo]
+  let contacts: [ContactDTO]
+  let discoveredNodes: [DiscoveredNodeDTO]
+  let userLocation: CLLocation?
 
-    @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
-    @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
+  @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
+  @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
 
-    @State private var cameraRegion: MKCoordinateRegion?
-    @State private var cameraRegionVersion = 0
-    @State private var plotted: NeighborSNRMapBuilder.PlottedNeighbors?
-    @State private var isNorthLocked = false
-    @State private var showingLayersMenu = false
-    @State private var showingNoLocationList = false
-    @State private var isStyleLoaded = false
+  @State private var cameraRegion: MKCoordinateRegion?
+  @State private var cameraRegionVersion = 0
+  @State private var plotted: NeighborSNRMapBuilder.PlottedNeighbors?
+  @State private var isNorthLocked = false
+  @State private var showingLayersMenu = false
+  @State private var showingNoLocationList = false
+  @State private var isStyleLoaded = false
 
-    private static let myLocationSpan = 0.02
+  private static let myLocationSpan = 0.02
 
-    /// Float the layers menu just above the toolbar's bottom-right corner.
-    private static let layersMenuTrailingPadding: CGFloat = 16
-    private static let layersMenuBottomPadding: CGFloat = 240
+  /// Float the layers menu just above the toolbar's bottom-right corner.
+  private static let layersMenuTrailingPadding: CGFloat = 16
+  private static let layersMenuBottomPadding: CGFloat = 240
 
-    var body: some View {
-        ZStack(alignment: .bottom) {
-            MC1MapView(
-                points: plotted?.points ?? [],
-                lines: plotted?.lines ?? [],
-                mapStyle: mapStyleSelection,
-                isDarkMode: colorScheme == .dark,
-                isOffline: !appState.offlineMapService.isNetworkAvailable,
-                showLabels: showLabels,
-                showsUserLocation: true,
-                isInteractive: true,
-                showsScale: true,
-                isNorthLocked: isNorthLocked,
-                cameraRegion: $cameraRegion,
-                cameraRegionVersion: cameraRegionVersion,
-                cameraBottomSheetFraction: 0,
-                onPointTap: nil,
-                onMapTap: nil,
-                onCameraRegionChange: { cameraRegion = $0 },
-                isStyleLoaded: $isStyleLoaded
-            )
-            .ignoresSafeArea()
+  var body: some View {
+    ZStack(alignment: .bottom) {
+      MC1MapView(
+        points: plotted?.points ?? [],
+        lines: plotted?.lines ?? [],
+        mapStyle: mapStyleSelection,
+        isDarkMode: colorScheme == .dark,
+        isOffline: !appState.offlineMapService.isNetworkAvailable,
+        showLabels: showLabels,
+        showsUserLocation: true,
+        isInteractive: true,
+        showsScale: true,
+        isNorthLocked: isNorthLocked,
+        cameraRegion: $cameraRegion,
+        cameraRegionVersion: cameraRegionVersion,
+        cameraBottomSheetFraction: 0,
+        onPointTap: nil,
+        onMapTap: nil,
+        onCameraRegionChange: { cameraRegion = $0 },
+        isStyleLoaded: $isStyleLoaded
+      )
+      .ignoresSafeArea()
 
-            toolbarOverlay
-        }
-        .overlay(alignment: .top) {
-            if let unplottable = plotted?.unplottable, !unplottable.isEmpty {
-                noLocationPill(count: unplottable.count)
-            }
-        }
-        .navigationTitle(L10n.RemoteNodes.RemoteNodes.Status.neighborsMapTitle)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(isPresented: $showingNoLocationList) {
-            if let unplottable = plotted?.unplottable {
-                NeighborsNoLocationList(unplottable: unplottable)
-            }
-        }
-        .onAppear {
-            guard plotted == nil else { return }
-            let built = NeighborSNRMapBuilder.build(
-                session: session,
-                neighbors: neighbors,
-                contacts: contacts,
-                discoveredNodes: discoveredNodes,
-                userLocation: userLocation
-            )
-            withAnimation { plotted = built }
-            setCameraRegion(built.region)
-        }
-        // The map gates camera moves until its style finishes loading, which usually lands after
-        // the on-appear fit. Re-issue the fit on that signal so the nodes frame deterministically
-        // rather than depending on an incidental re-render.
-        .onChange(of: isStyleLoaded) { _, loaded in
-            if loaded { setCameraRegion(plotted?.region) }
-        }
+      toolbarOverlay
     }
+    .overlay(alignment: .top) {
+      if let unplottable = plotted?.unplottable, !unplottable.isEmpty {
+        noLocationPill(count: unplottable.count)
+      }
+    }
+    .navigationTitle(L10n.RemoteNodes.RemoteNodes.Status.neighborsMapTitle)
+    .navigationBarTitleDisplayMode(.inline)
+    .navigationDestination(isPresented: $showingNoLocationList) {
+      if let unplottable = plotted?.unplottable {
+        NeighborsNoLocationList(unplottable: unplottable)
+      }
+    }
+    .onAppear {
+      guard plotted == nil else { return }
+      let built = NeighborSNRMapBuilder.build(
+        session: session,
+        neighbors: neighbors,
+        contacts: contacts,
+        discoveredNodes: discoveredNodes,
+        userLocation: userLocation
+      )
+      withAnimation { plotted = built }
+      setCameraRegion(built.region)
+    }
+    // The map gates camera moves until its style finishes loading, which usually lands after
+    // the on-appear fit. Re-issue the fit on that signal so the nodes frame deterministically
+    // rather than depending on an incidental re-render.
+    .onChange(of: isStyleLoaded) { _, loaded in
+      if loaded { setCameraRegion(plotted?.region) }
+    }
+  }
 
-    /// Glanceable count of neighbors that couldn't be placed; tapping pushes their list. Styled like
-    /// the trace path map's top banner so the two maps read the same.
-    private func noLocationPill(count: Int) -> some View {
-        Button {
-            showingNoLocationList = true
-        } label: {
-            HStack(spacing: 6) {
-                Image(systemName: "mappin.slash")
-                Text(L10n.RemoteNodes.RemoteNodes.Status.neighborsNotShown(count))
-            }
-            .font(.subheadline.weight(.medium))
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .liquidGlass(in: .capsule)
+  /// Glanceable count of neighbors that couldn't be placed; tapping pushes their list. Styled like
+  /// the trace path map's top banner so the two maps read the same.
+  private func noLocationPill(count: Int) -> some View {
+    Button {
+      showingNoLocationList = true
+    } label: {
+      HStack(spacing: 6) {
+        Image(systemName: "mappin.slash")
+        Text(L10n.RemoteNodes.RemoteNodes.Status.neighborsNotShown(count))
+      }
+      .font(.subheadline.weight(.medium))
+      .padding(.horizontal, 16)
+      .padding(.vertical, 10)
+      .liquidGlass(in: .capsule)
+    }
+    .buttonStyle(.plain)
+    .safeAreaPadding(.top)
+    .transition(.move(edge: .top).combined(with: .opacity))
+  }
+
+  /// Fixed bottom-right map controls.
+  private var toolbarOverlay: some View {
+    HStack {
+      Spacer()
+      MapControlsToolbar(
+        onLocationTap: centerOnMyLocation,
+        isNorthLocked: $isNorthLocked,
+        showLabels: $showLabels,
+        showingLayersMenu: $showingLayersMenu
+      ) {
+        centerAllButton
+      }
+      .overlay(alignment: .bottomTrailing) {
+        if showingLayersMenu {
+          LayersMenu(
+            selection: $mapStyleSelection,
+            isPresented: $showingLayersMenu,
+            viewportBounds: cameraRegion?.toMLNCoordinateBounds()
+          )
+          .padding(.trailing, Self.layersMenuTrailingPadding)
+          .padding(.bottom, Self.layersMenuBottomPadding)
+          .transition(.scale.combined(with: .opacity))
         }
-        .buttonStyle(.plain)
-        .safeAreaPadding(.top)
-        .transition(.move(edge: .top).combined(with: .opacity))
+      }
     }
+    .animation(.spring(response: 0.3), value: showingLayersMenu)
+  }
 
-    /// Fixed bottom-right map controls.
-    private var toolbarOverlay: some View {
-        HStack {
-            Spacer()
-            MapControlsToolbar(
-                onLocationTap: centerOnMyLocation,
-                isNorthLocked: $isNorthLocked,
-                showLabels: $showLabels,
-                showingLayersMenu: $showingLayersMenu
-            ) {
-                centerAllButton
-            }
-            .overlay(alignment: .bottomTrailing) {
-                if showingLayersMenu {
-                    LayersMenu(
-                        selection: $mapStyleSelection,
-                        isPresented: $showingLayersMenu,
-                        viewportBounds: cameraRegion?.toMLNCoordinateBounds()
-                    )
-                    .padding(.trailing, Self.layersMenuTrailingPadding)
-                    .padding(.bottom, Self.layersMenuBottomPadding)
-                    .transition(.scale.combined(with: .opacity))
-                }
-            }
-        }
-        .animation(.spring(response: 0.3), value: showingLayersMenu)
-    }
+  /// Centers and fits the camera in one step: `MC1MapView` ignores a region whose version
+  /// still matches the last applied one, so the region and the version bump must move together.
+  private func setCameraRegion(_ region: MKCoordinateRegion?) {
+    guard let region else { return }
+    cameraRegion = region
+    cameraRegionVersion += 1
+  }
 
-    /// Centers and fits the camera in one step: `MC1MapView` ignores a region whose version
-    /// still matches the last applied one, so the region and the version bump must move together.
-    private func setCameraRegion(_ region: MKCoordinateRegion?) {
-        guard let region else { return }
-        cameraRegion = region
-        cameraRegionVersion += 1
+  private func centerOnMyLocation() {
+    if let location = appState.bestAvailableLocation {
+      setCameraRegion(MKCoordinateRegion(
+        center: location.coordinate,
+        span: MKCoordinateSpan(latitudeDelta: Self.myLocationSpan, longitudeDelta: Self.myLocationSpan)
+      ))
+    } else {
+      appState.locationService.requestLocation()
     }
+  }
 
-    private func centerOnMyLocation() {
-        if let location = appState.bestAvailableLocation {
-            setCameraRegion(MKCoordinateRegion(
-                center: location.coordinate,
-                span: MKCoordinateSpan(latitudeDelta: Self.myLocationSpan, longitudeDelta: Self.myLocationSpan)
-            ))
-        } else {
-            appState.locationService.requestLocation()
-        }
+  /// Re-fits the camera to the repeater and its plotted neighbors. Disabled when nothing is plottable.
+  private var centerAllButton: some View {
+    Button(L10n.Map.Map.Controls.centerAll, systemImage: "arrow.up.left.and.arrow.down.right") {
+      setCameraRegion(plotted?.region)
     }
-
-    /// Re-fits the camera to the repeater and its plotted neighbors. Disabled when nothing is plottable.
-    private var centerAllButton: some View {
-        Button(L10n.Map.Map.Controls.centerAll, systemImage: "arrow.up.left.and.arrow.down.right") {
-            setCameraRegion(plotted?.region)
-        }
-        .mapControlButton(tint: plotted?.region == nil ? .secondary : .primary)
-        .disabled(plotted?.region == nil)
-    }
+    .mapControlButton(tint: plotted?.region == nil ? .secondary : .primary)
+    .disabled(plotted?.region == nil)
+  }
 }
 
 // MARK: - No Location List
@@ -178,17 +178,17 @@ struct NeighborSNRMapView: View {
 /// Pushed list of neighbors that could not be placed reliably (ambiguous, unlocated, or
 /// unresolved). Reuses `NeighborRow`, including its "?" fallback-match affordance.
 private struct NeighborsNoLocationList: View {
-    let unplottable: [NeighborSNRMapBuilder.UnplottableNeighbor]
+  let unplottable: [NeighborSNRMapBuilder.UnplottableNeighbor]
 
-    var body: some View {
-        List(unplottable, id: \.neighbor.publicKeyPrefix) { item in
-            NeighborRow(
-                neighbor: item.neighbor,
-                displayName: item.displayName,
-                matchKind: item.matchKind
-            )
-        }
-        .navigationTitle(L10n.RemoteNodes.RemoteNodes.Status.neighborsNotShown(unplottable.count))
-        .navigationBarTitleDisplayMode(.inline)
+  var body: some View {
+    List(unplottable, id: \.neighbor.publicKeyPrefix) { item in
+      NeighborRow(
+        neighbor: item.neighbor,
+        displayName: item.displayName,
+        matchKind: item.matchKind
+      )
     }
+    .navigationTitle(L10n.RemoteNodes.RemoteNodes.Status.neighborsNotShown(unplottable.count))
+    .navigationBarTitleDisplayMode(.inline)
+  }
 }

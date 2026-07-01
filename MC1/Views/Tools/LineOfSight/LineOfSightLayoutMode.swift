@@ -1,5 +1,5 @@
 enum LineOfSightLayoutMode {
-    case map
-    case panel
-    case mapWithSheet
+  case map
+  case panel
+  case mapWithSheet
 }

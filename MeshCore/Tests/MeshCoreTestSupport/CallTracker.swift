@@ -13,29 +13,29 @@ import Foundation
 /// #expect(tracker.wasCalled)
 /// ```
 public final class CallTracker: @unchecked Sendable {
-    private var _callCount = 0
-    private let lock = NSLock()
+  private var _callCount = 0
+  private let lock = NSLock()
 
-    public init() {}
+  public init() {}
 
-    /// Whether `markCalled()` has been invoked at least once.
-    public var wasCalled: Bool {
-        lock.lock()
-        defer { lock.unlock() }
-        return _callCount > 0
-    }
+  /// Whether `markCalled()` has been invoked at least once.
+  public var wasCalled: Bool {
+    lock.lock()
+    defer { lock.unlock() }
+    return _callCount > 0
+  }
 
-    /// Total number of times `markCalled()` was invoked.
-    public var callCount: Int {
-        lock.lock()
-        defer { lock.unlock() }
-        return _callCount
-    }
+  /// Total number of times `markCalled()` was invoked.
+  public var callCount: Int {
+    lock.lock()
+    defer { lock.unlock() }
+    return _callCount
+  }
 
-    /// Records one invocation.
-    public func markCalled() {
-        lock.lock()
-        defer { lock.unlock() }
-        _callCount += 1
-    }
+  /// Records one invocation.
+  public func markCalled() {
+    lock.lock()
+    defer { lock.unlock() }
+    _callCount += 1
+  }
 }

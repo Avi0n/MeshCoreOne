@@ -9,11 +9,11 @@ import Foundation
 /// - `initialSync` positions a drained backlog batch as one contiguous block at the drain
 ///   time carried in `anchor`, so reconnect history lands together near the bottom rather
 ///   than scattered through scrollback by send time.
-enum DeliveryContext: Sendable {
-    /// Drained from the device's stored backlog during initial connect or resync.
-    /// `anchor` is captured once per drain so every message in the batch shares a sort
-    /// date and forms a contiguous block positioned at delivery time, send-ordered within.
-    case initialSync(anchor: Date)
-    /// Pushed in real time while connected.
-    case live
+enum DeliveryContext {
+  /// Drained from the device's stored backlog during initial connect or resync.
+  /// `anchor` is captured once per drain so every message in the batch shares a sort
+  /// date and forms a contiguous block positioned at delivery time, send-ordered within.
+  case initialSync(anchor: Date)
+  /// Pushed in real time while connected.
+  case live
 }
