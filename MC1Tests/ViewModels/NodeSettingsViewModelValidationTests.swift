@@ -7,11 +7,10 @@ import Testing
 @Suite("NodeSettingsViewModel identity validation")
 @MainActor
 struct NodeSettingsIdentityValidationTests {
-
   // MARK: - In-range passes
 
   @Test
-  func inRangeCoordinatesProduceNoErrors() {
+  func `in range coordinates produce no errors`() {
     let errors = NodeSettingsViewModel.validateIdentityFields(
       name: "Repeater One", latitude: 37.7749, longitude: -122.4194
     )
@@ -22,13 +21,13 @@ struct NodeSettingsIdentityValidationTests {
   }
 
   @Test
-  func zeroCoordinatesAreValid() {
+  func `zero coordinates are valid`() {
     let errors = NodeSettingsViewModel.validateIdentityFields(name: nil, latitude: 0, longitude: 0)
     #expect(errors.hasErrors == false)
   }
 
   @Test
-  func nilFieldsAreSkippedNotFlagged() {
+  func `nil fields are skipped not flagged`() {
     // nil means the field was never loaded/edited; the apply path skips it, so validation must not flag it.
     let errors = NodeSettingsViewModel.validateIdentityFields(name: nil, latitude: nil, longitude: nil)
     #expect(errors.hasErrors == false)
@@ -37,13 +36,13 @@ struct NodeSettingsIdentityValidationTests {
   // MARK: - Inclusive boundaries pass
 
   @Test(arguments: [-90.0, 90.0])
-  func latitudeBoundariesAreInclusive(lat: Double) {
+  func `latitude boundaries are inclusive`(lat: Double) {
     let errors = NodeSettingsViewModel.validateIdentityFields(name: nil, latitude: lat, longitude: 0)
     #expect(errors.latitude == nil, "Latitude \(lat) is a valid boundary and must pass")
   }
 
   @Test(arguments: [-180.0, 180.0])
-  func longitudeBoundariesAreInclusive(lon: Double) {
+  func `longitude boundaries are inclusive`(lon: Double) {
     let errors = NodeSettingsViewModel.validateIdentityFields(name: nil, latitude: 0, longitude: lon)
     #expect(errors.longitude == nil, "Longitude \(lon) is a valid boundary and must pass")
   }
@@ -51,21 +50,21 @@ struct NodeSettingsIdentityValidationTests {
   // MARK: - Out-of-range rejected
 
   @Test(arguments: [-90.0001, 90.0001, -91, 91, 322.2, -1000])
-  func outOfRangeLatitudeIsRejected(lat: Double) {
+  func `out of range latitude is rejected`(lat: Double) {
     let errors = NodeSettingsViewModel.validateIdentityFields(name: nil, latitude: lat, longitude: 0)
     #expect(errors.latitude != nil, "Latitude \(lat) is out of range and must be flagged")
     #expect(errors.longitude == nil, "In-range longitude must stay valid")
   }
 
   @Test(arguments: [-180.0001, 180.0001, -181, 181, 5000, -5000])
-  func outOfRangeLongitudeIsRejected(lon: Double) {
+  func `out of range longitude is rejected`(lon: Double) {
     let errors = NodeSettingsViewModel.validateIdentityFields(name: nil, latitude: 0, longitude: lon)
     #expect(errors.longitude != nil, "Longitude \(lon) is out of range and must be flagged")
     #expect(errors.latitude == nil, "In-range latitude must stay valid")
   }
 
   @Test
-  func rangesAreNotSwapped() {
+  func `ranges are not swapped`() {
     // 150 is a legal longitude but an illegal latitude; a swapped-range bug would pass this.
     let errors = NodeSettingsViewModel.validateIdentityFields(name: nil, latitude: 150, longitude: 150)
     #expect(errors.latitude != nil, "150 exceeds the latitude range")
@@ -75,13 +74,13 @@ struct NodeSettingsIdentityValidationTests {
   // MARK: - Non-finite rejected
 
   @Test(arguments: [Double.nan, .infinity, -.infinity])
-  func nonFiniteLatitudeIsRejected(lat: Double) {
+  func `non finite latitude is rejected`(lat: Double) {
     let errors = NodeSettingsViewModel.validateIdentityFields(name: nil, latitude: lat, longitude: 0)
     #expect(errors.latitude != nil, "Non-finite latitude \(lat) must be flagged")
   }
 
   @Test(arguments: [Double.nan, .infinity, -.infinity])
-  func nonFiniteLongitudeIsRejected(lon: Double) {
+  func `non finite longitude is rejected`(lon: Double) {
     let errors = NodeSettingsViewModel.validateIdentityFields(name: nil, latitude: 0, longitude: lon)
     #expect(errors.longitude != nil, "Non-finite longitude \(lon) must be flagged")
   }
@@ -89,21 +88,21 @@ struct NodeSettingsIdentityValidationTests {
   // MARK: - Name length
 
   @Test
-  func nameAtByteCapIsValid() {
+  func `name at byte cap is valid`() {
     let name = String(repeating: "a", count: ProtocolLimits.maxUsableNameBytes)
     let errors = NodeSettingsViewModel.validateIdentityFields(name: name, latitude: nil, longitude: nil)
     #expect(errors.name == nil, "A name at the byte cap must pass")
   }
 
   @Test
-  func nameOverByteCapIsRejected() {
+  func `name over byte cap is rejected`() {
     let name = String(repeating: "a", count: ProtocolLimits.maxUsableNameBytes + 1)
     let errors = NodeSettingsViewModel.validateIdentityFields(name: name, latitude: nil, longitude: nil)
     #expect(errors.name != nil, "A name over the byte cap must be flagged")
   }
 
   @Test
-  func nameByteCapCountsUTF8BytesNotCharacters() {
+  func `name byte cap counts UTF 8 bytes not characters`() {
     // Each emoji is 4 UTF-8 bytes, so 8 of them exceed the 31-byte cap despite being 8 characters.
     let name = String(repeating: "😀", count: 8)
     let errors = NodeSettingsViewModel.validateIdentityFields(name: name, latitude: nil, longitude: nil)
@@ -111,7 +110,7 @@ struct NodeSettingsIdentityValidationTests {
   }
 
   @Test
-  func allThreeInvalidReportsAllThree() {
+  func `all three invalid reports all three`() {
     let name = String(repeating: "a", count: ProtocolLimits.maxUsableNameBytes + 1)
     let errors = NodeSettingsViewModel.validateIdentityFields(name: name, latitude: 200, longitude: 400)
     #expect(errors.name != nil)
@@ -124,7 +123,6 @@ struct NodeSettingsIdentityValidationTests {
 @Suite("NodeSettingsViewModel identity apply guard")
 @MainActor
 struct NodeSettingsIdentityApplyGuardTests {
-
   /// Records every CLI command the view model emits and replies "OK" to each.
   @MainActor
   final class CommandRecorder {
@@ -150,7 +148,7 @@ struct NodeSettingsIdentityApplyGuardTests {
   }
 
   @Test
-  func outOfRangeLatitudeBlocksSetLat() async {
+  func `out of range latitude blocks set lat`() async {
     let recorder = CommandRecorder()
     let viewModel = makeConfiguredViewModel(recorder: recorder)
     viewModel.latitude = 999
@@ -163,7 +161,7 @@ struct NodeSettingsIdentityApplyGuardTests {
   }
 
   @Test
-  func outOfRangeLongitudeBlocksSetLon() async {
+  func `out of range longitude blocks set lon`() async {
     let recorder = CommandRecorder()
     let viewModel = makeConfiguredViewModel(recorder: recorder)
     viewModel.longitude = -400
@@ -175,7 +173,7 @@ struct NodeSettingsIdentityApplyGuardTests {
   }
 
   @Test
-  func overLongNameBlocksSetName() async {
+  func `over long name blocks set name`() async {
     let recorder = CommandRecorder()
     let viewModel = makeConfiguredViewModel(recorder: recorder)
     viewModel.name = String(repeating: "a", count: ProtocolLimits.maxUsableNameBytes + 1)
@@ -187,7 +185,7 @@ struct NodeSettingsIdentityApplyGuardTests {
   }
 
   @Test
-  func validCoordinatesAreSentOverTheTransport() async {
+  func `valid coordinates are sent over the transport`() async {
     let recorder = CommandRecorder()
     let viewModel = makeConfiguredViewModel(recorder: recorder)
     viewModel.latitude = 37.7749
@@ -202,7 +200,7 @@ struct NodeSettingsIdentityApplyGuardTests {
   }
 
   @Test
-  func reapplyClearsStaleErrorsOnceCorrected() async {
+  func `reapply clears stale errors once corrected`() async {
     let recorder = CommandRecorder()
     let viewModel = makeConfiguredViewModel(recorder: recorder)
 
