@@ -638,9 +638,9 @@ extension AppState {
 }
 
 extension EnvironmentValues {
-  // AppState environment value with safe default for background snapshot scenarios.
-  // Having a default value ensures a value is always available, preventing crashes when
-  // iOS takes app switcher snapshots or launches the app in background.
+  /// AppState environment value with safe default for background snapshot scenarios.
+  /// Having a default value ensures a value is always available, preventing crashes when
+  /// iOS takes app switcher snapshots or launches the app in background.
   @Entry var appState: AppState = MainActor.assumeIsolated {
     AppState()
   }
