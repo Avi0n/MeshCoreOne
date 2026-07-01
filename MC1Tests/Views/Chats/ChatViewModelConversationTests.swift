@@ -52,7 +52,7 @@ struct ChatViewModelConversationTests {
     let favorites = viewModel.favoriteConversations
 
     #expect(favorites.count == 2)
-    #expect(favorites.allSatisfy(\.isFavorite))
+    #expect(favorites.allSatisfy { $0.isFavorite })
   }
 
   @Test
