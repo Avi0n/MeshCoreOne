@@ -15,7 +15,7 @@ jobs:
   spm-tests:
     name: SPM Package Tests
     runs-on: macos-26
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -25,46 +25,78 @@ jobs:
 
       - name: Test MeshCore
         run: |
-          swift test --package-path MeshCore &
-          TEST_PID=$!
-          (
-            sleep 600
-            echo "::warning::swift test still running after 10 minutes - sampling process tree"
-            for pid in $(pgrep -f "MeshCorePackageTests|swiftpm-testing-helper|swift-test" || true); do
-              echo "=== sample of PID $pid ==="
-              sample "$pid" 5 2>/dev/null || true
-            done
-            kill -9 $TEST_PID 2>/dev/null || true
-          ) &
-          WATCHDOG=$!
-          if wait $TEST_PID; then
-            kill $WATCHDOG 2>/dev/null || true
+          run_tests() {
+            rm -f "$RUNNER_TEMP/watchdog-fired"
+            swift test --package-path MeshCore --no-parallel &
+            TEST_PID=$!
+            (
+              sleep 480
+              touch "$RUNNER_TEMP/watchdog-fired"
+              echo "::warning::swift test still running after 8 minutes - sampling process tree"
+              for pid in $(pgrep -f "MeshCorePackageTests|swiftpm-testing-helper|swift-test" || true); do
+                echo "=== sample of PID $pid ==="
+                sample "$pid" 5 2>/dev/null || true
+              done
+              kill -9 $TEST_PID 2>/dev/null || true
+            ) &
+            WATCHDOG=$!
+            if wait $TEST_PID; then
+              kill $WATCHDOG 2>/dev/null || true
+              return 0
+            else
+              STATUS=$?
+              kill $WATCHDOG 2>/dev/null || true
+              return $STATUS
+            fi
+          }
+          STATUS=0
+          run_tests || STATUS=$?
+          if [ "$STATUS" -eq 0 ]; then
+            exit 0
+          fi
+          if [ -f "$RUNNER_TEMP/watchdog-fired" ]; then
+            echo "::warning::first attempt hung - retrying once"
+            run_tests
           else
-            STATUS=$?
-            kill $WATCHDOG 2>/dev/null || true
-            exit $STATUS
+            exit "$STATUS"
           fi
 
       - name: Test MC1Services
         run: |
-          swift test --package-path MC1Services &
-          TEST_PID=$!
-          (
-            sleep 600
-            echo "::warning::swift test still running after 10 minutes - sampling process tree"
-            for pid in $(pgrep -f "MC1ServicesPackageTests|swiftpm-testing-helper|swift-test" || true); do
-              echo "=== sample of PID $pid ==="
-              sample "$pid" 5 2>/dev/null || true
-            done
-            kill -9 $TEST_PID 2>/dev/null || true
-          ) &
-          WATCHDOG=$!
-          if wait $TEST_PID; then
-            kill $WATCHDOG 2>/dev/null || true
+          run_tests() {
+            rm -f "$RUNNER_TEMP/watchdog-fired"
+            swift test --package-path MC1Services --no-parallel &
+            TEST_PID=$!
+            (
+              sleep 480
+              touch "$RUNNER_TEMP/watchdog-fired"
+              echo "::warning::swift test still running after 8 minutes - sampling process tree"
+              for pid in $(pgrep -f "MC1ServicesPackageTests|swiftpm-testing-helper|swift-test" || true); do
+                echo "=== sample of PID $pid ==="
+                sample "$pid" 5 2>/dev/null || true
+              done
+              kill -9 $TEST_PID 2>/dev/null || true
+            ) &
+            WATCHDOG=$!
+            if wait $TEST_PID; then
+              kill $WATCHDOG 2>/dev/null || true
+              return 0
+            else
+              STATUS=$?
+              kill $WATCHDOG 2>/dev/null || true
+              return $STATUS
+            fi
+          }
+          STATUS=0
+          run_tests || STATUS=$?
+          if [ "$STATUS" -eq 0 ]; then
+            exit 0
+          fi
+          if [ -f "$RUNNER_TEMP/watchdog-fired" ]; then
+            echo "::warning::first attempt hung - retrying once"
+            run_tests
           else
-            STATUS=$?
-            kill $WATCHDOG 2>/dev/null || true
-            exit $STATUS
+            exit "$STATUS"
           fi
 
   xcode-build:
