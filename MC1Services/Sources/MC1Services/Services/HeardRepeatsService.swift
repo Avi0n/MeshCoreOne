@@ -58,7 +58,8 @@ public actor HeardRepeatsService {
   /// Process an RX log entry to check if it's a repeat of a sent message.
   ///
   /// Called by RxLogService for each new entry. Only processes successfully
-  /// decrypted channel messages within the 10-second matching window.
+  /// decrypted channel messages, matching the echo to a sent message by exact
+  /// channel, sender timestamp, and text.
   ///
   /// - Parameter entry: The RX log entry to process
   /// - Returns: The updated heardRepeats count if a match was found, nil otherwise
@@ -94,8 +95,7 @@ public actor HeardRepeatsService {
         radioID: radioID,
         channelIndex: channelIndex,
         timestamp: senderTimestamp,
-        text: messageText,
-        withinSeconds: 10
+        text: messageText
       ) else {
         return nil
       }

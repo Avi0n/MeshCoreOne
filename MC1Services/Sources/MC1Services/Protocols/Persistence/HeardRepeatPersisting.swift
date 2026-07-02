@@ -2,8 +2,8 @@ import Foundation
 
 /// Store operations for correlating sent channel messages with heard repeats.
 public protocol HeardRepeatPersisting: Actor {
-  /// Find a sent channel message matching criteria within a time window
-  func findSentChannelMessage(radioID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String, withinSeconds: Int) async throws -> MessageDTO?
+  /// Find a sent channel message by exact channel, sender timestamp, and text on the sending radio
+  func findSentChannelMessage(radioID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String) async throws -> MessageDTO?
 
   /// Save a message repeat entry
   func saveMessageRepeat(_ dto: MessageRepeatDTO) async throws

@@ -346,8 +346,7 @@ actor PaginationTestDataStore: PersistenceStoreProtocol {
     radioID: UUID,
     channelIndex: UInt8,
     timestamp: UInt32,
-    text: String,
-    withinSeconds: Int
+    text: String
   ) async throws -> MessageDTO? {
     nil
   }

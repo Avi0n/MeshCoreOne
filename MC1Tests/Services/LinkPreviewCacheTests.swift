@@ -427,7 +427,7 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
   func appendTracePathRun(pathID: UUID, run: TracePathRunDTO) async throws {}
 
   /// Heard Repeats
-  func findSentChannelMessage(radioID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String, withinSeconds: Int) async throws -> MessageDTO? {
+  func findSentChannelMessage(radioID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String) async throws -> MessageDTO? {
     nil
   }
 

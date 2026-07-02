@@ -566,50 +566,45 @@ public extension PersistenceStore {
 
   // MARK: - Heard Repeats
 
-  /// Finds a sent channel message matching the given criteria within a time window.
-  /// Used for correlating RX log entries to sent messages.
+  /// Finds the outgoing channel message a heard repeat echoes back. The sender
+  /// embeds a timestamp the channel payload authenticates and every mesh hop
+  /// forwards byte-identical, so exact channel, timestamp, and text on the sending
+  /// radio uniquely identify the original send; `HeardRepeatsService` deduplicates
+  /// repeated echoes by RX-log-entry id.
   ///
   /// - Parameters:
   ///   - radioID: The radio that sent the message
   ///   - channelIndex: Channel the message was sent on
   ///   - timestamp: Sender timestamp from the message
   ///   - text: Message text to match
-  ///   - withinSeconds: Time window to search (default 10 seconds)
   /// - Returns: MessageDTO if found, nil otherwise
   func findSentChannelMessage(
     radioID: UUID,
     channelIndex: UInt8,
     timestamp: UInt32,
-    text: String,
-    withinSeconds: Int = 10
+    text: String
   ) throws -> MessageDTO? {
     let targetRadioID = radioID
     let targetChannelIndex: UInt8? = channelIndex
     let targetTimestamp = timestamp
     let outgoingDirection = MessageDirection.outgoing.rawValue
-
-    // Calculate time window
-    let now = Date()
-    let windowStart = now.addingTimeInterval(-TimeInterval(withinSeconds))
-    let windowStartTimestamp = UInt32(windowStart.timeIntervalSince1970)
+    let targetText = text
 
     let predicate = #Predicate<Message> { message in
       message.radioID == targetRadioID &&
         message.channelIndex == targetChannelIndex &&
         message.timestamp == targetTimestamp &&
         message.directionRawValue == outgoingDirection &&
-        message.timestamp >= windowStartTimestamp
+        message.text == targetText
     }
 
-    var descriptor = FetchDescriptor(predicate: predicate)
+    var descriptor = FetchDescriptor(
+      predicate: predicate,
+      sortBy: [SortDescriptor(\Message.createdAt, order: .reverse)]
+    )
     descriptor.fetchLimit = 1
 
     guard let message = try modelContext.fetch(descriptor).first else {
-      return nil
-    }
-
-    // Verify text matches (outgoing channel messages store just the text)
-    guard message.text == text else {
       return nil
     }
 

@@ -598,7 +598,7 @@ actor ParkingContactStore: PersistenceStoreProtocol {
   func updateSavedTracePathName(id: UUID, name: String) async throws {}
   func deleteSavedTracePath(id: UUID) async throws {}
   func appendTracePathRun(pathID: UUID, run: TracePathRunDTO) async throws {}
-  func findSentChannelMessage(radioID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String, withinSeconds: Int) async throws -> MessageDTO? {
+  func findSentChannelMessage(radioID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String) async throws -> MessageDTO? {
     nil
   }
 

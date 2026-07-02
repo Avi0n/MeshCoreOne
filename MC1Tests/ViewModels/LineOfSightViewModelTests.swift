@@ -209,7 +209,7 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
 
   // MARK: - Heard Repeats (stubs)
 
-  func findSentChannelMessage(radioID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String, withinSeconds: Int) async throws -> MessageDTO? {
+  func findSentChannelMessage(radioID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String) async throws -> MessageDTO? {
     nil
   }
 
