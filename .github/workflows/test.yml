@@ -15,6 +15,7 @@ jobs:
   spm-tests:
     name: SPM Package Tests
     runs-on: macos-26
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -23,14 +24,53 @@ jobs:
           submodules: recursive
 
       - name: Test MeshCore
-        run: swift test --package-path MeshCore
+        run: |
+          swift test --package-path MeshCore &
+          TEST_PID=$!
+          (
+            sleep 600
+            echo "::warning::swift test still running after 10 minutes - sampling process tree"
+            for pid in $(pgrep -f "MeshCorePackageTests|swiftpm-testing-helper|swift-test" || true); do
+              echo "=== sample of PID $pid ==="
+              sample "$pid" 5 2>/dev/null || true
+            done
+            kill -9 $TEST_PID 2>/dev/null || true
+          ) &
+          WATCHDOG=$!
+          if wait $TEST_PID; then
+            kill $WATCHDOG 2>/dev/null || true
+          else
+            STATUS=$?
+            kill $WATCHDOG 2>/dev/null || true
+            exit $STATUS
+          fi
 
       - name: Test MC1Services
-        run: swift test --package-path MC1Services
+        run: |
+          swift test --package-path MC1Services &
+          TEST_PID=$!
+          (
+            sleep 600
+            echo "::warning::swift test still running after 10 minutes - sampling process tree"
+            for pid in $(pgrep -f "MC1ServicesPackageTests|swiftpm-testing-helper|swift-test" || true); do
+              echo "=== sample of PID $pid ==="
+              sample "$pid" 5 2>/dev/null || true
+            done
+            kill -9 $TEST_PID 2>/dev/null || true
+          ) &
+          WATCHDOG=$!
+          if wait $TEST_PID; then
+            kill $WATCHDOG 2>/dev/null || true
+          else
+            STATUS=$?
+            kill $WATCHDOG 2>/dev/null || true
+            exit $STATUS
+          fi
 
   xcode-build:
     name: Xcode Build
     runs-on: macos-26
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
