@@ -776,10 +776,38 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     skipAutoScroll = true // Prevent updateItems from calling scrollToBottom (we'll do it explicitly)
   }
 
+  /// contentOffset.y the flipped table rests at when showing the newest message. Zero unless a
+  /// content inset is applied (iOS 26), where a scroll view's minimum offset is `-inset.top`.
+  private var bottomRestingOffset: CGFloat {
+    -tableView.adjustedContentInset.top
+  }
+
+  /// Reserves the bar heights as flipped content insets (iOS 26). `visualBottom` (input bar)
+  /// maps to `contentInset.top`, `visualTop` (nav bar) to `contentInset.bottom`. A content-inset
+  /// change never moves `contentOffset`, so we compensate: pin to the new resting baseline when
+  /// at bottom, otherwise shift by the delta so visible content stays put.
+  func applyContentInsets(visualBottom: CGFloat, visualTop: CGFloat) {
+    let newInsets = UIEdgeInsets(top: visualBottom, left: 0, bottom: visualTop, right: 0)
+    guard tableView.contentInset != newInsets else { return }
+
+    let delta = visualBottom - tableView.contentInset.top
+
+    CATransaction.begin()
+    CATransaction.setDisableActions(true)
+    tableView.contentInset = newInsets
+    tableView.verticalScrollIndicatorInsets = newInsets
+    if isAtBottom {
+      tableView.contentOffset.y = -visualBottom
+    } else {
+      tableView.contentOffset.y += delta
+    }
+    CATransaction.commit()
+  }
+
   func scrollToBottom(animated: Bool) {
     guard !items.isEmpty else { return }
 
-    let alreadyAtBottom = tableView.contentOffset.y <= ChatScrollConstants.bottomDetectionEpsilon
+    let alreadyAtBottom = tableView.contentOffset.y <= bottomRestingOffset + ChatScrollConstants.bottomDetectionEpsilon
 
     // Set state before scroll to prevent scroll delegate from overriding
     isAtBottom = true
@@ -1055,7 +1083,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     if wasScrollingToBottom {
       // We just finished a programmatic scroll-to-bottom
       // Use larger threshold since animation might not land exactly at 0
-      let atBottom = scrollView.contentOffset.y <= ChatScrollConstants.bottomLandingEpsilon
+      let atBottom = scrollView.contentOffset.y <= bottomRestingOffset + ChatScrollConstants.bottomLandingEpsilon
       if atBottom {
         // Confirm we're at bottom - this is authoritative
         isAtBottom = true
@@ -1076,9 +1104,9 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
       return
     }
 
-    // In flipped table, visual bottom = contentOffset.y near 0
-    // Use small threshold to handle float imprecision
-    let newIsAtBottom = tableView.contentOffset.y <= ChatScrollConstants.bottomDetectionEpsilon
+    // In flipped table, visual bottom = contentOffset.y near the resting baseline
+    // (0, or -contentInset.top when a bar inset is applied). Small threshold absorbs float error.
+    let newIsAtBottom = tableView.contentOffset.y <= bottomRestingOffset + ChatScrollConstants.bottomDetectionEpsilon
 
     if newIsAtBottom != isAtBottom {
       isAtBottom = newIsAtBottom
@@ -1159,6 +1187,12 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
   @Binding var isDividerVisible: Bool
   var onNearTop: ((@escaping @MainActor () -> Void) -> Void)?
   var isLoadingOlderMessages: Bool = false
+  /// Visual-top safe-area inset (nav bar) measured by the parent. Applied as the flipped
+  /// table's content inset on iOS 26 so content scrolls edge-to-edge behind the bars; 0 on
+  /// iOS 18, where the `.safeAreaInset` frame shrink still reserves the space.
+  var topContentInset: CGFloat = 0
+  /// Visual-bottom safe-area inset (input bar + home indicator). See `topContentInset`.
+  var bottomContentInset: CGFloat = 0
 
   func makeUIViewController(context: Context) -> ChatTableViewController<Item, Content> {
     let controller = ChatTableViewController<Item, Content>()
@@ -1181,6 +1215,13 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
       cellContent(item)
     }
     controller.tableView.backgroundColor = contentBackground.map(UIColor.init) ?? controller.defaultTableBackgroundColor
+
+    // iOS 26: table spans full screen behind the translucent bars, so reserve their heights
+    // as content insets instead of the frame shrink `.safeAreaInset` provides on iOS 18. The
+    // flip transform swaps top/bottom: visual bottom (input bar) → contentInset.top.
+    if #available(iOS 26.0, *) {
+      controller.applyContentInsets(visualBottom: bottomContentInset, visualTop: topContentInset)
+    }
 
     // Repaint visible bubbles whose render-time accent fill is not part of `MessageItem`:
     // a theme-id change reconfigures all rows in place once. The gate skips the first

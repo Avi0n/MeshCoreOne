@@ -44,7 +44,7 @@ struct RoomConversationView: View {
         }
       }
       .animation(.default, value: session.isConnected)
-      .navigationHeader(title: session.name, subtitle: connectionStatus)
+      .navigationHeader(title: session.name, subtitle: connectionStatus, glassTitleCapsule: true)
       .toolbar {
         ToolbarItem(placement: .primaryAction) {
           Button(L10n.RemoteNodes.RemoteNodes.Room.infoTitle, systemImage: "info.circle") {
@@ -316,37 +316,48 @@ private struct MessagesView: View {
         EmptyMessagesView(session: session)
       } else {
         let timestampVisibleIDs = Self.timestampVisibleIDs(in: messages)
-        ChatTableView(
-          items: messages,
-          cellContent: { message in
-            messageBubble(for: message, showTimestamp: timestampVisibleIDs.contains(message.id))
-              .environment(\.appTheme, theme)
-              .environment(\.openURL, openURL)
-          },
-          contentBackground: theme.surfaces?.canvas,
-          themeID: theme.id,
-          appearanceToken: AppearanceToken.make(
-            colorScheme: colorScheme,
-            contrast: colorSchemeContrast,
-            dynamicTypeSize: dynamicTypeSize
-          ),
-          isAtBottom: $isAtBottom,
-          unreadCount: $unreadCount,
-          scrollToBottomRequest: $scrollToBottomRequest,
-          scrollToMentionRequest: .constant(0),
-          offscreenMentionIDs: .constant([]),
-          onSecondaryClick: onLongPress,
-          scrollToDividerRequest: .constant(0),
-          isDividerVisible: .constant(false)
-        )
-        .overlay(alignment: .bottomTrailing) {
-          ScrollToBottomButton(
-            isVisible: !isAtBottom,
-            unreadCount: unreadCount,
-            onTap: { scrollToBottomRequest += 1 }
+        GeometryReader { proxy in
+          let insets = proxy.safeAreaInsets
+          ChatTableView(
+            items: messages,
+            cellContent: { message in
+              messageBubble(for: message, showTimestamp: timestampVisibleIDs.contains(message.id))
+                .environment(\.appTheme, theme)
+                .environment(\.openURL, openURL)
+            },
+            contentBackground: theme.surfaces?.canvas,
+            themeID: theme.id,
+            appearanceToken: AppearanceToken.make(
+              colorScheme: colorScheme,
+              contrast: colorSchemeContrast,
+              dynamicTypeSize: dynamicTypeSize
+            ),
+            isAtBottom: $isAtBottom,
+            unreadCount: $unreadCount,
+            scrollToBottomRequest: $scrollToBottomRequest,
+            scrollToMentionRequest: .constant(0),
+            offscreenMentionIDs: .constant([]),
+            onSecondaryClick: onLongPress,
+            scrollToDividerRequest: .constant(0),
+            isDividerVisible: .constant(false),
+            topContentInset: insets.top,
+            bottomContentInset: insets.bottom
           )
-          .padding(.trailing, 16)
-          .padding(.bottom, 8)
+          .chatEdgeToEdge()
+          .chatEdgeFade(
+            topInset: insets.top,
+            bottomInset: insets.bottom,
+            canvas: theme.surfaces?.canvas ?? Color(.systemBackground)
+          )
+          .overlay(alignment: .bottomTrailing) {
+            ScrollToBottomButton(
+              isVisible: !isAtBottom,
+              unreadCount: unreadCount,
+              onTap: { scrollToBottomRequest += 1 }
+            )
+            .padding(.trailing, 16)
+            .chatScrollButtonBottomPadding(insets)
+          }
         }
       }
     }

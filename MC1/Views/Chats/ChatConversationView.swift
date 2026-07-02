@@ -137,7 +137,7 @@ struct ChatConversationView: View {
     // input bar inset that follows, placing the strip between content and
     // the input bar (and lifting it with the keyboard).
     .chatErrorBanner(chatViewModel: chatViewModel)
-    .safeAreaInset(edge: .bottom, spacing: 8) {
+    .safeAreaInset(edge: .bottom, spacing: 0) {
       ChatConversationInputBar(
         conversationType: conversationType,
         composingText: $chatViewModel.composingText,
@@ -167,7 +167,8 @@ struct ChatConversationView: View {
       ),
       subtitleAccessibilityLabel: conversationType.navigationSubtitleAccessibilityLabel(
         deviceDefaultFloodScopeName: appState.connectedDevice?.defaultFloodScopeName
-      )
+      ),
+      glassTitleCapsule: true
     )
     .toolbar {
       ToolbarItem(placement: .primaryAction) {

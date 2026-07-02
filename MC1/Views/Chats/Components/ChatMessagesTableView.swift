@@ -87,77 +87,87 @@ struct ChatMessagesTableView: View {
         retrySnapshot: { MapSnapshotStore.shared.retry($0) }
       )
     )
-    ChatTableView(
-      items: viewModel.items,
-      cellContent: factory.makeContent(for:),
-      contentBackground: theme.surfaces?.canvas,
-      themeID: theme.id,
-      appearanceToken: AppearanceToken.make(
-        colorScheme: colorScheme,
-        contrast: colorSchemeContrast,
-        dynamicTypeSize: dynamicTypeSize
-      ),
-      isAtBottom: $isAtBottom,
-      unreadCount: $unreadCount,
-      scrollToBottomRequest: $scrollToBottomRequest,
-      scrollToMentionRequest: $scrollToMentionRequest,
-      isUnseenMention: { item in
-        item.envelope.containsSelfMention
-          && !item.envelope.mentionSeen
-          && mentionIDSet.contains(item.id)
-      },
-      unseenMentionIDs: unseenMentionIDs,
-      offscreenMentionIDs: $offscreenMentionIDs,
-      onMentionBecameVisible: { id in
-        await onMentionSeen(id)
-      },
-      onSecondaryClick: { item in
-        if let message = viewModel.message(for: item) {
-          selectedMessageForActions = message
-        }
-      },
-      mentionTargetID: scrollToTargetID,
-      scrollToDividerRequest: $scrollToDividerRequest,
-      dividerItemID: newMessagesDividerMessageID,
-      isDividerVisible: $isDividerVisible,
-      onNearTop: { release in
-        Task { @MainActor in
-          await viewModel.loadOlderMessages()
-          release()
-        }
-      },
-      isLoadingOlderMessages: viewModel.isLoadingOlder
-    )
-    .overlay(alignment: .bottomTrailing) {
-      VStack(spacing: 12) {
-        if showDividerButton {
-          ScrollToDividerButton(
-            onTap: {
-              scrollToDividerRequest += 1
-              hasDismissedDividerButton = true
-            }
-          )
-          .transition(.scale.combined(with: .opacity))
-        }
+    // GeometryReader reads the true safe-area insets (nav bar top, input bar + home indicator
+    // bottom) from a node the table's `.ignoresSafeArea` cannot collapse, so on iOS 26 the table
+    // can span edge-to-edge behind the bars while reserving their heights as content insets.
+    GeometryReader { proxy in
+      let insets = proxy.safeAreaInsets
+      ChatTableView(
+        items: viewModel.items,
+        cellContent: factory.makeContent(for:),
+        contentBackground: theme.surfaces?.canvas,
+        themeID: theme.id,
+        appearanceToken: AppearanceToken.make(
+          colorScheme: colorScheme,
+          contrast: colorSchemeContrast,
+          dynamicTypeSize: dynamicTypeSize
+        ),
+        isAtBottom: $isAtBottom,
+        unreadCount: $unreadCount,
+        scrollToBottomRequest: $scrollToBottomRequest,
+        scrollToMentionRequest: $scrollToMentionRequest,
+        isUnseenMention: { item in
+          item.envelope.containsSelfMention
+            && !item.envelope.mentionSeen
+            && mentionIDSet.contains(item.id)
+        },
+        unseenMentionIDs: unseenMentionIDs,
+        offscreenMentionIDs: $offscreenMentionIDs,
+        onMentionBecameVisible: { id in
+          await onMentionSeen(id)
+        },
+        onSecondaryClick: { item in
+          if let message = viewModel.message(for: item) {
+            selectedMessageForActions = message
+          }
+        },
+        mentionTargetID: scrollToTargetID,
+        scrollToDividerRequest: $scrollToDividerRequest,
+        dividerItemID: newMessagesDividerMessageID,
+        isDividerVisible: $isDividerVisible,
+        onNearTop: { release in
+          Task { @MainActor in
+            await viewModel.loadOlderMessages()
+            release()
+          }
+        },
+        isLoadingOlderMessages: viewModel.isLoadingOlder,
+        topContentInset: insets.top,
+        bottomContentInset: insets.bottom
+      )
+      .chatEdgeToEdge()
+      .chatEdgeFade(topInset: insets.top, bottomInset: insets.bottom, canvas: canvasColor)
+      .overlay(alignment: .bottomTrailing) {
+        VStack(spacing: 12) {
+          if showDividerButton {
+            ScrollToDividerButton(
+              onTap: {
+                scrollToDividerRequest += 1
+                hasDismissedDividerButton = true
+              }
+            )
+            .transition(.scale.combined(with: .opacity))
+          }
 
-        if !offscreenMentionIDs.isEmpty {
-          ScrollToMentionButton(
-            unreadMentionCount: offscreenMentionIDs.count,
-            onTap: { onScrollToMention() }
-          )
-          .transition(.scale.combined(with: .opacity))
-        }
+          if !offscreenMentionIDs.isEmpty {
+            ScrollToMentionButton(
+              unreadMentionCount: offscreenMentionIDs.count,
+              onTap: { onScrollToMention() }
+            )
+            .transition(.scale.combined(with: .opacity))
+          }
 
-        ScrollToBottomButton(
-          isVisible: !isAtBottom,
-          unreadCount: unreadCount,
-          onTap: { scrollToBottomRequest += 1 }
-        )
+          ScrollToBottomButton(
+            isVisible: !isAtBottom,
+            unreadCount: unreadCount,
+            onTap: { scrollToBottomRequest += 1 }
+          )
+        }
+        .animation(.snappy(duration: 0.2), value: showDividerButton)
+        .animation(.snappy(duration: 0.2), value: offscreenMentionIDs.isEmpty)
+        .padding(.trailing, 16)
+        .chatScrollButtonBottomPadding(insets)
       }
-      .animation(.snappy(duration: 0.2), value: showDividerButton)
-      .animation(.snappy(duration: 0.2), value: offscreenMentionIDs.isEmpty)
-      .padding(.trailing, 16)
-      .padding(.bottom, 8)
     }
     .onChange(of: newMessagesDividerMessageID) { _, _ in
       hasDismissedDividerButton = false
@@ -165,5 +175,11 @@ struct ChatMessagesTableView: View {
     .onChange(of: envInputs) { _, new in
       viewModel.applyEnvInputs(new)
     }
+  }
+
+  /// Canvas tint the edge gradients fade toward; falls back to the system background so
+  /// non-themed appearances darken (dark mode) / lighten (light mode) content near the bars.
+  private var canvasColor: Color {
+    theme.surfaces?.canvas ?? Color(.systemBackground)
   }
 }
