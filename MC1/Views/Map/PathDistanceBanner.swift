@@ -1,8 +1,8 @@
 import MapKit
 import SwiftUI
 
-/// Floating top-of-map capsule summarizing a path: hop count and, when at least
-/// two nodes have coordinates, the drawn-path distance.
+/// Floating bottom-of-map capsule summarizing a path: hop count and, when at
+/// least two nodes have coordinates, the drawn-path distance.
 struct PathDistanceBanner: View {
   private static let horizontalPadding: CGFloat = 16
   private static let verticalPadding: CGFloat = 10
@@ -12,6 +12,8 @@ struct PathDistanceBanner: View {
 
   var body: some View {
     VStack {
+      Spacer()
+
       HStack {
         Text(L10n.Contacts.Contacts.Trace.Map.hops(hopCount))
         if let distance = totalPathDistance {
@@ -24,11 +26,9 @@ struct PathDistanceBanner: View {
       .padding(.horizontal, Self.horizontalPadding)
       .padding(.vertical, Self.verticalPadding)
       .liquidGlass(in: .capsule)
-
-      Spacer()
     }
     .frame(maxWidth: .infinity)
-    .safeAreaPadding(.top)
-    .transition(.move(edge: .top).combined(with: .opacity))
+    .safeAreaPadding(.bottom)
+    .transition(.move(edge: .bottom).combined(with: .opacity))
   }
 }
