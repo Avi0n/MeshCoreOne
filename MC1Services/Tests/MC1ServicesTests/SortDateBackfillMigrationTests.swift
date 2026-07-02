@@ -12,8 +12,13 @@ struct SortDateBackfillMigrationTests {
 
   @Test
   func `Pre-existing rows get sortDate backfilled to createdAt`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    // UserDefaults is thread-safe but not marked Sendable, so reusing this value
+    // across the performSortDateBackfillMigration actor boundary needs the isolation opt-out.
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+
     let store = try await createTestStore()
-    await store.resetSortDateBackfillMigrationFlag()
     let radioID = UUID()
 
     let firstID = UUID()
@@ -36,7 +41,7 @@ struct SortDateBackfillMigrationTests {
       sortDate: .distantPast
     )
 
-    try await store.performSortDateBackfillMigration()
+    try await store.performSortDateBackfillMigration(defaults: defaults)
 
     let messages = try await store.fetchAllMessages()
     #expect(messages.count == 2)
@@ -47,8 +52,11 @@ struct SortDateBackfillMigrationTests {
 
   @Test
   func `Migration is idempotent — second run is a no-op`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+
     let store = try await createTestStore()
-    await store.resetSortDateBackfillMigrationFlag()
     let radioID = UUID()
 
     let messageID = UUID()
@@ -61,7 +69,7 @@ struct SortDateBackfillMigrationTests {
       sortDate: .distantPast
     )
 
-    try await store.performSortDateBackfillMigration()
+    try await store.performSortDateBackfillMigration(defaults: defaults)
 
     let backfilled = try await store.fetchMessage(id: messageID)
     #expect(backfilled?.sortDate == createdAt)
@@ -69,7 +77,7 @@ struct SortDateBackfillMigrationTests {
     // Re-skew the row after the first run. A second call with the flag set must
     // not touch it — otherwise the backfill would re-run every launch.
     try await store.setMessageSortDate(id: messageID, sortDate: .distantPast)
-    try await store.performSortDateBackfillMigration()
+    try await store.performSortDateBackfillMigration(defaults: defaults)
 
     let afterSecondRun = try await store.fetchMessage(id: messageID)
     #expect(afterSecondRun?.sortDate == .distantPast, "second run must be a no-op")

@@ -64,8 +64,13 @@ struct RepeaterUnreadMigrationTests {
 
   @Test
   func `Repeater contact unread is zeroed; chat contact untouched`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    // UserDefaults is thread-safe but not marked Sendable, so reusing this value
+    // across the performRepeaterUnreadCountMigration actor boundary needs the isolation opt-out.
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+
     let store = try await createTestStore()
-    await store.resetRepeaterUnreadMigrationFlag()
     let radioID = UUID()
 
     let chatContact = makeContactDTO(radioID: radioID, type: .chat, unreadCount: 4, name: "Chat")
@@ -79,7 +84,7 @@ struct RepeaterUnreadMigrationTests {
     )
     try await store.saveContact(repeaterContact)
 
-    try await store.performRepeaterUnreadCountMigration()
+    try await store.performRepeaterUnreadCountMigration(defaults: defaults)
 
     let (contacts, _, _) = try await store.getTotalUnreadCounts(radioID: radioID)
     #expect(contacts == 4, "chat contact unread must remain")
@@ -91,8 +96,11 @@ struct RepeaterUnreadMigrationTests {
 
   @Test
   func `Repeater-role session unread is zeroed; room session untouched`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+
     let store = try await createTestStore()
-    await store.resetRepeaterUnreadMigrationFlag()
     let radioID = UUID()
 
     let room = makeSessionDTO(radioID: radioID, role: .roomServer, unreadCount: 5, name: "Room")
@@ -100,7 +108,7 @@ struct RepeaterUnreadMigrationTests {
     let repeaterSession = makeSessionDTO(radioID: radioID, role: .repeater, unreadCount: 99, name: "RepeaterAdmin")
     try await store.saveRemoteNodeSessionDTO(repeaterSession)
 
-    try await store.performRepeaterUnreadCountMigration()
+    try await store.performRepeaterUnreadCountMigration(defaults: defaults)
 
     let (_, _, rooms) = try await store.getTotalUnreadCounts(radioID: radioID)
     #expect(rooms == 5, "room session unread must remain")
@@ -111,19 +119,22 @@ struct RepeaterUnreadMigrationTests {
 
   @Test
   func `Migration is idempotent — second run is a no-op`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+
     let store = try await createTestStore()
-    await store.resetRepeaterUnreadMigrationFlag()
     let radioID = UUID()
 
     let repeaterContact = makeContactDTO(radioID: radioID, type: .repeater, unreadCount: 7)
     try await store.saveContact(repeaterContact)
 
-    try await store.performRepeaterUnreadCountMigration()
+    try await store.performRepeaterUnreadCountMigration(defaults: defaults)
 
     // Re-introduce a non-zero unread on a repeater after the first migration. A second
     // run with the flag set must NOT touch it — otherwise we'd be re-running every launch.
     try await store.incrementUnreadCount(contactID: repeaterContact.id)
-    try await store.performRepeaterUnreadCountMigration()
+    try await store.performRepeaterUnreadCountMigration(defaults: defaults)
 
     let stored = try await store.fetchContact(id: repeaterContact.id)
     #expect(stored?.unreadCount == 1, "second run must be a no-op")

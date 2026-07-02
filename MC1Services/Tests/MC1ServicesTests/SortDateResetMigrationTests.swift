@@ -12,8 +12,13 @@ struct SortDateResetMigrationTests {
 
   @Test
   func `Reset re-normalizes a send-time sortDate back to createdAt`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    // UserDefaults is thread-safe but not marked Sendable, so reusing this value
+    // across the performSortDateResetMigration actor boundary needs the isolation opt-out.
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+
     let store = try await createTestStore()
-    await store.resetSortDateResetMigrationFlag()
     let radioID = UUID()
 
     // A row buried by the interim send-time sort: createdAt is the drain time,
@@ -30,7 +35,7 @@ struct SortDateResetMigrationTests {
       sortDate: buriedSortDate
     )
 
-    try await store.performSortDateResetMigration()
+    try await store.performSortDateResetMigration(defaults: defaults)
 
     let migrated = try await store.fetchMessage(id: messageID)
     #expect(migrated?.sortDate == createdAt)
@@ -38,8 +43,11 @@ struct SortDateResetMigrationTests {
 
   @Test
   func `Reset is idempotent — second run is a no-op`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+
     let store = try await createTestStore()
-    await store.resetSortDateResetMigrationFlag()
     let radioID = UUID()
 
     let messageID = UUID()
@@ -52,12 +60,12 @@ struct SortDateResetMigrationTests {
       sortDate: Date(timeIntervalSince1970: 1_700_000_000)
     )
 
-    try await store.performSortDateResetMigration()
+    try await store.performSortDateResetMigration(defaults: defaults)
     #expect(try await store.fetchMessage(id: messageID)?.sortDate == createdAt)
 
     // Re-skew after the first run; the flag must keep a second run from touching it.
     try await store.setMessageSortDate(id: messageID, sortDate: .distantPast)
-    try await store.performSortDateResetMigration()
+    try await store.performSortDateResetMigration(defaults: defaults)
     #expect(try await store.fetchMessage(id: messageID)?.sortDate == .distantPast, "second run must be a no-op")
   }
 }

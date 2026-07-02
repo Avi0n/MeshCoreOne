@@ -2284,16 +2284,12 @@ struct BackupIntegrationTests {
   @Test
   func `Import reports userDefaultsRestored=false when no new keys were written`() async throws {
     let key = "hasCompletedOnboarding"
-    let defaults = UserDefaults.standard
-    let originalValue = defaults.object(forKey: key)
+    let suiteName = "test.\(UUID().uuidString)"
+    // UserDefaults is thread-safe but not marked Sendable, so reusing this value
+    // across the importBackup actor boundary needs the isolation opt-out.
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
     defaults.set(true, forKey: key)
-    defer {
-      if let value = originalValue {
-        defaults.set(value, forKey: key)
-      } else {
-        defaults.removeObject(forKey: key)
-      }
-    }
 
     var backupDefaults = BackupUserDefaults()
     backupDefaults.hasCompletedOnboarding = true
@@ -2307,7 +2303,7 @@ struct BackupIntegrationTests {
     let destStore = PersistenceStore(modelContainer: destContainer)
 
     let service = AppBackupService()
-    let result = try await service.importBackup(envelope: envelope, into: destStore)
+    let result = try await service.importBackup(envelope: envelope, into: destStore, defaults: defaults)
 
     #expect(!result.userDefaultsRestored)
   }

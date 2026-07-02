@@ -8,15 +8,15 @@ extension PersistenceStore {
 
   /// One-time migration: populate radioID on all Devices and propagate to children,
   /// then backfill deduplicationKey on outgoing Messages with nil keys.
-  public func performRadioIDMigration() throws {
-    guard !UserDefaults.standard.bool(forKey: Self.migrationKey) else { return }
+  public func performRadioIDMigration(defaults: UserDefaults = .standard) throws {
+    guard !defaults.bool(forKey: Self.migrationKey) else { return }
 
     // Step 1: For each Device, children's radioID column still contains the old BLE UUID
     // (device.id) due to the @Attribute(originalName: "deviceID") rename. Generate a new
     // radioID for each Device and propagate to all children.
     let devices = try modelContext.fetch(FetchDescriptor<Device>())
 
-    let lastDeviceIDString = UserDefaults.standard.string(forKey: PersistenceKeys.lastConnectedDeviceID)
+    let lastDeviceIDString = defaults.string(forKey: PersistenceKeys.lastConnectedDeviceID)
     let lastDeviceID = lastDeviceIDString.flatMap(UUID.init)
     var mappedRadioID: UUID?
 
@@ -98,19 +98,19 @@ extension PersistenceStore {
     try modelContext.save()
 
     if let mappedRadioID {
-      UserDefaults.standard.set(mappedRadioID.uuidString, forKey: PersistenceKeys.lastConnectedRadioID)
+      defaults.set(mappedRadioID.uuidString, forKey: PersistenceKeys.lastConnectedRadioID)
     } else if lastDeviceID != nil {
       Self.migrationLogger.warning("lastConnectedDeviceID did not match any stored device; lastConnectedRadioID not backfilled")
     }
 
-    UserDefaults.standard.set(true, forKey: Self.migrationKey)
+    defaults.set(true, forKey: Self.migrationKey)
 
     Self.migrationLogger.info("radioID migration complete: \(devices.count) devices, \(messagesNeedingKeys.count) dedup keys backfilled")
   }
 
   /// Resets the migration flag (for testing only).
-  public func resetRadioIDMigrationFlag() {
-    UserDefaults.standard.removeObject(forKey: Self.migrationKey)
+  public func resetRadioIDMigrationFlag(defaults: UserDefaults = .standard) {
+    defaults.removeObject(forKey: Self.migrationKey)
   }
 
   // MARK: - Channel flood scope corrective migration
@@ -126,8 +126,8 @@ extension PersistenceStore {
   /// had a per-channel `regionScope` override. Promote those to `.specific` so the
   /// user's prior choice keeps working. Rows whose `regionScope` was nil keep
   /// `.inherit` — corrective semantics, so the device default applies.
-  public func performChannelFloodScopeMigration() throws {
-    guard !UserDefaults.standard.bool(forKey: Self.floodScopeMigrationKey) else { return }
+  public func performChannelFloodScopeMigration(defaults: UserDefaults = .standard) throws {
+    guard !defaults.bool(forKey: Self.floodScopeMigrationKey) else { return }
 
     let inheritRaw = ChannelFloodScopeStorage.Mode.inherit.rawValue
     let specificRaw = ChannelFloodScopeStorage.Mode.specific.rawValue
@@ -141,7 +141,7 @@ extension PersistenceStore {
     }
     try modelContext.save()
 
-    UserDefaults.standard.set(true, forKey: Self.floodScopeMigrationKey)
+    defaults.set(true, forKey: Self.floodScopeMigrationKey)
 
     Self.floodScopeMigrationLogger.info(
       "channel flood-scope migration complete: \(channels.count) rows promoted to .specific"
@@ -149,8 +149,8 @@ extension PersistenceStore {
   }
 
   /// Resets the migration flag (for testing only).
-  public func resetChannelFloodScopeMigrationFlag() {
-    UserDefaults.standard.removeObject(forKey: Self.floodScopeMigrationKey)
+  public func resetChannelFloodScopeMigrationFlag(defaults: UserDefaults = .standard) {
+    defaults.removeObject(forKey: Self.floodScopeMigrationKey)
   }
 
   // MARK: - Repeater unread-count corrective migration
@@ -167,8 +167,8 @@ extension PersistenceStore {
   /// accumulated counters so the badge drops to a sane number on first launch after
   /// upgrading. The predicate fix in `getTotalUnreadCounts` prevents new accumulation
   /// from inflating the badge; this sweep clears the historical residue.
-  public func performRepeaterUnreadCountMigration() throws {
-    guard !UserDefaults.standard.bool(forKey: Self.repeaterUnreadMigrationKey) else { return }
+  public func performRepeaterUnreadCountMigration(defaults: UserDefaults = .standard) throws {
+    guard !defaults.bool(forKey: Self.repeaterUnreadMigrationKey) else { return }
 
     let repeaterContactRaw = ContactType.repeater.rawValue
     let contactPredicate = #Predicate<Contact> { contact in
@@ -192,7 +192,7 @@ extension PersistenceStore {
 
     try modelContext.save()
 
-    UserDefaults.standard.set(true, forKey: Self.repeaterUnreadMigrationKey)
+    defaults.set(true, forKey: Self.repeaterUnreadMigrationKey)
 
     Self.repeaterUnreadMigrationLogger.info(
       "repeater unread migration complete: \(contacts.count) contacts, \(sessions.count) sessions cleared"
@@ -200,8 +200,8 @@ extension PersistenceStore {
   }
 
   /// Resets the migration flag (for testing only).
-  public func resetRepeaterUnreadMigrationFlag() {
-    UserDefaults.standard.removeObject(forKey: Self.repeaterUnreadMigrationKey)
+  public func resetRepeaterUnreadMigrationFlag(defaults: UserDefaults = .standard) {
+    defaults.removeObject(forKey: Self.repeaterUnreadMigrationKey)
   }
 
   // MARK: - Message sortDate normalization
@@ -210,8 +210,8 @@ extension PersistenceStore {
   /// Shared by the backfill and reset migrations, which differ only in which flag gates
   /// them and what they log. Returns the row count, or `nil` when the flag was already set
   /// and the migration was skipped.
-  private func normalizeMessageSortDates(flagKey: String) throws -> Int? {
-    guard !UserDefaults.standard.bool(forKey: flagKey) else { return nil }
+  private func normalizeMessageSortDates(flagKey: String, defaults: UserDefaults) throws -> Int? {
+    guard !defaults.bool(forKey: flagKey) else { return nil }
 
     let messages = try modelContext.fetch(FetchDescriptor<Message>())
     for message in messages {
@@ -219,7 +219,7 @@ extension PersistenceStore {
     }
     try modelContext.save()
 
-    UserDefaults.standard.set(true, forKey: flagKey)
+    defaults.set(true, forKey: flagKey)
     return messages.count
   }
 
@@ -236,8 +236,8 @@ extension PersistenceStore {
   /// Set `sortDate` to `createdAt` on every row so the date-header grouping
   /// preserves their current display order. This runs once at launch before
   /// any sync, so every row present is a pre-feature row.
-  public func performSortDateBackfillMigration() throws {
-    guard let count = try normalizeMessageSortDates(flagKey: Self.sortDateBackfillMigrationKey) else { return }
+  public func performSortDateBackfillMigration(defaults: UserDefaults = .standard) throws {
+    guard let count = try normalizeMessageSortDates(flagKey: Self.sortDateBackfillMigrationKey, defaults: defaults) else { return }
 
     Self.sortDateBackfillMigrationLogger.info(
       "sortDate backfill complete: \(count) messages backfilled"
@@ -245,8 +245,8 @@ extension PersistenceStore {
   }
 
   /// Resets the migration flag (for testing only).
-  public func resetSortDateBackfillMigrationFlag() {
-    UserDefaults.standard.removeObject(forKey: Self.sortDateBackfillMigrationKey)
+  public func resetSortDateBackfillMigrationFlag(defaults: UserDefaults = .standard) {
+    defaults.removeObject(forKey: Self.sortDateBackfillMigrationKey)
   }
 
   // MARK: - Message sortDate reset migration
@@ -264,8 +264,8 @@ extension PersistenceStore {
   /// `createdAt` so block-at-reconnect ordering starts from a clean receive-time baseline;
   /// subsequent syncs derive a fresh drain anchor per batch. Runs once at launch before
   /// any sync, so every row present is a pre-feature row.
-  public func performSortDateResetMigration() throws {
-    guard let count = try normalizeMessageSortDates(flagKey: Self.sortDateResetMigrationKey) else { return }
+  public func performSortDateResetMigration(defaults: UserDefaults = .standard) throws {
+    guard let count = try normalizeMessageSortDates(flagKey: Self.sortDateResetMigrationKey, defaults: defaults) else { return }
 
     Self.sortDateResetMigrationLogger.info(
       "sortDate reset complete: \(count) messages re-normalized to createdAt"
@@ -273,7 +273,7 @@ extension PersistenceStore {
   }
 
   /// Resets the migration flag (for testing only).
-  public func resetSortDateResetMigrationFlag() {
-    UserDefaults.standard.removeObject(forKey: Self.sortDateResetMigrationKey)
+  public func resetSortDateResetMigrationFlag(defaults: UserDefaults = .standard) {
+    defaults.removeObject(forKey: Self.sortDateResetMigrationKey)
   }
 }

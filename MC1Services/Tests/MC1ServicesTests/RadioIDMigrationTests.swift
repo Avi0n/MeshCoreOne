@@ -17,8 +17,13 @@ struct RadioIDMigrationTests {
 
   @Test
   func `Migration propagates new radioID from Device to all children`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    // UserDefaults is thread-safe but not marked Sendable, so reusing this value
+    // across the performRadioIDMigration actor boundary needs the isolation opt-out.
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+
     let store = try await createTestStore()
-    await store.resetRadioIDMigrationFlag()
 
     let bleUUID = UUID()
 
@@ -54,7 +59,7 @@ struct RadioIDMigrationTests {
     )
     try await store.saveMessage(message)
 
-    try await store.performRadioIDMigration()
+    try await store.performRadioIDMigration(defaults: defaults)
 
     // Device's radioID should be different from bleUUID
     let fetchedDevice = try await store.fetchDevice(id: bleUUID)
@@ -80,8 +85,11 @@ struct RadioIDMigrationTests {
 
   @Test
   func `Outgoing DM with nil dedup key gets backfilled`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+
     let store = try await createTestStore()
-    await store.resetRadioIDMigrationFlag()
 
     let bleUUID = UUID()
     let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
@@ -118,7 +126,7 @@ struct RadioIDMigrationTests {
     )
     try await store.saveMessage(message)
 
-    try await store.performRadioIDMigration()
+    try await store.performRadioIDMigration(defaults: defaults)
 
     let fetchedMsg = try await store.fetchMessage(id: messageID)
     #expect(fetchedMsg != nil)
@@ -139,8 +147,11 @@ struct RadioIDMigrationTests {
 
   @Test
   func `Incoming message with nil dedup key stays nil`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+
     let store = try await createTestStore()
-    await store.resetRadioIDMigrationFlag()
 
     let bleUUID = UUID()
     let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
@@ -173,7 +184,7 @@ struct RadioIDMigrationTests {
     )
     try await store.saveMessage(message)
 
-    try await store.performRadioIDMigration()
+    try await store.performRadioIDMigration(defaults: defaults)
 
     let fetchedMsg = try await store.fetchMessage(id: messageID)
     #expect(fetchedMsg != nil)
@@ -182,8 +193,11 @@ struct RadioIDMigrationTests {
 
   @Test
   func `Existing dedup key is not overwritten`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+
     let store = try await createTestStore()
-    await store.resetRadioIDMigrationFlag()
 
     let bleUUID = UUID()
     let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
@@ -217,7 +231,7 @@ struct RadioIDMigrationTests {
     )
     try await store.saveMessage(message)
 
-    try await store.performRadioIDMigration()
+    try await store.performRadioIDMigration(defaults: defaults)
 
     let fetchedMsg = try await store.fetchMessage(id: messageID)
     #expect(fetchedMsg != nil)
@@ -226,8 +240,11 @@ struct RadioIDMigrationTests {
 
   @Test
   func `UserDefaults guard prevents re-run`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+
     let store = try await createTestStore()
-    await store.resetRadioIDMigrationFlag()
 
     let bleUUID = UUID()
     let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
@@ -237,14 +254,14 @@ struct RadioIDMigrationTests {
     try await store.saveContact(contact)
 
     // First run
-    try await store.performRadioIDMigration()
+    try await store.performRadioIDMigration(defaults: defaults)
 
     let fetchedDevice = try await store.fetchDevice(id: bleUUID)
     let firstRadioID = try #require(fetchedDevice?.radioID)
     #expect(firstRadioID != bleUUID)
 
     // Second run should be a no-op (guarded by UserDefaults)
-    try await store.performRadioIDMigration()
+    try await store.performRadioIDMigration(defaults: defaults)
 
     let fetchedDeviceAgain = try await store.fetchDevice(id: bleUUID)
     #expect(fetchedDeviceAgain?.radioID == firstRadioID, "Second migration run should not change radioID")
@@ -257,29 +274,28 @@ struct RadioIDMigrationTests {
 
   @Test
   func `Migration backfills lastConnectedRadioID from lastConnectedDeviceID`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+
     let store = try await createTestStore()
-    await store.resetRadioIDMigrationFlag()
 
     let bleUUID = UUID()
     let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
     try await store.saveDevice(device)
 
     // Simulate pre-upgrade state: lastConnectedDeviceID exists, lastConnectedRadioID does not
-    UserDefaults.standard.set(bleUUID.uuidString, forKey: "com.pocketmesh.lastConnectedDeviceID")
-    UserDefaults.standard.removeObject(forKey: "com.pocketmesh.lastConnectedRadioID")
+    defaults.set(bleUUID.uuidString, forKey: "com.pocketmesh.lastConnectedDeviceID")
+    defaults.removeObject(forKey: "com.pocketmesh.lastConnectedRadioID")
 
-    try await store.performRadioIDMigration()
+    try await store.performRadioIDMigration(defaults: defaults)
 
     // lastConnectedRadioID should now be populated
-    let radioIDString = UserDefaults.standard.string(forKey: "com.pocketmesh.lastConnectedRadioID")
+    let radioIDString = defaults.string(forKey: "com.pocketmesh.lastConnectedRadioID")
     #expect(radioIDString != nil)
 
     // It should match the device's new radioID
     let fetchedDevice = try await store.fetchDevice(id: bleUUID)
     #expect(radioIDString == fetchedDevice?.radioID.uuidString)
-
-    // Clean up
-    UserDefaults.standard.removeObject(forKey: "com.pocketmesh.lastConnectedDeviceID")
-    UserDefaults.standard.removeObject(forKey: "com.pocketmesh.lastConnectedRadioID")
   }
 }
