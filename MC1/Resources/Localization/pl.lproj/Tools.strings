@@ -341,12 +341,6 @@
 /* Location: LineOfSightView.swift - Repeater annotation */
 "tools.lineOfSight.repeater" = "Przekaźnik";
 
-/* Location: LineOfSightView.swift - Drop pin mode enabled */
-"tools.lineOfSight.cancelDropPin" = "Anuluj upuszczenie pinezki";
-
-/* Location: LineOfSightView.swift - Drop pin mode disabled */
-"tools.lineOfSight.dropPin" = "Upuść pinezkę";
-
 /* Location: LineOfSightView.swift - Points section title */
 "tools.lineOfSight.points" = "Punkty";
 

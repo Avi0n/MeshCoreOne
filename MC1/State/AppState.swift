@@ -1,4 +1,5 @@
 import CoreLocation
+import MapKit
 import MC1Services
 import MeshCore
 import OSLog
@@ -43,6 +44,24 @@ final class AppState {
       return nil
     }
     return CLLocation(latitude: device.latitude, longitude: device.longitude)
+  }
+
+  /// Centers the map on the best available location if one is known, otherwise requests one.
+  /// Returns whether the camera was moved, so callers can drive their `isCenteredOnUser` flag.
+  @discardableResult
+  func centerOnUserLocation(
+    span: CLLocationDegrees = 0.02,
+    setRegion: (MKCoordinateRegion) -> Void
+  ) -> Bool {
+    guard let location = bestAvailableLocation else {
+      locationService.requestLocation()
+      return false
+    }
+    setRegion(MKCoordinateRegion(
+      center: location.coordinate,
+      span: MKCoordinateSpan(latitudeDelta: span, longitudeDelta: span)
+    ))
+    return true
   }
 
   // MARK: - Region preference

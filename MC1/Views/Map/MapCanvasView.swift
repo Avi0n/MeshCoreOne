@@ -3,7 +3,7 @@ import MapLibre
 import MC1Services
 import SwiftUI
 
-/// Canvas wrapping the map content with offline badge, floating controls, and layers menu overlay
+/// Canvas wrapping the map content with an offline badge and floating controls.
 struct MapCanvasView: View {
   @Environment(\.appState) private var appState
   @Bindable var viewModel: MapViewModel
@@ -15,7 +15,7 @@ struct MapCanvasView: View {
   @Binding var isStyleLoaded: Bool
   let onShowContactDetail: (ContactDTO) -> Void
   let onNavigateToChat: (ContactDTO) -> Void
-  let onCenterOnUser: () -> Void
+  let onCenterOnUser: () -> Bool
   let onClearSelection: () -> Void
   let onPersistCamera: (MKCoordinateRegion) -> Void
 
@@ -54,10 +54,7 @@ struct MapCanvasView: View {
           viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds(),
           contactsEmpty: viewModel.contactsWithLocation.isEmpty,
           onLocationTap: {
-            if appState.bestAvailableLocation != nil {
-              isCenteredOnUser = true
-            }
-            onCenterOnUser()
+            isCenteredOnUser = onCenterOnUser()
           },
           onClearSelection: onClearSelection,
           onCenterAll: {

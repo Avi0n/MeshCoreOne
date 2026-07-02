@@ -86,10 +86,8 @@ struct MapView: View {
     selectedContactForDetail = contact
   }
 
-  private func centerOnUserLocation() {
-    guard let location = appState.bestAvailableLocation else { return }
-    let span = MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
-    viewModel.setCameraRegion(MKCoordinateRegion(center: location.coordinate, span: span))
+  private func centerOnUserLocation() -> Bool {
+    appState.centerOnUserLocation { viewModel.setCameraRegion($0) }
   }
 }
 

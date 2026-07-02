@@ -341,12 +341,6 @@
 /* Location: LineOfSightView.swift - Repeater annotation */
 "tools.lineOfSight.repeater" = "转发节点";
 
-/* Location: LineOfSightView.swift - Drop pin mode enabled */
-"tools.lineOfSight.cancelDropPin" = "取消放置图钉";
-
-/* Location: LineOfSightView.swift - Drop pin mode disabled */
-"tools.lineOfSight.dropPin" = "放置图钉";
-
 /* Location: LineOfSightView.swift - Points section title */
 "tools.lineOfSight.points" = "点";
 

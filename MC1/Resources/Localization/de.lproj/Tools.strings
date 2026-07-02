@@ -341,12 +341,6 @@
 /* Location: LineOfSightView.swift - Repeater annotation */
 "tools.lineOfSight.repeater" = "Repeater";
 
-/* Location: LineOfSightView.swift - Drop pin mode enabled */
-"tools.lineOfSight.cancelDropPin" = "Stecknadel abbrechen";
-
-/* Location: LineOfSightView.swift - Drop pin mode disabled */
-"tools.lineOfSight.dropPin" = "Stecknadel setzen";
-
 /* Location: LineOfSightView.swift - Points section title */
 "tools.lineOfSight.points" = "Punkte";
 

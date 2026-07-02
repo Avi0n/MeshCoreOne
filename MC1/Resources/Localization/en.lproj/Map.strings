@@ -10,12 +10,8 @@
 
 /* Location: MapView.swift - Purpose: Done button for sheets */
 "map.common.done" = "Done";
-"map.common.dismissOverlay" = "Dismiss";
 
 // MARK: - Map Controls
-
-/* Location: MapView.swift - Purpose: Accessibility label when labels are visible */
-"map.controls.hideLabels" = "Hide labels";
 
 /* Location: MapView.swift - Purpose: Accessibility label when labels are hidden */
 "map.controls.showLabels" = "Show labels";

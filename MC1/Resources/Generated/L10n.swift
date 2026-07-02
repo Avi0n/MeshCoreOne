@@ -2807,8 +2807,6 @@ public enum L10n {
         }
       }
       public enum Common {
-        /// Dismiss
-        public static let dismissOverlay = L10n.tr("Map", "map.common.dismissOverlay", fallback: "Dismiss")
         /// Location: MapView.swift - Purpose: Done button for sheets
         public static let done = L10n.tr("Map", "map.common.done", fallback: "Done")
       }
@@ -2817,8 +2815,6 @@ public enum L10n {
         public static let centerAll = L10n.tr("Map", "map.controls.centerAll", fallback: "Center on all contacts")
         /// Location: MapControlsToolbar.swift - Purpose: Accessibility label for user location button
         public static let centerOnMyLocation = L10n.tr("Map", "map.controls.centerOnMyLocation", fallback: "Center on my location")
-        /// Location: MapView.swift - Purpose: Accessibility label when labels are visible
-        public static let hideLabels = L10n.tr("Map", "map.controls.hideLabels", fallback: "Hide labels")
         /// Location: MapControlsToolbar.swift - Purpose: Map options menu toggle that locks the map bearing to north
         public static let lockNorth = L10n.tr("Map", "map.controls.lockNorth", fallback: "North up")
         /// Location: MapControlsToolbar.swift - Purpose: Accessibility label for map options menu button
@@ -5793,8 +5789,6 @@ public enum L10n {
         public static let back = L10n.tr("Tools", "tools.lineOfSight.back", fallback: "Back")
         /// Location: LineOfSightView.swift - Cancel button
         public static let cancel = L10n.tr("Tools", "tools.lineOfSight.cancel", fallback: "Cancel")
-        /// Location: LineOfSightView.swift - Drop pin mode enabled
-        public static let cancelDropPin = L10n.tr("Tools", "tools.lineOfSight.cancelDropPin", fallback: "Cancel drop pin")
         /// Location: LineOfSightView.swift - Clear button
         public static let clear = L10n.tr("Tools", "tools.lineOfSight.clear", fallback: "Clear")
         /// Location: ResultsCardView.swift - Clearance section title
@@ -5815,8 +5809,6 @@ public enum L10n {
         public static let dragToAdjust = L10n.tr("Tools", "tools.lineOfSight.dragToAdjust", fallback: "Drag to adjust")
         /// Location: LineOfSightViewModel.swift - Dropped pin display name
         public static let droppedPin = L10n.tr("Tools", "tools.lineOfSight.droppedPin", fallback: "Dropped pin")
-        /// Location: LineOfSightView.swift - Drop pin mode disabled
-        public static let dropPin = L10n.tr("Tools", "tools.lineOfSight.dropPin", fallback: "Drop pin")
         /// Location: LineOfSightView.swift - Earth curvature note, %@ is k-factor
         public static func earthCurvature(_ p1: Any) -> String {
           return L10n.tr("Tools", "tools.lineOfSight.earthCurvature", String(describing: p1), fallback: "Adjusted for earth curvature (%@)")

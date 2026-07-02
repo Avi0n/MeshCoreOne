@@ -14,14 +14,6 @@ enum MapStyleSelection: String, CaseIterable, Hashable {
     }
   }
 
-  var iconName: String {
-    switch self {
-    case .standard: "map"
-    case .satellite: "map.fill"
-    case .topo: "map.topo"
-    }
-  }
-
   var requiresNetwork: Bool {
     switch self {
     case .standard: false

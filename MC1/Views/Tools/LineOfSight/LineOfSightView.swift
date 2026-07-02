@@ -455,6 +455,8 @@ private struct LOSMapCanvasView: View {
           Spacer()
           MapControlsToolbar(
             onLocationTap: {
+              // Unlike other maps, LOS needs a precise fresh fix (no device-GPS fallback,
+              // tighter span), so it fetches live rather than using AppState.centerOnUserLocation.
               Task {
                 if let location = try? await appState.locationService.requestCurrentLocation() {
                   viewModel.setCameraRegion(MKCoordinateRegion(

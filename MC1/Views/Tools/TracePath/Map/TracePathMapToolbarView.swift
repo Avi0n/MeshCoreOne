@@ -19,15 +19,7 @@ struct TracePathMapToolbarView: View {
         Spacer()
         MapControlsToolbar(
           onLocationTap: {
-            if let location = appState.bestAvailableLocation {
-              mapViewModel.setCameraRegion(MKCoordinateRegion(
-                center: location.coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
-              ))
-              isCenteredOnUser = true
-            } else {
-              appState.locationService.requestLocation()
-            }
+            isCenteredOnUser = appState.centerOnUserLocation { mapViewModel.setCameraRegion($0) }
           },
           isCenteredOnUser: isCenteredOnUser,
           isNorthLocked: $isNorthLocked,

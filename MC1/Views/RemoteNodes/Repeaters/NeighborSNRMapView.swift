@@ -33,8 +33,6 @@ struct NeighborSNRMapView: View {
   @State private var showingNoLocationList = false
   @State private var isStyleLoaded = false
 
-  private static let myLocationSpan = 0.02
-
   var body: some View {
     ZStack(alignment: .bottom) {
       MC1MapView(
@@ -139,15 +137,7 @@ struct NeighborSNRMapView: View {
   }
 
   private func centerOnMyLocation() {
-    if let location = appState.bestAvailableLocation {
-      setCameraRegion(MKCoordinateRegion(
-        center: location.coordinate,
-        span: MKCoordinateSpan(latitudeDelta: Self.myLocationSpan, longitudeDelta: Self.myLocationSpan)
-      ))
-      isCenteredOnUser = true
-    } else {
-      appState.locationService.requestLocation()
-    }
+    isCenteredOnUser = appState.centerOnUserLocation { setCameraRegion($0) }
   }
 
   /// Re-fits the camera to the repeater and its plotted neighbors. Disabled when nothing is plottable.

@@ -65,6 +65,7 @@ struct MapControlsToolbar<AdditionalActions: View>: View {
           Text(style.label)
             .tag(style)
             .disabled(isDisabled(style))
+            .accessibilityHint(disabledReason(for: style) ?? "")
         }
       }
 
@@ -81,6 +82,13 @@ struct MapControlsToolbar<AdditionalActions: View>: View {
   private func isDisabled(_ style: MapStyleSelection) -> Bool {
     !appState.offlineMapService.isNetworkAvailable
       && (style.requiresNetwork || !hasOfflineCoverage(for: style))
+  }
+
+  private func disabledReason(for style: MapStyleSelection) -> String? {
+    guard isDisabled(style) else { return nil }
+    return style.requiresNetwork
+      ? L10n.Map.Map.Style.requiresNetwork
+      : L10n.Map.Map.Style.noOfflineCoverage
   }
 
   private func hasOfflineCoverage(for style: MapStyleSelection) -> Bool {
