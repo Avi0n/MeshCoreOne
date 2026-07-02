@@ -137,29 +137,6 @@ private final class ScaledMLNMapView: MLNMapView {
   }
 }
 
-/// Edge padding the camera uses to frame content: the caller's `edgePadding`,
-/// widened for safe-area and a bottom sheet when `bottomSheetFraction` is set.
-/// Shared so camera framing and the centered-on-user check agree on where the
-/// visible center is.
-@MainActor
-private func mapCameraEdgePadding(
-  edgePadding: UIEdgeInsets,
-  bottomSheetFraction: CGFloat?,
-  mapView: MLNMapView
-) -> UIEdgeInsets {
-  var padding = edgePadding
-  if let sheetFraction = bottomSheetFraction {
-    let insets = mapView.safeAreaInsets
-    padding.top = max(padding.top, insets.top + 20)
-    padding.left = max(padding.left, insets.left + 20)
-    if sheetFraction > 0 {
-      let stableHeight = mapView.window?.bounds.height ?? mapView.bounds.height
-      padding.bottom = max(padding.bottom, stableHeight * sheetFraction)
-    }
-  }
-  return padding
-}
-
 struct MC1MapView: UIViewRepresentable {
   // Data
   let points: [MapPoint]
@@ -352,11 +329,16 @@ struct MC1MapView: UIViewRepresentable {
         longitude: region.center.longitude + region.span.longitudeDelta / 2
       )
     )
-    let padding = mapCameraEdgePadding(
-      edgePadding: cameraEdgePadding,
-      bottomSheetFraction: cameraBottomSheetFraction,
-      mapView: mapView
-    )
+    var padding = cameraEdgePadding
+    if let sheetFraction = cameraBottomSheetFraction {
+      let insets = mapView.safeAreaInsets
+      padding.top = max(padding.top, insets.top + 20)
+      padding.left = max(padding.left, insets.left + 20)
+      if sheetFraction > 0 {
+        let stableHeight = mapView.window?.bounds.height ?? mapView.bounds.height
+        padding.bottom = max(padding.bottom, stableHeight * sheetFraction)
+      }
+    }
 
     if let windowSize = mapView.window?.bounds.size,
        mapView.bounds.height > windowSize.height * 1.5 {
