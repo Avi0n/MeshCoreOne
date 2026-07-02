@@ -61,7 +61,7 @@ struct MapControlsToolbar<AdditionalActions: View>: View {
   private var mapOptionsMenu: some View {
     Menu {
       Picker(L10n.Map.Map.Style.accessibilityLabel, selection: $mapStyleSelection) {
-        ForEach(MapStyleSelection.allCases, id: \.self) { style in
+        ForEach(MapStyleSelection.allCases.reversed(), id: \.self) { style in
           Text(style.label)
             .tag(style)
             .disabled(isDisabled(style))
