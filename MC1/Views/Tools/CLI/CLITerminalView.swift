@@ -155,6 +155,13 @@ struct CLITerminalView: View {
           onCancel: onCancel,
           onDismiss: onDismiss
         )
+        .padding(.bottom, {
+          if #available(iOS 26.0, *) {
+            8
+          } else {
+            0
+          }
+        }())
       }
     }
     .onKeyPress(.upArrow) {
