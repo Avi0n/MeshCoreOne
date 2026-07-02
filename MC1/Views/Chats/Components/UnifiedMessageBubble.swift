@@ -89,7 +89,7 @@ struct UnifiedMessageBubble: View, Equatable {
           Spacer(minLength: bubbleRowOppositeEdgeMinInset)
         }
 
-        VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 0) {
+        VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 2) {
           if !item.envelope.isOutgoing,
              configuration.showSenderName,
              item.grouping.showSenderName {
