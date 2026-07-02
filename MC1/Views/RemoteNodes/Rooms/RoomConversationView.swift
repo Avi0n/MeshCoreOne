@@ -356,7 +356,7 @@ private struct MessagesView: View {
               onTap: { scrollToBottomRequest += 1 }
             )
             .padding(.trailing, 16)
-            .chatScrollButtonBottomPadding(insets)
+            .padding(.bottom, 8)
           }
         }
       }

@@ -166,7 +166,7 @@ struct ChatMessagesTableView: View {
         .animation(.snappy(duration: 0.2), value: showDividerButton)
         .animation(.snappy(duration: 0.2), value: offscreenMentionIDs.isEmpty)
         .padding(.trailing, 16)
-        .chatScrollButtonBottomPadding(insets)
+        .padding(.bottom, 8)
       }
     }
     .onChange(of: newMessagesDividerMessageID) { _, _ in

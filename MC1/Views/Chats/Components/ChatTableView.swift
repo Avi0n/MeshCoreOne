@@ -1216,11 +1216,13 @@ struct ChatTableView<Item: Identifiable & Hashable & Sendable, Content: View>: U
     }
     controller.tableView.backgroundColor = contentBackground.map(UIColor.init) ?? controller.defaultTableBackgroundColor
 
-    // iOS 26: table spans full screen behind the translucent bars, so reserve their heights
-    // as content insets instead of the frame shrink `.safeAreaInset` provides on iOS 18. The
-    // flip transform swaps top/bottom: visual bottom (input bar) → contentInset.top.
+    // Breathing room between the newest message and the compose bar (flipped: visual bottom).
+    let composeBarGap: CGFloat = 8
+
     if #available(iOS 26.0, *) {
-      controller.applyContentInsets(visualBottom: bottomContentInset, visualTop: topContentInset)
+      controller.applyContentInsets(visualBottom: bottomContentInset + composeBarGap, visualTop: topContentInset)
+    } else {
+      controller.applyContentInsets(visualBottom: composeBarGap, visualTop: 0)
     }
 
     // Repaint visible bubbles whose render-time accent fill is not part of `MessageItem`:
