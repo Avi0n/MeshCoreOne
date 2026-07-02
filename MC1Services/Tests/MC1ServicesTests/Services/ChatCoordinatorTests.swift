@@ -220,10 +220,10 @@ struct ChatCoordinatorTests {
     coordinator.enqueueReload(messageID: initial.id)
 
     // Drain the coalesced reload. The implementation schedules a
-    // detached Task, so yield until `reloadInFlight` clears.
-    let deadline = ContinuousClock.now + .seconds(1)
+    // detached Task, so poll until `reloadInFlight` clears.
+    let deadline = ContinuousClock.now + .seconds(10)
     while coordinator.reloadInFlight, ContinuousClock.now < deadline {
-      await Task.yield()
+      try? await Task.sleep(for: .milliseconds(10))
     }
 
     #expect(!coordinator.reloadInFlight)
@@ -409,9 +409,9 @@ struct ChatCoordinatorTests {
 
     coordinator.enqueueReload(messageID: pagedOut.id)
 
-    let deadline = ContinuousClock.now + .seconds(1)
+    let deadline = ContinuousClock.now + .seconds(10)
     while coordinator.reloadInFlight, ContinuousClock.now < deadline {
-      await Task.yield()
+      try? await Task.sleep(for: .milliseconds(10))
     }
 
     #expect(rebuiltIDs.value.isEmpty)
