@@ -463,6 +463,13 @@ struct MessageServiceSendTests {
     msgSent.append(uint32Bytes(5000))
     await transport.simulateReceive(msgSent)
 
+    // finalizeSend's routing check queries the contact; answer "not found" so
+    // the await below doesn't sit out the session timeout on the reply.
+    try await waitUntil("routing check should query the contact") {
+      await transport.sentData.count == 3
+    }
+    await transport.simulateReceive(Data([ResponseCode.error.rawValue]))
+
     _ = try await resendTask.value
 
     let recorded = await service.drainStatusEvents(statusEvents).resentIDs
@@ -537,6 +544,13 @@ struct MessageServiceSendTests {
     msgSent.append(ackCode)
     msgSent.append(uint32Bytes(5000))
     await transport.simulateReceive(msgSent)
+
+    // finalizeSend's routing check queries the contact; answer "not found" so
+    // the await below doesn't sit out the session timeout on the reply.
+    try await waitUntil("routing check should query the contact") {
+      await transport.sentData.count == 3
+    }
+    await transport.simulateReceive(Data([ResponseCode.error.rawValue]))
 
     _ = try await sendTask.value
 
@@ -755,11 +769,18 @@ struct MessageServiceSendTests {
         let count = await transport.sentData.count
         if count > responded {
           responded = count
-          var msgSent = Data([ResponseCode.messageSent.rawValue])
-          msgSent.append(0)
-          msgSent.append(ackCode)
-          msgSent.append(uint32Bytes(10)) // ~12ms ack window
-          await transport.simulateReceive(msgSent)
+          let newest = await transport.sentData.last
+          if newest?.first == CommandCode.getContactByKey.rawValue {
+            // Answer the routing check's contact query with "not found" so finalizeSend
+            // returns without waiting out the session timeout.
+            await transport.simulateReceive(Data([ResponseCode.error.rawValue]))
+          } else {
+            var msgSent = Data([ResponseCode.messageSent.rawValue])
+            msgSent.append(0)
+            msgSent.append(ackCode)
+            msgSent.append(uint32Bytes(10)) // ~12ms ack window
+            await transport.simulateReceive(msgSent)
+          }
         }
         await Task.yield()
       }
@@ -848,15 +869,17 @@ struct MessageServiceSendTests {
 
     let sendTask = Task { try await service.sendMessageWithRetry(text: "in flight", to: contact) }
 
-    // Attempt 0's send goes out; feed a messageSent with a long ack window so
-    // the loop parks in waitForEvent with a just-re-stamped sentAt.
+    // Attempt 0's send goes out; feed a messageSent whose ack window far
+    // exceeds any runner stall, so waitForEvent stays parked until the test
+    // dispatches the ack and a saturated CI machine cannot expire it into a
+    // second attempt that nothing here answers.
     try await waitUntil("attempt 0 should send") {
       await transport.sentData.count == 2
     }
     var msgSent = Data([ResponseCode.messageSent.rawValue])
     msgSent.append(0)
     msgSent.append(ackCode)
-    msgSent.append(uint32Bytes(15000)) // ~18s window: the loop stays parked
+    msgSent.append(uint32Bytes(100_000)) // ~120s window: the loop stays parked
     await transport.simulateReceive(msgSent)
 
     // Readiness: the loop's waitForEvent subscription is active.
@@ -872,6 +895,12 @@ struct MessageServiceSendTests {
 
     // Unblock the loop so it completes cleanly (delivered).
     await session.dispatchForTesting(.acknowledgement(code: ackCode, tripTime: 100))
+    // finalizeSend's routing check queries the contact; answer "not found" so
+    // the await below doesn't sit out the session timeout on the reply.
+    try await waitUntil("routing check should query the contact") {
+      await transport.sentData.count == 3
+    }
+    await transport.simulateReceive(Data([ResponseCode.error.rawValue]))
     let delivered = try await sendTask.value
     #expect(delivered.status == .delivered)
   }
@@ -894,9 +923,10 @@ struct MessageServiceSendTests {
 
     let container = try PersistenceStore.createContainer(inMemory: true)
     let dataStore = PersistenceStore(modelContainer: container)
-    // give-up window 1s; per-attempt timeout derives from suggestedTimeoutMs 15_000 (~18s).
-    // After a 2s real wait the elapsed exceeds the 1s window but is inside the 18s attempt
-    // timeout, so max(1, 18) = 18 and the checker must leave the entry alive.
+    // give-up window 1s; per-attempt timeout derives from suggestedTimeoutMs 100_000 (~120s).
+    // After a 2s real wait the elapsed exceeds the 1s window but is inside the attempt
+    // timeout, so max(window, timeout) resolves to the attempt timeout and the checker
+    // must leave the entry alive.
     let service = MessageService(
       session: session,
       dataStore: dataStore,
@@ -916,13 +946,13 @@ struct MessageServiceSendTests {
     var msgSent = Data([ResponseCode.messageSent.rawValue])
     msgSent.append(0)
     msgSent.append(ackCode)
-    msgSent.append(uint32Bytes(15000)) // ~18s window: the loop stays parked
+    msgSent.append(uint32Bytes(100_000)) // ~120s window: the loop stays parked
     await transport.simulateReceive(msgSent)
 
     await service.waitForSubscriberCount(1)
 
     // Wait 2 real seconds so elapsed > 1s window, then run the checker.
-    // Under max(1, 18) = 18 the entry must survive.
+    // The per-attempt timeout dominates the window, so the entry must survive.
     try await Task.sleep(for: .seconds(2))
     try await service.checkExpiredAcks()
 
@@ -935,6 +965,12 @@ struct MessageServiceSendTests {
     // in-flight waitForEvent still parks its full per-attempt timeout rather than
     // hanging, and that timeout must exceed the give-up window to stay meaningful.
     await session.dispatchForTesting(.acknowledgement(code: ackCode, tripTime: 100))
+    // finalizeSend's routing check queries the contact; answer "not found" so
+    // the await below doesn't sit out the session timeout on the reply.
+    try await waitUntil("routing check should query the contact") {
+      await transport.sentData.count == 3
+    }
+    await transport.simulateReceive(Data([ResponseCode.error.rawValue]))
     let delivered = try await sendTask.value
     #expect(delivered.status == .delivered)
   }
