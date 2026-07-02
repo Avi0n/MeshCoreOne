@@ -50,9 +50,12 @@ struct ChatViewModelConversationTests {
     viewModel.recomputeSnapshot()
 
     let favorites = viewModel.favoriteConversations
+    // Evaluated outside #expect: the key-path form does not compile inside the
+    // macro expansion, and swiftformat's preferKeyPath rejects the closure form.
+    let allAreFavorites = favorites.allSatisfy(\.isFavorite)
 
     #expect(favorites.count == 2)
-    #expect(favorites.allSatisfy(\.isFavorite))
+    #expect(allAreFavorites)
   }
 
   @Test
