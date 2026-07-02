@@ -13,6 +13,7 @@ struct TracePathMapView: View {
   @Binding var presentedResult: TraceResult?
   @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
   @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
+  @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
   @State private var mapViewModel = TracePathMapViewModel()
 
   @State private var showingSavePrompt = false
@@ -22,6 +23,7 @@ struct TracePathMapView: View {
   @State private var errorMessage: String?
   @State private var pinTapHaptic = 0
   @State private var rejectedTapHaptic = 0
+  @State private var isCenteredOnUser = false
 
   @Namespace private var buttonNamespace
 
@@ -49,7 +51,9 @@ struct TracePathMapView: View {
       TracePathMapToolbarView(
         mapViewModel: mapViewModel,
         mapStyleSelection: $mapStyleSelection,
-        showLabels: $showLabels
+        showLabels: $showLabels,
+        isNorthLocked: $isNorthLocked,
+        isCenteredOnUser: $isCenteredOnUser
       )
     }
     .onAppear {
@@ -120,7 +124,7 @@ struct TracePathMapView: View {
       showsUserLocation: true,
       isInteractive: true,
       showsScale: true,
-      isNorthLocked: mapViewModel.isNorthLocked,
+      isNorthLocked: isNorthLocked,
       cameraRegion: $mapViewModel.cameraRegion,
       cameraRegionVersion: mapViewModel.cameraRegionVersion,
       cameraBottomSheetFraction: 0,
@@ -138,6 +142,7 @@ struct TracePathMapView: View {
       onCameraRegionChange: { region in
         mapViewModel.cameraRegion = region
       },
+      isCenteredOnUser: $isCenteredOnUser
     )
     .ignoresSafeArea()
   }

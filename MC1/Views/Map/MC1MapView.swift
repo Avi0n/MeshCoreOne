@@ -161,10 +161,14 @@ struct MC1MapView: UIViewRepresentable {
   // Output callbacks
   let onPointTap: ((MapPoint, CGPoint) -> Void)?
   let onMapTap: ((CLLocationCoordinate2D) -> Void)?
+  var onMapLongPress: ((CLLocationCoordinate2D) -> Void)?
   let onCameraRegionChange: ((MKCoordinateRegion) -> Void)?
 
   /// Optional features
   var isStyleLoaded: Binding<Bool> = .constant(true)
+
+  /// Reports whether the camera is currently centered on the user's location.
+  var isCenteredOnUser: Binding<Bool> = .constant(false)
 
   func makeCoordinator() -> Coordinator {
     Coordinator()
@@ -206,6 +210,14 @@ struct MC1MapView: UIViewRepresentable {
     tap.delegate = context.coordinator
     mapView.addGestureRecognizer(tap)
 
+    // Long-press gesture for dropping a pin at the pressed coordinate
+    let longPress = UILongPressGestureRecognizer(
+      target: context.coordinator,
+      action: #selector(Coordinator.handleLongPress(_:))
+    )
+    longPress.delegate = context.coordinator
+    mapView.addGestureRecognizer(longPress)
+
     return mapView
   }
 
@@ -222,8 +234,10 @@ struct MC1MapView: UIViewRepresentable {
     // Refresh callbacks
     coordinator.onPointTap = onPointTap
     coordinator.onMapTap = onMapTap
+    coordinator.onMapLongPress = onMapLongPress
     coordinator.onCameraRegionChange = onCameraRegionChange
     coordinator.setIsStyleLoaded = { isStyleLoaded.wrappedValue = $0 }
+    coordinator.setIsCenteredOnUser = { isCenteredOnUser.wrappedValue = $0 }
     coordinator.currentPoints = points
     coordinator.currentLines = lines
 
@@ -374,8 +388,10 @@ extension MC1MapView {
     // Callbacks
     var onPointTap: ((MapPoint, CGPoint) -> Void)?
     var onMapTap: ((CLLocationCoordinate2D) -> Void)?
+    var onMapLongPress: ((CLLocationCoordinate2D) -> Void)?
     var onCameraRegionChange: ((MKCoordinateRegion) -> Void)?
     var setIsStyleLoaded: ((Bool) -> Void)?
+    var setIsCenteredOnUser: ((Bool) -> Void)?
 
     // State
     var isUserInteracting = false
@@ -442,6 +458,15 @@ extension MC1MapView {
 
     func mapViewRegionIsChanging(_ mapView: MLNMapView) {
       isUserInteracting = true
+    }
+
+    func mapView(_ mapView: MLNMapView, regionWillChangeWith reason: MLNCameraChangeReason, animated: Bool) {
+      // A user drag/zoom/rotate moves the camera off the user's location, so clear the
+      // centered-on-user flag. Programmatic recenters keep it — the location button sets
+      // it back to true when it centers the map.
+      guard !reason.isDisjoint(with: Self.userGestureReasons) else { return }
+      let report = setIsCenteredOnUser
+      DispatchQueue.main.async { report?(false) }
     }
 
     func mapView(_ mapView: MLNMapView, regionDidChangeWith reason: MLNCameraChangeReason, animated: Bool) {
@@ -525,6 +550,13 @@ extension MC1MapView {
       // 4. Map background tap
       let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
       onMapTap?(coordinate)
+    }
+
+    @objc func handleLongPress(_ sender: UILongPressGestureRecognizer) {
+      guard sender.state == .began else { return }
+      let point = sender.location(in: mapView)
+      let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
+      onMapLongPress?(coordinate)
     }
   }
 }

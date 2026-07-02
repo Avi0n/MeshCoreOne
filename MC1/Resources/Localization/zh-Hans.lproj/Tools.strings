@@ -365,8 +365,8 @@
 /* Location: LineOfSightView.swift - Loading elevation status */
 "tools.lineOfSight.loadingElevation" = "正在加载高程...";
 
-/* Location: LineOfSightView.swift - Select points hint */
-"tools.lineOfSight.selectPointsHint" = "点击图钉按钮在地图上选择点";
+/* Location: LineOfSightView.swift - Long press points hint */
+"tools.lineOfSight.longPressPointsHint" = "长按地图以添加位置";
 
 /* Location: LineOfSightView.swift - Elevation unavailable warning */
 "tools.lineOfSight.elevationUnavailable" = "高程数据不可用。使用海平面（0m）作为近似值。";

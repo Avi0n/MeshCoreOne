@@ -24,20 +24,16 @@ struct NeighborSNRMapView: View {
 
   @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
   @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
+  @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
 
   @State private var cameraRegion: MKCoordinateRegion?
   @State private var cameraRegionVersion = 0
+  @State private var isCenteredOnUser = false
   @State private var plotted: NeighborSNRMapBuilder.PlottedNeighbors?
-  @State private var isNorthLocked = false
-  @State private var showingLayersMenu = false
   @State private var showingNoLocationList = false
   @State private var isStyleLoaded = false
 
   private static let myLocationSpan = 0.02
-
-  /// Float the layers menu just above the toolbar's bottom-right corner.
-  private static let layersMenuTrailingPadding: CGFloat = 16
-  private static let layersMenuBottomPadding: CGFloat = 240
 
   var body: some View {
     ZStack(alignment: .bottom) {
@@ -58,7 +54,8 @@ struct NeighborSNRMapView: View {
         onPointTap: nil,
         onMapTap: nil,
         onCameraRegionChange: { cameraRegion = $0 },
-        isStyleLoaded: $isStyleLoaded
+        isStyleLoaded: $isStyleLoaded,
+        isCenteredOnUser: $isCenteredOnUser
       )
       .ignoresSafeArea()
 
@@ -122,26 +119,15 @@ struct NeighborSNRMapView: View {
       Spacer()
       MapControlsToolbar(
         onLocationTap: centerOnMyLocation,
+        isCenteredOnUser: isCenteredOnUser,
         isNorthLocked: $isNorthLocked,
         showLabels: $showLabels,
-        showingLayersMenu: $showingLayersMenu
+        mapStyleSelection: $mapStyleSelection,
+        viewportBounds: cameraRegion?.toMLNCoordinateBounds()
       ) {
         centerAllButton
       }
-      .overlay(alignment: .bottomTrailing) {
-        if showingLayersMenu {
-          LayersMenu(
-            selection: $mapStyleSelection,
-            isPresented: $showingLayersMenu,
-            viewportBounds: cameraRegion?.toMLNCoordinateBounds()
-          )
-          .padding(.trailing, Self.layersMenuTrailingPadding)
-          .padding(.bottom, Self.layersMenuBottomPadding)
-          .transition(.scale.combined(with: .opacity))
-        }
-      }
     }
-    .animation(.spring(response: 0.3), value: showingLayersMenu)
   }
 
   /// Centers and fits the camera in one step: `MC1MapView` ignores a region whose version
@@ -158,6 +144,7 @@ struct NeighborSNRMapView: View {
         center: location.coordinate,
         span: MKCoordinateSpan(latitudeDelta: Self.myLocationSpan, longitudeDelta: Self.myLocationSpan)
       ))
+      isCenteredOnUser = true
     } else {
       appState.locationService.requestLocation()
     }
