@@ -10,9 +10,11 @@ struct MapContentView: View {
   @Bindable var viewModel: MapViewModel
   let mapStyleSelection: MapStyleSelection
   let showLabels: Bool
+  let isNorthLocked: Bool
   @Binding var selectedCalloutContact: ContactDTO?
   @Binding var selectedPointScreenPosition: CGPoint?
   @Binding var isStyleLoaded: Bool
+  @Binding var isCenteredOnUser: Bool
   let onShowContactDetail: (ContactDTO) -> Void
   let onNavigateToChat: (ContactDTO) -> Void
   let onPersistCamera: (MKCoordinateRegion) -> Void
@@ -30,7 +32,7 @@ struct MapContentView: View {
       showsUserLocation: true,
       isInteractive: true,
       showsScale: true,
-      isNorthLocked: viewModel.isNorthLocked,
+      isNorthLocked: isNorthLocked,
       cameraRegion: $viewModel.cameraRegion,
       cameraRegionVersion: viewModel.cameraRegionVersion,
       onPointTap: { point, screenPosition in
@@ -57,7 +59,8 @@ struct MapContentView: View {
           selectedPointScreenPosition = nil
         }
       },
-      isStyleLoaded: $isStyleLoaded
+      isStyleLoaded: $isStyleLoaded,
+      isCenteredOnUser: $isCenteredOnUser
     )
     .popover(
       item: $selectedCalloutContact,

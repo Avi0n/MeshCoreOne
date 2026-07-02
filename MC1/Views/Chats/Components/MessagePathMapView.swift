@@ -21,9 +21,8 @@ struct MessagePathMapView: View {
   @State private var cameraRegion: MKCoordinateRegion?
   @State private var cameraRegionVersion = 0
   @State private var mapStyle: MapStyleSelection = .standard
-  @State private var isNorthLocked = false
+  @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
   @State private var showLabels = true
-  @State private var showingLayersMenu = false
   @State private var isStyleLoaded = false
   @State private var hasInitiallyFit = false
   @State private var locatedNodes: [(point: MapPoint, coordinate: CLLocationCoordinate2D)] = []
@@ -98,7 +97,8 @@ struct MessagePathMapView: View {
                   onLocationTap: centerOnUserLocation,
                   isNorthLocked: $isNorthLocked,
                   showLabels: $showLabels,
-                  showingLayersMenu: $showingLayersMenu
+                  mapStyleSelection: $mapStyle,
+                  viewportBounds: cameraRegion?.toMLNCoordinateBounds()
                 ) {
                   if !locatedNodes.isEmpty {
                     Button(L10n.Chats.Chats.Path.centerOnPath, systemImage: "arrow.up.left.and.arrow.down.right") {
@@ -109,19 +109,6 @@ struct MessagePathMapView: View {
                 }
               }
             }
-            .overlay(alignment: .bottomTrailing) {
-              if showingLayersMenu {
-                LayersMenu(
-                  selection: $mapStyle,
-                  isPresented: $showingLayersMenu,
-                  viewportBounds: cameraRegion?.toMLNCoordinateBounds()
-                )
-                .padding(.trailing, 16)
-                .padding(.bottom, 160)
-                .transition(.scale.combined(with: .opacity))
-              }
-            }
-            .animation(.spring(response: 0.3), value: showingLayersMenu)
           }
         }
       }

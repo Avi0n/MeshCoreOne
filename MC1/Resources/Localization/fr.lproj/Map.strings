@@ -27,13 +27,11 @@
 "map.controls.centerOnMyLocation" = "Centrer sur ma position";
 
 /* Location: MapControlsToolbar.swift - Purpose: Accessibility label for layers button */
-"map.controls.layers" = "Couches de la carte";
+/* AI-translated - please verify with native speakers. */
+"map.controls.mapOptions" = "Options de la carte";
 
-/* Location: MapCanvasView.swift - Purpose: Accessibility label for north lock button (lock) */
-"map.controls.lockNorth" = "Verrouiller au nord";
-
-/* Location: MapCanvasView.swift - Purpose: Accessibility label for north lock button (unlock) */
-"map.controls.unlockNorth" = "Déverrouiller la rotation";
+/* Location: MapControlsToolbar.swift - Purpose: Map options toggle to lock bearing to north; kept in English intentionally, do not localize. */
+"map.controls.lockNorth" = "North up";
 
 /* Location: MapView.swift - Purpose: Accessibility label for refresh button */
 "map.controls.refresh" = "Actualiser les contacts";

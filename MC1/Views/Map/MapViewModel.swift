@@ -30,12 +30,6 @@ final class MapViewModel {
   /// Version counter for the camera region, incremented to signal a new camera target
   private(set) var cameraRegionVersion = 0
 
-  /// Whether the map bearing is locked to true north
-  var isNorthLocked = false
-
-  /// Whether the layers menu is showing
-  var showingLayersMenu = false
-
   // MARK: - Dependencies
 
   private var dataStoreProvider: @MainActor () -> PersistenceStore? = { nil }

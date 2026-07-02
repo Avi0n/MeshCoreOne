@@ -9,6 +9,7 @@ struct MapCanvasView: View {
   @Bindable var viewModel: MapViewModel
   @Binding var mapStyleSelection: MapStyleSelection
   @Binding var showLabels: Bool
+  @Binding var isNorthLocked: Bool
   @Binding var selectedCalloutContact: ContactDTO?
   @Binding var selectedPointScreenPosition: CGPoint?
   @Binding var isStyleLoaded: Bool
@@ -18,15 +19,19 @@ struct MapCanvasView: View {
   let onClearSelection: () -> Void
   let onPersistCamera: (MKCoordinateRegion) -> Void
 
+  @State private var isCenteredOnUser = false
+
   var body: some View {
     ZStack {
       MapContentView(
         viewModel: viewModel,
         mapStyleSelection: mapStyleSelection,
         showLabels: showLabels,
+        isNorthLocked: isNorthLocked,
         selectedCalloutContact: $selectedCalloutContact,
         selectedPointScreenPosition: $selectedPointScreenPosition,
         isStyleLoaded: $isStyleLoaded,
+        isCenteredOnUser: $isCenteredOnUser,
         onShowContactDetail: onShowContactDetail,
         onNavigateToChat: onNavigateToChat,
         onPersistCamera: onPersistCamera
@@ -42,42 +47,21 @@ struct MapCanvasView: View {
       VStack {
         Spacer()
         MapCanvasControls(
-          isNorthLocked: $viewModel.isNorthLocked,
-          showingLayersMenu: $viewModel.showingLayersMenu,
+          isNorthLocked: $isNorthLocked,
           showLabels: $showLabels,
+          mapStyleSelection: $mapStyleSelection,
+          isCenteredOnUser: isCenteredOnUser,
+          viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds(),
           contactsEmpty: viewModel.contactsWithLocation.isEmpty,
-          onLocationTap: { onCenterOnUser() },
+          onLocationTap: {
+            if appState.bestAvailableLocation != nil {
+              isCenteredOnUser = true
+            }
+            onCenterOnUser()
+          },
           onClearSelection: onClearSelection,
           onCenterAll: { viewModel.centerOnAllContacts() }
         )
-      }
-
-      // Layers menu overlay
-      if viewModel.showingLayersMenu {
-        Button {
-          withAnimation {
-            viewModel.showingLayersMenu = false
-          }
-        } label: {
-          Color.black.opacity(0.3)
-            .ignoresSafeArea()
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(L10n.Map.Map.Common.dismissOverlay)
-
-        VStack {
-          Spacer()
-          HStack {
-            Spacer()
-            LayersMenu(
-              selection: $mapStyleSelection,
-              isPresented: $viewModel.showingLayersMenu,
-              viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds()
-            )
-            .padding(.trailing, 72)
-            .padding(.bottom)
-          }
-        }
       }
     }
   }
@@ -87,8 +71,10 @@ struct MapCanvasView: View {
 
 private struct MapCanvasControls: View {
   @Binding var isNorthLocked: Bool
-  @Binding var showingLayersMenu: Bool
   @Binding var showLabels: Bool
+  @Binding var mapStyleSelection: MapStyleSelection
+  let isCenteredOnUser: Bool
+  let viewportBounds: MLNCoordinateBounds?
   let contactsEmpty: Bool
   let onLocationTap: () -> Void
   let onClearSelection: () -> Void
@@ -99,9 +85,11 @@ private struct MapCanvasControls: View {
       Spacer()
       MapControlsToolbar(
         onLocationTap: onLocationTap,
+        isCenteredOnUser: isCenteredOnUser,
         isNorthLocked: $isNorthLocked,
         showLabels: $showLabels,
-        showingLayersMenu: $showingLayersMenu
+        mapStyleSelection: $mapStyleSelection,
+        viewportBounds: viewportBounds
       ) {
         CenterAllButton(
           isEmpty: contactsEmpty,

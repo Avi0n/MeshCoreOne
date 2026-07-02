@@ -365,8 +365,8 @@
 /* Location: LineOfSightView.swift - Loading elevation status */
 "tools.lineOfSight.loadingElevation" = "Завантаження висоти...";
 
-/* Location: LineOfSightView.swift - Select points hint */
-"tools.lineOfSight.selectPointsHint" = "Натисніть кнопку мітки на карті, щоб вибрати точки";
+/* Location: LineOfSightView.swift - Long press points hint */
+"tools.lineOfSight.longPressPointsHint" = "Натисніть і утримуйте на карті, щоб додати місце";
 
 /* Location: LineOfSightView.swift - Elevation unavailable warning */
 "tools.lineOfSight.elevationUnavailable" = "Дані про висоту недоступні. Використовується рівень моря (0 м) як наближення.";

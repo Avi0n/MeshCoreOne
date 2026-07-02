@@ -75,7 +75,7 @@ struct PointsSummarySectionView: View {
         )
 
         if viewModel.pointA == nil || viewModel.pointB == nil {
-          Text(L10n.Tools.Tools.LineOfSight.selectPointsHint)
+          Text(L10n.Tools.Tools.LineOfSight.longPressPointsHint)
             .font(.caption)
             .foregroundStyle(.secondary)
         }

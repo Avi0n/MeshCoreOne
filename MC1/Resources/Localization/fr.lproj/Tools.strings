@@ -365,8 +365,8 @@
 /* Location: LineOfSightView.swift - Loading elevation status */
 "tools.lineOfSight.loadingElevation" = "Chargement de l'altitude...";
 
-/* Location: LineOfSightView.swift - Select points hint */
-"tools.lineOfSight.selectPointsHint" = "Appuyez sur le bouton épingle sur la carte pour sélectionner des points";
+/* Location: LineOfSightView.swift - Long press points hint */
+"tools.lineOfSight.longPressPointsHint" = "Appuyez longuement sur la carte pour ajouter un emplacement";
 
 /* Location: LineOfSightView.swift - Elevation unavailable warning */
 "tools.lineOfSight.elevationUnavailable" = "Données d'altitude non disponibles. Utilisation du niveau de la mer (0 m) comme approximation.";

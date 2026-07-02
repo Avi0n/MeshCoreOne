@@ -9,6 +9,8 @@ struct TracePathMapToolbarView: View {
   @Bindable var mapViewModel: TracePathMapViewModel
   @Binding var mapStyleSelection: MapStyleSelection
   @Binding var showLabels: Bool
+  @Binding var isNorthLocked: Bool
+  @Binding var isCenteredOnUser: Bool
 
   var body: some View {
     VStack {
@@ -22,13 +24,16 @@ struct TracePathMapToolbarView: View {
                 center: location.coordinate,
                 span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
               ))
+              isCenteredOnUser = true
             } else {
               appState.locationService.requestLocation()
             }
           },
-          isNorthLocked: $mapViewModel.isNorthLocked,
+          isCenteredOnUser: isCenteredOnUser,
+          isNorthLocked: $isNorthLocked,
           showLabels: $showLabels,
-          showingLayersMenu: $mapViewModel.showingLayersMenu
+          mapStyleSelection: $mapStyleSelection,
+          viewportBounds: mapViewModel.cameraRegion?.toMLNCoordinateBounds()
         ) {
           // Center on path
           if mapViewModel.hasPath {
@@ -40,18 +45,5 @@ struct TracePathMapToolbarView: View {
         }
       }
     }
-    .overlay(alignment: .bottomTrailing) {
-      if mapViewModel.showingLayersMenu {
-        LayersMenu(
-          selection: $mapStyleSelection,
-          isPresented: $mapViewModel.showingLayersMenu,
-          viewportBounds: mapViewModel.cameraRegion?.toMLNCoordinateBounds()
-        )
-        .padding(.trailing, 16)
-        .padding(.bottom, 160)
-        .transition(.scale.combined(with: .opacity))
-      }
-    }
-    .animation(.spring(response: 0.3), value: mapViewModel.showingLayersMenu)
   }
 }

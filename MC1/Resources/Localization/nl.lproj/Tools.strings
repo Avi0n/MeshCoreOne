@@ -365,8 +365,8 @@
 /* Location: LineOfSightView.swift - Loading elevation status */
 "tools.lineOfSight.loadingElevation" = "Hoogte laden...";
 
-/* Location: LineOfSightView.swift - Select points hint */
-"tools.lineOfSight.selectPointsHint" = "Tik op de speldknop op de kaart om punten te selecteren";
+/* Location: LineOfSightView.swift - Long press points hint */
+"tools.lineOfSight.longPressPointsHint" = "Houd ingedrukt op de kaart om een locatie toe te voegen";
 
 /* Location: LineOfSightView.swift - Elevation unavailable warning */
 "tools.lineOfSight.elevationUnavailable" = "Hoogtegegevens niet beschikbaar. Zeeniveau (0m) wordt gebruikt als benadering.";

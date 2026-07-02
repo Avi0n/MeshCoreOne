@@ -19,13 +19,12 @@ struct LineOfSightView: View {
   @State private var enableHalfDetent = false
   @State private var showAnalysisSheet: Bool
   @State private var editingPoint: PointID?
-  @State private var isDropPinMode = false
   @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
   @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
+  @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
   @State private var sheetBottomInset: CGFloat = 220
   @State private var isResultsExpanded = false
   @State private var isRFSettingsExpanded = false
-  @State private var showingMapStyleMenu = false
   @State private var copyHapticTrigger = 0
 
   private let layoutMode: LineOfSightLayoutMode
@@ -94,13 +93,13 @@ struct LineOfSightView: View {
       viewModel: viewModel,
       appState: appState,
       mapStyleSelection: $mapStyleSelection,
-      showingMapStyleMenu: $showingMapStyleMenu,
       showLabels: $showLabels,
-      isDropPinMode: $isDropPinMode,
+      isNorthLocked: $isNorthLocked,
       mapOverlayBottomPadding: mapOverlayBottomPadding,
       cameraBottomSheetFraction: showSheet ? 0.25 : 0,
       onRepeaterTap: { handleRepeaterTap($0) },
-      onMapTap: { handleMapTap(at: $0) }
+      onMapTap: { handleMapTap(at: $0) },
+      onMapLongPress: { handleMapLongPress(at: $0) }
     )
     .onChange(of: viewModel.pointA) { oldValue, newValue in
       if oldValue == nil, newValue != nil, viewModel.pointB != nil {
@@ -202,7 +201,7 @@ struct LineOfSightView: View {
         .sheet(isPresented: $showAnalysisSheet) {
           analysisSheet
             .onGeometryChange(for: CGFloat.self) { proxy in
-              proxy.size.height - proxy.safeAreaInsets.bottom + 15
+              proxy.size.height - proxy.safeAreaInsets.bottom - 16
             } action: { inset in
               if sheetDetent == analysisSheetDetentCollapsed {
                 sheetBottomInset = max(0, inset)
@@ -348,16 +347,17 @@ struct LineOfSightView: View {
   // MARK: - Helper Methods
 
   private func handleMapTap(at coordinate: CLLocationCoordinate2D) {
-    // Handle relocation mode
+    if let relocating = viewModel.relocatingPoint {
+      handleRelocation(to: coordinate, for: relocating)
+    }
+  }
+
+  private func handleMapLongPress(at coordinate: CLLocationCoordinate2D) {
     if let relocating = viewModel.relocatingPoint {
       handleRelocation(to: coordinate, for: relocating)
       return
     }
-
-    // Handle drop pin mode
-    guard isDropPinMode else { return }
     viewModel.selectPoint(at: coordinate)
-    isDropPinMode = false
   }
 
   private func handleRelocation(to coordinate: CLLocationCoordinate2D, for pointID: PointID) {
@@ -409,13 +409,15 @@ private struct LOSMapCanvasView: View {
   let appState: AppState
   @Environment(\.colorScheme) private var colorScheme
   @Binding var mapStyleSelection: MapStyleSelection
-  @Binding var showingMapStyleMenu: Bool
   @Binding var showLabels: Bool
-  @Binding var isDropPinMode: Bool
+  @Binding var isNorthLocked: Bool
   let mapOverlayBottomPadding: CGFloat
   let cameraBottomSheetFraction: CGFloat?
   let onRepeaterTap: (ContactDTO) -> Void
   let onMapTap: (CLLocationCoordinate2D) -> Void
+  let onMapLongPress: (CLLocationCoordinate2D) -> Void
+
+  @State private var isCenteredOnUser = false
 
   var body: some View {
     ZStack {
@@ -429,7 +431,7 @@ private struct LOSMapCanvasView: View {
         showsUserLocation: true,
         isInteractive: true,
         showsScale: true,
-        isNorthLocked: viewModel.isNorthLocked,
+        isNorthLocked: isNorthLocked,
         cameraRegion: $viewModel.cameraRegion,
         cameraRegionVersion: viewModel.cameraRegionVersion,
         cameraBottomSheetFraction: cameraBottomSheetFraction,
@@ -439,9 +441,11 @@ private struct LOSMapCanvasView: View {
           }
         },
         onMapTap: onMapTap,
+        onMapLongPress: onMapLongPress,
         onCameraRegionChange: { region in
           viewModel.cameraRegion = region
         },
+        isCenteredOnUser: $isCenteredOnUser
       )
       .ignoresSafeArea()
 
@@ -457,45 +461,21 @@ private struct LOSMapCanvasView: View {
                     center: location.coordinate,
                     span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
                   ))
+                  isCenteredOnUser = true
                 }
               }
             },
-            isNorthLocked: $viewModel.isNorthLocked,
+            isCenteredOnUser: isCenteredOnUser,
+            isNorthLocked: $isNorthLocked,
             showLabels: $showLabels,
-            showingLayersMenu: $showingMapStyleMenu
+            mapStyleSelection: $mapStyleSelection,
+            viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds()
           ) {
-            Button(isDropPinMode ? L10n.Tools.Tools.LineOfSight.cancelDropPin : L10n.Tools.Tools.LineOfSight.dropPin, systemImage: isDropPinMode ? "mappin.slash" : "mappin") {
-              isDropPinMode.toggle()
-            }
-            .mapControlButton(tint: isDropPinMode ? .blue : .primary)
+            EmptyView()
           }
         }
       }
       .padding(.bottom, mapOverlayBottomPadding)
-
-      if showingMapStyleMenu {
-        Button {
-          withAnimation { showingMapStyleMenu = false }
-        } label: {
-          Color.black.opacity(0.3).ignoresSafeArea()
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(L10n.Map.Map.Common.dismissOverlay)
-
-        VStack {
-          Spacer()
-          HStack {
-            Spacer()
-            LayersMenu(
-              selection: $mapStyleSelection,
-              isPresented: $showingMapStyleMenu,
-              viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds()
-            )
-            .padding(.trailing)
-          }
-        }
-        .padding(.bottom, mapOverlayBottomPadding)
-      }
     }
   }
 }

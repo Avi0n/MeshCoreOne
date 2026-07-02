@@ -11,6 +11,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
   public var selectedThemeID: String?
   public var appColorSchemePreference: String?
   public var mapShowLabels: Bool?
+  public var mapNorthLocked: Bool?
   public var replyWithQuote: Bool?
   public var showInlineImages: Bool?
   public var autoPlayGIFs: Bool?
@@ -99,6 +100,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     (\.hasCompletedOnboarding, AppStorageKey.hasCompletedOnboarding.rawValue),
     (\.liveActivityEnabled, AppStorageKey.liveActivityEnabled.rawValue),
     (\.mapShowLabels, AppStorageKey.mapShowLabels.rawValue),
+    (\.mapNorthLocked, AppStorageKey.mapNorthLocked.rawValue),
     (\.replyWithQuote, AppStorageKey.replyWithQuote.rawValue),
     (\.showInlineImages, AppStorageKey.showInlineImages.rawValue),
     (\.autoPlayGIFs, AppStorageKey.autoPlayGIFs.rawValue),
