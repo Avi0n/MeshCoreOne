@@ -24,6 +24,7 @@ struct MessagePathMapView: View {
   @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
   @State private var showLabels = true
   @State private var isStyleLoaded = false
+  @State private var isCenteredOnUser = false
   @State private var hasInitiallyFit = false
   @State private var locatedNodes: [(point: MapPoint, coordinate: CLLocationCoordinate2D)] = []
 
@@ -80,7 +81,8 @@ struct MessagePathMapView: View {
               onPointTap: nil,
               onMapTap: nil,
               onCameraRegionChange: { cameraRegion = $0 },
-              isStyleLoaded: $isStyleLoaded
+              isStyleLoaded: $isStyleLoaded,
+              isCenteredOnUser: $isCenteredOnUser
             )
             .ignoresSafeArea()
 
@@ -95,6 +97,7 @@ struct MessagePathMapView: View {
                 Spacer()
                 MapControlsToolbar(
                   onLocationTap: centerOnUserLocation,
+                  isCenteredOnUser: isCenteredOnUser,
                   isNorthLocked: $isNorthLocked,
                   showLabels: $showLabels,
                   mapStyleSelection: $mapStyle,
@@ -102,6 +105,7 @@ struct MessagePathMapView: View {
                 ) {
                   if !locatedNodes.isEmpty {
                     Button(L10n.Chats.Chats.Path.centerOnPath, systemImage: "arrow.up.left.and.arrow.down.right") {
+                      isCenteredOnUser = false
                       fitCameraToPath()
                     }
                     .mapControlButton(tint: .primary)
@@ -151,6 +155,7 @@ struct MessagePathMapView: View {
       appState.locationService.requestLocation()
       return
     }
+    isCenteredOnUser = true
     cameraRegion = MKCoordinateRegion(
       center: location.coordinate,
       span: MKCoordinateSpan(

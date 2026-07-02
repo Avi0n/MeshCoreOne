@@ -38,6 +38,7 @@ struct TracePathMapToolbarView: View {
           // Center on path
           if mapViewModel.hasPath {
             Button(L10n.Contacts.Contacts.Trace.Map.centerOnPath, systemImage: "arrow.up.left.and.arrow.down.right") {
+              isCenteredOnUser = false
               mapViewModel.centerOnPath()
             }
             .mapControlButton(tint: .primary)

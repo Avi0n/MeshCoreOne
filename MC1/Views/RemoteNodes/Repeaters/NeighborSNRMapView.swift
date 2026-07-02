@@ -153,6 +153,7 @@ struct NeighborSNRMapView: View {
   /// Re-fits the camera to the repeater and its plotted neighbors. Disabled when nothing is plottable.
   private var centerAllButton: some View {
     Button(L10n.Map.Map.Controls.centerAll, systemImage: "arrow.up.left.and.arrow.down.right") {
+      isCenteredOnUser = false
       setCameraRegion(plotted?.region)
     }
     .mapControlButton(tint: plotted?.region == nil ? .secondary : .primary)

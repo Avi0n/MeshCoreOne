@@ -60,7 +60,10 @@ struct MapCanvasView: View {
             onCenterOnUser()
           },
           onClearSelection: onClearSelection,
-          onCenterAll: { viewModel.centerOnAllContacts() }
+          onCenterAll: {
+            isCenteredOnUser = false
+            viewModel.centerOnAllContacts()
+          }
         )
       }
     }
