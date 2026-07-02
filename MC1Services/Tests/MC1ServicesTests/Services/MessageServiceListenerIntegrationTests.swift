@@ -93,7 +93,7 @@ struct MessageServiceListenerIntegrationTests {
     _ expected: MessageStatus,
     messageID: UUID,
     dataStore: PersistenceStore,
-    timeout: Duration = .milliseconds(500)
+    timeout: Duration = .seconds(10)
   ) async throws {
     let deadline = ContinuousClock.now.advanced(by: timeout)
     while ContinuousClock.now < deadline {

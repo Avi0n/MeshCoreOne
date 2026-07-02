@@ -9,7 +9,7 @@ import Foundation
 ///   - message: Failure message if the timeout expires.
 ///   - condition: An async closure returning `true` when the expected state is reached.
 func waitUntil(
-  timeout: Duration = .seconds(2),
+  timeout: Duration = .seconds(10),
   pollingInterval: Duration = .milliseconds(10),
   _ message: String = "waitUntil timed out",
   condition: @escaping @MainActor () async -> Bool

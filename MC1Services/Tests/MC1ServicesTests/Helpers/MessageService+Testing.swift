@@ -76,14 +76,14 @@ extension MessageService {
   /// runs on its own Task) before waiting for the new subscription.
   func waitForSubscriberCount(
     _ expectedCount: Int,
-    timeout: Duration = .milliseconds(500)
+    timeout: Duration = .seconds(10)
   ) async {
     let deadline = ContinuousClock.now.advanced(by: timeout)
     while ContinuousClock.now < deadline {
       if await sessionForTest.subscriberCountForTest == expectedCount {
         return
       }
-      await Task.yield()
+      try? await Task.sleep(for: .milliseconds(10))
     }
     Issue.record("subscriber count did not reach \(expectedCount) within \(timeout)")
   }

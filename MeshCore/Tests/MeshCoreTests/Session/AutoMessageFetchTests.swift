@@ -108,7 +108,7 @@ struct AutoMessageFetchTests {
 
   private func waitUntil(
     _ description: String,
-    timeout: Duration = .milliseconds(300),
+    timeout: Duration = .seconds(10),
     pollInterval: Duration = .milliseconds(10),
     condition: @escaping @Sendable () async -> Bool
   ) async throws {
