@@ -33,7 +33,7 @@ struct TransportCodeRegionResolverTests {
   }
 
   @Test
-  func `$-prefixed (private) region returns nil scope key`() {
+  func `Dollar-prefixed (private) region returns nil scope key`() {
     #expect(TransportCodeRegionResolver.deriveScopeKey(regionName: "$secret") == nil)
     #expect(TransportCodeRegionResolver.deriveScopeKey(regionName: "$") == nil)
   }
