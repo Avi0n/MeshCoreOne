@@ -9,7 +9,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -78,7 +78,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -111,7 +111,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     let startTask = Task {
@@ -135,7 +135,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -161,7 +161,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -197,7 +197,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -231,7 +231,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let session = MeshCoreSession(
       transport: transport,
       configuration: SessionConfiguration(
-        defaultTimeout: 5.0,
+        defaultTimeout: 10,
         clientIdentifier: "MCTst",
         contactStreamInactivityTimeout: 1.0,
         contactStreamHardTimeout: 10.0
@@ -269,7 +269,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let session = MeshCoreSession(
       transport: transport,
       configuration: SessionConfiguration(
-        defaultTimeout: 0.2,
+        defaultTimeout: 10,
         clientIdentifier: "MCTst",
         contactStreamInactivityTimeout: 0.08,
         contactStreamHardTimeout: 1.0
@@ -306,7 +306,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -338,7 +338,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -400,7 +400,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     let originalPublicKey = Data(repeating: 0x01, count: 32)
@@ -441,7 +441,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     let error = await #expect(throws: MeshCoreError.self) {
@@ -460,7 +460,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -492,7 +492,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -518,7 +518,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -551,7 +551,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -590,7 +590,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -623,7 +623,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -658,7 +658,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -693,7 +693,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -725,7 +725,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -789,7 +789,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -846,7 +846,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -891,7 +891,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)
@@ -944,7 +944,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)

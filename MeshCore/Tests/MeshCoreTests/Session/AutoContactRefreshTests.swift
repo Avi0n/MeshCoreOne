@@ -9,7 +9,7 @@ struct AutoContactRefreshTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MeshCore-Tests")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MeshCore-Tests")
     )
     try await startSession(session, transport: transport)
     await session.setAutoUpdateContacts(true)

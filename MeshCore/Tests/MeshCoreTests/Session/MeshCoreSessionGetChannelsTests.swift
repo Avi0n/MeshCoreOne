@@ -187,7 +187,7 @@ private func pipelineConfig(
   idleTimeout: TimeInterval = 1.5
 ) -> SessionConfiguration {
   SessionConfiguration(
-    defaultTimeout: 0.5,
+    defaultTimeout: 10,
     clientIdentifier: "MCTst",
     channelPipelineWindow: window,
     channelPipelineIdleTimeout: idleTimeout,

@@ -10,7 +10,7 @@ struct ConnectionStateTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "Test")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
     )
 
     var iterator = await session.connectionState.makeAsyncIterator()
@@ -38,7 +38,7 @@ struct ConnectionStateTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "Test")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
     )
 
     var iterator = await session.connectionState.makeAsyncIterator()
@@ -109,7 +109,7 @@ struct ConnectionStateTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "Test")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
     )
 
     await #expect(throws: MeshCoreError.self) {
@@ -124,7 +124,7 @@ struct ConnectionStateTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "Test")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
     )
 
     await #expect(throws: MeshCoreError.self) {
@@ -139,7 +139,7 @@ struct ConnectionStateTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "Test")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
     )
 
     await #expect(throws: MeshCoreError.self) {

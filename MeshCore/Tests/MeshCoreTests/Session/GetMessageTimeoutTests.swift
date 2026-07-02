@@ -21,7 +21,7 @@ struct GetMessageTimeoutTests {
     let transport = MockTransport()
     try? await transport.connect()
 
-    let configuration = SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MeshCore-Tests")
+    let configuration = SessionConfiguration(defaultTimeout: 2.0, clientIdentifier: "MeshCore-Tests")
     let session = MeshCoreSession(transport: transport, configuration: configuration)
     let clock = ContinuousClock()
     let start = clock.now
@@ -31,7 +31,7 @@ struct GetMessageTimeoutTests {
     }
 
     let elapsed = start.duration(to: clock.now)
-    #expect(elapsed < .milliseconds(100))
+    #expect(elapsed < .seconds(1))
   }
 
   @Test

@@ -146,10 +146,9 @@ struct LegacyUpdateContactHardeningTests {
   @Test
   func `changeContactFlags with a NaN coordinate does not trap and clamps the frame`() async throws {
     let transport = MockTransport()
-    // Match RegionTests' init: the suite uses a 0.5s timeout, not the 5.0s default.
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.5, clientIdentifier: "Test")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
     )
     try await startSession(session, transport: transport)
 

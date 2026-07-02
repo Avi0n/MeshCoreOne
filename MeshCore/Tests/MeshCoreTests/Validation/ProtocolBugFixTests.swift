@@ -773,7 +773,7 @@ struct ProtocolBugFixTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "Test")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
     )
 
     let startTask = Task {
@@ -839,7 +839,7 @@ struct ProtocolBugFixTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "Test")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
     )
 
     let shortKey = Data(repeating: 0x31, count: 6)

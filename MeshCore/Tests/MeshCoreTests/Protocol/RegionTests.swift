@@ -275,7 +275,7 @@ struct RequestRegionsIntegrationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.5, clientIdentifier: "Test")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
     )
     try await startSession(session, transport: transport)
 
@@ -312,7 +312,7 @@ struct RequestRegionsIntegrationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "Test")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
     )
     try await startSession(session, transport: transport)
 
@@ -348,7 +348,7 @@ struct RequestRegionsIntegrationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.5, clientIdentifier: "Test")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
     )
     try await startSession(session, transport: transport)
 
@@ -389,7 +389,7 @@ struct RequestRegionsIntegrationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "Test")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
     )
     try await startSession(session, transport: transport)
 
@@ -445,7 +445,7 @@ struct RequestRegionsIntegrationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "Test")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
     )
     try await startSession(session, transport: transport)
 

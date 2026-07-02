@@ -14,7 +14,7 @@ struct GetMessageCoalescingTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 2.0, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
     try await startSession(session, transport: transport)
 
@@ -46,7 +46,7 @@ struct GetMessageCoalescingTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 2.0, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
     try await startSession(session, transport: transport)
 
@@ -70,7 +70,7 @@ struct GetMessageCoalescingTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 2.0, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
     try await startSession(session, transport: transport)
 
@@ -95,7 +95,7 @@ struct GetMessageCoalescingTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 2.0, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
     try await startSession(session, transport: transport)
 

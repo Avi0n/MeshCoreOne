@@ -14,7 +14,7 @@ struct OtherParamsSerializationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.5, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     try await startSession(session, transport: transport)

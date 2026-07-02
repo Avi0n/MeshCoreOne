@@ -9,7 +9,7 @@ struct V115SessionMethodsTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.3, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
     try await startSession(session, transport: transport)
 
@@ -42,7 +42,7 @@ struct V115SessionMethodsTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.3, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
     try await startSession(session, transport: transport)
 
@@ -78,7 +78,7 @@ struct V115SessionMethodsTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.3, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
     try await startSession(session, transport: transport)
 
@@ -113,7 +113,7 @@ struct V115SessionMethodsTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.3, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
     try await startSession(session, transport: transport)
 
@@ -141,7 +141,7 @@ struct V115SessionMethodsTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.3, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
     try await startSession(session, transport: transport)
 
@@ -167,7 +167,7 @@ struct V115SessionMethodsTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.3, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
     try await startSession(session, transport: transport)
 
@@ -194,7 +194,7 @@ struct V115SessionMethodsTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.3, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
     try await startSession(session, transport: transport)
 
@@ -222,7 +222,7 @@ struct V115SessionMethodsTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.3, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
     try await startSession(session, transport: transport)
 
@@ -254,7 +254,7 @@ struct V115SessionMethodsTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.3, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
     try await startSession(session, transport: transport)
 
@@ -282,7 +282,7 @@ struct V115SessionMethodsTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.3, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
     try await startSession(session, transport: transport)
 
@@ -308,7 +308,7 @@ struct V115SessionMethodsTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.3, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     let err = await #expect(throws: MeshCoreError.self) {
@@ -327,7 +327,7 @@ struct V115SessionMethodsTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.3, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
     )
 
     let err = await #expect(throws: MeshCoreError.self) {

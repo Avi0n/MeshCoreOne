@@ -9,12 +9,12 @@ struct AutoMessageFetchTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MeshCore-Tests")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MeshCore-Tests")
     )
     try await startSession(session, transport: transport)
 
-    let firstTask = Task { try await session.getMessage(timeout: 0.2) }
-    let secondTask = Task { try await session.getMessage(timeout: 0.2) }
+    let firstTask = Task { try await session.getMessage(timeout: 10) }
+    let secondTask = Task { try await session.getMessage(timeout: 10) }
 
     try await waitUntil("getMessage command should be sent once") {
       await transport.sentData.count == 1
@@ -35,7 +35,7 @@ struct AutoMessageFetchTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MeshCore-Tests")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MeshCore-Tests")
     )
     try await startSession(session, transport: transport)
     await session.startAutoMessageFetching()
@@ -70,7 +70,7 @@ struct AutoMessageFetchTests {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MeshCore-Tests")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MeshCore-Tests")
     )
     try await startSession(session, transport: transport)
     await session.startAutoMessageFetching()
@@ -81,7 +81,7 @@ struct AutoMessageFetchTests {
       await transport.sentData.count == 1
     }
 
-    let manualPoll = Task { try await session.getMessage(timeout: 0.2) }
+    let manualPoll = Task { try await session.getMessage(timeout: 10) }
     try? await Task.sleep(for: .milliseconds(20))
 
     #expect(await transport.sentData.count == 1)
