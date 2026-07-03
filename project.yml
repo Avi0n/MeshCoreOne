@@ -6,12 +6,16 @@ options:
   xcodeVersion: "26.0"
   generateEmptyDirectories: true
 
+# dev.yml is gitignored and supplies DEVELOPMENT_TEAM for local signing.
+# It is created empty by `make generate` and in CI.
+include:
+  - dev.yml
+
 settings:
   base:
     SWIFT_VERSION: "6.2"
     SWIFT_STRICT_CONCURRENCY: complete
     ENABLE_USER_SCRIPT_SANDBOXING: YES
-    DEVELOPMENT_TEAM: ""
 
 packages:
   MeshCore:

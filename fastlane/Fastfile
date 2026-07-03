@@ -9,7 +9,7 @@ platform :ios do
 
   desc "Update acknowledgements from SPM dependencies"
   lane :update_acknowledgements do
-    sh("cd .. && xcodegen generate")
+    sh("cd .. && make generate")
     sh("cd .. && xcodebuild -resolvePackageDependencies -project MC1.xcodeproj -clonedSourcePackagesDirPath ./SourcePackages")
     sh("cd .. && swift-package-list MC1.xcodeproj --custom-source-packages-path ./SourcePackages --output-type settings-bundle --requires-license --output-path MC1")
     sh("cd .. && rm -rf SourcePackages")
@@ -21,7 +21,7 @@ platform :ios do
     sync_certs
 
     # Generate the Xcode project from XcodeGen
-    sh("cd .. && xcodegen generate")
+    sh("cd .. && make generate")
 
     # Configure manual code signing for App Store distribution
     update_code_signing_settings(
@@ -86,7 +86,7 @@ platform :ios do
   lane :release do
     sync_certs
 
-    sh("cd .. && xcodegen generate")
+    sh("cd .. && make generate")
 
     # Configure manual code signing for App Store distribution
     update_code_signing_settings(
@@ -152,7 +152,7 @@ platform :ios do
   lane :build_only do
     sync_certs
 
-    sh("cd .. && xcodegen generate")
+    sh("cd .. && make generate")
 
     build_app(
       scheme: "MC1",

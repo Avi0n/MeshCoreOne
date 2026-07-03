@@ -30,6 +30,7 @@ xcuserdata/
 
 ## Xcodegen
 *.xcodeproj
+dev.yml
 
 ## Obj-C/Swift specific
 *.hmap

@@ -112,11 +112,13 @@ jobs:
 
       - name: Install dependencies
         run: |
+          brew install make
+          echo "$(brew --prefix make)/libexec/gnubin" >> "$GITHUB_PATH"
           command -v xcodegen >/dev/null 2>&1 || brew install xcodegen
           command -v swiftgen >/dev/null 2>&1 || brew install swiftgen
 
       - name: Generate Xcode project
-        run: xcodegen generate
+        run: make generate
 
       - name: Cache Xcode build
         uses: irgaly/xcode-cache@v1
