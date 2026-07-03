@@ -1,4 +1,3 @@
-import CoreImage.CIFilterBuiltins
 import MC1Services
 import SwiftUI
 
@@ -60,20 +59,8 @@ struct ContactQRShareSheet: View {
   // MARK: - Private Methods
 
   private func generateQRCode() -> UIImage? {
-    let context = CIContext()
-    let filter = CIFilter.qrCodeGenerator()
-    filter.message = Data(contactURI.utf8)
-    filter.correctionLevel = Constants.qrCorrectionLevel
-
-    guard let outputImage = filter.outputImage else { return nil }
-
-    // Scale up for better quality
-    let transform = CGAffineTransform(scaleX: Constants.qrScale, y: Constants.qrScale)
-    let scaledImage = outputImage.transformed(by: transform)
-
-    guard let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent) else { return nil }
-
-    return UIImage(cgImage: cgImage)
+    QRCodeGenerator.generate(
+      from: contactURI, scale: Constants.qrScale, correctionLevel: Constants.qrCorrectionLevel)
   }
 
   private var shareText: String {
@@ -121,6 +108,7 @@ private struct QRCodeSection: View {
               .interpolation(.none)
               .resizable()
               .scaledToFit()
+              .foregroundStyle(.primary)
               .frame(width: Constants.qrCodeSize, height: Constants.qrCodeSize)
           }
 

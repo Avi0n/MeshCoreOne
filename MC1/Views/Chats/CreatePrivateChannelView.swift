@@ -1,4 +1,3 @@
-import CoreImage.CIFilterBuiltins
 import MC1Services
 import SwiftUI
 
@@ -189,6 +188,7 @@ private struct ShareChannelContent: View {
                 .interpolation(.none)
                 .resizable()
                 .scaledToFit()
+                .foregroundStyle(.primary)
                 .frame(width: 200, height: 200)
             }
 
@@ -241,20 +241,7 @@ private struct ShareChannelContent: View {
     // Format: meshcore://channel/add?name=<name>&secret=<hex>
     let urlString = "meshcore://channel/add?name=\(channelName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&secret=\(secret.uppercaseHexString())"
 
-    let context = CIContext()
-    let filter = CIFilter.qrCodeGenerator()
-    filter.message = Data(urlString.utf8)
-    filter.correctionLevel = "M"
-
-    guard let outputImage = filter.outputImage else { return nil }
-
-    // Scale up for better quality
-    let scale = 10.0
-    let scaledImage = outputImage.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
-
-    guard let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent) else { return nil }
-
-    return UIImage(cgImage: cgImage)
+    return QRCodeGenerator.generate(from: urlString)
   }
 }
 
