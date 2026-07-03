@@ -13,7 +13,9 @@ private let chatKeyboardLogger = Logger(subsystem: "com.mc1", category: "ChatKey
 /// caches the inflated height, leaving a permanent gap after the cell scrolls back. Zeroing the
 /// cell's safe area keeps every bubble measured at its true content height regardless of position.
 private final class ChatHostingCell: UITableViewCell {
-  override var safeAreaInsets: UIEdgeInsets { .zero }
+  override var safeAreaInsets: UIEdgeInsets {
+    .zero
+  }
 }
 
 /// UIKit table view controller with flipped orientation for chat-style scrolling
