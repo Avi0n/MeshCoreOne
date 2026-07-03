@@ -563,7 +563,7 @@ private struct ContactProfileSection: View {
                 Text(L10n.Contacts.Contacts.Detail.hasLocation)
               }
               .font(.caption)
-              .foregroundStyle(.purple)
+              .foregroundStyle(.green)
             }
           }
           .padding(.top, 4)
