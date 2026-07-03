@@ -60,7 +60,8 @@ struct ContactQRShareSheet: View {
 
   private func generateQRCode() -> UIImage? {
     QRCodeGenerator.generate(
-      from: contactURI, scale: Constants.qrScale, correctionLevel: Constants.qrCorrectionLevel)
+      from: contactURI, scale: Constants.qrScale, correctionLevel: Constants.qrCorrectionLevel
+    )
   }
 
   private var shareText: String {
