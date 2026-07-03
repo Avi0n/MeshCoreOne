@@ -122,8 +122,8 @@ struct ChannelInfoSheet: View {
         )
       }
       .themedCanvas(theme)
-      .navigationTitle(L10n.Chats.Chats.ChannelInfo.title)
       .navigationBarTitleDisplayMode(.inline)
+      .scrollRevealNavigationTitle(channel.displayName)
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
           Button {
@@ -494,7 +494,7 @@ private struct ChannelInfoActionsSection: View {
 
   var body: some View {
     Section {
-      Button {
+      Button(role: .destructive) {
         showingClearMessagesConfirmation = true
       } label: {
         HStack {

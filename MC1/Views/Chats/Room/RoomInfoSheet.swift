@@ -110,8 +110,8 @@ struct RoomInfoSheet: View {
         .themedRowBackground(theme)
       }
       .themedCanvas(theme)
-      .navigationTitle(Strings.infoTitle)
       .navigationBarTitleDisplayMode(.inline)
+      .scrollRevealNavigationTitle(session.name)
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
           Button {

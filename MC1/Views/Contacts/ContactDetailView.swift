@@ -185,8 +185,8 @@ struct ContactDetailView: View {
     }
     .themedCanvas(theme)
     .errorAlert($errorMessage)
-    .navigationTitle(contactTypeLabel)
     .navigationBarTitleDisplayMode(.inline)
+    .scrollRevealNavigationTitle(currentContact.displayName)
     .contentMargins(.top, 0, for: .scrollContent)
     .toolbar {
       ToolbarItem(placement: .topBarLeading) {
