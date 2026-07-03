@@ -105,6 +105,16 @@ struct ChatConversationView: View {
 
   // MARK: - Body
 
+  @ViewBuilder
+  private var titleAvatar: some View {
+    switch conversationType {
+    case let .dm(contact):
+      ContactAvatar(contact: contact, size: 30)
+    case let .channel(channel):
+      ChannelAvatar(channel: channel, size: 30)
+    }
+  }
+
   var body: some View {
     ChatConversationMessagesContent(
       conversationType: conversationType,
@@ -151,8 +161,10 @@ struct ChatConversationView: View {
             await chatViewModel.sendChannelMessage(text: text)
           }
         },
-        onWillSend: { scrollToBottomRequest += 1 }
+        onWillSend: { scrollToBottomRequest += 1 },
+        onFocus: { scrollToBottomRequest += 1 }
       )
+      .chatComposeBarFade(canvas: theme.surfaces?.canvas ?? Color(.systemBackground))
     }
     .overlay(alignment: .bottom) {
       ChatConversationMentionOverlay(
@@ -168,12 +180,16 @@ struct ChatConversationView: View {
       subtitleAccessibilityLabel: conversationType.navigationSubtitleAccessibilityLabel(
         deviceDefaultFloodScopeName: appState.connectedDevice?.defaultFloodScopeName
       ),
-      glassTitleCapsule: true
+      glassTitleCapsule: true,
+      titleIcon: AnyView(titleAvatar),
+      onTitleTap: { showingInfo = true }
     )
     .toolbar {
-      ToolbarItem(placement: .primaryAction) {
-        Button(L10n.Chats.Chats.Common.info, systemImage: "info.circle") {
-          showingInfo = true
+      if #unavailable(iOS 26) {
+        ToolbarItem(placement: .primaryAction) {
+          Button(L10n.Chats.Chats.Common.info, systemImage: "info.circle") {
+            showingInfo = true
+          }
         }
       }
     }

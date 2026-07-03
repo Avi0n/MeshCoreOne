@@ -136,7 +136,7 @@ struct ChatMessagesTableView: View {
         bottomContentInset: insets.bottom
       )
       .chatEdgeToEdge()
-      .chatEdgeFade(topInset: insets.top, bottomInset: insets.bottom, canvas: canvasColor)
+      .chatEdgeFade(topInset: insets.top, canvas: canvasColor)
       .overlay(alignment: .bottomTrailing) {
         VStack(spacing: 12) {
           if showDividerButton {

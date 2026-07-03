@@ -15,6 +15,10 @@ struct NavigationHeaderModifier: ViewModifier {
   /// iOS 26 only: render the title/subtitle inside a Liquid Glass capsule as a principal toolbar
   /// item, so the name stays legible above content that now scrolls edge-to-edge behind the bar.
   let glassTitleCapsule: Bool
+  /// iOS 26 capsule only: optional leading avatar and a tap action for the whole capsule
+  /// (e.g. opening the conversation's info sheet).
+  let titleIcon: AnyView?
+  let onTitleTap: (() -> Void)?
 
   @State private var showHeader = false
 
@@ -35,7 +39,9 @@ struct NavigationHeaderModifier: ViewModifier {
                   title: title,
                   subtitle: subtitle,
                   subtitleAccessibilityLabel: subtitleAccessibilityLabel,
-                  minimumScaleFactor: Self.legacySubtitleMinimumScaleFactor
+                  minimumScaleFactor: Self.legacySubtitleMinimumScaleFactor,
+                  icon: titleIcon,
+                  onTap: onTitleTap
                 )
               }
             }
@@ -65,18 +71,14 @@ struct NavigationHeaderModifier: ViewModifier {
       .toolbar {
         if showHeader {
           ToolbarItem(placement: .principal) {
-            VStack(spacing: 0) {
-              Text(title)
-                .font(.headline)
-
-              Text(subtitle)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(Self.legacySubtitleMinimumScaleFactor)
-                .truncationMode(.tail)
-                .accessibilityLabel(subtitleAccessibilityLabel ?? subtitle)
-            }
+            HeaderTitleLabel(
+              title: title,
+              subtitle: subtitle,
+              subtitleAccessibilityLabel: subtitleAccessibilityLabel,
+              minimumScaleFactor: Self.legacySubtitleMinimumScaleFactor,
+              icon: titleIcon,
+              onTap: onTitleTap
+            )
           }
         }
       }
@@ -89,6 +91,51 @@ struct NavigationHeaderModifier: ViewModifier {
   }
 }
 
+/// Shared title/subtitle label with an optional leading avatar, used by both the iOS 26 glass
+/// capsule and the legacy principal toolbar item. Becomes a tap target when `onTap` is set.
+private struct HeaderTitleLabel: View {
+  let title: String
+  let subtitle: String
+  let subtitleAccessibilityLabel: String?
+  let minimumScaleFactor: CGFloat
+  let icon: AnyView?
+  let onTap: (() -> Void)?
+
+  var body: some View {
+    if let onTap {
+      Button(action: onTap) { content }
+        .buttonStyle(.plain)
+        .contentShape(.capsule)
+    } else {
+      content
+    }
+  }
+
+  private var content: some View {
+    HStack(spacing: 10) {
+      icon
+
+      VStack(alignment: .leading, spacing: 0) {
+        Text(title)
+          .font(.headline)
+
+        if !subtitle.isEmpty {
+          Text(subtitle)
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+            .minimumScaleFactor(minimumScaleFactor)
+            .truncationMode(.tail)
+            .accessibilityLabel(subtitleAccessibilityLabel ?? subtitle)
+        }
+      }
+    }
+    .padding(.leading, icon == nil ? 14 : 6)
+    .padding(.trailing, 14)
+    .padding(.vertical, 5)
+  }
+}
+
 /// iOS 26 Liquid Glass title capsule for the principal toolbar slot. Fades itself in on appear
 /// so it doesn't pop in after the chat's first-load layout settles.
 @available(iOS 26.0, *)
@@ -97,26 +144,20 @@ private struct GlassCapsuleTitle: View {
   let subtitle: String
   let subtitleAccessibilityLabel: String?
   let minimumScaleFactor: CGFloat
+  let icon: AnyView?
+  let onTap: (() -> Void)?
 
   @State private var visible = false
 
   var body: some View {
-    VStack(spacing: 0) {
-      Text(title)
-        .font(.headline)
-
-      if !subtitle.isEmpty {
-        Text(subtitle)
-          .font(.caption2)
-          .foregroundStyle(.secondary)
-          .lineLimit(1)
-          .minimumScaleFactor(minimumScaleFactor)
-          .truncationMode(.tail)
-          .accessibilityLabel(subtitleAccessibilityLabel ?? subtitle)
-      }
-    }
-    .padding(.horizontal, 14)
-    .padding(.vertical, 5)
+    HeaderTitleLabel(
+      title: title,
+      subtitle: subtitle,
+      subtitleAccessibilityLabel: subtitleAccessibilityLabel,
+      minimumScaleFactor: minimumScaleFactor,
+      icon: icon,
+      onTap: onTap
+    )
     .glassEffect(.regular, in: .capsule)
     .opacity(visible ? 1 : 0)
     .onAppear {
@@ -132,13 +173,17 @@ extension View {
     title: String,
     subtitle: String,
     subtitleAccessibilityLabel: String? = nil,
-    glassTitleCapsule: Bool = false
+    glassTitleCapsule: Bool = false,
+    titleIcon: AnyView? = nil,
+    onTitleTap: (() -> Void)? = nil
   ) -> some View {
     modifier(NavigationHeaderModifier(
       title: title,
       subtitle: subtitle,
       subtitleAccessibilityLabel: subtitleAccessibilityLabel,
-      glassTitleCapsule: glassTitleCapsule
+      glassTitleCapsule: glassTitleCapsule,
+      titleIcon: titleIcon,
+      onTitleTap: onTitleTap
     ))
   }
 }

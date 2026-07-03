@@ -35,20 +35,31 @@ struct RoomConversationView: View {
         shouldSuppressOpen: { selectedRoomMessage != nil }
       )
       .safeAreaInset(edge: .bottom, spacing: 0) {
-        if !session.isConnected {
-          makeDisconnectedBanner()
-        } else if session.canPost {
-          makeInputBar()
-        } else {
-          makeReadOnlyBanner()
+        Group {
+          if !session.isConnected {
+            makeDisconnectedBanner()
+          } else if session.canPost {
+            makeInputBar()
+          } else {
+            makeReadOnlyBanner()
+          }
         }
+        .chatComposeBarFade(canvas: theme.surfaces?.canvas ?? Color(.systemBackground))
       }
       .animation(.default, value: session.isConnected)
-      .navigationHeader(title: session.name, subtitle: connectionStatus, glassTitleCapsule: true)
+      .navigationHeader(
+        title: session.name,
+        subtitle: connectionStatus,
+        glassTitleCapsule: true,
+        titleIcon: AnyView(NodeAvatar(publicKey: session.publicKey, role: .roomServer, size: 30)),
+        onTitleTap: { showingRoomInfo = true }
+      )
       .toolbar {
-        ToolbarItem(placement: .primaryAction) {
-          Button(L10n.RemoteNodes.RemoteNodes.Room.infoTitle, systemImage: "info.circle") {
-            showingRoomInfo = true
+        if #unavailable(iOS 26) {
+          ToolbarItem(placement: .primaryAction) {
+            Button(L10n.RemoteNodes.RemoteNodes.Room.infoTitle, systemImage: "info.circle") {
+              showingRoomInfo = true
+            }
           }
         }
       }
@@ -346,7 +357,6 @@ private struct MessagesView: View {
           .chatEdgeToEdge()
           .chatEdgeFade(
             topInset: insets.top,
-            bottomInset: insets.bottom,
             canvas: theme.surfaces?.canvas ?? Color(.systemBackground)
           )
           .overlay(alignment: .bottomTrailing) {
