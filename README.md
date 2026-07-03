@@ -76,7 +76,7 @@ Download from the App Store or sideload using unsigned IPA files under [Releases
 ## Getting Started
 
 1.  Install [XcodeGen](https://github.com/yonaskolb/XcodeGen).
-2.  Run `xcodegen generate`.
+2.  Run `make generate` (creates a gitignored `dev.yml` — set your Apple team ID there for local signing).
 3.  Open `MC1.xcodeproj`.
 
 For more details, see the [Development Guide](docs/Development.md).

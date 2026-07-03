@@ -26,7 +26,7 @@ This guide provides information for developers who want to contribute to the Mes
 1. **Clone the repository**.
 2. **Generate the Xcode project** from `project.yml`:
    ```bash
-   xcodegen generate
+   make generate # creates a gitignored dev.yml; set your Apple team ID there for local signing
    ```
    > **Note:** Do not edit `MC1.xcodeproj` directly — it is generated from `project.yml` and will be overwritten. Make project configuration changes in `project.yml` and regenerate.
 3. **Open `MC1.xcodeproj`**.

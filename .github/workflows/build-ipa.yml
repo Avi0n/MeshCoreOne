@@ -67,7 +67,7 @@ jobs:
 
       - name: Generate Xcode project
         if: steps.version_check.outputs.should_build == 'true' || github.event_name == 'workflow_dispatch'
-        run: xcodegen generate
+        run: make generate
 
       - name: Update acknowledgements
         if: steps.version_check.outputs.should_build == 'true' || github.event_name == 'workflow_dispatch'
