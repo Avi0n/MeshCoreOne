@@ -120,10 +120,6 @@ struct UnifiedMessageBubble: View, Equatable {
           ForEach(Array(layout.siblings.enumerated()), id: \.offset) { _, fragment in
             siblingFragmentView(fragment)
           }
-
-          if item.footer.showStatusRow {
-            BubbleStatusRow(item: item, onRetry: callbacks.onRetry)
-          }
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityMessageLabel)
@@ -314,7 +310,7 @@ struct UnifiedMessageBubble: View, Equatable {
     }
     label += message.text
     if item.envelope.isOutgoing {
-      label += ", \(BubbleStatusRow.statusText(for: item))"
+      label += ", \(MessageStatusText.text(for: item.footer))"
     }
     if !item.envelope.isOutgoing {
       if item.footer.showHop {

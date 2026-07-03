@@ -39,6 +39,7 @@ struct BubbleFragmentStack: View, Equatable {
       || item.footer.showHop
       || item.footer.formattedPath != nil
       || item.footer.regionToShow != nil
+      || item.footer.showStatusRow
   }
 
   /// The source URL when the inline image is parked at the scope-off
@@ -58,7 +59,7 @@ struct BubbleFragmentStack: View, Equatable {
       // bubble hugging its content — a flexible-width child here leaves the
       // self-sizing hosting cell without a resolvable intrinsic width, which
       // SwiftUI surfaces as a fatal "invalid reuse after initialization failure".
-      VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 1) {
+      VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 2) {
         if let textPayload = layout.textPayload {
           MessageTextView(text: textPayload)
         }
@@ -75,7 +76,8 @@ struct BubbleFragmentStack: View, Equatable {
           BubbleFooterRow(
             footer: item.footer,
             dynamicTypeSize: dynamicTypeSize,
-            timeColor: timeColor
+            timeColor: timeColor,
+            onRetry: callbacks.onRetry
           )
         }
       }

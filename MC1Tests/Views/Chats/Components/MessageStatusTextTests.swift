@@ -3,9 +3,8 @@ import Foundation
 @testable import MC1Services
 import Testing
 
-@Suite("BubbleStatusRow status text")
-@MainActor
-struct BubbleStatusRowTests {
+@Suite("Message status text")
+struct MessageStatusTextTests {
   private func makeItem(
     status: MessageStatus,
     isChannelMessage: Bool,
@@ -55,26 +54,26 @@ struct BubbleStatusRowTests {
   /// in-progress so the user never sees a settled "Sent" that later fails.
   @Test
   func `DM .sent renders as Sending`() {
-    let text = BubbleStatusRow.statusText(for: makeItem(status: .sent, isChannelMessage: false))
+    let text = MessageStatusText.text(for: makeItem(status: .sent, isChannelMessage: false).footer)
     #expect(text == L10n.Chats.Chats.Message.Status.sending)
   }
 
   /// A channel broadcast has no ACK, so `.sent` is its terminal success state.
   @Test
   func `Channel .sent renders as Sent`() {
-    let text = BubbleStatusRow.statusText(for: makeItem(status: .sent, isChannelMessage: true))
+    let text = MessageStatusText.text(for: makeItem(status: .sent, isChannelMessage: true).footer)
     #expect(text == L10n.Chats.Chats.Message.Status.sent)
   }
 
   @Test
   func `DM .delivered still renders as Delivered`() {
-    let text = BubbleStatusRow.statusText(for: makeItem(status: .delivered, isChannelMessage: false))
+    let text = MessageStatusText.text(for: makeItem(status: .delivered, isChannelMessage: false).footer)
     #expect(text == L10n.Chats.Chats.Message.Status.delivered)
   }
 
   @Test
   func `DM .failed still renders as Failed`() {
-    let text = BubbleStatusRow.statusText(for: makeItem(status: .failed, isChannelMessage: false))
+    let text = MessageStatusText.text(for: makeItem(status: .failed, isChannelMessage: false).footer)
     #expect(text == L10n.Chats.Chats.Message.Status.failed)
   }
 }

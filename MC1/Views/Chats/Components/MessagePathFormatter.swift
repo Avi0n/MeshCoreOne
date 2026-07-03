@@ -1,11 +1,13 @@
 import Foundation
 import MC1Services
 
-/// Formats message routing path for display in message bubbles
+/// Formats message routing path for display in message bubbles.
+/// Returns the full, untruncated node list; the footer view fits it to a single
+/// line at render time, collapsing nodes from the center to preserve the endpoints.
 enum MessagePathFormatter {
   /// Formats the routing path for display
   /// - Parameter message: The message DTO containing path information
-  /// - Returns: Formatted path string (e.g., "Direct", "Flood", "A3,7F,42", or "A3,7F…B2,C1")
+  /// - Returns: Formatted path string (e.g., "Direct", "Flood", or "A3,7F,42,B2,C1")
   static func format(_ message: MessageDTO) -> String {
     if message.isDirectRouted {
       return L10n.Chats.Chats.Message.Path.direct
@@ -22,13 +24,6 @@ enum MessagePathFormatter {
 
     if nodes.isEmpty {
       return L10n.Chats.Chats.Message.Path.flood
-    }
-
-    // Truncate if more than 6 nodes: show first 3 + ellipsis + last 3
-    if nodes.count > 6 {
-      let first = nodes.prefix(3).joined(separator: ",")
-      let last = nodes.suffix(3).joined(separator: ",")
-      return "\(first)…\(last)"
     }
 
     return nodes.joined(separator: ",")
