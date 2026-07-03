@@ -9,6 +9,8 @@ struct TracePathMapToolbarView: View {
   @Bindable var mapViewModel: TracePathMapViewModel
   @Binding var mapStyleSelection: MapStyleSelection
   @Binding var showLabels: Bool
+  @Binding var isNorthLocked: Bool
+  @Binding var isCenteredOnUser: Bool
 
   var body: some View {
     VStack {
@@ -17,22 +19,18 @@ struct TracePathMapToolbarView: View {
         Spacer()
         MapControlsToolbar(
           onLocationTap: {
-            if let location = appState.bestAvailableLocation {
-              mapViewModel.setCameraRegion(MKCoordinateRegion(
-                center: location.coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
-              ))
-            } else {
-              appState.locationService.requestLocation()
-            }
+            isCenteredOnUser = appState.centerOnUserLocation { mapViewModel.setCameraRegion($0) }
           },
-          isNorthLocked: $mapViewModel.isNorthLocked,
+          isCenteredOnUser: isCenteredOnUser,
+          isNorthLocked: $isNorthLocked,
           showLabels: $showLabels,
-          showingLayersMenu: $mapViewModel.showingLayersMenu
+          mapStyleSelection: $mapStyleSelection,
+          viewportBounds: mapViewModel.cameraRegion?.toMLNCoordinateBounds()
         ) {
           // Center on path
           if mapViewModel.hasPath {
             Button(L10n.Contacts.Contacts.Trace.Map.centerOnPath, systemImage: "arrow.up.left.and.arrow.down.right") {
+              isCenteredOnUser = false
               mapViewModel.centerOnPath()
             }
             .mapControlButton(tint: .primary)
@@ -40,18 +38,5 @@ struct TracePathMapToolbarView: View {
         }
       }
     }
-    .overlay(alignment: .bottomTrailing) {
-      if mapViewModel.showingLayersMenu {
-        LayersMenu(
-          selection: $mapStyleSelection,
-          isPresented: $mapViewModel.showingLayersMenu,
-          viewportBounds: mapViewModel.cameraRegion?.toMLNCoordinateBounds()
-        )
-        .padding(.trailing, 16)
-        .padding(.bottom, 160)
-        .transition(.scale.combined(with: .opacity))
-      }
-    }
-    .animation(.spring(response: 0.3), value: mapViewModel.showingLayersMenu)
   }
 }

@@ -31,6 +31,7 @@ public enum AppStorageKey: String {
   case tracePathViewMode
   case mapStyleSelection
   case mapShowLabels
+  case mapNorthLocked
   case hasSeenRepeaterDragHint
   case autoDeleteStaleNodesDays
   case lastStaleCleanupDate
@@ -69,6 +70,7 @@ public enum AppStorageKey: String {
   public static let defaultReplyWithQuote: Bool = false
   public static let defaultShowMapPreviewThumbnails: Bool = true
   public static let defaultMapShowLabels: Bool = true
+  public static let defaultMapNorthLocked: Bool = false
   public static let defaultHasSeenRepeaterDragHint: Bool = false
   public static let defaultLiveActivityEnabled: Bool = true
   /// Days before a non-favorite node is auto-deleted; 0 disables cleanup.

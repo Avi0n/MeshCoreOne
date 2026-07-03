@@ -7,6 +7,7 @@ struct MapView: View {
   @Environment(\.appState) private var appState
   @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
   @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
+  @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
   @SceneStorage(SceneStorageKey.mapCameraRegion.rawValue) private var savedCameraRegion = ""
   @State private var viewModel = MapViewModel()
   @State private var selectedCalloutContact: ContactDTO?
@@ -20,6 +21,7 @@ struct MapView: View {
         viewModel: viewModel,
         mapStyleSelection: $mapStyleSelection,
         showLabels: $showLabels,
+        isNorthLocked: $isNorthLocked,
         selectedCalloutContact: $selectedCalloutContact,
         selectedPointScreenPosition: $selectedPointScreenPosition,
         isStyleLoaded: $isStyleLoaded,
@@ -84,10 +86,8 @@ struct MapView: View {
     selectedContactForDetail = contact
   }
 
-  private func centerOnUserLocation() {
-    guard let location = appState.bestAvailableLocation else { return }
-    let span = MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
-    viewModel.setCameraRegion(MKCoordinateRegion(center: location.coordinate, span: span))
+  private func centerOnUserLocation() -> Bool {
+    appState.centerOnUserLocation { viewModel.setCameraRegion($0) }
   }
 }
 

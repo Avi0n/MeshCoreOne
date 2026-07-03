@@ -2807,8 +2807,6 @@ public enum L10n {
         }
       }
       public enum Common {
-        /// Dismiss
-        public static let dismissOverlay = L10n.tr("Map", "map.common.dismissOverlay", fallback: "Dismiss")
         /// Location: MapView.swift - Purpose: Done button for sheets
         public static let done = L10n.tr("Map", "map.common.done", fallback: "Done")
       }
@@ -2817,18 +2815,14 @@ public enum L10n {
         public static let centerAll = L10n.tr("Map", "map.controls.centerAll", fallback: "Center on all contacts")
         /// Location: MapControlsToolbar.swift - Purpose: Accessibility label for user location button
         public static let centerOnMyLocation = L10n.tr("Map", "map.controls.centerOnMyLocation", fallback: "Center on my location")
-        /// Location: MapView.swift - Purpose: Accessibility label when labels are visible
-        public static let hideLabels = L10n.tr("Map", "map.controls.hideLabels", fallback: "Hide labels")
-        /// Location: MapControlsToolbar.swift - Purpose: Accessibility label for layers button
-        public static let layers = L10n.tr("Map", "map.controls.layers", fallback: "Map layers")
-        /// Location: MapCanvasView.swift - Purpose: Accessibility label for north lock button (lock)
-        public static let lockNorth = L10n.tr("Map", "map.controls.lockNorth", fallback: "Lock to north")
+        /// Location: MapControlsToolbar.swift - Purpose: Map options menu toggle that locks the map bearing to north
+        public static let lockNorth = L10n.tr("Map", "map.controls.lockNorth", fallback: "North up")
+        /// Location: MapControlsToolbar.swift - Purpose: Accessibility label for map options menu button
+        public static let mapOptions = L10n.tr("Map", "map.controls.mapOptions", fallback: "Map options")
         /// Location: MapView.swift - Purpose: Accessibility label for refresh button
         public static let refresh = L10n.tr("Map", "map.controls.refresh", fallback: "Refresh contacts")
         /// Location: MapView.swift - Purpose: Accessibility label when labels are hidden
         public static let showLabels = L10n.tr("Map", "map.controls.showLabels", fallback: "Show labels")
-        /// Location: MapCanvasView.swift - Purpose: Accessibility label for north lock button (unlock)
-        public static let unlockNorth = L10n.tr("Map", "map.controls.unlockNorth", fallback: "Unlock rotation")
       }
       public enum Detail {
         /// Location: MapView.swift ContactDetailSheet - Purpose: Value showing contact is favorited
@@ -5795,8 +5789,6 @@ public enum L10n {
         public static let back = L10n.tr("Tools", "tools.lineOfSight.back", fallback: "Back")
         /// Location: LineOfSightView.swift - Cancel button
         public static let cancel = L10n.tr("Tools", "tools.lineOfSight.cancel", fallback: "Cancel")
-        /// Location: LineOfSightView.swift - Drop pin mode enabled
-        public static let cancelDropPin = L10n.tr("Tools", "tools.lineOfSight.cancelDropPin", fallback: "Cancel drop pin")
         /// Location: LineOfSightView.swift - Clear button
         public static let clear = L10n.tr("Tools", "tools.lineOfSight.clear", fallback: "Clear")
         /// Location: ResultsCardView.swift - Clearance section title
@@ -5817,8 +5809,6 @@ public enum L10n {
         public static let dragToAdjust = L10n.tr("Tools", "tools.lineOfSight.dragToAdjust", fallback: "Drag to adjust")
         /// Location: LineOfSightViewModel.swift - Dropped pin display name
         public static let droppedPin = L10n.tr("Tools", "tools.lineOfSight.droppedPin", fallback: "Dropped pin")
-        /// Location: LineOfSightView.swift - Drop pin mode disabled
-        public static let dropPin = L10n.tr("Tools", "tools.lineOfSight.dropPin", fallback: "Drop pin")
         /// Location: LineOfSightView.swift - Earth curvature note, %@ is k-factor
         public static func earthCurvature(_ p1: Any) -> String {
           return L10n.tr("Tools", "tools.lineOfSight.earthCurvature", String(describing: p1), fallback: "Adjusted for earth curvature (%@)")
@@ -5839,6 +5829,8 @@ public enum L10n {
         public static let indirectRoute = L10n.tr("Tools", "tools.lineOfSight.indirectRoute", fallback: "Indirect route via R · Relocate on map to adjust")
         /// Location: LineOfSightView.swift - Loading elevation status
         public static let loadingElevation = L10n.tr("Tools", "tools.lineOfSight.loadingElevation", fallback: "Loading elevation...")
+        /// Location: LineOfSightView.swift - Long press points hint
+        public static let longPressPointsHint = L10n.tr("Tools", "tools.lineOfSight.longPressPointsHint", fallback: "Long press on the map to add a location")
         /// Location: ResultsCardView.swift - Loss suffix
         public static let loss = L10n.tr("Tools", "tools.lineOfSight.loss", fallback: "loss")
         /// Location: LineOfSightView.swift - MHz unit
@@ -5877,8 +5869,6 @@ public enum L10n {
         public static let retry = L10n.tr("Tools", "tools.lineOfSight.retry", fallback: "Retry")
         /// Location: LineOfSightView.swift - RF Settings section
         public static let rfSettings = L10n.tr("Tools", "tools.lineOfSight.rfSettings", fallback: "RF Settings")
-        /// Location: LineOfSightView.swift - Select points hint
-        public static let selectPointsHint = L10n.tr("Tools", "tools.lineOfSight.selectPointsHint", fallback: "Tap the pin button on the map to select points")
         /// Location: TerrainProfileCanvas.swift - Empty state description
         public static let selectTwoPoints = L10n.tr("Tools", "tools.lineOfSight.selectTwoPoints", fallback: "Select two points to analyze")
         /// Location: LineOfSightView.swift - Share button

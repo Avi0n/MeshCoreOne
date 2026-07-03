@@ -3,20 +3,23 @@ import MapLibre
 import MC1Services
 import SwiftUI
 
-/// Canvas wrapping the map content with offline badge, floating controls, and layers menu overlay
+/// Canvas wrapping the map content with an offline badge and floating controls.
 struct MapCanvasView: View {
   @Environment(\.appState) private var appState
   @Bindable var viewModel: MapViewModel
   @Binding var mapStyleSelection: MapStyleSelection
   @Binding var showLabels: Bool
+  @Binding var isNorthLocked: Bool
   @Binding var selectedCalloutContact: ContactDTO?
   @Binding var selectedPointScreenPosition: CGPoint?
   @Binding var isStyleLoaded: Bool
   let onShowContactDetail: (ContactDTO) -> Void
   let onNavigateToChat: (ContactDTO) -> Void
-  let onCenterOnUser: () -> Void
+  let onCenterOnUser: () -> Bool
   let onClearSelection: () -> Void
   let onPersistCamera: (MKCoordinateRegion) -> Void
+
+  @State private var isCenteredOnUser = false
 
   var body: some View {
     ZStack {
@@ -24,9 +27,11 @@ struct MapCanvasView: View {
         viewModel: viewModel,
         mapStyleSelection: mapStyleSelection,
         showLabels: showLabels,
+        isNorthLocked: isNorthLocked,
         selectedCalloutContact: $selectedCalloutContact,
         selectedPointScreenPosition: $selectedPointScreenPosition,
         isStyleLoaded: $isStyleLoaded,
+        isCenteredOnUser: $isCenteredOnUser,
         onShowContactDetail: onShowContactDetail,
         onNavigateToChat: onNavigateToChat,
         onPersistCamera: onPersistCamera
@@ -42,42 +47,21 @@ struct MapCanvasView: View {
       VStack {
         Spacer()
         MapCanvasControls(
-          isNorthLocked: $viewModel.isNorthLocked,
-          showingLayersMenu: $viewModel.showingLayersMenu,
+          isNorthLocked: $isNorthLocked,
           showLabels: $showLabels,
+          mapStyleSelection: $mapStyleSelection,
+          isCenteredOnUser: isCenteredOnUser,
+          viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds(),
           contactsEmpty: viewModel.contactsWithLocation.isEmpty,
-          onLocationTap: { onCenterOnUser() },
+          onLocationTap: {
+            isCenteredOnUser = onCenterOnUser()
+          },
           onClearSelection: onClearSelection,
-          onCenterAll: { viewModel.centerOnAllContacts() }
+          onCenterAll: {
+            isCenteredOnUser = false
+            viewModel.centerOnAllContacts()
+          }
         )
-      }
-
-      // Layers menu overlay
-      if viewModel.showingLayersMenu {
-        Button {
-          withAnimation {
-            viewModel.showingLayersMenu = false
-          }
-        } label: {
-          Color.black.opacity(0.3)
-            .ignoresSafeArea()
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(L10n.Map.Map.Common.dismissOverlay)
-
-        VStack {
-          Spacer()
-          HStack {
-            Spacer()
-            LayersMenu(
-              selection: $mapStyleSelection,
-              isPresented: $viewModel.showingLayersMenu,
-              viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds()
-            )
-            .padding(.trailing, 72)
-            .padding(.bottom)
-          }
-        }
       }
     }
   }
@@ -87,8 +71,10 @@ struct MapCanvasView: View {
 
 private struct MapCanvasControls: View {
   @Binding var isNorthLocked: Bool
-  @Binding var showingLayersMenu: Bool
   @Binding var showLabels: Bool
+  @Binding var mapStyleSelection: MapStyleSelection
+  let isCenteredOnUser: Bool
+  let viewportBounds: MLNCoordinateBounds?
   let contactsEmpty: Bool
   let onLocationTap: () -> Void
   let onClearSelection: () -> Void
@@ -99,9 +85,11 @@ private struct MapCanvasControls: View {
       Spacer()
       MapControlsToolbar(
         onLocationTap: onLocationTap,
+        isCenteredOnUser: isCenteredOnUser,
         isNorthLocked: $isNorthLocked,
         showLabels: $showLabels,
-        showingLayersMenu: $showingLayersMenu
+        mapStyleSelection: $mapStyleSelection,
+        viewportBounds: viewportBounds
       ) {
         CenterAllButton(
           isEmpty: contactsEmpty,

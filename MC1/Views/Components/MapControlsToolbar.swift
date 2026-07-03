@@ -1,100 +1,115 @@
+import MapLibre
 import SwiftUI
 
 /// Shared liquid-glass toolbar hosting the controls every interactive map uses
-/// (north lock, location, layers, labels) plus a slot for one map-specific button.
-struct MapControlsToolbar<TrailingContent: View>: View {
+/// (location, map options) plus a slot for one map-specific button.
+/// The map options control is a native menu offering the north lock, map-style
+/// picker, and the labels toggle.
+struct MapControlsToolbar<AdditionalActions: View>: View {
+  @Environment(\.appState) private var appState
+
   /// Centers the map on the user's location.
   var onLocationTap: () -> Void
 
+  /// Whether the map is currently centered on the user; fills the location marker when true.
+  var isCenteredOnUser: Bool = false
+
   @Binding var isNorthLocked: Bool
   @Binding var showLabels: Bool
+  @Binding var mapStyleSelection: MapStyleSelection
 
-  /// Controls layers menu visibility. Parent view handles menu presentation.
-  @Binding var showingLayersMenu: Bool
+  /// Current viewport, used to gate styles that lack offline coverage for the visible area.
+  var viewportBounds: MLNCoordinateBounds?
 
   /// One map-specific button shown below the standard controls.
-  @ViewBuilder var trailingContent: () -> TrailingContent
+  @ViewBuilder var additionalActions: () -> AdditionalActions
 
   var body: some View {
     VStack(spacing: 0) {
-      northLockButton
-
-      Divider()
-        .frame(width: MapToolbarLayout.dividerWidth)
-
       locationButton
 
       Divider()
         .frame(width: MapToolbarLayout.dividerWidth)
 
-      layersButton
+      CustomContentStack {
+        additionalActions()
+      }
 
       Divider()
         .frame(width: MapToolbarLayout.dividerWidth)
 
-      labelsButton
-
-      CustomContentStack {
-        trailingContent()
-      }
+      mapOptionsMenu
     }
     .liquidGlass(in: .rect(cornerRadius: MapToolbarLayout.cornerRadius))
     .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
     .padding()
   }
 
-  // MARK: - North Lock Button
-
-  private var northLockButton: some View {
-    Button(
-      isNorthLocked ? L10n.Map.Map.Controls.unlockNorth : L10n.Map.Map.Controls.lockNorth,
-      systemImage: isNorthLocked ? "location.north.line.fill" : "location.north.line"
-    ) {
-      withAnimation {
-        isNorthLocked.toggle()
-      }
-    }
-    .mapControlButton(tint: isNorthLocked ? .blue : .primary)
-  }
-
   // MARK: - Location Button
 
   private var locationButton: some View {
-    Button(L10n.Map.Map.Controls.centerOnMyLocation, systemImage: "location.fill", action: onLocationTap)
-      .mapControlButton(tint: .primary)
+    Button(
+      L10n.Map.Map.Controls.centerOnMyLocation,
+      systemImage: isCenteredOnUser ? "location.fill" : "location",
+      action: onLocationTap
+    )
+    .mapControlButton(tint: .primary)
   }
 
-  // MARK: - Layers Button
+  // MARK: - Map Options Menu
 
-  private var layersButton: some View {
-    Button(L10n.Map.Map.Controls.layers, systemImage: "square.3.layers.3d.down.right") {
-      withAnimation(.spring(response: 0.3)) {
-        showingLayersMenu.toggle()
+  private var mapOptionsMenu: some View {
+    Menu {
+      Picker(L10n.Map.Map.Style.accessibilityLabel, selection: $mapStyleSelection) {
+        ForEach(MapStyleSelection.allCases.reversed(), id: \.self) { style in
+          Text(style.label)
+            .tag(style)
+            .disabled(isDisabled(style))
+            .accessibilityHint(disabledReason(for: style) ?? "")
+        }
       }
+
+      Divider()
+
+      Toggle(L10n.Map.Map.Controls.showLabels, systemImage: "character.textbox", isOn: $showLabels)
+      Toggle(L10n.Map.Map.Controls.lockNorth, systemImage: "location.north.line", isOn: $isNorthLocked)
+    } label: {
+      Label(L10n.Map.Map.Controls.mapOptions, systemImage: "ellipsis.circle")
     }
     .mapControlButton(tint: .primary)
   }
 
-  // MARK: - Labels Button
+  private func isDisabled(_ style: MapStyleSelection) -> Bool {
+    !appState.offlineMapService.isNetworkAvailable
+      && (style.requiresNetwork || !hasOfflineCoverage(for: style))
+  }
 
-  private var labelsButton: some View {
-    Button(
-      showLabels ? L10n.Map.Map.Controls.hideLabels : L10n.Map.Map.Controls.showLabels,
-      systemImage: "character.textbox"
-    ) {
-      withAnimation {
-        showLabels.toggle()
-      }
+  private func disabledReason(for style: MapStyleSelection) -> String? {
+    guard isDisabled(style) else { return nil }
+    return style.requiresNetwork
+      ? L10n.Map.Map.Style.requiresNetwork
+      : L10n.Map.Map.Style.noOfflineCoverage
+  }
+
+  private func hasOfflineCoverage(for style: MapStyleSelection) -> Bool {
+    if let viewportBounds {
+      appState.offlineMapService.hasCompletedPack(for: style.offlineMapLayer, overlapping: viewportBounds)
+    } else {
+      appState.offlineMapService.hasCompletedPack(for: style.offlineMapLayer)
     }
-    .mapControlButton(tint: showLabels ? .blue : .primary)
   }
 }
 
 // MARK: - Layout
 
 private enum MapToolbarLayout {
-  static let dividerWidth: CGFloat = 36
-  static let cornerRadius: CGFloat = 8
+  static var cornerRadius: CGFloat {
+    if #available(iOS 26.0, *) { .infinity } else { 12 }
+  }
+
+  static var dividerWidth: CGFloat {
+    if #available(iOS 26.0, *) { 0 } else { 24 }
+  }
 }
 
 // MARK: - Custom Content Stack
