@@ -27,17 +27,25 @@ struct RoomInfoSheet: View {
     NavigationStack {
       List {
         Section {
-          HStack {
-            Spacer()
-            NodeAvatar(publicKey: session.publicKey, role: .roomServer, size: 80)
-            Spacer()
+          VStack(spacing: 12) {
+            NodeAvatar(publicKey: session.publicKey, role: .roomServer, size: 150)
+
+            VStack(spacing: 4) {
+              Text(session.name)
+                .font(.title2)
+                .bold()
+
+              Text(L10n.RemoteNodes.RemoteNodes.Auth.typeRoom)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            }
           }
+          .frame(maxWidth: .infinity)
           .listRowBackground(Color.clear)
         }
 
         ConversationQuickActionsSection(
           notificationLevel: $notificationLevel,
-          isFavorite: $isFavorite,
           availableLevels: NotificationLevel.roomLevels
         )
         .onChange(of: notificationLevel) { _, newValue in
@@ -105,7 +113,16 @@ struct RoomInfoSheet: View {
       .navigationTitle(Strings.infoTitle)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .cancellationAction) {
+        ToolbarItem(placement: .topBarLeading) {
+          Button {
+            isFavorite.toggle()
+          } label: {
+            Image(systemName: isFavorite ? "star.fill" : "star")
+              .foregroundStyle(isFavorite ? .yellow : .secondary)
+          }
+        }
+
+        ToolbarItem(placement: .confirmationAction) {
           Button(L10n.Localizable.Common.done) { dismiss() }
         }
       }

@@ -53,7 +53,6 @@ struct ChannelInfoSheet: View {
         // Quick Actions Section
         ConversationQuickActionsSection(
           notificationLevel: $notificationLevel,
-          isFavorite: $isFavorite,
           availableLevels: NotificationLevel.channelLevels
         )
         .onChange(of: notificationLevel) { _, newValue in
@@ -126,7 +125,16 @@ struct ChannelInfoSheet: View {
       .navigationTitle(L10n.Chats.Chats.ChannelInfo.title)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .cancellationAction) {
+        ToolbarItem(placement: .topBarLeading) {
+          Button {
+            isFavorite.toggle()
+          } label: {
+            Image(systemName: isFavorite ? "star.fill" : "star")
+              .foregroundStyle(isFavorite ? .yellow : .secondary)
+          }
+        }
+
+        ToolbarItem(placement: .confirmationAction) {
           Button(L10n.Chats.Chats.Common.done) {
             dismiss()
           }
@@ -367,11 +375,10 @@ private struct ChannelInfoHeaderSection: View {
 
   var body: some View {
     Section {
-      HStack {
-        Spacer()
-        VStack(spacing: 12) {
-          ChannelAvatar(channel: channel, size: 80)
+      VStack(spacing: 12) {
+        ChannelAvatar(channel: channel, size: 150)
 
+        VStack(spacing: 4) {
           Text(channel.displayName)
             .font(.title2)
             .bold()
@@ -380,8 +387,8 @@ private struct ChannelInfoHeaderSection: View {
             .font(.subheadline)
             .foregroundStyle(.secondary)
         }
-        Spacer()
       }
+      .frame(maxWidth: .infinity)
       .listRowBackground(Color.clear)
     }
   }
@@ -491,29 +498,24 @@ private struct ChannelInfoActionsSection: View {
         showingClearMessagesConfirmation = true
       } label: {
         HStack {
-          Spacer()
+          Label(L10n.Chats.Chats.ChannelInfo.clearMessagesButton, systemImage: "xmark.circle")
           if isClearingMessages {
+            Spacer()
             ProgressView()
-          } else {
-            Label(L10n.Chats.Chats.ChannelInfo.clearMessagesButton, systemImage: "xmark.circle")
           }
-          Spacer()
         }
       }
       .disabled(isActionInProgress)
-      .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
 
       Button(role: .destructive) {
         showingDeleteConfirmation = true
       } label: {
         HStack {
-          Spacer()
+          Label(L10n.Chats.Chats.ChannelInfo.deleteButton, systemImage: "trash")
           if isDeleting {
+            Spacer()
             ProgressView()
-          } else {
-            Label(L10n.Chats.Chats.ChannelInfo.deleteButton, systemImage: "trash")
           }
-          Spacer()
         }
       }
       .disabled(isActionInProgress)

@@ -115,7 +115,6 @@ struct ContactDetailView: View {
         currentContact: currentContact,
         showFromDirectChat: showFromDirectChat,
         isPinging: isPinging,
-        isTogglingFavorite: isTogglingFavorite,
         pingResult: pingResult,
         onJoinRoom: { showRoomJoinSheet = true },
         onShowTelemetry: {
@@ -130,7 +129,6 @@ struct ContactDetailView: View {
           showRepeaterAdminAuth = true
         },
         onPingRepeater: { Task { await pingRepeater() } },
-        onToggleFavorite: { Task { await toggleFavorite() } },
         onShareQR: { showQRShareSheet = true },
         onShareViaAdvert: { Task { await shareContact() } },
         isSharing: isSharing,
@@ -189,6 +187,23 @@ struct ContactDetailView: View {
     .errorAlert($errorMessage)
     .navigationTitle(contactTypeLabel)
     .navigationBarTitleDisplayMode(.inline)
+    .contentMargins(.top, 0, for: .scrollContent)
+    .toolbar {
+      ToolbarItem(placement: .topBarLeading) {
+        Button {
+          Task { await toggleFavorite() }
+        } label: {
+          Image(systemName: currentContact.isFavorite ? "star.fill" : "star")
+            .foregroundStyle(currentContact.isFavorite ? .yellow : .secondary)
+        }
+        .disabled(isTogglingFavorite)
+        .radioDisabled(for: appState.connectionState)
+      }
+
+      ToolbarItem(placement: .confirmationAction) {
+        Button(L10n.Localizable.Common.done) { dismiss() }
+      }
+    }
     .alert(L10n.Contacts.Contacts.Detail.Alert.Block.title, isPresented: $showingBlockAlert) {
       Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) {}
       Button(L10n.Contacts.Contacts.Action.block, role: .destructive) {
@@ -504,11 +519,11 @@ private struct ContactDetailAvatarView: View {
   var body: some View {
     switch contact.type {
     case .chat:
-      ContactAvatar(contact: contact, size: 100)
+      ContactAvatar(contact: contact, size: 150)
     case .repeater:
-      NodeAvatar(publicKey: contact.publicKey, role: .repeater, size: 100)
+      NodeAvatar(publicKey: contact.publicKey, role: .repeater, size: 150)
     case .room:
-      NodeAvatar(publicKey: contact.publicKey, role: .roomServer, size: 100)
+      NodeAvatar(publicKey: contact.publicKey, role: .roomServer, size: 150)
     }
   }
 }
@@ -519,7 +534,7 @@ private struct ContactProfileSection: View {
 
   var body: some View {
     Section {
-      VStack(spacing: 16) {
+      VStack(spacing: 12) {
         ContactDetailAvatarView(contact: currentContact)
 
         VStack(spacing: 4) {
@@ -532,25 +547,26 @@ private struct ContactProfileSection: View {
             .foregroundStyle(.secondary)
 
           // Status indicators
-          HStack(spacing: 12) {
-            if currentContact.isFavorite {
-              Label(L10n.Contacts.Contacts.Detail.favorite, systemImage: "star.fill")
-                .font(.caption)
-                .foregroundStyle(.yellow)
-            }
-
+          VStack(spacing: 8) {
             if currentContact.isBlocked {
-              Label(L10n.Contacts.Contacts.Detail.blocked, systemImage: "hand.raised.fill")
-                .font(.caption)
-                .foregroundStyle(.orange)
+              HStack(spacing: 4) {
+                Image(systemName: "hand.raised.fill")
+                Text(L10n.Contacts.Contacts.Detail.blocked)
+              }
+              .font(.caption)
+              .foregroundStyle(.red)
             }
 
             if currentContact.hasLocation {
-              Label(L10n.Contacts.Contacts.Detail.hasLocation, systemImage: "location.fill")
-                .font(.caption)
-                .foregroundStyle(.green)
+              HStack(spacing: 4) {
+                Image(systemName: "location.fill")
+                Text(L10n.Contacts.Contacts.Detail.hasLocation)
+              }
+              .font(.caption)
+              .foregroundStyle(.purple)
             }
           }
+          .padding(.top, 4)
         }
       }
       .frame(maxWidth: .infinity)
@@ -565,13 +581,11 @@ private struct ContactActionsSection: View {
   let currentContact: ContactDTO
   let showFromDirectChat: Bool
   let isPinging: Bool
-  let isTogglingFavorite: Bool
   let pingResult: PingResult?
   let onJoinRoom: () -> Void
   let onShowTelemetry: () -> Void
   let onShowAdminAccess: () -> Void
   let onPingRepeater: () -> Void
-  let onToggleFavorite: () -> Void
   let onShareQR: () -> Void
   let onShareViaAdvert: () -> Void
   let isSharing: Bool
@@ -635,22 +649,6 @@ private struct ContactActionsSection: View {
             .foregroundStyle(.tint)
         }
       }
-
-      // Toggle favorite (for all contact types)
-      Button(action: onToggleFavorite) {
-        HStack {
-          Label(
-            currentContact.isFavorite ? L10n.Contacts.Contacts.Detail.removeFromFavorites : L10n.Contacts.Contacts.Detail.addToFavorites,
-            systemImage: currentContact.isFavorite ? "star.slash" : "star"
-          )
-          if isTogglingFavorite {
-            Spacer()
-            ProgressView()
-          }
-        }
-      }
-      .disabled(isTogglingFavorite)
-      .radioDisabled(for: appState.connectionState)
 
       // Share Contact via QR
       Button(action: onShareQR) {
@@ -1139,6 +1137,14 @@ private struct ContactDangerSection: View {
   var body: some View {
     Section {
       if currentContact.type == .chat {
+        Button(action: onToggleBlock) {
+          Label(
+            currentContact.isBlocked ? L10n.Contacts.Contacts.Detail.unblockContact : L10n.Contacts.Contacts.Detail.blockContact,
+            systemImage: currentContact.isBlocked ? "hand.raised.slash" : "hand.raised"
+          )
+        }
+        .radioDisabled(for: appState.connectionState)
+
         Button(role: .destructive, action: onClearMessages) {
           HStack {
             Label(L10n.Contacts.Contacts.Detail.clearMessages, systemImage: "xmark.circle")
@@ -1149,14 +1155,6 @@ private struct ContactDangerSection: View {
           }
         }
         .disabled(isClearingMessages)
-
-        Button(action: onToggleBlock) {
-          Label(
-            currentContact.isBlocked ? L10n.Contacts.Contacts.Detail.unblockContact : L10n.Contacts.Contacts.Detail.blockContact,
-            systemImage: currentContact.isBlocked ? "hand.raised.slash" : "hand.raised"
-          )
-        }
-        .radioDisabled(for: appState.connectionState)
       }
 
       Button(role: .destructive, action: onDelete) {
