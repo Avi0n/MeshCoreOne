@@ -58,7 +58,7 @@ struct BubbleFragmentStack: View, Equatable {
       // bubble hugging its content — a flexible-width child here leaves the
       // self-sizing hosting cell without a resolvable intrinsic width, which
       // SwiftUI surfaces as a fatal "invalid reuse after initialization failure".
-      VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 4) {
+      VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 1) {
         if let textPayload = layout.textPayload {
           MessageTextView(text: textPayload)
         }
