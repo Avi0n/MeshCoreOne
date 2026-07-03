@@ -7,9 +7,7 @@ import UIKit
 enum QRCodeGenerator {
   private static let context = CIContext()
 
-  static func generate(from string: String, scale: CGFloat = 10.0, correctionLevel: String = "M")
-    -> UIImage?
-  {
+  static func generate(from string: String, scale: CGFloat = 10.0, correctionLevel: String = "M") -> UIImage? {
     let filter = CIFilter.qrCodeGenerator()
     filter.message = Data(string.utf8)
     filter.correctionLevel = correctionLevel
