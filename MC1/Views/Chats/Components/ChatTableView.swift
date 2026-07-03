@@ -6,6 +6,16 @@ import UIKit
 /// inset that fails to collapse after dismissal can be diagnosed.
 private let chatKeyboardLogger = Logger(subsystem: "com.mc1", category: "ChatKeyboard")
 
+/// Cell that pins its safe-area insets to zero. The edge-to-edge flipped table (iOS 26) spans
+/// behind the nav/input bars and reserves their heights via `contentInset`, so a cell scrolling
+/// under a bar overlaps the real safe area. Left alone, that inset propagates into the cell's
+/// `UIHostingConfiguration`, which bakes it into the bubble's self-sized height; UITableView then
+/// caches the inflated height, leaving a permanent gap after the cell scrolls back. Zeroing the
+/// cell's safe area keeps every bubble measured at its true content height regardless of position.
+private final class ChatHostingCell: UITableViewCell {
+  override var safeAreaInsets: UIEdgeInsets { .zero }
+}
+
 /// UIKit table view controller with flipped orientation for chat-style scrolling
 /// Newest messages appear at visual bottom, keyboard handling via native UIKit
 @MainActor
@@ -197,7 +207,7 @@ final class ChatTableViewController<Item: Identifiable & Hashable & Sendable, Ce
     tableView.allowsSelection = false
 
     // Register cell
-    tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+    tableView.register(ChatHostingCell.self, forCellReuseIdentifier: "Cell")
 
     // Configure data source
     configureDataSource()
