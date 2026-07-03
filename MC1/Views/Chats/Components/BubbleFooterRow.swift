@@ -14,6 +14,11 @@ private let correctedClockBadgeSymbol = "clock.badge.exclamationmark"
 struct BubbleFooterRow: View {
   let footer: MessageFooter
   let dynamicTypeSize: DynamicTypeSize
+  /// Color for the send-time text. Varies by bubble: `.secondary` on the gray
+  /// incoming bubble, a translucent outgoing-text color on the accent-colored
+  /// outgoing bubble where `.secondary` would wash out. Hop/path/region rows
+  /// stay `.secondary` because they only ever appear on incoming bubbles.
+  var timeColor: Color = .secondary
 
   var body: some View {
     if dynamicTypeSize.isAccessibilitySize {
@@ -32,7 +37,11 @@ struct BubbleFooterRow: View {
   @ViewBuilder
   private func footerContents(allowsWrap: Bool) -> some View {
     if let sendTime = footer.sendTimeToShow {
-      BubbleSendTimeFooter(date: sendTime, wasCorrected: footer.sendTimeWasCorrected)
+      BubbleSendTimeFooter(
+        date: sendTime,
+        wasCorrected: footer.sendTimeWasCorrected,
+        color: timeColor
+      )
     }
     if footer.showHop {
       BubbleHopCountFooter(hopCount: footer.hopCount)
@@ -49,6 +58,7 @@ struct BubbleFooterRow: View {
 private struct BubbleSendTimeFooter: View {
   let date: Date
   let wasCorrected: Bool
+  let color: Color
 
   private var timeText: String {
     date.formatted(date: .omitted, time: .shortened)
@@ -68,7 +78,7 @@ private struct BubbleSendTimeFooter: View {
       Text(timeText)
     }
     .font(.caption2)
-    .foregroundStyle(.secondary)
+    .foregroundStyle(color)
     .accessibilityElement(children: .combine)
     .accessibilityLabel(accessibilityLabel)
   }

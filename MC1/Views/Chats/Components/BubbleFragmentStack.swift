@@ -21,13 +21,17 @@ struct BubbleFragmentStack: View, Equatable {
   /// function of `item.content`, so equal items yield equal box fragments.
   let layout: FragmentLayout
   let bubbleColor: Color
+  /// Color for the in-bubble send time. Passed in (not read from the theme
+  /// environment) for the same reason as `bubbleColor`: keep body invalidation
+  /// off the per-cell env-read path.
+  let timeColor: Color
   let callbacks: MessageBubbleCallbacks
   let imageResolver: (ImageReference) -> UIImage?
 
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
   nonisolated static func == (lhs: BubbleFragmentStack, rhs: BubbleFragmentStack) -> Bool {
-    lhs.item == rhs.item && lhs.bubbleColor == rhs.bubbleColor
+    lhs.item == rhs.item && lhs.bubbleColor == rhs.bubbleColor && lhs.timeColor == rhs.timeColor
   }
 
   private var hasFooter: Bool {
@@ -48,7 +52,13 @@ struct BubbleFragmentStack: View, Equatable {
 
   var body: some View {
     let stack = VStack(alignment: .leading, spacing: 0) {
-      VStack(alignment: .leading, spacing: 4) {
+      // Stack alignment carries the footer placement: the time sits at the
+      // bubble's trailing edge for outgoing, leading for incoming. Driving it
+      // through alignment (rather than a greedy `Spacer`/`maxWidth`) keeps the
+      // bubble hugging its content — a flexible-width child here leaves the
+      // self-sizing hosting cell without a resolvable intrinsic width, which
+      // SwiftUI surfaces as a fatal "invalid reuse after initialization failure".
+      VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 4) {
         if let textPayload = layout.textPayload {
           MessageTextView(text: textPayload)
         }
@@ -61,8 +71,12 @@ struct BubbleFragmentStack: View, Equatable {
           )
         }
 
-        if !item.envelope.isOutgoing, hasFooter {
-          BubbleFooterRow(footer: item.footer, dynamicTypeSize: dynamicTypeSize)
+        if hasFooter {
+          BubbleFooterRow(
+            footer: item.footer,
+            dynamicTypeSize: dynamicTypeSize,
+            timeColor: timeColor
+          )
         }
       }
       .bubbleContentPadding()

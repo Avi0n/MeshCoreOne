@@ -207,20 +207,20 @@ public enum MessageFragmentBuilder {
     inputs: MessageBuildInputs,
     envInputs: EnvInputs
   ) -> MessageFooter {
-    let showHop = envInputs.showIncomingHopCount && message.isFloodRouted
+    let showHop = envInputs.showIncomingHopCount && message.isFloodRouted && !message.isOutgoing
     let region: String? = if envInputs.showIncomingRegion, message.isFloodRouted {
       message.regionScope
     } else {
       nil
     }
-    // Send time shows on every incoming message (DM and channel) — unlike hop
-    // and region, it is not gated on `isFloodRouted`. Shows the clock-corrected
-    // `senderDate`, not the raw wire value, so a skewed sender clock doesn't put a
-    // misleading timestamp in the bubble; the badge flags the substitution and the
-    // raw value is available in the message info sheet.
-    let sendTimeToShow: Date? =
-      (envInputs.showIncomingSendTime && !message.isOutgoing)
-        ? message.senderDate : nil
+    // Send time shows inside every bubble — incoming and outgoing, DM and
+    // channel. It is the sole time surface now that the centered cluster
+    // marker is gone, so it is unconditional (no toggle, not gated on
+    // `isFloodRouted`). Shows the clock-corrected `senderDate`, not the raw
+    // wire value, so a skewed sender clock doesn't put a misleading timestamp
+    // in the bubble; the badge flags the substitution and the raw value is
+    // available in the message info sheet.
+    let sendTimeToShow: Date? = message.senderDate
     return MessageFooter(
       showHop: showHop,
       hopCount: message.hopCount,
