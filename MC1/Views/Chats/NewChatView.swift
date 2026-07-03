@@ -55,6 +55,8 @@ struct NewChatView: View {
             }
             .buttonStyle(.plain)
           }
+          .listStyle(.insetGrouped)
+          .contentMargins(.top, 0, for: .scrollContent)
           .themedCanvas(theme)
         }
       }
