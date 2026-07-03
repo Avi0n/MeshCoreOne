@@ -748,8 +748,10 @@ private struct ContactInfoSection: View {
           Text(currentContact.nickname ?? L10n.Contacts.Contacts.Detail.nicknameNone)
             .foregroundStyle(.secondary)
 
-          Button(L10n.Contacts.Contacts.Common.edit) {
+          Button(action: {
             isEditingNickname = true
+          }) {
+            Image(systemName: "pencil")
           }
           .buttonStyle(.borderless)
         }

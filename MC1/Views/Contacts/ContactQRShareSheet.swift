@@ -55,6 +55,7 @@ struct ContactQRShareSheet: View {
       }
       .sensoryFeedback(.success, trigger: copyHapticTrigger)
     }
+    .presentationBackground(theme.surfaces?.canvas ?? Color(.systemGroupedBackground))
   }
 
   // MARK: - Private Methods
