@@ -41,37 +41,52 @@ struct BubbleFooterRow: View {
     .accessibilityElement(children: .combine)
   }
 
+  /// Canonical segment order is status → time → badges. Incoming bubbles hug the
+  /// leading edge, so they render that order left-to-right. Outgoing bubbles hug
+  /// the trailing edge, so the order is reversed to read right-to-left and stay
+  /// anchored against the bubble's inner edge. Accessibility sizes stack the
+  /// canonical order vertically regardless.
   private var footerSegments: [AnyView] {
-    var segments: [AnyView] = []
+    var status: [AnyView] = []
+    var time: [AnyView] = []
+    var badges: [AnyView] = []
 
-    if footer.heardRepeats > 0, footer.showStatusRow {
-      segments.append(AnyView(BubbleRepeatFooter(count: footer.heardRepeats, color: timeColor)))
+    if footer.showStatusRow {
+      status.append(AnyView(BubbleStatusFooter(footer: footer, color: timeColor, onRetry: onRetry)))
     }
 
     if let sendTime = footer.sendTimeToShow {
-      segments.append(AnyView(BubbleSendTimeFooter(
+      time.append(AnyView(BubbleSendTimeFooter(
         date: sendTime,
         wasCorrected: footer.sendTimeWasCorrected,
         color: timeColor
       )))
     }
+
+    if footer.heardRepeats > 0, footer.showStatusRow {
+      badges.append(AnyView(BubbleRepeatFooter(count: footer.heardRepeats, color: timeColor)))
+    }
+    if footer.sendCount > 1, footer.showStatusRow {
+      badges.append(AnyView(BubbleSendCountFooter(count: footer.sendCount, color: timeColor)))
+    }
     if footer.showHop {
-      segments.append(AnyView(BubbleHopCountFooter(hopCount: footer.hopCount)))
+      badges.append(AnyView(BubbleHopCountFooter(hopCount: footer.hopCount)))
     }
     if let formattedPath = footer.formattedPath {
-      segments.append(AnyView(BubblePathFooter(formattedPath: formattedPath)))
+      badges.append(AnyView(BubblePathFooter(formattedPath: formattedPath)))
     }
     if let region = footer.regionToShow {
-      segments.append(AnyView(BubbleRegionFooter(
+      badges.append(AnyView(BubbleRegionFooter(
         regionName: region,
         allowsWrap: dynamicTypeSize.isAccessibilitySize
       )))
     }
 
-    if footer.showStatusRow {
-      segments.append(AnyView(BubbleStatusFooter(footer: footer, color: timeColor, onRetry: onRetry)))
-    }
-    return segments
+    let segments = status + time + badges
+    // reverse for outgoing messages for proper RTL alignment
+    return footer.showStatusRow && !dynamicTypeSize.isAccessibilitySize
+      ? segments.reversed()
+      : segments
   }
 }
 
@@ -210,6 +225,25 @@ private struct BubbleRepeatFooter: View {
     .footerChip(color: color)
     .accessibilityElement(children: .combine)
     .accessibilityLabel(accessibilityLabel)
+  }
+}
+
+/// Number of times an outgoing message was (re)sent over the mesh, shown as a
+/// `2x`-style multiplier badge. Only appears once the send count exceeds one.
+private struct BubbleSendCountFooter: View {
+  let count: Int
+  let color: Color
+
+  var body: some View {
+    HStack(spacing: 2) {
+      Image(systemName: "paperplane")
+      Text("\(count)x")
+    }
+    .font(.caption2)
+    .foregroundStyle(color)
+    .footerChip(color: color)
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel(L10n.Chats.Chats.Message.Status.sentMultiple(count))
   }
 }
 
