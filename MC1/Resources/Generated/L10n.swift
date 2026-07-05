@@ -1005,16 +1005,6 @@ public enum L10n {
           /// Location: ScrollToDividerButton.swift - Accessibility label for scroll to divider button
           public static let accessibilityLabel = L10n.tr("Chats", "chats.scrollButton.scrollToDivider.accessibilityLabel", fallback: "Scroll to new messages")
         }
-        public enum ScrollToMention {
-          /// Location: ScrollToMentionButton.swift - Accessibility hint for scroll to mention button
-          public static let accessibilityHint = L10n.tr("Chats", "chats.scrollButton.scrollToMention.accessibilityHint", fallback: "Double-tap to navigate to the message")
-          /// Location: ScrollToMentionButton.swift - Accessibility label for scroll to mention button
-          public static let accessibilityLabel = L10n.tr("Chats", "chats.scrollButton.scrollToMention.accessibilityLabel", fallback: "Scroll to your oldest unread mention")
-          /// Location: ScrollToMentionButton.swift - Accessibility value for unread mention count - %d is the number of unread mentions
-          public static func accessibilityValue(_ p1: Int) -> String {
-            return L10n.tr("Chats", "chats.scrollButton.scrollToMention.accessibilityValue", p1, fallback: "%d unread mentions")
-          }
-        }
       }
       public enum Search {
         /// Location: ChatsView.swift - Search placeholder

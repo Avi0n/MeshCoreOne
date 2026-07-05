@@ -28,6 +28,9 @@ packages:
   MapLibre:
     url: https://github.com/maplibre/maplibre-gl-native-distribution
     exactVersion: 6.25.1
+  MessagingUI:
+    url: https://github.com/bwees-forks/swiftui-messaging-ui
+    revision: 98a47b5ddcc7174b2193c6ac38ad96837c230171
 
 targets:
   MC1:
@@ -43,6 +46,7 @@ targets:
       - package: MC1Services
       - package: Emojibase
       - package: MapLibre
+      - package: MessagingUI
       - target: MC1Widgets
     preBuildScripts:
       - name: SwiftGen

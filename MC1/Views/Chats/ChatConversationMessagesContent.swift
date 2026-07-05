@@ -23,15 +23,9 @@ struct ChatConversationMessagesContent: View {
   @Binding var isAtBottom: Bool
   @Binding var unreadCount: Int
   @Binding var scrollToBottomRequest: Int
-  @Binding var scrollToMentionRequest: Int
-  @Binding var scrollToDividerRequest: Int
-  @Binding var isDividerVisible: Bool
+  @Binding var scrollToTargetRequest: Int
+  @Binding var scrollToTargetID: UUID?
 
-  // MARK: - Mention State
-
-  let unseenMentionIDs: [UUID]
-  @Binding var offscreenMentionIDs: [UUID]
-  let scrollToTargetID: UUID?
   let newMessagesDividerMessageID: UUID?
 
   // MARK: - Sheet State Bindings
@@ -41,8 +35,6 @@ struct ChatConversationMessagesContent: View {
 
   // MARK: - Callbacks
 
-  let onMentionSeen: (UUID) async -> Bool
-  let onScrollToMention: () -> Void
   let onRetryMessage: (MessageDTO) -> Void
 
   // MARK: - Body
@@ -64,17 +56,11 @@ struct ChatConversationMessagesContent: View {
           isAtBottom: $isAtBottom,
           unreadCount: $unreadCount,
           scrollToBottomRequest: $scrollToBottomRequest,
-          scrollToMentionRequest: $scrollToMentionRequest,
-          scrollToDividerRequest: $scrollToDividerRequest,
-          isDividerVisible: $isDividerVisible,
+          scrollToTargetRequest: $scrollToTargetRequest,
+          scrollToTargetID: $scrollToTargetID,
           selectedMessageForActions: $selectedMessageForActions,
           imageViewerData: $imageViewerData,
-          unseenMentionIDs: unseenMentionIDs,
-          offscreenMentionIDs: $offscreenMentionIDs,
-          scrollToTargetID: scrollToTargetID,
           newMessagesDividerMessageID: newMessagesDividerMessageID,
-          onMentionSeen: onMentionSeen,
-          onScrollToMention: onScrollToMention,
           onRetryMessage: onRetryMessage
         )
       }
@@ -182,17 +168,11 @@ private struct ChannelEmptyMessagesView: View {
       isAtBottom: .constant(true),
       unreadCount: .constant(0),
       scrollToBottomRequest: .constant(0),
-      scrollToMentionRequest: .constant(0),
-      scrollToDividerRequest: .constant(0),
-      isDividerVisible: .constant(false),
-      unseenMentionIDs: [],
-      offscreenMentionIDs: .constant([]),
-      scrollToTargetID: nil,
+      scrollToTargetRequest: .constant(0),
+      scrollToTargetID: .constant(nil),
       newMessagesDividerMessageID: nil,
       selectedMessageForActions: .constant(nil),
       imageViewerData: .constant(nil),
-      onMentionSeen: { _ in true },
-      onScrollToMention: {},
       onRetryMessage: { _ in }
     )
   }
@@ -214,17 +194,11 @@ private struct ChannelEmptyMessagesView: View {
       isAtBottom: .constant(true),
       unreadCount: .constant(0),
       scrollToBottomRequest: .constant(0),
-      scrollToMentionRequest: .constant(0),
-      scrollToDividerRequest: .constant(0),
-      isDividerVisible: .constant(false),
-      unseenMentionIDs: [],
-      offscreenMentionIDs: .constant([]),
-      scrollToTargetID: nil,
+      scrollToTargetRequest: .constant(0),
+      scrollToTargetID: .constant(nil),
       newMessagesDividerMessageID: nil,
       selectedMessageForActions: .constant(nil),
       imageViewerData: .constant(nil),
-      onMentionSeen: { _ in true },
-      onScrollToMention: {},
       onRetryMessage: { _ in }
     )
   }

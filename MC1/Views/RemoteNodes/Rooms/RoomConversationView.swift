@@ -327,47 +327,27 @@ private struct MessagesView: View {
         EmptyMessagesView(session: session)
       } else {
         let timestampVisibleIDs = Self.timestampVisibleIDs(in: messages)
-        GeometryReader { proxy in
-          let insets = proxy.safeAreaInsets
-          ChatTableView(
-            items: messages,
-            cellContent: { message in
-              messageBubble(for: message, showTimestamp: timestampVisibleIDs.contains(message.id))
-                .environment(\.appTheme, theme)
-                .environment(\.openURL, openURL)
-            },
-            contentBackground: theme.surfaces?.canvas,
-            themeID: theme.id,
-            appearanceToken: AppearanceToken.make(
-              colorScheme: colorScheme,
-              contrast: colorSchemeContrast,
-              dynamicTypeSize: dynamicTypeSize
-            ),
-            isAtBottom: $isAtBottom,
-            unreadCount: $unreadCount,
-            scrollToBottomRequest: $scrollToBottomRequest,
-            scrollToMentionRequest: .constant(0),
-            offscreenMentionIDs: .constant([]),
-            onSecondaryClick: onLongPress,
-            scrollToDividerRequest: .constant(0),
-            isDividerVisible: .constant(false),
-            topContentInset: insets.top,
-            bottomContentInset: insets.bottom
+        ChatTiledView(
+          items: messages,
+          cellContent: { message in
+            messageBubble(for: message, showTimestamp: timestampVisibleIDs.contains(message.id))
+              .environment(\.appTheme, theme)
+              .environment(\.openURL, openURL)
+          },
+          contentBackground: theme.surfaces?.canvas,
+          appearanceIdentity: "\(theme.id)|\(AppearanceToken.make(colorScheme: colorScheme, contrast: colorSchemeContrast, dynamicTypeSize: dynamicTypeSize))",
+          isAtBottom: $isAtBottom,
+          unreadCount: $unreadCount,
+          scrollToBottomRequest: scrollToBottomRequest
+        )
+        .overlay(alignment: .bottomTrailing) {
+          ScrollToBottomButton(
+            isVisible: !isAtBottom,
+            unreadCount: unreadCount,
+            onTap: { scrollToBottomRequest += 1 }
           )
-          .chatEdgeToEdge()
-          .chatEdgeFade(
-            topInset: insets.top,
-            canvas: theme.surfaces?.canvas ?? Color(.systemBackground)
-          )
-          .overlay(alignment: .bottomTrailing) {
-            ScrollToBottomButton(
-              isVisible: !isAtBottom,
-              unreadCount: unreadCount,
-              onTap: { scrollToBottomRequest += 1 }
-            )
-            .padding(.trailing, 16)
-            .padding(.bottom, 8)
-          }
+          .padding(.trailing, 16)
+          .padding(.bottom, 8)
         }
       }
     }

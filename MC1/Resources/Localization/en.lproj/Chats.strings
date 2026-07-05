@@ -110,15 +110,6 @@
 
 // MARK: - Scroll Buttons
 
-/* Location: ScrollToMentionButton.swift - Accessibility label for scroll to mention button */
-"chats.scrollButton.scrollToMention.accessibilityLabel" = "Scroll to your oldest unread mention";
-
-/* Location: ScrollToMentionButton.swift - Accessibility hint for scroll to mention button */
-"chats.scrollButton.scrollToMention.accessibilityHint" = "Double-tap to navigate to the message";
-
-/* Location: ScrollToMentionButton.swift - Accessibility value for unread mention count - %d is the number of unread mentions */
-"chats.scrollButton.scrollToMention.accessibilityValue" = "%d unread mentions";
-
 /* Location: ScrollToBottomButton.swift - Accessibility label for scroll to bottom button */
 "chats.scrollButton.scrollToBottom.accessibilityLabel" = "Scroll to latest message";
 
@@ -907,7 +898,6 @@
 
 /* Location: MessagePathSheet.swift - Section header for path */
 "chats.path.section.header" = "Path";
-
 
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "Path Map";

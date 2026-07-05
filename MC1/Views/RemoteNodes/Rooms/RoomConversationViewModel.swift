@@ -107,7 +107,7 @@ final class RoomConversationViewModel {
   }
 
   /// Optimistically append a message if not already present.
-  /// Called synchronously before async reload to ensure ChatTableView
+  /// Called synchronously before async reload so the message list
   /// sees the new count immediately for unread tracking.
   func appendMessageIfNew(_ message: RoomMessageDTO) {
     guard !messages.contains(where: { $0.id == message.id }) else { return }
@@ -156,7 +156,7 @@ final class RoomConversationViewModel {
 
     switch event {
     case let .roomMessageReceived(message, sessionID):
-      // Optimistic append first so the ChatTableView sees the new count
+      // Optimistic append first so the message list sees the new count
       // immediately for unread tracking, then coalesce the reload so a
       // burst of incoming room messages triggers one DB sync, not N.
       guard sessionID == session.id else { return }

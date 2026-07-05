@@ -8,7 +8,7 @@ extension ChatViewModel {
   /// the incoming admission path after the receive-time prefetch resolves
   /// or hits its timeout, and from the outgoing send paths immediately
   /// after `createPendingMessage`. Preserves unread-counter math via the
-  /// `newItems.count` delta in `ChatTableView.updateItems`.
+  /// item-count delta observed by `ChatTiledView`.
   func appendMessageIfNew(_ message: MessageDTO) {
     guard let coordinator else { return }
     let previous = messages.last
