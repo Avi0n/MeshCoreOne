@@ -86,11 +86,6 @@ struct MessagePathMapView: View {
             )
             .ignoresSafeArea()
 
-            PathDistanceBanner(
-              hopCount: hopCount,
-              totalPathDistance: totalPathDistance
-            )
-
             VStack {
               Spacer()
               HStack {
@@ -116,9 +111,15 @@ struct MessagePathMapView: View {
           }
         }
       }
-      .navigationTitle(L10n.Chats.Chats.Path.map)
-      .navigationBarTitleDisplayMode(.inline)
       .toolbar {
+        if !locatedNodes.isEmpty {
+          ToolbarItem(placement: .principal) {
+            PathDistanceBanner(
+              hopCount: hopCount,
+              totalPathDistance: totalPathDistance
+            )
+          }
+        }
         ToolbarItem(placement: .confirmationAction) {
           Button(L10n.Localizable.Common.done) { dismiss() }
         }
