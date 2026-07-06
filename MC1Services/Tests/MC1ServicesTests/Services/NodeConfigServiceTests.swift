@@ -508,25 +508,6 @@ struct NodeConfigServiceTests {
     #expect(modeError.localizedDescription.contains("5"))
   }
 
-  @Test
-  func `Import rejects pathHashMode > 2 as invalid`() throws {
-    let json = """
-    {
-        "type": 1, "name": "BadMode", "public_key": "\(String(repeating: "ab", count: 32))",
-        "flags": 0, "latitude": "0", "longitude": "0",
-        "last_advert": 0, "last_modified": 0,
-        "out_path": "aabbcc",
-        "path_hash_mode": 3
-    }
-    """
-    let config = try JSONDecoder().decode(MeshCoreNodeConfig.ContactConfig.self, from: Data(json.utf8))
-    #expect(config.pathHashMode == 3)
-
-    // The mode validation guard should reject values > 2
-    let mode = config.pathHashMode ?? 0
-    #expect(mode > 2)
-  }
-
   // MARK: - ImportProgress
 
   @Test

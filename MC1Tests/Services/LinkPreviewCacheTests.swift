@@ -60,67 +60,7 @@ struct LinkPreviewCacheTests {
     #expect(cached?.iconData == Data([4, 5, 6]))
   }
 
-  // MARK: - Negative Cache Tests
-
-  @Test
-  func `Negative cache prevents repeated network fetches for unavailable previews`() async throws {
-    let cache = LinkPreviewCache()
-    let dataStore = MockPreviewDataStore()
-    let url = try #require(URL(string: "https://example.com/no-preview"))
-
-    // First request finds no preview (returns noPreviewAvailable)
-    _ = await cache.preview(for: url, using: dataStore, isChannelMessage: false)
-
-    let initialFetchCount = await dataStore.fetchCallCount
-
-    // Subsequent requests should hit negative cache (no database lookup)
-    _ = await cache.preview(for: url, using: dataStore, isChannelMessage: false)
-    _ = await cache.preview(for: url, using: dataStore, isChannelMessage: false)
-
-    // The key assertion is that repeated requests don't exponentially increase fetches
-    let finalFetchCount = await dataStore.fetchCallCount
-    #expect(finalFetchCount <= initialFetchCount + 2)
-  }
-
-  @Test
-  func `Manual fetch clears negative cache and retries`() async throws {
-    let cache = LinkPreviewCache()
-    let dataStore = MockPreviewDataStore()
-    let url = try #require(URL(string: "https://example.com/retry"))
-
-    // First auto-fetch finds nothing
-    _ = await cache.preview(for: url, using: dataStore, isChannelMessage: false)
-
-    // Manual fetch should attempt again (clearing negative cache)
-    _ = await cache.manualFetch(for: url, using: dataStore)
-
-    // Verify manual fetch was attempted (fetch count increased)
-    let fetchCount = await dataStore.fetchCallCount
-    #expect(fetchCount >= 1)
-  }
-
   // MARK: - In-Flight Deduplication Tests
-
-  @Test
-  func `Concurrent requests for same URL don't create duplicate fetches`() async throws {
-    let cache = LinkPreviewCache()
-    let dataStore = MockPreviewDataStore()
-    let url = try #require(URL(string: "https://example.com/concurrent"))
-
-    // Add delay to database fetch to simulate slow operation
-    await dataStore.setFetchDelay(.milliseconds(100))
-
-    // Launch multiple concurrent requests
-    async let result1 = cache.preview(for: url, using: dataStore, isChannelMessage: false)
-    async let result2 = cache.preview(for: url, using: dataStore, isChannelMessage: false)
-    async let result3 = cache.preview(for: url, using: dataStore, isChannelMessage: false)
-
-    // Wait for all to complete
-    let results = await [result1, result2, result3]
-
-    // All results should be consistent
-    #expect(results.count == 3)
-  }
 
   @Test
   func `isFetching returns true while fetch is in progress`() async throws {
@@ -249,17 +189,12 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
   private var storedPreviews: [String: LinkPreviewDataDTO] = [:]
   private(set) var fetchCallCount = 0
   private var saveCallCount = 0
-  private var fetchDelay: Duration = .zero
   private var shouldThrowOnFetch = false
   private var shouldThrowOnSave = false
 
   /// Async setters for actor-isolated properties
   func setStoredPreview(_ dto: LinkPreviewDataDTO, for url: String) {
     storedPreviews[url] = dto
-  }
-
-  func setFetchDelay(_ delay: Duration) {
-    fetchDelay = delay
   }
 
   func setShouldThrowOnFetch(_ value: Bool) {
@@ -271,10 +206,6 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
 
     if shouldThrowOnFetch {
       throw MockError.fetchFailed
-    }
-
-    if fetchDelay > .zero {
-      try? await Task.sleep(for: fetchDelay)
     }
 
     return storedPreviews[url]

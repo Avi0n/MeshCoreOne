@@ -5,22 +5,6 @@ import Testing
 @Suite("Region scope to FloodScope mapping")
 struct FloodScopeMappingTests {
   @Test
-  func `nil regionScope maps to disabled`() {
-    let regionScope: String? = nil
-    let floodScope: FloodScope = regionScope.map { .region($0) } ?? .disabled
-
-    #expect(floodScope.scopeKey() == FloodScope.disabled.scopeKey())
-  }
-
-  @Test
-  func `non-nil regionScope maps to region`() {
-    let regionScope: String? = "Europe"
-    let floodScope: FloodScope = regionScope.map { .region($0) } ?? .disabled
-
-    #expect(floodScope.scopeKey() == FloodScope.region("Europe").scopeKey())
-  }
-
-  @Test
   func `disabled scope key differs from any region scope key`() {
     let disabled = FloodScope.disabled.scopeKey()
     let region = FloodScope.region("Europe").scopeKey()

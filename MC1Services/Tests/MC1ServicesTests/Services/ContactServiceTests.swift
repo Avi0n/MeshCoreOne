@@ -83,24 +83,6 @@ struct ContactServiceTests {
     #expect(errorDescriptions.count == uniqueDescriptions.count)
   }
 
-  @Test
-  func `ContactServiceError sessionError carries MeshCoreError`() {
-    let meshError = MeshCoreError.notConnected
-    let error = ContactServiceError.sessionError(meshError)
-
-    // Verify the associated value is accessible
-    if case let .sessionError(innerError) = error {
-      // Just verify we can access the inner error
-      if case .notConnected = innerError {
-        // Success
-      } else {
-        Issue.record("Expected .notConnected case")
-      }
-    } else {
-      Issue.record("Expected sessionError case")
-    }
-  }
-
   // MARK: - MeshContact.toContactFrame() Tests
 
   @Test

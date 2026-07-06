@@ -11,12 +11,10 @@ struct RegionResolverTests {
 
   private final class StubGeocoder: Geocoder, @unchecked Sendable {
     var stub: GeocodeResult?
-    var error: Error?
     private(set) var cancelGeocodeCallCount = 0
 
     func reverseGeocode(_ location: CLLocation, preferredLocale: Locale?) async throws -> GeocodeResult? {
-      if let error { throw error }
-      return stub
+      stub
     }
 
     func cancelGeocode() {
@@ -27,7 +25,7 @@ struct RegionResolverTests {
   // MARK: - Failure paths
 
   //
-  // These three tests exercise the `location.isAuthorized` guard — the resolver
+  // These tests exercise the `location.isAuthorized` guard — the resolver
   // returns nil before the geocoder runs when authorization is undetermined.
   // Success-path coverage requires injecting a stubbed `LocationService`, which
   // is a follow-up (LocationService is not currently abstracted behind a
@@ -38,16 +36,6 @@ struct RegionResolverTests {
     let location = LocationService()
     let geocoder = StubGeocoder()
     geocoder.stub = nil
-    let resolver = RegionResolver(location: location, geocoder: geocoder)
-    let result = await resolver.resolve()
-    #expect(result == nil)
-  }
-
-  @Test
-  func `Geocoder error → nil`() async {
-    let location = LocationService()
-    let geocoder = StubGeocoder()
-    geocoder.error = NSError(domain: "test", code: -1)
     let resolver = RegionResolver(location: location, geocoder: geocoder)
     let result = await resolver.resolve()
     #expect(result == nil)

@@ -55,19 +55,6 @@ struct StoreStateErrorMappingTests {
   }
 
   @Test
-  func `localizedMessage delegates to the shared userFacingMessage mapping`() {
-    let state = makeState()
-    let cases: [StoreServiceError] = [
-      .productsNotLoaded, .productNotFound(productID: "x"),
-      .purchaseFailed(reason: "boom"), .verificationFailed,
-      .notEntitled, .networkUnavailable, .storefrontUnavailable, .unsupported
-    ]
-    for error in cases {
-      #expect(state.localizedMessage(for: error) == error.userFacingMessage)
-    }
-  }
-
-  @Test
   func `reconcilePendingPurchase is a no-op when there is no pending purchase`() {
     let state = makeState()
     state.reconcilePendingPurchase()

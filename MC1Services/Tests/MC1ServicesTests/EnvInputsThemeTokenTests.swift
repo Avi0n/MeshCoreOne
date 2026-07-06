@@ -29,14 +29,6 @@ struct EnvInputsThemeTokenTests {
   }
 
   @Test
-  func `equal themeIDs produce equal hashes`() {
-    // Hashable only guarantees equal values hash equally; distinct values may legally collide,
-    // so asserting unequal hashes for distinct themeIDs is non-contractual. The meaningful
-    // property — themeID affecting equality — is covered by `themeIDChangeIsObservable`.
-    #expect(make(themeID: "marine").hashValue == make(themeID: "marine").hashValue)
-  }
-
-  @Test
   func `EnvInputs.default carries the default theme id`() {
     #expect(EnvInputs.default.themeID == "default")
   }

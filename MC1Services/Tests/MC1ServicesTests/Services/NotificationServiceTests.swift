@@ -39,64 +39,7 @@ struct NotificationServiceTests {
     #expect(service.isSuppressingNotifications == false)
   }
 
-  @Test
-  @MainActor
-  func `postNewContactNotification uses provider for title`() async {
-    // This test verifies the method signature accepts ContactType
-    // Actual notification posting requires UNUserNotificationCenter authorization
-    let service = NotificationService()
-
-    // Verify method exists with correct signature (compile-time check)
-    // The actual notification won't post without authorization, but we can verify
-    // the provider is called by checking the method accepts the new parameter
-    await service.postNewContactNotification(
-      contactName: "TestNode",
-      contactID: UUID(),
-      contactType: ContactType.repeater
-    )
-
-    // If we got here without compile error, the signature is correct
-    #expect(true)
-  }
-
   // MARK: - Reaction Notification Tests
-
-  @Test
-  @MainActor
-  func `postReactionNotification has correct method signature`() async {
-    let service = NotificationService()
-
-    // Verify method exists with correct signature (compile-time check)
-    // Actual notification won't post without authorization
-    await service.postReactionNotification(
-      reactorName: "Alice",
-      body: "Reacted 👍 to your message: \"Hello world\"",
-      messageID: UUID(),
-      contactID: UUID(),
-      channelIndex: nil,
-      radioID: nil
-    )
-
-    #expect(true)
-  }
-
-  @Test
-  @MainActor
-  func `postReactionNotification accepts channel parameters`() async {
-    let service = NotificationService()
-
-    // Verify method accepts channel parameters for channel reactions
-    await service.postReactionNotification(
-      reactorName: "Bob",
-      body: "Reacted ❤️ to your message: \"Team update\"",
-      messageID: UUID(),
-      contactID: nil,
-      channelIndex: 3,
-      radioID: UUID()
-    )
-
-    #expect(true)
-  }
 
   @Test
   @MainActor

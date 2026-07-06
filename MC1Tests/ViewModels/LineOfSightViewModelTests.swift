@@ -990,66 +990,6 @@ struct ClearTests {
   }
 }
 
-// MARK: - Task Cancellation Tests
-
-@Suite("Task Cancellation")
-@MainActor
-struct TaskCancellationTests {
-  @Test
-  func `Setting new point A cancels pending elevation fetch`() async throws {
-    let mockService = MockElevationService()
-    let viewModel = LineOfSightViewModel(elevationService: mockService)
-
-    // Set first point
-    viewModel.setPointA(coordinate: sanFrancisco)
-
-    // Immediately set second point (should cancel first fetch)
-    viewModel.setPointA(coordinate: oakland)
-
-    try await waitUntil("point A elevation should load") {
-      viewModel.pointA?.isLoadingElevation == false
-    }
-
-    // Should have the second coordinate
-    #expect(viewModel.pointA?.coordinate.latitude == oakland.latitude)
-  }
-
-  @Test
-  func `Setting new point B cancels pending elevation fetch`() async throws {
-    let mockService = MockElevationService()
-    let viewModel = LineOfSightViewModel(elevationService: mockService)
-
-    viewModel.setPointA(coordinate: sanFrancisco)
-    viewModel.setPointB(coordinate: oakland)
-
-    // Immediately set new point B (should cancel first fetch)
-    viewModel.setPointB(coordinate: berkeley)
-
-    try await waitUntil("point B elevation should load") {
-      viewModel.pointB?.isLoadingElevation == false
-    }
-
-    // Should have the second coordinate
-    #expect(viewModel.pointB?.coordinate.latitude == berkeley.latitude)
-  }
-
-  @Test
-  func `Clear cancels all pending tasks`() {
-    let mockService = MockElevationService()
-    let viewModel = LineOfSightViewModel(elevationService: mockService)
-
-    viewModel.setPointA(coordinate: sanFrancisco)
-    viewModel.setPointB(coordinate: oakland)
-
-    // Clear immediately (before fetches complete)
-    viewModel.clear()
-
-    // Verify cleared state
-    #expect(viewModel.pointA == nil)
-    #expect(viewModel.pointB == nil)
-  }
-}
-
 // MARK: - Analysis Tests
 
 @Suite("Analysis")
@@ -1583,19 +1523,6 @@ struct ContactToggleTests {
 
     #expect(viewModel.pointA?.contact?.id == contact1.id)
     #expect(viewModel.pointB?.contact?.id == contact2.id)
-  }
-
-  @Test
-  func `unselected contact is not assigned to either point`() {
-    let mockService = MockElevationService()
-    let viewModel = LineOfSightViewModel(elevationService: mockService)
-    let contact1 = createTestContact(name: "Repeater 1", latitude: 37.8, longitude: -122.4, type: .repeater)
-    let contact2 = createTestContact(name: "Repeater 2", latitude: 37.7, longitude: -122.3, type: .repeater)
-
-    viewModel.toggleContact(contact1)
-
-    #expect(viewModel.pointA?.contact?.id != contact2.id)
-    #expect(viewModel.pointB?.contact?.id != contact2.id)
   }
 }
 

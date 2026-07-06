@@ -1,6 +1,7 @@
 import CoreBluetooth
 import Foundation
 @testable import MC1Services
+import ObjectiveC
 import Testing
 
 @Suite("BLEStateMachine Tests")
@@ -40,44 +41,6 @@ struct BLEStateMachineTests {
     let sm = BLEStateMachine()
     let name = await sm.currentPhaseName
     #expect(name == "idle")
-  }
-
-  // MARK: - Handler Registration Tests
-
-  @Test
-  func `setDisconnectionHandler can be registered`() async {
-    let sm = BLEStateMachine()
-
-    await sm.setDisconnectionHandler { _, _ in }
-
-    #expect(await sm.currentPhase.name == "idle")
-  }
-
-  @Test
-  func `setReconnectionHandler can be registered`() async {
-    let sm = BLEStateMachine()
-
-    await sm.setReconnectionHandler { _, _ in }
-
-    #expect(await sm.currentPhase.name == "idle")
-  }
-
-  @Test
-  func `setBluetoothStateChangeHandler can be registered`() async {
-    let sm = BLEStateMachine()
-
-    await sm.setBluetoothStateChangeHandler { _ in }
-
-    #expect(await sm.currentPhase.name == "idle")
-  }
-
-  @Test
-  func `setAutoReconnectingHandler can be registered`() async {
-    let sm = BLEStateMachine()
-
-    await sm.setAutoReconnectingHandler { _, _ in }
-
-    #expect(await sm.currentPhase.name == "idle")
   }
 
   // MARK: - Disconnect Tests
@@ -146,17 +109,6 @@ struct BLEStateMachineTests {
     await sm.activate()
     await sm.activate()
 
-    #expect(await sm.currentPhase.name == "idle")
-  }
-
-  @Test
-  func `handler replacement works correctly`() async {
-    let sm = BLEStateMachine()
-
-    await sm.setDisconnectionHandler { _, _ in }
-    await sm.setDisconnectionHandler { _, _ in }
-
-    // Multiple handler registrations should not crash
     #expect(await sm.currentPhase.name == "idle")
   }
 
@@ -269,5 +221,231 @@ struct BLEStateMachineTests {
 
     #expect(!atStart)
     #expect(!afterStart)
+  }
+}
+
+// MARK: - Discovery-timeout watchdog end-to-end coverage
+
+/// A large timeout so a re-armed discovery watchdog cannot fire during the test window.
+private let watchdogNonFiringTimeout: TimeInterval = 3600
+
+/// A brief timeout so a re-armed discovery watchdog fires on its own during the test window.
+private let watchdogReArmFiringTimeout: TimeInterval = 0.02
+
+/// Bounds the wait for the re-armed watchdog so a dropped re-arm fails fast instead of hanging.
+private let watchdogReArmObservationWindow: TimeInterval = 5
+
+/// Retains mock peripherals for the process lifetime. `CBPeripheral` has no
+/// public initializer and its `-dealloc` touches internals that a runtime-
+/// allocated instance never set up, so releasing one crashes; never freeing
+/// them keeps the doubles usable.
+private enum WatchdogPeripheralStore {
+  nonisolated(unsafe) static var retained: [CBPeripheral] = []
+}
+
+/// A `CBPeripheral` double whose `state` is forced to `.connected`.
+private final class ConnectedTestPeripheral: CBPeripheral, @unchecked Sendable {
+  static let uuid = UUID()
+  override var identifier: UUID {
+    Self.uuid
+  }
+
+  override var state: CBPeripheralState {
+    .connected
+  }
+}
+
+/// A `CBPeripheral` double whose `state` is forced to `.disconnected`.
+private final class DisconnectedTestPeripheral: CBPeripheral, @unchecked Sendable {
+  static let uuid = UUID()
+  override var identifier: UUID {
+    Self.uuid
+  }
+
+  override var state: CBPeripheralState {
+    .disconnected
+  }
+}
+
+/// Allocates a mock peripheral without invoking `CBPeripheral`'s unavailable
+/// initializer and keeps it alive so it is never deallocated.
+private func makeLeakedPeripheral<T: CBPeripheral>(_ type: T.Type) -> T {
+  // swiftlint:disable:next force_cast
+  let peripheral = class_createInstance(type, 0) as! T
+  WatchdogPeripheralStore.retained.append(peripheral)
+  return peripheral
+}
+
+/// Carries the discovery-phase continuation across the actor boundary and records
+/// how the state machine ultimately resumed it (or that it was left suspended).
+private final class WatchdogContinuationBox: @unchecked Sendable {
+  var continuation: CheckedContinuation<Void, Error>?
+  var outcome: Result<Void, Error>?
+  var isResumed: Bool {
+    outcome != nil
+  }
+}
+
+/// Actor-isolated test seams that install the exact state
+/// `armServiceDiscoveryTimeout` would produce, then drive the real handler.
+extension BLEStateMachine {
+  func injectTestCentralManager() {
+    centralManager = CBCentralManager(delegate: nil, queue: nil)
+  }
+
+  fileprivate func primeDiscoveringServices(peripheral: CBPeripheral, box: WatchdogContinuationBox, extensionsUsed: Int) {
+    guard let continuation = box.continuation else { return }
+    phase = .discoveringServices(peripheral: peripheral, continuation: continuation)
+    phaseStartTime = Date()
+    discoveryTimeoutExtensions = extensionsUsed
+    serviceDiscoveryTimeoutTask = Task {}
+  }
+
+  func fireServiceDiscoveryTimeout(for peripheral: CBPeripheral) {
+    handleServiceDiscoveryTimeout(for: peripheral)
+  }
+
+  func cancelServiceDiscoveryTimeoutForTesting() {
+    serviceDiscoveryTimeoutTask?.cancel()
+    serviceDiscoveryTimeoutTask = nil
+  }
+}
+
+@Suite("BLEStateMachine service-discovery watchdog")
+struct BLEStateMachineDiscoveryWatchdogTests {
+  /// Spins up a suspended `CheckedContinuation` and returns a box holding it plus the
+  /// task awaiting it, so the discovery phase can own a live continuation without the
+  /// test blocking on it.
+  private func suspendedContinuation() async -> (WatchdogContinuationBox, Task<Void, Never>) {
+    let box = WatchdogContinuationBox()
+    let driver = Task {
+      do {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+          box.continuation = continuation
+        }
+        box.outcome = .success(())
+      } catch {
+        box.outcome = .failure(error)
+      }
+    }
+    while box.continuation == nil {
+      await Task.yield()
+    }
+    return (box, driver)
+  }
+
+  private func isConnectionTimeout(_ outcome: Result<Void, Error>?) -> Bool {
+    guard case let .failure(error) = outcome,
+          let bleError = error as? BLEError,
+          case .connectionTimeout = bleError else { return false }
+    return true
+  }
+
+  /// Polls until the discovery continuation is resumed or the window elapses, so a
+  /// re-arm that never fired fails the assertion instead of suspending the test.
+  private func awaitResumed(_ box: WatchdogContinuationBox, within timeout: TimeInterval) async -> Bool {
+    let deadline = Date().addingTimeInterval(timeout)
+    while !box.isResumed {
+      if Date() > deadline { return false }
+      try? await Task.sleep(for: .milliseconds(5))
+    }
+    return true
+  }
+
+  @Test
+  func `connected peripheral mid-discovery extends the window instead of tearing down`() async {
+    let sm = BLEStateMachine(serviceDiscoveryTimeout: watchdogNonFiringTimeout)
+    await sm.injectTestCentralManager()
+    let peripheral = makeLeakedPeripheral(ConnectedTestPeripheral.self)
+    let (box, driver) = await suspendedContinuation()
+
+    await sm.primeDiscoveringServices(peripheral: peripheral, box: box, extensionsUsed: 0)
+    await sm.fireServiceDiscoveryTimeout(for: peripheral)
+
+    // The live link survives: the phase stays in discovery, the extension budget
+    // is consumed, and the discovery continuation is not failed.
+    let phaseName = await sm.currentPhase.name
+    #expect(phaseName == "discoveringServices")
+    #expect(await sm.currentDiscoveryTimeoutExtensions == 1)
+    #expect(!box.isResumed)
+
+    // Release the still-suspended continuation and the re-armed watchdog. The
+    // phase distinguishes the branch taken, so the continuation is resumed
+    // exactly once: the extend branch leaves it suspended here, while a
+    // teardown branch already resumed it.
+    if phaseName == "discoveringServices" {
+      box.continuation?.resume()
+    }
+    await driver.value
+    await sm.cancelServiceDiscoveryTimeoutForTesting()
+  }
+
+  @Test
+  func `connected peripheral tears down once the discovery-extension budget is spent`() async {
+    let sm = BLEStateMachine(serviceDiscoveryTimeout: watchdogNonFiringTimeout)
+    await sm.injectTestCentralManager()
+    let peripheral = makeLeakedPeripheral(ConnectedTestPeripheral.self)
+    let (box, driver) = await suspendedContinuation()
+
+    await sm.primeDiscoveringServices(
+      peripheral: peripheral,
+      box: box,
+      extensionsUsed: BLEStateMachine.maxDiscoveryTimeoutExtensions
+    )
+    await sm.fireServiceDiscoveryTimeout(for: peripheral)
+    await driver.value
+
+    #expect(await sm.currentPhase.name == "idle")
+    #expect(await sm.currentDiscoveryTimeoutExtensions == BLEStateMachine.maxDiscoveryTimeoutExtensions)
+    #expect(isConnectionTimeout(box.outcome))
+  }
+
+  /// The extend branch must re-arm the watchdog, not merely consume a budget unit.
+  /// The manual fire spends the final extension, so the re-armed watchdog is the only
+  /// thing that can fire again; when it does, the spent budget forces a teardown.
+  /// Dropping the re-arm leaves the continuation suspended, caught here as a missed teardown.
+  @Test
+  func `extending re-arms the watchdog so a later timeout still tears the link down`() async {
+    let sm = BLEStateMachine(serviceDiscoveryTimeout: watchdogReArmFiringTimeout)
+    await sm.injectTestCentralManager()
+    let peripheral = makeLeakedPeripheral(ConnectedTestPeripheral.self)
+    let (box, driver) = await suspendedContinuation()
+
+    await sm.primeDiscoveringServices(
+      peripheral: peripheral,
+      box: box,
+      extensionsUsed: BLEStateMachine.maxDiscoveryTimeoutExtensions - 1
+    )
+    await sm.fireServiceDiscoveryTimeout(for: peripheral)
+
+    let tornDown = await awaitResumed(box, within: watchdogReArmObservationWindow)
+    #expect(tornDown, "Extending must re-arm the watchdog; without the re-arm the link keeps a spent budget and no live timeout")
+
+    if tornDown {
+      #expect(await sm.currentPhase.name == "idle")
+      #expect(await sm.currentDiscoveryTimeoutExtensions == BLEStateMachine.maxDiscoveryTimeoutExtensions)
+      #expect(isConnectionTimeout(box.outcome))
+    } else {
+      // Release the still-suspended continuation so the driver task can finish.
+      box.continuation?.resume()
+    }
+    await driver.value
+    await sm.cancelServiceDiscoveryTimeoutForTesting()
+  }
+
+  @Test
+  func `disconnected peripheral tears down instead of extending`() async {
+    let sm = BLEStateMachine(serviceDiscoveryTimeout: watchdogNonFiringTimeout)
+    await sm.injectTestCentralManager()
+    let peripheral = makeLeakedPeripheral(DisconnectedTestPeripheral.self)
+    let (box, driver) = await suspendedContinuation()
+
+    await sm.primeDiscoveringServices(peripheral: peripheral, box: box, extensionsUsed: 0)
+    await sm.fireServiceDiscoveryTimeout(for: peripheral)
+    await driver.value
+
+    #expect(await sm.currentPhase.name == "idle")
+    #expect(await sm.currentDiscoveryTimeoutExtensions == 0)
+    #expect(isConnectionTimeout(box.outcome))
   }
 }

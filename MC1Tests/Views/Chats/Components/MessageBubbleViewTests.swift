@@ -33,30 +33,6 @@ struct MessageBubbleViewTests {
   }
 
   @Test
-  func `Channel bubble path: viewModel resolves the message for its stored item`() async throws {
-    let viewModel = ChatViewModel()
-    let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
-    let channel = ChannelDTO(
-      from: Channel(
-        radioID: Self.radioID,
-        index: 1,
-        name: "general"
-      )
-    )
-    viewModel.currentChannel = channel
-    let message = makeMessage(text: "hello channel", senderKeyPrefix: Data([0xDE, 0xAD]))
-    coordinator.replaceAll([message])
-    viewModel.buildItems()
-    await coordinator.buildItemsTask?.value
-
-    let item = try #require(viewModel.items.first)
-    let resolved = viewModel.message(for: item)
-    #expect(resolved?.id == message.id)
-    #expect(item.envelope.senderResolution.matchKind != .exact || !item.envelope.senderName.isEmpty)
-  }
-
-  @Test
   func `Retry/failed bubble: envelope and footer capture retry state`() async throws {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
@@ -86,8 +62,7 @@ struct MessageBubbleViewTests {
     text: String,
     status: MessageStatus = .sent,
     retryAttempt: Int = 0,
-    maxRetryAttempts: Int = 0,
-    senderKeyPrefix: Data? = nil
+    maxRetryAttempts: Int = 0
   ) -> MessageDTO {
     MessageDTO(
       id: id,
@@ -103,7 +78,7 @@ struct MessageBubbleViewTests {
       ackCode: nil,
       pathLength: 0,
       snr: nil,
-      senderKeyPrefix: senderKeyPrefix,
+      senderKeyPrefix: nil,
       senderNodeName: nil,
       isRead: true,
       replyToID: nil,

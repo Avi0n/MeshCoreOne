@@ -3,15 +3,6 @@ import Foundation
 import MeshCore
 import Testing
 
-// MARK: - Helpers
-
-@MainActor
-private func makeServicesAndHandler() async throws -> (ServiceContainer, NotificationActionHandler) {
-  let session = MeshCoreSession(transport: SimulatorMockTransport())
-  let services = try await ServiceContainer.forTesting(session: session)
-  return (services, services.notificationActionHandler)
-}
-
 @Suite("NotificationActionHandler Tests")
 struct NotificationActionHandlerTests {
   /// Minimal provider for channel-name fallback selection tests.
@@ -87,68 +78,6 @@ struct NotificationActionHandlerTests {
     let handler = try await makeHandler()
     handler.configure(isConnectionReady: { true }, localNodeName: { nil })
     #expect(handler.isConfigured == true)
-  }
-
-  @Test
-  @MainActor
-  func `Reaction notification before configure completes without posting`() async throws {
-    let (services, handler) = try await makeServicesAndHandler()
-    #expect(handler.isConfigured == false)
-
-    let radioID = UUID()
-    let contactID = UUID()
-    let messageID = UUID()
-    let message = MessageDTO(
-      id: messageID, radioID: radioID, contactID: contactID,
-      channelIndex: nil, text: "Hello", timestamp: 1000,
-      createdAt: Date(), direction: .outgoing, status: .sent,
-      textType: .plain, ackCode: nil, pathLength: 0, snr: nil,
-      senderKeyPrefix: nil, senderNodeName: "Alice",
-      isRead: true, replyToID: nil, roundTripTime: nil,
-      heardRepeats: 0, retryAttempt: 0, maxRetryAttempts: 3
-    )
-    try await services.dataStore.saveMessage(message)
-    let reaction = ReactionDTO(
-      messageID: messageID, emoji: "👍", senderName: "Bob",
-      messageHash: "hash", rawText: "raw", contactID: contactID, radioID: radioID
-    )
-    try await services.dataStore.saveReaction(reaction)
-
-    // Should return early before reaching the notification post path
-    await handler.handleReactionNotification(messageID: messageID)
-    // Reaching here confirms no crash and no spurious self-notification
-  }
-
-  @Test
-  @MainActor
-  func `Reaction notification after configure is self-suppressed when names match`() async throws {
-    let (services, handler) = try await makeServicesAndHandler()
-    let selfName = "Alice"
-    handler.configure(isConnectionReady: { true }, localNodeName: { selfName })
-    #expect(handler.isConfigured == true)
-
-    let radioID = UUID()
-    let contactID = UUID()
-    let messageID = UUID()
-    let message = MessageDTO(
-      id: messageID, radioID: radioID, contactID: contactID,
-      channelIndex: nil, text: "Hello", timestamp: 1000,
-      createdAt: Date(), direction: .outgoing, status: .sent,
-      textType: .plain, ackCode: nil, pathLength: 0, snr: nil,
-      senderKeyPrefix: nil, senderNodeName: selfName,
-      isRead: true, replyToID: nil, roundTripTime: nil,
-      heardRepeats: 0, retryAttempt: 0, maxRetryAttempts: 3
-    )
-    try await services.dataStore.saveMessage(message)
-    let reaction = ReactionDTO(
-      messageID: messageID, emoji: "👍", senderName: selfName,
-      messageHash: "hash", rawText: "raw", contactID: contactID, radioID: radioID
-    )
-    try await services.dataStore.saveReaction(reaction)
-
-    // Self-reaction: should be suppressed (senderName == localNodeName)
-    await handler.handleReactionNotification(messageID: messageID)
-    // Completing without posting confirms self-suppression works after configure
   }
 
   // MARK: - Reaction Preview Truncation

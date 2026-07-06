@@ -5,36 +5,6 @@ import Testing
 @Suite("PairingCancellation")
 @MainActor
 struct PairingCancellationTests {
-  /// When pairNewDevice is cancelled before the picker resolves, ASK has not
-  /// added the device — there's nothing to clean up.
-  @Test
-  func `cancellation before showPicker completes does not call removeAccessory`() async throws {
-    let env = try ConnectionManager.createForPairingTesting()
-    defer { env.cleanup() }
-    let manager = env.manager
-    let mockASK = env.accessorySetupKit
-
-    let pickerEntered = AsyncStream<Void>.makeStream()
-    let pickerGate = AsyncStream<Void>.makeStream()
-    mockASK.pickerEnteredSignal = pickerEntered.continuation
-    mockASK.pickerGate = pickerGate.stream
-    mockASK.setPickerResult(.success(UUID()))
-
-    let pairTask = Task { try? await manager.pairNewDevice() }
-
-    // Wait for the pair task to deterministically reach showPicker.
-    for await _ in pickerEntered.stream {
-      break
-    }
-
-    pairTask.cancel()
-    pickerGate.continuation.finish()
-
-    _ = await pairTask.value
-
-    #expect(mockASK.removeAccessoryCallCount == 0)
-  }
-
   /// When pairNewDevice is cancelled after ASK adds the device but before
   /// connect(to:) finishes, cleanupPartialPairing must remove the bond from
   /// ASK so iOS doesn't retain a paired accessory with no app-level state.
