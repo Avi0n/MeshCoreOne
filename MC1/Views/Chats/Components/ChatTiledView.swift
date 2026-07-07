@@ -60,6 +60,7 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
       scrollPosition.autoScrollsToBottomOnAppend = atBottom
     }
     .background(contentBackground ?? .clear)
+    .background(CollectionViewIntrospector { $0.keyboardDismissMode = .interactive })
     .id(appearanceIdentity)
     .onChange(of: scrollToBottomRequest) { scrollPosition.scrollTo(edge: .bottom) }
     .onChange(of: scrollToTargetRequest) {
