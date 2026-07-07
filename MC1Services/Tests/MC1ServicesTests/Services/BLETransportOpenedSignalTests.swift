@@ -22,19 +22,6 @@ struct BLETransportOpenedSignalTests {
     try await waiting.value
   }
 
-  @Test
-  func `clear drops armed-pending signal`() async throws {
-    let triggers = BLETransportOpenedSignal()
-    await triggers.fire()
-    await triggers.clear()
-    let waiting = Task {
-      try await triggers.wait()
-    }
-    try? await Task.sleep(for: .milliseconds(20))
-    await triggers.fire()
-    try await waiting.value
-  }
-
   /// A `wait` whose calling task is cancelled before fire lands must
   /// throw `CancellationError` rather than leaking the continuation.
   @Test

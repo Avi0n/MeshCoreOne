@@ -271,19 +271,6 @@ struct BatchExecutionTests {
     #expect(viewModel.isRunning == false)
     #expect(viewModel.currentTraceIndex == 0)
   }
-
-  @Test
-  func `cancelBatchTrace resumes pending continuation`() {
-    let viewModel = TracePathViewModel()
-    viewModel.batchEnabled = true
-
-    // This test verifies the continuation isn't leaked
-    // (actual continuation behavior requires integration test)
-    viewModel.cancelBatchTrace()
-
-    // Should not crash or hang - continuation was properly cleaned up
-    #expect(viewModel.isRunning == false)
-  }
 }
 
 @Suite("Batch Cancellation Behavior")

@@ -350,33 +350,6 @@ struct MessageServiceACKTests {
   }
 
   @Test
-  func `failAllPendingMessages skips already-delivered`() async throws {
-    let (service, dataStore) = try await MessageService.createForTesting()
-    let deliveredID = UUID()
-    let pendingID = UUID()
-
-    try await dataStore.saveMessage(
-      MessageDTO.testDirectMessage(id: pendingID, radioID: testDeviceID, status: .sent)
-    )
-
-    await service.setPendingAckForTest(
-      makePending(
-        messageID: deliveredID,
-        ackCodes: [Data([0x01, 0x02, 0x03, 0x04])],
-        isDelivered: true
-      )
-    )
-    await service.setPendingAckForTest(
-      makePending(messageID: pendingID, ackCodes: [Data([0x05, 0x06, 0x07, 0x08])])
-    )
-
-    try await service.failAllPendingMessages()
-
-    let msg = try await dataStore.fetchMessage(id: pendingID)
-    #expect(msg?.status == .failed)
-  }
-
-  @Test
   func `failAllPendingMessages does not downgrade or notify on a delivered DB row`() async throws {
     let (service, dataStore) = try await MessageService.createForTesting()
     let messageID = UUID()

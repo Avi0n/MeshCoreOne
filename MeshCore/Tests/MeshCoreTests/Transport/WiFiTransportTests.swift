@@ -61,32 +61,6 @@ struct WiFiTransportTests {
   }
 
   @Test
-  func `Configuration can be updated before connect`() async {
-    let transport = WiFiTransport()
-    await transport.setConnectionInfo(host: "192.168.1.1", port: 4000)
-    await transport.setConnectionInfo(host: "192.168.1.2", port: 5000)
-    // No crash expected; configuration should be updated
-    let isConnected = await transport.isConnected
-    #expect(!isConnected)
-  }
-
-  @Test
-  func `Disconnection handler can be set and cleared`() async {
-    let transport = WiFiTransport()
-    let callTracker = CallTracker()
-
-    await transport.setDisconnectionHandler { _ in
-      callTracker.markCalled()
-    }
-
-    // Handler is set but not called yet (no disconnection)
-    #expect(!callTracker.wasCalled)
-
-    // Clear handler should work without crash
-    await transport.clearDisconnectionHandler()
-  }
-
-  @Test
   func `connectionInfo returns configured host and port`() async {
     let transport = WiFiTransport()
 

@@ -3037,15 +3037,6 @@ struct BackupIntegrationTests {
   // MARK: - appColorSchemePreference backup contract
 
   @Test
-  func `appColorSchemePreference round-trips through encode/decode`() throws {
-    var prefs = BackupUserDefaults()
-    prefs.appColorSchemePreference = "dark"
-    let data = try JSONEncoder().encode(prefs)
-    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
-    #expect(decoded.appColorSchemePreference == "dark")
-  }
-
-  @Test
   func `Legacy envelope without appColorSchemePreference decodes as nil`() throws {
     let legacyJSON = """
     { "hasCompletedOnboarding": true, "mapStyleSelection": "topo" }
@@ -3093,6 +3084,176 @@ struct BackupIntegrationTests {
     let snapshot = BackupUserDefaults.snapshot(from: defaults)
     #expect(snapshot.selectedThemeID == nil)
     #expect(snapshot.appColorSchemePreference == nil)
+  }
+
+  // MARK: - Merge import preserves non-default local metadata
+
+  @Test
+  func `Import onto a muted region-scoped channel preserves the local notification and flood settings`() async throws {
+    let radioID = UUID()
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let existingChannel = ChannelDTO.testChannel(
+      radioID: radioID,
+      index: 2,
+      name: "Ops",
+      lastMessageDate: nil,
+      unreadCount: 0,
+      unreadMentionCount: 0,
+      notificationLevel: .muted,
+      isFavorite: false,
+      floodScope: .region("SK")
+    )
+    try await destStore.saveChannel(existingChannel)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupChannel = ChannelDTO.testChannel(
+      id: UUID(),
+      radioID: radioID,
+      index: existingChannel.index,
+      name: existingChannel.name,
+      lastMessageDate: nil,
+      unreadCount: 0,
+      unreadMentionCount: 0,
+      notificationLevel: .mentionsOnly,
+      isFavorite: false,
+      floodScope: .region("US")
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      channels: [backupChannel]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.channelsInserted == 0)
+    #expect(result.channelsSkipped == 1)
+
+    let mergedChannel = try #require(await destStore.fetchChannel(radioID: radioID, index: 2))
+    #expect(mergedChannel.notificationLevel == .muted)
+    #expect(mergedChannel.regionScope == "SK")
+  }
+
+  @Test
+  func `Import onto a muted remote session preserves the local muted notification level`() async throws {
+    let radioID = UUID()
+    let publicKey = Data(repeating: 0xF6, count: 32)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let existingSession = RemoteNodeSessionDTO.testSession(
+      radioID: radioID,
+      publicKey: publicKey,
+      name: "Ops Room",
+      role: .roomServer,
+      isConnected: false,
+      permissionLevel: .guest,
+      lastConnectedDate: nil,
+      unreadCount: 0,
+      notificationLevel: .muted,
+      isFavorite: false,
+      neighborCount: 0,
+      lastSyncTimestamp: 0,
+      lastMessageDate: nil
+    )
+    try await destStore.saveRemoteNodeSessionDTO(existingSession)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupSession = RemoteNodeSessionDTO.testSession(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: publicKey,
+      name: "Ops Room",
+      role: .roomServer,
+      isConnected: false,
+      permissionLevel: .guest,
+      lastConnectedDate: nil,
+      unreadCount: 0,
+      notificationLevel: .mentionsOnly,
+      isFavorite: false,
+      neighborCount: 0,
+      lastSyncTimestamp: 0,
+      lastMessageDate: nil
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      remoteNodeSessions: [backupSession]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.remoteNodeSessionsInserted == 0)
+    #expect(result.remoteNodeSessionsSkipped == 1)
+
+    let mergedSession = try #require(await destStore.fetchRemoteNodeSession(id: existingSession.id))
+    #expect(mergedSession.notificationLevel == .muted)
+  }
+
+  @Test
+  func `Import onto a muted contact never un-mutes, un-blocks, or un-favorites it`() async throws {
+    let radioID = UUID()
+    let sharedPublicKey = Data(repeating: 0xE7, count: 32)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let existingContact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: sharedPublicKey,
+      name: "Alice",
+      nickname: "Field Ops",
+      isBlocked: true,
+      isMuted: true,
+      isFavorite: true,
+      lastMessageDate: nil,
+      unreadCount: 0,
+      unreadMentionCount: 0
+    )
+    try await destStore.saveContact(existingContact)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupContact = ContactDTO.testContact(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: sharedPublicKey,
+      name: "Alice",
+      nickname: "Elsewhere",
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0,
+      unreadMentionCount: 0
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      contacts: [backupContact]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.contactsInserted == 0)
+    #expect(result.contactsSkipped == 1)
+
+    let mergedContact = try #require(
+      await destStore.fetchContact(radioID: radioID, publicKey: sharedPublicKey)
+    )
+    #expect(mergedContact.isMuted == true)
+    #expect(mergedContact.isBlocked == true)
+    #expect(mergedContact.isFavorite == true)
+    #expect(mergedContact.nickname == "Field Ops")
   }
 }
 

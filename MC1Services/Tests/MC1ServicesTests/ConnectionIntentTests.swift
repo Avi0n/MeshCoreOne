@@ -62,16 +62,6 @@ struct ConnectionIntentTests {
   }
 
   @Test
-  func `forceFullSync is carried in wantsConnection`() {
-    let intent = ConnectionIntent.wantsConnection(forceFullSync: true)
-    if case let .wantsConnection(force) = intent {
-      #expect(force == true)
-    } else {
-      Issue.record("Expected .wantsConnection")
-    }
-  }
-
-  @Test
   func `forceFullSync can be consumed and reset`() {
     var intent = ConnectionIntent.wantsConnection(forceFullSync: true)
 

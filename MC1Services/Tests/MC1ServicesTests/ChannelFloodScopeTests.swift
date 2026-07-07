@@ -119,6 +119,27 @@ struct ChannelFloodScopeTests {
   }
 
   @Test
+  func `Legacy envelope omitting notificationLevel key decodes as .all`() throws {
+    let json = try legacyJSONOmitting("notificationLevel")
+    let decoded = try JSONDecoder().decode(ChannelDTO.self, from: json)
+    #expect(decoded.notificationLevel == .all)
+  }
+
+  @Test
+  func `Legacy envelope omitting unreadMentionCount key decodes as 0`() throws {
+    let json = try legacyJSONOmitting("unreadMentionCount")
+    let decoded = try JSONDecoder().decode(ChannelDTO.self, from: json)
+    #expect(decoded.unreadMentionCount == 0)
+  }
+
+  @Test
+  func `Legacy envelope omitting isFavorite key decodes as false`() throws {
+    let json = try legacyJSONOmitting("isFavorite")
+    let decoded = try JSONDecoder().decode(ChannelDTO.self, from: json)
+    #expect(decoded.isFavorite == false)
+  }
+
+  @Test
   func `setChannelFloodScope updates existing channel atomically`() async throws {
     let store = try await createTestStore()
     let radioID = UUID()
@@ -167,5 +188,27 @@ struct ChannelFloodScopeTests {
       "regionScope": \(region)
     }
     """
+  }
+
+  /// A backup predating a given field: encode a real DTO, then drop one key so the
+  /// JSON otherwise matches the current wire format exactly. Proves the decoder's
+  /// missing-key fallback survives an old envelope instead of throwing.
+  private func legacyJSONOmitting(_ key: String) throws -> Data {
+    // Non-fallback source values so a passing decode proves the fallback fired
+    // rather than echoing the encoded value.
+    let dto = ChannelDTO.testChannel(
+      radioID: UUID(),
+      unreadMentionCount: 5,
+      notificationLevel: .muted,
+      isFavorite: true
+    )
+    let encoded = try JSONEncoder().encode(dto)
+    guard var object = try JSONSerialization.jsonObject(with: encoded) as? [String: Any] else {
+      throw DecodingError.dataCorrupted(
+        .init(codingPath: [], debugDescription: "encoded ChannelDTO was not a JSON object")
+      )
+    }
+    object.removeValue(forKey: key)
+    return try JSONSerialization.data(withJSONObject: object)
   }
 }

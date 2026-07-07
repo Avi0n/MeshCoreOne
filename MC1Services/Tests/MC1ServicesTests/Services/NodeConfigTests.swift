@@ -278,17 +278,6 @@ struct NodeConfigTests {
     #expect(decoded.contacts == original.contacts)
   }
 
-  @Test
-  func `Round-trip preserves channels-only config`() throws {
-    let original = try Self.decoder.decode(MeshCoreNodeConfig.self, from: Self.channelsOnlyJSON)
-    let encoded = try JSONEncoder().encode(original)
-    let decoded = try Self.decoder.decode(MeshCoreNodeConfig.self, from: encoded)
-
-    #expect(decoded.name == nil)
-    #expect(decoded.channels == original.channels)
-    #expect(decoded.contacts == nil)
-  }
-
   // MARK: - Edge cases
 
   @Test

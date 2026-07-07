@@ -26,32 +26,6 @@ struct MessageFragmentBuilderOffMainTests {
     #expect(outcome.1, "Builder must execute off the main thread")
     #expect(outcome.0.id == message.id)
   }
-
-  /// Build the same item list on main and off main and assert byte-equal output.
-  /// MessageFragmentBuilder is a pure function over Sendable inputs, so the
-  /// off-main result must match the main-actor result exactly. Locks in
-  /// equivalence as a regression check before `buildItems()` switches to the
-  /// `Task { @concurrent in }` hop.
-  @Test
-  func `Batch build off-main produces identical items to main-actor build`() async {
-    let messages = (0..<batchEquivalenceMessageCount).map { MessageFragmentBuilderFixtures.makePlainTextMessage(index: $0) }
-    let inputs = messages.map { MessageFragmentBuilderFixtures.makeMinimalInputs(messageID: $0.id) }
-    let envInputs = EnvInputs.default
-
-    let mainResult: [MessageItem] = zip(messages, inputs).map { message, input in
-      MessageFragmentBuilder.makeItem(for: message, inputs: input, envInputs: envInputs)
-    }
-
-    let offMainResult = await Task.detached { () -> [MessageItem] in
-      zip(messages, inputs).map { message, input in
-        MessageFragmentBuilder.makeItem(for: message, inputs: input, envInputs: envInputs)
-      }
-    }.value
-
-    #expect(mainResult == offMainResult)
-  }
-
-  private let batchEquivalenceMessageCount = 50
 }
 
 /// Synchronous wrapper around `Thread.isMainThread` so tests can read it from

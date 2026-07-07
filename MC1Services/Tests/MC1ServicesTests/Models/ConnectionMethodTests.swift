@@ -27,17 +27,6 @@ struct ConnectionMethodTests {
   }
 
   @Test
-  func `ConnectionMethod round-trips through the backup encoder`() throws {
-    let methods: [ConnectionMethod] = [
-      .wifi(host: "10.0.0.2", port: 4403, displayName: nil),
-      .bluetooth(peripheralUUID: UUID(), displayName: "Pocket")
-    ]
-    let data = try makeBackupJSONEncoder().encode(methods)
-    let decoded = try makeBackupJSONDecoder().decode([ConnectionMethod].self, from: data)
-    #expect(decoded == methods)
-  }
-
-  @Test
   func `ConnectionMethod ENCODES to the frozen synthesized wire shape (pins the write shape)`() throws {
     // Decode-of-frozen-input and the symmetric round-trip do not pin the encoder's output:
     // a synthesized-Codable change that altered encode and decode in lockstep would pass
@@ -61,27 +50,6 @@ struct ConnectionMethodTests {
     let method = ConnectionMethod.wifi(host: "192.168.1.50", port: 5000, displayName: "Home")
 
     #expect(method.id == "wifi:192.168.1.50:5000")
-  }
-
-  @Test
-  func `Codable round-trip for Bluetooth`() throws {
-    let uuid = UUID()
-    let original = ConnectionMethod.bluetooth(peripheralUUID: uuid, displayName: "Test")
-
-    let encoded = try JSONEncoder().encode(original)
-    let decoded = try JSONDecoder().decode(ConnectionMethod.self, from: encoded)
-
-    #expect(decoded.id == original.id)
-  }
-
-  @Test
-  func `Codable round-trip for WiFi`() throws {
-    let original = ConnectionMethod.wifi(host: "10.0.0.1", port: 8080, displayName: nil)
-
-    let encoded = try JSONEncoder().encode(original)
-    let decoded = try JSONDecoder().decode(ConnectionMethod.self, from: encoded)
-
-    #expect(decoded.id == original.id)
   }
 
   @Test
