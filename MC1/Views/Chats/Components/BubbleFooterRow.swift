@@ -145,27 +145,17 @@ private struct BubbleHopCountFooter: View {
   }
 }
 
-/// Path chip that shows the comma-separated hop IDs on a single line, capped at four nodes. A
-/// longer path collapses to the first two and last two hops joined by an ellipsis, so the endpoints
-/// always stay visible. A fixed cap (rather than a width-measuring `ViewThatFits`) keeps this off
-/// the per-cell layout path, which measured every candidate and hitched slightly during scroll.
+/// Path chip that shows the hop IDs on a single line. `MessagePathFormatter` already middle-truncated
+/// the string to four nodes, so this renders it verbatim — no width-measuring `ViewThatFits`, which
+/// had hitched the per-cell layout during scroll. The accessibility label reads the same string, so
+/// VoiceOver matches what's on screen.
 private struct BubblePathFooter: View {
   let formattedPath: String
-
-  /// The hop IDs, middle-truncated to at most four nodes (two head, two tail).
-  private var displayPath: String {
-    let nodes = formattedPath.split(separator: ",", omittingEmptySubsequences: false).map(String.init)
-    guard nodes.count > 4 else { return formattedPath }
-
-    let head = nodes.prefix(2).joined(separator: ",")
-    let tail = nodes.suffix(2).joined(separator: ",")
-    return "\(head)…\(tail)"
-  }
 
   var body: some View {
     HStack(spacing: 2) {
       Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
-      Text(displayPath).lineLimit(1)
+      Text(formattedPath).lineLimit(1)
     }
     .font(.caption2.monospaced())
     .foregroundStyle(.secondary)

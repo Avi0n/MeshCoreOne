@@ -92,6 +92,20 @@ struct MessagePathFormatterTests {
     #expect(MessagePathFormatter.format(message) == "010203,040506")
   }
 
+  // MARK: - Truncation Tests
+
+  @Test
+  func `Four-node path is shown in full (at the cap)`() {
+    let message = createMessage(pathLength: 4, pathNodes: Data([0xA3, 0x7F, 0x42, 0xB2]))
+    #expect(MessagePathFormatter.format(message) == "A3,7F,42,B2")
+  }
+
+  @Test
+  func `Path longer than four nodes collapses the middle to a tight ellipsis`() {
+    let message = createMessage(pathLength: 6, pathNodes: Data([0xA3, 0x7F, 0x42, 0xB2, 0xC1, 0xD0]))
+    #expect(MessagePathFormatter.format(message) == "A3,7F…C1,D0")
+  }
+
   // MARK: - Helper
 
   private func createMessage(pathLength: UInt8, pathNodes: Data?) -> MessageDTO {
