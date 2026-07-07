@@ -6,10 +6,11 @@ import SwiftUI
 /// data are skipped. Hosts supply `chartContainer` to wrap each chart in their own row
 /// chrome (a themed `Section` in the drill-down list, a bare row inside the overview's
 /// disclosure group).
-struct RadioMetricCharts<ChartContainer: View>: View {
+struct RadioMetricCharts<ChartContainer: View, PacketSection: View>: View {
   let snapshots: [NodeStatusSnapshotDTO]
   let ocvArray: [Int]
   @ViewBuilder let chartContainer: (MetricChartView) -> ChartContainer
+  @ViewBuilder let packetSection: (PacketChartsGroup) -> PacketSection
 
   var body: some View {
     let batteryPoints = snapshots.compactMap { s in
@@ -44,39 +45,46 @@ struct RadioMetricCharts<ChartContainer: View>: View {
       }
     )
 
-    let packetsSentPoints = snapshots.compactMap { s in
-      s.packetsSent.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
-    }
-    let packetsReceivedPoints = snapshots.compactMap { s in
-      s.packetsReceived.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
-    }
-    let receiveErrorPoints = snapshots.compactMap { s in
-      s.receiveErrors.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
-    }
+    let sentDirectPoints = packets(for: \.sentDirect)
+    let sentFloodPoints = packets(for: \.sentFlood)
+    let receivedDirectPoints = packets(for: \.receivedDirect)
+    let receivedFloodPoints = packets(for: \.receivedFlood)
+    let directDuplicatePoints = packets(for: \.directDuplicates)
+    let floodDuplicatePoints = packets(for: \.floodDuplicates)
+    let receiveErrorPoints = packets(for: \.receiveErrors)
     let postsReceivedPoints = snapshots.compactMap { s in
       s.postedCount.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
     }
     let postsPushedPoints = snapshots.compactMap { s in
       s.postPushCount.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
     }
-    let packetDomain = [MetricChartView.DataPoint].sharedDomain(for: [
-      packetsSentPoints, packetsReceivedPoints, receiveErrorPoints
-    ])
 
-    chart(
-      title: L10n.RemoteNodes.RemoteNodes.History.packetsSent, unit: "", color: .green,
-      dataPoints: packetsSentPoints, yAxisDomain: packetDomain
-    )
+    // Sent, Received and Duplicates overlay Direct/Flood on a shared scale; Errors is
+    // single-series on its own auto range. The Packets header supplies the shared noun so
+    // the leaves stay short. Empty charts drop out, and the whole group is skipped if none
+    // carry data.
+    let packetCharts: [MetricChartView] = [
+      overlaySeriesChart(
+        title: L10n.RemoteNodes.RemoteNodes.History.packetsSent,
+        direct: sentDirectPoints, flood: sentFloodPoints
+      ),
+      overlaySeriesChart(
+        title: L10n.RemoteNodes.RemoteNodes.History.packetsReceived,
+        direct: receivedDirectPoints, flood: receivedFloodPoints
+      ),
+      overlaySeriesChart(
+        title: L10n.RemoteNodes.RemoteNodes.History.duplicates,
+        direct: directDuplicatePoints, flood: floodDuplicatePoints
+      ),
+      receiveErrorPoints.isEmpty ? nil : MetricChartView(
+        title: L10n.RemoteNodes.RemoteNodes.History.receiveErrors, unit: "",
+        dataPoints: receiveErrorPoints, accentColor: .red
+      ),
+    ].compactMap(\.self)
 
-    chart(
-      title: L10n.RemoteNodes.RemoteNodes.History.packetsReceived, unit: "", color: .orange,
-      dataPoints: packetsReceivedPoints, yAxisDomain: packetDomain
-    )
-
-    chart(
-      title: L10n.RemoteNodes.RemoteNodes.History.receiveErrors, unit: "", color: .red,
-      dataPoints: receiveErrorPoints, yAxisDomain: packetDomain
-    )
+    if !packetCharts.isEmpty {
+      packetSection(PacketChartsGroup(charts: packetCharts))
+    }
 
     chart(
       title: L10n.RemoteNodes.RemoteNodes.RoomStatus.postsReceived, unit: "", color: .purple,
@@ -87,6 +95,24 @@ struct RadioMetricCharts<ChartContainer: View>: View {
       title: L10n.RemoteNodes.RemoteNodes.RoomStatus.postsPushed, unit: "", color: .cyan,
       dataPoints: postsPushedPoints
     )
+  }
+
+  /// Builds the point array for a cumulative `UInt32?` packet counter across snapshots.
+  private func packets(for keyPath: KeyPath<NodeStatusSnapshotDTO, UInt32?>) -> [MetricChartView.DataPoint] {
+    snapshots.compactMap { s in
+      s[keyPath: keyPath].map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
+    }
+  }
+
+  /// The standard Direct/Flood pair for an overlaid packet chart.
+  private func directFloodSeries(
+    direct: [MetricChartView.DataPoint],
+    flood: [MetricChartView.DataPoint]
+  ) -> [MetricChartView.Series] {
+    [
+      .init(name: L10n.RemoteNodes.RemoteNodes.History.direct, color: .blue, dataPoints: direct),
+      .init(name: L10n.RemoteNodes.RemoteNodes.History.flood, color: .orange, dataPoints: flood),
+    ]
   }
 
   @ViewBuilder
@@ -103,6 +129,33 @@ struct RadioMetricCharts<ChartContainer: View>: View {
           yAxisDomain: yAxisDomain
         )
       )
+    }
+  }
+
+  /// An overlaid Direct/Flood packet chart, or nil when neither series carries data.
+  /// Empty series are dropped; the shared Y-axis domain still spans both so an all-flood
+  /// and an all-direct chart read on the same scale.
+  private func overlaySeriesChart(
+    title: String,
+    direct: [MetricChartView.DataPoint],
+    flood: [MetricChartView.DataPoint]
+  ) -> MetricChartView? {
+    let series = directFloodSeries(direct: direct, flood: flood).filter { !$0.dataPoints.isEmpty }
+    guard !series.isEmpty else { return nil }
+    return MetricChartView(
+      title: title, unit: "", series: series,
+      yAxisDomain: [MetricChartView.DataPoint].sharedDomain(for: [direct, flood])
+    )
+  }
+}
+
+/// The packet-count charts stacked under a host-supplied `Packets` section header.
+struct PacketChartsGroup: View {
+  let charts: [MetricChartView]
+
+  var body: some View {
+    ForEach(Array(charts.enumerated()), id: \.offset) { _, chart in
+      chart
     }
   }
 }

@@ -24,7 +24,13 @@ struct NodeSnapshotServiceTests {
       rxAirtimeSeconds: 100,
       packetsSent: 500,
       packetsReceived: 1000,
-      receiveErrors: nil
+      receiveErrors: nil,
+      sentDirect: nil,
+      sentFlood: nil,
+      receivedDirect: nil,
+      receivedFlood: nil,
+      directDuplicates: nil,
+      floodDuplicates: nil
     )
   }
 
@@ -342,7 +348,13 @@ struct NodeSnapshotServiceTests {
       lastSNR: 9.0, lastRSSI: -84, noiseFloor: -119,
       uptimeSeconds: 7200, rxAirtimeSeconds: 150,
       packetsSent: 600, packetsReceived: 1200,
-      receiveErrors: 3
+      receiveErrors: 3,
+      sentDirect: nil,
+      sentFlood: nil,
+      receivedDirect: nil,
+      receivedFlood: nil,
+      directDuplicates: nil,
+      floodDuplicates: nil
     )
     let statusID = await service.recordSnapshot(nodePublicKey: testPublicKey, status: statusMetrics)
     #expect(statusID == telemetryID, "Status enriches the telemetry-only row, no new snapshot")
@@ -557,5 +569,43 @@ struct NodeSnapshotServiceTests {
 
     let snapshots = await service.fetchSnapshots(for: testPublicKey)
     #expect(snapshots.count == 1, "Atomic record collapses concurrent captures into one row")
+  }
+
+  // MARK: - Status Metrics Mapping
+
+  @Test
+  func `NodeStatusMetrics(status:) maps the six per-type packet counters`() {
+    let status = RemoteNodeStatus(
+      layout: .repeater,
+      publicKeyPrefix: Data(repeating: 0x42, count: 6),
+      battery: 3800,
+      txQueueLength: 1,
+      noiseFloor: -110,
+      lastRSSI: -85,
+      packetsReceived: 2000,
+      packetsSent: 1000,
+      airtime: 500,
+      uptime: 3600,
+      sentFlood: 200,
+      sentDirect: 100,
+      receivedFlood: 400,
+      receivedDirect: 300,
+      fullEvents: 7,
+      lastSNR: 9.0,
+      directDuplicates: 11,
+      floodDuplicates: 22,
+      rxAirtime: 100,
+      receiveErrors: 3
+    )
+
+    let metrics = NodeStatusMetrics(status: status)
+
+    #expect(metrics.sentDirect == 100)
+    #expect(metrics.sentFlood == 200)
+    #expect(metrics.receivedDirect == 300)
+    #expect(metrics.receivedFlood == 400)
+    // Duplicate counters are `Int` on the wire; the metrics conversion clamps to UInt32.
+    #expect(metrics.directDuplicates == 11)
+    #expect(metrics.floodDuplicates == 22)
   }
 }

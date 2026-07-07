@@ -449,14 +449,21 @@
 /* Location: RepeaterStatusView.swift - Noise floor label */
 "remoteNodes.status.noiseFloor" = "Ruisvloer";
 
-/* Location: RepeaterStatusView.swift - Packets sent label */
-"remoteNodes.status.packetsSent" = "Pakketten verzonden";
+/* Location: SharedNodeStatusViews.swift - Section header grouping the packet-count rows */
+"remoteNodes.status.packets" = "Pakketten";
+/* Location: SharedNodeStatusViews.swift - Total sent packets label, under the Packets group header */
+"remoteNodes.status.packetsSent" = "Verzonden";
 
-/* Location: RepeaterStatusView.swift - Packets received label */
-"remoteNodes.status.packetsReceived" = "Pakketten ontvangen";
+/* Location: SharedNodeStatusViews.swift - Total received packets label, under the Packets group header */
+"remoteNodes.status.packetsReceived" = "Ontvangen";
 
-/* Location: RepeaterStatusView.swift - Receive errors label */
-"remoteNodes.status.receiveErrors" = "Pakketfouten ontvangen";
+/* Location: SharedNodeStatusViews.swift - Receive errors label, under the Packets group header */
+"remoteNodes.status.receiveErrors" = "Fouten";
+"remoteNodes.status.sentDirect" = "Verzonden (Direct)";
+"remoteNodes.status.sentFlood" = "Verzonden (Flood)";
+"remoteNodes.status.receivedDirect" = "Ontvangen (Direct)";
+"remoteNodes.status.receivedFlood" = "Ontvangen (Flood)";
+"remoteNodes.status.duplicates" = "Duplicaten";
 
 /* Location: RepeaterStatusView.swift - Neighbors section label */
 "remoteNodes.status.neighbors" = "Buren";
@@ -627,14 +634,19 @@
 /* Location: NodeStatusHistoryView.swift - Neighbor count chart title */
 "remoteNodes.history.neighborCount" = "Aantal buren";
 
-/* Location: NodeStatusHistoryView.swift - Packets sent chart title */
-"remoteNodes.history.packetsSent" = "Pakketten verzonden";
+/* Location: RadioMetricCharts.swift - Sent packets chart title, under the Packets group header */
+"remoteNodes.history.packetsSent" = "Verzonden";
 
-/* Location: NodeStatusHistoryView.swift - Packets received chart title */
-"remoteNodes.history.packetsReceived" = "Pakketten ontvangen";
+/* Location: RadioMetricCharts.swift - Received packets chart title, under the Packets group header */
+"remoteNodes.history.packetsReceived" = "Ontvangen";
 
-/* Location: NodeStatusHistoryView.swift - Receive errors chart title */
-"remoteNodes.history.receiveErrors" = "Pakketfouten ontvangen";
+/* Location: RadioMetricCharts.swift - Receive errors chart title, under the Packets group header */
+"remoteNodes.history.receiveErrors" = "Fouten";
+"remoteNodes.history.direct" = "Direct";
+"remoteNodes.history.flood" = "Flood";
+"remoteNodes.history.duplicates" = "Duplicaten";
+/* Location: RadioMetricCharts.swift - Section header grouping the packet-count charts */
+"remoteNodes.history.packets" = "Pakketten";
 
 /* Location: NeighborHistoryView.swift - Active status */
 "remoteNodes.history.active" = "Actief";

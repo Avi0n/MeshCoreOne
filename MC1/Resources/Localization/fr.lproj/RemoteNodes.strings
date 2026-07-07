@@ -449,14 +449,21 @@
 /* Location: RepeaterStatusView.swift - Noise floor label */
 "remoteNodes.status.noiseFloor" = "Plancher de bruit";
 
-/* Location: RepeaterStatusView.swift - Packets sent label */
-"remoteNodes.status.packetsSent" = "Paquets envoyés";
+/* Location: SharedNodeStatusViews.swift - Section header grouping the packet-count rows */
+"remoteNodes.status.packets" = "Paquets";
+/* Location: SharedNodeStatusViews.swift - Total sent packets label, under the Packets group header */
+"remoteNodes.status.packetsSent" = "Envoyés";
 
-/* Location: RepeaterStatusView.swift - Packets received label */
-"remoteNodes.status.packetsReceived" = "Paquets reçus";
+/* Location: SharedNodeStatusViews.swift - Total received packets label, under the Packets group header */
+"remoteNodes.status.packetsReceived" = "Reçus";
 
-/* Location: RepeaterStatusView.swift - Receive errors label */
-"remoteNodes.status.receiveErrors" = "Erreurs de paquets reçus";
+/* Location: SharedNodeStatusViews.swift - Receive errors label, under the Packets group header */
+"remoteNodes.status.receiveErrors" = "Erreurs";
+"remoteNodes.status.sentDirect" = "Envoyés (Direct)";
+"remoteNodes.status.sentFlood" = "Envoyés (Flood)";
+"remoteNodes.status.receivedDirect" = "Reçus (Direct)";
+"remoteNodes.status.receivedFlood" = "Reçus (Flood)";
+"remoteNodes.status.duplicates" = "Doublons";
 
 /* Location: RepeaterStatusView.swift - Neighbors section label */
 "remoteNodes.status.neighbors" = "Voisins";
@@ -628,13 +635,18 @@
 "remoteNodes.history.neighborCount" = "Nombre de voisins";
 
 /* Location: NodeStatusHistoryView.swift - Packets sent chart title */
-"remoteNodes.history.packetsSent" = "Paquets envoyés";
+"remoteNodes.history.packetsSent" = "Envoyés";
 
 /* Location: NodeStatusHistoryView.swift - Packets received chart title */
-"remoteNodes.history.packetsReceived" = "Paquets reçus";
+"remoteNodes.history.packetsReceived" = "Reçus";
 
 /* Location: NodeStatusHistoryView.swift - Receive errors chart title */
-"remoteNodes.history.receiveErrors" = "Erreurs de paquets reçus";
+"remoteNodes.history.receiveErrors" = "Erreurs";
+"remoteNodes.history.direct" = "Direct";
+"remoteNodes.history.flood" = "Flood";
+"remoteNodes.history.duplicates" = "Doublons";
+/* Location: RadioMetricCharts.swift - Section header grouping the packet-count charts */
+"remoteNodes.history.packets" = "Paquets";
 
 /* Location: NeighborHistoryView.swift - Active status */
 "remoteNodes.history.active" = "Actif";

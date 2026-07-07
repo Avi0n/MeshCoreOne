@@ -449,14 +449,26 @@
 /* Location: RepeaterStatusView.swift - Noise floor label */
 "remoteNodes.status.noiseFloor" = "Noise Floor";
 
-/* Location: RepeaterStatusView.swift - Packets sent label */
-"remoteNodes.status.packetsSent" = "Packets Sent";
+/* Location: SharedNodeStatusViews.swift - Section header grouping the packet-count rows */
+"remoteNodes.status.packets" = "Packets";
+/* Location: SharedNodeStatusViews.swift - Total sent packets label, under the Packets group header */
+"remoteNodes.status.packetsSent" = "Sent";
 
-/* Location: RepeaterStatusView.swift - Packets received label */
-"remoteNodes.status.packetsReceived" = "Packets Received";
+/* Location: SharedNodeStatusViews.swift - Total received packets label, under the Packets group header */
+"remoteNodes.status.packetsReceived" = "Received";
 
-/* Location: RepeaterStatusView.swift - Receive errors label */
-"remoteNodes.status.receiveErrors" = "Packet Errors Received";
+/* Location: SharedNodeStatusViews.swift - Receive errors label, under the Packets group header */
+"remoteNodes.status.receiveErrors" = "Errors";
+/* Location: SharedNodeStatusViews.swift - Sent (direct) packets label */
+"remoteNodes.status.sentDirect" = "Sent (Direct)";
+/* Location: SharedNodeStatusViews.swift - Sent (flood) packets label */
+"remoteNodes.status.sentFlood" = "Sent (Flood)";
+/* Location: SharedNodeStatusViews.swift - Received (direct) packets label */
+"remoteNodes.status.receivedDirect" = "Received (Direct)";
+/* Location: SharedNodeStatusViews.swift - Received (flood) packets label */
+"remoteNodes.status.receivedFlood" = "Received (Flood)";
+/* Location: SharedNodeStatusViews.swift - Duplicate packets label */
+"remoteNodes.status.duplicates" = "Duplicates";
 
 /* Location: RepeaterStatusView.swift - Neighbors section label */
 "remoteNodes.status.neighbors" = "Neighbors";
@@ -656,14 +668,22 @@
 /* Location: NodeStatusHistoryView.swift - Neighbor count chart title */
 "remoteNodes.history.neighborCount" = "Neighbor Count";
 
-/* Location: NodeStatusHistoryView.swift - Packets sent chart title */
-"remoteNodes.history.packetsSent" = "Packets Sent";
+/* Location: RadioMetricCharts.swift - Sent packets chart title, under the Packets group header */
+"remoteNodes.history.packetsSent" = "Sent";
 
-/* Location: NodeStatusHistoryView.swift - Packets received chart title */
-"remoteNodes.history.packetsReceived" = "Packets Received";
+/* Location: RadioMetricCharts.swift - Received packets chart title, under the Packets group header */
+"remoteNodes.history.packetsReceived" = "Received";
 
-/* Location: NodeStatusHistoryView.swift - Receive errors chart title */
-"remoteNodes.history.receiveErrors" = "Packet Errors Received";
+/* Location: RadioMetricCharts.swift - Receive errors chart title, under the Packets group header */
+"remoteNodes.history.receiveErrors" = "Errors";
+/* Location: RadioMetricCharts.swift - Direct packet series legend */
+"remoteNodes.history.direct" = "Direct";
+/* Location: RadioMetricCharts.swift - Flood packet series legend */
+"remoteNodes.history.flood" = "Flood";
+/* Location: RadioMetricCharts.swift - Duplicates chart title, under the Packets group header */
+"remoteNodes.history.duplicates" = "Duplicates";
+/* Location: RadioMetricCharts.swift - Section header grouping the packet-count charts */
+"remoteNodes.history.packets" = "Packets";
 
 /* Location: NeighborHistoryView.swift - Active status */
 "remoteNodes.history.active" = "Active";

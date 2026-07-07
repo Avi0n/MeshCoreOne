@@ -446,14 +446,21 @@
 /* Location: RepeaterStatusView.swift - Noise floor label */
 "remoteNodes.status.noiseFloor" = "Рівень шуму";
 
-/* Location: RepeaterStatusView.swift - Packets sent label */
-"remoteNodes.status.packetsSent" = "Пакетів надіслано";
+/* Location: SharedNodeStatusViews.swift - Section header grouping the packet-count rows */
+"remoteNodes.status.packets" = "Пакети";
+/* Location: SharedNodeStatusViews.swift - Total sent packets label, under the Packets group header */
+"remoteNodes.status.packetsSent" = "Надіслано";
 
-/* Location: RepeaterStatusView.swift - Packets received label */
-"remoteNodes.status.packetsReceived" = "Пакетів отримано";
+/* Location: SharedNodeStatusViews.swift - Total received packets label, under the Packets group header */
+"remoteNodes.status.packetsReceived" = "Отримано";
 
-/* Location: RepeaterStatusView.swift - Receive errors label */
-"remoteNodes.status.receiveErrors" = "Помилок пакетів отримано";
+/* Location: SharedNodeStatusViews.swift - Receive errors label, under the Packets group header */
+"remoteNodes.status.receiveErrors" = "Помилки";
+"remoteNodes.status.sentDirect" = "Надіслано (Прямий)";
+"remoteNodes.status.sentFlood" = "Надіслано (Flood)";
+"remoteNodes.status.receivedDirect" = "Отримано (Прямий)";
+"remoteNodes.status.receivedFlood" = "Отримано (Flood)";
+"remoteNodes.status.duplicates" = "Дублікати";
 
 /* Location: RepeaterStatusView.swift - Neighbors section label */
 "remoteNodes.status.neighbors" = "Сусіди";
@@ -625,13 +632,18 @@
 "remoteNodes.history.neighborCount" = "Кількість сусідів";
 
 /* Location: NodeStatusHistoryView.swift - Packets sent chart title */
-"remoteNodes.history.packetsSent" = "Пакетів надіслано";
+"remoteNodes.history.packetsSent" = "Надіслано";
 
 /* Location: NodeStatusHistoryView.swift - Packets received chart title */
-"remoteNodes.history.packetsReceived" = "Пакетів отримано";
+"remoteNodes.history.packetsReceived" = "Отримано";
 
 /* Location: NodeStatusHistoryView.swift - Receive errors chart title */
-"remoteNodes.history.receiveErrors" = "Помилок пакетів отримано";
+"remoteNodes.history.receiveErrors" = "Помилки";
+"remoteNodes.history.direct" = "Прямий";
+"remoteNodes.history.flood" = "Flood";
+"remoteNodes.history.duplicates" = "Дублікати";
+/* Location: RadioMetricCharts.swift - Section header grouping the packet-count charts */
+"remoteNodes.history.packets" = "Пакети";
 
 /* Location: NeighborHistoryView.swift - Active status */
 "remoteNodes.history.active" = "Активний";

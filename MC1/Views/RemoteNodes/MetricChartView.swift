@@ -2,30 +2,69 @@ import Charts
 import MC1Services
 import SwiftUI
 
-/// Reusable mini-chart for a single time-series metric.
+/// Reusable mini-chart for one or more time-series metrics.
+///
+/// Single-series charts render exactly as a one-line chart (no legend). Passing
+/// more than one series switches to an overlaid multi-series layout with a
+/// categorical foreground scale and legend.
 struct MetricChartView: View {
   let title: String
   let unit: String
-  let dataPoints: [DataPoint]
-  let accentColor: Color
+  let series: [Series]
   var yAxisDomain: ClosedRange<Double>?
 
   @State private var selectedDate: Date?
 
-  private var selectedPoint: DataPoint? {
-    guard let selectedDate else { return nil }
-    return dataPoints.min { abs($0.date.timeIntervalSince(selectedDate)) < abs($1.date.timeIntervalSince(selectedDate)) }
-  }
-
   var body: some View {
     VStack(alignment: .leading, spacing: 4) {
-      MetricChartHeader(title: title, unit: unit, selectedPoint: selectedPoint, accentColor: accentColor)
+      MetricChartHeader(
+        title: title, unit: unit, series: series,
+        selections: selections, scrubDate: scrubDate
+      )
 
-      if dataPoints.count < 2 {
-        MetricChartEmptyState(value: dataPoints.first?.value, unit: unit)
+      if !hasEnoughData {
+        MetricChartEmptyState(value: drawnSeries.first?.dataPoints.first?.value, unit: unit)
       } else {
-        MetricChartContent(title: title, dataPoints: dataPoints, accentColor: accentColor, yAxisDomain: yAxisDomain, selectedDate: $selectedDate, selectedPoint: selectedPoint)
+        MetricChartContent(
+          title: title, series: drawnSeries, yAxisDomain: yAxisDomain,
+          selectedDate: $selectedDate, ruleDate: scrubDate, isMultiSeries: isMultiSeries
+        )
       }
+    }
+  }
+
+  private var isMultiSeries: Bool {
+    series.count > 1
+  }
+
+  private var hasEnoughData: Bool {
+    series.contains { $0.dataPoints.count >= 2 }
+  }
+
+  /// Series that actually carry points. Empty series draw nothing, so dropping
+  /// them keeps the categorical scale and legend free of phantom entries.
+  private var drawnSeries: [Series] {
+    series.filter { !$0.dataPoints.isEmpty }
+  }
+
+  /// The scrub position snapped to the nearest plotted point's date, so the readout
+  /// and rule line land on real samples rather than arbitrary times between them.
+  private var scrubDate: Date? {
+    guard let selectedDate else { return nil }
+    return series.flatMap { $0.dataPoints.map(\.date) }.min(by: {
+      abs($0.timeIntervalSince(selectedDate)) < abs($1.timeIntervalSince(selectedDate))
+    })
+  }
+
+  /// The nearest point in each series to the snapped scrub date, or empty when not
+  /// scrubbing. The header shows one value per series.
+  private var selections: [SeriesSelection] {
+    guard let scrubDate else { return [] }
+    return series.compactMap { s in
+      guard let point = s.dataPoints.min(by: {
+        abs($0.date.timeIntervalSince(scrubDate)) < abs($1.date.timeIntervalSince(scrubDate))
+      }) else { return nil }
+      return SeriesSelection(series: s, point: point)
     }
   }
 
@@ -34,14 +73,60 @@ struct MetricChartView: View {
     let date: Date
     let value: Double
   }
+
+  /// One plotted line in an overlaid chart. `color` drives the direct style for
+  /// single-series charts and the categorical scale mapping for multi-series.
+  struct Series {
+    let name: String
+    let color: Color
+    let dataPoints: [DataPoint]
+  }
+
+  /// A series paired with its nearest point to the current scrub position.
+  struct SeriesSelection {
+    let series: Series
+    let point: DataPoint
+  }
+
+  /// Single-series convenience initializer wrapping one accent-colored series.
+  init(
+    title: String,
+    unit: String,
+    dataPoints: [DataPoint],
+    accentColor: Color,
+    yAxisDomain: ClosedRange<Double>? = nil
+  ) {
+    self.title = title
+    self.unit = unit
+    self.series = [Series(name: title, color: accentColor, dataPoints: dataPoints)]
+    self.yAxisDomain = yAxisDomain
+  }
+
+  /// Multi-series initializer for overlaid charts.
+  init(
+    title: String,
+    unit: String,
+    series: [Series],
+    yAxisDomain: ClosedRange<Double>? = nil
+  ) {
+    self.title = title
+    self.unit = unit
+    self.series = series
+    self.yAxisDomain = yAxisDomain
+  }
 }
 
-/// Header row that shows the title, and selected value + timestamp when scrubbing.
+/// Header row that shows the title, and selected value(s) + timestamp when scrubbing.
 private struct MetricChartHeader: View {
   let title: String
   let unit: String
-  let selectedPoint: MetricChartView.DataPoint?
-  let accentColor: Color
+  let series: [MetricChartView.Series]
+  let selections: [MetricChartView.SeriesSelection]
+  let scrubDate: Date?
+
+  private var isMultiSeries: Bool {
+    series.count > 1
+  }
 
   var body: some View {
     HStack(alignment: .firstTextBaseline) {
@@ -51,30 +136,66 @@ private struct MetricChartHeader: View {
 
       Spacer()
 
-      if let selectedPoint {
-        Text("\(selectedPoint.value, format: .number) \(unit)")
-          .bold()
-          .foregroundStyle(accentColor)
-          + Text("  ")
-          + Text(selectedPoint.date, format: .dateTime.month(.abbreviated).day().hour().minute())
-          .foregroundStyle(.secondary)
+      if isMultiSeries {
+        multiSeriesReadout
+      } else {
+        singleSeriesReadout
       }
     }
     .font(.caption)
-    .animation(.none, value: selectedPoint?.id)
+    .animation(.none, value: selections.map(\.point.id))
+  }
+
+  @ViewBuilder
+  private var singleSeriesReadout: some View {
+    if let selection = selections.first {
+      Text("\(selection.point.value, format: .number) \(unit)")
+        .bold()
+        .foregroundStyle(selection.series.color)
+        + Text("  ")
+        + Text(selection.point.date, format: .dateTime.month(.abbreviated).day().hour().minute())
+        .foregroundStyle(.secondary)
+    }
+  }
+
+  /// Each series' nearest value, color-coded, with the shared scrub timestamp.
+  @ViewBuilder
+  private var multiSeriesReadout: some View {
+    if !selections.isEmpty {
+      VStack(alignment: .trailing, spacing: 2) {
+        ForEach(selections, id: \.series.name) { selection in
+          HStack(spacing: 4) {
+            Text(selection.series.name)
+              .foregroundStyle(.secondary)
+            Text("\(selection.point.value, format: .number)")
+              .bold()
+              .foregroundStyle(selection.series.color)
+          }
+        }
+        if let scrubDate {
+          Text(scrubDate, format: .dateTime.month(.abbreviated).day().hour().minute())
+            .foregroundStyle(.secondary)
+        }
+      }
+    }
   }
 }
 
 /// Chart content with line and point marks.
 private struct MetricChartContent: View {
   let title: String
-  let dataPoints: [MetricChartView.DataPoint]
-  let accentColor: Color
+  let series: [MetricChartView.Series]
   let yAxisDomain: ClosedRange<Double>?
   @Binding var selectedDate: Date?
-  let selectedPoint: MetricChartView.DataPoint?
+  let ruleDate: Date?
+  let isMultiSeries: Bool
 
   @State private var isScrubbing = false
+
+  private var foregroundStyleFor: (String) -> Color {
+    let lookup = Dictionary(uniqueKeysWithValues: series.map { ($0.name, $0.color) })
+    return { (name: String) -> Color in lookup[name] ?? .gray }
+  }
 
   var body: some View {
     chart
@@ -113,31 +234,58 @@ private struct MetricChartContent: View {
   @ViewBuilder
   private var chart: some View {
     let base = Chart {
-      ForEach(dataPoints) { point in
-        LineMark(
-          x: .value("Time", point.date),
-          y: .value(title, point.value)
-        )
-        .interpolationMethod(.linear)
-        .foregroundStyle(accentColor.opacity(0.5))
+      ForEach(series, id: \.name) { s in
+        ForEach(s.dataPoints) { point in
+          if isMultiSeries {
+            LineMark(
+              x: .value("Time", point.date),
+              y: .value(title, point.value)
+            )
+            .interpolationMethod(.linear)
+            .foregroundStyle(by: .value("Series", s.name))
 
-        PointMark(
-          x: .value("Time", point.date),
-          y: .value(title, point.value)
-        )
-        .foregroundStyle(accentColor)
-        .symbolSize(30)
+            PointMark(
+              x: .value("Time", point.date),
+              y: .value(title, point.value)
+            )
+            .foregroundStyle(by: .value("Series", s.name))
+            .symbolSize(30)
+          } else {
+            LineMark(
+              x: .value("Time", point.date),
+              y: .value(title, point.value)
+            )
+            .interpolationMethod(.linear)
+            .foregroundStyle(s.color.opacity(0.5))
+
+            PointMark(
+              x: .value("Time", point.date),
+              y: .value(title, point.value)
+            )
+            .foregroundStyle(s.color)
+            .symbolSize(30)
+          }
+        }
       }
 
-      if let selectedPoint {
-        RuleMark(x: .value("Selected", selectedPoint.date))
+      if let ruleDate {
+        RuleMark(x: .value("Selected", ruleDate))
           .foregroundStyle(.secondary.opacity(0.3))
           .lineStyle(StrokeStyle(dash: [4, 4]))
           .zIndex(-1)
       }
     }
 
-    if let yAxisDomain {
+    if isMultiSeries {
+      if let yAxisDomain {
+        base.chartYScale(domain: yAxisDomain)
+          .chartForegroundStyleScale(mapping: foregroundStyleFor)
+          .chartLegend(.visible)
+      } else {
+        base.chartForegroundStyleScale(mapping: foregroundStyleFor)
+          .chartLegend(.visible)
+      }
+    } else if let yAxisDomain {
       base.chartYScale(domain: yAxisDomain)
     } else {
       base

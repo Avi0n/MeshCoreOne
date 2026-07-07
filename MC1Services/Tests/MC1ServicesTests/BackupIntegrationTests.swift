@@ -1874,6 +1874,86 @@ struct BackupIntegrationTests {
     #expect(snapshots.last?.telemetryEntries?.count == 1)
   }
 
+  // MARK: - Node status packet-type counters
+
+  /// The six per-type packet counters are optional DTO fields, so the contract is a
+  /// plain encode → decode round-trip locking them at the DTO boundary.
+  @Test
+  func `Node status packet-type counters survive DTO encode → decode round-trip`() throws {
+    let dto = NodeStatusSnapshotDTO.testSnapshot(
+      sentDirect: 100, sentFlood: 200,
+      receivedDirect: 300, receivedFlood: 400,
+      directDuplicates: 11, floodDuplicates: 22
+    )
+    let encoded = try JSONEncoder().encode(dto)
+    let decoded = try JSONDecoder().decode(NodeStatusSnapshotDTO.self, from: encoded)
+    #expect(decoded.sentDirect == 100)
+    #expect(decoded.sentFlood == 200)
+    #expect(decoded.receivedDirect == 300)
+    #expect(decoded.receivedFlood == 400)
+    #expect(decoded.directDuplicates == 11)
+    #expect(decoded.floodDuplicates == 22)
+  }
+
+  /// A legacy envelope written before these fields existed omits the six keys, so they
+  /// must decode as `nil` rather than failing the decode (per the optional-field rule).
+  @Test
+  func `Legacy snapshot envelope without packet-type counters decodes them as nil`() throws {
+    let dto = NodeStatusSnapshotDTO.testSnapshot(
+      sentDirect: 1, sentFlood: 2, receivedDirect: 3, receivedFlood: 4,
+      directDuplicates: 5, floodDuplicates: 6
+    )
+    let encoded = try JSONEncoder().encode(dto)
+    let object = try JSONSerialization.jsonObject(with: encoded)
+    var json = try #require(object as? [String: Any])
+    for key in ["sentDirect", "sentFlood", "receivedDirect", "receivedFlood",
+                "directDuplicates", "floodDuplicates"] {
+      json.removeValue(forKey: key)
+    }
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(NodeStatusSnapshotDTO.self, from: stripped)
+    #expect(decoded.sentDirect == nil)
+    #expect(decoded.sentFlood == nil)
+    #expect(decoded.receivedDirect == nil)
+    #expect(decoded.receivedFlood == nil)
+    #expect(decoded.directDuplicates == nil)
+    #expect(decoded.floodDuplicates == nil)
+    // A field present in legacy envelopes still decodes.
+    #expect(decoded.batteryMillivolts == 3800)
+  }
+
+  /// Full envelope path: the six counters must survive export → import into a fresh store.
+  @Test
+  func `Node status packet-type counters survive full backup export → import`() async throws {
+    let radioID = UUID()
+    let nodePublicKey = Data(repeating: 0xF7, count: 32)
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    let backupSnapshot = NodeStatusSnapshotDTO.testSnapshot(
+      nodePublicKey: nodePublicKey,
+      sentDirect: 100, sentFlood: 200,
+      receivedDirect: 300, receivedFlood: 400,
+      directDuplicates: 11, floodDuplicates: 22
+    )
+    let envelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+      nodeStatusSnapshots: [backupSnapshot]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+    #expect(result.nodeStatusSnapshotsInserted == 1)
+
+    let snapshots = try await destStore.fetchNodeStatusSnapshots(nodePublicKey: nodePublicKey, since: nil)
+    let restored = try #require(snapshots.first)
+    #expect(restored.sentDirect == 100)
+    #expect(restored.sentFlood == 200)
+    #expect(restored.receivedDirect == 300)
+    #expect(restored.receivedFlood == 400)
+    #expect(restored.directDuplicates == 11)
+    #expect(restored.floodDuplicates == 22)
+  }
+
   // MARK: - Test 17: Failed import cleanup
 
   @Test

@@ -24,6 +24,11 @@ struct NodeStatusHistoryView: View {
           chart
         }
         .themedRowBackground(theme)
+      } packetSection: { group in
+        Section(L10n.RemoteNodes.RemoteNodes.History.packets) {
+          group
+        }
+        .themedRowBackground(theme)
       }
 
       Section {} footer: {

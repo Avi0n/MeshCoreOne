@@ -385,6 +385,32 @@ final class NodeStatusViewModel {
     return count.formatted()
   }
 
+  var sentDirectDisplay: String {
+    guard let count = status?.sentDirect else { return Self.emDash }
+    return count.formatted()
+  }
+
+  var sentFloodDisplay: String {
+    guard let count = status?.sentFlood else { return Self.emDash }
+    return count.formatted()
+  }
+
+  var receivedDirectDisplay: String {
+    guard let count = status?.receivedDirect else { return Self.emDash }
+    return count.formatted()
+  }
+
+  var receivedFloodDisplay: String {
+    guard let count = status?.receivedFlood else { return Self.emDash }
+    return count.formatted()
+  }
+
+  /// Combined direct + flood duplicates as a single total, matching the live card layout.
+  var duplicatesDisplay: String {
+    guard let status else { return Self.emDash }
+    return (status.directDuplicates + status.floodDuplicates).formatted()
+  }
+
   // MARK: - Delta Display
 
   var previousSnapshotTimestamp: String? {

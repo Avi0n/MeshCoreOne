@@ -271,6 +271,24 @@ struct TelemetryHistoryOverviewViewModelTests {
     #expect(viewModel.resolveNeighborName(prefix: Data([0xAB, 0xCD])) == "Z Newer Repeater")
   }
 
+  // MARK: - Radio Data Gate
+
+  @Test
+  func `Radio section surfaces for a snapshot carrying only packet-type counters`() {
+    let viewModel = TelemetryHistoryOverviewViewModel()
+    // A partial-import row with only the six new counters and no other radio data.
+    let onlyCounters = NodeStatusSnapshotDTO(
+      nodePublicKey: testPublicKey,
+      sentDirect: 100, sentFlood: 200, receivedDirect: 300, receivedFlood: 400,
+      directDuplicates: 11, floodDuplicates: 22
+    )
+    #expect(viewModel.hasRadioData(in: [onlyCounters]))
+
+    // A snapshot with no radio data at all does not surface the section.
+    let empty = NodeStatusSnapshotDTO(nodePublicKey: testPublicKey)
+    #expect(!viewModel.hasRadioData(in: [empty]))
+  }
+
   // MARK: - Channel Groups
 
   @Test

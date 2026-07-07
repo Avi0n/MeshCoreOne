@@ -58,6 +58,7 @@ private struct RoomStatusRows: View {
 
   var body: some View {
     NodeCommonStatusRows(helper: viewModel.helper)
+    NodePacketStatusRows(helper: viewModel.helper)
     LabeledContent(L10n.RemoteNodes.RemoteNodes.RoomStatus.postsReceived, value: viewModel.postsReceivedDisplay)
     LabeledContent(L10n.RemoteNodes.RemoteNodes.RoomStatus.postsPushed, value: viewModel.postsPushedDisplay)
   }

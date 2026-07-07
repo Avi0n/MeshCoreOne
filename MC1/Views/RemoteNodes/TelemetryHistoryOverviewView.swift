@@ -62,13 +62,7 @@ struct TelemetryHistoryOverviewView: View {
 
   @ViewBuilder
   private func radioSection(filtered: [NodeStatusSnapshotDTO]) -> some View {
-    let hasRadioData = filtered.contains {
-      $0.batteryMillivolts != nil || $0.lastSNR != nil ||
-        $0.lastRSSI != nil || $0.noiseFloor != nil ||
-        $0.packetsSent != nil || $0.packetsReceived != nil ||
-        $0.receiveErrors != nil ||
-        $0.postedCount != nil || $0.postPushCount != nil
-    }
+    let hasRadioData = viewModel.hasRadioData(in: filtered)
 
     if hasRadioData {
       Section {
@@ -78,6 +72,10 @@ struct TelemetryHistoryOverviewView: View {
         ) {
           RadioMetricCharts(snapshots: filtered, ocvArray: viewModel.ocvArray) { chart in
             chart
+          } packetSection: { group in
+            Section(L10n.RemoteNodes.RemoteNodes.History.packets) {
+              group
+            }
           }
         }
       }

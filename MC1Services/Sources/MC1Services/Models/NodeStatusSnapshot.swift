@@ -23,6 +23,15 @@ public struct NodeStatusMetrics: Sendable, Equatable {
   public let packetsSent: UInt32?
   public let packetsReceived: UInt32?
   public let receiveErrors: UInt32?
+
+  /// Per-type packet breakdown: direct vs flood packets sent/received and duplicates.
+  public let sentDirect: UInt32?
+  public let sentFlood: UInt32?
+  public let receivedDirect: UInt32?
+  public let receivedFlood: UInt32?
+  public let directDuplicates: UInt32?
+  public let floodDuplicates: UInt32?
+
   public let postedCount: UInt16?
   public let postPushCount: UInt16?
 
@@ -36,6 +45,12 @@ public struct NodeStatusMetrics: Sendable, Equatable {
     packetsSent: UInt32?,
     packetsReceived: UInt32?,
     receiveErrors: UInt32?,
+    sentDirect: UInt32?,
+    sentFlood: UInt32?,
+    receivedDirect: UInt32?,
+    receivedFlood: UInt32?,
+    directDuplicates: UInt32?,
+    floodDuplicates: UInt32?,
     postedCount: UInt16? = nil,
     postPushCount: UInt16? = nil
   ) {
@@ -48,6 +63,12 @@ public struct NodeStatusMetrics: Sendable, Equatable {
     self.packetsSent = packetsSent
     self.packetsReceived = packetsReceived
     self.receiveErrors = receiveErrors
+    self.sentDirect = sentDirect
+    self.sentFlood = sentFlood
+    self.receivedDirect = receivedDirect
+    self.receivedFlood = receivedFlood
+    self.directDuplicates = directDuplicates
+    self.floodDuplicates = floodDuplicates
     self.postedCount = postedCount
     self.postPushCount = postPushCount
   }
@@ -73,6 +94,12 @@ public struct NodeStatusMetrics: Sendable, Equatable {
       packetsSent: status.packetsSent,
       packetsReceived: status.packetsReceived,
       receiveErrors: receiveErrors,
+      sentDirect: status.sentDirect,
+      sentFlood: status.sentFlood,
+      receivedDirect: status.receivedDirect,
+      receivedFlood: status.receivedFlood,
+      directDuplicates: UInt32(clamping: status.directDuplicates),
+      floodDuplicates: UInt32(clamping: status.floodDuplicates),
       postedCount: postedCount,
       postPushCount: postPushCount
     )
@@ -121,8 +148,7 @@ final class NodeStatusSnapshot {
 
   // MARK: - Radio metrics
 
-  // Intentionally excluded: txQueueLength, airtime, sentFlood, sentDirect,
-  // receivedFlood, receivedDirect, fullEvents, directDuplicates, floodDuplicates
+  // Intentionally excluded: txQueueLength, airtime, fullEvents
 
   var batteryMillivolts: UInt16?
   var lastSNR: Double?
@@ -133,6 +159,14 @@ final class NodeStatusSnapshot {
   var packetsSent: UInt32?
   var packetsReceived: UInt32?
   var receiveErrors: UInt32?
+
+  /// Per-type packet breakdown: direct vs flood packets sent/received and duplicates.
+  var sentDirect: UInt32?
+  var sentFlood: UInt32?
+  var receivedDirect: UInt32?
+  var receivedFlood: UInt32?
+  var directDuplicates: UInt32?
+  var floodDuplicates: UInt32?
 
   // MARK: - Room server metrics
 
@@ -160,6 +194,12 @@ final class NodeStatusSnapshot {
     packetsSent: UInt32? = nil,
     packetsReceived: UInt32? = nil,
     receiveErrors: UInt32? = nil,
+    sentDirect: UInt32? = nil,
+    sentFlood: UInt32? = nil,
+    receivedDirect: UInt32? = nil,
+    receivedFlood: UInt32? = nil,
+    directDuplicates: UInt32? = nil,
+    floodDuplicates: UInt32? = nil,
     postedCount: UInt16? = nil,
     postPushCount: UInt16? = nil,
     neighborSnapshots: [NeighborSnapshotEntry]? = nil,
@@ -177,6 +217,12 @@ final class NodeStatusSnapshot {
     self.packetsSent = packetsSent
     self.packetsReceived = packetsReceived
     self.receiveErrors = receiveErrors
+    self.sentDirect = sentDirect
+    self.sentFlood = sentFlood
+    self.receivedDirect = receivedDirect
+    self.receivedFlood = receivedFlood
+    self.directDuplicates = directDuplicates
+    self.floodDuplicates = floodDuplicates
     self.postedCount = postedCount
     self.postPushCount = postPushCount
     self.neighborSnapshots = neighborSnapshots
@@ -195,6 +241,12 @@ final class NodeStatusSnapshot {
     packetsSent = metrics.packetsSent
     packetsReceived = metrics.packetsReceived
     receiveErrors = metrics.receiveErrors
+    sentDirect = metrics.sentDirect
+    sentFlood = metrics.sentFlood
+    receivedDirect = metrics.receivedDirect
+    receivedFlood = metrics.receivedFlood
+    directDuplicates = metrics.directDuplicates
+    floodDuplicates = metrics.floodDuplicates
     postedCount = metrics.postedCount
     postPushCount = metrics.postPushCount
   }
@@ -214,6 +266,12 @@ final class NodeStatusSnapshot {
       packetsSent: dto.packetsSent,
       packetsReceived: dto.packetsReceived,
       receiveErrors: dto.receiveErrors,
+      sentDirect: dto.sentDirect,
+      sentFlood: dto.sentFlood,
+      receivedDirect: dto.receivedDirect,
+      receivedFlood: dto.receivedFlood,
+      directDuplicates: dto.directDuplicates,
+      floodDuplicates: dto.floodDuplicates,
       postedCount: dto.postedCount,
       postPushCount: dto.postPushCount,
       neighborSnapshots: dto.neighborSnapshots,
@@ -237,6 +295,15 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
   public let packetsSent: UInt32?
   public let packetsReceived: UInt32?
   public let receiveErrors: UInt32?
+
+  /// Per-type packet breakdown: direct vs flood packets sent/received and duplicates.
+  public let sentDirect: UInt32?
+  public let sentFlood: UInt32?
+  public let receivedDirect: UInt32?
+  public let receivedFlood: UInt32?
+  public let directDuplicates: UInt32?
+  public let floodDuplicates: UInt32?
+
   public let postedCount: UInt16?
   public let postPushCount: UInt16?
   public let neighborSnapshots: [NeighborSnapshotEntry]?
@@ -255,6 +322,12 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     packetsSent = model.packetsSent
     packetsReceived = model.packetsReceived
     receiveErrors = model.receiveErrors
+    sentDirect = model.sentDirect
+    sentFlood = model.sentFlood
+    receivedDirect = model.receivedDirect
+    receivedFlood = model.receivedFlood
+    directDuplicates = model.directDuplicates
+    floodDuplicates = model.floodDuplicates
     postedCount = model.postedCount
     postPushCount = model.postPushCount
     neighborSnapshots = model.neighborSnapshots
@@ -274,6 +347,12 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     packetsSent: UInt32? = nil,
     packetsReceived: UInt32? = nil,
     receiveErrors: UInt32? = nil,
+    sentDirect: UInt32? = nil,
+    sentFlood: UInt32? = nil,
+    receivedDirect: UInt32? = nil,
+    receivedFlood: UInt32? = nil,
+    directDuplicates: UInt32? = nil,
+    floodDuplicates: UInt32? = nil,
     postedCount: UInt16? = nil,
     postPushCount: UInt16? = nil,
     neighborSnapshots: [NeighborSnapshotEntry]? = nil,
@@ -291,6 +370,12 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     self.packetsSent = packetsSent
     self.packetsReceived = packetsReceived
     self.receiveErrors = receiveErrors
+    self.sentDirect = sentDirect
+    self.sentFlood = sentFlood
+    self.receivedDirect = receivedDirect
+    self.receivedFlood = receivedFlood
+    self.directDuplicates = directDuplicates
+    self.floodDuplicates = floodDuplicates
     self.postedCount = postedCount
     self.postPushCount = postPushCount
     self.neighborSnapshots = neighborSnapshots

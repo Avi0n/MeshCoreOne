@@ -3255,6 +3255,12 @@ public enum L10n {
         public static let battery = L10n.tr("RemoteNodes", "remoteNodes.history.battery", fallback: "Battery")
         /// Location: NodeStatusHistoryView.swift - Empty state message
         public static let checkBack = L10n.tr("RemoteNodes", "remoteNodes.history.checkBack", fallback: "A snapshot is recorded at most every 15 minutes. Check back after your next visit to see trends.")
+        /// Location: RadioMetricCharts.swift - Direct packet series legend
+        public static let direct = L10n.tr("RemoteNodes", "remoteNodes.history.direct", fallback: "Direct")
+        /// Location: RadioMetricCharts.swift - Duplicates chart title, under the Packets group header
+        public static let duplicates = L10n.tr("RemoteNodes", "remoteNodes.history.duplicates", fallback: "Duplicates")
+        /// Location: RadioMetricCharts.swift - Flood packet series legend
+        public static let flood = L10n.tr("RemoteNodes", "remoteNodes.history.flood", fallback: "Flood")
         /// Location: NeighborHistoryView.swift - Last seen status
         public static func lastSeen(_ p1: Any) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.history.lastSeen", String(describing: p1), fallback: "Last seen %@")
@@ -3277,14 +3283,16 @@ public enum L10n {
         public static let notSeen = L10n.tr("RemoteNodes", "remoteNodes.history.notSeen", fallback: "Not seen")
         /// Location: TelemetryHistoryOverviewView.swift - Purpose: Navigation title
         public static let overviewTitle = L10n.tr("RemoteNodes", "remoteNodes.history.overviewTitle", fallback: "Telemetry History")
-        /// Location: NodeStatusHistoryView.swift - Packets received chart title
-        public static let packetsReceived = L10n.tr("RemoteNodes", "remoteNodes.history.packetsReceived", fallback: "Packets Received")
-        /// Location: NodeStatusHistoryView.swift - Packets sent chart title
-        public static let packetsSent = L10n.tr("RemoteNodes", "remoteNodes.history.packetsSent", fallback: "Packets Sent")
+        /// Location: RadioMetricCharts.swift - Section header grouping the packet-count charts
+        public static let packets = L10n.tr("RemoteNodes", "remoteNodes.history.packets", fallback: "Packets")
+        /// Location: RadioMetricCharts.swift - Received packets chart title, under the Packets group header
+        public static let packetsReceived = L10n.tr("RemoteNodes", "remoteNodes.history.packetsReceived", fallback: "Received")
+        /// Location: RadioMetricCharts.swift - Sent packets chart title, under the Packets group header
+        public static let packetsSent = L10n.tr("RemoteNodes", "remoteNodes.history.packetsSent", fallback: "Sent")
         /// Location: TelemetryHistoryOverviewView.swift - Purpose: Radio section header
         public static let radioSection = L10n.tr("RemoteNodes", "remoteNodes.history.radioSection", fallback: "Radio")
-        /// Location: NodeStatusHistoryView.swift - Receive errors chart title
-        public static let receiveErrors = L10n.tr("RemoteNodes", "remoteNodes.history.receiveErrors", fallback: "Packet Errors Received")
+        /// Location: RadioMetricCharts.swift - Receive errors chart title, under the Packets group header
+        public static let receiveErrors = L10n.tr("RemoteNodes", "remoteNodes.history.receiveErrors", fallback: "Errors")
         /// Location: NodeStatusHistoryView.swift - Footer about data retention
         public static let retentionNotice = L10n.tr("RemoteNodes", "remoteNodes.history.retentionNotice", fallback: "History data older than one year is automatically removed.")
         /// Location: NodeStatusHistoryView.swift - RSSI chart title
@@ -3717,6 +3725,8 @@ public enum L10n {
         }
         /// Location: RepeaterStatusView.swift - Discover neighbours button label
         public static let discoverNeighbors = L10n.tr("RemoteNodes", "remoteNodes.status.discoverNeighbors", fallback: "Discover Neighbours")
+        /// Location: SharedNodeStatusViews.swift - Duplicate packets label
+        public static let duplicates = L10n.tr("RemoteNodes", "remoteNodes.status.duplicates", fallback: "Duplicates")
         /// Location: RepeaterStatusView.swift - Guest mode badge in header
         public static let guestMode = L10n.tr("RemoteNodes", "remoteNodes.status.guestMode", fallback: "Guest Mode")
         /// Location: RepeaterStatusView.swift - Hours ago format
@@ -3761,18 +3771,24 @@ public enum L10n {
         public static let ocvSaveNoContact = L10n.tr("RemoteNodes", "remoteNodes.status.ocvSaveNoContact", fallback: "Cannot save: contact not found")
         /// Location: RepeaterStatusView.swift - Owner info section label
         public static let ownerInfo = L10n.tr("RemoteNodes", "remoteNodes.status.ownerInfo", fallback: "Contact Info")
-        /// Location: RepeaterStatusView.swift - Packets received label
-        public static let packetsReceived = L10n.tr("RemoteNodes", "remoteNodes.status.packetsReceived", fallback: "Packets Received")
-        /// Location: RepeaterStatusView.swift - Packets sent label
-        public static let packetsSent = L10n.tr("RemoteNodes", "remoteNodes.status.packetsSent", fallback: "Packets Sent")
+        /// Location: SharedNodeStatusViews.swift - Section header grouping the packet-count rows
+        public static let packets = L10n.tr("RemoteNodes", "remoteNodes.status.packets", fallback: "Packets")
+        /// Location: SharedNodeStatusViews.swift - Total received packets label, under the Packets group header
+        public static let packetsReceived = L10n.tr("RemoteNodes", "remoteNodes.status.packetsReceived", fallback: "Received")
+        /// Location: SharedNodeStatusViews.swift - Total sent packets label, under the Packets group header
+        public static let packetsSent = L10n.tr("RemoteNodes", "remoteNodes.status.packetsSent", fallback: "Sent")
         /// Location: RepeaterStatusView.swift - Accessibility label for possible match indicator
         public static let possibleMatch = L10n.tr("RemoteNodes", "remoteNodes.status.possibleMatch", fallback: "Possible match, matched by short prefix")
         /// Location: RepeaterStatusView.swift - Explanation of what a possible match means
         public static let possibleMatchExplanation = L10n.tr("RemoteNodes", "remoteNodes.status.possibleMatchExplanation", fallback: "Multiple nodes share this prefix. The displayed name may not be correct.")
         /// Location: RepeaterStatusView.swift - Title for possible match explanation popover
         public static let possibleMatchTitle = L10n.tr("RemoteNodes", "remoteNodes.status.possibleMatchTitle", fallback: "Possible Match")
-        /// Location: RepeaterStatusView.swift - Receive errors label
-        public static let receiveErrors = L10n.tr("RemoteNodes", "remoteNodes.status.receiveErrors", fallback: "Packet Errors Received")
+        /// Location: SharedNodeStatusViews.swift - Received (direct) packets label
+        public static let receivedDirect = L10n.tr("RemoteNodes", "remoteNodes.status.receivedDirect", fallback: "Received (Direct)")
+        /// Location: SharedNodeStatusViews.swift - Received (flood) packets label
+        public static let receivedFlood = L10n.tr("RemoteNodes", "remoteNodes.status.receivedFlood", fallback: "Received (Flood)")
+        /// Location: SharedNodeStatusViews.swift - Receive errors label, under the Packets group header
+        public static let receiveErrors = L10n.tr("RemoteNodes", "remoteNodes.status.receiveErrors", fallback: "Errors")
         /// Location: NodeTelemetryView.swift - Refresh button accessibility label
         public static let refresh = L10n.tr("RemoteNodes", "remoteNodes.status.refresh", fallback: "Refresh")
         /// Location: RepeaterStatusViewModel.swift - Request timed out
@@ -3781,6 +3797,10 @@ public enum L10n {
         public static func secondsAgo(_ p1: Int) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.status.secondsAgo", p1, fallback: "%ds ago")
         }
+        /// Location: SharedNodeStatusViews.swift - Sent (direct) packets label
+        public static let sentDirect = L10n.tr("RemoteNodes", "remoteNodes.status.sentDirect", fallback: "Sent (Direct)")
+        /// Location: SharedNodeStatusViews.swift - Sent (flood) packets label
+        public static let sentFlood = L10n.tr("RemoteNodes", "remoteNodes.status.sentFlood", fallback: "Sent (Flood)")
         /// Location: NeighborSNRMapBuilder.swift - Unit suffix for the SNR value in the map midpoint badge, matching the "<distance> · <snr> dB" form
         public static let snrBadgeUnit = L10n.tr("RemoteNodes", "remoteNodes.status.snrBadgeUnit", fallback: "dB")
         /// Location: RepeaterStatusView.swift - SNR display format

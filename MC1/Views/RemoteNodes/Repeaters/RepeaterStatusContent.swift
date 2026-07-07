@@ -148,10 +148,10 @@ private struct StatusRows: View {
 
   var body: some View {
     NodeCommonStatusRows(helper: viewModel.helper)
-
-    if let receiveErrors = viewModel.receiveErrorsDisplay {
-      LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.receiveErrors, value: receiveErrors)
-    }
+    NodePacketStatusRows(
+      helper: viewModel.helper,
+      receiveErrorsDisplay: viewModel.receiveErrorsDisplay
+    )
   }
 }
 

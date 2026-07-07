@@ -70,9 +70,34 @@ struct NodeCommonStatusRows: View {
       delta: helper.noiseFloorDelta.map(Double.init),
       higherIsBetter: false, unit: " dBm", fractionDigits: 0
     )
+  }
+}
 
-    LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.packetsSent, value: helper.packetsSentDisplay)
-    LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.packetsReceived, value: helper.packetsReceivedDisplay)
+// MARK: - Packet Status Section
+
+/// The packet counters grouped under a `Packets` header: sent/received totals, their
+/// Direct/Flood breakdown, duplicates, and the optional receive-error count (repeaters
+/// only). The header supplies the shared noun so each row label stays a short leaf.
+struct NodePacketStatusRows: View {
+  let helper: NodeStatusViewModel
+  var receiveErrorsDisplay: String?
+
+  var body: some View {
+    Section {
+      LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.packetsSent, value: helper.packetsSentDisplay)
+      LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.packetsReceived, value: helper.packetsReceivedDisplay)
+      LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.sentDirect, value: helper.sentDirectDisplay)
+      LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.sentFlood, value: helper.sentFloodDisplay)
+      LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.receivedDirect, value: helper.receivedDirectDisplay)
+      LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.receivedFlood, value: helper.receivedFloodDisplay)
+      LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.duplicates, value: helper.duplicatesDisplay)
+      if let receiveErrorsDisplay {
+        LabeledContent(L10n.RemoteNodes.RemoteNodes.Status.receiveErrors, value: receiveErrorsDisplay)
+      }
+    } header: {
+      Text(L10n.RemoteNodes.RemoteNodes.Status.packets)
+        .fontWeight(.semibold)
+    }
   }
 }
 

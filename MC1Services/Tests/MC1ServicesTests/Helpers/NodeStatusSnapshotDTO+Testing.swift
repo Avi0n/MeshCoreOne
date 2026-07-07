@@ -17,6 +17,16 @@ extension NodeStatusSnapshotDTO {
     lastRSSI: Int16? = -85,
     noiseFloor: Int16? = -110,
     uptimeSeconds: UInt32? = 3600,
+    rxAirtimeSeconds: UInt32? = nil,
+    packetsSent: UInt32? = nil,
+    packetsReceived: UInt32? = nil,
+    receiveErrors: UInt32? = nil,
+    sentDirect: UInt32? = nil,
+    sentFlood: UInt32? = nil,
+    receivedDirect: UInt32? = nil,
+    receivedFlood: UInt32? = nil,
+    directDuplicates: UInt32? = nil,
+    floodDuplicates: UInt32? = nil,
     neighborSnapshots: [NeighborSnapshotEntry]? = nil,
     telemetryEntries: [TelemetrySnapshotEntry]? = nil
   ) -> NodeStatusSnapshotDTO {
@@ -29,6 +39,16 @@ extension NodeStatusSnapshotDTO {
       lastRSSI: lastRSSI,
       noiseFloor: noiseFloor,
       uptimeSeconds: uptimeSeconds,
+      rxAirtimeSeconds: rxAirtimeSeconds,
+      packetsSent: packetsSent,
+      packetsReceived: packetsReceived,
+      receiveErrors: receiveErrors,
+      sentDirect: sentDirect,
+      sentFlood: sentFlood,
+      receivedDirect: receivedDirect,
+      receivedFlood: receivedFlood,
+      directDuplicates: directDuplicates,
+      floodDuplicates: floodDuplicates,
       neighborSnapshots: neighborSnapshots,
       telemetryEntries: telemetryEntries
     )

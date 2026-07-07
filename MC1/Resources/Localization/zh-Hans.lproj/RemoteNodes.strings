@@ -449,14 +449,21 @@
 /* Location: RepeaterStatusView.swift - Noise floor label */
 "remoteNodes.status.noiseFloor" = "无线电底噪";
 
-/* Location: RepeaterStatusView.swift - Packets sent label */
-"remoteNodes.status.packetsSent" = "已发送数据包";
+/* Location: SharedNodeStatusViews.swift - Section header grouping the packet-count rows */
+"remoteNodes.status.packets" = "数据包";
+/* Location: SharedNodeStatusViews.swift - Total sent packets label, under the Packets group header */
+"remoteNodes.status.packetsSent" = "已发送";
 
-/* Location: RepeaterStatusView.swift - Packets received label */
-"remoteNodes.status.packetsReceived" = "已接收数据包";
+/* Location: SharedNodeStatusViews.swift - Total received packets label, under the Packets group header */
+"remoteNodes.status.packetsReceived" = "已接收";
 
-/* Location: RepeaterStatusView.swift - Receive errors label */
-"remoteNodes.status.receiveErrors" = "已接收数据包错误";
+/* Location: SharedNodeStatusViews.swift - Receive errors label, under the Packets group header */
+"remoteNodes.status.receiveErrors" = "错误";
+"remoteNodes.status.sentDirect" = "已发送（直连）";
+"remoteNodes.status.sentFlood" = "已发送（泛洪）";
+"remoteNodes.status.receivedDirect" = "已接收（直连）";
+"remoteNodes.status.receivedFlood" = "已接收（泛洪）";
+"remoteNodes.status.duplicates" = "重复";
 
 /* Location: RepeaterStatusView.swift - Neighbors section header */
 "remoteNodes.status.neighbors" = "邻居";
@@ -628,13 +635,18 @@
 "remoteNodes.history.neighborCount" = "邻居数量";
 
 /* Location: NodeStatusHistoryView.swift - Packets sent chart title */
-"remoteNodes.history.packetsSent" = "已发送数据包";
+"remoteNodes.history.packetsSent" = "已发送";
 
 /* Location: NodeStatusHistoryView.swift - Packets received chart title */
-"remoteNodes.history.packetsReceived" = "已接收数据包";
+"remoteNodes.history.packetsReceived" = "已接收";
 
 /* Location: NodeStatusHistoryView.swift - Receive errors chart title */
-"remoteNodes.history.receiveErrors" = "已接收数据包错误";
+"remoteNodes.history.receiveErrors" = "错误";
+"remoteNodes.history.direct" = "直连";
+"remoteNodes.history.flood" = "泛洪";
+"remoteNodes.history.duplicates" = "重复";
+/* Location: RadioMetricCharts.swift - Section header grouping the packet-count charts */
+"remoteNodes.history.packets" = "数据包";
 
 /* Location: NeighborHistoryView.swift - Active status */
 "remoteNodes.history.active" = "活跃";
