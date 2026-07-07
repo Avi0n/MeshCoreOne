@@ -31,25 +31,49 @@ extension View {
   /// `onFire`, drives the shared press state, and bumps the haptic trigger.
   /// Apply to every sub-view that should open the actions sheet; the visual
   /// response is rendered once by `messageBubbleLongPressEffect`.
+  ///
+  /// Uses `.simultaneousGesture` so the press coexists with a native `Text`
+  /// link's own tap: a quick tap still routes through the link's `\.openURL`,
+  /// while a sustained press fires the actions sheet. (A high-priority gesture
+  /// would reserve the touch and swallow link taps.)
   func messageBubbleLongPressGesture(
     isPressing: Binding<Bool>,
     trigger: Binding<Int>,
     onFire: @escaping () -> Void
   ) -> some View {
-    onLongPressGesture(
-      minimumDuration: MessageActionsPresentation.longPressConfirmDuration,
-      perform: {
-        trigger.wrappedValue += 1
-        onFire()
-      },
-      onPressingChanged: { isPressing.wrappedValue = $0 }
-    )
+    modifier(MessageBubbleActionsLongPress(isPressing: isPressing, trigger: trigger, onFire: onFire))
   }
 
   /// Renders the press-in shrink and haptic for a message bubble. Apply once to
   /// the view that should scale; pair with `messageBubbleLongPressGesture`.
   func messageBubbleLongPressEffect(isPressing: Bool, trigger: Int) -> some View {
     modifier(MessageBubbleLongPressEffect(isPressing: isPressing, trigger: trigger))
+  }
+}
+
+/// The actions-sheet long press, expressed as a `.simultaneousGesture` `LongPressGesture` so it
+/// coexists with a native `Text` link's tap rather than reserving the touch and swallowing it.
+/// `@GestureState` reports the press-in phase on touch down (and auto-resets on release/cancel),
+/// mirrored to the shared `isPressing` binding so the once-applied `messageBubbleLongPressEffect`
+/// renders the lift for the whole bubble.
+private struct MessageBubbleActionsLongPress: ViewModifier {
+  @Binding var isPressing: Bool
+  @Binding var trigger: Int
+  let onFire: () -> Void
+
+  @GestureState private var pressing = false
+
+  func body(content: Content) -> some View {
+    content
+      .simultaneousGesture(
+        LongPressGesture(minimumDuration: MessageActionsPresentation.longPressConfirmDuration)
+          .updating($pressing) { current, state, _ in state = current }
+          .onEnded { _ in
+            trigger += 1
+            onFire()
+          }
+      )
+      .onChange(of: pressing) { _, now in isPressing = now }
   }
 }
 

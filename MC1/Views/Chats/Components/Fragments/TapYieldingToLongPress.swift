@@ -2,15 +2,14 @@ import SwiftUI
 import UIKit
 
 /// A transparent tap catcher for an interactive bubble fragment (GIF, image, preview card). A quick
-/// tap routes to `onTap`; a sustained press yields to the bubble's `.onLongPressGesture` so the
-/// actions sheet opens. It replaces a SwiftUI `Button`, whose press gesture grabs the touch on
-/// touch-down and cancels the bubble's long-press.
+/// tap routes to `onTap`; a sustained press yields to the bubble's long-press so the actions sheet
+/// opens. It replaces a SwiftUI `Button`, whose press gesture grabs the touch on touch-down and
+/// cancels the bubble's long-press.
 ///
-/// Mirrors the passive renderer's recognizer policy (`BubbleBodyTextView`): the `UITapGestureRecognizer`
-/// does not consume touches (`cancelsTouchesInView = false`), and its delegate denies simultaneous
-/// recognition with a `UILongPressGestureRecognizer` so the long-press wins a contested press. The
-/// delegate is set only off Mac; on Mac the secondary click routes through the table's context-menu
-/// interaction, which this delegate must not disturb.
+/// The `UITapGestureRecognizer` does not consume touches (`cancelsTouchesInView = false`), and its
+/// delegate denies simultaneous recognition with a `UILongPressGestureRecognizer` so the bubble's
+/// long-press wins a contested press. The delegate is set only off Mac; on Mac the secondary click
+/// routes through the table's context-menu interaction, which this delegate must not disturb.
 struct TapYieldingToLongPress: UIViewRepresentable {
   let onTap: () -> Void
 

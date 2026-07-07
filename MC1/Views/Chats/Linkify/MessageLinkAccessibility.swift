@@ -1,11 +1,11 @@
 import Foundation
 import SwiftUI
 
-/// Builds the VoiceOver "open" actions for a message bubble's links. The passive body renderer
-/// (`MessageBodyTextView`) installs no link interactions, so the body carries no VoiceOver link
-/// rotor; these actions restore activation for every link kind. The list is derived from the same
-/// precomputed `AttributedString` the body renders, so the actions can never diverge from the
-/// visible links.
+/// Builds the VoiceOver "open" actions for a message bubble's links. The bubble combines its
+/// children into one accessibility element (`.accessibilityElement(children: .combine)`), so the
+/// body carries no per-link VoiceOver rotor; these actions restore activation for every link kind.
+/// The list is derived from the same precomputed `AttributedString` the body renders, so the
+/// actions can never diverge from the visible links.
 ///
 /// Built during the bubble's `body`, which is gated by `UnifiedMessageBubble`'s `Equatable`-on-
 /// `item` seam, so it is never rebuilt while scrolling; and SwiftUI realizes the action descriptors

@@ -61,7 +61,12 @@ struct BubbleFragmentStack: View, Equatable {
       // SwiftUI surfaces as a fatal "invalid reuse after initialization failure".
       VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 2) {
         if let textPayload = layout.textPayload {
-          MessageTextView(text: textPayload)
+          // Native `Text`: the precomputed `formatted` string already carries every run's color,
+          // underline, bold, and `.link`, so link taps route through the injected `\.openURL` and
+          // Dynamic Type scales for free. `foregroundStyle` colors the raw fallback when unformatted.
+          Text(textPayload.formatted ?? AttributedString(textPayload.raw))
+            .font(.body)
+            .foregroundStyle(textPayload.baseColor.swiftUIColor)
         }
 
         if let disabledImageURL {
@@ -106,6 +111,19 @@ struct BubbleFragmentStack: View, Equatable {
       stack
         .background(bubbleColor)
         .clipShape(.rect(cornerRadius: Self.cornerRadius))
+    }
+  }
+}
+
+private extension BaseColorSlot {
+  /// Resolves the direction-tagged slot to a concrete SwiftUI `Color` at render time. Outgoing
+  /// bubbles render on a filled background and need white text; incoming bubbles use the system
+  /// primary colour. Lives in the MC1 layer because MC1Services intentionally has no SwiftUI
+  /// dependency.
+  var swiftUIColor: Color {
+    switch self {
+    case .outgoing: .white
+    case .incoming: .primary
     }
   }
 }
