@@ -1,5 +1,6 @@
 import MessagingUI
 import SwiftUI
+import UIKit
 
 /// Chat scroll container backed by `MessagingUI.TiledView`.
 ///
@@ -61,8 +62,10 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
       // accumulate as unread (counted in the onChange below).
       scrollPosition.autoScrollsToBottomOnAppend = atBottom
     }
+    .onDragIntoBottomSafeArea {
+      UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
     .background(contentBackground ?? .clear)
-    .background(CollectionViewIntrospector { $0.keyboardDismissMode = .interactive })
     .id(appearanceIdentity)
     .onChange(of: scrollToBottomRequest) { scrollPosition.scrollTo(edge: .bottom) }
     .onChange(of: scrollToTargetRequest) {
