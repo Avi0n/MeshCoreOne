@@ -468,11 +468,13 @@ final class PathManagementViewModel {
           publicKey: contact.publicKey
         )
 
-        let candidateSeconds = FirmwareSuggestedTimeout.candidateSeconds(suggestedTimeoutMs: sentResponse.suggestedTimeoutMs)
-        let timeoutSeconds = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: sentResponse.suggestedTimeoutMs)
-        if timeoutSeconds == FirmwareSuggestedTimeout.defaultSeconds, candidateSeconds != timeoutSeconds {
+        let timeoutSeconds = FirmwareSuggestedTimeout.sanitizedSeconds(
+          suggestedTimeoutMs: sentResponse.suggestedTimeoutMs,
+          profile: .flood
+        )
+        if sentResponse.suggestedTimeoutMs == 0 {
           logger.warning(
-            "Path discovery timeout fallback applied: raw=\(sentResponse.suggestedTimeoutMs)ms, candidate=\(candidateSeconds)s, fallback=\(timeoutSeconds)s"
+            "Path discovery timeout default applied: firmware suggested no timeout, using \(timeoutSeconds)s"
           )
         } else {
           logger.info("Path discovery timeout: \(timeoutSeconds)s (firmware suggested: \(sentResponse.suggestedTimeoutMs)ms)")

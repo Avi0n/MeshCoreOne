@@ -3,27 +3,75 @@ import Testing
 
 @Suite("FirmwareSuggestedTimeout Sanitizing")
 struct FirmwareSuggestedTimeoutTests {
+  private let tolerance = 0.0001
+
+  // MARK: - Zero-hop (direct single-neighbor ping)
+
   @Test
-  func `Accepts sane firmware timeout`() {
-    let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 5000)
+  func `Zero-hop honors a small valid hint instead of inflating it`() {
+    // Firmware default preset (SF10/BW250) estimates ~3.2s for a zero-hop trace.
+    // A hint that small is valid, not implausible, so it is honored rather than
+    // raised to the no-hint default.
+    let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 3200, profile: .zeroHop)
+    #expect(abs(timeout - 3.84) < tolerance)
+    #expect(timeout < 5.0) // below the no-hint default, not snapped up to it
+  }
+
+  @Test
+  func `Zero-hop honors a fast-preset hint`() {
+    let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 1300, profile: .zeroHop)
+    #expect(abs(timeout - 1.56) < tolerance)
+  }
+
+  @Test
+  func `Zero-hop floors a tiny hint`() {
+    let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 500, profile: .zeroHop)
+    #expect(timeout == 1.0)
+  }
+
+  @Test
+  func `Zero-hop honors a slow max-range preset hint up to the ceiling`() {
+    // SF12/BW125 zero-hop round trips genuinely approach ~20s; it must not be
+    // clamped down, or a valid slow link reports a false no-response.
+    let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 20000, profile: .zeroHop)
+    #expect(timeout == 24.0)
+  }
+
+  @Test
+  func `Zero-hop defaults on a missing hint`() {
+    let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 0, profile: .zeroHop)
+    #expect(timeout == 5.0)
+  }
+
+  @Test
+  func `Zero-hop caps an absurd hint`() {
+    let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 68_719_800, profile: .zeroHop)
+    #expect(timeout == 30.0)
+  }
+
+  // MARK: - Flood (path discovery, user-built multi-hop traces)
+
+  @Test
+  func `Flood honors a sane hint`() {
+    let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 5000, profile: .flood)
     #expect(timeout == 6.0)
   }
 
   @Test
-  func `Falls back on zero timeout`() {
-    let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 0)
+  func `Flood floors a small hint rather than rejecting it`() {
+    let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 3000, profile: .flood)
+    #expect(timeout == 5.0)
+  }
+
+  @Test
+  func `Flood defaults on a missing hint`() {
+    let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 0, profile: .flood)
     #expect(timeout == 30.0)
   }
 
   @Test
-  func `Falls back below minimum timeout`() {
-    let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 3000)
-    #expect(timeout == 30.0)
-  }
-
-  @Test
-  func `Falls back for absurdly large timeout`() {
-    let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 68_719_800)
-    #expect(timeout == 30.0)
+  func `Flood caps an absurd hint`() {
+    let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 68_719_800, profile: .flood)
+    #expect(timeout == 60.0)
   }
 }

@@ -50,7 +50,8 @@ enum PingHelper {
         )
 
         let timeoutSeconds = FirmwareSuggestedTimeout.sanitizedSeconds(
-          suggestedTimeoutMs: sentInfo.suggestedTimeoutMs
+          suggestedTimeoutMs: sentInfo.suggestedTimeoutMs,
+          profile: .zeroHop
         )
         group.addTask {
           try await Task.sleep(for: .seconds(timeoutSeconds))

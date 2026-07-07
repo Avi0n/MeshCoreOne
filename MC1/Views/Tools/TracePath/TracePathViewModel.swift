@@ -762,7 +762,7 @@ final class TracePathViewModel {
         flags: effectiveTraceMode,
         path: pathData
       )
-      timeoutSeconds = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: sentInfo.suggestedTimeoutMs)
+      timeoutSeconds = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: sentInfo.suggestedTimeoutMs, profile: .flood)
       logger.info("Sent trace with tag \(tag), path: \(self.fullPathString), timeout: \(timeoutSeconds)s")
     } catch {
       logger.error("Failed to send trace: \(error.localizedDescription)")
@@ -928,7 +928,7 @@ final class TracePathViewModel {
         flags: effectiveTraceMode,
         path: pathData
       )
-      timeoutSeconds = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: sentInfo.suggestedTimeoutMs)
+      timeoutSeconds = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: sentInfo.suggestedTimeoutMs, profile: .flood)
       logger.info("Sent batch trace \(self.currentTraceIndex)/\(self.batchSize) with tag \(tag), timeout: \(timeoutSeconds)s")
     } catch {
       logger.error("Failed to send trace: \(error.localizedDescription)")
