@@ -30,7 +30,7 @@ struct ChatMessagesTableView: View {
   @Environment(\.openURL) private var openURL
 
   private var showDividerButton: Bool {
-    newMessagesDividerMessageID != nil && !hasDismissedDividerButton && !isAtBottom
+    newMessagesDividerMessageID != nil && !hasDismissedDividerButton
   }
 
   var body: some View {
