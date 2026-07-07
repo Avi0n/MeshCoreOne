@@ -3,9 +3,19 @@ import SwiftUI
 extension View {
   /// Leaves the navigation bar title empty while the header is on screen, then fades
   /// in `title` (the entity name) once the user scrolls past `revealAfter` points.
+  /// Pass the header's measured height (see `scrollRevealHeaderHeight`) so the reveal
+  /// tracks the real header size and adapts to Dynamic Type.
   /// Pairs with `.navigationBarTitleDisplayMode(.inline)`.
   func scrollRevealNavigationTitle(_ title: String, revealAfter: CGFloat = 150) -> some View {
     modifier(ScrollRevealNavigationTitle(title: title, revealAfter: revealAfter))
+  }
+
+  /// Reports the measured height of the scroll-reveal header into `height`, so the
+  /// title reveals based on the header's real (Dynamic Type-aware) size rather than a
+  /// fixed threshold. Attach to the header content, then feed `height` to
+  /// `scrollRevealNavigationTitle(_:revealAfter:)`.
+  func scrollRevealHeaderHeight(_ height: Binding<CGFloat>) -> some View {
+    onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height.wrappedValue = $0 }
   }
 }
 

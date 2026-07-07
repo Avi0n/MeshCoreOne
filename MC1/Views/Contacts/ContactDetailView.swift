@@ -46,6 +46,7 @@ struct ContactDetailView: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.isPresented) private var isPresented
 
   let contact: ContactDTO
   let showFromDirectChat: Bool
@@ -78,7 +79,8 @@ struct ContactDetailView: View {
   @State private var showingClearMessagesAlert = false
   @State private var isClearingMessages = false
   @State private var isSaving = false
-  @State private var isTogglingFavorite = false
+  @State private var isFavorite: Bool
+  @State private var favoriteTask: Task<Void, Never>?
   @State private var errorMessage: String?
   @State private var pathViewModel = PathManagementViewModel()
   @State private var showRoomJoinSheet = false
@@ -94,12 +96,14 @@ struct ContactDetailView: View {
   @State private var pingResult: PingResult?
   @State private var isSharing = false
   @State private var showShareSuccess = false
+  @State private var headerHeight: CGFloat = 150
 
   init(contact: ContactDTO, showFromDirectChat: Bool = false, onClearMessages: @escaping () -> Void = {}) {
     self.contact = contact
     self.showFromDirectChat = showFromDirectChat
     self.onClearMessages = onClearMessages
     _currentContact = State(initialValue: contact)
+    _isFavorite = State(initialValue: contact.isFavorite)
   }
 
   var body: some View {
@@ -107,12 +111,14 @@ struct ContactDetailView: View {
       // Profile header
       ContactProfileSection(
         currentContact: currentContact,
-        contactTypeLabel: contactTypeLabel
+        contactTypeLabel: contactTypeLabel,
+        measuredHeight: $headerHeight
       )
 
       // Quick actions
       ContactActionsSection(
         currentContact: currentContact,
+        isFavorite: $isFavorite,
         showFromDirectChat: showFromDirectChat,
         isPinging: isPinging,
         pingResult: pingResult,
@@ -135,6 +141,10 @@ struct ContactDetailView: View {
         showShareSuccess: showShareSuccess
       )
       .themedRowBackground(theme)
+      .onChange(of: isFavorite) { _, newValue in
+        favoriteTask?.cancel()
+        favoriteTask = Task { await setFavorite(newValue) }
+      }
 
       // Info section
       ContactInfoSection(
@@ -186,22 +196,13 @@ struct ContactDetailView: View {
     .themedCanvas(theme)
     .errorAlert($errorMessage)
     .navigationBarTitleDisplayMode(.inline)
-    .scrollRevealNavigationTitle(currentContact.displayName)
+    .scrollRevealNavigationTitle(currentContact.displayName, revealAfter: headerHeight)
     .contentMargins(.top, 0, for: .scrollContent)
     .toolbar {
-      ToolbarItem(placement: .topBarLeading) {
-        Button {
-          Task { await toggleFavorite() }
-        } label: {
-          Image(systemName: currentContact.isFavorite ? "star.fill" : "star")
-            .foregroundStyle(currentContact.isFavorite ? .yellow : .secondary)
+      if isPresented {
+        ToolbarItem(placement: .confirmationAction) {
+          Button(L10n.Localizable.Common.done) { dismiss() }
         }
-        .disabled(isTogglingFavorite)
-        .radioDisabled(for: appState.connectionState)
-      }
-
-      ToolbarItem(placement: .confirmationAction) {
-        Button(L10n.Localizable.Common.done) { dismiss() }
       }
     }
     .alert(L10n.Contacts.Contacts.Detail.Alert.Block.title, isPresented: $showingBlockAlert) {
@@ -398,16 +399,12 @@ struct ContactDetailView: View {
 
   // MARK: - Actions
 
-  private func toggleFavorite() async {
-    isTogglingFavorite = true
-    defer { isTogglingFavorite = false }
-
+  private func setFavorite(_ isFavorite: Bool) async {
     do {
       try await appState.services?.contactService.setContactFavorite(
         currentContact.id,
-        isFavorite: !currentContact.isFavorite
+        isFavorite: isFavorite
       )
-      await refreshContact()
     } catch {
       errorMessage = error.userFacingMessage
     }
@@ -531,6 +528,7 @@ private struct ContactDetailAvatarView: View {
 private struct ContactProfileSection: View {
   let currentContact: ContactDTO
   let contactTypeLabel: String
+  @Binding var measuredHeight: CGFloat
 
   var body: some View {
     Section {
@@ -570,6 +568,7 @@ private struct ContactProfileSection: View {
         }
       }
       .frame(maxWidth: .infinity)
+      .scrollRevealHeaderHeight($measuredHeight)
       .listRowBackground(Color.clear)
     }
   }
@@ -579,6 +578,7 @@ private struct ContactActionsSection: View {
   @Environment(\.appState) private var appState
 
   let currentContact: ContactDTO
+  @Binding var isFavorite: Bool
   let showFromDirectChat: Bool
   let isPinging: Bool
   let pingResult: PingResult?
@@ -593,6 +593,10 @@ private struct ContactActionsSection: View {
 
   var body: some View {
     Section {
+      Toggle(isOn: $isFavorite) {
+        Label(L10n.Contacts.Contacts.Detail.favorite, systemImage: "star")
+      }
+
       // Role-specific actions based on contact type
       switch currentContact.type {
       case .room:
@@ -754,6 +758,7 @@ private struct ContactInfoSection: View {
             Image(systemName: "pencil")
           }
           .buttonStyle(.borderless)
+          .accessibilityLabel(L10n.Contacts.Contacts.Common.edit)
         }
       }
 

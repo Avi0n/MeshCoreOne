@@ -16,6 +16,7 @@ struct RoomInfoSheet: View {
   @State private var favoriteTask: Task<Void, Never>?
   @State private var showTelemetry = false
   @State private var showSettings = false
+  @State private var headerHeight: CGFloat = 150
 
   init(session: RemoteNodeSessionDTO) {
     self.session = session
@@ -41,10 +42,12 @@ struct RoomInfoSheet: View {
             }
           }
           .frame(maxWidth: .infinity)
+          .scrollRevealHeaderHeight($headerHeight)
           .listRowBackground(Color.clear)
         }
 
         ConversationQuickActionsSection(
+          isFavorite: $isFavorite,
           notificationLevel: $notificationLevel,
           availableLevels: NotificationLevel.roomLevels
         )
@@ -111,17 +114,9 @@ struct RoomInfoSheet: View {
       }
       .themedCanvas(theme)
       .navigationBarTitleDisplayMode(.inline)
-      .scrollRevealNavigationTitle(session.name)
+      .scrollRevealNavigationTitle(session.name, revealAfter: headerHeight)
+      .contentMargins(.top, 0, for: .scrollContent)
       .toolbar {
-        ToolbarItem(placement: .topBarLeading) {
-          Button {
-            isFavorite.toggle()
-          } label: {
-            Image(systemName: isFavorite ? "star.fill" : "star")
-              .foregroundStyle(isFavorite ? .yellow : .secondary)
-          }
-        }
-
         ToolbarItem(placement: .confirmationAction) {
           Button(L10n.Localizable.Common.done) { dismiss() }
         }

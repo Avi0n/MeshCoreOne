@@ -34,6 +34,7 @@ struct ChannelInfoSheet: View {
   @State private var discoveredNewRegions: [String] = []
   @State private var showingDiscoveryResults = false
   @State private var selectedFloodScope: ChannelFloodScope
+  @State private var headerHeight: CGFloat = 150
 
   init(channel: ChannelDTO, onClearMessages: @escaping () -> Void, onDelete: @escaping () -> Void) {
     self.channel = channel
@@ -48,10 +49,11 @@ struct ChannelInfoSheet: View {
     NavigationStack {
       Form {
         // Channel Header Section
-        ChannelInfoHeaderSection(channel: channel)
+        ChannelInfoHeaderSection(channel: channel, measuredHeight: $headerHeight)
 
         // Quick Actions Section
         ConversationQuickActionsSection(
+          isFavorite: $isFavorite,
           notificationLevel: $notificationLevel,
           availableLevels: NotificationLevel.channelLevels
         )
@@ -123,17 +125,9 @@ struct ChannelInfoSheet: View {
       }
       .themedCanvas(theme)
       .navigationBarTitleDisplayMode(.inline)
-      .scrollRevealNavigationTitle(channel.displayName)
+      .scrollRevealNavigationTitle(channel.displayName, revealAfter: headerHeight)
+      .contentMargins(.top, 0, for: .scrollContent)
       .toolbar {
-        ToolbarItem(placement: .topBarLeading) {
-          Button {
-            isFavorite.toggle()
-          } label: {
-            Image(systemName: isFavorite ? "star.fill" : "star")
-              .foregroundStyle(isFavorite ? .yellow : .secondary)
-          }
-        }
-
         ToolbarItem(placement: .confirmationAction) {
           Button(L10n.Chats.Chats.Common.done) {
             dismiss()
@@ -362,6 +356,7 @@ struct ChannelInfoSheet: View {
 
 private struct ChannelInfoHeaderSection: View {
   let channel: ChannelDTO
+  @Binding var measuredHeight: CGFloat
 
   private var channelTypeLabel: String {
     if channel.isPublicChannel {
@@ -389,6 +384,7 @@ private struct ChannelInfoHeaderSection: View {
         }
       }
       .frame(maxWidth: .infinity)
+      .scrollRevealHeaderHeight($measuredHeight)
       .listRowBackground(Color.clear)
     }
   }
