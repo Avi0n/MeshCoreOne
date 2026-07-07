@@ -105,7 +105,10 @@ struct ConnectRadioIDResolutionTests {
     #expect(secondConnect.radioID == originalRadioID)
 
     // The pre-reconnect PendingSend is still reachable under the resolved radioID.
-    let rows = try await secondConnect.services.dataStore.fetchPendingSends(radioID: secondConnect.radioID)
+    // Read back through the store that wrote it: both PersistenceStores share the
+    // in-memory ModelContainer, and a first cross-context fetch on the second
+    // store can miss the just-committed row, so query the context that owns it.
+    let rows = try await firstConnect.services.dataStore.fetchPendingSends(radioID: secondConnect.radioID)
     #expect(rows.contains { $0.messageID == pendingMessageID })
   }
 }
