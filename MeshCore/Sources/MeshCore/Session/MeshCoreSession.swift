@@ -192,9 +192,13 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   ///
   /// - Parameter reconnectingAttempt: When non-nil, publishes `.reconnecting(attempt:)`
   ///   instead of `.connecting` before establishing the transport/session.
+  /// - Parameter disconnectTransportOnFailure: When `false`, a failed `appStart`
+  ///   handshake unwinds the session without disconnecting the transport. Pass
+  ///   `false` when the caller does not own the link — e.g. a session rebuild over
+  ///   a transport that an OS-level reconnect is still recovering.
   /// - Throws: ``MeshTransportError`` if the transport connection fails.
   ///           ``MeshCoreError/timeout`` if the device doesn't respond to appStart.
-  public func start(reconnectingAttempt: Int? = nil) async throws {
+  public func start(reconnectingAttempt: Int? = nil, disconnectTransportOnFailure: Bool = true) async throws {
     // Guard against being called multiple times
     if isRunning {
       logger.warning("Session already running - skipping redundant start()")
@@ -235,7 +239,9 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
       isRunning = false
       receiveTask?.cancel()
       receiveTask = nil
-      await transport.disconnect()
+      if disconnectTransportOnFailure {
+        await transport.disconnect()
+      }
       updateConnectionState(.failed(error as? MeshTransportError ?? .connectionFailed(error.localizedDescription)))
       throw error
     }
@@ -245,11 +251,17 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   /// Stops the session and disconnects from the device.
   ///
   /// This method is safe to call multiple times. It cancels all pending operations,
-  /// stops the receive loop, and closes the transport connection.
+  /// stops the receive loop, and closes the transport connection unless
+  /// `disconnectTransport` is `false`.
   ///
   /// After calling this method, the session cannot be reused. Create a new session
   /// to reconnect.
-  public func stop() async {
+  ///
+  /// - Parameter disconnectTransport: When `false`, the transport link is left
+  ///   open. Pass `false` when the caller does not own the link — e.g. tearing
+  ///   down a superseded session while a newer reconnect cycle (or an OS-level
+  ///   pending connect) still rides on the same transport.
+  public func stop(disconnectTransport: Bool = true) async {
     logger.info("Stopping MeshCore session...")
     isRunning = false
     stopAutoMessageFetching()
@@ -258,8 +270,10 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     autoContactRefreshRequested = false
     receiveTask?.cancel()
     await dispatcher.finishAllSubscriptions()
-    logger.info("Disconnecting transport...")
-    await transport.disconnect()
+    if disconnectTransport {
+      logger.info("Disconnecting transport...")
+      await transport.disconnect()
+    }
     updateConnectionState(.disconnected)
     logger.info("MeshCore session stopped")
   }

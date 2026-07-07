@@ -60,15 +60,21 @@ extension ConnectionManager: BLEReconnectionDelegate {
       }
     }
 
+    // Session teardown in this rebuild never disconnects the transport: the
+    // link belongs to the reconnect cycle (or, when superseded, to a newer
+    // one), and an explicit disconnect here cancels the OS pending connect
+    // that is recovering it. User-initiated disconnects sever the transport
+    // through disconnect(reason:) independently.
+
     // Stop any existing session to prevent multiple receive loops racing for transport data
-    await session?.stop()
+    await session?.stop(disconnectTransport: false)
     session = nil
 
     let newSession = MeshCoreSession(transport: transport)
     session = newSession
 
     do {
-      try await newSession.start(reconnectingAttempt: 1)
+      try await newSession.start(reconnectingAttempt: 1, disconnectTransportOnFailure: false)
     } catch {
       logger.warning("[BLE] rebuildSession: session.start() failed: \(error.localizedDescription)")
       throw error
@@ -77,13 +83,13 @@ extension ConnectionManager: BLEReconnectionDelegate {
     // Check after await — user may have disconnected or a new reconnect cycle may have started
     guard connectionIntent.wantsConnection else {
       logger.info("User disconnected during session setup")
-      await newSession.stop()
+      await newSession.stop(disconnectTransport: false)
       connectionState = .disconnected
       return
     }
     guard reconnectionCoordinator.reconnectGeneration == expectedGeneration else {
       logger.info("[BLE] rebuildSession superseded by new reconnect cycle during session setup")
-      await newSession.stop()
+      await newSession.stop(disconnectTransport: false)
       return
     }
 
@@ -105,13 +111,13 @@ extension ConnectionManager: BLEReconnectionDelegate {
     // Check after await
     guard connectionIntent.wantsConnection else {
       logger.info("User disconnected during device query")
-      await newSession.stop()
+      await newSession.stop(disconnectTransport: false)
       connectionState = .disconnected
       return
     }
     guard reconnectionCoordinator.reconnectGeneration == expectedGeneration else {
       logger.info("[BLE] rebuildSession superseded by new reconnect cycle during device query")
-      await newSession.stop()
+      await newSession.stop(disconnectTransport: false)
       return
     }
 
@@ -125,7 +131,7 @@ extension ConnectionManager: BLEReconnectionDelegate {
     // Check after await — user may have disconnected or new reconnect cycle started
     guard connectionIntent.wantsConnection else {
       logger.info("User disconnected during service wiring")
-      await newSession.stop()
+      await newSession.stop(disconnectTransport: false)
       await newServices.tearDown()
       services = nil
       connectedDevice = nil
@@ -135,7 +141,7 @@ extension ConnectionManager: BLEReconnectionDelegate {
     }
     guard reconnectionCoordinator.reconnectGeneration == expectedGeneration else {
       logger.info("[BLE] rebuildSession superseded by new reconnect cycle during service wiring")
-      await newSession.stop()
+      await newSession.stop(disconnectTransport: false)
       await newServices.tearDown()
       services = nil
       connectedDevice = nil
@@ -155,7 +161,7 @@ extension ConnectionManager: BLEReconnectionDelegate {
           connectedDevice != nil
     else {
       logger.info("[BLE] rebuildSession aborted after onConnectionReady: reconnect state changed")
-      await newSession.stop()
+      await newSession.stop(disconnectTransport: false)
       await newServices.tearDown()
       services = nil
       connectedDevice = nil
@@ -169,7 +175,7 @@ extension ConnectionManager: BLEReconnectionDelegate {
           reconnectionCoordinator.reconnectGeneration == expectedGeneration,
           services === newServices
     else {
-      await newSession.stop()
+      await newSession.stop(disconnectTransport: false)
       return
     }
 
@@ -184,7 +190,7 @@ extension ConnectionManager: BLEReconnectionDelegate {
       else {
         // IDs preserved for next reconnect cycle — new IDs may have
         // arrived during handleBLEReconnection if BLE dropped mid-reauth.
-        await newSession.stop()
+        await newSession.stop(disconnectTransport: false)
         return
       }
 
@@ -201,7 +207,7 @@ extension ConnectionManager: BLEReconnectionDelegate {
         reconnectionCoordinator.reconnectGeneration == expectedGeneration
       }
     ) else {
-      await newSession.stop()
+      await newSession.stop(disconnectTransport: false)
       return
     }
 
@@ -216,6 +222,15 @@ extension ConnectionManager: BLEReconnectionDelegate {
 
   func notifyConnectionLost() async {
     await onConnectionLost?()
+    // Reaching UI connection-loss while intent still wants a connection means
+    // the automatic reconnect paths have been abandoned; the watchdog is the
+    // remaining recovery. It stands down by itself while iOS auto-reconnect
+    // is in progress, so arming it alongside a live pending connect is safe.
+    if connectionIntent.wantsConnection,
+       connectionState == .disconnected,
+       currentTransportType == nil || currentTransportType == .bluetooth {
+      startReconnectionWatchdog()
+    }
   }
 
   func isTransportAutoReconnecting() async -> Bool {
@@ -244,12 +259,8 @@ extension ConnectionManager: BLEReconnectionDelegate {
     // Same callback contract as handleConnectionLoss and the UI-timeout
     // path in BLEReconnectionCoordinator: route through notifyConnectionLost()
     // so AppState tears down its observers and the Live Activity transitions
-    // to disconnected. Without this the LA stays in stale "connected" state.
+    // to disconnected, and the watchdog restarts while intent wants a
+    // connection. Without this the LA stays in stale "connected" state.
     await notifyConnectionLost()
-
-    // Start watchdog to periodically retry if user still wants connection
-    if connectionIntent.wantsConnection {
-      startReconnectionWatchdog()
-    }
   }
 }

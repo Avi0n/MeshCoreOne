@@ -110,6 +110,12 @@ extension BLEStateMachine {
       transition(to: .idle)
       onDisconnection?(peripheral.identifier, nil)
     }
+    // Auto-reconnect waits indefinitely on the OS pending connect, which can
+    // never complete once Bluetooth is unavailable; tear down explicitly.
+    if case let .autoReconnecting(peripheral, _, _) = phase {
+      transition(to: .idle)
+      onDisconnection?(peripheral.identifier, error)
+    }
   }
 
   func handleRestoredPeripheral(_ peripheral: CBPeripheral, source: RestoredPeripheralSource = .stateRestoration) {

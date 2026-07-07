@@ -1061,6 +1061,8 @@ public final class ConnectionManager {
 
   /// Cleans up session and services without changing connection state (used during retries)
   func cleanupResources() async {
+    // stop() at its default disconnects the transport — the explicit-disconnect
+    // and device-switch paths rely on this call to sever the link.
     await session?.stop()
     await services?.tearDown()
     session = nil

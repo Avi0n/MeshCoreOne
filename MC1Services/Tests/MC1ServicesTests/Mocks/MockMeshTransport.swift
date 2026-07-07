@@ -14,6 +14,7 @@ public actor MockMeshTransport: iOSMeshTransport {
   }
 
   public private(set) var connectInvocations: [ConnectInvocation] = []
+  public private(set) var disconnectInvocations = 0
   private var currentDeviceID: UUID?
   private var disconnectionHandler: (@Sendable (UUID, Error?) -> Void)?
   private var reconnectionHandler: (@Sendable (UUID) -> Void)?
@@ -50,6 +51,7 @@ public actor MockMeshTransport: iOSMeshTransport {
   }
 
   public func disconnect() async {
+    disconnectInvocations += 1
     connected = false
   }
 

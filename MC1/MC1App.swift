@@ -200,8 +200,11 @@ struct MC1App: App {
       }
     case .background:
       appState.handleEnterBackground()
+      // Flush the shared buffer, not services?.debugLogBuffer: while disconnected
+      // (a failing reconnect is exactly that window) services is nil, and unflushed
+      // entries die with the process if iOS terminates the suspended app.
       Task {
-        await appState.services?.debugLogBuffer.flush()
+        await DebugLogBuffer.shared?.flush()
       }
     case .inactive:
       break
