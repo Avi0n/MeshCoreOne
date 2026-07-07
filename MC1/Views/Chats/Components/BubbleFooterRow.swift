@@ -145,37 +145,27 @@ private struct BubbleHopCountFooter: View {
   }
 }
 
-/// Path chip that fits the comma-separated hop IDs onto a single line, dropping
-/// nodes from the center (replacing them with an ellipsis) as space tightens so
-/// the first and last hops always stay visible. `ViewThatFits` picks the longest
-/// candidate that fits the offered width; it hugs that candidate rather than
-/// filling the width, so it stays safe inside the self-sizing bubble cell.
+/// Path chip that shows the comma-separated hop IDs on a single line, capped at four nodes. A
+/// longer path collapses to the first two and last two hops joined by an ellipsis, so the endpoints
+/// always stay visible. A fixed cap (rather than a width-measuring `ViewThatFits`) keeps this off
+/// the per-cell layout path, which measured every candidate and hitched slightly during scroll.
 private struct BubblePathFooter: View {
   let formattedPath: String
 
-  /// Progressively collapsed renderings, longest first: the full path, then one
-  /// fewer center node each step down to just the two endpoints.
-  private var candidates: [String] {
+  /// The hop IDs, middle-truncated to at most four nodes (two head, two tail).
+  private var displayPath: String {
     let nodes = formattedPath.split(separator: ",", omittingEmptySubsequences: false).map(String.init)
-    guard nodes.count > 2 else { return [formattedPath] }
+    guard nodes.count > 4 else { return formattedPath }
 
-    var result = [nodes.joined(separator: ",")]
-    for shown in stride(from: nodes.count - 1, through: 2, by: -1) {
-      let head = nodes.prefix((shown + 1) / 2).joined(separator: ",")
-      let tail = nodes.suffix(shown / 2).joined(separator: ",")
-      result.append("\(head)…\(tail)")
-    }
-    return result
+    let head = nodes.prefix(2).joined(separator: ",")
+    let tail = nodes.suffix(2).joined(separator: ",")
+    return "\(head)…\(tail)"
   }
 
   var body: some View {
     HStack(spacing: 2) {
       Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
-      ViewThatFits(in: .horizontal) {
-        ForEach(candidates.indices, id: \.self) { index in
-          Text(candidates[index]).lineLimit(1)
-        }
-      }
+      Text(displayPath).lineLimit(1)
     }
     .font(.caption2.monospaced())
     .foregroundStyle(.secondary)
