@@ -52,7 +52,9 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
       }
     })
     .onTiledScrollGeometryChange { geometry in
-      let atBottom = geometry.pointsFromBottom < ChatScrollConstants.bottomDetectionThreshold
+      let atBottom = geometry.isEffectivelyAtBottom(
+        threshold: ChatScrollConstants.bottomDetectionThreshold
+      )
       if atBottom != isAtBottom { isAtBottom = atBottom }
       if atBottom, unreadCount != 0 { unreadCount = 0 }
       // Only follow appends while near the bottom; otherwise new messages
@@ -74,5 +76,18 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
       let appended = items.count - 1 - previousIndex
       if appended > 0 { unreadCount += appended }
     }
+  }
+}
+
+private extension TiledScrollGeometry {
+  /// `pointsFromBottom` can't detect the not-scrollable case: the tiled layout
+  /// reports a fixed sentinel `contentSize`, so a short conversation returns a
+  /// stale non-zero distance until the first scroll clamps the offset. Treat
+  /// content that fits the inset-adjusted viewport as already at the bottom.
+  func isEffectivelyAtBottom(threshold: CGFloat) -> Bool {
+    let maxOffsetY = contentSize.height - visibleSize.height + contentInset.bottom
+    let minOffsetY = -contentInset.top
+    guard maxOffsetY - minOffsetY > 0 else { return true }
+    return pointsFromBottom < threshold
   }
 }
