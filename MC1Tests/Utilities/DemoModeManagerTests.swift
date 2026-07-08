@@ -2,7 +2,7 @@ import Foundation
 @testable import MC1
 import Testing
 
-@Suite("DemoModeManager Tests")
+@Suite("DemoModeManager Tests", .serialized)
 @MainActor
 struct DemoModeManagerTests {
   private let defaults: UserDefaults
@@ -13,7 +13,7 @@ struct DemoModeManagerTests {
 
   // MARK: - Singleton Pattern Tests
 
-  @Test(.serialized)
+  @Test
   func `shared returns the same instance`() {
     let instance1 = DemoModeManager.shared
     let instance2 = DemoModeManager.shared

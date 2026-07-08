@@ -16,14 +16,12 @@ struct ThemeContrastTests {
   private static let traits: [(name: String, style: UIUserInterfaceStyle, collection: UITraitCollection)] = [
     ("light", .light, UITraitCollection(userInterfaceStyle: .light)),
     ("dark", .dark, UITraitCollection(userInterfaceStyle: .dark)),
-    ("light+highContrast", .light, UITraitCollection(traitsFrom: [
-      UITraitCollection(userInterfaceStyle: .light),
-      UITraitCollection(accessibilityContrast: .high)
-    ])),
-    ("dark+highContrast", .dark, UITraitCollection(traitsFrom: [
-      UITraitCollection(userInterfaceStyle: .dark),
-      UITraitCollection(accessibilityContrast: .high)
-    ]))
+    ("light+highContrast", .light, UITraitCollection(userInterfaceStyle: .light).modifyingTraits {
+      $0.accessibilityContrast = .high
+    }),
+    ("dark+highContrast", .dark, UITraitCollection(userInterfaceStyle: .dark).modifyingTraits {
+      $0.accessibilityContrast = .high
+    })
   ]
 
   /// The appearances a theme actually renders in. A forced color scheme pins the theme to one

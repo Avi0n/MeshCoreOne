@@ -3,6 +3,7 @@ import Foundation
 import Testing
 
 @Suite("RelativeTimestampText Tests")
+@MainActor
 struct RelativeTimestampTextTests {
   private let referenceDate = Date(timeIntervalSince1970: 1_700_000_000)
 

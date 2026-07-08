@@ -59,12 +59,12 @@ struct InlineImageCacheTests {
 
   @Test
   @MainActor
-  func `Decoded cache round-trips a stored entry with raw bytes`() async {
+  func `Decoded cache round-trips a stored entry with raw bytes`() {
     let url = uniqueURL()
     let image = Self.makeImage()
     let bytes = Data([0xFF, 0xD8, 0xFF, 0xE0])
     let entry = CachedDecodedImage(image: image, isGIF: false, data: bytes)
-    await InlineImageCache.shared.storeDecoded(entry, for: url)
+    InlineImageCache.shared.storeDecoded(entry, for: url)
 
     let result = InlineImageCache.shared.decoded(for: url)
     #expect(result?.image === image)
@@ -74,11 +74,11 @@ struct InlineImageCacheTests {
 
   @Test
   @MainActor
-  func `Decoded cache preserves the GIF flag and omits bytes`() async {
+  func `Decoded cache preserves the GIF flag and omits bytes`() {
     let url = uniqueURL()
     let image = Self.makeImage()
     let entry = CachedDecodedImage(image: image, isGIF: true, data: nil)
-    await InlineImageCache.shared.storeDecoded(entry, for: url)
+    InlineImageCache.shared.storeDecoded(entry, for: url)
 
     let result = InlineImageCache.shared.decoded(for: url)
     #expect(result?.isGIF == true)
@@ -87,13 +87,13 @@ struct InlineImageCacheTests {
 
   @Test
   @MainActor
-  func `Re-storing the same key replaces the entry without growing the cache`() async {
+  func `Re-storing the same key replaces the entry without growing the cache`() {
     let url = uniqueURL()
     let first = CachedDecodedImage(image: Self.makeImage(), isGIF: false, data: Data([0x01]))
     let second = CachedDecodedImage(image: Self.makeImage(), isGIF: true, data: nil)
 
-    await InlineImageCache.shared.storeDecoded(first, for: url)
-    await InlineImageCache.shared.storeDecoded(second, for: url)
+    InlineImageCache.shared.storeDecoded(first, for: url)
+    InlineImageCache.shared.storeDecoded(second, for: url)
 
     let result = InlineImageCache.shared.decoded(for: url)
     #expect(result?.image === second.image)

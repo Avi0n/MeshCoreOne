@@ -54,12 +54,12 @@ struct MessageFragmentBuilderTests {
   }
 
   @Test
-  func `malware warning replaces preview and inline image fragments`() throws {
+  func `malware warning replaces preview and inline image fragments`() {
     let message = makeMessage(text: "click me")
-    let inputs = try makeInputs(
+    let inputs = makeInputs(
       messageID: message.id,
       previewState: .malwareWarning,
-      cachedURL: #require(URL(string: "https://bad.example")),
+      cachedURL: URL(string: "https://bad.example"),
       hasCachedURLEntry: true
     )
     let item = MessageFragmentBuilder.makeItem(for: message, inputs: inputs, envInputs: makeEnvInputs())
@@ -162,12 +162,12 @@ struct MessageFragmentBuilderTests {
   }
 
   @Test
-  func `shouldRequestPreviewFetch is true on idle with URL and no legacy fields`() throws {
+  func `shouldRequestPreviewFetch is true on idle with URL and no legacy fields`() {
     let message = makeMessage(text: "hi")
-    let inputs = try makeInputs(
+    let inputs = makeInputs(
       messageID: message.id,
       previewState: .idle,
-      cachedURL: #require(URL(string: "https://example.com")),
+      cachedURL: URL(string: "https://example.com"),
       hasCachedURLEntry: true
     )
     let item = MessageFragmentBuilder.makeItem(for: message, inputs: inputs, envInputs: makeEnvInputs())
@@ -175,12 +175,12 @@ struct MessageFragmentBuilderTests {
   }
 
   @Test
-  func `shouldRequestPreviewFetch is false on legacy message`() throws {
+  func `shouldRequestPreviewFetch is false on legacy message`() {
     let message = makeMessage(text: "hi", linkPreviewURL: "https://example.com")
-    let inputs = try makeInputs(
+    let inputs = makeInputs(
       messageID: message.id,
       previewState: .idle,
-      cachedURL: #require(URL(string: "https://example.com")),
+      cachedURL: URL(string: "https://example.com"),
       hasCachedURLEntry: true
     )
     let item = MessageFragmentBuilder.makeItem(for: message, inputs: inputs, envInputs: makeEnvInputs())

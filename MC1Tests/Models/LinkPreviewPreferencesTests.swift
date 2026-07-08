@@ -20,7 +20,7 @@ struct LinkPreviewPreferencesTests {
 
   @Test
   func `shouldAutoResolve for DM respects settings`() {
-    var prefs = LinkPreviewPreferences(defaults: defaults)
+    let prefs = LinkPreviewPreferences(defaults: defaults)
 
     // Master on, auto on -> true
     prefs.previewsEnabled = true
@@ -39,7 +39,7 @@ struct LinkPreviewPreferencesTests {
 
   @Test
   func `shouldAutoResolve for channel respects settings`() {
-    var prefs = LinkPreviewPreferences(defaults: defaults)
+    let prefs = LinkPreviewPreferences(defaults: defaults)
 
     prefs.previewsEnabled = true
     prefs.autoResolveChannels = true
@@ -51,7 +51,7 @@ struct LinkPreviewPreferencesTests {
 
   @Test
   func `shouldShowPreview reflects global toggle`() {
-    var prefs = LinkPreviewPreferences(defaults: defaults)
+    let prefs = LinkPreviewPreferences(defaults: defaults)
 
     prefs.previewsEnabled = true
     #expect(prefs.shouldShowPreview == true)

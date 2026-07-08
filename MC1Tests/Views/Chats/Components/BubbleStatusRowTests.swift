@@ -4,6 +4,7 @@ import Foundation
 import Testing
 
 @Suite("BubbleStatusRow status text")
+@MainActor
 struct BubbleStatusRowTests {
   private func makeItem(
     status: MessageStatus,

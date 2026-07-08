@@ -153,10 +153,12 @@ struct NodeCLIViewModelTests {
     let viewModelB = makeViewModel(spy: spyB)
 
     viewModelA.executeCommand("ver")
+    viewModelB.executeCommand("reboot")
     try await waitUntil("A sent") { spyA.calls.contains { $0.command == "ver" } }
+    try await waitUntil("B sent") { spyB.calls.contains { $0.command == "reboot" } }
 
-    #expect(spyB.calls.isEmpty)
     #expect(spyA.calls.allSatisfy { $0.command == "ver" })
+    #expect(spyB.calls.allSatisfy { $0.command == "reboot" })
   }
 
   @Test

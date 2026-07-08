@@ -149,8 +149,7 @@ struct MessageBodyAttributeBridgingTests {
 
     var uikitBackgrounded: Set<Int> = []
     uikit.enumerateAttribute(.backgroundColor, in: NSRange(location: 0, length: uikit.length)) { value, range, _ in
-      guard let color = value as? UIColor else { return }
-      #expect(color != nil, "nil background at \(range) for \(label)")
+      guard value is UIColor else { return }
       for offset in range.location..<(range.location + range.length) {
         uikitBackgrounded.insert(offset)
       }
