@@ -181,6 +181,14 @@ final class NodeStatusSnapshot {
   /// Telemetry data, only populated if the user expanded the telemetry section.
   var telemetryEntries: [TelemetrySnapshotEntry]?
 
+  // MARK: - Location
+
+  /// Primary GPS fix at capture time. Both set or both nil; dropped when the node
+  /// had no lock. Written first-wins during in-window enrichment so a later no-fix
+  /// response can't erase a good fix.
+  var latitude: Double?
+  var longitude: Double?
+
   init(
     id: UUID = UUID(),
     timestamp: Date = .now,
@@ -203,7 +211,9 @@ final class NodeStatusSnapshot {
     postedCount: UInt16? = nil,
     postPushCount: UInt16? = nil,
     neighborSnapshots: [NeighborSnapshotEntry]? = nil,
-    telemetryEntries: [TelemetrySnapshotEntry]? = nil
+    telemetryEntries: [TelemetrySnapshotEntry]? = nil,
+    latitude: Double? = nil,
+    longitude: Double? = nil
   ) {
     self.id = id
     self.timestamp = timestamp
@@ -227,6 +237,8 @@ final class NodeStatusSnapshot {
     self.postPushCount = postPushCount
     self.neighborSnapshots = neighborSnapshots
     self.telemetryEntries = telemetryEntries
+    self.latitude = latitude
+    self.longitude = longitude
   }
 
   /// Apply captured status metrics onto this snapshot, leaving neighbor and
@@ -275,7 +287,9 @@ final class NodeStatusSnapshot {
       postedCount: dto.postedCount,
       postPushCount: dto.postPushCount,
       neighborSnapshots: dto.neighborSnapshots,
-      telemetryEntries: dto.telemetryEntries
+      telemetryEntries: dto.telemetryEntries,
+      latitude: dto.latitude,
+      longitude: dto.longitude
     )
   }
 }
@@ -308,6 +322,8 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
   public let postPushCount: UInt16?
   public let neighborSnapshots: [NeighborSnapshotEntry]?
   public let telemetryEntries: [TelemetrySnapshotEntry]?
+  public let latitude: Double?
+  public let longitude: Double?
 
   init(from model: NodeStatusSnapshot) {
     id = model.id
@@ -332,6 +348,8 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     postPushCount = model.postPushCount
     neighborSnapshots = model.neighborSnapshots
     telemetryEntries = model.telemetryEntries
+    latitude = model.latitude
+    longitude = model.longitude
   }
 
   public init(
@@ -356,7 +374,9 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     postedCount: UInt16? = nil,
     postPushCount: UInt16? = nil,
     neighborSnapshots: [NeighborSnapshotEntry]? = nil,
-    telemetryEntries: [TelemetrySnapshotEntry]? = nil
+    telemetryEntries: [TelemetrySnapshotEntry]? = nil,
+    latitude: Double? = nil,
+    longitude: Double? = nil
   ) {
     self.id = id
     self.timestamp = timestamp
@@ -380,5 +400,7 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     self.postPushCount = postPushCount
     self.neighborSnapshots = neighborSnapshots
     self.telemetryEntries = telemetryEntries
+    self.latitude = latitude
+    self.longitude = longitude
   }
 }

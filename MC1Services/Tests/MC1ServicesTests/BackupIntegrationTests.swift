@@ -1922,6 +1922,35 @@ struct BackupIntegrationTests {
     #expect(decoded.batteryMillivolts == 3800)
   }
 
+  /// Latitude/longitude are optional DTO fields, so the contract is a plain
+  /// encode → decode round-trip locking them at the DTO boundary.
+  @Test
+  func `Node location survives DTO encode → decode round-trip`() throws {
+    let dto = NodeStatusSnapshotDTO.testSnapshot(latitude: 37.7749, longitude: -122.4194)
+    let encoded = try JSONEncoder().encode(dto)
+    let decoded = try JSONDecoder().decode(NodeStatusSnapshotDTO.self, from: encoded)
+    #expect(decoded.latitude == 37.7749)
+    #expect(decoded.longitude == -122.4194)
+  }
+
+  /// A legacy envelope written before location existed omits both keys, so they
+  /// must decode as nil rather than failing the decode (per the optional-field rule).
+  @Test
+  func `Legacy snapshot envelope without location decodes it as nil`() throws {
+    let dto = NodeStatusSnapshotDTO.testSnapshot(latitude: 37.7749, longitude: -122.4194)
+    let encoded = try JSONEncoder().encode(dto)
+    let object = try JSONSerialization.jsonObject(with: encoded)
+    var json = try #require(object as? [String: Any])
+    json.removeValue(forKey: "latitude")
+    json.removeValue(forKey: "longitude")
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(NodeStatusSnapshotDTO.self, from: stripped)
+    #expect(decoded.latitude == nil)
+    #expect(decoded.longitude == nil)
+    // A field present in legacy envelopes still decodes.
+    #expect(decoded.batteryMillivolts == 3800)
+  }
+
   /// Full envelope path: the six counters must survive export → import into a fresh store.
   @Test
   func `Node status packet-type counters survive full backup export → import`() async throws {
