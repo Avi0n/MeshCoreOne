@@ -118,6 +118,14 @@ final class ChatViewModel {
   /// `loadMessages` and on subsequent toggle changes.
   var envInputs: EnvInputs = .default
 
+  /// Memoized `MessageText.buildFormattedText` output keyed by message ID.
+  /// A message's text and direction are immutable, and every other
+  /// formatting input is a function of `envInputs`, so an entry stays valid
+  /// until `applyEnvInputs` changes the environment (which clears it). This
+  /// turns a pagination rebuild from O(timeline) attributed-string work into
+  /// O(new page); every already-loaded row is a cache hit.
+  @ObservationIgnored var formattedTextCache: [UUID: (text: AttributedString, mapCoordinate: CLLocationCoordinate2D?)] = [:]
+
   /// Update env-derived inputs and trigger a full rebuild when the value
   /// changes and there are messages to rebuild. Idempotent on no-change.
   func applyEnvInputs(_ new: EnvInputs) {
@@ -130,6 +138,9 @@ final class ChatViewModel {
       MapSnapshotStore.shared.clearFailures()
     }
     envInputs = new
+    // The environment feeds every formatting input, so its cached output is
+    // now stale for all rows and must be rebuilt under the new appearance.
+    formattedTextCache.removeAll()
     guard !messages.isEmpty else { return }
     buildItems()
   }

@@ -78,22 +78,27 @@ extension ChatViewModel {
       return store.aspect(for: directURL) ?? store.aspect(for: cachedURL)
     }()
 
-    let theme = ThemeRegistry.theme(forID: envInputs.themeID) ?? .default
-    let identityBackgroundLuminances = theme.avatarSurfaceLuminances(
-      colorScheme: envInputs.isDark ? .dark : .light,
-      contrast: envInputs.isHighContrast ? .increased : .standard
-    )
-
-    let formatted = MessageText.buildFormattedText(
-      text: message.text,
-      isOutgoing: message.isOutgoing,
-      currentUserName: envInputs.currentUserName,
-      isHighContrast: envInputs.isHighContrast,
-      outgoingTextColor: theme.outgoingTextColor,
-      hashtagColor: theme.hashtagColor,
-      identityGamut: theme.identityGamut,
-      identityBackgroundLuminances: identityBackgroundLuminances
-    )
+    let formatted: (text: AttributedString, mapCoordinate: CLLocationCoordinate2D?)
+    if let cached = formattedTextCache[message.id] {
+      formatted = cached
+    } else {
+      let theme = ThemeRegistry.theme(forID: envInputs.themeID) ?? .default
+      let identityBackgroundLuminances = theme.avatarSurfaceLuminances(
+        colorScheme: envInputs.isDark ? .dark : .light,
+        contrast: envInputs.isHighContrast ? .increased : .standard
+      )
+      formatted = MessageText.buildFormattedText(
+        text: message.text,
+        isOutgoing: message.isOutgoing,
+        currentUserName: envInputs.currentUserName,
+        isHighContrast: envInputs.isHighContrast,
+        outgoingTextColor: theme.outgoingTextColor,
+        hashtagColor: theme.hashtagColor,
+        identityGamut: theme.identityGamut,
+        identityBackgroundLuminances: identityBackgroundLuminances
+      )
+      formattedTextCache[message.id] = formatted
+    }
 
     var isMapPreviewReady = false
     // Gate the snapshot index on the privacy toggle so the index stays empty for

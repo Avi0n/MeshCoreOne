@@ -131,6 +131,14 @@ extension ChatViewModel {
     var uncachedMessageIDs: [(UUID, String)] = []
     let messagesSnapshot = coordinator.messages
 
+    // Drop formatted-text entries for messages no longer in the timeline
+    // (conversation switch, deletion). Guarded so it is a no-op during normal
+    // pagination, where the cache only ever grows toward the message count.
+    if formattedTextCache.count > messagesSnapshot.count {
+      let liveIDs = Set(messagesSnapshot.map(\.id))
+      formattedTextCache = formattedTextCache.filter { liveIDs.contains($0.key) }
+    }
+
     let inputs: [(MessageDTO, MessageBuildInputs)] = messagesSnapshot.enumerated().map { index, message in
       let previous: MessageDTO? = index > 0 ? messagesSnapshot[index - 1] : nil
 

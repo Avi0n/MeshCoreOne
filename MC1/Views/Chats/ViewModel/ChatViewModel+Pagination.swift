@@ -75,13 +75,15 @@ extension ChatViewModel {
         }
       }
 
-      buildItems()
-
-      // Clear the spinner now that the prepended messages are visible.
-      // Reaction indexing below awaits the actor and can take many
-      // hundreds of milliseconds on a busy channel; gating the spinner
-      // through it leaves pagination feeling locked-up.
+      // Clear the spinner before building items, not after. `updateRenderState`
+      // bumps the coordinator's `renderStateID`; doing it after `buildItems()`
+      // invalidates the just-launched off-main build on apply, forcing a full
+      // duplicate rebuild of the entire timeline. The prepended messages are
+      // already in the canonical array, so the spinner can retire now, and the
+      // slow reaction indexing below never gates it.
       coordinator?.updateRenderState { $0.with(isLoadingOlder: false) }
+
+      buildItems()
 
       // Index older channel messages for reaction matching and process pending reactions
       if let channel,
