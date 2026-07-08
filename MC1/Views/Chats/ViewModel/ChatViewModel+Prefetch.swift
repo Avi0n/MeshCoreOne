@@ -239,6 +239,7 @@ extension ChatViewModel {
     decodedPreviewAssets.removeAll()
     legacyPreviewDecodeInFlight.removeAll()
     cachedURLs.removeAll()
+    imageURLsServingPages.removeAll()
     mapPreviewRequestIndex.removeAll()
     clearImageState()
   }
@@ -366,6 +367,7 @@ extension ChatViewModel {
       return false
     }
     return ImageURLClassifier.isImageURL(url)
+      && !imageURLsServingPages.contains(url.absoluteString)
   }
 
   /// Request inline image fetch for a message (called when cell becomes visible)
@@ -436,6 +438,26 @@ extension ChatViewModel {
 
     case .loading:
       break
+
+    case .notImage:
+      // The URL is an HTML page, not an image. Record it so the build path
+      // reroutes every message sharing it to the link-preview fragment, then
+      // drop to idle so the cell's fetch task re-fires through the preview
+      // path. With previews off the reroute renders text-only, so use a
+      // terminal state that spends no fetch.
+      imageURLsServingPages.insert(url.absoluteString)
+      let rerouteState: PreviewLoadState = envInputs.previewsEnabled ? .idle : .noPreview
+      previewStates[messageID] = rerouteState
+      // A second loaded message sharing this URL hit the in-flight dedup and
+      // only received .loading, leaving it shimmering as an inline image.
+      // Reset and rebuild each such twin so the reroute's preview fetch
+      // re-fires for it too.
+      for (twinID, twinURL) in cachedURLs {
+        guard twinID != messageID, twinURL == url,
+              previewStates[twinID] == .loading else { continue }
+        previewStates[twinID] = rerouteState
+        rebuildDisplayItem(for: twinID)
+      }
 
     case .failed:
       previewStates[messageID] = .noPreview

@@ -67,9 +67,14 @@ extension ChatViewModel {
   func makeBuildInputs(for message: MessageDTO, previous: MessageDTO?) -> MessageBuildInputs {
     let flags = Self.computeDisplayFlags(for: message, previous: previous)
     let cachedURL = cachedURLs[message.id].flatMap(\.self)
+    // Extension-based image classification, minus URLs the fetch path has
+    // since discovered serve an HTML page. Computed once and reused for the
+    // aspect-ratio gate so a rerouted URL neither fetches nor reserves a frame.
+    let isInlineImageURL = cachedURL.map {
+      ImageURLClassifier.isImageURL($0) && !imageURLsServingPages.contains($0.absoluteString)
+    } ?? false
     let inlineImageAspect: Double? = {
-      guard let cachedURL,
-            ImageURLClassifier.isImageURL(cachedURL),
+      guard isInlineImageURL, let cachedURL,
             let store = inlineImageDimensionsStore else { return nil }
       let directURL = ImageURLClassifier.directImageURL(for: cachedURL)
       return store.aspect(for: directURL) ?? store.aspect(for: cachedURL)
@@ -112,6 +117,7 @@ extension ChatViewModel {
       previewState: previewStates[message.id] ?? .idle,
       loadedPreview: loadedPreviews[message.id],
       cachedURL: cachedURL,
+      isInlineImageURL: isInlineImageURL,
       hasInlineImageRef: decodedImages[message.id] != nil,
       hasPreviewImageRef: decodedPreviewAssets[message.id]?.image != nil,
       hasPreviewIconRef: decodedPreviewAssets[message.id]?.icon != nil,

@@ -42,7 +42,7 @@ public enum MessageFragmentBuilder {
     }
 
     let url = inputs.cachedURL
-    let isImageURL = url.map(ImageURLClassifier.isImageURL) ?? false
+    let isImageURL = inputs.isInlineImageURL
 
     if inputs.previewState == .malwareWarning, let url {
       fragments.append(.malwareWarning(url))

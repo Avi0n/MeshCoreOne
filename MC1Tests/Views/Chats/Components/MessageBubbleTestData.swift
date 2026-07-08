@@ -135,11 +135,13 @@ enum MessageBubbleTestData {
     showIncomingRegion: Bool = false,
     senderResolution: NodeNameResolution = NodeNameResolution(displayName: "Unknown", matchKind: .unresolved)
   ) -> ItemBundle {
+    let isInlineImageURL = detectedURL.map { ImageURLClassifier.isImageURL($0) } ?? false
     let inputs = MessageBuildInputs(
       messageID: message.id,
       previewState: previewState,
       loadedPreview: loadedPreview,
       cachedURL: detectedURL,
+      isInlineImageURL: isInlineImageURL,
       hasInlineImageRef: decodedImage != nil,
       hasPreviewImageRef: decodedPreviewImage != nil,
       hasPreviewIconRef: decodedPreviewIcon != nil,

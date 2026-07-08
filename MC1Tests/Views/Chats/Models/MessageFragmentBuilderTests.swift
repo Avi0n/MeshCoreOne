@@ -67,6 +67,46 @@ struct MessageFragmentBuilderTests {
     #expect(kinds == [.text, .malwareWarning])
   }
 
+  /// An image-extension URL routes to the inline-image fragment when
+  /// `isInlineImageURL` is set; the builder consumes the precomputed decision
+  /// rather than re-classifying the URL by extension at build time.
+  @Test
+  func `image url with isInlineImageURL true routes to inline image`() throws {
+    let message = makeMessage(text: "see")
+    let url = try #require(URL(string: "https://example.com/cat.jpg"))
+    let inputs = makeInputs(
+      messageID: message.id,
+      cachedURL: url,
+      isInlineImageURL: true
+    )
+    let item = MessageFragmentBuilder.makeItem(for: message, inputs: inputs, envInputs: makeEnvInputs())
+    let kinds: [FragmentKind] = item.content.map(Self.kind(of:))
+    #expect(kinds.contains(.inlineImage))
+    #expect(!kinds.contains(.linkPreview))
+  }
+
+  /// The content-type fallback's routing effect: a page-serving image URL
+  /// (`isInlineImageURL: false`) reroutes from inline image to link preview,
+  /// where the page's own `og:image` loads. Verifies the builder honors the
+  /// override instead of classifying by extension.
+  @Test
+  func `page serving image url reroutes to link preview`() throws {
+    let message = makeMessage(text: "see")
+    let url = try #require(URL(string: "https://example.com/cat.jpg"))
+    let inputs = makeInputs(
+      messageID: message.id,
+      cachedURL: url,
+      isInlineImageURL: false,
+      previewsEnabled: true
+    )
+    let item = MessageFragmentBuilder.makeItem(
+      for: message, inputs: inputs, envInputs: makeEnvInputs(previewsEnabled: true)
+    )
+    let kinds: [FragmentKind] = item.content.map(Self.kind(of:))
+    #expect(kinds.contains(.linkPreview))
+    #expect(!kinds.contains(.inlineImage))
+  }
+
   @Test
   func `legacy link preview surfaces with persisted fields when state is idle`() {
     let message = makeMessage(
@@ -583,6 +623,7 @@ struct MessageFragmentBuilderTests {
     previewState: PreviewLoadState = .idle,
     loadedPreview: LinkPreviewDataDTO? = nil,
     cachedURL: URL? = nil,
+    isInlineImageURL: Bool = false,
     hasCachedURLEntry: Bool = false,
     hasInlineImageRef: Bool = false,
     hasPreviewImageRef: Bool = false,
@@ -609,6 +650,7 @@ struct MessageFragmentBuilderTests {
       previewState: previewState,
       loadedPreview: loadedPreview,
       cachedURL: cachedURL,
+      isInlineImageURL: isInlineImageURL,
       hasInlineImageRef: hasInlineImageRef,
       hasPreviewImageRef: hasPreviewImageRef,
       hasPreviewIconRef: hasPreviewIconRef,

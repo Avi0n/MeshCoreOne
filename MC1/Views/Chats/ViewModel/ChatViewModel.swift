@@ -266,6 +266,13 @@ final class ChatViewModel {
   /// Cached URL detection results to avoid re-running NSDataDetector on rebuilds
   var cachedURLs: [UUID: URL?] = [:]
 
+  /// Image-extension URLs the fetch path has discovered serve an HTML page,
+  /// not image bytes (imgur, pasteboard, prnt.sc). Keyed by URL string so one
+  /// discovery reroutes every loaded message sharing it. Gates the synchronous
+  /// build path (`isInlineImageURL`, `shouldRequestImageFetch`); cleared on
+  /// conversation switch, so re-entering a chat re-fetches each page URL once.
+  var imageURLsServingPages: Set<String> = []
+
   /// Maps a snapshot request to the messages that show its thumbnail, so a late
   /// `resolutionStream` event rebuilds only those rows (O(matches)) instead of
   /// regex-scanning every loaded message. Populated in `makeBuildInputs`,

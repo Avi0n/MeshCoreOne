@@ -11,6 +11,10 @@ enum InlineImageResult {
   case loaded(Data)
   case loading
   case failed
+  /// The URL resolved to an HTML page, not image bytes (e.g. an image-host
+  /// landing page served at a `.jpg` path). Not a failure: the caller reroutes
+  /// the message to the link-preview path so the page's own `og:image` loads.
+  case notImage
 }
 
 /// Actor-based cache for fetching and caching inline image data.
@@ -20,6 +24,7 @@ actor InlineImageCache {
 
   private let logger = Logger(subsystem: "com.mc1", category: "InlineImageCache")
 
+  private let session: URLSession
   private let memoryCache = NSCache<NSString, CachedImageData>()
   private let fetchSemaphore = AsyncSemaphore(value: 3)
   private var failedURLs: Set<String> = []
@@ -41,6 +46,9 @@ actor InlineImageCache {
   private static let rangeHeaderField = "Range"
   private static let httpStatusOK = 200
   private static let httpStatusPartialContent = 206
+  /// MIME type that marks a fetched body as an HTML page rather than an
+  /// image, even when the URL path carries an image extension.
+  private static let htmlMimeType = "text/html"
 
   /// Decoded-cache caps cover the total working-set per entry: decoded
   /// pixel bytes (cgImage bytesPerRow times height across frames) plus
@@ -50,7 +58,8 @@ actor InlineImageCache {
   private static let maxDecodedEntryCount = 50
   private static let maxDecodedTotalCostBytes = 100 * 1024 * 1024
 
-  init() {
+  init(session: URLSession = .shared) {
+    self.session = session
     memoryCache.countLimit = Self.maxEntryCount
     memoryCache.totalCostLimit = Self.maxTotalCostBytes
 
@@ -188,7 +197,7 @@ actor InlineImageCache {
     let data: Data
     let response: URLResponse
     do {
-      (data, response) = try await URLSession.shared.data(for: request)
+      (data, response) = try await session.data(for: request)
     } catch {
       logger.info("Image probe network failure: \(error.localizedDescription)")
       await fetchSemaphore.signal()
@@ -236,13 +245,23 @@ actor InlineImageCache {
     }
 
     do {
-      let (data, response) = try await URLSession.shared.data(from: url)
+      let (data, response) = try await session.data(from: url)
 
       guard let httpResponse = response as? HTTPURLResponse,
             (200...299).contains(httpResponse.statusCode) else {
         logger.debug("Non-success HTTP status for image: \(url.absoluteString)")
         failedURLs.insert(key)
         return .failed
+      }
+
+      // An image-extension URL that serves an HTML landing page (imgur,
+      // pasteboard, prnt.sc) is a page, not a decode failure. Return before
+      // the size guard so an oversized page still reroutes instead of
+      // dead-ending in the negative cache, and do not insert into failedURLs:
+      // this is a reclassification, so the URL must stay retryable.
+      if httpResponse.mimeType == Self.htmlMimeType {
+        logger.debug("Image URL served HTML, rerouting to preview: \(url.absoluteString)")
+        return .notImage
       }
 
       guard data.count <= Self.maxDownloadBytes else {

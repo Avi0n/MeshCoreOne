@@ -100,6 +100,7 @@ struct ChatCoordinatorTests {
         previewState: .idle,
         loadedPreview: nil,
         cachedURL: nil,
+        isInlineImageURL: false,
         hasInlineImageRef: false,
         hasPreviewImageRef: false,
         hasPreviewIconRef: false,

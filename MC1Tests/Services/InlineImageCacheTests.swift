@@ -21,6 +21,34 @@ struct InlineImageCacheTests {
     #expect(result == nil)
   }
 
+  // MARK: - HTML reroute
+
+  @Test
+  func `An image URL that serves HTML returns notImage and stays retryable`() async {
+    let cache = InlineImageCache(session: Self.stubbedSession())
+    let url = Self.htmlServingURL()
+
+    let first = await cache.fetchImageData(for: url)
+    #expect(Self.isNotImage(first))
+
+    // A reroute must not poison the negative cache: re-fetching runs the
+    // network path again rather than short-circuiting to .failed, so a chat
+    // re-entry can still discover the page and load its og:image.
+    let second = await cache.fetchImageData(for: url)
+    #expect(Self.isNotImage(second))
+  }
+
+  @Test
+  func `An oversized HTML page still returns notImage instead of tripping the size guard`() async {
+    let cache = InlineImageCache(session: Self.stubbedSession())
+    let url = Self.htmlServingURL(oversized: true)
+
+    // The mime-type check must precede the download-size guard, so a page
+    // larger than the image cap reroutes rather than dead-ending as .failed.
+    let result = await cache.fetchImageData(for: url)
+    #expect(Self.isNotImage(result))
+  }
+
   // MARK: - Decoded cache
 
   @Test
@@ -91,6 +119,24 @@ struct InlineImageCacheTests {
     URL(string: "https://example.invalid/\(UUID().uuidString).png")!
   }
 
+  /// An image-extension URL on an allow-listed CDN host, so the fetch's SSRF
+  /// gate passes without a real DNS lookup and the stubbed session answers.
+  private static func htmlServingURL(oversized: Bool = false) -> URL {
+    let marker = oversized ? "-\(HTMLResponseURLProtocol.oversizedMarker)" : ""
+    return URL(string: "https://media.giphy.com/\(UUID().uuidString)\(marker).jpg")!
+  }
+
+  private static func stubbedSession() -> URLSession {
+    let config = URLSessionConfiguration.ephemeral
+    config.protocolClasses = [HTMLResponseURLProtocol.self]
+    return URLSession(configuration: config)
+  }
+
+  private static func isNotImage(_ result: InlineImageResult) -> Bool {
+    if case .notImage = result { return true }
+    return false
+  }
+
   @MainActor
   private static func makeImage(width: Int = 1, height: Int = 1) -> UIImage {
     let renderer = UIGraphicsImageRenderer(size: CGSize(width: width, height: height))
@@ -99,4 +145,46 @@ struct InlineImageCacheTests {
       ctx.fill(CGRect(x: 0, y: 0, width: width, height: height))
     }
   }
+}
+
+/// Answers any request with a 200 `text/html` response, standing in for an
+/// image-extension URL that actually serves a landing page. A URL carrying
+/// `oversizedMarker` returns a body larger than the fetch's 10MB image cap,
+/// exercising that the HTML reclassification precedes the size guard.
+private final class HTMLResponseURLProtocol: URLProtocol {
+  static let oversizedMarker = "oversized"
+
+  private static let htmlBody = Data("<html><body>landing page</body></html>".utf8)
+  private static let oversizedByteCount = 11 * 1024 * 1024
+
+  // swiftlint:disable:next static_over_final_class
+  override class func canInit(with request: URLRequest) -> Bool {
+    true
+  }
+
+  // swiftlint:disable:next static_over_final_class
+  override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+    request
+  }
+
+  override func startLoading() {
+    guard let url = request.url,
+          let response = HTTPURLResponse(
+            url: url,
+            statusCode: 200,
+            httpVersion: "HTTP/1.1",
+            headerFields: ["Content-Type": "text/html; charset=utf-8"]
+          ) else {
+      client?.urlProtocol(self, didFailWithError: URLError(.badServerResponse))
+      return
+    }
+    client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+    let body = url.absoluteString.contains(Self.oversizedMarker)
+      ? Data(count: Self.oversizedByteCount)
+      : Self.htmlBody
+    client?.urlProtocol(self, didLoad: body)
+    client?.urlProtocolDidFinishLoading(self)
+  }
+
+  override func stopLoading() {}
 }

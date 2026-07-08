@@ -577,6 +577,36 @@ struct ChatViewModelTests {
     #expect(resolution.matchKind == .unresolved)
   }
 
+  // MARK: - Inline Image URL Classification
+
+  @Test
+  func `makeBuildInputs classifies an image-extension URL as an inline image`() throws {
+    let viewModel = ChatViewModel()
+    let message = createTestMessage(timestamp: 1000)
+    let imageURL = try #require(URL(string: "https://example.com/photo.png"))
+    viewModel.cachedURLs[message.id] = imageURL
+
+    let inputs = viewModel.makeBuildInputs(for: message, previous: nil)
+
+    #expect(inputs.isInlineImageURL == true)
+  }
+
+  @Test
+  func `makeBuildInputs reroutes a URL discovered to serve a page off the inline-image path`() throws {
+    // Once the fetch path records an image-extension URL as serving HTML
+    // (imageURLsServingPages), the build input must classify it as a link
+    // preview, not an inline image, so it neither refetches nor reserves a frame.
+    let viewModel = ChatViewModel()
+    let message = createTestMessage(timestamp: 1000)
+    let pageURL = try #require(URL(string: "https://example.com/photo.png"))
+    viewModel.cachedURLs[message.id] = pageURL
+    viewModel.imageURLsServingPages.insert(pageURL.absoluteString)
+
+    let inputs = viewModel.makeBuildInputs(for: message, previous: nil)
+
+    #expect(inputs.isInlineImageURL == false)
+  }
+
   @Test
   func `senderResolutionFor returns Unknown sentinel for DM messages`() {
     let viewModel = ChatViewModel()

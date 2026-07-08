@@ -11,6 +11,11 @@ public struct MessageBuildInputs: Sendable, Hashable {
   public let previewState: PreviewLoadState
   public let loadedPreview: LinkPreviewDataDTO?
   public let cachedURL: URL?
+  /// Whether `cachedURL` should route to the inline-image fragment. The
+  /// extension-based classification minus any URL the view model has since
+  /// discovered serves an HTML page (and so must reroute to link preview).
+  /// Precomputed at build time so the pure builder consumes one decision.
+  public let isInlineImageURL: Bool
   public let hasInlineImageRef: Bool
   public let hasPreviewImageRef: Bool
   public let hasPreviewIconRef: Bool
@@ -44,6 +49,7 @@ public struct MessageBuildInputs: Sendable, Hashable {
     previewState: PreviewLoadState,
     loadedPreview: LinkPreviewDataDTO?,
     cachedURL: URL?,
+    isInlineImageURL: Bool,
     hasInlineImageRef: Bool,
     hasPreviewImageRef: Bool,
     hasPreviewIconRef: Bool,
@@ -66,6 +72,7 @@ public struct MessageBuildInputs: Sendable, Hashable {
     self.previewState = previewState
     self.loadedPreview = loadedPreview
     self.cachedURL = cachedURL
+    self.isInlineImageURL = isInlineImageURL
     self.hasInlineImageRef = hasInlineImageRef
     self.hasPreviewImageRef = hasPreviewImageRef
     self.hasPreviewIconRef = hasPreviewIconRef
