@@ -334,7 +334,7 @@
 "advancedRadio.repeatMode" = "Repeat Mode";
 
 /* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Creates a local repeater on a dedicated frequency. Useful for hiking and remote areas. Valid frequencies: 433, 869, 918 MHz.";
+"advancedRadio.repeatMode.footer" = "Creates a local repeater on a dedicated frequency. Useful for hiking and remote areas. Valid frequencies: 433, 869.495, 918 MHz.";
 
 
 // MARK: - Path Hash Mode Section

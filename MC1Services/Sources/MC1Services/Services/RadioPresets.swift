@@ -184,16 +184,16 @@ public enum RadioPresets {
                 availability: .countries(["VN"])),
   ]
 
-  /// Repeat mode frequency presets with regional grouping.
-  /// BW 62.5 kHz + CR 8 maximize range for portable repeaters.
-  /// SF varies by band: higher for lower-power EU bands, lower for US.
+  /// Repeat mode frequency presets with regional grouping. Frequencies must match the
+  /// firmware's allowed repeat set exactly. Enabling Repeat Mode applies only the frequency;
+  /// the per-entry bandwidth/SF/CR are inert (kept because `RadioPreset`'s fields are non-optional).
   public static let repeatPresets: [RadioPreset] = [
     RadioPreset(id: "repeat-433", name: "433 MHz", region: .europe,
                 frequencyMHz: 433.000, bandwidthKHz: 62.5, spreadingFactor: 9, codingRate: 8,
                 repeatSectionHeader: "EU/Asia",
                 availability: .continent(.europe)),
     RadioPreset(id: "repeat-869", name: "869 MHz", region: .europe,
-                frequencyMHz: 869.000, bandwidthKHz: 62.5, spreadingFactor: 8, codingRate: 8,
+                frequencyMHz: 869.495, bandwidthKHz: 62.5, spreadingFactor: 8, codingRate: 8,
                 repeatSectionHeader: "EU",
                 availability: .continent(.europe)),
     RadioPreset(id: "repeat-918", name: "918 MHz", region: .northAmerica,
@@ -234,18 +234,17 @@ public enum RadioPresets {
     }
   }
 
-  /// Find repeat preset matching current device settings (exact match)
-  public static func matchingRepeatPreset(
-    frequencyKHz: UInt32,
-    bandwidthKHz: UInt32,
-    spreadingFactor: UInt8,
-    codingRate: UInt8
-  ) -> RadioPreset? {
-    repeatPresets.first { preset in
-      preset.frequencyKHz == frequencyKHz &&
-        preset.bandwidthHz == bandwidthKHz &&
-        preset.spreadingFactor == spreadingFactor &&
-        preset.codingRate == codingRate
+  /// Find the repeat preset for the device's current frequency. Repeat Mode only sets frequency,
+  /// so bandwidth/SF/CR are not part of the match.
+  public static func matchingRepeatPreset(frequencyKHz: UInt32) -> RadioPreset? {
+    repeatPresets.first { $0.frequencyKHz == frequencyKHz }
+  }
+
+  /// The repeat preset nearest to a frequency by absolute kHz distance. Enabling Repeat Mode snaps an
+  /// off-band frequency to this preset, since the firmware accepts only exact repeat frequencies.
+  public static func nearestRepeatPreset(toFrequencyKHz frequencyKHz: UInt32) -> RadioPreset? {
+    repeatPresets.min {
+      abs(Int($0.frequencyKHz) - Int(frequencyKHz)) < abs(Int($1.frequencyKHz) - Int(frequencyKHz))
     }
   }
 

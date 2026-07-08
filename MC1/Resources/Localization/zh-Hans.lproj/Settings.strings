@@ -326,7 +326,7 @@
 "advancedRadio.repeatMode" = "转发模式";
 
 /* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "在专用频率上打开转发。适用于徒步旅行和偏远地区。有效频率：433、869、918 MHz。";
+"advancedRadio.repeatMode.footer" = "在专用频率上打开转发。适用于徒步旅行和偏远地区。有效频率：433、869.495、918 MHz。";
 
 // MARK: - Path Hash Mode Section
 

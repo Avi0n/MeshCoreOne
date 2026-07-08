@@ -4168,7 +4168,7 @@ public enum L10n {
       }
       public enum RepeatMode {
         /// Footer explaining repeat mode in advanced radio
-        public static let footer = L10n.tr("Settings", "advancedRadio.repeatMode.footer", fallback: "Creates a local repeater on a dedicated frequency. Useful for hiking and remote areas. Valid frequencies: 433, 869, 918 MHz.")
+        public static let footer = L10n.tr("Settings", "advancedRadio.repeatMode.footer", fallback: "Creates a local repeater on a dedicated frequency. Useful for hiking and remote areas. Valid frequencies: 433, 869.495, 918 MHz.")
       }
     }
     public enum AdvancedSettings {

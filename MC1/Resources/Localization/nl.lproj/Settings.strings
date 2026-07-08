@@ -335,7 +335,7 @@
 "advancedRadio.repeatMode" = "Repeatermodus";
 
 /* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Creëert een lokale repeater op een eigen frequentie. Handig voor wandelen en afgelegen gebieden. Geldige frequenties: 433, 869, 918 MHz.";
+"advancedRadio.repeatMode.footer" = "Creëert een lokale repeater op een eigen frequentie. Handig voor wandelen en afgelegen gebieden. Geldige frequenties: 433, 869.495, 918 MHz.";
 
 
 /* Accessibility label for voltage text field at specific battery percent - %d is percent */

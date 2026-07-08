@@ -335,7 +335,7 @@
 "advancedRadio.repeatMode" = "Mode Répéteur";
 
 /* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Crée un répéteur local sur une fréquence dédiée. Utile pour la randonnée et les zones isolées. Fréquences valides : 433, 869, 918 MHz.";
+"advancedRadio.repeatMode.footer" = "Crée un répéteur local sur une fréquence dédiée. Utile pour la randonnée et les zones isolées. Fréquences valides : 433, 869.495, 918 MHz.";
 
 
 /* Accessibility label for voltage text field - %d is the percentage level */

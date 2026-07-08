@@ -335,7 +335,7 @@
 "advancedRadio.repeatMode" = "Режим ретранслятора";
 
 /* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Створює локальний ретранслятор на виділеній частоті. Корисно для походів та віддалених місцевостей. Допустимі частоти: 433, 869, 918 МГц.";
+"advancedRadio.repeatMode.footer" = "Створює локальний ретранслятор на виділеній частоті. Корисно для походів та віддалених місцевостей. Допустимі частоти: 433, 869.495, 918 МГц.";
 
 
 // MARK: - Path Hash Mode Section

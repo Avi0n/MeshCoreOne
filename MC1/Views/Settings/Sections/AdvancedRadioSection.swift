@@ -116,7 +116,10 @@ struct AdvancedRadioSection: View {
         if appState.connectedDevice?.supportsClientRepeat == true {
           Toggle(isOn: Binding(
             get: { clientRepeat ?? false },
-            set: { clientRepeat = $0 }
+            set: { newValue in
+              clientRepeat = newValue
+              if newValue { snapFrequencyForRepeat() } else { restoreFrequencyAfterRepeat() }
+            }
           )) {
             Text(L10n.Settings.AdvancedRadio.repeatMode)
             Text(L10n.Settings.AdvancedRadio.RepeatMode.footer)
@@ -146,10 +149,31 @@ struct AdvancedRadioSection: View {
       loadCurrentSettings()
     }
     .onChange(of: deviceRadioSettingsHash) { _, _ in
+      // Skip reloads while our own apply settles the device model. Frequency and clientRepeat arrive
+      // as separate events, and reloading on that intermediate state flickers the frequency field;
+      // the local fields already hold the applied values.
+      guard !isApplying, !showSuccess else { return }
       loadCurrentSettings()
     }
     .errorAlert($errorMessage)
     .retryAlert(retryAlert)
+  }
+
+  /// Repeat Mode requires an exact firmware-approved frequency, so an off-band value is snapped to
+  /// the nearest one; without this, enabling the toggle would submit a frequency the firmware rejects.
+  private func snapFrequencyForRepeat() {
+    guard let freqMHz = frequency else { return }
+    let currentKHz = UInt32((freqMHz * 1000).rounded())
+    guard RadioPresets.matchingRepeatPreset(frequencyKHz: currentKHz) == nil,
+          let nearest = RadioPresets.nearestRepeatPreset(toFrequencyKHz: currentKHz) else { return }
+    frequency = nearest.frequencyMHz
+  }
+
+  /// Restores the frequency the radio used before Repeat Mode so disabling the toggle returns to the
+  /// original band instead of stranding it on the repeat frequency; falls back to the current one.
+  private func restoreFrequencyAfterRepeat() {
+    guard let device = appState.connectedDevice else { return }
+    frequency = Double(device.preRepeatFrequency ?? device.frequency) / 1000.0
   }
 
   private func loadCurrentSettings() {

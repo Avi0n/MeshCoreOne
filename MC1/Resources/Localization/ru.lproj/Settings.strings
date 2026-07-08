@@ -335,7 +335,7 @@
 "advancedRadio.repeatMode" = "Режим ретранслятора";
 
 /* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Создаёт локальный ретранслятор на выделенной частоте. Полезно для походов и удалённых районов. Допустимые частоты: 433, 869, 918 МГц.";
+"advancedRadio.repeatMode.footer" = "Создаёт локальный ретранслятор на выделенной частоте. Полезно для походов и удалённых районов. Допустимые частоты: 433, 869.495, 918 МГц.";
 
 
 /* Accessibility label for voltage text field - %d is the percentage level */

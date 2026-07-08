@@ -14,6 +14,7 @@ struct RadioPresetSection: View {
   @State private var isRepeatEnabled: Bool = false
   @State private var isApplyingRepeat = false
   @State private var showRepeatConfirmation = false
+  @State private var isProgrammaticRepeatToggle = false
 
   private var startupTaskID: String {
     let deviceID = appState.connectedDevice?.id.uuidString ?? "none"
@@ -46,21 +47,13 @@ struct RadioPresetSection: View {
   /// Finds the repeat preset closest to the device's current frequency.
   private var closestRepeatPreset: RadioPreset? {
     guard let device = appState.connectedDevice else { return nil }
-    let deviceFreqKHz = device.frequency
-    return repeatPresets.min(by: {
-      abs(Int($0.frequencyKHz) - Int(deviceFreqKHz)) < abs(Int($1.frequencyKHz) - Int(deviceFreqKHz))
-    })
+    return RadioPresets.nearestRepeatPreset(toFrequencyKHz: device.frequency)
   }
 
   /// Matches the device's current radio params against repeat presets.
   private var currentRepeatPreset: RadioPreset? {
     guard let device = appState.connectedDevice else { return nil }
-    return RadioPresets.matchingRepeatPreset(
-      frequencyKHz: device.frequency,
-      bandwidthKHz: device.bandwidth,
-      spreadingFactor: device.spreadingFactor,
-      codingRate: device.codingRate
-    )
+    return RadioPresets.matchingRepeatPreset(frequencyKHz: device.frequency)
   }
 
   private var mismatchHint: String? {
@@ -116,11 +109,13 @@ struct RadioPresetSection: View {
 
       let detailPresets = isRepeatEnabled ? repeatPresets : presets
       if let preset = detailPresets.first(where: { $0.id == selectedPresetID }) {
+        // In Repeat Mode only the frequency is applied, so preview the device's kept bandwidth/SF/CR.
+        let device = isRepeatEnabled ? appState.connectedDevice : nil
         RadioParameterText(
           frequencyMHz: preset.frequencyMHz,
-          bandwidthKHz: preset.bandwidthKHz,
-          spreadingFactor: preset.spreadingFactor,
-          codingRate: preset.codingRate
+          bandwidthKHz: device.map { Double($0.bandwidth) / 1000.0 } ?? preset.bandwidthKHz,
+          spreadingFactor: device?.spreadingFactor ?? preset.spreadingFactor,
+          codingRate: device?.codingRate ?? preset.codingRate
         )
         .foregroundStyle(.secondary)
       } else if let device = appState.connectedDevice {
@@ -140,13 +135,14 @@ struct RadioPresetSection: View {
         }
         .accessibilityHint(L10n.Settings.Radio.RepeatMode.accessibilityHint)
         .onChange(of: isRepeatEnabled) { _, newValue in
-          guard hasInitialized else { return }
+          // A programmatic flip is consumed here so only a user's tap drives confirm/disable.
+          if isProgrammaticRepeatToggle {
+            isProgrammaticRepeatToggle = false
+            return
+          }
           if newValue {
-            hasInitialized = false
-            isRepeatEnabled = false
-            Task { @MainActor in
-              hasInitialized = true
-            }
+            // Hold the toggle off until the user confirms; the revert is programmatic.
+            setRepeatToggle(false)
             showRepeatConfirmation = true
           } else {
             disableRepeatMode()
@@ -170,7 +166,7 @@ struct RadioPresetSection: View {
     }
     .themedRowBackground(theme)
     .onAppear {
-      isRepeatEnabled = appState.connectedDevice?.clientRepeat ?? false
+      setRepeatToggle(appState.connectedDevice?.clientRepeat ?? false)
       selectedPresetID = currentMatchingPresetID
       // Mark as initialized after setting initial value
       // Using task to defer to next run loop, after onChange processes
@@ -204,7 +200,7 @@ struct RadioPresetSection: View {
       let newRepeatEnabled = newValue ?? false
       if newRepeatEnabled != isRepeatEnabled {
         hasInitialized = false
-        isRepeatEnabled = newRepeatEnabled
+        setRepeatToggle(newRepeatEnabled)
         selectedPresetID = currentMatchingPresetID
         Task { @MainActor in
           hasInitialized = true
@@ -234,11 +230,15 @@ struct RadioPresetSection: View {
           throw ConnectionError.notConnected
         }
         if isRepeatEnabled {
+          guard let device = appState.connectedDevice else {
+            throw ConnectionError.notConnected
+          }
+          // Repeat Mode changes only the frequency; bandwidth/SF/CR stay as the device's current values.
           _ = try await settingsService.setRadioParamsVerified(
             frequencyKHz: preset.frequencyKHz,
-            bandwidthKHz: preset.bandwidthHz,
-            spreadingFactor: preset.spreadingFactor,
-            codingRate: preset.codingRate,
+            bandwidthKHz: device.bandwidth,
+            spreadingFactor: device.spreadingFactor,
+            codingRate: device.codingRate,
             clientRepeat: true
           )
         } else {
@@ -269,12 +269,20 @@ struct RadioPresetSection: View {
 
     // Swap picker to repeat presets and select closest frequency
     hasInitialized = false
-    isRepeatEnabled = true
+    setRepeatToggle(true)
     selectedPresetID = preset.id
     Task { @MainActor in
       hasInitialized = true
       applyPreset(id: preset.id)
     }
+  }
+
+  /// Flips the Repeat Mode toggle programmatically. The toggle's onChange consumes the flag
+  /// so the confirm/disable handler runs only for a user's tap, never for our own writes.
+  private func setRepeatToggle(_ value: Bool) {
+    guard isRepeatEnabled != value else { return }
+    isProgrammaticRepeatToggle = true
+    isRepeatEnabled = value
   }
 
   private func disableRepeatMode() {
@@ -311,7 +319,7 @@ struct RadioPresetSection: View {
         }
         retryAlert.reset()
       } catch let error as SettingsServiceError where error.isRetryable {
-        isRepeatEnabled = true // Revert
+        setRepeatToggle(true) // Revert
         retryAlert.show(
           message: error.userFacingMessage,
           onRetry: { disableRepeatMode() },
@@ -319,7 +327,7 @@ struct RadioPresetSection: View {
         )
       } catch {
         errorMessage = error.userFacingMessage
-        isRepeatEnabled = true // Revert
+        setRepeatToggle(true) // Revert
       }
       isApplyingRepeat = false
     }
