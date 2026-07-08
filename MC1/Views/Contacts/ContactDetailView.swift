@@ -593,10 +593,6 @@ private struct ContactActionsSection: View {
 
   var body: some View {
     Section {
-      Toggle(isOn: $isFavorite) {
-        Label(L10n.Contacts.Contacts.Detail.favorite, systemImage: "star")
-      }
-
       // Role-specific actions based on contact type
       switch currentContact.type {
       case .room:
@@ -670,6 +666,10 @@ private struct ContactActionsSection: View {
         }
       }
       .radioDisabled(for: appState.connectionState, or: isSharing || showShareSuccess)
+
+      Toggle(isOn: $isFavorite) {
+        Label(L10n.Contacts.Contacts.Detail.favorite, systemImage: "star")
+      }
     }
   }
 }

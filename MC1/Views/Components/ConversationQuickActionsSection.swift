@@ -19,12 +19,12 @@ struct ConversationQuickActionsSection: View {
 
   var body: some View {
     Section {
+      NotificationLevelPicker(selection: $notificationLevel, availableLevels: availableLevels)
+        .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
+
       Toggle(isOn: $isFavorite) {
         Label(L10n.Chats.Chats.Action.favorite, systemImage: "star")
       }
-
-      NotificationLevelPicker(selection: $notificationLevel, availableLevels: availableLevels)
-        .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
     }
     .themedRowBackground(theme)
   }
