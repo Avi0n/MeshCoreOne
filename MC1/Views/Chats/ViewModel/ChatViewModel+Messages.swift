@@ -341,8 +341,39 @@ extension ChatViewModel {
 
   // MARK: - Messages
 
-  /// Load messages for a contact
+  /// Load messages for a contact: marks the conversation active, populates the
+  /// coordinator, then clears unread state. Delegates the coordinator population
+  /// to `primeInitialMessages(for:)`; the unread/badge/notify side effects here
+  /// run only when that load succeeded.
   func loadMessages(for contact: ContactDTO) async {
+    // Track active conversation for notification suppression
+    notificationService?.setActiveConversation(contactID: contact.id)
+
+    guard await primeInitialMessages(for: contact) else { return }
+
+    // Clear unread count and mention badge, then notify UI to refresh chat list.
+    // The messages already rendered, so a bookkeeping failure here is logged
+    // rather than surfaced as a load error.
+    do {
+      try await dataStore?.clearUnreadCount(contactID: contact.id)
+      try await dataStore?.clearUnreadMentionCount(contactID: contact.id)
+    } catch {
+      logger.warning("loadMessages: failed to clear unread counts - \(error.localizedDescription)")
+    }
+    syncCoordinator?.notifyConversationsChanged()
+
+    // Update app badge
+    await notificationService?.updateBadgeCount()
+  }
+
+  /// Populates the bound coordinator with the first page for `contact` and builds
+  /// its render items — with no notification, unread-clearing, or badge side
+  /// effects. Safe to run before navigation to warm the coordinator so the
+  /// conversation renders populated on the first frame instead of popping in a
+  /// frame after the push transition. `loadMessages` layers the open-time side
+  /// effects on top. Returns true when the fetch succeeded.
+  @discardableResult
+  func primeInitialMessages(for contact: ContactDTO) async -> Bool {
     // Close the per-conversation empty-state gate while the fetch is
     // in flight. No-op when the coordinator is already past
     // `.uninitialized` (warm rebind, refresh).
@@ -350,7 +381,7 @@ extension ChatViewModel {
 
     guard let dataStore else {
       coordinator?.markLoaded()
-      return
+      return false
     }
 
     // Clear preview state only when switching to a different conversation
@@ -363,9 +394,6 @@ extension ChatViewModel {
     currentContact = contact
     currentChannel = nil
 
-    // Track active conversation for notification suppression
-    notificationService?.setActiveConversation(contactID: contact.id)
-
     isLoading = true
     // Dual-reset: this function is shared between passive load and user-initiated
     // retry paths, so both surfaces must clear at entry to avoid stale state.
@@ -375,6 +403,7 @@ extension ChatViewModel {
     // Reset pagination state for new conversation
     coordinator?.updateRenderState { $0.with(hasMoreMessages: true, isLoadingOlder: false, totalFetchedCount: 0) }
 
+    var loaded = false
     do {
       // Size the first page to include every unread message so the divider target is loaded.
       let initialLimit = ChatCoordinator.initialPageSize(unreadCount: contact.unreadCount)
@@ -403,20 +432,7 @@ extension ChatViewModel {
           dataStore: dataStore
         )
       }
-
-      // Clear unread count and mention badge, then notify UI to refresh chat list.
-      // The messages already rendered, so a bookkeeping failure here is logged
-      // rather than surfaced as a load error.
-      do {
-        try await dataStore.clearUnreadCount(contactID: contact.id)
-        try await dataStore.clearUnreadMentionCount(contactID: contact.id)
-      } catch {
-        logger.warning("loadMessages: failed to clear unread counts - \(error.localizedDescription)")
-      }
-      syncCoordinator?.notifyConversationsChanged()
-
-      // Update app badge
-      await notificationService?.updateBadgeCount()
+      loaded = true
     } catch is CancellationError {
       // Benign cancellation; the superseding load will refetch.
     } catch {
@@ -427,6 +443,7 @@ extension ChatViewModel {
     // `replaceAll` is the success path; this catches the failure path.
     coordinator?.markLoaded()
     isLoading = false
+    return loaded
   }
 
   /// Load any saved draft for the current contact

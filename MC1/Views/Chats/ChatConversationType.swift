@@ -105,6 +105,18 @@ enum ChatConversationType {
     }
   }
 
+  /// Key for the shared `ChatCoordinator` in `ChatCoordinatorRegistry`. Coincides
+  /// with `draftConversationID` today but is named separately so the coordinator
+  /// and draft namespaces can diverge without silently breaking either.
+  var coordinatorID: ChatConversationID {
+    switch self {
+    case let .dm(contact):
+      .dm(radioID: contact.radioID, contactID: contact.id)
+    case let .channel(channel):
+      .channel(radioID: channel.radioID, channelIndex: channel.index)
+    }
+  }
+
   var radioID: UUID {
     switch self {
     case let .dm(contact):

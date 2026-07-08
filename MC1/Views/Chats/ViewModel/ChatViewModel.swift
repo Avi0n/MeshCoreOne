@@ -508,13 +508,7 @@ final class ChatViewModel {
   private func bindCoordinator(registry: ChatCoordinatorRegistry?, conversation: ChatConversationType?) {
     guard let conversation else { return }
     guard let registry else { return }
-    let id: ChatConversationID = switch conversation {
-    case let .dm(contact):
-      .dm(radioID: contact.radioID, contactID: contact.id)
-    case let .channel(channel):
-      .channel(radioID: channel.radioID, channelIndex: channel.index)
-    }
-    let resolved = registry.coordinator(for: id)
+    let resolved = registry.coordinator(for: conversation.coordinatorID)
     // The most recently bound view model owns the per-ID rebuild hook
     // the coordinator invokes after `applyReloadedIDs`. With two view
     // models on the same conversation (iPad split view) the rendered

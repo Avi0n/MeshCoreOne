@@ -74,6 +74,10 @@ struct ChatConversationView: View {
   /// Snapshot of env-derived inputs the view model needs to construct
   /// MessageItems at write time. Recomputed on every render — Equatable
   /// drives `.onChange(of: envInputs)` in ChatMessagesTableView.
+  /// Constructed from the observed `@AppStorage` toggles and `@Environment`
+  /// values so a settings change while the chat is open re-renders the view and
+  /// drives `ChatMessagesTableView.onChange(of: envInputs)`. The navigation-time
+  /// prefetch reads the same toggles once via `AppState.chatEnvInputs(...)`.
   private var currentEnvInputs: EnvInputs {
     EnvInputs(
       autoPlayGIFs: autoPlayGIFs,
@@ -319,23 +323,7 @@ struct ChatConversationView: View {
     }
 
     chatViewModel.configure(
-      dependencies: ChatViewModel.Dependencies(
-        dataStore: { appState.offlineDataStore },
-        messageService: { appState.services?.messageService },
-        notificationService: { appState.services?.notificationService },
-        channelService: { appState.services?.channelService },
-        roomServerService: { appState.services?.roomServerService },
-        contactService: { appState.services?.contactService },
-        syncCoordinator: { appState.syncCoordinator },
-        connectionState: { appState.connectionState },
-        connectedDevice: { appState.connectedDevice },
-        currentRadioID: { appState.currentRadioID },
-        session: { appState.services?.session },
-        reactionService: { appState.services?.reactionService },
-        chatSendQueueService: { appState.services?.chatSendQueueService },
-        inlineImageDimensionsStore: { appState.services?.inlineImageDimensionsStore },
-        prefetchDataStore: { appState.services?.dataStore }
-      ),
+      dependencies: appState.makeChatViewModelDependencies(),
       onNavigateToMap: { appState.navigation.navigateToMap(coordinate: $0) },
       linkPreviewCache: linkPreviewCache,
       chatCoordinatorRegistry: appState.ensureChatCoordinatorRegistry(),

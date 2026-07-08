@@ -54,6 +54,19 @@ enum ChatRoute: Hashable {
     }
   }
 
+  /// The conversation payload to prefetch for this route, or `nil` for rooms,
+  /// which use a separate view with its own load path.
+  var chatConversationType: ChatConversationType? {
+    switch self {
+    case let .direct(contact):
+      .dm(contact)
+    case let .channel(channel):
+      .channel(channel)
+    case .room:
+      nil
+    }
+  }
+
   var roomIsConnected: Bool? {
     guard case let .room(session) = self else { return nil }
     return session.isConnected
