@@ -97,6 +97,7 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>meshcore</string>
 				<string>meshcoreone</string>
 			</array>
 		</dict>

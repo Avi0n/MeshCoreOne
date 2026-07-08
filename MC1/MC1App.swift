@@ -18,6 +18,9 @@ struct MC1App: App {
   /// stored property registered once in `init()`, not `@State`.
   private let intentBridge = IntentBridge()
 
+  /// Stages externally opened URLs across launch; see `PendingExternalURL`.
+  private let pendingExternalURL = PendingExternalURL()
+
   init() {
     // Register the bridge synchronously here: a background-launched intent
     // runs only `App.init` (no scene, no `.task`), so a deferred
@@ -136,10 +139,10 @@ struct MC1App: App {
           #endif
 
           await runInitialForegroundReconciliationIfNeeded()
+          pendingExternalURL.markReady(appState)
         }
-        .onOpenURL { _ in
-          // meshcoreone://status — tapped from Live Activity
-          // Opening the app is sufficient; future: navigate based on url.host
+        .onOpenURL { url in
+          pendingExternalURL.submit(url, appState: appState)
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
           handleScenePhaseChange(from: oldPhase, to: newPhase)

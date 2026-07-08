@@ -149,19 +149,29 @@ private struct ContactAddConfirmationContent: View {
             .foregroundStyle(.white)
         }
 
+        // The name is free text the sender controls; the public key is the
+        // verifiable identity, so the key takes primary prominence to defeat
+        // name-over-key phishing from a planted QR code or link.
         Text(contactResult.name)
-          .font(.title)
-          .bold()
-
-        Text(contactResult.contactType.localizedName)
-          .font(.subheadline)
+          .font(.title3)
           .foregroundStyle(.secondary)
 
-        Text(contactResult.publicKey.uppercaseHexString())
+        Text(contactResult.contactType.localizedName)
           .font(.caption)
-          .monospaced()
-          .foregroundStyle(.tertiary)
-          .textSelection(.enabled)
+          .foregroundStyle(.secondary)
+
+        VStack(spacing: 6) {
+          Text(L10n.Contacts.Contacts.Add.publicKey)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+
+          Text(contactResult.publicKey.uppercaseHexString(separator: " "))
+            .font(.callout.monospaced())
+            .multilineTextAlignment(.center)
+            .foregroundStyle(.primary)
+            .textSelection(.enabled)
+            .padding(.horizontal, 8)
+        }
       }
 
       if let errorMessage {

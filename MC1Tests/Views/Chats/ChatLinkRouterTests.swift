@@ -55,4 +55,87 @@ struct ChatLinkRouterTests {
     try await Task.sleep(for: .milliseconds(50))
     #expect(appState.navigation.pendingHashtag == nil)
   }
+
+  // MARK: - routeExternalOpen
+
+  @Test
+  func `routeExternalOpen stages a pending contact and switches to the Chats tab`() async throws {
+    let appState = makeAppState()
+    appState.navigation.selectedTab = AppTab.nodes.rawValue
+    let publicKey = String(repeating: "ab", count: ProtocolLimits.publicKeySize)
+    let url = try #require(URL(string: "meshcore://contact/add?name=NGC-MB&public_key=\(publicKey)&type=1"))
+
+    let handled = ChatLinkRouter.routeExternalOpen(url, appState: appState)
+
+    #expect(handled)
+    #expect(appState.navigation.selectedTab == AppTab.chats.rawValue)
+    try await Task.sleep(for: .milliseconds(50))
+    #expect(appState.navigation.pendingContactLink != nil)
+  }
+
+  @Test
+  func `routeExternalOpen stages a pending channel and switches to the Chats tab`() async throws {
+    let appState = makeAppState()
+    appState.navigation.selectedTab = AppTab.nodes.rawValue
+    let secret = String(repeating: "ab", count: 16) // 32 hex chars = 16-byte channel secret
+    let url = try #require(URL(string: "meshcore://channel/add?name=Test&secret=\(secret)"))
+
+    let handled = ChatLinkRouter.routeExternalOpen(url, appState: appState)
+
+    #expect(handled)
+    #expect(appState.navigation.selectedTab == AppTab.chats.rawValue)
+    try await Task.sleep(for: .milliseconds(50))
+    #expect(appState.navigation.pendingChannelLink?.name == "Test")
+  }
+
+  @Test
+  func `routeExternalOpen restores the previous tab for meshcoreone status URLs`() throws {
+    let appState = makeAppState()
+    appState.navigation.selectedTab = AppTab.nodes.rawValue
+    let url = try #require(URL(string: "meshcoreone://status"))
+
+    let handled = ChatLinkRouter.routeExternalOpen(url, appState: appState)
+
+    #expect(handled == false)
+    #expect(appState.navigation.selectedTab == AppTab.nodes.rawValue)
+  }
+
+  @Test
+  func `routeExternalOpen ends on the map tab for meshcore map URLs`() throws {
+    let appState = makeAppState()
+    appState.navigation.selectedTab = AppTab.nodes.rawValue
+    let url = try #require(URL(string: "meshcore://map?lat=37.7749&lon=-122.4194"))
+
+    let handled = ChatLinkRouter.routeExternalOpen(url, appState: appState)
+
+    #expect(handled)
+    #expect(appState.navigation.selectedTab == AppTab.map.rawValue)
+    #expect(appState.navigation.pendingMapFocus != nil)
+  }
+
+  @Test
+  func `routeExternalOpen restores the previous tab for a malformed meshcore URL`() throws {
+    let appState = makeAppState()
+    appState.navigation.selectedTab = AppTab.nodes.rawValue
+    let url = try #require(URL(string: "meshcore://garbage"))
+
+    let handled = ChatLinkRouter.routeExternalOpen(url, appState: appState)
+
+    #expect(handled == false)
+    #expect(appState.navigation.selectedTab == AppTab.nodes.rawValue)
+  }
+
+  @Test
+  func `routeExternalOpen stages a pending hashtag and switches to the Chats tab`() async throws {
+    let appState = makeAppState()
+    appState.navigation.selectedTab = AppTab.nodes.rawValue
+    let url = try #require(URL(string: "meshcoreone://hashtag/general"))
+
+    let handled = ChatLinkRouter.routeExternalOpen(url, appState: appState)
+
+    #expect(handled)
+    #expect(appState.navigation.selectedTab == AppTab.chats.rawValue)
+    try await Task.sleep(for: .milliseconds(50))
+    #expect(appState.navigation.pendingHashtag?.id == "#general")
+  }
 }
