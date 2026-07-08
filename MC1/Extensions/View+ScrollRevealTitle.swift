@@ -14,7 +14,7 @@ extension View {
   /// title reveals based on the header's real (Dynamic Type-aware) size rather than a
   /// fixed threshold. Attach to the header content, then feed `height` to
   /// `scrollRevealNavigationTitle(_:revealAfter:)`.
-  func scrollRevealHeaderHeight(_ height: Binding<CGFloat>) -> some View {
+  func scrollRevealHeaderHeight(into height: Binding<CGFloat>) -> some View {
     onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height.wrappedValue = $0 }
   }
 }

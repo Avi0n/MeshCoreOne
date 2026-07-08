@@ -42,7 +42,7 @@ struct RoomInfoSheet: View {
             }
           }
           .frame(maxWidth: .infinity)
-          .scrollRevealHeaderHeight($headerHeight)
+          .scrollRevealHeaderHeight(into: $headerHeight)
           .listRowBackground(Color.clear)
         }
 

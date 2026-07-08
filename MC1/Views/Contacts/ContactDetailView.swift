@@ -568,7 +568,7 @@ private struct ContactProfileSection: View {
         }
       }
       .frame(maxWidth: .infinity)
-      .scrollRevealHeaderHeight($measuredHeight)
+      .scrollRevealHeaderHeight(into: $measuredHeight)
       .listRowBackground(Color.clear)
     }
   }

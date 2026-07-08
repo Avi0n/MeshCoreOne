@@ -384,7 +384,7 @@ private struct ChannelInfoHeaderSection: View {
         }
       }
       .frame(maxWidth: .infinity)
-      .scrollRevealHeaderHeight($measuredHeight)
+      .scrollRevealHeaderHeight(into: $measuredHeight)
       .listRowBackground(Color.clear)
     }
   }
