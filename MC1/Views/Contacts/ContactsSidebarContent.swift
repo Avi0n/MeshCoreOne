@@ -177,6 +177,14 @@ struct ContactsSidebarContent: View {
         await onLoadContacts()
       }
     }
+    .onChange(of: viewModel.hasLoadedOnce) { _, loaded in
+      // On the first successful load, land on Favorites when any exist. Guarded on the default
+      // segment so a user who switched during loading isn't overridden, and keyed off the
+      // false->true transition so returning to the tab doesn't yank an existing selection.
+      if loaded, selectedSegment == .contacts, viewModel.hasFavorites {
+        selectedSegment = .favorites
+      }
+    }
     .onChange(of: appState.navigation.pendingDiscoveryNavigation, initial: true) { _, shouldNavigate in
       if shouldNavigate {
         showDiscovery = true

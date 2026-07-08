@@ -96,6 +96,36 @@ struct ContactsViewModelTests {
     #expect(viewModel.errorMessage == nil)
   }
 
+  // MARK: - hasFavorites
+
+  @Test
+  func `hasFavorites is false with no favorites`() {
+    let viewModel = ContactsViewModel()
+    let deviceID = UUID()
+    viewModel.contacts = [
+      createContact(radioID: deviceID, name: "Alice", isFavorite: false),
+      createContact(radioID: deviceID, name: "Bob", isFavorite: false)
+    ]
+    #expect(viewModel.hasFavorites == false)
+  }
+
+  @Test
+  func `hasFavorites is false when contacts empty`() {
+    let viewModel = ContactsViewModel()
+    #expect(viewModel.hasFavorites == false)
+  }
+
+  @Test
+  func `hasFavorites is true when a favorite exists`() {
+    let viewModel = ContactsViewModel()
+    let deviceID = UUID()
+    viewModel.contacts = [
+      createContact(radioID: deviceID, name: "Alice", isFavorite: false),
+      createContact(radioID: deviceID, name: "Bob", isFavorite: true)
+    ]
+    #expect(viewModel.hasFavorites == true)
+  }
+
   // MARK: - Filtering by Segment
 
   @Test

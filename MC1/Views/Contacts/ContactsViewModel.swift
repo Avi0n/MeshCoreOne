@@ -301,6 +301,11 @@ final class ContactsViewModel {
 
   // MARK: - Filtering
 
+  /// True when any loaded contact is a favorite; drives the initial Nodes segment.
+  var hasFavorites: Bool {
+    contacts.contains(where: \.isFavorite)
+  }
+
   /// Returns contacts filtered by segment and sorted
   func filteredContacts(
     searchText: String,
