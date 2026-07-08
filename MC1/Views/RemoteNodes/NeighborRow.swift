@@ -6,20 +6,20 @@ struct NeighborRow: View {
   let displayName: String
   let matchKind: NodeNameMatchKind
   let previousNeighbor: NeighborSnapshotEntry?
-  let hasPreviousSnapshot: Bool
+  let isNew: Bool
 
   init(
     neighbor: NeighbourInfo,
     displayName: String,
     matchKind: NodeNameMatchKind,
     previousNeighbor: NeighborSnapshotEntry? = nil,
-    hasPreviousSnapshot: Bool = false
+    isNew: Bool = false
   ) {
     self.neighbor = neighbor
     self.displayName = displayName
     self.matchKind = matchKind
     self.previousNeighbor = previousNeighbor
-    self.hasPreviousSnapshot = hasPreviousSnapshot
+    self.isNew = isNew
   }
 
   var body: some View {
@@ -28,7 +28,7 @@ struct NeighborRow: View {
         HStack(spacing: 4) {
           Text(displayName)
 
-          if hasPreviousSnapshot, previousNeighbor == nil {
+          if isNew {
             Text(L10n.RemoteNodes.RemoteNodes.History.new)
               .font(.caption2)
               .bold()

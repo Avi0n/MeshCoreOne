@@ -95,6 +95,10 @@ final class NodeStatusViewModel {
   /// expanded, and sourced from the last snapshot that actually captured neighbors.
   private(set) var previousNeighborSnapshot: NodeStatusSnapshotDTO?
 
+  /// Every neighbor prefix seen across stored history before the current reading,
+  /// for the "New" badge. A prefix absent here means the neighbor is first-seen.
+  private(set) var seenNeighborPrefixes: Set<Data> = []
+
   // MARK: - Initialization
 
   func configure(
@@ -245,9 +249,12 @@ final class NodeStatusViewModel {
   /// enriches the latest in-window row or inserts a neighbor-bearing snapshot.
   func enrichNeighbors(_ entries: [NeighborSnapshotEntry]) async {
     guard let nodeSnapshotService, let nodePublicKey = effectivePublicKey else { return }
-    // Capture the prior neighbor-bearing snapshot before persisting this reading,
-    // so the delta baseline is the previous distinct capture, not this one.
-    previousNeighborSnapshot = await nodeSnapshotService.previousNeighborSnapshot(for: nodePublicKey)
+    // Capture the prior baseline before persisting this reading, so the delta and
+    // the "New" badge reflect history rather than the current capture. Both come
+    // from one await so a render never pairs a fresh baseline with a stale seen set.
+    let baseline = await nodeSnapshotService.neighborBaseline(for: nodePublicKey)
+    previousNeighborSnapshot = baseline.previous
+    seenNeighborPrefixes = baseline.seenPrefixes
     _ = await nodeSnapshotService.recordSnapshot(
       nodePublicKey: nodePublicKey,
       neighbors: entries

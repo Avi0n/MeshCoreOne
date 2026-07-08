@@ -54,13 +54,14 @@ public protocol NodeSnapshotPersisting: Actor {
 }
 
 public extension NodeSnapshotPersisting {
-  /// The most recent snapshot that actually carries neighbor data, for neighbor
-  /// delta display. Neighbor arrays are sparse (a snapshot holds them only when the
-  /// user expanded the neighbors section), so the generic previous snapshot
-  /// frequently has none; this skips status- or telemetry-only rows. The current
-  /// in-window capture is excluded so the reading being viewed is never diffed
-  /// against itself.
-  func fetchPreviousNeighborSnapshot(nodePublicKey: Data) async throws -> NodeStatusSnapshotDTO? {
+  /// The neighbor baseline: the previous neighbor-bearing snapshot (for the SNR
+  /// delta) plus every neighbor prefix seen across history (for the "New" badge).
+  /// Both derive from one fetch and one in-window cutoff, which excludes the
+  /// reading being viewed so it is never diffed or matched against itself. Neighbor
+  /// arrays are sparse (a snapshot holds them only when the user expanded the
+  /// neighbors section), so status- or telemetry-only rows are skipped.
+  func fetchNeighborBaseline(nodePublicKey: Data) async throws
+    -> (previous: NodeStatusSnapshotDTO?, seenPrefixes: Set<Data>) {
     let all = try await fetchNodeStatusSnapshots(nodePublicKey: nodePublicKey, since: nil)
     let cutoff: Date = if let latest = all.last,
                           latest.timestamp.distance(to: .now) < NodeSnapshotPolicy.minimumInterval {
@@ -68,7 +69,9 @@ public extension NodeSnapshotPersisting {
     } else {
       .now
     }
-    return all.last { $0.timestamp < cutoff && $0.neighborSnapshots != nil }
+    let history = all.filter { $0.timestamp < cutoff && $0.neighborSnapshots != nil }
+    let seenPrefixes = Set(history.flatMap { $0.neighborSnapshots ?? [] }.map(\.publicKeyPrefix))
+    return (previous: history.last, seenPrefixes: seenPrefixes)
   }
 
   /// The most recent snapshot carrying status fields before the given date, for the

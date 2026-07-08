@@ -207,7 +207,8 @@ private struct NeighborsSection: View {
                 previousNeighbor: viewModel.helper.previousNeighborSnapshot?.neighborSnapshots?.first {
                   $0.publicKeyPrefix == neighbor.publicKeyPrefix
                 },
-                hasPreviousSnapshot: viewModel.helper.previousNeighborSnapshot?.neighborSnapshots != nil
+                isNew: viewModel.helper.previousNeighborSnapshot?.neighborSnapshots != nil
+                  && !viewModel.helper.seenNeighborPrefixes.contains(neighbor.publicKeyPrefix)
               )
             }
           }

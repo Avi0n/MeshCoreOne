@@ -34,14 +34,16 @@ public actor NodeSnapshotService {
     }
   }
 
-  /// Fetch the most recent snapshot carrying neighbor data, for neighbor delta
-  /// display. Skips status- or telemetry-only rows and the current in-window capture.
-  public func previousNeighborSnapshot(for nodePublicKey: Data) async -> NodeStatusSnapshotDTO? {
+  /// The neighbor baseline for a node: the previous neighbor-bearing snapshot (for
+  /// the SNR delta) plus every neighbor prefix seen across history (for the "New"
+  /// badge). Skips status- or telemetry-only rows and the current in-window capture.
+  public func neighborBaseline(for nodePublicKey: Data)
+    async -> (previous: NodeStatusSnapshotDTO?, seenPrefixes: Set<Data>) {
     do {
-      return try await dataStore.fetchPreviousNeighborSnapshot(nodePublicKey: nodePublicKey)
+      return try await dataStore.fetchNeighborBaseline(nodePublicKey: nodePublicKey)
     } catch {
-      logger.error("Failed to fetch previous neighbor snapshot: \(error)")
-      return nil
+      logger.error("Failed to fetch neighbor baseline: \(error)")
+      return (nil, [])
     }
   }
 

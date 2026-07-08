@@ -34,6 +34,13 @@ struct NodeSnapshotServiceTests {
     )
   }
 
+  /// Builds a neighbor prefix at the realistic on-wire length so distinct seeds
+  /// can't collide on a truncated prefix.
+  private func neighborPrefix(seed: UInt8) -> Data {
+    let length = Int(RepeaterAdminService.defaultPubkeyPrefixLength)
+    return Data((0..<length).map { seed &+ UInt8($0) })
+  }
+
   @Test
   func `Record returns an ID on first capture`() async throws {
     let (service, _) = try await createTestService()
@@ -413,7 +420,7 @@ struct NodeSnapshotServiceTests {
       receiveErrors: nil
     )
 
-    let previous = await service.previousNeighborSnapshot(for: testPublicKey)
+    let previous = await (service.neighborBaseline(for: testPublicKey)).previous
     #expect(previous?.neighborSnapshots?.first?.snr == 6.0,
             "Returns the neighbor-bearing row, not the newer status-only row")
   }
@@ -440,7 +447,7 @@ struct NodeSnapshotServiceTests {
       NeighborSnapshotEntry(publicKeyPrefix: Data([0x01, 0x02, 0x03, 0x04]), snr: 9.0, secondsAgo: 5)
     ])
 
-    let previous = await service.previousNeighborSnapshot(for: testPublicKey)
+    let previous = await (service.neighborBaseline(for: testPublicKey)).previous
     #expect(previous?.neighborSnapshots?.first?.snr == 6.0,
             "The current in-window row is excluded; baseline is the prior neighbor capture")
   }
@@ -454,7 +461,7 @@ struct NodeSnapshotServiceTests {
       status: metrics(battery: 3850, uptime: 3600)
     )
 
-    let previous = await service.previousNeighborSnapshot(for: testPublicKey)
+    let previous = await (service.neighborBaseline(for: testPublicKey)).previous
     #expect(previous == nil, "Status-only history yields no neighbor baseline")
   }
 
@@ -476,7 +483,7 @@ struct NodeSnapshotServiceTests {
       NeighborSnapshotEntry(publicKeyPrefix: Data([0x01, 0x02, 0x03, 0x04]), snr: 6.0, secondsAgo: 30)
     ])
 
-    let previous = await service.previousNeighborSnapshot(for: testPublicKey)
+    let previous = await (service.neighborBaseline(for: testPublicKey)).previous
     #expect(previous?.neighborSnapshots?.first?.snr == 6.0,
             "With the latest row outside the in-window cutoff, it is the baseline")
   }
@@ -490,8 +497,69 @@ struct NodeSnapshotServiceTests {
       NeighborSnapshotEntry(publicKeyPrefix: Data([0x01, 0x02, 0x03, 0x04]), snr: 9.0, secondsAgo: 5)
     ])
 
-    let previous = await service.previousNeighborSnapshot(for: testPublicKey)
+    let previous = await (service.neighborBaseline(for: testPublicKey)).previous
     #expect(previous == nil, "The in-window capture is excluded and there is no prior neighbor row")
+  }
+
+  @Test
+  func `Seen neighbor prefixes span all history, not just the previous snapshot`() async throws {
+    let (service, store) = try await createTestService()
+    let older = Date.now.addingTimeInterval(-7200)
+    let recent = Date.now.addingTimeInterval(-3600)
+
+    let prefixA = neighborPrefix(seed: 0xA0)
+    let prefixB = neighborPrefix(seed: 0xB0)
+
+    // An older out-of-window snapshot heard neighbor A.
+    let olderID = try await store.saveNodeStatusSnapshot(
+      timestamp: older,
+      nodePublicKey: testPublicKey,
+      batteryMillivolts: 3700,
+      lastSNR: 6.0, lastRSSI: -90, noiseFloor: -120,
+      uptimeSeconds: 3600, rxAirtimeSeconds: nil,
+      packetsSent: nil, packetsReceived: nil,
+      receiveErrors: nil
+    )
+    try await store.updateSnapshotNeighbors(id: olderID, neighbors: [
+      NeighborSnapshotEntry(publicKeyPrefix: prefixA, snr: 6.0, secondsAgo: 30)
+    ])
+
+    // The immediately-previous snapshot heard B only; A went silent, so A is absent
+    // from the single-row baseline the old badge logic compared against.
+    let recentID = try await store.saveNodeStatusSnapshot(
+      timestamp: recent,
+      nodePublicKey: testPublicKey,
+      batteryMillivolts: 3800,
+      lastSNR: 7.0, lastRSSI: -88, noiseFloor: -119,
+      uptimeSeconds: 5400, rxAirtimeSeconds: nil,
+      packetsSent: nil, packetsReceived: nil,
+      receiveErrors: nil
+    )
+    try await store.updateSnapshotNeighbors(id: recentID, neighbors: [
+      NeighborSnapshotEntry(publicKeyPrefix: prefixB, snr: 7.0, secondsAgo: 30)
+    ])
+
+    let baseline = await service.neighborBaseline(for: testPublicKey)
+
+    // The delta baseline is the immediately-previous snapshot, which no longer lists A.
+    #expect(baseline.previous?.neighborSnapshots?.first?.publicKeyPrefix == prefixB,
+            "The previous baseline is the most recent neighbor-bearing row")
+    #expect(baseline.previous?.neighborSnapshots?.contains { $0.publicKeyPrefix == prefixA } == false,
+            "A is absent from the immediately-previous snapshot")
+
+    // The seen set spans all history, so A is still known despite being silent now.
+    #expect(baseline.seenPrefixes.contains(prefixA), "A remains seen via older history")
+    #expect(baseline.seenPrefixes.contains(prefixB), "B is seen in the previous snapshot")
+
+    // The current in-window capture is excluded from the seen set.
+    let prefixC = neighborPrefix(seed: 0xC0)
+    _ = await service.recordSnapshot(nodePublicKey: testPublicKey, neighbors: [
+      NeighborSnapshotEntry(publicKeyPrefix: prefixC, snr: 9.0, secondsAgo: 5)
+    ])
+    let afterCapture = await service.neighborBaseline(for: testPublicKey)
+    #expect(afterCapture.seenPrefixes.contains(prefixA), "Historical prefixes survive a new capture")
+    #expect(!afterCapture.seenPrefixes.contains(prefixC),
+            "The in-window capture is excluded from the seen set")
   }
 
   // MARK: - Status delta baseline
