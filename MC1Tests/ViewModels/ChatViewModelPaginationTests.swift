@@ -119,6 +119,27 @@ private func createChannelMessage(
   )
 }
 
+/// A copy of `EnvInputs.default` with one formatting-relevant field flipped,
+/// so `applyEnvInputs` sees a change and invalidates the formatted-text cache.
+private func envInputsChangingAppearance() -> EnvInputs {
+  let base = EnvInputs.default
+  return EnvInputs(
+    showInlineImages: base.showInlineImages,
+    autoPlayGIFs: base.autoPlayGIFs,
+    showIncomingPath: base.showIncomingPath,
+    showIncomingHopCount: base.showIncomingHopCount,
+    showIncomingRegion: base.showIncomingRegion,
+    showIncomingSendTime: base.showIncomingSendTime,
+    previewsEnabled: base.previewsEnabled,
+    isHighContrast: base.isHighContrast,
+    isDark: !base.isDark,
+    showMapPreviews: base.showMapPreviews,
+    isOffline: base.isOffline,
+    currentUserName: base.currentUserName,
+    themeID: base.themeID,
+    contentSizeCategory: base.contentSizeCategory
+  )
+}
 // MARK: - Pagination Tests
 
 @Suite("ChatViewModel Pagination Tests")
@@ -198,6 +219,66 @@ struct ChatViewModelPaginationTests {
 @Suite("ChatViewModel Channel Pagination Tests")
 @MainActor
 struct ChatViewModelChannelPaginationTests {
+  @Test
+  func `Opening a channel with more unread than one page loads the divider target`() async throws {
+    // When unread exceeds pageSize, the first-unread message (where the divider
+    // belongs) is older than a standard page. The initial load must be sized to
+    // cover all unread so the divider has a materialized message to scroll to,
+    // instead of clamping the divider onto the oldest loaded row.
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let dataStore = PersistenceStore(modelContainer: container)
+    let radioID = UUID()
+    let channelIndex: UInt8 = 0
+    let total = 80
+    let unread = 60
+    #expect(unread > ChatCoordinator.pageSize, "Fixture must exceed one page to exercise the fix")
+
+    let channel = ChannelDTO(
+      id: UUID(),
+      radioID: radioID,
+      index: channelIndex,
+      name: "Mesh HQ",
+      secret: Data(),
+      isEnabled: true,
+      lastMessageDate: Date(),
+      unreadCount: unread,
+      unreadMentionCount: 0,
+      notificationLevel: .all,
+      isFavorite: false
+    )
+    try await dataStore.saveChannel(channel)
+
+    // Ascending timestamps → display order is oldest-first; the first unread row
+    // sits at index total - unread.
+    var idsOldestFirst: [UUID] = []
+    for index in 0..<total {
+      let message = createChannelMessage(
+        radioID: radioID,
+        channelIndex: channelIndex,
+        timestamp: UInt32(1000 + index),
+        senderName: "User\(index % 3)"
+      )
+      idsOldestFirst.append(message.id)
+      try await dataStore.saveMessage(message)
+    }
+    let expectedDividerID = idsOldestFirst[total - unread]
+
+    let viewModel = ChatViewModel()
+    viewModel.configureForTesting(dependencies: .testDefaults(dataStore: { dataStore }))
+    viewModel.coordinator = ChatCoordinator.makeForTesting()
+
+    await viewModel.loadChannelMessages(for: channel)
+
+    #expect(viewModel.messages.count == ChatCoordinator.initialPageSize(unreadCount: unread),
+            "Initial load must fetch all unread plus read context, not just one page")
+    #expect(viewModel.newMessagesDividerMessageID == expectedDividerID,
+            "Divider must land on the true first-unread message")
+    #expect(viewModel.messages.contains { $0.id == expectedDividerID },
+            "Divider target must be within the loaded messages")
+    #expect(viewModel.messages.contains { $0.id == idsOldestFirst[total - 1] },
+            "Newest message must still be loaded")
+  }
+
   @Test
   func `Switching from a channel to a DM clears the channel axis so an incoming channel message is not admitted into the open DM`() async throws {
     let container = try PersistenceStore.createContainer(inMemory: true)
@@ -279,6 +360,77 @@ struct ChatViewModelDisplayItemsPaginationTests {
     await coordinator.buildItemsTask?.value
 
     #expect(viewModel.items.count == 8)
+  }
+
+  @Test
+  func `Formatted-text cache covers the timeline and persists across pagination`() async {
+    let viewModel = ChatViewModel()
+    let coordinator = ChatCoordinator.makeForTesting()
+    viewModel.coordinator = coordinator
+    let radioID = UUID()
+    let contactID = UUID()
+
+    let messages = (0..<5).map { index in
+      createTestMessage(contactID: contactID, radioID: radioID, timestamp: UInt32(1000 + index), text: "Message \(index)")
+    }
+    coordinator.replaceAll(messages)
+    viewModel.buildItems()
+    await coordinator.buildItemsTask?.value
+
+    #expect(viewModel.formattedTextCache.count == 5, "Every built row should be memoized")
+    let cachedText = viewModel.formattedTextCache[messages[0].id]?.text
+
+    let older = (0..<3).map { index in
+      createTestMessage(contactID: contactID, radioID: radioID, timestamp: UInt32(900 + index), text: "Older \(index)")
+    }
+    coordinator.prepend(older)
+    viewModel.buildItems()
+    await coordinator.buildItemsTask?.value
+
+    #expect(viewModel.formattedTextCache.count == 8, "Cache grows to cover the prepended page")
+    #expect(viewModel.formattedTextCache[messages[0].id]?.text == cachedText,
+            "An already-formatted row keeps its cached value across the pagination rebuild")
+  }
+
+  @Test
+  func `Changing env inputs clears the formatted-text cache`() {
+    let viewModel = ChatViewModel()
+    let coordinator = ChatCoordinator.makeForTesting()
+    viewModel.coordinator = coordinator
+
+    // Empty timeline: applyEnvInputs clears the cache and returns before any
+    // rebuild, so the clear is observable in isolation.
+    viewModel.formattedTextCache[UUID()] = (text: AttributedString("stale"), mapCoordinate: nil)
+    #expect(viewModel.formattedTextCache.isEmpty == false)
+
+    viewModel.applyEnvInputs(envInputsChangingAppearance())
+
+    #expect(viewModel.formattedTextCache.isEmpty, "An appearance change must invalidate every cached row")
+  }
+
+  @Test
+  func `buildItems prunes cache entries for messages no longer in the timeline`() async {
+    let viewModel = ChatViewModel()
+    let coordinator = ChatCoordinator.makeForTesting()
+    viewModel.coordinator = coordinator
+    let radioID = UUID()
+    let contactID = UUID()
+
+    let messages = (0..<5).map { index in
+      createTestMessage(contactID: contactID, radioID: radioID, timestamp: UInt32(1000 + index))
+    }
+    coordinator.replaceAll(messages)
+    viewModel.buildItems()
+    await coordinator.buildItemsTask?.value
+    #expect(viewModel.formattedTextCache.count == 5)
+
+    // Switch conversations: fewer messages than the cache holds triggers the prune.
+    coordinator.replaceAll([messages[0], messages[1]])
+    viewModel.buildItems()
+    await coordinator.buildItemsTask?.value
+
+    #expect(viewModel.formattedTextCache.count == 2, "Stale entries are pruned to the current timeline")
+    #expect(viewModel.formattedTextCache[messages[4].id] == nil)
   }
 
   @Test

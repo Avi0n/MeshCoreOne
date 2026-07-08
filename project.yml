@@ -30,7 +30,7 @@ packages:
     exactVersion: 6.25.1
   MessagingUI:
     url: https://github.com/bwees-forks/swiftui-messaging-ui
-    revision: 98a47b5ddcc7174b2193c6ac38ad96837c230171
+    revision: f6ddfb8c847f9906175855437645988645da7f47
 
 targets:
   MC1:

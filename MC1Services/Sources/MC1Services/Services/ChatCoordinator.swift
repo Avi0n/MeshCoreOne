@@ -19,6 +19,19 @@ public final class ChatCoordinator {
   /// initial-load sizing so post-reset renders match the normal load.
   public static let pageSize: Int = 50
 
+  /// Read messages loaded above the first unread so the "New Messages" divider
+  /// has a little context to sit beneath rather than pinning to the very top.
+  public static let dividerReadContext: Int = 12
+
+  /// Initial fetch size for opening a conversation. Guarantees every unread
+  /// message (plus a little read context) lands in the first page: otherwise a
+  /// conversation with more than `pageSize` unread would place the divider on a
+  /// message that only pages in later, leaving the jump-to-divider button with no
+  /// materialized target to scroll to.
+  public static func initialPageSize(unreadCount: Int) -> Int {
+    max(pageSize, unreadCount + dividerReadContext)
+  }
+
   public let conversationID: ChatConversationID
 
   @ObservationIgnored

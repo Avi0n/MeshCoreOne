@@ -72,7 +72,9 @@ extension ChatViewModel {
     coordinator?.updateRenderState { $0.with(hasMoreMessages: true, isLoadingOlder: false, totalFetchedCount: 0) }
 
     do {
-      var fetchedMessages = try await dataStore.fetchMessages(radioID: channel.radioID, channelIndex: channel.index, limit: ChatCoordinator.pageSize, offset: 0)
+      // Size the first page to include every unread message so the divider target is loaded.
+      let initialLimit = ChatCoordinator.initialPageSize(unreadCount: channel.unreadCount)
+      var fetchedMessages = try await dataStore.fetchMessages(radioID: channel.radioID, channelIndex: channel.index, limit: initialLimit, offset: 0)
       let unfilteredCount = fetchedMessages.count
       coordinator?.updateRenderState { $0.with(totalFetchedCount: unfilteredCount) }
 
@@ -82,8 +84,8 @@ extension ChatViewModel {
       // Hide sent reaction messages (unless failed)
       fetchedMessages = filterOutgoingReactionMessages(fetchedMessages, isDM: false)
 
-      // Use unfiltered count to determine if more messages exist
-      coordinator?.updateRenderState { $0.with(hasMoreMessages: unfilteredCount == ChatCoordinator.pageSize) }
+      // A full page means more history may exist above (compare to what we requested).
+      coordinator?.updateRenderState { $0.with(hasMoreMessages: unfilteredCount == initialLimit) }
       coordinator?.replaceAll(fetchedMessages)
 
       buildChannelSenders(radioID: channel.radioID)
