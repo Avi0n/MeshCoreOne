@@ -175,7 +175,8 @@ extension ChatViewModel {
     if message.channelIndex != nil {
       return MessageBubbleConfiguration.resolveSenderName(
         for: message,
-        contacts: allContacts
+        contacts: allContacts,
+        nicknamesByLoweredName: nicknamesByLoweredName
       )
     }
     return NodeNameResolution(

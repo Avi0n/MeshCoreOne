@@ -232,7 +232,8 @@ struct ChatConversationView: View {
     .sheet(item: $sendDMContext) { context in
       SendDMSheet(
         senderName: context.senderName,
-        radioID: context.radioID
+        radioID: context.radioID,
+        unverifiedNickname: context.unverifiedNickname
       ) { contact in
         appState.navigation.navigateToChat(with: contact)
       }
@@ -662,8 +663,7 @@ struct ChatConversationView: View {
     let resolution = senderResolution(for: message)
     return MessageActionsSheet(
       message: message,
-      senderName: resolution.displayName,
-      senderMatchKind: resolution.matchKind,
+      senderResolution: resolution,
       recentEmojis: recentEmojisStore.recentEmojis,
       onAction: { action in
         dispatch(action, for: message)
@@ -679,17 +679,10 @@ struct ChatConversationView: View {
     case let .dm(contact):
       return NodeNameResolution(displayName: contact.displayName, matchKind: .exact)
     case .channel:
-      if let name = message.senderNodeName, !name.isEmpty {
-        return NodeNameResolution(displayName: name, matchKind: .exact)
-      }
-      if let prefix = message.senderKeyPrefix,
-         let result = NeighborNameResolver.resolve(
-           for: prefix, contacts: chatViewModel.allContacts, discoveredNodes: [], userLocation: nil
-         ) {
-        return result
-      }
-      return NodeNameResolution(
-        displayName: L10n.Chats.Chats.Message.Sender.unknown, matchKind: .unresolved
+      return MessageBubbleConfiguration.resolveSenderName(
+        for: message,
+        contacts: chatViewModel.allContacts,
+        nicknamesByLoweredName: chatViewModel.nicknamesByLoweredName
       )
     }
   }
@@ -768,9 +761,10 @@ struct ChatConversationView: View {
   private func handleSendDM(for message: MessageDTO) {
     guard case let .channel(channel) = conversationType,
           let name = message.senderNodeName else { return }
+    let nickname = chatViewModel.nicknamesByLoweredName[name.lowercased()]
     Task {
       try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
-      sendDMContext = SendDMContext(senderName: name, radioID: channel.radioID)
+      sendDMContext = SendDMContext(senderName: name, radioID: channel.radioID, unverifiedNickname: nickname)
     }
   }
 

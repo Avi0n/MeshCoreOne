@@ -1246,3 +1246,17 @@
 
 /* Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
 "chats.mention.picker.matchingContacts" = "Подходящие контакты";
+
+// MARK: - Unverified Nickname
+
+/* Location: UnifiedMessageBubble.swift - Title for unverified nickname explanation popover */
+"chats.message.sender.unverifiedNickname" = "Непроверенное имя";
+
+/* Location: UnifiedMessageBubble.swift - Explanation of why the sender name is unverified */
+"chats.message.sender.unverifiedNicknameExplanation" = "Отправителей сообщений в каналах невозможно проверить. Это может быть другой человек.";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility label for unverified nickname indicator */
+"chats.message.sender.unverifiedNicknameAccessibilityLabel" = "Непроверенное совпадение имени";
+
+/* Location: UnifiedMessageBubble.swift - Format string for unverified nickname display - %@ is the nickname */
+"chats.message.sender.unverifiedNicknameFormat" = "(%@)";

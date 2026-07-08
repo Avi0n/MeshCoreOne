@@ -803,4 +803,174 @@ struct ContactServiceTests {
     #expect(reset?.isFloodRouted == true)
     #expect(reset?.typeRawValue == unmodeledType)
   }
+
+  @Test
+  func `updateContactPreferences clears nickname when passed empty string`() async throws {
+    let mockSession = MockMeshCoreSession()
+    let mockStore = MockPersistenceStore()
+    let contactID = UUID()
+
+    let contact = ContactDTO(
+      id: contactID,
+      radioID: UUID(),
+      publicKey: testPublicKey,
+      name: "TestContact",
+      typeRawValue: ContactType.chat.rawValue,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 0,
+      nickname: "OldNickname",
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0
+    )
+    try await mockStore.saveContact(contact)
+
+    let service = ContactService(
+      session: mockSession,
+      dataStore: mockStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    try await service.updateContactPreferences(contactID: contactID, nickname: "")
+
+    let updated = await mockStore.contacts[contactID]
+    #expect(updated?.nickname == nil)
+  }
+
+  @Test
+  func `updateContactPreferences clears nickname when passed whitespace only`() async throws {
+    let mockSession = MockMeshCoreSession()
+    let mockStore = MockPersistenceStore()
+    let contactID = UUID()
+
+    let contact = ContactDTO(
+      id: contactID,
+      radioID: UUID(),
+      publicKey: testPublicKey,
+      name: "TestContact",
+      typeRawValue: ContactType.chat.rawValue,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 0,
+      nickname: "OldNickname",
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0
+    )
+    try await mockStore.saveContact(contact)
+
+    let service = ContactService(
+      session: mockSession,
+      dataStore: mockStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    try await service.updateContactPreferences(contactID: contactID, nickname: "   ")
+
+    let updated = await mockStore.contacts[contactID]
+    #expect(updated?.nickname == nil)
+  }
+
+  @Test
+  func `updateContactPreferences trims surrounding whitespace from nickname`() async throws {
+    let mockSession = MockMeshCoreSession()
+    let mockStore = MockPersistenceStore()
+    let contactID = UUID()
+
+    let contact = ContactDTO(
+      id: contactID,
+      radioID: UUID(),
+      publicKey: testPublicKey,
+      name: "TestContact",
+      typeRawValue: ContactType.chat.rawValue,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 0,
+      nickname: nil,
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0
+    )
+    try await mockStore.saveContact(contact)
+
+    let service = ContactService(
+      session: mockSession,
+      dataStore: mockStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    try await service.updateContactPreferences(contactID: contactID, nickname: "  Rico  ")
+
+    let updated = await mockStore.contacts[contactID]
+    #expect(updated?.nickname == "Rico")
+  }
+
+  @Test
+  func `updateContactPreferences keeps nickname when nickname arg is nil`() async throws {
+    let mockSession = MockMeshCoreSession()
+    let mockStore = MockPersistenceStore()
+    let contactID = UUID()
+
+    let contact = ContactDTO(
+      id: contactID,
+      radioID: UUID(),
+      publicKey: testPublicKey,
+      name: "TestContact",
+      typeRawValue: ContactType.chat.rawValue,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 0,
+      nickname: "KeepMe",
+      isBlocked: false,
+      isMuted: true,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0,
+      unreadMentionCount: 5
+    )
+    try await mockStore.saveContact(contact)
+
+    let service = ContactService(
+      session: mockSession,
+      dataStore: mockStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    // Toggle favorite without touching nickname; nickname must survive.
+    try await service.updateContactPreferences(contactID: contactID, isFavorite: true)
+
+    let updated = await mockStore.contacts[contactID]
+    #expect(updated?.nickname == "KeepMe")
+    #expect(updated?.isFavorite == true)
+    // A preferences edit must not silently reset unrelated persisted fields.
+    #expect(updated?.isMuted == true)
+    #expect(updated?.unreadMentionCount == 5)
+  }
 }

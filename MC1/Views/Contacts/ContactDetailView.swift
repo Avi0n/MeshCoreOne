@@ -497,7 +497,7 @@ struct ContactDetailView: View {
     do {
       try await appState.services?.contactService.updateContactPreferences(
         contactID: currentContact.id,
-        nickname: nickname.isEmpty ? nil : nickname
+        nickname: nickname
       )
       await refreshContact()
     } catch {

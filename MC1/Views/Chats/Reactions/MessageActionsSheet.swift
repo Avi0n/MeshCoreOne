@@ -8,8 +8,7 @@ struct MessageActionsSheet: View {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   let message: MessageDTO
-  let senderName: String
-  let senderMatchKind: NodeNameMatchKind
+  let senderResolution: NodeNameResolution
   let recentEmojis: [String]
   let onAction: (MessageAction) -> Void
 
@@ -37,8 +36,7 @@ struct MessageActionsSheet: View {
     VStack(spacing: 0) {
       ActionsPreviewHeader(
         message: message,
-        senderName: senderName,
-        senderMatchKind: senderMatchKind
+        senderResolution: senderResolution
       )
 
       Divider()
@@ -134,8 +132,7 @@ struct MessageActionsSheet: View {
   message.heardRepeats = 2
   return MessageActionsSheet(
     message: MessageDTO(from: message),
-    senderName: "My Device",
-    senderMatchKind: .exact,
+    senderResolution: NodeNameResolution(displayName: "My Device", matchKind: .exact),
     recentEmojis: RecentEmojisStore.defaultEmojis,
     onAction: { print("Action: \($0)") }
   )
@@ -154,8 +151,7 @@ struct MessageActionsSheet: View {
   message.snr = 8.5
   return MessageActionsSheet(
     message: MessageDTO(from: message),
-    senderName: "Alice",
-    senderMatchKind: .exact,
+    senderResolution: NodeNameResolution(displayName: "Alice", matchKind: .exact),
     recentEmojis: RecentEmojisStore.defaultEmojis,
     onAction: { print("Action: \($0)") }
   )

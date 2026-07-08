@@ -14,13 +14,22 @@ public enum NodeNameMatchKind: Sendable, Equatable, Hashable {
 public struct NodeNameResolution: Sendable, Equatable, Hashable {
   public let displayName: String
   public let matchKind: NodeNameMatchKind
+  /// Nickname for a channel sender matched by name only, so identity is
+  /// unverified. Non-nil solely on the channel-sender resolution path; always
+  /// nil for repeater and mesh-path resolutions.
+  public let unverifiedNickname: String?
 
   public var isFallback: Bool {
     matchKind == .fallback
   }
 
-  public init(displayName: String, matchKind: NodeNameMatchKind) {
+  public init(
+    displayName: String,
+    matchKind: NodeNameMatchKind,
+    unverifiedNickname: String? = nil
+  ) {
     self.displayName = displayName
     self.matchKind = matchKind
+    self.unverifiedNickname = unverifiedNickname
   }
 }

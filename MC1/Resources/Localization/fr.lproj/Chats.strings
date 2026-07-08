@@ -1255,3 +1255,17 @@
 
 /* Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
 "chats.mention.picker.matchingContacts" = "Contacts correspondants";
+
+// MARK: - Unverified Nickname
+
+/* Location: UnifiedMessageBubble.swift - Title for unverified nickname explanation popover */
+"chats.message.sender.unverifiedNickname" = "Nom non vérifié";
+
+/* Location: UnifiedMessageBubble.swift - Explanation of why the sender name is unverified */
+"chats.message.sender.unverifiedNicknameExplanation" = "Les expéditeurs des messages de canal ne peuvent pas être vérifiés. Cela pourrait être une autre personne.";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility label for unverified nickname indicator */
+"chats.message.sender.unverifiedNicknameAccessibilityLabel" = "Correspondance de nom non vérifiée";
+
+/* Location: UnifiedMessageBubble.swift - Format string for unverified nickname display - %@ is the nickname */
+"chats.message.sender.unverifiedNicknameFormat" = "(%@)";

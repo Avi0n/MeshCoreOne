@@ -433,7 +433,9 @@ public actor ContactService {
     try await dataStore.fetchContact(id: id)
   }
 
-  /// Update local contact preferences (nickname, blocked, favorite)
+  /// Update local contact preferences (nickname, blocked, favorite).
+  /// `nickname`: `nil` leaves the existing nickname unchanged; an empty or
+  /// whitespace-only string clears it. A non-empty value is trimmed and stored.
   public func updateContactPreferences(
     contactID: UUID,
     nickname: String? = nil,
@@ -442,6 +444,15 @@ public actor ContactService {
   ) async throws {
     guard let existing = try await dataStore.fetchContact(id: contactID) else {
       throw ContactServiceError.contactNotFound
+    }
+
+    // nil => leave unchanged; empty/whitespace => clear; otherwise trim and set.
+    let resolvedNickname: String?
+    if let nickname {
+      let trimmed = nickname.trimmingCharacters(in: .whitespacesAndNewlines)
+      resolvedNickname = trimmed.isEmpty ? nil : trimmed
+    } else {
+      resolvedNickname = existing.nickname
     }
 
     // Check blocking state transitions
@@ -463,11 +474,13 @@ public actor ContactService {
         latitude: existing.latitude,
         longitude: existing.longitude,
         lastModified: existing.lastModified,
-        nickname: nickname ?? existing.nickname,
+        nickname: resolvedNickname,
         isBlocked: isBlocked ?? existing.isBlocked,
+        isMuted: existing.isMuted,
         isFavorite: isFavorite ?? existing.isFavorite,
         lastMessageDate: existing.lastMessageDate,
         unreadCount: isBeingBlocked ? 0 : existing.unreadCount,
+        unreadMentionCount: existing.unreadMentionCount,
         ocvPreset: existing.ocvPreset,
         customOCVArrayString: existing.customOCVArrayString
       )

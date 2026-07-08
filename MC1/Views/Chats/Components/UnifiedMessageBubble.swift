@@ -93,16 +93,7 @@ struct UnifiedMessageBubble: View, Equatable {
           if !item.envelope.isOutgoing,
              configuration.showSenderName,
              item.grouping.showSenderName {
-            HStack(spacing: 4) {
-              Text(item.envelope.senderName)
-                .font(.footnote)
-                .bold()
-                .foregroundStyle(senderColor)
-
-              if item.envelope.senderResolution.isFallback {
-                FallbackMatchIndicatorView()
-              }
-            }
+            SenderNameLabel(resolution: item.envelope.senderResolution, nameColor: senderColor)
           }
 
           bubbleActionsLongPress(
@@ -296,9 +287,16 @@ struct UnifiedMessageBubble: View, Equatable {
   var accessibilityMessageLabel: String {
     var label = ""
     if !item.envelope.isOutgoing, configuration.showSenderName {
-      label = "\(item.envelope.senderName): "
-      if item.envelope.senderResolution.isFallback {
-        label += "\(L10n.Chats.Chats.Message.Sender.possibleMatch), "
+      let resolution = item.envelope.senderResolution
+      if let nickname = resolution.unverifiedNickname {
+        let rawName = L10n.Chats.Chats.Message.Sender.unverifiedNicknameFormat(item.envelope.senderName)
+        label = "\(nickname) \(rawName): "
+        label += "\(L10n.Chats.Chats.Message.Sender.unverifiedNicknameAccessibilityLabel), "
+      } else {
+        label = "\(item.envelope.senderName): "
+        if resolution.isFallback {
+          label += "\(L10n.Chats.Chats.Message.Sender.possibleMatch), "
+        }
       }
     }
     label += message.text

@@ -5,7 +5,7 @@ import Testing
 
 @Suite("MessageBubbleConfiguration")
 struct MessageBubbleConfigurationTests {
-  private func createContact(prefix: [UInt8], name: String, lastAdvertTimestamp: UInt32) -> ContactDTO {
+  private func createContact(prefix: [UInt8], name: String, lastAdvertTimestamp: UInt32, nickname: String? = nil) -> ContactDTO {
     ContactDTO(
       id: UUID(),
       radioID: UUID(),
@@ -19,7 +19,7 @@ struct MessageBubbleConfigurationTests {
       latitude: 0,
       longitude: 0,
       lastModified: 0,
-      nickname: nil,
+      nickname: nickname,
       isBlocked: false,
       isMuted: false,
       isFavorite: false,
@@ -79,5 +79,63 @@ struct MessageBubbleConfigurationTests {
 
     #expect(result.displayName == "Alpha")
     #expect(result.matchKind == .exact)
+  }
+
+  @Test
+  func `buildNicknameLookup maps a unique name to its nickname`() {
+    let contact = createContact(prefix: [0xAA, 0x01], name: "Alpha", lastAdvertTimestamp: 100, nickname: "Rico")
+
+    let lookup = MessageBubbleConfiguration.buildNicknameLookup(from: [contact])
+
+    #expect(lookup["alpha"] == "Rico")
+  }
+
+  @Test
+  func `buildNicknameLookup drops ambiguous colliding names`() {
+    let a = createContact(prefix: [0xAA, 0x01], name: "Bob", lastAdvertTimestamp: 100, nickname: "First")
+    let b = createContact(prefix: [0xAA, 0x02], name: "bob", lastAdvertTimestamp: 200, nickname: "Second")
+
+    let lookup = MessageBubbleConfiguration.buildNicknameLookup(from: [a, b])
+
+    #expect(lookup["bob"] == nil)
+  }
+
+  @Test
+  func `buildNicknameLookup ignores contacts without a nickname`() {
+    let contact = createContact(prefix: [0xAA, 0x01], name: "Alpha", lastAdvertTimestamp: 100, nickname: nil)
+
+    let lookup = MessageBubbleConfiguration.buildNicknameLookup(from: [contact])
+
+    #expect(lookup.isEmpty)
+  }
+
+  @Test
+  func `channel sender resolver attaches unverified nickname on name match`() {
+    let contact = createContact(prefix: [0xAA, 0x01], name: "Alpha", lastAdvertTimestamp: 100, nickname: "Rico")
+    let lookup = MessageBubbleConfiguration.buildNicknameLookup(from: [contact])
+
+    let result = MessageBubbleConfiguration.resolveSenderName(
+      for: createMessage(senderKeyPrefix: nil, senderNodeName: "Alpha"),
+      contacts: [contact],
+      nicknamesByLoweredName: lookup
+    )
+
+    #expect(result.displayName == "Alpha")
+    #expect(result.matchKind == .exact)
+    #expect(result.unverifiedNickname == "Rico")
+  }
+
+  @Test
+  func `channel sender resolver has no nickname when name does not match`() {
+    let contact = createContact(prefix: [0xAA, 0x01], name: "Alpha", lastAdvertTimestamp: 100, nickname: "Rico")
+    let lookup = MessageBubbleConfiguration.buildNicknameLookup(from: [contact])
+
+    let result = MessageBubbleConfiguration.resolveSenderName(
+      for: createMessage(senderKeyPrefix: nil, senderNodeName: "Charlie"),
+      contacts: [contact],
+      nicknamesByLoweredName: lookup
+    )
+
+    #expect(result.unverifiedNickname == nil)
   }
 }

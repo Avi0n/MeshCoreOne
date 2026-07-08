@@ -71,7 +71,11 @@ struct RoomConversationView: View {
         )
       }
       .sheet(item: $sendDMContext) { context in
-        SendDMSheet(senderName: context.senderName, radioID: context.radioID) { contact in
+        SendDMSheet(
+          senderName: context.senderName,
+          radioID: context.radioID,
+          unverifiedNickname: context.unverifiedNickname
+        ) { contact in
           appState.navigation.navigateToChat(with: contact)
         }
       }
@@ -276,7 +280,11 @@ extension RoomConversationView {
   private func handleSendDM(for message: RoomMessageDTO) {
     Task {
       try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
-      sendDMContext = SendDMContext(senderName: message.authorDisplayName, radioID: session.radioID)
+      sendDMContext = SendDMContext(
+        senderName: message.authorDisplayName,
+        radioID: session.radioID,
+        unverifiedNickname: nil
+      )
     }
   }
 }

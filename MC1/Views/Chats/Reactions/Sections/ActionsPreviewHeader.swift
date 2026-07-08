@@ -3,8 +3,7 @@ import SwiftUI
 
 struct ActionsPreviewHeader: View {
   let message: MessageDTO
-  let senderName: String
-  let senderMatchKind: NodeNameMatchKind
+  let senderResolution: NodeNameResolution
 
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -20,7 +19,7 @@ struct ActionsPreviewHeader: View {
       ViewThatFits(in: .horizontal) {
         HStack {
           senderNodeIDLabel
-          senderLabel
+          SenderNameLabel(resolution: senderResolution, font: .subheadline)
           Spacer()
           ActionsTimestampLabel(message: message)
         }
@@ -28,7 +27,7 @@ struct ActionsPreviewHeader: View {
         VStack(alignment: .leading, spacing: 2) {
           HStack(spacing: 6) {
             senderNodeIDLabel
-            senderLabel
+            SenderNameLabel(resolution: senderResolution, font: .subheadline)
           }
           ActionsTimestampLabel(message: message)
         }
@@ -41,11 +40,14 @@ struct ActionsPreviewHeader: View {
     }
     .padding()
     // Only collapse to a single rotor stop when there is no interactive
-    // descendant. The fallback-match indicator (inside senderLabel) is a
-    // Button with its own label/hint/popover; .combine would destroy that
-    // affordance. .contain preserves the indicator and adds a parent
-    // container that VoiceOver users can land on.
-    .accessibilityElement(children: senderMatchKind == .fallback ? .contain : .combine)
+    // descendant. The fallback-match and unverified-nickname indicators
+    // (inside SenderNameLabel) are Buttons with their own label/hint/popover;
+    // .combine would destroy that affordance. .contain preserves the
+    // indicator and adds a parent container that VoiceOver users can land on.
+    .accessibilityElement(
+      children: (senderResolution.unverifiedNickname != nil || senderResolution.isFallback)
+        ? .contain : .combine
+    )
   }
 
   @ViewBuilder
@@ -56,18 +58,6 @@ struct ActionsPreviewHeader: View {
         .foregroundStyle(.secondary)
         .monospaced()
         .accessibilityHidden(true)
-    }
-  }
-
-  private var senderLabel: some View {
-    HStack(spacing: 4) {
-      Text(senderName)
-        .font(.subheadline)
-        .bold()
-
-      if senderMatchKind == .fallback {
-        FallbackMatchIndicatorView()
-      }
     }
   }
 }

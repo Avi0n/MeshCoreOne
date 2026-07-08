@@ -168,6 +168,7 @@ extension ChatViewModel {
     pendingRemovalIDs = []
     deletingIDs = []
     allContacts = []
+    nicknamesByLoweredName = [:]
     channelSenders = []
     channelSenderNames = []
     channelSenderOrder = [:]
@@ -258,6 +259,7 @@ extension ChatViewModel {
     do {
       allContacts = try await dataStore.fetchContacts(radioID: radioID)
       contactNameSet = Set(allContacts.map(\.name))
+      nicknamesByLoweredName = MessageBubbleConfiguration.buildNicknameLookup(from: allContacts)
     } catch {
       logger.warning("Failed to load contacts for mentions: \(error.localizedDescription)")
     }

@@ -42,6 +42,10 @@ final class ChatViewModel {
   /// All contacts for mention autocomplete (includes contacts without messages)
   var allContacts: [ContactDTO] = []
 
+  /// `loweredName -> nickname` for channel sender matching, rebuilt whenever
+  /// `allContacts` changes so per-message resolution stays O(1).
+  var nicknamesByLoweredName: [String: String] = [:]
+
   /// Synthetic contacts for channel senders not in contacts
   var channelSenders: [ContactDTO] = []
 

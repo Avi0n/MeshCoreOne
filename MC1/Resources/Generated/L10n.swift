@@ -752,6 +752,16 @@ public enum L10n {
           public static let possibleMatch = L10n.tr("Chats", "chats.message.sender.possibleMatch", fallback: "Possible match, matched by short prefix")
           /// Location: UnifiedMessageBubble.swift - Fallback sender name
           public static let unknown = L10n.tr("Chats", "chats.message.sender.unknown", fallback: "Unknown")
+          /// Location: UnifiedMessageBubble.swift - Title for unverified nickname explanation popover
+          public static let unverifiedNickname = L10n.tr("Chats", "chats.message.sender.unverifiedNickname", fallback: "Unverified name")
+          /// Location: UnifiedMessageBubble.swift - Accessibility label for unverified nickname indicator
+          public static let unverifiedNicknameAccessibilityLabel = L10n.tr("Chats", "chats.message.sender.unverifiedNicknameAccessibilityLabel", fallback: "Unverified name match")
+          /// Location: UnifiedMessageBubble.swift - Explanation of why the sender name is unverified
+          public static let unverifiedNicknameExplanation = L10n.tr("Chats", "chats.message.sender.unverifiedNicknameExplanation", fallback: "Channel message senders cannot be verified. This could be a different person.")
+          /// Location: UnifiedMessageBubble.swift - Format string for unverified nickname display - %@ is the nickname
+          public static func unverifiedNicknameFormat(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.sender.unverifiedNicknameFormat", String(describing: p1), fallback: "(%@)")
+          }
         }
         public enum Status {
           /// Location: UnifiedMessageBubble.swift - Message status delivered

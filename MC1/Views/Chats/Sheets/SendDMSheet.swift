@@ -12,10 +12,18 @@ struct SendDMSheet: View {
 
   let senderName: String
   let radioID: UUID
+  let unverifiedNickname: String?
   let onSelect: (ContactDTO) -> Void
 
   @State private var matchingContacts: [ContactDTO] = []
   @State private var isLoading = true
+
+  /// Title name mirroring the bubble's unverified-nickname presentation: nickname
+  /// prominent with the raw sender name parenthesized.
+  private var titleName: String {
+    guard let unverifiedNickname else { return senderName }
+    return "\(unverifiedNickname) \(L10n.Chats.Chats.Message.Sender.unverifiedNicknameFormat(senderName))"
+  }
 
   var body: some View {
     NavigationStack {
@@ -55,7 +63,7 @@ struct SendDMSheet: View {
           }
         }
       }
-      .navigationTitle(L10n.Chats.Chats.SendDM.title(senderName))
+      .navigationTitle(L10n.Chats.Chats.SendDM.title(titleName))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
