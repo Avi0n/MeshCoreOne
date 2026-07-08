@@ -3,28 +3,28 @@ import SwiftUI
 
 struct ConversationQuickActionsSection: View {
   @Environment(\.appTheme) private var theme
-  @Binding var notificationLevel: NotificationLevel
   @Binding var isFavorite: Bool
+  @Binding var notificationLevel: NotificationLevel
   let availableLevels: [NotificationLevel]
 
   init(
-    notificationLevel: Binding<NotificationLevel>,
     isFavorite: Binding<Bool>,
+    notificationLevel: Binding<NotificationLevel>,
     availableLevels: [NotificationLevel] = NotificationLevel.allCases
   ) {
-    _notificationLevel = notificationLevel
     _isFavorite = isFavorite
+    _notificationLevel = notificationLevel
     self.availableLevels = availableLevels
   }
 
   var body: some View {
     Section {
-      VStack(spacing: 16) {
-        NotificationLevelPicker(selection: $notificationLevel, availableLevels: availableLevels)
+      NotificationLevelPicker(selection: $notificationLevel, availableLevels: availableLevels)
+        .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
 
-        FavoriteToggleRow(isFavorite: $isFavorite)
+      Toggle(isOn: $isFavorite) {
+        Label(L10n.Chats.Chats.Action.favorite, systemImage: "star")
       }
-      .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
     }
     .themedRowBackground(theme)
   }

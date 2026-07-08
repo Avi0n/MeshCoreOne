@@ -33,6 +33,7 @@ struct ChannelInfoSheet: View {
   @State private var discoveredNewRegions: [String] = []
   @State private var showingDiscoveryResults = false
   @State private var selectedFloodScope: ChannelFloodScope
+  @State private var headerHeight: CGFloat = 150
 
   init(channel: ChannelDTO, onClearMessages: @escaping () -> Void, onDelete: @escaping () -> Void) {
     self.channel = channel
@@ -47,12 +48,12 @@ struct ChannelInfoSheet: View {
     NavigationStack {
       Form {
         // Channel Header Section
-        ChannelInfoHeaderSection(channel: channel)
+        ChannelInfoHeaderSection(channel: channel, measuredHeight: $headerHeight)
 
         // Quick Actions Section
         ConversationQuickActionsSection(
-          notificationLevel: $notificationLevel,
           isFavorite: $isFavorite,
+          notificationLevel: $notificationLevel,
           availableLevels: NotificationLevel.channelLevels
         )
         .onChange(of: notificationLevel) { _, newValue in
@@ -122,10 +123,11 @@ struct ChannelInfoSheet: View {
         )
       }
       .themedCanvas(theme)
-      .navigationTitle(L10n.Chats.Chats.ChannelInfo.title)
       .navigationBarTitleDisplayMode(.inline)
+      .scrollRevealNavigationTitle(channel.displayName, revealAfter: headerHeight)
+      .contentMargins(.top, 0, for: .scrollContent)
       .toolbar {
-        ToolbarItem(placement: .cancellationAction) {
+        ToolbarItem(placement: .confirmationAction) {
           Button(L10n.Chats.Chats.Common.done) {
             dismiss()
           }
@@ -353,6 +355,7 @@ struct ChannelInfoSheet: View {
 
 private struct ChannelInfoHeaderSection: View {
   let channel: ChannelDTO
+  @Binding var measuredHeight: CGFloat
 
   private var channelTypeLabel: String {
     if channel.isPublicChannel {
@@ -366,11 +369,10 @@ private struct ChannelInfoHeaderSection: View {
 
   var body: some View {
     Section {
-      HStack {
-        Spacer()
-        VStack(spacing: 12) {
-          ChannelAvatar(channel: channel, size: 80)
+      VStack(spacing: 12) {
+        ChannelAvatar(channel: channel, size: 150)
 
+        VStack(spacing: 4) {
           Text(channel.displayName)
             .font(.title2)
             .bold()
@@ -379,8 +381,9 @@ private struct ChannelInfoHeaderSection: View {
             .font(.subheadline)
             .foregroundStyle(.secondary)
         }
-        Spacer()
       }
+      .frame(maxWidth: .infinity)
+      .scrollRevealHeaderHeight(into: $measuredHeight)
       .listRowBackground(Color.clear)
     }
   }
@@ -474,33 +477,28 @@ private struct ChannelInfoActionsSection: View {
 
   var body: some View {
     Section {
-      Button {
+      Button(role: .destructive) {
         showingClearMessagesConfirmation = true
       } label: {
         HStack {
-          Spacer()
+          Label(L10n.Chats.Chats.ChannelInfo.clearMessagesButton, systemImage: "xmark.circle")
           if isClearingMessages {
+            Spacer()
             ProgressView()
-          } else {
-            Label(L10n.Chats.Chats.ChannelInfo.clearMessagesButton, systemImage: "xmark.circle")
           }
-          Spacer()
         }
       }
       .disabled(isActionInProgress)
-      .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
 
       Button(role: .destructive) {
         showingDeleteConfirmation = true
       } label: {
         HStack {
-          Spacer()
+          Label(L10n.Chats.Chats.ChannelInfo.deleteButton, systemImage: "trash")
           if isDeleting {
+            Spacer()
             ProgressView()
-          } else {
-            Label(L10n.Chats.Chats.ChannelInfo.deleteButton, systemImage: "trash")
           }
-          Spacer()
         }
       }
       .disabled(isActionInProgress)

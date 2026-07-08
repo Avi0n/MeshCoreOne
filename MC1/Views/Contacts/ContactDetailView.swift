@@ -46,6 +46,7 @@ struct ContactDetailView: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.isPresented) private var isPresented
 
   let contact: ContactDTO
   let showFromDirectChat: Bool
@@ -78,7 +79,8 @@ struct ContactDetailView: View {
   @State private var showingClearMessagesAlert = false
   @State private var isClearingMessages = false
   @State private var isSaving = false
-  @State private var isTogglingFavorite = false
+  @State private var isFavorite: Bool
+  @State private var favoriteTask: Task<Void, Never>?
   @State private var errorMessage: String?
   @State private var pathViewModel = PathManagementViewModel()
   @State private var showRoomJoinSheet = false
@@ -94,12 +96,14 @@ struct ContactDetailView: View {
   @State private var pingResult: PingResult?
   @State private var isSharing = false
   @State private var showShareSuccess = false
+  @State private var headerHeight: CGFloat = 150
 
   init(contact: ContactDTO, showFromDirectChat: Bool = false, onClearMessages: @escaping () -> Void = {}) {
     self.contact = contact
     self.showFromDirectChat = showFromDirectChat
     self.onClearMessages = onClearMessages
     _currentContact = State(initialValue: contact)
+    _isFavorite = State(initialValue: contact.isFavorite)
   }
 
   var body: some View {
@@ -107,15 +111,16 @@ struct ContactDetailView: View {
       // Profile header
       ContactProfileSection(
         currentContact: currentContact,
-        contactTypeLabel: contactTypeLabel
+        contactTypeLabel: contactTypeLabel,
+        measuredHeight: $headerHeight
       )
 
       // Quick actions
       ContactActionsSection(
         currentContact: currentContact,
+        isFavorite: $isFavorite,
         showFromDirectChat: showFromDirectChat,
         isPinging: isPinging,
-        isTogglingFavorite: isTogglingFavorite,
         pingResult: pingResult,
         onJoinRoom: { showRoomJoinSheet = true },
         onShowTelemetry: {
@@ -130,13 +135,16 @@ struct ContactDetailView: View {
           showRepeaterAdminAuth = true
         },
         onPingRepeater: { Task { await pingRepeater() } },
-        onToggleFavorite: { Task { await toggleFavorite() } },
         onShareQR: { showQRShareSheet = true },
         onShareViaAdvert: { Task { await shareContact() } },
         isSharing: isSharing,
         showShareSuccess: showShareSuccess
       )
       .themedRowBackground(theme)
+      .onChange(of: isFavorite) { _, newValue in
+        favoriteTask?.cancel()
+        favoriteTask = Task { await setFavorite(newValue) }
+      }
 
       // Info section
       ContactInfoSection(
@@ -187,8 +195,16 @@ struct ContactDetailView: View {
     }
     .themedCanvas(theme)
     .errorAlert($errorMessage)
-    .navigationTitle(contactTypeLabel)
     .navigationBarTitleDisplayMode(.inline)
+    .scrollRevealNavigationTitle(currentContact.displayName, revealAfter: headerHeight)
+    .contentMargins(.top, 0, for: .scrollContent)
+    .toolbar {
+      if isPresented {
+        ToolbarItem(placement: .confirmationAction) {
+          Button(L10n.Localizable.Common.done) { dismiss() }
+        }
+      }
+    }
     .alert(L10n.Contacts.Contacts.Detail.Alert.Block.title, isPresented: $showingBlockAlert) {
       Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) {}
       Button(L10n.Contacts.Contacts.Action.block, role: .destructive) {
@@ -383,16 +399,12 @@ struct ContactDetailView: View {
 
   // MARK: - Actions
 
-  private func toggleFavorite() async {
-    isTogglingFavorite = true
-    defer { isTogglingFavorite = false }
-
+  private func setFavorite(_ isFavorite: Bool) async {
     do {
       try await appState.services?.contactService.setContactFavorite(
         currentContact.id,
-        isFavorite: !currentContact.isFavorite
+        isFavorite: isFavorite
       )
-      await refreshContact()
     } catch {
       errorMessage = error.userFacingMessage
     }
@@ -504,11 +516,11 @@ private struct ContactDetailAvatarView: View {
   var body: some View {
     switch contact.type {
     case .chat:
-      ContactAvatar(contact: contact, size: 100)
+      ContactAvatar(contact: contact, size: 150)
     case .repeater:
-      NodeAvatar(publicKey: contact.publicKey, role: .repeater, size: 100)
+      NodeAvatar(publicKey: contact.publicKey, role: .repeater, size: 150)
     case .room:
-      NodeAvatar(publicKey: contact.publicKey, role: .roomServer, size: 100)
+      NodeAvatar(publicKey: contact.publicKey, role: .roomServer, size: 150)
     }
   }
 }
@@ -516,10 +528,11 @@ private struct ContactDetailAvatarView: View {
 private struct ContactProfileSection: View {
   let currentContact: ContactDTO
   let contactTypeLabel: String
+  @Binding var measuredHeight: CGFloat
 
   var body: some View {
     Section {
-      VStack(spacing: 16) {
+      VStack(spacing: 12) {
         ContactDetailAvatarView(contact: currentContact)
 
         VStack(spacing: 4) {
@@ -532,28 +545,30 @@ private struct ContactProfileSection: View {
             .foregroundStyle(.secondary)
 
           // Status indicators
-          HStack(spacing: 12) {
-            if currentContact.isFavorite {
-              Label(L10n.Contacts.Contacts.Detail.favorite, systemImage: "star.fill")
-                .font(.caption)
-                .foregroundStyle(.yellow)
-            }
-
+          VStack(spacing: 8) {
             if currentContact.isBlocked {
-              Label(L10n.Contacts.Contacts.Detail.blocked, systemImage: "hand.raised.fill")
-                .font(.caption)
-                .foregroundStyle(.orange)
+              HStack(spacing: 4) {
+                Image(systemName: "hand.raised.fill")
+                Text(L10n.Contacts.Contacts.Detail.blocked)
+              }
+              .font(.caption)
+              .foregroundStyle(.red)
             }
 
             if currentContact.hasLocation {
-              Label(L10n.Contacts.Contacts.Detail.hasLocation, systemImage: "location.fill")
-                .font(.caption)
-                .foregroundStyle(.green)
+              HStack(spacing: 4) {
+                Image(systemName: "location.fill")
+                Text(L10n.Contacts.Contacts.Detail.hasLocation)
+              }
+              .font(.caption)
+              .foregroundStyle(.green)
             }
           }
+          .padding(.top, 4)
         }
       }
       .frame(maxWidth: .infinity)
+      .scrollRevealHeaderHeight(into: $measuredHeight)
       .listRowBackground(Color.clear)
     }
   }
@@ -563,15 +578,14 @@ private struct ContactActionsSection: View {
   @Environment(\.appState) private var appState
 
   let currentContact: ContactDTO
+  @Binding var isFavorite: Bool
   let showFromDirectChat: Bool
   let isPinging: Bool
-  let isTogglingFavorite: Bool
   let pingResult: PingResult?
   let onJoinRoom: () -> Void
   let onShowTelemetry: () -> Void
   let onShowAdminAccess: () -> Void
   let onPingRepeater: () -> Void
-  let onToggleFavorite: () -> Void
   let onShareQR: () -> Void
   let onShareViaAdvert: () -> Void
   let isSharing: Bool
@@ -636,22 +650,6 @@ private struct ContactActionsSection: View {
         }
       }
 
-      // Toggle favorite (for all contact types)
-      Button(action: onToggleFavorite) {
-        HStack {
-          Label(
-            currentContact.isFavorite ? L10n.Contacts.Contacts.Detail.removeFromFavorites : L10n.Contacts.Contacts.Detail.addToFavorites,
-            systemImage: currentContact.isFavorite ? "star.slash" : "star"
-          )
-          if isTogglingFavorite {
-            Spacer()
-            ProgressView()
-          }
-        }
-      }
-      .disabled(isTogglingFavorite)
-      .radioDisabled(for: appState.connectionState)
-
       // Share Contact via QR
       Button(action: onShareQR) {
         Label(L10n.Contacts.Contacts.Detail.shareContact, systemImage: "square.and.arrow.up")
@@ -668,6 +666,10 @@ private struct ContactActionsSection: View {
         }
       }
       .radioDisabled(for: appState.connectionState, or: isSharing || showShareSuccess)
+
+      Toggle(isOn: $isFavorite) {
+        Label(L10n.Contacts.Contacts.Detail.favorite, systemImage: "star")
+      }
     }
   }
 }
@@ -750,10 +752,13 @@ private struct ContactInfoSection: View {
           Text(currentContact.nickname ?? L10n.Contacts.Contacts.Detail.nicknameNone)
             .foregroundStyle(.secondary)
 
-          Button(L10n.Contacts.Contacts.Common.edit) {
+          Button(action: {
             isEditingNickname = true
+          }) {
+            Image(systemName: "pencil")
           }
           .buttonStyle(.borderless)
+          .accessibilityLabel(L10n.Contacts.Contacts.Common.edit)
         }
       }
 
@@ -1139,6 +1144,14 @@ private struct ContactDangerSection: View {
   var body: some View {
     Section {
       if currentContact.type == .chat {
+        Button(action: onToggleBlock) {
+          Label(
+            currentContact.isBlocked ? L10n.Contacts.Contacts.Detail.unblockContact : L10n.Contacts.Contacts.Detail.blockContact,
+            systemImage: currentContact.isBlocked ? "hand.raised.slash" : "hand.raised"
+          )
+        }
+        .radioDisabled(for: appState.connectionState)
+
         Button(role: .destructive, action: onClearMessages) {
           HStack {
             Label(L10n.Contacts.Contacts.Detail.clearMessages, systemImage: "xmark.circle")
@@ -1149,14 +1162,6 @@ private struct ContactDangerSection: View {
           }
         }
         .disabled(isClearingMessages)
-
-        Button(action: onToggleBlock) {
-          Label(
-            currentContact.isBlocked ? L10n.Contacts.Contacts.Detail.unblockContact : L10n.Contacts.Contacts.Detail.blockContact,
-            systemImage: currentContact.isBlocked ? "hand.raised.slash" : "hand.raised"
-          )
-        }
-        .radioDisabled(for: appState.connectionState)
       }
 
       Button(role: .destructive, action: onDelete) {
