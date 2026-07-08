@@ -332,11 +332,15 @@ final class AppState {
 
   // MARK: - Initialization
 
-  init(modelContainer: ModelContainer) {
+  init(modelContainer: ModelContainer, isPlaceholder: Bool = false) {
     let bootstrapStore = PersistenceStore(modelContainer: modelContainer)
     let bootstrapBuffer = DebugLogBuffer(dataStore: bootstrapStore)
     bootstrapDebugLogBuffer = bootstrapBuffer
-    DebugLogBuffer.shared = bootstrapBuffer
+    // The inert environment-default placeholder must not publish the process-global buffer,
+    // or it would displace the live one and route logs into a discarded in-memory store.
+    if !isPlaceholder {
+      DebugLogBuffer.shared = bootstrapBuffer
+    }
 
     let store = StoreService()
     let theme = ThemeService(store: store)
@@ -376,14 +380,18 @@ final class AppState {
 
     loadPersistedRegionSelection()
 
-    Task { [regionAlreadySet = regionSelection != nil] in
-      let suggested = await onboarding.suggestedStartingPath(
-        connectionManager: connectionManager,
-        locationAuthorizationStatus: locationService.authorizationStatus,
-        regionAlreadySet: regionAlreadySet
-      )
-      if !suggested.isEmpty {
-        onboarding.onboardingPath = suggested
+    // The path suggestion drives real navigation; the placeholder has no scene to navigate,
+    // so skip the work and the strong self-capture it would keep alive.
+    if !isPlaceholder {
+      Task { [regionAlreadySet = regionSelection != nil] in
+        let suggested = await onboarding.suggestedStartingPath(
+          connectionManager: connectionManager,
+          locationAuthorizationStatus: locationService.authorizationStatus,
+          regionAlreadySet: regionAlreadySet
+        )
+        if !suggested.isEmpty {
+          onboarding.onboardingPath = suggested
+        }
       }
     }
   }
@@ -641,26 +649,46 @@ extension AppState {
   /// Creates an AppState for previews using an in-memory container
   @MainActor
   convenience init() {
-    let schema = Schema([
-      Device.self,
-      Contact.self,
-      Message.self,
-      Channel.self,
-      RemoteNodeSession.self,
-      RoomMessage.self
-    ])
+    self.init(modelContainer: Self.makeInMemoryContainer())
+  }
+
+  /// In-memory container over the canonical `PersistenceStore.schema`, shared by preview and
+  /// placeholder instances. Built directly rather than via `createContainer(inMemory:)`, which
+  /// interns its container and would share one store across otherwise independent instances.
+  private static func makeInMemoryContainer() -> ModelContainer {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     // swiftlint:disable:next force_try
-    let container = try! ModelContainer(for: schema, configurations: [config])
-    self.init(modelContainer: container)
+    return try! ModelContainer(for: PersistenceStore.schema, configurations: [config])
+  }
+
+  /// Shared inert stand-in backing the `appState` environment default. Built once and never
+  /// wired to a connection: its services are nil, and it publishes no process-global state.
+  static let placeholder = makePlaceholder()
+
+  private static func makePlaceholder() -> AppState {
+    let state = AppState(modelContainer: makeInMemoryContainer(), isPlaceholder: true)
+    // Cancel the transaction listener the store service starts in init; the placeholder never
+    // observes purchases, and the listener would otherwise self-retain for the process lifetime.
+    state.shutdown()
+    return state
   }
 }
 
+// A hand-written key rather than `@Entry`: the macro expands `defaultValue` into a computed
+// property, which for a class type SwiftUI flags as reallocating on every read. A stored
+// `static let` returns the one shared placeholder and silences that diagnostic.
+// swiftformat:disable environmentEntry
+private struct AppStateKey: EnvironmentKey {
+  static let defaultValue = MainActor.assumeIsolated { AppState.placeholder }
+}
+
 extension EnvironmentValues {
-  /// AppState environment value with safe default for background snapshot scenarios.
-  /// Having a default value ensures a value is always available, preventing crashes when
-  /// iOS takes app switcher snapshots or launches the app in background.
-  @Entry var appState: AppState = MainActor.assumeIsolated {
-    AppState()
+  /// Inert stand-in returned when a view reads `appState` outside a configured scene, such as
+  /// an app-switcher snapshot. `AppState.placeholder` is shared and never wired to a connection.
+  var appState: AppState {
+    get { self[AppStateKey.self] }
+    set { self[AppStateKey.self] = newValue }
   }
 }
+
+// swiftformat:enable environmentEntry
