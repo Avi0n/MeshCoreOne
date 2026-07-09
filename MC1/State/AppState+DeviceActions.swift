@@ -30,7 +30,7 @@ extension AppState {
       } catch DevicePairingError.alreadyInProgress {
         // Picker is already showing - ignore
       } catch let pairingError as PairingError {
-        connectionUI.presentPairingFailure(pairingError)
+        connectionUI.presentFreshPairingFailure(pairingError)
       } catch {
         connectionUI.presentConnectionFailure(message: error.userFacingMessage)
       }

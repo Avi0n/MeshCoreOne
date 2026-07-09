@@ -108,6 +108,12 @@ public final class ConnectionManager {
   /// Used to suppress duplicate reconnect attempts while session startup is still in flight.
   var sessionRebuildDeviceID: UUID?
 
+  /// Device whose pairing-failure recovery has already been surfaced this failure
+  /// episode. While the bond stays invalid every watchdog retry fails the same way,
+  /// so without this latch the recovery alert would re-interrupt after each retry.
+  /// Cleared on ready promotion and on explicit disconnect, opening a new episode.
+  var surfacedAuthFailureDeviceID: UUID?
+
   /// True for the duration of pairNewDevice() — suppresses opportunistic
   /// reconnect paths so they can't race the pairing's `connect(to:)` for the
   /// BLE state machine's single in-flight connect slot.
@@ -139,7 +145,25 @@ public final class ConnectionManager {
       try await connect(to: deviceID)
     } catch {
       logger.warning("[BLE] Opportunistic reconnect (\(reason)) failed: \(error.localizedDescription)")
+      // An invalidated bond can't be resolved by retrying in the background;
+      // route it to the same guided pairing-failure recovery a fresh connect
+      // attempt would show, rather than leaving the user on a silent watchdog loop.
+      if case BLEError.authenticationFailed = error {
+        surfaceAuthenticationFailure(deviceID: deviceID)
+      }
     }
+  }
+
+  /// Fires `onAuthenticationFailure` at most once per failure episode, tracked by
+  /// `surfacedAuthFailureDeviceID`. All auth-failure surfacing routes through here
+  /// so the latch covers every producer path.
+  func surfaceAuthenticationFailure(deviceID: UUID) {
+    guard surfacedAuthFailureDeviceID != deviceID else {
+      logger.info("[BLE] Pairing-failure recovery already surfaced for \(deviceID.uuidString.prefix(8)), suppressing repeat")
+      return
+    }
+    surfacedAuthFailureDeviceID = deviceID
+    onAuthenticationFailure?(deviceID)
   }
 
   // MARK: - Callbacks
@@ -153,6 +177,13 @@ public final class ConnectionManager {
   /// Use this to update UI state when services become unavailable.
   /// Installed by `AppState` during initialization.
   public var onConnectionLost: (() async -> Void)?
+
+  /// Called when a background reconnect attempt fails because the peer
+  /// invalidated its bond. Use this to present guided pairing-failure recovery,
+  /// since the watchdog will otherwise keep retrying a bond that can't heal itself.
+  /// Fires at most once per failure episode (see `surfacedAuthFailureDeviceID`).
+  /// Installed by `AppState` during initialization.
+  public var onAuthenticationFailure: ((UUID) -> Void)?
 
   /// Called after initial sync completes and connectionState becomes `.ready`.
   /// Use this for work that depends on up-to-date synced data (e.g. stale node cleanup).
@@ -799,6 +830,7 @@ public final class ConnectionManager {
 
     currentTransportType = transportType
     connectionState = syncSucceeded ? .ready : .syncing
+    surfacedAuthFailureDeviceID = nil
 
     // Skip time sync on BLE failure to avoid pressure on a saturated link.
     // WiFi/TCP has no such constraint, so always correct the clock there.

@@ -49,6 +49,12 @@ public extension ConnectionManager {
 
     await stopBLEScanning()
 
+    // Enumeration must follow activation: the system registry reads empty until the
+    // session is active. Sweeping strays before the picker keeps its confirmation
+    // dialogs in the context of the pairing the user just started.
+    try await pairing.activate()
+    await removeStrandedAssociations()
+
     let deviceID = try await pairing.discoverDevice()
 
     if await waitForOtherAppReconnection(deviceID) {
@@ -79,12 +85,12 @@ public extension ConnectionManager {
     }
   }
 
-  /// Removes a partially-paired device from the system registry after `connect(to:)` was
-  /// cancelled mid-flight. On iOS the system has the device; we don't. Without this cleanup,
-  /// iOS retains a paired bond with no app-level state, surfacing as a phantom device in
-  /// Settings → Bluetooth that won't show up in the picker again. No-op on macOS.
+  /// Removes a partially-paired device from the system registry when pairing is cancelled
+  /// mid-flight before a usable connection exists. On iOS the system has the device; we don't.
+  /// Without this cleanup, iOS retains a paired bond with no app-level state, surfacing as a
+  /// phantom device in Settings → Bluetooth that won't show up in the picker again. No-op on macOS.
   private func cleanupPartialPairing(deviceID: UUID) async {
-    logger.info("Pairing cancelled — removing device \(deviceID.uuidString.prefix(8)) from pairing registry")
+    logger.info("Removing partially-paired device \(deviceID.uuidString.prefix(8)) from pairing registry")
     try? await pairing.removeDevice(deviceID)
     // Defensive backstop — connectWithRetry and switchDevice both reset state
     // on throw, so this is normally a no-op. Kept so a future cancellation
@@ -92,9 +98,48 @@ public extension ConnectionManager {
     connectionState = .disconnected
   }
 
-  /// Removes a device that failed to connect after pairing.
-  /// Call this when user explicitly chooses to remove and retry.
-  /// No data cascade — fresh pairings have no associated data.
+  /// Sweeps system pairing associations that no longer map to a saved device, run once at
+  /// the start of each pairing attempt before the picker appears. A fresh pairing that failed
+  /// authentication leaves its association behind when the user declines the system removal
+  /// dialog, and iOS then hides it from the picker, so it can only be cleared here, while the
+  /// user is actively pairing. Saved radios (their `id` matches a `Device` row), demoted ghosts
+  /// (fresh random ids whose associations were already removed), and the live connection are
+  /// never touched. A removal may present a system confirmation the user can decline; a decline
+  /// or any other failure leaves that association in place and the flow proceeds to the picker
+  /// regardless. No-op on platforms without a system pairing registry.
+  private func removeStrandedAssociations() async {
+    guard pairing.hasSystemPairingRegistry else { return }
+
+    var protectedIDs = Set<UUID>()
+    if let connectedID = connectedDevice?.id { protectedIDs.insert(connectedID) }
+    if let attemptID = activeConnectionAttemptDeviceID { protectedIDs.insert(attemptID) }
+
+    let dataStore = PersistenceStore(modelContainer: modelContainer)
+
+    for info in pairing.registeredDeviceInfos() where !protectedIDs.contains(info.id) {
+      let existingDevice: DeviceDTO?
+      do {
+        existingDevice = try await dataStore.fetchDevice(id: info.id)
+      } catch {
+        logger.warning("Skipping association \(info.id.uuidString.prefix(8)); device lookup failed: \(error.localizedDescription)")
+        continue
+      }
+      guard existingDevice == nil else { continue }
+
+      do {
+        try await pairing.removeDevice(info.id)
+        logger.info("Removed stranded pairing association \(info.id.uuidString.prefix(8)) with no device record")
+      } catch {
+        logger.warning("Failed to remove stranded association \(info.id.uuidString.prefix(8)): \(error.localizedDescription)")
+      }
+    }
+  }
+
+  /// Removes a device that failed to connect after pairing, for the guided
+  /// "remove and retry" recovery. Demotes the row to a ghost rather than deleting
+  /// it, preserving the publicKey ↔ radioID bridge: an established radio that lost
+  /// its bond re-pairs onto the same radioID and its contacts, messages, and
+  /// channels reattach. A fresh pairing has no row to demote, so this is a no-op there.
   /// - Parameter deviceID: The device ID from `PairingError.connectionFailed`
   func removeFailedPairing(deviceID: UUID) async {
     logger.info("Removing failed pairing for device: \(deviceID)")
@@ -108,7 +153,7 @@ public extension ConnectionManager {
     }
 
     let dataStore = PersistenceStore(modelContainer: modelContainer)
-    try? await dataStore.deleteDevice(id: deviceID)
+    try? await dataStore.demoteDeviceToGhost(id: deviceID)
 
     if lastConnectedDeviceID == deviceID {
       clearPersistedConnection()

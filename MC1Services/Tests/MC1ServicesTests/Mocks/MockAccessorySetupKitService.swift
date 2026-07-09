@@ -32,6 +32,11 @@ public final class MockAccessorySetupKitService: AccessorySetupKitServicing {
   /// know deterministically that the pair task has reached the picker await.
   public var pickerEnteredSignal: AsyncStream<Void>.Continuation?
 
+  /// When non-nil, `removeAccessory` records the attempt and then throws this,
+  /// modelling the user declining the system removal confirmation so the
+  /// accessory stays registered.
+  public var removeAccessoryError: Error?
+
   public init() {}
 
   public func setPickerResult(_ result: Result<UUID, Error>) {
@@ -64,6 +69,10 @@ public final class MockAccessorySetupKitService: AccessorySetupKitServicing {
   public func removeAccessory(_ accessory: ASAccessory) async throws {
     removeAccessoryCallCount += 1
     lastRemovedDeviceID = accessory.bluetoothIdentifier
+    if let removeAccessoryError {
+      throw removeAccessoryError
+    }
+    pairedAccessories.removeAll { $0.bluetoothIdentifier == accessory.bluetoothIdentifier }
   }
 
   public func renameAccessory(_ accessory: ASAccessory) async throws {

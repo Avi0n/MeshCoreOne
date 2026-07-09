@@ -187,7 +187,7 @@ struct DeviceScanView: View {
           otherAppDeviceID = deviceID
         }
         failureHapticTrigger.toggle()
-        appState.connectionUI.presentPairingFailure(pairingError)
+        appState.connectionUI.presentFreshPairingFailure(pairingError)
       } catch {
         appState.connectionUI.presentConnectionFailure(message: error.userFacingMessage)
       }
@@ -203,10 +203,8 @@ struct DeviceScanView: View {
         await appState.wireServicesIfConnected()
         pairingSuccessTrigger.toggle()
         appState.onboarding.onboardingPath.append(.region)
-      } catch BLEError.deviceConnectedToOtherApp {
-        appState.connectionUI.otherAppWarningDeviceID = deviceID
       } catch {
-        appState.connectionUI.presentConnectionFailure(message: error.userFacingMessage)
+        appState.connectionUI.presentSavedDeviceConnectFailure(deviceID: deviceID, error: error)
       }
     }
   }

@@ -653,6 +653,12 @@ extension ConnectionManager {
     // Notify UI layer of connection loss
     await onConnectionLost?()
 
+    // An invalidated bond can't heal through auto-reconnect or the watchdog;
+    // surface the guided pairing-failure recovery instead of retrying silently.
+    if let error, case BLEError.authenticationFailed = error {
+      surfaceAuthenticationFailure(deviceID: deviceID)
+    }
+
     // iOS auto-reconnect handles normal disconnects via reconnectionCoordinator
     // Bluetooth power-cycle handled via onBluetoothPoweredOn callback
     // Watchdog provides fallback retry if both fail

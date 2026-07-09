@@ -294,6 +294,13 @@ public extension ConnectionManager {
               "error=\(error.localizedDescription), " +
               "intent=\(connectionIntent)"
           )
+          // A setup-phase auth failure arrives here as a thrown error and never
+          // fires onDisconnection, so surface the guided recovery now rather than
+          // waiting for the watchdog's first tick. The latch keeps the watchdog
+          // from re-presenting it.
+          if case BLEError.authenticationFailed = error {
+            surfaceAuthenticationFailure(deviceID: lastDeviceID)
+          }
           startReconnectionWatchdog()
           // Don't propagate - auto-reconnect failure is not fatal
         }
@@ -334,13 +341,17 @@ public extension ConnectionManager {
     }
 
     if activeReconnectDeviceID == deviceID {
-      connectionIntent = .wantsConnection(forceFullSync: forceFullSync)
-      persistIntent()
-      if sessionRebuildDeviceID != deviceID {
-        reconnectionCoordinator.restartTimeout(deviceID: deviceID)
+      if forceReconnect, connectionState == .disconnected, sessionRebuildDeviceID != deviceID {
+        await abandonStuckReconnect(deviceID: deviceID)
+      } else {
+        connectionIntent = .wantsConnection(forceFullSync: forceFullSync)
+        persistIntent()
+        if sessionRebuildDeviceID != deviceID {
+          reconnectionCoordinator.restartTimeout(deviceID: deviceID)
+        }
+        logger.info("[BLE] Reconnect already in progress for \(deviceID.uuidString.prefix(8)), deferring duplicate connect request")
+        return
       }
-      logger.info("[BLE] Reconnect already in progress for \(deviceID.uuidString.prefix(8)), deferring duplicate connect request")
-      return
     }
 
     // Prevent concurrent connection attempts
@@ -405,6 +416,14 @@ public extension ConnectionManager {
       if restoringDeviceID != deviceID {
         logger.info("Cancelling state restoration auto-reconnect to \(restoringDeviceID?.uuidString ?? "unknown") to connect to \(deviceID)")
         await transport.disconnect()
+        guard connectingDeviceID == deviceID else { throw CancellationError() }
+      } else if forceReconnect, connectionState == .disconnected {
+        // Reached when the coordinator's reconnect cycle was already cleared while
+        // the state machine itself is still mid auto-reconnect for this device.
+        await abandonStuckReconnect(
+          deviceID: deviceID,
+          detail: " - blePhase: \(blePhase), blePeripheralState: \(blePeripheralState)"
+        )
         guard connectingDeviceID == deviceID else { throw CancellationError() }
       } else {
         // Same device - let auto-reconnect complete instead of racing with it.
@@ -504,6 +523,19 @@ public extension ConnectionManager {
     connectingDeviceID = nil
   }
 
+  /// Break-glass teardown for a user-initiated (`forceReconnect`) connect that found
+  /// a stuck reconnect: the UI already abandoned the cycle (pill shows "Disconnected")
+  /// but the OS pending connect never resolved, e.g. the bond was invalidated.
+  /// Deferring again would restart the same doomed wait forever, so cancel the cycle
+  /// and tear down the pending connect; the caller falls through to a fresh attempt
+  /// that surfaces the real CoreBluetooth error instead.
+  private func abandonStuckReconnect(deviceID: UUID, detail: String = "") async {
+    logger.warning("[BLE] Break-glass: abandoning stuck reconnect for \(deviceID.uuidString.prefix(8)) to allow a fresh connect attempt\(detail)")
+    reconnectionCoordinator.cancelTimeout()
+    reconnectionCoordinator.clearReconnectingDevice()
+    await transport.disconnect()
+  }
+
   /// Disconnects from the current device.
   /// - Parameter reason: The reason for disconnecting (for debugging)
   func disconnect(reason: DisconnectReason = .userInitiated) async {
@@ -548,6 +580,7 @@ public extension ConnectionManager {
     case .userInitiated, .statusMenuDisconnectTap, .forgetDevice, .deviceRemovedFromSettings, .factoryReset, .switchingDevice:
       connectionIntent = .userDisconnected
       persistIntent()
+      surfacedAuthFailureDeviceID = nil
       lastCleanChannelSync = nil
       lastAttemptedChannelSync = nil
     case .resyncFailed, .wifiAddressChange, .wifiReconnectPrep, .pairingFailed:

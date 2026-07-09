@@ -71,14 +71,53 @@ struct ConnectRadioIDResolutionTests {
     )
     let originalRadioID = firstConnect.radioID
 
+    // The second connect hydrates the chat send queue, whose DM drain
+    // terminally deletes any envelope missing its Contact row ("contact
+    // deleted") or its Message row (sendFailed). A complete fixture — the
+    // same Contact + Message + PendingSend triple a real enqueue leaves on
+    // disk — makes the offline session's failure transient instead, so the
+    // drain parks and the row deterministically survives to the assertion
+    // below.
+    let contactID = UUID()
+    let contact = ContactDTO(
+      id: contactID,
+      radioID: originalRadioID,
+      publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) }),
+      name: "QueuedRecipient",
+      typeRawValue: 0,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 0,
+      nickname: nil,
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0
+    )
+    try await firstConnect.services.dataStore.saveContact(contact)
+
     // A per-radio PendingSend row enqueued while connected to this radio.
     let pendingMessageID = UUID()
+    let message = MessageDTO(from: Message(
+      id: pendingMessageID,
+      radioID: originalRadioID,
+      contactID: contactID,
+      text: "queued before reconnect",
+      timestamp: 1_700_000_000
+    ))
+    try await firstConnect.services.dataStore.saveMessage(message)
+
     let pending = PendingSendDTO(
       id: UUID(),
       radioID: originalRadioID,
       messageID: pendingMessageID,
       kind: .dm,
-      contactID: UUID(),
+      contactID: contactID,
       channelIndex: nil,
       isResend: false,
       messageText: "queued before reconnect",

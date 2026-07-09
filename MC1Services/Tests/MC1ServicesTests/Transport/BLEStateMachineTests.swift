@@ -341,6 +341,13 @@ struct BLEStateMachineDiscoveryWatchdogTests {
     return true
   }
 
+  private func isAuthenticationFailed(_ outcome: Result<Void, Error>?) -> Bool {
+    guard case let .failure(error) = outcome,
+          let bleError = error as? BLEError,
+          case .authenticationFailed = bleError else { return false }
+    return true
+  }
+
   /// Polls until the discovery continuation is resumed or the window elapses, so a
   /// re-arm that never fired fails the assertion instead of suspending the test.
   private func awaitResumed(_ box: WatchdogContinuationBox, within timeout: TimeInterval) async -> Bool {
@@ -380,8 +387,13 @@ struct BLEStateMachineDiscoveryWatchdogTests {
     await sm.cancelServiceDiscoveryTimeoutForTesting()
   }
 
+  /// A peripheral still `.connected` after the extension budget is spent never
+  /// delivered a discovery callback and no CoreBluetooth error arrived: the
+  /// strongest in-app signal of a silently invalidated bond. The teardown
+  /// escalates to `authenticationFailed` so it reaches guided re-pair recovery
+  /// rather than looping generic timeout retries against the dead bond.
   @Test
-  func `connected peripheral tears down once the discovery-extension budget is spent`() async {
+  func `connected peripheral with a spent budget escalates to an auth failure`() async {
     let sm = BLEStateMachine(serviceDiscoveryTimeout: watchdogNonFiringTimeout)
     await sm.injectTestCentralManager()
     let peripheral = makeLeakedPeripheral(ConnectedTestPeripheral.self)
@@ -396,8 +408,9 @@ struct BLEStateMachineDiscoveryWatchdogTests {
     await driver.value
 
     #expect(await sm.currentPhase.name == "idle")
+    // The extension budget stays bounded: it is never pushed past its ceiling.
     #expect(await sm.currentDiscoveryTimeoutExtensions == BLEStateMachine.maxDiscoveryTimeoutExtensions)
-    #expect(isConnectionTimeout(box.outcome))
+    #expect(isAuthenticationFailed(box.outcome))
   }
 
   /// The extend branch must re-arm the watchdog, not merely consume a budget unit.
@@ -424,7 +437,7 @@ struct BLEStateMachineDiscoveryWatchdogTests {
     if tornDown {
       #expect(await sm.currentPhase.name == "idle")
       #expect(await sm.currentDiscoveryTimeoutExtensions == BLEStateMachine.maxDiscoveryTimeoutExtensions)
-      #expect(isConnectionTimeout(box.outcome))
+      #expect(isAuthenticationFailed(box.outcome))
     } else {
       // Release the still-suspended continuation so the driver task can finish.
       box.continuation?.resume()

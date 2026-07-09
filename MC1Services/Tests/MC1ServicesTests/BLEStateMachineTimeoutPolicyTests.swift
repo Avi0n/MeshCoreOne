@@ -55,3 +55,58 @@ struct BLEStateMachineTimeoutPolicyTests {
     )
   }
 }
+
+/// Truth table for classifying a discovery/subscribe watchdog teardown. Only a
+/// peripheral that reached `.connected` yet exhausted its extension budget is
+/// treated as a silently invalidated bond and escalated to
+/// `authenticationFailed`; every other teardown state is a plain timeout.
+@Suite("BLEStateMachine Discovery Timeout Classification Tests")
+struct BLEStateMachineDiscoveryTimeoutClassificationTests {
+  private let maxExtensions = BLEStateMachine.maxDiscoveryTimeoutExtensions
+
+  private func isAuthenticationFailed(_ error: BLEError) -> Bool {
+    if case .authenticationFailed = error { return true }
+    return false
+  }
+
+  private func isConnectionTimeout(_ error: BLEError) -> Bool {
+    if case .connectionTimeout = error { return true }
+    return false
+  }
+
+  @Test
+  func `connected peripheral with a spent budget escalates to an auth failure`() {
+    #expect(
+      isAuthenticationFailed(
+        BLEStateMachine.discoveryTimeoutError(
+          peripheralState: .connected, extensions: maxExtensions, maxExtensions: maxExtensions
+        )
+      )
+    )
+  }
+
+  @Test
+  func `connected peripheral within budget is a plain connection timeout`() {
+    #expect(
+      isConnectionTimeout(
+        BLEStateMachine.discoveryTimeoutError(
+          peripheralState: .connected, extensions: 0, maxExtensions: maxExtensions
+        )
+      )
+    )
+  }
+
+  @Test
+  func `a link that never reached connected is a plain connection timeout`() {
+    for state in [CBPeripheralState.disconnected, .connecting, .disconnecting] {
+      #expect(
+        isConnectionTimeout(
+          BLEStateMachine.discoveryTimeoutError(
+            peripheralState: state, extensions: maxExtensions, maxExtensions: maxExtensions
+          )
+        ),
+        "state \(state.rawValue) should be a connection timeout, not an auth failure"
+      )
+    }
+  }
+}

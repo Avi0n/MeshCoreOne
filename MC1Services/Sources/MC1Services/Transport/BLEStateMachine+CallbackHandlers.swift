@@ -219,12 +219,15 @@ extension BLEStateMachine {
       "[BLE] Did fail to connect: \(peripheral.identifier.uuidString.prefix(8)), peripheralState: \(pState), phase: \(phase.name), elapsed: \(elapsed.formatted(.number.precision(.fractionLength(2))))s, error: \(errorInfo)"
     )
 
-    // Handle failure during auto-reconnect (iOS auto-reconnect gave up)
+    // Handle failure during auto-reconnect (iOS auto-reconnect gave up).
+    // Mapped the same way as the .connecting branch below so a bond failure
+    // (auth/encryption/peer-removed-pairing) surfaces as the typed
+    // BLEError.authenticationFailed instead of the raw CoreBluetooth error.
     if case let .autoReconnecting(expected, _, _) = phase,
        expected.identifier == peripheral.identifier {
       logger.warning("Auto-reconnect failed for \(peripheral.identifier) - transitioning to idle")
       transition(to: .idle)
-      onDisconnection?(peripheral.identifier, error)
+      onDisconnection?(peripheral.identifier, Self.makeConnectionError(error))
       return
     }
 
@@ -242,6 +245,9 @@ extension BLEStateMachine {
   /// Maps a CoreBluetooth error to a typed BLEError. Auth/encryption codes
   /// from CBATTError or CBError get the typed `.authenticationFailed` case so
   /// detection survives iOS localizing the error description in any locale.
+  /// `CBError.peerRemovedPairingInformation` is included because a peer that
+  /// invalidates its bond fails a subsequent connection the same way an
+  /// auth/encryption mismatch does — the user must remove and re-pair.
   static func makeConnectionError(_ error: Error?, fallback: String = "Unknown error") -> BLEError {
     if let nsError = error as NSError? {
       if nsError.domain == CBATTErrorDomain {
@@ -256,7 +262,7 @@ extension BLEStateMachine {
         }
       }
       if nsError.domain == CBErrorDomain,
-         nsError.code == CBError.encryptionTimedOut.rawValue {
+         nsError.code == CBError.encryptionTimedOut.rawValue || nsError.code == CBError.peerRemovedPairingInformation.rawValue {
         return .authenticationFailed
       }
     }
@@ -322,7 +328,18 @@ extension BLEStateMachine {
     let deviceID = peripheral.identifier
 
     if isReconnecting {
-      handleAutoReconnectDisconnect(peripheral: peripheral, error: error)
+      switch phase {
+      case .idle, .waitingForBluetooth:
+        // No operation owns a peripheral, so there is no pending connect
+        // behind this callback; entering .autoReconnecting would wait
+        // indefinitely for a reconnection this machine never started, while
+        // the powered-on handler and watchdog defer to it. Treat it as a
+        // full disconnect instead.
+        logger.warning("[BLE] isReconnecting disconnect in \(phase.name); treating as full disconnect")
+        handleFullDisconnect(deviceID: deviceID, error: error)
+      default:
+        handleAutoReconnectDisconnect(peripheral: peripheral, error: error)
+      }
     } else {
       handleFullDisconnect(deviceID: deviceID, error: error)
     }
@@ -338,6 +355,17 @@ extension BLEStateMachine {
     if let nsError = error as NSError? {
       errorInfo = "domain=\(nsError.domain), code=\(nsError.code), desc=\(nsError.localizedDescription)"
     }
+    // A disconnect that lands after discovery completed but before connect()
+    // adopts the link has no setup continuation to resume and no live session
+    // to rebuild: the pending connect belongs to a connection the caller never
+    // received. Route it through full-disconnect teardown so the machine
+    // settles in .idle, rather than forking into .autoReconnecting while
+    // connect() separately fails on the vanished .discoveryComplete phase.
+    if case .discoveryComplete = phase {
+      handleFullDisconnect(deviceID: deviceID, error: error)
+      return
+    }
+
     logger.info("[BLE] iOS auto-reconnect started: \(deviceID.uuidString.prefix(8)), will attempt automatic reconnection")
 
     // Clean up pending operations before transitioning.
@@ -384,9 +412,12 @@ extension BLEStateMachine {
       break
 
     case .connected, .autoReconnecting:
-      // Unexpected disconnection
+      // Unexpected disconnection. Map through makeConnectionError like the
+      // sibling onDisconnection sites so bond invalidation arriving here still
+      // surfaces as the typed BLEError.authenticationFailed; nil stays nil to
+      // keep a clean disconnect distinguishable from a failure.
       cancelCurrentOperation(with: BLEError.notConnected)
-      onDisconnection?(deviceID, error)
+      onDisconnection?(deviceID, error.map { Self.makeConnectionError($0) })
 
     default:
       // Disconnection during connection attempt
@@ -405,7 +436,7 @@ extension BLEStateMachine {
       if let error {
         logger.warning("Auto-reconnect service discovery failed: \(error.localizedDescription)")
         transition(to: .idle)
-        onDisconnection?(expected.identifier, error)
+        onDisconnection?(expected.identifier, Self.makeConnectionError(error))
         return
       }
 
@@ -460,7 +491,7 @@ extension BLEStateMachine {
       if let error {
         logger.warning("Auto-reconnect characteristic discovery failed: \(error.localizedDescription)")
         transition(to: .idle)
-        onDisconnection?(expected.identifier, error)
+        onDisconnection?(expected.identifier, Self.makeConnectionError(error))
         return
       }
 
@@ -570,7 +601,7 @@ extension BLEStateMachine {
     if let error {
       logger.warning("Auto-reconnect notification subscription failed: \(error.localizedDescription)")
       transition(to: .idle)
-      onDisconnection?(peripheral.identifier, error)
+      onDisconnection?(peripheral.identifier, Self.makeConnectionError(error))
       return
     }
 
@@ -639,7 +670,15 @@ extension BLEStateMachine {
 
     if let error {
       logger.warning("[BLE] Write error: seq=\(writeSequence), error=\(error.localizedDescription)")
-      continuation.resume(throwing: BLEError.writeError(error.localizedDescription))
+      // Map through makeConnectionError like the sibling handlers so an ATT
+      // auth/encryption code on a write still routes to guided re-pair;
+      // everything else stays the typed write error.
+      let mapped = Self.makeConnectionError(error)
+      if case .authenticationFailed = mapped {
+        continuation.resume(throwing: mapped)
+      } else {
+        continuation.resume(throwing: BLEError.writeError(error.localizedDescription))
+      }
     } else {
       logger.debug("[BLE] Write complete: seq=\(writeSequence)")
       continuation.resume()

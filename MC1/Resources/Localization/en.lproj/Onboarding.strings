@@ -107,6 +107,7 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "Couldn't pair the device. Check the PIN, then remove the device and try again.";
+"deviceScan.error.pinRejected" = "The PIN wasn't accepted. Check the PIN shown on your device, then try again. iOS will ask you to confirm removing the failed pairing first.";
 "deviceScan.error.connectionFailed" = "Couldn't connect to the device. Try again, or remove it if the problem continues.";
 
 // MARK: - Troubleshooting Sheet

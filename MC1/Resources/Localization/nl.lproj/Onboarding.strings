@@ -107,6 +107,7 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "Kan apparaat niet koppelen. Controleer de pincode, verwijder vervolgens het apparaat en probeer het opnieuw.";
+"deviceScan.error.pinRejected" = "De pincode is niet geaccepteerd. Controleer de pincode die op je apparaat wordt weergegeven en probeer het opnieuw. iOS vraagt je eerst om te bevestigen dat de mislukte koppeling wordt verwijderd.";
 "deviceScan.error.connectionFailed" = "Kan geen verbinding maken met het apparaat. Probeer het opnieuw, of verwijder het als het probleem aanhoudt.";
 
 // MARK: - Troubleshooting Sheet

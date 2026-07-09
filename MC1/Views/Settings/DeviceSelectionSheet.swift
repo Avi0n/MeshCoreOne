@@ -193,10 +193,8 @@ struct DeviceSelectionSheet: View {
         } else {
           try await appState.connectionManager.connect(to: device.id, forceFullSync: true, forceReconnect: true)
         }
-      } catch BLEError.deviceConnectedToOtherApp {
-        appState.connectionUI.otherAppWarningDeviceID = device.id
       } catch {
-        appState.connectionUI.presentConnectionFailure(message: error.userFacingMessage)
+        appState.connectionUI.presentSavedDeviceConnectFailure(deviceID: device.id, error: error)
       }
     }
   }

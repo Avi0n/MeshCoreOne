@@ -282,12 +282,46 @@ final class ConnectionUIState {
   // MARK: - Connection Failure Routing
 
   /// Routes a generic (non-pairing) connection failure. Clears
-  /// `connectionFailedTitle` and `pairingFailureKind` so a prior
-  /// `presentPairingFailure` can't leak stale state onto an unrelated failure.
+  /// `connectionFailedTitle`, `pairingFailureKind`, and `failedPairingDeviceID`
+  /// so a prior `presentPairingFailure` can't leak stale state onto an unrelated
+  /// failure and flip the OK-only alert into the destructive re-pair variant.
   func presentConnectionFailure(message: String?) {
     connectionFailedTitle = nil
     pairingFailureKind = nil
+    failedPairingDeviceID = nil
     connectionFailedMessage = message
+    showingConnectionFailedAlert = true
+  }
+
+  /// Routes a failure from a user-initiated connect to an already-paired radio.
+  /// An authentication failure means the saved bond is dead, so surface the
+  /// guided re-pair recovery immediately rather than an OK-only alert that
+  /// leaves the responder with no way forward.
+  func presentSavedDeviceConnectFailure(deviceID: UUID, error: Error) {
+    switch error {
+    case BLEError.deviceConnectedToOtherApp:
+      otherAppWarningDeviceID = deviceID
+    case BLEError.authenticationFailed:
+      presentPairingFailure(.connectionFailed(deviceID: deviceID, underlying: error))
+    default:
+      presentConnectionFailure(message: error.userFacingMessage)
+    }
+  }
+
+  /// Routes a failure from a fresh BLE pairing attempt (a device just chosen in
+  /// the picker). A rejected PIN carries copy distinct from an established
+  /// radio's dead bond: it names the PIN and warns that iOS will confirm
+  /// removing the half-formed pairing on retry. Every other failure shares the
+  /// standard pairing-failure routing.
+  func presentFreshPairingFailure(_ error: PairingError) {
+    guard case let .connectionFailed(deviceID, _) = error, error.isAuthenticationFailure else {
+      presentPairingFailure(error)
+      return
+    }
+    failedPairingDeviceID = deviceID
+    connectionFailedTitle = L10n.Localizable.Alert.PairingFailed.title
+    connectionFailedMessage = L10n.Onboarding.DeviceScan.Error.pinRejected
+    pairingFailureKind = .pinRejected
     showingConnectionFailedAlert = true
   }
 
@@ -322,6 +356,10 @@ enum PairingFailureKind {
   /// Authentication failed — bond is bad. Recovery requires removing the bond
   /// and re-pairing.
   case authentication
+
+  /// A fresh pairing attempt was rejected, typically a wrong PIN. Recovery
+  /// requires removing the half-formed pairing before another attempt.
+  case pinRejected
 
   /// Transient connection failure — bond is good. Recovery prefers a plain
   /// retry, with destructive remove available as a fallback.

@@ -32,8 +32,10 @@ struct ContentView: View {
     ) {
       if appState.connectionUI.failedPairingDeviceID != nil {
         switch appState.connectionUI.pairingFailureKind {
-        case .authentication:
-          // Auth-failure variant — bond is bad, destructive remove is the recovery
+        case .authentication, .pinRejected:
+          // Bond can't proceed (a dead saved bond or a rejected fresh PIN), so
+          // destructive remove is the recovery. The two kinds share these
+          // buttons and differ only in the message copy set by the presenter.
           Button(L10n.Localizable.Alert.ConnectionFailed.removeAndRetry, role: .destructive) {
             appState.removeFailedPairingAndRetry()
           }

@@ -373,6 +373,12 @@ final class AppState {
       await self?.wireServicesIfConnected()
     }
 
+    // Wire background auth-failure callback - surfaces guided pairing-failure
+    // recovery when an opportunistic reconnect finds the bond invalidated
+    connectionManager.onAuthenticationFailure = { [weak self] deviceID in
+      self?.connectionUI.presentPairingFailure(.connectionFailed(deviceID: deviceID, underlying: BLEError.authenticationFailed))
+    }
+
     // Wire device synced callback - runs after sync completes and state is .ready
     connectionManager.onDeviceSynced = { [weak self] in
       self?.performStaleNodeCleanup()

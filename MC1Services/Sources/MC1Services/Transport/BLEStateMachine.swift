@@ -149,6 +149,12 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// Command cannot defeat the session's pipeline timeout and hang the channel sync.
   private var writeWithoutResponseReadyTimeoutTask: Task<Void, Never>?
 
+  /// Error recorded when a `.discoveryComplete` phase is torn down before
+  /// `connect()` adopts it, so the in-flight connect surfaces the real
+  /// teardown classification (a bond-loss disconnect in that window must
+  /// still route to guided re-pair) instead of a generic failure.
+  var discoveryCompleteTeardownError: BLEError?
+
   /// Tracks the service discovery timeout task so it can be cancelled on success
   var serviceDiscoveryTimeoutTask: Task<Void, Never>?
 
@@ -273,6 +279,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     connectionGeneration &+= 1
     connectionGenerationStartTime = CFAbsoluteTimeGetCurrent()
     discoveryTimeoutExtensions = 0
+    discoveryCompleteTeardownError = nil
   }
 
   /// Returns true when a disconnect callback's timestamp predates the current generation boundary.
@@ -548,7 +555,9 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     )
 
     guard case let .discoveryComplete(_, tx, rx) = phase else {
-      throw BLEError.connectionFailed("Unexpected state after service discovery")
+      let teardownError = discoveryCompleteTeardownError
+      discoveryCompleteTeardownError = nil
+      throw teardownError ?? BLEError.connectionFailed("Unexpected state after service discovery")
     }
 
     // Pass continuation to delegate handler for direct yielding (preserves ordering)
@@ -1101,8 +1110,10 @@ extension BLEStateMachine {
       dataContinuation.finish()
 
     case .discoveryComplete:
-      // Continuation already consumed — nothing to resume
-      break
+      // Continuation already consumed; connect() is between discovery and
+      // adopting .connected. Record why the phase was torn down so connect()
+      // surfaces the real classification instead of a generic failure.
+      discoveryCompleteTeardownError = error as? BLEError ?? Self.makeConnectionError(error)
 
     case .idle, .autoReconnecting, .restoringState, .disconnecting:
       break
@@ -1129,6 +1140,26 @@ extension BLEStateMachine {
     maxExtensions: Int
   ) -> Bool {
     peripheralState == .connected && extensions < maxExtensions
+  }
+
+  /// Classifies how a discovery/subscribe watchdog teardown surfaces. A
+  /// peripheral that reached link-layer `.connected` yet never completed
+  /// discovery across the full extension budget is the strongest in-app signal
+  /// of a silently invalidated bond: CoreBluetooth delivers no error, so
+  /// nothing else distinguishes it from a healthy-but-slow link. Surfacing it
+  /// as `.authenticationFailed` routes it into the same guided re-pair recovery
+  /// as a delivered bond-invalidation error, instead of the generic timeout
+  /// retry loop that would keep re-trying the dead bond. A link that never
+  /// reached `.connected` is a plain connection timeout.
+  static func discoveryTimeoutError(
+    peripheralState: CBPeripheralState,
+    extensions: Int,
+    maxExtensions: Int
+  ) -> BLEError {
+    if peripheralState == .connected, extensions >= maxExtensions {
+      return .authenticationFailed
+    }
+    return .connectionTimeout
   }
 
   /// What the auto-reconnect discovery watchdog does when its window elapses.
@@ -1192,9 +1223,14 @@ extension BLEStateMachine {
         return
       }
 
+      let teardownError = Self.discoveryTimeoutError(
+        peripheralState: peripheral.state,
+        extensions: discoveryTimeoutExtensions,
+        maxExtensions: Self.maxDiscoveryTimeoutExtensions
+      )
       centralManager.cancelPeripheralConnection(peripheral)
       transition(to: .idle)
-      c.resume(throwing: BLEError.connectionTimeout)
+      c.resume(throwing: teardownError)
     default:
       break
     }
@@ -1249,9 +1285,14 @@ extension BLEStateMachine {
       logger.warning(
         "[BLE] Auto-reconnect discovery timeout: \(peripheral.identifier.uuidString.prefix(8)), peripheralState: \(pState), elapsed: \(elapsed.formatted(.number.precision(.fractionLength(2))))s"
       )
+      let teardownError = Self.discoveryTimeoutError(
+        peripheralState: peripheral.state,
+        extensions: discoveryTimeoutExtensions,
+        maxExtensions: Self.maxDiscoveryTimeoutExtensions
+      )
       centralManager.cancelPeripheralConnection(peripheral)
       transition(to: .idle)
-      onDisconnection?(peripheral.identifier, BLEError.connectionTimeout)
+      onDisconnection?(peripheral.identifier, teardownError)
     }
   }
 }

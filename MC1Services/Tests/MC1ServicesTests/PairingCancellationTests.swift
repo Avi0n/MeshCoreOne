@@ -17,6 +17,11 @@ struct PairingCancellationTests {
     let deviceID = UUID()
     mockASK.setPickerResult(.success(deviceID))
     mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: deviceID, displayName: "test")])
+    // Persist a matching device row so the pre-picker stranded-association sweep skips
+    // this accessory; the count-one assertion then isolates the cancellation cleanup as
+    // the sole remover.
+    let store = manager.createStandalonePersistenceStore()
+    try await store.saveDevice(DeviceDTO.testDevice(id: deviceID))
 
     manager.setTestState(
       connectionState: .disconnected,
@@ -67,6 +72,11 @@ struct PairingCancellationTests {
     let deviceID = UUID()
     mockASK.setPickerResult(.success(deviceID))
     mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: deviceID, displayName: "test")])
+    // Persist a matching device row so the pre-picker stranded-association sweep skips
+    // this accessory; the count-one assertion then isolates the cancellation cleanup as
+    // the sole remover.
+    let store = manager.createStandalonePersistenceStore()
+    try await store.saveDevice(DeviceDTO.testDevice(id: deviceID))
 
     manager.setTestState(
       connectionState: .disconnected,

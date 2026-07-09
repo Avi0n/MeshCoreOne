@@ -136,6 +136,11 @@
         logger.error("ASAccessorySession invalidated")
         isSessionActive = false
         pairedAccessories = []
+        // Drop the dead session so the next activateSession() builds a fresh
+        // one. Keeping it would make every later activate() a silent no-op
+        // (its guard keys on session == nil) and leave pairing wedged until
+        // app relaunch.
+        session = nil
         pickerContinuation?.resume(throwing: AccessorySetupKitError.sessionInvalidated)
         pickerContinuation = nil
 

@@ -107,6 +107,7 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "Не вдалося спарувати пристрій. Перевірте PIN-код, потім видаліть пристрій і спробуйте ще раз.";
+"deviceScan.error.pinRejected" = "PIN-код не прийнято. Перевірте PIN-код, показаний на пристрої, і спробуйте ще раз. Спочатку iOS попросить підтвердити видалення невдалого спарювання.";
 "deviceScan.error.connectionFailed" = "Не вдалося підключитися до пристрою. Спробуйте знову або видаліть пристрій, якщо проблема не зникає.";
 
 // MARK: - Troubleshooting Sheet

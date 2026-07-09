@@ -35,6 +35,16 @@ struct BLEStateMachineErrorMappingTests {
   }
 
   @Test
+  func `CBError.peerRemovedPairingInformation maps to BLEError.authenticationFailed`() {
+    let nsError = NSError(domain: CBErrorDomain, code: CBError.peerRemovedPairingInformation.rawValue)
+    let result = BLEStateMachine.makeConnectionError(nsError)
+    guard case BLEError.authenticationFailed = result else {
+      Issue.record("Expected .authenticationFailed, got \(result)")
+      return
+    }
+  }
+
+  @Test
   func `Non-auth CBATT codes fall through to .connectionFailed`() {
     let nsError = NSError(
       domain: CBATTErrorDomain,

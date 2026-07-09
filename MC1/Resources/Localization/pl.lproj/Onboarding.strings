@@ -107,6 +107,7 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "Nie udało się sparować urządzenia. Sprawdź PIN, następnie usuń urządzenie i spróbuj ponownie.";
+"deviceScan.error.pinRejected" = "PIN nie został zaakceptowany. Sprawdź PIN wyświetlany na urządzeniu i spróbuj ponownie. iOS najpierw poprosi o potwierdzenie usunięcia nieudanego parowania.";
 "deviceScan.error.connectionFailed" = "Nie można połączyć się z urządzeniem. Spróbuj ponownie lub usuń je, jeśli problem nie ustępuje.";
 
 // MARK: - Troubleshooting Sheet
