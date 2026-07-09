@@ -45,16 +45,11 @@ public struct PersistentLogger: Sendable {
   }
 
   private func persist(level: DebugLogLevel, message: String) {
-    guard let buffer = DebugLogBuffer.shared else { return }
-
-    let dto = DebugLogEntryDTO(
+    DebugLogBuffer.record(DebugLogEntryDTO(
       level: level,
       subsystem: subsystem,
       category: category,
       message: message
-    )
-    Task {
-      await buffer.append(dto)
-    }
+    ))
   }
 }
