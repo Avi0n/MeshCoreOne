@@ -32,8 +32,14 @@ extension ConnectionManager: BLEReconnectionDelegate {
     // to land at the end of this method. Subsequent awaits operate on the
     // captured local — they no longer touch self.services / self.session.
     let oldServices = services
+    let oldSession = session
     services = nil
     session = nil
+
+    // Stop the old session (keeping the transport for the pending reconnect)
+    // so its receive and auto-fetch loops end now instead of parking on the
+    // finished dispatcher stream until the object deallocates.
+    await oldSession?.stop(disconnectTransport: false)
 
     if let oldServices {
       sessionsAwaitingReauth = await oldServices.remoteNodeService.handleBLEDisconnection()
@@ -60,6 +66,11 @@ extension ConnectionManager: BLEReconnectionDelegate {
       }
     }
 
+    // The auto-reconnect link is already live, so surface .connected up front,
+    // matching fresh connect: the syncing pill stays visible through rebuild and
+    // initial sync instead of a .connecting window the reconnect UI never bounds.
+    connectionState = .connected
+
     // Session teardown in this rebuild never disconnects the transport: the
     // link belongs to the reconnect cycle (or, when superseded, to a newer
     // one), and an explicit disconnect here cancels the OS pending connect
@@ -74,7 +85,9 @@ extension ConnectionManager: BLEReconnectionDelegate {
     session = newSession
 
     do {
-      try await newSession.start(reconnectingAttempt: 1, disconnectTransportOnFailure: false)
+      try await withTimeout(.seconds(10), operationName: "session.start") {
+        try await newSession.start(reconnectingAttempt: 1, disconnectTransportOnFailure: false)
+      }
     } catch {
       logger.warning("[BLE] rebuildSession: session.start() failed: \(error.localizedDescription)")
       throw error
@@ -99,7 +112,9 @@ extension ConnectionManager: BLEReconnectionDelegate {
     }
     let capabilities: DeviceCapabilities
     do {
-      capabilities = try await newSession.queryDevice()
+      capabilities = try await withTimeout(.seconds(10), operationName: "queryDevice") {
+        try await newSession.queryDevice()
+      }
     } catch {
       logger.warning("[BLE] rebuildSession: queryDevice() failed: \(error.localizedDescription)")
       throw error

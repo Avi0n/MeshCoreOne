@@ -118,8 +118,13 @@ extension ConnectionManager {
         try? await Task.sleep(for: Self.resyncInterval)
         guard !Task.isCancelled else { break }
 
+        // Fence on services identity so a loop orphaned by a later reconnect
+        // cycle neither resyncs nor disconnects against a container the manager
+        // has since replaced; without it the exhaustion branch below could tear
+        // down a healthy successor connection.
         guard connectionIntent.wantsConnection,
-              connectionState.isOperational else { break }
+              connectionState.isOperational,
+              self.services === services else { break }
 
         resyncAttemptCount += 1
         logger.info("Resync attempt \(resyncAttemptCount)/\(Self.maxResyncAttempts)")
@@ -145,6 +150,17 @@ extension ConnectionManager {
                 connectionState.isOperational,
                 self.services === services else { break }
 
+          // Promote before the post-sync hooks, matching promoteToReady's
+          // ordering: room re-auth is a bounded but multi-second await, and
+          // holding the "Syncing" pill and the send queue's .ready gate
+          // through it delays the user for work that isn't sync.
+          // Not using promoteToReady() because: (1) its guards (services identity,
+          // connectionIntent) are already checked above, and (2) it would re-run
+          // time sync and onDeviceSynced, duplicating the resync loop's own post-sync work.
+          await services.syncCoordinator.endResyncActivity(succeeded: true)
+          didEndResyncActivity = true
+          connectionState = .ready
+
           await syncDeviceTimeIfNeeded()
 
           guard !Task.isCancelled,
@@ -164,21 +180,9 @@ extension ConnectionManager {
                 connectionState.isOperational,
                 self.services === services else { break }
 
-          // Report success only after confirming the loop is still authoritative.
-          // Earlier placement fired the "Ready" toast before these guards,
-          // relying on handleDisconnect as an accidental backstop.
-          await services.syncCoordinator.endResyncActivity(succeeded: true)
-          didEndResyncActivity = true
-
           // Only clear consumed IDs after confirming the loop is still valid.
           // Any IDs appended during the await (via teardownSessionForReconnect) survive.
           sessionsAwaitingReauth.subtract(sessionIDs)
-
-          // Promote from .syncing to .ready now that sync completed.
-          // Not using promoteToReady() because: (1) its guards (services identity,
-          // connectionIntent) are already checked above, and (2) it would re-run
-          // time sync and onDeviceSynced, duplicating the resync loop's own post-sync work.
-          connectionState = .ready
 
           await onDeviceSynced?()
 

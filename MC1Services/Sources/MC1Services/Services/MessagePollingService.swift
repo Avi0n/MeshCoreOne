@@ -214,6 +214,7 @@ actor MessagePollingService {
     let blockAnchor = Date()
 
     while true {
+      try Task.checkCancellation()
       let result = try await pollMessage()
       switch result {
       case let .contactMessage(msg):

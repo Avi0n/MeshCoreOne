@@ -279,4 +279,88 @@ struct ConnectionManagerResyncLoopTests {
     #expect(manager.connectionState == .disconnected)
     #expect(succeededValues.values.last == false)
   }
+
+  // MARK: - Superseded Loop Isolation
+
+  @Test(
+    .timeLimit(.minutes(1))
+  )
+  func `Superseded resync loop cannot disconnect a healthy successor connection`() async throws {
+    let deviceID = UUID()
+    let (manager, staleServices, _) = try await makeResyncTestHarness(deviceID: deviceID)
+
+    // Count resync attempts against the cycle-N container. A loop orphaned by a
+    // later reconnect must never drive resync against the replaced container.
+    let staleResyncCalls = CallTracker()
+    await staleServices.syncCoordinator.setPerformResyncOverride { _, _ in
+      staleResyncCalls.markCalled()
+      return false
+    }
+
+    let onResyncFailedTracker = CallTracker()
+    manager.onResyncFailed = { onResyncFailedTracker.markCalled() }
+
+    // Install the resync loop bound to the cycle-N container.
+    manager.startResyncLoop(radioID: deviceID, services: staleServices)
+
+    // Bring up a healthy successor container (cycle N+2) and install it as the
+    // live connection without cancelling the cycle-N loop, reproducing a
+    // reconnect that superseded the loop's container.
+    let successorSession = MeshCoreSession(
+      transport: SimulatorMockTransport(),
+      configuration: SessionConfiguration(defaultTimeout: 0.5, clientIdentifier: "SuccessorResyncTest")
+    )
+    let successorServices = try await ServiceContainer.forTesting(session: successorSession)
+    manager.setTestState(
+      connectionState: .ready,
+      services: successorServices,
+      session: successorSession
+    )
+
+    // The orphaned loop wakes after a resync interval; its services-identity
+    // fence must break it before performResync and before the exhaustion
+    // branch that would disconnect. The timeout is generous enough that with
+    // the fence absent the loop would exhaust and tear the successor down,
+    // making the assertions below fail rather than hang.
+    try await waitUntil(timeout: .seconds(12), "orphaned resync loop should stop") {
+      manager.resyncTask == nil
+    }
+
+    #expect(staleResyncCalls.callCount == 0, "Superseded loop must not resync against the replaced container")
+    #expect(!onResyncFailedTracker.wasCalled, "Superseded loop must not trigger resync-failure teardown")
+    #expect(manager.connectionState == .ready, "Healthy successor connection must remain operational")
+    #expect(manager.services === successorServices, "Healthy successor container must stay installed")
+  }
+
+  @Test(
+    .timeLimit(.minutes(1))
+  )
+  func `Cancelling the resync loop stops further resync attempts`() async throws {
+    let deviceID = UUID()
+    let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+
+    let resyncCalls = CallTracker()
+    await services.syncCoordinator.setPerformResyncOverride { _, _ in
+      resyncCalls.markCalled()
+      return false
+    }
+
+    manager.startResyncLoop(radioID: deviceID, services: services)
+
+    try await waitUntil(timeout: .seconds(6), "first resync attempt should run") {
+      resyncCalls.wasCalled
+    }
+
+    manager.cancelResyncLoop()
+    let countAtCancel = resyncCalls.callCount
+    #expect(manager.resyncTask == nil, "Cancellation must clear the stored resync task")
+
+    // A full interval beyond cancellation proves the loop made no further attempts.
+    try await Task.sleep(for: Self.postCancelObservationWindow)
+    #expect(resyncCalls.callCount == countAtCancel, "Cancelled loop must not perform further resync attempts")
+  }
+
+  /// Waited after cancelling a loop to confirm no further attempt fires; longer
+  /// than one `resyncInterval` so a still-running loop would have woken.
+  private static let postCancelObservationWindow: Duration = .seconds(3)
 }
