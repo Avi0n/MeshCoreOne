@@ -23,7 +23,7 @@ struct MetricChartView: View {
       )
 
       if !hasEnoughData {
-        MetricChartEmptyState(value: drawnSeries.first?.dataPoints.first?.value, unit: unit)
+        MetricChartEmptyState(value: emptyStateValue, unit: unit)
       } else {
         MetricChartContent(
           title: title, series: drawnSeries, yAxisDomain: yAxisDomain,
@@ -45,6 +45,13 @@ struct MetricChartView: View {
   /// them keeps the categorical scale and legend free of phantom entries.
   private var drawnSeries: [Series] {
     series.filter { !$0.dataPoints.isEmpty }
+  }
+
+  /// The single number shown when there are too few points to draw a line, summed
+  /// across series so an overlaid Direct/Flood chart reports the total, not just Direct.
+  private var emptyStateValue: Double? {
+    let firstValues = drawnSeries.compactMap { $0.dataPoints.first?.value }
+    return firstValues.isEmpty ? nil : firstValues.reduce(0, +)
   }
 
   /// The scrub position snapped to the nearest plotted point's date, so the readout
