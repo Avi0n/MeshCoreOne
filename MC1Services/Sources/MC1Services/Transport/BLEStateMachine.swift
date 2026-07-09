@@ -599,6 +599,12 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     writeWithoutResponseReadyContinuation != nil
   }
 
+  /// Test observability: whether the RSSI keepalive task is currently running.
+  /// Reflects existing state; does not alter behavior.
+  var isRSSIKeepaliveActive: Bool {
+    rssiKeepaliveTask != nil
+  }
+
   /// Sends data as an unacknowledged ATT Write Command (no `didWriteValue` ACK), which is
   /// what lets a caller pipeline back-to-back requests.
   ///
@@ -793,6 +799,10 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     autoReconnectDiscoveryTimeoutTask = nil
     serviceDiscoveryTimeoutTask?.cancel()
     serviceDiscoveryTimeoutTask = nil
+    // The direct phase write below bypasses cleanupPhaseResources, so the
+    // RSSI keepalive must be cancelled here or it outlives the shutdown.
+    rssiKeepaliveTask?.cancel()
+    rssiKeepaliveTask = nil
 
     cancelPendingWriteOperations(error: CancellationError())
 
@@ -948,6 +958,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
       // Create timeout task
       let timeoutTask = Task {
         try? await Task.sleep(for: .seconds(connectionTimeout))
+        guard !Task.isCancelled else { return }
         self.handleConnectionTimeout(for: peripheral)
       }
 

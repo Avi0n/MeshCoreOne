@@ -560,6 +560,24 @@ public final class ConnectionManager {
           return
         }
 
+        if let manualConnectDeviceID = self.connectingDeviceID {
+          guard manualConnectDeviceID == deviceID else {
+            self.logger.info(
+              "[BLE] Auto-reconnect entry for \(deviceID.uuidString.prefix(8)) standing down: manual connect in flight for \(manualConnectDeviceID.uuidString.prefix(8))"
+            )
+            return
+          }
+          // The dropped link belongs to the in-flight manual connect. Release
+          // its claim so the retry loop bails out instead of disconnecting the
+          // transport — that would cancel the OS pending connect recovering
+          // this link and leave a reconnect-cycle claim no completion can ever
+          // clear, silently disabling the watchdog, the foreground health
+          // check, and power-on recovery. The cycle claimed below owns
+          // teardown, the UI timeout, and the session rebuild from here.
+          self.logger.info("[BLE] Auto-reconnect entry adopting in-flight manual connect for \(deviceID.uuidString.prefix(8))")
+          self.connectingDeviceID = nil
+        }
+
         // Snapshot pre-claim state before entering — handleEnteringAutoReconnect
         // mutates connectionState to .connecting before its first await.
         let initialState = String(describing: self.connectionState)
@@ -1143,6 +1161,12 @@ public final class ConnectionManager {
   // MARK: - Test Helpers
 
   #if DEBUG
+    /// Sets the circuit breaker to `.open` with a chosen timestamp so tests can
+    /// cross the cooldown boundary without waiting out the real cooldown.
+    func setCircuitBreakerOpenForTesting(since: Date) {
+      circuitBreaker = .open(since: since)
+    }
+
     /// Sets internal state for testing. Only available in DEBUG builds.
     func setTestState(
       connectionState: DeviceConnectionState? = nil,

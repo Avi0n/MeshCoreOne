@@ -159,13 +159,28 @@ extension BLEStateMachine {
     let pState = peripheralStateString(peripheral.state)
     logger.info("[BLE] State restoration callback: \(peripheral.identifier.uuidString.prefix(8)), state: \(pState)")
 
+    // A connect attempt parked in .waitingForBluetooth must be resumed before
+    // restoration claims the machine: transition(to:) never resumes phase
+    // continuations, so clobbering the phase would hang that connect forever
+    // and leak its device claim, turning every later Reconnect tap into a no-op.
+    failPendingBluetoothWait(reason: "Superseded by state restoration")
+
     // If Bluetooth is already powered on, proceed directly to restoration.
     // This handles the edge case where .poweredOn Task runs before this Task.
-    if centralManager.state == .poweredOn {
+    if centralManager?.state == .poweredOn {
       handleRestoredPeripheral(peripheral)
     } else {
       transition(to: .restoringState(peripheral: peripheral))
     }
+  }
+
+  /// Resumes a connect attempt parked in `.waitingForBluetooth` with an error
+  /// and settles the machine in `.idle`. A no-op in any other phase.
+  func failPendingBluetoothWait(reason: String) {
+    guard case let .waitingForBluetooth(continuation) = phase else { return }
+    logger.warning("[BLE] Failing pending Bluetooth wait: \(reason)")
+    transition(to: .idle)
+    continuation.resume(throwing: BLEError.connectionFailed(reason))
   }
 
   func handleDidConnect(_ peripheral: CBPeripheral) {
