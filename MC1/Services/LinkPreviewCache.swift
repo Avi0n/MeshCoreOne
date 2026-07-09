@@ -28,8 +28,9 @@ actor LinkPreviewCache: LinkPreviewCaching {
   /// URLs that have been fetched but have no preview available
   private var noPreviewAvailable: Set<String> = []
 
-  /// Semaphore to limit concurrent LPMetadataProvider instances.
-  /// Each LPMetadataProvider spawns WKWebView on main thread.
+  /// Semaphore to limit concurrent LPMetadataProvider instances (each spawns
+  /// WKWebView on main thread) and, per fetch, the `og:image` scrape and
+  /// image GET that run as a fallback when LinkPresentation finds no image.
   private let fetchSemaphore = AsyncSemaphore(value: CacheConfig.maxConcurrentFetches)
 
   init(service: any LinkMetadataFetching = LinkPreviewService()) {

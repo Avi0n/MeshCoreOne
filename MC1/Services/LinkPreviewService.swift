@@ -21,7 +21,21 @@ protocol LinkMetadataFetching: Sendable {
 
 /// Service for extracting URLs from text and fetching link metadata
 final class LinkPreviewService: LinkMetadataFetching, Sendable {
-  private let logger = Logger(subsystem: "com.mc1", category: "LinkPreviewService")
+  /// Not private: shared with the scrape/image-fetch helpers declared in
+  /// this type's extension.
+  let logger = Logger(subsystem: "com.mc1", category: "LinkPreviewService")
+
+  /// Shared session for the `og:image` scrape/image GETs used when
+  /// `LPMetadataProvider` finds no hero image. Injectable so tests can
+  /// substitute a `URLProtocol` stub; production shares one app-lifetime
+  /// redirect-checked session, since a delegate-bound `URLSession` retains
+  /// itself and its delegate until invalidated and service instances are
+  /// created per environment read.
+  let scrapeSession: URLSession
+
+  init(scrapeSession: URLSession? = nil) {
+    self.scrapeSession = scrapeSession ?? Self.sharedScrapeSession
+  }
 
   /// Shared URL detector instance to avoid creating NSDataDetector on every call
   private static let urlDetector: NSDataDetector? = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
@@ -94,9 +108,15 @@ final class LinkPreviewService: LinkMetadataFetching, Sendable {
     return regex.matches(in: text, range: range).map(\.range)
   }
 
-  /// Fetches metadata for a URL using LinkPresentation framework
+  /// Timeout for the LinkPresentation (WebKit-backed) metadata fetch.
+  private static let linkPresentationTimeout: TimeInterval = 10
+
+  /// Fetches metadata for a URL using LinkPresentation framework, falling
+  /// back to a plain-GET `og:image` scrape when LinkPresentation finds no
+  /// hero image (its WebKit-backed extractor chokes on some ad/JS-heavy
+  /// pages that still ship a static `og:image` in server HTML).
   /// - Parameter url: The URL to fetch metadata for
-  /// - Returns: Metadata if successful, nil on failure
+  /// - Returns: Metadata if either leg found a title or image, nil otherwise
   func fetchMetadata(for url: URL) async -> LinkPreviewMetadata? {
     guard await URLSafetyChecker.isSafe(url) else {
       logger.warning("Blocked metadata fetch to unsafe URL: \(url.host() ?? "unknown")")
@@ -104,33 +124,37 @@ final class LinkPreviewService: LinkMetadataFetching, Sendable {
     }
 
     let provider = LPMetadataProvider()
-    provider.timeout = 10
+    provider.timeout = Self.linkPresentationTimeout
 
+    let lpMetadata: LPLinkMetadata?
     do {
-      let metadata = try await provider.startFetchingMetadata(for: url)
-
-      // Extract image data
-      var imageData: Data?
-      if let imageProvider = metadata.imageProvider {
-        imageData = await loadData(from: imageProvider)
-      }
-
-      // Extract icon data
-      var iconData: Data?
-      if let iconProvider = metadata.iconProvider {
-        iconData = await loadData(from: iconProvider)
-      }
-
-      return LinkPreviewMetadata(
-        url: url,
-        title: metadata.title,
-        imageData: imageData,
-        iconData: iconData
-      )
+      lpMetadata = try await provider.startFetchingMetadata(for: url)
     } catch {
       logger.warning("Failed to fetch metadata for \(url): \(error.localizedDescription)")
-      return nil
+      lpMetadata = nil
     }
+
+    var title = lpMetadata?.title
+    var iconData: Data?
+    if let iconProvider = lpMetadata?.iconProvider {
+      iconData = await loadData(from: iconProvider)
+    }
+    var imageData: Data?
+    if let imageProvider = lpMetadata?.imageProvider {
+      imageData = await loadData(from: imageProvider)
+    }
+
+    if imageData == nil, let scraped = await scrapeHTMLMetadata(for: url) {
+      if title == nil {
+        title = scraped.title
+      }
+      if let imageURL = scraped.imageURL, await URLSafetyChecker.isSafe(imageURL) {
+        imageData = await loadImageData(from: imageURL)
+      }
+    }
+
+    guard lpMetadata != nil || title != nil || imageData != nil else { return nil }
+    return LinkPreviewMetadata(url: url, title: title, imageData: imageData, iconData: iconData)
   }
 
   /// Maximum image size in bytes (500KB)
@@ -146,8 +170,15 @@ final class LinkPreviewService: LinkMetadataFetching, Sendable {
         continuation.resume(returning: data)
       }
     }
+    return fitToMaxSize(rawData)
+  }
 
-    guard let data = rawData else { return nil }
+  /// Caps image data to `maxImageSize`, compressing if it's over. Shared by
+  /// both the LinkPresentation icon/image legs and the scraped-image
+  /// fallback so an oversized hero image from either path gets the same
+  /// downgrade treatment.
+  func fitToMaxSize(_ data: Data?) -> Data? {
+    guard let data else { return nil }
 
     // If within size limit, return as-is
     if data.count <= Self.maxImageSize {
