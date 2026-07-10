@@ -96,6 +96,19 @@ struct CLIResponseTests {
     #expect(result == .txPower(17))
   }
 
+  @Test func `parse ZephCore tx power with apc off suffix`() {
+    let result = CLIResponse.parse("> 22dBm (apc=off)", forQuery: "get tx")
+    #expect(result == .txPower(22))
+  }
+
+  @Test func `parse ZephCore tx power with apc on uses configured ceiling`() {
+    let result = CLIResponse.parse(
+      "> 16dBm (apc=on max=22 reduction=6 margin=18.5 target=16)",
+      forQuery: "get tx"
+    )
+    #expect(result == .txPower(22))
+  }
+
   // MARK: - Coordinates with Prompt
 
   @Test func `parse latitude with prompt prefix`() {

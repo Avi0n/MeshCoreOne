@@ -85,8 +85,8 @@ public enum CLIResponse: Sendable, Equatable {
       }
     }
 
-    // TX power: integer dBm value
-    if query == "get tx", let power = Int(trimmed) {
+    // TX power in dBm, optionally annotated with ZephCore power-control state
+    if query == "get tx", let power = parseTXPowerDBm(trimmed) {
       return .txPower(power)
     }
 
@@ -125,5 +125,19 @@ public enum CLIResponse: Sendable, Equatable {
     }
 
     return .raw(trimmed)
+  }
+
+  /// Reads the configured TX power in dBm from a `get tx` reply. Stock firmware
+  /// sends a bare integer; ZephCore appends Adaptive Power Control state, and
+  /// while APC is active the leading number is the reduced live power whereas the
+  /// `max=` ceiling is what `set tx` writes back, so `max=` wins when present.
+  private static func parseTXPowerDBm(_ text: String) -> Int? {
+    if let match = text.firstMatch(of: /max=(-?\d+)/) {
+      return Int(match.output.1)
+    }
+    if let match = text.firstMatch(of: /^(-?\d+)/) {
+      return Int(match.output.1)
+    }
+    return nil
   }
 }
