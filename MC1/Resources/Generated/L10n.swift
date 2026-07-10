@@ -1814,8 +1814,8 @@ public enum L10n {
           return L10n.tr("Contacts", "contacts.results.avgRTTLabel", p1, p2, p3, fallback: "Average round trip: %d milliseconds, range %d to %d")
         }
         /// Location: TraceResultsSheet.swift - Purpose: Batch complete accessibility
-        public static func batchCompleteLabel(_ p1: Int, _ p2: Int) -> String {
-          return L10n.tr("Contacts", "contacts.results.batchCompleteLabel", p1, p2, fallback: "Batch complete: %d of %d traces successful")
+        public static func batchCompleteLabel(_ p1: Int, _ p2: Int, _ p3: Int) -> String {
+          return L10n.tr("Contacts", "contacts.results.batchCompleteLabel", p1, p2, p3, fallback: "Batch complete: %d of %d traces successful (%d%%)")
         }
         /// Location: TraceResultsSheet.swift - Purpose: Batch progress
         public static func batchProgress(_ p1: Int, _ p2: Int) -> String {
@@ -1826,8 +1826,8 @@ public enum L10n {
           return L10n.tr("Contacts", "contacts.results.batchProgressLabel", p1, p2, fallback: "Batch progress: trace %d of %d")
         }
         /// Location: TraceResultsSheet.swift - Purpose: Batch success count
-        public static func batchSuccess(_ p1: Int, _ p2: Int) -> String {
-          return L10n.tr("Contacts", "contacts.results.batchSuccess", p1, p2, fallback: "%d of %d successful")
+        public static func batchSuccess(_ p1: Int, _ p2: Int, _ p3: Int) -> String {
+          return L10n.tr("Contacts", "contacts.results.batchSuccess", p1, p2, p3, fallback: "%d of %d successful (%d%%)")
         }
         /// Location: TraceResultsSheet.swift - Purpose: Comparison text
         public static func comparison(_ p1: Int, _ p2: Any) -> String {

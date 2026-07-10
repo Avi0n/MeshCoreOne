@@ -1046,13 +1046,13 @@
 "contacts.results.dismiss" = "Закрыть";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch success count */
-"contacts.results.batchSuccess" = "%d из %d успешных";
+"contacts.results.batchSuccess" = "%d из %d успешных (%d%%)";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch progress */
 "contacts.results.batchProgress" = "Выполняется трассировка %d из %d...";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch complete accessibility */
-"contacts.results.batchCompleteLabel" = "Пакет завершён: %d из %d трассировок успешны";
+"contacts.results.batchCompleteLabel" = "Пакет завершён: %d из %d трассировок успешны (%d%%)";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch progress accessibility */
 "contacts.results.batchProgressLabel" = "Прогресс пакета: трассировка %d из %d";

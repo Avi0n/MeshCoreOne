@@ -57,7 +57,7 @@ final class TracePathViewModel {
     }
   }
 
-  var batchSize = 5
+  var batchSize = 3
   var currentTraceIndex = 0
   var completedResults: [TraceResult] = []
 

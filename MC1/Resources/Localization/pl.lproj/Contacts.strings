@@ -1046,13 +1046,13 @@
 "contacts.results.dismiss" = "Zamknij";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch success count */
-"contacts.results.batchSuccess" = "%d z %d udanych";
+"contacts.results.batchSuccess" = "%d z %d udanych (%d%%)";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch progress */
 "contacts.results.batchProgress" = "Uruchamianie śledzenia %d z %d...";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch complete accessibility */
-"contacts.results.batchCompleteLabel" = "Wsad zakończony: %d z %d śledzeń udanych";
+"contacts.results.batchCompleteLabel" = "Wsad zakończony: %d z %d śledzeń udanych (%d%%)";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch progress accessibility */
 "contacts.results.batchProgressLabel" = "Postęp wsadu: śledzenie %d z %d";

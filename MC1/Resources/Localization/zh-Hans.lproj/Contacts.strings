@@ -1059,13 +1059,13 @@
 "contacts.results.dismiss" = "关闭";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch success count */
-"contacts.results.batchSuccess" = "%d/%d 成功";
+"contacts.results.batchSuccess" = "%d/%d 成功 (%d%%)";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch progress */
 "contacts.results.batchProgress" = "正在运行追踪 %d/%d...";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch complete accessibility */
-"contacts.results.batchCompleteLabel" = "批量完成：%d/%d 次追踪成功";
+"contacts.results.batchCompleteLabel" = "批量完成：%d/%d 次追踪成功 (%d%%)";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch progress accessibility */
 "contacts.results.batchProgressLabel" = "批量进度：追踪 %d/%d";

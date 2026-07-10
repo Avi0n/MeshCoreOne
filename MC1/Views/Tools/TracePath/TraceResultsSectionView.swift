@@ -24,12 +24,17 @@ struct TraceResultsSectionView: View {
 
         // Batch status row (progress or completion)
         if viewModel.batchEnabled, viewModel.isBatchInProgress || viewModel.isBatchComplete {
+          let successPercent = viewModel.batchSize > 0
+            ? (viewModel.successCount * 100) / viewModel.batchSize
+            : 0
           HStack {
             if viewModel.isBatchComplete {
               Image(systemName: "checkmark.circle.fill")
                 .foregroundStyle(.green)
-              Text(L10n.Contacts.Contacts.Results.batchSuccess(viewModel.successCount, viewModel.batchSize))
-                .foregroundStyle(.secondary)
+              Text(L10n.Contacts.Contacts.Results.batchSuccess(
+                viewModel.successCount, viewModel.batchSize, successPercent
+              ))
+              .foregroundStyle(.secondary)
             } else {
               ProgressView()
                 .controlSize(.small)
@@ -42,7 +47,9 @@ struct TraceResultsSectionView: View {
           .accessibilityElement(children: .combine)
           .accessibilityLabel(
             viewModel.isBatchComplete
-              ? L10n.Contacts.Contacts.Results.batchCompleteLabel(viewModel.successCount, viewModel.batchSize)
+              ? L10n.Contacts.Contacts.Results.batchCompleteLabel(
+                viewModel.successCount, viewModel.batchSize, successPercent
+              )
               : L10n.Contacts.Contacts.Results.batchProgressLabel(viewModel.currentTraceIndex, viewModel.batchSize)
           )
           .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }

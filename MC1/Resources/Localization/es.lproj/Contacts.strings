@@ -1059,13 +1059,13 @@
 "contacts.results.dismiss" = "Cerrar";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch success count */
-"contacts.results.batchSuccess" = "%d de %d exitosas";
+"contacts.results.batchSuccess" = "%d de %d exitosas (%d%%)";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch progress */
 "contacts.results.batchProgress" = "Ejecutando traza %d de %d...";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch complete accessibility */
-"contacts.results.batchCompleteLabel" = "Lote completo: %d de %d trazas exitosas";
+"contacts.results.batchCompleteLabel" = "Lote completo: %d de %d trazas exitosas (%d%%)";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch progress accessibility */
 "contacts.results.batchProgressLabel" = "Progreso del lote: traza %d de %d";

@@ -37,7 +37,6 @@ struct PathActionsSectionView: View {
             Spacer()
             BatchSizeChip(size: 3, selectedSize: $viewModel.batchSize)
             BatchSizeChip(size: 5, selectedSize: $viewModel.batchSize)
-            BatchSizeChip(size: 10, selectedSize: $viewModel.batchSize)
           }
         }
 
