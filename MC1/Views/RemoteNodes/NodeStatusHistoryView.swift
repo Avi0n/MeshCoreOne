@@ -36,6 +36,7 @@ struct NodeStatusHistoryView: View {
       }
       .themedRowBackground(theme)
     }
+    .listSectionSpacing(.compact)
     .themedCanvas(theme)
     .chartScrubbingScrollLock()
     .navigationTitle(L10n.RemoteNodes.RemoteNodes.History.title)

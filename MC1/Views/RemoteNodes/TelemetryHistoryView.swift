@@ -40,6 +40,7 @@ struct TelemetryHistoryView: View {
         }
       }
     }
+    .listSectionSpacing(.compact)
     .themedCanvas(theme)
     .chartScrubbingScrollLock()
     .navigationTitle(L10n.RemoteNodes.RemoteNodes.Status.telemetry)

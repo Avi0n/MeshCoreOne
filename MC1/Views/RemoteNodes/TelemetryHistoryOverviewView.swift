@@ -36,6 +36,7 @@ struct TelemetryHistoryOverviewView: View {
         retentionFooter
       }
     }
+    .listSectionSpacing(.compact)
     .themedCanvas(theme)
     .chartScrubbingScrollLock()
     .navigationTitle(L10n.RemoteNodes.RemoteNodes.History.overviewTitle)
