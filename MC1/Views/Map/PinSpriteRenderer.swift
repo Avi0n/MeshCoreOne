@@ -15,22 +15,27 @@ enum PinSpriteRenderer {
 
   private static var cachedImages: [String: UIImage]?
 
-  /// Single cached dropped-pin sprite for the chat map thumbnail. Distinct from
-  /// `cachedImages`, which is only populated after the Map tab loads its GL
-  /// style; the chat snapshot path never loads that style.
-  private static var cachedDroppedPin: UIImage?
+  /// Sprites cached for static snapshot compositing, keyed by spec name. Distinct
+  /// from `cachedImages`, which is only populated after the Map tab loads its GL
+  /// style; the snapshot render paths never load that style.
+  private static var cachedSnapshotSprites: [String: UIImage] = [:]
 
-  /// The dropped-pin sprite (systemPink circle + `mappin`), rendered once and
-  /// reused. Coordinate-independent, so the chat thumbnail composites the exact
-  /// pin the Map tab drops. Must be called on the main actor.
-  static func droppedPinSprite() -> UIImage {
-    if let cached = cachedDroppedPin { return cached }
-    guard let spec = allSpecs.first(where: { $0.name == "pin-dropped" }) else {
+  /// A base pin sprite rendered once and reused, so snapshot thumbnails composite
+  /// the exact pins the live map drops. Unknown names return an empty image.
+  /// Must be called on the main actor.
+  static func snapshotSprite(named name: String) -> UIImage {
+    if let cached = cachedSnapshotSprites[name] { return cached }
+    guard let spec = allSpecs.first(where: { $0.name == name }) else {
       return UIImage()
     }
     let image = render(spec)
-    cachedDroppedPin = image
+    cachedSnapshotSprites[name] = image
     return image
+  }
+
+  /// The dropped-pin sprite (systemPink circle + `mappin`) for the chat map thumbnail.
+  static func droppedPinSprite() -> UIImage {
+    snapshotSprite(named: "pin-dropped")
   }
 
   /// Registers base pin sprites into the style. Hop-ring variants are rendered

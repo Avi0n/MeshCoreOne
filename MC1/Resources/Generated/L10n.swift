@@ -3257,6 +3257,8 @@ public enum L10n {
         public static func lastSeen(_ p1: Any) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.history.lastSeen", String(describing: p1), fallback: "Last seen %@")
         }
+        /// Location: TelemetryHistoryOverviewView.swift - Purpose: Location section header
+        public static let locationSection = L10n.tr("RemoteNodes", "remoteNodes.history.locationSection", fallback: "Location")
         /// Location: NodeStatusHistoryView.swift - Time range picker
         public static let month = L10n.tr("RemoteNodes", "remoteNodes.history.month", fallback: "1M")
         /// Location: NodeStatusHistoryView.swift - Neighbor count chart title
@@ -3729,6 +3731,8 @@ public enum L10n {
         public static let lastRssi = L10n.tr("RemoteNodes", "remoteNodes.status.lastRssi", fallback: "Last RSSI")
         /// Location: RepeaterStatusView.swift - Last SNR label
         public static let lastSnr = L10n.tr("RemoteNodes", "remoteNodes.status.lastSnr", fallback: "Last SNR")
+        /// Location: NodeStatusRoute.swift - Navigation title for the live location map
+        public static let locationMapTitle = L10n.tr("RemoteNodes", "remoteNodes.status.locationMapTitle", fallback: "Location")
         /// Location: RepeaterStatusView.swift - Minutes ago format
         public static func minutesAgo(_ p1: Int) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.status.minutesAgo", p1, fallback: "%dm ago")
@@ -3842,6 +3846,8 @@ public enum L10n {
           public static let reloadStatus = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadStatus", fallback: "Reload status")
           /// Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for telemetry
           public static let reloadTelemetry = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadTelemetry", fallback: "Reload telemetry")
+          /// Location: SharedNodeStatusViews.swift - Accessibility label for the location "View on Map" affordance
+          public static let viewLocationOnMap = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.viewLocationOnMap", fallback: "View location on map")
           /// Location: RepeaterStatusContent.swift - Accessibility label for the View on Map button
           public static let viewNeighborsOnMap = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.viewNeighborsOnMap", fallback: "View neighbors on map")
         }

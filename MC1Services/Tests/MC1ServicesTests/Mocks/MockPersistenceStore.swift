@@ -1765,7 +1765,9 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         postedCount: existing.postedCount,
         postPushCount: existing.postPushCount,
         neighborSnapshots: neighbors,
-        telemetryEntries: existing.telemetryEntries
+        telemetryEntries: existing.telemetryEntries,
+        latitude: existing.latitude,
+        longitude: existing.longitude
       )
     }
   }
@@ -1789,7 +1791,9 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         postedCount: existing.postedCount,
         postPushCount: existing.postPushCount,
         neighborSnapshots: existing.neighborSnapshots,
-        telemetryEntries: telemetry
+        telemetryEntries: telemetry,
+        latitude: existing.latitude,
+        longitude: existing.longitude
       )
     }
   }
@@ -1797,21 +1801,25 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   /// Non-atomic in-memory stand-in for the concrete store's atomic override.
   /// This double is never driven concurrently, so it enriches the latest
   /// in-window row or inserts a new one without the single-turn guarantee.
+  /// A location fix is first-wins, mirroring `PersistenceStore`: it is written
+  /// only when the target row doesn't already have one.
   public func recordNodeStatusSnapshot(
     nodePublicKey: Data,
     status: NodeStatusMetrics?,
     telemetry: [TelemetrySnapshotEntry]?,
-    neighbors: [NeighborSnapshotEntry]?
+    neighbors: [NeighborSnapshotEntry]?,
+    location: NodeLocationFix?
   ) async throws -> UUID {
     if let latest = try await fetchLatestNodeStatusSnapshot(nodePublicKey: nodePublicKey),
        latest.timestamp.distance(to: .now) < NodeSnapshotPolicy.minimumInterval {
       if let telemetry { try await updateSnapshotTelemetry(id: latest.id, telemetry: telemetry) }
       if let neighbors { try await updateSnapshotNeighbors(id: latest.id, neighbors: neighbors) }
+      if let location, latest.latitude == nil { applyLocation(location, to: latest.id) }
       return latest.id
     }
 
-    if let status {
-      return try await saveNodeStatusSnapshot(
+    let id: UUID = if let status {
+      try await saveNodeStatusSnapshot(
         nodePublicKey: nodePublicKey,
         batteryMillivolts: status.batteryMillivolts,
         lastSNR: status.lastSNR,
@@ -1825,14 +1833,42 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         postedCount: status.postedCount,
         postPushCount: status.postPushCount
       )
+    } else {
+      try await saveTelemetryOnlySnapshot(
+        nodePublicKey: nodePublicKey,
+        telemetryEntries: telemetry ?? []
+      )
     }
-
-    let id = try await saveTelemetryOnlySnapshot(
-      nodePublicKey: nodePublicKey,
-      telemetryEntries: telemetry ?? []
-    )
     if let neighbors { try await updateSnapshotNeighbors(id: id, neighbors: neighbors) }
+    if let location { applyLocation(location, to: id) }
     return id
+  }
+
+  /// Rewrites the stored DTO's location by index. The DTO is a value type, so an
+  /// in-place mutation is a full rebuild; the mock keeps this in one helper.
+  private func applyLocation(_ location: NodeLocationFix, to id: UUID) {
+    guard let index = nodeStatusSnapshots.firstIndex(where: { $0.id == id }) else { return }
+    let existing = nodeStatusSnapshots[index]
+    nodeStatusSnapshots[index] = NodeStatusSnapshotDTO(
+      id: existing.id,
+      timestamp: existing.timestamp,
+      nodePublicKey: existing.nodePublicKey,
+      batteryMillivolts: existing.batteryMillivolts,
+      lastSNR: existing.lastSNR,
+      lastRSSI: existing.lastRSSI,
+      noiseFloor: existing.noiseFloor,
+      uptimeSeconds: existing.uptimeSeconds,
+      rxAirtimeSeconds: existing.rxAirtimeSeconds,
+      packetsSent: existing.packetsSent,
+      packetsReceived: existing.packetsReceived,
+      receiveErrors: existing.receiveErrors,
+      postedCount: existing.postedCount,
+      postPushCount: existing.postPushCount,
+      neighborSnapshots: existing.neighborSnapshots,
+      telemetryEntries: existing.telemetryEntries,
+      latitude: location.latitude,
+      longitude: location.longitude
+    )
   }
 
   public func deleteOldNodeStatusSnapshots(olderThan date: Date) async throws {

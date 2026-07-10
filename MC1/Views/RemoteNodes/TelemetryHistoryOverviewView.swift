@@ -13,6 +13,7 @@ struct TelemetryHistoryOverviewView: View {
   @State private var radioExpanded = true
   @State private var sensorsExpanded: Bool
   @State private var neighborsExpanded = false
+  @State private var showsLocationMap = false
 
   init(publicKey: Data, radioID: UUID, showNeighbors: Bool = true) {
     self.publicKey = publicKey
@@ -30,6 +31,7 @@ struct TelemetryHistoryOverviewView: View {
         HistoryTimeRangePicker(selection: $viewModel.timeRange)
         radioSection(filtered: filtered)
         sensorsSection(filtered: filtered)
+        LocationHistorySection(snapshots: filtered, showsFullPath: true, showsMap: $showsLocationMap)
         if showNeighbors {
           neighborsSection(filtered: filtered)
         }
@@ -41,6 +43,7 @@ struct TelemetryHistoryOverviewView: View {
     .chartScrubbingScrollLock()
     .navigationTitle(L10n.RemoteNodes.RemoteNodes.History.overviewTitle)
     .liquidGlassToolbarBackground()
+    .locationMapDestination(isPresented: $showsLocationMap, snapshots: filtered)
     .task {
       guard let store = appState.offlineDataStore else { return }
       await viewModel.loadData(

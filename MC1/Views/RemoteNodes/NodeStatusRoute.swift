@@ -1,4 +1,5 @@
 import Foundation
+import MC1Services
 import SwiftUI
 
 /// History drill-downs pushed from the shared node status sections. Value-based so each
@@ -7,6 +8,7 @@ enum NodeStatusRoute: Hashable {
   case statusHistory
   case telemetryHistory
   case neighborChart(name: String, neighborPrefix: Data)
+  case locationMap(fix: NodeLocationFix, name: String?)
 }
 
 extension View {
@@ -26,6 +28,20 @@ extension View {
           name: name,
           neighborPrefix: neighborPrefix,
           fetchSnapshots: helper.fetchHistory
+        )
+      case let .locationMap(fix, name):
+        NodeLocationMapView(
+          points: [MapPoint(
+            id: UUID(),
+            coordinate: fix.coordinate,
+            pinStyle: .droppedPin,
+            label: name,
+            isClusterable: false,
+            hopIndex: nil,
+            badgeText: nil
+          )],
+          line: nil,
+          title: L10n.RemoteNodes.RemoteNodes.Status.locationMapTitle
         )
       }
     }

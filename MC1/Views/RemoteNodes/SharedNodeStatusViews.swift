@@ -296,6 +296,13 @@ struct NodeTelemetryDisclosureSection: View {
             }
           }
 
+          if let fix = helper.currentLocationFix {
+            NavigationLink(value: NodeStatusRoute.locationMap(fix: fix, name: helper.session?.name)) {
+              Label(L10n.RemoteNodes.RemoteNodes.Status.viewOnMap, systemImage: "map")
+            }
+            .accessibilityLabel(L10n.RemoteNodes.RemoteNodes.Status.Accessibility.viewLocationOnMap)
+          }
+
           NavigationLink(value: NodeStatusRoute.telemetryHistory) {
             Text(L10n.RemoteNodes.RemoteNodes.History.title)
           }

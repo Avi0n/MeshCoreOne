@@ -286,13 +286,17 @@ final class NodeStatusViewModel {
       guard let value = numericValue else { return nil }
       return TelemetrySnapshotEntry(channel: Int(dp.channel), type: dp.typeName, value: value)
     }
-    guard !entries.isEmpty,
+
+    let location = currentLocationFix
+
+    guard !entries.isEmpty || location != nil,
           let nodeSnapshotService,
           let nodePublicKey = effectivePublicKey else { return }
 
     _ = await nodeSnapshotService.recordSnapshot(
       nodePublicKey: nodePublicKey,
-      telemetry: entries
+      telemetry: entries.isEmpty ? nil : entries,
+      location: location
     )
   }
 
@@ -307,6 +311,13 @@ final class NodeStatusViewModel {
     Dictionary(grouping: cachedDataPoints, by: \.channel)
       .sorted { $0.key < $1.key }
       .map { (channel: $0.key, dataPoints: $0.value) }
+  }
+
+  /// The node's reported location from the last telemetry response, or nil when it
+  /// reports no plottable coordinate. A node without a current GPS lock still reports
+  /// its last known or manually set position. Drives the live "View on Map" affordance.
+  var currentLocationFix: NodeLocationFix? {
+    NodeLocationFix.primaryFix(from: cachedDataPoints)
   }
 
   // MARK: - Display Formatters

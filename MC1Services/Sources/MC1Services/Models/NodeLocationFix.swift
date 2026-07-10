@@ -3,7 +3,7 @@ import MeshCore
 
 /// A single GPS fix persisted with a snapshot. Latitude and longitude travel
 /// together so a snapshot can never hold half a fix.
-public struct NodeLocationFix: Sendable, Equatable {
+public struct NodeLocationFix: Sendable, Equatable, Hashable {
   public let latitude: Double
   public let longitude: Double
 

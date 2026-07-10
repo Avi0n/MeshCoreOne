@@ -19,14 +19,16 @@ public actor NodeSnapshotService {
     nodePublicKey: Data,
     status: NodeStatusMetrics? = nil,
     telemetry: [TelemetrySnapshotEntry]? = nil,
-    neighbors: [NeighborSnapshotEntry]? = nil
+    neighbors: [NeighborSnapshotEntry]? = nil,
+    location: NodeLocationFix? = nil
   ) async -> UUID? {
     do {
       return try await dataStore.recordNodeStatusSnapshot(
         nodePublicKey: nodePublicKey,
         status: status,
         telemetry: telemetry,
-        neighbors: neighbors
+        neighbors: neighbors,
+        location: location
       )
     } catch {
       logger.error("Failed to record snapshot: \(error)")

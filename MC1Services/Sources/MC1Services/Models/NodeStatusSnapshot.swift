@@ -1,3 +1,4 @@
+import CoreLocation
 import Foundation
 import MeshCore
 import SwiftData
@@ -402,5 +403,13 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     self.telemetryEntries = telemetryEntries
     self.latitude = latitude
     self.longitude = longitude
+  }
+
+  /// The snapshot's GPS fix as a plottable coordinate, or nil when either
+  /// component is missing or the pair is not a valid fix.
+  public var validCoordinate: CLLocationCoordinate2D? {
+    guard let latitude, let longitude else { return nil }
+    let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    return coordinate.isValidFix ? coordinate : nil
   }
 }
