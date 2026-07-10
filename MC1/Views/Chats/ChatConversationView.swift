@@ -20,7 +20,7 @@ struct ChatConversationView: View {
   @State private var conversationType: ChatConversationType
   let parentViewModel: ChatViewModel?
 
-  @State private var chatViewModel = ChatViewModel()
+  @State private var chatViewModel: ChatViewModel
 
   // MARK: - Scroll State
 
@@ -98,9 +98,24 @@ struct ChatConversationView: View {
 
   // MARK: - Init
 
-  init(conversationType: ChatConversationType, parentViewModel: ChatViewModel? = nil) {
+  init(
+    conversationType: ChatConversationType,
+    parentViewModel: ChatViewModel? = nil,
+    coordinatorRegistry: ChatCoordinatorRegistry? = nil
+  ) {
     _conversationType = State(initialValue: conversationType)
     self.parentViewModel = parentViewModel
+
+    // Seed the view model with the shared coordinator up front so a warm
+    // (prefetched or previously opened) conversation renders its messages on the
+    // first frame, with no empty flash before the load task binds it. Only the
+    // reference is attached here; the load task's `configure` installs the
+    // rebuild hooks on this persistent instance.
+    let viewModel = ChatViewModel()
+    if let coordinatorRegistry {
+      viewModel.attachCoordinator(coordinatorRegistry.coordinator(for: conversationType.coordinatorID))
+    }
+    _chatViewModel = State(initialValue: viewModel)
   }
 
   // MARK: - Body
@@ -306,10 +321,12 @@ struct ChatConversationView: View {
     // Chrome theming comes from the stack-level themedChrome on the TabView. Re-declaring it
     // on this pushed destination makes the nav bar appearance re-install after the push, which
     // reflows the flipped table's top rows.
+    // Always paint an opaque surface — the default theme has no `canvas`, so
+    // without the `.systemBackground` fallback the empty loading area is
+    // transparent and the white window shows through on a cold first open
+    // before messages land. Matches the `chatComposeBarFade` canvas fallback.
     .background {
-      if let canvas = theme.surfaces?.canvas {
-        canvas.ignoresSafeArea()
-      }
+      (theme.surfaces?.canvas ?? Color(.systemBackground)).ignoresSafeArea()
     }
   }
 

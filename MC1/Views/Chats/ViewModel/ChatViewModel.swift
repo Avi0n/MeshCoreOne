@@ -505,6 +505,17 @@ final class ChatViewModel {
     bindCoordinator(registry: chatCoordinatorRegistry, conversation: conversation)
   }
 
+  /// Eagerly attaches the shared coordinator so a warm (prefetched or previously
+  /// opened) conversation renders its messages on the first frame, before the
+  /// load task runs. Sets only this view model's `coordinator` reference — never
+  /// the coordinator's rebuild hooks, which belong to the persistent view model
+  /// and are installed by `configure`/`bindCoordinator`. That omission is what
+  /// makes it safe to call from `init`, where transient view-model instances may
+  /// be created and discarded.
+  func attachCoordinator(_ coordinator: ChatCoordinator) {
+    self.coordinator = coordinator
+  }
+
   private func bindCoordinator(registry: ChatCoordinatorRegistry?, conversation: ChatConversationType?) {
     guard let conversation else { return }
     guard let registry else { return }
