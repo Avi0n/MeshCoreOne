@@ -6,7 +6,6 @@ import Foundation
 /// and pushes it to `ChatViewModel.applyEnvInputs(_:)`; the view model
 /// rebuilds `MessageItem`s when the value changes.
 public struct EnvInputs: Sendable, Hashable {
-  public let showInlineImages: Bool
   public let autoPlayGIFs: Bool
   public let showIncomingPath: Bool
   public let showIncomingHopCount: Bool
@@ -44,7 +43,6 @@ public struct EnvInputs: Sendable, Hashable {
   public let contentSizeCategory: String
 
   public init(
-    showInlineImages: Bool,
     autoPlayGIFs: Bool,
     showIncomingPath: Bool,
     showIncomingHopCount: Bool,
@@ -59,7 +57,6 @@ public struct EnvInputs: Sendable, Hashable {
     themeID: String,
     contentSizeCategory: String
   ) {
-    self.showInlineImages = showInlineImages
     self.autoPlayGIFs = autoPlayGIFs
     self.showIncomingPath = showIncomingPath
     self.showIncomingHopCount = showIncomingHopCount
@@ -85,7 +82,6 @@ public struct EnvInputs: Sendable, Hashable {
   public static let defaultContentSizeCategory = "large"
 
   public static let `default` = EnvInputs(
-    showInlineImages: AppStorageKey.defaultShowInlineImages,
     autoPlayGIFs: AppStorageKey.defaultAutoPlayGIFs,
     showIncomingPath: AppStorageKey.defaultShowIncomingPath,
     showIncomingHopCount: AppStorageKey.defaultShowIncomingHopCount,

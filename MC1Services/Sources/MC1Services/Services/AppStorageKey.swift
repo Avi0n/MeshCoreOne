@@ -22,6 +22,8 @@ public enum AppStorageKey: String {
   case linkPreviewsEnabled
   case linkPreviewsAutoResolveDM
   case linkPreviewsAutoResolveChannels
+  /// Retained for the backup wire format only; the `linkPreviewsEnabled` master
+  /// now gates inline images, so this value is round-tripped but never read.
   case showInlineImages
   case autoPlayGIFs
   case replyWithQuote
@@ -65,7 +67,6 @@ public enum AppStorageKey: String {
   public static let defaultLinkPreviewsEnabled: Bool = false
   public static let defaultLinkPreviewsAutoResolveDM: Bool = true
   public static let defaultLinkPreviewsAutoResolveChannels: Bool = true
-  public static let defaultShowInlineImages: Bool = true
   public static let defaultAutoPlayGIFs: Bool = true
   public static let defaultReplyWithQuote: Bool = false
   public static let defaultShowMapPreviewThumbnails: Bool = true

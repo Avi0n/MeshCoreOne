@@ -5,7 +5,6 @@ import Testing
 struct EnvInputsThemeTokenTests {
   private func make(themeID: String) -> EnvInputs {
     EnvInputs(
-      showInlineImages: true,
       autoPlayGIFs: true,
       showIncomingPath: true,
       showIncomingHopCount: true,

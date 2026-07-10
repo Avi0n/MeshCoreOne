@@ -4840,26 +4840,24 @@ public enum L10n {
     public enum InlineImages {
       /// Toggle label for auto-play GIFs
       public static let autoPlayGifs = L10n.tr("Settings", "inlineImages.autoPlayGifs", fallback: "Auto-play GIFs")
-      /// Footer explaining inline image privacy implications
-      public static let footer = L10n.tr("Settings", "inlineImages.footer", fallback: "Fetching images from URLs may reveal your IP address to the server hosting the image.")
-      /// Toggle label for inline images
-      public static let toggle = L10n.tr("Settings", "inlineImages.toggle", fallback: "Inline Images")
     }
     public enum Language {
       /// Location: SettingsView.swift - Purpose: Language row title
       public static let title = L10n.tr("Settings", "language.title", fallback: "Language")
     }
     public enum LinkPreviews {
-      /// Footer explaining link preview privacy implications
-      public static let footer = L10n.tr("Settings", "linkPreviews.footer", fallback: "Link previews fetch data from the web, which may reveal your IP address to the server hosting the link.")
-      /// Section header for link preview settings
-      public static let header = L10n.tr("Settings", "linkPreviews.header", fallback: "Link Previews")
-      /// Toggle label for showing previews in channels
+      /// Footer explaining link content privacy implications
+      public static let footer = L10n.tr("Settings", "linkPreviews.footer", fallback: "Link previews and images are fetched over your phone's internet connection, not the mesh. This may reveal your IP address to the server hosting the content and can use cellular data.")
+      /// Section header for link content settings
+      public static let header = L10n.tr("Settings", "linkPreviews.header", fallback: "Link Content")
+      /// Footer note shown when Reduce Motion is enabled
+      public static let reduceMotionNote = L10n.tr("Settings", "linkPreviews.reduceMotionNote", fallback: "Reduce Motion is on, so GIFs will not auto-play.")
+      /// Toggle label for showing link content in channels
       public static let showInChannels = L10n.tr("Settings", "linkPreviews.showInChannels", fallback: "Show in Channels")
-      /// Toggle label for showing previews in DMs
+      /// Toggle label for showing link content in DMs
       public static let showInDMs = L10n.tr("Settings", "linkPreviews.showInDMs", fallback: "Show in Direct Messages")
-      /// Toggle label for link previews
-      public static let toggle = L10n.tr("Settings", "linkPreviews.toggle", fallback: "Link Previews")
+      /// Toggle label for the link content master switch
+      public static let toggle = L10n.tr("Settings", "linkPreviews.toggle", fallback: "Show Link Content")
     }
     public enum LiveActivity {
       /// Label for the Live Activity toggle in App Settings

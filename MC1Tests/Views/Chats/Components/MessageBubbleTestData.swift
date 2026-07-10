@@ -126,7 +126,6 @@ enum MessageBubbleTestData {
     decodedPreviewImage: UIImage? = nil,
     decodedPreviewIcon: UIImage? = nil,
     isGIF: Bool = false,
-    showInlineImages: Bool = false,
     autoPlayGIFs: Bool = true,
     previewsEnabled: Bool = true,
     currentUserName: String = "Me",
@@ -156,7 +155,6 @@ enum MessageBubbleTestData {
       showNewMessagesDivider: showNewMessagesDivider
     )
     let envInputs = EnvInputs(
-      showInlineImages: showInlineImages,
       autoPlayGIFs: autoPlayGIFs,
       showIncomingPath: formattedPath != nil,
       showIncomingHopCount: showIncomingHopCount,

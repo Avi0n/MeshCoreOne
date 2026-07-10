@@ -130,7 +130,6 @@ enum MessageFragmentBuilderFixtures {
 
   static func makeEnvInputs(isOutgoing: Bool = true) -> EnvInputs {
     EnvInputs(
-      showInlineImages: true,
       autoPlayGIFs: true,
       showIncomingPath: false,
       showIncomingHopCount: false,

@@ -79,14 +79,18 @@ extension ChatViewModel {
   /// Also restores raw bytes into `loadedImageData` for static images so
   /// the full-screen viewer and share sheet (which need original
   /// resolution and `Data`) keep working post-rehydration. Idempotent
-  /// and a no-op for non-image URLs, the inline-image AppStorage toggle
-  /// being off, or a per-VM state that has already advanced past `.idle`.
+  /// and a no-op for non-image URLs, the master toggle being off, or a
+  /// per-VM state that has already advanced past a tap-to-load-eligible
+  /// state. Master-gated only, no scope check: this reads the decoded cache
+  /// and performs no network fetch, so a cached image beats the tap-to-load
+  /// placeholder under scope-off too, matching `LinkPreviewCache.preview`'s
+  /// cache-before-gate ordering for cards.
   private func rehydrateInlineImageStateIfCached(messageID: UUID, url: URL?) {
-    guard envInputs.showInlineImages,
+    guard envInputs.previewsEnabled,
           let url,
           ImageURLClassifier.isImageURL(url) else { return }
     let existingState = previewStates[messageID]
-    guard existingState == nil || existingState == .idle else { return }
+    guard existingState == nil || existingState == .idle || existingState == .disabled else { return }
     let directURL = ImageURLClassifier.directImageURL(for: url)
     guard let cached = InlineImageCache.shared.decoded(for: directURL) else { return }
     applyDecodedImage(cached, for: messageID)

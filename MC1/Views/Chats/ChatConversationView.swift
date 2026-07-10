@@ -59,7 +59,6 @@ struct ChatConversationView: View {
 
   // MARK: - AppStorage
 
-  @AppStorage(AppStorageKey.showInlineImages.rawValue) private var showInlineImages = AppStorageKey.defaultShowInlineImages
   @AppStorage(AppStorageKey.autoPlayGIFs.rawValue) private var autoPlayGIFs = AppStorageKey.defaultAutoPlayGIFs
   @AppStorage(AppStorageKey.showIncomingPath.rawValue) private var showIncomingPath = AppStorageKey.defaultShowIncomingPath
   @AppStorage(AppStorageKey.showIncomingHopCount.rawValue) private var showIncomingHopCount = AppStorageKey.defaultShowIncomingHopCount
@@ -81,7 +80,6 @@ struct ChatConversationView: View {
   /// drives `.onChange(of: envInputs)` in ChatMessagesTableView.
   private var currentEnvInputs: EnvInputs {
     EnvInputs(
-      showInlineImages: showInlineImages,
       autoPlayGIFs: autoPlayGIFs,
       showIncomingPath: showIncomingPath,
       showIncomingHopCount: showIncomingHopCount,

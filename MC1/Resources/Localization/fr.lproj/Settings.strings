@@ -697,11 +697,11 @@
 
 // MARK: - Link Preview Settings Section
 
-/* Section header for link preview settings */
-"linkPreviews.header" = "Aperçus de liens";
+/* Section header for link content settings */
+"linkPreviews.header" = "Contenu des liens";
 
-/* Toggle label for link previews */
-"linkPreviews.toggle" = "Aperçus des liens";
+/* Toggle label for the link content master switch */
+"linkPreviews.toggle" = "Afficher le contenu des liens";
 
 /* Toggle label for showing previews in DMs */
 "linkPreviews.showInDMs" = "Afficher dans les messages directs";
@@ -709,8 +709,11 @@
 /* Toggle label for showing previews in channels */
 "linkPreviews.showInChannels" = "Afficher dans les canaux";
 
-/* Footer explaining link preview privacy implications */
-"linkPreviews.footer" = "Les aperçus de liens récupèrent des données du web, ce qui peut révéler votre adresse IP au serveur hébergeant le lien.";
+/* Footer explaining link content privacy implications */
+"linkPreviews.footer" = "Les aperçus de liens et les images sont récupérés via la connexion internet de votre téléphone, pas via le maillage. Cela peut révéler votre adresse IP au serveur hébergeant le contenu et peut consommer des données cellulaires.";
+
+/* Footer note shown when Reduce Motion is enabled */
+"linkPreviews.reduceMotionNote" = "Réduire les animations est activé, les GIF ne seront donc pas lus automatiquement.";
 
 
 // MARK: - Node Settings Section
@@ -1259,14 +1262,8 @@
 /* Validation error: no empty channel slot left (param: channel name) */
 "configImport.error.noAvailableChannelSlot" = "Aucun emplacement de canal libre disponible pour \"%@\"";
 
-/* Toggle label for inline images */
-"inlineImages.toggle" = "Images intégrées";
-
 /* Toggle label for auto-play GIFs */
 "inlineImages.autoPlayGifs" = "Lecture automatique des GIF";
-
-/* Footer explaining inline image privacy implications */
-"inlineImages.footer" = "Le chargement d'images à partir d'URL peut révéler votre adresse IP au serveur hébergeant l'image.";
 
 // MARK: - Map Preview Settings Section
 

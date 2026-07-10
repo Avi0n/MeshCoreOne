@@ -158,6 +158,10 @@ struct UnifiedMessageBubble: View, Equatable {
               if let onRetryInlineImage = callbacks.onRetryInlineImage {
                 Button(L10n.Chats.Chats.Message.Action.retryImage) { onRetryInlineImage() }
               }
+            case .disabled:
+              if let onManualPreviewFetch = callbacks.onManualPreviewFetch {
+                Button(L10n.Chats.Chats.Preview.tapToLoad) { onManualPreviewFetch() }
+              }
             case .loading, .idle:
               EmptyView()
             }

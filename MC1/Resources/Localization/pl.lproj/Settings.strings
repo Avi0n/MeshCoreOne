@@ -697,11 +697,11 @@
 
 // MARK: - Link Preview Settings Section
 
-/* Section header for link preview settings */
-"linkPreviews.header" = "Podgląd linków";
+/* Section header for link content settings */
+"linkPreviews.header" = "Zawartość linków";
 
-/* Toggle label for link previews */
-"linkPreviews.toggle" = "Podgląd linków";
+/* Toggle label for the link content master switch */
+"linkPreviews.toggle" = "Pokaż zawartość linków";
 
 /* Toggle label for showing previews in DMs */
 "linkPreviews.showInDMs" = "Pokazuj w wiadomościach bezpośrednich";
@@ -709,8 +709,11 @@
 /* Toggle label for showing previews in channels */
 "linkPreviews.showInChannels" = "Pokazuj w kanałach";
 
-/* Footer explaining link preview privacy implications */
-"linkPreviews.footer" = "Podgląd linków pobiera dane z sieci, co może ujawnić Twój adres IP serwerowi hostującemu link.";
+/* Footer explaining link content privacy implications */
+"linkPreviews.footer" = "Podglądy linków i obrazy są pobierane przez połączenie internetowe telefonu, a nie przez sieć mesh. Może to ujawnić Twój adres IP serwerowi hostującemu treść i zużywać dane komórkowe.";
+
+/* Footer note shown when Reduce Motion is enabled */
+"linkPreviews.reduceMotionNote" = "Ograniczanie ruchu jest włączone, więc GIF-y nie będą odtwarzane automatycznie.";
 
 
 // MARK: - Node Settings Section
@@ -1259,14 +1262,8 @@
 /* Validation error: no empty channel slot left (param: channel name) */
 "configImport.error.noAvailableChannelSlot" = "Brak wolnego miejsca na kanał dla \"%@\"";
 
-/* Toggle label for inline images */
-"inlineImages.toggle" = "Obrazy w wiadomościach";
-
 /* Toggle label for auto-play GIFs */
 "inlineImages.autoPlayGifs" = "Automatyczne odtwarzanie GIF-ów";
-
-/* Footer explaining inline image privacy implications */
-"inlineImages.footer" = "Pobieranie obrazów z adresów URL może ujawnić Twój adres IP serwerowi hostującemu obraz.";
 
 // MARK: - Map Preview Settings Section
 

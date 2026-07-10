@@ -300,7 +300,6 @@ struct ChatViewModelTests {
     #expect(viewModel.mapPreviewRequestIndex[lightOnline]?.contains(message.id) == true)
 
     let darkEnv = EnvInputs(
-      showInlineImages: EnvInputs.default.showInlineImages,
       autoPlayGIFs: EnvInputs.default.autoPlayGIFs,
       showIncomingPath: EnvInputs.default.showIncomingPath,
       showIncomingHopCount: EnvInputs.default.showIncomingHopCount,
@@ -339,7 +338,6 @@ struct ChatViewModelTests {
     let before = try #require(viewModel.items.first)
 
     let emberEnv = EnvInputs(
-      showInlineImages: EnvInputs.default.showInlineImages,
       autoPlayGIFs: EnvInputs.default.autoPlayGIFs,
       showIncomingPath: EnvInputs.default.showIncomingPath,
       showIncomingHopCount: EnvInputs.default.showIncomingHopCount,
@@ -873,5 +871,176 @@ struct DisplayFlagsTests {
     let m0 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 23, 58))
     let m1 = createTestMessage(timestamp: makeTimestamp(2024, 5, 2, 0, 1))
     #expect(ChatViewModel.computeDisplayFlags(for: m1, previous: m0).showDayDivider == true)
+  }
+}
+
+// MARK: - Inline Image Master + Scope Gating
+
+@Suite("ChatViewModel inline image gating")
+@MainActor
+struct ChatViewModelImageGatingTests {
+  /// Master toggle applied to `EnvInputs`. Only `previewsEnabled` matters here;
+  /// the rest mirror `EnvInputs.default`.
+  private func makeEnv(previewsEnabled: Bool) -> EnvInputs {
+    EnvInputs(
+      autoPlayGIFs: true,
+      showIncomingPath: false,
+      showIncomingHopCount: false,
+      showIncomingRegion: false,
+      showIncomingSendTime: false,
+      previewsEnabled: previewsEnabled,
+      isHighContrast: false,
+      isDark: false,
+      showMapPreviews: false,
+      isOffline: false,
+      currentUserName: "Me",
+      themeID: EnvInputs.defaultThemeID,
+      contentSizeCategory: EnvInputs.defaultContentSizeCategory
+    )
+  }
+
+  /// Scratch `UserDefaults` suite so scope state never leaks into `.standard`.
+  private func scratchPreferences(enabled: Bool, autoResolveDM: Bool) -> LinkPreviewPreferences {
+    let suite = UserDefaults(suiteName: "ChatVMImageGating-\(UUID().uuidString)")!
+    suite.set(enabled, forKey: AppStorageKey.linkPreviewsEnabled.rawValue)
+    suite.set(autoResolveDM, forKey: AppStorageKey.linkPreviewsAutoResolveDM.rawValue)
+    return LinkPreviewPreferences(defaults: suite)
+  }
+
+  private func makeViewModel(
+    message: MessageDTO,
+    imageURL: URL,
+    previewsEnabled: Bool,
+    scopeOn: Bool
+  ) -> ChatViewModel {
+    let viewModel = ChatViewModel()
+    let coordinator = ChatCoordinator.makeForTesting()
+    viewModel.coordinator = coordinator
+    viewModel.appendMessageIfNew(message)
+    viewModel.cachedURLs[message.id] = imageURL
+    viewModel.envInputs = makeEnv(previewsEnabled: previewsEnabled)
+    viewModel.linkPreviewPreferences = scratchPreferences(enabled: previewsEnabled, autoResolveDM: scopeOn)
+    return viewModel
+  }
+
+  @Test
+  func `requestImageFetch parks at disabled when scope is off`() throws {
+    let message = createTestMessage(timestamp: 1000, text: "see https://example.com/cat.png")
+    let url = try #require(URL(string: "https://example.com/cat.png"))
+    let viewModel = makeViewModel(message: message, imageURL: url, previewsEnabled: true, scopeOn: false)
+
+    viewModel.requestImageFetch(for: message.id)
+
+    #expect(viewModel.previewStates[message.id] == .disabled)
+    #expect(viewModel.imageFetchTasks[message.id] == nil)
+  }
+
+  @Test
+  func `requestImageFetch starts a fetch when scope is on`() throws {
+    let message = createTestMessage(timestamp: 1000, text: "see https://example.com/cat.png")
+    let url = try #require(URL(string: "https://example.com/cat.png"))
+    let viewModel = makeViewModel(message: message, imageURL: url, previewsEnabled: true, scopeOn: true)
+
+    viewModel.requestImageFetch(for: message.id)
+
+    #expect(viewModel.imageFetchTasks[message.id] != nil)
+    #expect(viewModel.previewStates[message.id] != .disabled)
+    viewModel.cancelImageFetch(for: message.id)
+  }
+
+  @Test
+  func `requestImageFetch is a no-op when link content is off`() throws {
+    let message = createTestMessage(timestamp: 1000, text: "see https://example.com/cat.png")
+    let url = try #require(URL(string: "https://example.com/cat.png"))
+    let viewModel = makeViewModel(message: message, imageURL: url, previewsEnabled: false, scopeOn: true)
+
+    viewModel.requestImageFetch(for: message.id)
+
+    #expect(viewModel.previewStates[message.id] == nil)
+    #expect(viewModel.imageFetchTasks[message.id] == nil)
+  }
+
+  @Test
+  func `shouldRequestImageFetch is false when link content is off`() throws {
+    let message = createTestMessage(timestamp: 1000, text: "see https://example.com/cat.png")
+    let url = try #require(URL(string: "https://example.com/cat.png"))
+    let viewModel = makeViewModel(message: message, imageURL: url, previewsEnabled: false, scopeOn: true)
+
+    #expect(viewModel.shouldRequestImageFetch(for: message.id) == false)
+  }
+
+  @Test
+  func `shouldRequestImageFetch is true for an image url when link content is on regardless of scope`() throws {
+    let message = createTestMessage(timestamp: 1000, text: "see https://example.com/cat.png")
+    let url = try #require(URL(string: "https://example.com/cat.png"))
+    let viewModel = makeViewModel(message: message, imageURL: url, previewsEnabled: true, scopeOn: false)
+
+    #expect(viewModel.shouldRequestImageFetch(for: message.id) == true)
+  }
+
+  @Test
+  func `manualFetchImage bypasses the scope gate from a disabled state`() throws {
+    let message = createTestMessage(timestamp: 1000, text: "see https://example.com/cat.png")
+    let url = try #require(URL(string: "https://example.com/cat.png"))
+    let viewModel = makeViewModel(message: message, imageURL: url, previewsEnabled: true, scopeOn: false)
+
+    // Scope-off parks the state at the tap-to-load placeholder.
+    viewModel.requestImageFetch(for: message.id)
+    #expect(viewModel.previewStates[message.id] == .disabled)
+
+    // The tap fires the fetch despite scope being off.
+    viewModel.manualFetchImage(for: message.id)
+    #expect(viewModel.imageFetchTasks[message.id] != nil)
+    viewModel.cancelImageFetch(for: message.id)
+  }
+
+  @Test
+  func `manualFetchImage is a no-op when the state is not disabled`() throws {
+    let message = createTestMessage(timestamp: 1000, text: "see https://example.com/cat.png")
+    let url = try #require(URL(string: "https://example.com/cat.png"))
+    let viewModel = makeViewModel(message: message, imageURL: url, previewsEnabled: true, scopeOn: false)
+
+    // Fresh state (nil), not `.disabled`: manualFetchImage must not fire.
+    viewModel.manualFetchImage(for: message.id)
+    #expect(viewModel.imageFetchTasks[message.id] == nil)
+  }
+
+  @Test
+  func `retryImageFetch is a no-op when link content is off`() async throws {
+    let message = createTestMessage(timestamp: 1000, text: "see https://example.com/cat.png")
+    let url = try #require(URL(string: "https://example.com/cat.png"))
+    let viewModel = makeViewModel(message: message, imageURL: url, previewsEnabled: false, scopeOn: true)
+
+    await viewModel.retryImageFetch(for: message.id)
+
+    #expect(viewModel.imageFetchTasks[message.id] == nil)
+  }
+
+  @Test
+  func `retryImageFetch bypasses the scope gate and fetches directly`() async throws {
+    let message = createTestMessage(timestamp: 1000, text: "see https://example.com/cat.png")
+    let url = try #require(URL(string: "https://example.com/cat.png"))
+    let viewModel = makeViewModel(message: message, imageURL: url, previewsEnabled: true, scopeOn: false)
+
+    // A visible retry is an explicit user action: scope off must not bounce it
+    // to the tap-to-load placeholder, it must start a fetch directly.
+    await viewModel.retryImageFetch(for: message.id)
+
+    #expect(viewModel.imageFetchTasks[message.id] != nil)
+    #expect(viewModel.previewStates[message.id] != .disabled)
+    viewModel.cancelImageFetch(for: message.id)
+  }
+
+  @Test
+  func `retryImageFetch is a no-op for a malware-flagged message`() async throws {
+    let message = createTestMessage(timestamp: 1000, text: "see https://example.com/cat.png")
+    let url = try #require(URL(string: "https://example.com/cat.png"))
+    let viewModel = makeViewModel(message: message, imageURL: url, previewsEnabled: true, scopeOn: true)
+    viewModel.previewStates[message.id] = .malwareWarning
+
+    await viewModel.retryImageFetch(for: message.id)
+
+    #expect(viewModel.imageFetchTasks[message.id] == nil)
+    #expect(viewModel.previewStates[message.id] == .malwareWarning)
   }
 }

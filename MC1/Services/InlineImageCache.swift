@@ -38,6 +38,14 @@ actor InlineImageCache {
   /// bounded by `maxDecodedEntryCount` and `maxDecodedTotalCostBytes`.
   private let decodedMirror = OSAllocatedUnfairLock<DecodedCacheState>(initialState: DecodedCacheState())
 
+  /// URLs whose path carried an image extension but whose fetch returned an
+  /// HTML page (imgur, pasteboard, prnt.sc landing pages). Process-lifetime
+  /// and lock-guarded so the reroute-to-card verdict survives `ChatViewModel`
+  /// teardown: without it, exit-then-reenter re-classifies the URL as an
+  /// inline image and strands the reloaded card as an endless loading shimmer.
+  /// Bounded FIFO; the working set of such URLs is small.
+  private let servesPageMirror = OSAllocatedUnfairLock<ServesPageState>(initialState: ServesPageState())
+
   private static let maxEntryCount = 50
   private static let maxTotalCostBytes = 50 * 1024 * 1024 // 50MB
   private static let maxDownloadBytes = 10 * 1024 * 1024 // 10MB per image
@@ -57,6 +65,7 @@ actor InlineImageCache {
   /// the encoded `data` term keeps the cost honest when both are held.
   private static let maxDecodedEntryCount = 50
   private static let maxDecodedTotalCostBytes = 100 * 1024 * 1024
+  private static let maxServesPageEntries = 200
 
   init(session: URLSession = .shared) {
     self.session = session
@@ -177,6 +186,28 @@ actor InlineImageCache {
     decodedMirror.withLock { $0.entries[url.absoluteString] }
   }
 
+  /// Records that an image-extension URL served an HTML page, so later
+  /// classification reroutes it to the link-preview path even across chat
+  /// re-entries. Called from `performFetch` on the `.notImage` verdict.
+  /// `nonisolated` because the body only touches the lock-guarded mirror.
+  nonisolated func markServesHTMLPage(_ url: URL) {
+    let key = url.absoluteString
+    servesPageMirror.withLock { state in
+      guard state.urls.insert(key).inserted else { return }
+      state.insertionOrder.append(key)
+      while state.insertionOrder.count > Self.maxServesPageEntries {
+        state.urls.remove(state.insertionOrder.removeFirst())
+      }
+    }
+  }
+
+  /// Nonisolated wait-free lookup for the build path: `true` when the URL is a
+  /// known image-extension URL that serves a page, so classification routes it
+  /// to the card fragment instead of stranding it as an inline-image shimmer.
+  nonisolated func servesHTMLPage(_ url: URL) -> Bool {
+    servesPageMirror.withLock { $0.urls.contains(url.absoluteString) }
+  }
+
   /// Probes the image header for pixel dimensions without persisting the bytes.
   /// Uses a small Range request and `ImageHeaderDecoder`. Persists the resolved
   /// size to the attached dimensions store on success. Failures do not touch
@@ -261,6 +292,7 @@ actor InlineImageCache {
       // this is a reclassification, so the URL must stay retryable.
       if httpResponse.mimeType == Self.htmlMimeType {
         logger.debug("Image URL served HTML, rerouting to preview: \(url.absoluteString)")
+        markServesHTMLPage(url)
         return .notImage
       }
 
@@ -328,6 +360,11 @@ final class CachedDecodedImage: @unchecked Sendable {
     }
     return ImageByteCost.bytes(for: image)
   }
+}
+
+private struct ServesPageState {
+  var urls: Set<String> = []
+  var insertionOrder: [String] = []
 }
 
 /// State held under the decoded-mirror lock. Combining the dict with the

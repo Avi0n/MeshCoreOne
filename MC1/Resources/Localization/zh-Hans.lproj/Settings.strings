@@ -682,11 +682,11 @@
 
 // MARK: - Link Preview Settings Section
 
-/* Section header for link preview settings */
-"linkPreviews.header" = "链接预览";
+/* Section header for link content settings */
+"linkPreviews.header" = "链接内容";
 
-/* Toggle label for link previews */
-"linkPreviews.toggle" = "链接预览";
+/* Toggle label for the link content master switch */
+"linkPreviews.toggle" = "显示链接内容";
 
 /* Toggle label for showing previews in DMs */
 "linkPreviews.showInDMs" = "在私信中显示";
@@ -694,8 +694,11 @@
 /* Toggle label for showing previews in channels */
 "linkPreviews.showInChannels" = "在频道中显示";
 
-/* Footer explaining link preview privacy implications */
-"linkPreviews.footer" = "链接预览从网络获取数据，这可能会向托管链接的服务器泄露您的 IP 地址。";
+/* Footer explaining link content privacy implications */
+"linkPreviews.footer" = "链接预览和图片通过您手机的互联网连接获取，而非通过 mesh 网络。这可能会向托管内容的服务器泄露您的 IP 地址，并可能消耗蜂窝数据。";
+
+/* Footer note shown when Reduce Motion is enabled */
+"linkPreviews.reduceMotionNote" = "已开启减弱动态效果，因此 GIF 不会自动播放。";
 
 // MARK: - Node Settings Section
 
@@ -1233,14 +1236,8 @@
 /* Validation error: no empty channel slot left (param: channel name) */
 "configImport.error.noAvailableChannelSlot" = "没有可用于 \"%@\" 的空闲频道槽位";
 
-/* Toggle label for inline images */
-"inlineImages.toggle" = "内嵌图片消息";
-
 /* Toggle label for auto-play GIFs */
 "inlineImages.autoPlayGifs" = "自动播放 GIF";
-
-/* Footer explaining inline image privacy implications */
-"inlineImages.footer" = "从 URL 获取图片可能会将您的 IP 地址暴露给托管图片的服务器。";
 
 // MARK: - Map Preview Settings Section
 

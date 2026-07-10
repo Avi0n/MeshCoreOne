@@ -70,9 +70,7 @@ extension ChatViewModel {
     // Extension-based image classification, minus URLs the fetch path has
     // since discovered serve an HTML page. Computed once and reused for the
     // aspect-ratio gate so a rerouted URL neither fetches nor reserves a frame.
-    let isInlineImageURL = cachedURL.map {
-      ImageURLClassifier.isImageURL($0) && !imageURLsServingPages.contains($0.absoluteString)
-    } ?? false
+    let isInlineImageURL = cachedURL.map { routesToInlineImage($0) } ?? false
     let inlineImageAspect: Double? = {
       guard isInlineImageURL, let cachedURL,
             let store = inlineImageDimensionsStore else { return nil }

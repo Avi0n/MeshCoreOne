@@ -112,7 +112,7 @@ final class ChatViewModel {
     coordinator?.renderState ?? .empty
   }
 
-  /// Environment-derived inputs (six `@AppStorage` toggles, contrast,
+  /// Environment-derived inputs (seven `@AppStorage` toggles, contrast,
   /// current user name) that feed `MessageItem` construction.
   /// `ChatConversationView` pushes via `applyEnvInputs(_:)` before
   /// `loadMessages` and on subsequent toggle changes.
@@ -221,6 +221,12 @@ final class ChatViewModel {
   // diverge until the next rebuild on each side. See
   // `ChatCoordinatorRegistry.coordinator(for:)` for the accepted
   // trade-off context.
+
+  /// Scope preferences (master + per-conversation-type auto-resolve) read by
+  /// the image fetch sites so inline images honor the same DM/channel gate the
+  /// card path applies inside `LinkPreviewCache`. Internal so tests can inject
+  /// a scratch `UserDefaults` suite instead of leaking into `.standard`.
+  var linkPreviewPreferences = LinkPreviewPreferences()
 
   /// Preview state per message (keyed by message ID)
   var previewStates: [UUID: PreviewLoadState] = [:]

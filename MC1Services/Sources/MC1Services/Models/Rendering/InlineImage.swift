@@ -6,6 +6,10 @@ public struct InlineImage: Sendable, Hashable {
     case loading(URL)
     case loaded(ImageReference, isGIF: Bool)
     case failed(URL)
+    /// Scope-off tap-to-load placeholder: the master toggle is on but
+    /// auto-resolve is disabled for this conversation type, so the image is
+    /// not fetched until the user taps. Mirrors `LinkPreviewFragmentState.Mode.disabled`.
+    case disabled(URL)
   }
 
   public let state: LoadState

@@ -73,7 +73,11 @@ struct ChatMessagesTableView: View {
           }
         },
         onManualPreviewFetch: { messageID in
-          Task { await viewModel.manualFetchPreview(for: messageID) }
+          if viewModel.shouldRequestImageFetch(for: messageID) {
+            viewModel.manualFetchImage(for: messageID)
+          } else {
+            Task { await viewModel.manualFetchPreview(for: messageID) }
+          }
         },
         onMapPreviewTap: { coordinate in
           viewModel.navigateToMap(coordinate)

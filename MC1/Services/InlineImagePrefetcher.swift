@@ -40,7 +40,14 @@ final class InlineImagePrefetcher {
   /// the receive-time prefetcher and the per-message URL-detection writer
   /// see the same set of URLs (Giphy short-codes expanded, `@[mention]`
   /// ranges skipped, HTTP/HTTPS only).
-  func prefetch(urlsIn text: String, isChannelMessage: Bool) async {
+  ///
+  /// `allowImageProbes` is the privacy gate for direct-image URLs: when false
+  /// (master on but auto-resolve off for this conversation type, or handled by
+  /// the caller's own master check), the dimension probe is skipped so no
+  /// third-party image request fires on receive. The card branch stays
+  /// unconditional: `LinkPreviewCache.preview` self-gates via
+  /// `shouldAutoResolve` and its cache checks perform no network fetch.
+  func prefetch(urlsIn text: String, isChannelMessage: Bool, allowImageProbes: Bool) async {
     let urls = LinkPreviewService.extractAllURLs(in: text)
     guard !urls.isEmpty else { return }
 
@@ -52,6 +59,7 @@ final class InlineImagePrefetcher {
     await withTaskGroup(of: Void.self) { group in
       for url in urls {
         if ImageURLClassifier.isImageURL(url) {
+          guard allowImageProbes else { continue }
           let probeURL = ImageURLClassifier.directImageURL(for: url)
           guard dimensionsStore.aspect(for: probeURL) == nil else { continue }
           group.addTask {

@@ -40,11 +40,42 @@ struct ChatViewModelAdmissionTests {
     #expect(previewed.isEmpty)
   }
 
+  // MARK: - Link-content-off fast path
+
+  @Test
+  func `Link-content-off URL message admits immediately without probing or previewing`() async {
+    let viewModel = makeBoundViewModel()
+    // Master toggle off: a URL-bearing message must take the admit-immediately
+    // fast path, skipping the prefetch race so no probe or preview call reaches
+    // the injected stubs.
+    viewModel.envInputs = makeEnv(previewsEnabled: false)
+    let imageCache = SlowImageProber(delay: .milliseconds(50))
+    let linkCache = SlowLinkPreviewFetcher(delay: .milliseconds(50))
+    let store = makeStore()
+    bind(store, to: viewModel)
+    viewModel.prefetcher = InlineImagePrefetcher(
+      imageCache: imageCache,
+      linkPreviewCache: linkCache,
+      dimensionsStore: store,
+      dataStore: AdmissionStubDataStore()
+    )
+
+    let message = makeMessage(text: "see https://example.com/cat.png")
+    await viewModel.admitIncomingMessage(message, isChannelMessage: false)
+
+    #expect(viewModel.messages.count == 1)
+    let probed = await imageCache.probedURLs
+    let previewed = await linkCache.fetchedURLs
+    #expect(probed.isEmpty)
+    #expect(previewed.isEmpty)
+  }
+
   // MARK: - Fast prefetch path
 
   @Test
   func `URL-bearing message waits for prefetch then admits`() async {
     let viewModel = makeBoundViewModel()
+    enableLinkMedia(viewModel)
     let imageCache = SlowImageProber(delay: .milliseconds(50))
     let linkCache = SlowLinkPreviewFetcher(delay: .milliseconds(50))
     let store = makeStore()
@@ -82,7 +113,7 @@ struct ChatViewModelAdmissionTests {
   @Test
   func `Dimension resolution rebuilds matching message`() async throws {
     let viewModel = makeBoundViewModel()
-    viewModel.applyEnvInputs(.default)
+    enableLinkMedia(viewModel)
 
     let url = try #require(URL(string: "https://example.com/cat.png"))
     let message = makeMessage(text: "look \(url.absoluteString)")
@@ -112,6 +143,7 @@ struct ChatViewModelAdmissionTests {
   )
   func `Slow prefetch loses to timeout; message still admits`() async {
     let viewModel = makeBoundViewModel()
+    enableLinkMedia(viewModel)
     // Inject a short timeout so the test runs fast; production stays 3s.
     let testTimeout: Duration = .milliseconds(200)
     viewModel.prefetchTimeout = testTimeout
@@ -145,6 +177,7 @@ struct ChatViewModelAdmissionTests {
   @Test
   func `Giphy g:abc short-code triggers prefetch race`() async {
     let viewModel = makeBoundViewModel()
+    enableLinkMedia(viewModel)
     viewModel.prefetchTimeout = .milliseconds(50)
 
     let imageCache = SlowImageProber(delay: .milliseconds(5))
@@ -167,11 +200,51 @@ struct ChatViewModelAdmissionTests {
     #expect(probed.map(\.absoluteString) == ["https://media.giphy.com/media/abc123/giphy.gif"])
   }
 
+  // MARK: - Image-extension URL that serves a page
+
+  @Test
+  func `Page-serving image URL reloads as a card on re-entry, not a stranded shimmer`() throws {
+    let viewModel = makeBoundViewModel()
+    enableLinkMedia(viewModel)
+
+    // pasteboard-style link: the path carries an image extension, but the host
+    // serves an HTML landing page. The unique host isolates the process-wide
+    // `InlineImageCache` verdict from other tests.
+    let url = try #require(URL(string: "https://pasteboard.co/\(UUID().uuidString).png"))
+    // First entry discovered the reroute and loaded the card; both facts outlive
+    // chat teardown in process-lifetime caches.
+    InlineImageCache.shared.markServesHTMLPage(url)
+
+    let message = makeMessage(text: "shot \(url.absoluteString)")
+    viewModel.appendMessageIfNew(message)
+
+    // Re-entry state: the per-VM reroute set was cleared, but the loaded card is
+    // restored from the surviving preview cache.
+    viewModel.cachedURLs[message.id] = url
+    viewModel.previewStates[message.id] = .loaded
+    viewModel.loadedPreviews[message.id] = LinkPreviewDataDTO(url: url.absoluteString, title: "Pasteboard")
+    viewModel.rebuildDisplayItem(for: message.id)
+
+    let item = try #require(viewModel.items.first { $0.id == message.id })
+    let hasInlineImage = item.content.contains { if case .inlineImage = $0 { true } else { false } }
+    let cardMode = item.content.compactMap { fragment -> LinkPreviewFragmentState.Mode? in
+      if case let .linkPreview(state) = fragment { state.mode } else { nil }
+    }.first
+
+    // Must render the loaded card, never an inline image: an inline image with
+    // no decoded ref parks at `.loading` forever with no fetch path back.
+    #expect(!hasInlineImage)
+    if case .loaded = cardMode {} else {
+      Issue.record("Expected a loaded link-preview card, got \(String(describing: cardMode))")
+    }
+  }
+
   // MARK: - Outgoing prefetch dispatch
 
   @Test
   func `Outgoing prefetch dispatches when URL present`() async {
     let viewModel = makeBoundViewModel()
+    enableLinkMedia(viewModel)
     let imageCache = SlowImageProber(delay: .milliseconds(10))
     let linkCache = SlowLinkPreviewFetcher(delay: .milliseconds(10))
     let store = makeStore()
@@ -208,6 +281,39 @@ struct ChatViewModelAdmissionTests {
     let coordinator = ChatCoordinator.makeForTesting()
     viewModel.coordinator = coordinator
     return viewModel
+  }
+
+  /// `EnvInputs` with only the `previewsEnabled` master toggle varied; the rest
+  /// mirror `EnvInputs.default`.
+  private func makeEnv(previewsEnabled: Bool) -> EnvInputs {
+    EnvInputs(
+      autoPlayGIFs: true,
+      showIncomingPath: false,
+      showIncomingHopCount: false,
+      showIncomingRegion: false,
+      showIncomingSendTime: false,
+      previewsEnabled: previewsEnabled,
+      isHighContrast: false,
+      isDark: false,
+      showMapPreviews: false,
+      isOffline: false,
+      currentUserName: "Me",
+      themeID: EnvInputs.defaultThemeID,
+      contentSizeCategory: EnvInputs.defaultContentSizeCategory
+    )
+  }
+
+  /// Turns on the master toggle and DM/channel auto-resolve so the receive-time
+  /// prefetch runs and image-dimension probes fire. Both gates (the master
+  /// check in the callers and the `allowImageProbes` scope check) are on. Uses
+  /// a scratch `UserDefaults` suite so scope never leaks into `.standard`.
+  private func enableLinkMedia(_ viewModel: ChatViewModel) {
+    viewModel.envInputs = makeEnv(previewsEnabled: true)
+    let suite = UserDefaults(suiteName: "AdmissionTests-\(UUID().uuidString)")!
+    suite.set(true, forKey: AppStorageKey.linkPreviewsEnabled.rawValue)
+    suite.set(true, forKey: AppStorageKey.linkPreviewsAutoResolveDM.rawValue)
+    suite.set(true, forKey: AppStorageKey.linkPreviewsAutoResolveChannels.rawValue)
+    viewModel.linkPreviewPreferences = LinkPreviewPreferences(defaults: suite)
   }
 
   private func makeStore() -> InlineImageDimensionsStore {

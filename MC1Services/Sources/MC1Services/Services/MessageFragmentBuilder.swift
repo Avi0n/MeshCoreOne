@@ -50,14 +50,16 @@ public enum MessageFragmentBuilder {
       return fragments
     }
 
-    if isImageURL, envInputs.showInlineImages {
-      fragments.append(.inlineImage(
-        makeInlineImage(url: url, inputs: inputs, envInputs: envInputs)
-      ))
-    } else if envInputs.previewsEnabled {
-      fragments.append(.linkPreview(
-        makeLinkPreview(message: message, url: url, inputs: inputs)
-      ))
+    if envInputs.previewsEnabled {
+      if isImageURL {
+        fragments.append(.inlineImage(
+          makeInlineImage(url: url, inputs: inputs, envInputs: envInputs)
+        ))
+      } else {
+        fragments.append(.linkPreview(
+          makeLinkPreview(message: message, url: url, inputs: inputs)
+        ))
+      }
     }
 
     appendMapPreviewIfPresent(&fragments, inputs: inputs, envInputs: envInputs)
@@ -124,7 +126,9 @@ public enum MessageFragmentBuilder {
       url.map { .loading($0) } ?? .failed(Self.blankURL)
     case .noPreview:
       url.map { .failed($0) } ?? .failed(Self.blankURL)
-    case .idle, .disabled, .malwareWarning:
+    case .disabled:
+      url.map { .disabled($0) } ?? .failed(Self.blankURL)
+    case .idle, .malwareWarning:
       url.map { .idle($0) } ?? .failed(Self.blankURL)
     }
     return InlineImage(

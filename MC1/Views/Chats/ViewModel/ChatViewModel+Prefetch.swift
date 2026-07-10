@@ -20,16 +20,26 @@ extension ChatViewModel {
       appendMessageIfNew(message)
       return
     }
-    guard !LinkPreviewService.extractAllURLs(in: message.text).isEmpty else {
+    // Master off: no fragment is built, so the prefetcher's card-branch cache
+    // lookups would be pure waste per received message. Skipping also drops the
+    // 3s admission race for these messages. `LinkPreviewCache.preview`
+    // self-gates regardless, so this is an efficiency guard, not the privacy gate.
+    guard envInputs.previewsEnabled,
+          !LinkPreviewService.extractAllURLs(in: message.text).isEmpty else {
       appendMessageIfNew(message)
       return
     }
 
     let text = message.text
     let timeout = prefetchTimeout
+    let allowImageProbes = linkPreviewPreferences.shouldAutoResolve(isChannelMessage: isChannelMessage)
     await withTaskGroup(of: Void.self) { group in
       group.addTask {
-        await prefetcher.prefetch(urlsIn: text, isChannelMessage: isChannelMessage)
+        await prefetcher.prefetch(
+          urlsIn: text,
+          isChannelMessage: isChannelMessage,
+          allowImageProbes: allowImageProbes
+        )
       }
       group.addTask {
         try? await Task.sleep(for: timeout)
@@ -76,11 +86,18 @@ extension ChatViewModel {
   /// `.easeOut(0.25)` cross-fade lives at the view layer.
   func schedulePrefetchForOutgoingMessage(_ message: MessageDTO, isChannelMessage: Bool) {
     guard let prefetcher else { return }
-    guard !LinkPreviewService.extractAllURLs(in: message.text).isEmpty else { return }
+    // Master off: nothing to prefetch (see `admitIncomingMessage`).
+    guard envInputs.previewsEnabled,
+          !LinkPreviewService.extractAllURLs(in: message.text).isEmpty else { return }
     let messageID = message.id
     let text = message.text
+    let allowImageProbes = linkPreviewPreferences.shouldAutoResolve(isChannelMessage: isChannelMessage)
     Task { [weak self] in
-      await prefetcher.prefetch(urlsIn: text, isChannelMessage: isChannelMessage)
+      await prefetcher.prefetch(
+        urlsIn: text,
+        isChannelMessage: isChannelMessage,
+        allowImageProbes: allowImageProbes
+      )
       self?.rebuildDisplayItem(for: messageID)
     }
   }
@@ -344,39 +361,83 @@ extension ChatViewModel {
     loadedImageData.object(forKey: messageID as NSUUID).map { Data(referencing: $0) }
   }
 
-  /// Clears the negative cache entry for a failed image and re-triggers the fetch.
+  /// Clears the negative cache entry for a failed image and re-triggers the
+  /// fetch. A visible retry is an explicit user action, so it bypasses the
+  /// scope gate and fetches directly, same rationale as `manualFetchPreview`;
+  /// routing back through `requestImageFetch` would bounce a scope-off failure
+  /// to the tap-to-load placeholder instead of retrying.
   func retryImageFetch(for messageID: UUID) async {
-    guard previewStates[messageID] != .malwareWarning else { return }
-    guard let url = cachedURLs[messageID].flatMap(\.self) else { return }
+    guard envInputs.previewsEnabled,
+          previewStates[messageID] != .malwareWarning else { return }
+    guard let url = cachedURLs[messageID].flatMap(\.self),
+          ImageURLClassifier.isImageURL(url) else { return }
 
     let directURL = ImageURLClassifier.directImageURL(for: url)
     await InlineImageCache.shared.clearFailure(for: directURL)
 
-    previewStates[messageID] = .idle
-    rebuildDisplayItem(for: messageID)
-    requestImageFetch(for: messageID)
+    imageFetchTasks[messageID] = Task {
+      await fetchInlineImage(for: messageID, url: url)
+    }
+  }
+
+  /// Whether `url` routes to the inline-image fragment and fetch path: an
+  /// image-extension or resolvable URL the fetch path has not since found to
+  /// serve an HTML page. `imageURLsServingPages` covers reroutes discovered
+  /// this session; `InlineImageCache.servesHTMLPage` carries the verdict across
+  /// chat re-entry so a reloaded card is not re-classified as a stranded
+  /// inline-image shimmer.
+  func routesToInlineImage(_ url: URL) -> Bool {
+    guard ImageURLClassifier.isImageURL(url),
+          !imageURLsServingPages.contains(url.absoluteString) else { return false }
+    return !InlineImageCache.shared.servesHTMLPage(ImageURLClassifier.directImageURL(for: url))
   }
 
   /// Whether the `onRequestPreviewFetch` callback should route to image
   /// fetching instead of link-preview fetching for the given message.
-  /// Encapsulates the cached-URL + image-URL + env-toggle gate so the cell
-  /// callback stays a single line.
+  /// Encapsulates the cached-URL + image-URL + master-toggle gate so the cell
+  /// callback stays a single line. Scope is deliberately not checked here:
+  /// image URLs must still route to `requestImageFetch`, which owns the
+  /// `.disabled` transition; routing them to the preview path would fetch a
+  /// card for an image URL.
   func shouldRequestImageFetch(for messageID: UUID) -> Bool {
-    guard envInputs.showInlineImages,
+    guard envInputs.previewsEnabled,
           let url = cachedURLs[messageID].flatMap(\.self) else {
       return false
     }
-    return ImageURLClassifier.isImageURL(url)
-      && !imageURLsServingPages.contains(url.absoluteString)
+    return routesToInlineImage(url)
   }
 
   /// Request inline image fetch for a message (called when cell becomes visible)
   func requestImageFetch(for messageID: UUID) {
-    guard envInputs.showInlineImages else { return }
+    guard envInputs.previewsEnabled else { return }
     guard previewStates[messageID] == nil || previewStates[messageID] == .idle else { return }
     guard let url = cachedURLs[messageID].flatMap(\.self),
           ImageURLClassifier.isImageURL(url) else { return }
 
+    // Master on but auto-resolve off for this conversation type: park the
+    // state at `.disabled` so the cell renders the tap-to-load placeholder and
+    // its `.task(id:)` re-fire loop terminates, mirroring the card path's
+    // `LinkPreviewCache.preview` returning `.disabled`. No network fetch.
+    guard linkPreviewPreferences.shouldAutoResolve(isChannelMessage: currentChannel != nil) else {
+      previewStates[messageID] = .disabled
+      rebuildDisplayItem(for: messageID)
+      return
+    }
+
+    imageFetchTasks[messageID] = Task {
+      await fetchInlineImage(for: messageID, url: url)
+    }
+  }
+
+  /// Manually fetch an inline image (tap-to-load when auto-resolve is off for
+  /// this conversation type). Bypasses the scope gate, like `manualFetchPreview`
+  /// does for cards; `fetchInlineImage` sets `.loading`, runs the malware check,
+  /// and handles the `.notImage` reroute.
+  func manualFetchImage(for messageID: UUID) {
+    guard envInputs.previewsEnabled,
+          previewStates[messageID] == .disabled,
+          let url = cachedURLs[messageID].flatMap(\.self),
+          ImageURLClassifier.isImageURL(url) else { return }
     imageFetchTasks[messageID] = Task {
       await fetchInlineImage(for: messageID, url: url)
     }

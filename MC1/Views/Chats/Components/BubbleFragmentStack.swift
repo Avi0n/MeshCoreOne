@@ -37,11 +37,28 @@ struct BubbleFragmentStack: View, Equatable {
       || item.footer.regionToShow != nil
   }
 
+  /// The source URL when the inline image is parked at the scope-off
+  /// tap-to-load placeholder. The placeholder carries its own material chrome
+  /// and sits inside the padded content stack, so this case renders like a
+  /// text-only bubble (shape fill, no edge-to-edge clip), never as an
+  /// edge-to-edge `InlineImageFragmentView`.
+  private var disabledImageURL: URL? {
+    if case let .disabled(url) = layout.inlineImage?.state { url } else { nil }
+  }
+
   var body: some View {
     let stack = VStack(alignment: .leading, spacing: 0) {
       VStack(alignment: .leading, spacing: 4) {
         if let textPayload = layout.textPayload {
           MessageTextView(text: textPayload)
+        }
+
+        if let disabledImageURL {
+          TapToLoadPreview(
+            url: disabledImageURL,
+            isLoading: false,
+            onTap: { callbacks.onManualPreviewFetch?() }
+          )
         }
 
         if !item.envelope.isOutgoing, hasFooter {
@@ -50,7 +67,7 @@ struct BubbleFragmentStack: View, Equatable {
       }
       .bubbleContentPadding()
 
-      if let inlineImage = layout.inlineImage {
+      if let inlineImage = layout.inlineImage, disabledImageURL == nil {
         InlineImageFragmentView(
           inlineImage: inlineImage,
           isOutgoing: item.envelope.isOutgoing,
@@ -61,10 +78,11 @@ struct BubbleFragmentStack: View, Equatable {
       }
     }
 
-    if layout.inlineImage == nil {
-      // Text-only bubbles fill a rounded shape directly. Drawing the
-      // background as a shape avoids the mask `.clipShape` installs, which
-      // forces an offscreen render pass per bubble while scrolling.
+    if layout.inlineImage == nil || disabledImageURL != nil {
+      // Text-only bubbles (and the scope-off tap-to-load placeholder) fill a
+      // rounded shape directly. Drawing the background as a shape avoids the
+      // mask `.clipShape` installs, which forces an offscreen render pass per
+      // bubble while scrolling.
       stack.background(bubbleColor, in: .rect(cornerRadius: Self.cornerRadius))
     } else {
       // Image bubbles keep the clip so the edge-to-edge image inherits the

@@ -697,11 +697,11 @@
 
 // MARK: - Link Preview Settings Section
 
-/* Section header for link preview settings */
-"linkPreviews.header" = "Попередній перегляд посилань";
+/* Section header for link content settings */
+"linkPreviews.header" = "Вміст посилань";
 
-/* Toggle label for link previews */
-"linkPreviews.toggle" = "Попередній перегляд посилань";
+/* Toggle label for the link content master switch */
+"linkPreviews.toggle" = "Показувати вміст посилань";
 
 /* Toggle label for showing previews in DMs */
 "linkPreviews.showInDMs" = "Показувати в особистих повідомленнях";
@@ -709,8 +709,11 @@
 /* Toggle label for showing previews in channels */
 "linkPreviews.showInChannels" = "Показувати в каналах";
 
-/* Footer explaining link preview privacy implications */
-"linkPreviews.footer" = "Попередній перегляд посилань завантажує дані з інтернету, що може розкрити вашу IP-адресу серверу, на якому розміщено посилання.";
+/* Footer explaining link content privacy implications */
+"linkPreviews.footer" = "Попередні перегляди посилань та зображення завантажуються через інтернет-з'єднання вашого телефону, а не через мережу mesh. Це може розкрити вашу IP-адресу серверу, на якому розміщено вміст, і використовувати мобільний трафік.";
+
+/* Footer note shown when Reduce Motion is enabled */
+"linkPreviews.reduceMotionNote" = "Зменшення руху ввімкнено, тому GIF не відтворюватимуться автоматично.";
 
 
 // MARK: - Node Settings Section
@@ -1259,14 +1262,8 @@
 /* Validation error: no empty channel slot left (param: channel name) */
 "configImport.error.noAvailableChannelSlot" = "Немає вільного слота каналу для \"%@\"";
 
-/* Toggle label for inline images */
-"inlineImages.toggle" = "Вбудовані зображення";
-
 /* Toggle label for auto-play GIFs */
 "inlineImages.autoPlayGifs" = "Автовідтворення GIF";
-
-/* Footer explaining inline image privacy implications */
-"inlineImages.footer" = "Завантаження зображень за URL-адресами може розкрити вашу IP-адресу серверу, який розміщує зображення.";
 
 // MARK: - Map Preview Settings Section
 

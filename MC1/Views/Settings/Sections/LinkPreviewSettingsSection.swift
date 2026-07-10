@@ -1,13 +1,15 @@
 import MC1Services
 import SwiftUI
 
-/// Settings section for link preview preferences
+/// Settings section for the link-content master toggle. One master
+/// (`linkPreviewsEnabled`) governs both link-preview cards and inline images;
+/// the DM/channel scope sub-toggles and GIF autoplay nest beneath it.
 struct LinkPreviewSettingsSection: View {
   @Environment(\.appTheme) private var theme
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @AppStorage(AppStorageKey.linkPreviewsEnabled.rawValue) private var previewsEnabled = AppStorageKey.defaultLinkPreviewsEnabled
   @AppStorage(AppStorageKey.linkPreviewsAutoResolveDM.rawValue) private var autoResolveDM = AppStorageKey.defaultLinkPreviewsAutoResolveDM
   @AppStorage(AppStorageKey.linkPreviewsAutoResolveChannels.rawValue) private var autoResolveChannels = AppStorageKey.defaultLinkPreviewsAutoResolveChannels
-  @AppStorage(AppStorageKey.showInlineImages.rawValue) private var showInlineImages = AppStorageKey.defaultShowInlineImages
   @AppStorage(AppStorageKey.autoPlayGIFs.rawValue) private var autoPlayGIFs = AppStorageKey.defaultAutoPlayGIFs
 
   var body: some View {
@@ -19,26 +21,17 @@ struct LinkPreviewSettingsSection: View {
       if previewsEnabled {
         Toggle(L10n.Settings.LinkPreviews.showInDMs, isOn: $autoResolveDM)
         Toggle(L10n.Settings.LinkPreviews.showInChannels, isOn: $autoResolveChannels)
+        Toggle(L10n.Settings.InlineImages.autoPlayGifs, isOn: $autoPlayGIFs)
       }
     } header: {
       Text(L10n.Settings.LinkPreviews.header)
     } footer: {
-      Text(L10n.Settings.LinkPreviews.footer)
-    }
-    .themedRowBackground(theme)
-
-    Section {
-      Toggle(isOn: $showInlineImages) {
-        TintedLabel(L10n.Settings.InlineImages.toggle, systemImage: "photo")
-      }
-
-      if showInlineImages {
-        Toggle(isOn: $autoPlayGIFs) {
-          TintedLabel(L10n.Settings.InlineImages.autoPlayGifs, systemImage: "play.square")
+      VStack(alignment: .leading, spacing: 4) {
+        Text(L10n.Settings.LinkPreviews.footer)
+        if previewsEnabled, reduceMotion {
+          Text(L10n.Settings.LinkPreviews.reduceMotionNote)
         }
       }
-    } footer: {
-      Text(L10n.Settings.InlineImages.footer)
     }
     .themedRowBackground(theme)
   }

@@ -69,7 +69,8 @@ struct MessageFragmentBuilderTests {
 
   /// An image-extension URL routes to the inline-image fragment when
   /// `isInlineImageURL` is set; the builder consumes the precomputed decision
-  /// rather than re-classifying the URL by extension at build time.
+  /// rather than re-classifying the URL by extension at build time. The master
+  /// toggle (`previewsEnabled`) now gates both fragment kinds.
   @Test
   func `image url with isInlineImageURL true routes to inline image`() throws {
     let message = makeMessage(text: "see")
@@ -77,12 +78,96 @@ struct MessageFragmentBuilderTests {
     let inputs = makeInputs(
       messageID: message.id,
       cachedURL: url,
-      isInlineImageURL: true
+      isInlineImageURL: true,
+      previewsEnabled: true
     )
-    let item = MessageFragmentBuilder.makeItem(for: message, inputs: inputs, envInputs: makeEnvInputs())
+    let item = MessageFragmentBuilder.makeItem(
+      for: message, inputs: inputs, envInputs: makeEnvInputs(previewsEnabled: true)
+    )
     let kinds: [FragmentKind] = item.content.map(Self.kind(of:))
     #expect(kinds.contains(.inlineImage))
     #expect(!kinds.contains(.linkPreview))
+  }
+
+  /// Master off: an image URL yields neither an inline-image nor a link-preview
+  /// fragment; the single `previewsEnabled` gate governs both.
+  @Test
+  func `link content off suppresses inline image and link preview for image url`() throws {
+    let message = makeMessage(text: "see")
+    let url = try #require(URL(string: "https://example.com/cat.jpg"))
+    let inputs = makeInputs(
+      messageID: message.id,
+      cachedURL: url,
+      isInlineImageURL: true,
+      previewsEnabled: false
+    )
+    let item = MessageFragmentBuilder.makeItem(
+      for: message, inputs: inputs, envInputs: makeEnvInputs(previewsEnabled: false)
+    )
+    let kinds: [FragmentKind] = item.content.map(Self.kind(of:))
+    #expect(!kinds.contains(.inlineImage))
+    #expect(!kinds.contains(.linkPreview))
+  }
+
+  /// Master off: a non-image URL yields no link-preview fragment.
+  @Test
+  func `link content off suppresses link preview for non image url`() throws {
+    let message = makeMessage(text: "see")
+    let url = try #require(URL(string: "https://example.com/page"))
+    let inputs = makeInputs(
+      messageID: message.id,
+      cachedURL: url,
+      isInlineImageURL: false,
+      previewsEnabled: false
+    )
+    let item = MessageFragmentBuilder.makeItem(
+      for: message, inputs: inputs, envInputs: makeEnvInputs(previewsEnabled: false)
+    )
+    let kinds: [FragmentKind] = item.content.map(Self.kind(of:))
+    #expect(!kinds.contains(.linkPreview))
+  }
+
+  /// Master on: a non-image URL routes to a link preview.
+  @Test
+  func `link content on routes non image url to link preview`() throws {
+    let message = makeMessage(text: "see")
+    let url = try #require(URL(string: "https://example.com/page"))
+    let inputs = makeInputs(
+      messageID: message.id,
+      cachedURL: url,
+      isInlineImageURL: false,
+      previewsEnabled: true
+    )
+    let item = MessageFragmentBuilder.makeItem(
+      for: message, inputs: inputs, envInputs: makeEnvInputs(previewsEnabled: true)
+    )
+    let kinds: [FragmentKind] = item.content.map(Self.kind(of:))
+    #expect(kinds.contains(.linkPreview))
+    #expect(!kinds.contains(.inlineImage))
+  }
+
+  /// Master on + scope-off parked state: an image URL whose preview state is
+  /// `.disabled` emits an inline-image fragment carrying `.disabled(url)`,
+  /// the tap-to-load placeholder, parallel to a card's `.disabled` mode.
+  @Test
+  func `disabled preview state yields disabled inline image`() throws {
+    let message = makeMessage(text: "see")
+    let url = try #require(URL(string: "https://example.com/cat.jpg"))
+    let inputs = makeInputs(
+      messageID: message.id,
+      previewState: .disabled,
+      cachedURL: url,
+      isInlineImageURL: true,
+      previewsEnabled: true
+    )
+    let item = MessageFragmentBuilder.makeItem(
+      for: message, inputs: inputs, envInputs: makeEnvInputs(previewsEnabled: true)
+    )
+    guard case let .inlineImage(inlineImage) = item.content.first(where: { Self.kind(of: $0) == .inlineImage }) else {
+      Issue.record("expected an inline-image fragment")
+      return
+    }
+    #expect(inlineImage.state == .disabled(url))
   }
 
   /// The content-type fallback's routing effect: a page-serving image URL
@@ -558,7 +643,6 @@ struct MessageFragmentBuilderTests {
   }
 
   private func makeEnvInputs(
-    showInlineImages: Bool = true,
     autoPlayGIFs: Bool = true,
     showIncomingPath: Bool = false,
     showIncomingHopCount: Bool = false,
@@ -572,7 +656,6 @@ struct MessageFragmentBuilderTests {
     currentUserName: String = "Me"
   ) -> EnvInputs {
     EnvInputs(
-      showInlineImages: showInlineImages,
       autoPlayGIFs: autoPlayGIFs,
       showIncomingPath: showIncomingPath,
       showIncomingHopCount: showIncomingHopCount,
@@ -630,7 +713,6 @@ struct MessageFragmentBuilderTests {
     hasPreviewIconRef: Bool = false,
     imageIsGIF: Bool = false,
     formattedText: AttributedString? = nil,
-    showInlineImages: Bool = true,
     autoPlayGIFs: Bool = true,
     previewsEnabled: Bool = false,
     currentUserName: String = "Me",

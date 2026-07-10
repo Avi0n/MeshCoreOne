@@ -24,7 +24,7 @@ struct InlineImagePrefetcherTests {
       dataStore: dataStore
     )
 
-    await prefetcher.prefetch(urlsIn: "hello world, no links here", isChannelMessage: false)
+    await prefetcher.prefetch(urlsIn: "hello world, no links here", isChannelMessage: false, allowImageProbes: true)
 
     let probeCalls = await imageCache.probedURLs
     let previewCalls = await linkCache.fetchedURLs
@@ -48,13 +48,44 @@ struct InlineImagePrefetcherTests {
 
     await prefetcher.prefetch(
       urlsIn: "look at https://example.com/cat.png",
-      isChannelMessage: false
+      isChannelMessage: false,
+      allowImageProbes: true
     )
 
     let probeCalls = await imageCache.probedURLs
     let previewCalls = await linkCache.fetchedURLs
     #expect(probeCalls.map(\.absoluteString) == ["https://example.com/cat.png"])
     #expect(previewCalls.isEmpty)
+  }
+
+  /// Receive-time leak regression: with `allowImageProbes` false, a direct
+  /// image URL fires no dimension probe (no third-party image request on
+  /// receive), while a card URL still reaches `LinkPreviewCache.preview`,
+  /// which self-gates.
+  @Test
+  func `Image probes are skipped when disallowed but card URLs still resolve`() async {
+    let imageCache = StubImageProber()
+    let linkCache = StubLinkPreviewFetcher()
+    let store = InlineImageDimensionsStore(fileURL: Self.makeTempDimensionsURL())
+    let dataStore = StubDataStore()
+
+    let prefetcher = InlineImagePrefetcher(
+      imageCache: imageCache,
+      linkPreviewCache: linkCache,
+      dimensionsStore: store,
+      dataStore: dataStore
+    )
+
+    await prefetcher.prefetch(
+      urlsIn: "image https://example.com/cat.png and article https://example.com/article",
+      isChannelMessage: false,
+      allowImageProbes: false
+    )
+
+    let probeCalls = await imageCache.probedURLs
+    let previewCalls = await linkCache.fetchedURLs
+    #expect(probeCalls.isEmpty)
+    #expect(previewCalls.map(\.absoluteString) == ["https://example.com/article"])
   }
 
   // MARK: - Parallel fan-out
@@ -75,7 +106,8 @@ struct InlineImagePrefetcherTests {
 
     await prefetcher.prefetch(
       urlsIn: "image https://example.com/cat.png and article https://example.com/article",
-      isChannelMessage: false
+      isChannelMessage: false,
+      allowImageProbes: true
     )
 
     let probeCalls = await imageCache.probedURLs
@@ -105,7 +137,8 @@ struct InlineImagePrefetcherTests {
 
     await prefetcher.prefetch(
       urlsIn: "look at https://example.com/cat.png",
-      isChannelMessage: false
+      isChannelMessage: false,
+      allowImageProbes: true
     )
 
     let probeCalls = await imageCache.probedURLs
@@ -130,7 +163,8 @@ struct InlineImagePrefetcherTests {
 
     await prefetcher.prefetch(
       urlsIn: "see https://example.com/cat.jpg then read https://news.example.com/post",
-      isChannelMessage: true
+      isChannelMessage: true,
+      allowImageProbes: true
     )
 
     let probeCalls = await imageCache.probedURLs
@@ -165,7 +199,8 @@ struct InlineImagePrefetcherTests {
 
     await prefetcher.prefetch(
       urlsIn: "look at \(hostingURL.absoluteString)",
-      isChannelMessage: false
+      isChannelMessage: false,
+      allowImageProbes: true
     )
 
     let probeCalls = await imageCache.probedURLs

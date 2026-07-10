@@ -239,6 +239,7 @@ struct AppBackupEnvelopeTests {
     prefs.linkPreviewsEnabled = true
     prefs.showIncomingRegion = true
     prefs.showIncomingSendTime = true
+    prefs.showInlineImages = false
 
     let data = try JSONEncoder().encode(prefs)
     let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
@@ -246,6 +247,7 @@ struct AppBackupEnvelopeTests {
     #expect(decoded == prefs)
     #expect(decoded.showIncomingRegion == true)
     #expect(decoded.showIncomingSendTime == true)
+    #expect(decoded.showInlineImages == false)
   }
 
   @Test
@@ -266,6 +268,57 @@ struct AppBackupEnvelopeTests {
     let setKeys = decoded.restore(to: defaults)
     #expect(!setKeys.contains(key))
     #expect(defaults.object(forKey: key) == nil)
+  }
+
+  @Test
+  func `showInlineImages survives restore and never reconstructs the master`() throws {
+    // showInlineImages is retained in the wire format but no longer read as a
+    // gate. It must survive encode -> decode -> restore, and restoring an
+    // envelope that carries it must never set linkPreviewsEnabled (the master
+    // is not reconstructed from the image toggle).
+    let imagesKey = AppStorageKey.showInlineImages.rawValue
+    let masterKey = AppStorageKey.linkPreviewsEnabled.rawValue
+
+    var prefs = BackupUserDefaults()
+    prefs.showInlineImages = false
+
+    let data = try JSONEncoder().encode(prefs)
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.showInlineImages == false)
+    #expect(decoded.linkPreviewsEnabled == nil)
+
+    let suiteName = "test.showInlineImages.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let setKeys = decoded.restore(to: defaults)
+    #expect(setKeys.contains(imagesKey))
+    #expect(defaults.bool(forKey: imagesKey) == false)
+    #expect(!setKeys.contains(masterKey))
+    #expect(defaults.object(forKey: masterKey) == nil)
+  }
+
+  @Test
+  func `Legacy envelope without showInlineImages decodes to nil and restore skips it`() throws {
+    // A backup predating the collapse omits the key. decodeIfPresent must yield
+    // nil, restore must not write it, and the master must stay untouched.
+    let legacyJSON = "{\"hasCompletedOnboarding\":true}"
+    let data = Data(legacyJSON.utf8)
+
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.showInlineImages == nil)
+
+    let suiteName = "test.legacyShowInlineImages.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let imagesKey = AppStorageKey.showInlineImages.rawValue
+    let masterKey = AppStorageKey.linkPreviewsEnabled.rawValue
+    let setKeys = decoded.restore(to: defaults)
+    #expect(!setKeys.contains(imagesKey))
+    #expect(defaults.object(forKey: imagesKey) == nil)
+    #expect(!setKeys.contains(masterKey))
+    #expect(defaults.object(forKey: masterKey) == nil)
   }
 
   // MARK: - AppBackupError descriptions
