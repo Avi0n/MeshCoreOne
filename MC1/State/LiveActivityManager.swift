@@ -15,6 +15,12 @@ final class LiveActivityManager {
   /// to `false` so a missing wiring fails closed.
   var connectionStateProvider: (@MainActor () -> Bool)?
 
+  /// Returns the radioID of the currently connected radio, or `nil` when
+  /// disconnected. Lets the stale observer restore a connected activity only
+  /// when the live radio still matches the one the activity represents, so a
+  /// connection to a different radio can't relabel a stale activity.
+  var connectedRadioIDProvider: (@MainActor () -> UUID?)?
+
   private var currentActivity: Activity<MeshStatusAttributes>?
   private var decayTimer: Task<Void, Never>?
   private var disconnectTimer: Task<Void, Never>?
@@ -392,6 +398,21 @@ final class LiveActivityManager {
             // Force the disconnect path instead of refreshing.
             logger.warning("Stale Live Activity cached connected but radio disconnected — forcing handleConnectionLost")
             await handleConnectionLost()
+          } else if !currentState.isConnected,
+                    let activityRadioID = activity.attributes.radioID,
+                    let connectedRadioID = connectedRadioIDProvider?(),
+                    activityRadioID == connectedRadioID {
+            // LA cached as disconnected, but the same radio is actually
+            // connected. A background reconnect restored the link with no
+            // runtime to update. Restore connected, since handleConnectionReady
+            // may not fire until the app foregrounds.
+            logger.warning("Stale Live Activity cached disconnected but radio connected — restoring connected state")
+            disconnectTimer?.cancel()
+            disconnectTimer = nil
+            recentPacketTimestamps = []
+            clearPendingUpdate()
+            await updateActivity(isConnected: true, disconnectedDate: .some(nil))
+            startDecayTimer()
           } else if currentState.isConnected, currentState.packetsPerMinute > 0 {
             logger.debug("Live Activity stale with active rate, resetting to 0")
             recentPacketTimestamps = []

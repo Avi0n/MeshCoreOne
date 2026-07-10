@@ -70,6 +70,11 @@ final class BLEReconnectionCoordinator {
     activeCycle = ReconnectCycle(deviceID: deviceID, generation: reconnectGeneration, uiTimedOut: false)
     reconnectUIWindowStart = Date()
 
+    // Reflect the drop before teardown so the Live Activity write runs at the
+    // front of the bounded disconnect wake window, not behind session teardown.
+    // The reconnect cycle is already claimed, so this can't strand a completion.
+    await delegate.notifyAutoReconnectStarted()
+
     // Tear down session layer (it's invalid now)
     await delegate.teardownSessionForReconnect()
 
@@ -265,6 +270,10 @@ protocol BLEReconnectionDelegate: AnyObject {
 
   /// Disconnects the BLE transport (used when user disconnected during reconnect).
   func disconnectTransport() async
+
+  /// Notifies the UI layer that the link dropped and iOS auto-reconnect has begun,
+  /// after the cycle is claimed and before session teardown.
+  func notifyAutoReconnectStarted() async
 
   /// Notifies the UI layer of connection loss.
   func notifyConnectionLost() async

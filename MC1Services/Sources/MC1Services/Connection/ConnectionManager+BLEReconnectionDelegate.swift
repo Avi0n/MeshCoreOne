@@ -235,6 +235,10 @@ extension ConnectionManager: BLEReconnectionDelegate {
     await transport.disconnect()
   }
 
+  func notifyAutoReconnectStarted() async {
+    await onAutoReconnectStarted?()
+  }
+
   func notifyConnectionLost() async {
     await onConnectionLost?()
     // Reaching UI connection-loss while intent still wants a connection means

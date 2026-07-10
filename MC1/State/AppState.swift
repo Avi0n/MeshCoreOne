@@ -360,6 +360,14 @@ final class AppState {
       self?.connectionState.isConnected ?? false
     }
 
+    // Live radioID for the stale-activity self-heal. Gated on the same
+    // transport-link predicate as `connectionStateProvider`, so it returns a
+    // radioID only while genuinely connected, never mid-reconnect.
+    liveActivityManager.connectedRadioIDProvider = { [weak self] in
+      guard let self, self.connectionState.isConnected else { return nil }
+      return self.connectedDevice?.radioID
+    }
+
     // Wire app state provider for incremental sync support
     connectionManager.appStateProvider = AppStateProviderImpl()
 
@@ -371,6 +379,12 @@ final class AppState {
     // Wire connection lost callback - updates UI when connection is lost
     connectionManager.onConnectionLost = { [weak self] in
       await self?.wireServicesIfConnected()
+    }
+
+    // Wire auto-reconnect entry callback - reflects an out-of-range drop on the
+    // Live Activity immediately, while connectionState is still .connecting.
+    connectionManager.onAutoReconnectStarted = { [weak self] in
+      await self?.liveActivityManager.handleConnectionLost()
     }
 
     // Wire background auth-failure callback - surfaces guided pairing-failure

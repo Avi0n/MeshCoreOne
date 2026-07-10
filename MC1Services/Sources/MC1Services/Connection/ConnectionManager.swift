@@ -178,6 +178,15 @@ public final class ConnectionManager {
   /// Installed by `AppState` during initialization.
   public var onConnectionLost: (() async -> Void)?
 
+  /// Called when a live link drops and iOS auto-reconnect begins;
+  /// `connectionState` stays `.connecting` and `onConnectionLost` fires only if
+  /// the reconnect is later lost or given up. Fires after the reconnect cycle is
+  /// claimed and before session teardown, inside the CoreBluetooth disconnect
+  /// wake window, so the Live Activity reflects the loss ahead of the heavy
+  /// teardown work and before the app suspends.
+  /// Installed by `AppState` during initialization.
+  public var onAutoReconnectStarted: (() async -> Void)?
+
   /// Called when a background reconnect attempt fails because the peer
   /// invalidated its bond. Use this to present guided pairing-failure recovery,
   /// since the watchdog will otherwise keep retrying a bond that can't heal itself.

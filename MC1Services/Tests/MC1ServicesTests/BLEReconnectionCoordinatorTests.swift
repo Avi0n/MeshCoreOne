@@ -45,6 +45,28 @@ struct BLEReconnectionCoordinatorTests {
   }
 
   @Test
+  func `entering auto-reconnect notifies the loss before tearing down the session`() async {
+    let (coordinator, delegate) = createCoordinator()
+    delegate.connectionIntent = .wantsConnection()
+
+    await coordinator.handleEnteringAutoReconnect(deviceID: UUID())
+
+    #expect(delegate.notifyAutoReconnectStartedCallCount == 1)
+    #expect(delegate.callOrder == ["notifyAutoReconnectStarted", "teardown"])
+  }
+
+  @Test
+  func `entering auto-reconnect does not notify the loss when the user disconnected`() async {
+    let (coordinator, delegate) = createCoordinator()
+    delegate.connectionIntent = .userDisconnected
+    delegate.connectionState = .disconnected
+
+    await coordinator.handleEnteringAutoReconnect(deviceID: UUID())
+
+    #expect(delegate.notifyAutoReconnectStartedCallCount == 0)
+  }
+
+  @Test
   func `entering auto-reconnect is ignored when intent is .userDisconnected`() async {
     let (coordinator, delegate) = createCoordinator()
     delegate.connectionIntent = .userDisconnected
@@ -519,7 +541,11 @@ private final class MockReconnectionDelegate: BLEReconnectionDelegate {
   var rebuildSessionShouldThrow = false
   var disconnectTransportCallCount = 0
   var notifyConnectionLostCallCount = 0
+  var notifyAutoReconnectStartedCallCount = 0
   var handleReconnectionFailureCallCount = 0
+  /// Records delegate calls in order so tests can assert the auto-reconnect
+  /// notification lands before session teardown.
+  private(set) var callOrder: [String] = []
   var connectedDeviceWasCleared = false
   var stubbedBLEPhaseIsAutoReconnecting = false
   /// Runs inside `isTransportAutoReconnecting()` so tests can interleave work
@@ -538,6 +564,12 @@ private final class MockReconnectionDelegate: BLEReconnectionDelegate {
 
   func teardownSessionForReconnect() async {
     teardownSessionCallCount += 1
+    callOrder.append("teardown")
+  }
+
+  func notifyAutoReconnectStarted() async {
+    notifyAutoReconnectStartedCallCount += 1
+    callOrder.append("notifyAutoReconnectStarted")
   }
 
   func rebuildSession(deviceID: UUID) async throws {
