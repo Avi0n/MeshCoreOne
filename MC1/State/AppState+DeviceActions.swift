@@ -70,8 +70,12 @@ extension AppState {
     }
   }
 
-  /// Called by View when scenePhase becomes active and shouldShowPickerOnForeground is true
+  /// Called by View when scenePhase becomes active.
   func handleBecameActive() {
+    // Clear the auth-failure latch so a still-invalid bond re-surfaces fresh
+    // from the foreground reconnect instead of staying silenced from background.
+    connectionManager.clearSurfacedAuthenticationFailure()
+
     if connectionUI.shouldShowPickerOnForeground {
       connectionUI.shouldShowPickerOnForeground = false
       startDeviceScan()

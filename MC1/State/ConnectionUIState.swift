@@ -325,6 +325,16 @@ final class ConnectionUIState {
     showingConnectionFailedAlert = true
   }
 
+  /// Clears every field of the pairing-failure alert so a stale "Couldn't Pair"
+  /// cannot present once a connection has succeeded.
+  func clearPairingFailure() {
+    showingConnectionFailedAlert = false
+    connectionFailedTitle = nil
+    connectionFailedMessage = nil
+    pairingFailureKind = nil
+    failedPairingDeviceID = nil
+  }
+
   /// Routes a PairingError to the correct alert so every catch site produces
   /// identical UX across the three pairing-failure paths.
   func presentPairingFailure(_ error: PairingError) {

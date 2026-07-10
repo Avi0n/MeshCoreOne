@@ -388,9 +388,13 @@ final class AppState {
     }
 
     // Wire background auth-failure callback - surfaces guided pairing-failure
-    // recovery when an opportunistic reconnect finds the bond invalidated
+    // recovery when an opportunistic reconnect finds the bond invalidated, but
+    // only while active so a backgrounded failure can't latch a stale alert.
     connectionManager.onAuthenticationFailure = { [weak self] deviceID in
-      self?.connectionUI.presentPairingFailure(.connectionFailed(deviceID: deviceID, underlying: BLEError.authenticationFailed))
+      self?.handleAuthenticationFailure(
+        deviceID: deviceID,
+        isAppActive: UIApplication.shared.applicationState == .active
+      )
     }
 
     // Wire device synced callback - runs after sync completes and state is .ready
@@ -474,6 +478,14 @@ final class AppState {
     navigation.clearPendingLinks()
   }
 
+  /// Presents the guided pairing-failure recovery for an invalidated bond, only
+  /// while the app is active: a backgrounded failure must not latch a stale alert
+  /// for the next foreground, where the reconnect re-surfaces it fresh if still bad.
+  func handleAuthenticationFailure(deviceID: UUID, isAppActive: Bool) {
+    guard isAppActive else { return }
+    connectionUI.presentPairingFailure(.connectionFailed(deviceID: deviceID, underlying: BLEError.authenticationFailed))
+  }
+
   /// Wire services-dependent callbacks after a successful connection.
   func wireServicesIfConnected() async {
     guard let services else {
@@ -491,6 +503,10 @@ final class AppState {
       lastBumpedServicesID = nil
       return
     }
+
+    // The link is up, so drop any pairing-failure alert latched while
+    // backgrounded before it can present over a working connection.
+    connectionUI.clearPairingFailure()
 
     // Wire ConnectionUI callbacks (sync activity, node storage, pills, VoiceOver)
     // Must be set before onConnectionEstablished to avoid a race condition

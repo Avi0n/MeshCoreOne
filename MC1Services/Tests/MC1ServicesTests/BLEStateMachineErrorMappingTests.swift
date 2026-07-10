@@ -25,11 +25,14 @@ struct BLEStateMachineErrorMappingTests {
   }
 
   @Test
-  func `CBError.encryptionTimedOut maps to BLEError.authenticationFailed`() {
+  func `CBError.encryptionTimedOut maps to .connectionFailed, not authenticationFailed`() {
+    // A single encryption timeout is transient (a backgrounded auto-reconnect
+    // races iOS re-establishing the bond); only a definitive auth code, or a
+    // majority of an exhausted retry budget, means a truly invalidated bond.
     let nsError = NSError(domain: CBErrorDomain, code: CBError.encryptionTimedOut.rawValue)
     let result = BLEStateMachine.makeConnectionError(nsError)
-    guard case BLEError.authenticationFailed = result else {
-      Issue.record("Expected .authenticationFailed, got \(result)")
+    guard case BLEError.connectionFailed = result else {
+      Issue.record("Expected .connectionFailed, got \(result)")
       return
     }
   }

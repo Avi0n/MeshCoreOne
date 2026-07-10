@@ -166,6 +166,12 @@ public final class ConnectionManager {
     onAuthenticationFailure?(deviceID)
   }
 
+  /// Clears the auth-failure surfacing latch so the next failure episode for the
+  /// same device re-presents the guided recovery.
+  public func clearSurfacedAuthenticationFailure() {
+    surfacedAuthFailureDeviceID = nil
+  }
+
   // MARK: - Callbacks
 
   /// Called when connection is ready and services are available.

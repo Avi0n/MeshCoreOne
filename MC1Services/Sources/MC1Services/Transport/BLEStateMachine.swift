@@ -58,6 +58,20 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// genuinely wedged-but-connected link still tears down eventually.
   static let maxDiscoveryTimeoutExtensions = 2
 
+  /// Max consecutive `didFailToConnect` callbacks tolerated within one
+  /// auto-reconnect episode before the machine gives up and notifies loss.
+  /// Bounds re-arming so a radio that fast-rejects every connect cannot spin here.
+  static let maxAutoReconnectConnectFailures = 5
+
+  /// Consecutive `didFailToConnect` callbacks in the current auto-reconnect
+  /// episode. Reset when a link is re-established and when the episode ends.
+  var autoReconnectConnectFailures = 0
+
+  /// How many of `autoReconnectConnectFailures` carried `CBError.encryptionTimedOut`.
+  /// A majority routes an exhausted episode to guided re-pair, since repeated
+  /// encryption timeouts are the ambiguous in-app signature of an invalidated bond.
+  var encryptionTimedOutConnectFailures = 0
+
   /// Expose current phase for testing
   var currentPhase: BLEPhase {
     phase
@@ -71,6 +85,11 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// Expose the per-generation discovery-extension count for testing
   var currentDiscoveryTimeoutExtensions: Int {
     discoveryTimeoutExtensions
+  }
+
+  /// Expose the auto-reconnect connect-failure tally for testing
+  var currentAutoReconnectConnectFailures: Int {
+    autoReconnectConnectFailures
   }
 
   // MARK: - CoreBluetooth
@@ -280,6 +299,13 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     connectionGenerationStartTime = CFAbsoluteTimeGetCurrent()
     discoveryTimeoutExtensions = 0
     discoveryCompleteTeardownError = nil
+  }
+
+  /// Clears the auto-reconnect connect-failure tally. Called when a link is
+  /// re-established and when an episode ends, so the next episode starts fresh.
+  func resetAutoReconnectFailureTracking() {
+    autoReconnectConnectFailures = 0
+    encryptionTimedOutConnectFailures = 0
   }
 
   /// Returns true when a disconnect callback's timestamp predates the current generation boundary.

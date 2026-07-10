@@ -104,6 +104,24 @@ struct ConnectionManagerAuthFailureRoutingTests {
     #expect(surfaced == [deviceID, deviceID])
   }
 
+  @Test
+  func `clearing the surfaced-auth latch lets the same device re-alert`() async throws {
+    let env = try ConnectionManager.createForPairingTesting()
+    defer { env.cleanup() }
+    let deviceID = UUID()
+    var surfaced: [UUID] = []
+    env.manager.onAuthenticationFailure = { surfaced.append($0) }
+
+    await env.manager.handleConnectionLoss(deviceID: deviceID, error: BLEError.authenticationFailed)
+    #expect(surfaced == [deviceID])
+
+    // The foreground path clears the latch so a still-invalid bond re-surfaces
+    // fresh from the foreground reconnect attempt.
+    env.manager.clearSurfacedAuthenticationFailure()
+    await env.manager.handleConnectionLoss(deviceID: deviceID, error: BLEError.authenticationFailed)
+    #expect(surfaced == [deviceID, deviceID])
+  }
+
   // MARK: - attemptOpportunisticReconnect
 
   @Test
