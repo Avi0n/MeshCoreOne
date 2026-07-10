@@ -59,26 +59,31 @@ struct RadioMetricCharts<ChartContainer: View, PacketSection: View>: View {
       s.postPushCount.map { MetricChartView.DataPoint(id: s.id, date: s.timestamp, value: Double($0)) }
     }
 
-    // Sent, Received and Duplicates overlay Direct/Flood on a shared scale; Errors is
-    // single-series on its own auto range. The Packets header supplies the shared noun so
-    // the leaves stay short. Empty charts drop out, and the whole group is skipped if none
-    // carry data.
+    // Every packet chart shares one Y-axis domain spanning all series, so a user can see at
+    // a glance which counter is climbing fastest.
+    let packetDomain = [MetricChartView.DataPoint].sharedDomain(for: [
+      sentDirectPoints, sentFloodPoints,
+      receivedDirectPoints, receivedFloodPoints,
+      directDuplicatePoints, floodDuplicatePoints,
+      receiveErrorPoints,
+    ])
     let packetCharts: [MetricChartView] = [
       overlaySeriesChart(
         title: L10n.RemoteNodes.RemoteNodes.History.packetsSent,
-        direct: sentDirectPoints, flood: sentFloodPoints
+        direct: sentDirectPoints, flood: sentFloodPoints, yAxisDomain: packetDomain
       ),
       overlaySeriesChart(
         title: L10n.RemoteNodes.RemoteNodes.History.packetsReceived,
-        direct: receivedDirectPoints, flood: receivedFloodPoints
+        direct: receivedDirectPoints, flood: receivedFloodPoints, yAxisDomain: packetDomain
       ),
       overlaySeriesChart(
         title: L10n.RemoteNodes.RemoteNodes.History.duplicates,
-        direct: directDuplicatePoints, flood: floodDuplicatePoints
+        direct: directDuplicatePoints, flood: floodDuplicatePoints, yAxisDomain: packetDomain
       ),
       receiveErrorPoints.isEmpty ? nil : MetricChartView(
         title: L10n.RemoteNodes.RemoteNodes.History.receiveErrors, unit: "",
-        dataPoints: receiveErrorPoints, accentColor: .red
+        dataPoints: receiveErrorPoints, accentColor: .red,
+        yAxisDomain: packetDomain
       ),
     ].compactMap(\.self)
 
@@ -133,18 +138,19 @@ struct RadioMetricCharts<ChartContainer: View, PacketSection: View>: View {
   }
 
   /// An overlaid Direct/Flood packet chart, or nil when neither series carries data.
-  /// Empty series are dropped; the shared Y-axis domain still spans both so an all-flood
-  /// and an all-direct chart read on the same scale.
+  /// Empty series are dropped. The caller passes the domain shared across every packet
+  /// chart so they all read on one scale.
   private func overlaySeriesChart(
     title: String,
     direct: [MetricChartView.DataPoint],
-    flood: [MetricChartView.DataPoint]
+    flood: [MetricChartView.DataPoint],
+    yAxisDomain: ClosedRange<Double>?
   ) -> MetricChartView? {
     let series = directFloodSeries(direct: direct, flood: flood).filter { !$0.dataPoints.isEmpty }
     guard !series.isEmpty else { return nil }
     return MetricChartView(
       title: title, unit: "", series: series,
-      yAxisDomain: [MetricChartView.DataPoint].sharedDomain(for: [direct, flood])
+      yAxisDomain: yAxisDomain
     )
   }
 }
