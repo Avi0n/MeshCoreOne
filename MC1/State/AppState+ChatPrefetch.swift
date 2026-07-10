@@ -50,7 +50,6 @@ extension AppState {
       && !(conversation?.suppressesMapPreviews ?? false)
 
     return EnvInputs(
-      showInlineImages: bool(.showInlineImages, AppStorageKey.defaultShowInlineImages),
       autoPlayGIFs: bool(.autoPlayGIFs, AppStorageKey.defaultAutoPlayGIFs),
       showIncomingPath: bool(.showIncomingPath, AppStorageKey.defaultShowIncomingPath),
       showIncomingHopCount: bool(.showIncomingHopCount, AppStorageKey.defaultShowIncomingHopCount),
