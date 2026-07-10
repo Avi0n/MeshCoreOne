@@ -271,13 +271,13 @@ struct AppBackupEnvelopeTests {
   }
 
   @Test
-  func `showInlineImages survives restore and never reconstructs the master`() throws {
+  func `showInlineImages survives restore and never reconstructs the link-content toggle`() throws {
     // showInlineImages is retained in the wire format but no longer read as a
     // gate. It must survive encode -> decode -> restore, and restoring an
-    // envelope that carries it must never set linkPreviewsEnabled (the master
+    // envelope that carries it must never set linkPreviewsEnabled (the toggle
     // is not reconstructed from the image toggle).
     let imagesKey = AppStorageKey.showInlineImages.rawValue
-    let masterKey = AppStorageKey.linkPreviewsEnabled.rawValue
+    let linkPreviewsEnabledKey = AppStorageKey.linkPreviewsEnabled.rawValue
 
     var prefs = BackupUserDefaults()
     prefs.showInlineImages = false
@@ -294,14 +294,15 @@ struct AppBackupEnvelopeTests {
     let setKeys = decoded.restore(to: defaults)
     #expect(setKeys.contains(imagesKey))
     #expect(defaults.bool(forKey: imagesKey) == false)
-    #expect(!setKeys.contains(masterKey))
-    #expect(defaults.object(forKey: masterKey) == nil)
+    #expect(!setKeys.contains(linkPreviewsEnabledKey))
+    #expect(defaults.object(forKey: linkPreviewsEnabledKey) == nil)
   }
 
   @Test
   func `Legacy envelope without showInlineImages decodes to nil and restore skips it`() throws {
     // A backup predating the collapse omits the key. decodeIfPresent must yield
-    // nil, restore must not write it, and the master must stay untouched.
+    // nil, restore must not write it, and the link-content toggle must stay
+    // untouched.
     let legacyJSON = "{\"hasCompletedOnboarding\":true}"
     let data = Data(legacyJSON.utf8)
 
@@ -313,12 +314,12 @@ struct AppBackupEnvelopeTests {
     defer { defaults.removePersistentDomain(forName: suiteName) }
 
     let imagesKey = AppStorageKey.showInlineImages.rawValue
-    let masterKey = AppStorageKey.linkPreviewsEnabled.rawValue
+    let linkPreviewsEnabledKey = AppStorageKey.linkPreviewsEnabled.rawValue
     let setKeys = decoded.restore(to: defaults)
     #expect(!setKeys.contains(imagesKey))
     #expect(defaults.object(forKey: imagesKey) == nil)
-    #expect(!setKeys.contains(masterKey))
-    #expect(defaults.object(forKey: masterKey) == nil)
+    #expect(!setKeys.contains(linkPreviewsEnabledKey))
+    #expect(defaults.object(forKey: linkPreviewsEnabledKey) == nil)
   }
 
   // MARK: - AppBackupError descriptions
