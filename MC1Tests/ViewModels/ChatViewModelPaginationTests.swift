@@ -140,6 +140,7 @@ private func envInputsChangingAppearance() -> EnvInputs {
     contentSizeCategory: base.contentSizeCategory
   )
 }
+
 // MARK: - Pagination Tests
 
 @Suite("ChatViewModel Pagination Tests")

@@ -479,7 +479,9 @@ struct ChatConversationView: View {
       switch conversationType {
       case let .dm(contact):
         let ids = try await dataStore.fetchUnseenMentionIDs(contactID: contact.id)
-        for id in ids { try await dataStore.markMentionSeen(messageID: id) }
+        for id in ids {
+          try await dataStore.markMentionSeen(messageID: id)
+        }
         try await dataStore.clearUnreadMentionCount(contactID: contact.id)
 
       case let .channel(channel):
@@ -487,7 +489,9 @@ struct ChatConversationView: View {
           radioID: channel.radioID,
           channelIndex: channel.index
         )
-        for id in ids { try await dataStore.markMentionSeen(messageID: id) }
+        for id in ids {
+          try await dataStore.markMentionSeen(messageID: id)
+        }
         try await dataStore.clearChannelUnreadMentionCount(channelID: channel.id)
       }
       parentViewModel?.requestConversationReload()
