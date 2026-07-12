@@ -11,8 +11,8 @@ public protocol DebugLogPersisting: Actor {
   /// Count all debug log entries
   func countDebugLogEntries() async throws -> Int
 
-  /// Prune debug log entries, keeping only the most recent
-  func pruneDebugLogEntries(keepCount: Int) async throws
+  /// Prune debug log entries older than the cutoff, then enforce a hard row ceiling
+  func pruneDebugLogEntries(olderThan cutoff: Date, keepCount: Int) async throws
 
   /// Clear all debug log entries
   func clearDebugLogEntries() async throws
