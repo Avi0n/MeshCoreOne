@@ -43,7 +43,7 @@ struct BatchTraceStateTests {
     let viewModel = TracePathViewModel()
 
     #expect(viewModel.batchEnabled == false)
-    #expect(viewModel.batchSize == 5)
+    #expect(viewModel.batchSize == 3)
     #expect(viewModel.currentTraceIndex == 0)
     #expect(viewModel.completedResults.isEmpty)
     #expect(viewModel.isBatchInProgress == false)
