@@ -9,9 +9,9 @@ struct ScrollToDividerButton: View {
       Image(systemName: "chevron.up")
         .font(.body.bold())
         .frame(width: 44, height: 44)
+        .contentShape(.circle)
     }
     .buttonStyle(.plain)
-    .contentShape(.circle)
     .liquidGlassInteractive(in: .circle)
     .accessibilityLabel(L10n.Chats.Chats.ScrollButton.ScrollToDivider.accessibilityLabel)
     .accessibilityHint(L10n.Chats.Chats.ScrollButton.ScrollToDivider.accessibilityHint)

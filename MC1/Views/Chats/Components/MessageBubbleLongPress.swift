@@ -37,6 +37,9 @@ extension View {
   /// pan and a quick tap falls through to a native `Text` link. A raw gesture
   /// (`.gesture`/`.simultaneousGesture`/`.highPriorityGesture`) reserves the touch
   /// and breaks either scrolling or link taps.
+  ///
+  /// On Mac a secondary (right) click fires the same action, since the tiled-view
+  /// backend no longer supplies a context-menu interaction to route it through.
   func messageBubbleLongPressGesture(
     isPressing: Binding<Bool>,
     trigger: Binding<Int>,
@@ -50,6 +53,7 @@ extension View {
       },
       onPressingChanged: { isPressing.wrappedValue = $0 }
     )
+    .onSecondaryClick(perform: onFire)
   }
 
   /// Renders the press-in shrink and haptic for a message bubble. Apply once to
