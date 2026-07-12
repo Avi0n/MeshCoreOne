@@ -501,9 +501,11 @@ extension BLEStateMachine {
       }
 
       guard let service = peripheral.services?.first(where: { $0.uuid == nordicUARTServiceUUID }) else {
-        logger.warning("Auto-reconnect: service not found")
-        transition(to: .idle)
-        onDisconnection?(expected.identifier, nil)
+        // The GATT on this device is static, so an empty result with no error is an
+        // iOS delivery artifact. Dropping to .idle would let the next didConnect be
+        // cancelled as unexpected, destroying iOS's standing auto-reconnect; hold the
+        // phase and let the armed discovery timeout bound the stall.
+        logger.warning("Auto-reconnect: service not found; holding auto-reconnect")
         return
       }
 
@@ -558,9 +560,9 @@ extension BLEStateMachine {
       guard let characteristics = service.characteristics,
             let tx = characteristics.first(where: { $0.uuid == txCharacteristicUUID }),
             let rx = characteristics.first(where: { $0.uuid == rxCharacteristicUUID }) else {
-        logger.warning("Auto-reconnect: characteristics not found")
-        transition(to: .idle)
-        onDisconnection?(expected.identifier, nil)
+        // Static GATT: a partial result with no error is an iOS artifact. Hold the
+        // phase so the standing auto-reconnect survives; the discovery timeout bounds it.
+        logger.warning("Auto-reconnect: characteristics not found; holding auto-reconnect")
         return
       }
 
@@ -666,16 +668,15 @@ extension BLEStateMachine {
     }
 
     guard characteristic.isNotifying else {
-      logger.warning("[BLE] Auto-reconnect: notification subscription completed without isNotifying=true")
-      transition(to: .idle)
-      onDisconnection?(peripheral.identifier, nil)
+      // No error and not notifying is an iOS artifact on this static GATT. Hold the
+      // phase so the standing auto-reconnect survives; the discovery timeout bounds it.
+      logger.warning("[BLE] Auto-reconnect: notification subscription completed without isNotifying=true; holding auto-reconnect")
       return
     }
 
     guard let tx, let rx else {
-      logger.error("Auto-reconnect: tx/rx characteristics missing from phase")
-      transition(to: .idle)
-      onDisconnection?(peripheral.identifier, nil)
+      // Same invariant: dropping to .idle here would get the next didConnect cancelled.
+      logger.error("Auto-reconnect: tx/rx characteristics missing from phase; holding auto-reconnect")
       return
     }
 
