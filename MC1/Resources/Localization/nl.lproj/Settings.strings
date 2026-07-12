@@ -674,7 +674,7 @@
 "diagnostics.clearLogs" = "Debuglogboeken wissen";
 
 /* Footer explaining log export */
-"diagnostics.footer" = "Export bevat debuglogboeken van de afgelopen 24 uur over app-sessies. Logboeken worden lokaal opgeslagen en automatisch opgeschoond.";
+"diagnostics.footer" = "Export bevat debuglogboeken van alle app-sessies. Logboeken worden lokaal opgeslagen en na 7 dagen automatisch verwijderd.";
 
 /* Alert title for clear logs confirmation */
 "diagnostics.alert.clear.title" = "Debuglogboeken wissen";

@@ -660,7 +660,7 @@
 "diagnostics.clearLogs" = "清除调试日志";
 
 /* Footer explaining log export */
-"diagnostics.footer" = "导出包括跨应用会话的最后 24 小时的调试日志。日志本地存储并自动清理。";
+"diagnostics.footer" = "导出包括所有应用会话的调试日志。日志本地存储，并在 7 天后自动删除。";
 
 /* Alert title for clear logs confirmation */
 "diagnostics.alert.clear.title" = "清除调试日志";

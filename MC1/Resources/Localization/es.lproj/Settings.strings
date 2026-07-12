@@ -674,7 +674,7 @@
 "diagnostics.clearLogs" = "Borrar registros de depuración";
 
 /* Footer explaining log export */
-"diagnostics.footer" = "La exportación incluye registros de depuración de las últimas 24 horas de todas las sesiones de la app. Los registros se almacenan localmente y se eliminan automáticamente.";
+"diagnostics.footer" = "La exportación incluye registros de depuración de todas las sesiones de la app. Los registros se almacenan localmente y se eliminan automáticamente después de 7 días.";
 
 /* Alert title for clear logs confirmation */
 "diagnostics.alert.clear.title" = "Borrar registros de depuración";

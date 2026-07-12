@@ -674,7 +674,7 @@
 "diagnostics.clearLogs" = "Wyczyść logi debugowania";
 
 /* Footer explaining log export */
-"diagnostics.footer" = "Eksport zawiera logi debugowania z ostatnich 24 godzin ze wszystkich sesji aplikacji. Logi są przechowywane lokalnie i automatycznie czyszczone.";
+"diagnostics.footer" = "Eksport zawiera logi debugowania ze wszystkich sesji aplikacji. Logi są przechowywane lokalnie i automatycznie usuwane po 7 dniach.";
 
 /* Alert title for clear logs confirmation */
 "diagnostics.alert.clear.title" = "Wyczyść logi debugowania";

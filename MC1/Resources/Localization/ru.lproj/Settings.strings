@@ -674,7 +674,7 @@
 "diagnostics.clearLogs" = "Очистить отладочные логи";
 
 /* Footer explaining log export */
-"diagnostics.footer" = "Экспорт включает отладочные логи за последние 24 часа по всем сессиям приложения. Логи хранятся локально и автоматически очищаются.";
+"diagnostics.footer" = "Экспорт включает отладочные логи по всем сессиям приложения. Логи хранятся локально и автоматически удаляются через 7 дней.";
 
 /* Alert title for clear logs confirmation */
 "diagnostics.alert.clear.title" = "Очистить отладочные логи";
