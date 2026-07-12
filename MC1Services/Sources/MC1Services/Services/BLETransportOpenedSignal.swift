@@ -6,69 +6,68 @@ import Foundation
 /// cancelled before `fire()` lands; callers handle the throw with the
 /// same logic as a timeout (park the envelope, requeue).
 actor BLETransportOpenedSignal {
+  private struct Waiter {
+    let id: UInt64
+    let continuation: CheckedContinuation<Void, Error>
+  }
 
-    private struct Waiter {
-        let id: UInt64
-        let continuation: CheckedContinuation<Void, Error>
+  private var armed: Bool = false
+  private var waiters: [Waiter] = []
+  private var nextWaiterID: UInt64 = 0
+
+  init() {}
+
+  /// Suspend until `fire()` lands. If the signal is already armed at
+  /// call time, the call returns immediately and consumes the armed
+  /// flag. Throws `CancellationError` if the calling task is cancelled
+  /// before the signal fires.
+  func wait() async throws {
+    if armed {
+      armed = false
+      return
     }
-
-    private var armed: Bool = false
-    private var waiters: [Waiter] = []
-    private var nextWaiterID: UInt64 = 0
-
-    init() {}
-
-    /// Suspend until `fire()` lands. If the signal is already armed at
-    /// call time, the call returns immediately and consumes the armed
-    /// flag. Throws `CancellationError` if the calling task is cancelled
-    /// before the signal fires.
-    func wait() async throws {
-        if armed {
-            armed = false
-            return
+    let waiterID = nextWaiterID
+    nextWaiterID &+= 1
+    try await withTaskCancellationHandler {
+      let _: Void = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+        if Task.isCancelled {
+          continuation.resume(throwing: CancellationError())
+          return
         }
-        let waiterID = nextWaiterID
-        nextWaiterID &+= 1
-        try await withTaskCancellationHandler {
-            let _: Void = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                if Task.isCancelled {
-                    continuation.resume(throwing: CancellationError())
-                    return
-                }
-                waiters.append(Waiter(id: waiterID, continuation: continuation))
-            }
-        } onCancel: {
-            Task { [weak self] in
-                await self?.handleCancellation(id: waiterID)
-            }
-        }
+        waiters.append(Waiter(id: waiterID, continuation: continuation))
+      }
+    } onCancel: {
+      Task { [weak self] in
+        await self?.handleCancellation(id: waiterID)
+      }
     }
+  }
 
-    /// Mark the signal as fired. Wakes every waiter; arms the flag for
-    /// the next `wait()` call if no waiters are currently suspended.
-    func fire() {
-        var anyResumed = false
-        for waiter in waiters {
-            waiter.continuation.resume()
-            anyResumed = true
-        }
-        waiters.removeAll()
-        if !anyResumed {
-            armed = true
-        }
+  /// Mark the signal as fired. Wakes every waiter; arms the flag for
+  /// the next `wait()` call if no waiters are currently suspended.
+  func fire() {
+    var anyResumed = false
+    for waiter in waiters {
+      waiter.continuation.resume()
+      anyResumed = true
     }
+    waiters.removeAll()
+    if !anyResumed {
+      armed = true
+    }
+  }
 
-    /// Drop any armed-pending state. Call sites: only after a successful
-    /// send, not before each attempt. The consume-on-wait semantic in
-    /// `wait()` already handles "fire landed during the previous attempt"
-    /// cleanly.
-    func clear() {
-        armed = false
-    }
+  /// Drop any armed-pending state. Call sites: only after a successful
+  /// send, not before each attempt. The consume-on-wait semantic in
+  /// `wait()` already handles "fire landed during the previous attempt"
+  /// cleanly.
+  func clear() {
+    armed = false
+  }
 
-    private func handleCancellation(id: UInt64) {
-        guard let index = waiters.firstIndex(where: { $0.id == id }) else { return }
-        let waiter = waiters.remove(at: index)
-        waiter.continuation.resume(throwing: CancellationError())
-    }
+  private func handleCancellation(id: UInt64) {
+    guard let index = waiters.firstIndex(where: { $0.id == id }) else { return }
+    let waiter = waiters.remove(at: index)
+    waiter.continuation.resume(throwing: CancellationError())
+  }
 }

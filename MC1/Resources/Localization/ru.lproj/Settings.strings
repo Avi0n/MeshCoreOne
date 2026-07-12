@@ -335,7 +335,7 @@
 "advancedRadio.repeatMode" = "Режим ретранслятора";
 
 /* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Создаёт локальный ретранслятор на выделенной частоте. Полезно для походов и удалённых районов. Допустимые частоты: 433, 869, 918 МГц.";
+"advancedRadio.repeatMode.footer" = "Создаёт локальный ретранслятор на выделенной частоте. Полезно для походов и удалённых районов. Допустимые частоты: 433, 869.495, 918 МГц.";
 
 
 /* Accessibility label for voltage text field - %d is the percentage level */
@@ -697,11 +697,11 @@
 
 // MARK: - Link Preview Settings Section
 
-/* Section header for link preview settings */
-"linkPreviews.header" = "Предпросмотр ссылок";
+/* Section header for link content settings */
+"linkPreviews.header" = "Содержимое ссылок";
 
-/* Toggle label for link previews */
-"linkPreviews.toggle" = "Предпросмотр ссылок";
+/* Toggle label for the link content master switch */
+"linkPreviews.toggle" = "Показывать содержимое ссылок";
 
 /* Toggle label for showing previews in DMs */
 "linkPreviews.showInDMs" = "Показывать в личных сообщениях";
@@ -709,8 +709,11 @@
 /* Toggle label for showing previews in channels */
 "linkPreviews.showInChannels" = "Показывать в каналах";
 
-/* Footer explaining link preview privacy implications */
-"linkPreviews.footer" = "Предпросмотр ссылок загружает данные из интернета, что может раскрыть ваш IP-адрес серверу, на котором размещена ссылка.";
+/* Footer explaining link content privacy implications */
+"linkPreviews.footer" = "Предпросмотры ссылок и изображения загружаются через интернет-соединение вашего телефона, а не через сеть mesh. Это может раскрыть ваш IP-адрес серверу, на котором размещено содержимое, и использовать мобильный трафик.";
+
+/* Footer note shown when Reduce Motion is enabled */
+"linkPreviews.reduceMotionNote" = "Уменьшение движения включено, поэтому GIF не будут воспроизводиться автоматически.";
 
 
 // MARK: - Node Settings Section
@@ -1259,14 +1262,8 @@
 /* Validation error: no empty channel slot left (param: channel name) */
 "configImport.error.noAvailableChannelSlot" = "Нет свободного слота канала для \"%@\"";
 
-/* Toggle label for inline images */
-"inlineImages.toggle" = "Встроенные изображения";
-
 /* Toggle label for auto-play GIFs */
 "inlineImages.autoPlayGifs" = "Автовоспроизведение GIF";
-
-/* Footer explaining inline image privacy implications */
-"inlineImages.footer" = "Загрузка изображений по URL-адресам может раскрыть ваш IP-адрес серверу, на котором размещено изображение.";
 
 // MARK: - Map Preview Settings Section
 

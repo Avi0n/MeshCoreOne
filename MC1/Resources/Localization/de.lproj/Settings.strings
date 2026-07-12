@@ -335,7 +335,7 @@
 "advancedRadio.repeatMode" = "Repeater-Modus";
 
 /* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Erstellt einen lokalen Repeater auf einer eigenen Frequenz. Nützlich beim Wandern und in abgelegenen Gebieten. Gültige Frequenzen: 433, 869, 918 MHz.";
+"advancedRadio.repeatMode.footer" = "Erstellt einen lokalen Repeater auf einer eigenen Frequenz. Nützlich beim Wandern und in abgelegenen Gebieten. Gültige Frequenzen: 433, 869.495, 918 MHz.";
 
 
 // MARK: - Path Hash Mode Section
@@ -697,11 +697,11 @@
 
 // MARK: - Link Preview Settings Section
 
-/* Section header for link preview settings */
-"linkPreviews.header" = "Linkvorschau";
+/* Section header for link content settings */
+"linkPreviews.header" = "Linkinhalte";
 
-/* Toggle label for link previews */
-"linkPreviews.toggle" = "Link-Vorschauen";
+/* Toggle label for the link content master switch */
+"linkPreviews.toggle" = "Linkinhalte anzeigen";
 
 /* Toggle label for showing previews in DMs */
 "linkPreviews.showInDMs" = "In Direktnachrichten anzeigen";
@@ -709,8 +709,11 @@
 /* Toggle label for showing previews in channels */
 "linkPreviews.showInChannels" = "In Kanälen anzeigen";
 
-/* Footer explaining link preview privacy implications */
-"linkPreviews.footer" = "Link-Vorschauen rufen Daten aus dem Web ab, was deine IP-Adresse dem Server offenbaren kann, der den Link hostet.";
+/* Footer explaining link content privacy implications */
+"linkPreviews.footer" = "Linkvorschauen und Bilder werden über die Internetverbindung deines Telefons geladen, nicht über das Mesh. Dabei kann deine IP-Adresse dem Server offenbart werden, der den Inhalt hostet, und es kann Mobilfunkdatenvolumen anfallen.";
+
+/* Footer note shown when Reduce Motion is enabled */
+"linkPreviews.reduceMotionNote" = "Bewegung reduzieren ist aktiviert, daher werden GIFs nicht automatisch abgespielt.";
 
 
 // MARK: - Node Settings Section
@@ -1259,14 +1262,8 @@
 /* Validation error: no empty channel slot left (param: channel name) */
 "configImport.error.noAvailableChannelSlot" = "Kein freier Kanalplatz für \"%@\" verfügbar";
 
-/* Toggle label for inline images */
-"inlineImages.toggle" = "Inline-Bilder";
-
 /* Toggle label for auto-play GIFs */
 "inlineImages.autoPlayGifs" = "GIFs automatisch abspielen";
-
-/* Footer explaining inline image privacy implications */
-"inlineImages.footer" = "Das Laden von Bildern über URLs kann Ihre IP-Adresse dem Server preisgeben, der das Bild hostet.";
 
 // MARK: - Map Preview Settings Section
 

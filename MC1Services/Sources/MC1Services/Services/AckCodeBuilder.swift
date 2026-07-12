@@ -37,22 +37,22 @@ private let ackCodeByteCount = 4
 ///   Cross-*message* collision is unaffected by the wrap and stays mitigated by
 ///   the per-radioID `dmQueue` serialization.
 enum AckCodeBuilder {
-    static func expectedAck(
-        timestamp: UInt32,
-        attempt: UInt8,
-        text: String,
-        senderPublicKey: Data
-    ) -> Data {
-        precondition(
-            attempt < 5,
-            "MessageServiceConfig caps maxAttempts at 5 (4 direct + 1 flood); attempt \(attempt) exceeds the index range and would over-wrap the & 0x03 ACK mask"
-        )
-        var input = Data()
-        var le = timestamp.littleEndian
-        withUnsafeBytes(of: &le) { input.append(contentsOf: $0) }
-        input.append(attempt & attemptMask)
-        input.append(contentsOf: text.utf8)
-        input.append(senderPublicKey)
-        return Data(SHA256.hash(data: input).prefix(ackCodeByteCount))
-    }
+  static func expectedAck(
+    timestamp: UInt32,
+    attempt: UInt8,
+    text: String,
+    senderPublicKey: Data
+  ) -> Data {
+    precondition(
+      attempt < 5,
+      "MessageServiceConfig caps maxAttempts at 5 (4 direct + 1 flood); attempt \(attempt) exceeds the index range and would over-wrap the & 0x03 ACK mask"
+    )
+    var input = Data()
+    var le = timestamp.littleEndian
+    withUnsafeBytes(of: &le) { input.append(contentsOf: $0) }
+    input.append(attempt & attemptMask)
+    input.append(contentsOf: text.utf8)
+    input.append(senderPublicKey)
+    return Data(SHA256.hash(data: input).prefix(ackCodeByteCount))
+  }
 }

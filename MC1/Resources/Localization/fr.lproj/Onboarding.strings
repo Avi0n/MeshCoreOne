@@ -107,6 +107,7 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "Impossible de jumeler l'appareil. Vérifiez le code PIN, puis supprimez l'appareil et réessayez.";
+"deviceScan.error.pinRejected" = "Le code PIN n'a pas été accepté. Vérifiez le code PIN affiché sur votre appareil, puis réessayez. iOS vous demandera d'abord de confirmer la suppression du jumelage échoué.";
 "deviceScan.error.connectionFailed" = "Impossible de se connecter à l'appareil. Réessayez, ou supprimez-le si le problème persiste.";
 
 // MARK: - Troubleshooting Sheet

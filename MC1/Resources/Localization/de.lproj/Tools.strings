@@ -341,12 +341,6 @@
 /* Location: LineOfSightView.swift - Repeater annotation */
 "tools.lineOfSight.repeater" = "Repeater";
 
-/* Location: LineOfSightView.swift - Drop pin mode enabled */
-"tools.lineOfSight.cancelDropPin" = "Stecknadel abbrechen";
-
-/* Location: LineOfSightView.swift - Drop pin mode disabled */
-"tools.lineOfSight.dropPin" = "Stecknadel setzen";
-
 /* Location: LineOfSightView.swift - Points section title */
 "tools.lineOfSight.points" = "Punkte";
 
@@ -365,8 +359,8 @@
 /* Location: LineOfSightView.swift - Loading elevation status */
 "tools.lineOfSight.loadingElevation" = "Höhe wird geladen...";
 
-/* Location: LineOfSightView.swift - Select points hint */
-"tools.lineOfSight.selectPointsHint" = "Tippe auf die Stecknadel-Schaltfläche auf der Karte, um Punkte auszuwählen";
+/* Location: LineOfSightView.swift - Long press points hint */
+"tools.lineOfSight.longPressPointsHint" = "Lange auf die Karte drücken, um einen Standort hinzuzufügen";
 
 /* Location: LineOfSightView.swift - Elevation unavailable warning */
 "tools.lineOfSight.elevationUnavailable" = "Höhendaten nicht verfügbar. Meeresspiegel (0m) wird als Näherung verwendet.";

@@ -1059,13 +1059,13 @@
 "contacts.results.dismiss" = "Sluiten";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch success count */
-"contacts.results.batchSuccess" = "%d van %d succesvol";
+"contacts.results.batchSuccess" = "%d van %d succesvol (%d%%)";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch progress */
 "contacts.results.batchProgress" = "Trace %d van %d uitvoeren...";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch complete accessibility */
-"contacts.results.batchCompleteLabel" = "Batch voltooid: %d van %d traces succesvol";
+"contacts.results.batchCompleteLabel" = "Batch voltooid: %d van %d traces succesvol (%d%%)";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch progress accessibility */
 "contacts.results.batchProgressLabel" = "Batch-voortgang: trace %d van %d";

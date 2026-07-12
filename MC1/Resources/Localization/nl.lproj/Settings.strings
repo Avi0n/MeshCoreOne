@@ -335,7 +335,7 @@
 "advancedRadio.repeatMode" = "Repeatermodus";
 
 /* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Creëert een lokale repeater op een eigen frequentie. Handig voor wandelen en afgelegen gebieden. Geldige frequenties: 433, 869, 918 MHz.";
+"advancedRadio.repeatMode.footer" = "Creëert een lokale repeater op een eigen frequentie. Handig voor wandelen en afgelegen gebieden. Geldige frequenties: 433, 869.495, 918 MHz.";
 
 
 /* Accessibility label for voltage text field at specific battery percent - %d is percent */
@@ -697,11 +697,11 @@
 
 // MARK: - Link Preview Settings Section
 
-/* Section header for link preview settings */
-"linkPreviews.header" = "Linkvoorbeelden";
+/* Section header for link content settings */
+"linkPreviews.header" = "Linkinhoud";
 
-/* Toggle label for link previews */
-"linkPreviews.toggle" = "Linkvoorbeelden";
+/* Toggle label for the link content master switch */
+"linkPreviews.toggle" = "Linkinhoud tonen";
 
 /* Toggle label for showing previews in DMs */
 "linkPreviews.showInDMs" = "Tonen in directe berichten";
@@ -709,8 +709,11 @@
 /* Toggle label for showing previews in channels */
 "linkPreviews.showInChannels" = "Tonen in kanalen";
 
-/* Footer explaining link preview privacy implications */
-"linkPreviews.footer" = "Linkvoorbeelden halen gegevens op van het web, wat je IP-adres kan onthullen aan de server die de link host.";
+/* Footer explaining link content privacy implications */
+"linkPreviews.footer" = "Linkvoorbeelden en afbeeldingen worden opgehaald via de internetverbinding van je telefoon, niet via het mesh. Dit kan je IP-adres onthullen aan de server die de inhoud host en kan mobiele data gebruiken.";
+
+/* Footer note shown when Reduce Motion is enabled */
+"linkPreviews.reduceMotionNote" = "Verminder beweging staat aan, dus GIF's worden niet automatisch afgespeeld.";
 
 
 // MARK: - Node Settings Section
@@ -1259,14 +1262,8 @@
 /* Validation error: no empty channel slot left (param: channel name) */
 "configImport.error.noAvailableChannelSlot" = "Geen lege kanaalplek beschikbaar voor \"%@\"";
 
-/* Toggle label for inline images */
-"inlineImages.toggle" = "Inline afbeeldingen";
-
 /* Toggle label for auto-play GIFs */
 "inlineImages.autoPlayGifs" = "GIF's automatisch afspelen";
-
-/* Footer explaining inline image privacy implications */
-"inlineImages.footer" = "Het ophalen van afbeeldingen via URL's kan uw IP-adres onthullen aan de server die de afbeelding host.";
 
 // MARK: - Map Preview Settings Section
 

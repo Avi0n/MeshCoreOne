@@ -7,16 +7,16 @@ import Foundation
 /// CoreBluetooth identifier used to connect, the advertised name to show the user,
 /// and the signal strength.
 public struct DiscoveredDevice: Identifiable, Sendable, Equatable {
-    /// The peripheral's CoreBluetooth identifier. Becomes `Device.id` on connect.
-    public let id: UUID
-    /// The advertised local name, if the peripheral published one.
-    public let name: String?
-    /// The received signal strength indicator, in dBm.
-    public let rssi: Int
+  /// The peripheral's CoreBluetooth identifier. Becomes `Device.id` on connect.
+  public let id: UUID
+  /// The advertised local name, if the peripheral published one.
+  public let name: String?
+  /// The received signal strength indicator, in dBm.
+  public let rssi: Int
 
-    public init(id: UUID, name: String?, rssi: Int) {
-        self.id = id
-        self.name = name
-        self.rssi = rssi
-    }
+  public init(id: UUID, name: String?, rssi: Int) {
+    self.id = id
+    self.name = name
+    self.rssi = rssi
+  }
 }

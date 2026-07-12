@@ -752,6 +752,16 @@ public enum L10n {
           public static let possibleMatch = L10n.tr("Chats", "chats.message.sender.possibleMatch", fallback: "Possible match, matched by short prefix")
           /// Location: UnifiedMessageBubble.swift - Fallback sender name
           public static let unknown = L10n.tr("Chats", "chats.message.sender.unknown", fallback: "Unknown")
+          /// Location: UnifiedMessageBubble.swift - Title for unverified nickname explanation popover
+          public static let unverifiedNickname = L10n.tr("Chats", "chats.message.sender.unverifiedNickname", fallback: "Unverified name")
+          /// Location: UnifiedMessageBubble.swift - Accessibility label for unverified nickname indicator
+          public static let unverifiedNicknameAccessibilityLabel = L10n.tr("Chats", "chats.message.sender.unverifiedNicknameAccessibilityLabel", fallback: "Unverified name match")
+          /// Location: UnifiedMessageBubble.swift - Explanation of why the sender name is unverified
+          public static let unverifiedNicknameExplanation = L10n.tr("Chats", "chats.message.sender.unverifiedNicknameExplanation", fallback: "Channel message senders cannot be verified. This could be a different person.")
+          /// Location: UnifiedMessageBubble.swift - Format string for unverified nickname display - %@ is the nickname
+          public static func unverifiedNicknameFormat(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.sender.unverifiedNicknameFormat", String(describing: p1), fallback: "(%@)")
+          }
         }
         public enum Status {
           /// Location: UnifiedMessageBubble.swift - Message status delivered
@@ -1804,8 +1814,8 @@ public enum L10n {
           return L10n.tr("Contacts", "contacts.results.avgRTTLabel", p1, p2, p3, fallback: "Average round trip: %d milliseconds, range %d to %d")
         }
         /// Location: TraceResultsSheet.swift - Purpose: Batch complete accessibility
-        public static func batchCompleteLabel(_ p1: Int, _ p2: Int) -> String {
-          return L10n.tr("Contacts", "contacts.results.batchCompleteLabel", p1, p2, fallback: "Batch complete: %d of %d traces successful")
+        public static func batchCompleteLabel(_ p1: Int, _ p2: Int, _ p3: Int) -> String {
+          return L10n.tr("Contacts", "contacts.results.batchCompleteLabel", p1, p2, p3, fallback: "Batch complete: %d of %d traces successful (%d%%)")
         }
         /// Location: TraceResultsSheet.swift - Purpose: Batch progress
         public static func batchProgress(_ p1: Int, _ p2: Int) -> String {
@@ -1816,8 +1826,8 @@ public enum L10n {
           return L10n.tr("Contacts", "contacts.results.batchProgressLabel", p1, p2, fallback: "Batch progress: trace %d of %d")
         }
         /// Location: TraceResultsSheet.swift - Purpose: Batch success count
-        public static func batchSuccess(_ p1: Int, _ p2: Int) -> String {
-          return L10n.tr("Contacts", "contacts.results.batchSuccess", p1, p2, fallback: "%d of %d successful")
+        public static func batchSuccess(_ p1: Int, _ p2: Int, _ p3: Int) -> String {
+          return L10n.tr("Contacts", "contacts.results.batchSuccess", p1, p2, p3, fallback: "%d of %d successful (%d%%)")
         }
         /// Location: TraceResultsSheet.swift - Purpose: Comparison text
         public static func comparison(_ p1: Int, _ p2: Any) -> String {
@@ -2627,6 +2637,8 @@ public enum L10n {
         public static let pathDiscoveryFailed = L10n.tr("Localizable", "error.remoteNode.pathDiscoveryFailed", fallback: "Failed to establish direct path")
         /// Location: RemoteNodeError+UserFacingMessage.swift - Remote node rejected the operation
         public static let permissionDenied = L10n.tr("Localizable", "error.remoteNode.permissionDenied", fallback: "Permission denied")
+        /// Location: RemoteNodeError+UserFacingMessage.swift - Radio contact table full; cannot auto-add the node during login
+        public static let radioContactsFull = L10n.tr("Localizable", "error.remoteNode.radioContactsFull", fallback: "Your radio is out of contact slots. Remove a contact you no longer need, then retry sign-in.")
         /// Location: RemoteNodeError+UserFacingMessage.swift - Sending to the remote node failed
         public static let sendFailed = L10n.tr("Localizable", "error.remoteNode.sendFailed", fallback: "Failed to send.")
         /// Location: RemoteNodeError+UserFacingMessage.swift - No stored session for the remote node
@@ -2805,8 +2817,6 @@ public enum L10n {
         }
       }
       public enum Common {
-        /// Dismiss
-        public static let dismissOverlay = L10n.tr("Map", "map.common.dismissOverlay", fallback: "Dismiss")
         /// Location: MapView.swift - Purpose: Done button for sheets
         public static let done = L10n.tr("Map", "map.common.done", fallback: "Done")
       }
@@ -2815,18 +2825,14 @@ public enum L10n {
         public static let centerAll = L10n.tr("Map", "map.controls.centerAll", fallback: "Center on all contacts")
         /// Location: MapControlsToolbar.swift - Purpose: Accessibility label for user location button
         public static let centerOnMyLocation = L10n.tr("Map", "map.controls.centerOnMyLocation", fallback: "Center on my location")
-        /// Location: MapView.swift - Purpose: Accessibility label when labels are visible
-        public static let hideLabels = L10n.tr("Map", "map.controls.hideLabels", fallback: "Hide labels")
-        /// Location: MapControlsToolbar.swift - Purpose: Accessibility label for layers button
-        public static let layers = L10n.tr("Map", "map.controls.layers", fallback: "Map layers")
-        /// Location: MapCanvasView.swift - Purpose: Accessibility label for north lock button (lock)
-        public static let lockNorth = L10n.tr("Map", "map.controls.lockNorth", fallback: "Lock to north")
+        /// Location: MapControlsToolbar.swift - Purpose: Map options menu toggle that locks the map bearing to north
+        public static let lockNorth = L10n.tr("Map", "map.controls.lockNorth", fallback: "North up")
+        /// Location: MapControlsToolbar.swift - Purpose: Accessibility label for map options menu button
+        public static let mapOptions = L10n.tr("Map", "map.controls.mapOptions", fallback: "Map options")
         /// Location: MapView.swift - Purpose: Accessibility label for refresh button
         public static let refresh = L10n.tr("Map", "map.controls.refresh", fallback: "Refresh contacts")
         /// Location: MapView.swift - Purpose: Accessibility label when labels are hidden
         public static let showLabels = L10n.tr("Map", "map.controls.showLabels", fallback: "Show labels")
-        /// Location: MapCanvasView.swift - Purpose: Accessibility label for north lock button (unlock)
-        public static let unlockNorth = L10n.tr("Map", "map.controls.unlockNorth", fallback: "Unlock rotation")
       }
       public enum Detail {
         /// Location: MapView.swift ContactDetailSheet - Purpose: Value showing contact is favorited
@@ -2941,7 +2947,7 @@ public enum L10n {
       /// Location: DeviceScanView.swift - Button to retry connection after other-app conflict
       public static let retryConnection = L10n.tr("Onboarding", "deviceScan.retryConnection", fallback: "Retry Connection")
       /// Location: DeviceScanView.swift - Subtitle with pairing instructions
-      public static let subtitle = L10n.tr("Onboarding", "deviceScan.subtitle", fallback: "Power it on, then tap Add Device.")
+      public static let subtitle = L10n.tr("Onboarding", "deviceScan.subtitle", fallback: "Power your radio on, disconnect it from all other apps and devices, then tap Add Device.")
       /// Location: DeviceScanView.swift - Screen title for device pairing
       public static let title = L10n.tr("Onboarding", "deviceScan.title", fallback: "Pair your device")
       public enum DemoModeAlert {
@@ -2955,6 +2961,8 @@ public enum L10n {
         public static let authenticationFailed = L10n.tr("Onboarding", "deviceScan.error.authenticationFailed", fallback: "Couldn't pair the device. Check the PIN, then remove the device and try again.")
         /// Couldn't connect to the device. Try again, or remove it if the problem continues.
         public static let connectionFailed = L10n.tr("Onboarding", "deviceScan.error.connectionFailed", fallback: "Couldn't connect to the device. Try again, or remove it if the problem continues.")
+        /// The PIN wasn't accepted. Check the PIN shown on your device, then try again. iOS will ask you to confirm removing the failed pairing first.
+        public static let pinRejected = L10n.tr("Onboarding", "deviceScan.error.pinRejected", fallback: "The PIN wasn't accepted. Check the PIN shown on your device, then try again. iOS will ask you to confirm removing the failed pairing first.")
       }
     }
     public enum DeviceScanner {
@@ -3259,6 +3267,12 @@ public enum L10n {
         public static let battery = L10n.tr("RemoteNodes", "remoteNodes.history.battery", fallback: "Battery")
         /// Location: NodeStatusHistoryView.swift - Empty state message
         public static let checkBack = L10n.tr("RemoteNodes", "remoteNodes.history.checkBack", fallback: "A snapshot is recorded at most every 15 minutes. Check back after your next visit to see trends.")
+        /// Location: RadioMetricCharts.swift - Direct packet series legend
+        public static let direct = L10n.tr("RemoteNodes", "remoteNodes.history.direct", fallback: "Direct")
+        /// Location: RadioMetricCharts.swift - Duplicates chart title, under the Packets group header
+        public static let duplicates = L10n.tr("RemoteNodes", "remoteNodes.history.duplicates", fallback: "Duplicates")
+        /// Location: RadioMetricCharts.swift - Flood packet series legend
+        public static let flood = L10n.tr("RemoteNodes", "remoteNodes.history.flood", fallback: "Flood")
         /// Location: NeighborHistoryView.swift - Last seen status
         public static func lastSeen(_ p1: Any) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.history.lastSeen", String(describing: p1), fallback: "Last seen %@")
@@ -3281,14 +3295,16 @@ public enum L10n {
         public static let notSeen = L10n.tr("RemoteNodes", "remoteNodes.history.notSeen", fallback: "Not seen")
         /// Location: TelemetryHistoryOverviewView.swift - Purpose: Navigation title
         public static let overviewTitle = L10n.tr("RemoteNodes", "remoteNodes.history.overviewTitle", fallback: "Telemetry History")
-        /// Location: NodeStatusHistoryView.swift - Packets received chart title
-        public static let packetsReceived = L10n.tr("RemoteNodes", "remoteNodes.history.packetsReceived", fallback: "Packets Received")
-        /// Location: NodeStatusHistoryView.swift - Packets sent chart title
-        public static let packetsSent = L10n.tr("RemoteNodes", "remoteNodes.history.packetsSent", fallback: "Packets Sent")
+        /// Location: RadioMetricCharts.swift - Section header grouping the packet-count charts
+        public static let packets = L10n.tr("RemoteNodes", "remoteNodes.history.packets", fallback: "Packets")
+        /// Location: RadioMetricCharts.swift - Received packets chart title, under the Packets group header
+        public static let packetsReceived = L10n.tr("RemoteNodes", "remoteNodes.history.packetsReceived", fallback: "Received")
+        /// Location: RadioMetricCharts.swift - Sent packets chart title, under the Packets group header
+        public static let packetsSent = L10n.tr("RemoteNodes", "remoteNodes.history.packetsSent", fallback: "Sent")
         /// Location: TelemetryHistoryOverviewView.swift - Purpose: Radio section header
         public static let radioSection = L10n.tr("RemoteNodes", "remoteNodes.history.radioSection", fallback: "Radio")
-        /// Location: NodeStatusHistoryView.swift - Receive errors chart title
-        public static let receiveErrors = L10n.tr("RemoteNodes", "remoteNodes.history.receiveErrors", fallback: "Packet Errors Received")
+        /// Location: RadioMetricCharts.swift - Receive errors chart title, under the Packets group header
+        public static let receiveErrors = L10n.tr("RemoteNodes", "remoteNodes.history.receiveErrors", fallback: "Errors")
         /// Location: NodeStatusHistoryView.swift - Footer about data retention
         public static let retentionNotice = L10n.tr("RemoteNodes", "remoteNodes.history.retentionNotice", fallback: "History data older than one year is automatically removed.")
         /// Location: NodeStatusHistoryView.swift - RSSI chart title
@@ -3541,18 +3557,26 @@ public enum L10n {
         public static let lat = L10n.tr("RemoteNodes", "remoteNodes.settings.lat", fallback: "Lat")
         /// Location: RepeaterSettingsView.swift - Latitude label
         public static let latitude = L10n.tr("RemoteNodes", "remoteNodes.settings.latitude", fallback: "Latitude")
+        /// Location: NodeSettingsViewModel.swift - Latitude range validation error
+        public static let latitudeValidation = L10n.tr("RemoteNodes", "remoteNodes.settings.latitudeValidation", fallback: "Accepts -90 to 90")
         /// Location: RepeaterSettingsView.swift - Loading placeholder
         public static let loading = L10n.tr("RemoteNodes", "remoteNodes.settings.loading", fallback: "Loading...")
         /// Location: RepeaterSettingsView.swift - Lon placeholder
         public static let lon = L10n.tr("RemoteNodes", "remoteNodes.settings.lon", fallback: "Lon")
         /// Location: RepeaterSettingsView.swift - Longitude label
         public static let longitude = L10n.tr("RemoteNodes", "remoteNodes.settings.longitude", fallback: "Longitude")
+        /// Location: NodeSettingsViewModel.swift - Longitude range validation error
+        public static let longitudeValidation = L10n.tr("RemoteNodes", "remoteNodes.settings.longitudeValidation", fallback: "Accepts -180 to 180")
         /// Location: RepeaterSettingsView.swift - Max flood hops label
         public static let maxFloodHops = L10n.tr("RemoteNodes", "remoteNodes.settings.maxFloodHops", fallback: "Max Flood Hops")
         /// Location: RepeaterSettingsView.swift - MHz placeholder
         public static let mhz = L10n.tr("RemoteNodes", "remoteNodes.settings.mhz", fallback: "MHz")
         /// Location: RepeaterSettingsView.swift - Minutes unit
         public static let min = L10n.tr("RemoteNodes", "remoteNodes.settings.min", fallback: "min")
+        /// Location: NodeSettingsViewModel.swift - Node name length validation error
+        public static func nameValidation(_ p1: Int) -> String {
+          return L10n.tr("RemoteNodes", "remoteNodes.settings.nameValidation", p1, fallback: "Accepts up to %d bytes")
+        }
         /// Location: RepeaterSettingsView.swift - New password placeholder
         public static let newPassword = L10n.tr("RemoteNodes", "remoteNodes.settings.newPassword", fallback: "New Password")
         /// Location: NodeSettingsViewModel.swift - No service error
@@ -3713,6 +3737,8 @@ public enum L10n {
         }
         /// Location: RepeaterStatusView.swift - Discover neighbours button label
         public static let discoverNeighbors = L10n.tr("RemoteNodes", "remoteNodes.status.discoverNeighbors", fallback: "Discover Neighbours")
+        /// Location: SharedNodeStatusViews.swift - Duplicate packets label
+        public static let duplicates = L10n.tr("RemoteNodes", "remoteNodes.status.duplicates", fallback: "Duplicates")
         /// Location: RepeaterStatusView.swift - Guest mode badge in header
         public static let guestMode = L10n.tr("RemoteNodes", "remoteNodes.status.guestMode", fallback: "Guest Mode")
         /// Location: RepeaterStatusView.swift - Hours ago format
@@ -3731,6 +3757,12 @@ public enum L10n {
         public static let neighbors = L10n.tr("RemoteNodes", "remoteNodes.status.neighbors", fallback: "Neighbors")
         /// Location: RepeaterStatusView.swift - Neighbors section footer
         public static let neighborsFooter = L10n.tr("RemoteNodes", "remoteNodes.status.neighborsFooter", fallback: "Other nodes discovered by this repeater and their signal quality.")
+        /// Location: NeighborSNRMapView.swift - Navigation title for the neighbors map
+        public static let neighborsMapTitle = L10n.tr("RemoteNodes", "remoteNodes.status.neighborsMapTitle", fallback: "Neighbors Map")
+        /// Location: NeighborSNRMapView.swift - Map pill and pushed-list title counting neighbors that could not be plotted - %d is the count
+        public static func neighborsNotShown(_ p1: Int) -> String {
+          return L10n.tr("RemoteNodes", "remoteNodes.status.neighborsNotShown", p1, fallback: "%d neighbors not shown")
+        }
         /// Location: RepeaterStatusView.swift - Noise floor label
         public static let noiseFloor = L10n.tr("RemoteNodes", "remoteNodes.status.noiseFloor", fallback: "Noise Floor")
         /// Location: RepeaterStatusView.swift - No neighbors empty state
@@ -3751,18 +3783,24 @@ public enum L10n {
         public static let ocvSaveNoContact = L10n.tr("RemoteNodes", "remoteNodes.status.ocvSaveNoContact", fallback: "Cannot save: contact not found")
         /// Location: RepeaterStatusView.swift - Owner info section label
         public static let ownerInfo = L10n.tr("RemoteNodes", "remoteNodes.status.ownerInfo", fallback: "Contact Info")
-        /// Location: RepeaterStatusView.swift - Packets received label
-        public static let packetsReceived = L10n.tr("RemoteNodes", "remoteNodes.status.packetsReceived", fallback: "Packets Received")
-        /// Location: RepeaterStatusView.swift - Packets sent label
-        public static let packetsSent = L10n.tr("RemoteNodes", "remoteNodes.status.packetsSent", fallback: "Packets Sent")
+        /// Location: SharedNodeStatusViews.swift - Section header grouping the packet-count rows
+        public static let packets = L10n.tr("RemoteNodes", "remoteNodes.status.packets", fallback: "Packets")
+        /// Location: SharedNodeStatusViews.swift - Total received packets label, under the Packets group header
+        public static let packetsReceived = L10n.tr("RemoteNodes", "remoteNodes.status.packetsReceived", fallback: "Received")
+        /// Location: SharedNodeStatusViews.swift - Total sent packets label, under the Packets group header
+        public static let packetsSent = L10n.tr("RemoteNodes", "remoteNodes.status.packetsSent", fallback: "Sent")
         /// Location: RepeaterStatusView.swift - Accessibility label for possible match indicator
         public static let possibleMatch = L10n.tr("RemoteNodes", "remoteNodes.status.possibleMatch", fallback: "Possible match, matched by short prefix")
         /// Location: RepeaterStatusView.swift - Explanation of what a possible match means
         public static let possibleMatchExplanation = L10n.tr("RemoteNodes", "remoteNodes.status.possibleMatchExplanation", fallback: "Multiple nodes share this prefix. The displayed name may not be correct.")
         /// Location: RepeaterStatusView.swift - Title for possible match explanation popover
         public static let possibleMatchTitle = L10n.tr("RemoteNodes", "remoteNodes.status.possibleMatchTitle", fallback: "Possible Match")
-        /// Location: RepeaterStatusView.swift - Receive errors label
-        public static let receiveErrors = L10n.tr("RemoteNodes", "remoteNodes.status.receiveErrors", fallback: "Packet Errors Received")
+        /// Location: SharedNodeStatusViews.swift - Received (direct) packets label
+        public static let receivedDirect = L10n.tr("RemoteNodes", "remoteNodes.status.receivedDirect", fallback: "Received (Direct)")
+        /// Location: SharedNodeStatusViews.swift - Received (flood) packets label
+        public static let receivedFlood = L10n.tr("RemoteNodes", "remoteNodes.status.receivedFlood", fallback: "Received (Flood)")
+        /// Location: SharedNodeStatusViews.swift - Receive errors label, under the Packets group header
+        public static let receiveErrors = L10n.tr("RemoteNodes", "remoteNodes.status.receiveErrors", fallback: "Errors")
         /// Location: NodeTelemetryView.swift - Refresh button accessibility label
         public static let refresh = L10n.tr("RemoteNodes", "remoteNodes.status.refresh", fallback: "Refresh")
         /// Location: RepeaterStatusViewModel.swift - Request timed out
@@ -3771,6 +3809,12 @@ public enum L10n {
         public static func secondsAgo(_ p1: Int) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.status.secondsAgo", p1, fallback: "%ds ago")
         }
+        /// Location: SharedNodeStatusViews.swift - Sent (direct) packets label
+        public static let sentDirect = L10n.tr("RemoteNodes", "remoteNodes.status.sentDirect", fallback: "Sent (Direct)")
+        /// Location: SharedNodeStatusViews.swift - Sent (flood) packets label
+        public static let sentFlood = L10n.tr("RemoteNodes", "remoteNodes.status.sentFlood", fallback: "Sent (Flood)")
+        /// Location: NeighborSNRMapBuilder.swift - Unit suffix for the SNR value in the map midpoint badge, matching the "<distance> · <snr> dB" form
+        public static let snrBadgeUnit = L10n.tr("RemoteNodes", "remoteNodes.status.snrBadgeUnit", fallback: "dB")
         /// Location: RepeaterStatusView.swift - SNR display format
         public static func snrFormat(_ p1: Any) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.status.snrFormat", String(describing: p1), fallback: "SNR %@dB")
@@ -3805,6 +3849,8 @@ public enum L10n {
         public static func uptimeMinutes(_ p1: Int) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.status.uptimeMinutes", p1, fallback: "%dm")
         }
+        /// Location: RepeaterStatusContent.swift - View on Map button in the Neighbors section
+        public static let viewOnMap = L10n.tr("RemoteNodes", "remoteNodes.status.viewOnMap", fallback: "View on Map")
         public enum Accessibility {
           /// Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for neighbors
           public static let reloadNeighbors = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadNeighbors", fallback: "Reload neighbors")
@@ -3814,6 +3860,8 @@ public enum L10n {
           public static let reloadStatus = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadStatus", fallback: "Reload status")
           /// Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for telemetry
           public static let reloadTelemetry = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.reloadTelemetry", fallback: "Reload telemetry")
+          /// Location: RepeaterStatusContent.swift - Accessibility label for the View on Map button
+          public static let viewNeighborsOnMap = L10n.tr("RemoteNodes", "remoteNodes.status.accessibility.viewNeighborsOnMap", fallback: "View neighbors on map")
         }
         public enum Sensor {
           /// Accelerometer
@@ -4122,7 +4170,7 @@ public enum L10n {
       }
       public enum RepeatMode {
         /// Footer explaining repeat mode in advanced radio
-        public static let footer = L10n.tr("Settings", "advancedRadio.repeatMode.footer", fallback: "Creates a local repeater on a dedicated frequency. Useful for hiking and remote areas. Valid frequencies: 433, 869, 918 MHz.")
+        public static let footer = L10n.tr("Settings", "advancedRadio.repeatMode.footer", fallback: "Creates a local repeater on a dedicated frequency. Useful for hiking and remote areas. Valid frequencies: 433, 869.495, 918 MHz.")
       }
     }
     public enum AdvancedSettings {
@@ -4792,26 +4840,24 @@ public enum L10n {
     public enum InlineImages {
       /// Toggle label for auto-play GIFs
       public static let autoPlayGifs = L10n.tr("Settings", "inlineImages.autoPlayGifs", fallback: "Auto-play GIFs")
-      /// Footer explaining inline image privacy implications
-      public static let footer = L10n.tr("Settings", "inlineImages.footer", fallback: "Fetching images from URLs may reveal your IP address to the server hosting the image.")
-      /// Toggle label for inline images
-      public static let toggle = L10n.tr("Settings", "inlineImages.toggle", fallback: "Inline Images")
     }
     public enum Language {
       /// Location: SettingsView.swift - Purpose: Language row title
       public static let title = L10n.tr("Settings", "language.title", fallback: "Language")
     }
     public enum LinkPreviews {
-      /// Footer explaining link preview privacy implications
-      public static let footer = L10n.tr("Settings", "linkPreviews.footer", fallback: "Link previews fetch data from the web, which may reveal your IP address to the server hosting the link.")
-      /// Section header for link preview settings
-      public static let header = L10n.tr("Settings", "linkPreviews.header", fallback: "Link Previews")
-      /// Toggle label for showing previews in channels
+      /// Footer explaining link content privacy implications
+      public static let footer = L10n.tr("Settings", "linkPreviews.footer", fallback: "Link previews and images are fetched over your phone's internet connection, not the mesh. This may reveal your IP address to the server hosting the content and can use cellular data.")
+      /// Section header for link content settings
+      public static let header = L10n.tr("Settings", "linkPreviews.header", fallback: "Link Content")
+      /// Footer note shown when Reduce Motion is enabled
+      public static let reduceMotionNote = L10n.tr("Settings", "linkPreviews.reduceMotionNote", fallback: "Reduce Motion is on, so GIFs will not auto-play.")
+      /// Toggle label for showing link content in channels
       public static let showInChannels = L10n.tr("Settings", "linkPreviews.showInChannels", fallback: "Show in Channels")
-      /// Toggle label for showing previews in DMs
+      /// Toggle label for showing link content in DMs
       public static let showInDMs = L10n.tr("Settings", "linkPreviews.showInDMs", fallback: "Show in Direct Messages")
-      /// Toggle label for link previews
-      public static let toggle = L10n.tr("Settings", "linkPreviews.toggle", fallback: "Link Previews")
+      /// Toggle label for the link content master switch
+      public static let toggle = L10n.tr("Settings", "linkPreviews.toggle", fallback: "Show Link Content")
     }
     public enum LiveActivity {
       /// Label for the Live Activity toggle in App Settings
@@ -5773,8 +5819,6 @@ public enum L10n {
         public static let back = L10n.tr("Tools", "tools.lineOfSight.back", fallback: "Back")
         /// Location: LineOfSightView.swift - Cancel button
         public static let cancel = L10n.tr("Tools", "tools.lineOfSight.cancel", fallback: "Cancel")
-        /// Location: LineOfSightView.swift - Drop pin mode enabled
-        public static let cancelDropPin = L10n.tr("Tools", "tools.lineOfSight.cancelDropPin", fallback: "Cancel drop pin")
         /// Location: LineOfSightView.swift - Clear button
         public static let clear = L10n.tr("Tools", "tools.lineOfSight.clear", fallback: "Clear")
         /// Location: ResultsCardView.swift - Clearance section title
@@ -5795,8 +5839,6 @@ public enum L10n {
         public static let dragToAdjust = L10n.tr("Tools", "tools.lineOfSight.dragToAdjust", fallback: "Drag to adjust")
         /// Location: LineOfSightViewModel.swift - Dropped pin display name
         public static let droppedPin = L10n.tr("Tools", "tools.lineOfSight.droppedPin", fallback: "Dropped pin")
-        /// Location: LineOfSightView.swift - Drop pin mode disabled
-        public static let dropPin = L10n.tr("Tools", "tools.lineOfSight.dropPin", fallback: "Drop pin")
         /// Location: LineOfSightView.swift - Earth curvature note, %@ is k-factor
         public static func earthCurvature(_ p1: Any) -> String {
           return L10n.tr("Tools", "tools.lineOfSight.earthCurvature", String(describing: p1), fallback: "Adjusted for earth curvature (%@)")
@@ -5817,6 +5859,8 @@ public enum L10n {
         public static let indirectRoute = L10n.tr("Tools", "tools.lineOfSight.indirectRoute", fallback: "Indirect route via R · Relocate on map to adjust")
         /// Location: LineOfSightView.swift - Loading elevation status
         public static let loadingElevation = L10n.tr("Tools", "tools.lineOfSight.loadingElevation", fallback: "Loading elevation...")
+        /// Location: LineOfSightView.swift - Long press points hint
+        public static let longPressPointsHint = L10n.tr("Tools", "tools.lineOfSight.longPressPointsHint", fallback: "Long press on the map to add a location")
         /// Location: ResultsCardView.swift - Loss suffix
         public static let loss = L10n.tr("Tools", "tools.lineOfSight.loss", fallback: "loss")
         /// Location: LineOfSightView.swift - MHz unit
@@ -5855,8 +5899,6 @@ public enum L10n {
         public static let retry = L10n.tr("Tools", "tools.lineOfSight.retry", fallback: "Retry")
         /// Location: LineOfSightView.swift - RF Settings section
         public static let rfSettings = L10n.tr("Tools", "tools.lineOfSight.rfSettings", fallback: "RF Settings")
-        /// Location: LineOfSightView.swift - Select points hint
-        public static let selectPointsHint = L10n.tr("Tools", "tools.lineOfSight.selectPointsHint", fallback: "Tap the pin button on the map to select points")
         /// Location: TerrainProfileCanvas.swift - Empty state description
         public static let selectTwoPoints = L10n.tr("Tools", "tools.lineOfSight.selectTwoPoints", fallback: "Select two points to analyze")
         /// Location: LineOfSightView.swift - Share button

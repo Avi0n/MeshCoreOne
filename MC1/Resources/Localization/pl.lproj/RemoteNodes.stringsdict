@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  RemoteNodes.stringsdict
+
+  Polish pluralization rules: one (1), few (2-4, 22-24...), many (0, 5-21, 25-31...), other (fractions).
+  AI-translated - please verify with native speakers.
+-->
+<plist version="1.0">
+<dict>
+    <key>remoteNodes.status.neighborsNotShown</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Nie pokazano %d sąsiada</string>
+            <key>few</key>
+            <string>Nie pokazano %d sąsiadów</string>
+            <key>many</key>
+            <string>Nie pokazano %d sąsiadów</string>
+            <key>other</key>
+            <string>Nie pokazano %d sąsiadów</string>
+        </dict>
+    </dict>
+</dict>
+</plist>

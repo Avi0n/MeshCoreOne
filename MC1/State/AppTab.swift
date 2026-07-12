@@ -4,9 +4,9 @@
 /// `NavigationCoordinator.selectedTab` remains `Int` (see the deferred
 /// Int-to-AppTab migration).
 enum AppTab: Int {
-    case chats
-    case nodes
-    case map
-    case tools
-    case settings
+  case chats
+  case nodes
+  case map
+  case tools
+  case settings
 }

@@ -16,26 +16,26 @@ import Foundation
 /// window risks tagging the message with stale identity, or indexing
 /// against the wrong message entirely.
 public struct ChannelMessageEnvelope: Sendable {
-    public let messageID: UUID
-    public let channelIndex: UInt8
-    public let isResend: Bool
-    public let messageText: String
-    public let messageTimestamp: UInt32
-    public let localNodeName: String?
+  public let messageID: UUID
+  public let channelIndex: UInt8
+  public let isResend: Bool
+  public let messageText: String
+  public let messageTimestamp: UInt32
+  public let localNodeName: String?
 
-    public init(
-        messageID: UUID,
-        channelIndex: UInt8,
-        isResend: Bool,
-        messageText: String,
-        messageTimestamp: UInt32,
-        localNodeName: String?
-    ) {
-        self.messageID = messageID
-        self.channelIndex = channelIndex
-        self.isResend = isResend
-        self.messageText = messageText
-        self.messageTimestamp = messageTimestamp
-        self.localNodeName = localNodeName
-    }
+  public init(
+    messageID: UUID,
+    channelIndex: UInt8,
+    isResend: Bool,
+    messageText: String,
+    messageTimestamp: UInt32,
+    localNodeName: String?
+  ) {
+    self.messageID = messageID
+    self.channelIndex = channelIndex
+    self.isResend = isResend
+    self.messageText = messageText
+    self.messageTimestamp = messageTimestamp
+    self.localNodeName = localNodeName
+  }
 }

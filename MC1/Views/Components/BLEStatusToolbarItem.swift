@@ -8,7 +8,7 @@ import SwiftUI
 @MainActor
 @ToolbarContentBuilder
 func bleStatusToolbarItem(placement: ToolbarItemPlacement = .topBarLeading) -> some ToolbarContent {
-    ToolbarItem(placement: placement) {
-        BLEStatusIndicatorView()
-    }
+  ToolbarItem(placement: placement) {
+    BLEStatusIndicatorView()
+  }
 }

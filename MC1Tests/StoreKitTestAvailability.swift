@@ -8,10 +8,10 @@ import Foundation
 /// affected runtime — keeping the default iOS 26 run green — and run on iOS 18.x, which
 /// `make test-store` pins explicitly.
 enum StoreKitTestAvailability {
-    /// iOS 26.x is the known-broken runtime; every other version serves products normally.
-    static let brokenMajorVersion = 26
+  /// iOS 26.x is the known-broken runtime; every other version serves products normally.
+  static let brokenMajorVersion = 26
 
-    static var servesProducts: Bool {
-        ProcessInfo.processInfo.operatingSystemVersion.majorVersion != brokenMajorVersion
-    }
+  static var servesProducts: Bool {
+    ProcessInfo.processInfo.operatingSystemVersion.majorVersion != brokenMajorVersion
+  }
 }

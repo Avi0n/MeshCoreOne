@@ -7,9 +7,9 @@ import UIKit
 /// representable class type the proxy could store directly.
 @MainActor
 final class ChatScrollDisplayLinkProxy: NSObject {
-    var onTick: (() -> Void)?
+  var onTick: (() -> Void)?
 
-    @objc func tick(_ link: CADisplayLink) {
-        onTick?()
-    }
+  @objc func tick(_ link: CADisplayLink) {
+    onTick?()
+  }
 }

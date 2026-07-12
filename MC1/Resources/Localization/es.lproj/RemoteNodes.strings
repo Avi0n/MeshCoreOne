@@ -343,6 +343,15 @@
 /* Location: RepeaterSettingsViewModel.swift - Flood max hops validation error */
 "remoteNodes.settings.floodMaxValidation" = "Acepta 0-64 saltos";
 
+/* Location: NodeSettingsViewModel.swift - Node name length validation error */
+"remoteNodes.settings.nameValidation" = "Acepta hasta %d bytes";
+
+/* Location: NodeSettingsViewModel.swift - Latitude range validation error */
+"remoteNodes.settings.latitudeValidation" = "Acepta -90 a 90";
+
+/* Location: NodeSettingsViewModel.swift - Longitude range validation error */
+"remoteNodes.settings.longitudeValidation" = "Acepta -180 a 180";
+
 // MARK: - Repeater Settings: Regions
 
 /* Location: RepeaterSettingsView.swift - Regions section title */
@@ -440,14 +449,21 @@
 /* Location: RepeaterStatusView.swift - Noise floor label */
 "remoteNodes.status.noiseFloor" = "Ruido de fondo";
 
-/* Location: RepeaterStatusView.swift - Packets sent label */
-"remoteNodes.status.packetsSent" = "Paquetes enviados";
+/* Location: SharedNodeStatusViews.swift - Section header grouping the packet-count rows */
+"remoteNodes.status.packets" = "Paquetes";
+/* Location: SharedNodeStatusViews.swift - Total sent packets label, under the Packets group header */
+"remoteNodes.status.packetsSent" = "Enviados";
 
-/* Location: RepeaterStatusView.swift - Packets received label */
-"remoteNodes.status.packetsReceived" = "Paquetes recibidos";
+/* Location: SharedNodeStatusViews.swift - Total received packets label, under the Packets group header */
+"remoteNodes.status.packetsReceived" = "Recibidos";
 
-/* Location: RepeaterStatusView.swift - Receive errors label */
-"remoteNodes.status.receiveErrors" = "Errores de paquetes recibidos";
+/* Location: SharedNodeStatusViews.swift - Receive errors label, under the Packets group header */
+"remoteNodes.status.receiveErrors" = "Errores";
+"remoteNodes.status.sentDirect" = "Enviados (Directo)";
+"remoteNodes.status.sentFlood" = "Enviados (Flood)";
+"remoteNodes.status.receivedDirect" = "Recibidos (Directo)";
+"remoteNodes.status.receivedFlood" = "Recibidos (Flood)";
+"remoteNodes.status.duplicates" = "Duplicados";
 
 /* Location: RepeaterStatusView.swift - Neighbors section label */
 "remoteNodes.status.neighbors" = "Vecinos";
@@ -551,6 +567,23 @@
 /* Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for neighbors */
 "remoteNodes.status.accessibility.reloadNeighbors" = "Recargar vecinos";
 
+// MARK: - Neighbors Map
+
+/* Location: RepeaterStatusContent.swift - View on Map button in the Neighbors section */
+"remoteNodes.status.viewOnMap" = "Ver en el mapa";
+
+/* Location: RepeaterStatusContent.swift - Accessibility label for the View on Map button */
+"remoteNodes.status.accessibility.viewNeighborsOnMap" = "Ver vecinos en el mapa";
+
+/* Location: NeighborSNRMapView.swift - Navigation title for the neighbors map */
+"remoteNodes.status.neighborsMapTitle" = "Mapa de vecinos";
+
+/* Location: NeighborSNRMapView.swift - Map pill and pushed-list title counting neighbors that could not be plotted - %d is the count */
+"remoteNodes.status.neighborsNotShown" = "%d vecinos no mostrados";
+
+/* Location: NeighborSNRMapBuilder.swift - Unit suffix for the SNR value in the map midpoint badge, matching the "<distance> · <snr> dB" form */
+"remoteNodes.status.snrBadgeUnit" = "dB";
+
 // MARK: - History
 
 /* Location: RepeaterStatusViewModel.swift - Delta timestamp (minutes ago) */
@@ -602,13 +635,18 @@
 "remoteNodes.history.neighborCount" = "Cantidad de vecinos";
 
 /* Location: NodeStatusHistoryView.swift - Packets sent chart title */
-"remoteNodes.history.packetsSent" = "Paquetes enviados";
+"remoteNodes.history.packetsSent" = "Enviados";
 
 /* Location: NodeStatusHistoryView.swift - Packets received chart title */
-"remoteNodes.history.packetsReceived" = "Paquetes recibidos";
+"remoteNodes.history.packetsReceived" = "Recibidos";
 
 /* Location: NodeStatusHistoryView.swift - Receive errors chart title */
-"remoteNodes.history.receiveErrors" = "Errores de paquetes recibidos";
+"remoteNodes.history.receiveErrors" = "Errores";
+"remoteNodes.history.direct" = "Directo";
+"remoteNodes.history.flood" = "Flood";
+"remoteNodes.history.duplicates" = "Duplicados";
+/* Location: RadioMetricCharts.swift - Section header grouping the packet-count charts */
+"remoteNodes.history.packets" = "Paquetes";
 
 /* Location: NeighborHistoryView.swift - Active status */
 "remoteNodes.history.active" = "Activo";

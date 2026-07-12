@@ -1,205 +1,206 @@
 import CoreLocation
-import SwiftUI
 import MC1Services
+import SwiftUI
 
 /// Segment for the discovery picker
 enum DiscoverSegment: String, CaseIterable {
-    case all
-    case contacts
-    case repeaters
-    case rooms
+  case all
+  case contacts
+  case repeaters
+  case rooms
 
-    var localizedTitle: String {
-        switch self {
-        case .all: L10n.Contacts.Contacts.Discovery.Segment.all
-        case .contacts: L10n.Contacts.Contacts.Discovery.Segment.contacts
-        case .repeaters: L10n.Contacts.Contacts.Discovery.Segment.repeaters
-        case .rooms: L10n.Contacts.Contacts.Discovery.Segment.rooms
-        }
+  var localizedTitle: String {
+    switch self {
+    case .all: L10n.Contacts.Contacts.Discovery.Segment.all
+    case .contacts: L10n.Contacts.Contacts.Discovery.Segment.contacts
+    case .repeaters: L10n.Contacts.Contacts.Discovery.Segment.repeaters
+    case .rooms: L10n.Contacts.Contacts.Discovery.Segment.rooms
     }
+  }
 }
 
 /// ViewModel for discovery view
 @Observable
 @MainActor
 final class DiscoveryViewModel {
+  // MARK: - Properties
 
-    // MARK: - Properties
+  /// Discovered nodes from the mesh network
+  var discoveredNodes: [DiscoveredNodeDTO] = []
 
-    /// Discovered nodes from the mesh network
-    var discoveredNodes: [DiscoveredNodeDTO] = []
+  /// Public keys of contacts that have been added
+  var addedPublicKeys: Set<Data> = []
 
-    /// Public keys of contacts that have been added
-    var addedPublicKeys: Set<Data> = []
+  /// Loading state
+  var isLoading = false
 
-    /// Loading state
-    var isLoading = false
+  /// Whether data has been loaded at least once (prevents empty state flash)
+  var hasLoadedOnce = false
 
-    /// Whether data has been loaded at least once (prevents empty state flash)
-    var hasLoadedOnce = false
+  /// Error message to display
+  var errorMessage: String?
 
-    /// Error message to display
-    var errorMessage: String?
+  // MARK: - Dependencies
 
-    // MARK: - Dependencies
+  private var dataStoreProvider: @MainActor () -> DataStore? = { nil }
+  private var dataStore: DataStore? {
+    dataStoreProvider()
+  }
 
-    private var dataStoreProvider: @MainActor () -> DataStore? = { nil }
-    private var dataStore: DataStore? { dataStoreProvider() }
+  /// Temporary Discover trace; filter by category "discover-trace". Remove
+  /// once the "no new nodes after clear" report is closed.
+  private let discoverTrace = PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
 
-    /// Temporary Discover trace; filter by category "discover-trace". Remove
-    /// once the "no new nodes after clear" report is closed.
-    private let discoverTrace = PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
+  // MARK: - Initialization
 
-    // MARK: - Initialization
+  init() {}
 
-    init() {}
+  /// Configure with the data store this view model uses; a provider returning nil mirrors a disconnected state.
+  func configure(dataStore: @escaping @MainActor () -> DataStore?) {
+    dataStoreProvider = dataStore
+  }
 
-    /// Configure with the data store this view model uses; a provider returning nil mirrors a disconnected state.
-    func configure(dataStore: @escaping @MainActor () -> DataStore?) {
-        dataStoreProvider = dataStore
+  // MARK: - Load Nodes
+
+  func loadDiscoveredNodes(radioID: UUID) async {
+    guard let dataStore else { return }
+
+    isLoading = true
+    errorMessage = nil
+
+    do {
+      let nodes = try await dataStore.fetchDiscoveredNodes(radioID: radioID)
+
+      // Single batch query for all contact public keys (O(1) vs O(N))
+      let addedKeys = try await dataStore.fetchContactPublicKeys(radioID: radioID)
+
+      discoveredNodes = nodes
+      addedPublicKeys = addedKeys
+      discoverTrace.info("B4 view reload loaded=\(nodes.count) addedKeys=\(addedKeys.count) radio=\(radioID)")
+    } catch {
+      errorMessage = error.userFacingMessage
+      discoverTrace.error("B4 view reload FAILED radio=\(radioID): \(error.localizedDescription)")
     }
 
-    // MARK: - Load Nodes
+    hasLoadedOnce = true
+    isLoading = false
+  }
 
-    func loadDiscoveredNodes(radioID: UUID) async {
-        guard let dataStore else { return }
+  // MARK: - Added State
 
-        isLoading = true
-        errorMessage = nil
+  /// Check if a node has already been added as a contact
+  func isAdded(_ node: DiscoveredNodeDTO) -> Bool {
+    addedPublicKeys.contains(node.publicKey)
+  }
 
-        do {
-            let nodes = try await dataStore.fetchDiscoveredNodes(radioID: radioID)
+  // MARK: - Delete
 
-            // Single batch query for all contact public keys (O(1) vs O(N))
-            let addedKeys = try await dataStore.fetchContactPublicKeys(radioID: radioID)
+  func deleteDiscoveredNode(_ node: DiscoveredNodeDTO) async {
+    guard let dataStore else { return }
 
-            discoveredNodes = nodes
-            addedPublicKeys = addedKeys
-            discoverTrace.info("B4 view reload loaded=\(nodes.count) addedKeys=\(addedKeys.count) radio=\(radioID)")
-        } catch {
-            errorMessage = error.userFacingMessage
-            discoverTrace.error("B4 view reload FAILED radio=\(radioID): \(error.localizedDescription)")
+    // Remove from UI immediately
+    discoveredNodes.removeAll { $0.id == node.id }
+
+    do {
+      try await dataStore.deleteDiscoveredNode(id: node.id)
+    } catch {
+      errorMessage = error.userFacingMessage
+    }
+  }
+
+  func clearAllDiscoveredNodes(radioID: UUID) async {
+    guard let dataStore else { return }
+
+    do {
+      try await dataStore.clearDiscoveredNodes(radioID: radioID)
+      discoveredNodes = []
+    } catch {
+      errorMessage = error.userFacingMessage
+    }
+  }
+
+  // MARK: - Filtering
+
+  func filteredNodes(
+    searchText: String,
+    segment: DiscoverSegment,
+    sortOrder: NodeSortOrder,
+    userLocation: CLLocation?
+  ) -> [DiscoveredNodeDTO] {
+    var result = discoveredNodes
+
+    if searchText.isEmpty {
+      switch segment {
+      case .all:
+        break
+      case .contacts:
+        result = result.filter { $0.nodeType == .chat }
+      case .repeaters:
+        result = result.filter { $0.nodeType == .repeater }
+      case .rooms:
+        result = result.filter { $0.nodeType == .room }
+      }
+    } else {
+      result = result.filter { node in
+        node.name.localizedStandardContains(searchText)
+          || node.publicKey.uppercaseHexString().hasPrefix(searchText.uppercased())
+      }
+    }
+
+    return sorted(result, by: sortOrder, userLocation: userLocation)
+  }
+
+  // MARK: - Sorting
+
+  private func sorted(
+    _ nodes: [DiscoveredNodeDTO],
+    by order: NodeSortOrder,
+    userLocation: CLLocation?
+  ) -> [DiscoveredNodeDTO] {
+    switch order {
+    case .lastHeard:
+      nodes.sorted { $0.lastAdvertTimestamp > $1.lastAdvertTimestamp }
+    case .name:
+      nodes.sorted {
+        $0.name.localizedCompare($1.name) == .orderedAscending
+      }
+    case .distance:
+      nodes.sorted { orderedByDistanceThenName($0, $1, from: userLocation) }
+    case .hops:
+      nodes.sorted { lhs, rhs in
+        let lhsHops = lhs.displayedHopCount
+        let rhsHops = rhs.displayedHopCount
+        // A nil hop count (flood-routed and never heard via advert) sorts to the bottom.
+        if (lhsHops == nil) != (rhsHops == nil) {
+          return lhsHops != nil
         }
-
-        hasLoadedOnce = true
-        isLoading = false
-    }
-
-    // MARK: - Added State
-
-    /// Check if a node has already been added as a contact
-    func isAdded(_ node: DiscoveredNodeDTO) -> Bool {
-        addedPublicKeys.contains(node.publicKey)
-    }
-
-    // MARK: - Delete
-
-    func deleteDiscoveredNode(_ node: DiscoveredNodeDTO) async {
-        guard let dataStore else { return }
-
-        // Remove from UI immediately
-        discoveredNodes.removeAll { $0.id == node.id }
-
-        do {
-            try await dataStore.deleteDiscoveredNode(id: node.id)
-        } catch {
-            errorMessage = error.userFacingMessage
+        if let lhsHops, let rhsHops, lhsHops != rhsHops {
+          return lhsHops < rhsHops
         }
+        return orderedByDistanceThenName(lhs, rhs, from: userLocation)
+      }
     }
+  }
 
-    func clearAllDiscoveredNodes(radioID: UUID) async {
-        guard let dataStore else { return }
-
-        do {
-            try await dataStore.clearDiscoveredNodes(radioID: radioID)
-            discoveredNodes = []
-        } catch {
-            errorMessage = error.userFacingMessage
+  /// Located nodes first, then nearest to `userLocation`, then by name. Falls back to name when
+  /// there is no user location, neither node has coordinates, or the distances tie.
+  private func orderedByDistanceThenName(
+    _ lhs: DiscoveredNodeDTO,
+    _ rhs: DiscoveredNodeDTO,
+    from userLocation: CLLocation?
+  ) -> Bool {
+    if let userLocation {
+      if lhs.hasLocation != rhs.hasLocation {
+        return lhs.hasLocation
+      }
+      if lhs.hasLocation {
+        let lhsDistance = CLLocation(latitude: lhs.latitude, longitude: lhs.longitude).distance(from: userLocation)
+        let rhsDistance = CLLocation(latitude: rhs.latitude, longitude: rhs.longitude).distance(from: userLocation)
+        if lhsDistance != rhsDistance {
+          return lhsDistance < rhsDistance
         }
+      }
     }
-
-    // MARK: - Filtering
-
-    func filteredNodes(
-        searchText: String,
-        segment: DiscoverSegment,
-        sortOrder: NodeSortOrder,
-        userLocation: CLLocation?
-    ) -> [DiscoveredNodeDTO] {
-        var result = discoveredNodes
-
-        if searchText.isEmpty {
-            switch segment {
-            case .all:
-                break
-            case .contacts:
-                result = result.filter { $0.nodeType == .chat }
-            case .repeaters:
-                result = result.filter { $0.nodeType == .repeater }
-            case .rooms:
-                result = result.filter { $0.nodeType == .room }
-            }
-        } else {
-            result = result.filter { node in
-                node.name.localizedStandardContains(searchText)
-                    || node.publicKey.uppercaseHexString().hasPrefix(searchText.uppercased())
-            }
-        }
-
-        return sorted(result, by: sortOrder, userLocation: userLocation)
-    }
-
-    // MARK: - Sorting
-
-    private func sorted(
-        _ nodes: [DiscoveredNodeDTO],
-        by order: NodeSortOrder,
-        userLocation: CLLocation?
-    ) -> [DiscoveredNodeDTO] {
-        switch order {
-        case .lastHeard:
-            return nodes.sorted { $0.lastAdvertTimestamp > $1.lastAdvertTimestamp }
-        case .name:
-            return nodes.sorted {
-                $0.name.localizedCompare($1.name) == .orderedAscending
-            }
-        case .distance:
-            return nodes.sorted { orderedByDistanceThenName($0, $1, from: userLocation) }
-        case .hops:
-            return nodes.sorted { lhs, rhs in
-                let lhsHops = lhs.displayedHopCount
-                let rhsHops = rhs.displayedHopCount
-                // A nil hop count (flood-routed and never heard via advert) sorts to the bottom.
-                if (lhsHops == nil) != (rhsHops == nil) {
-                    return lhsHops != nil
-                }
-                if let lhsHops, let rhsHops, lhsHops != rhsHops {
-                    return lhsHops < rhsHops
-                }
-                return orderedByDistanceThenName(lhs, rhs, from: userLocation)
-            }
-        }
-    }
-
-    /// Located nodes first, then nearest to `userLocation`, then by name. Falls back to name when
-    /// there is no user location, neither node has coordinates, or the distances tie.
-    private func orderedByDistanceThenName(
-        _ lhs: DiscoveredNodeDTO,
-        _ rhs: DiscoveredNodeDTO,
-        from userLocation: CLLocation?
-    ) -> Bool {
-        if let userLocation {
-            if lhs.hasLocation != rhs.hasLocation {
-                return lhs.hasLocation
-            }
-            if lhs.hasLocation {
-                let lhsDistance = CLLocation(latitude: lhs.latitude, longitude: lhs.longitude).distance(from: userLocation)
-                let rhsDistance = CLLocation(latitude: rhs.latitude, longitude: rhs.longitude).distance(from: userLocation)
-                if lhsDistance != rhsDistance {
-                    return lhsDistance < rhsDistance
-                }
-            }
-        }
-        return lhs.name.localizedCompare(rhs.name) == .orderedAscending
-    }
+    return lhs.name.localizedCompare(rhs.name) == .orderedAscending
+  }
 }

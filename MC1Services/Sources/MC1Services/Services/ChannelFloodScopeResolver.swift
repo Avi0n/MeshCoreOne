@@ -14,21 +14,21 @@ import MeshCore
 /// - `.inherit` + no device default → `.scope(.disabled)` (no scope filter)
 /// - `.region(name)` → `.scope(.region(name))` (explicit per-channel override)
 public enum ChannelFloodScopeResolver {
-    public static func resolve(
-        channelFloodScope: ChannelFloodScope,
-        deviceDefaultFloodScopeName: String?,
-        supportsUnscopedFloodSend: Bool
-    ) -> ResolvedFloodScope {
-        switch channelFloodScope {
-        case .inherit:
-            if let name = deviceDefaultFloodScopeName, !name.isEmpty {
-                return .scope(.region(name))
-            }
-            return .scope(.disabled)
-        case .allRegions:
-            return supportsUnscopedFloodSend ? .unscoped : .scope(.disabled)
-        case .region(let name):
-            return .scope(.region(name))
-        }
+  public static func resolve(
+    channelFloodScope: ChannelFloodScope,
+    deviceDefaultFloodScopeName: String?,
+    supportsUnscopedFloodSend: Bool
+  ) -> ResolvedFloodScope {
+    switch channelFloodScope {
+    case .inherit:
+      if let name = deviceDefaultFloodScopeName, !name.isEmpty {
+        return .scope(.region(name))
+      }
+      return .scope(.disabled)
+    case .allRegions:
+      return supportsUnscopedFloodSend ? .unscoped : .scope(.disabled)
+    case let .region(name):
+      return .scope(.region(name))
     }
+  }
 }

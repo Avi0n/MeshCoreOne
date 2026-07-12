@@ -335,7 +335,7 @@
 "advancedRadio.repeatMode" = "Modo Repetidor";
 
 /* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Crea un repetidor local en una frecuencia dedicada. Útil para senderismo y áreas remotas. Frecuencias válidas: 433, 869, 918 MHz.";
+"advancedRadio.repeatMode.footer" = "Crea un repetidor local en una frecuencia dedicada. Útil para senderismo y áreas remotas. Frecuencias válidas: 433, 869.495, 918 MHz.";
 
 
 // MARK: - Path Hash Mode Section
@@ -697,11 +697,11 @@
 
 // MARK: - Link Preview Settings Section
 
-/* Section header for link preview settings */
-"linkPreviews.header" = "Vista previa de enlaces";
+/* Section header for link content settings */
+"linkPreviews.header" = "Contenido de enlaces";
 
-/* Toggle label for link previews */
-"linkPreviews.toggle" = "Vista previa de enlaces";
+/* Toggle label for the link content master switch */
+"linkPreviews.toggle" = "Mostrar contenido de enlaces";
 
 /* Toggle label for showing previews in DMs */
 "linkPreviews.showInDMs" = "Mostrar en mensajes directos";
@@ -709,8 +709,11 @@
 /* Toggle label for showing previews in channels */
 "linkPreviews.showInChannels" = "Mostrar en canales";
 
-/* Footer explaining link preview privacy implications */
-"linkPreviews.footer" = "Las vistas previas de enlaces obtienen datos de la web, lo que puede revelar tu dirección IP al servidor que aloja el enlace.";
+/* Footer explaining link content privacy implications */
+"linkPreviews.footer" = "Las vistas previas de enlaces y las imágenes se obtienen a través de la conexión a internet de tu teléfono, no de la malla. Esto puede revelar tu dirección IP al servidor que aloja el contenido y puede consumir datos móviles.";
+
+/* Footer note shown when Reduce Motion is enabled */
+"linkPreviews.reduceMotionNote" = "Reducir movimiento está activado, por lo que los GIF no se reproducirán automáticamente.";
 
 
 // MARK: - Node Settings Section
@@ -1259,14 +1262,8 @@
 /* Validation error: no empty channel slot left (param: channel name) */
 "configImport.error.noAvailableChannelSlot" = "No hay ningún espacio de canal libre disponible para \"%@\"";
 
-/* Toggle label for inline images */
-"inlineImages.toggle" = "Imágenes en línea";
-
 /* Toggle label for auto-play GIFs */
 "inlineImages.autoPlayGifs" = "Reproducir GIFs automáticamente";
-
-/* Footer explaining inline image privacy implications */
-"inlineImages.footer" = "Obtener imágenes de URLs puede revelar tu dirección IP al servidor que aloja la imagen.";
 
 // MARK: - Map Preview Settings Section
 

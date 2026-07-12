@@ -10,7 +10,7 @@
 /// - Notification, Keychain, and AccessorySetupKit services
 /// - High-level service layer (ContactService, MessageService, ChannelService)
 enum MC1ServicesVersion {
-    static let version = "0.1.0"
+  static let version = "0.1.0"
 }
 
 // MARK: - Type Aliases

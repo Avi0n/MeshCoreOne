@@ -15,34 +15,35 @@ import MC1Services
 /// consumers would force duplicating `SyncCoordinator`'s resolution.
 @MainActor
 final class MessageEventStream {
+  private var continuations: [UUID: AsyncStream<MessageEvent>.Continuation] = [:]
 
-    private var continuations: [UUID: AsyncStream<MessageEvent>.Continuation] = [:]
-
-    func events() -> AsyncStream<MessageEvent> {
-        let id = UUID()
-        return AsyncStream { continuation in
-            self.continuations[id] = continuation
-            continuation.onTermination = { [weak self, id] _ in
-                Task { @MainActor in
-                    self?.continuations.removeValue(forKey: id)
-                }
-            }
+  func events() -> AsyncStream<MessageEvent> {
+    let id = UUID()
+    return AsyncStream { continuation in
+      self.continuations[id] = continuation
+      continuation.onTermination = { [weak self, id] _ in
+        Task { @MainActor in
+          self?.continuations.removeValue(forKey: id)
         }
+      }
     }
+  }
 
-    func send(_ event: MessageEvent) {
-        var staleIDs: [UUID] = []
-        for (id, continuation) in continuations {
-            if case .terminated = continuation.yield(event) {
-                staleIDs.append(id)
-            }
-        }
-        for id in staleIDs { continuations.removeValue(forKey: id) }
+  func send(_ event: MessageEvent) {
+    var staleIDs: [UUID] = []
+    for (id, continuation) in continuations {
+      if case .terminated = continuation.yield(event) {
+        staleIDs.append(id)
+      }
     }
+    for id in staleIDs {
+      continuations.removeValue(forKey: id)
+    }
+  }
 
-    #if DEBUG
+  #if DEBUG
     func subscriberCount() -> Int {
-        continuations.count
+      continuations.count
     }
-    #endif
+  #endif
 }

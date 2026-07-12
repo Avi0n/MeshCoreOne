@@ -334,7 +334,7 @@
 "advancedRadio.repeatMode" = "Repeat Mode";
 
 /* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Creates a local repeater on a dedicated frequency. Useful for hiking and remote areas. Valid frequencies: 433, 869, 918 MHz.";
+"advancedRadio.repeatMode.footer" = "Creates a local repeater on a dedicated frequency. Useful for hiking and remote areas. Valid frequencies: 433, 869.495, 918 MHz.";
 
 
 // MARK: - Path Hash Mode Section
@@ -696,32 +696,29 @@
 
 // MARK: - Link Preview Settings Section
 
-/* Section header for link preview settings */
-"linkPreviews.header" = "Link Previews";
+/* Section header for link content settings */
+"linkPreviews.header" = "Link Content";
 
-/* Toggle label for link previews */
-"linkPreviews.toggle" = "Link Previews";
+/* Toggle label for the link content master switch */
+"linkPreviews.toggle" = "Show Link Content";
 
-/* Toggle label for showing previews in DMs */
+/* Toggle label for showing link content in DMs */
 "linkPreviews.showInDMs" = "Show in Direct Messages";
 
-/* Toggle label for showing previews in channels */
+/* Toggle label for showing link content in channels */
 "linkPreviews.showInChannels" = "Show in Channels";
 
-/* Footer explaining link preview privacy implications */
-"linkPreviews.footer" = "Link previews fetch data from the web, which may reveal your IP address to the server hosting the link.";
+/* Footer explaining link content privacy implications */
+"linkPreviews.footer" = "Link previews and images are fetched over your phone's internet connection, not the mesh. This may reveal your IP address to the server hosting the content and can use cellular data.";
+
+/* Footer note shown when Reduce Motion is enabled */
+"linkPreviews.reduceMotionNote" = "Reduce Motion is on, so GIFs will not auto-play.";
 
 
 // MARK: - Inline Image Settings Section
 
-/* Toggle label for inline images */
-"inlineImages.toggle" = "Inline Images";
-
 /* Toggle label for auto-play GIFs */
 "inlineImages.autoPlayGifs" = "Auto-play GIFs";
-
-/* Footer explaining inline image privacy implications */
-"inlineImages.footer" = "Fetching images from URLs may reveal your IP address to the server hosting the image.";
 
 
 // MARK: - Map Preview Settings Section

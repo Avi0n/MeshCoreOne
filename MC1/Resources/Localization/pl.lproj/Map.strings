@@ -10,12 +10,8 @@
 
 /* Location: MapView.swift - Purpose: Done button for sheets */
 "map.common.done" = "Gotowe";
-"map.common.dismissOverlay" = "Zamknij";
 
 // MARK: - Map Controls
-
-/* Location: MapView.swift - Purpose: Accessibility label when labels are visible */
-"map.controls.hideLabels" = "Ukryj etykiety";
 
 /* Location: MapView.swift - Purpose: Accessibility label when labels are hidden */
 "map.controls.showLabels" = "Pokaż etykiety";
@@ -26,14 +22,13 @@
 /* Location: MapControlsToolbar.swift - Purpose: Accessibility label for user location button */
 "map.controls.centerOnMyLocation" = "Wyśrodkuj na mojej lokalizacji";
 
-/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for layers button */
-"map.controls.layers" = "Warstwy mapy";
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for map options menu button */
+/* AI-translated - please verify with native speakers. */
+"map.controls.mapOptions" = "Opcje mapy";
 
-/* Location: MapCanvasView.swift - Purpose: Accessibility label for north lock button (lock) */
-"map.controls.lockNorth" = "Zablokuj na północ";
-
-/* Location: MapCanvasView.swift - Purpose: Accessibility label for north lock button (unlock) */
-"map.controls.unlockNorth" = "Odblokuj obrót";
+/* Location: MapControlsToolbar.swift - Purpose: Map options menu toggle that locks the map bearing to north */
+/* AI-translated - please verify with native speakers. */
+"map.controls.lockNorth" = "Północ u górze";
 
 /* Location: MapView.swift - Purpose: Accessibility label for refresh button */
 "map.controls.refresh" = "Odśwież kontakty";

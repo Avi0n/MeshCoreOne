@@ -4,12 +4,12 @@ import Foundation
 
 /// Error thrown when an async operation exceeds its timeout.
 public struct TimeoutError: Error, LocalizedError, Sendable {
-    public let operationName: String
-    public let timeout: Duration
+  public let operationName: String
+  public let timeout: Duration
 
-    public var errorDescription: String? {
-        "Operation '\(operationName)' timed out after \(timeout)"
-    }
+  public var errorDescription: String? {
+    "Operation '\(operationName)' timed out after \(timeout)"
+  }
 }
 
 // MARK: - Timeout Helpers
@@ -19,15 +19,15 @@ public struct TimeoutError: Error, LocalizedError, Sendable {
 /// suspends the app; current callers wrap BLE operations that should not time out
 /// during suspension. See `raceAgainstDeadline` for the cancellation contract.
 public func withTimeout<T: Sendable>(
-    _ timeout: Duration,
-    operationName: String = #function,
-    operation: @escaping @Sendable () async throws -> T
+  _ timeout: Duration,
+  operationName: String = #function,
+  operation: @escaping @Sendable () async throws -> T
 ) async throws -> T {
-    try await raceAgainstDeadline(
-        sleepUntilDeadline: { try await Task.sleep(for: timeout, clock: .suspending) },
-        makeTimeoutError: { TimeoutError(operationName: operationName, timeout: timeout) },
-        operation: operation
-    )
+  try await raceAgainstDeadline(
+    sleepUntilDeadline: { try await Task.sleep(for: timeout, clock: .suspending) },
+    makeTimeoutError: { TimeoutError(operationName: operationName, timeout: timeout) },
+    operation: operation
+  )
 }
 
 /// Races an async operation against a deadline, throwing `CancellationError` when
@@ -37,14 +37,14 @@ public func withTimeout<T: Sendable>(
 /// elapsing while the app is suspended. See `raceAgainstDeadline` for the
 /// cancellation contract.
 func withCooperativeTimeout<T: Sendable>(
-    seconds: TimeInterval,
-    operation: @escaping @Sendable () async throws -> T
+  seconds: TimeInterval,
+  operation: @escaping @Sendable () async throws -> T
 ) async throws -> T {
-    try await raceAgainstDeadline(
-        sleepUntilDeadline: { try await Task.sleep(for: .seconds(seconds)) },
-        makeTimeoutError: { CancellationError() },
-        operation: operation
-    )
+  try await raceAgainstDeadline(
+    sleepUntilDeadline: { try await Task.sleep(for: .seconds(seconds)) },
+    makeTimeoutError: { CancellationError() },
+    operation: operation
+  )
 }
 
 /// Core racer shared by `withTimeout` and `withCooperativeTimeout`.
@@ -60,20 +60,20 @@ func withCooperativeTimeout<T: Sendable>(
 /// in-flight continuation it owned (e.g. `BLETransportOpenedSignal.wait`'s pending
 /// waiter slot).
 private func raceAgainstDeadline<T: Sendable>(
-    sleepUntilDeadline: @escaping @Sendable () async throws -> Void,
-    makeTimeoutError: @escaping @Sendable () -> any Error,
-    operation: @escaping @Sendable () async throws -> T
+  sleepUntilDeadline: @escaping @Sendable () async throws -> Void,
+  makeTimeoutError: @escaping @Sendable () -> any Error,
+  operation: @escaping @Sendable () async throws -> T
 ) async throws -> T {
-    try await withThrowingTaskGroup(of: T.self) { group in
-        defer { group.cancelAll() }
-        group.addTask { try await operation() }
-        group.addTask {
-            try await sleepUntilDeadline()
-            throw makeTimeoutError()
-        }
-        guard let result = try await group.next() else {
-            throw makeTimeoutError()
-        }
-        return result
+  try await withThrowingTaskGroup(of: T.self) { group in
+    defer { group.cancelAll() }
+    group.addTask { try await operation() }
+    group.addTask {
+      try await sleepUntilDeadline()
+      throw makeTimeoutError()
     }
+    guard let result = try await group.next() else {
+      throw makeTimeoutError()
+    }
+    return result
+  }
 }

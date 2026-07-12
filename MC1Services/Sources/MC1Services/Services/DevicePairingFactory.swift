@@ -8,12 +8,12 @@ import Foundation
 /// where AccessorySetupKit is present but non-functional. Keeping the branch here means no
 /// `#if os(...)` or `isiOSAppOnMac` check leaks into `ConnectionManager` or the views.
 enum DevicePairingFactory {
-    /// Builds the pairing service appropriate for the current platform.
-    @MainActor
-    static func make() -> any DevicePairingService {
-        if ProcessInfo.processInfo.isiOSAppOnMac {
-            return BluetoothScanPairingService()
-        }
-        return AccessorySetupPairingService(accessorySetupKit: AccessorySetupKitService())
+  /// Builds the pairing service appropriate for the current platform.
+  @MainActor
+  static func make() -> any DevicePairingService {
+    if ProcessInfo.processInfo.isiOSAppOnMac {
+      return BluetoothScanPairingService()
     }
+    return AccessorySetupPairingService(accessorySetupKit: AccessorySetupKitService())
+  }
 }

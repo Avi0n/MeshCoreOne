@@ -1,687 +1,686 @@
-import Testing
 @testable import MC1
+import Testing
 
 @Suite("CLICompletionEngine Tests")
 @MainActor
 struct CLICompletionEngineTests {
+  // MARK: - Helper
+
+  private func createEngine() -> CLICompletionEngine {
+    CLICompletionEngine()
+  }
+
+  // MARK: - Command Completion Tests
+
+  @Test
+  func `Empty input returns all commands`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "", isLocal: true)
+
+    #expect(suggestions.contains("help"))
+    #expect(suggestions.contains("clear"))
+    #expect(suggestions.contains("login"))
+    #expect(suggestions.contains("session"))
+  }
+
+  @Test
+  func `Partial command returns matching commands`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "hel", isLocal: true)
+
+    #expect(suggestions == ["help"])
+  }
+
+  @Test
+  func `Session subcommands complete after 'session '`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "session ", isLocal: true)
+
+    #expect(suggestions.contains("list"))
+    #expect(suggestions.contains("local"))
+  }
+
+  @Test
+  func `Repeater commands available in remote session`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "v", isLocal: false)
+
+    #expect(suggestions.contains("ver"))
+  }
+
+  @Test
+  func `Login not available in remote session`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "log", isLocal: false)
+
+    #expect(!suggestions.contains("login"))
+    #expect(suggestions.contains("logout"))
+    #expect(suggestions.contains("log"))
+  }
+
+  // MARK: - Session Command Exclusion (Node CLI)
+
+  @Test
+  func `Node CLI completions exclude app-CLI session commands`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "", isLocal: false, includeSessionCommands: false)
+
+    #expect(!suggestions.contains("session"))
+    #expect(!suggestions.contains("logout"))
+    // Universal built-ins and node commands remain available.
+    #expect(suggestions.contains("help"))
+    #expect(suggestions.contains("clear"))
+    #expect(suggestions.contains("ver"))
+  }
+
+  @Test
+  func `Node CLI does not suggest logout for a 'log' prefix`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "log", isLocal: false, includeSessionCommands: false)
+
+    #expect(!suggestions.contains("logout"))
+    #expect(suggestions.contains("log"))
+  }
+
+  @Test
+  func `App CLI still offers session commands by default`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "", isLocal: false)
+
+    #expect(suggestions.contains("session"))
+    #expect(suggestions.contains("logout"))
+  }
+
+  @Test
+  func `Region subcommands complete after 'region '`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "region ", isLocal: false)
+
+    #expect(suggestions.contains("load"))
+    #expect(suggestions.contains("get"))
+    #expect(suggestions.contains("put"))
+    #expect(suggestions.contains("save"))
+  }
+
+  @Test
+  func `GPS subcommands complete after 'gps '`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "gps ", isLocal: false)
+
+    #expect(suggestions.contains("on"))
+    #expect(suggestions.contains("off"))
+    #expect(suggestions.contains("sync"))
+    #expect(suggestions.contains("advert"))
+  }
+
+  @Test
+  func `Get/set completes all parameters`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "get ", isLocal: false)
+
+    #expect(suggestions.contains("name"))
+    #expect(suggestions.contains("radio"))
+    #expect(suggestions.contains("flood.max"))
+    #expect(suggestions.contains("bridge.enabled"))
+  }
+
+  @Test
+  func `Clear subcommands complete`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "clear ", isLocal: false)
 
-    // MARK: - Helper
-
-    private func createEngine() -> CLICompletionEngine {
-        CLICompletionEngine()
-    }
-
-    // MARK: - Command Completion Tests
-
-    @Test("Empty input returns all commands")
-    func emptyInputReturnsAllCommands() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "", isLocal: true)
-
-        #expect(suggestions.contains("help"))
-        #expect(suggestions.contains("clear"))
-        #expect(suggestions.contains("login"))
-        #expect(suggestions.contains("session"))
-    }
-
-    @Test("Partial command returns matching commands")
-    func partialCommandReturnsMatchingCommands() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "hel", isLocal: true)
-
-        #expect(suggestions == ["help"])
-    }
-
-    @Test("Session subcommands complete after 'session '")
-    func sessionSubcommandsComplete() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "session ", isLocal: true)
-
-        #expect(suggestions.contains("list"))
-        #expect(suggestions.contains("local"))
-    }
-
-    @Test("Repeater commands available in remote session")
-    func repeaterCommandsInRemoteSession() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "v", isLocal: false)
-
-        #expect(suggestions.contains("ver"))
-    }
-
-    @Test("Login not available in remote session")
-    func loginNotAvailableInRemoteSession() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "log", isLocal: false)
-
-        #expect(!suggestions.contains("login"))
-        #expect(suggestions.contains("logout"))
-        #expect(suggestions.contains("log"))
-    }
-
-    // MARK: - Session Command Exclusion (Node CLI)
-
-    @Test("Node CLI completions exclude app-CLI session commands")
-    func nodeCompletionsExcludeSessionCommands() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "", isLocal: false, includeSessionCommands: false)
-
-        #expect(!suggestions.contains("session"))
-        #expect(!suggestions.contains("logout"))
-        // Universal built-ins and node commands remain available.
-        #expect(suggestions.contains("help"))
-        #expect(suggestions.contains("clear"))
-        #expect(suggestions.contains("ver"))
-    }
-
-    @Test("Node CLI does not suggest logout for a 'log' prefix")
-    func nodeCompletionsExcludeLogoutPrefix() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "log", isLocal: false, includeSessionCommands: false)
-
-        #expect(!suggestions.contains("logout"))
-        #expect(suggestions.contains("log"))
-    }
-
-    @Test("App CLI still offers session commands by default")
-    func appCompletionsIncludeSessionCommandsByDefault() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "", isLocal: false)
-
-        #expect(suggestions.contains("session"))
-        #expect(suggestions.contains("logout"))
-    }
-
-    @Test("Region subcommands complete after 'region '")
-    func regionSubcommandsComplete() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "region ", isLocal: false)
-
-        #expect(suggestions.contains("load"))
-        #expect(suggestions.contains("get"))
-        #expect(suggestions.contains("put"))
-        #expect(suggestions.contains("save"))
-    }
-
-    @Test("GPS subcommands complete after 'gps '")
-    func gpsSubcommandsComplete() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "gps ", isLocal: false)
-
-        #expect(suggestions.contains("on"))
-        #expect(suggestions.contains("off"))
-        #expect(suggestions.contains("sync"))
-        #expect(suggestions.contains("advert"))
-    }
-
-    @Test("Get/set completes all parameters")
-    func getSetCompletesParameters() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "get ", isLocal: false)
-
-        #expect(suggestions.contains("name"))
-        #expect(suggestions.contains("radio"))
-        #expect(suggestions.contains("flood.max"))
-        #expect(suggestions.contains("bridge.enabled"))
-    }
-
-    @Test("Clear subcommands complete")
-    func clearSubcommandsComplete() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "clear ", isLocal: false)
-
-        #expect(suggestions.contains("stats"))
-    }
-
-    // MARK: - Log Subcommands Tests
-
-    @Test("Log subcommands complete after 'log '")
-    func logSubcommandsComplete() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "log ", isLocal: false)
-
-        #expect(suggestions.contains("start"))
-        #expect(suggestions.contains("stop"))
-        #expect(suggestions.contains("erase"))
-    }
-
-    @Test("Log subcommand filters by prefix")
-    func logSubcommandFiltersPrefix() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "log st", isLocal: false)
-
-        #expect(suggestions.contains("start"))
-        #expect(suggestions.contains("stop"))
-        #expect(!suggestions.contains("erase"))
-    }
-
-    // MARK: - Powersaving Tests
-
-    @Test("Powersaving values complete after 'powersaving '")
-    func powersavingValuesComplete() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "powersaving ", isLocal: false)
-
-        #expect(suggestions.contains("on"))
-        #expect(suggestions.contains("off"))
-    }
-
-    @Test("Powersaving filters by prefix")
-    func powersavingFiltersPrefix() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "powersaving o", isLocal: false)
-
-        #expect(suggestions.contains("on"))
-        #expect(suggestions.contains("off"))
-    }
+    #expect(suggestions.contains("stats"))
+  }
+
+  // MARK: - Log Subcommands Tests
+
+  @Test
+  func `Log subcommands complete after 'log '`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "log ", isLocal: false)
+
+    #expect(suggestions.contains("start"))
+    #expect(suggestions.contains("stop"))
+    #expect(suggestions.contains("erase"))
+  }
+
+  @Test
+  func `Log subcommand filters by prefix`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "log st", isLocal: false)
+
+    #expect(suggestions.contains("start"))
+    #expect(suggestions.contains("stop"))
+    #expect(!suggestions.contains("erase"))
+  }
+
+  // MARK: - Powersaving Tests
+
+  @Test
+  func `Powersaving values complete after 'powersaving '`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "powersaving ", isLocal: false)
+
+    #expect(suggestions.contains("on"))
+    #expect(suggestions.contains("off"))
+  }
 
-    // MARK: - GPS Advert Third Argument Tests
+  @Test
+  func `Powersaving filters by prefix`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "powersaving o", isLocal: false)
+
+    #expect(suggestions.contains("on"))
+    #expect(suggestions.contains("off"))
+  }
 
-    @Test("GPS advert values complete for third argument")
-    func gpsAdvertValuesComplete() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "gps advert ", isLocal: false)
+  // MARK: - GPS Advert Third Argument Tests
 
-        #expect(suggestions.contains("none"))
-        #expect(suggestions.contains("share"))
-        #expect(suggestions.contains("prefs"))
-    }
+  @Test
+  func `GPS advert values complete for third argument`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "gps advert ", isLocal: false)
 
-    @Test("GPS advert filters third argument by prefix")
-    func gpsAdvertFiltersPrefix() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "gps advert s", isLocal: false)
+    #expect(suggestions.contains("none"))
+    #expect(suggestions.contains("share"))
+    #expect(suggestions.contains("prefs"))
+  }
 
-        #expect(suggestions.contains("share"))
-        #expect(!suggestions.contains("none"))
-        #expect(!suggestions.contains("prefs"))
-    }
+  @Test
+  func `GPS advert filters third argument by prefix`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "gps advert s", isLocal: false)
 
-    // MARK: - Node Names Tests
+    #expect(suggestions.contains("share"))
+    #expect(!suggestions.contains("none"))
+    #expect(!suggestions.contains("prefs"))
+  }
 
-    @Test("updateNodeNames stores node names")
-    func updateNodeNamesStoresNames() {
-        let engine = createEngine()
+  // MARK: - Node Names Tests
 
-        #expect(engine.nodeNames.isEmpty)
+  @Test
+  func `updateNodeNames stores node names`() {
+    let engine = createEngine()
 
-        engine.updateNodeNames(["Alpha", "Bravo", "Charlie"])
+    #expect(engine.nodeNames.isEmpty)
 
-        #expect(engine.nodeNames == ["Alpha", "Bravo", "Charlie"])
-    }
+    engine.updateNodeNames(["Alpha", "Bravo", "Charlie"])
 
-    @Test("updateNodeNames replaces previous names")
-    func updateNodeNamesReplacesPrevious() {
-        let engine = createEngine()
-        engine.updateNodeNames(["Alpha", "Bravo"])
-        engine.updateNodeNames(["Delta", "Echo"])
+    #expect(engine.nodeNames == ["Alpha", "Bravo", "Charlie"])
+  }
 
-        #expect(engine.nodeNames == ["Delta", "Echo"])
-    }
+  @Test
+  func `updateNodeNames replaces previous names`() {
+    let engine = createEngine()
+    engine.updateNodeNames(["Alpha", "Bravo"])
+    engine.updateNodeNames(["Delta", "Echo"])
 
-    // MARK: - Login with Node Names Tests
+    #expect(engine.nodeNames == ["Delta", "Echo"])
+  }
 
-    @Test("Login completes with node names")
-    func loginCompletesWithNodeNames() {
-        let engine = createEngine()
-        engine.updateNodeNames(["Alpha", "Bravo", "Charlie"])
+  // MARK: - Login with Node Names Tests
 
-        let suggestions = engine.completions(for: "login ", isLocal: true)
+  @Test
+  func `Login completes with node names`() {
+    let engine = createEngine()
+    engine.updateNodeNames(["Alpha", "Bravo", "Charlie"])
 
-        #expect(suggestions.contains("Alpha"))
-        #expect(suggestions.contains("Bravo"))
-        #expect(suggestions.contains("Charlie"))
-    }
+    let suggestions = engine.completions(for: "login ", isLocal: true)
 
-    @Test("Login filters node names by prefix")
-    func loginFiltersNodeNamesByPrefix() {
-        let engine = createEngine()
-        engine.updateNodeNames(["Alpha", "Bravo", "Charlie"])
+    #expect(suggestions.contains("Alpha"))
+    #expect(suggestions.contains("Bravo"))
+    #expect(suggestions.contains("Charlie"))
+  }
 
-        let suggestions = engine.completions(for: "login a", isLocal: true)
+  @Test
+  func `Login filters node names by prefix`() {
+    let engine = createEngine()
+    engine.updateNodeNames(["Alpha", "Bravo", "Charlie"])
 
-        #expect(suggestions.contains("Alpha"))
-        #expect(!suggestions.contains("Bravo"))
-        #expect(!suggestions.contains("Charlie"))
-    }
+    let suggestions = engine.completions(for: "login a", isLocal: true)
 
-    @Test("Session includes node names in suggestions")
-    func sessionIncludesNodeNames() {
-        let engine = createEngine()
-        engine.updateNodeNames(["TestNode"])
+    #expect(suggestions.contains("Alpha"))
+    #expect(!suggestions.contains("Bravo"))
+    #expect(!suggestions.contains("Charlie"))
+  }
 
-        let suggestions = engine.completions(for: "session ", isLocal: true)
+  @Test
+  func `Session includes node names in suggestions`() {
+    let engine = createEngine()
+    engine.updateNodeNames(["TestNode"])
 
-        #expect(suggestions.contains("list"))
-        #expect(suggestions.contains("local"))
-        #expect(suggestions.contains("TestNode"))
-    }
+    let suggestions = engine.completions(for: "session ", isLocal: true)
 
-    @Test("Node name completion is case-insensitive")
-    func nodeNameCompletionCaseInsensitive() {
-        let engine = createEngine()
-        engine.updateNodeNames(["MyRepeater"])
+    #expect(suggestions.contains("list"))
+    #expect(suggestions.contains("local"))
+    #expect(suggestions.contains("TestNode"))
+  }
 
-        let suggestions = engine.completions(for: "login my", isLocal: true)
+  @Test
+  func `Node name completion is case-insensitive`() {
+    let engine = createEngine()
+    engine.updateNodeNames(["MyRepeater"])
 
-        #expect(suggestions.contains("MyRepeater"))
-    }
+    let suggestions = engine.completions(for: "login my", isLocal: true)
 
-    @Test("Empty node names returns empty for login")
-    func emptyNodeNamesReturnsEmptyForLogin() {
-        let engine = createEngine()
-        // No updateNodeNames called
+    #expect(suggestions.contains("MyRepeater"))
+  }
 
-        let suggestions = engine.completions(for: "login ", isLocal: true)
+  @Test
+  func `Empty node names returns empty for login`() {
+    let engine = createEngine()
+    // No updateNodeNames called
 
-        #expect(suggestions.isEmpty)
-    }
+    let suggestions = engine.completions(for: "login ", isLocal: true)
 
-    // MARK: - Command Arity Tests (no suggestions after command complete)
+    #expect(suggestions.isEmpty)
+  }
 
-    @Test("Login returns empty after node name complete")
-    func loginReturnsEmptyAfterNodeNameComplete() {
-        let engine = createEngine()
-        engine.updateNodeNames(["MyRepeater"])
+  // MARK: - Command Arity Tests (no suggestions after command complete)
 
-        let suggestions = engine.completions(for: "login MyRepeater ", isLocal: true)
+  @Test
+  func `Login returns empty after node name complete`() {
+    let engine = createEngine()
+    engine.updateNodeNames(["MyRepeater"])
 
-        #expect(suggestions.isEmpty)
-    }
+    let suggestions = engine.completions(for: "login MyRepeater ", isLocal: true)
 
-    @Test("Session returns empty after subcommand complete")
-    func sessionReturnsEmptyAfterSubcommandComplete() {
-        let engine = createEngine()
+    #expect(suggestions.isEmpty)
+  }
 
-        let suggestions = engine.completions(for: "session list ", isLocal: true)
+  @Test
+  func `Session returns empty after subcommand complete`() {
+    let engine = createEngine()
 
-        #expect(suggestions.isEmpty)
-    }
+    let suggestions = engine.completions(for: "session list ", isLocal: true)
 
-    @Test("Get returns empty after parameter complete")
-    func getReturnsEmptyAfterParameterComplete() {
-        let engine = createEngine()
+    #expect(suggestions.isEmpty)
+  }
 
-        let suggestions = engine.completions(for: "get name ", isLocal: false)
+  @Test
+  func `Get returns empty after parameter complete`() {
+    let engine = createEngine()
 
-        #expect(suggestions.isEmpty)
-    }
+    let suggestions = engine.completions(for: "get name ", isLocal: false)
 
-    @Test("GPS advert returns empty after value complete")
-    func gpsAdvertReturnsEmptyAfterValueComplete() {
-        let engine = createEngine()
+    #expect(suggestions.isEmpty)
+  }
 
-        let suggestions = engine.completions(for: "gps advert share ", isLocal: false)
+  @Test
+  func `GPS advert returns empty after value complete`() {
+    let engine = createEngine()
 
-        #expect(suggestions.isEmpty)
-    }
+    let suggestions = engine.completions(for: "gps advert share ", isLocal: false)
 
-    @Test("GPS on returns empty after subcommand complete")
-    func gpsOnReturnsEmptyAfterSubcommandComplete() {
-        let engine = createEngine()
+    #expect(suggestions.isEmpty)
+  }
 
-        let suggestions = engine.completions(for: "gps on ", isLocal: false)
+  @Test
+  func `GPS on returns empty after subcommand complete`() {
+    let engine = createEngine()
 
-        #expect(suggestions.isEmpty)
-    }
+    let suggestions = engine.completions(for: "gps on ", isLocal: false)
 
-    @Test("Clear returns empty after stats complete")
-    func clearReturnsEmptyAfterStatsComplete() {
-        let engine = createEngine()
+    #expect(suggestions.isEmpty)
+  }
 
-        let suggestions = engine.completions(for: "clear stats ", isLocal: false)
+  @Test
+  func `Clear returns empty after stats complete`() {
+    let engine = createEngine()
 
-        #expect(suggestions.isEmpty)
-    }
+    let suggestions = engine.completions(for: "clear stats ", isLocal: false)
 
-    @Test("Log returns empty after subcommand complete")
-    func logReturnsEmptyAfterSubcommandComplete() {
-        let engine = createEngine()
+    #expect(suggestions.isEmpty)
+  }
 
-        let suggestions = engine.completions(for: "log start ", isLocal: false)
+  @Test
+  func `Log returns empty after subcommand complete`() {
+    let engine = createEngine()
 
-        #expect(suggestions.isEmpty)
-    }
+    let suggestions = engine.completions(for: "log start ", isLocal: false)
 
-    @Test("Powersaving returns empty after value complete")
-    func powersavingReturnsEmptyAfterValueComplete() {
-        let engine = createEngine()
+    #expect(suggestions.isEmpty)
+  }
 
-        let suggestions = engine.completions(for: "powersaving on ", isLocal: false)
+  @Test
+  func `Powersaving returns empty after value complete`() {
+    let engine = createEngine()
 
-        #expect(suggestions.isEmpty)
-    }
+    let suggestions = engine.completions(for: "powersaving on ", isLocal: false)
 
-    @Test("Region returns empty after subcommand complete")
-    func regionReturnsEmptyAfterSubcommandComplete() {
-        let engine = createEngine()
+    #expect(suggestions.isEmpty)
+  }
 
-        let suggestions = engine.completions(for: "region load ", isLocal: false)
+  @Test
+  func `Region returns empty after subcommand complete`() {
+    let engine = createEngine()
 
-        #expect(suggestions.isEmpty)
-    }
+    let suggestions = engine.completions(for: "region load ", isLocal: false)
 
-    @Test("Clock subcommands complete after 'clock '")
-    func clockSubcommandsComplete() {
-        let engine = createEngine()
+    #expect(suggestions.isEmpty)
+  }
 
-        let suggestions = engine.completions(for: "clock ", isLocal: false)
+  @Test
+  func `Clock subcommands complete after 'clock '`() {
+    let engine = createEngine()
 
-        #expect(suggestions.contains("sync"))
-    }
+    let suggestions = engine.completions(for: "clock ", isLocal: false)
 
-    @Test("Clock returns empty after subcommand complete")
-    func clockReturnsEmptyAfterSubcommandComplete() {
-        let engine = createEngine()
+    #expect(suggestions.contains("sync"))
+  }
 
-        let suggestions = engine.completions(for: "clock sync ", isLocal: false)
+  @Test
+  func `Clock returns empty after subcommand complete`() {
+    let engine = createEngine()
 
-        #expect(suggestions.isEmpty)
-    }
+    let suggestions = engine.completions(for: "clock sync ", isLocal: false)
 
-    // MARK: - Partial Input Still Completes
+    #expect(suggestions.isEmpty)
+  }
 
-    @Test("Login partial input still suggests")
-    func loginPartialInputStillSuggests() {
-        let engine = createEngine()
-        engine.updateNodeNames(["MyRepeater"])
+  // MARK: - Partial Input Still Completes
 
-        let suggestions = engine.completions(for: "login MyRep", isLocal: true)
+  @Test
+  func `Login partial input still suggests`() {
+    let engine = createEngine()
+    engine.updateNodeNames(["MyRepeater"])
 
-        #expect(suggestions.contains("MyRepeater"))
-    }
+    let suggestions = engine.completions(for: "login MyRep", isLocal: true)
 
-    @Test("GPS advert partial input still suggests")
-    func gpsAdvertPartialInputStillSuggests() {
-        let engine = createEngine()
+    #expect(suggestions.contains("MyRepeater"))
+  }
 
-        let suggestions = engine.completions(for: "gps advert sh", isLocal: false)
+  @Test
+  func `GPS advert partial input still suggests`() {
+    let engine = createEngine()
 
-        #expect(suggestions.contains("share"))
-    }
+    let suggestions = engine.completions(for: "gps advert sh", isLocal: false)
 
-    // MARK: - Case Sensitivity
+    #expect(suggestions.contains("share"))
+  }
 
-    @Test("Uppercase command still respects arity")
-    func uppercaseCommandRespectsArity() {
-        let engine = createEngine()
-        engine.updateNodeNames(["MyRepeater"])
+  // MARK: - Case Sensitivity
 
-        let suggestions = engine.completions(for: "LOGIN MyRepeater ", isLocal: true)
+  @Test
+  func `Uppercase command still respects arity`() {
+    let engine = createEngine()
+    engine.updateNodeNames(["MyRepeater"])
 
-        #expect(suggestions.isEmpty)
-    }
+    let suggestions = engine.completions(for: "LOGIN MyRepeater ", isLocal: true)
 
-    // MARK: - v1.14.0 New Commands
+    #expect(suggestions.isEmpty)
+  }
 
-    @Test("advert.zerohop appears in remote session suggestions")
-    func advertZerohopAppearsInRemote() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "advert", isLocal: false)
+  // MARK: - v1.14.0 New Commands
 
-        #expect(suggestions.contains("advert"))
-        #expect(suggestions.contains("advert.zerohop"))
-    }
+  @Test
+  func `advert.zerohop appears in remote session suggestions`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "advert", isLocal: false)
 
-    @Test("discover.neighbors appears in remote session suggestions")
-    func discoverNeighborsAppearsInRemote() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "disc", isLocal: false)
+    #expect(suggestions.contains("advert"))
+    #expect(suggestions.contains("advert.zerohop"))
+  }
 
-        #expect(suggestions.contains("discover.neighbors"))
-    }
+  @Test
+  func `discover.neighbors appears in remote session suggestions`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "disc", isLocal: false)
 
-    @Test("New get/set params appear in completions")
-    func newGetSetParamsAppear() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "get ", isLocal: false)
+    #expect(suggestions.contains("discover.neighbors"))
+  }
 
-        #expect(suggestions.contains("path.hash.mode"))
-        #expect(suggestions.contains("loop.detect"))
-        #expect(suggestions.contains("bootloader.ver"))
-    }
+  @Test
+  func `New get/set params appear in completions`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "get ", isLocal: false)
 
-    @Test("set loop.detect suggests values")
-    func setLoopDetectSuggestsValues() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "set loop.detect ", isLocal: false)
+    #expect(suggestions.contains("path.hash.mode"))
+    #expect(suggestions.contains("loop.detect"))
+    #expect(suggestions.contains("bootloader.ver"))
+  }
 
-        #expect(suggestions == ["minimal", "moderate", "off", "strict"])
-    }
+  @Test
+  func `set loop.detect suggests values`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "set loop.detect ", isLocal: false)
 
-    @Test("set path.hash.mode suggests values")
-    func setPathHashModeSuggestsValues() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "set path.hash.mode ", isLocal: false)
+    #expect(suggestions == ["minimal", "moderate", "off", "strict"])
+  }
 
-        #expect(suggestions == ["0", "1", "2"])
-    }
+  @Test
+  func `set path.hash.mode suggests values`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "set path.hash.mode ", isLocal: false)
 
-    @Test("set loop.detect returns empty after value complete")
-    func setLoopDetectReturnsEmptyAfterValue() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "set loop.detect off ", isLocal: false)
+    #expect(suggestions == ["0", "1", "2"])
+  }
 
-        #expect(suggestions.isEmpty)
-    }
+  @Test
+  func `set loop.detect returns empty after value complete`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "set loop.detect off ", isLocal: false)
 
-    @Test("get loop.detect returns empty after param (no value completion for get)")
-    func getLoopDetectNoValueCompletion() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "get loop.detect ", isLocal: false)
+    #expect(suggestions.isEmpty)
+  }
 
-        #expect(suggestions.isEmpty)
-    }
+  @Test
+  func `get loop.detect returns empty after param (no value completion for get)`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "get loop.detect ", isLocal: false)
 
-    @Test("set loop.detect filters values by prefix")
-    func setLoopDetectFiltersPrefix() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "set loop.detect m", isLocal: false)
+    #expect(suggestions.isEmpty)
+  }
 
-        #expect(suggestions == ["minimal", "moderate"])
-    }
+  @Test
+  func `set loop.detect filters values by prefix`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "set loop.detect m", isLocal: false)
 
-    @Test("Uppercase GPS advert still suggests values")
-    func uppercaseGpsAdvertSuggestsValues() {
-        let engine = createEngine()
+    #expect(suggestions == ["minimal", "moderate"])
+  }
 
-        let suggestions = engine.completions(for: "GPS ADVERT ", isLocal: false)
+  @Test
+  func `Uppercase GPS advert still suggests values`() {
+    let engine = createEngine()
 
-        #expect(suggestions.contains("none"))
-        #expect(suggestions.contains("prefs"))
-        #expect(suggestions.contains("share"))
-    }
+    let suggestions = engine.completions(for: "GPS ADVERT ", isLocal: false)
 
-    // MARK: - Start OTA Tests
+    #expect(suggestions.contains("none"))
+    #expect(suggestions.contains("prefs"))
+    #expect(suggestions.contains("share"))
+  }
 
-    @Test("start appears in remote session suggestions")
-    func startAppearsInRemote() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "st", isLocal: false)
+  // MARK: - Start OTA Tests
 
-        #expect(suggestions.contains("start"))
-    }
+  @Test
+  func `start appears in remote session suggestions`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "st", isLocal: false)
 
-    @Test("start ota subcommand completes")
-    func startOtaSubcommandCompletes() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "start ", isLocal: false)
+    #expect(suggestions.contains("start"))
+  }
 
-        #expect(suggestions == ["ota"])
-    }
+  @Test
+  func `start ota subcommand completes`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "start ", isLocal: false)
 
-    @Test("start returns empty after ota complete")
-    func startReturnsEmptyAfterOtaComplete() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "start ota ", isLocal: false)
+    #expect(suggestions == ["ota"])
+  }
 
-        #expect(suggestions.isEmpty)
-    }
+  @Test
+  func `start returns empty after ota complete`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "start ota ", isLocal: false)
 
-    // MARK: - Region List Multi-Level Tests
+    #expect(suggestions.isEmpty)
+  }
 
-    @Test("Region list appears in subcommands")
-    func regionListAppearsInSubcommands() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "region ", isLocal: false)
+  // MARK: - Region List Multi-Level Tests
 
-        #expect(suggestions.contains("list"))
-        #expect(suggestions.contains("load"))
-        #expect(suggestions.contains("get"))
-    }
+  @Test
+  func `Region list appears in subcommands`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "region ", isLocal: false)
 
-    @Test("Region list completes with allowed and denied")
-    func regionListCompletesWithValues() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "region list ", isLocal: false)
+    #expect(suggestions.contains("list"))
+    #expect(suggestions.contains("load"))
+    #expect(suggestions.contains("get"))
+  }
 
-        #expect(suggestions == ["allowed", "denied"])
-    }
+  @Test
+  func `Region list completes with allowed and denied`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "region list ", isLocal: false)
 
-    @Test("Region list filters values by prefix")
-    func regionListFiltersPrefix() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "region list a", isLocal: false)
+    #expect(suggestions == ["allowed", "denied"])
+  }
 
-        #expect(suggestions == ["allowed"])
-    }
+  @Test
+  func `Region list filters values by prefix`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "region list a", isLocal: false)
 
-    @Test("Region list returns empty after value complete")
-    func regionListReturnsEmptyAfterValueComplete() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "region list allowed ", isLocal: false)
+    #expect(suggestions == ["allowed"])
+  }
 
-        #expect(suggestions.isEmpty)
-    }
+  @Test
+  func `Region list returns empty after value complete`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "region list allowed ", isLocal: false)
 
-    @Test("Region non-list subcommands return empty at position 2")
-    func regionNonListReturnsEmptyAtPosition2() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "region get ", isLocal: false)
+    #expect(suggestions.isEmpty)
+  }
 
-        #expect(suggestions.isEmpty)
-    }
+  @Test
+  func `Region non-list subcommands return empty at position 2`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "region get ", isLocal: false)
 
-    // MARK: - New Get/Set Parameters Tests
+    #expect(suggestions.isEmpty)
+  }
 
-    @Test("New get/set params include owner.info, radio.rxgain, bridge.channel, pwrmgt")
-    func newGetSetParamsIncludeAdded() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "get ", isLocal: false)
+  // MARK: - New Get/Set Parameters Tests
 
-        #expect(suggestions.contains("owner.info"))
-        #expect(suggestions.contains("radio.rxgain"))
-        #expect(suggestions.contains("bridge.channel"))
-        #expect(suggestions.contains("pwrmgt.support"))
-        #expect(suggestions.contains("pwrmgt.source"))
-        #expect(suggestions.contains("pwrmgt.bootreason"))
-        #expect(suggestions.contains("pwrmgt.bootmv"))
-    }
+  @Test
+  func `New get/set params include owner.info, radio.rxgain, bridge.channel, pwrmgt`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "get ", isLocal: false)
 
-    @Test("pwrmgt prefix filters to four params")
-    func pwrmgtPrefixFilters() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "get pwrmgt.", isLocal: false)
+    #expect(suggestions.contains("owner.info"))
+    #expect(suggestions.contains("radio.rxgain"))
+    #expect(suggestions.contains("bridge.channel"))
+    #expect(suggestions.contains("pwrmgt.support"))
+    #expect(suggestions.contains("pwrmgt.source"))
+    #expect(suggestions.contains("pwrmgt.bootreason"))
+    #expect(suggestions.contains("pwrmgt.bootmv"))
+  }
 
-        #expect(suggestions.count == 4)
-        #expect(suggestions.contains("pwrmgt.support"))
-        #expect(suggestions.contains("pwrmgt.source"))
-        #expect(suggestions.contains("pwrmgt.bootreason"))
-        #expect(suggestions.contains("pwrmgt.bootmv"))
-    }
+  @Test
+  func `pwrmgt prefix filters to four params`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "get pwrmgt.", isLocal: false)
 
-    // MARK: - New Set Value Completion Tests
+    #expect(suggestions.count == 4)
+    #expect(suggestions.contains("pwrmgt.support"))
+    #expect(suggestions.contains("pwrmgt.source"))
+    #expect(suggestions.contains("pwrmgt.bootreason"))
+    #expect(suggestions.contains("pwrmgt.bootmv"))
+  }
 
-    @Test("set repeat suggests on/off")
-    func setRepeatSuggestsOnOff() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "set repeat ", isLocal: false)
+  // MARK: - New Set Value Completion Tests
 
-        #expect(suggestions == ["off", "on"])
-    }
+  @Test
+  func `set repeat suggests on/off`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "set repeat ", isLocal: false)
 
-    @Test("set allow.read.only suggests on/off")
-    func setAllowReadOnlySuggestsOnOff() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "set allow.read.only ", isLocal: false)
+    #expect(suggestions == ["off", "on"])
+  }
 
-        #expect(suggestions == ["off", "on"])
-    }
+  @Test
+  func `set allow.read.only suggests on/off`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "set allow.read.only ", isLocal: false)
 
-    @Test("set bridge.enabled suggests on/off")
-    func setBridgeEnabledSuggestsOnOff() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "set bridge.enabled ", isLocal: false)
+    #expect(suggestions == ["off", "on"])
+  }
 
-        #expect(suggestions == ["off", "on"])
-    }
+  @Test
+  func `set bridge.enabled suggests on/off`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "set bridge.enabled ", isLocal: false)
 
-    @Test("set radio.rxgain suggests on/off")
-    func setRadioRxgainSuggestsOnOff() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "set radio.rxgain ", isLocal: false)
+    #expect(suggestions == ["off", "on"])
+  }
 
-        #expect(suggestions == ["off", "on"])
-    }
+  @Test
+  func `set radio.rxgain suggests on/off`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "set radio.rxgain ", isLocal: false)
 
-    @Test("set multi.acks suggests 0/1")
-    func setMultiAcksSuggestsValues() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "set multi.acks ", isLocal: false)
+    #expect(suggestions == ["off", "on"])
+  }
 
-        #expect(suggestions == ["0", "1"])
-    }
+  @Test
+  func `set multi.acks suggests 0/1`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "set multi.acks ", isLocal: false)
 
-    @Test("set bridge.source suggests tx/rx")
-    func setBridgeSourceSuggestsValues() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "set bridge.source ", isLocal: false)
+    #expect(suggestions == ["0", "1"])
+  }
 
-        #expect(suggestions == ["rx", "tx"])
-    }
+  @Test
+  func `set bridge.source suggests tx/rx`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "set bridge.source ", isLocal: false)
 
-    // MARK: - Serial-Only Exclusion Tests
+    #expect(suggestions == ["rx", "tx"])
+  }
 
-    @Test("get excludes serial-only params prv.key and acl")
-    func getExcludesSerialOnlyParams() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "get ", isLocal: false)
+  // MARK: - Serial-Only Exclusion Tests
 
-        #expect(!suggestions.contains("prv.key"))
-        #expect(!suggestions.contains("acl"))
-        // freq is only serial-only for set, not get
-        #expect(suggestions.contains("freq"))
-    }
+  @Test
+  func `get excludes serial-only params prv.key and acl`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "get ", isLocal: false)
 
-    @Test("get prefix matching still excludes serial-only params")
-    func getPrefixExcludesSerialOnly() {
-        let engine = createEngine()
+    #expect(!suggestions.contains("prv.key"))
+    #expect(!suggestions.contains("acl"))
+    // freq is only serial-only for set, not get
+    #expect(suggestions.contains("freq"))
+  }
 
-        #expect(!engine.completions(for: "get prv", isLocal: false).contains("prv.key"))
-        #expect(!engine.completions(for: "get a", isLocal: false).contains("acl"))
-    }
+  @Test
+  func `get prefix matching still excludes serial-only params`() {
+    let engine = createEngine()
 
-    @Test("set excludes serial-only param freq")
-    func setExcludesSerialOnlyParams() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "set ", isLocal: false)
+    #expect(!engine.completions(for: "get prv", isLocal: false).contains("prv.key"))
+    #expect(!engine.completions(for: "get a", isLocal: false).contains("acl"))
+  }
 
-        #expect(!suggestions.contains("freq"))
-        #expect(suggestions.contains("prv.key"))
-    }
+  @Test
+  func `set excludes serial-only param freq`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "set ", isLocal: false)
 
-    @Test("set prefix matching still excludes serial-only param freq")
-    func setPrefixExcludesSerialOnly() {
-        let engine = createEngine()
+    #expect(!suggestions.contains("freq"))
+    #expect(suggestions.contains("prv.key"))
+  }
 
-        #expect(!engine.completions(for: "set f", isLocal: false).contains("freq"))
-    }
+  @Test
+  func `set prefix matching still excludes serial-only param freq`() {
+    let engine = createEngine()
 
-    @Test("set repeat returns empty after value complete")
-    func setRepeatReturnsEmptyAfterValue() {
-        let engine = createEngine()
-        let suggestions = engine.completions(for: "set repeat on ", isLocal: false)
+    #expect(!engine.completions(for: "set f", isLocal: false).contains("freq"))
+  }
 
-        #expect(suggestions.isEmpty)
-    }
+  @Test
+  func `set repeat returns empty after value complete`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "set repeat on ", isLocal: false)
+
+    #expect(suggestions.isEmpty)
+  }
 }

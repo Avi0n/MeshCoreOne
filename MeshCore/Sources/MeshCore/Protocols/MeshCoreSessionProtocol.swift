@@ -22,8 +22,8 @@ import Foundation
 /// }
 /// ```
 public protocol MeshCoreSessionProtocol:
-    SessionEventStreaming,
-    MessagingSessionOps,
-    ContactSessionOps,
-    ChannelSessionOps,
-    MessageFetchSessionOps {}
+  SessionEventStreaming,
+  MessagingSessionOps,
+  ContactSessionOps,
+  ChannelSessionOps,
+  MessageFetchSessionOps {}

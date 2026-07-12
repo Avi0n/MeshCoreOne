@@ -63,11 +63,12 @@ jobs:
         run: |
           brew tap FelixHerrmann/tap
           brew trust FelixHerrmann/tap
-          brew install xcodegen swiftgen swift-package-list
+          brew install make xcodegen swiftgen swift-package-list
+          echo "$(brew --prefix make)/libexec/gnubin" >> "$GITHUB_PATH"
 
       - name: Generate Xcode project
         if: steps.version_check.outputs.should_build == 'true' || github.event_name == 'workflow_dispatch'
-        run: xcodegen generate
+        run: make generate
 
       - name: Update acknowledgements
         if: steps.version_check.outputs.should_build == 'true' || github.event_name == 'workflow_dispatch'

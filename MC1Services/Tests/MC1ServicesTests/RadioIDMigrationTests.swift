@@ -1,286 +1,301 @@
 import CryptoKit
 import Foundation
+@testable import MC1Services
 import SwiftData
 import Testing
-@testable import MC1Services
 
 @Suite("RadioID Migration Tests", .serialized)
 struct RadioIDMigrationTests {
+  // MARK: - Test Helpers
 
-    // MARK: - Test Helpers
+  private func createTestStore() async throws -> PersistenceStore {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    return PersistenceStore(modelContainer: container)
+  }
 
-    private func createTestStore() async throws -> PersistenceStore {
-        let container = try PersistenceStore.createContainer(inMemory: true)
-        return PersistenceStore(modelContainer: container)
-    }
+  // MARK: - radioID Propagation
 
-    // MARK: - radioID Propagation
+  @Test
+  func `Migration propagates new radioID from Device to all children`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    // UserDefaults is thread-safe but not marked Sendable, so reusing this value
+    // across the performRadioIDMigration actor boundary needs the isolation opt-out.
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
 
-    @Test("Migration propagates new radioID from Device to all children")
-    func radioIDPropagation() async throws {
-        let store = try await createTestStore()
-        await store.resetRadioIDMigrationFlag()
+    let store = try await createTestStore()
 
-        let bleUUID = UUID()
+    let bleUUID = UUID()
 
-        // Create device with id = bleUUID; radioID will get UUID() default but we
-        // simulate the post-rename state where children have radioID == bleUUID.
-        let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
-        try await store.saveDevice(device)
+    // Create device with id = bleUUID; radioID will get UUID() default but we
+    // simulate the post-rename state where children have radioID == bleUUID.
+    let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
+    try await store.saveDevice(device)
 
-        let contact = ContactDTO.testContact(id: UUID(), radioID: bleUUID, name: "Alice")
-        try await store.saveContact(contact)
+    let contact = ContactDTO.testContact(id: UUID(), radioID: bleUUID, name: "Alice")
+    try await store.saveContact(contact)
 
-        let channel = ChannelDTO(
-            id: UUID(),
-            radioID: bleUUID,
-            index: 0,
-            name: "General",
-            secret: Data(repeating: 0, count: 16),
-            isEnabled: true,
-            lastMessageDate: nil,
-            unreadCount: 0,
-            notificationLevel: .all
-        )
-        try await store.saveChannel(channel)
+    let channel = ChannelDTO(
+      id: UUID(),
+      radioID: bleUUID,
+      index: 0,
+      name: "General",
+      secret: Data(repeating: 0, count: 16),
+      isEnabled: true,
+      lastMessageDate: nil,
+      unreadCount: 0,
+      notificationLevel: .all
+    )
+    try await store.saveChannel(channel)
 
-        let messageID = UUID()
-        let message = MessageDTO.testDirectMessage(
-            id: messageID,
-            radioID: bleUUID,
-            contactID: contact.id,
-            text: "Hello",
-            direction: .outgoing,
-            status: .sent
-        )
-        try await store.saveMessage(message)
+    let messageID = UUID()
+    let message = MessageDTO.testDirectMessage(
+      id: messageID,
+      radioID: bleUUID,
+      contactID: contact.id,
+      text: "Hello",
+      direction: .outgoing,
+      status: .sent
+    )
+    try await store.saveMessage(message)
 
-        try await store.performRadioIDMigration()
+    try await store.performRadioIDMigration(defaults: defaults)
 
-        // Device's radioID should be different from bleUUID
-        let fetchedDevice = try await store.fetchDevice(id: bleUUID)
-        #expect(fetchedDevice != nil)
-        let newRadioID = fetchedDevice!.radioID
-        #expect(newRadioID != bleUUID, "Device should have a new radioID, not the old BLE UUID")
+    // Device's radioID should be different from bleUUID
+    let fetchedDevice = try await store.fetchDevice(id: bleUUID)
+    #expect(fetchedDevice != nil)
+    let newRadioID = try #require(fetchedDevice?.radioID)
+    #expect(newRadioID != bleUUID, "Device should have a new radioID, not the old BLE UUID")
 
-        // All children should share the new radioID
-        let contacts = try await store.fetchContacts(radioID: newRadioID)
-        #expect(contacts.count == 1)
-        #expect(contacts.first?.radioID == newRadioID)
+    // All children should share the new radioID
+    let contacts = try await store.fetchContacts(radioID: newRadioID)
+    #expect(contacts.count == 1)
+    #expect(contacts.first?.radioID == newRadioID)
 
-        let channels = try await store.fetchChannels(radioID: newRadioID)
-        #expect(channels.count == 1)
-        #expect(channels.first?.radioID == newRadioID)
+    let channels = try await store.fetchChannels(radioID: newRadioID)
+    #expect(channels.count == 1)
+    #expect(channels.first?.radioID == newRadioID)
 
-        let fetchedMessage = try await store.fetchMessage(id: messageID)
-        #expect(fetchedMessage != nil)
-        #expect(fetchedMessage?.radioID == newRadioID)
-    }
+    let fetchedMessage = try await store.fetchMessage(id: messageID)
+    #expect(fetchedMessage != nil)
+    #expect(fetchedMessage?.radioID == newRadioID)
+  }
 
-    // MARK: - Dedup Key Backfill
+  // MARK: - Dedup Key Backfill
 
-    @Test("Outgoing DM with nil dedup key gets backfilled")
-    func outgoingDMGetsKey() async throws {
-        let store = try await createTestStore()
-        await store.resetRadioIDMigrationFlag()
+  @Test
+  func `Outgoing DM with nil dedup key gets backfilled`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
 
-        let bleUUID = UUID()
-        let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
-        try await store.saveDevice(device)
+    let store = try await createTestStore()
 
-        let contactID = UUID()
-        let timestamp: UInt32 = 1_704_067_200
-        let text = "Hello mesh"
-        let messageID = UUID()
+    let bleUUID = UUID()
+    let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
+    try await store.saveDevice(device)
 
-        let message = MessageDTO(
-            id: messageID,
-            radioID: bleUUID,
-            contactID: contactID,
-            channelIndex: nil,
-            text: text,
-            timestamp: timestamp,
-            createdAt: Date(),
-            direction: .outgoing,
-            status: .sent,
-            textType: .plain,
-            ackCode: nil,
-            pathLength: 0,
-            snr: nil,
-            senderKeyPrefix: nil,
-            senderNodeName: nil,
-            isRead: false,
-            replyToID: nil,
-            roundTripTime: nil,
-            heardRepeats: 0,
-            retryAttempt: 0,
-            maxRetryAttempts: 0,
-            deduplicationKey: nil
-        )
-        try await store.saveMessage(message)
+    let contactID = UUID()
+    let timestamp: UInt32 = 1_704_067_200
+    let text = "Hello mesh"
+    let messageID = UUID()
 
-        try await store.performRadioIDMigration()
+    let message = MessageDTO(
+      id: messageID,
+      radioID: bleUUID,
+      contactID: contactID,
+      channelIndex: nil,
+      text: text,
+      timestamp: timestamp,
+      createdAt: Date(),
+      direction: .outgoing,
+      status: .sent,
+      textType: .plain,
+      ackCode: nil,
+      pathLength: 0,
+      snr: nil,
+      senderKeyPrefix: nil,
+      senderNodeName: nil,
+      isRead: false,
+      replyToID: nil,
+      roundTripTime: nil,
+      heardRepeats: 0,
+      retryAttempt: 0,
+      maxRetryAttempts: 0,
+      deduplicationKey: nil
+    )
+    try await store.saveMessage(message)
 
-        let fetchedMsg = try await store.fetchMessage(id: messageID)
-        #expect(fetchedMsg != nil)
+    try await store.performRadioIDMigration(defaults: defaults)
 
-        let key = fetchedMsg?.deduplicationKey
-        #expect(key != nil, "Outgoing message should have a dedup key after migration")
+    let fetchedMsg = try await store.fetchMessage(id: messageID)
+    #expect(fetchedMsg != nil)
 
-        // Verify format matches fallbackDeduplicationKey exactly
-        let expectedKey = SyncCoordinator.fallbackDeduplicationKey(
-            contactID: contactID,
-            channelIndex: nil,
-            senderNodeName: nil,
-            timestamp: timestamp,
-            content: text
-        )
-        #expect(key == expectedKey, "Dedup key format must match fallbackDeduplicationKey: got \(key ?? "nil"), expected \(expectedKey)")
-    }
+    let key = fetchedMsg?.deduplicationKey
+    #expect(key != nil, "Outgoing message should have a dedup key after migration")
 
-    @Test("Incoming message with nil dedup key stays nil")
-    func incomingStaysNil() async throws {
-        let store = try await createTestStore()
-        await store.resetRadioIDMigrationFlag()
+    // Verify format matches fallbackDeduplicationKey exactly
+    let expectedKey = SyncCoordinator.fallbackDeduplicationKey(
+      contactID: contactID,
+      channelIndex: nil,
+      senderNodeName: nil,
+      timestamp: timestamp,
+      content: text
+    )
+    #expect(key == expectedKey, "Dedup key format must match fallbackDeduplicationKey: got \(key ?? "nil"), expected \(expectedKey)")
+  }
 
-        let bleUUID = UUID()
-        let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
-        try await store.saveDevice(device)
+  @Test
+  func `Incoming message with nil dedup key stays nil`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
 
-        let messageID = UUID()
-        let message = MessageDTO(
-            id: messageID,
-            radioID: bleUUID,
-            contactID: UUID(),
-            channelIndex: nil,
-            text: "Incoming hello",
-            timestamp: 1_704_067_200,
-            createdAt: Date(),
-            direction: .incoming,
-            status: .delivered,
-            textType: .plain,
-            ackCode: nil,
-            pathLength: 1,
-            snr: nil,
-            senderKeyPrefix: nil,
-            senderNodeName: nil,
-            isRead: false,
-            replyToID: nil,
-            roundTripTime: nil,
-            heardRepeats: 0,
-            retryAttempt: 0,
-            maxRetryAttempts: 0,
-            deduplicationKey: nil
-        )
-        try await store.saveMessage(message)
+    let store = try await createTestStore()
 
-        try await store.performRadioIDMigration()
+    let bleUUID = UUID()
+    let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
+    try await store.saveDevice(device)
 
-        let fetchedMsg = try await store.fetchMessage(id: messageID)
-        #expect(fetchedMsg != nil)
-        #expect(fetchedMsg?.deduplicationKey == nil, "Incoming message dedup key should stay nil")
-    }
+    let messageID = UUID()
+    let message = MessageDTO(
+      id: messageID,
+      radioID: bleUUID,
+      contactID: UUID(),
+      channelIndex: nil,
+      text: "Incoming hello",
+      timestamp: 1_704_067_200,
+      createdAt: Date(),
+      direction: .incoming,
+      status: .delivered,
+      textType: .plain,
+      ackCode: nil,
+      pathLength: 1,
+      snr: nil,
+      senderKeyPrefix: nil,
+      senderNodeName: nil,
+      isRead: false,
+      replyToID: nil,
+      roundTripTime: nil,
+      heardRepeats: 0,
+      retryAttempt: 0,
+      maxRetryAttempts: 0,
+      deduplicationKey: nil
+    )
+    try await store.saveMessage(message)
 
-    @Test("Existing dedup key is not overwritten")
-    func existingKeyUnchanged() async throws {
-        let store = try await createTestStore()
-        await store.resetRadioIDMigrationFlag()
+    try await store.performRadioIDMigration(defaults: defaults)
 
-        let bleUUID = UUID()
-        let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
-        try await store.saveDevice(device)
+    let fetchedMsg = try await store.fetchMessage(id: messageID)
+    #expect(fetchedMsg != nil)
+    #expect(fetchedMsg?.deduplicationKey == nil, "Incoming message dedup key should stay nil")
+  }
 
-        let existingKey = "dm-existing-key-12345678"
-        let messageID = UUID()
-        let message = MessageDTO(
-            id: messageID,
-            radioID: bleUUID,
-            contactID: UUID(),
-            channelIndex: nil,
-            text: "Already keyed",
-            timestamp: 1_704_067_200,
-            createdAt: Date(),
-            direction: .outgoing,
-            status: .sent,
-            textType: .plain,
-            ackCode: nil,
-            pathLength: 0,
-            snr: nil,
-            senderKeyPrefix: nil,
-            senderNodeName: nil,
-            isRead: false,
-            replyToID: nil,
-            roundTripTime: nil,
-            heardRepeats: 0,
-            retryAttempt: 0,
-            maxRetryAttempts: 0,
-            deduplicationKey: existingKey
-        )
-        try await store.saveMessage(message)
+  @Test
+  func `Existing dedup key is not overwritten`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
 
-        try await store.performRadioIDMigration()
+    let store = try await createTestStore()
 
-        let fetchedMsg = try await store.fetchMessage(id: messageID)
-        #expect(fetchedMsg != nil)
-        #expect(fetchedMsg?.deduplicationKey == existingKey, "Pre-existing dedup key must not be modified")
-    }
+    let bleUUID = UUID()
+    let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
+    try await store.saveDevice(device)
 
-    @Test("UserDefaults guard prevents re-run")
-    func migrationRunsOnceOnly() async throws {
-        let store = try await createTestStore()
-        await store.resetRadioIDMigrationFlag()
+    let existingKey = "dm-existing-key-12345678"
+    let messageID = UUID()
+    let message = MessageDTO(
+      id: messageID,
+      radioID: bleUUID,
+      contactID: UUID(),
+      channelIndex: nil,
+      text: "Already keyed",
+      timestamp: 1_704_067_200,
+      createdAt: Date(),
+      direction: .outgoing,
+      status: .sent,
+      textType: .plain,
+      ackCode: nil,
+      pathLength: 0,
+      snr: nil,
+      senderKeyPrefix: nil,
+      senderNodeName: nil,
+      isRead: false,
+      replyToID: nil,
+      roundTripTime: nil,
+      heardRepeats: 0,
+      retryAttempt: 0,
+      maxRetryAttempts: 0,
+      deduplicationKey: existingKey
+    )
+    try await store.saveMessage(message)
 
-        let bleUUID = UUID()
-        let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
-        try await store.saveDevice(device)
+    try await store.performRadioIDMigration(defaults: defaults)
 
-        let contact = ContactDTO.testContact(id: UUID(), radioID: bleUUID, name: "Bob")
-        try await store.saveContact(contact)
+    let fetchedMsg = try await store.fetchMessage(id: messageID)
+    #expect(fetchedMsg != nil)
+    #expect(fetchedMsg?.deduplicationKey == existingKey, "Pre-existing dedup key must not be modified")
+  }
 
-        // First run
-        try await store.performRadioIDMigration()
+  @Test
+  func `UserDefaults guard prevents re-run`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
 
-        let fetchedDevice = try await store.fetchDevice(id: bleUUID)
-        let firstRadioID = fetchedDevice!.radioID
-        #expect(firstRadioID != bleUUID)
+    let store = try await createTestStore()
 
-        // Second run should be a no-op (guarded by UserDefaults)
-        try await store.performRadioIDMigration()
+    let bleUUID = UUID()
+    let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
+    try await store.saveDevice(device)
 
-        let fetchedDeviceAgain = try await store.fetchDevice(id: bleUUID)
-        #expect(fetchedDeviceAgain!.radioID == firstRadioID, "Second migration run should not change radioID")
+    let contact = ContactDTO.testContact(id: UUID(), radioID: bleUUID, name: "Bob")
+    try await store.saveContact(contact)
 
-        let contacts = try await store.fetchContacts(radioID: firstRadioID)
-        #expect(contacts.count == 1, "Contact should still have the radioID from the first run")
-    }
+    // First run
+    try await store.performRadioIDMigration(defaults: defaults)
 
-    // MARK: - lastConnectedRadioID Backfill
+    let fetchedDevice = try await store.fetchDevice(id: bleUUID)
+    let firstRadioID = try #require(fetchedDevice?.radioID)
+    #expect(firstRadioID != bleUUID)
 
-    @Test("Migration backfills lastConnectedRadioID from lastConnectedDeviceID")
-    func migrationBackfillsLastConnectedRadioID() async throws {
-        let store = try await createTestStore()
-        await store.resetRadioIDMigrationFlag()
+    // Second run should be a no-op (guarded by UserDefaults)
+    try await store.performRadioIDMigration(defaults: defaults)
 
-        let bleUUID = UUID()
-        let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
-        try await store.saveDevice(device)
+    let fetchedDeviceAgain = try await store.fetchDevice(id: bleUUID)
+    #expect(fetchedDeviceAgain?.radioID == firstRadioID, "Second migration run should not change radioID")
 
-        // Simulate pre-upgrade state: lastConnectedDeviceID exists, lastConnectedRadioID does not
-        UserDefaults.standard.set(bleUUID.uuidString, forKey: "com.pocketmesh.lastConnectedDeviceID")
-        UserDefaults.standard.removeObject(forKey: "com.pocketmesh.lastConnectedRadioID")
+    let contacts = try await store.fetchContacts(radioID: firstRadioID)
+    #expect(contacts.count == 1, "Contact should still have the radioID from the first run")
+  }
 
-        try await store.performRadioIDMigration()
+  // MARK: - lastConnectedRadioID Backfill
 
-        // lastConnectedRadioID should now be populated
-        let radioIDString = UserDefaults.standard.string(forKey: "com.pocketmesh.lastConnectedRadioID")
-        #expect(radioIDString != nil)
+  @Test
+  func `Migration backfills lastConnectedRadioID from lastConnectedDeviceID`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
 
-        // It should match the device's new radioID
-        let fetchedDevice = try await store.fetchDevice(id: bleUUID)
-        #expect(radioIDString == fetchedDevice?.radioID.uuidString)
+    let store = try await createTestStore()
 
-        // Clean up
-        UserDefaults.standard.removeObject(forKey: "com.pocketmesh.lastConnectedDeviceID")
-        UserDefaults.standard.removeObject(forKey: "com.pocketmesh.lastConnectedRadioID")
-    }
+    let bleUUID = UUID()
+    let device = DeviceDTO.testDevice(id: bleUUID, radioID: bleUUID)
+    try await store.saveDevice(device)
+
+    // Simulate pre-upgrade state: lastConnectedDeviceID exists, lastConnectedRadioID does not
+    defaults.set(bleUUID.uuidString, forKey: "com.pocketmesh.lastConnectedDeviceID")
+    defaults.removeObject(forKey: "com.pocketmesh.lastConnectedRadioID")
+
+    try await store.performRadioIDMigration(defaults: defaults)
+
+    // lastConnectedRadioID should now be populated
+    let radioIDString = defaults.string(forKey: "com.pocketmesh.lastConnectedRadioID")
+    #expect(radioIDString != nil)
+
+    // It should match the device's new radioID
+    let fetchedDevice = try await store.fetchDevice(id: bleUUID)
+    #expect(radioIDString == fetchedDevice?.radioID.uuidString)
+  }
 }

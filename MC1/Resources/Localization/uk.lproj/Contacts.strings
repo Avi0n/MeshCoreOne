@@ -1046,13 +1046,13 @@
 "contacts.results.dismiss" = "Закрити";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch success count */
-"contacts.results.batchSuccess" = "%d з %d успішних";
+"contacts.results.batchSuccess" = "%d з %d успішних (%d%%)";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch progress */
 "contacts.results.batchProgress" = "Трасування %d з %d...";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch complete accessibility */
-"contacts.results.batchCompleteLabel" = "Пакет завершено: %d з %d трасувань успішні";
+"contacts.results.batchCompleteLabel" = "Пакет завершено: %d з %d трасувань успішні (%d%%)";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch progress accessibility */
 "contacts.results.batchProgressLabel" = "Прогрес пакету: трасування %d з %d";

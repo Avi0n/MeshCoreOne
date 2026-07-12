@@ -1,64 +1,71 @@
 import Foundation
+@testable import MC1Services
 import SwiftData
 import Testing
-@testable import MC1Services
 
 @Suite("Message sortDate reset migration", .serialized)
 struct SortDateResetMigrationTests {
+  private func createTestStore() async throws -> PersistenceStore {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    return PersistenceStore(modelContainer: container)
+  }
 
-    private func createTestStore() async throws -> PersistenceStore {
-        let container = try PersistenceStore.createContainer(inMemory: true)
-        return PersistenceStore(modelContainer: container)
-    }
+  @Test
+  func `Reset re-normalizes a send-time sortDate back to createdAt`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    // UserDefaults is thread-safe but not marked Sendable, so reusing this value
+    // across the performSortDateResetMigration actor boundary needs the isolation opt-out.
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
 
-    @Test("Reset re-normalizes a send-time sortDate back to createdAt")
-    func resetUnburiesSendTimeSortDate() async throws {
-        let store = try await createTestStore()
-        await store.resetSortDateResetMigrationFlag()
-        let radioID = UUID()
+    let store = try await createTestStore()
+    let radioID = UUID()
 
-        // A row buried by the interim send-time sort: createdAt is the drain time,
-        // but sortDate was written far in the past from the sender's clock. The
-        // original backfill already ran (flag set), so only this reset can fix it.
-        let messageID = UUID()
-        let createdAt = Date(timeIntervalSince1970: 1_704_067_200)
-        let buriedSortDate = Date(timeIntervalSince1970: 1_700_000_000)
-        try await store.insertMessageWithSortDate(
-            id: messageID,
-            radioID: radioID,
-            text: "Buried backlog",
-            createdAt: createdAt,
-            sortDate: buriedSortDate
-        )
+    // A row buried by the interim send-time sort: createdAt is the drain time,
+    // but sortDate was written far in the past from the sender's clock. The
+    // original backfill already ran (flag set), so only this reset can fix it.
+    let messageID = UUID()
+    let createdAt = Date(timeIntervalSince1970: 1_704_067_200)
+    let buriedSortDate = Date(timeIntervalSince1970: 1_700_000_000)
+    try await store.insertMessageWithSortDate(
+      id: messageID,
+      radioID: radioID,
+      text: "Buried backlog",
+      createdAt: createdAt,
+      sortDate: buriedSortDate
+    )
 
-        try await store.performSortDateResetMigration()
+    try await store.performSortDateResetMigration(defaults: defaults)
 
-        let migrated = try await store.fetchMessage(id: messageID)
-        #expect(migrated?.sortDate == createdAt)
-    }
+    let migrated = try await store.fetchMessage(id: messageID)
+    #expect(migrated?.sortDate == createdAt)
+  }
 
-    @Test("Reset is idempotent — second run is a no-op")
-    func resetIsIdempotent() async throws {
-        let store = try await createTestStore()
-        await store.resetSortDateResetMigrationFlag()
-        let radioID = UUID()
+  @Test
+  func `Reset is idempotent — second run is a no-op`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
 
-        let messageID = UUID()
-        let createdAt = Date(timeIntervalSince1970: 1_704_067_200)
-        try await store.insertMessageWithSortDate(
-            id: messageID,
-            radioID: radioID,
-            text: "Hello",
-            createdAt: createdAt,
-            sortDate: Date(timeIntervalSince1970: 1_700_000_000)
-        )
+    let store = try await createTestStore()
+    let radioID = UUID()
 
-        try await store.performSortDateResetMigration()
-        #expect(try await store.fetchMessage(id: messageID)?.sortDate == createdAt)
+    let messageID = UUID()
+    let createdAt = Date(timeIntervalSince1970: 1_704_067_200)
+    try await store.insertMessageWithSortDate(
+      id: messageID,
+      radioID: radioID,
+      text: "Hello",
+      createdAt: createdAt,
+      sortDate: Date(timeIntervalSince1970: 1_700_000_000)
+    )
 
-        // Re-skew after the first run; the flag must keep a second run from touching it.
-        try await store.setMessageSortDate(id: messageID, sortDate: .distantPast)
-        try await store.performSortDateResetMigration()
-        #expect(try await store.fetchMessage(id: messageID)?.sortDate == .distantPast, "second run must be a no-op")
-    }
+    try await store.performSortDateResetMigration(defaults: defaults)
+    #expect(try await store.fetchMessage(id: messageID)?.sortDate == createdAt)
+
+    // Re-skew after the first run; the flag must keep a second run from touching it.
+    try await store.setMessageSortDate(id: messageID, sortDate: .distantPast)
+    try await store.performSortDateResetMigration(defaults: defaults)
+    #expect(try await store.fetchMessage(id: messageID)?.sortDate == .distantPast, "second run must be a no-op")
+  }
 }

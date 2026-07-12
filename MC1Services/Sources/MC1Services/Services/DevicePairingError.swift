@@ -8,19 +8,19 @@ import Foundation
 /// `AccessorySetupKitError` cases into these at the seam boundary; the macOS scan picker
 /// throws them directly.
 public enum DevicePairingError: LocalizedError, Sendable {
-    /// The user dismissed the discovery picker (the AccessorySetupKit system picker on iOS,
-    /// the in-app scan sheet on macOS). A benign cancellation, not a failure.
-    case cancelled
+  /// The user dismissed the discovery picker (the AccessorySetupKit system picker on iOS,
+  /// the in-app scan sheet on macOS). A benign cancellation, not a failure.
+  case cancelled
 
-    /// A pairing flow is already running; the re-entrant request was ignored.
-    case alreadyInProgress
+  /// A pairing flow is already running; the re-entrant request was ignored.
+  case alreadyInProgress
 
-    public var errorDescription: String? {
-        switch self {
-        case .cancelled:
-            return "Device selection was cancelled."
-        case .alreadyInProgress:
-            return "Device pairing is already in progress."
-        }
+  public var errorDescription: String? {
+    switch self {
+    case .cancelled:
+      "Device selection was cancelled."
+    case .alreadyInProgress:
+      "Device pairing is already in progress."
     }
+  }
 }

@@ -72,7 +72,18 @@ help: ## List available targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  %-14s %s\n", $$1, $$2}'
 
-generate: ## Regenerate MC1.xcodeproj from project.yml (xcodegen)
+define DEV_YML_STUB
+settings:
+  base:
+    DEVELOPMENT_TEAM: ""
+endef
+export DEV_YML_STUB
+
+dev.yml:
+	@echo "dev.yml not found, creating empty stub (set DEVELOPMENT_TEAM for local signing)"
+	@echo "$$DEV_YML_STUB" > dev.yml
+
+generate: dev.yml ## Regenerate MC1.xcodeproj from project.yml (xcodegen)
 	xcodegen generate
 
 test: test-app test-store ## Run everything: full app suite (iOS 26) + StoreKit suites (iOS 18)

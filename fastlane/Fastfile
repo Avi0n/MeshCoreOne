@@ -1,5 +1,16 @@
 default_platform(:ios)
 
+# Highest CFBundleVersion across every build on App Store Connect. Build numbers are
+# assigned globally, so the next upload must clear the max of all builds, not just the
+# most recently uploaded one. Any query error propagates to fail the run.
+def highest_build_number(api_key)
+  require "spaceship"
+  Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.from(hash: api_key)
+  app = Spaceship::ConnectAPI::App.find("io.pocketmesh.app")
+  UI.user_error!("Could not find io.pocketmesh.app on App Store Connect") unless app
+  app.get_builds(includes: nil).map { |build| build.version.to_i }.max || 0
+end
+
 platform :ios do
   desc "Sync certificates and profiles"
   lane :sync_certs do
@@ -9,7 +20,7 @@ platform :ios do
 
   desc "Update acknowledgements from SPM dependencies"
   lane :update_acknowledgements do
-    sh("cd .. && xcodegen generate")
+    sh("cd .. && make generate")
     sh("cd .. && xcodebuild -resolvePackageDependencies -project MC1.xcodeproj -clonedSourcePackagesDirPath ./SourcePackages")
     sh("cd .. && swift-package-list MC1.xcodeproj --custom-source-packages-path ./SourcePackages --output-type settings-bundle --requires-license --output-path MC1")
     sh("cd .. && rm -rf SourcePackages")
@@ -21,7 +32,7 @@ platform :ios do
     sync_certs
 
     # Generate the Xcode project from XcodeGen
-    sh("cd .. && xcodegen generate")
+    sh("cd .. && make generate")
 
     # Configure manual code signing for App Store distribution
     update_code_signing_settings(
@@ -52,19 +63,10 @@ platform :ios do
       is_key_content_base64: true
     )
 
-    # Get latest build number from TestFlight and increment
-    min_build_number = 70
-    begin
-      latest_build = latest_testflight_build_number(
-        api_key: api_key,
-        app_identifier: "io.pocketmesh.app"
-      )
-      next_build = [latest_build + 1, min_build_number].max
-      increment_build_number(build_number: next_build)
-    rescue => ex
-      UI.message("No TestFlight builds found, starting from build #{min_build_number}")
-      increment_build_number(build_number: min_build_number)
-    end
+    # latest_testflight_build_number reads the transient buildUploads feed and returns the
+    # most recent upload, not the highest build, so it regresses after a gap between uploads.
+    # Increment the true max across all builds instead.
+    increment_build_number(build_number: highest_build_number(api_key) + 1)
 
     # Build the app
     build_app(
@@ -86,7 +88,7 @@ platform :ios do
   lane :release do
     sync_certs
 
-    sh("cd .. && xcodegen generate")
+    sh("cd .. && make generate")
 
     # Configure manual code signing for App Store distribution
     update_code_signing_settings(
@@ -152,7 +154,7 @@ platform :ios do
   lane :build_only do
     sync_certs
 
-    sh("cd .. && xcodegen generate")
+    sh("cd .. && make generate")
 
     build_app(
       scheme: "MC1",

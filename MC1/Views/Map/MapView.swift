@@ -1,121 +1,121 @@
-import SwiftUI
 import MapKit
 import MC1Services
+import SwiftUI
 
 /// Map view displaying contacts with their locations
 struct MapView: View {
-    @Environment(\.appState) private var appState
-    @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
-    @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
-    @SceneStorage(SceneStorageKey.mapCameraRegion.rawValue) private var savedCameraRegion = ""
-    @State private var viewModel = MapViewModel()
-    @State private var selectedCalloutContact: ContactDTO?
-    @State private var selectedPointScreenPosition: CGPoint?
-    @State private var selectedContactForDetail: ContactDTO?
-    @State private var isStyleLoaded = false
+  @Environment(\.appState) private var appState
+  @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
+  @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
+  @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
+  @SceneStorage(SceneStorageKey.mapCameraRegion.rawValue) private var savedCameraRegion = ""
+  @State private var viewModel = MapViewModel()
+  @State private var selectedCalloutContact: ContactDTO?
+  @State private var selectedPointScreenPosition: CGPoint?
+  @State private var selectedContactForDetail: ContactDTO?
+  @State private var isStyleLoaded = false
 
-    var body: some View {
-        NavigationStack {
-            MapCanvasView(
-                viewModel: viewModel,
-                mapStyleSelection: $mapStyleSelection,
-                showLabels: $showLabels,
-                selectedCalloutContact: $selectedCalloutContact,
-                selectedPointScreenPosition: $selectedPointScreenPosition,
-                isStyleLoaded: $isStyleLoaded,
-                onShowContactDetail: { showContactDetail($0) },
-                onNavigateToChat: { navigateToChat(with: $0) },
-                onCenterOnUser: { centerOnUserLocation() },
-                onClearSelection: { clearSelection() },
-                onPersistCamera: { savedCameraRegion = MapCameraStore.encode($0) }
-            )
-            .toolbar {
-                bleStatusToolbarItem()
-                ToolbarItem(placement: .topBarTrailing) {
-                    MapRefreshButton(viewModel: viewModel)
-                }
-            }
-            .task {
-                appState.locationService.requestPermissionIfNeeded()
-                appState.locationService.requestLocation()
-                viewModel.configure(
-                    dataStore: { [appState] in appState.offlineDataStore },
-                    radioID: { [appState] in appState.currentRadioID }
-                )
-                await viewModel.loadContactsWithLocation()
-                // On first appearance the view model has no camera region; restoring here
-                // keeps the map where the user left it across launches instead of re-framing.
-                viewModel.applyInitialCamera(
-                    saved: MapCameraStore.decode(savedCameraRegion),
-                    hasPendingFocus: appState.navigation.pendingMapFocus != nil
-                )
-            }
-            .onChange(of: appState.navigation.pendingMapFocus, initial: true) { _, request in
-                guard let request else { return }
-                viewModel.focusOnCoordinate(request.coordinate)
-                appState.navigation.clearPendingMapFocus()
-            }
-            .sheet(item: $selectedContactForDetail) { contact in
-                ContactDetailSheet(
-                    contact: contact,
-                    onMessage: { navigateToChat(with: contact) },
-                    onDelete: { Task { await viewModel.loadContactsWithLocation() } }
-                )
-                .presentationDetents([.large])
-            }
-            .liquidGlassToolbarBackground()
+  var body: some View {
+    NavigationStack {
+      MapCanvasView(
+        viewModel: viewModel,
+        mapStyleSelection: $mapStyleSelection,
+        showLabels: $showLabels,
+        isNorthLocked: $isNorthLocked,
+        selectedCalloutContact: $selectedCalloutContact,
+        selectedPointScreenPosition: $selectedPointScreenPosition,
+        isStyleLoaded: $isStyleLoaded,
+        onShowContactDetail: { showContactDetail($0) },
+        onNavigateToChat: { navigateToChat(with: $0) },
+        onCenterOnUser: { centerOnUserLocation() },
+        onClearSelection: { clearSelection() },
+        onPersistCamera: { savedCameraRegion = MapCameraStore.encode($0) }
+      )
+      .toolbar {
+        bleStatusToolbarItem()
+        ToolbarItem(placement: .topBarTrailing) {
+          MapRefreshButton(viewModel: viewModel)
         }
+      }
+      .task {
+        appState.locationService.requestPermissionIfNeeded()
+        appState.locationService.requestLocation()
+        viewModel.configure(
+          dataStore: { [appState] in appState.offlineDataStore },
+          radioID: { [appState] in appState.currentRadioID }
+        )
+        await viewModel.loadContactsWithLocation()
+        // On first appearance the view model has no camera region; restoring here
+        // keeps the map where the user left it across launches instead of re-framing.
+        viewModel.applyInitialCamera(
+          saved: MapCameraStore.decode(savedCameraRegion),
+          hasPendingFocus: appState.navigation.pendingMapFocus != nil
+        )
+      }
+      .onChange(of: appState.navigation.pendingMapFocus, initial: true) { _, request in
+        guard let request else { return }
+        viewModel.focusOnCoordinate(request.coordinate)
+        appState.navigation.clearPendingMapFocus()
+      }
+      .sheet(item: $selectedContactForDetail) { contact in
+        ContactDetailSheet(
+          contact: contact,
+          onMessage: { navigateToChat(with: contact) },
+          onDelete: { Task { await viewModel.loadContactsWithLocation() } }
+        )
+        .presentationDetents([.large])
+      }
+      .liquidGlassToolbarBackground()
     }
+  }
 
-    // MARK: - Actions
+  // MARK: - Actions
 
-    private func clearSelection() {
-        selectedCalloutContact = nil
-        selectedPointScreenPosition = nil
-    }
+  private func clearSelection() {
+    selectedCalloutContact = nil
+    selectedPointScreenPosition = nil
+  }
 
-    private func navigateToChat(with contact: ContactDTO) {
-        clearSelection()
-        appState.navigation.navigateToChat(with: contact)
-    }
+  private func navigateToChat(with contact: ContactDTO) {
+    clearSelection()
+    appState.navigation.navigateToChat(with: contact)
+  }
 
-    private func showContactDetail(_ contact: ContactDTO) {
-        clearSelection()
-        selectedContactForDetail = contact
-    }
+  private func showContactDetail(_ contact: ContactDTO) {
+    clearSelection()
+    selectedContactForDetail = contact
+  }
 
-    private func centerOnUserLocation() {
-        guard let location = appState.bestAvailableLocation else { return }
-        let span = MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
-        viewModel.setCameraRegion(MKCoordinateRegion(center: location.coordinate, span: span))
-    }
+  private func centerOnUserLocation() -> Bool {
+    appState.centerOnUserLocation { viewModel.setCameraRegion($0) }
+  }
 }
 
 // MARK: - Map Refresh Button
 
 private struct MapRefreshButton: View {
-    var viewModel: MapViewModel
+  var viewModel: MapViewModel
 
-    var body: some View {
-        Button(L10n.Map.Map.Controls.refresh, systemImage: "arrow.clockwise") {
-            Task {
-                await viewModel.loadContactsWithLocation()
-            }
-        }
-        .labelStyle(.iconOnly)
-        .disabled(viewModel.isLoading)
-        .opacity(viewModel.isLoading ? 0 : 1)
-        .overlay {
-            if viewModel.isLoading {
-                ProgressView()
-            }
-        }
+  var body: some View {
+    Button(L10n.Map.Map.Controls.refresh, systemImage: "arrow.clockwise") {
+      Task {
+        await viewModel.loadContactsWithLocation()
+      }
     }
+    .labelStyle(.iconOnly)
+    .disabled(viewModel.isLoading)
+    .opacity(viewModel.isLoading ? 0 : 1)
+    .overlay {
+      if viewModel.isLoading {
+        ProgressView()
+      }
+    }
+  }
 }
 
 // MARK: - Preview
 
 #Preview {
-    MapView()
-        .environment(\.appState, AppState())
+  MapView()
+    .environment(\.appState, AppState())
 }

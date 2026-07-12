@@ -1,0 +1,59 @@
+name: Lint
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+
+  push:
+    branches:
+      - main
+      - dev
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  linting:
+    name: Formatting and Linting
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: command -v swiftlint >/dev/null 2>&1 || brew install swiftlint
+
+      - name: Lint
+        run: swiftlint lint --strict
+
+      - name: Format
+        run: swiftformat --lint --strict .
+
+  codegen:
+    name: Code Generation Checks
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: command -v swiftgen >/dev/null 2>&1 || brew install swiftgen
+
+      - name: Regenerate
+        run: swiftgen config run --config swiftgen.yml
+
+      - name: Verify no changes
+        run: |
+          if ! git diff --exit-code; then
+            echo "::error::Generated files are out of date. Run 'swiftgen config run --config swiftgen.yml' and commit the result."
+            exit 1
+          fi
