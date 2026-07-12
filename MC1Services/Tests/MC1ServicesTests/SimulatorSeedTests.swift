@@ -80,7 +80,7 @@ struct SimulatorSeedTests {
 
     // Unique-id upsert means a second pass does not duplicate rows.
     let channels = try await store.fetchChannels(radioID: radioID)
-    #expect(channels.count == 3)
+    #expect(channels.count == 4)
     let repeats = try await store.fetchMessageRepeats(messageID: MockDataProvider.frankRepeatMessageID)
     #expect(repeats.count == 3)
     let reactions = try await store.fetchReactions(for: MockDataProvider.aliceReactedMessageID)
