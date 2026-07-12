@@ -63,6 +63,10 @@ public protocol BLEStateMachineProtocol: Actor {
   /// Sets a handler called when Bluetooth powers on
   func setBluetoothPoweredOnHandler(_ handler: @escaping @Sendable () -> Void)
 
+  /// Sets the provider consulted for a device's last verified encrypted session
+  /// when classifying an exhausted encryption-timeout retry budget.
+  func setBondVerificationDateProvider(_ provider: @escaping @Sendable (UUID) -> Date?)
+
   /// Sets a handler for Bluetooth state changes
   func setBluetoothStateChangeHandler(_ handler: @escaping @Sendable (CBManagerState) -> Void)
 

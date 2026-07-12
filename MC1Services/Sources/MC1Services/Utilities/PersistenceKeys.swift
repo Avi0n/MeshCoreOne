@@ -13,6 +13,8 @@ public enum PersistenceKeys {
   public static let lastConnectedDeviceName = "com.pocketmesh.lastConnectedDeviceName"
   public static let lastConnectedRadioID = "com.pocketmesh.lastConnectedRadioID"
   public static let lastDisconnectDiagnostic = "com.pocketmesh.lastDisconnectDiagnostic"
+  public static let lastBondVerifiedDeviceID = "com.pocketmesh.lastBondVerifiedDeviceID"
+  public static let lastBondVerifiedDate = "com.pocketmesh.lastBondVerifiedDate"
   public static let userExplicitlyDisconnected = "com.pocketmesh.userExplicitlyDisconnected"
 
   /// Selected theme ID (bare-string key, no `com.pocketmesh.` prefix — matches the

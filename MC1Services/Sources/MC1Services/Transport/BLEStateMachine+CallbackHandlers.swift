@@ -241,7 +241,8 @@ extension BLEStateMachine {
     // watchdog cannot retry, so a transient failure re-issues the connect and
     // stays in the episode. Only a definitive bond failure tears down at once;
     // exhausting the bounded budget on encryption timeouts escalates to auth
-    // failure so an invalidated bond still reaches guided re-pair.
+    // failure — unless the bond verified an encrypted session recently — so an
+    // invalidated bond still reaches guided re-pair.
     if case let .autoReconnecting(expected, _, _) = phase,
        expected.identifier == peripheral.identifier {
       if Self.isDefinitiveAuthFailure(error) {
@@ -267,8 +268,30 @@ extension BLEStateMachine {
         return
       }
 
+      // An encryption-timeout majority is the ambiguous signature of an
+      // invalidated bond, but it is also what a healthy bond produces when the
+      // user lingers at the edge of BLE range. A recently verified bond tears
+      // down as transient (the watchdog keeps retrying); a dead bond can never
+      // refresh its verification, so it still escalates once the grace elapses.
       let majorityEncryptionTimeouts = encryptionTimedOutConnectFailures * 2 > autoReconnectConnectFailures
-      let teardownError: BLEError = majorityEncryptionTimeouts ? .authenticationFailed : Self.makeConnectionError(error)
+      let now = Date()
+      let lastVerified = bondVerificationDateProvider?(peripheral.identifier)
+      let bondRecentlyVerified = Self.isBondRecentlyVerified(lastVerified: lastVerified, now: now)
+      // The verification age in these lines lets a later debug-log export
+      // distinguish a graced fringe episode from a graced dead bond.
+      let verifiedAge = lastVerified.map {
+        "\((now.timeIntervalSince($0) / 60).formatted(.number.precision(.fractionLength(1))))m ago"
+      } ?? "never"
+      let teardownError: BLEError
+      if majorityEncryptionTimeouts, bondRecentlyVerified {
+        logger.warning("[BLE] Encryption-timeout budget exhausted for \(peripheral.identifier.uuidString.prefix(8)); bond verified \(verifiedAge), within grace; classifying as transient")
+        teardownError = .connectionFailed("Encryption timed out repeatedly near range limit")
+      } else if majorityEncryptionTimeouts {
+        logger.warning("[BLE] Encryption-timeout budget exhausted for \(peripheral.identifier.uuidString.prefix(8)); bond verified \(verifiedAge), outside grace; escalating to bond-suspect")
+        teardownError = .authenticationFailed
+      } else {
+        teardownError = Self.makeConnectionError(error)
+      }
       logger.warning("Auto-reconnect connect failures exhausted budget for \(peripheral.identifier) - transitioning to idle")
       resetAutoReconnectFailureTracking()
       transition(to: .idle)

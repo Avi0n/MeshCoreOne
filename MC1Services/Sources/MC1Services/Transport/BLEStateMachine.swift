@@ -72,6 +72,20 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// encryption timeouts are the ambiguous in-app signature of an invalidated bond.
   var encryptionTimedOutConnectFailures = 0
 
+  /// How long after a verified encrypted session an exhausted encryption-timeout
+  /// budget is still treated as transient rather than a suspect bond. Encryption
+  /// timeouts at the edge of BLE range are indistinguishable from an invalidated
+  /// bond attempt-by-attempt; a bond that completed an encrypted session this
+  /// recently is near-certainly healthy, while a genuinely dead bond can never
+  /// refresh the verification and escalates once the grace elapses.
+  static let bondVerificationGraceInterval: TimeInterval = 6 * 60 * 60
+
+  /// Returns when the given device's bond last completed a verified encrypted
+  /// session, or nil if it never has. Installed by `ConnectionManager`; consulted
+  /// lazily at teardown-classification time so suspension can't skew it the way
+  /// an armed timer would. A nil provider means no verification evidence exists.
+  var bondVerificationDateProvider: (@Sendable (UUID) -> Date?)?
+
   /// Expose current phase for testing
   var currentPhase: BLEPhase {
     phase
@@ -308,6 +322,19 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     encryptionTimedOutConnectFailures = 0
   }
 
+  /// Whether a bond verification is recent enough to shield an exhausted
+  /// encryption-timeout budget from bond-suspect escalation. A missing date
+  /// (never verified, or no provider installed) gives no shield. A future date
+  /// (clock set backward) counts as recent — the non-destructive direction.
+  static func isBondRecentlyVerified(
+    lastVerified: Date?,
+    now: Date,
+    grace: TimeInterval = bondVerificationGraceInterval
+  ) -> Bool {
+    guard let lastVerified else { return false }
+    return now.timeIntervalSince(lastVerified) < grace
+  }
+
   /// Returns true when a disconnect callback's timestamp predates the current generation boundary.
   /// Uses CFAbsoluteTime from CoreBluetooth's didDisconnectPeripheral (reflects disconnect event
   /// time per Apple's header: "now or a few seconds ago", not callback delivery time).
@@ -452,6 +479,12 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// Called when device disconnects but iOS is attempting automatic reconnection.
   func setAutoReconnectingHandler(_ handler: @escaping @Sendable (UUID, String) -> Void) {
     onAutoReconnecting = handler
+  }
+
+  /// Sets the provider consulted for a device's last verified encrypted session
+  /// when classifying an exhausted encryption-timeout budget.
+  func setBondVerificationDateProvider(_ provider: @escaping @Sendable (UUID) -> Date?) {
+    bondVerificationDateProvider = provider
   }
 
   // MARK: - BLE Scanning
