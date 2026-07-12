@@ -106,7 +106,7 @@
 "deviceScan.demoModeAlert.message" = "You can now continue without a device. Toggle demo mode in Settings anytime.";
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
-"deviceScan.error.authenticationFailed" = "Couldn't pair the device. Check the PIN, then remove the device and try again.";
+"deviceScan.error.authenticationFailed" = "The saved pairing with this radio stopped working. Tap Remove and Try Again to re-pair in the app; the radio may show a new pairing code.";
 "deviceScan.error.pinRejected" = "The PIN wasn't accepted. Check the PIN shown on your device, then try again. iOS will ask you to confirm removing the failed pairing first.";
 "deviceScan.error.connectionFailed" = "Couldn't connect to the device. Try again, or remove it if the problem continues.";
 
