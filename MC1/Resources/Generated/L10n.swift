@@ -4785,7 +4785,7 @@ public enum L10n {
       /// Button to export debug logs
       public static let exportLogs = L10n.tr("Settings", "diagnostics.exportLogs", fallback: "Export Debug Logs")
       /// Footer explaining log export
-      public static let footer = L10n.tr("Settings", "diagnostics.footer", fallback: "Export includes debug logs from the last 24 hours across app sessions. Logs are stored locally and automatically pruned.")
+      public static let footer = L10n.tr("Settings", "diagnostics.footer", fallback: "Export includes debug logs from all app sessions. Logs are stored locally and automatically removed after 7 days.")
       /// Section header for diagnostics
       public static let header = L10n.tr("Settings", "diagnostics.header", fallback: "Diagnostics")
       public enum Alert {
