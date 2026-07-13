@@ -5,7 +5,7 @@
 .DS_Store
 
 # MeshCore references
-MeshCore-references/
+mc-ref/
 
 # AI
 .claude

@@ -4,7 +4,7 @@
 --swiftversion 6.2
 
 # Match .swiftlint.yml exclusions
---exclude .build,.worktrees,build,tmp,MC1.xcodeproj,MC1/Resources/Generated,MeshCore/.build,MeshCore-references,MC1Services/.build,fastlane,scripts
+--exclude .build,.worktrees,build,tmp,MC1.xcodeproj,MC1/Resources/Generated,MeshCore/.build,mc-ref,MC1Services/.build,fastlane,scripts
 
 # Indentation — 2 spaces, no tabs
 --indent 2
