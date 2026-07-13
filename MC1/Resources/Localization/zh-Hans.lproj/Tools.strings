@@ -746,6 +746,42 @@
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */
 "tools.cli.completionSuggestionsValue" = "%lld 个可用，%@ 已选择";
 
+/* Confirmation prompt for a dangerous local command */
+"tools.cli.confirmPrompt" = "确认 %@？(yes/no):";
+
+/* Usage for the get command */
+"tools.cli.usageGet" = "用法： get <key>";
+
+/* Usage for the set command */
+"tools.cli.usageSet" = "用法： set <key> <value>";
+
+/* Usage for set radio */
+"tools.cli.usageSetRadio" = "用法： set radio <freq>,<bw>,<sf>,<cr>";
+
+/* Invalid value error */
+"tools.cli.invalidValue" = "无效值";
+
+/* Custom var key/value contains a reserved character */
+"tools.cli.invalidCustomVarToken" = "键不能包含 ':' 或 ','；值不能包含 ','";
+
+/* Local radio commands help header */
+"tools.cli.helpLocalHeader" = "本地无线电命令：";
+
+/* Local radio commands help line 1 */
+"tools.cli.helpLocalList1" = "  clock [sync], ver, board";
+
+/* Local radio commands help line 2 */
+"tools.cli.helpLocalList2" = "  advert (zero-hop), floodadv (flood), reboot";
+
+/* Local radio commands help line 3 */
+"tools.cli.helpLocalList3" = "  get <key>, set <key> <value>";
+
+/* Local radio commands help line 4 */
+"tools.cli.helpLocalList4" = "    keys: name, lat, lon, tx, radio, freq, multi.acks, path.hash.mode, public.key, bat";
+
+/* Local radio commands help line 5 */
+"tools.cli.helpLocalList5" = "  get custom  (all custom firmware vars); unknown get/set keys route to custom vars";
+
 // MARK: - Saved Paths
 
 /* Location: SavedPathsViewModel.swift - Error loading saved paths */

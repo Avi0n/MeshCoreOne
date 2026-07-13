@@ -19,16 +19,36 @@ final class CLICompletionEngine {
     "login", "nodes", "channels"
   ]
 
+  /// Local-session radio commands interpreted app-side. `availableCommands`
+  /// offers these only on local sessions and the repeater set only on remote
+  /// sessions, so neither vocabulary leaks into the other session type.
+  private static let localRadioCommands = [
+    "advert", "advert.zerohop", "board", "clock", "floodadv", "get", "reboot", "set", "ver"
+  ]
+
+  private static let localGetKeys = CLILocalKey.allCases.map(\.rawValue)
+
+  /// The `get custom` dump verb, offered alongside typed keys on a local `get`.
+  private static let customVarDumpKey = "custom"
+
+  /// Every typed key the parser's `set` switch accepts: all cases minus the
+  /// read-only `public.key`/`bat`. Derived so it can't drift from the enum.
+  private static let localSetKeys = CLILocalKey.allCases
+    .filter { $0 != .publicKey && $0 != .bat }
+    .map(\.rawValue)
+
   /// Per MeshCore CLI Reference - commands available via remote session
   private static let repeaterCommands = [
     "ver", "board", "clock", "clkreboot",
-    "neighbors", "get", "set", "password",
+    "neighbors", "get", "set", "sensor", "password",
     "log", "reboot", "advert", "advert.zerohop", "setperm", "tempradio", "neighbor.remove",
     "region", "gps", "powersaving", "clear", "discover.neighbors",
     "start"
   ]
 
   private static let sessionSubcommands = ["list", "local"]
+
+  private static let sensorSubcommands = ["get", "list", "set"]
 
   private static let logSubcommands = ["start", "stop", "erase"]
 
@@ -88,6 +108,16 @@ final class CLICompletionEngine {
     nodeNames = names
   }
 
+  // MARK: - Custom Var Keys
+
+  /// Custom-var keys learned on connection and from each successful local
+  /// custom-var fetch. Advisory only; offered on bare `get`/`set` locally.
+  private(set) var customVarKeys: [String] = []
+
+  func updateCustomVarKeys(_ keys: [String]) {
+    customVarKeys = keys
+  }
+
   // MARK: - Completion Logic
 
   func completions(for input: String, isLocal: Bool, includeSessionCommands: Bool = true) -> [String] {
@@ -111,14 +141,15 @@ final class CLICompletionEngine {
     // Command with space - complete arguments
     let argPrefix = parts.count > 1 ? parts[1].lowercased() : ""
     let endsWithSpace = input.hasSuffix(" ")
-    return completeArguments(for: command, parts: parts, prefix: argPrefix, endsWithSpace: endsWithSpace)
+    return completeArguments(for: command, parts: parts, prefix: argPrefix, endsWithSpace: endsWithSpace, isLocal: isLocal)
   }
 
   private func completeArguments(
     for command: String,
     parts: [String],
     prefix: String,
-    endsWithSpace: Bool
+    endsWithSpace: Bool,
+    isLocal: Bool
   ) -> [String] {
     // Determine which argument position we're completing
     // parts.count includes command, so parts.count - 1 = number of args started
@@ -134,6 +165,9 @@ final class CLICompletionEngine {
 
     case "get":
       if argPosition == 1 {
+        if isLocal {
+          return localKeyCompletions(typed: Self.localGetKeys + [Self.customVarDumpKey], parts: parts)
+        }
         return Self.getSetParams
           .filter { !Self.serialOnlyGetParams.contains($0) }
           .filter { $0.hasPrefix(prefix) }.sorted()
@@ -142,12 +176,22 @@ final class CLICompletionEngine {
 
     case "set":
       if argPosition == 1 {
+        if isLocal {
+          return localKeyCompletions(typed: Self.localSetKeys, parts: parts)
+        }
         return Self.getSetParams
           .filter { !Self.serialOnlySetParams.contains($0) }
           .filter { $0.hasPrefix(prefix) }.sorted()
       }
       if argPosition == 2, parts.count >= 2 {
         return completeSetValue(param: parts[1].lowercased(), prefix: parts.count > 2 ? parts[2].lowercased() : "")
+      }
+      return []
+
+    case "sensor":
+      // The `sensor` namespace targets a remote node; it is not a local command.
+      if argPosition == 1, !isLocal {
+        return Self.sensorSubcommands.filter { $0.hasPrefix(prefix) }.sorted()
       }
       return []
 
@@ -192,6 +236,7 @@ final class CLICompletionEngine {
 
     if isLocal {
       commands.append(contentsOf: Self.localOnlyCommands)
+      commands.append(contentsOf: Self.localRadioCommands)
     } else {
       commands.append(contentsOf: Self.repeaterCommands)
     }
@@ -207,6 +252,17 @@ final class CLICompletionEngine {
 
   private func completeLoginArgs(prefix: String) -> [String] {
     nodeNames.filter { $0.lowercased().hasPrefix(prefix) }.sorted()
+  }
+
+  /// Merges typed keys (lowercase, matched on the folded prefix) with learned
+  /// custom-var keys (matched case-insensitively, suggested verbatim) for bare
+  /// `get`/`set` on a local session; result deduped and sorted. Reads the raw
+  /// argument from `parts` so a mixed-case custom key is offered unchanged.
+  private func localKeyCompletions(typed: [String], parts: [String]) -> [String] {
+    let lowered = (parts.count > 1 ? parts[1] : "").lowercased()
+    let typedMatches = typed.filter { $0.hasPrefix(lowered) }
+    let customMatches = customVarKeys.filter { $0.lowercased().hasPrefix(lowered) }
+    return Array(Set(typedMatches + customMatches)).sorted()
   }
 
   private func completeSetValue(param: String, prefix: String) -> [String] {

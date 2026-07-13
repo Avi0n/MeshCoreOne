@@ -5679,6 +5679,10 @@ public enum L10n {
         public static func completionSuggestionsValue(_ p1: Int, _ p2: Any) -> String {
           return L10n.tr("Tools", "tools.cli.completionSuggestionsValue", p1, String(describing: p2), fallback: "%lld available, %@ selected")
         }
+        /// Location: CLIToolViewModel.swift - Confirmation prompt for a dangerous local command; %@ is the command name
+        public static func confirmPrompt(_ p1: Any) -> String {
+          return L10n.tr("Tools", "tools.cli.confirmPrompt", String(describing: p1), fallback: "confirm %@? (yes/no):")
+        }
         /// Location: CLIInputAccessoryView.swift - Cursor left button
         public static let cursorLeft = L10n.tr("Tools", "tools.cli.cursorLeft", fallback: "Move cursor left")
         /// Location: CLIInputAccessoryView.swift - Cursor right button
@@ -5697,6 +5701,18 @@ public enum L10n {
         public static let helpHeader = L10n.tr("Tools", "tools.cli.helpHeader", fallback: "Available commands:")
         /// Location: CLIToolViewModel.swift - Help: help command
         public static let helpHelp = L10n.tr("Tools", "tools.cli.helpHelp", fallback: "  help\n    Show this help")
+        /// Location: CLIToolViewModel.swift - Local radio commands help header
+        public static let helpLocalHeader = L10n.tr("Tools", "tools.cli.helpLocalHeader", fallback: "Local radio commands:")
+        /// Location: CLIToolViewModel.swift - Local radio commands help line 1
+        public static let helpLocalList1 = L10n.tr("Tools", "tools.cli.helpLocalList1", fallback: "  clock [sync], ver, board")
+        /// Location: CLIToolViewModel.swift - Local radio commands help line 2
+        public static let helpLocalList2 = L10n.tr("Tools", "tools.cli.helpLocalList2", fallback: "  advert (zero-hop), floodadv (flood), reboot")
+        /// Location: CLIToolViewModel.swift - Local radio commands help line 3
+        public static let helpLocalList3 = L10n.tr("Tools", "tools.cli.helpLocalList3", fallback: "  get <key>, set <key> <value>")
+        /// Location: CLIToolViewModel.swift - Local radio commands help line 4
+        public static let helpLocalList4 = L10n.tr("Tools", "tools.cli.helpLocalList4", fallback: "    keys: name, lat, lon, tx, radio, freq, multi.acks, path.hash.mode, public.key, bat")
+        /// Location: CLIToolViewModel.swift - Local radio commands help line 5
+        public static let helpLocalList5 = L10n.tr("Tools", "tools.cli.helpLocalList5", fallback: "  get custom  (all custom firmware vars); unknown get/set keys route to custom vars")
         /// Location: CLIToolViewModel.swift - Help: login command
         public static let helpLogin = L10n.tr("Tools", "tools.cli.helpLogin", fallback: "  login [-f] <node>\n    Login to repeater (-f: forget saved password)")
         /// Location: CLIToolViewModel.swift - Help: logout command
@@ -5727,6 +5743,10 @@ public enum L10n {
         public static let historyEmpty = L10n.tr("Tools", "tools.cli.historyEmpty", fallback: "No command history")
         /// Location: CLIToolView.swift - Accessory button: history up
         public static let historyUp = L10n.tr("Tools", "tools.cli.historyUp", fallback: "Previous command")
+        /// Location: CLIToolViewModel+LocalCommands.swift - Custom var key/value contains a reserved character
+        public static let invalidCustomVarToken = L10n.tr("Tools", "tools.cli.invalidCustomVarToken", fallback: "Keys can't contain ':' or ','; values can't contain ','")
+        /// Location: CLIToolViewModel+LocalCommands.swift - Invalid value error
+        public static let invalidValue = L10n.tr("Tools", "tools.cli.invalidValue", fallback: "Invalid value")
         /// Location: CLIToolView.swift - Jump to bottom button
         public static let jumpToBottom = L10n.tr("Tools", "tools.cli.jumpToBottom", fallback: "Jump to bottom")
         /// Location: CLIToolViewModel.swift - Login countdown
@@ -5789,6 +5809,12 @@ public enum L10n {
         public static let timeout = L10n.tr("Tools", "tools.cli.timeout", fallback: "Timeout waiting for response")
         /// Location: CLIToolView.swift - Unknown command error
         public static let unknownCommand = L10n.tr("Tools", "tools.cli.unknownCommand", fallback: "Unknown command:")
+        /// Location: CLIToolViewModel+LocalCommands.swift - Usage for the get command
+        public static let usageGet = L10n.tr("Tools", "tools.cli.usageGet", fallback: "Usage: get <key>")
+        /// Location: CLIToolViewModel+LocalCommands.swift - Usage for the set command
+        public static let usageSet = L10n.tr("Tools", "tools.cli.usageSet", fallback: "Usage: set <key> <value>")
+        /// Location: CLIToolViewModel+LocalCommands.swift - Usage for set radio
+        public static let usageSetRadio = L10n.tr("Tools", "tools.cli.usageSetRadio", fallback: "Usage: set radio <freq>,<bw>,<sf>,<cr>")
         /// Location: CLIToolView.swift - Waiting indicator
         public static let waiting = L10n.tr("Tools", "tools.cli.waiting", fallback: "...")
         /// Location: CLIToolViewModel.swift - Welcome banner line 2

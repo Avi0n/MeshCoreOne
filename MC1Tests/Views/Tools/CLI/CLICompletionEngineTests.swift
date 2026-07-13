@@ -683,4 +683,145 @@ struct CLICompletionEngineTests {
 
     #expect(suggestions.isEmpty)
   }
+
+  // MARK: - Local Radio Command Vocabulary
+
+  @Test
+  func `Local session suggests local radio commands`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "", isLocal: true)
+
+    #expect(suggestions.contains("floodadv"))
+    #expect(suggestions.contains("reboot"))
+    #expect(suggestions.contains("get"))
+    #expect(suggestions.contains("board"))
+  }
+
+  @Test
+  func `Local session does not suggest repeater-only commands`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "", isLocal: true)
+
+    #expect(!suggestions.contains("neighbors"))
+    #expect(!suggestions.contains("password"))
+    #expect(!suggestions.contains("setperm"))
+  }
+
+  @Test
+  func `Remote session does not suggest floodadv`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "", isLocal: false)
+
+    #expect(!suggestions.contains("floodadv"))
+  }
+
+  @Test
+  func `get keys differ per session`() {
+    let engine = createEngine()
+    let local = engine.completions(for: "get ", isLocal: true)
+    let remote = engine.completions(for: "get ", isLocal: false)
+
+    #expect(local.contains("bat"))
+    #expect(!local.contains("role"))
+    #expect(remote.contains("role"))
+    #expect(!remote.contains("bat"))
+  }
+
+  @Test
+  func `local set keys exclude read-only keys`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "set ", isLocal: true)
+
+    #expect(suggestions.contains("name"))
+    #expect(suggestions.contains("multi.acks"))
+    #expect(!suggestions.contains("public.key"))
+    #expect(!suggestions.contains("bat"))
+  }
+
+  @Test
+  func `clock completes sync on local session`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "clock ", isLocal: true)
+
+    #expect(suggestions.contains("sync"))
+  }
+
+  // MARK: - Custom vars (bare get/set; remote sensor)
+
+  @Test
+  func `sensor is remote-only`() {
+    let engine = createEngine()
+
+    #expect(!engine.completions(for: "sen", isLocal: true).contains("sensor"))
+    #expect(engine.completions(for: "sen", isLocal: false).contains("sensor"))
+  }
+
+  @Test
+  func `sensor subcommands complete on a remote session only`() {
+    let engine = createEngine()
+
+    #expect(engine.completions(for: "sensor ", isLocal: false) == ["get", "list", "set"])
+    #expect(engine.completions(for: "sensor ", isLocal: true).isEmpty)
+  }
+
+  @Test
+  func `bare get on local offers typed keys, the dump verb, and learned custom keys`() {
+    let engine = createEngine()
+    engine.updateCustomVarKeys(["gps", "wifi_ssid"])
+
+    let suggestions = engine.completions(for: "get ", isLocal: true)
+
+    #expect(suggestions.contains("custom"))
+    #expect(suggestions.contains("name")) // typed
+    #expect(suggestions.contains("gps")) // learned custom
+    #expect(suggestions.contains("wifi_ssid"))
+    #expect(suggestions == suggestions.sorted())
+  }
+
+  @Test
+  func `bare set on local offers typed and learned custom keys but not the dump verb`() {
+    let engine = createEngine()
+    engine.updateCustomVarKeys(["gps"])
+
+    let suggestions = engine.completions(for: "set ", isLocal: true)
+
+    #expect(suggestions.contains("name")) // typed
+    #expect(suggestions.contains("gps")) // learned custom
+    #expect(!suggestions.contains("custom")) // dump verb is get-only
+  }
+
+  @Test
+  func `bare get and set custom keys match case-insensitively but suggest verbatim`() {
+    let engine = createEngine()
+    engine.updateCustomVarKeys(["WiFi_SSID"])
+
+    #expect(engine.completions(for: "get wifi", isLocal: true) == ["WiFi_SSID"])
+    #expect(engine.completions(for: "set wifi", isLocal: true) == ["WiFi_SSID"])
+  }
+
+  @Test
+  func `bare get dedupes a custom key that collides with a typed key`() {
+    let engine = createEngine()
+    engine.updateCustomVarKeys(["name"])
+
+    #expect(engine.completions(for: "get name", isLocal: true) == ["name"])
+  }
+
+  @Test
+  func `bare get and set value position offers no completion`() {
+    let engine = createEngine()
+    engine.updateCustomVarKeys(["gps"])
+
+    #expect(engine.completions(for: "get gps ", isLocal: true).isEmpty)
+    #expect(engine.completions(for: "set gps ", isLocal: true).isEmpty)
+  }
+
+  @Test
+  func `updateCustomVarKeys replaces previous keys`() {
+    let engine = createEngine()
+    engine.updateCustomVarKeys(["a", "b"])
+    engine.updateCustomVarKeys(["c"])
+
+    #expect(engine.customVarKeys == ["c"])
+  }
 }

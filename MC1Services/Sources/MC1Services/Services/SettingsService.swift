@@ -104,6 +104,24 @@ public actor SettingsService {
     }
   }
 
+  /// Read the device clock.
+  public func getTime() async throws -> Date {
+    do {
+      return try await session.getTime()
+    } catch let error as MeshCoreError {
+      throw SettingsServiceError.sessionError(error)
+    }
+  }
+
+  /// Set the device clock. The firmware rejects moving the clock backwards.
+  public func setTime(_ date: Date) async throws {
+    do {
+      try await session.setTime(date)
+    } catch let error as MeshCoreError {
+      throw SettingsServiceError.sessionError(error)
+    }
+  }
+
   // MARK: - Node Settings
 
   /// Set the publicly visible node name

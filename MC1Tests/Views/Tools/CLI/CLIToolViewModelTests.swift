@@ -10,14 +10,30 @@ import Testing
 struct CLIToolViewModelTests {
   // MARK: - Helper
 
+  private func makeDependencies(
+    repeaterAdminService: @escaping @MainActor () -> RepeaterAdminService? = { nil },
+    remoteNodeService: @escaping @MainActor () -> RemoteNodeService? = { nil },
+    settingsService: @escaping @MainActor () -> SettingsService? = { nil },
+    dataStore: @escaping @MainActor () -> PersistenceStoreProtocol? = { nil },
+    radioID: @escaping @MainActor () -> UUID? = { nil },
+    connectedDevice: @escaping @MainActor () -> DeviceDTO? = { nil }
+  ) -> CLIToolViewModel.Dependencies {
+    CLIToolViewModel.Dependencies(
+      repeaterAdminService: repeaterAdminService,
+      remoteNodeService: remoteNodeService,
+      settingsService: settingsService,
+      dataStore: dataStore,
+      radioID: radioID,
+      connectedDevice: connectedDevice
+    )
+  }
+
   private func createConfiguredViewModel() -> CLIToolViewModel {
     let viewModel = CLIToolViewModel()
     viewModel.configure(
-      repeaterAdminService: { nil },
-      remoteNodeService: { nil },
-      dataStore: { nil },
-      radioID: { nil },
-      localDeviceName: "TestDevice"
+      dependencies: makeDependencies(),
+      localDeviceName: "TestDevice",
+      sendSelfAdvert: { _ in }
     )
     return viewModel
   }
@@ -28,11 +44,9 @@ struct CLIToolViewModelTests {
   func `Prompt shows disconnected when no session`() {
     let viewModel = createConfiguredViewModel()
     viewModel.configure(
-      repeaterAdminService: { nil },
-      remoteNodeService: { nil },
-      dataStore: { nil },
-      radioID: { nil },
-      localDeviceName: "Test"
+      dependencies: makeDependencies(),
+      localDeviceName: "Test",
+      sendSelfAdvert: { _ in }
     )
     #expect(viewModel.promptText.contains("disconnected"))
   }
@@ -43,11 +57,9 @@ struct CLIToolViewModelTests {
 
     // Configure the view model
     viewModel.configure(
-      repeaterAdminService: { nil },
-      remoteNodeService: { nil },
-      dataStore: { nil },
-      radioID: { nil },
-      localDeviceName: "TestDevice"
+      dependencies: makeDependencies(),
+      localDeviceName: "TestDevice",
+      sendSelfAdvert: { _ in }
     )
 
     // When remainingSeconds is nil and not waiting, should show normal prompt
@@ -192,11 +204,9 @@ struct CLIToolViewModelTests {
     let parkingStore = ParkingContactStore()
     let viewModel = CLIToolViewModel()
     viewModel.configure(
-      repeaterAdminService: { nil },
-      remoteNodeService: { nil },
-      dataStore: { parkingStore },
-      radioID: { radioID },
-      localDeviceName: "TestDevice"
+      dependencies: makeDependencies(dataStore: { parkingStore }, radioID: { radioID }),
+      localDeviceName: "TestDevice",
+      sendSelfAdvert: { _ in }
     )
     viewModel.activeSession = .local(deviceName: "TestDevice")
 

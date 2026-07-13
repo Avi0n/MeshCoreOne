@@ -325,12 +325,18 @@ public extension MeshCoreSession {
   /// Retrieves all custom variables stored on the device.
   ///
   /// - Returns: Dictionary mapping variable names to values.
-  /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
+  /// - Throws: ``MeshCoreError/deviceError(code:)`` if the device rejects the
+  ///   request (e.g. firmware predating custom-var support), or
+  ///   ``MeshCoreError/timeout`` if the device doesn't respond.
   func getCustomVars() async throws -> [String: String] {
-    try await sendAndWait(PacketBuilder.getCustomVars()) { event in
-      if case let .customVars(vars) = event { return vars }
-      return nil
-    }
+    try await sendAndWaitWithError(
+      PacketBuilder.getCustomVars(),
+      matching: { event in
+        if case let .customVars(vars) = event { return vars }
+        return nil
+      },
+      errorMatcher: Self.deviceErrorMatcher
+    )
   }
 
   /// Sets a custom variable on the device.
